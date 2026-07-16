@@ -1,0 +1,14 @@
+# timeline_id: contact.lavinia.day1
+# locale: en
+# type: contact
+# friend: lavinia
+# day: 1
+# parts: history, daily_message
+
+label history
+# TODO: history / backstory messages for lavinia (Day 1 only)
+
+label daily_message
+# TODO: daily contact message text for Day 1
+
+return

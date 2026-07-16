@@ -1,0 +1,16 @@
+# timeline_id: ending.priscilla
+# locale: en
+# type: ending
+# friend: priscilla
+# contains: sweet, dark, true
+
+label ending.priscilla.sweet
+# TODO: priscilla ending dialogue
+
+label ending.priscilla.dark
+# TODO: priscilla ending dialogue
+
+label ending.priscilla.true
+# TODO: priscilla ending dialogue
+
+return

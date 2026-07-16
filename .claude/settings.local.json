@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp *)",
+      "Bash(uvx --version)",
+      "Bash(pip install *)",
+      "Read(//c/Users/glori/AppData/Roaming/Python/Python314/Scripts//**)",
+      "Bash(\"/c/Users/glori/AppData/Roaming/Python/Python314/Scripts/uvx.exe\" --version)",
+      "Read(//c/Users/glori/**)",
+      "Bash(timeout 150 \"/c/Users/glori/AppData/Roaming/Python/Python314/Scripts/uvx.exe\" --from git+https://github.com/GuDaStudio/geminimcp.git geminimcp)",
+      "Bash(claude plugins *)",
+      "Bash(npx skills *)",
+      "Bash(godot --version)"
+    ]
+  }
+}

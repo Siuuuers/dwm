@@ -1,0 +1,14 @@
+# timeline_id: contact.lavinia.day5
+# locale: en
+# type: contact
+# friend: lavinia
+# day: 5
+# parts: daily_message, offer
+
+label daily_message
+# TODO: daily contact message text for Day 5
+
+label offer
+# TODO: Day 5 solo invitation offer text
+
+return

@@ -1,0 +1,16 @@
+# timeline_id: ending.sylvia
+# locale: en
+# type: ending
+# friend: sylvia
+# contains: sweet, dark, true
+
+label ending.sylvia.sweet
+# TODO: sylvia ending dialogue
+
+label ending.sylvia.dark
+# TODO: sylvia ending dialogue
+
+label ending.sylvia.true
+# TODO: sylvia ending dialogue
+
+return

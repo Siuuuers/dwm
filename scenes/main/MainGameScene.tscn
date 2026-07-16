@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/shared/StatHud.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/MainGameScene.gd" id="2"]
+
+[node name="MainGameScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("2")
+
+[node name="RootHBox" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="AngelaPanel" type="PanelContainer" parent="RootHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="AngelaVBox" type="VBoxContainer" parent="RootHBox/AngelaPanel"]
+layout_mode = 2
+
+[node name="StatHud" parent="RootHBox/AngelaPanel/AngelaVBox" instance=ExtResource("1")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AngelaImage" type="TextureRect" parent="RootHBox/AngelaPanel/AngelaVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ComputerPanel" type="PanelContainer" parent="RootHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+
+[node name="TutorialOverlayHost" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0

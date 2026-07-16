@@ -1,0 +1,20 @@
+# timeline_id: contact.lavinia.day3
+# locale: en
+# type: contact
+# friend: lavinia
+# day: 3
+# parts: daily_message, offer, nevermind, missed_question
+
+label daily_message
+# TODO: daily contact message text for Day 3
+
+label offer
+# TODO: Day 3 solo invitation offer text
+
+label nevermind
+# TODO: nevermind text (invite from Day 2)
+
+label missed_question
+# TODO: missed-date question text (invite from Day 2)
+
+return

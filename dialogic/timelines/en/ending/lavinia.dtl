@@ -1,0 +1,16 @@
+# timeline_id: ending.lavinia
+# locale: en
+# type: ending
+# friend: lavinia
+# contains: sweet, dark, true
+
+label ending.lavinia.sweet
+# TODO: lavinia ending dialogue
+
+label ending.lavinia.dark
+# TODO: lavinia ending dialogue
+
+label ending.lavinia.true
+# TODO: lavinia ending dialogue
+
+return

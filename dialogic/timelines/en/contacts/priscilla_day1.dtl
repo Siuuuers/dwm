@@ -1,0 +1,17 @@
+# timeline_id: contact.priscilla.day1
+# locale: en
+# type: contact
+# friend: priscilla
+# day: 1
+# parts: history, daily_message, offer
+
+label history
+# TODO: history / backstory messages for priscilla (Day 1 only)
+
+label daily_message
+# TODO: daily contact message text for Day 1
+
+label offer
+# TODO: Day 1 solo invitation offer text
+
+return

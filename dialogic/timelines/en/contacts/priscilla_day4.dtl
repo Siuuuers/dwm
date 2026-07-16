@@ -1,0 +1,14 @@
+# timeline_id: contact.priscilla.day4
+# locale: en
+# type: contact
+# friend: priscilla
+# day: 4
+# parts: daily_message, offer
+
+label daily_message
+# TODO: daily contact message text for Day 4
+
+label offer
+# TODO: Day 4 solo invitation offer text
+
+return

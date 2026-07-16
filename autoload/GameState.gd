@@ -1,0 +1,1596 @@
+extends Node
+
+# GameState autoload — owns all mutable runtime state for the prototype.
+# Authority: prompt_docs/CONTRACTS.md §2 (API/state/signals/constants), §4 (dating queue
+# ownership), §6 (save whitelist). Supplementary flow/data/narrative: FLOWS.md, CONTENT.md,
+# DIALOGIC.md. No human-facing prose; machine-precise, contradiction-free.
+#
+# Static data tables (_INVITATION_DAYS, _CONTACT_MESSAGE_ORDER, _SCHEDULE_ACTION_EFFECTS) are
+# embedded here so this autoload loads even before scripts/data/DataCatalog.gd exists. Their
+# values are copied verbatim from CONTENT.md §4/§5/§9 and must stay equal to DataCatalog.
+
+# ---- Constants ----
+const SAVE_SCHEMA_VERSION := 1
+const MINESWEEPER_BASE_ROUNDS := 2
+const MINESWEEPER_DISPLAY_MAX := 2
+const MINESWEEPER_ROUND_FLOOR_MIN := -3
+const MINESWEEPER_ROUND_FLOOR_MAX := 0
+const MINESWEEPER_ROUND_CAP := 5
+const MINESWEEPER_TASK_COIN_TOTAL_CAP := 9
+const MINESWEEPER_MONEY_DAILY_CAP_BASE := 108
+const MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND := 54
+const FRIEND_IDS := ["priscilla", "lavinia", "sylvia"]
+const STAT_PRESSURE := "pressure"
+const STAT_HEALTH := "health"
+const STAT_MOTIVATION := "motivation"
+const CONDITION_NONE := ""
+const CONDITION_NAUSEA := "nausea"
+const CONDITION_DIZZY := "dizzy"
+const CONDITION_SEQUELA := "sequela"
+const CONDITION_FAINT := "faint"
+const AFFECTION_MIN := -7
+const AFFECTION_MAX := 10
+
+# Embedded static data (mirror of CONTENT.md; see file header note).
+const _INVITATION_DAYS := {
+	"priscilla": [1, 2, 4, 6],
+	"lavinia": [2, 3, 5, 6],
+	"sylvia": [1, 3, 4, 5],
+}
+const _GROUP_INVITATION_DAYS := [2, 6]
+const _GROUP_INVITATION_PAIRS := [["priscilla", "lavinia"]]
+const _CONTACT_MESSAGE_ORDER := {
+	1: ["priscilla", "sylvia"],
+	2: ["priscilla", "lavinia"],
+	3: ["lavinia", "sylvia"],
+	4: ["priscilla", "sylvia"],
+	5: ["lavinia", "sylvia"],
+	6: ["priscilla", "lavinia"],
+	7: ["priscilla", "lavinia", "sylvia"],
+}
+const _MINESWEEPER_TASK_IDS := [
+	"complete_beginner", "complete_intermediate", "complete_expert",
+	"no_flag_finish", "foresight_finish", "perfect_beginner",
+	"perfect_intermediate", "perfect_expert", "win_win_win",
+]
+const _SCHEDULE_ACTION_EFFECTS := {
+	"training": ["pressure:+1", "health:+2"],
+	"working": ["pressure:+2", "health:-2", "money:+30"],
+	"rest": ["pressure:-2", "health:+1"],
+}
+
+const _MINESWEEPER_MONEY_REWARD := {
+	"beginner": {
+		"exploded": {"money": 1, "pressure": 0},
+		"cleared":  {"money": 6, "pressure": 0},
+		"perfect":  {"money": 9, "pressure": 0},
+	},
+	"intermediate": {
+		"exploded": {"money": 6, "pressure": 1},
+		"cleared":  {"money": 27, "pressure": 0},
+		"perfect":  {"money": 36, "pressure": 0},
+	},
+	"expert": {
+		"exploded": {"money": 12, "pressure": 2},
+		"cleared":  {"money": 45, "pressure": 0},
+		"perfect":  {"money": 54, "pressure": 0},
+	},
+}
+
+# Default settings (CONTRACTS.md §8 recommended defaults).
+const _DEFAULT_SETTINGS := {
+	"music_volume": 0.8, "voice_volume": 0.8, "text_speed": 1.0, "auto_text_speed": 1.0,
+	"fullscreen": false, "language": "en", "font_scale": 1.0, "high_contrast": false,
+	"reduced_motion": false, "screen_shake_strength": 0.5, "large_click_targets": false,
+	"hold_to_confirm": false, "colorblind_mode": "none", "show_focus_ring": true,
+	"controller_cursor_enabled": false, "skip_unseen_text_allowed": false, "auto_advance_dialogue": false,
+	"subtitles_enabled": true, "captions_enabled": true, "subtitle_speaker_names": true,
+	"subtitle_background_opacity": 0.85, "text_box_opacity": 0.90, "visual_audio_cues": true,
+	"flashing_effects_enabled": false, "tutorial_replay_available": true, "pause_on_focus_loss": true,
+	"sfx_volume": 0.8, "ambience_volume": 0.65, "mute_audio_on_focus_loss": false,
+}
+const _DEFAULT_AUDIO_STATE := {
+	"current_bgm_id": "", "current_ambience_id": "", "current_context_id": "",
+	"current_context": {}, "music_muted": false,
+}
+
+# Save whitelist (CONTRACTS §6). Order preserved for readability.
+const _SAVE_WHITELIST := [
+	"contact_message_unlocks", "contact_choice_state", "date_unlocks", "post_ending_queue",
+	"missed_invitations",
+	"day", "money", "coins", "stats", "friends", "affection", "friend_attitude",
+	"dating_route_state", "inter_friend_affection", "inter_friend_route_state",
+	"missed_group_date_counts", "daily_opened_contacts",
+	"daily_group_invitation_generated", "daily_group_invitation_pair", "schedule_entries",
+	"inventory", "chat_state", "shop_purchase_counts", 	"minesweeper_round_floor", "minesweeper_rng_seed",
+	"minesweeper_rounds_left", "minesweeper_app_rounds_finished_today", "minesweeper_selected_difficulty",
+	"minesweeper_money_earned_today", "minesweeper_task_rewards_claimed", "penalty_points_today",
+	"penalty_points_total", "condition_effects_today", "condition_streak_days", "last_condition_day",
+	"pending_hospital", "condition_resolved_day", "pending_date_friend_id",
+	"pending_date_entries", "pending_date_entry_index",
+	"pending_group_date_friend_ids", "pending_group_date_inviter_id",
+	"pending_date_advance_day_after_finish", "opening_seen", "tutorial_seen", "story_flags",
+	"route_context", "settings", "audio_state", "seen_endings",
+	"hospital_skipped_sylvia_solo_count",
+]
+
+# Whitelisted fields declared as typed Array[String]. JSON load yields an untyped Array, so
+# assigning it directly via self.set() would raise a type error; rebuild these as Array[String].
+const _TYPED_STRING_ARRAY_KEYS := [
+	"daily_group_invitation_pair", "condition_effects_today",
+	"pending_group_date_friend_ids",
+]
+
+# ---- Signals ----
+signal stat_changed(stat_id: String, value: int, min_value: int, max_value: int)
+signal money_changed(value: int)
+signal coins_changed(value: int)
+signal day_changed(day: int)
+signal inventory_changed()
+signal friends_changed()
+signal contact_message_unlocked(result: Dictionary)
+signal contact_choice_selected(result: Dictionary)
+signal date_unlocks_changed()
+signal ending_route_selected(result: Dictionary)
+signal schedule_changed()
+signal chat_changed(friend_id: String)
+signal unread_friend(result: Dictionary)
+signal minesweeper_rounds_changed(rounds_left: int, max_rounds: int)
+signal minesweeper_reward_changed(result: Dictionary)
+signal daily_state_reset()
+signal condition_effect_resolved(result: Dictionary)
+signal hospital_needed(result: Dictionary)
+signal settings_changed()
+signal language_changed(locale: String)
+signal save_relevant_state_changed()
+signal accessibility_settings_changed()
+signal input_settings_changed()
+signal audio_state_changed(result: Dictionary)
+
+# ---- State (declared per CONTRACTS §2) ----
+var day: int
+var money: int
+var coins: int
+var stats: Dictionary
+
+var friends: Dictionary
+var affection: Dictionary
+var friend_attitude: Dictionary
+var dating_route_state: Dictionary
+var inter_friend_affection: Dictionary
+var inter_friend_route_state: Dictionary
+var missed_group_date_counts: Dictionary
+
+var contact_message_unlocks: Dictionary
+var contact_choice_state: Dictionary
+var date_unlocks: Dictionary
+# reserved/opaque — declared (CONTRACTS §2) + serialized by SaveManager (§6); NO behavior may be added.
+var post_ending_queue: Array
+# missed_invitations: Array[Dictionary]; each record {friend_id:String, source:"solo"|"group", day:int}
+# where day = invitation day D (guilt message due on D+1). Save-whitelisted (CONTRACTS §2 follow-up rule).
+var missed_invitations: Array
+var daily_opened_contacts: Dictionary
+var daily_group_invitation_generated: bool
+var daily_group_invitation_pair: Array[String]
+
+var schedule_entries: Array
+var inventory: Dictionary
+# reserved/opaque — declared (CONTRACTS §2) + serialized by SaveManager (§6); NO behavior may be added.
+var chat_state: Dictionary
+var shop_purchase_counts: Dictionary
+
+var minesweeper_round_floor: int
+var minesweeper_rounds_left: int
+var minesweeper_rng_seed: int = 0
+var minesweeper_app_rounds_finished_today: int
+var minesweeper_selected_difficulty: String
+var unfinished_minesweeper_result: Dictionary
+var minesweeper_money_earned_today: int
+var minesweeper_task_rewards_claimed: Dictionary
+
+var penalty_points_today: int
+var penalty_points_total: int
+var condition_effects_today: Array[String]
+var condition_streak_days: int
+var last_condition_day: int
+var pending_hospital: bool
+var condition_resolved_day: int
+
+var pending_date_friend_id: String
+var pending_date_entries: Array
+var pending_date_entry_index: int
+var pending_group_date_friend_ids: Array[String]
+var pending_group_date_inviter_id: String
+var pending_date_advance_day_after_finish: bool
+var hospital_skipped_sylvia_solo_count: int = 0
+
+var opening_seen: bool
+var tutorial_seen: bool
+var story_flags: Dictionary
+var route_context: Dictionary
+var settings: Dictionary
+
+var audio_state: Dictionary
+var seen_endings: Dictionary
+
+func _ready() -> void:
+	reset_game()
+
+
+# ---- Lifecycle / stats / money / coins ----
+func reset_game() -> void:
+	day = 1
+	money = 0
+	coins = 0
+	stats = {STAT_PRESSURE: 3, STAT_HEALTH: 6, STAT_MOTIVATION: 7}
+
+	friends = {}
+	affection = {}
+	friend_attitude = {}
+	for fid in FRIEND_IDS:
+		affection[fid] = 0
+		friend_attitude[fid] = ""
+		# dating_route_state schema (CONTRACTS §2): date_count, dark_points, true_path_count, previous_entered_true_path.
+		dating_route_state[fid] = {
+			"date_count": 0, "dark_points": 0, "true_path_count": 0, "previous_entered_true_path": false,
+		}
+	inter_friend_affection = {}
+	inter_friend_route_state = {}
+	missed_group_date_counts = {}
+
+	contact_message_unlocks = {}
+	contact_choice_state = {}
+	date_unlocks = {}
+	post_ending_queue = []
+	missed_invitations = []
+	daily_opened_contacts = {}
+	daily_group_invitation_generated = false
+	daily_group_invitation_pair = []
+
+	schedule_entries = []
+	inventory = {}
+	chat_state = {}
+	shop_purchase_counts = {}
+
+	minesweeper_round_floor = 0
+	minesweeper_rng_seed = randi()
+	minesweeper_rounds_left = 2
+	minesweeper_app_rounds_finished_today = 0
+	minesweeper_selected_difficulty = "beginner"
+	unfinished_minesweeper_result = {}
+	minesweeper_money_earned_today = 0
+	minesweeper_task_rewards_claimed = {}
+
+	penalty_points_today = 0
+	penalty_points_total = 0
+	condition_effects_today = []
+	condition_streak_days = 0
+	last_condition_day = 0
+	pending_hospital = false
+	condition_resolved_day = 0
+
+	pending_date_friend_id = ""
+	pending_date_entries = []
+	pending_date_entry_index = 0
+	pending_group_date_friend_ids = []
+	pending_group_date_inviter_id = ""
+	pending_date_advance_day_after_finish = true
+	hospital_skipped_sylvia_solo_count = 0
+
+	opening_seen = false
+	tutorial_seen = false
+	story_flags = {}
+	route_context = {}
+	# CONTRACTS §2 reset behavior: settings["language"] is STICKY — it persists across
+	# reset_game() (LocalizationManager is the only locale writer); never reset to "en".
+	# All other settings reset to §8 defaults.
+	var _prev_language: String = "en"
+	if typeof(settings) == TYPE_DICTIONARY and settings.has("language"):
+		_prev_language = str(settings["language"])
+	settings = _DEFAULT_SETTINGS.duplicate(true)
+	settings["language"] = _prev_language
+	audio_state = _DEFAULT_AUDIO_STATE.duplicate(true)
+	seen_endings = {}
+
+	emit_signal("save_relevant_state_changed")
+
+
+func _stat_min(stat_id: String) -> int:
+	match stat_id:
+		STAT_PRESSURE: return 0
+		STAT_HEALTH: return -2
+		STAT_MOTIVATION: return 0
+	return 0
+
+
+func _stat_max(stat_id: String) -> int:
+	match stat_id:
+		STAT_PRESSURE: return 12
+		STAT_HEALTH: return 9
+		STAT_MOTIVATION: return 7
+	return 0
+
+
+func get_stat(stat_id: String) -> int:
+	return int(stats.get(stat_id, 0))
+
+
+func get_stat_min(stat_id: String) -> int:
+	return _stat_min(stat_id)
+
+
+func get_stat_max(stat_id: String) -> int:
+	return _stat_max(stat_id)
+
+
+func get_stat_display_value(stat_id: String) -> int:
+	var v: int = int(stats.get(stat_id, 0))
+	match stat_id:
+		STAT_PRESSURE, STAT_HEALTH:
+			v = clampi(v, 0, 9)
+		STAT_MOTIVATION:
+			v = clampi(v, 0, 7)
+	return v
+
+
+func get_stat_display_max(stat_id: String) -> int:
+	match stat_id:
+		STAT_PRESSURE, STAT_HEALTH: return 9
+		STAT_MOTIVATION: return 7
+	return 0
+
+
+func set_stat(stat_id: String, value: int) -> bool:
+	var lo: int = _stat_min(stat_id)
+	var hi: int = _stat_max(stat_id)
+	var new_v: int = clampi(int(value), lo, hi)
+	stats[stat_id] = new_v
+	emit_signal("stat_changed", stat_id, new_v, lo, hi)
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func change_stat(stat_id: String, delta: int) -> bool:
+	return set_stat(stat_id, int(stats.get(stat_id, 0)) + int(delta))
+
+
+func change_money(delta: int) -> bool:
+	var new_v: int = money + int(delta)
+	if new_v < -30:
+		new_v = -30
+	money = new_v
+	emit_signal("money_changed", money)
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func can_spend_money(amount: int) -> bool:
+	if amount <= 0:
+		return false
+	return money >= 0 and (money - amount) >= -30
+
+
+func try_spend_money(amount: int) -> bool:
+	if not can_spend_money(amount):
+		return false
+	money -= amount
+	emit_signal("money_changed", money)
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func change_coins(delta: int) -> bool:
+	var new_v: int = coins + int(delta)
+	if new_v < 0:
+		new_v = 0
+	coins = new_v
+	emit_signal("coins_changed", coins)
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func can_spend_coins(amount: int) -> bool:
+	if amount <= 0:
+		return false
+	return coins >= amount
+
+
+func try_spend_coins(amount: int) -> bool:
+	if not can_spend_coins(amount):
+		return false
+	coins -= amount
+	emit_signal("coins_changed", coins)
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func add_inventory(item_id: String, count: int = 1) -> void:
+	inventory[item_id] = int(inventory.get(item_id, 0)) + int(count)
+	emit_signal("inventory_changed")
+	emit_signal("save_relevant_state_changed")
+
+
+func remove_inventory(item_id: String, count: int = 1) -> bool:
+	var have: int = int(inventory.get(item_id, 0))
+	if have < count:
+		return false
+	have -= count
+	if have <= 0:
+		inventory.erase(item_id)
+	else:
+		inventory[item_id] = have
+	emit_signal("inventory_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+# ---- Affection / friends ----
+func change_affection(friend_id: String, delta: int) -> bool:
+	var cur: int = int(affection.get(friend_id, 0))
+	var new_v: int = clampi(cur + int(delta), AFFECTION_MIN, AFFECTION_MAX)
+	affection[friend_id] = new_v
+	emit_signal("friends_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func get_affection_tier(friend_id: String) -> String:
+	var a: int = int(affection.get(friend_id, 0))
+	if a < 0:
+		return "hatred"
+	if a <= 3:
+		return "just_friend"
+	if a <= 6:
+		return "ambiguous"
+	return "love"
+
+
+func set_friend_attitude(friend_id: String, attitude: String) -> bool:
+	friend_attitude[friend_id] = attitude
+	emit_signal("friends_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func change_inter_friend_affection(friend_a: String, friend_b: String, delta: int) -> bool:
+	var key: String = _sorted_pair_key(friend_a, friend_b)
+	var cur: int = int(inter_friend_affection.get(key, 0))
+	inter_friend_affection[key] = cur + int(delta)
+	emit_signal("friends_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+# ---- Minesweeper app economy ----
+func get_minesweeper_display_rounds_left() -> int:
+	return clampi(minesweeper_rounds_left, -3, 2)
+
+
+func get_minesweeper_display_rounds_max() -> int:
+	return MINESWEEPER_DISPLAY_MAX
+
+
+func get_minesweeper_total_playable_rounds() -> int:
+	return MINESWEEPER_BASE_ROUNDS - minesweeper_round_floor
+
+
+func get_minesweeper_playable_rounds_remaining() -> int:
+	return maxi(0, minesweeper_rounds_left - minesweeper_round_floor)
+
+
+func has_minesweeper_app_round_available() -> bool:
+	return minesweeper_rounds_left > minesweeper_round_floor
+
+
+func change_minesweeper_round_floor(delta: int) -> bool:
+	var new_v: int = clampi(minesweeper_round_floor + int(delta), MINESWEEPER_ROUND_FLOOR_MIN, MINESWEEPER_ROUND_FLOOR_MAX)
+	minesweeper_round_floor = new_v
+	emit_signal("minesweeper_rounds_changed", get_minesweeper_display_rounds_left(), get_minesweeper_display_rounds_max())
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func get_minesweeper_safety_level() -> int:
+	if inventory.has("debug_key"):
+		return 3
+	if inventory.has("lucky_charm"):
+		return 2
+	return 1
+
+
+func can_start_minesweeper_app_round() -> bool:
+	return get_stat(STAT_MOTIVATION) > 0 \
+		and minesweeper_rounds_left > minesweeper_round_floor \
+		and unfinished_minesweeper_result.is_empty()
+
+
+func consume_minesweeper_app_round() -> bool:
+	if not can_start_minesweeper_app_round():
+		return false
+	minesweeper_rounds_left -= 1
+	change_stat(STAT_MOTIVATION, -1)
+	emit_signal("minesweeper_rounds_changed", get_minesweeper_display_rounds_left(), get_minesweeper_display_rounds_max())
+	return true
+
+
+func start_minesweeper_app_round(difficulty: String) -> Dictionary:
+	if not can_start_minesweeper_app_round():
+		return {}
+	minesweeper_selected_difficulty = difficulty
+	consume_minesweeper_app_round()
+	unfinished_minesweeper_result = {
+		"context": "app",
+		"difficulty": difficulty,
+		"started_at_unix": Time.get_unix_time_from_system(),
+	}
+	return unfinished_minesweeper_result
+
+
+func finish_minesweeper_app_round(result: Dictionary) -> void:
+	if result.get("context", "") != "app":
+		return
+	unfinished_minesweeper_result = {}
+	minesweeper_app_rounds_finished_today += 1
+
+	var reward: Dictionary = apply_minesweeper_money_reward(result)
+	check_and_claim_minesweeper_task_rewards(result)
+
+	var effect_ids: Array = result.get("effect_ids", [])
+	if not effect_ids.is_empty():
+		_apply_effect_ids(effect_ids)
+
+	unlock_contact_message_after_minesweeper_finished(result)
+
+	emit_signal("minesweeper_rounds_changed", get_minesweeper_display_rounds_left(), get_minesweeper_display_rounds_max())
+	emit_signal("minesweeper_reward_changed", reward)
+	emit_signal("save_relevant_state_changed")
+
+
+func clear_unfinished_minesweeper_round() -> void:
+	unfinished_minesweeper_result = {}
+
+
+# Minesweeper app-round money reward. Per-outcome/difficulty amounts are defined in
+# _MINESWEEPER_MONEY_REWARD (authoritative in CONTENT.md §9). The daily cap
+# (108 + 54 * max(0, total_playable_rounds - 2)) is enforced; any amount is clamped to the
+# remaining daily cap. The "do not invent logic" guard is intentionally removed (author decision):
+# concrete reward values are now specified and applied.
+func calculate_minesweeper_money_reward(result: Dictionary) -> Dictionary:
+	var cap: int = MINESWEEPER_MONEY_DAILY_CAP_BASE + MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND * maxi(0, get_minesweeper_total_playable_rounds() - 2)
+	var remaining: int = maxi(0, cap - minesweeper_money_earned_today)
+	var difficulty: String = result.get("difficulty", "")
+	var outcome: String = result.get("outcome", "")
+	if outcome == "no_flag" or outcome == "foresight":
+		outcome = "perfect"
+	var entry: Dictionary = _MINESWEEPER_MONEY_REWARD.get(difficulty, {}).get(outcome, {})
+	var money_amount: int = int(entry.get("money", 0))
+	var pressure_delta: int = int(entry.get("pressure", 0))
+	var capped: bool = false
+	if money_amount > remaining:
+		money_amount = remaining
+		capped = true
+	return {"money": money_amount, "pressure": pressure_delta, "capped": capped, "remaining_cap": remaining}
+
+
+func apply_minesweeper_money_reward(result: Dictionary) -> Dictionary:
+	var reward: Dictionary = calculate_minesweeper_money_reward(result)
+	var amount: int = int(reward.get("money", 0))
+	if amount > 0:
+		change_money(amount)
+		minesweeper_money_earned_today += amount
+	var pressure_delta: int = int(reward.get("pressure", 0))
+	if pressure_delta != 0:
+		change_stat(STAT_PRESSURE, pressure_delta)
+	return reward
+
+
+func check_and_claim_minesweeper_task_rewards(result: Dictionary) -> Array:
+	var claimed: Array = []
+	var task_ids: Array = result.get("task_ids", [])
+	for tid in task_ids:
+		if not _MINESWEEPER_TASK_IDS.has(tid):
+			continue
+		if minesweeper_task_rewards_claimed.has(tid):
+			continue
+		if minesweeper_task_rewards_claimed.size() >= MINESWEEPER_TASK_COIN_TOTAL_CAP:
+			break
+		minesweeper_task_rewards_claimed[tid] = true
+		change_coins(1)
+		claimed.append(tid)
+	# win_win_win: claimable once when beginner+intermediate+expert each achieved.
+	if not minesweeper_task_rewards_claimed.has("win_win_win"):
+		if minesweeper_task_rewards_claimed.has("complete_beginner") \
+				and minesweeper_task_rewards_claimed.has("complete_intermediate") \
+				and minesweeper_task_rewards_claimed.has("complete_expert"):
+			if minesweeper_task_rewards_claimed.size() < MINESWEEPER_TASK_COIN_TOTAL_CAP:
+				minesweeper_task_rewards_claimed["win_win_win"] = true
+				change_coins(1)
+				claimed.append("win_win_win")
+	return claimed
+
+
+# ---- Invitations / contacts ----
+func is_invitation_day(friend_id: String, target_day: int = -1) -> bool:
+	var d: int = target_day if target_day >= 0 else day
+	return _INVITATION_DAYS.get(friend_id, []).has(d)
+
+
+func is_group_invitation_day(target_day: int = -1) -> bool:
+	var d: int = target_day if target_day >= 0 else day
+	return _GROUP_INVITATION_DAYS.has(d)
+
+
+func open_contact(friend_id: String) -> void:
+	# Group invitation generation (CONTRACTS §2 group invitation rule): evaluated BEFORE marking
+	# this contact opened, so the "neither pair member opened yet today" gate is checked correctly
+	# and the friend being opened now becomes the inviter.
+	_maybe_generate_group_invitation(friend_id)
+	daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
+	emit_signal("chat_changed", friend_id)
+	emit_signal("save_relevant_state_changed")
+
+
+func _maybe_generate_group_invitation(friend_id: String) -> void:
+	# Group offer is GENERATED (not yet addable) when, on a group day, >= 3 app rounds are finished,
+	# no group offer exists yet, the opened friend is in a group pair, and NEITHER pair member has
+	# opened their contact yet today (reading a solo invitation before eligibility blocks the group).
+	# The first pair member opened after eligibility becomes the inviter. Addability is a separate
+	# step: read_group_offer() writes the group date_unlock (CONTRACTS §2 group invitation rule).
+	if daily_group_invitation_generated:
+		return
+	if not is_group_invitation_day():
+		return
+	if minesweeper_app_rounds_finished_today < 3:
+		return
+	if not _group_pair_contains(friend_id):
+		return
+	var pair: Array = []
+	for p in _GROUP_INVITATION_PAIRS:
+		if friend_id in p:
+			pair = p
+			break
+	if pair.size() < 2:
+		return
+	for pid in pair:
+		if bool(daily_opened_contacts.get("day:%d:friend:%s" % [day, pid], false)):
+			return
+	var typed_pair: Array[String] = []
+	for pid in pair:
+		typed_pair.append(str(pid))
+	daily_group_invitation_generated = true
+	daily_group_invitation_pair = typed_pair
+	pending_group_date_inviter_id = friend_id
+	emit_signal("save_relevant_state_changed")
+
+
+func get_daily_message_friend_for_finished_round(round_number: int, target_day: int = -1) -> String:
+	var d: int = target_day if target_day >= 0 else day
+	var order: Array = _CONTACT_MESSAGE_ORDER.get(d, [])
+	var idx: int = -1
+	if round_number == 1:
+		idx = 0
+	elif round_number == 2:
+		idx = 1
+	elif round_number == 3:
+		if d == 7 and minesweeper_round_floor < 0:
+			idx = 2
+		else:
+			return ""
+	else:
+		return ""
+	if idx < 0 or idx >= order.size():
+		return ""
+	# Group invitation for the day suppresses individual solo messages.
+	if daily_group_invitation_generated:
+		return ""
+	return order[idx]
+
+
+func unlock_contact_message_after_minesweeper_finished(result: Dictionary) -> Dictionary:
+	var friend: String = get_daily_message_friend_for_finished_round(minesweeper_app_rounds_finished_today, day)
+	if friend == "":
+		return {}
+	if daily_group_invitation_generated:
+		return {}
+	# Day-7 invitation messages require at least Ambiguous affection (CONTRACTS §2).
+	if day == 7 and get_affection_tier(friend) not in ["ambiguous", "love"]:
+		return {}
+	var key: String = "day:%d:friend:%s" % [day, friend]
+	contact_message_unlocks[key] = true
+	emit_signal("contact_message_unlocked", {"friend_id": friend, "day": day})
+	emit_signal("save_relevant_state_changed")
+	return {"friend_id": friend, "day": day}
+
+
+func is_contact_message_unlocked(friend_id: String, target_day: int = -1) -> bool:
+	var d: int = target_day if target_day >= 0 else day
+	return bool(contact_message_unlocks.get("day:%d:friend:%s" % [d, friend_id], false))
+
+
+func is_contact_choice_selected(friend_id: String, target_day: int = -1) -> bool:
+	var d: int = target_day if target_day >= 0 else day
+	return bool(contact_choice_state.get("day:%d:friend:%s" % [d, friend_id], false))
+
+
+func get_contact_choices(friend_id: String, target_day: int = -1) -> Array:
+	return []
+
+
+func choose_contact_option(friend_id: String, choice_id: String) -> Dictionary:
+	# Group reply-order gate (FLOWS §5.1): if this is the non-inviter replying before the
+	# inviter has replied, block.
+	if daily_group_invitation_generated and not pending_group_date_inviter_id.is_empty() and friend_id != pending_group_date_inviter_id:
+		var inviter_key: String = "day:%d:friend:%s" % [day, pending_group_date_inviter_id]
+		if not bool(contact_choice_state.get(inviter_key, false)):
+			return {"ok": false, "reason": "need_reply_inviter_first"}
+
+	contact_choice_state["day:%d:friend:%s" % [day, friend_id]] = true
+	emit_signal("contact_choice_selected", {"friend_id": friend_id, "day": day})
+	# Solo date unlock is written ONLY on the friend's solo invitation day (days 1-6). Day 7
+	# candidates use the contact-message-unlock path in is_date_unlocked(), not date_unlocks, so
+	# a reply on a non-invitation day must NOT unlock a phantom date (CONTRACTS §2 is_date_unlocked).
+	if is_invitation_day(friend_id):
+		date_unlocks["day:%d:friend:%s" % [day, friend_id]] = true
+		emit_signal("date_unlocks_changed")
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "friend_id": friend_id, "choice_id": choice_id}
+
+
+func is_date_unlocked(friend_id: String, target_day: int = -1) -> bool:
+	var d: int = target_day if target_day >= 0 else day
+	if d == 7:
+		return is_contact_message_unlocked(friend_id, 7) and get_affection_tier(friend_id) in ["ambiguous", "love"]
+	return bool(date_unlocks.get("day:%d:friend:%s" % [d, friend_id], false))
+
+
+func build_date_entry_from_unlock(friend_id: String, target_day: int = -1) -> Dictionary:
+	var d: int = target_day if target_day >= 0 else day
+	return {
+		"type": "solo",
+		"friend_id": friend_id,
+		"friend_ids": [friend_id],
+		"inviter_id": "",
+		"day": d,
+		"source": "unlock",
+		"advance_day_after_finish": true,
+		"gift_item_id": "",
+	}
+
+
+func read_group_offer(target_day: int = -1) -> bool:
+	# Separate "read the group offer" step (CONTRACTS §2 group invitation rule): makes the generated
+	# group date ADDABLE by writing its date_unlock key. No accept/decline — adding it in ScheduleApp
+	# is the only accept, identical to the solo flow.
+	if not daily_group_invitation_generated:
+		return false
+	if daily_group_invitation_pair.size() < 2:
+		return false
+	var d: int = target_day if target_day >= 0 else day
+	var key: String = "day:%d:group:%s" % [d, _sorted_pair_key(daily_group_invitation_pair[0], daily_group_invitation_pair[1])]
+	date_unlocks[key] = true
+	emit_signal("date_unlocks_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func is_group_date_unlocked(target_day: int = -1) -> bool:
+	if daily_group_invitation_pair.size() < 2:
+		return false
+	var d: int = target_day if target_day >= 0 else day
+	var key: String = "day:%d:group:%s" % [d, _sorted_pair_key(daily_group_invitation_pair[0], daily_group_invitation_pair[1])]
+	return bool(date_unlocks.get(key, false))
+
+
+func build_group_date_entry_from_unlock(target_day: int = -1) -> Dictionary:
+	var d: int = target_day if target_day >= 0 else day
+	var fids: Array[String] = []
+	for pid in daily_group_invitation_pair:
+		fids.append(str(pid))
+	return {
+		"type": "group",
+		"friend_ids": fids,
+		"inviter_id": pending_group_date_inviter_id,
+		"day": d,
+		"source": "unlock",
+		"advance_day_after_finish": true,
+		"gift_item_id": "",
+	}
+
+
+func get_day7_ending_candidates_from_schedule() -> Array[String]:
+	var candidates: Array[String] = []
+	for fid in FRIEND_IDS:
+		if not is_contact_message_unlocked(fid, 7):
+			continue
+		if get_affection_tier(fid) not in ["ambiguous", "love"]:
+			continue
+		var has_entry: bool = false
+		for entry in schedule_entries:
+			if entry.get("type") == "solo" and entry.get("friend_id") == fid:
+				has_entry = true
+				break
+		if has_entry:
+			candidates.append(fid)
+			if candidates.size() >= 1:
+				break
+	return candidates
+
+
+func resolve_day7_ending() -> Dictionary:
+	if day != 7:
+		return {"ok": false, "candidate_friend_id": "", "ending_id": "", "epilogue_ending_id": "", "route_context_set": false, "reason": "not_day7"}
+	var candidates: Array[String] = get_day7_ending_candidates_from_schedule()
+	var candidate_friend_id: String = candidates[0] if candidates.size() > 0 else ""
+	var ending_id: String = ""
+	var epilogue_ending_id: String = ""
+
+	# Highest precedence: Special Sylvia (secret ending), evaluated before priscilla_lavinia.
+	if should_route_sylvia_special_ending():
+		ending_id = "ending.sylvia.special"
+	elif should_route_priscilla_lavinia_post_ending():
+		ending_id = "ending.priscilla_lavinia"
+	elif candidate_friend_id == "":
+		ending_id = "ending.alone"
+	else:
+		var f: String = candidate_friend_id
+		var drs: Dictionary = dating_route_state.get(f, {})
+		if int(drs.get("true_path_count", 0)) >= 4 and get_affection_tier(f) == "love":
+			ending_id = "ending.%s.true" % f
+		elif int(drs.get("dark_points", 0)) >= 2:
+			ending_id = "ending.%s.dark" % f
+		elif int(drs.get("dark_points", 0)) <= 1:
+			ending_id = "ending.%s.sweet" % f
+		else:
+			ending_id = "ending.alone"
+
+	# Epilogue: if Priscilla/Lavinia post-ending is also unlocked and is not the primary, play it after.
+	if should_route_priscilla_lavinia_post_ending() and ending_id != "ending.priscilla_lavinia":
+		epilogue_ending_id = "ending.priscilla_lavinia"
+
+	route_context["ending_id"] = ending_id
+	route_context["epilogue_ending_id"] = epilogue_ending_id
+	day = 8
+	emit_signal("ending_route_selected", {"ending_id": ending_id, "candidate_friend_id": candidate_friend_id})
+	emit_signal("save_relevant_state_changed")
+	return {
+		"ok": true,
+		"candidate_friend_id": candidate_friend_id,
+		"ending_id": ending_id,
+		"epilogue_ending_id": epilogue_ending_id,
+		"route_context_set": true,
+		"reason": "resolved",
+	}
+
+
+func should_route_priscilla_lavinia_post_ending() -> bool:
+	return int(missed_group_date_counts.get("priscilla_lavinia", 0)) >= 2
+
+func should_route_sylvia_special_ending() -> bool:
+	return hospital_skipped_sylvia_solo_count >= 2
+
+
+func can_respond_to_invitation(friend_id: String) -> bool:
+	if is_invitation_day(friend_id) and not is_contact_choice_selected(friend_id):
+		return true
+	if is_group_invitation_day() and _group_pair_contains(friend_id) and not daily_group_invitation_generated:
+		return true
+	return false
+
+
+func can_buy_supportz() -> bool:
+	return minesweeper_app_rounds_finished_today >= 2 and minesweeper_round_floor > MINESWEEPER_ROUND_FLOOR_MIN
+
+
+func has_unread_friend_messages() -> Dictionary:
+	var out: Dictionary = {}
+	for fid in FRIEND_IDS:
+		var unread: bool = is_contact_message_unlocked(fid) and not is_contact_choice_selected(fid)
+		out[fid] = unread
+		if unread:
+			emit_signal("unread_friend", {"friend_id": fid, "day": day})
+	return out
+
+
+# ---- Schedule ----
+func clear_schedule_with_refund() -> void:
+	var refund: int = schedule_entries.size()
+	schedule_entries = []
+	if refund > 0:
+		change_stat(STAT_MOTIVATION, refund)
+	emit_signal("schedule_changed")
+	emit_signal("save_relevant_state_changed")
+
+
+func should_warn_minesweeper_before_schedule_done() -> Dictionary:
+	var has_unfinished: bool = not unfinished_minesweeper_result.is_empty()
+	var has_playable: bool = has_minesweeper_app_round_available()
+	var motivation: int = get_stat(STAT_MOTIVATION)
+	var has_date_entry: bool = false
+	var has_non_date_entry: bool = false
+	for entry in schedule_entries:
+		var t: String = entry.get("type", "")
+		if t in ["solo", "group", "twofriends"]:
+			has_date_entry = true
+		else:
+			has_non_date_entry = true
+
+	var should_warn: bool = false
+	var reason: String = ""
+	if not has_date_entry:
+		var cond1: bool = motivation > 0 and has_unfinished
+		var cond2: bool = motivation > 0 and has_playable
+		var cond3: bool = motivation == 0 and has_non_date_entry and has_playable
+		should_warn = cond1 or cond2 or cond3
+		if cond1:
+			reason = "unfinished_round_and_motivation"
+		elif cond2:
+			reason = "playable_round_and_motivation"
+		elif cond3:
+			reason = "playable_round_zero_motivation_with_non_date"
+		else:
+			reason = "no_warn"
+	else:
+		reason = "date_present"
+
+	return {
+		"should_warn": should_warn,
+		"reason": reason,
+		"has_unfinished_round": has_unfinished,
+		"has_playable_round": has_playable,
+		"motivation": motivation,
+		"has_non_date_entry": has_non_date_entry,
+	}
+
+
+func can_add_schedule_action(action_id: String, friend_id: String = "") -> Dictionary:
+	if get_stat(STAT_MOTIVATION) <= 0:
+		return {"ok": false, "reason": "no_motivation"}
+	if action_id == "dating":
+		if friend_id == "":
+			return {"ok": false, "reason": "no_friend"}
+		if not is_date_unlocked(friend_id):
+			return {"ok": false, "reason": "date_not_unlocked"}
+		if not _can_add_date_entry({"type": "solo", "friend_id": friend_id}):
+			return {"ok": false, "reason": "date_invalid"}
+		return {"ok": true}
+	if not _SCHEDULE_ACTION_EFFECTS.has(action_id):
+		return {"ok": false, "reason": "unknown_action"}
+	return {"ok": true}
+
+
+func add_schedule_action(action_id: String, friend_id: String = "") -> bool:
+	if action_id == "dating":
+		if friend_id == "":
+			return false
+		var entry: Dictionary = build_date_entry_from_unlock(friend_id)
+		return add_schedule_date_entry(entry)
+	var res: Dictionary = can_add_schedule_action(action_id)
+	if not res.get("ok", false):
+		return false
+	var entry: Dictionary = {
+		"id": action_id,
+		"type": action_id,
+		"motivation_cost": 1,
+		"effect_ids": _SCHEDULE_ACTION_EFFECTS[action_id].duplicate(),
+		"requires_friend": false,
+	}
+	schedule_entries.append(entry)
+	change_stat(STAT_MOTIVATION, -1)
+	emit_signal("schedule_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func add_schedule_date_entry(entry: Dictionary) -> bool:
+	if entry.get("type", "") not in ["solo", "group", "twofriends"]:
+		return false
+	if get_stat(STAT_MOTIVATION) <= 0:
+		return false
+	if not _can_add_date_entry(entry):
+		return false
+	# Per-entry advance_day_after_finish: true for solo/group (provenance only), false for twofriends.
+	if entry.get("type") == "twofriends":
+		entry["advance_day_after_finish"] = false
+	else:
+		entry["advance_day_after_finish"] = true
+	schedule_entries.append(entry.duplicate())
+	change_stat(STAT_MOTIVATION, -1)
+	emit_signal("schedule_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func remove_schedule_entry(index: int) -> bool:
+	if index < 0 or index >= schedule_entries.size():
+		return false
+	schedule_entries.remove_at(index)
+	change_stat(STAT_MOTIVATION, 1)
+	# Cascade: if removing invalidated later date entries (duplicate / over-limit), drop + refund them.
+	var i: int = 0
+	while i < schedule_entries.size():
+		var e: Dictionary = schedule_entries[i]
+		if e.get("type", "") in ["solo", "group", "twofriends"] and not _can_add_date_entry(e, true):
+			schedule_entries.remove_at(i)
+			change_stat(STAT_MOTIVATION, 1)
+		else:
+			i += 1
+	emit_signal("schedule_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func clear_schedule_without_refund() -> void:
+	schedule_entries = []
+	emit_signal("schedule_changed")
+	emit_signal("save_relevant_state_changed")
+
+
+func validate_schedule() -> Dictionary:
+	if get_max_scheduled_dates_for_current_day() < get_scheduled_date_count():
+		return {"ok": false, "reason": "too_many_dates"}
+	var date_count: int = 0
+	for entry in schedule_entries:
+		var t: String = entry.get("type", "")
+		if t in ["solo", "group", "twofriends"]:
+			if not _can_add_date_entry(entry, true):
+				return {"ok": false, "reason": "invalid_date"}
+			date_count += 1
+		else:
+			if not _SCHEDULE_ACTION_EFFECTS.has(t):
+				return {"ok": false, "reason": "unknown_action"}
+	if date_count > get_max_scheduled_dates_for_current_day():
+		return {"ok": false, "reason": "too_many_dates"}
+	return {"ok": true, "reason": "valid"}
+
+
+func get_scheduled_date_friend_ids() -> Array[String]:
+	var out: Array[String] = []
+	for entry in schedule_entries:
+		var t: String = entry.get("type", "")
+		if t == "solo":
+			out.append(entry.get("friend_id", ""))
+		elif t == "group":
+			for fid in entry.get("friend_ids", []):
+				out.append(fid)
+	return out
+
+
+func get_scheduled_date_entries() -> Array:
+	var out: Array = []
+	for entry in schedule_entries:
+		if entry.get("type", "") in ["solo", "group", "twofriends"]:
+			out.append(entry)
+	return out
+
+
+func get_scheduled_date_count() -> int:
+	var c: int = 0
+	for entry in schedule_entries:
+		if entry.get("type", "") in ["solo", "group", "twofriends"]:
+			c += 1
+	return c
+
+
+func get_max_scheduled_dates_for_current_day() -> int:
+	if day >= 1 and day <= 6:
+		return 2
+	return 1
+
+
+func collect_unscheduled_accepted_invitations_for_day_end() -> Array:
+	var out: Array = []
+	var scheduled_ids: Array[String] = get_scheduled_date_friend_ids()
+	for fid in FRIEND_IDS:
+		if is_date_unlocked(fid) and not scheduled_ids.has(fid):
+			out.append({"type": "solo", "friend_id": fid})
+	if daily_group_invitation_generated and not _group_scheduled():
+		out.append({"type": "group", "friend_ids": daily_group_invitation_pair, "inviter_id": pending_group_date_inviter_id})
+	return out
+
+
+func get_missed_invitation_for_friend(friend_id: String, target_day: int = -1) -> Dictionary:
+	# Returns the missed-invitation record whose invite day == target_day - 1 (guilt due on target_day),
+	# or {} if none. Consumers read "source" to pick the solo vs group missed_question label
+	# (CONTRACTS §2 follow-up rule). Read-only; returns a copy.
+	var d: int = target_day if target_day >= 0 else day
+	for rec in missed_invitations:
+		if rec is Dictionary and rec.get("friend_id", "") == friend_id and int(rec.get("day", -999)) == d - 1:
+			return rec.duplicate()
+	return {}
+
+
+func execute_schedule_sequence_until_route_needed() -> Dictionary:
+	if not validate_schedule().get("ok", false):
+		return {"ok": false, "executed": false, "needs_hospital": false, "route": "none", "date_entries": [], "twofriends_entries": [], "reason": "invalid_schedule"}
+
+	execute_non_date_schedule_effects()
+
+	var date_entries: Array = []
+	var twofriends_entries: Array = []
+	for entry in get_scheduled_date_entries():
+		if entry.get("type") == "twofriends":
+			twofriends_entries.append(entry)
+		else:
+			date_entries.append(entry)
+
+	var cond: Dictionary = resolve_pressure_health_condition_end_of_day()
+	var needs_hospital: bool = bool(cond.get("needs_hospital", false))
+
+	for unscheduled in collect_unscheduled_accepted_invitations_for_day_end():
+		if unscheduled.get("type") == "group":
+			var entry: Dictionary = create_missed_group_twofriends_entry(day, unscheduled.get("friend_ids", []), unscheduled.get("inviter_id", ""))
+			twofriends_entries.append(entry)
+
+	var route: String = "advance"
+	if needs_hospital:
+		route = "hospital"
+	elif date_entries.size() > 0:
+		route = "dating"
+	elif twofriends_entries.size() > 0:
+		route = "twofriends"
+
+	return {
+		"ok": true,
+		"executed": true,
+		"needs_hospital": needs_hospital,
+		"route": route,
+		"date_entries": date_entries,
+		"twofriends_entries": twofriends_entries,
+		"reason": route,
+	}
+
+
+func execute_non_date_schedule_effects() -> void:
+	for entry in schedule_entries:
+		var t: String = entry.get("type", "")
+		if t in ["solo", "group", "twofriends"]:
+			continue
+		var effect_ids: Array = entry.get("effect_ids", [])
+		if not effect_ids.is_empty():
+			_apply_effect_ids(effect_ids)
+
+
+func create_missed_group_twofriends_entry(day_arg: int, friend_ids: Array, inviter_id: String) -> Dictionary:
+	var key: String = _sorted_pair_key(friend_ids[0], friend_ids[1]) if friend_ids.size() >= 2 else "unknown"
+	missed_group_date_counts[key] = int(missed_group_date_counts.get(key, 0)) + 1
+	emit_signal("save_relevant_state_changed")
+	return {
+		"type": "twofriends",
+		"friend_ids": friend_ids,
+		"inviter_id": inviter_id,
+		"day": day_arg,
+		"source": "missed_group",
+		"advance_day_after_finish": false,
+	}
+
+
+# ---- Conditions / hospital / day ----
+func resolve_pressure_health_condition_end_of_day() -> Dictionary:
+	if condition_resolved_day == day:
+		return {"ok": true, "needs_hospital": pending_hospital, "reason": "already_resolved"}
+
+	var pressure: int = get_stat(STAT_PRESSURE)
+	var health: int = get_stat(STAT_HEALTH)
+	var danger: bool = pressure >= 10 or health <= 0
+	var condition: String = CONDITION_NONE
+	var daily_penalty: int = 0
+
+	if danger:
+		if pressure >= 10 and health <= 0:
+			condition = CONDITION_DIZZY
+		else:
+			condition = CONDITION_NAUSEA
+
+		var penalty_pressure: int = maxi(0, pressure - 9) if pressure > 9 else 0
+		var penalty_health: int = maxi(0, 1 - health) if health <= 0 else 0
+		daily_penalty = mini(penalty_pressure + penalty_health, 6)
+		penalty_points_today = daily_penalty
+		penalty_points_total = mini(penalty_points_total + daily_penalty, 42)
+
+		if pressure > 9:
+			set_stat(STAT_PRESSURE, 9)
+		if health < 1:
+			set_stat(STAT_HEALTH, 1)
+
+		# Danger day applies sequela to the NEXT day (consumed in begin_new_day).
+		condition_streak_days = 1
+
+	var faint: bool = false
+	if condition != CONDITION_NONE:
+		condition_effects_today.append(condition)
+		if CONDITION_SEQUELA in condition_effects_today and (condition == CONDITION_NAUSEA or condition == CONDITION_DIZZY):
+			condition_effects_today.append(CONDITION_FAINT)
+			faint = true
+		pending_hospital = faint
+		emit_signal("condition_effect_resolved", {"condition": condition, "faint": faint})
+		if faint:
+			emit_signal("hospital_needed", {"condition": condition})
+
+	condition_resolved_day = day
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "needs_hospital": pending_hospital, "condition": condition, "faint": faint}
+
+
+func should_route_hospital() -> bool:
+	return pending_hospital
+
+func check_immediate_faint() -> bool:
+	if condition_effects_today.has(CONDITION_SEQUELA) and (get_stat(STAT_PRESSURE) >= 10 or get_stat(STAT_HEALTH) <= 0):
+		pending_hospital = true
+		emit_signal("condition_effect_resolved", {"condition": CONDITION_SEQUELA, "faint": true})
+		emit_signal("hospital_needed", {"condition": CONDITION_SEQUELA})
+		return true
+	return false
+
+
+func apply_hospital_recovery_and_advance_day() -> bool:
+	set_stat(STAT_HEALTH, 6)
+	set_stat(STAT_PRESSURE, 3)
+	pending_hospital = false
+	condition_streak_days = 0
+	condition_resolved_day = 0
+	condition_effects_today = []
+	# Special Sylvia ending evidence: count scheduled Sylvia solo dates skipped by this hospital
+	# trip. MUST read schedule_entries BEFORE clear_schedule_without_refund() — pending_date_entries
+	# is empty on a hospital route (dates are skipped, never queued via prepare_dating_entries).
+	for _e in schedule_entries:
+		if _e is Dictionary and _e.get("type") == "solo" and _e.get("friend_id") == "sylvia":
+			hospital_skipped_sylvia_solo_count += 1
+	clear_schedule_without_refund()
+	# Clear pending Angela dates (post-hospital twofriends are not re-routed; see FLOWS §6).
+	pending_date_entries = []
+	pending_date_entry_index = 0
+	pending_date_friend_id = ""
+
+	if day >= 7:
+		resolve_day7_ending()
+		emit_signal("day_changed", day)
+		emit_signal("save_relevant_state_changed")
+		_autosave_after_advance()
+		return false
+	day += 1
+	_begin_new_day()
+	emit_signal("day_changed", day)
+	emit_signal("save_relevant_state_changed")
+	_autosave_after_advance()
+	return true
+
+
+func advance_day_or_end() -> bool:
+	# 1. Record accepted-but-unscheduled invitations before clearing. Solo miss -> one record;
+	# missed group -> one source:"group" record per participant (drives next-day group guilt message,
+	# CONTRACTS §2 follow-up rule). day = ending day D; guilt appears on D+1.
+	var unscheduled: Array = collect_unscheduled_accepted_invitations_for_day_end()
+	for u in unscheduled:
+		var utype: String = u.get("type", "")
+		if utype == "solo":
+			missed_invitations.append({"friend_id": u.get("friend_id", ""), "source": "solo", "day": day})
+		elif utype == "group":
+			for f in u.get("friend_ids", []):
+				missed_invitations.append({"friend_id": str(f), "source": "group", "day": day})
+
+	# 2-5. Clear schedule, pending dates, daily condition marker, daily invitation-response state.
+	clear_schedule_without_refund()
+	pending_date_entries = []
+	pending_date_entry_index = 0
+	pending_date_friend_id = ""
+	condition_effects_today = []
+	condition_resolved_day = 0
+	contact_choice_state = {}
+	daily_opened_contacts = {}
+
+	# 6. Ending marker.
+	if day >= 7:
+		day = 8
+		emit_signal("day_changed", day)
+		emit_signal("save_relevant_state_changed")
+		_autosave_after_advance()
+		return false
+
+	# 7. Advance day.
+	day += 1
+	_begin_new_day()
+	emit_signal("day_changed", day)
+	emit_signal("save_relevant_state_changed")
+	_autosave_after_advance()
+	return true
+
+
+func _begin_new_day() -> void:
+	set_stat(STAT_MOTIVATION, 7)
+	minesweeper_rounds_left = 2
+	unfinished_minesweeper_result = {}
+	minesweeper_app_rounds_finished_today = 0
+	minesweeper_money_earned_today = 0
+	penalty_points_today = 0
+	condition_effects_today = []
+	daily_opened_contacts = {}
+	daily_group_invitation_generated = false
+	daily_group_invitation_pair = []
+
+	# Sequela: previous day had a danger condition not cleared by hospital.
+	if condition_streak_days > 0:
+		condition_effects_today.append(CONDITION_SEQUELA)
+		condition_streak_days = 0
+
+	emit_signal("daily_state_reset")
+
+
+# ---- Dating queue ----
+func prepare_dating_queue(friend_ids: Array[String]) -> void:
+	var entries: Array = []
+	for fid in friend_ids:
+		entries.append(build_date_entry_from_unlock(fid))
+	prepare_dating_entries(entries)
+
+
+func prepare_dating_entries(entries: Array) -> void:
+	pending_date_entries = entries.duplicate()
+	pending_date_entry_index = 0
+	pending_date_advance_day_after_finish = true
+	if pending_date_entries.size() > 0:
+		pending_date_friend_id = _entry_friend_id(pending_date_entries[0])
+	else:
+		pending_date_friend_id = ""
+	emit_signal("save_relevant_state_changed")
+
+
+func get_current_pending_date_friend_id() -> String:
+	return pending_date_friend_id
+
+
+func get_current_pending_date_entry() -> Dictionary:
+	if pending_date_entry_index >= 0 and pending_date_entry_index < pending_date_entries.size():
+		return pending_date_entries[pending_date_entry_index]
+	return {}
+
+
+func apply_dating_challenge_result(entry: Dictionary, result: Dictionary) -> bool:
+	var participants: Array = []
+	var t: String = entry.get("type", "")
+	if t == "solo":
+		participants = [entry.get("friend_id", "")]
+	elif t == "group":
+		participants = entry.get("friend_ids", [])
+	# twofriends => [] (Angela absent)
+
+	for p in participants:
+		if p == "":
+			continue
+		change_affection(p, int(result.get("affection_delta", 0)))
+		var drs: Dictionary = dating_route_state.get(p, {})
+		drs["date_count"] = int(drs.get("date_count", 0)) + 1
+		drs["dark_points"] = int(drs.get("dark_points", 0)) + int(result.get("dark_point", 0))
+		if bool(result.get("entered_true_path", false)):
+			drs["true_path_count"] = int(drs.get("true_path_count", 0)) + 1
+		drs["previous_entered_true_path"] = bool(result.get("entered_true_path", false))
+		dating_route_state[p] = drs
+
+	# Pair tracking for group AND twofriends.
+	if t in ["group", "twofriends"]:
+		var fids: Array = entry.get("friend_ids", [])
+		if fids.size() >= 2:
+			var pkey: String = _sorted_pair_key(fids[0], fids[1])
+			var irs: Dictionary = inter_friend_route_state.get(pkey, {})
+			irs["date_count"] = int(irs.get("date_count", 0)) + 1
+			irs["dark_points"] = int(irs.get("dark_points", 0)) + int(result.get("dark_point", 0))
+			inter_friend_route_state[pkey] = irs
+		if t == "twofriends":
+			change_inter_friend_affection(fids[0], fids[1], int(result.get("affection_delta", 0)))
+
+	emit_signal("friends_changed")
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func advance_date_queue_or_day() -> bool:
+	if pending_date_entry_index < pending_date_entries.size() - 1:
+		pending_date_entry_index += 1
+		pending_date_friend_id = _entry_friend_id(pending_date_entries[pending_date_entry_index])
+		emit_signal("save_relevant_state_changed")
+		return true
+	# No more entries.
+	if pending_date_advance_day_after_finish:
+		advance_day_or_end()
+	else:
+		# Day already advanced (e.g. post-hospital); leave unchanged.
+		pass
+	return false
+
+
+func clear_pending_date_state() -> void:
+	# Clears stale dating-queue state restored from a save taken mid-queue (CONTRACTS §6
+	# REQUIRED GUARD). Called by SaveManager on load unless the saved scene is a dating scene.
+	pending_date_entries = []
+	pending_date_entry_index = 0
+	pending_date_friend_id = ""
+	pending_date_advance_day_after_finish = false
+	emit_signal("save_relevant_state_changed")
+
+
+# ---- Flags / settings / save ----
+func mark_opening_seen() -> void:
+	opening_seen = true
+	emit_signal("save_relevant_state_changed")
+
+
+func mark_tutorial_seen() -> void:
+	tutorial_seen = true
+	emit_signal("save_relevant_state_changed")
+
+
+func set_story_flag(key: String, value: Variant) -> void:
+	story_flags[key] = value
+	emit_signal("save_relevant_state_changed")
+
+
+func get_story_flag(key: String, default_value: Variant = false) -> Variant:
+	return story_flags.get(key, default_value)
+
+
+func set_setting(key: String, value: Variant) -> void:
+	settings[key] = value
+	emit_signal("settings_changed")
+	emit_signal("save_relevant_state_changed")
+
+
+func set_language(locale: String) -> bool:
+	settings["language"] = locale
+	emit_signal("language_changed", locale)
+	emit_signal("save_relevant_state_changed")
+	return true
+
+
+func to_save_dict() -> Dictionary:
+	var out: Dictionary = {}
+	for key in _SAVE_WHITELIST:
+		var v = self.get(key)
+		if v == null:
+			continue
+		if v is Dictionary:
+			out[key] = v.duplicate()
+		elif v is Array:
+			out[key] = v.duplicate()
+		else:
+			out[key] = v
+	return out
+
+
+func apply_save_dict(data: Dictionary) -> Dictionary:
+	for key in _SAVE_WHITELIST:
+		if not data.has(key):
+			continue
+		var v = data[key]
+		if v == null:
+			continue
+		if key == "minesweeper_round_floor":
+			minesweeper_round_floor = clampi(int(v), MINESWEEPER_ROUND_FLOOR_MIN, MINESWEEPER_ROUND_FLOOR_MAX)
+		elif key == "minesweeper_rounds_left":
+			minesweeper_rounds_left = clampi(int(v), -3, MINESWEEPER_ROUND_CAP)
+		elif key in _TYPED_STRING_ARRAY_KEYS:
+			var typed: Array[String] = []
+			if v is Array:
+				for item in v:
+					typed.append(str(item))
+			self.set(key, typed)
+		elif v is Dictionary:
+			self.set(key, v.duplicate())
+		elif v is Array:
+			self.set(key, v.duplicate())
+		else:
+			self.set(key, v)
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true}
+
+
+func get_save_summary() -> Dictionary:
+	return {
+		"day": day,
+		"money": money,
+		"coins": coins,
+		"ending_id": route_context.get("ending_id", ""),
+		"opening_seen": opening_seen,
+		"tutorial_seen": tutorial_seen,
+	}
+
+
+func record_ending_seen(ending_id: String) -> void:
+	# Records a reached ending for GalleryScene (CONTRACTS §2 Ending gallery). Empty ids ignored.
+	if ending_id == "":
+		return
+	seen_endings[ending_id] = true
+	emit_signal("save_relevant_state_changed")
+
+
+# ---- Audio state ----
+func set_audio_state_value(key: String, value: Variant) -> void:
+	audio_state[key] = value
+	emit_signal("audio_state_changed", {"key": key, "value": value})
+	emit_signal("save_relevant_state_changed")
+
+
+func get_audio_state_value(key: String, default_value: Variant = null) -> Variant:
+	return audio_state.get(key, default_value)
+
+
+func get_audio_state_save_dict() -> Dictionary:
+	return audio_state.duplicate()
+
+
+func apply_audio_state_save_dict(data: Dictionary) -> void:
+	if data is Dictionary:
+		audio_state = data.duplicate()
+	emit_signal("save_relevant_state_changed")
+
+
+# ---- Internal helpers ----
+func _apply_effect_ids(effect_ids: Array) -> void:
+	var er: Node = get_node_or_null("/root/EffectResolver")
+	if er != null and er.has_method("apply_effect_ids"):
+		er.apply_effect_ids(effect_ids, "GameState")
+
+
+func _autosave_after_advance() -> void:
+	# Persist progress after a day advance (CONTRACTS §2 Day advancement). Safe if SaveManager is a stub/missing.
+	var sm: Node = get_node_or_null("/root/SaveManager")
+	if sm != null and sm.has_method("autosave"):
+		sm.autosave()
+
+
+func _sorted_pair_key(a: String, b: String) -> String:
+	var arr: Array = [a, b]
+	arr.sort()
+	return "%s_%s" % [arr[0], arr[1]]
+
+
+func _group_pair_contains(friend_id: String) -> bool:
+	for pair in _GROUP_INVITATION_PAIRS:
+		if friend_id in pair:
+			return true
+	return false
+
+
+func _group_scheduled() -> bool:
+	for entry in schedule_entries:
+		if entry.get("type") == "group":
+			return true
+	return false
+
+
+func _entry_friend_id(entry: Dictionary) -> String:
+	var t: String = entry.get("type", "")
+	if t == "solo":
+		return entry.get("friend_id", "")
+	if t == "group":
+		var fids: Array = entry.get("friend_ids", [])
+		return fids[0] if fids.size() > 0 else ""
+	return ""
+
+
+# _can_add_date_entry validates a would-be date entry against current schedule.
+# `silent` = called during re-validation (no extra side effects); always returns bool.
+func _can_add_date_entry(entry: Dictionary, silent: bool = false) -> bool:
+	var t: String = entry.get("type", "")
+	if t == "twofriends":
+		return true
+	var max_dates: int = get_max_scheduled_dates_for_current_day()
+	if get_scheduled_date_count() >= max_dates:
+		return false
+	# Day-4 Priscilla first-slot enforcement.
+	if day == 4 and t == "solo" and entry.get("friend_id") == "priscilla":
+		if schedule_entries.size() > 0:
+			return false
+	# No duplicate solo/group for same friend(s) on same day.
+	if t == "solo":
+		var fid: String = entry.get("friend_id", "")
+		for e in schedule_entries:
+			if e.get("type") == "solo" and e.get("friend_id") == fid:
+				return false
+	elif t == "group":
+		var fids: Array = entry.get("friend_ids", [])
+		for e in schedule_entries:
+			if e.get("type") == "group":
+				var ef: Array = e.get("friend_ids", [])
+				if ef.size() == fids.size() and ef.has(fids[0]) and ef.has(fids[-1]):
+					return false
+	return true

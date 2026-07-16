@@ -1,0 +1,97 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/shared/AppWindowBase.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/ScheduleApp.gd" id="2"]
+
+[node name="ScheduleApp" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="ScheduleRoot" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost"]
+layout_mode = 2
+
+[node name="ActionButtonRow" type="HBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DatingButton" type="Button" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/ActionButtonRow"]
+layout_mode = 2
+focus_mode = 2
+text = "Dating"
+
+[node name="TrainingButton" type="Button" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/ActionButtonRow"]
+layout_mode = 2
+focus_mode = 2
+text = "Training"
+
+[node name="WorkingButton" type="Button" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/ActionButtonRow"]
+layout_mode = 2
+focus_mode = 2
+text = "Working"
+
+[node name="RestButton" type="Button" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/ActionButtonRow"]
+layout_mode = 2
+focus_mode = 2
+text = "Rest"
+
+[node name="InvitationButtonRow" type="HBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ScheduleBar" type="HBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="GiftPickerPanel" type="PanelContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BottomButtonRow" type="HBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DoneButton" type="Button" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/BottomButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 2
+text = "Done"
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+
+[node name="MinesweeperWarningAlert" type="PanelContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AlertVBox" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert"]
+layout_mode = 2
+
+[node name="AlertHeader" type="HBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox"]
+layout_mode = 2
+
+[node name="AlertCloseButton" type="Button" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox/AlertHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 2
+text = "Close"
+
+[node name="AlertBody" type="Label" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+
+[node name="AlertButtonRow" type="HBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox"]
+layout_mode = 2
+
+[node name="AlertGoButton" type="Button" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox/AlertButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 2
+text = "Go"
+
+[node name="AlertYesButton" type="Button" parent="VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox/AlertButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 2
+text = "Yes"

@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/shared/AppWindowBase.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/SettingsApp.gd" id="2"]
+
+[node name="SettingsApp" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="LanguageOption" type="OptionButton" parent="VBoxContainer/ContentMargin/ContentHost"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 2
+
+[node name="AccessibilityContainer" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AudioContainer" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost"]
+unique_name_in_owner = true
+layout_mode = 2

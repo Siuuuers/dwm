@@ -1,0 +1,11 @@
+# timeline_id: contact.sylvia.day7
+# locale: en
+# type: contact
+# friend: sylvia
+# day: 7
+# parts: daily_message
+
+label daily_message
+# TODO: daily contact message text for Day 7
+
+return

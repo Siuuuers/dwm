@@ -1,0 +1,35 @@
+# timeline_id: contact.priscilla.day2
+# locale: en
+# type: contact
+# friend: priscilla
+# day: 2
+# parts: daily_message, offer, nevermind, missed_question, first_open_priscilla, first_open_lavinia, second_open_priscilla, second_open_lavinia, need_reply_priscilla_first
+
+label daily_message
+# TODO: daily contact message text for Day 2
+
+label offer
+# TODO: Day 2 solo invitation offer text
+
+label nevermind
+# TODO: nevermind text (invite from Day 1)
+
+label missed_question
+# TODO: missed-date question text (invite from Day 1)
+
+label first_open_priscilla
+# TODO: group invitation part for priscilla Day 2
+
+label first_open_lavinia
+# TODO: group invitation part for priscilla Day 2
+
+label second_open_priscilla
+# TODO: group invitation part for priscilla Day 2
+
+label second_open_lavinia
+# TODO: group invitation part for priscilla Day 2
+
+label need_reply_priscilla_first
+# TODO: group invitation part for priscilla Day 2
+
+return

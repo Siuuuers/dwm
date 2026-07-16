@@ -1,0 +1,54 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/shared/AppWindowBase.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/ContactListApp.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/shared/ContactBox.tscn" id="3"]
+
+[node name="ContactListApp" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="ContactsRoot" type="HBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost"]
+layout_mode = 2
+
+[node name="ContactList" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="PriscillaContactBox" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot/ContactList" instance=ExtResource("3")]
+layout_mode = 2
+
+[node name="LaviniaContactBox" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot/ContactList" instance=ExtResource("3")]
+layout_mode = 2
+
+[node name="SylviaContactBox" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot/ContactList" instance=ExtResource("3")]
+layout_mode = 2
+
+[node name="ChatPanel" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 7.0
+
+[node name="ChatTitleLabel" type="Label" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot/ChatPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ChatScroll" type="ScrollContainer" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot/ChatPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ChatMessageList" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot/ChatPanel/ChatScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ChoiceList" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot/ChatPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="InvitationResponseRow" type="HBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost/ContactsRoot/ChatPanel"]
+unique_name_in_owner = true
+layout_mode = 2

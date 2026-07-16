@@ -1,0 +1,20 @@
+# timeline_id: contact.sylvia.day4
+# locale: en
+# type: contact
+# friend: sylvia
+# day: 4
+# parts: daily_message, offer, nevermind, missed_question
+
+label daily_message
+# TODO: daily contact message text for Day 4
+
+label offer
+# TODO: Day 4 solo invitation offer text
+
+label nevermind
+# TODO: nevermind text (invite from Day 3)
+
+label missed_question
+# TODO: missed-date question text (invite from Day 3)
+
+return
