@@ -43,10 +43,10 @@ func test_rebind_unknown_action_safe() -> void:
 	assert_false(bool(res["ok"]), "rebinding an unknown action fails safely")
 
 
-func test_accessibility_settings_exist() -> void:
-	var keys := ["high_contrast", "font_scale", "reduced_motion", "large_click_targets", "sfx_volume", "ambience_volume"]
-	for k in keys:
-		assert_true(GameState.settings.has(k), "settings has %s" % k)
+func test_permanent_settings_are_not_owned_by_game_state() -> void:
+	assert_false("settings" in GameState)
+	assert_false("audio_state" in GameState)
+	assert_false("seen_endings" in GameState)
 
 
 func test_accessibility_apply_no_crash() -> void:

@@ -22,6 +22,7 @@ var _deferred_publications: Dictionary = {}
 var _publication_counter := 0
 var _pending_gallery_publications: Dictionary = {}
 var _restore_backup: Dictionary = {}
+var _profile_existed_at_initialize := false
 
 func _ready() -> void:
 	pass
@@ -51,6 +52,7 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 		if not persisted.get("ok", false): return persisted
 		_profile = defaults.duplicate(true)
 	else:
+		_profile_existed_at_initialize = true
 		var text_result: Dictionary = _storage.call(&"read_text", "profile.json")
 		if not text_result.get("ok", false): return text_result
 		var parsed: Dictionary = STRICT_JSON.parse_object(text_result["value"])
@@ -61,6 +63,8 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 		if prepared.get("migrated", false):
 			var migrated_write := _persist_candidate(_profile)
 			if not migrated_write.get("ok", false): return migrated_write
+	var legacy_input_import := _import_legacy_input_mappings()
+	if not legacy_input_import.get("ok", false): return legacy_input_import
 	_initialized = true
 	profile_restored.emit(_profile.duplicate(true))
 	return {"ok": true, "value": _profile.duplicate(true)}
@@ -197,7 +201,23 @@ func set_input_mapping(action_id: StringName, events: Array[Dictionary]) -> Dict
 	return commit_prepared_profile(candidate)
 
 func prepare_legacy_profile_patch(legacy_run_state: Dictionary, legacy_input_mappings: Dictionary = {}) -> Dictionary:
-	return MIGRATION.prepare_legacy_patch(legacy_run_state.duplicate(true), legacy_input_mappings.duplicate(true))
+	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
+	if _profile["migration_receipts"]["legacy_game_state_profile_v1"]:
+		return {"ok": true, "value": _profile.duplicate(true), "unchanged": true}
+	var prepared := MIGRATION.prepare_legacy_patch(legacy_run_state.duplicate(true), legacy_input_mappings.duplicate(true))
+	if not prepared.get("ok", false): return prepared
+	var patch: Dictionary = prepared["value"]
+	var candidate := _profile.duplicate(true)
+	if not _profile_existed_at_initialize:
+		candidate["preferences"] = patch["preferences"].duplicate(true)
+	for action_id in patch["input_mappings"]:
+		if not candidate["input_mappings"].has(action_id): candidate["input_mappings"][action_id] = patch["input_mappings"][action_id].duplicate(true)
+	for ending_id in patch["gallery_unlocks"]:
+		if ending_id not in candidate["gallery_unlocks"]: candidate["gallery_unlocks"].append(ending_id)
+	candidate["gallery_unlocks"].sort()
+	candidate["migration_receipts"]["legacy_game_state_profile_v1"] = true
+	if patch["migration_receipts"]["legacy_input_bindings_v1"]: candidate["migration_receipts"]["legacy_input_bindings_v1"] = true
+	return SCHEMA.validate(candidate)
 
 func reset_preferences() -> Dictionary:
 	var candidate := _profile.duplicate(true)
@@ -264,6 +284,36 @@ func _profile_text_validator(text: String) -> Dictionary:
 	var parsed := STRICT_JSON.parse_object(text)
 	if not parsed.get("ok", false): return parsed
 	return MIGRATION.prepare_document(parsed["value"])
+
+func _import_legacy_input_mappings() -> Dictionary:
+	if _profile["migration_receipts"]["legacy_input_bindings_v1"]: return {"ok": true, "unchanged": true}
+	var reconciled: Dictionary = _storage.call(&"reconcile", "input_bindings.json", _legacy_input_text_validator)
+	if not reconciled.get("ok", false):
+		if reconciled.get("code") == &"indeterminate_transaction": return reconciled
+		return reconciled
+	if not reconciled.get("exists", false): return {"ok": true, "unchanged": true}
+	var read_result: Dictionary = _storage.call(&"read_text", "input_bindings.json")
+	if not read_result.get("ok", false): return read_result
+	var parsed := STRICT_JSON.parse_object(read_result["value"])
+	if not parsed.get("ok", false): return parsed
+	var patch_result := MIGRATION.prepare_legacy_patch({}, parsed["value"])
+	if not patch_result.get("ok", false): return patch_result
+	var patch: Dictionary = patch_result["value"]
+	var candidate := _profile.duplicate(true)
+	for action_id in patch["input_mappings"]:
+		if not candidate["input_mappings"].has(action_id): candidate["input_mappings"][action_id] = patch["input_mappings"][action_id].duplicate(true)
+	candidate["migration_receipts"]["legacy_input_bindings_v1"] = true
+	var persisted := _persist_candidate(candidate)
+	if not persisted.get("ok", false): return persisted
+	_profile = candidate.duplicate(true)
+	return {"ok": true, "imported": true}
+
+func _legacy_input_text_validator(text: String) -> Dictionary:
+	var parsed := STRICT_JSON.parse_object(text)
+	if not parsed.get("ok", false): return parsed
+	var prepared := MIGRATION.prepare_legacy_patch({}, parsed["value"])
+	if not prepared.get("ok", false): return prepared
+	return {"ok": true, "value": (parsed["value"] as Dictionary).duplicate(true)}
 
 func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:
 	var changes: Array[Dictionary] = []

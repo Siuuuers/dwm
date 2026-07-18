@@ -76,23 +76,6 @@ const _MINESWEEPER_MONEY_REWARD := {
 	},
 }
 
-# Default settings (prompt_docs/requirements/audio_preferences.md).
-const _DEFAULT_SETTINGS := {
-	"music_volume": 0.8, "voice_volume": 0.8, "text_speed": 1.0, "auto_text_speed": 1.0,
-	"fullscreen": false, "language": "en", "font_scale": 1.0, "high_contrast": false,
-	"reduced_motion": false, "screen_shake_strength": 0.5, "large_click_targets": false,
-	"hold_to_confirm": false, "colorblind_mode": "none", "show_focus_ring": true,
-	"controller_cursor_enabled": false, "skip_unseen_text_allowed": false, "auto_advance_dialogue": false,
-	"subtitles_enabled": true, "captions_enabled": true, "subtitle_speaker_names": true,
-	"subtitle_background_opacity": 0.85, "text_box_opacity": 0.90, "visual_audio_cues": true,
-	"flashing_effects_enabled": false, "tutorial_replay_available": true, "pause_on_focus_loss": true,
-	"sfx_volume": 0.8, "ambience_volume": 0.65, "mute_audio_on_focus_loss": false,
-}
-const _DEFAULT_AUDIO_STATE := {
-	"current_bgm_id": "", "current_ambience_id": "", "current_context_id": "",
-	"current_context": {}, "music_muted": false,
-}
-
 # Save whitelist (CONTRACTS §6). Order preserved for readability.
 const _SAVE_WHITELIST := [
 	"contact_message_unlocks", "contact_choice_state", "date_unlocks", "post_ending_queue",
@@ -109,7 +92,7 @@ const _SAVE_WHITELIST := [
 	"pending_date_entries", "pending_date_entry_index",
 	"pending_group_date_friend_ids", "pending_group_date_inviter_id",
 	"pending_date_advance_day_after_finish", "opening_seen", "tutorial_seen", "story_flags",
-	"route_context", "settings", "audio_state", "seen_endings",
+	"route_context",
 	"hospital_skipped_sylvia_solo_count",
 ]
 
@@ -139,12 +122,7 @@ signal minesweeper_reward_changed(result: Dictionary)
 signal daily_state_reset()
 signal condition_effect_resolved(result: Dictionary)
 signal hospital_needed(result: Dictionary)
-signal settings_changed()
-signal language_changed(locale: String)
 signal save_relevant_state_changed()
-signal accessibility_settings_changed()
-signal input_settings_changed()
-signal audio_state_changed(result: Dictionary)
 
 # ---- State (declared per CONTRACTS §2) ----
 var day: int
@@ -207,13 +185,8 @@ var opening_seen: bool
 var tutorial_seen: bool
 var story_flags: Dictionary
 var route_context: Dictionary
-var settings: Dictionary
-
-var audio_state: Dictionary
-var seen_endings: Dictionary
-
 func _ready() -> void:
-	reset_game()
+	pass
 
 
 # ---- Lifecycle / stats / money / coins ----
@@ -280,17 +253,6 @@ func reset_game() -> void:
 	tutorial_seen = false
 	story_flags = {}
 	route_context = {}
-	# CONTRACTS §2 reset behavior: settings["language"] is STICKY — it persists across
-	# reset_game() (LocalizationManager is the only locale writer); never reset to "en".
-	# All other settings reset to §8 defaults.
-	var _prev_language: String = "en"
-	if typeof(settings) == TYPE_DICTIONARY and settings.has("language"):
-		_prev_language = str(settings["language"])
-	settings = _DEFAULT_SETTINGS.duplicate(true)
-	settings["language"] = _prev_language
-	audio_state = _DEFAULT_AUDIO_STATE.duplicate(true)
-	seen_endings = {}
-
 	emit_signal("save_relevant_state_changed")
 
 
@@ -1407,7 +1369,7 @@ func clear_pending_date_state() -> void:
 	emit_signal("save_relevant_state_changed")
 
 
-# ---- Flags / settings / save ----
+# ---- Flags / save ----
 func mark_opening_seen() -> void:
 	opening_seen = true
 	emit_signal("save_relevant_state_changed")
@@ -1425,19 +1387,6 @@ func set_story_flag(key: String, value: Variant) -> void:
 
 func get_story_flag(key: String, default_value: Variant = false) -> Variant:
 	return story_flags.get(key, default_value)
-
-
-func set_setting(key: String, value: Variant) -> void:
-	settings[key] = value
-	emit_signal("settings_changed")
-	emit_signal("save_relevant_state_changed")
-
-
-func set_language(locale: String) -> bool:
-	settings["language"] = locale
-	emit_signal("language_changed", locale)
-	emit_signal("save_relevant_state_changed")
-	return true
 
 
 func to_save_dict() -> Dictionary:
@@ -1491,35 +1440,6 @@ func get_save_summary() -> Dictionary:
 		"opening_seen": opening_seen,
 		"tutorial_seen": tutorial_seen,
 	}
-
-
-func record_ending_seen(ending_id: String) -> void:
-	# Records a reached ending for GalleryScene (CONTRACTS §2 Ending gallery). Empty ids ignored.
-	if ending_id == "":
-		return
-	seen_endings[ending_id] = true
-	emit_signal("save_relevant_state_changed")
-
-
-# ---- Audio state ----
-func set_audio_state_value(key: String, value: Variant) -> void:
-	audio_state[key] = value
-	emit_signal("audio_state_changed", {"key": key, "value": value})
-	emit_signal("save_relevant_state_changed")
-
-
-func get_audio_state_value(key: String, default_value: Variant = null) -> Variant:
-	return audio_state.get(key, default_value)
-
-
-func get_audio_state_save_dict() -> Dictionary:
-	return audio_state.duplicate()
-
-
-func apply_audio_state_save_dict(data: Dictionary) -> void:
-	if data is Dictionary:
-		audio_state = data.duplicate()
-	emit_signal("save_relevant_state_changed")
 
 
 # ---- Internal helpers ----

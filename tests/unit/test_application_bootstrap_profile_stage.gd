@@ -1,6 +1,7 @@
 # tests/unit/test_application_bootstrap_profile_stage.gd
 extends "res://addons/gut/test.gd"
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
+const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
 const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"select_and_prove_roots",
 	&"construct_and_inject_mutation_gate",
@@ -50,3 +51,18 @@ func test_ready_callbacks_are_side_effect_free_or_deferred_only() -> void:
 	var bootstrap_source := FileAccess.get_file_as_string("res://autoload/ApplicationBootstrap.gd")
 	assert_true(profile_source.contains("func _ready() -> void:\n\tpass"))
 	assert_true(bootstrap_source.contains("func _ready() -> void:\n\tcall_deferred(\"start\", _requested_mode_from_debug_args())"))
+
+func test_task2_owned_managers_expose_common_gate_contract() -> void:
+	for path in ["res://autoload/InputManager.gd", "res://autoload/AccessibilityManager.gd", "res://autoload/LocalizationManager.gd", "res://autoload/AudioManager.gd"]:
+		var loaded: Dictionary = PROBE.load_script(path)
+		assert_true(loaded.get("ok", false), "%s: %s" % [path, loaded])
+		var manager: Node = autofree(loaded["value"].new())
+		assert_true(manager.has_method("configure_mutation_gate"), path)
+		var gate: RefCounted = FAKE_GATE.new()
+		var first: Dictionary = manager.call(&"configure_mutation_gate", gate)
+		assert_true(first.get("ok", false), "%s: %s" % [path, first])
+		assert_eq(first["value"]["gate_instance_id"], gate.get_instance_id())
+		assert_false(first["value"]["already_configured"])
+		assert_true(manager.call(&"configure_mutation_gate", gate)["value"]["already_configured"])
+		assert_eq(manager.call(&"configure_mutation_gate", null).get("code"), &"invalid_mutation_gate")
+		assert_eq(manager.call(&"configure_mutation_gate", FAKE_GATE.new()).get("code"), &"mutation_gate_already_configured")

@@ -1,8 +1,7 @@
 extends Node
 # LocalizationManager (CONTRACTS §5): owns language lookup + locale switching.
-# Supported locales: en, zh_CN, zh_HK. Current locale is stored ONLY in
-# GameState.settings["language"]. Missing keys return "[missing:key]" and push_warning once.
-# set_locale() delegates the write to GameState.set_language() and stores it nowhere else.
+# Supported locales: en, zh_CN, zh_HK. ProfileManager owns the committed locale.
+# Missing keys return "[missing:key]" and push_warning once.
 
 signal locale_changed(locale: String)
 
@@ -20,10 +19,22 @@ var _warned_missing: Dictionary = {}
 # locale -> { key -> string }. "en" is authoritative and holds every key.
 # zh_CN / zh_HK hold translations where provided; anything absent falls back to en.
 var _tables: Dictionary = {}
+var _profile: Node
+var _mutation_gate: Object
 
 
 func _ready() -> void:
+	pass
+
+func configure_mutation_gate(gate: Object) -> Dictionary:
+	return _configure_gate(gate)
+
+func initialize(profile: Node) -> Dictionary:
+	if profile == null or not profile.has_method("get_preference") or not profile.has_method("prepare_locale_preference"):
+		return {"ok": false, "code": &"invalid_profile_manager"}
+	_profile = profile
 	_build_tables()
+	return {"ok": true}
 
 
 func _build_tables() -> void:
@@ -129,9 +140,8 @@ func get_supported_locales() -> Dictionary:
 
 
 func get_locale() -> String:
-	var gs: Node = get_node_or_null("/root/GameState")
-	if gs != null and gs.settings is Dictionary and gs.settings.has("language"):
-		var loc: String = str(gs.settings["language"])
+	if _profile != null:
+		var loc: String = str(_profile.get_preference(&"preferences.language", _DEFAULT_LOCALE))
 		if _SUPPORTED.has(loc):
 			return loc
 	return _DEFAULT_LOCALE
@@ -141,11 +151,14 @@ func set_locale(locale: String) -> bool:
 	if not _SUPPORTED.has(locale):
 		push_warning("LocalizationManager: unsupported locale '%s' rejected." % locale)
 		return false
-	var gs: Node = get_node_or_null("/root/GameState")
-	if gs != null and gs.has_method("set_language"):
-		gs.set_language(locale)
+	if _profile == null: return false
+	var prepared: Dictionary = _profile.prepare_locale_preference(locale)
+	if not prepared.get("ok", false): return false
+	var committed: Dictionary = _profile.commit_prepared_profile(prepared["value"], true)
+	if not committed.get("ok", false): return false
+	var publication_id: String = committed["value"]["publication_id"]
 	emit_signal("locale_changed", locale)
-	return true
+	return _profile.publish_deferred_profile_signals(publication_id).get("ok", false)
 
 
 func has_key(key: String) -> bool:
@@ -173,6 +186,15 @@ func _lookup(key: String) -> Variant:
 	if en.has(key):
 		return en[key]
 	return null
+
+func _configure_gate(gate: Object) -> Dictionary:
+	if gate == null or not gate.has_signal("capability_changed"): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id(): return {"ok": false, "code": &"mutation_gate_already_configured", "details": {}, "receipt": {}}
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 
 func _substitute(text: String, params: Dictionary) -> String:

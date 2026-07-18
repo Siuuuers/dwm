@@ -68,7 +68,8 @@ func _refresh_minesweeper_row() -> void:
 		"remaining": gs.get_minesweeper_display_rounds_left(),
 		"max": gs.get_minesweeper_display_rounds_max(),
 	})
-	var high_contrast: bool = gs.settings.get("high_contrast", false) if "settings" in gs else false
+	var profile := get_node_or_null("/root/ProfileManager")
+	var high_contrast := bool(profile.get_preference(&"preferences.accessibility.high_contrast", false)) if profile != null else false
 	if gs.get_minesweeper_display_rounds_left() > 0 and not high_contrast:
 		_minesweeper_round_row.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25))
 	else:

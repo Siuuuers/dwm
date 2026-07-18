@@ -25,12 +25,12 @@ func _refresh_tiles() -> void:
 		return
 	for child in _ending_tile_grid.get_children():
 		child.queue_free()
-	if not has_node("/root/GameState"):
+	if not has_node("/root/ProfileManager"):
 		return
-	var gs := get_node("/root/GameState")
+	var profile := get_node("/root/ProfileManager")
 	var loc = get_node("/root/LocalizationManager") if has_node("/root/LocalizationManager") else null
 	for ending_id in ALL_ENDING_IDS:
-		if not gs.seen_endings.get(ending_id, false):
+		if not profile.has_gallery_unlock("ending." + ending_id):
 			continue
 		var tile := Button.new()
 		tile.focus_mode = Control.FOCUS_ALL

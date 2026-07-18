@@ -46,14 +46,11 @@ func test_volume_settings_apply_no_crash() -> void:
 	assert_true(true, "applying volume settings did not crash")
 
 
-func test_audio_state_save_dict_json_safe() -> void:
-	var d := GameState.get_audio_state_save_dict()
-	var json := JSON.stringify(d)
-	var reparsed := JSON.new()
-	assert_eq(reparsed.parse(json), OK, "audio state save dict is JSON-safe")
+func test_runtime_audio_context_is_not_run_save_state() -> void:
+	assert_false(GameState.to_save_dict().has("audio_state"))
 
 
-func test_apply_unknown_bgm_id_no_crash() -> void:
-	GameState.apply_audio_state_save_dict({"current_bgm_id": "nonexistent_track"})
+func test_unknown_runtime_context_no_crash() -> void:
+	AudioManager.set_music_context("unknown", {"current_bgm_id": "nonexistent_track"})
 	AudioManager.refresh_current_context()
 	assert_true(true, "loading save with unknown current_bgm_id did not crash")

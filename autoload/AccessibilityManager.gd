@@ -1,21 +1,28 @@
 extends Node
-# AccessibilityManager (CONTRACTS §8): owns UI readability settings and their application
-# to trees. Reads settings from GameState.settings. Never conveys essential info by color
+# AccessibilityManager (CONTRACTS §8): applies committed profile readability preferences
+# to trees. Never conveys essential info by color
 # alone; every apply method is crash-safe on partial/empty trees.
 
 
-func _settings() -> Dictionary:
-	var gs := get_node_or_null("/root/GameState")
-	if gs != null and gs.get("settings") is Dictionary:
-		return gs.settings
-	return {}
+var _profile: Node
+var _mutation_gate: Object
+
+func _ready() -> void:
+	pass
+
+func configure_mutation_gate(gate: Object) -> Dictionary:
+	return _configure_gate(gate)
+
+func initialize(profile: Node) -> Dictionary:
+	if profile == null or not profile.has_method("get_preference"): return {"ok": false, "code": &"invalid_profile_manager"}
+	_profile = profile
+	return {"ok": true}
 
 
 func _setting(key: String, default_value: Variant) -> Variant:
-	var s := _settings()
-	if s.has(key):
-		return s[key]
-	return default_value
+	if _profile == null: return default_value
+	var group := "dialogue" if key in ["text_speed", "auto_text_speed"] else "accessibility"
+	return _profile.get_preference(StringName("preferences.%s.%s" % [group, key]), default_value)
 
 
 func apply_settings_to_tree(root: Node) -> void:
@@ -134,3 +141,12 @@ func get_text_box_opacity() -> float:
 
 func get_subtitle_background_opacity() -> float:
 	return float(_setting("subtitle_background_opacity", 0.85))
+
+func _configure_gate(gate: Object) -> Dictionary:
+	if gate == null or not gate.has_signal("capability_changed"): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id(): return {"ok": false, "code": &"mutation_gate_already_configured", "details": {}, "receipt": {}}
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}

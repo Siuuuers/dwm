@@ -24,10 +24,22 @@ var _voice_player: AudioStreamPlayer
 # AudioManifest is a RefCounted instance (not called statically) so its get_path(category,id)
 # does not collide with the built-in Resource.get_path() on the class object.
 var _manifest := AudioManifest.new()
+var _profile: Node
+var _mutation_gate: Object
 
 
 func _ready() -> void:
+	pass
+
+func configure_mutation_gate(gate: Object) -> Dictionary:
+	return _configure_gate(gate)
+
+func initialize(profile: Node) -> Dictionary:
+	if profile == null or not profile.has_method("get_preference"): return {"ok": false, "code": &"invalid_profile_manager"}
+	_profile = profile
 	ensure_audio_players()
+	apply_volume_settings()
+	return {"ok": true}
 
 
 func _gs() -> Node:
@@ -60,10 +72,8 @@ func ensure_audio_buses() -> void:
 
 
 func _setting(key: String, default_value: Variant) -> Variant:
-	var gs := _gs()
-	if gs != null and gs.get("settings") is Dictionary and (gs.settings as Dictionary).has(key):
-		return gs.settings[key]
-	return default_value
+	if _profile == null: return default_value
+	return _profile.get_preference(StringName("preferences.audio." + key), default_value)
 
 
 func apply_volume_settings() -> void:
@@ -114,7 +124,6 @@ func play_bgm(track_id: String, fade_seconds: float = -1.0, force_restart: bool 
 	_bgm_player.stream = stream
 	_bgm_player.play()
 	_current_bgm_id = track_id
-	_set_audio_state("current_bgm_id", track_id)
 	emit_signal("bgm_changed", track_id, previous)
 	return {"ok": true, "track_id": track_id}
 
@@ -124,7 +133,6 @@ func stop_bgm(fade_seconds: float = -1.0) -> Dictionary:
 	if _bgm_player != null:
 		_bgm_player.stop()
 	_current_bgm_id = ""
-	_set_audio_state("current_bgm_id", "")
 	emit_signal("bgm_stopped", previous)
 	return {"ok": true, "previous_track_id": previous}
 
@@ -159,7 +167,6 @@ func play_ambience(track_id: String, fade_seconds: float = -1.0, force_restart: 
 	_ambience_player.stream = stream
 	_ambience_player.play()
 	_current_ambience_id = track_id
-	_set_audio_state("current_ambience_id", track_id)
 	emit_signal("ambience_changed", track_id, previous)
 	return {"ok": true, "track_id": track_id}
 
@@ -169,7 +176,6 @@ func stop_ambience(fade_seconds: float = -1.0) -> Dictionary:
 	if _ambience_player != null:
 		_ambience_player.stop()
 	_current_ambience_id = ""
-	_set_audio_state("current_ambience_id", "")
 	return {"ok": true, "previous_track_id": previous}
 
 
@@ -209,8 +215,6 @@ func play_voice(cue_id: String) -> Dictionary:
 func set_music_context(context_id: String, context: Dictionary = {}) -> Dictionary:
 	_current_context_id = context_id
 	_current_context = context.duplicate(true)
-	_set_audio_state("current_context_id", context_id)
-	_set_audio_state("current_context", _current_context)
 	emit_signal("audio_context_changed", context_id, _current_context)
 	var track := resolve_bgm_for_context(context_id, context)
 	if track == "":
@@ -337,14 +341,18 @@ func resume_music() -> void:
 func set_music_muted(muted: bool) -> void:
 	if _bgm_player != null:
 		_bgm_player.stream_paused = muted
-	_set_audio_state("music_muted", muted)
+	if _profile != null: _profile.set_preference(&"preferences.audio.music_muted", muted)
 
 
 func get_missing_audio_report() -> Array:
 	return _manifest.get_missing_audio_paths()
 
 
-func _set_audio_state(key: String, value: Variant) -> void:
-	var gs := _gs()
-	if gs != null and gs.has_method("set_audio_state_value"):
-		gs.set_audio_state_value(key, value)
+func _configure_gate(gate: Object) -> Dictionary:
+	if gate == null or not gate.has_signal("capability_changed"): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id(): return {"ok": false, "code": &"mutation_gate_already_configured", "details": {}, "receipt": {}}
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}

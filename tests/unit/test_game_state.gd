@@ -1,6 +1,8 @@
 ﻿extends "res://addons/gut/test.gd"
 # GameState unit tests (prompt_docs/requirements/verification.md).
 
+const PERMANENT_PROFILE_KEYS := ["settings", "audio_state", "seen_endings"]
+
 func before_each() -> void:
 	GameState.reset_game()
 
@@ -13,6 +15,22 @@ func test_reset_game_initial_values() -> void:
 	assert_eq(GameState.get_stat("pressure"), 3)
 	assert_eq(GameState.get_stat("health"), 6)
 	assert_eq(GameState.get_stat("motivation"), 7)
+
+
+func test_run_serializer_excludes_permanent_profile_keys() -> void:
+	var run_save: Dictionary = GameState.to_save_dict()
+	for key: String in PERMANENT_PROFILE_KEYS:
+		assert_false(run_save.has(key), "run serializer still owns %s" % key)
+
+
+func test_reset_game_does_not_change_profile() -> void:
+	var profile := get_tree().root.get_node_or_null("ProfileManager")
+	assert_not_null(profile)
+	if profile == null:
+		return
+	var before: Dictionary = profile.get_profile_snapshot()
+	GameState.reset_game()
+	assert_eq(profile.get_profile_snapshot(), before)
 
 
 func test_change_stat_clamps() -> void:

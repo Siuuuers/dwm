@@ -29,7 +29,7 @@ func _show_ending() -> void:
 			bridge.start_timeline_id(ending_id)
 		else:
 			push_warning("Dialogic 2 addon file does not exist.")
-	gs.record_ending_seen(ending_id)
+	# Planned blocker: Plan 04 commits the run-scoped gallery transaction after ending playback.
 
 func _on_return_pressed() -> void:
 	if has_node("/root/SceneRouter"):

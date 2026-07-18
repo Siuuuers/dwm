@@ -2,6 +2,12 @@ extends "res://addons/gut/test.gd"
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const ROOT := "profile-tests/root"
+const LEGACY_RUN_STATE := {
+	"settings": {"language": "zh_HK", "music_volume": 0.25, "skip_unseen_text_allowed": true, "font_scale": 1.25},
+	"audio_state": {"music_muted": true, "current_bgm_id": "menu_theme", "current_ambience_id": "rain", "current_context_id": "menu", "current_context": {"day": 7}},
+	"seen_endings": {"alone": true, "ending.priscilla.sweet": true, "lavinia_priscilla": true},
+}
+const LEGACY_INPUT_MAPPINGS := {"game_quick_save": [KEY_F6], "not_registered": [KEY_F7]}
 
 var _schema: Script
 var _manager_script: Script
@@ -59,6 +65,42 @@ func test_invalid_skip_is_the_only_narrow_document_repair() -> void:
 	assert_true(repaired["value"]["migration_receipts"]["invalid_persisted_skip_mode_v1"])
 	profile["unexpected"] = true
 	assert_false(migration.call(&"prepare_document", profile).get("ok", true))
+
+func test_legacy_patch_is_exact_detached_and_discards_runtime_audio() -> void:
+	var migration := _load("res://scripts/profile/ProfileMigration.gd")
+	var run_input: Dictionary = LEGACY_RUN_STATE.duplicate(true)
+	var input_input: Dictionary = LEGACY_INPUT_MAPPINGS.duplicate(true)
+	var result: Dictionary = migration.call(&"prepare_legacy_patch", run_input, input_input)
+	assert_true(result.get("ok", false), str(result))
+	var profile: Dictionary = result["value"]
+	assert_eq(profile["preferences"]["dialogue"]["skip_mode"], "all_text")
+	assert_eq(profile["preferences"]["audio"]["music_muted"], true)
+	assert_false(JSON.stringify(profile).contains("current_bgm_id"))
+	assert_eq(profile["gallery_unlocks"], ["ending.alone", "ending.priscilla.sweet", "ending.priscilla_lavinia"])
+	assert_true(profile["input_mappings"].has("game_quick_save"))
+	assert_false(profile["input_mappings"].has("not_registered"))
+	run_input["settings"]["font_scale"] = 99.0
+	input_input["game_quick_save"].append(KEY_F8)
+	assert_eq(profile["preferences"]["accessibility"]["font_scale"], 1.25)
+	assert_eq((profile["input_mappings"]["game_quick_save"] as Array).size(), 1)
+
+func test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched() -> void:
+	var legacy_path := ROOT + "/input_bindings.json"
+	var legacy_text := "{\"game_quick_save\":[%d],\"not_registered\":[%d]}" % [KEY_F6, KEY_F7]
+	var ops: RefCounted = _fake_ops_script.new({legacy_path: legacy_text.to_utf8_buffer()})
+	var storage: RefCounted = _storage_script.new(ROOT, ops)
+	var manager: Node = autofree(_manager_script.new())
+	var initialized: Dictionary = manager.call(&"initialize", storage)
+	assert_true(initialized.get("ok", false), str(initialized))
+	var snapshot: Dictionary = manager.call(&"get_profile_snapshot")
+	assert_true(snapshot["migration_receipts"]["legacy_input_bindings_v1"])
+	assert_true(snapshot["input_mappings"].has("game_quick_save"))
+	assert_false(snapshot["input_mappings"].has("not_registered"))
+	assert_true(ops.call(&"snapshot_persisted").has(legacy_path), "legacy source remains inert and untouched")
+	var restarted_ops: RefCounted = _fake_ops_script.new(ops.call(&"snapshot_persisted"))
+	var restarted: Node = autofree(_manager_script.new())
+	assert_true(restarted.call(&"initialize", _storage_script.new(ROOT, restarted_ops)).get("ok", false))
+	assert_eq(restarted.call(&"get_input_mappings"), snapshot["input_mappings"])
 
 func test_manager_initializes_once_and_uses_detached_snapshots() -> void:
 	var fixture := _new_manager()
