@@ -57,3 +57,9 @@ func test_validate_files_rejects_physically_missing_guide() -> void:
 	var empty_snapshot: Array[Dictionary] = []
 	var result: Dictionary = load(VALIDATOR_PATH).new().validate_files(root.path_join("Prompt.md"), empty_snapshot)
 	assert_true(_has_code(result, "AGENT_WORKFLOW_POINTER_INVALID"), JSON.stringify(result.errors))
+
+func test_repository_agent_workflow_files_validate() -> void:
+	var validator: RefCounted = load(VALIDATOR_PATH).new()
+	var empty_snapshot: Array[Dictionary] = []
+	var result: Dictionary = validator.validate_files("res://Prompt.md", empty_snapshot)
+	assert_true(result.ok, JSON.stringify(result.errors))

@@ -25,7 +25,16 @@ func _load_snapshot_or_quit() -> Array[Dictionary]:
 	return typed
 
 func _init() -> void:
-	var result := VALIDATOR.new().validate_tree("res://prompt_docs", _load_snapshot_or_quit())
-	if not result.ok: printerr(JSON.stringify(result.errors)); quit(1); return
-	print("DOC_VALIDATION: PASS packets=%d" % result.packets.size())
+	var snapshot := _load_snapshot_or_quit()
+	var result := VALIDATOR.new().validate_tree("res://prompt_docs", snapshot)
+	if not result.ok:
+		printerr(JSON.stringify(result.errors))
+		quit(1)
+		return
+	var workflow := preload("res://tools/docs/AgentWorkflowValidator.gd").new().validate_files("res://Prompt.md", snapshot)
+	if not workflow.ok:
+		printerr(JSON.stringify(workflow.errors))
+		quit(1)
+		return
+	print("DOC_VALIDATION: PASS packets=%d agent_workflow=1" % result.packets.size())
 	quit(0)

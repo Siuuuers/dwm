@@ -2,18 +2,32 @@
 schema_version: 1
 kind: agent_entry
 active_phase: phase_2r
-specification_authority: docs/superpowers/specs/2026-07-17-phase-2r-foundation-repair-design.md
-plan_authority: docs/superpowers/plans/2026-07-17-phase-2r-foundation-repair.md
+specification_authority: "docs/superpowers/specs/2026-07-17-phase-2r-foundation-repair-design.md"
+plan_authority: "docs/superpowers/plans/2026-07-17-phase-2r-foundation-repair.md"
 issue_authority: beads
-generated_lookup: prompt_docs/INDEX.md
+generated_lookup: "prompt_docs/INDEX.md"
+agent_workflow_guide: "docs/agent/AGENT_WORKFLOW.md"
 context_order: ["Prompt.md","bd prime","active Phase 2R child selection","active issue","prompt_docs/phases/phase_2r.md","referenced packets","transitive requirement dependencies","prompt_docs/INDEX.md lookup"]
 forbidden_inference: ["specification status from Beads status","implementation status from specification status","verification status without executed evidence","Phase 3 readiness before dwm-p2r closure"]
 ---
 
 # Phase 2R Agent Entry
 
+For a plain-language explanation of authority, status, capability intentions, and stop conditions, read `docs/agent/AGENT_WORKFLOW.md`. That guide is navigation-only; it does not change the active selection rule below.
+
 ```powershell
 . ([IO.Path]::GetFullPath('.\tools\testing\Read-StrictJson.ps1'))
+
+$bdCommand=Get-Command bd -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($null -ne $bdCommand) {
+    $bdExecutable=[IO.Path]::GetFullPath($bdCommand.Source)
+} else {
+    if ([string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) { throw 'Beads executable not found.' }
+    $bdExecutable=[IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'Programs\bd\bd.exe'))
+}
+if (-not (Test-Path -LiteralPath $bdExecutable -PathType Leaf)) { throw 'Beads executable not found.' }
+$bdItem=Get-Item -Force -LiteralPath $bdExecutable
+if (($bdItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Beads executable must not be a reparse point.' }
 
 function ConvertFrom-BdTopLevelArray {
     param(
@@ -41,11 +55,11 @@ function ConvertFrom-BdTopLevelArray {
     }
 }
 
-bd prime
+& $bdExecutable prime
 if ($LASTEXITCODE -ne 0) { throw 'bd prime failed.' }
 $phaseChildPattern = '^dwm-p2r\.(?:[1-9]|10)$'
 
-$inProgressOutput = @(bd list --status in_progress --json --readonly)
+$inProgressOutput = @(& $bdExecutable list --status in_progress --json --readonly)
 if ($LASTEXITCODE -ne 0) { throw 'bd list --status in_progress failed.' }
 $inProgressJson = [string]::Join([Environment]::NewLine, $inProgressOutput)
 $inProgressChildren = @(
@@ -63,7 +77,7 @@ if ($inProgressChildren.Count -gt 1) {
 if ($inProgressChildren.Count -eq 1) {
     $activeIssue = $inProgressChildren[0]
 } else {
-    $readyOutput = @(bd ready --json --readonly)
+    $readyOutput = @(& $bdExecutable ready --json --readonly)
     if ($LASTEXITCODE -ne 0) { throw 'bd ready failed.' }
     $readyJson = [string]::Join([Environment]::NewLine, $readyOutput)
     $readyChildren = @(
@@ -82,7 +96,7 @@ if ($inProgressChildren.Count -eq 1) {
 }
 if ($null -eq $activeIssue) { throw 'No in-progress or ready Phase 2R child; stop without inventing work.' }
 $activeIssueId = [string]$activeIssue.id
-bd show $activeIssueId --json --readonly
+& $bdExecutable show $activeIssueId --json --readonly
 if ($LASTEXITCODE -ne 0) { throw "bd show failed for $activeIssueId." }
 ```
 
