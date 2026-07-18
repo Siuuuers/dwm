@@ -58,8 +58,7 @@ func test_accessibility_apply_no_crash() -> void:
 	AccessibilityManager.apply_high_contrast(root, true)
 	AccessibilityManager.apply_reduced_motion_to_tree(root)
 	AccessibilityManager.apply_settings_to_tree(root)
-	LocalizationManager.refresh_tree(root)
-	assert_true(true, "accessibility + localization application did not crash")
+	assert_true(true, "accessibility application did not require a recursive localization walk")
 	root.queue_free()
 
 

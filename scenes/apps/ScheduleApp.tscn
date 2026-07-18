@@ -1,10 +1,55 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/shared/AppWindowBase.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/ScheduleApp.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="99_presentation"]
+[ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="98_binding"]
 
 [node name="ScheduleApp" instance=ExtResource("1")]
 script = ExtResource("2")
+
+[node name="LocalePresentationRoot" type="Node" parent="."]
+script = ExtResource("99_presentation")
+
+[node name="L10nDating" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/ActionButtonRow/DatingButton")
+key = "schedule.action.dating"
+
+[node name="L10nTraining" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/ActionButtonRow/TrainingButton")
+key = "schedule.action.training"
+
+[node name="L10nWorking" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/ActionButtonRow/WorkingButton")
+key = "schedule.action.working"
+
+[node name="L10nRest" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/ActionButtonRow/RestButton")
+key = "schedule.action.rest"
+
+[node name="L10nDone" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/BottomButtonRow/DoneButton")
+key = "button.done"
+
+[node name="L10nAlertClose" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox/AlertHeader/AlertCloseButton")
+key = "button.close"
+
+[node name="L10nAlertGo" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox/AlertButtonRow/AlertGoButton")
+key = "button.go"
+
+[node name="L10nAlertYes" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/ScheduleRoot/MinesweeperWarningAlert/AlertVBox/AlertButtonRow/AlertYesButton")
+key = "button.yes"
 
 [node name="ScheduleRoot" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost"]
 layout_mode = 2

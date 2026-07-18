@@ -1,9 +1,30 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/DialogueBox.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="2_binding"]
 
 [node name="DialogueBox" type="PanelContainer"]
 script = ExtResource("1")
+
+[node name="L10nLog" type="Node" parent="."]
+script = ExtResource("2_binding")
+target_path = NodePath("../VBox/ControlRow/LogButton")
+key = "dialogue.log"
+
+[node name="L10nSkip" type="Node" parent="."]
+script = ExtResource("2_binding")
+target_path = NodePath("../VBox/ControlRow/SkipButton")
+key = "dialogue.skip"
+
+[node name="L10nAuto" type="Node" parent="."]
+script = ExtResource("2_binding")
+target_path = NodePath("../VBox/ControlRow/AutoButton")
+key = "dialogue.auto"
+
+[node name="L10nNext" type="Node" parent="."]
+script = ExtResource("2_binding")
+target_path = NodePath("../VBox/ControlRow/NextButton")
+key = "dialogue.next"
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2

@@ -106,6 +106,13 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var manager := _target(&"ProfileManager")
 			if manager == null or not manager.has_method("initialize"): return _failure(&"missing_profile_manager", "ProfileManager initializer is unavailable")
 			return manager.call(&"initialize", _profile_storage)
+		&"initialize_localization", &"initialize_input", &"initialize_accessibility":
+			var target_name := _stage_target(stage_id)
+			var target := _target(target_name)
+			var profile := _target(&"ProfileManager")
+			if target == null or not target.has_method("initialize"): return _failure(&"missing_stage_adapter", "%s initializer is unavailable" % target_name)
+			if profile == null: return _failure(&"missing_profile_manager", "ProfileManager dependency is unavailable")
+			return target.call(&"initialize", profile)
 		&"publish_application_ready":
 			return {"ok": true}
 		_:
@@ -170,7 +177,7 @@ func _requested_mode_from_debug_args() -> StringName:
 	return MODE_FINAL
 
 func _explicit_requested_mode() -> StringName:
-	for argument in OS.get_cmdline_args():
+	for argument in OS.get_cmdline_args() + OS.get_cmdline_user_args():
 		if argument.begins_with("--phase2r-bootstrap-mode="):
 			return StringName(argument.trim_prefix("--phase2r-bootstrap-mode="))
 	return &""

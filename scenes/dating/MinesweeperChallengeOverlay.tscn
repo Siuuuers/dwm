@@ -1,9 +1,34 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MinesweeperChallengeOverlay.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="99_presentation"]
+[ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="98_binding"]
 
 [node name="MinesweeperChallengeOverlay" type="PanelContainer"]
 script = ExtResource("1")
+
+[node name="LocalePresentationRoot" type="Node" parent="."]
+script = ExtResource("99_presentation")
+
+[node name="L10nTitle" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBox/TitleLabel")
+key = "challenge.title"
+
+[node name="L10nTruePath" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBox/NormalResultButtons/TruePathButton")
+key = "challenge.true_path"
+
+[node name="L10nDarkMine" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBox/DarkPathButtons/DarkMineButton")
+key = "challenge.dark_mine"
+
+[node name="L10nClose" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBox/CancelOrCloseButton")
+key = "button.close"
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2

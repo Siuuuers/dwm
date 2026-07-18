@@ -1,9 +1,25 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SaveSlotRow.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="2_binding"]
 
 [node name="SaveSlotRow" type="PanelContainer"]
 script = ExtResource("1")
+
+[node name="L10nSave" type="Node" parent="."]
+script = ExtResource("2_binding")
+target_path = NodePath("../VBox/ButtonRow/SaveButton")
+key = "button.save"
+
+[node name="L10nLoad" type="Node" parent="."]
+script = ExtResource("2_binding")
+target_path = NodePath("../VBox/ButtonRow/LoadButton")
+key = "button.load"
+
+[node name="L10nDelete" type="Node" parent="."]
+script = ExtResource("2_binding")
+target_path = NodePath("../VBox/ButtonRow/DeleteButton")
+key = "button.delete"
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2

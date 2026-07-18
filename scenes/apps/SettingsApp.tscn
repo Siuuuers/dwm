@@ -1,15 +1,23 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/shared/AppWindowBase.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/SettingsApp.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="3_presentation"]
 
 [node name="SettingsApp" instance=ExtResource("1")]
 script = ExtResource("2")
+
+[node name="LocalePresentationRoot" type="Node" parent="."]
+script = ExtResource("3_presentation")
 
 [node name="LanguageOption" type="OptionButton" parent="VBoxContainer/ContentMargin/ContentHost"]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 2
+
+[node name="LanguageStatus" type="Label" parent="VBoxContainer/ContentMargin/ContentHost"]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="AccessibilityContainer" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost"]
 unique_name_in_owner = true

@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/EndingScene.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="99_presentation"]
+[ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="98_binding"]
 
 [node name="EndingScene" type="Control"]
 layout_mode = 3
@@ -8,6 +10,19 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("1")
+
+[node name="LocalePresentationRoot" type="Node" parent="."]
+script = ExtResource("99_presentation")
+
+[node name="L10nTitle" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../EndingTitleLabel")
+key = "ending.title"
+
+[node name="L10nReturn" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../ReturnToMenuButton")
+key = "button.return_to_menu"
 
 [node name="EndingTitleLabel" type="Label" parent="."]
 unique_name_in_owner = true

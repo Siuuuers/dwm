@@ -1,10 +1,40 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/shared/AppWindowBase.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/MinesweeperApp.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="99_presentation"]
+[ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="98_binding"]
 
 [node name="MinesweeperApp" instance=ExtResource("1")]
 script = ExtResource("2")
+
+[node name="LocalePresentationRoot" type="Node" parent="."]
+script = ExtResource("99_presentation")
+
+[node name="L10nExploded" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/MinesweeperRoot/SimulationButtons/ExplodedButton")
+key = "minesweeper.result.exploded"
+
+[node name="L10nClear" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/MinesweeperRoot/SimulationButtons/ClearButton")
+key = "minesweeper.result.clear"
+
+[node name="L10nPerfect" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/MinesweeperRoot/SimulationButtons/PerfectButton")
+key = "minesweeper.result.perfect"
+
+[node name="L10nNoFlag" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/MinesweeperRoot/SimulationButtons/NoFlagButton")
+key = "minesweeper.result.no_flag_clear"
+
+[node name="L10nForesight" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/MinesweeperRoot/SimulationButtons/ForesightButton")
+key = "minesweeper.result.foresight_clear"
 
 [node name="MinesweeperRoot" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost"]
 layout_mode = 2

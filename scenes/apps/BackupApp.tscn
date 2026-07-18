@@ -1,11 +1,21 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/shared/AppWindowBase.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/BackupApp.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/shared/SaveSlotRow.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="99_presentation"]
+[ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="98_binding"]
 
 [node name="BackupApp" instance=ExtResource("1")]
 script = ExtResource("2")
+
+[node name="LocalePresentationRoot" type="Node" parent="."]
+script = ExtResource("99_presentation")
+
+[node name="L10nReturn" type="Node" parent="."]
+script = ExtResource("98_binding")
+target_path = NodePath("../VBoxContainer/ContentMargin/ContentHost/BackupRoot/ReturnButton")
+key = "button.return"
 
 [node name="BackupRoot" type="VBoxContainer" parent="VBoxContainer/ContentMargin/ContentHost"]
 layout_mode = 2

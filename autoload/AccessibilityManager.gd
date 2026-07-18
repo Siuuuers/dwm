@@ -32,13 +32,12 @@ func apply_settings_to_tree(root: Node) -> void:
 	apply_high_contrast(root, bool(_setting("high_contrast", false)))
 	apply_large_click_targets(root)
 	apply_reduced_motion_to_tree(root)
-	refresh_visible_text(root)
 
 
 func apply_font_scale(root: Node, scale: float) -> void:
 	if root == null or scale <= 0.0:
 		return
-	# Store the scale as metadata so LocalizedText/UI helpers can apply it; also nudge
+	# Store the scale as metadata so presentation helpers can apply it; also nudge
 	# Controls that expose a base font size, guarding against missing theme entries.
 	if root is Control:
 		(root as Control).set_meta("a11y_font_scale", scale)
@@ -86,15 +85,6 @@ func get_text_delay() -> float:
 func get_auto_advance_delay() -> float:
 	var speed := float(_setting("auto_text_speed", 1.0))
 	return 2.0 / maxf(0.1, speed)
-
-
-func refresh_visible_text(root: Node) -> void:
-	if root == null:
-		return
-	if root.has_method("refresh_localized_text"):
-		root.call("refresh_localized_text")
-	for child in root.get_children():
-		refresh_visible_text(child)
 
 
 func apply_large_click_targets(root: Node) -> void:
