@@ -5,7 +5,21 @@ schema_version: 1
 conversational_design_status: approved
 written_spec_status: approved
 self_review_status: passed
-implementation_authorized: false
+implementation_authorized: true
+implementation_plan_path: "docs/superpowers/plans/2026-07-18-agent-workflow-navigation-manual.md"
+implementation_plan_status: approved
+implementation_plan_sha256: e0fe816cdb0b26627652f8e350347b9341ccb99c525fd29f8aded2aa160e7b8b
+implementation_execution_mode: subagent_driven
+implementation_approved_by: project_owner
+implementation_authorization_state: approved
+implementation_authorization_scope: agent_workflow_manual_plan_tasks_1_through_3_only
+implementation_base_commit: e8162b548fca7954bc66ca2e0affc60bbac62182
+implementation_plan_approved_on: 2026-07-18
+implementation_authorized_on: 2026-07-18
+implementation_commit_authorized: true
+implementation_commit_approved_by: project_owner
+implementation_commit_scope: exact_path_boundaries_in_approved_plan_only
+implementation_commit_authorized_on: 2026-07-18
 implementation_evidence: []
 verification_evidence: []
 created_on: 2026-07-18
@@ -117,14 +131,16 @@ Rules:
 - Every `authority_links` element has exactly `kind` and `target`, both ordinary nonempty strings.
 - `kind` is exactly one of `beads_issue`, `requirement_id`, `specification_id`, `decision_id`, or `plan_path`.
 - `target` resolution is deterministic:
-  - `beads_issue`: `bd show <target> --json --readonly` returns exactly one issue. Existence does not imply readiness or execution permission.
+  - `beads_issue`: `bd show <target> --json --readonly` returns exactly one issue. Automated validation MAY use the strict all-status snapshot produced by `tools/beads/Export-BeadsSnapshot.ps1` and MUST find the exact ID once. Existence does not imply readiness or execution permission.
   - `requirement_id`: `prompt_docs/INDEX.md` maps the exact requirement ID to exactly one packet whose `specification_status` is `approved`.
   - `specification_id`: exactly one specification frontmatter has the matching `id`, `conversational_design_status: approved`, and `written_spec_status: approved`.
   - `decision_id`: `prompt_docs/INDEX.md` maps the exact decision ID to exactly one decision packet whose `specification_status` is `approved` and whose `decision_status` is exactly `accepted`.
-  - `plan_path`: the target is one regular repository-relative Markdown file under `docs/superpowers/plans/` with YAML frontmatter containing `plan_status: approved`. A plan without that machine-readable approval is not linkable.
+  - `plan_path`: the target is one regular repository-relative Markdown file under `docs/superpowers/plans/`. Exactly one approved specification MUST bind that exact path with `implementation_plan_path`, `implementation_plan_status: approved`, and `implementation_plan_sha256` equal to the lowercase SHA-256 digest of the plan's canonical text: valid UTF-8 without a BOM and with CRLF or CR normalized to LF. A plan's own prose or self-declared status is not approval authority.
 - An empty `authority_links` array means the intention is not executable.
 - A nonempty array does not itself authorize work; all links must resolve, the active Beads issue and approval fields still govern, and the separate execution-permission rule still applies.
 - Adding or changing an authority link requires validation of the target and a normal reviewed documentation change.
+
+Specification and plan resolution reads a deterministic projection of top-level scalar approval fields from the first exact YAML frontmatter block. A projected value is either a strict JSON string or a bare scalar matching `^[A-Za-z0-9_.-]+$`; slash-containing paths MUST use JSON strings. The resolver MUST reject duplicate, indented, malformed, or ambiguous projected fields. It MAY ignore unrelated frontmatter fields so an unrelated legacy scalar cannot silently become approval evidence. Plan approval is recorded only after the user approves the exact canonical plan text; any later canonical-text change invalidates the recorded digest until the changed plan is reviewed again. Newline-only checkout conversion does not invalidate approval.
 
 For this contract, a numbered phase label is any case-insensitive match of `\bphase(?:\s+|[-_])?[0-9]+[a-z0-9._-]*\b` anywhere in the manual. Examples rejected by the validator include `Phase 3`, `phase3`, `phase-3`, `PHASE_3`, and `Phase 3A1`. The ordinary words `phase` and `phases` without a number are outside this detector, although the manual SHOULD prefer `work`, `capability`, or `initiative` when those words are clearer.
 
