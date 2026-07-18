@@ -118,6 +118,72 @@ Minesweeper engine deserves its own dedicated issues before it is called "design
 
 ---
 
+## NEW idea 3 — The God of Love (invisible systemic pressure) + the true-path thesis
+
+Not in any recovered doc. The single most load-bearing new concept from the session:
+it supplies the *fictional source* of the "dread you can't explain."
+
+**Thesis (the game in one line):**
+> Attraction may pull two people into the same room. Choice decides whether staying
+> there means love.
+
+**The God of Love** is an unseen force. It is NEVER a cute mascot and NEVER canon on
+the player's side — it does not appear, is never confirmed, and characters are wholly
+unaware of it. It acts only as *subtle systemic pressure*:
+
+- It can increase **collisions** (make two people end up in the same place).
+- It can amplify **attraction**.
+- It can make **meetings more likely**.
+- It **cannot** define consent or force a choice.
+
+Every intervention must be **physically possible and individually deniable**:
+coincidence, accident, a system/computer error, weather, a mistimed message, a
+crossed path. No single event is provably supernatural; the *accumulation* is what
+unsettles. Characters treat the strange as normal ("as usual") — the player is the
+only one whose neck prickles.
+
+**Design consequences:**
+
+- This is the answer to the open "how does the player half-notice the board matters /
+  why does anything feel wrong" question. Dread is sourced in *statistics that feel
+  slightly off*, not gore or jump-scares.
+- It cleanly splits authorship: the God controls **proximity** (collisions, pull,
+  likelihood); the player controls **what happens in the room** (the board, choices).
+- It reframes routes: a **dark ending** is where someone let the *pull* decide instead
+  of *choosing* — they mistook arrival-in-the-same-room for love. The **true path**
+  (the hard, earned streak) is where choice, not proximity, does the work — hence the
+  thesis is literally the true path's thesis.
+- Delivery candidates (physically-possible-only): desktop clock/timestamp drift as
+  dark-points rise; a message that arrives just before you'd have needed it; weather
+  or a "system error" that cancels one plan and creates another; an app that opens
+  itself. All ambient, none confirmed.
+
+Open questions: how strongly should God-of-Love nudges correlate with dark-point
+level (louder as you darken)? Should any nudge ever be *readable* in hindsight on a
+true-path replay (tie-in to NEW idea 1's "faint trail")?
+
+## NEW idea 4 — No authored opening/tutorial; explore-first with Angela's self-talk
+
+Designer preference: do NOT build a scripted OpeningScene or tutorial sequence.
+Player learns by exploring the desktop. In place of a tutorial, **Angela emits short
+self-directed dialogue on the left panel** (over her portrait image) — ambient inner
+monologue that orients the player without a formal teaching flow.
+
+- Replaces the existing `OpeningScene` / `TutorialOverlay` scripted beats with
+  ambient, diegetic guidance.
+- Fits the God-of-Love tone: Angela's self-talk can register small wrongnesses as
+  "normal" ("weird, the clock's off again"), seeding dread while pretending to teach.
+- Implementation note: this is left-panel monologue on `MainGameScene`, not a Dialogic
+  timeline necessarily; keep it lightweight and skippable-by-ignoring.
+
+## Confirmed-for-game — Sylvia hospital "how did she know" scene
+
+Designer accepted the session's surveillance reading: Angela neglects her body →
+faints before the Sylvia date → Sylvia is *already at the hospital that day*. The
+scare is the unanswered **"how did she know?"** — being cared for is the trap. This
+is the intended fiction for the `sylvia.special` ending (recovered `FLOWS.md §6`,
+`CONTENT.md §13` `ending_sylvia_special`). Expand per session brainstorm.
+
 ## Suggested follow-ups (not yet filed as issues)
 
 - Decide dark-mode unlock scope (any vs specific friend's dark ending).
