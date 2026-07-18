@@ -1,0 +1,215 @@
+---
+id: spec.agent_workflow.navigation_manual
+kind: design_specification
+schema_version: 1
+conversational_design_status: approved
+written_spec_status: review_required
+self_review_status: passed
+implementation_authorized: false
+implementation_evidence: []
+verification_evidence: []
+created_on: 2026-07-18
+self_reviewed_on: 2026-07-18
+beads_issue: dwm-2oy
+---
+
+# Agent Workflow Navigation Manual
+
+## 1. Objective
+
+Create an agent-first, human-readable navigation manual that explains how to find and execute valid project work without becoming an additional source of behavioral, status, design, implementation, or verification authority.
+
+The manual MUST help an agent answer five questions before it changes the repository:
+
+1. Which source owns the information it needs?
+2. Which bounded work item, if any, is valid now?
+3. Which context must it load for that work item?
+4. Which conditions require it to stop?
+5. What evidence is required before it may report completion?
+
+## 2. Context
+
+The repository deliberately separates authority among the entry contract, Beads, requirement packets, specifications, implementation plans, code, and executed evidence. This separation prevents a stale summary from silently overriding a newer decision or a passing commit from being mistaken for completion of a larger initiative.
+
+The previous monolithic roadmap format mixed intentions, execution order, commands, and status. Recreating that format would reintroduce duplicate authority and context drift. The approved replacement is a navigation-only guide plus an unordered catalog of capability intentions.
+
+## 3. Authority Boundary
+
+The manual MUST declare these exact machine-readable properties:
+
+```yaml
+document_role: navigation_only
+execution_authority: false
+status_authority: false
+behavior_authority: false
+verification_authority: false
+```
+
+The manual MUST NOT authorize implementation, select work by itself, mark work complete, define gameplay behavior, prescribe implementation details, or treat an intention as scheduled work.
+
+The authority map is:
+
+| Concern | Sole authority |
+|---|---|
+| Agent entry and context-selection rules | `Prompt.md` |
+| Work status, dependency order, and active assignment | Beads |
+| Required behavior and invariants | Approved requirement packets |
+| Approved architectural decisions | Approved specifications and decision packets |
+| Exact implementation procedure | Approved implementation plans |
+| Physical behavior | Code and assets in the inspected worktree or tested commit |
+| Verification status | Executed evidence tied to the tested subject |
+
+If two authorities disagree within their own domains, the agent MUST report the conflict and stop the affected work. It MUST NOT resolve the conflict by choosing whichever document is easiest to follow.
+
+## 4. Entry and Context Flow
+
+`Prompt.md` remains the only initial repository entry point. It receives one resolvable pointer to `docs/agent/AGENT_WORKFLOW.md`.
+
+The guide teaches this flow:
+
+```text
+Prompt.md
+  -> initialize Beads context
+  -> inspect in-progress and ready work
+  -> select exactly one valid bounded issue
+  -> inspect that issue and its dependencies
+  -> load only linked requirement packets and their transitive dependencies
+  -> load an approved specification and implementation plan when the requested action requires them
+  -> inspect the physical code and tests named by the work item
+  -> execute, verify, record evidence, and update Beads only within granted authority
+```
+
+The guide MUST explain this flow in plain language immediately after the machine-readable contract.
+
+## 5. Status Model
+
+The manual MUST distinguish these states:
+
+- A commit records a bounded repository change. It does not prove that a child issue, parent epic, or product capability is complete.
+- A closed child issue means only that its acceptance criteria were satisfied and recorded.
+- A parent epic is complete only when Beads marks that epic closed after its required children and gates are complete.
+- A specification may be approved while implementation remains absent.
+- An implementation may exist while verification remains absent or stale.
+- Markdown prose, checkboxes, filenames, and capability intentions never own current work status.
+
+Agents MUST query Beads rather than copy mutable status into the manual.
+
+## 6. Capability Intentions
+
+The manual contains a concise, unordered catalog of desired outcomes. Each record uses this shape:
+
+```yaml
+- intention_id: stable_lower_snake_case_id
+  purpose: one plain-language outcome
+  authority_links: []
+```
+
+Rules:
+
+- The catalog MUST NOT use numbered phase labels, sequence numbers, dates, completion claims, task checklists, implementation commands, or copied requirement text.
+- `purpose` describes why the capability is desirable, not how to build it.
+- `authority_links` contains only approved Beads, requirement, specification, decision, or plan identifiers that physically exist.
+- An empty `authority_links` array means the intention is not executable.
+- A nonempty array does not itself authorize work; the linked Beads status and approval fields still govern.
+- Adding or changing an authority link requires validation of the target and a normal reviewed documentation change.
+
+The initial catalog covers only broad intentions already present in the archived project direction: a usable desktop experience, complete narrative presentation and endings, whole-project quality hardening, and a real playable Minesweeper experience. It MUST NOT reproduce archived implementation instructions.
+
+## 7. Intention Activation
+
+The manual explains that an intention becomes executable only through this lifecycle:
+
+```text
+intention
+  -> bounded Beads issue
+  -> clarified and approved design or decision when needed
+  -> approved requirement/specification authority
+  -> approved implementation plan
+  -> explicit execution authority
+  -> implementation and tests
+  -> evidence tied to the tested subject
+  -> Beads closure
+```
+
+No step may infer the next step's approval. If an intention lacks a required link or approval, the agent MUST ask the user to design or authorize that step rather than implement it.
+
+## 8. Stop Conditions and Failure Reporting
+
+The manual MUST require the agent to stop affected work when any of these conditions holds:
+
+- no in-progress or ready bounded issue exists;
+- more than one issue appears active and the selection rule cannot choose exactly one;
+- a required authority link is missing, broken, unapproved, or contradictory;
+- the requested behavior is absent from approved requirements;
+- the implementation plan does not cover the requested mutation;
+- execution authority for a gated action is missing;
+- a required prerequisite is unavailable;
+- the worktree differs from the assumptions bound by the plan;
+- verification did not run, failed, ignored a subject, or tested another subject;
+- completion would require inventing content or behavior.
+
+A stop report states the physical observation, the owning authority, the blocked action, and the smallest decision or change needed to continue. It MUST NOT disguise missing authority as a technical failure.
+
+## 9. Safe User Prompts
+
+The manual provides short prompt templates for these intentions:
+
+- explain current project status without changing files;
+- select and explain the next valid Beads issue;
+- turn one capability intention into a design proposal;
+- write an implementation plan from an approved specification;
+- execute one approved issue and run its evidence gate;
+- audit authority drift or broken links;
+- explain a failure or blocker in plain language.
+
+Every execution template directs the agent to inspect current authority first. No template grants commit, push, deletion, evidence sealing, or external-system authority implicitly.
+
+## 10. Deliverables
+
+Implementation creates or modifies only the bounded documentation/tooling surface needed for the guide:
+
+- Create `docs/agent/AGENT_WORKFLOW.md`.
+- Modify `Prompt.md` with one guide pointer and a bounded rule describing when to consult it.
+- Add an automated contract test that proves the pointer resolves and the manual retains its navigation-only declarations.
+- Reuse existing documentation validation where possible; do not broaden runtime gameplay scope.
+- Record implementation and verification evidence in Beads issue `dwm-2oy`.
+
+## 11. Validation
+
+Automated validation MUST prove:
+
+- the `Prompt.md` pointer resolves to exactly one regular Markdown file;
+- the manual has exactly one YAML frontmatter block;
+- all five authority declarations exist with their frozen values;
+- capability intention IDs are unique lower-snake-case strings;
+- each intention has exactly `intention_id`, `purpose`, and `authority_links`;
+- the catalog contains no numbered phase labels;
+- authority links are either empty or resolve to physically present approved authority;
+- no placeholder markers such as `TBD`, `TODO`, or `My first issue` exist;
+- the normal documentation/tooling gate and `git diff --check` pass.
+
+The final verification report MUST state the exact commands, tested subject, pass/fail counts, and any bounded external warnings. A process exit code alone is insufficient when the log can reveal ignored or unparsed tests.
+
+## 12. Non-Goals
+
+This work MUST NOT:
+
+- recreate a master executable roadmap;
+- number, schedule, or declare completion of future capability intentions;
+- copy behavioral contracts into the manual;
+- change gameplay, save, localization, audio, narrative, UI, or Minesweeper runtime behavior;
+- create implementation issues for every intention automatically;
+- close or alter the active foundation-repair epic;
+- read archived roadmap prose as current execution authority;
+- commit unrelated worktree changes.
+
+## 13. Acceptance Criteria
+
+The design is implemented when:
+
+1. The final guide is agent-first and understandable without prior knowledge of the authority system.
+2. `Prompt.md` points to it without changing the current work-selection authority chain.
+3. The guide contains no numbered future roadmap or executable requirement duplication.
+4. Agents can determine status, select context, activate an intention safely, and stop on missing authority using only the guide's navigation rules and linked authorities.
+5. Automated validation catches a broken pointer, altered authority declaration, duplicate intention ID, numbered phase label, unresolved nonempty authority link, and placeholder marker.
+6. The user reviews the written guide before the documentation issue closes.
