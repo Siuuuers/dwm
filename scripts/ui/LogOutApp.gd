@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name LogOutApp
 
-## Log-out confirmation panel (FLOWS.md §9).
+## Log-out confirmation panel (prompt_docs/requirements/desktop_minesweeper_handoff.md).
 
 @onready var confirm_label: Label = %ConfirmLabel
 @onready var yes_button: Button = %YesButton

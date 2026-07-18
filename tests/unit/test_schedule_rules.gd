@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# Schedule rules unit tests (TESTING.md §test_schedule_rules).
+# Schedule rules unit tests (prompt_docs/requirements/verification.md).
 
 func before_each() -> void:
 	GameState.reset_game()

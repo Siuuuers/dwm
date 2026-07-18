@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name ShopItemBox
 
-## Single purchasable item row/card (FLOWS.md §9, CONTENT.md §7).
+## Single purchasable item row/card (prompt_docs/INDEX.md).
 
 @onready var item_image: TextureRect = %ItemImage
 @onready var name_label: Label = %NameLabel

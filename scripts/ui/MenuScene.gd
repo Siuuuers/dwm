@@ -1,7 +1,7 @@
 extends Control
 class_name MenuScene
 
-## Menu logic: New Acc / Log in / Gallery / Setting / Shut down (FLOWS.md §9).
+## Menu logic: New Acc / Log in / Gallery / Setting / Shut down (prompt_docs/INDEX.md).
 
 const BACKUP_APP_SCENE := preload("res://scenes/apps/BackupApp.tscn")
 const SETTING_SCENE := preload("res://scenes/menu/Setting.tscn")

@@ -1,7 +1,7 @@
 extends AppWindowBase
 class_name ContactListApp
 
-## Contact list + chat panel app window (FLOWS.md §5, §9).
+## Contact list + chat panel app window (prompt_docs/requirements/contacts_invitations.md).
 
 @onready var contact_list: VBoxContainer = %ContactList
 @onready var chat_title_label: Label = %ChatTitleLabel

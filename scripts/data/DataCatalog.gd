@@ -2,7 +2,7 @@ class_name DataCatalog
 extends RefCounted
 # DataCatalog (CONTRACTS §2 required interface): pure, read-only data source. No gameplay
 # logic, no GameState mutation. All methods return copies/values (never live references).
-# Values mirror CONTENT.md §3/§4/§5/§7/§8/§9 and MUST stay equal to GameState's embedded tables.
+# Values mirror indexed requirement data and MUST stay equal to GameState's embedded tables.
 
 const FRIEND_IDS := ["priscilla", "lavinia", "sylvia"]
 

@@ -1,7 +1,7 @@
 extends AppWindowBase
 class_name ScheduleApp
 
-## Schedule app window: action row, invitation row, 7-box bar, Done flow (FLOWS.md §2, §9).
+## Schedule app window: action row, invitation row, 7-box bar, Done flow (prompt_docs/requirements/run_lifecycle.md).
 
 @onready var action_button_row: HBoxContainer = %ActionButtonRow
 @onready var invitation_button_row: HBoxContainer = %InvitationButtonRow

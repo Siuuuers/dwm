@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name AppWindowBase
 
-## Base for desktop app windows. Hide (not free) semantics per FLOWS.md §9.
+## Base for desktop app windows. Hide (not free) semantics per prompt_docs/requirements/desktop_minesweeper_handoff.md.
 
 signal window_hidden()
 

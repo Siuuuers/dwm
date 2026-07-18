@@ -1,7 +1,7 @@
 extends Button
 class_name ContactBox
 
-## Single friend row inside ContactListApp (FLOWS.md §9).
+## Single friend row inside ContactListApp (prompt_docs/requirements/contacts_invitations.md).
 
 signal contact_selected(friend_id: String)
 

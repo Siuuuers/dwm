@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# Shop data/rules unit tests (TESTING.md §test_shop_rules). The full ShopApp buy flow
+# Shop data/rules unit tests (prompt_docs/requirements/verification.md). The full ShopApp buy flow
 # (quantity selector, spend/refund) is Phase 3 UI; Phase 1 verifies the data + effect rules.
 
 var _dc: DataCatalog

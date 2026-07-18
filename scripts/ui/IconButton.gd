@@ -1,7 +1,7 @@
 extends Button
 class_name IconButton
 
-## Focusable icon + label button used by the desktop icon grid and shared UI (FLOWS.md §9).
+## Focusable icon + label button used by the desktop icon grid and shared UI (prompt_docs/requirements/desktop_minesweeper_handoff.md).
 
 @onready var _icon_image: TextureRect = %IconImage
 @onready var _icon_label: Label = %IconLabel

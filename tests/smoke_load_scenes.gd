@@ -1,6 +1,6 @@
 ﻿extends SceneTree
-## Required by TESTING.md ("Smoke test — res://tests/smoke_load_scenes.gd") and PHASES.md §2D1.
-## Loads and instantiates every required scene (CONTRACTS.md §11). No input, no auto-routing.
+## Required by prompt_docs/requirements/verification.md.
+## Loads and instantiates every required scene. No input, no auto-routing.
 ## Exit 0 if all required scenes load and instantiate; exit 1 if any fail.
 
 const REQUIRED_SCENE_PATHS := [

@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name StatHud
 
-## Left-panel stat display; updates on GameState signals (FLOWS.md §9, CONTRACTS.md §2).
+## Left-panel stat display; updates on GameState signals (prompt_docs/requirements/runtime_ownership.md).
 
 @onready var _day_label: Label = %DayLabel
 @onready var _pressure_meter: BoxMeter = %PressureMeter

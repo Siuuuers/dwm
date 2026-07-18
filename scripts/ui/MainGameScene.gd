@@ -1,7 +1,7 @@
 extends Control
 class_name MainGameScene
 
-## Main desktop scene: Angela/stat panel + computer panel; Day-1 tutorial (FLOWS.md §9).
+## Main desktop scene: Angela/stat panel + computer panel; Day-1 tutorial (prompt_docs/requirements/desktop_minesweeper_handoff.md).
 
 const COMPUTER_DESKTOP_SCENE := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const TUTORIAL_OVERLAY_SCENE := preload("res://scenes/overlay/TutorialOverlay.tscn")

@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# AudioManager unit tests (TESTING.md §test_audio_manager). The prototype must run with no
+# AudioManager unit tests (prompt_docs/requirements/audio_preferences.md). The prototype must run with no
 # audio files: missing tracks return safe errors and never crash.
 
 func before_each() -> void:

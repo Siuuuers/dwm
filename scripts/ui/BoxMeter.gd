@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name BoxMeter
 
-## Displays a labeled value as a row of filled/unfilled boxes (FLOWS.md §9).
+## Displays a labeled value as a row of filled/unfilled boxes (prompt_docs/INDEX.md).
 
 @onready var _name_label: Label = %NameLabel
 @onready var _value_label: Label = %ValueLabel

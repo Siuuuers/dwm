@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# EffectResolver unit tests (TESTING.md §test_effect_resolver). EffectResolver applies
+# EffectResolver unit tests (prompt_docs/requirements/verification.md). EffectResolver applies
 # whitelisted effects onto the real GameState singleton, so we reset before each test.
 
 func before_each() -> void:

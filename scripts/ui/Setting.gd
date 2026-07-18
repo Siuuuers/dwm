@@ -1,7 +1,7 @@
 extends Control
 class_name Setting
 
-## Menu-sized settings panel (FLOWS.md §9, CONTRACTS.md §8).
+## Menu-sized settings panel (prompt_docs/requirements/audio_preferences.md).
 
 @onready var language_option: OptionButton = %LanguageOption
 @onready var accessibility_container: VBoxContainer = %AccessibilityContainer

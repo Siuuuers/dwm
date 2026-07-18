@@ -1,7 +1,7 @@
 extends Control
 class_name ComputerDesktop
 
-## Desktop app host: icon grid + single visible app window + notification layer (FLOWS.md §9).
+## Desktop app host: icon grid + single visible app window + notification layer (prompt_docs/requirements/desktop_minesweeper_handoff.md).
 
 @onready var icon_grid: GridContainer = %IconGrid
 @onready var app_window_host: Control = %AppWindowHost

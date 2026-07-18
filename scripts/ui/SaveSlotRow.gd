@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name SaveSlotRow
 
-## Single row in BackupApp's SaveGrid (FLOWS.md §9).
+## Single row in BackupApp's SaveGrid (prompt_docs/requirements/persistence.md).
 
 @onready var slot_title_label: Label = %SlotTitleLabel
 @onready var metadata_label: Label = %MetadataLabel

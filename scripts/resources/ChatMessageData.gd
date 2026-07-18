@@ -1,6 +1,6 @@
 class_name ChatMessageData
 extends Resource
-# Stub skeleton. Authoritative fields in CONTENT.md §10.
+# Stub skeleton. See prompt_docs/requirements/contacts_invitations.md.
 @export var id: String = ""
 @export var friend_id: String = ""
 @export var speaker_id: String = ""

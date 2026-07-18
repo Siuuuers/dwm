@@ -1,13 +1,12 @@
 extends Node
 
 # GameState autoload — owns all mutable runtime state for the prototype.
-# Authority: prompt_docs/CONTRACTS.md §2 (API/state/signals/constants), §4 (dating queue
-# ownership), §6 (save whitelist). Supplementary flow/data/narrative: FLOWS.md, CONTENT.md,
-# DIALOGIC.md. No human-facing prose; machine-precise, contradiction-free.
+# Authority: prompt_docs/INDEX.md (runtime ownership, dating, persistence, and narrative
+# requirement packets). No human-facing prose; machine-precise, contradiction-free.
 #
 # Static data tables (_INVITATION_DAYS, _CONTACT_MESSAGE_ORDER, _SCHEDULE_ACTION_EFFECTS) are
 # embedded here so this autoload loads even before scripts/data/DataCatalog.gd exists. Their
-# values are copied verbatim from CONTENT.md §4/§5/§9 and must stay equal to DataCatalog.
+# values are mirrored by DataCatalog and must remain equal to its canonical tables.
 
 # ---- Constants ----
 const SAVE_SCHEMA_VERSION := 1
@@ -31,7 +30,7 @@ const CONDITION_FAINT := "faint"
 const AFFECTION_MIN := -7
 const AFFECTION_MAX := 10
 
-# Embedded static data (mirror of CONTENT.md; see file header note).
+# Embedded static data (mirror of DataCatalog; see file header note).
 const _INVITATION_DAYS := {
 	"priscilla": [1, 2, 4, 6],
 	"lavinia": [2, 3, 5, 6],
@@ -77,7 +76,7 @@ const _MINESWEEPER_MONEY_REWARD := {
 	},
 }
 
-# Default settings (CONTRACTS.md §8 recommended defaults).
+# Default settings (prompt_docs/requirements/audio_preferences.md).
 const _DEFAULT_SETTINGS := {
 	"music_volume": 0.8, "voice_volume": 0.8, "text_speed": 1.0, "auto_text_speed": 1.0,
 	"fullscreen": false, "language": "en", "font_scale": 1.0, "high_contrast": false,
@@ -551,7 +550,7 @@ func clear_unfinished_minesweeper_round() -> void:
 
 
 # Minesweeper app-round money reward. Per-outcome/difficulty amounts are defined in
-# _MINESWEEPER_MONEY_REWARD (authoritative in CONTENT.md §9). The daily cap
+# _MINESWEEPER_MONEY_REWARD (see the indexed Minesweeper requirements). The daily cap
 # (108 + 54 * max(0, total_playable_rounds - 2)) is enforced; any amount is clamped to the
 # remaining daily cap. The "do not invent logic" guard is intentionally removed (author decision):
 # concrete reward values are now specified and applied.

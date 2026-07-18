@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# GameState unit tests (TESTING.md §test_game_state).
+# GameState unit tests (prompt_docs/requirements/verification.md).
 
 func before_each() -> void:
 	GameState.reset_game()

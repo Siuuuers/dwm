@@ -1,7 +1,7 @@
 extends Control
 class_name OpeningScene
 
-## Opening narrative scene; requires Dialogic 2 (DIALOGIC.md §5, §4).
+## Opening narrative scene; requires Dialogic 2 (prompt_docs/requirements/dialogic_skip.md).
 
 const TIMELINE_ID := "opening.day1"
 

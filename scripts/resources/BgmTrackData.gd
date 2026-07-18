@@ -1,6 +1,6 @@
 class_name BgmTrackData
 extends Resource
-# Descriptive BGM track resource. Authoritative fields in CONTENT.md §10.
+# Descriptive BGM track resource. See prompt_docs/requirements/audio_preferences.md.
 # Data-only: must not execute logic.
 @export var id: String = ""
 @export var display_name: String = ""

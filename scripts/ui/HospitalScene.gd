@@ -1,7 +1,7 @@
 extends Control
 class_name HospitalScene
 
-## Hospital recovery scene (FLOWS.md §6, §9).
+## Hospital recovery scene (prompt_docs/requirements/dating_endings.md).
 
 const TIMELINE_ID := "hospital.faint"
 
@@ -31,7 +31,7 @@ func _on_continue_pressed() -> void:
 	var gs := get_node("/root/GameState")
 	var router := get_node("/root/SceneRouter")
 	# apply_hospital_recovery_and_advance_day() performs the day advance (or sets the Day-8
-	# ending marker) internally; caller must not call any other day-advance (FLOWS.md §6).
+	# ending marker) internally; caller must not call any other day-advance (prompt_docs/requirements/dating_endings.md).
 	var advanced: bool = gs.apply_hospital_recovery_and_advance_day()
 	if advanced:
 		router.goto_main()

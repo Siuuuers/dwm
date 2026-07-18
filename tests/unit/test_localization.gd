@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# Localization unit tests (TESTING.md §test_localization).
+# Localization unit tests (prompt_docs/requirements/localization.md).
 
 func after_each() -> void:
 	LocalizationManager.set_locale("en")

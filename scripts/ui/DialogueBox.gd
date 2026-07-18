@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name DialogueBox
 
-## Shared dialogue box: speaker/text/log/skip/auto/next (FLOWS.md §9).
+## Shared dialogue box: speaker/text/log/skip/auto/next (prompt_docs/requirements/dialogic_skip.md).
 
 signal next_pressed()
 signal skip_pressed()

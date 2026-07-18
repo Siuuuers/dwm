@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name MinesweeperChallengeOverlay
 
-## Placeholder 9x9/18-mine dating challenge board (FLOWS.md §6, §9, §CONTRACTS §2).
+## Placeholder 9x9/18-mine dating challenge board (prompt_docs/requirements/desktop_minesweeper_handoff.md).
 
 signal challenge_finished(result: Dictionary)
 

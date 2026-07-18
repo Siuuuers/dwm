@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# SaveManager unit tests (TESTING.md §test_save_manager).
+# SaveManager unit tests (prompt_docs/requirements/persistence.md).
 
 func before_each() -> void:
 	GameState.reset_game()

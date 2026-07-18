@@ -1,6 +1,6 @@
 class_name FriendData
 extends Resource
-# Stub skeleton. Authoritative fields in CONTENT.md §10.
+# Stub skeleton. See prompt_docs/requirements/contacts_invitations.md.
 @export var id: String = ""
 @export var display_name: String = ""
 @export var localization_key: String = ""

@@ -1,7 +1,7 @@
 extends Control
 class_name EndingScene
 
-## Ending scene: selects timeline by GameState.route_context["ending_id"] (FLOWS.md §6, §9, DIALOGIC.md §7).
+## Ending scene: selects timeline by GameState.route_context["ending_id"] (prompt_docs/requirements/dating_endings.md).
 
 @onready var _ending_title_label: Label = %EndingTitleLabel
 @onready var _ending_body_label: Label = %EndingBodyLabel

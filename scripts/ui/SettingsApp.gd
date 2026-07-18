@@ -1,7 +1,7 @@
 extends AppWindowBase
 class_name SettingsApp
 
-## Desktop settings app window (mirrors Setting.tscn controls) (FLOWS.md §9, CONTRACTS.md §8).
+## Desktop settings app window (mirrors Setting.tscn controls) (prompt_docs/requirements/audio_preferences.md).
 
 @onready var language_option: OptionButton = %LanguageOption
 @onready var accessibility_container: VBoxContainer = %AccessibilityContainer

@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# Input + accessibility unit tests (TESTING.md §test_input_accessibility).
+# Input + accessibility unit tests (prompt_docs/requirements/verification.md).
 
 const REQUIRED_ACTIONS := [
 	"ui_accept", "ui_cancel", "ui_up", "ui_down", "ui_left", "ui_right",

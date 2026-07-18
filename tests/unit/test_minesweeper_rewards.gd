@@ -1,5 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
-# Minesweeper reward unit tests (TESTING.md §test_minesweeper_rewards).
+# Minesweeper reward unit tests (prompt_docs/requirements/desktop_minesweeper_handoff.md).
 
 func before_each() -> void:
 	GameState.reset_game()

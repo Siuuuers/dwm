@@ -1,7 +1,7 @@
 extends AppWindowBase
 class_name MinesweeperApp
 
-## Minesweeper app window. Placeholder difficulty/status/simulation controls (FLOWS.md §9, PHASES.md 3B1).
+## Minesweeper app window. Placeholder difficulty/status/simulation controls (prompt_docs/requirements/desktop_minesweeper_handoff.md).
 
 @onready var difficulty_tabs: TabBar = %DifficultyTabs
 @onready var status_row: HBoxContainer = %StatusRow

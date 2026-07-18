@@ -1,12 +1,6 @@
 class_name EvidenceValidator
 extends RefCounted
 
-const SOURCE_PATHS: Array[String] = [
-	"Prompt.md", "prompt_docs/INDEX.md", "prompt_docs/CONTRACTS.md",
-	"prompt_docs/CONTENT.md", "prompt_docs/DIALOGIC.md", "prompt_docs/FLOWS.md",
-	"prompt_docs/PHASES.md", "prompt_docs/REPORT.md", "prompt_docs/TESTING.md",
-	"prompt_docs/GLOSSARY.md", "ResultReport.md", "Beads.md",
-]
 const SHA256_PATTERN := "^[0-9a-f]{64}$"
 
 class StrictReader:
@@ -231,10 +225,6 @@ static func _validate_cross_fields(evidence: Dictionary, errors: Array[String]) 
 		_validate_archive_record(record, "source_archive", errors)
 		if source_by_path.has(record.path): errors.append("SOURCE_DUPLICATE: " + record.path)
 		source_by_path[record.path] = record
-	for path: String in SOURCE_PATHS:
-		if not source_by_path.has(path): errors.append("SOURCE_MISSING: " + path)
-	for unexpected: Variant in source_by_path.keys():
-		if not unexpected in SOURCE_PATHS: errors.append("SOURCE_UNEXPECTED: " + str(unexpected))
 	for record: Dictionary in evidence.preserved_outside_authority:
 		_validate_base64_hash(record, "content_base64", "sha256", "byte_length", "preserved:" + str(record.path), errors)
 	_validate_commands(evidence, errors)
@@ -290,12 +280,23 @@ static func _validate_inventory(evidence: Dictionary, sources: Dictionary, error
 	var inventory_path := "res://" + str(binding.path)
 	var parsed := _parse_utf8_file(inventory_path)
 	if not parsed.errors.is_empty(): errors.append_array(parsed.errors); return
+	var source_paths: Array[String] = []
+	for document: Dictionary in parsed.value.get("source_documents", []):
+		var source_path := str(document.get("path", ""))
+		if source_path.is_empty() or source_path in source_paths:
+			errors.append("INVENTORY_SOURCE_PATH_INVALID: " + source_path)
+			continue
+		source_paths.append(source_path)
+		if not sources.has(source_path): errors.append("SOURCE_MISSING: " + source_path)
+	for unexpected: Variant in sources.keys():
+		if not str(unexpected) in source_paths: errors.append("SOURCE_UNEXPECTED: " + str(unexpected))
+	if not errors.is_empty(): return
 	var inventory_bytes := FileAccess.get_file_as_bytes(inventory_path)
 	var context := HashingContext.new(); context.start(HashingContext.HASH_SHA256); context.update(inventory_bytes)
 	if context.finish().hex_encode() != str(binding.sha256): errors.append("INVENTORY_SHA256_MISMATCH")
 	var expected: Array[Dictionary] = []
 	var zero_paths: Array[String] = []
-	for path: String in SOURCE_PATHS:
+	for path: String in source_paths:
 		var extracted := _extract_atx_headings(Marshalls.base64_to_raw(str(sources[path].content_base64)), path, str(sources[path].sha256))
 		expected.append_array(extracted.headings)
 		if extracted.headings.is_empty(): zero_paths.append(path)
@@ -304,13 +305,13 @@ static func _validate_inventory(evidence: Dictionary, sources: Dictionary, error
 	for path: String in zero_paths: expected_zero.append({"path": path, "source_sha256": str(sources[path].sha256)})
 	if JSON.stringify(parsed.value.zero_heading_documents) != JSON.stringify(expected_zero): errors.append("INVENTORY_ZERO_HEADING_BIJECTION")
 	var expected_documents: Array[Dictionary] = []
-	for path: String in SOURCE_PATHS:
+	for path: String in source_paths:
 		var heading_count := 0
 		for heading: Dictionary in expected:
 			if heading.source_path == path: heading_count += 1
 		expected_documents.append({"path": path, "sha256": str(sources[path].sha256), "byte_length": int(sources[path].byte_length), "heading_count": heading_count})
 	if JSON.stringify(parsed.value.source_documents) != JSON.stringify(expected_documents): errors.append("INVENTORY_SOURCE_DOCUMENT_DRIFT")
-	if int(binding.heading_count) != expected.size() or int(binding.document_count) != SOURCE_PATHS.size(): errors.append("INVENTORY_COUNT_MISMATCH")
+	if int(binding.heading_count) != expected.size() or int(binding.document_count) != source_paths.size(): errors.append("INVENTORY_COUNT_MISMATCH")
 
 static func _extract_atx_headings(bytes: PackedByteArray, path: String, source_sha: String) -> Dictionary:
 	var headings: Array[Dictionary] = []

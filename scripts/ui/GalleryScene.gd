@@ -1,7 +1,7 @@
 extends Control
 class_name GalleryScene
 
-## Read-only gallery of seen endings (FLOWS.md §9).
+## Read-only gallery of seen endings (prompt_docs/requirements/dating_endings.md).
 
 @onready var _title_label: Label = %TitleLabel
 @onready var _ending_tile_grid: GridContainer = %EndingTileGrid

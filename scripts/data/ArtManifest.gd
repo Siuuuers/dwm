@@ -1,6 +1,6 @@
 class_name ArtManifest
 extends RefCounted
-# Stub skeleton. Required API from prompt_docs/09_ART_MANIFEST_SAFE_IMAGES.md.
+# Stub skeleton. Required API + authoritative art paths: prompt_docs/INDEX.md.
 # Provides expected art paths / sizes; never crashes on missing art.
 
 static func get_expected_art_paths() -> Dictionary: return {}

@@ -1,5 +1,5 @@
 extends Node
-# DialogicBridge (CONTRACTS §10 / DIALOGIC.md): owns ALL direct Dialogic interaction.
+# DialogicBridge (prompt_docs/requirements/dialogic_skip.md): owns ALL direct Dialogic interaction.
 # Safe checked calls only; no arbitrary gameplay effects from DTL; no GameState calls by
 # name; no eval; validates timeline IDs against DialogicTimelineCatalog; returns safe error
 # dictionaries for unknown IDs / missing files / missing Dialogic. Never crashes.
@@ -48,7 +48,7 @@ func start_timeline_id(timeline_id: String, context: Dictionary = {}) -> Diction
 	var locale := _current_locale()
 	var path := DialogicTimelineCatalog.get_timeline_path(timeline_id, locale)
 	if not (ResourceLoader.exists(path) or FileAccess.file_exists(path)):
-		# Permitted English fallback (DIALOGIC.md §3).
+		# Permitted English fallback (prompt_docs/requirements/dialogic_skip.md).
 		var en_path := DialogicTimelineCatalog.get_timeline_path(timeline_id, "en")
 		if ResourceLoader.exists(en_path) or FileAccess.file_exists(en_path):
 			path = en_path

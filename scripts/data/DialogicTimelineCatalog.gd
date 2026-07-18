@@ -1,6 +1,6 @@
 class_name DialogicTimelineCatalog
 extends RefCounted
-# Maps timeline IDs -> .dtl paths per locale (DIALOGIC.md §9). Do NOT execute timeline
+# Maps timeline IDs -> .dtl paths per locale (prompt_docs/requirements/dialogic_skip.md). Do NOT execute timeline
 # data; do NOT trust save data to choose paths. Invitation-part IDs resolve to the owning
 # per-friend/day contact .dtl (the part is a label inside that file, never a standalone file).
 

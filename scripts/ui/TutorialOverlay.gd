@@ -1,7 +1,7 @@
 extends Control
 class_name TutorialOverlay
 
-## Day-1 tutorial overlay; requires Dialogic 2 (DIALOGIC.md §5, FLOWS.md §9).
+## Day-1 tutorial overlay; requires Dialogic 2 (prompt_docs/requirements/dialogic_skip.md).
 
 signal tutorial_finished()
 

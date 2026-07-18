@@ -1,7 +1,7 @@
 extends Control
 class_name DatingScene
 
-## Solo/group/twofriends dating scene (FLOWS.md §6, §9).
+## Solo/group/twofriends dating scene (prompt_docs/requirements/dating_endings.md).
 
 @onready var dating_background: TextureRect = %DatingBackground
 @onready var character_zone_left: Control = %CharacterZoneLeft
