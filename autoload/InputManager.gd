@@ -59,7 +59,15 @@ func apply_profile_mappings(action_id: StringName = &"") -> Dictionary:
 	var actions: Array = [String(action_id)] if action_id != &"" else mappings.keys()
 	for action_value in actions:
 		var action := String(action_value)
-		if not mappings.has(action) or not InputMap.has_action(action): continue
+		if not InputMap.has_action(action):
+			continue
+		if not mappings.has(action):
+			if _DEFAULT_GAME_ACTIONS.has(action):
+				InputMap.action_erase_events(action)
+				var default_event := InputEventKey.new()
+				default_event.physical_keycode = _DEFAULT_GAME_ACTIONS[action]
+				InputMap.action_add_event(action, default_event)
+			continue
 		InputMap.action_erase_events(action)
 		for record: Dictionary in mappings[action]:
 			var event: InputEvent

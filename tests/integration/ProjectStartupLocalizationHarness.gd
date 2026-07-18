@@ -5,6 +5,7 @@ const EXPECTED_FOUR_TARGETS: Array[StringName] = [&"ProfileManager", &"Localizat
 const EXPECTED_SIX_TARGETS: Array[StringName] = [&"ProfileManager", &"LocalizationManager", &"InputManager", &"AccessibilityManager", &"AudioManager", &"DialogicBridge"]
 
 var _application_ready_count := 0
+var _development_mode: StringName
 
 
 func _enter_tree() -> void:
@@ -24,9 +25,10 @@ func _create_debug_mutation_gate() -> Object:
 
 
 func _on_development_subset_ready(mode: StringName) -> void:
-	if mode != &"profile_localization_development":
+	if mode not in [&"profile_localization_development", &"profile_locale_audio_development"]:
 		_abort("unexpected development mode: %s" % mode)
 		return
+	_development_mode = mode
 	call_deferred("_verify_ready_state")
 
 
@@ -34,7 +36,8 @@ func _verify_ready_state() -> void:
 	var bootstrap := get_node("/root/ApplicationBootstrap")
 	var state: Dictionary = bootstrap.get_startup_state()
 	var injection: Dictionary = state["gate_injection"]
-	if injection["factory_invocation_count"] != 1 or injection["targets"] != EXPECTED_FOUR_TARGETS:
+	var expected_targets: Array[StringName] = EXPECTED_SIX_TARGETS if _development_mode == &"profile_locale_audio_development" else EXPECTED_FOUR_TARGETS
+	if injection["factory_invocation_count"] != 1 or injection["targets"] != expected_targets:
 		_abort("invalid gate injection: %s" % JSON.stringify(injection))
 		return
 	if injection["gate_instance_id"] == 0:
@@ -45,6 +48,8 @@ func _verify_ready_state() -> void:
 			_abort("gate identity mismatch")
 			return
 	var expected_stages: Array[StringName] = [&"select_and_prove_roots", &"construct_and_inject_mutation_gate", &"initialize_profile", &"initialize_localization", &"initialize_input", &"initialize_accessibility"]
+	if _development_mode == &"profile_locale_audio_development":
+		expected_stages.append_array([&"initialize_audio", &"initialize_dialogic_bridge"])
 	if state["completed_stages"] != expected_stages or state["ready"] or not state["fatal_result"].is_empty() or _application_ready_count != 0:
 		_abort("invalid development readiness: %s" % JSON.stringify(state))
 		return

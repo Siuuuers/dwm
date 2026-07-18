@@ -93,7 +93,7 @@ func _build_preference_controls() -> void:
 	skip.set_item_metadata(1, "all_text")
 	var current_skip := str(_profile.get_preference(&"preferences.dialogue.skip_mode", "read_only"))
 	skip.select(1 if current_skip == "all_text" else 0)
-	skip.item_selected.connect(func(index: int) -> void: _profile.set_preference(&"preferences.dialogue.skip_mode", skip.get_item_metadata(index)))
+	skip.item_selected.connect(func(index: int) -> void: _commit_preference(&"preferences.dialogue.skip_mode", skip.get_item_metadata(index)))
 	_accessibility_container.add_child(skip)
 	_controls[&"preferences.dialogue.skip_mode"] = skip
 	_add_colorblind_control()
@@ -104,7 +104,7 @@ func _add_boolean_control(container: VBoxContainer, path: StringName) -> void:
 	checkbox.name = String(path).get_file().to_pascal_case()
 	checkbox.text = _localization.t("settings.%s" % String(path).trim_prefix("preferences.").replace(".", "_"))
 	checkbox.button_pressed = bool(_profile.get_preference(path, false))
-	checkbox.toggled.connect(func(value: bool) -> void: _profile.set_preference(path, value))
+	checkbox.toggled.connect(func(value: bool) -> void: _commit_preference(path, value))
 	container.add_child(checkbox)
 	_controls[path] = checkbox
 
@@ -120,7 +120,7 @@ func _add_float_control(container: VBoxContainer, path: StringName) -> void:
 	slider.max_value = 3.0 if String(path).ends_with("text_speed") or String(path).ends_with("font_scale") else 1.0
 	slider.step = 0.05
 	slider.value = float(_profile.get_preference(path, PROFILE_SCHEMA.PREFERENCE_DEFAULTS[String(path)]))
-	slider.value_changed.connect(func(value: float) -> void: _profile.set_preference(path, value))
+	slider.value_changed.connect(func(value: float) -> void: _commit_preference(path, value))
 	row.add_child(label)
 	row.add_child(slider)
 	container.add_child(row)
@@ -136,7 +136,7 @@ func _add_colorblind_control() -> void:
 		option.set_item_metadata(option.item_count - 1, value)
 	var current := str(_profile.get_preference(&"preferences.accessibility.colorblind_mode", "none"))
 	option.select(values.find(current))
-	option.item_selected.connect(func(index: int) -> void: _profile.set_preference(&"preferences.accessibility.colorblind_mode", option.get_item_metadata(index)))
+	option.item_selected.connect(func(index: int) -> void: _commit_preference(&"preferences.accessibility.colorblind_mode", option.get_item_metadata(index)))
 	_accessibility_container.add_child(option)
 	_controls[&"preferences.accessibility.colorblind_mode"] = option
 
@@ -181,6 +181,16 @@ func _on_preference_changed(path: StringName, value: Variant) -> void:
 		(control as BaseButton).set_pressed_no_signal(value)
 	elif control is Range:
 		(control as Range).set_value_no_signal(float(value))
+
+
+func _commit_preference(path: StringName, value: Variant) -> Dictionary:
+	if not String(path).begins_with("preferences."):
+		return _fail(&"invalid_preference_path")
+	var result: Dictionary = _profile.set_preference(path, value)
+	if not result.get("ok", false):
+		_on_preference_changed(path, _profile.get_preference(path, PROFILE_SCHEMA.PREFERENCE_DEFAULTS.get(String(path))))
+		push_warning("Settings preference commit rejected: %s" % String(result.get("code", &"unknown")))
+	return result
 
 
 func _success() -> Dictionary:

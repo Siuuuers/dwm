@@ -1,56 +1,280 @@
-﻿extends "res://addons/gut/test.gd"
-# AudioManager unit tests (prompt_docs/requirements/audio_preferences.md). The prototype must run with no
-# audio files: missing tracks return safe errors and never crash.
+extends "res://addons/gut/test.gd"
+
+const MANAGER := preload("res://autoload/AudioManager.gd")
+const FAKE_PORT := preload("res://tests/support/FakeAudioPlaybackPort.gd")
+const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
+
+
+class FakeProfile:
+	extends Node
+	signal preference_changed(path: StringName, value: Variant)
+	var values := {
+		&"preferences.audio.music_volume": 0.8,
+		&"preferences.audio.music_muted": false,
+		&"preferences.audio.ambience_volume": 0.65,
+		&"preferences.audio.ambience_muted": false,
+		&"preferences.audio.sfx_volume": 0.8,
+		&"preferences.audio.sfx_muted": false,
+		&"preferences.audio.voice_volume": 0.8,
+		&"preferences.audio.voice_muted": false,
+		&"preferences.audio.mute_audio_on_focus_loss": false,
+	}
+
+	func get_preference(path: StringName, default_value: Variant = null) -> Variant:
+		return values.get(path, default_value)
+
+	func set_preference(path: StringName, value: Variant) -> Dictionary:
+		values[path] = value
+		preference_changed.emit(path, value)
+		return {"ok": true, "code": &"ok", "value": value, "receipt": {}}
+
+
+var _profile: FakeProfile
+var _port: FakeAudioPlaybackPort
+var _manager: Node
+
 
 func before_each() -> void:
-	GameState.reset_game()
+	_profile = FakeProfile.new()
+	add_child_autofree(_profile)
+	_port = FAKE_PORT.new()
+	_manager = MANAGER.new(_port)
+	add_child_autofree(_manager)
 
 
-func test_expected_bgm_paths_exist() -> void:
-	var manifest := AudioManifest.new()
-	var expected := manifest.get_expected_audio_paths()
-	assert_true(expected.has("bgm"), "expected audio paths include a bgm dictionary")
-	assert_true((expected["bgm"] as Dictionary).size() > 0)
+func test_initialization_preserves_gate_and_builds_exact_pools() -> void:
+	var gate: RefCounted = FAKE_GATE.new()
+	var configured: Dictionary = _manager.configure_mutation_gate(gate)
+	assert_true(configured.get("ok", false), str(configured))
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.configure_mutation_gate(gate)["value"]["already_configured"])
+	assert_eq(_manager.configure_mutation_gate(FAKE_GATE.new()).get("code"), &"mutation_gate_already_configured")
+	assert_eq(_port.players.size(), 18)
+	assert_eq(_manager.initialize(_profile).get("code"), &"already_initialized")
 
 
-func test_play_missing_bgm_returns_safe_error() -> void:
-	var res := AudioManager.play_bgm("menu_theme")
-	# With no audio files present, this must be a safe missing-audio result, not a crash.
-	assert_true(res is Dictionary)
-	if not bool(res["ok"]):
-		assert_eq(str(res["reason"]), "missing_audio")
+func test_failed_initialization_is_retryable_and_does_not_connect_profile() -> void:
+	_port.fail_after(1)
+	assert_false(_manager.initialize(_profile).get("ok", true))
+	assert_false(_profile.preference_changed.is_connected(Callable(_manager, "_on_preference_changed")))
+	_port.fail_after(-1)
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_profile.preference_changed.is_connected(Callable(_manager, "_on_preference_changed")))
 
 
-func test_context_resolves_track_ids() -> void:
-	assert_eq(AudioManager.resolve_bgm_for_context("menu"), "menu_theme")
-	assert_eq(AudioManager.resolve_bgm_for_context("minesweeper"), "minesweeper_focus")
-	assert_eq(AudioManager.resolve_bgm_for_context("hospital"), "hospital_room")
+func test_volume_clamp_silence_threshold_and_explicit_mute() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_channel_volume(&"music", -2.0).get("ok", false))
+	assert_true(_port.bus_states[&"Music"]["muted"])
+	assert_eq(_profile.values[&"preferences.audio.music_volume"], 0.0)
+	assert_true(_manager.set_channel_volume(&"music", 4.0).get("ok", false))
+	assert_almost_eq(_port.bus_states[&"Music"]["db"], 0.0, 0.001)
+	assert_true(_manager.set_channel_muted(&"music", true).get("ok", false))
+	assert_true(_port.bus_states[&"Music"]["muted"])
 
 
-func test_dating_context_resolution() -> void:
-	var lav := AudioManager.resolve_bgm_for_context("dating", {"friend_id": "lavinia", "mood": "mad", "route_type": "solo"})
-	assert_eq(lav, "lavinia_mad")
-	var tf := AudioManager.resolve_bgm_for_context("dating", {"route_type": "twofriends"})
-	assert_eq(tf, "twofriends_absent")
+func test_exact_threshold_and_focus_loss_overlay_do_not_replace_preferences() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_channel_volume(&"music", 0.0001).get("ok", false))
+	assert_true(_port.bus_states[&"Music"]["muted"])
+	assert_true(_manager.set_channel_volume(&"music", 0.00011).get("ok", false))
+	assert_false(_port.bus_states[&"Music"]["muted"])
+	assert_true(_profile.set_preference(&"preferences.audio.mute_audio_on_focus_loss", true).get("ok", false))
+	_manager.notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	assert_true(_port.bus_states[&"Music"]["muted"])
+	assert_false(_profile.values[&"preferences.audio.music_muted"])
+	_manager.notification(NOTIFICATION_APPLICATION_FOCUS_IN)
+	assert_false(_port.bus_states[&"Music"]["muted"])
 
 
-func test_ending_context_resolution() -> void:
-	var e := AudioManager.resolve_bgm_for_context("ending", {"ending_id": "ending.priscilla.true"})
-	assert_eq(e, "ending_priscilla_true")
-	var fallback := AudioManager.resolve_bgm_for_context("ending", {"ending_id": ""})
-	assert_eq(fallback, "ending_alone")
+func test_semantic_contexts_are_exact_and_same_context_is_idempotent() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("ending", {"ending_id": "ending.priscilla.true"}).get("ok", false))
+	assert_true(_manager.set_ambience_context("hospital").get("ok", false))
+	var expected := {
+		"music_context_id": "ending",
+		"music_context": {"ending_id": "ending.priscilla.true"},
+		"ambience_context_id": "hospital",
+		"ambience_context": {},
+	}
+	assert_eq(_manager.get_semantic_audio_context(), expected)
+	var operation_count := _port.operations.size()
+	assert_true(_manager.set_music_context("ending", {"ending_id": "ending.priscilla.true"}).get("unchanged", false))
+	assert_eq(_port.operations.size(), operation_count)
+	assert_false(_manager.get_semantic_audio_context().has("path"))
+	var tween_operation: Dictionary = _port.operations.filter(func(record: Dictionary) -> bool:
+		return record["operation"] == &"create_parallel_tween" and record["arguments"]["channel_id"] == &"music"
+	)[-1]
+	assert_almost_eq(tween_operation["arguments"]["duration"], 0.25, 0.001)
 
 
-func test_volume_settings_apply_no_crash() -> void:
-	AudioManager.apply_volume_settings()
-	assert_true(true, "applying volume settings did not crash")
+func test_unknown_context_and_cue_never_mutate_semantic_state() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	var before: Dictionary = _manager.get_semantic_audio_context()
+	assert_eq(_manager.set_music_context("unknown").get("code"), &"unknown_audio_context")
+	assert_eq(_manager.play_sfx("unknown").get("code"), &"unknown_audio_cue")
+	assert_eq(_manager.get_semantic_audio_context(), before)
+
+
+func test_commands_before_initialization_fail_without_touching_port() -> void:
+	assert_eq(_manager.set_music_context("menu").get("code"), &"not_initialized")
+	assert_eq(_manager.play_sfx("button_accept").get("code"), &"not_initialized")
+	assert_eq(_manager.set_channel_volume(&"music", 0.5).get("code"), &"not_initialized")
+	assert_eq(_port.operations, [])
+
+
+func test_sfx_dispatch_uses_registered_manifest_bus() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	var result: Dictionary = _manager.play_sfx("button_accept")
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(result["value"]["bus"], &"UI")
+	assert_eq(result["value"]["player_slot"], 0)
+	assert_eq(_manager.play_sfx("button_accept")["value"]["player_slot"], 1)
+	_port.players[&"UI0"]["playing"] = false
+	assert_eq(_manager.play_sfx("button_accept")["value"]["player_slot"], 0)
+
+
+func test_full_sfx_pool_reuses_oldest_playing_after_a_free_slot_was_reused() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	for expected_slot in range(MANAGER.UI_PLAYERS.size()):
+		assert_eq(_manager.play_sfx("button_accept")["value"]["player_slot"], expected_slot)
+	_port.players[&"UI1"]["playing"] = false
+	assert_eq(_manager.play_sfx("button_accept")["value"]["player_slot"], 1)
+	assert_eq(_manager.play_sfx("button_accept")["value"]["player_slot"], 0)
+
+
+func test_failed_context_change_rolls_back_runtime_and_semantics() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("menu").get("ok", false))
+	var before: Dictionary = _manager.get_semantic_audio_context()
+	_port.fail_after(_port.operations.size() + 3)
+	var failed: Dictionary = _manager.set_music_context("hospital")
+	assert_false(failed.get("ok", false))
+	assert_eq(_manager.get_semantic_audio_context(), before)
+	assert_eq(_port.operations[-1]["operation"], &"restore_runtime")
+	assert_true(_port.active_tweens.has(&"music"))
+
+
+func test_every_crossfade_operation_failpoint_preserves_semantics() -> void:
+	for offset in range(1, 8):
+		var profile := FakeProfile.new()
+		add_child_autofree(profile)
+		var port: FakeAudioPlaybackPort = FAKE_PORT.new()
+		var manager: Node = MANAGER.new(port)
+		add_child_autofree(manager)
+		assert_true(manager.initialize(profile).get("ok", false))
+		assert_true(manager.set_music_context("menu").get("ok", false))
+		var base := port.operations.size()
+		port.fail_after(base + offset)
+		var result: Dictionary = manager.set_music_context("hospital")
+		assert_false(result.get("ok", false), "offset %d" % offset)
+		assert_eq(manager.get_music_context_id(), "menu", "offset %d" % offset)
+
+
+func test_rollback_failure_latches_fatal_and_best_effort_mutes_channel() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("menu").get("ok", false))
+	var base := _port.operations.size()
+	_port.fail_on([base + 3, base + 4])
+	var failed: Dictionary = _manager.set_music_context("hospital")
+	assert_eq(failed.get("code"), &"audio_runtime_indeterminate")
+	assert_true(failed.get("fatal", false))
+	assert_eq(_manager.set_music_context("menu").get("code"), &"audio_runtime_indeterminate")
+	assert_true(_port.bus_states[&"Music"]["muted"])
+
+
+func test_async_old_player_stop_failure_latches_fatal() -> void:
+	var gate: RefCounted = FAKE_GATE.new()
+	assert_true(_manager.configure_mutation_gate(gate).get("ok", false))
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("menu").get("ok", false))
+	_port.fail_after(_port.operations.size() + 1)
+	assert_false(_port.complete_tween(&"music").get("ok", true))
+	assert_true(gate.is_fatal_latched())
+	assert_eq(_manager.set_music_context("hospital").get("code"), &"audio_runtime_indeterminate")
+
+
+func test_committed_preference_apply_failure_latches_shared_gate() -> void:
+	var gate: RefCounted = FAKE_GATE.new()
+	assert_true(_manager.configure_mutation_gate(gate).get("ok", false))
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	_port.fail_after(_port.operations.size() + 2)
+	assert_true(_profile.set_preference(&"preferences.audio.music_volume", 0.4).get("ok", false))
+	assert_true(gate.is_fatal_latched())
+
+
+func test_semantic_restore_is_silent_and_rollback_restarts_prior_context() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("menu").get("ok", false))
+	watch_signals(_manager)
+	var snapshot := {
+		"music_context_id": "ending",
+		"music_context": {"ending_id": "ending.priscilla.true"},
+		"ambience_context_id": "hospital",
+		"ambience_context": {},
+	}
+	var prepared_profile := {"preferences": {"audio": {
+		"music_volume": 0.5, "music_muted": false,
+		"ambience_volume": 0.4, "ambience_muted": false,
+		"sfx_volume": 0.3, "sfx_muted": false,
+		"voice_volume": 0.2, "voice_muted": true,
+		"mute_audio_on_focus_loss": true,
+	}}}
+	var plan: Dictionary = _manager.prepare_semantic_restore(snapshot, prepared_profile)
+	assert_true(plan.get("ok", false), str(plan))
+	var backup: Dictionary = _manager.capture_restore_state()["value"]
+	assert_true(_manager.apply_restore_silent(plan["value"]).get("ok", false))
+	assert_eq(_manager.get_semantic_audio_context(), snapshot)
+	assert_signal_not_emitted(_manager, "music_context_changed")
+	assert_signal_not_emitted(_manager, "ambience_context_changed")
+	assert_true(_manager.rollback_restore_silent(backup).get("ok", false))
+	assert_eq(_manager.get_music_context_id(), "menu")
+	assert_true(_manager.finalize_restore().get("ok", false))
+
+
+func test_restore_can_clear_channels_and_force_restart_same_context() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	assert_true(_manager.set_music_context("menu").get("ok", false))
+	assert_true(_manager.set_ambience_context("hospital").get("ok", false))
+	var populated_backup: Dictionary = _manager.capture_restore_state()["value"]
+	var empty_snapshot := {
+		"music_context_id": "", "music_context": {},
+		"ambience_context_id": "", "ambience_context": {},
+	}
+	var prepared_profile := {"preferences": {"audio": {
+		"music_volume": 0.8, "music_muted": false,
+		"ambience_volume": 0.65, "ambience_muted": false,
+		"sfx_volume": 0.8, "sfx_muted": false,
+		"voice_volume": 0.8, "voice_muted": false,
+		"mute_audio_on_focus_loss": false,
+	}}}
+	var empty_plan: Dictionary = _manager.prepare_semantic_restore(empty_snapshot, prepared_profile)
+	assert_true(empty_plan.get("ok", false), str(empty_plan))
+	assert_true(_manager.apply_restore_silent(empty_plan["value"]).get("ok", false))
+	assert_eq(_manager.get_semantic_audio_context(), empty_snapshot)
+	for player_id in MANAGER.MUSIC_PLAYERS + MANAGER.AMBIENCE_PLAYERS:
+		assert_false(_port.players[player_id]["playing"])
+		assert_null(_port.players[player_id]["stream"])
+	assert_true(_manager.rollback_restore_silent(populated_backup).get("ok", false))
+	assert_eq(_manager.get_semantic_audio_context(), populated_backup["snapshot"])
+	var before_restart := _port.operations.size()
+	var same_plan: Dictionary = _manager.prepare_semantic_restore(populated_backup["snapshot"], prepared_profile)
+	assert_true(_manager.apply_restore_silent(same_plan["value"]).get("ok", false))
+	assert_true(_port.operations.size() > before_restart)
+
+
+func test_restore_rejects_non_json_context_and_malformed_audio_preferences() -> void:
+	assert_true(_manager.initialize(_profile).get("ok", false))
+	var snapshot := {
+		"music_context_id": "ending",
+		"music_context": {&"ending_id": "ending.priscilla.true"},
+		"ambience_context_id": "hospital",
+		"ambience_context": {},
+	}
+	assert_eq(_manager.prepare_semantic_restore(snapshot, {"preferences": {"audio": {}}}).get("code"), &"invalid_audio_snapshot")
+	snapshot["music_context"] = {"ending_id": "ending.priscilla.true"}
+	assert_eq(_manager.prepare_semantic_restore(snapshot, {"preferences": {"audio": {"music_volume": 0.5}}}).get("code"), &"invalid_restore_plan")
 
 
 func test_runtime_audio_context_is_not_run_save_state() -> void:
 	assert_false(GameState.to_save_dict().has("audio_state"))
-
-
-func test_unknown_runtime_context_no_crash() -> void:
-	AudioManager.set_music_context("unknown", {"current_bgm_id": "nonexistent_track"})
-	AudioManager.refresh_current_context()
-	assert_true(true, "loading save with unknown current_bgm_id did not crash")

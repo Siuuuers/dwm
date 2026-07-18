@@ -106,13 +106,19 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var manager := _target(&"ProfileManager")
 			if manager == null or not manager.has_method("initialize"): return _failure(&"missing_profile_manager", "ProfileManager initializer is unavailable")
 			return manager.call(&"initialize", _profile_storage)
-		&"initialize_localization", &"initialize_input", &"initialize_accessibility":
+		&"initialize_localization", &"initialize_input", &"initialize_accessibility", &"initialize_audio":
 			var target_name := _stage_target(stage_id)
 			var target := _target(target_name)
 			var profile := _target(&"ProfileManager")
 			if target == null or not target.has_method("initialize"): return _failure(&"missing_stage_adapter", "%s initializer is unavailable" % target_name)
 			if profile == null: return _failure(&"missing_profile_manager", "ProfileManager dependency is unavailable")
 			return target.call(&"initialize", profile)
+		&"initialize_dialogic_bridge":
+			var bridge := _target(&"DialogicBridge")
+			var profile := _target(&"ProfileManager")
+			if bridge == null or not bridge.has_method("bind_profile_preferences"): return _failure(&"missing_stage_adapter", "DialogicBridge preference binding is unavailable")
+			if profile == null: return _failure(&"missing_profile_manager", "ProfileManager dependency is unavailable")
+			return bridge.call(&"bind_profile_preferences", profile)
 		&"publish_application_ready":
 			return {"ok": true}
 		_:

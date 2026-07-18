@@ -8,8 +8,10 @@ signal timeline_started(timeline_id: String, path: String)
 signal timeline_finished(timeline_id: String, result: Dictionary)
 signal timeline_failed(result: Dictionary)
 signal timeline_marker_received(marker_id: String, payload: Dictionary)
+signal preference_boundary_step(step_id: StringName)
 
 const MISSING_DIALOGIC_MESSAGE := "Dialogic 2 addon file does not exist."
+const DIALOGIC_CLEAR_KEEP_VARIABLES := 1
 
 # Whitelisted safe marker ids (DTL may only call DialogicBridge.timeline_marker("<id>")).
 const _SAFE_MARKERS := [
@@ -20,6 +22,98 @@ const _SAFE_MARKERS := [
 
 var _current_timeline_id: String = ""
 var _current_timeline_context: Dictionary = {}
+var _mutation_gate: Object
+var _profile: Node
+var _preference_adapter: RefCounted
+var _cached_preference_plan: Dictionary = {}
+var _preferences_bound := false
+var _fatal_preference_failure := {}
+
+
+func _ready() -> void:
+	pass
+
+
+func configure_mutation_gate(gate: Object) -> Dictionary:
+	if gate == null or not gate.has_signal("capability_changed"):
+		return _command_failure(&"invalid_mutation_gate")
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method):
+			return _command_failure(&"invalid_mutation_gate")
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id():
+		return _command_failure(&"mutation_gate_already_configured")
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
+
+
+func bind_profile_preferences(profile: Node, preference_adapter: RefCounted = null) -> Dictionary:
+	if _preferences_bound:
+		return _command_failure(&"already_initialized")
+	if profile == null or not profile.has_method("get_profile_snapshot"):
+		return _command_failure(&"invalid_profile_manager")
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic == null:
+		return _command_failure(&"dialogic_missing")
+	_preference_adapter = preference_adapter
+	if _preference_adapter == null:
+		_preference_adapter = preload("res://scripts/narrative/DialogicPreferenceAdapter.gd").new()
+	var bound: Dictionary = _preference_adapter.call(&"bind", dialogic)
+	if not bound.get("ok", false):
+		return bound
+	var prepared: Dictionary = _preference_adapter.call(&"prepare", profile.call(&"get_profile_snapshot"))
+	if not prepared.get("ok", false):
+		return prepared
+	var applied: Dictionary = _preference_adapter.call(&"apply_silent", prepared["value"])
+	if not applied.get("ok", false):
+		return applied
+	_profile = profile
+	_cached_preference_plan = (prepared["value"] as Dictionary).duplicate(true)
+	_preferences_bound = true
+	if profile.has_signal("preference_changed") and not profile.preference_changed.is_connected(_on_profile_preference_changed):
+		profile.preference_changed.connect(_on_profile_preference_changed)
+	if dialogic.has_signal("timeline_started") and not dialogic.timeline_started.is_connected(_on_dialogic_timeline_started):
+		dialogic.timeline_started.connect(_on_dialogic_timeline_started)
+	return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(true), "receipt": {}}
+
+
+func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
+	if not _preferences_bound or _profile == null:
+		return _command_failure(&"not_initialized")
+	if changed_path != &"" and changed_path not in [
+		&"preferences.dialogue.text_speed",
+		&"preferences.dialogue.auto_text_speed",
+		&"preferences.dialogue.auto_advance_dialogue",
+	]:
+		return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(true), "receipt": {}, "unchanged": true}
+	var prepared: Dictionary = _preference_adapter.call(&"prepare", _profile.call(&"get_profile_snapshot"))
+	if not prepared.get("ok", false):
+		return prepared
+	var applied: Dictionary = _preference_adapter.call(&"apply_silent", prepared["value"])
+	if not applied.get("ok", false):
+		return applied
+	_cached_preference_plan = (prepared["value"] as Dictionary).duplicate(true)
+	return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(true), "receipt": {}}
+
+
+func reapply_cached_preferences_after_clear() -> Dictionary:
+	if not _preferences_bound or _cached_preference_plan.is_empty():
+		return _command_failure(&"not_initialized")
+	return _preference_adapter.call(&"apply_silent", _cached_preference_plan.duplicate(true))
+
+
+func _on_profile_preference_changed(path: StringName, _value: Variant) -> void:
+	var applied := apply_profile_preferences(path)
+	if not applied.get("ok", false):
+		_latch_preference_fatal(&"committed_preference_apply", applied)
+
+
+func _on_dialogic_timeline_started(_timeline: Variant = null) -> void:
+	var applied := reapply_cached_preferences_after_clear()
+	if not applied.get("ok", false):
+		_latch_preference_fatal(&"timeline_started_reapply", applied)
+		return
+	preference_boundary_step.emit(&"profile_preferences_reapplied")
 
 
 func is_dialogic_available() -> bool:
@@ -80,6 +174,9 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary) -> D
 		return fail
 	_current_timeline_id = timeline_id
 	_current_timeline_context = context.duplicate(true)
+	if dialogic.has_method("clear"):
+		dialogic.call("clear", DIALOGIC_CLEAR_KEEP_VARIABLES)
+		preference_boundary_step.emit(&"clear")
 	dialogic.call("start", path)
 	emit_signal("timeline_started", timeline_id, path)
 	return {"ok": true, "timeline_id": timeline_id, "path": path}
@@ -120,3 +217,20 @@ func _current_locale() -> String:
 	if loc != null and loc.has_method("get_locale"):
 		return loc.get_locale()
 	return "en"
+
+
+func _command_failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "details": {}, "receipt": {}}
+
+
+func _latch_preference_fatal(phase: StringName, result: Dictionary) -> void:
+	var failure := {
+		"source": "DialogicBridge",
+		"phase": String(phase),
+		"code": String(result.get("code", &"dialogic_preference_failure")),
+		"details": result.duplicate(true),
+	}
+	_fatal_preference_failure = failure.duplicate(true)
+	if _mutation_gate != null:
+		_mutation_gate.call(&"latch_fatal", failure.duplicate(true))
+	timeline_failed.emit({"ok": false, "code": &"dialogic_preference_failure", "details": failure.duplicate(true), "receipt": {}})

@@ -1,358 +1,527 @@
 extends Node
-# AudioManager (CONTRACTS §9 / FLOWS §8): owns music/ambience/sfx contexts. Never applies
-# gameplay effects or changes scenes. No hard audio dependency: the prototype runs with no
-# audio files. Missing tracks return a safe error and never crash. No audio metadata is executed.
 
-signal bgm_changed(track_id: String, previous_track_id: String)
-signal bgm_stopped(previous_track_id: String)
-signal ambience_changed(track_id: String, previous_track_id: String)
-signal audio_context_changed(context_id: String, context: Dictionary)
+const PLAYBACK_PORT := preload("res://scripts/audio/AudioPlaybackPort.gd")
+const VOLUME_SILENCE_THRESHOLD := 0.0001
+const SILENCE_DB := -80.0
+const CHANNELS := {
+	&"music": {"bus": &"Music", "volume": &"preferences.audio.music_volume", "muted": &"preferences.audio.music_muted"},
+	&"ambience": {"bus": &"Ambience", "volume": &"preferences.audio.ambience_volume", "muted": &"preferences.audio.ambience_muted"},
+	&"sfx": {"bus": &"SFX", "volume": &"preferences.audio.sfx_volume", "muted": &"preferences.audio.sfx_muted"},
+	&"voice": {"bus": &"Voice", "volume": &"preferences.audio.voice_volume", "muted": &"preferences.audio.voice_muted"},
+}
+const MUSIC_PLAYERS: Array[StringName] = [&"MusicA", &"MusicB"]
+const AMBIENCE_PLAYERS: Array[StringName] = [&"AmbienceA", &"AmbienceB"]
+const SFX_PLAYERS: Array[StringName] = [&"SFX0", &"SFX1", &"SFX2", &"SFX3", &"SFX4", &"SFX5", &"SFX6", &"SFX7"]
+const UI_PLAYERS: Array[StringName] = [&"UI0", &"UI1", &"UI2", &"UI3"]
+const VOICE_PLAYERS: Array[StringName] = [&"Voice0", &"Voice1"]
+
+signal music_context_changed(context_id: String, context: Dictionary)
+signal ambience_context_changed(context_id: String, context: Dictionary)
+signal sfx_requested(cue_id: String, receipt: Dictionary)
 signal audio_settings_applied(settings: Dictionary)
 signal audio_warning(result: Dictionary)
 
-var _current_bgm_id: String = ""
-var _current_ambience_id: String = ""
-var _current_context_id: String = ""
-var _current_context: Dictionary = {}
-
-var _bgm_player: AudioStreamPlayer
-var _ambience_player: AudioStreamPlayer
-var _sfx_player: AudioStreamPlayer
-var _ui_player: AudioStreamPlayer
-var _voice_player: AudioStreamPlayer
-
-# AudioManifest is a RefCounted instance (not called statically) so its get_path(category,id)
-# does not collide with the built-in Resource.get_path() on the class object.
 var _manifest := AudioManifest.new()
 var _profile: Node
+var _playback_port: RefCounted
 var _mutation_gate: Object
+var _initialized := false
+var _fatal := false
+var _focus_loss_mute := false
+var _semantic := {
+	"music_context_id": "", "music_context": {},
+	"ambience_context_id": "", "ambience_context": {},
+}
+var _records := {&"music": {}, &"ambience": {}}
+var _active_players := {&"music": &"MusicA", &"ambience": &"AmbienceA"}
+var _settings := {}
+var _pool_play_sequence := {&"SFX": {}, &"UI": {}, &"Voice": {}}
+var _play_sequence := 0
+var _restore_backup := {}
+
+
+func _init(playback_port: RefCounted = null) -> void:
+	_playback_port = playback_port
 
 
 func _ready() -> void:
 	pass
 
+
 func configure_mutation_gate(gate: Object) -> Dictionary:
-	return _configure_gate(gate)
+	if gate == null or not gate.has_signal("capability_changed"):
+		return _failure(&"invalid_mutation_gate")
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method):
+			return _failure(&"invalid_mutation_gate")
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id():
+		return _failure(&"mutation_gate_already_configured")
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
+
 
 func initialize(profile: Node) -> Dictionary:
-	if profile == null or not profile.has_method("get_preference"): return {"ok": false, "code": &"invalid_profile_manager"}
+	if _initialized:
+		return _failure(&"already_initialized")
+	if profile == null or not profile.has_method("get_preference"):
+		return _failure(&"invalid_profile_manager")
 	_profile = profile
-	ensure_audio_players()
-	apply_volume_settings()
-	return {"ok": true}
+	if _playback_port == null:
+		_playback_port = PLAYBACK_PORT.new()
+	for bus_name in [&"Music", &"Ambience", &"SFX", &"UI", &"Voice"]:
+		var bus_result: Dictionary = _playback_port.call(&"ensure_bus", bus_name)
+		if not bus_result.get("ok", false):
+			return bus_result
+	for player_id in MUSIC_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"Music")
+		if not result.get("ok", false):
+			return result
+	for player_id in AMBIENCE_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"Ambience")
+		if not result.get("ok", false):
+			return result
+	for player_id in SFX_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"SFX")
+		if not result.get("ok", false):
+			return result
+	for player_id in UI_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"UI")
+		if not result.get("ok", false):
+			return result
+	for player_id in VOICE_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"Voice")
+		if not result.get("ok", false):
+			return result
+	var applied := apply_profile_preferences()
+	if not applied.get("ok", false):
+		_profile = null
+		return applied
+	_initialized = true
+	if profile.has_signal("preference_changed") and not profile.preference_changed.is_connected(_on_preference_changed):
+		profile.preference_changed.connect(_on_preference_changed)
+	if _playback_port.has_signal("runtime_failure") and not _playback_port.is_connected("runtime_failure", _on_port_runtime_failure):
+		_playback_port.connect("runtime_failure", _on_port_runtime_failure)
+	return applied
 
 
-func _gs() -> Node:
-	return get_node_or_null("/root/GameState")
-
-
-func ensure_audio_players() -> void:
-	if _bgm_player == null:
-		_bgm_player = _make_player("BgmPlayer")
-	if _ambience_player == null:
-		_ambience_player = _make_player("AmbiencePlayer")
-	if _sfx_player == null:
-		_sfx_player = _make_player("SfxPlayer")
-	if _ui_player == null:
-		_ui_player = _make_player("UiPlayer")
-	if _voice_player == null:
-		_voice_player = _make_player("VoicePlayer")
-
-
-func _make_player(pname: String) -> AudioStreamPlayer:
-	var p := AudioStreamPlayer.new()
-	p.name = pname
-	add_child(p)
-	return p
-
-
-func ensure_audio_buses() -> void:
-	# Buses are optional; creating them is safe but not required for the prototype.
-	pass
-
-
-func _setting(key: String, default_value: Variant) -> Variant:
-	if _profile == null: return default_value
-	return _profile.get_preference(StringName("preferences.audio." + key), default_value)
-
-
-func apply_volume_settings() -> void:
-	ensure_audio_players()
-	var music_vol := float(_setting("music_volume", 0.8))
-	var sfx_vol := float(_setting("sfx_volume", 0.8))
-	var amb_vol := float(_setting("ambience_volume", 0.65))
-	if _bgm_player != null:
-		_bgm_player.volume_db = linear_to_db(maxf(0.0001, music_vol))
-	if _ambience_player != null:
-		_ambience_player.volume_db = linear_to_db(maxf(0.0001, amb_vol))
-	if _sfx_player != null:
-		_sfx_player.volume_db = linear_to_db(maxf(0.0001, sfx_vol))
-	if _ui_player != null:
-		_ui_player.volume_db = linear_to_db(maxf(0.0001, sfx_vol))
-	emit_signal("audio_settings_applied", {"music": music_vol, "sfx": sfx_vol, "ambience": amb_vol})
-
-
-func _missing_result(track_id: String) -> Dictionary:
-	var path := _manifest.get_path("bgm", track_id)
-	var result := {"ok": false, "reason": "missing_audio", "track_id": track_id, "path": path}
-	emit_signal("audio_warning", result)
-	return result
-
-
-func is_track_available(track_id: String) -> bool:
-	if not _manifest.has_track(track_id):
-		return false
-	return ResourceLoader.exists(_manifest.get_path("bgm", track_id))
-
-
-func get_track_path(track_id: String) -> String:
-	return _manifest.get_path("bgm", track_id)
-
-
-func play_bgm(track_id: String, fade_seconds: float = -1.0, force_restart: bool = false) -> Dictionary:
-	if track_id == "":
-		return {"ok": false, "reason": "empty_track_id"}
-	if not force_restart and track_id == _current_bgm_id:
-		return {"ok": true, "reason": "already_playing", "track_id": track_id}
-	if not is_track_available(track_id):
-		return _missing_result(track_id)
-	ensure_audio_players()
-	var stream = ResourceLoader.load(get_track_path(track_id))
-	if stream == null or not (stream is AudioStream):
-		return _missing_result(track_id)
-	var previous := _current_bgm_id
-	_bgm_player.stream = stream
-	_bgm_player.play()
-	_current_bgm_id = track_id
-	emit_signal("bgm_changed", track_id, previous)
-	return {"ok": true, "track_id": track_id}
-
-
-func stop_bgm(fade_seconds: float = -1.0) -> Dictionary:
-	var previous := _current_bgm_id
-	if _bgm_player != null:
-		_bgm_player.stop()
-	_current_bgm_id = ""
-	emit_signal("bgm_stopped", previous)
-	return {"ok": true, "previous_track_id": previous}
-
-
-func get_current_bgm_id() -> String:
-	return _current_bgm_id
-
-
-func is_bgm_playing(track_id: String = "") -> bool:
-	if _bgm_player == null:
-		return false
-	if track_id == "":
-		return _bgm_player.playing
-	return _bgm_player.playing and _current_bgm_id == track_id
-
-
-func play_ambience(track_id: String, fade_seconds: float = -1.0, force_restart: bool = false) -> Dictionary:
-	if track_id == "":
-		return {"ok": false, "reason": "empty_track_id"}
-	if not force_restart and track_id == _current_ambience_id:
-		return {"ok": true, "reason": "already_playing", "track_id": track_id}
-	var path := _manifest.get_path("ambience", track_id)
-	if path == "" or not ResourceLoader.exists(path):
-		var result := {"ok": false, "reason": "missing_audio", "track_id": track_id, "path": path}
-		emit_signal("audio_warning", result)
-		return result
-	ensure_audio_players()
-	var stream = ResourceLoader.load(path)
-	if stream == null or not (stream is AudioStream):
-		return {"ok": false, "reason": "missing_audio", "track_id": track_id, "path": path}
-	var previous := _current_ambience_id
-	_ambience_player.stream = stream
-	_ambience_player.play()
-	_current_ambience_id = track_id
-	emit_signal("ambience_changed", track_id, previous)
-	return {"ok": true, "track_id": track_id}
-
-
-func stop_ambience(fade_seconds: float = -1.0) -> Dictionary:
-	var previous := _current_ambience_id
-	if _ambience_player != null:
-		_ambience_player.stop()
-	_current_ambience_id = ""
-	return {"ok": true, "previous_track_id": previous}
-
-
-func get_current_ambience_id() -> String:
-	return _current_ambience_id
-
-
-func _play_cue(player: AudioStreamPlayer, cue_id: String) -> Dictionary:
-	var cues := _manifest.get_audio_cues()
-	if not cues.has(cue_id):
-		return {"ok": false, "reason": "unknown_cue", "cue_id": cue_id}
-	var path: String = cues[cue_id]["path"]
-	if not ResourceLoader.exists(path):
-		return {"ok": false, "reason": "missing_audio", "cue_id": cue_id, "path": path}
-	var stream = ResourceLoader.load(path)
-	if stream == null or not (stream is AudioStream):
-		return {"ok": false, "reason": "missing_audio", "cue_id": cue_id, "path": path}
-	ensure_audio_players()
-	player.stream = stream
-	player.play()
-	return {"ok": true, "cue_id": cue_id}
-
-
-func play_sfx(cue_id: String) -> Dictionary:
-	return _play_cue(_sfx_player, cue_id)
-
-
-func play_ui_sfx(cue_id: String) -> Dictionary:
-	return _play_cue(_ui_player, cue_id)
-
-
-func play_voice(cue_id: String) -> Dictionary:
-	return _play_cue(_voice_player, cue_id)
-
-
-# ---- Context resolution (FLOWS §8) ----
 func set_music_context(context_id: String, context: Dictionary = {}) -> Dictionary:
-	_current_context_id = context_id
-	_current_context = context.duplicate(true)
-	emit_signal("audio_context_changed", context_id, _current_context)
-	var track := resolve_bgm_for_context(context_id, context)
-	if track == "":
-		return {"ok": false, "reason": "no_track_for_context", "context_id": context_id}
-	return play_bgm(track)
+	return _set_context(&"music", context_id, context, -1.0, false)
 
 
-func refresh_current_context() -> Dictionary:
-	return set_music_context(_current_context_id, _current_context)
+func set_ambience_context(context_id: String, context: Dictionary = {}) -> Dictionary:
+	return _set_context(&"ambience", context_id, context, -1.0, false)
 
 
-func resolve_bgm_for_context(context_id: String, context: Dictionary = {}) -> String:
-	match context_id:
-		"menu":
-			return "menu_theme"
-		"opening":
-			return "opening_forget_me_not"
-		"tutorial":
-			return "tutorial_soft_screen"
-		"main_desktop":
-			return _resolve_main_desktop(context)
-		"minesweeper":
-			return "minesweeper_focus"
-		"contacts":
-			return "contacts_soft"
-		"shop":
-			return "shop_idle"
-		"schedule":
-			return "schedule_planning"
-		"backup":
-			return "backup_safe"
-		"settings":
-			return "settings_calm"
-		"dating":
-			return _resolve_dating(context)
-		"dating_challenge":
-			return "date_challenge_normal"
-		"dating_dark_path":
-			return "date_challenge_dark"
-		"dating_true_path":
-			return "date_challenge_true"
-		"hospital":
-			return "hospital_room"
-		"ending":
-			return _resolve_ending(context)
-	return ""
+func play_sfx(cue_id: String, context: Dictionary = {}) -> Dictionary:
+	if not _initialized:
+		return _failure(&"not_initialized")
+	if _fatal:
+		return _failure(&"audio_runtime_indeterminate")
+	if not context.is_empty():
+		return _failure(&"invalid_audio_context")
+	var resolved := _manifest.get_cue(cue_id)
+	if not resolved.get("ok", false):
+		return resolved
+	var record: Dictionary = resolved["value"]
+	var loaded: Dictionary = _playback_port.call(&"load_stream", record["path"])
+	if not loaded.get("ok", false):
+		return _warn_missing(cue_id)
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	var bus: StringName = record["bus"]
+	var pool: Array[StringName] = UI_PLAYERS if bus == &"UI" else SFX_PLAYERS
+	var play_sequences: Dictionary = _pool_play_sequence[bus]
+	var cursor := -1
+	var captured_players: Dictionary = captured["value"].get("players", {})
+	for index in range(pool.size()):
+		if not bool(captured_players.get(pool[index], {}).get("playing", false)):
+			cursor = index
+			break
+	if cursor < 0:
+		var oldest_sequence := 9223372036854775807
+		for index in range(pool.size()):
+			var sequence := int(play_sequences.get(pool[index], 0))
+			if sequence < oldest_sequence:
+				oldest_sequence = sequence
+				cursor = index
+	var player_id := pool[cursor]
+	for operation in [
+		[&"stop", [player_id]],
+		[&"assign_stream", [player_id, loaded["value"]]],
+		[&"set_player_db", [player_id, 0.0]],
+		[&"play", [player_id]],
+	]:
+		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+		if not result.get("ok", false):
+			var rollback: Dictionary = _playback_port.call(&"restore_runtime", captured["value"])
+			if not rollback.get("ok", false):
+				_latch_consumer_fatal(&"sfx_rollback", rollback)
+				var fatal := _failure(&"audio_runtime_indeterminate")
+				fatal["fatal"] = true
+				return fatal
+			return result
+	_play_sequence += 1
+	play_sequences[player_id] = _play_sequence
+	var receipt := {"cue_id": cue_id, "bus": bus, "player_slot": cursor}
+	sfx_requested.emit(cue_id, receipt.duplicate(true))
+	return {"ok": true, "code": &"ok", "value": receipt.duplicate(true), "receipt": receipt.duplicate(true)}
 
 
-func _resolve_main_desktop(context: Dictionary) -> String:
-	var pressure := int(context.get("pressure", _gs_stat("pressure", 0)))
-	var health := int(context.get("health", _gs_stat("health", 6)))
-	if pressure >= 10:
-		return "desktop_alone_pressure"
-	if health <= 0:
-		return "desktop_alone_low_health"
-	return "desktop_alone_day"
+func get_music_context_id() -> String:
+	return _semantic["music_context_id"]
 
 
-func _gs_stat(stat_id: String, default_value: int) -> int:
-	var gs := _gs()
-	if gs != null and gs.has_method("get_stat"):
-		return int(gs.get_stat(stat_id))
-	return default_value
+func get_ambience_context_id() -> String:
+	return _semantic["ambience_context_id"]
 
 
-func _resolve_dating(context: Dictionary) -> String:
-	var route_type := str(context.get("route_type", "solo"))
-	if route_type == "twofriends":
-		return "twofriends_absent"
-	if route_type == "group":
-		var mood := str(context.get("mood", ""))
-		var attitude := str(context.get("attitude", ""))
-		if mood == "mad" or mood == "upset" or attitude == "mad" or attitude == "upset":
-			return "group_tension"
-		return "group_priscilla_lavinia"
-	# solo (or unset)
-	var friend_id := str(context.get("friend_id", ""))
-	var mood2 := str(context.get("mood", ""))
-	if mood2 == "mad":
-		match friend_id:
-			"priscilla": return "priscilla_mad"
-			"lavinia": return "lavinia_mad"
-			"sylvia": return "sylvia_mad"
-	match friend_id:
-		"priscilla": return "priscilla_warm"
-		"lavinia": return "lavinia_quiet"
-		"sylvia": return "sylvia_mystery"
-	return "desktop_alone_day"
+func get_semantic_audio_context() -> Dictionary:
+	return _semantic.duplicate(true)
 
 
-func _resolve_ending(context: Dictionary) -> String:
-	var ending_id := str(context.get("ending_id", ""))
-	if ending_id == "":
-		var gs := _gs()
-		if gs != null and gs.get("route_context") is Dictionary:
-			ending_id = str((gs.route_context as Dictionary).get("ending_id", ""))
-	if ending_id == "":
-		return "ending_alone"
-	# "ending.priscilla.true" -> "ending_priscilla_true"; "ending.alone" -> "ending_alone".
-	var track := ending_id.replace(".", "_")
-	if _manifest.has_track(track):
-		return track
-	# Fallback by suffix.
-	if ending_id.ends_with("sweet"):
-		return "ending_sweet"
-	if ending_id.ends_with("dark"):
-		return "ending_dark"
-	if ending_id.ends_with("true"):
-		return "ending_true"
-	return "ending_alone"
+func set_channel_volume(channel_id: StringName, linear: float) -> Dictionary:
+	if not _initialized or _profile == null:
+		return _failure(&"not_initialized")
+	if not CHANNELS.has(channel_id) or not is_finite(linear):
+		return _failure(&"invalid_audio_channel")
+	return _profile.set_preference(CHANNELS[channel_id]["volume"], clampf(linear, 0.0, 1.0))
 
 
-# ---- Music mute / pause ----
-func pause_music() -> void:
-	if _bgm_player != null:
-		_bgm_player.stream_paused = true
+func set_channel_muted(channel_id: StringName, muted: bool) -> Dictionary:
+	if not _initialized or _profile == null:
+		return _failure(&"not_initialized")
+	if not CHANNELS.has(channel_id):
+		return _failure(&"invalid_audio_channel")
+	return _profile.set_preference(CHANNELS[channel_id]["muted"], muted)
 
 
-func resume_music() -> void:
-	if _bgm_player != null:
-		_bgm_player.stream_paused = false
+func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
+	if _profile == null:
+		return _failure(&"not_initialized")
+	if changed_path != &"" and not String(changed_path).begins_with("preferences.audio."):
+		return {"ok": true, "code": &"ok", "value": _settings.duplicate(true), "receipt": {}, "unchanged": true}
+	var candidate := {}
+	for channel_id in CHANNELS:
+		var definition: Dictionary = CHANNELS[channel_id]
+		candidate[channel_id] = {
+			"volume": clampf(float(_profile.get_preference(definition["volume"], 1.0)), 0.0, 1.0),
+			"muted": bool(_profile.get_preference(definition["muted"], false)),
+		}
+	candidate[&"mute_audio_on_focus_loss"] = bool(_profile.get_preference(&"preferences.audio.mute_audio_on_focus_loss", false))
+	var applied := _apply_settings_silent(candidate)
+	if not applied.get("ok", false):
+		return applied
+	_settings = candidate.duplicate(true)
+	audio_settings_applied.emit(_settings.duplicate(true))
+	return {"ok": true, "code": &"ok", "value": _settings.duplicate(true), "receipt": {}}
 
 
-func set_music_muted(muted: bool) -> void:
-	if _bgm_player != null:
-		_bgm_player.stream_paused = muted
-	if _profile != null: _profile.set_preference(&"preferences.audio.music_muted", muted)
+func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary) -> Dictionary:
+	var validated := _validate_snapshot(snapshot)
+	if not validated.get("ok", false):
+		return validated
+	var preferences: Dictionary = prepared_profile.get("preferences", prepared_profile)
+	var audio: Dictionary = preferences.get("audio", {})
+	if not _valid_prepared_audio(audio):
+		return _failure(&"invalid_restore_plan")
+	return {"ok": true, "code": &"ok", "value": {"snapshot": snapshot.duplicate(true), "audio": audio.duplicate(true)}, "receipt": {}}
+
+
+func capture_restore_state() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {"snapshot": _semantic.duplicate(true), "settings": _settings.duplicate(true)}, "receipt": {}}
+
+
+func apply_restore_silent(plan: Dictionary) -> Dictionary:
+	var snapshot: Variant = plan.get("snapshot")
+	if typeof(snapshot) != TYPE_DICTIONARY:
+		return _failure(&"invalid_restore_plan")
+	var validated := _validate_snapshot(snapshot)
+	if not validated.get("ok", false):
+		return validated
+	_restore_backup = capture_restore_state()["value"].duplicate(true)
+	var music := _set_context(&"music", snapshot["music_context_id"], snapshot["music_context"], 0.0, true, true)
+	if not music.get("ok", false):
+		return music
+	var ambience := _set_context(&"ambience", snapshot["ambience_context_id"], snapshot["ambience_context"], 0.0, true, true)
+	if not ambience.get("ok", false):
+		return ambience
+	var audio: Dictionary = plan.get("audio", {})
+	if not audio.is_empty():
+		var candidate := _settings.duplicate(true)
+		for channel_id in CHANNELS:
+			var key := String(channel_id)
+			candidate[channel_id] = {
+				"volume": clampf(float(audio.get("%s_volume" % key, candidate.get(channel_id, {}).get("volume", 1.0))), 0.0, 1.0),
+				"muted": bool(audio.get("%s_muted" % key, candidate.get(channel_id, {}).get("muted", false))),
+			}
+		candidate[&"mute_audio_on_focus_loss"] = bool(audio.get("mute_audio_on_focus_loss", false))
+		var settings_result := _apply_settings_silent(candidate)
+		if not settings_result.get("ok", false):
+			return settings_result
+		_settings = candidate
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
+func rollback_restore_silent(backup: Dictionary) -> Dictionary:
+	var source: Dictionary = backup if not backup.is_empty() else _restore_backup
+	if not source.has("snapshot") or not source.has("settings"):
+		return _failure(&"invalid_restore_backup")
+	var snapshot: Dictionary = source["snapshot"]
+	var settings_result := _apply_settings_silent(source["settings"])
+	if not settings_result.get("ok", false):
+		return settings_result
+	_settings = source["settings"].duplicate(true)
+	var ambience := _set_context(&"ambience", snapshot["ambience_context_id"], snapshot["ambience_context"], 0.0, true, true)
+	if not ambience.get("ok", false):
+		return ambience
+	var music := _set_context(&"music", snapshot["music_context_id"], snapshot["music_context"], 0.0, true, true)
+	if not music.get("ok", false):
+		return music
+	_restore_backup = {}
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
+func finalize_restore() -> Dictionary:
+	_restore_backup = {}
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
 func get_missing_audio_report() -> Array:
 	return _manifest.get_missing_audio_paths()
 
 
-func _configure_gate(gate: Object) -> Dictionary:
-	if gate == null or not gate.has_signal("capability_changed"): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
-	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
-		if not gate.has_method(method): return {"ok": false, "code": &"invalid_mutation_gate", "details": {}, "receipt": {}}
-	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id(): return {"ok": false, "code": &"mutation_gate_already_configured", "details": {}, "receipt": {}}
-	var already := _mutation_gate != null
-	_mutation_gate = gate
-	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and bool(_settings.get(&"mute_audio_on_focus_loss", false)):
+		_focus_loss_mute = true
+		_apply_settings_silent(_settings)
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN and _focus_loss_mute:
+		_focus_loss_mute = false
+		_apply_settings_silent(_settings)
+
+
+func _set_context(channel_id: StringName, context_id: String, context: Dictionary, duration_override: float, silent: bool, force_restart: bool = false) -> Dictionary:
+	if not _initialized:
+		return _failure(&"not_initialized")
+	if _fatal:
+		return _failure(&"audio_runtime_indeterminate")
+	if context_id.is_empty():
+		if not context.is_empty():
+			return _failure(&"invalid_audio_snapshot")
+		return _clear_channel(channel_id, silent)
+	var resolved: Dictionary = _manifest.resolve_music_context(context_id, context) if channel_id == &"music" else _manifest.resolve_ambience_context(context_id, context)
+	if not resolved.get("ok", false):
+		return resolved
+	var record: Dictionary = resolved["value"]
+	var id_key := "%s_context_id" % channel_id
+	var context_key := "%s_context" % channel_id
+	if not force_restart and _semantic[id_key] == context_id and _semantic[context_key] == context and _records[channel_id].get("path", "") == record["path"]:
+		return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}, "unchanged": true}
+	var loaded: Dictionary = _playback_port.call(&"load_stream", record["path"])
+	if not loaded.get("ok", false):
+		return _warn_missing(context_id)
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	var prior_semantic := _semantic.duplicate(true)
+	var prior_record: Dictionary = _records[channel_id].duplicate(true)
+	var old_player: StringName = _active_players[channel_id]
+	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
+	var new_player: StringName = players[1] if old_player == players[0] else players[0]
+	var target_db := _channel_db(channel_id)
+	var duration := duration_override if duration_override >= 0.0 else maxf(float(prior_record.get("fade_out_seconds", 0.0)), float(record["fade_in_seconds"]))
+	var operations: Array = [
+		[&"kill_tween", [channel_id]],
+		[&"assign_stream", [new_player, loaded["value"]]],
+		[&"set_player_db", [new_player, SILENCE_DB]],
+		[&"play", [new_player]],
+	]
+	for operation in operations:
+		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+		if not result.get("ok", false):
+			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result)
+	if duration <= 0.0:
+		for operation in [
+			[&"set_player_db", [new_player, target_db]],
+			[&"set_player_db", [old_player, SILENCE_DB]],
+			[&"stop_and_clear", [old_player]],
+		]:
+			var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+			if not result.get("ok", false):
+				return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result)
+	else:
+		var captured_players: Dictionary = captured["value"].get("players", {})
+		var old_from_db := float(captured_players.get(old_player, {}).get("volume_db", target_db))
+		var tracks: Array[Dictionary] = [
+			{"player_id": new_player, "from_db": SILENCE_DB, "to_db": target_db},
+			{"player_id": old_player, "from_db": old_from_db, "to_db": SILENCE_DB, "stop_on_complete": true},
+		]
+		var tweened: Dictionary = _playback_port.call(&"create_parallel_tween", channel_id, tracks, duration)
+		if not tweened.get("ok", false):
+			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, tweened)
+	_active_players[channel_id] = new_player
+	_records[channel_id] = record.duplicate(true)
+	_semantic[id_key] = context_id
+	_semantic[context_key] = context.duplicate(true)
+	if not silent:
+		if channel_id == &"music":
+			music_context_changed.emit(context_id, context.duplicate(true))
+		else:
+			ambience_context_changed.emit(context_id, context.duplicate(true))
+	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}}
+
+
+func _clear_channel(channel_id: StringName, silent: bool) -> Dictionary:
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	var prior_semantic := _semantic.duplicate(true)
+	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
+	var operations: Array = [[&"kill_tween", [channel_id]]]
+	for player_id in players:
+		operations.append([&"set_player_db", [player_id, SILENCE_DB]])
+		operations.append([&"stop_and_clear", [player_id]])
+	for operation in operations:
+		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+		if not result.get("ok", false):
+			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result)
+	var id_key := "%s_context_id" % channel_id
+	var context_key := "%s_context" % channel_id
+	_semantic[id_key] = ""
+	_semantic[context_key] = {}
+	_records[channel_id] = {}
+	if not silent:
+		if channel_id == &"music":
+			music_context_changed.emit("", {})
+		else:
+			ambience_context_changed.emit("", {})
+	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}}
+
+
+func _rollback_failed_context(channel_id: StringName, backup: Dictionary, prior_semantic: Dictionary, cause: Dictionary) -> Dictionary:
+	var rollback: Dictionary = _playback_port.call(&"restore_runtime", backup.duplicate(true))
+	_semantic = prior_semantic.duplicate(true)
+	if not rollback.get("ok", false):
+		_playback_port.call(&"kill_tween", channel_id)
+		var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
+		for player_id in players:
+			_playback_port.call(&"stop", player_id)
+		var bus_name: StringName = CHANNELS[channel_id]["bus"]
+		_playback_port.call(&"set_bus_state", bus_name, SILENCE_DB, true)
+		_latch_consumer_fatal(&"context_rollback", rollback)
+		var fatal := _failure(&"audio_runtime_indeterminate")
+		fatal["fatal"] = true
+		return fatal
+	return cause.duplicate(true)
+
+
+func _apply_settings_silent(candidate: Dictionary) -> Dictionary:
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	for channel_id in CHANNELS:
+		var setting: Dictionary = candidate.get(channel_id, {})
+		if setting.is_empty():
+			return _failure(&"invalid_audio_settings")
+		var linear := clampf(float(setting["volume"]), 0.0, 1.0)
+		var muted := bool(setting["muted"]) or linear <= VOLUME_SILENCE_THRESHOLD or _focus_loss_mute
+		var db := SILENCE_DB if linear <= VOLUME_SILENCE_THRESHOLD else linear_to_db(linear)
+		var bus_name: StringName = CHANNELS[channel_id]["bus"]
+		var applied: Dictionary = _playback_port.call(&"set_bus_state", bus_name, db, muted)
+		if not applied.get("ok", false):
+			return _rollback_settings(captured["value"], applied)
+		if channel_id == &"sfx":
+			var ui_applied: Dictionary = _playback_port.call(&"set_bus_state", &"UI", db, muted)
+			if not ui_applied.get("ok", false):
+				return _rollback_settings(captured["value"], ui_applied)
+	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true), "receipt": {}}
+
+
+func _rollback_settings(backup: Dictionary, cause: Dictionary) -> Dictionary:
+	var rollback: Dictionary = _playback_port.call(&"restore_runtime", backup.duplicate(true))
+	if rollback.get("ok", false):
+		return cause.duplicate(true)
+	_latch_consumer_fatal(&"settings_rollback", rollback)
+	var fatal := _failure(&"audio_runtime_indeterminate")
+	fatal["fatal"] = true
+	return fatal
+
+
+func _channel_db(channel_id: StringName) -> float:
+	var linear := float(_settings.get(channel_id, {}).get("volume", 1.0))
+	return SILENCE_DB if linear <= VOLUME_SILENCE_THRESHOLD else linear_to_db(linear)
+
+
+func _validate_snapshot(snapshot: Dictionary) -> Dictionary:
+	var exact := ["ambience_context", "ambience_context_id", "music_context", "music_context_id"]
+	var keys: Array = snapshot.keys()
+	keys.sort()
+	if keys != exact:
+		return _failure(&"invalid_audio_snapshot")
+	if typeof(snapshot["music_context_id"]) != TYPE_STRING or typeof(snapshot["ambience_context_id"]) != TYPE_STRING or typeof(snapshot["music_context"]) != TYPE_DICTIONARY or typeof(snapshot["ambience_context"]) != TYPE_DICTIONARY:
+		return _failure(&"invalid_audio_snapshot")
+	if snapshot["music_context_id"].is_empty() and not snapshot["music_context"].is_empty():
+		return _failure(&"invalid_audio_snapshot")
+	if snapshot["ambience_context_id"].is_empty() and not snapshot["ambience_context"].is_empty():
+		return _failure(&"invalid_audio_snapshot")
+	if not snapshot["music_context_id"].is_empty() and not _manifest.resolve_music_context(snapshot["music_context_id"], snapshot["music_context"]).get("ok", false):
+		return _failure(&"invalid_audio_snapshot")
+	if not snapshot["ambience_context_id"].is_empty() and not _manifest.resolve_ambience_context(snapshot["ambience_context_id"], snapshot["ambience_context"]).get("ok", false):
+		return _failure(&"invalid_audio_snapshot")
+	return {"ok": true, "code": &"ok", "value": snapshot.duplicate(true), "receipt": {}}
+
+
+func _valid_prepared_audio(audio: Dictionary) -> bool:
+	var exact := [
+		"ambience_muted", "ambience_volume", "music_muted", "music_volume",
+		"mute_audio_on_focus_loss", "sfx_muted", "sfx_volume", "voice_muted", "voice_volume",
+	]
+	var keys: Array = audio.keys()
+	keys.sort()
+	if keys != exact:
+		return false
+	for channel_id in ["music", "ambience", "sfx", "voice"]:
+		var volume: Variant = audio["%s_volume" % channel_id]
+		var muted: Variant = audio["%s_muted" % channel_id]
+		if typeof(volume) != TYPE_FLOAT or not is_finite(volume) or volume < 0.0 or volume > 1.0 or typeof(muted) != TYPE_BOOL:
+			return false
+	return typeof(audio["mute_audio_on_focus_loss"]) == TYPE_BOOL
+
+
+func _warn_missing(semantic_id: String) -> Dictionary:
+	var result := _failure(&"missing_audio")
+	result["semantic_id"] = semantic_id
+	audio_warning.emit(result.duplicate(true))
+	return result
+
+
+func _on_preference_changed(path: StringName, _value: Variant) -> void:
+	if String(path).begins_with("preferences.audio."):
+		var applied := apply_profile_preferences(path)
+		if not applied.get("ok", false):
+			_latch_consumer_fatal(&"committed_preference_apply", applied)
+
+
+func _on_port_runtime_failure(channel_id: StringName, result: Dictionary) -> void:
+	_latch_consumer_fatal(&"playback_completion", {"code": result.get("code", &"audio_runtime_failure"), "channel_id": channel_id, "details": result.duplicate(true)})
+
+
+func _latch_consumer_fatal(phase: StringName, result: Dictionary) -> void:
+	_fatal = true
+	var failure := {
+		"source": "AudioManager",
+		"phase": String(phase),
+		"code": String(result.get("code", &"audio_consumer_failure")),
+		"details": result.duplicate(true),
+	}
+	if _mutation_gate != null:
+		_mutation_gate.call(&"latch_fatal", failure.duplicate(true))
+	var warning := _failure(&"audio_runtime_indeterminate")
+	warning["fatal"] = true
+	warning["details"] = failure.duplicate(true)
+	audio_warning.emit(warning.duplicate(true))
+
+
+func _failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "details": {}, "receipt": {}}

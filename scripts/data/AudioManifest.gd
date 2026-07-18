@@ -1,8 +1,5 @@
 class_name AudioManifest
 extends RefCounted
-# AudioManifest (CONTENT §13 / CONTRACTS §9): descriptive audio catalog. Always check
-# ResourceLoader.exists() before loading; missing audio must not crash and is reported.
-# No audio metadata is ever executed.
 
 const BGM_DIR := "res://audio/bgm/"
 const AMBIENCE_DIR := "res://audio/ambience/"
@@ -19,90 +16,147 @@ const BGM_IDS := [
 	"sylvia_mystery", "sylvia_soft", "sylvia_mad", "sylvia_dark", "sylvia_true",
 	"group_priscilla_lavinia", "group_tension", "twofriends_absent",
 	"date_challenge_normal", "date_challenge_dark", "date_challenge_true",
-	"hospital_room",
-	"ending_alone",
+	"hospital_room", "ending_alone",
 	"ending_priscilla_sweet", "ending_priscilla_dark", "ending_priscilla_true",
 	"ending_lavinia_sweet", "ending_lavinia_dark", "ending_lavinia_true",
 	"ending_sylvia_sweet", "ending_sylvia_dark", "ending_sylvia_true",
-	"ending_priscilla_lavinia",
-	"ending_sweet", "ending_dark", "ending_true",
+	"ending_priscilla_lavinia", "ending_sweet", "ending_dark", "ending_true",
 ]
-
 const AMBIENCE_IDS := ["room_tone", "computer_hum", "hospital_air", "rain_window"]
-
-# UI sfx + the two mine stingers (AudioCueData, stinger category).
 const CUE_IDS := {
 	"button_accept": "ui", "button_cancel": "ui", "window_open": "ui", "window_close": "ui",
 	"notification": "ui", "save_success": "ui", "save_error": "ui",
 	"jealous_mine_stinger": "stinger", "desire_mine_stinger": "stinger",
 }
+const SIMPLE_CONTEXTS := {
+	"menu": "menu_theme", "opening": "opening_forget_me_not", "tutorial": "tutorial_soft_screen",
+	"minesweeper": "minesweeper_focus", "contacts": "contacts_soft", "shop": "shop_idle",
+	"schedule": "schedule_planning", "backup": "backup_safe", "settings": "settings_calm",
+	"dating_challenge": "date_challenge_normal", "dating_dark_path": "date_challenge_dark",
+	"dating_true_path": "date_challenge_true", "hospital": "hospital_room",
+}
+const AMBIENCE_CONTEXTS := {
+	"room": "room_tone", "desktop": "computer_hum", "hospital": "hospital_air", "rain": "rain_window",
+}
+
+
+func resolve_music_context(context_id: String, context: Dictionary = {}) -> Dictionary:
+	if not _primitive_dictionary(context):
+		return _failure(&"invalid_audio_context")
+	var allowed: Array = {
+		"main_desktop": ["pressure", "health"], "dating": ["route_type", "friend_id", "mood", "attitude"],
+		"ending": ["ending_id"],
+	}.get(context_id, [])
+	if not _only_fields(context, allowed):
+		return _failure(&"invalid_audio_context")
+	if context_id == "main_desktop":
+		for key in context:
+			if typeof(context[key]) != TYPE_INT:
+				return _failure(&"invalid_audio_context")
+	elif context_id in ["dating", "ending"]:
+		for key in context:
+			if typeof(context[key]) != TYPE_STRING:
+				return _failure(&"invalid_audio_context")
+	var track_id := str(SIMPLE_CONTEXTS.get(context_id, ""))
+	match context_id:
+		"main_desktop":
+			track_id = "desktop_alone_pressure" if int(context.get("pressure", 0)) >= 10 else ("desktop_alone_low_health" if int(context.get("health", 6)) <= 0 else "desktop_alone_day")
+		"dating":
+			track_id = _dating_track(context)
+		"ending":
+			track_id = _ending_track(str(context.get("ending_id", "")))
+	if track_id.is_empty() or track_id not in BGM_IDS:
+		return _failure(&"unknown_audio_context")
+	return {"ok": true, "value": _record(track_id, _bgm_path(track_id), &"Music", true, 0.25, 0.25)}
+
+
+func resolve_ambience_context(context_id: String, context: Dictionary = {}) -> Dictionary:
+	if not _primitive_dictionary(context) or not context.is_empty():
+		return _failure(&"invalid_audio_context")
+	var track_id := str(AMBIENCE_CONTEXTS.get(context_id, ""))
+	if track_id.is_empty():
+		return _failure(&"unknown_audio_context")
+	return {"ok": true, "value": _record(track_id, "%s%s%s" % [AMBIENCE_DIR, track_id, EXT], &"Ambience", true, 0.2, 0.2)}
+
+
+func get_cue(cue_id: String) -> Dictionary:
+	if not CUE_IDS.has(cue_id):
+		return _failure(&"unknown_audio_cue")
+	var category: String = CUE_IDS[cue_id]
+	var bus := &"UI" if category == "ui" else &"SFX"
+	return {"ok": true, "value": _record(cue_id, "%s%s%s" % [UI_DIR, cue_id, EXT], bus, false, 0.0, 0.0)}
+
+
+func get_expected_audio_paths() -> Dictionary:
+	var bgm := {}
+	for id in BGM_IDS:
+		bgm[id] = _bgm_path(id)
+	var ambience := {}
+	for id in AMBIENCE_IDS:
+		ambience[id] = "%s%s%s" % [AMBIENCE_DIR, id, EXT]
+	var ui := {}
+	for id in CUE_IDS:
+		ui[id] = "%s%s%s" % [UI_DIR, id, EXT]
+	return {"bgm": bgm, "ambience": ambience, "ui": ui}
+
+
+func get_missing_audio_paths() -> Array:
+	var missing: Array = []
+	for group: Dictionary in get_expected_audio_paths().values():
+		for path: String in group.values():
+			if not ResourceLoader.exists(path):
+				missing.append(path)
+	return missing
+
+
+func _dating_track(context: Dictionary) -> String:
+	var route := str(context.get("route_type", "solo"))
+	if route == "twofriends":
+		return "twofriends_absent"
+	if route == "group":
+		return "group_tension" if str(context.get("mood", "")) in ["mad", "upset"] or str(context.get("attitude", "")) in ["mad", "upset"] else "group_priscilla_lavinia"
+	var friend := str(context.get("friend_id", ""))
+	if str(context.get("mood", "")) == "mad" and friend in ["priscilla", "lavinia", "sylvia"]:
+		return "%s_mad" % friend
+	return {"priscilla": "priscilla_warm", "lavinia": "lavinia_quiet", "sylvia": "sylvia_mystery"}.get(friend, "desktop_alone_day")
+
+
+func _ending_track(ending_id: String) -> String:
+	if ending_id.is_empty():
+		return "ending_alone"
+	var exact := ending_id.replace(".", "_")
+	if exact in BGM_IDS:
+		return exact
+	for suffix in ["sweet", "dark", "true"]:
+		if ending_id.ends_with(suffix):
+			return "ending_%s" % suffix
+	return "ending_alone"
+
+
+func _record(id: String, path: String, bus: StringName, looped: bool, fade_in: float, fade_out: float) -> Dictionary:
+	return {"id": id, "path": path, "bus": bus, "loop": looped, "fade_in_seconds": fade_in, "fade_out_seconds": fade_out}
 
 
 func _bgm_path(id: String) -> String:
 	return "%s%s%s" % [BGM_DIR, id, EXT]
 
 
-func get_bgm_tracks() -> Dictionary:
-	var out: Dictionary = {}
-	for id in BGM_IDS:
-		out[id] = {"id": id, "path": _bgm_path(id), "category": "bgm"}
-	return out
+func _only_fields(value: Dictionary, allowed: Array) -> bool:
+	for key in value:
+		if str(key) not in allowed:
+			return false
+	return true
 
 
-func get_audio_cues() -> Dictionary:
-	var out: Dictionary = {}
-	for id in AMBIENCE_IDS:
-		out[id] = {"id": id, "path": "%s%s%s" % [AMBIENCE_DIR, id, EXT], "bus": "Ambience", "category": "ambience"}
-	for id in CUE_IDS.keys():
-		var cat: String = CUE_IDS[id]
-		var bus := "UI" if cat == "ui" else "SFX"
-		out[id] = {"id": id, "path": "%s%s%s" % [UI_DIR, id, EXT], "bus": bus, "category": cat}
-	return out
+func _primitive_dictionary(value: Dictionary) -> bool:
+	for key in value:
+		if typeof(key) != TYPE_STRING:
+			return false
+		var item: Variant = value[key]
+		if typeof(item) not in [TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_STRING]:
+			return false
+	return true
 
 
-func get_expected_audio_paths() -> Dictionary:
-	var bgm: Dictionary = {}
-	for id in BGM_IDS:
-		bgm[id] = _bgm_path(id)
-	var ambience: Dictionary = {}
-	for id in AMBIENCE_IDS:
-		ambience[id] = "%s%s%s" % [AMBIENCE_DIR, id, EXT]
-	var ui: Dictionary = {}
-	for id in CUE_IDS.keys():
-		ui[id] = "%s%s%s" % [UI_DIR, id, EXT]
-	return {"bgm": bgm, "ambience": ambience, "ui": ui}
-
-
-func get_path(category: String, id: String) -> String:
-	match category:
-		"bgm":
-			if id in BGM_IDS:
-				return _bgm_path(id)
-		"ambience":
-			if id in AMBIENCE_IDS:
-				return "%s%s%s" % [AMBIENCE_DIR, id, EXT]
-		"ui", "sfx", "stinger":
-			if CUE_IDS.has(id):
-				return "%s%s%s" % [UI_DIR, id, EXT]
-	return ""
-
-
-func has_track(track_id: String) -> bool:
-	return track_id in BGM_IDS
-
-
-func get_track_data(track_id: String) -> Dictionary:
-	if track_id in BGM_IDS:
-		return {"id": track_id, "path": _bgm_path(track_id), "category": "bgm"}
-	return {}
-
-
-func get_missing_audio_paths() -> Array:
-	var missing: Array = []
-	var expected := get_expected_audio_paths()
-	for group in expected.keys():
-		for id in (expected[group] as Dictionary).keys():
-			var path: String = expected[group][id]
-			if not ResourceLoader.exists(path):
-				missing.append(path)
-	return missing
+func _failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "details": {}, "receipt": {}}

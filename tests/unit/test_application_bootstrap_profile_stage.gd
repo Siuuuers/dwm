@@ -2,6 +2,13 @@
 extends "res://addons/gut/test.gd"
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
+const PROFILE_MANAGER := preload("res://autoload/ProfileManager.gd")
+const LOCALIZATION_MANAGER := preload("res://autoload/LocalizationManager.gd")
+const INPUT_MANAGER := preload("res://autoload/InputManager.gd")
+const ACCESSIBILITY_MANAGER := preload("res://autoload/AccessibilityManager.gd")
+const AUDIO_MANAGER := preload("res://autoload/AudioManager.gd")
+const DIALOGIC_BRIDGE := preload("res://autoload/DialogicBridge.gd")
+const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
 const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"select_and_prove_roots",
 	&"construct_and_inject_mutation_gate",
@@ -17,6 +24,16 @@ const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"configure_minesweeper_rounds",
 	&"publish_application_ready",
 ]
+
+
+class InjectableBootstrap:
+	extends "res://autoload/ApplicationBootstrap.gd"
+	var injected_targets: Dictionary = {}
+	var target_requests: Array[StringName] = []
+
+	func _target(target_name: StringName) -> Node:
+		target_requests.append(target_name)
+		return injected_targets.get(target_name)
 
 func test_application_bootstrap_contract_exists() -> void:
 	var result: Dictionary = PROBE.load_script("res://autoload/ApplicationBootstrap.gd")
@@ -47,9 +64,15 @@ func test_final_mode_stops_at_missing_production_gate_before_profile() -> void:
 	assert_eq(state["fatal_result"]["code"], &"missing_production_gate_factory")
 
 func test_ready_callbacks_are_side_effect_free_or_deferred_only() -> void:
-	var profile_source := FileAccess.get_file_as_string("res://autoload/ProfileManager.gd")
+	for path in [
+		"res://autoload/ProfileManager.gd", "res://autoload/GameState.gd",
+		"res://autoload/LocalizationManager.gd", "res://autoload/InputManager.gd",
+		"res://autoload/AccessibilityManager.gd", "res://autoload/AudioManager.gd",
+		"res://autoload/DialogicBridge.gd",
+	]:
+		var source := FileAccess.get_file_as_string(path)
+		assert_true(source.contains("func _ready() -> void:\n\tpass"), path)
 	var bootstrap_source := FileAccess.get_file_as_string("res://autoload/ApplicationBootstrap.gd")
-	assert_true(profile_source.contains("func _ready() -> void:\n\tpass"))
 	assert_true(bootstrap_source.contains("func _ready() -> void:\n\tcall_deferred(\"start\", _requested_mode_from_debug_args())"))
 
 func test_task2_owned_managers_expose_common_gate_contract() -> void:
@@ -66,3 +89,71 @@ func test_task2_owned_managers_expose_common_gate_contract() -> void:
 		assert_true(manager.call(&"configure_mutation_gate", gate)["value"]["already_configured"])
 		assert_eq(manager.call(&"configure_mutation_gate", null).get("code"), &"invalid_mutation_gate")
 		assert_eq(manager.call(&"configure_mutation_gate", FAKE_GATE.new()).get("code"), &"mutation_gate_already_configured")
+
+
+func test_dialogic_bridge_exposes_common_gate_contract() -> void:
+	var loaded: Dictionary = PROBE.load_script("res://autoload/DialogicBridge.gd")
+	assert_true(loaded.get("ok", false), str(loaded))
+	if not loaded.get("ok", false):
+		return
+	var bridge: Node = autofree(loaded["value"].new())
+	var gate: RefCounted = FAKE_GATE.new()
+	var first: Dictionary = bridge.call(&"configure_mutation_gate", gate)
+	assert_true(first.get("ok", false), str(first))
+	assert_eq(first["value"]["gate_instance_id"], gate.get_instance_id())
+	assert_false(first["value"]["already_configured"])
+	assert_true(bridge.call(&"configure_mutation_gate", gate)["value"]["already_configured"])
+	assert_eq(bridge.call(&"configure_mutation_gate", null).get("code"), &"invalid_mutation_gate")
+	var incomplete: Node = autofree(Node.new())
+	assert_eq(bridge.call(&"configure_mutation_gate", incomplete).get("code"), &"invalid_mutation_gate")
+	assert_eq(bridge.call(&"configure_mutation_gate", FAKE_GATE.new()).get("code"), &"mutation_gate_already_configured")
+
+
+func test_real_plan02_target_order_is_exactly_six_managers() -> void:
+	var loaded: Dictionary = PROBE.load_script("res://autoload/ApplicationBootstrap.gd")
+	assert_true(loaded.get("ok", false), str(loaded))
+	if not loaded.get("ok", false):
+		return
+	var bootstrap: Node = autofree(loaded["value"].new())
+	assert_eq(
+		bootstrap.get("DEVELOPMENT_GATE_TARGETS")[&"profile_locale_audio_development"],
+		[&"ProfileManager", &"LocalizationManager", &"InputManager", &"AccessibilityManager", &"AudioManager", &"DialogicBridge"],
+	)
+
+
+func test_real_six_target_gate_failure_stops_at_each_ordinal_before_initialization() -> void:
+	var target_names: Array[StringName] = [&"ProfileManager", &"LocalizationManager", &"InputManager", &"AccessibilityManager", &"AudioManager", &"DialogicBridge"]
+	var scripts := [PROFILE_MANAGER, LOCALIZATION_MANAGER, INPUT_MANAGER, ACCESSIBILITY_MANAGER, AUDIO_MANAGER, DIALOGIC_BRIDGE]
+	for failing_ordinal in range(target_names.size()):
+		var bootstrap: Node = autofree(InjectableBootstrap.new())
+		var targets := {}
+		for index in range(target_names.size()):
+			var manager: Node = autofree(scripts[index].new())
+			targets[target_names[index]] = manager
+		bootstrap.set("injected_targets", targets)
+		var blocker: RefCounted = FAKE_GATE.new()
+		assert_true(targets[target_names[failing_ordinal]].configure_mutation_gate(blocker).get("ok", false))
+		var shared_gate: RefCounted = FAKE_GATE.new()
+		bootstrap.set("_debug_gate_factory", func() -> Object: return shared_gate)
+		var result: Dictionary = bootstrap.call(&"_construct_and_inject_mutation_gate", &"profile_locale_audio_development")
+		assert_eq(result.get("code"), &"mutation_gate_already_configured", "ordinal %d" % failing_ordinal)
+		for index in range(target_names.size()):
+			var retained: Object = targets[target_names[index]].get("_mutation_gate")
+			if index < failing_ordinal:
+				assert_eq(retained.get_instance_id(), shared_gate.get_instance_id())
+			elif index == failing_ordinal:
+				assert_eq(retained.get_instance_id(), blocker.get_instance_id())
+			else:
+				assert_null(retained)
+		assert_null(targets[&"ProfileManager"].get("_storage"))
+		assert_false(targets[&"ProfileManager"].get("_initialized"))
+		assert_null(targets[&"LocalizationManager"].get("_profile"))
+		assert_eq(targets[&"LocalizationManager"].get("_bundle"), {})
+		assert_null(targets[&"InputManager"].get("_profile"))
+		assert_null(targets[&"AccessibilityManager"].get("_profile"))
+		assert_null(targets[&"AudioManager"].get("_profile"))
+		assert_false(targets[&"AudioManager"].get("_initialized"))
+		assert_null(targets[&"DialogicBridge"].get("_profile"))
+		assert_false(targets[&"DialogicBridge"].get("_preferences_bound"))
+		for forbidden_target in [&"SaveManager", &"GameState", &"SceneRouter"]:
+			assert_false(forbidden_target in bootstrap.target_requests, "ordinal %d requested %s" % [failing_ordinal, forbidden_target])

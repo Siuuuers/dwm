@@ -160,6 +160,25 @@ func test_gallery_and_entire_reset_retain_internal_ledgers() -> void:
 	snapshot = manager.call(&"get_profile_snapshot")
 	assert_true(snapshot["gallery_transaction_receipts"].has("transaction-retained"))
 
+
+func test_preference_reset_publishes_leaf_changes_before_one_summary() -> void:
+	var manager: Node = _new_manager()["manager"]
+	assert_true(manager.call(&"set_preferences", {
+		&"preferences.audio.music_volume": 0.2,
+		&"preferences.dialogue.text_speed": 2.0,
+	}).get("ok", false))
+	var events: Array = []
+	manager.preference_changed.connect(func(path: StringName, _value: Variant) -> void: events.append(["preference", path]))
+	manager.profile_reset.connect(func(section: StringName) -> void: events.append(["reset", section]))
+	assert_true(manager.call(&"reset_preferences").get("ok", false))
+	assert_eq(events, [
+		["preference", &"preferences.audio.music_volume"],
+		["preference", &"preferences.dialogue.text_speed"],
+		["reset", &"preferences"],
+	])
+	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), 0.8)
+	assert_eq(manager.call(&"get_preference", &"preferences.dialogue.text_speed"), 1.0)
+
 func test_mutation_gate_configuration_is_identity_stable_and_side_effect_free() -> void:
 	var manager: Node = autofree(_manager_script.new())
 	var gate: RefCounted = _gate_script.new()
