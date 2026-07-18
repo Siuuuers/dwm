@@ -8,17 +8,51 @@ func render(validation_result: Dictionary) -> String:
 		"| requirement_id | packet_id | path | specification_status | beads |",
 		"|---|---|---|---|---|",
 	]
-	var requirements: Array = validation_result.get("requirements", []).duplicate(true)
-	requirements.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return str(a.id) < str(b.id))
+	var requirements: Array = _dictionary_array(validation_result.get("requirements", null), true)
+	requirements.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_id := str(a.get("id", ""))
+		var b_id := str(b.get("id", ""))
+		return str(a.get("path", "")) < str(b.get("path", "")) if a_id == b_id else a_id < b_id
+	)
 	var packets_by_id := {}
-	for packet: Dictionary in validation_result.get("packets", []): packets_by_id[packet.id] = packet
+	var packets: Array = _dictionary_array(validation_result.get("packets", null))
+	for packet: Dictionary in packets:
+		packets_by_id[str(packet.get("id", ""))] = packet
 	for requirement: Dictionary in requirements:
-		var packet: Dictionary = packets_by_id[requirement.packet_id]
-		var beads: Array = packet.get("beads", []).duplicate(); beads.sort()
-		lines.append("| `%s` | `%s` | `%s` | `%s` | `%s` |" % [requirement.id, requirement.packet_id, requirement.path, requirement.specification_status, ",".join(beads)])
+		var packet_id := str(requirement.get("packet_id", ""))
+		var packet_value: Variant = packets_by_id.get(packet_id, {})
+		var packet: Dictionary = packet_value if typeof(packet_value) == TYPE_DICTIONARY else {}
+		var beads: Array[String] = _string_array(packet.get("beads", null)); beads.sort()
+		lines.append("| `%s` | `%s` | `%s` | `%s` | `%s` |" % [requirement.get("id", ""), packet_id, requirement.get("path", ""), requirement.get("specification_status", ""), ",".join(beads)])
+	lines.append_array(["", "# Decision Index", "", "| decision_id | path | specification_status | decision_status |", "|---|---|---|---|"])
+	var decisions: Array = packets.filter(func(packet: Dictionary) -> bool: return packet.get("kind") == "decision_packet")
+	decisions.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_id := str(a.get("id", ""))
+		var b_id := str(b.get("id", ""))
+		return str(a.get("path", "")) < str(b.get("path", "")) if a_id == b_id else a_id < b_id
+	)
+	for decision: Dictionary in decisions:
+		lines.append("| `%s` | `%s` | `%s` | `%s` |" % [decision.get("id", ""), decision.get("path", ""), decision.get("specification_status", ""), decision.get("decision_status", "")])
 	lines.append("")
 	lines.append("blocked_requirement_ids: " + JSON.stringify(validation_result.get("blocked_requirement_ids", [])))
 	return "\n".join(lines) + "\n"
+
+func _dictionary_array(value: Variant, deep_duplicate: bool = false) -> Array:
+	var safe: Array = []
+	if typeof(value) != TYPE_ARRAY:
+		return safe
+	for item: Variant in value:
+		if typeof(item) == TYPE_DICTIONARY:
+			safe.append(item.duplicate(true) if deep_duplicate else item)
+	return safe
+
+func _string_array(value: Variant) -> Array[String]:
+	var safe: Array[String] = []
+	if typeof(value) != TYPE_ARRAY:
+		return safe
+	for item: Variant in value:
+		safe.append(str(item))
+	return safe
 
 func write_index(path: String, content: String) -> Error:
 	var directory_error := DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))

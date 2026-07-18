@@ -65,4 +65,10 @@
 | `req.test.layers` | `req_packet.verification` | `prompt_docs/requirements/verification.md` | `approved` | `dwm-p2r.1,dwm-p2r.10,dwm-p2r.8` |
 | `req.test.phase2r_gate` | `req_packet.verification` | `prompt_docs/requirements/verification.md` | `approved` | `dwm-p2r.1,dwm-p2r.10,dwm-p2r.8` |
 
+# Decision Index
+
+| decision_id | path | specification_status | decision_status |
+|---|---|---|---|
+| `decision.narrative_localization_adapter` | `prompt_docs/decisions/narrative_localization_adapter.md` | `deferred` | `decision_required` |
+
 blocked_requirement_ids: ["req.locale.narrative_deferred"]
