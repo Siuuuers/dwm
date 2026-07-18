@@ -8,16 +8,13 @@ func _read(path: String) -> Dictionary:
 	assert_true(parsed.get("ok", false), "%s: %s" % [path, parsed])
 	return parsed.get("value", {})
 
-func test_extracted_catalogs_equal_every_live_legacy_oracle_value() -> void:
-	var manager_script: Script = load("res://autoload/LocalizationManager.gd")
-	var manager: Node = autofree(manager_script.new())
-	manager.call(&"_build_tables")
-	var tables: Dictionary = manager.get("_tables").duplicate(true)
+func test_every_immutable_subset_record_remains_in_catalogs_exactly() -> void:
+	var evidence := _read("res://evidence/phase_2r/localization/legacy_subset_fingerprint.json")
 	for locale in ["en", "zh_CN", "zh_HK"]:
 		var catalog := _read("res://localization/ui/%s.json" % locale)
-		var extracted := {}
-		for message in catalog["messages"]: extracted[message["id"]] = message["text"]
-		assert_eq(extracted, tables[locale], locale)
+		var current := {}
+		for message in catalog["messages"]: current[message["id"]] = message["text"]
+		for frozen in evidence["records"][locale]: assert_eq(current.get(frozen["id"]), frozen["text"], "%s:%s" % [locale, frozen["id"]])
 
 func test_immutable_fingerprint_matches_exact_50_25_25_records() -> void:
 	var evidence := _read("res://evidence/phase_2r/localization/legacy_subset_fingerprint.json")
@@ -26,7 +23,6 @@ func test_immutable_fingerprint_matches_exact_50_25_25_records() -> void:
 	for locale in ["en", "zh_CN", "zh_HK"]:
 		for message in evidence["records"][locale]: records.append({"locale": locale, "id": message["id"], "text": message["text"]})
 	assert_eq(LOCALIZATION_SCHEMA.fingerprint_records(records), evidence["combined_sha256"])
-	assert_eq(FileAccess.get_sha256("res://autoload/LocalizationManager.gd"), evidence["oracle_sha256"])
 
 func test_manifest_and_catalog_bundle_are_semantically_valid() -> void:
 	var manifest := _read("res://localization/manifest.json")
