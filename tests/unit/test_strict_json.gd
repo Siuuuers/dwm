@@ -4,6 +4,7 @@ const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 
 var _strict: Script
 var _writer: Script
+var _schema_validator: Script
 
 func before_all() -> void:
 	var strict_result: Dictionary = PROBE.load_script("res://scripts/validation/StrictJson.gd")
@@ -14,6 +15,9 @@ func before_all() -> void:
 	assert_true(writer_result.get("ok", false), "CanonicalJsonWriter must load: %s" % writer_result)
 	if writer_result.get("ok", false):
 		_writer = writer_result["value"]
+	var schema_result: Dictionary = PROBE.load_script("res://scripts/validation/JsonSchemaValidator.gd")
+	assert_true(schema_result.get("ok", false), str(schema_result))
+	if schema_result.get("ok", false): _schema_validator = schema_result["value"]
 
 func test_strict_parser_accepts_nested_object_and_detaches_values() -> void:
 	var result: Dictionary = _strict.call(&"parse_object", "{\"a\":[1,true,null,{\"b\":-2.5e1}]}")
@@ -69,3 +73,12 @@ func test_canonical_writer_preserves_types_and_escapes_controls() -> void:
 func test_canonical_writer_rejects_unsupported_values_and_invalid_keys() -> void:
 	assert_eq(_writer.call(&"stringify", {"bad": Vector2.ZERO}).get("code"), &"unsupported_type")
 	assert_eq(_writer.call(&"stringify", {1: "bad"}).get("code"), &"invalid_key_type")
+
+func test_schema_files_are_strict_json_and_validate_closed_objects() -> void:
+	var schema_text := FileAccess.get_file_as_string("res://schemas/localization/ui-locale.schema.json")
+	var parsed: Dictionary = _strict.call(&"parse_object", schema_text)
+	assert_true(parsed.get("ok", false), str(parsed))
+	var valid := {"schema_version": 1, "locale": "en", "messages": []}
+	assert_true(_schema_validator.call(&"validate", valid, parsed["value"]).get("ok", false))
+	valid["unknown"] = true
+	assert_false(_schema_validator.call(&"validate", valid, parsed["value"]).get("ok", true))
