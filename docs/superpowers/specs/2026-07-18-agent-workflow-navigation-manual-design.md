@@ -35,7 +35,7 @@ The previous monolithic roadmap format mixed intentions, execution order, comman
 
 ## 3. Authority Boundary
 
-The manual MUST declare these exact machine-readable properties:
+The manual's sole top-of-file YAML frontmatter block MUST contain these five direct scalar entries with the exact values shown. A fenced example or body sentence does not satisfy the contract:
 
 ```yaml
 document_role: navigation_only
@@ -49,7 +49,7 @@ The manual MUST NOT authorize implementation, select work by itself, mark work c
 
 The authority map is:
 
-| Concern | Sole authority |
+| Concern | Owning authority |
 |---|---|
 | Agent entry and context-selection rules | `Prompt.md` |
 | Work status, dependency order, and active assignment | Beads |
@@ -58,8 +58,11 @@ The authority map is:
 | Exact implementation procedure | Approved implementation plans |
 | Physical behavior | Code and assets in the inspected worktree or tested commit |
 | Verification status | Executed evidence tied to the tested subject |
+| Permission to execute a repository mutation | The active system/developer/user instruction hierarchy, including an exact current user authorization or a still-valid, scope-matched user authorization recorded by an approved specification/plan |
 
 If two authorities disagree within their own domains, the agent MUST report the conflict and stop the affected work. It MUST NOT resolve the conflict by choosing whichever document is easiest to follow.
+
+Beads state, the manual, an intention, a requirement, a specification, or a plan MUST NOT grant permission by its own existence. A recorded authorization is usable only when it identifies the approving user, approved scope, approval state, and date; covers the exact requested mutation; and is not revoked by a newer or higher-priority instruction. Ambiguous phrases do not authorize commit, push, history rewrite, deletion, evidence sealing, external messaging, or other separately gated actions. Missing or ambiguous permission is a stop condition, not an invitation to infer consent.
 
 ## 4. Entry and Context Flow
 
@@ -96,22 +99,33 @@ Agents MUST query Beads rather than copy mutable status into the manual.
 
 ## 6. Capability Intentions
 
-The manual contains a concise, unordered catalog of desired outcomes. Each record uses this shape:
+The manual contains a concise, unordered catalog of desired outcomes under the top-level `capability_intentions` key in the same YAML frontmatter block as the authority declarations. The Markdown body may explain these records but MUST NOT define a second catalog. Each record uses this shape:
 
 ```yaml
 - intention_id: stable_lower_snake_case_id
   purpose: one plain-language outcome
-  authority_links: []
+  authority_links:
+    - kind: beads_issue
+      target: project-issue-id
 ```
 
 Rules:
 
 - The catalog MUST NOT use numbered phase labels, sequence numbers, dates, completion claims, task checklists, implementation commands, or copied requirement text.
 - `purpose` describes why the capability is desirable, not how to build it.
-- `authority_links` contains only approved Beads, requirement, specification, decision, or plan identifiers that physically exist.
+- Every `authority_links` element has exactly `kind` and `target`, both ordinary nonempty strings.
+- `kind` is exactly one of `beads_issue`, `requirement_id`, `specification_id`, `decision_id`, or `plan_path`.
+- `target` resolution is deterministic:
+  - `beads_issue`: `bd show <target> --json --readonly` returns exactly one issue. Existence does not imply readiness or execution permission.
+  - `requirement_id`: `prompt_docs/INDEX.md` maps the exact requirement ID to exactly one packet whose `specification_status` is `approved`.
+  - `specification_id`: exactly one specification frontmatter has the matching `id`, `conversational_design_status: approved`, and `written_spec_status: approved`.
+  - `decision_id`: `prompt_docs/INDEX.md` maps the exact decision ID to exactly one decision packet whose `specification_status` is `approved` and whose `decision_status` is exactly `accepted`.
+  - `plan_path`: the target is one regular repository-relative Markdown file under `docs/superpowers/plans/` with YAML frontmatter containing `plan_status: approved`. A plan without that machine-readable approval is not linkable.
 - An empty `authority_links` array means the intention is not executable.
-- A nonempty array does not itself authorize work; the linked Beads status and approval fields still govern.
+- A nonempty array does not itself authorize work; all links must resolve, the active Beads issue and approval fields still govern, and the separate execution-permission rule still applies.
 - Adding or changing an authority link requires validation of the target and a normal reviewed documentation change.
+
+For this contract, a numbered phase label is any case-insensitive match of `\bphase(?:\s+|[-_])?[0-9]+[a-z0-9._-]*\b` anywhere in the manual. Examples rejected by the validator include `Phase 3`, `phase3`, `phase-3`, `PHASE_3`, and `Phase 3A1`. The ordinary words `phase` and `phases` without a number are outside this detector, although the manual SHOULD prefer `work`, `capability`, or `initiative` when those words are clearer.
 
 The initial catalog covers only broad intentions already present in the archived project direction: a usable desktop experience, complete narrative presentation and endings, whole-project quality hardening, and a real playable Minesweeper experience. It MUST NOT reproduce archived implementation instructions.
 
@@ -125,20 +139,20 @@ intention
   -> clarified and approved design or decision when needed
   -> approved requirement/specification authority
   -> approved implementation plan
-  -> explicit execution authority
+  -> exact scope-matched execution permission from the active instruction hierarchy or a still-valid recorded user authorization
   -> implementation and tests
   -> evidence tied to the tested subject
   -> Beads closure
 ```
 
-No step may infer the next step's approval. If an intention lacks a required link or approval, the agent MUST ask the user to design or authorize that step rather than implement it.
+No step may infer the next step's approval or permission. If an intention lacks a required link, approval, or scope-matched permission, the agent MUST identify the missing gate and ask the user for that specific decision rather than implement it. A request to design or review an intention authorizes documentation within that request only; it does not authorize implementation.
 
 ## 8. Stop Conditions and Failure Reporting
 
 The manual MUST require the agent to stop affected work when any of these conditions holds:
 
 - no in-progress or ready bounded issue exists;
-- more than one issue appears active and the selection rule cannot choose exactly one;
+- more than one issue appears in progress and the active selection rule cannot choose exactly one;
 - a required authority link is missing, broken, unapproved, or contradictory;
 - the requested behavior is absent from approved requirements;
 - the implementation plan does not cover the requested mutation;
@@ -181,10 +195,12 @@ Automated validation MUST prove:
 - the `Prompt.md` pointer resolves to exactly one regular Markdown file;
 - the manual has exactly one YAML frontmatter block;
 - all five authority declarations exist with their frozen values;
+- `capability_intentions` exists only in that frontmatter and is an array;
 - capability intention IDs are unique lower-snake-case strings;
 - each intention has exactly `intention_id`, `purpose`, and `authority_links`;
+- every authority-link element has exactly `kind` and `target`, uses an allowed kind, and passes that kind's frozen resolver;
 - the catalog contains no numbered phase labels;
-- authority links are either empty or resolve to physically present approved authority;
+- authority links are either empty or pass their kind-specific resolver; a `beads_issue` link proves only issue existence, while the other four link kinds prove the exact approval state defined above;
 - no placeholder markers such as `TBD`, `TODO`, or `My first issue` exist;
 - the normal documentation/tooling gate and `git diff --check` pass.
 
@@ -207,9 +223,9 @@ This work MUST NOT:
 
 The design is implemented when:
 
-1. The final guide is agent-first and understandable without prior knowledge of the authority system.
+1. The final guide defines every authority term before first operational use, provides a copyable startup sequence, and includes a plain-language explanation of each startup step.
 2. `Prompt.md` points to it without changing the current work-selection authority chain.
 3. The guide contains no numbered future roadmap or executable requirement duplication.
-4. Agents can determine status, select context, activate an intention safely, and stop on missing authority using only the guide's navigation rules and linked authorities.
+4. A checked-in decision table and automated fixtures cover at least these cases with one exact expected action each: commit present while parent epic is open; one valid ready issue; multiple in-progress issues for which the active selection rule cannot choose exactly one; empty intention links; broken intention link; approved design without approved plan; approved plan without execution permission; test process exits zero while a script is ignored; and verified child closure while its parent remains open.
 5. Automated validation catches a broken pointer, altered authority declaration, duplicate intention ID, numbered phase label, unresolved nonempty authority link, and placeholder marker.
-6. The user reviews the written guide before the documentation issue closes.
+6. The user reviews the written guide for plain-language clarity before the documentation issue closes; automated criteria own structure and decisions, while the user review owns readability.
