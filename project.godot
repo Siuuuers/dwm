@@ -17,16 +17,18 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+ProfileManager="*res://autoload/ProfileManager.gd"
 GameState="*res://autoload/GameState.gd"
+SaveManager="*res://autoload/SaveManager.gd"
+LocalizationManager="*res://autoload/LocalizationManager.gd"
+AudioManager="*res://autoload/AudioManager.gd"
 EffectResolver="*res://autoload/EffectResolver.gd"
 SceneRouter="*res://autoload/SceneRouter.gd"
-LocalizationManager="*res://autoload/LocalizationManager.gd"
-DialogicBridge="*res://autoload/DialogicBridge.gd"
-SaveManager="*res://autoload/SaveManager.gd"
 InputManager="*res://autoload/InputManager.gd"
 AccessibilityManager="*res://autoload/AccessibilityManager.gd"
-AudioManager="*res://autoload/AudioManager.gd"
 Dialogic="*uid://ds2q0uclmolvu"
+DialogicBridge="*res://autoload/DialogicBridge.gd"
+ApplicationBootstrap="*res://autoload/ApplicationBootstrap.gd"
 
 [dialogic]
 
