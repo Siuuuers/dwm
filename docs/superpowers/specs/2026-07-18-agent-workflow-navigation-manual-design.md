@@ -3,13 +3,14 @@ id: spec.agent_workflow.navigation_manual
 kind: design_specification
 schema_version: 1
 conversational_design_status: approved
-written_spec_status: review_required
+written_spec_status: approved
 self_review_status: passed
 implementation_authorized: false
 implementation_evidence: []
 verification_evidence: []
 created_on: 2026-07-18
 self_reviewed_on: 2026-07-18
+written_spec_approved_on: 2026-07-18
 beads_issue: dwm-2oy
 ---
 
