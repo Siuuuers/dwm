@@ -1,5 +1,12 @@
 # Design Session Addendum — 2026-07-18
 
+> **2026-07-19 update:** the `story/` narrative canon (Core Story Bible et al.) now
+> exists and supersedes parts of this addendum. All reconciliation rulings —
+> including the revised dark-mode Angela, the True/Observer fusion, and the
+> Special's final trigger — are recorded in
+> `story/05-canon-amendments-2026-07-19.md`, which wins over this file on any
+> conflict.
+
 Status: **exploratory design notes**, not an approved requirement packet. Captures
 ideas from a grilling/brainstorming session that are NOT already covered by the
 recovered design docs in `docs/design/recovered/`. Everything the session merely
@@ -25,33 +32,37 @@ but leaves the signature mechanic thin. The docs are recovered read-only under
 
 ---
 
-## NEW idea 1 — "Dark-mode Angela" main-menu toggle
+## NEW idea 1 — "Dark-mode Angela": the traumatized, romance-refusing Angela
 
-Not found in any recovered doc (`grep` for dark_mode/meta/corrupt across
-`docs/design/recovered/` returns nothing relevant). Treat as a new design decision.
+Not found in any recovered doc. Treat as a new design decision. REVISED from an
+earlier framing — dark mode is NOT the player wearing Angela's darkness; it is
+Angela **hurt by having lived through the dark endings**.
 
-- Angela is sweet by default in every route.
-- Achieving **any** friend's **dark** ending unlocks a **"dark mode" toggle on the
-  main-menu screen** (default OFF).
-- When ON, Angela plays the whole run with her dark personality surfaced.
-- Reach is **dialogue/tone only** — it does NOT change Minesweeper logic, meters,
-  routing, or endings. It only adds dialogue variations. (Deliberate: keeps the
-  verified mechanic stable.)
-- Angela's dark mode is expected to matter most on the **alone ending** (per the
-  designer: dark-mode Angela "sits on the alone ending," ignoring friend affection/
-  dark-point, adding only dialogue variation).
+- **Unlock condition:** the player must have seen ALL FOUR dark outcomes — the dark
+  ending of each friend (Priscilla, Lavinia, Sylvia) PLUS the Sylvia special (hospital)
+  ending. Only then does a **"dark mode" toggle appear on the main menu** (default OFF).
+  (The unlock flag is a tier-2 persistence-marker candidate, NEW idea 2 — it should
+  survive a new game.)
+- **What it does:** dark-mode Angela has **negative feelings about romance itself** —
+  she's been broken by it. This surfaces as **refusal**: when any dating action is on
+  the schedule, the Schedule Done press is BLOCKED, and Angela's left-panel dialogue
+  box pops up (e.g. "I don't want to date."). Effect: dark mode effectively forces the
+  **alone ending**, because she rejects every romance path.
+- **No new Dialogic `.dtl` keys.** Dark-mode Angela's voice lives ENTIRELY in the
+  **left-panel self-talk overlay** (see the shared system below), not in dating
+  timelines. This is why it needs no per-timeline `angela_dark` branching.
 
-Authoring implication (see `docs/design/recovered/DIALOGIC.md`): implement as a
-**variable-gated branch inside the existing timelines** (e.g. `angela_dark == true`),
-NOT as duplicated `.dtl` files. One timeline serves both personalities; only the
-divergent lines branch.
+**Consolidation — one system, two jobs.** Dark-mode Angela and the everyday Day-1..7
+horror self-talk are the SAME feature: a **left-panel dialogue overlay on top of
+Angela's portrait** that:
+  1. delivers ambient inner-monologue dread on every route, every day (NEW idea 4), and
+  2. becomes Angela's romance-refusal voice when dark mode is ON.
+Build the overlay once; it serves both. Keeps the feature shippable for a solo dev.
 
-Persistence implication: the unlock flag ("player has reached a dark ending") is a
-candidate for the tier-2 marker layer described in NEW idea 2 — it should survive a
-new game, because "the game remembers you went dark" is the intended feel.
-
-Open question: does unlocking require a dark ending for a **specific** friend, or
-**any** friend? (Session assumed *any*.)
+Interaction with Schedule Done (recovered `FLOWS.md §2`): dark mode adds a new
+pre-Done gate — if a dating entry is scheduled AND `angela_dark_mode` is ON, block
+Done and show the refusal line. This is a new branch in the Schedule Done flow, to be
+specified against `FLOWS.md §2` when filed as an issue.
 
 ---
 
