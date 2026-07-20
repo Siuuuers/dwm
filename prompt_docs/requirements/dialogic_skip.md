@@ -15,13 +15,15 @@ requirements:
 
 # req_packet.dialogic_skip
 
+Amended 2026-07-19 per `story/05-canon-amendments-2026-07-19.md`; that file wins on amended points.
+
 ## Rule req.dialogic.authority
 
 Dialogic MUST be the sole narrative playhead; runtime code MUST communicate through the validated Dialogic adapter and bridge.
 
 ## Rule req.dialogic.manifest
 
-Timeline, marker, effect, variable, and line IDs MUST belong to exact closed manifests before playback or mutation.
+Timeline, marker, effect, variable, and line IDs MUST belong to exact closed manifests aligned with the amended canon (retired true-path timeline IDs excluded; Priscilla–Lavinia group, missed, and private scene variations registered as distinct timelines) before playback or mutation.
 
 ## Rule req.dialogic.effects
 

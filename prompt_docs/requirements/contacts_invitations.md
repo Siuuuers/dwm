@@ -14,6 +14,8 @@ requirements:
 
 # req_packet.contacts_invitations
 
+Amended 2026-07-19 per `story/05-canon-amendments-2026-07-19.md`; that file wins on amended points.
+
 ## Rule req.contact.history_watermark
 
 Contact history MUST use monotonic per-contact sequence watermarks so generated messages remain ordered, idempotent, and restorable.
@@ -32,4 +34,4 @@ The first participating contact opened MUST assign inviter_id for opening variat
 
 ## Rule req.invitation.run_end
 
-At day end, two untouched group offers MUST produce both busy messages; any opened unanswered group offer MUST preserve history and produce nevermind messages, while a replied offer MUST use the non-replied participant judge branch.
+At day end, group-offer message effects MUST follow the existing history rules (busy, nevermind, and judge branches), and a counted Priscilla–Lavinia window MUST resolve exactly one of group (attended), missed (accepted then unattended; guilt flavor), private (no participant engaged; neutral flavor), or prevented (Angela solo-dated a participant; no encounter) per `story/05-canon-amendments-2026-07-19.md` §7, incrementing the pair counter once for each occurring version and never for a prevented window.
