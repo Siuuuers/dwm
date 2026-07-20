@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "line_count": 40,
+  "anchor_kind": "safe_marker",
+  "anchor_sequence": 41,
+  "expected_earlier_line_sequences_min": 9,
+  "expected_earlier_line_sequences_max": 40
+}
