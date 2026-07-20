@@ -124,8 +124,21 @@ signal condition_effect_resolved(result: Dictionary)
 signal hospital_needed(result: Dictionary)
 signal save_relevant_state_changed()
 
+# ---- Run lifecycle (dwm-p2r.4 Task 3; plan 2026-07-17-phase-2r-03 §3) ----
+const _RUN_LIFECYCLE_SCRIPT := preload("res://scripts/domain/run/RunLifecycle.gd")
+const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
+const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
+
+var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
+var _mutation_gate: Object = null
+var _day_resolution_coordinator: RefCounted = null
+
 # ---- State (declared per CONTRACTS §2) ----
-var day: int
+var day: int:
+	get:
+		return _run_lifecycle.get_day()
+	set(_attempted_value):
+		push_error("GameState.day is read-only; use lifecycle commands")
 var money: int
 var coins: int
 var stats: Dictionary
@@ -191,7 +204,7 @@ func _ready() -> void:
 
 # ---- Lifecycle / stats / money / coins ----
 func reset_game() -> void:
-	day = 1
+	_run_lifecycle.reset("run-local")
 	money = 0
 	coins = 0
 	stats = {STAT_PRESSURE: 3, STAT_HEALTH: 6, STAT_MOTIVATION: 7}
@@ -810,7 +823,7 @@ func resolve_day7_ending() -> Dictionary:
 
 	route_context["ending_id"] = ending_id
 	route_context["epilogue_ending_id"] = epilogue_ending_id
-	day = 8
+	_lifecycle_ensure_ending(ending_id, epilogue_ending_id)
 	emit_signal("ending_route_selected", {"ending_id": ending_id, "candidate_friend_id": candidate_friend_id})
 	emit_signal("save_relevant_state_changed")
 	return {
@@ -1209,7 +1222,7 @@ func apply_hospital_recovery_and_advance_day() -> bool:
 		emit_signal("save_relevant_state_changed")
 		_autosave_after_advance()
 		return false
-	day += 1
+	_lifecycle_advance_day()
 	_begin_new_day()
 	emit_signal("day_changed", day)
 	emit_signal("save_relevant_state_changed")
@@ -1240,16 +1253,18 @@ func advance_day_or_end() -> bool:
 	contact_choice_state = {}
 	daily_opened_contacts = {}
 
-	# 6. Ending marker.
+	# 6. Ending marker (Day 7 is terminal: enter ENDING, never Day 8).
 	if day >= 7:
-		day = 8
+		_lifecycle_ensure_ending(
+			str(route_context.get("ending_id", "ending.alone")),
+			str(route_context.get("epilogue_ending_id", "")))
 		emit_signal("day_changed", day)
 		emit_signal("save_relevant_state_changed")
 		_autosave_after_advance()
 		return false
 
 	# 7. Advance day.
-	day += 1
+	_lifecycle_advance_day()
 	_begin_new_day()
 	emit_signal("day_changed", day)
 	emit_signal("save_relevant_state_changed")
@@ -1411,7 +1426,18 @@ func apply_save_dict(data: Dictionary) -> Dictionary:
 		var v = data[key]
 		if v == null:
 			continue
-		if key == "minesweeper_round_floor":
+		if key == "day":
+			var saved_day := int(v)
+			if saved_day == 8:
+				# Legacy Day-8 sentinel migrates to the Day-7 terminal ENDING state.
+				var saved_route: Dictionary = data.get("route_context", {}) if data.get("route_context") is Dictionary else {}
+				_lifecycle_set_playing_day(7)
+				_lifecycle_ensure_ending(
+					str(saved_route.get("ending_id", "ending.alone")),
+					str(saved_route.get("epilogue_ending_id", "")))
+			else:
+				_lifecycle_set_playing_day(clampi(saved_day, 1, 7))
+		elif key == "minesweeper_round_floor":
 			minesweeper_round_floor = clampi(int(v), MINESWEEPER_ROUND_FLOOR_MIN, MINESWEEPER_ROUND_FLOOR_MAX)
 		elif key == "minesweeper_rounds_left":
 			minesweeper_rounds_left = clampi(int(v), -3, MINESWEEPER_ROUND_CAP)
@@ -1513,3 +1539,124 @@ func _can_add_date_entry(entry: Dictionary, silent: bool = false) -> bool:
 				if ef.size() == fids.size() and ef.has(fids[0]) and ef.has(fids[-1]):
 					return false
 	return true
+
+
+# ---- Phase 2R lifecycle facade seams (dwm-p2r.4 Task 3) ----
+
+const _GATE_CONTRACT_METHODS: Array[String] = [
+	"acquire", "release", "guard_external", "is_active", "get_active_owner",
+	"is_internal_owner_active", "latch_fatal", "is_fatal_latched",
+]
+
+
+func configure_mutation_gate(gate: Object) -> Dictionary:
+	if gate == null or not gate.has_signal("capability_changed"):
+		return {"ok": false, "code": &"invalid_mutation_gate", "message": "gate contract incomplete"}
+	for method in _GATE_CONTRACT_METHODS:
+		if not gate.has_method(method):
+			return {"ok": false, "code": &"invalid_mutation_gate", "message": "missing method: " + method}
+	if _mutation_gate != null:
+		if gate == _mutation_gate:
+			return {"ok": true, "code": &"ok",
+				"value": {"gate_instance_id": _mutation_gate.get_instance_id(), "already_configured": true},
+				"receipt": {}}
+		return {"ok": false, "code": &"mutation_gate_already_configured", "message": ""}
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok",
+		"value": {"gate_instance_id": _mutation_gate.get_instance_id(), "already_configured": false},
+		"receipt": {}}
+
+
+func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
+	if run_id.is_empty():
+		return {"ok": false, "code": &"invalid_run_id", "message": "run_id must be nonempty"}
+	if str(_run_lifecycle.to_dict()["run_id"]) == run_id:
+		return {"ok": false, "code": &"run_id_reused", "message": run_id}
+	var template: Node = load("res://autoload/GameState.gd").new()
+	template.reset_game()
+	var defaults: Dictionary = template.to_save_dict()
+	template.free()
+	defaults["day"] = 1
+	return {"ok": true, "code": &"ok", "value": {"snapshot_input": {
+		"lifecycle": {
+			"run_id": run_id,
+			"day": 1,
+			"state": "PLAYING",
+			"active_resolution_plan": null,
+			"ending_plan": null,
+		},
+		"game": defaults,
+		"effect_transactions": [],
+		"variable_transactions": [],
+	}}}
+
+
+func request_schedule_done(command_id: String) -> Dictionary:
+	if _day_resolution_coordinator == null:
+		return {"ok": false, "code": &"day_resolution_unconfigured", "message": ""}
+	return _day_resolution_coordinator.request_schedule_done(command_id)
+
+
+func resume_day_resolution() -> Dictionary:
+	if _day_resolution_coordinator == null:
+		return {"ok": false, "code": &"day_resolution_unconfigured", "message": ""}
+	return _day_resolution_coordinator.resume()
+
+
+func begin_day_resolution_stage() -> Dictionary:
+	if _day_resolution_coordinator == null:
+		return {"ok": false, "code": &"day_resolution_unconfigured", "message": ""}
+	return _day_resolution_coordinator.resume()
+
+
+func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) -> Dictionary:
+	if _day_resolution_coordinator == null:
+		return {"ok": false, "code": &"day_resolution_unconfigured", "message": ""}
+	return _day_resolution_coordinator.complete_route_stage(transaction_id, receipt)
+
+
+func _configure_day_resolution(checkpoint_port: Object) -> Dictionary:
+	if _mutation_gate == null:
+		return {"ok": false, "code": &"mutation_gate_not_configured", "message": ""}
+	var coordinator: RefCounted = _DAY_RESOLUTION_COORDINATOR_SCRIPT.new()
+	var latched: Dictionary = coordinator.configure_fatal_latch(_mutation_gate)
+	if not latched.get("ok", false):
+		return latched
+	var port: RefCounted = _DAY_RESOLUTION_PORT_SCRIPT.new(self)
+	var configured: Dictionary = coordinator.configure(port, checkpoint_port)
+	if not configured.get("ok", false):
+		return configured
+	_day_resolution_coordinator = coordinator
+	return {"ok": true, "code": &"ok"}
+
+
+func _lifecycle_advance_day() -> void:
+	var snapshot: Dictionary = _run_lifecycle.to_dict()
+	_lifecycle_set_playing_day(int(snapshot["day"]) + 1)
+
+
+func _lifecycle_set_playing_day(target_day: int) -> void:
+	var snapshot: Dictionary = _run_lifecycle.to_dict()
+	var restored: Dictionary = _run_lifecycle.prepare_restore({
+		"run_id": str(snapshot["run_id"]),
+		"day": clampi(target_day, 1, 7),
+		"state": "PLAYING",
+		"active_resolution_plan": null,
+		"ending_plan": null,
+	})
+	if restored.get("ok", false):
+		_run_lifecycle.commit_restore(restored["value"]["candidate"])
+
+
+func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> void:
+	if _run_lifecycle.get_state() != &"PLAYING":
+		return
+	if _run_lifecycle.get_day() != 7:
+		_lifecycle_set_playing_day(7)
+	_run_lifecycle.enter_ending({
+		"ending_id": ending_id if not ending_id.is_empty() else "ending.alone",
+		"epilogue_ending_id": epilogue_ending_id,
+		"source_day": 7,
+		"playback_stage": "PRIMARY_PENDING",
+		"playback_receipts": {},
+	})

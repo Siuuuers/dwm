@@ -78,14 +78,15 @@ func test_opening_and_tutorial_flags() -> void:
 
 func test_advance_day_resets_and_ends() -> void:
 	GameState.change_stat("motivation", -3)
-	GameState.day = 3
+	GameState._lifecycle_set_playing_day(3)
 	assert_true(GameState.advance_day_or_end(), "advance mid-week returns true")
 	assert_eq(GameState.day, 4)
 	assert_eq(GameState.get_stat("motivation"), 7, "motivation resets on new day")
 	assert_eq(GameState.minesweeper_rounds_left, 2, "rounds reset on new day")
-	GameState.day = 7
+	GameState._lifecycle_set_playing_day(7)
 	assert_false(GameState.advance_day_or_end(), "advance after day 7 returns false")
-	assert_eq(GameState.day, 8, "day becomes 8 ending marker")
+	assert_eq(GameState.day, 7, "Day 7 is terminal; no Day 8 exists")
+	assert_eq(GameState._run_lifecycle.get_state(), &"ENDING", "Day 7 advance enters ENDING")
 
 
 # ---- Minesweeper round-floor ----
@@ -226,7 +227,7 @@ func test_hospital_recovery_counts_sylvia_solo() -> void:
 
 # ---- Day-7 ending resolution (precedence + epilogue) ----
 func test_resolve_day7_sylvia_special_highest_precedence() -> void:
-	GameState.day = 7
+	GameState._lifecycle_set_playing_day(7)
 	GameState.hospital_skipped_sylvia_solo_count = 2
 	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}  # priscilla_lavinia also true
 	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
@@ -235,11 +236,12 @@ func test_resolve_day7_sylvia_special_highest_precedence() -> void:
 	assert_eq(r["epilogue_ending_id"], "ending.priscilla_lavinia", "priscilla_lavinia plays as epilogue")
 	assert_eq(GameState.route_context["ending_id"], "ending.sylvia.special")
 	assert_eq(GameState.route_context["epilogue_ending_id"], "ending.priscilla_lavinia")
-	assert_eq(GameState.day, 8, "day becomes 8 ending sentinel")
+	assert_eq(GameState.day, 7, "Day 7 is terminal; no Day 8 sentinel")
+	assert_eq(GameState._run_lifecycle.get_state(), &"ENDING", "Day 7 resolution enters ENDING")
 
 
 func test_resolve_day7_priscilla_lavinia_primary_no_epilogue() -> void:
-	GameState.day = 7
+	GameState._lifecycle_set_playing_day(7)
 	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}
 	var r := GameState.resolve_day7_ending()
 	assert_eq(r["ending_id"], "ending.priscilla_lavinia")
@@ -247,7 +249,7 @@ func test_resolve_day7_priscilla_lavinia_primary_no_epilogue() -> void:
 
 
 func test_resolve_day7_candidate_true_path() -> void:
-	GameState.day = 7
+	GameState._lifecycle_set_playing_day(7)
 	GameState.contact_message_unlocks = {"day:7:friend:priscilla": true}
 	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
 	GameState.dating_route_state = {"priscilla": {"true_path_count": 4, "dark_points": 0}}
@@ -258,7 +260,7 @@ func test_resolve_day7_candidate_true_path() -> void:
 
 
 func test_resolve_day7_not_day7_returns_epilogue_key() -> void:
-	GameState.day = 3
+	GameState._lifecycle_set_playing_day(3)
 	var r := GameState.resolve_day7_ending()
 	assert_false(r["ok"])
 	assert_eq(r["epilogue_ending_id"], "", "non-day7 returns epilogue key for schema stability")

@@ -30,8 +30,8 @@ func _on_continue_pressed() -> void:
 		return
 	var gs := get_node("/root/GameState")
 	var router := get_node("/root/SceneRouter")
-	# apply_hospital_recovery_and_advance_day() performs the day advance (or sets the Day-8
-	# ending marker) internally; caller must not call any other day-advance (prompt_docs/requirements/dating_endings.md).
+	# apply_hospital_recovery_and_advance_day() performs the day advance (or enters the Day-7
+	# terminal ENDING state) internally; caller must not call any other day-advance (prompt_docs/requirements/dating_endings.md).
 	var advanced: bool = gs.apply_hospital_recovery_and_advance_day()
 	if advanced:
 		router.goto_main()
