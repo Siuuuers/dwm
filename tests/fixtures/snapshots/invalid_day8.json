@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "content_version": 1,
+  "run_id": "run-uuid",
+  "checkpoint_id": "run-uuid:43",
+  "checkpoint_sequence": 43,
+  "lifecycle": {
+    "run_id": "run-uuid",
+    "day": 8,
+    "state": "PLAYING",
+    "active_resolution_plan": null,
+    "ending_plan": null
+  },
+  "route_id": "main",
+  "active_app_id": null,
+  "narrative_checkpoint": {},
+  "gameplay": {
+    "narrative_variables": {}
+  },
+  "contacts": {},
+  "schedule": [],
+  "dating": {},
+  "applied_effect_transaction_ids": [],
+  "applied_variable_transaction_ids": [],
+  "audio_context": {}
+}

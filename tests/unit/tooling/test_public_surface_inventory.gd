@@ -258,3 +258,41 @@ func test_game_state_required_surface_reservations() -> void:
 		assert_eq(str(record.get("signature", "")), str(RESERVED_SIGNATURES[symbol]), symbol)
 		assert_eq(str(record.get("owner_plan", "")), "phase2r-04", symbol)
 		assert_eq(str(record.get("owner_task", "")), str(RESERVED_TASKS[symbol]), symbol)
+
+const SAVE_MANAGER_REQUIRED_PATH := "res://evidence/phase_2r/runtime/save_manager_required_surface.json"
+
+const SAVE_MANAGER_TARGET_SIGNATURES := {
+	"run_restored": "signal run_restored(checkpoint_id: String, route_id: String)",
+	"save_capability_changed": "signal save_capability_changed(capability: Dictionary)",
+	"configure_mutation_gate": "func configure_mutation_gate(gate: Object) -> Dictionary",
+	"commit_prepared_restore": "func commit_prepared_restore(prepared: Dictionary) -> Dictionary",
+	"save_for_logout": "func save_for_logout() -> Dictionary",
+	"save_exists": "func save_exists(kind: StringName, slot_id: int = -1) -> bool",
+	"configure_restore_participants": "func configure_restore_participants(participants: Dictionary) -> Dictionary",
+}
+
+func test_save_manager_required_surface_freezes_target() -> void:
+	assert_true(FileAccess.file_exists(SAVE_MANAGER_REQUIRED_PATH),
+		"save_manager_required_surface.json must exist")
+	if not FileAccess.file_exists(SAVE_MANAGER_REQUIRED_PATH):
+		return
+	var parsed := StrictJson.parse_object(FileAccess.get_file_as_string(SAVE_MANAGER_REQUIRED_PATH))
+	assert_true(parsed.get("ok", false), "save-manager required surface must strict-parse")
+	if not parsed.get("ok", false):
+		return
+	var targets := {}
+	var deprecated_wrappers := 0
+	for entry: Variant in parsed["value"].get("symbols", []):
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var record := entry as Dictionary
+		if str(record.get("availability", "")) == "target":
+			targets[str(record.get("symbol", ""))] = str(record.get("signature", ""))
+		elif str(record.get("disposition", "")) == "deprecate":
+			deprecated_wrappers += 1
+			assert_true(str(record.get("replacement", "")).length() > 0,
+				"deprecated wrapper needs a replacement: " + str(record.get("symbol", "")))
+	assert_eq(targets.size(), 26, "two signals plus twenty-four target functions frozen")
+	for symbol: String in SAVE_MANAGER_TARGET_SIGNATURES:
+		assert_eq(targets.get(symbol, ""), str(SAVE_MANAGER_TARGET_SIGNATURES[symbol]), symbol)
+	assert_true(deprecated_wrappers >= 9, "old wrappers and signals carry deprecate dispositions")
