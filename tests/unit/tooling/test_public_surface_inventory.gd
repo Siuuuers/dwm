@@ -261,17 +261,13 @@ func test_game_state_required_surface_reservations() -> void:
 
 const SAVE_MANAGER_REQUIRED_PATH := "res://evidence/phase_2r/runtime/save_manager_required_surface.json"
 
-const SAVE_MANAGER_TARGET_SIGNATURES := {
-	"run_restored": "signal run_restored(checkpoint_id: String, route_id: String)",
-	"save_capability_changed": "signal save_capability_changed(capability: Dictionary)",
-	"configure_mutation_gate": "func configure_mutation_gate(gate: Object) -> Dictionary",
-	"commit_prepared_restore": "func commit_prepared_restore(prepared: Dictionary) -> Dictionary",
-	"save_for_logout": "func save_for_logout() -> Dictionary",
-	"save_exists": "func save_exists(kind: StringName, slot_id: int = -1) -> bool",
-	"configure_restore_participants": "func configure_restore_participants(participants: Dictionary) -> Dictionary",
-}
+const SAVE_MANAGER_IMPLEMENTED_SYMBOLS := [
+	"run_restored", "save_capability_changed", "configure_mutation_gate",
+	"record_stable_checkpoint", "commit_prepared_restore", "save_for_logout",
+	"save_exists", "configure_restore_participants", "acquire_save_lock",
+]
 
-func test_save_manager_required_surface_freezes_target() -> void:
+func test_save_manager_required_surface_freezes_realized_facade() -> void:
 	assert_true(FileAccess.file_exists(SAVE_MANAGER_REQUIRED_PATH),
 		"save_manager_required_surface.json must exist")
 	if not FileAccess.file_exists(SAVE_MANAGER_REQUIRED_PATH):
@@ -280,19 +276,25 @@ func test_save_manager_required_surface_freezes_target() -> void:
 	assert_true(parsed.get("ok", false), "save-manager required surface must strict-parse")
 	if not parsed.get("ok", false):
 		return
-	var targets := {}
+	# Task 6 realized the frozen target: every seam is now an implemented `current`
+	# symbol with a retain (or deprecate for legacy wrappers) disposition, and the
+	# removed raw-path methods have left the surface entirely.
+	var by_symbol := {}
 	var deprecated_wrappers := 0
 	for entry: Variant in parsed["value"].get("symbols", []):
 		if typeof(entry) != TYPE_DICTIONARY:
 			continue
 		var record := entry as Dictionary
-		if str(record.get("availability", "")) == "target":
-			targets[str(record.get("symbol", ""))] = str(record.get("signature", ""))
-		elif str(record.get("disposition", "")) == "deprecate":
+		by_symbol[str(record.get("symbol", ""))] = record
+		assert_eq(str(record.get("availability", "")), "current",
+			"Task 6 realizes every seam as a current symbol: " + str(record.get("symbol", "")))
+		if str(record.get("disposition", "")) == "deprecate":
 			deprecated_wrappers += 1
 			assert_true(str(record.get("replacement", "")).length() > 0,
 				"deprecated wrapper needs a replacement: " + str(record.get("symbol", "")))
-	assert_eq(targets.size(), 26, "two signals plus twenty-four target functions frozen")
-	for symbol: String in SAVE_MANAGER_TARGET_SIGNATURES:
-		assert_eq(targets.get(symbol, ""), str(SAVE_MANAGER_TARGET_SIGNATURES[symbol]), symbol)
-	assert_true(deprecated_wrappers >= 9, "old wrappers and signals carry deprecate dispositions")
+	for symbol: String in SAVE_MANAGER_IMPLEMENTED_SYMBOLS:
+		assert_true(by_symbol.has(symbol), "implemented seam missing: " + symbol)
+		assert_eq(str((by_symbol.get(symbol, {}) as Dictionary).get("disposition", "")), "retain", symbol)
+	for removed: String in ["get_slot_path", "SAVE_FOLDER", "write_json_file", "build_save_dict"]:
+		assert_false(by_symbol.has(removed), "raw-path symbol must leave the surface: " + removed)
+	assert_true(deprecated_wrappers >= 9, "legacy wrappers and signals carry deprecate dispositions")

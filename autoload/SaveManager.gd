@@ -1,317 +1,396 @@
 extends Node
-# SaveManager (CONTRACTS §6): serializes/deserializes ONLY whitelisted GameState data.
-# Never saves Nodes/Objects/Callables/Resources/live references; never loads scripts or
-# executes methods from save data. JSON-only. Missing/corrupt saves never crash.
+
+## SaveManager — isolated, atomic save-document and checkpoint persistence
+## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 6).
+## Owns slot/quick/autosave I/O through one injected StorageAdapter and the
+## in-memory CheckpointJournal. Never interprets gameplay rules.
 
 signal save_completed(result: Dictionary)
 signal load_completed(result: Dictionary)
 signal save_failed(result: Dictionary)
 signal load_failed(result: Dictionary)
 signal slot_metadata_changed()
+signal run_restored(checkpoint_id: String, route_id: String)
+signal save_capability_changed(capability: Dictionary)
 
-const SAVE_FOLDER := "user://saves/"
-const AUTOSAVE_PATH := "user://saves/autosave.json"
-const QUICK_SAVE_PATH := "user://saves/quick.json"
 const MIN_SLOT := 1
 const MAX_SLOT := 7
 
+const CHECKPOINT_JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
+const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
-func _gs() -> Node:
-	return get_node_or_null("/root/GameState")
+const _GATE_CONTRACT_METHODS: Array[String] = [
+	"acquire", "release", "guard_external", "is_active", "get_active_owner",
+	"is_internal_owner_active", "latch_fatal", "is_fatal_latched",
+]
+const _LOCK_OWNERS: Array[StringName] = [&"minesweeper_board", &"scene_transition", &"restore"]
+const _CHECKPOINT_INPUT_KEYS: Array[String] = [
+	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint",
+	"route_id", "snapshot_input",
+]
 
+var _storage: RefCounted = null
+var _journal: RefCounted = CHECKPOINT_JOURNAL.new()
+var _mutation_gate: Object = null
+var _lock_owner: StringName = &""
+var _pending_deferred_save := false
 
-func _current_schema_version() -> int:
-	var gs := _gs()
-	if gs != null:
-		var v = gs.get("SAVE_SCHEMA_VERSION")
-		if typeof(v) == TYPE_INT:
-			return v
-	return 1
+func initialize(storage: StorageAdapter = null) -> Dictionary:
+	if storage == null:
+		return _fail(&"invalid_storage", "SaveManager requires an injected StorageAdapter")
+	_storage = storage
+	return {"ok": true, "code": &"ok", "value": {"root": storage.describe_root()}}
 
+func configure_mutation_gate(gate: Object) -> Dictionary:
+	if gate == null or not gate.has_signal("capability_changed"):
+		return _fail(&"invalid_mutation_gate", "gate contract incomplete")
+	for method in _GATE_CONTRACT_METHODS:
+		if not gate.has_method(method):
+			return _fail(&"invalid_mutation_gate", "missing method: " + method)
+	if _mutation_gate != null:
+		if gate == _mutation_gate:
+			return {"ok": true, "code": &"ok",
+				"value": {"gate_instance_id": _mutation_gate.get_instance_id(), "already_configured": true},
+				"receipt": {}}
+		return _fail(&"mutation_gate_already_configured", "")
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok",
+		"value": {"gate_instance_id": _mutation_gate.get_instance_id(), "already_configured": false},
+		"receipt": {}}
 
-# ---- Paths ----
-func get_slot_path(slot_id: int) -> String:
-	if slot_id < MIN_SLOT or slot_id > MAX_SLOT:
-		return ""
-	return "%sslot_%d.json" % [SAVE_FOLDER, slot_id]
+func record_stable_checkpoint(checkpoint_inputs: Dictionary, checkpoint_kind: StringName) -> Dictionary:
+	if _storage == null:
+		return _fail(&"not_initialized", "")
+	var input_error := _validate_checkpoint_inputs(checkpoint_inputs)
+	if input_error != "":
+		return _fail(&"invalid_checkpoint_inputs", input_error)
+	var run_id := str((checkpoint_inputs["snapshot_input"]["lifecycle"] as Dictionary).get("run_id", ""))
+	var peeked: Dictionary = _journal.peek_next_sequence(run_id)
+	if not peeked.get("ok", false):
+		return peeked
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
+		checkpoint_inputs["snapshot_input"], checkpoint_inputs["dialogic_checkpoint"],
+		str(checkpoint_inputs["route_id"]), checkpoint_inputs["active_app_id"],
+		checkpoint_inputs["audio_context"], int(checkpoint_inputs["content_version"]),
+		int(peeked["value"]["checkpoint_sequence"]))
+	if not built.get("ok", false):
+		return built
+	var prepared: Dictionary = _journal.prepare_record(built["value"]["snapshot"], checkpoint_kind)
+	if not prepared.get("ok", false):
+		return prepared
+	var committed: Dictionary = _journal.commit_prepared(prepared["value"]["candidate"])
+	if not committed.get("ok", false):
+		return committed
+	if _pending_deferred_save and _lock_owner == &"":
+		_pending_deferred_save = false
+		autosave_latest()
+	return committed
 
+func get_latest_stable_checkpoint() -> Dictionary:
+	return _journal.get_current_bundle()
 
-func get_quick_save_path() -> String:
-	return QUICK_SAVE_PATH
+func start_new_run(_run_id: String, _initial_context: Dictionary) -> Dictionary:
+	return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
+		"start_new_run requires the Task 7 production transaction participants")
 
+func save_latest_to_slot(slot_id: int) -> Dictionary:
+	return _write_latest(_resolve_locator(&"slot", slot_id), "manual")
 
-func get_autosave_path() -> String:
-	return AUTOSAVE_PATH
+func quick_save_latest() -> Dictionary:
+	return _write_latest(_resolve_locator(&"quick", -1), "quick")
 
+func autosave_latest() -> Dictionary:
+	return _write_latest(_resolve_locator(&"autosave", -1), "automatic")
 
-func ensure_save_folder() -> bool:
-	if DirAccess.dir_exists_absolute(SAVE_FOLDER):
-		return true
-	var err := DirAccess.make_dir_recursive_absolute(SAVE_FOLDER)
-	return err == OK
+func save_for_logout() -> Dictionary:
+	if not _journal.get_current_bundle().get("ok", false):
+		return {"ok": true, "code": &"ok", "value": {"written": false, "save_reason": "logout"}}
+	return _write_latest(_resolve_locator(&"autosave", -1), "logout")
 
+func prepare_restore_slot(slot_id: int) -> Dictionary:
+	return _prepare_restore(_resolve_locator(&"slot", slot_id))
 
-# ---- Build / IO ----
-func build_save_dict(kind: String, slot_id: int = -1) -> Dictionary:
-	var gs := _gs()
-	var game_state: Dictionary = {}
-	var summary: Dictionary = {}
-	var route_context: Dictionary = {}
-	if gs != null:
-		if gs.has_method("to_save_dict"):
-			game_state = gs.to_save_dict()
-		if gs.has_method("get_save_summary"):
-			summary = gs.get_save_summary()
-		if gs.get("route_context") is Dictionary:
-			route_context = (gs.route_context as Dictionary).duplicate(true)
-	var scene_id := "main"
-	var router := get_node_or_null("/root/SceneRouter")
-	if router != null and router.has_method("get_current_scene_id"):
-		var sid: String = router.get_current_scene_id()
-		if sid != "":
-			scene_id = sid
-	return {
-		"schema_version": _current_schema_version(),
-		"kind": kind,
-		"slot_id": slot_id,
-		"saved_at_unix_time": int(Time.get_unix_time_from_system()),
-		"scene_id": scene_id,
-		"route_context": route_context,
-		"summary": summary,
-		"game_state": game_state,
-	}
+func prepare_restore_quick() -> Dictionary:
+	return _prepare_restore(_resolve_locator(&"quick", -1))
 
+func prepare_restore_autosave() -> Dictionary:
+	return _prepare_restore(_resolve_locator(&"autosave", -1))
 
-func write_json_file(path: String, data: Dictionary) -> Dictionary:
-	if not ensure_save_folder():
-		return {"ok": false, "reason": "folder_error", "path": path}
-	var f := FileAccess.open(path, FileAccess.WRITE)
-	if f == null:
-		return {"ok": false, "reason": "open_write_failed", "path": path, "error": FileAccess.get_open_error()}
-	f.store_string(JSON.stringify(data, "\t"))
-	f.close()
-	return {"ok": true, "path": path}
-
-
-func read_json_file(path: String) -> Dictionary:
-	if not FileAccess.file_exists(path):
-		return {"ok": false, "reason": "not_found", "path": path}
-	var f := FileAccess.open(path, FileAccess.READ)
-	if f == null:
-		return {"ok": false, "reason": "open_read_failed", "path": path}
-	var text := f.get_as_text()
-	f.close()
-	var json := JSON.new()
-	var err := json.parse(text)
-	if err != OK:
-		return {"ok": false, "reason": "malformed_json", "path": path}
-	if typeof(json.data) != TYPE_DICTIONARY:
-		return {"ok": false, "reason": "not_a_dictionary", "path": path}
-	return {"ok": true, "data": json.data, "path": path}
-
-
-# ---- Validation / migration ----
-func validate_save_dict(data: Dictionary) -> Dictionary:
-	if typeof(data) != TYPE_DICTIONARY:
-		return {"ok": false, "reason": "not_a_dictionary"}
-	# JSON stores every number as a float, so schema_version round-trips as e.g. 1.0.
-	# Accept any numeric type and normalize to int.
-	if not data.has("schema_version") or not _is_number(data["schema_version"]):
-		return {"ok": false, "reason": "missing_schema_version"}
-	var sv: int = int(data["schema_version"])
-	if sv > _current_schema_version():
-		return {"ok": false, "reason": "unsupported_future_version", "schema_version": sv}
-	if not data.has("game_state") or typeof(data["game_state"]) != TYPE_DICTIONARY:
-		return {"ok": false, "reason": "missing_game_state"}
-	return {"ok": true, "schema_version": sv}
-
-
-func _is_number(v: Variant) -> bool:
-	return typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT
-
-
-func migrate_save_dict(data: Dictionary) -> Dictionary:
-	# Upgrade an older schema_version forward to the current one, chaining per-version
-	# migrations. Newly added whitelisted fields are left for GameState.apply_save_dict to
-	# default (it applies only present keys, preserving fresh defaults for absent ones).
-	var out := data.duplicate(true)
-	var target := _current_schema_version()
-	var sv: int = int(out.get("schema_version", target))
-	while sv < target:
-		match sv:
-			0:
-				# 0 -> 1: no structural change; version bump only.
-				sv = 1
-			_:
-				sv = target
-		out["schema_version"] = sv
-	out["schema_version"] = target
-	return out
-
-
-# ---- Apply / route ----
-func apply_save_dict(data: Dictionary) -> Dictionary:
-	var v := validate_save_dict(data)
-	if not v["ok"]:
-		var fail := {"ok": false, "reason": v["reason"]}
-		emit_signal("load_failed", fail)
-		return fail
-	var migrated := migrate_save_dict(data)
-	var gs := _gs()
-	if gs != null and gs.has_method("apply_save_dict"):
-		gs.apply_save_dict(migrated["game_state"])
-	# REQUIRED GUARD (CONTRACTS §6): a save taken mid-dating-queue would otherwise restore
-	# stale pending_date_* with no consumer. Clear them on load unless the saved scene is a
-	# dating scene (where the queue is expected to resume).
-	var loaded_scene_id := str(migrated.get("scene_id", ""))
-	if loaded_scene_id != "dating" and gs != null and gs.has_method("clear_pending_date_state"):
-		gs.clear_pending_date_state()
-	_route_after_load(migrated)
-	var result := {"ok": true, "schema_version": migrated["schema_version"], "scene_id": migrated.get("scene_id", "")}
-	emit_signal("load_completed", result)
-	return result
-
-
-func _route_after_load(data: Dictionary) -> void:
-	var router := get_node_or_null("/root/SceneRouter")
-	if router == null:
-		return
-	# Only route when a live game scene is active. In headless/script contexts (e.g. the
-	# GUT unit runner) there is no current_scene; state is applied but no scene change fires.
-	var tree := get_tree()
-	if tree == null or tree.current_scene == null:
-		return
-	var gs := _gs()
-	var day := 1
-	if gs != null:
-		day = int(gs.day)
-	var scene_id: String = str(data.get("scene_id", ""))
-	# Mid-schedule saves and unknown ids restore MainGameScene (never auto-run Done).
-	var safe_ids := ["menu", "opening", "main", "ending", "hospital"]
-	if scene_id in safe_ids and router.has_method("goto_scene_id"):
-		if scene_id == "ending":
-			router.goto_scene_id("ending", data.get("route_context", {}))
-		else:
-			router.goto_scene_id(scene_id)
-		return
-	if day >= 1 and day <= 7:
-		if router.has_method("goto_main"):
-			router.goto_main()
-	else:
-		if router.has_method("goto_ending"):
-			router.goto_ending()
-
-
-# ---- Public save/load operations ----
-func _do_save(path: String, kind: String, slot_id: int = -1) -> Dictionary:
-	var data := build_save_dict(kind, slot_id)
-	var res := write_json_file(path, data)
-	if res["ok"]:
-		emit_signal("save_completed", {"ok": true, "kind": kind, "slot_id": slot_id, "path": path})
-		emit_signal("slot_metadata_changed")
-		return {"ok": true, "kind": kind, "slot_id": slot_id, "path": path}
-	emit_signal("save_failed", {"ok": false, "reason": res.get("reason", "unknown"), "path": path})
-	return {"ok": false, "reason": res.get("reason", "unknown"), "path": path}
-
-
-func _do_load(path: String) -> Dictionary:
-	var res := read_json_file(path)
-	if not res["ok"]:
-		var fail := {"ok": false, "reason": res.get("reason", "unknown"), "path": path}
-		emit_signal("load_failed", fail)
-		return fail
-	return apply_save_dict(res["data"])
-
-
-func save_slot(slot_id: int) -> Dictionary:
-	var path := get_slot_path(slot_id)
-	if path == "":
-		return {"ok": false, "reason": "invalid_slot", "slot_id": slot_id}
-	return _do_save(path, "slot", slot_id)
-
-
-func load_slot(slot_id: int) -> Dictionary:
-	var path := get_slot_path(slot_id)
-	if path == "":
-		return {"ok": false, "reason": "invalid_slot", "slot_id": slot_id}
-	return _do_load(path)
-
-
-func quick_save() -> Dictionary:
-	return _do_save(QUICK_SAVE_PATH, "quick", -1)
-
-
-func quick_load() -> Dictionary:
-	return _do_load(QUICK_SAVE_PATH)
-
-
-func autosave() -> Dictionary:
-	return _do_save(AUTOSAVE_PATH, "autosave", -1)
-
-
-func load_autosave() -> Dictionary:
-	return _do_load(AUTOSAVE_PATH)
-
+func commit_prepared_restore(_prepared: Dictionary) -> Dictionary:
+	return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
+		"commit_prepared_restore requires the Task 7 restore participants")
 
 func delete_slot(slot_id: int) -> Dictionary:
-	var path := get_slot_path(slot_id)
-	if path == "":
-		return {"ok": false, "reason": "invalid_slot", "slot_id": slot_id}
-	if not FileAccess.file_exists(path):
-		return {"ok": false, "reason": "not_found", "slot_id": slot_id}
-	var err := DirAccess.remove_absolute(path)
-	if err == OK:
-		emit_signal("slot_metadata_changed")
-		return {"ok": true, "slot_id": slot_id}
-	return {"ok": false, "reason": "delete_failed", "slot_id": slot_id}
+	return _delete(_resolve_locator(&"slot", slot_id))
 
+func delete_quick_save() -> Dictionary:
+	return _delete(_resolve_locator(&"quick", -1))
+
+func delete_autosave() -> Dictionary:
+	return _delete(_resolve_locator(&"autosave", -1))
+
+func save_exists(kind: StringName, slot_id: int = -1) -> bool:
+	var locator := _resolve_locator(kind, slot_id)
+	if locator.is_empty() or _storage == null:
+		return false
+	return _storage.exists(str(locator["relative_path"]))
+
+func get_save_metadata(kind: StringName, slot_id: int = -1) -> Dictionary:
+	var locator := _resolve_locator(kind, slot_id)
+	if locator.is_empty():
+		return _fail(&"INVALID_SAVE_REFERENCE", "%s/%d" % [kind, slot_id])
+	if _storage == null:
+		return _fail(&"not_initialized", "")
+	var relative_path := str(locator["relative_path"])
+	if not _storage.exists(relative_path):
+		return {"ok": true, "code": &"ok", "value": {
+			"exists": false, "kind": str(locator["kind"]), "slot_id": locator["slot_id"],
+			"save_reason": null, "run_id": null, "day": null, "state": null, "checkpoint_id": null,
+		}}
+	var read: Dictionary = _storage.read_text(relative_path)
+	if not read.get("ok", false):
+		return read
+	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
+	if not parsed.get("ok", false):
+		return _fail(&"corrupt_save_document", relative_path)
+	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
+	if not validated.get("ok", false):
+		return _fail(&"corrupt_save_document", relative_path)
+	var document: Dictionary = validated["value"]["candidate"]
+	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
+	return {"ok": true, "code": &"ok", "value": {
+		"exists": true,
+		"kind": str(document["kind"]),
+		"slot_id": document["slot_id"],
+		"save_reason": str(document["save_reason"]),
+		"run_id": str(snapshot["run_id"]),
+		"day": int(snapshot["lifecycle"]["day"]),
+		"state": str(snapshot["lifecycle"]["state"]),
+		"checkpoint_id": str(snapshot["checkpoint_id"]),
+	}}
+
+func get_all_save_metadata() -> Array[Dictionary]:
+	var records: Array[Dictionary] = []
+	for slot_id: int in range(MIN_SLOT, MAX_SLOT + 1):
+		records.append(get_save_metadata(&"slot", slot_id))
+	records.append(get_save_metadata(&"quick", -1))
+	records.append(get_save_metadata(&"autosave", -1))
+	return records
+
+func acquire_save_lock(owner_id: StringName) -> Dictionary:
+	if owner_id not in _LOCK_OWNERS:
+		return _fail(&"invalid_lock_owner", String(owner_id))
+	if _lock_owner != &"" and _lock_owner != owner_id:
+		return _fail(&"save_lock_held", String(_lock_owner))
+	var was_locked := _lock_owner == owner_id
+	_lock_owner = owner_id
+	if not was_locked:
+		save_capability_changed.emit(get_save_capability())
+	return {"ok": true, "code": &"ok", "value": {"owner_id": owner_id, "already_locked": was_locked}}
+
+func release_save_lock(owner_id: StringName) -> Dictionary:
+	if _lock_owner == &"" or owner_id != _lock_owner:
+		return _fail(&"save_lock_mismatch", String(owner_id))
+	_lock_owner = &""
+	save_capability_changed.emit(get_save_capability())
+	if _pending_deferred_save:
+		_pending_deferred_save = false
+		autosave_latest()
+	return {"ok": true, "code": &"ok", "value": {"owner_id": owner_id}}
+
+func is_save_locked() -> bool:
+	return _lock_owner != &""
+
+func get_save_capability() -> Dictionary:
+	match _lock_owner:
+		&"minesweeper_board":
+			return {"enabled": false, "silent": true, "deferred": false}
+		&"scene_transition":
+			return {"enabled": false, "silent": true, "deferred": true}
+		&"restore":
+			return {"enabled": false, "silent": true, "deferred": false}
+	return {"enabled": true, "silent": false, "deferred": false}
+
+func configure_restore_participants(_participants: Dictionary) -> Dictionary:
+	return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
+		"configure_restore_participants arrives with Task 7")
+
+# ---- Deprecated wrappers (one issue only; delegate to the new facade) ----
+
+func save_slot(slot_id: int) -> Dictionary:
+	return save_latest_to_slot(slot_id)
+
+func load_slot(slot_id: int) -> Dictionary:
+	var prepared := prepare_restore_slot(slot_id)
+	if not prepared.get("ok", false):
+		return prepared
+	return commit_prepared_restore(prepared["value"]["prepared"])
+
+func quick_save() -> Dictionary:
+	return quick_save_latest()
+
+func quick_load() -> Dictionary:
+	var prepared := prepare_restore_quick()
+	if not prepared.get("ok", false):
+		return prepared
+	return commit_prepared_restore(prepared["value"]["prepared"])
+
+func autosave() -> Dictionary:
+	return autosave_latest()
+
+func load_autosave() -> Dictionary:
+	var prepared := prepare_restore_autosave()
+	if not prepared.get("ok", false):
+		return prepared
+	return commit_prepared_restore(prepared["value"]["prepared"])
 
 func has_slot(slot_id: int) -> bool:
-	var path := get_slot_path(slot_id)
-	if path == "":
-		return false
-	return FileAccess.file_exists(path)
+	return save_exists(&"slot", slot_id)
 
-
-# ---- Metadata ----
 func get_slot_metadata(slot_id: int) -> Dictionary:
-	var path := get_slot_path(slot_id)
-	if path == "" or not FileAccess.file_exists(path):
-		return {"exists": false, "slot_id": slot_id}
-	var res := read_json_file(path)
-	if not res["ok"]:
-		return {"exists": true, "valid": false, "slot_id": slot_id, "reason": res.get("reason", "unknown")}
-	var data: Dictionary = res["data"]
-	return {
-		"exists": true,
-		"valid": true,
-		"slot_id": slot_id,
-		"saved_at_unix_time": data.get("saved_at_unix_time", 0),
-		"summary": data.get("summary", {}),
-		"schema_version": data.get("schema_version", 0),
-	}
-
+	return get_save_metadata(&"slot", slot_id)
 
 func get_all_slot_metadata() -> Array:
-	var out: Array = []
-	out.append({"kind": "autosave", "metadata": _path_metadata(AUTOSAVE_PATH)})
-	out.append({"kind": "quick", "metadata": _path_metadata(QUICK_SAVE_PATH)})
-	for slot_id in range(MIN_SLOT, MAX_SLOT + 1):
-		out.append({"kind": "slot", "slot_id": slot_id, "metadata": get_slot_metadata(slot_id)})
-	return out
+	return get_all_save_metadata()
 
+# ---- Internals ----
 
-func _path_metadata(path: String) -> Dictionary:
-	if not FileAccess.file_exists(path):
-		return {"exists": false}
-	var res := read_json_file(path)
-	if not res["ok"]:
-		return {"exists": true, "valid": false, "reason": res.get("reason", "unknown")}
-	var data: Dictionary = res["data"]
-	return {
-		"exists": true,
-		"valid": true,
-		"saved_at_unix_time": data.get("saved_at_unix_time", 0),
-		"summary": data.get("summary", {}),
-		"schema_version": data.get("schema_version", 0),
-	}
+func _resolve_locator(kind: StringName, public_slot_id: int) -> Dictionary:
+	match kind:
+		&"slot":
+			if public_slot_id < MIN_SLOT or public_slot_id > MAX_SLOT:
+				return {}
+			return {"kind": "slot", "slot_id": public_slot_id,
+				"relative_path": "slot_%d.json" % public_slot_id}
+		&"quick":
+			if public_slot_id != -1:
+				return {}
+			return {"kind": "quick", "slot_id": null, "relative_path": "quicksave.json"}
+		&"autosave":
+			if public_slot_id != -1:
+				return {}
+			return {"kind": "autosave", "slot_id": null, "relative_path": "autosave.json"}
+	return {}
+
+func _write_latest(locator: Dictionary, save_reason: String) -> Dictionary:
+	if locator.is_empty():
+		return _fail(&"INVALID_SAVE_REFERENCE", "")
+	if _storage == null:
+		return _fail(&"not_initialized", "")
+	match _lock_owner:
+		&"minesweeper_board", &"restore":
+			return {"ok": false, "code": &"save_locked", "message": "",
+				"details": {"silent": true, "deferred": false}}
+		&"scene_transition":
+			_pending_deferred_save = true
+			return {"ok": false, "code": &"save_locked", "message": "",
+				"details": {"silent": true, "deferred": true}}
+	var bundle: Dictionary = _journal.get_current_bundle()
+	if not bundle.get("ok", false):
+		return _fail(&"no_stable_checkpoint", "")
+	var built: Dictionary = SAVE_DOCUMENT_SCHEMA.build(
+		StringName(str(locator["kind"])), locator["slot_id"], StringName(save_reason),
+		bundle["value"]["bundle"], _journal.get_bundles_for_disk())
+	if not built.get("ok", false):
+		save_failed.emit(built)
+		return built
+	var canonical: Dictionary = CANONICAL_JSON.stringify(built["value"])
+	if not canonical.get("ok", false):
+		return _fail(&"canonical_serialization_failed", "")
+	var relative_path := str(locator["relative_path"])
+	var written: Dictionary = _storage.write_atomic(
+		relative_path, str(canonical["value"]) + "\n", _document_text_validator)
+	if not written.get("ok", false):
+		save_failed.emit(written)
+		return written
+	var re_read: Dictionary = _storage.read_text(relative_path)
+	if not re_read.get("ok", false):
+		return re_read
+	var parsed: Dictionary = STRICT_JSON.parse_object(str(re_read["value"]))
+	if not parsed.get("ok", false):
+		return _fail(&"reread_mismatch", relative_path)
+	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
+	if not validated.get("ok", false):
+		return _fail(&"reread_mismatch", relative_path)
+	var document: Dictionary = validated["value"]["candidate"]
+	if str(document["kind"]) != str(locator["kind"]) or str(document["save_reason"]) != save_reason:
+		return _fail(&"reread_mismatch", "locator or reason drift")
+	var result := {"ok": true, "code": &"ok", "value": {
+		"kind": str(locator["kind"]),
+		"slot_id": locator["slot_id"],
+		"save_reason": save_reason,
+		"checkpoint_id": str(document["current_snapshot"]["snapshot"]["checkpoint_id"]),
+		"written": true,
+	}}
+	save_completed.emit(result)
+	slot_metadata_changed.emit()
+	return result
+
+func _prepare_restore(locator: Dictionary) -> Dictionary:
+	if locator.is_empty():
+		return _fail(&"INVALID_SAVE_REFERENCE", "")
+	if _storage == null:
+		return _fail(&"not_initialized", "")
+	var relative_path := str(locator["relative_path"])
+	if not _storage.exists(relative_path):
+		return _fail(&"save_absent", relative_path)
+	var read: Dictionary = _storage.read_text(relative_path)
+	if not read.get("ok", false):
+		return read
+	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
+	if not parsed.get("ok", false):
+		return _fail(&"corrupt_save_document", relative_path)
+	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
+	if not validated.get("ok", false):
+		return validated
+	var document: Dictionary = validated["value"]["candidate"]
+	if str(document["kind"]) != str(locator["kind"]) or document["slot_id"] != locator["slot_id"]:
+		return _fail(&"corrupt_save_document", "document discriminators do not match the locator")
+	return {"ok": true, "code": &"ok", "value": {"prepared": {
+		"locator": locator.duplicate(true),
+		"document": document,
+	}}}
+
+func _delete(locator: Dictionary) -> Dictionary:
+	if locator.is_empty():
+		return _fail(&"INVALID_SAVE_REFERENCE", "")
+	if _storage == null:
+		return _fail(&"not_initialized", "")
+	var relative_path := str(locator["relative_path"])
+	var removed: Dictionary = _storage.remove(relative_path)
+	if not removed.get("ok", false):
+		return removed
+	var reconciled: Dictionary = _storage.reconcile(relative_path, _document_text_validator)
+	if not reconciled.get("ok", false):
+		return reconciled
+	if _storage.exists(relative_path):
+		return _fail(&"delete_incomplete", relative_path)
+	slot_metadata_changed.emit()
+	return {"ok": true, "code": &"ok", "value": {"deleted": true, "relative_path": relative_path}}
+
+func _document_text_validator(text: String) -> Dictionary:
+	var parsed: Dictionary = STRICT_JSON.parse_object(text)
+	if not parsed.get("ok", false):
+		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
+	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
+	if not validated.get("ok", false):
+		return validated
+	return {"ok": true, "code": &"ok", "value": validated["value"]["candidate"]}
+
+func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
+	var keys: Array = checkpoint_inputs.keys()
+	keys.sort()
+	var expected := _CHECKPOINT_INPUT_KEYS.duplicate()
+	expected.sort()
+	if keys != Array(expected):
+		return "unexpected checkpoint input keys: " + str(keys)
+	if typeof(checkpoint_inputs["snapshot_input"]) != TYPE_DICTIONARY \
+			or typeof(checkpoint_inputs["snapshot_input"].get("lifecycle")) != TYPE_DICTIONARY:
+		return "snapshot_input.lifecycle is required"
+	return ""
+
+static func _fail(code: StringName, message: String) -> Dictionary:
+	return {"ok": false, "code": code, "message": message, "details": {}}

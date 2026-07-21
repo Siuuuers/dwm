@@ -11,7 +11,12 @@ const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema
 const DOCUMENT_KEYS: Array[String] = [
 	"current_snapshot", "kind", "recovery_journal", "save_reason", "schema_version", "slot_id",
 ]
-const CHECKPOINT_KINDS: Array[String] = ["day_start", "day_resolution_stage"]
+# Every CheckpointJournal-accepted kind may be the persisted current bundle.
+const CHECKPOINT_KINDS: Array[String] = [
+	"line", "day_start", "timeline_start", "timeline_complete", "choice",
+	"variable_transaction", "effect_transaction", "safe_marker", "scene_transition",
+	"pre_board", "post_result", "day_resolution_stage",
+]
 const AUTOSAVE_REASONS: Array[String] = ["automatic", "day_start", "ending", "pre_board", "logout"]
 const MIN_SLOT := 1
 const MAX_SLOT := 7

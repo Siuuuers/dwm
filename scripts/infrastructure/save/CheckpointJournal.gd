@@ -177,6 +177,9 @@ func restore_state(backup: Dictionary) -> Dictionary:
 	for key: String in ["run_id", "next_sequence", "current", "earlier"]:
 		if not backup.has(key):
 			return _fail(&"invalid_backup", "missing key: " + key)
+	if typeof(backup["current"]) != TYPE_DICTIONARY or typeof(backup["earlier"]) != TYPE_ARRAY \
+			or typeof(backup["next_sequence"]) != TYPE_INT:
+		return _fail(&"invalid_backup", "malformed backup field types")
 	_run_id = str(backup["run_id"])
 	_next_sequence = int(backup["next_sequence"])
 	_current = (backup["current"] as Dictionary).duplicate(true)

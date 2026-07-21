@@ -4,6 +4,7 @@ signal application_ready()
 signal development_subset_ready(subset_id: StringName)
 
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 
 const MODE_FINAL := &"final"
 const MODE_TEST_MANUAL := &"test_manual"
@@ -46,6 +47,7 @@ var _start_begun := false
 var _debug_gate_factory: Callable
 var _selected_root := ""
 var _profile_storage: RefCounted
+var _application_gate: Object = null
 var _state := {
 	"started": false, "ready": false, "mode": &"",
 	"completed_stages": [], "planned_blockers": [], "fatal_result": {},
@@ -113,6 +115,11 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if target == null or not target.has_method("initialize"): return _failure(&"missing_stage_adapter", "%s initializer is unavailable" % target_name)
 			if profile == null: return _failure(&"missing_profile_manager", "ProfileManager dependency is unavailable")
 			return target.call(&"initialize", profile)
+		&"initialize_saves":
+			var save_manager := _target(&"SaveManager")
+			if save_manager == null or not save_manager.has_method("initialize"):
+				return _failure(&"missing_stage_adapter", "SaveManager initializer is unavailable")
+			return save_manager.call(&"initialize", JSON_STORAGE.new(_selected_root.path_join("saves")))
 		&"initialize_dialogic_bridge":
 			var bridge := _target(&"DialogicBridge")
 			var profile := _target(&"ProfileManager")
@@ -158,7 +165,26 @@ func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 		var retained_id: int = configured.get("value", {}).get("gate_instance_id", 0)
 		_state["gate_injection"]["target_instance_ids"].append(retained_id)
 		if retained_id != gate.get_instance_id(): return _failure(&"mutation_gate_identity_mismatch", "Target retained another gate")
+	_application_gate = gate
 	return {"ok": true}
+
+func configure_day_resolution(game_state: Object, save_manager: Object) -> Dictionary:
+	if _application_gate == null:
+		return _failure(&"mutation_gate_not_configured", "Bootstrap has not constructed the application gate")
+	if game_state == null or save_manager == null:
+		return _failure(&"missing_stage_adapter", "Day-resolution wiring requires GameState and SaveManager")
+	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
+	var latched: Dictionary = checkpoint_port.configure_fatal_latch(_application_gate)
+	if not latched.get("ok", false):
+		return latched
+	if int(latched["value"]["gate_instance_id"]) != _application_gate.get_instance_id():
+		return _failure(&"mutation_gate_identity_mismatch", "Checkpoint port retained another gate")
+	if not game_state.has_method("_configure_day_resolution"):
+		return _failure(&"missing_stage_adapter", "GameState day-resolution seam is unavailable")
+	var configured: Dictionary = game_state.call(&"_configure_day_resolution", checkpoint_port)
+	if not configured.get("ok", false):
+		return configured
+	return {"ok": true, "value": {"gate_instance_id": _application_gate.get_instance_id()}}
 
 func _is_compatible_gate(gate: Object) -> bool:
 	if not gate.has_signal("capability_changed"): return false
