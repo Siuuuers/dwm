@@ -15,6 +15,8 @@
     {"symbol": "SAVE_DOCUMENT_SCHEMA", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "STRICT_JSON", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_metadata_family_present_absent_corrupt_and_ordering"},
     {"symbol": "CANONICAL_JSON", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_save_family_writes_closed_relative_names"},
+    {"symbol": "SAVE_MIGRATIONS", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_prepare_builds_six_plans_and_commits"},
+    {"symbol": "PROJECTOR", "kind": "constant", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_rollback_failure_latches_shared_gate"},
     {"symbol": "initialize", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_invalid_save_references_do_not_touch_storage"},
     {"symbol": "configure_mutation_gate", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_configure_mutation_gate_matrix_without_side_effects"},
     {"symbol": "record_stable_checkpoint", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_record_checkpoint_advances_journal_and_persists_disk"},
