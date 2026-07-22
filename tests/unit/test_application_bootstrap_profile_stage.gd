@@ -53,15 +53,24 @@ func test_manual_mode_executes_no_stage_and_is_not_readiness() -> void:
 	assert_eq(state["fatal_result"], {})
 	assert_eq(bootstrap.call(&"start", &"test_manual").get("code"), &"bootstrap_already_started")
 
-func test_final_mode_stops_at_missing_production_gate_before_profile() -> void:
+func test_final_mode_constructs_production_gate_and_injects_before_profile() -> void:
+	# Task 7: final mode now constructs the Task-3 production gate via the private
+	# factory and injects the exact eight FINAL_GATE_TARGETS in order. In this bare
+	# harness the /root autoloads are absent, so injection stops at the first target
+	# BEFORE any initializer runs -- never returning missing_production_gate_factory.
 	var loaded: Dictionary = PROBE.load_script("res://autoload/ApplicationBootstrap.gd")
 	var bootstrap: Node = autofree(loaded["value"].new())
 	var result: Dictionary = bootstrap.call(&"start", &"final")
-	assert_eq(result.get("code"), &"missing_production_gate_factory")
+	assert_ne(result.get("code"), &"missing_production_gate_factory",
+		"final mode no longer stalls on a missing production factory")
+	assert_eq(result.get("code"), &"invalid_gate_target",
+		"injection stops at the first unavailable target in this bare harness")
 	var state: Dictionary = bootstrap.call(&"get_startup_state")
-	assert_eq(state["completed_stages"], [&"select_and_prove_roots"])
+	assert_eq(state["completed_stages"], [&"select_and_prove_roots"],
+		"it stops inside the gate stage, before initialize_profile")
+	assert_eq(int(state["gate_injection"]["factory_invocation_count"]), 1,
+		"the production gate factory was invoked exactly once")
 	assert_false(state["ready"])
-	assert_eq(state["fatal_result"]["code"], &"missing_production_gate_factory")
 
 func test_ready_callbacks_are_side_effect_free_or_deferred_only() -> void:
 	for path in [

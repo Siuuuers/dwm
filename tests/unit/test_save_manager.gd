@@ -148,13 +148,12 @@ func test_restore_preparation_and_delete_families() -> void:
 	_seed_checkpoint(manager, "run-restore")
 	assert_true(manager.save_latest_to_slot(2)["ok"])
 	assert_true(manager.quick_save_latest()["ok"])
-	var prepared: Dictionary = manager.prepare_restore_slot(2)
-	assert_true(prepared["ok"], JSON.stringify(prepared))
-	assert_eq(str(prepared["value"]["prepared"]["document"]["kind"]), "slot")
-	assert_true(manager.prepare_restore_quick()["ok"])
-	assert_false(manager.prepare_restore_autosave().get("ok", true), "absent autosave rejects")
-	assert_eq(manager.commit_prepared_restore(prepared["value"]["prepared"])["code"],
-		&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "restore commit waits for Task 7 participants")
+	# prepare_restore now builds participant plans, so it requires configured participants;
+	# the full prepare->commit round-trip is covered by the restore integration tests.
+	assert_eq(manager.prepare_restore_slot(2).get("code"), &"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
+		"prepare_restore requires configured restore participants")
+	assert_eq(manager.commit_prepared_restore({}).get("code"), &"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
+		"commit_prepared_restore requires configured participants")
 	assert_true(manager.delete_slot(2)["ok"])
 	assert_false(manager.save_exists(&"slot", 2), "delete leaves the locator absent")
 	assert_true(manager.delete_quick_save()["ok"])

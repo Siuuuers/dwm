@@ -234,3 +234,49 @@ func _latch_preference_fatal(phase: StringName, result: Dictionary) -> void:
 	if _mutation_gate != null:
 		_mutation_gate.call(&"latch_fatal", failure.duplicate(true))
 	timeline_failed.emit({"ok": false, "code": &"dialogic_preference_failure", "details": failure.duplicate(true), "receipt": {}})
+
+
+# ---- Narrative restore participant seams (dwm-p2r.5 Task 7) ----
+# Semantic narrative checkpoint restore. Phase 2R: exact timeline manifests
+# arrive in .8, so apply stores the checkpoint semantically after validating the
+# route-ready token the route participant produced. Apply/rollback are silent.
+
+var _narrative_restore_backup: Dictionary = {}
+
+
+func capture_restore_state() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {"backup": {
+		"timeline_id": _current_timeline_id,
+		"timeline_context": _current_timeline_context.duplicate(true),
+	}}}
+
+
+func apply_restore_silent(plan: Dictionary) -> Dictionary:
+	if typeof(plan.get("route_ready_token")) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"missing_route_ready_token", "message": "narrative apply requires the route-ready token"}
+	var checkpoint: Dictionary = plan.get("narrative_checkpoint", {}) if typeof(plan.get("narrative_checkpoint")) == TYPE_DICTIONARY else {}
+	_narrative_restore_backup = {
+		"timeline_id": _current_timeline_id,
+		"timeline_context": _current_timeline_context.duplicate(true),
+	}
+	# Semantic-only in Phase 2R: hold the restored checkpoint without driving the
+	# live Dialogic playhead (manifest-aware playback arrives in .8).
+	_current_timeline_id = str(checkpoint.get("timeline_id", ""))
+	_current_timeline_context = checkpoint.duplicate(true)
+	return {"ok": true, "code": &"ok"}
+
+
+func rollback_restore_silent(backup: Dictionary) -> Dictionary:
+	var source: Variant = backup.get("backup", backup)
+	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("timeline_id"):
+		return {"ok": false, "code": &"invalid_narrative_backup", "message": "narrative backup requires a timeline_id"}
+	_current_timeline_id = str((source as Dictionary)["timeline_id"])
+	var ctx: Variant = (source as Dictionary).get("timeline_context", {})
+	_current_timeline_context = (ctx as Dictionary).duplicate(true) if typeof(ctx) == TYPE_DICTIONARY else {}
+	_narrative_restore_backup = {}
+	return {"ok": true, "code": &"ok"}
+
+
+func finalize_restore() -> Dictionary:
+	_narrative_restore_backup = {}
+	return {"ok": true, "code": &"ok"}

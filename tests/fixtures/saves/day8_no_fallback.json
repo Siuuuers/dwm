@@ -1,0 +1,6 @@
+{
+  "schema_version": 2, "content_version": 1, "run_id": "d8x", "checkpoint_id": "d8x:9", "checkpoint_sequence": 9,
+  "lifecycle": {"run_id": "d8x", "day": 8, "state": "PLAYING", "active_resolution_plan": null, "ending_plan": null},
+  "route_id": "main", "active_app_id": null, "narrative_checkpoint": {}, "gameplay": {"narrative_variables": {}},
+  "contacts": {}, "schedule": [], "dating": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "audio_context": {}
+}

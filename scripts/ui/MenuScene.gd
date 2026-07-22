@@ -35,8 +35,26 @@ func _ready() -> void:
 		get_node("/root/InputManager").call_deferred("focus_first_control", self)
 
 func _on_new_acc_pressed() -> void:
-	if has_node("/root/SceneRouter"):
-		get_node("/root/SceneRouter").start_game_from_menu()
+	# New Game runs as one atomic transaction; the prepared route participant is the
+	# only opening transition (no separate SceneRouter.start_game_from_menu call).
+	if not has_node("/root/SaveManager"):
+		return
+	var save_manager := get_node("/root/SaveManager")
+	if not save_manager.has_method("start_new_run"):
+		return
+	var run_id := "run-%d-%d" % [Time.get_ticks_usec(), randi()]
+	var initial_context := {
+		"route_id": "opening",
+		"dialogic_checkpoint": {},
+		"active_app_id": null,
+		"audio_context": {},
+		"content_version": 1,
+	}
+	# Phase 2R route readiness resolves synchronously; when it becomes awaited
+	# (real target-scene layout readiness) this call gains `await`.
+	var result: Dictionary = save_manager.start_new_run(run_id, initial_context)
+	if not result.get("ok", false):
+		push_warning("MenuScene: start_new_run failed (%s)." % str(result.get("code", "")))
 
 func _on_log_in_pressed() -> void:
 	_close_setting()

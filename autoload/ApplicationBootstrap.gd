@@ -5,6 +5,7 @@ signal development_subset_ready(subset_id: StringName)
 
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
+const APPLICATION_MUTATION_GATE_SCRIPT := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 
 const MODE_FINAL := &"final"
 const MODE_TEST_MANUAL := &"test_manual"
@@ -144,18 +145,27 @@ func _select_and_prove_roots(mode: StringName) -> Dictionary:
 	_profile_storage = JSON_STORAGE.new(_selected_root)
 	return {"ok": true, "value": {"selected_root": _selected_root}}
 
+func _create_production_mutation_gate() -> Object:
+	return APPLICATION_MUTATION_GATE_SCRIPT.new()
+
 func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 	var gate: Object
+	var targets: Array
 	if mode == MODE_FINAL:
-		return _failure(&"missing_production_gate_factory", "Plan 03 has not installed the production mutation gate factory")
-	if not _debug_gate_factory.is_valid(): return _failure(&"missing_debug_gate_factory", "Development mode requires its configured debug gate factory")
-	_state["gate_injection"]["factory_invocation_count"] = 1
-	var produced: Variant = _debug_gate_factory.call()
-	if typeof(produced) != TYPE_OBJECT or produced == null: return _failure(&"invalid_mutation_gate", "Factory did not return an Object")
-	gate = produced
+		# The only final-mode resolution of Plan 02's missing_production_gate_factory:
+		# construct the unchanged Task-3 gate once and inject the exact eight targets.
+		_state["gate_injection"]["factory_invocation_count"] = 1
+		gate = _create_production_mutation_gate()
+		targets = FINAL_GATE_TARGETS
+	else:
+		if not _debug_gate_factory.is_valid(): return _failure(&"missing_debug_gate_factory", "Development mode requires its configured debug gate factory")
+		_state["gate_injection"]["factory_invocation_count"] = 1
+		var produced: Variant = _debug_gate_factory.call()
+		if typeof(produced) != TYPE_OBJECT or produced == null: return _failure(&"invalid_mutation_gate", "Factory did not return an Object")
+		gate = produced
+		targets = DEVELOPMENT_GATE_TARGETS[mode]
 	if not _is_compatible_gate(gate): return _failure(&"invalid_mutation_gate", "Factory returned an incompatible gate")
 	_state["gate_injection"]["gate_instance_id"] = gate.get_instance_id()
-	var targets: Array = DEVELOPMENT_GATE_TARGETS[mode]
 	for target_name: StringName in targets:
 		_state["gate_injection"]["targets"].append(target_name)
 		var target := _target(target_name)
@@ -200,6 +210,10 @@ func _stage_target(stage_id: StringName) -> StringName:
 	}.get(stage_id, &"")
 
 func _target(target_name: StringName) -> Node:
+	# Absolute-path lookups require an active tree; outside one (e.g. a bare-node
+	# unit harness) there is no target to resolve.
+	if not is_inside_tree():
+		return null
 	return get_node_or_null("/root/" + String(target_name))
 
 func _requested_mode_from_debug_args() -> StringName:

@@ -14,6 +14,22 @@ const _SCENE_PATHS := {
 }
 
 var _current_scene_id: String = ""
+var _mutation_gate: Object = null
+
+
+## Common mutation-gate seam (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md
+## Task 7). Matches the frozen contract the other seven final targets use.
+func configure_mutation_gate(gate: Object) -> Dictionary:
+	if gate == null or not gate.has_signal("capability_changed"):
+		return {"ok": false, "code": &"invalid_mutation_gate", "message": "gate contract incomplete"}
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method):
+			return {"ok": false, "code": &"invalid_mutation_gate", "message": "missing method"}
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id():
+		return {"ok": false, "code": &"mutation_gate_already_configured", "message": ""}
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 
 func _gs() -> Node:
@@ -109,6 +125,69 @@ func goto_scene_id(scene_id: String, context: Dictionary = {}) -> void:
 		# Store only safe context; SceneRouter never mutates gameplay rules.
 		gs.route_context = context.duplicate(true)
 	_change_to(scene_id)
+
+
+## ---- Semantic route restore seams (dwm-p2r.5 Task 7) ----
+## Restore suppresses ordinary route signals; apply reports the target scene's
+## narrative layout ready via a route-ready token the narrative participant
+## validates. Phase 2R scenes are placeholder, so readiness resolves synchronously.
+
+var _route_restore_backup: Dictionary = {}
+var _route_generation: int = 0
+var _pending_restore_scene_id: String = ""
+
+
+func prepare_route_restore(route_id: String, route_context: Dictionary) -> Dictionary:
+	if route_id.is_empty():
+		return {"ok": false, "code": &"invalid_route_id", "message": "route_id must be nonempty"}
+	_route_generation += 1
+	return {"ok": true, "code": &"ok", "value": {
+		"route_id": route_id,
+		"route_context": route_context.duplicate(true),
+		"route_ready_token": {
+			"route_id": route_id,
+			"layout_id": route_id + "_layout",
+			"generation": _route_generation,
+		},
+	}}
+
+
+func capture_restore_state() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {"backup": {"scene_id": _current_scene_id}}}
+
+
+func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
+	var route_id := str(plan.get("route_id", ""))
+	if route_id.is_empty() and typeof(plan.get("route_ready_token")) == TYPE_DICTIONARY:
+		route_id = str((plan["route_ready_token"] as Dictionary).get("route_id", ""))
+	if route_id.is_empty():
+		return {"ok": false, "code": &"invalid_route_plan", "message": "route plan requires a route_id"}
+	# Semantic apply: record the target route and safe context without changing the
+	# live scene (finalize performs the navigation). Ordinary route signals stay silent.
+	_pending_restore_scene_id = route_id
+	var gs := _gs()
+	if gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY:
+		gs.route_context = (plan["route_context"] as Dictionary).duplicate(true)
+	var token: Variant = plan.get("route_ready_token", {
+		"route_id": route_id, "layout_id": route_id + "_layout", "generation": _route_generation})
+	return {"ok": true, "code": &"ok", "value": {"route_ready_token": token}}
+
+
+func rollback_restore_silent(backup: Dictionary) -> Dictionary:
+	var source: Variant = backup.get("backup", backup)
+	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("scene_id"):
+		return {"ok": false, "code": &"invalid_route_backup", "message": "route backup requires a scene_id"}
+	_pending_restore_scene_id = ""
+	_current_scene_id = str((source as Dictionary)["scene_id"])
+	return {"ok": true, "code": &"ok"}
+
+
+func finalize_restore() -> Dictionary:
+	if _pending_restore_scene_id != "":
+		_change_to(_pending_restore_scene_id)
+		_pending_restore_scene_id = ""
+	_route_restore_backup = {}
+	return {"ok": true, "code": &"ok"}
 
 
 func get_current_scene_id() -> String:

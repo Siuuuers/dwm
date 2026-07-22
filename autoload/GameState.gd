@@ -1576,7 +1576,14 @@ func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
 	template.reset_game()
 	var defaults: Dictionary = template.to_save_dict()
 	template.free()
-	defaults["day"] = 1
+	# Shape the detached Day-1 input to match RunSnapshotSchema.build: gameplay bag
+	# (whitelisted fields minus day/contacts/schedule/dating), plus their own fields.
+	var gameplay := {"narrative_variables": {}}
+	for key in _SAVE_WHITELIST:
+		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "schedule_entries", "dating_route_state"]:
+			continue
+		if defaults.has(key):
+			gameplay[key] = defaults[key]
 	return {"ok": true, "code": &"ok", "value": {"snapshot_input": {
 		"lifecycle": {
 			"run_id": run_id,
@@ -1585,9 +1592,12 @@ func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
 			"active_resolution_plan": null,
 			"ending_plan": null,
 		},
-		"game": defaults,
-		"effect_transactions": [],
-		"variable_transactions": [],
+		"gameplay": gameplay,
+		"contacts": {},
+		"schedule": [],
+		"dating": {},
+		"applied_effect_transaction_ids": [],
+		"applied_variable_transaction_ids": [],
 	}}}
 
 
@@ -1660,3 +1670,74 @@ func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> 
 		"playback_stage": "PRIMARY_PENDING",
 		"playback_receipts": {},
 	})
+
+
+# ---- Run restore participant seams (dwm-p2r.5 Task 7) ----
+# RunRestoreParticipant delegates capture/apply/rollback/finalize here. These
+# are silent: apply/rollback emit no domain signals; only finalize publishes.
+
+func capture_restore_state() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {"backup": {
+		"gameplay": to_save_dict(),
+		"lifecycle": _run_lifecycle.to_dict(),
+	}}}
+
+
+func apply_restore_silent(plan: Dictionary) -> Dictionary:
+	var snapshot: Variant = plan.get("snapshot")
+	if typeof(snapshot) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"invalid_run_plan", "message": "run plan requires a snapshot"}
+	return _apply_run_snapshot_silent(snapshot as Dictionary)
+
+
+func rollback_restore_silent(backup: Dictionary) -> Dictionary:
+	var source: Variant = backup.get("backup", backup)
+	if typeof(source) != TYPE_DICTIONARY or typeof((source as Dictionary).get("gameplay")) != TYPE_DICTIONARY \
+			or typeof((source as Dictionary).get("lifecycle")) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"invalid_run_backup", "message": "run backup requires gameplay and lifecycle"}
+	var restored: Dictionary = _run_lifecycle.prepare_restore((source as Dictionary)["lifecycle"])
+	if not restored.get("ok", false):
+		return restored
+	_run_lifecycle.commit_restore(restored["value"]["candidate"])
+	_apply_gameplay_silent((source as Dictionary)["gameplay"])
+	return {"ok": true, "code": &"ok"}
+
+
+func finalize_restore() -> Dictionary:
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok"}
+
+
+func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
+	if typeof(snapshot.get("lifecycle")) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"invalid_run_plan", "message": "snapshot.lifecycle is required"}
+	var restored: Dictionary = _run_lifecycle.prepare_restore(snapshot["lifecycle"])
+	if not restored.get("ok", false):
+		return restored
+	_run_lifecycle.commit_restore(restored["value"]["candidate"])
+	if typeof(snapshot.get("gameplay")) == TYPE_DICTIONARY:
+		_apply_gameplay_silent(snapshot["gameplay"])
+	return {"ok": true, "code": &"ok"}
+
+
+func _apply_gameplay_silent(gameplay: Dictionary) -> void:
+	# Apply only whitelisted gameplay fields; `day` is owned by the lifecycle and
+	# is intentionally absent from the gameplay bag, so it is never touched here.
+	for key in _SAVE_WHITELIST:
+		if key == "day" or not gameplay.has(key):
+			continue
+		var v = gameplay[key]
+		if v == null:
+			continue
+		if key in _TYPED_STRING_ARRAY_KEYS:
+			var typed: Array[String] = []
+			if v is Array:
+				for item in v:
+					typed.append(str(item))
+			self.set(key, typed)
+		elif v is Dictionary:
+			self.set(key, v.duplicate())
+		elif v is Array:
+			self.set(key, v.duplicate())
+		else:
+			self.set(key, v)

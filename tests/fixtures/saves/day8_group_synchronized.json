@@ -1,0 +1,8 @@
+{
+  "schema_version": 2, "content_version": 1, "run_id": "d8g", "checkpoint_id": "d8g:9", "checkpoint_sequence": 9,
+  "lifecycle": {"run_id": "d8g", "day": 8, "state": "ENDING", "active_resolution_plan": null,
+    "ending_plan": {"ending_id": "ending.priscilla_lavinia", "epilogue_ending_id": "", "source_day": 7, "playback_stage": "PRIMARY_PENDING", "playback_receipts": {}}},
+  "route_id": "ending", "active_app_id": null, "narrative_checkpoint": {}, "gameplay": {"narrative_variables": {}},
+  "contacts": {}, "schedule": [], "dating": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "audio_context": {},
+  "synchronized_day7_inputs": {"candidate_friend_id": "priscilla", "dating_route_state": {"priscilla": {"true_path_count": 0, "dark_points": 3}}, "affection_tiers": {"priscilla": "love"}, "sylvia_special": false, "pl_post_ending": true}
+}

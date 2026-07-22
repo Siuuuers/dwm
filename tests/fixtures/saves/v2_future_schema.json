@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "kind": "slot",
+  "slot_id": 1,
+  "save_reason": "manual",
+  "current_snapshot": {
+    "checkpoint_kind": "day_start",
+    "snapshot": {
+      "schema_version": 3,
+      "content_version": 1,
+      "run_id": "future-run",
+      "checkpoint_id": "future-run:1",
+      "checkpoint_sequence": 1,
+      "lifecycle": {"run_id": "future-run", "day": 3, "state": "PLAYING", "active_resolution_plan": null, "ending_plan": null},
+      "route_id": "main",
+      "active_app_id": null,
+      "narrative_checkpoint": {},
+      "gameplay": {"narrative_variables": {}},
+      "contacts": {},
+      "schedule": [],
+      "dating": {},
+      "applied_effect_transaction_ids": [],
+      "applied_variable_transaction_ids": [],
+      "audio_context": {}
+    }
+  },
+  "recovery_journal": []
+}

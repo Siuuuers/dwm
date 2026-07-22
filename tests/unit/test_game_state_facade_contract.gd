@@ -65,10 +65,15 @@ func test_prepare_new_run_snapshot_input_is_pure() -> void:
 		"run_id": "run-b", "day": 1, "state": "PLAYING",
 		"active_resolution_plan": null, "ending_plan": null,
 	})
-	assert_eq(int(snapshot_input["game"]["day"]), 1, "detached defaults describe Day 1")
-	assert_eq(int(snapshot_input["game"]["money"]), 0, "detached defaults are the reset values")
-	assert_eq(snapshot_input["effect_transactions"], [], "empty run-scoped ledgers")
-	assert_eq(snapshot_input["variable_transactions"], [], "empty run-scoped ledgers")
+	# Shape matches RunSnapshotSchema.build: gameplay bag plus own contacts/schedule/dating/ledgers.
+	assert_eq(int(snapshot_input["gameplay"]["money"]), 0, "detached defaults are the reset values")
+	assert_eq(snapshot_input["gameplay"]["narrative_variables"], {}, "gameplay carries the narrative bag")
+	assert_eq(snapshot_input["contacts"], {}, "fresh run has empty contacts")
+	assert_eq(snapshot_input["schedule"], [], "fresh run has empty schedule")
+	assert_eq(snapshot_input["dating"], {}, "fresh run has empty dating")
+	assert_eq(snapshot_input["applied_effect_transaction_ids"], [], "empty run-scoped ledgers")
+	assert_eq(snapshot_input["applied_variable_transaction_ids"], [], "empty run-scoped ledgers")
+	assert_false(snapshot_input["gameplay"].has("day"), "day lives in the lifecycle, not the gameplay bag")
 	assert_eq(game_state.to_save_dict(), live_before, "live run state is untouched")
 	assert_eq(game_state.day, 4, "live day is untouched")
 

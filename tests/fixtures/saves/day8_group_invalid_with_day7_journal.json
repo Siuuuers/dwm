@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "schema_version": 2, "content_version": 1, "run_id": "d8i", "checkpoint_id": "d8i:12", "checkpoint_sequence": 12,
+    "lifecycle": {"run_id": "d8i", "day": 8, "state": "ENDING", "active_resolution_plan": null,
+      "ending_plan": {"ending_id": "ending.priscilla_lavinia", "epilogue_ending_id": "", "source_day": 7, "playback_stage": "PRIMARY_PENDING", "playback_receipts": {}}},
+    "route_id": "ending", "active_app_id": null, "narrative_checkpoint": {}, "gameplay": {"narrative_variables": {}},
+    "contacts": {}, "schedule": [], "dating": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "audio_context": {}
+  },
+  "day7_bundles": [
+    {"checkpoint_kind": "day_start", "snapshot": {"schema_version": 2, "content_version": 1, "run_id": "d8i", "checkpoint_id": "d8i:8", "checkpoint_sequence": 8,
+      "lifecycle": {"run_id": "d8i", "day": 7, "state": "PLAYING", "active_resolution_plan": null, "ending_plan": null},
+      "route_id": "main", "active_app_id": null, "narrative_checkpoint": {}, "gameplay": {"narrative_variables": {}},
+      "contacts": {}, "schedule": [], "dating": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "audio_context": {}}}
+  ]
+}

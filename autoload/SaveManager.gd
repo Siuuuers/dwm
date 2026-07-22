@@ -19,8 +19,10 @@ const MAX_SLOT := 7
 const CHECKPOINT_JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+const SAVE_MIGRATIONS := preload("res://scripts/infrastructure/save/SaveMigrations.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
 
 const _GATE_CONTRACT_METHODS: Array[String] = [
 	"acquire", "release", "guard_external", "is_active", "get_active_owner",
@@ -37,6 +39,11 @@ var _journal: RefCounted = CHECKPOINT_JOURNAL.new()
 var _mutation_gate: Object = null
 var _lock_owner: StringName = &""
 var _pending_deferred_save := false
+var _restore_participants: Dictionary = {}
+
+const _PARTICIPANT_KEYS: Array[String] = ["audio", "localization", "narrative", "profile", "route", "run"]
+## Apply/finalize order; rollback runs the exact reverse.
+const _PARTICIPANT_APPLY_ORDER: Array[String] = ["run", "profile", "localization", "audio", "route", "narrative"]
 
 func initialize(storage: StorageAdapter = null) -> Dictionary:
 	if storage == null:
@@ -92,10 +99,6 @@ func record_stable_checkpoint(checkpoint_inputs: Dictionary, checkpoint_kind: St
 func get_latest_stable_checkpoint() -> Dictionary:
 	return _journal.get_current_bundle()
 
-func start_new_run(_run_id: String, _initial_context: Dictionary) -> Dictionary:
-	return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
-		"start_new_run requires the Task 7 production transaction participants")
-
 func save_latest_to_slot(slot_id: int) -> Dictionary:
 	return _write_latest(_resolve_locator(&"slot", slot_id), "manual")
 
@@ -119,9 +122,167 @@ func prepare_restore_quick() -> Dictionary:
 func prepare_restore_autosave() -> Dictionary:
 	return _prepare_restore(_resolve_locator(&"autosave", -1))
 
-func commit_prepared_restore(_prepared: Dictionary) -> Dictionary:
-	return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
-		"commit_prepared_restore requires the Task 7 restore participants")
+func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
+	if _restore_participants.is_empty():
+		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_restore_participants first")
+	if typeof(prepared.get("participant_plans")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_prepared_restore", "prepared requires participant_plans")
+	var plans: Dictionary = prepared["participant_plans"]
+	for key: String in _PARTICIPANT_KEYS:
+		if typeof(plans.get(key)) != TYPE_DICTIONARY:
+			return _fail(&"invalid_prepared_restore", "missing participant plan: " + key)
+	return _run_participant_transaction(&"restore", plans, prepared.get("journal_seed"),
+		str(prepared.get("route_id", "")), str(prepared.get("checkpoint_id", "")), true)
+
+func start_new_run(run_id: String, initial_context: Dictionary) -> Dictionary:
+	if _restore_participants.is_empty():
+		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_restore_participants first")
+	if run_id.is_empty():
+		return _fail(&"invalid_run_id", "run_id must be nonempty")
+	var context_error := _validate_new_run_context(initial_context)
+	if context_error != "":
+		return _fail(&"invalid_initial_context", context_error)
+
+	# Ask the run participant for a detached Day-1 snapshot input for the new run.
+	var new_run: Dictionary = _restore_participants["run"].prepare_new_run(run_id)
+	if not new_run.get("ok", false):
+		return new_run
+	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
+		snapshot_input, initial_context["dialogic_checkpoint"], str(initial_context["route_id"]),
+		initial_context["active_app_id"], initial_context["audio_context"],
+		int(initial_context["content_version"]), 1)
+	if not built.get("ok", false):
+		return built
+	var snapshot: Dictionary = built["value"]["snapshot"]
+	# Empty profile patch preserves the complete global profile for a new game.
+	var plans := {
+		"run": {"snapshot": snapshot},
+		"profile": {"profile": {}},
+		"localization": {},
+		"audio": {"snapshot": initial_context["audio_context"]},
+		"route": {"route_id": str(initial_context["route_id"]), "route_context": {}},
+		"narrative": {"narrative_checkpoint": initial_context["dialogic_checkpoint"]},
+	}
+	# Prepare the Run-B journal as a full reset with the Day-1 bundle current.
+	var reset: Dictionary = _journal.prepare_reset_with_initial(snapshot, &"day_start")
+	if not reset.get("ok", false):
+		return reset
+	var result := _run_participant_transaction(&"new_run", plans, reset["value"]["candidate"],
+		str(initial_context["route_id"]), str(snapshot["checkpoint_id"]), false)
+	if not result.get("ok", false):
+		return result
+	result["value"]["run_id"] = run_id
+	return result
+
+func _run_participant_transaction(
+		owner: StringName, plans: Dictionary, journal_candidate: Variant,
+		route_id: String, checkpoint_id: String, emit_restored: bool
+) -> Dictionary:
+	# `restore` also holds the SaveManager save lock; `new_run` relies on the gate.
+	var holds_save_lock := owner == &"restore"
+	if holds_save_lock:
+		var lock: Dictionary = acquire_save_lock(&"restore")
+		if not lock.get("ok", false):
+			return lock
+	var gate_token := ""
+	if _mutation_gate != null:
+		var acquired: Dictionary = _mutation_gate.acquire(owner)
+		if not acquired.get("ok", false):
+			if holds_save_lock:
+				release_save_lock(&"restore")
+			return acquired
+		gate_token = str(acquired["value"]["token"])
+
+	var backups := {}
+	for key: String in _PARTICIPANT_APPLY_ORDER:
+		var captured: Dictionary = _restore_participants[key].capture()
+		if not captured.get("ok", false):
+			_release_transaction(owner, gate_token, holds_save_lock)
+			return captured
+		backups[key] = captured["value"]
+
+	var applied: Array[String] = []
+	var route_ready_token: Variant = null
+	for key: String in _PARTICIPANT_APPLY_ORDER:
+		var plan: Dictionary = (plans[key] as Dictionary).duplicate(true)
+		if key == "narrative" and route_ready_token != null:
+			plan["route_ready_token"] = route_ready_token
+		var result: Dictionary = _restore_participants[key].apply_silent(plan)
+		if not result.get("ok", false):
+			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, result)
+		applied.append(key)
+		if key == "route":
+			route_ready_token = (result.get("value", {}) as Dictionary).get("route_ready_token")
+
+	if typeof(journal_candidate) == TYPE_DICTIONARY:
+		var committed: Dictionary = _journal.commit_prepared(journal_candidate)
+		if not committed.get("ok", false):
+			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, committed)
+		if checkpoint_id.is_empty():
+			checkpoint_id = str(committed["value"]["checkpoint_id"])
+
+	for key: String in _PARTICIPANT_APPLY_ORDER:
+		var finalized: Dictionary = _restore_participants[key].finalize()
+		if not finalized.get("ok", false):
+			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, finalized)
+	_release_transaction(owner, gate_token, holds_save_lock)
+	if emit_restored:
+		run_restored.emit(checkpoint_id, route_id)
+	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "route_id": route_id}}
+
+func _validate_new_run_context(initial_context: Dictionary) -> String:
+	var keys: Array = initial_context.keys()
+	keys.sort()
+	if keys != ["active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id"]:
+		return "unexpected initial_context keys: " + str(keys)
+	if str(initial_context["route_id"]) != "opening":
+		return "route_id must be \"opening\""
+	if typeof(initial_context["dialogic_checkpoint"]) != TYPE_DICTIONARY or not (initial_context["dialogic_checkpoint"] as Dictionary).is_empty():
+		return "dialogic_checkpoint must be {}"
+	if initial_context["active_app_id"] != null:
+		return "active_app_id must be null"
+	if typeof(initial_context["audio_context"]) != TYPE_DICTIONARY or not (initial_context["audio_context"] as Dictionary).is_empty():
+		return "audio_context must be {}"
+	if typeof(initial_context["content_version"]) != TYPE_INT or int(initial_context["content_version"]) < 1:
+		return "content_version must be a positive integer"
+	return ""
+
+func _release_transaction(owner: StringName, gate_token: String, holds_save_lock: bool) -> void:
+	if _mutation_gate != null and gate_token != "":
+		_mutation_gate.release(owner, gate_token)
+	if holds_save_lock:
+		release_save_lock(&"restore")
+
+func _rollback_transaction(owner: StringName, applied: Array[String], backups: Dictionary, gate_token: String, holds_save_lock: bool, original_failure: Dictionary) -> Dictionary:
+	var attempts: Array = []
+	var all_recovered := true
+	for index: int in range(applied.size() - 1, -1, -1):
+		var key: String = applied[index]
+		var rolled: Dictionary = _restore_participants[key].rollback_silent(backups[key])
+		attempts.append({"owner_id": key, "operation": "rollback_silent", "result": rolled})
+		if not rolled.get("ok", false):
+			all_recovered = false
+	if all_recovered:
+		_release_transaction(owner, gate_token, holds_save_lock)
+		return original_failure
+	return _fatal_transaction_recovery(String(owner), attempts)
+
+func _fatal_transaction_recovery(source: String, raw_diagnostics: Array) -> Dictionary:
+	if _mutation_gate == null:
+		return {"ok": false, "code": &"restore_rollback_failed", "message": "rollback failed with no gate"}
+	var already_retained := false
+	for diagnostic: Dictionary in raw_diagnostics:
+		if str((diagnostic.get("result", {}) as Dictionary).get("code", "")) == "APPLICATION_FATAL":
+			already_retained = true
+	if not already_retained and not _mutation_gate.is_fatal_latched():
+		var projected: Dictionary = PROJECTOR.project_failure(
+			source, "rollback", "fatal_rollback_failed", {"phase": source + "_recovery"}, raw_diagnostics)
+		var candidate: Dictionary = PROJECTOR.get_invariant_fallback()
+		if projected.get("ok", false) and PROJECTOR.validate_failure(projected["value"]["failure"]).get("ok", false):
+			candidate = projected["value"]["failure"]
+		_mutation_gate.latch_fatal(candidate)
+	return _mutation_gate.guard_external(StringName(source + "_recovery"))
 
 func delete_slot(slot_id: int) -> Dictionary:
 	return _delete(_resolve_locator(&"slot", slot_id))
@@ -214,9 +375,20 @@ func get_save_capability() -> Dictionary:
 			return {"enabled": false, "silent": true, "deferred": false}
 	return {"enabled": true, "silent": false, "deferred": false}
 
-func configure_restore_participants(_participants: Dictionary) -> Dictionary:
-	return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
-		"configure_restore_participants arrives with Task 7")
+func configure_restore_participants(participants: Dictionary) -> Dictionary:
+	var keys: Array = participants.keys()
+	keys.sort()
+	if keys != Array(_PARTICIPANT_KEYS):
+		return _fail(&"invalid_restore_participants", "exactly six participants required: " + str(keys))
+	for key: String in _PARTICIPANT_KEYS:
+		var participant: Variant = participants[key]
+		if typeof(participant) != TYPE_OBJECT or participant == null:
+			return _fail(&"invalid_restore_participants", key + " must be an object")
+		for method: String in ["prepare", "capture", "apply_silent", "rollback_silent", "finalize"]:
+			if not (participant as Object).has_method(method):
+				return _fail(&"invalid_restore_participants", "%s is missing %s" % [key, method])
+	_restore_participants = participants.duplicate()
+	return {"ok": true, "code": &"ok", "value": {"participant_count": _PARTICIPANT_KEYS.size()}}
 
 # ---- Deprecated wrappers (one issue only; delegate to the new facade) ----
 
@@ -334,6 +506,8 @@ func _prepare_restore(locator: Dictionary) -> Dictionary:
 		return _fail(&"INVALID_SAVE_REFERENCE", "")
 	if _storage == null:
 		return _fail(&"not_initialized", "")
+	if _restore_participants.is_empty():
+		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_restore_participants first")
 	var relative_path := str(locator["relative_path"])
 	if not _storage.exists(relative_path):
 		return _fail(&"save_absent", relative_path)
@@ -343,16 +517,104 @@ func _prepare_restore(locator: Dictionary) -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
+
+	# Migrate the document and every retained bundle. Structural/future-schema
+	# failures are frozen and never fall back to compatibility selection.
+	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
+		{"kind": str(locator["kind"]), "slot_id": locator["slot_id"]})
+	if not migrated.get("ok", false):
+		return migrated
+	var document: Dictionary = migrated["value"]["document"]
+	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)
 	if not validated.get("ok", false):
 		return validated
-	var document: Dictionary = validated["value"]["candidate"]
-	if str(document["kind"]) != str(locator["kind"]) or document["slot_id"] != locator["slot_id"]:
-		return _fail(&"corrupt_save_document", "document discriminators do not match the locator")
-	return {"ok": true, "code": &"ok", "value": {"prepared": {
-		"locator": locator.duplicate(true),
-		"document": document,
-	}}}
+	document = validated["value"]["candidate"]
+
+	# Order candidates: current bundle first, then earlier journal bundles by
+	# descending checkpoint_sequence. No field is ever combined across bundles.
+	var candidates: Array[Dictionary] = [document["current_snapshot"]]
+	var earlier: Array = (document["recovery_journal"] as Array).duplicate(true)
+	earlier.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["snapshot"]["checkpoint_sequence"]) > int(b["snapshot"]["checkpoint_sequence"]))
+	for entry: Dictionary in earlier:
+		candidates.append(entry)
+
+	var causes: Array = []
+	for bundle: Dictionary in candidates:
+		var prepared := _prepare_bundle_with_all_participants(bundle, migrated["value"], document)
+		if prepared.get("ok", false):
+			return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
+		if prepared.get("code") == &"BUNDLE_CONTENT_INCOMPATIBLE":
+			causes.append(prepared.get("details", {}))
+			continue
+		# Structural/primitive/migration failures never fall back.
+		return prepared
+	return {"ok": false, "code": &"NO_COMPATIBLE_BUNDLE", "message": "", "details": {"causes": causes}}
+
+func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output: Dictionary, document: Dictionary) -> Dictionary:
+	var snapshot: Dictionary = bundle["snapshot"]
+	var sequence := int(snapshot["checkpoint_sequence"])
+	var plans := {}
+
+	var run_prep: Dictionary = _restore_participants["run"].prepare({"snapshot": snapshot})
+	if not run_prep.get("ok", false):
+		return run_prep
+	plans["run"] = run_prep["value"]["run_plan"]
+
+	var profile_prep: Dictionary = _restore_participants["profile"].prepare(
+		{"legacy_profile_patch_input": migration_output["legacy_profile_patch_input"]})
+	if not profile_prep.get("ok", false):
+		return profile_prep
+	plans["profile"] = profile_prep["value"]["profile_plan"]
+	var locale_id := str(profile_prep["value"]["locale_id"])
+	var preferences: Dictionary = (plans["profile"].get("profile", {}) as Dictionary).get("preferences", {})
+
+	var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id})
+	if not loc_prep.get("ok", false):
+		return _content_incompatible_or_fail("localization", sequence, loc_prep)
+	plans["localization"] = loc_prep["value"]["localization_plan"]
+
+	var audio_prep: Dictionary = _restore_participants["audio"].prepare(
+		{"preferences": preferences, "audio_context": snapshot["audio_context"]})
+	if not audio_prep.get("ok", false):
+		return _content_incompatible_or_fail("audio", sequence, audio_prep)
+	plans["audio"] = audio_prep["value"]["audio_plan"]
+
+	var route_context := RUN_SNAPSHOT_SCHEMA.derive_route_restore_context(snapshot)
+	if not route_context.get("ok", false):
+		return route_context
+	var route_prep: Dictionary = _restore_participants["route"].prepare(
+		{"route_id": str(snapshot["route_id"]), "route_context": route_context["value"]})
+	if not route_prep.get("ok", false):
+		return _content_incompatible_or_fail("route", sequence, route_prep)
+	plans["route"] = route_prep["value"]["route_plan"]
+
+	var narr_prep: Dictionary = _restore_participants["narrative"].prepare(
+		{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"])})
+	if not narr_prep.get("ok", false):
+		return _content_incompatible_or_fail("narrative", sequence, narr_prep)
+	plans["narrative"] = narr_prep["value"]["narrative_plan"]
+
+	var seed: Dictionary = _journal.prepare_seed(document, bundle)
+	if not seed.get("ok", false):
+		return seed
+	return {"ok": true, "code": &"ok", "value": {
+		"bundle": bundle.duplicate(true),
+		"journal_seed": seed["value"]["candidate"],
+		"participant_plans": plans,
+		"route_id": str(snapshot["route_id"]),
+		"checkpoint_id": str(snapshot["checkpoint_id"]),
+	}}
+
+static func _content_incompatible_or_fail(participant_id: String, sequence: int, failure: Dictionary) -> Dictionary:
+	# A typed content-unavailability becomes a recoverable BUNDLE_CONTENT_INCOMPATIBLE so
+	# _prepare_restore can try an earlier whole bundle; anything else is a hard failure.
+	var content_codes := ["NARRATIVE_CONTENT_UNAVAILABLE", "LOCALIZATION_CONTENT_UNAVAILABLE",
+		"AUDIO_CONTENT_UNAVAILABLE", "ROUTE_CONTENT_UNAVAILABLE", "BUNDLE_CONTENT_INCOMPATIBLE"]
+	if str(failure.get("code", "")) in content_codes:
+		return {"ok": false, "code": &"BUNDLE_CONTENT_INCOMPATIBLE", "message": "",
+			"details": {"participant_id": participant_id, "cause": failure.get("details", {}), "checkpoint_sequence": sequence}}
+	return failure
 
 func _delete(locator: Dictionary) -> Dictionary:
 	if locator.is_empty():
