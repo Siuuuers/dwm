@@ -78,19 +78,33 @@ check-in anchors are diegetic desktop events, not Observer mechanics.
 
 ## 7. Priscilla–Lavinia counted-window model
 
-A counted window (Events 13, 14) resolves one of four ways:
+REFINED 2026-07-21 (dwm-p2r.6 grilling). A counted window (Events 13, 14) turns on
+one rule: **did Angela solo-date either woman that window?**
 
-1. **Group** — Angela scheduled and attends. Counts.
-2. **Missed** — the group date was on the table but Angela stood them up; the pair
-   meets without her, guilt flavor (next-day guilt messages). Counts.
-3. **Private** — Angela scheduled neither woman; the pair meets, neutral flavor
-   (a variation similar in shape to Missed, without the broken promise). Counts.
-4. **Prevented** — Angela solo-dates one of the pair in the window; no meeting.
-   Counts nothing.
+- **Angela solo-dated one of the pair** → **Prevented**: that friend's solo offer
+  was read to schedule it, so the group offer never forms and the pair does not
+  meet. **Counts nothing.**
+- **Angela solo-dated neither** → the pair meets and the window **always counts**;
+  only the flavor and visibility differ, driven by the group-offer state:
+  1. **Group** — the group offer generated, Angela accepted and attends. Counts, visible.
+  2. **Missed** — the group offer generated and was accepted, but Angela stood them
+     up; the pair meets without her, guilt flavor (next-day guilt messages). Counts, visible.
+  3. **Private (visible)** — the group offer generated and **both** participants'
+     group messages were left **unread**; the pair meets, neutral flavor. Counts,
+     visible scene.
+  4. **Private (offscreen)** — the group offer **never generated** (e.g. fewer than
+     three Minesweeper rounds, so no group message exists); the pair still meets on
+     their own, but **the player sees no scene**. **Counts**, invisibly.
 
-All three occurring versions are **audience-visible scenes**, and each marks the
-playthrough's drawn state/tone combination **seen** — subject to §10's witnessing
-rule. The umbrella pickup never counts and never marks seen.
+Visibility rule: the three group-offer-generated outcomes (Group, Missed, visible
+Private) are **audience-visible scenes** and mark the drawn state/tone combination
+**seen** (subject to §10's witnessing rule). Offscreen Private counts toward the
+pair counter but shows no scene and marks nothing seen. The umbrella pickup never
+counts and never marks seen.
+
+Epilogue threshold is unchanged: `ending.priscilla_lavinia` requires the pair
+counter to reach **2** — Angela solo-dated neither woman on **both** Day 2 and
+Day 6, so the pair met (in some flavor) both windows.
 
 ## 8. Sylvia Special — trigger and content
 
@@ -159,3 +173,24 @@ dwm-p2r.4, .5, and .10 are unaffected and proceed. Retired spec to strip during
 reconciliation: true-path ending identities and chain rule, missed-only pair
 counting, "Special Sylvia first" as previously worded, `ending_*_true` /
 `date_challenge_true` as ending-tier audio.
+
+## 13. Contacts & invitations — dwm-p2r.6 refinements (2026-07-21 grilling)
+
+Two refinements from the dwm-p2r.6 grilling, to be reconciled into
+`prompt_docs/requirements/contacts_invitations.md`:
+
+**Nevermind scope (amends req.invitation.solo).** At day resolution the single
+`nevermind` message fires for **any un-replied solo offer** — whether it was
+**unread** (never opened) or **opened but unanswered**. The earlier wording
+("only for an opened unanswered offer") is superseded. The only silent solo case
+is **superseded** (a group invitation generated that day suppresses the pair's
+solo offers). A **replied** offer is never a nevermind (it is schedulable, or a
+missed invitation if accepted-but-unscheduled).
+
+**Contact history model.** Contact history is an append-only per-friend log with
+monotonic sequence watermarks (the highest sequence per friend). Generating a
+message appends at the next sequence; re-generating at an existing sequence is a
+no-op, which is what makes generation idempotent and the history cleanly
+restorable through the save system. Solo offers move unread → reply_required →
+replied, or become superseded. See §7 for the Priscilla–Lavinia four-way window
+this history drives.
