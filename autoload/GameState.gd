@@ -702,6 +702,23 @@ func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
 	return _CONTACT_INVITATION_STATE.get_contact_view(contacts, friend_id, d)
 
 
+func reply_invitation(friend_id: String, command_id: String) -> Dictionary:
+	# Facade command (dwm-p2r.6): reply to a friend's active offer. command_id is the
+	# module transaction id, so a duplicate command replays idempotently. The candidate
+	# apply is atomic (single assignment); autosave-checkpoint wiring arrives with the
+	# day-resolution de-stub in Phase 2R-7.
+	if command_id.is_empty():
+		return {"ok": false, "code": &"invalid_command_id", "message": "command_id is required"}
+	if contacts["transaction_receipts"].has(command_id):
+		return {"ok": true, "code": &"ok", "value": {"receipt": contacts["transaction_receipts"][command_id], "replayed": true}}
+	var result: Dictionary = _CONTACT_INVITATION_STATE.prepare_reply(contacts, friend_id, day, command_id)
+	if not result.get("ok", false):
+		return result
+	contacts = result["value"]["candidate"]
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok", "value": {"receipt": result["receipt"], "replayed": false}}
+
+
 func choose_contact_option(friend_id: String, choice_id: String) -> Dictionary:
 	# Group reply-order gate (FLOWS §5.1): if this is the non-inviter replying before the
 	# inviter has replied, block.

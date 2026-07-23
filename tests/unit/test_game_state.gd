@@ -308,3 +308,21 @@ func test_new_run_snapshot_input_carries_contacts_defaults() -> void:
 	var section: Dictionary = prepared["value"]["snapshot_input"]["contacts"]
 	assert_eq(int(section["next_sequence"]), 1, "new-run contacts is a valid stateless defaults bag, not {}")
 	assert_eq(str(section["group_action"]["state"]), "INACTIVE")
+
+func test_reply_invitation_command_applies_and_is_idempotent() -> void:
+	GameState.reset_game()
+	var mod: Script = load(_CONTACTS_MODULE)
+	# Seed an opened solo offer directly via the module (the open_contact command lands later).
+	GameState.contacts = mod.prepare_offer_solo(GameState.contacts, "priscilla", 1, "m1", "seed-offer")["value"]["candidate"]
+	GameState.contacts = mod.prepare_open_contact(GameState.contacts, "priscilla", 1, "seed-open")["value"]["candidate"]
+	var r1: Dictionary = GameState.reply_invitation("priscilla", "cmd-reply-1")
+	assert_true(r1.get("ok", false), "reply command succeeds")
+	assert_false(r1["value"]["replayed"], "first call is not a replay")
+	assert_true(mod.is_date_addable(GameState.contacts, "solo:priscilla:day1"), "reply makes the date addable")
+	var r2: Dictionary = GameState.reply_invitation("priscilla", "cmd-reply-1")
+	assert_true(r2.get("ok", false))
+	assert_true(r2["value"]["replayed"], "same command_id replays idempotently, no double effect")
+
+func test_reply_invitation_rejects_empty_command_id() -> void:
+	GameState.reset_game()
+	assert_false(GameState.reply_invitation("priscilla", "").get("ok", true), "command_id is required")
