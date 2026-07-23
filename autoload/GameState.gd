@@ -128,6 +128,7 @@ signal save_relevant_state_changed()
 const _RUN_LIFECYCLE_SCRIPT := preload("res://scripts/domain/run/RunLifecycle.gd")
 const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
 const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
+const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
 var _mutation_gate: Object = null
@@ -153,6 +154,10 @@ var missed_group_date_counts: Dictionary
 
 var contact_message_unlocks: Dictionary
 var contact_choice_state: Dictionary
+## Stateless contact/invitation state bag (dwm-p2r.6). Its own top-level run-snapshot
+## section (never the gameplay bag); mutated only by the facade command methods via
+## ContactInvitationState.prepare_* and persisted as the snapshot `contacts` section.
+var contacts: Dictionary
 var date_unlocks: Dictionary
 # reserved/opaque — declared (CONTRACTS §2) + serialized by SaveManager (§6); NO behavior may be added.
 var post_ending_queue: Array
@@ -225,6 +230,7 @@ func reset_game() -> void:
 
 	contact_message_unlocks = {}
 	contact_choice_state = {}
+	contacts = _CONTACT_INVITATION_STATE.make_defaults()
 	date_unlocks = {}
 	post_ending_queue = []
 	missed_invitations = []
@@ -688,6 +694,12 @@ func is_contact_choice_selected(friend_id: String, target_day: int = -1) -> bool
 
 func get_contact_choices(friend_id: String, target_day: int = -1) -> Array:
 	return []
+
+
+func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
+	# Player-visible contact history for a friend (dwm-p2r.6); delegates to the pure module.
+	var d: int = target_day if target_day >= 0 else day
+	return _CONTACT_INVITATION_STATE.get_contact_view(contacts, friend_id, d)
 
 
 func choose_contact_option(friend_id: String, choice_id: String) -> Dictionary:

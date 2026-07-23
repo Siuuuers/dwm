@@ -264,3 +264,22 @@ func test_resolve_day7_not_day7_returns_epilogue_key() -> void:
 	var r := GameState.resolve_day7_ending()
 	assert_false(r["ok"])
 	assert_eq(r["epilogue_ending_id"], "", "non-day7 returns epilogue key for schema stability")
+
+
+# ---- dwm-p2r.6 facade: contacts state-home + read delegation ----
+
+const _CONTACTS_MODULE := "res://scripts/domain/contact/ContactInvitationState.gd"
+
+func test_contacts_bag_resets_to_stateless_defaults() -> void:
+	GameState.reset_game()
+	assert_eq(int(GameState.contacts["next_sequence"]), 1)
+	assert_eq((GameState.contacts["messages"]["priscilla"] as Array).size(), 0)
+	assert_eq(str(GameState.contacts["group_action"]["state"]), "INACTIVE")
+
+func test_get_contact_view_delegates_to_module() -> void:
+	GameState.reset_game()
+	var mod: Script = load(_CONTACTS_MODULE)
+	GameState.contacts = mod.prepare_offer_solo(GameState.contacts, "priscilla", 1, "m1", "tx1")["value"]["candidate"]
+	GameState.contacts = mod.prepare_open_contact(GameState.contacts, "priscilla", 1, "tx2")["value"]["candidate"]
+	var view: Dictionary = GameState.get_contact_view("priscilla", 1)
+	assert_eq((view["messages"] as Array).size(), 1, "the opened solo offer is visible in the contact view")
