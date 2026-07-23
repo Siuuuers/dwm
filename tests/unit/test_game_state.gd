@@ -404,3 +404,15 @@ func test_g1_minesweeper_round_generates_module_solo_offer() -> void:
 	GameState.finish_minesweeper_app_round({"context": "app"})
 	var mod: Script = load(_CONTACTS_MODULE)
 	assert_eq(mod.get_unread_count(GameState.contacts, "priscilla", 1), 1, "round 1 on day 1 generates priscilla's unread module offer")
+
+func test_g2_round3_activates_module_group_on_group_day() -> void:
+	# G2 (dwm-p2r.6): the 3rd Minesweeper round of a group day activates the module group
+	# (canon: activation is round-triggered, not contact-open triggered).
+	GameState.reset_game()
+	GameState._lifecycle_set_playing_day(2)
+	GameState.finish_minesweeper_app_round({"context": "app"})  # round 1 -> priscilla offer
+	GameState.finish_minesweeper_app_round({"context": "app"})  # round 2 -> lavinia offer
+	assert_eq(str(GameState.contacts["group_action"]["state"]), "INACTIVE", "not active before round 3")
+	GameState.finish_minesweeper_app_round({"context": "app"})  # round 3 -> activate
+	assert_eq(str(GameState.contacts["group_action"]["state"]), "AVAILABLE_UNOPENED", "3rd round activates the module group")
+	assert_eq(str(GameState.contacts["group_action"]["action_id"]), "group:priscilla_lavinia:day2")
