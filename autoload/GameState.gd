@@ -1605,7 +1605,7 @@ func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
 			"ending_plan": null,
 		},
 		"gameplay": gameplay,
-		"contacts": {},
+		"contacts": _CONTACT_INVITATION_STATE.make_defaults(),
 		"schedule": [],
 		"dating": {},
 		"applied_effect_transaction_ids": [],
@@ -1692,6 +1692,7 @@ func capture_restore_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"gameplay": to_save_dict(),
 		"lifecycle": _run_lifecycle.to_dict(),
+		"contacts": contacts.duplicate(true),
 	}}}
 
 
@@ -1712,7 +1713,15 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		return restored
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	_apply_gameplay_silent((source as Dictionary)["gameplay"])
+	_restore_contacts_section((source as Dictionary).get("contacts"))
 	return {"ok": true, "code": &"ok"}
+
+
+func _restore_contacts_section(saved: Variant) -> void:
+	# The contacts section restores only when a real stateless bag is present; an
+	# empty/legacy {} section leaves the reset defaults intact.
+	if typeof(saved) == TYPE_DICTIONARY and (saved as Dictionary).has("messages"):
+		contacts = (saved as Dictionary).duplicate(true)
 
 
 func finalize_restore() -> Dictionary:
@@ -1729,6 +1738,7 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	if typeof(snapshot.get("gameplay")) == TYPE_DICTIONARY:
 		_apply_gameplay_silent(snapshot["gameplay"])
+	_restore_contacts_section(snapshot.get("contacts"))
 	return {"ok": true, "code": &"ok"}
 
 

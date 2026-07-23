@@ -283,3 +283,28 @@ func test_get_contact_view_delegates_to_module() -> void:
 	GameState.contacts = mod.prepare_open_contact(GameState.contacts, "priscilla", 1, "tx2")["value"]["candidate"]
 	var view: Dictionary = GameState.get_contact_view("priscilla", 1)
 	assert_eq((view["messages"] as Array).size(), 1, "the opened solo offer is visible in the contact view")
+
+func test_contacts_survive_capture_and_rollback() -> void:
+	GameState.reset_game()
+	var mod: Script = load(_CONTACTS_MODULE)
+	GameState.contacts = mod.prepare_offer_solo(GameState.contacts, "priscilla", 1, "m1", "tx1")["value"]["candidate"]
+	var backup: Dictionary = GameState.capture_restore_state()["value"]["backup"]
+	GameState.contacts = mod.make_defaults()
+	GameState.rollback_restore_silent(backup)
+	assert_eq((GameState.contacts["messages"]["priscilla"] as Array).size(), 1, "rollback restores the contacts section")
+
+func test_contacts_restored_from_run_snapshot() -> void:
+	GameState.reset_game()
+	var mod: Script = load(_CONTACTS_MODULE)
+	var populated: Dictionary = mod.prepare_offer_solo(mod.make_defaults(), "lavinia", 1, "m1", "tx1")["value"]["candidate"]
+	var snapshot: Dictionary = {"lifecycle": GameState._run_lifecycle.to_dict(), "gameplay": {}, "contacts": populated}
+	GameState._apply_run_snapshot_silent(snapshot)
+	assert_eq((GameState.contacts["messages"]["lavinia"] as Array).size(), 1, "snapshot contacts section restores into GameState")
+
+func test_new_run_snapshot_input_carries_contacts_defaults() -> void:
+	GameState.reset_game()
+	var prepared: Dictionary = GameState.prepare_new_run_snapshot_input("run-facade-f2")
+	assert_true(prepared.get("ok", false), "valid run id prepares")
+	var section: Dictionary = prepared["value"]["snapshot_input"]["contacts"]
+	assert_eq(int(section["next_sequence"]), 1, "new-run contacts is a valid stateless defaults bag, not {}")
+	assert_eq(str(section["group_action"]["state"]), "INACTIVE")
