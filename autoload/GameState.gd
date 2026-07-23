@@ -780,7 +780,8 @@ func is_date_unlocked(friend_id: String, target_day: int = -1) -> bool:
 	var d: int = target_day if target_day >= 0 else day
 	if d == 7:
 		return is_contact_message_unlocked(friend_id, 7) and get_affection_tier(friend_id) in ["ambiguous", "love"]
-	return bool(date_unlocks.get("day:%d:friend:%s" % [d, friend_id], false))
+	# dwm-p2r.6: a solo date is addable once its module offer reaches ACCEPTED (reply).
+	return _CONTACT_INVITATION_STATE.is_date_addable(contacts, "solo:%s:day%d" % [friend_id, d])
 
 
 func build_date_entry_from_unlock(friend_id: String, target_day: int = -1) -> Dictionary:
