@@ -341,3 +341,49 @@ func test_resolve_invitations_for_day_command_resolves_and_is_idempotent() -> vo
 func test_resolve_invitations_for_day_rejects_empty_command_id() -> void:
 	GameState.reset_game()
 	assert_false(GameState.resolve_invitations_for_day({"solo_attended_action_ids": []}, "").get("ok", true))
+
+# ---- dwm-p2r.6: characterization of the LEGACY contact flow (pre-migration safety net) ----
+# These document the CURRENT behavior of the old dict-based flow so the module
+# migration can be verified to preserve it. Not aspirational — they capture what IS.
+
+func test_legacy_solo_open_choose_unlocks_date_on_invitation_day() -> void:
+	GameState.reset_game()
+	assert_eq(GameState.day, 1)
+	assert_true(GameState.is_invitation_day("priscilla", 1))
+	GameState.open_contact("priscilla")
+	var r: Dictionary = GameState.choose_contact_option("priscilla", "accept")
+	assert_true(r["ok"])
+	assert_true(GameState.is_date_unlocked("priscilla", 1), "reply on invitation day unlocks the solo date")
+
+func test_legacy_choose_on_non_invitation_day_does_not_unlock() -> void:
+	GameState.reset_game()
+	assert_false(GameState.is_invitation_day("lavinia", 1))
+	GameState.open_contact("lavinia")
+	GameState.choose_contact_option("lavinia", "accept")
+	assert_false(GameState.is_date_unlocked("lavinia", 1), "no phantom unlock off the invitation day")
+
+func test_legacy_minesweeper_round_unlocks_contact_message() -> void:
+	GameState.reset_game()
+	GameState.minesweeper_app_rounds_finished_today = 1
+	var res: Dictionary = GameState.unlock_contact_message_after_minesweeper_finished({})
+	assert_eq(res.get("friend_id", ""), "priscilla", "round 1 on day 1 targets priscilla (order[0])")
+	assert_true(GameState.is_contact_message_unlocked("priscilla", 1))
+
+func test_legacy_group_generation_and_read_offer() -> void:
+	GameState.reset_game()
+	GameState._lifecycle_set_playing_day(2)
+	GameState.minesweeper_app_rounds_finished_today = 3
+	GameState.open_contact("priscilla")
+	assert_true(GameState.daily_group_invitation_generated, "group offer generated on a group day after 3 rounds")
+	assert_eq(GameState.pending_group_date_inviter_id, "priscilla", "first pair member opened becomes inviter")
+	assert_true(GameState.read_group_offer(), "reading the group offer makes it addable")
+	assert_true(GameState.is_group_date_unlocked(2))
+
+func test_legacy_group_reply_order_gate() -> void:
+	GameState.reset_game()
+	GameState._lifecycle_set_playing_day(2)
+	GameState.minesweeper_app_rounds_finished_today = 3
+	GameState.open_contact("priscilla")
+	var non_inviter: Dictionary = GameState.choose_contact_option("lavinia", "accept")
+	assert_false(non_inviter["ok"], "non-inviter cannot reply before the inviter")
+	assert_eq(non_inviter.get("reason", ""), "need_reply_inviter_first")
