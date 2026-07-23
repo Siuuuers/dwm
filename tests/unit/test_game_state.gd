@@ -326,3 +326,18 @@ func test_reply_invitation_command_applies_and_is_idempotent() -> void:
 func test_reply_invitation_rejects_empty_command_id() -> void:
 	GameState.reset_game()
 	assert_false(GameState.reply_invitation("priscilla", "").get("ok", true), "command_id is required")
+
+func test_resolve_invitations_for_day_command_resolves_and_is_idempotent() -> void:
+	GameState.reset_game()
+	var mod: Script = load(_CONTACTS_MODULE)
+	GameState.contacts = mod.prepare_offer_solo(GameState.contacts, "priscilla", 1, "m1", "seed-offer")["value"]["candidate"]
+	var r1: Dictionary = GameState.resolve_invitations_for_day({"solo_attended_action_ids": []}, "cmd-resolve-1")
+	assert_true(r1.get("ok", false), "resolve command succeeds")
+	assert_eq(GameState.contacts["solo_actions"]["solo:priscilla:day1"]["state"], "RESOLVED_UNANSWERED")
+	assert_eq(r1["value"]["receipt"]["kind"], "resolve_day_end")
+	var r2: Dictionary = GameState.resolve_invitations_for_day({"solo_attended_action_ids": []}, "cmd-resolve-1")
+	assert_true(r2["value"]["replayed"], "same command_id replays idempotently")
+
+func test_resolve_invitations_for_day_rejects_empty_command_id() -> void:
+	GameState.reset_game()
+	assert_false(GameState.resolve_invitations_for_day({"solo_attended_action_ids": []}, "").get("ok", true))

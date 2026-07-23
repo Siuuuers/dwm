@@ -719,6 +719,22 @@ func reply_invitation(friend_id: String, command_id: String) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"receipt": result["receipt"], "replayed": false}}
 
 
+func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary:
+	# Facade command (dwm-p2r.6): resolve every solo/group action at day end. Applies the
+	# contacts state transitions + queued messages; the receipt carries counter_deltas,
+	# deferred_twofriends, and the PL window for the day-resolution flow to route (Phase 2R-7).
+	if command_id.is_empty():
+		return {"ok": false, "code": &"invalid_command_id", "message": "command_id is required"}
+	if contacts["transaction_receipts"].has(command_id):
+		return {"ok": true, "code": &"ok", "value": {"receipt": contacts["transaction_receipts"][command_id], "replayed": true}}
+	var result: Dictionary = _CONTACT_INVITATION_STATE.prepare_resolve_day_end(contacts, day, attendance, command_id)
+	if not result.get("ok", false):
+		return result
+	contacts = result["value"]["candidate"]
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok", "value": {"receipt": result["receipt"], "replayed": false}}
+
+
 func choose_contact_option(friend_id: String, choice_id: String) -> Dictionary:
 	# Group reply-order gate (FLOWS §5.1): if this is the non-inviter replying before the
 	# inviter has replied, block.
