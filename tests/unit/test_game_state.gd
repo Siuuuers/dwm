@@ -387,3 +387,12 @@ func test_legacy_group_reply_order_gate() -> void:
 	var non_inviter: Dictionary = GameState.choose_contact_option("lavinia", "accept")
 	assert_false(non_inviter["ok"], "non-inviter cannot reply before the inviter")
 	assert_eq(non_inviter.get("reason", ""), "need_reply_inviter_first")
+
+func test_migration_bridge_backfills_module_on_legacy_solo_flow() -> void:
+	# Migration bridge: the legacy open/choose now also drive the module contacts bag to ACCEPTED,
+	# while the legacy observables stay identical (verified by the characterization tests above).
+	GameState.reset_game()
+	GameState.open_contact("priscilla")
+	GameState.choose_contact_option("priscilla", "accept")
+	var mod: Script = load(_CONTACTS_MODULE)
+	assert_true(mod.is_date_addable(GameState.contacts, "solo:priscilla:day1"), "legacy solo flow backfills the module bag to ACCEPTED")

@@ -606,6 +606,7 @@ func open_contact(friend_id: String) -> void:
 	# and the friend being opened now becomes the inviter.
 	_maybe_generate_group_invitation(friend_id)
 	daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
+	_bridge_populate_solo_offer(friend_id)
 	emit_signal("chat_changed", friend_id)
 	emit_signal("save_relevant_state_changed")
 
@@ -702,6 +703,22 @@ func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
 	return _CONTACT_INVITATION_STATE.get_contact_view(contacts, friend_id, d)
 
 
+func _bridge_populate_solo_offer(friend_id: String) -> void:
+	# Migration bridge (dwm-p2r.6): mirror a legacy contact open into the module contacts bag
+	# (generate + open the solo offer) so the bag reflects real gameplay. Idempotent per
+	# friend/day via stable transaction ids; legacy readers switch to the bag in a later step.
+	if not is_invitation_day(friend_id):
+		return
+	var offered: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
+		contacts, friend_id, day, "solo:%s:day%d" % [friend_id, day], "offer:%s:day%d" % [friend_id, day])
+	if offered.get("ok", false):
+		contacts = offered["value"]["candidate"]
+	var opened: Dictionary = _CONTACT_INVITATION_STATE.prepare_open_contact(
+		contacts, friend_id, day, "open:%s:day%d" % [friend_id, day])
+	if opened.get("ok", false):
+		contacts = opened["value"]["candidate"]
+
+
 func reply_invitation(friend_id: String, command_id: String) -> Dictionary:
 	# Facade command (dwm-p2r.6): reply to a friend's active offer. command_id is the
 	# module transaction id, so a duplicate command replays idempotently. The candidate
@@ -751,6 +768,10 @@ func choose_contact_option(friend_id: String, choice_id: String) -> Dictionary:
 	if is_invitation_day(friend_id):
 		date_unlocks["day:%d:friend:%s" % [day, friend_id]] = true
 		emit_signal("date_unlocks_changed")
+		# Migration bridge (dwm-p2r.6): mirror the reply into the module bag when its offer exists.
+		var replied: Dictionary = _CONTACT_INVITATION_STATE.prepare_reply(contacts, friend_id, day, "reply:%s:day%d" % [friend_id, day])
+		if replied.get("ok", false):
+			contacts = replied["value"]["candidate"]
 	emit_signal("save_relevant_state_changed")
 	return {"ok": true, "friend_id": friend_id, "choice_id": choice_id}
 
