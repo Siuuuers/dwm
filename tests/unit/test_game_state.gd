@@ -396,3 +396,11 @@ func test_migration_bridge_backfills_module_on_legacy_solo_flow() -> void:
 	GameState.choose_contact_option("priscilla", "accept")
 	var mod: Script = load(_CONTACTS_MODULE)
 	assert_true(mod.is_date_addable(GameState.contacts, "solo:priscilla:day1"), "legacy solo flow backfills the module bag to ACCEPTED")
+
+func test_g1_minesweeper_round_generates_module_solo_offer() -> void:
+	# G1 (dwm-p2r.6): finishing a Minesweeper round mirrors the daily-message unlock into a
+	# module solo offer, so pair solos exist in the bag by round 3 (for group activation).
+	GameState.reset_game()
+	GameState.finish_minesweeper_app_round({"context": "app"})
+	var mod: Script = load(_CONTACTS_MODULE)
+	assert_eq(mod.get_unread_count(GameState.contacts, "priscilla", 1), 1, "round 1 on day 1 generates priscilla's unread module offer")

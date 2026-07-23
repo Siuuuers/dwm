@@ -678,6 +678,12 @@ func unlock_contact_message_after_minesweeper_finished(result: Dictionary) -> Di
 		return {}
 	var key: String = "day:%d:friend:%s" % [day, friend]
 	contact_message_unlocks[key] = true
+	# Migration bridge (dwm-p2r.6, G1): mirror the daily-message unlock into a module solo offer
+	# so pair solos exist in the bag by round 3 for group activation. Idempotent per friend/day.
+	var offered: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
+		contacts, friend, day, "solo:%s:day%d" % [friend, day], "offer:%s:day%d" % [friend, day])
+	if offered.get("ok", false):
+		contacts = offered["value"]["candidate"]
 	emit_signal("contact_message_unlocked", {"friend_id": friend, "day": day})
 	emit_signal("save_relevant_state_changed")
 	return {"friend_id": friend, "day": day}
