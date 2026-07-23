@@ -430,3 +430,18 @@ func test_g3_contact_open_assigns_group_inviter_via_module() -> void:
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "REPLY_REQUIRED")
 	GameState.open_contact("lavinia")
 	assert_eq((GameState.contacts["group_action"]["opened_ids"] as Array), ["priscilla", "lavinia"], "second open adds the participant")
+
+func test_g4_group_reply_routes_to_module_with_gate() -> void:
+	# G4 (dwm-p2r.6): choosing on a group day routes to the module group reply; the reply-order
+	# gate blocks the non-inviter until the inviter has replied.
+	GameState.reset_game()
+	GameState._lifecycle_set_playing_day(2)
+	for _i in 3:
+		GameState.finish_minesweeper_app_round({"context": "app"})
+	GameState.open_contact("priscilla")
+	var blocked: Dictionary = GameState.choose_contact_option("lavinia", "accept")
+	assert_false(blocked["ok"], "non-inviter is blocked before the inviter replies")
+	assert_eq(str(GameState.contacts["group_action"]["state"]), "REPLY_REQUIRED", "module group unchanged while blocked")
+	GameState.choose_contact_option("priscilla", "accept")
+	assert_eq(str(GameState.contacts["group_action"]["state"]), "ACCEPTED", "inviter reply accepts the module group")
+	assert_true(GameState.contacts["group_action"]["replied_ids"].has("priscilla"))
