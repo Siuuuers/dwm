@@ -838,11 +838,9 @@ func read_group_offer(target_day: int = -1) -> bool:
 
 
 func is_group_date_unlocked(target_day: int = -1) -> bool:
-	if daily_group_invitation_pair.size() < 2:
-		return false
+	# dwm-p2r.6 canon: the group date is schedulable once the module group is ACCEPTED (replied).
 	var d: int = target_day if target_day >= 0 else day
-	var key: String = "day:%d:group:%s" % [d, _sorted_pair_key(daily_group_invitation_pair[0], daily_group_invitation_pair[1])]
-	return bool(date_unlocks.get(key, false))
+	return _CONTACT_INVITATION_STATE.is_date_addable(contacts, "group:%s:day%d" % [_CONTACT_INVITATION_STATE.GROUP_PAIR_KEY, d])
 
 
 func build_group_date_entry_from_unlock(target_day: int = -1) -> Dictionary:

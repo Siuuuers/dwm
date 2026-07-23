@@ -369,24 +369,19 @@ func test_legacy_minesweeper_round_unlocks_contact_message() -> void:
 	assert_eq(res.get("friend_id", ""), "priscilla", "round 1 on day 1 targets priscilla (order[0])")
 	assert_true(GameState.is_contact_message_unlocked("priscilla", 1))
 
-func test_legacy_group_generation_and_read_offer() -> void:
+func test_group_addable_only_after_reply_canon() -> void:
+	# CANON (dwm-p2r.6, replaces the legacy read-makes-addable behavior): the group activates on
+	# round 3, opening a pair member assigns the module inviter, and the date becomes schedulable
+	# ONLY after a reply. The reply-order gate (g4) and open/inviter (g3) are covered separately.
 	GameState.reset_game()
 	GameState._lifecycle_set_playing_day(2)
-	GameState.minesweeper_app_rounds_finished_today = 3
+	for _i in 3:
+		GameState.finish_minesweeper_app_round({"context": "app"})
 	GameState.open_contact("priscilla")
-	assert_true(GameState.daily_group_invitation_generated, "group offer generated on a group day after 3 rounds")
-	assert_eq(GameState.pending_group_date_inviter_id, "priscilla", "first pair member opened becomes inviter")
-	assert_true(GameState.read_group_offer(), "reading the group offer makes it addable")
-	assert_true(GameState.is_group_date_unlocked(2))
-
-func test_legacy_group_reply_order_gate() -> void:
-	GameState.reset_game()
-	GameState._lifecycle_set_playing_day(2)
-	GameState.minesweeper_app_rounds_finished_today = 3
-	GameState.open_contact("priscilla")
-	var non_inviter: Dictionary = GameState.choose_contact_option("lavinia", "accept")
-	assert_false(non_inviter["ok"], "non-inviter cannot reply before the inviter")
-	assert_eq(non_inviter.get("reason", ""), "need_reply_inviter_first")
+	assert_eq(str(GameState.contacts["group_action"]["inviter_id"]), "priscilla", "first pair member opened is the module inviter")
+	assert_false(GameState.is_group_date_unlocked(2), "canon: NOT addable before a reply")
+	GameState.choose_contact_option("priscilla", "accept")
+	assert_true(GameState.is_group_date_unlocked(2), "canon: addable once the group is replied (ACCEPTED)")
 
 func test_migration_bridge_backfills_module_on_legacy_solo_flow() -> void:
 	# Migration bridge: the legacy open/choose now also drive the module contacts bag to ACCEPTED,
