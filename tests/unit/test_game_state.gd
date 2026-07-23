@@ -416,3 +416,17 @@ func test_g2_round3_activates_module_group_on_group_day() -> void:
 	GameState.finish_minesweeper_app_round({"context": "app"})  # round 3 -> activate
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "AVAILABLE_UNOPENED", "3rd round activates the module group")
 	assert_eq(str(GameState.contacts["group_action"]["action_id"]), "group:priscilla_lavinia:day2")
+
+func test_g3_contact_open_assigns_group_inviter_via_module() -> void:
+	# G3 (dwm-p2r.6): after round-3 activation, opening a pair member routes through the module's
+	# group open (first open assigns inviter, second open adds the participant). No re-activation.
+	GameState.reset_game()
+	GameState._lifecycle_set_playing_day(2)
+	for _i in 3:
+		GameState.finish_minesweeper_app_round({"context": "app"})
+	assert_eq(str(GameState.contacts["group_action"]["state"]), "AVAILABLE_UNOPENED")
+	GameState.open_contact("priscilla")
+	assert_eq(str(GameState.contacts["group_action"]["inviter_id"]), "priscilla", "first pair member opened is the inviter")
+	assert_eq(str(GameState.contacts["group_action"]["state"]), "REPLY_REQUIRED")
+	GameState.open_contact("lavinia")
+	assert_eq((GameState.contacts["group_action"]["opened_ids"] as Array), ["priscilla", "lavinia"], "second open adds the participant")
