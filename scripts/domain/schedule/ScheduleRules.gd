@@ -38,6 +38,14 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 	var registered: Array = eligibility.get("registered_action_ids", [])
 	if action_id.is_empty() or action_id not in registered:
 		return _fail(&"unregistered_action", action_id)
+	if day == 7:
+		# The candidate, the day7_candidate, and the indexed unlock receipt must agree
+		# exactly. No ID naming convention is ever treated as proof.
+		var desync := _day7_desync_reason(candidate, eligibility)
+		if not desync.is_empty():
+			return _fail(&"day7_candidate_not_synchronized", desync)
+	elif candidate.get("unlock_receipt_id") != null:
+		return _fail(&"unexpected_unlock_receipt", "only a Day-7 date carries an unlock receipt")
 	for entry: Dictionary in existing:
 		if str(entry.get("action_id", "")) == action_id:
 			return _fail(&"duplicate_entry", action_id)
@@ -51,6 +59,44 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 		if date_count + 1 > max_dates_for_day(day):
 			return _fail(&"too_many_dates", "day %d allows %d date(s)" % [day, max_dates_for_day(day)])
 	return {"ok": true, "code": &"ok"}
+
+static func _day7_desync_reason(candidate: Dictionary, eligibility: Dictionary) -> String:
+	# Returns "" when every link of the Day-7 evidence chain matches, else why it broke.
+	var day7: Variant = eligibility.get("day7_candidate")
+	if typeof(day7) != TYPE_DICTIONARY:
+		return "day 7 requires a day7_candidate"
+	var receipt_id := str(candidate.get("unlock_receipt_id", ""))
+	if receipt_id.is_empty():
+		return "a Day-7 date requires an unlock receipt id"
+	var friend_ids: Array = candidate.get("friend_ids", [])
+	if friend_ids.size() != 1:
+		return "a Day-7 date names exactly one friend"
+	var friend_id := str(friend_ids[0])
+	var action_id := str(candidate.get("action_id", ""))
+	var offered := day7 as Dictionary
+	if str(offered.get("action_id", "")) != action_id \
+			or str(offered.get("friend_id", "")) != friend_id \
+			or str(offered.get("unlock_receipt_id", "")) != receipt_id:
+		return "candidate does not match the offered day7_candidate"
+	var index: Variant = eligibility.get("receipt_index")
+	if typeof(index) != TYPE_DICTIONARY or not (index as Dictionary).has(receipt_id):
+		return "no indexed unlock receipt for " + receipt_id
+	var raw: Variant = (index as Dictionary)[receipt_id]
+	if typeof(raw) != TYPE_DICTIONARY:
+		return "malformed receipt record"
+	var record := raw as Dictionary
+	if str(record.get("receipt_id", "")) != receipt_id:
+		return "receipt map key must equal receipt_id"
+	if str(record.get("kind", "")) != "day7_unlock":
+		return "receipt kind must be day7_unlock"
+	if int(record.get("day", -1)) != 7:
+		return "receipt day must be 7"
+	if record.get("previous_receipt_id") != null:
+		return "an unlock receipt starts the chain"
+	if str(record.get("action_id", "")) != action_id or str(record.get("friend_id", "")) != friend_id:
+		return "receipt record does not match the candidate"
+	return ""
+
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}

@@ -77,3 +77,56 @@ func test_candidate_rejected_for_unregistered_action() -> void:
 	var candidate: Dictionary = _solo_entry("priscilla", 3)
 	assert_false(rules.validate_candidate([], candidate, 3, 6, _eligibility([])).get("ok", false),
 		"an action id outside the registered set is rejected")
+
+func test_day7_candidate_requires_matching_unlock_receipt_record() -> void:
+	# Day 7 accepts a date only when the candidate, the day7_candidate, and the indexed
+	# unlock receipt agree exactly. No ID naming convention counts as proof.
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var candidate: Dictionary = {
+		"entry_id": "ending-sylvia-d7",
+		"slot_index": 0,
+		"day": 7,
+		"type": "solo",
+		"friend_ids": ["sylvia"],
+		"action_id": "ending-date:sylvia:day7",
+		"route_id": "dating",
+		"effect_ids": [],
+		"unlock_receipt_id": "unlock:sylvia:day7",
+	}
+	var eligibility: Dictionary = {
+		"registered_action_ids": ["ending-date:sylvia:day7"],
+		"day7_candidate": {
+			"action_id": "ending-date:sylvia:day7",
+			"friend_id": "sylvia",
+			"unlock_receipt_id": "unlock:sylvia:day7",
+		},
+		"receipt_index": {
+			"unlock:sylvia:day7": {
+				"receipt_id": "unlock:sylvia:day7",
+				"kind": "day7_unlock",
+				"action_id": "ending-date:sylvia:day7",
+				"friend_id": "sylvia",
+				"day": 7,
+				"previous_receipt_id": null,
+			}
+		},
+	}
+	assert_true(rules.validate_candidate([], candidate, 7, 6, eligibility).get("ok", false),
+		"a fully synchronized day-7 candidate is addable")
+	var mismatched: Dictionary = eligibility.duplicate(true)
+	mismatched["receipt_index"]["unlock:sylvia:day7"]["friend_id"] = "lavinia"
+	var rejected: Dictionary = rules.validate_candidate([], candidate, 7, 6, mismatched)
+	assert_false(rejected.get("ok", false), "a receipt naming a different friend is not proof")
+	assert_eq(rejected.get("code"), &"day7_candidate_not_synchronized")
+
+func test_days_one_to_six_reject_an_unlock_receipt() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var candidate: Dictionary = _solo_entry("priscilla", 3)
+	candidate["unlock_receipt_id"] = "unlock:priscilla:day3"
+	assert_false(rules.validate_candidate([], candidate, 3, 6,
+			_eligibility(["solo:priscilla:day3"])).get("ok", false),
+		"only day 7 carries an unlock receipt")
