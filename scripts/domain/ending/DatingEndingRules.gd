@@ -163,6 +163,13 @@ static func _validate_hospital_input(input: Dictionary) -> String:
 			return "unknown outcome: " + str(outcome["outcome"])
 		if typeof(outcome["friend_ids"]) != TYPE_ARRAY or (outcome["friend_ids"] as Array).is_empty():
 			return "friend_ids must be a nonempty array"
+		var friend_ids: Array = outcome["friend_ids"]
+		# One friend is a solo; two must be the canonical sorted Priscilla-Lavinia pair.
+		if friend_ids.size() == 2:
+			if [str(friend_ids[0]), str(friend_ids[1])] != ["priscilla", "lavinia"]:
+				return "a group outcome must name the canonical sorted priscilla+lavinia pair"
+		elif friend_ids.size() != 1:
+			return "an outcome names one friend (solo) or the canonical pair (group)"
 		if str(outcome["action_id"]).is_empty():
 			return "action_id must be nonempty"
 	return ""

@@ -98,3 +98,38 @@ func test_hospital_rejects_an_unknown_outcome() -> void:
 		"transaction_id": "hospital:run-1:day3",
 	})
 	assert_false(result.get("ok", true), "outcome must be a registered value")
+
+func test_hospital_rejects_a_group_outcome_with_a_non_canonical_pair() -> void:
+	# plan-04 Task 5: a group outcome must name the canonical sorted priscilla+lavinia pair.
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	var wrong_pair: Dictionary = rules.resolve_hospital_outcome({
+		"day": 2, "health": 0, "pressure": 6, "condition_effect_ids": [],
+		"scheduled_date_outcomes": [
+			{"action_id": "group:day2", "friend_ids": ["priscilla", "sylvia"], "outcome": "cancelled_by_fainting"},
+		],
+		"transaction_id": "hospital:run-1:day2",
+	})
+	assert_false(wrong_pair.get("ok", true), "a non-canonical group pair is rejected")
+	var unsorted: Dictionary = rules.resolve_hospital_outcome({
+		"day": 2, "health": 0, "pressure": 6, "condition_effect_ids": [],
+		"scheduled_date_outcomes": [
+			{"action_id": "group:day2", "friend_ids": ["lavinia", "priscilla"], "outcome": "cancelled_by_fainting"},
+		],
+		"transaction_id": "hospital:run-1:day2",
+	})
+	assert_false(unsorted.get("ok", true), "the pair must be canonically sorted")
+
+func test_hospital_rejects_three_friends_in_one_outcome() -> void:
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	var result: Dictionary = rules.resolve_hospital_outcome({
+		"day": 2, "health": 0, "pressure": 6, "condition_effect_ids": [],
+		"scheduled_date_outcomes": [
+			{"action_id": "trio:day2", "friend_ids": ["priscilla", "lavinia", "sylvia"], "outcome": "attended"},
+		],
+		"transaction_id": "hospital:run-1:day2",
+	})
+	assert_false(result.get("ok", true), "an outcome names one friend (solo) or the pair (group)")
