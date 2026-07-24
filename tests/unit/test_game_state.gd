@@ -350,7 +350,7 @@ func test_legacy_solo_open_choose_unlocks_date_on_invitation_day() -> void:
 	GameState.reset_game()
 	assert_eq(GameState.day, 1)
 	assert_true(GameState.is_invitation_day("priscilla", 1))
-	GameState.open_contact("priscilla")
+	GameState.open_contact("priscilla", "open-priscilla")
 	var r: Dictionary = GameState.choose_contact_option("priscilla", "accept")
 	assert_true(r["ok"])
 	assert_true(GameState.is_date_unlocked("priscilla", 1), "reply on invitation day unlocks the solo date")
@@ -358,7 +358,7 @@ func test_legacy_solo_open_choose_unlocks_date_on_invitation_day() -> void:
 func test_legacy_choose_on_non_invitation_day_does_not_unlock() -> void:
 	GameState.reset_game()
 	assert_false(GameState.is_invitation_day("lavinia", 1))
-	GameState.open_contact("lavinia")
+	GameState.open_contact("lavinia", "open-lavinia")
 	GameState.choose_contact_option("lavinia", "accept")
 	assert_false(GameState.is_date_unlocked("lavinia", 1), "no phantom unlock off the invitation day")
 
@@ -377,7 +377,7 @@ func test_group_addable_only_after_reply_canon() -> void:
 	GameState._lifecycle_set_playing_day(2)
 	for _i in 3:
 		GameState.finish_minesweeper_app_round({"context": "app"})
-	GameState.open_contact("priscilla")
+	GameState.open_contact("priscilla", "open-priscilla")
 	assert_eq(str(GameState.contacts["group_action"]["inviter_id"]), "priscilla", "first pair member opened is the module inviter")
 	assert_false(GameState.is_group_date_unlocked(2), "canon: NOT addable before a reply")
 	GameState.choose_contact_option("priscilla", "accept")
@@ -387,7 +387,7 @@ func test_migration_bridge_backfills_module_on_legacy_solo_flow() -> void:
 	# Migration bridge: the legacy open/choose now also drive the module contacts bag to ACCEPTED,
 	# while the legacy observables stay identical (verified by the characterization tests above).
 	GameState.reset_game()
-	GameState.open_contact("priscilla")
+	GameState.open_contact("priscilla", "open-priscilla")
 	GameState.choose_contact_option("priscilla", "accept")
 	var mod: Script = load(_CONTACTS_MODULE)
 	assert_true(mod.is_date_addable(GameState.contacts, "solo:priscilla:day1"), "legacy solo flow backfills the module bag to ACCEPTED")
@@ -420,10 +420,10 @@ func test_g3_contact_open_assigns_group_inviter_via_module() -> void:
 	for _i in 3:
 		GameState.finish_minesweeper_app_round({"context": "app"})
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "AVAILABLE_UNOPENED")
-	GameState.open_contact("priscilla")
+	GameState.open_contact("priscilla", "open-priscilla")
 	assert_eq(str(GameState.contacts["group_action"]["inviter_id"]), "priscilla", "first pair member opened is the inviter")
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "REPLY_REQUIRED")
-	GameState.open_contact("lavinia")
+	GameState.open_contact("lavinia", "open-lavinia")
 	assert_eq((GameState.contacts["group_action"]["opened_ids"] as Array), ["priscilla", "lavinia"], "second open adds the participant")
 
 func test_g4_group_reply_routes_to_module_with_gate() -> void:
@@ -433,7 +433,7 @@ func test_g4_group_reply_routes_to_module_with_gate() -> void:
 	GameState._lifecycle_set_playing_day(2)
 	for _i in 3:
 		GameState.finish_minesweeper_app_round({"context": "app"})
-	GameState.open_contact("priscilla")
+	GameState.open_contact("priscilla", "open-priscilla")
 	# CANON (req.invitation.group_resolution): inviter_id is presentation-only, so replying to
 	# EITHER participant makes the group schedulable — the legacy inviter-first gate is retired.
 	var non_inviter: Dictionary = GameState.choose_contact_option("lavinia", "accept")
@@ -441,3 +441,17 @@ func test_g4_group_reply_routes_to_module_with_gate() -> void:
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "ACCEPTED", "either participant's reply accepts the group")
 	assert_true(GameState.contacts["group_action"]["replied_ids"].has("lavinia"))
 	assert_true(GameState.is_group_date_unlocked(2), "schedulable once either participant replied")
+
+func test_open_contact_command_is_idempotent() -> void:
+	# open_contact now realizes the reserved command signature: command_id is the module
+	# transaction id, so re-opening the same contact under one command replays with no effect.
+	GameState.reset_game()
+	var first: Dictionary = GameState.open_contact("priscilla", "cmd-open-1")
+	assert_true(first.get("ok", false), "open command succeeds")
+	assert_false(first["value"]["replayed"], "first call is not a replay")
+	var replay: Dictionary = GameState.open_contact("priscilla", "cmd-open-1")
+	assert_true(replay["value"]["replayed"], "same command_id replays idempotently")
+
+func test_open_contact_rejects_empty_command_id() -> void:
+	GameState.reset_game()
+	assert_false(GameState.open_contact("priscilla", "").get("ok", true), "command_id is required")

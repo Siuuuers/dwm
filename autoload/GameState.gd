@@ -601,14 +601,20 @@ func is_group_invitation_day(target_day: int = -1) -> bool:
 	return _GROUP_INVITATION_DAYS.has(d)
 
 
-func open_contact(friend_id: String) -> void:
-	# dwm-p2r.6: the group offer is activated by the 3rd Minesweeper round (see
-	# _bridge_maybe_activate_group), never by opening a contact. Opening only marks the
-	# contact read and, for a pair member, assigns the module inviter via the group open.
+func open_contact(friend_id: String, command_id: String) -> Dictionary:
+	# Facade command (dwm-p2r.6): mark a contact read. command_id is the module transaction id,
+	# so re-opening under the same command replays idempotently. The group offer is never
+	# activated here (canon: the 3rd Minesweeper round activates it); opening a pair member
+	# assigns the presentation-only inviter via the module group open.
+	if command_id.is_empty():
+		return {"ok": false, "code": &"invalid_command_id", "message": "command_id is required"}
+	if contacts["transaction_receipts"].has(command_id):
+		return {"ok": true, "code": &"ok", "value": {"receipt": contacts["transaction_receipts"][command_id], "replayed": true}}
 	daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
-	_bridge_populate_solo_offer(friend_id)
+	var receipt: Dictionary = _bridge_open_in_module(friend_id, command_id)
 	emit_signal("chat_changed", friend_id)
 	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok", "value": {"receipt": receipt, "replayed": false}}
 
 
 func get_daily_message_friend_for_finished_round(round_number: int, target_day: int = -1) -> String:
@@ -709,20 +715,21 @@ func _bridge_maybe_activate_group() -> void:
 		contacts = activated["value"]["candidate"]
 
 
-func _bridge_populate_solo_offer(friend_id: String) -> void:
-	# Migration bridge (dwm-p2r.6): mirror a legacy contact open into the module contacts bag
-	# (generate + open the solo offer) so the bag reflects real gameplay. Idempotent per
-	# friend/day via stable transaction ids; legacy readers switch to the bag in a later step.
+func _bridge_open_in_module(friend_id: String, command_id: String) -> Dictionary:
+	# Ensure the friend's solo offer exists (normally generated at round completion), then open it
+	# under the caller's command id. On a group day this routes to the module group open, which
+	# assigns the inviter. Returns the open receipt, or {} when the friend has nothing to read.
 	if not is_invitation_day(friend_id):
-		return
+		return {}
 	var offered: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
 		contacts, friend_id, day, "solo:%s:day%d" % [friend_id, day], "offer:%s:day%d" % [friend_id, day])
 	if offered.get("ok", false):
 		contacts = offered["value"]["candidate"]
-	var opened: Dictionary = _CONTACT_INVITATION_STATE.prepare_open_contact(
-		contacts, friend_id, day, "open:%s:day%d" % [friend_id, day])
-	if opened.get("ok", false):
-		contacts = opened["value"]["candidate"]
+	var opened: Dictionary = _CONTACT_INVITATION_STATE.prepare_open_contact(contacts, friend_id, day, command_id)
+	if not opened.get("ok", false):
+		return {}
+	contacts = opened["value"]["candidate"]
+	return opened["receipt"]
 
 
 func reply_invitation(friend_id: String, command_id: String) -> Dictionary:

@@ -12,4 +12,6 @@ class_name ContactListApp
 
 func open_friend(friend_id: String) -> void:
 	if has_node("/root/GameState"):
-		get_node("/root/GameState").open_contact(friend_id)
+		var game_state: Node = get_node("/root/GameState")
+		# Stable per-friend/day command id: re-opening the same contact today replays idempotently.
+		game_state.open_contact(friend_id, "open:%s:day%d" % [friend_id, int(game_state.day)])
