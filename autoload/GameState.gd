@@ -663,7 +663,7 @@ func get_daily_message_friend_for_finished_round(round_number: int, target_day: 
 	if idx < 0 or idx >= order.size():
 		return ""
 	# Group invitation for the day suppresses individual solo messages.
-	if daily_group_invitation_generated:
+	if _group_is_active():
 		return ""
 	return order[idx]
 
@@ -672,7 +672,7 @@ func unlock_contact_message_after_minesweeper_finished(result: Dictionary) -> Di
 	var friend: String = get_daily_message_friend_for_finished_round(minesweeper_app_rounds_finished_today, day)
 	if friend == "":
 		return {}
-	if daily_group_invitation_generated:
+	if _group_is_active():
 		return {}
 	# Day-7 invitation messages require at least Ambiguous affection (CONTRACTS §2).
 	if day == 7 and get_affection_tier(friend) not in ["ambiguous", "love"]:
@@ -708,6 +708,23 @@ func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
 	# Player-visible contact history for a friend (dwm-p2r.6); delegates to the pure module.
 	var d: int = target_day if target_day >= 0 else day
 	return _CONTACT_INVITATION_STATE.get_contact_view(contacts, friend_id, d)
+
+
+func _group_is_active() -> bool:
+	# dwm-p2r.6: today's group offer exists once activated (round 3) — the module is the source.
+	return str(contacts["group_action"]["state"]) != "INACTIVE"
+
+
+func _group_inviter() -> String:
+	var inviter: Variant = contacts["group_action"]["inviter_id"]
+	return str(inviter) if inviter != null else ""
+
+
+func _group_pair_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for pid: String in _CONTACT_INVITATION_STATE.GROUP_PAIR:
+		ids.append(pid)
+	return ids
 
 
 func _bridge_maybe_activate_group() -> void:
@@ -845,13 +862,10 @@ func is_group_date_unlocked(target_day: int = -1) -> bool:
 
 func build_group_date_entry_from_unlock(target_day: int = -1) -> Dictionary:
 	var d: int = target_day if target_day >= 0 else day
-	var fids: Array[String] = []
-	for pid in daily_group_invitation_pair:
-		fids.append(str(pid))
 	return {
 		"type": "group",
-		"friend_ids": fids,
-		"inviter_id": pending_group_date_inviter_id,
+		"friend_ids": _group_pair_ids(),
+		"inviter_id": _group_inviter(),
 		"day": d,
 		"source": "unlock",
 		"advance_day_after_finish": true,
@@ -934,7 +948,7 @@ func should_route_sylvia_special_ending() -> bool:
 func can_respond_to_invitation(friend_id: String) -> bool:
 	if is_invitation_day(friend_id) and not is_contact_choice_selected(friend_id):
 		return true
-	if is_group_invitation_day() and _group_pair_contains(friend_id) and not daily_group_invitation_generated:
+	if is_group_invitation_day() and _group_pair_contains(friend_id) and not _group_is_active():
 		return true
 	return false
 
@@ -1145,8 +1159,8 @@ func collect_unscheduled_accepted_invitations_for_day_end() -> Array:
 	for fid in FRIEND_IDS:
 		if is_date_unlocked(fid) and not scheduled_ids.has(fid):
 			out.append({"type": "solo", "friend_id": fid})
-	if daily_group_invitation_generated and not _group_scheduled():
-		out.append({"type": "group", "friend_ids": daily_group_invitation_pair, "inviter_id": pending_group_date_inviter_id})
+	if _group_is_active() and not _group_scheduled():
+		out.append({"type": "group", "friend_ids": _group_pair_ids(), "inviter_id": _group_inviter()})
 	return out
 
 
