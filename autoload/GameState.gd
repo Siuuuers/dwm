@@ -793,13 +793,8 @@ func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> 
 
 
 func choose_contact_option(friend_id: String, choice_id: String) -> Dictionary:
-	# Group reply-order gate (FLOWS §5.1): if this is the non-inviter replying before the
-	# inviter has replied, block.
-	if daily_group_invitation_generated and not pending_group_date_inviter_id.is_empty() and friend_id != pending_group_date_inviter_id:
-		var inviter_key: String = "day:%d:friend:%s" % [day, pending_group_date_inviter_id]
-		if not bool(contact_choice_state.get(inviter_key, false)):
-			return {"ok": false, "reason": "need_reply_inviter_first"}
-
+	# dwm-p2r.6 canon (req.invitation.group_resolution): inviter_id is presentation-only, so
+	# replying to EITHER participant makes the group date schedulable — no reply-order gate.
 	contact_choice_state["day:%d:friend:%s" % [day, friend_id]] = true
 	emit_signal("contact_choice_selected", {"friend_id": friend_id, "day": day})
 	# Solo date unlock is written ONLY on the friend's solo invitation day (days 1-6). Day 7

@@ -434,9 +434,10 @@ func test_g4_group_reply_routes_to_module_with_gate() -> void:
 	for _i in 3:
 		GameState.finish_minesweeper_app_round({"context": "app"})
 	GameState.open_contact("priscilla")
-	var blocked: Dictionary = GameState.choose_contact_option("lavinia", "accept")
-	assert_false(blocked["ok"], "non-inviter is blocked before the inviter replies")
-	assert_eq(str(GameState.contacts["group_action"]["state"]), "REPLY_REQUIRED", "module group unchanged while blocked")
-	GameState.choose_contact_option("priscilla", "accept")
-	assert_eq(str(GameState.contacts["group_action"]["state"]), "ACCEPTED", "inviter reply accepts the module group")
-	assert_true(GameState.contacts["group_action"]["replied_ids"].has("priscilla"))
+	# CANON (req.invitation.group_resolution): inviter_id is presentation-only, so replying to
+	# EITHER participant makes the group schedulable — the legacy inviter-first gate is retired.
+	var non_inviter: Dictionary = GameState.choose_contact_option("lavinia", "accept")
+	assert_true(non_inviter["ok"], "canon: the non-inviter may reply first")
+	assert_eq(str(GameState.contacts["group_action"]["state"]), "ACCEPTED", "either participant's reply accepts the group")
+	assert_true(GameState.contacts["group_action"]["replied_ids"].has("lavinia"))
+	assert_true(GameState.is_group_date_unlocked(2), "schedulable once either participant replied")
