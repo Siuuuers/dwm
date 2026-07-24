@@ -42,9 +42,10 @@ func test_clear_with_and_without_refund() -> void:
 
 
 func test_max_scheduled_dates_by_day() -> void:
-	GameState.day = 3
+	# `day` is lifecycle-owned and read-only (dwm-p2r.4); position the run via the lifecycle.
+	GameState._lifecycle_set_playing_day(3)
 	assert_eq(GameState.get_max_scheduled_dates_for_current_day(), 2, "Day 1..6 allows 2 dates")
-	GameState.day = 7
+	GameState._lifecycle_set_playing_day(7)
 	assert_eq(GameState.get_max_scheduled_dates_for_current_day(), 1, "Day 7 allows 1 date")
 
 
