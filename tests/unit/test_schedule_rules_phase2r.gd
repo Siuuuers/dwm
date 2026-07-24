@@ -173,3 +173,42 @@ func test_duplicate_entry_id_fails_existing_validation() -> void:
 	var result: Dictionary = rules.validate_existing(duplicated, 3)
 	assert_false(result.get("ok", true), "the same entry_id twice is invalid")
 	assert_eq(str(result.get("code", "")), "duplicate_entry_id")
+
+func _action_entry(action_id: String, day: int, slot_index: int) -> Dictionary:
+	return {
+		"entry_id": "%s-d%d" % [action_id, day],
+		"slot_index": slot_index,
+		"day": day,
+		"type": "action",
+		"friend_ids": [],
+		"action_id": action_id,
+		"route_id": "none",
+		"effect_ids": [],
+		"unlock_receipt_id": null,
+	}
+
+func test_day4_priscilla_solo_must_take_the_first_slot() -> void:
+	# Preserved legacy rule: on Day 4 a Priscilla solo date is only addable as the first entry.
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var elig: Dictionary = _eligibility(["solo:priscilla:day4", "study"])
+	var occupied: Array = [_action_entry("study", 4, 0)]
+	assert_false(rules.validate_candidate(occupied, _solo_entry("priscilla", 4, 1), 4, 6, elig).get("ok", false),
+		"Priscilla cannot follow another entry on Day 4")
+	assert_true(rules.validate_candidate([], _solo_entry("priscilla", 4, 0), 4, 6, elig).get("ok", false),
+		"Priscilla is addable as the first Day-4 entry")
+
+func test_duplicate_friend_across_dates_is_rejected() -> void:
+	# Preserved legacy rule: no two solo dates with the same friend on one day, even when
+	# the action ids differ.
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var existing: Array = [_solo_entry("priscilla", 3, 0)]
+	var again: Dictionary = _solo_entry("priscilla", 3, 1)
+	again["entry_id"] = "solo-priscilla-d3-second"
+	again["action_id"] = "makeup-date:priscilla:day3"
+	var elig: Dictionary = _eligibility(["solo:priscilla:day3", "makeup-date:priscilla:day3"])
+	assert_false(rules.validate_candidate(existing, again, 3, 6, elig).get("ok", false),
+		"the same friend cannot be dated twice in a day")

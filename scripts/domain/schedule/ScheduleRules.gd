@@ -70,14 +70,34 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 			return _fail(&"duplicate_entry", action_id)
 		if int(entry.get("slot_index", -1)) == int(candidate.get("slot_index", -1)):
 			return _fail(&"duplicate_slot_index", str(candidate.get("slot_index", -1)))
-	if str(candidate.get("type", "")) in DATE_TYPES:
+	var candidate_type := str(candidate["type"])
+	if candidate_type in DATE_TYPES:
+		# Preserved legacy rule: Day-4 Priscilla only lands in the first slot.
+		if day == 4 and candidate_type == "solo" and "priscilla" in candidate["friend_ids"] \
+				and not existing.is_empty():
+			return _fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first")
+		# Preserved legacy rule: one date per friend (solo) / per pair (group) each day.
+		for entry: Dictionary in existing:
+			if str(entry["type"]) != candidate_type:
+				continue
+			if _same_friend_set(entry["friend_ids"], candidate["friend_ids"]):
+				return _fail(&"duplicate_friend_date", str(candidate["friend_ids"]))
 		var date_count: int = 0
 		for entry: Dictionary in existing:
-			if str(entry.get("type", "")) in DATE_TYPES:
+			if str(entry["type"]) in DATE_TYPES:
 				date_count += 1
 		if date_count + 1 > max_dates_for_day(day):
 			return _fail(&"too_many_dates", "day %d allows %d date(s)" % [day, max_dates_for_day(day)])
 	return {"ok": true, "code": &"ok"}
+
+
+static func _same_friend_set(left: Array, right: Array) -> bool:
+	if left.size() != right.size():
+		return false
+	for friend_id: Variant in left:
+		if friend_id not in right:
+			return false
+	return true
 
 static func _entry_shape_error(entry: Dictionary, day: int) -> String:
 	# Returns "" when the entry carries exactly the contracted keys with sane values.
