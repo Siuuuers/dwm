@@ -763,16 +763,14 @@ func choose_contact_option(friend_id: String, choice_id: String) -> Dictionary:
 	# replying to EITHER participant makes the group date schedulable — no reply-order gate.
 	contact_choice_state["day:%d:friend:%s" % [day, friend_id]] = true
 	emit_signal("contact_choice_selected", {"friend_id": friend_id, "day": day})
-	# Solo date unlock is written ONLY on the friend's solo invitation day (days 1-6). Day 7
-	# candidates use the contact-message-unlock path in is_date_unlocked(), not date_unlocks, so
-	# a reply on a non-invitation day must NOT unlock a phantom date (CONTRACTS §2 is_date_unlocked).
+	# A reply only unlocks a date on the friend's own invitation day (days 1-6); Day 7 candidates
+	# use the contact-message-unlock path in is_date_unlocked(). The module records the reply and
+	# is the source of truth for addability (dwm-p2r.6); the signal still refreshes listeners.
 	if is_invitation_day(friend_id):
-		date_unlocks["day:%d:friend:%s" % [day, friend_id]] = true
-		emit_signal("date_unlocks_changed")
-		# Migration bridge (dwm-p2r.6): mirror the reply into the module bag when its offer exists.
 		var replied: Dictionary = _CONTACT_INVITATION_STATE.prepare_reply(contacts, friend_id, day, "reply:%s:day%d" % [friend_id, day])
 		if replied.get("ok", false):
 			contacts = replied["value"]["candidate"]
+		emit_signal("date_unlocks_changed")
 	emit_signal("save_relevant_state_changed")
 	return {"ok": true, "friend_id": friend_id, "choice_id": choice_id}
 
@@ -797,22 +795,6 @@ func build_date_entry_from_unlock(friend_id: String, target_day: int = -1) -> Di
 		"advance_day_after_finish": true,
 		"gift_item_id": "",
 	}
-
-
-func read_group_offer(target_day: int = -1) -> bool:
-	# Separate "read the group offer" step (CONTRACTS §2 group invitation rule): makes the generated
-	# group date ADDABLE by writing its date_unlock key. No accept/decline — adding it in ScheduleApp
-	# is the only accept, identical to the solo flow.
-	if not daily_group_invitation_generated:
-		return false
-	if daily_group_invitation_pair.size() < 2:
-		return false
-	var d: int = target_day if target_day >= 0 else day
-	var key: String = "day:%d:group:%s" % [d, _sorted_pair_key(daily_group_invitation_pair[0], daily_group_invitation_pair[1])]
-	date_unlocks[key] = true
-	emit_signal("date_unlocks_changed")
-	emit_signal("save_relevant_state_changed")
-	return true
 
 
 func is_group_date_unlocked(target_day: int = -1) -> bool:
