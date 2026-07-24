@@ -21,6 +21,20 @@ const SELECTION_INPUT_KEYS: Array[String] = [
 	"pl_post_ending", "sylvia_special",
 ]
 
+## Hospital outcome seam (dwm-p2r.7, req.flow.hospital_order).
+const HOSPITAL_INPUT_KEYS: Array[String] = [
+	"condition_effect_ids", "day", "health", "pressure",
+	"scheduled_date_outcomes", "transaction_id",
+]
+const DATE_OUTCOME_KEYS: Array[String] = ["action_id", "friend_ids", "outcome"]
+const DATE_OUTCOMES: Array[String] = [
+	"attended", "not_attended", "prevented_by_fainting", "cancelled_by_fainting",
+]
+## Only these two mean the date was lost to the faint.
+const FAINTING_LOST_OUTCOMES: Array[String] = ["prevented_by_fainting", "cancelled_by_fainting"]
+const HOSPITAL_RECOVERED_HEALTH := 6
+const HOSPITAL_RECOVERED_PRESSURE := 3
+
 ## Selects the primary Day-7 ending and any inter-friend epilogue from a fully
 ## detached, primitive input Dictionary. Never touches live state.
 static func select_primary_ending(inputs: Dictionary) -> Dictionary:
@@ -84,6 +98,77 @@ static func _friend_ending(friend_id: String, dating_route_state: Dictionary, af
 	if dark_points >= 2:
 		return "ending.%s.dark" % friend_id
 	return "ending.%s.sweet" % friend_id
+
+## Resolves Hospital consequences as a pure result (req.flow.hospital_order). Recovery is
+## fixed; the only variable is how many Sylvia SOLO dates the faint cost, which later feeds
+## the Sylvia Special check. Never advances the day and never mutates the input.
+static func resolve_hospital_outcome(input: Dictionary) -> Dictionary:
+	var shape_error := _validate_hospital_input(input)
+	if shape_error != "":
+		return {"ok": false, "code": &"invalid_hospital_input", "message": shape_error}
+	var skipped: Array[String] = []
+	for raw: Variant in input["scheduled_date_outcomes"]:
+		var outcome := raw as Dictionary
+		if str(outcome["outcome"]) not in FAINTING_LOST_OUTCOMES:
+			continue
+		var friend_ids: Array = outcome["friend_ids"]
+		# Only a SOLO Sylvia date feeds the counter; a lost group date never does.
+		if friend_ids.size() == 1 and str(friend_ids[0]) == "sylvia":
+			skipped.append(str(outcome["action_id"]))
+	skipped.sort()
+	return {
+		"ok": true,
+		"code": &"ok",
+		"value": {
+			"health": HOSPITAL_RECOVERED_HEALTH,
+			"pressure": HOSPITAL_RECOVERED_PRESSURE,
+			"condition_effect_ids": [],
+			"hospital_skipped_sylvia_solo_count_delta": skipped.size(),
+		},
+		"receipt": {
+			"transaction_id": str(input["transaction_id"]),
+			"kind": "hospital_outcome",
+			"day": int(input["day"]),
+			"skipped_action_ids": skipped,
+		},
+	}
+
+
+static func _validate_hospital_input(input: Dictionary) -> String:
+	var keys: Array = input.keys()
+	keys.sort()
+	var expected: Array = HOSPITAL_INPUT_KEYS.duplicate()
+	expected.sort()
+	if keys != expected:
+		return "hospital input keys must be exactly " + str(expected)
+	if typeof(input["day"]) != TYPE_INT:
+		return "day must be an integer"
+	if typeof(input["health"]) != TYPE_INT or typeof(input["pressure"]) != TYPE_INT:
+		return "health and pressure must be integers"
+	if typeof(input["condition_effect_ids"]) != TYPE_ARRAY:
+		return "condition_effect_ids must be an array"
+	if str(input["transaction_id"]).is_empty():
+		return "transaction_id must be nonempty"
+	if typeof(input["scheduled_date_outcomes"]) != TYPE_ARRAY:
+		return "scheduled_date_outcomes must be an array"
+	for raw: Variant in input["scheduled_date_outcomes"]:
+		if typeof(raw) != TYPE_DICTIONARY:
+			return "each scheduled outcome must be an object"
+		var outcome := raw as Dictionary
+		var outcome_keys: Array = outcome.keys()
+		outcome_keys.sort()
+		var expected_outcome: Array = DATE_OUTCOME_KEYS.duplicate()
+		expected_outcome.sort()
+		if outcome_keys != expected_outcome:
+			return "scheduled outcome keys must be exactly " + str(expected_outcome)
+		if str(outcome["outcome"]) not in DATE_OUTCOMES:
+			return "unknown outcome: " + str(outcome["outcome"])
+		if typeof(outcome["friend_ids"]) != TYPE_ARRAY or (outcome["friend_ids"] as Array).is_empty():
+			return "friend_ids must be a nonempty array"
+		if str(outcome["action_id"]).is_empty():
+			return "action_id must be nonempty"
+	return ""
+
 
 static func _validate_inputs(inputs: Dictionary) -> String:
 	var keys: Array = inputs.keys()
