@@ -248,14 +248,15 @@ func test_resolve_day7_priscilla_lavinia_primary_no_epilogue() -> void:
 	assert_eq(r["epilogue_ending_id"], "", "no epilogue when priscilla_lavinia is the primary")
 
 
-func test_resolve_day7_candidate_true_path() -> void:
+func test_resolve_day7_candidate_binary_tone_sweet() -> void:
+	# story/05 §1: true-path retired as a destination; tone is binary. Low dark points now Sweet.
 	GameState._lifecycle_set_playing_day(7)
 	GameState.contact_message_unlocks = {"day:7:friend:priscilla": true}
 	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
 	GameState.dating_route_state = {"priscilla": {"true_path_count": 4, "dark_points": 0}}
 	GameState.affection = {"priscilla": 10}
 	var r := GameState.resolve_day7_ending()
-	assert_eq(r["ending_id"], "ending.priscilla.true", "true path with love affection")
+	assert_eq(r["ending_id"], "ending.priscilla.sweet", "no dark points resolves Sweet")
 	assert_eq(r["epilogue_ending_id"], "", "no epilogue without priscilla_lavinia unlock")
 
 

@@ -860,14 +860,11 @@ func resolve_day7_ending() -> Dictionary:
 	else:
 		var f: String = candidate_friend_id
 		var drs: Dictionary = dating_route_state.get(f, {})
-		if int(drs.get("true_path_count", 0)) >= 4 and get_affection_tier(f) == "love":
-			ending_id = "ending.%s.true" % f
-		elif int(drs.get("dark_points", 0)) >= 2:
+		# Binary tone (story/05 §1): Totally Dark or Sweet; the true-path is now a postscript.
+		if int(drs.get("dark_points", 0)) >= 2:
 			ending_id = "ending.%s.dark" % f
-		elif int(drs.get("dark_points", 0)) <= 1:
-			ending_id = "ending.%s.sweet" % f
 		else:
-			ending_id = "ending.alone"
+			ending_id = "ending.%s.sweet" % f
 
 	# Epilogue: if Priscilla/Lavinia post-ending is also unlocked and is not the primary, play it after.
 	if should_route_priscilla_lavinia_post_ending() and ending_id != "ending.priscilla_lavinia":

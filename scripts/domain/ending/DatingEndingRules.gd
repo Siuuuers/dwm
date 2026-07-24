@@ -90,11 +90,9 @@ static func _friend_ending(friend_id: String, dating_route_state: Dictionary, af
 	if friend_id not in FRIEND_IDS:
 		return "ending.alone"
 	var drs: Dictionary = dating_route_state.get(friend_id, {})
-	var true_path_count := int(drs.get("true_path_count", 0))
 	var dark_points := int(drs.get("dark_points", 0))
-	var tier := str(affection_tiers.get(friend_id, "hate"))
-	if true_path_count >= 4 and tier == "love":
-		return "ending.%s.true" % friend_id
+	# Tone is binary (story/05 §1): Sweet or Totally Dark. The true-path is no longer a
+	# destination -- it is the conjunctively-gated true (observation) postscript.
 	if dark_points >= 2:
 		return "ending.%s.dark" % friend_id
 	return "ending.%s.sweet" % friend_id

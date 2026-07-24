@@ -42,12 +42,14 @@ func test_friend_ending_tiers() -> void:
 	if not _rules_exist():
 		return
 	var rules: Script = load(RULES_PATH)
-	var true_end: Dictionary = rules.select_primary_ending(_inputs({
+	# story/05 §1: true-path is retired as a destination; tone is binary. Low dark points at
+	# love now resolves Sweet (the true-observation postscript is gated separately).
+	var priscilla_sweet: Dictionary = rules.select_primary_ending(_inputs({
 		"candidate_friend_id": "priscilla",
 		"dating_route_state": {"priscilla": {"true_path_count": 4, "dark_points": 0}},
 		"affection_tiers": {"priscilla": "love"},
 	}))
-	assert_eq(true_end["value"]["ending_id"], "ending.priscilla.true", "4 true clears at love wins true")
+	assert_eq(priscilla_sweet["value"]["ending_id"], "ending.priscilla.sweet", "no dark points resolves Sweet")
 	var dark_end: Dictionary = rules.select_primary_ending(_inputs({
 		"candidate_friend_id": "lavinia",
 		"dating_route_state": {"lavinia": {"true_path_count": 1, "dark_points": 2}},
