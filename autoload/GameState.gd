@@ -602,46 +602,12 @@ func is_group_invitation_day(target_day: int = -1) -> bool:
 
 
 func open_contact(friend_id: String) -> void:
-	# Group invitation generation (CONTRACTS §2 group invitation rule): evaluated BEFORE marking
-	# this contact opened, so the "neither pair member opened yet today" gate is checked correctly
-	# and the friend being opened now becomes the inviter.
-	_maybe_generate_group_invitation(friend_id)
+	# dwm-p2r.6: the group offer is activated by the 3rd Minesweeper round (see
+	# _bridge_maybe_activate_group), never by opening a contact. Opening only marks the
+	# contact read and, for a pair member, assigns the module inviter via the group open.
 	daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
 	_bridge_populate_solo_offer(friend_id)
 	emit_signal("chat_changed", friend_id)
-	emit_signal("save_relevant_state_changed")
-
-
-func _maybe_generate_group_invitation(friend_id: String) -> void:
-	# Group offer is GENERATED (not yet addable) when, on a group day, >= 3 app rounds are finished,
-	# no group offer exists yet, the opened friend is in a group pair, and NEITHER pair member has
-	# opened their contact yet today (reading a solo invitation before eligibility blocks the group).
-	# The first pair member opened after eligibility becomes the inviter. Addability is a separate
-	# step: read_group_offer() writes the group date_unlock (CONTRACTS §2 group invitation rule).
-	if daily_group_invitation_generated:
-		return
-	if not is_group_invitation_day():
-		return
-	if minesweeper_app_rounds_finished_today < 3:
-		return
-	if not _group_pair_contains(friend_id):
-		return
-	var pair: Array = []
-	for p in _GROUP_INVITATION_PAIRS:
-		if friend_id in p:
-			pair = p
-			break
-	if pair.size() < 2:
-		return
-	for pid in pair:
-		if bool(daily_opened_contacts.get("day:%d:friend:%s" % [day, pid], false)):
-			return
-	var typed_pair: Array[String] = []
-	for pid in pair:
-		typed_pair.append(str(pid))
-	daily_group_invitation_generated = true
-	daily_group_invitation_pair = typed_pair
-	pending_group_date_inviter_id = friend_id
 	emit_signal("save_relevant_state_changed")
 
 
