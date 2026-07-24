@@ -130,3 +130,46 @@ func test_days_one_to_six_reject_an_unlock_receipt() -> void:
 	assert_false(rules.validate_candidate([], candidate, 3, 6,
 			_eligibility(["solo:priscilla:day3"])).get("ok", false),
 		"only day 7 carries an unlock receipt")
+
+func test_entry_shape_rejects_unknown_or_missing_keys() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var elig: Dictionary = _eligibility(["solo:priscilla:day3"])
+	var extra: Dictionary = _solo_entry("priscilla", 3)
+	extra["surprise"] = true
+	assert_false(rules.validate_candidate([], extra, 3, 6, elig).get("ok", false), "unknown keys reject")
+	var missing: Dictionary = _solo_entry("priscilla", 3)
+	missing.erase("route_id")
+	assert_false(rules.validate_candidate([], missing, 3, 6, elig).get("ok", false), "missing keys reject")
+
+func test_entry_shape_rejects_bad_type_and_negative_slot() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var elig: Dictionary = _eligibility(["solo:priscilla:day3"])
+	var bad_type: Dictionary = _solo_entry("priscilla", 3)
+	bad_type["type"] = "twofriends"
+	assert_false(rules.validate_candidate([], bad_type, 3, 6, elig).get("ok", false),
+		"twofriends is a deferred route, not a schedulable entry type")
+	var negative: Dictionary = _solo_entry("priscilla", 3)
+	negative["slot_index"] = -1
+	assert_false(rules.validate_candidate([], negative, 3, 6, elig).get("ok", false), "negative slot rejects")
+
+func test_entry_day_must_match_the_validated_day() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var candidate: Dictionary = _solo_entry("priscilla", 3)
+	assert_false(rules.validate_candidate([], candidate, 4, 6,
+			_eligibility(["solo:priscilla:day3"])).get("ok", false),
+		"an entry stamped day 3 cannot be added on day 4")
+
+func test_duplicate_entry_id_fails_existing_validation() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var duplicated: Array = [_solo_entry("priscilla", 3, 0), _solo_entry("priscilla", 3, 1)]
+	var result: Dictionary = rules.validate_existing(duplicated, 3)
+	assert_false(result.get("ok", true), "the same entry_id twice is invalid")
+	assert_eq(str(result.get("code", "")), "duplicate_entry_id")
