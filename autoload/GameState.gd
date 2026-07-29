@@ -129,6 +129,7 @@ const _RUN_LIFECYCLE_SCRIPT := preload("res://scripts/domain/run/RunLifecycle.gd
 const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
 const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const _DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
 var _mutation_gate: Object = null
@@ -1705,6 +1706,40 @@ func _lifecycle_set_playing_day(target_day: int) -> void:
 	})
 	if restored.get("ok", false):
 		_run_lifecycle.commit_restore(restored["value"]["candidate"])
+
+
+func request_next_ending_command() -> Dictionary:
+	# Facade read (dwm-p2r.7 Task 6): the single next ending command. Reads the live EndingPlan,
+	# asks the pure stage machine, and derives the playback ids from run id + role. Start-only:
+	# EndingScene advances the stage from its validated completion, never from this query.
+	if _run_lifecycle.get_state() != &"ENDING":
+		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
+	var snapshot: Dictionary = _run_lifecycle.to_dict()
+	var lifecycle_plan: Dictionary = snapshot["ending_plan"]
+	# Adapt the lifecycle plan shape to the DatingEndingRules plan shape.
+	var epilogue: String = str(lifecycle_plan.get("epilogue_ending_id", ""))
+	var command_result: Dictionary = _DATING_ENDING_RULES.next_playback_command({
+		"primary_id": str(lifecycle_plan["ending_id"]),
+		"epilogue_id": null if epilogue.is_empty() else epilogue,
+		"playback_stage": str(lifecycle_plan["playback_stage"]),
+	})
+	if not command_result.get("ok", false):
+		return command_result
+	var command: Dictionary = command_result["value"]
+	if str(command["kind"]) != "play_ending":
+		return {"ok": true, "code": &"ok", "value": command.duplicate(true)}
+	var run_id: String = str(snapshot["run_id"])
+	var role: String = str(command["role"])
+	return {"ok": true, "code": &"ok", "value": {
+		"kind": command["kind"],
+		"ending_id": str(command["ending_id"]),
+		"playback_context": {
+			"playback_id": "%s:%s" % [run_id, role],
+			"transaction_id": "%s:%s:complete" % [run_id, role],
+			"expected_stage": command["expected_stage"],
+			"role": command["role"],
+		},
+	}}
 
 
 func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> void:

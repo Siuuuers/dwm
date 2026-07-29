@@ -456,3 +456,27 @@ func test_open_contact_command_is_idempotent() -> void:
 func test_open_contact_rejects_empty_command_id() -> void:
 	GameState.reset_game()
 	assert_false(GameState.open_contact("priscilla", "").get("ok", true), "command_id is required")
+
+func test_request_next_ending_command_plays_primary_first() -> void:
+	# Realizes the reserved facade read: reads the live EndingPlan, asks the pure stage machine,
+	# and derives the playback ids from run id + role. story/05 §1: low dark points -> Sweet.
+	GameState._lifecycle_set_playing_day(7)
+	GameState.contact_message_unlocks = {"day:7:friend:priscilla": true}
+	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	GameState.dating_route_state = {"priscilla": {"true_path_count": 4, "dark_points": 0}}
+	GameState.affection = {"priscilla": 10}
+	GameState.resolve_day7_ending()
+	assert_eq(GameState._run_lifecycle.get_state(), &"ENDING", "resolution enters ENDING")
+	var cmd: Dictionary = GameState.request_next_ending_command()
+	assert_true(cmd.get("ok", false), "a command is available in ENDING")
+	assert_eq(cmd["value"]["kind"], &"play_ending")
+	assert_eq(cmd["value"]["ending_id"], "ending.priscilla.sweet")
+	var ctx: Dictionary = cmd["value"]["playback_context"]
+	assert_eq(str(ctx["role"]), "primary")
+	assert_eq(str(ctx["expected_stage"]), "PRIMARY_PENDING")
+	assert_eq(str(ctx["playback_id"]), "run-local:primary", "playback id is run_id:role")
+	assert_eq(str(ctx["transaction_id"]), "run-local:primary:complete", "transaction id is run_id:role:complete")
+
+func test_request_next_ending_command_rejects_outside_ending() -> void:
+	GameState.reset_game()
+	assert_false(GameState.request_next_ending_command().get("ok", true), "no ending command while PLAYING")
