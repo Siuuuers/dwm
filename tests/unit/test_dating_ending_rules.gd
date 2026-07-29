@@ -96,3 +96,28 @@ func test_candidate_friend_must_be_a_dateable_friend() -> void:
 	var chain: Dictionary = _valid_chain("mystery")
 	var result: Dictionary = rules.resolve_primary_ending(_make_input(0, 0, chain["candidate"], chain["receipt_index"]))
 	assert_false(result.get("ok", true), "only priscilla, lavinia, or sylvia can be a primary candidate")
+
+func test_epilogue_plays_only_when_both_pl_windows_counted() -> void:
+	# req.ending.epilogue: the inter-friend counter-ending follows the primary only when BOTH
+	# counted Priscilla-Lavinia encounters actually occurred (group/missed/private); a prevented
+	# window never counts. Our .6 four-way window feeds this counter.
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	var plays: Dictionary = rules.resolve_epilogue({"pl_window_count": 2})
+	assert_true(plays.get("ok", false))
+	assert_eq(plays["value"], "ending.priscilla_lavinia")
+
+func test_epilogue_is_absent_below_two() -> void:
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	assert_null(rules.resolve_epilogue({"pl_window_count": 1})["value"], "one encounter is not enough")
+	assert_null(rules.resolve_epilogue({"pl_window_count": 0})["value"], "no encounters, no epilogue")
+
+func test_epilogue_rejects_malformed_input() -> void:
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	assert_false(rules.resolve_epilogue({"wrong_key": 2}).get("ok", true), "exact input key required")
+	assert_false(rules.resolve_epilogue({"pl_window_count": "2"}).get("ok", true), "count must be an integer")

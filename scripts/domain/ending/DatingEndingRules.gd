@@ -134,6 +134,21 @@ static func resolve_primary_ending(input: Dictionary) -> Dictionary:
 	return _primary_result("ending.%s.sweet" % friend_id, "sweet")
 
 
+## Optional inter-friend epilogue (req.ending.epilogue). Returns ending.priscilla_lavinia only
+## when both counted Priscilla-Lavinia encounters occurred (pl_window_count >= 2, from the .6
+## four-way window; a prevented window never counts). Null otherwise. It never changes the
+## primary ending. Value is the epilogue id or null.
+const EPILOGUE_INPUT_KEYS: Array[String] = ["pl_window_count"]
+
+static func resolve_epilogue(input: Dictionary) -> Dictionary:
+	if not _keys_match(input, EPILOGUE_INPUT_KEYS):
+		return {"ok": false, "code": &"invalid_epilogue_input", "message": "epilogue input keys must be exactly " + str(EPILOGUE_INPUT_KEYS)}
+	if typeof(input["pl_window_count"]) != TYPE_INT:
+		return {"ok": false, "code": &"invalid_epilogue_input", "message": "pl_window_count must be an integer"}
+	var epilogue: Variant = "ending.priscilla_lavinia" if int(input["pl_window_count"]) >= 2 else null
+	return {"ok": true, "code": &"ok", "value": epilogue, "receipt": {"kind": "epilogue", "epilogue_id": epilogue}}
+
+
 static func _primary_result(ending_id: String, rule: String) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": ending_id, "receipt": {"kind": "primary_ending", "ending_id": ending_id, "rule": rule}}
 
