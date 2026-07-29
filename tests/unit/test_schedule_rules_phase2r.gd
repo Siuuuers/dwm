@@ -212,3 +212,47 @@ func test_duplicate_friend_across_dates_is_rejected() -> void:
 	var elig: Dictionary = _eligibility(["solo:priscilla:day3", "makeup-date:priscilla:day3"])
 	assert_false(rules.validate_candidate(existing, again, 3, 6, elig).get("ok", false),
 		"the same friend cannot be dated twice in a day")
+
+func test_two_dates_fill_the_allowance_and_a_third_rejects() -> void:
+	# Days 1-6 allow two dates; a third is too_many_dates.
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var existing: Array = [_solo_entry("priscilla", 3, 0), _solo_entry("lavinia", 3, 1)]
+	var third: Dictionary = _solo_entry("sylvia", 3, 2)
+	var elig: Dictionary = _eligibility(["solo:priscilla:day3", "solo:lavinia:day3", "solo:sylvia:day3"])
+	var result: Dictionary = rules.validate_candidate(existing, third, 3, 6, elig)
+	assert_false(result.get("ok", true), "a third date exceeds the day 1-6 allowance")
+	assert_eq(str(result.get("code", "")), "too_many_dates")
+
+func test_a_non_date_action_never_consumes_a_date_slot() -> void:
+	# Two dates already fill the allowance, yet a non-date action is still addable.
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var existing: Array = [_solo_entry("priscilla", 3, 0), _solo_entry("lavinia", 3, 1)]
+	var action: Dictionary = _action_entry("study", 3, 2)
+	var elig: Dictionary = _eligibility(["solo:priscilla:day3", "solo:lavinia:day3", "study"])
+	assert_true(rules.validate_candidate(existing, action, 3, 6, elig).get("ok", false),
+		"actions do not count toward the date allowance")
+
+func test_day7_allows_only_a_single_date() -> void:
+	# Day 7 allows exactly one (ending) date; validate_existing rejects two.
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var two_dates: Array = [
+		{
+			"entry_id": "ending-priscilla-d7", "slot_index": 0, "day": 7, "type": "solo",
+			"friend_ids": ["priscilla"], "action_id": "ending-date:priscilla:day7",
+			"route_id": "dating", "effect_ids": [], "unlock_receipt_id": "unlock:p:d7",
+		},
+		{
+			"entry_id": "ending-lavinia-d7", "slot_index": 1, "day": 7, "type": "solo",
+			"friend_ids": ["lavinia"], "action_id": "ending-date:lavinia:day7",
+			"route_id": "dating", "effect_ids": [], "unlock_receipt_id": "unlock:l:d7",
+		},
+	]
+	var result: Dictionary = rules.validate_existing(two_dates, 7)
+	assert_false(result.get("ok", true), "day 7 allows only one date")
+	assert_eq(str(result.get("code", "")), "too_many_dates")
