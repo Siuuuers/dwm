@@ -256,3 +256,25 @@ func test_day7_allows_only_a_single_date() -> void:
 	var result: Dictionary = rules.validate_existing(two_dates, 7)
 	assert_false(result.get("ok", true), "day 7 allows only one date")
 	assert_eq(str(result.get("code", "")), "too_many_dates")
+
+func test_existing_rejects_a_days_one_to_six_unlock_receipt() -> void:
+	# The unlock-receipt rule is a shape rule, so validate_existing enforces it too.
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var bad: Dictionary = _solo_entry("priscilla", 3)
+	bad["unlock_receipt_id"] = "unlock:priscilla:day3"
+	var result: Dictionary = rules.validate_existing([bad], 3)
+	assert_false(result.get("ok", true), "days 1-6 entries carry a null unlock_receipt_id")
+
+func test_existing_requires_a_day7_solo_unlock_receipt() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	var no_receipt: Dictionary = {
+		"entry_id": "ending-priscilla-d7", "slot_index": 0, "day": 7, "type": "solo",
+		"friend_ids": ["priscilla"], "action_id": "ending-date:priscilla:day7",
+		"route_id": "dating", "effect_ids": [], "unlock_receipt_id": null,
+	}
+	var result: Dictionary = rules.validate_existing([no_receipt], 7)
+	assert_false(result.get("ok", true), "a day-7 solo date requires a nonempty unlock receipt")

@@ -58,13 +58,12 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 	if action_id.is_empty() or action_id not in registered:
 		return _fail(&"unregistered_action", action_id)
 	if day == 7:
-		# The candidate, the day7_candidate, and the indexed unlock receipt must agree
-		# exactly. No ID naming convention is ever treated as proof.
+		# Shape validation already guaranteed a nonempty receipt id; now the candidate, the
+		# day7_candidate, and the indexed unlock receipt must agree exactly. No ID naming
+		# convention is ever treated as proof.
 		var desync := _day7_desync_reason(candidate, eligibility)
 		if not desync.is_empty():
 			return _fail(&"day7_candidate_not_synchronized", desync)
-	elif candidate.get("unlock_receipt_id") != null:
-		return _fail(&"unexpected_unlock_receipt", "only a Day-7 date carries an unlock receipt")
 	for entry: Dictionary in existing:
 		if str(entry.get("action_id", "")) == action_id:
 			return _fail(&"duplicate_entry", action_id)
@@ -119,6 +118,13 @@ static func _entry_shape_error(entry: Dictionary, day: int) -> String:
 		return "friend_ids must be an array"
 	if typeof(entry["effect_ids"]) != TYPE_ARRAY:
 		return "effect_ids must be an array"
+	# Unlock receipts belong only to a Day-7 solo (ending) date; days 1-6 carry null.
+	var receipt: Variant = entry["unlock_receipt_id"]
+	if day == 7 and str(entry["type"]) == "solo":
+		if typeof(receipt) != TYPE_STRING or str(receipt).is_empty():
+			return "a Day-7 solo date requires a nonempty unlock_receipt_id"
+	elif receipt != null:
+		return "only a Day-7 solo date carries an unlock_receipt_id"
 	return ""
 
 
