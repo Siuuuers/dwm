@@ -121,3 +121,57 @@ func test_epilogue_rejects_malformed_input() -> void:
 		return
 	assert_false(rules.resolve_epilogue({"wrong_key": 2}).get("ok", true), "exact input key required")
 	assert_false(rules.resolve_epilogue({"pl_window_count": "2"}).get("ok", true), "count must be an integer")
+
+func test_build_ending_plan_composes_primary_and_epilogue() -> void:
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	var chain: Dictionary = _valid_chain("priscilla")
+	var plan: Dictionary = rules.build_ending_plan(
+		_make_input(0, 2, chain["candidate"], chain["receipt_index"]),
+		{"pl_window_count": 2})
+	assert_true(plan.get("ok", false))
+	var ending_plan: Dictionary = plan["value"]["ending_plan"]
+	assert_eq(ending_plan["primary_id"], "ending.priscilla.dark")
+	assert_eq(ending_plan["epilogue_id"], "ending.priscilla_lavinia")
+	assert_eq(ending_plan["playback_stage"], "PRIMARY_PENDING")
+
+func test_build_ending_plan_without_epilogue_is_null() -> void:
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	var plan: Dictionary = rules.build_ending_plan(_make_input(0, 3, null, {}), {"pl_window_count": 1})
+	assert_true(plan.get("ok", false))
+	assert_eq(plan["value"]["ending_plan"]["primary_id"], "ending.alone")
+	assert_null(plan["value"]["ending_plan"]["epilogue_id"])
+
+func test_validate_ending_plan_rejects_a_retired_true_primary() -> void:
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	assert_false(rules.validate_ending_plan({
+		"primary_id": "ending.priscilla.true", "epilogue_id": null, "playback_stage": "PRIMARY_PENDING",
+	}).get("ok", true), "a retired true-path id is not a valid primary")
+	assert_false(rules.validate_ending_plan({
+		"primary_id": "ending.priscilla_lavinia", "epilogue_id": null, "playback_stage": "PRIMARY_PENDING",
+	}).get("ok", true), "priscilla_lavinia is epilogue-only, never a primary")
+
+func test_next_playback_command_walks_the_stages() -> void:
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	var with_epilogue := {"primary_id": "ending.priscilla.dark", "epilogue_id": "ending.priscilla_lavinia", "playback_stage": "PRIMARY_PENDING"}
+	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"play_ending", "ending_id": "ending.priscilla.dark", "role": &"primary", "expected_stage": &"PRIMARY_PENDING"})
+	with_epilogue["playback_stage"] = "PRIMARY_COMPLETED"
+	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"play_ending", "ending_id": "ending.priscilla_lavinia", "role": &"epilogue", "expected_stage": &"PRIMARY_COMPLETED"})
+	with_epilogue["playback_stage"] = "EPILOGUE_COMPLETED"
+	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"record_gallery", "expected_stage": &"EPILOGUE_COMPLETED"})
+	with_epilogue["playback_stage"] = "GALLERY_RECORDED"
+	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"complete_run", "expected_stage": &"GALLERY_RECORDED"})
+
+func test_next_playback_command_records_gallery_when_no_epilogue() -> void:
+	var rules: Script = load(RULES_PATH)
+	if rules == null:
+		return
+	var no_epilogue := {"primary_id": "ending.alone", "epilogue_id": null, "playback_stage": "PRIMARY_COMPLETED"}
+	assert_eq(rules.next_playback_command(no_epilogue)["value"], {"kind": &"record_gallery", "expected_stage": &"PRIMARY_COMPLETED"})

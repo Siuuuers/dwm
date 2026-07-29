@@ -134,6 +134,71 @@ static func resolve_primary_ending(input: Dictionary) -> Dictionary:
 	return _primary_result("ending.%s.sweet" % friend_id, "sweet")
 
 
+## Valid Day-7 primaries after the story/05 §1 binary-tone reconciliation (true-path retired).
+## priscilla_lavinia is epilogue-only and never a primary.
+const VALID_PRIMARY_IDS: Array[String] = [
+	"ending.alone",
+	"ending.priscilla.sweet", "ending.priscilla.dark",
+	"ending.lavinia.sweet", "ending.lavinia.dark",
+	"ending.sylvia.sweet", "ending.sylvia.dark", "ending.sylvia.special",
+]
+const ENDING_PLAN_KEYS: Array[String] = ["epilogue_id", "playback_stage", "primary_id"]
+const PLAYBACK_STAGES: Array[String] = ["PRIMARY_PENDING", "PRIMARY_COMPLETED", "EPILOGUE_COMPLETED", "GALLERY_RECORDED"]
+
+## Composes the primary and epilogue resolvers into a fresh EndingPlan at PRIMARY_PENDING.
+static func build_ending_plan(primary_input: Dictionary, epilogue_input: Dictionary) -> Dictionary:
+	var primary := resolve_primary_ending(primary_input)
+	if not primary.get("ok", false):
+		return primary
+	var epilogue := resolve_epilogue(epilogue_input)
+	if not epilogue.get("ok", false):
+		return epilogue
+	var plan := {
+		"primary_id": str(primary["value"]),
+		"epilogue_id": epilogue["value"],
+		"playback_stage": "PRIMARY_PENDING",
+	}
+	var validated := validate_ending_plan(plan)
+	if not validated.get("ok", false):
+		return validated
+	return {"ok": true, "code": &"ok", "value": {"ending_plan": plan}}
+
+static func validate_ending_plan(plan: Dictionary) -> Dictionary:
+	if not _keys_match(plan, ENDING_PLAN_KEYS):
+		return {"ok": false, "code": &"invalid_ending_plan", "message": "ending plan keys must be exactly " + str(ENDING_PLAN_KEYS)}
+	if str(plan["primary_id"]) not in VALID_PRIMARY_IDS:
+		return {"ok": false, "code": &"invalid_ending_plan", "message": "unknown or non-primary ending id: " + str(plan["primary_id"])}
+	var epilogue: Variant = plan["epilogue_id"]
+	if epilogue != null and str(epilogue) != "ending.priscilla_lavinia":
+		return {"ok": false, "code": &"invalid_ending_plan", "message": "epilogue must be null or ending.priscilla_lavinia"}
+	if str(plan["playback_stage"]) not in PLAYBACK_STAGES:
+		return {"ok": false, "code": &"invalid_ending_plan", "message": "unknown playback stage: " + str(plan["playback_stage"])}
+	return {"ok": true, "code": &"ok"}
+
+## The single next playback command for the plan's current stage (start-only; the caller
+## advances the stage from its validated completion callback, never from this).
+static func next_playback_command(plan: Dictionary) -> Dictionary:
+	var validated := validate_ending_plan(plan)
+	if not validated.get("ok", false):
+		return validated
+	var stage := str(plan["playback_stage"])
+	var has_epilogue: bool = plan["epilogue_id"] != null
+	var command: Dictionary
+	match stage:
+		"PRIMARY_PENDING":
+			command = {"kind": &"play_ending", "ending_id": str(plan["primary_id"]), "role": &"primary", "expected_stage": &"PRIMARY_PENDING"}
+		"PRIMARY_COMPLETED":
+			if has_epilogue:
+				command = {"kind": &"play_ending", "ending_id": str(plan["epilogue_id"]), "role": &"epilogue", "expected_stage": &"PRIMARY_COMPLETED"}
+			else:
+				command = {"kind": &"record_gallery", "expected_stage": &"PRIMARY_COMPLETED"}
+		"EPILOGUE_COMPLETED":
+			command = {"kind": &"record_gallery", "expected_stage": &"EPILOGUE_COMPLETED"}
+		_:  # GALLERY_RECORDED
+			command = {"kind": &"complete_run", "expected_stage": &"GALLERY_RECORDED"}
+	return {"ok": true, "code": &"ok", "value": command}
+
+
 ## Optional inter-friend epilogue (req.ending.epilogue). Returns ending.priscilla_lavinia only
 ## when both counted Priscilla-Lavinia encounters occurred (pl_window_count >= 2, from the .6
 ## four-way window; a prevented window never counts). Null otherwise. It never changes the
