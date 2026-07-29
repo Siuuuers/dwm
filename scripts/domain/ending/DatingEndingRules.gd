@@ -97,6 +97,110 @@ static func _friend_ending(friend_id: String, dating_route_state: Dictionary, af
 		return "ending.%s.dark" % friend_id
 	return "ending.%s.sweet" % friend_id
 
+## Primary ending resolver (dwm-p2r.7 Task 6, req.ending.primary).
+const PRIMARY_INPUT_KEYS: Array[String] = [
+	"completed_candidate", "dark_points", "day", "hospital_skipped_sylvia_solo_count", "receipt_index",
+]
+const CANDIDATE_KEYS: Array[String] = [
+	"action_id", "completion_receipt_id", "friend_id", "schedule_receipt_id", "unlock_receipt_id",
+]
+const UNLOCK_RECEIPT_KEYS: Array[String] = ["action_id", "day", "friend_id", "kind", "previous_receipt_id", "receipt_id"]
+const COMPLETION_RECEIPT_KEYS: Array[String] = ["action_id", "day", "friend_id", "kind", "outcome", "previous_receipt_id", "receipt_id"]
+
+## Selects exactly one primary Day-7 ending from validated state. A completed candidate counts
+## only when its unlock -> schedule_add -> date_completed(attended) receipt chain agrees exactly;
+## a scheduled-only or faint-prevented date is not a candidate. Tone is binary (story/05 §1):
+## Sylvia Special, then Dark, then Sweet, then Alone. Never mutates input.
+static func resolve_primary_ending(input: Dictionary) -> Dictionary:
+	var shape_error := _validate_primary_input(input)
+	if shape_error != "":
+		return {"ok": false, "code": &"invalid_primary_input", "message": shape_error}
+	# Rule 1: Sylvia Special outranks any completed candidate.
+	if int(input["hospital_skipped_sylvia_solo_count"]) >= 2:
+		return _primary_result("ending.sylvia.special", "sylvia_special")
+	var candidate: Variant = input["completed_candidate"]
+	if candidate == null:
+		return _primary_result("ending.alone", "alone")
+	var walk := _walk_completion_chain(candidate as Dictionary, input["receipt_index"])
+	if not str(walk.get("error", "")).is_empty():
+		return {"ok": false, "code": &"invalid_primary_input", "message": str(walk["error"])}
+	# A well-formed chain that did not end attended is simply not a primary candidate.
+	if not bool(walk["attended"]):
+		return _primary_result("ending.alone", "alone")
+	var friend_id := str((candidate as Dictionary)["friend_id"])
+	# Binary tone (story/05 §1): Totally Dark or Sweet; true-path is a separate postscript.
+	if int(input["dark_points"]) >= 2:
+		return _primary_result("ending.%s.dark" % friend_id, "dark")
+	return _primary_result("ending.%s.sweet" % friend_id, "sweet")
+
+
+static func _primary_result(ending_id: String, rule: String) -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": ending_id, "receipt": {"kind": "primary_ending", "ending_id": ending_id, "rule": rule}}
+
+
+static func _validate_primary_input(input: Dictionary) -> String:
+	if not _keys_match(input, PRIMARY_INPUT_KEYS):
+		return "primary input keys must be exactly " + str(PRIMARY_INPUT_KEYS)
+	if typeof(input["day"]) != TYPE_INT or int(input["day"]) != 7:
+		return "day must be 7"
+	if typeof(input["hospital_skipped_sylvia_solo_count"]) != TYPE_INT or typeof(input["dark_points"]) != TYPE_INT:
+		return "counters must be integers"
+	if typeof(input["receipt_index"]) != TYPE_DICTIONARY:
+		return "receipt_index must be a dictionary"
+	var candidate: Variant = input["completed_candidate"]
+	if candidate != null:
+		if typeof(candidate) != TYPE_DICTIONARY or not _keys_match(candidate as Dictionary, CANDIDATE_KEYS):
+			return "completed_candidate must be null or carry exactly " + str(CANDIDATE_KEYS)
+		if str((candidate as Dictionary)["friend_id"]) not in FRIEND_IDS:
+			return "candidate friend must be priscilla, lavinia, or sylvia"
+	return ""
+
+
+static func _walk_completion_chain(candidate: Dictionary, receipt_index: Dictionary) -> Dictionary:
+	var friend_id := str(candidate["friend_id"])
+	var action_id := str(candidate["action_id"])
+	var unlock := _receipt_of(receipt_index, str(candidate["unlock_receipt_id"]), "day7_unlock", UNLOCK_RECEIPT_KEYS, friend_id, action_id)
+	if not str(unlock.get("error", "")).is_empty():
+		return {"error": unlock["error"]}
+	if unlock["record"]["previous_receipt_id"] != null:
+		return {"error": "the unlock receipt must start the chain"}
+	var schedule := _receipt_of(receipt_index, str(candidate["schedule_receipt_id"]), "schedule_add", UNLOCK_RECEIPT_KEYS, friend_id, action_id)
+	if not str(schedule.get("error", "")).is_empty():
+		return {"error": schedule["error"]}
+	if str(schedule["record"]["previous_receipt_id"]) != str(candidate["unlock_receipt_id"]):
+		return {"error": "schedule_add must chain to the unlock receipt"}
+	var completion := _receipt_of(receipt_index, str(candidate["completion_receipt_id"]), "date_completed", COMPLETION_RECEIPT_KEYS, friend_id, action_id)
+	if not str(completion.get("error", "")).is_empty():
+		return {"error": completion["error"]}
+	if str(completion["record"]["previous_receipt_id"]) != str(candidate["schedule_receipt_id"]):
+		return {"error": "date_completed must chain to the schedule receipt"}
+	return {"error": "", "attended": str(completion["record"]["outcome"]) == "attended"}
+
+
+static func _receipt_of(receipt_index: Dictionary, receipt_id: String, kind: String, expected_keys: Array[String], friend_id: String, action_id: String) -> Dictionary:
+	if not receipt_index.has(receipt_id):
+		return {"error": "no receipt record for " + receipt_id}
+	var raw: Variant = receipt_index[receipt_id]
+	if typeof(raw) != TYPE_DICTIONARY or not _keys_match(raw as Dictionary, expected_keys):
+		return {"error": "malformed receipt record for " + receipt_id}
+	var record := raw as Dictionary
+	if str(record["receipt_id"]) != receipt_id:
+		return {"error": "receipt map key must equal receipt_id for " + receipt_id}
+	if str(record["kind"]) != kind:
+		return {"error": "%s must have kind %s" % [receipt_id, kind]}
+	if int(record["day"]) != 7 or str(record["friend_id"]) != friend_id or str(record["action_id"]) != action_id:
+		return {"error": "receipt %s does not match the candidate's day/friend/action" % receipt_id}
+	return {"error": "", "record": record}
+
+
+static func _keys_match(value: Dictionary, expected: Array[String]) -> bool:
+	var keys: Array = value.keys()
+	keys.sort()
+	var want: Array = expected.duplicate()
+	want.sort()
+	return keys == want
+
+
 ## Resolves Hospital consequences as a pure result (req.flow.hospital_order). Recovery is
 ## fixed; the only variable is how many Sylvia SOLO dates the faint cost, which later feeds
 ## the Sylvia Special check. Never advances the day and never mutates the input.
