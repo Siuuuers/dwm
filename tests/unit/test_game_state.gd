@@ -555,3 +555,28 @@ func test_full_no_epilogue_ending_flow_completes_the_run_to_menu() -> void:
 	assert_eq(str(finished["value"]["route"]), "menu", "the run routes to the menu")
 	assert_eq(GameState._run_lifecycle.get_state(), &"COMPLETED", "the run is COMPLETED")
 	assert_eq(GameState.day, 7, "day stays 7; there is no Day 8")
+
+func test_full_with_epilogue_ending_flow_records_both_endings() -> void:
+	# The with-epilogue arc exercises the epilogue play_ending branch (at PRIMARY_PLAYED) and the
+	# epilogue gallery unlock: Sylvia Special primary + Priscilla-Lavinia epilogue.
+	var profile := get_tree().root.get_node_or_null("ProfileManager")
+	if profile == null:
+		return
+	var ops: RefCounted = load("res://tests/support/FakeFileOps.gd").new()
+	profile.call(&"initialize", load("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("gallery-test/root3", ops))
+	profile.reset_gallery()
+	GameState._lifecycle_set_playing_day(7)
+	GameState.hospital_skipped_sylvia_solo_count = 2
+	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}
+	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	var r := GameState.resolve_day7_ending()
+	assert_eq(r["ending_id"], "ending.sylvia.special")
+	assert_eq(r["epilogue_ending_id"], "ending.priscilla_lavinia")
+	assert_true(_advance_ending(&"PRIMARY_PENDING", {"outcome": "completed"}).get("ok", false), "play primary")
+	assert_true(_advance_ending(&"PRIMARY_PLAYED", {"outcome": "completed"}).get("ok", false), "play epilogue")
+	assert_true(_advance_ending(&"EPILOGUE_PLAYED").get("ok", false), "record gallery (both)")
+	var finished: Dictionary = _advance_ending(&"GALLERY_RECORDED")
+	assert_eq(str(finished["value"]["route"]), "menu")
+	assert_eq(GameState._run_lifecycle.get_state(), &"COMPLETED")
+	assert_true(profile.has_gallery_unlock("ending.sylvia.special"), "primary unlocked")
+	assert_true(profile.has_gallery_unlock("ending.priscilla_lavinia"), "epilogue unlocked")
