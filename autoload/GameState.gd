@@ -1768,7 +1768,18 @@ func complete_ending_playback_stage(transaction_id: String, expected_stage: Stri
 			return _complete_play_ending(String(expected_stage), transaction_id, receipt)
 		"record_gallery":
 			return _complete_record_gallery(String(expected_stage), lifecycle_plan)
-	return {"ok": false, "code": &"not_implemented", "message": "complete_run is the next increment"}
+		"complete_run":
+			return _complete_run()
+	return {"ok": false, "code": &"invalid_ending_command", "message": str(command["kind"])}
+
+func _complete_run() -> Dictionary:
+	# At GALLERY_RECORDED the run finishes: ENDING -> COMPLETED, then route to the menu. No scene
+	# calls RunLifecycle directly. Day stays 7 (terminal); there is no Day 8.
+	var result: Dictionary = _run_lifecycle.complete_ending()
+	if not result.get("ok", false):
+		return result
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok", "value": {"route": "menu"}}
 
 func _complete_play_ending(stage: String, transaction_id: String, receipt: Dictionary) -> Dictionary:
 	# EndingScene passes the run-scoped transaction id (run_id:role:complete) and a flat receipt;

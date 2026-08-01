@@ -536,3 +536,22 @@ func test_record_gallery_unlocks_the_primary_and_reaches_gallery_recorded() -> v
 	assert_eq(str(GameState._run_lifecycle.to_dict()["ending_plan"]["playback_stage"]), "GALLERY_RECORDED")
 	assert_true(profile.has_gallery_unlock("ending.priscilla.sweet"), "the primary ending is unlocked in the gallery")
 	assert_false(profile.has_gallery_unlock("ending.priscilla_lavinia"), "no epilogue was recorded")
+
+func test_full_no_epilogue_ending_flow_completes_the_run_to_menu() -> void:
+	# End-to-end (layers 1-3): play primary -> record gallery (through the frozen sequence) ->
+	# complete_run. Lifecycle reaches COMPLETED, the route is menu, and day stays 7 (no Day 8).
+	var profile := get_tree().root.get_node_or_null("ProfileManager")
+	if profile == null:
+		return
+	var ops: RefCounted = load("res://tests/support/FakeFileOps.gd").new()
+	profile.call(&"initialize", load("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("gallery-test/root2", ops))
+	profile.reset_gallery()
+	_enter_priscilla_sweet_ending()
+	assert_true(_advance_ending(&"PRIMARY_PENDING", {"outcome": "completed"}).get("ok", false))
+	assert_true(_advance_ending(&"PRIMARY_PLAYED").get("ok", false))
+	assert_true(_advance_ending(&"EPILOGUE_PLAYED").get("ok", false))
+	var finished: Dictionary = _advance_ending(&"GALLERY_RECORDED")
+	assert_true(finished.get("ok", false), "complete_run succeeds at GALLERY_RECORDED")
+	assert_eq(str(finished["value"]["route"]), "menu", "the run routes to the menu")
+	assert_eq(GameState._run_lifecycle.get_state(), &"COMPLETED", "the run is COMPLETED")
+	assert_eq(GameState.day, 7, "day stays 7; there is no Day 8")
