@@ -1742,25 +1742,66 @@ func request_next_ending_command() -> Dictionary:
 	}}
 
 
-## The playback-completion stages and the role that plays out of each.
+## The role that plays out of each play_ending stage.
 const _ENDING_STAGE_ROLE := {"PRIMARY_PENDING": "primary", "PRIMARY_PLAYED": "epilogue"}
 
 func complete_ending_playback_stage(transaction_id: String, expected_stage: StringName, receipt: Dictionary) -> Dictionary:
-	# Facade completion (dwm-p2r.7 Task 6): advance a play_ending stage. EndingScene passes the
-	# run-scoped transaction id (run_id:role:complete) and a flat receipt; RunLifecycle keys the
-	# stage by ending:<stage> and wants a {value: Dictionary} envelope, so translate between them.
-	# Gallery recording and complete_run are separate transitions, wired in the next increment.
+	# Unified facade completion (dwm-p2r.7 Task 6): the live EndingPlan's current command decides
+	# what a completion does -- advance a played timeline, record the gallery, or complete the run
+	# (complete_run is the next increment). Every transition advances the frozen playback sequence.
 	if _run_lifecycle.get_state() != &"ENDING":
 		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
-	var stage := String(expected_stage)
-	if stage not in _ENDING_STAGE_ROLE:
-		return {"ok": false, "code": &"invalid_playback_stage", "message": "not a playback-completion stage: " + stage}
+	var lifecycle_plan: Dictionary = _run_lifecycle.to_dict()["ending_plan"]
+	var epilogue: String = str(lifecycle_plan.get("epilogue_ending_id", ""))
+	var command_result: Dictionary = _DATING_ENDING_RULES.next_playback_command({
+		"primary_id": str(lifecycle_plan["ending_id"]),
+		"epilogue_id": null if epilogue.is_empty() else epilogue,
+		"playback_stage": str(lifecycle_plan["playback_stage"]),
+	})
+	if not command_result.get("ok", false):
+		return command_result
+	var command: Dictionary = command_result["value"]
+	if str(command["expected_stage"]) != String(expected_stage):
+		return {"ok": false, "code": &"playback_stage_mismatch", "message": "expected %s, current %s" % [String(expected_stage), str(command["expected_stage"])]}
+	match str(command["kind"]):
+		"play_ending":
+			return _complete_play_ending(String(expected_stage), transaction_id, receipt)
+		"record_gallery":
+			return _complete_record_gallery(String(expected_stage), lifecycle_plan)
+	return {"ok": false, "code": &"not_implemented", "message": "complete_run is the next increment"}
+
+func _complete_play_ending(stage: String, transaction_id: String, receipt: Dictionary) -> Dictionary:
+	# EndingScene passes the run-scoped transaction id (run_id:role:complete) and a flat receipt;
+	# RunLifecycle keys the stage by ending:<stage> and wants a {value: Dictionary} envelope.
 	var run_id: String = str(_run_lifecycle.to_dict()["run_id"])
-	var expected_transaction := "%s:%s:complete" % [run_id, str(_ENDING_STAGE_ROLE[stage])]
-	if transaction_id != expected_transaction:
+	if transaction_id != "%s:%s:complete" % [run_id, str(_ENDING_STAGE_ROLE[stage])]:
 		return {"ok": false, "code": &"transaction_mismatch", "message": transaction_id}
-	var result: Dictionary = _run_lifecycle.complete_ending_playback_stage(
-		"ending:" + stage, expected_stage, {"value": receipt.duplicate(true)})
+	var result: Dictionary = _run_lifecycle.complete_ending_playback_stage("ending:" + stage, StringName(stage), {"value": receipt.duplicate(true)})
+	if result.get("ok", false):
+		emit_signal("save_relevant_state_changed")
+	return result
+
+func _complete_record_gallery(stage: String, lifecycle_plan: Dictionary) -> Dictionary:
+	# Record the primary then optional epilogue as independent, idempotent ProfileManager
+	# transactions (the frozen sequence passes through EPILOGUE_PLAYED even without an epilogue,
+	# so a repeat is a no-op via the gallery transaction ledger), then advance the stage.
+	var profile: Node = get_node_or_null("/root/ProfileManager")
+	if profile == null:
+		return {"ok": false, "code": &"profile_unavailable", "message": "ProfileManager autoload is required"}
+	var run_id: String = str(_run_lifecycle.to_dict()["run_id"])
+	var gallery_receipts: Dictionary = {}
+	var primary_id: String = str(lifecycle_plan["ending_id"])
+	var primary: Dictionary = profile.unlock_ending(primary_id, "ending:%s:gallery:%s" % [run_id, primary_id])
+	if not primary.get("ok", false):
+		return {"ok": false, "code": &"profile_ahead_profile_batch_failed", "message": "primary gallery unlock failed", "details": primary}
+	gallery_receipts["primary"] = primary["value"]
+	var epilogue: String = str(lifecycle_plan.get("epilogue_ending_id", ""))
+	if not epilogue.is_empty():
+		var epilogue_unlock: Dictionary = profile.unlock_ending(epilogue, "ending:%s:gallery:%s" % [run_id, epilogue])
+		if not epilogue_unlock.get("ok", false):
+			return {"ok": false, "code": &"profile_ahead_profile_batch_failed", "message": "epilogue gallery unlock failed", "details": epilogue_unlock}
+		gallery_receipts["epilogue"] = epilogue_unlock["value"]
+	var result: Dictionary = _run_lifecycle.complete_ending_playback_stage("ending:" + stage, StringName(stage), {"value": gallery_receipts})
 	if result.get("ok", false):
 		emit_signal("save_relevant_state_changed")
 	return result

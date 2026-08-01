@@ -509,3 +509,30 @@ func test_complete_ending_playback_stage_rejects_a_transaction_mismatch() -> voi
 func test_complete_ending_playback_stage_rejects_outside_ending() -> void:
 	GameState.reset_game()
 	assert_false(GameState.complete_ending_playback_stage("run-local:primary:complete", &"PRIMARY_PENDING", {}).get("ok", true))
+
+func _advance_ending(expected_stage: StringName, receipt: Dictionary = {}) -> Dictionary:
+	# Drives one ending step: reads the next command's transaction id (for play_ending) then completes it.
+	var cmd: Dictionary = GameState.request_next_ending_command()
+	var txn := ""
+	if cmd.get("ok", false) and cmd["value"].has("playback_context"):
+		txn = str(cmd["value"]["playback_context"]["transaction_id"])
+	return GameState.complete_ending_playback_stage(txn, expected_stage, receipt)
+
+func test_record_gallery_unlocks_the_primary_and_reaches_gallery_recorded() -> void:
+	# Layer 2: a no-epilogue run plays the primary, then the record_gallery steps unlock the primary
+	# in the profile gallery (idempotently) and walk the frozen sequence to GALLERY_RECORDED.
+	var profile := get_tree().root.get_node_or_null("ProfileManager")
+	if profile == null:
+		return
+	# The autoload ProfileManager is not initialized in the test harness; give it in-memory storage.
+	var ops: RefCounted = load("res://tests/support/FakeFileOps.gd").new()
+	var storage: RefCounted = load("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("gallery-test/root", ops)
+	profile.call(&"initialize", storage)  # ok, or already_initialized on a later run
+	profile.reset_gallery()
+	_enter_priscilla_sweet_ending()
+	assert_true(_advance_ending(&"PRIMARY_PENDING", {"outcome": "completed"}).get("ok", false), "primary plays")
+	assert_true(_advance_ending(&"PRIMARY_PLAYED").get("ok", false), "record gallery at PRIMARY_PLAYED")
+	assert_true(_advance_ending(&"EPILOGUE_PLAYED").get("ok", false), "record gallery at EPILOGUE_PLAYED")
+	assert_eq(str(GameState._run_lifecycle.to_dict()["ending_plan"]["playback_stage"]), "GALLERY_RECORDED")
+	assert_true(profile.has_gallery_unlock("ending.priscilla.sweet"), "the primary ending is unlocked in the gallery")
+	assert_false(profile.has_gallery_unlock("ending.priscilla_lavinia"), "no epilogue was recorded")
