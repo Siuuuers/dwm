@@ -1742,6 +1742,30 @@ func request_next_ending_command() -> Dictionary:
 	}}
 
 
+## The playback-completion stages and the role that plays out of each.
+const _ENDING_STAGE_ROLE := {"PRIMARY_PENDING": "primary", "PRIMARY_PLAYED": "epilogue"}
+
+func complete_ending_playback_stage(transaction_id: String, expected_stage: StringName, receipt: Dictionary) -> Dictionary:
+	# Facade completion (dwm-p2r.7 Task 6): advance a play_ending stage. EndingScene passes the
+	# run-scoped transaction id (run_id:role:complete) and a flat receipt; RunLifecycle keys the
+	# stage by ending:<stage> and wants a {value: Dictionary} envelope, so translate between them.
+	# Gallery recording and complete_run are separate transitions, wired in the next increment.
+	if _run_lifecycle.get_state() != &"ENDING":
+		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
+	var stage := String(expected_stage)
+	if stage not in _ENDING_STAGE_ROLE:
+		return {"ok": false, "code": &"invalid_playback_stage", "message": "not a playback-completion stage: " + stage}
+	var run_id: String = str(_run_lifecycle.to_dict()["run_id"])
+	var expected_transaction := "%s:%s:complete" % [run_id, str(_ENDING_STAGE_ROLE[stage])]
+	if transaction_id != expected_transaction:
+		return {"ok": false, "code": &"transaction_mismatch", "message": transaction_id}
+	var result: Dictionary = _run_lifecycle.complete_ending_playback_stage(
+		"ending:" + stage, expected_stage, {"value": receipt.duplicate(true)})
+	if result.get("ok", false):
+		emit_signal("save_relevant_state_changed")
+	return result
+
+
 func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> void:
 	if _run_lifecycle.get_state() != &"PLAYING":
 		return

@@ -162,10 +162,10 @@ func test_next_playback_command_walks_the_stages() -> void:
 		return
 	var with_epilogue := {"primary_id": "ending.priscilla.dark", "epilogue_id": "ending.priscilla_lavinia", "playback_stage": "PRIMARY_PENDING"}
 	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"play_ending", "ending_id": "ending.priscilla.dark", "role": &"primary", "expected_stage": &"PRIMARY_PENDING"})
-	with_epilogue["playback_stage"] = "PRIMARY_COMPLETED"
-	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"play_ending", "ending_id": "ending.priscilla_lavinia", "role": &"epilogue", "expected_stage": &"PRIMARY_COMPLETED"})
-	with_epilogue["playback_stage"] = "EPILOGUE_COMPLETED"
-	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"record_gallery", "expected_stage": &"EPILOGUE_COMPLETED"})
+	with_epilogue["playback_stage"] = "PRIMARY_PLAYED"
+	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"play_ending", "ending_id": "ending.priscilla_lavinia", "role": &"epilogue", "expected_stage": &"PRIMARY_PLAYED"})
+	with_epilogue["playback_stage"] = "EPILOGUE_PLAYED"
+	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"record_gallery", "expected_stage": &"EPILOGUE_PLAYED"})
 	with_epilogue["playback_stage"] = "GALLERY_RECORDED"
 	assert_eq(rules.next_playback_command(with_epilogue)["value"], {"kind": &"complete_run", "expected_stage": &"GALLERY_RECORDED"})
 
@@ -173,5 +173,5 @@ func test_next_playback_command_records_gallery_when_no_epilogue() -> void:
 	var rules: Script = load(RULES_PATH)
 	if rules == null:
 		return
-	var no_epilogue := {"primary_id": "ending.alone", "epilogue_id": null, "playback_stage": "PRIMARY_COMPLETED"}
-	assert_eq(rules.next_playback_command(no_epilogue)["value"], {"kind": &"record_gallery", "expected_stage": &"PRIMARY_COMPLETED"})
+	var no_epilogue := {"primary_id": "ending.alone", "epilogue_id": null, "playback_stage": "PRIMARY_PLAYED"}
+	assert_eq(rules.next_playback_command(no_epilogue)["value"], {"kind": &"record_gallery", "expected_stage": &"PRIMARY_PLAYED"})

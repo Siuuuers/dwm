@@ -143,7 +143,9 @@ const VALID_PRIMARY_IDS: Array[String] = [
 	"ending.sylvia.sweet", "ending.sylvia.dark", "ending.sylvia.special",
 ]
 const ENDING_PLAN_KEYS: Array[String] = ["epilogue_id", "playback_stage", "primary_id"]
-const PLAYBACK_STAGES: Array[String] = ["PRIMARY_PENDING", "PRIMARY_COMPLETED", "EPILOGUE_COMPLETED", "GALLERY_RECORDED"]
+# Stage names match the frozen RunSnapshotSchema/RunLifecycle PLAYBACK_SEQUENCE (the schema wins
+# over plan-04's COMPLETED wording).
+const PLAYBACK_STAGES: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
 
 ## Composes the primary and epilogue resolvers into a fresh EndingPlan at PRIMARY_PENDING.
 static func build_ending_plan(primary_input: Dictionary, epilogue_input: Dictionary) -> Dictionary:
@@ -187,13 +189,13 @@ static func next_playback_command(plan: Dictionary) -> Dictionary:
 	match stage:
 		"PRIMARY_PENDING":
 			command = {"kind": &"play_ending", "ending_id": str(plan["primary_id"]), "role": &"primary", "expected_stage": &"PRIMARY_PENDING"}
-		"PRIMARY_COMPLETED":
+		"PRIMARY_PLAYED":
 			if has_epilogue:
-				command = {"kind": &"play_ending", "ending_id": str(plan["epilogue_id"]), "role": &"epilogue", "expected_stage": &"PRIMARY_COMPLETED"}
+				command = {"kind": &"play_ending", "ending_id": str(plan["epilogue_id"]), "role": &"epilogue", "expected_stage": &"PRIMARY_PLAYED"}
 			else:
-				command = {"kind": &"record_gallery", "expected_stage": &"PRIMARY_COMPLETED"}
-		"EPILOGUE_COMPLETED":
-			command = {"kind": &"record_gallery", "expected_stage": &"EPILOGUE_COMPLETED"}
+				command = {"kind": &"record_gallery", "expected_stage": &"PRIMARY_PLAYED"}
+		"EPILOGUE_PLAYED":
+			command = {"kind": &"record_gallery", "expected_stage": &"EPILOGUE_PLAYED"}
 		_:  # GALLERY_RECORDED
 			command = {"kind": &"complete_run", "expected_stage": &"GALLERY_RECORDED"}
 	return {"ok": true, "code": &"ok", "value": command}

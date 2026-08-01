@@ -480,3 +480,32 @@ func test_request_next_ending_command_plays_primary_first() -> void:
 func test_request_next_ending_command_rejects_outside_ending() -> void:
 	GameState.reset_game()
 	assert_false(GameState.request_next_ending_command().get("ok", true), "no ending command while PLAYING")
+
+func _enter_priscilla_sweet_ending() -> void:
+	GameState._lifecycle_set_playing_day(7)
+	GameState.contact_message_unlocks = {"day:7:friend:priscilla": true}
+	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	GameState.dating_route_state = {"priscilla": {"true_path_count": 4, "dark_points": 0}}
+	GameState.affection = {"priscilla": 10}
+	GameState.resolve_day7_ending()
+
+func test_complete_ending_playback_stage_advances_the_primary() -> void:
+	# The facade translates the run-scoped transaction id + flat receipt to the lifecycle's
+	# ending:<stage> / {value:...} contract and advances PRIMARY_PENDING -> PRIMARY_COMPLETED.
+	_enter_priscilla_sweet_ending()
+	var ctx: Dictionary = GameState.request_next_ending_command()["value"]["playback_context"]
+	var result: Dictionary = GameState.complete_ending_playback_stage(
+		str(ctx["transaction_id"]), ctx["expected_stage"],
+		{"timeline_completion_receipt_id": "timeline:priscilla.sweet:complete", "outcome": "completed"})
+	assert_true(result.get("ok", false), "a matching primary completion advances the stage")
+	assert_eq(str(GameState._run_lifecycle.to_dict()["ending_plan"]["playback_stage"]), "PRIMARY_PLAYED")
+
+func test_complete_ending_playback_stage_rejects_a_transaction_mismatch() -> void:
+	_enter_priscilla_sweet_ending()
+	var result: Dictionary = GameState.complete_ending_playback_stage(
+		"run-local:primary:WRONG", &"PRIMARY_PENDING", {"outcome": "completed"})
+	assert_false(result.get("ok", true), "a transaction id that is not run_id:role:complete is rejected")
+
+func test_complete_ending_playback_stage_rejects_outside_ending() -> void:
+	GameState.reset_game()
+	assert_false(GameState.complete_ending_playback_stage("run-local:primary:complete", &"PRIMARY_PENDING", {}).get("ok", true))
