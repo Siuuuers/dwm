@@ -598,3 +598,48 @@ func test_ending_playback_resumes_after_a_state_round_trip() -> void:
 	var cmd: Dictionary = GameState.request_next_ending_command()
 	assert_true(cmd.get("ok", false))
 	assert_eq(str(cmd["value"]["expected_stage"]), "PRIMARY_PLAYED", "resumes at the persisted stage, not from the start")
+
+func test_gallery_record_recovers_forward_after_a_partial_profile_failure() -> void:
+	# req.ending.playback exactly-once forward recovery: when the epilogue gallery unlock fails after
+	# the primary was already recorded (a transient, determinate profile failure), the stage stays
+	# pending -- no partial advance -- and a retry records the epilogue and completes WITHOUT
+	# double-recording the primary. The injectable mutation gate is a clean, storage-free determinate
+	# failure: guard_external rejects the commit before any write and never latches _mutation_blocked.
+	var profile := get_tree().root.get_node_or_null("ProfileManager")
+	if profile == null:
+		return
+	var ops: RefCounted = load("res://tests/support/FakeFileOps.gd").new()
+	profile.call(&"initialize", load("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("gallery-test/root-recovery", ops))
+	profile.reset_gallery()
+	# A collision-free run id: sibling tests reuse run-local and the gallery ledger is retained across
+	# reset_gallery, so a fresh id keeps this scenario's transactions isolated.
+	GameState._run_lifecycle.reset("recovery-run")
+	GameState._lifecycle_set_playing_day(7)
+	GameState.hospital_skipped_sylvia_solo_count = 2
+	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}
+	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	assert_eq(GameState.resolve_day7_ending()["epilogue_ending_id"], "ending.priscilla_lavinia")
+	assert_true(_advance_ending(&"PRIMARY_PENDING", {"outcome": "completed"}).get("ok", false), "play primary")
+	assert_true(_advance_ending(&"PRIMARY_PLAYED", {"outcome": "completed"}).get("ok", false), "play epilogue")
+	# Simulate a crash after the primary was persisted but before the epilogue: pre-record only the
+	# primary under the exact transaction id the record step reuses.
+	var run_id: String = str(GameState._run_lifecycle.to_dict()["run_id"])
+	assert_true(profile.unlock_ending("ending.sylvia.special", "ending:%s:gallery:ending.sylvia.special" % run_id).get("ok", false), "primary pre-recorded")
+	# Block the next profile commit so the epilogue unlock fails determinately, before any write.
+	var gate: RefCounted = load("res://tests/support/FakeApplicationMutationGate.gd").new()
+	assert_true(profile.configure_mutation_gate(gate).get("ok", false), "gate installed")
+	var token: String = gate.acquire(&"restore")["value"]["token"]
+	var blocked: Dictionary = _advance_ending(&"EPILOGUE_PLAYED")
+	gate.release(&"restore", token)  # release at once so a later failed assert cannot leak a blocked gate
+	assert_false(blocked.get("ok", true), "the record step fails while the epilogue cannot be recorded")
+	assert_eq(str(blocked.get("code")), "profile_ahead_profile_batch_failed", "surfaces the partial-batch failure")
+	assert_eq(str(GameState._run_lifecycle.to_dict()["ending_plan"]["playback_stage"]), "EPILOGUE_PLAYED", "the stage stays pending -- no partial advance")
+	assert_false(profile.has_gallery_unlock("ending.priscilla_lavinia"), "the epilogue was not recorded")
+	# Retry: forward recovery. The primary unlock reuses its receipt (no double record); the epilogue
+	# records and the run advances to GALLERY_RECORDED.
+	var recovered: Dictionary = _advance_ending(&"EPILOGUE_PLAYED")
+	assert_true(recovered.get("ok", false), "the retry records the epilogue and advances")
+	assert_eq(str(GameState._run_lifecycle.to_dict()["ending_plan"]["playback_stage"]), "GALLERY_RECORDED")
+	assert_true(profile.has_gallery_unlock("ending.sylvia.special"), "primary still recorded")
+	assert_true(profile.has_gallery_unlock("ending.priscilla_lavinia"), "epilogue now recorded")
+	assert_eq((profile.get_profile_snapshot()["gallery_unlocks"] as Array).count("ending.sylvia.special"), 1, "primary recorded exactly once")
