@@ -580,3 +580,21 @@ func test_full_with_epilogue_ending_flow_records_both_endings() -> void:
 	assert_eq(GameState._run_lifecycle.get_state(), &"COMPLETED")
 	assert_true(profile.has_gallery_unlock("ending.sylvia.special"), "primary unlocked")
 	assert_true(profile.has_gallery_unlock("ending.priscilla_lavinia"), "epilogue unlocked")
+
+func test_ending_playback_resumes_after_a_state_round_trip() -> void:
+	# req.ending.playback (resumable): a run in ENDING survives a capture/restore round-trip and
+	# resumes from its persisted playback stage -- not from the beginning.
+	_enter_priscilla_sweet_ending()
+	assert_true(_advance_ending(&"PRIMARY_PENDING", {"outcome": "completed"}).get("ok", false))
+	assert_eq(str(GameState._run_lifecycle.to_dict()["ending_plan"]["playback_stage"]), "PRIMARY_PLAYED")
+	var backup: Dictionary = GameState.capture_restore_state()["value"]["backup"]
+	# Advance past the captured point, then restore: the stage must return to PRIMARY_PLAYED.
+	assert_true(_advance_ending(&"PRIMARY_PLAYED").get("ok", false))
+	assert_eq(str(GameState._run_lifecycle.to_dict()["ending_plan"]["playback_stage"]), "EPILOGUE_PLAYED")
+	GameState.rollback_restore_silent(backup)
+	assert_eq(GameState._run_lifecycle.get_state(), &"ENDING", "restore brings back the ENDING state")
+	assert_eq(str(GameState._run_lifecycle.to_dict()["ending_plan"]["playback_stage"]), "PRIMARY_PLAYED", "and the persisted stage")
+	# Resuming asks for the correct next command from the restored stage.
+	var cmd: Dictionary = GameState.request_next_ending_command()
+	assert_true(cmd.get("ok", false))
+	assert_eq(str(cmd["value"]["expected_stage"]), "PRIMARY_PLAYED", "resumes at the persisted stage, not from the start")
