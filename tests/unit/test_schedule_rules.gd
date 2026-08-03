@@ -55,6 +55,30 @@ func test_validate_schedule_returns_dictionary() -> void:
 	assert_true(res.has("ok"))
 
 
+# ---- Characterization net for the ScheduleRules migration (dwm-p2r.7 Task 4) ----
+# These pin the CURRENT GameState validation reason codes so the future delegation onto the pure
+# ScheduleRules module is provably behaviour-preserving (or its diff is visible). Not new logic.
+
+func test_validate_schedule_reason_codes() -> void:
+	assert_eq(GameState.validate_schedule(), {"ok": true, "reason": "valid"}, "empty schedule is valid")
+	GameState.add_schedule_action("training")
+	assert_eq(GameState.validate_schedule(), {"ok": true, "reason": "valid"}, "a registered action is valid")
+	GameState.schedule_entries.append({"type": "mystery_action"})
+	assert_eq(GameState.validate_schedule(), {"ok": false, "reason": "unknown_action"},
+		"an unregistered action type is rejected")
+
+func test_can_add_schedule_action_reason_codes() -> void:
+	assert_eq(GameState.can_add_schedule_action("training"), {"ok": true}, "a registered action is addable")
+	assert_eq(GameState.can_add_schedule_action("mystery_action").get("reason"), "unknown_action")
+	assert_eq(GameState.can_add_schedule_action("dating", "").get("reason"), "no_friend",
+		"dating requires a friend id")
+	assert_eq(GameState.can_add_schedule_action("dating", "priscilla").get("reason"), "date_not_unlocked",
+		"dating requires an unlocked date")
+	GameState.change_stat("motivation", -7)
+	assert_eq(GameState.can_add_schedule_action("training").get("reason"), "no_motivation",
+		"zero motivation blocks scheduling")
+
+
 # ---- Schedule Done warning ----
 func test_warn_playable_round_and_motivation_empty_schedule() -> void:
 	# Fresh day: no unfinished, playable rounds remain, motivation > 0, empty schedule.
