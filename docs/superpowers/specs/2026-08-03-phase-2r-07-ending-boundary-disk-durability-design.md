@@ -1,6 +1,8 @@
 # Ending-Boundary Disk Durability (dwm-p2r.7 Task 6 closeout)
 
-Status: approved design (refined 2026-08-03), pending implementation plan
+Status: **BLOCKED / deferred** (2026-08-03) — planning surfaced a stubbed
+foundation; no implementation written. See "Blocked: snapshot-production
+dependency" at the end. Task 6's `.7` recovery story is complete without this.
 Date: 2026-08-03
 Scope: dwm-p2r.7 Task 6 (endings) — the recovery closeout for `.7`
 
@@ -123,3 +125,39 @@ blast-radius re-run of the save/restore and game_state clusters before commit
   from scenes and/or Dialogic line-checkpoints) so `autosave()` persists during
   normal play. A separate, larger integration tracked independently. This spec
   verifies the durable *mechanism*, not its scene wiring.
+
+## Blocked: snapshot-production dependency (finding 2026-08-03)
+
+During implementation planning, verification revealed the durable mechanism this
+spec targets is not yet implementable in `.7`. No implementation was written.
+
+The real `SaveManagerCheckpointPort.prepare` requires a full snapshot bundle
+(`CHECKPOINT_INPUT_KEYS`): `snapshot_input` (with a `lifecycle` object, hence the
+`ending_plan`), plus `dialogic_checkpoint`, `route_id`, `active_app_id`,
+`audio_context`, and `content_version`. But the coordinator's state port,
+`GameStateDayResolutionPort.prepare_completion`, currently emits a **stub**
+`snapshot_input` of exactly `{run_id, day}` (see its class header: real snapshot
+production "arrive[s] with the Plan04 integration tasks"). The real checkpoint
+port rejects that stub with `invalid_checkpoint_inputs`. The coordinator's tests
+pass only because they use `FakeCheckpointPort`, which does not validate the
+input shape.
+
+Consequences:
+
+- No path persists a real ENDING (or any) snapshot to disk in `.7`. The direct
+  scene path records no stable checkpoint (`autosave()` returns
+  `no_stable_checkpoint` and is ignored); the coordinator path cannot feed the
+  real checkpoint port.
+- Achieving disk durability requires building **real snapshot production**
+  (GameState live-capture into the full `CHECKPOINT_INPUT_KEYS` bundle). One
+  required field, `dialogic_checkpoint`, comes from Dialogic — a `.8`
+  deliverable. So real disk checkpoints are fundamentally a `.8`-era foundation,
+  not an ending-specific closeout.
+- Building that integration under an ending ticket would be scope creep affecting
+  every day-resolution checkpoint, not just endings.
+
+Decision: do not implement here. Task 6's `.7` recovery story is complete via the
+already-shipped in-memory resumability, exactly-once forward recovery, semantic
+tamper-rejection on restore, and full 8-primary coverage. Disk durability (for
+endings and all day stages) is tracked as its own `.8`-era snapshot-production
+integration task.
