@@ -89,6 +89,38 @@ func test_validate_rejection_matrix() -> void:
 	missing_key.erase("audio_context")
 	assert_false(schema.validate(missing_key).get("ok", true), "absent required field is not silently filled")
 
+func _ending_snapshot(ending_plan: Dictionary) -> Dictionary:
+	# A day-7 ENDING snapshot carrying the given ending_plan, built from the frozen day-3 fixture.
+	var base := _fixture(VALID_FIXTURE)
+	base["lifecycle"]["day"] = 7
+	base["lifecycle"]["state"] = "ENDING"
+	base["lifecycle"]["ending_plan"] = ending_plan
+	return base
+
+func test_validate_enforces_ending_id_is_a_canonical_primary() -> void:
+	# A restored ending_plan is structurally valid AND semantically valid: a tampered save cannot
+	# smuggle an epilogue-only or retired ending id in as the primary, nor a bogus epilogue. Restore
+	# defers to DatingEndingRules.validate_ending_plan for that authority (story/05 sec 1 binary tone).
+	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var canonical := {"ending_id": "ending.priscilla.sweet", "epilogue_ending_id": "", "playback_receipts": {}, "playback_stage": "PRIMARY_PENDING", "source_day": 7}
+	assert_true(schema.validate(_ending_snapshot(canonical)).get("ok", false), "a canonical primary ending plan validates")
+	var with_epilogue := canonical.duplicate(true)
+	with_epilogue["ending_id"] = "ending.sylvia.special"
+	with_epilogue["epilogue_ending_id"] = "ending.priscilla_lavinia"
+	assert_true(schema.validate(_ending_snapshot(with_epilogue)).get("ok", false), "a canonical primary + canonical epilogue validates")
+	var epilogue_as_primary := canonical.duplicate(true)
+	epilogue_as_primary["ending_id"] = "ending.priscilla_lavinia"
+	assert_false(schema.validate(_ending_snapshot(epilogue_as_primary)).get("ok", true), "the epilogue-only id is never a valid primary")
+	var retired_true := canonical.duplicate(true)
+	retired_true["ending_id"] = "ending.priscilla.true"
+	assert_false(schema.validate(_ending_snapshot(retired_true)).get("ok", true), "a retired true-path id is not a valid primary")
+	var bogus_epilogue := canonical.duplicate(true)
+	bogus_epilogue["epilogue_ending_id"] = "ending.sylvia.sweet"
+	assert_false(schema.validate(_ending_snapshot(bogus_epilogue)).get("ok", true), "the epilogue must be empty or ending.priscilla_lavinia")
+
 func test_validate_primitive_tree_rejects_engine_types() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
 	if not _schema_exists():

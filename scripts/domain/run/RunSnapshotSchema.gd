@@ -8,6 +8,7 @@ const SCHEMA_VERSION := 2
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
+const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
 const NARRATIVE_VARIABLE_REGISTRY_PATH := "res://data/manifests/narrative_variables.json"
 
 const TOP_KEYS: Array[String] = [
@@ -253,6 +254,17 @@ static func _validate_ending_plan(plan: Variant) -> String:
 		return "unknown playback_stage: " + str(plan["playback_stage"])
 	if typeof(plan["playback_receipts"]) != TYPE_DICTIONARY:
 		return "playback_receipts must be a Dictionary"
+	# Semantic authority: a structurally valid plan must still name a canonical primary and a valid
+	# epilogue. Adapt the persisted shape (ending_id/epilogue_ending_id) to the DatingEndingRules
+	# plan shape (primary_id/epilogue_id) and defer -- a tampered save cannot resume otherwise.
+	var epilogue_raw := str((plan as Dictionary)["epilogue_ending_id"])
+	var semantic: Dictionary = DATING_ENDING_RULES.validate_ending_plan({
+		"primary_id": str((plan as Dictionary)["ending_id"]),
+		"epilogue_id": null if epilogue_raw.is_empty() else epilogue_raw,
+		"playback_stage": str((plan as Dictionary)["playback_stage"]),
+	})
+	if not semantic.get("ok", false):
+		return str(semantic.get("message", semantic.get("code", "invalid ending plan")))
 	return ""
 
 static func _validate_gameplay(gameplay: Variant) -> String:
