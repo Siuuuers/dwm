@@ -102,3 +102,100 @@ func test_configure_rejects_replacement_while_a_command_is_pending() -> void:
 	scene.resume_ending()
 	var replaced: Dictionary = scene.configure_ending_ports(FakeEndingStatePort.new(), FakeEndingPlaybackPort.new())
 	assert_false(replaced.get("ok", true), "ports cannot be swapped while a command is pending")
+
+# ---- Table-driven coverage of every canonical primary (plan-04 Step 6.4) ----
+# Drives the REAL GameState ending facade for each primary, with and without the inter-friend
+# epilogue, from PRIMARY_PENDING to COMPLETED. Also proves each intermediate stage is a resumable
+# save point. This is verification of existing behaviour, not new logic.
+
+const PRIMARIES: Array[String] = [
+	"ending.alone",
+	"ending.priscilla.sweet", "ending.priscilla.dark",
+	"ending.lavinia.sweet", "ending.lavinia.dark",
+	"ending.sylvia.sweet", "ending.sylvia.dark", "ending.sylvia.special",
+]
+
+func _init_profile() -> Node:
+	var profile := get_tree().root.get_node_or_null("ProfileManager")
+	if profile == null:
+		return null
+	var ops: RefCounted = load("res://tests/support/FakeFileOps.gd").new()
+	profile.call(&"initialize", load("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("day7-table/root", ops))
+	return profile
+
+func _enter(primary: String, epilogue: String, run_id: String) -> void:
+	# A fresh run id keeps each case's gallery transactions isolated (the ledger is retained across
+	# reset_gallery), then enter ENDING directly with the chosen plan.
+	GameState._run_lifecycle.reset(run_id)
+	GameState._lifecycle_set_playing_day(7)
+	var entered: Dictionary = GameState._run_lifecycle.enter_ending({
+		"ending_id": primary, "epilogue_ending_id": epilogue,
+		"source_day": 7, "playback_stage": "PRIMARY_PENDING", "playback_receipts": {},
+	})
+	assert_true(entered.get("ok", false), "enter_ending %s: %s" % [primary, entered])
+
+func _advance_current() -> Dictionary:
+	# Reads the live command and feeds it a matching completion (play_ending needs a receipt).
+	var cmd: Dictionary = GameState.request_next_ending_command()
+	if not cmd.get("ok", false):
+		return cmd
+	var value: Dictionary = cmd["value"]
+	if value.has("playback_context"):
+		return GameState.complete_ending_playback_stage(
+			str(value["playback_context"]["transaction_id"]),
+			value["playback_context"]["expected_stage"], {"outcome": "completed"})
+	return GameState.complete_ending_playback_stage("", value["expected_stage"], {})
+
+func _drive_to_completion() -> Dictionary:
+	var last := {"ok": false}
+	for _i in range(5):
+		if GameState._run_lifecycle.get_state() == &"COMPLETED":
+			return last
+		last = _advance_current()
+		if not last.get("ok", false):
+			return last
+	return last
+
+func test_every_primary_and_epilogue_variant_completes_to_the_menu() -> void:
+	var profile := _init_profile()
+	if profile == null:
+		return
+	var case_index := 0
+	for primary: String in PRIMARIES:
+		for epilogue: String in ["", "ending.priscilla_lavinia"]:
+			profile.reset_gallery()
+			_enter(primary, epilogue, "table-%d" % case_index)
+			case_index += 1
+			var label := "%s + [%s]" % [primary, epilogue]
+			var finished: Dictionary = _drive_to_completion()
+			assert_true(finished.get("ok", false), "walk completes for %s: %s" % [label, finished])
+			assert_eq(str((finished.get("value", {}) as Dictionary).get("route", "")), "menu", "routes to menu for %s" % label)
+			assert_eq(GameState._run_lifecycle.get_state(), &"COMPLETED", "COMPLETED for %s" % label)
+			assert_eq(GameState.day, 7, "day stays 7 for %s" % label)
+			assert_true(profile.has_gallery_unlock(primary), "primary recorded for %s" % label)
+			var expected_count := 1
+			if not epilogue.is_empty():
+				assert_true(profile.has_gallery_unlock(epilogue), "epilogue recorded for %s" % label)
+				expected_count = 2
+			assert_eq((profile.get_profile_snapshot()["gallery_unlocks"] as Array).size(), expected_count,
+				"exactly %d canonical gallery id(s) for %s" % [expected_count, label])
+
+func test_resume_at_every_stage_reproduces_the_same_next_command() -> void:
+	# plan-04 Step 6.4: at each playback stage a serialize/restore round-trip resumes to the SAME
+	# next command -- no remaining action is lost or replayed. Representative with-epilogue case.
+	var profile := _init_profile()
+	if profile == null:
+		return
+	profile.reset_gallery()
+	_enter("ending.sylvia.special", "ending.priscilla_lavinia", "resume-run")
+	for stage: String in ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]:
+		var before: Dictionary = GameState.request_next_ending_command()
+		assert_true(before.get("ok", false), "a command is available at %s" % stage)
+		var backup: Dictionary = GameState.capture_restore_state()["value"]["backup"]
+		GameState.rollback_restore_silent(backup)
+		var after: Dictionary = GameState.request_next_ending_command()
+		assert_eq(after["value"], before["value"], "the same command resumes after a round-trip at %s" % stage)
+		assert_true(_advance_current().get("ok", false), "advance from %s" % stage)
+	assert_eq(GameState._run_lifecycle.get_state(), &"COMPLETED", "the resumed walk reaches COMPLETED")
+	assert_true(profile.has_gallery_unlock("ending.sylvia.special"), "primary recorded")
+	assert_true(profile.has_gallery_unlock("ending.priscilla_lavinia"), "epilogue recorded")
