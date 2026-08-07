@@ -3,10 +3,11 @@ id: spec.seven_day_dialogic_flow
 kind: design_specification
 schema_version: 1
 conversational_design_status: approved
-written_spec_status: proposed
+written_spec_status: approved
 self_review_status: passed
 implementation_authorized: false
 created_on: 2026-08-07
+written_spec_approved_on: 2026-08-07
 engine_line: godot_4_6
 verification_engine: "4.6.3-stable-mono"
 dialogic_version: "2.0-Alpha-19 (Godot 4.4+)"
@@ -23,11 +24,11 @@ calendar, relationship and Minesweeper consequences, Hospital interruptions,
 Priscilla-Lavinia encounters, Day 7 endings, save/reload law, and consolidated
 Dialogic authoring structure.
 
-The written specification remains **proposed** until the user reviews this file.
-It authorizes no implementation by itself. After written approval, it becomes
-the domain design authority for the concerns named above; runtime code, tests,
-requirement packets, and Beads issues must then be reconciled through an
-approved implementation plan.
+The user approved this written specification on 2026-08-07. It is now the
+domain design authority for the concerns named above, but it authorizes no
+implementation by itself. Runtime code, tests, requirement packets, and Beads
+issues must be reconciled through a separately reviewed and approved
+implementation plan.
 
 The objective is an absurd, dreamlike, punishing game whose world does not bend
 around Angela, while every apparently impossible consequence still follows a
@@ -1658,15 +1659,20 @@ implementation and derived production templates must not.
 
 ## 18. Acceptance criteria for this design
 
-This design is ready for implementation planning only when:
+Design approval is complete because:
 
 - the user approves this written specification;
 - frontmatter records written approval and self-review success;
-- no placeholder, unresolved alternative, or contradictory rule remains;
-- one future plan maps every implementation task to a bounded specification
-  section and relevant Godot skill;
-- that plan explicitly preserves unrelated dirty work and migrates rather than
-  silently overwrites current implementation;
-- implementation authorization is granted separately.
+- no placeholder, unresolved alternative, or contradictory rule remains.
 
-Until then, this document records design only.
+Runtime implementation may begin only when:
+
+- one implementation plan suite maps every task to a bounded
+  specification section and relevant Godot skill;
+- that plan suite explicitly preserves unrelated dirty work and migrates rather
+  than silently overwrites current implementation;
+- the user separately approves that plan suite and grants implementation
+  authorization.
+
+Planning is now authorized. Runtime implementation remains unauthorized until
+all remaining conditions are explicitly satisfied.
