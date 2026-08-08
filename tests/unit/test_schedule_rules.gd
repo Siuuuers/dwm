@@ -118,12 +118,12 @@ func test_char_three_dates_exceed_the_day_allowance() -> void:
 	assert_eq(GameState.validate_schedule(), {"ok": false, "reason": "too_many_dates"},
 		"three dates exceed the day-1 allowance")
 
-func test_char_full_two_date_week_currently_self_reports_invalid() -> void:
-	# LATENT BUG documented: the add-time guard, reused at validate-time, double-counts, so a full,
-	# legal 2-date week self-reports invalid_date. Task 3's delegation corrects this to valid.
+func test_full_two_date_week_is_valid_after_delegation() -> void:
+	# Corrected by the ScheduleRules delegation: the add-time guard no longer double-counts at
+	# validate-time, so a full, legal 2-date week validates.
 	GameState.schedule_entries = [
 		GameState.build_date_entry_from_unlock("priscilla"),
 		GameState.build_date_entry_from_unlock("lavinia"),
 	]
-	assert_eq(GameState.validate_schedule(), {"ok": false, "reason": "invalid_date"},
-		"pre-delegation: a full valid 2-date week self-reports invalid_date")
+	assert_eq(GameState.validate_schedule(), {"ok": true, "reason": "valid"},
+		"post-delegation: a full valid 2-date week validates")

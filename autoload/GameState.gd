@@ -130,6 +130,7 @@ const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/r
 const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
+const _SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
 var _mutation_gate: Object = null
@@ -1565,30 +1566,17 @@ func _entry_friend_id(entry: Dictionary) -> String:
 # _can_add_date_entry validates a would-be date entry against current schedule.
 # `silent` = called during re-validation (no extra side effects); always returns bool.
 func _can_add_date_entry(entry: Dictionary, silent: bool = false) -> bool:
-	var t: String = entry.get("type", "")
-	if t == "twofriends":
+	# twofriends is a deferred route produced by day-end resolution, never validated here.
+	if entry.get("type", "") == "twofriends":
 		return true
-	var max_dates: int = get_max_scheduled_dates_for_current_day()
-	if get_scheduled_date_count() >= max_dates:
-		return false
-	# Day-4 Priscilla first-slot enforcement.
-	if day == 4 and t == "solo" and entry.get("friend_id") == "priscilla":
-		if schedule_entries.size() > 0:
-			return false
-	# No duplicate solo/group for same friend(s) on same day.
-	if t == "solo":
-		var fid: String = entry.get("friend_id", "")
-		for e in schedule_entries:
-			if e.get("type") == "solo" and e.get("friend_id") == fid:
-				return false
-	elif t == "group":
-		var fids: Array = entry.get("friend_ids", [])
-		for e in schedule_entries:
-			if e.get("type") == "group":
-				var ef: Array = e.get("friend_ids", [])
-				if ef.size() == fids.size() and ef.has(fids[0]) and ef.has(fids[-1]):
-					return false
-	return true
+	# ScheduleRules owns the solo/group date rules. `existing` is the schedule with THIS entry
+	# excluded by identity, so a scheduled entry never invalidates itself (add-time: the candidate
+	# is not yet in the schedule, so nothing is excluded).
+	var existing: Array = []
+	for e in schedule_entries:
+		if not is_same(e, entry):
+			existing.append(e)
+	return _SCHEDULE_RULES.validate_date_candidate(existing, entry, day).get("ok", false)
 
 
 # ---- Phase 2R lifecycle facade seams (dwm-p2r.4 Task 3) ----
