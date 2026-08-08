@@ -2,7 +2,7 @@
 # locale: en
 # type: ending
 # friend: priscilla
-# contains: sweet, dark, true
+# contains: sweet, dark, observation
 
 label ending.priscilla.sweet
 # TODO: priscilla ending dialogue
@@ -10,7 +10,7 @@ label ending.priscilla.sweet
 label ending.priscilla.dark
 # TODO: priscilla ending dialogue
 
-label ending.priscilla.true
+label ending.priscilla.observation
 # TODO: priscilla ending dialogue
 
 return

@@ -2,7 +2,7 @@
 # locale: en
 # type: ending
 # friend: sylvia
-# contains: sweet, dark, true
+# contains: sweet, dark, special
 
 label ending.sylvia.sweet
 # TODO: sylvia ending dialogue
@@ -10,7 +10,7 @@ label ending.sylvia.sweet
 label ending.sylvia.dark
 # TODO: sylvia ending dialogue
 
-label ending.sylvia.true
+label ending.sylvia.special
 # TODO: sylvia ending dialogue
 
 return

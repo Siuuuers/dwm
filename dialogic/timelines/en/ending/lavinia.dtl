@@ -2,7 +2,7 @@
 # locale: en
 # type: ending
 # friend: lavinia
-# contains: sweet, dark, true
+# contains: sweet, dark, observation
 
 label ending.lavinia.sweet
 # TODO: lavinia ending dialogue
@@ -10,7 +10,7 @@ label ending.lavinia.sweet
 label ending.lavinia.dark
 # TODO: lavinia ending dialogue
 
-label ending.lavinia.true
+label ending.lavinia.observation
 # TODO: lavinia ending dialogue
 
 return

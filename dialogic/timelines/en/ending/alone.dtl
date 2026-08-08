@@ -3,4 +3,6 @@
 # type: ending
 # fallback ending
 
+label ending.alone
+
 return
