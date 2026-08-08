@@ -140,3 +140,10 @@ func test_legacy_day8_no_fallback_rejects() -> void:
 	var result: Dictionary = m.migrate_legacy_day8(_fixture("day8_no_fallback.json"), [])
 	assert_false(result.get("ok", true), "no valid terminal and no fallback rejects")
 	assert_eq(result["code"], &"no_day8_reconstruction")
+
+func test_migrate_retired_true_ending_ids() -> void:
+	var m: Script = load("res://scripts/infrastructure/save/SaveMigrations.gd")
+	assert_eq(m.migrate_ending_id("priscilla.true")["value"]["ending_id"], "ending.priscilla.observation")
+	assert_eq(m.migrate_ending_id("ending.lavinia.true")["value"]["ending_id"], "ending.lavinia.observation")
+	assert_eq(m.migrate_ending_id("sylvia.true")["value"]["ending_id"], "ending.sylvia.special")
+	assert_eq(m.migrate_ending_id("ending.sylvia.true")["value"]["ending_id"], "ending.sylvia.special")
