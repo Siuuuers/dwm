@@ -90,6 +90,39 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 	return {"ok": true, "code": &"ok"}
 
 
+## Pure add-time validation of one date candidate against the OTHER entries already scheduled
+## (the caller excludes the candidate from `existing`). Loose date shape: `type` in DATE_TYPES;
+## friends from `friend_ids`, or `friend_id` for the minimal {type, friend_id} candidate GameState
+## builds. Returns a specific reason code so a Done warning can render a helpful message.
+## twofriends is never routed here.
+static func validate_date_candidate(existing: Array, candidate: Dictionary, day: int) -> Dictionary:
+	var candidate_type := str(candidate.get("type", ""))
+	if candidate_type not in DATE_TYPES:
+		return _fail(&"not_a_date", "validate_date_candidate handles only " + str(DATE_TYPES))
+	var candidate_friends := _friend_set(candidate)
+	# Day 4 seats Priscilla first: a solo Priscilla date cannot follow another entry.
+	if day == 4 and candidate_type == "solo" and "priscilla" in candidate_friends and not existing.is_empty():
+		return _fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first")
+	# One date per friend (solo) / per pair (group) each day; then the daily date cap.
+	var date_count: int = 0
+	for entry: Dictionary in existing:
+		if str(entry.get("type", "")) not in DATE_TYPES:
+			continue
+		date_count += 1
+		if str(entry.get("type", "")) == candidate_type and _same_friend_set(_friend_set(entry), candidate_friends):
+			return _fail(&"duplicate_friend_date", str(candidate_friends))
+	if date_count >= max_dates_for_day(day):
+		return _fail(&"too_many_dates", "day %d allows %d date(s)" % [day, max_dates_for_day(day)])
+	return {"ok": true, "code": &"ok"}
+
+static func _friend_set(entry: Dictionary) -> Array:
+	var ids: Array = entry.get("friend_ids", [])
+	if not ids.is_empty():
+		return ids
+	var single := str(entry.get("friend_id", ""))
+	return [single] if not single.is_empty() else []
+
+
 static func _same_friend_set(left: Array, right: Array) -> bool:
 	if left.size() != right.size():
 		return false

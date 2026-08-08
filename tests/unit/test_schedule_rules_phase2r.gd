@@ -278,3 +278,61 @@ func test_existing_requires_a_day7_solo_unlock_receipt() -> void:
 	}
 	var result: Dictionary = rules.validate_existing([no_receipt], 7)
 	assert_false(result.get("ok", true), "a day-7 solo date requires a nonempty unlock receipt")
+
+# ---- validate_date_candidate: the loose-shape date rules (dwm-p2r.7 Task 4) ----
+func _loose_solo(friend_id: String) -> Dictionary:
+	return {"type": "solo", "friend_id": friend_id, "friend_ids": [friend_id]}
+
+func _loose_group(a: String, b: String) -> Dictionary:
+	return {"type": "group", "friend_ids": [a, b]}
+
+func test_validate_date_candidate_accepts_a_distinct_friend() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	assert_true(rules.validate_date_candidate([_loose_solo("priscilla")], _loose_solo("lavinia"), 3).get("ok", false),
+		"a distinct-friend date is addable")
+
+func test_validate_date_candidate_rejects_a_duplicate_friend() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	assert_eq(rules.validate_date_candidate([_loose_solo("priscilla")], _loose_solo("priscilla"), 3).get("code"),
+		&"duplicate_friend_date")
+
+func test_validate_date_candidate_rejects_a_duplicate_group_pair_any_order() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	assert_eq(rules.validate_date_candidate([_loose_group("priscilla", "lavinia")], _loose_group("lavinia", "priscilla"), 3).get("code"),
+		&"duplicate_friend_date", "the same pair in any order is a duplicate")
+
+func test_validate_date_candidate_enforces_the_two_date_max() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	assert_eq(rules.validate_date_candidate([_loose_solo("priscilla"), _loose_solo("lavinia")], _loose_solo("sylvia"), 3).get("code"),
+		&"too_many_dates", "days 1-6 allow two dates")
+
+func test_validate_date_candidate_day4_seats_priscilla_first() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	assert_eq(rules.validate_date_candidate([_loose_solo("lavinia")], _loose_solo("priscilla"), 4).get("code"),
+		&"priscilla_first_slot_required", "Day 4 Priscilla cannot follow another entry")
+	assert_true(rules.validate_date_candidate([], _loose_solo("priscilla"), 4).get("ok", false),
+		"Priscilla first on an empty schedule is fine")
+
+func test_validate_date_candidate_reads_a_minimal_friend_id_candidate() -> void:
+	# GameState.can_add_schedule_action passes {type, friend_id} with no friend_ids.
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	assert_eq(rules.validate_date_candidate([_loose_solo("priscilla")], {"type": "solo", "friend_id": "priscilla"}, 3).get("code"),
+		&"duplicate_friend_date", "a {type, friend_id} candidate still resolves its friend")
+
+func test_validate_date_candidate_rejects_a_non_date_type() -> void:
+	var rules: Script = _rules()
+	if rules == null:
+		return
+	assert_eq(rules.validate_date_candidate([], {"type": "training"}, 3).get("code"), &"not_a_date")
