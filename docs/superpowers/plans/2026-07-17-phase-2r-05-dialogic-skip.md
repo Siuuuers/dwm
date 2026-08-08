@@ -18,7 +18,7 @@
 - skip_mode is exactly read_only or all_text; invalid/missing profile values normalize to read_only.
 - Skip always reveals the current line and stops before every approved boundary event.
 - Narrative checkpoints carry an exact manifest-validated boundary event and post-event resume locator; restoring a transaction boundary never replays the completed event or skips its registered successor.
-- Existing narrative prose is not rewritten. This plan may remove four obsolete structural labels and add missing ending labels/TODO-only placeholders; it invents no dialogue prose or translation.
+- Existing narrative prose is not rewritten. This plan may remove four obsolete contact labels, rename/retire the three ending `.true` labels, and add missing ending labels/TODO-only placeholders; it invents no dialogue prose or translation.
 - Preserve plan `.3`'s `bind_profile_preferences`, `apply_profile_preferences`, and `reapply_cached_preferences_after_clear` seams. Every explicit Dialogic clear/start in this plan MUST reapply the cached committed profile plan synchronously before the first restored/new event.
 - Proposed commits require separate explicit authority.
 - `implementation_authorized: true` as of 2026-07-18 for the exact task-scoped runtime, generated-manifest, test, and ordinary Beads execution changes below after blockers close. Git history remains separately unauthorized.
@@ -53,6 +53,8 @@
 - Modify structurally: dialogic/timelines/en/contacts/lavinia_day6.dtl
 - Modify structurally: dialogic/timelines/en/ending/alone.dtl
 - Modify structurally: dialogic/timelines/en/ending/priscilla_lavinia.dtl
+- Modify structurally: dialogic/timelines/en/ending/priscilla.dtl
+- Modify structurally: dialogic/timelines/en/ending/lavinia.dtl
 - Modify structurally: dialogic/timelines/en/ending/sylvia.dtl
 
 **Interfaces:**
@@ -166,7 +168,7 @@ The initial evidence must point to `addons/dialogic/Core/DialogicGameHandler.gd`
 
 - [ ] **Step 1.3: Build exact status and ID records**
 
-- [ ] Before manifest generation, make only these machine-checkable structural corrections: remove `need_reply_priscilla_first` from the `# parts` header and delete its label/TODO block in the four listed Day-2/Day-6 Priscilla/Lavinia contact files; add `label ending.alone`, `label ending.priscilla_lavinia`, and `label ending.sylvia.special`; add `special` to Sylvia's `# contains` list and reuse the existing TODO-only Sylvia ending placeholder beneath the new label. Then TimelineManifestBuilder reads without further rewrite and validates comment timeline_id, locale, type metadata, labels, branches, signal payloads, variables, and return/transition structure. A source/manifest scan for `need_reply_priscilla_first` must return no matches.
+- [ ] Before manifest generation, make only these machine-checkable structural corrections: remove `need_reply_priscilla_first` from the `# parts` header and delete its label/TODO block in the four listed Day-2/Day-6 Priscilla/Lavinia contact files; add `label ending.alone` and `label ending.priscilla_lavinia` to their currently label-less files; in `priscilla.dtl` rename `label ending.priscilla.true` to `label ending.priscilla.observation` and replace `true` with `observation` in `# contains`; in `lavinia.dtl` make the corresponding `.true` to `.observation` label/header rename; in `sylvia.dtl` replace `label ending.sylvia.true` with `label ending.sylvia.special`, replace `true` with `special` in `# contains`, and reuse the existing TODO-only Sylvia placeholder beneath that label. Then TimelineManifestBuilder reads without further rewrite and validates comment timeline_id, locale, type metadata, labels, branches, signal payloads, variables, and return/transition structure. Source/manifest scans for `need_reply_priscilla_first` and the three retired `.true` ending IDs must return no live-record matches; migration/frozen-localization references are outside the production ending manifest and remain allowed.
 - [ ] Status derivation is exact:
 
 ~~~text
@@ -176,7 +178,7 @@ explicit approved evidence -> approved
 explicit final evidence -> final
 ~~~
 
-Initial expected status counts are 24 placeholder and 37 draft. No current record is approved/final.
+Initial expected status counts remain 24 placeholder and 37 draft. The three renamed friend-ending files retain their existing TODO markers, while the newly labelled Alone and Priscilla-Lavinia files retain no TODO marker; therefore these structural edits do not change file-level status. No current record is approved/final.
 
 - [ ] Existing broad filename construction in DialogicTimelineCatalog is replaced by strict manifest lookup:
 
@@ -205,24 +207,25 @@ Only en narrative records exist. LocalizationManager language selection does not
 
 - [ ] Generate effects.json from the current EffectResolver allowlist, routes.json from the registered SceneRouter IDs, and extend the initial narrative_variables.json only with explicitly audited production variables. Validators prove runtime constants and manifests match exactly.
 
-- [ ] `endings.json` contains exactly twelve records with keys `ending_id`, `role`, `timeline_id`, and `label`:
+- [ ] The endings registry schema and `TimelineManifestValidator` accept role exactly `primary|postscript|epilogue`; any other value fails closed. They prove the manifest primary set equals `DatingEndingRules.VALID_PRIMARY_IDS`, the postscript set equals `DatingEndingRules.POSTSCRIPT_IDS`, the only epilogue is `ending.priscilla_lavinia`, and the union of all three role sets equals `DatingEndingRules.CANONICAL_ENDING_IDS` exactly.
+
+- [ ] `endings.json` contains exactly eleven records with keys `ending_id`, `role`, `timeline_id`, and `label`:
 
 ~~~text
-ending.alone                 primary  ending.alone               ending.alone
-ending.priscilla.sweet      primary  ending.priscilla           ending.priscilla.sweet
-ending.priscilla.dark       primary  ending.priscilla           ending.priscilla.dark
-ending.priscilla.true       primary  ending.priscilla           ending.priscilla.true
-ending.lavinia.sweet        primary  ending.lavinia              ending.lavinia.sweet
-ending.lavinia.dark         primary  ending.lavinia              ending.lavinia.dark
-ending.lavinia.true         primary  ending.lavinia              ending.lavinia.true
-ending.sylvia.sweet         primary  ending.sylvia               ending.sylvia.sweet
-ending.sylvia.dark          primary  ending.sylvia               ending.sylvia.dark
-ending.sylvia.true          primary  ending.sylvia               ending.sylvia.true
-ending.sylvia.special       primary  ending.sylvia               ending.sylvia.special
-ending.priscilla_lavinia    epilogue ending.priscilla_lavinia    ending.priscilla_lavinia
+ending.alone                  primary     ending.alone               ending.alone
+ending.priscilla.sweet        primary     ending.priscilla           ending.priscilla.sweet
+ending.priscilla.dark         primary     ending.priscilla           ending.priscilla.dark
+ending.lavinia.sweet          primary     ending.lavinia             ending.lavinia.sweet
+ending.lavinia.dark           primary     ending.lavinia             ending.lavinia.dark
+ending.sylvia.sweet           primary     ending.sylvia              ending.sylvia.sweet
+ending.sylvia.dark            primary     ending.sylvia              ending.sylvia.dark
+ending.sylvia.special         primary     ending.sylvia              ending.sylvia.special
+ending.priscilla.observation  postscript  ending.priscilla           ending.priscilla.observation
+ending.lavinia.observation    postscript  ending.lavinia             ending.lavinia.observation
+ending.priscilla_lavinia      epilogue    ending.priscilla_lavinia   ending.priscilla_lavinia
 ~~~
 
-Every locator must resolve to the exact physical timeline and label before an EndingPlan can validate or playback can start. Unknown/missing/mis-role records fail manifest validation.
+Every locator must resolve to the exact physical timeline and label before an EndingPlan can validate or playback can start. Unknown/missing/mis-role records fail manifest validation. `ending.priscilla.true`, `ending.lavinia.true`, and `ending.sylvia.true` are retired, never aliased by `endings.json`, and must be rejected by validation before playback or mutation.
 
 - [ ] **Step 1.4: Validate manifests**
 
@@ -265,6 +268,8 @@ $required = [ordered]@{
 	'dialogic/timelines/en/contacts/lavinia_day6.dtl' = 'M'
 	'dialogic/timelines/en/ending/alone.dtl' = 'M'
 	'dialogic/timelines/en/ending/priscilla_lavinia.dtl' = 'M'
+	'dialogic/timelines/en/ending/priscilla.dtl' = 'M'
+	'dialogic/timelines/en/ending/lavinia.dtl' = 'M'
 	'dialogic/timelines/en/ending/sylvia.dtl' = 'M'
 }
 $optionalUids = [ordered]@{
@@ -306,9 +311,13 @@ if ($LASTEXITCODE -ne 0) { throw 'Exact Task 1 commit boundary failed.' }
 - Modify: autoload/ApplicationBootstrap.gd
 - Modify: autoload/GameState.gd
 - Modify: autoload/SceneRouter.gd
+- Modify: scripts/data/AudioManifest.gd
+- Bind read-only: scripts/data/AudioManifest.gd.uid (must equal its regular-file HEAD blob and is never staged)
+- Modify: tests/unit/test_audio_manager.gd
+- Bind read-only: tests/unit/test_audio_manager.gd.uid (must equal its regular-file HEAD blob and is never staged)
 - Consume without modification: autoload/SaveManager.gd and its Plan-03 newest-to-oldest all-six participant preparation algorithm; it never becomes the narrative adapter
 - Modify: scripts/application/restore/NarrativeRestoreParticipant.gd (created by Plan 03)
-- Bind read-only if present: scripts/application/restore/NarrativeRestoreParticipant.gd.uid (must equal its regular-file HEAD blob and is never staged)
+- Optional generated UID: scripts/application/restore/NarrativeRestoreParticipant.gd.uid (absent from the frozen Task-1 HEAD; stage as `A` only if Godot generates it)
 - Modify: tests/integration/test_restore_production_adapters.gd
 - Modify: tests/integration/test_restore_transaction.gd
 - Modify: scripts/ui/OpeningScene.gd
@@ -320,7 +329,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Exact Task 1 commit boundary failed.' }
 **Interfaces:**
 
 - Consumes: Task 1 manifests; master `DialogicRuntimeAdapter`/`DialogicBridge` signatures; Plan 03's one real `SaveManagerCheckpointPort`, exact checkpoint input contract, six-participant common `prepare(input)` contract, and private newest-to-oldest `_prepare_bundle_with_all_participants(bundle,migrated_document)` algorithm; and `.7`'s injected `EndingPlaybackPort` seam. The `.7` GameState `play_ending` CommandResult value has exactly `kind`, `ending_id`, and `playback_context`; `playback_context` has exactly `playback_id`, `transaction_id`, `expected_stage`, and `role` and is passed unchanged through EndingScene and the production port.
-- Produces: `NarrativeCheckpointSchema.build/validate`; `SaveManagerNarrativeCheckpointPort` as the single configured narrative-checkpoint adapter shared by DialogicBridge and GameState; `DialogicBridge.start_timeline_id()` and `start_ending_id()` CommandResults plus semantic checkpoint capture; `DialogicEndingPlaybackPort` as the production `.7` adapter with immediate-start and physical-completion receipts; and the real Plan-03-created `NarrativeRestoreParticipant` implementation. Low-level restore is `prepare_runtime_restore(checkpoint, manifest)` while that registered participant still exposes exactly `prepare(input)/capture/apply_silent/rollback_silent/finalize`. ApplicationBootstrap configures the shared checkpoint adapter and ending port through existing stages, and SceneRouter injects the one production ending port.
+- Produces: `NarrativeCheckpointSchema.build/validate`; `SaveManagerNarrativeCheckpointPort` as the single configured narrative-checkpoint adapter shared by DialogicBridge and GameState; the read-only `GameState.capture_run_snapshot_input()` provider; `DialogicBridge.start_timeline_id()`, `start_ending_id()`, and bridge-only `start_postscript_id()` CommandResults plus semantic checkpoint capture; an exact 11-ending-id audio map; `DialogicEndingPlaybackPort` as the production `.7` primary/epilogue adapter with immediate-start and physical-completion receipts; and the real Plan-03-created `NarrativeRestoreParticipant` implementation. Low-level restore is `prepare_runtime_restore(checkpoint, manifest)` while that registered participant still exposes exactly `prepare(input)/capture/apply_silent/rollback_silent/finalize`. ApplicationBootstrap configures the shared checkpoint adapter and ending port through existing stages, and SceneRouter injects the one production ending port. No production caller schedules a postscript in this task.
 
 - [ ] **Step 2.1: Write adapter RED tests against a fake runtime**
 
@@ -449,7 +458,7 @@ func commit(owner_id: StringName, candidate: Dictionary) -> Dictionary
 func rollback(owner_id: StringName, backup: Dictionary) -> Dictionary
 ~~~
 
-`configure()` accepts exactly one Plan-03 `SaveManagerCheckpointPort` exposing `preview_checkpoint_id/capture/prepare/commit/rollback` and a provider Dictionary with exactly `snapshot_input`, `narrative_checkpoint`, `route_id`, `active_app_id`, `audio_context`, and `content_version`. All six values are non-null Callables. `snapshot_input`, `route_id`, `active_app_id`, `audio_context`, and `content_version` take zero arguments and return, respectively, a detached Dictionary, registered nonempty String/StringName, JSON null or registered app-ID String, detached semantic-audio Dictionary, and positive integer; the adapter validates and normalizes each raw result. `narrative_checkpoint(transaction_id:String,source_id:String,checkpoint_kind:StringName)` is bound to DialogicBridge and returns exactly the frozen CommandResult `value={"narrative_checkpoint":Dictionary}` only for its currently validated effect/variable event with matching identity/kind. ApplicationBootstrap supplies named Callables bound to the already initialized GameState, DialogicBridge, SceneRouter, its stable private active-app context method, AudioManager, and DialogicTimelineCatalog; the adapter performs no SceneTree/global lookup. The stable active-app Callable returns JSON null until Plan 06 injects the Bootstrap-owned desktop host, then reads that same host without replacing the Callable or adapter.
+`configure()` accepts exactly one Plan-03 `SaveManagerCheckpointPort` exposing `preview_checkpoint_id/capture/prepare/commit/rollback` and a provider Dictionary with exactly `snapshot_input`, `narrative_checkpoint`, `route_id`, `active_app_id`, `audio_context`, and `content_version`. All six values are non-null Callables. `snapshot_input`, `route_id`, `active_app_id`, `audio_context`, and `content_version` take zero arguments and return, respectively, a detached Dictionary, registered nonempty String/StringName, JSON null or registered app-ID String, detached semantic-audio Dictionary, and positive integer; the adapter validates and normalizes each raw result. `narrative_checkpoint(transaction_id:String,source_id:String,checkpoint_kind:StringName)` is bound to DialogicBridge and returns exactly the frozen CommandResult `value={"narrative_checkpoint":Dictionary}` only for its currently validated effect/variable event with matching identity/kind. ApplicationBootstrap binds `snapshot_input` specifically to the Task-2-created pure `GameState.capture_run_snapshot_input()` read seam; that method returns the complete detached current RunSnapshot input and performs no mutation, checkpoint, signal, or disk access. Task 3 later extends that same capture with its new live transaction fields. The remaining named Callables bind to DialogicBridge, SceneRouter, Bootstrap's stable private active-app context method, AudioManager, and DialogicTimelineCatalog; the adapter performs no SceneTree/global lookup. The stable active-app Callable returns JSON null until Plan 06 injects the Bootstrap-owned desktop host, then reads that same host without replacing the Callable or adapter.
 
 The first compatible configuration returns exactly `{"ok":true,"code":&"ok","value":{"port_instance_id":int,"checkpoint_port_instance_id":int,"already_configured":false},"receipt":{}}`. Provider identity is the ordered pair `(Callable.get_object_id(),String(Callable.get_method()))` under its exact key; anonymous/unbound callables with no stable nonzero object identity or wrong arity are rejected. Configuration validates identity/arity only and never invokes a provider against a not-yet-started run. Repeating with the same checkpoint-port identity and all six identical provider pairs returns the same shape with `already_configured=true`. Null, missing methods, missing/extra provider keys, a non-Callable, or any different dependency returns a frozen failure before retaining anything; replacement after success returns `narrative_checkpoint_port_already_configured`. A provider's invalid runtime result fails that boundary before capture/prepare and does not erase configuration. The configured adapter is one object: ApplicationBootstrap injects that exact instance into both `DialogicBridge.configure_narrative_checkpoint_port(port)` and `GameState.configure_narrative_checkpoint_port(port)`. Each consumer accepts the same instance idempotently, rejects a different instance, and returns its retained `port_instance_id` for Bootstrap identity verification.
 
@@ -479,7 +488,7 @@ The remaining methods are the low-level seams used only while GameState owns an 
 
 - [ ] **Step 2.3: Rewrite DialogicBridge as the only narrative seam**
 
-- [ ] Keep `start_timeline_id()` but make it return manifest-backed results. Add `start_ending_id()` as the only ending-ID resolver through `endings.json`; it accepts the exact four-key `playback_context`, validates its role, and delegates to the exact timeline ID/label without rewriting that context. Remove public arbitrary `start_timeline_path()` after zero callers remain.
+- [ ] Keep `start_timeline_id()` but make it return manifest-backed results. Add `start_ending_id()` as the only live EndingPlan resolver through `endings.json`; it accepts the exact four-key `playback_context`, requires a `primary|epilogue` record whose role equals `playback_context.role`, and delegates to the exact timeline ID/label without rewriting that context. Add bridge-only `start_postscript_id(postscript_id:String) -> Dictionary`; it accepts only a manifest record whose role is `postscript`, takes no EndingPlan context, and reuses the same opaque token and physical completion/failure machinery. It has no production caller in this task. Remove public arbitrary `start_timeline_path()` after zero callers remain.
 - [ ] Implement every shared DialogicBridge method plus:
 
 ~~~gdscript
@@ -504,7 +513,7 @@ func restore_captured_state(backup: Dictionary) -> Dictionary
 
 `configure_narrative_checkpoint_port()` requires the high-level and low-level methods frozen in Step 2.2, accepts the first compatible object, accepts the identical object idempotently, rejects replacement, and returns the same retained positive `port_instance_id` that GameState and Bootstrap verify. DialogicBridge never resolves SaveManager or calls `SaveManagerCheckpointPort` itself. `provide_transaction_narrative_checkpoint()` is the exact Callable target configured on the shared adapter: it returns only `value={"narrative_checkpoint":Dictionary}` when all three arguments match the one transient, manifest-validated effect/variable event, otherwise a frozen failure with no checkpoint. It never executes, commits, advances, or looks up global state. Timeline start, fully revealed line, choice, safe marker, scene transition, and timeline completion build the exact validated semantic checkpoint and call `commit_current_boundary()` synchronously; only its committed success may update the bridge's cached checkpoint and emit `narrative_checkpoint_committed`. Effect and variable events are delegated to the GameState transaction in Task 3 and never call the high-level method.
 
-`DialogicBridge.start_ending_id()` resolves `endings.json`, creates one opaque playback token, starts the registered timeline/label, and then returns this exact outer CommandResult:
+`DialogicBridge.start_ending_id()` and `start_postscript_id()` resolve `endings.json`, create one opaque playback token, start the registered timeline/label, and then return this exact outer CommandResult:
 
 ~~~gdscript
 {
@@ -522,7 +531,7 @@ func restore_captured_state(backup: Dictionary) -> Dictionary
 }
 ~~~
 
-`value` is exactly empty; the six start fields exist only in `receipt`. A synchronous validation/start failure is exactly `{"ok":false,"code":StringName,"message":String,"details":Dictionary}` with no `value`, no `receipt`, no token binding, and no completion/failure signal. After a successful return, the bridge emits `ending_playback_finished` only when that same token's timeline ends normally and `ending_playback_failed` on a later validation/halt; another timeline's signals cannot satisfy the token.
+`value` is exactly empty; the six start fields exist only in `receipt`. For `start_postscript_id`, `role` is necessarily `postscript`. A synchronous validation/start failure is exactly `{"ok":false,"code":StringName,"message":String,"details":Dictionary}` with no `value`, no `receipt`, no token binding, and no completion/failure signal. After a successful return, the bridge emits `ending_playback_finished` only when that same token's timeline ends normally and `ending_playback_failed` on a later validation/halt; another timeline's signals cannot satisfy the token. Direct postscript capability MUST NOT call `GameState.request_next_ending_command()`, `complete_ending_playback_stage()`, mutate an EndingPlan stage, schedule/unlock/record a postscript, or publish Gallery state.
 
 - [ ] Starting validates timeline ID and every supplied context key before calling the adapter. Signal payloads are Dictionaries with kind exactly `safe_marker`, `effect_transaction`, `variable_transaction`, `scene_transition`, or `minesweeper_entry`. The current timeline manifest must allow the referenced ID and exact event locator.
 - [ ] Any invalid runtime event halts the current timeline through the adapter, emits narrative_validation_failed, creates no checkpoint, and mutates no domain state.
@@ -540,7 +549,7 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary
 func is_ready() -> bool
 ~~~
 
-`initialize()` accepts exactly one DialogicBridge-like dependency exposing `start_ending_id` and the matching completion/failure signals; replacement rejects. This production-only dependency method is distinct from EndingScene's owner wiring. Its `context` argument is the `.7` command's `playback_context` passed unchanged: it has exactly `playback_id`, `transaction_id`, `expected_stage`, and `role`; role is `primary|epilogue`, expected stage is `PRIMARY_PENDING|PRIMARY_COMPLETED`, and the role/stage pair must agree with `ending_id` and `endings.json`.
+`initialize()` accepts exactly one DialogicBridge-like dependency exposing `start_ending_id` and the matching completion/failure signals; replacement rejects. This production-only dependency method is distinct from EndingScene's owner wiring. Its `context` argument is the `.7` command's `playback_context` passed unchanged: it has exactly `playback_id`, `transaction_id`, `expected_stage`, and `role`. The only legal triples are `role=primary`, `expected_stage=PRIMARY_PENDING`, and `ending_id in DatingEndingRules.VALID_PRIMARY_IDS`; or `role=epilogue`, `expected_stage=PRIMARY_PLAYED`, and `ending_id=ending.priscilla_lavinia`. `postscript`, any other stage, and any mismatched manifest role reject before the port calls the bridge. The bridge treats a validated `expected_stage` as opaque correlation data and does not own lifecycle-stage meaning.
 
 `DialogicEndingPlaybackPort.start_ending_id()` passes that same Dictionary unchanged to `DialogicBridge.start_ending_id()`. After the bridge returns `code=started`, the port binds its opaque token to a detached copy of that context and returns immediately with this exact CommandResult:
 
@@ -563,7 +572,23 @@ func is_ready() -> bool
 
 `value` is exactly empty; the seven start fields exist only in `receipt`. A synchronous bridge failure returns the bridge's copied failure CommandResult, creates no binding, and emits no port signal. Start success MUST NOT wait for or imply physical completion. Only the matching `ending_playback_finished` signal may emit `playback_completed` with exactly `{"playback_id":String,"ending_id":String,"expected_stage":StringName,"transaction_id":String,"timeline_completion_receipt_id":String,"outcome":&"completed"}`. A matching bridge failure first deletes the token binding, active transaction, and cached start result, then emits `playback_failed` with exactly `{"playback_id":String,"ending_id":String,"expected_stage":StringName,"transaction_id":String,"code":StringName,"result":Dictionary}`. The Plan04 command and EndingPlan stage remain pending; the next identical request therefore calls the bridge again, allocates a new token, and starts a new playback. Another token cannot satisfy either signal. While a transaction is active, a concurrent identical start returns its copied immediate-start CommandResult without replay, a different in-flight command returns `playback_in_progress`, and reuse of one active ID with different ending/stage/role rejects. Only physically completed receipts remain cached, solely to make duplicate bridge completion idempotent. Thus Plan04's primary/epilogue stage advances only from the physical-completion signal.
 
-- [ ] Use only the existing Bootstrap stages—do not add or reorder a global stage. `initialize_saves` constructs and retains the one real `SaveManagerCheckpointPort`. Inside `initialize_dialogic_bridge`, after the catalog/runtime bridge initializes and before any timeline can start, Bootstrap constructs one `SaveManagerNarrativeCheckpointPort`, configures it with that retained real port plus the six exact provider Callables, injects the same adapter into DialogicBridge and GameState, and verifies all three positive instance IDs are identical. It then constructs one `DialogicEndingPlaybackPort`, calls `initialize(DialogicBridge)`, calls `SceneRouter.configure_ending_ports(GameState, ending_port)`, and verifies `ending_port.is_ready()` plus `SceneRouter.is_ending_ports_configured()` before the stage succeeds. The later existing `configure_day_resolution` stage injects the same retained real checkpoint port, not a new instance. SceneRouter stores the exact ending instances and calls `EndingScene.configure_ending_ports(state_port,playback_port)` on an off-tree ending scene before adding it to the tree. A null/replacement/missing method, provider failure, identity mismatch, an ending scene that reaches `_ready()` unconfigured, or any second checkpoint-port construction is a fatal stage result; `application_ready` is not emitted. `test_narrative_checkpoint_wiring.gd` proves the stage order and identities. `test_ending_dialogic_wiring.gd` exercises primary-only and primary-plus-epilogue completion, asynchronous failure, unknown IDs, mismatched completion tokens, in-flight duplicates, and completed retry.
+- [ ] Use only the existing Bootstrap stages—do not add or reorder a global stage. `initialize_saves` constructs and retains the one real `SaveManagerCheckpointPort`. Inside `initialize_dialogic_bridge`, after the catalog/runtime bridge initializes and before any timeline can start, Bootstrap constructs one `SaveManagerNarrativeCheckpointPort`, configures it with that retained real port plus the six exact provider Callables, injects the same adapter into DialogicBridge and GameState, and verifies all three positive instance IDs are identical. It then constructs one `DialogicEndingPlaybackPort`, calls `initialize(DialogicBridge)`, calls `SceneRouter.configure_ending_ports(GameState, ending_port)`, and verifies `ending_port.is_ready()` plus `SceneRouter.is_ending_ports_configured()` before the stage succeeds. The later existing `configure_day_resolution` stage injects the same retained real checkpoint port, not a new instance. SceneRouter stores the exact ending instances and calls `EndingScene.configure_ending_ports(state_port,playback_port)` on an off-tree ending scene before adding it to the tree. A null/replacement/missing method, provider failure, identity mismatch, an ending scene that reaches `_ready()` unconfigured, or any second checkpoint-port construction is a fatal stage result; `application_ready` is not emitted. `test_narrative_checkpoint_wiring.gd` proves the stage order and identities. `test_ending_dialogic_wiring.gd` exercises primary-only and primary-plus-epilogue completion, asynchronous failure, unknown IDs, mismatched completion tokens, in-flight duplicates, and completed retry. It also starts both `.observation` IDs directly through `DialogicBridge.start_postscript_id()`, proves normal tokenized finish/failure, and proves primary, epilogue, unknown, and retired `.true` IDs reject without a GameState, stage, or Gallery call. The production port separately proves it rejects both postscript IDs before calling the bridge.
+
+- [ ] Replace ending-context audio suffix inference with one exact map whose keys equal `DatingEndingRules.CANONICAL_ENDING_IDS`. Rename only the three ending-track IDs frozen by the handoff: `ending_priscilla_true` → `ending_priscilla_observation`, `ending_lavinia_true` → `ending_lavinia_observation`, and `ending_sylvia_true` → `ending_sylvia_special`; retire generic ending-tier `ending_true` and the `true` suffix fallback. `resolve_music_context("ending", {"ending_id": id})` resolves every one of the 11 canonical IDs to its exact track. Empty, unknown, and retired `.true` semantic IDs fail before AudioManager mutation; no fallback to `ending_alone` is permitted. This is registry/playback capability only and does not schedule a postscript. Non-ending dating/challenge track IDs are outside this handoff.
+
+~~~text
+ending.alone                  -> ending_alone
+ending.priscilla.sweet        -> ending_priscilla_sweet
+ending.priscilla.dark         -> ending_priscilla_dark
+ending.priscilla.observation  -> ending_priscilla_observation
+ending.lavinia.sweet          -> ending_lavinia_sweet
+ending.lavinia.dark           -> ending_lavinia_dark
+ending.lavinia.observation    -> ending_lavinia_observation
+ending.sylvia.sweet           -> ending_sylvia_sweet
+ending.sylvia.dark            -> ending_sylvia_dark
+ending.sylvia.special         -> ending_sylvia_special
+ending.priscilla_lavinia      -> ending_priscilla_lavinia
+~~~
 
 ~~~gdscript
 # autoload/SceneRouter.gd
@@ -607,7 +632,7 @@ The staged successor cannot execute during participant apply/finalize. A rollbac
 - [ ] **Step 2.5: Run adapter/restore tests**
 
 ~~~powershell
-& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_restore' -LogName 'phase2r-dialogic-restore.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_dialogic_runtime_adapter.gd,res://tests/unit/test_narrative_checkpoint_schema.gd,res://tests/unit/test_save_manager_narrative_checkpoint_port.gd,res://tests/unit/test_dialogic_ending_playback_port.gd,res://tests/integration/test_dialogic_restore.gd,res://tests/integration/test_narrative_checkpoint_wiring.gd,res://tests/integration/test_ending_dialogic_wiring.gd,res://tests/integration/test_restore_production_adapters.gd,res://tests/integration/test_restore_transaction.gd','-gexit')
+& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_restore' -LogName 'phase2r-dialogic-restore.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_dialogic_runtime_adapter.gd,res://tests/unit/test_narrative_checkpoint_schema.gd,res://tests/unit/test_save_manager_narrative_checkpoint_port.gd,res://tests/unit/test_dialogic_ending_playback_port.gd,res://tests/unit/test_audio_manager.gd,res://tests/integration/test_dialogic_restore.gd,res://tests/integration/test_narrative_checkpoint_wiring.gd,res://tests/integration/test_ending_dialogic_wiring.gd,res://tests/integration/test_restore_production_adapters.gd,res://tests/integration/test_restore_transaction.gd','-gexit')
 ~~~
 
 Expected GREEN: semantic capture/restore, full reveal, registered locators, one shared checkpoint-port identity, newest-to-oldest all-six compatibility fallback, and transaction rollback.
@@ -624,19 +649,29 @@ if ($LASTEXITCODE -ne 0 -or $expectedHead -notmatch '^[0-9a-f]{40,64}$' -or
 	-not ($expectedSubject -ceq 'feat(dialogic): register exact timeline and narrative manifests')) {
 	throw 'Task 2 requires the exact Task 1 commit boundary as HEAD.'
 }
-$existingNarrativeUid = 'scripts/application/restore/NarrativeRestoreParticipant.gd.uid'
-if (Test-Path -LiteralPath $existingNarrativeUid -PathType Leaf) {
+$readOnlyUidBindings = @(
+	@{ Path = 'scripts/data/AudioManifest.gd.uid'; Required = $true },
+	@{ Path = 'tests/unit/test_audio_manager.gd.uid'; Required = $true }
+)
+foreach ($binding in $readOnlyUidBindings) {
+	$existingUid = [string]$binding.Path
+	if (-not (Test-Path -LiteralPath $existingUid -PathType Leaf)) {
+		if ([bool]$binding.Required) {
+			throw "Required read-only UID is missing: $existingUid"
+		}
+		continue
+	}
 	$headUidRecord = @(
-		git ls-tree $expectedHead -- $existingNarrativeUid
+		git ls-tree $expectedHead -- $existingUid
 	)
 	if ($LASTEXITCODE -ne 0 -or $headUidRecord.Count -ne 1 -or
 		$headUidRecord[0] -notmatch '^100644 blob ([0-9a-f]{40,64})\t') {
-		throw 'NarrativeRestoreParticipant UID must be one tracked regular HEAD blob.'
+		throw "Read-only UID must be one tracked regular HEAD blob: $existingUid"
 	}
 	$headUidObject = $Matches[1]
-	$workingUidObject = [string](git hash-object -- $existingNarrativeUid)
+	$workingUidObject = [string](git hash-object -- $existingUid)
 	if ($LASTEXITCODE -ne 0 -or -not ($workingUidObject -ceq $headUidObject)) {
-		throw 'NarrativeRestoreParticipant UID identity changed; this task must bind it read-only.'
+		throw "Read-only UID identity changed: $existingUid"
 	}
 }
 $required = [ordered]@{
@@ -657,6 +692,8 @@ $required = [ordered]@{
 	'autoload/ApplicationBootstrap.gd' = 'M'
 	'autoload/GameState.gd' = 'M'
 	'autoload/SceneRouter.gd' = 'M'
+	'scripts/data/AudioManifest.gd' = 'M'
+	'tests/unit/test_audio_manager.gd' = 'M'
 	'scripts/application/restore/NarrativeRestoreParticipant.gd' = 'M'
 	'tests/integration/test_restore_production_adapters.gd' = 'M'
 	'tests/integration/test_restore_transaction.gd' = 'M'
@@ -667,6 +704,7 @@ $required = [ordered]@{
 	'scripts/ui/EndingScene.gd' = 'M'
 }
 $optionalUids = [ordered]@{
+	'scripts/application/restore/NarrativeRestoreParticipant.gd.uid' = 'A'
 	'scripts/narrative/DialogicRuntimeAdapter.gd.uid' = 'A'
 	'scripts/narrative/NarrativeCheckpointSchema.gd.uid' = 'A'
 	'scripts/application/ending/DialogicEndingPlaybackPort.gd.uid' = 'A'
@@ -711,14 +749,30 @@ if ($LASTEXITCODE -ne 0) { throw 'Exact Task 2 commit boundary failed.' }
 - Extend: tests/unit/test_run_snapshot_schema.gd
 - Extend: tests/unit/test_save_document_schema.gd
 - Extend: tests/unit/test_save_migrations.gd
+- Extend: tests/unit/test_game_state_facade_contract.gd
+- Extend: tests/unit/test_restore_participants.gd
+- Extend: tests/unit/test_save_manager.gd
 - Extend: tests/integration/test_restore_transaction.gd
+- Extend: tests/integration/test_restore_production_adapters.gd
+- Extend: tests/integration/test_save_capability.gd
+- Extend: tests/integration/test_save_manager_journal.gd
+- Regenerate: evidence/phase_2r/runtime/game_state_surface.json
+- Modify: tests/fixtures/snapshots/invalid_day8.json
+- Modify: tests/fixtures/snapshots/invalid_object_shapes.json
+- Modify: tests/fixtures/snapshots/valid_day3.json
+- Modify: tests/fixtures/saves/day8_ending_non_group.json
+- Modify: tests/fixtures/saves/day8_group_invalid_with_day7_journal.json
+- Modify: tests/fixtures/saves/day8_group_synchronized.json
+- Modify: tests/fixtures/saves/day8_no_fallback.json
+- Modify: tests/fixtures/saves/day8_playing_with_day7_journal.json
+- Modify: tests/fixtures/saves/v2_future_schema.json
 - Consume without modification: scripts/application/transaction/FatalDiagnosticProjector.gd
 - Re-run without modification: tests/unit/test_fatal_diagnostic_projector.gd
 
 **Interfaces:**
 
-- Consumes: exact effect/variable registries, GameState detached-candidate/receipt-ledger seam, the one Task-2 `SaveManagerNarrativeCheckpointPort` shared with DialogicBridge, and Plan 04's GameState fatal-recovery helper backed by Plan-03 Task-3's unchanged `FatalDiagnosticProjector`.
-- Produces: `EffectResolver.resolve_effects`, `GameState.commit_effect_transaction`, and `GameState.commit_variable_transaction`; the RunSnapshot stores both applied transaction-ID sets and their full committed receipts so duplicate identity survives restore.
+- Consumes: exact effect/variable registries; Task 2's pure `GameState.capture_run_snapshot_input()` and one shared `SaveManagerNarrativeCheckpointPort`; the existing applied effect/variable ID arrays; the one injected `ApplicationMutationGate`; and Plan-03 Task-3's unchanged `FatalDiagnosticProjector`. No GameState detached-candidate API, run command-receipt ledger, live narrative-variable store, or `_latch_facade_recovery_fatal` helper exists at Task-3 entry.
+- Produces: `EffectResolver.resolve_effects`; `GameState.commit_effect_transaction` and `GameState.commit_variable_transaction`; `GameState.prepare_run_candidate/capture_live_run_state/commit_run_candidate/restore_live_run_state`; live recursively detached narrative-variable, applied-ID, and command-receipt state; the private `_latch_facade_recovery_fatal(...)` helper; and one mandatory top-level schema-v2 `command_receipts: Dictionary`. In this task the map accepts only effect/variable variants. It is disjoint from `ProfileManager.gallery_transaction_receipts`: Task 3 never reads, writes, copies, or recreates the ending-gallery ledger, and permits no ending receipt variant.
 
 - [ ] **Step 3.1: Write RED atomicity and duplicate tests**
 
@@ -737,6 +791,8 @@ func test_variable_transaction_api_is_required() -> void:
 - [ ] Tests submit one valid batch twice with the same transaction ID and assert state changes once, the second result equals the first receipt, and checkpoint sequence does not increment twice.
 - [ ] Tests inject a failure while committing the second descriptor and assert full rollback.
 - [ ] Tests submit one registered variable value and one unknown or wrong-typed variable. The registered value commits once with a variable_transaction checkpoint; invalid input leaves state, receipts, signals, and sequence unchanged.
+- [ ] Schema/new-run/migration tests require mandatory top-level `command_receipts={}` and empty live narrative variables/applied-ID sets by default. They reject missing/extra wrapper keys, mismatched map keys, malformed fingerprints, unknown registered IDs, aliases, and any ending/gallery receipt variant. A legacy/provisional snapshot missing `command_receipts` may migrate to `{}` only when both applied-ID arrays are empty; migration never invents a receipt for a nonempty array.
+- [ ] Facade/restore tests require the reserved `capture_run_snapshot_input`, `prepare_run_candidate`, `capture_live_run_state`, `commit_run_candidate`, and `restore_live_run_state` methods; prove narrative variables, both applied-ID sets, and `command_receipts` recursively detach through capture/commit/restore/rollback; and regenerate `game_state_surface.json` from the checked-in required surface. Source scans prove GameState never reads/writes `ProfileManager.gallery_transaction_receipts` and creates no second gate, projector, or fatal flag.
 
 - [ ] Run RED before modifying EffectResolver, GameState, or DialogicBridge:
 
@@ -747,6 +803,17 @@ func test_variable_transaction_api_is_required() -> void:
 Expected RED: `commit_variable_transaction` or the new detached resolver contract is absent; a parse error or mutation before the intended assertion is not acceptable.
 
 - [ ] **Step 3.2: Split resolution from mutation**
+
+- [ ] Complete the reserved GameState detached-run seam before either transaction method uses it:
+
+~~~gdscript
+func prepare_run_candidate(snapshot: Dictionary) -> Dictionary
+func capture_live_run_state() -> Dictionary
+func commit_run_candidate(candidate: Dictionary) -> Dictionary
+func restore_live_run_state(backup: Dictionary) -> Dictionary
+~~~
+
+`capture_run_snapshot_input()` remains the pure Task-2 read seam. Task 3 extends it and `prepare_new_run_snapshot_input()` with private live `narrative_variables`, the two applied transaction-ID sets, and mandatory top-level `command_receipts`. `prepare_run_candidate()` recursively detaches and validates the complete GameState-owned RunSnapshot **input** before returning exactly `{"ok":true,"code":&"ok","value":{"candidate":Dictionary},"receipt":{}}`; `value.candidate` is that normalized snapshot input itself, not a full SaveManager snapshot or another wrapper. It does not construct the narrative checkpoint, route/app/audio/content fields, or journal sequence. `commit_run_candidate()` accepts only the exact issued detached `value.candidate` and publishes no transaction-specific signal; `capture_live_run_state()` and `restore_live_run_state()` cover every field the commit may alter and reject stale/modified/foreign backups. These are the one GameState candidate/restore seams later facade work reuses; `SaveManagerNarrativeCheckpointPort` remains the sole full-snapshot/bundle constructor.
 
 - [ ] Replace apply_effect_ids() with:
 
@@ -780,7 +847,7 @@ guard external mutation with &"commit_effect_transaction" or &"commit_variable_t
   as the method's first operation
   on failure return that frozen gate result without normalization, ledger/provider/port access, or mutation
 normalize the request and compute its canonical request_fingerprint
-look up transaction_id in the persisted run command-receipt ledger before any port call
+look up transaction_id in the persisted top-level command_receipts map before any port call
   identical kind/source/payload/fingerprint -> return the stored copied receipt
   same ID with any different normalized byte -> duplicate_transaction_conflict
 capture detached live-state backup
@@ -788,31 +855,34 @@ resolve/validate every effect descriptor or variable registry/value without muta
 call narrative_checkpoint_port.preview_checkpoint_id(run_id) exactly once
   require pure value={checkpoint_id}; sequence/journal/providers/storage remain unchanged
 build detached gameplay candidate and exact public transaction receipt using that checkpoint_id
-insert ledger record {transaction_id,request_fingerprint,receipt} into the candidate
-apply the effect/variable transaction ID and value to that same candidate; validate it
+insert command_receipts record {transaction_id,request_fingerprint,receipt} into the candidate
+apply the effect/variable transaction ID and value to that same snapshot_input
+call prepare_run_candidate(snapshot_input) exactly once and retain run_candidate.value.candidate
 call narrative_checkpoint_port.capture()
-call prepare_candidate(&"game_state_narrative_transaction", candidate_snapshot_input,
+call prepare_candidate(&"game_state_narrative_transaction", run_candidate.value.candidate,
   transaction_id, source_id, matching checkpoint_kind, previewed_checkpoint_id)
 require prepared checkpoint_id equals the previewed/receipt checkpoint_id
-commit prepared checkpoint first; commit the detached GameState candidate second
+commit prepared checkpoint first; commit_run_candidate(run_candidate.value.candidate) second
 if checkpoint commit fails: rollback checkpoint backup; live GameState remains unchanged
 if GameState commit fails/partially mutates: restore GameState backup, then rollback checkpoint
-  backup (strict reverse order); any rollback failure invokes Plan 04's unchanged
-  _latch_facade_recovery_fatal helper, which projects through the one Plan-03
-  FatalDiagnosticProjector, latches once, and returns the final retained APPLICATION_FATAL
+  backup (strict reverse order); any rollback failure invokes Task 3's
+  _latch_facade_recovery_fatal helper, which projects through the one unchanged
+  FatalDiagnosticProjector, latches the injected gate once, and returns the final retained APPLICATION_FATAL
 only after both commits publish the typed gameplay notification and boundary completion
 clear the bridge's transient boundary only after success or terminal failure
 ~~~
 
-The frozen public/stored receipt shapes remain exactly `{"transaction_id":String,"kind":"effect_transaction","source_id":String,"effect_ids":Array[String],"checkpoint_id":String}` and `{"transaction_id":String,"kind":"variable_transaction","source_id":String,"variable_id":String,"value":Variant,"checkpoint_id":String}`. The persisted ledger record wrapping either is exactly `{"transaction_id":String,"request_fingerprint":String,"receipt":Dictionary}`; the map key equals `transaction_id`, and its detached `receipt` must validate as the matching exact public shape. The checkpoint's `event` is the completed signal and `post_event` is its manifest-validated successor. This ledger record is part of the same detached/persisted GameState candidate committed after the checkpoint, not an adapter-only cache. After both shared fatal/transaction guards succeed, an identical duplicate after SaveManager restore returns only the copied public receipt before preview/provider/prepare and consumes no checkpoint sequence; a conflicting duplicate after restore also makes zero port/provider calls. A failed guard always wins over either duplicate outcome. Variable transactions use the identical ordering with `checkpoint_kind=&"variable_transaction"`; effects use `&"effect_transaction"`. Every checkpoint prepare receives only `{"kind":&"none","reason":&"stage"}`.
+Task 3 creates `_latch_facade_recovery_fatal(original_phase:StringName, command_id:String, raw_rollback_diagnostics:Array[Dictionary]) -> Dictionary` with the Plan-04-compatible signature. It runs only after every required reverse-recovery attempt has completed; projects and validates through the existing `FatalDiagnosticProjector` or its invariant fallback; calls the injected gate's `latch_fatal()` exactly once on the first fatal; and returns the final `guard_external()` `APPLICATION_FATAL`. An already-latched gate returns its retained fatal without another latch. The helper retains no failure, creates no gate/projector/fatal Boolean, and never puts unvalidated raw diagnostics into the fatal payload.
 
-Extend the existing Plan-04 run-level command receipt ledger validator—do not add a second ledger or another snapshot authority—to accept these two wrapper/receipt variants with exact keys, map-key identity, fingerprint grammar, and registered IDs. RunSnapshotSchema requires every receipt checkpoint ID to have the same run ID and a positive sequence no greater than that snapshot's sequence. SaveDocumentSchema's whole-document validation resolves it to the retained/current semantic-anchor bundle whose `checkpoint_kind` and narrative boundary transaction match the receipt; effect/variable anchors are permanent, so a missing or cross-transaction reference is corruption. Update the still-unshipped schema-v2 default/migration only as needed to preserve the existing empty ledger, never to synthesize a receipt. RunSnapshotSchema, SaveDocumentSchema, all six restore participants, and migration tests reject missing/extra/mismatched wrapper fields and prove recursive detachment.
+The frozen public/stored receipt shapes remain exactly `{"transaction_id":String,"kind":"effect_transaction","source_id":String,"effect_ids":Array[String],"checkpoint_id":String}` and `{"transaction_id":String,"kind":"variable_transaction","source_id":String,"variable_id":String,"value":Variant,"checkpoint_id":String}`. The persisted `command_receipts` record wrapping either is exactly `{"transaction_id":String,"request_fingerprint":String,"receipt":Dictionary}`; the map key equals `transaction_id`, and its detached `receipt` must validate as the matching exact public shape. RunSnapshotSchema requires `applied_effect_transaction_ids` to equal the sorted map keys whose `receipt.kind` is `effect_transaction`, requires the same equality for `applied_variable_transaction_ids` and `variable_transaction`, and requires the union of those two partitions to equal every `command_receipts` key. No ending/gallery kind is legal. The checkpoint's `event` is the completed signal and `post_event` is its manifest-validated successor. This ledger record is part of the same detached/persisted GameState candidate committed after the checkpoint, not an adapter-only cache. After both shared fatal/transaction guards succeed, an identical duplicate after SaveManager restore returns only the copied public receipt before preview/provider/prepare and consumes no checkpoint sequence; a conflicting duplicate after restore also makes zero port/provider calls. A failed guard always wins over either duplicate outcome. Variable transactions use the identical ordering with `checkpoint_kind=&"variable_transaction"`; effects use `&"effect_transaction"`. Every checkpoint prepare receives only `{"kind":&"none","reason":&"stage"}`.
+
+Create the previously planned but absent run-level `command_receipts` validator—do not add another run ledger or snapshot authority—and accept only these two wrapper/receipt variants with exact keys, map-key identity, fingerprint grammar, registered IDs, and partition equality. The map is mandatory top-level schema-v2 data, never nested in legacy gameplay or `_SAVE_WHITELIST`. RunSnapshotSchema requires every receipt checkpoint ID to use the lifecycle run ID and a positive parsed sequence. SaveDocumentSchema's whole-document validation requires that sequence to be no greater than the containing journal bundle's `checkpoint_sequence` and resolves the ID to the retained/current semantic-anchor bundle whose `checkpoint_kind` and narrative boundary transaction match the receipt; effect/variable anchors are permanent, so a missing or cross-transaction reference is corruption. Update the still-unshipped schema-v2 defaults, all nine checked-in v2 fixtures, and migration as specified above. RunSnapshotSchema/SaveDocumentSchema reject corruption before SaveManager enters the six-participant prepare loop; RunRestoreParticipant then captures/applies/rolls back the ledger, both ID sets, and narrative variables recursively detached. The other five participants remain unchanged.
 
 Before the first durable commit, any failure leaves live state, receipt ledger, signals, journal, sequence, transient boundary, and storage byte-equal after rollback. Publication here is the synchronous non-mutating emission of the already committed detached receipt; it has no fallible observer acknowledgement and is never part of rollback. The implementation emits it only after both commits return success. After both shared guards succeed, an identical retry returns the stored receipt and emits nothing again; a different request under that transaction remains a conflict. A fatal or active-transaction guard failure precedes both results.
 
 narrative_variables.json registers variable ID, primitive value type, default, and allowed timeline IDs. Production starts with the exact physically used set (currently empty if the timeline audit finds no Set events). The separate fixture manifest registers fixture.counter as an integer. commit_variable_transaction() validates the manifest/value, applies it to the detached run candidate, and records a variable_transaction anchor using the same atomic receipt rules. An unregistered direct Dialogic Set event fails manifest validation.
 
-- [ ] Add failpoint tests before/after the first gate call, descriptor resolution, variable validation, duplicate lookup, preview, every snapshot/provider call, narrative-boundary lookup, candidate validation, checkpoint prepare, preview/prepare ID comparison, checkpoint commit before/after mutation, GameState commit before/after mutation, and each reverse rollback. Named cases `test_effect_fatal_guard_precedes_restored_duplicate_lookup`, `test_variable_fatal_guard_precedes_argument_and_registry_validation`, and `test_dialogic_effect_boundary_fatal_guard_precedes_manifest_validation` first latch the shared gate, then submit an identical restored duplicate, a conflicting duplicate, malformed arguments, and an invalid manifest event; every call must return/halt with `APPLICATION_FATAL` before normalization, ledger lookup, manifest/catalog lookup, provider/preview/prepare/commit, or state mutation. At every other pre-durable failure assert exact live/journal/sequence/provider/file equality and zero signals; at checkpoint-ID mismatch assert neither commit runs. At GameState commit failure assert rollback call order `game_state -> checkpoint`. Feed nonprimitive/StringName/collision rollback diagnostics through this Plan-05 call site and require Plan 04's helper to use the one shared projector, never copy rejected data or return `INVALID_FATAL_FAILURE`, and return only the final retained `APPLICATION_FATAL`. Assert the one typed signal occurs only after both commit call-log entries and that an identical nonfatal retry emits nothing. Serialize/restore the committed bundle, call the exact duplicate and a conflict while the gate is nonfatal, and assert both make zero provider/preview/prepare/commit calls and leave sequence unchanged. The first-gate tests additionally prove the guard does not call `preview_checkpoint_id`, so the unchanged successful path still previews exactly once and requires the prepared, receipt, and preview IDs to be byte-equal.
+- [ ] Add failpoint tests before/after the first gate call, descriptor resolution, variable validation, duplicate lookup, preview, every snapshot/provider call, narrative-boundary lookup, candidate validation, checkpoint prepare, preview/prepare ID comparison, checkpoint commit before/after mutation, GameState commit before/after mutation, and each reverse rollback. Named cases `test_effect_fatal_guard_precedes_restored_duplicate_lookup`, `test_variable_fatal_guard_precedes_argument_and_registry_validation`, and `test_dialogic_effect_boundary_fatal_guard_precedes_manifest_validation` first latch the shared gate, then submit an identical restored duplicate, a conflicting duplicate, malformed arguments, and an invalid manifest event; every call must return/halt with `APPLICATION_FATAL` before normalization, ledger lookup, manifest/catalog lookup, provider/preview/prepare/commit, or state mutation. At every other pre-durable failure assert exact live/journal/sequence/provider/file equality and zero signals; at checkpoint-ID mismatch assert neither commit runs. At GameState commit failure assert rollback call order `game_state -> checkpoint`. Feed nonprimitive/StringName/collision rollback diagnostics through this Task-3-created helper and require it to use the one shared projector, never copy rejected data or return `INVALID_FATAL_FAILURE`, and return only the final retained `APPLICATION_FATAL`; cover first latch, already-latched, and invariant-fallback paths. Assert the one typed signal occurs only after both commit call-log entries and that an identical nonfatal retry emits nothing. Serialize/restore the committed bundle, call the exact duplicate and a conflict while the gate is nonfatal, and assert both make zero provider/preview/prepare/commit calls and leave sequence unchanged. The first-gate tests additionally prove the guard does not call `preview_checkpoint_id`, so the unchanged successful path still previews exactly once and requires the prepared, receipt, and preview IDs to be byte-equal.
 
 - [ ] **Step 3.3: Enforce synchronous bridge ordering**
 
@@ -838,7 +908,7 @@ Because signal_event is synchronous in the installed addon, both commits must fi
 - [ ] **Step 3.4: Verify effect boundaries**
 
 ~~~powershell
-& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_effects' -LogName 'phase2r-dialogic-effects.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_fatal_diagnostic_projector.gd,res://tests/unit/test_effect_resolver.gd,res://tests/unit/test_effect_transactions.gd,res://tests/unit/test_save_manager_narrative_checkpoint_port.gd,res://tests/unit/test_run_snapshot_schema.gd,res://tests/unit/test_save_document_schema.gd,res://tests/unit/test_save_migrations.gd,res://tests/integration/test_dialogic_effect_boundary.gd,res://tests/integration/test_restore_transaction.gd','-gexit')
+& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_effects' -LogName 'phase2r-dialogic-effects.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_fatal_diagnostic_projector.gd,res://tests/unit/test_effect_resolver.gd,res://tests/unit/test_effect_transactions.gd,res://tests/unit/test_save_manager_narrative_checkpoint_port.gd,res://tests/unit/test_game_state_facade_contract.gd,res://tests/unit/test_run_snapshot_schema.gd,res://tests/unit/test_save_document_schema.gd,res://tests/unit/test_save_migrations.gd,res://tests/unit/test_restore_participants.gd,res://tests/unit/test_save_manager.gd,res://tests/integration/test_dialogic_effect_boundary.gd,res://tests/integration/test_restore_transaction.gd,res://tests/integration/test_restore_production_adapters.gd,res://tests/integration/test_save_capability.gd,res://tests/integration/test_save_manager_journal.gd','-gexit')
 ~~~
 
 Expected GREEN: invalid batches have zero effects; valid gameplay/checkpoint candidates commit once; failpoints reverse-roll back; and duplicates before/after restore consume no checkpoint sequence.
@@ -871,7 +941,23 @@ $required = [ordered]@{
 	'tests/unit/test_run_snapshot_schema.gd' = 'M'
 	'tests/unit/test_save_document_schema.gd' = 'M'
 	'tests/unit/test_save_migrations.gd' = 'M'
+	'tests/unit/test_game_state_facade_contract.gd' = 'M'
+	'tests/unit/test_restore_participants.gd' = 'M'
+	'tests/unit/test_save_manager.gd' = 'M'
 	'tests/integration/test_restore_transaction.gd' = 'M'
+	'tests/integration/test_restore_production_adapters.gd' = 'M'
+	'tests/integration/test_save_capability.gd' = 'M'
+	'tests/integration/test_save_manager_journal.gd' = 'M'
+	'evidence/phase_2r/runtime/game_state_surface.json' = 'M'
+	'tests/fixtures/snapshots/invalid_day8.json' = 'M'
+	'tests/fixtures/snapshots/invalid_object_shapes.json' = 'M'
+	'tests/fixtures/snapshots/valid_day3.json' = 'M'
+	'tests/fixtures/saves/day8_ending_non_group.json' = 'M'
+	'tests/fixtures/saves/day8_group_invalid_with_day7_journal.json' = 'M'
+	'tests/fixtures/saves/day8_group_synchronized.json' = 'M'
+	'tests/fixtures/saves/day8_no_fallback.json' = 'M'
+	'tests/fixtures/saves/day8_playing_with_day7_journal.json' = 'M'
+	'tests/fixtures/saves/v2_future_schema.json' = 'M'
 }
 $optionalUids = [ordered]@{
 	'tests/unit/test_effect_transactions.gd.uid' = 'A'

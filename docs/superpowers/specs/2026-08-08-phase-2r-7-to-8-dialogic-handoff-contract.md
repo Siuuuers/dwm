@@ -46,7 +46,7 @@ Task 1) is the sole ending-ID → physical-locator map and MUST equal this set.
 | `ending.lavinia.observation` | postscript | no | yes |
 | `ending.priscilla_lavinia` | epilogue | no | no |
 
-Retired and MUST reject before mutation (never aliased): `ending.priscilla.true`,
+Retired and MUST be rejected by validation before playback or mutation (never aliased): `ending.priscilla.true`,
 `ending.lavinia.true`, `ending.sylvia.true`. Legacy migration mappings are already
 live: `SaveMigrations.ENDING_ID_MAP` and `ProfileMigration` map the retired ids to
 `.observation` / `ending.sylvia.special` (idempotent union).
@@ -56,12 +56,15 @@ live: `SaveMigrations.ENDING_ID_MAP` and `ProfileMigration` map the retired ids 
 Current `dialogic/timelines/en/ending/*.dtl` still carry `.true` labels. `.8`
 Task 1 makes them consistent with §1:
 
-- `priscilla.dtl`: rename label `ending.priscilla.true` → `ending.priscilla.observation`.
-- `lavinia.dtl`: rename label `ending.lavinia.true` → `ending.lavinia.observation`.
-- `sylvia.dtl`: retire label `ending.sylvia.true`; add label `ending.sylvia.special`.
-- `alone.dtl`, `priscilla_lavinia.dtl`: unchanged (primary / epilogue timelines).
+- `priscilla.dtl`: rename label `ending.priscilla.true` → `ending.priscilla.observation` and replace `true` with `observation` in `# contains`.
+- `lavinia.dtl`: rename label `ending.lavinia.true` → `ending.lavinia.observation` and replace `true` with `observation` in `# contains`.
+- `sylvia.dtl`: retire label `ending.sylvia.true`; add label `ending.sylvia.special`; replace `true` with `special` in `# contains`.
+- `alone.dtl`: add the explicit locator `label ending.alone` before its terminal `return`.
+- `priscilla_lavinia.dtl`: add the explicit locator `label ending.priscilla_lavinia` before its terminal `return`.
 - Existing `sweet`/`dark` primary labels are unchanged; labels remain TODO-only
-  placeholders (no prose invented).
+  placeholders (no prose invented). The three friend-ending files therefore stay
+  `placeholder`; Alone and Priscilla-Lavinia remain `draft` because adding a label
+  does not add a TODO marker.
 
 Semantic IDs in §1 are the save/Gallery/history identities; DTL labels are
 locators only.
@@ -80,19 +83,39 @@ locators only.
   rejected; duplicates return the stored receipt. `.8` never advances state from a
   start.
 
-## 4. Postscript + AudioManifest ownership (decided)
+## 4. Postscript locator capability + AudioManifest ownership (decided)
 
-**`.8` owns postscript playback and postscript audio.** `.7` registered the
-postscript ids, the pure `resolve_postscript` gate, migration, and gallery titles,
-and explicitly deferred playback + audio (see the `.7` postscript spec, "Deferred
-(C)"). Therefore:
+`.7` registered the postscript ids, the pure `resolve_postscript` gate,
+migration, and gallery titles, and explicitly deferred Dialogic/audio work (see
+the `.7` postscript spec, "Deferred (C)"). `.8` owns the following bounded
+handoff:
 
-- The `.observation` DTL labels (§2) and their playback land in `.8`.
-- The `AudioManifest` `.true` → `.observation` audio-track rename lands in `.8`,
-  NOT `.7`. Until then `AudioManifest` keeps its legacy `ending_*_true` tracks; no
-  code reads a postscript track before `.8` wires playback.
-- Real board-mastery / observer signal wiring that drives `resolve_postscript`
-  remains a later phase (out of `.8`).
+- Task 1 registers the two `.observation` records as `role=postscript` and gives
+  each one a physical DTL label.
+- Task 2 provides manifest-validated, tokenized bridge capability through
+  `DialogicBridge.start_postscript_id(postscript_id:String) -> Dictionary`. It
+  accepts only an `endings.json` record whose role is `postscript` and reuses the
+  bridge's physical completion/failure machinery. It has no EndingPlan
+  `playback_context` and MUST NOT call a GameState ending method, add/change a
+  playback stage, unlock or record a postscript, or enqueue it in the live ending
+  sequence.
+- The existing `.7` `DialogicEndingPlaybackPort` remains exactly the
+  primary/epilogue adapter. It rejects `postscript` before calling the bridge.
+  `.8` MUST NOT change `DatingEndingRules.ENDING_PLAN_KEYS`,
+  `DatingEndingRules.PLAYBACK_STAGES`, `RunLifecycle`, `RunSnapshotSchema`, or
+  GameState ending sequencing to manufacture a temporary postscript slot.
+- Eligibility, live scheduling, persistence, stage advancement, and Gallery
+  recording remain dormant until the later ordered-ending-plan migration and the
+  real board-mastery/observer signal wiring. That later work consumes this
+  locator capability instead of back-porting its schema into `.8`.
+- Task 2 replaces ending audio ids exactly:
+  `ending_priscilla_true` → `ending_priscilla_observation`,
+  `ending_lavinia_true` → `ending_lavinia_observation`, and
+  `ending_sylvia_true` → `ending_sylvia_special`. Ending-context resolution is an
+  exact map over all 11 canonical ending ids; empty, unknown, and retired `.true`
+  semantic ids fail before audio mutation. The generic ending suffix fallback and
+  generic `ending_true` ending-tier track are retired. Non-ending dating/challenge
+  track ids are outside this handoff and are not silently renamed here.
 
 ## 5. Ending receipt-ledger / fatal-recovery ownership (decided, testable)
 
@@ -103,11 +126,25 @@ owned by `.7` and are already done and tested** — `ProfileManager`
 Proven by `tests/unit/test_game_state.gd`
 (`test_gallery_record_recovers_forward_after_a_partial_profile_failure`).
 
-`.8`'s Task 3 owns a **separate** ledger: the narrative **effect/variable**
-transaction ledger (allowlisted descriptors, all-or-nothing atomic idempotent
-commit through `GameState`). `.8` MUST NOT create a second ending-gallery ledger;
-it reuses `ProfileManager`'s. The effect-transaction ledger and its fatal-recovery
-seam are `.8` Task 3's to build and test.
+`.8`'s Task 3 creates the previously planned but absent top-level RunSnapshot
+`command_receipts: Dictionary`. In Task 3 it accepts only the narrative
+`effect_transaction` and `variable_transaction` wrapper/receipt variants; later
+facade work may extend this same run-level map rather than create another run
+ledger. The map is disjoint from `ProfileManager.gallery_transaction_receipts`:
+`.8` MUST NOT read, write, copy, or recreate that ending-gallery ledger.
+
+The two applied transaction-ID arrays must equal their sorted receipt-kind
+partitions of `command_receipts`, and their union must equal all map keys. A
+provisional snapshot missing the map may default to `{}` only when both arrays
+are empty; no migration may invent a receipt for a nonempty legacy array.
+
+Task 3 also creates the absent detached GameState candidate/restore seams, live
+narrative-variable and transaction-id state, and the private
+`_latch_facade_recovery_fatal(original_phase:StringName, command_id:String,
+raw_rollback_diagnostics:Array[Dictionary]) -> Dictionary` call-order helper
+while reusing the one
+injected `ApplicationMutationGate` and unchanged `FatalDiagnosticProjector`. It
+creates no second gate, projector, fatal Boolean, or snapshot authority.
 
 ## 6. Gate replacement (what the amendments do)
 
