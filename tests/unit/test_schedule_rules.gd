@@ -99,3 +99,31 @@ func test_no_warn_zero_motivation_empty_schedule() -> void:
 	assert_eq(GameState.get_stat("motivation"), 0)
 	var w := GameState.should_warn_minesweeper_before_schedule_done()
 	assert_false(bool(w["should_warn"]), "motivation 0 + no non-date entry does not warn")
+
+
+# ---- Date-path characterization (dwm-p2r.7 Task 4): pins CURRENT behaviour before delegation ----
+func test_char_add_time_duplicate_and_distinct_friend() -> void:
+	GameState.schedule_entries = [GameState.build_date_entry_from_unlock("priscilla")]
+	assert_false(GameState._can_add_date_entry(GameState.build_date_entry_from_unlock("priscilla")),
+		"a second date for the same friend is not addable")
+	assert_true(GameState._can_add_date_entry(GameState.build_date_entry_from_unlock("lavinia")),
+		"a date for a distinct friend is addable")
+
+func test_char_three_dates_exceed_the_day_allowance() -> void:
+	GameState.schedule_entries = [
+		GameState.build_date_entry_from_unlock("priscilla"),
+		GameState.build_date_entry_from_unlock("lavinia"),
+		GameState.build_date_entry_from_unlock("sylvia"),
+	]
+	assert_eq(GameState.validate_schedule(), {"ok": false, "reason": "too_many_dates"},
+		"three dates exceed the day-1 allowance")
+
+func test_char_full_two_date_week_currently_self_reports_invalid() -> void:
+	# LATENT BUG documented: the add-time guard, reused at validate-time, double-counts, so a full,
+	# legal 2-date week self-reports invalid_date. Task 3's delegation corrects this to valid.
+	GameState.schedule_entries = [
+		GameState.build_date_entry_from_unlock("priscilla"),
+		GameState.build_date_entry_from_unlock("lavinia"),
+	]
+	assert_eq(GameState.validate_schedule(), {"ok": false, "reason": "invalid_date"},
+		"pre-delegation: a full valid 2-date week self-reports invalid_date")
