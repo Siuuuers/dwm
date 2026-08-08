@@ -196,3 +196,16 @@ func test_profile_schema_registers_observation_not_true() -> void:
 	assert_true("ending.lavinia.observation" in schema.ENDING_IDS)
 	assert_false("ending.priscilla.true" in schema.ENDING_IDS, "retired .true is gone")
 	assert_false("ending.sylvia.true" in schema.ENDING_IDS, "sylvia.true is retired")
+
+func test_profile_document_remaps_retired_true_gallery_unlocks() -> void:
+	var migration: Script = load("res://scripts/profile/ProfileMigration.gd")
+	var schema: Script = load("res://scripts/profile/ProfileSchema.gd")
+	var raw: Dictionary = schema.make_defaults()
+	raw["gallery_unlocks"] = ["ending.priscilla.true", "ending.sylvia.true", "ending.sylvia.special"]
+	var result: Dictionary = migration.prepare_document(raw)
+	assert_true(result.get("ok", false), str(result))
+	var unlocks: Array = result["value"]["gallery_unlocks"]
+	assert_true("ending.priscilla.observation" in unlocks, "priscilla.true remapped")
+	assert_true("ending.sylvia.special" in unlocks, "sylvia.true remapped to special")
+	assert_eq(unlocks.count("ending.sylvia.special"), 1, "special is unioned once, not duplicated")
+	assert_false("ending.priscilla.true" in unlocks, "no retired id remains")

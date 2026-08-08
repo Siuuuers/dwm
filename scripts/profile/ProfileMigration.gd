@@ -3,8 +3,29 @@ extends RefCounted
 
 const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 
+## The retired true-path ending ids and their true-observation replacements (story/05 sec 1).
+## Sylvia has no Observer end, so a legacy sylvia.true unlock folds into her Special.
+const _RETIRED_ENDING_MAP := {
+	"ending.priscilla.true": "ending.priscilla.observation",
+	"ending.lavinia.true": "ending.lavinia.observation",
+	"ending.sylvia.true": "ending.sylvia.special",
+}
+
+static func _remap_retired_gallery_unlocks(document: Dictionary) -> void:
+	var unlocks: Variant = document.get("gallery_unlocks")
+	if typeof(unlocks) != TYPE_ARRAY:
+		return
+	var remapped: Array = []
+	for entry: Variant in unlocks:
+		var id := str(_RETIRED_ENDING_MAP.get(entry, entry))
+		if id not in remapped:
+			remapped.append(id)
+	remapped.sort()
+	document["gallery_unlocks"] = remapped
+
 static func prepare_document(raw: Dictionary) -> Dictionary:
 	var detached := raw.duplicate(true)
+	_remap_retired_gallery_unlocks(detached)
 	var direct := SCHEMA.validate(detached)
 	if direct.get("ok", false):
 		return direct
@@ -64,7 +85,12 @@ static func prepare_legacy_patch(legacy_run_state: Dictionary, legacy_input_mapp
 			if typeof(audio_state[key]) != TYPE_DICTIONARY: return _legacy_failure("current_context must be an object")
 		else:
 			return {"ok": false, "code": &"unknown_legacy_profile_key", "message": "audio_state." + key}
-	var ending_map := {"alone": "ending.alone", "lavinia_priscilla": "ending.priscilla_lavinia"}
+	var ending_map := {
+		"alone": "ending.alone", "lavinia_priscilla": "ending.priscilla_lavinia",
+		"ending.priscilla.true": "ending.priscilla.observation",
+		"ending.lavinia.true": "ending.lavinia.observation",
+		"ending.sylvia.true": "ending.sylvia.special",
+	}
 	var seen: Variant = legacy_run_state.get("seen_endings", {})
 	if typeof(seen) != TYPE_DICTIONARY: return _legacy_failure("seen_endings must be an object")
 	for ending_value in seen:
