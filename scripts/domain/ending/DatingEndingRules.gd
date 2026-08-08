@@ -10,11 +10,14 @@ extends RefCounted
 
 const CANONICAL_ENDING_IDS: Array[String] = [
 	"ending.alone",
-	"ending.priscilla.sweet", "ending.priscilla.dark", "ending.priscilla.true",
-	"ending.lavinia.sweet", "ending.lavinia.dark", "ending.lavinia.true",
-	"ending.sylvia.sweet", "ending.sylvia.dark", "ending.sylvia.true",
+	"ending.priscilla.sweet", "ending.priscilla.dark", "ending.priscilla.observation",
+	"ending.lavinia.sweet", "ending.lavinia.dark", "ending.lavinia.observation",
+	"ending.sylvia.sweet", "ending.sylvia.dark",
 	"ending.sylvia.special", "ending.priscilla_lavinia",
 ]
+## True-observation postscripts (story/05 sec 1): canonical, but never primaries. Sylvia is
+## Special-only (no Observer end); the Priscilla-Lavinia postscript is deferred.
+const POSTSCRIPT_IDS: Array[String] = ["ending.lavinia.observation", "ending.priscilla.observation"]
 const FRIEND_IDS: Array[String] = ["priscilla", "lavinia", "sylvia"]
 const SELECTION_INPUT_KEYS: Array[String] = [
 	"affection_tiers", "candidate_friend_id", "dating_route_state",
@@ -214,6 +217,25 @@ static func resolve_epilogue(input: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"invalid_epilogue_input", "message": "pl_window_count must be an integer"}
 	var epilogue: Variant = "ending.priscilla_lavinia" if int(input["pl_window_count"]) >= 2 else null
 	return {"ok": true, "code": &"ok", "value": epilogue, "receipt": {"kind": "epilogue", "epilogue_id": epilogue}}
+
+
+## Conjunctive true-observation postscript gate (story/05 sec 1/3): per pairing, the observation
+## postscript unlocks iff board mastery AND observer behaviour. Sylvia is Special-only (never here);
+## the Priscilla-Lavinia postscript is deferred. Pure; never mutates the input.
+static func resolve_postscript(input: Dictionary) -> Dictionary:
+	if not _keys_match(input, ["lavinia", "priscilla"]):
+		return {"ok": false, "code": &"invalid_postscript_input", "message": "keys must be exactly [lavinia, priscilla]"}
+	var unlocked: Array[String] = []
+	for friend: String in ["lavinia", "priscilla"]:
+		var pairing: Variant = input[friend]
+		if typeof(pairing) != TYPE_DICTIONARY or not _keys_match(pairing, ["board_mastery", "observer_behaviour"]):
+			return {"ok": false, "code": &"invalid_postscript_input", "message": friend + " needs board_mastery and observer_behaviour"}
+		if typeof(pairing["board_mastery"]) != TYPE_BOOL or typeof(pairing["observer_behaviour"]) != TYPE_BOOL:
+			return {"ok": false, "code": &"invalid_postscript_input", "message": friend + " signals must be booleans"}
+		if pairing["board_mastery"] and pairing["observer_behaviour"]:
+			unlocked.append("ending.%s.observation" % friend)
+	unlocked.sort()
+	return {"ok": true, "code": &"ok", "value": {"unlocked_ids": unlocked}}
 
 
 static func _primary_result(ending_id: String, rule: String) -> Dictionary:

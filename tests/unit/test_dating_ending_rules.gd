@@ -175,3 +175,37 @@ func test_next_playback_command_records_gallery_when_no_epilogue() -> void:
 		return
 	var no_epilogue := {"primary_id": "ending.alone", "epilogue_id": null, "playback_stage": "PRIMARY_PLAYED"}
 	assert_eq(rules.next_playback_command(no_epilogue)["value"], {"kind": &"record_gallery", "expected_stage": &"PRIMARY_PLAYED"})
+
+# ---- True-observation postscript (story/05 sec 1/3) ----
+func _postscript_input(p_board: bool, p_obs: bool, l_board: bool, l_obs: bool) -> Dictionary:
+	return {
+		"priscilla": {"board_mastery": p_board, "observer_behaviour": p_obs},
+		"lavinia": {"board_mastery": l_board, "observer_behaviour": l_obs},
+	}
+
+func test_postscript_ids_are_canonical_but_not_primary() -> void:
+	var rules: Script = load(RULES_PATH)
+	for pid: String in ["ending.priscilla.observation", "ending.lavinia.observation"]:
+		assert_true(pid in rules.POSTSCRIPT_IDS, pid + " is a postscript")
+		assert_true(pid in rules.CANONICAL_ENDING_IDS, pid + " is canonical")
+		assert_false(pid in rules.VALID_PRIMARY_IDS, pid + " is never a primary")
+	assert_false("ending.priscilla.true" in rules.CANONICAL_ENDING_IDS, "retired .true is gone")
+	assert_false("ending.sylvia.true" in rules.CANONICAL_ENDING_IDS, "sylvia.true is retired")
+
+func test_resolve_postscript_requires_both_halves() -> void:
+	var rules: Script = load(RULES_PATH)
+	assert_eq(rules.resolve_postscript(_postscript_input(true, true, false, false))["value"]["unlocked_ids"],
+		["ending.priscilla.observation"], "priscilla with both halves unlocks; lavinia with neither does not")
+	assert_eq(rules.resolve_postscript(_postscript_input(true, false, false, true))["value"]["unlocked_ids"],
+		[], "either half alone never qualifies")
+	assert_eq(rules.resolve_postscript(_postscript_input(true, true, true, true))["value"]["unlocked_ids"],
+		["ending.lavinia.observation", "ending.priscilla.observation"], "both pairings, sorted")
+
+func test_resolve_postscript_rejects_malformed_input() -> void:
+	var rules: Script = load(RULES_PATH)
+	assert_false(rules.resolve_postscript({"priscilla": {"board_mastery": true, "observer_behaviour": true}}).get("ok", true),
+		"both pairing keys are required")
+	assert_false(rules.resolve_postscript({
+		"priscilla": {"board_mastery": "yes", "observer_behaviour": true},
+		"lavinia": {"board_mastery": true, "observer_behaviour": true},
+	}).get("ok", true), "signals must be booleans")
