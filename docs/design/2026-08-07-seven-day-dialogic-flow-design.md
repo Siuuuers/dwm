@@ -8,7 +8,7 @@ self_review_status: passed
 implementation_authorized: false
 implementation_plan_path: "docs/superpowers/plans/2026-08-07-seven-day-flow-implementation-roadmap.md"
 implementation_plan_status: proposed
-implementation_plan_sha256: "41f46aebfe78c2062e2a114ae2220cc33e6236d61a63a41ace6d59d89a01ed1a"
+implementation_plan_sha256: "288c73f7eeca6bc80fe8775cd77f25aba8bc68e0945dd244592a1d6128a7c32f"
 implementation_plan_created_on: 2026-08-07
 created_on: 2026-08-07
 written_spec_approved_on: 2026-08-07

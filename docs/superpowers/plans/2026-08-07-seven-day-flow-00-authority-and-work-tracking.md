@@ -26,13 +26,13 @@
 
 | Task | Consumes | Produces |
 |---:|---|---|
-| 1 | Approved spec, clean `.7` handoff, current Beads graph | Successor epic/children, exact dependency/provenance edges |
+| 1 | Approved spec, clean `.7` handoff, registered `dwm-oyo` graph | Verified successor authority graph and claimed Phase 00 child |
 | 2 | Design/frontmatter and existing doc validator API | Failing-then-green authority/plot-neutrality tests |
 | 3 | Pre-rewrite `story/03` | Verbatim noncanonical library plus plot-neutral production template |
 | 4 | Approved spec and requirement packets | Reconciled requirements and generated index |
 | 5 | Stable eight-file plan suite | Canonical plan digests, design binding, clean Phase 00 handoff |
 
-## Task 1: Establish the successor authority record and Beads DAG
+## Task 1: Verify and adopt the successor authority record
 
 **Specification:** Sections 1–3, 16.1, 18.
 
@@ -42,6 +42,8 @@
 - Inspect: `Prompt.md`
 - Inspect: `docs/agent/AGENT_WORKFLOW.md`
 - Inspect: `prompt_docs/INDEX.md`
+
+The user authorized durable tracking registration on 2026-08-08, without authorizing runtime implementation. The existing IDs are fixed: epic `dwm-oyo`; Phase 00–06 children `dwm-oyo.1` through `dwm-oyo.7`. All were left open and unclaimed at registration.
 
 - [ ] Run the mandatory context selection commands:
 
@@ -54,68 +56,31 @@ bd show dwm-p2r.8 --json --readonly
 bd show dwm-p2r.9 --json --readonly
 bd show dwm-p2r.10 --json --readonly
 bd show dwm-7e6 --json --readonly
+bd show dwm-oyo --json --readonly
+bd list --parent dwm-oyo --status 'open,in_progress,blocked,deferred,closed' --json --readonly
 ```
 
 - [ ] Stop if `.7` is not at a clean accepted boundary. Do not use a documentation task to conceal unfinished `.7` code.
-- [ ] Create one successor epic titled `Implement approved seven-day flow and Dialogic structure` with the approved design path in its description and acceptance criteria matching the roadmap completion gate.
-- [ ] Create seven child tasks, titled exactly for Plans 00–06. Use plan paths in each description, list the relevant specification sections, and set explicit exclusions (`final narrative prose`, `Chinese DTL prose`, `audio/animation production`, and unrelated dirty work).
-- [ ] Create and wire with this captured-ID sequence (descriptions and acceptance text use the exact plan/spec paths and exclusions stated above):
+- [ ] Adopt the existing records; do not create replacements. Verify the epic title, approved design `spec_id`, exclusions, acceptance criteria, seven exact child titles/plan paths, and durable registration note. Any missing, duplicate, reparented, or differently purposed record is a blocker requiring review.
+- [ ] Verify and claim in one PowerShell process:
 
 ```powershell
-$specPath = 'docs/design/2026-08-07-seven-day-dialogic-flow-design.md'
-$epicId = bd create --title 'Implement approved seven-day flow and Dialogic structure' --type epic --priority P1 --spec-id $specPath --description 'Execute the approved seven-day flow plan suite without final prose or unrelated work.' --acceptance 'Every roadmap completion gate passes and evidence is reviewed.' --silent
-$phase00Id = bd create --title 'Phase 00 — Authority and work tracking' --type task --parent $epicId --spec-id $specPath --description 'Execute docs/superpowers/plans/2026-08-07-seven-day-flow-00-authority-and-work-tracking.md. Excludes final prose, Chinese DTL prose, audio/animation, and unrelated dirty work.' --acceptance 'Phase 00 verification gate passes.' --silent
-$phase01Id = bd create --title 'Phase 01 — Dialogic contract and consolidation' --type task --parent $epicId --spec-id $specPath --description 'Execute docs/superpowers/plans/2026-08-07-seven-day-flow-01-dialogic-contract-and-consolidation.md with stated exclusions.' --acceptance 'Phase 01 verification gate passes.' --silent
-$phase02Id = bd create --title 'Phase 02 — Calendar contacts schedule and Hospital' --type task --parent $epicId --spec-id $specPath --description 'Execute docs/superpowers/plans/2026-08-07-seven-day-flow-02-calendar-contacts-schedule-hospital.md with stated exclusions.' --acceptance 'Phase 02 verification gate passes.' --silent
-$phase03Id = bd create --title 'Phase 03 — Relationship board promotion and pair law' --type task --parent $epicId --spec-id $specPath --description 'Execute docs/superpowers/plans/2026-08-07-seven-day-flow-03-relationship-board-pair.md with stated exclusions.' --acceptance 'Phase 03 verification gate passes.' --silent
-$phase04Id = bd create --title 'Phase 04 — Persistence profile ledgers and Rehearsal' --type task --parent $epicId --spec-id $specPath --description 'Execute docs/superpowers/plans/2026-08-07-seven-day-flow-04-persistence-profile-rehearsal.md with stated exclusions.' --acceptance 'Phase 04 verification gate passes.' --silent
-$phase05Id = bd create --title 'Phase 05 — Day 7 endings Gallery and production wiring' --type task --parent $epicId --spec-id $specPath --description 'Execute docs/superpowers/plans/2026-08-07-seven-day-flow-05-day7-endings-gallery.md with stated exclusions.' --acceptance 'Phase 05 verification gate passes.' --silent
-$phase06Id = bd create --title 'Phase 06 — Integration and release evidence' --type task --parent $epicId --spec-id $specPath --description 'Execute docs/superpowers/plans/2026-08-07-seven-day-flow-06-integration-release-evidence.md with stated exclusions.' --acceptance 'Phase 06 verification gate passes and evidence is reviewed.' --silent
-
-bd dep add $phase01Id $phase00Id
-bd dep add $phase02Id $phase00Id
-bd dep add $phase02Id $phase01Id
-bd dep add $phase03Id $phase00Id
-bd dep add $phase03Id $phase01Id
-bd dep add $phase03Id $phase02Id
-bd dep add $phase04Id $phase01Id
-bd dep add $phase04Id $phase02Id
-bd dep add $phase04Id $phase03Id
-bd dep add $phase05Id $phase01Id
-bd dep add $phase05Id $phase02Id
-bd dep add $phase05Id $phase03Id
-bd dep add $phase05Id $phase04Id
-bd dep add $phase06Id $phase00Id
-bd dep add $phase06Id $phase01Id
-bd dep add $phase06Id $phase02Id
-bd dep add $phase06Id $phase03Id
-bd dep add $phase06Id $phase04Id
-bd dep add $phase06Id $phase05Id
-
-bd dep add $phase00Id dwm-p2r.7
-bd dep add $phase03Id dwm-p2r.9
-
-bd dep add $epicId dwm-p2r.7 --type discovered-from
-bd dep add $epicId dwm-p2r.8 --type discovered-from
-bd dep add $epicId dwm-p2r.9 --type discovered-from
-bd dep add $epicId dwm-p2r.10 --type discovered-from
-bd dep add $epicId dwm-7e6 --type discovered-from
-bd update $phase00Id --claim
-
-$createdIds = [ordered]@{ epic=$epicId; phase00=$phase00Id; phase01=$phase01Id; phase02=$phase02Id; phase03=$phase03Id; phase04=$phase04Id; phase05=$phase05Id; phase06=$phase06Id }
-bd update $phase00Id --append-notes ('Created issue IDs: ' + ($createdIds | ConvertTo-Json -Compress))
-bd dep cycles
-bd lint
-bd orphans
-bd show $phase00Id --json --readonly
+$ids = @('dwm-oyo','dwm-oyo.1','dwm-oyo.2','dwm-oyo.3','dwm-oyo.4','dwm-oyo.5','dwm-oyo.6','dwm-oyo.7')
+$records = foreach ($id in $ids) { (bd show $id --json --readonly | ConvertFrom-Json)[0] }
+if ($records.Count -ne 8) { throw 'SEVEN_DAY_BEADS_RECORD_COUNT' }
+bd dep cycles --json --readonly
+bd lint @ids --status all --json --readonly
+bd update dwm-oyo.1 --claim
+bd update dwm-oyo.1 --append-notes 'Phase 00 claimed only after the dwm-p2r.7 clean closed handoff and explicit runtime authorization.'
+bd show dwm-oyo.1 --json --readonly
 ```
 
-- [ ] The actual blocking edges are therefore `00 <- dwm-p2r.7`, `01 <- 00`, `02 <- 00,01`, `03 <- 00,01,02,dwm-p2r.9`, `04 <- 01,02,03`, `05 <- 01,02,03,04`, and `06 <- 00,01,02,03,04,05`.
-- [ ] Add `discovered-from` links from the successor epic to `dwm-p2r.7`, `.8`, `.9`, `.10`, and `dwm-7e6`. These links preserve provenance; they do not claim those issues are complete.
-- [ ] Claim only the Phase 00 child. Leave all later children open.
-- [ ] Capture the created IDs in the Phase 00 issue notes and in a local review transcript; do not paste mutable status into the design specification.
+- [ ] Verify the exact blocking edges: `00 <- dwm-p2r.7`, `01 <- 00`, `02 <- 00,01`, `03 <- 00,01,02,dwm-p2r.9`, `04 <- 01,02,03`, `05 <- 01,02,03,04`, and `06 <- 00,01,02,03,04,05`.
+- [ ] Verify `discovered-from` links from `dwm-oyo` to `dwm-p2r.7`, `.8`, `.9`, `.10`, and `dwm-7e6`. These links preserve provenance; they do not claim those issues are complete.
+- [ ] Claim only `dwm-oyo.1` after the stop gate passes. Leave `dwm-oyo.2` through `.7` open.
+- [ ] Keep the exact IDs in the Phase 00 issue notes and local review transcript; do not paste mutable status into the design specification.
 
-Expected result: exactly one new child is in progress, the successor DAG has no cycles, both external prerequisite edges are visible, and the pre-existing issues retain their original history. Creation, wiring, durable ID notes, and verification run in the single PowerShell process above, so no transient variable is reused in a later shell.
+Expected result when Phase 00 executes: exactly `dwm-oyo.1` is in progress, the successor DAG has no cycles, both external prerequisite edges remain visible, and the pre-existing issues retain their original history. Before that authorized execution, all seven registered children remain open and unclaimed.
 
 - [ ] Commit: none. Beads owns this status mutation; repository JSONL staging follows the project’s Beads sync policy, not an ad hoc mixed documentation commit.
 

@@ -134,13 +134,17 @@ These SHA-256 values bind the reviewed child plans. Hash input is UTF-8 without 
 
 | Child plan | Canonical SHA-256 |
 |---|---|
-| `docs/superpowers/plans/2026-08-07-seven-day-flow-00-authority-and-work-tracking.md` | `1d8854afa5df812f9f581df86aff130b98f13463a12a720d60f0756dc87d8917` |
+| `docs/superpowers/plans/2026-08-07-seven-day-flow-00-authority-and-work-tracking.md` | `a547e566d17e4f554e5dae918dbedb38de4524519a3edc4c9642b222bfa78cbf` |
 | `docs/superpowers/plans/2026-08-07-seven-day-flow-01-dialogic-contract-and-consolidation.md` | `18522440776fd47ddb7ec36261c168a0587aa137d2d044b7d6d5c6b504c259ee` |
 | `docs/superpowers/plans/2026-08-07-seven-day-flow-02-calendar-contacts-schedule-hospital.md` | `904fa1632ac47e4444796dceafd53d36c20bd74fcd7d1dee752120958ceac41c` |
 | `docs/superpowers/plans/2026-08-07-seven-day-flow-03-relationship-board-pair.md` | `0b73d1a2ca50fc6a1ba729c294d339c7fa8ae103461da07f360d031cbadfddce` |
 | `docs/superpowers/plans/2026-08-07-seven-day-flow-04-persistence-profile-rehearsal.md` | `f924abe2d2c862a204d8f68c98a08a0bdff1e33eec7a8d6cad98c19cc7185241` |
 | `docs/superpowers/plans/2026-08-07-seven-day-flow-05-day7-endings-gallery.md` | `df581304383e190db2e970992c1564af279d6c380e355a2cea1776903484624f` |
 | `docs/superpowers/plans/2026-08-07-seven-day-flow-06-integration-release-evidence.md` | `b326d72c5a72931e90a3b9295e596161ead5de7c123b426b2e7d8b4db65c4d87` |
+
+## Durable Beads Registration
+
+The user authorized tracking registration on 2026-08-08 without authorizing runtime implementation. The successor epic is `dwm-oyo`; its Phase 00–06 children are `dwm-oyo.1` through `dwm-oyo.7`. They were registered open and unclaimed with the dependency graph in Plan 00. Always query Beads for current mutable status rather than treating this historical registration note as live state.
 
 ## Execution Protocol
 
