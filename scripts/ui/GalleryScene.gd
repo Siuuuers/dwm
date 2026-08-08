@@ -9,9 +9,9 @@ class_name GalleryScene
 
 const ALL_ENDING_IDS := [
 	"alone",
-	"priscilla.sweet", "priscilla.dark", "priscilla.true",
-	"lavinia.sweet", "lavinia.dark", "lavinia.true",
-	"sylvia.sweet", "sylvia.dark", "sylvia.true",
+	"priscilla.sweet", "priscilla.dark", "priscilla.observation",
+	"lavinia.sweet", "lavinia.dark", "lavinia.observation",
+	"sylvia.sweet", "sylvia.dark", "sylvia.special",
 	"priscilla_lavinia",
 ]
 

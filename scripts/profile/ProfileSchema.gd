@@ -2,9 +2,9 @@ class_name ProfileSchema
 extends RefCounted
 
 const ENDING_IDS := [
-	"ending.alone", "ending.priscilla.sweet", "ending.priscilla.dark", "ending.priscilla.true",
-	"ending.lavinia.sweet", "ending.lavinia.dark", "ending.lavinia.true",
-	"ending.sylvia.sweet", "ending.sylvia.dark", "ending.sylvia.true", "ending.sylvia.special",
+	"ending.alone", "ending.priscilla.sweet", "ending.priscilla.dark", "ending.priscilla.observation",
+	"ending.lavinia.sweet", "ending.lavinia.dark", "ending.lavinia.observation",
+	"ending.sylvia.sweet", "ending.sylvia.dark", "ending.sylvia.special",
 	"ending.priscilla_lavinia",
 ]
 

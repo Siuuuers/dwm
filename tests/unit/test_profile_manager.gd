@@ -147,7 +147,7 @@ func test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail() -> voi
 	var repeat: Dictionary = manager.call(&"prepare_ending_unlock", "ending.alone", "run-1-ending")
 	assert_false(repeat["value"]["requires_commit"])
 	assert_eq(repeat["value"]["pending_publication_id"], publication_id)
-	assert_eq(manager.call(&"prepare_ending_unlock", "ending.priscilla.true", "run-1-ending").get("code"), &"gallery_transaction_conflict")
+	assert_eq(manager.call(&"prepare_ending_unlock", "ending.priscilla.dark", "run-1-ending").get("code"), &"gallery_transaction_conflict")
 
 func test_gallery_and_entire_reset_retain_internal_ledgers() -> void:
 	var manager: Node = _new_manager()["manager"]
@@ -189,3 +189,10 @@ func test_mutation_gate_configuration_is_identity_stable_and_side_effect_free() 
 	assert_true(same["value"]["already_configured"])
 	assert_eq(manager.call(&"configure_mutation_gate", null).get("code"), &"invalid_mutation_gate")
 	assert_eq(manager.call(&"configure_mutation_gate", _gate_script.new()).get("code"), &"mutation_gate_already_configured")
+
+func test_profile_schema_registers_observation_not_true() -> void:
+	var schema: Script = load("res://scripts/profile/ProfileSchema.gd")
+	assert_true("ending.priscilla.observation" in schema.ENDING_IDS)
+	assert_true("ending.lavinia.observation" in schema.ENDING_IDS)
+	assert_false("ending.priscilla.true" in schema.ENDING_IDS, "retired .true is gone")
+	assert_false("ending.sylvia.true" in schema.ENDING_IDS, "sylvia.true is retired")
