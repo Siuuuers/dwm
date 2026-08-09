@@ -13,7 +13,7 @@ const NARRATIVE_VARIABLE_REGISTRY_PATH := "res://data/manifests/narrative_variab
 
 const TOP_KEYS: Array[String] = [
 	"active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
-	"audio_context", "checkpoint_id", "checkpoint_sequence", "contacts", "content_version",
+	"audio_context", "checkpoint_id", "checkpoint_sequence", "command_receipts", "contacts", "content_version",
 	"dating", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id",
 	"schedule", "schema_version",
 ]
@@ -81,6 +81,9 @@ static func build(
 		"dating": _detached(snapshot_input["dating"]),
 		"applied_effect_transaction_ids": _sorted_ids(snapshot_input["applied_effect_transaction_ids"]),
 		"applied_variable_transaction_ids": _sorted_ids(snapshot_input["applied_variable_transaction_ids"]),
+		# Mandatory schema-v2 effect/variable command ledger (dwm-p2r.8, Plan-05 Task 3). A legacy
+		# input without it defaults to {}; it is disjoint from the ending-gallery ledger.
+		"command_receipts": _detached(snapshot_input.get("command_receipts", {})),
 		"audio_context": audio_context.duplicate(true),
 	}
 	var validated := validate(snapshot)
@@ -138,7 +141,60 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		var ids_error := _validate_transaction_ids(candidate[member], member)
 		if ids_error != "":
 			return _fail(&"invalid_transaction_ids", ids_error)
+	var receipts_error := _validate_command_receipts(candidate["command_receipts"],
+		candidate["applied_effect_transaction_ids"], candidate["applied_variable_transaction_ids"])
+	if receipts_error != "":
+		return _fail(&"invalid_command_receipts", receipts_error)
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+## Effect/variable command ledger only (dwm-p2r.8, Plan-05 Task 3). Ending/gallery receipt
+## variants are rejected outright: that ledger belongs to ProfileManager and .7.
+const COMMAND_RECEIPT_KEYS: Array[String] = ["kind", "request_fingerprint", "source_id", "transaction_id"]
+const COMMAND_RECEIPT_KINDS: Array[String] = ["effect_transaction", "variable_transaction"]
+
+static func _validate_command_receipts(receipts: Variant, applied_effects: Variant, applied_variables: Variant) -> String:
+	if typeof(receipts) != TYPE_DICTIONARY:
+		return "command_receipts must be an object"
+	for key: Variant in (receipts as Dictionary):
+		if typeof(key) != TYPE_STRING or str(key).is_empty():
+			return "command_receipts keys must be nonempty strings"
+		var receipt: Variant = (receipts as Dictionary)[key]
+		if typeof(receipt) != TYPE_DICTIONARY:
+			return "command receipt must be an object: " + str(key)
+		var receipt_keys: Array = (receipt as Dictionary).keys()
+		receipt_keys.sort()
+		if receipt_keys != Array(COMMAND_RECEIPT_KEYS):
+			return "command receipt keys must be exactly " + str(COMMAND_RECEIPT_KEYS)
+		if str((receipt as Dictionary)["transaction_id"]) != str(key):
+			return "command receipt key must equal its transaction_id: " + str(key)
+		if str((receipt as Dictionary)["kind"]) not in COMMAND_RECEIPT_KINDS:
+			return "unregistered command receipt kind: " + str((receipt as Dictionary)["kind"])
+		var fingerprint := str((receipt as Dictionary)["request_fingerprint"])
+		if fingerprint.length() != 64 or not fingerprint.is_valid_hex_number():
+			return "command receipt fingerprint must be lowercase sha256 hex: " + str(key)
+	# Partition equality: the receipt map and the two applied-ID sets describe exactly the same
+	# transactions, split by kind. A ledger entry without its applied ID (or an applied ID without
+	# its receipt) would let a legacy transaction be applied twice, so both directions are checked.
+	return _validate_receipt_partition(receipts as Dictionary, applied_effects, applied_variables)
+
+static func _validate_receipt_partition(receipts: Dictionary, applied_effects: Variant, applied_variables: Variant) -> String:
+	if typeof(applied_effects) != TYPE_ARRAY or typeof(applied_variables) != TYPE_ARRAY:
+		return "applied transaction id sets must be arrays"
+	var expected := {"effect_transaction": {}, "variable_transaction": {}}
+	for id: Variant in (applied_effects as Array):
+		expected["effect_transaction"][str(id)] = true
+	for id: Variant in (applied_variables as Array):
+		expected["variable_transaction"][str(id)] = true
+	var seen := {"effect_transaction": {}, "variable_transaction": {}}
+	for key: Variant in receipts:
+		var kind := str((receipts[key] as Dictionary)["kind"])
+		if not (expected[kind] as Dictionary).has(str(key)):
+			return "command receipt is not present in its applied %s id set: %s" % [kind, str(key)]
+		seen[kind][str(key)] = true
+	for kind: String in expected:
+		if (expected[kind] as Dictionary).size() != (seen[kind] as Dictionary).size():
+			return "applied %s id without a command receipt" % kind
+	return ""
 
 static func validate_primitive_tree(value: Variant, path: String = "$") -> Dictionary:
 	match typeof(value):

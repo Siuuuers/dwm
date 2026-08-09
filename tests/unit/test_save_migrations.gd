@@ -49,8 +49,11 @@ func test_snapshot_v1_to_v2() -> void:
 	assert_eq(int(snapshot["schema_version"]), 2)
 	assert_eq(snapshot["lifecycle"]["active_resolution_plan"], null, "plan moved into lifecycle")
 	assert_true(snapshot["lifecycle"].has("ending_plan"))
-	assert_eq(snapshot["applied_effect_transaction_ids"], ["t-a", "t-b"], "ids renamed")
+	# dwm-p2r.8 Task 3 supersedes the older positive expectation: a receiptless snapshot may only
+	# migrate when both applied-ID arrays are empty, so this positive fixture now carries none.
+	assert_eq(snapshot["applied_effect_transaction_ids"], [], "ids renamed")
 	assert_eq(snapshot["applied_variable_transaction_ids"], [], "variable ledger added")
+	assert_eq(snapshot["command_receipts"], {}, "empty command ledger added")
 	assert_eq(snapshot["active_app_id"], null, "active_app_id default added")
 	assert_eq(snapshot["gameplay"]["narrative_variables"], {}, "narrative_variables default added")
 
@@ -147,3 +150,49 @@ func test_migrate_retired_true_ending_ids() -> void:
 	assert_eq(m.migrate_ending_id("ending.lavinia.true")["value"]["ending_id"], "ending.lavinia.observation")
 	assert_eq(m.migrate_ending_id("sylvia.true")["value"]["ending_id"], "ending.sylvia.special")
 	assert_eq(m.migrate_ending_id("ending.sylvia.true")["value"]["ending_id"], "ending.sylvia.special")
+
+
+# ---- dwm-p2r.8 (Plan-05 Task 3): receiptless nonempty applied-ID arrays are unmigratable ----
+# This failure is STRUCTURAL: migration must never discard ids, invent fingerprints or receipts,
+# or weaken partition equality, and it does not trigger an earlier-bundle fallback.
+
+func test_snapshot_migration_fails_for_receiptless_applied_ids() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var document: Dictionary = _fixture("v1_unreceipted_applied_ids.json")
+	var v1_snapshot: Dictionary = document["current_snapshot"]["snapshot"]
+	v1_snapshot.erase("settings")
+	v1_snapshot.erase("seen_endings")
+	var before := v1_snapshot.duplicate(true)
+	var migrated: Dictionary = m.migrate_snapshot_v1_to_v2(v1_snapshot)
+	assert_false(migrated.get("ok", false), "a receiptless applied-ID set cannot migrate")
+	assert_eq(str(migrated.get("code")), "unmigratable_command_receipts", "typed structural failure")
+	assert_eq(v1_snapshot, before, "the rejected input is never modified")
+
+
+func test_document_migration_fails_for_receiptless_applied_ids() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var raw: Dictionary = _fixture("v1_unreceipted_applied_ids.json")
+	var before := raw.duplicate(true)
+	var migrated: Dictionary = m.migrate_document(raw, {"kind": "slot", "slot_id": 1})
+	assert_false(migrated.get("ok", false), "whole-document migration fails too")
+	assert_eq(raw, before, "the rejected document is never modified")
+
+
+func test_migration_adds_empty_ledger_only_when_both_arrays_are_empty() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var document: Dictionary = _fixture("v1_minimal_slot.json")
+	var v1_snapshot: Dictionary = document["current_snapshot"]["snapshot"]
+	v1_snapshot.erase("settings")
+	v1_snapshot.erase("seen_endings")
+	var migrated: Dictionary = m.migrate_snapshot_v1_to_v2(v1_snapshot)
+	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
+	assert_eq(migrated["value"]["snapshot"]["command_receipts"], {}, "empty ledger added, nothing invented")

@@ -222,3 +222,84 @@ func test_low_level_rejects_foreign_owner() -> void:
 	var port: Object = pair[0]
 	var result: Dictionary = port.prepare_candidate(&"someone_else", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:1", "s", &"effect_transaction", "run-1:7")
 	assert_false(result.get("ok", false), "foreign owner rejected")
+
+
+# ---- dwm-p2r.8 (Plan-05 Task 3): low-level transaction seam hardening ----
+
+func test_narrative_provider_refusal_blocks_prepare() -> void:
+	if _port_script == null:
+		return
+	var pair := _configured()
+	var port: Object = pair[0]
+	var context: RefCounted = pair[1]
+	context.narrative_ok = false
+	var prepared: Dictionary = port.prepare_candidate(&"game_state_narrative_transaction", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:1", "src", &"effect_transaction", "run-1:7")
+	assert_false(prepared.get("ok", false), "no validated transaction checkpoint means no candidate")
+	assert_false("prepare:effect_transaction" in str(context.calls), "the real port is never reached")
+
+
+func test_prepare_rejects_checkpoint_id_mismatch() -> void:
+	if _port_script == null:
+		return
+	var pair := _configured()
+	var port: Object = pair[0]
+	var prepared: Dictionary = port.prepare_candidate(&"game_state_narrative_transaction", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:1", "src", &"effect_transaction", "run-1:999")
+	assert_false(prepared.get("ok", false), "a previewed id mismatch rejects")
+	assert_eq(str(prepared.get("code")), "checkpoint_id_mismatch")
+
+
+func test_commit_rejects_modified_candidate() -> void:
+	if _port_script == null:
+		return
+	var pair := _configured()
+	var port: Object = pair[0]
+	var prepared: Dictionary = port.prepare_candidate(&"game_state_narrative_transaction", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:1", "src", &"effect_transaction", "run-1:7")
+	var tampered: Dictionary = (prepared["value"]["candidate"] as Dictionary).duplicate(true)
+	tampered["checkpoint_id"] = "run-1:8"
+	var committed: Dictionary = port.commit(&"game_state_narrative_transaction", tampered)
+	assert_false(committed.get("ok", false), "byte-modified candidates reject")
+	assert_eq(str(committed.get("code")), "candidate_altered")
+
+
+func test_commit_rejects_foreign_owner() -> void:
+	if _port_script == null:
+		return
+	var pair := _configured()
+	var port: Object = pair[0]
+	var prepared: Dictionary = port.prepare_candidate(&"game_state_narrative_transaction", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:1", "src", &"effect_transaction", "run-1:7")
+	assert_false(port.commit(&"someone_else", prepared["value"]["candidate"]).get("ok", false), "foreign owner cannot commit")
+
+
+func test_only_one_candidate_may_exist_at_a_time() -> void:
+	if _port_script == null:
+		return
+	var pair := _configured()
+	var port: Object = pair[0]
+	port.prepare_candidate(&"game_state_narrative_transaction", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:1", "src", &"effect_transaction", "run-1:7")
+	var second: Dictionary = port.prepare_candidate(&"game_state_narrative_transaction", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:2", "src", &"effect_transaction", "run-1:7")
+	assert_false(second.get("ok", false), "a second in-flight candidate rejects")
+	assert_eq(str(second.get("code")), "transaction_in_progress")
+
+
+func test_rollback_releases_the_owner_for_a_later_transaction() -> void:
+	if _port_script == null:
+		return
+	var pair := _configured()
+	var port: Object = pair[0]
+	port.prepare_candidate(&"game_state_narrative_transaction", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:1", "src", &"effect_transaction", "run-1:7")
+	assert_true(port.rollback(&"game_state_narrative_transaction", {"journal_backup": {"run_id": "run-1"}}).get("ok", false), "rollback ok")
+	var again: Dictionary = port.prepare_candidate(&"game_state_narrative_transaction", {"lifecycle": {"run_id": "run-1"}}, "run-1:effect:2", "src", &"effect_transaction", "run-1:7")
+	assert_true(again.get("ok", false), "the owner is free after rollback")
+
+
+func test_prepare_result_is_recursively_detached() -> void:
+	if _port_script == null:
+		return
+	var pair := _configured()
+	var port: Object = pair[0]
+	var snapshot_input := {"lifecycle": {"run_id": "run-1"}}
+	var prepared: Dictionary = port.prepare_candidate(&"game_state_narrative_transaction", snapshot_input, "run-1:effect:1", "src", &"effect_transaction", "run-1:7")
+	(prepared["value"]["candidate"] as Dictionary)["injected"] = true
+	snapshot_input["lifecycle"]["run_id"] = "mutated"
+	var committed: Dictionary = port.commit(&"game_state_narrative_transaction", prepared["value"]["candidate"])
+	assert_false(committed.get("ok", false), "an externally mutated candidate cannot commit")

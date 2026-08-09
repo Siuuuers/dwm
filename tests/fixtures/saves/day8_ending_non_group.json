@@ -3,5 +3,6 @@
   "lifecycle": {"run_id": "d8n", "day": 8, "state": "ENDING", "active_resolution_plan": null,
     "ending_plan": {"ending_id": "ending.sylvia.sweet", "epilogue_ending_id": "", "source_day": 7, "playback_stage": "PRIMARY_PENDING", "playback_receipts": {}}},
   "route_id": "ending", "active_app_id": null, "narrative_checkpoint": {}, "gameplay": {"narrative_variables": {}},
+  "command_receipts": {},
   "contacts": {}, "schedule": [], "dating": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "audio_context": {}
 }

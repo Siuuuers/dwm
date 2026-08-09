@@ -212,6 +212,12 @@ func _ready() -> void:
 # ---- Lifecycle / stats / money / coins ----
 func reset_game() -> void:
 	_run_lifecycle.reset("run-local")
+	# A new run starts with an empty effect/variable ledger (dwm-p2r.8, Plan-05 Task 3): receipts
+	# and applied transaction ids are run-scoped and must never leak across runs.
+	_command_receipts = {}
+	_applied_effect_transaction_ids = []
+	_applied_variable_transaction_ids = []
+	_narrative_variables = {}
 	money = 0
 	coins = 0
 	stats = {STAT_PRESSURE: 3, STAT_HEALTH: 6, STAT_MOTIVATION: 7}
@@ -1835,12 +1841,151 @@ func capture_restore_state() -> Dictionary:
 	}}}
 
 
+# ---- Atomic effect/variable transactions (dwm-p2r.8, Plan-05 Task 3) ----
+# This ledger is DISJOINT from ProfileManager's ending-gallery ledger: it records only
+# effect/variable command receipts and never an ending/gallery variant.
+
+const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const _NARRATIVE_VARIABLE_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+
+var _command_receipts: Dictionary = {}
+var _applied_effect_transaction_ids: Array = []
+var _applied_variable_transaction_ids: Array = []
+var _narrative_variables: Dictionary = {}
+
+
+func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary:
+	var guarded := _guard_transaction(&"commit_effect_transaction")
+	if not guarded.get("ok", true):
+		return guarded
+	var normalized := {"kind": "effect_transaction", "transaction_id": transaction_id, "effect_ids": effect_ids.duplicate(true), "source_id": source_id}
+	var identity := _transaction_identity(transaction_id, normalized)
+	if identity.has("result"):
+		return identity["result"]
+	var resolver := get_node_or_null("/root/EffectResolver")
+	if resolver == null or not resolver.has_method("resolve_effects"):
+		return _transaction_failure(&"effect_resolver_unavailable", "EffectResolver is unavailable")
+	var resolved: Dictionary = resolver.resolve_effects(effect_ids)
+	if not resolved.get("ok", false):
+		return resolved
+	var descriptors: Array = (resolved["value"] as Dictionary)["descriptors"]
+	var backup: Dictionary = capture_live_run_state()["value"]["backup"]
+	var applied: Dictionary = resolver.apply_resolved_descriptors(self, descriptors)
+	if not applied.get("ok", false):
+		restore_live_run_state(backup)
+		return applied
+	return _record_transaction_receipt(transaction_id, str(identity["fingerprint"]), &"effect_transaction", source_id, _applied_effect_transaction_ids)
+
+
+func commit_variable_transaction(transaction_id: String, variable_id: String, value: Variant, source_id: String) -> Dictionary:
+	var guarded := _guard_transaction(&"commit_variable_transaction")
+	if not guarded.get("ok", true):
+		return guarded
+	var normalized := {"kind": "variable_transaction", "transaction_id": transaction_id, "variable_id": variable_id, "value": value, "source_id": source_id}
+	var identity := _transaction_identity(transaction_id, normalized)
+	if identity.has("result"):
+		return identity["result"]
+	if variable_id not in _NARRATIVE_VARIABLE_SCHEMA._registered_narrative_variables():
+		return _transaction_failure(&"unknown_variable_id", variable_id)
+	var backup: Dictionary = capture_live_run_state()["value"]["backup"]
+	_narrative_variables[variable_id] = value
+	var recorded := _record_transaction_receipt(transaction_id, str(identity["fingerprint"]), &"variable_transaction", source_id, _applied_variable_transaction_ids)
+	if not recorded.get("ok", false):
+		restore_live_run_state(backup)
+	return recorded
+
+
+func _guard_transaction(owner_id: StringName) -> Dictionary:
+	# The shared gate is applied as the method's FIRST operation, before any normalization,
+	# ledger read, validation, snapshot capture, or port/provider call.
+	if _mutation_gate == null:
+		return {"ok": true}
+	var guarded: Dictionary = _mutation_gate.call(&"guard_external", owner_id)
+	if typeof(guarded) == TYPE_DICTIONARY and not guarded.get("ok", true):
+		return guarded
+	return {"ok": true}
+
+
+func _transaction_identity(transaction_id: String, normalized: Dictionary) -> Dictionary:
+	if transaction_id.is_empty():
+		return {"result": _transaction_failure(&"invalid_transaction_id", "transaction_id must be nonempty")}
+	var emitted: Dictionary = _CANONICAL_JSON.stringify(normalized)
+	if not emitted.get("ok", false):
+		return {"result": _transaction_failure(&"invalid_transaction_request", "request is not canonically serializable")}
+	var fingerprint := str(emitted["value"]).sha256_text()
+	if _command_receipts.has(transaction_id):
+		var stored: Dictionary = _command_receipts[transaction_id]
+		if str(stored["request_fingerprint"]) == fingerprint:
+			return {"result": {"ok": true, "code": &"ok", "value": {"duplicate": true}, "receipt": stored.duplicate(true)}}
+		return {"result": _transaction_failure(&"duplicate_transaction_conflict", transaction_id)}
+	return {"fingerprint": fingerprint}
+
+
+func _record_transaction_receipt(transaction_id: String, fingerprint: String, kind: StringName, source_id: String, applied_ids: Array) -> Dictionary:
+	var receipt := {
+		"transaction_id": transaction_id,
+		"request_fingerprint": fingerprint,
+		"kind": kind,
+		"source_id": source_id,
+	}
+	_command_receipts[transaction_id] = receipt.duplicate(true)
+	if transaction_id not in applied_ids:
+		applied_ids.append(transaction_id)
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok", "value": {"duplicate": false}, "receipt": receipt.duplicate(true)}
+
+
+static func _transaction_failure(code: StringName, message: String) -> Dictionary:
+	return {"ok": false, "code": code, "message": message, "details": {}}
+
+
+# ---- Detached run candidate seam (Plan-05 Task 3 Step 3.2) ----
+
+func prepare_run_candidate(snapshot: Dictionary) -> Dictionary:
+	if typeof(snapshot) != TYPE_DICTIONARY or snapshot.is_empty():
+		return _transaction_failure(&"invalid_run_candidate", "a snapshot input is required")
+	return {"ok": true, "code": &"ok", "value": {"candidate": snapshot.duplicate(true)}, "receipt": {}}
+
+
+func capture_live_run_state() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {"backup": {
+		"gameplay": to_save_dict(),
+		"contacts": contacts.duplicate(true),
+		"command_receipts": _command_receipts.duplicate(true),
+		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
+		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
+		"narrative_variables": _narrative_variables.duplicate(true),
+	}}}
+
+
+func commit_run_candidate(candidate: Dictionary) -> Dictionary:
+	if typeof(candidate) != TYPE_DICTIONARY or candidate.is_empty():
+		return _transaction_failure(&"invalid_run_candidate", "candidate was not issued by this seam")
+	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
+
+
+func restore_live_run_state(backup: Dictionary) -> Dictionary:
+	var source: Variant = backup.get("backup", backup)
+	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("command_receipts"):
+		return _transaction_failure(&"invalid_run_backup", "backup was not issued by capture_live_run_state")
+	var detached: Dictionary = source as Dictionary
+	if typeof(detached.get("gameplay")) == TYPE_DICTIONARY:
+		apply_save_dict(detached["gameplay"])
+	if typeof(detached.get("contacts")) == TYPE_DICTIONARY:
+		contacts = (detached["contacts"] as Dictionary).duplicate(true)
+	_command_receipts = (detached["command_receipts"] as Dictionary).duplicate(true)
+	_applied_effect_transaction_ids = (detached["applied_effect_transaction_ids"] as Array).duplicate(true)
+	_applied_variable_transaction_ids = (detached["applied_variable_transaction_ids"] as Array).duplicate(true)
+	_narrative_variables = (detached["narrative_variables"] as Dictionary).duplicate(true)
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
 ## Pure read seam for the shared narrative checkpoint adapter (dwm-p2r.8, Plan-05 Task 2).
 ## Returns the complete detached CURRENT RunSnapshot input; performs no mutation, checkpoint,
 ## signal, or disk access. Task 3 extends this same capture with its live transaction fields.
 func capture_run_snapshot_input() -> Dictionary:
 	var current: Dictionary = to_save_dict()
-	var gameplay := {"narrative_variables": {}}
+	var gameplay := {"narrative_variables": _narrative_variables.duplicate(true)}
 	for key in _SAVE_WHITELIST:
 		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "schedule_entries", "dating_route_state"]:
 			continue
@@ -1852,8 +1997,9 @@ func capture_run_snapshot_input() -> Dictionary:
 		"contacts": contacts.duplicate(true),
 		"schedule": current.get("schedule_entries", []).duplicate(true) if typeof(current.get("schedule_entries")) == TYPE_ARRAY else [],
 		"dating": current.get("dating_route_state", {}).duplicate(true) if typeof(current.get("dating_route_state")) == TYPE_DICTIONARY else {},
-		"applied_effect_transaction_ids": [],
-		"applied_variable_transaction_ids": [],
+		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
+		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
+		"command_receipts": _command_receipts.duplicate(true),
 	}
 
 

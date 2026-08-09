@@ -74,6 +74,19 @@ static func migrate_snapshot_v1_to_v2(snapshot: Dictionary) -> Dictionary:
 	if not v2.has("applied_variable_transaction_ids"):
 		v2["applied_variable_transaction_ids"] = []
 
+	# Mandatory effect/variable command ledger (dwm-p2r.8, Plan-05 Task 3). A legacy snapshot may
+	# migrate to an empty map ONLY when both applied-ID arrays are empty: migration never invents a
+	# receipt for an already-applied transaction, so a nonempty array without receipts fails closed.
+	if not v2.has("command_receipts"):
+		var applied_effects: Variant = v2.get("applied_effect_transaction_ids", [])
+		var applied_variables: Variant = v2.get("applied_variable_transaction_ids", [])
+		var effects_empty := typeof(applied_effects) == TYPE_ARRAY and (applied_effects as Array).is_empty()
+		var variables_empty := typeof(applied_variables) == TYPE_ARRAY and (applied_variables as Array).is_empty()
+		if not (effects_empty and variables_empty):
+			return {"ok": false, "code": &"unmigratable_command_receipts",
+				"message": "a snapshot with applied transaction ids cannot migrate without its command receipts"}
+		v2["command_receipts"] = {}
+
 	# Declared v2 defaults.
 	if not v2.has("active_app_id"):
 		v2["active_app_id"] = null

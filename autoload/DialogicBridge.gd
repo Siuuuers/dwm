@@ -50,6 +50,8 @@ var _active_playback: Dictionary = {}
 var _playback_counter := 0
 var _narrative_checkpoint_port: Object = null
 var _initialized := false
+## The ONE transient, manifest-validated effect/variable event the checkpoint provider may serve.
+var _active_transaction: Dictionary = {}
 
 
 func _ready() -> void:
@@ -392,12 +394,68 @@ func start_postscript_id(postscript_id: String) -> Dictionary:
 
 
 func provide_transaction_narrative_checkpoint(transaction_id: String, source_id: String, checkpoint_kind: StringName) -> Dictionary:
-	# Exact Callable target for the shared adapter; Task 3 populates the transient event.
+	# Exact Callable target for the shared adapter. It serves ONLY the one transient, currently
+	# validated effect/variable event, and never executes, commits, advances, or looks anything up.
 	if transaction_id.is_empty() or source_id.is_empty():
 		return _command_failure(&"invalid_transaction_identity")
 	if String(checkpoint_kind) not in ["effect_transaction", "variable_transaction"]:
 		return _command_failure(&"invalid_checkpoint_kind")
-	return _command_failure(&"no_active_transaction")
+	if _active_transaction.is_empty():
+		return _command_failure(&"no_active_transaction")
+	if str(_active_transaction["transaction_id"]) != transaction_id \
+			or str(_active_transaction["source_id"]) != source_id \
+			or String(_active_transaction["kind"]) != String(checkpoint_kind):
+		return _command_failure(&"transaction_identity_mismatch")
+	return {"ok": true, "code": &"ok",
+		"value": {"narrative_checkpoint": (_active_transaction["narrative_checkpoint"] as Dictionary).duplicate(true)},
+		"receipt": {}}
+
+
+## Routes a validated effect/variable signal payload into GameState's atomic commit
+## (dwm-p2r.8, Plan-05 Task 3). The injected shared gate is consulted as the FIRST operation:
+## a gate failure returns before manifest lookup, transient-boundary creation, provider exposure,
+## or any GameState invocation.
+func _handle_narrative_transaction(kind: String, payload: Dictionary) -> void:
+	if _mutation_gate != null:
+		var guarded: Variant = _mutation_gate.call(&"guard_external", &"dialogic_narrative_transaction")
+		if typeof(guarded) == TYPE_DICTIONARY and not (guarded as Dictionary).get("ok", true):
+			narrative_validation_failed.emit((guarded as Dictionary).duplicate(true))
+			return
+	var transaction_id := str(payload.get("transaction_id", ""))
+	var source_id := str(payload.get("source_id", ""))
+	if transaction_id.is_empty() or source_id.is_empty():
+		narrative_validation_failed.emit({"ok": false, "code": &"invalid_transaction_identity", "details": payload.duplicate(true)})
+		return
+	var game_state := get_node_or_null("/root/GameState")
+	if game_state == null:
+		narrative_validation_failed.emit({"ok": false, "code": &"game_state_unavailable", "details": {}})
+		return
+	# Expose exactly one transient checkpoint for the adapter's provider, then clear it.
+	_active_transaction = {
+		"kind": kind, "transaction_id": transaction_id, "source_id": source_id,
+		"narrative_checkpoint": {"timeline_id": _current_timeline_id, "boundary": {"kind": kind, "transaction_id": transaction_id}},
+	}
+	var committed: Dictionary = {}
+	if kind == "effect_transaction":
+		var raw_ids: Variant = payload.get("effect_ids", [])
+		if typeof(raw_ids) != TYPE_ARRAY:
+			_active_transaction = {}
+			narrative_validation_failed.emit({"ok": false, "code": &"invalid_effect_ids", "details": payload.duplicate(true)})
+			return
+		# The frozen GameState signature takes Array[String]; normalize before invoking it.
+		var effect_ids: Array[String] = []
+		for raw: Variant in (raw_ids as Array):
+			if typeof(raw) != TYPE_STRING:
+				_active_transaction = {}
+				narrative_validation_failed.emit({"ok": false, "code": &"invalid_effect_ids", "details": payload.duplicate(true)})
+				return
+			effect_ids.append(str(raw))
+		committed = game_state.commit_effect_transaction(transaction_id, effect_ids, source_id)
+	else:
+		committed = game_state.commit_variable_transaction(transaction_id, str(payload.get("variable_id", "")), payload.get("value"), source_id)
+	_active_transaction = {}
+	if not committed.get("ok", false):
+		narrative_validation_failed.emit(committed.duplicate(true))
 
 
 func restore_captured_state(backup: Dictionary) -> Dictionary:
@@ -460,6 +518,9 @@ func _on_runtime_timeline_ended() -> void:
 
 func _on_runtime_signal_event(argument: Variant) -> void:
 	if typeof(argument) == TYPE_DICTIONARY and str((argument as Dictionary).get("kind", "")) in _RUNTIME_EVENT_KINDS:
+		var kind := str((argument as Dictionary)["kind"])
+		if kind == "effect_transaction" or kind == "variable_transaction":
+			_handle_narrative_transaction(kind, argument as Dictionary)
 		return
 	var failure := {"ok": false, "code": &"invalid_runtime_event", "message": "unregistered signal payload", "details": {"argument": argument}}
 	if _runtime_adapter != null:

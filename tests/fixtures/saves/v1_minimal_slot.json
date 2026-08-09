@@ -27,7 +27,7 @@
       "dating": {},
       "active_day_resolution_plan": null,
       "ending_plan": null,
-      "applied_transaction_ids": ["t-a", "t-b"],
+      "applied_transaction_ids": [],
       "settings": {"master_volume": 0.8},
       "seen_endings": ["ending.alone"],
       "audio_context": {}

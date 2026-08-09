@@ -16,6 +16,7 @@
       "active_app_id": null,
       "narrative_checkpoint": {},
       "gameplay": {"narrative_variables": {}},
+      "command_receipts": {},
       "contacts": {},
       "schedule": [],
       "dating": {},

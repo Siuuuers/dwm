@@ -61,3 +61,49 @@ func test_minesweeper_floor_alias_and_clamp() -> void:
 	EffectResolver.apply_effect_ids(["minesweeper:round_floor:-1"])
 	assert_eq(GameState.minesweeper_round_floor, -3, "floor clamps at -3")
 	assert_eq(GameState.get_minesweeper_display_rounds_max(), 2, "visible denominator stays 2")
+
+
+# ---- dwm-p2r.8 (Plan-05 Task 3): resolution is split from mutation ----
+# resolve_effects() validates and normalizes without finding GameState or mutating anything;
+# apply_resolved_descriptors() applies onto an EXPLICIT target and performs no discovery.
+
+func test_resolve_effects_normalizes_without_mutating() -> void:
+	var before := GameState.to_save_dict()
+	var resolved: Dictionary = EffectResolver.resolve_effects(["  PRESSURE:+2  ", "money:+5"])
+	assert_true(resolved.get("ok", false), str(resolved))
+	var descriptors: Array = resolved["value"]["descriptors"]
+	assert_eq(descriptors.size(), 2, "one descriptor per id")
+	assert_eq(str(descriptors[0]["effect_id"]), "pressure:+2", "ids are trimmed and lowercased")
+	assert_eq(GameState.to_save_dict(), before, "resolution never mutates GameState")
+
+
+func test_resolve_effects_rejects_unknown_and_non_string_ids() -> void:
+	var unknown: Dictionary = EffectResolver.resolve_effects(["pressure:+2", "not:a:real:effect"])
+	assert_false(unknown.get("ok", false), "an unknown id rejects the whole batch")
+	assert_eq(str(unknown.get("code")), "unknown_effect_id")
+	assert_false(EffectResolver.resolve_effects(["pressure:+2", 7]).get("ok", false), "non-string ids reject")
+
+
+func test_resolve_effects_accepts_an_empty_batch() -> void:
+	var resolved: Dictionary = EffectResolver.resolve_effects([])
+	assert_true(resolved.get("ok", false), "an empty batch resolves to no descriptors")
+	assert_eq((resolved["value"]["descriptors"] as Array).size(), 0)
+
+
+func test_apply_resolved_descriptors_requires_an_explicit_target() -> void:
+	var resolved: Dictionary = EffectResolver.resolve_effects(["pressure:+2"])
+	var applied: Dictionary = EffectResolver.apply_resolved_descriptors(null, resolved["value"]["descriptors"])
+	assert_false(applied.get("ok", false), "a null target rejects")
+	assert_eq(str(applied.get("code")), "invalid_apply_target")
+
+
+func test_apply_resolved_descriptors_applies_onto_the_given_target() -> void:
+	var resolved: Dictionary = EffectResolver.resolve_effects(["pressure:+2"])
+	assert_true(EffectResolver.apply_resolved_descriptors(GameState, resolved["value"]["descriptors"]).get("ok", false))
+	assert_eq(GameState.get_stat("pressure"), 5, "the explicit target received the effect")
+
+
+func test_apply_resolved_descriptors_rejects_malformed_descriptors() -> void:
+	var before := GameState.to_save_dict()
+	assert_false(EffectResolver.apply_resolved_descriptors(GameState, [{"wrong_key": "x"}]).get("ok", false))
+	assert_eq(GameState.to_save_dict(), before, "a malformed descriptor applies nothing")

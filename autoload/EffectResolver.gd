@@ -83,6 +83,34 @@ func are_effect_ids_known(effect_ids: Array) -> bool:
 	return true
 
 
+## Pure resolution (dwm-p2r.8, Plan-05 Task 3): validates and normalizes every ID without finding
+## GameState and without mutating anything. GameState owns the atomic commit that consumes these.
+func resolve_effects(effect_ids: Array) -> Dictionary:
+	if typeof(effect_ids) != TYPE_ARRAY:
+		return {"ok": false, "code": &"invalid_effect_ids", "message": "effect_ids must be an array", "details": {}}
+	var descriptors: Array = []
+	for raw in effect_ids:
+		if typeof(raw) != TYPE_STRING:
+			return {"ok": false, "code": &"invalid_effect_ids", "message": "every effect id must be a String", "details": {}}
+		var id := _normalize(raw)
+		if not is_effect_known(id):
+			return {"ok": false, "code": &"unknown_effect_id", "message": id, "details": {}}
+		descriptors.append({"effect_id": id})
+	return {"ok": true, "code": &"ok", "value": {"descriptors": descriptors}, "receipt": {}}
+
+
+## Applies one already-resolved descriptor list onto an explicit target. Callers MUST have
+## validated through resolve_effects first; this performs no discovery of its own.
+func apply_resolved_descriptors(target: Object, descriptors: Array) -> Dictionary:
+	if target == null:
+		return {"ok": false, "code": &"invalid_apply_target", "message": "target is required", "details": {}}
+	for descriptor in descriptors:
+		if typeof(descriptor) != TYPE_DICTIONARY or not (descriptor as Dictionary).has("effect_id"):
+			return {"ok": false, "code": &"invalid_descriptor", "message": str(descriptor), "details": {}}
+		_apply_single(target, str((descriptor as Dictionary)["effect_id"]))
+	return {"ok": true, "code": &"ok", "value": {"applied": descriptors.size()}, "receipt": {}}
+
+
 func apply_effect_ids(effect_ids: Array, source: String = "") -> bool:
 	# Two-pass: validate ALL first; if any unknown, apply nothing and return false.
 	if not are_effect_ids_known(effect_ids):

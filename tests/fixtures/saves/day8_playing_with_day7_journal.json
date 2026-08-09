@@ -3,16 +3,19 @@
     "schema_version": 2, "content_version": 1, "run_id": "d8p", "checkpoint_id": "d8p:12", "checkpoint_sequence": 12,
     "lifecycle": {"run_id": "d8p", "day": 8, "state": "PLAYING", "active_resolution_plan": null, "ending_plan": null},
     "route_id": "main", "active_app_id": null, "narrative_checkpoint": {}, "gameplay": {"narrative_variables": {}},
+    "command_receipts": {},
     "contacts": {}, "schedule": [], "dating": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "audio_context": {}
   },
   "day7_bundles": [
     {"checkpoint_kind": "line", "snapshot": {"schema_version": 2, "content_version": 1, "run_id": "d8p", "checkpoint_id": "d8p:6", "checkpoint_sequence": 6,
       "lifecycle": {"run_id": "d8p", "day": 7, "state": "PLAYING", "active_resolution_plan": null, "ending_plan": null},
       "route_id": "main", "active_app_id": null, "narrative_checkpoint": {}, "gameplay": {"narrative_variables": {}},
+      "command_receipts": {},
       "contacts": {}, "schedule": [], "dating": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "audio_context": {}}},
     {"checkpoint_kind": "day_start", "snapshot": {"schema_version": 2, "content_version": 1, "run_id": "d8p", "checkpoint_id": "d8p:7", "checkpoint_sequence": 7,
       "lifecycle": {"run_id": "d8p", "day": 7, "state": "PLAYING", "active_resolution_plan": null, "ending_plan": null},
       "route_id": "main", "active_app_id": null, "narrative_checkpoint": {}, "gameplay": {"narrative_variables": {}},
+      "command_receipts": {},
       "contacts": {}, "schedule": [], "dating": {}, "applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "audio_context": {}}}
   ]
 }
