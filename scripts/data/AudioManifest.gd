@@ -17,11 +17,28 @@ const BGM_IDS := [
 	"group_priscilla_lavinia", "group_tension", "twofriends_absent",
 	"date_challenge_normal", "date_challenge_dark", "date_challenge_true",
 	"hospital_room", "ending_alone",
-	"ending_priscilla_sweet", "ending_priscilla_dark", "ending_priscilla_true",
-	"ending_lavinia_sweet", "ending_lavinia_dark", "ending_lavinia_true",
-	"ending_sylvia_sweet", "ending_sylvia_dark", "ending_sylvia_true",
-	"ending_priscilla_lavinia", "ending_sweet", "ending_dark", "ending_true",
+	"ending_priscilla_sweet", "ending_priscilla_dark", "ending_priscilla_observation",
+	"ending_lavinia_sweet", "ending_lavinia_dark", "ending_lavinia_observation",
+	"ending_sylvia_sweet", "ending_sylvia_dark", "ending_sylvia_special",
+	"ending_priscilla_lavinia", "ending_sweet", "ending_dark",
 ]
+
+## Exact ending-id -> track map (dwm-p2r.8 handoff contract sec 4). Keys equal
+## DatingEndingRules.CANONICAL_ENDING_IDS; there is no suffix inference and no ending_alone
+## fallback. The retired .true ids resolve to nothing and fail before AudioManager mutation.
+const ENDING_TRACKS := {
+	"ending.alone": "ending_alone",
+	"ending.priscilla.sweet": "ending_priscilla_sweet",
+	"ending.priscilla.dark": "ending_priscilla_dark",
+	"ending.priscilla.observation": "ending_priscilla_observation",
+	"ending.lavinia.sweet": "ending_lavinia_sweet",
+	"ending.lavinia.dark": "ending_lavinia_dark",
+	"ending.lavinia.observation": "ending_lavinia_observation",
+	"ending.sylvia.sweet": "ending_sylvia_sweet",
+	"ending.sylvia.dark": "ending_sylvia_dark",
+	"ending.sylvia.special": "ending_sylvia_special",
+	"ending.priscilla_lavinia": "ending_priscilla_lavinia",
+}
 const AMBIENCE_IDS := ["room_tone", "computer_hum", "hospital_air", "rain_window"]
 const CUE_IDS := {
 	"button_accept": "ui", "button_cancel": "ui", "window_open": "ui", "window_close": "ui",
@@ -122,15 +139,9 @@ func _dating_track(context: Dictionary) -> String:
 
 
 func _ending_track(ending_id: String) -> String:
-	if ending_id.is_empty():
-		return "ending_alone"
-	var exact := ending_id.replace(".", "_")
-	if exact in BGM_IDS:
-		return exact
-	for suffix in ["sweet", "dark", "true"]:
-		if ending_id.ends_with(suffix):
-			return "ending_%s" % suffix
-	return "ending_alone"
+	# Exact map only: empty, unknown, and retired .true ids resolve to "" and the caller fails
+	# with unknown_audio_context before any AudioManager mutation.
+	return str(ENDING_TRACKS.get(ending_id, ""))
 
 
 func _record(id: String, path: String, bus: StringName, looped: bool, fade_in: float, fade_out: float) -> Dictionary:

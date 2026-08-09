@@ -1663,6 +1663,9 @@ func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) 
 	return _day_resolution_coordinator.complete_route_stage(transaction_id, receipt)
 
 
+var _narrative_checkpoint_port: Object = null
+
+
 func _configure_day_resolution(checkpoint_port: Object) -> Dictionary:
 	if _mutation_gate == null:
 		return {"ok": false, "code": &"mutation_gate_not_configured", "message": ""}
@@ -1830,6 +1833,43 @@ func capture_restore_state() -> Dictionary:
 		"lifecycle": _run_lifecycle.to_dict(),
 		"contacts": contacts.duplicate(true),
 	}}}
+
+
+## Pure read seam for the shared narrative checkpoint adapter (dwm-p2r.8, Plan-05 Task 2).
+## Returns the complete detached CURRENT RunSnapshot input; performs no mutation, checkpoint,
+## signal, or disk access. Task 3 extends this same capture with its live transaction fields.
+func capture_run_snapshot_input() -> Dictionary:
+	var current: Dictionary = to_save_dict()
+	var gameplay := {"narrative_variables": {}}
+	for key in _SAVE_WHITELIST:
+		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "schedule_entries", "dating_route_state"]:
+			continue
+		if current.has(key):
+			gameplay[key] = current[key]
+	return {
+		"lifecycle": _run_lifecycle.to_dict(),
+		"gameplay": gameplay,
+		"contacts": contacts.duplicate(true),
+		"schedule": current.get("schedule_entries", []).duplicate(true) if typeof(current.get("schedule_entries")) == TYPE_ARRAY else [],
+		"dating": current.get("dating_route_state", {}).duplicate(true) if typeof(current.get("dating_route_state")) == TYPE_DICTIONARY else {},
+		"applied_effect_transaction_ids": [],
+		"applied_variable_transaction_ids": [],
+	}
+
+
+## Accepts the ONE shared SaveManagerNarrativeCheckpointPort instance Bootstrap also injects into
+## DialogicBridge; idempotent for the same instance, rejects any other.
+func configure_narrative_checkpoint_port(port: Object) -> Dictionary:
+	if port == null:
+		return {"ok": false, "code": &"invalid_narrative_checkpoint_port", "message": ""}
+	for method in ["commit_current_boundary", "preview_checkpoint_id", "capture", "prepare_candidate", "commit", "rollback"]:
+		if not port.has_method(method):
+			return {"ok": false, "code": &"invalid_narrative_checkpoint_port", "message": "missing " + method}
+	if _narrative_checkpoint_port != null and _narrative_checkpoint_port.get_instance_id() != port.get_instance_id():
+		return {"ok": false, "code": &"narrative_checkpoint_port_already_configured", "message": ""}
+	var already := _narrative_checkpoint_port != null
+	_narrative_checkpoint_port = port
+	return {"ok": true, "code": &"ok", "value": {"port_instance_id": port.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 
 func apply_restore_silent(plan: Dictionary) -> Dictionary:

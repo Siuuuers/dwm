@@ -3,6 +3,35 @@ extends "res://addons/gut/test.gd"
 const MANAGER := preload("res://autoload/AudioManager.gd")
 const FAKE_PORT := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
+const AUDIO_MANIFEST := preload("res://scripts/data/AudioManifest.gd")
+const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
+
+
+## dwm-p2r.8 handoff sec 4: one exact 11-id ending map, no suffix inference, no ending_alone
+## fallback; retired .true ids fail before any AudioManager mutation.
+func test_ending_audio_map_covers_every_canonical_id() -> void:
+	var manifest: RefCounted = AUDIO_MANIFEST.new()
+	var keys: Array = AUDIO_MANIFEST.ENDING_TRACKS.keys()
+	keys.sort()
+	var canonical: Array = []
+	for id in DATING_ENDING_RULES.CANONICAL_ENDING_IDS:
+		canonical.append(str(id))
+	canonical.sort()
+	assert_eq(keys, canonical, "ending track keys equal CANONICAL_ENDING_IDS")
+	for ending_id in canonical:
+		var resolved: Dictionary = manifest.resolve_music_context("ending", {"ending_id": ending_id})
+		assert_true(resolved.get("ok", false), "resolves " + ending_id)
+	assert_eq(str(AUDIO_MANIFEST.ENDING_TRACKS["ending.priscilla.observation"]), "ending_priscilla_observation")
+	assert_eq(str(AUDIO_MANIFEST.ENDING_TRACKS["ending.lavinia.observation"]), "ending_lavinia_observation")
+	assert_eq(str(AUDIO_MANIFEST.ENDING_TRACKS["ending.sylvia.special"]), "ending_sylvia_special")
+
+
+func test_ending_audio_rejects_retired_unknown_and_empty_ids() -> void:
+	var manifest: RefCounted = AUDIO_MANIFEST.new()
+	for bad_id in ["ending.priscilla.true", "ending.lavinia.true", "ending.sylvia.true", "ending.nope", ""]:
+		var resolved: Dictionary = manifest.resolve_music_context("ending", {"ending_id": bad_id})
+		assert_false(resolved.get("ok", false), "must reject '" + bad_id + "' with no ending_alone fallback")
+	assert_false("ending_true" in AUDIO_MANIFEST.BGM_IDS, "generic ending_true tier retired")
 
 
 class FakeProfile:
@@ -89,17 +118,17 @@ func test_exact_threshold_and_focus_loss_overlay_do_not_replace_preferences() ->
 
 func test_semantic_contexts_are_exact_and_same_context_is_idempotent() -> void:
 	assert_true(_manager.initialize(_profile).get("ok", false))
-	assert_true(_manager.set_music_context("ending", {"ending_id": "ending.priscilla.true"}).get("ok", false))
+	assert_true(_manager.set_music_context("ending", {"ending_id": "ending.priscilla.observation"}).get("ok", false))
 	assert_true(_manager.set_ambience_context("hospital").get("ok", false))
 	var expected := {
 		"music_context_id": "ending",
-		"music_context": {"ending_id": "ending.priscilla.true"},
+		"music_context": {"ending_id": "ending.priscilla.observation"},
 		"ambience_context_id": "hospital",
 		"ambience_context": {},
 	}
 	assert_eq(_manager.get_semantic_audio_context(), expected)
 	var operation_count := _port.operations.size()
-	assert_true(_manager.set_music_context("ending", {"ending_id": "ending.priscilla.true"}).get("unchanged", false))
+	assert_true(_manager.set_music_context("ending", {"ending_id": "ending.priscilla.observation"}).get("unchanged", false))
 	assert_eq(_port.operations.size(), operation_count)
 	assert_false(_manager.get_semantic_audio_context().has("path"))
 	var tween_operation: Dictionary = _port.operations.filter(func(record: Dictionary) -> bool:
@@ -209,7 +238,7 @@ func test_semantic_restore_is_silent_and_rollback_restarts_prior_context() -> vo
 	watch_signals(_manager)
 	var snapshot := {
 		"music_context_id": "ending",
-		"music_context": {"ending_id": "ending.priscilla.true"},
+		"music_context": {"ending_id": "ending.priscilla.observation"},
 		"ambience_context_id": "hospital",
 		"ambience_context": {},
 	}
@@ -267,12 +296,12 @@ func test_restore_rejects_non_json_context_and_malformed_audio_preferences() -> 
 	assert_true(_manager.initialize(_profile).get("ok", false))
 	var snapshot := {
 		"music_context_id": "ending",
-		"music_context": {&"ending_id": "ending.priscilla.true"},
+		"music_context": {&"ending_id": "ending.priscilla.observation"},
 		"ambience_context_id": "hospital",
 		"ambience_context": {},
 	}
 	assert_eq(_manager.prepare_semantic_restore(snapshot, {"preferences": {"audio": {}}}).get("code"), &"invalid_audio_snapshot")
-	snapshot["music_context"] = {"ending_id": "ending.priscilla.true"}
+	snapshot["music_context"] = {"ending_id": "ending.priscilla.observation"}
 	assert_eq(_manager.prepare_semantic_restore(snapshot, {"preferences": {"audio": {"music_volume": 0.5}}}).get("code"), &"invalid_restore_plan")
 
 

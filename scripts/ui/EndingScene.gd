@@ -25,13 +25,15 @@ func _show_ending() -> void:
 		_ending_title_label.text = ending_id
 	if has_node("/root/AudioManager"):
 		get_node("/root/AudioManager").set_music_context("ending", {"ending_id": ending_id})
-	if has_node("/root/DialogicBridge"):
-		var bridge := get_node("/root/DialogicBridge")
-		if bridge.is_dialogic_available():
-			bridge.start_timeline_id(ending_id)
-		else:
-			push_warning("Dialogic 2 addon file does not exist.")
-	# Planned blocker: Plan 04 commits the run-scoped gallery transaction after ending playback.
+	# dwm-p2r.8: ending playback is owned by the injected ports. Never start an ending by passing
+	# a semantic ending ID to start_timeline_id -- ids like ending.sylvia.special are NOT timeline
+	# ids, and the port/bridge resolve the exact timeline+label through endings.json.
+	if _ending_state_port != null and _ending_playback_port != null:
+		var resumed := resume_ending()
+		if not resumed.get("ok", false):
+			push_warning("EndingScene: ending playback did not start: %s" % str(resumed.get("code", "")))
+		return
+	push_warning("EndingScene: ending ports are not configured; playback is unavailable.")
 
 func _on_return_pressed() -> void:
 	if has_node("/root/SceneRouter"):

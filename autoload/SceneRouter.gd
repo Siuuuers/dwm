@@ -32,6 +32,53 @@ func configure_mutation_gate(gate: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 
+## Ending port injection (dwm-p2r.8, Plan-05 Task 2). SceneRouter stores the exact instances and
+## configures an off-tree EndingScene before it is added to the tree, so no ending scene can reach
+## _ready() unconfigured.
+const _ENDING_STATE_PORT_METHODS := ["request_next_ending_command", "complete_ending_playback_stage"]
+const _ENDING_PLAYBACK_PORT_METHODS := ["start_ending_id", "is_ready"]
+
+var _ending_state_port: Object = null
+var _ending_playback_port: Object = null
+
+
+func configure_ending_ports(state_port: Object, playback_port: Object) -> Dictionary:
+	if state_port == null or not _has_ending_methods(state_port, _ENDING_STATE_PORT_METHODS):
+		return {"ok": false, "code": &"invalid_state_port", "message": "state port is missing required methods"}
+	if playback_port == null or not _has_ending_methods(playback_port, _ENDING_PLAYBACK_PORT_METHODS):
+		return {"ok": false, "code": &"invalid_playback_port", "message": "playback port is missing required methods"}
+	if _ending_state_port != null:
+		if _ending_state_port.get_instance_id() != state_port.get_instance_id() \
+				or _ending_playback_port.get_instance_id() != playback_port.get_instance_id():
+			return {"ok": false, "code": &"ending_ports_already_configured", "message": ""}
+		return {"ok": true, "code": &"ok", "value": {
+			"state_port_instance_id": state_port.get_instance_id(),
+			"playback_port_instance_id": playback_port.get_instance_id(),
+			"already_configured": true}, "receipt": {}}
+	_ending_state_port = state_port
+	_ending_playback_port = playback_port
+	return {"ok": true, "code": &"ok", "value": {
+		"state_port_instance_id": state_port.get_instance_id(),
+		"playback_port_instance_id": playback_port.get_instance_id(),
+		"already_configured": false}, "receipt": {}}
+
+
+func is_ending_ports_configured() -> bool:
+	return _ending_state_port != null and _ending_playback_port != null
+
+
+## Zero-argument route provider for the narrative checkpoint adapter; always a registered id.
+func get_current_route_id() -> String:
+	return _current_scene_id if _current_scene_id != "" else "menu"
+
+
+static func _has_ending_methods(target: Object, methods: Array) -> bool:
+	for method: String in methods:
+		if not target.has_method(method):
+			return false
+	return true
+
+
 func _gs() -> Node:
 	return get_node_or_null("/root/GameState")
 

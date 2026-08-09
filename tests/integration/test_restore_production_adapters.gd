@@ -99,3 +99,69 @@ func test_profile_prepare_failure_is_structural_not_content() -> void:
 	var prepared: Dictionary = m.prepare_restore_slot(3)
 	assert_false(prepared.get("ok", true), "a hard participant failure fails prepare, never a silent fallback")
 	assert_ne(prepared.get("code"), &"NO_COMPATIBLE_BUNDLE")
+
+
+# ---- dwm-p2r.8 (Plan-05 Task 2 Step 2.4): the PHYSICAL manifest-aware narrative participant ----
+# These exercise the real class against the current manifest, not a SaveManager-only fake.
+
+const NARRATIVE_SCHEMA := preload("res://scripts/narrative/NarrativeCheckpointSchema.gd")
+const NARRATIVE_FINGERPRINT := "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+
+class NarrativeCatalogStub extends RefCounted:
+	var record: Dictionary = {}
+	func get_record(timeline_id: String) -> Dictionary:
+		if str(record.get("id", "")) != timeline_id:
+			return {"ok": false, "code": &"unknown_timeline_id", "message": timeline_id}
+		return {"ok": true, "value": record.duplicate(true)}
+	func get_timeline_path(_timeline_id: String, _locale: String = "en") -> String:
+		return "res://dialogic/timelines/en/core/opening_day1.dtl"
+
+
+func _narrative_record() -> Dictionary:
+	return {"id": "T", "content_fingerprint": NARRATIVE_FINGERPRINT, "events": [
+		{"event_id": "T@0:text", "event_index": 0, "event_kind": "text", "semantic_id": "T.line.1", "post_event_id": null, "post_event_index": null},
+	]}
+
+
+func _narrative_checkpoint() -> Dictionary:
+	var event := {"event_id": "T@0:text", "event_index": 0, "event_kind": "text", "semantic_id": "T.line.1"}
+	var post := {"position": "revealed_event", "event_id": "T@0:text", "event_index": 0, "event_kind": "text", "semantic_id": "T.line.1"}
+	return NARRATIVE_SCHEMA.build(_narrative_record(), {"kind": "line", "semantic_id": "T.line.1", "transaction_id": ""}, event, post, "T.line.1", false)["value"]
+
+
+func test_physical_narrative_participant_prepares_against_current_manifest() -> void:
+	var catalog := NarrativeCatalogStub.new()
+	catalog.record = _narrative_record()
+	var participant: Object = load(NARR_P).new(Owner.new(), catalog)
+	var prepared: Dictionary = participant.prepare({"narrative_checkpoint": _narrative_checkpoint(), "content_version": 1})
+	assert_true(prepared.get("ok", false), str(prepared))
+	assert_eq(str(prepared["value"]["narrative_plan"]["position"]), "revealed_event", "resolved restore position")
+
+
+func test_physical_narrative_participant_reports_removed_content_as_recoverable() -> void:
+	var catalog := NarrativeCatalogStub.new()
+	var trimmed := _narrative_record()
+	trimmed["events"] = []
+	catalog.record = trimmed
+	var participant: Object = load(NARR_P).new(Owner.new(), catalog)
+	var prepared: Dictionary = participant.prepare({"narrative_checkpoint": _narrative_checkpoint(), "content_version": 1})
+	assert_eq(str(prepared.get("code")), "NARRATIVE_CONTENT_UNAVAILABLE", "removed event advances to an earlier bundle")
+
+
+func test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable() -> void:
+	var catalog := NarrativeCatalogStub.new()
+	var drifted := _narrative_record()
+	drifted["content_fingerprint"] = "sha256:feedface"
+	catalog.record = drifted
+	var participant: Object = load(NARR_P).new(Owner.new(), catalog)
+	assert_eq(str(participant.prepare({"narrative_checkpoint": _narrative_checkpoint(), "content_version": 1}).get("code")), "NARRATIVE_CONTENT_UNAVAILABLE")
+
+
+func test_physical_narrative_participant_fails_closed_on_malformed_bytes() -> void:
+	var catalog := NarrativeCatalogStub.new()
+	catalog.record = _narrative_record()
+	var broken := _narrative_checkpoint()
+	broken["boundary"] = {"kind": "line"}
+	var participant: Object = load(NARR_P).new(Owner.new(), catalog)
+	assert_eq(str(participant.prepare({"narrative_checkpoint": broken, "content_version": 1}).get("code")), "invalid_narrative_checkpoint", "malformed data must not be relabelled incompatible")

@@ -6,6 +6,13 @@ signal development_subset_ready(subset_id: StringName)
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const APPLICATION_MUTATION_GATE_SCRIPT := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+## dwm-p2r.8 Plan-05 Task 2: one narrative checkpoint adapter + one ending playback port.
+const NARRATIVE_CHECKPOINT_PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
+const ENDING_PLAYBACK_PORT := preload("res://scripts/application/ending/DialogicEndingPlaybackPort.gd")
+const DIALOGIC_RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
+const DIALOGIC_TIMELINE_CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
+## Narrative manifest content version supplied to every narrative checkpoint input.
+const NARRATIVE_CONTENT_VERSION := 1
 
 const MODE_FINAL := &"final"
 const MODE_TEST_MANUAL := &"test_manual"
@@ -49,6 +56,11 @@ var _debug_gate_factory: Callable
 var _selected_root := ""
 var _profile_storage: RefCounted
 var _application_gate: Object = null
+## The ONE real checkpoint port, constructed in initialize_saves and reused by the narrative
+## adapter and the later configure_day_resolution stage. A second construction is a wiring bug.
+var _retained_checkpoint_port: RefCounted = null
+var _narrative_checkpoint_adapter: Object = null
+var _ending_playback_port: Object = null
 var _state := {
 	"started": false, "ready": false, "mode": &"",
 	"completed_stages": [], "planned_blockers": [], "fatal_result": {},
@@ -120,13 +132,31 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var save_manager := _target(&"SaveManager")
 			if save_manager == null or not save_manager.has_method("initialize"):
 				return _failure(&"missing_stage_adapter", "SaveManager initializer is unavailable")
-			return save_manager.call(&"initialize", JSON_STORAGE.new(_selected_root.path_join("saves")))
+			var save_initialized: Dictionary = save_manager.call(&"initialize", JSON_STORAGE.new(_selected_root.path_join("saves")))
+			if not save_initialized.get("ok", false):
+				return save_initialized
+			# Construct and retain the ONE real checkpoint port here; the narrative adapter and
+			# the later configure_day_resolution stage reuse this exact instance.
+			if _retained_checkpoint_port == null:
+				_retained_checkpoint_port = SAVE_CHECKPOINT_PORT.new(save_manager)
+				if _application_gate != null:
+					var save_latched: Dictionary = _retained_checkpoint_port.configure_fatal_latch(_application_gate)
+					if not save_latched.get("ok", false):
+						return save_latched
+			return save_initialized
 		&"initialize_dialogic_bridge":
 			var bridge := _target(&"DialogicBridge")
 			var profile := _target(&"ProfileManager")
 			if bridge == null or not bridge.has_method("bind_profile_preferences"): return _failure(&"missing_stage_adapter", "DialogicBridge preference binding is unavailable")
 			if profile == null: return _failure(&"missing_profile_manager", "ProfileManager dependency is unavailable")
-			return bridge.call(&"bind_profile_preferences", profile)
+			var bound: Dictionary = bridge.call(&"bind_profile_preferences", profile)
+			if not bound.get("ok", false):
+				return bound
+			# Narrative/ending wiring exists only where the save stage ran; the profile/locale
+			# development subsets deliberately stop at preference binding.
+			if _retained_checkpoint_port == null:
+				return bound
+			return _wire_narrative_and_ending_ports(bridge)
 		&"publish_application_ready":
 			return {"ok": true}
 		_:
@@ -178,12 +208,92 @@ func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 	_application_gate = gate
 	return {"ok": true}
 
+## Builds the ONE narrative checkpoint adapter around the retained real port, injects that exact
+## instance into DialogicBridge and GameState, then constructs the ONE ending playback port and
+## injects it through SceneRouter (dwm-p2r.8, Plan-05 Task 2 Step 2.3). Any identity mismatch,
+## missing method, or unready port is a fatal stage result: application_ready is not emitted.
+func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
+	var game_state := _target(&"GameState")
+	var router := _target(&"SceneRouter")
+	var audio := _target(&"AudioManager")
+	if game_state == null or router == null or audio == null:
+		return _failure(&"missing_stage_adapter", "Narrative wiring requires GameState, SceneRouter and AudioManager")
+	for requirement in [[bridge, "initialize"], [bridge, "configure_narrative_checkpoint_port"],
+			[bridge, "provide_transaction_narrative_checkpoint"], [game_state, "configure_narrative_checkpoint_port"],
+			[game_state, "capture_run_snapshot_input"], [router, "configure_ending_ports"],
+			[router, "is_ending_ports_configured"], [router, "get_current_route_id"],
+			[audio, "get_semantic_audio_context"]]:
+		if not (requirement[0] as Object).has_method(str(requirement[1])):
+			return _failure(&"missing_stage_adapter", "Narrative wiring target is missing " + str(requirement[1]))
+	# Bind the low-level runtime adapter to the installed Dialogic autoload when present.
+	var runtime_adapter: RefCounted = null
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic != null:
+		var candidate: RefCounted = DIALOGIC_RUNTIME_ADAPTER.new()
+		if candidate.bind_runtime(dialogic).get("ok", false):
+			runtime_adapter = candidate
+	var initialized: Dictionary = bridge.call(&"initialize", DIALOGIC_TIMELINE_CATALOG, runtime_adapter)
+	if not initialized.get("ok", false):
+		return initialized
+	if _narrative_checkpoint_adapter == null:
+		_narrative_checkpoint_adapter = NARRATIVE_CHECKPOINT_PORT.new()
+		var configured: Dictionary = _narrative_checkpoint_adapter.configure(_retained_checkpoint_port, {
+			"snapshot_input": Callable(game_state, "capture_run_snapshot_input"),
+			"narrative_checkpoint": Callable(bridge, "provide_transaction_narrative_checkpoint"),
+			"route_id": Callable(router, "get_current_route_id"),
+			"active_app_id": Callable(self, "_active_app_id_context"),
+			"audio_context": Callable(audio, "get_semantic_audio_context"),
+			"content_version": Callable(self, "_content_version_context"),
+		})
+		if not configured.get("ok", false):
+			return configured
+	var bridge_port: Dictionary = bridge.call(&"configure_narrative_checkpoint_port", _narrative_checkpoint_adapter)
+	if not bridge_port.get("ok", false):
+		return bridge_port
+	var state_port: Dictionary = game_state.call(&"configure_narrative_checkpoint_port", _narrative_checkpoint_adapter)
+	if not state_port.get("ok", false):
+		return state_port
+	var adapter_id := _narrative_checkpoint_adapter.get_instance_id()
+	if int(bridge_port["value"]["port_instance_id"]) != adapter_id or int(state_port["value"]["port_instance_id"]) != adapter_id:
+		return _failure(&"narrative_checkpoint_identity_mismatch", "A consumer retained another narrative adapter")
+	if _ending_playback_port == null:
+		_ending_playback_port = ENDING_PLAYBACK_PORT.new()
+		var ending_initialized: Dictionary = _ending_playback_port.initialize(bridge)
+		if not ending_initialized.get("ok", false):
+			return ending_initialized
+	var routed: Dictionary = router.call(&"configure_ending_ports", game_state, _ending_playback_port)
+	if not routed.get("ok", false):
+		return routed
+	if not _ending_playback_port.is_ready() or not router.call(&"is_ending_ports_configured"):
+		return _failure(&"ending_ports_not_ready", "Ending ports did not report ready")
+	return {"ok": true, "code": &"ok", "value": {
+		"narrative_checkpoint_port_instance_id": adapter_id,
+		"checkpoint_port_instance_id": _retained_checkpoint_port.get_instance_id(),
+		"ending_playback_port_instance_id": _ending_playback_port.get_instance_id(),
+	}, "receipt": {}}
+
+
+## Stable private active-app context provider. Returns JSON null until Plan 06 injects the
+## Bootstrap-owned desktop host; that host is then read here without replacing this Callable.
+func _active_app_id_context() -> Variant:
+	return null
+
+
+## Narrative manifest content version provider (positive integer, stable identity/arity).
+func _content_version_context() -> int:
+	return NARRATIVE_CONTENT_VERSION
+
+
 func configure_day_resolution(game_state: Object, save_manager: Object) -> Dictionary:
 	if _application_gate == null:
 		return _failure(&"mutation_gate_not_configured", "Bootstrap has not constructed the application gate")
 	if game_state == null or save_manager == null:
 		return _failure(&"missing_stage_adapter", "Day-resolution wiring requires GameState and SaveManager")
-	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
+	# Reuse the ONE port retained by initialize_saves; never construct a second instance.
+	var checkpoint_port: RefCounted = _retained_checkpoint_port
+	if checkpoint_port == null:
+		checkpoint_port = SAVE_CHECKPOINT_PORT.new(save_manager)
+		_retained_checkpoint_port = checkpoint_port
 	var latched: Dictionary = checkpoint_port.configure_fatal_latch(_application_gate)
 	if not latched.get("ok", false):
 		return latched

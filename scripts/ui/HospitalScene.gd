@@ -23,7 +23,11 @@ func _start_timeline() -> void:
 		_dialogic_blocked = true
 		push_warning("Dialogic 2 addon file does not exist.")
 		return
-	bridge.start_timeline_id(TIMELINE_ID)
+	# Stable timeline ID only; forward the bridge receipt and never inspect an event index.
+	var started: Dictionary = bridge.start_timeline_id(TIMELINE_ID)
+	if not started.get("ok", false):
+		_dialogic_blocked = true
+		push_warning("HospitalScene: timeline did not start: %s" % str(started.get("reason", started.get("code", ""))))
 
 func _on_continue_pressed() -> void:
 	if not has_node("/root/GameState") or not has_node("/root/SceneRouter"):

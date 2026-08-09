@@ -10,8 +10,21 @@ signal timeline_failed(result: Dictionary)
 signal timeline_marker_received(marker_id: String, payload: Dictionary)
 signal preference_boundary_step(step_id: StringName)
 
+## Narrative/ending seams (dwm-p2r.8, Plan-05 Task 2).
+signal narrative_checkpoint_committed(checkpoint: Dictionary)
+signal narrative_validation_failed(result: Dictionary)
+signal ending_playback_finished(playback_token: String, ending_id: String, receipt: Dictionary)
+signal ending_playback_failed(playback_token: String, ending_id: String, result: Dictionary)
+
 const MISSING_DIALOGIC_MESSAGE := "Dialogic 2 addon file does not exist."
 const DIALOGIC_CLEAR_KEEP_VARIABLES := 1
+
+const _ENDINGS_MANIFEST_PATH := "res://data/manifests/endings.json"
+const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const _NARRATIVE_PORT_METHODS := ["commit_current_boundary", "preview_checkpoint_id", "capture", "prepare_candidate", "commit", "rollback"]
+## Signal payload kinds a timeline may legally raise.
+const _RUNTIME_EVENT_KINDS := ["safe_marker", "effect_transaction", "variable_transaction", "scene_transition", "minesweeper_entry"]
+const _PLAYBACK_CONTEXT_KEYS := ["expected_stage", "playback_id", "role", "transaction_id"]
 
 # Whitelisted safe marker ids (DTL may only call DialogicBridge.timeline_marker("<id>")).
 const _SAFE_MARKERS := [
@@ -28,6 +41,15 @@ var _preference_adapter: RefCounted
 var _cached_preference_plan: Dictionary = {}
 var _preferences_bound := false
 var _fatal_preference_failure := {}
+
+# --- Task 2 narrative/ending state ---
+var _runtime_adapter: RefCounted = null
+var _catalog: Script = null
+var _ending_records: Dictionary = {}
+var _active_playback: Dictionary = {}
+var _playback_counter := 0
+var _narrative_checkpoint_port: Object = null
+var _initialized := false
 
 
 func _ready() -> void:
@@ -242,6 +264,8 @@ func _latch_preference_fatal(phase: StringName, result: Dictionary) -> void:
 # route-ready token the route participant produced. Apply/rollback are silent.
 
 var _narrative_restore_backup: Dictionary = {}
+var _pending_resume_token := ""
+var _resume_counter := 0
 
 
 func capture_restore_state() -> Dictionary:
@@ -259,8 +283,27 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 		"timeline_id": _current_timeline_id,
 		"timeline_context": _current_timeline_context.duplicate(true),
 	}
-	# Semantic-only in Phase 2R: hold the restored checkpoint without driving the
-	# live Dialogic playhead (manifest-aware playback arrives in .8).
+	# Exact post-event restore state machine (dwm-p2r.8, Plan-05 Task 2 Step 2.4). The staged
+	# successor must NOT execute during apply/finalize; only the deferred resume unpauses it.
+	var position := str(plan.get("position", ""))
+	if _runtime_adapter != null and position != "":
+		var path := str(plan.get("timeline_path", ""))
+		var index := int(plan.get("resume_event_index", 0)) if plan.get("resume_event_index") != null else 0
+		match position:
+			"revealed_event":
+				# Start the exact text event, reapply cached preferences (emitted by the adapter),
+				# then finish the reveal. Literal reveal count/tween state is not restored.
+				_runtime_adapter.start_timeline(path, index)
+				_runtime_adapter.reveal_current_line()
+			"before_event":
+				_runtime_adapter.set_paused(true)
+				_runtime_adapter.start_timeline(path, index)
+				_resume_counter += 1
+				_pending_resume_token = "resume-%d" % _resume_counter
+			"external_route", "timeline_complete":
+				pass
+			_:
+				return {"ok": false, "code": &"invalid_restore_position", "message": position}
 	_current_timeline_id = str(checkpoint.get("timeline_id", ""))
 	_current_timeline_context = checkpoint.duplicate(true)
 	return {"ok": true, "code": &"ok"}
@@ -274,9 +317,187 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var ctx: Variant = (source as Dictionary).get("timeline_context", {})
 	_current_timeline_context = (ctx as Dictionary).duplicate(true) if typeof(ctx) == TYPE_DICTIONARY else {}
 	_narrative_restore_backup = {}
+	# Cancel any staged resume: a rolled-back restore must never resume the successor.
+	_pending_resume_token = ""
+	if _runtime_adapter != null and _runtime_adapter.has_method("restore_captured_state"):
+		_runtime_adapter.restore_captured_state(source)
 	return {"ok": true, "code": &"ok"}
 
 
 func finalize_restore() -> Dictionary:
 	_narrative_restore_backup = {}
+	# before_event only: schedule exactly one deferred resume, after SaveManager releases the gate.
+	if _pending_resume_token != "":
+		call_deferred("_resume_pending_restore", _pending_resume_token)
 	return {"ok": true, "code": &"ok"}
+
+
+func _resume_pending_restore(token: String) -> void:
+	# A rollback or a stale token makes this callback a no-op.
+	if token.is_empty() or token != _pending_resume_token:
+		return
+	_pending_resume_token = ""
+	if _runtime_adapter != null and _runtime_adapter.has_method("set_paused"):
+		_runtime_adapter.set_paused(false)
+
+
+# ---- Manifest-backed narrative seam (dwm-p2r.8, Plan-05 Task 2 Step 2.3) ----
+# The bridge is the ONLY narrative seam: it resolves endings.json locators, owns the opaque
+# playback token, and delegates every runtime call to the injected DialogicRuntimeAdapter.
+
+
+func initialize(catalog: Script = null, runtime_adapter: RefCounted = null) -> Dictionary:
+	_catalog = catalog if catalog != null else preload("res://scripts/data/DialogicTimelineCatalog.gd")
+	var loaded := _load_ending_records()
+	if not loaded.get("ok", false):
+		return loaded
+	if runtime_adapter != null:
+		if _runtime_adapter != null and _runtime_adapter != runtime_adapter:
+			return _command_failure(&"runtime_adapter_already_bound")
+		_runtime_adapter = runtime_adapter
+		if _runtime_adapter.has_signal("timeline_ended_signal") and not _runtime_adapter.timeline_ended_signal.is_connected(_on_runtime_timeline_ended):
+			_runtime_adapter.timeline_ended_signal.connect(_on_runtime_timeline_ended)
+		if _runtime_adapter.has_signal("runtime_signal_event") and not _runtime_adapter.runtime_signal_event.is_connected(_on_runtime_signal_event):
+			_runtime_adapter.runtime_signal_event.connect(_on_runtime_signal_event)
+	_initialized = true
+	return {"ok": true, "code": &"ok", "value": {"ending_count": _ending_records.size()}, "receipt": {}}
+
+
+func configure_narrative_checkpoint_port(port: Object) -> Dictionary:
+	if port == null:
+		return _command_failure(&"invalid_narrative_checkpoint_port")
+	for method in _NARRATIVE_PORT_METHODS:
+		if not port.has_method(method):
+			return _command_failure(&"invalid_narrative_checkpoint_port")
+	if _narrative_checkpoint_port != null and _narrative_checkpoint_port.get_instance_id() != port.get_instance_id():
+		return _command_failure(&"narrative_checkpoint_port_already_configured")
+	var already := _narrative_checkpoint_port != null
+	_narrative_checkpoint_port = port
+	return {"ok": true, "code": &"ok", "value": {"port_instance_id": port.get_instance_id(), "already_configured": already}, "receipt": {}}
+
+
+func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
+	# The only live EndingPlan resolver: primary/epilogue records only.
+	if typeof(context) != TYPE_DICTIONARY or not _exact_context_keys(context):
+		return _playback_failure(&"invalid_playback_context", "context keys must be exactly " + str(_PLAYBACK_CONTEXT_KEYS))
+	var role := String(context["role"])
+	if role != "primary" and role != "epilogue":
+		return _playback_failure(&"invalid_playback_role", role)
+	return _start_playback(ending_id, role)
+
+
+func start_postscript_id(postscript_id: String) -> Dictionary:
+	# Bridge-only capability: it never touches an EndingPlan stage or the Gallery.
+	return _start_playback(postscript_id, "postscript")
+
+
+func provide_transaction_narrative_checkpoint(transaction_id: String, source_id: String, checkpoint_kind: StringName) -> Dictionary:
+	# Exact Callable target for the shared adapter; Task 3 populates the transient event.
+	if transaction_id.is_empty() or source_id.is_empty():
+		return _command_failure(&"invalid_transaction_identity")
+	if String(checkpoint_kind) not in ["effect_transaction", "variable_transaction"]:
+		return _command_failure(&"invalid_checkpoint_kind")
+	return _command_failure(&"no_active_transaction")
+
+
+func restore_captured_state(backup: Dictionary) -> Dictionary:
+	return rollback_restore_silent(backup)
+
+
+func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
+	if not _initialized:
+		return _playback_failure(&"not_initialized", "initialize the bridge first")
+	if not _ending_records.has(ending_id):
+		return _playback_failure(&"unknown_ending_id", ending_id)
+	var record: Dictionary = _ending_records[ending_id]
+	if str(record["role"]) != expected_role:
+		return _playback_failure(&"ending_role_mismatch", "%s is %s, not %s" % [ending_id, str(record["role"]), expected_role])
+	var timeline_id := str(record["timeline_id"])
+	var path: String = _catalog.get_timeline_path(timeline_id, "en")
+	if path.is_empty():
+		return _playback_failure(&"unknown_timeline_id", timeline_id)
+	var label := str(record["label"])
+	var started: Dictionary = _start_through_runtime(path, label)
+	if not started.get("ok", false):
+		return started
+	_playback_counter += 1
+	var token := "playback-%d" % _playback_counter
+	_current_timeline_id = timeline_id
+	_active_playback = {"token": token, "ending_id": ending_id, "role": expected_role, "timeline_id": timeline_id, "label": label}
+	return {"ok": true, "code": &"started", "value": {}, "receipt": {
+		"playback_token": token, "ending_id": ending_id, "role": StringName(expected_role),
+		"timeline_id": timeline_id, "label": label, "started": true,
+	}}
+
+
+func _start_through_runtime(path: String, label: String) -> Dictionary:
+	if _runtime_adapter != null:
+		var result: Variant = _runtime_adapter.start_timeline(path, 0)
+		if typeof(result) != TYPE_DICTIONARY or not (result as Dictionary).get("ok", false):
+			return _playback_failure(&"runtime_start_failed", label)
+		return {"ok": true}
+	var required := require_dialogic()
+	if not required.get("ok", false):
+		return _playback_failure(&"dialogic_missing", MISSING_DIALOGIC_MESSAGE)
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic == null or not dialogic.has_method("start"):
+		return _playback_failure(&"dialogic_missing", MISSING_DIALOGIC_MESSAGE)
+	if dialogic.has_method("clear"):
+		dialogic.call("clear", DIALOGIC_CLEAR_KEEP_VARIABLES)
+		preference_boundary_step.emit(&"clear")
+	dialogic.call("start", path, label)
+	return {"ok": true}
+
+
+func _on_runtime_timeline_ended() -> void:
+	if _active_playback.is_empty():
+		return
+	var playback := _active_playback.duplicate(true)
+	_active_playback = {}
+	ending_playback_finished.emit(str(playback["token"]), str(playback["ending_id"]),
+		{"receipt_id": "%s:complete" % str(playback["token"]), "ending_id": str(playback["ending_id"]), "timeline_id": str(playback["timeline_id"])})
+
+
+func _on_runtime_signal_event(argument: Variant) -> void:
+	if typeof(argument) == TYPE_DICTIONARY and str((argument as Dictionary).get("kind", "")) in _RUNTIME_EVENT_KINDS:
+		return
+	var failure := {"ok": false, "code": &"invalid_runtime_event", "message": "unregistered signal payload", "details": {"argument": argument}}
+	if _runtime_adapter != null:
+		_runtime_adapter.halt_with_error(failure.duplicate(true))
+	narrative_validation_failed.emit(failure.duplicate(true))
+	if not _active_playback.is_empty():
+		var playback := _active_playback.duplicate(true)
+		_active_playback = {}
+		ending_playback_failed.emit(str(playback["token"]), str(playback["ending_id"]), failure.duplicate(true))
+
+
+func _load_ending_records() -> Dictionary:
+	var text := FileAccess.get_file_as_string(_ENDINGS_MANIFEST_PATH)
+	if text.is_empty():
+		return _command_failure(&"ending_manifest_missing")
+	var parsed: Dictionary = _STRICT_JSON.parse_object(text)
+	if not parsed.get("ok", false):
+		return parsed
+	var records: Variant = (parsed["value"] as Dictionary).get("records")
+	if typeof(records) != TYPE_ARRAY:
+		return _command_failure(&"ending_manifest_invalid")
+	var by_id := {}
+	for record in records:
+		if typeof(record) != TYPE_DICTIONARY:
+			return _command_failure(&"ending_manifest_invalid")
+		by_id[str((record as Dictionary)["ending_id"])] = (record as Dictionary).duplicate(true)
+	_ending_records = by_id
+	return {"ok": true}
+
+
+func _exact_context_keys(context: Dictionary) -> bool:
+	if context.size() != _PLAYBACK_CONTEXT_KEYS.size():
+		return false
+	for key in _PLAYBACK_CONTEXT_KEYS:
+		if not context.has(key):
+			return false
+	return true
+
+
+func _playback_failure(code: StringName, message: String) -> Dictionary:
+	return {"ok": false, "code": code, "message": message, "details": {}}

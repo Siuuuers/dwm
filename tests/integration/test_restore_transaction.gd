@@ -87,3 +87,43 @@ func test_rollback_failure_latches_shared_gate() -> void:
 	assert_eq(result["code"], &"APPLICATION_FATAL", JSON.stringify(result))
 	assert_true(wired["gate"].is_fatal_latched(), "a failed rollback irreversibly latches the shared gate")
 	assert_eq(result["details"]["failure"]["source"], "restore")
+
+
+# ---- dwm-p2r.8 (Plan-05 Task 2 Step 2.4): newest-to-oldest content-incompatible fallback ----
+# A typed recoverable narrative incompatibility must advance selection to an earlier whole bundle,
+# while fail-closed corruption must stop instead of being relabelled as incompatibility.
+
+const NARRATIVE_PARTICIPANT := "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
+
+
+class IncompatibleCatalog extends RefCounted:
+	## Every lookup misses, so any nonempty playhead is reported as unavailable content.
+	func get_record(timeline_id: String) -> Dictionary:
+		return {"ok": false, "code": &"unknown_timeline_id", "message": timeline_id}
+	func get_timeline_path(_timeline_id: String, _locale: String = "en") -> String:
+		return ""
+
+
+func test_narrative_content_incompatibility_is_typed_for_bundle_fallback() -> void:
+	var participant: Object = load(NARRATIVE_PARTICIPANT).new(RefCounted.new(), IncompatibleCatalog.new())
+	var result: Dictionary = participant.prepare({
+		"narrative_checkpoint": {"timeline_id": "removed.timeline", "line_id": "removed.line"},
+		"content_version": 1,
+	})
+	assert_false(result.get("ok", false), "removed content rejects")
+	assert_eq(str(result.get("code")), "NARRATIVE_CONTENT_UNAVAILABLE", "typed recoverable code drives newest-to-oldest fallback")
+	assert_eq(str((result.get("details", {}).get("cause", {}) as Dictionary).get("reason", "")), "content_unavailable", "carries the recoverable cause")
+
+
+func test_empty_playhead_stays_compatible_across_bundles() -> void:
+	var participant: Object = load(NARRATIVE_PARTICIPANT).new(RefCounted.new(), IncompatibleCatalog.new())
+	var result: Dictionary = participant.prepare({"narrative_checkpoint": {}, "content_version": 1})
+	assert_true(result.get("ok", false), "an empty playhead never blocks bundle selection")
+
+
+func test_malformed_narrative_input_is_fail_closed_not_incompatible() -> void:
+	var participant: Object = load(NARRATIVE_PARTICIPANT).new(RefCounted.new(), IncompatibleCatalog.new())
+	var missing_version: Dictionary = participant.prepare({"narrative_checkpoint": {}})
+	assert_eq(str(missing_version.get("code")), "invalid_narrative_input", "malformed input keeps the fail-closed code")
+	var missing_checkpoint: Dictionary = participant.prepare({"content_version": 1})
+	assert_eq(str(missing_checkpoint.get("code")), "invalid_narrative_input", "missing checkpoint keeps the fail-closed code")
