@@ -22,6 +22,40 @@ var _resolution_id := ""
 var _source_day := 0
 var _stages: Array[Dictionary] = []
 
+## SINGLE authority for how far an ACTIVE plan's source day may trail the run day (dwm-7e6).
+##
+## The resolution sequence runs increment_day -> reset_day_scope -> new_day_autosave -> unlock_day,
+## so every checkpoint after the increment legitimately has day == source_day + 1 while the plan is
+## still open. Exactly that one-day window is legal; anything wider (or a plan ahead of the day) is
+## a corrupt bundle. RunSnapshotSchema and RunLifecycle both defer here so a snapshot that can be
+## WRITTEN can always be RESTORED.
+## STAGE-AWARE (dwm-7e6): the one-day trail is legal only because increment_day already COMPLETED
+## inside this very plan -- never merely because the numbers differ by one.
+static func is_active_source_day_legal(source_day: int, day: int, plan_data: Dictionary = {}) -> bool:
+	if source_day == day:
+		return true
+	if source_day != day - 1:
+		return false
+	return _stage_state(plan_data, "increment_day") == "completed"
+
+
+static func active_source_day_error(source_day: int, day: int, plan_data: Dictionary = {}) -> String:
+	if is_active_source_day_legal(source_day, day, plan_data):
+		return ""
+	if source_day == day - 1:
+		return "active_resolution_plan may trail day only after its increment_day stage completed"
+	return "active_resolution_plan source_day must equal day or the day it just incremented from"
+
+
+static func _stage_state(plan_data: Dictionary, stage_id: String) -> String:
+	if typeof(plan_data.get("stages")) != TYPE_ARRAY:
+		return ""
+	for stage: Variant in (plan_data["stages"] as Array):
+		if typeof(stage) == TYPE_DICTIONARY and str((stage as Dictionary).get("stage_id", "")) == stage_id:
+			return str((stage as Dictionary).get("state", ""))
+	return ""
+
+
 static func stage_allowlist(source_day: int) -> Array[String]:
 	return DAY_7_STAGES.duplicate() if source_day == 7 else DAY_1_6_STAGES.duplicate()
 

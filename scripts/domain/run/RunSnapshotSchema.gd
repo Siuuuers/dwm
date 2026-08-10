@@ -276,8 +276,13 @@ static func _validate_lifecycle(candidate: Dictionary) -> String:
 		var plan := DAY_RESOLUTION_PLAN.from_dict(lifecycle["active_resolution_plan"])
 		if not plan.get("ok", false):
 			return "invalid active_resolution_plan: " + str(plan.get("message", plan.get("code", "")))
-		if (plan["value"]["plan"] as RefCounted).get_source_day() != int(lifecycle["day"]):
-			return "active_resolution_plan source_day must match day"
+		# One authority for the active-plan day window (dwm-7e6): DayResolutionPlan. RunLifecycle
+		# defers to the same rule, so a snapshot that can be written can always be restored.
+		var window_error := DAY_RESOLUTION_PLAN.active_source_day_error(
+			int((plan["value"]["plan"] as RefCounted).get_source_day()), int(lifecycle["day"]),
+			lifecycle["active_resolution_plan"] as Dictionary)
+		if window_error != "":
+			return window_error
 	if lifecycle["ending_plan"] == null:
 		if state != "PLAYING":
 			return state + " requires an ending plan"

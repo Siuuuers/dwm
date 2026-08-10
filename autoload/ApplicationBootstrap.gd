@@ -273,6 +273,35 @@ func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
 	}, "receipt": {}}
 
 
+## Injects the five non-GameState checkpoint providers into the day-resolution state port
+## (dwm-7e6). Bound to the same stable sources the narrative checkpoint adapter uses, so both
+## checkpoint paths report identical route/app/audio/content context.
+func _configure_day_resolution_providers(game_state: Object) -> Dictionary:
+	var port: Object = game_state.get(&"_day_resolution_coordinator")
+	var state_port: Object = null
+	if port != null and port.has_method("get_state_port"):
+		state_port = port.call(&"get_state_port")
+	if state_port == null or not state_port.has_method("configure_checkpoint_providers"):
+		# The coordinator predates the provider seam; the port's safe defaults keep the bundle
+		# shape complete, so this is not fatal to startup.
+		return {"ok": true, "code": &"ok", "value": {"configured": false}, "receipt": {}}
+	var bridge := _target(&"DialogicBridge")
+	var router := _target(&"SceneRouter")
+	var audio := _target(&"AudioManager")
+	if bridge == null or router == null or audio == null:
+		return _failure(&"missing_stage_adapter", "Day-resolution providers require DialogicBridge, SceneRouter and AudioManager")
+	for requirement in [[bridge, "get_current_narrative_checkpoint"], [router, "get_current_route_id"], [audio, "get_semantic_audio_context"]]:
+		if not (requirement[0] as Object).has_method(str(requirement[1])):
+			return _failure(&"missing_stage_adapter", "Day-resolution provider target is missing " + str(requirement[1]))
+	return state_port.call(&"configure_checkpoint_providers", {
+		"dialogic_checkpoint": Callable(bridge, "get_current_narrative_checkpoint"),
+		"route_id": Callable(router, "get_current_route_id"),
+		"active_app_id": Callable(self, "_active_app_id_context"),
+		"audio_context": Callable(audio, "get_semantic_audio_context"),
+		"content_version": Callable(self, "_content_version_context"),
+	})
+
+
 ## Stable private active-app context provider. Returns JSON null until Plan 06 injects the
 ## Bootstrap-owned desktop host; that host is then read here without replacing this Callable.
 func _active_app_id_context() -> Variant:
@@ -304,6 +333,11 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 	var configured: Dictionary = game_state.call(&"_configure_day_resolution", checkpoint_port)
 	if not configured.get("ok", false):
 		return configured
+	# Real snapshot production (dwm-7e6): the day-resolution state port needs the five
+	# non-GameState checkpoint fields so the real checkpoint port accepts its bundle.
+	var provided := _configure_day_resolution_providers(game_state)
+	if not provided.get("ok", false):
+		return provided
 	return {"ok": true, "value": {"gate_instance_id": _application_gate.get_instance_id()}}
 
 func _is_compatible_gate(gate: Object) -> bool:

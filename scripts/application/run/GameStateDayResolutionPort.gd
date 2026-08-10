@@ -9,10 +9,69 @@ extends RefCounted
 ## deterministic owner receipt; registered external route commands and real
 ## schedule-substage receipts arrive with the Plan04 integration tasks.
 
+## Real snapshot production (dwm-7e6). GameState supplies the inner snapshot_input through its pure
+## capture seam; the five non-GameState fields arrive through injected Callables, mirroring the
+## SaveManagerNarrativeCheckpointPort provider seam. Unconfigured, safe defaults keep the SHAPE
+## complete so no caller can silently regress to the old {run_id, day} stub.
+const RUN_LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
+
+const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
+	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id",
+]
+const DEFAULT_ROUTE_ID := "main"
+const DEFAULT_CONTENT_VERSION := 1
+
 var _game_state: Object = null
+var _checkpoint_providers: Dictionary = {}
+var _provider_identity: Dictionary = {}
 
 func _init(game_state: Object) -> void:
 	_game_state = game_state
+
+func configure_checkpoint_providers(providers: Dictionary) -> Dictionary:
+	if typeof(providers) != TYPE_DICTIONARY or providers.size() != CHECKPOINT_PROVIDER_KEYS.size():
+		return {"ok": false, "code": &"invalid_checkpoint_providers", "message": "providers must be exactly " + str(CHECKPOINT_PROVIDER_KEYS), "details": {}}
+	var identity := {}
+	for key in CHECKPOINT_PROVIDER_KEYS:
+		if not providers.has(key) or typeof(providers[key]) != TYPE_CALLABLE:
+			return {"ok": false, "code": &"invalid_checkpoint_providers", "message": "missing or non-Callable provider: " + key, "details": {}}
+		var callable: Callable = providers[key]
+		if not callable.is_valid() or callable.get_object_id() == 0 or callable.get_argument_count() != 0:
+			return {"ok": false, "code": &"invalid_checkpoint_providers", "message": "provider must be a zero-argument Callable with stable identity: " + key, "details": {}}
+		identity[key] = [callable.get_object_id(), String(callable.get_method())]
+	if not _checkpoint_providers.is_empty():
+		if identity == _provider_identity:
+			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+		return {"ok": false, "code": &"checkpoint_providers_already_configured", "message": "", "details": {}}
+	_checkpoint_providers = providers.duplicate()
+	_provider_identity = identity
+	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+## Builds the complete CHECKPOINT_INPUT_KEYS bundle the coordinator hands straight to the real
+## SaveManagerCheckpointPort. Providers are consulted once each, in a fixed order.
+##
+## `lifecycle` is supplied by the caller rather than read from live state: a stage's checkpoint must
+## record the lifecycle that stage PRODUCES (dwm-7e6). Every other field is genuinely live, because
+## completing a stage mutates the RunLifecycle alone.
+func _checkpoint_inputs(lifecycle: Dictionary) -> Dictionary:
+	var snapshot_input: Dictionary = _game_state.capture_run_snapshot_input()
+	snapshot_input["lifecycle"] = lifecycle.duplicate(true)
+	return {
+		"snapshot_input": snapshot_input,
+		"dialogic_checkpoint": _provided("dialogic_checkpoint", {}),
+		"route_id": _provided("route_id", DEFAULT_ROUTE_ID),
+		"active_app_id": _provided("active_app_id", null),
+		"audio_context": _provided("audio_context", {}),
+		"content_version": _provided("content_version", DEFAULT_CONTENT_VERSION),
+	}
+
+func _provided(key: String, fallback: Variant) -> Variant:
+	if not _checkpoint_providers.has(key):
+		return fallback
+	var produced: Variant = (_checkpoint_providers[key] as Callable).call()
+	if typeof(produced) == TYPE_DICTIONARY or typeof(produced) == TYPE_ARRAY:
+		return produced.duplicate(true)
+	return produced
 
 func begin_or_resume(command_id: String) -> Dictionary:
 	if command_id.is_empty():
@@ -43,16 +102,50 @@ func begin_next_stage() -> Dictionary:
 func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictionary:
 	var lifecycle: RefCounted = _game_state._run_lifecycle
 	var snapshot: Dictionary = lifecycle.to_dict()
-	var duplicate := false
-	var stored_receipt: Variant = null
 	if snapshot["active_resolution_plan"] != null:
 		for stage: Dictionary in snapshot["active_resolution_plan"]["stages"]:
 			if str(stage["transaction_id"]) == transaction_id and str(stage["state"]) == "completed":
-				duplicate = true
-				stored_receipt = stage["receipt"]
+				# Already durable. Re-applying it would be a no-op, but building a candidate for it
+				# would misrepresent a replay as fresh work.
+				return _prepared(transaction_id, receipt, snapshot, true, stage["receipt"])
+	var produced := _completed_lifecycle(snapshot, transaction_id, receipt)
+	if not produced.get("ok", false):
+		return produced
+	return _prepared(transaction_id, receipt, produced["value"]["lifecycle"], false, null)
+
+
+## Applies the stage to a DETACHED clone of the lifecycle. The checkpoint is then built from the
+## state the transaction PRODUCES, while live state stays untouched until the coordinator has
+## durably committed that checkpoint and replays this exact lifecycle into it (dwm-7e6).
+func _completed_lifecycle(snapshot: Dictionary, transaction_id: String, receipt: Dictionary) -> Dictionary:
+	var detached: RefCounted = RUN_LIFECYCLE.new()
+	var prepared: Dictionary = detached.prepare_restore(snapshot)
+	if not prepared.get("ok", false):
+		return prepared
+	var restored: Dictionary = detached.commit_restore(prepared["value"]["candidate"])
+	if not restored.get("ok", false):
+		return restored
+	# The clone is also the validation seam: an illegal receipt fails here, before any checkpoint.
+	var completed: Dictionary = detached.complete_active_stage(
+		transaction_id, _plan_receipt_from_envelope(receipt))
+	if not completed.get("ok", false):
+		return completed
+	return {"ok": true, "code": &"ok", "value": {"lifecycle": detached.to_dict()}}
+
+
+func _prepared(
+		transaction_id: String, receipt: Dictionary, lifecycle: Dictionary,
+		duplicate: bool, stored_receipt: Variant
+) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
-		"run_candidate": {"transaction_id": transaction_id, "receipt": receipt.duplicate(true)},
-		"snapshot_input": {"run_id": str(snapshot["run_id"]), "day": int(snapshot["day"])},
+		"run_candidate": {
+			"transaction_id": transaction_id,
+			"receipt": receipt.duplicate(true),
+			"lifecycle": lifecycle.duplicate(true),
+		},
+		# Despite the key name, the coordinator forwards this value verbatim as the real checkpoint
+		# port's `checkpoint_inputs`, so it must be the COMPLETE bundle (dwm-7e6).
+		"snapshot_input": _checkpoint_inputs(lifecycle),
 		"stage": {"transaction_id": transaction_id},
 		"publication": {
 			"transaction_id": transaction_id,
@@ -67,11 +160,14 @@ func capture() -> Dictionary:
 		"lifecycle": _game_state._run_lifecycle.to_dict(),
 	}}}
 
+## Installs the EXACT lifecycle the checkpoint recorded, rather than re-deriving the completion from
+## live state. Re-deriving would let the durable record and the live run drift apart (dwm-7e6).
 func commit(candidate: Dictionary) -> Dictionary:
-	var envelope: Dictionary = candidate["receipt"]
-	var completed: Dictionary = _game_state._run_lifecycle.complete_active_stage(
-		str(candidate["transaction_id"]), _plan_receipt_from_envelope(envelope))
-	return completed
+	var lifecycle: RefCounted = _game_state._run_lifecycle
+	var prepared: Dictionary = lifecycle.prepare_restore(candidate["lifecycle"])
+	if not prepared.get("ok", false):
+		return prepared
+	return lifecycle.commit_restore(prepared["value"]["candidate"])
 
 func rollback(backup: Dictionary) -> Dictionary:
 	var lifecycle: RefCounted = _game_state._run_lifecycle
@@ -95,8 +191,19 @@ func publish(publication: Dictionary) -> Dictionary:
 				_game_state.emit_signal(str(signal_name))
 	return {"ok": true, "code": &"ok"}
 
+## The day this resolution was created for, independent of how far its stages have advanced.
+func _active_source_day() -> int:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if typeof(plan) == TYPE_DICTIONARY and (plan as Dictionary).has("source_day"):
+		return int((plan as Dictionary)["source_day"])
+	return int(_game_state._run_lifecycle.get_day())
+
+
 func _immediate_receipt(stage_id: String) -> Dictionary:
-	var day: int = _game_state._run_lifecycle.get_day()
+	# Freeze the resolution's SOURCE day (dwm-7e6). Reading the live day here made
+	# reset_day_scope.target_day become source + 2 once increment_day had already advanced it.
+	var day: int = _active_source_day()
 	match stage_id:
 		"lock_day":
 			return _envelope("day_resolution_coordinator", "day_lock", {"locked": true})

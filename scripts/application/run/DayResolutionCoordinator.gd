@@ -76,6 +76,11 @@ func configure_fatal_latch(gate: Object) -> Dictionary:
 	_gate = gate
 	return _gate_identity_result(false)
 
+## Read-only accessor so Bootstrap can inject the day-resolution checkpoint providers into the
+## exact configured state port (dwm-7e6). It exposes no mutation and creates nothing.
+func get_state_port() -> Object:
+	return _state_port
+
 func configure(state_port: Object, checkpoint_port: Object) -> Dictionary:
 	if _gate == null:
 		return {"ok": false, "code": &"fatal_latch_not_configured", "message": ""}

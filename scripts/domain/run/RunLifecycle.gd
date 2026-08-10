@@ -41,10 +41,17 @@ func begin_day_resolution(resolution_id: String, schedule_entries: Array) -> Dic
 		return _fail(&"invalid_state", "begin_day_resolution requires PLAYING")
 	if _has_ending_plan:
 		return _fail(&"invalid_state", "begin_day_resolution requires no ending plan")
+	# Safe plan succession (dwm-7e6 erratum). A COMPLETED plan is never cleared on completion: the
+	# coordinator calls resume_resolution() immediately after to observe plan_complete, and stage
+	# receipts exist only inside active_resolution_plan. It is replaced atomically, and only by a
+	# VALID new plan, so invalid input can never destroy the previous day's completed receipts.
 	if _plan != null:
 		if _plan.get_resolution_id() == resolution_id:
+			# Repeating the same Done command stays idempotent, complete or incomplete.
 			return {"ok": true, "code": &"ok", "value": {"plan": _plan.to_dict()}}
-		return {"ok": false, "code": &"resolution_conflict", "message": _plan.get_resolution_id()}
+		if not _plan.is_complete():
+			# A genuinely concurrent, unfinished resolution still conflicts.
+			return {"ok": false, "code": &"resolution_conflict", "message": _plan.get_resolution_id()}
 	var created: Dictionary = DAY_RESOLUTION_PLAN.create(resolution_id, _day, schedule_entries.duplicate(true))
 	if not created.get("ok", false):
 		return created
@@ -196,8 +203,14 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 		var restored: Dictionary = DAY_RESOLUTION_PLAN.from_dict(data["active_resolution_plan"])
 		if not restored.get("ok", false):
 			return "invalid active_resolution_plan: " + str(restored.get("message", restored.get("code", "")))
-		if (restored["value"]["plan"] as RefCounted).get_source_day() != int(data["day"]):
-			return "active_resolution_plan source_day must match day"
+		# Defers to DayResolutionPlan, the single authority for the active-plan day window (dwm-7e6).
+		# Without this, a snapshot written mid-resolution would pass RunSnapshotSchema and then be
+		# rejected here on restore -- a save you can write but never load.
+		var window_error := DAY_RESOLUTION_PLAN.active_source_day_error(
+			int((restored["value"]["plan"] as RefCounted).get_source_day()), int(data["day"]),
+			data["active_resolution_plan"] as Dictionary)
+		if window_error != "":
+			return window_error
 	if data["ending_plan"] == null:
 		if state != "PLAYING":
 			return state + " requires an ending plan"

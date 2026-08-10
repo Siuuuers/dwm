@@ -229,6 +229,15 @@ func get_current_timeline_context() -> Dictionary:
 	return _current_timeline_context.duplicate(true)
 
 
+## Zero-argument narrative-checkpoint provider for day-resolution checkpoints (dwm-7e6).
+## Returns the cached semantic checkpoint, or {} when no timeline is active -- which
+## RunSnapshotSchema accepts as an empty narrative_checkpoint.
+func get_current_narrative_checkpoint() -> Dictionary:
+	if _current_timeline_id.is_empty():
+		return {}
+	return _current_timeline_context.duplicate(true)
+
+
 func timeline_marker(marker_id: String, payload: Dictionary = {}) -> void:
 	if not (marker_id in _SAFE_MARKERS):
 		push_warning("DialogicBridge: ignoring unknown timeline marker '%s'." % marker_id)
