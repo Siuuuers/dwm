@@ -20,6 +20,9 @@ const ENTRY_KEYS: Array[String] = [
 ## it is a deferred route produced by day-end resolution, never placed by the player.
 const ENTRY_TYPES: Array[String] = ["action", "solo", "group"]
 const DATE_TYPES: Array[String] = ["solo", "group"]
+## The single registered semantic route a scheduled date may carry. Mirrored by
+## data/manifests/routes.json, whose keys are SceneRouter._SCENE_PATHS.
+const DATE_ROUTE_ID := "dating"
 
 static func max_dates_for_day(day: int) -> int:
 	# Days 1-6 allow two dates; Day 7 allows the single ending date.
@@ -95,6 +98,40 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 ## friends from `friend_ids`, or `friend_id` for the minimal {type, friend_id} candidate GameState
 ## builds. Returns a specific reason code so a Done warning can render a helpful message.
 ## twofriends is never routed here.
+## Pure routing projection of a validated schedule (Plan-04 Task 4, contract amended 2026-08-10).
+##
+## Routing is CLOSED: `action` carries no route and is omitted entirely; `solo` and `group` both
+## route to the registered `dating` scene; `twofriends` is never schedulable and can never reach
+## here, because it is not an ENTRY_TYPE and validate_existing rejects it first. `"none"` and
+## `"advance"` are retired control sentinels, not route IDs.
+##
+## Transaction IDs, resolution IDs and presentation context are deliberately absent; the day
+## resolution coordinator adds those later.
+static func build_route_plan(schedule: Array, day: int) -> Dictionary:
+	var validated := validate_existing(schedule, day)
+	if not validated.get("ok", false):
+		return validated
+	var routed: Array[Dictionary] = []
+	for entry: Dictionary in schedule:
+		var entry_type := str(entry["type"])
+		var route: Variant = entry["route_id"]
+		if entry_type not in DATE_TYPES:
+			if route != null:
+				return _fail(&"invalid_route",
+					"%s entries carry no route, got %s" % [entry_type, str(route)])
+			continue
+		if typeof(route) != TYPE_STRING or str(route) != DATE_ROUTE_ID:
+			return _fail(&"invalid_route",
+				"%s entries route to %s, got %s" % [entry_type, DATE_ROUTE_ID, str(route)])
+		routed.append({
+			"entry_id": str(entry["entry_id"]),
+			"slot_index": int(entry["slot_index"]),
+			"route_id": DATE_ROUTE_ID,
+		})
+	routed.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+		return int(left["slot_index"]) < int(right["slot_index"]))
+	return {"ok": true, "code": &"ok", "value": {"route_plan": routed}, "receipt": {}}
+
 static func validate_date_candidate(existing: Array, candidate: Dictionary, day: int) -> Dictionary:
 	var candidate_type := str(candidate.get("type", ""))
 	if candidate_type not in DATE_TYPES:
