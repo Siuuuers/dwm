@@ -58,7 +58,15 @@ func test_accessibility_apply_no_crash() -> void:
 	AccessibilityManager.apply_high_contrast(root, true)
 	AccessibilityManager.apply_reduced_motion_to_tree(root)
 	AccessibilityManager.apply_settings_to_tree(root)
-	assert_true(true, "accessibility application did not require a recursive localization walk")
+	# dwm-p2r.8 Task 5: assert the actual effect. The former `assert_true(true, ...)` reported green
+	# no matter what these calls did, so it proved nothing beyond "did not crash".
+	# The final call, apply_settings_to_tree(), re-applies the PROFILE scale over the explicit 1.5,
+	# so the meaningful assertion is that the walk propagated one consistent value to every Control.
+	assert_true(root.has_meta("a11y_font_scale"), "font scale is applied to the root Control")
+	assert_true(lbl.has_meta("a11y_font_scale"), "and applied recursively to children")
+	assert_eq(float(lbl.get_meta("a11y_font_scale")), float(root.get_meta("a11y_font_scale")),
+		"the recursive walk applies one consistent scale to the whole subtree")
+	assert_true(float(root.get_meta("a11y_font_scale")) > 0.0, "a usable scale is recorded")
 	root.queue_free()
 
 

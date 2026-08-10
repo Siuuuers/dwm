@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "timeline_id": "fixture.phase2r.contract",
+  "locale": "en",
+  "path": "tests/fixtures/dialogic/phase2r_contract_fixture.dtl",
+  "content_fingerprint": "sha256:00f883d346023498586902de3dd282fdd333d5ca1367dba9d1a37871f6d138ac",
+  "line_ids": [
+    "fixture.line.start",
+    "fixture.line.after_choice",
+    "fixture.line.after_effect"
+  ],
+  "choice_ids": ["fixture.choice.continue"],
+  "signal_ids": [
+    "fixture.marker.safe",
+    "fixture.effect.tx",
+    "fixture.variable.tx"
+  ],
+  "signal_descriptors": {
+    "fixture.marker.safe": {
+      "kind": "safe_marker",
+      "owner": "fixture",
+      "semantic_id": "fixture.marker.safe"
+    },
+    "fixture.effect.tx": {
+      "kind": "effect_transaction",
+      "owner": "fixture",
+      "semantic_id": "fixture.effect.tx"
+    },
+    "fixture.variable.tx": {
+      "kind": "variable_transaction",
+      "owner": "fixture",
+      "semantic_id": "fixture.variable.tx"
+    }
+  },
+  "events": [
+    {"event_index": 0, "event_kind": "text", "semantic_id": "fixture.line.start"},
+    {"event_index": 1, "event_kind": "choice", "semantic_id": "fixture.choice.continue"},
+    {"event_index": 2, "event_kind": "text", "semantic_id": "fixture.line.after_choice"},
+    {"event_index": 3, "event_kind": "signal", "semantic_id": "fixture.marker.safe"},
+    {"event_index": 4, "event_kind": "signal", "semantic_id": "fixture.effect.tx"},
+    {"event_index": 5, "event_kind": "signal", "semantic_id": "fixture.variable.tx"},
+    {"event_index": 6, "event_kind": "text", "semantic_id": "fixture.line.after_effect"}
+  ]
+}
