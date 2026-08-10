@@ -31,6 +31,7 @@ static func max_dates_for_day(day: int) -> int:
 static func validate_existing(schedule: Array, day: int) -> Dictionary:
 	var seen_slots: Dictionary = {}
 	var seen_entry_ids: Dictionary = {}
+	var seen_action_ids: Dictionary = {}
 	var date_count: int = 0
 	for entry: Dictionary in schedule:
 		var shape_error := _entry_shape_error(entry, day)
@@ -40,6 +41,12 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 		if seen_entry_ids.has(entry_id):
 			return _fail(&"duplicate_entry_id", entry_id)
 		seen_entry_ids[entry_id] = true
+		# One action per day: distinct entry_ids in distinct slots can still name the same
+		# underlying action, which no other rule here catches (Plan-04 Task 4 audit, 2026-08-10).
+		var action_id := str(entry["action_id"])
+		if seen_action_ids.has(action_id):
+			return _fail(&"duplicate_action_id", action_id)
+		seen_action_ids[action_id] = true
 		var slot: int = int(entry["slot_index"])
 		if seen_slots.has(slot):
 			return _fail(&"duplicate_slot_index", "slot %d is used twice" % slot)
