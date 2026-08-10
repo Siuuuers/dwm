@@ -22,6 +22,7 @@
 - Preserve plan `.3`'s `bind_profile_preferences`, `apply_profile_preferences`, and `reapply_cached_preferences_after_clear` seams. Every explicit Dialogic clear/start in this plan MUST reapply the cached committed profile plan synchronously before the first restored/new event.
 - Proposed commits require separate explicit authority.
 - `implementation_authorized: true` as of 2026-07-18 for the exact task-scoped runtime, generated-manifest, test, and ordinary Beads execution changes below after blockers close. Git history remains separately unauthorized.
+- Tasks 4, 5, and 6 are three non-squashable exact-path boundaries. Task 5 requires committed Task 4; Task 6 requires committed Task 5 plus closed `dwm-p2r.8`. The Plan-05 reconciliation itself rides in the Task-4 boundary so the frozen Task-3 parent remains exact.
 - Every proposed commit invokes Plan 01's checked-in `tools/git/Invoke-ExactPathCommit.ps1`. The helper itself requires `DWM_COMMIT_AUTHORIZED=1`, distinguishes Git quiet exit `0`, `1`, and error, stages every literal non-UID requirement plus only explicitly listed newly generated `.uid` companions that are present, accepts only each declared `A`/`M`/`D` status, and rejects an empty/missing/extra/malformed/duplicate/rename/copy/type/unmerged staged record. Unless a map explicitly supplies another frozen mode, every Plan-05 entry requires regular-file mode `100644` before and after; symlink, gitlink, executable-bit, and all other mode/type drift reject. It runs the cached diff check, commits one direct child of the supplied `ExpectedHead`, and verifies the new commit's exact path/status/mode/cardinality. Existing `.uid` identities are read-only HEAD-blob bindings, never optional staged files. `.beads/issues.jsonl` and `.beads/interactions.jsonl` are the only explicitly allowed unstaged Beads paths; a boundary stages either only when its required-status map names it.
 
 ---
@@ -978,6 +979,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Exact Task 3 commit boundary failed.' }
 
 **Files:**
 
+- Modify: docs/superpowers/plans/2026-07-17-phase-2r-05-dialogic-skip.md
 - Create: scripts/narrative/SkipPolicy.gd
 - Create: tests/unit/test_skip_policy.gd
 - Create: tests/integration/test_dialogic_skip.gd
@@ -1099,12 +1101,12 @@ if (-not ($env:DWM_COMMIT_AUTHORIZED -ceq '1')) {
 	throw 'Task 4 Step 4.4 requires DWM_COMMIT_AUTHORIZED to be exactly 1.'
 }
 $expectedHead = [string](git rev-parse HEAD)
-$expectedSubject = [string](git show -s --format=%s $expectedHead)
-if ($LASTEXITCODE -ne 0 -or $expectedHead -notmatch '^[0-9a-f]{40,64}$' -or
-	-not ($expectedSubject -ceq 'refactor(effects): commit narrative effects as idempotent transactions')) {
+$task3Head = '4f5071b10f573f3575995915f354643f993b23c1'
+if ($LASTEXITCODE -ne 0 -or -not ($expectedHead -ceq $task3Head)) {
 	throw 'Task 4 requires the exact Task 3 commit boundary as HEAD.'
 }
 $required = [ordered]@{
+	'docs/superpowers/plans/2026-07-17-phase-2r-05-dialogic-skip.md' = 'M'
 	'scripts/narrative/SkipPolicy.gd' = 'A'
 	'tests/unit/test_skip_policy.gd' = 'A'
 	'tests/integration/test_dialogic_skip.gd' = 'A'
@@ -1139,6 +1141,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Exact Task 4 commit boundary failed.' }
 - Replace: tests/smoke_dialogic_timelines.gd
 - Create: tools/testing/UnconditionalPassAudit.gd
 - Create: tests/unit/tooling/test_no_unconditional_pass.gd
+- Modify: tests/unit/test_input_accessibility.gd
+- Bind read-only: tests/unit/test_input_accessibility.gd.uid
 
 **Interfaces:**
 
@@ -1226,7 +1230,7 @@ No assertion may be unconditional.
 - [ ] Run:
 
 ~~~powershell
-& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_fixture_contract' -LogName 'phase2r-dialogic-contract.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/integration/test_dialogic_bridge_contract.gd,res://tests/unit/tooling/test_no_unconditional_pass.gd','-gexit')
+& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_fixture_contract' -LogName 'phase2r-dialogic-contract.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/integration/test_dialogic_bridge_contract.gd,res://tests/unit/tooling/test_no_unconditional_pass.gd,res://tests/unit/test_input_accessibility.gd','-gexit')
 & .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_fixture_smoke' -LogName 'phase2r-dialogic-smoke.log' -GodotArgs @('-s','res://tests/smoke_dialogic_timelines.gd')
 ~~~
 
@@ -1240,9 +1244,23 @@ if (-not ($env:DWM_COMMIT_AUTHORIZED -ceq '1')) {
 }
 $expectedHead = [string](git rev-parse HEAD)
 $expectedSubject = [string](git show -s --format=%s $expectedHead)
+$task4Parent = [string](git rev-parse "$expectedHead^")
+$task3Head = '4f5071b10f573f3575995915f354643f993b23c1'
 if ($LASTEXITCODE -ne 0 -or $expectedHead -notmatch '^[0-9a-f]{40,64}$' -or
-	-not ($expectedSubject -ceq 'feat(dialogic): add global read history and boundary-safe skip')) {
+	-not ($expectedSubject -ceq 'feat(dialogic): add global read history and boundary-safe skip') -or
+	-not ($task4Parent -ceq $task3Head)) {
 	throw 'Task 5 requires the exact Task 4 commit boundary as HEAD.'
+}
+$inputAccessibilityUid = 'tests/unit/test_input_accessibility.gd.uid'
+$headInputAccessibilityUid = @(git ls-tree $expectedHead -- $inputAccessibilityUid)
+if ($LASTEXITCODE -ne 0 -or $headInputAccessibilityUid.Count -ne 1 -or
+	$headInputAccessibilityUid[0] -notmatch '^100644 blob ([0-9a-f]{40,64})\t') {
+	throw 'Task 5 requires the tracked accessibility-test UID as one regular HEAD blob.'
+}
+$headInputAccessibilityUidObject = $Matches[1]
+$workingInputAccessibilityUidObject = [string](git hash-object -- $inputAccessibilityUid)
+if ($LASTEXITCODE -ne 0 -or -not ($workingInputAccessibilityUidObject -ceq $headInputAccessibilityUidObject)) {
+	throw 'Task 5 must not change the accessibility-test UID identity.'
 }
 $required = [ordered]@{
 	'tests/fixtures/dialogic/phase2r_contract_fixture.dtl' = 'A'
@@ -1251,6 +1269,7 @@ $required = [ordered]@{
 	'tests/smoke_dialogic_timelines.gd' = 'M'
 	'tools/testing/UnconditionalPassAudit.gd' = 'A'
 	'tests/unit/tooling/test_no_unconditional_pass.gd' = 'A'
+	'tests/unit/test_input_accessibility.gd' = 'M'
 }
 $optionalUids = [ordered]@{
 	'tests/integration/test_dialogic_bridge_contract.gd.uid' = 'A'
@@ -1325,7 +1344,7 @@ The script entry point strict-parses every Task 1–5 evidence/log, calls `build
 - [ ] Run:
 
 ~~~powershell
-& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_gate' -LogName 'phase2r-dialogic-gate.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_timeline_manifest.gd,res://tests/unit/test_dialogic_runtime_adapter.gd,res://tests/unit/test_narrative_checkpoint_schema.gd,res://tests/unit/test_save_manager_narrative_checkpoint_port.gd,res://tests/unit/test_dialogic_ending_playback_port.gd,res://tests/unit/test_effect_resolver.gd,res://tests/unit/test_effect_transactions.gd,res://tests/unit/test_run_snapshot_schema.gd,res://tests/unit/test_save_document_schema.gd,res://tests/unit/test_save_migrations.gd,res://tests/unit/test_skip_policy.gd,res://tests/unit/tooling/test_no_unconditional_pass.gd,res://tests/unit/tooling/test_dialogic_gate_summary.gd,res://tests/integration/test_dialogic_restore.gd,res://tests/integration/test_narrative_checkpoint_wiring.gd,res://tests/integration/test_ending_dialogic_wiring.gd,res://tests/integration/test_restore_production_adapters.gd,res://tests/integration/test_dialogic_effect_boundary.gd,res://tests/integration/test_dialogic_skip.gd,res://tests/integration/test_dialogic_bridge_contract.gd,res://tests/integration/test_restore_transaction.gd','-gexit')
+& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_gate' -LogName 'phase2r-dialogic-gate.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_timeline_manifest.gd,res://tests/unit/test_dialogic_runtime_adapter.gd,res://tests/unit/test_narrative_checkpoint_schema.gd,res://tests/unit/test_save_manager_narrative_checkpoint_port.gd,res://tests/unit/test_dialogic_ending_playback_port.gd,res://tests/unit/test_effect_resolver.gd,res://tests/unit/test_effect_transactions.gd,res://tests/unit/test_run_snapshot_schema.gd,res://tests/unit/test_save_document_schema.gd,res://tests/unit/test_save_migrations.gd,res://tests/unit/test_skip_policy.gd,res://tests/unit/test_input_accessibility.gd,res://tests/unit/tooling/test_no_unconditional_pass.gd,res://tests/unit/tooling/test_dialogic_gate_summary.gd,res://tests/integration/test_dialogic_restore.gd,res://tests/integration/test_narrative_checkpoint_wiring.gd,res://tests/integration/test_ending_dialogic_wiring.gd,res://tests/integration/test_restore_production_adapters.gd,res://tests/integration/test_dialogic_effect_boundary.gd,res://tests/integration/test_dialogic_skip.gd,res://tests/integration/test_dialogic_bridge_contract.gd,res://tests/integration/test_restore_transaction.gd','-gexit')
 & .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'dialogic_gate_summary' -LogName 'phase2r-dialogic-gate-summary.log' -GodotArgs @('-s','res://tools/dialogic/WriteDialogicGateSummary.gd','--','--output=res://evidence/phase_2r/dialogic/gate_summary.json') -EvidenceLogPath 'evidence/phase_2r/logs/isolated-godot.jsonl'
 ~~~
 
@@ -1342,8 +1361,14 @@ if (-not ($env:DWM_COMMIT_AUTHORIZED -ceq '1')) {
 }
 $expectedHead = [string](git rev-parse HEAD)
 $expectedSubject = [string](git show -s --format=%s $expectedHead)
+$task4Head = [string](git rev-parse "$expectedHead^")
+$task4Subject = [string](git show -s --format=%s $task4Head)
+$task3HeadFromChain = [string](git rev-parse "$expectedHead^^")
+$task3Head = '4f5071b10f573f3575995915f354643f993b23c1'
 if ($LASTEXITCODE -ne 0 -or $expectedHead -notmatch '^[0-9a-f]{40,64}$' -or
-	-not ($expectedSubject -ceq 'test(dialogic): replace smoke stub with real fixture traversal')) {
+	-not ($expectedSubject -ceq 'test(dialogic): replace smoke stub with real fixture traversal') -or
+	-not ($task4Subject -ceq 'feat(dialogic): add global read history and boundary-safe skip') -or
+	-not ($task3HeadFromChain -ceq $task3Head)) {
 	throw 'Task 6 requires the exact Task 5 commit boundary as HEAD.'
 }
 . ([IO.Path]::GetFullPath('.\tools\testing\Read-StrictJson.ps1'))

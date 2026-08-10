@@ -17,3 +17,22 @@ class_name DatingScene
 
 func _ready() -> void:
 	pass
+
+
+## Forwards the narrative bridge to the hosted DialogueBox (dwm-p2r.8, Plan-05 Task 4). The scene
+## never calls the bridge itself; it only wires the box that emits skip commands.
+func configure_narrative_bridge(bridge: Object) -> Dictionary:
+	if not is_instance_valid(dialogue_box) or not dialogue_box.has_method("configure_narrative_bridge"):
+		return {"ok": false, "code": &"missing_dialogue_box", "message": "", "details": {}}
+	return dialogue_box.configure_narrative_bridge(bridge)
+
+
+## The visible transcript is RUN-specific presentation and is never the ProfileManager visited set:
+## visited history is global and persists across runs, while this list resets with the scene.
+func append_previous_dialogue_line(rendered_text: String) -> void:
+	if not is_instance_valid(previous_dialogue_list):
+		return
+	var line := Label.new()
+	line.text = rendered_text
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	previous_dialogue_list.add_child(line)

@@ -18,6 +18,18 @@ signal log_pressed()
 
 var auto_enabled: bool = false
 
+## Injected DialogicBridge (dwm-p2r.8, Plan-05 Task 4). The box owns NO text array, event index,
+## variable store, or advancement state: it emits commands and renders what Dialogic presents.
+## Its visible log is run-specific and is never the ProfileManager visited set.
+var _narrative_bridge: Object = null
+
+
+func configure_narrative_bridge(bridge: Object) -> Dictionary:
+	if bridge == null or not bridge.has_method("request_skip_step"):
+		return {"ok": false, "code": &"invalid_narrative_bridge", "message": "", "details": {}}
+	_narrative_bridge = bridge
+	return {"ok": true, "code": &"ok", "value": {"bridge_instance_id": bridge.get_instance_id()}, "receipt": {}}
+
 func _ready() -> void:
 	for b in [log_button, skip_button, auto_button, next_button]:
 		if is_instance_valid(b):
@@ -41,6 +53,9 @@ func _on_next_pressed() -> void:
 	next_pressed.emit()
 
 func _on_skip_pressed() -> void:
+	# One held-skip step per press; the bridge owns reveal/visited/advance and the boundary stop.
+	if _narrative_bridge != null:
+		_narrative_bridge.call(&"request_skip_step")
 	skip_pressed.emit()
 
 func _on_auto_pressed() -> void:

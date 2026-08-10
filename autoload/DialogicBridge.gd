@@ -393,6 +393,59 @@ func start_postscript_id(postscript_id: String) -> Dictionary:
 	return _start_playback(postscript_id, "postscript")
 
 
+# ---- Global read history and boundary-safe skip (dwm-p2r.8, Plan-05 Task 4) ----
+
+const _SKIP_POLICY := preload("res://scripts/narrative/SkipPolicy.gd")
+
+var _skip_profile: Object = null
+var _skip_mode: StringName = _SKIP_POLICY.READ_ONLY
+
+
+## Binds the ProfileManager that owns global visited history, plus the active skip mode.
+func configure_skip_context(profile: Object, mode: StringName) -> Dictionary:
+	if profile == null or not profile.has_method("is_line_visited") or not profile.has_method("mark_line_visited"):
+		return _command_failure(&"invalid_visited_history_provider")
+	_skip_profile = profile
+	_skip_mode = mode
+	return {"ok": true, "code": &"ok",
+		"value": {"mode": _SKIP_POLICY.evaluate(mode, true, &"text")["mode"]}, "receipt": {}}
+
+
+func set_skip_mode(mode: StringName) -> Dictionary:
+	_skip_mode = mode
+	return {"ok": true, "code": &"ok", "value": {"mode": mode}, "receipt": {}}
+
+
+## One held-skip step, in the exact frozen order: read the PRE-reveal visited state, reveal, mark
+## visited, classify the next event WITHOUT consuming it, evaluate, advance only when allowed.
+func request_skip_step() -> Dictionary:
+	if _skip_profile == null or _runtime_adapter == null:
+		return _command_failure(&"skip_context_not_configured")
+	var line_id: String = str(_runtime_adapter.current_line_id())
+	if line_id.is_empty():
+		return _command_failure(&"no_current_line")
+	# Read BEFORE marking: otherwise read_only would treat every line as already seen.
+	var was_visited_before_reveal: bool = _skip_profile.is_line_visited(line_id)
+	var revealed: Dictionary = _runtime_adapter.reveal_current_line()
+	if not revealed.get("ok", false):
+		return revealed
+	var marked: Dictionary = _skip_profile.mark_line_visited(line_id)
+	if not marked.get("ok", false):
+		# A profile-write failure halts advancement and records no line checkpoint.
+		return marked
+	var next_boundary: StringName = _runtime_adapter.classify_next_event()
+	var decision: Dictionary = _SKIP_POLICY.evaluate(_skip_mode, was_visited_before_reveal, next_boundary)
+	if bool(decision["advance"]):
+		var advanced: Dictionary = _runtime_adapter.advance_one_event()
+		if not advanced.get("ok", false):
+			return advanced
+	return {"ok": true, "code": &"ok", "value": decision.duplicate(true), "receipt": {
+		"line_id": line_id,
+		"was_visited_before_reveal": was_visited_before_reveal,
+		"next_boundary": next_boundary,
+	}}
+
+
 func provide_transaction_narrative_checkpoint(transaction_id: String, source_id: String, checkpoint_kind: StringName) -> Dictionary:
 	# Exact Callable target for the shared adapter. It serves ONLY the one transient, currently
 	# validated effect/variable event, and never executes, commits, advances, or looks anything up.

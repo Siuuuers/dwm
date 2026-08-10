@@ -209,3 +209,39 @@ func test_profile_document_remaps_retired_true_gallery_unlocks() -> void:
 	assert_true("ending.sylvia.special" in unlocks, "sylvia.true remapped to special")
 	assert_eq(unlocks.count("ending.sylvia.special"), 1, "special is unioned once, not duplicated")
 	assert_false("ending.priscilla.true" in unlocks, "no retired id remains")
+
+# ---- dwm-p2r.8 (Plan-05 Task 4): visited history is GLOBAL, not run-scoped ----
+# read_only skip depends on this: a line read in one run must stay visited in the next.
+
+func test_visited_history_is_global_and_idempotent() -> void:
+	var manager: Node = _new_manager()["manager"]
+	assert_false(manager.call(&"is_line_visited", "opening.day1.line.1"), "unread by default")
+	var first: Dictionary = manager.call(&"mark_line_visited", "opening.day1.line.1")
+	assert_true(first.get("ok", false), str(first))
+	assert_true(manager.call(&"is_line_visited", "opening.day1.line.1"), "now visited")
+	var again: Dictionary = manager.call(&"mark_line_visited", "opening.day1.line.1")
+	assert_true(again.get("ok", false), "re-marking is safe")
+	assert_true(again.get("unchanged", false), "and reports no change")
+
+func test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it() -> void:
+	var fixture := _new_manager()
+	var manager: Node = fixture["manager"]
+	manager.call(&"mark_line_visited", "dating.solo.sylvia.day3.line.1")
+	# A new run must NOT touch visited ids or skip mode (Plan-05 Task 4).
+	var snapshot: Dictionary = manager.call(&"get_profile_snapshot")
+	assert_true("dating.solo.sylvia.day3.line.1" in snapshot["visited_line_ids"], "persisted in the profile")
+	var mode_before: Variant = manager.call(&"get_preference", &"preferences.dialogue.skip_mode")
+	var reset: Dictionary = manager.call(&"reset_visited_history")
+	assert_true(reset.get("ok", false), str(reset))
+	assert_false(manager.call(&"is_line_visited", "dating.solo.sylvia.day3.line.1"), "explicit reset clears visited ids")
+	assert_eq(manager.call(&"get_preference", &"preferences.dialogue.skip_mode"), mode_before,
+		"a visited-history reset never changes skip mode")
+
+func test_visited_reset_leaves_other_profile_state_intact() -> void:
+	var manager: Node = _new_manager()["manager"]
+	manager.call(&"prepare_preferences", {&"preferences.audio.music_volume": 0.42})
+	var volume_before: Variant = manager.call(&"get_preference", &"preferences.audio.music_volume")
+	manager.call(&"mark_line_visited", "opening.day1.line.9")
+	manager.call(&"reset_visited_history")
+	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), volume_before,
+		"resetting visited history touches nothing else")
