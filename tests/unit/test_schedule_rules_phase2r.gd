@@ -182,7 +182,7 @@ func _action_entry(action_id: String, day: int, slot_index: int) -> Dictionary:
 		"type": "action",
 		"friend_ids": [],
 		"action_id": action_id,
-		"route_id": "none",
+		"route_id": null,
 		"effect_ids": [],
 		"unlock_receipt_id": null,
 	}

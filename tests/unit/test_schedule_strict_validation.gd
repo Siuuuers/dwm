@@ -15,7 +15,7 @@ extends "res://addons/gut/test.gd"
 #   [x] D  Return typed codes from entry shape validation          refactor
 #   [x] E1 Entry element types, arity and day range                audit 7a
 #   [x] C  Duplicate solo/group friend sets in validate_existing   audit 2
-#   [ ] E2 Semantic route validation in both strict validators     audit 7b
+#   [x] E2 Semantic route validation in both strict validators     audit 7b
 #   [ ] F  Day 7 restricted to one solo entry at slot zero         audit 6
 #   [ ] G  Exact eligibility graph validation                      audit 4
 #   [ ] H  Day-7 evidence rejected outside Day 7                   audit 5
@@ -509,3 +509,50 @@ func test_add_and_done_agree_about_a_repeated_friend() -> void:
 	var added: Dictionary = SCHEDULE_RULES.validate_candidate(
 		existing, candidate, 3, 6, _eligibility(["picnic:priscilla:day3"]))
 	assert_eq(added.get("code"), &"duplicate_friend_date", "Add refuses what Done would refuse")
+
+
+# ---- semantic route validation in BOTH strict validators (commit E2) ----
+#
+# Routing is CLOSED: an action carries no route; a solo or group date routes to the registered
+# "dating" scene. "none" and "advance" are RETIRED control sentinels, not route ids. Enforcing this
+# only inside build_route_plan meant an unroutable schedule was still a "valid" schedule.
+
+func test_an_action_carrying_a_route_is_invalid_in_the_schedule_itself() -> void:
+	var strayed := _with("rest", "route_id", "dating")
+	var result: Dictionary = SCHEDULE_RULES.validate_existing([strayed], 3)
+	assert_eq(result.get("code"), &"invalid_route", "its own typed code, not invalid_entry")
+	assert_eq(result.get("details"), {"entry_id": "rest", "type": "action", "route_id": "dating"},
+		"exact details keys")
+
+
+func test_a_date_must_carry_the_registered_dating_route() -> void:
+	for stray: Variant in ["none", "advance", "menu", "twofriends", "", null, 7]:
+		var entry := _date_entry("s", 0, "solo", "solo:priscilla:day3", ["priscilla"])
+		entry["route_id"] = stray
+		var result: Dictionary = SCHEDULE_RULES.validate_existing([entry], 3)
+		assert_eq(result.get("code"), &"invalid_route", "a date may not route to " + str(stray))
+
+
+func test_the_retired_none_sentinel_is_not_a_route() -> void:
+	# "none" was a control sentinel that outlived its purpose and survived in fixtures as if it
+	# were a route id. An action carries null, not the STRING "none".
+	var result: Dictionary = SCHEDULE_RULES.validate_existing([_with("a", "route_id", "none")], 3)
+	assert_eq(result.get("code"), &"invalid_route", "\"none\" is not a route")
+
+
+func test_add_refuses_a_route_contradiction_the_board_would_refuse() -> void:
+	var strayed := _with("rest", "route_id", "dating")
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		[], strayed, 3, 6, _eligibility(["rest"]))
+	assert_eq(result.get("code"), &"invalid_route", "Add and Done agree about routing")
+
+
+func test_correct_routes_remain_valid() -> void:
+	var schedule := [
+		_entry("a", 0, "action", "rest"),
+		_date_entry("s", 1, "solo", "solo:priscilla:day3", ["priscilla"]),
+		_date_entry("g", 2, "group", "group:pl:day3", ["priscilla", "lavinia"]),
+	]
+	# One action plus two dates is exactly the Day 1-6 allowance, so correct routes must pass.
+	var result: Dictionary = SCHEDULE_RULES.validate_existing(schedule, 3)
+	assert_true(result.get("ok", false), "correct routes are not rejected: " + str(result))

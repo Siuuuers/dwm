@@ -110,22 +110,29 @@ func test_a_malformed_entry_fails_before_routing() -> void:
 
 
 # ---- failure: routing contradictions ----
+#
+# HONEST NAMING (commit E2): these three assert that build_route_plan PROPAGATES a routing
+# rejection, not that build_route_plan detects one. Since E2, route semantics live in
+# _entry_shape_error, so validate_existing rejects first and build_route_plan's own route checks
+# can no longer be reached through the public API. They are retained as defensive invariant
+# checks by plan-author ruling. The observable code is invalid_route either way, which is exactly
+# why these tests would otherwise keep passing while silently testing a different code path.
 
-func test_an_action_carrying_a_route_is_rejected() -> void:
+func test_an_action_carrying_a_route_is_rejected_before_routing() -> void:
 	var result := _plan([_entry("rest", 0, "action", 3, "dating")], 3)
 	assert_false(result.get("ok", false), "an action must not carry a route")
 	assert_eq(result.get("code"), &"invalid_route", "typed routing rejection")
 	assert_false(result.has("value"), "no partial plan")
 
 
-func test_a_date_routed_anywhere_but_dating_is_rejected() -> void:
+func test_a_date_routed_anywhere_but_dating_is_rejected_before_routing() -> void:
 	for stray: String in (["menu", "hospital", "none", "advance", "twofriends"] as Array[String]):
 		var result := _plan([_entry("solo-p", 0, "solo", 3, stray)], 3)
 		assert_false(result.get("ok", false), "a solo date may not route to " + stray)
 		assert_eq(result.get("code"), &"invalid_route", "typed rejection for " + stray)
 
 
-func test_a_date_with_a_null_route_is_rejected() -> void:
+func test_a_date_with_a_null_route_is_rejected_before_routing() -> void:
 	var result := _plan([_entry("solo-p", 0, "solo", 3, null)], 3)
 	assert_false(result.get("ok", false), "a date must carry its route")
 	assert_eq(result.get("code"), &"invalid_route", "typed rejection")

@@ -91,7 +91,7 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 			var right: Dictionary = schedule[right_index]
 			# Same-type only: solo compares to solo, group to group. Cross-type participant overlap
 			# is deliberate canon, not an oversight.
-			if right["type"] as String != left_type:
+			if str(right["type"]) != left_type:
 				continue
 			if _same_friend_set(left["friend_ids"], right["friend_ids"]):
 				return _fail(&"duplicate_friend_date",
@@ -187,6 +187,10 @@ static func build_route_plan(schedule: Array, day: int) -> Dictionary:
 		return validated
 	var routed: Array[Dictionary] = []
 	for entry: Dictionary in schedule:
+		# DEFENSIVE INVARIANT (retained by plan-author ruling, commit E2): since route semantics
+		# moved into _entry_shape_error, validate_existing above rejects every routing
+		# contradiction first, so neither branch below can be reached through the public API. They
+		# stay as an assertion that routing never emits a plan the schedule did not license.
 		var entry_type := str(entry["type"])
 		var route: Variant = entry["route_id"]
 		if entry_type not in DATE_TYPES:
@@ -279,6 +283,9 @@ static func _entry_shape_error(entry: Dictionary, day: int) -> Dictionary:
 	var effect_error := _effect_ids_error(entry)
 	if not effect_error.is_empty():
 		return effect_error
+	var route_error := _route_id_error(entry, entry_type)
+	if not route_error.is_empty():
+		return route_error
 	# Unlock receipts belong only to a Day-7 solo (ending) date; days 1-6 carry null.
 	var receipt: Variant = entry["unlock_receipt_id"]
 	if day == 7 and entry_type == "solo":
@@ -349,6 +356,30 @@ static func _friend_ids_error(entry: Dictionary, entry_type: String) -> Dictiona
 		if seen.has(friend):
 			return _shape_error(entry, "friend_ids", "a date names distinct friends")
 		seen[friend] = true
+	return {}
+
+
+static func _route_id_error(entry: Dictionary, entry_type: String) -> Dictionary:
+	# Routing is CLOSED and it is a property of the SCHEDULE, not only of the routing projection:
+	# an unroutable schedule must not be a "valid" schedule that fails later at Done.
+	# "none" and "advance" are retired control sentinels, never route ids.
+	var route: Variant = entry["route_id"]
+	if entry_type in DATE_TYPES:
+		# Type first, then value, as two statements: `route as String != DATE_ROUTE_ID` does not
+		# group the way it reads and casts before the typeof guard can short-circuit it.
+		if typeof(route) != TYPE_STRING:
+			return _shape_error(entry, "route_id",
+				"%s entries route to %s, got %s" % [entry_type, DATE_ROUTE_ID, str(route)],
+				&"invalid_route", _route_details(entry, entry_type, route))
+		if str(route) != DATE_ROUTE_ID:
+			return _shape_error(entry, "route_id",
+				"%s entries route to %s, got %s" % [entry_type, DATE_ROUTE_ID, str(route)],
+				&"invalid_route", _route_details(entry, entry_type, route))
+		return {}
+	if route != null:
+		return _shape_error(entry, "route_id",
+			"%s entries carry no route, got %s" % [entry_type, str(route)],
+			&"invalid_route", _route_details(entry, entry_type, route))
 	return {}
 
 
