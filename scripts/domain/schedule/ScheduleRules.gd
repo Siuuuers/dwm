@@ -49,7 +49,7 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 	for entry: Dictionary in schedule:
 		var shape_error := _entry_shape_error(entry, day)
 		if not shape_error.is_empty():
-			return _invalid_entry(entry, shape_error)
+			return _shape_failure(shape_error)
 		var entry_id := str(entry["entry_id"])
 		if seen_entry_ids.has(entry_id):
 			return _fail(&"duplicate_entry_id", "entry_id %s is used twice" % entry_id,
@@ -88,7 +88,7 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 			{"motivation": motivation})
 	var shape_error := _entry_shape_error(candidate, day)
 	if not shape_error.is_empty():
-		return _invalid_entry(candidate, shape_error)
+		return _shape_failure(shape_error)
 	var action_id := str(candidate.get("action_id", ""))
 	var registered: Array = eligibility.get("registered_action_ids", [])
 	if action_id.is_empty() or action_id not in registered:
@@ -216,36 +216,38 @@ static func _same_friend_set(left: Array, right: Array) -> bool:
 	return true
 
 static func _entry_shape_error(entry: Dictionary, day: int) -> Dictionary:
-	# Returns {} when the entry carries exactly the contracted keys with sane values, else the
-	# offending field plus a human message. The field name is what `invalid_entry` reports as data.
+	# Returns {} when the entry carries exactly the contracted keys with sane values, else a
+	# failure-ready {code, message, details}. Shape validation owns its own CODE rather than always
+	# meaning `invalid_entry`, so commits E1/E2 can reject a bad route or a repeated effect from
+	# here under their own typed codes without a second validation pass.
 	var keys: Array = entry.keys()
 	keys.sort()
 	var expected: Array = ENTRY_KEYS.duplicate()
 	expected.sort()
 	if keys != expected:
-		return _shape_error("keys",
+		return _shape_error(entry, "keys",
 			"entry keys must be exactly " + str(expected) + ", got " + str(keys))
 	if str(entry["entry_id"]).is_empty():
-		return _shape_error("entry_id", "entry_id must be nonempty")
+		return _shape_error(entry, "entry_id", "entry_id must be nonempty")
 	if str(entry["type"]) not in ENTRY_TYPES:
-		return _shape_error("type", "type must be one of " + str(ENTRY_TYPES))
+		return _shape_error(entry, "type", "type must be one of " + str(ENTRY_TYPES))
 	if typeof(entry["slot_index"]) != TYPE_INT or int(entry["slot_index"]) < 0:
-		return _shape_error("slot_index", "slot_index must be a non-negative integer")
+		return _shape_error(entry, "slot_index", "slot_index must be a non-negative integer")
 	if int(entry["day"]) != day:
-		return _shape_error("day",
+		return _shape_error(entry, "day",
 			"entry day %d does not match the validated day %d" % [int(entry["day"]), day])
 	if typeof(entry["friend_ids"]) != TYPE_ARRAY:
-		return _shape_error("friend_ids", "friend_ids must be an array")
+		return _shape_error(entry, "friend_ids", "friend_ids must be an array")
 	if typeof(entry["effect_ids"]) != TYPE_ARRAY:
-		return _shape_error("effect_ids", "effect_ids must be an array")
+		return _shape_error(entry, "effect_ids", "effect_ids must be an array")
 	# Unlock receipts belong only to a Day-7 solo (ending) date; days 1-6 carry null.
 	var receipt: Variant = entry["unlock_receipt_id"]
 	if day == 7 and str(entry["type"]) == "solo":
 		if typeof(receipt) != TYPE_STRING or str(receipt).is_empty():
-			return _shape_error("unlock_receipt_id",
+			return _shape_error(entry, "unlock_receipt_id",
 				"a Day-7 solo date requires a nonempty unlock_receipt_id")
 	elif receipt != null:
-		return _shape_error("unlock_receipt_id",
+		return _shape_error(entry, "unlock_receipt_id",
 			"only a Day-7 solo date carries an unlock_receipt_id")
 	return {}
 
@@ -288,13 +290,18 @@ static func _day7_desync_reason(candidate: Dictionary, eligibility: Dictionary) 
 	return ""
 
 
-static func _shape_error(field: String, message: String) -> Dictionary:
-	return {"field": field, "message": message}
+## A shape violation, failure-ready. Defaults to `invalid_entry` reporting which field failed;
+## commits E1/E2 pass their own code and details for routes and repeated effects.
+static func _shape_error(entry: Dictionary, field: String, message: String,
+		code := &"invalid_entry", extra_details: Dictionary = {}) -> Dictionary:
+	var details: Dictionary = {"entry_id": str(entry.get("entry_id", "")), "field": field}
+	if not extra_details.is_empty():
+		details = extra_details
+	return {"code": code, "message": message, "details": details}
 
 
-static func _invalid_entry(entry: Dictionary, shape_error: Dictionary) -> Dictionary:
-	return _fail(&"invalid_entry", str(shape_error["message"]),
-		{"entry_id": str(entry.get("entry_id", "")), "field": str(shape_error["field"])})
+static func _shape_failure(shape_error: Dictionary) -> Dictionary:
+	return _fail(shape_error["code"], str(shape_error["message"]), shape_error["details"])
 
 
 static func _route_details(entry: Dictionary, entry_type: String, route: Variant) -> Dictionary:

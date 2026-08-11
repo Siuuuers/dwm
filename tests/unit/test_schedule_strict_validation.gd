@@ -12,7 +12,7 @@ extends "res://addons/gut/test.gd"
 # Execution sequence, ruled by the plan author on 2026-08-11 (11 commits):
 #   [x] A  Freeze the master command-result contracts             refactor
 #   [x] B  Validate existing AND prospective schedule at add time  audit 3
-#   [ ] D  Return typed codes from entry shape validation          refactor
+#   [x] D  Return typed codes from entry shape validation          refactor
 #   [ ] E1 Entry element types, arity and day range                audit 7a
 #   [ ] C  Duplicate solo/group friend sets in validate_existing   audit 2
 #   [ ] E2 Semantic route validation in both strict validators     audit 7b
