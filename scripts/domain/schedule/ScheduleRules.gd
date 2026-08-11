@@ -147,6 +147,17 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 	var eligibility_error := _eligibility_error(eligibility)
 	if not eligibility_error.is_empty():
 		return eligibility_error
+	# Well-formed Day-7 evidence offered on an ordinary day. Days 1-6 require day7_candidate null
+	# and receipt_index empty: an ending that is not yet reachable must not be advertised early.
+	if day != LAST_DAY:
+		if eligibility["day7_candidate"] != null:
+			return _fail(&"day7_evidence_on_non_day7",
+				"day %d is not offered a day7_candidate" % day,
+				{"day": day, "source": "eligibility"})
+		if not (eligibility["receipt_index"] as Dictionary).is_empty():
+			return _fail(&"day7_evidence_on_non_day7",
+				"day %d carries no unlock receipts" % day,
+				{"day": day, "source": "eligibility"})
 	var action_id := str(candidate["action_id"])
 	var registered: Array = eligibility["registered_action_ids"]
 	if action_id not in registered:
@@ -327,8 +338,14 @@ static func _entry_shape_error(entry: Dictionary, day: int) -> Dictionary:
 			return _shape_error(entry, "unlock_receipt_id",
 				"a Day-7 solo date requires a nonempty unlock_receipt_id")
 	elif receipt != null:
+		if typeof(receipt) == TYPE_STRING and not (receipt as String).is_empty():
+			# WELL FORMED but forbidden: Day-7 unlock evidence has leaked onto an ordinary day.
+			# That is a different fault from a bad field, and it gets a different code.
+			return _shape_error(entry, "unlock_receipt_id",
+				"only a Day-7 solo date carries an unlock_receipt_id",
+				&"day7_evidence_on_non_day7", {"day": day, "source": "entry"})
 		return _shape_error(entry, "unlock_receipt_id",
-			"only a Day-7 solo date carries an unlock_receipt_id")
+			"unlock_receipt_id must be a nonempty String on a Day-7 solo date, and null otherwise")
 	return {}
 
 

@@ -18,7 +18,7 @@ extends "res://addons/gut/test.gd"
 #   [x] E2 Semantic route validation in both strict validators     audit 7b
 #   [x] F  Day 7 restricted to one solo entry at slot zero         audit 6
 #   [x] G  Exact eligibility graph validation                      audit 4
-#   [ ] H  Day-7 evidence rejected outside Day 7                   audit 5
+#   [x] H  Day-7 evidence rejected outside Day 7                   audit 5
 #   [ ] I  Day-4 Priscilla seated by slot index                    new
 #   [ ] J  Detached validated candidate in successful results      audit 8
 #
@@ -722,3 +722,74 @@ func test_a_well_formed_eligibility_graph_is_accepted() -> void:
 		[], _day7_solo("e", 0, "sylvia", "ending-date:sylvia:day7"), 7, 6, elig)
 	assert_eq(result.get("code"), &"unregistered_action",
 		"the graph itself is well formed; only the registry lacks the action: " + str(result))
+
+
+# ---- day 7 evidence belongs only to day 7 (commit H) ----
+#
+# Three distinct faults, three distinct codes: invalid_eligibility means malformed;
+# day7_evidence_on_non_day7 means WELL FORMED but forbidden on an ordinary day; and
+# day7_candidate_not_synchronized means well formed, allowed, but not matching. A wrong-TYPED
+# receipt is still just a bad field, so it stays invalid_entry.
+
+func test_an_ordinary_day_rejects_a_well_formed_entry_receipt() -> void:
+	var entry := _date_entry("s", 0, "solo", "solo:priscilla:day3", ["priscilla"])
+	entry["unlock_receipt_id"] = "unlock:priscilla:day3"
+	var result: Dictionary = SCHEDULE_RULES.validate_existing([entry], 3)
+	assert_eq(result.get("code"), &"day7_evidence_on_non_day7", "forbidden, not merely malformed")
+	assert_eq(result.get("details"), {"day": 3, "source": "entry"}, "exact details keys")
+
+
+func test_a_wrong_typed_entry_receipt_stays_a_shape_failure() -> void:
+	var entry := _date_entry("s", 0, "solo", "solo:priscilla:day3", ["priscilla"])
+	entry["unlock_receipt_id"] = 42
+	var result: Dictionary = SCHEDULE_RULES.validate_existing([entry], 3)
+	assert_eq(result.get("code"), &"invalid_entry", "a bad type is a bad field, not leaked evidence")
+	assert_eq(_field_of(result), "unlock_receipt_id", "the field is named")
+
+
+func test_an_ordinary_day_rejects_a_day7_candidate_in_eligibility() -> void:
+	var elig := _eligibility(["rest"])
+	elig["day7_candidate"] = {
+		"action_id": "ending-date:sylvia:day7",
+		"friend_id": "sylvia",
+		"unlock_receipt_id": "unlock:sylvia:day7",
+	}
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		[], _entry("a", 0, "action", "rest"), 3, 6, elig)
+	assert_eq(result.get("code"), &"day7_evidence_on_non_day7", "an ending is not offered on day 3")
+	assert_eq(result.get("details"), {"day": 3, "source": "eligibility"}, "exact details keys")
+
+
+func test_an_ordinary_day_rejects_a_populated_receipt_index() -> void:
+	var elig := _eligibility(["rest"])
+	elig["receipt_index"] = {"unlock:sylvia:day7": _receipt("sylvia")}
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		[], _entry("a", 0, "action", "rest"), 3, 6, elig)
+	assert_eq(result.get("code"), &"day7_evidence_on_non_day7", "day 3 carries no unlock receipts")
+
+
+func test_day_seven_still_reports_a_mismatch_as_desynchronized() -> void:
+	# Well formed AND allowed, but the links disagree: that is a third, different fault.
+	var elig := _eligibility(["ending-date:sylvia:day7"])
+	elig["receipt_index"] = {"unlock:sylvia:day7": _receipt("sylvia")}
+	elig["day7_candidate"] = {
+		"action_id": "ending-date:sylvia:day7",
+		"friend_id": "lavinia",
+		"unlock_receipt_id": "unlock:sylvia:day7",
+	}
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		[], _day7_solo("e", 0, "sylvia", "ending-date:sylvia:day7"), 7, 6, elig)
+	assert_eq(result.get("code"), &"day7_candidate_not_synchronized", "a mismatch, not a leak")
+
+
+func test_day_seven_accepts_its_own_synchronized_evidence() -> void:
+	var elig := _eligibility(["ending-date:sylvia:day7"])
+	elig["receipt_index"] = {"unlock:sylvia:day7": _receipt("sylvia")}
+	elig["day7_candidate"] = {
+		"action_id": "ending-date:sylvia:day7",
+		"friend_id": "sylvia",
+		"unlock_receipt_id": "unlock:sylvia:day7",
+	}
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		[], _day7_solo("e", 0, "sylvia", "ending-date:sylvia:day7"), 7, 6, elig)
+	assert_true(result.get("ok", false), "the whole evidence chain agrees: " + str(result))
