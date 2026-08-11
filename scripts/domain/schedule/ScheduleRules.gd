@@ -208,7 +208,11 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 	var prospective_result := validate_existing(prospective, day)
 	if not prospective_result.get("ok", false):
 		return prospective_result
-	return _ok()
+	# The exact entry that was validated, DEEPLY detached. Shape validation already guarantees
+	# exact keys and exact types, so there is nothing left to "normalize": coercing, sorting or
+	# deduplicating here would hand back something that is no longer what the caller validated.
+	# A shallow duplicate would leave friend_ids and effect_ids shared and quietly writable.
+	return _ok({"candidate": candidate.duplicate(true)})
 
 
 ## Pure add-time validation of one date candidate against the OTHER entries already scheduled

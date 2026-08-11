@@ -20,7 +20,7 @@ extends "res://addons/gut/test.gd"
 #   [x] G  Exact eligibility graph validation                      audit 4
 #   [x] H  Day-7 evidence rejected outside Day 7                   audit 5
 #   [x] I  Day-4 Priscilla seated by slot index                    new
-#   [ ] J  Detached validated candidate in successful results      audit 8
+#   [x] J  Detached validated candidate in successful results      audit 8
 #
 # This sequence completes the PURE-VALIDATOR slice only. Task 4 stays open: Step 4.2a receipt
 # ownership, Step 4.2b GameState delegation, and snapshot/migration/restore validation remain.
@@ -151,7 +151,7 @@ func test_validate_candidate_success_is_the_master_envelope() -> void:
 	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
 		[], _entry("a", 0, "action", "rest"), 3, 6, _eligibility(["rest"]))
 	assert_eq(_shape_of(result), _SUCCESS_KEYS, "success is exactly the four contract keys")
-	assert_eq(result["value"], {}, "the detached candidate arrives in commit J, not before")
+	assert_eq((result["value"] as Dictionary).keys(), ["candidate"], "value carries the candidate")
 
 
 func test_build_route_plan_success_is_the_master_envelope() -> void:
@@ -844,3 +844,69 @@ func test_the_seating_rule_applies_only_to_a_priscilla_solo_date() -> void:
 	var group := _date_entry("g", 1, "group", "group:pl:day4", ["priscilla", "lavinia"], 4)
 	assert_true(SCHEDULE_RULES.validate_existing([group], 4).get("ok", false),
 		"the rule seats her SOLO date, not every date she appears in")
+
+
+# ---- the detached validated candidate (commit J) ----
+#
+# A successful add returns the exact entry that was validated, deeply detached. "Normalized" was
+# amended to "deeply detached": once shape validation guarantees exact keys and exact types there is
+# nothing left to normalize, and coercing, sorting or deduplicating here would hand back something
+# that is no longer what the caller validated.
+
+func _accepted() -> Dictionary:
+	var candidate := _date_entry("g", 0, "group", "group:pl:day3", ["priscilla", "lavinia"])
+	candidate["effect_ids"] = ["mood_up", "affection_up"]
+	return candidate
+
+
+func _accept(candidate: Dictionary) -> Dictionary:
+	return SCHEDULE_RULES.validate_candidate([], candidate, 3, 6, _eligibility(["group:pl:day3"]))
+
+
+func test_a_successful_add_returns_the_validated_candidate() -> void:
+	var candidate := _accepted()
+	var result: Dictionary = _accept(candidate)
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(result["value"]["candidate"], candidate, "value-identical to what was validated")
+
+
+func test_the_returned_candidate_cannot_alias_the_input() -> void:
+	var candidate := _accepted()
+	var returned: Dictionary = _accept(candidate)["value"]["candidate"]
+	returned["entry_id"] = "tampered"
+	assert_eq(candidate["entry_id"], "g", "mutating the result must not reach the caller's entry")
+
+
+func test_detachment_reaches_nested_arrays() -> void:
+	# A shallow duplicate would leave friend_ids and effect_ids shared, which is the exact bug that
+	# makes "detached" data quietly writable from the outside.
+	var candidate := _accepted()
+	var returned: Dictionary = _accept(candidate)["value"]["candidate"]
+	(returned["friend_ids"] as Array).append("sylvia")
+	(returned["effect_ids"] as Array).clear()
+	assert_eq(candidate["friend_ids"], ["priscilla", "lavinia"], "friend_ids stays detached")
+	assert_eq(candidate["effect_ids"], ["mood_up", "affection_up"], "effect_ids stays detached")
+
+
+func test_mutating_the_input_afterwards_does_not_change_the_result() -> void:
+	var candidate := _accepted()
+	var returned: Dictionary = _accept(candidate)["value"]["candidate"]
+	candidate["slot_index"] = 99
+	(candidate["friend_ids"] as Array).clear()
+	assert_eq(returned["slot_index"], 0, "the result is a snapshot, not a live view")
+	assert_eq(returned["friend_ids"], ["priscilla", "lavinia"], "including its nested arrays")
+
+
+func test_nothing_is_sorted_coerced_or_deduplicated() -> void:
+	var candidate := _accepted()
+	var returned: Dictionary = _accept(candidate)["value"]["candidate"]
+	assert_eq(returned["friend_ids"], ["priscilla", "lavinia"],
+		"friend order is preserved; sorting happens only inside set COMPARISON")
+	assert_eq(returned["effect_ids"], ["mood_up", "affection_up"], "effect order is preserved")
+	assert_eq(typeof(returned["slot_index"]), TYPE_INT, "types are already exact, so none are cast")
+
+
+func test_a_rejected_add_still_returns_no_candidate() -> void:
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		[], _accepted(), 3, 0, _eligibility(["group:pl:day3"]))
+	assert_false(result.has("value"), "a failure never leaks a partial candidate")
