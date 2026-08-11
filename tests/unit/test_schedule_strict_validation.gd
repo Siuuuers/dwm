@@ -19,7 +19,7 @@ extends "res://addons/gut/test.gd"
 #   [x] F  Day 7 restricted to one solo entry at slot zero         audit 6
 #   [x] G  Exact eligibility graph validation                      audit 4
 #   [x] H  Day-7 evidence rejected outside Day 7                   audit 5
-#   [ ] I  Day-4 Priscilla seated by slot index                    new
+#   [x] I  Day-4 Priscilla seated by slot index                    new
 #   [ ] J  Detached validated candidate in successful results      audit 8
 #
 # This sequence completes the PURE-VALIDATOR slice only. Task 4 stays open: Step 4.2a receipt
@@ -793,3 +793,54 @@ func test_day_seven_accepts_its_own_synchronized_evidence() -> void:
 	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
 		[], _day7_solo("e", 0, "sylvia", "ending-date:sylvia:day7"), 7, 6, elig)
 	assert_true(result.get("ok", false), "the whole evidence chain agrees: " + str(result))
+
+
+# ---- day 4 seats Priscilla by slot index (commit I) ----
+#
+# The rule was approximated as "existing.is_empty()", which is not the same statement. It asked
+# whether anything had been added YET, not where Priscilla sits, so it depended on the order the
+# caller happened to add entries in. GameState appends sequentially, which is why the two
+# readings agreed in practice and no test ever separated them.
+
+func _p_solo(slot: int) -> Dictionary:
+	return _date_entry("p", slot, "solo", "solo:priscilla:day4", ["priscilla"], 4)
+
+
+func test_day_four_rejects_priscilla_away_from_the_first_slot() -> void:
+	var result: Dictionary = SCHEDULE_RULES.validate_existing([_p_solo(1)], 4)
+	assert_eq(result.get("code"), &"priscilla_first_slot_required", "typed rejection")
+	assert_eq(result.get("details"), {"slot_index": 1}, "exact details keys")
+
+
+func test_day_four_accepts_priscilla_at_slot_zero_beside_a_later_entry() -> void:
+	# THE BEHAVIOR THAT CHANGES. Priscilla IS first here, but the old emptiness test rejected her
+	# because something already occupied a later slot. Nothing in the tree covered this case.
+	var schedule := [_entry("x", 1, "action", "rest", 4), _p_solo(0)]
+	assert_true(SCHEDULE_RULES.validate_existing(schedule, 4).get("ok", false),
+		"slot 0 is the first slot regardless of what else is scheduled: "
+			+ str(SCHEDULE_RULES.validate_existing(schedule, 4)))
+
+
+func test_add_agrees_with_done_about_priscillas_seat() -> void:
+	var elig := _eligibility(["solo:priscilla:day4", "rest"])
+	var occupied := [_entry("x", 0, "action", "rest", 4)]
+	assert_eq(SCHEDULE_RULES.validate_candidate(occupied, _p_solo(1), 4, 6, elig).get("code"),
+		&"priscilla_first_slot_required", "Add refuses a later seat")
+	var later := [_entry("x", 1, "action", "rest", 4)]
+	assert_true(SCHEDULE_RULES.validate_candidate(later, _p_solo(0), 4, 6, elig).get("ok", false),
+		"Add accepts her at slot 0 even when a later slot is taken")
+
+
+func test_the_seating_rule_applies_only_to_day_four() -> void:
+	var day3 := _date_entry("p", 1, "solo", "solo:priscilla:day3", ["priscilla"])
+	assert_true(SCHEDULE_RULES.validate_existing([day3], 3).get("ok", false),
+		"other days seat Priscilla anywhere")
+
+
+func test_the_seating_rule_applies_only_to_a_priscilla_solo_date() -> void:
+	var lavinia := _date_entry("l", 1, "solo", "solo:lavinia:day4", ["lavinia"], 4)
+	assert_true(SCHEDULE_RULES.validate_existing([lavinia], 4).get("ok", false),
+		"another friend takes any slot on day 4")
+	var group := _date_entry("g", 1, "group", "group:pl:day4", ["priscilla", "lavinia"], 4)
+	assert_true(SCHEDULE_RULES.validate_existing([group], 4).get("ok", false),
+		"the rule seats her SOLO date, not every date she appears in")

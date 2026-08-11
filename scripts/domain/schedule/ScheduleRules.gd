@@ -106,6 +106,9 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 		if day == LAST_DAY and slot != 0:
 			return _shape_failure(_shape_error(entry, "slot_index",
 				"the Day-7 ending seats at slot 0, got %d" % slot))
+		if _is_day4_priscilla_solo(entry, day) and slot != 0:
+			return _fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first",
+				{"slot_index": slot})
 	# One date per friend (solo) or per pair (group) each day. Each unordered pair is compared
 	# exactly once and never with itself. A joined-string key would have been O(n) but any delimiter
 	# can collide with a friend id, and the schedule is two or three entries.
@@ -173,9 +176,10 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 	var candidate_slot := int(candidate.get("slot_index", -1))
 	var candidate_type := str(candidate["type"])
 	if candidate_type in DATE_TYPES:
-		# Preserved legacy rule: Day-4 Priscilla only lands in the first slot.
-		if day == 4 and candidate_type == "solo" and "priscilla" in candidate["friend_ids"] \
-				and not existing.is_empty():
+		# Preserved legacy rule, stated exactly: Day-4 Priscilla seats in the FIRST SLOT. The old
+		# `existing.is_empty()` test asked whether anything had been added yet, which is a
+		# different question and depended on the caller's insertion order.
+		if _is_day4_priscilla_solo(candidate, day) and candidate_slot != 0:
 			return _fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first",
 				{"slot_index": candidate_slot})
 		# Preserved legacy rule: one date per friend (solo) / per pair (group) each day.
@@ -385,6 +389,12 @@ static func _day7_desync_reason(candidate: Dictionary, eligibility: Dictionary) 
 	if str(record.get("action_id", "")) != action_id or str(record.get("friend_id", "")) != friend_id:
 		return "receipt record does not match the candidate"
 	return ""
+
+
+## Day 4 seats Priscilla's SOLO date first. A group date she appears in is not that date.
+static func _is_day4_priscilla_solo(entry: Dictionary, day: int) -> bool:
+	return day == 4 and str(entry.get("type", "")) == "solo" \
+		and "priscilla" in (entry.get("friend_ids", []) as Array)
 
 
 static func _friend_ids_error(entry: Dictionary, entry_type: String) -> Dictionary:
