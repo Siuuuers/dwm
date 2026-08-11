@@ -14,7 +14,7 @@ extends "res://addons/gut/test.gd"
 #   [x] B  Validate existing AND prospective schedule at add time  audit 3
 #   [x] D  Return typed codes from entry shape validation          refactor
 #   [x] E1 Entry element types, arity and day range                audit 7a
-#   [ ] C  Duplicate solo/group friend sets in validate_existing   audit 2
+#   [x] C  Duplicate solo/group friend sets in validate_existing   audit 2
 #   [ ] E2 Semantic route validation in both strict validators     audit 7b
 #   [ ] F  Day 7 restricted to one solo entry at slot zero         audit 6
 #   [ ] G  Exact eligibility graph validation                      audit 4
@@ -445,3 +445,67 @@ func test_distinct_effect_ids_keep_their_order() -> void:
 	assert_true(SCHEDULE_RULES.validate_existing([entry], 3).get("ok", false),
 		"distinct effects are valid")
 	assert_eq(entry["effect_ids"], ["b", "a", "c"], "validation never reorders the caller's array")
+
+
+# ---- duplicate solo/group friend sets in validate_existing (commit C) ----
+#
+# Every fixture here differs in entry_id, slot_index AND action_id, so no other rule can mask the
+# one under test. Two solo dates with the same friend normally SHARE an action_id, in which case
+# duplicate_action_id fires first and a careless test passes without this rule existing at all.
+
+func test_two_solo_dates_with_the_same_friend_are_rejected() -> void:
+	var schedule := [
+		_date_entry("s1", 0, "solo", "solo:priscilla:day3", ["priscilla"]),
+		_date_entry("s2", 1, "solo", "picnic:priscilla:day3", ["priscilla"]),
+	]
+	var result: Dictionary = SCHEDULE_RULES.validate_existing(schedule, 3)
+	assert_false(result.get("ok", false), "one friend, one date per day")
+	assert_eq(result.get("code"), &"duplicate_friend_date", "typed rejection")
+	assert_eq(result.get("details"), {"type": "solo", "friend_ids": ["priscilla"]},
+		"exact details keys")
+
+
+func test_a_group_pair_in_either_order_is_the_same_pair() -> void:
+	# Set equality, not list equality: comparison sorts DETACHED copies and never the caller's data.
+	var schedule := [
+		_date_entry("g1", 0, "group", "group:pl:day3", ["priscilla", "lavinia"]),
+		_date_entry("g2", 1, "group", "picnic:pl:day3", ["lavinia", "priscilla"]),
+	]
+	var result: Dictionary = SCHEDULE_RULES.validate_existing(schedule, 3)
+	assert_eq(result.get("code"), &"duplicate_friend_date", "reversed order is the same pair")
+	assert_eq(schedule[1]["friend_ids"], ["lavinia", "priscilla"],
+		"the caller's array is never reordered by the comparison")
+
+
+func test_a_solo_and_a_group_sharing_a_friend_remain_valid() -> void:
+	# Deliberate canon: solo compares to solo and group to group. Participant exclusivity across
+	# types is a future design question, not a Phase-2R bug.
+	var schedule := [
+		_date_entry("s1", 0, "solo", "solo:priscilla:day3", ["priscilla"]),
+		_date_entry("g1", 1, "group", "group:pl:day3", ["priscilla", "lavinia"]),
+	]
+	assert_true(SCHEDULE_RULES.validate_existing(schedule, 3).get("ok", false),
+		"cross-type overlap is legal today: " + str(SCHEDULE_RULES.validate_existing(schedule, 3)))
+
+
+func test_dates_with_different_friends_coexist() -> void:
+	var schedule := [
+		_date_entry("s1", 0, "solo", "solo:priscilla:day3", ["priscilla"]),
+		_date_entry("s2", 1, "solo", "solo:lavinia:day3", ["lavinia"]),
+	]
+	assert_true(SCHEDULE_RULES.validate_existing(schedule, 3).get("ok", false),
+		"different friends are different dates")
+
+
+func test_a_single_date_is_never_a_duplicate_of_itself() -> void:
+	var schedule := [_date_entry("s1", 0, "solo", "solo:priscilla:day3", ["priscilla"])]
+	assert_true(SCHEDULE_RULES.validate_existing(schedule, 3).get("ok", false),
+		"each unordered pair is compared once, and an entry is never paired with itself")
+
+
+func test_add_and_done_agree_about_a_repeated_friend() -> void:
+	var existing := [_date_entry("s1", 0, "solo", "solo:priscilla:day3", ["priscilla"])]
+	var candidate := _date_entry("s2", 1, "solo", "picnic:priscilla:day3", ["priscilla"])
+	var added: Dictionary = SCHEDULE_RULES.validate_candidate(
+		existing, candidate, 3, 6, _eligibility(["picnic:priscilla:day3"]))
+	assert_eq(added.get("code"), &"duplicate_friend_date", "Add refuses what Done would refuse")

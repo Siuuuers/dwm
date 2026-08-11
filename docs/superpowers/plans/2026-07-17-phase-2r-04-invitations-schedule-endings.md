@@ -1274,7 +1274,7 @@ The single-commit map this step used to carry was stale. `ScheduleRules.gd` and 
 | B | `feat(schedule): validate the existing and prospective schedule at add time` | — |
 | D | `refactor(schedule): return typed codes from entry shape validation` | — |
 | E1 | `feat(schedule): validate entry element types, arity and day range` | `tests/unit/test_schedule_route_plan.gd = M` |
-| C | `feat(schedule): reject duplicate friend sets in an existing schedule` | — |
+| C | `feat(schedule): reject duplicate friend sets in an existing schedule` | `tests/unit/test_schedule_route_plan.gd = M` (deviation, recorded 2026-08-11) |
 | E2 | `feat(schedule): validate schedule routes semantically` | `tests/unit/test_schedule_rules_phase2r.gd = M`, `tests/unit/test_schedule_route_plan.gd = M` |
 | F | `feat(schedule): restrict day 7 to a single solo entry at slot zero` | `tests/unit/test_schedule_rules_phase2r.gd = M` |
 | G | `feat(schedule): validate the eligibility graph exactly` | — |

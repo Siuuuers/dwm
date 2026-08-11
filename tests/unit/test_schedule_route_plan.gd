@@ -55,8 +55,13 @@ func test_action_entries_are_omitted_entirely() -> void:
 
 
 func test_only_routed_entries_are_emitted_in_slot_order() -> void:
+	# Distinct friends: commit C made two solo dates with the SAME friend an invalid schedule, and
+	# build_route_plan validates before it routes, so this fixture would fail for an unrelated
+	# reason and stop proving anything about slot ordering.
+	var solo_b := _entry("solo-b", 2, "solo", 3, "dating")
+	solo_b["friend_ids"] = ["lavinia"]
 	var schedule := [
-		_entry("solo-b", 2, "solo", 3, "dating"),
+		solo_b,
 		_entry("rest", 1, "action", 3, null),
 		_entry("solo-a", 0, "solo", 3, "dating"),
 	]

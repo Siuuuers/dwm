@@ -79,6 +79,25 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 		seen_slots[slot] = true
 		if str(entry["type"]) in DATE_TYPES:
 			date_count += 1
+	# One date per friend (solo) or per pair (group) each day. Each unordered pair is compared
+	# exactly once and never with itself. A joined-string key would have been O(n) but any delimiter
+	# can collide with a friend id, and the schedule is two or three entries.
+	for left_index: int in range(schedule.size()):
+		var left: Dictionary = schedule[left_index]
+		var left_type := left["type"] as String
+		if left_type not in DATE_TYPES:
+			continue
+		for right_index: int in range(left_index + 1, schedule.size()):
+			var right: Dictionary = schedule[right_index]
+			# Same-type only: solo compares to solo, group to group. Cross-type participant overlap
+			# is deliberate canon, not an oversight.
+			if right["type"] as String != left_type:
+				continue
+			if _same_friend_set(left["friend_ids"], right["friend_ids"]):
+				return _fail(&"duplicate_friend_date",
+					"%s is already dated today" % str(right["friend_ids"]),
+					{"type": left_type,
+						"friend_ids": (right["friend_ids"] as Array).duplicate(true)})
 	var allowed := max_dates_for_day(day)
 	if date_count > allowed:
 		return _fail(&"too_many_dates", "%d dates exceed the day-%d allowance" % [date_count, day],
@@ -220,10 +239,14 @@ static func _friend_set(entry: Dictionary) -> Array:
 static func _same_friend_set(left: Array, right: Array) -> bool:
 	if left.size() != right.size():
 		return false
-	for friend_id: Variant in left:
-		if friend_id not in right:
-			return false
-	return true
+	# Sorted DETACHED copies: the caller's arrays keep their order, and set equality never depends
+	# on the order a schedule happened to be written in. The previous membership test also called
+	# ["a","a"] equal to ["a","b"], since every element of the left was "in" the right.
+	var left_sorted: Array = left.duplicate(true)
+	var right_sorted: Array = right.duplicate(true)
+	left_sorted.sort()
+	right_sorted.sort()
+	return left_sorted == right_sorted
 
 static func _entry_shape_error(entry: Dictionary, day: int) -> Dictionary:
 	# Returns {} when the entry carries exactly the contracted keys with sane values, else a
