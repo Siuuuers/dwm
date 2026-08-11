@@ -16,7 +16,7 @@ extends "res://addons/gut/test.gd"
 #   [x] E1 Entry element types, arity and day range                audit 7a
 #   [x] C  Duplicate solo/group friend sets in validate_existing   audit 2
 #   [x] E2 Semantic route validation in both strict validators     audit 7b
-#   [ ] F  Day 7 restricted to one solo entry at slot zero         audit 6
+#   [x] F  Day 7 restricted to one solo entry at slot zero         audit 6
 #   [ ] G  Exact eligibility graph validation                      audit 4
 #   [ ] H  Day-7 evidence rejected outside Day 7                   audit 5
 #   [ ] I  Day-4 Priscilla seated by slot index                    new
@@ -556,3 +556,79 @@ func test_correct_routes_remain_valid() -> void:
 	# One action plus two dates is exactly the Day 1-6 allowance, so correct routes must pass.
 	var result: Dictionary = SCHEDULE_RULES.validate_existing(schedule, 3)
 	assert_true(result.get("ok", false), "correct routes are not rejected: " + str(result))
+
+
+# ---- day 7 is one solo ending at slot zero (commit F) ----
+#
+# Validation runs in day-INDEPENDENT phases: day range, then per-entry shape, then the daily
+# allowance, then collisions and placement. The allowance deliberately precedes collisions, so two
+# well-shaped Day-7 endings report too_many_dates -- the cause -- instead of duplicate_slot_index
+# or a nonzero-slot invalid_entry, which are symptoms of having scheduled one ending too many.
+
+func _day7_solo(entry_id: String, slot: int, friend: String, action_id: String) -> Dictionary:
+	var entry := _date_entry(entry_id, slot, "solo", action_id, [friend], 7)
+	entry["unlock_receipt_id"] = "unlock:%s:day7" % friend
+	return entry
+
+
+func test_an_empty_day_seven_is_the_valid_alone_state() -> void:
+	assert_true(SCHEDULE_RULES.validate_existing([], 7).get("ok", false),
+		"scheduling no ending is how the player reaches Alone")
+
+
+func test_day_seven_accepts_exactly_one_solo_at_slot_zero() -> void:
+	var schedule := [_day7_solo("e", 0, "sylvia", "ending-date:sylvia:day7")]
+	assert_true(SCHEDULE_RULES.validate_existing(schedule, 7).get("ok", false),
+		"the single ending date: " + str(SCHEDULE_RULES.validate_existing(schedule, 7)))
+
+
+func test_day_seven_rejects_actions_and_group_dates() -> void:
+	var action := _entry("a", 0, "action", "rest", 7)
+	var group := _date_entry("g", 0, "group", "group:pl:day7", ["priscilla", "lavinia"], 7)
+	for entry: Dictionary in [action, group]:
+		var result: Dictionary = SCHEDULE_RULES.validate_existing([entry], 7)
+		assert_eq(result.get("code"), &"invalid_entry", "day 7 is endings only: " + str(entry["type"]))
+		assert_eq(_field_of(result), "type", "the type field is named")
+
+
+func test_a_day_seven_ending_at_a_nonzero_slot_is_rejected() -> void:
+	var result: Dictionary = SCHEDULE_RULES.validate_existing(
+		[_day7_solo("e", 2, "sylvia", "ending-date:sylvia:day7")], 7)
+	assert_eq(result.get("code"), &"invalid_entry", "the ending seats at slot zero")
+	assert_eq(_field_of(result), "slot_index", "the slot_index field is named")
+
+
+func test_two_day_seven_endings_report_the_allowance_not_the_slot() -> void:
+	# The precedence that keeps too_many_dates reachable on Day 7 at all: both entries are well
+	# shaped, so the fault is that there are two endings, not where the second one sits.
+	var schedule := [
+		_day7_solo("e1", 0, "priscilla", "ending-date:priscilla:day7"),
+		_day7_solo("e2", 1, "lavinia", "ending-date:lavinia:day7"),
+	]
+	var result: Dictionary = SCHEDULE_RULES.validate_existing(schedule, 7)
+	assert_eq(result.get("code"), &"too_many_dates", "the cause, not the symptom")
+	assert_eq(result.get("details"), {"day": 7, "date_count": 2, "allowed": 1}, "exact details keys")
+
+
+func test_three_dates_on_a_normal_day_exceed_the_allowance() -> void:
+	# too_many_dates must stay genuinely covered on Days 1-6, not merely survive as dead code.
+	var schedule := [
+		_date_entry("d1", 0, "solo", "solo:priscilla:day3", ["priscilla"]),
+		_date_entry("d2", 1, "solo", "solo:lavinia:day3", ["lavinia"]),
+		_date_entry("d3", 2, "solo", "solo:sylvia:day3", ["sylvia"]),
+	]
+	var result: Dictionary = SCHEDULE_RULES.validate_existing(schedule, 3)
+	assert_eq(result.get("code"), &"too_many_dates", "days 1-6 allow two dates")
+	assert_eq(result.get("details"), {"day": 3, "date_count": 3, "allowed": 2}, "exact details keys")
+
+
+func test_the_allowance_outranks_a_slot_collision_on_a_normal_day_too() -> void:
+	# Deliberate consequence of day-independent phases: a schedule that is BOTH over the allowance
+	# and colliding reports the allowance. Pinned so the precedence is a decision, not an accident.
+	var schedule := [
+		_date_entry("d1", 0, "solo", "solo:priscilla:day3", ["priscilla"]),
+		_date_entry("d2", 0, "solo", "solo:lavinia:day3", ["lavinia"]),
+		_date_entry("d3", 2, "solo", "solo:sylvia:day3", ["sylvia"]),
+	]
+	assert_eq(SCHEDULE_RULES.validate_existing(schedule, 3).get("code"), &"too_many_dates",
+		"the allowance is judged before the collision")

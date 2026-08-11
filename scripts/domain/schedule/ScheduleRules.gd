@@ -52,14 +52,28 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 	# against day 9 passed cleanly. validate_candidate inherits the check through the board stage.
 	if day < FIRST_DAY or day > LAST_DAY:
 		return _fail(&"invalid_day", "day %d is outside the seven-day run" % day, {"day": day})
-	var seen_slots: Dictionary = {}
-	var seen_entry_ids: Dictionary = {}
-	var seen_action_ids: Dictionary = {}
+	# PHASE 1 -- per-entry shape. Every entry is well formed before any two entries are compared.
 	var date_count: int = 0
 	for entry: Dictionary in schedule:
 		var shape_error := _entry_shape_error(entry, day)
 		if not shape_error.is_empty():
 			return _shape_failure(shape_error)
+		if str(entry["type"]) in DATE_TYPES:
+			date_count += 1
+	# PHASE 2 -- the daily allowance, BEFORE any collision or placement check. Two well-shaped
+	# Day-7 endings are one ending too many, not a slot problem: reporting duplicate_slot_index or
+	# a nonzero-slot invalid_entry would name a symptom and hide the cause. The phases are
+	# day-INDEPENDENT, so a Days 1-6 schedule that is both over the allowance and colliding also
+	# reports the allowance.
+	var allowed := max_dates_for_day(day)
+	if date_count > allowed:
+		return _fail(&"too_many_dates", "%d dates exceed the day-%d allowance" % [date_count, day],
+			{"day": day, "date_count": date_count, "allowed": allowed})
+	# PHASE 3 -- collisions and placement.
+	var seen_slots: Dictionary = {}
+	var seen_entry_ids: Dictionary = {}
+	var seen_action_ids: Dictionary = {}
+	for entry: Dictionary in schedule:
 		var entry_id := str(entry["entry_id"])
 		if seen_entry_ids.has(entry_id):
 			return _fail(&"duplicate_entry_id", "entry_id %s is used twice" % entry_id,
@@ -77,8 +91,11 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 			return _fail(&"duplicate_slot_index", "slot %d is used twice" % slot,
 				{"slot_index": slot})
 		seen_slots[slot] = true
-		if str(entry["type"]) in DATE_TYPES:
-			date_count += 1
+		# The single Day-7 ending seats first. Checked here rather than in shape validation so the
+		# allowance is judged before placement.
+		if day == LAST_DAY and slot != 0:
+			return _shape_failure(_shape_error(entry, "slot_index",
+				"the Day-7 ending seats at slot 0, got %d" % slot))
 	# One date per friend (solo) or per pair (group) each day. Each unordered pair is compared
 	# exactly once and never with itself. A joined-string key would have been O(n) but any delimiter
 	# can collide with a friend id, and the schedule is two or three entries.
@@ -98,10 +115,6 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 					"%s is already dated today" % str(right["friend_ids"]),
 					{"type": left_type,
 						"friend_ids": (right["friend_ids"] as Array).duplicate(true)})
-	var allowed := max_dates_for_day(day)
-	if date_count > allowed:
-		return _fail(&"too_many_dates", "%d dates exceed the day-%d allowance" % [date_count, day],
-			{"day": day, "date_count": date_count, "allowed": allowed})
 	return _ok()
 
 static func validate_candidate(existing: Array, candidate: Dictionary, day: int, motivation: int, eligibility: Dictionary) -> Dictionary:
@@ -269,6 +282,11 @@ static func _entry_shape_error(entry: Dictionary, day: int) -> Dictionary:
 	if typeof(entry["type"]) != TYPE_STRING or entry["type"] not in ENTRY_TYPES:
 		return _shape_error(entry, "type", "type must be one of " + str(ENTRY_TYPES))
 	var entry_type := entry["type"] as String
+	# Day 7 schedules the single solo ending date or nothing at all (the Alone state). No ordinary
+	# action and no group date belongs on the last day.
+	if day == LAST_DAY and entry_type != "solo":
+		return _shape_error(entry, "type",
+			"day 7 schedules only the solo ending date, got " + entry_type)
 	if typeof(entry["action_id"]) != TYPE_STRING or (entry["action_id"] as String).is_empty():
 		return _shape_error(entry, "action_id", "action_id must be a nonempty String")
 	if typeof(entry["slot_index"]) != TYPE_INT or int(entry["slot_index"]) < 0:

@@ -1276,7 +1276,7 @@ The single-commit map this step used to carry was stale. `ScheduleRules.gd` and 
 | E1 | `feat(schedule): validate entry element types, arity and day range` | `tests/unit/test_schedule_route_plan.gd = M` |
 | C | `feat(schedule): reject duplicate friend sets in an existing schedule` | `tests/unit/test_schedule_route_plan.gd = M` (deviation, recorded 2026-08-11) |
 | E2 | `feat(schedule): validate schedule routes semantically` | `tests/unit/test_schedule_rules_phase2r.gd = M`, `tests/unit/test_schedule_route_plan.gd = M` |
-| F | `feat(schedule): restrict day 7 to a single solo entry at slot zero` | `tests/unit/test_schedule_rules_phase2r.gd = M` |
+| F | `feat(schedule): restrict day 7 to a single solo entry at slot zero` | this plan = `M` (boundary corrected 2026-08-11: the predicted `test_schedule_rules_phase2r.gd` edit proved unnecessary — judging the allowance before placement kept that suite's existing Day-7 `too_many_dates` assertion true, so no fixture needed retargeting) |
 | G | `feat(schedule): validate the eligibility graph exactly` | — |
 | H | `feat(schedule): reject day 7 evidence outside day 7` | — |
 | I | `feat(schedule): seat day 4 priscilla by slot index` | — |
