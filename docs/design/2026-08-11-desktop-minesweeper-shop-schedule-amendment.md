@@ -4,11 +4,12 @@ kind: design_amendment
 schema_version: 1
 amends: spec.seven_day_dialogic_flow
 amends_path: docs/design/2026-08-07-seven-day-dialogic-flow-design.md
-decision_status: proposed
+decision_status: accepted
 conversational_design_status: approved
-written_spec_status: review_pending
+written_spec_status: approved
 self_review_status: passed
 self_reviewed_on: 2026-08-11
+written_spec_approved_on: 2026-08-11
 implementation_authorized: false
 created_on: 2026-08-11
 engine_line: godot_4_6
@@ -32,11 +33,11 @@ Minesweeper lifecycle, exact persistence, Shop capabilities, and the Schedule
 Done warning queue. It narrows and corrects rules that were discovered while
 designing the UI/UX, visual-art, and music/audio manuals.
 
-The written amendment is proposed until the user reviews this file. It does not
-authorize implementation. Acceptance of this amendment will authorize only the
-product and domain decisions written here; requirement packets, Beads
-acceptance criteria, hash-bound plans, schemas, tests, and runtime code must be
-reconciled separately and only with explicit execution authority.
+The user approved this written amendment on 2026-08-11. It is the accepted
+product and domain authority for its bounded scope, but it does not authorize
+implementation. Requirement packets, Beads acceptance criteria, hash-bound
+plans, schemas, tests, and runtime code must be reconciled separately and only
+with explicit execution authority.
 
 The objective is to preserve three qualities at once:
 
@@ -59,8 +60,8 @@ succeeded, or whether the run advanced.
 For this bounded decision:
 
 1. Beads owns mutable work status, dependencies, and implementation evidence.
-2. Once accepted, this amendment owns intended behavior for the six
-   frontmatter scope topics.
+2. This accepted amendment owns intended behavior for the six frontmatter
+   scope topics.
 3. The 2026-08-07 Seven-Day Flow and Dialogic Structure specification owns all
    unrelated seven-day, relationship, Hospital, ending, persistence, and
    presentation law.
@@ -72,11 +73,11 @@ For this bounded decision:
    behavior where they conflict with accepted design.
 7. Recovered documents remain historical evidence only.
 
-Within the six scoped topics, an accepted version of this amendment controls
-over conflicting wording in the 2026-08-07 design, Phase-2R requirements and
-plans, recovered documents, tests, and current skeleton code. Every unrelated
-August relationship, Hospital-after-committed-action, receipt, atomicity,
-idempotence, save, and presentation-only rule remains unchanged.
+Within the six scoped topics, this accepted amendment controls over conflicting
+wording in the 2026-08-07 design, Phase-2R requirements and plans, recovered
+documents, tests, and current skeleton code. Every unrelated August
+relationship, Hospital-after-committed-action, receipt, atomicity, idempotence,
+save, and presentation-only rule remains unchanged.
 
 ### 2.2 Status is not execution authority
 
@@ -1201,7 +1202,7 @@ glitch.
 
 ### 13.1 Directly superseded behavior
 
-When accepted, this amendment replaces:
+This accepted amendment replaces:
 
 - req.save.minesweeper_lock in
   prompt_docs/requirements/persistence.md, insofar as it disables manual save
@@ -1249,10 +1250,11 @@ not named. Unrelated conflicts continue to follow the authority ladder.
 
 ## 14. Reconciliation path
 
-After explicit user acceptance, the following ordered handoff is required
-before runtime work:
+Following explicit user acceptance on 2026-08-11, the following ordered
+handoff is required before runtime work:
 
-1. Record written acceptance and its approval date in frontmatter.
+1. Record written acceptance and its approval date in frontmatter. This step
+   is complete in this document.
 2. Register and validate the design_amendment kind and docs/design path so
    machine authority resolution can discover this amendment.
 3. Reconcile authority-context and requirement/decision packets with new or
@@ -1369,17 +1371,11 @@ Implementation is not complete until evidence covers at least:
 - Save/load, currency, mine total, accepted input, and route truth remain
   accurate under every tested failure.
 
-## 16. Written-review gate and next artifacts
+## 16. Acceptance and next artifacts
 
-This draft has conversational design approval and has passed written
-self-review, but it remains proposed until the user reviews the written file.
-After the user accepts the text, frontmatter may change to:
-
-- decision_status: accepted
-- written_spec_status: approved
-- written_spec_approved_on: the explicit user-approval date
-
-implementation_authorized must remain false.
+The user accepted this written amendment on 2026-08-11 after conversational
+design approval, written self-review, and targeted lifecycle, authority, Shop,
+generator, and warning rechecks. implementation_authorized remains false.
 
 After written acceptance, the design sequence returns to the original goal:
 
