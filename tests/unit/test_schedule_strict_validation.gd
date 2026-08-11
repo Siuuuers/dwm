@@ -17,7 +17,7 @@ extends "res://addons/gut/test.gd"
 #   [x] C  Duplicate solo/group friend sets in validate_existing   audit 2
 #   [x] E2 Semantic route validation in both strict validators     audit 7b
 #   [x] F  Day 7 restricted to one solo entry at slot zero         audit 6
-#   [ ] G  Exact eligibility graph validation                      audit 4
+#   [x] G  Exact eligibility graph validation                      audit 4
 #   [ ] H  Day-7 evidence rejected outside Day 7                   audit 5
 #   [ ] I  Day-4 Priscilla seated by slot index                    new
 #   [ ] J  Detached validated candidate in successful results      audit 8
@@ -632,3 +632,93 @@ func test_the_allowance_outranks_a_slot_collision_on_a_normal_day_too() -> void:
 	]
 	assert_eq(SCHEDULE_RULES.validate_existing(schedule, 3).get("code"), &"too_many_dates",
 		"the allowance is judged before the collision")
+
+
+# ---- exact eligibility graph (commit G) ----
+#
+# eligibility carries exactly registered_action_ids, day7_candidate and receipt_index. It used to be
+# read with tolerant .get() defaults, so a caller that misspelled or omitted a key silently got []
+# and every action looked unregistered -- a programmer error wearing a gameplay rejection's clothes.
+# invalid_eligibility means MALFORMED; commit H's day7_evidence_on_non_day7 means well-formed but
+# forbidden on Days 1-6.
+
+func _receipt(friend: String) -> Dictionary:
+	return {
+		"receipt_id": "unlock:%s:day7" % friend,
+		"kind": "day7_unlock",
+		"action_id": "ending-date:%s:day7" % friend,
+		"friend_id": friend,
+		"day": 7,
+		"previous_receipt_id": null,
+	}
+
+
+func _elig_with(key: String, value: Variant) -> Dictionary:
+	var elig := _eligibility(["rest"])
+	if value == null and key == "__erase__":
+		return elig
+	elig[key] = value
+	return elig
+
+
+func _rejects_eligibility(eligibility: Dictionary, why: String) -> void:
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		[], _entry("a", 0, "action", "rest"), 3, 6, eligibility)
+	assert_eq(result.get("code"), &"invalid_eligibility", why + ": " + str(result))
+
+
+func test_eligibility_carries_exactly_three_keys() -> void:
+	var extra := _eligibility(["rest"])
+	extra["surprise"] = true
+	_rejects_eligibility(extra, "an unknown key is a malformed graph")
+	var missing := _eligibility(["rest"])
+	missing.erase("receipt_index")
+	_rejects_eligibility(missing, "a missing key must not silently default")
+
+
+func test_registered_action_ids_are_unique_nonempty_strings() -> void:
+	for bad: Variant in [["rest", "rest"], ["rest", ""], ["rest", 4], "rest", null]:
+		_rejects_eligibility(_elig_with("registered_action_ids", bad), "bad registry " + str(bad))
+
+
+func test_day7_candidate_is_exactly_shaped_or_null() -> void:
+	_rejects_eligibility(_elig_with("day7_candidate", {}), "an empty candidate is not a candidate")
+	_rejects_eligibility(_elig_with("day7_candidate", 7), "a candidate is a dictionary or null")
+	var extra_key := {"action_id": "a", "friend_id": "sylvia", "unlock_receipt_id": "u", "x": 1}
+	_rejects_eligibility(_elig_with("day7_candidate", extra_key), "exactly three candidate keys")
+
+
+func test_every_receipt_record_is_deep_validated_not_only_the_referenced_one() -> void:
+	# The unreferenced record matters: it is persisted evidence, and a malformed one is corruption
+	# whether or not today's candidate happens to point at it.
+	var broken_kind := _receipt("sylvia")
+	broken_kind["kind"] = "schedule_add"
+	_rejects_eligibility(_elig_with("receipt_index", {"unlock:sylvia:day7": broken_kind}),
+		"an unlock receipt's kind must be day7_unlock")
+	var broken_day := _receipt("sylvia")
+	broken_day["day"] = 6
+	_rejects_eligibility(_elig_with("receipt_index", {"unlock:sylvia:day7": broken_day}),
+		"an unlock receipt belongs to day 7")
+	var chained := _receipt("sylvia")
+	chained["previous_receipt_id"] = "unlock:earlier"
+	_rejects_eligibility(_elig_with("receipt_index", {"unlock:sylvia:day7": chained}),
+		"an unlock receipt starts the chain")
+
+
+func test_a_receipt_map_key_must_equal_its_receipt_id() -> void:
+	_rejects_eligibility(_elig_with("receipt_index", {"wrong-key": _receipt("sylvia")}),
+		"the map key is the receipt id, not a label")
+
+
+func test_a_well_formed_eligibility_graph_is_accepted() -> void:
+	var elig := _eligibility(["rest"])
+	elig["receipt_index"] = {"unlock:sylvia:day7": _receipt("sylvia")}
+	elig["day7_candidate"] = {
+		"action_id": "ending-date:sylvia:day7",
+		"friend_id": "sylvia",
+		"unlock_receipt_id": "unlock:sylvia:day7",
+	}
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		[], _day7_solo("e", 0, "sylvia", "ending-date:sylvia:day7"), 7, 6, elig)
+	assert_eq(result.get("code"), &"unregistered_action",
+		"the graph itself is well formed; only the registry lacks the action: " + str(result))

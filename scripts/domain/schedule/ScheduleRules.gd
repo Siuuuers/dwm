@@ -42,6 +42,16 @@ const FRIENDS_PER_TYPE := {"action": 0, "solo": 1, "group": 2}
 ## The seven-day run. A day outside this range is a caller fault, not entry data.
 const FIRST_DAY := 1
 const LAST_DAY := 7
+## The exact eligibility graph. Anything more or less is a malformed caller argument, never a
+## gameplay rejection, so it must not be read through tolerant defaults.
+const ELIGIBILITY_KEYS: Array[String] = [
+	"day7_candidate", "receipt_index", "registered_action_ids",
+]
+const DAY7_CANDIDATE_KEYS: Array[String] = ["action_id", "friend_id", "unlock_receipt_id"]
+const RECEIPT_KEYS: Array[String] = [
+	"action_id", "day", "friend_id", "kind", "previous_receipt_id", "receipt_id",
+]
+const UNLOCK_RECEIPT_KIND := "day7_unlock"
 
 static func max_dates_for_day(day: int) -> int:
 	# Days 1-6 allow two dates; Day 7 allows the single ending date.
@@ -131,9 +141,15 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 	var shape_error := _entry_shape_error(candidate, day)
 	if not shape_error.is_empty():
 		return _shape_failure(shape_error)
-	var action_id := str(candidate.get("action_id", ""))
-	var registered: Array = eligibility.get("registered_action_ids", [])
-	if action_id.is_empty() or action_id not in registered:
+	# The eligibility stage of the pipeline, spliced in here by commit G. It runs after the
+	# candidate's own shape because a malformed eligibility graph is a CALLER fault, and the
+	# caller deserves to hear about a broken candidate first.
+	var eligibility_error := _eligibility_error(eligibility)
+	if not eligibility_error.is_empty():
+		return eligibility_error
+	var action_id := str(candidate["action_id"])
+	var registered: Array = eligibility["registered_action_ids"]
+	if action_id not in registered:
 		return _fail(&"unregistered_action", "action %s is not registered" % action_id,
 			{"action_id": action_id})
 	if day == 7:
@@ -375,6 +391,90 @@ static func _friend_ids_error(entry: Dictionary, entry_type: String) -> Dictiona
 			return _shape_error(entry, "friend_ids", "a date names distinct friends")
 		seen[friend] = true
 	return {}
+
+
+static func _eligibility_error(eligibility: Dictionary) -> Dictionary:
+	# Returns {} or a ready failure. invalid_eligibility always means MALFORMED: a caller fault,
+	# distinct from well-formed evidence that is simply forbidden on the day being validated.
+	var keys: Array = eligibility.keys()
+	keys.sort()
+	var expected: Array = ELIGIBILITY_KEYS.duplicate()
+	expected.sort()
+	if keys != expected:
+		return _bad_eligibility("keys",
+			"eligibility keys must be exactly " + str(expected) + ", got " + str(keys))
+	if typeof(eligibility["registered_action_ids"]) != TYPE_ARRAY:
+		return _bad_eligibility("registered_action_ids", "registered_action_ids must be an array")
+	var seen: Dictionary = {}
+	for action_id: Variant in eligibility["registered_action_ids"] as Array:
+		if typeof(action_id) != TYPE_STRING or (action_id as String).is_empty():
+			return _bad_eligibility("registered_action_ids",
+				"registered action ids must be nonempty Strings")
+		if seen.has(action_id):
+			return _bad_eligibility("registered_action_ids",
+				"action %s is registered twice" % str(action_id))
+		seen[action_id] = true
+	var day7: Variant = eligibility["day7_candidate"]
+	if day7 != null:
+		if typeof(day7) != TYPE_DICTIONARY:
+			return _bad_eligibility("day7_candidate", "day7_candidate must be a dictionary or null")
+		var candidate_keys: Array = (day7 as Dictionary).keys()
+		candidate_keys.sort()
+		var expected_candidate: Array = DAY7_CANDIDATE_KEYS.duplicate()
+		expected_candidate.sort()
+		if candidate_keys != expected_candidate:
+			return _bad_eligibility("day7_candidate",
+				"day7_candidate keys must be exactly " + str(expected_candidate))
+		for field: String in DAY7_CANDIDATE_KEYS:
+			var value: Variant = (day7 as Dictionary)[field]
+			if typeof(value) != TYPE_STRING or (value as String).is_empty():
+				return _bad_eligibility("day7_candidate." + field,
+					"day7_candidate.%s must be a nonempty String" % field)
+	if typeof(eligibility["receipt_index"]) != TYPE_DICTIONARY:
+		return _bad_eligibility("receipt_index", "receipt_index must be a dictionary")
+	# EVERY record is validated, not only the one today's candidate happens to reference: a
+	# malformed persisted receipt is corruption regardless of who points at it.
+	for receipt_id: Variant in (eligibility["receipt_index"] as Dictionary):
+		if typeof(receipt_id) != TYPE_STRING or (receipt_id as String).is_empty():
+			return _bad_eligibility("receipt_index", "receipt ids must be nonempty Strings")
+		var record_error := _receipt_record_error(
+			(eligibility["receipt_index"] as Dictionary)[receipt_id], receipt_id as String)
+		if not record_error.is_empty():
+			return record_error
+	return {}
+
+
+static func _receipt_record_error(raw: Variant, receipt_id: String) -> Dictionary:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return _bad_eligibility("receipt_index", "receipt %s is not a record" % receipt_id)
+	var record := raw as Dictionary
+	var keys: Array = record.keys()
+	keys.sort()
+	var expected: Array = RECEIPT_KEYS.duplicate()
+	expected.sort()
+	if keys != expected:
+		return _bad_eligibility("receipt_index",
+			"receipt %s keys must be exactly %s" % [receipt_id, str(expected)])
+	if typeof(record["receipt_id"]) != TYPE_STRING or str(record["receipt_id"]) != receipt_id:
+		return _bad_eligibility("receipt_index.receipt_id",
+			"the map key must equal receipt_id for " + receipt_id)
+	if str(record["kind"]) != UNLOCK_RECEIPT_KIND:
+		return _bad_eligibility("receipt_index.kind",
+			"receipt %s must be a %s" % [receipt_id, UNLOCK_RECEIPT_KIND])
+	if typeof(record["day"]) != TYPE_INT or int(record["day"]) != LAST_DAY:
+		return _bad_eligibility("receipt_index.day", "receipt %s belongs to day 7" % receipt_id)
+	if record["previous_receipt_id"] != null:
+		return _bad_eligibility("receipt_index.previous_receipt_id",
+			"an unlock receipt starts the chain, so %s has no predecessor" % receipt_id)
+	for field: String in ["action_id", "friend_id"]:
+		if typeof(record[field]) != TYPE_STRING or (record[field] as String).is_empty():
+			return _bad_eligibility("receipt_index." + field,
+				"receipt %s.%s must be a nonempty String" % [receipt_id, field])
+	return {}
+
+
+static func _bad_eligibility(key: String, message: String) -> Dictionary:
+	return _fail(&"invalid_eligibility", message, {"key": key})
 
 
 static func _route_id_error(entry: Dictionary, entry_type: String) -> Dictionary:
