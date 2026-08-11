@@ -13,7 +13,7 @@ extends "res://addons/gut/test.gd"
 #   [x] A  Freeze the master command-result contracts             refactor
 #   [x] B  Validate existing AND prospective schedule at add time  audit 3
 #   [x] D  Return typed codes from entry shape validation          refactor
-#   [ ] E1 Entry element types, arity and day range                audit 7a
+#   [x] E1 Entry element types, arity and day range                audit 7a
 #   [ ] C  Duplicate solo/group friend sets in validate_existing   audit 2
 #   [ ] E2 Semantic route validation in both strict validators     audit 7b
 #   [ ] F  Day 7 restricted to one solo entry at slot zero         audit 6
@@ -28,6 +28,16 @@ extends "res://addons/gut/test.gd"
 const SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
 
 
+func _friends_for(type: String) -> Array:
+	# A group date is the Priscilla-Lavinia pair (ContactInvitationState.GROUP_PAIR), never one
+	# friend. Fixed in commit E1, which makes group arity a validated rule.
+	if type == "action":
+		return []
+	if type == "group":
+		return ["priscilla", "lavinia"]
+	return ["priscilla"]
+
+
 func _entry(entry_id: String, slot: int, type: String, action_id: String, day := 3) -> Dictionary:
 	return {
 		"entry_id": entry_id,
@@ -35,11 +45,17 @@ func _entry(entry_id: String, slot: int, type: String, action_id: String, day :=
 		"day": day,
 		"type": type,
 		"action_id": action_id,
-		"friend_ids": ["priscilla"] if type != "action" else [],
+		"friend_ids": _friends_for(type),
 		"route_id": "dating" if type != "action" else null,
 		"effect_ids": [],
 		"unlock_receipt_id": null,
 	}
+
+
+func _with(entry_id: String, field: String, value: Variant, type := "action") -> Dictionary:
+	var entry := _entry(entry_id, 0, type, "rest")
+	entry[field] = value
+	return entry
 
 
 # ---- duplicate action_id ----
@@ -323,3 +339,109 @@ func test_details_for_invalid_route() -> void:
 	assert_eq(result.get("code"), &"invalid_route", "typed rejection")
 	assert_eq(result.get("details"), {"entry_id": "rest", "type": "action", "route_id": "dating"},
 		"exact details keys")
+
+
+# ---- strict element types, arity and day range (commit E1) ----
+#
+# No str() or int() coercion anywhere: a value of the wrong TYPE is wrong, not something to be
+# quietly converted. Coercion is how "3" reaches a field contracted as int and how a null becomes
+# the string "<null>", and both survive persistence to fail somewhere far from the cause.
+
+func _field_of(result: Dictionary) -> String:
+	return str((result.get("details", {}) as Dictionary).get("field", ""))
+
+
+func test_the_validated_day_must_be_a_real_day() -> void:
+	for day: int in [0, 8, -1]:
+		var result: Dictionary = SCHEDULE_RULES.validate_existing([], day)
+		assert_false(result.get("ok", false), "day %d is not a day" % day)
+		assert_eq(result.get("code"), &"invalid_day", "typed rejection for day %d" % day)
+		assert_eq(result.get("details"), {"day": day}, "exact details keys")
+
+
+func test_every_real_day_is_accepted() -> void:
+	for day: int in [1, 2, 3, 4, 5, 6, 7]:
+		assert_true(SCHEDULE_RULES.validate_existing([], day).get("ok", false),
+			"day %d is a real day" % day)
+
+
+func test_a_stringy_day_is_not_coerced() -> void:
+	# int("3") == 3 silently matched the validated day, so a persisted string survived validation.
+	var result: Dictionary = SCHEDULE_RULES.validate_existing([_with("a", "day", "3")], 3)
+	assert_eq(result.get("code"), &"invalid_entry", "typed rejection")
+	assert_eq(_field_of(result), "day", "the day field is named")
+
+
+func test_a_nonstring_entry_id_is_not_coerced() -> void:
+	var result: Dictionary = SCHEDULE_RULES.validate_existing([_with("a", "entry_id", 42)], 3)
+	assert_eq(result.get("code"), &"invalid_entry", "typed rejection")
+	assert_eq(_field_of(result), "entry_id", "the entry_id field is named")
+
+
+func test_a_nonstring_or_empty_action_id_is_rejected() -> void:
+	for bad: Variant in [7, "", null]:
+		var result: Dictionary = SCHEDULE_RULES.validate_existing([_with("a", "action_id", bad)], 3)
+		assert_eq(result.get("code"), &"invalid_entry", "typed rejection for " + str(bad))
+		assert_eq(_field_of(result), "action_id", "the action_id field is named")
+
+
+func test_an_action_entry_carries_no_friends() -> void:
+	var result: Dictionary = SCHEDULE_RULES.validate_existing(
+		[_with("a", "friend_ids", ["priscilla"])], 3)
+	assert_eq(result.get("code"), &"invalid_entry", "typed rejection")
+	assert_eq(_field_of(result), "friend_ids", "the friend_ids field is named")
+
+
+func test_a_solo_date_names_exactly_one_friend() -> void:
+	for friends: Array in [[], ["priscilla", "lavinia"]]:
+		var entry := _date_entry("s", 0, "solo", "solo:x:day3", friends)
+		var result: Dictionary = SCHEDULE_RULES.validate_existing([entry], 3)
+		assert_eq(result.get("code"), &"invalid_entry", "a solo date is one friend: " + str(friends))
+		assert_eq(_field_of(result), "friend_ids", "the friend_ids field is named")
+
+
+func test_a_group_date_names_exactly_two_distinct_friends() -> void:
+	for friends: Array in [["priscilla"], ["priscilla", "priscilla"],
+			["priscilla", "lavinia", "sylvia"]]:
+		var entry := _date_entry("g", 0, "group", "group:x:day3", friends)
+		var result: Dictionary = SCHEDULE_RULES.validate_existing([entry], 3)
+		assert_eq(result.get("code"), &"invalid_entry", "a group is a distinct pair: " + str(friends))
+		assert_eq(_field_of(result), "friend_ids", "the friend_ids field is named")
+
+
+func test_a_valid_group_pair_is_accepted() -> void:
+	var entry := _date_entry("g", 0, "group", "group:x:day3", ["lavinia", "priscilla"])
+	assert_true(SCHEDULE_RULES.validate_existing([entry], 3).get("ok", false),
+		"either order of the pair is the same pair")
+
+
+func test_friend_ids_must_name_known_friends() -> void:
+	# Membership against the canonical DataCatalog.FRIEND_IDS roster, not a fourth copied list.
+	for bad: Variant in ["gandalf", "", 3] :
+		var entry := _date_entry("s", 0, "solo", "solo:x:day3", [bad])
+		var result: Dictionary = SCHEDULE_RULES.validate_existing([entry], 3)
+		assert_eq(result.get("code"), &"invalid_entry", "unknown friend: " + str(bad))
+		assert_eq(_field_of(result), "friend_ids", "the friend_ids field is named")
+
+
+func test_effect_ids_must_be_nonempty_strings() -> void:
+	for bad: Variant in [[""], [5], [null]]:
+		var result: Dictionary = SCHEDULE_RULES.validate_existing([_with("a", "effect_ids", bad)], 3)
+		assert_eq(result.get("code"), &"invalid_entry", "bad effect element: " + str(bad))
+		assert_eq(_field_of(result), "effect_ids", "the effect_ids field is named")
+
+
+func test_a_repeated_effect_id_is_rejected_rather_than_deduplicated() -> void:
+	# Repeated IDs currently APPLY THE EFFECT TWICE. Silently deduplicating would change the
+	# gameplay outcome of a saved schedule, so this rejects instead.
+	var result: Dictionary = SCHEDULE_RULES.validate_existing(
+		[_with("a", "effect_ids", ["mood_up", "mood_up"])], 3)
+	assert_eq(result.get("code"), &"duplicate_effect_id", "its own typed code, not invalid_entry")
+	assert_eq(result.get("details"), {"entry_id": "a", "effect_id": "mood_up"}, "exact details keys")
+
+
+func test_distinct_effect_ids_keep_their_order() -> void:
+	var entry := _with("a", "effect_ids", ["b", "a", "c"])
+	assert_true(SCHEDULE_RULES.validate_existing([entry], 3).get("ok", false),
+		"distinct effects are valid")
+	assert_eq(entry["effect_ids"], ["b", "a", "c"], "validation never reorders the caller's array")

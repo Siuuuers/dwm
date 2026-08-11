@@ -16,7 +16,10 @@ func _entry(entry_id: String, slot: int, type: String, day: int, route_id: Varia
 		"day": day,
 		"type": type,
 		"action_id": "%s:%s" % [type, entry_id],
-		"friend_ids": ["priscilla"] if type != "action" else [],
+		# A group date is the distinct Priscilla-Lavinia pair; a solo date is one friend. Corrected
+		# in commit E1, which makes friend arity a validated rule rather than a fixture accident.
+		"friend_ids": ([] if type == "action"
+			else (["priscilla", "lavinia"] if type == "group" else ["priscilla"])),
 		"route_id": route_id,
 		"effect_ids": [],
 		"unlock_receipt_id": null,

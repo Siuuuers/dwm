@@ -36,12 +36,22 @@ const DATE_TYPES: Array[String] = ["solo", "group"]
 ## The single registered semantic route a scheduled date may carry. Mirrored by
 ## data/manifests/routes.json, whose keys are SceneRouter._SCENE_PATHS.
 const DATE_ROUTE_ID := "dating"
+## Arity is part of the entry type. A group date is the distinct Priscilla-Lavinia pair
+## (ContactInvitationState.GROUP_PAIR), never one friend and never three.
+const FRIENDS_PER_TYPE := {"action": 0, "solo": 1, "group": 2}
+## The seven-day run. A day outside this range is a caller fault, not entry data.
+const FIRST_DAY := 1
+const LAST_DAY := 7
 
 static func max_dates_for_day(day: int) -> int:
 	# Days 1-6 allow two dates; Day 7 allows the single ending date.
 	return 2 if day >= 1 and day <= 6 else 1
 
 static func validate_existing(schedule: Array, day: int) -> Dictionary:
+	# Entries only have to MATCH the validated day, so without this an all-day-9 schedule validated
+	# against day 9 passed cleanly. validate_candidate inherits the check through the board stage.
+	if day < FIRST_DAY or day > LAST_DAY:
+		return _fail(&"invalid_day", "day %d is outside the seven-day run" % day, {"day": day})
 	var seen_slots: Dictionary = {}
 	var seen_entry_ids: Dictionary = {}
 	var seen_action_ids: Dictionary = {}
@@ -227,22 +237,28 @@ static func _entry_shape_error(entry: Dictionary, day: int) -> Dictionary:
 	if keys != expected:
 		return _shape_error(entry, "keys",
 			"entry keys must be exactly " + str(expected) + ", got " + str(keys))
-	if str(entry["entry_id"]).is_empty():
-		return _shape_error(entry, "entry_id", "entry_id must be nonempty")
-	if str(entry["type"]) not in ENTRY_TYPES:
+	if typeof(entry["entry_id"]) != TYPE_STRING or (entry["entry_id"] as String).is_empty():
+		return _shape_error(entry, "entry_id", "entry_id must be a nonempty String")
+	if typeof(entry["type"]) != TYPE_STRING or entry["type"] not in ENTRY_TYPES:
 		return _shape_error(entry, "type", "type must be one of " + str(ENTRY_TYPES))
+	var entry_type := entry["type"] as String
+	if typeof(entry["action_id"]) != TYPE_STRING or (entry["action_id"] as String).is_empty():
+		return _shape_error(entry, "action_id", "action_id must be a nonempty String")
 	if typeof(entry["slot_index"]) != TYPE_INT or int(entry["slot_index"]) < 0:
 		return _shape_error(entry, "slot_index", "slot_index must be a non-negative integer")
-	if int(entry["day"]) != day:
+	# No coercion: int("3") == 3 silently matched the validated day, so a persisted string passed.
+	if typeof(entry["day"]) != TYPE_INT or int(entry["day"]) != day:
 		return _shape_error(entry, "day",
-			"entry day %d does not match the validated day %d" % [int(entry["day"]), day])
-	if typeof(entry["friend_ids"]) != TYPE_ARRAY:
-		return _shape_error(entry, "friend_ids", "friend_ids must be an array")
-	if typeof(entry["effect_ids"]) != TYPE_ARRAY:
-		return _shape_error(entry, "effect_ids", "effect_ids must be an array")
+			"entry day %s does not match the validated day %d" % [str(entry["day"]), day])
+	var friend_error := _friend_ids_error(entry, entry_type)
+	if not friend_error.is_empty():
+		return friend_error
+	var effect_error := _effect_ids_error(entry)
+	if not effect_error.is_empty():
+		return effect_error
 	# Unlock receipts belong only to a Day-7 solo (ending) date; days 1-6 carry null.
 	var receipt: Variant = entry["unlock_receipt_id"]
-	if day == 7 and str(entry["type"]) == "solo":
+	if day == 7 and entry_type == "solo":
 		if typeof(receipt) != TYPE_STRING or str(receipt).is_empty():
 			return _shape_error(entry, "unlock_receipt_id",
 				"a Day-7 solo date requires a nonempty unlock_receipt_id")
@@ -288,6 +304,47 @@ static func _day7_desync_reason(candidate: Dictionary, eligibility: Dictionary) 
 	if str(record.get("action_id", "")) != action_id or str(record.get("friend_id", "")) != friend_id:
 		return "receipt record does not match the candidate"
 	return ""
+
+
+static func _friend_ids_error(entry: Dictionary, entry_type: String) -> Dictionary:
+	# Arity is part of the type: an action has no friends, a solo date is one friend, and a group
+	# date is the distinct pair. Membership is checked against the canonical DataCatalog roster
+	# rather than a fourth copy of the same three names.
+	if typeof(entry["friend_ids"]) != TYPE_ARRAY:
+		return _shape_error(entry, "friend_ids", "friend_ids must be an array")
+	var friends := entry["friend_ids"] as Array
+	var required: int = FRIENDS_PER_TYPE.get(entry_type, 0)
+	if friends.size() != required:
+		return _shape_error(entry, "friend_ids",
+			"a %s entry names exactly %d friend(s), got %d" % [entry_type, required, friends.size()])
+	var seen: Dictionary = {}
+	for friend: Variant in friends:
+		if typeof(friend) != TYPE_STRING or (friend as String).is_empty():
+			return _shape_error(entry, "friend_ids", "friend ids must be nonempty Strings")
+		if friend not in DataCatalog.FRIEND_IDS:
+			return _shape_error(entry, "friend_ids", "unknown friend " + str(friend))
+		if seen.has(friend):
+			return _shape_error(entry, "friend_ids", "a date names distinct friends")
+		seen[friend] = true
+	return {}
+
+
+static func _effect_ids_error(entry: Dictionary) -> Dictionary:
+	if typeof(entry["effect_ids"]) != TYPE_ARRAY:
+		return _shape_error(entry, "effect_ids", "effect_ids must be an array")
+	var seen: Dictionary = {}
+	for effect: Variant in entry["effect_ids"] as Array:
+		if typeof(effect) != TYPE_STRING or (effect as String).is_empty():
+			return _shape_error(entry, "effect_ids", "effect ids must be nonempty Strings")
+		if seen.has(effect):
+			# A repeated id APPLIES THE EFFECT TWICE. Silently deduplicating would change the
+			# gameplay outcome of an already-saved schedule, so this rejects instead. Order is
+			# otherwise preserved: nothing here sorts or rewrites the caller's array.
+			return _shape_error(entry, "effect_ids", "effect %s is listed twice" % str(effect),
+				&"duplicate_effect_id",
+				{"entry_id": str(entry.get("entry_id", "")), "effect_id": str(effect)})
+		seen[effect] = true
+	return {}
 
 
 ## A shape violation, failure-ready. Defaults to `invalid_entry` reporting which field failed;
