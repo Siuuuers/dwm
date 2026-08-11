@@ -9,7 +9,20 @@ extends RefCounted
 ## asks "is the schedule valid as it stands?", where an entry must never invalidate
 ## itself. Adding rejects at add time; Done re-validates the whole schedule.
 ##
-## Both return the frozen CommandResult shape and never mutate their inputs.
+## MASTER COMMAND RESULT (frozen 2026-08-11, plan-author ruling). Every strict method returns
+## exactly one of:
+##
+## [codeblock]
+## {"ok": true,  "code": &"ok", "value": Dictionary, "receipt": Dictionary}
+## {"ok": false, "code": StringName, "message": String, "details": Dictionary}
+## [/codeblock]
+##
+## A failure NEVER carries a partial `value` or `receipt`, and a success never carries `message`
+## or `details`. Each code pins exact `details` keys so a consumer branches on data, never on
+## prose. `validate_date_candidate` is the single deliberate exception: it keeps the legacy bare
+## `{ok, code, message}` shape until Step 4.2b retires it.
+##
+## Nothing here mutates its inputs, and no caller-owned value is ever retained by reference.
 
 ## Exact schedule-entry keys; anything more or less is malformed.
 const ENTRY_KEYS: Array[String] = [
@@ -36,68 +49,84 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 	for entry: Dictionary in schedule:
 		var shape_error := _entry_shape_error(entry, day)
 		if not shape_error.is_empty():
-			return _fail(&"invalid_entry", shape_error)
+			return _invalid_entry(entry, shape_error)
 		var entry_id := str(entry["entry_id"])
 		if seen_entry_ids.has(entry_id):
-			return _fail(&"duplicate_entry_id", entry_id)
+			return _fail(&"duplicate_entry_id", "entry_id %s is used twice" % entry_id,
+				{"entry_id": entry_id})
 		seen_entry_ids[entry_id] = true
 		# One action per day: distinct entry_ids in distinct slots can still name the same
 		# underlying action, which no other rule here catches (Plan-04 Task 4 audit, 2026-08-10).
 		var action_id := str(entry["action_id"])
 		if seen_action_ids.has(action_id):
-			return _fail(&"duplicate_action_id", action_id)
+			return _fail(&"duplicate_action_id", "action %s is scheduled twice" % action_id,
+				{"action_id": action_id})
 		seen_action_ids[action_id] = true
 		var slot: int = int(entry["slot_index"])
 		if seen_slots.has(slot):
-			return _fail(&"duplicate_slot_index", "slot %d is used twice" % slot)
+			return _fail(&"duplicate_slot_index", "slot %d is used twice" % slot,
+				{"slot_index": slot})
 		seen_slots[slot] = true
 		if str(entry["type"]) in DATE_TYPES:
 			date_count += 1
-	if date_count > max_dates_for_day(day):
-		return _fail(&"too_many_dates", "%d dates exceed the day-%d allowance" % [date_count, day])
-	return {"ok": true, "code": &"ok"}
+	var allowed := max_dates_for_day(day)
+	if date_count > allowed:
+		return _fail(&"too_many_dates", "%d dates exceed the day-%d allowance" % [date_count, day],
+			{"day": day, "date_count": date_count, "allowed": allowed})
+	return _ok()
 
 static func validate_candidate(existing: Array, candidate: Dictionary, day: int, motivation: int, eligibility: Dictionary) -> Dictionary:
 	if motivation <= 0:
-		return _fail(&"no_motivation", "adding a schedule entry costs motivation")
+		return _fail(&"no_motivation", "adding a schedule entry costs motivation",
+			{"motivation": motivation})
 	var shape_error := _entry_shape_error(candidate, day)
 	if not shape_error.is_empty():
-		return _fail(&"invalid_entry", shape_error)
+		return _invalid_entry(candidate, shape_error)
 	var action_id := str(candidate.get("action_id", ""))
 	var registered: Array = eligibility.get("registered_action_ids", [])
 	if action_id.is_empty() or action_id not in registered:
-		return _fail(&"unregistered_action", action_id)
+		return _fail(&"unregistered_action", "action %s is not registered" % action_id,
+			{"action_id": action_id})
 	if day == 7:
 		# Shape validation already guaranteed a nonempty receipt id; now the candidate, the
 		# day7_candidate, and the indexed unlock receipt must agree exactly. No ID naming
 		# convention is ever treated as proof.
 		var desync := _day7_desync_reason(candidate, eligibility)
 		if not desync.is_empty():
-			return _fail(&"day7_candidate_not_synchronized", desync)
+			return _fail(&"day7_candidate_not_synchronized", desync, {"reason": desync})
+	var candidate_slot := int(candidate.get("slot_index", -1))
 	for entry: Dictionary in existing:
 		if str(entry.get("action_id", "")) == action_id:
-			return _fail(&"duplicate_entry", action_id)
-		if int(entry.get("slot_index", -1)) == int(candidate.get("slot_index", -1)):
-			return _fail(&"duplicate_slot_index", str(candidate.get("slot_index", -1)))
+			return _fail(&"duplicate_entry", "action %s is already scheduled" % action_id,
+				{"action_id": action_id})
+		if int(entry.get("slot_index", -1)) == candidate_slot:
+			return _fail(&"duplicate_slot_index", "slot %d is already taken" % candidate_slot,
+				{"slot_index": candidate_slot})
 	var candidate_type := str(candidate["type"])
 	if candidate_type in DATE_TYPES:
 		# Preserved legacy rule: Day-4 Priscilla only lands in the first slot.
 		if day == 4 and candidate_type == "solo" and "priscilla" in candidate["friend_ids"] \
 				and not existing.is_empty():
-			return _fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first")
+			return _fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first",
+				{"slot_index": candidate_slot})
 		# Preserved legacy rule: one date per friend (solo) / per pair (group) each day.
 		for entry: Dictionary in existing:
 			if str(entry["type"]) != candidate_type:
 				continue
 			if _same_friend_set(entry["friend_ids"], candidate["friend_ids"]):
-				return _fail(&"duplicate_friend_date", str(candidate["friend_ids"]))
+				return _fail(&"duplicate_friend_date",
+					"%s is already dated today" % str(candidate["friend_ids"]),
+					{"type": candidate_type,
+						"friend_ids": (candidate["friend_ids"] as Array).duplicate(true)})
 		var date_count: int = 0
 		for entry: Dictionary in existing:
 			if str(entry["type"]) in DATE_TYPES:
 				date_count += 1
-		if date_count + 1 > max_dates_for_day(day):
-			return _fail(&"too_many_dates", "day %d allows %d date(s)" % [day, max_dates_for_day(day)])
-	return {"ok": true, "code": &"ok"}
+		var allowed := max_dates_for_day(day)
+		if date_count + 1 > allowed:
+			return _fail(&"too_many_dates", "day %d allows %d date(s)" % [day, allowed],
+				{"day": day, "date_count": date_count + 1, "allowed": allowed})
+	return _ok()
 
 
 ## Pure add-time validation of one date candidate against the OTHER entries already scheduled
@@ -125,11 +154,13 @@ static func build_route_plan(schedule: Array, day: int) -> Dictionary:
 		if entry_type not in DATE_TYPES:
 			if route != null:
 				return _fail(&"invalid_route",
-					"%s entries carry no route, got %s" % [entry_type, str(route)])
+					"%s entries carry no route, got %s" % [entry_type, str(route)],
+					_route_details(entry, entry_type, route))
 			continue
 		if typeof(route) != TYPE_STRING or str(route) != DATE_ROUTE_ID:
 			return _fail(&"invalid_route",
-				"%s entries route to %s, got %s" % [entry_type, DATE_ROUTE_ID, str(route)])
+				"%s entries route to %s, got %s" % [entry_type, DATE_ROUTE_ID, str(route)],
+				_route_details(entry, entry_type, route))
 		routed.append({
 			"entry_id": str(entry["entry_id"]),
 			"slot_index": int(entry["slot_index"]),
@@ -137,16 +168,16 @@ static func build_route_plan(schedule: Array, day: int) -> Dictionary:
 		})
 	routed.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 		return int(left["slot_index"]) < int(right["slot_index"]))
-	return {"ok": true, "code": &"ok", "value": {"route_plan": routed}, "receipt": {}}
+	return _ok({"route_plan": routed})
 
 static func validate_date_candidate(existing: Array, candidate: Dictionary, day: int) -> Dictionary:
 	var candidate_type := str(candidate.get("type", ""))
 	if candidate_type not in DATE_TYPES:
-		return _fail(&"not_a_date", "validate_date_candidate handles only " + str(DATE_TYPES))
+		return _legacy_fail(&"not_a_date", "validate_date_candidate handles only " + str(DATE_TYPES))
 	var candidate_friends := _friend_set(candidate)
 	# Day 4 seats Priscilla first: a solo Priscilla date cannot follow another entry.
 	if day == 4 and candidate_type == "solo" and "priscilla" in candidate_friends and not existing.is_empty():
-		return _fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first")
+		return _legacy_fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first")
 	# One date per friend (solo) / per pair (group) each day; then the daily date cap.
 	var date_count: int = 0
 	for entry: Dictionary in existing:
@@ -154,9 +185,9 @@ static func validate_date_candidate(existing: Array, candidate: Dictionary, day:
 			continue
 		date_count += 1
 		if str(entry.get("type", "")) == candidate_type and _same_friend_set(_friend_set(entry), candidate_friends):
-			return _fail(&"duplicate_friend_date", str(candidate_friends))
+			return _legacy_fail(&"duplicate_friend_date", str(candidate_friends))
 	if date_count >= max_dates_for_day(day):
-		return _fail(&"too_many_dates", "day %d allows %d date(s)" % [day, max_dates_for_day(day)])
+		return _legacy_fail(&"too_many_dates", "day %d allows %d date(s)" % [day, max_dates_for_day(day)])
 	return {"ok": true, "code": &"ok"}
 
 static func _friend_set(entry: Dictionary) -> Array:
@@ -175,34 +206,39 @@ static func _same_friend_set(left: Array, right: Array) -> bool:
 			return false
 	return true
 
-static func _entry_shape_error(entry: Dictionary, day: int) -> String:
-	# Returns "" when the entry carries exactly the contracted keys with sane values.
+static func _entry_shape_error(entry: Dictionary, day: int) -> Dictionary:
+	# Returns {} when the entry carries exactly the contracted keys with sane values, else the
+	# offending field plus a human message. The field name is what `invalid_entry` reports as data.
 	var keys: Array = entry.keys()
 	keys.sort()
 	var expected: Array = ENTRY_KEYS.duplicate()
 	expected.sort()
 	if keys != expected:
-		return "entry keys must be exactly " + str(expected) + ", got " + str(keys)
+		return _shape_error("keys",
+			"entry keys must be exactly " + str(expected) + ", got " + str(keys))
 	if str(entry["entry_id"]).is_empty():
-		return "entry_id must be nonempty"
+		return _shape_error("entry_id", "entry_id must be nonempty")
 	if str(entry["type"]) not in ENTRY_TYPES:
-		return "type must be one of " + str(ENTRY_TYPES)
+		return _shape_error("type", "type must be one of " + str(ENTRY_TYPES))
 	if typeof(entry["slot_index"]) != TYPE_INT or int(entry["slot_index"]) < 0:
-		return "slot_index must be a non-negative integer"
+		return _shape_error("slot_index", "slot_index must be a non-negative integer")
 	if int(entry["day"]) != day:
-		return "entry day %d does not match the validated day %d" % [int(entry["day"]), day]
+		return _shape_error("day",
+			"entry day %d does not match the validated day %d" % [int(entry["day"]), day])
 	if typeof(entry["friend_ids"]) != TYPE_ARRAY:
-		return "friend_ids must be an array"
+		return _shape_error("friend_ids", "friend_ids must be an array")
 	if typeof(entry["effect_ids"]) != TYPE_ARRAY:
-		return "effect_ids must be an array"
+		return _shape_error("effect_ids", "effect_ids must be an array")
 	# Unlock receipts belong only to a Day-7 solo (ending) date; days 1-6 carry null.
 	var receipt: Variant = entry["unlock_receipt_id"]
 	if day == 7 and str(entry["type"]) == "solo":
 		if typeof(receipt) != TYPE_STRING or str(receipt).is_empty():
-			return "a Day-7 solo date requires a nonempty unlock_receipt_id"
+			return _shape_error("unlock_receipt_id",
+				"a Day-7 solo date requires a nonempty unlock_receipt_id")
 	elif receipt != null:
-		return "only a Day-7 solo date carries an unlock_receipt_id"
-	return ""
+		return _shape_error("unlock_receipt_id",
+			"only a Day-7 solo date carries an unlock_receipt_id")
+	return {}
 
 
 static func _day7_desync_reason(candidate: Dictionary, eligibility: Dictionary) -> String:
@@ -243,5 +279,27 @@ static func _day7_desync_reason(candidate: Dictionary, eligibility: Dictionary) 
 	return ""
 
 
-static func _fail(code: StringName, message: String) -> Dictionary:
+static func _shape_error(field: String, message: String) -> Dictionary:
+	return {"field": field, "message": message}
+
+
+static func _invalid_entry(entry: Dictionary, shape_error: Dictionary) -> Dictionary:
+	return _fail(&"invalid_entry", str(shape_error["message"]),
+		{"entry_id": str(entry.get("entry_id", "")), "field": str(shape_error["field"])})
+
+
+static func _route_details(entry: Dictionary, entry_type: String, route: Variant) -> Dictionary:
+	return {"entry_id": str(entry.get("entry_id", "")), "type": entry_type, "route_id": route}
+
+
+static func _ok(value: Dictionary = {}) -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": value, "receipt": {}}
+
+
+static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
+	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+## Legacy bare result for `validate_date_candidate` only, retired by Step 4.2b.
+static func _legacy_fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}

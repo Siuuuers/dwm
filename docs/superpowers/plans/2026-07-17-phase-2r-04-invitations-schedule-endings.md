@@ -929,6 +929,9 @@ if ($LASTEXITCODE -ne 0) { throw 'Exact Task 3 commit boundary failed.' }
 
 - Create: scripts/domain/schedule/ScheduleRules.gd
 - Create: tests/unit/test_schedule_rules_phase2r.gd
+- Modify: tests/unit/test_schedule_strict_validation.gd (already tracked; created in 49947e5)
+- Modify: tests/unit/test_schedule_route_plan.gd (already tracked; created in 1c25aba)
+- Modify: tests/unit/test_schedule_characterization.gd (already tracked; Step 4.1a net)
 - Modify: autoload/GameState.gd
 - Modify: tests/unit/test_schedule_rules.gd
 - Create: tests/fixtures/schedules/valid_cases.json
@@ -1221,52 +1224,71 @@ Task 6 accepts a primary candidate only by walking these three exact records, so
 
 - [ ] Only after Step 4.1a is green. Delegate GameState's schedule validation to `ScheduleRules`.
 - [ ] `GameStateDayResolutionPort` currently passes `[]` into the lifecycle (`begin_day_resolution(command_id, [])`). Replace it with the exact frozen live schedule, so the production port stops resolving days against an empty schedule.
+- [ ] **Acceptance (added 2026-08-11, plan-author ruling): retire `ScheduleRules.validate_date_candidate()`.** It is a transitional production adapter kept deliberately loose while the strict API was built, and it is the last method still returning the legacy bare `{ok, code, message}` result. Once GameState consumes the strict API, prove zero callers with `rg 'validate_date_candidate' --type gd` and DELETE the method, its `_legacy_fail` helper, and the legacy-shape contract test. Step 4.2b is not complete while it survives.
+- [ ] **Acceptance (added 2026-08-11, plan-author ruling): registry parity before wiring.** Registry membership proves only that an action ID exists. Bind each registered action ID to its exact day, type, friends, route, and effects before GameState delegation or restore validation lands, otherwise a valid action ID can carry another action's effects. Tracked as a hard blocker in Beads.
 
 - [ ] **Step 4.3: Verify focused schedule behavior**
 
 ~~~powershell
-& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'schedule_rules' -LogName 'phase2r-schedule-rules.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_schedule_rules.gd,res://tests/unit/test_schedule_rules_phase2r.gd','-gexit')
+& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'schedule_rules' -LogName 'phase2r-schedule-rules.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_schedule_characterization.gd,res://tests/unit/test_schedule_route_plan.gd,res://tests/unit/test_schedule_rules.gd,res://tests/unit/test_schedule_rules_phase2r.gd,res://tests/unit/test_schedule_strict_validation.gd','-gexit')
 ~~~
+
+The gate is all five schedule suites, not two (corrected 2026-08-11): the strict-validation and route-plan suites were added after this step was first written, and the characterization net from Step 4.1a must not be allowed to rot unwatched.
 
 Expected GREEN: candidate and existing validation differ only where they should; duplicate slots reject; all retained rules have contract evidence.
 
-- [ ] **Step 4.4: Proposed commit boundary (requires explicit commit authority)**
+A fresh worktree has no `.godot` import cache, so Godot's global `class_name` registry does not exist and autoloads fail to instantiate while the runner still reports exit 0 — a false green. Build the cache once before the first run:
 
 ~~~powershell
-if (-not ($env:DWM_COMMIT_AUTHORIZED -ceq '1')) {
-	throw 'Task 4 Step 4.4 requires DWM_COMMIT_AUTHORIZED to be exactly 1.'
-}
-$expectedHead = [string](git rev-parse HEAD)
-$expectedSubject = [string](git show -s --format=%s $expectedHead)
-if ($LASTEXITCODE -ne 0 -or $expectedHead -notmatch '^[0-9a-f]{40,64}$' -or
-	-not ($expectedSubject -ceq 'feat(invitations): resolve exact solo and group rollover branches')) {
-	throw 'Task 4 requires the exact Task 3 commit boundary as HEAD.'
-}
-$required = [ordered]@{
-	'scripts/domain/schedule/ScheduleRules.gd' = 'A'
-	'tests/unit/test_schedule_rules_phase2r.gd' = 'A'
-	'autoload/GameState.gd' = 'M'
-	'tests/unit/test_schedule_rules.gd' = 'M'
-	'tests/fixtures/schedules/valid_cases.json' = 'A'
-	'tests/fixtures/schedules/invalid_cases.json' = 'A'
-	'scripts/domain/run/RunSnapshotSchema.gd' = 'M'
-	'scripts/infrastructure/save/SaveMigrations.gd' = 'M'
-	'tests/unit/test_run_snapshot_schema.gd' = 'M'
-	'tests/unit/test_save_migrations.gd' = 'M'
-	'tests/integration/test_restore_transaction.gd' = 'M'
-}
-$optionalUids = [ordered]@{
-	'scripts/domain/schedule/ScheduleRules.gd.uid' = 'A'
-	'tests/unit/test_schedule_rules_phase2r.gd.uid' = 'A'
-}
-& .\tools\git\Invoke-ExactPathCommit.ps1 `
-	-RequiredStatus $required `
-	-OptionalPresentStatus $optionalUids `
-	-AllowedDirtyPaths @('.beads/interactions.jsonl','.beads/issues.jsonl') `
-	-ExpectedHead $expectedHead `
-	-Message 'refactor(schedule): separate candidate and committed schedule validation'
-if ($LASTEXITCODE -ne 0) { throw 'Exact Task 4 commit boundary failed.' }
+& $env:GODOT_CONSOLE_PATH --headless --path . --import --quit-after 200
+git checkout -- project.godot   # MANDATORY, see below
 ~~~
+
+**`--import` is destructive to `project.godot`.** It rewrites `[dialogic] directories/dtl_directory` to `{}`, discarding every registered timeline path, because the Dialogic directory is rebuilt before the `.dtl` files finish importing. Always `git checkout -- project.godot` immediately after, and never let that deletion reach a commit. The GUT runs themselves do not dirty `project.godot`; only `--import` does.
+
+Documentation validation (`tools/docs/validate_docs.gd`, required before the final commit of any sequence) has three non-obvious invocation requirements, all of which fail closed with unhelpful codes:
+
+~~~powershell
+$snap = Join-Path $env:TEMP 'beads-snapshot.json'
+# --status=all: bd list defaults to OPEN issues, so closed beads referenced by prompt_docs
+# packets report DOC_BEAD_UNKNOWN.
+$json = (bd list --status=all --json | Out-String)
+# BOM-free UTF-8: Windows PowerShell 5.1's -Encoding utf8 writes a BOM, and the validator's
+# strict round-trip check rejects it as DOC_BEAD_SNAPSHOT_INVALID: UTF-8.
+[IO.File]::WriteAllText($snap, $json, (New-Object Text.UTF8Encoding($false)))
+# The snapshot path is a USER arg, so it must follow a bare `--` separator.
+& .\tools\testing\Invoke-IsolatedGodot.ps1 -SuiteId 'docs_validate' -LogName 'phase2r-docs.log' -GodotArgs @('-s','res://tools/docs/validate_docs.gd','--',"--beads-snapshot=$snap")
+~~~
+
+Expected: `DOC_VALIDATION: PASS packets=14 agent_workflow=1`. Note this validator covers `res://prompt_docs` and `Prompt.md` only — it does NOT validate this plan file.
+
+- [ ] **Step 4.4: Commit boundaries (rewritten 2026-08-11, plan-author ruling)**
+
+The single-commit map this step used to carry was stale. `ScheduleRules.gd` and the schedule suites are already tracked, so their old `A` statuses were wrong, and Task 4 has since become a multi-commit sequence. Each commit records its own literal path/status boundary below; no aggregate assumption applies.
+
+**Sequence 1 — the pure-validator slice.** RED then GREEN per commit, checklist tick in the same commit, one rule per commit. Every commit in this slice touches `scripts/domain/schedule/ScheduleRules.gd = M` and `tests/unit/test_schedule_strict_validation.gd = M`; the additional paths are:
+
+| # | Subject | Additional paths |
+|---|---|---|
+| A | `refactor(schedule): freeze the master command result contracts` | this plan = `M` |
+| B | `feat(schedule): validate the existing and prospective schedule at add time` | — |
+| D | `refactor(schedule): return typed codes from entry shape validation` | — |
+| E1 | `feat(schedule): validate entry element types, arity and day range` | `tests/unit/test_schedule_route_plan.gd = M` |
+| C | `feat(schedule): reject duplicate friend sets in an existing schedule` | — |
+| E2 | `feat(schedule): validate schedule routes semantically` | `tests/unit/test_schedule_rules_phase2r.gd = M`, `tests/unit/test_schedule_route_plan.gd = M` |
+| F | `feat(schedule): restrict day 7 to a single solo entry at slot zero` | `tests/unit/test_schedule_rules_phase2r.gd = M` |
+| G | `feat(schedule): validate the eligibility graph exactly` | — |
+| H | `feat(schedule): reject day 7 evidence outside day 7` | — |
+| I | `feat(schedule): seat day 4 priscilla by slot index` | — |
+| J | `feat(schedule): return a detached validated candidate` | — |
+
+Any deviation from a row above must be recorded here rather than silently committed.
+
+**Sequence 2 — the remainder of Task 4**, still outstanding after the slice above: Step 4.2a Day-7 receipt ownership, Step 4.2b GameState delegation plus the real frozen schedule into Done and the `validate_date_candidate` retirement, and the snapshot/migration/restore validation named in this task's Files list. `dwm-p2r.7` does not close until those land.
+
+**Identity is a SHA, never a subject.** After ALL Task-4 work is committed and verified, record that final commit's full SHA in Beads and require exact SHA equality downstream. A commit subject is not identity: subjects repeat, get amended, and cannot distinguish a rebase. Task 5's guard is repointed at that recorded SHA at that time — not by any commit inside this slice.
+
+Committing any boundary still requires explicit commit authority (`DWM_COMMIT_AUTHORIZED -ceq '1'` for the scripted exact-path path, or a direct human grant recorded in the session).
 
 ## Task 5: Make Hospital and dating report resumable receipts
 
