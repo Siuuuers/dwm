@@ -11,7 +11,7 @@ extends "res://addons/gut/test.gd"
 #
 # Execution sequence, ruled by the plan author on 2026-08-11 (11 commits):
 #   [x] A  Freeze the master command-result contracts             refactor
-#   [ ] B  Validate existing AND prospective schedule at add time  audit 3
+#   [x] B  Validate existing AND prospective schedule at add time  audit 3
 #   [ ] D  Return typed codes from entry shape validation          refactor
 #   [ ] E1 Entry element types, arity and day range                audit 7a
 #   [ ] C  Duplicate solo/group friend sets in validate_existing   audit 2
@@ -218,13 +218,74 @@ func test_details_for_unregistered_action() -> void:
 	assert_eq(result.get("details"), {"action_id": "unknown"}, "exact details keys")
 
 
-func test_details_for_duplicate_entry() -> void:
-	# Retired by commit B; pinned here because commit A freezes every contract that exists today.
+func test_duplicate_entry_is_retired_in_favour_of_the_standard_collision_codes() -> void:
+	# `duplicate_entry` was ambiguous: it fired for an action collision but read like an entry_id
+	# collision. Collisions now report exactly one of duplicate_entry_id / duplicate_slot_index /
+	# duplicate_action_id / duplicate_friend_date, from validate_existing, for Add and Done alike.
 	var existing := [_entry("a", 0, "action", "rest")]
 	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
 		existing, _entry("b", 1, "action", "rest"), 3, 6, _eligibility(["rest"]))
-	assert_eq(result.get("code"), &"duplicate_entry", "typed rejection")
+	assert_eq(result.get("code"), &"duplicate_action_id", "the standardized collision code")
 	assert_eq(result.get("details"), {"action_id": "rest"}, "exact details keys")
+
+
+# ---- the Add/Done law (commit B) ----
+#
+# If Add accepts a candidate, the resulting schedule MUST pass Done validation. validate_candidate
+# therefore validates the existing schedule first, then the candidate, then the PROSPECTIVE
+# schedule (existing + candidate). An existing-schedule failure always wins and propagates
+# byte-for-byte, because a corrupt board is a more fundamental fault than a bad new entry.
+
+func test_a_candidate_reusing_an_existing_entry_id_is_rejected() -> void:
+	# The gap the prospective-schedule stage exists to close: nothing in validate_candidate ever
+	# compared entry_ids, so Add accepted a candidate that Done would immediately reject.
+	var existing := [_entry("a", 0, "action", "rest")]
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		existing, _entry("a", 1, "action", "training"), 3, 6, _eligibility(["training"]))
+	assert_false(result.get("ok", false), "an entry_id cannot be reused")
+	assert_eq(result.get("code"), &"duplicate_entry_id", "typed rejection")
+
+
+func test_whatever_add_accepts_done_also_accepts() -> void:
+	# The law itself, asserted over the accepting cases rather than a single example.
+	var existing := [_date_entry("d1", 0, "solo", "solo:priscilla:day3", ["priscilla"])]
+	var candidates: Array = [
+		_entry("a1", 1, "action", "rest"),
+		_date_entry("d2", 2, "solo", "solo:lavinia:day3", ["lavinia"]),
+	]
+	for candidate: Dictionary in candidates:
+		var added: Dictionary = SCHEDULE_RULES.validate_candidate(
+			existing, candidate, 3, 6, _eligibility(["rest", "solo:lavinia:day3"]))
+		if not added.get("ok", false):
+			continue
+		var prospective: Array = existing.duplicate()
+		prospective.append(candidate)
+		assert_true(SCHEDULE_RULES.validate_existing(prospective, 3).get("ok", false),
+			"Add accepted a candidate Done rejects: " + str(candidate))
+
+
+func test_a_broken_existing_schedule_is_rejected_before_the_candidate() -> void:
+	var broken := [_entry("a", 0, "action", "rest"), _entry("b", 1, "action", "rest")]
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		broken, _entry("c", 2, "action", "training"), 3, 6, _eligibility(["training"]))
+	assert_eq(result.get("code"), &"duplicate_action_id", "the existing schedule's own failure")
+	assert_eq(result.get("details"), {"action_id": "rest"},
+		"propagated byte-for-byte, naming the EXISTING collision and not the candidate")
+
+
+func test_an_existing_schedule_failure_outranks_insufficient_motivation() -> void:
+	# A corrupt board is the more fundamental fault, so it must not be masked by the cheap check.
+	var broken := [_entry("a", 0, "action", "rest"), _entry("b", 1, "action", "rest")]
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		broken, _entry("c", 2, "action", "training"), 3, 0, _eligibility(["training"]))
+	assert_eq(result.get("code"), &"duplicate_action_id", "the board is judged before the wallet")
+
+
+func test_a_valid_add_against_a_valid_board_still_succeeds() -> void:
+	var existing := [_date_entry("d1", 0, "solo", "solo:priscilla:day3", ["priscilla"])]
+	var result: Dictionary = SCHEDULE_RULES.validate_candidate(
+		existing, _entry("a1", 1, "action", "rest"), 3, 6, _eligibility(["rest"]))
+	assert_true(result.get("ok", false), "three new stages must not reject a legal add: " + str(result))
 
 
 func test_details_for_duplicate_friend_date() -> void:

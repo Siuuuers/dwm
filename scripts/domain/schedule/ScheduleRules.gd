@@ -76,6 +76,13 @@ static func validate_existing(schedule: Array, day: int) -> Dictionary:
 	return _ok()
 
 static func validate_candidate(existing: Array, candidate: Dictionary, day: int, motivation: int, eligibility: Dictionary) -> Dictionary:
+	# THE ADD/DONE LAW: if Add accepts a candidate, the resulting schedule must pass Done
+	# validation. The board is therefore judged FIRST and its failure propagates byte-for-byte --
+	# a corrupt board is a more fundamental fault than a bad new entry, and it must not be masked
+	# by the cheaper checks below.
+	var board := validate_existing(existing, day)
+	if not board.get("ok", false):
+		return board
 	if motivation <= 0:
 		return _fail(&"no_motivation", "adding a schedule entry costs motivation",
 			{"motivation": motivation})
@@ -95,13 +102,6 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 		if not desync.is_empty():
 			return _fail(&"day7_candidate_not_synchronized", desync, {"reason": desync})
 	var candidate_slot := int(candidate.get("slot_index", -1))
-	for entry: Dictionary in existing:
-		if str(entry.get("action_id", "")) == action_id:
-			return _fail(&"duplicate_entry", "action %s is already scheduled" % action_id,
-				{"action_id": action_id})
-		if int(entry.get("slot_index", -1)) == candidate_slot:
-			return _fail(&"duplicate_slot_index", "slot %d is already taken" % candidate_slot,
-				{"slot_index": candidate_slot})
 	var candidate_type := str(candidate["type"])
 	if candidate_type in DATE_TYPES:
 		# Preserved legacy rule: Day-4 Priscilla only lands in the first slot.
@@ -126,6 +126,15 @@ static func validate_candidate(existing: Array, candidate: Dictionary, day: int,
 		if date_count + 1 > allowed:
 			return _fail(&"too_many_dates", "day %d allows %d date(s)" % [day, allowed],
 				{"day": day, "date_count": date_count + 1, "allowed": allowed})
+	# Collisions between the candidate and the board are the SAME question Done asks, so they are
+	# answered by the same code path rather than by a parallel loop that could drift from it. This
+	# is what retired the ambiguous `duplicate_entry`: entry_id, slot_index, action_id and
+	# friend-set collisions now all report validate_existing's standardized codes.
+	var prospective: Array = existing.duplicate()
+	prospective.append(candidate.duplicate(true))
+	var prospective_result := validate_existing(prospective, day)
+	if not prospective_result.get("ok", false):
+		return prospective_result
 	return _ok()
 
 
