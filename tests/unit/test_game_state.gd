@@ -643,3 +643,40 @@ func test_gallery_record_recovers_forward_after_a_partial_profile_failure() -> v
 	assert_true(profile.has_gallery_unlock("ending.sylvia.special"), "primary still recorded")
 	assert_true(profile.has_gallery_unlock("ending.priscilla_lavinia"), "epilogue now recorded")
 	assert_eq((profile.get_profile_snapshot()["gallery_unlocks"] as Array).count("ending.sylvia.special"), 1, "primary recorded exactly once")
+
+
+# ---- Schedule action authority (Plan 01 Task 2, dwm-wks) ----
+# GameState held a second, private copy of the Schedule effect table. Route, effects, cost and kind
+# come only from the registry fingerprint, so that duplicate is retired here rather than ignored.
+
+func test_game_state_no_longer_owns_a_duplicate_schedule_effect_table() -> void:
+	var constants: Dictionary = GameState.get_script().get_script_constant_map()
+	assert_false(constants.has("_SCHEDULE_ACTION_EFFECTS"),
+		"expected RED: GameState._SCHEDULE_ACTION_EFFECTS is a second source of Schedule "
+			+ "effect truth and must be replaced by ScheduleActionRegistry lookups")
+
+
+func test_ordinary_schedule_effects_are_read_from_the_registry() -> void:
+	# reset_game() leaves day 1, where every ordinary action and solo:priscilla:day1 are registered.
+	assert_true(GameState.add_schedule_action("working"), "an ordinary action is schedulable")
+	var entries: Array = GameState.schedule_entries
+	assert_eq(entries.size(), 1, "exactly one entry was appended")
+	if entries.is_empty():
+		return
+	var entry: Dictionary = entries[0]
+	assert_eq(entry.get("effect_ids"), ["pressure:+2", "health:-2", "money:+30"],
+		"the effects are the registry record, in canonical order")
+	assert_eq(entry.get("motivation_cost"), 1, "cost is the registry cost")
+
+
+func test_the_legacy_facade_still_rejects_non_ordinary_action_ids() -> void:
+	# Registry membership alone is insufficient: date identities are reachable only through the
+	# dating branch, so the legacy add path must keep rejecting them exactly as it did before.
+	assert_eq(GameState.can_add_schedule_action("mystery_action").get("reason"), "unknown_action",
+		"an unregistered action is still unknown_action")
+	assert_eq(GameState.can_add_schedule_action("solo:priscilla:day1").get("reason"),
+		"unknown_action",
+		"a registered DATE identity is not addable through the ordinary legacy path")
+	assert_false(GameState.add_schedule_action("solo:priscilla:day1"),
+		"the date identity is refused without mutation")
+	assert_eq(GameState.schedule_entries.size(), 0, "a refused add appends nothing")

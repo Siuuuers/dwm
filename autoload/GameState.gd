@@ -4,9 +4,13 @@ extends Node
 # Authority: prompt_docs/INDEX.md (runtime ownership, dating, persistence, and narrative
 # requirement packets). No human-facing prose; machine-precise, contradiction-free.
 #
-# Static data tables (_INVITATION_DAYS, _CONTACT_MESSAGE_ORDER, _SCHEDULE_ACTION_EFFECTS) are
-# embedded here so this autoload loads even before scripts/data/DataCatalog.gd exists. Their
-# values are mirrored by DataCatalog and must remain equal to its canonical tables.
+# Static data tables (_INVITATION_DAYS, _CONTACT_MESSAGE_ORDER) are embedded here so this autoload
+# loads even before scripts/data/DataCatalog.gd exists. Their values are mirrored by DataCatalog
+# and must remain equal to its canonical tables.
+#
+# Schedule action facts are NOT among them. Route, effects, motivation cost, kind, participants and
+# repeatability come only from ScheduleActionRegistry's fingerprinted v1 manifest (dwm-wks); this
+# autoload holds no second copy.
 
 # ---- Constants ----
 const SAVE_SCHEMA_VERSION := 1
@@ -52,12 +56,6 @@ const _MINESWEEPER_TASK_IDS := [
 	"no_flag_finish", "foresight_finish", "perfect_beginner",
 	"perfect_intermediate", "perfect_expert", "win_win_win",
 ]
-const _SCHEDULE_ACTION_EFFECTS := {
-	"training": ["pressure:+1", "health:+2"],
-	"working": ["pressure:+2", "health:-2", "money:+30"],
-	"rest": ["pressure:-2", "health:+1"],
-}
-
 const _MINESWEEPER_MONEY_REWARD := {
 	"beginner": {
 		"exploded": {"money": 1, "pressure": 0},
@@ -131,6 +129,7 @@ const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/Game
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
 const _SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
+const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
 var _mutation_gate: Object = null
@@ -984,9 +983,26 @@ func can_add_schedule_action(action_id: String, friend_id: String = "") -> Dicti
 		if not _can_add_date_entry({"type": "solo", "friend_id": friend_id}):
 			return {"ok": false, "reason": "date_invalid"}
 		return {"ok": true}
-	if not _SCHEDULE_ACTION_EFFECTS.has(action_id):
+	if _ordinary_action_record(action_id).is_empty():
 		return {"ok": false, "reason": "unknown_action"}
 	return {"ok": true}
+
+
+## The registry record for an ORDINARY Schedule action, or {} when the id is unregistered, is not
+## ordinary, or the registry itself failed to load. Date identities live in the registry too, but
+## this legacy facade reaches them only through the `dating` branch above, so filtering by kind
+## keeps the pre-registry add/remove behaviour byte-identical. A registry that fails to load fails
+## closed here rather than inventing a new reason string for callers that match on the old one.
+func _ordinary_action_record(action_id: String) -> Dictionary:
+	var loaded: Dictionary = _SCHEDULE_ACTION_REGISTRY.load_current()
+	if not loaded.get("ok", false):
+		return {}
+	var registry: Object = (loaded["value"] as Dictionary)["registry"]
+	var found: Dictionary = registry.find_record(action_id)
+	if not found.get("ok", false):
+		return {}
+	var record: Dictionary = (found["value"] as Dictionary)["record"]
+	return record if str(record["action_kind"]) == "ordinary" else {}
 
 
 func add_schedule_action(action_id: String, friend_id: String = "") -> bool:
@@ -998,11 +1014,12 @@ func add_schedule_action(action_id: String, friend_id: String = "") -> bool:
 	var res: Dictionary = can_add_schedule_action(action_id)
 	if not res.get("ok", false):
 		return false
+	var record: Dictionary = _ordinary_action_record(action_id)
 	var entry: Dictionary = {
 		"id": action_id,
 		"type": action_id,
-		"motivation_cost": 1,
-		"effect_ids": _SCHEDULE_ACTION_EFFECTS[action_id].duplicate(),
+		"motivation_cost": int(record["motivation_cost"]),
+		"effect_ids": (record["effect_ids"] as Array).duplicate(),
 		"requires_friend": false,
 	}
 	schedule_entries.append(entry)
@@ -1067,7 +1084,7 @@ func validate_schedule() -> Dictionary:
 				return {"ok": false, "reason": "invalid_date"}
 			date_count += 1
 		else:
-			if not _SCHEDULE_ACTION_EFFECTS.has(t):
+			if _ordinary_action_record(t).is_empty():
 				return {"ok": false, "reason": "unknown_action"}
 	if date_count > get_max_scheduled_dates_for_current_day():
 		return {"ok": false, "reason": "too_many_dates"}
