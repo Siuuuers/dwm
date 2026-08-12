@@ -4,11 +4,12 @@ kind: design_amendment
 schema_version: 1
 amends: spec.seven_day_dialogic_flow
 amends_path: "docs/design/2026-08-07-seven-day-dialogic-flow-design.md"
-decision_status: proposed
+decision_status: accepted
 conversational_design_status: approved
-written_spec_status: proposed
+written_spec_status: approved
 self_review_status: passed
 self_reviewed_on: "2026-08-12"
+written_spec_approved_on: "2026-08-12"
 implementation_authorized: false
 created_on: "2026-08-12"
 engine_line: godot_4_6
@@ -21,15 +22,15 @@ scope: ["gallery_rehearsal_archive_information_architecture","gallery_discovery_
 
 ## 1. Status and objective
 
-This proposed written amendment records the conversationally approved Gallery
-and Rehearsal archive design.
+This accepted written amendment records the approved Gallery and Rehearsal
+archive design.
 
-The conversational design is approved. This exact written artifact remains
-proposed until the user reviews and approves it after self-review. It does not
-authorize implementation. Requirement packets, authority registries, Beads,
-hash-bound plans, profile schemas, manifests, scenes, localization, tests, art,
-audio, and runtime code remain unchanged until separately reconciled and
-explicitly authorized.
+The user approved this exact self-reviewed artifact on 2026-08-12. That
+approval establishes bounded design authority but does not authorize
+implementation. Requirement packets, authority registries, Beads, hash-bound
+plans, profile schemas, manifests, scenes, localization, tests, art, audio, and
+runtime code remain unchanged until separately reconciled and explicitly
+authorized.
 
 The chosen experience is one **maintained university archive with two truthful
 registers**:
@@ -56,7 +57,7 @@ The design has six objectives:
 ### 1.1 Accepted derived closures
 
 The conversation fixed the product direction. The following derived closures
-are also part of this proposal so the result is deterministic and testable:
+are also part of this amendment so the result is deterministic and testable:
 
 - Canonical eligible entries are recorded from the beginning of a profile. The
   first completed ending milestone gates Rehearsal projection; it does not begin
@@ -1896,7 +1897,7 @@ Verify:
   work rather than silently edited; and
 - design approval alone leaves runtime and Beads unchanged.
 
-## 27. Written-artifact approval gate
+## 27. Acceptance and next work
 
 The user has approved the complete conversational design, including:
 
@@ -1915,5 +1916,10 @@ The user has approved the complete conversational design, including:
 - quiet History feedback; and
 - the maintained university microfiche/index visual direction.
 
-This written artifact remains proposed until the user approves these exact
-bytes after self-review. Implementation remains unauthorized.
+The user approved this exact self-reviewed artifact on 2026-08-12. It now
+records `decision_status: accepted`, `written_spec_status: approved`, and
+`self_review_status: passed`.
+
+Implementation remains unauthorized. The next implementation step, if
+separately authorized after authority reconciliation, is a reviewed successor
+plan; approval creates no automatic runtime or Beads work.
