@@ -3,6 +3,7 @@ extends SceneTree
 const STRICT_JSON := preload("res://tools/evidence/EvidenceValidator.gd")
 const VALIDATOR := preload("res://tools/docs/DocValidator.gd")
 const GENERATOR := preload("res://tools/docs/DocIndexGenerator.gd")
+const DESIGN_REGISTRY := preload("res://tools/docs/DesignAuthorityRegistry.gd")
 
 func _load_snapshot_or_quit() -> Array[Dictionary]:
 	var values: Array[String] = []
@@ -26,6 +27,11 @@ func _load_snapshot_or_quit() -> Array[Dictionary]:
 
 func _init() -> void:
 	var snapshot := _load_snapshot_or_quit()
+	var design_authority := DESIGN_REGISTRY.new().validate("res://", "res://prompt_docs/metadata/design_authority_registry.v1.json")
+	if not design_authority.ok:
+		printerr(JSON.stringify(design_authority.errors))
+		quit(1)
+		return
 	var result := VALIDATOR.new().validate_tree("res://prompt_docs", snapshot)
 	if not result.ok:
 		printerr(JSON.stringify(result.errors))
@@ -36,5 +42,5 @@ func _init() -> void:
 		printerr(JSON.stringify(workflow.errors))
 		quit(1)
 		return
-	print("DOC_VALIDATION: PASS packets=%d agent_workflow=1" % result.packets.size())
+	print("DOC_VALIDATION: PASS packets=%d design_authorities=%d agent_workflow=1" % [result.packets.size(), design_authority.records.size()])
 	quit(0)

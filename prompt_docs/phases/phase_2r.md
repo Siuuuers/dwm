@@ -3,9 +3,9 @@ id: phase.phase_2r
 kind: phase_packet
 schema_version: 1
 specification_status: approved
-beads: ["dwm-p2r.1","dwm-p2r.2","dwm-p2r.3","dwm-p2r.4","dwm-p2r.5","dwm-p2r.6","dwm-p2r.7","dwm-p2r.8","dwm-p2r.9","dwm-p2r.10"]
+beads: ["dwm-p2r.1","dwm-p2r.2","dwm-p2r.3","dwm-p2r.4","dwm-p2r.5","dwm-p2r.6","dwm-p2r.7","dwm-p2r.8","dwm-p2r.9","dwm-p2r.10","dwm-p2r.12","dwm-wks","dwm-p2r.16","dwm-p2r.13","dwm-p2r.14","dwm-p2r.15"]
 requirements: []
-depends_on: ["req_packet.authority_context","req_packet.documentation_tooling","req_packet.runtime_ownership","req_packet.run_lifecycle","req_packet.dating_endings","req_packet.contacts_invitations","req_packet.persistence","req_packet.dialogic_skip","req_packet.desktop_minesweeper_handoff","req_packet.audio_preferences","req_packet.localization","req_packet.verification"]
+depends_on: ["req_packet.authority_context","req_packet.documentation_tooling","req_packet.runtime_ownership","req_packet.run_lifecycle","req_packet.dating_endings","req_packet.contacts_invitations","req_packet.persistence","req_packet.dialogic_skip","req_packet.desktop_minesweeper_handoff","req_packet.schedule","req_packet.audio_preferences","req_packet.localization","req_packet.verification"]
 ---
 
 # Phase 2R

@@ -3,6 +3,7 @@ extends SceneTree
 const STRICT_JSON := preload("res://tools/evidence/EvidenceValidator.gd")
 const VALIDATOR := preload("res://tools/docs/DocValidator.gd")
 const GENERATOR := preload("res://tools/docs/DocIndexGenerator.gd")
+const DESIGN_REGISTRY := preload("res://tools/docs/DesignAuthorityRegistry.gd")
 
 func _load_snapshot_or_quit() -> Array[Dictionary]:
 	var values: Array[String] = []
@@ -26,6 +27,8 @@ func _load_snapshot_or_quit() -> Array[Dictionary]:
 
 func _init() -> void:
 	var snapshot := _load_snapshot_or_quit()
+	var design_authority := DESIGN_REGISTRY.new().validate("res://", "res://prompt_docs/metadata/design_authority_registry.v1.json")
+	if not design_authority.ok: printerr(JSON.stringify(design_authority.errors)); quit(1); return
 	var validator := VALIDATOR.new()
 	var result := validator.validate_tree("res://prompt_docs", snapshot)
 	result.errors = result.errors.filter(func(error: String) -> bool: return not error.begins_with("DOC_INDEX_DRIFT:"))

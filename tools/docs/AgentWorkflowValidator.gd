@@ -3,7 +3,9 @@ extends RefCounted
 
 const FRONTMATTER := preload("res://tools/docs/DocFrontmatter.gd")
 const RESOLVER := preload("res://tools/docs/AgentWorkflowAuthorityResolver.gd")
+const DESIGN_REGISTRY := preload("res://tools/docs/DesignAuthorityRegistry.gd")
 const GUIDE_PATH := "docs/agent/AGENT_WORKFLOW.md"
+const PHASE2R_SPECIFICATION_ID := "spec.phase_2r.foundation_repair"
 const GUIDE_FIELDS := [&"schema_version", &"document_id", &"document_role", &"execution_authority", &"status_authority", &"behavior_authority", &"verification_authority", &"capability_intentions"]
 const AUTHORITY_VALUES := {&"document_role":"navigation_only", &"execution_authority":false, &"status_authority":false, &"behavior_authority":false, &"verification_authority":false}
 const DECISION_ROWS := {
@@ -23,6 +25,8 @@ const INTENTION_ID_PATTERN := "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
 const DECISION_HEADING := "## Decision table"
 const DECISION_HEADER := "| decision_id | exact action |"
 const DECISION_SEPARATOR := "|---|---|"
+const PROMPT_SELECTOR_SHA256 := "94d0778266f86d694ab010701da40a3f21e3fae968a09b690068def95a982fdc"
+const POWERSHELL_FENCE := "```powershell\n"
 
 func validate_files(prompt_path: String = "res://Prompt.md", beads_snapshot: Array[Dictionary] = []) -> Dictionary:
 	var prompt := FRONTMATTER.parse_file(prompt_path)
@@ -42,7 +46,27 @@ func validate_files(prompt_path: String = "res://Prompt.md", beads_snapshot: Arr
 	if not guide_source.ok:
 		return _result(["AGENT_WORKFLOW_GUIDE_INVALID: " + guide_path])
 	var resolver: RefCounted = RESOLVER.new(repository_root, beads_snapshot)
-	return validate_pair(prompt_source.text, guide_source.text, resolver)
+	var result := validate_pair(prompt_source.text, guide_source.text, resolver)
+	var errors: Array[String] = []
+	errors.assign(result.get("errors", []))
+	_validate_prompt_selector(prompt_source.text, errors)
+	_validate_prompt_authority_pointers(prompt.frontmatter, repository_root, resolver, errors)
+	return _result(errors)
+
+func validate_selector_text(prompt_text: String) -> Dictionary:
+	var errors: Array[String] = []
+	_validate_prompt_selector(prompt_text, errors)
+	return _result(errors)
+
+func validate_prompt_authorities(prompt_text: String, repository_root: String = "res://", beads_snapshot: Array[Dictionary] = []) -> Dictionary:
+	var prompt := FRONTMATTER.parse_text(prompt_text, "Prompt.md")
+	if not prompt.ok:
+		return _result(["AGENT_WORKFLOW_PROMPT_INVALID: " + JSON.stringify(prompt.errors)])
+	var root := _normalize_root(repository_root)
+	var resolver: RefCounted = RESOLVER.new(root, beads_snapshot)
+	var errors: Array[String] = []
+	_validate_prompt_authority_pointers(prompt.frontmatter, root, resolver, errors)
+	return _result(errors)
 
 func validate_pair(prompt_text: String, guide_text: String, resolver: RefCounted = null) -> Dictionary:
 	var errors: Array[String] = []
@@ -129,6 +153,78 @@ func _validate_text(guide_text: String, body: String, errors: Array[String]) -> 
 		if line.begins_with("capability_intentions:"):
 			errors.append("AGENT_WORKFLOW_GUIDE_INVALID: body capability_intentions")
 	_validate_decision_matrix(body_lines, errors)
+
+func _validate_prompt_selector(prompt_text: String, errors: Array[String]) -> void:
+	var normalized := prompt_text.replace("\r\n", "\n").replace("\r", "\n")
+	var opening := normalized.find(POWERSHELL_FENCE)
+	if opening < 0 or normalized.find(POWERSHELL_FENCE, opening + POWERSHELL_FENCE.length()) >= 0:
+		errors.append("AGENT_WORKFLOW_SELECTOR_INVALID: powershell fence")
+		return
+	var body_start := opening + POWERSHELL_FENCE.length()
+	var closing := normalized.find("\n```", body_start)
+	if closing < 0:
+		errors.append("AGENT_WORKFLOW_SELECTOR_INVALID: closing fence")
+		return
+	var selector := normalized.substr(body_start, closing - body_start)
+	if selector.sha256_text() != PROMPT_SELECTOR_SHA256:
+		errors.append("AGENT_WORKFLOW_SELECTOR_INVALID: selector digest")
+
+func _validate_prompt_authority_pointers(frontmatter: Dictionary, repository_root: String, resolver: RefCounted, errors: Array[String]) -> void:
+	var specification_path: Variant = frontmatter.get("specification_authority", null)
+	var plan_path: Variant = frontmatter.get("plan_authority", null)
+	var suite_path: Variant = frontmatter.get("plan_suite_authority", null)
+	for pointer: Variant in [specification_path, plan_path, suite_path]:
+		if typeof(pointer) != TYPE_STRING or not _is_safe_relative_path(pointer) or not _is_regular_non_link_file(repository_root, pointer):
+			errors.append("AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID: " + str(pointer))
+			return
+	var registry_result: Dictionary = DESIGN_REGISTRY.new().validate(repository_root, DESIGN_REGISTRY.DEFAULT_MANIFEST)
+	if not registry_result.get("ok", false):
+		errors.append("AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID: registry")
+		return
+	var records: Array[Dictionary] = []
+	records.assign(registry_result.get("records", []))
+	var specification_matches: Array[Dictionary] = []
+	for record: Dictionary in records:
+		if record.get("path") == specification_path:
+			specification_matches.append(record)
+	if specification_matches.size() != 1:
+		errors.append("AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID: specification_authority")
+		return
+	var specification_record: Dictionary = specification_matches[0]
+	var specification_fields: Dictionary = specification_record.get("fields", {})
+	if (
+		specification_fields.get("id") != PHASE2R_SPECIFICATION_ID
+		or specification_fields.get("conversational_design_status") != "approved"
+		or specification_fields.get("written_spec_status") != "approved"
+		or (specification_record.get("kind") == "design_amendment" and specification_fields.get("decision_status") != "accepted")
+	):
+		errors.append("AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID: specification approval")
+		return
+	var plan_resolution: Variant = resolver.resolve({"kind":"plan_path", "target":plan_path})
+	if typeof(plan_resolution) != TYPE_DICTIONARY or not plan_resolution.get("ok", false):
+		errors.append("AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID: plan_authority")
+		return
+	var plan_binding_matches: Array[Dictionary] = []
+	for record: Dictionary in records:
+		var suite: Dictionary = record.get("plan_suite", {})
+		if suite.is_empty():
+			continue
+		for suite_record: Dictionary in suite.get("records", []):
+			if suite_record.get("role") == "roadmap" and suite_record.get("path") == plan_path:
+				plan_binding_matches.append(record)
+	if plan_binding_matches.size() != 1:
+		errors.append("AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID: plan roadmap")
+		return
+	var plan_record: Dictionary = plan_binding_matches[0]
+	var plan_fields: Dictionary = plan_record.get("fields", {})
+	var plan_suite: Dictionary = plan_record.get("plan_suite", {})
+	if (
+		plan_fields.get("implementation_plan_suite_path") != suite_path
+		or plan_fields.get("implementation_plan_suite_status") != "approved"
+		or plan_suite.get("path") != suite_path
+		or plan_suite.get("status") != "approved"
+	):
+		errors.append("AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID: plan_suite_authority")
 
 func _validate_decision_matrix(body_lines: PackedStringArray, errors: Array[String]) -> void:
 	var heading_indexes: Array[int] = []

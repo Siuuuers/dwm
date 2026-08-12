@@ -2,8 +2,9 @@
 schema_version: 1
 kind: agent_entry
 active_phase: phase_2r
-specification_authority: "docs/superpowers/specs/2026-07-17-phase-2r-foundation-repair-design.md"
-plan_authority: "docs/superpowers/plans/2026-07-17-phase-2r-foundation-repair.md"
+specification_authority: "docs/design/2026-08-11-phase-2r-foundation-repair-current-authority.md"
+plan_authority: "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-implementation-roadmap.md"
+plan_suite_authority: "prompt_docs/metadata/desktop_minesweeper_shop_schedule_plan_suite.v1.json"
 issue_authority: beads
 generated_lookup: "prompt_docs/INDEX.md"
 agent_workflow_guide: "docs/agent/AGENT_WORKFLOW.md"
@@ -14,6 +15,10 @@ forbidden_inference: ["specification status from Beads status","implementation s
 # Phase 2R Agent Entry
 
 For a plain-language explanation of authority, status, capability intentions, and stop conditions, read `docs/agent/AGENT_WORKFLOW.md`. That guide is navigation-only; it does not change the active selection rule below.
+
+The specification pointer names the current Phase-2R umbrella identity. The plan and plan-suite pointers separately name the approved bounded amendment procedure; neither relationship grants runtime permission.
+
+For every controlled Phase-2R issue, read execution metadata only from `metadata.phase2r`. If `scope`, `exclusions`, `evidence_links`, `requirement_ids`, or `verification_commands` also appears at metadata top level, stop for namespace reconciliation instead of choosing between conflicting values.
 
 ```powershell
 . ([IO.Path]::GetFullPath('.\tools\testing\Read-StrictJson.ps1'))
@@ -57,7 +62,27 @@ function ConvertFrom-BdTopLevelArray {
 
 & $bdExecutable prime
 if ($LASTEXITCODE -ne 0) { throw 'bd prime failed.' }
-$phaseChildPattern = '^dwm-p2r\.(?:[1-9]|10)$'
+$phaseChildIds = @(
+    # Execution rank, not numeric display order. The already-closed historical
+    # records remain in the closed set; the active tail is deliberately
+    # .12 -> wks -> .16 -> .13 -> .9 -> .14 -> .15 -> .7 -> .10.
+    'dwm-p2r.12', 'dwm-wks', 'dwm-p2r.16', 'dwm-p2r.13', 'dwm-p2r.9', 'dwm-p2r.14',
+    'dwm-p2r.15', 'dwm-p2r.7', 'dwm-p2r.10',
+    'dwm-p2r.1', 'dwm-p2r.2', 'dwm-p2r.3', 'dwm-p2r.4', 'dwm-p2r.5',
+    'dwm-p2r.6', 'dwm-p2r.8'
+)
+$phaseChildRank = @{}
+for ($index = 0; $index -lt $phaseChildIds.Count; $index++) {
+    $phaseChildRank[$phaseChildIds[$index]] = $index
+}
+
+$blockedOutput = @(& $bdExecutable blocked --json --readonly)
+if ($LASTEXITCODE -ne 0) { throw 'bd blocked failed.' }
+$blockedJson = [string]::Join([Environment]::NewLine, $blockedOutput)
+$blockedIds = @{}
+ConvertFrom-BdTopLevelArray -Json $blockedJson -CommandName 'bd blocked' |
+    Where-Object { $phaseChildIds -contains [string]$_.id } |
+    ForEach-Object { $blockedIds[[string]$_.id] = $true }
 
 $inProgressOutput = @(& $bdExecutable list --status in_progress --json --readonly)
 if ($LASTEXITCODE -ne 0) { throw 'bd list --status in_progress failed.' }
@@ -65,9 +90,10 @@ $inProgressJson = [string]::Join([Environment]::NewLine, $inProgressOutput)
 $inProgressChildren = @(
     ConvertFrom-BdTopLevelArray -Json $inProgressJson -CommandName 'bd list --status in_progress' |
         Where-Object {
-            ([string]$_.id -match $phaseChildPattern) -and
+            ($phaseChildIds -contains [string]$_.id) -and
             ([string]$_.issue_type -notin @('epic', 'decision')) -and
-            ([string]$_.status -eq 'in_progress')
+            ([string]$_.status -eq 'in_progress') -and
+            (-not $blockedIds.ContainsKey([string]$_.id))
         }
 )
 if ($inProgressChildren.Count -gt 1) {
@@ -83,15 +109,15 @@ if ($inProgressChildren.Count -eq 1) {
     $readyChildren = @(
         ConvertFrom-BdTopLevelArray -Json $readyJson -CommandName 'bd ready' |
             Where-Object {
-                ([string]$_.id -match $phaseChildPattern) -and
+                ($phaseChildIds -contains [string]$_.id) -and
                 ([string]$_.issue_type -notin @('epic', 'decision')) -and
                 ([string]$_.status -eq 'open')
             }
     )
     $activeIssue = $readyChildren |
         Sort-Object `
-            @{Expression = {[int]$_.priority}; Ascending = $true}, `
-            @{Expression = {[int](([string]$_.id -split '\.')[-1])}; Ascending = $true} |
+            @{Expression = {[int]$phaseChildRank[[string]$_.id]}; Ascending = $true}, `
+            @{Expression = {[int]$_.priority}; Ascending = $true} |
         Select-Object -First 1
 }
 if ($null -eq $activeIssue) { throw 'No in-progress or ready Phase 2R child; stop without inventing work.' }

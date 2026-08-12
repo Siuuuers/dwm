@@ -48,6 +48,9 @@ func test_validator_error_matrix() -> void:
 	assert_true(_has_code(_validate_fixture(["approved_placeholder.md"]), "DOC_APPROVED_PLACEHOLDER"))
 	assert_true(_has_code(_validate_fixture(["beads_metadata_drift.md"], _snapshot(["req.wrong"])), "DOC_BEAD_METADATA_DRIFT"))
 	assert_true(_has_code(_validate_fixture(["valid_packet.md"]), "DOC_BEAD_SNAPSHOT_REQUIRED"))
+	var ambiguous := _snapshot(["req.run.day_range"])
+	ambiguous[0].metadata["requirement_ids"] = ["req.legacy"]
+	assert_true(_has_code(_validate_fixture(["valid_packet.md"], ambiguous), "DOC_BEAD_METADATA_NAMESPACE_AMBIGUOUS"))
 
 func _write_decision_fixture(specification_status: String, decision_status: String, blocking_ids: Array[String] = []) -> Dictionary:
 	_counter += 1

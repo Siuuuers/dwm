@@ -3,7 +3,7 @@ id: spec.desktop_minesweeper_shop_schedule_amendment
 kind: design_amendment
 schema_version: 1
 amends: spec.seven_day_dialogic_flow
-amends_path: docs/design/2026-08-07-seven-day-dialogic-flow-design.md
+amends_path: "docs/design/2026-08-07-seven-day-dialogic-flow-design.md"
 decision_status: accepted
 conversational_design_status: approved
 written_spec_status: approved
@@ -11,6 +11,9 @@ self_review_status: passed
 self_reviewed_on: 2026-08-11
 written_spec_approved_on: 2026-08-11
 implementation_authorized: false
+implementation_plan_suite_path: "prompt_docs/metadata/desktop_minesweeper_shop_schedule_plan_suite.v1.json"
+implementation_plan_suite_status: approved
+implementation_plan_suite_sha256: "9d1ef6f0b8874516cd52b4e79da97368f4e89022ec9817654ffa05881bc6b3cc"
 created_on: 2026-08-11
 engine_line: godot_4_6
 verification_engine: 4.6.3-stable-mono
@@ -35,9 +38,10 @@ designing the UI/UX, visual-art, and music/audio manuals.
 
 The user approved this written amendment on 2026-08-11. It is the accepted
 product and domain authority for its bounded scope, but it does not authorize
-implementation. Requirement packets, Beads acceptance criteria, hash-bound
-plans, schemas, tests, and runtime code must be reconciled separately and only
-with explicit execution authority.
+implementation. The approved requirement packets, reconciled Beads acceptance
+criteria, and hash-bound plan suite still do not authorize runtime work;
+schemas, code, tests, and evidence may change only with explicit execution
+authority.
 
 The objective is to preserve three qualities at once:
 
@@ -84,13 +88,14 @@ save, and presentation-only rule remains unchanged.
 At the time of writing:
 
 - Beads epic dwm-oyo and its seven implementation children remain open.
-- Beads issue dwm-p2r.9 still requires the old lifetime save lock and active
-  board logout rejection.
-- The August roadmap and child plans remain proposed and hash-bound.
+- Beads issue dwm-p2r.9 is reconciled to the new desktop, Minesweeper, Shop,
+  persistence, and causal contracts and remains open.
+- The August roadmap and child plans are approved and hash-bound after
+  fresh-audit repair.
 - Runtime implementation remains unauthorized.
 
-This amendment does not modify any of those artifacts. It identifies the
-required reconciliation work without pretending that work has occurred.
+This amendment records those reconciliations while leaving implementation and
+live issue status to their owning authorities.
 
 ## 3. Scope boundary
 
@@ -389,7 +394,16 @@ causal context. They do not carry a desktop board into another day.
 - A board whose terminal completion transaction committed before a competing
   condition-driven departure transaction is completed, not forfeited.
 
-On Days 1–6 the condition-driven departure remains the existing Hospital path.
+Days 1–6 retain August's two distinct Hospital entry forms. Hospital reached
+after Schedule Done consumes the real committed Schedule. Hospital reached
+immediately after a qualifying Minesweeper app round or Shop purchase while
+Done is still open is a separate pre-Done condition resolution: it discards the
+uncommitted Schedule view without committing or charging it, never substitutes
+a synthetic empty committed Schedule, and consumes the exact already-read or
+accepted unfulfilled invitation receipts. That durable resolution owns the
+Hospital misses, optional Sylvia witness, physical presentation, deferred-pair
+ordering, and day advance before another desktop input is accepted.
+
 On Day 7 this amendment defers to August's exact precedence: qualifying faint
 with Sylvia already read begins Sylvia Special then Sylvia Totally Dark;
 qualifying faint with Sylvia unread resolves Hospital-cause Normal Alone; and
@@ -539,14 +553,19 @@ accepts a guessing board. If even the certified fallback fails because of a
 technical defect or unsupported configuration, preparation fails truthfully
 and charges nothing.
 
-The end-to-end budget counts generator and verifier operations across every
-candidate, every extra-mine tier, and fallback construction for one preparation
-request. A second smaller constant bounds one resumable work slice. When search
-exhausts its allocation, the remaining reserved allocation invokes the
-certified fallback; the whole request still stays within the one hard bound.
-The exact two constants are implementation-plan values chosen from benchmarks
-on the largest supported board and lowest target Windows device. This design
-does not invent an unevidenced millisecond or iteration number.
+The end-to-end runtime budget counts generator and verifier operations across
+every candidate, every extra-mine tier, and certified-fallback validation and
+adoption for one preparation request. Certified fallback construction is an
+offline, deterministic tooling pass with its own fixed tooling-only safety
+ceiling; it runs before a runtime budget exists and fails instead of publishing
+an incomplete manifest. A second smaller runtime constant bounds one resumable
+work slice. When search exhausts its allocation, the remaining reserved
+allocation validates and adopts the certified fallback; the whole runtime
+request still stays within the one hard bound. The exact runtime constants are
+implementation-plan values derived only after the fallback corpus is complete
+and benchmarked on the largest supported board and lowest target Windows
+device. This design does not invent an unevidenced millisecond or iteration
+number and never substitutes the tooling ceiling for a runtime budget.
 
 ### 7.7 Board scopes and isolation
 
@@ -1151,6 +1170,14 @@ cleanup share a recoverable transaction/journal. A crash cannot duplicate
 rewards, group activation, contact effects, or notifications, or leave a
 terminal board playable.
 
+For a Days 1–6 immediate Hospital destination, action-transaction cleanup is
+not permission to accept another input. The unpublished destination durably
+blocks desktop admission until the distinct condition-Hospital owner accepts
+the exact intent and source receipts; only that acceptance may mark the outbox
+published. Presentation and day advance then resume from that owner's durable
+plan. This successor never calls Schedule Done or the committed-Schedule
+day-resolution start port.
+
 ### 12.6 Shop order
 
 An ordinary Shop command:
@@ -1172,6 +1199,10 @@ candidate is discarded instead.
 The purchase is never undone. The exact Days 1–6 Hospital or Day 7 terminal
 destination wins the route and suppresses later ordinary invitation
 notification according to August law.
+
+The Days 1–6 pre-Done Hospital successor follows the same no-Schedule rule as
+board completion: it does not reinterpret the current draft as committed,
+charge motivation, or forge an empty Done receipt.
 
 ### 12.7 Schedule Done order
 
@@ -1251,26 +1282,24 @@ not named. Unrelated conflicts continue to follow the authority ladder.
 ## 14. Reconciliation path
 
 Following explicit user acceptance on 2026-08-11, the following ordered
-handoff is required before runtime work:
+authority handoff governs runtime work:
 
-1. Record written acceptance and its approval date in frontmatter. This step
-   is complete in this document.
-2. Register and validate the design_amendment kind and docs/design path so
-   machine authority resolution can discover this amendment.
-3. Reconcile authority-context and requirement/decision packets with new or
-   replaced requirement IDs.
-4. Amend Beads acceptance and metadata, especially dwm-p2r.9 and affected
-   dwm-oyo children, without falsely closing unimplemented work.
-5. Create and review a plan amendment for every affected hash-bound August
-   plan; record new hashes rather than silently editing the accepted trail.
+1. Record written acceptance and its approval date in frontmatter. Complete.
+2. Register and validate the design amendment so machine authority resolution
+   can discover it. Complete.
+3. Reconcile authority context and requirement/decision packets with the
+   approved requirement IDs. Complete.
+4. Reconcile Beads acceptance and metadata without falsely closing
+   unimplemented work. Complete.
+5. Create, fresh-audit, approve, and hash-bind the exact roadmap and four-child
+   plan suite. Complete.
 6. Update schemas, interfaces, fixtures, validators, and tests from the
-   reconciled requirements.
+   reconciled requirements after execution authority is granted.
 7. Obtain explicit runtime implementation authorization.
 8. Implement and execute the evidence gate.
 
-Likely affected plan areas are August Plans 00, 02, 03, 04, 05, and 06, plus
-the older Phase-3 desktop/Minesweeper contract plan. The exact plan amendment
-owns file/task decomposition; this design does not.
+The approved plan-suite manifest names the exact roadmap and four child plans
+that own file/task decomposition; this design does not own that decomposition.
 
 ## 15. Verification contract
 
@@ -1384,5 +1413,5 @@ After written acceptance, the design sequence returns to the original goal:
 3. music/audio direction and Godot implementation manual.
 
 Those manuals cite this amendment and the August authority spine. They do not
-copy or silently change the mechanics. Runtime reconciliation and implementation
-planning remain separate work requiring explicit authority.
+copy or silently change the mechanics. Runtime implementation and evidence
+execution remain separate work requiring explicit authority.

@@ -58,6 +58,38 @@ func test_validate_files_rejects_physically_missing_guide() -> void:
 	var result: Dictionary = load(VALIDATOR_PATH).new().validate_files(root.path_join("Prompt.md"), empty_snapshot)
 	assert_true(_has_code(result, "AGENT_WORKFLOW_POINTER_INVALID"), JSON.stringify(result.errors))
 
+func test_repository_selector_is_hash_bound_and_rejects_rank_or_blocker_drift() -> void:
+	var repository_prompt := FileAccess.get_file_as_string("res://Prompt.md")
+	var validator: RefCounted = load(VALIDATOR_PATH).new()
+	var valid: Dictionary = validator.validate_selector_text(repository_prompt)
+	assert_true(valid.ok, JSON.stringify(valid.errors))
+	var rank_drift: Dictionary = validator.validate_selector_text(repository_prompt.replace("'dwm-p2r.12', 'dwm-wks'", "'dwm-p2r.13', 'dwm-wks'"))
+	assert_true(_has_code(rank_drift, "AGENT_WORKFLOW_SELECTOR_INVALID"), JSON.stringify(rank_drift.errors))
+	var blocker_drift: Dictionary = validator.validate_selector_text(repository_prompt.replace("blocked --json --readonly", "blocked --json"))
+	assert_true(_has_code(blocker_drift, "AGENT_WORKFLOW_SELECTOR_INVALID"), JSON.stringify(blocker_drift.errors))
+
+func test_repository_authority_pointers_are_registered_and_hash_bound() -> void:
+	var repository_prompt := FileAccess.get_file_as_string("res://Prompt.md")
+	var validator: RefCounted = load(VALIDATOR_PATH).new()
+	var empty_snapshot: Array[Dictionary] = []
+	var valid: Dictionary = validator.validate_prompt_authorities(repository_prompt, "res://", empty_snapshot)
+	assert_true(valid.ok, JSON.stringify(valid.errors))
+	var specification_drift: Dictionary = validator.validate_prompt_authorities(repository_prompt.replace(
+		"docs/design/2026-08-11-phase-2r-foundation-repair-current-authority.md",
+		"docs/design/2026-08-07-seven-day-dialogic-flow-design.md"
+	), "res://", empty_snapshot)
+	assert_true(_has_code(specification_drift, "AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID"), JSON.stringify(specification_drift.errors))
+	var plan_drift: Dictionary = validator.validate_prompt_authorities(repository_prompt.replace(
+		"docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-implementation-roadmap.md",
+		"docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-01-phase2r-schedule-foundation.md"
+	), "res://", empty_snapshot)
+	assert_true(_has_code(plan_drift, "AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID"), JSON.stringify(plan_drift.errors))
+	var suite_drift: Dictionary = validator.validate_prompt_authorities(repository_prompt.replace(
+		"prompt_docs/metadata/desktop_minesweeper_shop_schedule_plan_suite.v1.json",
+		"prompt_docs/metadata/design_authority_registry.v1.json"
+	), "res://", empty_snapshot)
+	assert_true(_has_code(suite_drift, "AGENT_WORKFLOW_AUTHORITY_POINTER_INVALID"), JSON.stringify(suite_drift.errors))
+
 func test_repository_agent_workflow_files_validate() -> void:
 	var validator: RefCounted = load(VALIDATOR_PATH).new()
 	var empty_snapshot: Array[Dictionary] = []

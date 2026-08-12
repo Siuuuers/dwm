@@ -4,6 +4,7 @@ extends RefCounted
 const FRONTMATTER := preload("res://tools/docs/DocFrontmatter.gd")
 const INDEX_GENERATOR := preload("res://tools/docs/DocIndexGenerator.gd")
 const PACKET_FIELDS := ["id", "kind", "schema_version", "specification_status", "decision_status", "beads", "requirements", "depends_on", "evidence", "scope", "affected_requirement_ids", "blocking_requirement_ids", "recommended_investigation"]
+const PHASE2R_FORBIDDEN_TOP_LEVEL_METADATA_KEYS := ["scope", "exclusions", "evidence_links", "requirement_ids", "verification_commands"]
 const REQUIREMENT_FIELDS := ["id", "depends_on", "implementation_evidence", "verification_evidence"]
 
 func validate_tree(docs_root: String = "res://prompt_docs", beads_snapshot: Array[Dictionary] = [], repository_root: String = "") -> Dictionary:
@@ -285,6 +286,10 @@ func _validate_beads(packets: Array[Dictionary], requirements: Array[Dictionary]
 		var metadata: Variant = issue.get("metadata", null)
 		var phase_metadata: Variant = null
 		if typeof(metadata) == TYPE_DICTIONARY:
+			for forbidden_key: String in PHASE2R_FORBIDDEN_TOP_LEVEL_METADATA_KEYS:
+				if metadata.has(forbidden_key):
+					errors.append("DOC_BEAD_METADATA_NAMESPACE_AMBIGUOUS: %s.%s" % [issue_id, forbidden_key])
+					_mark_bead_packets_invalid(packets, [issue_id], invalid_packet_paths)
 			phase_metadata = metadata.get("phase2r", null)
 		if typeof(phase_metadata) != TYPE_DICTIONARY:
 			var referring_packets := packets.filter(func(packet: Dictionary) -> bool: return issue_id in _safe_string_array(packet.get("beads", null)))

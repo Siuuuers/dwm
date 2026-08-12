@@ -382,19 +382,25 @@ responds differently from an ordinary miss.
 
 If Sylvia has a read/accepted invitation among the unfulfilled dates closed by
 that Hospital resolution, Sylvia comes to the Hospital and witnesses Angela.
-The Hospital resolver—not the DTL presentation—commits one idempotent
-`sylvia_hospital_witness` receipt for that invitation. Therefore:
+The Hospital resolver—not the DTL presentation—derives and persists one
+idempotent `sylvia_hospital_witness` receipt for that invitation. The receipt is
+unapplied handoff truth that freezes the next-day caring entry and its fixed
+future consequence. Therefore:
 
 - Sylvia sends no missed-date question for that event.
-- The next day contains a scripted caring message with no choices or stats.
-- The encounter adds 2 affection and 1 dark point.
-- Sylvia's attitude becomes Fixated.
-- The encounter advances exactly one durable tier regardless of affection:
-  Friend -> Ambiguous, Ambiguous -> Love, or Love remains Love.
+- The next day contains a scripted caring message with no choices.
+- The frozen consequence is 2 affection, 1 dark point, Fixated attitude, and
+  exactly one durable tier advance regardless of affection: Friend ->
+  Ambiguous, Ambiguous -> Love, or Love remains Love.
 - It grants no challenge result, board history, or Perfect mastery.
-- Multiple qualifying Hospital encounters on different invitation windows may
-  each apply this one-step rule, subject to the tier maximum, affection clamp,
-  and dark cap. Replaying or resuming the same encounter cannot apply it twice.
+
+Neither the Hospital resolver nor Hospital/caring presentation applies those
+relationship fields or commits caring history. `dwm-oyo.4` alone validates and
+consumes the exact witness once, applies the frozen fields subject to the tier
+maximum, affection clamp, and dark cap, and commits the caring
+presentation/history transaction. Multiple qualifying Hospital encounters on
+different invitation windows may each produce one independently consumable
+witness; replaying or resuming the same encounter cannot apply it twice.
 
 These earlier encounters enrich Sylvia's route but are not the Day 7 Special
 trigger.
@@ -1098,7 +1104,9 @@ State commits at the causative action, not at arbitrary prose completion:
   relationship outcome only when the post-clear opportunity closes or an
   explosion terminates the board;
 - fixed promotion immediately after result commit;
-- Sylvia Hospital witness effects in the Hospital-resolution receipt;
+- Sylvia Hospital witness derivation in the Hospital-resolution receipt, with
+  its fixed relationship and caring-history effects committed only when
+  `dwm-oyo.4` consumes that receipt;
 - invitation closures, miss reasons, pair mode/count, and first stable-deck draw
   in one day-resolution receipt;
 - pair-board result at that visible board's terminal resolution;

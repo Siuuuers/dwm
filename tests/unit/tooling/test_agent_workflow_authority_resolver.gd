@@ -55,7 +55,8 @@ func _fixture_root() -> String:
 	_write(plan_path, "# Sample plan\n\nOne reviewed procedure.\n")
 	_write(root.path_join("prompt_docs/requirements/sample.md"), "---\nid: req_packet.sample\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.sample\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Sample\n\n## Rule req.sample\n\nSample authority.\n")
 	_write(root.path_join("prompt_docs/decisions/sample.md"), "---\nid: decision.sample\nkind: decision_packet\nschema_version: 1\nspecification_status: approved\ndecision_status: accepted\nbeads: []\nrequirements: []\ndepends_on: []\nevidence: [\"accepted by user\"]\nscope: [\"sample\"]\naffected_requirement_ids: [\"req.sample\"]\nblocking_requirement_ids: []\nrecommended_investigation: [\"Re-open only if the recorded scope changes.\"]\n---\n\n# Accepted decision\n")
-	_write(root.path_join("docs/superpowers/specs/sample.md"), "---\nid: spec.sample\nconversational_design_status: approved\nwritten_spec_status: approved\nimplementation_plan_path: \"docs/superpowers/plans/sample.md\"\nimplementation_plan_status: approved\nimplementation_plan_sha256: %s\ncreated_on: 2026-07-18\n---\n\n# Sample specification\n" % _canonical_sha256(plan_path))
+	_write(root.path_join("docs/superpowers/specs/sample.md"), "---\nid: spec.sample\nkind: design_specification\nschema_version: 1\nconversational_design_status: approved\nwritten_spec_status: approved\nimplementation_authorized: false\nimplementation_plan_path: \"docs/superpowers/plans/sample.md\"\nimplementation_plan_status: approved\nimplementation_plan_sha256: %s\ncreated_on: 2026-07-18\n---\n\n# Sample specification\n" % _canonical_sha256(plan_path))
+	_write(root.path_join("prompt_docs/metadata/design_authority_registry.v1.json"), JSON.stringify({"schema_version":1, "records":[{"id":"spec.sample", "kind":"design_specification", "path":"docs/superpowers/specs/sample.md"}]}, "  ") + "\n")
 	var validator := preload("res://tools/docs/DocValidator.gd").new()
 	_refresh_index(root)
 	var verified: Dictionary = validator.validate_tree(root.path_join("prompt_docs"), [])
@@ -81,12 +82,65 @@ func test_resolves_every_frozen_link_kind() -> void:
 	assert_eq(resolver.resolve({"kind":"beads_issue", "target":"missing"}).get("code"), &"AUTHORITY_LINK_UNKNOWN")
 	assert_eq(resolver.resolve({"kind":"plan_path", "target":"../outside.md"}).get("code"), &"AUTHORITY_LINK_INVALID")
 
+func test_registered_design_amendment_resolves_without_an_approved_plan() -> void:
+	var root := _fixture_root()
+	_write(root.path_join("docs/design/amendment.md"), "---\nid: spec.amendment\nkind: design_amendment\nschema_version: 1\ndecision_status: accepted\nconversational_design_status: approved\nwritten_spec_status: approved\nimplementation_authorized: false\namends: spec.sample\namends_path: \"docs/superpowers/specs/sample.md\"\n---\n\n# Amendment\n")
+	_write(root.path_join("prompt_docs/metadata/design_authority_registry.v1.json"), JSON.stringify({"schema_version":1, "records":[
+		{"id":"spec.amendment", "kind":"design_amendment", "path":"docs/design/amendment.md"},
+		{"id":"spec.sample", "kind":"design_specification", "path":"docs/superpowers/specs/sample.md"},
+	]}, "  ") + "\n")
+	var empty_snapshot: Array[Dictionary] = []
+	var resolver: RefCounted = load(RESOLVER_PATH).new(root, empty_snapshot)
+	assert_true(resolver.resolve({"kind":"specification_id", "target":"spec.amendment"}).get("ok", false))
+	assert_eq(resolver.resolve({"kind":"plan_path", "target":"docs/superpowers/plans/missing.md"}).get("code"), &"AUTHORITY_LINK_UNKNOWN")
+
 func test_plan_link_is_invalidated_when_approved_canonical_text_changes() -> void:
 	var root := _fixture_root()
 	_write(root.path_join("docs/superpowers/plans/sample.md"), "# Sample plan\n\nChanged after approval.\n")
 	var beads_snapshot: Array[Dictionary] = [{"id":"dwm-sample"}]
 	var resolver: RefCounted = load(RESOLVER_PATH).new(root, beads_snapshot)
 	assert_eq(resolver.resolve({"kind":"plan_path", "target":"docs/superpowers/plans/sample.md"}).get("code"), &"AUTHORITY_LINK_UNAPPROVED")
+
+func test_plan_suite_resolves_roadmap_and_children_only_when_every_digest_binding_is_approved() -> void:
+	var root := _fixture_root()
+	var roadmap_path := "docs/superpowers/plans/suite-roadmap.md"
+	var child_path := "docs/superpowers/plans/suite-child.md"
+	var suite_path := "prompt_docs/metadata/sample_plan_suite.v1.json"
+	_write(root.path_join(roadmap_path), "# Suite roadmap\n")
+	_write(root.path_join(child_path), "# Suite child\n")
+	_write(root.path_join(suite_path), JSON.stringify({
+		"schema_version":1,
+		"specification_id":"spec.amendment",
+		"status":"approved",
+		"roadmap":{"path":roadmap_path, "status":"approved", "sha256":_canonical_sha256(root.path_join(roadmap_path))},
+		"plans":[{"path":child_path, "status":"approved", "sha256":_canonical_sha256(root.path_join(child_path))}],
+	}, "  ") + "\n")
+	_write(root.path_join("docs/design/amendment.md"), "---\nid: spec.amendment\nkind: design_amendment\nschema_version: 1\ndecision_status: accepted\nconversational_design_status: approved\nwritten_spec_status: approved\nimplementation_authorized: false\namends: spec.sample\namends_path: \"docs/superpowers/specs/sample.md\"\nimplementation_plan_suite_path: \"%s\"\nimplementation_plan_suite_status: approved\nimplementation_plan_suite_sha256: %s\n---\n\n# Amendment\n" % [suite_path, _canonical_sha256(root.path_join(suite_path))])
+	_write(root.path_join("prompt_docs/metadata/design_authority_registry.v1.json"), JSON.stringify({"schema_version":1, "records":[
+		{"id":"spec.amendment", "kind":"design_amendment", "path":"docs/design/amendment.md"},
+		{"id":"spec.sample", "kind":"design_specification", "path":"docs/superpowers/specs/sample.md"},
+	]}, "  ") + "\n")
+	var empty_snapshot: Array[Dictionary] = []
+	var resolver: RefCounted = load(RESOLVER_PATH).new(root, empty_snapshot)
+	assert_true(resolver.resolve({"kind":"plan_path", "target":roadmap_path}).get("ok", false))
+	assert_true(resolver.resolve({"kind":"plan_path", "target":child_path}).get("ok", false))
+	_write(root.path_join(child_path), "# Changed suite child\n")
+	assert_eq(resolver.resolve({"kind":"plan_path", "target":child_path}).get("code"), &"AUTHORITY_LINK_UNAPPROVED")
+	assert_eq(resolver.resolve({"kind":"plan_path", "target":roadmap_path}).get("code"), &"AUTHORITY_LINK_UNAPPROVED", "drift in one approved sibling invalidates every suite link")
+	assert_eq(resolver.resolve({"kind":"plan_path", "target":"docs/superpowers/plans/not-in-suite.md"}).get("code"), &"AUTHORITY_LINK_UNKNOWN")
+
+func test_repository_approved_suite_resolves_roadmap_and_all_four_children() -> void:
+	var empty_snapshot: Array[Dictionary] = []
+	var resolver: RefCounted = load(RESOLVER_PATH).new("res://", empty_snapshot)
+	for target: String in [
+		"docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-implementation-roadmap.md",
+		"docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-01-phase2r-schedule-foundation.md",
+		"docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-02-desktop-board-shop-contracts.md",
+		"docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-03-seven-day-flow-integration.md",
+		"docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-04-verification-closeout.md",
+	]:
+		var result: Dictionary = resolver.resolve({"kind":"plan_path", "target":target})
+		assert_true(result.get("ok", false), JSON.stringify(result))
 
 func test_packet_links_require_the_current_generated_index() -> void:
 	var root := _fixture_root()

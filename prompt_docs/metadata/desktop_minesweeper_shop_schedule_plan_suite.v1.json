@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "specification_id": "spec.desktop_minesweeper_shop_schedule_amendment",
+  "status": "approved",
+  "roadmap": {
+    "path": "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-implementation-roadmap.md",
+    "status": "approved",
+    "sha256": "c29be5a8fc200c2c7d05633917bda4d0f7a48071e561c23282479bffb5bc2b62"
+  },
+  "plans": [
+    {
+      "path": "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-01-phase2r-schedule-foundation.md",
+      "status": "approved",
+      "sha256": "d7c04b66f3645f31ea9a4fc06a7d321f6bf41449fed2619c0e7034e6ab006669"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-02-desktop-board-shop-contracts.md",
+      "status": "approved",
+      "sha256": "2aaa9965f45208ecc12a119ce5ba5eae199895ea4076649a4df83386ca4b934d"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-03-seven-day-flow-integration.md",
+      "status": "approved",
+      "sha256": "a945d8988670b24ba5b1c919fcaf807dad03dbf659756c4a384110aebc49c1b1"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-04-verification-closeout.md",
+      "status": "approved",
+      "sha256": "93eab5ca74e2ceb7afacdb7573bae971a1a3b4c9c8f8bd5a617448b64676f964"
+    }
+  ]
+}

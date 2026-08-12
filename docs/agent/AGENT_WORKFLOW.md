@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-capability_intentions: [{"intention_id":"desktop_experience","purpose":"Provide a usable desktop experience in which registered applications open, retain appropriate same-day presentation state, and remain accessible.","authority_links":[]},{"intention_id":"narrative_experience","purpose":"Present the intended story, relationships, hospital sequence, dates, and endings coherently through approved narrative content.","authority_links":[]},{"intention_id":"whole_project_hardening","purpose":"Make the complete game stable, accessible, secure against unsafe data execution, and honestly verified for release decisions.","authority_links":[]},{"intention_id":"playable_minesweeper","purpose":"Provide a deterministic, accessible, genuinely playable Minesweeper experience that feeds the existing game outcomes through approved contracts.","authority_links":[]}]
+capability_intentions: [{"intention_id":"desktop_experience","purpose":"Provide a usable desktop experience in which registered applications open, retain appropriate same-day presentation state, and remain accessible.","authority_links":[{"kind":"specification_id","target":"spec.desktop_minesweeper_shop_schedule_amendment"}]},{"intention_id":"narrative_experience","purpose":"Present the intended story, relationships, hospital sequence, dates, and endings coherently through approved narrative content.","authority_links":[]},{"intention_id":"whole_project_hardening","purpose":"Make the complete game stable, accessible, secure against unsafe data execution, and honestly verified for release decisions.","authority_links":[]},{"intention_id":"playable_minesweeper","purpose":"Provide a deterministic, accessible, genuinely playable Minesweeper experience that feeds the existing game outcomes through approved contracts.","authority_links":[{"kind":"specification_id","target":"spec.desktop_minesweeper_shop_schedule_amendment"}]}]
 ---
 
 # Agent Workflow Navigation
@@ -78,6 +78,7 @@ No entry in this table implies another. Beads readiness does not approve a desig
 - An approved specification may have no implementation.
 - Implemented code may have missing or stale verification.
 - Query Beads for mutable status; do not copy status into this guide.
+- For controlled issues in the active foundation-repair phase, the metadata namespace named by that phase's approved contract is the sole execution-metadata namespace. A duplicate top-level `scope`, `exclusions`, `evidence_links`, `requirement_ids`, or `verification_commands` value is an ambiguity error, never a fallback authority.
 
 ## Capability intentions
 
@@ -91,7 +92,7 @@ Use this lifecycle: intention → bounded Beads issue → clarified and approved
 
 Each arrow is a separate gate. Never infer the next gate from the previous one.
 
-An approved plan is the exact plan file whose path and canonical-text SHA-256 digest are recorded by one approved specification. If its valid UTF-8 text changes after newline normalization, treat approval as stale and stop for review; newline-only checkout conversion does not change approval.
+An approved plan is either the exact directly bound plan or one exact member of a closed plan-suite manifest bound by one approved specification. The specification binding, suite, and selected plan record must all be `approved`, and every applicable canonical-text SHA-256 digest must match. If valid UTF-8 plan or suite text changes after newline normalization, treat approval as stale and stop for review; newline-only checkout conversion does not change approval. A `proposed` suite makes its roadmap and children discoverable, but never executable.
 
 ## Decision table
 

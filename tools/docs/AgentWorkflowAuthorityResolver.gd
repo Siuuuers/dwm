@@ -2,13 +2,14 @@ class_name AgentWorkflowAuthorityResolver
 extends RefCounted
 
 const DOC_VALIDATOR := preload("res://tools/docs/DocValidator.gd")
+const DESIGN_REGISTRY := preload("res://tools/docs/DesignAuthorityRegistry.gd")
 const LINK_KINDS := [&"beads_issue", &"requirement_id", &"specification_id", &"decision_id", &"plan_path"]
-const SPEC_FIELDS := [&"id", &"conversational_design_status", &"written_spec_status", &"implementation_plan_path", &"implementation_plan_status", &"implementation_plan_sha256"]
 
 var _repository_root: String
 var _beads_by_id := {}
 var _beads_source_valid := true
 var _packet_result: Dictionary
+var _design_result: Dictionary
 var _spec_records: Array[Dictionary] = []
 
 func _init(repository_root: String = "res://", beads_snapshot: Array[Dictionary] = []) -> void:
@@ -22,7 +23,8 @@ func _init(repository_root: String = "res://", beads_snapshot: Array[Dictionary]
 		else:
 			_beads_by_id[issue_id] = issue.duplicate(true)
 	_packet_result = DOC_VALIDATOR.new().validate_tree(_path("prompt_docs"), beads_snapshot, _repository_root)
-	_spec_records = _project_specifications(_path("docs/superpowers/specs"))
+	_design_result = DESIGN_REGISTRY.new().validate(_repository_root, _path(DESIGN_REGISTRY.DEFAULT_MANIFEST))
+	_spec_records.assign(_design_result.get("records", []))
 
 func resolve(link: Dictionary) -> Dictionary:
 	if link.keys().size() != 2 or not link.has("kind") or not link.has("target"):
@@ -57,9 +59,12 @@ func _resolve_requirement(target: String) -> Dictionary:
 	return _unique_approved(matches, target, &"requirement_id", func(requirement: Dictionary) -> bool: return requirement.get("specification_status") == "approved")
 
 func _resolve_specification(target: String) -> Dictionary:
+	if not _design_result.get("ok", false):
+		return _failure(&"AUTHORITY_LINK_SOURCE_INVALID", {"kind":"specification_id", "target":target, "errors":_design_result.get("errors", [])})
 	var matches: Array = _spec_records.filter(func(record: Dictionary) -> bool: return record.get("fields", {}).get("id") == target)
 	return _unique_approved(matches, target, &"specification_id", func(record: Dictionary) -> bool:
-		return record.get("ok", false) and record.fields.get("conversational_design_status") == "approved" and record.fields.get("written_spec_status") == "approved"
+		var fields: Dictionary = record.get("fields", {})
+		return fields.get("conversational_design_status") == "approved" and fields.get("written_spec_status") == "approved" and (record.get("kind") != "design_amendment" or fields.get("decision_status") == "accepted")
 	)
 
 func _resolve_decision(target: String) -> Dictionary:
@@ -75,104 +80,66 @@ func _resolve_decision(target: String) -> Dictionary:
 func _resolve_plan(target: String) -> Dictionary:
 	if not _is_safe_relative_path(target) or not target.begins_with("docs/superpowers/plans/") or not target.ends_with(".md"):
 		return _failure(&"AUTHORITY_LINK_INVALID", {"kind": "plan_path", "target": target})
+	if not _design_result.get("ok", false):
+		return _failure(&"AUTHORITY_LINK_SOURCE_INVALID", {"kind":"plan_path", "target":target, "errors":_design_result.get("errors", [])})
 	var path := _path(target)
 	if not _is_regular_non_link_file(path):
 		return _failure(&"AUTHORITY_LINK_UNKNOWN", {"kind": "plan_path", "target": target})
-	var matches: Array = _spec_records.filter(func(record: Dictionary) -> bool: return record.get("fields", {}).get("implementation_plan_path") == target)
+	var matches: Array[Dictionary] = []
+	for record: Dictionary in _spec_records:
+		var fields: Dictionary = record.get("fields", {})
+		if fields.get("implementation_plan_path") == target:
+			matches.append({
+				"record":record,
+				"binding_status":str(fields.get("implementation_plan_status", "")),
+				"binding_sha256":str(fields.get("implementation_plan_sha256", "")),
+				"suite":{},
+			})
+		var suite: Dictionary = record.get("plan_suite", {})
+		for suite_record: Dictionary in suite.get("records", []):
+			if suite_record.get("path") == target:
+				matches.append({
+					"record":record,
+					"binding_status":str(suite_record.get("status", "")),
+					"binding_sha256":str(suite_record.get("sha256", "")),
+					"suite":suite,
+				})
 	if matches.size() != 1:
 		return _failure(&"AUTHORITY_LINK_UNKNOWN" if matches.is_empty() else &"AUTHORITY_LINK_DUPLICATE_TARGET", {"kind": "plan_path", "target": target})
-	var record: Dictionary = matches[0]
-	if not record.get("ok", false):
-		return _failure(&"AUTHORITY_LINK_SOURCE_INVALID", {"kind": "plan_path", "target": target})
-	var approved: bool = record.fields.get("conversational_design_status") == "approved" and record.fields.get("written_spec_status") == "approved" and record.fields.get("implementation_plan_status") == "approved"
+	var match_record: Dictionary = matches[0]
+	var record: Dictionary = match_record.record
+	var approved: bool = (
+		record.fields.get("conversational_design_status") == "approved"
+		and record.fields.get("written_spec_status") == "approved"
+		and match_record.binding_status == "approved"
+		and (record.get("kind") != "design_amendment" or record.fields.get("decision_status") == "accepted")
+	)
+	var suite: Dictionary = match_record.suite
+	if not suite.is_empty():
+		approved = (
+			approved
+			and suite.get("status") == "approved"
+			and record.fields.get("implementation_plan_suite_status") == "approved"
+		)
+		var suite_digest := _canonical_text_sha256(_path(str(suite.get("path", ""))))
+		approved = (
+			approved
+			and suite_digest.get("ok", false)
+			and record.fields.get("implementation_plan_suite_sha256") == suite_digest.get("value")
+		)
+		var every_member_matches := true
+		for suite_member: Dictionary in suite.get("records", []):
+			var member_digest := _canonical_text_sha256(_path(str(suite_member.get("path", ""))))
+			if not member_digest.get("ok", false):
+				return _failure(&"AUTHORITY_LINK_SOURCE_INVALID", {"kind":"plan_path", "target":target})
+			if str(suite_member.get("sha256", "")) != str(member_digest.get("value", "")):
+				every_member_matches = false
+		approved = approved and every_member_matches
 	var digest_result := _canonical_text_sha256(path)
 	if not digest_result.get("ok", false):
 		return _failure(&"AUTHORITY_LINK_SOURCE_INVALID", {"kind": "plan_path", "target": target})
-	var digest_matches: bool = record.fields.get("implementation_plan_sha256") == digest_result.get("value")
+	var digest_matches: bool = match_record.binding_sha256 == digest_result.get("value")
 	return _success(&"plan_path", target) if approved and digest_matches else _failure(&"AUTHORITY_LINK_UNAPPROVED", {"kind": "plan_path", "target": target})
-
-func _project_specifications(root: String) -> Array[Dictionary]:
-	var paths: Array[String] = []
-	_collect_markdown(root, paths)
-	paths.sort()
-	var records: Array[Dictionary] = []
-	for path: String in paths:
-		records.append(_project_frontmatter(path))
-	return records
-
-func _project_frontmatter(path: String) -> Dictionary:
-	var fields := {}
-	if not _is_regular_non_link_file(path):
-		return {"ok": false, "fields": fields, "path": path}
-	var bytes := FileAccess.get_file_as_bytes(path)
-	var text := bytes.get_string_from_utf8()
-	if text.to_utf8_buffer() != bytes or (bytes.size() >= 3 and bytes[0] == 0xef and bytes[1] == 0xbb and bytes[2] == 0xbf):
-		return {"ok": false, "fields": fields, "path": path}
-	var lines := text.replace("\r\n", "\n").replace("\r", "\n").split("\n", true)
-	if lines.is_empty() or lines[0] != "---":
-		return {"ok": false, "fields": fields, "path": path}
-	var closing := lines.size()
-	for index: int in range(1, lines.size()):
-		if lines[index] == "---":
-			closing = index
-			break
-	var valid := closing < lines.size()
-	var bare_value := RegEx.create_from_string("^[A-Za-z0-9_.-]+$")
-	var key_line := RegEx.create_from_string("^([A-Za-z0-9_.-]+):[ \\t]*(.*)$")
-	for index: int in range(1, closing):
-		var line: String = lines[index]
-		var candidate_key := ""
-		if line.begins_with(" ") or line.begins_with("\t"):
-			var indented_match := key_line.search(line.strip_edges())
-			if indented_match != null and StringName(indented_match.get_string(1)) in SPEC_FIELDS:
-				valid = false
-			continue
-		var match := key_line.search(line)
-		if match == null:
-			continue
-		candidate_key = match.get_string(1)
-		var key := StringName(candidate_key)
-		if key not in SPEC_FIELDS:
-			continue
-		var raw_value := match.get_string(2)
-		if fields.has(key) or raw_value.is_empty():
-			valid = false
-			continue
-		var value := ""
-		if raw_value.begins_with("\""):
-			var json := JSON.new()
-			if json.parse(raw_value) != OK or typeof(json.data) != TYPE_STRING or String(json.data).is_empty():
-				valid = false
-				continue
-			value = json.data
-		elif bare_value.search(raw_value) != null:
-			value = raw_value
-		else:
-			valid = false
-			continue
-		fields[key] = value
-	for required: StringName in SPEC_FIELDS:
-		if not fields.has(required):
-			valid = false
-	return {"ok": valid, "fields": fields, "path": path}
-
-func _collect_markdown(path: String, output: Array[String]) -> void:
-	var directory := DirAccess.open(path)
-	if directory == null:
-		return
-	directory.list_dir_begin()
-	while true:
-		var name := directory.get_next()
-		if name.is_empty():
-			break
-		if name.begins_with(".") or directory.is_link(name):
-			continue
-		var child := path.path_join(name)
-		if directory.current_is_dir():
-			_collect_markdown(child, output)
-		elif name.ends_with(".md"):
-			output.append(child)
-	directory.list_dir_end()
 
 func _unique_approved(matches: Array, target: String, kind: StringName, approved: Callable) -> Dictionary:
 	if matches.is_empty():
