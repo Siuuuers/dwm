@@ -4,11 +4,12 @@ kind: design_amendment
 schema_version: 1
 amends: spec.seven_day_dialogic_flow
 amends_path: "docs/design/2026-08-07-seven-day-dialogic-flow-design.md"
-decision_status: proposed
+decision_status: accepted
 conversational_design_status: approved
-written_spec_status: proposed
+written_spec_status: approved
 self_review_status: passed
 self_reviewed_on: "2026-08-12"
+written_spec_approved_on: "2026-08-12"
 implementation_authorized: false
 created_on: "2026-08-12"
 engine_line: godot_4_6
@@ -21,16 +22,16 @@ scope: ["settings_hosts_and_navigation","language_and_dual_language_preferences"
 
 ## 1. Status and objective
 
-This proposed written amendment records the conversationally approved
+This accepted written amendment records the conversationally approved
 Settings, preference, accessibility, input, audio, inactive-window, and
 Dark-mode configuration design discovered while preparing the game's future
 UI/UX, visual-art, and music/audio manuals.
 
-The user has approved the complete conversational design. This exact written
-artifact remains proposed until the user reviews and approves it after
-self-review. It does not authorize implementation. Requirement packets,
-Beads, hash-bound plans, schemas, migrations, tests, scenes, localization
-catalogs, and runtime code remain unchanged.
+The user approved this exact written amendment on 2026-08-12. It is the
+accepted product and design authority for its bounded scope, but it does not
+authorize implementation. Requirement packets, Beads, hash-bound plans,
+schemas, migrations, tests, scenes, localization catalogs, and runtime code
+remain unchanged until separately reconciled and explicitly authorized.
 
 Settings is a trusted old-university operating-system surface. It may be rough
 in material, quiet in composition, and liminal in its unused space. It may not
@@ -47,11 +48,11 @@ The design has four objectives:
   configuration in separate owners; and
 - expose only features that have real, tested behavior.
 
-### 1.1 Proposed derived closure ledger
+### 1.1 Derived closure ledger
 
-The conversation fixed the product direction and most defaults. This written
-pass proposes the following exact closures so later code cannot invent them.
-Approval of this exact artifact accepts these closures within scope:
+The conversation fixed the product direction and most defaults. This accepted
+written pass fixes the following exact closures so later code cannot invent
+them:
 
 - Text reveal uses stable IDs and exact rates: Instant publishes one completed
   beat atomically; Fast reveals at 60 grapheme clusters per foreground second;
@@ -119,8 +120,8 @@ Approval of this exact artifact accepts these closures within scope:
 
 ### 2.1 Authority spine
 
-Once written-approved, this amendment will control intended behavior within
-its eight frontmatter scope topics over conflicting recovered documents,
+This amendment controls intended behavior within its eight frontmatter scope
+topics over conflicting recovered documents,
 requirement packets, proposed or hash-bound plans, tests, schemas, and current
 Settings scaffolds.
 
@@ -1197,7 +1198,7 @@ This amendment retains:
 
 ## 23. Reconciliation path before implementation
 
-After exact written approval and separate authority to reconcile:
+After this exact written approval and separate authority to reconcile:
 
 1. update `req.docs.authority`, the authority-context packet, the
    design-authority registry/discovery path, and docs/design guidance so an
@@ -1356,11 +1357,10 @@ test matrix. Unverified rows remain unsupported rather than advertised.
 
 ## 25. Acceptance and next manuals
 
-This artifact has passed self-review and is ready for exact user review. Until
-that user review changes its frontmatter, it remains proposed written design
-and grants no implementation authority.
+The user approved this exact artifact on 2026-08-12 after self-review passed.
+It is accepted written design and grants no implementation authority.
 
-After exact written approval, later UI/UX, visual-art, and music/audio manuals
+Later UI/UX, visual-art, and music/audio manuals
 may consume this Settings grammar. They may choose final localized copy,
 fonts, token values, sample assets, and art details only within this law.
 
