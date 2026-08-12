@@ -5,9 +5,11 @@ schema_version: 1
 amends: spec.desktop_minesweeper_shop_schedule_amendment
 amends_path: "docs/design/2026-08-11-desktop-minesweeper-shop-schedule-amendment.md"
 conversational_design_status: approved
-written_spec_status: proposed
+decision_status: accepted
+written_spec_status: approved
 self_review_status: passed
 self_reviewed_on: "2026-08-12"
+written_spec_approved_on: "2026-08-12"
 implementation_authorized: false
 created_on: "2026-08-12"
 engine_line: godot_4_6
@@ -20,16 +22,15 @@ scope: ["title_shell_and_new_acc_entry","desktop_shell_canvas_and_global_chrome"
 
 ## 1. Status and objective
 
-This proposed written amendment records the conversationally approved main
+This accepted written amendment records the approved main
 menu, desktop shell, global chrome, launcher, Angela panel, self-talk, clock,
 overlay, focus, and responsive-layout design.
 
-The conversational design is approved. This exact written artifact remains
-proposed until the user reviews and approves it after self-review. It does not
-authorize implementation. Requirement packets, design-authority registries,
-Beads, hash-bound plans, schemas, scenes, localization catalogs, tests, and
-runtime code remain unchanged until separately reconciled and explicitly
-authorized.
+The conversational design and exact self-reviewed written artifact were
+approved on 2026-08-12. Acceptance does not authorize implementation.
+Requirement packets, design-authority registries, Beads, hash-bound plans,
+schemas, scenes, localization catalogs, tests, and runtime code remain
+unchanged until separately reconciled and explicitly authorized.
 
 The chosen experience is one **continuous campus workstation**. Logged-out and
 in-run states belong to the same old university operating system rather than
@@ -46,12 +47,11 @@ The design has six objectives:
 - preserve exact cross-app, save, Load, and recovery behavior; and
 - remove the never-shipped standalone Opening and tutorial completely.
 
-### 1.1 Proposed derived closures
+### 1.1 Accepted derived closures
 
 The conversation fixed the product direction and nearly every observable
-choice. This written pass proposes the following exact closures so the design
-is deterministic and testable. Approval of this exact artifact accepts them
-within scope:
+choice. The following exact closures are accepted within scope so the design
+is deterministic and testable:
 
 - The shared title and in-run host strip is 64 logical pixels tall. This is the
   smallest fixed strip that can contain a genuine 64-by-64 Home or Return
@@ -100,8 +100,8 @@ within scope:
 
 ### 2.1 Authority spine
 
-Once this exact artifact is written-approved, it will control intended
-behavior within its eight frontmatter scope topics over conflicting recovered
+This accepted artifact controls intended behavior within its eight frontmatter
+scope topics over conflicting recovered
 documents, prompt packets, proposed or hash-bound plans, tests, and current
 shell scaffolds.
 
@@ -1442,8 +1442,8 @@ Angela, a friend, Observer Pressure, or the university OS as a character.
 
 ### 24.1 Controlling shell decisions
 
-Once written-approved, this amendment supersedes only the following conflicting
-target behavior:
+This accepted amendment supersedes only the following conflicting target
+behavior:
 
 - Aug-07 semantic inventory entries `opening.day1` and
   `tutorial.desktop_day1`;
@@ -1516,8 +1516,8 @@ This amendment retains without reinterpretation:
 
 ## 25. Reconciliation path before implementation
 
-Written approval of this artifact still does not authorize reconciliation or
-runtime work. A separately authorized reconciliation must:
+Acceptance of this artifact does not authorize reconciliation or runtime work.
+A separately authorized reconciliation must:
 
 1. create a successor authority-reconciliation issue rather than reopening or
    widening closed `dwm-0hi`;
@@ -1737,22 +1737,14 @@ accessibility conformance.
 
 ## 27. Acceptance and next design sections
 
-The user has approved the conversational design represented here. Placeholder,
-contradiction, authority, ambiguity, accessibility, and adversarial self-review
-has passed, and its actionable findings have been corrected. This exact
-written artifact remains proposed until its final bytes and SHA-256 are
-reported to the user and the user explicitly approves that exact artifact.
+The user approved the conversational design and the exact self-reviewed written
+artifact on 2026-08-12. Placeholder, contradiction, authority, ambiguity,
+accessibility, and adversarial self-review passed, and every actionable finding
+was corrected before approval. This document now records
+`decision_status: accepted`, `written_spec_status: approved`, and
+`self_review_status: passed`.
 
-After written approval, status may add or become:
-
-- `decision_status: accepted`;
-- `written_spec_status: approved`;
-- `written_spec_approved_on: "2026-08-12"`.
-
-The already-recorded `self_review_status: passed` and `self_reviewed_on` remain
-unchanged.
-
-Implementation remains unauthorized after approval.
+Implementation remains unauthorized.
 
 The next recommended bounded UI/UX section is the shared Gallery/Rehearsal
 archive shell, followed by the shared narrative-scene/dating host. Neither may
