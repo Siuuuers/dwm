@@ -183,7 +183,11 @@ func test_repository_registry_resolves_the_accepted_amendment() -> void:
 	assert_eq(amendment_records.size(), 1)
 	assert_eq(amendment_records[0].get("plan_suite", {}).get("records", []).size(), 5)
 	assert_eq(amendment_records[0].get("plan_suite", {}).get("status"), "approved")
-	assert_false(amendment_records[0].get("fields", {}).get("implementation_authorized", true))
+	# Runtime authorization was granted for this amendment in 321a7ef, so the registry must resolve
+	# it as true. The Phase-2R foundation-repair record below stays false: it is a pointer document
+	# carrying neither an approved plan nor an approved plan-suite binding, and
+	# DesignAuthorityRegistry permits the flag only on a document that carries one.
+	assert_true(amendment_records[0].get("fields", {}).get("implementation_authorized", false))
 	var phase2r_records: Array = result.get("records", []).filter(func(record: Dictionary) -> bool: return record.id == "spec.phase_2r.foundation_repair")
 	assert_eq(phase2r_records.size(), 1)
 	assert_eq(phase2r_records[0].get("kind"), "design_specification")
