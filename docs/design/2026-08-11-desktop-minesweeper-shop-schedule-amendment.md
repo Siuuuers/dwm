@@ -10,7 +10,7 @@ written_spec_status: approved
 self_review_status: passed
 self_reviewed_on: 2026-08-11
 written_spec_approved_on: 2026-08-11
-implementation_authorized: false
+implementation_authorized: true
 implementation_plan_suite_path: "prompt_docs/metadata/desktop_minesweeper_shop_schedule_plan_suite.v1.json"
 implementation_plan_suite_status: approved
 implementation_plan_suite_sha256: "9d1ef6f0b8874516cd52b4e79da97368f4e89022ec9817654ffa05881bc6b3cc"
