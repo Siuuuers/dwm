@@ -28,6 +28,13 @@ func publish_beat(projection: Dictionary) -> Dictionary:
 	var validated := _validate_projection(projection)
 	if not validated.ok:
 		return validated
+	if not _projections.is_empty() and StringName(_projections[0].semantic_id) == StringName(projection.semantic_id):
+		if (
+			str(_projections[0].primary_text) != str(projection.primary_text)
+			or str(_projections[0].secondary_text) != str(projection.secondary_text)
+		):
+			return {"ok": false, "code": &"caption_identity_conflict"}
+		return {"ok": true, "code": &"caption_published"}
 	var owned: Dictionary = projection.duplicate(true)
 	if _language_mode == LANGUAGE_DUAL:
 		_projections.assign([owned])

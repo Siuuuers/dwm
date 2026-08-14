@@ -219,6 +219,28 @@ func test_republishing_identical_current_text_preserves_dialogic_reveal_state() 
 	var owner := layer.call("get_current_text_owner") as DialogicNode_DialogText
 	owner.visible_characters = 3
 	owner.revealing = true
-	layer.call("publish_beat", _projection(&"same", "Same text"))
+	var repeated: Dictionary = layer.call("publish_beat", _projection(&"same", "Same text"))
+	assert_true(repeated.ok)
+	assert_eq(layer.call("get_visual_semantic_ids"), [&"same"])
+	assert_eq(layer.call("get_assistive_semantic_ids"), [&"same"])
 	assert_eq(owner.visible_characters, 3)
 	assert_true(owner.revealing)
+
+func test_republishing_current_identity_with_conflicting_content_fails_without_mutation() -> void:
+	var layer := await _make_layer()
+	if layer == null:
+		return
+	layer.call("reset_session", &"fixture.session", &"single")
+	assert_true(layer.call("publish_beat", _projection(&"same", "Original", "Original secondary")).ok)
+	var conflict: Dictionary = layer.call(
+		"publish_beat",
+		_projection(&"same", "Conflicting", "Conflicting secondary")
+	)
+	assert_false(conflict.ok)
+	assert_eq(conflict.code, &"caption_identity_conflict")
+	assert_eq(layer.call("get_visual_semantic_ids"), [&"same"])
+	assert_eq(layer.call("get_assistive_semantic_ids"), [&"same"])
+	assert_eq(
+		layer.call("get_projection", &"same"),
+		_projection(&"same", "Original", "Original secondary")
+	)

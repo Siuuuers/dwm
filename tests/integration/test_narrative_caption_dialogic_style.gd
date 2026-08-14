@@ -1,8 +1,12 @@
 extends "res://addons/gut/test.gd"
 
 const STYLE_PATH := "res://dialogic/styles/NarrativeCaptionStyle.tres"
+const DEFAULT_STYLE_PATH := "res://addons/dialogic/Modules/DefaultLayoutParts/Style_VN_Default/default_vn_style.tres"
 const FIXTURE_PATH := "res://tests/fixtures/dialogic/narrative_caption_style_fixture.dtl"
 const SOURCE_PATH := "res://scripts/narrative/DialogicCaptionProjectionSource.gd"
+const FALLBACK_TEXTBOX_UID := "uid://bquja8jyk8kbr"
+const FALLBACK_TEXTBOX_RESOURCE := "[ext_resource type=\"PackedScene\" uid=\"uid://bquja8jyk8kbr\" path=\"res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Textbox/vn_textbox_layer.tscn\" id=\"5_o6sv8\"]"
+const CAPTION_WRAPPER_RESOURCE := "[ext_resource type=\"PackedScene\" path=\"res://scenes/dialogic/NarrativeCaptionDialogicLayer.tscn\" id=\"5_o6sv8\"]"
 
 var _host: Node = null
 var _adapter: Node = null
@@ -42,6 +46,28 @@ func after_each() -> void:
 		ProjectSettings.get_meta("caption_test_old_skip_delay", 0.1)
 	)
 	ProjectSettings.remove_meta("caption_test_old_skip_delay")
+
+func test_custom_style_declares_unique_valid_uid_from_bundled_default() -> void:
+	var custom_uid := _declared_resource_uid(STYLE_PATH)
+	var default_uid := _declared_resource_uid(DEFAULT_STYLE_PATH)
+	assert_ne(custom_uid, &"")
+	assert_ne(default_uid, &"")
+	assert_ne(ResourceUID.text_to_id(custom_uid), ResourceUID.INVALID_ID)
+	assert_ne(ResourceUID.text_to_id(default_uid), ResourceUID.INVALID_ID)
+	assert_ne(custom_uid, default_uid)
+
+func test_custom_style_is_exact_default_clone_except_uid_name_and_caption_wrapper() -> void:
+	var default_source := FileAccess.get_file_as_string(DEFAULT_STYLE_PATH)
+	var custom_source := FileAccess.get_file_as_string(STYLE_PATH)
+	assert_eq(default_source.count(FALLBACK_TEXTBOX_RESOURCE), 1)
+	assert_eq(custom_source.count(CAPTION_WRAPPER_RESOURCE), 1)
+	assert_eq(default_source.count("name = \"Visual Novel Style\""), 1)
+	assert_eq(custom_source.count("name = \"Narrative Caption Style\""), 1)
+	var expected := _normalize_top_level_resource_uid(default_source)
+	expected = expected.replace(FALLBACK_TEXTBOX_RESOURCE, CAPTION_WRAPPER_RESOURCE)
+	expected = expected.replace("name = \"Visual Novel Style\"", "name = \"Narrative Caption Style\"")
+	assert_eq(_normalize_top_level_resource_uid(custom_source), expected)
+	assert_false(FALLBACK_TEXTBOX_UID in custom_source)
 
 func test_explicit_style_drives_physical_timeline_with_one_text_owner() -> void:
 	var style := load(STYLE_PATH)
@@ -174,3 +200,31 @@ func _event_script_classes(events: Array, start: int, end: int) -> Array[StringN
 		var script := event.get_script() as Script
 		result.append(StringName(script.get_global_name()) if script != null else &"")
 	return result
+
+func _declared_resource_uid(path: String) -> StringName:
+	var source := FileAccess.get_file_as_string(path)
+	var first_line := source.get_slice("\n", 0)
+	var marker := " uid=\""
+	var value_start := first_line.find(marker)
+	if value_start < 0:
+		return &""
+	value_start += marker.length()
+	var value_end := first_line.find("\"", value_start)
+	if value_end < 0:
+		return &""
+	return StringName(first_line.substr(value_start, value_end - value_start))
+
+func _normalize_top_level_resource_uid(source: String) -> String:
+	var lines := source.split("\n", true)
+	if lines.is_empty():
+		return source
+	var marker := " uid=\""
+	var value_start := lines[0].find(marker)
+	if value_start < 0:
+		return source
+	value_start += marker.length()
+	var value_end := lines[0].find("\"", value_start)
+	if value_end < 0:
+		return source
+	lines[0] = lines[0].left(value_start) + "<resource-uid>" + lines[0].substr(value_end)
+	return "\n".join(lines)
