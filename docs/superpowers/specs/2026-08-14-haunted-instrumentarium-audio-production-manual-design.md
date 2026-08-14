@@ -1,8 +1,10 @@
 # Haunted Instrumentarium: Audio Production and Implementation Manual
 
-**Status:** Written from user-approved Design Gates 1–4; awaiting written-specification review
+**Status:** Accepted
 
 **Date:** 2026-08-14
+
+**Written specification approved:** 2026-08-14
 
 **Target:** Godot 4.6.3, initial Windows release
 
@@ -10,7 +12,7 @@
 
 **Authorization boundary:** This document does not authorize audio acquisition, audition, editing, import, runtime implementation, or release by itself
 
-**Supersedes:** Acoustic Memory Atlas: Audio Implementation and Asset-Curation Design for all audio decisions after this manual is accepted
+**Supersedes:** Acoustic Memory Atlas: Audio Implementation and Asset-Curation Design for all audio decisions from 2026-08-14 onward
 
 ## 1. Purpose and authority
 
@@ -43,10 +45,10 @@ The authority spine locked for this revision is:
 9. this manual for audio-specific production behavior.
 
 Within the same tier, a document with an explicit supersession statement wins;
-otherwise the later accepted date wins. This manual becomes accepted authority
-only after written-specification review. On that acceptance it is the later,
-targeted audio/accessibility amendment for the exact conflicts in Section 1.1;
-the Settings amendment continues to govern every clause not named there. An
+otherwise the later accepted date wins. The user accepted this manual after
+written-specification review on 2026-08-14. It is therefore the later, targeted
+audio/accessibility amendment for the exact conflicts in Section 1.1; the
+Settings amendment continues to govern every clause not named there. An
 unresolved same-tier conflict stops audio planning and returns to the user. A
 later canon or design amendment does not silently rewrite this manual: the
 manual must be revised, reviewed, and given a new plan revision.
