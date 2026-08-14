@@ -38,6 +38,16 @@ function Assert-AudioAuditionRejected {
     if (-not $rejected) { throw "AUDIO_REJECTION_NOT_ENFORCED: $Name" }
 }
 
+$blindOne = Get-AudioBlindId -BatchId 'batch-01' -Identity 'pc_001|abc123'
+$blindTwo = Get-AudioBlindId -BatchId 'batch-01' -Identity 'pc_001|abc123'
+if ($blindOne -cne $blindTwo -or $blindOne -notmatch '^A-[0-9A-F]{8}$') { throw 'AUDIO_BLIND_ID' }
+
+$illegalPreview = [ordered]@{ acquisition_kind='official_preview'; decision='APPROVED' }
+$blocked = $false
+try { Assert-AudioAuditionDecision -Record $illegalPreview }
+catch { $blocked = $_.Exception.Message.Contains('AUDIO_PREVIEW_DECISION') }
+if (-not $blocked) { throw 'AUDIO_PREVIEW_APPROVAL_ACCEPTED' }
+
 $probeJson = '{"streams":[{"index":0,"codec_type":"audio","codec_name":"mp3","sample_rate":"48000","channels":2,"channel_layout":"stereo","duration":"2.500000","bits_per_raw_sample":"16"}],"format":{"format_name":"mp3","duration":"2.500000","size":"12345"}}'
 $probe = ConvertFrom-AudioProbeJson -Json $probeJson -SourcePath 'fixture.mp3'
 if ($probe.audio_streams -ne 1 -or $probe.channels -ne 2 -or $probe.sample_rate -ne 48000 -or $probe.duration_seconds -ne 2.5) { throw 'AUDIO_PROBE_PARSE' }
@@ -261,7 +271,7 @@ function Invoke-AudioAuditionStageFixture {
     param(
         [Parameter(Mandatory = $true)][string]$ScriptPath,
         [Parameter(Mandatory = $true)][AllowEmptyString()][string]$Timestamp,
-        [ValidateSet('Initialize', 'Acquire')][string]$Stage = 'Initialize'
+        [ValidateSet('Initialize', 'Acquire', 'Publish')][string]$Stage = 'Initialize'
     )
 
     $priorErrorActionPreference = $ErrorActionPreference
@@ -329,6 +339,100 @@ finally {
         if ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($archiveFixtureRoot)) -cne [IO.Path]::GetFullPath($archiveFixtureBase)) { throw 'AUDIO_FIXTURE_CLEANUP_SCOPE' }
         Remove-Item -LiteralPath $archiveFixtureRoot -Recurse -Force
     }
+}
+
+Assert-AudioAuditionRejected -Name 'preview preferred decision' -ExpectedError 'AUDIO_PREVIEW_DECISION' -Action { Assert-AudioAuditionDecision -Record ([ordered]@{ acquisition_kind = 'official_preview'; source_master = $false; decision = 'PREFERRED' }) }
+Assert-AudioAuditionRejected -Name 'preview runtime path' -ExpectedError 'AUDIO_PREVIEW_DECISION' -Action { Assert-AudioAuditionDecision -Record ([ordered]@{ acquisition_kind = 'official_preview'; source_master = $false; decision = 'UNHEARD'; runtime_export_path = 'res://audio.ogg' }) }
+Assert-AudioAuditionRejected -Name 'preview missing source master flag' -ExpectedError 'AUDIO_PREVIEW_DECISION' -Action { Assert-AudioAuditionDecision -Record ([ordered]@{ acquisition_kind = 'official_preview'; decision = 'UNHEARD'; allowed_next_decisions = @('PREVIEW_REJECTED', 'ORIGINAL_REQUESTED') }) }
+Assert-AudioAuditionRejected -Name 'kenney semantic role' -ExpectedError 'AUDIO_KENNEY_DECISION' -Action { Assert-AudioAuditionDecision -Record ([ordered]@{ acquisition_kind = 'exact_pack_member'; role = 'ui.click'; decision = 'UNHEARD' }) }
+
+function New-AudioAuditionPublishFixture {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    New-AudioAuditionStageFixtureRepository -Path $Path -SourceRoot $root
+    $fixtureManifest = Read-AudioAuditionManifest -Path (Join-Path $Path 'tools\audio\manifests\batch-01.json')
+    $fixtureLayout = Get-AudioAuditionLayout -RepositoryRoot $Path -BatchId 'batch-01'
+    $fixtureCache = $fixtureLayout.CacheRoot
+    $fixtureState = Join-Path $fixtureCache 'state'
+    $fixtureDownloads = Join-Path $fixtureCache 'downloads'
+    $fixtureRenders = Join-Path $fixtureCache 'renders'
+    New-Item -ItemType Directory -Path $fixtureState, $fixtureDownloads, $fixtureRenders -Force | Out-Null
+    $fixtureManifestHash = (Get-FileHash -LiteralPath (Join-Path $Path 'tools\audio\manifests\batch-01.json') -Algorithm SHA256).Hash.ToLowerInvariant()
+    $fixtureTimestamp = '2026-08-14T12:00:00.0000000+08:00'
+    $initialize = [ordered]@{ stage = 'Initialize'; batch_id = 'batch-01'; retrieved_at = $fixtureTimestamp; manifest_sha256 = $fixtureManifestHash; source_root = $fixtureLayout.SourceRoot; cache_root = $fixtureCache; candidates = @($fixtureManifest.candidates | ForEach-Object { $_.candidate_id }) }
+    Write-AudioAuditionJson -Value $initialize -Path (Join-Path $fixtureState 'initialize.json')
+
+    $acquiredCandidates = [Collections.Generic.List[object]]::new()
+    $analysisRecords = [Collections.Generic.List[object]]::new()
+    foreach ($candidate in $fixtureManifest.candidates) {
+        if ($candidate.kind -ceq 'freesound_preview') {
+            $inputDirectory = Join-Path $fixtureDownloads $candidate.candidate_id
+            New-Item -ItemType Directory -Path $inputDirectory -Force | Out-Null
+            $inputPath = Join-Path $inputDirectory ($candidate.candidate_id + '.fixture')
+            [IO.File]::WriteAllText($inputPath, ('preview-' + $candidate.candidate_id), (New-Object Text.UTF8Encoding($false)))
+            $inputHash = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            $renderDirectory = Join-Path $fixtureRenders 'freesound_preview'
+            New-Item -ItemType Directory -Path $renderDirectory -Force | Out-Null
+            $monoPath = Join-Path $renderDirectory ($inputHash + '.flac')
+            [IO.File]::WriteAllText($monoPath, ('mono-' + $candidate.candidate_id), (New-Object Text.UTF8Encoding($false)))
+            $monoHash = (Get-FileHash -LiteralPath $monoPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            [void]$acquiredCandidates.Add([pscustomobject][ordered]@{ candidate_id = $candidate.candidate_id; acquired = [ordered]@{ filename = [IO.Path]::GetFileName($inputPath); sha256 = $inputHash }; acquisition_class = 'PREVIEW_ONLY' })
+            [void]$analysisRecords.Add([pscustomobject][ordered]@{ candidate_id = $candidate.candidate_id; kind = 'freesound_preview'; logical_name = $candidate.candidate_id; source_path = $inputPath; source_sha256 = $inputHash; metadata = [ordered]@{ codec = 'fixture'; channels = 2; sample_rate = 48000; duration_seconds = 1.0 }; selected_for_audition = $true; mono_render = [ordered]@{ path = $monoPath; sha256 = $monoHash; parent_sha256 = $inputHash } })
+            continue
+        }
+
+        $inputDirectory = Join-Path $fixtureDownloads $candidate.candidate_id
+        $extractDirectory = Join-Path $fixtureCache ('extracted\' + $candidate.candidate_id + '\Audio')
+        New-Item -ItemType Directory -Path $inputDirectory, $extractDirectory -Force | Out-Null
+        $archivePath = Join-Path $inputDirectory 'pack.fixture'
+        [IO.File]::WriteAllText($archivePath, 'pack', (New-Object Text.UTF8Encoding($false)))
+        $archiveHash = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        $inputPath = Join-Path $extractDirectory 'click.fixture'
+        [IO.File]::WriteAllText($inputPath, 'kenney-click', (New-Object Text.UTF8Encoding($false)))
+        $inputHash = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        $renderDirectory = Join-Path $fixtureRenders 'kenney_pack'
+        New-Item -ItemType Directory -Path $renderDirectory -Force | Out-Null
+        $monoPath = Join-Path $renderDirectory ($inputHash + '.flac')
+        $fatiguePath = Join-Path $renderDirectory ($inputHash + '-fatigue.flac')
+        [IO.File]::WriteAllText($monoPath, 'kenney-mono', (New-Object Text.UTF8Encoding($false)))
+        [IO.File]::WriteAllText($fatiguePath, 'kenney-fatigue', (New-Object Text.UTF8Encoding($false)))
+        $monoHash = (Get-FileHash -LiteralPath $monoPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        $fatigueHash = (Get-FileHash -LiteralPath $fatiguePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        [void]$acquiredCandidates.Add([pscustomobject][ordered]@{ candidate_id = $candidate.candidate_id; acquired = [ordered]@{ filename = [IO.Path]::GetFileName($archivePath); sha256 = $archiveHash }; acquisition_class = 'EXACT_PACK'; extracted_members = @([ordered]@{ path = 'Audio/click.fixture'; sha256 = $inputHash; extracted = $true }) })
+        [void]$analysisRecords.Add([pscustomobject][ordered]@{ candidate_id = $candidate.candidate_id; kind = 'kenney_pack'; logical_name = 'click'; source_path = $inputPath; source_sha256 = $inputHash; metadata = [ordered]@{ codec = 'fixture'; channels = 1; sample_rate = 48000; duration_seconds = 1.0 }; selected_for_audition = $true; mono_render = [ordered]@{ path = $monoPath; sha256 = $monoHash; parent_sha256 = $inputHash }; ui_fatigue_render = [ordered]@{ path = $fatiguePath; sha256 = $fatigueHash; parent_sha256 = $monoHash; repetitions = 10 } })
+    }
+    Write-AudioAuditionJson -Value ([ordered]@{ stage = 'Acquire'; batch_id = 'batch-01'; retrieved_at = $fixtureTimestamp; candidates = @($acquiredCandidates) }) -Path (Join-Path $fixtureState 'acquire.json')
+    Write-AudioAuditionJson -Value ([ordered]@{ stage = 'Analyze'; batch_id = 'batch-01'; retrieved_at = $fixtureTimestamp; publication_attempt_id = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; inputs_analyzed = $analysisRecords.Count; freesound_preview_count = 7; kenney_logical_sound_count = 1; kenney_format_preference = @('wav', 'flac', 'ogg', 'mp3'); acquisition_note = 'Freesound remains PREVIEW_ONLY; no runtime export or approval is granted by analysis.'; measurement_note = 'Measurements are risk flags only and do not certify comfort, artistic fit, physical credibility, or medical safety.'; records = @($analysisRecords) }) -Path (Join-Path $fixtureState 'analyze.json')
+}
+
+$publishRootOne = Join-Path ([IO.Path]::GetTempPath()) ('audio-audition-publish-' + [Guid]::NewGuid().ToString('N'))
+$publishRootTwo = Join-Path ([IO.Path]::GetTempPath()) ('audio-audition-publish-' + [Guid]::NewGuid().ToString('N'))
+try {
+    New-AudioAuditionPublishFixture -Path $publishRootOne
+    New-AudioAuditionPublishFixture -Path $publishRootTwo
+    $publishOne = Invoke-AudioAuditionStageFixture -ScriptPath (Join-Path $publishRootOne 'tools\audio\Invoke-AudioAuditionBatch01.ps1') -Timestamp '2026-08-14T12:00:00.0000000+08:00' -Stage Publish
+    $publishTwo = Invoke-AudioAuditionStageFixture -ScriptPath (Join-Path $publishRootTwo 'tools\audio\Invoke-AudioAuditionBatch01.ps1') -Timestamp '2026-08-14T12:00:00.0000000+08:00' -Stage Publish
+    if ($publishOne.ExitCode -ne 0 -or $publishTwo.ExitCode -ne 0) { throw ('AUDIO_PUBLISH_FIXTURE: ' + (($publishOne.Output + $publishTwo.Output) | Out-String)) }
+    . (Join-Path $root 'tools\testing\Read-StrictJson.ps1')
+    $publishedOne = ConvertFrom-Phase2RStrictJson -Json ([IO.File]::ReadAllText((Join-Path $publishRootOne 'docs\research\audio\2026-08-14-audio-audition-batch-01.json'))) -Label 'published-one'
+    $publishedTwo = ConvertFrom-Phase2RStrictJson -Json ([IO.File]::ReadAllText((Join-Path $publishRootTwo 'docs\research\audio\2026-08-14-audio-audition-batch-01.json'))) -Label 'published-two'
+    if (($publishedOne.audition_queue | ConvertTo-Json -Depth 8) -cne ($publishedTwo.audition_queue | ConvertTo-Json -Depth 8)) { throw 'AUDIO_PUBLISH_UNSTABLE_ORDER' }
+    $expectedQueueOrder = @($publishedOne.candidates | ForEach-Object {
+        $identity = $_.candidate_id + '|' + $_.logical_name + '|' + $_.source.sha256
+        $algorithm = [Security.Cryptography.SHA256]::Create()
+        try { [pscustomobject]@{ blind_id = $_.blind_id; full_hash = ([BitConverter]::ToString($algorithm.ComputeHash([Text.Encoding]::UTF8.GetBytes('batch-01|' + $identity)))).Replace('-', '') } }
+        finally { $algorithm.Dispose() }
+    } | Sort-Object full_hash | ForEach-Object { $_.blind_id })
+    if ((@($publishedOne.audition_queue | ForEach-Object { $_.blind_id }) -join ',') -cne ($expectedQueueOrder -join ',')) { throw 'AUDIO_PUBLISH_FULL_HASH_ORDER' }
+    $publicQueueText = $publishedOne.audition_queue | ConvertTo-Json -Depth 8
+    if ($publicQueueText -match '(?i)role|title|creator|preferred|fallback|importance|romance|ending|route') { throw 'AUDIO_PUBLISH_PUBLIC_IDENTITY' }
+    $docket = [IO.File]::ReadAllText((Join-Path $publishRootOne 'docs\research\audio\2026-08-14-audio-audition-batch-01.md'))
+    $blindDocket = $docket.Split('## Evidence Appendix')[0]
+    if ($blindDocket -match '(?i)role|title|creator|preferred|fallback|importance|autoplay') { throw 'AUDIO_PUBLISH_DOCKET_PRIVACY' }
+    if ($docket -notmatch 'visionear' -or $docket -notmatch 'CC0 1.0' -or $docket -notmatch '670070' -or $docket -notmatch '802495') { throw 'AUDIO_PUBLISH_APPENDIX' }
+}
+finally {
+    foreach ($publishRoot in @($publishRootOne, $publishRootTwo)) { if (Test-Path -LiteralPath $publishRoot) { Remove-Item -LiteralPath $publishRoot -Recurse -Force } }
 }
 
 Write-Output 'AUDIO_AUDITION_INTAKE: PASS'

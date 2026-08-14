@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('Initialize', 'Acquire', 'Analyze')][string]$Stage,
+    [Parameter(Mandatory = $true)][ValidateSet('Initialize', 'Acquire', 'Analyze', 'Publish')][string]$Stage,
     [AllowEmptyString()][string]$RetrievedAt
 )
 
@@ -192,6 +192,53 @@ function Write-AudioAuditionAnalysisRecord {
     Write-AudioAuditionJson -Value $Value -Path $Path
 }
 
+function Get-AudioAuditionPublicationHash {
+    param([Parameter(Mandatory = $true)][string]$BatchId, [Parameter(Mandatory = $true)][string]$Identity)
+
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try { return ([BitConverter]::ToString($algorithm.ComputeHash([Text.Encoding]::UTF8.GetBytes($BatchId + '|' + $Identity)))).Replace('-', '') }
+    finally { $algorithm.Dispose() }
+}
+
+function Assert-AudioAuditionPublicationHash {
+    param([Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)][string]$ExpectedHash, [Parameter(Mandatory = $true)][string]$Code)
+
+    if ($ExpectedHash -cnotmatch '^[0-9a-f]{64}$' -or -not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw $Code }
+    if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $ExpectedHash) { throw $Code }
+}
+
+function Get-AudioAuditionDocketLink {
+    param([Parameter(Mandatory = $true)][string]$FromDirectory, [Parameter(Mandatory = $true)][string]$ToPath)
+
+    $fromUri = [Uri]([IO.Path]::GetFullPath($FromDirectory).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar)
+    $toUri = [Uri]([IO.Path]::GetFullPath($ToPath))
+    return [Uri]::UnescapeDataString($fromUri.MakeRelativeUri($toUri).ToString()).Replace('\', '/')
+}
+
+function Get-AudioAuditionAiProvenance {
+    param([Parameter(Mandatory = $true)][string]$Kind, [Parameter(Mandatory = $true)][string]$CandidateId)
+
+    if ($Kind -ceq 'kenney_pack') { return 'No AI/GenAI field, tag, or provenance statement is exposed on the pack page; this is an unresolved absence-only fact, not a human-provenance guarantee.' }
+    $statements = [ordered]@{
+        pc_001 = 'No visible AI/GenAI tag, generated claim, or contrary rights statement; absence-only evidence.'
+        pc_002 = 'No visible AI/GenAI label or conflicting creator statement; absence-only AI evidence.'
+        pc_003 = 'No visible AI/GenAI label or conflicting profile license statement; absence-only AI evidence.'
+        pc_004 = 'No visible AI/GenAI label or conflicting creator license statement; absence-only AI evidence.'
+        pc_005 = 'No visible AI/GenAI label or conflicting creator license statement; absence-only AI evidence.'
+        pc_006 = 'No visible AI/GenAI label or conflicting license statement for this asset; absence-only AI evidence.'
+        pc_007 = 'No visible AI/GenAI label or conflicting profile license statement; absence-only AI evidence.'
+    }
+    if (-not $statements.Contains($CandidateId)) { throw 'AUDIO_AI_PROVENANCE' }
+    return $statements[$CandidateId]
+}
+
+function Write-AudioAuditionMarkdown {
+    param([Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)][string]$Text)
+
+    $utf8 = New-Object Text.UTF8Encoding($false)
+    [IO.File]::WriteAllText($Path, $Text.TrimEnd("`r", "`n") + "`n", $utf8)
+}
+
 $retrievedAtValue = Get-AudioAuditionRetrievedAt -Value $RetrievedAt -Supplied $PSBoundParameters.ContainsKey('RetrievedAt')
 $manifest = Read-AudioAuditionManifest -Path $manifestPath
 $layout = Get-AudioAuditionLayout -RepositoryRoot $root -BatchId $manifest.batch_id
@@ -285,6 +332,118 @@ $acquireRecord = [pscustomobject][ordered]@{
 Write-AudioAuditionStateRecord -Value $acquireRecord -Path $acquirePath -CacheRoot $layout.CacheRoot
 Write-Output 'AUDIO_AUDITION_ACQUIRE: PASS'
 exit 0
+}
+
+if ($Stage -ceq 'Publish') {
+    if (-not (Test-Path -LiteralPath $initializePath -PathType Leaf)) { throw 'AUDIO_PUBLISH_INITIALIZE_REQUIRED' }
+    if (-not (Test-Path -LiteralPath $analyzePath -PathType Leaf)) { throw 'AUDIO_PUBLISH_ANALYZE_REQUIRED' }
+    if (Test-Path -LiteralPath $stopPath) { throw 'AUDIO_STAGE_STOPPED' }
+    Assert-AudioAuditionStageRecord -Path $initializePath -ExpectedStage 'Initialize' -Manifest $manifest -Layout $layout -ManifestHash $manifestHash
+    $acquireRecord = Assert-AudioAuditionAcquireRecord -Path $acquirePath -Manifest $manifest
+    $analyzeRecord = ConvertFrom-Phase2RStrictJson -Json ([IO.File]::ReadAllText($analyzePath)) -Label $analyzePath
+    if ($analyzeRecord.stage -cne 'Analyze' -or $analyzeRecord.batch_id -cne $manifest.batch_id -or $analyzeRecord.records -isnot [Array] -or @($analyzeRecord.records).Count -eq 0) { throw 'AUDIO_PUBLISH_ANALYZE_INVALID' }
+
+    $rendersRoot = Join-Path $layout.CacheRoot 'renders'
+    $evidenceDirectory = Join-Path $root 'docs\research\audio'
+    $jsonPath = Join-Path $evidenceDirectory '2026-08-14-audio-audition-batch-01.json'
+    $markdownPath = Join-Path $evidenceDirectory '2026-08-14-audio-audition-batch-01.md'
+    if ((Test-Path -LiteralPath $jsonPath) -or (Test-Path -LiteralPath $markdownPath)) { throw 'AUDIO_PUBLISH_EVIDENCE_EXISTS' }
+    New-Item -ItemType Directory -Path $evidenceDirectory -Force | Out-Null
+
+    $publishedCandidates = [Collections.Generic.List[object]]::new()
+    $blindEntries = [Collections.Generic.List[object]]::new()
+    $seenCandidates = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $seenBlindIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($record in @($analyzeRecord.records | Where-Object { $_.selected_for_audition -eq $true })) {
+        $candidate = $manifest.candidates | Where-Object { $_.candidate_id -ceq $record.candidate_id } | Select-Object -First 1
+        if ($null -eq $candidate -or $record.source_sha256 -isnot [string] -or $record.kind -cne $candidate.kind) { throw 'AUDIO_PUBLISH_ANALYZE_INVALID' }
+        $acquired = $acquireRecord.candidates | Where-Object { $_.candidate_id -ceq $candidate.candidate_id } | Select-Object -First 1
+        if ($null -eq $acquired -or $record.source_path -isnot [string] -or $null -eq $record.mono_render) { throw 'AUDIO_PUBLISH_ANALYZE_INVALID' }
+        $sourcePath = [IO.Path]::GetFullPath($record.source_path)
+        $monoPath = [IO.Path]::GetFullPath($record.mono_render.path)
+        [void](Assert-AudioAuditionContainedPath -Root $layout.CacheRoot -Candidate $sourcePath)
+        [void](Assert-AudioAuditionContainedPath -Root $rendersRoot -Candidate $monoPath)
+        Assert-AudioAuditionPublicationHash -Path $sourcePath -ExpectedHash $record.source_sha256 -Code 'AUDIO_PUBLISH_SOURCE_HASH'
+        Assert-AudioAuditionPublicationHash -Path $monoPath -ExpectedHash $record.mono_render.sha256 -Code 'AUDIO_PUBLISH_RENDER_HASH'
+        if ($record.mono_render.parent_sha256 -cne $record.source_sha256) { throw 'AUDIO_PUBLISH_PROVENANCE' }
+
+        $identity = $candidate.candidate_id + '|' + $record.logical_name + '|' + $record.source_sha256
+        if ($candidate.kind -ceq 'freesound_preview') {
+            if ($acquired.acquisition_class -cne 'PREVIEW_ONLY' -or $acquired.acquired.filename -cne [IO.Path]::GetFileName($sourcePath) -or $acquired.acquired.sha256 -cne $record.source_sha256) { throw 'AUDIO_PUBLISH_ACQUIRE_INVALID' }
+            $publicationRecord = [ordered]@{ acquisition_kind = 'official_preview'; source_master = $false; decision = 'UNHEARD'; allowed_next_decisions = @('PREVIEW_REJECTED', 'ORIGINAL_REQUESTED') }
+        }
+        elseif ($candidate.kind -ceq 'kenney_pack') {
+            if ($acquired.acquisition_class -cne 'EXACT_PACK' -or $null -eq $acquired.extracted_members) { throw 'AUDIO_PUBLISH_ACQUIRE_INVALID' }
+            $member = $acquired.extracted_members | Where-Object { $_.sha256 -ceq $record.source_sha256 } | Select-Object -First 1
+            if ($null -eq $member -or -not $member.extracted) { throw 'AUDIO_PUBLISH_ACQUIRE_INVALID' }
+            $archivePath = Assert-AudioAuditionContainedPath -Root (Join-Path $layout.CacheRoot ('downloads\' + $candidate.candidate_id)) -Candidate (Join-Path (Join-Path $layout.CacheRoot ('downloads\' + $candidate.candidate_id)) $acquired.acquired.filename)
+            Assert-AudioAuditionPublicationHash -Path $archivePath -ExpectedHash $acquired.acquired.sha256 -Code 'AUDIO_PUBLISH_SOURCE_HASH'
+            if ($null -eq $record.ui_fatigue_render) { throw 'AUDIO_PUBLISH_ANALYZE_INVALID' }
+            $fatiguePath = [IO.Path]::GetFullPath($record.ui_fatigue_render.path)
+            [void](Assert-AudioAuditionContainedPath -Root $rendersRoot -Candidate $fatiguePath)
+            Assert-AudioAuditionPublicationHash -Path $fatiguePath -ExpectedHash $record.ui_fatigue_render.sha256 -Code 'AUDIO_PUBLISH_RENDER_HASH'
+            if ($record.ui_fatigue_render.parent_sha256 -cne $record.mono_render.sha256 -or $record.ui_fatigue_render.repetitions -ne 10) { throw 'AUDIO_PUBLISH_PROVENANCE' }
+            $publicationRecord = [ordered]@{ acquisition_kind = 'exact_pack_member'; role = 'unassigned_ui_pool'; decision = 'UNHEARD'; allowed_next_decisions = @() }
+        }
+        else { throw 'AUDIO_PUBLISH_ANALYZE_INVALID' }
+        Assert-AudioAuditionDecision -Record $publicationRecord
+
+        $fullHash = Get-AudioAuditionPublicationHash -BatchId $manifest.batch_id -Identity $identity
+        $blindId = Get-AudioBlindId -BatchId $manifest.batch_id -Identity $identity
+        if (-not $seenBlindIds.Add($blindId)) { throw 'AUDIO_BLIND_ID_COLLISION' }
+        [void]$seenCandidates.Add($candidate.candidate_id)
+        $sourceMaster = if ($publicationRecord.Contains('source_master')) { $publicationRecord.source_master } else { $null }
+        $role = if ($publicationRecord.Contains('role')) { $publicationRecord.role } else { $null }
+        $candidateEvidence = [ordered]@{ blind_id = $blindId; candidate_id = $candidate.candidate_id; logical_name = $record.logical_name; acquisition_kind = $publicationRecord.acquisition_kind; source_master = $sourceMaster; role = $role; decision = $publicationRecord.decision; allowed_next_decisions = $publicationRecord.allowed_next_decisions; source = [ordered]@{ page = $candidate.source_page; asset_id = $candidate.source_asset_id; path = $sourcePath; sha256 = $record.source_sha256 }; creator = $candidate.creator; title = $candidate.title; license = $candidate.license; license_page = $candidate.license_page; metadata = $record.metadata; mono_render = $record.mono_render; evidence_ledger = 'docs/research/audio/2026-08-14-physical-core-license-reverification.md'; ai_provenance = (Get-AudioAuditionAiProvenance -Kind $candidate.kind -CandidateId $candidate.candidate_id) }
+        if ($candidate.kind -ceq 'kenney_pack') { $candidateEvidence.ui_fatigue_render = $record.ui_fatigue_render }
+        [void]$publishedCandidates.Add([pscustomobject]$candidateEvidence)
+        $publicQueue = [ordered]@{ blind_id = $blindId; mono_flac = (Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath $monoPath); source_or_preview = (Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath $sourcePath); decision = 'UNHEARD'; listener_notes = '' }
+        if ($candidate.kind -ceq 'kenney_pack') { $publicQueue.fatigue_render = (Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath $fatiguePath) }
+        [void]$blindEntries.Add([pscustomobject][ordered]@{ full_hash = $fullHash; public_queue = [pscustomobject]$publicQueue; candidate_evidence = $candidateEvidence })
+    }
+    foreach ($candidate in $manifest.candidates) { if (-not $seenCandidates.Contains($candidate.candidate_id)) { throw 'AUDIO_PUBLISH_ANALYZE_INCOMPLETE' } }
+    $orderedEntries = @($blindEntries | Sort-Object -Property full_hash)
+    $evidence = [pscustomobject][ordered]@{ schema_version = 1; batch_id = $manifest.batch_id; generated_at = $retrievedAtValue; godot_verification = 'NOT_RUN_GODOT_EXECUTABLE_UNAVAILABLE'; candidates = @($orderedEntries | ForEach-Object { [pscustomobject]$_.candidate_evidence }); audition_queue = @($orderedEntries | ForEach-Object { $_.public_queue }); stopped_candidates = @([ordered]@{ source_asset_id = '670070'; reason = 'conflicting first-party license metadata' }, [ordered]@{ source_asset_id = '802495'; reason = 'conflicting first-party license metadata' }) }
+    Write-AudioAuditionJson -Value $evidence -Path $jsonPath
+
+    $lines = [Collections.Generic.List[string]]::new()
+    [void]$lines.Add('# Audio Audition Docket')
+    [void]$lines.Add('')
+    [void]$lines.Add('PREVIEW-ONLY MATERIAL IS NOT APPROVED AND MUST NOT BE EXPORTED TO RUNTIME.')
+    [void]$lines.Add('COMFORT OBSERVATIONS ARE LISTENER JUDGMENTS, NOT MEDICAL SAFETY OR OBJECTIVE COMFORT CLAIMS.')
+    [void]$lines.Add('Playback is manual; no audio starts automatically.')
+    foreach ($entry in $orderedEntries) {
+        $queue = $entry.public_queue
+        [void]$lines.Add('')
+        [void]$lines.Add('## ' + $queue.blind_id)
+        [void]$lines.Add('1. Mono FLAC: [open](' + $queue.mono_flac + ')')
+        [void]$lines.Add('2. Unchanged source/preview: [open](' + $queue.source_or_preview + ')')
+        if ($queue.PSObject.Properties.Name -ccontains 'fatigue_render') { [void]$lines.Add('3. Ten-event fatigue render: [open](' + $queue.fatigue_render + ')') }
+        [void]$lines.Add('4. Decision: UNHEARD')
+        [void]$lines.Add('5. Listener notes:')
+    }
+    [void]$lines.Add('')
+    [void]$lines.Add('## Evidence Appendix')
+    foreach ($candidate in $evidence.candidates) {
+        [void]$lines.Add('')
+        [void]$lines.Add('### ' + $candidate.blind_id)
+        [void]$lines.Add('- Source: [' + $candidate.source.page + '](' + $candidate.source.page + ')')
+        [void]$lines.Add('- Creator: ' + $candidate.creator)
+        [void]$lines.Add('- Title: ' + $candidate.title)
+        [void]$lines.Add('- License: [' + $candidate.license + '](' + $candidate.license_page + ')')
+        [void]$lines.Add('- Source SHA-256: ' + $candidate.source.sha256)
+        [void]$lines.Add('- Mono SHA-256: ' + $candidate.mono_render.sha256)
+        [void]$lines.Add('- Metadata: ' + ($candidate.metadata | ConvertTo-Json -Compress -Depth 8))
+        [void]$lines.Add('- Evidence ledger: [reviewed note](../2026-08-14-physical-core-license-reverification.md)')
+        [void]$lines.Add('- AI provenance: ' + $candidate.ai_provenance)
+    }
+    [void]$lines.Add('')
+    [void]$lines.Add('### Stopped candidates')
+    [void]$lines.Add('- 670070: conflicting first-party license metadata')
+    [void]$lines.Add('- 802495: conflicting first-party license metadata')
+    Write-AudioAuditionMarkdown -Path $markdownPath -Text ($lines -join "`n")
+    Write-Output 'AUDIO_AUDITION_PUBLISH: PASS'
+    exit 0
 }
 
 if (-not (Test-Path -LiteralPath $initializePath -PathType Leaf)) { throw 'AUDIO_ANALYZE_INITIALIZE_REQUIRED' }

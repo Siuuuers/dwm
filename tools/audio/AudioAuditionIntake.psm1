@@ -552,6 +552,46 @@ function New-AudioUiRepeatRecipe {
     }
 }
 
+function Get-AudioBlindId {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$BatchId,
+        [Parameter(Mandatory = $true)][string]$Identity
+    )
+
+    $bytes = [Text.Encoding]::UTF8.GetBytes($BatchId + '|' + $Identity)
+    $sha256 = [Security.Cryptography.SHA256]::Create()
+    try {
+        $hash = $sha256.ComputeHash($bytes)
+        $hex = ([BitConverter]::ToString($hash)).Replace('-', '')
+        return 'A-' + $hex.Substring(0, 8)
+    }
+    finally { $sha256.Dispose() }
+}
+
+function Assert-AudioAuditionDecision {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)]$Record)
+
+    $properties = if ($Record -is [Collections.IDictionary]) { @($Record.Keys | ForEach-Object { [string]$_ }) } else { @($Record.PSObject.Properties.Name) }
+    if ($properties -cnotcontains 'acquisition_kind' -or $properties -cnotcontains 'decision') { throw 'AUDIO_DECISION_RECORD' }
+    $kind = [string]$Record.acquisition_kind
+    $decision = [string]$Record.decision
+    if ($kind -ceq 'official_preview') {
+        if ($decision -cnotin @('UNHEARD', 'PREVIEW_REJECTED', 'ORIGINAL_REQUESTED')) { throw 'AUDIO_PREVIEW_DECISION' }
+        if ($properties -cnotcontains 'source_master' -or $Record.source_master -ne $false -or @($properties | Where-Object { $_ -cmatch 'runtime' }).Count -gt 0) { throw 'AUDIO_PREVIEW_DECISION' }
+        if ($decision -ceq 'UNHEARD') {
+            if ($properties -cnotcontains 'allowed_next_decisions' -or $Record.allowed_next_decisions -isnot [Array] -or @($Record.allowed_next_decisions).Count -ne 2 -or $Record.allowed_next_decisions[0] -cne 'PREVIEW_REJECTED' -or $Record.allowed_next_decisions[1] -cne 'ORIGINAL_REQUESTED') { throw 'AUDIO_PREVIEW_DECISION' }
+        }
+        return
+    }
+    if ($kind -ceq 'exact_pack_member') {
+        if ($decision -cne 'UNHEARD' -or $properties -cnotcontains 'role' -or $Record.role -cne 'unassigned_ui_pool' -or @($properties | Where-Object { $_ -cmatch 'semantic|cue|runtime' }).Count -gt 0) { throw 'AUDIO_KENNEY_DECISION' }
+        return
+    }
+    throw 'AUDIO_DECISION_KIND'
+}
+
 function Assert-AudioAuditionPublishPath {
     param([Parameter(Mandatory = $true)][string]$CacheRoot, [Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)][string]$ExpectedLeaf)
 
@@ -624,4 +664,4 @@ function Publish-AudioAuditionAnalyzeAttempt {
     }
 }
 
-Export-ModuleMember -Function Get-AudioAuditionLayout, Assert-AudioAuditionContainedPath, Read-AudioAuditionManifest, Write-AudioAuditionJson, Resolve-FreesoundPreviewUrl, Resolve-KenneyArchiveUrl, Invoke-AudioAuditionDownload, Expand-AudioAuditionArchive, ConvertFrom-AudioProbeJson, ConvertFrom-AudioMeasurementText, Get-AudioAttenuationDb, New-AudioAuditionRenderRecipe, New-AudioUiRepeatRecipe
+Export-ModuleMember -Function Get-AudioAuditionLayout, Assert-AudioAuditionContainedPath, Read-AudioAuditionManifest, Write-AudioAuditionJson, Resolve-FreesoundPreviewUrl, Resolve-KenneyArchiveUrl, Invoke-AudioAuditionDownload, Expand-AudioAuditionArchive, ConvertFrom-AudioProbeJson, ConvertFrom-AudioMeasurementText, Get-AudioAttenuationDb, New-AudioAuditionRenderRecipe, New-AudioUiRepeatRecipe, Get-AudioBlindId, Assert-AudioAuditionDecision
