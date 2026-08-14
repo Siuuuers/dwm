@@ -71,6 +71,26 @@ const ALLOCATION_REQUEST_KEYS := [
 
 const ALLOCATION_KINDS := ["new_run", "restore"]
 
+## Exact persisted continuation candidate. The root is the sole production owner of this shape so
+## prepare, commit, and durable reconstruction cannot disagree about semantic members.
+const ALLOCATION_CANDIDATE_KEYS := [
+	"branch_id",
+	"branch_id_issuer_receipt",
+	"causal_day_instance",
+	"causal_day_instance_issuer_receipt",
+	"desktop_timeline_generation",
+	"desktop_timeline_generation_issuer_receipt",
+	"kind",
+	"remap_transaction_issuer_receipts",
+	"request",
+	"root_namespace",
+	"root_next_counter",
+	"run_id",
+	"run_id_issuer_receipt",
+	"schema_version",
+	"transaction_remap",
+]
+
 ## Derived, not frozen: the plan states the day-advance LAW (line 1682) but declares no request
 ## interface for the root's half. These three members are the minimum that law needs -- the map key
 ## is `resolution_kind + ":" + source_resolution_receipt_id`, and the source receipt must be
@@ -254,6 +274,10 @@ func commit_allocation(candidate: Dictionary) -> Dictionary:
 	var validated := _validate_allocation_request(request, _document)
 	if not validated.get("ok", false):
 		return validated
+	var reproducible := _continuation_candidate_from(
+		request, str(candidate["root_namespace"]), int(candidate["root_next_counter"]))
+	if candidate != reproducible:
+		return _failed(&"allocation_candidate_not_reproducible", str(request["transaction_id"]))
 	var transaction_id := str(request["transaction_id"])
 	var occupied: Dictionary = _document["allocation_receipts"]
 	if occupied.has(transaction_id):
@@ -438,6 +462,7 @@ func _continuation_candidate(request: Dictionary) -> Dictionary:
 	var remap_receipts := {}
 	for index in range(remap_sources.size()):
 		remap_receipts[str(remap_sources[index])] = (receipts[cursor + 3 + index] as Dictionary).duplicate(true)
+	var transaction_remap := _transaction_remap(remap_sources, remap_receipts)
 	return {
 		"schema_version": SCHEMA_VERSION,
 		"kind": kind,
@@ -453,6 +478,7 @@ func _continuation_candidate(request: Dictionary) -> Dictionary:
 		"causal_day_instance": str(causal_day_receipt["token"]),
 		"causal_day_instance_issuer_receipt": causal_day_receipt.duplicate(true),
 		"remap_transaction_issuer_receipts": remap_receipts,
+		"transaction_remap": transaction_remap,
 	}
 
 
@@ -704,13 +730,20 @@ func _validate_day_advance_receipt(receipt: Dictionary, document: Dictionary,
 
 
 func _validate_candidate(candidate: Dictionary, request_keys: Array) -> Dictionary:
-	for member in ["request", "root_namespace", "root_next_counter", "schema_version"]:
-		if not candidate.has(member):
-			return _failed(&"allocation_candidate_malformed", "missing " + str(member))
+	var candidate_shape := _exact_keys(candidate, ALLOCATION_CANDIDATE_KEYS)
+	if not candidate_shape.get("ok", false):
+		return _failed(&"allocation_candidate_malformed",
+			str(candidate_shape.get("message", "candidate member set")))
 	if typeof(candidate["request"]) != TYPE_DICTIONARY:
 		return _failed(&"allocation_candidate_malformed", "request must be an object")
-	if int(candidate["schema_version"]) != SCHEMA_VERSION:
+	if typeof(candidate["schema_version"]) != TYPE_INT \
+			or int(candidate["schema_version"]) != SCHEMA_VERSION:
 		return _failed(&"allocation_candidate_malformed", "unexpected candidate schema_version")
+	if typeof(candidate["root_namespace"]) != TYPE_STRING:
+		return _failed(&"allocation_candidate_malformed", "root_namespace must be a string")
+	if typeof(candidate["root_next_counter"]) != TYPE_INT \
+			or int(candidate["root_next_counter"]) < 1:
+		return _failed(&"allocation_candidate_malformed", "root_next_counter must be positive")
 	return _exact_keys(candidate["request"], request_keys)
 
 
@@ -933,6 +966,7 @@ func _continuation_candidate_from(request: Dictionary, namespace_value: String, 
 		var source_id := str(source)
 		remap_receipts[source_id] = (minted["receipts"][cursor] as Dictionary).duplicate(true)
 		cursor += 1
+	var transaction_remap := _transaction_remap(remap_sources, remap_receipts)
 	return {
 		"schema_version": SCHEMA_VERSION,
 		"kind": kind,
@@ -948,7 +982,21 @@ func _continuation_candidate_from(request: Dictionary, namespace_value: String, 
 		"causal_day_instance": str(causal_day_receipt["token"]),
 		"causal_day_instance_issuer_receipt": causal_day_receipt.duplicate(true),
 		"remap_transaction_issuer_receipts": remap_receipts,
+		"transaction_remap": transaction_remap,
 	}
+
+
+func _transaction_remap(remap_sources: Array, remap_receipts: Dictionary) -> Dictionary:
+	var transaction_remap := {}
+	for source in remap_sources:
+		var source_id := str(source)
+		var receipt: Dictionary = remap_receipts[source_id]
+		transaction_remap[source_id] = {
+			"source_transaction_id": source_id,
+			"new_transaction_id": str(receipt["token"]),
+			"new_transaction_issuer_receipt": receipt.duplicate(true),
+		}
+	return transaction_remap
 
 
 func _day_advance_candidate_from(request: Dictionary, namespace_value: String, root_next_counter: int) -> Dictionary:

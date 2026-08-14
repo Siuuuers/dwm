@@ -79,6 +79,26 @@ const RECEIPT_KEYS: Array[String] = [
 	"token",
 ]
 
+# The root-private persisted continuation candidate. Plan line 1712 adds transaction_remap to the
+# candidate that prepare, commit, and restart reconstruction must reproduce byte-for-byte.
+const CONTINUATION_CANDIDATE_KEYS: Array[String] = [
+	"branch_id",
+	"branch_id_issuer_receipt",
+	"causal_day_instance",
+	"causal_day_instance_issuer_receipt",
+	"desktop_timeline_generation",
+	"desktop_timeline_generation_issuer_receipt",
+	"kind",
+	"remap_transaction_issuer_receipts",
+	"request",
+	"root_namespace",
+	"root_next_counter",
+	"run_id",
+	"run_id_issuer_receipt",
+	"schema_version",
+	"transaction_remap",
+]
+
 # The closed v1 purpose union, plan line 535. The ROOT accepts all ten: refusing the two allocator
 # purposes is the ISSUER's law (plan line 729), and a root that refused them could never allocate a
 # generation or a causal day at all.
@@ -875,6 +895,92 @@ func test_real_root_new_run_and_restore_continuation_bundles_are_coherent_across
 	var restarted_document: Dictionary = restarted_capture.get("value", {})
 	assert_eq(restarted_document, before_restart,
 		"a real restart preserves the committed restore candidate byte-for-byte")
+
+
+func test_real_issuer_new_run_and_restore_candidates_survive_durable_restart() -> void:
+	if _opened_document().is_empty():
+		return
+	var issuer := ISSUER.new()
+	if not _require_ok(issuer.configure(_store), "configure real issuer over real root"):
+		return
+
+	var profiles: Array[Dictionary] = [
+		{"kind": "new_run", "sources": []},
+		{"kind": "restore", "sources": ["transaction.source.a", "transaction.source.b"]},
+	]
+	for profile: Dictionary in profiles:
+		var issued: Dictionary = issuer.issue(&"transaction_id")
+		if not _require_ok(issued, "issue real %s allocation transaction" % profile["kind"]):
+			return
+		var transaction_receipt: Dictionary = _issuer_receipt(issued)
+		var request: Dictionary
+		if profile["kind"] == "new_run":
+			request = _new_run_request(transaction_receipt)
+		else:
+			request = _restore_request(
+				transaction_receipt, "run_id.durable-source", 7, profile["sources"])
+		var prepared: Dictionary = issuer.prepare_continuation_allocation(request)
+		if not _require_ok(prepared, "prepare real issuer %s allocation" % profile["kind"]):
+			return
+		var candidate: Dictionary = prepared.get("value", {})
+		var candidate_keys: Array = candidate.keys()
+		candidate_keys.sort()
+		assert_eq(candidate_keys, CONTINUATION_CANDIDATE_KEYS,
+			"%s prepare returns the one exact persisted candidate shape" % profile["kind"])
+		var expected_sources: Array = (profile["sources"] as Array).duplicate()
+		expected_sources.sort()
+		var remap: Dictionary = candidate.get("transaction_remap", {})
+		var remap_keys: Array = remap.keys()
+		remap_keys.sort()
+		assert_eq(remap_keys, expected_sources,
+			"%s candidate carries the deterministic complete transaction_remap" % profile["kind"])
+		if not _require_ok(issuer.commit_continuation_allocation(candidate),
+				"commit real issuer %s allocation" % profile["kind"]):
+			return
+
+		var restarted := _restart_store()
+		var reloaded: Dictionary = restarted.load_or_create()
+		assert_true(reloaded.get("ok", false),
+			"real issuer %s allocation must reload from durable bytes: %s" % [
+				profile["kind"], reloaded,
+			])
+		if not reloaded.get("ok", false):
+			return
+		var restarted_capture: Dictionary = restarted.capture()
+		var restarted_document: Dictionary = restarted_capture.get("value", {})
+		assert_eq((restarted_document.get("allocation_receipts", {}) as Dictionary).get(
+			str(request["transaction_id"])), candidate,
+			"%s restart reconstructs the byte-identical committed candidate" % profile["kind"])
+
+
+func test_commit_rejects_altered_or_extra_candidate_semantics_before_storage_mutation() -> void:
+	if _opened_document().is_empty():
+		return
+	var issuer := ISSUER.new()
+	if not _require_ok(issuer.configure(_store), "configure real issuer for candidate rejection"):
+		return
+	var mutations: Array[Dictionary] = [
+		{"label": "altered branch semantic", "member": "branch_id", "value": "branch_id.forged"},
+		{"label": "extra semantic member", "member": "purpose", "value": "continuation"},
+	]
+	for mutation: Dictionary in mutations:
+		var issued: Dictionary = issuer.issue(&"transaction_id")
+		if not _require_ok(issued, "issue transaction for %s" % mutation["label"]):
+			return
+		var request: Dictionary = _new_run_request(_issuer_receipt(issued))
+		var prepared: Dictionary = issuer.prepare_continuation_allocation(request)
+		if not _require_ok(prepared, "prepare candidate for %s" % mutation["label"]):
+			return
+		var changed: Dictionary = (prepared.get("value", {}) as Dictionary).duplicate(true)
+		changed[mutation["member"]] = mutation["value"]
+		var bytes_before: Dictionary = _file_ops.snapshot_persisted()
+		var root_before: Dictionary = _captured_document()
+		_assert_rejected(issuer.commit_continuation_allocation(changed),
+			"commit refuses %s" % mutation["label"])
+		assert_eq(_file_ops.snapshot_persisted(), bytes_before,
+			"%s is rejected before durable storage mutation" % mutation["label"])
+		assert_eq(_captured_document(), root_before,
+			"%s is rejected before in-memory root mutation" % mutation["label"])
 
 
 # ---------------------------------------------------------------------------------------------

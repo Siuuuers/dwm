@@ -215,6 +215,11 @@ func advance(request: Dictionary) -> Dictionary:
 	var request_ok := _validate_advance_request(request, operation)
 	if not request_ok.get("ok", false):
 		return request_ok
+	if operation.get("failure") != null:
+		if _is_identical_diagnostic_replay(operation, request):
+			return {"ok": true, "value": operation.duplicate(true)}
+		return _failed(&"advance_blocked_by_recovery_diagnostic",
+			"the retained diagnostic must be proven and durably cleared before forward advancement")
 
 	var next := _advance_one_step(operation, request)
 	if not next.get("ok", false):
@@ -287,7 +292,7 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 	if str(operation.get("kind", "")) == "new_run":
 		var computed := _canonical_sha256(operation.get("initial_context"))
 		if computed.is_empty():
-			return _failed(&"continuation_context_hash_unhashable", tx_hash_reason(operation))
+			return _failed(&"continuation_context_hash_unhashable", _tx_hash_reason(operation))
 		if str(operation.get("initial_context_sha256", "")) != str(computed):
 			return _failed(&"continuation_context_hash_mismatch", str(operation.get("transaction_id", "")))
 	else:
@@ -499,6 +504,10 @@ func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
 	if typeof(context.get("dialogic_checkpoint")) != TYPE_DICTIONARY \
 			or typeof(context.get("audio_context")) != TYPE_DICTIONARY:
 		return _failed(_schema_error, "new_run context payloads must be dictionaries")
+	if not (context["dialogic_checkpoint"] as Dictionary).is_empty() \
+			or not (context["audio_context"] as Dictionary).is_empty():
+		return _failed(_schema_error,
+			"new_run dialogic_checkpoint and audio_context must both equal {}")
 	if typeof(context.get("content_version")) != TYPE_INT or int(context["content_version"]) < 1:
 		return _failed(_schema_error, "new_run content_version must be an integer >= 1")
 	if not _is_sha256(operation.get("initial_context_sha256")):
@@ -601,6 +610,9 @@ func _validate_intent_request(request: Dictionary) -> Dictionary:
 			return _failed(&"invalid_intent_request", "restore requires null initial_context_sha256")
 		if typeof(request.get("source_locator")) != TYPE_DICTIONARY:
 			return _failed(&"invalid_intent_request", "restore requires object source_locator")
+	var kind_fields_ok := _validate_kind_fields(request, kind)
+	if not kind_fields_ok.get("ok", false):
+		return kind_fields_ok
 	if typeof(request.get("transaction_issuer_receipt")) != TYPE_DICTIONARY:
 		return _failed(&"invalid_intent_request", "transaction_issuer_receipt must be a dictionary")
 	return {"ok": true}
@@ -769,7 +781,7 @@ func _advance_apply_participant(operation: Dictionary, allocation_receipt: Varia
 		participant_receipt: Variant, index: int, failure: Variant, operation_stage: String) -> Dictionary:
 	if operation_stage != STAGE_APPLYING:
 		return _failed(&"illegal_stage", "expected participants_applying stage")
-	if index < 0 or index > PARTICIPANT_ORDER.size():
+	if index < 0 or index >= PARTICIPANT_ORDER.size():
 		return _failed(&"advance_request_invalid", "expected index out of range")
 	if allocation_receipt != null:
 		return _failed(&"advance_request_invalid", "participant transition cannot carry allocation evidence")
@@ -921,21 +933,25 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 				return _failed(&"advance_request_invalid", "invalid replay transition")
 			if request.get("failure") != null:
 				return _failed(&"advance_request_invalid", "replay carries no failure")
-			if int(request["expected_next_participant_index"]) != int(operation.get("next_participant_index", -1)):
-				return _failed(&"advance_request_invalid", "replay index must match next participant index")
+			if request.get("allocation_receipt") != null:
+				return _failed(&"advance_request_invalid", "participant replay carries no allocation receipt")
+			var replay_index := int(request["expected_next_participant_index"])
+			if replay_index < 0 or replay_index >= PARTICIPANT_ORDER.size():
+				return _failed(&"advance_request_invalid", "participant replay index is out of range")
 			var name := str(request.get("participant_name", ""))
 			var receipt: Variant = request.get("participant_receipt", null)
-			var expected_name := PARTICIPANT_ORDER[int(request["expected_next_participant_index"])]
+			var expected_name := PARTICIPANT_ORDER[replay_index]
 			var receipts: Dictionary = operation.get("participant_receipts", {})
 			if name != expected_name:
 				return _failed(&"advance_request_invalid", "replay participant name mismatch")
 			if typeof(receipt) != TYPE_DICTIONARY:
 				return _failed(&"advance_request_invalid", "replay requires participant_receipt")
-			if receipts.get(name) != null:
-				if receipts.get(name) != receipt:
-					return _failed(&"advance_request_invalid", "participant receipt replay changed")
-				return {"ok": true}
-			return _failed(&"advance_request_invalid", "the replayed participant had not been recorded")
+			if replay_index >= int(operation.get("next_participant_index", -1)) \
+					or receipts.get(name) == null:
+				return _failed(&"advance_request_invalid", "the replayed participant had not been recorded")
+			if receipts.get(name) != receipt:
+				return _failed(&"advance_request_invalid", "participant receipt replay changed")
+			return {"ok": true}
 
 		STAGE_APPLIED:
 			if next_stage != STAGE_COMPLETED:
@@ -964,6 +980,20 @@ func _replay_failure(operation: Dictionary, request: Dictionary) -> Dictionary:
 	if not _operation_equals(operation.get("failure"), request.get("failure")):
 		return _failed(&"advance_request_invalid", "different diagnostic rejected")
 	return {"ok": true}
+
+
+func _is_identical_diagnostic_replay(operation: Dictionary, request: Dictionary) -> bool:
+	var stage := str(operation.get("stage", ""))
+	if stage == STAGE_COMPLETED or stage == STAGE_ABORTED:
+		return false
+	return str(request.get("expected_stage", "")) == stage \
+		and str(request.get("next_stage", "")) == stage \
+		and int(request.get("expected_next_participant_index", -1)) \
+			== int(operation.get("next_participant_index", -2)) \
+		and request.get("allocation_receipt") == null \
+		and request.get("participant_name") == null \
+		and request.get("participant_receipt") == null \
+		and request.get("failure") == operation.get("failure")
 
 
 func _normalize_after_advance(operation: Dictionary) -> Dictionary:
@@ -1069,7 +1099,7 @@ func _exact_keys(value: Dictionary, expected: Array[String]) -> Dictionary:
 	return {"ok": true}
 
 
-func tx_hash_reason(operation: Dictionary) -> String:
+func _tx_hash_reason(operation: Dictionary) -> String:
 	if typeof(operation.get("initial_context")) == TYPE_DICTIONARY or typeof(operation.get("initial_context")) == TYPE_ARRAY:
 		return operation.get("transaction_id", "")
 	return "new operation has non-composite context"

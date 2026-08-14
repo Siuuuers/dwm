@@ -72,6 +72,7 @@ const SKELETON_PATHS := {
 
 # Plan line 555: one strict primitive document, outside Save slots, autosaves and profiles.
 const JOURNAL_PATH := "desktop-continuation-operations.json"
+const JOURNAL_SOURCE_PATH := "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
 
 const IDENTITY_ROOT := "sandbox/identity"
 const NAMESPACE_A := "1111111111111111111111111111111111111111111111111111111111111111"
@@ -248,6 +249,29 @@ func test_continuation_journal_skeletons_load() -> void:
 		var probe: Variant = DynamicScriptProbe.load_script(str(SKELETON_PATHS[label]))
 		assert_true(probe.get("ok", false),
 			"%s must parse and load: %s" % [label, str(probe.get("message", ""))])
+
+
+func test_journal_public_surface_is_exactly_the_frozen_seven_methods() -> void:
+	var expected: Array[String] = [
+		"configure",
+		"prepare_intent",
+		"commit_intent",
+		"advance",
+		"get_operation",
+		"list_incomplete",
+		"reconcile_startup",
+	]
+	var actual: Array[String] = []
+	var source := FileAccess.get_file_as_string(JOURNAL_SOURCE_PATH)
+	for line: String in source.split("\n"):
+		if not line.begins_with("func "):
+			continue
+		var declaration := line.trim_prefix("func ")
+		var method_name := declaration.get_slice("(", 0)
+		if not method_name.begins_with("_"):
+			actual.append(method_name)
+	assert_eq(actual, expected,
+		"plan lines 713-720 freeze exactly seven column-zero non-private journal methods")
 
 
 # ---------------------------------------------------------------------------------------------
@@ -778,6 +802,24 @@ func test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields(
 			"plan line 780: prepare_intent missing %s is exact-key-invalid" % missing)
 
 
+func test_new_run_requires_exactly_empty_dialogic_and_audio_subcontexts() -> void:
+	var journal: Variant = _configured_journal()
+	if journal == null:
+		return
+	for member: String in ["dialogic_checkpoint", "audio_context"]:
+		var request: Dictionary = _new_run_intent_request_for(
+			"tx-new-run-nonempty-%s" % member)
+		var context: Dictionary = (request["initial_context"] as Dictionary).duplicate(true)
+		context[member] = {"unexpected": true}
+		request["initial_context"] = context
+		request["initial_context_sha256"] = _canonical_sha256(context)
+		var writes_before: int = _storage.write_count
+		_assert_rejected(journal.prepare_intent(request),
+			"New Run requires %s to equal {} exactly" % member)
+		assert_eq(_storage.write_count, writes_before,
+			"nonempty %s rejects before storage mutation" % member)
+
+
 # ---------------------------------------------------------------------------------------------
 # Clause 37 -- intent before allocation (breadth)
 # ---------------------------------------------------------------------------------------------
@@ -875,6 +917,65 @@ func test_the_eight_participants_apply_in_exactly_the_frozen_order() -> void:
 	for participant: String in PARTICIPANT_ORDER:
 		assert_true(applied_receipts.get(participant) != null,
 			"plan line 591: %s must be nonnull at participants_applied" % participant)
+
+
+func test_each_participant_receipt_has_identical_replay_and_changed_receipt_conflict() -> void:
+	var journal: Variant = _applying_journal()
+	if journal == null:
+		return
+	for index: int in range(PARTICIPANT_ORDER.size()):
+		var participant: String = PARTICIPANT_ORDER[index]
+		var request: Dictionary = _advance_request(
+			_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLYING, index)
+		request["participant_name"] = participant
+		request["participant_receipt"] = _participant_receipt(participant)
+		if not _require_ok(journal.advance(request), "apply participant %s" % participant):
+			return
+		var retained: Dictionary = _operation_record()
+		var writes_after_apply: int = _storage.write_count
+		var replayed: Dictionary = journal.advance(request.duplicate(true))
+		assert_true(replayed.get("ok", false),
+			"the identical %s receipt replays after its index advanced: %s" % [
+				participant, replayed,
+			])
+		assert_eq(replayed.get("value"), retained,
+			"the identical %s replay returns the retained operation" % participant)
+		assert_eq(_storage.write_count, writes_after_apply,
+			"the identical %s replay performs no storage write" % participant)
+
+		var changed: Dictionary = request.duplicate(true)
+		changed["participant_receipt"] = _participant_receipt(participant)
+		(changed["participant_receipt"] as Dictionary)["changed"] = true
+		_assert_rejected(journal.advance(changed),
+			"a changed replay receipt conflicts for %s" % participant)
+		assert_eq(_storage.write_count, writes_after_apply,
+			"the changed %s replay conflicts before storage mutation" % participant)
+
+
+func test_applying_index_eight_rejects_safely_before_participant_array_access() -> void:
+	var journal: Variant = _applying_journal()
+	if journal == null:
+		return
+	for index: int in range(PARTICIPANT_ORDER.size()):
+		var participant: String = PARTICIPANT_ORDER[index]
+		var request: Dictionary = _advance_request(
+			_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLYING, index)
+		request["participant_name"] = participant
+		request["participant_receipt"] = _participant_receipt(participant)
+		if not _require_ok(journal.advance(request), "seed participant %s" % participant):
+			return
+	var unsafe: Dictionary = _advance_request(
+		_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLYING, PARTICIPANT_ORDER.size())
+	unsafe["participant_name"] = PARTICIPANT_ORDER[-1]
+	unsafe["participant_receipt"] = _participant_receipt(PARTICIPANT_ORDER[-1])
+	var writes_before: int = _storage.write_count
+	var durable_before: String = _canonical_sha256(_stored_document())
+	_assert_rejected(journal.advance(unsafe),
+		"participant index 8 is terminal and cannot address a ninth participant")
+	assert_eq(_storage.write_count, writes_before,
+		"participant index 8 rejects before storage mutation")
+	assert_eq(_canonical_sha256(_stored_document()), durable_before,
+		"participant index 8 preserves durable bytes")
 
 
 func test_a_skipped_participant_index_is_refused() -> void:
@@ -1836,6 +1937,67 @@ func test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_
 	with_allocation["allocation_receipt"] = _allocation_receipt()
 	_assert_rejected(journal.advance(with_allocation),
 		"plan line 780: a diagnostic requires all allocation fields null")
+
+
+func test_a_retained_diagnostic_blocks_every_forward_advance_until_reconciled() -> void:
+	var profiles: Array[Dictionary] = [
+		{
+			"stage": STAGE_ALLOCATED,
+			"participant_count": 0,
+			"next_stage": STAGE_APPLYING,
+		},
+		{
+			"stage": STAGE_APPLYING,
+			"participant_count": 3,
+			"next_stage": STAGE_APPLYING,
+		},
+		{
+			"stage": STAGE_APPLIED,
+			"participant_count": PARTICIPANT_ORDER.size(),
+			"next_stage": STAGE_COMPLETED,
+		},
+	]
+	for profile_index: int in range(profiles.size()):
+		var profile: Dictionary = profiles[profile_index]
+		var txid := "tx-diagnostic-forward-block-%d" % profile_index
+		_storage.restart()
+		var scenario := JOURNAL.new()
+		if not _require_ok(scenario.configure(_storage, _loader),
+				"configure diagnosed forward-block scenario at %s" % profile["stage"]):
+			return
+		if not _journal_with_stage(scenario, txid, str(profile["stage"]), false, false,
+				int(profile["participant_count"])):
+			return
+		var diagnostic: Dictionary = _advance_request_for_transaction(
+			txid, str(profile["stage"]), str(profile["stage"]),
+			int(profile["participant_count"]))
+		diagnostic["failure"] = _failure(
+			"source_unprovable", "retained diagnostic at %s" % profile["stage"])
+		if not _require_ok(scenario.advance(diagnostic),
+				"record retained diagnostic at %s" % profile["stage"]):
+			return
+		var writes_after_diagnostic: int = _storage.write_count
+		var durable_after_diagnostic: Dictionary = _stored_document()
+		if not _require_ok(scenario.advance(diagnostic.duplicate(true)),
+				"byte-identical diagnostic replay at %s" % profile["stage"]):
+			return
+		assert_eq(_storage.write_count, writes_after_diagnostic,
+			"identical diagnostic replay is a no-op at %s" % profile["stage"])
+
+		var forward: Dictionary = _advance_request_for_transaction(
+			txid, str(profile["stage"]), str(profile["next_stage"]),
+			int(profile["participant_count"]))
+		if profile["stage"] == STAGE_APPLYING:
+			var participant: String = PARTICIPANT_ORDER[int(profile["participant_count"])]
+			forward["participant_name"] = participant
+			forward["participant_receipt"] = _participant_receipt(participant)
+		_assert_rejected(scenario.advance(forward),
+			"a retained diagnostic blocks forward advance from %s" % profile["stage"])
+		assert_eq(_storage.write_count, writes_after_diagnostic,
+			"diagnosed %s rejects forward movement before storage mutation" % profile["stage"])
+		assert_eq(_canonical_sha256(_stored_document()),
+			_canonical_sha256(durable_after_diagnostic),
+			"diagnosed %s preserves the retained durable bytes" % profile["stage"])
 
 
 # ---------------------------------------------------------------------------------------------

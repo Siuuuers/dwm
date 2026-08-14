@@ -96,6 +96,53 @@ var _issuer_root: FAKE_ROOT_STORE
 var _issuer: ISSUER
 
 
+## Keeps the allocation half of the issuer test double faithful to the corrected real root without
+## widening tests/support. All ordinary root behavior and spy state still belong to `_issuer_root`.
+class CandidateFaithfulRootAdapter extends RefCounted:
+	var root: Object
+
+	func _init(root_store: Object) -> void:
+		root = root_store
+
+	func issue(purpose: StringName) -> Dictionary:
+		return root.call(&"issue", purpose)
+
+	func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictionary:
+		return root.call(&"verify_receipt", receipt, expected_purpose)
+
+	func prepare_allocation(request: Dictionary) -> Dictionary:
+		var prepared: Dictionary = root.call(&"prepare_allocation", request)
+		if not prepared.get("ok", false):
+			return prepared
+		var candidate: Dictionary = (prepared.get("value", {}) as Dictionary).duplicate(true)
+		var sources: Array = (candidate.get("request", {}) as Dictionary).get(
+			"remap_source_transaction_ids", [])
+		var minted: Dictionary = candidate.get("remap_transaction_issuer_receipts", {})
+		var transaction_remap := {}
+		for source in sources:
+			var source_id := str(source)
+			var receipt: Dictionary = minted.get(source_id, {})
+			transaction_remap[source_id] = {
+				"source_transaction_id": source_id,
+				"new_transaction_id": str(receipt.get("token", "")),
+				"new_transaction_issuer_receipt": receipt.duplicate(true),
+			}
+		candidate["transaction_remap"] = transaction_remap
+		return {"ok": true, "value": candidate}
+
+	func commit_allocation(candidate: Dictionary) -> Dictionary:
+		return root.call(&"commit_allocation", candidate)
+
+	func prepare_causal_day_advance(request: Dictionary) -> Dictionary:
+		return root.call(&"prepare_causal_day_advance", request)
+
+	func commit_causal_day_advance(candidate: Dictionary) -> Dictionary:
+		return root.call(&"commit_causal_day_advance", candidate)
+
+	func capture() -> Dictionary:
+		return root.call(&"capture")
+
+
 func before_each() -> void:
 	_issuer_root = null
 	_issuer = null
@@ -599,7 +646,7 @@ func test_capture_root_is_detached_and_never_restores_root_state() -> void:
 func _issuer_with_namespace(namespace_hex: String, next_counter: int) -> ISSUER:
 	_issuer_root = FAKE_ROOT_STORE.new(namespace_hex, next_counter)
 	_issuer = ISSUER.new()
-	_issuer.configure(_issuer_root)
+	_issuer.configure(CandidateFaithfulRootAdapter.new(_issuer_root))
 	return _issuer
 
 

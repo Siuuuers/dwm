@@ -202,8 +202,8 @@ func validate_child(provenance: Dictionary, expected_kind: StringName) -> Dictio
 	return {"ok": true, "value": {"provenance": provenance.duplicate(true)}}
 
 
-## Mutation-free. Delegates the whole proposal to the root, then adds the one member the root's
-## candidate does not carry: the `transaction_remap` of plan line 1712, empty for New Run.
+## Mutation-free. The root is the sole production owner of the exact persisted candidate, including
+## plan line 1712's transaction_remap; the issuer returns that detached proposal unchanged.
 func prepare_continuation_allocation(request: Dictionary) -> Dictionary:
 	var ready := _require_configured("prepare_continuation_allocation")
 	if not ready.get("ok", false):
@@ -211,7 +211,7 @@ func prepare_continuation_allocation(request: Dictionary) -> Dictionary:
 	var prepared: Dictionary = _root.call(&"prepare_allocation", request)
 	if not prepared.get("ok", false):
 		return prepared
-	return {"ok": true, "value": _with_transaction_remap(prepared.get("value", {}))}
+	return {"ok": true, "value": (prepared.get("value", {}) as Dictionary).duplicate(true)}
 
 
 ## Plan line 729: commit repeats root namespace/counter/request validation and atomically persists
@@ -317,31 +317,6 @@ func _validate_child_shape(child_kind: String, ordinal: Variant, source_ids: Var
 			return _failed(&"child_source_ids_unsorted", current)
 		previous = current
 	return {"ok": true}
-
-
-# -------------------------------------------------------------------------------------------------
-# Continuation bundle
-# -------------------------------------------------------------------------------------------------
-
-## Plan line 1712: each restore entry is exactly `{source_transaction_id,new_transaction_id,
-## new_transaction_issuer_receipt}` keyed by the source ID, and New Run requires `{}`. Idempotent, so
-## re-augmenting a recorded candidate on an allocation replay reproduces the identical member.
-func _with_transaction_remap(bundle: Dictionary) -> Dictionary:
-	var augmented: Dictionary = bundle
-	var minted: Dictionary = augmented.get("remap_transaction_issuer_receipts", {})
-	var sources: Array = (augmented.get("request", {}) as Dictionary).get(
-		"remap_source_transaction_ids", [])
-	var remap := {}
-	for source in sources:
-		var source_id := str(source)
-		var receipt: Dictionary = minted.get(source_id, {})
-		remap[source_id] = {
-			"source_transaction_id": source_id,
-			"new_transaction_id": str(receipt.get("token", "")),
-			"new_transaction_issuer_receipt": receipt.duplicate(true),
-		}
-	augmented["transaction_remap"] = remap
-	return augmented
 
 
 # -------------------------------------------------------------------------------------------------
