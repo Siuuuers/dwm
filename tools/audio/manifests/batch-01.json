@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "batch_id": "batch-01",
+  "retrieval_date": "2026-08-14",
+  "candidates": [
+    {"candidate_id":"pc_001","role":"ambience.bedroom_night","kind":"freesound_preview","creator":"visionear","title":"Room tone Very quiet Small apartment room loopable edlarez vsnr.wav","source_asset_id":"565535","source_page":"https://freesound.org/people/visionear/sounds/565535/","license":"CC0 1.0","license_page":"https://creativecommons.org/publicdomain/zero/1.0/"},
+    {"candidate_id":"pc_002","role":"ambience.university_day","kind":"freesound_preview","creator":"richwise","title":"RoomTone01","source_asset_id":"474823","source_page":"https://freesound.org/people/richwise/sounds/474823/","license":"CC0 1.0","license_page":"https://creativecommons.org/publicdomain/zero/1.0/"},
+    {"candidate_id":"pc_003","role":"foley.paper_folder","kind":"freesound_preview","creator":"alec_mackay","title":"paper shuffle.wav","source_asset_id":"463682","source_page":"https://freesound.org/people/alec_mackay/sounds/463682/","license":"CC0 1.0","license_page":"https://creativecommons.org/publicdomain/zero/1.0/"},
+    {"candidate_id":"pc_004","role":"foley.book_page_annotation","kind":"freesound_preview","creator":"parkersenk","title":"Writing with Pencil on Paper","source_asset_id":"444479","source_page":"https://freesound.org/people/parkersenk/sounds/444479/","license":"CC0 1.0","license_page":"https://creativecommons.org/publicdomain/zero/1.0/"},
+    {"candidate_id":"pc_005","role":"foley.chair_ceramic_kettle","kind":"freesound_preview","creator":"Jamitch2","title":"Ceramic_Mug_Cup.wav","source_asset_id":"344704","source_page":"https://freesound.org/people/Jamitch2/sounds/344704/","license":"CC0 1.0","license_page":"https://creativecommons.org/publicdomain/zero/1.0/"},
+    {"candidate_id":"pc_006","role":"foley.keyboard_instrument_control","kind":"freesound_preview","creator":"EricsSoundschmiede","title":"SWITCH.wav","source_asset_id":"457410","source_page":"https://freesound.org/people/EricsSoundschmiede/sounds/457410/","license":"CC0 1.0","license_page":"https://creativecommons.org/publicdomain/zero/1.0/"},
+    {"candidate_id":"pc_007","role":"foley.door_handled","kind":"freesound_preview","creator":"Breviceps","title":"Door (Opening and Closing)","source_asset_id":"457042","source_page":"https://freesound.org/people/Breviceps/sounds/457042/","license":"CC0 1.0","license_page":"https://creativecommons.org/publicdomain/zero/1.0/"},
+    {"candidate_id":"ui_pool_001","role":"unassigned_ui_pool","kind":"kenney_pack","creator":"Kenney","title":"UI Audio","source_asset_id":"ui-audio-v1.0","source_page":"https://www.kenney.nl/assets/ui-audio","license":"CC0 1.0","license_page":"https://creativecommons.org/publicdomain/zero/1.0/"}
+  ]
+}

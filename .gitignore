@@ -7,3 +7,6 @@
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Preserved licensed source audio is local evidence, never a Git/runtime asset.
+/source_audio/
