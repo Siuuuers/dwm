@@ -1,0 +1,8 @@
+# timeline_id: fixture.narrative_caption.style
+# locale: en
+# type: caption_style_fixture
+Narrator: First caption.
+Narrator: Second caption.
+Narrator: Third caption.[n+] Continued third caption.
+Narrator: Fourth caption.
+return
