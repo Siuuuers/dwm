@@ -32,6 +32,8 @@ const REQUIRED_SCENE_PATHS := [
 	"res://scenes/shared/ScheduleEntryBox.tscn",
 	"res://scenes/shared/SaveSlotRow.tscn",
 	"res://scenes/shared/DialogueBox.tscn",
+	"res://scenes/shared/narrative/NarrativeCaptionLayer.tscn",
+	"res://scenes/dialogic/NarrativeCaptionDialogicLayer.tscn",
 ]
 
 func _init() -> void:
