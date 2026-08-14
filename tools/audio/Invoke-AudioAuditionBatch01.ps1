@@ -239,6 +239,52 @@ function Write-AudioAuditionMarkdown {
     [IO.File]::WriteAllText($Path, $Text.TrimEnd("`r", "`n") + "`n", $utf8)
 }
 
+function Assert-AudioAuditionMonoRecipe {
+    param([Parameter(Mandatory = $true)]$Render)
+
+    $recipeProperty = $Render.PSObject.Properties['recipe']
+    if ($null -eq $recipeProperty -or $null -eq $recipeProperty.Value) { throw 'AUDIO_PUBLISH_RECIPE' }
+    $recipe = $recipeProperty.Value
+    $keys = @($recipe.PSObject.Properties.Name)
+    $expected = @('codec', 'channels', 'attenuation_db', 'fade_seconds', 'literal_filter_audio')
+    if ($keys.Count -ne $expected.Count -or @($expected | Where-Object { $keys -cnotcontains $_ }).Count -ne 0 -or $recipe.codec -cne 'flac' -or $recipe.channels -ne 1 -or [double]$recipe.attenuation_db -gt 0.0 -or [double]$recipe.fade_seconds -le 0.0 -or [string]::IsNullOrWhiteSpace([string]$recipe.literal_filter_audio)) { throw 'AUDIO_PUBLISH_RECIPE' }
+}
+
+function Assert-AudioAuditionFatigueRecipe {
+    param([Parameter(Mandatory = $true)]$Render)
+
+    $recipeProperty = $Render.PSObject.Properties['recipe']
+    if ($null -eq $recipeProperty -or $null -eq $recipeProperty.Value) { throw 'AUDIO_PUBLISH_RECIPE' }
+    $recipe = $recipeProperty.Value
+    $keys = @($recipe.PSObject.Properties.Name)
+    $expected = @('codec', 'repetitions', 'interval_seconds', 'literal_filter_complex')
+    if ($keys.Count -ne $expected.Count -or @($expected | Where-Object { $keys -cnotcontains $_ }).Count -ne 0 -or $recipe.codec -cne 'flac' -or $recipe.repetitions -ne 10 -or [double]$recipe.interval_seconds -le 0.0 -or [string]::IsNullOrWhiteSpace([string]$recipe.literal_filter_complex)) { throw 'AUDIO_PUBLISH_RECIPE' }
+}
+
+function Get-AudioAuditionRepositoryRelativePath {
+    param([Parameter(Mandatory = $true)][string]$RepositoryRoot, [Parameter(Mandatory = $true)][string]$Path)
+
+    $relative = Get-AudioAuditionDocketLink -FromDirectory $RepositoryRoot -ToPath $Path
+    if ($relative.StartsWith('../', [StringComparison]::Ordinal) -or $relative -eq '..') { throw 'AUDIO_PUBLISH_PATH' }
+    return $relative
+}
+
+function Copy-AudioAuditionVerifiedAlias {
+    param([Parameter(Mandatory = $true)][string]$SourcePath, [Parameter(Mandatory = $true)][string]$DestinationPath, [Parameter(Mandatory = $true)][string]$ExpectedHash)
+
+    if (Test-Path -LiteralPath $DestinationPath) { throw 'AUDIO_PUBLISH_ALIAS_EXISTS' }
+    Copy-Item -LiteralPath $SourcePath -Destination $DestinationPath -ErrorAction Stop
+    Assert-AudioAuditionPublicationHash -Path $DestinationPath -ExpectedHash $ExpectedHash -Code 'AUDIO_PUBLISH_ALIAS_HASH'
+}
+
+function ConvertTo-AudioAuditionEvidenceRender {
+    param([Parameter(Mandatory = $true)]$Render, [Parameter(Mandatory = $true)][string]$RepositoryRoot)
+
+    $output = [ordered]@{ path = (Get-AudioAuditionRepositoryRelativePath -RepositoryRoot $RepositoryRoot -Path $Render.path) }
+    foreach ($property in $Render.PSObject.Properties) { if ($property.Name -cne 'path') { $output[$property.Name] = $property.Value } }
+    return [pscustomobject]$output
+}
+
 $retrievedAtValue = Get-AudioAuditionRetrievedAt -Value $RetrievedAt -Supplied $PSBoundParameters.ContainsKey('RetrievedAt')
 $manifest = Read-AudioAuditionManifest -Path $manifestPath
 $layout = Get-AudioAuditionLayout -RepositoryRoot $root -BatchId $manifest.batch_id
@@ -350,7 +396,6 @@ if ($Stage -ceq 'Publish') {
     if ((Test-Path -LiteralPath $jsonPath) -or (Test-Path -LiteralPath $markdownPath)) { throw 'AUDIO_PUBLISH_EVIDENCE_EXISTS' }
     New-Item -ItemType Directory -Path $evidenceDirectory -Force | Out-Null
 
-    $publishedCandidates = [Collections.Generic.List[object]]::new()
     $blindEntries = [Collections.Generic.List[object]]::new()
     $seenCandidates = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     $seenBlindIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
@@ -361,11 +406,14 @@ if ($Stage -ceq 'Publish') {
         if ($null -eq $acquired -or $record.source_path -isnot [string] -or $null -eq $record.mono_render) { throw 'AUDIO_PUBLISH_ANALYZE_INVALID' }
         $sourcePath = [IO.Path]::GetFullPath($record.source_path)
         $monoPath = [IO.Path]::GetFullPath($record.mono_render.path)
+        $fatiguePath = $null
+        $fatigueHash = $null
         [void](Assert-AudioAuditionContainedPath -Root $layout.CacheRoot -Candidate $sourcePath)
         [void](Assert-AudioAuditionContainedPath -Root $rendersRoot -Candidate $monoPath)
         Assert-AudioAuditionPublicationHash -Path $sourcePath -ExpectedHash $record.source_sha256 -Code 'AUDIO_PUBLISH_SOURCE_HASH'
         Assert-AudioAuditionPublicationHash -Path $monoPath -ExpectedHash $record.mono_render.sha256 -Code 'AUDIO_PUBLISH_RENDER_HASH'
         if ($record.mono_render.parent_sha256 -cne $record.source_sha256) { throw 'AUDIO_PUBLISH_PROVENANCE' }
+        Assert-AudioAuditionMonoRecipe -Render $record.mono_render
 
         $identity = $candidate.candidate_id + '|' + $record.logical_name + '|' + $record.source_sha256
         if ($candidate.kind -ceq 'freesound_preview') {
@@ -383,6 +431,8 @@ if ($Stage -ceq 'Publish') {
             [void](Assert-AudioAuditionContainedPath -Root $rendersRoot -Candidate $fatiguePath)
             Assert-AudioAuditionPublicationHash -Path $fatiguePath -ExpectedHash $record.ui_fatigue_render.sha256 -Code 'AUDIO_PUBLISH_RENDER_HASH'
             if ($record.ui_fatigue_render.parent_sha256 -cne $record.mono_render.sha256 -or $record.ui_fatigue_render.repetitions -ne 10) { throw 'AUDIO_PUBLISH_PROVENANCE' }
+            Assert-AudioAuditionFatigueRecipe -Render $record.ui_fatigue_render
+            $fatigueHash = $record.ui_fatigue_render.sha256
             $publicationRecord = [ordered]@{ acquisition_kind = 'exact_pack_member'; role = 'unassigned_ui_pool'; decision = 'UNHEARD'; allowed_next_decisions = @() }
         }
         else { throw 'AUDIO_PUBLISH_ANALYZE_INVALID' }
@@ -394,54 +444,101 @@ if ($Stage -ceq 'Publish') {
         [void]$seenCandidates.Add($candidate.candidate_id)
         $sourceMaster = if ($publicationRecord.Contains('source_master')) { $publicationRecord.source_master } else { $null }
         $role = if ($publicationRecord.Contains('role')) { $publicationRecord.role } else { $null }
-        $candidateEvidence = [ordered]@{ blind_id = $blindId; candidate_id = $candidate.candidate_id; logical_name = $record.logical_name; acquisition_kind = $publicationRecord.acquisition_kind; source_master = $sourceMaster; role = $role; decision = $publicationRecord.decision; allowed_next_decisions = $publicationRecord.allowed_next_decisions; source = [ordered]@{ page = $candidate.source_page; asset_id = $candidate.source_asset_id; path = $sourcePath; sha256 = $record.source_sha256 }; creator = $candidate.creator; title = $candidate.title; license = $candidate.license; license_page = $candidate.license_page; metadata = $record.metadata; mono_render = $record.mono_render; evidence_ledger = 'docs/research/audio/2026-08-14-physical-core-license-reverification.md'; ai_provenance = (Get-AudioAuditionAiProvenance -Kind $candidate.kind -CandidateId $candidate.candidate_id) }
-        if ($candidate.kind -ceq 'kenney_pack') { $candidateEvidence.ui_fatigue_render = $record.ui_fatigue_render }
-        [void]$publishedCandidates.Add([pscustomobject]$candidateEvidence)
-        $publicQueue = [ordered]@{ blind_id = $blindId; mono_flac = (Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath $monoPath); source_or_preview = (Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath $sourcePath); decision = 'UNHEARD'; listener_notes = '' }
-        if ($candidate.kind -ceq 'kenney_pack') { $publicQueue.fatigue_render = (Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath $fatiguePath) }
-        [void]$blindEntries.Add([pscustomobject][ordered]@{ full_hash = $fullHash; public_queue = [pscustomobject]$publicQueue; candidate_evidence = $candidateEvidence })
+        $candidateEvidence = [ordered]@{ blind_id = $blindId; candidate_id = $candidate.candidate_id; logical_name = $record.logical_name; acquisition_kind = $publicationRecord.acquisition_kind; source_master = $sourceMaster; role = $role; decision = $publicationRecord.decision; allowed_next_decisions = $publicationRecord.allowed_next_decisions; source = [ordered]@{ page = $candidate.source_page; asset_id = $candidate.source_asset_id; path = (Get-AudioAuditionRepositoryRelativePath -RepositoryRoot $root -Path $sourcePath); sha256 = $record.source_sha256 }; creator = $candidate.creator; title = $candidate.title; license = $candidate.license; license_page = $candidate.license_page; metadata = $record.metadata; mono_render = (ConvertTo-AudioAuditionEvidenceRender -Render $record.mono_render -RepositoryRoot $root); evidence_ledger = 'docs/research/audio/2026-08-14-physical-core-license-reverification.md'; ai_provenance = (Get-AudioAuditionAiProvenance -Kind $candidate.kind -CandidateId $candidate.candidate_id) }
+        if ($candidate.kind -ceq 'kenney_pack') { $candidateEvidence.ui_fatigue_render = ConvertTo-AudioAuditionEvidenceRender -Render $record.ui_fatigue_render -RepositoryRoot $root }
+        [void]$blindEntries.Add([pscustomobject][ordered]@{ full_hash = $fullHash; blind_id = $blindId; source_path = $sourcePath; source_sha256 = $record.source_sha256; mono_path = $monoPath; mono_sha256 = $record.mono_render.sha256; fatigue_path = $fatiguePath; fatigue_sha256 = $fatigueHash; candidate_evidence = [pscustomobject]$candidateEvidence })
     }
     foreach ($candidate in $manifest.candidates) { if (-not $seenCandidates.Contains($candidate.candidate_id)) { throw 'AUDIO_PUBLISH_ANALYZE_INCOMPLETE' } }
     $orderedEntries = @($blindEntries | Sort-Object -Property full_hash)
-    $evidence = [pscustomobject][ordered]@{ schema_version = 1; batch_id = $manifest.batch_id; generated_at = $retrievedAtValue; godot_verification = 'NOT_RUN_GODOT_EXECUTABLE_UNAVAILABLE'; candidates = @($orderedEntries | ForEach-Object { [pscustomobject]$_.candidate_evidence }); audition_queue = @($orderedEntries | ForEach-Object { $_.public_queue }); stopped_candidates = @([ordered]@{ source_asset_id = '670070'; reason = 'conflicting first-party license metadata' }, [ordered]@{ source_asset_id = '802495'; reason = 'conflicting first-party license metadata' }) }
-    Write-AudioAuditionJson -Value $evidence -Path $jsonPath
+    $attemptId = [Guid]::NewGuid().ToString('N')
+    $aliasAttemptRoot = Join-Path $layout.CacheRoot ('audition-aliases-attempt-' + $attemptId)
+    $aliasRoot = Join-Path $layout.CacheRoot 'audition-aliases'
+    $jsonAttemptPath = $jsonPath + '.attempt-' + $attemptId
+    $markdownAttemptPath = $markdownPath + '.attempt-' + $attemptId
+    $aliasesPromoted = $false
+    $jsonPromoted = $false
+    $markdownPromoted = $false
+    try {
+        if ((Test-Path -LiteralPath $aliasRoot) -or (Test-Path -LiteralPath $aliasAttemptRoot) -or (Test-Path -LiteralPath $jsonAttemptPath) -or (Test-Path -LiteralPath $markdownAttemptPath)) { throw 'AUDIO_PUBLISH_EVIDENCE_EXISTS' }
+        New-Item -ItemType Directory -Path $aliasAttemptRoot | Out-Null
+        foreach ($entry in $orderedEntries) {
+            $aliasDirectory = Join-Path $aliasAttemptRoot $entry.blind_id
+            New-Item -ItemType Directory -Path $aliasDirectory | Out-Null
+            $sourceExtension = [IO.Path]::GetExtension($entry.source_path).ToLowerInvariant()
+            if ($sourceExtension -cnotmatch '^\.[a-z0-9]{1,8}$') { $sourceExtension = '.bin' }
+            $monoAliasPath = Join-Path $aliasDirectory ($entry.blind_id + '-01-mono.flac')
+            $sourceAliasPath = Join-Path $aliasDirectory ($entry.blind_id + '-02-source' + $sourceExtension)
+            Copy-AudioAuditionVerifiedAlias -SourcePath $entry.mono_path -DestinationPath $monoAliasPath -ExpectedHash $entry.mono_sha256
+            Copy-AudioAuditionVerifiedAlias -SourcePath $entry.source_path -DestinationPath $sourceAliasPath -ExpectedHash $entry.source_sha256
+            $publicQueue = [ordered]@{ blind_id = $entry.blind_id; mono_flac = (Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath (Join-Path $aliasRoot ($entry.blind_id + '\' + [IO.Path]::GetFileName($monoAliasPath)))); source_or_preview = (Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath (Join-Path $aliasRoot ($entry.blind_id + '\' + [IO.Path]::GetFileName($sourceAliasPath)))) }
+            if ($null -ne $entry.fatigue_path) {
+                $fatigueAliasPath = Join-Path $aliasDirectory ($entry.blind_id + '-03-fatigue.flac')
+                Copy-AudioAuditionVerifiedAlias -SourcePath $entry.fatigue_path -DestinationPath $fatigueAliasPath -ExpectedHash $entry.fatigue_sha256
+                $publicQueue.fatigue_render = Get-AudioAuditionDocketLink -FromDirectory $evidenceDirectory -ToPath (Join-Path $aliasRoot ($entry.blind_id + '\' + [IO.Path]::GetFileName($fatigueAliasPath)))
+            }
+            $publicQueue.decision = 'UNHEARD'
+            $publicQueue.listener_notes = ''
+            $entry | Add-Member -NotePropertyName public_queue -NotePropertyValue ([pscustomobject]$publicQueue)
+        }
+        $evidence = [pscustomobject][ordered]@{ schema_version = 1; batch_id = $manifest.batch_id; generated_at = $retrievedAtValue; godot_verification = 'NOT_RUN_GODOT_EXECUTABLE_UNAVAILABLE'; candidates = @($orderedEntries | ForEach-Object { $_.candidate_evidence }); audition_queue = @($orderedEntries | ForEach-Object { $_.public_queue }); stopped_candidates = @([ordered]@{ source_asset_id = '670070'; reason = 'conflicting first-party license metadata' }, [ordered]@{ source_asset_id = '802495'; reason = 'conflicting first-party license metadata' }) }
+        Write-AudioAuditionJson -Value $evidence -Path $jsonAttemptPath
+        [void](ConvertFrom-Phase2RStrictJson -Json ([IO.File]::ReadAllText($jsonAttemptPath)) -Label $jsonAttemptPath)
 
-    $lines = [Collections.Generic.List[string]]::new()
-    [void]$lines.Add('# Audio Audition Docket')
-    [void]$lines.Add('')
-    [void]$lines.Add('PREVIEW-ONLY MATERIAL IS NOT APPROVED AND MUST NOT BE EXPORTED TO RUNTIME.')
-    [void]$lines.Add('COMFORT OBSERVATIONS ARE LISTENER JUDGMENTS, NOT MEDICAL SAFETY OR OBJECTIVE COMFORT CLAIMS.')
-    [void]$lines.Add('Playback is manual; no audio starts automatically.')
-    foreach ($entry in $orderedEntries) {
-        $queue = $entry.public_queue
+        $lines = [Collections.Generic.List[string]]::new()
+        [void]$lines.Add('PREVIEW_ONLY — NOT AN EXACT SOURCE MASTER.')
+        [void]$lines.Add('COMFORT OBSERVATIONS ARE LISTENER JUDGMENTS, NOT MEDICAL SAFETY OR OBJECTIVE COMFORT CLAIMS.')
+        [void]$lines.Add('Playback is manual; no audio starts automatically.')
         [void]$lines.Add('')
-        [void]$lines.Add('## ' + $queue.blind_id)
-        [void]$lines.Add('1. Mono FLAC: [open](' + $queue.mono_flac + ')')
-        [void]$lines.Add('2. Unchanged source/preview: [open](' + $queue.source_or_preview + ')')
-        if ($queue.PSObject.Properties.Name -ccontains 'fatigue_render') { [void]$lines.Add('3. Ten-event fatigue render: [open](' + $queue.fatigue_render + ')') }
-        [void]$lines.Add('4. Decision: UNHEARD')
-        [void]$lines.Add('5. Listener notes:')
-    }
-    [void]$lines.Add('')
-    [void]$lines.Add('## Evidence Appendix')
-    foreach ($candidate in $evidence.candidates) {
+        [void]$lines.Add('# Audio Audition Docket')
+        foreach ($entry in $orderedEntries) {
+            $queue = $entry.public_queue
+            [void]$lines.Add('')
+            [void]$lines.Add('## ' + $queue.blind_id)
+            [void]$lines.Add('1. Mono FLAC: [open](' + $queue.mono_flac + ')')
+            [void]$lines.Add('2. Unchanged source/preview: [open](' + $queue.source_or_preview + ')')
+            if ($queue.PSObject.Properties.Name -ccontains 'fatigue_render') { [void]$lines.Add('3. Ten-event fatigue render: [open](' + $queue.fatigue_render + ')') }
+            [void]$lines.Add('4. Decision: UNHEARD')
+            [void]$lines.Add('5. Listener notes:')
+        }
         [void]$lines.Add('')
-        [void]$lines.Add('### ' + $candidate.blind_id)
-        [void]$lines.Add('- Source: [' + $candidate.source.page + '](' + $candidate.source.page + ')')
-        [void]$lines.Add('- Creator: ' + $candidate.creator)
-        [void]$lines.Add('- Title: ' + $candidate.title)
-        [void]$lines.Add('- License: [' + $candidate.license + '](' + $candidate.license_page + ')')
-        [void]$lines.Add('- Source SHA-256: ' + $candidate.source.sha256)
-        [void]$lines.Add('- Mono SHA-256: ' + $candidate.mono_render.sha256)
-        [void]$lines.Add('- Metadata: ' + ($candidate.metadata | ConvertTo-Json -Compress -Depth 8))
-        [void]$lines.Add('- Evidence ledger: [reviewed note](../2026-08-14-physical-core-license-reverification.md)')
-        [void]$lines.Add('- AI provenance: ' + $candidate.ai_provenance)
+        [void]$lines.Add('## Evidence Appendix')
+        foreach ($candidate in $evidence.candidates) {
+            [void]$lines.Add('')
+            [void]$lines.Add('### ' + $candidate.blind_id)
+            [void]$lines.Add('- Source: [' + $candidate.source.page + '](' + $candidate.source.page + ')')
+            [void]$lines.Add('- Creator: ' + $candidate.creator)
+            [void]$lines.Add('- Title: ' + $candidate.title)
+            [void]$lines.Add('- License: [' + $candidate.license + '](' + $candidate.license_page + ')')
+            [void]$lines.Add('- Source SHA-256: ' + $candidate.source.sha256)
+            [void]$lines.Add('- Mono SHA-256: ' + $candidate.mono_render.sha256)
+            [void]$lines.Add('- Metadata: ' + ($candidate.metadata | ConvertTo-Json -Compress -Depth 8))
+            [void]$lines.Add('- Evidence ledger: [reviewed note](../2026-08-14-physical-core-license-reverification.md)')
+            [void]$lines.Add('- AI provenance: ' + $candidate.ai_provenance)
+        }
+        [void]$lines.Add('')
+        [void]$lines.Add('### Stopped candidates')
+        [void]$lines.Add('- 670070: conflicting first-party license metadata')
+        [void]$lines.Add('- 802495: conflicting first-party license metadata')
+        Write-AudioAuditionMarkdown -Path $markdownAttemptPath -Text ($lines -join "`n")
+        $markdownText = [IO.File]::ReadAllText($markdownAttemptPath)
+        if ($markdownText -notmatch '(?m)^PREVIEW_ONLY — NOT AN EXACT SOURCE MASTER\.$' -or $markdownText -match '(?i)autoplay') { throw 'AUDIO_PUBLISH_MARKDOWN_INVALID' }
+
+        [IO.Directory]::Move($aliasAttemptRoot, $aliasRoot)
+        $aliasesPromoted = $true
+        [IO.File]::Move($jsonAttemptPath, $jsonPath)
+        $jsonPromoted = $true
+        [IO.File]::Move($markdownAttemptPath, $markdownPath)
+        $markdownPromoted = $true
     }
-    [void]$lines.Add('')
-    [void]$lines.Add('### Stopped candidates')
-    [void]$lines.Add('- 670070: conflicting first-party license metadata')
-    [void]$lines.Add('- 802495: conflicting first-party license metadata')
-    Write-AudioAuditionMarkdown -Path $markdownPath -Text ($lines -join "`n")
+    catch {
+        if ($markdownPromoted -and (Test-Path -LiteralPath $markdownPath -PathType Leaf)) { [IO.File]::Delete($markdownPath) }
+        if ($jsonPromoted -and (Test-Path -LiteralPath $jsonPath -PathType Leaf)) { [IO.File]::Delete($jsonPath) }
+        if ($aliasesPromoted -and (Test-Path -LiteralPath $aliasRoot -PathType Container)) { [IO.Directory]::Delete($aliasRoot, $true) }
+        if (Test-Path -LiteralPath $markdownAttemptPath -PathType Leaf) { [IO.File]::Delete($markdownAttemptPath) }
+        if (Test-Path -LiteralPath $jsonAttemptPath -PathType Leaf) { [IO.File]::Delete($jsonAttemptPath) }
+        if (Test-Path -LiteralPath $aliasAttemptRoot -PathType Container) { [IO.Directory]::Delete($aliasAttemptRoot, $true) }
+        throw
+    }
     Write-Output 'AUDIO_AUDITION_PUBLISH: PASS'
     exit 0
 }
@@ -529,6 +626,7 @@ foreach ($input in $inputRecords) {
                 measurements = $monoMeasurements
                 mono_peak_delta_db = [Math]::Round($monoMeasurements.sample_peak_dbfs - $inputMeasurements.sample_peak_dbfs, 3, [MidpointRounding]::AwayFromZero)
                 mono_lufs_delta = [Math]::Round($monoMeasurements.integrated_lufs - $inputMeasurements.integrated_lufs, 3, [MidpointRounding]::AwayFromZero)
+                recipe = [ordered]@{ codec = $recipe.codec; channels = $recipe.channels; attenuation_db = $recipe.attenuation_db; fade_seconds = $recipe.fade_seconds; literal_filter_audio = $recipe.filter_audio }
             }
             if ($input.kind -ceq 'kenney_pack') {
                 $repeatPath = Assert-AudioAuditionContainedPath -Root $renderDirectory -Candidate (Join-Path $renderDirectory ($input.sha256 + '-fatigue.flac'))
@@ -536,7 +634,7 @@ foreach ($input in $inputRecords) {
                 $repeat = New-AudioUiRepeatRecipe -InputPath $monoPath -DurationSeconds $metadata.duration_seconds -OutputPath $repeatPath
                 if (Test-Path -LiteralPath $repeatPath) { throw 'AUDIO_RENDER_EXISTS' }
                 [void](Invoke-AudioProcess -FileName 'ffmpeg.exe' -Arguments @('-nostdin', '-hide_banner', '-n', '-i', $monoPath, '-filter_complex', $repeat.filter_complex, '-map', '[mixout]', '-vn', '-c:a', 'flac', '-map_metadata', '-1', $repeatPath))
-                $record.ui_fatigue_render = [ordered]@{ path = $publishedRepeatPath; sha256 = (Get-FileHash -LiteralPath $repeatPath -Algorithm SHA256).Hash.ToLowerInvariant(); parent_sha256 = $monoHash; repetitions = $repeat.repetitions; interval_seconds = $repeat.interval_seconds; literal_filter_complex = $repeat.filter_complex }
+                $record.ui_fatigue_render = [ordered]@{ path = $publishedRepeatPath; sha256 = (Get-FileHash -LiteralPath $repeatPath -Algorithm SHA256).Hash.ToLowerInvariant(); parent_sha256 = $monoHash; repetitions = $repeat.repetitions; interval_seconds = $repeat.interval_seconds; literal_filter_complex = $repeat.filter_complex; recipe = [ordered]@{ codec = $repeat.codec; repetitions = $repeat.repetitions; interval_seconds = $repeat.interval_seconds; literal_filter_complex = $repeat.filter_complex } }
             }
         }
         $analysisPath = Assert-AudioAuditionContainedPath -Root $analysisAttemptRoot -Candidate (Join-Path $analysisAttemptRoot ($input.sha256 + '.json'))
