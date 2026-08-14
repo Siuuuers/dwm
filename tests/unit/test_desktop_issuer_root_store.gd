@@ -748,51 +748,120 @@ func test_real_root_new_run_and_restore_continuation_bundles_are_coherent_across
 	var new_run_transaction := _issue_transaction_receipt()
 	if new_run_transaction.is_empty():
 		return
+	var before_new_run := _captured_document()
+	var new_namespace := str(before_new_run.get("namespace", ""))
+	var new_counter := int(before_new_run.get("next_counter", -1))
+	var new_ledger: Dictionary = before_new_run.get("receipts", {})
+	var expected_new_run := _expected_receipt(new_namespace, new_counter, &"run_id", null)
+	var expected_new_branch := _expected_receipt(new_namespace, new_counter + 1, &"branch_id", null)
+	var expected_new_generation := _expected_receipt(
+		new_namespace, new_counter + 2, &"desktop_timeline_generation", 0)
+	var expected_new_day := _expected_receipt(
+		new_namespace, new_counter + 3, &"causal_day_instance", null)
+	var expected_new_receipts: Array[Dictionary] = [
+		expected_new_run, expected_new_branch, expected_new_generation, expected_new_day,
+	]
+	_assert_receipts_are_fresh_against_ledger(expected_new_receipts, new_ledger, "new run")
 	var new_run := _store.prepare_allocation(_new_run_request(new_run_transaction))
 	if not _require_ok(new_run, "prepare real new-run continuation bundle"):
 		return
 	var new_candidate: Dictionary = new_run.get("value", {})
 	assert_eq(new_candidate.get("kind"), "new_run", "the candidate preserves the requested kind")
-	assert_true(str(new_candidate.get("run_id", "")).begins_with("run_id."),
-		"new run mints a fresh run identity")
-	assert_true(str(new_candidate.get("branch_id", "")).begins_with("branch_id."),
-		"new run mints a fresh branch identity")
-	assert_ne(new_candidate.get("run_id"), new_candidate.get("branch_id"), "run and branch identities differ")
+	assert_eq(new_candidate.get("request"), _new_run_request(new_run_transaction),
+		"new-run candidate preserves the requested transaction bundle")
+	assert_eq(new_candidate.get("root_namespace"), new_namespace,
+		"new-run candidate is prepared against the captured durable namespace")
+	assert_eq(new_candidate.get("root_next_counter"), new_counter,
+		"new-run candidate is prepared against the captured durable counter")
+	_assert_candidate_token_receipt(new_candidate, "run_id", "run_id_issuer_receipt", expected_new_run, "new run")
+	_assert_candidate_token_receipt(new_candidate, "branch_id", "branch_id_issuer_receipt", expected_new_branch, "new branch")
 	assert_eq(new_candidate.get("desktop_timeline_generation"), 0, "new run opens generation zero")
-	assert_true(str(new_candidate.get("causal_day_instance", "")).begins_with("causal_day_instance."),
-		"new run receives a causal-day identity")
+	assert_eq(new_candidate.get("desktop_timeline_generation_issuer_receipt"), expected_new_generation,
+		"new run binds the independently derived generation receipt")
+	_assert_candidate_token_receipt(
+		new_candidate, "causal_day_instance", "causal_day_instance_issuer_receipt", expected_new_day, "new causal day")
 	assert_eq(new_candidate.get("remap_transaction_issuer_receipts"), {}, "new run mints no remap receipts")
-	assert_eq((new_candidate.get("run_id_issuer_receipt", {}) as Dictionary).get("token"), new_candidate.get("run_id"),
-		"the new-run candidate binds its run receipt coherently")
-	assert_eq((new_candidate.get("branch_id_issuer_receipt", {}) as Dictionary).get("token"), new_candidate.get("branch_id"),
-		"the new-run candidate binds its branch receipt coherently")
+	var actual_new_receipts: Array[Dictionary] = [
+		new_candidate.get("run_id_issuer_receipt", {}) as Dictionary,
+		new_candidate.get("branch_id_issuer_receipt", {}) as Dictionary,
+		new_candidate.get("desktop_timeline_generation_issuer_receipt", {}) as Dictionary,
+		new_candidate.get("causal_day_instance_issuer_receipt", {}) as Dictionary,
+	]
+	assert_eq(actual_new_receipts, expected_new_receipts,
+		"new-run candidate contains exactly the four independently derived minted receipts")
+	_assert_distinct_receipts(actual_new_receipts, "new-run bundle")
+	assert_eq(_captured_document(), before_new_run, "new-run preparation does not mutate the durable root")
+	if not _require_ok(_store.commit_allocation(new_candidate), "commit prior new-run continuation bundle"):
+		return
+	var after_new_run_commit := _captured_document()
+	assert_eq(after_new_run_commit.get("next_counter"), new_counter + expected_new_receipts.size(),
+		"committing the prior new run consumes its four independently derived counters")
+	assert_eq((after_new_run_commit.get("receipts", {}) as Dictionary).get(expected_new_branch["receipt_id"]),
+		expected_new_branch, "the prior new-run branch is durably recorded before restore prepares")
 
 	var restore_transaction := _issue_transaction_receipt()
 	if restore_transaction.is_empty():
 		return
 	var restore_request := _restore_request(
 		restore_transaction, "run_id.existing", 4, ["transaction.source.a", "transaction.source.b"])
+	var before_restore := _captured_document()
+	var restore_namespace := str(before_restore.get("namespace", ""))
+	var restore_counter := int(before_restore.get("next_counter", -1))
+	var restore_ledger: Dictionary = before_restore.get("receipts", {})
+	var expected_restore_branch := _expected_receipt(restore_namespace, restore_counter, &"branch_id", null)
+	var expected_restore_generation := _expected_receipt(
+		restore_namespace, restore_counter + 1, &"desktop_timeline_generation", 5)
+	var expected_restore_day := _expected_receipt(
+		restore_namespace, restore_counter + 2, &"causal_day_instance", null)
+	var expected_first_remap := _expected_receipt(
+		restore_namespace, restore_counter + 3, &"transaction_id", null)
+	var expected_second_remap := _expected_receipt(
+		restore_namespace, restore_counter + 4, &"transaction_id", null)
+	var expected_restore_receipts: Array[Dictionary] = [
+		expected_restore_branch, expected_restore_generation, expected_restore_day,
+		expected_first_remap, expected_second_remap,
+	]
+	_assert_receipts_are_fresh_against_ledger(expected_restore_receipts, restore_ledger, "restore")
 	var prepared_restore := _store.prepare_allocation(restore_request)
 	if not _require_ok(prepared_restore, "prepare real restore continuation bundle"):
 		return
 	var restore_candidate: Dictionary = prepared_restore.get("value", {})
+	assert_eq(restore_candidate.get("request"), restore_request,
+		"restore candidate preserves the requested transaction bundle")
+	assert_eq(restore_candidate.get("root_namespace"), restore_namespace,
+		"restore candidate is prepared against the captured durable namespace")
+	assert_eq(restore_candidate.get("root_next_counter"), restore_counter,
+		"restore candidate is prepared against the captured durable counter")
 	assert_eq(restore_candidate.get("run_id"), "run_id.existing", "restore preserves existing_run_id")
 	assert_null(restore_candidate.get("run_id_issuer_receipt"), "restore does not mint a second run receipt")
-	assert_true(str(restore_candidate.get("branch_id", "")).begins_with("branch_id."),
-		"restore mints a fresh branch")
+	_assert_candidate_token_receipt(
+		restore_candidate, "branch_id", "branch_id_issuer_receipt", expected_restore_branch, "restore branch")
+	assert_ne(restore_candidate.get("branch_id"), new_candidate.get("branch_id"),
+		"restore branch is fresh rather than the prior new-run branch")
 	assert_eq(restore_candidate.get("desktop_timeline_generation"), 5,
 		"restore advances source generation by one")
-	assert_eq((restore_candidate.get("desktop_timeline_generation_issuer_receipt", {}) as Dictionary).get("numeric_value"), 5,
-		"the generation receipt agrees with the restored generation")
+	assert_eq(restore_candidate.get("desktop_timeline_generation_issuer_receipt"), expected_restore_generation,
+		"restore binds the independently derived generation receipt")
+	_assert_candidate_token_receipt(
+		restore_candidate, "causal_day_instance", "causal_day_instance_issuer_receipt", expected_restore_day, "restore causal day")
 	var remaps: Dictionary = restore_candidate.get("remap_transaction_issuer_receipts", {})
 	assert_eq(remaps.keys(), ["transaction.source.a", "transaction.source.b"],
 		"restore mints one remap receipt for each sorted source in request order")
 	var first_remap: Dictionary = remaps["transaction.source.a"]
 	var second_remap: Dictionary = remaps["transaction.source.b"]
-	assert_eq(first_remap.get("purpose"), "transaction_id", "each remap receipt has transaction purpose")
-	assert_eq(second_remap.get("purpose"), "transaction_id", "each remap receipt has transaction purpose")
-	assert_eq(int(second_remap.get("counter")), int(first_remap.get("counter")) + 1,
-		"remap transaction receipts are minted in sorted request order")
+	assert_eq(first_remap, expected_first_remap, "the first remap receipt follows the first request source")
+	assert_eq(second_remap, expected_second_remap, "the second remap receipt follows the second request source")
+	var actual_restore_receipts: Array[Dictionary] = [
+		restore_candidate.get("branch_id_issuer_receipt", {}) as Dictionary,
+		restore_candidate.get("desktop_timeline_generation_issuer_receipt", {}) as Dictionary,
+		restore_candidate.get("causal_day_instance_issuer_receipt", {}) as Dictionary,
+		first_remap,
+		second_remap,
+	]
+	assert_eq(actual_restore_receipts, expected_restore_receipts,
+		"restore candidate contains exactly the independently derived receipts in request order")
+	_assert_distinct_receipts(actual_restore_receipts, "restore bundle")
+	assert_eq(_captured_document(), before_restore, "restore preparation does not mutate the durable root")
 	if not _require_ok(_store.commit_allocation(restore_candidate), "commit restore continuation bundle"):
 		return
 	var before_restart := _captured_document()
@@ -1174,3 +1243,48 @@ func _restore_request(transaction_receipt: Dictionary, existing_run_id: String,
 		"source_desktop_timeline_generation": source_generation,
 		"remap_source_transaction_ids": remap_sources.duplicate(true),
 	}
+
+
+## Derives receipt literals from a captured durable root identity, using the established frozen
+## token/receipt preimages rather than either continuation-candidate implementation.
+func _expected_receipt(namespace_value: String, counter: int, purpose: StringName,
+		numeric_value: Variant) -> Dictionary:
+	var token := FAKE_ROOT_STORE.token_for(namespace_value, counter, purpose)
+	return {
+		"receipt_id": FAKE_ROOT_STORE.receipt_id_for(namespace_value, counter, purpose, token),
+		"purpose": String(purpose),
+		"namespace": namespace_value,
+		"counter": counter,
+		"token": token,
+		"numeric_value": numeric_value,
+	}
+
+
+func _assert_candidate_token_receipt(candidate: Dictionary, identity_member: String,
+		receipt_member: String, expected: Dictionary, label: String) -> void:
+	assert_eq(candidate.get(receipt_member), expected,
+		"%s receipt has the independently derived purpose, counter, token, and receipt id" % label)
+	assert_eq(candidate.get(identity_member), expected.get("token"),
+		"%s identity binds exactly to the independently derived receipt token" % label)
+
+
+func _assert_receipts_are_fresh_against_ledger(receipts: Array[Dictionary], ledger: Dictionary,
+		label: String) -> void:
+	for receipt: Dictionary in receipts:
+		assert_false(ledger.has(str(receipt["receipt_id"])),
+			"%s receipt counter %d is not already consumed in the captured durable ledger" % [
+				label, int(receipt["counter"]),
+			])
+
+
+func _assert_distinct_receipts(receipts: Array[Dictionary], label: String) -> void:
+	var receipt_ids := {}
+	var tokens := {}
+	var counters := {}
+	for receipt: Dictionary in receipts:
+		receipt_ids[str(receipt["receipt_id"])] = true
+		tokens[str(receipt["token"])] = true
+		counters[int(receipt["counter"])] = true
+	assert_eq(receipt_ids.size(), receipts.size(), "%s receipt IDs are unique" % label)
+	assert_eq(tokens.size(), receipts.size(), "%s tokens are unique" % label)
+	assert_eq(counters.size(), receipts.size(), "%s counters are unique" % label)
