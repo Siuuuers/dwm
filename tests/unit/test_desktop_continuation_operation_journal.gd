@@ -152,6 +152,8 @@ const NEW_RUN_INITIAL_CONTEXT := {
 
 # Plan line 591: slot_id is exactly slot:1..slot:7, quick, or autosave.
 const RESTORE_SLOT_ID := "slot:3"
+const RESTORE_CONTEXT := {"restored": true}
+const REAL_JOURNAL_ROOT := "sandbox/continuation-journal"
 
 var _storage
 var _loader: FakeSourceLoader
@@ -169,34 +171,60 @@ var _transaction_receipts: Dictionary = {}
 class FakeSourceLoader extends RefCounted:
 	var call_log: Array[Dictionary] = []
 	var _armed_context: Dictionary = {}
-	var _armed_sha256: String = ""
+	var _armed_locator: Dictionary = {}
 	var _armed_failure: StringName = &""
+	var _is_armed := false
 
-	func arm(context: Dictionary, context_sha256: String) -> void:
+	func arm(context: Dictionary, source_locator: Dictionary) -> void:
 		_armed_context = context.duplicate(true)
-		_armed_sha256 = context_sha256
+		_armed_locator = source_locator.duplicate(true)
 		_armed_failure = &""
+		_is_armed = true
 
-	func arm_failure(code: StringName) -> void:
+	func arm_failure(code: StringName, source_locator: Dictionary) -> void:
+		_armed_context = {}
+		_armed_locator = source_locator.duplicate(true)
 		_armed_failure = code
+		_is_armed = true
 
 	func load_context(source_locator: Variant) -> Dictionary:
-		call_log.append({"source_locator": source_locator})
+		call_log.append({
+			"source_locator": (
+				(source_locator as Dictionary).duplicate(true)
+				if typeof(source_locator) == TYPE_DICTIONARY else source_locator),
+		})
+		if not _is_armed:
+			return {
+				"ok": false,
+				"code": &"fake_source_not_armed",
+				"message": "FakeSourceLoader: load_context called before arm()",
+			}
+		if typeof(source_locator) != TYPE_DICTIONARY or source_locator != _armed_locator:
+			return {
+				"ok": false,
+				"code": &"fake_source_locator_mismatch",
+				"message": "FakeSourceLoader: source locator differs from retained locator",
+			}
 		if _armed_failure != &"":
 			return {
 				"ok": false,
 				"code": _armed_failure,
 				"message": "FakeSourceLoader: armed source failure",
 			}
-		if _armed_sha256 == "":
+		var canonical: Dictionary = CanonicalJsonWriter.stringify(_armed_context)
+		if not canonical.get("ok", false):
 			return {
 				"ok": false,
-				"code": &"fake_source_not_armed",
-				"message": "FakeSourceLoader: load_context called before arm()",
+				"code": &"fake_source_context_unhashable",
+				"message": "FakeSourceLoader: retained context is not canonicalizable",
 			}
+		var context_sha256 := FAKE_STORAGE.sha256_hex(str(canonical.get("value", "")))
 		return {
 			"ok": true,
-			"value": {"context": _armed_context.duplicate(true), "context_sha256": _armed_sha256},
+			"value": {
+				"context": _armed_context.duplicate(true),
+				"context_sha256": context_sha256,
+			},
 		}
 
 
@@ -252,7 +280,10 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 	var operations: Variant = base_document.get("operations", {}) as Dictionary
 	var operation_ids: Array = operations.keys()
 	operation_ids.sort()
-	var expected_ids: Array = [_new_run_transaction_id(), _restore_transaction_id()]
+	var expected_ids: Array = [
+		_resolved_transaction_id(_new_run_transaction_id()),
+		_resolved_transaction_id(_restore_transaction_id()),
+	]
 	expected_ids.sort()
 	assert_eq(operation_ids, expected_ids,
 		"both new-run and restore operations are stored and no other operation ids are present")
@@ -271,7 +302,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 		{"label": "missing schema_version", "mode": "erase", "member": "schema_version"},
 		{"label": "missing operations", "mode": "erase", "member": "operations"},
 		{"label": "extra envelope member", "mode": "extra"},
-		{"label": "schema_version wrong type", "mode": "replace", "member": "schema_version", "value": "one"},
+		{"label": "schema_version wrong type", "mode": "replace", "member": "schema_version", "value": "1"},
 		{"label": "operations wrong type", "mode": "replace", "member": "operations", "value": []},
 		{"label": "schema_version unsupported value", "mode": "replace", "member": "schema_version", "value": 2},
 	]
@@ -285,6 +316,13 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 			"replace":
 				malformed_document[str(profile["member"])] = profile["value"]
 		_assert_rejects_stored_document(malformed_document, str(profile["label"]))
+	var wrong_record_document: Dictionary = base_document.duplicate(true)
+	var wrong_record_operations: Dictionary = (
+		wrong_record_document["operations"] as Dictionary).duplicate(true)
+	wrong_record_operations[_resolved_transaction_id(_new_run_transaction_id())] = []
+	wrong_record_document["operations"] = wrong_record_operations
+	_assert_rejects_stored_document(wrong_record_document,
+		"operations map value must be an operation dictionary")
 
 	var first_txid: String = operation_ids[0]
 	for member: String in OPERATION_KEYS:
@@ -300,12 +338,23 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 
 	var operation_profiles: Array[Dictionary] = [
 		{"label": "transaction_id wrong type", "member": "transaction_id", "value": 7},
-		{"label": "transaction issuer receipt wrong type", "member": "transaction_issuer_receipt", "value": "receipt"},
+		{"label": "transaction issuer receipt wrong type", "member": "transaction_issuer_receipt", "value": []},
 		{"label": "kind wrong type", "member": "kind", "value": []},
+		{"label": "request fingerprint wrong type", "member": "request_fingerprint", "value": 7},
+		{"label": "source locator wrong type", "member": "source_locator", "value": []},
+		{"label": "initial context wrong type", "member": "initial_context", "value": []},
+		{"label": "initial context hash wrong type", "member": "initial_context_sha256", "value": []},
+		{"label": "allocation candidate fingerprint wrong type", "member": "allocation_candidate_fingerprint", "value": 7},
 		{"label": "stage wrong type", "member": "stage", "value": []},
+		{"label": "allocation receipt wrong type", "member": "allocation_receipt", "value": []},
 		{"label": "participant index wrong type", "member": "next_participant_index", "value": "0"},
 		{"label": "participant receipt map wrong type", "member": "participant_receipts", "value": []},
+		{"label": "failure wrong type", "member": "failure", "value": []},
 		{"label": "transaction_id mismatches its map key", "member": "transaction_id", "value": "wrong-id"},
+		{"label": "transaction_id blank", "member": "transaction_id", "value": " "},
+		{"label": "request fingerprint blank", "member": "request_fingerprint", "value": ""},
+		{"label": "request fingerprint is not lowercase SHA-256", "member": "request_fingerprint", "value": "A".repeat(64)},
+		{"label": "allocation candidate fingerprint is not SHA-256", "member": "allocation_candidate_fingerprint", "value": "not-a-hash"},
 		{"label": "unknown operation kind", "member": "kind", "value": "alien-kind"},
 		{"label": "unknown operation stage", "member": "stage", "value": "not_a_stage"},
 		{"label": "negative participant index", "member": "next_participant_index", "value": -1},
@@ -345,12 +394,238 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 	blank_key_document["operations"] = blank_key_operations
 	_assert_rejects_stored_document(blank_key_document, "blank operation map key and transaction_id")
 
+	var new_run_operation: Dictionary = (
+		operations[_resolved_transaction_id(_new_run_transaction_id())] as Dictionary).duplicate(true)
+	var restore_operation: Dictionary = (
+		operations[_resolved_transaction_id(_restore_transaction_id())] as Dictionary).duplicate(true)
+
+	var issuer_receipt: Dictionary = (new_run_operation["transaction_issuer_receipt"] as Dictionary).duplicate(true)
+	for member: String in ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]:
+		var missing_receipt_member: Dictionary = issuer_receipt.duplicate(true)
+		missing_receipt_member.erase(member)
+		var missing_receipt_operation: Dictionary = new_run_operation.duplicate(true)
+		missing_receipt_operation["transaction_issuer_receipt"] = missing_receipt_member
+		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(),
+			missing_receipt_operation, "transaction issuer receipt missing %s" % member)
+	var extra_issuer_receipt: Dictionary = issuer_receipt.duplicate(true)
+	extra_issuer_receipt["rogue_member"] = true
+	var extra_issuer_operation: Dictionary = new_run_operation.duplicate(true)
+	extra_issuer_operation["transaction_issuer_receipt"] = extra_issuer_receipt
+	_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), extra_issuer_operation,
+		"transaction issuer receipt has an extra member")
+	var issuer_profiles: Array[Dictionary] = [
+		{"label": "receipt_id wrong type", "member": "receipt_id", "value": 7},
+		{"label": "purpose wrong type", "member": "purpose", "value": 7},
+		{"label": "namespace wrong type", "member": "namespace", "value": 7},
+		{"label": "counter wrong type", "member": "counter", "value": "0"},
+		{"label": "token wrong type", "member": "token", "value": 7},
+		{"label": "numeric value forbidden", "member": "numeric_value", "value": 0},
+		{"label": "receipt_id is not SHA-256", "member": "receipt_id", "value": "receipt"},
+		{"label": "purpose is not transaction_id", "member": "purpose", "value": "branch_id"},
+		{"label": "namespace is not SHA-256", "member": "namespace", "value": "namespace"},
+		{"label": "counter is negative", "member": "counter", "value": -1},
+		{"label": "token differs from operation key", "member": "token", "value": "different-transaction"},
+	]
+	for profile: Dictionary in issuer_profiles:
+		var mutated_receipt: Dictionary = issuer_receipt.duplicate(true)
+		mutated_receipt[str(profile["member"])] = profile["value"]
+		var receipt_operation: Dictionary = new_run_operation.duplicate(true)
+		receipt_operation["transaction_issuer_receipt"] = mutated_receipt
+		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), receipt_operation,
+			"transaction issuer receipt %s" % profile["label"])
+
+	var source_locator: Dictionary = (restore_operation["source_locator"] as Dictionary).duplicate(true)
+	for member: String in ["bundle_id", "checkpoint_id", "document_sha256", "slot_id"]:
+		var missing_locator: Dictionary = source_locator.duplicate(true)
+		missing_locator.erase(member)
+		var missing_locator_operation: Dictionary = restore_operation.duplicate(true)
+		missing_locator_operation["source_locator"] = missing_locator
+		_assert_rejects_operation_mutation(base_document, _restore_transaction_id(),
+			missing_locator_operation, "restore locator missing %s" % member)
+	var extra_locator: Dictionary = source_locator.duplicate(true)
+	extra_locator["rogue_member"] = true
+	var extra_locator_operation: Dictionary = restore_operation.duplicate(true)
+	extra_locator_operation["source_locator"] = extra_locator
+	_assert_rejects_operation_mutation(base_document, _restore_transaction_id(), extra_locator_operation,
+		"restore locator has an extra member")
+	var locator_profiles: Array[Dictionary] = [
+		{"label": "slot wrong type", "member": "slot_id", "value": 3},
+		{"label": "bundle hash wrong type", "member": "bundle_id", "value": 5},
+		{"label": "checkpoint wrong type", "member": "checkpoint_id", "value": 1},
+		{"label": "document hash wrong type", "member": "document_sha256", "value": 6},
+		{"label": "slot outside closed union", "member": "slot_id", "value": "slot:8"},
+		{"label": "bundle is not lowercase SHA-256", "member": "bundle_id", "value": "B".repeat(64)},
+		{"label": "checkpoint is blank", "member": "checkpoint_id", "value": " "},
+		{"label": "document is not lowercase SHA-256", "member": "document_sha256", "value": "hash"},
+	]
+	for profile: Dictionary in locator_profiles:
+		var mutated_locator: Dictionary = source_locator.duplicate(true)
+		mutated_locator[str(profile["member"])] = profile["value"]
+		var locator_operation: Dictionary = restore_operation.duplicate(true)
+		locator_operation["source_locator"] = mutated_locator
+		_assert_rejects_operation_mutation(base_document, _restore_transaction_id(), locator_operation,
+			"restore locator %s" % profile["label"])
+
+	var initial_context: Dictionary = (new_run_operation["initial_context"] as Dictionary).duplicate(true)
+	for member: String in ["active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id"]:
+		var missing_context: Dictionary = initial_context.duplicate(true)
+		missing_context.erase(member)
+		var missing_context_operation: Dictionary = new_run_operation.duplicate(true)
+		missing_context_operation["initial_context"] = missing_context
+		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(),
+			missing_context_operation, "New-Run context missing %s" % member)
+	var extra_context: Dictionary = initial_context.duplicate(true)
+	extra_context["rogue_member"] = true
+	var extra_context_operation: Dictionary = new_run_operation.duplicate(true)
+	extra_context_operation["initial_context"] = extra_context
+	_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), extra_context_operation,
+		"New-Run context has an extra member")
+	var context_profiles: Array[Dictionary] = [
+		{"label": "active app must be null", "member": "active_app_id", "value": "contacts"},
+		{"label": "audio context wrong type", "member": "audio_context", "value": []},
+		{"label": "content version wrong type", "member": "content_version", "value": "1"},
+		{"label": "Dialogic checkpoint wrong type", "member": "dialogic_checkpoint", "value": []},
+		{"label": "route wrong type", "member": "route_id", "value": 1},
+		{"label": "content version below one", "member": "content_version", "value": 0},
+		{"label": "route differs from opening", "member": "route_id", "value": "desktop"},
+	]
+	for profile: Dictionary in context_profiles:
+		var mutated_context: Dictionary = initial_context.duplicate(true)
+		mutated_context[str(profile["member"])] = profile["value"]
+		var context_operation: Dictionary = new_run_operation.duplicate(true)
+		context_operation["initial_context"] = mutated_context
+		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), context_operation,
+			"New-Run context %s" % profile["label"])
+	var mismatched_context_hash: Dictionary = new_run_operation.duplicate(true)
+	mismatched_context_hash["initial_context_sha256"] = "a".repeat(64)
+	_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), mismatched_context_hash,
+		"New-Run context hash differs from its canonical bytes")
+	var new_run_with_source: Dictionary = new_run_operation.duplicate(true)
+	new_run_with_source["source_locator"] = source_locator.duplicate(true)
+	_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), new_run_with_source,
+		"New Run requires a null source locator")
+	var new_run_without_context: Dictionary = new_run_operation.duplicate(true)
+	new_run_without_context["initial_context"] = null
+	_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), new_run_without_context,
+		"New Run requires its exact initial context")
+	var new_run_without_context_hash: Dictionary = new_run_operation.duplicate(true)
+	new_run_without_context_hash["initial_context_sha256"] = null
+	_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(),
+		new_run_without_context_hash, "New Run requires its initial context hash")
+	var restore_without_source: Dictionary = restore_operation.duplicate(true)
+	restore_without_source["source_locator"] = null
+	_assert_rejects_operation_mutation(base_document, _restore_transaction_id(), restore_without_source,
+		"Restore requires its exact source locator")
+	var restore_with_context: Dictionary = restore_operation.duplicate(true)
+	restore_with_context["initial_context"] = initial_context.duplicate(true)
+	_assert_rejects_operation_mutation(base_document, _restore_transaction_id(), restore_with_context,
+		"Restore forbids an initial context")
+	var restore_with_context_hash: Dictionary = restore_operation.duplicate(true)
+	restore_with_context_hash["initial_context_sha256"] = _canonical_sha256(initial_context)
+	_assert_rejects_operation_mutation(base_document, _restore_transaction_id(), restore_with_context_hash,
+		"Restore forbids an initial context hash")
+
+	var allocated_operation: Dictionary = _schema_operation_at_stage(
+		new_run_operation, STAGE_ALLOCATED, 0)
+	var valid_failure: Dictionary = _failure("source_unprovable", "schema failure fixture")
+	allocated_operation["failure"] = valid_failure
+	for member: String in ["code", "details", "message"]:
+		var missing_failure: Dictionary = valid_failure.duplicate(true)
+		missing_failure.erase(member)
+		var missing_failure_operation: Dictionary = allocated_operation.duplicate(true)
+		missing_failure_operation["failure"] = missing_failure
+		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(),
+			missing_failure_operation, "failure missing %s" % member)
+	var extra_failure: Dictionary = valid_failure.duplicate(true)
+	extra_failure["rogue_member"] = true
+	var extra_failure_operation: Dictionary = allocated_operation.duplicate(true)
+	extra_failure_operation["failure"] = extra_failure
+	_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), extra_failure_operation,
+		"failure has an extra member")
+	var failure_profiles: Array[Dictionary] = [
+		{"label": "code wrong type", "member": "code", "value": 1},
+		{"label": "message wrong type", "member": "message", "value": 1},
+		{"label": "details wrong type", "member": "details", "value": []},
+		{"label": "code blank", "member": "code", "value": ""},
+		{"label": "message blank", "member": "message", "value": ""},
+	]
+	for profile: Dictionary in failure_profiles:
+		var mutated_failure: Dictionary = valid_failure.duplicate(true)
+		mutated_failure[str(profile["member"])] = profile["value"]
+		var failure_operation: Dictionary = allocated_operation.duplicate(true)
+		failure_operation["failure"] = mutated_failure
+		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), failure_operation,
+			"failure %s" % profile["label"])
+
+	var relationship_profiles: Array[Dictionary] = [
+		{"label": "intent cannot retain allocation", "stage": STAGE_INTENT, "count": 0,
+			"member": "allocation_receipt", "value": _allocation_receipt("illegal-intent")},
+		{"label": "intent index must be zero", "stage": STAGE_INTENT, "count": 0,
+			"member": "next_participant_index", "value": 1},
+		{"label": "intent cannot retain failure", "stage": STAGE_INTENT, "count": 0,
+			"member": "failure", "value": valid_failure},
+		{"label": "allocated requires allocation", "stage": STAGE_ALLOCATED, "count": 0,
+			"member": "allocation_receipt", "value": null},
+		{"label": "allocated index must be zero", "stage": STAGE_ALLOCATED, "count": 0,
+			"member": "next_participant_index", "value": 1},
+		{"label": "applying requires allocation", "stage": STAGE_APPLYING, "count": 3,
+			"member": "allocation_receipt", "value": null},
+		{"label": "applying index must match receipt prefix", "stage": STAGE_APPLYING, "count": 3,
+			"member": "next_participant_index", "value": 2},
+		{"label": "applied requires allocation", "stage": STAGE_APPLIED, "count": 8,
+			"member": "allocation_receipt", "value": null},
+		{"label": "applied index must be eight", "stage": STAGE_APPLIED, "count": 8,
+			"member": "next_participant_index", "value": 7},
+		{"label": "completed cannot retain failure", "stage": STAGE_COMPLETED, "count": 8,
+			"member": "failure", "value": valid_failure},
+		{"label": "completed index must be eight", "stage": STAGE_COMPLETED, "count": 8,
+			"member": "next_participant_index", "value": 7},
+		{"label": "aborted cannot retain allocation", "stage": STAGE_ABORTED, "count": 0,
+			"member": "allocation_receipt", "value": _allocation_receipt("illegal-abort")},
+		{"label": "aborted index must be zero", "stage": STAGE_ABORTED, "count": 0,
+			"member": "next_participant_index", "value": 1},
+		{"label": "aborted requires failure", "stage": STAGE_ABORTED, "count": 0,
+			"member": "failure", "value": null},
+	]
+	for profile: Dictionary in relationship_profiles:
+		var relationship_operation: Dictionary = _schema_operation_at_stage(
+			new_run_operation, str(profile["stage"]), int(profile["count"]))
+		relationship_operation[str(profile["member"])] = profile["value"]
+		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(),
+			relationship_operation, "stage relationship: %s" % profile["label"])
+
+	var receipt_relationship_profiles: Array[Dictionary] = [
+		{"label": "intent participant receipt must be null", "stage": STAGE_INTENT, "count": 0,
+			"participant": PARTICIPANT_ORDER[0], "value": _participant_receipt(PARTICIPANT_ORDER[0])},
+		{"label": "allocated participant receipt must be null", "stage": STAGE_ALLOCATED, "count": 0,
+			"participant": PARTICIPANT_ORDER[0], "value": _participant_receipt(PARTICIPANT_ORDER[0])},
+		{"label": "applying lower receipt must be nonnull", "stage": STAGE_APPLYING, "count": 3,
+			"participant": PARTICIPANT_ORDER[1], "value": null},
+		{"label": "applying current receipt must be null", "stage": STAGE_APPLYING, "count": 3,
+			"participant": PARTICIPANT_ORDER[3], "value": _participant_receipt(PARTICIPANT_ORDER[3])},
+		{"label": "applied receipt must be nonnull", "stage": STAGE_APPLIED, "count": 8,
+			"participant": PARTICIPANT_ORDER[7], "value": null},
+		{"label": "completed receipt must be nonnull", "stage": STAGE_COMPLETED, "count": 8,
+			"participant": PARTICIPANT_ORDER[7], "value": null},
+		{"label": "aborted participant receipt must be null", "stage": STAGE_ABORTED, "count": 0,
+			"participant": PARTICIPANT_ORDER[0], "value": _participant_receipt(PARTICIPANT_ORDER[0])},
+	]
+	for profile: Dictionary in receipt_relationship_profiles:
+		var relationship_operation: Dictionary = _schema_operation_at_stage(
+			new_run_operation, str(profile["stage"]), int(profile["count"]))
+		var relationship_receipts: Dictionary = (
+			relationship_operation["participant_receipts"] as Dictionary).duplicate(true)
+		relationship_receipts[str(profile["participant"])] = profile["value"]
+		relationship_operation["participant_receipts"] = relationship_receipts
+		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(),
+			relationship_operation, "stage relationship: %s" % profile["label"])
+
 
 func _assert_rejects_operation_mutation(base_document: Dictionary, transaction_id: String,
 		mutated_operation: Dictionary, label: String) -> void:
 	var malformed_document: Dictionary = base_document.duplicate(true)
 	var malformed_operations: Dictionary = (malformed_document["operations"] as Dictionary).duplicate(true)
-	malformed_operations[transaction_id] = mutated_operation
+	malformed_operations[_resolved_transaction_id(transaction_id)] = mutated_operation
 	malformed_document["operations"] = malformed_operations
 	_assert_rejects_stored_document(malformed_document, label)
 
@@ -372,8 +647,16 @@ func _assert_rejects_stored_document(document: Dictionary, label: String) -> voi
 
 
 func test_every_legal_and_illegal_stage_transition_is_enforced() -> void:
+	var matrix: Array[Dictionary] = _stage_transition_matrix()
+	assert_eq(matrix.size(), 36,
+		"the six-stage union produces exactly 36 ordered stage pairs")
+	var seen_pairs: Dictionary = {}
 	var txid_index: int = 0
-	for profile: Dictionary in _stage_transition_matrix():
+	for profile: Dictionary in matrix:
+		var pair_key := "%s->%s" % [profile.get("from_stage", ""), profile.get("to_stage", "")]
+		assert_false(seen_pairs.has(pair_key),
+			"each ordered stage pair appears exactly once: %s" % pair_key)
+		seen_pairs[pair_key] = true
 		var txid := "tx-stage-matrix-%d" % txid_index
 		txid_index += 1
 		_storage.restart()
@@ -388,6 +671,8 @@ func test_every_legal_and_illegal_stage_transition_is_enforced() -> void:
 				int(profile.get("seeded_participant_count", 0))):
 			return
 		var request: Dictionary = _advance_request_for_stage_transition(txid, profile)
+		var writes_before: int = _storage.write_count
+		var durable_before: Dictionary = _stored_document()
 		var result: Dictionary = scenario.advance(request)
 		if profile.get("legal", false):
 			if not _require_ok(result, "legal stage transition should pass: %s" % profile.get("label", "")):
@@ -397,9 +682,20 @@ func test_every_legal_and_illegal_stage_transition_is_enforced() -> void:
 				return
 			assert_eq(record.get("stage"), profile.get("to_stage", ""),
 				"legal stage transition records the requested stage")
+			if request.get("allocation_receipt") != null:
+				assert_eq(record.get("allocation_receipt"), request.get("allocation_receipt"),
+					"the exact submitted allocation receipt is durable on its legal edge")
+			if request.get("participant_receipt") != null:
+				assert_eq((record["participant_receipts"] as Dictionary).get(
+					str(request["participant_name"])), request.get("participant_receipt"),
+					"the exact submitted participant receipt is durable on its legal edge")
 		else:
 			_assert_rejected(result,
 				"illegal stage transition must fail: %s" % profile.get("label", ""))
+			assert_eq(_storage.write_count, writes_before,
+				"illegal stage transition conflicts before storage mutation: %s" % pair_key)
+			assert_eq(_stored_document(), durable_before,
+				"illegal stage transition preserves durable bytes: %s" % pair_key)
 
 
 func test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges() -> void:
@@ -440,6 +736,14 @@ func test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges() -> v
 					return
 				assert_eq(_operation_record_for(txid).get("stage"), transition["to_stage"],
 					"the frozen %s evidence edge records its requested stage" % evidence_kind)
+				var stored_record: Dictionary = _operation_record_for(txid)
+				if evidence_kind == "allocation":
+					assert_eq(stored_record.get("allocation_receipt"), request.get("allocation_receipt"),
+						"allocation evidence bytes are exactly the submitted receipt")
+				else:
+					assert_eq((stored_record["participant_receipts"] as Dictionary).get(
+						str(request["participant_name"])), request.get("participant_receipt"),
+						"participant evidence bytes are exactly the submitted receipt")
 			else:
 				_assert_rejected(result,
 					"%s evidence is forbidden at %s" % [evidence_kind, transition.get("label", "")])
@@ -627,7 +931,7 @@ func test_a_restore_source_that_no_longer_hashes_the_same_is_refused() -> void:
 		return
 
 	# Plan line 591: "Reload must reproduce all four values, not merely find a compatible slot."
-	_loader.arm({"restored": true}, "a".repeat(64))
+	_loader.arm(RESTORE_CONTEXT, _restore_locator())
 	var request: Variant = _restore_intent_request()
 	var prepared: Variant = journal.prepare_intent(request)
 	if not _require_ok(prepared, "prepare_intent for restore"):
@@ -635,9 +939,14 @@ func test_a_restore_source_that_no_longer_hashes_the_same_is_refused() -> void:
 	if not _require_ok(journal.commit_intent(_intent_candidate(prepared)), "commit_intent"):
 		return
 
-	_loader.arm_failure(&"fake_source_missing")
+	_loader.arm({"restored": false}, _restore_locator())
 	_assert_rejected(
-		journal.reconcile_startup(_restore_transaction_id(), _real_issuer()),
+		journal.reconcile_startup(_resolved_transaction_id(_restore_transaction_id()), _real_issuer()),
+		"a loader-computed changed Restore context hash cannot reconcile forward")
+
+	_loader.arm_failure(&"fake_source_missing", _restore_locator())
+	_assert_rejected(
+		journal.reconcile_startup(_resolved_transaction_id(_restore_transaction_id()), _real_issuer()),
 		"plan line 593: a proven missing restore source cannot reconcile forward")
 
 	# DECISION 9.5: the loader is consulted only for restore, never for new_run.
@@ -653,7 +962,7 @@ func test_a_new_run_context_is_rehashed_without_consulting_the_loader() -> void:
 		return
 
 	var calls_before: Variant = _loader.call_log.size()
-	journal.reconcile_startup(_new_run_transaction_id(), _real_issuer())
+	journal.reconcile_startup(_resolved_transaction_id(_new_run_transaction_id()), _real_issuer())
 	# DECISION 9.5: "for new_run the journal recomputes initial_context_sha256 over its own
 	# retained initial_context" and never consults the loader.
 	assert_eq(_loader.call_log.size(), calls_before,
@@ -795,12 +1104,10 @@ func test_list_incomplete_returns_only_nonterminal_operations() -> void:
 	assert_eq(incomplete.size(), 1,
 		"an allocated, unfinished operation is nonterminal and must be listed")
 
-	if not _require_ok(journal.advance(_advance_request(
-			_new_run_transaction_id(), STAGE_ALLOCATED, STAGE_APPLYING, 0)),
-			"advance to participants_applying"):
+	if not _advance_allocated_through_applied(journal, _new_run_transaction_id()):
 		return
 	if not _require_ok(journal.advance(_advance_request(
-			_new_run_transaction_id(), STAGE_APPLYING, STAGE_COMPLETED, 8)),
+			_new_run_transaction_id(), STAGE_APPLIED, STAGE_COMPLETED, 8)),
 			"advance to completed"):
 		return
 	var after: Variant = journal.list_incomplete()
@@ -825,7 +1132,8 @@ func test_startup_reconciles_a_clean_restart_forward() -> void:
 	if not _require_ok(restarted.configure(_storage, _loader), "configure after restart"):
 		return
 
-	var reconciled: Variant = restarted.reconcile_startup(_new_run_transaction_id(), _real_issuer())
+	var reconciled: Variant = restarted.reconcile_startup(
+		_resolved_transaction_id(_new_run_transaction_id()), _real_issuer())
 	if not _require_ok(reconciled, "reconcile_startup after a clean restart"):
 		return
 	var record: Variant = _operation_record()
@@ -843,9 +1151,11 @@ func test_startup_reconciliation_is_no_op_for_terminal_operations() -> void:
 	var journal: Variant = _allocated_journal()
 	if journal == null:
 		return
+	if not _advance_allocated_through_applied(journal, _new_run_transaction_id()):
+		return
 	if not _require_ok(journal.advance(_advance_request(
-			_new_run_transaction_id(), STAGE_ALLOCATED, STAGE_COMPLETED, 8)),
-			"advance allocated to completed before terminal startup"):
+			_new_run_transaction_id(), STAGE_APPLIED, STAGE_COMPLETED, 8)),
+			"advance applied to completed before terminal startup"):
 		return
 	var completed_snapshot_before: Dictionary = _stored_document()
 	if completed_snapshot_before.is_empty():
@@ -856,7 +1166,8 @@ func test_startup_reconciliation_is_no_op_for_terminal_operations() -> void:
 	if not _require_ok(completed_restart.configure(_storage, _loader), "configure completed restart"):
 		return
 	var completed_writes_before: Variant = _storage.write_count
-	if not _require_ok(completed_restart.reconcile_startup(_new_run_transaction_id(), _real_issuer()),
+	if not _require_ok(completed_restart.reconcile_startup(
+			_resolved_transaction_id(_new_run_transaction_id()), _real_issuer()),
 			"reconcile_startup keeps a completed terminal stage"):
 		return
 	assert_eq(_storage.write_count, completed_writes_before,
@@ -889,7 +1200,8 @@ func test_startup_reconciliation_is_no_op_for_terminal_operations() -> void:
 	if not _require_ok(aborted_restart.configure(_storage, _loader), "configure aborted restart"):
 		return
 	var aborted_writes_before: Variant = _storage.write_count
-	if not _require_ok(aborted_restart.reconcile_startup(aborted_txid, _real_issuer()),
+	if not _require_ok(aborted_restart.reconcile_startup(
+			_resolved_transaction_id(aborted_txid), _real_issuer()),
 			"reconcile_startup keeps an aborted terminal stage"):
 		return
 	assert_eq(_storage.write_count, aborted_writes_before,
@@ -910,11 +1222,12 @@ func test_startup_rejects_malformed_issued_transaction_receipts() -> void:
 	if document.is_empty():
 		return
 	var operations: Dictionary = document.get("operations", {}) as Dictionary
-	if not operations.has(_new_run_transaction_id()):
+	var new_run_id: String = _resolved_transaction_id(_new_run_transaction_id())
+	if not operations.has(new_run_id):
 		return
 	var malformed_operations: Dictionary = operations.duplicate(true)
-	malformed_operations[_new_run_transaction_id()] = (operations.get(_new_run_transaction_id(), {}) as Dictionary).duplicate(true)
-	malformed_operations[_new_run_transaction_id()]["transaction_issuer_receipt"] = "not-a-receipt"
+	malformed_operations[new_run_id] = (operations.get(new_run_id, {}) as Dictionary).duplicate(true)
+	malformed_operations[new_run_id]["transaction_issuer_receipt"] = "not-a-receipt"
 	document["operations"] = malformed_operations
 	_storage.seed(JOURNAL_PATH, JSON.stringify(document))
 
@@ -922,7 +1235,7 @@ func test_startup_rejects_malformed_issued_transaction_receipts() -> void:
 	var restarted: Variant = JOURNAL.new()
 	if not _require_ok(restarted.configure(_storage, _loader), "configure for malformed receipt startup"):
 		return
-	var reconciled: Variant = restarted.reconcile_startup(_new_run_transaction_id(), _real_issuer())
+	var reconciled: Variant = restarted.reconcile_startup(new_run_id, _real_issuer())
 	_assert_rejected(reconciled, "reconcile_startup rejects malformed transaction_issuer_receipt")
 
 
@@ -971,9 +1284,10 @@ func test_startup_proves_the_original_restore_source_before_clearing_an_identica
 	var restarted: Variant = JOURNAL.new()
 	if not _require_ok(restarted.configure(_storage, _loader), "configure after diagnostic restart"):
 		return
-	_loader.arm_failure(&"fake_source_missing")
+	_loader.arm_failure(&"fake_source_missing", _restore_locator())
 	var calls_before_failed_proof: int = _loader.call_log.size()
-	var failed_proof: Dictionary = restarted.reconcile_startup(txid, _real_issuer())
+	var failed_proof: Dictionary = restarted.reconcile_startup(
+		_resolved_transaction_id(txid), _real_issuer())
 	assert_false(failed_proof.get("ok", true),
 		"a retained diagnostic must not bypass load_context proof on startup")
 	if failed_proof.get("ok", false):
@@ -999,9 +1313,10 @@ func test_startup_proves_the_original_restore_source_before_clearing_an_identica
 	assert_eq((blocked.get("value", []) as Array).size(), 1,
 		"the diagnosed nonterminal operation remains an input-blocking startup obligation")
 
-	_loader.arm({"restored": true}, str((_restore_locator()).get("document_sha256", "")))
+	_loader.arm(RESTORE_CONTEXT, _restore_locator())
 	var writes_before_clear: int = _storage.write_count
-	var cleared: Dictionary = restarted.reconcile_startup(txid, _real_issuer())
+	var cleared: Dictionary = restarted.reconcile_startup(
+		_resolved_transaction_id(txid), _real_issuer())
 	if not _require_ok(cleared, "reconcile_startup after byte-identical restore proof"):
 		return
 	assert_eq(_loader.call_log.size(), calls_before_failed_proof + 2,
@@ -1093,7 +1408,7 @@ func test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_
 			return
 		var listed: bool = false
 		for operation: Dictionary in (incomplete.get("value", []) as Array):
-			if str(operation.get("transaction_id", "")) == txid:
+			if str(operation.get("transaction_id", "")) == _resolved_transaction_id(txid):
 				listed = true
 		assert_true(listed,
 			"the diagnosed %s operation remains an input-blocking startup obligation" % stage)
@@ -1104,7 +1419,8 @@ func test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_
 				"configure New-Run diagnostic restart at %s" % stage):
 			return
 		var loader_calls_before: int = _loader.call_log.size()
-		if not _require_ok(restarted.reconcile_startup(txid, _real_issuer()),
+		if not _require_ok(restarted.reconcile_startup(
+				_resolved_transaction_id(txid), _real_issuer()),
 				"rehash journaled New-Run context at %s" % stage):
 			return
 		assert_eq(_loader.call_log.size(), loader_calls_before,
@@ -1118,6 +1434,266 @@ func test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_
 			"diagnostic clearing preserves the forward stage %s" % stage)
 		assert_eq(cleared.get("allocation_receipt"), retained_before.get("allocation_receipt"),
 			"diagnostic clearing preserves allocation receipt bytes at %s" % stage)
+
+
+func test_terminal_stages_refuse_recovery_diagnostics_without_mutation() -> void:
+	var profiles: Array[Dictionary] = [
+		{"stage": STAGE_COMPLETED, "index": PARTICIPANT_ORDER.size()},
+		{"stage": STAGE_ABORTED, "index": 0},
+	]
+	var profile_index: int = 0
+	for profile: Dictionary in profiles:
+		var txid := "tx-terminal-diagnostic-%d" % profile_index
+		profile_index += 1
+		_storage.restart()
+		var scenario: Object = JOURNAL.new()
+		if not _require_ok(scenario.configure(_storage, _loader),
+				"configure terminal diagnostic scenario %s" % profile["stage"]):
+			return
+		var stage: String = str(profile["stage"])
+		if not _journal_with_stage(scenario, txid, stage):
+			return
+		var record_before: Dictionary = _operation_record_for(txid)
+		var diagnostic: Dictionary = _advance_request_for_transaction(
+			txid, stage, stage, int(profile["index"]))
+		diagnostic["failure"] = record_before.get("failure")
+		if diagnostic["failure"] == null:
+			diagnostic["failure"] = _failure(
+				"source_unprovable", "terminal stage cannot acquire a recovery diagnostic")
+		var writes_before: int = _storage.write_count
+		var durable_before: Dictionary = _stored_document()
+		var result: Dictionary = scenario.advance(diagnostic)
+		assert_false(result.get("ok", true),
+			"terminal stage %s must refuse a recovery diagnostic" % stage)
+		if result.get("ok", false):
+			return
+		assert_ne(result.get("code", &"not_implemented"), &"not_implemented",
+			"terminal diagnostic refusal must return a real typed failure")
+		assert_eq(_storage.write_count, writes_before,
+			"terminal diagnostic refusal cannot write at %s" % stage)
+		assert_eq(_stored_document(), durable_before,
+			"terminal diagnostic refusal preserves durable bytes at %s" % stage)
+
+
+func test_restore_diagnostics_clear_at_applying_and_applied_through_real_json_storage() -> void:
+	var profiles: Array[Dictionary] = [
+		{"stage": STAGE_APPLYING, "participant_count": 3},
+		{"stage": STAGE_APPLIED, "participant_count": PARTICIPANT_ORDER.size()},
+	]
+	var profile_index: int = 0
+	for profile: Dictionary in profiles:
+		var file_ops := FakeFileOps.new()
+		var root := "%s-%d" % [REAL_JOURNAL_ROOT, profile_index]
+		_storage = JsonFileStorage.new(root, file_ops)
+		_loader = FakeSourceLoader.new()
+		var scenario: Object = JOURNAL.new()
+		if not _require_ok(scenario.configure(_storage, _loader),
+				"configure real-storage restore diagnostic %s" % profile["stage"]):
+			return
+		var txid := _restore_transaction_id()
+		profile_index += 1
+		var stage: String = str(profile["stage"])
+		var participant_count: int = int(profile["participant_count"])
+		if not _restore_journal_at_stage(scenario, txid, stage, participant_count):
+			return
+		var actual_txid: String = _resolved_transaction_id(txid)
+		var before_result: Dictionary = scenario.get_operation(actual_txid)
+		if not _require_ok(before_result, "read real-storage Restore before diagnostic"):
+			return
+		var before: Dictionary = (before_result["value"] as Dictionary).duplicate(true)
+		var diagnostic: Dictionary = _advance_request_for_transaction(
+			txid, stage, stage, participant_count)
+		diagnostic["failure"] = _failure(
+			"source_unprovable", "real-storage source unavailable at %s" % stage)
+		if not _require_ok(scenario.advance(diagnostic),
+				"record real-storage Restore diagnostic at %s" % stage):
+			return
+		var diagnosed_result: Dictionary = scenario.get_operation(actual_txid)
+		if not _require_ok(diagnosed_result, "read real-storage retained diagnostic"):
+			return
+		var diagnosed: Dictionary = (diagnosed_result["value"] as Dictionary).duplicate(true)
+		assert_eq(diagnosed.get("failure"), diagnostic.get("failure"),
+			"real JsonFileStorage retains the exact diagnostic at %s" % stage)
+		assert_eq(diagnosed.get("next_participant_index"), before.get("next_participant_index"),
+			"diagnostic recording preserves the exact index at %s" % stage)
+		assert_eq(diagnosed.get("participant_receipts"), before.get("participant_receipts"),
+			"diagnostic recording preserves exact participant bytes at %s" % stage)
+		var persisted_before_restart: Dictionary = file_ops.snapshot_persisted()
+
+		_storage = JsonFileStorage.new(root, file_ops)
+		var restarted: Object = JOURNAL.new()
+		if not _require_ok(restarted.configure(_storage, _loader),
+				"configure restarted real JsonFileStorage at %s" % stage):
+			return
+		_loader.arm(RESTORE_CONTEXT, _restore_locator())
+		var calls_before: int = _loader.call_log.size()
+		if not _require_ok(restarted.reconcile_startup(actual_txid, _real_issuer()),
+				"prove and clear real-storage Restore diagnostic at %s" % stage):
+			return
+		assert_eq(_loader.call_log.size(), calls_before + 1,
+			"real-storage Restore reconciliation performs one fresh source load")
+		assert_eq(_loader.call_log[-1].get("source_locator"), diagnosed.get("source_locator"),
+			"real-storage Restore proof receives the exact retained locator")
+		assert_ne(file_ops.snapshot_persisted(), persisted_before_restart,
+			"real JsonFileStorage durably changes bytes when clearing at %s" % stage)
+		var cleared_result: Dictionary = restarted.get_operation(actual_txid)
+		if not _require_ok(cleared_result, "read real-storage cleared diagnostic"):
+			return
+		var cleared: Dictionary = cleared_result["value"]
+		var expected_cleared: Dictionary = diagnosed.duplicate(true)
+		expected_cleared["failure"] = null
+		assert_eq(cleared, expected_cleared,
+			"real-storage clear changes only failure at %s" % stage)
+		assert_eq(cleared.get("next_participant_index"), participant_count,
+			"post-clear index is exact at %s" % stage)
+		assert_eq(cleared.get("participant_receipts"), diagnosed.get("participant_receipts"),
+			"post-clear participant receipts are byte-identical at %s" % stage)
+
+
+func test_proof_failure_retains_both_kinds_at_every_nonterminal_post_allocation_stage() -> void:
+	for profile: Dictionary in _proof_profiles():
+		_storage = FAKE_STORAGE.new()
+		_loader = FakeSourceLoader.new()
+		var scenario: Object = JOURNAL.new()
+		var kind: String = str(profile["kind"])
+		var stage: String = str(profile["stage"])
+		var participant_count: int = int(profile["participant_count"])
+		var txid: String = (
+			_restore_transaction_id() if kind == "restore" else _new_run_transaction_id())
+		var label := "%s at %s" % [kind, stage]
+		if not _require_ok(scenario.configure(_storage, _loader),
+				"configure proof-failure scenario %s" % label):
+			return
+		if not _journal_for_kind_at_stage(scenario, kind, txid, stage, participant_count):
+			return
+		var diagnostic: Dictionary = _advance_request_for_transaction(
+			txid, stage, stage, participant_count)
+		diagnostic["failure"] = _failure(
+			"source_unprovable", "source proof must fail for %s" % label)
+		if not _require_ok(scenario.advance(diagnostic),
+				"record proof-failure diagnostic for %s" % label):
+			return
+		var actual_txid: String = _resolved_transaction_id(txid)
+		var diagnosed: Dictionary = _operation_record_for(txid).duplicate(true)
+		if diagnosed.is_empty():
+			return
+
+		if kind == "restore":
+			_loader.arm_failure(&"fake_source_missing", diagnosed["source_locator"])
+		else:
+			var malformed: Dictionary = _stored_document()
+			var operations: Dictionary = (malformed["operations"] as Dictionary).duplicate(true)
+			var operation: Dictionary = (operations[actual_txid] as Dictionary).duplicate(true)
+			var changed_context: Dictionary = (operation["initial_context"] as Dictionary).duplicate(true)
+			changed_context["content_version"] = int(changed_context["content_version"]) + 1
+			operation["initial_context"] = changed_context
+			operations[actual_txid] = operation
+			malformed["operations"] = operations
+			_storage.seed(JOURNAL_PATH, JSON.stringify(malformed))
+
+		var durable_before: Dictionary = _storage.snapshot()
+		_storage.restart()
+		var restarted: Object = JOURNAL.new()
+		if not _require_ok(restarted.configure(_storage, _loader),
+				"configure proof-failure restart for %s" % label):
+			return
+		var loader_calls_before: int = _loader.call_log.size()
+		var result: Dictionary = restarted.reconcile_startup(actual_txid, _real_issuer())
+		_assert_rejected(result, "failed source proof must block diagnostic clearing for %s" % label)
+		assert_eq(_loader.call_log.size(),
+			loader_calls_before + (1 if kind == "restore" else 0),
+			"only Restore proof calls load_context for %s" % label)
+		if kind == "restore":
+			assert_eq(_loader.call_log[-1].get("source_locator"), diagnosed.get("source_locator"),
+				"failed Restore proof receives the exact retained locator for %s" % label)
+		assert_eq(_storage.write_count, 0,
+			"failed source proof cannot attempt a clear write for %s" % label)
+		assert_eq(_storage.snapshot(), durable_before,
+			"failed source proof preserves every durable byte for %s" % label)
+		var retained: Dictionary = _operation_record_for(txid)
+		assert_eq(retained.get("failure"), diagnosed.get("failure"),
+			"failed proof retains the exact diagnostic for %s" % label)
+		assert_eq(retained.get("stage"), stage,
+			"failed proof retains the nonterminal stage for %s" % label)
+		assert_eq(retained.get("allocation_receipt"), diagnosed.get("allocation_receipt"),
+			"failed proof retains exact allocation bytes for %s" % label)
+		assert_eq(retained.get("participant_receipts"), diagnosed.get("participant_receipts"),
+			"failed proof retains exact participant bytes for %s" % label)
+		var blocked: Dictionary = restarted.list_incomplete()
+		if kind == "restore":
+			if not _require_ok(blocked, "list retained Restore after failed proof for %s" % label):
+				return
+			assert_eq((blocked.get("value", []) as Array).size(), 1,
+				"failed Restore proof remains an input-blocking startup obligation for %s" % label)
+		else:
+			_assert_rejected(blocked,
+				"malformed New-Run proof fails closed before input listing for %s" % label)
+
+
+func test_diagnostic_clear_write_failure_retains_and_retries_both_kinds_at_every_stage() -> void:
+	for profile: Dictionary in _proof_profiles():
+		_storage = FAKE_STORAGE.new()
+		_loader = FakeSourceLoader.new()
+		var scenario: Object = JOURNAL.new()
+		var kind: String = str(profile["kind"])
+		var stage: String = str(profile["stage"])
+		var participant_count: int = int(profile["participant_count"])
+		var txid: String = (
+			_restore_transaction_id() if kind == "restore" else _new_run_transaction_id())
+		var label := "%s at %s" % [kind, stage]
+		if not _require_ok(scenario.configure(_storage, _loader),
+				"configure clear-write failure scenario %s" % label):
+			return
+		if not _journal_for_kind_at_stage(scenario, kind, txid, stage, participant_count):
+			return
+		var diagnostic: Dictionary = _advance_request_for_transaction(
+			txid, stage, stage, participant_count)
+		diagnostic["failure"] = _failure(
+			"source_unprovable", "diagnostic clear write may fail for %s" % label)
+		if not _require_ok(scenario.advance(diagnostic),
+				"record diagnostic before clear-write failure for %s" % label):
+			return
+		var diagnosed: Dictionary = _operation_record_for(txid).duplicate(true)
+		var durable_diagnosed: Dictionary = _stored_document()
+		if kind == "restore":
+			_loader.arm(RESTORE_CONTEXT, diagnosed["source_locator"])
+		_storage.restart()
+		var restarted: Object = JOURNAL.new()
+		if not _require_ok(restarted.configure(_storage, _loader),
+				"configure clear-write failure restart for %s" % label):
+			return
+		_storage.fail_next_write(&"fake_diagnostic_clear_write_failed")
+		var actual_txid: String = _resolved_transaction_id(txid)
+		var loader_calls_before: int = _loader.call_log.size()
+		var failed_clear: Dictionary = restarted.reconcile_startup(actual_txid, _real_issuer())
+		_assert_rejected(failed_clear, "diagnostic clear write must fail closed for %s" % label)
+		assert_eq(_loader.call_log.size(),
+			loader_calls_before + (1 if kind == "restore" else 0),
+			"clear attempt performs the required source proof for %s" % label)
+		assert_eq(_storage.write_count, 1,
+			"failed clear attempts exactly one durable write for %s" % label)
+		assert_eq(_stored_document(), durable_diagnosed,
+			"failed clear leaves diagnosed durable bytes unchanged for %s" % label)
+		var retained_result: Dictionary = restarted.get_operation(actual_txid)
+		if not _require_ok(retained_result, "read in-memory operation after failed clear for %s" % label):
+			return
+		assert_eq(retained_result.get("value"), diagnosed,
+			"failed clear leaves the exact in-memory diagnosed operation for %s" % label)
+		var blocked: Dictionary = restarted.list_incomplete()
+		if not _require_ok(blocked, "list operation after failed clear for %s" % label):
+			return
+		assert_eq((blocked.get("value", []) as Array).size(), 1,
+			"failed clear remains input-blocking for %s" % label)
+		if not _require_ok(restarted.reconcile_startup(actual_txid, _real_issuer()),
+				"retry diagnostic clear after durable write recovers for %s" % label):
+			return
+		assert_eq(_storage.write_count, 2,
+			"successful retry performs one additional durable write for %s" % label)
+		var cleared: Dictionary = _operation_record_for(txid)
+		var expected_cleared: Dictionary = diagnosed.duplicate(true)
+		expected_cleared["failure"] = null
+		assert_eq(cleared, expected_cleared,
+			"clear retry changes only failure and preserves all receipt bytes for %s" % label)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1192,30 +1768,39 @@ func test_an_allocated_operation_retains_its_receipt_and_can_never_be_aborted() 
 	assert_eq(_operation_record().get("allocation_receipt"), retained,
 		"the allocated-stage abort preserves allocation receipt bytes")
 
-	var forward: Array[String] = [STAGE_APPLYING, STAGE_APPLIED, STAGE_COMPLETED]
-	var current: Variant = STAGE_ALLOCATED
-	for next_stage: String in forward:
-		var index: Variant = 0 if next_stage == STAGE_APPLYING else 8
-		if not _require_ok(journal.advance(_advance_request(
-				_new_run_transaction_id(), current, next_stage, index)),
-				"advance to %s" % next_stage):
+	if not _require_ok(journal.advance(_advance_request(
+			_new_run_transaction_id(), STAGE_ALLOCATED, STAGE_APPLYING, 0)),
+			"advance to participants_applying"):
+		return
+	_assert_post_allocation_stage_retained_and_not_aborted(
+		journal, STAGE_APPLYING, 0, retained)
+	for index: int in range(PARTICIPANT_ORDER.size()):
+		var participant: String = PARTICIPANT_ORDER[index]
+		var submitted_receipt: Dictionary = _participant_receipt(participant)
+		var apply: Dictionary = _advance_request(
+			_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLYING, index)
+		apply["participant_name"] = participant
+		apply["participant_receipt"] = submitted_receipt.duplicate(true)
+		if not _require_ok(journal.advance(apply), "apply retained participant %s" % participant):
 			return
-
-		var writes_before: Variant = _storage.write_count
-		var abort: Variant = _advance_request(
-			_new_run_transaction_id(), next_stage, STAGE_ABORTED, index)
-		abort["failure"] = _failure("late_abort", "an abort attempted after allocation")
-		_assert_rejected(journal.advance(abort),
-			"plan line 593: `%s` may never be relabelled aborted" % next_stage)
-		assert_eq(_storage.write_count, writes_before,
-			"the refused abort mutates nothing at %s" % next_stage)
-
-		var record: Variant = _operation_record()
-		if record.is_empty():
-			return
-		assert_eq(record.get("allocation_receipt"), retained,
-			"plan line 593: the allocation receipt is retained byte-equal at %s" % next_stage)
-		current = next_stage
+		var applying_record: Dictionary = _operation_record()
+		assert_eq((applying_record["participant_receipts"] as Dictionary).get(participant),
+			submitted_receipt,
+			"the exact submitted %s receipt becomes durable immediately" % participant)
+		assert_eq(applying_record.get("allocation_receipt"), retained,
+			"participant %s application retains allocation receipt bytes" % participant)
+	if not _require_ok(journal.advance(_advance_request(
+			_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLIED, PARTICIPANT_ORDER.size())),
+			"advance to participants_applied"):
+		return
+	_assert_post_allocation_stage_retained_and_not_aborted(
+		journal, STAGE_APPLIED, PARTICIPANT_ORDER.size(), retained)
+	if not _require_ok(journal.advance(_advance_request(
+			_new_run_transaction_id(), STAGE_APPLIED, STAGE_COMPLETED, PARTICIPANT_ORDER.size())),
+			"advance to completed"):
+		return
+	_assert_post_allocation_stage_retained_and_not_aborted(
+		journal, STAGE_COMPLETED, PARTICIPANT_ORDER.size(), retained)
 
 
 func test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_input() -> void:
@@ -1256,6 +1841,23 @@ func test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_
 # ---------------------------------------------------------------------------------------------
 # Fixture helpers
 # ---------------------------------------------------------------------------------------------
+
+func _assert_post_allocation_stage_retained_and_not_aborted(journal: Object, stage: String,
+		index: int, retained_allocation: Variant) -> void:
+	var record: Dictionary = _operation_record()
+	assert_eq(record.get("allocation_receipt"), retained_allocation,
+		"plan line 593: the allocation receipt is retained byte-equal at %s" % stage)
+	var writes_before: int = _storage.write_count
+	var durable_before: Dictionary = _stored_document()
+	var abort: Dictionary = _advance_request(
+		_new_run_transaction_id(), stage, STAGE_ABORTED, index)
+	abort["failure"] = _failure("late_abort", "an abort attempted after allocation")
+	_assert_rejected(journal.advance(abort),
+		"plan line 593: `%s` may never be relabelled aborted" % stage)
+	assert_eq(_storage.write_count, writes_before,
+		"the refused abort mutates nothing at %s" % stage)
+	assert_eq(_stored_document(), durable_before,
+		"the refused abort preserves durable bytes at %s" % stage)
 
 func _require_ok(result: Dictionary, label: String) -> bool:
 	var ok: bool = result.get("ok", false)
@@ -1338,7 +1940,24 @@ func _operation_record_for(transaction_id: String) -> Dictionary:
 	if document.is_empty():
 		return {}
 	var operations: Variant = document.get("operations", {}) as Dictionary
-	return operations.get(transaction_id, {}) as Dictionary
+	return operations.get(_resolved_transaction_id(transaction_id), {}) as Dictionary
+
+
+func _schema_operation_at_stage(base: Dictionary, stage: String, participant_count: int) -> Dictionary:
+	var operation: Dictionary = base.duplicate(true)
+	var receipts: Dictionary = {}
+	for index: int in range(PARTICIPANT_ORDER.size()):
+		var participant: String = PARTICIPANT_ORDER[index]
+		receipts[participant] = (
+			_participant_receipt(participant) if index < participant_count else null)
+	operation["stage"] = stage
+	operation["participant_receipts"] = receipts
+	operation["next_participant_index"] = participant_count
+	operation["allocation_receipt"] = (
+		null if stage in [STAGE_INTENT, STAGE_ABORTED] else _allocation_receipt("schema-stage"))
+	operation["failure"] = (
+		_failure("source_proof_failed", "schema aborted fixture") if stage == STAGE_ABORTED else null)
+	return operation
 
 
 func _journal_with_stage(journal: Object, txid: String, stage: String, full_participants: bool = false,
@@ -1396,16 +2015,96 @@ func _journal_with_stage(journal: Object, txid: String, stage: String, full_part
 		return true
 
 	if stage == STAGE_APPLIED:
-		return _require_ok(journal.advance(_advance_request_for_transaction(
-				txid, STAGE_ALLOCATED, STAGE_APPLIED, PARTICIPANT_ORDER.size())),
-				"advance %s -> %s" % [txid, STAGE_APPLIED])
+		return _advance_allocated_through_applied(journal, txid)
 
 	if stage == STAGE_COMPLETED:
+		if not _advance_allocated_through_applied(journal, txid):
+			return false
 		return _require_ok(journal.advance(_advance_request_for_transaction(
-				txid, STAGE_ALLOCATED, STAGE_COMPLETED, PARTICIPANT_ORDER.size())),
+				txid, STAGE_APPLIED, STAGE_COMPLETED, PARTICIPANT_ORDER.size())),
 				"advance %s -> %s" % [txid, STAGE_COMPLETED])
 
 	return false
+
+
+func _advance_allocated_through_applied(journal: Object, transaction_id: String) -> bool:
+	if not _require_ok(journal.advance(_advance_request_for_transaction(
+			transaction_id, STAGE_ALLOCATED, STAGE_APPLYING, 0)),
+			"advance %s -> %s" % [transaction_id, STAGE_APPLYING]):
+		return false
+	for index: int in range(PARTICIPANT_ORDER.size()):
+		var participant: String = PARTICIPANT_ORDER[index]
+		var request: Dictionary = _advance_request_for_transaction(
+			transaction_id, STAGE_APPLYING, STAGE_APPLYING, index)
+		request["participant_name"] = participant
+		request["participant_receipt"] = _participant_receipt(participant)
+		if not _require_ok(journal.advance(request),
+				"apply participant %s in %s" % [participant, transaction_id]):
+			return false
+	return _require_ok(journal.advance(_advance_request_for_transaction(
+			transaction_id, STAGE_APPLYING, STAGE_APPLIED, PARTICIPANT_ORDER.size())),
+			"advance %s -> %s" % [transaction_id, STAGE_APPLIED])
+
+
+func _restore_journal_at_stage(journal: Object, transaction_id: String, stage: String,
+		participant_count: int) -> bool:
+	var prepared: Dictionary = journal.prepare_intent(_restore_intent_request_for(transaction_id))
+	if not _require_ok(prepared, "prepare real-storage Restore intent"):
+		return false
+	if not _require_ok(journal.commit_intent(_intent_candidate(prepared)),
+			"commit real-storage Restore intent"):
+		return false
+	var allocate: Dictionary = _advance_request_for_transaction(
+		transaction_id, STAGE_INTENT, STAGE_ALLOCATED, 0)
+	allocate["allocation_receipt"] = _allocation_receipt("real-storage-restore")
+	if not _require_ok(journal.advance(allocate), "allocate real-storage Restore"):
+		return false
+	if stage == STAGE_ALLOCATED:
+		return true
+	if not _require_ok(journal.advance(_advance_request_for_transaction(
+			transaction_id, STAGE_ALLOCATED, STAGE_APPLYING, 0)),
+			"enter real-storage Restore participants_applying"):
+		return false
+	for index: int in range(participant_count):
+		var participant: String = PARTICIPANT_ORDER[index]
+		var apply: Dictionary = _advance_request_for_transaction(
+			transaction_id, STAGE_APPLYING, STAGE_APPLYING, index)
+		apply["participant_name"] = participant
+		apply["participant_receipt"] = _participant_receipt(participant)
+		if not _require_ok(journal.advance(apply),
+				"apply real-storage Restore participant %s" % participant):
+			return false
+	if stage == STAGE_APPLYING:
+		return true
+	return _require_ok(journal.advance(_advance_request_for_transaction(
+			transaction_id, STAGE_APPLYING, STAGE_APPLIED, PARTICIPANT_ORDER.size())),
+			"reach real-storage Restore participants_applied")
+
+
+func _proof_profiles() -> Array[Dictionary]:
+	var profiles: Array[Dictionary] = []
+	for kind: String in ["new_run", "restore"]:
+		profiles.append({"kind": kind, "stage": STAGE_ALLOCATED, "participant_count": 0})
+		profiles.append({"kind": kind, "stage": STAGE_APPLYING, "participant_count": 3})
+		profiles.append({
+			"kind": kind,
+			"stage": STAGE_APPLIED,
+			"participant_count": PARTICIPANT_ORDER.size(),
+		})
+	return profiles
+
+
+func _journal_for_kind_at_stage(journal: Object, kind: String, transaction_id: String,
+		stage: String, participant_count: int) -> bool:
+	if kind == "restore":
+		return _restore_journal_at_stage(journal, transaction_id, stage, participant_count)
+	return _journal_with_stage(
+		journal,
+		transaction_id,
+		stage,
+		stage == STAGE_APPLIED,
+		false,
+		participant_count)
 
 
 func _stage_transition_matrix() -> Array[Dictionary]:
@@ -1435,16 +2134,6 @@ func _stage_transition_matrix() -> Array[Dictionary]:
 			"legal": true,
 			"expected_next_participant_index": 0,
 		},
-		"%s->%s" % [STAGE_ALLOCATED, STAGE_APPLIED]: {
-			"label": "allocated to applied",
-			"expected_next_participant_index": PARTICIPANT_ORDER.size(),
-			"legal": true,
-		},
-		"%s->%s" % [STAGE_ALLOCATED, STAGE_COMPLETED]: {
-			"label": "allocated to completed",
-			"expected_next_participant_index": PARTICIPANT_ORDER.size(),
-			"legal": true,
-		},
 		"%s->%s" % [STAGE_ALLOCATED, STAGE_ALLOCATED]: {
 			"label": "allocated diagnostic",
 			"legal": true,
@@ -1461,16 +2150,18 @@ func _stage_transition_matrix() -> Array[Dictionary]:
 			"label": "applying to applied",
 			"legal": true,
 			"expected_next_participant_index": PARTICIPANT_ORDER.size(),
-		},
-		"%s->%s" % [STAGE_APPLYING, STAGE_COMPLETED]: {
-			"label": "applying to completed",
-			"legal": true,
-			"expected_next_participant_index": PARTICIPANT_ORDER.size(),
+			"from_full_participants": true,
 		},
 		"%s->%s" % [STAGE_APPLIED, STAGE_COMPLETED]: {
 			"label": "applied to completed",
 			"legal": true,
 			"expected_next_participant_index": PARTICIPANT_ORDER.size(),
+		},
+		"%s->%s" % [STAGE_APPLIED, STAGE_APPLIED]: {
+			"label": "applied diagnostic",
+			"legal": true,
+			"expected_next_participant_index": PARTICIPANT_ORDER.size(),
+			"failure": _failure("source_unprovable", "source is unrecoverable after apply"),
 		},
 	}
 	var transition_matrix: Array[Dictionary] = []
@@ -1550,9 +2241,10 @@ func _restore_transaction_id() -> String:
 
 ## The frozen prepare_intent() request, plan line 780, in its New-Run shape (plan line 591).
 func _new_run_intent_request_for(transaction_id: String) -> Dictionary:
+	var issuer_receipt: Dictionary = _transaction_receipt(transaction_id)
 	return {
-		"transaction_id": transaction_id,
-		"transaction_issuer_receipt": _transaction_receipt(transaction_id),
+		"transaction_id": str(issuer_receipt.get("token", "")),
+		"transaction_issuer_receipt": issuer_receipt,
 		"kind": "new_run",
 		"request_fingerprint": "1".repeat(64),
 		"source_locator": null,
@@ -1568,9 +2260,10 @@ func _new_run_intent_request() -> Dictionary:
 
 ## The same frozen request in its restore shape: locator present, both context fields null.
 func _restore_intent_request_for(transaction_id: String) -> Dictionary:
+	var issuer_receipt: Dictionary = _transaction_receipt(transaction_id)
 	return {
-		"transaction_id": transaction_id,
-		"transaction_issuer_receipt": _transaction_receipt(transaction_id),
+		"transaction_id": str(issuer_receipt.get("token", "")),
+		"transaction_issuer_receipt": issuer_receipt,
 		"kind": "restore",
 		"request_fingerprint": "3".repeat(64),
 		"source_locator": _restore_locator(),
@@ -1591,7 +2284,7 @@ func _restore_locator() -> Dictionary:
 		"slot_id": RESTORE_SLOT_ID,
 		"bundle_id": "5".repeat(64),
 		"checkpoint_id": "checkpoint-1",
-		"document_sha256": "6".repeat(64),
+		"document_sha256": _canonical_sha256(RESTORE_CONTEXT),
 	}
 
 
@@ -1600,6 +2293,10 @@ func _restore_locator() -> Dictionary:
 func _transaction_receipt(transaction_id: String) -> Dictionary:
 	if _transaction_receipts.has(transaction_id):
 		return _transaction_receipts[transaction_id]
+	for cached_value: Variant in _transaction_receipts.values():
+		var cached_receipt: Dictionary = cached_value
+		if str(cached_receipt.get("token", "")) == transaction_id:
+			return cached_receipt
 	var issuer: Object = _ensure_real_issuer()
 	if issuer == null:
 		return {}
@@ -1611,6 +2308,10 @@ func _transaction_receipt(transaction_id: String) -> Dictionary:
 	var cached := receipt.duplicate(true)
 	_transaction_receipts[transaction_id] = cached
 	return cached
+
+
+func _resolved_transaction_id(transaction_id: String) -> String:
+	return str(_transaction_receipt(transaction_id).get("token", ""))
 
 
 func _allocation_receipt(marker: String = "allocation-1") -> Dictionary:
@@ -1635,7 +2336,7 @@ func _advance_request(transaction_id: String, expected_stage: String, next_stage
 	if transaction_id == _restore_transaction_id():
 		request_fingerprint = "3".repeat(64)
 	return {
-		"transaction_id": transaction_id,
+		"transaction_id": _resolved_transaction_id(transaction_id),
 		"request_fingerprint": request_fingerprint,
 		"expected_stage": expected_stage,
 		"expected_next_participant_index": expected_next_participant_index,

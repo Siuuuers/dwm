@@ -28,6 +28,30 @@ const OPERATION_KEYS: Array[String] = [
 	"transaction_issuer_receipt",
 ]
 
+const TRANSACTION_ISSUER_RECEIPT_KEYS: Array[String] = [
+	"counter",
+	"namespace",
+	"numeric_value",
+	"purpose",
+	"receipt_id",
+	"token",
+]
+
+const SOURCE_LOCATOR_KEYS: Array[String] = [
+	"bundle_id",
+	"checkpoint_id",
+	"document_sha256",
+	"slot_id",
+]
+
+const INITIAL_CONTEXT_KEYS: Array[String] = [
+	"active_app_id",
+	"audio_context",
+	"content_version",
+	"dialogic_checkpoint",
+	"route_id",
+]
+
 const PREPARE_INTENT_KEYS: Array[String] = [
 	"allocation_candidate_fingerprint",
 	"initial_context",
@@ -344,14 +368,18 @@ func _validate_document(document: Variant) -> Dictionary:
 	document_keys.sort()
 	if document_keys != DOCUMENT_KEYS:
 		return _failed(_schema_error, "document has unexpected members: " + str(document_keys))
-	if int(document.get("schema_version", -1)) != SCHEMA_VERSION:
+	if typeof(document.get("schema_version")) != TYPE_INT \
+			or document.get("schema_version") != SCHEMA_VERSION:
 		return _failed(_schema_error, "invalid schema_version")
 	if typeof(document.get("operations", {})) != TYPE_DICTIONARY:
 		return _failed(_schema_error, "operations is not a dictionary")
 	for key: String in document["operations"]:
 		if key.is_empty():
 			return _failed(_schema_error, "transaction_id must be non-empty")
-		var operation: Dictionary = document["operations"][key]
+		var operation_value: Variant = document["operations"][key]
+		if typeof(operation_value) != TYPE_DICTIONARY:
+			return _failed(_schema_error, "operation must be a dictionary for key " + str(key))
+		var operation: Dictionary = operation_value
 		if typeof(operation.get("transaction_id")) != TYPE_STRING:
 			return _failed(_schema_error, "transaction_id must be a string for key " + str(key))
 		if str(operation.get("transaction_id")) != key:
@@ -369,14 +397,33 @@ func _validate_operation(operation: Dictionary) -> Dictionary:
 	expected.sort()
 	if keys != expected:
 		return _failed(_schema_error, "operation has unexpected members: " + str(keys))
-	var stage := str(operation.get("stage", ""))
-	if not STAGE_UNION.has(stage):
-		return _failed(_schema_error, "invalid stage: " + stage)
-	var kind := str(operation.get("kind", ""))
+	if typeof(operation.get("transaction_id")) != TYPE_STRING \
+			or str(operation.get("transaction_id", "")).strip_edges().is_empty():
+		return _failed(_schema_error, "transaction_id must be a nonblank string")
+	var transaction_id := str(operation["transaction_id"])
+	var issuer_receipt_ok := _validate_transaction_issuer_receipt(
+		operation.get("transaction_issuer_receipt"), transaction_id)
+	if not issuer_receipt_ok.get("ok", false):
+		return issuer_receipt_ok
+	if typeof(operation.get("kind")) != TYPE_STRING:
+		return _failed(_schema_error, "kind must be a string")
+	var kind := str(operation["kind"])
 	if not KIND_UNION.has(kind):
 		return _failed(_schema_error, "invalid kind: " + kind)
-	if typeof(operation.get("transaction_issuer_receipt")) != TYPE_DICTIONARY:
-		return _failed(_schema_error, "operation must contain transaction_issuer_receipt as dictionary")
+	for fingerprint_name: String in ["request_fingerprint", "allocation_candidate_fingerprint"]:
+		if not _is_sha256(operation.get(fingerprint_name)):
+			return _failed(_schema_error, "%s must be lowercase SHA-256" % fingerprint_name)
+	var kind_fields_ok := _validate_kind_fields(operation, kind)
+	if not kind_fields_ok.get("ok", false):
+		return kind_fields_ok
+	if typeof(operation.get("stage")) != TYPE_STRING:
+		return _failed(_schema_error, "stage must be a string")
+	var stage := str(operation["stage"])
+	if not STAGE_UNION.has(stage):
+		return _failed(_schema_error, "invalid stage: " + stage)
+	var allocation_receipt: Variant = operation.get("allocation_receipt")
+	if allocation_receipt != null and typeof(allocation_receipt) != TYPE_DICTIONARY:
+		return _failed(_schema_error, "allocation_receipt must be null or a dictionary")
 	var next_index: Variant = operation.get("next_participant_index", -1)
 	if typeof(next_index) != TYPE_INT:
 		return _failed(_schema_error, "next_participant_index must be an integer")
@@ -397,7 +444,129 @@ func _validate_operation(operation: Dictionary) -> Dictionary:
 		var receipt: Variant = receipts.get(name)
 		if receipt != null and typeof(receipt) != TYPE_DICTIONARY:
 			return _failed(_schema_error, "participant receipt must be null or a dictionary")
+	var failure: Variant = operation.get("failure")
+	if failure != null:
+		var failure_ok := _validate_failure(failure)
+		if not failure_ok.get("ok", false):
+			return _failed(_schema_error, str(failure_ok.get("message", "failure is malformed")))
+	return _validate_stage_relationship(operation, stage, index, receipts)
+
+
+func _validate_transaction_issuer_receipt(value: Variant, transaction_id: String) -> Dictionary:
+	if typeof(value) != TYPE_DICTIONARY:
+		return _failed(_schema_error, "transaction_issuer_receipt must be a dictionary")
+	var receipt: Dictionary = value
+	var shape := _exact_keys(receipt, TRANSACTION_ISSUER_RECEIPT_KEYS)
+	if not shape.get("ok", false):
+		return _failed(_schema_error, "transaction_issuer_receipt has unexpected members")
+	for member: String in ["namespace", "purpose", "receipt_id", "token"]:
+		if typeof(receipt.get(member)) != TYPE_STRING:
+			return _failed(_schema_error, "transaction_issuer_receipt.%s must be a string" % member)
+	if not _is_sha256(receipt.get("namespace")) \
+			or not _is_prefixed_sha256(receipt.get("receipt_id"), "issuer_receipt."):
+		return _failed(_schema_error, "transaction issuer namespace and receipt_id are malformed")
+	if typeof(receipt.get("counter")) != TYPE_INT or int(receipt["counter"]) < 0:
+		return _failed(_schema_error, "transaction issuer counter must be a nonnegative integer")
+	if str(receipt["purpose"]) != "transaction_id":
+		return _failed(_schema_error, "transaction issuer purpose must be transaction_id")
+	if not _is_prefixed_sha256(receipt.get("token"), "transaction_id."):
+		return _failed(_schema_error, "transaction issuer token is malformed")
+	if str(receipt["token"]) != transaction_id:
+		return _failed(_schema_error, "transaction issuer token must equal transaction_id")
+	if receipt.get("numeric_value") != null:
+		return _failed(_schema_error, "transaction issuer numeric_value must be null")
 	return {"ok": true}
+
+
+func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
+	if kind == "restore":
+		if operation.get("initial_context") != null or operation.get("initial_context_sha256") != null:
+			return _failed(_schema_error, "restore requires null initial context fields")
+		return _validate_source_locator(operation.get("source_locator"))
+	if operation.get("source_locator") != null:
+		return _failed(_schema_error, "new_run requires null source_locator")
+	var context_value: Variant = operation.get("initial_context")
+	if typeof(context_value) != TYPE_DICTIONARY:
+		return _failed(_schema_error, "new_run initial_context must be a dictionary")
+	var context: Dictionary = context_value
+	var context_shape := _exact_keys(context, INITIAL_CONTEXT_KEYS)
+	if not context_shape.get("ok", false):
+		return _failed(_schema_error, "new_run initial_context has unexpected members")
+	if typeof(context.get("route_id")) != TYPE_STRING or str(context["route_id"]) != "opening":
+		return _failed(_schema_error, "new_run route_id must be opening")
+	if context.get("active_app_id") != null:
+		return _failed(_schema_error, "new_run active_app_id must be null")
+	if typeof(context.get("dialogic_checkpoint")) != TYPE_DICTIONARY \
+			or typeof(context.get("audio_context")) != TYPE_DICTIONARY:
+		return _failed(_schema_error, "new_run context payloads must be dictionaries")
+	if typeof(context.get("content_version")) != TYPE_INT or int(context["content_version"]) < 1:
+		return _failed(_schema_error, "new_run content_version must be an integer >= 1")
+	if not _is_sha256(operation.get("initial_context_sha256")):
+		return _failed(_schema_error, "new_run initial_context_sha256 must be lowercase SHA-256")
+	var computed := _canonical_sha256(context)
+	if computed.is_empty() or computed != str(operation["initial_context_sha256"]):
+		return _failed(_schema_error, "new_run initial context hash does not match its bytes")
+	return {"ok": true}
+
+
+func _validate_source_locator(value: Variant) -> Dictionary:
+	if typeof(value) != TYPE_DICTIONARY:
+		return _failed(_schema_error, "restore source_locator must be a dictionary")
+	var locator: Dictionary = value
+	var shape := _exact_keys(locator, SOURCE_LOCATOR_KEYS)
+	if not shape.get("ok", false):
+		return _failed(_schema_error, "restore source_locator has unexpected members")
+	for member: String in SOURCE_LOCATOR_KEYS:
+		if typeof(locator.get(member)) != TYPE_STRING:
+			return _failed(_schema_error, "restore source_locator.%s must be a string" % member)
+	var slot_id := str(locator["slot_id"])
+	var valid_slot := slot_id in ["quick", "autosave"]
+	if not valid_slot and slot_id.begins_with("slot:"):
+		var suffix := slot_id.trim_prefix("slot:")
+		valid_slot = suffix in ["1", "2", "3", "4", "5", "6", "7"]
+	if not valid_slot:
+		return _failed(_schema_error, "restore slot_id is outside the closed union")
+	if str(locator["checkpoint_id"]).strip_edges().is_empty():
+		return _failed(_schema_error, "restore checkpoint_id must be nonblank")
+	if not _is_sha256(locator["bundle_id"]) or not _is_sha256(locator["document_sha256"]):
+		return _failed(_schema_error, "restore locator hashes must be lowercase SHA-256")
+	return {"ok": true}
+
+
+func _validate_stage_relationship(operation: Dictionary, stage: String, index: int,
+		receipts: Dictionary) -> Dictionary:
+	var allocation_present := operation.get("allocation_receipt") != null
+	var failure_present := operation.get("failure") != null
+	match stage:
+		STAGE_INTENT:
+			if allocation_present or failure_present or index != 0 or not _receipts_match_index(receipts, 0):
+				return _failed(_schema_error, "intent_committed fields do not match their stage")
+		STAGE_ALLOCATED:
+			if not allocation_present or index != 0 or not _receipts_match_index(receipts, 0):
+				return _failed(_schema_error, "identity_allocation_committed fields do not match their stage")
+		STAGE_APPLYING:
+			if not allocation_present or not _receipts_match_index(receipts, index):
+				return _failed(_schema_error, "participants_applying fields do not match their stage")
+		STAGE_APPLIED:
+			if not allocation_present or index != PARTICIPANT_ORDER.size() \
+					or not _receipts_match_index(receipts, PARTICIPANT_ORDER.size()):
+				return _failed(_schema_error, "participants_applied fields do not match their stage")
+		STAGE_COMPLETED:
+			if not allocation_present or failure_present or index != PARTICIPANT_ORDER.size() \
+					or not _receipts_match_index(receipts, PARTICIPANT_ORDER.size()):
+				return _failed(_schema_error, "completed fields do not match their stage")
+		STAGE_ABORTED:
+			if allocation_present or not failure_present or index != 0 or not _receipts_match_index(receipts, 0):
+				return _failed(_schema_error, "aborted fields do not match their stage")
+	return {"ok": true}
+
+
+func _receipts_match_index(receipts: Dictionary, index: int) -> bool:
+	for participant_index: int in range(PARTICIPANT_ORDER.size()):
+		var present := receipts.get(PARTICIPANT_ORDER[participant_index]) != null
+		if present != (participant_index < index):
+			return false
+	return true
 
 
 func _validate_intent_request(request: Dictionary) -> Dictionary:
@@ -466,24 +635,25 @@ func _validate_advance_request(request: Dictionary, operation: Dictionary) -> Di
 	return {"ok": true}
 
 
-func _validate_failure(value: Dictionary) -> Dictionary:
+func _validate_failure(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
 		return _failed(&"invalid_failure", "failure must be a dictionary")
-	var keys: Array = value.keys()
+	var failure: Dictionary = value
+	var keys: Array = failure.keys()
 	keys.sort()
 	var expected := ["code", "details", "message"]
 	expected.sort()
 	if keys != expected:
 		return _failed(&"invalid_failure", "failure keys must be {code, message, details}")
-	if typeof(value["code"]) != TYPE_STRING and typeof(value["code"]) != TYPE_STRING_NAME:
+	if typeof(failure["code"]) != TYPE_STRING:
 		return _failed(&"invalid_failure", "failure.code must be a string")
-	if str(value["code"]).is_empty():
+	if str(failure["code"]).strip_edges().is_empty():
 		return _failed(&"invalid_failure", "failure.code must be non-empty")
-	if typeof(value["message"]) != TYPE_STRING and typeof(value["message"]) != TYPE_STRING_NAME:
+	if typeof(failure["message"]) != TYPE_STRING:
 		return _failed(&"invalid_failure", "failure.message must be a string")
-	if str(value["message"]).is_empty():
+	if str(failure["message"]).strip_edges().is_empty():
 		return _failed(&"invalid_failure", "failure.message must be non-empty")
-	if typeof(value["details"]) != TYPE_DICTIONARY:
+	if typeof(failure["details"]) != TYPE_DICTIONARY:
 		return _failed(&"invalid_failure", "failure.details must be a dictionary")
 	return {"ok": true}
 
@@ -498,7 +668,8 @@ func _advance_one_step(operation: Dictionary, request: Dictionary) -> Dictionary
 	var request_receipt: Variant = request.get("participant_receipt")
 	var operation_stage := str(operation.get("stage", ""))
 
-	if failure != null and expected != STAGE_INTENT and next_stage == expected and \
+	if failure != null and expected in [STAGE_ALLOCATED, STAGE_APPLYING, STAGE_APPLIED] \
+			and next_stage == expected and \
 			request_alloc_receipt == null and request_name == null and request_receipt == null:
 		return _apply_recovery_diagnostic(operation, request)
 
@@ -513,10 +684,6 @@ func _advance_one_step(operation: Dictionary, request: Dictionary) -> Dictionary
 		STAGE_ALLOCATED:
 			if next_stage == STAGE_APPLYING:
 				return _advance_allocated_to_applying(operation, request_alloc_receipt, request_name, request_receipt, index, failure, operation_stage)
-			if next_stage == STAGE_APPLIED:
-				return _advance_allocated_to_applied(operation, request_alloc_receipt, request_name, request_receipt, index, failure, operation_stage)
-			if next_stage == STAGE_COMPLETED:
-				return _advance_allocated_to_completed(operation, request_alloc_receipt, request_name, request_receipt, index, failure, operation_stage)
 			return _failed(&"advance_request_invalid", "invalid allocation transition")
 
 		STAGE_APPLYING:
@@ -524,8 +691,6 @@ func _advance_one_step(operation: Dictionary, request: Dictionary) -> Dictionary
 				return _advance_apply_participant(operation, request_alloc_receipt, request_name, request_receipt, index, failure, operation_stage)
 			if next_stage == STAGE_APPLIED:
 				return _advance_to_applied(operation, request_alloc_receipt, request_name, request_receipt, index, failure, operation_stage)
-			if next_stage == STAGE_COMPLETED:
-				return _advance_apply_to_completed(operation, request_alloc_receipt, request_name, request_receipt, index, failure, operation_stage)
 			return _failed(&"advance_request_invalid", "invalid applying transition")
 
 		STAGE_APPLIED:
@@ -600,44 +765,6 @@ func _advance_allocated_to_applying(operation: Dictionary, allocation_receipt: V
 	return {"ok": true, "value": _normalize_after_advance(next)}
 
 
-func _advance_allocated_to_applied(operation: Dictionary, allocation_receipt: Variant, participant_name: Variant,
-		participant_receipt: Variant, index: int, failure: Variant, operation_stage: String) -> Dictionary:
-	if operation_stage != STAGE_ALLOCATED:
-		return _failed(&"illegal_stage", "expected allocation stage")
-	if allocation_receipt != null:
-		return _failed(&"advance_request_invalid", "allocation commit cannot include allocation receipt")
-	if participant_name != null or participant_receipt != null:
-		return _failed(&"advance_request_invalid", "allocation commit cannot include participant evidence")
-	if failure != null:
-		return _failed(&"advance_request_invalid", "allocation transition cannot carry failure")
-	if index != PARTICIPANT_ORDER.size():
-		return _failed(&"advance_request_invalid", "allocation commit to applied requires index 8")
-	var next := operation.duplicate(true)
-	next["stage"] = STAGE_APPLIED
-	next["next_participant_index"] = PARTICIPANT_ORDER.size()
-	next["failure"] = null
-	return {"ok": true, "value": _normalize_after_advance(next)}
-
-
-func _advance_allocated_to_completed(operation: Dictionary, allocation_receipt: Variant, participant_name: Variant,
-		participant_receipt: Variant, index: int, failure: Variant, operation_stage: String) -> Dictionary:
-	if operation_stage != STAGE_ALLOCATED:
-		return _failed(&"illegal_stage", "expected allocation stage")
-	if allocation_receipt != null:
-		return _failed(&"advance_request_invalid", "allocation transition cannot include allocation receipt")
-	if participant_name != null or participant_receipt != null:
-		return _failed(&"advance_request_invalid", "allocation transition cannot include participant evidence")
-	if failure != null:
-		return _failed(&"advance_request_invalid", "allocation transition cannot carry failure")
-	if index != PARTICIPANT_ORDER.size():
-		return _failed(&"advance_request_invalid", "allocation commit to completed requires index 8")
-	var next := operation.duplicate(true)
-	next["stage"] = STAGE_COMPLETED
-	next["next_participant_index"] = PARTICIPANT_ORDER.size()
-	next["failure"] = null
-	return {"ok": true, "value": _normalize_after_advance(next)}
-
-
 func _advance_apply_participant(operation: Dictionary, allocation_receipt: Variant, participant_name: Variant,
 		participant_receipt: Variant, index: int, failure: Variant, operation_stage: String) -> Dictionary:
 	if operation_stage != STAGE_APPLYING:
@@ -681,35 +808,16 @@ func _advance_to_applied(operation: Dictionary, allocation_receipt: Variant, par
 	if index != PARTICIPANT_ORDER.size():
 		return _failed(&"advance_request_invalid", "index must be 8 to reach participants_applied")
 	var current_index := int(operation.get("next_participant_index", 0))
-	# For unrecoverable frontier skips (never entered participants), allow a zero-progress jump.
-	# After any partial participant application, require a complete set of receipts.
-	if current_index != 0 and current_index != PARTICIPANT_ORDER.size():
+	if current_index != PARTICIPANT_ORDER.size():
 		return _failed(&"advance_request_invalid", "all participants must be applied before participants_applied")
-	if current_index == PARTICIPANT_ORDER.size():
-		var receipts: Dictionary = operation.get("participant_receipts", {})
-		for name in PARTICIPANT_ORDER:
-			if receipts.get(name) == null:
-				return _failed(&"advance_request_invalid", "all participants must be applied before participants_applied")
+	var receipts: Dictionary = operation.get("participant_receipts", {})
+	for name in PARTICIPANT_ORDER:
+		if receipts.get(name) == null:
+			return _failed(&"advance_request_invalid", "all participants must be applied before participants_applied")
 	var next := operation.duplicate(true)
 	next["stage"] = STAGE_APPLIED
 	next["next_participant_index"] = PARTICIPANT_ORDER.size()
 	next["failure"] = null
-	return {"ok": true, "value": _normalize_after_advance(next)}
-
-
-func _advance_apply_to_completed(operation: Dictionary, allocation_receipt: Variant, participant_name: Variant,
-		participant_receipt: Variant, index: int, failure: Variant, operation_stage: String) -> Dictionary:
-	if operation_stage != STAGE_APPLYING:
-		return _failed(&"illegal_stage", "expected participants_applying stage")
-	if index != PARTICIPANT_ORDER.size():
-		return _failed(&"advance_request_invalid", "completion index must be 8")
-	if allocation_receipt != null or participant_name != null or participant_receipt != null:
-		return _failed(&"advance_request_invalid", "completion may not carry evidence")
-	if failure != null:
-		return _failed(&"advance_request_invalid", "completion cannot carry failure")
-	var next := operation.duplicate(true)
-	next["stage"] = STAGE_COMPLETED
-	next["next_participant_index"] = PARTICIPANT_ORDER.size()
 	return {"ok": true, "value": _normalize_after_advance(next)}
 
 
@@ -731,10 +839,10 @@ func _advance_to_completed(operation: Dictionary, allocation_receipt: Variant, p
 func _apply_recovery_diagnostic(operation: Dictionary, request: Dictionary) -> Dictionary:
 	var expected := str(request["expected_stage"])
 	var next_stage := str(request["next_stage"])
+	if expected not in [STAGE_ALLOCATED, STAGE_APPLYING, STAGE_APPLIED]:
+		return _failed(&"advance_request_invalid", "diagnostic requires a nonterminal post-allocation stage")
 	if expected != next_stage:
 		return _failed(&"advance_request_invalid", "diagnostic must hold expected_stage")
-	if expected == STAGE_INTENT:
-		return _failed(&"advance_request_invalid", "diagnostic cannot replay intent")
 	var request_index := int(request["expected_next_participant_index"])
 	if int(operation.get("next_participant_index", 0)) != request_index:
 		return _failed(&"advance_request_invalid", "diagnostic index must match next participant index")
@@ -785,20 +893,6 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 
 		STAGE_ALLOCATED:
 			if next_stage != STAGE_APPLYING:
-				if next_stage == STAGE_APPLIED:
-					if int(request["expected_next_participant_index"]) != PARTICIPANT_ORDER.size():
-						return _failed(&"advance_request_invalid", "replay index must be 8 for replayed allocation completion")
-					if request.get("allocation_receipt") != null or request.get("participant_name") != null \
-							or request.get("participant_receipt") != null or request.get("failure") != null:
-						return _failed(&"advance_request_invalid", "replay must carry no evidence")
-					return {"ok": true}
-				if next_stage == STAGE_COMPLETED:
-					if int(request["expected_next_participant_index"]) != PARTICIPANT_ORDER.size():
-						return _failed(&"advance_request_invalid", "replay index must be 8 for replayed allocation completion")
-					if request.get("allocation_receipt") != null or request.get("participant_name") != null \
-							or request.get("participant_receipt") != null or request.get("failure") != null:
-						return _failed(&"advance_request_invalid", "replay must carry no evidence")
-					return {"ok": true}
 				if next_stage == STAGE_ALLOCATED:
 					return _replay_failure(operation, request)
 				return _failed(&"advance_request_invalid", "invalid replay transition")
@@ -824,8 +918,6 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 						if receipts.get(name) == null:
 							return _failed(&"advance_request_invalid", "participants were not fully applied")
 					return {"ok": true}
-				if next_stage == STAGE_APPLYING:
-					return _replay_failure(operation, request)
 				return _failed(&"advance_request_invalid", "invalid replay transition")
 			if request.get("failure") != null:
 				return _failed(&"advance_request_invalid", "replay carries no failure")
@@ -932,6 +1024,21 @@ func _canonical_sha256(value: Variant) -> String:
 	return _sha256_hex(str(emitted["value"]))
 
 
+func _is_sha256(value: Variant) -> bool:
+	if typeof(value) != TYPE_STRING or (value as String).length() != 64:
+		return false
+	for codepoint: int in (value as String).to_ascii_buffer():
+		if not (codepoint >= 0x30 and codepoint <= 0x39) \
+				and not (codepoint >= 0x61 and codepoint <= 0x66):
+			return false
+	return true
+
+
+func _is_prefixed_sha256(value: Variant, prefix: String) -> bool:
+	return typeof(value) == TYPE_STRING and str(value).begins_with(prefix) \
+		and _is_sha256(str(value).trim_prefix(prefix))
+
+
 func _sha256_hex(value: String) -> String:
 	var context := HashingContext.new()
 	context.start(HashingContext.HASH_SHA256)
@@ -975,5 +1082,3 @@ func _storage_failure(result: Dictionary, fallback: StringName = &"journal_stora
 
 func _failed(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": "DesktopContinuationOperationJournal: " + message}
-
-
