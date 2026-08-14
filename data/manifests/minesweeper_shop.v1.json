@@ -1,0 +1,31 @@
+{
+	"schema_version": 1,
+	"kind": "minesweeper_shop",
+	"registry_version": "minesweeper_shop_v1",
+	"records": [
+		{
+			"item_id": "lucky_charm",
+			"currency": "minesweeper_coin",
+			"price": 1,
+			"effect_ids": ["inventory:add:lucky_charm"],
+			"capability_ids": ["first_cell_zero"],
+			"cap": {"per_causal_day": null, "per_branch": 1}
+		},
+		{
+			"item_id": "debug_key",
+			"currency": "minesweeper_coin",
+			"price": 3,
+			"effect_ids": ["inventory:add:debug_key"],
+			"capability_ids": ["forced_no_guess"],
+			"cap": {"per_causal_day": null, "per_branch": 1}
+		},
+		{
+			"item_id": "supportz",
+			"currency": "money",
+			"price": 45,
+			"effect_ids": ["minesweeper:round_floor:-1"],
+			"capability_ids": [],
+			"cap": {"per_causal_day": 1, "per_branch": 3}
+		}
+	]
+}
