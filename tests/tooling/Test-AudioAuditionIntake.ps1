@@ -133,12 +133,28 @@ try {
     $stateWriteRejected = $false
     try {
         [void](Invoke-AudioAuditionPrivatePublish -CacheRoot $stateWriteRoot -AttemptId '22222222222222222222222222222222' -MoveOperation { param($Source, $Destination) [IO.Directory]::Move($Source, $Destination) } -StatePublisher {
-            [IO.File]::WriteAllText((Join-Path $stateWriteRoot 'state\analyze.json'), "{}", $utf8)
+            param($AttemptToken)
+            [IO.File]::WriteAllText((Join-Path $stateWriteRoot 'state\analyze.json'), ('{"publication_attempt_id":"' + $AttemptToken + '"}'), $utf8)
             throw 'TEST_STATE_WRITE_FAILURE'
         })
     }
     catch { $stateWriteRejected = $_.Exception.Message.Contains('TEST_STATE_WRITE_FAILURE') }
     if (-not $stateWriteRejected -or (Test-Path -LiteralPath (Join-Path $stateWriteRoot 'analysis')) -or (Test-Path -LiteralPath (Join-Path $stateWriteRoot 'renders')) -or (Test-Path -LiteralPath (Join-Path $stateWriteRoot 'state\analyze.json'))) { throw 'AUDIO_ANALYSIS_STATE_WRITE_ROLLBACK' }
+
+    $losingAttemptRoot = Join-Path $fixtureRoot 'publish-losing-attempt'
+    $losingAttemptRejected = $false
+    try {
+        [void](Invoke-AudioAuditionPrivatePublish -CacheRoot $losingAttemptRoot -AttemptId '33333333333333333333333333333333' -MoveOperation {
+            param($Source, $Destination)
+            New-Item -ItemType Directory -Path (Join-Path $losingAttemptRoot 'analysis') -Force | Out-Null
+            New-Item -ItemType Directory -Path (Join-Path $losingAttemptRoot 'renders') -Force | Out-Null
+            [IO.File]::WriteAllText((Join-Path $losingAttemptRoot 'state\analyze.json'), '{"publication_attempt_id":"44444444444444444444444444444444"}', $utf8)
+            throw 'TEST_LOSING_ATTEMPT_FAILURE'
+        } -StatePublisher { param($AttemptToken) throw 'TEST_STATE_UNREACHABLE' })
+    }
+    catch { $losingAttemptRejected = $_.Exception.Message.Contains('TEST_LOSING_ATTEMPT_FAILURE') }
+    $winnerState = Join-Path $losingAttemptRoot 'state\analyze.json'
+    if (-not $losingAttemptRejected -or -not (Test-Path -LiteralPath $winnerState -PathType Leaf) -or ([IO.File]::ReadAllText($winnerState) -notmatch '44444444444444444444444444444444') -or -not (Test-Path -LiteralPath (Join-Path $losingAttemptRoot 'analysis')) -or -not (Test-Path -LiteralPath (Join-Path $losingAttemptRoot 'renders'))) { throw 'AUDIO_ANALYSIS_LOSING_STATE_OWNERSHIP' }
 
     $malformedPath = New-AudioAuditionFixture -Json '{"schema_version":'
     Assert-AudioAuditionRejected -Name 'malformed JSON' -ExpectedError 'JSON_UNEXPECTED_EOF' -Action { Read-AudioAuditionManifest -Path $malformedPath }

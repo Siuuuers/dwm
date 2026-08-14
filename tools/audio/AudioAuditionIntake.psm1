@@ -572,12 +572,14 @@ function Remove-AudioAuditionPublishedDirectory {
 }
 
 function Remove-AudioAuditionPublishedState {
-    param([Parameter(Mandatory = $true)][string]$CacheRoot, [Parameter(Mandatory = $true)][string]$Path)
+    param([Parameter(Mandatory = $true)][string]$CacheRoot, [Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)][string]$AttemptToken)
 
     if (Test-Path -LiteralPath $Path -PathType Leaf) {
         [void](Assert-AudioAuditionContainedPath -Root $CacheRoot -Candidate $Path)
         Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $Path
-        [IO.File]::Delete($Path)
+        try { $state = ConvertFrom-Phase2RStrictJson -Json ([IO.File]::ReadAllText($Path)) -Label $Path }
+        catch { return }
+        if (($state.PSObject.Properties.Name -ccontains 'publication_attempt_id') -and $state.publication_attempt_id -is [string] -and $state.publication_attempt_id -ceq $AttemptToken) { [IO.File]::Delete($Path) }
     }
 }
 
@@ -597,6 +599,8 @@ function Publish-AudioAuditionAnalyzeAttempt {
     $analysisAttempt = Assert-AudioAuditionPublishPath -CacheRoot $canonicalCacheRoot -Path $AnalysisAttemptRoot -ExpectedLeaf ([IO.Path]::GetFileName($AnalysisAttemptRoot))
     $rendersAttempt = Assert-AudioAuditionPublishPath -CacheRoot $canonicalCacheRoot -Path $RendersAttemptRoot -ExpectedLeaf ([IO.Path]::GetFileName($RendersAttemptRoot))
     if ([IO.Path]::GetFileName($analysisAttempt) -cnotmatch '^analysis-attempt-[0-9a-f]{32}$' -or [IO.Path]::GetFileName($rendersAttempt) -cnotmatch '^renders-attempt-[0-9a-f]{32}$') { throw 'AUDIO_ANALYSIS_PUBLISH_PATH' }
+    $attemptToken = [IO.Path]::GetFileName($analysisAttempt).Substring('analysis-attempt-'.Length)
+    if ([IO.Path]::GetFileName($rendersAttempt) -cne ('renders-attempt-' + $attemptToken)) { throw 'AUDIO_ANALYSIS_PUBLISH_PATH' }
     $analysis = Assert-AudioAuditionPublishPath -CacheRoot $canonicalCacheRoot -Path $AnalysisRoot -ExpectedLeaf 'analysis'
     $renders = Assert-AudioAuditionPublishPath -CacheRoot $canonicalCacheRoot -Path $RendersRoot -ExpectedLeaf 'renders'
     $expectedState = Assert-AudioAuditionContainedPath -Root $canonicalCacheRoot -Candidate (Join-Path $canonicalCacheRoot 'state\analyze.json')
@@ -610,10 +614,10 @@ function Publish-AudioAuditionAnalyzeAttempt {
     try {
         & $MoveOperation $analysisAttempt $analysis
         & $MoveOperation $rendersAttempt $renders
-        & $StatePublisher
+        & $StatePublisher $attemptToken
     }
     catch {
-        Remove-AudioAuditionPublishedState -CacheRoot $canonicalCacheRoot -Path $canonicalState
+        Remove-AudioAuditionPublishedState -CacheRoot $canonicalCacheRoot -Path $canonicalState -AttemptToken $attemptToken
         if ((Test-Path -LiteralPath $renders -PathType Container) -and -not (Test-Path -LiteralPath $rendersAttempt)) { Remove-AudioAuditionPublishedDirectory -CacheRoot $canonicalCacheRoot -Path $renders }
         if ((Test-Path -LiteralPath $analysis -PathType Container) -and -not (Test-Path -LiteralPath $analysisAttempt)) { Remove-AudioAuditionPublishedDirectory -CacheRoot $canonicalCacheRoot -Path $analysis }
         throw

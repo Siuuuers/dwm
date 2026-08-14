@@ -391,6 +391,7 @@ $analyzeRecord = [pscustomobject][ordered]@{
     stage = 'Analyze'
     batch_id = $manifest.batch_id
     retrieved_at = $retrievedAtValue
+    publication_attempt_id = $attemptId
     inputs_analyzed = $analysisRecords.Count
     freesound_preview_count = 7
     kenney_logical_sound_count = $logicalGroups.Count
@@ -400,6 +401,8 @@ $analyzeRecord = [pscustomobject][ordered]@{
     records = $analysisRecords
 }
 $publishState = {
+    param($AttemptToken)
+    if ($AttemptToken -cne $attemptId) { throw 'AUDIO_ANALYSIS_PUBLISH_TOKEN' }
     Write-AudioAuditionStateRecord -Value $analyzeRecord -Path $analyzePath -CacheRoot $layout.CacheRoot
 }.GetNewClosure()
 $intakeModule = Get-Module -Name AudioAuditionIntake
