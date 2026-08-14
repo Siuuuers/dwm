@@ -53,7 +53,7 @@ function Assert-AudioAuditionHttpsUrl {
     param([Parameter(Mandatory = $true)][string]$Value, [Parameter(Mandatory = $true)][string]$Label)
 
     $uri = $null
-    if (-not [Uri]::TryCreate($Value, [UriKind]::Absolute, [ref]$uri) -or -not $uri.Scheme.Equals('https', [StringComparison]::OrdinalIgnoreCase)) {
+    if (-not [Uri]::TryCreate($Value, [UriKind]::Absolute, [ref]$uri) -or -not $uri.Scheme.Equals('https', [StringComparison]::OrdinalIgnoreCase) -or -not [string]::IsNullOrEmpty($uri.UserInfo) -or -not $uri.IsDefaultPort) {
         throw "AUDIO_MANIFEST_HTTPS: $Label"
     }
     return $uri
@@ -195,7 +195,7 @@ function Resolve-FreesoundPreviewUrl {
 
     $pattern = '^/previews/[0-9]+/' + [regex]::Escape($SoundId) + '_[0-9]+-hq\.mp3$'
     $matches = @(Get-AudioAuditionDistinctHttpsUris -PageHtml $PageHtml | Where-Object {
-        $_.Host -ieq 'cdn.freesound.org' -and $_.AbsolutePath -cmatch $pattern -and
+        $_.Host -ieq 'cdn.freesound.org' -and [string]::IsNullOrEmpty($_.UserInfo) -and $_.IsDefaultPort -and $_.AbsolutePath -cmatch $pattern -and
         [string]::IsNullOrEmpty($_.Query) -and [string]::IsNullOrEmpty($_.Fragment)
     })
     if ($matches.Count -ne 1) { throw 'FREESOUND_PREVIEW_EXACT_ONE' }
@@ -207,7 +207,7 @@ function Resolve-KenneyArchiveUrl {
     param([Parameter(Mandatory = $true)][string]$PageHtml)
 
     $matches = @(Get-AudioAuditionDistinctHttpsUris -PageHtml $PageHtml | Where-Object {
-        $_.Host -ieq 'www.kenney.nl' -and
+        $_.Host -ieq 'www.kenney.nl' -and [string]::IsNullOrEmpty($_.UserInfo) -and $_.IsDefaultPort -and
         $_.AbsolutePath -cmatch '^/media/pages/assets/ui-audio/(?:[^/]+/)*kenney_ui-audio\.zip$' -and
         [string]::IsNullOrEmpty($_.Query) -and [string]::IsNullOrEmpty($_.Fragment)
     })
@@ -218,7 +218,7 @@ function Resolve-KenneyArchiveUrl {
 function Test-AudioAuditionAllowedDownloadUri {
     param([Parameter(Mandatory = $true)][Uri]$Uri)
 
-    if ($Uri.Scheme -ine 'https' -or -not [string]::IsNullOrEmpty($Uri.Query) -or -not [string]::IsNullOrEmpty($Uri.Fragment)) { return $false }
+    if ($Uri.Scheme -ine 'https' -or -not [string]::IsNullOrEmpty($Uri.UserInfo) -or -not $Uri.IsDefaultPort -or -not [string]::IsNullOrEmpty($Uri.Query) -or -not [string]::IsNullOrEmpty($Uri.Fragment)) { return $false }
     if ($Uri.Host -ieq 'cdn.freesound.org' -and $Uri.AbsolutePath -cmatch '^/previews/[0-9]+/[0-9]+_[0-9]+-hq\.mp3$') { return $true }
     if ($Uri.Host -ieq 'www.kenney.nl' -and $Uri.AbsolutePath -cmatch '^/media/pages/assets/ui-audio/(?:[^/]+/)*kenney_ui-audio\.zip$') { return $true }
     foreach ($candidate in $script:AllowedCandidates.Values) {
@@ -320,10 +320,12 @@ function Expand-AudioAuditionArchive {
     $destinationParent = [IO.Path]::GetDirectoryName($destinationPath)
     if ([string]::IsNullOrEmpty($destinationParent) -or -not (Test-Path -LiteralPath $destinationParent -PathType Container)) { throw 'AUDIO_ARCHIVE_DESTINATION_PARENT' }
     Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $destinationParent
+    $stagingPath = Assert-AudioAuditionContainedPath -Root $destinationParent -Candidate ($destinationPath + '.partial-' + [Guid]::NewGuid().ToString('N'))
 
     $executableExtensions = @('.exe', '.dll', '.com', '.bat', '.cmd', '.ps1', '.psm1', '.js', '.vbs', '.msi', '.scr', '.lnk', '.hta', '.jar')
     $allowedExtensions = @('.wav', '.ogg', '.flac', '.mp3', '.txt', '.md', '.pdf', '.png', '.jpg', '.jpeg', '.url')
     $archive = [IO.Compression.ZipFile]::OpenRead($archiveFilePath)
+    $completed = $false
     try {
         $plans = [Collections.Generic.List[object]]::new()
         $seenPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
@@ -339,14 +341,15 @@ function Expand-AudioAuditionArchive {
             [void]$plans.Add([pscustomobject]@{ Entry = $entry; Path = $storedName; Extension = $extension })
         }
 
-        New-Item -ItemType Directory -Path $destinationPath | Out-Null
-        Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $destinationPath
+        New-Item -ItemType Directory -Path $stagingPath | Out-Null
+        Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $stagingPath
+        $records = [Collections.Generic.List[object]]::new()
         foreach ($plan in $plans) {
             if ($plan.Extension -ceq '.url') {
-                [pscustomobject][ordered]@{ path = $plan.Path; filename = [IO.Path]::GetFileName($plan.Path); extracted = $false; bytes = [long]0; sha256 = $null }
+                [void]$records.Add([pscustomobject][ordered]@{ path = $plan.Path; filename = [IO.Path]::GetFileName($plan.Path); extracted = $false; bytes = [long]0; sha256 = $null })
                 continue
             }
-            $memberPath = Assert-AudioAuditionContainedPath -Root $destinationPath -Candidate (Join-Path $destinationPath ($plan.Path.Replace('/', '\')))
+            $memberPath = Assert-AudioAuditionContainedPath -Root $stagingPath -Candidate (Join-Path $stagingPath ($plan.Path.Replace('/', '\')))
             $memberParent = [IO.Path]::GetDirectoryName($memberPath)
             if (-not (Test-Path -LiteralPath $memberParent)) { New-Item -ItemType Directory -Path $memberParent -Force | Out-Null }
             Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $memberParent
@@ -358,14 +361,24 @@ function Expand-AudioAuditionArchive {
                 finally { $output.Dispose() }
             }
             finally { $input.Dispose() }
-            [void](Assert-AudioAuditionContainedPath -Root $destinationPath -Candidate $memberPath)
+            [void](Assert-AudioAuditionContainedPath -Root $stagingPath -Candidate $memberPath)
             $written = Get-Item -LiteralPath $memberPath -Force
             if (($written.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'AUDIO_ARCHIVE_PATH' }
             $hash = Get-FileHash -LiteralPath $memberPath -Algorithm SHA256
-            [pscustomobject][ordered]@{ path = $plan.Path; filename = [IO.Path]::GetFileName($plan.Path); extracted = $true; bytes = [long]$written.Length; sha256 = $hash.Hash.ToLowerInvariant() }
+            [void]$records.Add([pscustomobject][ordered]@{ path = $plan.Path; filename = [IO.Path]::GetFileName($plan.Path); extracted = $true; bytes = [long]$written.Length; sha256 = $hash.Hash.ToLowerInvariant() })
+        }
+        [IO.Directory]::Move($stagingPath, $destinationPath)
+        $completed = $true
+        return $records
+    }
+    finally {
+        $archive.Dispose()
+        if (-not $completed -and (Test-Path -LiteralPath $stagingPath -PathType Container)) {
+            [void](Assert-AudioAuditionContainedPath -Root $destinationParent -Candidate $stagingPath)
+            $stagingItem = Get-Item -LiteralPath $stagingPath -Force
+            if (($stagingItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq 0) { Remove-Item -LiteralPath $stagingPath -Recurse -Force }
         }
     }
-    finally { $archive.Dispose() }
 }
 
 Export-ModuleMember -Function Get-AudioAuditionLayout, Assert-AudioAuditionContainedPath, Read-AudioAuditionManifest, Write-AudioAuditionJson, Resolve-FreesoundPreviewUrl, Resolve-KenneyArchiveUrl, Invoke-AudioAuditionDownload, Expand-AudioAuditionArchive

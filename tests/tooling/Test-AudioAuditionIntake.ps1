@@ -112,6 +112,11 @@ $kenneyHtml = '<a href="https://www.kenney.nl/media/pages/assets/ui-audio/490d23
 $kenneyUrl = Resolve-KenneyArchiveUrl -PageHtml $kenneyHtml
 if ($kenneyUrl -cne 'https://www.kenney.nl/media/pages/assets/ui-audio/490d233f68-1677590494/kenney_ui-audio.zip') { throw 'KENNEY_ARCHIVE_RESOLUTION' }
 
+Assert-AudioAuditionRejected -Name 'Freesound preview userinfo' -ExpectedError 'FREESOUND_PREVIEW_EXACT_ONE' -Action { Resolve-FreesoundPreviewUrl -PageHtml '<audio src="https://user@cdn.freesound.org/previews/565/565535_10869493-hq.mp3">' -SoundId 565535 }
+Assert-AudioAuditionRejected -Name 'Kenney archive non-default port' -ExpectedError 'KENNEY_ARCHIVE_EXACT_ONE' -Action { Resolve-KenneyArchiveUrl -PageHtml '<a href="https://www.kenney.nl:444/media/pages/assets/ui-audio/490d233f68-1677590494/kenney_ui-audio.zip">Download</a>' }
+Assert-AudioAuditionRejected -Name 'download userinfo' -ExpectedError 'AUDIO_DOWNLOAD_URI_NOT_ALLOWED' -Action { Invoke-AudioAuditionDownload -Uri ([Uri]'https://user@cdn.freesound.org/previews/565/565535_10869493-hq.mp3') -Destination (Join-Path $fixtureRoot 'never-created.mp3') }
+Assert-AudioAuditionRejected -Name 'download non-default port' -ExpectedError 'AUDIO_DOWNLOAD_URI_NOT_ALLOWED' -Action { Invoke-AudioAuditionDownload -Uri ([Uri]'https://cdn.freesound.org:444/previews/565/565535_10869493-hq.mp3') -Destination (Join-Path $fixtureRoot 'never-created-port.mp3') }
+
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
@@ -129,6 +134,43 @@ function New-AudioAuditionZipFixture {
         finally { $writer.Dispose() }
     }
     finally { $archive.Dispose() }
+}
+
+function New-AudioAuditionStageFixtureRepository {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][string]$SourceRoot
+    )
+
+    New-Item -ItemType Directory -Path (Join-Path $Path 'tools\audio\manifests') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $Path 'tools\testing') -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $SourceRoot 'tools\audio\AudioAuditionIntake.psm1') -Destination (Join-Path $Path 'tools\audio\AudioAuditionIntake.psm1')
+    Copy-Item -LiteralPath (Join-Path $SourceRoot 'tools\audio\Invoke-AudioAuditionBatch01.ps1') -Destination (Join-Path $Path 'tools\audio\Invoke-AudioAuditionBatch01.ps1')
+    Copy-Item -LiteralPath (Join-Path $SourceRoot 'tools\audio\manifests\batch-01.json') -Destination (Join-Path $Path 'tools\audio\manifests\batch-01.json')
+    Copy-Item -LiteralPath (Join-Path $SourceRoot 'tools\testing\Read-StrictJson.ps1') -Destination (Join-Path $Path 'tools\testing\Read-StrictJson.ps1')
+    [IO.File]::WriteAllText((Join-Path $Path '.gitignore'), ".godot/`n/source_audio/`n", (New-Object Text.UTF8Encoding($false)))
+    & git -C $Path init -q
+    if ($LASTEXITCODE -ne 0) { throw 'AUDIO_STAGE_FIXTURE_GIT_INIT' }
+}
+
+function Invoke-AudioAuditionStageFixture {
+    param(
+        [Parameter(Mandatory = $true)][string]$ScriptPath,
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string]$Timestamp,
+        [ValidateSet('Initialize', 'Acquire')][string]$Stage = 'Initialize'
+    )
+
+    $priorErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        if ($Timestamp.Length -eq 0) {
+            $escapedScriptPath = $ScriptPath.Replace("'", "''")
+            $output = & powershell -NoProfile -ExecutionPolicy Bypass -Command "& '$escapedScriptPath' -Stage $Stage -RetrievedAt ''" 2>&1
+        }
+        else { $output = & powershell -NoProfile -ExecutionPolicy Bypass -File $ScriptPath -Stage $Stage -RetrievedAt $Timestamp 2>&1 }
+        return [pscustomobject]@{ ExitCode = $LASTEXITCODE; Output = @($output) }
+    }
+    finally { $ErrorActionPreference = $priorErrorActionPreference }
 }
 
 $archiveFixtureBase = Join-Path $root '.godot\audio-audition-cache\tests'
@@ -151,6 +193,31 @@ try {
 
     Assert-AudioAuditionRejected -Name 'archive traversal' -ExpectedError 'AUDIO_ARCHIVE_PATH' -Action { Expand-AudioAuditionArchive -ArchivePath $traversalArchive -Destination (Join-Path $archiveFixtureRoot 'traversal-extract') }
     Assert-AudioAuditionRejected -Name 'archive executable' -ExpectedError 'AUDIO_ARCHIVE_EXECUTABLE' -Action { Expand-AudioAuditionArchive -ArchivePath $scriptArchive -Destination (Join-Path $archiveFixtureRoot 'script-extract') }
+
+    $stageFixtureRepository = Join-Path $archiveFixtureRoot 'stage-repository'
+    New-AudioAuditionStageFixtureRepository -Path $stageFixtureRepository -SourceRoot $root
+    $stageScript = Join-Path $stageFixtureRepository 'tools\audio\Invoke-AudioAuditionBatch01.ps1'
+    $stageInitialize = Invoke-AudioAuditionStageFixture -ScriptPath $stageScript -Timestamp '2026-08-14T00:00:00.0000000+08:00'
+    if ($stageInitialize.ExitCode -ne 0) { throw 'AUDIO_STAGE_FIXTURE_INITIALIZE' }
+    if (Test-Path -LiteralPath (Join-Path $stageFixtureRepository '.godot\audio-audition-cache\batch-01\extracted\ui_pool_001')) { throw 'AUDIO_STAGE_EXTRACT_DESTINATION_PRECREATED' }
+    $stageRepeat = Invoke-AudioAuditionStageFixture -ScriptPath $stageScript -Timestamp '2026-08-14T00:00:00.0000000+08:00'
+    if ($stageRepeat.ExitCode -eq 0 -or -not (($stageRepeat.Output | Out-String).Contains('AUDIO_STAGE_INITIALIZE_EXISTS'))) { throw 'AUDIO_STAGE_INITIALIZE_OVERWRITE_ACCEPTED' }
+
+    $stageStateRoot = Join-Path $stageFixtureRepository '.godot\audio-audition-cache\batch-01\state'
+    $stopPath = Join-Path $stageStateRoot 'stop.json'
+    [IO.File]::WriteAllText($stopPath, "{}`n", (New-Object Text.UTF8Encoding($false)))
+    $stoppedAcquire = Invoke-AudioAuditionStageFixture -ScriptPath $stageScript -Timestamp '2026-08-14T00:00:00.0000000+08:00' -Stage Acquire
+    if ($stoppedAcquire.ExitCode -eq 0 -or -not (($stoppedAcquire.Output | Out-String).Contains('AUDIO_STAGE_STOPPED'))) { throw 'AUDIO_STAGE_STOP_NOT_ENFORCED' }
+    Remove-Item -LiteralPath $stopPath -Force
+    [IO.File]::WriteAllText((Join-Path $stageStateRoot 'initialize.json'), ('{"bad":true}' + "`n"), (New-Object Text.UTF8Encoding($false)))
+    $malformedAcquire = Invoke-AudioAuditionStageFixture -ScriptPath $stageScript -Timestamp '2026-08-14T00:00:00.0000000+08:00' -Stage Acquire
+    if ($malformedAcquire.ExitCode -eq 0 -or -not (($malformedAcquire.Output | Out-String).Contains('AUDIO_STAGE_RECORD_KEYS'))) { throw 'AUDIO_STAGE_RECORD_NOT_VALIDATED' }
+
+    $emptyTimestampRepository = Join-Path $archiveFixtureRoot 'empty-timestamp-repository'
+    New-AudioAuditionStageFixtureRepository -Path $emptyTimestampRepository -SourceRoot $root
+    $emptyTimestampScript = Join-Path $emptyTimestampRepository 'tools\audio\Invoke-AudioAuditionBatch01.ps1'
+    $emptyTimestamp = Invoke-AudioAuditionStageFixture -ScriptPath $emptyTimestampScript -Timestamp ''
+    if ($emptyTimestamp.ExitCode -eq 0 -or -not (($emptyTimestamp.Output | Out-String).Contains('AUDIO_RETRIEVED_AT_FORMAT'))) { throw 'AUDIO_RETRIEVED_AT_EMPTY_ACCEPTED' }
 }
 finally {
     if (Test-Path -LiteralPath $archiveFixtureRoot) {
