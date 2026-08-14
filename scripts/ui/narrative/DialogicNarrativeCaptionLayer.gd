@@ -23,8 +23,6 @@ func bind_runtime(runtime: Node, source: CaptionProjectionSource) -> Dictionary:
 	if _runtime == runtime and _source == source:
 		return {"ok": true, "code": &"caption_runtime_already_bound"}
 	unbind_runtime()
-	if is_instance_valid(_presenter):
-		_presenter.clear_session()
 	var text_subsystem := runtime.call("get_subsystem", "Text") as Node
 	if text_subsystem == null or not text_subsystem.has_signal("text_started"):
 		return {"ok": false, "code": &"caption_text_subsystem_missing"}
@@ -47,6 +45,7 @@ func unbind_runtime() -> void:
 	_runtime = null
 	_text_subsystem = null
 	_source = null
+	_clear_presenter()
 
 func get_presenter() -> CaptionPresenter:
 	return _presenter
@@ -60,7 +59,7 @@ func _on_timeline_started() -> void:
 	_last_failure = {} if result.ok else result.duplicate(true)
 
 func _on_timeline_ended() -> void:
-	_presenter.clear_session()
+	_clear_presenter()
 
 func _on_text_started(info: Dictionary) -> void:
 	var projected: Dictionary = _source.project_text(int(_runtime.get("current_event_idx")), info)
@@ -75,6 +74,8 @@ func _on_text_started(info: Dictionary) -> void:
 	_last_failure = {} if result.ok else result.duplicate(true)
 
 func _exit_tree() -> void:
+	unbind_runtime()
+
+func _clear_presenter() -> void:
 	if is_instance_valid(_presenter):
 		_presenter.clear_session()
-	unbind_runtime()

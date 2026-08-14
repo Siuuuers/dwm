@@ -9,12 +9,14 @@ var _adapter: Node = null
 var _segments: Array[Dictionary] = []
 var _snapshots: Array = []
 var _timeline_ended_observed := false
+var _adapter_exit_observed := false
 var _ended_snapshot: Array = []
 
 func before_each() -> void:
 	_segments.clear()
 	_snapshots.clear()
 	_timeline_ended_observed = false
+	_adapter_exit_observed = false
 	_ended_snapshot.clear()
 	ProjectSettings.set_meta("caption_test_old_skip_delay", ProjectSettings.get_setting("dialogic/text/text_reveal_skip_delay", 0.1))
 	ProjectSettings.set_setting("dialogic/text/text_reveal_skip_delay", 0.0)
@@ -112,6 +114,7 @@ func test_explicit_style_drives_physical_timeline_with_one_text_owner() -> void:
 	await Dialogic.end_timeline(true)
 	await _wait_for_timeline_end()
 	assert_true(_timeline_ended_observed)
+	assert_true(_adapter_exit_observed)
 	assert_true(_ended_snapshot.is_empty())
 	assert_null(Dialogic.current_timeline)
 
@@ -131,6 +134,7 @@ func _capture_timeline_end() -> void:
 	_timeline_ended_observed = true
 
 func _capture_adapter_exit(presenter: Node) -> void:
+	_adapter_exit_observed = true
 	_ended_snapshot = (presenter.call("get_visual_semantic_ids") as Array).duplicate()
 
 func _wait_for_timeline_end() -> void:

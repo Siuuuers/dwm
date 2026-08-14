@@ -85,3 +85,27 @@ func test_configured_records_are_owned_copies() -> void:
 	record.semantic_id = &"mutated"
 	var projected: Dictionary = source.call("project_text", 0, {"text": "Words", "append": false})
 	assert_eq(projected.projection.semantic_id, &"fixture.caption.one")
+
+func test_record_fields_reject_coercive_aliases_without_registering_event_zero() -> void:
+	var invalid_records: Array[Dictionary] = [
+		{"event_index": "0", "event_kind": "text", "semantic_id": &"fixture.string_index"},
+		{"event_index": 0.5, "event_kind": "text", "semantic_id": &"fixture.float_index"},
+		{"event_index": -1, "event_kind": "text", "semantic_id": &"fixture.negative_index"},
+		{"event_index": null, "event_kind": "text", "semantic_id": &"fixture.unsupported_index"},
+		{"event_index": 0, "event_kind": 17, "semantic_id": &"fixture.numeric_kind"},
+		{"event_index": 0, "event_kind": "text", "semantic_id": 23},
+	]
+	for record in invalid_records:
+		var source := _make_source()
+		if source == null:
+			return
+		var result: Dictionary = source.call("configure", &"fixture.session", &"single", [record])
+		assert_eq(result, {"ok": false, "code": &"caption_event_record_invalid"})
+		assert_eq(
+			source.call("project_text", 0, {"text": "Must stay unknown", "append": false}).code,
+			&"unknown_caption_event"
+		)
+		assert_eq(
+			source.call("project_text", -1, {"text": "Must stay unknown", "append": false}).code,
+			&"unknown_caption_event"
+		)

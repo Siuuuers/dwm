@@ -132,7 +132,7 @@ func test_replacing_runtime_clears_stale_presenter_and_disconnects_previous_runt
 	assert_true(first_runtime.mutation_calls.is_empty())
 	assert_true(second_runtime.mutation_calls.is_empty())
 
-func test_unbind_disconnects_every_owned_signal() -> void:
+func test_unbind_disconnects_every_owned_signal_and_clears_presenter() -> void:
 	var source := _make_source()
 	var adapter := await _make_adapter()
 	if source == null or adapter == null:
@@ -140,7 +140,13 @@ func test_unbind_disconnects_every_owned_signal() -> void:
 	var runtime := FakeRuntime.new()
 	add_child_autofree(runtime)
 	adapter.call("bind_runtime", runtime, source)
+	runtime.timeline_started.emit()
+	runtime.current_event_idx = 0
+	runtime.text.text_started.emit({"text": "Visible until unbound", "append": false})
+	var presenter: Node = adapter.call("get_presenter")
+	assert_eq(presenter.call("get_visual_semantic_ids"), [&"fixture.caption.one"])
 	adapter.call("unbind_runtime")
+	assert_true((presenter.call("get_visual_semantic_ids") as Array).is_empty())
 	assert_eq(runtime.timeline_started.get_connections().size(), 0)
 	assert_eq(runtime.timeline_ended.get_connections().size(), 0)
 	assert_eq(runtime.text.text_started.get_connections().size(), 0)

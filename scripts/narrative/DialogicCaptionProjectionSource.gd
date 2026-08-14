@@ -15,10 +15,26 @@ func configure(session_id: StringName, language_mode: StringName, event_records:
 		var record: Dictionary = record_value
 		if not record.has_all(["event_index", "event_kind", "semantic_id"]):
 			return {"ok": false, "code": &"caption_event_record_incomplete"}
-		var index := int(record.event_index)
-		if candidate.has(index) or StringName(record.semantic_id) == &"":
+		var index_value: Variant = record.event_index
+		var kind_value: Variant = record.event_kind
+		var semantic_value: Variant = record.semantic_id
+		if (
+			typeof(index_value) != TYPE_INT
+			or index_value < 0
+			or typeof(kind_value) not in [TYPE_STRING, TYPE_STRING_NAME]
+			or typeof(semantic_value) not in [TYPE_STRING, TYPE_STRING_NAME]
+		):
 			return {"ok": false, "code": &"caption_event_record_invalid"}
-		candidate[index] = record.duplicate(true)
+		var index: int = index_value
+		var event_kind := StringName(kind_value)
+		var semantic_id := StringName(semantic_value)
+		if candidate.has(index) or semantic_id == &"":
+			return {"ok": false, "code": &"caption_event_record_invalid"}
+		candidate[index] = {
+			"event_index": index,
+			"event_kind": event_kind,
+			"semantic_id": semantic_id,
+		}
 	_session_id = session_id
 	_language_mode = language_mode
 	_records = candidate
