@@ -37,6 +37,28 @@ function Assert-AudioAuditionRejected {
     if (-not $rejected) { throw "AUDIO_REJECTION_NOT_ENFORCED: $Name" }
 }
 
+$probeJson = '{"streams":[{"index":0,"codec_type":"audio","codec_name":"mp3","sample_rate":"48000","channels":2,"channel_layout":"stereo","duration":"2.500000","bits_per_raw_sample":"16"}],"format":{"format_name":"mp3","duration":"2.500000","size":"12345"}}'
+$probe = ConvertFrom-AudioProbeJson -Json $probeJson -SourcePath 'fixture.mp3'
+if ($probe.audio_streams -ne 1 -or $probe.channels -ne 2 -or $probe.sample_rate -ne 48000 -or $probe.duration_seconds -ne 2.5) { throw 'AUDIO_PROBE_PARSE' }
+
+$measure = ConvertFrom-AudioMeasurementText -Text "max_volume: -2.0 dB`nI: -21.4 LUFS`nPeak level dB: -2.0`nDC offset: 0.000123`nRMS level dB: -25.0`nCrest factor: 4.2"
+if ($measure.sample_peak_dbfs -ne -2.0 -or $measure.integrated_lufs -ne -21.4 -or $measure.dc_offset -ne 0.000123 -or $measure.rms_dbfs -ne -25.0 -or $measure.crest_factor -ne 4.2) { throw 'AUDIO_MEASUREMENT_PARSE' }
+if ((Get-AudioAttenuationDb -SamplePeakDbfs -2.0 -CeilingDbfs -6.0) -ne -4.0) { throw 'AUDIO_ATTENUATION_HIGH' }
+if ((Get-AudioAttenuationDb -SamplePeakDbfs -10.0 -CeilingDbfs -6.0) -ne 0.0) { throw 'AUDIO_ATTENUATION_AMPLIFIED' }
+
+$recipe = New-AudioAuditionRenderRecipe -Metadata $probe -Measurements $measure -OutputPath 'fixture-mono.flac'
+if ($recipe.attenuation_db -gt 0.0 -or $recipe.channels -ne 1 -or $recipe.codec -cne 'flac') { throw 'AUDIO_RENDER_RECIPE' }
+
+$repeat = New-AudioUiRepeatRecipe -InputPath 'fixture-mono.flac' -DurationSeconds 0.25 -OutputPath 'fixture-repeat.flac'
+if ($repeat.repetitions -ne 10 -or $repeat.interval_seconds -ne 1.5 -or $repeat.filter_complex -notmatch 'adelay=13500') { throw 'AUDIO_REPEAT_RECIPE' }
+
+Assert-AudioAuditionRejected -Name 'probe no audio stream' -ExpectedError 'AUDIO_PROBE_AUDIO_STREAMS' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[],"format":{"format_name":"mp3","duration":"2.5","size":"1"}}' -SourcePath 'fixture.mp3' }
+Assert-AudioAuditionRejected -Name 'probe multiple audio streams' -ExpectedError 'AUDIO_PROBE_AUDIO_STREAMS' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":1,"duration":"2.5"},{"codec_type":"audio","sample_rate":"48000","channels":1,"duration":"2.5"}],"format":{"format_name":"mp3","duration":"2.5","size":"1"}}' -SourcePath 'fixture.mp3' }
+Assert-AudioAuditionRejected -Name 'probe video stream' -ExpectedError 'AUDIO_PROBE_VIDEO_STREAM' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":1,"duration":"2.5"},{"codec_type":"video"}],"format":{"format_name":"mp3","duration":"2.5","size":"1"}}' -SourcePath 'fixture.mp3' }
+Assert-AudioAuditionRejected -Name 'probe non-finite duration' -ExpectedError 'AUDIO_PROBE_DURATION' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":1,"duration":"NaN"}],"format":{"format_name":"mp3","duration":"NaN","size":"1"}}' -SourcePath 'fixture.mp3' }
+Assert-AudioAuditionRejected -Name 'probe more than two channels' -ExpectedError 'AUDIO_PROBE_CHANNELS' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":3,"duration":"2.5"}],"format":{"format_name":"mp3","duration":"2.5","size":"1"}}' -SourcePath 'fixture.mp3' }
+Assert-AudioAuditionRejected -Name 'probe non-positive duration' -ExpectedError 'AUDIO_PROBE_DURATION' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":1,"duration":"0"}],"format":{"format_name":"mp3","duration":"0","size":"1"}}' -SourcePath 'fixture.mp3' }
+
 $fixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ("audio-audition-intake-" + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixtureRoot | Out-Null
 try {

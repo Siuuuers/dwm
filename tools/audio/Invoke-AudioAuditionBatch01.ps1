@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('Initialize', 'Acquire')][string]$Stage,
+    [Parameter(Mandatory = $true)][ValidateSet('Initialize', 'Acquire', 'Analyze')][string]$Stage,
     [AllowEmptyString()][string]$RetrievedAt
 )
 
@@ -99,6 +99,93 @@ function Write-AudioAuditionStateRecord {
     }
 }
 
+function ConvertTo-AudioAuditionProcessArgument {
+    param([Parameter(Mandatory = $true)][string]$Value)
+
+    if ($Value.Length -eq 0) { return '""' }
+    $escaped = [regex]::Replace($Value, '(\\*)"', '$1$1\\"')
+    $escaped = [regex]::Replace($escaped, '(\\+)$', '$1$1')
+    return '"' + $escaped + '"'
+}
+
+function Invoke-AudioProcess {
+    param(
+        [Parameter(Mandatory = $true)][string]$FileName,
+        [Parameter(Mandatory = $true)][string[]]$Arguments
+    )
+
+    $startInfo = New-Object Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $FileName
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.Arguments = (($Arguments | ForEach-Object { ConvertTo-AudioAuditionProcessArgument -Value $_ }) -join ' ')
+    $process = New-Object Diagnostics.Process
+    $process.StartInfo = $startInfo
+    if (-not $process.Start()) { throw 'AUDIO_PROCESS_START' }
+    $stdout = $process.StandardOutput.ReadToEnd()
+    $stderr = $process.StandardError.ReadToEnd()
+    $process.WaitForExit()
+    if ($process.ExitCode -ne 0) { throw 'AUDIO_PROCESS_FAILED' }
+    return [pscustomobject][ordered]@{ stdout = $stdout; stderr = $stderr }
+}
+
+function Assert-AudioAuditionFileHash {
+    param([Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)][string]$ExpectedHash)
+
+    if ($ExpectedHash -cnotmatch '^[0-9a-f]{64}$') { throw 'AUDIO_ACQUIRE_HASH_RECORD' }
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw 'AUDIO_ACQUIRE_INPUT_MISSING' }
+    Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $Path
+    $actual = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actual -cne $ExpectedHash) { throw 'AUDIO_ACQUIRE_HASH_MISMATCH' }
+    return $actual
+}
+
+function Get-AudioAuditionMeasurements {
+    param([Parameter(Mandatory = $true)][string]$InputPath)
+
+    try {
+        $levels = Invoke-AudioProcess -FileName 'ffmpeg.exe' -Arguments @('-nostdin', '-hide_banner', '-i', $InputPath, '-af', 'volumedetect,ebur128=peak=true:framelog=verbose', '-f', 'null', 'NUL')
+        $statistics = Invoke-AudioProcess -FileName 'ffmpeg.exe' -Arguments @('-nostdin', '-hide_banner', '-i', $InputPath, '-af', 'astats=metadata=1:reset=0', '-f', 'null', 'NUL')
+        return ConvertFrom-AudioMeasurementText -Text ($levels.stderr + "`n" + $statistics.stderr)
+    }
+    catch { throw 'ANALYSIS_INCOMPLETE' }
+}
+
+function Assert-AudioAuditionAcquireRecord {
+    param([Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)]$Manifest)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw 'AUDIO_ANALYZE_ACQUIRE_REQUIRED' }
+    $record = ConvertFrom-Phase2RStrictJson -Json ([IO.File]::ReadAllText($Path)) -Label $Path
+    $keys = @($record.PSObject.Properties.Name)
+    $expectedKeys = @('stage', 'batch_id', 'retrieved_at', 'candidates')
+    if ($keys.Count -ne $expectedKeys.Count -or @($expectedKeys | Where-Object { $keys -cnotcontains $_ }).Count -ne 0) { throw 'AUDIO_ACQUIRE_RECORD_KEYS' }
+    if ($record.stage -cne 'Acquire' -or $record.batch_id -cne $Manifest.batch_id -or $record.candidates -isnot [Array] -or @($record.candidates).Count -ne @($Manifest.candidates).Count) { throw 'AUDIO_ACQUIRE_RECORD_INVALID' }
+    for ($index = 0; $index -lt @($Manifest.candidates).Count; $index++) {
+        if ($record.candidates[$index].candidate_id -cne $Manifest.candidates[$index].candidate_id) { throw 'AUDIO_ACQUIRE_RECORD_INVALID' }
+    }
+    return $record
+}
+
+function Get-AudioAuditionFormatPreference {
+    param([Parameter(Mandatory = $true)][string]$Path)
+    switch ([IO.Path]::GetExtension($Path).ToLowerInvariant()) {
+        '.wav' { return 0 }
+        '.flac' { return 1 }
+        '.ogg' { return 2 }
+        '.mp3' { return 3 }
+        default { return 99 }
+    }
+}
+
+function Write-AudioAuditionAnalysisRecord {
+    param([Parameter(Mandatory = $true)]$Value, [Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)][string]$AnalysisRoot)
+    [void](Assert-AudioAuditionContainedPath -Root $AnalysisRoot -Candidate $Path)
+    if (Test-Path -LiteralPath $Path) { throw 'AUDIO_ANALYSIS_RECORD_EXISTS' }
+    Write-AudioAuditionJson -Value $Value -Path $Path
+}
+
 $retrievedAtValue = Get-AudioAuditionRetrievedAt -Value $RetrievedAt -Supplied $PSBoundParameters.ContainsKey('RetrievedAt')
 $manifest = Read-AudioAuditionManifest -Path $manifestPath
 $layout = Get-AudioAuditionLayout -RepositoryRoot $root -BatchId $manifest.batch_id
@@ -114,6 +201,7 @@ $uiExtractRoot = Join-Path $extractedRoot 'ui_pool_001'
 $stateRoot = Join-Path $layout.CacheRoot 'state'
 $initializePath = Join-Path $stateRoot 'initialize.json'
 $acquirePath = Join-Path $stateRoot 'acquire.json'
+$analyzePath = Join-Path $stateRoot 'analyze.json'
 $stopPath = Join-Path $stateRoot 'stop.json'
 
 if ($Stage -ceq 'Initialize') {
@@ -137,6 +225,7 @@ if ($Stage -ceq 'Initialize') {
     exit 0
 }
 
+if ($Stage -ceq 'Acquire') {
 if (-not (Test-Path -LiteralPath $initializePath -PathType Leaf)) { throw 'AUDIO_ACQUIRE_INITIALIZE_REQUIRED' }
 if (Test-Path -LiteralPath $acquirePath) { throw 'AUDIO_STAGE_SUCCESSOR_EXISTS' }
 if (Test-Path -LiteralPath $stopPath) { throw 'AUDIO_STAGE_STOPPED' }
@@ -189,3 +278,112 @@ $acquireRecord = [pscustomobject][ordered]@{
 }
 Write-AudioAuditionStateRecord -Value $acquireRecord -Path $acquirePath -CacheRoot $layout.CacheRoot
 Write-Output 'AUDIO_AUDITION_ACQUIRE: PASS'
+exit 0
+}
+
+if (-not (Test-Path -LiteralPath $initializePath -PathType Leaf)) { throw 'AUDIO_ANALYZE_INITIALIZE_REQUIRED' }
+if (Test-Path -LiteralPath $analyzePath) { throw 'AUDIO_STAGE_SUCCESSOR_EXISTS' }
+if (Test-Path -LiteralPath $stopPath) { throw 'AUDIO_STAGE_STOPPED' }
+Assert-AudioAuditionStageRecord -Path $initializePath -ExpectedStage 'Initialize' -Manifest $manifest -Layout $layout -ManifestHash $manifestHash
+$acquireRecord = Assert-AudioAuditionAcquireRecord -Path $acquirePath -Manifest $manifest
+$analysisRoot = Join-Path $layout.CacheRoot 'analysis'
+$rendersRoot = Join-Path $layout.CacheRoot 'renders'
+New-AudioAuditionDirectory -Path $analysisRoot
+New-AudioAuditionDirectory -Path $rendersRoot
+
+$inputRecords = [Collections.Generic.List[object]]::new()
+foreach ($candidate in $manifest.candidates | Where-Object { $_.kind -ceq 'freesound_preview' }) {
+    $acquired = $acquireRecord.candidates | Where-Object { $_.candidate_id -ceq $candidate.candidate_id } | Select-Object -First 1
+    if ($null -eq $acquired -or $acquired.acquisition_class -cne 'PREVIEW_ONLY' -or $null -eq $acquired.acquired) { throw 'AUDIO_ACQUIRE_RECORD_INVALID' }
+    $inputPath = Assert-AudioAuditionContainedPath -Root $downloadsRoot -Candidate (Join-Path (Join-Path $downloadsRoot $candidate.candidate_id) $acquired.acquired.filename)
+    $hash = Assert-AudioAuditionFileHash -Path $inputPath -ExpectedHash $acquired.acquired.sha256
+    [void]$inputRecords.Add([pscustomobject][ordered]@{ candidate_id = $candidate.candidate_id; kind = 'freesound_preview'; logical_name = $candidate.candidate_id; input_path = $inputPath; sha256 = $hash; selected = $true })
+}
+
+$kenneyCandidate = $manifest.candidates | Where-Object { $_.kind -ceq 'kenney_pack' } | Select-Object -First 1
+$kenneyAcquire = $acquireRecord.candidates | Where-Object { $_.candidate_id -ceq $kenneyCandidate.candidate_id } | Select-Object -First 1
+if ($null -eq $kenneyAcquire -or $kenneyAcquire.acquisition_class -cne 'EXACT_PACK' -or $null -eq $kenneyAcquire.acquired -or $kenneyAcquire.extracted_members -isnot [Array]) { throw 'AUDIO_ACQUIRE_RECORD_INVALID' }
+$archivePath = Assert-AudioAuditionContainedPath -Root (Join-Path $downloadsRoot $kenneyCandidate.candidate_id) -Candidate (Join-Path (Join-Path $downloadsRoot $kenneyCandidate.candidate_id) $kenneyAcquire.acquired.filename)
+[void](Assert-AudioAuditionFileHash -Path $archivePath -ExpectedHash $kenneyAcquire.acquired.sha256)
+$kenneyInputs = [Collections.Generic.List[object]]::new()
+foreach ($member in $kenneyAcquire.extracted_members) {
+    if (-not $member.extracted -or [IO.Path]::GetExtension([string]$member.path).ToLowerInvariant() -notin @('.wav', '.flac', '.ogg', '.mp3')) { continue }
+    $inputPath = Assert-AudioAuditionContainedPath -Root $uiExtractRoot -Candidate (Join-Path $uiExtractRoot ([string]$member.path).Replace('/', '\'))
+    $hash = Assert-AudioAuditionFileHash -Path $inputPath -ExpectedHash $member.sha256
+    [void]$kenneyInputs.Add([pscustomobject][ordered]@{ candidate_id = $kenneyCandidate.candidate_id; kind = 'kenney_pack'; logical_name = [IO.Path]::GetFileNameWithoutExtension([string]$member.path); input_path = $inputPath; sha256 = $hash; selected = $false })
+}
+$logicalGroups = @($kenneyInputs | Group-Object -Property { $_.logical_name.ToLowerInvariant() })
+if ($logicalGroups.Count -ne 50) { throw 'AUDIO_KENNEY_LOGICAL_COUNT' }
+foreach ($group in $logicalGroups) {
+    $selected = @($group.Group | Sort-Object @{ Expression = { Get-AudioAuditionFormatPreference -Path $_.input_path } }, @{ Expression = { $_.input_path } })[0]
+    $selected.selected = $true
+}
+foreach ($input in $kenneyInputs) { [void]$inputRecords.Add($input) }
+
+$analysisRecords = [Collections.Generic.List[object]]::new()
+foreach ($input in $inputRecords) {
+    try {
+        $probeResult = Invoke-AudioProcess -FileName 'ffprobe.exe' -Arguments @('-v', 'error', '-show_format', '-show_streams', '-of', 'json', $input.input_path)
+        $metadata = ConvertFrom-AudioProbeJson -Json $probeResult.stdout -SourcePath $input.input_path
+        $inputMeasurements = Get-AudioAuditionMeasurements -InputPath $input.input_path
+        $record = [ordered]@{
+            candidate_id = $input.candidate_id
+            kind = $input.kind
+            logical_name = $input.logical_name
+            source_path = $input.input_path
+            source_sha256 = $input.sha256
+            metadata = $metadata
+            input_measurements = $inputMeasurements
+            selected_for_audition = [bool]$input.selected
+            measurement_interpretation = 'risk_flags_only_not_comfort_or_medical_certification'
+        }
+        if ($input.selected) {
+            $renderDirectory = Join-Path $rendersRoot $input.kind
+            New-AudioAuditionDirectory -Path $renderDirectory
+            $monoPath = Assert-AudioAuditionContainedPath -Root $renderDirectory -Candidate (Join-Path $renderDirectory ($input.sha256 + '.flac'))
+            $recipe = New-AudioAuditionRenderRecipe -Metadata $metadata -Measurements $inputMeasurements -OutputPath $monoPath
+            if (Test-Path -LiteralPath $monoPath) { throw 'AUDIO_RENDER_EXISTS' }
+            [void](Invoke-AudioProcess -FileName 'ffmpeg.exe' -Arguments @('-nostdin', '-hide_banner', '-n', '-i', $input.input_path, '-map', '0:a:0', '-vn', '-af', $recipe.filter_audio, '-ac', '1', '-c:a', 'flac', '-map_metadata', '-1', $monoPath))
+            $monoHash = (Get-FileHash -LiteralPath $monoPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            $monoMeasurements = Get-AudioAuditionMeasurements -InputPath $monoPath
+            $record.mono_render = [ordered]@{
+                path = $monoPath
+                sha256 = $monoHash
+                codec = $recipe.codec
+                channels = $recipe.channels
+                attenuation_db = $recipe.attenuation_db
+                fade_seconds = $recipe.fade_seconds
+                literal_filter_audio = $recipe.filter_audio
+                measurements = $monoMeasurements
+                mono_peak_delta_db = [Math]::Round($monoMeasurements.sample_peak_dbfs - $inputMeasurements.sample_peak_dbfs, 3, [MidpointRounding]::AwayFromZero)
+                mono_lufs_delta = [Math]::Round($monoMeasurements.integrated_lufs - $inputMeasurements.integrated_lufs, 3, [MidpointRounding]::AwayFromZero)
+            }
+            if ($input.kind -ceq 'kenney_pack') {
+                $repeatPath = Assert-AudioAuditionContainedPath -Root $renderDirectory -Candidate (Join-Path $renderDirectory ($input.sha256 + '-fatigue.flac'))
+                $repeat = New-AudioUiRepeatRecipe -InputPath $monoPath -DurationSeconds $metadata.duration_seconds -OutputPath $repeatPath
+                if (Test-Path -LiteralPath $repeatPath) { throw 'AUDIO_RENDER_EXISTS' }
+                [void](Invoke-AudioProcess -FileName 'ffmpeg.exe' -Arguments @('-nostdin', '-hide_banner', '-n', '-i', $monoPath, '-filter_complex', $repeat.filter_complex, '-map', '[mixout]', '-vn', '-c:a', 'flac', '-map_metadata', '-1', $repeatPath))
+                $record.ui_fatigue_render = [ordered]@{ path = $repeatPath; sha256 = (Get-FileHash -LiteralPath $repeatPath -Algorithm SHA256).Hash.ToLowerInvariant(); repetitions = $repeat.repetitions; interval_seconds = $repeat.interval_seconds; literal_filter_complex = $repeat.filter_complex }
+            }
+        }
+        $analysisPath = Assert-AudioAuditionContainedPath -Root $analysisRoot -Candidate (Join-Path $analysisRoot ($input.sha256 + '.json'))
+        Write-AudioAuditionAnalysisRecord -Value ([pscustomobject]$record) -Path $analysisPath -AnalysisRoot $analysisRoot
+        [void]$analysisRecords.Add([pscustomobject]$record)
+    }
+    catch { throw 'ANALYSIS_INCOMPLETE' }
+}
+
+$analyzeRecord = [pscustomobject][ordered]@{
+    stage = 'Analyze'
+    batch_id = $manifest.batch_id
+    retrieved_at = $retrievedAtValue
+    inputs_analyzed = $analysisRecords.Count
+    freesound_preview_count = 7
+    kenney_logical_sound_count = $logicalGroups.Count
+    kenney_format_preference = @('wav', 'flac', 'ogg', 'mp3')
+    acquisition_note = 'Freesound remains PREVIEW_ONLY; no runtime export or approval is granted by analysis.'
+    measurement_note = 'Measurements are risk flags only and do not certify comfort, artistic fit, physical credibility, or medical safety.'
+    records = $analysisRecords
+}
+Write-AudioAuditionStateRecord -Value $analyzeRecord -Path $analyzePath -CacheRoot $layout.CacheRoot
+Write-Output 'AUDIO_AUDITION_ANALYZE: PASS'

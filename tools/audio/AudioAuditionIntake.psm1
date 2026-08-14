@@ -381,4 +381,170 @@ function Expand-AudioAuditionArchive {
     }
 }
 
-Export-ModuleMember -Function Get-AudioAuditionLayout, Assert-AudioAuditionContainedPath, Read-AudioAuditionManifest, Write-AudioAuditionJson, Resolve-FreesoundPreviewUrl, Resolve-KenneyArchiveUrl, Invoke-AudioAuditionDownload, Expand-AudioAuditionArchive
+function ConvertTo-AudioAuditionFiniteDouble {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string]$Value, [Parameter(Mandatory = $true)][string]$Code)
+
+    [double]$parsed = 0.0
+    if (-not [double]::TryParse($Value, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$parsed) -or [double]::IsNaN($parsed) -or [double]::IsInfinity($parsed)) {
+        throw $Code
+    }
+    return $parsed
+}
+
+function ConvertTo-AudioAuditionPositiveInt64 {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string]$Value, [Parameter(Mandatory = $true)][string]$Code)
+
+    [long]$parsed = 0
+    if (-not [long]::TryParse($Value, [Globalization.NumberStyles]::Integer, [Globalization.CultureInfo]::InvariantCulture, [ref]$parsed) -or $parsed -le 0) {
+        throw $Code
+    }
+    return $parsed
+}
+
+function ConvertFrom-AudioProbeJson {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][string]$Json, [Parameter(Mandatory = $true)][string]$SourcePath)
+
+    try { $probe = ConvertFrom-Phase2RStrictJson -Json $Json -Label $SourcePath }
+    catch { throw 'AUDIO_PROBE_JSON' }
+    if ($null -eq $probe.streams -or $probe.streams -isnot [Array]) { throw 'AUDIO_PROBE_STREAMS' }
+    $videoStreams = @($probe.streams | Where-Object { $_.codec_type -ceq 'video' })
+    if ($videoStreams.Count -ne 0) { throw 'AUDIO_PROBE_VIDEO_STREAM' }
+    $audioStreams = @($probe.streams | Where-Object { $_.codec_type -ceq 'audio' })
+    if ($audioStreams.Count -ne 1) { throw 'AUDIO_PROBE_AUDIO_STREAMS' }
+    if ($null -eq $probe.format) { throw 'AUDIO_PROBE_FORMAT' }
+
+    $stream = $audioStreams[0]
+    $sampleRate = ConvertTo-AudioAuditionPositiveInt64 -Value ([string]$stream.sample_rate) -Code 'AUDIO_PROBE_SAMPLE_RATE'
+    $channels = ConvertTo-AudioAuditionPositiveInt64 -Value ([string]$stream.channels) -Code 'AUDIO_PROBE_CHANNELS'
+    if ($channels -notin @(1, 2)) { throw 'AUDIO_PROBE_CHANNELS' }
+    $durationText = if ($null -ne $probe.format.duration) { [string]$probe.format.duration } else { [string]$stream.duration }
+    $duration = ConvertTo-AudioAuditionFiniteDouble -Value $durationText -Code 'AUDIO_PROBE_DURATION'
+    if ($duration -le 0.0) { throw 'AUDIO_PROBE_DURATION' }
+    $size = ConvertTo-AudioAuditionPositiveInt64 -Value ([string]$probe.format.size) -Code 'AUDIO_PROBE_SIZE'
+
+    $bitDepth = $null
+    $bitDepthText = if ($null -ne $stream.bits_per_raw_sample -and -not [string]::IsNullOrWhiteSpace([string]$stream.bits_per_raw_sample)) { [string]$stream.bits_per_raw_sample } else { [string]$stream.bits_per_sample }
+    if (-not [string]::IsNullOrWhiteSpace($bitDepthText)) { $bitDepth = ConvertTo-AudioAuditionPositiveInt64 -Value $bitDepthText -Code 'AUDIO_PROBE_BIT_DEPTH' }
+
+    return [pscustomobject][ordered]@{
+        source_path = $SourcePath
+        audio_streams = 1
+        codec = [string]$stream.codec_name
+        container = [string]$probe.format.format_name
+        duration_seconds = $duration
+        sample_rate = $sampleRate
+        bit_depth = $bitDepth
+        channels = $channels
+        channel_layout = if ($null -eq $stream.channel_layout) { $null } else { [string]$stream.channel_layout }
+        bytes = $size
+    }
+}
+
+function Get-AudioAuditionMeasurementMatch {
+    param([Parameter(Mandatory = $true)][string]$Text, [Parameter(Mandatory = $true)][string]$Pattern, [Parameter(Mandatory = $true)][string]$Code, [Parameter(Mandatory = $true)][bool]$Required)
+
+    $matches = @([regex]::Matches($Text, $Pattern, [Text.RegularExpressions.RegexOptions]::Multiline -bor [Text.RegularExpressions.RegexOptions]::IgnoreCase))
+    if ($matches.Count -eq 0 -and -not $Required) { return $null }
+    if ($matches.Count -ne 1 -and $Required) { throw $Code }
+    $value = $matches[$matches.Count - 1].Groups['value'].Value
+    return ConvertTo-AudioAuditionFiniteDouble -Value $value -Code $Code
+}
+
+function ConvertFrom-AudioMeasurementText {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][string]$Text)
+
+    $samplePeak = Get-AudioAuditionMeasurementMatch -Text $Text -Pattern '^\s*(?:\[[^\]]+\]\s*)?max_volume:\s*(?<value>[^\s]+)\s*dB\s*$' -Code 'AUDIO_MEASUREMENT_SAMPLE_PEAK' -Required $true
+    $integrated = Get-AudioAuditionMeasurementMatch -Text $Text -Pattern '^\s*(?:\[[^\]]+\]\s*)?I:\s*(?<value>[^\s]+)\s*LUFS\s*$' -Code 'AUDIO_MEASUREMENT_INTEGRATED_LUFS' -Required $true
+    $dcOffset = Get-AudioAuditionMeasurementMatch -Text $Text -Pattern '^\s*(?:\[[^\]]+\]\s*)?DC offset:\s*(?<value>[^\s]+)\s*$' -Code 'AUDIO_MEASUREMENT_DC_OFFSET' -Required $false
+    $rms = Get-AudioAuditionMeasurementMatch -Text $Text -Pattern '^\s*(?:\[[^\]]+\]\s*)?RMS level dB:\s*(?<value>[^\s]+)\s*$' -Code 'AUDIO_MEASUREMENT_RMS' -Required $false
+    $crest = Get-AudioAuditionMeasurementMatch -Text $Text -Pattern '^\s*(?:\[[^\]]+\]\s*)?Crest factor:\s*(?<value>[^\s]+)\s*$' -Code 'AUDIO_MEASUREMENT_CREST' -Required $false
+    return [pscustomobject][ordered]@{
+        sample_peak_dbfs = $samplePeak
+        integrated_lufs = $integrated
+        dc_offset = $dcOffset
+        rms_dbfs = $rms
+        crest_factor = $crest
+    }
+}
+
+function Get-AudioAttenuationDb {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][double]$SamplePeakDbfs, [Parameter(Mandatory = $true)][double]$CeilingDbfs)
+
+    if ([double]::IsNaN($SamplePeakDbfs) -or [double]::IsInfinity($SamplePeakDbfs) -or [double]::IsNaN($CeilingDbfs) -or [double]::IsInfinity($CeilingDbfs)) { throw 'AUDIO_ATTENUATION_FINITE' }
+    if ($CeilingDbfs -gt -6.0) { throw 'AUDIO_ATTENUATION_CEILING' }
+    return [Math]::Round([Math]::Min(0.0, $CeilingDbfs - $SamplePeakDbfs), 3, [MidpointRounding]::AwayFromZero)
+}
+
+function ConvertTo-AudioAuditionFilterNumber {
+    param([Parameter(Mandatory = $true)][double]$Value)
+    return $Value.ToString('0.###', [Globalization.CultureInfo]::InvariantCulture)
+}
+
+function New-AudioAuditionRenderRecipe {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]$Metadata,
+        [Parameter(Mandatory = $true)]$Measurements,
+        [Parameter(Mandatory = $true)][string]$OutputPath,
+        [double]$CeilingDbfs = -6.0
+    )
+
+    $duration = ConvertTo-AudioAuditionFiniteDouble -Value ([string]$Metadata.duration_seconds) -Code 'AUDIO_RENDER_DURATION'
+    if ($duration -le 0.0) { throw 'AUDIO_RENDER_DURATION' }
+    if ([long]$Metadata.channels -notin @(1, 2)) { throw 'AUDIO_RENDER_CHANNELS' }
+    $attenuation = Get-AudioAttenuationDb -SamplePeakDbfs ([double]$Measurements.sample_peak_dbfs) -CeilingDbfs $CeilingDbfs
+    $fadeSeconds = [Math]::Min(0.01, $duration / 4.0)
+    $fadeOutStart = $duration - $fadeSeconds
+    $attenuationText = ConvertTo-AudioAuditionFilterNumber -Value $attenuation
+    $fadeText = ConvertTo-AudioAuditionFilterNumber -Value $fadeSeconds
+    $fadeOutText = ConvertTo-AudioAuditionFilterNumber -Value $fadeOutStart
+    $filter = if ([long]$Metadata.channels -eq 2) {
+        "pan=mono|c0=0.5*c0+0.5*c1,volume=$($attenuationText)dB,afade=t=in:st=0:d=$fadeText,afade=t=out:st=$fadeOutText:d=$fadeText"
+    }
+    else {
+        "volume=$($attenuationText)dB,afade=t=in:st=0:d=$fadeText,afade=t=out:st=$fadeOutText:d=$fadeText"
+    }
+    return [pscustomobject][ordered]@{
+        output_path = $OutputPath
+        codec = 'flac'
+        channels = 1
+        attenuation_db = $attenuation
+        fade_seconds = $fadeSeconds
+        fade_out_start_seconds = $fadeOutStart
+        filter_audio = $filter
+    }
+}
+
+function New-AudioUiRepeatRecipe {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$InputPath,
+        [Parameter(Mandatory = $true)][double]$DurationSeconds,
+        [Parameter(Mandatory = $true)][string]$OutputPath
+    )
+
+    if ([double]::IsNaN($DurationSeconds) -or [double]::IsInfinity($DurationSeconds) -or $DurationSeconds -le 0.0) { throw 'AUDIO_REPEAT_DURATION' }
+    $interval = [Math]::Max(1.5, $DurationSeconds + 0.5)
+    $splits = 0..9 | ForEach-Object { "[split$_]" }
+    $filters = [Collections.Generic.List[string]]::new()
+    [void]$filters.Add("[0:a]asplit=10$($splits -join '')")
+    foreach ($index in 0..9) {
+        $delayMilliseconds = [int][Math]::Round($index * $interval * 1000.0, 0, [MidpointRounding]::AwayFromZero)
+        [void]$filters.Add("[split$index]adelay=$delayMilliseconds|$delayMilliseconds[delay$index]")
+    }
+    $mixInputs = 0..9 | ForEach-Object { "[delay$_]" }
+    [void]$filters.Add("$($mixInputs -join '')amix=inputs=10:normalize=0[mixout]")
+    return [pscustomobject][ordered]@{
+        input_path = $InputPath
+        output_path = $OutputPath
+        codec = 'flac'
+        repetitions = 10
+        interval_seconds = $interval
+        filter_complex = ($filters -join ';')
+    }
+}
+
+Export-ModuleMember -Function Get-AudioAuditionLayout, Assert-AudioAuditionContainedPath, Read-AudioAuditionManifest, Write-AudioAuditionJson, Resolve-FreesoundPreviewUrl, Resolve-KenneyArchiveUrl, Invoke-AudioAuditionDownload, Expand-AudioAuditionArchive, ConvertFrom-AudioProbeJson, ConvertFrom-AudioMeasurementText, Get-AudioAttenuationDb, New-AudioAuditionRenderRecipe, New-AudioUiRepeatRecipe
