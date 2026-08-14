@@ -171,4 +171,201 @@ function Write-AudioAuditionJson {
     [IO.File]::WriteAllText($Path, $json + "`n", $utf8)
 }
 
-Export-ModuleMember -Function Get-AudioAuditionLayout, Assert-AudioAuditionContainedPath, Read-AudioAuditionManifest, Write-AudioAuditionJson
+function Get-AudioAuditionDistinctHttpsUris {
+    param([Parameter(Mandatory = $true)][string]$PageHtml)
+
+    $decoded = [Net.WebUtility]::HtmlDecode($PageHtml)
+    $uris = [Collections.Generic.List[Uri]]::new()
+    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($match in [regex]::Matches($decoded, 'https://[^\s"''<>]+', [Text.RegularExpressions.RegexOptions]::IgnoreCase)) {
+        $uri = $null
+        if ([Uri]::TryCreate($match.Value, [UriKind]::Absolute, [ref]$uri) -and $uri.Scheme -ieq 'https') {
+            if ($seen.Add($uri.AbsoluteUri)) { [void]$uris.Add($uri) }
+        }
+    }
+    return $uris
+}
+
+function Resolve-FreesoundPreviewUrl {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$PageHtml,
+        [Parameter(Mandatory = $true)][ValidatePattern('^[0-9]+$')][string]$SoundId
+    )
+
+    $pattern = '^/previews/[0-9]+/' + [regex]::Escape($SoundId) + '_[0-9]+-hq\.mp3$'
+    $matches = @(Get-AudioAuditionDistinctHttpsUris -PageHtml $PageHtml | Where-Object {
+        $_.Host -ieq 'cdn.freesound.org' -and $_.AbsolutePath -cmatch $pattern -and
+        [string]::IsNullOrEmpty($_.Query) -and [string]::IsNullOrEmpty($_.Fragment)
+    })
+    if ($matches.Count -ne 1) { throw 'FREESOUND_PREVIEW_EXACT_ONE' }
+    return $matches[0].AbsoluteUri
+}
+
+function Resolve-KenneyArchiveUrl {
+    [CmdletBinding()]
+    param([Parameter(Mandatory = $true)][string]$PageHtml)
+
+    $matches = @(Get-AudioAuditionDistinctHttpsUris -PageHtml $PageHtml | Where-Object {
+        $_.Host -ieq 'www.kenney.nl' -and
+        $_.AbsolutePath -cmatch '^/media/pages/assets/ui-audio/(?:[^/]+/)*kenney_ui-audio\.zip$' -and
+        [string]::IsNullOrEmpty($_.Query) -and [string]::IsNullOrEmpty($_.Fragment)
+    })
+    if ($matches.Count -ne 1) { throw 'KENNEY_ARCHIVE_EXACT_ONE' }
+    return $matches[0].AbsoluteUri
+}
+
+function Test-AudioAuditionAllowedDownloadUri {
+    param([Parameter(Mandatory = $true)][Uri]$Uri)
+
+    if ($Uri.Scheme -ine 'https' -or -not [string]::IsNullOrEmpty($Uri.Query) -or -not [string]::IsNullOrEmpty($Uri.Fragment)) { return $false }
+    if ($Uri.Host -ieq 'cdn.freesound.org' -and $Uri.AbsolutePath -cmatch '^/previews/[0-9]+/[0-9]+_[0-9]+-hq\.mp3$') { return $true }
+    if ($Uri.Host -ieq 'www.kenney.nl' -and $Uri.AbsolutePath -cmatch '^/media/pages/assets/ui-audio/(?:[^/]+/)*kenney_ui-audio\.zip$') { return $true }
+    foreach ($candidate in $script:AllowedCandidates.Values) {
+        if ($Uri.AbsoluteUri -ceq $candidate.source_page) { return $true }
+    }
+    return $false
+}
+
+function ConvertTo-AudioAuditionProcessArgument {
+    param([Parameter(Mandatory = $true)][string]$Value)
+
+    if ($Value.Length -eq 0) { return '""' }
+    $escaped = [regex]::Replace($Value, '(\\*)"', '$1$1\\"')
+    $escaped = [regex]::Replace($escaped, '(\\+)$', '$1$1')
+    return '"' + $escaped + '"'
+}
+
+function Invoke-AudioAuditionDownload {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][Uri]$Uri,
+        [Parameter(Mandatory = $true)][string]$Destination
+    )
+
+    if (-not (Test-AudioAuditionAllowedDownloadUri -Uri $Uri)) { throw 'AUDIO_DOWNLOAD_URI_NOT_ALLOWED' }
+    $destinationPath = [IO.Path]::GetFullPath($Destination)
+    $destinationParent = [IO.Path]::GetDirectoryName($destinationPath)
+    if ([string]::IsNullOrEmpty($destinationParent) -or -not (Test-Path -LiteralPath $destinationParent -PathType Container)) { throw 'AUDIO_DOWNLOAD_DESTINATION_PARENT' }
+    Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $destinationParent
+    if (Test-Path -LiteralPath $destinationPath) { throw 'AUDIO_DOWNLOAD_DESTINATION_EXISTS' }
+
+    $partialPath = $destinationPath + '.partial-' + [Guid]::NewGuid().ToString('N')
+    $completed = $false
+    try {
+        $writeOutFormat = "AUDIO_EFFECTIVE_URL:%{url_effective}`nAUDIO_CONTENT_TYPE:%{content_type}`n"
+        $arguments = @('--fail', '--location', '--silent', '--show-error', '--proto', '=https', '--tlsv1.2', '--write-out', $writeOutFormat, '--output', $partialPath, $Uri.AbsoluteUri)
+        $startInfo = New-Object Diagnostics.ProcessStartInfo
+        $startInfo.FileName = 'curl.exe'
+        $startInfo.UseShellExecute = $false
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        $startInfo.CreateNoWindow = $true
+        $startInfo.Arguments = (($arguments | ForEach-Object { ConvertTo-AudioAuditionProcessArgument -Value $_ }) -join ' ')
+        $process = New-Object Diagnostics.Process
+        $process.StartInfo = $startInfo
+        if (-not $process.Start()) { throw 'AUDIO_DOWNLOAD_PROCESS_START' }
+        $stdout = $process.StandardOutput.ReadToEnd()
+        $stderr = $process.StandardError.ReadToEnd()
+        $process.WaitForExit()
+        if ($process.ExitCode -ne 0) { throw 'AUDIO_DOWNLOAD_CURL_FAILED' }
+
+        $lines = @($stdout -split "`r?`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        if ($lines.Count -ne 2) { throw 'AUDIO_DOWNLOAD_WRITE_OUT' }
+        $effectiveMatch = [regex]::Match($lines[0], '^AUDIO_EFFECTIVE_URL:(.+)$')
+        $contentTypeMatch = [regex]::Match($lines[1], '^AUDIO_CONTENT_TYPE:(.*)$')
+        if (-not $effectiveMatch.Success -or -not $contentTypeMatch.Success) { throw 'AUDIO_DOWNLOAD_WRITE_OUT' }
+        $effectiveText = $effectiveMatch.Groups[1].Value
+        $contentType = $contentTypeMatch.Groups[1].Value
+        $effectiveUri = $null
+        if (-not [Uri]::TryCreate($effectiveText, [UriKind]::Absolute, [ref]$effectiveUri) -or $effectiveUri.AbsoluteUri -cne $Uri.AbsoluteUri) { throw 'AUDIO_DOWNLOAD_REDIRECT' }
+
+        if (-not (Test-Path -LiteralPath $partialPath -PathType Leaf)) { throw 'AUDIO_DOWNLOAD_FILE_MISSING' }
+        $file = Get-Item -LiteralPath $partialPath -Force
+        if (($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $file.Length -le 0) { throw 'AUDIO_DOWNLOAD_FILE_INVALID' }
+        $hash = Get-FileHash -LiteralPath $partialPath -Algorithm SHA256
+        [IO.File]::Move($partialPath, $destinationPath)
+        $completed = $true
+        return [pscustomobject][ordered]@{
+            uri = $Uri
+            final_uri = $effectiveUri
+            media_type = $contentType
+            filename = [IO.Path]::GetFileName($destinationPath)
+            bytes = [long]$file.Length
+            sha256 = $hash.Hash.ToLowerInvariant()
+        }
+    }
+    finally {
+        if (-not $completed -and (Test-Path -LiteralPath $partialPath -PathType Leaf)) {
+            $partialItem = Get-Item -LiteralPath $partialPath -Force
+            if (($partialItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq 0) { Remove-Item -LiteralPath $partialPath -Force }
+        }
+    }
+}
+
+function Expand-AudioAuditionArchive {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$ArchivePath,
+        [Parameter(Mandatory = $true)][string]$Destination
+    )
+
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $archiveFilePath = [IO.Path]::GetFullPath($ArchivePath)
+    if (-not (Test-Path -LiteralPath $archiveFilePath -PathType Leaf)) { throw 'AUDIO_ARCHIVE_MISSING' }
+    Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $archiveFilePath
+    $destinationPath = [IO.Path]::GetFullPath($Destination)
+    if (Test-Path -LiteralPath $destinationPath) { throw 'AUDIO_ARCHIVE_DESTINATION_EXISTS' }
+    $destinationParent = [IO.Path]::GetDirectoryName($destinationPath)
+    if ([string]::IsNullOrEmpty($destinationParent) -or -not (Test-Path -LiteralPath $destinationParent -PathType Container)) { throw 'AUDIO_ARCHIVE_DESTINATION_PARENT' }
+    Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $destinationParent
+
+    $executableExtensions = @('.exe', '.dll', '.com', '.bat', '.cmd', '.ps1', '.psm1', '.js', '.vbs', '.msi', '.scr', '.lnk', '.hta', '.jar')
+    $allowedExtensions = @('.wav', '.ogg', '.flac', '.mp3', '.txt', '.md', '.pdf', '.png', '.jpg', '.jpeg', '.url')
+    $archive = [IO.Compression.ZipFile]::OpenRead($archiveFilePath)
+    try {
+        $plans = [Collections.Generic.List[object]]::new()
+        $seenPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+        foreach ($entry in $archive.Entries) {
+            $storedName = $entry.FullName
+            if ([string]::IsNullOrEmpty($storedName) -or $storedName.IndexOf([char]0) -ge 0 -or $storedName.Contains(':') -or $storedName.Contains('\') -or $storedName.StartsWith('/') -or $storedName -cmatch '^[A-Za-z]:' -or $storedName -match '(^|/)(|\.|\.\.)(/|$)') { throw 'AUDIO_ARCHIVE_PATH' }
+            $unixMode = ([uint32]$entry.ExternalAttributes -shr 16)
+            if (($unixMode -band 0xF000) -eq 0xA000) { throw 'AUDIO_ARCHIVE_PATH' }
+            if (-not $seenPaths.Add($storedName)) { throw 'AUDIO_ARCHIVE_DUPLICATE' }
+            $extension = [IO.Path]::GetExtension($storedName).ToLowerInvariant()
+            if ($executableExtensions -contains $extension) { throw 'AUDIO_ARCHIVE_EXECUTABLE' }
+            if ($allowedExtensions -notcontains $extension) { throw 'AUDIO_ARCHIVE_EXTENSION' }
+            [void]$plans.Add([pscustomobject]@{ Entry = $entry; Path = $storedName; Extension = $extension })
+        }
+
+        New-Item -ItemType Directory -Path $destinationPath | Out-Null
+        Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $destinationPath
+        foreach ($plan in $plans) {
+            if ($plan.Extension -ceq '.url') {
+                [pscustomobject][ordered]@{ path = $plan.Path; filename = [IO.Path]::GetFileName($plan.Path); extracted = $false; bytes = [long]0; sha256 = $null }
+                continue
+            }
+            $memberPath = Assert-AudioAuditionContainedPath -Root $destinationPath -Candidate (Join-Path $destinationPath ($plan.Path.Replace('/', '\')))
+            $memberParent = [IO.Path]::GetDirectoryName($memberPath)
+            if (-not (Test-Path -LiteralPath $memberParent)) { New-Item -ItemType Directory -Path $memberParent -Force | Out-Null }
+            Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $memberParent
+            if (Test-Path -LiteralPath $memberPath) { throw 'AUDIO_ARCHIVE_MEMBER_EXISTS' }
+            $input = $plan.Entry.Open()
+            try {
+                $output = [IO.File]::Open($memberPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+                try { $input.CopyTo($output) }
+                finally { $output.Dispose() }
+            }
+            finally { $input.Dispose() }
+            [void](Assert-AudioAuditionContainedPath -Root $destinationPath -Candidate $memberPath)
+            $written = Get-Item -LiteralPath $memberPath -Force
+            if (($written.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'AUDIO_ARCHIVE_PATH' }
+            $hash = Get-FileHash -LiteralPath $memberPath -Algorithm SHA256
+            [pscustomobject][ordered]@{ path = $plan.Path; filename = [IO.Path]::GetFileName($plan.Path); extracted = $true; bytes = [long]$written.Length; sha256 = $hash.Hash.ToLowerInvariant() }
+        }
+    }
+    finally { $archive.Dispose() }
+}
+
+Export-ModuleMember -Function Get-AudioAuditionLayout, Assert-AudioAuditionContainedPath, Read-AudioAuditionManifest, Write-AudioAuditionJson, Resolve-FreesoundPreviewUrl, Resolve-KenneyArchiveUrl, Invoke-AudioAuditionDownload, Expand-AudioAuditionArchive

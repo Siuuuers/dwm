@@ -99,4 +99,65 @@ finally {
     if (Test-Path -LiteralPath $fixtureRoot) { Remove-Item -LiteralPath $fixtureRoot -Recurse -Force }
 }
 
+$freeHtml = '<audio src="https://cdn.freesound.org/previews/565/565535_10869493-hq.mp3"></audio>'
+$freeUrl = Resolve-FreesoundPreviewUrl -PageHtml $freeHtml -SoundId 565535
+if ($freeUrl -cne 'https://cdn.freesound.org/previews/565/565535_10869493-hq.mp3') { throw 'FREESOUND_PREVIEW_RESOLUTION' }
+
+$badHost = $false
+try { [void](Resolve-FreesoundPreviewUrl -PageHtml '<audio src="https://example.com/565535-hq.mp3">' -SoundId 565535) }
+catch { $badHost = $_.Exception.Message.Contains('FREESOUND_PREVIEW_EXACT_ONE') }
+if (-not $badHost) { throw 'FREESOUND_BAD_HOST_ACCEPTED' }
+
+$kenneyHtml = '<a href="https://www.kenney.nl/media/pages/assets/ui-audio/490d233f68-1677590494/kenney_ui-audio.zip">Download</a>'
+$kenneyUrl = Resolve-KenneyArchiveUrl -PageHtml $kenneyHtml
+if ($kenneyUrl -cne 'https://www.kenney.nl/media/pages/assets/ui-audio/490d233f68-1677590494/kenney_ui-audio.zip') { throw 'KENNEY_ARCHIVE_RESOLUTION' }
+
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+function New-AudioAuditionZipFixture {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][string]$EntryName
+    )
+
+    $archive = [IO.Compression.ZipFile]::Open($Path, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        $entry = $archive.CreateEntry($EntryName)
+        $writer = New-Object IO.StreamWriter($entry.Open(), (New-Object Text.UTF8Encoding($false)))
+        try { $writer.Write('inert fixture content') }
+        finally { $writer.Dispose() }
+    }
+    finally { $archive.Dispose() }
+}
+
+$archiveFixtureBase = Join-Path $root '.godot\audio-audition-cache\tests'
+$archiveFixtureId = [Guid]::NewGuid().ToString('N')
+$archiveFixtureRoot = Join-Path $archiveFixtureBase $archiveFixtureId
+New-Item -ItemType Directory -Path $archiveFixtureRoot -Force | Out-Null
+try {
+    $safeArchive = Join-Path $archiveFixtureRoot 'safe.zip'
+    $traversalArchive = Join-Path $archiveFixtureRoot 'traversal.zip'
+    $scriptArchive = Join-Path $archiveFixtureRoot 'script.zip'
+    New-AudioAuditionZipFixture -Path $safeArchive -EntryName 'Audio/click.wav'
+    New-AudioAuditionZipFixture -Path $traversalArchive -EntryName '../escape.wav'
+    New-AudioAuditionZipFixture -Path $scriptArchive -EntryName 'run.ps1'
+
+    $safeDestination = Join-Path $archiveFixtureRoot 'safe-extract'
+    $safeMembers = @(Expand-AudioAuditionArchive -ArchivePath $safeArchive -Destination $safeDestination)
+    if ($safeMembers.Count -ne 1 -or $safeMembers[0].path -cne 'Audio/click.wav') { throw 'AUDIO_ARCHIVE_SAFE_EXTRACTION' }
+    $safeFile = [IO.Path]::GetFullPath((Join-Path $safeDestination 'Audio\click.wav'))
+    if (-not (Test-Path -LiteralPath $safeFile -PathType Leaf) -or -not $safeFile.StartsWith(([IO.Path]::GetFullPath($safeDestination) + [IO.Path]::DirectorySeparatorChar), [StringComparison]::OrdinalIgnoreCase)) { throw 'AUDIO_ARCHIVE_SAFE_CONTAINMENT' }
+
+    Assert-AudioAuditionRejected -Name 'archive traversal' -ExpectedError 'AUDIO_ARCHIVE_PATH' -Action { Expand-AudioAuditionArchive -ArchivePath $traversalArchive -Destination (Join-Path $archiveFixtureRoot 'traversal-extract') }
+    Assert-AudioAuditionRejected -Name 'archive executable' -ExpectedError 'AUDIO_ARCHIVE_EXECUTABLE' -Action { Expand-AudioAuditionArchive -ArchivePath $scriptArchive -Destination (Join-Path $archiveFixtureRoot 'script-extract') }
+}
+finally {
+    if (Test-Path -LiteralPath $archiveFixtureRoot) {
+        [void](Assert-AudioAuditionContainedPath -Root $archiveFixtureBase -Candidate $archiveFixtureRoot)
+        if ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($archiveFixtureRoot)) -cne [IO.Path]::GetFullPath($archiveFixtureBase)) { throw 'AUDIO_FIXTURE_CLEANUP_SCOPE' }
+        Remove-Item -LiteralPath $archiveFixtureRoot -Recurse -Force
+    }
+}
+
 Write-Output 'AUDIO_AUDITION_INTAKE: PASS'
