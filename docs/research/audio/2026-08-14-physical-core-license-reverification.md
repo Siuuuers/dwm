@@ -1,230 +1,268 @@
 # Physical-Core License Reverification
 
 **Retrieved:** 2026-08-14
+
 **Scope:** First-party asset, creator-profile, and license pages only. No audio
-was downloaded, previewed, edited, imported, or otherwise acquired. This note
-is a legal/provenance intake gate, not approval to use any asset.
+was downloaded, previewed, edited, imported, or otherwise acquired. This is an
+intake gate, not approval to use any asset.
 
 ## Verdicts
 
 | Candidate | Exact pre-download identity | License evidence | Verdict | Intake disposition |
 |---|---|---|---|---|
-| visionear apartment room tone | `Room tone Very quiet Small apartment room loopable edlarez vsnr.wav` (Freesound 565535) | Asset-page CC0 | `CONDITIONAL` | Quarantined audition intake eligible |
-| richwise room tone | `RoomTone01` (Freesound 474823) | Asset-page CC0 | `CONDITIONAL` | Quarantined audition intake eligible |
-| Kinoton hospital room tone | `Room Tone, Empty Hospital` (Freesound 670070) | Asset-page CC0 conflicts with creator-profile raw-file restrictions | `REJECTED` | Stop |
-| alec_mackay paper | `paper shuffle.wav` (Freesound 463682) | Asset-page CC0 | `CONDITIONAL` | Quarantined audition intake eligible |
-| parkersenk pencil | `Writing with Pencil on Paper` (Freesound 444479) | Asset-page CC0 | `CONDITIONAL` | Quarantined audition intake eligible |
-| Jamitch2 mug | `Ceramic_Mug_Cup.wav` (Freesound 344704) | Asset-page CC0 | `CONDITIONAL` | Quarantined audition intake eligible |
-| EricsSoundschmiede switch | `SWITCH.wav` (Freesound 457410) | Asset-page CC0 | `CONDITIONAL` | Quarantined audition intake eligible |
-| Geoff-Bremner-Audio umbrella | `Umbrella Open 6` (Freesound 802495) | Asset-page CC0 conflicts with creator profile saying its sounds moved to CC BY 4.0 | `REJECTED` | Stop |
-| Breviceps door | `Door (Opening and Closing)` (Freesound 457042) | Asset page and creator statement both CC0 | `CONDITIONAL` | Quarantined audition intake eligible |
-| Kenney UI Audio v1.0 | `UI Audio`, version 1.0, 50-file pack | Kenney asset page CC0 and Kenney support | `CONDITIONAL` | Pack-level quarantined intake eligible; no individual cue selected |
+| visionear apartment room tone | Freesound 565535 | Asset-page CC0 | `CONDITIONAL` | Quarantined intake eligible |
+| richwise room tone | Freesound 474823 | Asset-page CC0 | `CONDITIONAL` | Quarantined intake eligible |
+| Kinoton hospital room tone | Freesound 670070 | CC0 conflicts with creator-profile raw-file restrictions | `REJECTED` | Stop |
+| alec_mackay paper | Freesound 463682 | Asset-page CC0 | `CONDITIONAL` | Quarantined intake eligible |
+| parkersenk pencil | Freesound 444479 | Asset-page CC0 | `CONDITIONAL` | Quarantined intake eligible |
+| Jamitch2 mug | Freesound 344704 | Asset-page CC0 | `CONDITIONAL` | Quarantined intake eligible |
+| EricsSoundschmiede switch | Freesound 457410 | Asset-page CC0 | `CONDITIONAL` | Quarantined intake eligible |
+| Geoff-Bremner-Audio umbrella | Freesound 802495 | CC0 conflicts with current profile’s CC BY 4.0 statement | `REJECTED` | Stop |
+| Breviceps door | Freesound 457042 | Asset page and creator statement both CC0 | `CONDITIONAL` | Quarantined intake eligible |
+| Kenney UI Audio v1.0 | 50-file pack | Asset page and support page CC0 | `CONDITIONAL` | Pack-level quarantine only |
 
-### Shared license finding
+## Shared license and access evidence
 
-The [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/)
-states that a work may be copied, modified, distributed, and performed for
-commercial purposes without permission; attribution is not legally required.
-The controlling [CC0 1.0 legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
-also says the affirmer makes no warranty and does not clear third-party rights.
-Accordingly, CC0 is sufficient for this project's commercial/modification gate
-only where the exact asset page has an unconflicted CC0 indication. It is not a
-warranty of title or a substitute for the project’s later source snapshot,
-checksum, full audition, mono, repetition, and physical-match checks.
+The [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/) says a
+work may be copied, modified, distributed, and performed, including
+commercially, without permission and without a legal attribution requirement.
+Its [legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
+also makes clear that CC0 carries no warranty of title and does not clear
+third-party rights. CC0 therefore passes this project's commercial and
+modification gate only when the exact asset's CC0 indication has no conflict.
 
 Every Freesound asset page below exposes **Login to download**. Freesound's
-[download FAQ](https://freesound.org/help/faq/) says a registered account must
-be logged in to download a sound. The displayed tags/descriptions contain no
-AI/GenAI assertion for the listed physical effects; that is absence-only
-evidence, not a general human-provenance certification. None is human
-nonverbal material.
+[download FAQ](https://freesound.org/help/faq/) requires a logged-in registered
+account to download a sound. No listed physical-effect page displays an
+AI/GenAI assertion in the visible title, description, or tags; this is
+absence-only evidence, not a general human-provenance certification.
 
-## Evidence by candidate
+## Candidate evidence
 
-### visionear — Room tone Very quiet Small apartment room loopable edlarez vsnr.wav
+### `ambience.bedroom_night` — Candidate: Room tone Very quiet Small apartment room loopable edlarez vsnr.wav
 
-- **Asset page:** [Freesound 565535](https://freesound.org/people/visionear/sounds/565535/)
-- **Creator / recorder shown:** visionear; the linked profile identifies Eduardo
-  Larez as a Los Angeles sound engineer ([profile](https://freesound.org/people/visionear/)).
-- **Exact page metadata:** WAV, 21.311 seconds, 48 kHz, 24-bit, stereo; title
-  identifies a quiet small-apartment room tone as loopable and suitable under
-  dialogue.
-- **License / commercial / modification / attribution:** the asset page marks
-  CC0; commercial use and modification pass under the shared CC0 finding;
-  attribution is not legally required.
-- **Provenance / conflicts:** the description calls it a clean room recording;
-  visible tags include `apartment`, `indoors`, `loopable`, and `room-tone`, with
-  no AI/GenAI label or contrary rights statement observed. No conflicting
-  creator-profile license statement was observed.
-- **Verdict:** `CONDITIONAL` — allow only a quarantined intake of this exact
-  source-page identity. Verify the advertised loop seam and room resonance
-  before any approval.
+- **Status:** `CONDITIONAL` — exact asset/license pass this intake gate; loop, mono, and room-fit audition remains.
+- **Creator / recorder / performers:** visionear; linked [creator profile](https://freesound.org/people/visionear/) identifies Eduardo Larez as a Los Angeles sound engineer.
+- **Source page:** [Freesound asset 565535](https://freesound.org/people/visionear/sounds/565535/)
+- **Exact file identity:** `Room tone Very quiet Small apartment room loopable edlarez vsnr.wav`; WAV, 21.311 seconds, 48 kHz/24-bit stereo; Freesound ID 565535.
+- **License:** CC0 1.0, displayed on the exact asset page.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/) and [legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
+- **Commercial game use:** Yes, under CC0; subject to its no-warranty and third-party-rights caveat.
+- **Modification:** Yes, under CC0.
+- **Attribution:** Not legally required under CC0; voluntary creator/source credit may be retained in later notices.
+- **Restrictions:** Freesound registered login required to download; preserve a later source-page capture and checksum; do not imply creator endorsement.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** The page calls it a clean small-apartment room recording and shows `apartment`, `indoors`, `loopable`, and `room-tone` tags. No visible AI/GenAI tag, generated claim, or contrary rights statement; absence-only evidence.
+- **Proposed placement:** Bedroom and desktop at night as a low-level ordinary base.
+- **Permitted edit concept:** Select a stable excerpt if needed; verify a clean seam, fade, gain-match, and narrow stereo only after mono testing.
+- **Loop and mono notes:** Creator labels it loopable; seam and stereo fold-down are later audition requirements.
+- **Comfort and repetition risk:** A quiet fixed loop can expose a seam or narrow-band room resonance.
+- **Why it fits or fails:** Exact asset and unconflicted CC0 evidence support quarantined intake, not use approval.
+- **Retrieved:** 2026-08-14
 
-### richwise — RoomTone01
+### `ambience.university_day` — Candidate: RoomTone01
 
-- **Asset page:** [Freesound 474823](https://freesound.org/people/richwise/sounds/474823/)
-- **Creator / recorder shown:** richwise ([profile](https://freesound.org/people/richwise/)).
-- **Exact page metadata:** WAV, 10:56.913, 48 kHz, 32-bit, stereo. The
-  description identifies an empty engineering lab/server room, recorded with a
-  Zoom H1 internal capsules and no filters.
-- **License / commercial / modification / attribution:** asset-page CC0;
-  commercial use and modification pass under the shared CC0 finding;
-  attribution is not legally required.
-- **Provenance / conflicts:** physical recording details and visible `fans`,
-  `laboratory`, `server`, and `room-tone` tags support the stated source; no
-  AI/GenAI label or conflicting creator statement was observed.
-- **Verdict:** `CONDITIONAL` — quarantined intake only. It is an
-  engineering-lab bed, not evidence for every university room; select a
-  non-masking section only after authorized audition.
+- **Status:** `CONDITIONAL` — exact asset/license pass this intake gate; it remains an engineering-lab-specific bed.
+- **Creator / recorder / performers:** richwise ([creator profile](https://freesound.org/people/richwise/)).
+- **Source page:** [Freesound asset 474823](https://freesound.org/people/richwise/sounds/474823/)
+- **Exact file identity:** `RoomTone01`; WAV, 10:56.913, 48 kHz/32-bit stereo; Freesound ID 474823.
+- **License:** CC0 1.0, displayed on the exact asset page.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/) and [legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
+- **Commercial game use:** Yes, under CC0; subject to its no-warranty and third-party-rights caveat.
+- **Modification:** Yes, under CC0.
+- **Attribution:** Not legally required under CC0.
+- **Restrictions:** Freesound registered login required to download; preserve later source-page capture/checksum and do not redistribute an unverified selection.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** Page describes an empty engineering lab/server room recorded with a Zoom H1 internal capsules and no filters; visible tags include `fans`, `laboratory`, `server`, and `room-tone`. No visible AI/GenAI label or conflicting creator statement; absence-only AI evidence.
+- **Proposed placement:** Angela's astronomy/equipment preparation and a credibly technical university room only.
+- **Permitted edit concept:** Select a stable section, fade, gain-match, remove unusable transients, and construct a verified loop only after audition.
+- **Loop and mono notes:** Stereo with no loop promise; fan-speed changes and mono fold-down require audition.
+- **Comfort and repetition risk:** Server/fan energy can mask TTS or fatigue over long exposure.
+- **Why it fits or fails:** The physical recording and CC0 evidence support intake, but it cannot represent every campus room.
+- **Retrieved:** 2026-08-14
 
-### Kinoton — Room Tone, Empty Hospital
+### `ambience.hospital_ordinary` — Candidate: Room Tone, Empty Hospital
 
-- **Asset page:** [Freesound 670070](https://freesound.org/people/Kinoton/sounds/670070/)
-- **Creator / recorder shown:** Kinoton ([profile](https://freesound.org/people/Kinoton/)).
-- **Exact page metadata:** WAV, 3:00.000, 48 kHz, 24-bit, stereo; description:
-  room/treatment-room hospital tone with deep ventilation hum. The asset page
-  displays CC0.
-- **Conflict:** the current creator profile permits commercial use and editing,
-  but also says users may not sell raw files or make them available to a third
-  party. Those added raw-file restrictions conflict with the asset page’s CC0
-  indication and CC0's permission to distribute. The asset page's reference to
-  a general license agreement does not resolve that conflict.
-- **Provenance:** no AI/GenAI label or generated description was observed, but
-  the license conflict is dispositive.
-- **Verdict:** `REJECTED` — do not acquire or audition. A later written,
-  asset-specific clarification from the rights holder would be required before
-  reopening it.
+- **Status:** `REJECTED` — conflicting first-party licensing metadata.
+- **Creator / recorder / performers:** Kinoton ([creator profile](https://freesound.org/people/Kinoton/)).
+- **Source page:** [Freesound asset 670070](https://freesound.org/people/Kinoton/sounds/670070/)
+- **Exact file identity:** `Room Tone, Empty Hospital`; WAV, 3:00.000, 48 kHz/24-bit stereo; Freesound ID 670070.
+- **License:** CC0 1.0 is displayed on the exact asset page, but the current creator profile adds raw-file restrictions.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/); [Kinoton profile terms](https://freesound.org/people/Kinoton/)
+- **Commercial game use:** Unclear — the creator profile permits commercial use but conflicts with the asset-page CC0 distribution permission.
+- **Modification:** Unclear — the creator profile permits manipulation but does not resolve the raw-file restriction conflict.
+- **Attribution:** Unclear as a practical intake matter; CC0 says none, while the asset must stop for conflicting terms.
+- **Restrictions:** The profile forbids selling raw files and making raw files available to third parties, which conflicts with the asset page's CC0 indication; Freesound registered login is also required to download.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** Page describes a room/treatment-room hospital tone with deep ventilation hum and shows no visible AI/GenAI label or generated claim; absence-only evidence.
+- **Proposed placement:** No placement permitted while rejected; formerly considered for the hospital variant only.
+- **Permitted edit concept:** None while rejected.
+- **Loop and mono notes:** Stereo and no loop claim, but no audition is authorized.
+- **Comfort and repetition risk:** Deep ventilation could be bass-heavy; legal conflict is dispositive before comfort review.
+- **Why it fits or fails:** The added profile restrictions are unresolved first-party metadata conflict under the fail-closed policy.
+- **Retrieved:** 2026-08-14
 
-### alec_mackay — paper shuffle.wav
+### `foley.paper_folder` — Candidate: paper shuffle.wav
 
-- **Asset page:** [Freesound 463682](https://freesound.org/people/alec_mackay/sounds/463682/)
-- **Creator / recorder shown:** alec_mackay ([profile](https://freesound.org/people/alec_mackay/)).
-- **Exact page metadata:** WAV, 2:19.545, 44.1 kHz, 24-bit, mono; description
-  and tags identify paper/document/page/book-flip Foley.
-- **License / commercial / modification / attribution:** asset-page CC0;
-  commercial use and modification pass under the shared CC0 finding;
-  attribution is not legally required.
-- **Provenance / conflicts:** the physical Foley description supports the
-  claimed action; no AI/GenAI label or conflicting profile license statement
-  was observed.
-- **Verdict:** `CONDITIONAL` — quarantined intake only. The exact short action
-  remains unselected and must match the visible document or folder.
+- **Status:** `CONDITIONAL` — exact asset/license pass this intake gate; no take is selected.
+- **Creator / recorder / performers:** alec_mackay ([creator profile](https://freesound.org/people/alec_mackay/)).
+- **Source page:** [Freesound asset 463682](https://freesound.org/people/alec_mackay/sounds/463682/)
+- **Exact file identity:** `paper shuffle.wav`; WAV, 2:19.545, 44.1 kHz/24-bit mono; Freesound ID 463682.
+- **License:** CC0 1.0, displayed on the exact asset page.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/) and [legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
+- **Commercial game use:** Yes, under CC0; subject to its no-warranty and third-party-rights caveat.
+- **Modification:** Yes, under CC0.
+- **Attribution:** Not legally required under CC0.
+- **Restrictions:** Freesound registered login required to download; later selection must isolate a take matching the visible document/folder action.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** Page description and tags identify paper/document/page/book-flip Foley; no visible AI/GenAI label or conflicting profile license statement; absence-only AI evidence.
+- **Proposed placement:** Programme Table, Project Folder, and Contingency only when paper/folder movement is visible.
+- **Permitted edit concept:** Select one short action, trim, fade, gain-match, and gently EQ; do not build an emphasized reveal.
+- **Loop and mono notes:** Native mono; one-shot only.
+- **Comfort and repetition risk:** Long source may contain dense rustle or dramatic flips that mask dialogue.
+- **Why it fits or fails:** Physical action and CC0 evidence support quarantine; precise stiffness, distance, and take remain unverified.
+- **Retrieved:** 2026-08-14
 
-### parkersenk — Writing with Pencil on Paper
+### `foley.book_page_annotation` — Candidate: Writing with Pencil on Paper
 
-- **Asset page:** [Freesound 444479](https://freesound.org/people/parkersenk/sounds/444479/)
-- **Creator / recorder shown:** parkersenk ([profile](https://freesound.org/people/parkersenk/)).
-- **Exact page metadata:** WAV, 25.193 seconds, 48 kHz, 24-bit, mono;
-  description: “Writing on paper with a pencil.”
-- **License / commercial / modification / attribution:** asset-page CC0;
-  commercial use and modification pass under the shared CC0 finding;
-  attribution is not legally required.
-- **Provenance / conflicts:** physical-action description and `paper`,
-  `pencil`, and `writing` tags; no AI/GenAI label or conflicting creator license
-  statement was observed.
-- **Verdict:** `CONDITIONAL` — quarantined intake only, for visible pencil
-  contact. A later audition must reject an overly bright or unnaturally
-  repetitive stroke.
+- **Status:** `CONDITIONAL` — exact asset/license pass this intake gate; no stroke is selected.
+- **Creator / recorder / performers:** parkersenk ([creator profile](https://freesound.org/people/parkersenk/)).
+- **Source page:** [Freesound asset 444479](https://freesound.org/people/parkersenk/sounds/444479/)
+- **Exact file identity:** `Writing with Pencil on Paper`; WAV, 25.193 seconds, 48 kHz/24-bit mono; Freesound ID 444479.
+- **License:** CC0 1.0, displayed on the exact asset page.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/) and [legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
+- **Commercial game use:** Yes, under CC0; subject to its no-warranty and third-party-rights caveat.
+- **Modification:** Yes, under CC0.
+- **Attribution:** Not legally required under CC0.
+- **Restrictions:** Freesound registered login required to download; use only for visible pencil contact, never an unseen authorial scribble.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** Page says “Writing on paper with a pencil” and shows `paper`, `pencil`, and `writing` tags; no visible AI/GenAI label or conflicting creator license statement; absence-only AI evidence.
+- **Proposed placement:** Borrowed Book annotation or a visibly written pencil note.
+- **Permitted edit concept:** Select a brief natural stroke, trim, fade, gain-match, and soften harsh graphite energy if needed.
+- **Loop and mono notes:** Native mono; never loop.
+- **Comfort and repetition risk:** Close pencil scratch can be harsh on headphones or imply frantic hidden writing.
+- **Why it fits or fails:** Exact action and CC0 support quarantine; book/paper surface and stroke intensity need later audition.
+- **Retrieved:** 2026-08-14
 
-### Jamitch2 — Ceramic_Mug_Cup.wav
+### `foley.chair_ceramic_kettle` — Candidate: Ceramic_Mug_Cup.wav
 
-- **Asset page:** [Freesound 344704](https://freesound.org/people/Jamitch2/sounds/344704/)
-- **Creator / recorder shown:** Jamitch2 ([profile](https://freesound.org/people/Jamitch2/)).
-- **Exact page metadata:** WAV, 19.888 seconds, 48 kHz, 24-bit, mono;
-  description: placing a ceramic mug on a table.
-- **License / commercial / modification / attribution:** asset-page CC0;
-  commercial use and modification pass under the shared CC0 finding;
-  attribution is not legally required.
-- **Provenance / conflicts:** physical-action description and `ceramic`, `cup`,
-  `mug`, `placing`, and `table` tags; no AI/GenAI label or conflicting creator
-  license statement was observed.
-- **Verdict:** `CONDITIONAL` — quarantined intake only. Retain only a single
-  ordinary placement matching the visible mug and table surface.
+- **Status:** `CONDITIONAL` — exact asset/license pass this intake gate; no placement take is selected.
+- **Creator / recorder / performers:** Jamitch2 ([creator profile](https://freesound.org/people/Jamitch2/)).
+- **Source page:** [Freesound asset 344704](https://freesound.org/people/Jamitch2/sounds/344704/)
+- **Exact file identity:** `Ceramic_Mug_Cup.wav`; WAV, 19.888 seconds, 48 kHz/24-bit mono; Freesound ID 344704.
+- **License:** CC0 1.0, displayed on the exact asset page.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/) and [legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
+- **Commercial game use:** Yes, under CC0; subject to its no-warranty and third-party-rights caveat.
+- **Modification:** Yes, under CC0.
+- **Attribution:** Not legally required under CC0.
+- **Restrictions:** Freesound registered login required to download; use only for a visible ceramic mug set on a compatible table.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** Page says “Placing a ceramic mug on a table” and shows `ceramic`, `cup`, `mug`, `placing`, and `table` tags; no visible AI/GenAI label or conflicting creator license statement; absence-only AI evidence.
+- **Proposed placement:** Quiet Table, Caretaker's Break, or closing reception when a mug/cup visibly lands.
+- **Permitted edit concept:** Select one ordinary placement, trim, fade, gain-match, and tame hard clink if needed.
+- **Loop and mono notes:** Native mono; one-shot only.
+- **Comfort and repetition risk:** A hard ceramic impact can sound accusatory, fragile, or like a breakage warning.
+- **Why it fits or fails:** Exact ordinary action and CC0 support quarantine; table-surface match and impact level remain unverified.
+- **Retrieved:** 2026-08-14
 
-### EricsSoundschmiede — SWITCH.wav
+### `foley.keyboard_instrument_control` — Candidate: SWITCH.wav
 
-- **Asset page:** [Freesound 457410](https://freesound.org/people/EricsSoundschmiede/sounds/457410/)
-- **Creator / recorder shown:** EricsSoundschmiede
-  ([profile](https://freesound.org/people/EricsSoundschmiede/)).
-- **Exact page metadata:** WAV, 2.000 seconds, 44.1 kHz, 16-bit, stereo;
-  description/tags identify a switch press or button click.
-- **License / commercial / modification / attribution:** asset-page CC0;
-  commercial use and modification pass under the shared CC0 finding;
-  attribution is not legally required.
-- **Provenance / conflicts:** physical control description, and the creator
-  profile contains self-recording statements for other physical sounds; no
-  AI/GenAI label or conflicting license statement was observed for this asset.
-- **Verdict:** `CONDITIONAL` — quarantined intake only. Do not assign it to a
-  device until the visible control's material and action are matched.
+- **Status:** `CONDITIONAL` — exact asset/license pass this intake gate; visible-control match remains required.
+- **Creator / recorder / performers:** EricsSoundschmiede ([creator profile](https://freesound.org/people/EricsSoundschmiede/)).
+- **Source page:** [Freesound asset 457410](https://freesound.org/people/EricsSoundschmiede/sounds/457410/)
+- **Exact file identity:** `SWITCH.wav`; WAV, 2.000 seconds, 44.1 kHz/16-bit stereo; Freesound ID 457410.
+- **License:** CC0 1.0, displayed on the exact asset page.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/) and [legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
+- **Commercial game use:** Yes, under CC0; subject to its no-warranty and third-party-rights caveat.
+- **Modification:** Yes, under CC0.
+- **Attribution:** Not legally required under CC0.
+- **Restrictions:** Freesound registered login required to download; a generic switch must not be assigned without visual/material match.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** Page identifies switch pressing/button clicks. The creator profile contains self-recording statements for other physical sounds; no visible AI/GenAI label or conflicting license statement for this asset; absence-only AI evidence.
+- **Proposed placement:** Visible playback, telescope, keyboard/instrument, or equipment control only after object match.
+- **Permitted edit concept:** Separate one press or release, trim, fade, gain-match, and downmix if required.
+- **Loop and mono notes:** Stereo; one-shot only with mono-first audition.
+- **Comfort and repetition risk:** A pronounced click/de-click pair can read as two commands or UI rather than physical equipment.
+- **Why it fits or fails:** The asset/legal evidence supports quarantine, but it cannot generically represent every device.
+- **Retrieved:** 2026-08-14
 
-### Geoff-Bremner-Audio — Umbrella Open 6
+### `foley.umbrella_luggage` — Candidate: Umbrella Open 6
 
-- **Asset page:** [Freesound 802495](https://freesound.org/people/Geoff-Bremner-Audio/sounds/802495/)
-- **Creator / recorder shown:** Geoff-Bremner-Audio
-  ([profile](https://freesound.org/people/Geoff-Bremner-Audio/)).
-- **Exact page metadata:** WAV, 0.889 seconds, 48 kHz, 16-bit, mono;
-  description: an umbrella opening recorded with a studio condenser microphone.
-  The asset page displays CC0 and says credit is welcome (with a separate note
-  that the creator's music requires attribution).
-- **Conflict:** the current creator profile says, “My sounds moved to the
-  Attribution 4.0 license,” and specifies a credit. It does not identify an
-  exception for this asset. That conflicts with this asset page's CC0 field;
-  project policy rejects conflicting metadata rather than inferring which page
-  controls.
-- **Provenance:** physical recording description and visible object-action tags;
-  no AI/GenAI label was observed. This does not cure the license conflict.
-- **Verdict:** `REJECTED` — stop; do not acquire or audition without an
-  asset-specific written clarification from the creator.
+- **Status:** `REJECTED` — conflicting first-party license metadata.
+- **Creator / recorder / performers:** Geoff-Bremner-Audio ([creator profile](https://freesound.org/people/Geoff-Bremner-Audio/)).
+- **Source page:** [Freesound asset 802495](https://freesound.org/people/Geoff-Bremner-Audio/sounds/802495/)
+- **Exact file identity:** `Umbrella Open 6`; WAV, 0.889 seconds, 48 kHz/16-bit mono; Freesound ID 802495.
+- **License:** CC0 1.0 displayed on the exact asset page; current creator profile says its sounds moved to Attribution 4.0.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/); [Geoff-Bremner-Audio profile](https://freesound.org/people/Geoff-Bremner-Audio/)
+- **Commercial game use:** Unclear — CC0 would permit it, but the later profile statement is unresolved.
+- **Modification:** Unclear — CC0 would permit it, but the later profile statement is unresolved.
+- **Attribution:** Unclear — the asset page makes credit voluntary while the profile prescribes CC BY 4.0 credit.
+- **Restrictions:** Freesound registered login required to download; profile-level license migration conflicts with asset-level CC0 and prevents acquisition.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** Page describes opening an umbrella recorded with a studio condenser microphone and shows physical object-action tags. No visible AI/GenAI label; absence-only AI evidence.
+- **Proposed placement:** No placement permitted while rejected; formerly considered only for an exact visible umbrella opening.
+- **Permitted edit concept:** None while rejected.
+- **Loop and mono notes:** Native mono; one-shot, but no audition is authorized.
+- **Comfort and repetition risk:** Spring transient can become a miniature jump scare; license conflict is dispositive before comfort review.
+- **Why it fits or fails:** The asset and profile conflict on governing license; fail closed rather than infer an exception.
+- **Retrieved:** 2026-08-14
 
-### Breviceps — Door (Opening and Closing)
+### `foley.door_handled` — Candidate: Door (Opening and Closing)
 
-- **Asset page:** [Freesound 457042](https://freesound.org/people/Breviceps/sounds/457042/)
-- **Creator / recorder shown:** Breviceps ([profile](https://freesound.org/people/Breviceps/)).
-- **Exact page metadata:** WAV, 2.180 seconds, 44.1 kHz, 16-bit, stereo. The
-  description identifies a door opened with its handle and shut, recorded with
-  a Zoom H2n; it expressly says the creator's sounds are public-domain CC0.
-- **License / commercial / modification / attribution:** consistent asset-page
-  CC0 and creator statement; commercial use and modification pass under the
-  shared CC0 finding; attribution is not legally required.
-- **Provenance / conflicts:** physical recorder/action statement and visible
-  `apartment`, `flat`, `handle`, `opening`, and `shut` tags; no AI/GenAI label
-  or conflicting profile license statement was observed.
-- **Verdict:** `CONDITIONAL` — quarantined intake only. This is a domestic
-  apartment/flat door and cannot stand in for a campus or hospital door without
-  a later physical match and mono/transient audition.
+- **Status:** `CONDITIONAL` — consistent exact asset and creator CC0 evidence; physical match remains required.
+- **Creator / recorder / performers:** Breviceps ([creator profile](https://freesound.org/people/Breviceps/)).
+- **Source page:** [Freesound asset 457042](https://freesound.org/people/Breviceps/sounds/457042/)
+- **Exact file identity:** `Door (Opening and Closing)`; WAV, 2.180 seconds, 44.1 kHz/16-bit stereo; Freesound ID 457042.
+- **License:** CC0 1.0, displayed on the exact asset page and expressly confirmed in the asset description by the creator.
+- **License page:** [CC0 1.0 deed](https://creativecommons.org/publicdomain/zero/1.0/) and [legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en)
+- **Commercial game use:** Yes, under CC0; subject to its no-warranty and third-party-rights caveat.
+- **Modification:** Yes, under CC0.
+- **Attribution:** Not legally required under CC0.
+- **Restrictions:** Freesound registered login required to download; source is an apartment/flat door and is not evidence for campus or hospital doors; do not imply creator endorsement.
+- **Composition / arrangement / performance / master:** Not applicable.
+- **Human / AI provenance:** Creator describes a Zoom H2n recording of handle-open and close/shut action; visible tags include `apartment`, `flat`, `handle`, `opening`, and `shut`. No visible AI/GenAI label or conflicting profile license statement; absence-only AI evidence.
+- **Proposed placement:** Domestic handled threshold only after matching door material and room.
+- **Permitted edit concept:** Separate handle/open/close if clean; trim, fade, gain-match, reduce slam-like transient, and downmix only if needed.
+- **Loop and mono notes:** Stereo; one-shot only and mono-first audition.
+- **Comfort and repetition risk:** Shut/slam character can imply anger or an offscreen arrival.
+- **Why it fits or fails:** Exact CC0 and recorder statement support quarantine, but its domestic material/force cannot be generalized.
+- **Retrieved:** 2026-08-14
 
-### Kenney — UI Audio v1.0 candidate pool
+## Non-candidate pack evidence — Kenney UI Audio v1.0
 
-- **Asset page:** [Kenney UI Audio](https://kenney.nl/assets/ui-audio)
-- **Creator / rights source shown:** Kenney ([official support page](https://kenney.nl/support)).
-- **Exact page metadata:** title `UI Audio`; category Audio; visible tags
-  `button`, `switch`, and `click`; 50 files; version 1.0; license “Creative
-  Commons CC0.” Individual member filenames and previews are not exposed on
-  the asset page, so no named accept/cancel/notification/gameplay cue is
-  verified.
-- **License / commercial / modification / attribution:** Kenney support says
-  every game asset on its asset pages is CC0, usable commercially, and needs no
-  attribution. CC0 permits modification under the shared finding. Voluntary
-  credit may say “Kenney”; the support page says not to use the Kenney logo.
-- **Access / provenance / conflicts:** the asset page exposes Download and a
-  donation/continue-without-donating flow; it does not state an account
-  requirement. No AI/GenAI provenance field, tag, or statement is exposed.
-  No conflict was observed between the asset page and support page; the site
-  footer's general copyright notice does not replace the asset-specific CC0
-  license.
-- **Verdict:** `CONDITIONAL` — the exact **pack** is eligible for quarantined
-  intake, but every later cue selection remains conditional until a lawfully
-  acquired archive is inventoried and its exact filename is recorded. No
-  specific UI or Minesweeper sound is approved.
+This is deliberately **not** a candidate entry. The exact asset page does not
+expose a member filename or preview, so it cannot support a schema-complete
+candidate for any individual registered `ui.` or `gameplay.` role without
+inventing an identity.
+
+- **Pack source:** [Kenney UI Audio](https://kenney.nl/assets/ui-audio)
+- **Creator / rights source:** Kenney ([official support page](https://kenney.nl/support))
+- **Exact pack identity:** title `UI Audio`; Audio category; 50 files; version
+  1.0; visible tags `button`, `switch`, and `click`; individual member filenames
+  and previews are not exposed before download.
+- **License:** The asset page displays Creative Commons CC0. Kenney support
+  confirms that game assets on its asset pages are CC0, usable commercially, and
+  need no attribution. CC0 modification permission and caveats are stated in
+  the shared license evidence above.
+- **Attribution and restrictions:** credit is optional (“Kenney”); Kenney says
+  not to use its logo. The asset page exposes Download and a
+  donation/continue-without-donating flow but does not state an account
+  requirement. No AI/GenAI field, tag, or provenance statement is exposed;
+  absence-only evidence. No asset-page/support-page conflict was observed.
+- **Verdict:** `CONDITIONAL` — pack-level quarantined audition intake is
+  eligible only after user authorization. Record the exact archive manifest and
+  candidate member filename before creating any role-level entry; no UI or
+  Minesweeper cue is selected or approved.
+- **Retrieved:** 2026-08-14
 
 ## Intake boundary
 
 **May enter quarantined audition intake (not approved for use):** visionear
 Freesound 565535; richwise Freesound 474823; alec_mackay Freesound 463682;
 parkersenk Freesound 444479; Jamitch2 Freesound 344704; EricsSoundschmiede
-Freesound 457410; Breviceps Freesound 457042; and the unselected Kenney `UI
-Audio` v1.0 pack. Each requires a contemporaneous source-page capture, the
-downloaded file checksum/manifest, exact file identity, and the project’s
+Freesound 457410; Breviceps Freesound 457042; and the non-candidate Kenney
+`UI Audio` v1.0 pack. Each requires a contemporaneous source-page capture, the
+downloaded file checksum/manifest, exact file identity, and the project's
 separate artistic/technical audition before any approval.
 
 **Must stop:** Kinoton Freesound 670070 and Geoff-Bremner-Audio Freesound
