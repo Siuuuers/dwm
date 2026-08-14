@@ -1,9 +1,10 @@
 # Lawful-Universe Design Atlas Presence Refinement
 
-**Status:** Conversational design approved; written specification pending review  
-**Date:** 2026-08-14  
-**Parent:** `2026-08-13-lawful-universe-design-atlas-prototype.md`  
-**Artifact class:** Disposable visual-prototype refinement; non-authoritative  
+**Status:** Written specification approved
+**Written specification approved:** 2026-08-14
+**Date:** 2026-08-14
+**Parent:** `2026-08-13-lawful-universe-design-atlas-prototype.md`
+**Artifact class:** Disposable visual-prototype refinement; non-authoritative
 **Implementation authorization for the Godot game:** False
 
 ## 1. Purpose and boundary
