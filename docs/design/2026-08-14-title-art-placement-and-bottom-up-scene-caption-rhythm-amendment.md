@@ -5,15 +5,19 @@ schema_version: 1
 amends: spec.main_menu_desktop_shell_global_chrome_ui_ux_amendment
 amends_path: "docs/design/2026-08-12-main-menu-desktop-shell-global-chrome-ui-ux-amendment.md"
 related_authorities: ["spec.narrative_scene_host_dating_hospital_challenge_ui_ux_amendment","spec.ordered_ending_host_universal_pause_ui_ux_amendment","guide.visual_art_placement_and_asset_production"]
-decision_status: proposed
+decision_status: accepted
 conversational_design_status: approved
-written_spec_status: proposed
+written_spec_status: approved
 self_review_status: passed
 self_reviewed_on: "2026-08-14"
+written_spec_approved_on: "2026-08-14"
 implementation_requested: true
 implementation_requested_on: "2026-08-14"
 implementation_requested_scope: title_art_presenter_and_bottom_up_scene_caption_rhythm_only
-implementation_authorized: false
+implementation_authorized: true
+implementation_authorized_on: "2026-08-14"
+implementation_authorized_by: project_owner
+implementation_authorization_scope: initial_partial_implementation_evidence_in_section_10_5_only
 implementation_gate: exact_written_spec_and_reviewed_plan_required
 created_on: "2026-08-14"
 engine_line: godot_4_6
@@ -27,7 +31,7 @@ scope: ["logged_out_unhosted_title_art_placement","title_art_host_replacement_an
 
 ## 1. Status and objective
 
-This proposed written amendment records two conversation-approved refinements
+This accepted written amendment records two conversation-approved refinements
 for the actual Godot game:
 
 1. the unhosted logged-out title owns a dedicated placement for future authored
@@ -35,13 +39,12 @@ for the actual Godot game:
 2. the shared Narrative Scene Host presents its visible caption cards from
    older at the top to current at the bottom.
 
-The user explicitly requested both the game-design specification and the
-bounded implementation on 2026-08-14. The request covers the two
-frontmatter-scoped refinements only. Repository implementation remains gated on
-review of these exact written bytes and a reviewed implementation plan. This
-proposed artifact does not authorize unrelated shell reconstruction, narrative
-content, art production, authority-registry mutation, Beads mutation, or HTML
-prototype changes.
+The user explicitly approved these exact written bytes and authorized the
+bounded implementation on 2026-08-14. That authorization covers the initial
+partial evidence in section 10.5 only and remains gated on a reviewed
+implementation plan. This artifact does not authorize unrelated shell
+reconstruction, narrative content, art production, authority-registry
+mutation, Beads mutation, or HTML prototype changes.
 
 The title decision is a **placement decision, not an artwork commission**. The
 game must provide the exact presenter and its ownership rules now, while the
@@ -605,8 +608,7 @@ Before implementation begins, self-review must establish that this document:
   and
 - binds implementation and verification only to the two requested slices.
 
-After self-review, the project owner reviews these exact bytes. Approval changes
-`decision_status` and `written_spec_status` to accepted/approved, records the
-approval date, and may change `implementation_authorized` to true for the
-initial partial implementation evidence in section 10.5. Execution then
-proceeds only through a separately reviewed, path-bounded implementation plan.
+Self-review passed and the project owner approved these exact bytes on
+2026-08-14. The recorded implementation authorization applies only to the
+initial partial implementation evidence in section 10.5. Execution proceeds
+only through a separately reviewed, path-bounded implementation plan.
