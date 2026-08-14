@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-14
 
-**Status:** Written design pending user review
+**Status:** Accepted for implementation planning
 
 **Parent authority:**
 `docs/superpowers/specs/2026-08-14-acoustic-memory-atlas-audio-design.md`
@@ -274,4 +274,6 @@ Before the pass is complete:
 
 The user selected the hybrid cull on 2026-08-14 after reviewing three options:
 hybrid preview cull, all-exact-original intake, and replacement-only research.
-The written specification still requires user review before implementation.
+The user approved this written specification on 2026-08-14. Approval authorizes
+implementation planning and the selected Pass 1A intake after an execution
+choice; it does not authorize Godot integration or shipment.
