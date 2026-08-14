@@ -7,6 +7,7 @@ $module = Join-Path $root 'tools\audio\AudioAuditionIntake.psm1'
 $manifestPath = Join-Path $root 'tools\audio\manifests\batch-01.json'
 if (-not (Test-Path -LiteralPath $module -PathType Leaf)) { throw 'AUDIO_INTAKE_MODULE_MISSING' }
 Import-Module $module -Force
+$intakeModule = Get-Module -Name AudioAuditionIntake
 
 $layout = Get-AudioAuditionLayout -RepositoryRoot $root -BatchId 'batch-01'
 if (-not $layout.SourceRoot.EndsWith('source_audio\batch-01')) { throw 'AUDIO_LAYOUT_SOURCE' }
@@ -63,9 +64,17 @@ Assert-AudioAuditionRejected -Name 'probe more than two channels' -ExpectedError
 Assert-AudioAuditionRejected -Name 'probe non-positive duration' -ExpectedError 'AUDIO_PROBE_DURATION' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":1,"duration":"0"}],"format":{"format_name":"mp3","duration":"0","size":"1"}}' -SourcePath 'fixture.mp3' }
 
 $stageText = [IO.File]::ReadAllText((Join-Path $root 'tools\audio\Invoke-AudioAuditionBatch01.ps1'))
+$moduleText = [IO.File]::ReadAllText($module)
 if ($stageText -notmatch 'ReadToEndAsync\(\)' -or $stageText -notmatch 'Task\]::WaitAll' -or $stageText -notmatch '\$process\.Dispose\(\)') { throw 'AUDIO_PROCESS_CONCURRENT_DRAIN' }
 if ($stageText -notmatch 'parent_sha256 = \$input\.sha256' -or $stageText -notmatch 'parent_sha256 = \$monoHash') { throw 'AUDIO_RENDER_PARENT_HASH' }
-if ($stageText -notmatch 'analysis-attempt-' -or $stageText -notmatch 'renders-attempt-' -or $stageText -notmatch '\[IO\.Directory\]::Move\(') { throw 'AUDIO_ANALYSIS_ATTEMPT_STAGING' }
+if ($stageText -notmatch 'analysis-attempt-' -or $stageText -notmatch 'renders-attempt-' -or $moduleText -notmatch '\[IO\.Directory\]::Move\(') { throw 'AUDIO_ANALYSIS_ATTEMPT_STAGING' }
+$oldGuardRejected = $false
+try {
+    & { $analysisRoot = 'analysis'; $rendersRoot = 'renders'; if (Test-Path -LiteralPath $analysisRoot -or Test-Path -LiteralPath $rendersRoot) { throw 'UNREACHABLE' } }
+}
+catch { $oldGuardRejected = $_.Exception.Message.Contains('LiteralPath') }
+if (-not $oldGuardRejected) { throw 'AUDIO_ANALYSIS_GUARD_PRECEDENCE_NOT_REPRODUCED' }
+if ($stageText -notmatch '\(Test-Path -LiteralPath \$analysisRoot\) -or \(Test-Path -LiteralPath \$rendersRoot\)') { throw 'AUDIO_ANALYSIS_GUARD_PARENTHESES' }
 
 $fixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ("audio-audition-intake-" + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixtureRoot | Out-Null
@@ -81,6 +90,55 @@ try {
         [IO.File]::WriteAllText($path, $Json, $utf8)
         return $path
     }
+
+    function Invoke-AudioAuditionPrivatePublish {
+        param(
+            [Parameter(Mandatory = $true)][string]$CacheRoot,
+            [Parameter(Mandatory = $true)][string]$AttemptId,
+            [Parameter(Mandatory = $true)][scriptblock]$MoveOperation,
+            [Parameter(Mandatory = $true)][scriptblock]$StatePublisher
+        )
+
+        $analysisAttempt = Join-Path $CacheRoot ('analysis-attempt-' + $AttemptId)
+        $rendersAttempt = Join-Path $CacheRoot ('renders-attempt-' + $AttemptId)
+        $analysis = Join-Path $CacheRoot 'analysis'
+        $renders = Join-Path $CacheRoot 'renders'
+        $stateRoot = Join-Path $CacheRoot 'state'
+        $statePath = Join-Path $stateRoot 'analyze.json'
+        New-Item -ItemType Directory -Path $analysisAttempt -Force | Out-Null
+        New-Item -ItemType Directory -Path $rendersAttempt -Force | Out-Null
+        New-Item -ItemType Directory -Path $stateRoot -Force | Out-Null
+        [IO.File]::WriteAllText((Join-Path $analysisAttempt 'record.json'), "{}", $utf8)
+        [IO.File]::WriteAllText((Join-Path $rendersAttempt 'render.flac'), "inert", $utf8)
+        & $intakeModule {
+            param($InnerCacheRoot, $InnerAnalysisAttempt, $InnerRendersAttempt, $InnerAnalysis, $InnerRenders, $InnerState, $InnerMoveOperation, $InnerStatePublisher)
+            Publish-AudioAuditionAnalyzeAttempt -CacheRoot $InnerCacheRoot -AnalysisAttemptRoot $InnerAnalysisAttempt -RendersAttemptRoot $InnerRendersAttempt -AnalysisRoot $InnerAnalysis -RendersRoot $InnerRenders -StatePath $InnerState -MoveOperation $InnerMoveOperation -StatePublisher $InnerStatePublisher
+        } $CacheRoot $analysisAttempt $rendersAttempt $analysis $renders $statePath $MoveOperation $StatePublisher
+        return [pscustomobject]@{ analysis = $analysis; renders = $renders; state = $statePath }
+    }
+
+    $secondPromotionRoot = Join-Path $fixtureRoot 'publish-second-promotion'
+    $secondPromotionRejected = $false
+    try {
+        [void](Invoke-AudioAuditionPrivatePublish -CacheRoot $secondPromotionRoot -AttemptId '11111111111111111111111111111111' -MoveOperation {
+            param($Source, $Destination)
+            [IO.Directory]::Move($Source, $Destination)
+            if ([IO.Path]::GetFileName($Source) -like 'renders-attempt-*') { throw 'TEST_SECOND_PROMOTION_FAILURE' }
+        } -StatePublisher { throw 'TEST_STATE_UNREACHABLE' })
+    }
+    catch { $secondPromotionRejected = $_.Exception.Message.Contains('TEST_SECOND_PROMOTION_FAILURE') }
+    if (-not $secondPromotionRejected -or (Test-Path -LiteralPath (Join-Path $secondPromotionRoot 'analysis')) -or (Test-Path -LiteralPath (Join-Path $secondPromotionRoot 'renders')) -or (Test-Path -LiteralPath (Join-Path $secondPromotionRoot 'state\analyze.json'))) { throw 'AUDIO_ANALYSIS_SECOND_PROMOTION_ROLLBACK' }
+
+    $stateWriteRoot = Join-Path $fixtureRoot 'publish-state-write'
+    $stateWriteRejected = $false
+    try {
+        [void](Invoke-AudioAuditionPrivatePublish -CacheRoot $stateWriteRoot -AttemptId '22222222222222222222222222222222' -MoveOperation { param($Source, $Destination) [IO.Directory]::Move($Source, $Destination) } -StatePublisher {
+            [IO.File]::WriteAllText((Join-Path $stateWriteRoot 'state\analyze.json'), "{}", $utf8)
+            throw 'TEST_STATE_WRITE_FAILURE'
+        })
+    }
+    catch { $stateWriteRejected = $_.Exception.Message.Contains('TEST_STATE_WRITE_FAILURE') }
+    if (-not $stateWriteRejected -or (Test-Path -LiteralPath (Join-Path $stateWriteRoot 'analysis')) -or (Test-Path -LiteralPath (Join-Path $stateWriteRoot 'renders')) -or (Test-Path -LiteralPath (Join-Path $stateWriteRoot 'state\analyze.json'))) { throw 'AUDIO_ANALYSIS_STATE_WRITE_ROLLBACK' }
 
     $malformedPath = New-AudioAuditionFixture -Json '{"schema_version":'
     Assert-AudioAuditionRejected -Name 'malformed JSON' -ExpectedError 'JSON_UNEXPECTED_EOF' -Action { Read-AudioAuditionManifest -Path $malformedPath }

@@ -552,4 +552,72 @@ function New-AudioUiRepeatRecipe {
     }
 }
 
+function Assert-AudioAuditionPublishPath {
+    param([Parameter(Mandatory = $true)][string]$CacheRoot, [Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)][string]$ExpectedLeaf)
+
+    $canonicalCacheRoot = [IO.Path]::GetFullPath($CacheRoot)
+    $canonicalPath = Assert-AudioAuditionContainedPath -Root $canonicalCacheRoot -Candidate $Path
+    if ([IO.Path]::GetDirectoryName($canonicalPath) -cne $canonicalCacheRoot -or [IO.Path]::GetFileName($canonicalPath) -cne $ExpectedLeaf) { throw 'AUDIO_ANALYSIS_PUBLISH_PATH' }
+    return $canonicalPath
+}
+
+function Remove-AudioAuditionPublishedDirectory {
+    param([Parameter(Mandatory = $true)][string]$CacheRoot, [Parameter(Mandatory = $true)][string]$Path)
+
+    if (Test-Path -LiteralPath $Path -PathType Container) {
+        [void](Assert-AudioAuditionContainedPath -Root $CacheRoot -Candidate $Path)
+        Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $Path
+        [IO.Directory]::Delete($Path, $true)
+    }
+}
+
+function Remove-AudioAuditionPublishedState {
+    param([Parameter(Mandatory = $true)][string]$CacheRoot, [Parameter(Mandatory = $true)][string]$Path)
+
+    if (Test-Path -LiteralPath $Path -PathType Leaf) {
+        [void](Assert-AudioAuditionContainedPath -Root $CacheRoot -Candidate $Path)
+        Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $Path
+        [IO.File]::Delete($Path)
+    }
+}
+
+function Publish-AudioAuditionAnalyzeAttempt {
+    param(
+        [Parameter(Mandatory = $true)][string]$CacheRoot,
+        [Parameter(Mandatory = $true)][string]$AnalysisAttemptRoot,
+        [Parameter(Mandatory = $true)][string]$RendersAttemptRoot,
+        [Parameter(Mandatory = $true)][string]$AnalysisRoot,
+        [Parameter(Mandatory = $true)][string]$RendersRoot,
+        [Parameter(Mandatory = $true)][string]$StatePath,
+        [scriptblock]$MoveOperation = { param($Source, $Destination) [IO.Directory]::Move($Source, $Destination) },
+        [Parameter(Mandatory = $true)][scriptblock]$StatePublisher
+    )
+
+    $canonicalCacheRoot = [IO.Path]::GetFullPath($CacheRoot)
+    $analysisAttempt = Assert-AudioAuditionPublishPath -CacheRoot $canonicalCacheRoot -Path $AnalysisAttemptRoot -ExpectedLeaf ([IO.Path]::GetFileName($AnalysisAttemptRoot))
+    $rendersAttempt = Assert-AudioAuditionPublishPath -CacheRoot $canonicalCacheRoot -Path $RendersAttemptRoot -ExpectedLeaf ([IO.Path]::GetFileName($RendersAttemptRoot))
+    if ([IO.Path]::GetFileName($analysisAttempt) -cnotmatch '^analysis-attempt-[0-9a-f]{32}$' -or [IO.Path]::GetFileName($rendersAttempt) -cnotmatch '^renders-attempt-[0-9a-f]{32}$') { throw 'AUDIO_ANALYSIS_PUBLISH_PATH' }
+    $analysis = Assert-AudioAuditionPublishPath -CacheRoot $canonicalCacheRoot -Path $AnalysisRoot -ExpectedLeaf 'analysis'
+    $renders = Assert-AudioAuditionPublishPath -CacheRoot $canonicalCacheRoot -Path $RendersRoot -ExpectedLeaf 'renders'
+    $expectedState = Assert-AudioAuditionContainedPath -Root $canonicalCacheRoot -Candidate (Join-Path $canonicalCacheRoot 'state\analyze.json')
+    $canonicalState = Assert-AudioAuditionContainedPath -Root $canonicalCacheRoot -Candidate $StatePath
+    if ($canonicalState -cne $expectedState) { throw 'AUDIO_ANALYSIS_PUBLISH_PATH' }
+    if (-not (Test-Path -LiteralPath $analysisAttempt -PathType Container) -or -not (Test-Path -LiteralPath $rendersAttempt -PathType Container)) { throw 'AUDIO_ANALYSIS_ATTEMPT_MISSING' }
+    Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $analysisAttempt
+    Assert-AudioAuditionExistingPathIsNotReparsePoint -Path $rendersAttempt
+    if ((Test-Path -LiteralPath $analysis) -or (Test-Path -LiteralPath $renders) -or (Test-Path -LiteralPath $canonicalState)) { throw 'AUDIO_ANALYSIS_PUBLISH_EXISTS' }
+
+    try {
+        & $MoveOperation $analysisAttempt $analysis
+        & $MoveOperation $rendersAttempt $renders
+        & $StatePublisher
+    }
+    catch {
+        Remove-AudioAuditionPublishedState -CacheRoot $canonicalCacheRoot -Path $canonicalState
+        if ((Test-Path -LiteralPath $renders -PathType Container) -and -not (Test-Path -LiteralPath $rendersAttempt)) { Remove-AudioAuditionPublishedDirectory -CacheRoot $canonicalCacheRoot -Path $renders }
+        if ((Test-Path -LiteralPath $analysis -PathType Container) -and -not (Test-Path -LiteralPath $analysisAttempt)) { Remove-AudioAuditionPublishedDirectory -CacheRoot $canonicalCacheRoot -Path $analysis }
+        throw
+    }
+}
+
 Export-ModuleMember -Function Get-AudioAuditionLayout, Assert-AudioAuditionContainedPath, Read-AudioAuditionManifest, Write-AudioAuditionJson, Resolve-FreesoundPreviewUrl, Resolve-KenneyArchiveUrl, Invoke-AudioAuditionDownload, Expand-AudioAuditionArchive, ConvertFrom-AudioProbeJson, ConvertFrom-AudioMeasurementText, Get-AudioAttenuationDb, New-AudioAuditionRenderRecipe, New-AudioUiRepeatRecipe

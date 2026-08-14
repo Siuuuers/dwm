@@ -294,7 +294,7 @@ Assert-AudioAuditionStageRecord -Path $initializePath -ExpectedStage 'Initialize
 $acquireRecord = Assert-AudioAuditionAcquireRecord -Path $acquirePath -Manifest $manifest
 $analysisRoot = Join-Path $layout.CacheRoot 'analysis'
 $rendersRoot = Join-Path $layout.CacheRoot 'renders'
-if (Test-Path -LiteralPath $analysisRoot -or Test-Path -LiteralPath $rendersRoot) { throw 'AUDIO_ANALYSIS_PUBLISH_EXISTS' }
+if ((Test-Path -LiteralPath $analysisRoot) -or (Test-Path -LiteralPath $rendersRoot)) { throw 'AUDIO_ANALYSIS_PUBLISH_EXISTS' }
 $attemptId = [Guid]::NewGuid().ToString('N')
 $analysisAttemptRoot = Join-Path $layout.CacheRoot ('analysis-attempt-' + $attemptId)
 $rendersAttemptRoot = Join-Path $layout.CacheRoot ('renders-attempt-' + $attemptId)
@@ -387,9 +387,6 @@ foreach ($input in $inputRecords) {
     catch { throw 'ANALYSIS_INCOMPLETE' }
 }
 
-[IO.Directory]::Move($analysisAttemptRoot, $analysisRoot)
-[IO.Directory]::Move($rendersAttemptRoot, $rendersRoot)
-
 $analyzeRecord = [pscustomobject][ordered]@{
     stage = 'Analyze'
     batch_id = $manifest.batch_id
@@ -402,5 +399,12 @@ $analyzeRecord = [pscustomobject][ordered]@{
     measurement_note = 'Measurements are risk flags only and do not certify comfort, artistic fit, physical credibility, or medical safety.'
     records = $analysisRecords
 }
-Write-AudioAuditionStateRecord -Value $analyzeRecord -Path $analyzePath -CacheRoot $layout.CacheRoot
+$publishState = {
+    Write-AudioAuditionStateRecord -Value $analyzeRecord -Path $analyzePath -CacheRoot $layout.CacheRoot
+}.GetNewClosure()
+$intakeModule = Get-Module -Name AudioAuditionIntake
+& $intakeModule {
+    param($CacheRoot, $AnalysisAttemptRoot, $RendersAttemptRoot, $AnalysisRoot, $RendersRoot, $StatePath, $StatePublisher)
+    Publish-AudioAuditionAnalyzeAttempt -CacheRoot $CacheRoot -AnalysisAttemptRoot $AnalysisAttemptRoot -RendersAttemptRoot $RendersAttemptRoot -AnalysisRoot $AnalysisRoot -RendersRoot $RendersRoot -StatePath $StatePath -StatePublisher $StatePublisher
+} $layout.CacheRoot $analysisAttemptRoot $rendersAttemptRoot $analysisRoot $rendersRoot $analyzePath $publishState
 Write-Output 'AUDIO_AUDITION_ANALYZE: PASS'
