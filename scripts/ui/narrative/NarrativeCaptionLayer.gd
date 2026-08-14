@@ -79,6 +79,8 @@ func get_current_text_owner() -> DialogicNode_DialogText:
 	return %CurrentPrimary as DialogicNode_DialogText
 
 func _validate_projection(projection: Dictionary) -> Dictionary:
+	if _session_id == &"":
+		return {"ok": false, "code": &"caption_session_required"}
 	for key in ["session_id", "semantic_id", "primary_text", "secondary_text"]:
 		if not projection.has(key):
 			return {"ok": false, "code": &"caption_projection_incomplete"}
