@@ -1,8 +1,10 @@
 # Acoustic Memory Atlas: Audio Implementation and Asset-Curation Design
 
-**Status:** Approved in section review; written specification pending final user review
+**Status:** Accepted
 
 **Date:** 2026-08-14
+
+**Written specification approved:** 2026-08-14
 
 **Target:** Godot 4.6.3, initial Windows release
 
@@ -808,9 +810,10 @@ The next phase produces, in order:
 Research does not itself authorize downloading or integrating an asset. The
 shortlist is reviewed before acquisition and runtime work.
 
-## 24. Acceptance criteria
+## 24. Acceptance
 
-This design is accepted when the user confirms that the written specification
-faithfully captures the three approved design sections and the classical-music
-correction. Acceptance authorizes the next research and planning phase, not
-unreviewed asset use or code implementation.
+The user approved the complete written specification on 2026-08-14 after
+approving its three design sections and classical-music correction separately.
+This acceptance authorizes the research and planning phase. It does not
+authorize unreviewed asset acquisition, audio integration, or runtime-code
+implementation.
