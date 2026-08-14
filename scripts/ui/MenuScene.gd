@@ -110,12 +110,12 @@ func close_active_title_destination() -> void:
 	if is_instance_valid(source):
 		source.call_deferred("grab_focus")
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed("ui_cancel"):
-		return
-	if is_instance_valid(_shut_down_confirm) and _shut_down_confirm.visible:
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and is_instance_valid(_shut_down_confirm) and _shut_down_confirm.visible:
 		_shut_down_confirm.hide()
 		get_viewport().set_input_as_handled()
-	elif is_instance_valid(_active_title_host):
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and is_instance_valid(_active_title_host):
 		close_active_title_destination()
 		get_viewport().set_input_as_handled()

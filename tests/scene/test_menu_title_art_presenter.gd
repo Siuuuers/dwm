@@ -173,3 +173,29 @@ func test_shutdown_confirmation_consumes_first_cancel_before_active_host() -> vo
 	assert_false(host.visible)
 	assert_true((menu.get_node("%TitleArtPresenter") as Control).visible)
 	assert_same(viewport.gui_get_focus_owner(), source)
+
+func test_shutdown_confirmation_consumes_first_cancel_before_log_in_child() -> void:
+	var fixture := await _make_fixture()
+	var viewport := fixture.viewport as SubViewport
+	var menu := fixture.menu as MenuScene
+	var source := menu.get_node("%LogInButton") as Button
+	source.grab_focus()
+	source.pressed.emit()
+	await get_tree().process_frame
+	var host := menu.get_node("%BackupAppHost") as Control
+	var child := host.get_child(0) as BackupApp
+	var hosted_control := child.get_node("%ReturnButton") as Button
+	hosted_control.grab_focus()
+	assert_same(viewport.gui_get_focus_owner(), hosted_control)
+	(menu.get_node("%ShutDownButton") as Button).pressed.emit()
+	await get_tree().process_frame
+	var confirmation := menu.get_node("%ShutDownConfirm") as ConfirmationDialog
+	assert_true(confirmation.visible)
+	await _send_ui_cancel(viewport)
+	assert_false(confirmation.visible)
+	assert_true(host.visible)
+	assert_false((menu.get_node("%TitleArtPresenter") as Control).visible)
+	await _send_ui_cancel(viewport)
+	assert_false(host.visible)
+	assert_true((menu.get_node("%TitleArtPresenter") as Control).visible)
+	assert_same(viewport.gui_get_focus_owner(), source)
