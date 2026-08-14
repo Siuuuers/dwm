@@ -20,6 +20,7 @@
 - Exactly one live node in the active custom style may belong to `dialogic_dialog_text`; never combine the bundled fallback VN textbox with the project-owned caption owner.
 - The custom style is loaded only by explicit `res://dialogic/styles/NarrativeCaptionStyle.tres` path in this slice; it is not registered or made default.
 - Every test and import command runs through `tools/testing/Invoke-IsolatedGodot.ps1`; never launch Godot directly against production user data.
+- On this Windows host, direct script execution is policy-blocked. Invoke every listed wrapper command through `powershell -NoProfile -ExecutionPolicy Bypass -Command`, preserving its exact `SuiteId`, `LogName`, and `GodotArgs`.
 - Preserve all unrelated dirty work. Stage and commit only the exact paths named by the task being committed.
 
 ## File Map

@@ -14,9 +14,12 @@ const SETTING_SCENE := preload("res://scenes/menu/Setting.tscn")
 @onready var _backup_app_host: Control = %BackupAppHost
 @onready var _setting_host: Control = %SettingHost
 @onready var _shut_down_confirm: ConfirmationDialog = %ShutDownConfirm
+@onready var _title_art_presenter: Control = %TitleArtPresenter
 
 var _backup_app_instance: Node = null
 var _setting_instance: Node = null
+var _active_title_host: Control = null
+var _active_title_source: BaseButton = null
 
 func _ready() -> void:
 	if is_instance_valid(_new_acc_button) and not _new_acc_button.pressed.is_connected(_on_new_acc_pressed):
@@ -57,26 +60,26 @@ func _on_new_acc_pressed() -> void:
 		push_warning("MenuScene: start_new_run failed (%s)." % str(result.get("code", "")))
 
 func _on_log_in_pressed() -> void:
-	_close_setting()
-	if is_instance_valid(_backup_app_instance):
-		_backup_app_host.visible = true
-		return
-	_backup_app_instance = BACKUP_APP_SCENE.instantiate()
-	_backup_app_host.add_child(_backup_app_instance)
-	_backup_app_host.visible = true
+	if not is_instance_valid(_backup_app_instance):
+		_backup_app_instance = BACKUP_APP_SCENE.instantiate()
+		_backup_app_host.add_child(_backup_app_instance)
+		var backup_window := _backup_app_instance as AppWindowBase
+		if backup_window != null and not backup_window.window_hidden.is_connected(close_active_title_destination):
+			backup_window.window_hidden.connect(close_active_title_destination)
+	_show_title_destination(_backup_app_host, _log_in_button)
 
 func _on_gallery_pressed() -> void:
 	if has_node("/root/SceneRouter"):
 		get_node("/root/SceneRouter").goto_scene_id("gallery")
 
 func _on_setting_pressed() -> void:
-	_close_backup_app()
-	if is_instance_valid(_setting_instance):
-		_setting_host.visible = true
-		return
-	_setting_instance = SETTING_SCENE.instantiate()
-	_setting_host.add_child(_setting_instance)
-	_setting_host.visible = true
+	if not is_instance_valid(_setting_instance):
+		_setting_instance = SETTING_SCENE.instantiate()
+		_setting_host.add_child(_setting_instance)
+		var close_button := _setting_instance.get_node("%CloseButton") as Button
+		if not close_button.pressed.is_connected(close_active_title_destination):
+			close_button.pressed.connect(close_active_title_destination)
+	_show_title_destination(_setting_host, _setting_button)
 
 func _on_shut_down_pressed() -> void:
 	if is_instance_valid(_shut_down_confirm):
@@ -85,19 +88,34 @@ func _on_shut_down_pressed() -> void:
 func _on_shut_down_confirmed() -> void:
 	get_tree().quit()
 
-func _close_backup_app() -> void:
-	if is_instance_valid(_backup_app_host):
-		_backup_app_host.visible = false
+func _show_title_destination(host: Control, source: BaseButton) -> void:
+	if is_instance_valid(_active_title_host) and _active_title_host != host:
+		_active_title_host.hide()
+	_title_art_presenter.hide()
+	for child in host.get_children():
+		child.show()
+	host.show()
+	_active_title_host = host
+	_active_title_source = source
 
-func _close_setting() -> void:
+func close_active_title_destination() -> void:
+	var source := _active_title_source
+	if is_instance_valid(_backup_app_host):
+		_backup_app_host.hide()
 	if is_instance_valid(_setting_host):
-		_setting_host.visible = false
+		_setting_host.hide()
+	_active_title_host = null
+	_active_title_source = null
+	_title_art_presenter.show()
+	if is_instance_valid(source):
+		source.call_deferred("grab_focus")
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and is_instance_valid(_shut_down_confirm) and _shut_down_confirm.visible:
+		_shut_down_confirm.hide()
+		get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
-		if is_instance_valid(_backup_app_host) and _backup_app_host.visible:
-			_close_backup_app()
-			get_viewport().set_input_as_handled()
-		elif is_instance_valid(_setting_host) and _setting_host.visible:
-			_close_setting()
-			get_viewport().set_input_as_handled()
+	if event.is_action_pressed("ui_cancel") and is_instance_valid(_active_title_host):
+		close_active_title_destination()
+		get_viewport().set_input_as_handled()
