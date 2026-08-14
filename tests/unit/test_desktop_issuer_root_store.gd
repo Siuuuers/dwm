@@ -610,6 +610,205 @@ func test_allocation_receipt_references_are_valid_and_byte_exact() -> void:
 
 
 # ---------------------------------------------------------------------------------------------
+# Clauses 30, 34, 35 -- deep root-document rejection and replay obligations (dwm-p2r.16.1)
+# ---------------------------------------------------------------------------------------------
+
+func test_each_required_root_member_rejects_missing_wrong_type_and_meaningful_malformed_values() -> void:
+	# These literals name the mutations this test catches: missing a required member, accepting a
+	# wrong JSON type, or accepting a same-type value that violates the member's durable law.
+	var base := {
+		"schema_version": 1,
+		"namespace": NAMESPACE_A,
+		"next_counter": 1,
+		"receipts": {},
+		"allocation_receipts": {},
+		"day_advance_allocation_receipts": {},
+	}
+	var wrong_types := {
+		"schema_version": "1",
+		"namespace": 1,
+		"next_counter": "one",
+		"receipts": [],
+		"allocation_receipts": [],
+		"day_advance_allocation_receipts": [],
+	}
+	var malformed_values := {
+		"schema_version": 2,
+		"namespace": "g".repeat(64),
+		"next_counter": 0,
+		"receipts": {"unexpected_receipt": {}},
+		"allocation_receipts": {"unexpected_allocation": {}},
+		"day_advance_allocation_receipts": {"unexpected_day_advance": {}},
+	}
+	var scenarios: Array[Dictionary] = []
+	for member: String in ROOT_DOCUMENT_KEYS:
+		var missing := base.duplicate(true)
+		missing.erase(member)
+		scenarios.append({"label": "missing %s" % member, "document": missing})
+		var wrong_type := base.duplicate(true)
+		wrong_type[member] = wrong_types[member]
+		scenarios.append({"label": "wrong-type %s" % member, "document": wrong_type})
+		var malformed := base.duplicate(true)
+		malformed[member] = malformed_values[member]
+		scenarios.append({"label": "malformed %s" % member, "document": malformed})
+	var extra := base.duplicate(true)
+	extra["unexpected"] = true
+	scenarios.append({"label": "extra root member", "document": extra})
+
+	for scenario: Dictionary in scenarios:
+		_assert_seeded_root_rejected_without_write(
+			scenario["document"], "root document with %s" % str(scenario["label"]))
+
+
+func test_each_append_only_root_member_rejects_deletion_and_replacement_but_exact_replay_succeeds() -> void:
+	var document := _document_with_all_receipt_members()
+	if document.is_empty():
+		return
+	for map_name: String in ["receipts", "allocation_receipts", "day_advance_allocation_receipts"]:
+		var entries: Dictionary = document.get(map_name, {}) as Dictionary
+		var keys: Array = entries.keys()
+		if keys.is_empty():
+			assert_true(false, "%s must contain a committed record for this append-only test" % map_name)
+			return
+		var key := str(keys[0])
+		var deleted := document.duplicate(true)
+		(deleted[map_name] as Dictionary).erase(key)
+		_assert_seeded_root_rejected_without_write(deleted, "%s deletion at %s" % [map_name, key])
+
+		var replacement := document.duplicate(true)
+		var replacement_record: Dictionary = (replacement[map_name] as Dictionary)[key]
+		if map_name == "receipts":
+			replacement_record["token"] = "forged.%s" % key
+		elif map_name == "allocation_receipts":
+			replacement_record["root_next_counter"] = int(replacement_record["root_next_counter"]) + 1
+		else:
+			replacement_record["counter_end"] = int(replacement_record["counter_end"]) + 1
+		(replacement[map_name] as Dictionary)[key] = replacement_record
+		_assert_seeded_root_rejected_without_write(replacement, "%s replacement at %s" % [map_name, key])
+
+	var allocation_key: String = (document["allocation_receipts"] as Dictionary).keys()[0]
+	var allocation: Dictionary = (document["allocation_receipts"] as Dictionary)[allocation_key]
+	var before_replay := _captured_document()
+	var allocation_replay := _store.commit_allocation(allocation.duplicate(true))
+	if not _require_ok(allocation_replay, "byte-identical continuation allocation replay"):
+		return
+	assert_eq(allocation_replay.get("value"), allocation,
+		"the same allocation key and byte-identical candidate replay its recorded bundle")
+	assert_eq(_captured_document(), before_replay, "an exact allocation replay writes no new root state")
+
+	var day_key: String = (document["day_advance_allocation_receipts"] as Dictionary).keys()[0]
+	var day_advance: Dictionary = (document["day_advance_allocation_receipts"] as Dictionary)[day_key]
+	var day_replay := _store.commit_causal_day_advance(day_advance.duplicate(true))
+	if not _require_ok(day_replay, "byte-identical day-advance allocation replay"):
+		return
+	assert_eq(day_replay.get("value"), day_advance,
+		"the same day-advance key and byte-identical receipt replay its recorded bundle")
+	assert_eq(_captured_document(), before_replay, "an exact day-advance replay writes no new root state")
+
+
+func test_source_and_target_receipt_members_must_be_present_and_byte_identical_without_writing() -> void:
+	var document := _document_with_all_receipt_members()
+	if document.is_empty():
+		return
+	var day_key: String = (document["day_advance_allocation_receipts"] as Dictionary).keys()[0]
+	var day_record: Dictionary = (document["day_advance_allocation_receipts"] as Dictionary)[day_key]
+	var ledger: Dictionary = document["receipts"]
+	for reference_name: String in [
+		"source_causal_day_instance_issuer_receipt",
+		"target_causal_day_instance_issuer_receipt",
+	]:
+		var reference: Dictionary = day_record[reference_name]
+		var absent := reference.duplicate(true)
+		absent["receipt_id"] = "issuer_receipt.absent.%s" % reference_name
+		assert_false(ledger.has(str(absent["receipt_id"])), "the absent case is genuinely absent from receipts")
+		_assert_seeded_root_rejected_without_write(
+			_replace_receipt_member(
+				document, "day_advance_allocation_receipts", day_key, reference_name, absent),
+			"%s absent from receipts" % reference_name)
+
+		for member: String in RECEIPT_KEYS:
+			var mismatch := _present_but_mismatched_receipt(ledger, reference, member)
+			assert_true(ledger.has(str(mismatch["receipt_id"])),
+				"the %s %s mismatch remains present in receipts" % [reference_name, member])
+			assert_ne(ledger[str(mismatch["receipt_id"])], mismatch,
+				"the %s %s mismatch is not byte-equal to its ledger receipt" % [reference_name, member])
+			_assert_seeded_root_rejected_without_write(
+				_replace_receipt_member(
+					document, "day_advance_allocation_receipts", day_key, reference_name, mismatch),
+				"%s member %s present-but-not-byte-equal" % [reference_name, member])
+
+
+# ---------------------------------------------------------------------------------------------
+# Obligations 8/10 -- real continuation-bundle contract and persisted reconstruction
+# ---------------------------------------------------------------------------------------------
+
+func test_real_root_new_run_and_restore_continuation_bundles_are_coherent_across_restart() -> void:
+	if _opened_document().is_empty():
+		return
+	var new_run_transaction := _issue_transaction_receipt()
+	if new_run_transaction.is_empty():
+		return
+	var new_run := _store.prepare_allocation(_new_run_request(new_run_transaction))
+	if not _require_ok(new_run, "prepare real new-run continuation bundle"):
+		return
+	var new_candidate: Dictionary = new_run.get("value", {})
+	assert_eq(new_candidate.get("kind"), "new_run", "the candidate preserves the requested kind")
+	assert_true(str(new_candidate.get("run_id", "")).begins_with("run_id."),
+		"new run mints a fresh run identity")
+	assert_true(str(new_candidate.get("branch_id", "")).begins_with("branch_id."),
+		"new run mints a fresh branch identity")
+	assert_ne(new_candidate.get("run_id"), new_candidate.get("branch_id"), "run and branch identities differ")
+	assert_eq(new_candidate.get("desktop_timeline_generation"), 0, "new run opens generation zero")
+	assert_true(str(new_candidate.get("causal_day_instance", "")).begins_with("causal_day_instance."),
+		"new run receives a causal-day identity")
+	assert_eq(new_candidate.get("remap_transaction_issuer_receipts"), {}, "new run mints no remap receipts")
+	assert_eq((new_candidate.get("run_id_issuer_receipt", {}) as Dictionary).get("token"), new_candidate.get("run_id"),
+		"the new-run candidate binds its run receipt coherently")
+	assert_eq((new_candidate.get("branch_id_issuer_receipt", {}) as Dictionary).get("token"), new_candidate.get("branch_id"),
+		"the new-run candidate binds its branch receipt coherently")
+
+	var restore_transaction := _issue_transaction_receipt()
+	if restore_transaction.is_empty():
+		return
+	var restore_request := _restore_request(
+		restore_transaction, "run_id.existing", 4, ["transaction.source.a", "transaction.source.b"])
+	var prepared_restore := _store.prepare_allocation(restore_request)
+	if not _require_ok(prepared_restore, "prepare real restore continuation bundle"):
+		return
+	var restore_candidate: Dictionary = prepared_restore.get("value", {})
+	assert_eq(restore_candidate.get("run_id"), "run_id.existing", "restore preserves existing_run_id")
+	assert_null(restore_candidate.get("run_id_issuer_receipt"), "restore does not mint a second run receipt")
+	assert_true(str(restore_candidate.get("branch_id", "")).begins_with("branch_id."),
+		"restore mints a fresh branch")
+	assert_eq(restore_candidate.get("desktop_timeline_generation"), 5,
+		"restore advances source generation by one")
+	assert_eq((restore_candidate.get("desktop_timeline_generation_issuer_receipt", {}) as Dictionary).get("numeric_value"), 5,
+		"the generation receipt agrees with the restored generation")
+	var remaps: Dictionary = restore_candidate.get("remap_transaction_issuer_receipts", {})
+	assert_eq(remaps.keys(), ["transaction.source.a", "transaction.source.b"],
+		"restore mints one remap receipt for each sorted source in request order")
+	var first_remap: Dictionary = remaps["transaction.source.a"]
+	var second_remap: Dictionary = remaps["transaction.source.b"]
+	assert_eq(first_remap.get("purpose"), "transaction_id", "each remap receipt has transaction purpose")
+	assert_eq(second_remap.get("purpose"), "transaction_id", "each remap receipt has transaction purpose")
+	assert_eq(int(second_remap.get("counter")), int(first_remap.get("counter")) + 1,
+		"remap transaction receipts are minted in sorted request order")
+	if not _require_ok(_store.commit_allocation(restore_candidate), "commit restore continuation bundle"):
+		return
+	var before_restart := _captured_document()
+	var restarted := _restart_store()
+	var reloaded := restarted.load_or_create()
+	assert_true(reloaded.get("ok", false),
+		"reloading a persisted restore allocation must reconstruct its existing run id: %s" % reloaded)
+	if not reloaded.get("ok", false):
+		return
+	var restarted_capture: Dictionary = restarted.capture()
+	var restarted_document: Dictionary = restarted_capture.get("value", {})
+	assert_eq(restarted_document, before_restart,
+		"a real restart preserves the committed restore candidate byte-for-byte")
+
+
+# ---------------------------------------------------------------------------------------------
 # Clause 32 -- the two allocation maps are disjoint (DEEP)
 # ---------------------------------------------------------------------------------------------
 
@@ -791,6 +990,63 @@ func _store_over_seeded_root(text: String) -> ROOT_STORE:
 	return seeded
 
 
+func _assert_seeded_root_rejected_without_write(document: Dictionary, label: String) -> void:
+	# Load validation is intentionally observed through the real JsonFileStorage/FakeFileOps stack:
+	# a rejected document must not be repaired, rewritten, or otherwise alter durable bytes.
+	var encoded := JSON.stringify(document)
+	var seeded_ops := FakeFileOps.new({ROOT_FINAL_PATH: encoded.to_utf8_buffer()})
+	var seeded_storage := JsonFileStorage.new(ROOT, seeded_ops)
+	var seeded := ROOT_STORE.new()
+	if not _require_ok(seeded.configure(seeded_storage, FAKE_NAMESPACE_SOURCE.new(NAMESPACE_A)),
+		"configure seeded root for %s" % label):
+		return
+	var before := seeded_ops.snapshot_persisted()
+	_assert_rejected(seeded.load_or_create(), label)
+	assert_eq(seeded_ops.snapshot_persisted(), before,
+		"%s must leave the rejected durable root bytes unchanged" % label)
+
+
+func _document_with_all_receipt_members() -> Dictionary:
+	if _opened_document().is_empty():
+		return {}
+	var transaction := _issue_transaction_receipt()
+	if transaction.is_empty():
+		return {}
+	var prepared := _store.prepare_allocation(_new_run_request(transaction))
+	if not _require_ok(prepared, "prepare allocation fixture"):
+		return {}
+	if not _require_ok(_store.commit_allocation(prepared.get("value", {})), "commit allocation fixture"):
+		return {}
+	var source := _store.issue(&"causal_day_instance")
+	if not _require_ok(source, "issue causal-day fixture source"):
+		return {}
+	if not _commit_exact_day_advance(_issuer_receipt(source)):
+		return {}
+	return _captured_document()
+
+
+func _present_but_mismatched_receipt(ledger: Dictionary, reference: Dictionary,
+		member: String) -> Dictionary:
+	var mismatch := _mutated_receipt_reference(reference, member)
+	if member == "receipt_id":
+		for candidate_id in ledger.keys():
+			if str(candidate_id) != str(reference["receipt_id"]):
+				mismatch["receipt_id"] = str(candidate_id)
+				break
+	return mismatch
+
+
+func _restart_store() -> ROOT_STORE:
+	var restarted_ops := FakeFileOps.new(_file_ops.snapshot_persisted())
+	var restarted_storage := JsonFileStorage.new(ROOT, restarted_ops)
+	var restarted := ROOT_STORE.new()
+	if not _require_ok(
+			restarted.configure(restarted_storage, FAKE_NAMESPACE_SOURCE.new(NAMESPACE_B)),
+			"configure restart store"):
+		return restarted
+	return restarted
+
+
 func _document_from_bytes(persisted: Dictionary) -> Dictionary:
 	if not persisted.has(ROOT_FINAL_PATH):
 		return {}
@@ -905,4 +1161,16 @@ func _new_run_request(transaction_receipt: Dictionary) -> Dictionary:
 		"existing_run_id": null,
 		"source_desktop_timeline_generation": null,
 		"remap_source_transaction_ids": [],
+	}
+
+
+func _restore_request(transaction_receipt: Dictionary, existing_run_id: String,
+		source_generation: int, remap_sources: Array) -> Dictionary:
+	return {
+		"transaction_id": str(transaction_receipt.get("token", "")),
+		"transaction_issuer_receipt": transaction_receipt.duplicate(true),
+		"kind": "restore",
+		"existing_run_id": existing_run_id,
+		"source_desktop_timeline_generation": source_generation,
+		"remap_source_transaction_ids": remap_sources.duplicate(true),
 	}
