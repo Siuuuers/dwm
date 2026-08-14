@@ -58,6 +58,12 @@ try {
     $duplicateMemberPath = New-AudioAuditionFixture -Json ($validJson.Replace('"batch_id": "batch-01",', '"batch_id": "batch-01","batch_id":"batch-01",'))
     Assert-AudioAuditionRejected -Name 'duplicate JSON member' -ExpectedError 'JSON_DUPLICATE_MEMBER' -Action { Read-AudioAuditionManifest -Path $duplicateMemberPath }
 
+    $missingTopLevelKeyPath = New-AudioAuditionFixture -Json ($validJson.Replace('  "retrieval_date": "2026-08-14",', ''))
+    Assert-AudioAuditionRejected -Name 'missing top-level key' -ExpectedError 'AUDIO_MANIFEST_KEYS' -Action { Read-AudioAuditionManifest -Path $missingTopLevelKeyPath }
+
+    $extraTopLevelKeyPath = New-AudioAuditionFixture -Json ($validJson.Replace('  "batch_id": "batch-01",', '  "batch_id": "batch-01","extra":true,'))
+    Assert-AudioAuditionRejected -Name 'extra top-level key' -ExpectedError 'AUDIO_MANIFEST_KEYS' -Action { Read-AudioAuditionManifest -Path $extraTopLevelKeyPath }
+
     $missingKeyPath = New-AudioAuditionFixture -Json ($validJson.Replace(',"title":"Room tone Very quiet Small apartment room loopable edlarez vsnr.wav"', ''))
     Assert-AudioAuditionRejected -Name 'missing candidate key' -ExpectedError 'AUDIO_MANIFEST_KEYS' -Action { Read-AudioAuditionManifest -Path $missingKeyPath }
 
