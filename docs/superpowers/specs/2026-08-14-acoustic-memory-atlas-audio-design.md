@@ -1,10 +1,18 @@
 # Acoustic Memory Atlas: Audio Implementation and Asset-Curation Design
 
-**Status:** Accepted
+**Status:** Accepted historical design; pending supersession after written-manual review
 
 **Date:** 2026-08-14
 
 **Written specification approved:** 2026-08-14
+
+**Planned successor:** [Haunted Instrumentarium: Audio Production and Implementation Manual](2026-08-14-haunted-instrumentarium-audio-production-manual-design.md)
+
+This file remains the accepted audio authority until the user approves the
+written successor. The successor incorporates approved Design Gates 1–4, the
+clean runtime replacement, the thirty-five-role register, revised legal
+provenance rules, Godot 4.6.3 import policy, Mono Audio, Sound Detail Text, and
+the comfort and verification matrix.
 
 **Target:** Godot 4.6.3, initial Windows release
 
