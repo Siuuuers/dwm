@@ -473,37 +473,37 @@ func test_a_restore_bundle_includes_every_requested_source_remap_entry() -> void
 	var source_receipt: Dictionary = transaction.get("receipt", {})
 
 	var request: Dictionary = _restore_request(source_receipt)
-	request["remap_source_transaction_ids"] = ["transaction_id.a", "transaction_id.b", "transaction_id.c"]
+	var source_set: Array[String] = ["transaction_id.a", "transaction_id.b", "transaction_id.c"]
+	request["remap_source_transaction_ids"] = source_set
 	var prepared := issuer.prepare_continuation_allocation(request)
 	if not _require_ok(prepared, "prepare_continuation_allocation(restore)"):
 		return
 	var bundle: Dictionary = prepared.get("value", {})
 
 	var remap: Dictionary = bundle.get("transaction_remap", {})
-	assert_eq(remap.size(), 3,
-		"restore must mint one transaction-receipt record per requested remap source")
 	var ordered: Array = request.get("remap_source_transaction_ids", [])
-	for index: int in range(ordered.size()):
-		var source_id := str(ordered[index])
-		var entry: Dictionary = remap.get(source_id, {})
-		assert_true(entry != {}, "restore remaps every requested source")
-		assert_eq(entry.get("source_transaction_id", ""), source_id,
-			"transaction remap key %s must preserve its source transaction id" % source_id)
-		assert_eq(entry.get("purpose"), "transaction_id",
-			"transaction remap source %s must remap a transaction_id purpose" % source_id)
-		assert_eq(str(entry.get("new_transaction_id", "")),
-			str((entry.get("new_transaction_issuer_receipt", {}) as Dictionary).get("token", "")),
-			"new transaction id matches its minted token for source %s" % source_id)
-		assert_eq((entry.get("new_transaction_issuer_receipt", {}) as Dictionary).get("purpose", ""),
-			"transaction_id",
-			"transaction remap for source %s must mint a transaction_id receipt" % source_id)
-
 	var remap_keys: Array = remap.keys()
 	remap_keys.sort()
 	var requested_keys: Array = ordered.duplicate()
 	requested_keys.sort()
 	assert_eq(remap_keys, requested_keys,
 		"restore transaction remap is exactly the requested source set")
+	for index: int in range(ordered.size()):
+		var source_id := str(ordered[index])
+		var entry: Dictionary = remap.get(source_id, {})
+		var entry_keys: Array = entry.keys()
+		entry_keys.sort()
+		assert_eq(entry_keys, ["new_transaction_id", "new_transaction_issuer_receipt",
+			"source_transaction_id"] as Array,
+			"transaction remap source %s has exactly the frozen three-member shape" % source_id)
+		assert_eq(entry.get("source_transaction_id", ""), source_id,
+			"transaction remap key %s must preserve its source transaction id" % source_id)
+		assert_eq(str(entry.get("new_transaction_id", "")),
+			str((entry.get("new_transaction_issuer_receipt", {}) as Dictionary).get("token", "")),
+			"new transaction id matches its minted token for source %s" % source_id)
+		assert_eq((entry.get("new_transaction_issuer_receipt", {}) as Dictionary).get("purpose", ""),
+			"transaction_id",
+			"transaction remap for source %s must mint a transaction_id receipt" % source_id)
 
 
 func test_an_identical_allocation_replay_returns_the_original_bundle() -> void:

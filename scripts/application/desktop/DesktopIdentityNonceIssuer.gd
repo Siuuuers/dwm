@@ -337,7 +337,6 @@ func _with_transaction_remap(bundle: Dictionary) -> Dictionary:
 		var receipt: Dictionary = minted.get(source_id, {})
 		remap[source_id] = {
 			"source_transaction_id": source_id,
-			"purpose": "transaction_id",
 			"new_transaction_id": str(receipt.get("token", "")),
 			"new_transaction_issuer_receipt": receipt.duplicate(true),
 		}
