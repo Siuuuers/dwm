@@ -231,7 +231,8 @@ static func build_boundary_record(boundary_commit: String, focused_log: String) 
 		var text: String = str((source.get("value", {}) as Dictionary).get("text", ""))
 		source_texts[path] = text
 		record[str(binding["path_field"])] = path
-		record[str(binding["hash_field"])] = _digest(text)
+		record[str(binding["hash_field"])] = _digest_bytes(
+			(source.get("value", {}) as Dictionary).get("bytes", PackedByteArray()))
 	for binding: Dictionary in _SURFACE_BINDINGS:
 		var path: String = str(binding["path"])
 		var parsed_surface: Dictionary = parse_public_surface(str(source_texts[path]))
@@ -280,7 +281,8 @@ static func validate_boundary_record(record: Dictionary, require_current: bool) 
 			return source
 		var text: String = str((source.get("value", {}) as Dictionary).get("text", ""))
 		source_texts[path] = text
-		if _digest(text) != str(record[str(binding["hash_field"])]):
+		if _digest_bytes((source.get("value", {}) as Dictionary).get("bytes", PackedByteArray())) \
+				!= str(record[str(binding["hash_field"])]):
 			return _fail(&"boundary_source_hash_mismatch", "a named-commit source hash differs",
 				{"path": path})
 		if require_current:
@@ -374,11 +376,39 @@ static func _prove_commit(boundary_commit: String) -> Dictionary:
 
 
 static func _source_at_commit(boundary_commit: String, path: String) -> Dictionary:
-	var shown: Dictionary = _git(PackedStringArray(["show", "%s:%s" % [boundary_commit, path]]))
-	if not shown.get("ok", false):
+	var bytes: Dictionary = _blob_bytes_at_commit(boundary_commit, path)
+	if not bytes.get("ok", false):
+		return bytes
+	var raw: PackedByteArray = (bytes.get("value", {}) as Dictionary).get("bytes", PackedByteArray())
+	return _ok({"text": raw.get_string_from_utf8(), "bytes": raw})
+
+
+## Reads a blob's exact bytes from the named commit. OS.execute() decodes stdout into lines and
+## drops their separators, so it cannot reproduce sources that end in several newlines. Git writes
+## the blob directly to a process-local scratch path; FileAccess then reads those bytes unchanged.
+static func _blob_bytes_at_commit(boundary_commit: String, path: String) -> Dictionary:
+	var repository: String = _repository_root()
+	var object_name: String = "%s:%s" % [boundary_commit, path]
+	var scratch: String = OS.get_user_data_dir().path_join("p2r16-blob-%s-%s.tmp" % [
+		OS.get_process_id(), _digest(path).substr(0, 12),
+	])
+	if FileAccess.file_exists(scratch):
+		DirAccess.remove_absolute(scratch)
+	var redirect: String = "git -c safe.directory=\"%s\" -C \"%s\" cat-file blob %s > \"%s\"" % [
+		repository, repository, object_name, scratch,
+	]
+	var output: Array = []
+	var shell: String = "cmd.exe" if OS.get_name() == "Windows" else "sh"
+	var flag: String = "/c" if OS.get_name() == "Windows" else "-c"
+	var exit_code: int = OS.execute(shell, PackedStringArray([flag, redirect]), output, true)
+	if exit_code != 0 or not FileAccess.file_exists(scratch):
+		if FileAccess.file_exists(scratch):
+			DirAccess.remove_absolute(scratch)
 		return _fail(&"boundary_source_missing", "a bound source is absent from the named commit",
 			{"path": path})
-	return _ok({"text": str(shown["output"])})
+	var raw: PackedByteArray = FileAccess.get_file_as_bytes(scratch)
+	DirAccess.remove_absolute(scratch)
+	return _ok({"bytes": raw})
 
 
 static func _ok(value: Dictionary) -> Dictionary:
