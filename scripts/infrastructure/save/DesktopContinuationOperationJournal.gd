@@ -257,7 +257,8 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 	if not verified.get("ok", false):
 		return verified
 
-	if operation.get("failure", null) != null: # ensure malformed values still fail via strict document validation
+	var stage := str(operation.get("stage", ""))
+	if stage == STAGE_COMPLETED or stage == STAGE_ABORTED:
 		return {"ok": true}
 	if str(operation.get("kind", "")) == "new_run":
 		var computed := _canonical_sha256(operation.get("initial_context"))
@@ -265,19 +266,29 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 			return _failed(&"continuation_context_hash_unhashable", tx_hash_reason(operation))
 		if str(operation.get("initial_context_sha256", "")) != str(computed):
 			return _failed(&"continuation_context_hash_mismatch", str(operation.get("transaction_id", "")))
-		return {"ok": true}
+	else:
+		var locator: Variant = operation.get("source_locator")
+		if typeof(locator) != TYPE_DICTIONARY:
+			return _failed(&"operation_source_locator_invalid", str(operation.get("transaction_id", "")))
+		var loaded_source: Dictionary = _source_loader.call(&"load_context", locator)
+		if not loaded_source.get("ok", false):
+			return loaded_source
+		var payload: Dictionary = loaded_source.get("value", {})
+		if not payload.has("context") or not payload.has("context_sha256"):
+			return _failed(&"operation_source_payload_invalid", str(operation.get("transaction_id", "")))
+		if str(payload.get("context_sha256", "")) != str(locator.get("document_sha256", "")):
+			return _failed(&"continuation_source_hash_mismatch", str(operation.get("transaction_id", "")))
 
-	var locator: Variant = operation.get("source_locator")
-	if typeof(locator) != TYPE_DICTIONARY:
-		return _failed(&"operation_source_locator_invalid", str(operation.get("transaction_id", "")))
-	var loaded_source: Dictionary = _source_loader.call(&"load_context", locator)
-	if not loaded_source.get("ok", false):
-		return loaded_source
-	var payload: Dictionary = loaded_source.get("value", {})
-	if not payload.has("context") or not payload.has("context_sha256"):
-		return _failed(&"operation_source_payload_invalid", str(operation.get("transaction_id", "")))
-	if str(payload.get("context_sha256", "")) != str(locator.get("document_sha256", "")):
-		return _failed(&"continuation_source_hash_mismatch", str(operation.get("transaction_id", "")))
+	if operation.get("failure", null) == null:
+		return {"ok": true}
+	var cleared_operation := operation.duplicate(true)
+	cleared_operation["failure"] = null
+	var next_document := _document.duplicate(true)
+	next_document["operations"][transaction_id] = cleared_operation
+	var written := _write(next_document)
+	if not written.get("ok", false):
+		return written
+	_document = next_document
 	return {"ok": true}
 
 
@@ -964,6 +975,5 @@ func _storage_failure(result: Dictionary, fallback: StringName = &"journal_stora
 
 func _failed(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": "DesktopContinuationOperationJournal: " + message}
-
 
 

@@ -3,7 +3,7 @@
 # (Plan 02 Task 1, dwm-p2r.16).
 #
 # OBLIGATION MAP (plan line 797; dwm-p2r.16 DECISION 9.13 puts the per-clause map beside the code).
-#   36 external-journal exact schema ........................ SHALLOW -> dwm-p2r.16.1
+#   36 external-journal exact schema ........................ DEEP
 #   37 intent-before-allocation ............................. breadth
 #   38 every legal/illegal stage edge ....................... breadth + full 8-key participant
 #                                                             walk (DECISION 10.4); the complete
@@ -12,7 +12,7 @@
 #   40 duplicate equality ................................... DEEP
 #   41 changed transaction conflict ......................... DEEP
 #   42 incomplete listing ................................... breadth (complete at breadth)
-#   43 startup forward reconciliation ....................... SHALLOW -> dwm-p2r.16.1
+#   43 startup forward reconciliation ....................... DEEP
 #   44 pre-allocation abort ................................. breadth
 #   45 irreversible allocation retention .................... breadth (journal side only)
 #
@@ -24,9 +24,8 @@
 # calls -- exactly what DECISION 9.5 refused for collect_rewindable_transaction_ids(). What is
 # tested below is the retention law the JOURNAL actually owns (plan line 593).
 #
-# CLAUSE 38 (DECISION 10.4). The complete stage adjacency matrix stays deferred to dwm-p2r.16.1.
-# But the eight-participant ORDER at plan line 591 is a separate frozen law, and a permuted order
-# would corrupt every Task 6 restore participant, so the full walk is pinned here and now.
+# CLAUSE 38 (DECISION 10.4). The complete stage adjacency matrix and its evidence cross-product
+# are pinned below together with the exact eight-participant walk.
 #
 # TWO SUBSTRATES IN ONE FILE -- deliberate, not an oversight.
 #   * The JOURNAL's own document uses FakeDesktopContinuationJournalStorage (DECISION 8.5). That
@@ -224,7 +223,7 @@ func test_continuation_journal_skeletons_load() -> void:
 
 
 # ---------------------------------------------------------------------------------------------
-# Clause 36 -- external-journal exact schema (SHALLOW -> dwm-p2r.16.1)
+# Clause 36 -- external-journal exact schema (DEEP)
 # ---------------------------------------------------------------------------------------------
 
 func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_sets() -> void:
@@ -266,127 +265,110 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 		assert_eq(str(record.get("transaction_id", "")), id,
 			"the operation's transaction_id is exactly its document key for " + id)
 
-	# Every malformed envelope or operation document shape must be rejected at load/reconcile.
-	var malformed_document: Dictionary = base_document.duplicate(true)
-	malformed_document.erase("schema_version")
-	_assert_rejects_stored_document(malformed_document,
-		"document missing schema_version")
+	# Each envelope member is exact-key checked; the remaining rows name wrong-type and meaningful
+	# same-type value mutations rather than merely repeating the happy-path shape assertion.
+	var document_profiles: Array[Dictionary] = [
+		{"label": "missing schema_version", "mode": "erase", "member": "schema_version"},
+		{"label": "missing operations", "mode": "erase", "member": "operations"},
+		{"label": "extra envelope member", "mode": "extra"},
+		{"label": "schema_version wrong type", "mode": "replace", "member": "schema_version", "value": "one"},
+		{"label": "operations wrong type", "mode": "replace", "member": "operations", "value": []},
+		{"label": "schema_version unsupported value", "mode": "replace", "member": "schema_version", "value": 2},
+	]
+	for profile: Dictionary in document_profiles:
+		var malformed_document: Dictionary = base_document.duplicate(true)
+		match str(profile["mode"]):
+			"erase":
+				malformed_document.erase(str(profile["member"]))
+			"extra":
+				malformed_document["rogue_member"] = true
+			"replace":
+				malformed_document[str(profile["member"])] = profile["value"]
+		_assert_rejects_stored_document(malformed_document, str(profile["label"]))
 
-	malformed_document = base_document.duplicate(true)
-	malformed_document["schema_version"] = 2
-	_assert_rejects_stored_document(malformed_document,
-		"document with wrong schema_version")
-
-	malformed_document = base_document.duplicate(true)
-	malformed_document.erase("operations")
-	_assert_rejects_stored_document(malformed_document,
-		"document missing operations")
-
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = []
-	_assert_rejects_stored_document(malformed_document,
-		"document operations must stay an object")
-
-	malformed_document = base_document.duplicate(true)
-	malformed_document["rogue_member"] = true
-	_assert_rejects_stored_document(malformed_document,
-		"document with an extra top-level key")
-
-	var malformed_operations: Dictionary = (base_document.get("operations", {}) as Dictionary).duplicate(true)
 	var first_txid: String = operation_ids[0]
-	var mutated_operation: Dictionary = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	mutated_operation.erase("stage")
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation missing `stage`")
+	for member: String in OPERATION_KEYS:
+		var missing_member: Dictionary = (operations[first_txid] as Dictionary).duplicate(true)
+		missing_member.erase(member)
+		_assert_rejects_operation_mutation(base_document, first_txid, missing_member,
+			"operation missing exact member %s" % member)
 
-	malformed_operations = (base_document.get("operations", {}) as Dictionary).duplicate(true)
-	mutated_operation = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	mutated_operation["stage"] = "not_a_stage"
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation with unknown stage")
+	var extra_member: Dictionary = (operations[first_txid] as Dictionary).duplicate(true)
+	extra_member["rogue_member"] = true
+	_assert_rejects_operation_mutation(base_document, first_txid, extra_member,
+		"operation with an extra member")
 
-	malformed_operations = (base_document.get("operations", {}) as Dictionary).duplicate(true)
-	mutated_operation = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	mutated_operation["next_participant_index"] = "0"
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation with malformed next_participant_index type")
+	var operation_profiles: Array[Dictionary] = [
+		{"label": "transaction_id wrong type", "member": "transaction_id", "value": 7},
+		{"label": "transaction issuer receipt wrong type", "member": "transaction_issuer_receipt", "value": "receipt"},
+		{"label": "kind wrong type", "member": "kind", "value": []},
+		{"label": "stage wrong type", "member": "stage", "value": []},
+		{"label": "participant index wrong type", "member": "next_participant_index", "value": "0"},
+		{"label": "participant receipt map wrong type", "member": "participant_receipts", "value": []},
+		{"label": "transaction_id mismatches its map key", "member": "transaction_id", "value": "wrong-id"},
+		{"label": "unknown operation kind", "member": "kind", "value": "alien-kind"},
+		{"label": "unknown operation stage", "member": "stage", "value": "not_a_stage"},
+		{"label": "negative participant index", "member": "next_participant_index", "value": -1},
+		{"label": "participant index beyond eight", "member": "next_participant_index", "value": 9},
+	]
+	for profile: Dictionary in operation_profiles:
+		var mutated_operation: Dictionary = (operations[first_txid] as Dictionary).duplicate(true)
+		mutated_operation[str(profile["member"])] = profile["value"]
+		_assert_rejects_operation_mutation(
+			base_document, first_txid, mutated_operation, str(profile["label"]))
 
-	malformed_operations = (base_document.get("operations", {}) as Dictionary).duplicate(true)
-	mutated_operation = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	mutated_operation["rogue_member"] = true
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation with an extra top-level member")
+	var malformed_receipt_profiles: Array[Dictionary] = [
+		{"label": "missing participant receipt key", "mode": "erase", "member": PARTICIPANT_ORDER[0]},
+		{"label": "extra participant receipt key", "mode": "extra", "member": "rogue"},
+		{"label": "participant receipt wrong type", "mode": "replace", "member": PARTICIPANT_ORDER[0]},
+	]
+	for profile: Dictionary in malformed_receipt_profiles:
+		var mutated_operation: Dictionary = (operations[first_txid] as Dictionary).duplicate(true)
+		var receipts: Dictionary = (mutated_operation["participant_receipts"] as Dictionary).duplicate(true)
+		match str(profile["mode"]):
+			"erase":
+				receipts.erase(str(profile["member"]))
+			"extra":
+				receipts[str(profile["member"])] = null
+			"replace":
+				receipts[str(profile["member"])] = "not-a-receipt"
+		mutated_operation["participant_receipts"] = receipts
+		_assert_rejects_operation_mutation(
+			base_document, first_txid, mutated_operation, str(profile["label"]))
 
-	malformed_operations = (base_document.get("operations", {}) as Dictionary).duplicate(true)
-	mutated_operation = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	mutated_operation["transaction_id"] = "wrong-id"
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation where transaction_id does not match operations key")
+	var blank_key_document: Dictionary = base_document.duplicate(true)
+	var blank_key_operations: Dictionary = (blank_key_document["operations"] as Dictionary).duplicate(true)
+	var blank_key_operation: Dictionary = (blank_key_operations[first_txid] as Dictionary).duplicate(true)
+	blank_key_operations.erase(first_txid)
+	blank_key_operation["transaction_id"] = ""
+	blank_key_operations[""] = blank_key_operation
+	blank_key_document["operations"] = blank_key_operations
+	_assert_rejects_stored_document(blank_key_document, "blank operation map key and transaction_id")
 
-	malformed_operations = (base_document.get("operations", {}) as Dictionary).duplicate(true)
-	mutated_operation = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	mutated_operation["transaction_issuer_receipt"] = "not-a-receipt"
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation with malformed transaction_issuer_receipt shape")
 
-	malformed_operations = (base_document.get("operations", {}) as Dictionary).duplicate(true)
-	mutated_operation = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	mutated_operation["participant_receipts"] = []
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
+func _assert_rejects_operation_mutation(base_document: Dictionary, transaction_id: String,
+		mutated_operation: Dictionary, label: String) -> void:
+	var malformed_document: Dictionary = base_document.duplicate(true)
+	var malformed_operations: Dictionary = (malformed_document["operations"] as Dictionary).duplicate(true)
+	malformed_operations[transaction_id] = mutated_operation
 	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation with malformed participant_receipts map shape")
-
-	malformed_operations = (base_document.get("operations", {}) as Dictionary).duplicate(true)
-	mutated_operation = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	var partial_receipts: Dictionary = {}
-	for index: int in range(1, PARTICIPANT_ORDER.size()):
-		partial_receipts[PARTICIPANT_ORDER[index]] = null
-	mutated_operation["participant_receipts"] = partial_receipts
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation with incomplete participant_receipts")
-
-	malformed_operations = (base_document.get("operations", {}) as Dictionary).duplicate(true)
-	mutated_operation = (malformed_operations[first_txid] as Dictionary).duplicate(true)
-	mutated_operation["kind"] = "alien-kind"
-	malformed_operations[first_txid] = mutated_operation
-	malformed_document = base_document.duplicate(true)
-	malformed_document["operations"] = malformed_operations
-	_assert_rejects_stored_document(malformed_document,
-		"operation with unknown kind")
+	_assert_rejects_stored_document(malformed_document, label)
 
 
 func _assert_rejects_stored_document(document: Dictionary, label: String) -> void:
 	_storage.seed(JOURNAL_PATH, JSON.stringify(document))
 	_storage.restart()
+	var durable_before: Dictionary = _storage.snapshot()
 	var restarted: Object = JOURNAL.new()
 	if not _require_ok(restarted.configure(_storage, _loader), "configure restart for %s" % label):
 		return
 	var rejected: Dictionary = restarted.prepare_intent(_new_run_intent_request_for("schema-validated-transaction"))
 	_assert_rejected(rejected,
 		"malformed document must not pass schema: " + label)
+	assert_eq(_storage.write_count, 0,
+		"schema rejection must not perform a durable write: " + label)
+	assert_eq(_storage.snapshot(), durable_before,
+		"schema rejection must preserve the malformed durable bytes: " + label)
 
 
 func test_every_legal_and_illegal_stage_transition_is_enforced() -> void:
@@ -421,101 +403,50 @@ func test_every_legal_and_illegal_stage_transition_is_enforced() -> void:
 
 
 func test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges() -> void:
-	var evidences: Array[Dictionary] = [
-		{
-			"label": "allocation evidence is required to enter allocated",
-			"from_stage": STAGE_INTENT,
-			"to_stage": STAGE_ALLOCATED,
-			"expected_next_participant_index": 0,
-			"allocation": true,
-			"should_succeed": true,
-		},
-		{
-			"label": "allocation evidence is forbidden after allocation",
-			"from_stage": STAGE_ALLOCATED,
-			"to_stage": STAGE_APPLYING,
-			"expected_next_participant_index": 0,
-			"allocation": true,
-		},
-		{
-			"label": "participant evidence is required in participants_applying",
-			"from_stage": STAGE_APPLYING,
-			"to_stage": STAGE_APPLYING,
-			"expected_next_participant_index": 0,
-			"participant_name": PARTICIPANT_ORDER[0],
-			"should_succeed": true,
-		},
-		{
-			"label": "participant evidence is forbidden for non-apply transitions",
-			"from_stage": STAGE_ALLOCATED,
-			"to_stage": STAGE_APPLIED,
-			"expected_next_participant_index": 8,
-			"participant_name": PARTICIPANT_ORDER[0],
-		},
-		{
-			"label": "failure is required for pre-allocation abort",
-			"from_stage": STAGE_INTENT,
-			"to_stage": STAGE_ABORTED,
-			"expected_next_participant_index": 0,
-			"failure": _failure("source_proof_failed", "new run could not pre-allocate"),
-			"should_succeed": true,
-		},
-		{
-			"label": "failure is required for unrecoverable allocation diagnostic",
-			"from_stage": STAGE_ALLOCATED,
-			"to_stage": STAGE_ALLOCATED,
-			"expected_next_participant_index": 0,
-			"failure": _failure("source_unprovable", "source is unrecoverable"),
-			"should_succeed": true,
-		},
-		{
-			"label": "failure is forbidden for non-diagnostic transitions",
-			"from_stage": STAGE_ALLOCATED,
-			"to_stage": STAGE_COMPLETED,
-			"expected_next_participant_index": 8,
-			"failure": _failure("source_unprovable", "bad failure"),
-		},
-	]
-
-	var index: int = 0
-	for spec: Dictionary in evidences:
-		var txid := "tx-evidence-%d" % index
-		index += 1
-		_storage.restart()
-		var scenario: Object = JOURNAL.new()
-		if not _require_ok(scenario.configure(_storage, _loader),
-				"configure evidence journal for %s" % spec.get("label", "")):
-			return
-		if not _journal_with_stage(
-				scenario, txid, str(spec.get("from_stage", STAGE_INTENT)),
-				false,
-				bool(spec.get("with_diagnostic", false)),
-				int(spec.get("seeded_participant_count", 0))):
-			return
-		var request: Dictionary = _advance_request_for_transaction(
-			txid,
-			str(spec.get("from_stage", STAGE_INTENT)),
-			str(spec.get("to_stage", STAGE_ALLOCATED)),
-			int(spec.get("expected_next_participant_index", 0))
-		)
-		if spec.has("allocation"):
-			request["allocation_receipt"] = _allocation_receipt("evidence-%s" % txid)
-		if spec.has("participant_name"):
-			request["participant_name"] = str(spec["participant_name"])
-			request["participant_receipt"] = _participant_receipt(str(spec["participant_name"]))
-		if spec.has("failure"):
-			request["failure"] = spec["failure"]
-		var result: Dictionary = scenario.advance(request)
-		if bool(spec.get("should_succeed", false)):
-			if not _require_ok(result, "evidence transition should pass: %s" % spec.get("label", "")):
+	var scenario_index: int = 0
+	for evidence_kind: String in ["allocation", "participant"]:
+		for transition: Dictionary in _stage_transition_matrix():
+			var txid := "tx-evidence-%s-%d" % [evidence_kind, scenario_index]
+			scenario_index += 1
+			_storage.restart()
+			var scenario: Object = JOURNAL.new()
+			if not _require_ok(scenario.configure(_storage, _loader),
+					"configure %s evidence cross for %s" % [evidence_kind, transition.get("label", "")]):
 				return
-			var record: Dictionary = _operation_record_for(txid)
-			if record.is_empty():
+			if not _journal_with_stage(
+					scenario, txid, str(transition["from_stage"]), false, false, 0):
 				return
-			assert_eq(record.get("stage"), spec.get("to_stage", ""),
-				"evidence rule transition should land at the requested stage")
-		else:
-			_assert_rejected(result, "evidence transition should be refused: %s" % spec.get("label", ""))
+			var request: Dictionary = _advance_request_for_stage_transition(txid, transition)
+			if evidence_kind == "allocation":
+				request["allocation_receipt"] = _allocation_receipt("cross-%s" % txid)
+			else:
+				request["participant_name"] = PARTICIPANT_ORDER[0]
+				request["participant_receipt"] = _participant_receipt(PARTICIPANT_ORDER[0])
+			var only_frozen_edge: bool = (
+				evidence_kind == "allocation"
+				and transition["from_stage"] == STAGE_INTENT
+				and transition["to_stage"] == STAGE_ALLOCATED
+			) or (
+				evidence_kind == "participant"
+				and transition["from_stage"] == STAGE_APPLYING
+				and transition["to_stage"] == STAGE_APPLYING
+			)
+			var writes_before: int = _storage.write_count
+			var durable_before: Dictionary = _stored_document()
+			var result: Dictionary = scenario.advance(request)
+			if only_frozen_edge:
+				if not _require_ok(result,
+						"%s evidence is legal only at %s" % [evidence_kind, transition.get("label", "")]):
+					return
+				assert_eq(_operation_record_for(txid).get("stage"), transition["to_stage"],
+					"the frozen %s evidence edge records its requested stage" % evidence_kind)
+			else:
+				_assert_rejected(result,
+					"%s evidence is forbidden at %s" % [evidence_kind, transition.get("label", "")])
+				assert_eq(_storage.write_count, writes_before,
+					"forbidden %s evidence conflicts before storage mutation" % evidence_kind)
+				assert_eq(_stored_document(), durable_before,
+					"forbidden %s evidence preserves durable bytes" % evidence_kind)
 
 
 func test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields() -> void:
@@ -588,6 +519,21 @@ func test_the_eight_participants_apply_in_exactly_the_frozen_order() -> void:
 
 	for index: int in range(PARTICIPANT_ORDER.size()):
 		var participant: Variant = PARTICIPANT_ORDER[index]
+		var wrong_participant: String = PARTICIPANT_ORDER[(index + 1) % PARTICIPANT_ORDER.size()]
+		var wrong_request: Dictionary = _advance_request(
+			_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLYING, index)
+		wrong_request["participant_name"] = wrong_participant
+		wrong_request["participant_receipt"] = _participant_receipt(wrong_participant)
+		var writes_before_wrong_name: int = _storage.write_count
+		var durable_before_wrong_name: Dictionary = _stored_document()
+		_assert_rejected(journal.advance(wrong_request),
+			"index %d admits only exact next participant %s, not %s" % [
+				index, participant, wrong_participant])
+		assert_eq(_storage.write_count, writes_before_wrong_name,
+			"wrong participant at index %d conflicts before storage mutation" % index)
+		assert_eq(_stored_document(), durable_before_wrong_name,
+			"wrong participant at index %d preserves durable bytes" % index)
+
 		var request: Variant = _advance_request(
 			_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLYING, index)
 		request["participant_name"] = participant
@@ -980,34 +926,198 @@ func test_startup_rejects_malformed_issued_transaction_receipts() -> void:
 	_assert_rejected(reconciled, "reconcile_startup rejects malformed transaction_issuer_receipt")
 
 
-func test_startup_preserves_a_recovery_diagnostic_and_blocks_diagnostic_mismatches() -> void:
-	var journal: Variant = _allocated_journal()
+func test_startup_proves_the_original_restore_source_before_clearing_an_identical_diagnostic() -> void:
+	var journal: Variant = _configured_journal()
 	if journal == null:
 		return
-	var txid: String = _new_run_transaction_id()
+	var txid: String = _restore_transaction_id()
+	var prepared: Dictionary = journal.prepare_intent(_restore_intent_request_for(txid))
+	if not _require_ok(prepared, "prepare restore intent for diagnostic reconciliation"):
+		return
+	if not _require_ok(journal.commit_intent(_intent_candidate(prepared)),
+			"commit restore intent for diagnostic reconciliation"):
+		return
+	var allocate: Dictionary = _advance_request_for_transaction(
+		txid, STAGE_INTENT, STAGE_ALLOCATED, 0)
+	allocate["allocation_receipt"] = _allocation_receipt("retained-restore-allocation")
+	if not _require_ok(journal.advance(allocate), "allocate restore before diagnostic reconciliation"):
+		return
 
-	var diagnostic: Dictionary = _advance_request_for_transaction(txid, STAGE_ALLOCATED, STAGE_ALLOCATED, 0)
-	diagnostic["failure"] = _failure("source_unprovable", "source state was unrecoverable during recovery")
+	var retained_before: Dictionary = _operation_record_for(txid)
+	if retained_before.is_empty():
+		return
+	var diagnostic: Dictionary = _advance_request_for_transaction(
+		txid, STAGE_ALLOCATED, STAGE_ALLOCATED, 0)
+	diagnostic["failure"] = _failure(
+		"source_unprovable", "source state was unrecoverable during recovery")
 	if not _require_ok(journal.advance(diagnostic), "record startup diagnostic"):
 		return
+	var writes_after_diagnostic: int = _storage.write_count
+	var document_after_diagnostic: Dictionary = _stored_document()
+
+	if not _require_ok(journal.advance(diagnostic.duplicate(true)),
+			"replay the identical retained diagnostic"):
+		return
+	assert_eq(_storage.write_count, writes_after_diagnostic,
+		"an identical diagnostic replay returns retained bytes without another write")
+	var mismatched: Dictionary = diagnostic.duplicate(true)
+	mismatched["failure"] = _failure("source_unprovable", "a different diagnostic body")
+	_assert_rejected(journal.advance(mismatched),
+		"a startup retry with a different diagnostic must be rejected")
+	assert_eq(_storage.write_count, writes_after_diagnostic,
+		"a different diagnostic conflicts before storage mutation")
 
 	_storage.restart()
 	var restarted: Variant = JOURNAL.new()
 	if not _require_ok(restarted.configure(_storage, _loader), "configure after diagnostic restart"):
 		return
-	if not _require_ok(restarted.reconcile_startup(txid, _real_issuer()), "reconcile_startup with retained diagnostic"):
+	_loader.arm_failure(&"fake_source_missing")
+	var calls_before_failed_proof: int = _loader.call_log.size()
+	var failed_proof: Dictionary = restarted.reconcile_startup(txid, _real_issuer())
+	assert_false(failed_proof.get("ok", true),
+		"a retained diagnostic must not bypass load_context proof on startup")
+	if failed_proof.get("ok", false):
 		return
-
-	var record: Variant = _operation_record_for(txid)
-	if record.is_empty():
+	assert_eq(_loader.call_log.size(), calls_before_failed_proof + 1,
+		"restore reconciliation re-reads the exact original source locator")
+	assert_eq(_loader.call_log[-1].get("source_locator"), retained_before.get("source_locator"),
+		"load_context receives the byte-identical journaled source locator")
+	assert_eq(_storage.write_count, 0,
+		"failed source proof cannot clear or rewrite the retained diagnostic")
+	assert_eq(_stored_document(), document_after_diagnostic,
+		"failed source proof preserves the durable journal byte-for-byte")
+	var still_diagnostic: Dictionary = _operation_record_for(txid)
+	assert_eq(still_diagnostic.get("failure"), diagnostic.get("failure"),
+		"failed proof retains the identical diagnostic bytes")
+	assert_eq(still_diagnostic.get("stage"), STAGE_ALLOCATED,
+		"failed proof never relabels the irreversible operation terminal")
+	assert_eq(still_diagnostic.get("allocation_receipt"), retained_before.get("allocation_receipt"),
+		"failed proof preserves the irreversible allocation receipt byte-for-byte")
+	var blocked: Dictionary = restarted.list_incomplete()
+	if not _require_ok(blocked, "list incomplete while diagnostic blocks startup"):
 		return
-	assert_eq(record.get("stage"), STAGE_ALLOCATED, "a retained recovery diagnostic remains at allocated")
-	assert_true(record.get("failure") != null, "the retained diagnostic persists across restart")
+	assert_eq((blocked.get("value", []) as Array).size(), 1,
+		"the diagnosed nonterminal operation remains an input-blocking startup obligation")
 
-	var mismatched: Dictionary = _advance_request_for_transaction(txid, STAGE_ALLOCATED, STAGE_ALLOCATED, 0)
-	mismatched["failure"] = _failure("source_unprovable", "a different diagnostic body")
-	_assert_rejected(restarted.advance(mismatched),
-		"a startup retry with a different diagnostic must be rejected")
+	_loader.arm({"restored": true}, str((_restore_locator()).get("document_sha256", "")))
+	var writes_before_clear: int = _storage.write_count
+	var cleared: Dictionary = restarted.reconcile_startup(txid, _real_issuer())
+	if not _require_ok(cleared, "reconcile_startup after byte-identical restore proof"):
+		return
+	assert_eq(_loader.call_log.size(), calls_before_failed_proof + 2,
+		"successful diagnostic clearing performs a fresh source proof")
+	assert_eq(_storage.write_count, writes_before_clear + 1,
+		"successful source proof durably clears the retained diagnostic exactly once")
+	var record: Dictionary = _operation_record_for(txid)
+	assert_eq(record.get("stage"), STAGE_ALLOCATED,
+		"clearing the diagnostic preserves the irreversible forward stage")
+	assert_eq(record.get("failure"), null,
+		"byte-identical source proof clears only the retained diagnostic")
+	assert_eq(record.get("allocation_receipt"), retained_before.get("allocation_receipt"),
+		"diagnostic clearing preserves allocation receipt bytes")
+	if not _require_ok(restarted.advance(_advance_request_for_transaction(
+			txid, STAGE_ALLOCATED, STAGE_APPLYING, 0)),
+			"resume normal forward advancement after diagnostic proof"):
+		return
+	assert_eq(_operation_record_for(txid).get("stage"), STAGE_APPLYING,
+		"normal forward advancement resumes only after the diagnostic is proven and cleared")
+
+
+func test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_stage() -> void:
+	var profiles: Array[Dictionary] = [
+		{"stage": STAGE_ALLOCATED, "participant_count": 0},
+		{"stage": STAGE_APPLYING, "participant_count": 3},
+		{"stage": STAGE_APPLIED, "participant_count": PARTICIPANT_ORDER.size()},
+	]
+	var profile_index: int = 0
+	for profile: Dictionary in profiles:
+		var txid := "tx-diagnostic-stage-%d" % profile_index
+		profile_index += 1
+		_storage.restart()
+		var scenario: Object = JOURNAL.new()
+		if not _require_ok(scenario.configure(_storage, _loader),
+				"configure diagnostic stage scenario %s" % profile["stage"]):
+			return
+		var stage: String = str(profile["stage"])
+		var participant_count: int = int(profile["participant_count"])
+		if stage == STAGE_ALLOCATED:
+			if not _journal_with_stage(scenario, txid, STAGE_ALLOCATED):
+				return
+		else:
+			if not _journal_with_stage(
+					scenario, txid, STAGE_APPLYING,
+					participant_count == PARTICIPANT_ORDER.size(), false, participant_count):
+				return
+			if stage == STAGE_APPLIED:
+				if not _require_ok(scenario.advance(_advance_request_for_transaction(
+						txid, STAGE_APPLYING, STAGE_APPLIED, PARTICIPANT_ORDER.size())),
+						"advance fully applied diagnostic scenario"):
+					return
+
+		var retained_before: Dictionary = _operation_record_for(txid)
+		if retained_before.is_empty():
+			return
+		var diagnostic: Dictionary = _advance_request_for_transaction(
+			txid, stage, stage, participant_count)
+		diagnostic["failure"] = _failure(
+			"source_unprovable", "source proof unavailable at %s" % stage)
+		if not _require_ok(scenario.advance(diagnostic),
+				"record irreversible diagnostic at %s" % stage):
+			return
+		var diagnosed: Dictionary = _operation_record_for(txid)
+		assert_eq(diagnosed.get("stage"), stage,
+			"a diagnostic never relabels %s terminal" % stage)
+		assert_eq(diagnosed.get("next_participant_index"), participant_count,
+			"a diagnostic preserves the participant index at %s" % stage)
+		assert_eq(diagnosed.get("allocation_receipt"), retained_before.get("allocation_receipt"),
+			"a diagnostic preserves allocation receipt bytes at %s" % stage)
+		assert_eq(diagnosed.get("participant_receipts"), retained_before.get("participant_receipts"),
+			"a diagnostic preserves participant receipt bytes at %s" % stage)
+		assert_eq(diagnosed.get("failure"), diagnostic.get("failure"),
+			"the exact typed diagnostic is durable at %s" % stage)
+
+		var different: Dictionary = diagnostic.duplicate(true)
+		different["failure"] = _failure(
+			"source_unprovable", "different diagnostic at %s" % stage)
+		var writes_before_conflict: int = _storage.write_count
+		var durable_before_conflict: Dictionary = _stored_document()
+		_assert_rejected(scenario.advance(different),
+			"a different retained diagnostic conflicts at %s" % stage)
+		assert_eq(_storage.write_count, writes_before_conflict,
+			"different diagnostic conflicts before storage mutation at %s" % stage)
+		assert_eq(_stored_document(), durable_before_conflict,
+			"different diagnostic preserves durable bytes at %s" % stage)
+
+		var incomplete: Dictionary = scenario.list_incomplete()
+		if not _require_ok(incomplete, "list diagnosed operation at %s" % stage):
+			return
+		var listed: bool = false
+		for operation: Dictionary in (incomplete.get("value", []) as Array):
+			if str(operation.get("transaction_id", "")) == txid:
+				listed = true
+		assert_true(listed,
+			"the diagnosed %s operation remains an input-blocking startup obligation" % stage)
+
+		_storage.restart()
+		var restarted: Object = JOURNAL.new()
+		if not _require_ok(restarted.configure(_storage, _loader),
+				"configure New-Run diagnostic restart at %s" % stage):
+			return
+		var loader_calls_before: int = _loader.call_log.size()
+		if not _require_ok(restarted.reconcile_startup(txid, _real_issuer()),
+				"rehash journaled New-Run context at %s" % stage):
+			return
+		assert_eq(_loader.call_log.size(), loader_calls_before,
+			"New-Run diagnostic proof never calls the restore source loader")
+		assert_eq(_storage.write_count, 1,
+			"successful New-Run proof durably clears one diagnostic at %s" % stage)
+		var cleared: Dictionary = _operation_record_for(txid)
+		assert_eq(cleared.get("failure"), null,
+			"successful New-Run context proof clears the diagnostic at %s" % stage)
+		assert_eq(cleared.get("stage"), stage,
+			"diagnostic clearing preserves the forward stage %s" % stage)
+		assert_eq(cleared.get("allocation_receipt"), retained_before.get("allocation_receipt"),
+			"diagnostic clearing preserves allocation receipt bytes at %s" % stage)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1068,6 +1178,20 @@ func test_an_allocated_operation_retains_its_receipt_and_can_never_be_aborted() 
 
 	# Plan line 593: "identity_allocation_committed is irreversible." Every post-allocation stage
 	# must keep the same receipt, byte for byte, and none of them may become `aborted`.
+	var allocated_abort: Dictionary = _advance_request(
+		_new_run_transaction_id(), STAGE_ALLOCATED, STAGE_ABORTED, 0)
+	allocated_abort["failure"] = _failure("late_abort", "an abort attempted at allocation")
+	var allocated_writes_before: int = _storage.write_count
+	var allocated_durable_before: Dictionary = _stored_document()
+	_assert_rejected(journal.advance(allocated_abort),
+		"plan line 593: identity_allocation_committed may never be relabelled aborted")
+	assert_eq(_storage.write_count, allocated_writes_before,
+		"the refused allocated-stage abort mutates nothing")
+	assert_eq(_stored_document(), allocated_durable_before,
+		"the refused allocated-stage abort preserves durable bytes")
+	assert_eq(_operation_record().get("allocation_receipt"), retained,
+		"the allocated-stage abort preserves allocation receipt bytes")
+
 	var forward: Array[String] = [STAGE_APPLYING, STAGE_APPLIED, STAGE_COMPLETED]
 	var current: Variant = STAGE_ALLOCATED
 	for next_stage: String in forward:
@@ -1538,5 +1662,3 @@ func _canonical_sha256(value: Dictionary) -> String:
 		assert_true(false, "the frozen New-Run context must be canonicalizable: %s" % canonical)
 		return ""
 	return FAKE_STORAGE.sha256_hex(str(canonical.get("value", "")))
-
-
