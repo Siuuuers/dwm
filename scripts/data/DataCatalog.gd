@@ -4,6 +4,15 @@ extends RefCounted
 # logic, no GameState mutation. All methods return copies/values (never live references).
 # Values mirror indexed requirement data and MUST stay equal to GameState's embedded tables.
 
+# Registry delegation (dwm-p2r.16 Task 1). Schedule and the three Minesweeper Shop capability items
+# are OWNED by their immutable registries; this catalog stores none of their facts and keeps only
+# derived presentation. Both are preloaded by path rather than named by class_name: the new Task-1
+# scripts have never been through an editor import pass and are absent from the global script class
+# cache under a headless run (dwm-p2r.16 DECISION 9.18).
+const _SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
+const _SCHEDULE_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
+const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+
 const FRIEND_IDS := ["priscilla", "lavinia", "sylvia"]
 
 const _INVITATION_DAYS := {
@@ -25,6 +34,15 @@ const _DAILY_CONTACT_ORDER := {
 }
 
 # Shop item rows (CONTENT §7). Each: id, currency, price, effects, max, gift flags, secret.
+#
+# THREE ROWS CARRY NO FACTS. supportz, lucky_charm and debug_key are owned by
+# MinesweeperShopRegistry, so their rows keep only presentation the registry does not carry -- the
+# secret/gift flags -- and their currency, price, effect_ids and max_purchases are projected from
+# the registry record (max_purchases from cap.per_branch). They stay at their original indices
+# because a row must exist for them regardless: test_supportz_properties requires the secret and
+# visibility flags, which no registry record holds. Keeping the row in place therefore preserves
+# shop order for free (dwm-p2r.16 DECISION 12.7). A row is recognized as delegated by carrying no
+# "currency" key.
 const _SHOP_ROWS := [
 	{"id": "coffee", "currency": "money", "price": 20, "effects": ["motivation:+1"], "max": 9},
 	{"id": "wine", "currency": "money", "price": 55, "effects": ["pressure:-4", "health:-1"], "max": 3},
@@ -34,7 +52,7 @@ const _SHOP_ROWS := [
 	{"id": "soft_blanket", "currency": "money", "price": 25, "effects": ["pressure:-2"], "max": 3},
 	{"id": "weighted_plush", "currency": "money", "price": 35, "effects": ["pressure:-3"], "max": 2},
 	{"id": "spa_coupon", "currency": "money", "price": 45, "effects": ["pressure:-4"], "max": 1},
-	{"id": "supportz", "currency": "money", "price": 45, "effects": ["minesweeper:round_floor:-1"], "max": 3, "secret": true},
+	{"id": "supportz", "secret": true},
 	{"id": "healthy_meal", "currency": "money", "price": 25, "effects": ["health:+2"], "max": 3},
 	{"id": "protein_box", "currency": "money", "price": 35, "effects": ["health:+3"], "max": 2},
 	{"id": "premium_care", "currency": "minesweeper_coin", "price": 1, "effects": ["pressure:-4", "health:+4"], "max": 2},
@@ -42,15 +60,8 @@ const _SHOP_ROWS := [
 	{"id": "priscilla_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:priscilla_gift"], "max": 1, "gift": true, "special": true},
 	{"id": "lavinia_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:lavinia_gift"], "max": 1, "gift": true, "special": true},
 	{"id": "sylvia_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:sylvia_gift"], "max": 1, "gift": true, "special": true},
-	{"id": "lucky_charm", "currency": "minesweeper_coin", "price": 1, "effects": ["inventory:add:lucky_charm"], "max": 1},
-	{"id": "debug_key", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:debug_key"], "max": 1},
-]
-
-const _SCHEDULE_ROWS := [
-	{"id": "dating", "requires_friend": true, "cost": 1, "effects": []},
-	{"id": "training", "requires_friend": false, "cost": 1, "effects": ["pressure:+1", "health:+2"]},
-	{"id": "working", "requires_friend": false, "cost": 1, "effects": ["pressure:+2", "health:-2", "money:+30"]},
-	{"id": "rest", "requires_friend": false, "cost": 1, "effects": ["pressure:-2", "health:+1"]},
+	{"id": "lucky_charm"},
+	{"id": "debug_key"},
 ]
 
 const _TASK_IDS := [
@@ -104,26 +115,60 @@ func _make_friend(friend_id: String) -> FriendData:
 func get_shop_items() -> Array:
 	var out: Array = []
 	for row in _SHOP_ROWS:
-		out.append(_make_shop_item(row))
+		var facts := _shop_facts(row)
+		if facts.is_empty():
+			continue
+		out.append(_make_shop_item(row, facts))
 	return out
 
 
 func get_shop_item(item_id: String) -> Dictionary:
 	for row in _SHOP_ROWS:
 		if row["id"] == item_id:
-			return _shop_row_to_dict(row)
+			var facts := _shop_facts(row)
+			if facts.is_empty():
+				return {}
+			return _shop_row_to_dict(row, facts)
 	return {}
 
 
-func _shop_row_to_dict(row: Dictionary) -> Dictionary:
+## The four owned facts for one row: local for the fifteen catalog items, projected from
+## MinesweeperShopRegistry for the three delegated ones. An unavailable registry answers with the
+## empty dictionary and the item is OMITTED rather than emitted with blank facts, so a broken
+## registry surfaces as a short shop list that test_eighteen_shop_items rejects, never as a
+## zero-price item (dwm-p2r.16 DECISION 12.3).
+func _shop_facts(row: Dictionary) -> Dictionary:
+	if row.has("currency"):
+		var local_effects: Array[String] = []
+		local_effects.assign(row["effects"])
+		return {
+			"currency": row["currency"],
+			"price": row["price"],
+			"effect_ids": local_effects,
+			"max_purchases": row["max"],
+		}
+	var fetched: Dictionary = _SHOP_REGISTRY.get_record(str(row["id"]))
+	if not fetched.get("ok", false):
+		return {}
+	var record: Dictionary = (fetched.get("value", {}) as Dictionary).get("record", {}) as Dictionary
+	var cap: Dictionary = record.get("cap", {}) as Dictionary
 	var effects: Array[String] = []
-	effects.assign(row["effects"])
+	effects.assign(record.get("effect_ids", []) as Array)
+	return {
+		"currency": str(record.get("currency", "")),
+		"price": int(record.get("price", 0)),
+		"effect_ids": effects,
+		"max_purchases": int(cap.get("per_branch", 0)),
+	}
+
+
+func _shop_row_to_dict(row: Dictionary, facts: Dictionary) -> Dictionary:
 	return {
 		"id": row["id"],
-		"currency": row["currency"],
-		"price": row["price"],
-		"effect_ids": effects,
-		"max_purchases": row["max"],
+		"currency": facts["currency"],
+		"price": facts["price"],
+		"effect_ids": facts["effect_ids"],
+		"max_purchases": facts["max_purchases"],
 		"is_gift": row.get("gift", false),
 		"is_special_gift": row.get("special", false),
 		"is_visible_in_shop": not row.get("secret", false),
@@ -132,17 +177,17 @@ func _shop_row_to_dict(row: Dictionary) -> Dictionary:
 	}
 
 
-func _make_shop_item(row: Dictionary) -> ShopItemData:
+func _make_shop_item(row: Dictionary, facts: Dictionary) -> ShopItemData:
 	var item := ShopItemData.new()
 	item.id = row["id"]
 	item.display_name = (row["id"] as String).capitalize()
 	item.localization_key = "shop.item.%s" % row["id"]
-	item.price = row["price"]
-	item.currency = row["currency"]
+	item.price = facts["price"]
+	item.currency = facts["currency"]
 	var effects: Array[String] = []
-	effects.assign(row["effects"])
+	effects.assign(facts["effect_ids"] as Array)
 	item.effect_ids = effects
-	item.max_purchases = row["max"]
+	item.max_purchases = facts["max_purchases"]
 	item.icon_text = (row["id"] as String).substr(0, 1).to_upper()
 	item.image_path = "res://art/shop/%s.png" % row["id"]
 	item.is_gift = row.get("gift", false)
@@ -155,18 +200,30 @@ func _make_shop_item(row: Dictionary) -> ShopItemData:
 
 
 # ---- Schedule actions ----
+#
+# PROJECTED, NEVER STORED (dwm-p2r.16 DECISION 11.8). ScheduleActionRegistry owns every Schedule
+# fact; this catalog keeps not even a path or an ID. load_current() validates and fingerprints the
+# registry, then the manifest at the registry's own MANIFEST_PATH is re-read to ENUMERATE, because
+# the shipped registry surface is exactly fingerprint() and find_record(action_id) with no
+# enumeration API and no reachable record list (correction C2). DataCatalog is therefore a second
+# READER of the registry's document while the registry remains the sole authority for validity.
+#
+# The derived order is [rest, training, working, dating], NOT today's hand-written order: the
+# manifest is sorted by action_id, so the three ordinary records project first and the synthesized
+# route appends. Reproducing the old order would require an explicit ordering list, which is itself
+# a Schedule fact the registry does not own (correction C1).
 func get_schedule_actions() -> Array:
 	var out: Array = []
-	for row in _SCHEDULE_ROWS:
+	for row in _schedule_rows():
 		out.append(_make_schedule_action(row))
 	return out
 
 
 func get_schedule_action(action_id: String) -> Dictionary:
-	for row in _SCHEDULE_ROWS:
+	for row in _schedule_rows():
 		if row["id"] == action_id:
 			var effects: Array[String] = []
-			effects.assign(row["effects"])
+			effects.assign(row["effects"] as Array)
 			return {
 				"id": row["id"],
 				"requires_friend": row["requires_friend"],
@@ -174,6 +231,58 @@ func get_schedule_action(action_id: String) -> Dictionary:
 				"effect_ids": effects,
 			}
 	return {}
+
+
+## The three action_kind=ordinary records projected directly, then exactly one synthesized action
+## per distinct non-null route_id -- which yields precisely "dating", a route_id and never an
+## action_id, so find_record("dating") answers unregistered_action and the row cannot come from a
+## lookup (DECISION 3).
+##
+## Each synthesized route takes its fields from the FIRST record carrying that route_id in the
+## manifest's own sorted order (DECISION 12.4); sortedness is guaranteed because the registry
+## rejects an unsorted manifest. Note that the route source set is the fourteen records tagged
+## route_id="dating", NOT all seventeen non-ordinary records: solo:lavinia:day7, solo:priscilla:day7
+## and solo:sylvia:day7 are solo-shaped with participants yet carry route_id null (DECISION 12.5).
+##
+## Recomputed per call by design (DECISION 12.6). load_current() retains its validated registry
+## statically, so only the ~4KB enumeration read repeats, and this catalog stays free of state.
+## An unloadable or malformed registry yields the empty projection with no diagnostic: these
+## signatures carry no envelope, a fallback table is forbidden, and scripts/data holds no push_*
+## precedent (DECISION 12.3).
+func _schedule_rows() -> Array:
+	var loaded: Dictionary = _SCHEDULE_REGISTRY.load_current()
+	if not loaded.get("ok", false):
+		return []
+	var manifest_path: String = _SCHEDULE_REGISTRY.MANIFEST_PATH
+	if not FileAccess.file_exists(manifest_path):
+		return []
+	var parsed: Dictionary = _STRICT_JSON.parse_object(FileAccess.get_file_as_string(manifest_path))
+	if not parsed.get("ok", false):
+		return []
+	var ordinary: Array = []
+	var routes: Array = []
+	var seen_routes: Dictionary = {}
+	for record: Dictionary in (parsed.get("value", {}) as Dictionary).get("records", []) as Array:
+		if str(record.get("action_kind", "")) == "ordinary":
+			ordinary.append(_schedule_row(str(record.get("action_id", "")), record))
+		var route: Variant = record.get("route_id")
+		if route != null and not seen_routes.has(route):
+			seen_routes[route] = true
+			routes.append(_schedule_row(str(route), record))
+	return ordinary + routes
+
+
+## Every member DERIVED from the record: requires_friend from participant presence, cost and
+## effects read straight off the registry row.
+func _schedule_row(id: String, record: Dictionary) -> Dictionary:
+	var effects: Array[String] = []
+	effects.assign(record.get("effect_ids", []) as Array)
+	return {
+		"id": id,
+		"requires_friend": not (record.get("participants", []) as Array).is_empty(),
+		"cost": int(record.get("motivation_cost", 0)),
+		"effects": effects,
+	}
 
 
 func _make_schedule_action(row: Dictionary) -> ScheduleActionData:

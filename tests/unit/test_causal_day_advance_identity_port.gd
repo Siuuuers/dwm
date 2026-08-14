@@ -181,10 +181,10 @@ func test_configure_accepts_an_identical_replay_and_refuses_a_replacement() -> v
 # ---------------------------------------------------------------------------------------------
 
 func test_both_resolution_variants_allocate_a_day_advance_identity() -> void:
+	var port := _configured_port()
+	if port == null:
+		return
 	for kind: String in RESOLUTION_KINDS:
-		var port := _configured_port()
-		if port == null:
-			return
 		var request := _advance_request(kind, 3)
 		var prepared := port.prepare_advance(request)
 		if not _require_ok(prepared, "prepare_advance for %s" % kind):
@@ -272,10 +272,10 @@ func test_prepare_advance_exact_key_validates_its_request() -> void:
 # ---------------------------------------------------------------------------------------------
 
 func test_target_day_is_derived_as_source_day_plus_one() -> void:
+	var port := _configured_port()
+	if port == null:
+		return
 	for source_day: int in range(1, 7):
-		var port := _configured_port()
-		if port == null:
-			return
 		var prepared := port.prepare_advance(_advance_request("schedule_done", source_day))
 		if not _require_ok(prepared, "prepare_advance from day %d" % source_day):
 			return
@@ -443,7 +443,7 @@ func test_a_second_allocation_key_for_the_same_tuple_conflicts() -> void:
 	# source_causal_day_instance, source_day) "may belong to only one allocation key across both
 	# variants". Changing only the resolution receipt changes the KEY while holding the tuple fixed.
 	var second_key := request.duplicate(true)
-	(second_key["source_resolution_receipt"] as Dictionary)["receipt_id"] = "a-second-resolution-id"
+	second_key["source_resolution_receipt"] = _resolution_receipt("schedule_done")
 	_assert_rejected_with(port.prepare_advance(second_key),
 		&"causal_day_advance_identity_conflict",
 		"plan line 778: a second allocation key for one source-day tuple")
@@ -520,12 +520,13 @@ func test_commit_adds_the_target_receipt_the_record_and_the_counter_in_one_write
 	var port := _configured_port()
 	if port == null:
 		return
+	var request := _advance_request("schedule_done", 3)
 	var before := _captured_document()
 	if before.is_empty():
 		return
 	var counter_before := int(before.get("next_counter", 0))
 
-	var prepared := port.prepare_advance(_advance_request("schedule_done", 3))
+	var prepared := port.prepare_advance(request)
 	if not _require_ok(prepared, "prepare_advance"):
 		return
 
@@ -565,6 +566,7 @@ func test_no_crash_cut_around_commit_exposes_a_target_without_its_key() -> void:
 	var port := _configured_port()
 	if port == null:
 		return
+	var request := _advance_request("schedule_done", 3)
 	var baseline := _captured_document()
 	if baseline.is_empty():
 		return
@@ -576,7 +578,7 @@ func test_no_crash_cut_around_commit_exposes_a_target_without_its_key() -> void:
 		var cut_port := _port_over_ops(cut_ops, NAMESPACE_A)
 		if cut_port == null:
 			return
-		var prepared := cut_port.prepare_advance(_advance_request("schedule_done", 3))
+		var prepared := cut_port.prepare_advance(request.duplicate(true))
 		if not _require_ok(prepared, "prepare_advance at cut %d" % cut):
 			return
 		cut_ops.fail_after(cut_ops.operation_count() + cut)
@@ -693,10 +695,11 @@ func _prepared_candidate(prepared: Dictionary) -> Dictionary:
 ## still exercise the exact request SHAPE, so each test fails on its own law rather than on a
 ## missing fixture (session 1's _issue_transaction_receipt precedent).
 func _advance_request(resolution_kind: String, source_day: int) -> Dictionary:
+	var resolution_receipt := _resolution_receipt(resolution_kind)
 	var source_receipt := _causal_day_receipt()
 	return {
 		"resolution_kind": resolution_kind,
-		"source_resolution_receipt": _resolution_receipt(resolution_kind),
+		"source_resolution_receipt": resolution_receipt,
 		"run_id": "run-" + resolution_kind,
 		"branch_id": "branch-" + resolution_kind,
 		"desktop_timeline_generation": 0,
@@ -715,10 +718,25 @@ func _issuer_receipt(issued: Dictionary) -> Dictionary:
 
 
 func _resolution_receipt(resolution_kind: String) -> Dictionary:
-	var receipt := _issuer_receipt(_root.issue(&"receipt_id"))
-	if receipt.is_empty():
-		receipt = {"receipt_id": "resolution-" + resolution_kind}
-	return receipt
+	var parent_receipt := _issuer_receipt(_root.issue(&"transaction_id"))
+	if parent_receipt.is_empty():
+		return {}
+	var child_kind := &"day_resolution_stage"
+	if resolution_kind == "condition_hospital":
+		child_kind = &"hospital_resolution"
+	var derived: Dictionary = _issuer.derive_child({
+		"parent_receipt_id": str(parent_receipt.get("receipt_id", "")),
+		"child_kind": child_kind,
+		"ordinal": 0,
+		"source_ids": [],
+	})
+	if not _require_ok(derived, "derive anchored %s resolution receipt" % resolution_kind):
+		return {}
+	var value: Dictionary = derived.get("value", {})
+	return {
+		"receipt_id": str(value.get("child_id", "")),
+		"provenance": (value.get("provenance", {}) as Dictionary).duplicate(true),
+	}
 
 
 func _causal_day_receipt() -> Dictionary:
