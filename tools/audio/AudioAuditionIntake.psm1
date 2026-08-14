@@ -483,6 +483,11 @@ function ConvertTo-AudioAuditionFilterNumber {
     return $Value.ToString('0.###', [Globalization.CultureInfo]::InvariantCulture)
 }
 
+function ConvertTo-AudioAuditionFilterTime {
+    param([Parameter(Mandatory = $true)][double]$Value)
+    return $Value.ToString('R', [Globalization.CultureInfo]::InvariantCulture)
+}
+
 function New-AudioAuditionRenderRecipe {
     [CmdletBinding()]
     param(
@@ -499,8 +504,8 @@ function New-AudioAuditionRenderRecipe {
     $fadeSeconds = [Math]::Min(0.01, $duration / 4.0)
     $fadeOutStart = $duration - $fadeSeconds
     $attenuationText = ConvertTo-AudioAuditionFilterNumber -Value $attenuation
-    $fadeText = ConvertTo-AudioAuditionFilterNumber -Value $fadeSeconds
-    $fadeOutText = ConvertTo-AudioAuditionFilterNumber -Value $fadeOutStart
+    $fadeText = ConvertTo-AudioAuditionFilterTime -Value $fadeSeconds
+    $fadeOutText = ConvertTo-AudioAuditionFilterTime -Value $fadeOutStart
     $filter = if ([long]$Metadata.channels -eq 2) {
         "pan=mono|c0=0.5*c0+0.5*c1,volume=$($attenuationText)dB,afade=t=in:st=0:d=$fadeText,afade=t=out:st=$fadeOutText:d=$fadeText"
     }

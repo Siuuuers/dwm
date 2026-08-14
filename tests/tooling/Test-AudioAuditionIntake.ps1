@@ -48,6 +48,9 @@ if ((Get-AudioAttenuationDb -SamplePeakDbfs -10.0 -CeilingDbfs -6.0) -ne 0.0) { 
 
 $recipe = New-AudioAuditionRenderRecipe -Metadata $probe -Measurements $measure -OutputPath 'fixture-mono.flac'
 if ($recipe.attenuation_db -gt 0.0 -or $recipe.channels -ne 1 -or $recipe.codec -cne 'flac') { throw 'AUDIO_RENDER_RECIPE' }
+$shortProbe = [pscustomobject][ordered]@{ duration_seconds = 0.0004; channels = 1 }
+$shortRecipe = New-AudioAuditionRenderRecipe -Metadata $shortProbe -Measurements $measure -OutputPath 'fixture-short-mono.flac'
+if ($shortRecipe.fade_seconds -le 0.0 -or $shortRecipe.filter_audio -notmatch 'd=0\.0001(?:,|$)' -or $shortRecipe.filter_audio -match 'd=0(?:,|$)') { throw 'AUDIO_RENDER_SHORT_FADE' }
 
 $repeat = New-AudioUiRepeatRecipe -InputPath 'fixture-mono.flac' -DurationSeconds 0.25 -OutputPath 'fixture-repeat.flac'
 if ($repeat.repetitions -ne 10 -or $repeat.interval_seconds -ne 1.5 -or $repeat.filter_complex -notmatch 'adelay=13500') { throw 'AUDIO_REPEAT_RECIPE' }
@@ -58,6 +61,11 @@ Assert-AudioAuditionRejected -Name 'probe video stream' -ExpectedError 'AUDIO_PR
 Assert-AudioAuditionRejected -Name 'probe non-finite duration' -ExpectedError 'AUDIO_PROBE_DURATION' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":1,"duration":"NaN"}],"format":{"format_name":"mp3","duration":"NaN","size":"1"}}' -SourcePath 'fixture.mp3' }
 Assert-AudioAuditionRejected -Name 'probe more than two channels' -ExpectedError 'AUDIO_PROBE_CHANNELS' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":3,"duration":"2.5"}],"format":{"format_name":"mp3","duration":"2.5","size":"1"}}' -SourcePath 'fixture.mp3' }
 Assert-AudioAuditionRejected -Name 'probe non-positive duration' -ExpectedError 'AUDIO_PROBE_DURATION' -Action { ConvertFrom-AudioProbeJson -Json '{"streams":[{"codec_type":"audio","sample_rate":"48000","channels":1,"duration":"0"}],"format":{"format_name":"mp3","duration":"0","size":"1"}}' -SourcePath 'fixture.mp3' }
+
+$stageText = [IO.File]::ReadAllText((Join-Path $root 'tools\audio\Invoke-AudioAuditionBatch01.ps1'))
+if ($stageText -notmatch 'ReadToEndAsync\(\)' -or $stageText -notmatch 'Task\]::WaitAll' -or $stageText -notmatch '\$process\.Dispose\(\)') { throw 'AUDIO_PROCESS_CONCURRENT_DRAIN' }
+if ($stageText -notmatch 'parent_sha256 = \$input\.sha256' -or $stageText -notmatch 'parent_sha256 = \$monoHash') { throw 'AUDIO_RENDER_PARENT_HASH' }
+if ($stageText -notmatch 'analysis-attempt-' -or $stageText -notmatch 'renders-attempt-' -or $stageText -notmatch '\[IO\.Directory\]::Move\(') { throw 'AUDIO_ANALYSIS_ATTEMPT_STAGING' }
 
 $fixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ("audio-audition-intake-" + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixtureRoot | Out-Null

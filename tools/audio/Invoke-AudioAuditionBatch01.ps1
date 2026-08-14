@@ -123,12 +123,18 @@ function Invoke-AudioProcess {
     $startInfo.Arguments = (($Arguments | ForEach-Object { ConvertTo-AudioAuditionProcessArgument -Value $_ }) -join ' ')
     $process = New-Object Diagnostics.Process
     $process.StartInfo = $startInfo
-    if (-not $process.Start()) { throw 'AUDIO_PROCESS_START' }
-    $stdout = $process.StandardOutput.ReadToEnd()
-    $stderr = $process.StandardError.ReadToEnd()
-    $process.WaitForExit()
-    if ($process.ExitCode -ne 0) { throw 'AUDIO_PROCESS_FAILED' }
-    return [pscustomobject][ordered]@{ stdout = $stdout; stderr = $stderr }
+    try {
+        if (-not $process.Start()) { throw 'AUDIO_PROCESS_START' }
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        $process.WaitForExit()
+        [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdoutTask, $stderrTask))
+        if ($process.ExitCode -ne 0) { throw 'AUDIO_PROCESS_FAILED' }
+        return [pscustomobject][ordered]@{ stdout = $stdoutTask.Result; stderr = $stderrTask.Result }
+    }
+    finally {
+        $process.Dispose()
+    }
 }
 
 function Assert-AudioAuditionFileHash {
@@ -288,8 +294,12 @@ Assert-AudioAuditionStageRecord -Path $initializePath -ExpectedStage 'Initialize
 $acquireRecord = Assert-AudioAuditionAcquireRecord -Path $acquirePath -Manifest $manifest
 $analysisRoot = Join-Path $layout.CacheRoot 'analysis'
 $rendersRoot = Join-Path $layout.CacheRoot 'renders'
-New-AudioAuditionDirectory -Path $analysisRoot
-New-AudioAuditionDirectory -Path $rendersRoot
+if (Test-Path -LiteralPath $analysisRoot -or Test-Path -LiteralPath $rendersRoot) { throw 'AUDIO_ANALYSIS_PUBLISH_EXISTS' }
+$attemptId = [Guid]::NewGuid().ToString('N')
+$analysisAttemptRoot = Join-Path $layout.CacheRoot ('analysis-attempt-' + $attemptId)
+$rendersAttemptRoot = Join-Path $layout.CacheRoot ('renders-attempt-' + $attemptId)
+New-AudioAuditionDirectory -Path $analysisAttemptRoot
+New-AudioAuditionDirectory -Path $rendersAttemptRoot
 
 $inputRecords = [Collections.Generic.List[object]]::new()
 foreach ($candidate in $manifest.candidates | Where-Object { $_.kind -ceq 'freesound_preview' }) {
@@ -338,17 +348,20 @@ foreach ($input in $inputRecords) {
             measurement_interpretation = 'risk_flags_only_not_comfort_or_medical_certification'
         }
         if ($input.selected) {
-            $renderDirectory = Join-Path $rendersRoot $input.kind
+            $renderDirectory = Join-Path $rendersAttemptRoot $input.kind
+            $publishedRenderDirectory = Join-Path $rendersRoot $input.kind
             New-AudioAuditionDirectory -Path $renderDirectory
             $monoPath = Assert-AudioAuditionContainedPath -Root $renderDirectory -Candidate (Join-Path $renderDirectory ($input.sha256 + '.flac'))
+            $publishedMonoPath = Assert-AudioAuditionContainedPath -Root $rendersRoot -Candidate (Join-Path $publishedRenderDirectory ($input.sha256 + '.flac'))
             $recipe = New-AudioAuditionRenderRecipe -Metadata $metadata -Measurements $inputMeasurements -OutputPath $monoPath
             if (Test-Path -LiteralPath $monoPath) { throw 'AUDIO_RENDER_EXISTS' }
             [void](Invoke-AudioProcess -FileName 'ffmpeg.exe' -Arguments @('-nostdin', '-hide_banner', '-n', '-i', $input.input_path, '-map', '0:a:0', '-vn', '-af', $recipe.filter_audio, '-ac', '1', '-c:a', 'flac', '-map_metadata', '-1', $monoPath))
             $monoHash = (Get-FileHash -LiteralPath $monoPath -Algorithm SHA256).Hash.ToLowerInvariant()
             $monoMeasurements = Get-AudioAuditionMeasurements -InputPath $monoPath
             $record.mono_render = [ordered]@{
-                path = $monoPath
+                path = $publishedMonoPath
                 sha256 = $monoHash
+                parent_sha256 = $input.sha256
                 codec = $recipe.codec
                 channels = $recipe.channels
                 attenuation_db = $recipe.attenuation_db
@@ -360,18 +373,22 @@ foreach ($input in $inputRecords) {
             }
             if ($input.kind -ceq 'kenney_pack') {
                 $repeatPath = Assert-AudioAuditionContainedPath -Root $renderDirectory -Candidate (Join-Path $renderDirectory ($input.sha256 + '-fatigue.flac'))
+                $publishedRepeatPath = Assert-AudioAuditionContainedPath -Root $rendersRoot -Candidate (Join-Path $publishedRenderDirectory ($input.sha256 + '-fatigue.flac'))
                 $repeat = New-AudioUiRepeatRecipe -InputPath $monoPath -DurationSeconds $metadata.duration_seconds -OutputPath $repeatPath
                 if (Test-Path -LiteralPath $repeatPath) { throw 'AUDIO_RENDER_EXISTS' }
                 [void](Invoke-AudioProcess -FileName 'ffmpeg.exe' -Arguments @('-nostdin', '-hide_banner', '-n', '-i', $monoPath, '-filter_complex', $repeat.filter_complex, '-map', '[mixout]', '-vn', '-c:a', 'flac', '-map_metadata', '-1', $repeatPath))
-                $record.ui_fatigue_render = [ordered]@{ path = $repeatPath; sha256 = (Get-FileHash -LiteralPath $repeatPath -Algorithm SHA256).Hash.ToLowerInvariant(); repetitions = $repeat.repetitions; interval_seconds = $repeat.interval_seconds; literal_filter_complex = $repeat.filter_complex }
+                $record.ui_fatigue_render = [ordered]@{ path = $publishedRepeatPath; sha256 = (Get-FileHash -LiteralPath $repeatPath -Algorithm SHA256).Hash.ToLowerInvariant(); parent_sha256 = $monoHash; repetitions = $repeat.repetitions; interval_seconds = $repeat.interval_seconds; literal_filter_complex = $repeat.filter_complex }
             }
         }
-        $analysisPath = Assert-AudioAuditionContainedPath -Root $analysisRoot -Candidate (Join-Path $analysisRoot ($input.sha256 + '.json'))
-        Write-AudioAuditionAnalysisRecord -Value ([pscustomobject]$record) -Path $analysisPath -AnalysisRoot $analysisRoot
+        $analysisPath = Assert-AudioAuditionContainedPath -Root $analysisAttemptRoot -Candidate (Join-Path $analysisAttemptRoot ($input.sha256 + '.json'))
+        Write-AudioAuditionAnalysisRecord -Value ([pscustomobject]$record) -Path $analysisPath -AnalysisRoot $analysisAttemptRoot
         [void]$analysisRecords.Add([pscustomobject]$record)
     }
     catch { throw 'ANALYSIS_INCOMPLETE' }
 }
+
+[IO.Directory]::Move($analysisAttemptRoot, $analysisRoot)
+[IO.Directory]::Move($rendersAttemptRoot, $rendersRoot)
 
 $analyzeRecord = [pscustomobject][ordered]@{
     stage = 'Analyze'
