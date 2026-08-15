@@ -73,16 +73,20 @@ func test_migrate_document_strips_legacy_profile_members() -> void:
 		"stripped settings move to the profile patch input")
 	assert_eq(patch["legacy_run_state"]["seen_endings"], ["ending.alone"])
 	assert_true(migrated["value"]["migration_receipts"].size() >= 1, "receipts record each migration step")
-	assert_eq(int(migrated["value"]["document"]["schema_version"]), 2)
+	assert_eq(int(migrated["value"]["document"]["schema_version"]), 3,
+		"the whole document lands on the v3 committed-Schedule boundary")
 
 func test_schema_dispatch_rejects_future_and_invalid() -> void:
 	assert_true(_migrations_exist(), "SaveMigrations must exist")
 	if not _migrations_exist():
 		return
 	var m: Script = load(MIGRATIONS_PATH)
+	# v3 is the CURRENT snapshot version at the dwm-p2r.13 Task-5 boundary, so the unsupported-future
+	# probe moves to 4. The fixture bytes are deliberately left untouched; only this probe advances.
 	var future: Dictionary = _fixture("v2_future_schema.json")
+	(future["current_snapshot"]["snapshot"] as Dictionary)["schema_version"] = 4
 	var migrated: Dictionary = m.migrate_document(future, {"kind": "slot", "slot_id": 1})
-	assert_false(migrated.get("ok", true), "schema_version 3 is unsupported")
+	assert_false(migrated.get("ok", true), "schema_version 4 is unsupported")
 	assert_eq(migrated["code"], &"unsupported_future_schema")
 
 func test_migrate_document_rejects_bad_locator() -> void:
@@ -196,3 +200,276 @@ func test_migration_adds_empty_ledger_only_when_both_arrays_are_empty() -> void:
 	var migrated: Dictionary = m.migrate_snapshot_v1_to_v2(v1_snapshot)
 	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
 	assert_eq(migrated["value"]["snapshot"]["command_receipts"], {}, "empty ledger added, nothing invented")
+
+
+# ---- dwm-p2r.13 Task 5: v2 -> v3 committed-Schedule migration ----
+# The v1 -> v2 step must stamp a LITERAL 2 and hand off to a real v2 -> v3 step. Substituting the
+# current schema constant into the old step would silently label v2 bytes as v3.
+
+const SNAPSHOT_FIXTURES := "res://tests/fixtures/snapshots/"
+
+func _snapshot_fixture(name: String) -> Dictionary:
+	return JSON.parse_string(FileAccess.get_file_as_string(SNAPSHOT_FIXTURES + name))
+
+## The exact aggregate v2_empty_legacy_schedule.json must migrate to. Its day is the fixture's own
+## saved lifecycle day, so a fixture that changed day would fail loudly here rather than silently.
+const CANONICAL_EMPTY_AGGREGATE := {
+	"schema_version": 1,
+	"day": 2,
+	"registry_fingerprint": null,
+	"entries": [],
+	"commit_receipt": null,
+}
+
+func test_v1_to_v2_stamps_a_literal_two_not_the_current_constant() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
+	assert_eq(int(schema.SCHEMA_VERSION), 3, "precondition: the current snapshot version is 3")
+	var document: Dictionary = _fixture("v1_minimal_slot.json")
+	var v1_snapshot: Dictionary = document["current_snapshot"]["snapshot"]
+	v1_snapshot.erase("settings")
+	v1_snapshot.erase("seen_endings")
+	var migrated: Dictionary = m.migrate_snapshot_v1_to_v2(v1_snapshot)
+	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
+	assert_eq(int(migrated["value"]["snapshot"]["schema_version"]), 2,
+		"the v1 -> v2 step emits a v2-shaped dict, never the current constant")
+
+func test_v2_to_v3_migrates_empty_legacy_schedule_to_the_canonical_empty_aggregate() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var v2 := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
+	var snapshot: Dictionary = migrated["value"]["snapshot"]
+	assert_eq(int(snapshot["schema_version"]), 3, "the v2 -> v3 step stamps 3")
+	assert_eq(snapshot["committed_schedule"], CANONICAL_EMPTY_AGGREGATE,
+		"an empty legacy Schedule becomes the canonical empty aggregate at the saved day")
+	assert_false(snapshot.has("schedule"), "the legacy top-level array is removed")
+	assert_false((snapshot["gameplay"] as Dictionary).has("schedule_entries"),
+		"the legacy gameplay field is removed")
+
+func test_v2_to_v3_takes_the_day_from_the_validated_lifecycle() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var v2 := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	(v2["lifecycle"] as Dictionary)["day"] = 6
+	var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
+	assert_eq(int(migrated["value"]["snapshot"]["committed_schedule"]["day"]), 6,
+		"saved_day is the already-validated v2 active-run day, not a constant")
+
+func test_v2_to_v3_rejects_nonempty_top_level_schedule() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var v2 := _snapshot_fixture("v2_nonempty_top_level_schedule.json")
+	var before := v2.duplicate(true)
+	var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+	assert_false(migrated.get("ok", true), "a nonempty pre-amendment Schedule fails closed")
+	assert_eq(str(migrated.get("code")), "unmigratable_legacy_schedule", "typed structural failure")
+	assert_eq(v2, before, "the rejected input is never modified")
+
+func test_v2_to_v3_rejects_nonempty_gameplay_schedule_entries() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var v2 := _snapshot_fixture("v2_nonempty_gameplay_schedule_entries.json")
+	var before := v2.duplicate(true)
+	var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+	assert_false(migrated.get("ok", true), "the second legacy representation fails closed too")
+	assert_eq(str(migrated.get("code")), "unmigratable_legacy_schedule", "typed structural failure")
+	assert_eq(v2, before, "the rejected input is never modified")
+
+func test_v2_to_v3_rejects_malformed_legacy_representations() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	for malformed: Variant in [{}, "", 0, [[]]]:
+		var v2 := _snapshot_fixture("v2_empty_legacy_schedule.json")
+		v2["schedule"] = malformed
+		var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+		assert_false(migrated.get("ok", true),
+			"a malformed legacy schedule fails closed: " + JSON.stringify(malformed))
+		assert_eq(str(migrated.get("code")), "unmigratable_legacy_schedule",
+			"malformed legacy Schedule uses the same typed code")
+	var entries_malformed := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	(entries_malformed["gameplay"] as Dictionary)["schedule_entries"] = {}
+	assert_eq(str(m.migrate_snapshot_v2_to_v3(entries_malformed).get("code")),
+		"unmigratable_legacy_schedule", "a malformed gameplay field fails closed")
+
+func test_v2_to_v3_never_invents_a_source_receipt_for_an_accepted_invitation() -> void:
+	# Migration may not manufacture the ancestry Task 3 requires. A legacy Contacts state that has
+	# already accepted an invitation cannot produce an authenticated source receipt, so it fails
+	# closed rather than inventing one.
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var v2 := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	v2["contacts"] = {
+		"messages": {"priscilla": [], "lavinia": [], "sylvia": []},
+		"read_watermarks": {"priscilla": 0, "lavinia": 0, "sylvia": 0},
+		"solo_actions": {"solo:priscilla:day3": {"state": "ACCEPTED"}},
+		"group_action": {"state": "INACTIVE"},
+		"transaction_receipts": {},
+		"next_sequence": 1,
+	}
+	var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+	assert_false(migrated.get("ok", true), "an accepted legacy invitation cannot migrate")
+	assert_eq(str(migrated.get("code")), "unmigratable_legacy_schedule",
+		"the same typed code covers invented-ancestry refusal")
+
+func test_v2_to_v3_rejects_an_invitation_accepted_earlier_and_since_resolved() -> void:
+	# Acceptance is DURABLE and the state moves on: prepare_resolve_day_end carries an accepted
+	# invitation into RESOLVED_ATTENDED / RESOLVED_MISSED / RESOLVED_RUN_END. A check that matched
+	# only the literal "ACCEPTED" would pass every save taken after the day the invitation resolved,
+	# which is the common case. The durable markers are reply_transaction_id and replied_ids.
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	for resolved_state: String in ["RESOLVED_ATTENDED", "RESOLVED_MISSED", "RESOLVED_RUN_END"]:
+		var v2 := _snapshot_fixture("v2_empty_legacy_schedule.json")
+		v2["contacts"] = {
+			"messages": {"priscilla": [], "lavinia": [], "sylvia": []},
+			"read_watermarks": {"priscilla": 0, "lavinia": 0, "sylvia": 0},
+			"solo_actions": {"solo:priscilla:day1": {"state": resolved_state}},
+			"group_action": {"state": "INACTIVE"},
+			"transaction_receipts": {},
+			"next_sequence": 1,
+		}
+		assert_eq(str(m.migrate_snapshot_v2_to_v3(v2).get("code")), "unmigratable_legacy_schedule",
+			"a resolved-but-once-accepted solo fails closed: " + resolved_state)
+
+	# The durable marker alone is enough, even with an unrecognised state string.
+	var by_marker := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	by_marker["contacts"] = {
+		"messages": {"priscilla": [], "lavinia": [], "sylvia": []},
+		"read_watermarks": {"priscilla": 0, "lavinia": 0, "sylvia": 0},
+		"solo_actions": {"solo:priscilla:day1": {"state": "SOMETHING_ELSE",
+			"reply_transaction_id": "tx-accepted"}},
+		"group_action": {"state": "INACTIVE"},
+		"transaction_receipts": {},
+		"next_sequence": 1,
+	}
+	assert_eq(str(m.migrate_snapshot_v2_to_v3(by_marker).get("code")), "unmigratable_legacy_schedule",
+		"a durable solo reply_transaction_id alone fails closed")
+
+	var group_replied := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	group_replied["contacts"] = {
+		"messages": {"priscilla": [], "lavinia": [], "sylvia": []},
+		"read_watermarks": {"priscilla": 0, "lavinia": 0, "sylvia": 0},
+		"solo_actions": {},
+		"group_action": {"state": "REPLY_REQUIRED", "replied_ids": ["priscilla"]},
+		"transaction_receipts": {},
+		"next_sequence": 1,
+	}
+	assert_eq(str(m.migrate_snapshot_v2_to_v3(group_replied).get("code")),
+		"unmigratable_legacy_schedule", "a group with durable replies fails closed")
+
+
+func test_v2_to_v3_never_fabricates_a_contacts_section() -> void:
+	# Inventing a two-key stub would turn a previously-REJECTED document into an accepted one
+	# carrying a bag ContactInvitationState.validate_state would refuse.
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+
+	var absent := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	absent.erase("contacts")
+	assert_false(m.migrate_snapshot_v2_to_v3(absent).get("ok", true),
+		"an absent contacts member is never invented")
+
+	for malformed: Variant in [[], "", 0]:
+		var v2 := _snapshot_fixture("v2_empty_legacy_schedule.json")
+		v2["contacts"] = malformed
+		var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+		assert_false(migrated.get("ok", true),
+			"a malformed contacts member is never replaced: " + JSON.stringify(malformed))
+
+
+func test_v2_to_v3_adds_only_the_two_empty_contacts_indexes() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var v2 := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	var legacy_contacts := {
+		"messages": {"priscilla": [], "lavinia": [], "sylvia": []},
+		"read_watermarks": {"priscilla": 0, "lavinia": 0, "sylvia": 0},
+		"solo_actions": {},
+		"group_action": {"state": "INACTIVE"},
+		"transaction_receipts": {},
+		"next_sequence": 1,
+	}
+	v2["contacts"] = legacy_contacts.duplicate(true)
+	var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
+	var contacts: Dictionary = migrated["value"]["snapshot"]["contacts"]
+	assert_eq(contacts["schedule_source_receipts"], {}, "an empty source index is added")
+	assert_eq(contacts["sylvia_hospital_witness_receipts"], {}, "an empty witness index is added")
+	for key: Variant in legacy_contacts:
+		assert_eq(contacts[str(key)], legacy_contacts[key],
+			"every pre-existing Contacts member survives unchanged: " + str(key))
+	assert_eq((contacts.keys() as Array).size(), (legacy_contacts.keys() as Array).size() + 2,
+		"exactly two members are added and nothing else")
+
+func test_v2_to_v3_never_adopts_the_current_registry_fingerprint() -> void:
+	# Step 5.3. A migrated aggregate carries a null fingerprint forever; only a later logical-day
+	# initialization may adopt a current one. Proven twice: by behaviour and by source inspection.
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var v2 := _snapshot_fixture("v2_empty_legacy_schedule.json")
+	var migrated: Dictionary = m.migrate_snapshot_v2_to_v3(v2)
+	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
+	assert_eq(migrated["value"]["snapshot"]["committed_schedule"]["registry_fingerprint"], null,
+		"a migrated old save never carries a registry fingerprint")
+	var source := FileAccess.get_file_as_string(MIGRATIONS_PATH)
+	assert_false(source.is_empty(), "the migration source is readable")
+	assert_false(source.contains("load_current"),
+		"migration must never stamp an old save with the current registry")
+	assert_false(source.contains("ScheduleActionRegistry"),
+		"migration does not reference the registry at all")
+
+func test_document_migration_produces_a_v3_document() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var raw: Dictionary = _fixture("v1_minimal_slot.json")
+	var migrated: Dictionary = m.migrate_document(raw, {"kind": "slot", "slot_id": 1})
+	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
+	assert_eq(int(migrated["value"]["document"]["schema_version"]), 3,
+		"the whole document lands on v3")
+	var snapshot: Dictionary = migrated["value"]["document"]["current_snapshot"]["snapshot"]
+	assert_eq(int(snapshot["schema_version"]), 3, "a v1 save migrates all the way through v2 to v3")
+	assert_true(snapshot.has("committed_schedule"), "the v3 member is present")
+	assert_false(snapshot.has("schedule"), "the legacy member is gone")
+
+func test_migration_never_touches_the_external_publication_ledger() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var source := FileAccess.get_file_as_string(MIGRATIONS_PATH)
+	assert_false(source.is_empty(), "the migration source is readable")
+	for forbidden: String in [
+		"ScheduleFoundationPublicationLedger",
+		"schedule-foundation-publications",
+		"schedule_foundation_publications",
+	]:
+		assert_false(source.contains(forbidden),
+			"migration never creates, imports, clears, rewrites or version-tags the external "
+			+ "publication ledger: " + forbidden)

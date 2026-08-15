@@ -37,7 +37,10 @@ func _checkpoint_inputs(run_id: String) -> Dictionary:
 			"lifecycle": lifecycle,
 			"gameplay": fixture["gameplay"],
 			"contacts": fixture["contacts"],
-			"schedule": fixture["schedule"],
+			"committed_schedule": {
+				"schema_version": 1, "day": int(lifecycle["day"]),
+				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
+			},
 			"dating": fixture["dating"],
 			"applied_effect_transaction_ids": [],
 			"applied_variable_transaction_ids": [],

@@ -91,8 +91,9 @@ func test_validate_rejects_malformed_documents() -> void:
 	bad_journal["recovery_journal"] = [{"entry": &"stringname"}]
 	assert_false(schema.validate(bad_journal).get("ok", true), "non-primitive journal entry rejects")
 
+	# v3 is the CURRENT document version at the dwm-p2r.13 Task-5 boundary; the probe moves to 4.
 	var future: Dictionary = document.duplicate(true)
-	future["schema_version"] = 3
+	future["schema_version"] = 4
 	assert_false(schema.validate(future).get("ok", true), "unsupported future document version rejects")
 
 func test_prepare_candidate_is_detached() -> void:

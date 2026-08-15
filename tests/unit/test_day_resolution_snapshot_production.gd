@@ -99,7 +99,7 @@ func test_inner_snapshot_input_carries_the_live_lifecycle() -> void:
 	assert_eq(typeof(snapshot_input.get("lifecycle")), TYPE_DICTIONARY, "lifecycle is mandatory for the real port")
 	assert_false(str((snapshot_input["lifecycle"] as Dictionary).get("run_id", "")).is_empty(), "run_id present")
 	assert_true((snapshot_input["lifecycle"] as Dictionary).has("ending_plan"), "ending_plan travels with the lifecycle")
-	for member in ["gameplay", "contacts", "schedule", "dating", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
+	for member in ["gameplay", "contacts", "committed_schedule", "dating", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
 		assert_true(snapshot_input.has(member), "snapshot input carries " + member)
 
 

@@ -56,6 +56,22 @@ func configure_checkpoint_providers(providers: Dictionary) -> Dictionary:
 func _checkpoint_inputs(lifecycle: Dictionary) -> Dictionary:
 	var snapshot_input: Dictionary = _game_state.capture_run_snapshot_input()
 	snapshot_input["lifecycle"] = lifecycle.duplicate(true)
+	# v3 committed-Schedule boundary (Plan 01 Task 5, dwm-p2r.13). Because the recorded lifecycle is
+	# the one the stage PRODUCES rather than live state, it can name a later day than the owner has
+	# entered. A snapshot names ONE day, so the aggregate must describe the recorded day: a day the
+	# owner has not begun has no committed Schedule yet, so it records the canonical empty aggregate
+	# with a null fingerprint. When the days already agree this leaves the real aggregate untouched.
+	var recorded_day := int(lifecycle.get("day", 0))
+	var aggregate_value: Variant = snapshot_input.get("committed_schedule", {})
+	var aggregate: Dictionary = aggregate_value if typeof(aggregate_value) == TYPE_DICTIONARY else {}
+	if int(aggregate.get("day", -1)) != recorded_day:
+		snapshot_input["committed_schedule"] = {
+			"schema_version": int(aggregate.get("schema_version", 1)),
+			"day": recorded_day,
+			"registry_fingerprint": null,
+			"entries": [],
+			"commit_receipt": null,
+		}
 	return {
 		"snapshot_input": snapshot_input,
 		"dialogic_checkpoint": _provided("dialogic_checkpoint", {}),

@@ -4,7 +4,7 @@ extends RefCounted
 ## Discriminated save-document union
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 4).
 
-const DOCUMENT_VERSION := 2
+const DOCUMENT_VERSION := 3
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 

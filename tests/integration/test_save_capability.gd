@@ -34,7 +34,11 @@ func _seed(manager: Node, run_id: String) -> void:
 	assert_true(manager.record_stable_checkpoint({
 		"snapshot_input": {
 			"lifecycle": lifecycle, "gameplay": fixture["gameplay"], "contacts": fixture["contacts"],
-			"schedule": fixture["schedule"], "dating": fixture["dating"],
+			"committed_schedule": {
+				"schema_version": 1, "day": int(lifecycle["day"]),
+				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
+			},
+			"dating": fixture["dating"],
 			"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
 		},
 		"dialogic_checkpoint": {}, "route_id": "main", "active_app_id": null,

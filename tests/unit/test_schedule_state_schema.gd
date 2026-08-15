@@ -6,11 +6,14 @@ extends "res://addons/gut/test.gd"
 # days, kind and participants stay with ScheduleActionRegistry/ScheduleRules, so a caller-supplied
 # route/effect/cost member is rejected here purely as an unknown key.
 #
-# DIVERGENCE, deliberate and recorded: a receipt-backed EMPTY Done aggregate (entries == [] with a
-# non-null `empty_schedule_done` commit receipt) is legal under the frozen contract at plan line
-# 324-353 and is validated here. `ScheduleRules._committed_structure` still rejects that shape; Task
-# 5 reconciles the two when RunSnapshotSchema delegates committed validation to this module. Task 4
-# therefore never routes a receipt-backed empty aggregate through ScheduleRules.
+# RECONCILED IN TASK 5 (was a deliberate, recorded divergence): a receipt-backed EMPTY Done
+# aggregate (entries == [] with a non-null `empty_schedule_done` commit receipt) is legal under the
+# frozen contract at plan line 324-353 and is validated here. `ScheduleRules._committed_structure`
+# used to reject that shape, so Task 4 never routed a receipt-backed empty aggregate through
+# ScheduleRules. Task 5 aligned the two NULLABILITY rules when RunSnapshotSchema began delegating
+# committed validation to this module, so ScheduleRules now admits the shape. Receipt CONTENTS
+# remain this module's law alone (ScheduleRules cannot call into here without a cyclic dependency),
+# so a caller must validate through validate_aggregate before relying on build_route_plan.
 #
 # The module does not exist during RED, so it is loaded through DynamicScriptProbe and every test
 # reports its absence as one named assertion instead of a parse crash.

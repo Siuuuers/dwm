@@ -1,12 +1,12 @@
 {
   "schema_version": 3,
   "content_version": 1,
-  "run_id": "run-uuid",
-  "checkpoint_id": "run-uuid:43",
-  "checkpoint_sequence": 43,
+  "run_id": "committed-schedule-run",
+  "checkpoint_id": "committed-schedule-run:31",
+  "checkpoint_sequence": 31,
   "lifecycle": {
-    "run_id": "run-uuid",
-    "day": 8,
+    "run_id": "committed-schedule-run",
+    "day": 5,
     "state": "PLAYING",
     "active_resolution_plan": null,
     "ending_plan": null
@@ -15,13 +15,18 @@
   "active_app_id": null,
   "narrative_checkpoint": {},
   "gameplay": {
-    "narrative_variables": {}
+    "narrative_variables": {},
+    "money": 410,
+    "coins": 12,
+    "stats": {"motivation": 2, "pressure": 4, "health": 5},
+    "friends": {"priscilla": true},
+    "date_unlocks": {"day:5:friend:priscilla": true}
   },
   "command_receipts": {},
   "contacts": {},
   "committed_schedule": {
     "schema_version": 1,
-    "day": 8,
+    "day": 5,
     "registry_fingerprint": null,
     "entries": [],
     "commit_receipt": null

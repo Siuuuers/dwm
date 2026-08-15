@@ -21,6 +21,8 @@ func _snapshot(run_id: String, sequence: int, day: int = 3) -> Dictionary:
 	snapshot["checkpoint_id"] = "%s:%d" % [run_id, sequence]
 	snapshot["lifecycle"]["run_id"] = run_id
 	snapshot["lifecycle"]["day"] = day
+	# v3 (dwm-p2r.13 Task 5): a snapshot names ONE day, so the committed aggregate moves with it.
+	(snapshot["committed_schedule"] as Dictionary)["day"] = day
 	if day == 1:
 		snapshot["lifecycle"]["state"] = "PLAYING"
 	return snapshot

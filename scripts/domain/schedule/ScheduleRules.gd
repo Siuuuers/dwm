@@ -376,13 +376,29 @@ static func _committed_structure(aggregate: Dictionary, registry: Object) -> Dic
 		return _fail(&"invalid_committed_schedule", "entries must be an array", {"field": "entries"})
 	var entries: Array = aggregate["entries"]
 	var receipt: Variant = aggregate["commit_receipt"]
-	if entries.is_empty():
-		if receipt != null:
-			return _fail(&"invalid_committed_schedule",
-				"an empty aggregate carries no commit receipt", {"field": "commit_receipt"})
-	elif typeof(receipt) != TYPE_DICTIONARY:
+	# RECONCILED IN TASK 5 (dwm-p2r.13). A receipt-backed EMPTY aggregate is LEGAL: it is the
+	# `empty_schedule_done` Done commit that ScheduleStateSchema validates and that Task 6 route
+	# projection must be able to carry. This module previously rejected that shape, which is why
+	# Task 4 never routed a receipt-backed empty through here.
+	if receipt != null and typeof(receipt) != TYPE_DICTIONARY:
+		return _fail(&"invalid_committed_schedule",
+			"the commit receipt is a dictionary or null", {"field": "commit_receipt"})
+	if not entries.is_empty() and receipt == null:
 		return _fail(&"invalid_committed_schedule",
 			"a nonempty aggregate embeds its exact commit receipt", {"field": "commit_receipt"})
+	# KNOWN RESIDUAL GAP, recorded rather than hidden. This module has no receipt-CONTENT law of its
+	# own; before Task 5 that did not matter because the empty+receipt shape was unreachable here.
+	# Widening the nullability rule makes it reachable, so `{entries: [], commit_receipt: <garbage>}`
+	# with a matching fingerprint now passes this structural check while
+	# ScheduleStateSchema.validate_aggregate still rejects it on its exact member set.
+	#
+	# It is NOT closed here on purpose: delegating to ScheduleStateSchema from this module -- by
+	# preload or by global class_name -- forms a cyclic script dependency that makes both modules
+	# fail to compile, which is a far worse failure than a latent permissive branch. No production
+	# path reaches it today (GameStateScheduleCommitPort routes only NONEMPTY aggregates through
+	# ScheduleRules, and every persisted aggregate is validated by ScheduleStateSchema first).
+	# Task 6 owns route projection for the receipt-backed empty Day-7 case and should close this by
+	# having its caller validate through ScheduleStateSchema before calling build_route_plan.
 	if registry == null or not registry.has_method("fingerprint"):
 		return _fail(&"invalid_registry", "an injected registry is required", {})
 	var fingerprint: Variant = aggregate["registry_fingerprint"]
@@ -465,55 +481,7 @@ static func _fail(code: StringName, message: String, details: Dictionary) -> Dic
 	return {"ok": false, "code": code, "message": message, "details": details}
 
 
-# ---- provisional legacy adapter (retired with its last caller in Task 5) ----
-
-## Kept byte-compatible and ISOLATED while the legacy GameState facade still calls it
-## (autoload/GameState.gd). No accepted-schema path routes through it. Task 5 removes this method,
-## its last caller, and its characterization tests together, after `rg` proves no caller remains.
-const LEGACY_DATE_TYPES: Array[String] = ["solo", "group"]
-
-static func max_dates_for_day(day: int) -> int:
-	return 2 if day >= 1 and day <= 6 else 1
-
-static func validate_date_candidate(existing: Array, candidate: Dictionary, day: int) -> Dictionary:
-	var candidate_type := str(candidate.get("type", ""))
-	if candidate_type not in LEGACY_DATE_TYPES:
-		return _legacy_fail(&"not_a_date",
-			"validate_date_candidate handles only " + str(LEGACY_DATE_TYPES))
-	var candidate_friends := _legacy_friend_set(candidate)
-	if day == 4 and candidate_type == "solo" and "priscilla" in candidate_friends \
-			and not existing.is_empty():
-		return _legacy_fail(&"priscilla_first_slot_required", "Day 4 seats Priscilla first")
-	var date_count: int = 0
-	for entry: Dictionary in existing:
-		if str(entry.get("type", "")) not in LEGACY_DATE_TYPES:
-			continue
-		date_count += 1
-		if str(entry.get("type", "")) == candidate_type \
-				and _legacy_same_friend_set(_legacy_friend_set(entry), candidate_friends):
-			return _legacy_fail(&"duplicate_friend_date", str(candidate_friends))
-	if date_count >= max_dates_for_day(day):
-		return _legacy_fail(&"too_many_dates",
-			"day %d allows %d date(s)" % [day, max_dates_for_day(day)])
-	return {"ok": true, "code": &"ok"}
-
-
-static func _legacy_friend_set(entry: Dictionary) -> Array:
-	var ids: Array = entry.get("friend_ids", [])
-	if not ids.is_empty():
-		return ids
-	var single := str(entry.get("friend_id", ""))
-	return [single] if not single.is_empty() else []
-
-
-static func _legacy_same_friend_set(left: Array, right: Array) -> bool:
-	if left.size() != right.size():
-		return false
-	for friend_id: Variant in left:
-		if friend_id not in right:
-			return false
-	return true
-
-
-static func _legacy_fail(code: StringName, message: String) -> Dictionary:
-	return {"ok": false, "code": code, "message": message}
+# The provisional loose-shape date-candidate adapter and its legacy helpers retired here in Plan 01
+# Task 5 (dwm-p2r.13), together with its last caller and its characterization tests, exactly as its
+# own retirement note required. The registry is now the sole authority for day windows,
+# participants, repeatability and date limits.

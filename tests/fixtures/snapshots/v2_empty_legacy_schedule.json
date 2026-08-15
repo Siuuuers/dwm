@@ -1,0 +1,36 @@
+{
+  "schema_version": 2,
+  "content_version": 1,
+  "run_id": "legacy-empty-run",
+  "checkpoint_id": "legacy-empty-run:11",
+  "checkpoint_sequence": 11,
+  "lifecycle": {
+    "run_id": "legacy-empty-run",
+    "day": 2,
+    "state": "PLAYING",
+    "active_resolution_plan": null,
+    "ending_plan": null
+  },
+  "route_id": "main",
+  "active_app_id": "desktop.minesweeper",
+  "narrative_checkpoint": {},
+  "gameplay": {
+    "narrative_variables": {},
+    "schedule_entries": [],
+    "money": 240,
+    "coins": 6,
+    "stats": {"motivation": 3, "pressure": 5, "health": 4},
+    "affection": {"priscilla": 2, "lavinia": 1, "sylvia": 0},
+    "inventory": {"gift.flower": 1},
+    "story_flags": {"intro.seen": true},
+    "tutorial_seen": true,
+    "opening_seen": true
+  },
+  "command_receipts": {},
+  "contacts": {},
+  "schedule": [],
+  "dating": {},
+  "applied_effect_transaction_ids": [],
+  "applied_variable_transaction_ids": [],
+  "audio_context": {}
+}

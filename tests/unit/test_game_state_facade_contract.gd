@@ -71,7 +71,10 @@ func test_prepare_new_run_snapshot_input_is_pure() -> void:
 	# Fresh run carries a valid empty stateless contacts bag (dwm-p2r.6), not a bare {}.
 	assert_eq(int(snapshot_input["contacts"]["next_sequence"]), 1, "fresh run has default contacts bag")
 	assert_eq((snapshot_input["contacts"]["messages"]["priscilla"] as Array).size(), 0, "no invitations yet")
-	assert_eq(snapshot_input["schedule"], [], "fresh run has empty schedule")
+	assert_eq(snapshot_input["committed_schedule"], {
+		"schema_version": 1, "day": 1, "registry_fingerprint": null,
+		"entries": [], "commit_receipt": null,
+	}, "fresh run carries the canonical empty aggregate with no registry fingerprint")
 	assert_eq(snapshot_input["dating"], {}, "fresh run has empty dating")
 	assert_eq(snapshot_input["applied_effect_transaction_ids"], [], "empty run-scoped ledgers")
 	assert_eq(snapshot_input["applied_variable_transaction_ids"], [], "empty run-scoped ledgers")

@@ -12,11 +12,14 @@ extends RefCounted
 ## come only from `ScheduleActionRegistry` through `ScheduleRules`; a caller-authored `route_id`,
 ## `effect_ids` or `motivation_cost` is rejected here purely as an unknown member.
 ##
-## RECORDED DIVERGENCE. A receipt-backed EMPTY Done aggregate (`entries == []` with a non-null
-## `empty_schedule_done` commit receipt) is legal under the frozen contract and is validated here.
-## `ScheduleRules._committed_structure` still rejects that shape, so Task 4 never routes a
-## receipt-backed empty aggregate through `ScheduleRules`; Task 5 reconciles the two when
-## `RunSnapshotSchema` delegates committed validation to this module.
+## RECONCILED IN TASK 5 (was a recorded divergence). A receipt-backed EMPTY Done aggregate
+## (`entries == []` with a non-null `empty_schedule_done` commit receipt) is legal under the frozen
+## contract and is validated here. `ScheduleRules._committed_structure` used to reject that shape,
+## so Task 4 never routed a receipt-backed empty aggregate through `ScheduleRules`. Task 5 aligned
+## the two NULLABILITY rules when `RunSnapshotSchema` began delegating committed validation to this
+## module, so `ScheduleRules` now admits the shape. Receipt CONTENTS remain this module's law alone:
+## `ScheduleRules` cannot call into here without forming a cyclic script dependency, so a caller
+## must validate through `validate_aggregate` before relying on `ScheduleRules.build_route_plan`.
 
 const _CANONICAL_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 

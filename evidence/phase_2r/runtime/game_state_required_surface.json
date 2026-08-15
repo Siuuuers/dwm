@@ -482,14 +482,6 @@
       "contract_test": "test_game_state_facade_reads_committed_state"
     },
     {
-      "symbol": "schedule_entries",
-      "kind": "property",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
-    },
-    {
       "symbol": "inventory",
       "kind": "property",
       "availability": "current",
@@ -1162,63 +1154,7 @@
       "contract_test": "test_contact_query_contracts"
     },
     {
-      "symbol": "clear_schedule_with_refund",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_editing_contracts"
-    },
-    {
       "symbol": "should_warn_minesweeper_before_schedule_done",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_query_contracts"
-    },
-    {
-      "symbol": "can_add_schedule_action",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_query_contracts"
-    },
-    {
-      "symbol": "add_schedule_action",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_editing_contracts"
-    },
-    {
-      "symbol": "add_schedule_date_entry",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_editing_contracts"
-    },
-    {
-      "symbol": "remove_schedule_entry",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_editing_contracts"
-    },
-    {
-      "symbol": "clear_schedule_without_refund",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_editing_contracts"
-    },
-    {
-      "symbol": "validate_schedule",
       "kind": "function",
       "availability": "current",
       "disposition": "retain",

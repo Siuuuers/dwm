@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "content_version": 1,
+  "run_id": "legacy-gameplay-run",
+  "checkpoint_id": "legacy-gameplay-run:17",
+  "checkpoint_sequence": 17,
+  "lifecycle": {
+    "run_id": "legacy-gameplay-run",
+    "day": 4,
+    "state": "PLAYING",
+    "active_resolution_plan": null,
+    "ending_plan": null
+  },
+  "route_id": "main",
+  "active_app_id": null,
+  "narrative_checkpoint": {},
+  "gameplay": {
+    "narrative_variables": {},
+    "schedule_entries": [
+      {"type": "training", "action_id": "training", "friend_id": ""}
+    ],
+    "money": 55,
+    "minesweeper_rounds_left": 1,
+    "minesweeper_round_floor": 0,
+    "condition_streak_days": 2,
+    "last_condition_day": 3
+  },
+  "command_receipts": {},
+  "contacts": {},
+  "schedule": [],
+  "dating": {},
+  "applied_effect_transaction_ids": [],
+  "applied_variable_transaction_ids": [],
+  "audio_context": {}
+}

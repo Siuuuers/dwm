@@ -8,6 +8,20 @@ extends RefCounted
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
+const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+
+## Frozen per-step version literals. A migration step must NEVER read the current schema constant:
+## substituting it into an old step silently relabels old bytes as the newest version and skips
+## every step in between. Each literal advances only when that step's own shape changes.
+const V2_SCHEMA_VERSION := 2
+const V3_SCHEMA_VERSION := 3
+const UNMIGRATABLE_LEGACY_SCHEDULE := &"unmigratable_legacy_schedule"
+## Acceptance is durable: an accepted invitation resolves into one of the RESOLVED_* states rather
+## than reverting, so every state in this lineage still implies an acceptance whose source ancestry
+## a migration cannot reconstruct.
+const LEGACY_ACCEPTED_STATES: Array[String] = [
+	"ACCEPTED", "RESOLVED_ATTENDED", "RESOLVED_MISSED", "RESOLVED_RUN_END",
+]
 
 const ENDING_ID_MAP := {
 	"alone": "ending.alone",
@@ -94,9 +108,162 @@ static func migrate_snapshot_v1_to_v2(snapshot: Dictionary) -> Dictionary:
 	if not gameplay.has("narrative_variables"):
 		gameplay["narrative_variables"] = {}
 	v2["gameplay"] = gameplay
-	v2["schema_version"] = RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION
+	# LITERAL 2. Reading RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION here would stamp whatever the newest
+	# version happens to be onto v2-shaped bytes, and the v2 -> v3 step would then never run.
+	v2["schema_version"] = V2_SCHEMA_VERSION
 
-	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(v2)
+	# For the same reason this step cannot end by calling the CURRENT validator: once the current
+	# schema requires v3, validating here would reject a perfectly correct v2 intermediate. This
+	# step emits a v2-shaped dict and hands off to migrate_snapshot_v2_to_v3.
+	return {"ok": true, "code": &"ok", "value": {"snapshot": v2}}
+
+
+# ---- Snapshot v2 -> v3 (committed Schedule; Plan 01 Task 5, dwm-p2r.13) ----
+
+## Replaces the two legacy Schedule representations with the canonical committed aggregate.
+##
+## Empty legacy state migrates to the canonical EMPTY aggregate at the saved day, carrying a NULL
+## registry fingerprint forever: this step never loads, names or adopts the current registry, so an
+## old save can never be silently relabelled as agreeing with today's action manifest. Only a later
+## logical-day initialization may replace the null empty aggregate with a current-fingerprint one.
+##
+## Nonempty or malformed legacy state fails closed with `unmigratable_legacy_schedule`. Migration
+## invents no source receipt, no witness receipt, no fingerprint and no ancestry, and it neither
+## reads nor writes the external publication ledger.
+static func migrate_snapshot_v2_to_v3(snapshot: Dictionary) -> Dictionary:
+	if typeof(snapshot) != TYPE_DICTIONARY:
+		return _fail(&"invalid_snapshot", "snapshot must be an object")
+	var v3 := RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(snapshot.duplicate(true)) as Dictionary
+
+	# saved_day is the already-validated v2 active-run day. It is read from the saved lifecycle and
+	# is never guessed, defaulted, or taken from a clock.
+	var lifecycle: Variant = v3.get("lifecycle")
+	if typeof(lifecycle) != TYPE_DICTIONARY:
+		return _fail(&"invalid_snapshot", "snapshot.lifecycle is required")
+	var saved_day_value: Variant = (lifecycle as Dictionary).get("day")
+	if typeof(saved_day_value) != TYPE_INT \
+			or int(saved_day_value) < SCHEDULE_STATE_SCHEMA.FIRST_DAY \
+			or int(saved_day_value) > SCHEDULE_STATE_SCHEMA.LAST_DAY:
+		return _fail(&"invalid_snapshot", "the v2 active-run day must be an integer 1..7")
+	var saved_day := int(saved_day_value)
+
+	var legacy_error := _legacy_schedule_error(v3)
+	if legacy_error != "":
+		return _fail(UNMIGRATABLE_LEGACY_SCHEDULE, legacy_error)
+
+	v3.erase("schedule")
+	var gameplay: Dictionary = v3.get("gameplay", {}) \
+		if typeof(v3.get("gameplay")) == TYPE_DICTIONARY else {}
+	gameplay.erase("schedule_entries")
+	v3["gameplay"] = gameplay
+
+	var empty: Dictionary = SCHEDULE_STATE_SCHEMA.empty_aggregate(saved_day, null)
+	if not empty.get("ok", false):
+		return empty
+	v3["committed_schedule"] = (empty["value"] as Dictionary)["committed_schedule"]
+	# Only an EXISTING Contacts object gains the two indexes; an absent or malformed one is left
+	# untouched for the current schema to reject, exactly as before this boundary.
+	if typeof(v3.get("contacts")) == TYPE_DICTIONARY:
+		v3["contacts"] = _contacts_with_source_indexes(v3["contacts"])
+	v3["schema_version"] = V3_SCHEMA_VERSION
+
+	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(v3)
+	if not validated.get("ok", false):
+		return validated
+	return {"ok": true, "code": &"ok", "value": {"snapshot": validated["value"]["candidate"]}}
+
+
+## Both legacy representations must be absent or exactly empty. A surviving entry, a non-array, or
+## an already-accepted invitation whose source ancestry cannot be reconstructed all fail closed
+## rather than being reshaped into something that merely looks authenticated.
+static func _legacy_schedule_error(snapshot: Dictionary) -> String:
+	if snapshot.has("schedule"):
+		var legacy: Variant = snapshot["schedule"]
+		if typeof(legacy) != TYPE_ARRAY:
+			return "the legacy top-level schedule must be an array"
+		if not (legacy as Array).is_empty():
+			return "a nonempty pre-amendment Schedule cannot migrate"
+	var gameplay: Variant = snapshot.get("gameplay")
+	if typeof(gameplay) == TYPE_DICTIONARY and (gameplay as Dictionary).has("schedule_entries"):
+		var entries: Variant = (gameplay as Dictionary)["schedule_entries"]
+		if typeof(entries) != TYPE_ARRAY:
+			return "the legacy gameplay.schedule_entries must be an array"
+		if not (entries as Array).is_empty():
+			return "a nonempty pre-amendment gameplay Schedule cannot migrate"
+	return _legacy_invitation_error(snapshot.get("contacts"))
+
+
+## A pre-amendment Contacts state that has ever ACCEPTED an invitation would need an authenticated
+## source receipt this step cannot produce, so it fails closed. A state that already carries the
+## source index is post-amendment and is left to normal validation.
+##
+## Acceptance is DURABLE, and the state moves on: `prepare_resolve_day_end` carries an accepted solo
+## or group into RESOLVED_ATTENDED / RESOLVED_MISSED / RESOLVED_RUN_END. Matching only the literal
+## "ACCEPTED" would therefore miss every save taken after the day the invitation resolved -- which
+## is the common case, not an edge case. The reliable markers are the durable ones the domain module
+## itself writes on acceptance: a solo's `reply_transaction_id`, and a group's `replied_ids`.
+static func _legacy_invitation_error(contacts: Variant) -> String:
+	if typeof(contacts) != TYPE_DICTIONARY:
+		return ""
+	var state: Dictionary = contacts
+	if state.has("schedule_source_receipts"):
+		return ""
+	var solo: Variant = state.get("solo_actions")
+	if typeof(solo) == TYPE_DICTIONARY:
+		for action_id: Variant in (solo as Dictionary):
+			var record: Variant = (solo as Dictionary)[action_id]
+			if typeof(record) != TYPE_DICTIONARY:
+				continue
+			var solo_record: Dictionary = record
+			if solo_record.get("reply_transaction_id") != null \
+					or str(solo_record.get("state", "")) in LEGACY_ACCEPTED_STATES:
+				return "an accepted legacy invitation has no reconstructable source ancestry"
+	var group: Variant = state.get("group_action")
+	if typeof(group) == TYPE_DICTIONARY:
+		var group_record: Dictionary = group
+		var replied: Variant = group_record.get("replied_ids")
+		var has_replies := typeof(replied) == TYPE_ARRAY and not (replied as Array).is_empty()
+		if has_replies or str(group_record.get("state", "")) in LEGACY_ACCEPTED_STATES:
+			return "an accepted legacy group invitation has no reconstructable source ancestry"
+	return ""
+
+
+## Adds exactly the two empty amendment indexes to an EXISTING Contacts bag, and nothing else. Every
+## pre-existing member survives byte-identically and no receipt is ever invented.
+##
+## This never fabricates a Contacts section: a snapshot whose `contacts` member is absent or is not
+## an object is left exactly as it was, so the current schema rejects it as it always did. Inventing
+## a two-key stub here would turn a previously-rejected document into an accepted one carrying a bag
+## that ContactInvitationState.validate_state would refuse.
+static func _contacts_with_source_indexes(contacts: Dictionary) -> Dictionary:
+	var state: Dictionary = contacts.duplicate(true)
+	if not state.has("schedule_source_receipts"):
+		state["schedule_source_receipts"] = {}
+	if not state.has("sylvia_hospital_witness_receipts"):
+		state["sylvia_hospital_witness_receipts"] = {}
+	return state
+
+
+## The single forward chain every snapshot travels, whatever its entry version. Each step emits its
+## own shape and hands off; only the final step validates against the current schema.
+static func _migrate_snapshot_to_current(snapshot: Dictionary, version: int,
+		receipts: Array[Dictionary]) -> Dictionary:
+	var working := snapshot
+	var current_version := version
+	if current_version < V2_SCHEMA_VERSION:
+		var to_v2 := migrate_snapshot_v1_to_v2(working)
+		if not to_v2.get("ok", false):
+			return to_v2
+		receipts.append({"migration": "snapshot_v1_to_v2"})
+		working = to_v2["value"]["snapshot"]
+		current_version = V2_SCHEMA_VERSION
+	if current_version < V3_SCHEMA_VERSION:
+		var to_v3 := migrate_snapshot_v2_to_v3(working)
+		if not to_v3.get("ok", false):
+			return to_v3
+		receipts.append({"migration": "snapshot_v2_to_v3"})
+		return to_v3
+	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(working)
 	if not validated.get("ok", false):
 		return validated
 	return {"ok": true, "code": &"ok", "value": {"snapshot": validated["value"]["candidate"]}}
@@ -167,10 +334,19 @@ static func _greatest_compatible_bundle(bundles: Array) -> Dictionary:
 	for bundle: Variant in bundles:
 		if typeof(bundle) != TYPE_DICTIONARY or typeof((bundle as Dictionary).get("snapshot")) != TYPE_DICTIONARY:
 			continue
-		var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(bundle["snapshot"])
+		# A legacy Day-8 reconstruction is by definition fed legacy bundles, so each candidate
+		# travels the same forward chain before it is judged. This never accepts an old shape under
+		# a current tag: the chain's final step is the current validator.
+		var dispatched := _dispatch_schema(bundle["snapshot"])
+		if not dispatched.get("ok", false):
+			continue
+		var discarded_receipts: Array[Dictionary] = []
+		var validated := _migrate_snapshot_to_current(
+			bundle["snapshot"], int(dispatched["value"]["schema_version"]), discarded_receipts)
 		if not validated.get("ok", false):
 			continue
-		var candidate: Dictionary = validated["value"]["candidate"]
+		var candidate: Dictionary = validated["value"].get("snapshot",
+			validated["value"].get("candidate"))
 		if int(candidate["lifecycle"]["day"]) < 1 or int(candidate["lifecycle"]["day"]) > 7:
 			continue
 		var sequence := int(candidate["checkpoint_sequence"])
@@ -208,7 +384,7 @@ static func migrate_document(raw: Dictionary, expected_locator: Dictionary) -> D
 		migrated_journal.append(migrated_entry["value"]["bundle"])
 
 	var document := {
-		"schema_version": 2,
+		"schema_version": V3_SCHEMA_VERSION,
 		"kind": str(expected_locator["kind"]),
 		"slot_id": expected_locator["slot_id"],
 		"save_reason": str(raw.get("save_reason", "")),
@@ -255,13 +431,8 @@ static func _migrate_bundle_snapshot(
 		working.erase("input_mappings")
 		receipts.append({"migration": "strip_legacy_input_mappings"})
 
-	var result: Dictionary
-	if int(version_dispatch["value"]["schema_version"]) < 2:
-		result = migrate_snapshot_v1_to_v2(working)
-		if result.get("ok", false):
-			receipts.append({"migration": "snapshot_v1_to_v2"})
-	else:
-		result = RUN_SNAPSHOT_SCHEMA.validate(working)
+	var result := _migrate_snapshot_to_current(
+		working, int(version_dispatch["value"]["schema_version"]), receipts)
 	if not result.get("ok", false):
 		return result
 	var migrated_snapshot: Dictionary = result["value"].get("snapshot", result["value"].get("candidate"))
@@ -283,7 +454,7 @@ static func _dispatch_schema(snapshot: Dictionary) -> Dictionary:
 	var version := int(raw_version)
 	if version < 1:
 		return _fail(&"unsupported_legacy_schema", str(version))
-	if version > 2:
+	if version > V3_SCHEMA_VERSION:
 		return _fail(&"unsupported_future_schema", str(version))
 	return {"ok": true, "code": &"ok", "value": {"schema_version": version}}
 

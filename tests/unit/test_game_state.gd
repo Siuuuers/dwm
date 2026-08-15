@@ -257,12 +257,76 @@ func test_should_route_sylvia_special_ending_thresholds() -> void:
 	assert_true(GameState.should_route_sylvia_special_ending(), ">=2 skips enables Special Sylvia")
 
 
+## Seeds the owner's canonical committed aggregate directly, exactly as these scenarios previously
+## seeded the legacy Schedule array (Plan 01 Task 5, dwm-p2r.13). The identifiers are placeholders
+## but the aggregate is FULLY schema-valid, receipt binding and child provenance included, because
+## restore/rollback now revalidate it before mutating anything. Suites that need authenticated
+## issuer ancestry build real committed state through GameStateScheduleCommitPort instead.
+func _seed_committed_solo(friend_id: String, seed_day: int) -> void:
+	var fingerprint := "0".repeat(64)
+	var transaction_id := "seed-transaction"
+	var entry_id := "seed-entry-0"
+	var receipt_id := "seed-receipt"
+	var root_receipt_id := "seed-root-receipt"
+	GameState._committed_schedule = {
+		"schema_version": 1,
+		"day": seed_day,
+		"registry_fingerprint": fingerprint,
+		"entries": [{
+			"action_id": "solo:%s:day%d" % [friend_id, seed_day],
+			"action_kind": "solo",
+			"commit_transaction_id": transaction_id,
+			"day": seed_day,
+			"participants": [friend_id],
+			"schedule_entry_id": entry_id,
+			"schedule_entry_provenance": {
+				"child_id": entry_id,
+				"child_kind": "schedule_entry",
+				"ordinal": 0,
+				"parent_receipt_id": receipt_id,
+				"schema_version": 1,
+				"source_ids": ["seed-source"],
+			},
+			"slot_index": 0,
+			"source_receipt_id": null,
+			"state": "committed",
+		}],
+		"commit_receipt": {
+			"causal_day_instance": "seed-causal-day",
+			"day": seed_day,
+			"motivation_charged": 1,
+			"receipt_id": receipt_id,
+			"receipt_provenance": {
+				"child_id": receipt_id,
+				"child_kind": "schedule_commit",
+				"ordinal": 0,
+				"parent_receipt_id": root_receipt_id,
+				"schema_version": 1,
+				"source_ids": ["seed-source"],
+			},
+			"registry_fingerprint": fingerprint,
+			"schedule_entry_ids": [entry_id],
+			"source_receipt_ids": [null],
+			"transaction_id": transaction_id,
+			"transaction_issuer_receipt": {
+				"counter": 0,
+				"namespace": "seed-namespace",
+				"numeric_value": null,
+				"purpose": "transaction_id",
+				"receipt_id": root_receipt_id,
+				"token": transaction_id,
+			},
+			"view_fingerprint": "seed-view",
+		},
+	}
+
+
 func test_hospital_recovery_counts_sylvia_solo() -> void:
 	GameState.set_stat("health", -2)
 	GameState.set_stat("pressure", 12)
-	# Real hospital route: the Sylvia solo lives in schedule_entries (dates are skipped, never queued
-	# into pending_date_entries). The counter MUST read the schedule before it is cleared.
-	GameState.schedule_entries = [{"type": "solo", "friend_id": "sylvia"}]
+	# Real hospital route: the Sylvia solo is a COMMITTED entry (dates are skipped, never queued
+	# into pending_date_entries). The counter MUST read the schedule before it is reset.
+	_seed_committed_solo("sylvia", GameState.day)
 	GameState.pending_hospital = true
 	GameState.apply_hospital_recovery_and_advance_day()
 	assert_eq(GameState.hospital_skipped_sylvia_solo_count, 1, "one skipped Sylvia solo counted")
@@ -273,7 +337,7 @@ func test_resolve_day7_sylvia_special_highest_precedence() -> void:
 	GameState._lifecycle_set_playing_day(7)
 	GameState.hospital_skipped_sylvia_solo_count = 2
 	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}  # priscilla_lavinia also true
-	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	_seed_committed_solo("priscilla", 7)
 	var r := GameState.resolve_day7_ending()
 	assert_eq(r["ending_id"], "ending.sylvia.special", "Special Sylvia wins over priscilla_lavinia")
 	assert_eq(r["epilogue_ending_id"], "ending.priscilla_lavinia", "priscilla_lavinia plays as epilogue")
@@ -295,7 +359,7 @@ func test_resolve_day7_candidate_binary_tone_sweet() -> void:
 	# story/05 §1: true-path retired as a destination; tone is binary. Low dark points now Sweet.
 	GameState._lifecycle_set_playing_day(7)
 	GameState.contact_message_unlocks = {"day:7:friend:priscilla": true}
-	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	_seed_committed_solo("priscilla", 7)
 	GameState.dating_route_state = {"priscilla": {"true_path_count": 4, "dark_points": 0}}
 	GameState.affection = {"priscilla": 10}
 	var r := GameState.resolve_day7_ending()
@@ -352,7 +416,7 @@ func test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_
 	GameState.finish_minesweeper_app_round({"context": "app"})
 	watch_signals(GameState)
 	var pristine_contacts: Dictionary = GameState.contacts.duplicate(true)
-	var pristine_schedule: Array = GameState.schedule_entries.duplicate(true)
+	var pristine_schedule: Dictionary = GameState.capture_schedule_commit_state()["value"]["committed_schedule"]
 	var command := _command("failure-preservation")
 	var id_only: Dictionary = GameState.open_contact("priscilla", command["id"], {})
 	assert_false(id_only.get("ok", true))
@@ -366,7 +430,8 @@ func test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_
 		"priscilla", command["id"], other["receipt"])
 	assert_false(mismatch.get("ok", true))
 	assert_eq(GameState.contacts, pristine_contacts, "proof failures preserve Contacts byte-for-byte")
-	assert_eq(GameState.schedule_entries, pristine_schedule, "proof failures never draft Schedule")
+	assert_eq(GameState.capture_schedule_commit_state()["value"]["committed_schedule"],
+		pristine_schedule, "proof failures never commit Schedule")
 	assert_signal_emit_count(GameState, "contact_open_committed", 0)
 
 	var accepted: Dictionary = GameState.open_contact(
@@ -375,13 +440,14 @@ func test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_
 	assert_signal_emit_count(GameState, "contact_open_committed", 1)
 	GameState.contacts["transaction_receipts"][command["id"]]["action_id"] = "solo:sylvia:day1"
 	var tampered_contacts: Dictionary = GameState.contacts.duplicate(true)
-	var schedule_before_replay: Array = GameState.schedule_entries.duplicate(true)
+	var schedule_before_replay: Dictionary = GameState.capture_schedule_commit_state()["value"]["committed_schedule"]
 	var rejected_replay: Dictionary = GameState.open_contact(
 		"priscilla", command["id"], command["receipt"])
 	assert_false(rejected_replay.get("ok", true),
 		"a linked source cannot replay through a changed stored operation")
 	assert_eq(GameState.contacts, tampered_contacts, "tampered replay rejection preserves Contacts")
-	assert_eq(GameState.schedule_entries, schedule_before_replay, "tampered replay cannot draft Schedule")
+	assert_eq(GameState.capture_schedule_commit_state()["value"]["committed_schedule"],
+		schedule_before_replay, "tampered replay cannot commit Schedule")
 	assert_signal_emit_count(GameState, "contact_open_committed", 1)
 
 func test_group_reply_tampered_replay_preserves_contacts_schedule_and_signal_count() -> void:
@@ -398,12 +464,12 @@ func test_group_reply_tampered_replay_preserves_contacts_schedule_and_signal_cou
 	GameState.contacts["transaction_receipts"][command["id"]]["action_id"] = \
 		"group:priscilla_lavinia:day6"
 	var contacts_before: Dictionary = GameState.contacts.duplicate(true)
-	var schedule_before: Array = GameState.schedule_entries.duplicate(true)
+	var schedule_before: Dictionary = GameState.capture_schedule_commit_state()["value"]["committed_schedule"]
 	var replayed: Dictionary = GameState.reply_invitation(
 		"lavinia", command["id"], command["receipt"])
 	assert_false(replayed.get("ok", true), "tampered group replay fails closed")
 	assert_eq(GameState.contacts, contacts_before)
-	assert_eq(GameState.schedule_entries, schedule_before)
+	assert_eq(GameState.capture_schedule_commit_state()["value"]["committed_schedule"], schedule_before)
 	assert_signal_emit_count(GameState, "invitation_reply_committed", 1)
 
 func test_get_contact_view_delegates_to_module() -> void:
@@ -594,7 +660,7 @@ func test_request_next_ending_command_plays_primary_first() -> void:
 	# and derives the playback ids from run id + role. story/05 §1: low dark points -> Sweet.
 	GameState._lifecycle_set_playing_day(7)
 	GameState.contact_message_unlocks = {"day:7:friend:priscilla": true}
-	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	_seed_committed_solo("priscilla", 7)
 	GameState.dating_route_state = {"priscilla": {"true_path_count": 4, "dark_points": 0}}
 	GameState.affection = {"priscilla": 10}
 	GameState.resolve_day7_ending()
@@ -616,7 +682,7 @@ func test_request_next_ending_command_rejects_outside_ending() -> void:
 func _enter_priscilla_sweet_ending() -> void:
 	GameState._lifecycle_set_playing_day(7)
 	GameState.contact_message_unlocks = {"day:7:friend:priscilla": true}
-	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	_seed_committed_solo("priscilla", 7)
 	GameState.dating_route_state = {"priscilla": {"true_path_count": 4, "dark_points": 0}}
 	GameState.affection = {"priscilla": 10}
 	GameState.resolve_day7_ending()
@@ -700,7 +766,7 @@ func test_full_with_epilogue_ending_flow_records_both_endings() -> void:
 	GameState._lifecycle_set_playing_day(7)
 	GameState.hospital_skipped_sylvia_solo_count = 2
 	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}
-	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	_seed_committed_solo("priscilla", 7)
 	var r := GameState.resolve_day7_ending()
 	assert_eq(r["ending_id"], "ending.sylvia.special")
 	assert_eq(r["epilogue_ending_id"], "ending.priscilla_lavinia")
@@ -749,7 +815,7 @@ func test_gallery_record_recovers_forward_after_a_partial_profile_failure() -> v
 	GameState._lifecycle_set_playing_day(7)
 	GameState.hospital_skipped_sylvia_solo_count = 2
 	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}
-	GameState.schedule_entries = [{"day": 7, "type": "solo", "date_kind": "date", "friend_id": "priscilla"}]
+	_seed_committed_solo("priscilla", 7)
 	assert_eq(GameState.resolve_day7_ending()["epilogue_ending_id"], "ending.priscilla_lavinia")
 	assert_true(_advance_ending(&"PRIMARY_PENDING", {"outcome": "completed"}).get("ok", false), "play primary")
 	assert_true(_advance_ending(&"PRIMARY_PLAYED", {"outcome": "completed"}).get("ok", false), "play epilogue")
@@ -788,27 +854,7 @@ func test_game_state_no_longer_owns_a_duplicate_schedule_effect_table() -> void:
 			+ "effect truth and must be replaced by ScheduleActionRegistry lookups")
 
 
-func test_ordinary_schedule_effects_are_read_from_the_registry() -> void:
-	# reset_game() leaves day 1, where every ordinary action and solo:priscilla:day1 are registered.
-	assert_true(GameState.add_schedule_action("working"), "an ordinary action is schedulable")
-	var entries: Array = GameState.schedule_entries
-	assert_eq(entries.size(), 1, "exactly one entry was appended")
-	if entries.is_empty():
-		return
-	var entry: Dictionary = entries[0]
-	assert_eq(entry.get("effect_ids"), ["pressure:+2", "health:-2", "money:+30"],
-		"the effects are the registry record, in canonical order")
-	assert_eq(entry.get("motivation_cost"), 1, "cost is the registry cost")
-
-
-func test_the_legacy_facade_still_rejects_non_ordinary_action_ids() -> void:
-	# Registry membership alone is insufficient: date identities are reachable only through the
-	# dating branch, so the legacy add path must keep rejecting them exactly as it did before.
-	assert_eq(GameState.can_add_schedule_action("mystery_action").get("reason"), "unknown_action",
-		"an unregistered action is still unknown_action")
-	assert_eq(GameState.can_add_schedule_action("solo:priscilla:day1").get("reason"),
-		"unknown_action",
-		"a registered DATE identity is not addable through the ordinary legacy path")
-	assert_false(GameState.add_schedule_action("solo:priscilla:day1"),
-		"the date identity is refused without mutation")
-	assert_eq(GameState.schedule_entries.size(), 0, "a refused add appends nothing")
+# The two legacy add/can-add facade tests retired here with their subject (Plan 01 Task 5,
+# dwm-p2r.13). The registry is now the sole source of ordinary-action effects, exercised through
+# GameState.execute_non_date_schedule_effects, and admission is owned by
+# GameStateScheduleCommitPort's registry-backed commit transaction rather than an add-time facade.

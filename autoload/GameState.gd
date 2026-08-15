@@ -81,7 +81,7 @@ const _SAVE_WHITELIST := [
 	"day", "money", "coins", "stats", "friends", "affection", "friend_attitude",
 	"dating_route_state", "inter_friend_affection", "inter_friend_route_state",
 	"missed_group_date_counts", "daily_opened_contacts",
-	"daily_group_invitation_generated", "daily_group_invitation_pair", "schedule_entries",
+	"daily_group_invitation_generated", "daily_group_invitation_pair",
 	"inventory", "chat_state", "shop_purchase_counts", 	"minesweeper_round_floor", "minesweeper_rng_seed",
 	"minesweeper_rounds_left", "minesweeper_app_rounds_finished_today", "minesweeper_selected_difficulty",
 	"minesweeper_money_earned_today", "minesweeper_task_rewards_claimed", "penalty_points_today",
@@ -134,7 +134,6 @@ const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/r
 const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
-const _SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
 const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
@@ -176,7 +175,6 @@ var daily_opened_contacts: Dictionary
 var daily_group_invitation_generated: bool
 var daily_group_invitation_pair: Array[String]
 
-var schedule_entries: Array
 var inventory: Dictionary
 # reserved/opaque — declared (CONTRACTS §2) + serialized by SaveManager (§6); NO behavior may be added.
 var chat_state: Dictionary
@@ -252,7 +250,6 @@ func reset_game() -> void:
 	daily_group_invitation_generated = false
 	daily_group_invitation_pair = []
 
-	schedule_entries = []
 	# The canonical committed-Schedule aggregate is run-scoped and never leaks across runs
 	# (Plan 01 Task 4, dwm-p2r.13). Task 5 gives it its v3 persistence.
 	_committed_schedule = {}
@@ -892,8 +889,9 @@ func get_day7_ending_candidates_from_schedule() -> Array[String]:
 		if get_affection_tier(fid) not in ["ambiguous", "love"]:
 			continue
 		var has_entry: bool = false
-		for entry in schedule_entries:
-			if entry.get("type") == "solo" and entry.get("friend_id") == fid:
+		for entry in _committed_entries():
+			if str(entry.get("action_kind", "")) == "solo" \
+					and (entry.get("participants", []) as Array).has(fid):
 				has_entry = true
 				break
 		if has_entry:
@@ -976,11 +974,58 @@ func has_unread_friend_messages() -> Dictionary:
 
 
 # ---- Schedule ----
-func clear_schedule_with_refund() -> void:
-	var refund: int = schedule_entries.size()
-	schedule_entries = []
-	if refund > 0:
-		change_stat(STAT_MOTIVATION, refund)
+# The canonical committed aggregate is the ONLY Schedule source of truth (Plan 01 Task 5,
+# dwm-p2r.13). The legacy per-day draft array, its add-time spend/refund, its direct
+# execute/clear/queue helpers and the loose date-candidate seam all retired at this boundary;
+# GameStateScheduleCommitPort owns the transaction that produces committed state.
+
+## The committed entries for the current day, in canonical slot order.
+func _committed_entries() -> Array:
+	return _canonical_committed_schedule()["entries"] as Array
+
+
+## Adapts one committed entry to the legacy `type`/`friend_id`/`friend_ids` transport shape the
+## day-resolution and dating flows still speak. `twofriends` is never a committed kind: it is a
+## deferred route that day-end resolution produces, so it can only ever arrive from
+## `create_missed_group_twofriends_entry`.
+##
+## SCOPE NOTE, deliberately not glossed over: the DATE TRANSPORT is behaviour-preserving, but the
+## pre-Done QUERY surface is not. `should_warn_minesweeper_before_schedule_done`,
+## `get_scheduled_date_count` and `get_max_scheduled_dates_for_current_day` were written to inspect
+## the draft the player had built BEFORE pressing Done. There is no draft in GameState any more --
+## the aggregate is empty until the Done commit transaction lands -- so those queries now answer
+## from post-commit state and their draft-time branches are unreachable. That is the amendment's
+## intent (the draft belongs to the Schedule UI owner, explicitly out of scope for dwm-p2r.13) and
+## no live caller exists today, but it is a real contract change, not a pure refactor.
+func _legacy_entry_from_committed(entry: Dictionary) -> Dictionary:
+	var participants: Array = entry.get("participants", [])
+	match str(entry.get("action_kind", "")):
+		"solo":
+			return {
+				"type": "solo",
+				"friend_id": str(participants[0]) if participants.size() > 0 else "",
+				"advance_day_after_finish": true,
+			}
+		"group":
+			return {
+				"type": "group",
+				"friend_ids": participants.duplicate(),
+				"inviter_id": _group_inviter(),
+				"advance_day_after_finish": true,
+			}
+	var action_id := str(entry.get("action_id", ""))
+	return {"type": action_id, "id": action_id}
+
+
+func _is_committed_date_entry(entry: Dictionary) -> bool:
+	return str(entry.get("action_kind", "")) in ["solo", "group"]
+
+
+## Day end and the hospital route return the committed aggregate to its canonical EMPTY form. An
+## empty `_committed_schedule` always projects the LIVE day, so the aggregate can never carry a
+## stale day into the next snapshot. Motivation is never refunded here: the commit already charged.
+func _reset_committed_schedule_for_day_end() -> void:
+	_committed_schedule = {}
 	emit_signal("schedule_changed")
 	emit_signal("save_relevant_state_changed")
 
@@ -991,9 +1036,8 @@ func should_warn_minesweeper_before_schedule_done() -> Dictionary:
 	var motivation: int = get_stat(STAT_MOTIVATION)
 	var has_date_entry: bool = false
 	var has_non_date_entry: bool = false
-	for entry in schedule_entries:
-		var t: String = entry.get("type", "")
-		if t in ["solo", "group", "twofriends"]:
+	for entry in _committed_entries():
+		if _is_committed_date_entry(entry):
 			has_date_entry = true
 		else:
 			has_non_date_entry = true
@@ -1026,149 +1070,31 @@ func should_warn_minesweeper_before_schedule_done() -> Dictionary:
 	}
 
 
-func can_add_schedule_action(action_id: String, friend_id: String = "") -> Dictionary:
-	if get_stat(STAT_MOTIVATION) <= 0:
-		return {"ok": false, "reason": "no_motivation"}
-	if action_id == "dating":
-		if friend_id == "":
-			return {"ok": false, "reason": "no_friend"}
-		if not is_date_unlocked(friend_id):
-			return {"ok": false, "reason": "date_not_unlocked"}
-		if not _can_add_date_entry({"type": "solo", "friend_id": friend_id}):
-			return {"ok": false, "reason": "date_invalid"}
-		return {"ok": true}
-	if _ordinary_action_record(action_id).is_empty():
-		return {"ok": false, "reason": "unknown_action"}
-	return {"ok": true}
-
-
-## The registry record for an ORDINARY Schedule action, or {} when the id is unregistered, is not
-## ordinary, or the registry itself failed to load. Date identities live in the registry too, but
-## this legacy facade reaches them only through the `dating` branch above, so filtering by kind
-## keeps the pre-registry add/remove behaviour byte-identical. A registry that fails to load fails
-## closed here rather than inventing a new reason string for callers that match on the old one.
-func _ordinary_action_record(action_id: String) -> Dictionary:
-	var loaded: Dictionary = _SCHEDULE_ACTION_REGISTRY.load_current()
-	if not loaded.get("ok", false):
-		return {}
-	var registry: Object = (loaded["value"] as Dictionary)["registry"]
-	var found: Dictionary = registry.find_record(action_id)
-	if not found.get("ok", false):
-		return {}
-	var record: Dictionary = (found["value"] as Dictionary)["record"]
-	return record if str(record["action_kind"]) == "ordinary" else {}
-
-
-func add_schedule_action(action_id: String, friend_id: String = "") -> bool:
-	if action_id == "dating":
-		if friend_id == "":
-			return false
-		var entry: Dictionary = build_date_entry_from_unlock(friend_id)
-		return add_schedule_date_entry(entry)
-	var res: Dictionary = can_add_schedule_action(action_id)
-	if not res.get("ok", false):
-		return false
-	var record: Dictionary = _ordinary_action_record(action_id)
-	var entry: Dictionary = {
-		"id": action_id,
-		"type": action_id,
-		"motivation_cost": int(record["motivation_cost"]),
-		"effect_ids": (record["effect_ids"] as Array).duplicate(),
-		"requires_friend": false,
-	}
-	schedule_entries.append(entry)
-	change_stat(STAT_MOTIVATION, -1)
-	emit_signal("schedule_changed")
-	emit_signal("save_relevant_state_changed")
-	return true
-
-
-func add_schedule_date_entry(entry: Dictionary) -> bool:
-	if entry.get("type", "") not in ["solo", "group", "twofriends"]:
-		return false
-	if get_stat(STAT_MOTIVATION) <= 0:
-		return false
-	if not _can_add_date_entry(entry):
-		return false
-	# Per-entry advance_day_after_finish: true for solo/group (provenance only), false for twofriends.
-	if entry.get("type") == "twofriends":
-		entry["advance_day_after_finish"] = false
-	else:
-		entry["advance_day_after_finish"] = true
-	schedule_entries.append(entry.duplicate())
-	change_stat(STAT_MOTIVATION, -1)
-	emit_signal("schedule_changed")
-	emit_signal("save_relevant_state_changed")
-	return true
-
-
-func remove_schedule_entry(index: int) -> bool:
-	if index < 0 or index >= schedule_entries.size():
-		return false
-	schedule_entries.remove_at(index)
-	change_stat(STAT_MOTIVATION, 1)
-	# Cascade: if removing invalidated later date entries (duplicate / over-limit), drop + refund them.
-	var i: int = 0
-	while i < schedule_entries.size():
-		var e: Dictionary = schedule_entries[i]
-		if e.get("type", "") in ["solo", "group", "twofriends"] and not _can_add_date_entry(e, true):
-			schedule_entries.remove_at(i)
-			change_stat(STAT_MOTIVATION, 1)
-		else:
-			i += 1
-	emit_signal("schedule_changed")
-	emit_signal("save_relevant_state_changed")
-	return true
-
-
-func clear_schedule_without_refund() -> void:
-	schedule_entries = []
-	emit_signal("schedule_changed")
-	emit_signal("save_relevant_state_changed")
-
-
-func validate_schedule() -> Dictionary:
-	if get_max_scheduled_dates_for_current_day() < get_scheduled_date_count():
-		return {"ok": false, "reason": "too_many_dates"}
-	var date_count: int = 0
-	for entry in schedule_entries:
-		var t: String = entry.get("type", "")
-		if t in ["solo", "group", "twofriends"]:
-			if not _can_add_date_entry(entry, true):
-				return {"ok": false, "reason": "invalid_date"}
-			date_count += 1
-		else:
-			if _ordinary_action_record(t).is_empty():
-				return {"ok": false, "reason": "unknown_action"}
-	if date_count > get_max_scheduled_dates_for_current_day():
-		return {"ok": false, "reason": "too_many_dates"}
-	return {"ok": true, "reason": "valid"}
-
-
 func get_scheduled_date_friend_ids() -> Array[String]:
 	var out: Array[String] = []
-	for entry in schedule_entries:
-		var t: String = entry.get("type", "")
-		if t == "solo":
-			out.append(entry.get("friend_id", ""))
-		elif t == "group":
-			for fid in entry.get("friend_ids", []):
-				out.append(fid)
+	for entry in _committed_entries():
+		match str(entry.get("action_kind", "")):
+			"solo":
+				var participants: Array = entry.get("participants", [])
+				out.append(str(participants[0]) if participants.size() > 0 else "")
+			"group":
+				for fid: Variant in entry.get("participants", []):
+					out.append(str(fid))
 	return out
 
 
 func get_scheduled_date_entries() -> Array:
 	var out: Array = []
-	for entry in schedule_entries:
-		if entry.get("type", "") in ["solo", "group", "twofriends"]:
-			out.append(entry)
+	for entry in _committed_entries():
+		if _is_committed_date_entry(entry):
+			out.append(_legacy_entry_from_committed(entry))
 	return out
 
 
 func get_scheduled_date_count() -> int:
 	var c: int = 0
-	for entry in schedule_entries:
-		if entry.get("type", "") in ["solo", "group", "twofriends"]:
+	for entry in _committed_entries():
+		if _is_committed_date_entry(entry):
 			c += 1
 	return c
 
@@ -1202,18 +1128,15 @@ func get_missed_invitation_for_friend(friend_id: String, target_day: int = -1) -
 
 
 func execute_schedule_sequence_until_route_needed() -> Dictionary:
-	if not validate_schedule().get("ok", false):
-		return {"ok": false, "executed": false, "needs_hospital": false, "route": "none", "date_entries": [], "twofriends_entries": [], "reason": "invalid_schedule"}
-
+	# No draft re-validation here: the committed aggregate is canonical by construction, having
+	# already passed ScheduleStateSchema and the registry inside the commit transaction.
 	execute_non_date_schedule_effects()
 
 	var date_entries: Array = []
 	var twofriends_entries: Array = []
+	# A committed entry is never `twofriends`; that route is produced below at day end.
 	for entry in get_scheduled_date_entries():
-		if entry.get("type") == "twofriends":
-			twofriends_entries.append(entry)
-		else:
-			date_entries.append(entry)
+		date_entries.append(entry)
 
 	var cond: Dictionary = resolve_pressure_health_condition_end_of_day()
 	var needs_hospital: bool = bool(cond.get("needs_hospital", false))
@@ -1242,12 +1165,29 @@ func execute_schedule_sequence_until_route_needed() -> Dictionary:
 	}
 
 
+## The REGISTRY alone derives the effects of a committed ordinary action (dwm-wks acceptance): a
+## committed entry names its action, never its consequences, so no caller-authored `effect_ids`
+## can influence execution.
+##
+## FAILURE MODE, recorded rather than hidden: a registry that fails to load applies NOTHING rather
+## than guessing, while the legacy caller `execute_schedule_sequence_until_route_needed` still
+## reports success and routes the day. Before this boundary the effects rode on the entry itself, so
+## they were applied whatever the registry did. Deriving them from the registry is the correct
+## design (the entry must not carry its own consequences), but the silent-success path belongs to
+## the legacy transport that Task 6 replaces with the committed-receipt start port; it is not
+## repaired here because this task does not own that transport's result contract.
 func execute_non_date_schedule_effects() -> void:
-	for entry in schedule_entries:
-		var t: String = entry.get("type", "")
-		if t in ["solo", "group", "twofriends"]:
+	var loaded: Dictionary = _SCHEDULE_ACTION_REGISTRY.load_current()
+	if not loaded.get("ok", false):
+		return
+	var registry: Object = (loaded["value"] as Dictionary)["registry"]
+	for entry in _committed_entries():
+		if _is_committed_date_entry(entry):
 			continue
-		var effect_ids: Array = entry.get("effect_ids", [])
+		var found: Dictionary = registry.find_record(str(entry.get("action_id", "")))
+		if not found.get("ok", false):
+			continue
+		var effect_ids: Array = ((found["value"] as Dictionary)["record"] as Dictionary).get("effect_ids", [])
 		if not effect_ids.is_empty():
 			_apply_effect_ids(effect_ids)
 
@@ -1332,13 +1272,14 @@ func apply_hospital_recovery_and_advance_day() -> bool:
 	condition_streak_days = 0
 	condition_resolved_day = 0
 	condition_effects_today = []
-	# Special Sylvia ending evidence: count scheduled Sylvia solo dates skipped by this hospital
-	# trip. MUST read schedule_entries BEFORE clear_schedule_without_refund() — pending_date_entries
-	# is empty on a hospital route (dates are skipped, never queued via prepare_dating_entries).
-	for _e in schedule_entries:
-		if _e is Dictionary and _e.get("type") == "solo" and _e.get("friend_id") == "sylvia":
+	# Special Sylvia ending evidence: count committed Sylvia solo dates skipped by this hospital
+	# trip. MUST read the committed entries BEFORE the day-end reset — pending_date_entries is
+	# empty on a hospital route (dates are skipped, never queued via prepare_dating_entries).
+	for _e in _committed_entries():
+		if str(_e.get("action_kind", "")) == "solo" \
+				and (_e.get("participants", []) as Array).has("sylvia"):
 			hospital_skipped_sylvia_solo_count += 1
-	clear_schedule_without_refund()
+	_reset_committed_schedule_for_day_end()
 	# Clear pending Angela dates (post-hospital twofriends are not re-routed; see FLOWS §6).
 	pending_date_entries = []
 	pending_date_entry_index = 0
@@ -1371,8 +1312,9 @@ func advance_day_or_end() -> bool:
 			for f in u.get("friend_ids", []):
 				missed_invitations.append({"friend_id": str(f), "source": "group", "day": day})
 
-	# 2-5. Clear schedule, pending dates, daily condition marker, daily invitation-response state.
-	clear_schedule_without_refund()
+	# 2-5. Reset the committed Schedule, pending dates, daily condition marker, daily
+	# invitation-response state.
+	_reset_committed_schedule_for_day_end()
 	pending_date_entries = []
 	pending_date_entry_index = 0
 	pending_date_friend_id = ""
@@ -1624,8 +1566,8 @@ func _group_pair_contains(friend_id: String) -> bool:
 
 
 func _group_scheduled() -> bool:
-	for entry in schedule_entries:
-		if entry.get("type") == "group":
+	for entry in _committed_entries():
+		if str(entry.get("action_kind", "")) == "group":
 			return true
 	return false
 
@@ -1638,22 +1580,6 @@ func _entry_friend_id(entry: Dictionary) -> String:
 		var fids: Array = entry.get("friend_ids", [])
 		return fids[0] if fids.size() > 0 else ""
 	return ""
-
-
-# _can_add_date_entry validates a would-be date entry against current schedule.
-# `silent` = called during re-validation (no extra side effects); always returns bool.
-func _can_add_date_entry(entry: Dictionary, silent: bool = false) -> bool:
-	# twofriends is a deferred route produced by day-end resolution, never validated here.
-	if entry.get("type", "") == "twofriends":
-		return true
-	# ScheduleRules owns the solo/group date rules. `existing` is the schedule with THIS entry
-	# excluded by identity, so a scheduled entry never invalidates itself (add-time: the candidate
-	# is not yet in the schedule, so nothing is excluded).
-	var existing: Array = []
-	for e in schedule_entries:
-		if not is_same(e, entry):
-			existing.append(e)
-	return _SCHEDULE_RULES.validate_date_candidate(existing, entry, day).get("ok", false)
 
 
 # ---- Phase 2R lifecycle facade seams (dwm-p2r.4 Task 3) ----
@@ -1692,10 +1618,10 @@ func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
 	var defaults: Dictionary = template.to_save_dict()
 	template.free()
 	# Shape the detached Day-1 input to match RunSnapshotSchema.build: gameplay bag
-	# (whitelisted fields minus day/contacts/schedule/dating), plus their own fields.
+	# (whitelisted fields minus day/contacts/committed_schedule/dating), plus their own fields.
 	var gameplay := {"narrative_variables": {}}
 	for key in _SAVE_WHITELIST:
-		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "schedule_entries", "dating_route_state"]:
+		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "dating_route_state"]:
 			continue
 		if defaults.has(key):
 			gameplay[key] = defaults[key]
@@ -1709,7 +1635,15 @@ func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
 		},
 		"gameplay": gameplay,
 		"contacts": _CONTACT_INVITATION_STATE.make_defaults(),
-		"schedule": [],
+		# A new run starts at the canonical EMPTY aggregate with a null fingerprint: only a later
+		# logical-day initialization may adopt the current registry fingerprint.
+		"committed_schedule": {
+			"schema_version": _SCHEDULE_STATE_SCHEMA.SCHEMA_VERSION,
+			"day": 1,
+			"registry_fingerprint": null,
+			"entries": [],
+			"commit_receipt": null,
+		},
 		"dating": {},
 		"applied_effect_transaction_ids": [],
 		"applied_variable_transaction_ids": [],
@@ -1909,6 +1843,9 @@ func capture_restore_state() -> Dictionary:
 		"gameplay": to_save_dict(),
 		"lifecycle": _run_lifecycle.to_dict(),
 		"contacts": contacts.duplicate(true),
+		# v3 (Plan 01 Task 5): the canonical aggregate is part of the restore transaction, so a
+		# later participant failure rolls it back with everything else.
+		"committed_schedule": _canonical_committed_schedule(),
 	}}}
 
 
@@ -2058,7 +1995,7 @@ func capture_run_snapshot_input() -> Dictionary:
 	var current: Dictionary = to_save_dict()
 	var gameplay := {"narrative_variables": _narrative_variables.duplicate(true)}
 	for key in _SAVE_WHITELIST:
-		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "schedule_entries", "dating_route_state"]:
+		if key in ["day", "contact_message_unlocks", "contact_choice_state", "date_unlocks", "dating_route_state"]:
 			continue
 		if current.has(key):
 			gameplay[key] = current[key]
@@ -2066,7 +2003,7 @@ func capture_run_snapshot_input() -> Dictionary:
 		"lifecycle": _run_lifecycle.to_dict(),
 		"gameplay": gameplay,
 		"contacts": contacts.duplicate(true),
-		"schedule": current.get("schedule_entries", []).duplicate(true) if typeof(current.get("schedule_entries")) == TYPE_ARRAY else [],
+		"committed_schedule": _canonical_committed_schedule(),
 		"dating": current.get("dating_route_state", {}).duplicate(true) if typeof(current.get("dating_route_state")) == TYPE_DICTIONARY else {},
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
@@ -2104,9 +2041,18 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var restored: Dictionary = _run_lifecycle.prepare_restore((source as Dictionary)["lifecycle"])
 	if not restored.get("ok", false):
 		return restored
+	# Validate the aggregate BEFORE any mutation: a rollback must not leave the owner half-restored.
+	var committed_backup: Variant = (source as Dictionary).get("committed_schedule")
+	var validated_backup: Dictionary = {}
+	if typeof(committed_backup) == TYPE_DICTIONARY:
+		validated_backup = _SCHEDULE_STATE_SCHEMA.validate_aggregate(committed_backup)
+		if not validated_backup.get("ok", false):
+			return validated_backup
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	_apply_gameplay_silent((source as Dictionary)["gameplay"])
 	_restore_contacts_section((source as Dictionary).get("contacts"))
+	if not validated_backup.is_empty():
+		_committed_schedule = (validated_backup["value"] as Dictionary)["committed_schedule"]
 	return {"ok": true, "code": &"ok"}
 
 
@@ -2128,10 +2074,21 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	var restored: Dictionary = _run_lifecycle.prepare_restore(snapshot["lifecycle"])
 	if not restored.get("ok", false):
 		return restored
+	# v3 (Plan 01 Task 5): every restored aggregate is revalidated against the saved bytes BEFORE a
+	# single field is written, so an invalid committed Schedule aborts with the owner untouched. The
+	# saved fingerprint is honoured as-is; a caller's CURRENT registry record is never substituted.
+	var committed: Variant = snapshot.get("committed_schedule")
+	var validated_committed: Dictionary = {}
+	if typeof(committed) == TYPE_DICTIONARY:
+		validated_committed = _SCHEDULE_STATE_SCHEMA.validate_aggregate(committed)
+		if not validated_committed.get("ok", false):
+			return validated_committed
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	if typeof(snapshot.get("gameplay")) == TYPE_DICTIONARY:
 		_apply_gameplay_silent(snapshot["gameplay"])
 	_restore_contacts_section(snapshot.get("contacts"))
+	if not validated_committed.is_empty():
+		_committed_schedule = (validated_committed["value"] as Dictionary)["committed_schedule"]
 	return {"ok": true, "code": &"ok"}
 
 
@@ -2250,10 +2207,27 @@ func publish_schedule_commit(publication: Dictionary) -> Dictionary:
 
 
 func _canonical_committed_schedule() -> Dictionary:
-	if _committed_schedule.is_empty():
-		# An owner that has not committed yet exposes the canonical empty aggregate for its current
-		# day. The fingerprint stays null here: only a later logical-day initialization may adopt a
-		# current registry fingerprint, and this seam never loads a registry.
+	# The committed aggregate is DAY-SCOPED: it describes the Schedule committed for one logical
+	# day. An owner that has not committed yet -- or whose stored aggregate belongs to an earlier
+	# day, because the day has since advanced -- exposes the canonical empty aggregate for the
+	# CURRENT day. Projecting the live day here is what keeps a stale day from ever reaching a
+	# snapshot, no matter which path advanced it, so the v3 schema's day equality holds without
+	# every caller remembering to reset.
+	#
+	# This is not data loss: the previous day's committed Schedule was already consumed by that
+	# day's resolution, and the durable record of it lives in the publication ledger and the saved
+	# snapshot for that day.
+	#
+	# KNOWN LIMIT, handed to Task 6 rather than papered over: the two day-end owners below reset
+	# `_committed_schedule` outright, but the DayResolutionCoordinator's increment-day stage advances
+	# the lifecycle without clearing it, so on that path a stale aggregate is MASKED here rather than
+	# cleared. If that stage were rolled back to the earlier day, the consumed aggregate would become
+	# visible again. `DayResolutionCoordinator.reset_day_scope` is still a stub receipt; Task 6 owns
+	# making it a real day-scope reset (its Files list owns that coordinator and this port).
+	#
+	# The fingerprint stays null here: only a later logical-day initialization may adopt a current
+	# registry fingerprint, and this seam never loads a registry.
+	if _committed_schedule.is_empty() or int(_committed_schedule.get("day", -1)) != day:
 		return {
 			"schema_version": _SCHEDULE_STATE_SCHEMA.SCHEMA_VERSION,
 			"day": day,

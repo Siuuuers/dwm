@@ -150,9 +150,9 @@ func finish_current_dating_and_route() -> void:
 	if more:
 		_change_to("dating")
 		return
-	# Queue finished (day already advanced by the state method if the flag was set).
-	if gs.has_method("clear_schedule_without_refund"):
-		gs.clear_schedule_without_refund()
+	# Queue finished (day already advanced by the state method if the flag was set). The Schedule is
+	# NOT cleared here: the day-end owner resets the committed aggregate, and routing adds no
+	# Schedule law of its own (Plan 01 Task 5, dwm-p2r.13).
 	# CONTRACTS §4 step 3: route to ending iff route_context["ending_id"] is set (non-empty);
 	# otherwise return to main. The day-8 sentinel is not used here to decide routing.
 	var ending_id := ""

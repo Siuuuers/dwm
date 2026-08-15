@@ -1,21 +1,29 @@
 class_name RunSnapshotSchema
 extends RefCounted
 
-## Frozen v2 run-snapshot schema
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 4).
+## Frozen v3 run-snapshot schema
+## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 4;
+## v3 committed-Schedule boundary from Plan 01 Task 5, dwm-p2r.13).
+##
+## v3 replaces the top-level legacy `schedule` array with the canonical top-level
+## `committed_schedule` aggregate and retires the legacy per-day gameplay draft field. The law is NOT
+## duplicated here: committed validation is delegated wholesale to `ScheduleStateSchema`, and this
+## module adds exactly one binding of its own -- the aggregate day and the lifecycle day are one fact.
 
-const SCHEMA_VERSION := 2
+const SCHEMA_VERSION := 3
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
+const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const NARRATIVE_VARIABLE_REGISTRY_PATH := "res://data/manifests/narrative_variables.json"
 
 const TOP_KEYS: Array[String] = [
 	"active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
-	"audio_context", "checkpoint_id", "checkpoint_sequence", "command_receipts", "contacts", "content_version",
+	"audio_context", "checkpoint_id", "checkpoint_sequence", "command_receipts", "committed_schedule",
+	"contacts", "content_version",
 	"dating", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id",
-	"schedule", "schema_version",
+	"schema_version",
 ]
 const LIFECYCLE_KEYS: Array[String] = [
 	"active_resolution_plan", "day", "ending_plan", "run_id", "state",
@@ -41,7 +49,7 @@ const GAMEPLAY_FIELDS: Array[String] = [
 	"penalty_points_today", "penalty_points_total", "pending_date_advance_day_after_finish",
 	"pending_date_entries", "pending_date_entry_index", "pending_date_friend_id",
 	"pending_group_date_friend_ids", "pending_group_date_inviter_id", "pending_hospital",
-	"post_ending_queue", "route_context", "schedule_entries", "shop_purchase_counts",
+	"post_ending_queue", "route_context", "shop_purchase_counts",
 	"stats", "story_flags", "tutorial_seen",
 ]
 
@@ -54,7 +62,7 @@ static func build(
 		content_version: int,
 		checkpoint_sequence: int
 ) -> Dictionary:
-	for member: String in ["lifecycle", "gameplay", "contacts", "schedule", "dating",
+	for member: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
 			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		if not snapshot_input.has(member):
 			return _fail(&"invalid_snapshot_input", "missing member: " + member)
@@ -77,7 +85,7 @@ static func build(
 		"narrative_checkpoint": dialogic_checkpoint.duplicate(true),
 		"gameplay": gameplay,
 		"contacts": _detached(snapshot_input["contacts"]),
-		"schedule": _detached(snapshot_input["schedule"]),
+		"committed_schedule": _detached(snapshot_input["committed_schedule"]),
 		"dating": _detached(snapshot_input["dating"]),
 		"applied_effect_transaction_ids": _sorted_ids(snapshot_input["applied_effect_transaction_ids"]),
 		"applied_variable_transaction_ids": _sorted_ids(snapshot_input["applied_variable_transaction_ids"]),
@@ -129,11 +137,19 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		var member_check := validate_primitive_tree(candidate[member], "$." + member)
 		if not member_check.get("ok", false):
 			return member_check
-	if typeof(candidate["schedule"]) != TYPE_ARRAY:
-		return _fail(&"invalid_snapshot_shape", "schedule must be an array")
-	var schedule_check := validate_primitive_tree(candidate["schedule"], "$.schedule")
-	if not schedule_check.get("ok", false):
-		return schedule_check
+	# The committed-Schedule aggregate law lives in exactly ONE module. Delegate wholesale and
+	# surface the delegate's typed code unchanged; this schema owns no second copy of the member
+	# set, the entry law, or the receipt binding.
+	var committed_check: Dictionary = SCHEDULE_STATE_SCHEMA.validate_aggregate(
+		candidate["committed_schedule"])
+	if not committed_check.get("ok", false):
+		return committed_check
+	# The single binding this module DOES own: a snapshot names one day, so the committed aggregate
+	# and the lifecycle cannot disagree about which day was committed.
+	if int((candidate["committed_schedule"] as Dictionary)["day"]) \
+			!= int((candidate["lifecycle"] as Dictionary)["day"]):
+		return _fail(&"invalid_snapshot_shape",
+			"committed_schedule day must equal the lifecycle day")
 	var gameplay_error := _validate_gameplay(candidate["gameplay"])
 	if gameplay_error != "":
 		return _fail(&"invalid_gameplay", gameplay_error)
@@ -249,7 +265,7 @@ static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
 		"ending_plan": (lifecycle["ending_plan"] as Dictionary).duplicate(true) \
 			if lifecycle["ending_plan"] != null else null,
 		"contacts": (candidate["contacts"] as Dictionary).duplicate(true),
-		"schedule": (candidate["schedule"] as Array).duplicate(true),
+		"committed_schedule": (candidate["committed_schedule"] as Dictionary).duplicate(true),
 		"dating": (candidate["dating"] as Dictionary).duplicate(true),
 	}}
 

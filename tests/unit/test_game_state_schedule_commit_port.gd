@@ -700,8 +700,6 @@ func test_commit_changes_only_motivation_and_committed_schedule_silently() -> vo
 		"only motivation inside stats changes in the whitelisted bag")
 	assert_eq(int(after_state["stats"]["pressure"]), int(before_state["stats"]["pressure"]))
 	assert_eq(int(after_state["stats"]["health"]), int(before_state["stats"]["health"]))
-	assert_eq(after_state["schedule_entries"], before_state["schedule_entries"],
-		"the legacy Schedule transport is untouched")
 
 
 func test_rollback_restores_exactly_the_backup_and_preserves_concurrent_changes() -> void:
@@ -893,10 +891,11 @@ func test_candidate_and_commit_bytes_are_independent_of_every_legacy_field() -> 
 	twin.contacts = (_game_state.contacts as Dictionary).duplicate(true)
 	var twin_port: Object = _port_script.new(twin, _registry, _issuer, _ledger)
 
-	_game_state.schedule_entries = [{"type": "solo", "friend_id": "priscilla", "action_id": "legacy"}]
+	# The legacy Schedule array retired at the Task-5 v3 boundary (dwm-p2r.13); the surviving
+	# unrelated owner fields prove exactly the same independence property.
 	_game_state.pending_date_entries = [{"type": "solo"}]
 	_game_state.date_unlocks = {"day:1:friend:priscilla": true}
-	var legacy_before: Array = (_game_state.schedule_entries as Array).duplicate(true)
+	var pending_before: Array = (_game_state.pending_date_entries as Array).duplicate(true)
 
 	var request := _request("legacy", 1, drafts)
 	var with_legacy: Dictionary = _port.prepare_commit(request)
@@ -917,9 +916,11 @@ func test_candidate_and_commit_bytes_are_independent_of_every_legacy_field() -> 
 
 	var backup: Dictionary = _port.capture()["value"]["backup"]
 	assert_true(_port.commit(with_legacy["value"]["game_state_candidate"]).get("ok", false))
-	assert_eq(_game_state.schedule_entries, legacy_before, "commit never writes the legacy array")
+	assert_eq(_game_state.pending_date_entries, pending_before,
+		"commit never writes an unrelated legacy field")
 	assert_true(_port.rollback(backup).get("ok", false))
-	assert_eq(_game_state.schedule_entries, legacy_before, "rollback never writes the legacy array")
+	assert_eq(_game_state.pending_date_entries, pending_before,
+		"rollback never writes an unrelated legacy field")
 	assert_eq(_game_state.date_unlocks, {"day:1:friend:priscilla": true},
 		"neither commit nor rollback synchronizes legacy unlocks")
 
