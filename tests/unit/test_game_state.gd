@@ -2,9 +2,52 @@
 # GameState unit tests (prompt_docs/requirements/verification.md).
 
 const PERMANENT_PROFILE_KEYS := ["settings", "audio_state", "seen_endings"]
+const IDENTITY_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
+const FAKE_ISSUER_ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
+
+var _identity_issuer: RefCounted
+var _commands: Dictionary
 
 func before_each() -> void:
 	GameState.reset_game()
+	GameState.set("_identity_issuer", null)
+	_identity_issuer = IDENTITY_ISSUER.new()
+	assert_true(_identity_issuer.configure(
+		FAKE_ISSUER_ROOT.new("55".repeat(32), 1)).get("ok", false))
+	assert_true(GameState.configure_identity_issuer(_identity_issuer).get("ok", false))
+	_commands = {}
+
+
+func _command(label: String) -> Dictionary:
+	if not _commands.has(label):
+		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		assert_true(issued.get("ok", false), str(issued))
+		_commands[label] = {
+			"id": str(issued.get("value", {}).get("token", "")),
+			"receipt": issued.get("value", {}).get("issuer_receipt", {}).duplicate(true),
+		}
+	return (_commands[label] as Dictionary).duplicate(true)
+
+
+func _open_contact(friend_id: String, label: String) -> Dictionary:
+	var command := _command(label)
+	return GameState.open_contact(friend_id, command["id"], command["receipt"])
+
+
+func _reply_invitation(friend_id: String, label: String) -> Dictionary:
+	var command := _command(label)
+	return GameState.reply_invitation(friend_id, command["id"], command["receipt"])
+
+
+func _module_open(state: Dictionary, friend_id: String, day: int,
+		label: String) -> Dictionary:
+	var mod: Script = load("res://scripts/domain/contact/ContactInvitationState.gd")
+	var command := _command(label)
+	var action_id := "solo:%s:day%d" % [friend_id, day]
+	var loaded: Dictionary = load("res://scripts/domain/schedule/ScheduleActionRegistry.gd").load_current()
+	var record: Dictionary = loaded["value"]["registry"].find_record(action_id)["value"]["record"]
+	return mod.prepare_open_contact(state, friend_id, day, command["id"], command["receipt"],
+		_identity_issuer, record)
 
 
 func test_reset_game_initial_values() -> void:
@@ -276,12 +319,98 @@ func test_contacts_bag_resets_to_stateless_defaults() -> void:
 	assert_eq(int(GameState.contacts["next_sequence"]), 1)
 	assert_eq((GameState.contacts["messages"]["priscilla"] as Array).size(), 0)
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "INACTIVE")
+	assert_eq(GameState.contacts["schedule_source_receipts"], {})
+	assert_eq(GameState.contacts["sylvia_hospital_witness_receipts"], {})
+
+
+func test_identity_issuer_configuration_is_exact_and_replacement_fails() -> void:
+	var replay: Dictionary = GameState.configure_identity_issuer(_identity_issuer)
+	assert_true(replay.get("ok", false), str(replay))
+	assert_true(replay["value"]["already_configured"])
+	assert_eq(replay["value"]["issuer_instance_id"], _identity_issuer.get_instance_id())
+	var other: RefCounted = IDENTITY_ISSUER.new()
+	assert_true(other.configure(FAKE_ISSUER_ROOT.new("66".repeat(32), 1)).get("ok", false))
+	assert_false(GameState.configure_identity_issuer(other).get("ok", true))
+	assert_same(GameState.get("_identity_issuer"), _identity_issuer)
+
+
+func test_contact_commit_signals_emit_once_only_on_first_success() -> void:
+	GameState.finish_minesweeper_app_round({"context": "app"})
+	watch_signals(GameState)
+	var first: Dictionary = _open_contact("priscilla", "signal-open")
+	assert_true(first.get("ok", false), str(first))
+	var replay: Dictionary = _open_contact("priscilla", "signal-open")
+	assert_true(replay.get("ok", false), str(replay))
+	assert_signal_emit_count(GameState, "contact_open_committed", 1)
+	var forged := _command("forged-signal")
+	forged["receipt"]["token"] = "transaction_id.forged"
+	assert_false(GameState.open_contact(
+		"priscilla", forged["id"], forged["receipt"]).get("ok", true))
+	assert_signal_emit_count(GameState, "contact_open_committed", 1)
+
+func test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_and_signals() -> void:
+	GameState.finish_minesweeper_app_round({"context": "app"})
+	watch_signals(GameState)
+	var pristine_contacts: Dictionary = GameState.contacts.duplicate(true)
+	var pristine_schedule: Array = GameState.schedule_entries.duplicate(true)
+	var command := _command("failure-preservation")
+	var id_only: Dictionary = GameState.open_contact("priscilla", command["id"], {})
+	assert_false(id_only.get("ok", true))
+	var wrong: Dictionary = _identity_issuer.issue(&"receipt_id")
+	assert_true(wrong.get("ok", false), str(wrong))
+	var wrong_purpose: Dictionary = GameState.open_contact(
+		"priscilla", wrong["value"]["token"], wrong["value"]["issuer_receipt"])
+	assert_false(wrong_purpose.get("ok", true))
+	var other := _command("failure-preservation-other")
+	var mismatch: Dictionary = GameState.open_contact(
+		"priscilla", command["id"], other["receipt"])
+	assert_false(mismatch.get("ok", true))
+	assert_eq(GameState.contacts, pristine_contacts, "proof failures preserve Contacts byte-for-byte")
+	assert_eq(GameState.schedule_entries, pristine_schedule, "proof failures never draft Schedule")
+	assert_signal_emit_count(GameState, "contact_open_committed", 0)
+
+	var accepted: Dictionary = GameState.open_contact(
+		"priscilla", command["id"], command["receipt"])
+	assert_true(accepted.get("ok", false), str(accepted))
+	assert_signal_emit_count(GameState, "contact_open_committed", 1)
+	GameState.contacts["transaction_receipts"][command["id"]]["action_id"] = "solo:sylvia:day1"
+	var tampered_contacts: Dictionary = GameState.contacts.duplicate(true)
+	var schedule_before_replay: Array = GameState.schedule_entries.duplicate(true)
+	var rejected_replay: Dictionary = GameState.open_contact(
+		"priscilla", command["id"], command["receipt"])
+	assert_false(rejected_replay.get("ok", true),
+		"a linked source cannot replay through a changed stored operation")
+	assert_eq(GameState.contacts, tampered_contacts, "tampered replay rejection preserves Contacts")
+	assert_eq(GameState.schedule_entries, schedule_before_replay, "tampered replay cannot draft Schedule")
+	assert_signal_emit_count(GameState, "contact_open_committed", 1)
+
+func test_group_reply_tampered_replay_preserves_contacts_schedule_and_signal_count() -> void:
+	GameState._lifecycle_set_playing_day(2)
+	for _index: int in range(3):
+		GameState.finish_minesweeper_app_round({"context": "app"})
+	assert_true(_open_contact("priscilla", "group-replay-open").get("ok", false))
+	watch_signals(GameState)
+	var command := _command("group-replay-reply")
+	var accepted: Dictionary = GameState.reply_invitation(
+		"lavinia", command["id"], command["receipt"])
+	assert_true(accepted.get("ok", false), str(accepted))
+	assert_signal_emit_count(GameState, "invitation_reply_committed", 1)
+	GameState.contacts["transaction_receipts"][command["id"]]["action_id"] = \
+		"group:priscilla_lavinia:day6"
+	var contacts_before: Dictionary = GameState.contacts.duplicate(true)
+	var schedule_before: Array = GameState.schedule_entries.duplicate(true)
+	var replayed: Dictionary = GameState.reply_invitation(
+		"lavinia", command["id"], command["receipt"])
+	assert_false(replayed.get("ok", true), "tampered group replay fails closed")
+	assert_eq(GameState.contacts, contacts_before)
+	assert_eq(GameState.schedule_entries, schedule_before)
+	assert_signal_emit_count(GameState, "invitation_reply_committed", 1)
 
 func test_get_contact_view_delegates_to_module() -> void:
 	GameState.reset_game()
 	var mod: Script = load(_CONTACTS_MODULE)
 	GameState.contacts = mod.prepare_offer_solo(GameState.contacts, "priscilla", 1, "m1", "tx1")["value"]["candidate"]
-	GameState.contacts = mod.prepare_open_contact(GameState.contacts, "priscilla", 1, "tx2")["value"]["candidate"]
+	GameState.contacts = _module_open(GameState.contacts, "priscilla", 1, "tx2")["value"]["candidate"]
 	var view: Dictionary = GameState.get_contact_view("priscilla", 1)
 	assert_eq((view["messages"] as Array).size(), 1, "the opened solo offer is visible in the contact view")
 
@@ -313,20 +442,23 @@ func test_new_run_snapshot_input_carries_contacts_defaults() -> void:
 func test_reply_invitation_command_applies_and_is_idempotent() -> void:
 	GameState.reset_game()
 	var mod: Script = load(_CONTACTS_MODULE)
-	# Seed an opened solo offer directly via the module (the open_contact command lands later).
-	GameState.contacts = mod.prepare_offer_solo(GameState.contacts, "priscilla", 1, "m1", "seed-offer")["value"]["candidate"]
-	GameState.contacts = mod.prepare_open_contact(GameState.contacts, "priscilla", 1, "seed-open")["value"]["candidate"]
-	var r1: Dictionary = GameState.reply_invitation("priscilla", "cmd-reply-1")
+	GameState._lifecycle_set_playing_day(2)
+	for _i in 3:
+		GameState.finish_minesweeper_app_round({"context": "app"})
+	assert_true(_open_contact("priscilla", "seed-open").get("ok", false))
+	watch_signals(GameState)
+	var r1: Dictionary = _reply_invitation("priscilla", "cmd-reply-1")
 	assert_true(r1.get("ok", false), "reply command succeeds")
 	assert_false(r1["value"]["replayed"], "first call is not a replay")
-	assert_true(mod.is_date_addable(GameState.contacts, "solo:priscilla:day1"), "reply makes the date addable")
-	var r2: Dictionary = GameState.reply_invitation("priscilla", "cmd-reply-1")
+	assert_true(mod.is_date_addable(GameState.contacts, "group:priscilla_lavinia:day2"), "reply makes the group date addable")
+	var r2: Dictionary = _reply_invitation("priscilla", "cmd-reply-1")
 	assert_true(r2.get("ok", false))
 	assert_true(r2["value"]["replayed"], "same command_id replays idempotently, no double effect")
+	assert_signal_emit_count(GameState, "invitation_reply_committed", 1)
 
 func test_reply_invitation_rejects_empty_command_id() -> void:
 	GameState.reset_game()
-	assert_false(GameState.reply_invitation("priscilla", "").get("ok", true), "command_id is required")
+	assert_false(GameState.reply_invitation("priscilla", "", {}).get("ok", true), "full command proof is required")
 
 func test_resolve_invitations_for_day_command_resolves_and_is_idempotent() -> void:
 	GameState.reset_game()
@@ -351,16 +483,15 @@ func test_legacy_solo_open_choose_unlocks_date_on_invitation_day() -> void:
 	GameState.reset_game()
 	assert_eq(GameState.day, 1)
 	assert_true(GameState.is_invitation_day("priscilla", 1))
-	GameState.open_contact("priscilla", "open-priscilla")
-	var r: Dictionary = GameState.choose_contact_option("priscilla", "accept")
+	GameState.finish_minesweeper_app_round({"context": "app"})
+	var r: Dictionary = _open_contact("priscilla", "open-priscilla")
 	assert_true(r["ok"])
-	assert_true(GameState.is_date_unlocked("priscilla", 1), "reply on invitation day unlocks the solo date")
+	assert_true(GameState.is_date_unlocked("priscilla", 1), "opening the visible solo offer accepts it")
 
 func test_legacy_choose_on_non_invitation_day_does_not_unlock() -> void:
 	GameState.reset_game()
 	assert_false(GameState.is_invitation_day("lavinia", 1))
-	GameState.open_contact("lavinia", "open-lavinia")
-	GameState.choose_contact_option("lavinia", "accept")
+	assert_false(_open_contact("lavinia", "open-lavinia").get("ok", true))
 	assert_false(GameState.is_date_unlocked("lavinia", 1), "no phantom unlock off the invitation day")
 
 func test_legacy_minesweeper_round_unlocks_contact_message() -> void:
@@ -378,18 +509,18 @@ func test_group_addable_only_after_reply_canon() -> void:
 	GameState._lifecycle_set_playing_day(2)
 	for _i in 3:
 		GameState.finish_minesweeper_app_round({"context": "app"})
-	GameState.open_contact("priscilla", "open-priscilla")
+	_open_contact("priscilla", "open-priscilla")
 	assert_eq(str(GameState.contacts["group_action"]["inviter_id"]), "priscilla", "first pair member opened is the module inviter")
 	assert_false(GameState.is_group_date_unlocked(2), "canon: NOT addable before a reply")
-	GameState.choose_contact_option("priscilla", "accept")
+	_reply_invitation("priscilla", "reply-priscilla")
 	assert_true(GameState.is_group_date_unlocked(2), "canon: addable once the group is replied (ACCEPTED)")
 
 func test_migration_bridge_backfills_module_on_legacy_solo_flow() -> void:
 	# Migration bridge: the legacy open/choose now also drive the module contacts bag to ACCEPTED,
 	# while the legacy observables stay identical (verified by the characterization tests above).
 	GameState.reset_game()
-	GameState.open_contact("priscilla", "open-priscilla")
-	GameState.choose_contact_option("priscilla", "accept")
+	GameState.finish_minesweeper_app_round({"context": "app"})
+	_open_contact("priscilla", "open-priscilla")
 	var mod: Script = load(_CONTACTS_MODULE)
 	assert_true(mod.is_date_addable(GameState.contacts, "solo:priscilla:day1"), "legacy solo flow backfills the module bag to ACCEPTED")
 
@@ -421,10 +552,10 @@ func test_g3_contact_open_assigns_group_inviter_via_module() -> void:
 	for _i in 3:
 		GameState.finish_minesweeper_app_round({"context": "app"})
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "AVAILABLE_UNOPENED")
-	GameState.open_contact("priscilla", "open-priscilla")
+	_open_contact("priscilla", "open-priscilla")
 	assert_eq(str(GameState.contacts["group_action"]["inviter_id"]), "priscilla", "first pair member opened is the inviter")
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "REPLY_REQUIRED")
-	GameState.open_contact("lavinia", "open-lavinia")
+	_open_contact("lavinia", "open-lavinia")
 	assert_eq((GameState.contacts["group_action"]["opened_ids"] as Array), ["priscilla", "lavinia"], "second open adds the participant")
 
 func test_g4_group_reply_routes_to_module_with_gate() -> void:
@@ -434,10 +565,10 @@ func test_g4_group_reply_routes_to_module_with_gate() -> void:
 	GameState._lifecycle_set_playing_day(2)
 	for _i in 3:
 		GameState.finish_minesweeper_app_round({"context": "app"})
-	GameState.open_contact("priscilla", "open-priscilla")
+	_open_contact("priscilla", "open-priscilla")
 	# CANON (req.invitation.group_resolution): inviter_id is presentation-only, so replying to
 	# EITHER participant makes the group schedulable — the legacy inviter-first gate is retired.
-	var non_inviter: Dictionary = GameState.choose_contact_option("lavinia", "accept")
+	var non_inviter: Dictionary = _reply_invitation("lavinia", "reply-lavinia")
 	assert_true(non_inviter["ok"], "canon: the non-inviter may reply first")
 	assert_eq(str(GameState.contacts["group_action"]["state"]), "ACCEPTED", "either participant's reply accepts the group")
 	assert_true(GameState.contacts["group_action"]["replied_ids"].has("lavinia"))
@@ -447,15 +578,16 @@ func test_open_contact_command_is_idempotent() -> void:
 	# open_contact now realizes the reserved command signature: command_id is the module
 	# transaction id, so re-opening the same contact under one command replays with no effect.
 	GameState.reset_game()
-	var first: Dictionary = GameState.open_contact("priscilla", "cmd-open-1")
+	GameState.finish_minesweeper_app_round({"context": "app"})
+	var first: Dictionary = _open_contact("priscilla", "cmd-open-1")
 	assert_true(first.get("ok", false), "open command succeeds")
 	assert_false(first["value"]["replayed"], "first call is not a replay")
-	var replay: Dictionary = GameState.open_contact("priscilla", "cmd-open-1")
+	var replay: Dictionary = _open_contact("priscilla", "cmd-open-1")
 	assert_true(replay["value"]["replayed"], "same command_id replays idempotently")
 
 func test_open_contact_rejects_empty_command_id() -> void:
 	GameState.reset_game()
-	assert_false(GameState.open_contact("priscilla", "").get("ok", true), "command_id is required")
+	assert_false(GameState.open_contact("priscilla", "", {}).get("ok", true), "full command proof is required")
 
 func test_request_next_ending_command_plays_primary_first() -> void:
 	# Realizes the reserved facade read: reads the live EndingPlan, asks the pure stage machine,

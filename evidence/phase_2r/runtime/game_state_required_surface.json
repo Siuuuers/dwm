@@ -314,6 +314,22 @@
       "contract_test": "test_game_state_signals_after_commit"
     },
     {
+      "symbol": "contact_open_committed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_contact_commit_signals_emit_once_only_on_first_success"
+    },
+    {
+      "symbol": "invitation_reply_committed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_invitation_command_applies_and_is_idempotent"
+    },
+    {
       "symbol": "day",
       "kind": "property",
       "availability": "current",
@@ -1010,6 +1026,14 @@
       "contract_test": "test_open_contact_command_is_idempotent"
     },
     {
+      "symbol": "configure_identity_issuer",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_identity_issuer_configuration_is_exact_and_replacement_fails"
+    },
+    {
       "symbol": "get_daily_message_friend_for_finished_round",
       "kind": "function",
       "availability": "current",
@@ -1048,14 +1072,6 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_contact_query_contracts"
-    },
-    {
-      "symbol": "choose_contact_option",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "replace",
-      "replacement": "func reply_invitation(friend_id: String, command_id: String) -> Dictionary",
-      "contract_test": "test_invitation_reply_commands"
     },
     {
       "symbol": "is_date_unlocked",
@@ -1636,22 +1652,6 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_ending_playback_resumes_after_a_state_round_trip"
-    },
-    {
-      "symbol": "open_contact",
-      "kind": "function",
-      "availability": "planned_future",
-      "signature": "func open_contact(friend_id: String, command_id: String) -> Dictionary",
-      "owner_plan": "phase2r-04",
-      "owner_task": "Task 3"
-    },
-    {
-      "symbol": "reply_invitation",
-      "kind": "function",
-      "availability": "planned_future",
-      "signature": "func reply_invitation(friend_id: String, command_id: String) -> Dictionary",
-      "owner_plan": "phase2r-04",
-      "owner_task": "Task 3"
     },
     {
       "symbol": "resolve_invitations_for_day",

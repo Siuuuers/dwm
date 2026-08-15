@@ -4,6 +4,10 @@ signal application_ready()
 signal development_subset_ready(subset_id: StringName)
 
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const DESKTOP_ISSUER_ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
+const CRYPTO_DESKTOP_NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
+const DESKTOP_IDENTITY_NONCE_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
+const CONTACT_COMMAND_PORT := preload("res://scripts/application/contact/ContactCommandPort.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const APPLICATION_MUTATION_GATE_SCRIPT := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 ## dwm-p2r.8 Plan-05 Task 2: one narrative checkpoint adapter + one ending playback port.
@@ -22,6 +26,7 @@ const MODE_PROFILE_LOCALE_AUDIO_DEVELOPMENT := &"profile_locale_audio_developmen
 const STAGE_ORDER: Array[StringName] = [
 	&"select_and_prove_roots",
 	&"construct_and_inject_mutation_gate",
+	&"construct_identity_issuer_and_contact_commands",
 	&"initialize_profile",
 	&"initialize_saves",
 	&"initialize_localization",
@@ -56,6 +61,9 @@ var _debug_gate_factory: Callable
 var _selected_root := ""
 var _profile_storage: RefCounted
 var _application_gate: Object = null
+var _desktop_issuer_root_store: RefCounted = null
+var _desktop_identity_nonce_issuer: RefCounted = null
+var _contact_command_port: RefCounted = null
 ## The ONE real checkpoint port, constructed in initialize_saves and reused by the narrative
 ## adapter and the later configure_day_resolution stage. A second construction is a wiring bug.
 var _retained_checkpoint_port: RefCounted = null
@@ -117,6 +125,8 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			return _select_and_prove_roots(mode)
 		&"construct_and_inject_mutation_gate":
 			return _construct_and_inject_mutation_gate(mode)
+		&"construct_identity_issuer_and_contact_commands":
+			return _construct_identity_issuer_and_contact_commands()
 		&"initialize_profile":
 			var manager := _target(&"ProfileManager")
 			if manager == null or not manager.has_method("initialize"): return _failure(&"missing_profile_manager", "ProfileManager initializer is unavailable")
@@ -207,6 +217,53 @@ func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 		if retained_id != gate.get_instance_id(): return _failure(&"mutation_gate_identity_mismatch", "Target retained another gate")
 	_application_gate = gate
 	return {"ok": true}
+
+
+func _construct_identity_issuer_and_contact_commands() -> Dictionary:
+	if _profile_storage == null:
+		return _failure(&"issuer_storage_unconfigured", "root selection did not retain profile storage")
+	var game_state := _target(&"GameState")
+	if game_state == null or not game_state.has_method("configure_identity_issuer"):
+		return _failure(&"missing_stage_adapter", "GameState identity seam is unavailable")
+	if _desktop_issuer_root_store == null:
+		_desktop_issuer_root_store = DESKTOP_ISSUER_ROOT_STORE.new()
+		# The issuer root reuses the exact root-scoped JsonFileStorage object already retained for
+		# profile data. Selectable saves still receive their distinct `_selected_root/saves` adapter.
+		var root_configured: Dictionary = _desktop_issuer_root_store.configure(
+			_profile_storage, CRYPTO_DESKTOP_NAMESPACE_SOURCE.new())
+		if not root_configured.get("ok", false):
+			return root_configured
+		var loaded: Dictionary = _desktop_issuer_root_store.load_or_create()
+		if not loaded.get("ok", false):
+			return loaded
+	if _desktop_identity_nonce_issuer == null:
+		_desktop_identity_nonce_issuer = DESKTOP_IDENTITY_NONCE_ISSUER.new()
+		var issuer_configured: Dictionary = _desktop_identity_nonce_issuer.configure(
+			_desktop_issuer_root_store)
+		if not issuer_configured.get("ok", false):
+			return issuer_configured
+	var injected: Dictionary = game_state.call(
+		&"configure_identity_issuer", _desktop_identity_nonce_issuer)
+	if not injected.get("ok", false):
+		return injected
+	if int(injected.get("value", {}).get("issuer_instance_id", 0)) \
+			!= _desktop_identity_nonce_issuer.get_instance_id():
+		return _failure(&"identity_issuer_mismatch", "GameState retained another issuer")
+	if _contact_command_port == null:
+		_contact_command_port = CONTACT_COMMAND_PORT.new()
+	var port_configured: Dictionary = _contact_command_port.configure(
+		game_state, _desktop_identity_nonce_issuer)
+	if not port_configured.get("ok", false):
+		return port_configured
+	if int(port_configured.get("value", {}).get("issuer_instance_id", 0)) \
+			!= _desktop_identity_nonce_issuer.get_instance_id():
+		return _failure(&"contact_command_identity_mismatch", "port retained another issuer")
+	return {"ok": true, "code": &"ok", "value": {
+		"root_store_instance_id": _desktop_issuer_root_store.get_instance_id(),
+		"issuer_instance_id": _desktop_identity_nonce_issuer.get_instance_id(),
+		"contact_command_port_instance_id": _contact_command_port.get_instance_id(),
+		"game_state_instance_id": game_state.get_instance_id(),
+	}, "receipt": {}}
 
 ## Builds the ONE narrative checkpoint adapter around the retained real port, injects that exact
 ## instance into DialogicBridge and GameState, then constructs the ONE ending playback port and

@@ -4,16 +4,17 @@ const TOOL_PATH := "res://tools/runtime/PublicSurfaceInventory.gd"
 const REQUIRED_PATH := "res://evidence/phase_2r/runtime/game_state_required_surface.json"
 
 const RESERVED_SIGNATURES := {
-	"open_contact": "func open_contact(friend_id: String, command_id: String) -> Dictionary",
-	"reply_invitation": "func reply_invitation(friend_id: String, command_id: String) -> Dictionary",
 	"resolve_invitations_for_day": "func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary",
 	"request_next_ending_command": "func request_next_ending_command() -> Dictionary",
 }
 const RESERVED_TASKS := {
-	"open_contact": "Task 3",
-	"reply_invitation": "Task 3",
 	"resolve_invitations_for_day": "Task 3",
 	"request_next_ending_command": "Task 6",
+}
+const TASK3_IMPLEMENTED_SIGNATURES := {
+	"configure_identity_issuer": "func configure_identity_issuer(identity_issuer: Object) -> Dictionary",
+	"open_contact": "func open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary",
+	"reply_invitation": "func reply_invitation(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary",
 }
 
 var _counter := 0
@@ -248,7 +249,7 @@ func test_game_state_required_surface_reservations() -> void:
 		var record := entry as Dictionary
 		if str(record.get("availability", "")) == "planned_future":
 			found[str(record.get("symbol", ""))] = record
-	assert_eq(found.size(), 4, "exactly four planned_future reservations")
+	assert_eq(found.size(), 2, "Task 3 realizes two reservations; exactly two remain")
 	for symbol: String in RESERVED_SIGNATURES:
 		assert_true(found.has(symbol), "reservation missing: " + symbol)
 		if not found.has(symbol):
@@ -258,6 +259,43 @@ func test_game_state_required_surface_reservations() -> void:
 		assert_eq(str(record.get("signature", "")), str(RESERVED_SIGNATURES[symbol]), symbol)
 		assert_eq(str(record.get("owner_plan", "")), "phase2r-04", symbol)
 		assert_eq(str(record.get("owner_task", "")), str(RESERVED_TASKS[symbol]), symbol)
+
+
+func test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply() -> void:
+	var parsed := StrictJson.parse_object(FileAccess.get_file_as_string(REQUIRED_PATH))
+	assert_true(parsed.get("ok", false), "required surface must strict-parse")
+	if not parsed.get("ok", false):
+		return
+	var by_symbol := {}
+	for entry: Dictionary in parsed["value"].get("symbols", []):
+		var symbol := str(entry.get("symbol", ""))
+		if not by_symbol.has(symbol):
+			by_symbol[symbol] = []
+		(by_symbol[symbol] as Array).append(entry)
+	for symbol: String in TASK3_IMPLEMENTED_SIGNATURES:
+		assert_true(by_symbol.has(symbol), "Task-3 symbol missing: " + symbol)
+		if not by_symbol.has(symbol):
+			continue
+		assert_eq((by_symbol[symbol] as Array).size(), 1,
+			"Task-3 symbol is classified exactly once: " + symbol)
+		var record: Dictionary = (by_symbol[symbol] as Array)[0]
+		assert_eq(record.get("availability"), "current", symbol)
+		assert_eq(record.get("disposition"), "retain", symbol)
+	assert_false(by_symbol.has("choose_contact_option"), "legacy scene-authored reply ID owner is removed")
+	var inventory: Dictionary = _build_game_state_inventory(parsed["value"])
+	assert_true(inventory.get("ok", false), JSON.stringify(inventory.get("errors", [])))
+	if not inventory.get("ok", false):
+		return
+	for symbol: String in TASK3_IMPLEMENTED_SIGNATURES:
+		assert_eq(_record(inventory, symbol).get("signature"), TASK3_IMPLEMENTED_SIGNATURES[symbol], symbol)
+
+
+func _build_game_state_inventory(required: Dictionary) -> Dictionary:
+	var probe := DynamicScriptProbe.load_script(TOOL_PATH)
+	if not probe.get("ok", false):
+		return probe
+	var roots: Array[String] = ["res://autoload", "res://scripts", "res://scenes", "res://tests"]
+	return probe["value"].build("res://autoload/GameState.gd", roots, required)
 
 const SAVE_MANAGER_REQUIRED_PATH := "res://evidence/phase_2r/runtime/save_manager_required_surface.json"
 

@@ -9,9 +9,12 @@ const ACCESSIBILITY_MANAGER := preload("res://autoload/AccessibilityManager.gd")
 const AUDIO_MANAGER := preload("res://autoload/AudioManager.gd")
 const DIALOGIC_BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
+const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const GAME_STATE := preload("res://autoload/GameState.gd")
 const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"select_and_prove_roots",
 	&"construct_and_inject_mutation_gate",
+	&"construct_identity_issuer_and_contact_commands",
 	&"initialize_profile",
 	&"initialize_saves",
 	&"initialize_localization",
@@ -41,6 +44,38 @@ func test_application_bootstrap_contract_exists() -> void:
 	if not result.get("ok", false): return
 	var bootstrap: Node = autofree(result["value"].new())
 	assert_eq(bootstrap.get("STAGE_ORDER"), EXPECTED_STAGE_ORDER)
+
+
+func test_final_contact_stage_reuses_profile_storage_and_retains_one_identity_graph() -> void:
+	var bootstrap: Node = autofree(InjectableBootstrap.new())
+	assert_true(bootstrap.has_method("_construct_identity_issuer_and_contact_commands"),
+		"RED: final bootstrap needs the exact identity/contact stage")
+	if not bootstrap.has_method("_construct_identity_issuer_and_contact_commands"):
+		return
+	var game_state: Node = autofree(GAME_STATE.new())
+	game_state.set("_identity_issuer", null)
+	bootstrap.injected_targets = {&"GameState": game_state}
+	var root := OS.get_environment("DWM_TEST_ROOT").path_join("contact-bootstrap")
+	var storage: RefCounted = JSON_STORAGE.new(root)
+	bootstrap.set("_selected_root", root)
+	bootstrap.set("_profile_storage", storage)
+	var result: Dictionary = bootstrap.call(&"_construct_identity_issuer_and_contact_commands")
+	assert_true(result.get("ok", false), str(result))
+	if not result.get("ok", false):
+		return
+	var retained_root: Object = bootstrap.get("_desktop_issuer_root_store")
+	var retained_issuer: Object = bootstrap.get("_desktop_identity_nonce_issuer")
+	var retained_port: Object = bootstrap.get("_contact_command_port")
+	assert_same(retained_root.get("_storage"), storage,
+		"issuer root reuses the exact root-scoped profile storage object")
+	assert_same(retained_issuer.get("_root"), retained_root)
+	assert_same(game_state.get("_identity_issuer"), retained_issuer)
+	assert_same(retained_port.get("_identity_issuer"), retained_issuer)
+	assert_same(retained_port.get("_game_state"), game_state)
+	assert_eq(result["value"]["issuer_instance_id"], retained_issuer.get_instance_id())
+	for stage_set: Array in bootstrap.get("DEVELOPMENT_STAGE_SETS").values():
+		assert_false(&"construct_identity_issuer_and_contact_commands" in stage_set,
+			"development subsets do not silently widen")
 
 func test_manual_mode_executes_no_stage_and_is_not_readiness() -> void:
 	var loaded: Dictionary = PROBE.load_script("res://autoload/ApplicationBootstrap.gd")
