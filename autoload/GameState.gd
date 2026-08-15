@@ -115,6 +115,8 @@ signal ending_route_selected(result: Dictionary)
 signal schedule_changed()
 signal chat_changed(friend_id: String)
 signal unread_friend(result: Dictionary)
+signal contact_open_committed(result: Dictionary)
+signal invitation_reply_committed(result: Dictionary)
 signal minesweeper_rounds_changed(rounds_left: int, max_rounds: int)
 signal minesweeper_reward_changed(result: Dictionary)
 signal daily_state_reset()
@@ -133,6 +135,7 @@ const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/Schedu
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
 var _mutation_gate: Object = null
+var _identity_issuer: Object = null
 var _day_resolution_coordinator: RefCounted = null
 
 # ---- State (declared per CONTRACTS §2) ----
@@ -608,20 +611,51 @@ func is_group_invitation_day(target_day: int = -1) -> bool:
 	return _GROUP_INVITATION_DAYS.has(d)
 
 
-func open_contact(friend_id: String, command_id: String) -> Dictionary:
-	# Facade command (dwm-p2r.6): mark a contact read. command_id is the module transaction id,
-	# so re-opening under the same command replays idempotently. The group offer is never
-	# activated here (canon: the 3rd Minesweeper round activates it); opening a pair member
-	# assigns the presentation-only inviter via the module group open.
-	if command_id.is_empty():
-		return {"ok": false, "code": &"invalid_command_id", "message": "command_id is required"}
-	if contacts["transaction_receipts"].has(command_id):
-		return {"ok": true, "code": &"ok", "value": {"receipt": contacts["transaction_receipts"][command_id], "replayed": true}}
-	daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
-	var receipt: Dictionary = _bridge_open_in_module(friend_id, command_id)
-	emit_signal("chat_changed", friend_id)
-	emit_signal("save_relevant_state_changed")
-	return {"ok": true, "code": &"ok", "value": {"receipt": receipt, "replayed": false}}
+func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
+	if identity_issuer == null:
+		return _transaction_failure(&"invalid_identity_issuer", "identity issuer is required")
+	for method: String in ["issue", "verify_issued", "derive_child", "validate_child"]:
+		if not identity_issuer.has_method(method):
+			return _transaction_failure(&"invalid_identity_issuer", "missing " + method)
+	if _identity_issuer != null:
+		if _identity_issuer != identity_issuer:
+			return _transaction_failure(&"identity_issuer_already_configured", "replacement refused")
+		return {"ok": true, "code": &"ok", "value": {
+			"issuer_instance_id": _identity_issuer.get_instance_id(), "already_configured": true,
+		}, "receipt": {}}
+	_identity_issuer = identity_issuer
+	return {"ok": true, "code": &"ok", "value": {
+		"issuer_instance_id": _identity_issuer.get_instance_id(), "already_configured": false,
+	}, "receipt": {}}
+
+
+func open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
+	var verified := _verify_contact_command(command_id, command_issuer_receipt)
+	if not verified.get("ok", false):
+		return verified
+	var replayed: bool = (contacts.get("transaction_receipts", {}) as Dictionary).has(command_id)
+	var action_id := _contact_action_id(friend_id)
+	var record := _schedule_action_record(action_id)
+	if record.is_empty():
+		return _transaction_failure(&"contact_offer_absent", action_id)
+	var opened: Dictionary = _CONTACT_INVITATION_STATE.prepare_open_contact(
+		contacts, friend_id, day, command_id, command_issuer_receipt,
+		_identity_issuer, record)
+	if not opened.get("ok", false):
+		return opened
+	contacts = opened["value"]["candidate"]
+	if not replayed:
+		daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
+		var committed := {"ok": true, "code": &"ok", "value": {
+			"receipt": opened["receipt"].duplicate(true), "replayed": false,
+		}, "receipt": opened["receipt"].duplicate(true)}
+		contact_open_committed.emit(committed.duplicate(true))
+		emit_signal("chat_changed", friend_id)
+		emit_signal("save_relevant_state_changed")
+		return committed
+	return {"ok": true, "code": &"ok", "value": {
+		"receipt": opened["receipt"].duplicate(true), "replayed": true,
+	}, "receipt": opened["receipt"].duplicate(true)}
 
 
 func get_daily_message_friend_for_finished_round(round_number: int, target_day: int = -1) -> String:
@@ -722,38 +756,68 @@ func _bridge_maybe_activate_group() -> void:
 		contacts = activated["value"]["candidate"]
 
 
-func _bridge_open_in_module(friend_id: String, command_id: String) -> Dictionary:
-	# Ensure the friend's solo offer exists (normally generated at round completion), then open it
-	# under the caller's command id. On a group day this routes to the module group open, which
-	# assigns the inviter. Returns the open receipt, or {} when the friend has nothing to read.
-	if not is_invitation_day(friend_id):
-		return {}
-	var offered: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
-		contacts, friend_id, day, "solo:%s:day%d" % [friend_id, day], "offer:%s:day%d" % [friend_id, day])
-	if offered.get("ok", false):
-		contacts = offered["value"]["candidate"]
-	var opened: Dictionary = _CONTACT_INVITATION_STATE.prepare_open_contact(contacts, friend_id, day, command_id)
-	if not opened.get("ok", false):
-		return {}
-	contacts = opened["value"]["candidate"]
-	return opened["receipt"]
-
-
-func reply_invitation(friend_id: String, command_id: String) -> Dictionary:
-	# Facade command (dwm-p2r.6): reply to a friend's active offer. command_id is the
-	# module transaction id, so a duplicate command replays idempotently. The candidate
-	# apply is atomic (single assignment); autosave-checkpoint wiring arrives with the
-	# day-resolution de-stub in Phase 2R-7.
-	if command_id.is_empty():
-		return {"ok": false, "code": &"invalid_command_id", "message": "command_id is required"}
-	if contacts["transaction_receipts"].has(command_id):
-		return {"ok": true, "code": &"ok", "value": {"receipt": contacts["transaction_receipts"][command_id], "replayed": true}}
-	var result: Dictionary = _CONTACT_INVITATION_STATE.prepare_reply(contacts, friend_id, day, command_id)
+func reply_invitation(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
+	var verified := _verify_contact_command(command_id, command_issuer_receipt)
+	if not verified.get("ok", false):
+		return verified
+	var replayed: bool = (contacts.get("transaction_receipts", {}) as Dictionary).has(command_id)
+	var action_id := _contact_action_id(friend_id)
+	var record := _schedule_action_record(action_id)
+	if record.is_empty():
+		return _transaction_failure(&"contact_offer_absent", action_id)
+	var result: Dictionary = _CONTACT_INVITATION_STATE.prepare_reply(
+		contacts, friend_id, day, command_id, command_issuer_receipt,
+		_identity_issuer, record)
 	if not result.get("ok", false):
 		return result
 	contacts = result["value"]["candidate"]
-	emit_signal("save_relevant_state_changed")
-	return {"ok": true, "code": &"ok", "value": {"receipt": result["receipt"], "replayed": false}}
+	var committed := {"ok": true, "code": &"ok", "value": {
+		"receipt": result["receipt"].duplicate(true), "replayed": replayed,
+	}, "receipt": result["receipt"].duplicate(true)}
+	if not replayed:
+		invitation_reply_committed.emit(committed.duplicate(true))
+		emit_signal("save_relevant_state_changed")
+	return committed
+
+
+func _verify_contact_command(command_id: String,
+		command_issuer_receipt: Dictionary) -> Dictionary:
+	if _identity_issuer == null:
+		return _transaction_failure(&"identity_issuer_unconfigured", "identity issuer is required")
+	if command_id.strip_edges().is_empty() or command_issuer_receipt.is_empty():
+		return _transaction_failure(&"invalid_contact_command", "full command proof is required")
+	var verified: Variant = _identity_issuer.call(
+		&"verify_issued", command_issuer_receipt, &"transaction_id")
+	if typeof(verified) != TYPE_DICTIONARY or not (verified as Dictionary).get("ok", false):
+		return _transaction_failure(&"invalid_contact_command", "issuer verification failed")
+	if str(command_issuer_receipt.get("token", "")) != command_id:
+		return _transaction_failure(&"contact_command_id_mismatch", command_id)
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
+func _contact_action_id(friend_id: String) -> String:
+	var group: Dictionary = contacts.get("group_action", {})
+	if friend_id in _CONTACT_INVITATION_STATE.GROUP_PAIR \
+			and str(group.get("state", "")) in _CONTACT_INVITATION_STATE.GROUP_OPEN_STATES \
+			and int(group.get("day", -1)) == day:
+		return str(group.get("action_id", ""))
+	return "solo:%s:day%d" % [friend_id, day]
+
+
+func _schedule_action_record(action_id: String) -> Dictionary:
+	var loaded: Dictionary = _SCHEDULE_ACTION_REGISTRY.load_current()
+	if not loaded.get("ok", false):
+		return {}
+	var registry: Object = loaded.get("value", {}).get("registry")
+	if registry == null:
+		return {}
+	# The shipped registry API is fingerprint()/find_record(action_id); no stale lookup/snapshot.
+	if str(registry.call(&"fingerprint")).strip_edges().is_empty():
+		return {}
+	var found: Variant = registry.call(&"find_record", action_id)
+	if typeof(found) != TYPE_DICTIONARY or not (found as Dictionary).get("ok", false):
+		return {}
+	return ((found as Dictionary).get("value", {}) as Dictionary).get("record", {}).duplicate(true)
 
 
 func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary:
@@ -770,23 +834,6 @@ func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> 
 	contacts = result["value"]["candidate"]
 	emit_signal("save_relevant_state_changed")
 	return {"ok": true, "code": &"ok", "value": {"receipt": result["receipt"], "replayed": false}}
-
-
-func choose_contact_option(friend_id: String, choice_id: String) -> Dictionary:
-	# dwm-p2r.6 canon (req.invitation.group_resolution): inviter_id is presentation-only, so
-	# replying to EITHER participant makes the group date schedulable — no reply-order gate.
-	contact_choice_state["day:%d:friend:%s" % [day, friend_id]] = true
-	emit_signal("contact_choice_selected", {"friend_id": friend_id, "day": day})
-	# A reply only unlocks a date on the friend's own invitation day (days 1-6); Day 7 candidates
-	# use the contact-message-unlock path in is_date_unlocked(). The module records the reply and
-	# is the source of truth for addability (dwm-p2r.6); the signal still refreshes listeners.
-	if is_invitation_day(friend_id):
-		var replied: Dictionary = _CONTACT_INVITATION_STATE.prepare_reply(contacts, friend_id, day, "reply:%s:day%d" % [friend_id, day])
-		if replied.get("ok", false):
-			contacts = replied["value"]["candidate"]
-		emit_signal("date_unlocks_changed")
-	emit_signal("save_relevant_state_changed")
-	return {"ok": true, "friend_id": friend_id, "choice_id": choice_id}
 
 
 func is_date_unlocked(friend_id: String, target_day: int = -1) -> bool:
