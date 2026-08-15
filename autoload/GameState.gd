@@ -123,6 +123,10 @@ signal daily_state_reset()
 signal condition_effect_resolved(result: Dictionary)
 signal hospital_needed(result: Dictionary)
 signal save_relevant_state_changed()
+## The ONE declared committed-Schedule publication signal (Plan 01 Task 4, dwm-p2r.13). It is
+## emitted only by publish_schedule_commit(), only after GameStateScheduleCommitPort's injected
+## ledger reports a first delivery; a replay or a cold-restart retry emits nothing.
+signal committed_schedule_published(result: Dictionary)
 
 # ---- Run lifecycle (dwm-p2r.4 Task 3; plan 2026-07-17-phase-2r-03 §3) ----
 const _RUN_LIFECYCLE_SCRIPT := preload("res://scripts/domain/run/RunLifecycle.gd")
@@ -249,6 +253,9 @@ func reset_game() -> void:
 	daily_group_invitation_pair = []
 
 	schedule_entries = []
+	# The canonical committed-Schedule aggregate is run-scoped and never leaks across runs
+	# (Plan 01 Task 4, dwm-p2r.13). Task 5 gives it its v3 persistence.
+	_committed_schedule = {}
 	inventory = {}
 	chat_state = {}
 	shop_purchase_counts = {}
@@ -2126,6 +2133,164 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 		_apply_gameplay_silent(snapshot["gameplay"])
 	_restore_contacts_section(snapshot.get("contacts"))
 	return {"ok": true, "code": &"ok"}
+
+
+# ---- Committed-Schedule facade delegation seams (Plan 01 Task 4, dwm-p2r.13) ----
+# These five seams are DELEGATION ONLY, never a second validator: they cover current motivation, the
+# canonical top-level committed_schedule, and the narrow precondition fingerprint that binds them.
+# GameStateScheduleCommitPort owns the public transaction interface, the registry/issuer/source law
+# and the at-most-once publication boundary. Nothing here reads or writes the provisional Schedule
+# transport, and none of these seams emits except the single declared publication signal.
+
+const _SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+
+const _SCHEDULE_COMMIT_CANDIDATE_KEYS: Array[String] = [
+	"before_fingerprint", "committed_schedule", "motivation",
+]
+const _SCHEDULE_COMMIT_BACKUP_KEYS: Array[String] = ["committed_schedule", "motivation"]
+const _SCHEDULE_PUBLICATION_KEYS: Array[String] = ["committed_schedule", "schedule_commit_receipt"]
+
+## Run-scoped canonical aggregate. It is deliberately absent from _SAVE_WHITELIST: Task 5 owns its
+## v3 persistence and migration boundary.
+var _committed_schedule: Dictionary = {}
+
+
+func capture_schedule_commit_state() -> Dictionary:
+	var current := _canonical_committed_schedule()
+	var motivation := int(stats.get(STAT_MOTIVATION, 0))
+	return {"ok": true, "code": &"ok", "value": {
+		"before_fingerprint": _schedule_commit_fingerprint(motivation, current),
+		"motivation": motivation,
+		"committed_schedule": current,
+	}, "receipt": {}}
+
+
+func prepare_schedule_commit_candidate(committed: Dictionary, motivation_charged: int) -> Dictionary:
+	if typeof(committed) != TYPE_DICTIONARY or committed.is_empty():
+		return _transaction_failure(&"invalid_schedule_candidate", "a canonical aggregate is required")
+	if motivation_charged < 0:
+		return _transaction_failure(&"invalid_schedule_motivation_charge", "the charge is nonnegative")
+	var validated: Dictionary = _SCHEDULE_STATE_SCHEMA.validate_aggregate(committed)
+	if not validated.get("ok", false):
+		return validated
+	var motivation := int(stats.get(STAT_MOTIVATION, 0))
+	if motivation < motivation_charged:
+		return _transaction_failure(&"insufficient_motivation",
+			"the owner cannot pay %d motivation" % motivation_charged)
+	var current := _canonical_committed_schedule()
+	return {"ok": true, "code": &"ok", "value": {"candidate": {
+		"before_fingerprint": _schedule_commit_fingerprint(motivation, current),
+		"motivation": motivation - motivation_charged,
+		"committed_schedule": (validated["value"] as Dictionary)["committed_schedule"],
+	}}, "receipt": {}}
+
+
+## Silent: installs exactly motivation and committed_schedule, and emits nothing.
+func commit_schedule_commit_candidate(candidate: Dictionary) -> Dictionary:
+	var shape := _schedule_member_error(candidate, _SCHEDULE_COMMIT_CANDIDATE_KEYS,
+		&"invalid_schedule_candidate")
+	if not shape.is_empty():
+		return shape
+	var motivation_error := _schedule_motivation_error(candidate["motivation"])
+	if not motivation_error.is_empty():
+		return motivation_error
+	var validated: Dictionary = _SCHEDULE_STATE_SCHEMA.validate_aggregate(candidate["committed_schedule"])
+	if not validated.get("ok", false):
+		return validated
+	var current := _canonical_committed_schedule()
+	var motivation := int(stats.get(STAT_MOTIVATION, 0))
+	if str(candidate["before_fingerprint"]) != _schedule_commit_fingerprint(motivation, current):
+		return _transaction_failure(&"schedule_commit_state_stale",
+			"the candidate was prepared against different owner state")
+	stats[STAT_MOTIVATION] = int(candidate["motivation"])
+	_committed_schedule = (validated["value"] as Dictionary)["committed_schedule"]
+	return {"ok": true, "code": &"ok",
+		"value": {"committed_schedule": _committed_schedule.duplicate(true)}, "receipt": {}}
+
+
+## Restores exactly the two captured fields; every other owner field, including a concurrent
+## unrelated Contacts or settings change, is left untouched.
+func rollback_schedule_commit_state(backup: Dictionary) -> Dictionary:
+	var shape := _schedule_member_error(backup, _SCHEDULE_COMMIT_BACKUP_KEYS,
+		&"invalid_schedule_backup")
+	if not shape.is_empty():
+		return shape
+	var motivation_error := _schedule_motivation_error(backup["motivation"])
+	if not motivation_error.is_empty():
+		return motivation_error
+	var validated: Dictionary = _SCHEDULE_STATE_SCHEMA.validate_aggregate(backup["committed_schedule"])
+	if not validated.get("ok", false):
+		return validated
+	stats[STAT_MOTIVATION] = int(backup["motivation"])
+	_committed_schedule = (validated["value"] as Dictionary)["committed_schedule"]
+	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
+
+
+## Emits the one declared committed-Schedule signal for a publication the owner actually holds. The
+## port calls this only after its ledger has durably recorded a FIRST delivery.
+func publish_schedule_commit(publication: Dictionary) -> Dictionary:
+	var shape := _schedule_member_error(publication, _SCHEDULE_PUBLICATION_KEYS,
+		&"invalid_schedule_publication")
+	if not shape.is_empty():
+		return shape
+	var current := _canonical_committed_schedule()
+	if publication["committed_schedule"] != current:
+		return _transaction_failure(&"schedule_publication_state_mismatch",
+			"the publication is not the owner's current canonical state")
+	var receipt: Variant = current["commit_receipt"]
+	if typeof(receipt) != TYPE_DICTIONARY or receipt != publication["schedule_commit_receipt"]:
+		return _transaction_failure(&"schedule_publication_state_mismatch",
+			"the publication receipt is not the committed aggregate's own receipt")
+	committed_schedule_published.emit({
+		"committed_schedule": current.duplicate(true),
+		"schedule_commit_receipt": (receipt as Dictionary).duplicate(true),
+	})
+	return {"ok": true, "code": &"ok", "value": {"published": true},
+		"receipt": (receipt as Dictionary).duplicate(true)}
+
+
+func _canonical_committed_schedule() -> Dictionary:
+	if _committed_schedule.is_empty():
+		# An owner that has not committed yet exposes the canonical empty aggregate for its current
+		# day. The fingerprint stays null here: only a later logical-day initialization may adopt a
+		# current registry fingerprint, and this seam never loads a registry.
+		return {
+			"schema_version": _SCHEDULE_STATE_SCHEMA.SCHEMA_VERSION,
+			"day": day,
+			"registry_fingerprint": null,
+			"entries": [],
+			"commit_receipt": null,
+		}
+	return _committed_schedule.duplicate(true)
+
+
+func _schedule_commit_fingerprint(motivation: int, committed: Dictionary) -> String:
+	var hashed: Dictionary = _SCHEDULE_STATE_SCHEMA.canonical_sha256({
+		"committed_schedule": committed, "motivation": motivation,
+	})
+	if not hashed.get("ok", false):
+		return ""
+	return str((hashed["value"] as Dictionary)["sha256"])
+
+
+func _schedule_member_error(value: Variant, expected: Array[String], code: StringName) -> Dictionary:
+	if typeof(value) != TYPE_DICTIONARY:
+		return _transaction_failure(code, "a dictionary is required")
+	var keys: Array = (value as Dictionary).keys()
+	keys.sort()
+	if keys != expected:
+		return _transaction_failure(code, "the member set is exactly " + str(expected))
+	return {}
+
+
+func _schedule_motivation_error(value: Variant) -> Dictionary:
+	if typeof(value) != TYPE_INT:
+		return _transaction_failure(&"invalid_schedule_motivation_charge",
+			"motivation must be a strict int")
+	if int(value) < _stat_min(STAT_MOTIVATION) or int(value) > _stat_max(STAT_MOTIVATION):
+		return _transaction_failure(&"invalid_schedule_motivation_charge",
+			"motivation must stay inside its declared range")
+	return {}
 
 
 func _apply_gameplay_silent(gameplay: Dictionary) -> void:

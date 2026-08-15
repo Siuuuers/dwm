@@ -100,6 +100,84 @@ func test_request_schedule_done_delegates_through_production_port() -> void:
 	assert_true(resumed.get("ok", false), "resume exposes coordinator results")
 	assert_eq(resumed["code"], &"plan_complete")
 
+const TASK4_SCHEDULE_SEAMS: Array[String] = [
+	"capture_schedule_commit_state", "prepare_schedule_commit_candidate",
+	"commit_schedule_commit_candidate", "rollback_schedule_commit_state",
+	"publish_schedule_commit",
+]
+
+# Plan 01 Task 4 (dwm-p2r.13): these five seams are facade DELEGATION only. They cover current
+# motivation, the canonical committed_schedule and the narrow precondition fingerprint; they are not
+# a second validator, and GameStateScheduleCommitPort keeps the public transaction interface.
+func test_schedule_commit_seams_are_narrow_reversible_and_silent() -> void:
+	var game_state := _fresh_game_state()
+	var absent: Array[String] = []
+	for seam: String in TASK4_SCHEDULE_SEAMS:
+		if not game_state.has_method(seam):
+			absent.append(seam)
+	assert_eq(absent, [] as Array[String], "the narrow committed-Schedule seams must exist")
+	if not absent.is_empty():
+		return
+	var emissions: Array[String] = []
+	for entry: Dictionary in game_state.get_script().get_script_signal_list():
+		var signal_name := str(entry.get("name", ""))
+		if (entry.get("args", []) as Array).size() == 0:
+			game_state.connect(signal_name, func() -> void: emissions.append(signal_name))
+		elif (entry.get("args", []) as Array).size() == 1:
+			game_state.connect(signal_name, func(_a) -> void: emissions.append(signal_name))
+
+	var captured: Dictionary = game_state.capture_schedule_commit_state()
+	assert_true(captured["ok"], JSON.stringify(captured))
+	var captured_keys: Array = (captured["value"] as Dictionary).keys()
+	captured_keys.sort()
+	assert_eq(captured_keys, ["before_fingerprint", "committed_schedule", "motivation"],
+		"the capture seam is exactly narrow")
+	var aggregate: Dictionary = captured["value"]["committed_schedule"]
+	assert_eq(aggregate, {
+		"schema_version": 1, "day": 1, "registry_fingerprint": null,
+		"entries": [], "commit_receipt": null,
+	}, "an uninitialized owner exposes the canonical empty aggregate for its day")
+	assert_eq(int(captured["value"]["motivation"]), 7)
+
+	var prepared: Dictionary = game_state.prepare_schedule_commit_candidate(aggregate, 2)
+	assert_true(prepared["ok"], JSON.stringify(prepared))
+	assert_eq(int(prepared["value"]["candidate"]["motivation"]), 5, "the candidate carries the charge")
+	assert_eq(game_state.get_stat("motivation"), 7, "prepare applies nothing")
+	assert_false(game_state.prepare_schedule_commit_candidate(aggregate, 8).get("ok", true),
+		"the owner refuses a charge it cannot pay")
+	assert_false(game_state.prepare_schedule_commit_candidate(aggregate, -1).get("ok", true))
+	assert_false(game_state.prepare_schedule_commit_candidate({}, 0).get("ok", true),
+		"the seam validates the canonical aggregate it is handed")
+	assert_eq(emissions, [] as Array[String], "capture and prepare are silent")
+
+	var committed: Dictionary = game_state.commit_schedule_commit_candidate(prepared["value"]["candidate"])
+	assert_true(committed["ok"], JSON.stringify(committed))
+	assert_eq(game_state.get_stat("motivation"), 5, "commit changes motivation")
+	assert_eq(game_state.capture_schedule_commit_state()["value"]["committed_schedule"], aggregate)
+	assert_eq(emissions, [] as Array[String], "commit installs the candidate silently")
+	assert_false(game_state.commit_schedule_commit_candidate(prepared["value"]["candidate"]).get("ok", true),
+		"a candidate prepared against a stale precondition fingerprint is refused")
+
+	var restored: Dictionary = game_state.rollback_schedule_commit_state({
+		"motivation": 7, "committed_schedule": aggregate,
+	})
+	assert_true(restored["ok"], JSON.stringify(restored))
+	assert_eq(restored["value"], {"restored": true})
+	assert_eq(game_state.get_stat("motivation"), 7, "rollback restores exactly the backup")
+	assert_eq(emissions, [] as Array[String], "rollback is silent")
+	assert_false(game_state.rollback_schedule_commit_state({"motivation": 7}).get("ok", true),
+		"the backup member set is exact")
+
+	assert_false(game_state.publish_schedule_commit({
+		"committed_schedule": aggregate, "schedule_commit_receipt": null,
+	}).get("ok", true), "a publication without its commit receipt is refused")
+	assert_false(game_state.publish_schedule_commit({
+		"committed_schedule": {"schema_version": 1, "day": 2, "registry_fingerprint": null,
+			"entries": [], "commit_receipt": null},
+		"schedule_commit_receipt": {},
+	}).get("ok", true), "a publication the owner does not hold is refused")
+	assert_eq(emissions, [] as Array[String], "a refused publication emits nothing")
+
 func test_day7_terminal_via_facade_never_creates_day8() -> void:
 	var game_state := _fresh_game_state()
 	game_state._lifecycle_set_playing_day(7)
