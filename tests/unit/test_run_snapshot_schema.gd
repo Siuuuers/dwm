@@ -317,3 +317,21 @@ func test_v3_build_round_trips_the_aggregate_unchanged() -> void:
 		"the aggregate survives build byte-for-byte")
 	assert_false(snapshot.has("schedule"), "build never emits the legacy member")
 	assert_true(schema.validate(snapshot).get("ok", false), "the built snapshot revalidates")
+
+
+# ---- dwm-p2r.9 Plan 02 Task 1: active_app_id is now gated by DesktopAppRegistry.has_app() ----
+func test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_null() -> void:
+	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var base := _fixture(VALID_FIXTURE)
+	var unregistered := base.duplicate(true)
+	unregistered["active_app_id"] = "not_a_real_app"
+	assert_false(schema.validate(unregistered).get("ok", true), "an unregistered active_app_id rejects")
+	var registered := base.duplicate(true)
+	registered["active_app_id"] = &"minesweeper"
+	assert_true(schema.validate(registered).get("ok", false), "a registered active_app_id validates")
+	var nulled := base.duplicate(true)
+	nulled["active_app_id"] = null
+	assert_true(schema.validate(nulled).get("ok", false), "null active_app_id still validates")

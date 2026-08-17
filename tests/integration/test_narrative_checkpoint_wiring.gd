@@ -11,6 +11,7 @@ const SCENE_ROUTER := preload("res://autoload/SceneRouter.gd")
 const NARRATIVE_PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
 const ENDING_PLAYBACK_PORT := preload("res://scripts/application/ending/DialogicEndingPlaybackPort.gd")
 const CONTEXT := preload("res://tests/support/FakeNarrativeCheckpointContext.gd")
+const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
 
 var _bridge: Node
 var _game_state: Node
@@ -115,3 +116,12 @@ func test_scene_router_rejects_replacement_and_bad_ports() -> void:
 	add_child_autofree(fresh)
 	assert_false(fresh.configure_ending_ports(RefCounted.new(), playback_port).get("ok", false), "bad state port rejected")
 	assert_false(fresh.configure_ending_ports(_game_state, RefCounted.new()).get("ok", false), "bad playback port rejected")
+
+
+# ---- dwm-p2r.9 Plan 02 Task 1: the stable active-app Callable identity + null-before-host ----
+func test_active_app_id_callable_is_stable_and_null_before_host() -> void:
+	var bootstrap: Node = BOOTSTRAP.new()
+	assert_null(bootstrap._active_app_id_context(), "returns null before the desktop host is wired")
+	assert_eq(Callable(bootstrap, "_active_app_id_context"),
+		Callable(bootstrap, "_active_app_id_context"), "the Callable identity is stable")
+	bootstrap.free()

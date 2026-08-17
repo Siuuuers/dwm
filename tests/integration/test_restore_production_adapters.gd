@@ -13,6 +13,8 @@ const LOC_P := "res://scripts/application/restore/LocalizationRestoreParticipant
 const AUDIO_P := "res://scripts/application/restore/AudioRestoreParticipant.gd"
 const ROUTE_P := "res://scripts/application/restore/RouteRestoreParticipant.gd"
 const NARR_P := "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
+const SAVE_CHECKPOINT_PORT := "res://scripts/application/run/SaveManagerCheckpointPort.gd"
+const DESKTOP_HOST := "res://scripts/domain/desktop/DesktopAppHostState.gd"
 
 # Failure-injectable owner returning the exact shapes the real adapters expect.
 class Owner extends RefCounted:
@@ -165,3 +167,18 @@ func test_physical_narrative_participant_fails_closed_on_malformed_bytes() -> vo
 	broken["boundary"] = {"kind": "line"}
 	var participant: Object = load(NARR_P).new(Owner.new(), catalog)
 	assert_eq(str(participant.prepare({"narrative_checkpoint": broken, "content_version": 1}).get("code")), "invalid_narrative_checkpoint", "malformed data must not be relabelled incompatible")
+
+
+# ---- dwm-p2r.9 Plan 02 Task 1: the checkpoint port's desktop context provider contract ----
+func test_checkpoint_port_configures_desktop_context_provider() -> void:
+	var port: Object = load(SAVE_CHECKPOINT_PORT).new(null)
+	var host: RefCounted = load(DESKTOP_HOST).new()
+	var configured: Dictionary = port.configure_desktop_context_provider(host)
+	assert_true(configured.get("ok", false), "accepts a DesktopAppHostState provider")
+	var again: Dictionary = port.configure_desktop_context_provider(host)
+	assert_true(again.get("ok", false) and again["value"]["already_configured"],
+		"the same provider instance is idempotent")
+	var different: Dictionary = port.configure_desktop_context_provider(load(DESKTOP_HOST).new())
+	assert_false(different.get("ok", true), "a different provider is rejected")
+	var nullp: Dictionary = port.configure_desktop_context_provider(null)
+	assert_false(nullp.get("ok", true), "a null provider is rejected")

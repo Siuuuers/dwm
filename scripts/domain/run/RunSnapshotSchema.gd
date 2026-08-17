@@ -17,6 +17,7 @@ const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan
 const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
 const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const NARRATIVE_VARIABLE_REGISTRY_PATH := "res://data/manifests/narrative_variables.json"
+const DESKTOP_APP_REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRegistry.gd")
 
 const TOP_KEYS: Array[String] = [
 	"active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
@@ -128,9 +129,13 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		return _fail(&"invalid_lifecycle", lifecycle_error)
 	if typeof(candidate["route_id"]) != TYPE_STRING or str(candidate["route_id"]).is_empty():
 		return _fail(&"invalid_snapshot_shape", "route_id must be a nonempty String")
-	if candidate["active_app_id"] != null \
-			and (typeof(candidate["active_app_id"]) != TYPE_STRING or str(candidate["active_app_id"]).is_empty()):
-		return _fail(&"invalid_snapshot_shape", "active_app_id must be null or a nonempty String")
+	if candidate["active_app_id"] != null:
+		# Null is allowed; a non-null id must be a registered desktop app (replaces the
+		# provisional free-string validation, dwm-p2r.9 Plan 02 Task 1). Paths/UI state
+		# are never persisted here.
+		var aid := StringName(candidate["active_app_id"])
+		if not DESKTOP_APP_REGISTRY.new().has_app(aid):
+			return _fail(&"invalid_snapshot_shape", "active_app_id must be null or a registered desktop app id")
 	for member: String in ["narrative_checkpoint", "contacts", "dating", "audio_context"]:
 		if typeof(candidate[member]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_snapshot_shape", member + " must be an object")

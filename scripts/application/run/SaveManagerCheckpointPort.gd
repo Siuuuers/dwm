@@ -28,6 +28,21 @@ const AUTOSAVE_RELATIVE_PATH := "autosave.json"
 
 var _gate: Object = null
 var _save_manager: Object = null
+var _desktop_context_provider: Object = null
+
+
+func configure_desktop_context_provider(provider: Object) -> Dictionary:
+	# One Bootstrap-owned DesktopAppHostState supplies the persisted active_app_id. A second
+	# direct configuration with the same object is idempotent; a different object is rejected.
+	if provider == null or not provider.has_method("capture_persistent_state"):
+		return _fail(&"invalid_desktop_context_provider", "provider must expose capture_persistent_state")
+	if _desktop_context_provider != null:
+		if provider == _desktop_context_provider:
+			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+		return _fail(&"desktop_provider_already_configured", "a desktop context provider is already configured")
+	_desktop_context_provider = provider
+	return {"ok": true, "code": &"ok",
+		"value": {"provider_instance_id": _desktop_context_provider.get_instance_id()}, "receipt": {}}
 
 func _init(save_manager: Object = null) -> void:
 	_save_manager = save_manager
@@ -86,9 +101,14 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	var peeked: Dictionary = _journal().peek_next_sequence(run_id)
 	if not peeked.get("ok", false):
 		return peeked
+	# When configured, the desktop host is the sole source of the persisted active_app_id;
+	# the caller-supplied value is ignored (dwm-p2r.9 Plan 02 Task 1).
+	var active_app_id: Variant = checkpoint_inputs["active_app_id"]
+	if _desktop_context_provider != null:
+		active_app_id = _desktop_context_provider.capture_persistent_state().get("active_app_id", null)
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
 		snapshot_input, checkpoint_inputs["dialogic_checkpoint"],
-		str(checkpoint_inputs["route_id"]), checkpoint_inputs["active_app_id"],
+		str(checkpoint_inputs["route_id"]), active_app_id,
 		checkpoint_inputs["audio_context"], int(checkpoint_inputs["content_version"]),
 		int(peeked["value"]["checkpoint_sequence"]))
 	if not built.get("ok", false):

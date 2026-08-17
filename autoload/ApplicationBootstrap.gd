@@ -25,6 +25,15 @@ const DIALOGIC_RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRunti
 const DIALOGIC_TIMELINE_CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
 ## Narrative manifest content version supplied to every narrative checkpoint input.
 const NARRATIVE_CONTENT_VERSION := 1
+## dwm-p2r.9 Plan 02 Task 1: one Bootstrap-owned desktop host + its restore participant seam.
+const DESKTOP_APP_HOST_STATE := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
+const RUN_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/RunRestoreParticipant.gd")
+const PROFILE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/ProfileRestoreParticipant.gd")
+const LOCALIZATION_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/LocalizationRestoreParticipant.gd")
+const AUDIO_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/AudioRestoreParticipant.gd")
+const ROUTE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/RouteRestoreParticipant.gd")
+const NARRATIVE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd")
+const FATAL_DIAGNOSTIC_PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
 
 const MODE_FINAL := &"final"
 const MODE_TEST_MANUAL := &"test_manual"
@@ -89,6 +98,12 @@ var _contact_command_port: RefCounted = null
 var _retained_checkpoint_port: RefCounted = null
 var _narrative_checkpoint_adapter: Object = null
 var _ending_playback_port: Object = null
+## The ONE Bootstrap-owned desktop host for the process lifetime (dwm-p2r.9 Plan 02 Task 1).
+## The stable active-app Callable reads this; it is null until the configure_restore_participants
+## stage constructs and assigns it.
+var _desktop_host_state: RefCounted = null
+## At most one Phase-3-owned desktop eviction port. Assigned via register_desktop_eviction_port.
+var _desktop_eviction_port: Object = null
 var _state := {
 	"started": false, "ready": false, "mode": &"",
 	"completed_stages": [], "planned_blockers": [], "fatal_result": {},
@@ -189,6 +204,22 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			return _wire_narrative_and_ending_ports(bridge)
 		&"publish_application_ready":
 			return {"ok": true}
+		&"configure_restore_participants":
+			return _configure_restore_participants()
+		&"configure_day_resolution":
+			var resolution_game_state := _target(&"GameState")
+			var resolution_save_manager := _target(&"SaveManager")
+			var resolution_result := configure_day_resolution(resolution_game_state, resolution_save_manager)
+			if not resolution_result.get("ok", false):
+				return resolution_result
+			# Supply the Bootstrap-owned desktop host to the retained checkpoint port and connect
+			# the day-change eviction handler exactly once (dwm-p2r.9 Plan 02 Task 1).
+			if _retained_checkpoint_port != null and _desktop_host_state != null:
+				var ctx := _retained_checkpoint_port.configure_desktop_context_provider(_desktop_host_state)
+				if not ctx.get("ok", false):
+					return ctx
+			_connect_desktop_day_change(resolution_game_state)
+			return resolution_result
 		_:
 			var target_name := _stage_target(stage_id)
 			if target_name == &"": return _failure(&"missing_stage_adapter", "Stage adapter is not installed")
@@ -378,10 +409,13 @@ func _configure_day_resolution_providers(state_port: Object) -> Dictionary:
 	})
 
 
-## Stable private active-app context provider. Returns JSON null until Plan 06 injects the
-## Bootstrap-owned desktop host; that host is then read here without replacing this Callable.
+## Stable private active-app context provider. Returns JSON null until the
+## configure_restore_participants stage injects the Bootstrap-owned desktop host; that host is
+## then read here without replacing this Callable's identity (dwm-p2r.9 Plan 02 Task 1).
 func _active_app_id_context() -> Variant:
-	return null
+	if _desktop_host_state == null:
+		return null
+	return _desktop_host_state.capture_persistent_state().get("active_app_id", null)
 
 
 ## Narrative manifest content version provider (positive integer, stable identity/arity).
@@ -433,6 +467,126 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 	if not foundation.get("ok", false):
 		return foundation
 	return {"ok": true, "value": {"gate_instance_id": _application_gate.get_instance_id()}}
+}
+
+
+## Builds the six production restore participants, constructs the ONE Bootstrap-owned desktop
+## host, wires it into the route participant, and hands the full set to SaveManager. Runs exactly
+## once (each participant is built only while still null) so identical startup replay is safe
+## (dwm-p2r.9 Plan 02 Task 1).
+func _configure_restore_participants() -> Dictionary:
+	var save_manager := _target(&"SaveManager")
+	var game_state := _target(&"GameState")
+	var profile := _target(&"ProfileManager")
+	var localization := _target(&"LocalizationManager")
+	var audio := _target(&"AudioManager")
+	var router := _target(&"SceneRouter")
+	var bridge := _target(&"DialogicBridge")
+	if save_manager == null or game_state == null or profile == null or localization == null \
+			or audio == null or router == null or bridge == null:
+		return _failure(&"missing_stage_adapter", "Restore participants require all target managers")
+	if _desktop_host_state == null:
+		_desktop_host_state = DESKTOP_APP_HOST_STATE.new()
+		var day: int = 1
+		if game_state.get("day") != null:
+			day = int(game_state.get("day"))
+		_desktop_host_state.reset(day)
+	var route_participant: RefCounted = ROUTE_RESTORE_PARTICIPANT.new(router)
+	var host_configured: Dictionary = route_participant.configure_desktop_host(_desktop_host_state)
+	if not host_configured.get("ok", false):
+		return host_configured
+	var participants := {
+		"run": RUN_RESTORE_PARTICIPANT.new(game_state),
+		"profile": PROFILE_RESTORE_PARTICIPANT.new(profile),
+		"localization": LOCALIZATION_RESTORE_PARTICIPANT.new(localization),
+		"audio": AUDIO_RESTORE_PARTICIPANT.new(audio),
+		"route": route_participant,
+		"narrative": NARRATIVE_RESTORE_PARTICIPANT.new(bridge),
+	}
+	return save_manager.call(&"configure_restore_participants", participants)
+}
+
+
+## Connects GameState.day_changed to the Bootstrap-owned eviction handler exactly once, only
+## after the host and day-resolution coordinator are configured (dwm-p2r.9 Plan 02 Task 1).
+func _connect_desktop_day_change(game_state: Object) -> void:
+	if game_state == null or not game_state.has_signal("day_changed"):
+		return
+	if not game_state.day_changed.is_connected(_on_day_changed):
+		game_state.day_changed.connect(_on_day_changed)
+}
+
+
+## Registers the one Phase-3-owned desktop eviction port. The same object is idempotent; a
+## different object is rejected (dwm-p2r.9 Plan 02 Task 1).
+func register_desktop_eviction_port(port: Object) -> Dictionary:
+	if port == null or not port.has_method("dispatch_desktop_eviction"):
+		return _failure(&"invalid_desktop_eviction_port", "port must expose dispatch_desktop_eviction")
+	if _desktop_eviction_port != null:
+		if port == _desktop_eviction_port:
+			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+		return _failure(&"desktop_eviction_port_already_configured", "a desktop eviction port is already configured")
+	_desktop_eviction_port = port
+	return {"ok": true, "code": &"ok", "value": {"port_instance_id": _desktop_eviction_port.get_instance_id()}, "receipt": {}}
+}
+
+
+## Bootstrap-owned day-change handler. The host computes the exact eviction command; a registered
+## port dispatches it once. A missing port or a dispatch failure projects the recovery through the
+## shared fatal projector, latches once, and permanently blocks input via the retained
+## APPLICATION_FATAL (dwm-p2r.9 Plan 02 Task 1).
+func _on_day_changed(new_day: int) -> void:
+	if _desktop_host_state == null:
+		return
+	if _desktop_eviction_port == null:
+		_desktop_day_change_fatal(&"DESKTOP_EVICTION_PORT_MISSING", new_day, [])
+		return
+	var changed: Dictionary = _desktop_host_state.change_day(new_day)
+	if not changed.get("ok", false):
+		_desktop_day_change_fatal(StringName(changed.get("code", &"desktop_day_change_rejected")), new_day, [])
+		return
+	var command: Dictionary = changed["value"]["eviction_command"]
+	if not _is_exact_eviction_command(command, new_day):
+		_desktop_day_change_fatal(&"DESKTOP_EVICTION_COMMAND_INVALID", new_day, [])
+		return
+	var raw_result: Dictionary = _desktop_eviction_port.dispatch_desktop_eviction(command.duplicate(true))
+	if not raw_result.get("ok", false):
+		_desktop_day_change_fatal(&"DESKTOP_EVICTION_DISPATCH_FAILED", new_day,
+			[{"owner_id": "desktop_eviction_port", "operation": "dispatch_desktop_eviction", "result": raw_result}])
+		return
+}
+
+
+func _is_exact_eviction_command(command: Variant, new_day: int) -> bool:
+	if typeof(command) != TYPE_DICTIONARY:
+		return false
+	var expected := {
+		"command_id": "desktop-day:%d" % new_day,
+		"kind": &"evict_cached_apps",
+		"day": new_day,
+	}
+	for key in expected.keys():
+		if not command.has(key) or str(command[key]) != str(expected[key]):
+			return false
+	if not command.has("app_ids") or typeof(command["app_ids"]) != TYPE_ARRAY:
+		return false
+	return true
+}
+
+
+func _desktop_day_change_fatal(code: StringName, new_day: int, raw_diagnostics: Array) -> void:
+	if _application_gate == null or not _application_gate.has_method("latch_fatal"):
+		return
+	var projected: Dictionary = FATAL_DIAGNOSTIC_PROJECTOR.project_failure(
+		"desktop", "day_change_dispatch", code, {"day": new_day}, raw_diagnostics)
+	var failure: Dictionary = FATAL_DIAGNOSTIC_PROJECTOR.get_invariant_fallback()
+	if projected.get("ok", false):
+		var candidate: Dictionary = projected["value"]["failure"]
+		if FATAL_DIAGNOSTIC_PROJECTOR.validate_failure(candidate).get("ok", false):
+			failure = candidate
+	_application_gate.latch_fatal(failure)
+	_application_gate.guard_external(&"desktop_day_change_dispatch")
+}
 
 
 ## Constructs and retains the Schedule-foundation objects exactly once each (Plan 01 Task 6
