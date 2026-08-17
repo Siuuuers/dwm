@@ -34,6 +34,9 @@ const AUDIO_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/Au
 const ROUTE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/RouteRestoreParticipant.gd")
 const NARRATIVE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd")
 const FATAL_DIAGNOSTIC_PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
+const MINESWEEPER_ROUND_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
+const MINESWEEPER_STATE_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
+const MINESWEEPER_SAVE_PORT := preload("res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd")
 
 const MODE_FINAL := &"final"
 const MODE_TEST_MANUAL := &"test_manual"
@@ -104,6 +107,15 @@ var _ending_playback_port: Object = null
 var _desktop_host_state: RefCounted = null
 ## At most one Phase-3-owned desktop eviction port. Assigned via register_desktop_eviction_port.
 var _desktop_eviction_port: Object = null
+## The ONE Minesweeper round coordinator and its two production adapters (dwm-p2r.9 Plan 06
+## Task 2). Constructed once, configured with initialized production ports, and installed in
+## GameState exactly once; identical startup replay reuses these exact instances.
+var _retained_minesweeper_state_port: RefCounted = null
+var _retained_minesweeper_save_port: RefCounted = null
+var _retained_minesweeper_coordinator: RefCounted = null
+## The exact provider bundle handed to BOTH checkpoint producers, so the Minesweeper port and
+## the day-resolution port read one set of Callable identities.
+var _checkpoint_provider_bundle: Dictionary = {}
 var _state := {
 	"started": false, "ready": false, "mode": &"",
 	"completed_stages": [], "planned_blockers": [], "fatal_result": {},
@@ -215,11 +227,13 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			# Supply the Bootstrap-owned desktop host to the retained checkpoint port and connect
 			# the day-change eviction handler exactly once (dwm-p2r.9 Plan 02 Task 1).
 			if _retained_checkpoint_port != null and _desktop_host_state != null:
-				var ctx := _retained_checkpoint_port.configure_desktop_context_provider(_desktop_host_state)
+				var ctx: Dictionary = _retained_checkpoint_port.configure_desktop_context_provider(_desktop_host_state)
 				if not ctx.get("ok", false):
 					return ctx
 			_connect_desktop_day_change(resolution_game_state)
 			return resolution_result
+		&"configure_minesweeper_rounds":
+			return _configure_minesweeper_rounds(_target(&"GameState"), _target(&"SaveManager"))
 		_:
 			var target_name := _stage_target(stage_id)
 			if target_name == &"": return _failure(&"missing_stage_adapter", "Stage adapter is not installed")
@@ -400,13 +414,17 @@ func _configure_day_resolution_providers(state_port: Object) -> Dictionary:
 	for requirement in [[bridge, "get_current_narrative_checkpoint"], [router, "get_current_route_id"], [audio, "get_semantic_audio_context"]]:
 		if not (requirement[0] as Object).has_method(str(requirement[1])):
 			return _failure(&"missing_stage_adapter", "Day-resolution provider target is missing " + str(requirement[1]))
-	return state_port.call(&"configure_checkpoint_providers", {
-		"dialogic_checkpoint": Callable(bridge, "get_current_narrative_checkpoint"),
-		"route_id": Callable(router, "get_current_route_id"),
-		"active_app_id": Callable(self, "_active_app_id_context"),
-		"audio_context": Callable(audio, "get_semantic_audio_context"),
-		"content_version": Callable(self, "_content_version_context"),
-	})
+	# Built ONCE and retained, so the later Minesweeper stage configures its port with these exact
+	# Callable identities rather than rebuilding a second, separately-bound bundle.
+	if _checkpoint_provider_bundle.is_empty():
+		_checkpoint_provider_bundle = {
+			"dialogic_checkpoint": Callable(bridge, "get_current_narrative_checkpoint"),
+			"route_id": Callable(router, "get_current_route_id"),
+			"active_app_id": Callable(self, "_active_app_id_context"),
+			"audio_context": Callable(audio, "get_semantic_audio_context"),
+			"content_version": Callable(self, "_content_version_context"),
+		}
+	return state_port.call(&"configure_checkpoint_providers", _checkpoint_provider_bundle.duplicate())
 
 
 ## Stable private active-app context provider. Returns JSON null until the
@@ -467,7 +485,6 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 	if not foundation.get("ok", false):
 		return foundation
 	return {"ok": true, "value": {"gate_instance_id": _application_gate.get_instance_id()}}
-}
 
 
 ## Builds the six production restore participants, constructs the ONE Bootstrap-owned desktop
@@ -504,7 +521,67 @@ func _configure_restore_participants() -> Dictionary:
 		"narrative": NARRATIVE_RESTORE_PARTICIPANT.new(bridge),
 	}
 	return save_manager.call(&"configure_restore_participants", participants)
-}
+
+
+## Constructs EXACTLY ONE Minesweeper round coordinator with initialized production adapters and
+## installs it in GameState exactly once (dwm-p2r.9 Plan 06 Task 2).
+##
+## This stage runs only after `initialize_saves` retained the real checkpoint port and after
+## `configure_day_resolution` built the provider bundle, so an out-of-order or missing dependency
+## is rejected here with NO partial configuration: every retained field is assigned only after its
+## own construction succeeded, and the coordinator is installed last.
+func _configure_minesweeper_rounds(game_state: Object, save_manager: Object) -> Dictionary:
+	if _application_gate == null:
+		return _failure(&"mutation_gate_not_configured", "Bootstrap has not constructed the application gate")
+	if game_state == null or save_manager == null:
+		return _failure(&"missing_stage_adapter", "Minesweeper rounds require GameState and SaveManager")
+	if _retained_checkpoint_port == null:
+		return _failure(&"missing_stage_adapter", "Minesweeper rounds require the retained checkpoint port")
+	if _checkpoint_provider_bundle.is_empty():
+		return _failure(&"missing_stage_adapter", "Minesweeper rounds require the configured checkpoint providers")
+	if not game_state.has_method("_install_minesweeper_round_coordinator"):
+		return _failure(&"missing_stage_adapter", "GameState Minesweeper seam is unavailable")
+	# ONE state adapter, proving GameState retained the very gate Bootstrap injected.
+	var state_port: RefCounted = _retained_minesweeper_state_port
+	if state_port == null:
+		state_port = MINESWEEPER_STATE_PORT.new(game_state)
+	var state_configured: Dictionary = state_port.configure(_application_gate)
+	if not state_configured.get("ok", false):
+		return state_configured
+	if int(state_configured.get("value", {}).get("gate_instance_id", 0)) != _application_gate.get_instance_id():
+		return _failure(&"mutation_gate_identity_mismatch", "Minesweeper state port retained another gate")
+	var providers_configured: Dictionary = state_port.configure_checkpoint_providers(
+		_checkpoint_provider_bundle.duplicate())
+	if not providers_configured.get("ok", false):
+		return providers_configured
+	_retained_minesweeper_state_port = state_port
+	# ONE save adapter over the SAME real checkpoint port; it owns only the board lock owner.
+	var save_port: RefCounted = _retained_minesweeper_save_port
+	if save_port == null:
+		save_port = MINESWEEPER_SAVE_PORT.new()
+	var save_configured: Dictionary = save_port.configure(_retained_checkpoint_port, save_manager)
+	if not save_configured.get("ok", false):
+		return save_configured
+	if int(save_configured.get("value", {}).get("checkpoint_port_instance_id", 0)) \
+			!= _retained_checkpoint_port.get_instance_id():
+		return _failure(&"checkpoint_port_identity_mismatch", "Minesweeper save port retained another checkpoint port")
+	_retained_minesweeper_save_port = save_port
+	var coordinator: RefCounted = _retained_minesweeper_coordinator
+	if coordinator == null:
+		coordinator = MINESWEEPER_ROUND_COORDINATOR.new()
+	var coordinator_configured: Dictionary = coordinator.configure(save_port, state_port)
+	if not coordinator_configured.get("ok", false):
+		return coordinator_configured
+	_retained_minesweeper_coordinator = coordinator
+	var installed: Dictionary = game_state.call(&"_install_minesweeper_round_coordinator", coordinator)
+	if not installed.get("ok", false):
+		return installed
+	return {"ok": true, "code": &"ok", "value": {
+		"coordinator_instance_id": coordinator.get_instance_id(),
+		"state_port_instance_id": state_port.get_instance_id(),
+		"save_port_instance_id": save_port.get_instance_id(),
+		"gate_instance_id": _application_gate.get_instance_id(),
+	}, "receipt": {}}
 
 
 ## Connects GameState.day_changed to the Bootstrap-owned eviction handler exactly once, only
@@ -514,7 +591,6 @@ func _connect_desktop_day_change(game_state: Object) -> void:
 		return
 	if not game_state.day_changed.is_connected(_on_day_changed):
 		game_state.day_changed.connect(_on_day_changed)
-}
 
 
 ## Registers the one Phase-3-owned desktop eviction port. The same object is idempotent; a
@@ -528,7 +604,6 @@ func register_desktop_eviction_port(port: Object) -> Dictionary:
 		return _failure(&"desktop_eviction_port_already_configured", "a desktop eviction port is already configured")
 	_desktop_eviction_port = port
 	return {"ok": true, "code": &"ok", "value": {"port_instance_id": _desktop_eviction_port.get_instance_id()}, "receipt": {}}
-}
 
 
 ## Bootstrap-owned day-change handler. The host computes the exact eviction command; a registered
@@ -554,7 +629,6 @@ func _on_day_changed(new_day: int) -> void:
 		_desktop_day_change_fatal(&"DESKTOP_EVICTION_DISPATCH_FAILED", new_day,
 			[{"owner_id": "desktop_eviction_port", "operation": "dispatch_desktop_eviction", "result": raw_result}])
 		return
-}
 
 
 func _is_exact_eviction_command(command: Variant, new_day: int) -> bool:
@@ -571,7 +645,6 @@ func _is_exact_eviction_command(command: Variant, new_day: int) -> bool:
 	if not command.has("app_ids") or typeof(command["app_ids"]) != TYPE_ARRAY:
 		return false
 	return true
-}
 
 
 func _desktop_day_change_fatal(code: StringName, new_day: int, raw_diagnostics: Array) -> void:
@@ -586,7 +659,6 @@ func _desktop_day_change_fatal(code: StringName, new_day: int, raw_diagnostics: 
 			failure = candidate
 	_application_gate.latch_fatal(failure)
 	_application_gate.guard_external(&"desktop_day_change_dispatch")
-}
 
 
 ## Constructs and retains the Schedule-foundation objects exactly once each (Plan 01 Task 6

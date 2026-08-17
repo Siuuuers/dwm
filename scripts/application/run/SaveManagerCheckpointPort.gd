@@ -23,6 +23,12 @@ const DISK_WRITES := [
 	{"kind": &"none", "reason": &"stage"},
 	{"kind": &"autosave", "reason": &"day_start"},
 	{"kind": &"autosave", "reason": &"ending"},
+	# The Minesweeper pre-board autosave must be durable BEFORE a round is consumed or the save
+	# lock acquired (dwm-p2r.9 Plan 06 Task 2). Both layers beneath this port already carry the
+	# vocabulary -- CheckpointJournal.SEMANTIC_KINDS lists "pre_board" and
+	# SaveDocumentSchema.AUTOSAVE_REASONS lists "pre_board" -- so only this enumeration was
+	# missing the pairing. Reusing "day_start" instead would mislabel the durable document.
+	{"kind": &"autosave", "reason": &"pre_board"},
 ]
 const AUTOSAVE_RELATIVE_PATH := "autosave.json"
 

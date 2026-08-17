@@ -140,6 +140,9 @@ var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
 var _mutation_gate: Object = null
 var _identity_issuer: Object = null
 var _day_resolution_coordinator: RefCounted = null
+## The ONE Bootstrap-owned Minesweeper round coordinator (dwm-p2r.9 Plan 06 Task 2). GameState
+## never constructs it; the shared begin/complete round methods delegate here.
+var _minesweeper_round_coordinator: RefCounted = null
 
 # ---- State (declared per CONTRACTS §2) ----
 var day: int:
@@ -1608,6 +1611,15 @@ func configure_mutation_gate(gate: Object) -> Dictionary:
 		"receipt": {}}
 
 
+## Reports ONLY the retained gate's instance id, never the gate object. Adapters that must
+## prove they hold the same gate GameState holds compare this primitive; there is deliberately
+## no public getter that would hand the fence itself to a caller (dwm-p2r.9 Plan 06 Task 2).
+func get_mutation_gate_instance_id() -> int:
+	if _mutation_gate == null:
+		return 0
+	return _mutation_gate.get_instance_id()
+
+
 func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
 	if run_id.is_empty():
 		return {"ok": false, "code": &"invalid_run_id", "message": "run_id must be nonempty"}
@@ -1714,6 +1726,43 @@ func _install_day_resolution_runtime(state_port: Object, coordinator: Object,
 			"message": "verify_configuration did not return the exact master envelope"}
 	_day_resolution_coordinator = coordinator
 	return {"ok": true, "code": &"ok", "value": {"installed": true}, "receipt": {}}
+
+
+## Installs the ONE Bootstrap-constructed, already-configured MinesweeperRoundCoordinator
+## (dwm-p2r.9 Plan 06 Task 2). Installation happens once; the same coordinator is idempotent
+## and a different one is refused, so no second round authority can exist in the process.
+func _install_minesweeper_round_coordinator(coordinator: Object) -> Dictionary:
+	if coordinator == null:
+		return {"ok": false, "code": &"invalid_minesweeper_coordinator", "message": ""}
+	for method in ["configure", "begin_round", "complete_round", "abort_round", "get_active_round"]:
+		if not coordinator.has_method(method):
+			return {"ok": false, "code": &"invalid_minesweeper_coordinator", "message": "missing " + method}
+	if _minesweeper_round_coordinator != null:
+		if _minesweeper_round_coordinator != coordinator:
+			return {"ok": false, "code": &"minesweeper_coordinator_already_installed", "message": ""}
+		return {"ok": true, "code": &"ok", "value": {"installed": true, "already_installed": true}, "receipt": {}}
+	_minesweeper_round_coordinator = coordinator
+	return {"ok": true, "code": &"ok", "value": {"installed": true, "already_installed": false}, "receipt": {}}
+
+
+## Shared round entry point. Every caller -- app context and dating context alike -- reaches the
+## real coordinator through here; GameState applies no round rule of its own.
+func begin_minesweeper_round(request: Dictionary) -> Dictionary:
+	if _minesweeper_round_coordinator == null:
+		return {"ok": false, "code": &"NOT_CONFIGURED", "message": "no Minesweeper coordinator is installed"}
+	return _minesweeper_round_coordinator.call(&"begin_round", request)
+
+
+func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary:
+	if _minesweeper_round_coordinator == null:
+		return {"ok": false, "code": &"NOT_CONFIGURED", "message": "no Minesweeper coordinator is installed"}
+	return _minesweeper_round_coordinator.call(&"complete_round", round_id, result, transaction_id)
+
+
+func get_active_minesweeper_round() -> Dictionary:
+	if _minesweeper_round_coordinator == null:
+		return {"ok": false, "code": &"NOT_CONFIGURED", "message": "no Minesweeper coordinator is installed"}
+	return _minesweeper_round_coordinator.call(&"get_active_round")
 
 
 func _lifecycle_advance_day() -> void:

@@ -1,0 +1,434 @@
+class_name GameStateMinesweeperPort
+extends RefCounted
+
+## Production Minesweeper state port (dwm-p2r.9 Plan 06 Task 2).
+##
+## Bridges MinesweeperRoundCoordinator to the real GameState facade. It owns NO
+## reward, task, or counter rules of its own: every economic effect is produced by
+## GameState's existing production functions, applied to a DETACHED GameState clone
+## so preparation never mutates live state and never emits a domain signal. Only
+## `commit()`/`rollback()` touch live state, and only `publish()` emits.
+##
+## `latch_fatal`, `is_fatal_latched`, and `guard_external` delegate to the ONE
+## already-configured ApplicationMutationGate. This adapter keeps no local fatal
+## field and no retained-failure cache; it returns the gate's exact results.
+
+const GAME_STATE_SCRIPT_PATH := "res://autoload/GameState.gd"
+const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
+	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id",
+]
+const DEFAULT_ROUTE_ID := "main"
+const DEFAULT_CONTENT_VERSION := 1
+
+const COUNTER_KEYS: Array[String] = ["money", "motivation", "app_rounds", "health", "pressure"]
+
+## Task IDs each outcome records, by difficulty. `no_flag` and `foresight` keep the
+## approved perfect-equivalent REWARD while recording their own distinct task IDs.
+const _COMPLETION_TASK_IDS := {
+	"exploded": [],
+	"cleared": ["complete_%s"],
+	"perfect": ["complete_%s", "perfect_%s"],
+	"no_flag": ["complete_%s", "no_flag_finish"],
+	"foresight": ["complete_%s", "foresight_finish"],
+}
+
+var _game_state: Object = null
+var _gate: Object = null
+var _checkpoint_providers: Dictionary = {}
+var _provider_identity: Dictionary = {}
+
+
+func _init(game_state: Object = null) -> void:
+	_game_state = game_state
+
+
+## Accepts the ONE ApplicationMutationGate Bootstrap constructed, and proves GameState
+## retained that same object. There is no public gate getter on GameState, so identity is
+## asserted through the instance id `configure_mutation_gate` already reports.
+func configure(mutation_gate: Object) -> Dictionary:
+	if _game_state == null:
+		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
+	if mutation_gate == null:
+		return _fail(&"invalid_mutation_gate", "gate contract incomplete")
+	for method in ["guard_external", "latch_fatal", "is_fatal_latched"]:
+		if not mutation_gate.has_method(method):
+			return _fail(&"invalid_mutation_gate", "missing method: " + method)
+	if not _game_state.has_method("get_mutation_gate_instance_id"):
+		return _fail(&"invalid_minesweeper_state_port", "GameState cannot report its gate identity")
+	var retained: int = int(_game_state.call(&"get_mutation_gate_instance_id"))
+	if retained != mutation_gate.get_instance_id():
+		return _fail(&"mutation_gate_identity_mismatch", "GameState retained another gate")
+	if _gate != null:
+		if _gate == mutation_gate:
+			return {"ok": true, "code": &"ok",
+				"value": {"gate_instance_id": _gate.get_instance_id(), "already_configured": true},
+				"receipt": {}}
+		return _fail(&"mutation_gate_already_configured", "")
+	_gate = mutation_gate
+	return {"ok": true, "code": &"ok",
+		"value": {"gate_instance_id": _gate.get_instance_id(), "already_configured": false},
+		"receipt": {}}
+
+
+## Takes the EXACT five Callables Bootstrap already handed the day-resolution state port, so
+## both checkpoint producers read one set of provider identities.
+func configure_checkpoint_providers(providers: Dictionary) -> Dictionary:
+	if typeof(providers) != TYPE_DICTIONARY or providers.size() != CHECKPOINT_PROVIDER_KEYS.size():
+		return _fail(&"invalid_checkpoint_providers", "providers must be exactly " + str(CHECKPOINT_PROVIDER_KEYS))
+	var identity := {}
+	for key in CHECKPOINT_PROVIDER_KEYS:
+		if not providers.has(key) or typeof(providers[key]) != TYPE_CALLABLE:
+			return _fail(&"invalid_checkpoint_providers", "missing or non-Callable provider: " + key)
+		var callable: Callable = providers[key]
+		if not callable.is_valid() or callable.get_object_id() == 0 or callable.get_argument_count() != 0:
+			return _fail(&"invalid_checkpoint_providers", "provider must be a zero-argument Callable with stable identity: " + key)
+		identity[key] = [callable.get_object_id(), String(callable.get_method())]
+	if not _checkpoint_providers.is_empty():
+		if identity == _provider_identity:
+			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+		return _fail(&"checkpoint_providers_already_configured", "")
+	_checkpoint_providers = providers.duplicate()
+	_provider_identity = identity
+	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+# ---- Frozen coordinator port surface ----
+
+func capture() -> Dictionary:
+	if _game_state == null:
+		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	return {"ok": true, "code": &"ok", "value": {"backup": {
+		"save": _game_state.to_save_dict(),
+		"run_id": str(lifecycle.get("run_id", "")),
+		"day": int(lifecycle.get("day", 1)),
+		"next_ordinal": int(_game_state.get("minesweeper_app_rounds_finished_today")) + 1,
+	}}}
+
+
+func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
+	if _game_state == null:
+		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
+	var context := str(request.get("context", ""))
+	var difficulty := str(request.get("difficulty", ""))
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var day := int(lifecycle.get("day", 1))
+	var ordinal: int = int(_game_state.get("minesweeper_app_rounds_finished_today")) + 1
+	var dating_evidence: Variant = null
+	if context == "app":
+		if not bool(_game_state.call(&"has_minesweeper_app_round_available")):
+			return _fail(&"NO_APP_ROUND_AVAILABLE", "no app round remains")
+		if int(_game_state.call(&"get_stat", "motivation")) <= 0:
+			return _fail(&"INSUFFICIENT_MOTIVATION", "motivation is exhausted")
+		if not bool(_game_state.call(&"can_start_minesweeper_app_round")):
+			return _fail(&"NO_APP_ROUND_AVAILABLE", "an app round is already unfinished")
+	else:
+		var resolved := _resolve_dating_evidence()
+		if not resolved.get("ok", false):
+			return resolved
+		dating_evidence = resolved["value"]
+	var active_round := {
+		"round_id": round_id,
+		"run_id": str(lifecycle.get("run_id", "")),
+		"context": context,
+		"difficulty": difficulty,
+		"day": day,
+		"ordinal": ordinal,
+		"dating_evidence": dating_evidence,
+	}
+	var clone: Object = _detached_clone()
+	if clone == null:
+		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
+	if context == "app":
+		clone.call(&"start_minesweeper_app_round", difficulty)
+	var candidate: Dictionary = clone.call(&"to_save_dict")
+	clone.free()
+	return {"ok": true, "code": &"ok", "value": {
+		"candidate": candidate,
+		"active_round": active_round.duplicate(true),
+		# Captured from the STILL-UNCONSUMED live run: the pre-board checkpoint must record the
+		# state a restart would resume from, not the state the round has already spent.
+		"pre_board_checkpoint_inputs": _checkpoint_inputs(lifecycle),
+		"start_receipt": {
+			"round_id": round_id, "context": context, "difficulty": difficulty,
+			"day": day, "ordinal": ordinal,
+		},
+	}}
+
+
+func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_id: String) -> Dictionary:
+	if _game_state == null:
+		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
+	var context := str(active_round.get("context", ""))
+	var difficulty := str(active_round.get("difficulty", ""))
+	var outcome := str(result.get("outcome", ""))
+	var task_ids := _task_ids_for(outcome, difficulty)
+	var clone: Object = _detached_clone()
+	if clone == null:
+		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
+	var before := _counters(clone)
+	if context == "app":
+		# The production reward/task/message/group rules run UNCHANGED on the clone; every signal
+		# they emit lands on an out-of-tree node with no listeners.
+		clone.call(&"finish_minesweeper_app_round", {
+			"context": "app", "difficulty": difficulty, "outcome": outcome, "task_ids": task_ids,
+		})
+	else:
+		# Dating rounds consume no app round and award no app money, task, or group activation.
+		clone.call(&"clear_unfinished_minesweeper_round")
+	var after := _counters(clone)
+	var candidate: Dictionary = clone.call(&"to_save_dict")
+	var claimed: Array = []
+	for tid: Variant in task_ids:
+		if (clone.get("minesweeper_task_rewards_claimed") as Dictionary).has(str(tid)):
+			claimed.append(str(tid))
+	clone.free()
+	var deltas := {}
+	for key: String in COUNTER_KEYS:
+		deltas[key] = int(after[key]) - int(before[key])
+	if context != "app":
+		for key: String in ["money", "motivation", "app_rounds"]:
+			deltas[key] = 0
+		claimed = []
+	var receipt := {
+		"transaction_id": transaction_id,
+		"round_id": str(active_round.get("round_id", "")),
+		"context": context,
+		"difficulty": difficulty,
+		"outcome": outcome,
+		"counter_deltas": deltas,
+		"task_ids": claimed,
+		"effect_transaction_ids": [],
+		"message_transaction_ids": [],
+		"group_activation_transaction_id": null,
+		"dating_outcome_id": null if context == "app" else "%s:%s" % [str(active_round.get("round_id", "")), outcome],
+		"checkpoint_id": "",
+	}
+	var events: Array[Dictionary] = [{
+		"event_id": "round_completed",
+		"round_id": str(active_round.get("round_id", "")),
+		"context": context,
+		"difficulty": difficulty,
+		"outcome": outcome,
+	}]
+	return {"ok": true, "code": &"ok", "value": {
+		"prepared_candidate": candidate,
+		"prepared_domain_receipt": receipt,
+		"domain_events": events,
+		"checkpoint_input_template": {"active_round": active_round.duplicate(true)},
+	}}
+
+
+## Owner method: inserts the previewed checkpoint id into the detached receipt and candidate,
+## then rebuilds the post-result checkpoint inputs from THAT final candidate.
+func finalize_complete(prepared_completion: Dictionary, checkpoint_id: String) -> Dictionary:
+	if checkpoint_id.is_empty():
+		return _fail(&"invalid_checkpoint_id", "checkpoint_id must be nonempty")
+	var inner: Dictionary = prepared_completion.get("value", prepared_completion) as Dictionary
+	if typeof(inner.get("prepared_domain_receipt")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_prepared_completion", "prepared completion was not issued by this port")
+	var receipt: Dictionary = (inner["prepared_domain_receipt"] as Dictionary).duplicate(true)
+	if str(receipt.get("checkpoint_id", "")) != "":
+		return _fail(&"invalid_prepared_completion", "prepared receipt already carries a checkpoint id")
+	receipt["checkpoint_id"] = checkpoint_id
+	var candidate: Dictionary = (inner["prepared_candidate"] as Dictionary).duplicate(true)
+	var events: Array = (inner.get("domain_events", []) as Array).duplicate(true)
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	return {"ok": true, "code": &"ok", "value": {
+		"candidate": candidate,
+		"domain_receipt": receipt,
+		"domain_events": events,
+		# Built from the FINAL candidate, so the durable snapshot records the completed round.
+		"post_result_checkpoint_inputs": _checkpoint_inputs(lifecycle, candidate),
+	}}
+
+
+func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id: String) -> Dictionary:
+	if _game_state == null:
+		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
+	# The pre-board run candidate, with no reward and no event.
+	var clone: Object = _detached_clone()
+	if clone == null:
+		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
+	clone.call(&"clear_unfinished_minesweeper_round")
+	var restored: Dictionary = clone.call(&"to_save_dict")
+	if str(active_round.get("context", "")) == "app":
+		restored["minesweeper_rounds_left"] = int(restored.get("minesweeper_rounds_left", 0)) + 1
+		var stats: Dictionary = (restored.get("stats", {}) as Dictionary).duplicate()
+		stats["motivation"] = int(stats.get("motivation", 0)) + 1
+		restored["stats"] = stats
+	clone.free()
+	return {"ok": true, "code": &"ok", "value": {
+		"candidate": restored,
+		"abort_receipt": {
+			"round_id": str(active_round.get("round_id", "")),
+			"reason": reason,
+			"transaction_id": transaction_id,
+		},
+	}}
+
+
+func commit(candidate: Dictionary) -> Dictionary:
+	if _game_state == null:
+		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
+	if typeof(candidate) != TYPE_DICTIONARY or candidate.is_empty():
+		return _fail(&"invalid_candidate", "candidate was not issued by this port")
+	return _game_state.call(&"apply_save_dict", candidate)
+
+
+func rollback(backup: Dictionary) -> Dictionary:
+	if _game_state == null:
+		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
+	var payload: Variant = backup.get("backup", backup)
+	if typeof(payload) != TYPE_DICTIONARY:
+		return _fail(&"invalid_backup", "backup was not issued by this port")
+	var save: Variant = (payload as Dictionary).get("save", payload)
+	if typeof(save) != TYPE_DICTIONARY:
+		return _fail(&"invalid_backup", "backup was not issued by this port")
+	return _game_state.call(&"apply_save_dict", save)
+
+
+## Pre-emission failpoint: the WHOLE batch is validated before the first emission, so a
+## failure guarantees zero signals and a retry stays well defined.
+func publish(receipt: Dictionary, domain_events: Array) -> Dictionary:
+	if _game_state == null:
+		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
+	if typeof(receipt) != TYPE_DICTIONARY or str(receipt.get("round_id", "")) == "":
+		return _fail(&"invalid_publication", "receipt requires a round_id")
+	for event: Variant in domain_events:
+		if typeof(event) != TYPE_DICTIONARY:
+			return _fail(&"invalid_publication", "every domain event must be a Dictionary")
+		var record := event as Dictionary
+		if str(record.get("event_id", "")) == "":
+			return _fail(&"invalid_publication", "every domain event requires an event_id")
+		if str(record.get("round_id", "")) != str(receipt.get("round_id", "")):
+			return _fail(&"invalid_publication", "domain event disagrees with the receipt round_id")
+	for event: Variant in domain_events:
+		var record := event as Dictionary
+		match str(record.get("event_id", "")):
+			"round_started":
+				_game_state.emit_signal("minesweeper_rounds_changed",
+					int(_game_state.call(&"get_minesweeper_display_rounds_left")),
+					int(_game_state.call(&"get_minesweeper_display_rounds_max")))
+			"round_completed":
+				_game_state.emit_signal("minesweeper_rounds_changed",
+					int(_game_state.call(&"get_minesweeper_display_rounds_left")),
+					int(_game_state.call(&"get_minesweeper_display_rounds_max")))
+				_game_state.emit_signal("minesweeper_reward_changed", receipt.duplicate(true))
+	_game_state.emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok", "value": {"published": true}}
+
+
+func latch_fatal(failure: Dictionary) -> Dictionary:
+	if _gate == null:
+		return _fail(&"mutation_gate_not_configured", "")
+	return _gate.call(&"latch_fatal", failure)
+
+
+func is_fatal_latched() -> bool:
+	if _gate == null:
+		return false
+	return bool(_gate.call(&"is_fatal_latched"))
+
+
+func guard_external(operation_id: StringName) -> Dictionary:
+	if _gate == null:
+		return _fail(&"mutation_gate_not_configured", "")
+	return _gate.call(&"guard_external", operation_id)
+
+
+# ---- Internal helpers ----
+
+## Builds an out-of-tree GameState carrying the live whitelisted state. Production reward,
+## task, message, and group rules run here so preparation stays free of live mutation.
+func _detached_clone() -> Object:
+	var clone: Object = load(GAME_STATE_SCRIPT_PATH).new()
+	if clone == null:
+		return null
+	clone.call(&"reset_game")
+	clone.call(&"apply_save_dict", _game_state.call(&"to_save_dict"))
+	return clone
+
+
+func _counters(target: Object) -> Dictionary:
+	return {
+		"money": int(target.get("money")),
+		"motivation": int(target.call(&"get_stat", "motivation")),
+		"app_rounds": int(target.get("minesweeper_app_rounds_finished_today")),
+		"health": int(target.call(&"get_stat", "health")),
+		"pressure": int(target.call(&"get_stat", "pressure")),
+	}
+
+
+func _task_ids_for(outcome: String, difficulty: String) -> Array:
+	var ids: Array = []
+	for template: Variant in _COMPLETION_TASK_IDS.get(outcome, []):
+		var text := str(template)
+		ids.append(text % difficulty if text.contains("%s") else text)
+	return ids
+
+
+## Resolves the ONE active dating route substage. The untrusted request carries no friend or
+## entry identifier; these trusted values are stamped into the active round instead.
+func _resolve_dating_evidence() -> Dictionary:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return _fail(&"DATING_ROUTE_NOT_ACTIVE", "no active resolution plan")
+	var stages: Variant = (plan as Dictionary).get("stages", [])
+	if typeof(stages) != TYPE_ARRAY:
+		return _fail(&"DATING_ROUTE_NOT_ACTIVE", "resolution plan carries no stages")
+	for stage: Variant in stages:
+		if typeof(stage) != TYPE_DICTIONARY:
+			continue
+		var record := stage as Dictionary
+		if str(record.get("state", "")) != "active":
+			continue
+		var friend_ids: Array = []
+		for fid: Variant in (record.get("friend_ids", []) as Array):
+			var text := str(fid)
+			if text != "" and not friend_ids.has(text):
+				friend_ids.append(text)
+		if friend_ids.is_empty() or friend_ids.size() > 2:
+			continue
+		return {"ok": true, "code": &"ok", "value": {
+			"entry_id": str(record.get("entry_id", "")),
+			"route_transaction_id": str(record.get("transaction_id", "")),
+			"friend_ids": friend_ids,
+		}}
+	return _fail(&"DATING_ROUTE_NOT_ACTIVE", "no active route substage")
+
+
+## The COMPLETE six-key bundle the real SaveManagerCheckpointPort requires. When a final
+## candidate is supplied its whitelisted values replace the live gameplay bag, so the durable
+## snapshot records what the transaction produces rather than what it started from.
+func _checkpoint_inputs(lifecycle: Dictionary, candidate: Variant = null) -> Dictionary:
+	var snapshot_input: Dictionary = _game_state.call(&"capture_run_snapshot_input")
+	snapshot_input["lifecycle"] = lifecycle.duplicate(true)
+	if typeof(candidate) == TYPE_DICTIONARY:
+		var gameplay: Dictionary = (snapshot_input.get("gameplay", {}) as Dictionary).duplicate(true)
+		for key: Variant in (candidate as Dictionary):
+			if gameplay.has(key):
+				gameplay[key] = (candidate as Dictionary)[key]
+		snapshot_input["gameplay"] = gameplay
+	return {
+		"snapshot_input": snapshot_input,
+		"dialogic_checkpoint": _provided("dialogic_checkpoint", {}),
+		"route_id": _provided("route_id", DEFAULT_ROUTE_ID),
+		"active_app_id": _provided("active_app_id", null),
+		"audio_context": _provided("audio_context", {}),
+		"content_version": _provided("content_version", DEFAULT_CONTENT_VERSION),
+	}
+
+
+func _provided(key: String, fallback: Variant) -> Variant:
+	if not _checkpoint_providers.has(key):
+		return fallback
+	var produced: Variant = (_checkpoint_providers[key] as Callable).call()
+	if typeof(produced) == TYPE_DICTIONARY or typeof(produced) == TYPE_ARRAY:
+		return produced.duplicate(true)
+	return produced
+
+
+func _fail(code: StringName, message: String) -> Dictionary:
+	return {"ok": false, "code": code, "message": message, "details": {}, "receipt": {}}
