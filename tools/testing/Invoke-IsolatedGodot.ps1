@@ -146,6 +146,36 @@ function Add-JsonLineExclusive {
     }
 }
 
+function Get-RequestedSuitePath {
+    param([string[]]$Arguments)
+    $paths = @()
+    foreach ($argument in $Arguments) {
+        $text = [string]$argument
+        if ($text -notmatch '^(?i)-gtest=') { continue }
+        foreach ($entry in ($text.Substring('-gtest='.Length) -split ',')) {
+            $trimmed = $entry.Trim()
+            if ($trimmed.Length -ne 0) { $paths += $trimmed }
+        }
+    }
+    return @($paths | Sort-Object -Unique)
+}
+
+function Get-SuiteExecutionFailure {
+    param([string]$LogPath, [string[]]$RequestedPaths)
+    if (-not (Test-Path -LiteralPath $LogPath -PathType Leaf)) { return @('SUITE_LOG_MISSING') }
+    $lines = @(Get-Content -LiteralPath $LogPath)
+    $failures = @()
+    foreach ($path in $RequestedPaths) {
+        if (@($lines | Where-Object { $_.Trim() -ceq $path }).Count -eq 0) {
+            $failures += ('SUITE_NOT_EXECUTED: ' + $path)
+        }
+    }
+    foreach ($line in $lines) {
+        if ($line.Contains('ERROR: Failed to load script')) { $failures += ('SCRIPT_LOAD_FAILED: ' + $line.Trim()) }
+    }
+    return @($failures | Sort-Object -Unique)
+}
+
 $repositoryRoot = Get-CanonicalPath (Join-Path $PSScriptRoot '..\..')
 $projectPath = Join-Path $repositoryRoot 'project.godot'
 $phaseTestsRoot = Join-Path $repositoryRoot '.godot\phase2r_tests'
@@ -216,6 +246,16 @@ try {
     $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot
     $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
     $resultCode = [int]$requested.ExitCode
+    # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested
+    # suite that never ran, or any failed script load, must fail this runner instead.
+    $requestedSuites = @(Get-RequestedSuitePath -Arguments @($GodotArgs))
+    if ($requestedSuites.Count -ne 0) {
+        $suiteFailures = @(Get-SuiteExecutionFailure -LogPath $logPath -RequestedPaths $requestedSuites)
+        if ($suiteFailures.Count -ne 0) {
+            foreach ($suiteFailure in $suiteFailures) { [Console]::Error.WriteLine($suiteFailure) }
+            if ($resultCode -eq 0) { $resultCode = 126 }
+        }
+    }
     $phase = 'evidence'
     $record = [ordered]@{
         suite_id = $SuiteId; argv = @($argv); exit_code = $resultCode; log_path = $logPath
