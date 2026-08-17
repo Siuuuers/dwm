@@ -1,8 +1,8 @@
-# *Before You Ask*
+# Game Details
 
 ## Project Profile
 
-*Before You Ask* is an adult psychological-horror visual novel and relationship mystery set at East Harbour University, a fictional hillside campus near Kowloon, Hong Kong. Across a seven-day Open Week of classes, rehearsals, preparations, and public events, four adult women move through a romance story in which attention is intimate, absence has consequences, and certainty is never the same as control. Angela is the protagonist; Priscilla, Lavinia, and Sylvia are full romanceable characters. All characters are adults.
+This game is an adult psychological-horror visual novel and relationship mystery set at East Harbour University, a fictional hillside campus near Kowloon, Hong Kong. Across a seven-day Open Week of classes, rehearsals, preparations, and public events, four adult women move through a romance story in which attention is intimate, absence has consequences, and certainty is never the same as control. Angela is the protagonist; Priscilla, Lavinia, and Sylvia are full romanceable characters. All characters are adults.
 
 ## Logline
 

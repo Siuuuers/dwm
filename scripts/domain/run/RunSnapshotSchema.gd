@@ -1,10 +1,10 @@
 class_name RunSnapshotSchema
 extends RefCounted
 
-## Frozen v2 run-snapshot schema
+## Frozen v3 run-snapshot schema
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 4).
 
-const SCHEMA_VERSION := 2
+const SCHEMA_VERSION := 3
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
@@ -15,7 +15,7 @@ const TOP_KEYS: Array[String] = [
 	"active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
 	"audio_context", "checkpoint_id", "checkpoint_sequence", "command_receipts", "contacts", "content_version",
 	"dating", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id",
-	"schedule", "schema_version",
+	"committed_schedule", "schema_version",
 ]
 const LIFECYCLE_KEYS: Array[String] = [
 	"active_resolution_plan", "day", "ending_plan", "run_id", "state",
@@ -54,7 +54,7 @@ static func build(
 		content_version: int,
 		checkpoint_sequence: int
 ) -> Dictionary:
-	for member: String in ["lifecycle", "gameplay", "contacts", "schedule", "dating",
+	for member: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
 			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		if not snapshot_input.has(member):
 			return _fail(&"invalid_snapshot_input", "missing member: " + member)
@@ -77,7 +77,7 @@ static func build(
 		"narrative_checkpoint": dialogic_checkpoint.duplicate(true),
 		"gameplay": gameplay,
 		"contacts": _detached(snapshot_input["contacts"]),
-		"schedule": _detached(snapshot_input["schedule"]),
+		"committed_schedule": _detached(snapshot_input["committed_schedule"]),
 		"dating": _detached(snapshot_input["dating"]),
 		"applied_effect_transaction_ids": _sorted_ids(snapshot_input["applied_effect_transaction_ids"]),
 		"applied_variable_transaction_ids": _sorted_ids(snapshot_input["applied_variable_transaction_ids"]),
@@ -129,9 +129,9 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		var member_check := validate_primitive_tree(candidate[member], "$." + member)
 		if not member_check.get("ok", false):
 			return member_check
-	if typeof(candidate["schedule"]) != TYPE_ARRAY:
-		return _fail(&"invalid_snapshot_shape", "schedule must be an array")
-	var schedule_check := validate_primitive_tree(candidate["schedule"], "$.schedule")
+	if typeof(candidate["committed_schedule"]) != TYPE_ARRAY:
+		return _fail(&"invalid_snapshot_shape", "committed_schedule must be an array")
+	var schedule_check := validate_primitive_tree(candidate["committed_schedule"], "$.committed_schedule")
 	if not schedule_check.get("ok", false):
 		return schedule_check
 	var gameplay_error := _validate_gameplay(candidate["gameplay"])
@@ -249,7 +249,7 @@ static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
 		"ending_plan": (lifecycle["ending_plan"] as Dictionary).duplicate(true) \
 			if lifecycle["ending_plan"] != null else null,
 		"contacts": (candidate["contacts"] as Dictionary).duplicate(true),
-		"schedule": (candidate["schedule"] as Array).duplicate(true),
+		"committed_schedule": (candidate["committed_schedule"] as Array).duplicate(true),
 		"dating": (candidate["dating"] as Dictionary).duplicate(true),
 	}}
 

@@ -30,6 +30,14 @@ Dialogic="*uid://ds2q0uclmolvu"
 DialogicBridge="*res://autoload/DialogicBridge.gd"
 ApplicationBootstrap="*res://autoload/ApplicationBootstrap.gd"
 
+[debug]
+
+gdscript/warnings/directory_rules={
+"res://addons": 0,
+"res://addons/gut": 0,
+"res://addons/gut/not_a_real_file": 0
+}
+
 [dialogic]
 
 directories/dch_directory={}
@@ -53,6 +61,7 @@ directories/dtl_directory={
 "lavinia_day6_pre_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day6_pre_challenge.dtl",
 "lavinia_day7": "res://dialogic/timelines/en/contacts/lavinia_day7.dtl",
 "opening_day1": "res://dialogic/timelines/en/core/opening_day1.dtl",
+"phase2r_contract_fixture": "res://tests/fixtures/dialogic/phase2r_contract_fixture.dtl",
 "priscilla": "res://dialogic/timelines/en/ending/priscilla.dtl",
 "priscilla_day1": "res://dialogic/timelines/en/contacts/priscilla_day1.dtl",
 "priscilla_day1_post_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day1_post_challenge.dtl",

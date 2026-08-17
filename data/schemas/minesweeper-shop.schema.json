@@ -1,0 +1,46 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "minesweeper-shop",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["schema_version", "kind", "registry_version", "records"],
+	"properties": {
+		"schema_version": {"const": 1},
+		"kind": {"const": "minesweeper_shop"},
+		"registry_version": {"const": "minesweeper_shop_v1"},
+		"records": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"item_id", "currency", "price", "effect_ids", "capability_ids", "cap"
+				],
+				"properties": {
+					"item_id": {"type": "string", "minLength": 1},
+					"currency": {"enum": ["money", "minesweeper_coin"]},
+					"price": {"type": "integer"},
+					"effect_ids": {
+						"type": "array",
+						"uniqueItems": true,
+						"items": {"type": "string", "minLength": 1}
+					},
+					"capability_ids": {
+						"type": "array",
+						"uniqueItems": true,
+						"items": {"enum": ["first_cell_safe", "first_cell_zero", "forced_no_guess"]}
+					},
+					"cap": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": ["per_causal_day", "per_branch"],
+						"properties": {
+							"per_causal_day": {},
+							"per_branch": {}
+						}
+					}
+				}
+			}
+		}
+	}
+}

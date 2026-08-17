@@ -10,7 +10,19 @@
       "Bash(timeout 150 \"/c/Users/glori/AppData/Roaming/Python/Python314/Scripts/uvx.exe\" --from git+https://github.com/GuDaStudio/geminimcp.git geminimcp)",
       "Bash(claude plugins *)",
       "Bash(npx skills *)",
-      "Bash(godot --version)"
+      "Bash(godot --version)",
+      "Bash('/c/Program Files/Godot_v4.6.3-stable_mono_win64/Godot_v4.6.3-stable_mono_win64.exe' --version)",
+      "Bash(echo \"SMOKE_EXIT=$?\")",
+      "Bash(bd stats *)",
+      "Bash(bd ready *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "PowerShell(& .\\\\tools\\\\testing\\\\Invoke-IsolatedGodot.ps1 -SuiteId 'game_state_surface_red' -LogName 'phase2r-red-game-state-surface.log' -GodotArgs @\\('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/tooling/test_public_surface_inventory.gd','-gexit'\\); Get-Content .godot\\\\phase2r_logs\\\\phase2r-red-game-state-surface.log | Select-String \"must exist|Passing|Failing|Risky|ERROR|SCRIPT\" | Select-Object -First 12)",
+      "PowerShell(& .\\\\tools\\\\testing\\\\Invoke-IsolatedGodot.ps1 -SuiteId 'game_state_surface_tool' -LogName 'phase2r-game-state-surface-tool.log' -GodotArgs @\\('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/tooling/test_public_surface_inventory.gd','-gexit'\\); Get-Content .godot\\\\phase2r_logs\\\\phase2r-game-state-surface-tool.log | Select-String \"Failed|Passing|passed|failed|ERROR|Tests\" | Select-Object -First 15)",
+      "Bash(bd update *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "godot"
+  ]
 }
