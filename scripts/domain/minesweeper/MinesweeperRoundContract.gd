@@ -16,12 +16,17 @@ const OUTCOMES: Array[StringName] = [
 ]
 
 
-# Validates an untrusted start request. Context must be "app" or "dating";
-# difficulty must be one of DIFFICULTIES. Returns {ok, code, value={context,
-# difficulty}} on success, or {ok:false, code:"invalid_request"} otherwise.
+# Validates an untrusted start request. The request is EXACTLY {context, difficulty}:
+# context must be "app" or "dating" and difficulty one of DIFFICULTIES. Any other key
+# rejects, so an untrusted caller can never smuggle a friend or entry identifier past
+# the state port that alone resolves trusted dating evidence. Returns {ok, code,
+# value={context, difficulty}} on success, or {ok:false, code:"invalid_request"}.
 static func validate_start_request(request: Variant) -> Dictionary:
 	if not (request is Dictionary):
 		return {"ok": false, "code": &"invalid_request"}
+	for key: Variant in (request as Dictionary).keys():
+		if not (str(key) == "context" or str(key) == "difficulty"):
+			return {"ok": false, "code": &"invalid_request"}
 	var context: Variant = request.get("context", null)
 	if not (context == &"app" or context == &"dating"):
 		return {"ok": false, "code": &"invalid_request"}

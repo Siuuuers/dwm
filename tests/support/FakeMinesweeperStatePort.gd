@@ -15,6 +15,18 @@ var _gate: RefCounted = null
 var _calls := {}
 var _failures := {}
 
+# Trusted dating evidence. The untrusted request never carries friend/entry identifiers, so the
+# state port is the only source; mirrors GameStateMinesweeperPort._resolve_dating_evidence().
+var dating_evidence := {
+	"entry_id": "entry-1",
+	"route_transaction_id": "rtx-1",
+	"friend_ids": ["priscilla"],
+}
+# When false, a dating start fails exactly as the production port does with no active substage.
+var dating_route_active := true
+# Lets a test drive one exact domain-availability verdict out of prepare_begin.
+var prepare_begin_failure_code: StringName = &""
+
 
 func _init(gate: RefCounted = null) -> void:
 	_gate = gate
@@ -62,14 +74,23 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 	_calls.prepare_begin += 1
 	if _maybe_fail(&"prepare_begin"):
 		return {"ok": false, "code": &"prepare_begin_failed", "message": "fake failure", "details": {}}
+	var context: Variant = request.get("context", &"app")
+	# Domain availability is the state port's call, exactly as in production.
+	if prepare_begin_failure_code != &"":
+		return {"ok": false, "code": prepare_begin_failure_code,
+			"message": "fake domain verdict", "details": {}}
+	if context == &"dating" and not dating_route_active:
+		return {"ok": false, "code": &"DATING_ROUTE_NOT_ACTIVE",
+			"message": "no active route substage", "details": {}}
 	var active_round := {
 		"round_id": round_id,
 		"run_id": request.get("run_id", "run-1"),
-		"context": request.get("context", &"app"),
+		"context": context,
 		"difficulty": request.get("difficulty", &"beginner"),
 		"day": request.get("day", 1),
 		"ordinal": request.get("ordinal", 1),
-		"dating_evidence": request.get("dating_evidence", null),
+		# Stamped from TRUSTED port state, never from the untrusted request.
+		"dating_evidence": dating_evidence.duplicate(true) if context == &"dating" else null,
 	}
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": {"active_round": active_round},

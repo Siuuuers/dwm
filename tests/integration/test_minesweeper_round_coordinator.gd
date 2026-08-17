@@ -436,3 +436,87 @@ func test_guard_first_op_when_fatal_latched() -> void:
 	assert_false(r.ok)
 	assert_eq(r.code, &"APPLICATION_FATAL")
 	assert_true(r.details.has("failure"))
+
+
+# ---- dating context (Plan 06 Task 2, Steps 2.1 and 2.5) ----
+#
+# The untrusted start request carries NO friend or entry identifier. Only the state port may
+# resolve the one active route substage, and the coordinator stamps those trusted values into
+# the active round.
+
+func test_dating_round_takes_its_evidence_from_the_state_port_not_the_request() -> void:
+	var made := _make_coordinator()
+	var r: Dictionary = made.coord.begin_round({"context": &"dating", "difficulty": &"beginner"})
+	assert_true(r.ok, "a dating round begins through the same transaction")
+	var active: Dictionary = made.coord.get_active_round()["value"]
+	assert_eq(str(active["context"]), "dating")
+	var evidence: Variant = active["dating_evidence"]
+	assert_true(evidence is Dictionary, "dating rounds carry trusted evidence")
+	assert_eq((evidence as Dictionary)["entry_id"], "entry-1")
+	assert_eq((evidence as Dictionary)["route_transaction_id"], "rtx-1")
+	assert_eq((evidence as Dictionary)["friend_ids"], ["priscilla"])
+
+
+func test_dating_round_ignores_caller_supplied_friend_and_entry_identifiers() -> void:
+	var made := _make_coordinator()
+	# A hostile request naming its own friend/entry must not reach the active round.
+	var r: Dictionary = made.coord.begin_round({
+		"context": &"dating", "difficulty": &"beginner",
+		"entry_id": "attacker-entry", "friend_ids": ["sylvia"],
+	})
+	assert_false(r.ok, "extra request keys are rejected by the closed start schema")
+	assert_eq(r.code, &"INVALID_REQUEST")
+
+
+func test_dating_round_completes_through_the_same_two_boundary_transaction() -> void:
+	var made := _make_coordinator()
+	assert_true(made.coord.begin_round({"context": &"dating", "difficulty": &"beginner"}).ok)
+	var r: Dictionary = made.coord.complete_round(ROUND_ID, {"outcome": &"cleared"}, "tx-dating")
+	assert_true(r.ok)
+	var wc: Dictionary = made.save.get_call_counts()
+	assert_eq(wc.release_board_lock, 1, "a dating round releases the board lock like any other")
+	assert_false(made.save.owns_board_lock())
+
+
+func test_app_round_never_carries_dating_evidence() -> void:
+	var made := _make_coordinator()
+	assert_true(made.coord.begin_round({"context": &"app", "difficulty": &"beginner"}).ok)
+	assert_eq(made.coord.get_active_round()["value"]["dating_evidence"], null)
+
+
+# ---- domain availability codes (Plan 06 Task 2, Step 2.2 closed failure set) ----
+#
+# NO_APP_ROUND_AVAILABLE, INSUFFICIENT_MOTIVATION, and DATING_ROUTE_NOT_ACTIVE are declared
+# coordinator failure codes. The state port decides availability, so the coordinator must
+# surface its verdict instead of flattening it to the generic STATE_PREPARE_FAILED.
+
+func test_dating_route_not_active_surfaces_its_own_code() -> void:
+	var made := _make_coordinator()
+	made.state.dating_route_active = false
+	var r: Dictionary = made.coord.begin_round({"context": &"dating", "difficulty": &"beginner"})
+	assert_false(r.ok)
+	assert_eq(r.code, &"DATING_ROUTE_NOT_ACTIVE")
+	# Nothing durable may happen when the round never starts.
+	var wc: Dictionary = made.save.get_call_counts()
+	assert_eq(wc.prepare_checkpoint, 0)
+	assert_eq(wc.commit_checkpoint, 0)
+	assert_eq(wc.acquire_board_lock, 0)
+	assert_false(made.save.owns_board_lock())
+
+
+func test_domain_availability_failures_surface_their_own_codes() -> void:
+	for code: StringName in [&"NO_APP_ROUND_AVAILABLE", &"INSUFFICIENT_MOTIVATION"]:
+		var made := _make_coordinator()
+		made.state.prepare_begin_failure_code = code
+		var r: Dictionary = made.coord.begin_round({"context": &"app", "difficulty": &"beginner"})
+		assert_false(r.ok, str(code))
+		assert_eq(r.code, code, str(code))
+		assert_eq(made.save.get_call_counts().acquire_board_lock, 0, str(code))
+
+
+func test_other_prepare_begin_failures_remain_state_prepare_failed() -> void:
+	var made := _make_coordinator()
+	made.state.set_failure(&"prepare_begin", 1)
+	var r: Dictionary = made.coord.begin_round({"context": &"app", "difficulty": &"beginner"})
+	assert_false(r.ok)
+	assert_eq(r.code, &"STATE_PREPARE_FAILED", "unrecognised causes stay generic")

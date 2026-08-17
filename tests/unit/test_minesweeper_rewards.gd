@@ -143,3 +143,68 @@ func test_no_flag_and_foresight_record_their_own_distinct_task_ids() -> void:
 			assert_true(ids.has("complete_%s" % text), "every finish completes the difficulty")
 		assert_eq(port.call(&"_task_ids_for", "exploded", text), [],
 			"an exploded round claims no task")
+
+
+# ---- dating context cannot spend or earn app state (Plan 06 Task 2, Step 2.5) ----
+
+func _dating_round(difficulty: String) -> Dictionary:
+	return {
+		"round_id": "run-1:day-3:round-1", "run_id": "run-1", "context": "dating",
+		"difficulty": difficulty, "day": 3, "ordinal": 1,
+		"dating_evidence": {
+			"entry_id": "entry-1", "route_transaction_id": "rtx-1",
+			"friend_ids": ["priscilla"],
+		},
+	}
+
+
+func test_dating_completion_awards_no_app_money_task_round_or_group_activation() -> void:
+	var port: RefCounted = STATE_PORT.new(GameState)
+	var prepared: Dictionary = port.call(
+		&"prepare_complete", _dating_round("expert"), {"outcome": "perfect"}, "tx-dating-1")
+	assert_true(prepared.get("ok", false))
+	var receipt: Dictionary = prepared["value"]["prepared_domain_receipt"]
+	var deltas: Dictionary = receipt["counter_deltas"]
+	assert_eq(int(deltas["money"]), 0, "dating never awards app money")
+	assert_eq(int(deltas["motivation"]), 0, "dating never spends motivation")
+	assert_eq(int(deltas["app_rounds"]), 0, "dating never consumes an app round")
+	assert_eq(receipt["task_ids"], [], "dating claims no app task")
+	assert_eq(receipt["group_activation_transaction_id"], null,
+		"dating can never activate the group offer")
+	assert_eq(str(receipt["context"]), "dating")
+
+
+func test_dating_completion_records_a_nonempty_synchronized_outcome_id() -> void:
+	var port: RefCounted = STATE_PORT.new(GameState)
+	var prepared: Dictionary = port.call(
+		&"prepare_complete", _dating_round("beginner"), {"outcome": "cleared"}, "tx-dating-2")
+	assert_true(prepared.get("ok", false))
+	var receipt: Dictionary = prepared["value"]["prepared_domain_receipt"]
+	assert_ne(str(receipt["dating_outcome_id"]), "", "a dating completion carries its outcome id")
+	assert_true(str(receipt["dating_outcome_id"]).begins_with("run-1:day-3:round-1"),
+		"the outcome id is derived from the trusted active round")
+
+
+func test_app_completion_carries_no_dating_outcome_id() -> void:
+	var port: RefCounted = STATE_PORT.new(GameState)
+	GameState.start_minesweeper_app_round("beginner")
+	var app_round := {
+		"round_id": "run-1:day-1:round-1", "run_id": "run-1", "context": "app",
+		"difficulty": "beginner", "day": 1, "ordinal": 1, "dating_evidence": null,
+	}
+	var prepared: Dictionary = port.call(
+		&"prepare_complete", app_round, {"outcome": "cleared"}, "tx-app-1")
+	assert_true(prepared.get("ok", false))
+	assert_eq(prepared["value"]["prepared_domain_receipt"]["dating_outcome_id"], null)
+
+
+func test_preparing_a_dating_completion_never_mutates_live_state() -> void:
+	var port: RefCounted = STATE_PORT.new(GameState)
+	var money_before: int = GameState.money
+	var rounds_before: int = GameState.minesweeper_app_rounds_finished_today
+	var motivation_before: int = GameState.get_stat("motivation")
+	assert_true(port.call(&"prepare_complete", _dating_round("intermediate"),
+		{"outcome": "cleared"}, "tx-dating-3").get("ok", false))
+	assert_eq(GameState.money, money_before, "preparation is free of live mutation")
+	assert_eq(GameState.minesweeper_app_rounds_finished_today, rounds_before)
+	assert_eq(GameState.get_stat("motivation"), motivation_before)

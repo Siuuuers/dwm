@@ -30,6 +30,13 @@ const FAILURE_CODES: Array[StringName] = [
 	&"COMPLETION_COMMITTED_UNPUBLISHED", &"LOCK_RELEASE_PENDING", &"ABORT_FAILED",
 ]
 
+## Domain-availability verdicts the state port alone can reach. They are this coordinator's own
+## closed codes, so a prepare_begin failure carrying one is surfaced unchanged rather than being
+## flattened into the generic STATE_PREPARE_FAILED.
+const DOMAIN_AVAILABILITY_CODES: Array[StringName] = [
+	&"NO_APP_ROUND_AVAILABLE", &"INSUFFICIENT_MOTIVATION", &"DATING_ROUTE_NOT_ACTIVE",
+]
+
 
 var _save_port: Object = null
 var _state_port: Object = null
@@ -151,6 +158,11 @@ func begin_round(request: Variant) -> Dictionary:
 	var round_id: String = CONTRACT.build_round_id(run_id, day, ordinal)
 	var prepared: Dictionary = _state_port.prepare_begin(validated["value"], round_id)
 	if not prepared.get("ok", false):
+		# No round is consumed and nothing durable has happened yet, so an availability verdict
+		# reaches the caller as itself; every other cause stays generic with its nested reason.
+		var cause: StringName = StringName(str(prepared.get("code", &"")))
+		if cause in DOMAIN_AVAILABILITY_CODES:
+			return {"ok": false, "code": cause, "details": {"cause": prepared}}
 		return {"ok": false, "code": &"STATE_PREPARE_FAILED"}
 	# Pre-board checkpoint + autosave as one recoverable transaction.
 	var s_cap: Dictionary = _save_port.capture()
