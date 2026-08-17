@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dwm.local/schemas/evidence/minesweeper-contract.schema.json",
+  "title": "Phase 2R Minesweeper contract handoff artifact",
+  "description": "Closed declarative contract for evidence/phase_2r/handoff/minesweeper_contract.json. The repository's JsonSchemaValidator honours type, const, enum, required, properties, additionalProperties, items, uniqueItems and minLength; MinesweeperContractEvidence.validate_law repeats every constraint expressed here and adds the ones this subset cannot reach, so a weakened schema cannot widen what is accepted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifact_id",
+    "interface_version",
+    "source_bindings",
+    "difficulties",
+    "outcomes",
+    "start_request_schema",
+    "active_round_schema",
+    "port_signatures",
+    "prepared_value_schemas",
+    "completion_receipt_schema",
+    "pending_record_schema",
+    "fatal_latch_contract",
+    "failure_codes",
+    "start_order",
+    "completion_order",
+    "fixture_ids",
+    "save_lock_contract",
+    "phase_split"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "artifact_id": {"type": "string", "const": "phase_2r.minesweeper_contract"},
+    "interface_version": {"type": "integer", "const": 1},
+    "source_bindings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "minLength": 64}
+        }
+      }
+    },
+    "difficulties": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "enum": ["beginner", "intermediate", "expert"]}
+    },
+    "outcomes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["exploded", "cleared", "perfect", "no_flag", "foresight"]
+      }
+    },
+    "start_request_schema": {"type": "object"},
+    "active_round_schema": {"type": "object"},
+    "port_signatures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state_port",
+        "save_port",
+        "coordinator",
+        "duck_typed_alternatives_rejected_during_configure"
+      ],
+      "properties": {
+        "state_port": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "save_port": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "coordinator": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "duck_typed_alternatives_rejected_during_configure": {"type": "boolean", "const": true}
+      }
+    },
+    "prepared_value_schemas": {"type": "object"},
+    "completion_receipt_schema": {"type": "object"},
+    "pending_record_schema": {"type": "object"},
+    "fatal_latch_contract": {"type": "object"},
+    "failure_codes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "start_order": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "completion_order": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "fixture_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "save_lock_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "adapter_delegates_only_this_owner",
+        "capability_while_active",
+        "manual_save_result",
+        "quick_save_input",
+        "deferred_save_queued",
+        "notification_toast_dialog_or_recommendation",
+        "pre_board_autosave_precedes",
+        "pre_board_disk_write",
+        "post_result_disk_write",
+        "post_result_checkpoint_kind"
+      ],
+      "properties": {
+        "owner": {"type": "string", "const": "minesweeper_board"},
+        "adapter_delegates_only_this_owner": {"type": "boolean", "const": true},
+        "capability_while_active": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "silent", "deferred"],
+          "properties": {
+            "enabled": {"type": "boolean", "const": false},
+            "silent": {"type": "boolean", "const": true},
+            "deferred": {"type": "boolean", "const": false}
+          }
+        },
+        "manual_save_result": {"type": "string", "const": "save_locked"},
+        "quick_save_input": {"type": "string", "minLength": 1},
+        "deferred_save_queued": {"type": "boolean", "const": false},
+        "notification_toast_dialog_or_recommendation": {"type": "boolean", "const": false},
+        "pre_board_autosave_precedes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "pre_board_disk_write": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "reason"],
+          "properties": {
+            "kind": {"type": "string", "const": "autosave"},
+            "reason": {"type": "string", "const": "pre_board"}
+          }
+        },
+        "post_result_disk_write": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "reason"],
+          "properties": {
+            "kind": {"type": "string", "const": "none"},
+            "reason": {"type": "string", "const": "stage"}
+          }
+        },
+        "post_result_checkpoint_kind": {"type": "string", "const": "post_result"}
+      }
+    },
+    "phase_split": {"type": "object"}
+  }
+}
