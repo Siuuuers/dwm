@@ -99,8 +99,9 @@ func _wired() -> Dictionary:
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false), "checkpoint port latched")
 	_manager._journal.reset(run_id)
 	var coordinator: Object = COORDINATOR.new()
-	assert_true(coordinator.configure_fatal_latch(gate).get("ok", false), "coordinator latched")
-	assert_true(coordinator.configure(state_port, checkpoint_port).get("ok", false), "coordinator configured")
+	# One three-owner seam (Plan 01 Task 6 Step 6.5, dwm-p2r.13): the gate arrives with the ports.
+	assert_true(coordinator.configure(state_port, checkpoint_port, gate).get("ok", false),
+		"coordinator configured")
 	return {"coordinator": coordinator, "run_id": run_id, "checkpoint_port": checkpoint_port}
 
 

@@ -64,7 +64,9 @@ func begin_or_resume(command_id: String) -> Dictionary:
 		return {"ok": false, "code": &"invalid_command_id", "message": "", "details": {}}
 	if _failure == &"begin_or_resume":
 		return {"ok": false, "code": &"begin_failed", "message": "forced", "details": {}}
-	var begun: Dictionary = _lifecycle.begin_day_resolution(command_id, [])
+	# Step 6.6 (dwm-p2r.13): the fake models the same transport as production -- a committed
+	# Schedule aggregate, never a bare array -- so it cannot pass a shape production would refuse.
+	var begun: Dictionary = _lifecycle.begin_day_resolution(command_id, {"entries": []})
 	if not begun.get("ok", false):
 		return begun
 	return {"ok": true, "code": &"ok", "value": {"run_id": _run_id}}

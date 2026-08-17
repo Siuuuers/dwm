@@ -19,8 +19,7 @@ func _wired(day: int) -> Dictionary:
 	checkpoint.seed_empty("run-1")
 	var gate: RefCounted = load(GATE_PATH).new()
 	var coordinator: RefCounted = load(COORDINATOR_PATH).new()
-	assert_true(coordinator.configure_fatal_latch(gate)["ok"])
-	assert_true(coordinator.configure(state, checkpoint)["ok"])
+	assert_true(coordinator.configure(state, checkpoint, gate)["ok"])
 	return {"coordinator": coordinator, "state": state, "checkpoint": checkpoint, "gate": gate, "calls": calls}
 
 func test_checkpoint_commit_failure_rolls_back_without_publication() -> void:
@@ -37,8 +36,7 @@ func test_checkpoint_commit_failure_rolls_back_without_publication() -> void:
 	var state_before: Dictionary = state.peek_state()
 	var checkpoint_before: Dictionary = checkpoint.peek_state()
 	var coordinator: RefCounted = load(COORDINATOR_PATH).new()
-	assert_true(coordinator.configure_fatal_latch(load(GATE_PATH).new())["ok"])
-	assert_true(coordinator.configure(state, checkpoint)["ok"])
+	assert_true(coordinator.configure(state, checkpoint, load(GATE_PATH).new())["ok"])
 	var result: Dictionary = coordinator.request_schedule_done("done:run-1:day-3")
 	assert_false(result["ok"])
 	assert_eq(result["code"], &"checkpoint_commit_failed")
@@ -60,21 +58,42 @@ func test_configuration_matrix_and_gate_identity() -> void:
 	var calls: Array[String] = []
 	var state: RefCounted = load(STATE_PATH).new(calls)
 	var checkpoint: RefCounted = load(CHECKPOINT_PATH).new(calls)
-	assert_eq(coordinator.configure(state, checkpoint)["code"], &"fatal_latch_not_configured",
-		"configure requires the fatal latch first")
-	assert_eq(coordinator.configure_fatal_latch(null).get("code"), &"invalid_mutation_gate")
-	assert_eq(coordinator.configure_fatal_latch(RefCounted.new()).get("code"), &"invalid_mutation_gate")
+	# The THREE-OWNER seam (Plan 01 Task 6 Step 6.5, dwm-p2r.13). The gate no longer arrives through
+	# a separate configure_fatal_latch() call, so there is no longer a half-owned state in which a
+	# state port is retained but no gate is -- every owner is validated and adopted together.
 	var gate: RefCounted = load(GATE_PATH).new()
-	var configured: Dictionary = coordinator.configure_fatal_latch(gate)
+	assert_eq(coordinator.configure(state, checkpoint, null).get("code"), &"invalid_mutation_gate")
+	assert_eq(coordinator.configure(state, checkpoint, RefCounted.new()).get("code"),
+		&"invalid_mutation_gate")
+	assert_eq(coordinator.configure(null, checkpoint, gate).get("code"), &"invalid_state_port")
+	assert_eq(coordinator.configure(state, null, gate).get("code"), &"invalid_checkpoint_port")
+	# Every rejection above must have left the coordinator wholly unconfigured, not partly owned.
+	assert_eq(coordinator.verify_configuration(state, checkpoint, gate).get("code"),
+		&"day_resolution_coordinator_unconfigured",
+		"a refused configure retains nothing at all")
+
+	var configured: Dictionary = coordinator.configure(state, checkpoint, gate)
 	assert_true(configured["ok"])
 	assert_eq(configured["value"]["gate_instance_id"], gate.get_instance_id())
 	assert_eq(configured["value"]["already_configured"], false)
-	var repeat: Dictionary = coordinator.configure_fatal_latch(gate)
-	assert_true(repeat["ok"], "identical instance is idempotent")
+	var repeat: Dictionary = coordinator.configure(state, checkpoint, gate)
+	assert_true(repeat["ok"], "the identical three-owner replay is idempotent")
 	assert_eq(repeat["value"]["already_configured"], true)
-	assert_eq(coordinator.configure_fatal_latch(load(GATE_PATH).new()).get("code"),
-		&"mutation_gate_already_configured", "replacement rejects")
-	assert_true(coordinator.configure(state, checkpoint)["ok"])
+	for replacement: Array in [[state, checkpoint, load(GATE_PATH).new()],
+			[load(STATE_PATH).new(calls), checkpoint, gate],
+			[state, load(CHECKPOINT_PATH).new(calls), gate]]:
+		assert_eq(coordinator.configure(replacement[0], replacement[1], replacement[2]).get("code"),
+			&"day_resolution_coordinator_already_configured",
+			"a changed owner in any position is refused before mutation")
+
+	# verify_configuration COMPARES and returns only primitives; it never hands an owner back.
+	assert_eq(coordinator.verify_configuration(state, checkpoint, gate),
+		{"ok": true, "code": &"ok", "value": {"configured": true}, "receipt": {}},
+		"the exact primitive master envelope")
+	assert_eq(coordinator.verify_configuration(load(STATE_PATH).new(calls), checkpoint, gate).get("code"),
+		&"day_resolution_coordinator_owner_mismatch")
+	assert_false(coordinator.has_method("get_state_port"),
+		"the private-bag accessor is removed, not merely unused")
 	assert_eq(coordinator.request_schedule_done("").get("code"), &"invalid_command_id")
 
 func test_day3_full_resolution_reaches_plan_complete() -> void:

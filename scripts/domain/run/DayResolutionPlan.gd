@@ -18,9 +18,18 @@ const STAGE_STATES: Array[String] = ["pending", "active", "completed"]
 const STAGE_KEYS: Array[String] = ["stage_id", "transaction_id", "route_id", "state", "receipt", "substages"]
 const SUBSTAGE_KEYS: Array[String] = ["substage_id", "transaction_id", "state", "receipt"]
 
+const PLAN_KEYS: Array[String] = [
+	"board_fate_receipt_id", "committed_schedule", "resolution_id", "route_plan",
+	"schedule_commit_receipt_id", "source_day", "stages",
+]
+
 var _resolution_id := ""
 var _source_day := 0
 var _stages: Array[Dictionary] = []
+var _committed_schedule: Dictionary = {}
+var _route_plan: Array = []
+var _schedule_commit_receipt_id: Variant = null
+var _board_fate_receipt_id: Variant = null
 
 ## SINGLE authority for how far an ACTIVE plan's source day may trail the run day (dwm-7e6).
 ##
@@ -59,34 +68,53 @@ static func _stage_state(plan_data: Dictionary, stage_id: String) -> String:
 static func stage_allowlist(source_day: int) -> Array[String]:
 	return DAY_7_STAGES.duplicate() if source_day == 7 else DAY_1_6_STAGES.duplicate()
 
-static func create(resolution_id: String, source_day: int, schedule_entries: Array) -> Dictionary:
+## Builds the stage plan from the COMMITTED entries of a canonical committed Schedule (Plan 01
+## Task 6 Step 6.6, dwm-p2r.13). Each entry's identity is its issuer-anchored `schedule_entry_id`;
+## a caller-authored id is no longer accepted, so no synthetic entry can reach a persisted substage.
+## THE AGGREGATE IS THE ONLY ENTRY SOURCE (plan line 963, Step 6.3). The committed entries are read
+## OUT of `committed_schedule` rather than accepted as a second caller-supplied array, so a caller
+## physically cannot hand this plan an order or an id that the canonical aggregate does not contain.
+## `route_plan` is the registry-derived projection and is persisted as-is; it is not a
+## caller-authored route/effect duplicate, and nothing here re-derives cost or effects from it.
+static func create(
+	resolution_id: String,
+	source_day: int,
+	committed_schedule: Dictionary,
+	route_plan: Array,
+	schedule_commit_receipt_id: Variant,
+	board_fate_receipt_id: Variant,
+) -> Dictionary:
 	if resolution_id.is_empty():
 		return _fail(&"invalid_resolution_id", "resolution_id must be nonempty")
 	if source_day < 1 or source_day > 7:
 		return _fail(&"invalid_source_day", "source_day must be 1..7: %d" % source_day)
+	if typeof(committed_schedule.get("entries")) != TYPE_ARRAY:
+		return _fail(&"invalid_committed_schedule", "committed_schedule.entries must be an array")
+	var committed_entries: Array = committed_schedule["entries"] as Array
 	var seen_slots := {}
 	var detached: Array[Dictionary] = []
-	for entry_value: Variant in schedule_entries:
+	for entry_value: Variant in committed_entries:
 		if typeof(entry_value) != TYPE_DICTIONARY:
-			return _fail(&"invalid_schedule_entry", "schedule entries must be objects")
+			return _fail(&"invalid_schedule_entry", "committed entries must be objects")
 		var entry := entry_value as Dictionary
-		var entry_id := str(entry.get("entry_id", ""))
+		var entry_id := str(entry.get("schedule_entry_id", ""))
 		if entry_id.is_empty():
-			return _fail(&"invalid_schedule_entry", "entry_id must be nonempty")
+			return _fail(&"invalid_schedule_entry", "schedule_entry_id must be nonempty")
 		if typeof(entry.get("slot_index")) != TYPE_INT:
 			return _fail(&"invalid_schedule_entry", "slot_index must be an integer: " + entry_id)
 		var slot_index := int(entry["slot_index"])
 		if seen_slots.has(slot_index):
 			return _fail(&"invalid_schedule_entry", "duplicate slot_index: %d" % slot_index)
 		seen_slots[slot_index] = true
-		detached.append({"entry_id": entry_id, "slot_index": slot_index})
+		detached.append({"schedule_entry_id": entry_id, "slot_index": slot_index})
 	detached.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["slot_index"]) < int(b["slot_index"]))
 	var stages: Array = []
 	for stage_id: String in stage_allowlist(source_day):
 		var substages: Array = []
 		if stage_id == "execute_schedule_entries":
 			for entry: Dictionary in detached:
-				var substage_id := "schedule:%d:%d:%s" % [source_day, int(entry["slot_index"]), str(entry["entry_id"])]
+				var substage_id := "schedule:%d:%d:%s" % [
+					source_day, int(entry["slot_index"]), str(entry["schedule_entry_id"])]
 				substages.append({
 					"substage_id": substage_id,
 					"transaction_id": resolution_id + ":" + substage_id,
@@ -101,13 +129,30 @@ static func create(resolution_id: String, source_day: int, schedule_entries: Arr
 			"receipt": null,
 			"substages": substages,
 		})
-	return from_dict({"resolution_id": resolution_id, "source_day": source_day, "stages": stages})
+	return from_dict({
+		"resolution_id": resolution_id,
+		"source_day": source_day,
+		"stages": stages,
+		"committed_schedule": committed_schedule.duplicate(true),
+		"route_plan": route_plan.duplicate(true),
+		"schedule_commit_receipt_id": schedule_commit_receipt_id,
+		"board_fate_receipt_id": board_fate_receipt_id,
+	})
 
 static func from_dict(data: Dictionary) -> Dictionary:
 	var keys := data.keys()
 	keys.sort()
-	if keys != ["resolution_id", "source_day", "stages"]:
+	var expected_plan_keys := PLAN_KEYS.duplicate()
+	expected_plan_keys.sort()
+	if keys != expected_plan_keys:
 		return _fail(&"invalid_plan_shape", "unexpected top-level keys: " + str(keys))
+	if typeof(data["committed_schedule"]) != TYPE_DICTIONARY:
+		return _fail(&"invalid_committed_schedule", "committed_schedule must be an object")
+	if typeof(data["route_plan"]) != TYPE_ARRAY:
+		return _fail(&"invalid_route_plan", "route_plan must be an array")
+	for receipt_field: String in ["schedule_commit_receipt_id", "board_fate_receipt_id"]:
+		if data[receipt_field] != null and typeof(data[receipt_field]) != TYPE_STRING:
+			return _fail(&"invalid_plan_shape", receipt_field + " must be null or a String")
 	var resolution_id := str(data["resolution_id"])
 	if resolution_id.is_empty():
 		return _fail(&"invalid_resolution_id", "resolution_id must be nonempty")
@@ -199,10 +244,42 @@ static func from_dict(data: Dictionary) -> Dictionary:
 		stages.append(stage)
 	if active_count > 1:
 		return _fail(&"invalid_stage_order", "more than one active record")
+	# NO SYNTHETIC ENTRY CAN SURVIVE A ROUND TRIP (Step 6.3). The substages were derived from the
+	# aggregate at create() time, but a restored plan arrives as raw bytes, so the correspondence is
+	# re-proven here: one substage per committed entry, same count, same ids, same slot order. A
+	# tampered snapshot that adds an entry to the aggregate, or a substage with no entry behind it,
+	# is rejected on load rather than resolving a day the player never committed.
+	var entries_value: Variant = (data["committed_schedule"] as Dictionary).get("entries", [])
+	if typeof(entries_value) != TYPE_ARRAY:
+		return _fail(&"invalid_committed_schedule", "committed_schedule.entries must be an array")
+	var expected_substages: Array[String] = []
+	var ordered: Array = (entries_value as Array).duplicate(true)
+	ordered.sort_custom(func(a: Variant, b: Variant) -> bool:
+		return int((a as Dictionary).get("slot_index", 0)) < int((b as Dictionary).get("slot_index", 0)))
+	for entry_value: Variant in ordered:
+		if typeof(entry_value) != TYPE_DICTIONARY:
+			return _fail(&"invalid_committed_schedule", "committed entries must be objects")
+		expected_substages.append("schedule:%d:%d:%s" % [
+			source_day, int((entry_value as Dictionary).get("slot_index", -1)),
+			str((entry_value as Dictionary).get("schedule_entry_id", "")),
+		])
+	var actual_substages: Array[String] = []
+	for stage: Dictionary in stages:
+		if str(stage["stage_id"]) != "execute_schedule_entries":
+			continue
+		for substage: Dictionary in (stage["substages"] as Array):
+			actual_substages.append(str(substage["substage_id"]))
+	if actual_substages != expected_substages:
+		return _fail(&"invalid_substage_shape",
+			"substages must correspond exactly to the committed entries, in slot order")
 	var plan: RefCounted = (load("res://scripts/domain/run/DayResolutionPlan.gd") as GDScript).new()
 	plan._resolution_id = resolution_id
 	plan._source_day = source_day
 	plan._stages = stages
+	plan._committed_schedule = (data["committed_schedule"] as Dictionary).duplicate(true)
+	plan._route_plan = (data["route_plan"] as Array).duplicate(true)
+	plan._schedule_commit_receipt_id = data["schedule_commit_receipt_id"]
+	plan._board_fate_receipt_id = data["board_fate_receipt_id"]
 	return {"ok": true, "code": &"ok", "value": {"plan": plan}}
 
 func to_dict() -> Dictionary:
@@ -210,7 +287,29 @@ func to_dict() -> Dictionary:
 		"resolution_id": _resolution_id,
 		"source_day": _source_day,
 		"stages": _stages.duplicate(true),
+		"committed_schedule": _committed_schedule.duplicate(true),
+		"route_plan": _route_plan.duplicate(true),
+		"schedule_commit_receipt_id": _schedule_commit_receipt_id,
+		"board_fate_receipt_id": _board_fate_receipt_id,
 	}
+
+
+## Detached accessors for the four members plan line 963 adds. Every one duplicates, so a caller
+## cannot reach into a live plan's persisted state and mutate it between stages.
+func get_committed_schedule() -> Dictionary:
+	return _committed_schedule.duplicate(true)
+
+
+func get_route_plan() -> Array:
+	return _route_plan.duplicate(true)
+
+
+func get_schedule_commit_receipt_id() -> Variant:
+	return _schedule_commit_receipt_id
+
+
+func get_board_fate_receipt_id() -> Variant:
+	return _board_fate_receipt_id
 
 func get_next_incomplete_stage() -> Dictionary:
 	for stage: Dictionary in _stages:

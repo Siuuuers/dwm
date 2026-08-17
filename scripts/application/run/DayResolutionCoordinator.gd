@@ -66,31 +66,47 @@ var _run_id := ""
 var _awaiting: Dictionary = {}
 var _registered_history: Dictionary = {}
 
-func configure_fatal_latch(gate: Object) -> Dictionary:
-	if not _is_valid_gate(gate):
+## THE SOLE three-owner configuration seam (Plan 01 Task 6 Step 6.5, dwm-p2r.13).
+##
+## The gate used to arrive through a separate `configure_fatal_latch()` call, so the coordinator
+## could sit half-owned between the two calls and no single result described who owned it. All three
+## owners now arrive together, are validated together, and are adopted together.
+##
+## Identical replay is idempotent. A CHANGED owner in any position returns the exact
+## `day_resolution_coordinator_already_configured` failure BEFORE any mutation, so a second wiring
+## attempt can never partially re-point a live coordinator.
+func configure(state_port: Object, checkpoint_port: Object, mutation_gate: Object) -> Dictionary:
+	if not _is_valid_gate(mutation_gate):
 		return {"ok": false, "code": &"invalid_mutation_gate", "message": "gate contract incomplete"}
-	if _gate != null:
-		if gate == _gate:
-			return _gate_identity_result(true)
-		return {"ok": false, "code": &"mutation_gate_already_configured", "message": ""}
-	_gate = gate
-	return _gate_identity_result(false)
-
-## Read-only accessor so Bootstrap can inject the day-resolution checkpoint providers into the
-## exact configured state port (dwm-7e6). It exposes no mutation and creates nothing.
-func get_state_port() -> Object:
-	return _state_port
-
-func configure(state_port: Object, checkpoint_port: Object) -> Dictionary:
-	if _gate == null:
-		return {"ok": false, "code": &"fatal_latch_not_configured", "message": ""}
 	if state_port == null or not _has_all_methods(state_port, STATE_PORT_METHODS):
 		return {"ok": false, "code": &"invalid_state_port", "message": ""}
 	if checkpoint_port == null or not _has_all_methods(checkpoint_port, CHECKPOINT_PORT_METHODS):
 		return {"ok": false, "code": &"invalid_checkpoint_port", "message": ""}
+	if _gate != null or _state_port != null or _checkpoint_port != null:
+		if _gate != mutation_gate or _state_port != state_port \
+				or _checkpoint_port != checkpoint_port:
+			return {"ok": false, "code": &"day_resolution_coordinator_already_configured",
+				"message": "a configured coordinator never adopts a replacement owner"}
+		return _gate_identity_result(true)
+	_gate = mutation_gate
 	_state_port = state_port
 	_checkpoint_port = checkpoint_port
-	return {"ok": true, "code": &"ok"}
+	return _gate_identity_result(false)
+
+## Confirms the three owners GameState is about to install are the exact ones this coordinator
+## already holds. It COMPARES the supplied references internally and never returns one: the removed
+## read-only state-port accessor handed a live Object back to its caller, which is precisely how a
+## private bag leaks. No Dictionary returned here carries an Object reference.
+##
+## The removed accessor's name is deliberately not written out anywhere in this file, because Step
+## 6.7's static gate is a text search and a comment naming it would keep the gate red forever.
+func verify_configuration(state_port: Object, checkpoint_port: Object,
+		mutation_gate: Object) -> Dictionary:
+	if _gate == null or _state_port == null or _checkpoint_port == null:
+		return {"ok": false, "code": &"day_resolution_coordinator_unconfigured", "message": ""}
+	if _state_port != state_port or _checkpoint_port != checkpoint_port or _gate != mutation_gate:
+		return {"ok": false, "code": &"day_resolution_coordinator_owner_mismatch", "message": ""}
+	return {"ok": true, "code": &"ok", "value": {"configured": true}, "receipt": {}}
 
 func request_schedule_done(command_id: String) -> Dictionary:
 	var fatal := _fatal_guard()

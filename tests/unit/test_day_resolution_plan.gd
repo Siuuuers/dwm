@@ -18,7 +18,20 @@ func _plan_exists() -> bool:
 	return ResourceLoader.exists(PLAN_PATH, "Script")
 
 func _entry(entry_id: String, slot_index: int) -> Dictionary:
-	return {"entry_id": entry_id, "slot_index": slot_index}
+	return {"schedule_entry_id": entry_id, "slot_index": slot_index}
+
+
+## The canonical committed aggregate create() now reads its entries out of (plan line 963). Built
+## here rather than inline so these cases keep asserting PLAN law -- stage order, substage order,
+## transaction ids -- instead of turning into aggregate-shape tests.
+func _aggregate(day: int, entries: Array) -> Dictionary:
+	return {
+		"schema_version": 1,
+		"day": day,
+		"registry_fingerprint": null,
+		"entries": entries.duplicate(true),
+		"commit_receipt": null,
+	}
 
 func _stage_ids(plan: RefCounted) -> Array[String]:
 	var ids: Array[String] = []
@@ -33,7 +46,7 @@ func test_duplicate_completion_reuses_receipt_and_conflict_changes_nothing() -> 
 	assert_true(ResourceLoader.exists(RECEIPTS_PATH, "Script"), "receipt fixtures must exist")
 	if not ResourceLoader.exists(RECEIPTS_PATH, "Script"):
 		return
-	var plan_result: Dictionary = load(PLAN_PATH).create("resolution-r1-d3", 3, [])
+	var plan_result: Dictionary = load(PLAN_PATH).create("resolution-r1-d3", 3, _aggregate(3, []), [], null, null)
 	assert_true(plan_result.get("ok", false), JSON.stringify(plan_result))
 	var plan: RefCounted = plan_result["value"]["plan"]
 	var stage: Dictionary = plan.get_next_incomplete_stage()["value"]["stage"]
@@ -64,10 +77,10 @@ func test_stage_allowlists_by_source_day() -> void:
 	if not _plan_exists():
 		return
 	for day: int in range(1, 7):
-		var created: Dictionary = load(PLAN_PATH).create("resolution-d%d" % day, day, [])
+		var created: Dictionary = load(PLAN_PATH).create("resolution-d%d" % day, day, _aggregate(day, []), [], null, null)
 		assert_true(created.get("ok", false), JSON.stringify(created))
 		assert_eq(_stage_ids(created["value"]["plan"]), DAY_1_6_STAGES, "day %d" % day)
-	var day7: Dictionary = load(PLAN_PATH).create("resolution-d7", 7, [])
+	var day7: Dictionary = load(PLAN_PATH).create("resolution-d7", 7, _aggregate(7, []), [], null, null)
 	assert_true(day7.get("ok", false), JSON.stringify(day7))
 	var day7_ids := _stage_ids(day7["value"]["plan"])
 	assert_eq(day7_ids, DAY_7_STAGES)
@@ -81,20 +94,20 @@ func test_create_rejects_invalid_inputs() -> void:
 	if not _plan_exists():
 		return
 	var plan_script: Script = load(PLAN_PATH)
-	assert_false(plan_script.create("", 3, []).get("ok", true), "empty resolution_id rejects")
-	assert_false(plan_script.create("r", 0, []).get("ok", true), "day 0 rejects")
-	assert_false(plan_script.create("r", 8, []).get("ok", true), "day 8 rejects")
+	assert_false(plan_script.create("", 3, _aggregate(3, []), [], null, null).get("ok", true), "empty resolution_id rejects")
+	assert_false(plan_script.create("r", 0, _aggregate(0, []), [], null, null).get("ok", true), "day 0 rejects")
+	assert_false(plan_script.create("r", 8, _aggregate(8, []), [], null, null).get("ok", true), "day 8 rejects")
 	var duplicate_slots: Array[Dictionary] = [_entry("a", 1), _entry("b", 1)]
-	assert_false(plan_script.create("r", 3, duplicate_slots).get("ok", true), "duplicate slot rejects")
+	assert_false(plan_script.create("r", 3, _aggregate(3, duplicate_slots), [], null, null).get("ok", true), "duplicate slot rejects")
 	var empty_id: Array[Dictionary] = [_entry("", 1)]
-	assert_false(plan_script.create("r", 3, empty_id).get("ok", true), "empty entry_id rejects")
+	assert_false(plan_script.create("r", 3, _aggregate(3, empty_id), [], null, null).get("ok", true), "empty schedule_entry_id rejects")
 
 func test_substages_sort_by_slot_and_gate_parent_completion() -> void:
 	assert_true(_plan_exists(), "DayResolutionPlan must exist")
 	if not _plan_exists():
 		return
 	var entries: Array[Dictionary] = [_entry("late", 2), _entry("early", 1)]
-	var created: Dictionary = load(PLAN_PATH).create("resolution-sub", 2, entries)
+	var created: Dictionary = load(PLAN_PATH).create("resolution-sub", 2, _aggregate(2, entries), [], null, null)
 	assert_true(created.get("ok", false), JSON.stringify(created))
 	var plan: RefCounted = created["value"]["plan"]
 	for stage_id: String in ["lock_day", "validate_schedule"]:
@@ -124,7 +137,7 @@ func test_begin_rejects_wrong_transaction_and_out_of_order() -> void:
 	assert_true(_plan_exists(), "DayResolutionPlan must exist")
 	if not _plan_exists():
 		return
-	var created: Dictionary = load(PLAN_PATH).create("resolution-order", 4, [])
+	var created: Dictionary = load(PLAN_PATH).create("resolution-order", 4, _aggregate(4, []), [], null, null)
 	assert_true(created.get("ok", false))
 	var plan: RefCounted = created["value"]["plan"]
 	assert_false(plan.begin_stage("lock_day", "wrong-transaction").get("ok", true), "wrong transaction rejects")
@@ -142,7 +155,7 @@ func test_from_dict_round_trip_and_strictness() -> void:
 	if not _plan_exists():
 		return
 	var plan_script: Script = load(PLAN_PATH)
-	var created: Dictionary = plan_script.create("resolution-io", 5, [])
+	var created: Dictionary = plan_script.create("resolution-io", 5, _aggregate(5, []), [], null, null)
 	assert_true(created.get("ok", false))
 	var plan: RefCounted = created["value"]["plan"]
 	var data: Dictionary = plan.to_dict()

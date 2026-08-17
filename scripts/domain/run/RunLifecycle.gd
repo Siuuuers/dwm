@@ -36,7 +36,18 @@ func get_day() -> int:
 func get_state() -> StringName:
 	return _state
 
-func begin_day_resolution(resolution_id: String, schedule_entries: Array) -> Dictionary:
+## Begins a day resolution from the CANONICAL COMMITTED SCHEDULE (Plan 01 Task 6 Steps 6.3/6.6,
+## dwm-p2r.13). The transport names `committed_schedule` explicitly and carries the real aggregate;
+## the caller may no longer substitute a synthetic empty array for the entries it could not supply.
+## The registry-derived `route_plan` and the two receipt ids ride with the aggregate so the plan can
+## persist them (plan line 963) without re-deriving cost, route or effects from anything.
+func begin_day_resolution(
+	resolution_id: String,
+	committed_schedule: Dictionary,
+	route_plan: Array = [],
+	schedule_commit_receipt_id: Variant = null,
+	board_fate_receipt_id: Variant = null,
+) -> Dictionary:
 	if _state != PLAYING:
 		return _fail(&"invalid_state", "begin_day_resolution requires PLAYING")
 	if _has_ending_plan:
@@ -52,11 +63,94 @@ func begin_day_resolution(resolution_id: String, schedule_entries: Array) -> Dic
 		if not _plan.is_complete():
 			# A genuinely concurrent, unfinished resolution still conflicts.
 			return {"ok": false, "code": &"resolution_conflict", "message": _plan.get_resolution_id()}
-	var created: Dictionary = DAY_RESOLUTION_PLAN.create(resolution_id, _day, schedule_entries.duplicate(true))
+	var created: Dictionary = DAY_RESOLUTION_PLAN.create(
+		resolution_id, _day, committed_schedule.duplicate(true), route_plan.duplicate(true),
+		schedule_commit_receipt_id, board_fate_receipt_id)
 	if not created.get("ok", false):
 		return created
 	_plan = created["value"]["plan"]
 	return {"ok": true, "code": &"ok", "value": {"plan": _plan.to_dict()}}
+
+
+## PURE preparation (Plan 01 Task 6 Step 6.5, dwm-p2r.13). Runs the identical admission law as
+## begin_day_resolution and produces the same plan, but touches NOTHING: `_plan` is untouched on
+## every path, including the idempotent-replay and conflict paths. A reversible start port calls
+## this, decides whether to proceed, and only then commits -- so a participant that fails after
+## preparation leaves no half-begun resolution behind.
+##
+## `already_active` distinguishes the two success shapes the caller must treat differently: true
+## means this is the same resolution replayed and the candidate is the EXISTING plan, so committing
+## it is a no-op; false means the candidate is genuinely new.
+func prepare_day_resolution(
+	resolution_id: String,
+	committed_schedule: Dictionary,
+	route_plan: Array = [],
+	schedule_commit_receipt_id: Variant = null,
+	board_fate_receipt_id: Variant = null,
+) -> Dictionary:
+	if _state != PLAYING:
+		return _fail(&"invalid_state", "prepare_day_resolution requires PLAYING")
+	if _has_ending_plan:
+		return _fail(&"invalid_state", "prepare_day_resolution requires no ending plan")
+	if _plan != null:
+		if _plan.get_resolution_id() == resolution_id:
+			return {"ok": true, "code": &"ok",
+				"value": {"candidate": _plan.to_dict(), "already_active": true}}
+		if not _plan.is_complete():
+			return {"ok": false, "code": &"resolution_conflict",
+				"message": _plan.get_resolution_id()}
+	var created: Dictionary = DAY_RESOLUTION_PLAN.create(
+		resolution_id, _day, committed_schedule.duplicate(true), route_plan.duplicate(true),
+		schedule_commit_receipt_id, board_fate_receipt_id)
+	if not created.get("ok", false):
+		return created
+	return {"ok": true, "code": &"ok", "value": {
+		"candidate": (created["value"]["plan"] as RefCounted).to_dict(),
+		"already_active": false,
+	}}
+
+
+## NARROW capture of the active plan alone (Step 6.5). Deliberately NOT to_dict(): a rollback that
+## restored run_id, day, state or the ending plan would let a failed day-resolution participant undo
+## an unrelated concurrent change. Only `active_resolution_plan` is captured, so only it can be
+## restored.
+func capture_active_plan() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {
+		"active_resolution_plan": _plan.to_dict() if _plan != null else null,
+	}}
+
+
+## Installs a prepared candidate. Silent: it changes only `_plan` and emits nothing.
+func commit_active_plan(candidate: Dictionary) -> Dictionary:
+	var restored: Dictionary = DAY_RESOLUTION_PLAN.from_dict(candidate)
+	if not restored.get("ok", false):
+		return restored
+	var plan: RefCounted = restored["value"]["plan"]
+	var window_error: String = DAY_RESOLUTION_PLAN.active_source_day_error(
+		int(plan.get_source_day()), _day, candidate)
+	if window_error != "":
+		return _fail(&"invalid_candidate", window_error)
+	_plan = plan
+	return {"ok": true, "code": &"ok", "value": {"plan": _plan.to_dict()}}
+
+
+## Restores exactly what capture_active_plan() returned, including a null active plan. Accepting
+## null is required rather than tolerated: rolling back the FIRST resolution of a run must be able
+## to put the lifecycle back to having no plan at all.
+func rollback_active_plan(backup: Dictionary) -> Dictionary:
+	if not backup.has("active_resolution_plan"):
+		return _fail(&"invalid_backup", "backup must carry active_resolution_plan")
+	var saved: Variant = backup["active_resolution_plan"]
+	if saved == null:
+		_plan = null
+		return {"ok": true, "code": &"ok", "value": {"active_resolution_plan": null}}
+	if typeof(saved) != TYPE_DICTIONARY:
+		return _fail(&"invalid_backup", "active_resolution_plan must be null or an object")
+	var restored: Dictionary = DAY_RESOLUTION_PLAN.from_dict(saved as Dictionary)
+	if not restored.get("ok", false):
+		return restored
+	_plan = restored["value"]["plan"]
+	return {"ok": true, "code": &"ok", "value": {"active_resolution_plan": _plan.to_dict()}}
 
 func resume_resolution() -> Dictionary:
 	if _state == COMPLETED:

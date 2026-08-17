@@ -9,6 +9,14 @@ const CRYPTO_DESKTOP_NAMESPACE_SOURCE := preload("res://scripts/infrastructure/i
 const DESKTOP_IDENTITY_NONCE_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const CONTACT_COMMAND_PORT := preload("res://scripts/application/contact/ContactCommandPort.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
+## dwm-p2r.13 Plan-01 Task 6: Bootstrap owns day-resolution construction, GameState only installs.
+const DAY_RESOLUTION_STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
+const DAY_RESOLUTION_COORDINATOR := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
+const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
+const SCHEDULE_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
+const SCHEDULE_COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
+const DAY_RESOLUTION_START_PORT := preload("res://scripts/application/run/DayResolutionStartPort.gd")
+const DAY7_SCHEDULE_PROVENANCE := preload("res://scripts/domain/schedule/Day7ScheduleProvenance.gd")
 const APPLICATION_MUTATION_GATE_SCRIPT := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 ## dwm-p2r.8 Plan-05 Task 2: one narrative checkpoint adapter + one ending playback port.
 const NARRATIVE_CHECKPOINT_PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
@@ -63,6 +71,18 @@ var _profile_storage: RefCounted
 var _application_gate: Object = null
 var _desktop_issuer_root_store: RefCounted = null
 var _desktop_identity_nonce_issuer: RefCounted = null
+## The ONE day-resolution state port and coordinator (dwm-p2r.13 Plan-01 Task 6). Retained here so
+## identical startup replay reuses these exact instances and the provider stage can be handed the
+## same state port the coordinator was configured with, instead of reaching into GameState for it.
+var _retained_day_resolution_state_port: RefCounted = null
+var _retained_day_resolution_coordinator: RefCounted = null
+## The ONE Schedule-foundation identity set (dwm-p2r.13 Plan-01 Task 6). One registry, one ledger
+## shared by both ports, one commit port, one start port, one provenance service.
+var _retained_schedule_registry: RefCounted = null
+var _retained_publication_ledger: RefCounted = null
+var _retained_schedule_commit_port: RefCounted = null
+var _retained_day_resolution_start_port: RefCounted = null
+var _retained_day7_provenance: RefCounted = null
 var _contact_command_port: RefCounted = null
 ## The ONE real checkpoint port, constructed in initialize_saves and reused by the narrative
 ## adapter and the later configure_day_resolution stage. A second construction is a wiring bug.
@@ -333,15 +353,14 @@ func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
 ## Injects the five non-GameState checkpoint providers into the day-resolution state port
 ## (dwm-7e6). Bound to the same stable sources the narrative checkpoint adapter uses, so both
 ## checkpoint paths report identical route/app/audio/content context.
-func _configure_day_resolution_providers(game_state: Object) -> Dictionary:
-	var port: Object = game_state.get(&"_day_resolution_coordinator")
-	var state_port: Object = null
-	if port != null and port.has_method("get_state_port"):
-		state_port = port.call(&"get_state_port")
+func _configure_day_resolution_providers(state_port: Object) -> Dictionary:
+	# Takes the RETAINED state port directly (Plan 01 Task 6 Step 6.5, dwm-p2r.13). It used to read
+	# GameState's private `_day_resolution_coordinator` bag and then ask that coordinator to hand
+	# back its state port; both of those reach-backs are gone, so this stage can no longer disagree
+	# with the object the coordinator was actually configured with.
 	if state_port == null or not state_port.has_method("configure_checkpoint_providers"):
-		# The coordinator predates the provider seam; the port's safe defaults keep the bundle
-		# shape complete, so this is not fatal to startup.
-		return {"ok": true, "code": &"ok", "value": {"configured": false}, "receipt": {}}
+		return _failure(&"missing_stage_adapter",
+			"Day-resolution providers require the retained state port")
 	var bridge := _target(&"DialogicBridge")
 	var router := _target(&"SceneRouter")
 	var audio := _target(&"AudioManager")
@@ -385,17 +404,93 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 		return latched
 	if int(latched["value"]["gate_instance_id"]) != _application_gate.get_instance_id():
 		return _failure(&"mutation_gate_identity_mismatch", "Checkpoint port retained another gate")
-	if not game_state.has_method("_configure_day_resolution"):
+	if not game_state.has_method("_install_day_resolution_runtime"):
 		return _failure(&"missing_stage_adapter", "GameState day-resolution seam is unavailable")
-	var configured: Dictionary = game_state.call(&"_configure_day_resolution", checkpoint_port)
+	# Bootstrap OWNS construction (Plan 01 Task 6 Step 6.5, dwm-p2r.13): exactly one state port
+	# against this GameState and exactly one coordinator, both retained here, configured through the
+	# coordinator's sole three-owner seam, then handed to GameState as direct arguments. Identical
+	# startup replay reuses these exact instances rather than building a second of either.
+	if _retained_day_resolution_state_port == null:
+		_retained_day_resolution_state_port = DAY_RESOLUTION_STATE_PORT.new(game_state)
+	if _retained_day_resolution_coordinator == null:
+		_retained_day_resolution_coordinator = DAY_RESOLUTION_COORDINATOR.new()
+	var state_port: RefCounted = _retained_day_resolution_state_port
+	var coordinator: RefCounted = _retained_day_resolution_coordinator
+	var configured: Dictionary = coordinator.configure(state_port, checkpoint_port,
+		_application_gate)
 	if not configured.get("ok", false):
 		return configured
+	var installed: Dictionary = game_state.call(&"_install_day_resolution_runtime", state_port,
+		coordinator, checkpoint_port, _application_gate)
+	if not installed.get("ok", false):
+		return installed
 	# Real snapshot production (dwm-7e6): the day-resolution state port needs the five
 	# non-GameState checkpoint fields so the real checkpoint port accepts its bundle.
-	var provided := _configure_day_resolution_providers(game_state)
+	var provided := _configure_day_resolution_providers(state_port)
 	if not provided.get("ok", false):
 		return provided
+	var foundation := _construct_schedule_foundation(game_state, state_port)
+	if not foundation.get("ok", false):
+		return foundation
 	return {"ok": true, "value": {"gate_instance_id": _application_gate.get_instance_id()}}
+
+
+## Constructs and retains the Schedule-foundation objects exactly once each (Plan 01 Task 6
+## Step 6.5, dwm-p2r.13).
+##
+## ONE ledger, shared by BOTH ports. That sharing is the whole point: the commit port's
+## `schedule_commit` publications and the start port's `day_resolution_start` publications must land
+## in the same durable record, or a cold restart could replay one without seeing the other.
+##
+## It reuses the exact `.16` issuer and the exact Task-3 root-scoped storage already retained above
+## rather than building a second of either -- a second issuer would mint identities under a
+## different root and every provenance chain would silently fork.
+##
+## Ledger corruption or a missing capability fails STARTUP, before either port exists. Identical
+## replay is idempotent because every retained field is only built when still null.
+func _construct_schedule_foundation(game_state: Object, state_port: Object) -> Dictionary:
+	if _desktop_identity_nonce_issuer == null:
+		return _failure(&"missing_stage_adapter",
+			"the Schedule foundation requires the retained identity issuer")
+	if _profile_storage == null:
+		return _failure(&"issuer_storage_unconfigured",
+			"the Schedule foundation requires the retained root-scoped storage")
+	if _retained_schedule_registry == null:
+		var loaded: Dictionary = SCHEDULE_ACTION_REGISTRY.load_current()
+		if not loaded.get("ok", false):
+			return loaded
+		_retained_schedule_registry = (loaded.get("value", {}) as Dictionary).get("registry")
+	if _retained_publication_ledger == null:
+		var ledger: RefCounted = SCHEDULE_PUBLICATION_LEDGER.new()
+		var configured: Dictionary = ledger.configure(_profile_storage)
+		if not configured.get("ok", false):
+			return configured
+		var opened: Dictionary = ledger.load()
+		if not opened.get("ok", false):
+			return opened
+		_retained_publication_ledger = ledger
+	if _retained_schedule_commit_port == null:
+		_retained_schedule_commit_port = SCHEDULE_COMMIT_PORT.new(game_state,
+			_retained_schedule_registry, _desktop_identity_nonce_issuer,
+			_retained_publication_ledger)
+	if _retained_day_resolution_start_port == null:
+		_retained_day_resolution_start_port = DAY_RESOLUTION_START_PORT.new(state_port,
+			_retained_schedule_registry, _desktop_identity_nonce_issuer,
+			_retained_publication_ledger)
+	if _retained_day7_provenance == null:
+		var provenance: RefCounted = DAY7_SCHEDULE_PROVENANCE.new()
+		var provenance_configured: Dictionary = provenance.configure(
+			_retained_schedule_registry, _desktop_identity_nonce_issuer)
+		if not provenance_configured.get("ok", false):
+			return provenance_configured
+		_retained_day7_provenance = provenance
+	# Step 6.5: the configured service is INJECTED INTO the retained state port, so the Day-7 handoff
+	# has exactly one source and the port never has to construct or configure one of its own.
+	if state_port.has_method("configure_day7_provenance"):
+		var injected: Dictionary = state_port.call(&"configure_day7_provenance", _retained_day7_provenance)
+		if not injected.get("ok", false):
+			return injected
+	return {"ok": true, "code": &"ok", "value": {"constructed": true}, "receipt": {}}
 
 func _is_compatible_gate(gate: Object) -> bool:
 	if not gate.has_signal("capability_changed"): return false

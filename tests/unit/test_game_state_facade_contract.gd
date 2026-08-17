@@ -91,7 +91,15 @@ func test_request_schedule_done_delegates_through_production_port() -> void:
 	var calls: Array[String] = []
 	var checkpoint: RefCounted = load(CHECKPOINT_PATH).new(calls)
 	checkpoint.seed_empty("run-local")
-	assert_true(game_state._configure_day_resolution(checkpoint)["ok"])
+	# Bootstrap-owned construction, GameState-owned installation (Plan 01 Task 6 Step 6.5,
+	# dwm-p2r.13). The facade no longer builds its own coordinator or state port, so this test wires
+	# them the way ApplicationBootstrap does and hands them in as direct arguments.
+	var state_port: RefCounted = load("res://scripts/application/run/GameStateDayResolutionPort.gd").new(game_state)
+	var coordinator: RefCounted = load("res://scripts/application/run/DayResolutionCoordinator.gd").new()
+	assert_true(coordinator.configure(state_port, checkpoint, gate)["ok"])
+	assert_eq(game_state._install_day_resolution_runtime(state_port, coordinator, checkpoint, gate),
+		{"ok": true, "code": &"ok", "value": {"installed": true}, "receipt": {}},
+		"the install seam returns only the exact primitive envelope")
 	var day_signals: Array[int] = []
 	game_state.day_changed.connect(func(new_day: int) -> void: day_signals.append(new_day))
 	var result: Dictionary = game_state.request_schedule_done("done:day-1")

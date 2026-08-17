@@ -1677,19 +1677,43 @@ func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) 
 var _narrative_checkpoint_port: Object = null
 
 
-func _configure_day_resolution(checkpoint_port: Object) -> Dictionary:
+## Installs the day-resolution runtime Bootstrap already constructed and configured
+## (Plan 01 Task 6 Step 6.5, dwm-p2r.13).
+##
+## GameState used to CONSTRUCT the coordinator and the state port itself and keep them in a private
+## bag that Bootstrap then reached back into through `get_state_port()`. Ownership now runs one way:
+## Bootstrap constructs and retains exactly one of each, configures the coordinator through its sole
+## three-owner seam, and passes those four live Objects here as direct arguments.
+##
+## Before installing, this seam asks the coordinator to CONFIRM the three owners rather than to hand
+## any of them back -- `verify_configuration` compares internally and returns only primitives, so no
+## Dictionary crossing this boundary ever carries an Object reference. Installation happens once;
+## a second attempt with the same coordinator is idempotent and with a different one is refused.
+func _install_day_resolution_runtime(state_port: Object, coordinator: Object,
+		checkpoint_port: Object, mutation_gate: Object) -> Dictionary:
 	if _mutation_gate == null:
 		return {"ok": false, "code": &"mutation_gate_not_configured", "message": ""}
-	var coordinator: RefCounted = _DAY_RESOLUTION_COORDINATOR_SCRIPT.new()
-	var latched: Dictionary = coordinator.configure_fatal_latch(_mutation_gate)
-	if not latched.get("ok", false):
-		return latched
-	var port: RefCounted = _DAY_RESOLUTION_PORT_SCRIPT.new(self)
-	var configured: Dictionary = coordinator.configure(port, checkpoint_port)
-	if not configured.get("ok", false):
-		return configured
+	if mutation_gate != _mutation_gate:
+		return {"ok": false, "code": &"mutation_gate_identity_mismatch", "message": ""}
+	for required: Array in [[state_port, "begin_or_resume"], [coordinator, "verify_configuration"],
+			[checkpoint_port, "preview_checkpoint_id"]]:
+		var candidate: Object = required[0]
+		if candidate == null or not candidate.has_method(str(required[1])):
+			return {"ok": false, "code": &"invalid_day_resolution_runtime",
+				"message": "a supplied owner is missing " + str(required[1])}
+	if _day_resolution_coordinator != null:
+		if _day_resolution_coordinator != coordinator:
+			return {"ok": false, "code": &"day_resolution_runtime_already_installed", "message": ""}
+		return {"ok": true, "code": &"ok", "value": {"installed": true}, "receipt": {}}
+	var verified: Dictionary = coordinator.call(&"verify_configuration", state_port,
+		checkpoint_port, mutation_gate)
+	if not verified.get("ok", false):
+		return verified
+	if verified.get("value", {}) != {"configured": true}:
+		return {"ok": false, "code": &"invalid_day_resolution_runtime",
+			"message": "verify_configuration did not return the exact master envelope"}
 	_day_resolution_coordinator = coordinator
-	return {"ok": true, "code": &"ok"}
+	return {"ok": true, "code": &"ok", "value": {"installed": true}, "receipt": {}}
 
 
 func _lifecycle_advance_day() -> void:

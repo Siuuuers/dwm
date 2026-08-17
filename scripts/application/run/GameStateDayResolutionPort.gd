@@ -25,6 +25,10 @@ var _game_state: Object = null
 var _checkpoint_providers: Dictionary = {}
 var _provider_identity: Dictionary = {}
 
+## The one configured Day-7 provenance service, injected by Bootstrap; never constructed here.
+var _day7_provenance: Object = null
+
+
 func _init(game_state: Object) -> void:
 	_game_state = game_state
 
@@ -93,7 +97,11 @@ func begin_or_resume(command_id: String) -> Dictionary:
 	if command_id.is_empty():
 		return {"ok": false, "code": &"invalid_command_id", "message": "", "details": {}}
 	var lifecycle: RefCounted = _game_state._run_lifecycle
-	var begun: Dictionary = lifecycle.begin_day_resolution(command_id, [])
+	# Step 6.6 (dwm-p2r.13): the resolution begins from the owner's REAL canonical committed
+	# Schedule. This used to pass a synthetic empty array, which silently claimed "no entries" for
+	# every day regardless of what had actually been committed.
+	var begun: Dictionary = lifecycle.begin_day_resolution(
+		command_id, _game_state._canonical_committed_schedule())
 	if not begun.get("ok", false):
 		return begun
 	return {"ok": true, "code": &"ok",
@@ -207,6 +215,44 @@ func publish(publication: Dictionary) -> Dictionary:
 				_game_state.emit_signal(str(signal_name))
 	return {"ok": true, "code": &"ok"}
 
+## Injects the ONE configured Day-7 provenance service Bootstrap retained (Plan 01 Task 6 Step 6.5,
+## dwm-p2r.13).
+##
+## The service arrives ALREADY CONFIGURED with the exact registry/issuer pair; this port never
+## configures it and never constructs one, so there is no second place a Day-7 handoff could be
+## minted from a different identity root. Idempotent for the same instance, refuses a replacement.
+func configure_day7_provenance(service: Object) -> Dictionary:
+	if service == null or not service.has_method("validate_handoff"):
+		return {"ok": false, "code": &"invalid_day7_provenance_service", "message": "", "details": {}}
+	if _day7_provenance != null:
+		if _day7_provenance == service:
+			return {"ok": true, "code": &"ok", "value": {"configured": true}, "receipt": {}}
+		return {"ok": false, "code": &"day7_provenance_already_configured", "message": "",
+			"details": {}}
+	_day7_provenance = service
+	return {"ok": true, "code": &"ok", "value": {"configured": true}, "receipt": {}}
+
+
+## The committed entry identities the ACTIVE plan froze, in its own persisted substage order.
+##
+## Read from the plan rather than recomputed from live state: the plan is what the resolution
+## actually began from, and live state can legitimately have moved on by the time this stage runs.
+func _committed_entry_receipt_ids() -> Array:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return []
+	var receipt_ids: Array = []
+	for stage_value: Variant in ((plan as Dictionary).get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		for substage_value: Variant in (stage.get("substages", []) as Array):
+			var parts: PackedStringArray = str(
+				(substage_value as Dictionary)["substage_id"]).split(":")
+			if parts.size() == 4:
+				receipt_ids.append(parts[3])
+	return receipt_ids
+
+
 ## The day this resolution was created for, independent of how far its stages have advanced.
 func _active_source_day() -> int:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
@@ -227,7 +273,11 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 			return _envelope("schedule_rules", "schedule_validation",
 				{"schedule_digest": "digest-day-%d" % day, "ordered_entry_ids": []})
 		"execute_schedule_entries":
-			return _envelope("schedule_rules", "schedule_entries_complete", {"entry_receipt_ids": []})
+			# Step 6.6 (dwm-p2r.13): the receipt ids are READ from the committed substages this
+			# plan actually froze, never synthesized. An empty list here now means the committed
+			# Schedule was genuinely empty, rather than meaning nobody supplied one.
+			return _envelope("schedule_rules", "schedule_entries_complete",
+				{"entry_receipt_ids": _committed_entry_receipt_ids()})
 		"commit_outcomes":
 			return _envelope("game_state", "outcomes_commit", {"outcome_ids": [], "effect_transaction_ids": []})
 		"hospital_if_triggered":

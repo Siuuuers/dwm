@@ -52,7 +52,7 @@ func test_day7_enters_ending_without_day8_or_rollover_stage() -> void:
 	})
 	assert_true(restored["ok"], JSON.stringify(restored))
 	assert_true(lifecycle.commit_restore(restored["value"]["candidate"])["ok"])
-	assert_true(lifecycle.begin_day_resolution("resolution-day7", [])["ok"])
+	assert_true(lifecycle.begin_day_resolution("resolution-day7", {"entries": []})["ok"])
 
 	var visited: Array[String] = []
 	while lifecycle.resume_resolution()["value"]["has_stage"]:
@@ -75,7 +75,7 @@ func test_day3_full_resolution_increments_exactly_once() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle := _fresh("run-day3", 3)
-	assert_true(lifecycle.begin_day_resolution("resolution-day3", [])["ok"])
+	assert_true(lifecycle.begin_day_resolution("resolution-day3", {"entries": []})["ok"])
 	var visited := _drive_to_completion(lifecycle, 3)
 	assert_eq(visited.find("hospital_if_triggered") < visited.find("twofriends_if_deferred"), true,
 		"hospital precedes twofriends")
@@ -91,10 +91,10 @@ func test_repeated_done_reuses_plan_and_conflict_rejects() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle := _fresh("run-reuse", 2)
-	assert_true(lifecycle.begin_day_resolution("resolution-a", [])["ok"])
-	var reused: Dictionary = lifecycle.begin_day_resolution("resolution-a", [])
+	assert_true(lifecycle.begin_day_resolution("resolution-a", {"entries": []})["ok"])
+	var reused: Dictionary = lifecycle.begin_day_resolution("resolution-a", {"entries": []})
 	assert_true(reused.get("ok", false), "same resolution_id reuses the active plan")
-	var conflict: Dictionary = lifecycle.begin_day_resolution("resolution-b", [])
+	var conflict: Dictionary = lifecycle.begin_day_resolution("resolution-b", {"entries": []})
 	assert_false(conflict.get("ok", true))
 	assert_eq(conflict["code"], &"resolution_conflict")
 
@@ -130,7 +130,7 @@ func test_rollover_receipt_must_target_next_day() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle := _fresh("run-rollover", 5)
-	assert_true(lifecycle.begin_day_resolution("resolution-rollover", [])["ok"])
+	assert_true(lifecycle.begin_day_resolution("resolution-rollover", {"entries": []})["ok"])
 	var receipts_script: Script = load(RECEIPTS_PATH)
 	while true:
 		var cursor: Dictionary = lifecycle.resume_resolution()["value"]
@@ -151,7 +151,7 @@ func test_ending_playback_edges_and_terminal_completed() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle := _fresh("run-ending", 7)
-	assert_true(lifecycle.begin_day_resolution("resolution-ending", [])["ok"])
+	assert_true(lifecycle.begin_day_resolution("resolution-ending", {"entries": []})["ok"])
 	_drive_to_completion(lifecycle, 7)
 	assert_eq(lifecycle.get_state(), &"ENDING")
 	assert_false(lifecycle.complete_ending().get("ok", true), "complete_ending requires GALLERY_RECORDED")
@@ -167,7 +167,7 @@ func test_ending_playback_edges_and_terminal_completed() -> void:
 	assert_true(lifecycle.complete_ending()["ok"])
 	assert_eq(lifecycle.get_state(), &"COMPLETED")
 	assert_eq(lifecycle.get_day(), 7, "COMPLETED retains day 7")
-	assert_false(lifecycle.begin_day_resolution("resolution-after", []).get("ok", true),
+	assert_false(lifecycle.begin_day_resolution("resolution-after", {"entries": []}).get("ok", true),
 		"COMPLETED cannot re-enter gameplay")
 	var snapshot: Dictionary = lifecycle.to_dict()
 	assert_eq(snapshot["state"], "COMPLETED")
