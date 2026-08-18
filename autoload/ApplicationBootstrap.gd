@@ -18,6 +18,9 @@ const SCHEDULE_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/
 const SCHEDULE_COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
 const DAY_RESOLUTION_START_PORT := preload("res://scripts/application/run/DayResolutionStartPort.gd")
 const DAY7_SCHEDULE_PROVENANCE := preload("res://scripts/domain/schedule/Day7ScheduleProvenance.gd")
+const HOSPITAL_PRESENTATION_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
+const DATING_PRESENTATION_PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
+const DIALOGIC_PRESENTATION_OWNER_ADAPTER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const APPLICATION_MUTATION_GATE_SCRIPT := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 ## dwm-p2r.8 Plan-05 Task 2: one narrative checkpoint adapter + one ending playback port.
 const NARRATIVE_CHECKPOINT_PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
@@ -99,6 +102,12 @@ var _retained_publication_ledger: RefCounted = null
 var _retained_schedule_commit_port: RefCounted = null
 var _retained_day_resolution_start_port: RefCounted = null
 var _retained_day7_provenance: RefCounted = null
+## The Task-8 presentation composition (Plan 01, dwm-p2r.14). Exactly one narrative owner, one
+## Hospital port configured with it, and one Dating port left DELIBERATELY unconfigured until
+## dwm-oyo.4 supplies the relationship-board owner.
+var _retained_presentation_owner_adapter: RefCounted = null
+var _retained_hospital_presentation_port: RefCounted = null
+var _retained_dating_presentation_port: RefCounted = null
 var _contact_command_port: RefCounted = null
 ## The ONE real checkpoint port, constructed in initialize_saves and reused by the narrative
 ## adapter and the later configure_day_resolution stage. A second construction is a wiring bug.
@@ -494,7 +503,110 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 	var foundation := _construct_schedule_foundation(game_state, state_port)
 	if not foundation.get("ok", false):
 		return foundation
+	# Task 8 (dwm-p2r.14): the presentation ports are composed on the EXACT coordinator above, after
+	# the foundation, so no foundation instance is reconstructed and no probe id changes.
+	var presentation := _construct_schedule_presentation(coordinator)
+	if not presentation.get("ok", false):
+		return presentation
 	return {"ok": true, "value": {"gate_instance_id": _application_gate.get_instance_id()}}
+
+
+## Composes the ONE narrative presentation owner and the TWO presentation ports (Plan 01 Task 8
+## Step 8.6, dwm-p2r.14).
+##
+## HOSPITAL IS READY. Exactly one `DialogicPresentationOwnerAdapter` is constructed against the
+## existing `DialogicBridge` and the retained production issuer, one Hospital port is configured with
+## it, and the coordinator connects that exact port's completion signals once.
+##
+## DATING IS DELIBERATELY NOT READY. Exactly one Dating port is constructed and retained with NO
+## owner, because Phase 2R has no relationship-board or challenge owner to give it. Every Dating
+## route therefore fails closed with `dating_physical_owner_unconfigured` until `dwm-oyo.4` modifies
+## this composition root to configure the retained port with its sole owner. Pretending otherwise
+## here would claim a playable Dating board that does not exist.
+##
+## Identical startup replay reuses these exact instances rather than building a second of any of
+## them, so the ports' own replacement guards are never tripped by a legitimate re-run.
+func _construct_schedule_presentation(coordinator: RefCounted) -> Dictionary:
+	if _desktop_identity_nonce_issuer == null:
+		return _failure(&"missing_identity_issuer",
+			"the presentation ports require the retained production issuer")
+	var bridge := _target(&"DialogicBridge")
+	if bridge == null:
+		return _failure(&"missing_stage_adapter",
+			"the narrative presentation owner requires DialogicBridge")
+	if _retained_presentation_owner_adapter == null:
+		var adapter: RefCounted = DIALOGIC_PRESENTATION_OWNER_ADAPTER.new()
+		var bound: Dictionary = adapter.configure(bridge)
+		if not bound.get("ok", false):
+			return bound
+		_retained_presentation_owner_adapter = adapter
+	if _retained_hospital_presentation_port == null:
+		var hospital: RefCounted = HOSPITAL_PRESENTATION_PORT.new()
+		var configured: Dictionary = hospital.configure(_desktop_identity_nonce_issuer,
+			_retained_presentation_owner_adapter)
+		if not configured.get("ok", false):
+			return configured
+		if int((configured.get("value", {}) as Dictionary).get("owner_instance_id", 0)) \
+				!= _retained_presentation_owner_adapter.get_instance_id():
+			return _failure(&"presentation_owner_identity_mismatch",
+				"the Hospital port retained another owner")
+		_retained_hospital_presentation_port = hospital
+	if _retained_dating_presentation_port == null:
+		# NO configure() call. The absence is the handoff.
+		_retained_dating_presentation_port = DATING_PRESENTATION_PORT.new()
+	var injected: Dictionary = coordinator.configure_presentation_ports(
+		_retained_hospital_presentation_port, _retained_dating_presentation_port)
+	if not injected.get("ok", false):
+		return injected
+	var router := _target(&"SceneRouter")
+	if router != null and router.has_method("configure_schedule_presentation_ports"):
+		var routed: Dictionary = router.call(&"configure_schedule_presentation_ports",
+			_retained_hospital_presentation_port, _retained_dating_presentation_port)
+		if not routed.get("ok", false):
+			return routed
+	return {"ok": true, "code": &"ok", "value": {
+		"hospital_ready": bool(_retained_hospital_presentation_port.call(&"is_ready")),
+		"dating_ready": bool(_retained_dating_presentation_port.call(&"is_ready")),
+	}, "receipt": {}}
+
+
+## Read-only same-boot identity probe for the retained Schedule/desktop foundation (Plan 01 Task 8
+## Step 8.1, dwm-p2r.14).
+##
+## It returns INTEGERS ONLY -- never an Object -- so reading it can never hand a caller a live owner.
+## Its purpose is to let a test capture the foundation before presentation configuration and prove
+## every instance is the SAME one afterwards, catching a reconstructed, swapped, or faked dependency
+## before readiness.
+##
+## THESE NUMBERS ARE PROCESS-LOCAL. They are meaningless across runs and must never be compared to a
+## prior run or to a committed evidence file; only to another reading from this same boot.
+func get_desktop_contract_state() -> Dictionary:
+	return {
+		"root_store_instance_id": _instance_id(_desktop_issuer_root_store),
+		"issuer_instance_id": _instance_id(_desktop_identity_nonce_issuer),
+		"contact_command_port_instance_id": _instance_id(_contact_command_port),
+		"schedule_registry_instance_id": _instance_id(_retained_schedule_registry),
+		"publication_ledger_instance_id": _instance_id(_retained_publication_ledger),
+		"schedule_port_instance_id": _instance_id(_retained_schedule_commit_port),
+		"day_resolution_start_port_instance_id": _instance_id(_retained_day_resolution_start_port),
+		"provenance_owner_instance_id": _instance_id(_retained_day7_provenance),
+		"day_resolution_state_port_instance_id": _instance_id(_retained_day_resolution_state_port),
+		"day_resolution_coordinator_instance_id": _instance_id(_retained_day_resolution_coordinator),
+		"causal_day_advance_identity_port_instance_id":
+			_instance_id(_retained_causal_day_advance_identity_port),
+		"presentation_owner_adapter_instance_id": _instance_id(_retained_presentation_owner_adapter),
+		"hospital_presentation_port_instance_id": _instance_id(_retained_hospital_presentation_port),
+		"dating_presentation_port_instance_id": _instance_id(_retained_dating_presentation_port),
+		"hospital_presentation_ready": _retained_hospital_presentation_port != null \
+			and bool(_retained_hospital_presentation_port.call(&"is_ready")),
+		# Deliberately false in Phase 2R; dwm-oyo.4 flips it by configuring the retained port.
+		"dating_presentation_ready": _retained_dating_presentation_port != null \
+			and bool(_retained_dating_presentation_port.call(&"is_ready")),
+	}
+
+
+static func _instance_id(retained: Object) -> int:
+	return retained.get_instance_id() if retained != null else 0
 
 
 ## Constructs and configures exactly one CausalDayAdvanceIdentityPort against the retained

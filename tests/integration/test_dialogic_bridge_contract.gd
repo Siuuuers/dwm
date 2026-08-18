@@ -97,3 +97,65 @@ func test_fixture_content_fingerprint_matches_the_physical_file() -> void:
 		return
 	assert_eq(str(manifest.get("content_fingerprint", "")), "sha256:" + FileAccess.get_sha256(FIXTURE_PATH),
 		"the manifest is bound to the exact fixture bytes")
+
+
+# -------------------------------------------------------------------------------------------------
+# Plan 01 Task 8 (dwm-p2r.14): the bridge's completion seam is no longer caller-forgeable.
+#
+# The bridge used to expose a public `finish_current_timeline(result)`. Any caller could announce
+# that a timeline had finished and hand it whatever `result` it liked, which is exactly the forgery
+# `DialogicPresentationOwnerAdapter` exists to make impossible. Task 8 removes it: the ONLY way a
+# generic timeline can be declared finished is the runtime's own end-of-timeline signal.
+# -------------------------------------------------------------------------------------------------
+
+const BRIDGE_SCRIPT_PATH := "res://autoload/DialogicBridge.gd"
+
+
+func _fresh_bridge() -> Node:
+	var bridge: Node = load(BRIDGE_SCRIPT_PATH).new()
+	add_child_autofree(bridge)
+	return bridge
+
+
+func test_the_caller_forgeable_finisher_is_gone_from_source_and_from_the_instance() -> void:
+	var bridge := _fresh_bridge()
+	assert_false(bridge.has_method("finish_current_timeline"),
+		"no caller may declare a timeline finished")
+	# Source-level too: a private rename that kept the same forgeable behaviour would still be a way
+	# in, so the identifier itself must not appear.
+	var source := FileAccess.get_file_as_string(BRIDGE_SCRIPT_PATH)
+	assert_false(source.contains("func finish_current_timeline"),
+		"the method is removed, not merely undeclared")
+
+
+func test_the_runtime_end_signal_finalizes_the_retained_timeline_exactly_once() -> void:
+	var bridge := _fresh_bridge()
+	var finished: Array = []
+	bridge.timeline_finished.connect(func(timeline_id: String, result: Dictionary) -> void:
+		finished.append({"timeline_id": timeline_id, "result": result.duplicate(true)}))
+
+	var started: Dictionary = bridge.start_timeline_id("hospital.faint", {"kind": "hospital"})
+	if not started.get("ok", false):
+		# No Dialogic runtime in this environment; the removal assertions above still stand.
+		return
+	assert_eq(bridge.get_current_timeline_id(), "hospital.faint")
+
+	bridge.call(&"_on_runtime_timeline_ended")
+	assert_eq(finished.size(), 1, "the runtime signal produces exactly one completion")
+	assert_eq(str((finished[0] as Dictionary)["timeline_id"]), "hospital.faint")
+	assert_eq(bridge.get_current_timeline_id(), "",
+		"the retained timeline is finalized before the completion is emitted")
+
+	# Clearing BEFORE the emit is what makes a duplicate runtime signal a no-op rather than a second
+	# completion for the same presentation.
+	bridge.call(&"_on_runtime_timeline_ended")
+	assert_eq(finished.size(), 1, "a repeated runtime signal emits nothing new")
+
+
+func test_an_idle_bridge_emits_no_completion_at_all() -> void:
+	var bridge := _fresh_bridge()
+	var finished: Array = []
+	bridge.timeline_finished.connect(func(_timeline_id: String, _result: Dictionary) -> void:
+		finished.append(1))
+	bridge.call(&"_on_runtime_timeline_ended")
+	assert_true(finished.is_empty(), "a bridge with no retained timeline finishes nothing")

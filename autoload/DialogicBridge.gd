@@ -206,13 +206,6 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary) -> D
 	return {"ok": true, "timeline_id": timeline_id, "path": path}
 
 
-func finish_current_timeline(result: Dictionary = {}) -> void:
-	var finished_id := _current_timeline_id
-	_current_timeline_id = ""
-	_current_timeline_context = {}
-	emit_signal("timeline_finished", finished_id, result)
-
-
 func validate_required_timelines() -> Dictionary:
 	return DialogicTimelineCatalog.build_missing_timeline_report("en")
 
@@ -569,13 +562,28 @@ func _start_through_runtime(path: String, label: String) -> Dictionary:
 	return {"ok": true}
 
 
+## The runtime's own end-of-timeline signal, and since Task 8 (dwm-p2r.14) the ONLY way a timeline
+## can be declared finished. The public `finish_current_timeline()` used to let any caller announce
+## a completion that never physically happened; it is gone, and `DialogicPresentationOwnerAdapter`
+## converts only what arrives here into a trusted physical completion.
 func _on_runtime_timeline_ended() -> void:
-	if _active_playback.is_empty():
+	# The Ending playback branch is unchanged: it owns its own token and completion record.
+	if not _active_playback.is_empty():
+		var playback := _active_playback.duplicate(true)
+		_active_playback = {}
+		ending_playback_finished.emit(str(playback["token"]), str(playback["ending_id"]),
+			{"receipt_id": "%s:complete" % str(playback["token"]), "ending_id": str(playback["ending_id"]), "timeline_id": str(playback["timeline_id"])})
 		return
-	var playback := _active_playback.duplicate(true)
-	_active_playback = {}
-	ending_playback_finished.emit(str(playback["token"]), str(playback["ending_id"]),
-		{"receipt_id": "%s:complete" % str(playback["token"]), "ending_id": str(playback["ending_id"]), "timeline_id": str(playback["timeline_id"])})
+	# The generic branch: finalize the retained timeline/context and emit exactly ONE completion.
+	# Clearing before the emit is what makes a duplicate runtime signal a no-op rather than a second
+	# completion for the same presentation.
+	if _current_timeline_id.is_empty():
+		return
+	var finished_id := _current_timeline_id
+	var context := _current_timeline_context.duplicate(true)
+	_current_timeline_id = ""
+	_current_timeline_context = {}
+	timeline_finished.emit(finished_id, {"timeline_id": finished_id, "context": context})
 
 
 func _on_runtime_signal_event(argument: Variant) -> void:

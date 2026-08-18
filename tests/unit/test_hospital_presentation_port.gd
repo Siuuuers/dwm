@@ -1,0 +1,544 @@
+extends "res://addons/gut/test.gd"
+# The Hospital presentation port (Plan 01 Task 8, dwm-p2r.14).
+#
+# WHAT THIS FILE OWNS. That a Hospital presentation cannot be forged at any of its three seams:
+# ancestry (the resolution root and the P01.presentation.completion child), the command (its exact
+# bytes and its canonical hash), and the physical completion (only the configured owner may bless
+# it). Everything the port refuses here is something a scene, a caller, or a stale restore could
+# otherwise have used to advance a stage that never physically happened.
+#
+# SUBSTRATE. A REAL DesktopIdentityNonceIssuer over a real root store on a GUID-isolated sandbox, a
+# real DialogicBridge, and the real DialogicPresentationOwnerAdapter. Every completion child below
+# was genuinely derived by the issuer, and every completion was genuinely produced by the runtime's
+# end-of-timeline signal. No fake supplies a success.
+#
+# ANCESTRY NOTE (DEVIATION-4, recorded on dwm-p2r.14). `stage_id` is a producer-supplied string
+# rather than an issuer-derived P01.day_resolution.stage child, because Plan 01 Tasks 6/7 never lit
+# that row up on the production path. It is still fully projected into the completion child, so
+# changing it still breaks the binding -- which is what the tests below assert.
+
+const PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
+const OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
+const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
+const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
+const NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
+const STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+const FAKE_DATING_OWNER := preload("res://tests/support/FakeDatingPresentationOwner.gd")
+
+const TIMELINE_ID := "hospital.faint"
+const STAGE_ID := "resolution.day3:hospital_if_triggered"
+const SUBSTAGE_ID := "presentation.intent.hospital.day3"
+
+var _root_counter := 0
+var _issuer: RefCounted
+var _bridge: Node
+var _owner: RefCounted
+var _port: RefCounted
+var _root_receipt: Dictionary = {}
+var _ready_results: Array = []
+var _failures: Array = []
+
+
+func before_each() -> void:
+	_ready_results = []
+	_failures = []
+	_root_counter += 1
+	var root: String = OS.get_environment("DWM_TEST_ROOT").path_join(
+		"hospital-port-%d" % _root_counter)
+	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var store: RefCounted = ROOT_STORE.new()
+	assert_true(store.configure(JsonFileStorage.new(root), NAMESPACE_SOURCE.new()).get("ok", false))
+	assert_true(store.load_or_create().get("ok", false))
+	_issuer = ISSUER.new()
+	assert_true(_issuer.configure(store).get("ok", false))
+
+	var issued: Dictionary = _issuer.issue(&"transaction_id")
+	assert_true(issued.get("ok", false), str(issued))
+	_root_receipt = ((issued["value"] as Dictionary)["issuer_receipt"] as Dictionary).duplicate(true)
+
+	_bridge = load("res://autoload/DialogicBridge.gd").new()
+	add_child_autofree(_bridge)
+	_owner = OWNER.new()
+	assert_true(_owner.configure(_bridge).get("ok", false))
+
+	_port = PORT.new()
+	assert_true(_port.configure(_issuer, _owner).get("ok", false))
+	_port.completion_ready.connect(func(result: Dictionary) -> void:
+		_ready_results.append(result.duplicate(true)))
+	_port.completion_failed.connect(func(failure: Dictionary) -> void:
+		_failures.append(failure.duplicate(true)))
+
+
+# -------------------------------------------------------------------------------------------------
+# configure
+# -------------------------------------------------------------------------------------------------
+
+func test_configure_is_idempotent_and_refuses_a_replacement_dependency() -> void:
+	var replayed: Dictionary = _port.configure(_issuer, _owner)
+	assert_true(replayed.get("ok", false))
+	assert_true(bool(replayed["value"]["already_configured"]))
+	assert_eq(int(replayed["value"]["owner_instance_id"]), _owner.get_instance_id())
+
+	var other: RefCounted = OWNER.new()
+	assert_true(other.configure(_bridge).get("ok", false))
+	var replaced: Dictionary = _port.configure(_issuer, other)
+	assert_false(replaced.get("ok", true), "a configured port never adopts a replacement owner")
+	assert_eq(replaced.get("code"), &"presentation_port_already_configured")
+
+
+func test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentation() -> void:
+	var fresh: RefCounted = PORT.new()
+	var begun: Dictionary = fresh.begin(_request())
+	assert_false(begun.get("ok", true))
+	assert_eq(begun.get("code"), &"presentation_port_unconfigured")
+	assert_false(fresh.is_ready())
+	assert_true(_port.is_ready(), "the configured port reports ready")
+
+
+func test_the_hospital_port_refuses_a_dating_challenge_owner() -> void:
+	# A faint presented by the relationship board would be a category error, so the owner check is
+	# on the exact adapter script and its declared kind, not on duck-typing.
+	var fresh: RefCounted = PORT.new()
+	var dating_owner: RefCounted = FAKE_DATING_OWNER.new()
+	var configured: Dictionary = fresh.configure(_issuer, dating_owner)
+	assert_false(configured.get("ok", true))
+	assert_eq(configured.get("code"), &"invalid_physical_owner")
+
+
+func test_an_incomplete_issuer_or_owner_is_refused() -> void:
+	var fresh: RefCounted = PORT.new()
+	assert_eq(fresh.configure(null, _owner).get("code"), &"invalid_identity_issuer")
+	assert_eq(fresh.configure(RefCounted.new(), _owner).get("code"), &"invalid_identity_issuer")
+	assert_eq(fresh.configure(_issuer, null).get("code"), &"invalid_physical_owner")
+
+
+# -------------------------------------------------------------------------------------------------
+# begin: shape, route, locator, context
+# -------------------------------------------------------------------------------------------------
+
+func test_a_valid_intent_returns_the_canonical_command_and_nothing_else() -> void:
+	var request := _request()
+	var begun: Dictionary = _port.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	assert_eq(begun.get("code"), &"ok")
+	assert_eq(begun["receipt"], {}, "port success carries an empty receipt")
+	var keys: Array = (begun["value"] as Dictionary).keys()
+	assert_eq(keys, ["presentation_command"], "the value carries only the command")
+
+	var command: Dictionary = begun["value"]["presentation_command"]
+	var expected_keys: Array = PORT.REQUEST_KEYS.duplicate()
+	expected_keys.append_array(["command_sha256", "physical_token"])
+	expected_keys.sort()
+	var command_keys: Array = command.keys()
+	command_keys.sort()
+	assert_eq(command_keys, expected_keys,
+		"the canonical command is the exact request plus hash and token")
+	assert_eq(str(command["command_sha256"]),
+		str((STATE_SCHEMA.canonical_sha256(request)["value"] as Dictionary)["sha256"]),
+		"command_sha256 is the canonical hash of the exact request bytes")
+	assert_false(str(command["physical_token"]).strip_edges().is_empty())
+
+
+func test_the_request_member_set_is_exact() -> void:
+	var extra := _request()
+	extra["ending_id"] = "ending.alone"
+	assert_eq(_port.begin(extra).get("code"), &"invalid_presentation_intent",
+		"no caller field rides along into a presentation")
+	var missing := _request()
+	missing.erase("context")
+	assert_eq(_port.begin(missing).get("code"), &"invalid_presentation_intent")
+
+
+func test_a_dating_route_is_refused_by_the_hospital_port() -> void:
+	var request := _request()
+	request["route_id"] = "dating"
+	var begun: Dictionary = _port.begin(request)
+	assert_false(begun.get("ok", true))
+	assert_eq(begun.get("code"), &"presentation_route_mismatch")
+
+
+func test_an_unregistered_locator_is_refused() -> void:
+	var request := _request({"timeline_id": "not.a.registered.timeline"})
+	var begun: Dictionary = _port.begin(request)
+	assert_false(begun.get("ok", true))
+	assert_eq(begun.get("code"), &"unregistered_presentation_timeline")
+
+
+func test_the_hospital_context_member_set_and_kind_are_exact() -> void:
+	for mutation: Dictionary in [
+		{"kind": "solo"},
+		{"kind": "hospital", "day": 0},
+		{"kind": "hospital", "day": 8},
+	]:
+		var context := _context()
+		context.merge(mutation, true)
+		var begun: Dictionary = _port.begin(_request({"context": context}))
+		assert_false(begun.get("ok", true), str(mutation))
+		assert_eq(begun.get("code"), &"invalid_presentation_context", str(mutation))
+
+	var extra := _context()
+	extra["ending_id"] = "ending.alone"
+	assert_eq(_port.begin(_request({"context": extra})).get("code"),
+		&"invalid_presentation_context", "the context carries no outcome field")
+
+
+func test_hospital_context_arrays_must_be_sorted_and_unique() -> void:
+	# Hospital owns no semantic order for either array, so an unsorted or repeated member is a
+	# different preimage wearing the same meaning -- and H(context) would silently differ.
+	for bad: Array in [["b", "a"], ["a", "a"], ["a", ""], [1]]:
+		var context := _context()
+		context["source_entry_ids"] = bad
+		var begun: Dictionary = _port.begin(_request({"context": context}))
+		assert_false(begun.get("ok", true), str(bad))
+		assert_eq(begun.get("code"), &"invalid_presentation_context", str(bad))
+
+
+# -------------------------------------------------------------------------------------------------
+# begin: ancestry
+# -------------------------------------------------------------------------------------------------
+
+func test_an_unverified_resolution_root_is_refused_before_any_physical_start() -> void:
+	var request := _request()
+	var forged: Dictionary = (request["resolution_issuer_receipt"] as Dictionary).duplicate(true)
+	forged["receipt_id"] = "root.forged"
+	request["resolution_issuer_receipt"] = forged
+	var begun: Dictionary = _port.begin(request)
+	assert_false(begun.get("ok", true))
+	assert_true(begun.get("code") in [&"presentation_root_unverified",
+		&"presentation_completion_unverified"], str(begun))
+
+
+func test_a_locally_derived_completion_id_is_refused() -> void:
+	var request := _request()
+	request["completion_transaction_id"] = "completion.i.made.this.up"
+	var begun: Dictionary = _port.begin(request)
+	assert_false(begun.get("ok", true))
+	assert_eq(begun.get("code"), &"presentation_completion_unverified")
+
+
+func test_a_completion_child_of_the_wrong_kind_or_parent_is_refused() -> void:
+	var wrong_kind := _completion_child(_context(), &"hospital_miss")
+	var by_kind: Dictionary = _port.begin(_request({
+		"completion_transaction_id": str(wrong_kind["child_id"]),
+		"completion_transaction_provenance": wrong_kind["provenance"],
+	}))
+	assert_false(by_kind.get("ok", true))
+	assert_eq(by_kind.get("code"), &"presentation_completion_unverified")
+
+	var other_root: Dictionary = _issuer.issue(&"transaction_id")["value"]["issuer_receipt"]
+	var foreign := _completion_child(_context(), PORT.COMPLETION_CHILD_KIND,
+		str(other_root["receipt_id"]))
+	var by_parent: Dictionary = _port.begin(_request({
+		"completion_transaction_id": str(foreign["child_id"]),
+		"completion_transaction_provenance": foreign["provenance"],
+	}))
+	assert_false(by_parent.get("ok", true))
+	assert_eq(by_parent.get("code"), &"presentation_completion_unverified")
+
+
+func test_every_projected_field_binds_the_completion_child() -> void:
+	# The completion child is anchored to the EXACT bytes it was derived for. Change any projected
+	# member and the honest child must stop matching.
+	for mutation: Dictionary in [
+		{"resolution_id": "resolution.other"},
+		{"stage_id": "resolution.day3:some_other_stage"},
+		{"substage_id": "presentation.intent.other"},
+		{"timeline_id": "opening.day1"},
+	]:
+		var begun: Dictionary = _port.begin(_request(mutation))
+		assert_false(begun.get("ok", true), str(mutation))
+		assert_eq(begun.get("code"), &"presentation_completion_unverified", str(mutation))
+
+
+func test_a_changed_context_preimage_breaks_the_completion_binding() -> void:
+	# H(context) is a projected member, so a context that presents different bytes cannot reuse a
+	# completion child derived for the original ones.
+	var drifted := _context()
+	drifted["day"] = 4
+	var begun: Dictionary = _port.begin(_request({"context": drifted}))
+	assert_false(begun.get("ok", true))
+	assert_eq(begun.get("code"), &"presentation_completion_unverified")
+
+
+# -------------------------------------------------------------------------------------------------
+# begin: command identity
+# -------------------------------------------------------------------------------------------------
+
+func test_a_byte_identical_replay_returns_the_identical_command_and_token() -> void:
+	var request := _request()
+	var first: Dictionary = _port.begin(request)
+	var second: Dictionary = _port.begin(request.duplicate(true))
+	assert_true(second.get("ok", false), str(second))
+	assert_eq(second["value"]["presentation_command"], first["value"]["presentation_command"],
+		"an unfinished restore reconstructs the SAME command and token")
+
+
+func test_a_drifted_replay_cannot_overwrite_the_stored_command() -> void:
+	# Every request member is either projected into the completion child or is ancestry, so drifted
+	# bytes are refused by the BINDING before the command-identity guard is even reached. What
+	# matters for a restore is what survives the refusal: the honest command, unchanged.
+	var request := _request()
+	var honest: Dictionary = _port.begin(request)["value"]["presentation_command"]
+
+	var drifted := request.duplicate(true)
+	(drifted["context"] as Dictionary)["source_entry_ids"] = ["entry.z"]
+	var refused: Dictionary = _port.begin(drifted)
+	assert_false(refused.get("ok", true))
+	assert_eq(refused.get("code"), &"presentation_completion_unverified",
+		"drifted bytes break the completion binding first")
+
+	assert_eq(_port.begin(request)["value"]["presentation_command"], honest,
+		"the refused attempt left the stored command untouched")
+
+
+func test_a_bypassed_binding_still_conflicts_on_command_identity() -> void:
+	# Defence in depth for the same law: complete() compares the supplied command against the one
+	# this port actually issued, so a command mutated AFTER begin() is a conflict, not a completion.
+	var request := _request()
+	var command: Dictionary = _port.begin(request)["value"]["presentation_command"]
+	var tampered: Dictionary = command.duplicate(true)
+	tampered["command_sha256"] = "0".repeat(64)
+	var result: Dictionary = _port.complete({
+		"presentation_command": tampered,
+		"physical_completion_receipt": _emitted_owner_receipt(request),
+	})
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"presentation_command_conflict")
+
+
+# -------------------------------------------------------------------------------------------------
+# complete
+# -------------------------------------------------------------------------------------------------
+
+func test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once() -> void:
+	var request := _request()
+	var begun: Dictionary = _port.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	_bridge.call(&"_on_runtime_timeline_ended")
+
+	assert_eq(_ready_results.size(), 1, "exactly one completion is published")
+	assert_true(_failures.is_empty(), str(_failures))
+	var result: Dictionary = _ready_results[0]
+	assert_true(result.get("ok", false))
+	var receipt: Dictionary = result["receipt"]
+	var keys: Array = receipt.keys()
+	keys.sort()
+	assert_eq(keys, PORT.COMPLETION_RECEIPT_KEYS, "the completion receipt member set is exact")
+	assert_eq(str(receipt["receipt_id"]), str(request["completion_transaction_id"]),
+		"receipt_id is exactly the completion transaction id")
+	assert_eq(receipt["receipt_provenance"], request["completion_transaction_provenance"],
+		"receipt_provenance is exactly the completion transaction provenance")
+	assert_eq(str(receipt["route_id"]), "hospital")
+	assert_eq(str(receipt["physical_owner_kind"]), "narrative")
+	assert_eq(str(receipt["stage_id"]), STAGE_ID)
+	assert_eq(str(receipt["substage_id"]), SUBSTAGE_ID)
+	assert_eq(result["value"]["completion_receipt"], receipt,
+		"value and receipt carry the same bytes")
+
+
+func test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication() -> void:
+	var request := _request()
+	assert_true(_port.begin(request).get("ok", false))
+	_bridge.call(&"_on_runtime_timeline_ended")
+	var first: Dictionary = (_ready_results[0] as Dictionary)["receipt"]
+
+	# A restored owner replaying its settled record must not publish a second completion.
+	_owner.physical_completion_ready.emit(_emitted_owner_receipt(request))
+	assert_eq(_ready_results.size(), 1, "no second coordinator publication")
+	var settled: Dictionary = _port.complete({
+		"presentation_command": _port.begin(request)["value"]["presentation_command"],
+		"physical_completion_receipt": _emitted_owner_receipt(request),
+	})
+	assert_true(settled.get("ok", false), str(settled))
+	assert_eq(settled["receipt"], first, "the byte-identical receipt comes back")
+
+
+func test_a_scene_authored_receipt_never_reaches_a_stage() -> void:
+	var request := _request()
+	var begun: Dictionary = _port.begin(request)
+	var command: Dictionary = begun["value"]["presentation_command"]
+	var forged := {
+		"owner_kind": "narrative",
+		"physical_token": str(command["physical_token"]),
+		"command_sha256": str(command["command_sha256"]),
+		"completion_transaction_id": str(command["completion_transaction_id"]),
+		"status": "completed",
+		"result": {"outcome": "recovered"},
+	}
+	var result: Dictionary = _port.complete({
+		"presentation_command": command,
+		"physical_completion_receipt": forged,
+	})
+	assert_false(result.get("ok", true),
+		"a perfectly shaped receipt for a timeline that never ended is untrusted")
+	assert_eq(result.get("code"), &"physical_completion_untrusted")
+
+
+func test_owner_receipt_drift_is_refused_before_any_stage_mutation() -> void:
+	var request := _request()
+	var command: Dictionary = _port.begin(request)["value"]["presentation_command"]
+	_bridge.call(&"_on_runtime_timeline_ended")
+	var honest := _emitted_owner_receipt(request)
+
+	for field: String in ["owner_kind", "physical_token", "command_sha256",
+			"completion_transaction_id", "status"]:
+		var drifted: Dictionary = honest.duplicate(true)
+		drifted[field] = "drifted"
+		var result: Dictionary = _port.complete({
+			"presentation_command": command,
+			"physical_completion_receipt": drifted,
+		})
+		assert_false(result.get("ok", true), field)
+		assert_eq(result.get("code"), &"physical_completion_untrusted", field)
+
+
+func test_a_command_this_port_never_issued_is_refused() -> void:
+	var request := _request()
+	var command := request.duplicate(true)
+	command["command_sha256"] = "a".repeat(64)
+	command["physical_token"] = "narrative_presentation.forged"
+	var result: Dictionary = _port.complete({
+		"presentation_command": command,
+		"physical_completion_receipt": {},
+	})
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"physical_completion_untrusted")
+
+
+func test_a_tampered_command_is_a_conflict_not_a_completion() -> void:
+	var request := _request()
+	var command: Dictionary = _port.begin(request)["value"]["presentation_command"]
+	_bridge.call(&"_on_runtime_timeline_ended")
+	var tampered: Dictionary = command.duplicate(true)
+	tampered["timeline_id"] = "opening.day1"
+	var result: Dictionary = _port.complete({
+		"presentation_command": tampered,
+		"physical_completion_receipt": _emitted_owner_receipt(request),
+	})
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"presentation_command_conflict")
+
+
+func test_the_complete_request_member_set_is_exact() -> void:
+	assert_eq(_port.complete({"presentation_command": {}}).get("code"),
+		&"invalid_presentation_completion")
+	assert_eq(_port.complete({
+		"presentation_command": {}, "physical_completion_receipt": {}, "extra": 1,
+	}).get("code"), &"invalid_presentation_completion")
+
+
+func test_an_owner_failure_publishes_exactly_one_failure_and_no_completion() -> void:
+	assert_true(_port.begin(_request()).get("ok", false))
+	_owner.physical_completion_failed.emit({"ok": false, "code": &"narrative_runtime_halted"})
+	assert_eq(_failures.size(), 1)
+	assert_true(_ready_results.is_empty(), "a failure never publishes a completion")
+
+
+func test_an_emission_for_an_unknown_command_fails_rather_than_completing() -> void:
+	assert_true(_port.begin(_request()).get("ok", false))
+	_owner.physical_completion_ready.emit({
+		"owner_kind": "narrative", "physical_token": "t", "command_sha256": "s",
+		"completion_transaction_id": "completion.unknown", "status": "completed", "result": {},
+	})
+	assert_eq(_failures.size(), 1)
+	assert_eq((_failures[0] as Dictionary).get("code"), &"physical_completion_untrusted")
+	assert_true(_ready_results.is_empty())
+
+
+# -------------------------------------------------------------------------------------------------
+# helpers
+# -------------------------------------------------------------------------------------------------
+
+## Reconstructs the exact owner receipt the adapter emitted for one request.
+func _emitted_owner_receipt(request: Dictionary) -> Dictionary:
+	var completion_id := str(request["completion_transaction_id"])
+	var command_sha256: String = str(
+		(STATE_SCHEMA.canonical_sha256(request)["value"] as Dictionary)["sha256"])
+	return {
+		"owner_kind": "narrative",
+		"physical_token": OWNER.derive_token(completion_id, command_sha256),
+		"command_sha256": command_sha256,
+		"completion_transaction_id": completion_id,
+		"status": "completed",
+		"result": {"timeline_id": TIMELINE_ID, "context": request["context"]},
+	}
+
+
+func _context() -> Dictionary:
+	return {
+		"kind": "hospital",
+		"day": 3,
+		"source_entry_ids": ["entry.a", "entry.b"],
+		"miss_receipt_ids": ["miss.a"],
+	}
+
+
+## Builds a request whose completion child is GENUINELY derived for its own final bytes, so every
+## honest case passes and every mutated one breaks the binding rather than a shape check.
+func _request(overrides: Dictionary = {}) -> Dictionary:
+	var request := {
+		"resolution_id": "resolution.day3",
+		"resolution_issuer_receipt": _root_receipt.duplicate(true),
+		"stage_id": STAGE_ID,
+		"substage_id": SUBSTAGE_ID,
+		"route_id": "hospital",
+		"timeline_id": TIMELINE_ID,
+		"context": _context(),
+		"completion_transaction_id": "",
+		"completion_transaction_provenance": {},
+	}
+	var derives_child := not overrides.has("completion_transaction_provenance")
+	for key: Variant in overrides:
+		request[str(key)] = overrides[key]
+	if derives_child:
+		# Derived from the BASE bytes deliberately: a mutation test then supplies an honest child
+		# that no longer projects the mutated request, which is exactly the drift being proved.
+		var base := {
+			"resolution_id": "resolution.day3", "stage_id": STAGE_ID, "substage_id": SUBSTAGE_ID,
+			"route_id": "hospital", "timeline_id": TIMELINE_ID, "context": _context(),
+		}
+		var child := _completion_child(base["context"], PORT.COMPLETION_CHILD_KIND, "", base)
+		request["completion_transaction_id"] = str(child["child_id"])
+		request["completion_transaction_provenance"] = child["provenance"]
+	return request
+
+
+## Derives one real P01.presentation.completion child through the real issuer.
+func _completion_child(context: Dictionary, child_kind: StringName, parent_receipt_id: String = "",
+		projection: Dictionary = {}) -> Dictionary:
+	var fields := {
+		"resolution_id": "resolution.day3", "stage_id": STAGE_ID, "substage_id": SUBSTAGE_ID,
+		"route_id": "hospital", "timeline_id": TIMELINE_ID,
+	}
+	for key: Variant in projection:
+		if str(key) != "context":
+			fields[str(key)] = projection[key]
+	var context_sha256: String = str(
+		(STATE_SCHEMA.canonical_sha256(context)["value"] as Dictionary)["sha256"])
+	var tokens: Array = [
+		_project("role", "presentation.completion"),
+		_project("resolution_id", str(fields["resolution_id"])),
+		_project("stage_id", str(fields["stage_id"])),
+		_project("substage_id", str(fields["substage_id"])),
+		_project("route_id", str(fields["route_id"])),
+		_project("timeline_id", str(fields["timeline_id"])),
+		_project("context_sha256", context_sha256),
+	]
+	tokens.sort()
+	var parent := parent_receipt_id if parent_receipt_id != "" else str(_root_receipt["receipt_id"])
+	var derived: Dictionary = _issuer.derive_child({
+		"parent_receipt_id": parent,
+		"child_kind": child_kind,
+		"ordinal": 0,
+		"source_ids": tokens,
+	})
+	assert_true(derived.get("ok", false), str(derived))
+	return {
+		"child_id": str((derived["value"] as Dictionary)["child_id"]),
+		"provenance": ((derived["value"] as Dictionary)["provenance"] as Dictionary).duplicate(true),
+	}
+
+
+func _project(path: String, value: Variant) -> String:
+	return path + "=" + str(
+		(STATE_SCHEMA.canonical_json(value)["value"] as Dictionary)["text"])

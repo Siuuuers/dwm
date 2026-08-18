@@ -67,6 +67,103 @@ func is_ending_ports_configured() -> bool:
 	return _ending_state_port != null and _ending_playback_port != null
 
 
+## ---- Schedule-Done presentation port injection (Plan 01 Task 8, dwm-p2r.14) ----
+##
+## SceneRouter retains the EXACT Hospital/Dating ports Bootstrap composed and injects them into each
+## off-tree scene before `add_child()`, so no presentation scene can reach `_ready()` unconfigured.
+## Routing carries no Schedule law of its own: this router no longer clears or advances Schedule
+## state, and it cannot route an unconfigured Dating presentation.
+
+const _PRESENTATION_PORT_METHODS: Array[String] = ["begin", "complete", "is_ready"]
+
+var _hospital_presentation_port: Object = null
+var _dating_presentation_port: Object = null
+
+
+## Accepts the exact production instances once. Identical replay is idempotent and a replacement in
+## either position is refused, mirroring the ending-port seam above.
+func configure_schedule_presentation_ports(hospital_port: Object, dating_port: Object) -> Dictionary:
+	if hospital_port == null or not _has_ending_methods(hospital_port, _PRESENTATION_PORT_METHODS):
+		return {"ok": false, "code": &"invalid_hospital_presentation_port", "message": ""}
+	if dating_port == null or not _has_ending_methods(dating_port, _PRESENTATION_PORT_METHODS):
+		return {"ok": false, "code": &"invalid_dating_presentation_port", "message": ""}
+	if _hospital_presentation_port != null or _dating_presentation_port != null:
+		if _hospital_presentation_port != hospital_port \
+				or _dating_presentation_port != dating_port:
+			return {"ok": false, "code": &"schedule_presentation_ports_already_configured",
+				"message": ""}
+		return _presentation_port_result(true)
+	_hospital_presentation_port = hospital_port
+	_dating_presentation_port = dating_port
+	return _presentation_port_result(false)
+
+
+func is_schedule_presentation_ports_configured() -> bool:
+	return _hospital_presentation_port != null and _dating_presentation_port != null
+
+
+## Routes ONE committed D1-6 presentation intent, injecting the exact retained port into the scene
+## while it is still off-tree.
+##
+## A route whose port is not ready is refused rather than shown: an unconfigured Dating presentation
+## must fail closed, not open an improvised board. Nothing here mutates Schedule state, advances a
+## day, or selects an ending, and Day-7 provenance can never reach this method because Plan 01 makes
+## no Day-7 presentation intent at all.
+func route_presentation(route_id: String, presentation_command: Dictionary) -> Dictionary:
+	if not is_schedule_presentation_ports_configured():
+		return {"ok": false, "code": &"schedule_presentation_ports_unconfigured", "message": ""}
+	if not _SCENE_PATHS.has(route_id) or not ["hospital", "dating"].has(route_id):
+		return {"ok": false, "code": &"invalid_presentation_route", "message": route_id}
+	if typeof(presentation_command) != TYPE_DICTIONARY or presentation_command.is_empty():
+		return {"ok": false, "code": &"invalid_presentation_command", "message": ""}
+	if str(presentation_command.get("route_id", "")) != route_id:
+		return {"ok": false, "code": &"invalid_presentation_route", "message": route_id}
+	var port: Object = _hospital_presentation_port if route_id == "hospital" \
+		else _dating_presentation_port
+	if not bool(port.call(&"is_ready")):
+		# Phase 2R always lands here for `dating`: dwm-oyo.4 owns that owner.
+		return {"ok": false, "code": &"presentation_port_not_ready", "message": route_id}
+	var path: String = _SCENE_PATHS[route_id]
+	if not ResourceLoader.exists(path):
+		return {"ok": false, "code": &"presentation_scene_missing", "message": path}
+	var packed: PackedScene = load(path)
+	var scene: Node = packed.instantiate()
+	if not scene.has_method("configure_presentation"):
+		scene.queue_free()
+		return {"ok": false, "code": &"presentation_scene_unconfigurable", "message": route_id}
+	# OFF-TREE injection: the scene is configured before it can reach _ready() or take input.
+	var configured: Dictionary = scene.call(&"configure_presentation", port,
+		presentation_command.duplicate(true))
+	if not configured.get("ok", false):
+		scene.queue_free()
+		return configured
+	var tree := get_tree()
+	if tree == null:
+		scene.queue_free()
+		return {"ok": false, "code": &"presentation_tree_unavailable", "message": ""}
+	var current := tree.current_scene
+	tree.root.add_child(scene)
+	tree.current_scene = scene
+	if current != null and current != scene:
+		current.queue_free()
+	_current_scene_id = route_id
+	return {"ok": true, "code": &"ok", "value": {
+		"route_id": route_id,
+		"port_instance_id": port.get_instance_id(),
+		"scene_instance_id": scene.get_instance_id(),
+	}, "receipt": {}}
+
+
+func _presentation_port_result(already_configured: bool) -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {
+		"hospital_port_instance_id": _hospital_presentation_port.get_instance_id(),
+		"dating_port_instance_id": _dating_presentation_port.get_instance_id(),
+		"hospital_ready": bool(_hospital_presentation_port.call(&"is_ready")),
+		"dating_ready": bool(_dating_presentation_port.call(&"is_ready")),
+		"already_configured": already_configured,
+	}, "receipt": {}}
+
+
 ## Zero-argument route provider for the narrative checkpoint adapter; always a registered id.
 func get_current_route_id() -> String:
 	return _current_scene_id if _current_scene_id != "" else "menu"

@@ -21,6 +21,10 @@ const CHECKPOINT_PORT_METHODS: Array[String] = [
 const DAY_ADVANCE_IDENTITY_METHODS: Array[String] = [
 	"configure", "prepare_advance", "commit_advance",
 ]
+## The exact frozen Schedule-Done presentation-port capability (Plan 01 Task 8, dwm-p2r.14).
+const PRESENTATION_PORT_METHODS: Array[String] = [
+	"begin", "complete", "is_ready",
+]
 
 const STAGE_CONTRACTS := {
 	"lock_day": {"owner_id": "day_resolution_coordinator", "kind": "day_lock",
@@ -54,10 +58,14 @@ const STAGE_CONTRACTS := {
 		"value": {"resolved_action_ids": "array_string"}},
 	"validate_day7_provenance": {"owner_id": "day7_schedule_provenance", "kind": "day7_provenance_validation",
 		"value": {"cause": "string", "schedule_entry_id": "string_or_null", "source_receipt_id": "string_or_null"}},
-	# Task 7 checkpoints only what the committed aggregate already proves. Task 8 (dwm-p2r.14
-	# Step 8.7) upgrades this to the derived P01.schedule.day7_provenance child id.
+	# Task 8 Step 8.7 (dwm-p2r.14): the checkpoint now carries the DERIVED
+	# P01.schedule.day7_provenance child and its full provenance, not just the cause the aggregate
+	# already showed. This receipt is the whole Plan-01 Day-7 output; dwm-oyo.3 / dwm-oyo.6 consume
+	# exactly these bytes and Plan 01 creates nothing else on Day 7.
 	"checkpoint_day7_provenance": {"owner_id": "day7_schedule_provenance", "kind": "day7_provenance_checkpoint",
-		"value": {"cause": "string", "schedule_commit_receipt_id": "string_or_null"}},
+		"value": {"cause": "string", "schedule_commit_receipt_id": "string_or_null",
+			"day7_provenance_receipt_id": "string",
+			"day7_provenance_receipt_provenance": "dictionary"}},
 	"resolve_ending_plan": {"owner_id": "dating_ending_rules", "kind": "ending_resolution",
 		"value": {"ending_plan": "dictionary"}},
 	"enter_ending": {"owner_id": "run_lifecycle", "kind": "enter_ending",
@@ -81,6 +89,12 @@ var _checkpoint_port: Object = null
 ## same object for Plan 03's condition-Hospital advancement; this coordinator never constructs,
 ## wraps, or replaces it, and never calls raw issue(&"causal_day_instance").
 var _day_advance_identity_port: Object = null
+## The TWO retained presentation ports. The coordinator accepts a completion only from these exact
+## object identities; it never constructs, wraps, or replaces either.
+var _hospital_presentation_port: Object = null
+var _dating_presentation_port: Object = null
+var _last_presentation_completion: Dictionary = {}
+var _last_presentation_failure: Dictionary = {}
 var _run_id := ""
 var _awaiting: Dictionary = {}
 var _registered_history: Dictionary = {}
@@ -131,6 +145,78 @@ func configure_day_advance_identity_port(day_advance_identity_port: Object) -> D
 	_day_advance_identity_port = day_advance_identity_port
 	return {"ok": true, "code": &"ok",
 		"value": {"configured": true, "already_configured": false}, "receipt": {}}
+
+
+## The Task-8 presentation seam (dwm-p2r.14 Step 8.6). Like the Task-7 identity seam above it does
+## NOT touch configure()'s frozen three-owner signature and renumbers no stage.
+##
+## The coordinator connects each exact port's completion/failure signals ONCE here, before any
+## `begin()`, and thereafter accepts a completion only from the port identity it retained. A
+## completion arriving from any other object is not this resolution's completion, however well
+## formed it looks.
+##
+## Failure is uniform `presentation_ports_conflict`: a missing port, a port without the exact
+## capability, and a replacement are all refusals to adopt a presentation owner, and all of them
+## return BEFORE any stage mutation.
+func configure_presentation_ports(hospital_port: Object, dating_port: Object) -> Dictionary:
+	if hospital_port == null or not _has_all_methods(hospital_port, PRESENTATION_PORT_METHODS) \
+			or dating_port == null or not _has_all_methods(dating_port, PRESENTATION_PORT_METHODS):
+		return {"ok": false, "code": &"presentation_ports_conflict",
+			"message": "an exact presentation-port capability is required"}
+	for port: Object in [hospital_port, dating_port]:
+		if not port.has_signal("completion_ready") or not port.has_signal("completion_failed"):
+			return {"ok": false, "code": &"presentation_ports_conflict",
+				"message": "a presentation port declares both completion signals"}
+	if _hospital_presentation_port != null or _dating_presentation_port != null:
+		if _hospital_presentation_port != hospital_port \
+				or _dating_presentation_port != dating_port:
+			return {"ok": false, "code": &"presentation_ports_conflict",
+				"message": "a configured coordinator never adopts a replacement presentation port"}
+		return {"ok": true, "code": &"ok",
+			"value": {"configured": true, "already_configured": true,
+				"hospital_port_instance_id": hospital_port.get_instance_id(),
+				"dating_port_instance_id": dating_port.get_instance_id()},
+			"receipt": {}}
+	_hospital_presentation_port = hospital_port
+	_dating_presentation_port = dating_port
+	for port: Object in [hospital_port, dating_port]:
+		if not port.is_connected("completion_ready", _on_presentation_completion_ready):
+			port.connect("completion_ready", _on_presentation_completion_ready)
+		if not port.is_connected("completion_failed", _on_presentation_completion_failed):
+			port.connect("completion_failed", _on_presentation_completion_failed)
+	return {"ok": true, "code": &"ok",
+		"value": {"configured": true, "already_configured": false,
+			"hospital_port_instance_id": hospital_port.get_instance_id(),
+			"dating_port_instance_id": dating_port.get_instance_id()},
+		"receipt": {}}
+
+
+## One configured port published a completion. The stage advances only after the returned receipt is
+## CHECKPOINTED through the ordinary completion path -- never on the signal alone.
+func _on_presentation_completion_ready(completion_result: Dictionary) -> void:
+	if typeof(completion_result) != TYPE_DICTIONARY \
+			or not completion_result.get("ok", false) \
+			or typeof(completion_result.get("receipt")) != TYPE_DICTIONARY:
+		_last_presentation_failure = {"ok": false, "code": &"invalid_presentation_completion",
+			"message": "a presentation port published a malformed completion"}
+		return
+	var receipt: Dictionary = completion_result["receipt"]
+	_last_presentation_completion = receipt.duplicate(true)
+
+
+func _on_presentation_completion_failed(failure: Dictionary) -> void:
+	_last_presentation_failure = failure.duplicate(true) if typeof(failure) == TYPE_DICTIONARY \
+		else {"ok": false, "code": &"presentation_failed", "message": ""}
+
+
+## The last completion/failure a CONFIGURED port published, for the caller that drives the stage.
+## Detached copies: reading this never lets a caller mutate what the coordinator retained.
+func get_last_presentation_completion() -> Dictionary:
+	return _last_presentation_completion.duplicate(true)
+
+
+func get_last_presentation_failure() -> Dictionary:
+	return _last_presentation_failure.duplicate(true)
 
 
 ## Confirms the three owners GameState is about to install are the exact ones this coordinator

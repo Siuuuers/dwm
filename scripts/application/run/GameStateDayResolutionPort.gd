@@ -153,8 +153,24 @@ func inspect_next_stage() -> Dictionary:
 	var cursor: Dictionary = _game_state._run_lifecycle.resume_resolution()
 	return cursor
 
+## The two Day-7 stages that may not be answered from the aggregate alone (Task 8 Step 8.7,
+## dwm-p2r.14). Both are driven through the ONE configured Day7ScheduleProvenance service.
+const DAY7_PROVENANCE_STAGES: Array[String] = [
+	"validate_day7_provenance", "checkpoint_day7_provenance",
+]
+
+
 func begin_next_stage() -> Dictionary:
 	var lifecycle: RefCounted = _game_state._run_lifecycle
+	# A Day-7 provenance stage is refused BEFORE the lifecycle marks it active, so an unconfigured
+	# or refused handoff leaves the stage pending and the run resumable rather than half-run.
+	var peeked: Dictionary = lifecycle.resume_resolution()
+	if peeked.get("ok", false) and bool(peeked["value"]["has_stage"]):
+		var pending_id := str((peeked["value"]["stage"] as Dictionary).get("stage_id", ""))
+		if pending_id in DAY7_PROVENANCE_STAGES:
+			var handoff := _day7_handoff()
+			if not handoff.get("ok", false):
+				return handoff
 	var begun: Dictionary = lifecycle.begin_next_stage()
 	if not begun.get("ok", false):
 		return begun
@@ -497,12 +513,23 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 		"close_invitations_run_end":
 			return _envelope("contact_invitation_state", "run_end_close", {"resolved_action_ids": []})
 		"validate_day7_provenance":
-			return _envelope("day7_schedule_provenance", "day7_provenance_validation",
-				_day7_provenance_facts())
+			var validated: Dictionary = _day7_terminal_provenance()
+			return _envelope("day7_schedule_provenance", "day7_provenance_validation", {
+				"cause": str(validated["cause"]),
+				"schedule_entry_id": validated["schedule_entry_id"],
+				"source_receipt_id": validated["source_receipt_id"],
+			})
 		"checkpoint_day7_provenance":
-			var facts: Dictionary = _day7_provenance_facts()
-			return _envelope("day7_schedule_provenance", "day7_provenance_checkpoint",
-				{"cause": facts["cause"], "schedule_commit_receipt_id": _active_commit_receipt_id()})
+			# The checkpoint carries the ANCHORED child, not a literal cause string. dwm-oyo.3 and
+			# dwm-oyo.6 consume exactly this receipt id and provenance.
+			var terminal: Dictionary = _day7_terminal_provenance()
+			return _envelope("day7_schedule_provenance", "day7_provenance_checkpoint", {
+				"cause": str(terminal["cause"]),
+				"schedule_commit_receipt_id": terminal["schedule_commit_receipt_id"],
+				"day7_provenance_receipt_id": str(terminal["receipt_id"]),
+				"day7_provenance_receipt_provenance":
+					(terminal["receipt_provenance"] as Dictionary).duplicate(true),
+			})
 		"resolve_ending_plan":
 			return _envelope("dating_ending_rules", "ending_resolution", {"ending_plan": _default_ending_plan()})
 		"enter_ending":
@@ -567,21 +594,62 @@ func _superseded_entry_ids() -> Array:
 		return (superseded as Array) if typeof(superseded) == TYPE_ARRAY else []
 	return []
 
-## Day-7 provenance facts READ from the committed aggregate the active plan froze (Task 7).
+## Drives the ONE configured Day7ScheduleProvenance service and returns its exact frozen
+## `terminal_provenance` (Task 8 Step 8.7, dwm-p2r.14).
 ##
-## Only two causes exist: a receipt-backed empty Done, and exactly one eligible committed solo.
-## Nothing here selects an ending, reads a board, or trusts `date_completed`; Task 8 routes these
-## same facts through the configured Day7ScheduleProvenance service and derives the real child.
-func _day7_provenance_facts() -> Dictionary:
-	var entries: Array = _active_committed_entries()
-	if entries.is_empty():
-		return {"cause": "empty_done", "schedule_entry_id": null, "source_receipt_id": null}
-	var entry: Dictionary = entries[0]
-	return {
-		"cause": "scheduled_solo",
-		"schedule_entry_id": str(entry.get("schedule_entry_id", "")),
-		"source_receipt_id": entry.get("source_receipt_id"),
-	}
+## Task 7 answered these two stages from the aggregate directly, which meant a Day-7 resolution
+## could report a cause no issuer had ever anchored. Every input here is READ from the plan's frozen
+## committed aggregate and the owner's own Contacts index -- never from a caller field -- and the
+## service revalidates the issuer receipt, the saved registry fingerprint, the commit ancestry, and
+## the source receipt before it derives anything.
+##
+## Deliberately absent: `date_completed`, planned UI state, a synthetic empty array standing in for
+## a missing index, and any hospital-skipped counter. None of them is Day-7 proof.
+func _day7_handoff() -> Dictionary:
+	if _day7_provenance == null:
+		return {"ok": false, "code": &"day7_provenance_unconfigured",
+			"message": "the Day-7 handoff requires the one configured provenance service",
+			"details": {}}
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"day7_provenance_unavailable",
+			"message": "no active resolution plan carries a committed Day-7 aggregate",
+			"details": {}}
+	var committed: Variant = (plan as Dictionary).get("committed_schedule")
+	if typeof(committed) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"day7_provenance_unavailable",
+			"message": "the active plan carries no committed aggregate", "details": {}}
+	var commit_receipt: Variant = (committed as Dictionary).get("commit_receipt")
+	if typeof(commit_receipt) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"day7_provenance_unavailable",
+			"message": "a receiptless aggregate is not an accepted Day-7 cause", "details": {}}
+	var contacts: Variant = _game_state.get("contacts")
+	if typeof(contacts) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"day7_source_index_unavailable",
+			"message": "the owner exposes no Contacts source receipt index", "details": {}}
+	var sources: Variant = (contacts as Dictionary).get("schedule_source_receipts", {})
+	if typeof(sources) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"day7_source_index_unavailable",
+			"message": "the Contacts source receipt index is malformed", "details": {}}
+	return _day7_provenance.call(&"validate_handoff", {
+		"transaction_id": str((commit_receipt as Dictionary)["transaction_id"]),
+		"transaction_issuer_receipt":
+			((commit_receipt as Dictionary)["transaction_issuer_receipt"] as Dictionary).duplicate(true),
+		"causal_day_instance": str((commit_receipt as Dictionary)["causal_day_instance"]),
+		"committed_schedule": (committed as Dictionary).duplicate(true),
+		"source_receipt_index": (sources as Dictionary).duplicate(true),
+	})
+
+
+## The derived row, for the two stages that already passed the same guard in begin_next_stage().
+## Deterministic for one frozen aggregate, so validate and checkpoint cannot disagree.
+func _day7_terminal_provenance() -> Dictionary:
+	var handoff := _day7_handoff()
+	if not handoff.get("ok", false):
+		return {"cause": "", "schedule_entry_id": null, "source_receipt_id": null,
+			"schedule_commit_receipt_id": null, "receipt_id": "", "receipt_provenance": {}}
+	return ((handoff["value"] as Dictionary)["terminal_provenance"] as Dictionary)
 
 
 func _active_committed_entries() -> Array:

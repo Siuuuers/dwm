@@ -194,8 +194,16 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 			return _envelope("day7_schedule_provenance", "day7_provenance_validation",
 				{"cause": "empty_done", "schedule_entry_id": null, "source_receipt_id": null})
 		"checkpoint_day7_provenance":
-			return _envelope("day7_schedule_provenance", "day7_provenance_checkpoint",
-				{"cause": "empty_done", "schedule_commit_receipt_id": null})
+			# Task 8 Step 8.7 (dwm-p2r.14): the checkpoint carries the derived
+			# P01.schedule.day7_provenance child. This fake supplies a SHAPE-valid stand-in only --
+			# it is not an anchored id, and no test here treats it as one. The real derivation is
+			# proved against the real issuer in tests/scenario/test_day7_schedule_provenance.gd.
+			return _envelope("day7_schedule_provenance", "day7_provenance_checkpoint", {
+				"cause": "empty_done",
+				"schedule_commit_receipt_id": null,
+				"day7_provenance_receipt_id": "fake.day7_provenance",
+				"day7_provenance_receipt_provenance": {},
+			})
 		"close_invitations_run_end":
 			return _envelope("contact_invitation_state", "run_end_close", {"resolved_action_ids": []})
 		"resolve_ending_plan":

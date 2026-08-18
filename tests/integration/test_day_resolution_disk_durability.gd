@@ -16,6 +16,10 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const SAVE_MANAGER := preload("res://autoload/SaveManager.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+const DAY7_PROVENANCE := preload("res://scripts/domain/schedule/Day7ScheduleProvenance.gd")
+const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
+const SCHEDULE_COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
+const SCHEDULE_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
 
 var _root := ""
 var _manager: Node
@@ -98,6 +102,15 @@ func _wired() -> Dictionary:
 		"audio_context": Callable(AudioManager, "get_semantic_audio_context"),
 		"content_version": Callable(self, "_content_version"),
 	}).get("ok", false), "day-resolution checkpoint providers configured")
+	# The one configured Day-7 handoff service (Task 8 Step 8.7, dwm-p2r.14), injected INTO the
+	# retained state port exactly as ApplicationBootstrap._construct_schedule_foundation does.
+	# Without it a Day-7 stage now fails closed with day7_provenance_unconfigured, which is the
+	# point: no Day-7 cause may be reported that no issuer ever anchored.
+	var provenance: Object = DAY7_PROVENANCE.new()
+	assert_true(provenance.configure(_schedule_registry(), _identity_issuer()).get("ok", false),
+		"Day-7 provenance bound to the retained registry/issuer pair")
+	assert_true(state_port.configure_day7_provenance(provenance).get("ok", false),
+		"Day-7 provenance injected into the state port")
 	var checkpoint_port: Object = CHECKPOINT_PORT.new(_manager)
 	var gate: Object = GATE.new()
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false), "checkpoint port latched")
@@ -136,6 +149,57 @@ func _identity_issuer() -> Object:
 	_issuer = IDENTITY_ISSUER.new()
 	assert_true(_issuer.configure(root_store).get("ok", false), "issuer configured")
 	return _issuer
+
+
+## One production commit port over this suite's sandbox, built the way
+## ApplicationBootstrap._construct_schedule_foundation builds the retained one.
+var _commit_port: Object = null
+
+func _schedule_commit_port() -> Object:
+	if _commit_port == null:
+		var ledger: Object = SCHEDULE_PUBLICATION_LEDGER.new()
+		assert_true(ledger.configure(STORAGE.new(_root.path_join("schedule"))).get("ok", false))
+		assert_true(ledger.load().get("ok", false))
+		_commit_port = SCHEDULE_COMMIT_PORT.new(GameState, _schedule_registry(),
+			_identity_issuer(), ledger)
+	return _commit_port
+
+
+## Commits a receipt-backed EMPTY Done for one day through the production port. The walk's own
+## `_lifecycle_set_playing_day` has already put the owner on that day, so the aggregate this mints
+## is the one the resolution then reads back.
+func _commit_empty_done(day: int) -> void:
+	var issued: Dictionary = _identity_issuer().call(&"issue", &"transaction_id")
+	assert_true(issued.get("ok", false), str(issued))
+	if not issued.get("ok", false):
+		return
+	var value: Dictionary = issued["value"]
+	var prepared: Dictionary = _schedule_commit_port().call(&"prepare_commit", {
+		"transaction_id": str(value["token"]),
+		"transaction_issuer_receipt": (value["issuer_receipt"] as Dictionary).duplicate(true),
+		"expected_view_fingerprint": "schedule_view.%s" % "d".repeat(32),
+		"day": day,
+		"causal_day_instance": "causal_day_instance.%s" % "e".repeat(64),
+		"draft_entries": [],
+		"registry_fingerprint": str(_schedule_registry().call(&"fingerprint")),
+	})
+	assert_true(prepared.get("ok", false), "empty Done commits for day %d: %s" % [day, str(prepared)])
+	if not prepared.get("ok", false):
+		return
+	assert_true(_schedule_commit_port().call(&"commit",
+		(prepared["value"] as Dictionary)["game_state_candidate"]).get("ok", false))
+
+
+## The production registry, loaded once per suite. The Day-7 handoff resolves the aggregate's SAVED
+## fingerprint through exactly this instance, so the walk's own commits stay valid.
+var _registry: Object = null
+
+func _schedule_registry() -> Object:
+	if _registry == null:
+		var loaded: Dictionary = SCHEDULE_ACTION_REGISTRY.load_current()
+		assert_true(loaded.get("ok", false), "production registry loaded: " + str(loaded))
+		_registry = (loaded.get("value", {}) as Dictionary).get("registry")
+	return _registry
 
 
 func _autosave_text() -> String:
@@ -230,6 +294,11 @@ func test_persisted_snapshot_is_restorable_by_the_save_manager() -> void:
 func _drive_days(coordinator: Object, run_id: String, through_day: int) -> Dictionary:
 	var results: Array = []
 	for day in range(1, through_day + 1):
+		# Schedule Done always COMMITS an aggregate, including the empty one: `empty_done` is a
+		# receipt-backed cause, not the absence of a commit. Day 7's provenance handoff needs that
+		# receipt, so the walk mints it through the production commit port rather than resolving a
+		# day the owner never actually finished (Task 8 Step 8.7, dwm-p2r.14).
+		_commit_empty_done(day)
 		var result: Dictionary = coordinator.request_schedule_done("done:%s:day-%d" % [run_id, day])
 		results.append({"day": day, "ok": result.get("ok", false), "code": str(result.get("code", ""))})
 		if not result.get("ok", false):
