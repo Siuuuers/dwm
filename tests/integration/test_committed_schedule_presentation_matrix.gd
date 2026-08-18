@@ -35,7 +35,6 @@ const NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoD
 const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
-const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
 const CONSEQUENCE_SOURCE := preload("res://tests/support/FakeDesktopConsequenceSource.gd")
 const STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 

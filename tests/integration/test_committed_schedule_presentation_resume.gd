@@ -44,7 +44,6 @@ const FAKE_DATING_OWNER := preload("res://tests/support/FakeDatingPresentationOw
 const CONSEQUENCE_SOURCE := preload("res://tests/support/FakeDesktopConsequenceSource.gd")
 const HOSPITAL_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
 const PRESENTATION_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
-const STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 
 const CAUSAL_DAY := "causal_day_instance.5555555555555555555555555555555555555555555555555555555555555555"
 const VIEW_FINGERPRINT := "schedule_view.55555555555555555555555555555555"
