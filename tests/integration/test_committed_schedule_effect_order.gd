@@ -22,6 +22,12 @@ const NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoD
 const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+## dwm-p2r.18: a Hospital that TRIGGERS now presents, so this suite must be able to carry a
+## resolution through a real presentation boundary to reach the stages after it.
+const START_PORT := preload("res://scripts/application/run/DayResolutionStartPort.gd")
+const HOSPITAL_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
+const PRESENTATION_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
+const CONSEQUENCE_SOURCE := preload("res://tests/support/FakeDesktopConsequenceSource.gd")
 
 const CAUSAL_DAY := "causal_day_instance.3333333333333333333333333333333333333333333333333333333333333333"
 const VIEW_FINGERPRINT := "schedule_view.44444444444444444444444444444444"
@@ -37,6 +43,10 @@ var _game_state: Node
 var _commit_port: RefCounted
 var _state_port: RefCounted
 var _commands: Dictionary = {}
+var _bridge: Node
+var _presentation_owner: RefCounted
+var _hospital_port: RefCounted
+var _presentation_receipts: Array[Dictionary] = []
 
 
 func before_each() -> void:
@@ -65,6 +75,28 @@ func before_each() -> void:
 	assert_true(ledger.load().get("ok", false))
 	_commit_port = COMMIT_PORT.new(_game_state, _registry, _issuer, ledger)
 	_state_port = STATE_PORT.new(_game_state)
+
+	# THE PRODUCER HALF (dwm-p2r.18). Without these three the resolution mints no root and a
+	# triggered Hospital fails closed at its presentation -- which is the new law, so this suite
+	# has to supply the Plan-02 records production deliberately lacks. The consequence source is a
+	# schema-exact fixture, exactly as plan line 532 authorises until Plan 02 exists.
+	var consequence_source: RefCounted = CONSEQUENCE_SOURCE.new()
+	assert_true(consequence_source.configure(_issuer).get("ok", false))
+	assert_true(_state_port.configure_desktop_consequence_source(consequence_source).get("ok", false))
+	assert_true(_state_port.configure_resolution_identity(
+		_issuer, START_PORT.new(_state_port, _registry, _issuer, ledger)).get("ok", false))
+
+	# The REAL narrative owner over a real bridge: a Hospital presentation completes only when a
+	# timeline actually ends, never because a test said so.
+	_presentation_receipts = []
+	_bridge = load("res://autoload/DialogicBridge.gd").new()
+	add_child_autofree(_bridge)
+	_presentation_owner = PRESENTATION_OWNER.new()
+	assert_true(_presentation_owner.configure(_bridge).get("ok", false))
+	_hospital_port = HOSPITAL_PORT.new()
+	assert_true(_hospital_port.configure(_issuer, _presentation_owner).get("ok", false))
+	_hospital_port.completion_ready.connect(func(result: Dictionary) -> void:
+		_presentation_receipts.append((result["receipt"] as Dictionary).duplicate(true)))
 
 
 func _isolated_root() -> String:
@@ -292,6 +324,11 @@ func _receipt_for_stage(stage_id: String) -> Dictionary:
 			assert_true(begun.get("ok", false), JSON.stringify(begun))
 			if not begun.get("ok", false):
 				return {}
+			# A triggered Hospital now PAUSES here on its presentation (dwm-p2r.18). Carry it to
+			# its physical completion and report the envelope that embeds the port's receipt; the
+			# stage deliberately stays ACTIVE so callers can still commit or roll it back.
+			if str((begun["value"] as Dictionary)["mode"]) == "await_registered_command":
+				return _presentation_receipt_value(begun["value"] as Dictionary)
 			return ((begun["value"] as Dictionary)["receipt"] as Dictionary)["value"]
 		if not _complete_current():
 			return {}
@@ -396,9 +433,49 @@ func _complete_current() -> bool:
 	if not begun.get("ok", false):
 		return false
 	var stage: Dictionary = (begun["value"] as Dictionary)["stage"]
+	if str((begun["value"] as Dictionary)["mode"]) == "await_registered_command":
+		return _complete_presentation(begun["value"] as Dictionary)
 	var receipt: Dictionary = (begun["value"] as Dictionary)["receipt"]
 	var completed: Dictionary = _game_state._run_lifecycle.complete_active_stage(
 		str(stage["transaction_id"]), {"value": (receipt["value"] as Dictionary).duplicate(true)})
+	assert_true(completed.get("ok", false), JSON.stringify(completed))
+	return completed.get("ok", false)
+
+
+## Carries one awaiting presentation to its physical completion through the REAL port and owner,
+## and returns the stage envelope value that embeds the port's completion receipt.
+##
+## The physical completion is driven by ending a timeline on the bridge -- the same seam production
+## uses -- so nothing here fabricates evidence that a presentation happened. The stage is left
+## ACTIVE: committing it is the caller's decision.
+func _presentation_receipt_value(begun_value: Dictionary) -> Dictionary:
+	var command: Dictionary = begun_value["command"]
+	var started: Dictionary = _hospital_port.begin(command["presentation_request"])
+	assert_true(started.get("ok", false), JSON.stringify(started))
+	if not started.get("ok", false):
+		return {}
+	_bridge.call(&"_on_runtime_timeline_ended")
+	assert_eq(_presentation_receipts.size(), 1, "the port published exactly one completion")
+	if _presentation_receipts.size() != 1:
+		return {}
+	var completion: Dictionary = _presentation_receipts[0]
+	_presentation_receipts = []
+	var envelope: Dictionary = _state_port.presentation_stage_receipt(
+		str(command["transaction_id"]), completion)
+	assert_true(envelope.get("ok", false), JSON.stringify(envelope))
+	if not envelope.get("ok", false):
+		return {}
+	return ((envelope["value"] as Dictionary)["receipt"] as Dictionary)["value"]
+
+
+## The same drive, followed by completing the stage -- used when the walk is only passing through.
+func _complete_presentation(begun_value: Dictionary) -> bool:
+	var value := _presentation_receipt_value(begun_value)
+	if value.is_empty():
+		return false
+	var completed: Dictionary = _game_state._run_lifecycle.complete_active_stage(
+		str((begun_value["command"] as Dictionary)["transaction_id"]),
+		{"value": value.duplicate(true)})
 	assert_true(completed.get("ok", false), JSON.stringify(completed))
 	return completed.get("ok", false)
 

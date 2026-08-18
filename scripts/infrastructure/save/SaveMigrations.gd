@@ -77,6 +77,18 @@ static func migrate_snapshot_v1_to_v2(snapshot: Dictionary) -> Dictionary:
 		v2.erase("ending_plan")
 	elif not lifecycle.has("ending_plan"):
 		lifecycle["ending_plan"] = null
+	# A legacy save caught MID-RESOLUTION carries a plan minted before the resolution root existed
+	# (dwm-p2r.18). Faithful migration adds the members it genuinely had: the Done command was the
+	# resolution id, and no root or start receipt was ever minted for it. Fabricating a root here
+	# would claim an ancestry no issuer ever anchored.
+	if typeof(lifecycle.get("active_resolution_plan")) == TYPE_DICTIONARY:
+		var plan: Dictionary = lifecycle["active_resolution_plan"]
+		if not plan.has("command_id"):
+			plan["command_id"] = str(plan.get("resolution_id", ""))
+		for absent_member: String in ["resolution_issuer_receipt", "day_resolution_start_receipt"]:
+			if not plan.has(absent_member):
+				plan[absent_member] = null
+		lifecycle["active_resolution_plan"] = plan
 	v2["lifecycle"] = lifecycle
 
 	# Rename applied_transaction_ids -> applied_effect_transaction_ids; add variable ledger.

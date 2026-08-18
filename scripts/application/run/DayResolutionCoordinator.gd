@@ -13,6 +13,7 @@ const GATE_METHODS: Array[String] = [
 const STATE_PORT_METHODS: Array[String] = [
 	"begin_or_resume", "inspect_next_stage", "begin_next_stage",
 	"prepare_completion", "capture", "commit", "rollback", "publish",
+	"presentation_stage_receipt",
 ]
 const CHECKPOINT_PORT_METHODS: Array[String] = [
 	"preview_checkpoint_id", "capture", "prepare", "commit", "rollback",
@@ -37,13 +38,20 @@ const STAGE_CONTRACTS := {
 		"value": {"outcome_ids": "array_string", "effect_transaction_ids": "array_string"}},
 	# Task 7 (dwm-p2r.14): Hospital is owned by HospitalRules, not by the ending rules, and it
 	# supersedes EVERY committed date rather than a single "prevented" one.
+	# dwm-p2r.18: a presentation stage additionally carries the EXACT completion receipt its
+	# configured port published. That is what makes "checkpoint the receipt, then advance" literally
+	# true -- the receipt is inside the bytes the checkpoint durably records, not merely observed
+	# in memory before the stage completed. It is null for a Hospital that presented nothing.
 	"hospital_if_triggered": {"owner_id": "hospital_rules", "kind": "hospital_resolution",
 		"value": {"required": "bool", "date_schedule_entry_ids": "array_string",
-			"superseded_entry_ids": "array_string", "witness_entry_id": "string_or_null"}},
+			"superseded_entry_ids": "array_string", "witness_entry_id": "string_or_null",
+			"presentation_completion_receipt": "dictionary_or_null"}},
 	"execute_schedule_dates": {"owner_id": "schedule_rules", "kind": "schedule_dates_complete",
 		"value": {"entry_receipt_ids": "array_string", "superseded_entry_ids": "array_string"}},
 	"twofriends_if_deferred": {"owner_id": "contact_invitation_state", "kind": "twofriends_resolution",
-		"value": {"required": "bool", "route_receipt_id": "string_or_null", "message_transaction_ids": "array_string"}},
+		"value": {"required": "bool", "route_receipt_id": "string_or_null",
+			"message_transaction_ids": "array_string",
+			"presentation_completion_receipt": "dictionary_or_null"}},
 	"invitation_rollover": {"owner_id": "contact_invitation_state", "kind": "invitation_rollover",
 		"value": {"target_day": "int", "message_transaction_ids": "array_string"}},
 	"increment_day": {"owner_id": "run_lifecycle", "kind": "day_increment",
@@ -74,10 +82,22 @@ const STAGE_CONTRACTS := {
 		"value": {"save_kind": "const_autosave", "save_reason": "const_ending"}},
 }
 
+## Keyed by the receipt KIND a substage returns, because a substage does not answer to its parent
+## stage's envelope: an `execute_schedule_dates` substage reports the one date it ran, not the
+## stage-level `schedule_dates_complete` aggregate.
+##
+## THIS TABLE WAS DEAD UNTIL dwm-p2r.18. `_commit_completion` validated every record against
+## `STAGE_CONTRACTS[stage_id]`, so any substage driven through the coordinator would have been
+## rejected for a kind mismatch. No test reached it: the entry-substage suites drive the state port
+## and lifecycle directly, and the only coordinator-driven walk commits an empty Schedule, which has
+## no substages at all. Wiring the date presentation is what finally routes a substage through here.
 const SUBSTAGE_CONTRACTS := {
 	"route_complete": {"owner_id": "scene_router", "value": {"route_receipt_id": "string"}},
 	"schedule_entry_complete": {"owner_id": "schedule_rules",
 		"value": {"entry_receipt_id": "string", "outcome_ids": "array_string"}},
+	"schedule_date_complete": {"owner_id": "schedule_rules",
+		"value": {"entry_receipt_id": "string", "superseded": "bool", "reason": "string_or_null",
+			"presentation_completion_receipt": "dictionary_or_null"}},
 	"effect_transaction": {"owner_id": "effect_resolver",
 		"value": {"transaction_id": "string", "effect_ids": "array_string"}},
 }
@@ -179,11 +199,17 @@ func configure_presentation_ports(hospital_port: Object, dating_port: Object) ->
 			"receipt": {}}
 	_hospital_presentation_port = hospital_port
 	_dating_presentation_port = dating_port
+	# The emitting port is BOUND into each connection. Godot signals do not tell a handler who
+	# emitted, so without this the coordinator could not tell a configured port's completion from
+	# any other object's -- and "accepts completion only from the configured port identity" would be
+	# unenforceable rather than merely unenforced.
 	for port: Object in [hospital_port, dating_port]:
-		if not port.is_connected("completion_ready", _on_presentation_completion_ready):
-			port.connect("completion_ready", _on_presentation_completion_ready)
-		if not port.is_connected("completion_failed", _on_presentation_completion_failed):
-			port.connect("completion_failed", _on_presentation_completion_failed)
+		var ready_handler := _on_presentation_completion_ready.bind(port)
+		var failed_handler := _on_presentation_completion_failed.bind(port)
+		if not port.is_connected("completion_ready", ready_handler):
+			port.connect("completion_ready", ready_handler)
+		if not port.is_connected("completion_failed", failed_handler):
+			port.connect("completion_failed", failed_handler)
 	return {"ok": true, "code": &"ok",
 		"value": {"configured": true, "already_configured": false,
 			"hospital_port_instance_id": hospital_port.get_instance_id(),
@@ -193,20 +219,72 @@ func configure_presentation_ports(hospital_port: Object, dating_port: Object) ->
 
 ## One configured port published a completion. The stage advances only after the returned receipt is
 ## CHECKPOINTED through the ordinary completion path -- never on the signal alone.
-func _on_presentation_completion_ready(completion_result: Dictionary) -> void:
+func _on_presentation_completion_ready(completion_result: Dictionary, port: Object) -> void:
+	if port != _hospital_presentation_port and port != _dating_presentation_port:
+		_last_presentation_failure = {"ok": false, "code": &"presentation_completion_untrusted",
+			"message": "a completion arrived from an object this coordinator never configured"}
+		return
 	if typeof(completion_result) != TYPE_DICTIONARY \
 			or not completion_result.get("ok", false) \
 			or typeof(completion_result.get("receipt")) != TYPE_DICTIONARY:
 		_last_presentation_failure = {"ok": false, "code": &"invalid_presentation_completion",
 			"message": "a presentation port published a malformed completion"}
 		return
+	# THE SIGNAL ALONE ADVANCES NOTHING. It only makes the receipt available; the stage advances
+	# through complete_presentation_stage(), and only after that receipt is durably checkpointed.
 	var receipt: Dictionary = completion_result["receipt"]
 	_last_presentation_completion = receipt.duplicate(true)
 
 
-func _on_presentation_completion_failed(failure: Dictionary) -> void:
+func _on_presentation_completion_failed(failure: Dictionary, port: Object) -> void:
+	if port != _hospital_presentation_port and port != _dating_presentation_port:
+		return
 	_last_presentation_failure = failure.duplicate(true) if typeof(failure) == TYPE_DICTIONARY \
 		else {"ok": false, "code": &"presentation_failed", "message": ""}
+
+
+## Completes the awaiting presentation stage with the receipt a configured port published.
+##
+## THE ORDER IS THE POINT (plan line 1174). The port's completion receipt is folded into the stage
+## envelope, the whole envelope is checkpointed through the ordinary completion path, and only a
+## SUCCESSFUL checkpoint advances the stage. A crash between the physical completion and this call
+## resumes at the same awaiting boundary and replays the same byte-identical receipt, because the
+## port settles its completion transaction idempotently.
+func complete_presentation_stage() -> Dictionary:
+	var fatal := _fatal_guard()
+	if not fatal.is_empty():
+		return fatal
+	if _state_port == null or _checkpoint_port == null:
+		return {"ok": false, "code": &"ports_not_configured", "message": ""}
+	if _last_presentation_completion.is_empty():
+		return {"ok": false, "code": &"no_presentation_completion",
+			"message": "no configured port has published a completion"}
+	if _awaiting.is_empty():
+		return {"ok": false, "code": &"unknown_transaction",
+			"message": "no stage is awaiting a presentation"}
+	var completion: Dictionary = _last_presentation_completion
+	var request: Dictionary = _awaiting.get("presentation_request", {})
+	# The receipt must settle the command this stage is actually waiting on. A well-formed receipt
+	# from another presentation is not this stage's evidence.
+	if str(completion.get("receipt_id", "")) != str(request.get("completion_transaction_id", "")):
+		return {"ok": false, "code": &"presentation_completion_untrusted",
+			"message": "the published completion does not settle the awaiting command"}
+	var transaction_id := str(_awaiting["transaction_id"])
+	var envelope: Dictionary = _state_port.presentation_stage_receipt(transaction_id, completion)
+	if not envelope.get("ok", false):
+		return envelope
+	var completed := _commit_completion({
+		"stage_id": str(_awaiting["stage_id"]),
+		"substage_id": str(_awaiting.get("substage_id", "")),
+		"transaction_id": transaction_id,
+	}, (envelope["value"] as Dictionary)["receipt"])
+	if not completed.get("ok", false):
+		return completed
+	if completed.get("code") == &"duplicate_transaction":
+		return completed
+	_awaiting = {}
+	_last_presentation_completion = {}
+	return resume()
 
 
 ## The last completion/failure a CONFIGURED port published, for the caller that drives the stage.
@@ -277,6 +355,8 @@ func resume() -> Dictionary:
 		var stage: Dictionary = begun["value"]["stage"]
 		if mode == &"await_registered_command":
 			var command: Dictionary = begun["value"]["command"]
+			if stage.has("substage_id"):
+				command["substage_id"] = str(stage["substage_id"])
 			_awaiting = command.duplicate(true)
 			_registered_history[str(command["transaction_id"])] = command.duplicate(true)
 			return {"ok": true, "code": &"await_registered_command",
@@ -313,7 +393,8 @@ func complete_route_stage(transaction_id: String, receipt: Dictionary) -> Dictio
 func _commit_completion(stage: Dictionary, receipt: Dictionary) -> Dictionary:
 	var stage_id := str(stage["stage_id"])
 	var transaction_id := str(stage["transaction_id"])
-	var envelope_error := _validate_envelope(stage_id, receipt)
+	# A SUBSTAGE answers to its own contract, keyed by the receipt kind it returns.
+	var envelope_error := _validate_substage_envelope(receipt) 		if str(stage.get("substage_id", "")) != "" else _validate_envelope(stage_id, receipt)
 	if envelope_error != "":
 		return {"ok": false, "code": &"invalid_receipt", "message": envelope_error}
 	var state_capture: Dictionary = _state_port.capture()
@@ -440,6 +521,36 @@ static func _validate_envelope(stage_id: String, receipt: Dictionary) -> String:
 			return key + ": " + error
 	return ""
 
+## The substage twin of `_validate_envelope`. Selects the contract by receipt KIND, because a
+## substage's owner is the entry it ran rather than the stage that contains it.
+static func _validate_substage_envelope(receipt: Dictionary) -> String:
+	var keys := receipt.keys()
+	keys.sort()
+	if keys != ["kind", "owner_id", "value"]:
+		return "receipt must have exactly owner_id/kind/value"
+	var kind := str(receipt["kind"])
+	if not SUBSTAGE_CONTRACTS.has(kind):
+		return "unknown substage receipt kind: " + kind
+	var contract: Dictionary = SUBSTAGE_CONTRACTS[kind]
+	if str(receipt["owner_id"]) != str(contract["owner_id"]):
+		return "owner mismatch for " + kind
+	if typeof(receipt["value"]) != TYPE_DICTIONARY:
+		return "value must be a Dictionary"
+	var value: Dictionary = receipt["value"]
+	var value_keys := value.keys()
+	value_keys.sort()
+	var spec: Dictionary = contract["value"]
+	var spec_keys := spec.keys()
+	spec_keys.sort()
+	if value_keys != spec_keys:
+		return "value keys mismatch for " + kind
+	for key: String in spec:
+		var error := _validate_spec_value(value[key], str(spec[key]))
+		if error != "":
+			return key + ": " + error
+	return ""
+
+
 static func _validate_spec_value(value: Variant, spec: String) -> String:
 	match spec:
 		"bool":
@@ -461,6 +572,10 @@ static func _validate_spec_value(value: Variant, spec: String) -> String:
 			return ""
 		"dictionary":
 			return "" if typeof(value) == TYPE_DICTIONARY else "expected Dictionary"
+		"dictionary_or_null":
+			if value == null or typeof(value) == TYPE_DICTIONARY:
+				return ""
+			return "expected Dictionary or null"
 		"const_true":
 			return "" if value == true else "expected true"
 		"const_false":

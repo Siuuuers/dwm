@@ -277,3 +277,157 @@ func test_from_dict_round_trip_and_strictness() -> void:
 	var bad_transaction: Dictionary = data.duplicate(true)
 	bad_transaction["stages"][0]["transaction_id"] = "other:lock_day"
 	assert_false(plan_script.from_dict(bad_transaction).get("ok", true), "mismatched transaction rejects")
+
+
+# -------------------------------------------------------------------------------------------------
+# The persisted resolution ROOT (Plan 01 Task 8 Step 8.2 producer half, dwm-p2r.18)
+# -------------------------------------------------------------------------------------------------
+#
+# WHY THE PLAN MUST CARRY THE ROOT. A presentation intent projects
+# `P("day_resolution_start_receipt_id", ...)`, and `resume()` after a crash never re-runs
+# `begin_or_resume`. If the root and its start receipt lived only in memory, a restored resolution
+# would derive DIFFERENT presentation children than the ones it had already published -- a
+# corruption that surfaces only on reload. So both are persisted, and the correspondence between
+# them is re-proven on every load rather than trusted.
+#
+# `command_id` is a SEPARATE member because `resolution_id` is now the issuer-minted root token on
+# the minted path. The Done command that began the resolution is what idempotence keys off, and a
+# token cannot be recomputed from a command id.
+
+const ROOT_TOKEN := "tok-resolution-1"
+
+
+func _issuer_receipt(token: String = ROOT_TOKEN) -> Dictionary:
+	return {
+		"receipt_id": "receipt-" + token, "purpose": "transaction_id", "namespace": "ns-1",
+		"counter": 7, "token": token, "numeric_value": null,
+	}
+
+
+func _start_receipt(resolution_id: String = ROOT_TOKEN) -> Dictionary:
+	return {
+		"receipt_id": "start-child-1",
+		"receipt_provenance": {
+			"schema_version": 1, "parent_receipt_id": "receipt-" + resolution_id,
+			"child_kind": "day_resolution_stage", "ordinal": 0, "source_ids": [],
+			"child_id": "start-child-1",
+		},
+		"resolution_id": resolution_id,
+		"causal_day_instance": "causal-day-3",
+		"source_day": 3,
+		"registry_fingerprint": "fp-1",
+		"schedule_commit_receipt_id": "commit-1",
+		"board_fate_receipt_id": "board-1",
+		"schedule_entry_ids": [],
+	}
+
+
+func _rooted_plan() -> Dictionary:
+	return load(PLAN_PATH).create(
+		ROOT_TOKEN, 3, _aggregate(3, []), [], "commit-1", "board-1",
+		{
+			"command_id": "done.day3",
+			"resolution_issuer_receipt": _issuer_receipt(),
+			"day_resolution_start_receipt": _start_receipt(),
+		})
+
+
+## Without a minted root the plan still records WHICH command began it: on the unconfigured
+## board-fate path the command id and the resolution id are simply the same string.
+func test_an_unrooted_plan_records_its_command_and_null_receipts() -> void:
+	assert_true(_plan_exists(), "DayResolutionPlan must exist")
+	if not _plan_exists():
+		return
+	var created: Dictionary = load(PLAN_PATH).create(
+		"resolution-unrooted", 3, _aggregate(3, []), [], null, null)
+	assert_true(created.get("ok", false), JSON.stringify(created))
+	if not created.get("ok", false):
+		return
+	var data: Dictionary = (created["value"]["plan"] as RefCounted).to_dict()
+	assert_eq(str(data["command_id"]), "resolution-unrooted",
+		"the command id defaults to the resolution id when no root was minted")
+	assert_eq(data["resolution_issuer_receipt"], null, "no root was minted")
+	assert_eq(data["day_resolution_start_receipt"], null, "so no start receipt exists either")
+
+
+func test_a_rooted_plan_persists_its_root_and_start_receipt_losslessly() -> void:
+	assert_true(_plan_exists(), "DayResolutionPlan must exist")
+	if not _plan_exists():
+		return
+	var created: Dictionary = _rooted_plan()
+	assert_true(created.get("ok", false), JSON.stringify(created))
+	if not created.get("ok", false):
+		return
+	var plan: RefCounted = created["value"]["plan"]
+	var data: Dictionary = plan.to_dict()
+	assert_eq(str(data["command_id"]), "done.day3", "the Done command that began this resolution")
+	assert_eq(data["resolution_issuer_receipt"], _issuer_receipt(), "the FULL root receipt, not its id")
+	assert_eq(data["day_resolution_start_receipt"], _start_receipt(), "the full start receipt")
+	assert_eq(str(data["resolution_id"]), ROOT_TOKEN, "the resolution id IS the minted root token")
+
+	var restored: Dictionary = load(PLAN_PATH).from_dict(data.duplicate(true))
+	assert_true(restored.get("ok", false), JSON.stringify(restored))
+	if not restored.get("ok", false):
+		return
+	assert_eq((restored["value"]["plan"] as RefCounted).to_dict(), data,
+		"a rooted plan round trips byte-identically, so a restore derives the SAME children")
+	assert_eq(plan.get_resolution_issuer_receipt(), _issuer_receipt(),
+		"the accessor hands back a detached copy of the root")
+	assert_eq(plan.get_day_resolution_start_receipt(), _start_receipt(),
+		"and of the start receipt")
+	assert_eq(plan.get_command_id(), "done.day3", "and of the command id")
+
+
+## The two new members are proven AGAINST EACH OTHER on load, not merely type-checked. A tampered
+## snapshot that keeps a root but swaps the token, drops the start receipt, or re-points the start
+## at another resolution would otherwise restore a plan whose presentation children cannot be
+## reproduced.
+func test_a_restored_root_is_re_proven_against_its_resolution() -> void:
+	assert_true(_plan_exists(), "DayResolutionPlan must exist")
+	if not _plan_exists():
+		return
+	var created: Dictionary = _rooted_plan()
+	assert_true(created.get("ok", false))
+	if not created.get("ok", false):
+		return
+	var plan_script: Script = load(PLAN_PATH)
+	var data: Dictionary = (created["value"]["plan"] as RefCounted).to_dict()
+
+	var wrong_token: Dictionary = data.duplicate(true)
+	(wrong_token["resolution_issuer_receipt"] as Dictionary)["token"] = "tok-other"
+	assert_false(plan_script.from_dict(wrong_token).get("ok", true),
+		"a root whose token is not the resolution id rejects")
+
+	var wrong_purpose: Dictionary = data.duplicate(true)
+	(wrong_purpose["resolution_issuer_receipt"] as Dictionary)["purpose"] = "causal_day_instance"
+	assert_false(plan_script.from_dict(wrong_purpose).get("ok", true),
+		"a root minted for another purpose rejects")
+
+	var dropped_start: Dictionary = data.duplicate(true)
+	dropped_start["day_resolution_start_receipt"] = null
+	assert_false(plan_script.from_dict(dropped_start).get("ok", true),
+		"a rooted plan without its start receipt rejects")
+
+	var orphan_start: Dictionary = data.duplicate(true)
+	orphan_start["resolution_issuer_receipt"] = null
+	assert_false(plan_script.from_dict(orphan_start).get("ok", true),
+		"a start receipt without the root it was derived under rejects")
+
+	var foreign_start: Dictionary = data.duplicate(true)
+	(foreign_start["day_resolution_start_receipt"] as Dictionary)["resolution_id"] = "tok-other"
+	assert_false(plan_script.from_dict(foreign_start).get("ok", true),
+		"a start receipt naming another resolution rejects")
+
+	var idless_start: Dictionary = data.duplicate(true)
+	(idless_start["day_resolution_start_receipt"] as Dictionary)["receipt_id"] = ""
+	assert_false(plan_script.from_dict(idless_start).get("ok", true),
+		"a start receipt with no id rejects: the intent projects exactly that id")
+
+	var blank_command: Dictionary = data.duplicate(true)
+	blank_command["command_id"] = ""
+	assert_false(plan_script.from_dict(blank_command).get("ok", true), "a blank command id rejects")
+
+	var missing_member: Dictionary = data.duplicate(true)
+	missing_member.erase("command_id")
+	assert_false(plan_script.from_dict(missing_member).get("ok", true),
+		"PLAN_KEYS stays an EXACT member set")

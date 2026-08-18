@@ -156,6 +156,32 @@ func publish(_publication: Dictionary) -> Dictionary:
 	_publications += 1
 	return {"ok": true, "code": &"ok"}
 
+## Shape-valid stand-in for the real port's presentation envelope (dwm-p2r.18). It attaches the
+## published completion to whatever envelope this fake already produces for the stage, exactly as
+## the production port does; it anchors nothing and no test treats its ids as issuer-derived.
+func presentation_stage_receipt(transaction_id: String, completion: Dictionary) -> Dictionary:
+	_calls.append("state.presentation_stage_receipt")
+	var stage_id := _stage_id_for(transaction_id)
+	if stage_id.is_empty():
+		return {"ok": false, "code": &"unknown_transaction", "message": transaction_id,
+			"details": {}}
+	var envelope := _immediate_receipt(stage_id)
+	(envelope["value"] as Dictionary)["presentation_completion_receipt"] = completion.duplicate(true)
+	return {"ok": true, "code": &"ok", "value": {"receipt": envelope}}
+
+
+## The stage a transaction id belongs to, read from the live plan the fake's own lifecycle holds.
+func _stage_id_for(transaction_id: String) -> String:
+	var plan: Variant = _lifecycle.to_dict().get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return ""
+	for stage_value: Variant in ((plan as Dictionary).get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		if str(stage.get("transaction_id", "")) == transaction_id:
+			return str(stage["stage_id"])
+	return ""
+
+
 func _immediate_receipt(stage_id: String) -> Dictionary:
 	var day := _source_day
 	match stage_id:
@@ -174,10 +200,12 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 		"hospital_if_triggered":
 			return _envelope("hospital_rules", "hospital_resolution",
 				{"required": false, "date_schedule_entry_ids": [],
-					"superseded_entry_ids": [], "witness_entry_id": null})
+					"superseded_entry_ids": [], "witness_entry_id": null,
+					"presentation_completion_receipt": null})
 		"twofriends_if_deferred":
 			return _envelope("contact_invitation_state", "twofriends_resolution",
-				{"required": false, "route_receipt_id": null, "message_transaction_ids": []})
+				{"required": false, "route_receipt_id": null, "message_transaction_ids": [],
+					"presentation_completion_receipt": null})
 		"invitation_rollover":
 			return _envelope("contact_invitation_state", "invitation_rollover",
 				{"target_day": day + 1, "message_transaction_ids": []})

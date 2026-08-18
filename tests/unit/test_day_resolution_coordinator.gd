@@ -139,9 +139,12 @@ func test_registered_command_pause_and_completion() -> void:
 	wired["state"].set_registered_stage("")
 	# Task 7 (dwm-p2r.14): Hospital is owned by HospitalRules and reports the FULL supersession
 	# set, not a single "prevented" entry.
+	# dwm-p2r.18: a Hospital stage additionally records the presentation completion it checkpointed,
+	# and null is the honest value for a Hospital that presented nothing.
 	var receipt := {"owner_id": "hospital_rules", "kind": "hospital_resolution",
 		"value": {"required": false, "date_schedule_entry_ids": [],
-			"superseded_entry_ids": [], "witness_entry_id": null}}
+			"superseded_entry_ids": [], "witness_entry_id": null,
+			"presentation_completion_receipt": null}}
 	var finished: Dictionary = wired["coordinator"].complete_route_stage(
 		str(command["transaction_id"]), receipt)
 	assert_true(finished.get("ok", false), JSON.stringify(finished))
@@ -202,9 +205,12 @@ func test_duplicate_transaction_returns_stored_receipt_without_new_checkpoint() 
 	wired["state"].set_registered_stage("")
 	# Task 7 (dwm-p2r.14): Hospital is owned by HospitalRules and reports the FULL supersession
 	# set, not a single "prevented" entry.
+	# dwm-p2r.18: a Hospital stage additionally records the presentation completion it checkpointed,
+	# and null is the honest value for a Hospital that presented nothing.
 	var receipt := {"owner_id": "hospital_rules", "kind": "hospital_resolution",
 		"value": {"required": false, "date_schedule_entry_ids": [],
-			"superseded_entry_ids": [], "witness_entry_id": null}}
+			"superseded_entry_ids": [], "witness_entry_id": null,
+			"presentation_completion_receipt": null}}
 	assert_true(wired["coordinator"].complete_route_stage(str(command["transaction_id"]), receipt)["ok"])
 	var checkpoints_after: Dictionary = wired["checkpoint"].peek_state()
 	var publications_after: int = wired["state"].get_publication_count()

@@ -39,17 +39,35 @@ const STAGE_KEYS: Array[String] = ["stage_id", "transaction_id", "route_id", "st
 const SUBSTAGE_KEYS: Array[String] = ["substage_id", "transaction_id", "state", "receipt"]
 
 const PLAN_KEYS: Array[String] = [
-	"board_fate_receipt_id", "committed_schedule", "resolution_id", "route_plan",
-	"schedule_commit_receipt_id", "source_day", "stages",
+	"board_fate_receipt_id", "command_id", "committed_schedule", "day_resolution_start_receipt",
+	"resolution_id", "resolution_issuer_receipt", "route_plan", "schedule_commit_receipt_id",
+	"source_day", "stages",
 ]
+## Exact members `create()` accepts in its trailing resolution-start bundle (sorted).
+const RESOLUTION_START_KEYS: Array[String] = [
+	"command_id", "day_resolution_start_receipt", "resolution_issuer_receipt",
+]
+## The one purpose a resolution root may be minted for (plan line 63).
+const ROOT_PURPOSE := "transaction_id"
 
 var _resolution_id := ""
+var _command_id := ""
 var _source_day := 0
 var _stages: Array[Dictionary] = []
 var _committed_schedule: Dictionary = {}
 var _route_plan: Array = []
 var _schedule_commit_receipt_id: Variant = null
 var _board_fate_receipt_id: Variant = null
+## The FULL issuer receipt this resolution's root was minted with, and the full
+## `P01.day_resolution.start` receipt derived under it -- or null on the unconfigured board-fate
+## path, where no root is minted at all (dwm-p2r.18).
+##
+## Both are persisted rather than held in memory because `resume()` after a crash never re-runs
+## `begin_or_resume`: a presentation intent projects `day_resolution_start_receipt_id`, so a
+## restored resolution that could not read these bytes back would derive DIFFERENT presentation
+## children than the ones it had already published.
+var _resolution_issuer_receipt: Variant = null
+var _day_resolution_start_receipt: Variant = null
 
 ## SINGLE authority for how far an ACTIVE plan's source day may trail the run day (dwm-7e6).
 ##
@@ -103,9 +121,22 @@ static func create(
 	route_plan: Array,
 	schedule_commit_receipt_id: Variant,
 	board_fate_receipt_id: Variant,
+	resolution_start: Dictionary = {},
 ) -> Dictionary:
 	if resolution_id.is_empty():
 		return _fail(&"invalid_resolution_id", "resolution_id must be nonempty")
+	# ONE trailing bundle rather than three more positional parameters: the three members are
+	# minted together or not at all, and splitting them across the signature would let a caller
+	# supply a start receipt with no root behind it.
+	var start_keys: Array = resolution_start.keys()
+	start_keys.sort()
+	if not resolution_start.is_empty() and start_keys != RESOLUTION_START_KEYS:
+		return _fail(&"invalid_resolution_start",
+			"the resolution start bundle member set is not exact: " + str(start_keys))
+	# On the unconfigured board-fate path no root is minted, so the Done command IS the resolution.
+	var command_id := str(resolution_start.get("command_id", resolution_id))
+	if command_id.is_empty():
+		return _fail(&"invalid_command_id", "command_id must be nonempty")
 	if source_day < 1 or source_day > 7:
 		return _fail(&"invalid_source_day", "source_day must be 1..7: %d" % source_day)
 	if typeof(committed_schedule.get("entries")) != TYPE_ARRAY:
@@ -165,12 +196,15 @@ static func create(
 		})
 	return from_dict({
 		"resolution_id": resolution_id,
+		"command_id": command_id,
 		"source_day": source_day,
 		"stages": stages,
 		"committed_schedule": committed_schedule.duplicate(true),
 		"route_plan": route_plan.duplicate(true),
 		"schedule_commit_receipt_id": schedule_commit_receipt_id,
 		"board_fate_receipt_id": board_fate_receipt_id,
+		"resolution_issuer_receipt": resolution_start.get("resolution_issuer_receipt"),
+		"day_resolution_start_receipt": resolution_start.get("day_resolution_start_receipt"),
 	})
 
 static func from_dict(data: Dictionary) -> Dictionary:
@@ -190,6 +224,12 @@ static func from_dict(data: Dictionary) -> Dictionary:
 	var resolution_id := str(data["resolution_id"])
 	if resolution_id.is_empty():
 		return _fail(&"invalid_resolution_id", "resolution_id must be nonempty")
+	if typeof(data["command_id"]) != TYPE_STRING or str(data["command_id"]).is_empty():
+		return _fail(&"invalid_command_id", "command_id must be a nonempty String")
+	var root_error := _validate_resolution_root(
+		data["resolution_issuer_receipt"], data["day_resolution_start_receipt"], resolution_id)
+	if root_error != "":
+		return _fail(&"invalid_resolution_root", root_error)
 	if typeof(data["source_day"]) != TYPE_INT:
 		return _fail(&"invalid_source_day", "source_day must be an integer")
 	var source_day := int(data["source_day"])
@@ -327,6 +367,9 @@ static func from_dict(data: Dictionary) -> Dictionary:
 					+ " entries, in slot order")
 	var plan: RefCounted = (load("res://scripts/domain/run/DayResolutionPlan.gd") as GDScript).new()
 	plan._resolution_id = resolution_id
+	plan._command_id = str(data["command_id"])
+	plan._resolution_issuer_receipt = _detached(data["resolution_issuer_receipt"])
+	plan._day_resolution_start_receipt = _detached(data["day_resolution_start_receipt"])
 	plan._source_day = source_day
 	plan._stages = stages
 	plan._committed_schedule = (data["committed_schedule"] as Dictionary).duplicate(true)
@@ -338,6 +381,9 @@ static func from_dict(data: Dictionary) -> Dictionary:
 func to_dict() -> Dictionary:
 	return {
 		"resolution_id": _resolution_id,
+		"command_id": _command_id,
+		"resolution_issuer_receipt": _detached(_resolution_issuer_receipt),
+		"day_resolution_start_receipt": _detached(_day_resolution_start_receipt),
 		"source_day": _source_day,
 		"stages": _stages.duplicate(true),
 		"committed_schedule": _committed_schedule.duplicate(true),
@@ -363,6 +409,25 @@ func get_schedule_commit_receipt_id() -> Variant:
 
 func get_board_fate_receipt_id() -> Variant:
 	return _board_fate_receipt_id
+
+
+## The Done command that began this resolution. Idempotence keys off THIS rather than
+## `resolution_id`, because on the minted path the resolution id is an issuer token that cannot be
+## recomputed from the command.
+func get_command_id() -> String:
+	return _command_id
+
+
+func get_resolution_issuer_receipt() -> Variant:
+	return _detached(_resolution_issuer_receipt)
+
+
+func get_day_resolution_start_receipt() -> Variant:
+	return _detached(_day_resolution_start_receipt)
+
+
+static func _detached(value: Variant) -> Variant:
+	return (value as Dictionary).duplicate(true) if typeof(value) == TYPE_DICTIONARY else null
 
 func get_next_incomplete_stage() -> Dictionary:
 	for stage: Dictionary in _stages:
@@ -473,6 +538,41 @@ static func _normalize_receipt(receipt: Dictionary) -> Dictionary:
 	if keys != ["value"] or typeof(receipt["value"]) != TYPE_DICTIONARY:
 		return {}
 	return receipt.duplicate(true)
+
+## Re-proves a RESTORED resolution root against the resolution it claims to belong to.
+##
+## Type checks alone would let a tampered snapshot keep a well-shaped root whose token names another
+## resolution, or a start receipt with no root behind it. Because the presentation intent projects
+## `day_resolution_start_receipt_id`, either of those would silently produce different presentation
+## children after a restore than the ones already published. Returns "" when the pair is clean.
+static func _validate_resolution_root(
+		root: Variant, start_receipt: Variant, resolution_id: String) -> String:
+	if root == null and start_receipt == null:
+		# The unconfigured board-fate path: no root was ever minted, so there is nothing to prove.
+		return ""
+	if root == null:
+		return "a start receipt without the root it was derived under is not restorable"
+	if start_receipt == null:
+		return "a minted resolution root requires its day_resolution_start_receipt"
+	if typeof(root) != TYPE_DICTIONARY or typeof(start_receipt) != TYPE_DICTIONARY:
+		return "the resolution root and start receipt must be objects"
+	var root_receipt: Dictionary = root
+	if str(root_receipt.get("purpose", "")) != ROOT_PURPOSE:
+		return "the resolution root must be minted for purpose " + ROOT_PURPOSE
+	if str(root_receipt.get("receipt_id", "")).is_empty():
+		return "the resolution root must carry a nonempty receipt_id"
+	# The plan-line-560 law: the semantic resolution id IS the minted token.
+	if str(root_receipt.get("token", "")) != resolution_id:
+		return "resolution_id must equal the resolution root token"
+	var start: Dictionary = start_receipt
+	if str(start.get("receipt_id", "")).is_empty():
+		return "the start receipt must carry a nonempty receipt_id: the intent projects exactly it"
+	if str(start.get("resolution_id", "")) != resolution_id:
+		return "the start receipt names another resolution"
+	if typeof(start.get("receipt_provenance")) != TYPE_DICTIONARY:
+		return "the start receipt must carry its full provenance, not an id alone"
+	return ""
+
 
 static func _validate_receipt_field(receipt: Variant, state: String, owner_id: String) -> String:
 	if state == "completed":

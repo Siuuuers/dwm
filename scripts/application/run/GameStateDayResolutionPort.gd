@@ -22,6 +22,10 @@ const SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd"
 ## The pure Schedule-Done Hospital owner (Task 7 Step 7.3).
 const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+## The canonical JSON writer every Plan-01 identity projection goes through, and the plan module
+## whose frozen stage arrays own `stage_index` (dwm-p2r.18).
+const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 
 const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
 	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id",
@@ -35,6 +39,31 @@ var _provider_identity: Dictionary = {}
 
 ## The one configured Day-7 provenance service, injected by Bootstrap; never constructed here.
 var _day7_provenance: Object = null
+
+## The exact `.16` issuer and the retained DayResolutionStartPort (dwm-p2r.18). Together they turn a
+## Done command into the resolution ROOT and its `P01.day_resolution.start` receipt -- the two
+## records every presentation child is derived under.
+var _identity_issuer: Object = null
+var _day_resolution_start_port: Object = null
+
+## The Plan-02 desktop-consequence inputs a Schedule-Done resolution consumes but does not own:
+## the board-fate receipt bound by `P01.day_resolution.start`, and the condition receipt projected
+## by `P01.hospital.resolution`.
+##
+## DELIBERATELY UNCONFIGURED IN PHASE 2R (DEVIATION-5, user-approved on dwm-p2r.18). `dwm-p2r.9`
+## never delivered the integrated `DesktopBoardFatePort`, and Plan 01 line 1303 forbids this plan
+## from implementing desktop board fate, so there is no lawful production source for either record
+## yet. This seam is the handoff point, exactly as `DatingPresentationPort` is for `dwm-oyo.4`:
+## Bootstrap constructs nothing for it, and a resolution that genuinely needs a presentation fails
+## closed naming the missing input rather than silently skipping the presentation.
+var _desktop_consequence_source: Object = null
+
+const _ISSUER_METHODS: Array[String] = ["issue", "verify_issued", "derive_child", "validate_child"]
+const _START_PORT_METHODS: Array[String] = ["prepare_from_committed_schedule"]
+const _CONSEQUENCE_SOURCE_METHODS: Array[String] = [
+	"resolve_board_fate_receipt", "resolve_condition_receipt",
+]
+const ROOT_PURPOSE := &"transaction_id"
 
 
 func _init(game_state: Object) -> void:
@@ -119,13 +148,121 @@ func begin_or_resume(command_id: String) -> Dictionary:
 	var commit_receipt_id: Variant = null
 	if typeof(commit_receipt) == TYPE_DICTIONARY:
 		commit_receipt_id = (commit_receipt as Dictionary).get("receipt_id")
+	var route_plan: Array = (projection["value"] as Dictionary)["route_plan"]
+	# dwm-p2r.18: mint the resolution ROOT and its start receipt before the plan exists, so the plan
+	# can PERSIST both. Everything a presentation child is derived under comes from here.
+	var minted := _resolution_start(command_id, aggregate, route_plan)
+	if not minted.get("ok", false):
+		return minted
+	var resolution_start: Dictionary = (minted["value"] as Dictionary)["resolution_start"]
 	var begun: Dictionary = lifecycle.begin_day_resolution(
-		command_id, aggregate, (projection["value"] as Dictionary)["route_plan"],
-		commit_receipt_id, null)
+		str((minted["value"] as Dictionary)["resolution_id"]), aggregate, route_plan,
+		commit_receipt_id, _board_fate_receipt_id(resolution_start), resolution_start)
 	if not begun.get("ok", false):
 		return begun
 	return {"ok": true, "code": &"ok",
 		"value": {"run_id": str(lifecycle.to_dict()["run_id"])}}
+
+
+## The board-fate id the start receipt bound, or null on the unconfigured path. Read back off the
+## start receipt rather than tracked separately, so the plan's `board_fate_receipt_id` and the
+## anchored start row can never name different receipts.
+static func _board_fate_receipt_id(resolution_start: Dictionary) -> Variant:
+	var start: Variant = resolution_start.get("day_resolution_start_receipt")
+	if typeof(start) != TYPE_DICTIONARY:
+		return null
+	return (start as Dictionary).get("board_fate_receipt_id")
+
+
+## Mints the resolution root and drives the retained `DayResolutionStartPort`.
+##
+## THE ROOT IS MINTED AT MOST ONCE PER DONE COMMAND. A replayed Done command must not mint a second
+## root: it would produce a different `resolution_id`, and every presentation child already derived
+## under the first root would become unreachable. So an active plan that already records this exact
+## command id returns ITS persisted root and start receipt unchanged, and the issuer is not touched.
+##
+## Returns the empty bundle -- not a failure -- when the Plan-02 desktop-consequence source is
+## absent. A resolution with no presentation in it is still perfectly resolvable without a root; it
+## is only the presentation sites that fail closed (see `_presentation_command`).
+func _resolution_start(command_id: String, aggregate: Dictionary,
+		route_plan: Array) -> Dictionary:
+	var existing := _active_plan()
+	if not existing.is_empty() and str(existing.get("command_id", "")) == command_id:
+		return {"ok": true, "code": &"ok", "value": {
+			"resolution_id": str(existing["resolution_id"]),
+			"resolution_start": {
+				"command_id": command_id,
+				"resolution_issuer_receipt": existing["resolution_issuer_receipt"],
+				"day_resolution_start_receipt": existing["day_resolution_start_receipt"],
+			} if existing["resolution_issuer_receipt"] != null else {},
+		}}
+	if not is_presentation_producer_ready():
+		# The unconfigured board-fate path: no root, and the Done command IS the resolution id.
+		return {"ok": true, "code": &"ok",
+			"value": {"resolution_id": command_id, "resolution_start": {}}}
+	# A genuinely concurrent unfinished resolution is refused BEFORE the issuer is touched, so a
+	# rejected Done command never burns a root the ledger would then hold forever.
+	if not existing.is_empty() and not _plan_is_complete(existing):
+		return {"ok": false, "code": &"resolution_conflict",
+			"message": str(existing.get("resolution_id", "")), "details": {}}
+	var commit_receipt: Variant = aggregate.get("commit_receipt")
+	if typeof(commit_receipt) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"resolution_start_unavailable",
+			"message": "a receiptless aggregate cannot anchor a resolution root", "details": {}}
+	var causal_day_instance := str((commit_receipt as Dictionary).get("causal_day_instance", ""))
+	var board_fate: Variant = _desktop_consequence_source.call(&"resolve_board_fate_receipt", {
+		"causal_day_instance": causal_day_instance,
+		"source_day": int(aggregate.get("day", 0)),
+	})
+	if typeof(board_fate) != TYPE_DICTIONARY or not (board_fate as Dictionary).get("ok", false):
+		return board_fate if typeof(board_fate) == TYPE_DICTIONARY else {
+			"ok": false, "code": &"board_fate_receipt_unavailable",
+			"message": "the desktop consequence source returned no CommandResult", "details": {}}
+	var issued: Variant = _identity_issuer.call(&"issue", ROOT_PURPOSE)
+	if typeof(issued) != TYPE_DICTIONARY or not (issued as Dictionary).get("ok", false):
+		return issued if typeof(issued) == TYPE_DICTIONARY else {
+			"ok": false, "code": &"resolution_root_unavailable",
+			"message": "the issuer refused to mint a resolution root", "details": {}}
+	var issued_value: Dictionary = (issued as Dictionary)["value"]
+	var root_receipt: Dictionary = issued_value["issuer_receipt"]
+	# Plan line 560: the semantic resolution id IS the minted token.
+	var resolution_id := str(issued_value["token"])
+	var prepared: Variant = _day_resolution_start_port.call(&"prepare_from_committed_schedule", {
+		"resolution_id": resolution_id,
+		"resolution_issuer_receipt": root_receipt.duplicate(true),
+		"causal_day_instance": causal_day_instance,
+		"committed_schedule": aggregate.duplicate(true),
+		"route_plan": route_plan.duplicate(true),
+		"board_fate_receipt":
+			(((board_fate as Dictionary)["value"] as Dictionary)["board_fate_receipt"] as Dictionary).duplicate(true),
+	})
+	if typeof(prepared) != TYPE_DICTIONARY or not (prepared as Dictionary).get("ok", false):
+		return prepared if typeof(prepared) == TYPE_DICTIONARY else {
+			"ok": false, "code": &"resolution_start_unavailable",
+			"message": "the start port returned no CommandResult", "details": {}}
+	return {"ok": true, "code": &"ok", "value": {
+		"resolution_id": resolution_id,
+		"resolution_start": {
+			"command_id": command_id,
+			"resolution_issuer_receipt": root_receipt.duplicate(true),
+			"day_resolution_start_receipt":
+				(((prepared as Dictionary)["value"] as Dictionary)["start_receipt"] as Dictionary).duplicate(true),
+		},
+	}}
+
+
+## The live active resolution plan as raw bytes, or {} when there is none.
+func _active_plan() -> Dictionary:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	return (plan as Dictionary) if typeof(plan) == TYPE_DICTIONARY else {}
+
+
+static func _plan_is_complete(plan: Dictionary) -> bool:
+	for stage_value: Variant in (plan.get("stages", []) as Array):
+		if str((stage_value as Dictionary).get("state", "")) != "completed":
+			return false
+	return true
 
 
 ## Projects the committed aggregate through the registry it was COMMITTED against.
@@ -165,16 +302,41 @@ func begin_next_stage() -> Dictionary:
 	# A Day-7 provenance stage is refused BEFORE the lifecycle marks it active, so an unconfigured
 	# or refused handoff leaves the stage pending and the run resumable rather than half-run.
 	var peeked: Dictionary = lifecycle.resume_resolution()
+	var presentation_request: Dictionary = {}
 	if peeked.get("ok", false) and bool(peeked["value"]["has_stage"]):
-		var pending_id := str((peeked["value"]["stage"] as Dictionary).get("stage_id", ""))
+		var pending: Dictionary = peeked["value"]["stage"]
+		var pending_id := str(pending.get("stage_id", ""))
 		if pending_id in DAY7_PROVENANCE_STAGES:
 			var handoff := _day7_handoff()
 			if not handoff.get("ok", false):
 				return handoff
+		# Same fail-before-mutation law as the Day-7 guard above: the presentation children are
+		# derived while the stage is still PENDING, so an undeliverable presentation leaves the run
+		# exactly where it was rather than stranding an active stage with no command behind it.
+		var site := _presentation_site(pending)
+		if not site.is_empty():
+			var command := _presentation_command(pending, site)
+			if not command.get("ok", false):
+				return command
+			presentation_request = (command["value"] as Dictionary)["presentation_request"]
 	var begun: Dictionary = lifecycle.begin_next_stage()
 	if not begun.get("ok", false):
 		return begun
 	var stage: Dictionary = begun["value"]["stage"]
+	# A presentation site PAUSES the walk. The stage stays active and carries no receipt until the
+	# configured port publishes a completion the coordinator can checkpoint, so a crash anywhere in
+	# the presentation resumes at exactly this boundary.
+	if not presentation_request.is_empty():
+		return {"ok": true, "code": &"ok", "value": {
+			"mode": &"await_registered_command",
+			"stage": stage.duplicate(true),
+			"command": {
+				"transaction_id": str(stage["transaction_id"]),
+				"stage_id": str(stage["stage_id"]),
+				"route_id": str(presentation_request["route_id"]),
+				"presentation_request": presentation_request,
+			},
+		}}
 	# An entry SUBSTAGE is not just a second delivery of its parent stage's envelope: an
 	# ordinary_action substage is where that entry's registered effects actually reach the owner
 	# (Task 7 Step 7.2, dwm-p2r.14).
@@ -243,6 +405,9 @@ func _begin_surviving_date_substage(stage: Dictionary, substage_id: String) -> D
 			"entry_receipt_id": entry_id,
 			"superseded": superseded,
 			"reason": HOSPITAL_RULES.MISS_REASON if superseded else null,
+			# A SUPERSEDED date presents nothing, so it completes with no presentation evidence.
+			# A surviving date never reaches here: it pauses on its presentation instead.
+			"presentation_completion_receipt": null,
 		}),
 	}}
 
@@ -423,6 +588,61 @@ func publish(publication: Dictionary) -> Dictionary:
 ## The service arrives ALREADY CONFIGURED with the exact registry/issuer pair; this port never
 ## configures it and never constructs one, so there is no second place a Day-7 handoff could be
 ## minted from a different identity root. Idempotent for the same instance, refuses a replacement.
+## Retains the exact `.16` issuer and the retained `DayResolutionStartPort` (dwm-p2r.18).
+##
+## Both arrive ALREADY CONSTRUCTED from Bootstrap. Without them a resolution mints no root, derives
+## no `P01.day_resolution.start`, and therefore cannot derive a lawful presentation child -- so this
+## seam is what makes the producer half reachable at all. Identical replay is idempotent; a
+## replacement in either position is refused before any mutation.
+func configure_resolution_identity(identity_issuer: Object, start_port: Object) -> Dictionary:
+	if identity_issuer == null or not _has_methods(identity_issuer, _ISSUER_METHODS) 			or start_port == null or not _has_methods(start_port, _START_PORT_METHODS):
+		return {"ok": false, "code": &"resolution_identity_conflict",
+			"message": "an exact issuer and day-resolution start port are required", "details": {}}
+	if _identity_issuer != null or _day_resolution_start_port != null:
+		if _identity_issuer != identity_issuer or _day_resolution_start_port != start_port:
+			return {"ok": false, "code": &"resolution_identity_conflict",
+				"message": "a configured port never adopts a replacement identity owner",
+				"details": {}}
+		return {"ok": true, "code": &"ok",
+			"value": {"configured": true, "already_configured": true}, "receipt": {}}
+	_identity_issuer = identity_issuer
+	_day_resolution_start_port = start_port
+	return {"ok": true, "code": &"ok",
+		"value": {"configured": true, "already_configured": false}, "receipt": {}}
+
+
+## The Plan-02 desktop-consequence handoff (DEVIATION-5). Bootstrap deliberately never calls this;
+## see the field comment above for why. Same idempotent/refuse-replacement law as every other seam.
+func configure_desktop_consequence_source(source: Object) -> Dictionary:
+	if source == null or not _has_methods(source, _CONSEQUENCE_SOURCE_METHODS):
+		return {"ok": false, "code": &"desktop_consequence_source_conflict",
+			"message": "an exact board-fate and condition receipt source is required", "details": {}}
+	if _desktop_consequence_source != null:
+		if _desktop_consequence_source != source:
+			return {"ok": false, "code": &"desktop_consequence_source_conflict",
+				"message": "a configured port never adopts a replacement source", "details": {}}
+		return {"ok": true, "code": &"ok",
+			"value": {"configured": true, "already_configured": true}, "receipt": {}}
+	_desktop_consequence_source = source
+	return {"ok": true, "code": &"ok",
+		"value": {"configured": true, "already_configured": false}, "receipt": {}}
+
+
+## Whether this resolution can mint a root at all. Reported so bootstrap evidence and the contract
+## probe can show the Phase-2R gap rather than leaving it invisible.
+func is_presentation_producer_ready() -> bool:
+	return _identity_issuer != null and _day_resolution_start_port != null 		and _desktop_consequence_source != null
+
+
+static func _has_methods(target: Object, methods: Array[String]) -> bool:
+	if target == null:
+		return false
+	for method_name: String in methods:
+		if not target.has_method(method_name):
+			return false
+	return true
+
+
 func configure_day7_provenance(service: Object) -> Dictionary:
 	if service == null or not service.has_method("validate_handoff"):
 		return {"ok": false, "code": &"invalid_day7_provenance_service", "message": "", "details": {}}
@@ -497,7 +717,8 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 			return _envelope("hospital_rules", "hospital_resolution", _hospital_envelope())
 		"twofriends_if_deferred":
 			return _envelope("contact_invitation_state", "twofriends_resolution",
-				{"required": false, "route_receipt_id": null, "message_transaction_ids": []})
+				{"required": false, "route_receipt_id": null, "message_transaction_ids": [],
+					"presentation_completion_receipt": null})
 		"invitation_rollover":
 			return _envelope("contact_invitation_state", "invitation_rollover",
 				{"target_day": day + 1, "message_transaction_ids": []})
@@ -540,6 +761,489 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 				{"save_kind": "autosave", "save_reason": "ending"})
 	return _envelope("unknown", "unknown", {})
 
+# -------------------------------------------------------------------------------------------------
+# The committed-Schedule presentation PRODUCER (Plan 01 Task 8, dwm-p2r.18)
+# -------------------------------------------------------------------------------------------------
+#
+# WHAT THIS IS. Task 8 built the presentation LAYER -- the two ports, the narrative owner, the
+# scenes, the router and the composition -- but nothing HANDED those ports a command during a
+# resolution, so no stage ever paused on a presentation. This is that missing producer.
+#
+# WHERE THE IDENTITY COMES FROM. Every row below is derived through the ONE retained `.16` issuer,
+# under the resolution root the plan PERSISTED. Nothing here invents an id, an ordinal, or a source
+# order: each variant selects exactly one matrix row (plan lines 94-98) and constructs exactly that
+# row's request. Recovery re-runs this same code over the same persisted bytes and therefore derives
+# the same children -- which is the whole reason the root is persisted rather than held in memory.
+#
+# THE ORDER IS CLOSED (plan line 102). The Hospital aggregate row precedes its miss rows, which
+# precede the Hospital presentation intent; every intent precedes its own completion row.
+
+## The presentation locator for each variant. Constructed, then REQUIRED to be registered in
+## DialogicTimelineCatalog -- a locator the manifest does not carry is refused rather than played.
+const HOSPITAL_TIMELINE_ID := "hospital.faint"
+const PAIR_PARTICIPANTS: Array[String] = ["priscilla", "lavinia"]
+const PAIR_SLUG := "priscilla_lavinia"
+## Phase 2R presents the PRE-challenge timeline: the challenge itself is dwm-oyo.4's board, and the
+## post-challenge timeline follows it, so neither is reachable from Plan 01.
+const DATING_TIMELINE_PHASE := "pre_challenge"
+
+const HOSPITAL_STAGE := "hospital_if_triggered"
+const DATES_STAGE := "execute_schedule_dates"
+const PAIR_STAGE := "twofriends_if_deferred"
+
+const INTENT_ROLE := "presentation.intent"
+const COMPLETION_ROLE := "presentation.completion"
+const PRESENTATION_CHILD_KIND := &"day_resolution_stage"
+const HOSPITAL_RESOLUTION_ROLE := "hospital.resolution"
+const HOSPITAL_RESOLUTION_CHILD_KIND := &"hospital_resolution"
+const HOSPITAL_MISS_ROLE := "hospital.miss"
+const HOSPITAL_MISS_CHILD_KIND := &"hospital_miss"
+
+
+## Whether the pending stage/substage is a presentation site, and which variant.
+##
+## Returns {} for every stage that presents nothing, so the ordinary immediate-completion path is
+## untouched for the great majority of stages.
+func _presentation_site(stage: Dictionary) -> Dictionary:
+	var stage_id := str(stage.get("stage_id", ""))
+	var substage_id := str(stage.get("substage_id", ""))
+	if substage_id.begins_with("surviving_date:"):
+		return _surviving_date_site(substage_id)
+	if substage_id != "":
+		return {}
+	if stage_id == HOSPITAL_STAGE:
+		return _hospital_site()
+	if stage_id == PAIR_STAGE:
+		return _deferred_pair_site()
+	return {}
+
+
+## Hospital presents only when the owner's own condition truth says it triggered.
+func _hospital_site() -> Dictionary:
+	var required: bool = bool(_game_state.should_route_hospital()) \
+		if _game_state.has_method("should_route_hospital") else false
+	if not required:
+		return {}
+	return {"kind": "hospital", "stage_name": HOSPITAL_STAGE, "route_id": "hospital",
+		"schedule_entry_id": null}
+
+
+## A committed date presents only if Hospital did NOT supersede it. When Hospital triggered it
+## supersedes every committed date, so a surviving date and a Hospital presentation are mutually
+## exclusive by construction rather than by a second rule.
+func _surviving_date_site(substage_id: String) -> Dictionary:
+	var parts: PackedStringArray = substage_id.split(":")
+	if parts.size() != 4:
+		return {}
+	var entry_id := parts[3]
+	if entry_id in _superseded_entry_ids():
+		return {}
+	return {"kind": "surviving_date", "stage_name": DATES_STAGE, "route_id": "dating",
+		"schedule_entry_id": entry_id}
+
+
+## The deferred P-L pair, read from the owner's own invitation state rather than a caller field.
+func _deferred_pair_site() -> Dictionary:
+	var contacts: Variant = _game_state.get("contacts")
+	if typeof(contacts) != TYPE_DICTIONARY:
+		return {}
+	var group: Variant = (contacts as Dictionary).get("group_action")
+	if typeof(group) != TYPE_DICTIONARY:
+		return {}
+	var deferred: Variant = (group as Dictionary).get("deferred_twofriends")
+	if typeof(deferred) != TYPE_DICTIONARY:
+		return {}
+	# The pair's committed entry is what carries the ancestry the intent projects; the deferred
+	# marker names only the action.
+	var action_id := str((deferred as Dictionary).get("action_id", ""))
+	for entry_value: Variant in _active_committed_entries():
+		var entry: Dictionary = entry_value
+		if str(entry.get("action_id", "")) == action_id \
+				and str(entry.get("action_kind", "")) == "group":
+			return {"kind": "twofriends_if_deferred", "stage_name": PAIR_STAGE,
+				"route_id": "dating", "schedule_entry_id": str(entry["schedule_entry_id"])}
+	return {}
+
+
+## Builds the exact port `begin()` request for one presentation site: the `P01.presentation.intent`
+## child, its matching `P01.presentation.completion` child, and the frozen context between them.
+##
+## FAILS CLOSED BEFORE ANY STAGE MUTATION. A resolution with no persisted root cannot derive a
+## lawful intent, so it refuses here rather than silently completing the stage with no presentation
+## -- which is exactly the silent skip this bead exists to remove.
+func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
+	var plan := _active_plan()
+	var root: Variant = plan.get("resolution_issuer_receipt")
+	var start: Variant = plan.get("day_resolution_start_receipt")
+	if typeof(root) != TYPE_DICTIONARY or typeof(start) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"presentation_intent_unavailable",
+			"message": "this resolution persisted no root, so no presentation child can be derived"
+				+ " (the Plan-02 desktop consequence source is unconfigured)",
+			"details": {"stage_id": str(stage.get("stage_id", ""))}}
+
+	# HOSPITAL ANCESTRY FIRST, and exactly once. The aggregate and miss rows feed BOTH the context's
+	# `miss_receipt_ids` and the intent's `input_receipt_ids`; deriving them twice would be wasteful
+	# and would leave two places able to disagree about which misses exist.
+	var hospital_rows: Dictionary = {}
+	if str(site["kind"]) == "hospital":
+		var derived_rows := _derive_hospital_rows(plan, root as Dictionary, start as Dictionary)
+		if not derived_rows.get("ok", false):
+			return derived_rows
+		hospital_rows = derived_rows["value"]
+
+	var context := _presentation_context(site, plan, hospital_rows)
+	if context.is_empty():
+		return {"ok": false, "code": &"invalid_presentation_context",
+			"message": "the frozen presentation context is not derivable", "details": {}}
+	var timeline_id := _presentation_timeline_id(context)
+	if timeline_id.is_empty():
+		return {"ok": false, "code": &"unregistered_presentation_timeline",
+			"message": "no registered locator exists for this presentation", "details": {}}
+	var inputs := _presentation_inputs(site, hospital_rows)
+	if not inputs.get("ok", false):
+		return inputs
+	var ordinal := _presentation_ordinal(site)
+	if ordinal < 0:
+		return {"ok": false, "code": &"invalid_presentation_ordinal",
+			"message": "the within-stage presentation ordinal is not derivable", "details": {}}
+
+	var context_hash := _sha256(context)
+	if context_hash.is_empty():
+		return {"ok": false, "code": &"invalid_presentation_context",
+			"message": "the context is not canonically hashable", "details": {}}
+	var root_receipt: Dictionary = root
+	var start_receipt: Dictionary = start
+	var intent := _derive_row(str(root_receipt["receipt_id"]), PRESENTATION_CHILD_KIND, ordinal, [
+		_project("role", INTENT_ROLE),
+		_project("resolution_id", str(plan["resolution_id"])),
+		_project("causal_day_instance", str(start_receipt["causal_day_instance"])),
+		_project("source_day", int(plan["source_day"])),
+		_project("day_resolution_start_receipt_id", str(start_receipt["receipt_id"])),
+		_project("stage_name", str(site["stage_name"])),
+		_project("stage_index", _stage_index(str(site["stage_name"]), int(plan["source_day"]))),
+		_project("presentation_kind", str(context["kind"])),
+		_project("schedule_entry_id", site["schedule_entry_id"]),
+		_project("route_id", str(site["route_id"])),
+		_project("timeline_id", timeline_id),
+		_project("context_sha256", context_hash),
+		_project("input_receipt_ids", (inputs["value"] as Dictionary)["input_receipt_ids"]),
+	])
+	if not intent.get("ok", false):
+		return intent
+	var intent_id := str((intent["value"] as Dictionary)["child_id"])
+
+	# The completion binds its prerequisite: `substage_id` is the intent child id just derived, so
+	# the completion projection cannot be built before the intent exists (plan line 100).
+	var completion := _derive_row(str(root_receipt["receipt_id"]), PRESENTATION_CHILD_KIND, ordinal, [
+		_project("role", COMPLETION_ROLE),
+		_project("resolution_id", str(plan["resolution_id"])),
+		_project("stage_id", str(stage["transaction_id"])),
+		_project("substage_id", intent_id),
+		_project("route_id", str(site["route_id"])),
+		_project("timeline_id", timeline_id),
+		_project("context_sha256", context_hash),
+	])
+	if not completion.get("ok", false):
+		return completion
+
+	return {"ok": true, "code": &"ok", "value": {"presentation_request": {
+		"resolution_id": str(plan["resolution_id"]),
+		"resolution_issuer_receipt": root_receipt.duplicate(true),
+		"stage_id": str(stage["transaction_id"]),
+		"substage_id": intent_id,
+		"route_id": str(site["route_id"]),
+		"timeline_id": timeline_id,
+		"context": context,
+		"completion_transaction_id": str((completion["value"] as Dictionary)["child_id"]),
+		"completion_transaction_provenance":
+			((completion["value"] as Dictionary)["provenance"] as Dictionary).duplicate(true),
+	}}}
+
+
+## The exact frozen context each port validates, and nothing that could carry an outcome.
+func _presentation_context(site: Dictionary, plan: Dictionary,
+		hospital_rows: Dictionary) -> Dictionary:
+	var day := int(plan["source_day"])
+	if str(site["kind"]) == "hospital":
+		# Hospital owns no semantic order for either array, so both are sorted and unique.
+		var source_entry_ids := _id_list(hospital_rows["date_schedule_entry_ids"] as Array)
+		var miss_ids := _id_list(hospital_rows["hospital_miss_receipt_ids"] as Array)
+		return {"kind": "hospital", "day": day, "source_entry_ids": source_entry_ids,
+			"miss_receipt_ids": miss_ids}
+	var entry := _committed_entry(str(site["schedule_entry_id"]))
+	if entry.is_empty():
+		return {}
+	# The pair keeps the invitation-owned order; a solo date carries its one registered friend.
+	var kind := "twofriends_if_deferred" if str(site["kind"]) == "twofriends_if_deferred" \
+		else str(entry.get("action_kind", ""))
+	var participants: Array[String] = []
+	if kind == "twofriends_if_deferred" or kind == "group":
+		participants = PAIR_PARTICIPANTS.duplicate()
+	else:
+		for participant: Variant in (entry.get("participants", []) as Array):
+			participants.append(str(participant))
+	return {"kind": kind, "day": day, "schedule_entry_id": str(site["schedule_entry_id"]),
+		"participants": participants}
+
+
+## Constructs the locator and proves it is registered. A constructed String that the manifest does
+## not carry returns "" and the presentation refuses rather than starting an unregistered timeline.
+func _presentation_timeline_id(context: Dictionary) -> String:
+	var day := int(context["day"])
+	var timeline_id := ""
+	match str(context["kind"]):
+		"hospital":
+			timeline_id = HOSPITAL_TIMELINE_ID
+		"solo":
+			var participants: Array = context["participants"]
+			if participants.size() != 1:
+				return ""
+			timeline_id = "dating.solo.%s.day%d.%s" % [
+				str(participants[0]), day, DATING_TIMELINE_PHASE]
+		"group":
+			timeline_id = "dating.group.%s.day%d.%s" % [PAIR_SLUG, day, DATING_TIMELINE_PHASE]
+		"twofriends_if_deferred":
+			timeline_id = "dating.twofriends.%s.day%d.%s" % [PAIR_SLUG, day, DATING_TIMELINE_PHASE]
+		_:
+			return ""
+	return timeline_id if DialogicTimelineCatalog.has_timeline_id(timeline_id) else ""
+
+
+## The exact `input_receipt_ids` set each variant projects (plan line 100).
+func _presentation_inputs(site: Dictionary, hospital_rows: Dictionary) -> Dictionary:
+	if str(site["kind"]) == "hospital":
+		var ids: Array = [str(hospital_rows["condition_receipt_id"])]
+		ids.append_array(hospital_rows["hospital_miss_receipt_ids"] as Array)
+		return {"ok": true, "code": &"ok", "value": {"input_receipt_ids": _id_list(ids)}}
+	var entry := _committed_entry(str(site["schedule_entry_id"]))
+	if entry.is_empty():
+		return {"ok": false, "code": &"invalid_presentation_intent",
+			"message": "no committed entry backs this presentation", "details": {}}
+	var source_receipt_id: Variant = entry.get("source_receipt_id")
+	if typeof(source_receipt_id) != TYPE_STRING or str(source_receipt_id).is_empty():
+		return {"ok": false, "code": &"invalid_presentation_intent",
+			"message": "a committed date presents only under its own source receipt", "details": {}}
+	return {"ok": true, "code": &"ok", "value": {"input_receipt_ids": _id_list([
+		str(site["schedule_entry_id"]), str(source_receipt_id)])}}
+
+
+## Derives `P01.hospital.resolution` and then its `P01.hospital.miss[]` children, in that order.
+##
+## The condition receipt is a PLAN-02 record this resolution consumes but does not own, so it
+## arrives through the deliberately-unconfigured desktop-consequence seam and its absence fails
+## closed. Deriving a Hospital aggregate against a condition nobody anchored would be exactly the
+## forged ancestry the matrix exists to prevent.
+func _derive_hospital_rows(plan: Dictionary, root: Dictionary, start: Dictionary) -> Dictionary:
+	if _desktop_consequence_source == null:
+		return {"ok": false, "code": &"condition_receipt_unavailable",
+			"message": "a Hospital resolution projects the Plan-02 condition receipt", "details": {}}
+	var condition: Variant = _desktop_consequence_source.call(&"resolve_condition_receipt", {
+		"causal_day_instance": str(start["causal_day_instance"]),
+		"source_day": int(plan["source_day"]),
+	})
+	if typeof(condition) != TYPE_DICTIONARY or not (condition as Dictionary).get("ok", false):
+		return condition if typeof(condition) == TYPE_DICTIONARY else {
+			"ok": false, "code": &"condition_receipt_unavailable",
+			"message": "the desktop consequence source returned no CommandResult", "details": {}}
+	var condition_receipt: Variant = ((condition as Dictionary)["value"] as Dictionary).get(
+		"condition_receipt")
+	if typeof(condition_receipt) != TYPE_DICTIONARY \
+			or str((condition_receipt as Dictionary).get("receipt_id", "")).is_empty():
+		return {"ok": false, "code": &"condition_receipt_unavailable",
+			"message": "the condition receipt carries no receipt_id", "details": {}}
+	var condition_receipt_id := str((condition_receipt as Dictionary)["receipt_id"])
+
+	var planned: Dictionary = HOSPITAL_RULES.plan_resolution({
+		"required": true,
+		"source_day": int(plan["source_day"]),
+		"committed_entries": _active_committed_entries(),
+	})
+	if not planned.get("ok", false):
+		return planned
+	var planned_value: Dictionary = planned["value"]
+	var parent_id := str(root["receipt_id"])
+	var resolution_row := _derive_row(parent_id, HOSPITAL_RESOLUTION_CHILD_KIND, 0, [
+		_project("role", HOSPITAL_RESOLUTION_ROLE),
+		_project("resolution_id", str(plan["resolution_id"])),
+		_project("causal_day_instance", str(start["causal_day_instance"])),
+		_project("source_day", int(plan["source_day"])),
+		_project("day_resolution_start_receipt_id", str(start["receipt_id"])),
+		_project("schedule_commit_receipt_id", plan.get("schedule_commit_receipt_id")),
+		_project("condition_receipt_id", condition_receipt_id),
+		_project("date_schedule_entry_ids", planned_value["date_schedule_entry_ids"]),
+		_project("required", true),
+	])
+	if not resolution_row.get("ok", false):
+		return resolution_row
+	var hospital_resolution_id := str((resolution_row["value"] as Dictionary)["child_id"])
+
+	# Miss rows follow the aggregate, each at its own matrix ordinal.
+	var miss_ids: Array[String] = []
+	for miss_value: Variant in (planned_value["misses"] as Array):
+		var miss: Dictionary = miss_value
+		var miss_row := _derive_row(parent_id, HOSPITAL_MISS_CHILD_KIND, int(miss["ordinal"]), [
+			_project("role", HOSPITAL_MISS_ROLE),
+			_project("resolution_id", str(plan["resolution_id"])),
+			_project("causal_day_instance", str(start["causal_day_instance"])),
+			_project("source_day", int(plan["source_day"])),
+			_project("hospital_resolution_id", hospital_resolution_id),
+			_project("schedule_entry_id", str(miss["schedule_entry_id"])),
+			_project("action_id", str(miss["action_id"])),
+			_project("source_receipt_id", miss["source_receipt_id"]),
+			_project("reason", str(miss["reason"])),
+		])
+		if not miss_row.get("ok", false):
+			return miss_row
+		miss_ids.append(str((miss_row["value"] as Dictionary)["child_id"]))
+	return {"ok": true, "code": &"ok", "value": {
+		"condition_receipt_id": condition_receipt_id,
+		"hospital_resolution_id": hospital_resolution_id,
+		"hospital_miss_receipt_ids": miss_ids,
+		"date_schedule_entry_ids": planned_value["date_schedule_entry_ids"],
+	}}
+
+
+## The stage envelope for a completing PRESENTATION stage, carrying the exact receipt the port
+## published (dwm-p2r.18).
+##
+## The domain half is still owned by the domain: Hospital's envelope comes from `HospitalRules`, a
+## date substage's from the committed entry. The port's completion receipt is ATTACHED to it rather
+## than replacing it, so one checkpoint durably records both what the domain decided and the
+## evidence that the presentation physically happened.
+func presentation_stage_receipt(transaction_id: String, completion: Dictionary) -> Dictionary:
+	var plan := _active_plan()
+	if plan.is_empty():
+		return {"ok": false, "code": &"no_active_plan", "message": "", "details": {}}
+	for stage_value: Variant in (plan.get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		if str(stage.get("transaction_id", "")) == transaction_id:
+			var envelope := _immediate_receipt(str(stage["stage_id"]))
+			(envelope["value"] as Dictionary)["presentation_completion_receipt"] = 				completion.duplicate(true)
+			return {"ok": true, "code": &"ok", "value": {"receipt": envelope}}
+		for substage_value: Variant in (stage.get("substages", []) as Array):
+			var substage: Dictionary = substage_value
+			if str(substage.get("transaction_id", "")) != transaction_id:
+				continue
+			var substage_id := str(substage["substage_id"])
+			var entry_id := substage_id.split(":")[3] if substage_id.split(":").size() == 4 else ""
+			return {"ok": true, "code": &"ok", "value": {"receipt": _envelope(
+				"schedule_rules", "schedule_date_complete", {
+					"entry_receipt_id": entry_id,
+					"superseded": false,
+					"reason": null,
+					"presentation_completion_receipt": completion.duplicate(true),
+				})}}
+	return {"ok": false, "code": &"unknown_transaction", "message": transaction_id, "details": {}}
+
+
+## The zero-based within-stage presentation ordinal (plan line 97).
+##
+## Hospital and the deferred pair are single presentations and reserve ordinal 0. A surviving date
+## takes its index among the SURVIVING committed dates in slot order -- never the raw slot number
+## and never the order the boards happened to finish in.
+func _presentation_ordinal(site: Dictionary) -> int:
+	if str(site["kind"]) != "surviving_date":
+		return 0
+	var superseded := _superseded_entry_ids()
+	var ordered: Array = _active_committed_entries().duplicate(true)
+	ordered.sort_custom(func(left: Variant, right: Variant) -> bool:
+		return int((left as Dictionary).get("slot_index", 0)) \
+			< int((right as Dictionary).get("slot_index", 0)))
+	var ordinal := 0
+	for entry_value: Variant in ordered:
+		var entry: Dictionary = entry_value
+		if not (str(entry.get("action_kind", "")) in HOSPITAL_RULES.DATE_KINDS):
+			continue
+		var entry_id := str(entry.get("schedule_entry_id", ""))
+		if entry_id in superseded:
+			continue
+		if entry_id == str(site["schedule_entry_id"]):
+			return ordinal
+		ordinal += 1
+	return -1
+
+
+## The zero-based index of a stage in its own frozen stage array.
+static func _stage_index(stage_name: String, source_day: int) -> int:
+	return DAY_RESOLUTION_PLAN.stage_allowlist(source_day).find(stage_name)
+
+
+## One committed entry from the aggregate this plan FROZE, never from live state.
+func _committed_entry(schedule_entry_id: String) -> Dictionary:
+	for entry_value: Variant in _active_committed_entries():
+		var entry: Dictionary = entry_value
+		if str(entry.get("schedule_entry_id", "")) == schedule_entry_id:
+			return entry
+	return {}
+
+
+## One `derive_child()` call plus the four independent checks every Plan-01 producer performs.
+func _derive_row(parent_receipt_id: String, child_kind: StringName, ordinal: int,
+		tokens: Array) -> Dictionary:
+	for token: String in tokens:
+		if token.is_empty():
+			return {"ok": false, "code": &"invalid_presentation_intent",
+				"message": "a projection member is not canonically representable", "details": {}}
+	var sources: Array = tokens.duplicate()
+	sources.sort()
+	var derived: Variant = _identity_issuer.call(&"derive_child", {
+		"parent_receipt_id": parent_receipt_id,
+		"child_kind": child_kind,
+		"ordinal": ordinal,
+		"source_ids": sources,
+	})
+	if typeof(derived) != TYPE_DICTIONARY or not (derived as Dictionary).get("ok", false):
+		return {"ok": false, "code": &"presentation_identity_unavailable",
+			"message": "the issuer refused the derivation",
+			"details": {"child_kind": String(child_kind)}}
+	var value: Variant = (derived as Dictionary).get("value")
+	if typeof(value) != TYPE_DICTIONARY \
+			or typeof((value as Dictionary).get("provenance")) != TYPE_DICTIONARY \
+			or str((value as Dictionary).get("child_id", "")).is_empty():
+		return {"ok": false, "code": &"presentation_identity_unavailable",
+			"message": "the issuer returned no full provenance", "details": {}}
+	var provenance: Dictionary = (value as Dictionary)["provenance"]
+	if (derived as Dictionary).get("receipt") != provenance:
+		return {"ok": false, "code": &"presentation_identity_unavailable",
+			"message": "the issuer receipt is not byte-equal to its provenance", "details": {}}
+	var revalidated: Variant = _identity_issuer.call(&"validate_child", provenance, child_kind)
+	if typeof(revalidated) != TYPE_DICTIONARY or not (revalidated as Dictionary).get("ok", false):
+		return {"ok": false, "code": &"presentation_identity_unavailable",
+			"message": "the issuer refused to revalidate its own child", "details": {}}
+	return {"ok": true, "code": &"ok", "value": {
+		"child_id": str((value as Dictionary)["child_id"]), "provenance": provenance}}
+
+
+## `L(id...)`: nonblank, unique, strictly sorted.
+static func _id_list(ids: Array) -> Array[String]:
+	var seen := {}
+	var listed: Array[String] = []
+	for id_value: Variant in ids:
+		var id_text := str(id_value)
+		if id_text.is_empty() or seen.has(id_text):
+			continue
+		seen[id_text] = true
+		listed.append(id_text)
+	listed.sort()
+	return listed
+
+
+## `P(path,value)` and `H(value)` from the matrix preamble, over the same canonical writer every
+## other Plan-01 producer uses.
+static func _project(path: String, value: Variant) -> String:
+	var canonical: Dictionary = SCHEDULE_STATE_SCHEMA.canonical_json(value)
+	if not canonical.get("ok", false):
+		return ""
+	return path + "=" + str((canonical["value"] as Dictionary)["text"])
+
+
+static func _sha256(value: Variant) -> String:
+	var hashed: Dictionary = SCHEDULE_STATE_SCHEMA.canonical_sha256(value)
+	if not hashed.get("ok", false):
+		return ""
+	return str((hashed["value"] as Dictionary)["sha256"])
+
+
 ## The Hospital completion envelope, projected by the pure HospitalRules owner from condition truth
 ## plus the committed aggregate this plan froze (Task 7 Step 7.3, dwm-p2r.14).
 ##
@@ -557,7 +1261,8 @@ func _hospital_envelope() -> Dictionary:
 		# A malformed committed aggregate cannot silently become "no Hospital"; report the
 		# supersession set as unknown-empty and let the stage contract reject it.
 		return {"required": required, "date_schedule_entry_ids": [],
-			"superseded_entry_ids": [], "witness_entry_id": null}
+			"superseded_entry_ids": [], "witness_entry_id": null,
+			"presentation_completion_receipt": null}
 	var value: Dictionary = planned["value"]
 	var superseded: Array[String] = []
 	for miss: Variant in (value["misses"] as Array):
@@ -568,6 +1273,8 @@ func _hospital_envelope() -> Dictionary:
 		"date_schedule_entry_ids": value["date_schedule_entry_ids"],
 		"superseded_entry_ids": superseded,
 		"witness_entry_id": str((witness as Dictionary)["schedule_entry_id"]) if witness != null else null,
+		# Filled in by presentation_stage_receipt() when this Hospital actually presented.
+		"presentation_completion_receipt": null,
 	}
 
 

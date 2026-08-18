@@ -602,6 +602,10 @@ func get_desktop_contract_state() -> Dictionary:
 		# Deliberately false in Phase 2R; dwm-oyo.4 flips it by configuring the retained port.
 		"dating_presentation_ready": _retained_dating_presentation_port != null \
 			and bool(_retained_dating_presentation_port.call(&"is_ready")),
+		# Also deliberately false in Phase 2R (dwm-p2r.18): the producer needs Plan 02's
+		# desktop-consequence source, which no bootstrap may construct yet. Reported so the gap is
+		# visible in evidence rather than surfacing as a stage that quietly presents nothing.
+		"presentation_producer_ready": _retained_day_resolution_state_port != null 			and _retained_day_resolution_state_port.has_method("is_presentation_producer_ready") 			and bool(_retained_day_resolution_state_port.call(&"is_presentation_producer_ready")),
 	}
 
 
@@ -857,6 +861,19 @@ func _construct_schedule_foundation(game_state: Object, state_port: Object) -> D
 		var injected: Dictionary = state_port.call(&"configure_day7_provenance", _retained_day7_provenance)
 		if not injected.get("ok", false):
 			return injected
+	# dwm-p2r.18: the same two retained objects the start port was built from are injected into the
+	# state port, so a resolution can mint its own root and drive that exact start port.
+	#
+	# THE DESKTOP-CONSEQUENCE SOURCE IS DELIBERATELY NOT CONFIGURED HERE. It supplies the board-fate
+	# and condition receipts Plan 02 owns, and `dwm-p2r.9` delivered neither (DEVIATION-2); Plan 01
+	# line 1303 forbids this plan from building desktop board fate. Until Plan 02 configures it, a
+	# stage that genuinely needs a presentation fails closed naming the missing input -- which is a
+	# visible, asserted gap rather than a silently skipped presentation.
+	if state_port.has_method("configure_resolution_identity"):
+		var identity: Dictionary = state_port.call(&"configure_resolution_identity",
+			_desktop_identity_nonce_issuer, _retained_day_resolution_start_port)
+		if not identity.get("ok", false):
+			return identity
 	return {"ok": true, "code": &"ok", "value": {"constructed": true}, "receipt": {}}
 
 func _is_compatible_gate(gate: Object) -> bool:

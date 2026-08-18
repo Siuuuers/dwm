@@ -223,9 +223,36 @@ func test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready() -
 		"the Dating port is still CONSTRUCTED and retained, just unconfigured")
 
 
+## The dwm-p2r.18 twin of the Dating handoff above. The presentation PRODUCER needs Plan 02's
+## board-fate and condition receipts, which `dwm-p2r.9` never delivered and Plan 01 line 1303
+## forbids this plan from building. Bootstrap therefore composes the identity half and deliberately
+## leaves the consequence source unconfigured -- and says so, rather than letting a resolution
+## quietly resolve a day with the presentations missing from it.
+func test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready() -> void:
+	_build_foundation()
+	assert_true(_build_presentation().get("ok", false))
+	var state: Dictionary = _bootstrap.get_desktop_contract_state()
+	assert_false(bool(state["presentation_producer_ready"]),
+		"Phase 2R exposes the producer as NOT ready; Plan 02 owns the desktop consequence source")
+	assert_true(int(state["day_resolution_start_port_instance_id"]) != 0,
+		"the start port the producer would drive is still constructed and retained")
+
+	# The gap must be a MISSING Plan-02 record, not a missing identity owner: the state port already
+	# holds the exact issuer and start port, so configuring the source is all that remains.
+	var state_port: Object = _bootstrap.get("_retained_day_resolution_state_port")
+	assert_true(state_port != null, "the state port is retained")
+	if state_port == null:
+		return
+	assert_true(state_port.configure_resolution_identity(
+		_bootstrap.get("_desktop_identity_nonce_issuer"),
+		_bootstrap.get("_retained_day_resolution_start_port")).get("ok", false),
+		"the identity half is already configured, so an identical replay is idempotent")
+
+
 func test_an_unbuilt_foundation_reports_zero_rather_than_guessing() -> void:
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	assert_eq(int(state["provenance_owner_instance_id"]), 0)
 	assert_eq(int(state["schedule_port_instance_id"]), 0)
 	assert_false(bool(state["hospital_presentation_ready"]))
 	assert_false(bool(state["dating_presentation_ready"]))
+	assert_false(bool(state["presentation_producer_ready"]))

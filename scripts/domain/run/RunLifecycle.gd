@@ -47,6 +47,7 @@ func begin_day_resolution(
 	route_plan: Array = [],
 	schedule_commit_receipt_id: Variant = null,
 	board_fate_receipt_id: Variant = null,
+	resolution_start: Dictionary = {},
 ) -> Dictionary:
 	if _state != PLAYING:
 		return _fail(&"invalid_state", "begin_day_resolution requires PLAYING")
@@ -56,8 +57,13 @@ func begin_day_resolution(
 	# coordinator calls resume_resolution() immediately after to observe plan_complete, and stage
 	# receipts exist only inside active_resolution_plan. It is replaced atomically, and only by a
 	# VALID new plan, so invalid input can never destroy the previous day's completed receipts.
+	# IDEMPOTENCE KEYS OFF THE DONE COMMAND, not the resolution id (dwm-p2r.18). On the minted path
+	# `resolution_id` is an issuer token, so a replayed Done command arrives carrying a DIFFERENT
+	# freshly minted token; comparing tokens would make every replay look like a new resolution and
+	# silently re-run a day that had already resolved.
+	var command_id := str(resolution_start.get("command_id", resolution_id))
 	if _plan != null:
-		if _plan.get_resolution_id() == resolution_id:
+		if _plan.get_command_id() == command_id:
 			# Repeating the same Done command stays idempotent, complete or incomplete.
 			return {"ok": true, "code": &"ok", "value": {"plan": _plan.to_dict()}}
 		if not _plan.is_complete():
@@ -65,7 +71,7 @@ func begin_day_resolution(
 			return {"ok": false, "code": &"resolution_conflict", "message": _plan.get_resolution_id()}
 	var created: Dictionary = DAY_RESOLUTION_PLAN.create(
 		resolution_id, _day, committed_schedule.duplicate(true), route_plan.duplicate(true),
-		schedule_commit_receipt_id, board_fate_receipt_id)
+		schedule_commit_receipt_id, board_fate_receipt_id, resolution_start.duplicate(true))
 	if not created.get("ok", false):
 		return created
 	_plan = created["value"]["plan"]
@@ -87,13 +93,17 @@ func prepare_day_resolution(
 	route_plan: Array = [],
 	schedule_commit_receipt_id: Variant = null,
 	board_fate_receipt_id: Variant = null,
+	resolution_start: Dictionary = {},
 ) -> Dictionary:
 	if _state != PLAYING:
 		return _fail(&"invalid_state", "prepare_day_resolution requires PLAYING")
 	if _has_ending_plan:
 		return _fail(&"invalid_state", "prepare_day_resolution requires no ending plan")
+	# Same command-keyed idempotence as begin_day_resolution above; the two must agree or a
+	# prepare/commit pair could disagree about whether a resolution is already active.
+	var command_id := str(resolution_start.get("command_id", resolution_id))
 	if _plan != null:
-		if _plan.get_resolution_id() == resolution_id:
+		if _plan.get_command_id() == command_id:
 			return {"ok": true, "code": &"ok",
 				"value": {"candidate": _plan.to_dict(), "already_active": true}}
 		if not _plan.is_complete():
@@ -101,7 +111,7 @@ func prepare_day_resolution(
 				"message": _plan.get_resolution_id()}
 	var created: Dictionary = DAY_RESOLUTION_PLAN.create(
 		resolution_id, _day, committed_schedule.duplicate(true), route_plan.duplicate(true),
-		schedule_commit_receipt_id, board_fate_receipt_id)
+		schedule_commit_receipt_id, board_fate_receipt_id, resolution_start.duplicate(true))
 	if not created.get("ok", false):
 		return created
 	return {"ok": true, "code": &"ok", "value": {
