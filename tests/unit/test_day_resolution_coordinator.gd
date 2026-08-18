@@ -4,6 +4,7 @@ const COORDINATOR_PATH := "res://scripts/application/run/DayResolutionCoordinato
 const STATE_PATH := "res://tests/support/FakeDayResolutionStatePort.gd"
 const CHECKPOINT_PATH := "res://tests/support/FakeCheckpointPort.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
+const DAY_ADVANCE_PATH := "res://scripts/application/run/CausalDayAdvanceIdentityPort.gd"
 
 func _all_exist() -> bool:
 	for path: String in [COORDINATOR_PATH, STATE_PATH, CHECKPOINT_PATH, GATE_PATH]:
@@ -11,7 +12,10 @@ func _all_exist() -> bool:
 			return false
 	return true
 
-func _wired(day: int) -> Dictionary:
+## `configure_day_advance` mirrors production: ApplicationBootstrap always installs the shared
+## advance-identity port, so a Days 1-6 walk can reach increment_day. Only the fail-closed case
+## deliberately leaves it out.
+func _wired(day: int, configure_day_advance: bool = true) -> Dictionary:
 	var calls: Array[String] = []
 	var state: RefCounted = load(STATE_PATH).new(calls)
 	var checkpoint: RefCounted = load(CHECKPOINT_PATH).new(calls)
@@ -20,7 +24,12 @@ func _wired(day: int) -> Dictionary:
 	var gate: RefCounted = load(GATE_PATH).new()
 	var coordinator: RefCounted = load(COORDINATOR_PATH).new()
 	assert_true(coordinator.configure(state, checkpoint, gate)["ok"])
-	return {"coordinator": coordinator, "state": state, "checkpoint": checkpoint, "gate": gate, "calls": calls}
+	var day_advance_port: Variant = null
+	if configure_day_advance and ResourceLoader.exists(DAY_ADVANCE_PATH, "Script"):
+		day_advance_port = load(DAY_ADVANCE_PATH).new()
+		assert_true(coordinator.configure_day_advance_identity_port(day_advance_port)["ok"])
+	return {"coordinator": coordinator, "state": state, "checkpoint": checkpoint, "gate": gate,
+		"calls": calls, "day_advance_port": day_advance_port}
 
 func test_checkpoint_commit_failure_rolls_back_without_publication() -> void:
 	for path in [COORDINATOR_PATH, STATE_PATH, CHECKPOINT_PATH]:
@@ -128,8 +137,11 @@ func test_registered_command_pause_and_completion() -> void:
 	assert_false(wired["coordinator"].complete_route_stage(
 		str(command["transaction_id"]), wrong_owner).get("ok", true), "owner mismatch rejects")
 	wired["state"].set_registered_stage("")
-	var receipt := {"owner_id": "dating_ending_rules", "kind": "hospital_resolution",
-		"value": {"required": false, "route_receipt_id": null, "prevented_entry_id": null}}
+	# Task 7 (dwm-p2r.14): Hospital is owned by HospitalRules and reports the FULL supersession
+	# set, not a single "prevented" entry.
+	var receipt := {"owner_id": "hospital_rules", "kind": "hospital_resolution",
+		"value": {"required": false, "date_schedule_entry_ids": [],
+			"superseded_entry_ids": [], "witness_entry_id": null}}
 	var finished: Dictionary = wired["coordinator"].complete_route_stage(
 		str(command["transaction_id"]), receipt)
 	assert_true(finished.get("ok", false), JSON.stringify(finished))
@@ -188,8 +200,11 @@ func test_duplicate_transaction_returns_stored_receipt_without_new_checkpoint() 
 	var paused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
 	var command: Dictionary = paused["value"]["command"]
 	wired["state"].set_registered_stage("")
-	var receipt := {"owner_id": "dating_ending_rules", "kind": "hospital_resolution",
-		"value": {"required": false, "route_receipt_id": null, "prevented_entry_id": null}}
+	# Task 7 (dwm-p2r.14): Hospital is owned by HospitalRules and reports the FULL supersession
+	# set, not a single "prevented" entry.
+	var receipt := {"owner_id": "hospital_rules", "kind": "hospital_resolution",
+		"value": {"required": false, "date_schedule_entry_ids": [],
+			"superseded_entry_ids": [], "witness_entry_id": null}}
 	assert_true(wired["coordinator"].complete_route_stage(str(command["transaction_id"]), receipt)["ok"])
 	var checkpoints_after: Dictionary = wired["checkpoint"].peek_state()
 	var publications_after: int = wired["state"].get_publication_count()
@@ -214,3 +229,80 @@ func test_checkpoint_preview_matches_prepare_without_mutation() -> void:
 	assert_true(prepared["ok"])
 	assert_eq(str(preview["value"]["checkpoint_id"]), str(prepared["value"]["checkpoint_id"]),
 		"preview and immediate prepare agree")
+
+
+# ---- Task 7 Step 7.3a: the shared day-advance identity seam (dwm-p2r.14) ----
+#
+# The coordinator gains ONE new dependency seam. It does NOT change the frozen three-owner
+# configure(state_port, checkpoint_port, mutation_gate) signature and does not renumber a stage.
+# Bootstrap alone configures it, and retains the same object for Plan 03 composition.
+
+func test_day_advance_identity_seam_configures_once_and_rejects_replacement() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	assert_true(ResourceLoader.exists(DAY_ADVANCE_PATH, "Script"), "CausalDayAdvanceIdentityPort must exist")
+	if not ResourceLoader.exists(DAY_ADVANCE_PATH, "Script"):
+		return
+	var wired := _wired(3, false)
+	var coordinator: RefCounted = wired["coordinator"]
+	var port: RefCounted = load(DAY_ADVANCE_PATH).new()
+
+	var first: Dictionary = coordinator.configure_day_advance_identity_port(port)
+	assert_true(first.get("ok", false), JSON.stringify(first))
+	assert_eq(first["value"], {"configured": true, "already_configured": false})
+	assert_eq(first["receipt"], {})
+
+	# Byte-identical replay with the SAME object is idempotent.
+	var replay: Dictionary = coordinator.configure_day_advance_identity_port(port)
+	assert_true(replay.get("ok", false), JSON.stringify(replay))
+	assert_eq(replay["value"], {"configured": true, "already_configured": true})
+
+	# A different instance of the right type is still a REPLACEMENT and must reject.
+	var replacement: Dictionary = coordinator.configure_day_advance_identity_port(
+		load(DAY_ADVANCE_PATH).new())
+	assert_false(replacement.get("ok", true), "a configured coordinator never adopts a replacement")
+	assert_eq(replacement["code"], &"day_advance_identity_port_conflict")
+
+func test_day_advance_identity_seam_requires_the_exact_capability() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var coordinator: RefCounted = _wired(3, false)["coordinator"]
+	assert_false(coordinator.configure_day_advance_identity_port(null).get("ok", true),
+		"a missing object rejects")
+	# The checkpoint fake is a real Object that lacks the advance-identity capability.
+	var wrong: RefCounted = load(CHECKPOINT_PATH).new([] as Array[String])
+	var rejected: Dictionary = coordinator.configure_day_advance_identity_port(wrong)
+	assert_false(rejected.get("ok", true), "an object without the exact capability rejects")
+	assert_eq(rejected["code"], &"day_advance_identity_port_conflict")
+
+func test_resume_fails_closed_at_increment_day_without_the_identity_port() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3, false)
+	var coordinator: RefCounted = wired["coordinator"]
+	var state: RefCounted = wired["state"]
+	# No configure_day_advance_identity_port() call: the seam is deliberately unconfigured.
+	var result: Dictionary = coordinator.request_schedule_done("done:run-1:day-3")
+	assert_false(result.get("ok", true), "an unconfigured advance identity fails closed")
+	assert_eq(result["code"], &"day_advance_identity_port_unconfigured")
+
+	# EARLIER stages remain recoverable: the walk got as far as increment_day and stopped there,
+	# rather than refusing to start or rolling the whole plan back.
+	var cursor: Dictionary = state.inspect_next_stage()
+	assert_true(cursor.get("ok", false), JSON.stringify(cursor))
+	assert_true(cursor["value"]["has_stage"], "the plan is still open at the blocked stage")
+	assert_eq(str(cursor["value"]["stage"]["stage_id"]), "increment_day",
+		"it stops AT increment_day, with every earlier stage already completed")
+
+func test_day7_resume_never_needs_the_identity_port() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	# Day 7 has no increment_day stage at all, so it must resolve fully without the seam.
+	var wired := _wired(7)
+	var result: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-7")
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(result["code"], &"plan_complete", "Day 7 completes without any day advance")

@@ -14,6 +14,14 @@ extends RefCounted
 ## SaveManagerNarrativeCheckpointPort provider seam. Unconfigured, safe defaults keep the SHAPE
 ## complete so no caller can silently regress to the old {run_id, day} stub.
 const RUN_LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
+## The registry and its pure projector. Route, effects, kind and participants come ONLY from the
+## registry the committed aggregate names by fingerprint -- never from a caller field or an
+## action-id parse (Plan 01 global constraint; Task 7 Step 7.5).
+const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
+const SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
+## The pure Schedule-Done Hospital owner (Task 7 Step 7.3).
+const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
+const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 
 const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
 	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id",
@@ -100,12 +108,46 @@ func begin_or_resume(command_id: String) -> Dictionary:
 	# Step 6.6 (dwm-p2r.13): the resolution begins from the owner's REAL canonical committed
 	# Schedule. This used to pass a synthetic empty array, which silently claimed "no entries" for
 	# every day regardless of what had actually been committed.
+	var aggregate: Dictionary = _game_state._canonical_committed_schedule()
+	# Task 7 Step 7.5 (dwm-p2r.14): the plan must carry the FROZEN REGISTRY PROJECTION, because the
+	# execute stages read each entry's effects out of it. Without this the plan persisted an empty
+	# route_plan and no committed ordinary effect could ever be applied.
+	var projection := _frozen_route_plan(aggregate)
+	if not projection.get("ok", false):
+		return projection
+	var commit_receipt: Variant = aggregate.get("commit_receipt")
+	var commit_receipt_id: Variant = null
+	if typeof(commit_receipt) == TYPE_DICTIONARY:
+		commit_receipt_id = (commit_receipt as Dictionary).get("receipt_id")
 	var begun: Dictionary = lifecycle.begin_day_resolution(
-		command_id, _game_state._canonical_committed_schedule())
+		command_id, aggregate, (projection["value"] as Dictionary)["route_plan"],
+		commit_receipt_id, null)
 	if not begun.get("ok", false):
 		return begun
 	return {"ok": true, "code": &"ok",
 		"value": {"run_id": str(lifecycle.to_dict()["run_id"])}}
+
+
+## Projects the committed aggregate through the registry it was COMMITTED against.
+##
+## The aggregate records the exact `registry_fingerprint` its entries were validated with, so the
+## currently loadable registry is accepted only when it is byte-identical. A registry that has moved
+## on since the commit fails closed rather than silently re-pricing a committed day.
+func _frozen_route_plan(aggregate: Dictionary) -> Dictionary:
+	var entries: Variant = aggregate.get("entries", [])
+	if typeof(entries) != TYPE_ARRAY or (entries as Array).is_empty():
+		return {"ok": true, "code": &"ok", "value": {"route_plan": []}}
+	var loaded: Dictionary = SCHEDULE_ACTION_REGISTRY.load_current()
+	if not loaded.get("ok", false):
+		return loaded
+	var loaded_value: Dictionary = loaded["value"]
+	var committed_fingerprint: Variant = aggregate.get("registry_fingerprint")
+	if committed_fingerprint != null \
+			and str(committed_fingerprint) != str(loaded_value.get("registry_fingerprint", "")):
+		return {"ok": false, "code": &"registry_fingerprint_mismatch",
+			"message": "the committed Schedule was validated against a different registry",
+			"details": {}}
+	return SCHEDULE_RULES.build_route_plan(aggregate, loaded_value["registry"])
 
 func inspect_next_stage() -> Dictionary:
 	var cursor: Dictionary = _game_state._run_lifecycle.resume_resolution()
@@ -117,11 +159,90 @@ func begin_next_stage() -> Dictionary:
 	if not begun.get("ok", false):
 		return begun
 	var stage: Dictionary = begun["value"]["stage"]
+	# An entry SUBSTAGE is not just a second delivery of its parent stage's envelope: an
+	# ordinary_action substage is where that entry's registered effects actually reach the owner
+	# (Task 7 Step 7.2, dwm-p2r.14).
+	var substage_id := str(stage.get("substage_id", ""))
+	if substage_id.begins_with("ordinary_action:"):
+		return _begin_ordinary_action_substage(stage, substage_id)
+	if substage_id.begins_with("surviving_date:"):
+		return _begin_surviving_date_substage(stage, substage_id)
 	return {"ok": true, "code": &"ok", "value": {
 		"mode": &"complete_immediately",
 		"stage": stage.duplicate(true),
 		"receipt": _immediate_receipt(str(stage["stage_id"])),
 	}}
+
+
+## Commits ONE committed ordinary entry's registered effects through the existing effect
+## transaction owner, keyed by that entry's own substage transaction id.
+##
+## The effect ids come from the plan's persisted `route_plan` -- the frozen registry projection --
+## and never from a caller-supplied field, an action-id parse, or a live registry re-read. Because
+## GameState.commit_effect_transaction is already idempotent per transaction id, a duplicate
+## delivery of the same substage replays its stored receipt instead of applying twice; two repeated
+## Rest/Training/Working entries carry DISTINCT substage ids and so apply twice, as the registry
+## intends for repeatable actions.
+func _begin_ordinary_action_substage(stage: Dictionary, substage_id: String) -> Dictionary:
+	var parts: PackedStringArray = substage_id.split(":")
+	if parts.size() != 4:
+		return {"ok": false, "code": &"invalid_substage_id", "message": substage_id, "details": {}}
+	var entry_id := parts[3]
+	var projected := _route_plan_entry(entry_id)
+	if projected.is_empty():
+		return {"ok": false, "code": &"unprojected_schedule_entry",
+			"message": "no registry projection for committed entry " + entry_id, "details": {}}
+	var effect_ids: Array[String] = []
+	for effect_id: Variant in (projected.get("effect_ids", []) as Array):
+		effect_ids.append(str(effect_id))
+	var transaction_id := str(stage["transaction_id"])
+	if not effect_ids.is_empty():
+		var applied: Dictionary = _game_state.commit_effect_transaction(
+			transaction_id, effect_ids, "schedule_entry")
+		if not applied.get("ok", false):
+			return applied
+	return {"ok": true, "code": &"ok", "value": {
+		"mode": &"complete_immediately",
+		"stage": stage.duplicate(true),
+		"receipt": _envelope("schedule_rules", "schedule_entry_complete",
+			{"entry_receipt_id": entry_id, "outcome_ids": effect_ids}),
+	}}
+
+
+## One committed DATE entry, after Hospital has had its say.
+##
+## A date Hospital superseded completes as a recorded miss and starts no board; only a surviving
+## date carries a presentation. Either way the substage completes exactly once, so the plan stays
+## resumable and a crash cannot leave a date half-run.
+func _begin_surviving_date_substage(stage: Dictionary, substage_id: String) -> Dictionary:
+	var parts: PackedStringArray = substage_id.split(":")
+	if parts.size() != 4:
+		return {"ok": false, "code": &"invalid_substage_id", "message": substage_id, "details": {}}
+	var entry_id := parts[3]
+	var superseded: bool = entry_id in _superseded_entry_ids()
+	return {"ok": true, "code": &"ok", "value": {
+		"mode": &"complete_immediately",
+		"stage": stage.duplicate(true),
+		"receipt": _envelope("schedule_rules", "schedule_date_complete", {
+			"entry_receipt_id": entry_id,
+			"superseded": superseded,
+			"reason": HOSPITAL_RULES.MISS_REASON if superseded else null,
+		}),
+	}}
+
+
+## The frozen registry projection the ACTIVE plan persisted for one committed entry.
+func _route_plan_entry(schedule_entry_id: String) -> Dictionary:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return {}
+	for projected: Variant in ((plan as Dictionary).get("route_plan", []) as Array):
+		if typeof(projected) != TYPE_DICTIONARY:
+			continue
+		if str((projected as Dictionary).get("schedule_entry_id", "")) == schedule_entry_id:
+			return projected as Dictionary
+	return {}
 
 func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictionary:
 	var lifecycle: RefCounted = _game_state._run_lifecycle
@@ -135,7 +256,53 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 	var produced := _completed_lifecycle(snapshot, transaction_id, receipt)
 	if not produced.get("ok", false):
 		return produced
-	return _prepared(transaction_id, receipt, produced["value"]["lifecycle"], false, null)
+	var prepared := _prepared(transaction_id, receipt, produced["value"]["lifecycle"], false, null)
+	# The Hospital stage carries the Contacts half of its own transaction.
+	var contacts_candidate := _hospital_contacts_candidate(snapshot, transaction_id, receipt)
+	if not contacts_candidate.is_empty():
+		((prepared["value"] as Dictionary)["run_candidate"] as Dictionary)["contacts"] = 			contacts_candidate
+	return prepared
+
+
+## The Contacts candidate a completing Hospital stage produces, or {} when it produces none.
+##
+## Append-only and idempotent: the witness is keyed by the Hospital stage's own transaction id, so
+## replaying the same stage rewrites the byte-identical record rather than appending a second one.
+## The witness is recomputed from the SAME pure owner that produced the stage envelope, so the two
+## can never disagree; the caller's receipt only decides WHETHER a witness exists.
+func _hospital_contacts_candidate(snapshot: Dictionary, transaction_id: String,
+		receipt: Dictionary) -> Dictionary:
+	if not _is_hospital_stage(snapshot, transaction_id):
+		return {}
+	var value: Variant = receipt.get("value")
+	if typeof(value) != TYPE_DICTIONARY:
+		return {}
+	if (value as Dictionary).get("witness_entry_id") == null:
+		return {}
+	var planned: Dictionary = HOSPITAL_RULES.plan_resolution({
+		"required": true,
+		"source_day": _active_source_day(),
+		"committed_entries": _active_committed_entries(),
+	})
+	if not planned.get("ok", false):
+		return {}
+	var witness: Variant = (planned["value"] as Dictionary)["witness"]
+	if typeof(witness) != TYPE_DICTIONARY:
+		return {}
+	var contacts: Dictionary = (_game_state.contacts as Dictionary).duplicate(true)
+	(contacts["sylvia_hospital_witness_receipts"] as Dictionary)[transaction_id] = 		(witness as Dictionary).duplicate(true)
+	return contacts
+
+
+func _is_hospital_stage(snapshot: Dictionary, transaction_id: String) -> bool:
+	var plan: Variant = snapshot.get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return false
+	for stage_value: Variant in ((plan as Dictionary).get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		if str(stage.get("transaction_id", "")) == transaction_id:
+			return str(stage.get("stage_id", "")) == "hospital_if_triggered"
+	return false
 
 
 ## Applies the stage to a DETACHED clone of the lifecycle. The checkpoint is then built from the
@@ -180,8 +347,12 @@ func _prepared(
 	}}
 
 func capture() -> Dictionary:
+	# Contacts joins the backup because the Hospital stage commits the Sylvia witness into the
+	# Contacts handoff index in the SAME transaction (Task 7 Step 7.3, dwm-p2r.14). Backing up only
+	# the lifecycle would leave a witness behind for a supersession that was rolled back.
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"lifecycle": _game_state._run_lifecycle.to_dict(),
+		"contacts": (_game_state.contacts as Dictionary).duplicate(true),
 	}}}
 
 ## Installs the EXACT lifecycle the checkpoint recorded, rather than re-deriving the completion from
@@ -191,7 +362,17 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var prepared: Dictionary = lifecycle.prepare_restore(candidate["lifecycle"])
 	if not prepared.get("ok", false):
 		return prepared
-	return lifecycle.commit_restore(prepared["value"]["candidate"])
+	var committed: Dictionary = lifecycle.commit_restore(prepared["value"]["candidate"])
+	if not committed.get("ok", false):
+		return committed
+	# The Contacts half of the SAME transaction. Validated before install, so a malformed witness
+	# can never reach the owner, and absent when the stage produced none.
+	if candidate.has("contacts"):
+		var validated: Dictionary = CONTACT_STATE.validate_state(candidate["contacts"])
+		if not validated.get("ok", false):
+			return validated
+		_game_state.contacts = (candidate["contacts"] as Dictionary).duplicate(true)
+	return committed
 
 func rollback(backup: Dictionary) -> Dictionary:
 	var lifecycle: RefCounted = _game_state._run_lifecycle
@@ -199,6 +380,11 @@ func rollback(backup: Dictionary) -> Dictionary:
 	if not restored.get("ok", false):
 		return restored
 	var committed: Dictionary = lifecycle.commit_restore(restored["value"]["candidate"])
+	if not committed.get("ok", false):
+		return committed
+	# Restore BOTH owners, so a rolled-back Hospital leaves no witness behind.
+	if backup.has("contacts"):
+		_game_state.contacts = (backup["contacts"] as Dictionary).duplicate(true)
 	return committed
 
 func publish(publication: Dictionary) -> Dictionary:
@@ -237,7 +423,10 @@ func configure_day7_provenance(service: Object) -> Dictionary:
 ##
 ## Read from the plan rather than recomputed from live state: the plan is what the resolution
 ## actually began from, and live state can legitimately have moved on by the time this stage runs.
-func _committed_entry_receipt_ids() -> Array:
+## Scoped to ONE entry stage (Task 7, dwm-p2r.14). The ordinary stage and the date stage own
+## disjoint substage sets and run on opposite sides of Hospital, so a single flat read across every
+## stage would report dates as already executed before Hospital had a chance to supersede them.
+func _committed_entry_receipt_ids(owning_stage_id: String) -> Array:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
 	if typeof(plan) != TYPE_DICTIONARY:
@@ -245,6 +434,8 @@ func _committed_entry_receipt_ids() -> Array:
 	var receipt_ids: Array = []
 	for stage_value: Variant in ((plan as Dictionary).get("stages", []) as Array):
 		var stage: Dictionary = stage_value
+		if str(stage.get("stage_id", "")) != owning_stage_id:
+			continue
 		for substage_value: Variant in (stage.get("substages", []) as Array):
 			var parts: PackedStringArray = str(
 				(substage_value as Dictionary)["substage_id"]).split(":")
@@ -272,17 +463,22 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 		"validate_schedule":
 			return _envelope("schedule_rules", "schedule_validation",
 				{"schedule_digest": "digest-day-%d" % day, "ordered_entry_ids": []})
-		"execute_schedule_entries":
+		"execute_schedule_actions":
 			# Step 6.6 (dwm-p2r.13): the receipt ids are READ from the committed substages this
 			# plan actually froze, never synthesized. An empty list here now means the committed
 			# Schedule was genuinely empty, rather than meaning nobody supplied one.
-			return _envelope("schedule_rules", "schedule_entries_complete",
-				{"entry_receipt_ids": _committed_entry_receipt_ids()})
+			return _envelope("schedule_rules", "schedule_actions_complete",
+				{"entry_receipt_ids": _committed_entry_receipt_ids("execute_schedule_actions")})
+		"execute_schedule_dates":
+			# Runs AFTER hospital_if_triggered, so the supersession set is already durable and is
+			# READ from that completed stage rather than recomputed here.
+			return _envelope("schedule_rules", "schedule_dates_complete",
+				{"entry_receipt_ids": _committed_entry_receipt_ids("execute_schedule_dates"),
+					"superseded_entry_ids": _superseded_entry_ids()})
 		"commit_outcomes":
 			return _envelope("game_state", "outcomes_commit", {"outcome_ids": [], "effect_transaction_ids": []})
 		"hospital_if_triggered":
-			return _envelope("dating_ending_rules", "hospital_resolution",
-				{"required": false, "route_receipt_id": null, "prevented_entry_id": null})
+			return _envelope("hospital_rules", "hospital_resolution", _hospital_envelope())
 		"twofriends_if_deferred":
 			return _envelope("contact_invitation_state", "twofriends_resolution",
 				{"required": false, "route_receipt_id": null, "message_transaction_ids": []})
@@ -300,6 +496,13 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 			return _envelope("day_resolution_coordinator", "day_unlock", {"locked": false})
 		"close_invitations_run_end":
 			return _envelope("contact_invitation_state", "run_end_close", {"resolved_action_ids": []})
+		"validate_day7_provenance":
+			return _envelope("day7_schedule_provenance", "day7_provenance_validation",
+				_day7_provenance_facts())
+		"checkpoint_day7_provenance":
+			var facts: Dictionary = _day7_provenance_facts()
+			return _envelope("day7_schedule_provenance", "day7_provenance_checkpoint",
+				{"cause": facts["cause"], "schedule_commit_receipt_id": _active_commit_receipt_id()})
 		"resolve_ending_plan":
 			return _envelope("dating_ending_rules", "ending_resolution", {"ending_plan": _default_ending_plan()})
 		"enter_ending":
@@ -309,6 +512,97 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 			return _envelope("save_manager", "disk_checkpoint_request",
 				{"save_kind": "autosave", "save_reason": "ending"})
 	return _envelope("unknown", "unknown", {})
+
+## The Hospital completion envelope, projected by the pure HospitalRules owner from condition truth
+## plus the committed aggregate this plan froze (Task 7 Step 7.3, dwm-p2r.14).
+##
+## Condition truth comes from the owner's own pending-hospital flag, resolved by the earlier
+## commit_outcomes stage -- never from a caller field. When Hospital triggers, EVERY committed date
+## is superseded here, before the date stage runs a single board.
+func _hospital_envelope() -> Dictionary:
+	var required: bool = bool(_game_state.should_route_hospital()) 		if _game_state.has_method("should_route_hospital") else false
+	var planned: Dictionary = HOSPITAL_RULES.plan_resolution({
+		"required": required,
+		"source_day": _active_source_day(),
+		"committed_entries": _active_committed_entries(),
+	})
+	if not planned.get("ok", false):
+		# A malformed committed aggregate cannot silently become "no Hospital"; report the
+		# supersession set as unknown-empty and let the stage contract reject it.
+		return {"required": required, "date_schedule_entry_ids": [],
+			"superseded_entry_ids": [], "witness_entry_id": null}
+	var value: Dictionary = planned["value"]
+	var superseded: Array[String] = []
+	for miss: Variant in (value["misses"] as Array):
+		superseded.append(str((miss as Dictionary)["schedule_entry_id"]))
+	var witness: Variant = value["witness"]
+	return {
+		"required": bool(value["required"]),
+		"date_schedule_entry_ids": value["date_schedule_entry_ids"],
+		"superseded_entry_ids": superseded,
+		"witness_entry_id": str((witness as Dictionary)["schedule_entry_id"]) if witness != null else null,
+	}
+
+
+## The entry ids Hospital already superseded, read from this plan's COMPLETED hospital stage.
+##
+## Read from the durable stage receipt rather than recomputed, so a date substage resumed after a
+## crash sees exactly the supersession the Hospital transaction committed.
+func _superseded_entry_ids() -> Array:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return []
+	for stage_value: Variant in ((plan as Dictionary).get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		if str(stage.get("stage_id", "")) != "hospital_if_triggered":
+			continue
+		var receipt: Variant = stage.get("receipt")
+		if typeof(receipt) != TYPE_DICTIONARY:
+			return []
+		var value: Variant = (receipt as Dictionary).get("value")
+		if typeof(value) != TYPE_DICTIONARY:
+			return []
+		var superseded: Variant = (value as Dictionary).get("superseded_entry_ids", [])
+		return (superseded as Array) if typeof(superseded) == TYPE_ARRAY else []
+	return []
+
+## Day-7 provenance facts READ from the committed aggregate the active plan froze (Task 7).
+##
+## Only two causes exist: a receipt-backed empty Done, and exactly one eligible committed solo.
+## Nothing here selects an ending, reads a board, or trusts `date_completed`; Task 8 routes these
+## same facts through the configured Day7ScheduleProvenance service and derives the real child.
+func _day7_provenance_facts() -> Dictionary:
+	var entries: Array = _active_committed_entries()
+	if entries.is_empty():
+		return {"cause": "empty_done", "schedule_entry_id": null, "source_receipt_id": null}
+	var entry: Dictionary = entries[0]
+	return {
+		"cause": "scheduled_solo",
+		"schedule_entry_id": str(entry.get("schedule_entry_id", "")),
+		"source_receipt_id": entry.get("source_receipt_id"),
+	}
+
+
+func _active_committed_entries() -> Array:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return []
+	var aggregate: Variant = (plan as Dictionary).get("committed_schedule")
+	if typeof(aggregate) != TYPE_DICTIONARY:
+		return []
+	var entries: Variant = (aggregate as Dictionary).get("entries", [])
+	return (entries as Array) if typeof(entries) == TYPE_ARRAY else []
+
+
+func _active_commit_receipt_id() -> Variant:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return null
+	return (plan as Dictionary).get("schedule_commit_receipt_id")
+
 
 func _resolved_primary_id() -> String:
 	var route_context: Dictionary = _game_state.route_context

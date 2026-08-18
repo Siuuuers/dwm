@@ -10,6 +10,10 @@ extends RefCounted
 ## Spec: prompt_docs/requirements/contacts_invitations.md; story/05 §7/§13;
 ## docs/superpowers/plans/2026-07-22-phase-2r-06-contacts-stateless-reconciliation.md
 
+## The pure Hospital owner supplies the frozen witness facts, so this module validates against
+## the SAME constants rather than keeping a second copy of the law (Task 7 Step 7.3).
+const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
+
 const FRIEND_IDS: Array[String] = ["priscilla", "lavinia", "sylvia"]
 ## The one counted Priscilla-Lavinia pair and its group-eligible windows.
 const GROUP_PAIR: Array[String] = ["priscilla", "lavinia"]
@@ -111,8 +115,17 @@ static func validate_state(state: Dictionary) -> Dictionary:
 			return _fail(&"invalid_state", "%s must be a Dictionary" % key)
 	if not _is_integral(state.get("next_sequence")) or int(state["next_sequence"]) < 1:
 		return _fail(&"invalid_state", "next_sequence must be a positive integer")
-	if not (state["sylvia_hospital_witness_receipts"] as Dictionary).is_empty():
-		return _fail(&"invalid_state", "Task 3 reserves an empty Sylvia witness receipt index")
+	# OPENED BY TASK 7 (dwm-p2r.14 Step 7.3). Task 3 reserved this index empty; the Hospital
+	# transaction now commits the byte-identical witness here, and it outlives the resolution plan
+	# so dwm-oyo.4 can consume it. Append-only HANDOFF index, never a second gameplay ledger.
+	for witness_id: Variant in state["sylvia_hospital_witness_receipts"]:
+		if typeof(witness_id) != TYPE_STRING or str(witness_id).strip_edges().is_empty():
+			return _fail(&"invalid_state", "Sylvia witness receipt ids must be nonblank strings")
+		var witness_check := _validate_sylvia_witness_shape(
+			state["sylvia_hospital_witness_receipts"][witness_id])
+		if not witness_check.get("ok", false):
+			return _fail(&"invalid_state", "Sylvia hospital witness receipt is invalid",
+				{"cause": witness_check.get("code", &"")})
 	if not _has_exact_keys(state["messages"], FRIEND_IDS) \
 			or not _has_exact_keys(state["read_watermarks"], FRIEND_IDS):
 		return _fail(&"invalid_state", "friend indexes must have the exact canonical members")
@@ -166,6 +179,68 @@ static func validate_state(state: Dictionary) -> Dictionary:
 			return _fail(&"invalid_state", "schedule source receipt linkage is invalid",
 				{"cause": linkage_check.get("code", &"")})
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+## The exact Schedule-Done Sylvia witness record (Task 7 Step 7.3, dwm-p2r.14).
+##
+## The deltas, attitude and tier transition are FROZEN FACTS recorded for dwm-oyo.4; validating them
+## here keeps a malformed handoff from ever reaching disk. Nothing in this module applies them.
+##
+## `resolution_kind` is pinned to schedule_done on purpose: Plan 03's condition-Hospital flow owns
+## its own typed ancestry and must not reach this index through a Plan-01 shaped record.
+const SYLVIA_WITNESS_KEYS: Array[String] = [
+	"action_id", "affection_delta", "attitude", "care_followup_day", "care_followup_entry_id",
+	"dark_delta", "hospital_miss_ordinal", "kind", "resolution_kind", "schedule_entry_id",
+	"source_receipt_id", "tier_transition",
+]
+
+static func _validate_sylvia_witness_shape(record: Variant) -> Dictionary:
+	if typeof(record) != TYPE_DICTIONARY:
+		return _fail(&"invalid_sylvia_witness", "the witness record must be an object")
+	if not _has_exact_keys(record as Dictionary, SYLVIA_WITNESS_KEYS):
+		return _fail(&"invalid_sylvia_witness", "the witness record is exact-key")
+	var witness := record as Dictionary
+	if str(witness["kind"]) != HOSPITAL_RULES.WITNESS_KIND:
+		return _fail(&"invalid_sylvia_witness", "kind must be " + HOSPITAL_RULES.WITNESS_KIND)
+	if str(witness["resolution_kind"]) != HOSPITAL_RULES.WITNESS_RESOLUTION_KIND:
+		return _fail(&"invalid_sylvia_witness",
+			"Plan 01 persists only the " + HOSPITAL_RULES.WITNESS_RESOLUTION_KIND + " witness")
+	for text_field: String in [
+		"action_id", "care_followup_entry_id", "schedule_entry_id", "source_receipt_id",
+	]:
+		if typeof(witness[text_field]) != TYPE_STRING 				or str(witness[text_field]).strip_edges().is_empty():
+			return _fail(&"invalid_sylvia_witness", text_field + " must be a nonblank String")
+	for int_field: String in ["care_followup_day", "hospital_miss_ordinal"]:
+		if typeof(witness[int_field]) != TYPE_INT or int(witness[int_field]) < 0:
+			return _fail(&"invalid_sylvia_witness", int_field + " must be a non-negative int")
+	# Type FIRST, then value: a coerced "2" must fail as a bad shape rather than reaching a
+	# String-vs-int comparison.
+	for delta_field: String in ["affection_delta", "dark_delta"]:
+		if typeof(witness[delta_field]) != TYPE_INT:
+			return _fail(&"invalid_sylvia_witness", delta_field + " must be a strict int")
+	if int(witness["affection_delta"]) != HOSPITAL_RULES.WITNESS_AFFECTION_DELTA 			or int(witness["dark_delta"]) != HOSPITAL_RULES.WITNESS_DARK_DELTA:
+		return _fail(&"invalid_sylvia_witness", "the frozen witness deltas may not be rewritten")
+	if str(witness["attitude"]) != HOSPITAL_RULES.WITNESS_ATTITUDE 			or str(witness["tier_transition"]) != HOSPITAL_RULES.WITNESS_TIER_TRANSITION:
+		return _fail(&"invalid_sylvia_witness", "the frozen witness outcome may not be rewritten")
+	return {"ok": true, "code": &"ok"}
+
+
+## Did a Hospital witness record cover this exact solo action?
+##
+## Read-only. The witness index is an append-only handoff written by the Hospital transaction; the
+## day-end rollover consults it and never consumes, clears, or rewrites it, because dwm-oyo.4 reads
+## it after this plan retires.
+static func _has_hospital_witness(state: Dictionary, action_id: String) -> bool:
+	var index: Variant = state.get("sylvia_hospital_witness_receipts")
+	if typeof(index) != TYPE_DICTIONARY:
+		return false
+	for witness_id: Variant in (index as Dictionary):
+		var record: Variant = (index as Dictionary)[witness_id]
+		if typeof(record) != TYPE_DICTIONARY:
+			continue
+		if str((record as Dictionary).get("action_id", "")) == action_id:
+			return true
+	return false
+
 
 # ---- solo offer / open (req.contact.history_watermark, req.invitation.solo) ----
 
@@ -339,7 +414,11 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 				to_state = "RESOLVED_ATTENDED"
 			else:
 				to_state = "RESOLVED_MISSED"
-				queued_type = "missed_question"
+				# A friend who WITNESSED the faint already knows why the date did not happen, so
+				# she sends care the next day instead of asking what happened (Task 7 Step 7.3).
+				# The date is still missed; only the question is suppressed.
+				if not _has_hospital_witness(detached, action_id):
+					queued_type = "missed_question"
 		if to_state.is_empty():
 			continue  # already resolved on a prior day-end; leave untouched
 		action["state"] = to_state
@@ -400,7 +479,7 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 			elif group_state == "ACCEPTED" and group_outcome in ["not_scheduled", "not_attended", "prevented_by_fainting"]:
 				to_group = "RESOLVED_MISSED"
 				date_outcome_ids.append("date.group.priscilla_lavinia.missed.day%d" % day)
-				deferred_twofriends = {"route_id": "twofriends", "action_id": str(group["action_id"]), "after_hospital": group_outcome == "prevented_by_fainting"}
+				deferred_twofriends = {"route_id": "dating", "action_id": str(group["action_id"]), "after_hospital": group_outcome == "prevented_by_fainting"}
 				# Hospital owns its distinct fainting miss in Task 7. Contacts retains the
 				# deferred marker here, but must not also author the ordinary miss messages.
 				if group_outcome != "prevented_by_fainting":
@@ -1126,7 +1205,7 @@ static func _validate_resolve_operation(receipt: Dictionary) -> Dictionary:
 				or str((deferred as Dictionary)["action_id"]).strip_edges().is_empty() \
 				or typeof((deferred as Dictionary)["after_hospital"]) != TYPE_BOOL \
 				or typeof((deferred as Dictionary)["route_id"]) != TYPE_STRING \
-				or (deferred as Dictionary)["route_id"] != "twofriends":
+				or (deferred as Dictionary)["route_id"] != "dating":
 			return _fail(&"invalid_state", "deferred two-friends record is invalid")
 	if receipt["pl_window"] != null:
 		var window: Variant = receipt["pl_window"]
@@ -1468,7 +1547,7 @@ static func _derive_expected_resolution_envelope(state: Dictionary,
 		transitions.append({"action_id": action_id, "from_state": from_state, "to_state": to_state})
 		if to_state == "RESOLVED_UNANSWERED":
 			message_specs.append({"friend_id": action["friend_id"], "type": "nevermind"})
-		elif to_state == "RESOLVED_MISSED":
+		elif to_state == "RESOLVED_MISSED" and not _has_hospital_witness(state, action_id):
 			message_specs.append({"friend_id": action["friend_id"], "type": "missed_question"})
 
 	var group_value: Variant = state.get("group_action")
@@ -1518,7 +1597,7 @@ static func _derive_expected_resolution_envelope(state: Dictionary,
 				date_outcome_ids.append("date.group.priscilla_lavinia.missed.day%d" % day)
 				var after_hospital: bool = owned_messages.size() == message_specs.size()
 				deferred_twofriends = {
-					"route_id": "twofriends",
+					"route_id": "dating",
 					"action_id": group_action_id,
 					"after_hospital": after_hospital,
 				}

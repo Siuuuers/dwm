@@ -4,16 +4,36 @@ extends RefCounted
 ## Persisted, idempotent day-resolution stage plan
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 2).
 
+## Plan 01 Task 7 frozen stage arrays (dwm-p2r.14).
+##
+## The provisional single `execute_schedule_entries` stage is REMOVED. On the Schedule-Done branch
+## Days 1-6 execute committed ordinary effects, resolve condition truth, run Hospital, and only then
+## run the dates Hospital did not supersede -- so the two entry kinds need two separately resumable
+## stages with Hospital between them (req.flow.hospital_order).
 const DAY_1_6_STAGES: Array[String] = [
-	"lock_day", "validate_schedule", "execute_schedule_entries", "commit_outcomes",
-	"hospital_if_triggered", "twofriends_if_deferred", "invitation_rollover",
-	"increment_day", "reset_day_scope", "new_day_autosave", "unlock_day",
+	"lock_day", "validate_schedule", "execute_schedule_actions", "commit_outcomes",
+	"hospital_if_triggered", "execute_schedule_dates", "twofriends_if_deferred",
+	"invitation_rollover", "increment_day", "reset_day_scope", "new_day_autosave", "unlock_day",
 ]
+## Day 7 owns no board, no reset, no increment, and no ending selection. It ends at the
+## checkpointed provenance handoff consumed by dwm-oyo.3 / dwm-oyo.6.
 const DAY_7_STAGES: Array[String] = [
-	"lock_day", "validate_schedule", "execute_schedule_entries", "commit_outcomes",
-	"hospital_if_triggered", "close_invitations_run_end", "resolve_ending_plan",
-	"enter_ending", "ending_autosave",
+	"lock_day", "validate_schedule", "close_invitations_run_end",
+	"validate_day7_provenance", "checkpoint_day7_provenance",
 ]
+
+## The only two stages that may hold entry substages, and the only substage kind each may hold.
+## `ordinary` entries execute their registered effects; `solo`/`group` entries are dates that run
+## only if Hospital did not supersede them.
+const ENTRY_SUBSTAGE_KINDS: Dictionary = {
+	"execute_schedule_actions": "ordinary_action",
+	"execute_schedule_dates": "surviving_date",
+}
+const ACTION_KIND_STAGES: Dictionary = {
+	"ordinary": "execute_schedule_actions",
+	"solo": "execute_schedule_dates",
+	"group": "execute_schedule_dates",
+}
 const STAGE_STATES: Array[String] = ["pending", "active", "completed"]
 const STAGE_KEYS: Array[String] = ["stage_id", "transaction_id", "route_id", "state", "receipt", "substages"]
 const SUBSTAGE_KEYS: Array[String] = ["substage_id", "transaction_id", "state", "receipt"]
@@ -106,15 +126,29 @@ static func create(
 		if seen_slots.has(slot_index):
 			return _fail(&"invalid_schedule_entry", "duplicate slot_index: %d" % slot_index)
 		seen_slots[slot_index] = true
-		detached.append({"schedule_entry_id": entry_id, "slot_index": slot_index})
+		# The registry-owned kind decides WHICH stage executes this entry. It is read from the
+		# committed entry and never parsed out of the action id or the entry id.
+		var action_kind := str(entry.get("action_kind", ""))
+		if not ACTION_KIND_STAGES.has(action_kind):
+			return _fail(&"invalid_schedule_entry",
+				"action_kind must be one of %s: %s" % [str(ACTION_KIND_STAGES.keys()), entry_id])
+		detached.append({
+			"schedule_entry_id": entry_id, "slot_index": slot_index, "action_kind": action_kind,
+		})
 	detached.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["slot_index"]) < int(b["slot_index"]))
 	var stages: Array = []
 	for stage_id: String in stage_allowlist(source_day):
 		var substages: Array = []
-		if stage_id == "execute_schedule_entries":
+		if ENTRY_SUBSTAGE_KINDS.has(stage_id):
+			# Filtered independently per stage, so each substage ordinal restarts at zero in
+			# committed slot order -- never the raw slot number or the committed array index.
+			var substage_kind := str(ENTRY_SUBSTAGE_KINDS[stage_id])
 			for entry: Dictionary in detached:
-				var substage_id := "schedule:%d:%d:%s" % [
-					source_day, int(entry["slot_index"]), str(entry["schedule_entry_id"])]
+				if str(ACTION_KIND_STAGES[str(entry["action_kind"])]) != stage_id:
+					continue
+				var substage_id := "%s:%d:%d:%s" % [
+					substage_kind, source_day, int(entry["slot_index"]),
+					str(entry["schedule_entry_id"])]
 				substages.append({
 					"substage_id": substage_id,
 					"transaction_id": resolution_id + ":" + substage_id,
@@ -195,8 +229,9 @@ static func from_dict(data: Dictionary) -> Dictionary:
 			return _fail(&"invalid_receipt", receipt_error)
 		if typeof(stage["substages"]) != TYPE_ARRAY:
 			return _fail(&"invalid_stage_shape", "substages must be an array: " + stage_id)
-		if stage_id != "execute_schedule_entries" and not (stage["substages"] as Array).is_empty():
-			return _fail(&"invalid_stage_shape", "only execute_schedule_entries may hold substages")
+		if not ENTRY_SUBSTAGE_KINDS.has(stage_id) and not (stage["substages"] as Array).is_empty():
+			return _fail(&"invalid_stage_shape",
+				"only " + str(ENTRY_SUBSTAGE_KINDS.keys()) + " may hold substages")
 		var substage_phase := "completed"
 		var previous_slot := -1
 		for sub_index: int in range((stage["substages"] as Array).size()):
@@ -211,8 +246,11 @@ static func from_dict(data: Dictionary) -> Dictionary:
 				return _fail(&"invalid_substage_shape", "unexpected substage keys: " + str(substage_keys))
 			var substage_id := str(substage["substage_id"])
 			var parts := substage_id.split(":")
-			if parts.size() != 4 or parts[0] != "schedule" or str(int(parts[1])) != parts[1] \
-					or int(parts[1]) != source_day or str(int(parts[2])) != parts[2] or parts[3].is_empty():
+			# The kind prefix must match the OWNING stage, so a date substage cannot be smuggled
+			# into the ordinary-effect stage (or vice versa) by a tampered snapshot.
+			if parts.size() != 4 or parts[0] != str(ENTRY_SUBSTAGE_KINDS[stage_id]) \
+					or str(int(parts[1])) != parts[1] or int(parts[1]) != source_day \
+					or str(int(parts[2])) != parts[2] or parts[3].is_empty():
 				return _fail(&"invalid_substage_shape", "malformed substage_id: " + substage_id)
 			if int(parts[2]) <= previous_slot:
 				return _fail(&"invalid_substage_shape", "substages must ascend by slot_index")
@@ -252,26 +290,41 @@ static func from_dict(data: Dictionary) -> Dictionary:
 	var entries_value: Variant = (data["committed_schedule"] as Dictionary).get("entries", [])
 	if typeof(entries_value) != TYPE_ARRAY:
 		return _fail(&"invalid_committed_schedule", "committed_schedule.entries must be an array")
-	var expected_substages: Array[String] = []
 	var ordered: Array = (entries_value as Array).duplicate(true)
 	ordered.sort_custom(func(a: Variant, b: Variant) -> bool:
 		return int((a as Dictionary).get("slot_index", 0)) < int((b as Dictionary).get("slot_index", 0)))
+	# One expected list PER entry stage. The two stages partition the committed entries by the
+	# registry-owned kind, so a restored plan proves both membership AND the split.
+	var expected_by_stage: Dictionary = {}
+	for stage_id: String in ENTRY_SUBSTAGE_KINDS:
+		expected_by_stage[stage_id] = [] as Array[String]
 	for entry_value: Variant in ordered:
 		if typeof(entry_value) != TYPE_DICTIONARY:
 			return _fail(&"invalid_committed_schedule", "committed entries must be objects")
-		expected_substages.append("schedule:%d:%d:%s" % [
-			source_day, int((entry_value as Dictionary).get("slot_index", -1)),
-			str((entry_value as Dictionary).get("schedule_entry_id", "")),
-		])
-	var actual_substages: Array[String] = []
-	for stage: Dictionary in stages:
-		if str(stage["stage_id"]) != "execute_schedule_entries":
+		var entry := entry_value as Dictionary
+		var action_kind := str(entry.get("action_kind", ""))
+		if not ACTION_KIND_STAGES.has(action_kind):
+			return _fail(&"invalid_committed_schedule",
+				"committed entry action_kind must be one of " + str(ACTION_KIND_STAGES.keys()))
+		var owning_stage := str(ACTION_KIND_STAGES[action_kind])
+		if not expected_by_stage.has(owning_stage):
+			# Day 7 owns neither entry stage, so it may not carry an executable entry substage.
 			continue
+		(expected_by_stage[owning_stage] as Array).append("%s:%d:%d:%s" % [
+			str(ENTRY_SUBSTAGE_KINDS[owning_stage]), source_day,
+			int(entry.get("slot_index", -1)), str(entry.get("schedule_entry_id", "")),
+		])
+	for stage: Dictionary in stages:
+		var stage_id := str(stage["stage_id"])
+		if not ENTRY_SUBSTAGE_KINDS.has(stage_id):
+			continue
+		var actual_substages: Array[String] = []
 		for substage: Dictionary in (stage["substages"] as Array):
 			actual_substages.append(str(substage["substage_id"]))
-	if actual_substages != expected_substages:
-		return _fail(&"invalid_substage_shape",
-			"substages must correspond exactly to the committed entries, in slot order")
+		if actual_substages != expected_by_stage[stage_id]:
+			return _fail(&"invalid_substage_shape",
+				"substages must correspond exactly to the committed " + stage_id
+					+ " entries, in slot order")
 	var plan: RefCounted = (load("res://scripts/domain/run/DayResolutionPlan.gd") as GDScript).new()
 	plan._resolution_id = resolution_id
 	plan._source_day = source_day

@@ -12,6 +12,7 @@ const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManager
 ## dwm-p2r.13 Plan-01 Task 6: Bootstrap owns day-resolution construction, GameState only installs.
 const DAY_RESOLUTION_STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const DAY_RESOLUTION_COORDINATOR := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
+const CAUSAL_DAY_ADVANCE_IDENTITY_PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")
 const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const SCHEDULE_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
 const SCHEDULE_COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
@@ -88,6 +89,9 @@ var _desktop_identity_nonce_issuer: RefCounted = null
 ## same state port the coordinator was configured with, instead of reaching into GameState for it.
 var _retained_day_resolution_state_port: RefCounted = null
 var _retained_day_resolution_coordinator: RefCounted = null
+## ONE shared root-atomic logical-day identity owner, built from the retained .16 issuer and kept
+## for Plan 03's condition-Hospital advancement (Plan 01 Task 7 Step 7.5, dwm-p2r.14).
+var _retained_causal_day_advance_identity_port: RefCounted = null
 ## The ONE Schedule-foundation identity set (dwm-p2r.13 Plan-01 Task 6). One registry, one ledger
 ## shared by both ports, one commit port, one start port, one provenance service.
 var _retained_schedule_registry: RefCounted = null
@@ -472,6 +476,12 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 		_application_gate)
 	if not configured.get("ok", false):
 		return configured
+	# The single shared advance-identity owner, injected through the coordinator's SEPARATE Task-7
+	# seam so the frozen three-owner configure() signature above stays unchanged. Bootstrap alone
+	# configures it; Plan 03 later composes this same retained object.
+	var advance_identity := _configure_causal_day_advance_identity(coordinator)
+	if not advance_identity.get("ok", false):
+		return advance_identity
 	var installed: Dictionary = game_state.call(&"_install_day_resolution_runtime", state_port,
 		coordinator, checkpoint_port, _application_gate)
 	if not installed.get("ok", false):
@@ -485,6 +495,25 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 	if not foundation.get("ok", false):
 		return foundation
 	return {"ok": true, "value": {"gate_instance_id": _application_gate.get_instance_id()}}
+
+
+## Constructs and configures exactly one CausalDayAdvanceIdentityPort against the retained
+## production identity issuer, then injects it into the coordinator. Identical startup replay
+## reuses the same instance rather than building a second one, so the coordinator's replacement
+## guard is never tripped by a legitimate re-run.
+func _configure_causal_day_advance_identity(coordinator: RefCounted) -> Dictionary:
+	if _desktop_identity_nonce_issuer == null:
+		return _failure(&"missing_identity_issuer",
+			"the causal day advance identity port requires the retained production issuer")
+	if _retained_causal_day_advance_identity_port == null:
+		_retained_causal_day_advance_identity_port = CAUSAL_DAY_ADVANCE_IDENTITY_PORT.new()
+		var issuer_bound: Dictionary = _retained_causal_day_advance_identity_port.configure(
+			_desktop_identity_nonce_issuer)
+		if not issuer_bound.get("ok", false):
+			_retained_causal_day_advance_identity_port = null
+			return issuer_bound
+	return coordinator.configure_day_advance_identity_port(
+		_retained_causal_day_advance_identity_port)
 
 
 ## Builds the six production restore participants, constructs the ONE Bootstrap-owned desktop

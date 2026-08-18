@@ -164,13 +164,17 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 		"validate_schedule":
 			return _envelope("schedule_rules", "schedule_validation",
 				{"schedule_digest": "digest-day-%d" % day, "ordered_entry_ids": []})
-		"execute_schedule_entries":
-			return _envelope("schedule_rules", "schedule_entries_complete", {"entry_receipt_ids": []})
+		"execute_schedule_actions":
+			return _envelope("schedule_rules", "schedule_actions_complete", {"entry_receipt_ids": []})
+		"execute_schedule_dates":
+			return _envelope("schedule_rules", "schedule_dates_complete",
+				{"entry_receipt_ids": [], "superseded_entry_ids": []})
 		"commit_outcomes":
 			return _envelope("game_state", "outcomes_commit", {"outcome_ids": [], "effect_transaction_ids": []})
 		"hospital_if_triggered":
-			return _envelope("dating_ending_rules", "hospital_resolution",
-				{"required": false, "route_receipt_id": null, "prevented_entry_id": null})
+			return _envelope("hospital_rules", "hospital_resolution",
+				{"required": false, "date_schedule_entry_ids": [],
+					"superseded_entry_ids": [], "witness_entry_id": null})
 		"twofriends_if_deferred":
 			return _envelope("contact_invitation_state", "twofriends_resolution",
 				{"required": false, "route_receipt_id": null, "message_transaction_ids": []})
@@ -186,6 +190,12 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 				{"save_kind": "autosave", "save_reason": "day_start"})
 		"unlock_day":
 			return _envelope("day_resolution_coordinator", "day_unlock", {"locked": false})
+		"validate_day7_provenance":
+			return _envelope("day7_schedule_provenance", "day7_provenance_validation",
+				{"cause": "empty_done", "schedule_entry_id": null, "source_receipt_id": null})
+		"checkpoint_day7_provenance":
+			return _envelope("day7_schedule_provenance", "day7_provenance_checkpoint",
+				{"cause": "empty_done", "schedule_commit_receipt_id": null})
 		"close_invitations_run_end":
 			return _envelope("contact_invitation_state", "run_end_close", {"resolved_action_ids": []})
 		"resolve_ending_plan":

@@ -64,11 +64,21 @@ func test_day7_enters_ending_without_day8_or_rollover_stage() -> void:
 			stage["transaction_id"], receipt
 		)["ok"])
 
+	# Plan 01 Task 7 (dwm-p2r.14): a Day-7 resolution ENDS at the checkpointed provenance handoff.
+	# It no longer selects an ending or enters ENDING -- dwm-oyo.6 owns the ordered ending plan and
+	# consumes this handoff. The run therefore stays PLAYING on day 7, with no Day 8.
 	assert_eq(lifecycle.get_day(), 7)
-	assert_eq(lifecycle.get_state(), &"ENDING")
+	assert_eq(lifecycle.get_state(), &"PLAYING",
+		"Day-7 resolution stops at the provenance handoff and never enters ENDING itself")
+	assert_eq(visited.back(), "checkpoint_day7_provenance",
+		"the walk ends at the provenance checkpoint")
 	assert_false("increment_day" in visited)
 	assert_false("invitation_rollover" in visited)
 	assert_false("twofriends_if_deferred" in visited)
+	for forbidden: String in ["resolve_ending_plan", "enter_ending", "ending_autosave"]:
+		assert_false(forbidden in visited, forbidden + " is not a Plan-01 Day-7 stage")
+	assert_eq(lifecycle.to_dict()["ending_plan"], null,
+		"no ending plan is constructed by a Plan-01 Day-7 resolution")
 
 func test_day3_full_resolution_increments_exactly_once() -> void:
 	assert_true(_lifecycle_exists(), "RunLifecycle must exist")
@@ -151,8 +161,12 @@ func test_ending_playback_edges_and_terminal_completed() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle := _fresh("run-ending", 7)
-	assert_true(lifecycle.begin_day_resolution("resolution-ending", {"entries": []})["ok"])
-	_drive_to_completion(lifecycle, 7)
+	# Task 7 decoupled ENDING from the Day-7 stage walk, but the ENDING machinery itself is
+	# UNCHANGED and still owns playback (Task 8 Step 8.7 forbids editing it). Enter it directly so
+	# this suite keeps proving the playback edges without depending on a removed stage.
+	var entered: Dictionary = lifecycle.enter_ending(
+		load(RECEIPTS_PATH).call(&"ending_plan"))
+	assert_true(entered.get("ok", false), JSON.stringify(entered))
 	assert_eq(lifecycle.get_state(), &"ENDING")
 	assert_false(lifecycle.complete_ending().get("ok", true), "complete_ending requires GALLERY_RECORDED")
 	var receipts_script: Script = load(RECEIPTS_PATH)

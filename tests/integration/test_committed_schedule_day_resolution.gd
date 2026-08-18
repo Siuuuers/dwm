@@ -95,8 +95,10 @@ func before_each() -> void:
 	_registry = (loaded_registry.get("value", {}) as Dictionary).get("registry")
 	_fingerprint = str((loaded_registry.get("value", {}) as Dictionary).get("registry_fingerprint", ""))
 
+	# IN THE TREE since Task 7: an ordinary_action substage commits real effects, and
+	# GameState resolves /root/EffectResolver by node path, which a detached instance cannot reach.
 	_game_state = load(GAME_STATE_PATH).new()
-	autofree(_game_state)
+	add_child_autofree(_game_state)
 	_game_state.reset_game()
 	# BOTH signals the state port is able to emit are recorded by name, not merely counted: a publish
 	# that started emitting `day_changed` as well would leave a size-only assertion green.
@@ -430,17 +432,29 @@ func test_the_production_state_port_begins_from_the_owners_real_committed_schedu
 	assert_eq(_substage_ids(plan as Dictionary), _expected_substage_ids(1, aggregate),
 		"the committed entries reached the plan; a seeded [] would have produced none")
 
-	# CHARACTERIZATION, NOT ENDORSEMENT (flagged for Task 7). begin_or_resume passes only the
-	# aggregate, letting begin_day_resolution's three defaulted parameters stand, so the production
-	# start path drops the other three members plan line 963 names. Pinned here deliberately: when a
-	# later task makes that path pass all four, this assertion fails loudly and forces the change to
-	# be a conscious one rather than a silent shape drift.
-	assert_eq((plan as Dictionary)["route_plan"], [],
-		"TASK 7: the production start path still persists no route projection")
-	assert_eq((plan as Dictionary)["schedule_commit_receipt_id"], null,
-		"TASK 7: the production start path still persists no commit receipt id")
+	# TASK 7 CLOSED TWO OF THE THREE GAPS Task 6 pinned here (dwm-p2r.14 Steps 7.2/7.5). The
+	# production start path now persists the frozen registry projection -- the execute stages read
+	# each entry's effects out of it -- and the committed aggregate's own commit-receipt id, which
+	# the Day-7 provenance handoff consumes.
+	var projection: Array = (plan as Dictionary)["route_plan"]
+	assert_eq(projection.size(), (aggregate["entries"] as Array).size(),
+		"the production start path persists one projected record per committed entry")
+	for projected: Variant in projection:
+		var record := projected as Dictionary
+		assert_true(record.has("effect_ids"),
+			"each projected record carries the registry's effect ids")
+		assert_true(record.has("action_kind"),
+			"each projected record carries the registry-owned action kind")
+	assert_eq((plan as Dictionary)["schedule_commit_receipt_id"],
+		((aggregate["commit_receipt"] as Dictionary)["receipt_id"]),
+		"the plan binds the exact commit receipt the aggregate was minted with")
+
+	# STILL OPEN, and deliberately so. board_fate_receipt_id remains null because dwm-p2r.9 never
+	# delivered the integrated DesktopBoardFatePort its Plan-02 gate names (recorded as Deviation-2
+	# on dwm-p2r.14). Pinned exactly as Task 6 pinned the others: when that port lands, this fails
+	# loudly rather than drifting silently.
 	assert_eq((plan as Dictionary)["board_fate_receipt_id"], null,
-		"TASK 7: the production start path still persists no board-fate receipt id")
+		"DEVIATION-2: no integrated DesktopBoardFatePort exists to bind yet")
 
 	assert_true(_state_port.begin_or_resume("resolution.production.day1").get("ok", false),
 		"repeating the same Done command stays idempotent")
@@ -462,20 +476,25 @@ func test_the_execute_stage_receipt_reads_entry_ids_from_the_committed_substages
 	assert_eq(_advance_stage(), "lock_day")
 	assert_eq(_advance_stage(), "validate_schedule")
 
-	# The cursor now points at the FIRST ENTRY SUBSTAGE, not at the execute stage record; the port
-	# keys its immediate receipt off stage_id, which a substage record also carries, so this is where
-	# the schedule_entries_complete envelope is produced.
+	# The cursor now points at the FIRST ENTRY SUBSTAGE, not at the execute stage record.
+	#
+	# TASK 7 (dwm-p2r.14 Step 7.2) SPLIT WHAT USED TO BE CONFLATED. The port previously keyed its
+	# immediate receipt off stage_id alone, so a substage silently received its PARENT's aggregate
+	# envelope. A substage now returns its own `schedule_entry_complete` receipt naming the one
+	# entry it executed, which is what makes per-entry effect application addressable at all.
 	var execute: Dictionary = _state_port.begin_next_stage()
 	assert_true(execute.get("ok", false), str(execute))
 	if not execute.get("ok", false):
 		return
 	var receipt: Dictionary = (execute["value"] as Dictionary)["receipt"]
-	assert_eq(str(receipt["kind"]), "schedule_entries_complete", "the execute-stage receipt kind")
-	var entry_ids: Array = (receipt["value"] as Dictionary)["entry_receipt_ids"]
-	assert_eq(entry_ids, _committed_entry_ids(aggregate),
-		"the entry ids are READ from the frozen substages, never synthesized")
-	assert_false(entry_ids.is_empty(),
+	assert_eq(str(receipt["kind"]), "schedule_entry_complete", "the entry-substage receipt kind")
+	var committed_ids: Array = _committed_entry_ids(aggregate)
+	assert_false(committed_ids.is_empty(),
 		"a nonempty commit can no longer report an empty entry-receipt list")
+	assert_eq(str((receipt["value"] as Dictionary)["entry_receipt_id"]), str(committed_ids[0]),
+		"the substage names the FIRST committed ordinary entry, read from the frozen substages")
+	assert_true((receipt["value"] as Dictionary).has("outcome_ids"),
+		"the substage reports the registry effects it applied")
 
 
 # ---- helpers ----
@@ -606,20 +625,35 @@ func _substage_ids(plan: Dictionary) -> Array[String]:
 
 ## The substage ids the aggregate alone implies, rebuilt here from its entries in slot order. This
 ## duplicates what DayResolutionPlan.from_dict re-proves on load, so it is a format lock rather than
-## the only guard: it pins the literal "schedule:day:slot:entry_id" shape the persisted plan exposes.
+## the only guard: it pins the literal "<kind>:day:slot:entry_id" shape the persisted plan exposes.
+##
+## Task 7 (dwm-p2r.14): ordinary entries and date entries land in DIFFERENT stages that run on
+## opposite sides of Hospital, so the prefix is chosen by the registry-owned action_kind. The
+## ordinary stage precedes the date stage, which is why the ordinary ids come first here.
 func _expected_substage_ids(source_day: int, aggregate: Dictionary) -> Array[String]:
-	var ids: Array[String] = []
+	var ordinary_ids: Array[String] = []
+	var date_ids: Array[String] = []
 	for entry: Variant in _slot_ordered(aggregate):
-		ids.append("schedule:%d:%d:%s" % [
-			source_day, int((entry as Dictionary)["slot_index"]),
-			str((entry as Dictionary)["schedule_entry_id"]),
-		])
-	return ids
+		var record := entry as Dictionary
+		var is_ordinary := str(record.get("action_kind", "")) == "ordinary"
+		var id := "%s:%d:%d:%s" % [
+			"ordinary_action" if is_ordinary else "surviving_date",
+			source_day, int(record["slot_index"]), str(record["schedule_entry_id"]),
+		]
+		if is_ordinary:
+			ordinary_ids.append(id)
+		else:
+			date_ids.append(id)
+	return ordinary_ids + date_ids
 
 
-func _committed_entry_ids(aggregate: Dictionary) -> Array:
+## Scoped to ONE entry stage. The execute_schedule_actions receipt reports only the ordinary
+## entries; the dates it must not touch are reported later by execute_schedule_dates.
+func _committed_entry_ids(aggregate: Dictionary, action_kind: String = "ordinary") -> Array:
 	var ids: Array = []
 	for entry: Variant in _slot_ordered(aggregate):
+		if str((entry as Dictionary).get("action_kind", "")) != action_kind:
+			continue
 		ids.append(str((entry as Dictionary)["schedule_entry_id"]))
 	return ids
 

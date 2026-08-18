@@ -3,22 +3,28 @@ extends "res://addons/gut/test.gd"
 const PLAN_PATH := "res://scripts/domain/run/DayResolutionPlan.gd"
 const RECEIPTS_PATH := "res://tests/support/DayResolutionReceiptFixtures.gd"
 
+## Plan 01 Task 7 frozen stage arrays. The provisional single `execute_schedule_entries` stage is
+## gone: Days 1-6 execute committed ORDINARY effects first, resolve condition truth, run Hospital,
+## and only then run the dates Hospital did not supersede. Day 7 keeps no board, no reset, no
+## increment, and no ending selection -- it ends at the checkpointed provenance handoff that
+## dwm-oyo.3 / dwm-oyo.6 consume.
 const DAY_1_6_STAGES := [
-	"lock_day", "validate_schedule", "execute_schedule_entries", "commit_outcomes",
-	"hospital_if_triggered", "twofriends_if_deferred", "invitation_rollover",
-	"increment_day", "reset_day_scope", "new_day_autosave", "unlock_day",
+	"lock_day", "validate_schedule", "execute_schedule_actions", "commit_outcomes",
+	"hospital_if_triggered", "execute_schedule_dates", "twofriends_if_deferred",
+	"invitation_rollover", "increment_day", "reset_day_scope", "new_day_autosave", "unlock_day",
 ]
 const DAY_7_STAGES := [
-	"lock_day", "validate_schedule", "execute_schedule_entries", "commit_outcomes",
-	"hospital_if_triggered", "close_invitations_run_end", "resolve_ending_plan",
-	"enter_ending", "ending_autosave",
+	"lock_day", "validate_schedule", "close_invitations_run_end",
+	"validate_day7_provenance", "checkpoint_day7_provenance",
 ]
 
 func _plan_exists() -> bool:
 	return ResourceLoader.exists(PLAN_PATH, "Script")
 
-func _entry(entry_id: String, slot_index: int) -> Dictionary:
-	return {"schedule_entry_id": entry_id, "slot_index": slot_index}
+## Committed entries now carry the registry-owned `action_kind`, because the plan must FILTER them
+## into the ordinary stage and the date stage. `action_kind` is never inferred from the id.
+func _entry(entry_id: String, slot_index: int, action_kind: String = "ordinary") -> Dictionary:
+	return {"schedule_entry_id": entry_id, "slot_index": slot_index, "action_kind": action_kind}
 
 
 ## The canonical committed aggregate create() now reads its entries out of (plan line 963). Built
@@ -84,10 +90,38 @@ func test_stage_allowlists_by_source_day() -> void:
 	assert_true(day7.get("ok", false), JSON.stringify(day7))
 	var day7_ids := _stage_ids(day7["value"]["plan"])
 	assert_eq(day7_ids, DAY_7_STAGES)
-	for forbidden: String in ["invitation_rollover", "increment_day", "twofriends_if_deferred", "new_day_autosave", "reset_day_scope", "unlock_day"]:
+	# Day 7 owns NO board, NO day advance, and NO ending selection. Plan 01 stops at the
+	# checkpointed provenance handoff; dwm-oyo.6 alone turns that into an ordered ending plan.
+	for forbidden: String in [
+		"execute_schedule_actions", "execute_schedule_dates", "commit_outcomes",
+		"hospital_if_triggered", "twofriends_if_deferred", "invitation_rollover",
+		"increment_day", "reset_day_scope", "new_day_autosave", "unlock_day",
+		"resolve_ending_plan", "enter_ending", "ending_autosave",
+	]:
 		assert_false(forbidden in day7_ids, forbidden + " must not exist on Day 7")
-	assert_true(day7_ids.find("hospital_if_triggered") < day7_ids.find("resolve_ending_plan"),
-		"Day 7 hospital precedes ending selection")
+	assert_eq(day7_ids.back(), "checkpoint_day7_provenance",
+		"Day 7 ends at the checkpointed provenance handoff")
+
+func test_day_1_6_runs_hospital_between_ordinary_effects_and_dates() -> void:
+	assert_true(_plan_exists(), "DayResolutionPlan must exist")
+	if not _plan_exists():
+		return
+	var created: Dictionary = load(PLAN_PATH).create("resolution-order-d3", 3, _aggregate(3, []), [], null, null)
+	assert_true(created.get("ok", false), JSON.stringify(created))
+	var ids := _stage_ids(created["value"]["plan"])
+	# req.flow.hospital_order: ordinary effects -> condition truth -> Hospital -> surviving dates.
+	assert_true(ids.find("execute_schedule_actions") < ids.find("commit_outcomes"),
+		"ordinary effects execute before outcomes commit")
+	assert_true(ids.find("commit_outcomes") < ids.find("hospital_if_triggered"),
+		"condition truth resolves before Hospital")
+	assert_true(ids.find("hospital_if_triggered") < ids.find("execute_schedule_dates"),
+		"Hospital supersedes dates BEFORE any dating board runs")
+	assert_true(ids.find("execute_schedule_dates") < ids.find("twofriends_if_deferred"),
+		"surviving dates precede the deferred pair presentation")
+	assert_true(ids.find("twofriends_if_deferred") < ids.find("increment_day"),
+		"the day advances only after every presentation stage")
+	assert_false("execute_schedule_entries" in ids,
+		"the provisional combined execute stage is removed")
 
 func test_create_rejects_invalid_inputs() -> void:
 	assert_true(_plan_exists(), "DayResolutionPlan must exist")
@@ -106,7 +140,7 @@ func test_substages_sort_by_slot_and_gate_parent_completion() -> void:
 	assert_true(_plan_exists(), "DayResolutionPlan must exist")
 	if not _plan_exists():
 		return
-	var entries: Array[Dictionary] = [_entry("late", 2), _entry("early", 1)]
+	var entries: Array[Dictionary] = [_entry("early", 1), _entry("late", 2)]
 	var created: Dictionary = load(PLAN_PATH).create("resolution-sub", 2, _aggregate(2, entries), [], null, null)
 	assert_true(created.get("ok", false), JSON.stringify(created))
 	var plan: RefCounted = created["value"]["plan"]
@@ -117,21 +151,79 @@ func test_substages_sort_by_slot_and_gate_parent_completion() -> void:
 		assert_true(plan.complete_stage(stage_id, cursor["transaction_id"],
 			load(RECEIPTS_PATH).call(&"for_stage", stage_id, 2))["ok"])
 	var first_sub: Dictionary = plan.get_next_incomplete_stage()["value"]["stage"]
-	assert_eq(first_sub["substage_id"], "schedule:2:1:early", "substages sort by slot_index")
-	var parent_receipt: Dictionary = load(RECEIPTS_PATH).call(&"for_stage", "execute_schedule_entries", 2)
-	var parent_transaction := "resolution-sub:execute_schedule_entries"
-	assert_false(plan.begin_stage("execute_schedule_entries", parent_transaction).get("ok", true),
+	assert_eq(first_sub["substage_id"], "ordinary_action:2:1:early", "substages sort by slot_index")
+	var parent_receipt: Dictionary = load(RECEIPTS_PATH).call(&"for_stage", "execute_schedule_actions", 2)
+	var parent_transaction := "resolution-sub:execute_schedule_actions"
+	assert_false(plan.begin_stage("execute_schedule_actions", parent_transaction).get("ok", true),
 		"parent may not begin while substages pending")
-	for substage_id: String in ["schedule:2:1:early", "schedule:2:2:late"]:
+	for substage_id: String in ["ordinary_action:2:1:early", "ordinary_action:2:2:late"]:
 		var cursor: Dictionary = plan.get_next_incomplete_stage()["value"]["stage"]
 		assert_eq(cursor["substage_id"], substage_id)
-		assert_true(plan.begin_substage("execute_schedule_entries", substage_id, cursor["transaction_id"])["ok"])
-		assert_true(plan.complete_substage("execute_schedule_entries", substage_id, cursor["transaction_id"],
+		assert_true(plan.begin_substage("execute_schedule_actions", substage_id, cursor["transaction_id"])["ok"])
+		assert_true(plan.complete_substage("execute_schedule_actions", substage_id, cursor["transaction_id"],
 			load(RECEIPTS_PATH).call(&"for_substage", substage_id))["ok"])
 	var parent_cursor: Dictionary = plan.get_next_incomplete_stage()["value"]["stage"]
-	assert_eq(parent_cursor["stage_id"], "execute_schedule_entries")
-	assert_true(plan.begin_stage("execute_schedule_entries", parent_transaction)["ok"])
-	assert_true(plan.complete_stage("execute_schedule_entries", parent_transaction, parent_receipt)["ok"])
+	assert_eq(parent_cursor["stage_id"], "execute_schedule_actions")
+	assert_true(plan.begin_stage("execute_schedule_actions", parent_transaction)["ok"])
+	assert_true(plan.complete_stage("execute_schedule_actions", parent_transaction, parent_receipt)["ok"])
+
+## Step 7.1: the two entry stages own DISJOINT substage sets, filtered by the registry-owned
+## action_kind, and each is indexed independently from zero in committed slot order. An ordinal is
+## never the raw slot number, never the completion order, and never the top-level stage index.
+func test_entry_substages_split_by_kind_with_independent_zero_based_ordinals() -> void:
+	assert_true(_plan_exists(), "DayResolutionPlan must exist")
+	if not _plan_exists():
+		return
+	# Deliberately interleaved: ordinary at slots 0 and 4, dates at slots 2 and 5.
+	var entries: Array[Dictionary] = [
+		_entry("work", 0, "ordinary"),
+		_entry("date-p", 2, "solo"),
+		_entry("rest", 4, "ordinary"),
+		_entry("date-pl", 5, "group"),
+	]
+	var created: Dictionary = load(PLAN_PATH).create("res-split", 2, _aggregate(2, entries), [], null, null)
+	assert_true(created.get("ok", false), JSON.stringify(created))
+	var stages: Array = created["value"]["plan"].to_dict()["stages"]
+	var by_id := {}
+	for stage: Dictionary in stages:
+		by_id[str(stage["stage_id"])] = stage
+
+	var ordinary_ids: Array[String] = []
+	for substage: Dictionary in (by_id["execute_schedule_actions"]["substages"] as Array):
+		ordinary_ids.append(str(substage["substage_id"]))
+	assert_eq(ordinary_ids, ["ordinary_action:2:0:work", "ordinary_action:2:4:rest"],
+		"only ordinary entries reach execute_schedule_actions, in slot order")
+
+	var date_ids: Array[String] = []
+	for substage: Dictionary in (by_id["execute_schedule_dates"]["substages"] as Array):
+		date_ids.append(str(substage["substage_id"]))
+	assert_eq(date_ids, ["surviving_date:2:2:date-p", "surviving_date:2:5:date-pl"],
+		"only solo/group entries reach execute_schedule_dates, in slot order")
+
+	# The date at slot 2 is the FIRST date (ordinal 0) even though its slot is 2 and it sits at
+	# index 1 of the committed array. Filtering is per-stage and restarts at zero.
+	assert_eq((by_id["execute_schedule_dates"]["substages"] as Array).size(), 2)
+	assert_eq((by_id["execute_schedule_actions"]["substages"] as Array).size(), 2)
+	for stage_id: String in DAY_1_6_STAGES:
+		if stage_id in ["execute_schedule_actions", "execute_schedule_dates"]:
+			continue
+		assert_true((by_id[stage_id]["substages"] as Array).is_empty(),
+			stage_id + " may not hold entry substages")
+
+func test_day7_retains_its_committed_aggregate_and_holds_no_entry_substages() -> void:
+	assert_true(_plan_exists(), "DayResolutionPlan must exist")
+	if not _plan_exists():
+		return
+	var entries: Array[Dictionary] = [_entry("d7-solo", 0, "solo")]
+	var aggregate := _aggregate(7, entries)
+	var created: Dictionary = load(PLAN_PATH).create("res-d7", 7, aggregate, [], null, null)
+	assert_true(created.get("ok", false), JSON.stringify(created))
+	var plan: RefCounted = created["value"]["plan"]
+	assert_eq(plan.get_committed_schedule()["entries"], entries,
+		"Day 7 retains its committed aggregate rather than clearing it")
+	for stage: Dictionary in plan.to_dict()["stages"]:
+		assert_true((stage["substages"] as Array).is_empty(),
+			"Day 7 executes no entry substage: " + str(stage["stage_id"]))
 
 func test_begin_rejects_wrong_transaction_and_out_of_order() -> void:
 	assert_true(_plan_exists(), "DayResolutionPlan must exist")

@@ -10,8 +10,10 @@ static func for_stage(stage_id: String, source_day: int) -> Dictionary:
 			return {"value": {"locked": true}}
 		"validate_schedule":
 			return {"value": {"valid": true}}
-		"execute_schedule_entries":
+		"execute_schedule_actions":
 			return {"value": {"executed": true}}
+		"execute_schedule_dates":
+			return {"value": {"dates_executed": true}}
 		"commit_outcomes":
 			return {"value": {"committed": true}}
 		"hospital_if_triggered":
@@ -30,6 +32,10 @@ static func for_stage(stage_id: String, source_day: int) -> Dictionary:
 			return {"value": {"locked": false}}
 		"close_invitations_run_end":
 			return {"value": {"closed": true}}
+		"validate_day7_provenance":
+			return {"value": {"validated": true}}
+		"checkpoint_day7_provenance":
+			return {"value": {"checkpointed": true}}
 		"resolve_ending_plan":
 			return {"value": {"ending_plan": ending_plan()}}
 		"enter_ending":

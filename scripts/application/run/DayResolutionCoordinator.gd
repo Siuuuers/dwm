@@ -17,18 +17,27 @@ const STATE_PORT_METHODS: Array[String] = [
 const CHECKPOINT_PORT_METHODS: Array[String] = [
 	"preview_checkpoint_id", "capture", "prepare", "commit", "rollback",
 ]
+## The exact CausalDayAdvanceIdentityPort capability (Plan 02 .16, consumed unwidened by Plan 01).
+const DAY_ADVANCE_IDENTITY_METHODS: Array[String] = [
+	"configure", "prepare_advance", "commit_advance",
+]
 
 const STAGE_CONTRACTS := {
 	"lock_day": {"owner_id": "day_resolution_coordinator", "kind": "day_lock",
 		"value": {"locked": "const_true"}},
 	"validate_schedule": {"owner_id": "schedule_rules", "kind": "schedule_validation",
 		"value": {"schedule_digest": "string", "ordered_entry_ids": "array_string"}},
-	"execute_schedule_entries": {"owner_id": "schedule_rules", "kind": "schedule_entries_complete",
+	"execute_schedule_actions": {"owner_id": "schedule_rules", "kind": "schedule_actions_complete",
 		"value": {"entry_receipt_ids": "array_string"}},
 	"commit_outcomes": {"owner_id": "game_state", "kind": "outcomes_commit",
 		"value": {"outcome_ids": "array_string", "effect_transaction_ids": "array_string"}},
-	"hospital_if_triggered": {"owner_id": "dating_ending_rules", "kind": "hospital_resolution",
-		"value": {"required": "bool", "route_receipt_id": "string_or_null", "prevented_entry_id": "string_or_null"}},
+	# Task 7 (dwm-p2r.14): Hospital is owned by HospitalRules, not by the ending rules, and it
+	# supersedes EVERY committed date rather than a single "prevented" one.
+	"hospital_if_triggered": {"owner_id": "hospital_rules", "kind": "hospital_resolution",
+		"value": {"required": "bool", "date_schedule_entry_ids": "array_string",
+			"superseded_entry_ids": "array_string", "witness_entry_id": "string_or_null"}},
+	"execute_schedule_dates": {"owner_id": "schedule_rules", "kind": "schedule_dates_complete",
+		"value": {"entry_receipt_ids": "array_string", "superseded_entry_ids": "array_string"}},
 	"twofriends_if_deferred": {"owner_id": "contact_invitation_state", "kind": "twofriends_resolution",
 		"value": {"required": "bool", "route_receipt_id": "string_or_null", "message_transaction_ids": "array_string"}},
 	"invitation_rollover": {"owner_id": "contact_invitation_state", "kind": "invitation_rollover",
@@ -43,6 +52,12 @@ const STAGE_CONTRACTS := {
 		"value": {"locked": "const_false"}},
 	"close_invitations_run_end": {"owner_id": "contact_invitation_state", "kind": "run_end_close",
 		"value": {"resolved_action_ids": "array_string"}},
+	"validate_day7_provenance": {"owner_id": "day7_schedule_provenance", "kind": "day7_provenance_validation",
+		"value": {"cause": "string", "schedule_entry_id": "string_or_null", "source_receipt_id": "string_or_null"}},
+	# Task 7 checkpoints only what the committed aggregate already proves. Task 8 (dwm-p2r.14
+	# Step 8.7) upgrades this to the derived P01.schedule.day7_provenance child id.
+	"checkpoint_day7_provenance": {"owner_id": "day7_schedule_provenance", "kind": "day7_provenance_checkpoint",
+		"value": {"cause": "string", "schedule_commit_receipt_id": "string_or_null"}},
 	"resolve_ending_plan": {"owner_id": "dating_ending_rules", "kind": "ending_resolution",
 		"value": {"ending_plan": "dictionary"}},
 	"enter_ending": {"owner_id": "run_lifecycle", "kind": "enter_ending",
@@ -62,6 +77,10 @@ const SUBSTAGE_CONTRACTS := {
 var _gate: Object = null
 var _state_port: Object = null
 var _checkpoint_port: Object = null
+## ONE retained shared advance-identity port. Bootstrap owns initial configuration and keeps the
+## same object for Plan 03's condition-Hospital advancement; this coordinator never constructs,
+## wraps, or replaces it, and never calls raw issue(&"causal_day_instance").
+var _day_advance_identity_port: Object = null
 var _run_id := ""
 var _awaiting: Dictionary = {}
 var _registered_history: Dictionary = {}
@@ -92,6 +111,27 @@ func configure(state_port: Object, checkpoint_port: Object, mutation_gate: Objec
 	_state_port = state_port
 	_checkpoint_port = checkpoint_port
 	return _gate_identity_result(false)
+
+## The one Task-7 dependency seam (dwm-p2r.14 Step 7.3a). It does NOT touch configure()'s frozen
+## three-owner signature and does not renumber a stage.
+##
+## Failure is uniform `day_advance_identity_port_conflict`: a missing object, an object without the
+## exact capability, and a replacement are all refusals to adopt an identity owner, and all of them
+## return BEFORE any stage mutation.
+func configure_day_advance_identity_port(day_advance_identity_port: Object) -> Dictionary:
+	if day_advance_identity_port == null 			or not _has_all_methods(day_advance_identity_port, DAY_ADVANCE_IDENTITY_METHODS):
+		return {"ok": false, "code": &"day_advance_identity_port_conflict",
+			"message": "an exact CausalDayAdvanceIdentityPort capability is required"}
+	if _day_advance_identity_port != null:
+		if _day_advance_identity_port != day_advance_identity_port:
+			return {"ok": false, "code": &"day_advance_identity_port_conflict",
+				"message": "a configured coordinator never adopts a replacement identity port"}
+		return {"ok": true, "code": &"ok",
+			"value": {"configured": true, "already_configured": true}, "receipt": {}}
+	_day_advance_identity_port = day_advance_identity_port
+	return {"ok": true, "code": &"ok",
+		"value": {"configured": true, "already_configured": false}, "receipt": {}}
+
 
 ## Confirms the three owners GameState is about to install are the exact ones this coordinator
 ## already holds. It COMPARES the supplied references internally and never returns one: the removed
@@ -138,6 +178,12 @@ func resume() -> Dictionary:
 				return preview
 			return {"ok": true, "code": &"plan_complete",
 				"value": {"checkpoint_id": str(preview["value"]["checkpoint_id"])}}
+		# A logical-day change may only happen through the ONE shared root-atomic identity port.
+		# Refuse at the boundary rather than at plan start, so every earlier stage stays completed
+		# and the run resumes forward once bootstrap has configured the port.
+		if str((cursor["value"]["stage"] as Dictionary).get("stage_id", "")) == "increment_day" 				and _day_advance_identity_port == null:
+			return {"ok": false, "code": &"day_advance_identity_port_unconfigured",
+				"message": "increment_day requires the shared causal day advance identity port"}
 		var begun: Dictionary = _state_port.begin_next_stage()
 		if not begun.get("ok", false):
 			return begun

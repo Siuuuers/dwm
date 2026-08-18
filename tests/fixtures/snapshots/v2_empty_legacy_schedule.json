@@ -12,7 +12,7 @@
     "ending_plan": null
   },
   "route_id": "main",
-  "active_app_id": "desktop.minesweeper",
+  "active_app_id": "minesweeper",
   "narrative_checkpoint": {},
   "gameplay": {
     "narrative_variables": {},

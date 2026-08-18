@@ -8,6 +8,10 @@ const COORDINATOR := preload("res://scripts/application/run/DayResolutionCoordin
 const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+const DAY_ADVANCE_IDENTITY_PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")
+const IDENTITY_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
+const ISSUER_ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
+const CRYPTO_NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const SAVE_MANAGER := preload("res://autoload/SaveManager.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -102,7 +106,36 @@ func _wired() -> Dictionary:
 	# One three-owner seam (Plan 01 Task 6 Step 6.5, dwm-p2r.13): the gate arrives with the ports.
 	assert_true(coordinator.configure(state_port, checkpoint_port, gate).get("ok", false),
 		"coordinator configured")
-	return {"coordinator": coordinator, "run_id": run_id, "checkpoint_port": checkpoint_port}
+	# The separate Task-7 seam (dwm-p2r.14): a logical-day change may only happen through the one
+	# shared root-atomic identity owner, so a real Days 1-6 walk cannot reach increment_day without
+	# it. Mirrors ApplicationBootstrap._configure_causal_day_advance_identity.
+	var day_advance_port: Object = DAY_ADVANCE_IDENTITY_PORT.new()
+	assert_true(day_advance_port.configure(_identity_issuer()).get("ok", false),
+		"advance identity port bound to the production issuer")
+	assert_true(coordinator.configure_day_advance_identity_port(day_advance_port).get("ok", false),
+		"advance identity port injected")
+	return {"coordinator": coordinator, "run_id": run_id, "checkpoint_port": checkpoint_port,
+		"day_advance_port": day_advance_port}
+
+
+## One real issuer over this suite's sandbox root, built exactly the way
+## ApplicationBootstrap._configure_identity_issuer builds the production one. This suite drives the
+## coordinator directly rather than through Bootstrap, so it owns the issuer its walk allocates
+## from; the sandbox root keeps the counter isolated per test.
+var _issuer: Object = null
+
+func _identity_issuer() -> Object:
+	if _issuer != null:
+		return _issuer
+	var root_store: Object = ISSUER_ROOT_STORE.new()
+	var configured: Dictionary = root_store.configure(
+		STORAGE.new(_root.path_join("identity")), CRYPTO_NAMESPACE_SOURCE.new())
+	assert_true(configured.get("ok", false), "issuer root store configured: " + str(configured))
+	var loaded: Dictionary = root_store.load_or_create()
+	assert_true(loaded.get("ok", false), "issuer root created: " + str(loaded))
+	_issuer = IDENTITY_ISSUER.new()
+	assert_true(_issuer.configure(root_store).get("ok", false), "issuer configured")
+	return _issuer
 
 
 func _autosave_text() -> String:
@@ -213,41 +246,34 @@ func test_real_coordinator_resolves_every_day_one_through_seven() -> void:
 	assert_eq((walk["results"] as Array).size(), 7, "all seven days were driven")
 
 
-func test_day_seven_walk_enters_ending_with_a_surviving_ending_plan() -> void:
+## Plan 01 Task 7 (dwm-p2r.14): the Day-7 walk no longer selects an ending, enters ENDING, or
+## writes an ending autosave. It stops at the checkpointed provenance handoff that dwm-oyo.6
+## consumes, leaving the run PLAYING on Day 7 with no Day 8.
+func test_day_seven_walk_stops_at_the_provenance_handoff_without_entering_ending() -> void:
 	var wired := _wired()
 	var walk := _drive_days(wired["coordinator"], str(wired["run_id"]), 7)
-	assert_eq(str(walk["state"]), "ENDING", "the Day-7 walk enters ENDING")
+	assert_eq(str(walk["state"]), "PLAYING",
+		"the Day-7 walk stops at the provenance handoff rather than entering ENDING")
 	assert_eq(int(walk["last_day"]), 7, "day stays 7; there is no Day 8")
-	var text := _autosave_text()
-	assert_false(text.is_empty(), "the Day-7 ending autosave reaches disk")
-	if text.is_empty():
-		return
-	var document: Dictionary = STRICT_JSON.parse_object(text)["value"]
-	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
-	var lifecycle: Dictionary = snapshot["lifecycle"]
-	assert_eq(str(lifecycle["state"]), "ENDING", "the persisted lifecycle is in ENDING")
-	assert_true(lifecycle["ending_plan"] != null, "the ending_plan survives to disk")
-	if lifecycle["ending_plan"] == null:
-		return
-	var plan: Dictionary = lifecycle["ending_plan"]
-	assert_eq(int(plan["source_day"]), 7, "the ending plan is sourced from Day 7")
-	assert_eq(str(plan["playback_stage"]), "PRIMARY_PENDING", "playback begins pending, as .7 requires")
-	assert_false(str(plan["ending_id"]).is_empty(), "a real primary ending id persisted")
+	var live: Dictionary = GameState._run_lifecycle.to_dict()
+	assert_eq(live["ending_plan"], null,
+		"Plan 01 constructs no ending plan; dwm-oyo.6 owns the ordered plan")
 
 
-func test_a_day_seven_crash_restores_from_disk_with_the_ending_intact() -> void:
-	# The crash case the ending-durability spec exists for: the player reaches Day 7, the process
-	# dies, and the game must come back holding the SAME ending plan -- not a fresh run, and not a
-	# run stranded mid-resolution.
+## The Day-7 crash case under the new law. Day 6's new_day_autosave is the last disk checkpoint the
+## Schedule-Done branch writes, so a Day-7 crash must come back as the SAME run on Day 7 -- still
+## PLAYING, still without an ending plan, and never stranded on Day 8.
+func test_a_day_seven_crash_restores_the_same_run_on_day_seven() -> void:
 	var wired := _wired()
 	var run_id: String = str(wired["run_id"])
 	_drive_days(wired["coordinator"], run_id, 7)
 	var live: Dictionary = GameState._run_lifecycle.to_dict()
-	assert_eq(str(live["state"]), "ENDING", "the run reached ENDING before the crash")
+	assert_eq(int(live["day"]), 7, "the run reached Day 7 before the crash")
 
 	# The crash: live state is lost entirely. Only what reached disk survives.
 	GameState.reset_game()
-	assert_ne(str(GameState._run_lifecycle.to_dict()["state"]), "ENDING", "live state is genuinely gone")
+	assert_ne(int(GameState._run_lifecycle.to_dict()["day"]), 7,
+		"live Day-7 state is genuinely gone before the restore")
 
 	var prepared: Dictionary = _manager.prepare_restore_autosave()
 	assert_true(prepared.get("ok", false), "the Day-7 autosave prepares a restore: " + str(prepared))
@@ -256,10 +282,7 @@ func test_a_day_seven_crash_restores_from_disk_with_the_ending_intact() -> void:
 	var restored := _restored_snapshot(prepared)
 	var lifecycle: Dictionary = restored["lifecycle"]
 	assert_eq(str(restored["run_id"]), run_id, "the SAME run comes back, not a fresh one")
-	assert_eq(str(lifecycle["state"]), "ENDING", "and it comes back in ENDING")
 	assert_eq(int(lifecycle["day"]), 7, "on Day 7")
-	assert_true(lifecycle["ending_plan"] != null, "with its ending plan intact")
-	if lifecycle["ending_plan"] == null:
-		return
-	assert_eq(lifecycle["ending_plan"], live["ending_plan"],
-		"the recovered ending plan is byte-identical to the one the run produced")
+	assert_ne(int(lifecycle["day"]), 8, "there is no Day 8")
+	assert_eq(lifecycle["ending_plan"], null,
+		"no ending plan is recovered, because Plan 01 never produced one")

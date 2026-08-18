@@ -351,7 +351,7 @@ func test_group_accepted_not_attended_misses_and_defers_twofriends() -> void:
 	assert_eq((res["value"]["message_batch"] as Array).size(), 2)
 	assert_eq(res["value"]["message_batch"][0]["type"], "missed_question")
 	assert_eq(res["receipt"]["date_outcome_ids"], ["date.group.priscilla_lavinia.missed.day2"])
-	assert_eq(res["receipt"]["deferred_twofriends"], {"route_id": "twofriends", "action_id": "group:priscilla_lavinia:day2", "after_hospital": false})
+	assert_eq(res["receipt"]["deferred_twofriends"], {"route_id": "dating", "action_id": "group:priscilla_lavinia:day2", "after_hospital": false})
 
 func test_group_ordinary_miss_reasons_keep_their_two_questions() -> void:
 	var s: Script = _script()
@@ -380,7 +380,7 @@ func test_group_hospital_supersession_defers_without_generic_missed_question() -
 	assert_true(resolved.get("ok", false), str(resolved))
 	assert_eq(resolved["value"]["candidate"]["group_action"]["state"], "RESOLVED_MISSED")
 	assert_eq(resolved["receipt"]["deferred_twofriends"], {
-		"route_id": "twofriends",
+		"route_id": "dating",
 		"action_id": "group:priscilla_lavinia:day2",
 		"after_hospital": true,
 	})
@@ -952,3 +952,83 @@ func _mutated_state(state: Dictionary, path: Array, value: Variant, erase: bool 
 	else:
 		(cursor as Array)[int(final_key)] = value
 	return changed
+
+
+# ---- Task 7 Step 7.3: the Sylvia hospital witness handoff index (dwm-p2r.14) ----
+#
+# Task 3 RESERVED contacts.sylvia_hospital_witness_receipts and rejected any non-empty value.
+# Task 7 opens it: the Hospital transaction commits the byte-identical witness here, and the index
+# outlives the resolution plan so dwm-oyo.4 can consume it later. It is an append-only HANDOFF
+# index, not a second gameplay ledger -- nothing here applies a relationship change.
+
+const WITNESS_INDEX := "sylvia_hospital_witness_receipts"
+
+
+func _witness_record(entry_id: String = "e-syl", day: int = 3) -> Dictionary:
+	return {
+		"kind": "sylvia_hospital_witness",
+		"resolution_kind": "schedule_done",
+		"schedule_entry_id": entry_id,
+		"action_id": "solo:sylvia:day%d" % day,
+		"source_receipt_id": "source." + entry_id,
+		"hospital_miss_ordinal": 0,
+		"care_followup_day": day + 1,
+		"care_followup_entry_id": "care.sylvia.day%d" % (day + 1),
+		"affection_delta": 2,
+		"dark_delta": 1,
+		"attitude": "fixated",
+		"tier_transition": "advance_one_or_stay_love",
+	}
+
+
+func test_a_valid_sylvia_witness_record_is_accepted_by_the_opened_index() -> void:
+	var state: Dictionary = load(CONTACT_STATE_PATH).make_defaults()
+	state[WITNESS_INDEX]["witness.1"] = _witness_record()
+	var result: Dictionary = load(CONTACT_STATE_PATH).validate_state(state)
+	assert_true(result.get("ok", false),
+		"Task 7 opens the reserved index for real witness records: " + JSON.stringify(result))
+
+
+func test_the_witness_index_rejects_malformed_records() -> void:
+	# A blank id, a wrong kind, a missing member, an extra member, and a wrong-typed delta all
+	# fail closed. The index is a durable handoff, so a malformed record must never persist.
+	var blank_id: Dictionary = load(CONTACT_STATE_PATH).make_defaults()
+	blank_id[WITNESS_INDEX][""] = _witness_record()
+	assert_false(load(CONTACT_STATE_PATH).validate_state(blank_id).get("ok", true), "blank receipt id rejects")
+
+	var wrong_kind: Dictionary = load(CONTACT_STATE_PATH).make_defaults()
+	var record: Dictionary = _witness_record()
+	record["kind"] = "something_else"
+	wrong_kind[WITNESS_INDEX]["witness.1"] = record
+	assert_false(load(CONTACT_STATE_PATH).validate_state(wrong_kind).get("ok", true), "wrong kind rejects")
+
+	var missing: Dictionary = load(CONTACT_STATE_PATH).make_defaults()
+	var short_record: Dictionary = _witness_record()
+	short_record.erase("care_followup_entry_id")
+	missing[WITNESS_INDEX]["witness.1"] = short_record
+	assert_false(load(CONTACT_STATE_PATH).validate_state(missing).get("ok", true), "a missing member rejects")
+
+	var extra: Dictionary = load(CONTACT_STATE_PATH).make_defaults()
+	var wide_record: Dictionary = _witness_record()
+	wide_record["applied"] = true
+	extra[WITNESS_INDEX]["witness.1"] = wide_record
+	assert_false(load(CONTACT_STATE_PATH).validate_state(extra).get("ok", true),
+		"an extra member rejects; the record is exact-key")
+
+	var bad_delta: Dictionary = load(CONTACT_STATE_PATH).make_defaults()
+	var delta_record: Dictionary = _witness_record()
+	delta_record["affection_delta"] = "2"
+	bad_delta[WITNESS_INDEX]["witness.1"] = delta_record
+	assert_false(load(CONTACT_STATE_PATH).validate_state(bad_delta).get("ok", true),
+		"a coerced delta rejects; deltas are strict ints")
+
+
+func test_the_witness_index_only_accepts_the_schedule_done_resolution_kind() -> void:
+	# Plan 01 writes ONLY the Schedule-Done witness. Plan 03's condition-Hospital flow owns its own
+	# ancestry and must not reach this index through a Plan-01 shaped record.
+	var state: Dictionary = load(CONTACT_STATE_PATH).make_defaults()
+	var record: Dictionary = _witness_record()
+	record["resolution_kind"] = "condition_hospital"
+	state[WITNESS_INDEX]["witness.1"] = record
+	assert_false(load(CONTACT_STATE_PATH).validate_state(state).get("ok", true),
+		"Plan 01 never persists a condition-Hospital witness here")
