@@ -880,6 +880,13 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 			"message": "this resolution persisted no root, so no presentation child can be derived"
 				+ " (the Plan-02 desktop consequence source is unconfigured)",
 			"details": {"stage_id": str(stage.get("stage_id", ""))}}
+	# A plan can carry a perfectly good root while THIS port has no issuer to derive under -- a
+	# half-composed process, or a resolution begun by one port and resumed by another. Fail closed
+	# rather than dereferencing a null issuer part-way through the derivation.
+	if _identity_issuer == null:
+		return {"ok": false, "code": &"presentation_intent_unavailable",
+			"message": "this port has no configured identity issuer to derive a presentation under",
+			"details": {"stage_id": str(stage.get("stage_id", ""))}}
 
 	# HOSPITAL ANCESTRY FIRST, and exactly once. The aggregate and miss rows feed BOTH the context's
 	# `miss_receipt_ids` and the intent's `input_receipt_ids`; deriving them twice would be wasteful
