@@ -44,6 +44,7 @@ const FAKE_DATING_OWNER := preload("res://tests/support/FakeDatingPresentationOw
 const CONSEQUENCE_SOURCE := preload("res://tests/support/FakeDesktopConsequenceSource.gd")
 const HOSPITAL_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
 const PRESENTATION_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
+const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 
 const CAUSAL_DAY := "causal_day_instance.5555555555555555555555555555555555555555555555555555555555555555"
 const VIEW_FINGERPRINT := "schedule_view.55555555555555555555555555555555"
@@ -60,6 +61,9 @@ var _state_port: RefCounted
 var _dating_port: RefCounted
 var _dating_owner: RefCounted
 var _hospital_port: RefCounted
+## Retained only so the Cut-9 crash can carry the Plan-02 consequence records across it; every
+## other cut ignores it. See `_crash_from_document`.
+var _consequence: RefCounted
 var _bridge: Node
 var _completions: Array[Dictionary] = []
 var _commands: Dictionary = {}
@@ -99,9 +103,9 @@ func _boot() -> void:
 	assert_true(ledger.load().get("ok", false))
 	_state_port = STATE_PORT.new(_game_state)
 
-	var consequence: RefCounted = CONSEQUENCE_SOURCE.new()
-	assert_true(consequence.configure(_issuer).get("ok", false))
-	assert_true(_state_port.configure_desktop_consequence_source(consequence).get("ok", false))
+	_consequence = CONSEQUENCE_SOURCE.new()
+	assert_true(_consequence.configure(_issuer).get("ok", false))
+	assert_true(_state_port.configure_desktop_consequence_source(_consequence).get("ok", false))
 	assert_true(_state_port.configure_resolution_identity(
 		_issuer, START_PORT.new(_state_port, _registry, _issuer, ledger)).get("ok", false))
 
@@ -381,6 +385,105 @@ func test_a_superseded_date_never_presents_across_a_crash() -> void:
 
 
 # -------------------------------------------------------------------------------------------------
+# Cut 9: across the Hospital presentation, restored from the ON-DISK checkpoint (dwm-p2r.19)
+# -------------------------------------------------------------------------------------------------
+
+## The Hospital intent is the last presentation child derived from LIVE mutable state:
+## `_presentation_site` routes `hospital_if_triggered` to `_hospital_site`, which reads
+## `should_route_hospital()` -- and that method returns `pending_hospital` verbatim. Because
+## `resume()` never re-runs `begin_or_resume`, a restored resolution derives that intent AGAIN. The
+## only thing standing between it and a different answer than the one it already published is that
+## the flag is checkpointed in the SAME bundle as the plan:
+##
+##   * `pending_hospital` is a member of `GameState._SAVE_WHITELIST`;
+##   * `capture_run_snapshot_input()` builds `gameplay` from that whitelist and returns it beside
+##     `lifecycle` -- which carries `active_resolution_plan` -- in ONE dictionary;
+##   * `_checkpoint_inputs()` hands that one dictionary to `RunSnapshotSchema.build`, whose
+##     `GAMEPLAY_FIELDS` lists `pending_hospital`, producing ONE document;
+##   * `apply_save_dict()` walks the same whitelist back on restore.
+##
+## So the corrupt state -- a restored plan sitting mid-Hospital beside a CLEARED flag -- is not
+## reachable, because both halves come from the same bytes. That argument is what this test exists
+## to turn into a guarantee, because nothing else asserts it: every other cut in this file restores
+## from an in-memory `to_dict()` and leaves `pending_hospital` SET across the cut, so all of them
+## would pass just as happily if the flag stopped being captured at all. `RunSnapshotSchema` will
+## not object either -- its gameplay check is an ALLOWLIST that rejects members it does not know
+## and says nothing about a member that went missing.
+##
+## This cut restores from BYTES ONLY. `_boot()` calls `reset_game()`, which clears
+## `pending_hospital`, so the rebuilt process starts with the flag FALSE and can only get it back
+## from the same document that carried the plan.
+func test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_plan() -> void:
+	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
+	_game_state.pending_hospital = true
+
+	# The durable restore point is the checkpoint the stage BEFORE Hospital wrote: a presentation
+	# checkpoints nothing until it completes, so this is the document a crash DURING one actually
+	# comes back from.
+	var document := _walk_to_hospital_checkpoint()
+	assert_false(document.is_empty(), "a checkpoint was written before the Hospital stage")
+	if document.is_empty():
+		return
+
+	# THE TWO HALVES, IN ONE DOCUMENT. Asserted against the bytes themselves, so a future change
+	# that stopped capturing the flag fails HERE, naming the cause, rather than only downstream.
+	var gameplay: Dictionary = document["gameplay"]
+	var lifecycle_bytes: Dictionary = document["lifecycle"]
+	assert_true(gameplay.has("pending_hospital"),
+		"the checkpoint carries the condition flag the Hospital intent is derived from")
+	assert_true(bool(gameplay.get("pending_hospital", false)),
+		"and carries it TRUE, exactly as the live process held it")
+	assert_eq(typeof(lifecycle_bytes.get("active_resolution_plan")), TYPE_DICTIONARY,
+		"the SAME document carries the plan those bytes belong to")
+
+	var begun: Dictionary = _state_port.begin_next_stage()
+	assert_true(begun.get("ok", false), JSON.stringify(begun))
+	if not begun.get("ok", false):
+		return
+	var first: Dictionary = begun["value"]
+	assert_eq(str(first["mode"]), "await_registered_command",
+		"a triggered Hospital pauses on its presentation")
+	if str(first["mode"]) != "await_registered_command":
+		return
+	var first_command: Dictionary = first["command"]
+	var first_request: Dictionary = first_command["presentation_request"]
+
+	# THE CRASH, mid-presentation: the intent is published and the timeline is playing, and nothing
+	# about either is durable.
+	if not _crash_from_document(document):
+		return
+
+	# The flag came back BECAUSE the plan did -- same document, same bytes, one restore.
+	assert_true(bool(_game_state.pending_hospital),
+		"the restored process holds the condition truth the checkpoint recorded")
+	assert_true(bool(_game_state.should_route_hospital()),
+		"so the live read the resumed derivation performs answers as it did before the crash")
+
+	var resumed: Dictionary = _state_port.inspect_next_stage()
+	assert_true(resumed.get("ok", false) and bool(resumed["value"]["has_stage"]),
+		"the restored run still has the Hospital stage in front of it")
+	if not resumed.get("ok", false):
+		return
+	assert_eq(str((resumed["value"]["stage"] as Dictionary).get("stage_id", "")), "hospital_if_triggered",
+		"and it is exactly the stage the crash interrupted")
+
+	var again: Dictionary = _state_port.begin_next_stage()
+	assert_true(again.get("ok", false), JSON.stringify(again))
+	if not again.get("ok", false):
+		return
+	var second: Dictionary = again["value"]
+	assert_eq(str(second["mode"]), "await_registered_command",
+		"the resumed walk derives a presentation, not a required=false completion over a published intent")
+	if str(second["mode"]) != "await_registered_command":
+		return
+	var second_command: Dictionary = second["command"]
+	assert_eq(str(second_command["transaction_id"]), str(first_command["transaction_id"]),
+		"the restored plan offers the SAME Hospital stage transaction")
+	assert_eq(second_command["presentation_request"], first_request,
+		"and re-derives the P01.presentation.intent BYTE-IDENTICALLY, because the flag travelled with the plan")
+
+
+# -------------------------------------------------------------------------------------------------
 # helpers
 # -------------------------------------------------------------------------------------------------
 
@@ -570,3 +673,130 @@ func _command(label: String) -> Dictionary:
 			"receipt": ((issued.get("value", {}) as Dictionary).get("issuer_receipt", {}) as Dictionary).duplicate(true),
 		}
 	return (_commands[label] as Dictionary).duplicate(true)
+
+
+# ---- Cut 9 helpers: the real checkpoint bundle, on real disk (dwm-p2r.19) -----------------------
+
+## Walks the resolution until `hospital_if_triggered` is PENDING, completing each stage before it
+## through the REAL bundle the resolution path produces -- `prepare_completion`, whose
+## `snapshot_input` the coordinator forwards verbatim to the checkpoint port -- and writing each one
+## to disk. Returns the LAST document, read back from those bytes.
+##
+## `prepare_completion` is pure (it applies the stage to a DETACHED lifecycle clone), so calling it
+## for the bundle and then completing the live stage records exactly what a checkpoint would have.
+func _walk_to_hospital_checkpoint() -> Dictionary:
+	var written := {}
+	var steps := 0
+	while steps < MAX_WALK_STEPS:
+		steps += 1
+		var cursor: Dictionary = _state_port.inspect_next_stage()
+		if not cursor.get("ok", false) or not bool(cursor["value"]["has_stage"]):
+			assert_true(false, "the walk ended before the Hospital stage")
+			return {}
+		var record: Dictionary = cursor["value"]["stage"]
+		if str(record.get("stage_id", "")) == "hospital_if_triggered":
+			return written
+		var begun: Dictionary = _state_port.begin_next_stage()
+		assert_true(begun.get("ok", false), JSON.stringify(begun))
+		if not begun.get("ok", false):
+			return {}
+		var value: Dictionary = begun["value"]
+		if str(value["mode"]) == "await_registered_command":
+			assert_true(false, "no presentation stands between the resolution start and Hospital")
+			return {}
+		var stage: Dictionary = value["stage"]
+		var receipt: Dictionary = value["receipt"]
+		var transaction_id := str(stage["transaction_id"])
+		# The ENVELOPE, exactly as `DayResolutionCoordinator._commit_completion` forwards it: the
+		# port converts it itself through `_plan_receipt_from_envelope`, whose default branch is the
+		# same `{"value": ...}` the live completion below uses, so clone and live state agree.
+		var prepared: Dictionary = _state_port.prepare_completion(transaction_id, receipt)
+		assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+		if not prepared.get("ok", false):
+			return {}
+		written = _persist_checkpoint((prepared["value"] as Dictionary)["snapshot_input"], steps)
+		if written.is_empty():
+			return {}
+		var completed: Dictionary = _game_state._run_lifecycle.complete_active_stage(
+			transaction_id, {"value": (receipt["value"] as Dictionary).duplicate(true)})
+		assert_true(completed.get("ok", false), JSON.stringify(completed))
+		if not completed.get("ok", false):
+			return {}
+	assert_true(false, "the walk stopped advancing before the Hospital stage")
+	return {}
+
+
+## Builds the v3 snapshot from the port's own checkpoint inputs, writes it as JSON, and reads it
+## BACK. The round trip is the point: the restore may only see what actually survived as bytes.
+func _persist_checkpoint(inputs: Dictionary, sequence: int) -> Dictionary:
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
+		inputs["snapshot_input"], inputs["dialogic_checkpoint"], str(inputs["route_id"]),
+		inputs["active_app_id"], inputs["audio_context"], int(inputs["content_version"]), sequence)
+	assert_true(built.get("ok", false), JSON.stringify(built))
+	if not built.get("ok", false):
+		return {}
+	var path := _root.path_join("checkpoint.json")
+	var writer := FileAccess.open(path, FileAccess.WRITE)
+	assert_true(writer != null, "the checkpoint file opened for writing")
+	if writer == null:
+		return {}
+	writer.store_string(JSON.stringify((built["value"] as Dictionary)["snapshot"]))
+	writer.close()
+	var reader := FileAccess.open(path, FileAccess.READ)
+	assert_true(reader != null, "the checkpoint file opened for reading")
+	if reader == null:
+		return {}
+	var text := reader.get_as_text()
+	reader.close()
+	var parsed: Variant = JSON.parse_string(text)
+	assert_eq(typeof(parsed), TYPE_DICTIONARY, "the checkpoint round-trips as an object")
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	return parsed as Dictionary
+
+
+## THE CRASH, restored from the DOCUMENT rather than from memory. Every owner is destroyed and
+## rebuilt, and the rebuilt `GameState` is asserted to start with the condition flag CLEARED -- so
+## whatever it knows afterwards demonstrably came out of these bytes and not out of luck.
+func _crash_from_document(document: Dictionary) -> bool:
+	# THE PLAN-02 RECORDS ARE DURABLE BY CONTRACT, so they must survive this crash or the test would
+	# measure the wrong thing. `FakeDesktopConsequenceSource` mints the condition receipt "once per
+	# causal day, so a replayed resolution binds the SAME board fate and condition rather than a
+	# fresh one -- which is what the real ports will do", but it memoises that in memory, so a
+	# rebuilt fixture would mint a NEW one. Carrying the memo models the durability its own contract
+	# declares.
+	#
+	# This matters here and nowhere else in this file because of DEVIATION-6: Hospital's
+	# `miss_receipt_ids` are RE-DERIVED rather than persisted, and each miss row projects the
+	# `hospital_resolution_id` that descends from `condition_receipt_id`. So a fresh condition
+	# receipt would move the miss ids, move the context hash, and move the intent -- for a reason
+	# that has nothing to do with `pending_hospital`. Plan 01's cross-crash byte-identity therefore
+	# RESTS on Plan 02 keeping that receipt stable per causal day; nothing in Plan 01 enforces it.
+	#
+	# Carrying it does NOT soften what this test catches: if `pending_hospital` stopped being
+	# captured, the restored flag would be false, `_hospital_site()` would return {}, and the stage
+	# would complete required=false instead of presenting -- failing the `await_registered_command`
+	# assertion long before byte-identity is reached.
+	var carried_condition: Dictionary = (_consequence._condition as Dictionary).duplicate(true)
+	var carried_board_fate: Dictionary = (_consequence._board_fate as Dictionary).duplicate(true)
+
+	_game_state.queue_free()
+	_boot()
+	_consequence._condition = carried_condition
+	_consequence._board_fate = carried_board_fate
+	assert_false(bool(_game_state.pending_hospital),
+		"the rebuilt process starts with the condition flag CLEARED, before anything is restored")
+	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(document)
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	if not validated.get("ok", false):
+		return false
+	var snapshot: Dictionary = (validated["value"] as Dictionary)["candidate"]
+	# ONE seam, ONE document, every half at once -- the production restore, not a hand-rolled
+	# stand-in: `_apply_run_snapshot_silent` installs the lifecycle (and with it
+	# `active_resolution_plan`), the gameplay bag through the SAME `_SAVE_WHITELIST` that captured
+	# it, the Contacts index, and the committed aggregate. Using it is the point rather than a
+	# convenience: the flag and the plan are proven to travel together only if the thing that puts
+	# them back is the thing production uses.
+	var restored: Dictionary = _game_state._apply_run_snapshot_silent(snapshot)
+	assert_true(restored.get("ok", false), JSON.stringify(restored))
+	return restored.get("ok", false)
