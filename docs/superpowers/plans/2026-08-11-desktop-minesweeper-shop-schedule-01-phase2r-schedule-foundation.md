@@ -1197,6 +1197,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "& '.\tools\testing\Invok
 feat(flow): checkpoint Day 7 Schedule provenance
 ```
 
+- [ ] **Step 8.10: Run `hospital_dating_adapter_gate`, the bead's own acceptance gate.** `dwm-p2r.14`'s `phase2r.verification_commands` names `Invoke-IsolatedGodot.ps1:hospital_dating_adapter_gate`; the suite list behind that name is defined from the bead's acceptance criteria — the valid, stale, duplicate, conflicting, interrupted, Hospital, pair and Day-7 paths over the real committed schedule, plus the negative half — and recorded with its per-suite coverage survey and mutation evidence in `docs/superpowers/notes/2026-08-19-p2r14-hospital-dating-adapter-gate.md`.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& '.\tools\testing\Invoke-IsolatedGodot.ps1' -SuiteId 'hospital_dating_adapter_gate' -LogName 'hospital-dating-adapter-gate.log' -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/test_hospital_presentation_port.gd,res://tests/unit/test_dating_presentation_port.gd,res://tests/unit/test_dialogic_presentation_owner_adapter.gd,res://tests/unit/test_day_resolution_coordinator.gd,res://tests/unit/test_day7_schedule_provenance.gd,res://tests/scene/test_hospital_scene.gd,res://tests/scene/test_dating_scene.gd,res://tests/integration/test_committed_schedule_day_resolution.gd,res://tests/integration/test_committed_schedule_effect_order.gd,res://tests/integration/test_committed_schedule_presentation_matrix.gd,res://tests/integration/test_committed_schedule_presentation_resume.gd,res://tests/integration/test_hospital_dating_adapter_negative_contract.gd,res://tests/integration/test_day_resolution_disk_durability.gd,res://tests/integration/test_dialogic_bridge_contract.gd,res://tests/integration/test_schedule_presentation_bootstrap_wiring.gd,res://tests/scenario/test_day7_schedule_provenance.gd,res://tests/scenario/test_hospital_invitation_closures.gd,res://tests/scenario/test_hospital_twofriends_order.gd','-gexit')"
+```
+
 - [ ] Attach both `.14` commits and fresh scenario evidence, then close `dwm-p2r.14`. Claim `.15` only after readiness is green.
 
 ## Task 9: Seal the Phase-2R Schedule gate and close `.7` tails (`dwm-p2r.15`, then `.7`)
