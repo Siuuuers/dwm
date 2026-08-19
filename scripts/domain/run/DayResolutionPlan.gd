@@ -571,6 +571,23 @@ static func _validate_resolution_root(
 		return "the start receipt names another resolution"
 	if typeof(start.get("receipt_provenance")) != TYPE_DICTIONARY:
 		return "the start receipt must carry its full provenance, not an id alone"
+	# THE EDGE ITSELF. Full provenance sitting BESIDE a root proves nothing until it is tied to THAT
+	# root: a start receipt derived under a different root, but still naming this resolution, would
+	# otherwise restore and let the producer anchor every presentation child under the root here while
+	# projecting `day_resolution_start_receipt_id` from the foreign receipt. That forged chain
+	# reproduces byte-identically on every later load, so nothing downstream can notice it.
+	var provenance: Dictionary = start["receipt_provenance"]
+	if str(provenance.get("parent_receipt_id", "")) != str(root_receipt["receipt_id"]):
+		return "the start receipt was derived under another root"
+	if str(provenance.get("child_id", "")) != str(start["receipt_id"]):
+		return "the start receipt is not the child its own provenance names"
+	# Indexed RAW by the presentation producer (`str(start["causal_day_instance"])` in both
+	# `_presentation_command` and `_derive_hospital_rows`), so a plan that restores without it crashes
+	# the walk instead of failing closed at this boundary. A non-String is refused rather than
+	# coerced: `str()` would change the projected bytes without changing the shape.
+	if typeof(start.get("causal_day_instance")) != TYPE_STRING \
+			or str(start["causal_day_instance"]).is_empty():
+		return "the start receipt must carry the nonblank causal_day_instance the intent projects"
 	return ""
 
 

@@ -431,3 +431,82 @@ func test_a_restored_root_is_re_proven_against_its_resolution() -> void:
 	missing_member.erase("command_id")
 	assert_false(plan_script.from_dict(missing_member).get("ok", true),
 		"PLAN_KEYS stays an EXACT member set")
+
+
+## THE ANCESTRY EDGE ITSELF, which the checks above do not reach (dwm-p2r.18 review, Finding 3a).
+##
+## `receipt_provenance` was only type-checked. Full provenance sitting BESIDE a root proves nothing
+## until it is tied to THAT root: a tampered snapshot could pair a genuine root R with a start
+## receipt derived under a DIFFERENT root, so long as the start receipt still named this resolution.
+## The producer would then anchor every presentation child under R while projecting
+## `day_resolution_start_receipt_id` from the foreign receipt, and the forged chain would reproduce
+## byte-identically on every later load -- which is exactly what makes it undetectable downstream.
+func test_a_restored_start_receipt_must_descend_from_the_persisted_root() -> void:
+	assert_true(_plan_exists(), "DayResolutionPlan must exist")
+	if not _plan_exists():
+		return
+	var created: Dictionary = _rooted_plan()
+	assert_true(created.get("ok", false))
+	if not created.get("ok", false):
+		return
+	var plan_script: Script = load(PLAN_PATH)
+	var data: Dictionary = (created["value"]["plan"] as RefCounted).to_dict()
+
+	var foreign_parent: Dictionary = data.duplicate(true)
+	_start_provenance(foreign_parent)["parent_receipt_id"] = "receipt-tok-other"
+	assert_false(plan_script.from_dict(foreign_parent).get("ok", true),
+		"a start receipt derived under ANOTHER root rejects, even while it names this resolution")
+
+	var rootless_parent: Dictionary = data.duplicate(true)
+	_start_provenance(rootless_parent)["parent_receipt_id"] = ""
+	assert_false(plan_script.from_dict(rootless_parent).get("ok", true),
+		"and so does provenance naming no parent at all")
+
+	var swapped_child: Dictionary = data.duplicate(true)
+	(swapped_child["day_resolution_start_receipt"] as Dictionary)["receipt_id"] = "start-child-2"
+	assert_false(plan_script.from_dict(swapped_child).get("ok", true),
+		"a receipt id that is not the child its OWN provenance names rejects: the intent projects "
+			+ "exactly that id, so the swap would fork the chain")
+
+	assert_true(plan_script.from_dict(data.duplicate(true)).get("ok", false),
+		"and the honest pair still restores")
+
+
+## The one member of the start receipt the walk indexes RAW (dwm-p2r.18 review, Finding 3b).
+##
+## `GameStateDayResolutionPort._presentation_command` and `_derive_hospital_rows` both do
+## `str(start["causal_day_instance"])` with no guard. It was never required here, so a restored plan
+## missing it passed validation and then CRASHED the walk rather than failing closed at the
+## boundary. A non-String is refused for the same reason `str()` would hide it: coercion changes the
+## projected bytes without changing the shape.
+func test_a_restored_start_receipt_must_carry_the_causal_day_the_walk_indexes() -> void:
+	assert_true(_plan_exists(), "DayResolutionPlan must exist")
+	if not _plan_exists():
+		return
+	var created: Dictionary = _rooted_plan()
+	assert_true(created.get("ok", false))
+	if not created.get("ok", false):
+		return
+	var plan_script: Script = load(PLAN_PATH)
+	var data: Dictionary = (created["value"]["plan"] as RefCounted).to_dict()
+
+	var missing_day: Dictionary = data.duplicate(true)
+	(missing_day["day_resolution_start_receipt"] as Dictionary).erase("causal_day_instance")
+	assert_false(plan_script.from_dict(missing_day).get("ok", true),
+		"a start receipt with no causal_day_instance rejects rather than crashing the walk later")
+
+	var blank_day: Dictionary = data.duplicate(true)
+	(blank_day["day_resolution_start_receipt"] as Dictionary)["causal_day_instance"] = ""
+	assert_false(plan_script.from_dict(blank_day).get("ok", true),
+		"a blank causal day rejects: the intent projects it as a load-bearing member")
+
+	var coerced_day: Dictionary = data.duplicate(true)
+	(coerced_day["day_resolution_start_receipt"] as Dictionary)["causal_day_instance"] = 3
+	assert_false(plan_script.from_dict(coerced_day).get("ok", true),
+		"and so does a non-String the projection would silently coerce")
+
+
+## The provenance record inside a snapshot copy, so the mutations above read as one fact each.
+func _start_provenance(plan_data: Dictionary) -> Dictionary:
+	return ((plan_data["day_resolution_start_receipt"] as Dictionary)["receipt_provenance"]
+		as Dictionary)
