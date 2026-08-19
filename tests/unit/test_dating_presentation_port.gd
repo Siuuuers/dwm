@@ -242,6 +242,45 @@ func test_a_trusted_challenge_completion_produces_the_exact_frozen_receipt_once(
 	assert_eq(receipt["receipt_provenance"], request["completion_transaction_provenance"])
 
 
+func test_a_deferred_pair_completes_through_the_port_carrying_its_own_pair_bytes() -> void:
+	# THE PORT IS THE CEILING HERE, deliberately. Phase 2R routes the deferred pair to `dating`, and
+	# the Dating route is fail-closed until dwm-oyo.4 configures a real owner, so no routed scene can
+	# reach this path and no end-to-end claim is available to make. A round trip through the port
+	# against `FakeDatingPresentationOwner` is the strongest honest proof there is.
+	#
+	# WHY IT IS NOT REDUNDANT. Every other `complete()` test in this suite runs `_request()`, whose
+	# context kind is `solo`. The pair reached only `begin()`, so its completion child, its command
+	# bytes and its locator were never carried through settlement.
+	var request := _pair_request()
+	var begun: Dictionary = _port.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	var command: Dictionary = begun["value"]["presentation_command"]
+	assert_eq(command["context"], _pair_context(),
+		"the deferred-pair context reaches the owner unaltered and unsorted")
+
+	_owner.finish(str(request["completion_transaction_id"]), {"challenge": "cleared"})
+
+	assert_true(_failures.is_empty(), str(_failures))
+	assert_eq(_ready_results.size(), 1, "the pair settles exactly once")
+	var receipt: Dictionary = (_ready_results[0] as Dictionary)["receipt"]
+	var keys: Array = receipt.keys()
+	keys.sort()
+	assert_eq(keys, PORT.COMPLETION_RECEIPT_KEYS)
+	assert_eq(str(receipt["receipt_id"]), str(request["completion_transaction_id"]))
+	assert_eq(receipt["receipt_provenance"], request["completion_transaction_provenance"])
+	assert_eq(str(receipt["route_id"]), "dating")
+	assert_eq(str(receipt["physical_owner_kind"]), "dating_challenge")
+	assert_eq(str(receipt["timeline_id"]), PAIR_TIMELINE_ID,
+		"the settled receipt names the pair locator, never the solo one")
+	assert_eq(str(receipt["command_sha256"]),
+		str((STATE_SCHEMA.canonical_sha256(request)["value"] as Dictionary)["sha256"]),
+		"the receipt is bound to the pair request's own canonical bytes")
+	assert_eq(str(receipt["physical_token"]), FAKE_OWNER.derive_token(
+		str(request["completion_transaction_id"]), str(receipt["command_sha256"])))
+	assert_eq((receipt["physical_completion_receipt"] as Dictionary)["result"],
+		{"challenge": "cleared"}, "the port reports the owner's own physical result and no more")
+
+
 func test_a_restored_owner_reemission_returns_the_same_receipt_without_a_second_publication() -> void:
 	var request := _request()
 	assert_true(_port.begin(request).get("ok", false))
