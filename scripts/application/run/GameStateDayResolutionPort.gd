@@ -857,6 +857,21 @@ func _deferred_pair_site() -> Dictionary:
 		"route_id": "dating", "schedule_entry_id": entry_id}
 
 
+## The exact top-level `P01.day_resolution.stage` child id for `stage_id`, or "" when the plan
+## carries no such stage.
+##
+## Read out of the PERSISTED plan rather than off the cursor record. For a surviving date the cursor
+## is the entry SUBSTAGE, whose transaction id is `<resolution>:surviving_date:<slot>:<entry>`;
+## projecting that would bind the completion to an entry-substage row when plan line 100 names the
+## top-level one, and line 100 explicitly separates the two roles.
+static func _top_level_stage_transaction_id(plan: Dictionary, stage_id: String) -> String:
+	for stage_value: Variant in (plan.get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		if str(stage.get("stage_id", "")) == stage_id:
+			return str(stage.get("transaction_id", ""))
+	return ""
+
+
 ## The committed group entry this resolution's Hospital superseded, or "" when there is none.
 ##
 ## READ FROM THE SUPERSESSION HOSPITAL DURABLY COMMITTED, never from a live invitation field. This
@@ -903,6 +918,14 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	if _identity_issuer == null:
 		return {"ok": false, "code": &"presentation_intent_unavailable",
 			"message": "this port has no configured identity issuer to derive a presentation under",
+			"details": {"stage_id": str(stage.get("stage_id", ""))}}
+	# Line 100's `stage_id` is the TOP-LEVEL stage, which is not the record this call was handed
+	# whenever the presentation hangs off an entry substage. Resolved before anything is minted, so a
+	# plan that cannot name its own stage refuses rather than anchoring a child under a wrong id.
+	var stage_child_id := _top_level_stage_transaction_id(plan, str(stage.get("stage_id", "")))
+	if stage_child_id.is_empty():
+		return {"ok": false, "code": &"presentation_intent_unavailable",
+			"message": "this resolution carries no top-level stage for this presentation",
 			"details": {"stage_id": str(stage.get("stage_id", ""))}}
 
 	# HOSPITAL ANCESTRY FIRST, and exactly once. The aggregate and miss rows feed BOTH the context's
@@ -957,11 +980,12 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	var intent_id := str((intent["value"] as Dictionary)["child_id"])
 
 	# The completion binds its prerequisite: `substage_id` is the intent child id just derived, so
-	# the completion projection cannot be built before the intent exists (plan line 100).
+	# the completion projection cannot be built before the intent exists (plan line 100). `stage_id`
+	# is the TOP-LEVEL stage that intent belongs to, never the entry substage it may be driven from.
 	var completion := _derive_row(str(root_receipt["receipt_id"]), PRESENTATION_CHILD_KIND, ordinal, [
 		_project("role", COMPLETION_ROLE),
 		_project("resolution_id", str(plan["resolution_id"])),
-		_project("stage_id", str(stage["transaction_id"])),
+		_project("stage_id", stage_child_id),
 		_project("substage_id", intent_id),
 		_project("route_id", str(site["route_id"])),
 		_project("timeline_id", timeline_id),
@@ -973,7 +997,7 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"presentation_request": {
 		"resolution_id": str(plan["resolution_id"]),
 		"resolution_issuer_receipt": root_receipt.duplicate(true),
-		"stage_id": str(stage["transaction_id"]),
+		"stage_id": stage_child_id,
 		"substage_id": intent_id,
 		"route_id": str(site["route_id"]),
 		"timeline_id": timeline_id,

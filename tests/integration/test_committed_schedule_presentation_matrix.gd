@@ -20,6 +20,13 @@ extends "res://addons/gut/test.gd"
 # projection member: if `stage_index` were silently absent from the producer's token set, mutating
 # it would leave the derived id untouched and the exact-match test above would still pass.
 #
+# WHERE THE INDEPENDENCE STOPS, named rather than assumed. Two values cannot be rebuilt from the
+# plan text: a timeline locator (the plan requires the locator to be REGISTERED in
+# `DialogicTimelineCatalog` but never constructs one) and the `P01.hospital.miss` child ids carried
+# inside the Hospital context (line 95 rows this suite does not derive). The locators are therefore
+# named as literal constants below instead of read off the request; the miss ids are the one
+# deliberate read-back left, marked at `_expected_hospital_context`.
+#
 # SUBSTRATE. Real throughout -- GUID-isolated root, real DesktopIssuerRootStore over real
 # JsonFileStorage, the real DesktopIdentityNonceIssuer, the production ScheduleActionRegistry, the
 # real GameStateScheduleCommitPort, a real GameState in the tree. The only fixture is the Plan-02
@@ -50,6 +57,12 @@ const DATES_STAGE_INDEX := 5
 const PAIR_STAGE_INDEX := 6
 ## Plan line 100: the deferred pair's own stage name, which is also its `stage_name` member.
 const PAIR_STAGE := "twofriends_if_deferred"
+## The registered locators for the two scenarios below. `DialogicTimelineCatalog` is their only
+## authority -- the plan text does not construct a locator -- so they are named here as literals
+## rather than read back off the request the producer built.
+const DATE_TIMELINE_ID := "dating.solo.lavinia.day3.pre_challenge"
+const PAIR_TIMELINE_ID := "dating.twofriends.priscilla_lavinia.day2.pre_challenge"
+const HOSPITAL_TIMELINE_ID := "hospital.faint"
 
 var _root := ""
 var _root_counter := 0
@@ -115,7 +128,7 @@ func test_the_surviving_date_variant_carries_its_exact_discriminator_tuple() -> 
 	assert_eq(str(request["route_id"]), "dating", "a date routes to dating")
 	assert_eq(str((request["context"] as Dictionary)["schedule_entry_id"]),
 		str(entry["schedule_entry_id"]), "schedule_entry_id is nonnull for a date")
-	assert_eq(str(request["timeline_id"]), "dating.solo.lavinia.day3.pre_challenge",
+	assert_eq(str(request["timeline_id"]), DATE_TIMELINE_ID,
 		"the locator is the registered pre-challenge timeline for this friend and day")
 
 
@@ -128,7 +141,7 @@ func test_the_hospital_variant_carries_its_exact_discriminator_tuple() -> void:
 	var context: Dictionary = request["context"]
 	assert_eq(str(context["kind"]), "hospital", "presentation_kind is hospital")
 	assert_eq(str(request["route_id"]), "hospital", "Hospital routes to hospital")
-	assert_eq(str(request["timeline_id"]), "hospital.faint", "the frozen Hospital locator")
+	assert_eq(str(request["timeline_id"]), HOSPITAL_TIMELINE_ID, "the frozen Hospital locator")
 	assert_true(context.has("source_entry_ids") and context.has("miss_receipt_ids"),
 		"the Hospital context is the four-member Hospital shape, not the Dating shape")
 	assert_false(context.has("schedule_entry_id"),
@@ -177,7 +190,7 @@ func test_the_intent_child_is_exactly_the_matrix_row_p01_presentation_intent() -
 	var request := _await_presentation()
 	if request.is_empty():
 		return
-	var projection := _expected_date_intent_projection(request, 3, 0)
+	var projection := _expected_date_intent_projection(3, 0, DATE_TIMELINE_ID)
 	var derived := _derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, _tokens(projection))
 	assert_eq(derived, str(request["substage_id"]),
 		"the producer's P01.presentation.intent child is byte-for-byte the matrix row")
@@ -189,7 +202,7 @@ func test_every_projected_intent_member_is_load_bearing() -> void:
 	var request := _await_presentation()
 	if request.is_empty():
 		return
-	var projection := _expected_date_intent_projection(request, 3, 0)
+	var projection := _expected_date_intent_projection(3, 0, DATE_TIMELINE_ID)
 	var baseline := _derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, _tokens(projection))
 	assert_eq(baseline, str(request["substage_id"]), "the baseline projection is the real row")
 	for index: int in range(projection.size()):
@@ -206,7 +219,7 @@ func test_the_intent_parent_and_ordinal_are_load_bearing() -> void:
 	var request := _await_presentation()
 	if request.is_empty():
 		return
-	var tokens := _tokens(_expected_date_intent_projection(request, 3, 0))
+	var tokens := _tokens(_expected_date_intent_projection(3, 0, DATE_TIMELINE_ID))
 	var baseline := _derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, tokens)
 	assert_eq(baseline, str(request["substage_id"]))
 
@@ -227,7 +240,7 @@ func test_the_source_set_is_order_independent_but_membership_is_not() -> void:
 	var request := _await_presentation()
 	if request.is_empty():
 		return
-	var projection := _expected_date_intent_projection(request, 3, 0)
+	var projection := _expected_date_intent_projection(3, 0, DATE_TIMELINE_ID)
 	var baseline := _derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, _tokens(projection))
 	var reversed_projection: Array = projection.duplicate()
 	reversed_projection.reverse()
@@ -259,7 +272,8 @@ func test_the_completion_child_is_exactly_the_matrix_row_p01_presentation_comple
 		"line 98: the SAME within-stage ordinal its intent used")
 	assert_eq(str(provenance["child_id"]), str(request["completion_transaction_id"]),
 		"the id agrees with its own provenance")
-	assert_eq(provenance["source_ids"], _tokens(_expected_completion_projection(request)),
+	assert_eq(provenance["source_ids"], _tokens(_expected_completion_projection(
+			_expected_date_intent_projection(3, 0, DATE_TIMELINE_ID), 0)),
 		"the completion source set is exactly line 98's 7 members")
 
 
@@ -281,12 +295,34 @@ func test_the_completion_binds_its_intent_and_never_includes_itself() -> void:
 		"and never names itself")
 
 
+## Line 100 names the TOP-LEVEL `P01.day_resolution.stage` child, and explicitly distinguishes a
+## top-level row (`role="day_resolution.stage"`) from an entry-substage row
+## (`role="day_resolution.entry_substage"`). A surviving date is the one variant driven from a
+## substage cursor, so it is the one variant where the two ids differ -- and it projected the
+## substage id until this was caught. Hospital and the deferred pair are top-level stages, so they
+## are correct by shape rather than by rule.
+func test_the_completion_names_the_top_level_stage_and_not_the_entry_substage() -> void:
+	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
+	var request := _await_presentation()
+	if request.is_empty():
+		return
+	var top_level := _top_level_stage_transaction_id("execute_schedule_dates")
+	var substage := _surviving_date_substage_transaction_id()
+	assert_ne(top_level, substage,
+		"the two ids genuinely differ here, so this test can tell them apart")
+	assert_eq(str(request["stage_id"]), top_level,
+		"line 100: stage_id is the exact top-level P01.day_resolution.stage child id")
+	assert_ne(str(request["stage_id"]), substage,
+		"and never the entry substage the surviving-date presentation is driven from")
+
+
 func test_every_projected_completion_member_is_load_bearing() -> void:
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
 		return
-	var projection := _expected_completion_projection(request)
+	var projection := _expected_completion_projection(
+		_expected_date_intent_projection(3, 0, DATE_TIMELINE_ID), 0)
 	var baseline := str(request["completion_transaction_id"])
 	assert_eq(_derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, _tokens(projection)),
 		baseline, "the baseline projection is the real completion row")
@@ -344,11 +380,19 @@ func test_an_underivable_presentation_refuses_with_the_stage_still_pending() -> 
 # -------------------------------------------------------------------------------------------------
 
 ## Line 97's 13 members for a surviving-date intent, as [path, value] pairs in the plan's order.
-func _expected_date_intent_projection(request: Dictionary, source_day: int,
-		ordinal: int) -> Array:
+##
+## NOTHING HERE IS READ OUT OF THE PRODUCER'S REQUEST. It used to take the entry, the locator and
+## the context straight off the request, which made those members agree with the producer by
+## construction. `entry` is now the surviving committed date at line 97's own ordinal, `timeline_id`
+## is the locator the caller expects (`DialogicTimelineCatalog` is its only authority; the plan text
+## does not construct it), and the context is rebuilt to the exact Dating shape plan line 1147
+## freezes -- so a producer that hashed different context bytes cannot be matched by an expectation
+## that hashed those same bytes back.
+func _expected_date_intent_projection(source_day: int, ordinal: int,
+		timeline_id: String) -> Array:
 	var plan := _active_plan()
 	var start: Dictionary = plan["day_resolution_start_receipt"]
-	var entry := _committed_entry_by_id(str((request["context"] as Dictionary)["schedule_entry_id"]))
+	var entry := _surviving_date_at(ordinal)
 	return [
 		["role", "presentation.intent"],
 		["resolution_id", str(plan["resolution_id"])],
@@ -360,24 +404,95 @@ func _expected_date_intent_projection(request: Dictionary, source_day: int,
 		["presentation_kind", str(entry["action_kind"])],
 		["schedule_entry_id", str(entry["schedule_entry_id"])],
 		["route_id", "dating"],
-		["timeline_id", str(request["timeline_id"])],
-		["context_sha256", _sha256(request["context"])],
+		["timeline_id", timeline_id],
+		["context_sha256", _sha256(
+			_expected_dating_context(str(entry["action_kind"]), source_day, entry))],
 		["input_receipt_ids", _sorted_unique([
 			str(entry["schedule_entry_id"]), str(entry["source_receipt_id"])])],
 	]
 
 
-## Line 98's 7 members.
-func _expected_completion_projection(request: Dictionary) -> Array:
+## Plan line 1147: the Dating context is exactly
+## `{kind,day:int,schedule_entry_id:String|null,participants:Array[String]}`, and the P-L pair keeps
+## its invitation-owned `priscilla,lavinia` order.
+func _expected_dating_context(kind: String, day: int, entry: Dictionary) -> Dictionary:
+	var participants: Array[String] = []
+	if kind == "group" or kind == PAIR_STAGE:
+		participants = ["priscilla", "lavinia"]
+	else:
+		for participant: Variant in (entry["participants"] as Array):
+			participants.append(str(participant))
+	return {"kind": kind, "day": day,
+		"schedule_entry_id": str(entry["schedule_entry_id"]), "participants": participants}
+
+
+## Line 97's surviving-date ordinal read as the plan states it -- the index among the SURVIVING
+## committed dates in `slot_index` order -- rather than the request's word for which entry the
+## producer chose.
+func _surviving_date_at(ordinal: int) -> Dictionary:
+	var superseded := _hospital_superseded_entry_ids()
+	var dates: Array = []
+	for entry_value: Variant in ((_active_plan()["committed_schedule"] as Dictionary)["entries"] as Array):
+		var entry: Dictionary = entry_value
+		if not (str(entry["action_kind"]) in ["solo", "group"]):
+			continue
+		if str(entry["schedule_entry_id"]) in superseded:
+			continue
+		dates.append(entry)
+	dates.sort_custom(func(left: Variant, right: Variant) -> bool:
+		return int((left as Dictionary)["slot_index"]) < int((right as Dictionary)["slot_index"]))
+	assert_true(ordinal < dates.size(),
+		"the plan carries a surviving committed date at ordinal %d" % ordinal)
+	return (dates[ordinal] as Dictionary) if ordinal < dates.size() else {}
+
+
+## Line 98's 7 members, rebuilt from the plan rather than read back out of the producer.
+##
+## WHY THIS USED TO PROVE NOTHING. Every member except `role` was taken straight off the producer's
+## own request, so the completion row could only ever agree with itself: a producer projecting the
+## WRONG `stage_id` still matched, because the expectation moved with it. That is exactly how the
+## surviving-date completion came to name its entry substage instead of the top-level stage line 100
+## requires, and it is why the load-bearing sweep could not help -- perturbing a member sourced from
+## the producer moves both sides of the comparison at once.
+##
+## Each member now has an independent source. `resolution_id` and `stage_id` are read out of the
+## PERSISTED plan -- for `stage_id`, the top-level `P01.day_resolution.stage` record line 100 names.
+## `substage_id` is the intent child RE-DERIVED here from line 97. `route_id`, `timeline_id` and
+## `context_sha256` come from that same independently rebuilt intent projection, because line 100
+## binds the completion to the intent it settles.
+func _expected_completion_projection(intent_projection: Array, ordinal: int) -> Array:
 	return [
 		["role", "presentation.completion"],
-		["resolution_id", str(request["resolution_id"])],
-		["stage_id", str(request["stage_id"])],
-		["substage_id", str(request["substage_id"])],
-		["route_id", str(request["route_id"])],
-		["timeline_id", str(request["timeline_id"])],
-		["context_sha256", _sha256(request["context"])],
+		["resolution_id", str(_active_plan()["resolution_id"])],
+		["stage_id", _top_level_stage_transaction_id(
+			str(_projection_member(intent_projection, "stage_name")))],
+		["substage_id", _derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, ordinal,
+			_tokens(intent_projection))],
+		["route_id", _projection_member(intent_projection, "route_id")],
+		["timeline_id", _projection_member(intent_projection, "timeline_id")],
+		["context_sha256", _projection_member(intent_projection, "context_sha256")],
 	]
+
+
+## The exact top-level `P01.day_resolution.stage` child id for `stage_name`, read out of the
+## PERSISTED plan. A surviving date is driven from an ENTRY SUBSTAGE cursor, so the record the
+## producer happens to be holding is NOT the top-level one line 100 names.
+func _top_level_stage_transaction_id(stage_name: String) -> String:
+	for stage_value: Variant in (_active_plan().get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		if str(stage["stage_id"]) == stage_name:
+			return str(stage["transaction_id"])
+	assert_true(false, "the plan carries no top-level stage named " + stage_name)
+	return ""
+
+
+func _projection_member(projection: Array, path: String) -> Variant:
+	for pair_value: Variant in projection:
+		var pair: Array = pair_value
+		if str(pair[0]) == path:
+			return pair[1]
+	assert_true(false, "the projection carries no member " + path)
+	return null
 
 
 ## `S(...)`: the listed `P(path,value)` tokens sorted into strict ascending String order.
@@ -470,26 +585,48 @@ func _intent_input_receipt_ids(request: Dictionary) -> Array:
 	if str(context["kind"]) != "hospital":
 		return []
 	var candidate := _sorted_unique(
-		[_condition_receipt_id(int(context["day"]))] + (context["miss_receipt_ids"] as Array))
+		[_condition_receipt_id(int(_active_plan()["source_day"]))]
+			+ (context["miss_receipt_ids"] as Array))
 	var projection: Array = [
 		["role", "presentation.intent"],
-		["resolution_id", str(request["resolution_id"])],
+		["resolution_id", str(_active_plan()["resolution_id"])],
 		["causal_day_instance", str((_active_plan()["day_resolution_start_receipt"] as Dictionary)["causal_day_instance"])],
-		["source_day", int(context["day"])],
+		["source_day", int(_active_plan()["source_day"])],
 		["day_resolution_start_receipt_id", str((_active_plan()["day_resolution_start_receipt"] as Dictionary)["receipt_id"])],
 		["stage_name", "hospital_if_triggered"],
 		["stage_index", HOSPITAL_STAGE_INDEX],
 		["presentation_kind", "hospital"],
 		["schedule_entry_id", null],
 		["route_id", "hospital"],
-		["timeline_id", str(request["timeline_id"])],
-		["context_sha256", _sha256(request["context"])],
+		["timeline_id", HOSPITAL_TIMELINE_ID],
+		["context_sha256", _sha256(_expected_hospital_context(
+			context["miss_receipt_ids"] as Array))],
 		["input_receipt_ids", candidate],
 	]
 	assert_eq(_derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, _tokens(projection)),
 		str(request["substage_id"]),
 		"the Hospital intent reproduces from line 97 with this exact input_receipt_ids set")
 	return candidate
+
+
+## Plan line 1147: the Hospital context is exactly
+## `{kind:"hospital",day:int,source_entry_ids:Array[String],miss_receipt_ids:Array[String]}`, with
+## both arrays sorted and unique because Hospital owns no semantic order for either.
+##
+## RESIDUAL READ-BACK, DELIBERATE AND NAMED. `miss_receipt_ids` are `P01.hospital.miss` child ids
+## (plan line 95), so rebuilding them independently means deriving the Hospital aggregate and miss
+## rows here -- conformance for two matrix rows this suite does not yet cover at all. Everything
+## else in the context is rebuilt from the persisted plan.
+func _expected_hospital_context(miss_receipt_ids: Array) -> Dictionary:
+	var plan := _active_plan()
+	var date_entry_ids: Array = []
+	for entry_value: Variant in ((plan["committed_schedule"] as Dictionary)["entries"] as Array):
+		var entry: Dictionary = entry_value
+		if str(entry["action_kind"]) in ["solo", "group"]:
+			date_entry_ids.append(str(entry["schedule_entry_id"]))
+	return {"kind": "hospital", "day": int(plan["source_day"]),
+		"source_entry_ids": _sorted_unique(date_entry_ids),
+		"miss_receipt_ids": _sorted_unique(miss_receipt_ids)}
 
 
 ## The condition receipt the producer consumed. The fixture caches per causal day, so asking it
@@ -510,17 +647,21 @@ func _substage_state(substage_id: String) -> String:
 	return ""
 
 
+## The transaction id of the entry substage a surviving date is driven from -- the id line 100
+## does NOT want in `stage_id`.
+func _surviving_date_substage_transaction_id() -> String:
+	for stage_value: Variant in (_active_plan().get("stages", []) as Array):
+		for substage_value: Variant in ((stage_value as Dictionary).get("substages", []) as Array):
+			var substage: Dictionary = substage_value
+			if str(substage["substage_id"]).begins_with("surviving_date:"):
+				return str(substage["transaction_id"])
+	assert_true(false, "the plan carries no surviving_date substage")
+	return ""
+
+
 func _committed_entry_at(index: int) -> Dictionary:
 	var entries: Array = (_active_plan()["committed_schedule"] as Dictionary)["entries"]
 	return entries[index] as Dictionary
-
-
-func _committed_entry_by_id(schedule_entry_id: String) -> Dictionary:
-	for entry_value: Variant in ((_active_plan()["committed_schedule"] as Dictionary)["entries"] as Array):
-		var entry: Dictionary = entry_value
-		if str(entry["schedule_entry_id"]) == schedule_entry_id:
-			return entry
-	return {}
 
 
 func _sha256(value: Variant) -> String:
@@ -676,7 +817,7 @@ func test_the_deferred_pair_variant_carries_its_exact_matrix_row() -> void:
 	assert_eq(str(context["kind"]), "twofriends_if_deferred",
 		"presentation_kind is the deferred-pair discriminator, not the entry action_kind")
 	assert_eq(str(request["route_id"]), "dating", "the deferred pair routes to dating")
-	assert_eq(str(request["timeline_id"]), "dating.twofriends.priscilla_lavinia.day2.pre_challenge",
+	assert_eq(str(request["timeline_id"]), PAIR_TIMELINE_ID,
 		"the registered deferred-pair locator")
 	assert_eq(str(context["schedule_entry_id"]), str(entry["schedule_entry_id"]),
 		"schedule_entry_id is nonnull and names the pair committed entry")
@@ -687,7 +828,7 @@ func test_the_deferred_pair_variant_carries_its_exact_matrix_row() -> void:
 
 	# Line 97's 13 members rebuilt from the plan text, at line 97's reserved ordinal 0, derived
 	# through the SAME issuer the producer used.
-	var projection := _expected_pair_intent_projection(request, entry, 2)
+	var projection := _expected_pair_intent_projection(entry, 2, PAIR_TIMELINE_ID)
 	assert_eq(_derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, _tokens(projection)),
 		str(request["substage_id"]),
 		"the deferred-pair intent is exactly line 97 at ordinal 0")
@@ -701,12 +842,14 @@ func test_the_deferred_pair_variant_carries_its_exact_matrix_row() -> void:
 
 
 ## Line 97's 13 members for a deferred-pair intent, as [path, value] pairs in the plan's order.
-func _expected_pair_intent_projection(request: Dictionary, entry: Dictionary,
-		source_day: int) -> Array:
-	var start: Dictionary = _active_plan()["day_resolution_start_receipt"]
+## Independent of the request for the same reason `_expected_date_intent_projection` is.
+func _expected_pair_intent_projection(entry: Dictionary, source_day: int,
+		timeline_id: String) -> Array:
+	var plan := _active_plan()
+	var start: Dictionary = plan["day_resolution_start_receipt"]
 	return [
 		["role", "presentation.intent"],
-		["resolution_id", str(request["resolution_id"])],
+		["resolution_id", str(plan["resolution_id"])],
 		["causal_day_instance", str(start["causal_day_instance"])],
 		["source_day", source_day],
 		["day_resolution_start_receipt_id", str(start["receipt_id"])],
@@ -715,8 +858,8 @@ func _expected_pair_intent_projection(request: Dictionary, entry: Dictionary,
 		["presentation_kind", "twofriends_if_deferred"],
 		["schedule_entry_id", str(entry["schedule_entry_id"])],
 		["route_id", "dating"],
-		["timeline_id", str(request["timeline_id"])],
-		["context_sha256", _sha256(request["context"])],
+		["timeline_id", timeline_id],
+		["context_sha256", _sha256(_expected_dating_context(PAIR_STAGE, source_day, entry))],
 		["input_receipt_ids", _sorted_unique([
 			str(entry["schedule_entry_id"]), str(entry["source_receipt_id"])])],
 	]
