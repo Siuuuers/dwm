@@ -20,12 +20,16 @@ extends "res://addons/gut/test.gd"
 # projection member: if `stage_index` were silently absent from the producer's token set, mutating
 # it would leave the derived id untouched and the exact-match test above would still pass.
 #
-# WHERE THE INDEPENDENCE STOPS, named rather than assumed. Two values cannot be rebuilt from the
-# plan text: a timeline locator (the plan requires the locator to be REGISTERED in
-# `DialogicTimelineCatalog` but never constructs one) and the `P01.hospital.miss` child ids carried
-# inside the Hospital context (line 95 rows this suite does not derive). The locators are therefore
-# named as literal constants below instead of read off the request; the miss ids are the one
-# deliberate read-back left, marked at `_expected_hospital_context`.
+# WHERE THE INDEPENDENCE STOPS, named rather than assumed. ONE value cannot be rebuilt from the
+# plan text: a timeline locator, because the plan requires the locator to be REGISTERED in
+# `DialogicTimelineCatalog` but never constructs one. The locators are therefore named as literal
+# constants below instead of read off the request.
+#
+# The `P01.hospital.miss` child ids carried inside the Hospital context used to be a second
+# exception -- the one deliberate read-back this file carried -- because rebuilding them meant
+# deriving two matrix rows this suite did not cover. They are now derived from plan lines 94 and 95
+# like everything else, and those two rows carry their own conformance and sweep tests. Nothing in
+# this file is read back off the producer any more.
 #
 # SUBSTRATE. Real throughout -- GUID-isolated root, real DesktopIssuerRootStore over real
 # JsonFileStorage, the real DesktopIdentityNonceIssuer, the production ScheduleActionRegistry, the
@@ -51,6 +55,13 @@ const MAX_WALK_STEPS := 40
 
 ## Plan line 97 / 98: the exact child kind both presentation rows derive under.
 const PRESENTATION_CHILD_KIND := &"day_resolution_stage"
+## Plan lines 94 / 95: the child kinds the two Hospital ancestry rows derive under.
+const HOSPITAL_RESOLUTION_CHILD_KIND := &"hospital_resolution"
+const HOSPITAL_MISS_CHILD_KIND := &"hospital_miss"
+## Plan line 95: the one reason a Hospital supersession records.
+const MISS_REASON := "prevented_by_fainting"
+## Plan line 94: at most one Hospital aggregate hangs off the resolution root.
+const HOSPITAL_RESOLUTION_ORDINAL := 0
 ## Plan line 100: the frozen D1-6 stage array positions `stage_index` names.
 const HOSPITAL_STAGE_INDEX := 4
 const DATES_STAGE_INDEX := 5
@@ -177,6 +188,111 @@ func test_a_hospital_with_no_committed_date_still_names_its_condition_id() -> vo
 	assert_eq(_intent_input_receipt_ids(request), [_condition_receipt_id(3)],
 		"the set is still exactly the condition id -- L() flattens a concatenation, "
 			+ "so an empty miss list does not empty the set")
+
+
+# -------------------------------------------------------------------------------------------------
+# Plan lines 94 and 95: exact conformance and the load-bearing sweep, for the Hospital ancestry
+# -------------------------------------------------------------------------------------------------
+
+## THE TEST THAT CLOSES THE READ-BACK. The Hospital context carries `P01.hospital.miss` child ids,
+## and until now this suite took them off the request because rebuilding them meant deriving two
+## matrix rows it did not cover. Both are rebuilt here from plan text: line 94's nine members for
+## the aggregate, then line 95's nine for each miss -- and because line 95 projects
+## `hospital_resolution_id`, an aggregate that disagreed with line 94 could not produce miss ids
+## that match. So this single equality is conformance for BOTH rows at once.
+func test_the_hospital_ancestry_children_are_exactly_the_matrix_rows() -> void:
+	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
+	_game_state.pending_hospital = true
+	var request := _await_presentation()
+	if request.is_empty():
+		return
+	var produced: Array = (request["context"] as Dictionary)["miss_receipt_ids"]
+	assert_eq(produced.size(), 1, "the one committed date Hospital superseded produced one miss")
+	assert_eq(_derived_hospital_miss_ids(), produced,
+		"the producer's P01.hospital.miss children are byte-for-byte the line-95 rows, "
+			+ "derived under a line-94 aggregate this test rebuilt independently")
+
+
+## The miss ordinal is POSITIONAL -- line 95 words it as the index among the superseded dates in
+## committed `slot_index` order. Two dates make that visible: swapping the two derived ids must not
+## still match, or an implementation that ordered misses by anything else would pass unnoticed.
+func test_the_hospital_miss_ordinal_follows_committed_slot_order() -> void:
+	# Day 6, because that is the day the registry carries a solo action for BOTH friends; day 3 has
+	# only lavinia, so it cannot produce the two misses this ordinal check needs.
+	_commit_and_begin(6, [
+		_date("d-lav", 0, "lavinia", 6),
+		_date("d-pri", 1, "priscilla", 6),
+	])
+	_game_state.pending_hospital = true
+	var request := _await_presentation()
+	if request.is_empty():
+		return
+	var produced: Array = (request["context"] as Dictionary)["miss_receipt_ids"]
+	assert_eq(produced.size(), 2, "both committed dates were superseded")
+	var derived := _derived_hospital_miss_ids()
+	assert_eq(_sorted_unique(derived), produced,
+		"both miss children reproduce at their own slot-order ordinals")
+	var swapped: Array = [derived[1], derived[0]]
+	assert_ne(swapped, derived,
+		"the two ordinals genuinely produce different children, so the order is load-bearing")
+
+
+## The sweep for line 94. Each of the nine aggregate members is perturbed alone, and the MISS ids
+## must move -- they bind the aggregate through `hospital_resolution_id`, so this is the only
+## externally visible consequence of an aggregate that projected different bytes.
+func test_every_projected_hospital_resolution_member_is_load_bearing() -> void:
+	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
+	_game_state.pending_hospital = true
+	var request := _await_presentation()
+	if request.is_empty():
+		return
+	var projection := _expected_hospital_resolution_projection()
+	var baseline := _derived_hospital_resolution_id()
+	var entry := (_hospital_dates_in_slot_order()[0] as Dictionary)
+	var baseline_miss := _derive(_root_receipt_id(), HOSPITAL_MISS_CHILD_KIND, 0,
+		_tokens(_expected_hospital_miss_projection(entry, baseline)))
+	assert_eq([baseline_miss], (request["context"] as Dictionary)["miss_receipt_ids"],
+		"the baseline aggregate is the real one")
+	for index: int in range(projection.size()):
+		var mutated := _mutate_member(projection, index)
+		var path := str((projection[index] as Array)[0])
+		var moved := _derive(_root_receipt_id(), HOSPITAL_RESOLUTION_CHILD_KIND,
+			HOSPITAL_RESOLUTION_ORDINAL, _tokens(mutated))
+		assert_ne(moved, baseline,
+			"mutating %s must change the aggregate: it is a projected member" % path)
+		assert_ne(_derive(_root_receipt_id(), HOSPITAL_MISS_CHILD_KIND, 0,
+			_tokens(_expected_hospital_miss_projection(entry, moved))), baseline_miss,
+			"and must carry through to the miss child that binds it: %s" % path)
+
+
+## The sweep for line 95, plus the parent and ordinal the derivation request owns rather than the
+## source set.
+func test_every_projected_hospital_miss_member_is_load_bearing() -> void:
+	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
+	_game_state.pending_hospital = true
+	var request := _await_presentation()
+	if request.is_empty():
+		return
+	var entry := (_hospital_dates_in_slot_order()[0] as Dictionary)
+	var projection := _expected_hospital_miss_projection(entry, _derived_hospital_resolution_id())
+	var baseline := _derive(_root_receipt_id(), HOSPITAL_MISS_CHILD_KIND, 0, _tokens(projection))
+	assert_eq([baseline], (request["context"] as Dictionary)["miss_receipt_ids"],
+		"the baseline projection is the real row")
+	for index: int in range(projection.size()):
+		var mutated := _mutate_member(projection, index)
+		var path := str((projection[index] as Array)[0])
+		assert_ne(_derive(_root_receipt_id(), HOSPITAL_MISS_CHILD_KIND, 0, _tokens(mutated)),
+			baseline, "mutating %s must change the derived child: it is a projected member" % path)
+
+	var other_root: Dictionary = _issuer.issue(&"transaction_id")
+	assert_true(other_root.get("ok", false), str(other_root))
+	var foreign_parent := str(((other_root["value"] as Dictionary)["issuer_receipt"] as Dictionary)["receipt_id"])
+	assert_ne(_derive(foreign_parent, HOSPITAL_MISS_CHILD_KIND, 0, _tokens(projection)), baseline,
+		"a miss under another resolution root is a different child")
+	assert_ne(_derive(_root_receipt_id(), HOSPITAL_MISS_CHILD_KIND, 1, _tokens(projection)),
+		baseline, "the same bytes at another ordinal are a different child")
+	assert_ne(_derive(_root_receipt_id(), HOSPITAL_RESOLUTION_CHILD_KIND, 0, _tokens(projection)),
+		baseline, "the same bytes under the aggregate kind are a different child")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -586,7 +702,7 @@ func _intent_input_receipt_ids(request: Dictionary) -> Array:
 		return []
 	var candidate := _sorted_unique(
 		[_condition_receipt_id(int(_active_plan()["source_day"]))]
-			+ (context["miss_receipt_ids"] as Array))
+			+ _derived_hospital_miss_ids())
 	var projection: Array = [
 		["role", "presentation.intent"],
 		["resolution_id", str(_active_plan()["resolution_id"])],
@@ -599,8 +715,7 @@ func _intent_input_receipt_ids(request: Dictionary) -> Array:
 		["schedule_entry_id", null],
 		["route_id", "hospital"],
 		["timeline_id", HOSPITAL_TIMELINE_ID],
-		["context_sha256", _sha256(_expected_hospital_context(
-			context["miss_receipt_ids"] as Array))],
+		["context_sha256", _sha256(_expected_hospital_context())],
 		["input_receipt_ids", candidate],
 	]
 	assert_eq(_derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, _tokens(projection)),
@@ -613,11 +728,12 @@ func _intent_input_receipt_ids(request: Dictionary) -> Array:
 ## `{kind:"hospital",day:int,source_entry_ids:Array[String],miss_receipt_ids:Array[String]}`, with
 ## both arrays sorted and unique because Hospital owns no semantic order for either.
 ##
-## RESIDUAL READ-BACK, DELIBERATE AND NAMED. `miss_receipt_ids` are `P01.hospital.miss` child ids
-## (plan line 95), so rebuilding them independently means deriving the Hospital aggregate and miss
-## rows here -- conformance for two matrix rows this suite does not yet cover at all. Everything
-## else in the context is rebuilt from the persisted plan.
-func _expected_hospital_context(miss_receipt_ids: Array) -> Dictionary:
+## NO READ-BACK REMAINS. `miss_receipt_ids` are `P01.hospital.miss` child ids (plan line 95), and
+## they are now DERIVED here from the plan text rather than read off the request, which is what
+## closes the last deliberate read-back this file carried. Deriving them requires the
+## `P01.hospital.resolution` row too, because line 95 projects `hospital_resolution_id`; both rows
+## are built below and both are covered by their own conformance and sweep tests.
+func _expected_hospital_context() -> Dictionary:
 	var plan := _active_plan()
 	var date_entry_ids: Array = []
 	for entry_value: Variant in ((plan["committed_schedule"] as Dictionary)["entries"] as Array):
@@ -626,7 +742,81 @@ func _expected_hospital_context(miss_receipt_ids: Array) -> Dictionary:
 			date_entry_ids.append(str(entry["schedule_entry_id"]))
 	return {"kind": "hospital", "day": int(plan["source_day"]),
 		"source_entry_ids": _sorted_unique(date_entry_ids),
-		"miss_receipt_ids": _sorted_unique(miss_receipt_ids)}
+		"miss_receipt_ids": _sorted_unique(_derived_hospital_miss_ids())}
+
+
+# -------------------------------------------------------------------------------------------------
+# Plan lines 94 and 95: the Hospital ancestry rows, rebuilt from the plan text
+# -------------------------------------------------------------------------------------------------
+
+## The committed DATE entries in `slot_index` order -- the filtered, ordered list both Hospital rows
+## are indexed against. Line 95 words the miss ordinal as the "index among all Hospital-superseded
+## committed date entries in committed `slot_index` order", and Hospital supersedes every committed
+## date, so this list IS that index. Rebuilt from the plan's own frozen aggregate, never from the
+## producer's supersession receipt.
+func _hospital_dates_in_slot_order() -> Array:
+	var dates: Array = []
+	for entry_value: Variant in ((_active_plan()["committed_schedule"] as Dictionary)["entries"] as Array):
+		var entry: Dictionary = entry_value
+		if str(entry["action_kind"]) in ["solo", "group"]:
+			dates.append(entry.duplicate(true))
+	dates.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+		return int(left["slot_index"]) < int(right["slot_index"]))
+	return dates
+
+
+## Plan line 94's nine members for `P01.hospital.resolution`, in plan order.
+func _expected_hospital_resolution_projection() -> Array:
+	var plan := _active_plan()
+	var start: Dictionary = plan["day_resolution_start_receipt"]
+	var date_entry_ids: Array = []
+	for entry_value: Variant in _hospital_dates_in_slot_order():
+		date_entry_ids.append(str((entry_value as Dictionary)["schedule_entry_id"]))
+	return [
+		["role", "hospital.resolution"],
+		["resolution_id", str(plan["resolution_id"])],
+		["causal_day_instance", str(start["causal_day_instance"])],
+		["source_day", int(plan["source_day"])],
+		["day_resolution_start_receipt_id", str(start["receipt_id"])],
+		["schedule_commit_receipt_id", plan.get("schedule_commit_receipt_id")],
+		["condition_receipt_id", _condition_receipt_id(int(plan["source_day"]))],
+		["date_schedule_entry_ids", date_entry_ids],
+		["required", true],
+	]
+
+
+func _derived_hospital_resolution_id() -> String:
+	return _derive(_root_receipt_id(), HOSPITAL_RESOLUTION_CHILD_KIND, HOSPITAL_RESOLUTION_ORDINAL,
+		_tokens(_expected_hospital_resolution_projection()))
+
+
+## Plan line 95's nine members for one `P01.hospital.miss`, in plan order.
+func _expected_hospital_miss_projection(entry: Dictionary, hospital_resolution_id: String) -> Array:
+	var plan := _active_plan()
+	var start: Dictionary = plan["day_resolution_start_receipt"]
+	return [
+		["role", "hospital.miss"],
+		["resolution_id", str(plan["resolution_id"])],
+		["causal_day_instance", str(start["causal_day_instance"])],
+		["source_day", int(plan["source_day"])],
+		["hospital_resolution_id", hospital_resolution_id],
+		["schedule_entry_id", str(entry["schedule_entry_id"])],
+		["action_id", str(entry["action_id"])],
+		["source_receipt_id", entry["source_receipt_id"]],
+		["reason", MISS_REASON],
+	]
+
+
+## Every `P01.hospital.miss` child id, at its own line-95 ordinal, in that ordinal order.
+func _derived_hospital_miss_ids() -> Array:
+	var hospital_resolution_id := _derived_hospital_resolution_id()
+	var ids: Array = []
+	var dates := _hospital_dates_in_slot_order()
+	for ordinal: int in range(dates.size()):
+		ids.append(_derive(_root_receipt_id(), HOSPITAL_MISS_CHILD_KIND, ordinal,
+			_tokens(_expected_hospital_miss_projection(
+				dates[ordinal] as Dictionary, hospital_resolution_id))))
+	return ids
 
 
 ## The condition receipt the producer consumed. The fixture caches per causal day, so asking it
