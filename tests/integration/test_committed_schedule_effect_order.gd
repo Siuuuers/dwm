@@ -198,6 +198,42 @@ func test_a_faint_supersedes_every_committed_date_before_any_board_runs() -> voi
 		"the one committed date was superseded exactly once")
 
 
+## FINDING 4 of the dwm-p2r.18 cold review. `required` was LIVE state read twice, bracketing the
+## physical presentation: once by `_hospital_site()` at stage-begin, and again by
+## `_hospital_envelope()` at stage-completion, with nothing comparing the two. If anything cleared
+## the flag while the timeline played, this stage checkpointed required=false with
+## superseded_entry_ids=[] -- silently un-superseding, after the fact, every date the Hospital
+## presentation had just been played for.
+##
+## The flag is cleared HERE, between the two reads, because that window is the whole defect. The
+## file elsewhere enforces exactly this rule ("never from live state" on `_committed_entry`).
+func test_a_hospital_that_presented_records_the_faint_it_presented_on() -> void:
+	_commit_and_begin(3, [_date("d-lav", 2, "lavinia", 3)])
+	_game_state.pending_hospital = true
+
+	var begun := _begin_at_stage("hospital_if_triggered")
+	assert_false(begun.is_empty(), "the walk reached hospital_if_triggered")
+	if begun.is_empty():
+		return
+	assert_eq(str(begun["mode"]), "await_registered_command",
+		"a required Hospital pauses on its presentation, which is what opens the window")
+
+	# The window itself: the flag moves while the presentation is physically playing.
+	_game_state.pending_hospital = false
+
+	var hospital := _presentation_receipt_value(begun)
+	assert_false(hospital.is_empty(), "the presentation still completed")
+	if hospital.is_empty():
+		return
+	assert_true(bool(hospital["required"]),
+		"the checkpointed receipt records the faint its presentation was DERIVED on, never a "
+			+ "second read of a flag that moved while the timeline played")
+	assert_eq(hospital["date_schedule_entry_ids"], hospital["superseded_entry_ids"],
+		"so the supersession still covers every committed date")
+	assert_eq((hospital["superseded_entry_ids"] as Array).size(), 1,
+		"and the date this Hospital took away stays taken away")
+
+
 func test_without_a_faint_the_committed_dates_survive() -> void:
 	_commit_and_begin(3, [_date("d-lav", 2, "lavinia", 3)])
 	assert_false(_game_state.pending_hospital, "no faint was resolved")
@@ -311,6 +347,20 @@ func _entry_id_for(draft_entry_id: String) -> String:
 
 ## Drives the walk until `stage_id` is the current record and returns that stage's receipt value.
 func _receipt_for_stage(stage_id: String) -> Dictionary:
+	var begun := _begin_at_stage(stage_id)
+	if begun.is_empty():
+		return {}
+	# A triggered Hospital now PAUSES here on its presentation (dwm-p2r.18). Carry it to its
+	# physical completion and report the envelope that embeds the port's receipt; the stage
+	# deliberately stays ACTIVE so callers can still commit or roll it back.
+	if str(begun["mode"]) == "await_registered_command":
+		return _presentation_receipt_value(begun)
+	return ((begun["receipt"] as Dictionary))["value"]
+
+
+## Walks to `stage_id`, begins it, and returns the begun VALUE without settling anything -- so a
+## caller can act in the window between the stage beginning and its receipt being built.
+func _begin_at_stage(stage_id: String) -> Dictionary:
 	var steps := 0
 	var cursor: Dictionary = _state_port.inspect_next_stage()
 	while cursor.get("ok", false) and cursor["value"]["has_stage"]:
@@ -324,12 +374,7 @@ func _receipt_for_stage(stage_id: String) -> Dictionary:
 			assert_true(begun.get("ok", false), JSON.stringify(begun))
 			if not begun.get("ok", false):
 				return {}
-			# A triggered Hospital now PAUSES here on its presentation (dwm-p2r.18). Carry it to
-			# its physical completion and report the envelope that embeds the port's receipt; the
-			# stage deliberately stays ACTIVE so callers can still commit or roll it back.
-			if str((begun["value"] as Dictionary)["mode"]) == "await_registered_command":
-				return _presentation_receipt_value(begun["value"] as Dictionary)
-			return ((begun["value"] as Dictionary)["receipt"] as Dictionary)["value"]
+			return begun["value"] as Dictionary
 		if not _complete_current():
 			return {}
 		cursor = _state_port.inspect_next_stage()

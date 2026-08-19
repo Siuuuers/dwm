@@ -689,7 +689,9 @@ func _active_source_day() -> int:
 	return int(_game_state._run_lifecycle.get_day())
 
 
-func _immediate_receipt(stage_id: String) -> Dictionary:
+## `presented` is true only on the path where a registered presentation physically completed for
+## this stage; every ordinary stage completes with it false and is unaffected.
+func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary:
 	# Freeze the resolution's SOURCE day (dwm-7e6). Reading the live day here made
 	# reset_day_scope.target_day become source + 2 once increment_day had already advanced it.
 	var day: int = _active_source_day()
@@ -714,7 +716,7 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 		"commit_outcomes":
 			return _envelope("game_state", "outcomes_commit", {"outcome_ids": [], "effect_transaction_ids": []})
 		"hospital_if_triggered":
-			return _envelope("hospital_rules", "hospital_resolution", _hospital_envelope())
+			return _envelope("hospital_rules", "hospital_resolution", _hospital_envelope(presented))
 		"twofriends_if_deferred":
 			# `required` is the same fact `_deferred_pair_site` presents on, read from the same
 			# Hospital supersession. A stage that presented the pair and then recorded
@@ -1165,7 +1167,7 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 	for stage_value: Variant in (plan.get("stages", []) as Array):
 		var stage: Dictionary = stage_value
 		if str(stage.get("transaction_id", "")) == transaction_id:
-			var envelope := _immediate_receipt(str(stage["stage_id"]))
+			var envelope := _immediate_receipt(str(stage["stage_id"]), true)
 			(envelope["value"] as Dictionary)["presentation_completion_receipt"] = 				completion.duplicate(true)
 			return {"ok": true, "code": &"ok", "value": {"receipt": envelope}}
 		for substage_value: Variant in (stage.get("substages", []) as Array):
@@ -1298,8 +1300,24 @@ static func _sha256(value: Variant) -> String:
 ## Condition truth comes from the owner's own pending-hospital flag, resolved by the earlier
 ## commit_outcomes stage -- never from a caller field. When Hospital triggers, EVERY committed date
 ## is superseded here, before the date stage runs a single board.
-func _hospital_envelope() -> Dictionary:
-	var required: bool = bool(_game_state.should_route_hospital()) 		if _game_state.has_method("should_route_hospital") else false
+##
+## `presented` IS THE DERIVATION-TIME ANSWER, carried here rather than read again.
+##
+## `required` is live state. `_hospital_site()` reads it at stage-BEGIN to decide whether to derive
+## a presentation at all; re-reading it at stage-COMPLETION bracketed the physical presentation with
+## two independent reads of a mutable flag, and nothing compared them. If anything cleared it while
+## the timeline played, this receipt recorded required=false with superseded_entry_ids=[] and
+## silently un-superseded every date the presentation had just been played for.
+##
+## A Hospital presentation EXISTS only because `_hospital_site()` said required, and the coordinator
+## proves the published completion settles that exact command before this runs, so the presentation
+## is itself the evidence -- a second read of live state cannot be more authoritative than the
+## derivation the published intent and its children already committed to. Every other input here is
+## already read from the frozen aggregate, so this was the last live read in the envelope.
+func _hospital_envelope(presented: bool) -> Dictionary:
+	var required := presented
+	if not presented:
+		required = bool(_game_state.should_route_hospital()) 			if _game_state.has_method("should_route_hospital") else false
 	var planned: Dictionary = HOSPITAL_RULES.plan_resolution({
 		"required": required,
 		"source_day": _active_source_day(),
