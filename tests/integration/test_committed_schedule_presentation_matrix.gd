@@ -47,6 +47,9 @@ const PRESENTATION_CHILD_KIND := &"day_resolution_stage"
 ## Plan line 100: the frozen D1-6 stage array positions `stage_index` names.
 const HOSPITAL_STAGE_INDEX := 4
 const DATES_STAGE_INDEX := 5
+const PAIR_STAGE_INDEX := 6
+## Plan line 100: the deferred pair's own stage name, which is also its `stage_name` member.
+const PAIR_STAGE := "twofriends_if_deferred"
 
 var _root := ""
 var _root_counter := 0
@@ -623,3 +626,224 @@ func _command(label: String) -> Dictionary:
 			"receipt": ((issued.get("value", {}) as Dictionary).get("issuer_receipt", {}) as Dictionary).duplicate(true),
 		}
 	return (_commands[label] as Dictionary).duplicate(true)
+
+
+# -------------------------------------------------------------------------------------------------
+# Plan line 100: the deferred-pair variant
+# -------------------------------------------------------------------------------------------------
+
+## Line 97 gives the deferred pair ordinal `0`; line 100 freezes its discriminator tuple as
+## `("twofriends_if_deferred","twofriends_if_deferred","dating",schedule_entry_id,
+## L(schedule_entry_id,source_receipt_id))`. Hospital and surviving-date are covered above; this is
+## the third variant, driven end to end over the same real substrate.
+##
+## THE DEFERRAL IS PRODUCED BY THE REAL RESOLUTION, never written into state by hand. Plan line
+## 1057 says Hospital "marks every committed date prevented_by_fainting ... completes recovery, then
+## permits deferred pair presentation", so the pair is owed exactly when Hospital took its committed
+## group entry away earlier in this same walk.
+func test_hospital_supersession_is_what_owes_the_pair_a_presentation() -> void:
+	var source_receipt_id := _seed_group_source(2)
+	if source_receipt_id.is_empty():
+		return
+	_commit_and_begin(2, [_group_draft("g-pl", 0, 2, source_receipt_id)])
+	_game_state.pending_hospital = true
+	var request := _await_stage_presentation(PAIR_STAGE)
+	if request.is_empty():
+		return
+	# The pair's own entry is the one Hospital superseded: the date stage could not run it, and
+	# this stage is where it is finally presented.
+	var superseded: Array = _hospital_superseded_entry_ids()
+	assert_eq(superseded, [str(_committed_entry_at(0)["schedule_entry_id"])],
+		"Hospital superseded exactly the committed pair entry")
+	assert_eq(str((request["context"] as Dictionary)["schedule_entry_id"]), superseded[0],
+		"and the deferred-pair presentation is for exactly that entry")
+
+
+## The matrix row itself: ordinal 0, the Dating context shape, and
+## `L(schedule_entry_id,source_receipt_id)`.
+func test_the_deferred_pair_variant_carries_its_exact_matrix_row() -> void:
+	var source_receipt_id := _seed_group_source(2)
+	if source_receipt_id.is_empty():
+		return
+	_commit_and_begin(2, [_group_draft("g-pl", 0, 2, source_receipt_id)])
+	_game_state.pending_hospital = true
+	var request := _await_stage_presentation(PAIR_STAGE)
+	if request.is_empty():
+		return
+	var entry := _committed_entry_at(0)
+	var context: Dictionary = request["context"]
+
+	assert_eq(str(context["kind"]), "twofriends_if_deferred",
+		"presentation_kind is the deferred-pair discriminator, not the entry action_kind")
+	assert_eq(str(request["route_id"]), "dating", "the deferred pair routes to dating")
+	assert_eq(str(request["timeline_id"]), "dating.twofriends.priscilla_lavinia.day2.pre_challenge",
+		"the registered deferred-pair locator")
+	assert_eq(str(context["schedule_entry_id"]), str(entry["schedule_entry_id"]),
+		"schedule_entry_id is nonnull and names the pair committed entry")
+	assert_eq(context["participants"], ["priscilla", "lavinia"],
+		"the Dating context carries the canonical pair")
+	assert_false(context.has("miss_receipt_ids"),
+		"the pair carries the Dating context shape, never the Hospital one")
+
+	# Line 97's 13 members rebuilt from the plan text, at line 97's reserved ordinal 0, derived
+	# through the SAME issuer the producer used.
+	var projection := _expected_pair_intent_projection(request, entry, 2)
+	assert_eq(_derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0, _tokens(projection)),
+		str(request["substage_id"]),
+		"the deferred-pair intent is exactly line 97 at ordinal 0")
+
+	# And every member of it is load-bearing, so a silently omitted one cannot hide here either.
+	var baseline := str(request["substage_id"])
+	for index: int in range(projection.size()):
+		assert_ne(_derive(_root_receipt_id(), PRESENTATION_CHILD_KIND, 0,
+			_tokens(_mutate_member(projection, index))), baseline,
+			"member is load-bearing: " + str((projection[index] as Array)[0]))
+
+
+## Line 97's 13 members for a deferred-pair intent, as [path, value] pairs in the plan's order.
+func _expected_pair_intent_projection(request: Dictionary, entry: Dictionary,
+		source_day: int) -> Array:
+	var start: Dictionary = _active_plan()["day_resolution_start_receipt"]
+	return [
+		["role", "presentation.intent"],
+		["resolution_id", str(request["resolution_id"])],
+		["causal_day_instance", str(start["causal_day_instance"])],
+		["source_day", source_day],
+		["day_resolution_start_receipt_id", str(start["receipt_id"])],
+		["stage_name", PAIR_STAGE],
+		["stage_index", PAIR_STAGE_INDEX],
+		["presentation_kind", "twofriends_if_deferred"],
+		["schedule_entry_id", str(entry["schedule_entry_id"])],
+		["route_id", "dating"],
+		["timeline_id", str(request["timeline_id"])],
+		["context_sha256", _sha256(request["context"])],
+		["input_receipt_ids", _sorted_unique([
+			str(entry["schedule_entry_id"]), str(entry["source_receipt_id"])])],
+	]
+
+
+## Walks until the producer pauses on a presentation belonging to `stage_name`, completing every
+## earlier stage normally. A pause on some EARLIER presentation is settled through the port's own
+## envelope, so reaching the pair does not require the date stage to be empty.
+func _await_stage_presentation(stage_name: String) -> Dictionary:
+	var steps := 0
+	while steps < MAX_WALK_STEPS:
+		steps += 1
+		var cursor: Dictionary = _state_port.inspect_next_stage()
+		if not cursor.get("ok", false) or not bool(cursor["value"]["has_stage"]):
+			return _walk_failed("the walk ended before the %s presentation" % stage_name)
+		var begun: Dictionary = _state_port.begin_next_stage()
+		if not begun.get("ok", false):
+			return _walk_failed("a stage before %s refused: %s"
+				% [stage_name, JSON.stringify(begun)])
+		var value: Dictionary = begun["value"]
+		var stage: Dictionary = value["stage"]
+		if str(value["mode"]) == "await_registered_command":
+			var request: Dictionary = (value["command"] as Dictionary)["presentation_request"]
+			if str(stage["stage_id"]) == stage_name:
+				return request
+			var settled: Dictionary = _state_port.presentation_stage_receipt(
+				str(stage["transaction_id"]),
+				{"receipt_id": str(request["completion_transaction_id"])})
+			if not settled.get("ok", false):
+				return _walk_failed("an earlier presentation would not settle: "
+					+ JSON.stringify(settled))
+			var closed := _complete_walked_stage(stage, (settled["value"] as Dictionary)["receipt"])
+			if not closed.get("ok", false):
+				return _walk_failed("an earlier presentation stage would not complete: "
+					+ JSON.stringify(closed))
+			continue
+		# The target stage came up and answered immediately: it derived no presentation at all.
+		# Reported here rather than letting the walk run on to a stage this harness cannot satisfy,
+		# so the failure names the missing presentation instead of some later casualty.
+		if str(stage["stage_id"]) == stage_name:
+			return _walk_failed("the %s stage completed with mode=%s and no presentation, so the"
+				% [stage_name, str(value["mode"])]
+				+ " producer derived no presentation intent for it")
+		var advanced := _complete_walked_stage(stage, value["receipt"])
+		if not advanced.get("ok", false):
+			return _walk_failed("a stage before %s would not complete: %s"
+				% [stage_name, JSON.stringify(advanced)])
+	return _walk_failed("the walk stopped advancing before the %s presentation" % stage_name)
+
+
+## ONE failure, ONE message. A walk that cannot reach its presentation is a single fact, and
+## reporting it once per step buries that fact under repetition.
+func _walk_failed(message: String) -> Dictionary:
+	assert_true(false, message)
+	return {}
+
+
+func _complete_walked_stage(stage: Dictionary, receipt: Dictionary) -> Dictionary:
+	return _game_state._run_lifecycle.complete_active_stage(
+		str(stage["transaction_id"]),
+		{"value": (receipt["value"] as Dictionary).duplicate(true)})
+
+
+## One committed group draft for the canonical pair, on a group-window day.
+func _group_draft(draft_entry_id: String, slot_index: int, day: int,
+		source_receipt_id: String) -> Dictionary:
+	return {
+		"draft_entry_id": draft_entry_id,
+		"day": day,
+		"slot_index": slot_index,
+		"action_id": "group:priscilla_lavinia:day%d" % day,
+		"action_kind": "group",
+		"participants": ["priscilla", "lavinia"],
+		"source_receipt_id": source_receipt_id,
+	}
+
+
+## The supersession the Hospital stage DURABLY committed, read back out of its stage receipt --
+## the same bytes the producer reads, not a recomputation.
+func _hospital_superseded_entry_ids() -> Array:
+	for stage_value: Variant in (_active_plan().get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		if str(stage.get("stage_id", "")) != "hospital_if_triggered":
+			continue
+		var receipt: Variant = stage.get("receipt")
+		if typeof(receipt) != TYPE_DICTIONARY:
+			return []
+		return ((receipt as Dictionary)["value"] as Dictionary).get("superseded_entry_ids", [])
+	return []
+
+
+## Drives the canonical pair to ACCEPTED through the real Contacts owner and returns the exact
+## acceptance receipt id a committed group entry must resolve to.
+func _seed_group_source(day: int) -> String:
+	var state: Dictionary = _game_state.contacts
+	for participant: String in ["priscilla", "lavinia"]:
+		var offered: Dictionary = CONTACT_STATE.prepare_offer_solo(
+			state, participant, day, "offer.%s.day%d" % [participant, day],
+			"solo.%s.day%d" % [participant, day])
+		assert_true(offered.get("ok", false), str(offered))
+		if not offered.get("ok", false):
+			return ""
+		state = offered["value"]["candidate"]
+	var activated: Dictionary = CONTACT_STATE.prepare_activate_group_after_round(
+		state, day, 2, 3, "group.activate.day%d" % day)
+	assert_true(activated.get("ok", false), str(activated))
+	if not activated.get("ok", false):
+		return ""
+	state = activated["value"]["candidate"]
+	var action_id := "group:priscilla_lavinia:day%d" % day
+	var found: Dictionary = _registry.find_record(action_id)
+	assert_true(found.get("ok", false), str(found))
+	if not found.get("ok", false):
+		return ""
+	var record: Dictionary = (found["value"] as Dictionary)["record"]
+	var open_command := _command("group.open.day%d" % day)
+	var opened: Dictionary = CONTACT_STATE.prepare_open_contact(state, "priscilla", day,
+		open_command["id"], open_command["receipt"], _issuer, record)
+	assert_true(opened.get("ok", false), str(opened))
+	if not opened.get("ok", false):
+		return ""
+	state = opened["value"]["candidate"]
+	var reply_command := _command("group.reply.day%d" % day)
+	var replied: Dictionary = CONTACT_STATE.prepare_reply(state, "priscilla", day,
+		reply_command["id"], reply_command["receipt"], _issuer, record)
+	assert_true(replied.get("ok", false), str(replied))
+	if not replied.get("ok", false):
+		return ""
+	_game_state.contacts = replied["value"]["candidate"]
+	return str((replied["receipt"] as Dictionary)["receipt_id"])

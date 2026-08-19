@@ -716,8 +716,12 @@ func _immediate_receipt(stage_id: String) -> Dictionary:
 		"hospital_if_triggered":
 			return _envelope("hospital_rules", "hospital_resolution", _hospital_envelope())
 		"twofriends_if_deferred":
+			# `required` is the same fact `_deferred_pair_site` presents on, read from the same
+			# Hospital supersession. A stage that presented the pair and then recorded
+			# required=false would checkpoint a receipt contradicting its own presentation.
 			return _envelope("contact_invitation_state", "twofriends_resolution",
-				{"required": false, "route_receipt_id": null, "message_transaction_ids": [],
+				{"required": not _deferred_pair_entry_id().is_empty(),
+					"route_receipt_id": null, "message_transaction_ids": [],
 					"presentation_completion_receipt": null})
 		"invitation_rollover":
 			return _envelope("contact_invitation_state", "invitation_rollover",
@@ -842,27 +846,40 @@ func _surviving_date_site(substage_id: String) -> Dictionary:
 		"schedule_entry_id": entry_id}
 
 
-## The deferred P-L pair, read from the owner's own invitation state rather than a caller field.
+## The deferred P-L pair: the committed group entry HOSPITAL took away earlier in this same
+## resolution. Plan line 1057 -- Hospital "marks every committed date prevented_by_fainting ...
+## completes recovery, THEN permits deferred pair presentation".
 func _deferred_pair_site() -> Dictionary:
-	var contacts: Variant = _game_state.get("contacts")
-	if typeof(contacts) != TYPE_DICTIONARY:
+	var entry_id := _deferred_pair_entry_id()
+	if entry_id.is_empty():
 		return {}
-	var group: Variant = (contacts as Dictionary).get("group_action")
-	if typeof(group) != TYPE_DICTIONARY:
-		return {}
-	var deferred: Variant = (group as Dictionary).get("deferred_twofriends")
-	if typeof(deferred) != TYPE_DICTIONARY:
-		return {}
-	# The pair's committed entry is what carries the ancestry the intent projects; the deferred
-	# marker names only the action.
-	var action_id := str((deferred as Dictionary).get("action_id", ""))
+	return {"kind": "twofriends_if_deferred", "stage_name": PAIR_STAGE,
+		"route_id": "dating", "schedule_entry_id": entry_id}
+
+
+## The committed group entry this resolution's Hospital superseded, or "" when there is none.
+##
+## READ FROM THE SUPERSESSION HOSPITAL DURABLY COMMITTED, never from a live invitation field. This
+## previously read `contacts.group_action.deferred_twofriends`, a key that can never exist:
+## `group_action` is validated against an exact 9-member record shape, and the deferral marker lives
+## on the `resolve_day_end` receipt instead -- which `invitation_rollover`, a LATER stage than this
+## one, is what produces. So the pair site returned {} on every call and the variant never fired.
+##
+## Exactly symmetric with `_surviving_date_site`, which refuses a SUPERSEDED entry: this stage
+## presents precisely the group date the date stage could not, so the two variants stay mutually
+## exclusive by construction rather than by a second rule.
+func _deferred_pair_entry_id() -> String:
+	var superseded := _superseded_entry_ids()
+	if superseded.is_empty():
+		return ""
 	for entry_value: Variant in _active_committed_entries():
 		var entry: Dictionary = entry_value
-		if str(entry.get("action_id", "")) == action_id \
-				and str(entry.get("action_kind", "")) == "group":
-			return {"kind": "twofriends_if_deferred", "stage_name": PAIR_STAGE,
-				"route_id": "dating", "schedule_entry_id": str(entry["schedule_entry_id"])}
-	return {}
+		if str(entry.get("action_kind", "")) != "group":
+			continue
+		var entry_id := str(entry.get("schedule_entry_id", ""))
+		if entry_id in superseded:
+			return entry_id
+	return ""
 
 
 ## Builds the exact port `begin()` request for one presentation site: the `P01.presentation.intent`
