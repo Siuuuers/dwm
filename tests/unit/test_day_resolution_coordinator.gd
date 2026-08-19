@@ -5,6 +5,7 @@ const STATE_PATH := "res://tests/support/FakeDayResolutionStatePort.gd"
 const CHECKPOINT_PATH := "res://tests/support/FakeCheckpointPort.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
 const DAY_ADVANCE_PATH := "res://scripts/application/run/CausalDayAdvanceIdentityPort.gd"
+const PRESENTATION_PORT_PATH := "res://tests/support/FakePresentationPort.gd"
 
 func _all_exist() -> bool:
 	for path: String in [COORDINATOR_PATH, STATE_PATH, CHECKPOINT_PATH, GATE_PATH]:
@@ -193,6 +194,142 @@ func test_rollback_failure_latches_shared_gate_and_returns_fatal() -> void:
 	assert_true(failure["details"]["diagnostics"].size() > 0, "raw recovery results are projected")
 	var after: Dictionary = coordinator.request_schedule_done("done:run-1:day-2-again")
 	assert_eq(after["code"], &"APPLICATION_FATAL", "post-fatal commands return the retained failure")
+
+# -------------------------------------------------------------------------------------------------
+# complete_presentation_stage(): the seam dwm-p2r.14's acceptance criteria name
+# -------------------------------------------------------------------------------------------------
+#
+# WHY THESE ARE NEW. Until now `complete_presentation_stage()` had NO caller anywhere in the repo --
+# not in production, where Plan 03 still owns the Done dispatch, and not in any test. The suites
+# that drive real presentations call the state port's `presentation_stage_receipt()` and then
+# complete the stage through `RunLifecycle` directly, which bypasses the coordinator's ordering
+# entirely. So "the coordinator checkpoints the port's completion receipt before advancing the
+# stage" was true by reading and unproven by execution.
+
+
+## The published receipt reaches the checkpoint, and only then does the stage advance.
+func test_a_published_completion_is_checkpointed_and_then_advances_the_stage() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3)
+	var paused: Dictionary = wired["paused"]
+	assert_eq(str(paused["code"]), "await_registered_command", "the walk paused on the presentation")
+	var checkpoints_before: Dictionary = wired["checkpoint"].peek_state()
+
+	wired["hospital_port"].publish_completion(_completion_receipt())
+	assert_eq(wired["coordinator"].get_last_presentation_completion()["receipt_id"],
+		COMPLETION_TRANSACTION_ID, "the signal made the receipt available")
+	assert_eq(wired["checkpoint"].peek_state(), checkpoints_before,
+		"the SIGNAL ALONE checkpoints nothing and advances nothing")
+
+	var completed: Dictionary = wired["coordinator"].complete_presentation_stage()
+	assert_true(completed.get("ok", false), JSON.stringify(completed))
+	assert_ne(wired["checkpoint"].peek_state(), checkpoints_before,
+		"completing the stage checkpointed the receipt")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "completed",
+		"and only then did the stage advance")
+	assert_eq(wired["coordinator"].get_last_presentation_completion(), {},
+		"the settled completion is not left retained")
+
+
+## A well-formed completion for some OTHER command is not this stage's evidence.
+func test_a_completion_that_does_not_settle_the_awaiting_command_is_refused() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3)
+	var foreign := _completion_receipt()
+	foreign["receipt_id"] = "completion.some-other-presentation"
+	wired["hospital_port"].publish_completion(foreign)
+
+	var refused: Dictionary = wired["coordinator"].complete_presentation_stage()
+	assert_false(refused.get("ok", true), "a foreign completion is refused")
+	assert_eq(str(refused.get("code", "")), "presentation_completion_untrusted",
+		"and names why rather than failing obscurely")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"the stage stays active: nothing advanced on a completion it never awaited")
+
+
+## dwm-p2r.18 review, smaller item. A duplicate means the plan ALREADY completed this stage, so the
+## coordinator's retained awaiting state is stale by definition. It returned early without dropping
+## it, leaving the coordinator awaiting a stage that was already done: every later call returned
+## duplicate again, and this path never reached `resume()`. The success path drops both.
+##
+## Unlike `complete_route_stage`, this transaction id is READ FROM `_awaiting` itself, so it cannot
+## be an older transaction whose replay should leave a newer awaiting command alone.
+func test_a_duplicate_completion_does_not_leave_the_coordinator_awaiting_a_finished_stage() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3)
+	var command: Dictionary = (wired["paused"]["value"] as Dictionary)["command"]
+
+	# The plan completes the stage behind the coordinator's back -- the shape a crash between the
+	# durable completion and the coordinator hearing about it leaves.
+	var out_of_band: Dictionary = wired["state"]._lifecycle.complete_active_stage(
+		str(command["transaction_id"]),
+		{"value": (_hospital_receipt()["value"] as Dictionary).duplicate(true)})
+	assert_true(out_of_band.get("ok", false), JSON.stringify(out_of_band))
+
+	wired["hospital_port"].publish_completion(_completion_receipt())
+	var replay: Dictionary = wired["coordinator"].complete_presentation_stage()
+	assert_true(replay.get("ok", false), "the replay is not an error: the stage really is complete")
+	assert_eq(str(replay.get("code", "")), "duplicate_transaction",
+		"and still reports the duplicate rather than swallowing it")
+
+	assert_eq(wired["coordinator"].get_last_presentation_completion(), {},
+		"the stale completion is dropped, exactly as on the success path")
+	var again: Dictionary = wired["coordinator"].complete_presentation_stage()
+	assert_false(again.get("ok", true),
+		"and the coordinator is no longer awaiting a stage the plan already completed")
+
+
+const COMPLETION_TRANSACTION_ID := "completion.hospital.day3"
+
+
+## A coordinator paused on a Hospital PRESENTATION, with a fake port adopted as its owner.
+func _wired_presentation(day: int) -> Dictionary:
+	var wired := _wired(day)
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new()
+	var dating_port: RefCounted = load(PRESENTATION_PORT_PATH).new()
+	assert_true(wired["coordinator"].configure_presentation_ports(
+		hospital_port, dating_port).get("ok", false))
+	wired["state"].set_registered_stage("hospital_if_triggered")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+	wired["paused"] = wired["coordinator"].request_schedule_done("done:run-1:day-%d" % day)
+	wired["hospital_port"] = hospital_port
+	wired["dating_port"] = dating_port
+	return wired
+
+
+## The port-published completion receipt, in the shape `_on_presentation_completion_ready` accepts.
+func _completion_receipt() -> Dictionary:
+	return {
+		"receipt_id": COMPLETION_TRANSACTION_ID,
+		"resolution_id": "resolution-1",
+		"route_id": "hospital",
+		"timeline_id": "hospital.faint",
+	}
+
+
+func _hospital_receipt() -> Dictionary:
+	return {"owner_id": "hospital_rules", "kind": "hospital_resolution",
+		"value": {"required": false, "date_schedule_entry_ids": [],
+			"superseded_entry_ids": [], "witness_entry_id": null,
+			"presentation_completion_receipt": null}}
+
+
+func _stage_state(state: RefCounted, stage_id: String) -> String:
+	var plan: Variant = state._lifecycle.to_dict()["active_resolution_plan"]
+	if typeof(plan) != TYPE_DICTIONARY:
+		return ""
+	for stage_value: Variant in ((plan as Dictionary)["stages"] as Array):
+		var stage: Dictionary = stage_value
+		if str(stage["stage_id"]) == stage_id:
+			return str(stage["state"])
+	return ""
+
 
 func test_duplicate_transaction_returns_stored_receipt_without_new_checkpoint() -> void:
 	assert_true(_all_exist(), "coordinator artifacts must exist")

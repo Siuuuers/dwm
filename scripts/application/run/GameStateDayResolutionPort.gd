@@ -787,6 +787,12 @@ func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary
 ## The presentation locator for each variant. Constructed, then REQUIRED to be registered in
 ## DialogicTimelineCatalog -- a locator the manifest does not carry is refused rather than played.
 const HOSPITAL_TIMELINE_ID := "hospital.faint"
+## "A group date IS the P-L pair" is an enforced domain invariant, not an assumption made here:
+## `ScheduleActionRegistry` refuses any group action whose participants are not exactly this array
+## in this order ("a reversed pair is a tamper, not a synonym"), and `ContactInvitationState` mints
+## every group action_id as `group:priscilla_lavinia:dayN` against an exact-match check. A committed
+## group entry is validated against that registry under the fingerprint it was committed with, so
+## two group dates with different participants cannot both exist to collide on one context hash.
 const PAIR_PARTICIPANTS: Array[String] = ["priscilla", "lavinia"]
 const PAIR_SLUG := "priscilla_lavinia"
 ## Phase 2R presents the PRE-challenge timeline: the challenge itself is dwm-oyo.4's board, and the
@@ -955,6 +961,15 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	if ordinal < 0:
 		return {"ok": false, "code": &"invalid_presentation_ordinal",
 			"message": "the within-stage presentation ordinal is not derivable", "details": {}}
+	# Same fail-closed rule as the ordinal beside it. `Array.find()` returns -1 for a stage this
+	# day's frozen array does not contain, and -1 is a perfectly projectable int: it would anchor a
+	# child under a stage_index that names no stage rather than refusing. Unreachable today -- the
+	# D7 array carries none of the three presentation stages -- which is exactly why it is guarded
+	# rather than left to a future day's stage array to discover.
+	var stage_index := _stage_index(str(site["stage_name"]), int(plan["source_day"]))
+	if stage_index < 0:
+		return {"ok": false, "code": &"invalid_presentation_stage_index",
+			"message": "this stage is not in the frozen stage array for this day", "details": {}}
 
 	var context_hash := _sha256(context)
 	if context_hash.is_empty():
@@ -969,7 +984,7 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 		_project("source_day", int(plan["source_day"])),
 		_project("day_resolution_start_receipt_id", str(start_receipt["receipt_id"])),
 		_project("stage_name", str(site["stage_name"])),
-		_project("stage_index", _stage_index(str(site["stage_name"]), int(plan["source_day"]))),
+		_project("stage_index", stage_index),
 		_project("presentation_kind", str(context["kind"])),
 		_project("schedule_entry_id", site["schedule_entry_id"]),
 		_project("route_id", str(site["route_id"])),

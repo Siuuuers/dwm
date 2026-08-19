@@ -33,11 +33,23 @@ func seed_playing_day(run_id: String, day: int, _schedule: Array) -> void:
 	assert(restored["ok"])
 	assert(_lifecycle.commit_restore(restored["value"]["candidate"])["ok"])
 
+## Nonempty only while the registered stage is a presentation site.
+var _registered_completion_transaction_id := ""
+
+
 func set_failure(phase: StringName) -> void:
 	_failure = phase
 
 func set_registered_stage(stage_id: String) -> void:
 	_registered_stage = stage_id
+
+
+## Makes the registered stage await a PRESENTATION rather than a bare route command, so the
+## coordinator's `complete_presentation_stage()` has a request to settle against. Without this the
+## awaiting command carries no `completion_transaction_id` and the coordinator's
+## "does this receipt settle THIS command" check would pass vacuously on two empty strings.
+func set_registered_presentation(completion_transaction_id: String) -> void:
+	_registered_completion_transaction_id = completion_transaction_id
 
 func get_publication_count() -> int:
 	return _publications
@@ -71,6 +83,24 @@ func begin_or_resume(command_id: String) -> Dictionary:
 		return begun
 	return {"ok": true, "code": &"ok", "value": {"run_id": _run_id}}
 
+## The awaiting command, with the presentation request attached when one is registered -- the same
+## two shapes the production port returns.
+func _registered_command(stage: Dictionary, stage_id: String) -> Dictionary:
+	var command: Dictionary = {
+		"transaction_id": str(stage["transaction_id"]),
+		"stage_id": stage_id,
+		"owner_id": str(_immediate_receipt(stage_id)["owner_id"]),
+		"kind": str(_immediate_receipt(stage_id)["kind"]),
+	}
+	if not _registered_completion_transaction_id.is_empty():
+		command["route_id"] = "hospital"
+		command["presentation_request"] = {
+			"completion_transaction_id": _registered_completion_transaction_id,
+			"route_id": "hospital",
+		}
+	return command
+
+
 func inspect_next_stage() -> Dictionary:
 	var cursor: Dictionary = _lifecycle.resume_resolution()
 	return cursor
@@ -86,12 +116,7 @@ func begin_next_stage() -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {
 			"mode": &"await_registered_command",
 			"stage": stage.duplicate(true),
-			"command": {
-				"transaction_id": str(stage["transaction_id"]),
-				"stage_id": stage_id,
-				"owner_id": str(_immediate_receipt(stage_id)["owner_id"]),
-				"kind": str(_immediate_receipt(stage_id)["kind"]),
-			},
+			"command": _registered_command(stage, stage_id),
 		}}
 	return {"ok": true, "code": &"ok", "value": {
 		"mode": &"complete_immediately",

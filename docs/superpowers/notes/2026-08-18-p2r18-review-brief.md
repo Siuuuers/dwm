@@ -54,6 +54,13 @@ because `resume()` never re-runs `begin_or_resume` and the intent projects
   through `configure_desktop_consequence_source()`, which **Bootstrap deliberately never calls**.
   Production therefore fails closed at any stage that needs a presentation, and
   `get_desktop_contract_state().presentation_producer_ready` reports `false`.
+- **DEVIATION-6** (recorded after the cold review, which flagged it as unrecorded):
+  `hospital_miss_receipt_ids` are RE-DERIVED on every `_presentation_command` call rather than
+  written into the plan, while plan line 100 says "the exact array of PERSISTED `P01.hospital.miss`
+  child IDs". Determinism covers it -- the same root, kind, ordinal and sources reproduce the same
+  child ids, and `test_committed_schedule_presentation_resume.gd` proves byte-identity across the
+  Step 8.2 cuts -- so the derived array equals the persisted one it stands in for. Persisting it is
+  a `PLAN_KEYS` change with the DEVIATION-4 ripple, and nothing needs it yet.
 
 ## Where the author's confidence is weakest — audit these hardest
 

@@ -280,10 +280,19 @@ func complete_presentation_stage() -> Dictionary:
 	}, (envelope["value"] as Dictionary)["receipt"])
 	if not completed.get("ok", false):
 		return completed
-	if completed.get("code") == &"duplicate_transaction":
-		return completed
+	# A duplicate means the plan ALREADY completed this stage, so the retained awaiting state is
+	# stale by definition and is dropped exactly as on the success path -- otherwise the coordinator
+	# is left awaiting a finished stage, every later call returns duplicate again, and this path
+	# never reaches resume(). The duplicate is still REPORTED rather than resumed over: unlike the
+	# success path, nothing new was checkpointed here.
+	#
+	# Safe here in a way it would not be in `complete_route_stage`: this transaction id is read from
+	# `_awaiting` itself, so it can never be an older transaction whose replay should leave a newer
+	# awaiting command untouched.
 	_awaiting = {}
 	_last_presentation_completion = {}
+	if completed.get("code") == &"duplicate_transaction":
+		return completed
 	return resume()
 
 
