@@ -564,6 +564,13 @@ func _construct_schedule_presentation(coordinator: RefCounted) -> Dictionary:
 			_retained_hospital_presentation_port, _retained_dating_presentation_port)
 		if not routed.get("ok", false):
 			return routed
+		# dwm-p2r.18: the SAME router the ports were just injected into becomes the coordinator's
+		# route surface, so a paused presentation is actually LAUNCHED rather than merely awaited.
+		# One object serves both roles deliberately -- a second router would show a scene holding
+		# ports this coordinator never adopted.
+		var dispatched: Dictionary = coordinator.configure_presentation_router(router)
+		if not dispatched.get("ok", false):
+			return dispatched
 	return {"ok": true, "code": &"ok", "value": {
 		"hospital_ready": bool(_retained_hospital_presentation_port.call(&"is_ready")),
 		"dating_ready": bool(_retained_dating_presentation_port.call(&"is_ready")),

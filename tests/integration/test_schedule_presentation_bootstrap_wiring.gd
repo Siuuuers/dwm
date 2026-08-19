@@ -126,6 +126,29 @@ func test_the_hospital_port_retains_the_exact_bootstrap_owned_adapter() -> void:
 		_retained("_retained_presentation_owner_adapter").get_instance_id())
 
 
+## dwm-p2r.18: the coordinator is given the SAME router the ports were injected into.
+##
+## WHY IDENTITY AND NOT MERELY PRESENCE. The router hands each off-tree scene the exact retained port
+## it holds. A coordinator dispatching through a SECOND router would open a Hospital scene wired to
+## ports this coordinator never adopted, so its completion would arrive from an object the
+## coordinator refuses -- a presentation that plays and can never be checkpointed.
+func test_the_coordinator_dispatches_through_the_exact_router_the_ports_were_injected_into() -> void:
+	assert_true(_compose().get("ok", false))
+	assert_true(_router.is_schedule_presentation_ports_configured(),
+		"the router really did receive the ports")
+
+	var replay: Dictionary = _coordinator.configure_presentation_router(_router)
+	assert_true(replay.get("ok", false), "the coordinator already holds this exact router")
+	assert_true(bool(replay["value"]["already_configured"]))
+	assert_eq(int(replay["value"]["router_instance_id"]), _router.get_instance_id())
+
+	var second: Node = load("res://autoload/SceneRouter.gd").new()
+	add_child_autofree(second)
+	var replaced: Dictionary = _coordinator.configure_presentation_router(second)
+	assert_false(replaced.get("ok", true), "a second router is refused rather than adopted")
+	assert_eq(replaced.get("code"), &"presentation_router_conflict")
+
+
 func test_the_adapter_retains_the_existing_bridge_rather_than_a_new_one() -> void:
 	assert_true(_compose().get("ok", false))
 	var replayed: Dictionary = _retained("_retained_presentation_owner_adapter").configure(_bridge)

@@ -18,11 +18,46 @@ extends RefCounted
 signal completion_ready(completion_result: Dictionary)
 signal completion_failed(failure: Dictionary)
 
+## Shared ordering log, so a test can prove `port.begin` precedes `router.route_presentation`.
+var _calls: Array[String] = []
+## Every request `begin()` was handed, in call order.
+var _requests: Array[Dictionary] = []
+var _begin_failure_code := &""
 
-## The exact capability set the coordinator requires (`PRESENTATION_PORT_METHODS`). Never called by
-## the coordinator's completion path; present so the port is adoptable at all.
-func begin(_request: Dictionary) -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+func _init(calls: Array[String] = []) -> void:
+	_calls = calls
+
+
+## Makes `begin()` refuse the way a port with no configured physical owner does.
+func set_begin_failure(code: StringName) -> void:
+	_begin_failure_code = code
+
+
+## The exact capability set the coordinator requires (`PRESENTATION_PORT_METHODS`).
+##
+## dwm-p2r.18 gave this a body: the walk now LAUNCHES a presentation, so `begin()` is on the
+## dispatch path rather than merely present for adoptability. It returns the same envelope the real
+## ports return -- `value.presentation_command` is the request plus the two members only a started
+## presentation can carry -- because that canonical command, not the raw request, is what the router
+## hands the scene.
+func begin(request: Dictionary) -> Dictionary:
+	_calls.append("port.begin")
+	_requests.append(request.duplicate(true))
+	if _begin_failure_code != &"":
+		return {"ok": false, "code": _begin_failure_code, "message": "", "details": {}}
+	var command: Dictionary = request.duplicate(true)
+	command["command_sha256"] = "sha256:%s" % str(request.get("completion_transaction_id", ""))
+	command["physical_token"] = "token:%s" % str(request.get("completion_transaction_id", ""))
+	return {"ok": true, "code": &"ok", "value": {"presentation_command": command}, "receipt": {}}
+
+
+## Detached copies: reading what the port was handed never lets a test mutate the record.
+func get_requests() -> Array[Dictionary]:
+	var copied: Array[Dictionary] = []
+	for request: Dictionary in _requests:
+		copied.append(request.duplicate(true))
+	return copied
 
 
 func complete(_request: Dictionary) -> Dictionary:

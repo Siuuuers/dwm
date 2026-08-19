@@ -26,6 +26,12 @@ const DAY_ADVANCE_IDENTITY_METHODS: Array[String] = [
 const PRESENTATION_PORT_METHODS: Array[String] = [
 	"begin", "complete", "is_ready",
 ]
+## The exact SceneRouter presentation-route capability (Plan 01 Task 8 Step 8.6, dwm-p2r.18).
+## Consumed unwidened: the coordinator asks the router to show ONE committed presentation and never
+## to change a scene, clear a draft, or advance a day.
+const PRESENTATION_ROUTER_METHODS: Array[String] = [
+	"is_schedule_presentation_ports_configured", "route_presentation",
+]
 
 const STAGE_CONTRACTS := {
 	"lock_day": {"owner_id": "day_resolution_coordinator", "kind": "day_lock",
@@ -113,6 +119,9 @@ var _day_advance_identity_port: Object = null
 ## object identities; it never constructs, wraps, or replaces either.
 var _hospital_presentation_port: Object = null
 var _dating_presentation_port: Object = null
+## The ONE retained route surface. Bootstrap injects the same SceneRouter it already gave those two
+## ports; the coordinator never constructs, wraps, or replaces it, and never changes a scene itself.
+var _presentation_router: Object = null
 var _last_presentation_completion: Dictionary = {}
 var _last_presentation_failure: Dictionary = {}
 var _run_id := ""
@@ -214,6 +223,31 @@ func configure_presentation_ports(hospital_port: Object, dating_port: Object) ->
 		"value": {"configured": true, "already_configured": false,
 			"hospital_port_instance_id": hospital_port.get_instance_id(),
 			"dating_port_instance_id": dating_port.get_instance_id()},
+		"receipt": {}}
+
+
+## Accepts the ONE production route surface once (dwm-p2r.18). Identical replay is idempotent and a
+## replacement is refused, exactly as the port seam above.
+##
+## WHY THE COORDINATOR HOLDS IT. It is the object that PAUSES the walk on a presentation, so it is
+## the object that must be able to launch one. Handing the route to a caller instead would leave
+## "the Hospital and Dating adapters are actually launched" resting on a caller that does not exist.
+func configure_presentation_router(router: Object) -> Dictionary:
+	if router == null or not _has_all_methods(router, PRESENTATION_ROUTER_METHODS):
+		return {"ok": false, "code": &"presentation_router_conflict",
+			"message": "an exact presentation-route capability is required"}
+	if _presentation_router != null:
+		if _presentation_router != router:
+			return {"ok": false, "code": &"presentation_router_conflict",
+				"message": "a configured coordinator never adopts a replacement route surface"}
+		return {"ok": true, "code": &"ok",
+			"value": {"configured": true, "already_configured": true,
+				"router_instance_id": router.get_instance_id()},
+			"receipt": {}}
+	_presentation_router = router
+	return {"ok": true, "code": &"ok",
+		"value": {"configured": true, "already_configured": false,
+			"router_instance_id": router.get_instance_id()},
 		"receipt": {}}
 
 
@@ -368,12 +402,65 @@ func resume() -> Dictionary:
 				command["substage_id"] = str(stage["substage_id"])
 			_awaiting = command.duplicate(true)
 			_registered_history[str(command["transaction_id"])] = command.duplicate(true)
+			# The command is registered BEFORE the launch: a port whose physical owner completes
+			# synchronously publishes into a coordinator that is already awaiting this exact
+			# transaction, rather than into one that has not heard of it yet.
+			var launched := _launch_presentation(command)
+			if not launched.is_empty() and not launched.get("ok", false):
+				return launched
 			return {"ok": true, "code": &"await_registered_command",
 				"value": {"stage": stage, "command": command}}
 		var completed := _commit_completion(stage, begun["value"]["receipt"])
 		if not completed.get("ok", false):
 			return completed
 	return {"ok": false, "code": &"unreachable", "message": ""}
+
+## Launches the adapter for ONE awaiting presentation command, and returns `{}` when the awaiting
+## command is not a presentation at all (dwm-p2r.18, the last SCOPE bullet).
+##
+## THE ORDER IS FORCED, not chosen. `route_presentation` hands the scene the CANONICAL command --
+## the request plus the `command_sha256` and the owner-derived `physical_token` -- and only `begin()`
+## produces those bytes, so the physical presentation necessarily starts before the scene opens.
+## Every cheap precondition is therefore checked FIRST: a route that cannot be shown must be refused
+## before a timeline starts behind it.
+##
+## A REFUSAL LEAVES THE RUN RESUMABLE, which is why nothing is rolled back here. The stage is already
+## ACTIVE by this point and stays active and unreceipted, `_awaiting` keeps this exact command, and
+## no domain state was touched. `begin()` is idempotent per completion transaction, so the next
+## `resume()` re-derives byte-identical bytes and re-offers them without restarting a presentation
+## that may already be running.
+func _launch_presentation(command: Dictionary) -> Dictionary:
+	var request: Variant = command.get("presentation_request")
+	if typeof(request) != TYPE_DICTIONARY or (request as Dictionary).is_empty():
+		return {}
+	var route_id := str(command.get("route_id", ""))
+	if route_id != "hospital" and route_id != "dating":
+		return {"ok": false, "code": &"invalid_presentation_route", "message": route_id}
+	if _presentation_router == null:
+		return {"ok": false, "code": &"presentation_router_unconfigured",
+			"message": "a presentation stage requires the configured route surface"}
+	var port: Object = _hospital_presentation_port if route_id == "hospital" \
+		else _dating_presentation_port
+	if port == null:
+		# Distinct from `presentation_ports_conflict`, which the configure seam returns for a port
+		# it REFUSES. Nothing was refused here: the graph never composed one at all.
+		return {"ok": false, "code": &"presentation_ports_unconfigured",
+			"message": "a presentation stage requires the configured presentation ports"}
+	var started: Variant = port.call(&"begin", (request as Dictionary).duplicate(true))
+	if typeof(started) != TYPE_DICTIONARY or not (started as Dictionary).get("ok", false):
+		return started if typeof(started) == TYPE_DICTIONARY else {"ok": false,
+			"code": &"presentation_begin_failed", "message": route_id}
+	var canonical: Variant = ((started as Dictionary).get("value", {}) as Dictionary).get(
+		"presentation_command")
+	if typeof(canonical) != TYPE_DICTIONARY or (canonical as Dictionary).is_empty():
+		return {"ok": false, "code": &"invalid_presentation_command",
+			"message": "the port returned no canonical command for the scene to project"}
+	var routed: Variant = _presentation_router.call(&"route_presentation", route_id,
+		(canonical as Dictionary).duplicate(true))
+	if typeof(routed) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"presentation_route_failed", "message": route_id}
+	return routed
+
 
 func complete_route_stage(transaction_id: String, receipt: Dictionary) -> Dictionary:
 	var fatal := _fatal_guard()

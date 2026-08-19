@@ -270,6 +270,53 @@ func test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike() -> void
 			route + " is refused as a route, not as a bad command")
 
 
+## THE MIRROR IMAGE of the scan below, and the last dwm-p2r.18 SCOPE bullet stated as a fact.
+##
+## `SceneRouter.route_presentation()` existed, was tested, and had ZERO production callers: the walk
+## derived an exact presentation intent, paused carrying its `route_id`, and handed it to nothing, so
+## no Hospital or Dating adapter was ever launched. The scan below proves a legacy seam stays
+## uncalled; this one proves the live seam IS called, and by the walk rather than by a scene.
+##
+## It goes red if anyone deletes the wire, and it goes red if the caller migrates into a Control
+## node -- which is the failure mode Task 8 spent its whole budget removing.
+func test_the_walk_is_the_production_caller_of_route_presentation() -> void:
+	var callers: Array[String] = []
+	for path: String in _production_scripts("res://scripts") + _production_scripts("res://autoload"):
+		if path == ROUTER_PATH:
+			continue
+		if _code_lines(path).contains("route_presentation"):
+			callers.append(path)
+	assert_eq(callers, [COORDINATOR_PATH] as Array[String],
+		"the day-resolution walk is the sole production script naming route_presentation; found: "
+		+ str(callers))
+	# NAMING IT IS NOT CALLING IT. The coordinator also names the seam in the capability set it
+	# requires of a router, so the substring scan above stays green even with the dispatch deleted --
+	# verified by mutation, not assumed. The call form is what proves the walk actually launches.
+	assert_true(_code_lines(COORDINATOR_PATH).contains(".call(&\"route_presentation\""),
+		"the walk must CALL the seam, not merely declare it in a required capability")
+	assert_true(_code_lines(ROUTER_PATH).contains("func route_presentation"),
+		"and the seam being pinned still exists on the router, so this scan is not vacuous")
+
+
+## The capability the coordinator declares is the one the REAL router offers.
+##
+## The dispatch law is proved against a fake router in `tests/unit/test_day_resolution_coordinator.gd`
+## because the real one instantiates a PackedScene and mutates `tree.current_scene`. That fake is only
+## as good as its agreement with the real object, so the agreement is asserted here rather than
+## assumed: a router method renamed on one side alone fails closed at composition, not at the first
+## faint a player ever sees.
+func test_the_real_router_satisfies_the_capability_the_coordinator_requires() -> void:
+	var router: Node = load(ROUTER_PATH).new()
+	add_child_autofree(router)
+	var required: Array = load(COORDINATOR_PATH).PRESENTATION_ROUTER_METHODS
+	assert_false(required.is_empty(), "the coordinator declares a route capability at all")
+	for method: String in required:
+		assert_true(router.has_method(method),
+			"SceneRouter must offer " + method + ", which the coordinator requires")
+	assert_true(load(COORDINATOR_PATH).new().configure_presentation_router(router).get("ok", false),
+		"and the real router is adoptable by the real coordinator")
+
+
 ## THE PSEUDO-ROUTE PRODUCER STILL EXISTS, and this pins its containment rather than pretending it
 ## does not. GameState.execute_schedule_sequence_until_route_needed() still returns
 ## route == "twofriends" and create_missed_group_twofriends_entry() still builds an old-shape

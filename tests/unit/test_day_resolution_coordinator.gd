@@ -6,6 +6,7 @@ const CHECKPOINT_PATH := "res://tests/support/FakeCheckpointPort.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
 const DAY_ADVANCE_PATH := "res://scripts/application/run/CausalDayAdvanceIdentityPort.gd"
 const PRESENTATION_PORT_PATH := "res://tests/support/FakePresentationPort.gd"
+const PRESENTATION_ROUTER_PATH := "res://tests/support/FakePresentationRouter.gd"
 
 func _all_exist() -> bool:
 	for path: String in [COORDINATOR_PATH, STATE_PATH, CHECKPOINT_PATH, GATE_PATH]:
@@ -288,19 +289,239 @@ func test_a_duplicate_completion_does_not_leave_the_coordinator_awaiting_a_finis
 const COMPLETION_TRANSACTION_ID := "completion.hospital.day3"
 
 
-## A coordinator paused on a Hospital PRESENTATION, with a fake port adopted as its owner.
-func _wired_presentation(day: int) -> Dictionary:
+## A coordinator paused on a Hospital PRESENTATION, with fake ports adopted as its owners and a
+## fake router adopted as its dispatch surface.
+##
+## dwm-p2r.18: the router is not optional scaffolding here. A coordinator that can PAUSE on a
+## presentation must be able to LAUNCH it, so a presentation site with no configured router fails
+## closed rather than pausing on a scene nobody will ever show -- which is what
+## `test_an_unconfigured_router_never_starts_a_physical_presentation` proves.
+##
+## `configure_router` mirrors production for every other case: `ApplicationBootstrap` configures the
+## ports and the router on the same coordinator, in that order.
+func _wired_presentation(day: int, configure_router: bool = true) -> Dictionary:
 	var wired := _wired(day)
-	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new()
-	var dating_port: RefCounted = load(PRESENTATION_PORT_PATH).new()
+	var calls: Array[String] = wired["calls"]
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	var dating_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
 	assert_true(wired["coordinator"].configure_presentation_ports(
 		hospital_port, dating_port).get("ok", false))
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(calls)
+	if configure_router:
+		assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
 	wired["state"].set_registered_stage("hospital_if_triggered")
 	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
 	wired["paused"] = wired["coordinator"].request_schedule_done("done:run-1:day-%d" % day)
 	wired["hospital_port"] = hospital_port
 	wired["dating_port"] = dating_port
+	wired["router"] = router
 	return wired
+
+
+# -------------------------------------------------------------------------------------------------
+# the walk LAUNCHES the adapter: the last dwm-p2r.18 SCOPE bullet
+# -------------------------------------------------------------------------------------------------
+#
+# WHY THESE ARE NEW. `SceneRouter.route_presentation()` and the presentation ports' `begin()` both
+# had ZERO production callers. The producer derived an exact `P01.presentation.intent`, the walk
+# paused on `await_registered_command` carrying its `route_id` and `presentation_request` -- and
+# then nothing handed those to anything. No Hospital or Dating adapter was ever launched, which is
+# the acceptance criterion dwm-p2r.14 could not meet and this bead exists to close.
+#
+# WHAT THE COORDINATOR OWES, and what it does not. It owes: start the physical presentation through
+# the configured port, then show the scene through the configured router, with the route the command
+# names and the CANONICAL command the port returned; refuse before starting anything physical when
+# it cannot do both; and leave a failed launch resumable. It does not owe route legality, port
+# readiness or scene configuration -- those are `SceneRouter`'s contract, proved against the real
+# router in `tests/integration/test_schedule_presentation_bootstrap_wiring.gd`.
+
+
+func test_the_presentation_router_seam_configures_once_and_rejects_replacement() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var coordinator: RefCounted = _wired(3)["coordinator"]
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new()
+
+	var first: Dictionary = coordinator.configure_presentation_router(router)
+	assert_true(first.get("ok", false), JSON.stringify(first))
+	assert_eq(first["value"], {"configured": true, "already_configured": false,
+		"router_instance_id": router.get_instance_id()})
+	assert_eq(first["receipt"], {})
+
+	var replay: Dictionary = coordinator.configure_presentation_router(router)
+	assert_true(replay.get("ok", false), "identical replay with the SAME object is idempotent")
+	assert_true(bool(replay["value"]["already_configured"]))
+
+	var replaced: Dictionary = coordinator.configure_presentation_router(
+		load(PRESENTATION_ROUTER_PATH).new())
+	assert_false(replaced.get("ok", true), "a configured coordinator never adopts a replacement")
+	assert_eq(str(replaced.get("code", "")), "presentation_router_conflict")
+
+	var incomplete: RefCounted = load(PRESENTATION_PORT_PATH).new()
+	assert_false(load(COORDINATOR_PATH).new().configure_presentation_router(
+		incomplete).get("ok", true), "an object without the exact router capability is refused")
+	assert_false(load(COORDINATOR_PATH).new().configure_presentation_router(
+		null).get("ok", true), "and so is nothing at all")
+
+
+## THE WIRE. A paused presentation starts the physical owner and then shows the scene.
+func test_a_paused_presentation_starts_the_physical_owner_then_routes_the_scene() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3)
+	var paused: Dictionary = wired["paused"]
+	assert_true(paused.get("ok", false), JSON.stringify(paused))
+	assert_eq(str(paused["code"]), "await_registered_command", "the walk still pauses")
+
+	var requests: Array[Dictionary] = wired["hospital_port"].get_requests()
+	assert_eq(requests.size(), 1, "the configured port was asked to begin exactly once")
+	if requests.size() != 1:
+		return
+	assert_eq(requests[0], {
+		"completion_transaction_id": COMPLETION_TRANSACTION_ID, "route_id": "hospital",
+	}, "and was handed the command's own presentation_request, unaltered")
+
+	var routes: Array[Dictionary] = wired["router"].get_routes()
+	assert_eq(routes.size(), 1, "the configured router was asked to route exactly once")
+	if routes.size() != 1:
+		return
+	assert_eq(str(routes[0]["route_id"]), "hospital", "under the route the command names")
+	assert_eq(routes[0]["command"], {
+		"completion_transaction_id": COMPLETION_TRANSACTION_ID,
+		"route_id": "hospital",
+		"command_sha256": "sha256:%s" % COMPLETION_TRANSACTION_ID,
+		"physical_token": "token:%s" % COMPLETION_TRANSACTION_ID,
+	}, "carrying the port's CANONICAL command -- the started one, not the raw request")
+
+	var calls: Array[String] = wired["calls"]
+	assert_true(calls.has("port.begin") and calls.has("router.route_presentation"),
+		"both halves of the launch really ran")
+	assert_true(calls.find("port.begin") < calls.find("router.route_presentation"),
+		"the physical presentation starts BEFORE the scene is shown: the scene projects the "
+		+ "command_sha256 and physical_token only a started presentation carries")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"and the stage is still awaiting its completion: launching advanced nothing")
+
+
+## Nothing physical may start when the scene cannot be shown.
+func test_an_unconfigured_router_never_starts_a_physical_presentation() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3, false)
+	var paused: Dictionary = wired["paused"]
+	assert_false(paused.get("ok", true), "a presentation site with no router fails closed")
+	assert_eq(str(paused.get("code", "")), "presentation_router_unconfigured",
+		"and names the missing owner rather than silently skipping the presentation")
+	assert_eq(wired["hospital_port"].get_requests(), [],
+		"the port was never asked to begin: no timeline runs behind a scene that cannot open")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"the stage stays active and unreceipted, so the run resumes at this exact boundary")
+
+	# The stages BEFORE the presentation legitimately completed and published; what must not move is
+	# anything from the presentation onward. Re-resuming proves the refusal is inert rather than
+	# merely first: it neither advances the stage nor publishes a second time.
+	var published: int = wired["state"].get_publication_count()
+	var checkpoints: Dictionary = wired["checkpoint"].peek_state()
+	var again: Dictionary = wired["coordinator"].resume()
+	assert_false(again.get("ok", true), "and it keeps failing closed rather than draining away")
+	assert_eq(wired["state"].get_publication_count(), published, "no publication for this stage")
+	assert_eq(wired["checkpoint"].peek_state(), checkpoints, "and no checkpoint for it either")
+
+
+## The other half of the composition gap: a router but no ports.
+##
+## Stated separately from the missing-router case because the two failures are not interchangeable.
+## A missing router means nobody can show the scene; a missing PORT means nobody owns the physical
+## presentation, and the code has to say which, or a mis-composed graph is debugged by guesswork.
+func test_a_presentation_site_with_no_configured_ports_fails_closed() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3)
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(wired["calls"])
+	assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
+	wired["state"].set_registered_stage("hospital_if_triggered")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+
+	var refused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	assert_false(refused.get("ok", true), "a presentation with no port to own it fails closed")
+	assert_eq(str(refused.get("code", "")), "presentation_ports_unconfigured",
+		"and names the missing ports rather than the router that IS configured")
+	assert_eq(router.get_routes(), [], "no scene was shown")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"the stage stays active and resumable")
+
+
+## A refused route leaves the stage resumable, and the retry replays the identical command.
+func test_a_refused_route_leaves_the_stage_active_and_replays_the_identical_command() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3)
+	var calls: Array[String] = wired["calls"]
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_ports(
+		hospital_port, load(PRESENTATION_PORT_PATH).new(calls)).get("ok", false))
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(calls)
+	router.set_failure(&"presentation_scene_missing")
+	assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
+	wired["state"].set_registered_stage("hospital_if_triggered")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+
+	var refused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	assert_false(refused.get("ok", true), "the walk reports the route it could not make")
+	assert_eq(str(refused.get("code", "")), "presentation_scene_missing",
+		"verbatim from the router, rather than reduced to a generic failure")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"the stage stays ACTIVE and unreceipted")
+	var published: int = wired["state"].get_publication_count()
+
+	# THE RETRY. `begin()` is idempotent per completion transaction, so resuming re-derives the same
+	# command and re-offers it without restarting a presentation that may already be running.
+	var retried: Dictionary = wired["coordinator"].resume()
+	assert_false(retried.get("ok", true), "the router still refuses")
+	var requests: Array[Dictionary] = hospital_port.get_requests()
+	assert_eq(requests.size(), 2, "the retry went through the port again")
+	if requests.size() != 2:
+		return
+	assert_eq(requests[0], requests[1], "with byte-identical request bytes")
+	var routes: Array[Dictionary] = router.get_routes()
+	assert_eq(routes.size(), 2, "and through the router again")
+	if routes.size() != 2:
+		return
+	assert_eq(routes[0], routes[1], "with a byte-identical route command")
+	assert_eq(wired["state"].get_publication_count(), published,
+		"and the retry published nothing: a presentation that never opened settles nothing")
+
+
+## A port that cannot start its presentation never reaches the router.
+func test_a_port_that_cannot_start_never_reaches_the_router() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3)
+	var calls: Array[String] = wired["calls"]
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	# The exact shape Phase 2R's Dating route already has: a port with no configured physical owner.
+	hospital_port.set_begin_failure(&"dating_physical_owner_unconfigured")
+	assert_true(wired["coordinator"].configure_presentation_ports(
+		hospital_port, load(PRESENTATION_PORT_PATH).new(calls)).get("ok", false))
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
+	wired["state"].set_registered_stage("hospital_if_triggered")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+
+	var refused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	assert_false(refused.get("ok", true), "the walk fails closed on the port's refusal")
+	assert_eq(str(refused.get("code", "")), "dating_physical_owner_unconfigured",
+		"verbatim from the port")
+	assert_eq(router.get_routes(), [],
+		"and no scene was ever shown for a presentation that never started")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"the stage stays active and resumable")
 
 
 ## The port-published completion receipt, in the shape `_on_presentation_completion_ready` accepts.
