@@ -1394,6 +1394,14 @@
       "contract_test": "test_configure_mutation_gate_matrix_without_side_effects"
     },
     {
+      "symbol": "get_mutation_gate_instance_id",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_reports_only_its_gate_identity_never_the_gate"
+    },
+    {
       "symbol": "prepare_new_run_snapshot_input",
       "kind": "function",
       "availability": "current",
@@ -1432,6 +1440,30 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_registered_command_pause_and_completion"
+    },
+    {
+      "symbol": "begin_minesweeper_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_round_facade_fails_closed_before_the_coordinator_is_installed"
+    },
+    {
+      "symbol": "complete_minesweeper_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_round_facade_fails_closed_before_the_coordinator_is_installed"
+    },
+    {
+      "symbol": "get_active_minesweeper_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters"
     },
     {
       "symbol": "capture_restore_state",
