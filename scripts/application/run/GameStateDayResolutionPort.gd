@@ -1194,6 +1194,18 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 	for stage_value: Variant in (plan.get("stages", []) as Array):
 		var stage: Dictionary = stage_value
 		if str(stage.get("transaction_id", "")) == transaction_id:
+			# Only Hospital and the deferred pair ever pause at stage level (`_presentation_site`
+			# routes exactly those two ids; every other stage completes immediately and can never
+			# be awaiting a presentation), so any other stage transaction is refused rather than
+			# answered with presentation evidence folded onto its envelope (dwm-p2r.28). The
+			# check is the STATIC stage identity, never a live site re-derivation --
+			# completion-time re-reads of live state are the bug the `_hospital_envelope`
+			# docstring records -- and it sits BEFORE the envelope build, so a refused Day-7 id
+			# never runs provenance side effects. A required=false Hospital stays answerable
+			# here: that residual is dwm-p2r.29.
+			if not str(stage["stage_id"]) in [HOSPITAL_STAGE, PAIR_STAGE]:
+				return {"ok": false, "code": &"invalid_presentation_stage",
+					"message": str(stage["stage_id"]), "details": {}}
 			var envelope := _immediate_receipt(str(stage["stage_id"]), true)
 			(envelope["value"] as Dictionary)["presentation_completion_receipt"] = 				completion.duplicate(true)
 			return {"ok": true, "code": &"ok", "value": {"receipt": envelope}}

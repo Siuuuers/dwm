@@ -701,6 +701,58 @@ func test_the_presentation_seam_refuses_an_ordinary_substage_transaction() -> vo
 		"naming the record that was wrongly addressed")
 
 
+## dwm-p2r.28. Only Hospital and the deferred pair ever pause at STAGE level --
+## `_presentation_site` routes exactly those two stage ids to a site and answers {} for every
+## other stage -- yet the stage branch of the settle seam answered ANY stage transaction with
+## its own envelope plus the caller's completion folded on as `presentation_completion_receipt`.
+## The coordinated path is shielded by `STAGE_CONTRACTS` key-sets (only the two presenting
+## stages carry the fold in their contracts), but the seam is public and `RunLifecycle`'s stage
+## validation is shape-only for every other stage, so a direct caller could durably persist
+## presentation evidence onto a stage that never presents. The door refuses BY STAGE now,
+## completing the seam whose substage half dwm-p2r.26/.27 sealed.
+func test_the_presentation_seam_refuses_a_never_presenting_stage_transaction() -> void:
+	var committed: Dictionary = _commit("day1-stage-presentation", 1, [
+		_ordinary("draft-a", 0, "training", 1),
+	])
+	if committed.is_empty():
+		return
+	assert_true(_state_port.begin_or_resume("resolution.stagepresentation.day1").get("ok", false))
+	var begun: Dictionary = _state_port.begin_next_stage()
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false):
+		return
+	var stage: Dictionary = (begun["value"] as Dictionary)["stage"]
+	var stage_id := str(stage.get("stage_id", ""))
+	assert_eq(stage_id, "lock_day", "the walk really is on a stage that never presents")
+
+	var answer: Dictionary = _state_port.presentation_stage_receipt(
+		str(stage["transaction_id"]), {"presented": true})
+
+	assert_false(answer.get("ok", true),
+		"lock_day never presents, so its transaction is refused at the settle seam rather than "
+		+ "answered with presentation evidence folded onto its envelope: " + str(answer))
+	assert_eq(str(answer.get("code", "")), "invalid_presentation_stage",
+		"refused BY STAGE, the same law the substage half already keeps")
+	assert_eq(str(answer.get("message", "")), stage_id,
+		"naming the stage that was wrongly addressed")
+
+	# A PENDING stage refuses identically, with the message naming the MATCHED record rather
+	# than the active cursor -- a gate that read the walk's active stage instead of the matched
+	# record would name lock_day here and die (dwm-p2r.28 review amendment).
+	var pending_id := ""
+	for stage_value: Variant in ((_live_plan() as Dictionary)["stages"] as Array):
+		var record: Dictionary = stage_value
+		if str(record["stage_id"]) == "validate_schedule":
+			pending_id = str(record["transaction_id"])
+	assert_false(pending_id.is_empty(), "the plan really carries validate_schedule")
+	var pending_answer: Dictionary = _state_port.presentation_stage_receipt(
+		pending_id, {"presented": true})
+	assert_false(pending_answer.get("ok", true),
+		"a pending never-presenting stage is refused identically: " + str(pending_answer))
+	assert_eq(str(pending_answer.get("message", "")), "validate_schedule",
+		"the refusal names the matched record, not the active cursor")
+
+
 # ---- helpers ----
 
 ## Commits `drafts` for `day` through the REAL commit port AND installs the result in the owner, so

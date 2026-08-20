@@ -1031,6 +1031,47 @@ func test_the_deferred_pair_variant_carries_its_exact_matrix_row() -> void:
 			"member is load-bearing: " + str((projection[index] as Array)[0]))
 
 
+## dwm-p2r.28, the guard AGAINST over-refusal, GREEN ON ARRIVAL. The settle seam refuses stage
+## transactions for never-presenting stages, and Hospital's own settles are pinned all over this
+## file and the resume suite -- but nothing anywhere settled the deferred PAIR through the seam,
+## so a gate narrowed to Hospital alone would have passed every existing test. This pin settles
+## the pair's own stage transaction through the seam and holds its answer: the pair PRESENTS, so
+## it is allowlisted, and the published completion is folded onto its envelope verbatim.
+func test_the_deferred_pair_settles_through_the_presentation_seam() -> void:
+	var source_receipt_id := _seed_group_source(2)
+	if source_receipt_id.is_empty():
+		return
+	_commit_and_begin(2, [_group_draft("g-pl", 0, 2, source_receipt_id)])
+	_game_state.pending_hospital = true
+	var request := _await_stage_presentation(PAIR_STAGE)
+	if request.is_empty():
+		return
+	var transaction_id := _active_stage_transaction_id()
+	assert_true(transaction_id.ends_with(":" + PAIR_STAGE),
+		"the walk really paused on the pair stage itself: " + transaction_id)
+
+	var settled: Dictionary = _state_port.presentation_stage_receipt(
+		transaction_id, {"receipt_id": str(request["completion_transaction_id"])})
+
+	assert_true(settled.get("ok", false),
+		"the deferred pair PRESENTS, so the seam answers it: " + JSON.stringify(settled))
+	if not settled.get("ok", false):
+		return
+	var receipt: Dictionary = (settled["value"] as Dictionary)["receipt"]
+	assert_eq((receipt["value"] as Dictionary).get("presentation_completion_receipt"),
+		{"receipt_id": str(request["completion_transaction_id"])},
+		"with the published completion folded on verbatim")
+
+
+## The transaction id of the one ACTIVE top-level stage, read from the live plan.
+func _active_stage_transaction_id() -> String:
+	for stage_value: Variant in (_active_plan().get("stages", []) as Array):
+		var stage: Dictionary = stage_value
+		if str(stage.get("state", "")) == "active":
+			return str(stage.get("transaction_id", ""))
+	return ""
+
+
 ## Line 97's 13 members for a deferred-pair intent, as [path, value] pairs in the plan's order.
 ## Independent of the request for the same reason `_expected_date_intent_projection` is.
 func _expected_pair_intent_projection(entry: Dictionary, source_day: int,

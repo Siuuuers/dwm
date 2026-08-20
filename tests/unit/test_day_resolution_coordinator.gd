@@ -671,6 +671,93 @@ func test_a_surviving_date_presentation_settles_with_the_substage_shaped_envelop
 		"in the schedule_date_complete shape the substage contract demands")
 
 
+## dwm-p2r.28, FAKE-FIDELITY coverage. Only Hospital and the deferred pair present at STAGE
+## level, so the settle seam refuses every other stage transaction with
+## `invalid_presentation_stage` -- the production gate, and the fake's mirror of it. Before the
+## gate this scenario was refused only INCIDENTALLY, by the STAGE_CONTRACTS key-set mismatch on
+## the folded envelope; a future producer pausing the walk on a never-presenting stage now fails
+## CLOSED at the settle seam itself, with the refusal named, passed through the coordinator
+## verbatim, and landing before any checkpoint capture -- exactly as the substage refusal does.
+func test_a_never_presenting_stage_presentation_is_refused_with_no_checkpoint() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3, true, [])
+	var calls: Array[String] = wired["calls"]
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	var dating_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_ports(
+		hospital_port, dating_port).get("ok", false))
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
+	wired["state"].set_registered_stage("lock_day")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+	var paused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	assert_true(paused.get("ok", false), JSON.stringify(paused))
+	if not paused.get("ok", false):
+		return
+	var command: Dictionary = (paused["value"] as Dictionary)["command"]
+	assert_eq(str(command.get("stage_id", "")), "lock_day",
+		"the walk really paused on a stage that never presents")
+	hospital_port.publish_completion(_completion_receipt())
+	var checkpoint_before: Dictionary = wired["checkpoint"].peek_state()
+	var publications_before: int = wired["state"].get_publication_count()
+
+	var settled: Dictionary = wired["coordinator"].complete_presentation_stage()
+
+	assert_false(settled.get("ok", true),
+		"lock_day never presents, so its settle is refused: " + JSON.stringify(settled))
+	assert_eq(str(settled.get("code", "")), "invalid_presentation_stage",
+		"refused at the settle seam BY NAME, not incidentally by the envelope contract")
+	assert_eq(str(settled.get("message", "")), "lock_day",
+		"naming the stage that was wrongly addressed")
+	assert_eq(str(_stage_record(wired["state"], "lock_day").get("state", "")), "active",
+		"the stage record was not settled by the refused presentation")
+	assert_eq(wired["checkpoint"].peek_state(), checkpoint_before,
+		"the refusal lands BEFORE checkpoint capture, so the checkpoint bytes do not move")
+	assert_eq(wired["state"].get_publication_count(), publications_before, "and nothing published")
+
+
+## dwm-p2r.28, the fake-side guard AGAINST over-refusal (review amendment). Nothing else in
+## this suite registers the deferred pair, so a fake mirror narrowed to Hospital alone would
+## refuse a settle production accepts and no test would notice -- the same untestable-dead-code
+## trap dwm-p2r.24's M7 recorded. The pair PRESENTS: its settle answers ok and the published
+## completion is persisted in the fold, exactly as the matrix suite pins over the real port.
+func test_a_deferred_pair_presentation_settles_through_the_fake_state_port() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3, true, [])
+	var calls: Array[String] = wired["calls"]
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	var dating_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_ports(
+		hospital_port, dating_port).get("ok", false))
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
+	wired["state"].set_registered_stage("twofriends_if_deferred")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+	var paused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	assert_true(paused.get("ok", false), JSON.stringify(paused))
+	if not paused.get("ok", false):
+		return
+	assert_eq(str(((paused["value"] as Dictionary)["command"] as Dictionary).get("stage_id", "")),
+		"twofriends_if_deferred", "the walk really paused on the pair stage")
+	hospital_port.publish_completion(_completion_receipt())
+
+	var settled: Dictionary = wired["coordinator"].complete_presentation_stage()
+
+	assert_true(settled.get("ok", false),
+		"the deferred pair PRESENTS, so its settle succeeds through the fake exactly as through "
+		+ "the real port: " + JSON.stringify(settled))
+	if not settled.get("ok", false):
+		return
+	var persisted: Dictionary = _receipt_value(
+		_stage_record(wired["state"], "twofriends_if_deferred"))
+	assert_eq(persisted.get("presentation_completion_receipt"), _completion_receipt(),
+		"and the checkpointed receipt carries the published completion")
+
+
 ## A coordinator paused on a Hospital PRESENTATION, with fake ports adopted as its owners and a
 ## fake router adopted as its dispatch surface.
 ##

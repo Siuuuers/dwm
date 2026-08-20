@@ -230,8 +230,10 @@ func publish(_publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 ## Shape-valid stand-in for the real port's presentation envelope (dwm-p2r.18, dwm-p2r.24,
-## dwm-p2r.26, dwm-p2r.27). A top-level stage gets the published completion folded onto the envelope this
-## fake already produces for it. A SUBSTAGE is answered only for the surviving_date KIND --
+## dwm-p2r.26, dwm-p2r.27, dwm-p2r.28). A top-level stage is answered only for the two
+## PRESENTING stages -- every other stage id is refused with `invalid_presentation_stage`,
+## mirroring the production stage gate -- and gets the published completion folded onto the
+## envelope this fake already produces for it. A SUBSTAGE is answered only for the surviving_date KIND --
 ## every other kind is refused with `invalid_presentation_substage`, mirroring the production
 ## kind gate -- and a date gets the `schedule_date_complete` shape with the entry id derived
 ## from its own substage id, NOT `_substage_receipt`'s per-stage envelope, which models the
@@ -246,7 +248,11 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 		for stage_value: Variant in ((plan as Dictionary).get("stages", []) as Array):
 			var stage: Dictionary = stage_value
 			if str(stage.get("transaction_id", "")) == transaction_id:
-				var envelope := _immediate_receipt(str(stage["stage_id"]))
+				var stage_id := str(stage["stage_id"])
+				if not stage_id in ["hospital_if_triggered", "twofriends_if_deferred"]:
+					return {"ok": false, "code": &"invalid_presentation_stage",
+						"message": stage_id, "details": {}}
+				var envelope := _immediate_receipt(stage_id)
 				(envelope["value"] as Dictionary)["presentation_completion_receipt"] = 				completion.duplicate(true)
 				return {"ok": true, "code": &"ok", "value": {"receipt": envelope}}
 			for substage_value: Variant in (stage.get("substages", []) as Array):
