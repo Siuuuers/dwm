@@ -511,6 +511,37 @@ func complete_route_stage(transaction_id: String, receipt: Dictionary) -> Dictio
 		command = _registered_history[transaction_id]
 	else:
 		return {"ok": false, "code": &"unknown_transaction", "message": transaction_id}
+	# A stage awaiting a PRESENTATION is settled by the receipt its scene produced, through
+	# `complete_presentation_stage` -- which requires a retained port completion and binds its
+	# `receipt_id` to this command's own `completion_transaction_id`. This door has NEITHER check, so
+	# without this refusal a perfectly stage-legal envelope settles the stage, checkpoints it, and
+	# resumes the walk while the scene is still on screen and its port never published anything.
+	#
+	# THE HARM IS THE ORPHANED SCENE, not a disarmed guard. An earlier draft of this comment claimed
+	# clearing `_launched_transaction` at the success path below re-opened the double-dispatch that
+	# `34756475b` closed. It does not: the stolen completion durably COMPLETES the transaction, so
+	# `get_next_incomplete_stage` can never re-offer it and `_launch_presentation` is never reached
+	# for it again -- and a LATER presentation carries a different id, which the sentinel would not
+	# have matched anyway. What actually breaks is narrower: the coordinator forgets a scene that is
+	# still live, so its model of what is showing silently stops matching the tree.
+	#
+	# Asked of the RESOLVED command rather than of `_awaiting`, so both lookup paths answer the same
+	# way: `_registered_history` stores the command verbatim, `presentation_request` and all. That
+	# path looks harmless today -- an already-completed stage returns `duplicate_transaction` before
+	# the clears -- but only because `get_next_incomplete_stage` pins `_awaiting` to the same
+	# transaction, and because history is never pruned a stale id from an earlier plan is not a
+	# duplicate at all. One refusal for both paths is cheaper than depending on either fact.
+	#
+	# The predicate is deliberately the one `_launch_presentation` uses, so this fires exactly when
+	# the walk considered the command a presentation. A malformed or empty `presentation_request`
+	# slips past both, and correctly: no scene was ever launched for it.
+	var request: Variant = command.get("presentation_request")
+	var presentation_request: Dictionary = {}
+	if typeof(request) == TYPE_DICTIONARY:
+		presentation_request = request
+	if not presentation_request.is_empty():
+		return {"ok": false, "code": &"presentation_completion_required",
+			"message": transaction_id}
 	var stage_id := str(command["stage_id"])
 	var envelope_error := _validate_envelope(stage_id, receipt)
 	if envelope_error != "":

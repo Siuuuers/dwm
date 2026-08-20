@@ -286,6 +286,97 @@ func test_a_duplicate_completion_does_not_leave_the_coordinator_awaiting_a_finis
 		"and the coordinator is no longer awaiting a stage the plan already completed")
 
 
+## dwm-p2r.14 acceptance: an adapter accepts only MATCHING completion receipts. `complete_route_stage`
+## matched `_awaiting` on transaction id alone and never asked what that command was waiting FOR, so
+## the stage-legal envelope for the very stage a scene is showing settled it through the door that
+## has none of `complete_presentation_stage`'s guards -- no retained port completion, no
+## `receipt_id == completion_transaction_id` binding.
+##
+## THE RECEIPT HERE IS THE POINT. `_hospital_receipt()` is not malformed and not foreign: it is
+## exactly what `STAGE_CONTRACTS["hospital_if_triggered"]` demands, which is why `_validate_envelope`
+## passed it. A literal `route_complete` envelope would have been caught by the kind mismatch; the
+## reachable defect is narrower, and this is it.
+func test_a_stage_awaiting_a_presentation_refuses_a_route_completion() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3)
+	var command: Dictionary = (wired["paused"]["value"] as Dictionary)["command"]
+	assert_false((command.get("presentation_request", {}) as Dictionary).is_empty(),
+		"the awaiting command really is a presentation, which is what makes this a route/scene mix-up")
+
+	var stolen: Dictionary = wired["coordinator"].complete_route_stage(
+		str(command["transaction_id"]), _hospital_receipt())
+
+	assert_false(stolen.get("ok", true), JSON.stringify(stolen))
+	assert_eq(str(stolen.get("code", "")), "presentation_completion_required",
+		"a stage waiting on a scene is settled by its port receipt, never by a route envelope")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"and the stage was not advanced behind the scene that is still showing")
+
+
+## The other half, and the reason this is worth a second test: `34756475b` hung the whole re-entry
+## invariant on `_launched_transaction` being cleared ONLY where a presentation genuinely ends. A
+## refusal that cleared it would disarm that guard silently.
+##
+## THE `resume()` IS LOAD BEARING, and this test was wrong before it had one. Asserting the route
+## count straight after the refusal proves nothing: nothing dispatches between those two lines, so
+## that count is 1 either way. `_launched_transaction` is only observable through the seam that
+## READS it, so the claim has to be executed -- drive `resume()` the way
+## `test_a_presentation_already_showing_is_not_launched_a_second_time` does, and let the suppression
+## itself be the evidence. Clearing the field on the refusal path leaves every other assertion in
+## this file green.
+func test_a_refused_route_completion_leaves_the_presentation_showing_and_still_settleable() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3)
+	var command: Dictionary = (wired["paused"]["value"] as Dictionary)["command"]
+
+	assert_false(wired["coordinator"].complete_route_stage(
+		str(command["transaction_id"]), _hospital_receipt()).get("ok", true), "the route door is shut")
+
+	var again: Dictionary = wired["coordinator"].resume()
+	assert_true(again.get("ok", false), JSON.stringify(again))
+	assert_eq(str(again["code"]), "await_registered_command",
+		"the refusal left the walk on the same awaiting command rather than advancing it")
+	assert_eq((wired["router"].get_routes() as Array).size(), 1,
+		"and `_launched_transaction` still names it, so no second scene was shown over the live one")
+	assert_eq((wired["hospital_port"].get_requests() as Array).size(), 1,
+		"nor was the port asked to begin a presentation it already started")
+
+	wired["hospital_port"].publish_completion(_completion_receipt())
+	var settled: Dictionary = wired["coordinator"].complete_presentation_stage()
+	assert_true(settled.get("ok", false), JSON.stringify(settled))
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "completed",
+		"the awaiting command survived the refusal and its own port still settles it")
+
+
+## The second lookup path. `complete_route_stage` falls back to `_registered_history`, which stores
+## the command verbatim, so a presentation transaction stays reachable through this door long after
+## `_awaiting` moved on. It must answer the same way there.
+##
+## The refusal is what changes, not the outcome: before the guard this returned an OK
+## `duplicate_transaction` (the stage really was complete), so the history path was never a damage
+## vector on its own. The claim under test is only that a presentation is never settleable here.
+func test_a_presentation_left_in_history_is_refused_by_the_route_door_too() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3)
+	var command: Dictionary = (wired["paused"]["value"] as Dictionary)["command"]
+	wired["hospital_port"].publish_completion(_completion_receipt())
+	assert_true(wired["coordinator"].complete_presentation_stage().get("ok", false),
+		"the presentation settled through its own door, leaving only the history entry behind")
+
+	var late: Dictionary = wired["coordinator"].complete_route_stage(
+		str(command["transaction_id"]), _hospital_receipt())
+
+	assert_false(late.get("ok", true), JSON.stringify(late))
+	assert_eq(str(late.get("code", "")), "presentation_completion_required",
+		"resolved from history or from _awaiting, a presentation gets the same refusal")
+
+
 const COMPLETION_TRANSACTION_ID := "completion.hospital.day3"
 
 
