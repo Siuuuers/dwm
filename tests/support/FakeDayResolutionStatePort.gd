@@ -229,12 +229,15 @@ func publish(_publication: Dictionary) -> Dictionary:
 	_publications += 1
 	return {"ok": true, "code": &"ok"}
 
-## Shape-valid stand-in for the real port's presentation envelope (dwm-p2r.18, dwm-p2r.24). A
-## top-level stage gets the published completion folded onto the envelope this fake already
-## produces for it; a SUBSTAGE gets the seam's unconditional `schedule_date_complete` shape with
-## the entry id derived from its own substage id, exactly as the production port answers -- NOT
-## `_substage_receipt`'s per-stage envelope, which models the route door, a different seam. It
-## anchors nothing and no test treats its ids as issuer-derived.
+## Shape-valid stand-in for the real port's presentation envelope (dwm-p2r.18, dwm-p2r.24,
+## dwm-p2r.26). A top-level stage gets the published completion folded onto the envelope this
+## fake already produces for it. A SUBSTAGE is answered only for the surviving_date KIND --
+## every other kind is refused with `invalid_presentation_substage`, mirroring the production
+## kind gate -- and a date gets the `schedule_date_complete` shape with the entry id derived
+## from its own substage id, NOT `_substage_receipt`'s per-stage envelope, which models the
+## route door, a different seam. This fake models no Hospital, so production's superseded-date
+## residual (dwm-p2r.27) is NOT represented here. It anchors nothing and no test treats its ids
+## as issuer-derived.
 func presentation_stage_receipt(transaction_id: String, completion: Dictionary) -> Dictionary:
 	_calls.append("state.presentation_stage_receipt")
 	var plan: Variant = _lifecycle.to_dict().get("active_resolution_plan")
@@ -249,9 +252,13 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 				var substage: Dictionary = substage_value
 				if str(substage.get("transaction_id", "")) != transaction_id:
 					continue
+				var substage_id := str(substage["substage_id"])
+				if not substage_id.begins_with("surviving_date:"):
+					return {"ok": false, "code": &"invalid_presentation_substage",
+						"message": substage_id, "details": {}}
 				return {"ok": true, "code": &"ok", "value": {"receipt": _envelope(
 					"schedule_rules", "schedule_date_complete", {
-						"entry_receipt_id": str(substage["substage_id"]).split(":")[3],
+						"entry_receipt_id": substage_id.split(":")[3],
 						"superseded": false,
 						"reason": null,
 						"presentation_completion_receipt": completion.duplicate(true),

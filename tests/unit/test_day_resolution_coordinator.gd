@@ -559,24 +559,23 @@ func _substage_record(state: RefCounted, stage_id: String, substage_id: String) 
 
 
 const COMPLETION_TRANSACTION_ID := "completion.hospital.day3"
+const DATE_ENTRY := {"schedule_entry_id": "brunch", "slot_index": 1, "action_kind": "solo"}
+const DATE_SUBSTAGE_ID := "surviving_date:3:1:brunch"
 
 
-## dwm-p2r.24, FAKE-FIDELITY coverage. A surviving DATE pauses on its presentation as a SUBSTAGE in
-## production, and the real port's `presentation_stage_receipt` resolves the substage transaction
-## and answers with the SUBSTAGE-shaped `schedule_date_complete` envelope -- entry id derived from
-## the substage id's fourth field, the published completion folded in. The fake's lookup scanned
-## top-level stages only, so it answered `unknown_transaction` for a substage and would have refused
-## a settlement production accepts -- lying to any coordinator test that drove a date presentation
-## through the double. `resume()` attaches `substage_id` to the awaiting command, so the settled
-## envelope is validated against `SUBSTAGE_CONTRACTS[schedule_date_complete]`, which is also what
-## forbids the fake answering with the parent's aggregate shape instead.
+## dwm-p2r.26, FAKE-FIDELITY coverage. Only a NON-SUPERSEDED surviving date ever pauses for a
+## presentation, so the settle seam refuses every other substage kind BY KIND with
+## `invalid_presentation_substage` -- the production gate, and the fake's mirror of it. The
+## coordinator passes the port's refusal through verbatim, BEFORE any checkpoint capture, so the
+## ordinary record keeps its active state and null receipt and neither a checkpoint nor a
+## publication happens. (The coordinator staying awaiting afterward is the consciously accepted
+## fail-closed behavior recorded on dwm-p2r.25, not something this test introduces.)
 ##
-## The ORDINARY substage drive is deliberate, not a shortcut. The seam is kind-agnostic, and only
-## an ordinary drive distinguishes the unconditional date-shaped answer from an impostor keyed off
-## the per-stage receipt table -- under a date-seeded run those two are byte-identical. The settle
-## also leaves the walk re-paused on the PARENT stage's own presentation, so no assert here reads
-## call counts, which would see that second dispatch.
-func test_a_substage_presentation_completion_settles_with_the_substage_shaped_envelope() -> void:
+## This ordinary drive is dwm-p2r.24's deliberate drive INVERTED: what used to prove the seam's
+## unconditional date-shaped answer now proves its refusal, and together with the surviving-date
+## twin below it discriminates strictly more than the old single test could -- an impostor keyed
+## off the per-stage receipt table would ANSWER here and fail these asserts.
+func test_an_ordinary_substage_presentation_is_refused_with_no_checkpoint() -> void:
 	assert_true(_all_exist(), "coordinator artifacts must exist")
 	if not _all_exist():
 		return
@@ -598,17 +597,73 @@ func test_a_substage_presentation_completion_settles_with_the_substage_shaped_en
 	assert_eq(str(command.get("substage_id", "")), ORDINARY_SUBSTAGE_ID,
 		"the walk really paused on the entry SUBSTAGE, with its id attached to the command")
 	hospital_port.publish_completion(_completion_receipt())
+	var checkpoint_before: Dictionary = wired["checkpoint"].peek_state()
+	var publications_before: int = wired["state"].get_publication_count()
+
+	var settled: Dictionary = wired["coordinator"].complete_presentation_stage()
+
+	assert_false(settled.get("ok", true),
+		"an ordinary substage never presents, so its settle is refused: " + JSON.stringify(settled))
+	assert_eq(str(settled.get("code", "")), "invalid_presentation_substage",
+		"the port's refusal code passes through the coordinator verbatim")
+	assert_eq(str(settled.get("message", "")), ORDINARY_SUBSTAGE_ID,
+		"naming the record that was wrongly addressed")
+	var record: Dictionary = _substage_record(
+		wired["state"], "execute_schedule_actions", ORDINARY_SUBSTAGE_ID)
+	assert_eq(str(record.get("state", "")), "active",
+		"the ordinary record was not settled by the refused presentation")
+	assert_eq(record.get("receipt"), null, "and no receipt bytes were persisted onto it")
+	assert_eq(wired["checkpoint"].peek_state(), checkpoint_before,
+		"the refusal lands BEFORE checkpoint capture, so the checkpoint bytes do not move")
+	assert_eq(wired["state"].get_publication_count(), publications_before, "and nothing published")
+
+
+## dwm-p2r.24, reshaped by dwm-p2r.26 -- the half that still ANSWERS. A surviving DATE pauses on
+## its presentation as a SUBSTAGE in production, and the settle seam resolves the substage
+## transaction with the SUBSTAGE-shaped `schedule_date_complete` envelope: entry id derived from
+## the substage id's fourth field, the published completion folded in. `resume()` attaches
+## `substage_id` to the awaiting command, so the settled envelope is validated against
+## `SUBSTAGE_CONTRACTS[schedule_date_complete]`, which is also what forbids the fake answering
+## with the parent's aggregate shape instead.
+##
+## The plan deliberately seeds an ORDINARY entry AHEAD of the date, so the seam's lookup must walk
+## PAST an ordinary substage to settle the date -- a kind gate hoisted above the transaction-id
+## match would wrongly refuse this settle, and no other suite would notice. The settle leaves the
+## walk re-paused on the PARENT stage's own presentation, so no assert here reads call counts,
+## which would see that second dispatch.
+func test_a_surviving_date_presentation_settles_with_the_substage_shaped_envelope() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3, true, [ORDINARY_ENTRY, DATE_ENTRY])
+	var calls: Array[String] = wired["calls"]
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	var dating_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_ports(
+		hospital_port, dating_port).get("ok", false))
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
+	wired["state"].set_registered_stage("execute_schedule_dates")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+	var paused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	assert_true(paused.get("ok", false), JSON.stringify(paused))
+	if not paused.get("ok", false):
+		return
+	var command: Dictionary = (paused["value"] as Dictionary)["command"]
+	assert_eq(str(command.get("substage_id", "")), DATE_SUBSTAGE_ID,
+		"the walk really paused on the DATE substage, past the settled ordinary one")
+	hospital_port.publish_completion(_completion_receipt())
 
 	var settled: Dictionary = wired["coordinator"].complete_presentation_stage()
 
 	assert_true(settled.get("ok", false),
-		"a substage presentation settles exactly as the real port settles it: " +
+		"a date substage presentation settles exactly as the real port settles it: " +
 		JSON.stringify(settled))
 	if not settled.get("ok", false):
 		return
 	var persisted: Dictionary = _receipt_value(_substage_record(
-		wired["state"], "execute_schedule_actions", ORDINARY_SUBSTAGE_ID))
-	assert_eq(str(persisted.get("entry_receipt_id", "")), str(ORDINARY_ENTRY["schedule_entry_id"]),
+		wired["state"], "execute_schedule_dates", DATE_SUBSTAGE_ID))
+	assert_eq(str(persisted.get("entry_receipt_id", "")), str(DATE_ENTRY["schedule_entry_id"]),
 		"the entry id is derived from the substage id, exactly as the production port derives it")
 	assert_eq(persisted.get("presentation_completion_receipt"), _completion_receipt(),
 		"and the checkpointed receipt carries the published completion, not a re-invention")

@@ -1202,6 +1202,16 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 			if str(substage.get("transaction_id", "")) != transaction_id:
 				continue
 			var substage_id := str(substage["substage_id"])
+			# Only a non-superseded surviving DATE ever pauses for presentation
+			# (`_presentation_site`), and this seam is the ONE place on the path that knows the
+			# transaction arrived as a presentation settle -- `RunLifecycle.complete_active_stage`
+			# runs no owner-receipt validation at all for substage records. Refusing BY KIND here
+			# keeps a date-shaped receipt from being minted for an entry that is not a date
+			# (dwm-p2r.26). The superseded-date half of the same door -- right kind, wrong
+			# state -- is dwm-p2r.27.
+			if not substage_id.begins_with("surviving_date:"):
+				return {"ok": false, "code": &"invalid_presentation_substage",
+					"message": substage_id, "details": {}}
 			var entry_id := substage_id.split(":")[3] if substage_id.split(":").size() == 4 else ""
 			return {"ok": true, "code": &"ok", "value": {"receipt": _envelope(
 				"schedule_rules", "schedule_date_complete", {

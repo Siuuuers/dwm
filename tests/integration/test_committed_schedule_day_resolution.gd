@@ -658,6 +658,49 @@ func test_a_replayed_identical_stage_completion_is_a_duplicate_with_its_stored_r
 		"and the replay reports the bytes already persisted")
 
 
+## dwm-p2r.26. A substage pauses for presentation ONLY as a NON-SUPERSEDED surviving date --
+## `_presentation_site` answers {} for every other substage kind, and `_surviving_date_site`
+## answers {} again for a date Hospital superseded -- yet the settle seam itself never read the
+## kind:
+## `presentation_stage_receipt` answered ANY substage transaction with the date-shaped
+## `schedule_date_complete` envelope, entry id lifted from the substage id. That invariant is the
+## only guard, and it stops at this door: `RunLifecycle.complete_active_stage` skips owner-receipt
+## validation entirely for substage records, so a direct caller handing an ordinary_action
+## transaction would durably persist a DATE receipt onto an ordinary entry with no check anywhere
+## on the path. The seam is public (`STATE_PORT_METHODS`) and driven directly by suites like this
+## one, so the door refuses BY KIND now -- the same geometry dwm-p2r.20 sealed at the route
+## door. The superseded-date half of the same door is dwm-p2r.27: a right-kind, wrong-state
+## transaction still gets the fail-open answer, deliberately left unpinned here.
+func test_the_presentation_seam_refuses_an_ordinary_substage_transaction() -> void:
+	var committed: Dictionary = _commit("day1-ordinary-presentation", 1, [
+		_ordinary("draft-a", 0, "training", 1),
+	])
+	if committed.is_empty():
+		return
+	assert_true(_state_port.begin_or_resume("resolution.ordinarypresentation.day1").get("ok", false))
+	assert_eq(_advance_stage(), "lock_day")
+	assert_eq(_advance_stage(), "validate_schedule")
+	var begun: Dictionary = _state_port.begin_next_stage()
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false):
+		return
+	var stage: Dictionary = (begun["value"] as Dictionary)["stage"]
+	var substage_id := str(stage.get("substage_id", ""))
+	assert_true(substage_id.begins_with("ordinary_action:"),
+		"the walk really is on an ordinary entry substage, the kind that never presents")
+
+	var answer: Dictionary = _state_port.presentation_stage_receipt(
+		str(stage["transaction_id"]), {"presented": true})
+
+	assert_false(answer.get("ok", true),
+		"an ordinary substage never pauses for presentation, so its transaction is refused at "
+		+ "the settle seam rather than answered with a date-shaped receipt: " + str(answer))
+	assert_eq(str(answer.get("code", "")), "invalid_presentation_substage",
+		"refused BY KIND, so the diagnosis is not mistaken for an unknown transaction")
+	assert_eq(str(answer.get("message", "")), substage_id,
+		"naming the record that was wrongly addressed")
+
+
 # ---- helpers ----
 
 ## Commits `drafts` for `day` through the REAL commit port AND installs the result in the owner, so
