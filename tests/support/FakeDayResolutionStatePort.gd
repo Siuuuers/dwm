@@ -14,13 +14,25 @@ var _source_day := 1
 var _publications := 0
 var _failure: StringName = &""
 var _registered_stage := ""
+## Committed entries the seeded plan is built from; `[]` means a plan with no substages at all.
+var _entries: Array = []
 
 func _init(calls: Array[String]) -> void:
 	_calls = calls
 
-func seed_playing_day(run_id: String, day: int, _schedule: Array) -> void:
+## `entries` was declared and ignored from the start, so every plan this fake built had NO
+## substages and the coordinator's substage branches were unreachable from this suite (dwm-p2r.20).
+## Honouring it is backward compatible: both pre-existing call sites pass `[]`, which still yields
+## the byte-identical `{"entries": []}` aggregate.
+##
+## The domain boundary is what it accepts, not the port boundary: `DayResolutionPlan.create` reads
+## exactly `schedule_entry_id`, `slot_index` and `action_kind` off each entry and discards the rest,
+## so a three-key entry is the honest minimum here rather than an under-built `ScheduleStateSchema`
+## aggregate pretending to be one.
+func seed_playing_day(run_id: String, day: int, entries: Array) -> void:
 	_run_id = run_id
 	_source_day = day
+	_entries = entries.duplicate(true)
 	_lifecycle = LIFECYCLE_SCRIPT.new()
 	_lifecycle.reset(run_id)
 	var restored: Dictionary = _lifecycle.prepare_restore({
@@ -85,19 +97,27 @@ func begin_or_resume(command_id: String) -> Dictionary:
 		return {"ok": false, "code": &"begin_failed", "message": "forced", "details": {}}
 	# Step 6.6 (dwm-p2r.13): the fake models the same transport as production -- a committed
 	# Schedule aggregate, never a bare array -- so it cannot pass a shape production would refuse.
-	var begun: Dictionary = _lifecycle.begin_day_resolution(command_id, {"entries": []})
+	var begun: Dictionary = _lifecycle.begin_day_resolution(command_id, {"entries": _entries.duplicate(true)})
 	if not begun.get("ok", false):
 		return begun
 	return {"ok": true, "code": &"ok", "value": {"run_id": _run_id}}
 
 ## The awaiting command, with the presentation request attached when one is registered -- the same
 ## two shapes the production port returns.
+## A SUBSTAGE answers to `SUBSTAGE_CONTRACTS` by its own receipt kind, never to the parent stage's
+## aggregate envelope -- the Task-7 split the production port made.
+##
+## Honesty, not correctness: nothing in the coordinator or any test reads `owner_id`/`kind` back off
+## a registered command, so this changes no outcome. It is here so the fake does not document a
+## conflation production removed.
 func _registered_command(stage: Dictionary, stage_id: String) -> Dictionary:
+	var envelope: Dictionary = _substage_receipt(stage) if stage.has("substage_id") \
+		else _immediate_receipt(stage_id)
 	var command: Dictionary = {
 		"transaction_id": "" if _blank_transaction_id else str(stage["transaction_id"]),
 		"stage_id": stage_id,
-		"owner_id": str(_immediate_receipt(stage_id)["owner_id"]),
-		"kind": str(_immediate_receipt(stage_id)["kind"]),
+		"owner_id": str(envelope["owner_id"]),
+		"kind": str(envelope["kind"]),
 	}
 	if not _registered_completion_transaction_id.is_empty():
 		command["route_id"] = "hospital"
@@ -128,7 +148,8 @@ func begin_next_stage() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"mode": &"complete_immediately",
 		"stage": stage.duplicate(true),
-		"receipt": _immediate_receipt(stage_id),
+		"receipt": _substage_receipt(stage) if stage.has("substage_id") \
+			else _immediate_receipt(stage_id),
 	}}
 
 func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictionary:
@@ -212,6 +233,25 @@ func _stage_id_for(transaction_id: String) -> String:
 		if str(stage.get("transaction_id", "")) == transaction_id:
 			return str(stage["stage_id"])
 	return ""
+
+
+## The envelope a substage returns, keyed to `DayResolutionCoordinator`'s `SUBSTAGE_CONTRACTS`.
+## Deliberately NOT the parent's aggregate shape.
+##
+## The entry id is derived from the substage id's fourth field, exactly as the production port does,
+## rather than invented -- otherwise no test could tell an implementation that routed one entry's
+## receipt to another entry's substage.
+func _substage_receipt(stage: Dictionary) -> Dictionary:
+	var entry_id := str(stage["substage_id"]).split(":")[3]
+	match str(stage["stage_id"]):
+		"execute_schedule_actions":
+			return _envelope("schedule_rules", "schedule_entry_complete",
+				{"entry_receipt_id": entry_id, "outcome_ids": []})
+		"execute_schedule_dates":
+			return _envelope("schedule_rules", "schedule_date_complete",
+				{"entry_receipt_id": entry_id, "superseded": false, "reason": null,
+					"presentation_completion_receipt": null})
+	return _immediate_receipt(str(stage["stage_id"]))
 
 
 func _immediate_receipt(stage_id: String) -> Dictionary:

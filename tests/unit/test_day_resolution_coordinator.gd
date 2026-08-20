@@ -17,11 +17,11 @@ func _all_exist() -> bool:
 ## `configure_day_advance` mirrors production: ApplicationBootstrap always installs the shared
 ## advance-identity port, so a Days 1-6 walk can reach increment_day. Only the fail-closed case
 ## deliberately leaves it out.
-func _wired(day: int, configure_day_advance: bool = true) -> Dictionary:
+func _wired(day: int, configure_day_advance: bool = true, entries: Array = []) -> Dictionary:
 	var calls: Array[String] = []
 	var state: RefCounted = load(STATE_PATH).new(calls)
 	var checkpoint: RefCounted = load(CHECKPOINT_PATH).new(calls)
-	state.seed_playing_day("run-1", day, [])
+	state.seed_playing_day("run-1", day, entries)
 	checkpoint.seed_empty("run-1")
 	var gate: RefCounted = load(GATE_PATH).new()
 	var coordinator: RefCounted = load(COORDINATOR_PATH).new()
@@ -375,6 +375,146 @@ func test_a_presentation_left_in_history_is_refused_by_the_route_door_too() -> v
 	assert_false(late.get("ok", true), JSON.stringify(late))
 	assert_eq(str(late.get("code", "")), "presentation_completion_required",
 		"resolved from history or from _awaiting, a presentation gets the same refusal")
+
+
+## dwm-p2r.20. `complete_route_stage` reads `stage_id` off the awaiting command and nothing else, so
+## a SUBSTAGE is validated against `STAGE_CONTRACTS[parent]` and handed to `_commit_completion`
+## without its `substage_id`. `complete_presentation_stage` gets this right; the route door does not.
+##
+## SEALED DEFECT, SAID PLAINLY, AND THE WHOLE DOOR IS SEALED -- not merely its substage path.
+## `GameStateDayResolutionPort.begin_next_stage` is the only production producer of
+## `await_registered_command`, and it enters that branch ONLY when `presentation_request` is
+## non-empty. So every production command this door could ever be handed is refused first, with
+## `presentation_completion_required`. (A superseded date is not a counterexample: its site is
+## empty, so it completes immediately and never awaits at all.) These tests guard the door against
+## the next caller rather than reproducing a live failure -- the same footing as the
+## `SUBSTAGE_CONTRACTS` docstring, which records that the table was dead until dwm-p2r.18.
+func test_a_substage_settles_through_the_route_door_on_its_own_contract() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_substage(3)
+	var paused: Dictionary = wired["paused"]
+	assert_eq(str(paused["code"]), "await_registered_command", JSON.stringify(paused))
+	var command: Dictionary = (paused["value"] as Dictionary)["command"]
+	assert_eq(str(command.get("substage_id", "")), ORDINARY_SUBSTAGE_ID,
+		"the awaiting command names the substage it is waiting on, which is what the door drops")
+
+	var completed: Dictionary = wired["coordinator"].complete_route_stage(
+		str(command["transaction_id"]), _substage_entry_receipt())
+
+	assert_true(completed.get("ok", false), JSON.stringify(completed))
+	var settled := _substage_record(wired["state"], "execute_schedule_actions", ORDINARY_SUBSTAGE_ID)
+	assert_eq(str(settled.get("state", "")), "completed",
+		"the substage was settled by the envelope SUBSTAGE_CONTRACTS describes")
+	assert_eq(_receipt_value(settled),
+		{"entry_receipt_id": str(ORDINARY_ENTRY["schedule_entry_id"]), "outcome_ids": []},
+		"and it is the substage's OWN bytes that persisted, naming the entry it ran")
+
+
+## The other direction, and the one that fails OPEN. `RunLifecycle.complete_active_stage` skips
+## `_validate_owner_receipt` entirely when the record kind is `substage`, trusting the coordinator to
+## have picked the substage contract. The route door never did, so the parent stage's own aggregate
+## envelope passed `_validate_envelope` and then met no further check at all.
+func test_the_parent_aggregate_envelope_cannot_settle_a_substage() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_substage(3)
+	var command: Dictionary = (wired["paused"]["value"] as Dictionary)["command"]
+
+	var stolen: Dictionary = wired["coordinator"].complete_route_stage(
+		str(command["transaction_id"]), _parent_aggregate_receipt())
+
+	assert_false(stolen.get("ok", true), JSON.stringify(stolen))
+	assert_eq(str(stolen.get("code", "")), "invalid_receipt",
+		"the parent stage's aggregate is not this substage's contract")
+	assert_string_contains(str(stolen.get("message", "")), "schedule_actions_complete",
+		"and it is the SUBSTAGE validator that refused it -- both validators answer invalid_receipt")
+	assert_eq(str(_substage_record(wired["state"], "execute_schedule_actions",
+		ORDINARY_SUBSTAGE_ID).get("state", "")),
+		"active", "and nothing was committed against the wrong contract")
+
+
+## The second lookup path, for the same reason the presentation refusal has one:
+## `complete_route_stage` falls back to `_registered_history`, which is never pruned, so a substage
+## transaction stays reachable through this door after `_awaiting` has moved on. Reading the
+## substage id off `_awaiting` instead of the resolved command would pass every other test here.
+func test_a_substage_resolved_from_history_still_answers_to_its_own_contract() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_substage(3)
+	var command: Dictionary = (wired["paused"]["value"] as Dictionary)["command"]
+	var transaction_id := str(command["transaction_id"])
+	assert_true(wired["coordinator"].complete_route_stage(
+		transaction_id, _substage_entry_receipt()).get("ok", false),
+		"the substage settled, leaving only its history entry behind")
+
+	var replay: Dictionary = wired["coordinator"].complete_route_stage(
+		transaction_id, _parent_aggregate_receipt())
+
+	assert_false(replay.get("ok", true), JSON.stringify(replay))
+	assert_eq(str(replay.get("code", "")), "invalid_receipt",
+		"resolved from history, a substage still answers to SUBSTAGE_CONTRACTS")
+	assert_string_contains(str(replay.get("message", "")), "schedule_actions_complete",
+		"and the substage validator is what refused it")
+
+
+## `DayResolutionPlan.create` reads exactly these three keys off a committed entry and discards the
+## rest, so this is the honest minimum rather than a half-built `ScheduleStateSchema` aggregate.
+const ORDINARY_ENTRY := {"schedule_entry_id": "work", "slot_index": 0, "action_kind": "ordinary"}
+## "<kind>:<source_day>:<slot_index>:<schedule_entry_id>", the format `from_dict` re-proves on load.
+const ORDINARY_SUBSTAGE_ID := "ordinary_action:3:0:work"
+
+
+## A coordinator paused on an ordinary-action SUBSTAGE rather than on a bare stage.
+func _wired_substage(day: int) -> Dictionary:
+	var wired := _wired(day, true, [ORDINARY_ENTRY])
+	wired["state"].set_registered_stage("execute_schedule_actions")
+	wired["paused"] = wired["coordinator"].request_schedule_done("done:run-1:day-%d" % day)
+	return wired
+
+
+## What SUBSTAGE_CONTRACTS["schedule_entry_complete"] demands: the ONE entry this substage ran.
+## The id is the seeded entry's own, so the persisted-bytes assertion is anchored to the entry the
+## substage was built from rather than to a literal this file invented.
+func _substage_entry_receipt() -> Dictionary:
+	return {"owner_id": "schedule_rules", "kind": "schedule_entry_complete",
+		"value": {"entry_receipt_id": str(ORDINARY_ENTRY["schedule_entry_id"]), "outcome_ids": []}}
+
+
+## What STAGE_CONTRACTS["execute_schedule_actions"] demands: the parent's aggregate over every entry.
+func _parent_aggregate_receipt() -> Dictionary:
+	return {"owner_id": "schedule_rules", "kind": "schedule_actions_complete",
+		"value": {"entry_receipt_ids": []}}
+
+
+## The `value` of a record's persisted receipt, or `{}` when it has none. An unsettled record holds
+## a null receipt, so this cannot cast blindly: a RED run must fail on its claim, not on a cast.
+func _receipt_value(record: Dictionary) -> Dictionary:
+	var receipt: Variant = record.get("receipt")
+	if typeof(receipt) != TYPE_DICTIONARY:
+		return {}
+	var value: Variant = (receipt as Dictionary).get("value")
+	return value if typeof(value) == TYPE_DICTIONARY else {}
+
+
+## The whole substage record, not just its state: "completed" does not say with WHAT bytes, and
+## `_complete_record` persists whatever it is handed.
+func _substage_record(state: RefCounted, stage_id: String, substage_id: String) -> Dictionary:
+	var plan: Variant = state._lifecycle.to_dict()["active_resolution_plan"]
+	if typeof(plan) != TYPE_DICTIONARY:
+		return {}
+	for stage_value: Variant in ((plan as Dictionary)["stages"] as Array):
+		var stage: Dictionary = stage_value
+		if str(stage["stage_id"]) != stage_id:
+			continue
+		for substage_value: Variant in (stage.get("substages", []) as Array):
+			var substage: Dictionary = substage_value
+			if str(substage["substage_id"]) == substage_id:
+				return substage
+	return {}
 
 
 const COMPLETION_TRANSACTION_ID := "completion.hospital.day3"

@@ -542,12 +542,26 @@ func complete_route_stage(transaction_id: String, receipt: Dictionary) -> Dictio
 	if not presentation_request.is_empty():
 		return {"ok": false, "code": &"presentation_completion_required",
 			"message": transaction_id}
-	var stage_id := str(command["stage_id"])
-	var envelope_error := _validate_envelope(stage_id, receipt)
-	if envelope_error != "":
-		return {"ok": false, "code": &"invalid_receipt", "message": envelope_error}
-	var completed := _commit_completion(
-		{"stage_id": stage_id, "transaction_id": transaction_id}, receipt)
+	# A SUBSTAGE answers to `SUBSTAGE_CONTRACTS` by its own receipt kind, not to its parent stage's
+	# aggregate envelope. `complete_presentation_stage` has always forwarded `substage_id`; this door
+	# dropped it, so `_commit_completion`'s substage branch was unreachable from here. That failed in
+	# BOTH directions: a legitimate substage envelope was refused for a kind mismatch against the
+	# parent contract, and the parent's own aggregate was ACCEPTED for a substage -- after which
+	# `RunLifecycle.complete_active_stage` skips owner validation entirely for substage records,
+	# trusting this caller to have chosen the right table. So it met no contract check at all.
+	#
+	# Read off the RESOLVED command, so the `_registered_history` fallback answers the same way, for
+	# the same reason the presentation refusal above is asked of `command` rather than `_awaiting`.
+	#
+	# THE PRE-CHECK THAT USED TO SIT HERE IS GONE RATHER THAN REPAIRED. `_commit_completion` makes
+	# this exact selection itself and makes it BEFORE it captures anything, so a second copy bought
+	# no ordering and no earlier refusal -- only the opportunity for the two to disagree, which is
+	# what this defect was. One validator, one selection.
+	var completed := _commit_completion({
+		"stage_id": str(command["stage_id"]),
+		"substage_id": str(command.get("substage_id", "")),
+		"transaction_id": transaction_id,
+	}, receipt)
 	if not completed.get("ok", false):
 		return completed
 	if completed.get("code") == &"duplicate_transaction":
