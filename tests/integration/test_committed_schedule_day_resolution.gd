@@ -753,6 +753,67 @@ func test_the_presentation_seam_refuses_a_never_presenting_stage_transaction() -
 		"the refusal names the matched record, not the active cursor")
 
 
+## dwm-p2r.29, the pin of a PROVEN LIMIT rather than a fix. A required=false Hospital never
+## presents, yet the settle seam answers its transaction with required=true evidence (the .28
+## gate comment records why: no durable marker distinguishes presented from not-presented --
+## `derive_child` is a pure derivation, and the live flag is unusable by FINDING-4). What this
+## pin proves is that the mint cannot LAND for a stage that never began:
+## `DayResolutionPlan._complete_record` refuses any non-active record, so the false evidence
+## dies at the persistence door with `stage_not_active` and the plan bytes do not move. The
+## completed-record halves are already law: different bytes are dwm-p2r.25's conflict, and
+## the identical-replay branch (pinned in test_day_resolution_plan) is behavior the
+## coordinator's duplicate path REQUIRES the seam to answer for. The one remaining window --
+## an ACTIVE required=false Hospital -- has TWO openings: a port-direct caller that discards
+## the honest receipt `begin_next_stage` just handed it, and the coordinator's own
+## checkpoint-failure path, whose begin is deliberately NOT rolled back when
+## `_commit_completion` fails. No production code path ever SETTLES that window wrongly on
+## its own; it is the recorded, deliberate limit of this seam.
+func test_a_minted_hospital_envelope_cannot_settle_a_stage_that_never_began() -> void:
+	var committed: Dictionary = _commit("day1-pending-hospital", 1, [
+		_ordinary("draft-a", 0, "training", 1),
+	])
+	if committed.is_empty():
+		return
+	assert_true(_state_port.begin_or_resume("resolution.pendinghospital.day1").get("ok", false))
+	assert_true(_state_port.begin_next_stage().get("ok", false),
+		"lock_day begins, so every later stage is PENDING")
+	var hospital_id := ""
+	for stage_value: Variant in ((_live_plan() as Dictionary)["stages"] as Array):
+		var record: Dictionary = stage_value
+		if str(record["stage_id"]) == "hospital_if_triggered":
+			hospital_id = str(record["transaction_id"])
+	assert_false(hospital_id.is_empty(), "the plan really carries the hospital stage")
+
+	var minted: Dictionary = _state_port.presentation_stage_receipt(
+		hospital_id, {"presented": true})
+	assert_true(minted.get("ok", false),
+		"the seam ANSWERS a pending hospital -- the dwm-p2r.28 residual this pin brackets: "
+		+ str(minted))
+	if not minted.get("ok", false):
+		return
+	var envelope: Dictionary = (minted["value"] as Dictionary)["receipt"]
+	assert_true(bool((envelope["value"] as Dictionary).get("required", false)),
+		"and the minted envelope really claims required=true for a hospital that never presented")
+
+	var plan_before: Dictionary = (_live_plan() as Dictionary).duplicate(true)
+	var landed: Dictionary = _game_state._run_lifecycle.complete_active_stage(
+		hospital_id, {"value": (envelope["value"] as Dictionary).duplicate(true)})
+
+	assert_false(landed.get("ok", true),
+		"the mint cannot LAND: a stage that never began refuses completion: " + str(landed))
+	assert_eq(str(landed.get("code", "")), "stage_not_active",
+		"refused by the domain record-state law, the check this path already carries")
+	var after := ""
+	for stage_value: Variant in ((_live_plan() as Dictionary)["stages"] as Array):
+		var record: Dictionary = stage_value
+		if str(record["stage_id"]) == "hospital_if_triggered":
+			after = str(record["state"])
+			assert_eq(record.get("receipt"), null, "and no receipt bytes were persisted")
+	assert_eq(after, "pending", "the hospital record is exactly where it was")
+	assert_eq(_live_plan(), plan_before,
+		"and the WHOLE plan is byte-identical after the refused landing")
+
+
 # ---- helpers ----
 
 ## Commits `drafts` for `day` through the REAL commit port AND installs the result in the owner, so

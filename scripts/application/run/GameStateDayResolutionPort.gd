@@ -1202,7 +1202,12 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 			# completion-time re-reads of live state are the bug the `_hospital_envelope`
 			# docstring records -- and it sits BEFORE the envelope build, so a refused Day-7 id
 			# never runs provenance side effects. A required=false Hospital stays answerable
-			# here: that residual is dwm-p2r.29.
+			# here BY DESIGN (dwm-p2r.29, resolved as a recorded limit): the mint cannot LAND
+			# for pending or completed records (the domain record-state and byte laws), and the
+			# one ACTIVE window has no durable marker this port can reach -- the issuer derives
+			# children purely, the live flag is foreclosed by FINDING-4, and the checkpointed
+			# flag copy lives behind the coordinator checkpoint port, absent entirely on
+			# port-direct walks.
 			if not str(stage["stage_id"]) in [HOSPITAL_STAGE, PAIR_STAGE]:
 				return {"ok": false, "code": &"invalid_presentation_stage",
 					"message": str(stage["stage_id"]), "details": {}}
