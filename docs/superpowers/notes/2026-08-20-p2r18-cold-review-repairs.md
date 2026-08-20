@@ -95,6 +95,52 @@ THIS coordinator has no ports, the former means the ROUTE SURFACE has none. A mi
 to say which half is missing, or it is debugged by guesswork — the rule the earlier note already set
 for `presentation_ports_unconfigured` versus `presentation_ports_conflict`.
 
+## Repair 3 — the re-entry sentinel could be matched by a legal command
+
+**The defect, found by the cold review of Repair 1.** `_launched_transaction` starts as `""`, and the
+guard compared a command's `transaction_id` against it directly. A presentation command carrying NO
+transaction id therefore matched the UN-LAUNCHED sentinel: `_launch_presentation` returned `{}`, and
+`resume()` reads `{}` as "nothing to launch" and pauses on `await_registered_command`. The walk would
+report a presentation in progress with no scene and no timeline behind it — the only FAIL-OPEN path
+in a function where every other refusal fails closed.
+
+**Refused at the cause, not at the collision.** Guarding the comparison with
+`_launched_transaction != ""` would have removed the symptom and left the defect: `resume()` keys
+`_registered_history` on that same id (`:410`), so a blank one also makes every later completion
+address the wrong entry. `_launch_presentation` now refuses an empty `transaction_id` outright with
+`invalid_presentation_transaction`, before the sentinel comparison it would otherwise have collided
+with.
+
+**Reachability, stated honestly.** No producer in the tree emits a blank id today, and `resume()`
+indexes `command["transaction_id"]` directly so a MISSING key errors earlier. This is a latent hazard
+in new code rather than a live bug, and it is fixed because the cost is one check and the failure
+mode is silent.
+
+**The RED run reproduced the hazard, not merely a missing code.** 24 tests, 23 passing, one red,
+252/254 asserts — and the two assertions that PASSED under RED are the telling ones: the port was
+never asked to begin and the router was never asked to route, while the walk still answered
+`await_registered_command`. That is the fail-open exactly as described.
+
+**Mutation — the placement is load-bearing.** Moving the blank-id refusal to AFTER the sentinel
+comparison: 24 tests, 23 passing, one red, 252/254, failing identically to the RED run, because the
+blank id reaches the sentinel first and returns `{}`. Reverted.
+
+`test_a_presentation_command_with_no_transaction_id_is_refused` is the new coverage, and
+`FakeDayResolutionStatePort.set_blank_transaction_id()` is the seam that models the producer defect.
+
+## Repair 4 — a test docstring that contradicted its own helper
+
+`test_committed_schedule_presentation_resume.gd`'s Hospital cut said *"This cut restores from BYTES
+ONLY"*, while `_crash_from_document()` fifteen lines below disclosed at length that it deliberately
+re-installs the consequence source's condition and board-fate memos. Both cannot be true. The
+narrower claim is the accurate one and is the one the test actually proves: the FLAG and the PLAN
+come from bytes only. The docstring now says that, and names the two things that do cross the cut —
+those memos (kept because DEVIATION-6 re-derives Hospital miss ids from the condition receipt, so a
+fresh receipt would move the intent for reasons unrelated to `pending_hospital`) and `_registry` /
+`_fingerprint`, which `before_each` loads once rather than rebuilding per boot. Neither carries
+either half. `dwm-p2r.19`'s acceptance criteria carried the same overstatement and was corrected
+with it.
+
 ## What did not change
 
 The producer, the identity derivation, the matrix rows, the completion path, the resume behaviour,
@@ -129,18 +175,25 @@ Baselines are at `34756475b`, the parent of this work.
 
 | Gate | Baseline | Observed | Delta |
 |---|---|---|---|
-| `hospital_dating_adapter_gate` (18 scripts) | 241 / 5211 | **242 / 5221** | +1 / +10 |
-| Step 7.7 `hospital_order_green` (11) | 148 / 2030 | **149 / 2040** | +1 / +10 |
-| guarded-path regression (5) | 69 / 2988 | **70 / 2998** | +1 / +10 |
+| `hospital_dating_adapter_gate` (18 scripts) | 241 / 5211 | **243 / 5231** | +2 / +20 |
+| Step 7.7 `hospital_order_green` (11) | 148 / 2030 | **150 / 2050** | +2 / +20 |
+| guarded-path regression (5) | 69 / 2988 | **71 / 3008** | +2 / +20 |
 | Step 8.8 `presentation_day7_green` (12) | 164 / 1947 | **164 / 1947** | unchanged |
+
+Repairs 1–2 accounted for the first `+1 / +10` (measured at `773fef66a`: adapter gate 242 / 5221,
+Step 7.7 149 / 2040, guarded-path 70 / 2998). Repair 3 adds the second, and its test costs the same
+`+1 / +10` for the same reason — eight assertions of its own plus two from the shared `_wired()`
+fixture. Repair 4 is comment-only and moved nothing, which was confirmed rather than assumed: the
+adapter gate and the doc-tooling gate were re-run across the documentation corrections alone and came
+back byte-identical at 242 / 5221 and 24 / 1635.
 
 ### Every delta accounted for
 
-`test_day_resolution_coordinator.gd` was run ALONE at both trees rather than having its delta
-inferred: **22 / 234** at `34756475b`, **23 / 244** here — one test, ten asserts (eight of the new
-test's own, two from the shared `_wired()` fixture). Three of the four gates list that suite and
-nothing else that changed, so each moves by exactly `+1 / +10`. Step 8.8 does not list it, so it is
-unchanged. **No pre-existing test changed.**
+`test_day_resolution_coordinator.gd` was run ALONE rather than having its delta inferred:
+**22 / 234** at `34756475b`, **23 / 244** after Repair 2, **24 / 254** after Repair 3. Three of the
+four gates list that suite and nothing else that changed, so each moves by exactly its delta. Step
+8.8 does not list it and was RUN rather than assumed unchanged: 164 / 1947, identical. **No
+pre-existing test changed.**
 
 ## Honest limits
 

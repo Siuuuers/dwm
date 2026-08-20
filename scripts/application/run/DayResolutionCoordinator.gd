@@ -449,7 +449,16 @@ func _launch_presentation(command: Dictionary) -> Dictionary:
 	var request: Variant = command.get("presentation_request")
 	if typeof(request) != TYPE_DICTIONARY or (request as Dictionary).is_empty():
 		return {}
-	if str(command.get("transaction_id", "")) == _launched_transaction:
+	# REFUSED AT THE CAUSE, not at the collision. `_launched_transaction` starts as `""`, so a command
+	# with no transaction id would match the UN-LAUNCHED sentinel and be silently treated as already
+	# showing -- the one fail-OPEN path in a function that otherwise fails closed. Special-casing the
+	# comparison would hide the real defect: `resume()` keys `_registered_history` on this same id, so
+	# a blank one also makes every later completion address the wrong entry.
+	var transaction_id := str(command.get("transaction_id", ""))
+	if transaction_id == "":
+		return {"ok": false, "code": &"invalid_presentation_transaction",
+			"message": "a presentation command must carry the transaction it settles"}
+	if transaction_id == _launched_transaction:
 		return {}
 	var route_id := str(command.get("route_id", ""))
 	if route_id != "hospital" and route_id != "dating":
@@ -487,7 +496,7 @@ func _launch_presentation(command: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"presentation_route_failed", "message": route_id}
 	if not (routed as Dictionary).get("ok", false):
 		return routed
-	_launched_transaction = str(command.get("transaction_id", ""))
+	_launched_transaction = transaction_id
 	return routed
 
 

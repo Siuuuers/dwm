@@ -410,9 +410,15 @@ func test_a_superseded_date_never_presents_across_a_crash() -> void:
 ## not object either -- its gameplay check is an ALLOWLIST that rejects members it does not know
 ## and says nothing about a member that went missing.
 ##
-## This cut restores from BYTES ONLY. `_boot()` calls `reset_game()`, which clears
-## `pending_hospital`, so the rebuilt process starts with the flag FALSE and can only get it back
-## from the same document that carried the plan.
+## THE FLAG AND THE PLAN COME FROM BYTES ONLY -- which is narrower than saying the whole process
+## does, and the difference is stated here rather than left to whoever reads the helper.
+## `_boot()` calls `reset_game()`, which clears `pending_hospital`, so the rebuilt process starts
+## with the flag FALSE and can only get it back from the same document that carried the plan. Two
+## things DO cross the cut and neither carries either half: `_crash_from_document()` deliberately
+## re-installs the consequence source's condition and board-fate memos (its own comment explains
+## why -- DEVIATION-6 re-derives Hospital miss ids from the condition receipt, so a fresh receipt
+## would move the intent for reasons unrelated to `pending_hospital`), and `_registry` /
+## `_fingerprint` are loaded once in `before_each` rather than rebuilt per boot.
 func test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_plan() -> void:
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true

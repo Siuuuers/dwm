@@ -493,6 +493,48 @@ func test_a_router_whose_ports_are_unconfigured_never_starts_a_physical_presenta
 		"the stage stays active and unreceipted, so the run resumes at this exact boundary")
 
 
+## A presentation command carrying NO transaction id is refused before anything physical starts.
+##
+## WHY THIS IS NOT DEFENSIVE PADDING. `_launched_transaction` is the marker for "this presentation is
+## already showing", and it starts as `""`. Comparing a command id against it directly means a command
+## whose `transaction_id` is `""` matches the UN-LAUNCHED sentinel: `_launch_presentation` returns
+## `{}`, and `resume()` reads that as "nothing to launch" and pauses on `await_registered_command` as
+## though the adapter had started. That is the only FAIL-OPEN path in a function where every other
+## refusal fails closed -- the walk would report a presentation in progress with no scene and no
+## timeline behind it.
+##
+## The empty id is refused at the CAUSE rather than by special-casing the collision, because a
+## command with no transaction id is broken for more than this comparison: `resume()` keys
+## `_registered_history` on that same id, so a blank one would also make every later completion
+## address the wrong entry.
+func test_a_presentation_command_with_no_transaction_id_is_refused() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3)
+	var calls: Array[String] = wired["calls"]
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	var dating_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_ports(
+		hospital_port, dating_port).get("ok", false))
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
+	wired["state"].set_registered_stage("hospital_if_triggered")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+	wired["state"].set_blank_transaction_id(true)
+
+	var refused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	assert_false(refused.get("ok", true),
+		"a presentation command with no transaction id fails CLOSED, never silently as already-showing")
+	assert_eq(str(refused.get("code", "")), "invalid_presentation_transaction",
+		"and names the missing id rather than the sentinel it would otherwise have collided with")
+	assert_eq(hospital_port.get_requests(), [],
+		"nothing physical started")
+	assert_eq(router.get_routes(), [], "and no scene was shown")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"the stage stays active and resumable, like every other refusal here")
+
+
 ## A refused route leaves the stage resumable, and the retry replays the identical command.
 func test_a_refused_route_leaves_the_stage_active_and_replays_the_identical_command() -> void:
 	assert_true(_all_exist(), "coordinator artifacts must exist")

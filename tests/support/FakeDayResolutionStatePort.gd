@@ -35,6 +35,9 @@ func seed_playing_day(run_id: String, day: int, _schedule: Array) -> void:
 
 ## Nonempty only while the registered stage is a presentation site.
 var _registered_completion_transaction_id := ""
+## Models a producer that emits a presentation command carrying NO transaction id.
+## The coordinator must refuse it rather than let it collide with any sentinel.
+var _blank_transaction_id := false
 
 
 func set_failure(phase: StringName) -> void:
@@ -50,6 +53,10 @@ func set_registered_stage(stage_id: String) -> void:
 ## "does this receipt settle THIS command" check would pass vacuously on two empty strings.
 func set_registered_presentation(completion_transaction_id: String) -> void:
 	_registered_completion_transaction_id = completion_transaction_id
+
+
+func set_blank_transaction_id(blank: bool) -> void:
+	_blank_transaction_id = blank
 
 func get_publication_count() -> int:
 	return _publications
@@ -87,7 +94,7 @@ func begin_or_resume(command_id: String) -> Dictionary:
 ## two shapes the production port returns.
 func _registered_command(stage: Dictionary, stage_id: String) -> Dictionary:
 	var command: Dictionary = {
-		"transaction_id": str(stage["transaction_id"]),
+		"transaction_id": "" if _blank_transaction_id else str(stage["transaction_id"]),
 		"stage_id": stage_id,
 		"owner_id": str(_immediate_receipt(stage_id)["owner_id"]),
 		"kind": str(_immediate_receipt(stage_id)["kind"]),
