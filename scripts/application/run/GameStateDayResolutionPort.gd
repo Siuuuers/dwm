@@ -1213,6 +1213,14 @@ func presentation_stage_receipt(transaction_id: String, completion: Dictionary) 
 				return {"ok": false, "code": &"invalid_presentation_substage",
 					"message": substage_id, "details": {}}
 			var entry_id := substage_id.split(":")[3] if substage_id.split(":").size() == 4 else ""
+			# A date Hospital superseded never presents either (`_surviving_date_site` answers {}
+			# for it), so its transaction is refused for the same reason as a wrong kind: this
+			# substage cannot be awaiting a presentation, and answering would mint
+			# superseded: false against the durable supersession in the completed hospital stage
+			# receipt (dwm-p2r.27). The read is the DURABLE set, never the live flag.
+			if entry_id in _superseded_entry_ids():
+				return {"ok": false, "code": &"invalid_presentation_substage",
+					"message": substage_id, "details": {}}
 			return {"ok": true, "code": &"ok", "value": {"receipt": _envelope(
 				"schedule_rules", "schedule_date_complete", {
 					"entry_receipt_id": entry_id,

@@ -230,14 +230,15 @@ func publish(_publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 ## Shape-valid stand-in for the real port's presentation envelope (dwm-p2r.18, dwm-p2r.24,
-## dwm-p2r.26). A top-level stage gets the published completion folded onto the envelope this
+## dwm-p2r.26, dwm-p2r.27). A top-level stage gets the published completion folded onto the envelope this
 ## fake already produces for it. A SUBSTAGE is answered only for the surviving_date KIND --
 ## every other kind is refused with `invalid_presentation_substage`, mirroring the production
 ## kind gate -- and a date gets the `schedule_date_complete` shape with the entry id derived
 ## from its own substage id, NOT `_substage_receipt`'s per-stage envelope, which models the
 ## route door, a different seam. This fake models no Hospital, so production's superseded-date
-## residual (dwm-p2r.27) is NOT represented here. It anchors nothing and no test treats its ids
-## as issuer-derived.
+## REFUSAL (dwm-p2r.27) is NOT represented here -- its hardcoded hospital receipt carries an
+## empty supersession set, so the two ports agree on every input the coordinator suite can
+## build. It anchors nothing and no test treats its ids as issuer-derived.
 func presentation_stage_receipt(transaction_id: String, completion: Dictionary) -> Dictionary:
 	_calls.append("state.presentation_stage_receipt")
 	var plan: Variant = _lifecycle.to_dict().get("active_resolution_plan")

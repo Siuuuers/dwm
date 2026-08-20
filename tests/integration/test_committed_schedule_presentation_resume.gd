@@ -384,6 +384,42 @@ func test_a_superseded_date_never_presents_across_a_crash() -> void:
 		"and carries no presentation evidence, because none happened")
 
 
+## dwm-p2r.27. The test above proves a superseded date never presents THROUGH THE WALK; this one
+## proves the settle seam refuses it when a caller tries anyway. The substage's own route-door
+## receipt durably records superseded: true with no presentation evidence, and the hospital
+## stage's receipt durably carries the supersession set -- yet the seam, which checks only the
+## surviving_date kind since dwm-p2r.26, would answer this transaction with superseded: false and
+## the caller's completion folded in: presentation evidence for a presentation that provably
+## never happened, persisted by RunLifecycle without owner validation. The door refuses instead.
+func test_the_presentation_seam_refuses_a_superseded_date_transaction() -> void:
+	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
+	_game_state.pending_hospital = true
+	var walked := _walk_until_date_substage()
+	assert_false(walked.is_empty(), "the walk reached the superseded date substage")
+	if walked.is_empty():
+		return
+	var stage: Dictionary = walked["stage"]
+	var substage_id := str(stage.get("substage_id", ""))
+	assert_true(bool(((walked["receipt"] as Dictionary)["value"] as Dictionary)["superseded"]),
+		"the route-door receipt records the miss the seam's answer would contradict")
+	assert_true(_complete_begun(walked), "the miss is durable before the replay below")
+	# The flag is CLEARED before the direct call, so a gate that re-derived supersession from
+	# live state instead of the durable hospital receipt would answer ok here and die on the
+	# asserts below -- the same durable-over-live pin FINDING-4 gave the envelope seam.
+	_game_state.pending_hospital = false
+
+	var answer: Dictionary = _state_port.presentation_stage_receipt(
+		str(stage["transaction_id"]), {"presented": true})
+
+	assert_false(answer.get("ok", true),
+		"a superseded date never presents, so its transaction is refused at the settle seam "
+		+ "rather than answered with presentation evidence: " + JSON.stringify(answer))
+	assert_eq(str(answer.get("code", "")), "invalid_presentation_substage",
+		"refused as a substage that cannot present, exactly as a wrong kind is")
+	assert_eq(str(answer.get("message", "")), substage_id,
+		"naming the record that was wrongly addressed")
+
+
 # -------------------------------------------------------------------------------------------------
 # Cut 9: across the Hospital presentation, restored from the ON-DISK checkpoint (dwm-p2r.19)
 # -------------------------------------------------------------------------------------------------
