@@ -229,30 +229,35 @@ func publish(_publication: Dictionary) -> Dictionary:
 	_publications += 1
 	return {"ok": true, "code": &"ok"}
 
-## Shape-valid stand-in for the real port's presentation envelope (dwm-p2r.18). It attaches the
-## published completion to whatever envelope this fake already produces for the stage, exactly as
-## the production port does; it anchors nothing and no test treats its ids as issuer-derived.
+## Shape-valid stand-in for the real port's presentation envelope (dwm-p2r.18, dwm-p2r.24). A
+## top-level stage gets the published completion folded onto the envelope this fake already
+## produces for it; a SUBSTAGE gets the seam's unconditional `schedule_date_complete` shape with
+## the entry id derived from its own substage id, exactly as the production port answers -- NOT
+## `_substage_receipt`'s per-stage envelope, which models the route door, a different seam. It
+## anchors nothing and no test treats its ids as issuer-derived.
 func presentation_stage_receipt(transaction_id: String, completion: Dictionary) -> Dictionary:
 	_calls.append("state.presentation_stage_receipt")
-	var stage_id := _stage_id_for(transaction_id)
-	if stage_id.is_empty():
-		return {"ok": false, "code": &"unknown_transaction", "message": transaction_id,
-			"details": {}}
-	var envelope := _immediate_receipt(stage_id)
-	(envelope["value"] as Dictionary)["presentation_completion_receipt"] = completion.duplicate(true)
-	return {"ok": true, "code": &"ok", "value": {"receipt": envelope}}
-
-
-## The stage a transaction id belongs to, read from the live plan the fake's own lifecycle holds.
-func _stage_id_for(transaction_id: String) -> String:
 	var plan: Variant = _lifecycle.to_dict().get("active_resolution_plan")
-	if typeof(plan) != TYPE_DICTIONARY:
-		return ""
-	for stage_value: Variant in ((plan as Dictionary).get("stages", []) as Array):
-		var stage: Dictionary = stage_value
-		if str(stage.get("transaction_id", "")) == transaction_id:
-			return str(stage["stage_id"])
-	return ""
+	if typeof(plan) == TYPE_DICTIONARY:
+		for stage_value: Variant in ((plan as Dictionary).get("stages", []) as Array):
+			var stage: Dictionary = stage_value
+			if str(stage.get("transaction_id", "")) == transaction_id:
+				var envelope := _immediate_receipt(str(stage["stage_id"]))
+				(envelope["value"] as Dictionary)["presentation_completion_receipt"] = 				completion.duplicate(true)
+				return {"ok": true, "code": &"ok", "value": {"receipt": envelope}}
+			for substage_value: Variant in (stage.get("substages", []) as Array):
+				var substage: Dictionary = substage_value
+				if str(substage.get("transaction_id", "")) != transaction_id:
+					continue
+				return {"ok": true, "code": &"ok", "value": {"receipt": _envelope(
+					"schedule_rules", "schedule_date_complete", {
+						"entry_receipt_id": str(substage["substage_id"]).split(":")[3],
+						"superseded": false,
+						"reason": null,
+						"presentation_completion_receipt": completion.duplicate(true),
+					})}}
+	return {"ok": false, "code": &"unknown_transaction", "message": transaction_id,
+		"details": {}}
 
 
 ## The envelope a substage returns, keyed to `DayResolutionCoordinator`'s `SUBSTAGE_CONTRACTS`.
