@@ -162,16 +162,22 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 	if snapshot["active_resolution_plan"] != null:
 		for stage: Dictionary in snapshot["active_resolution_plan"]["stages"]:
 			if str(stage["transaction_id"]) == transaction_id and str(stage["state"]) == "completed":
-				duplicate = true
-				record = {"receipt": stage["receipt"]}
+				# Mirrors the production port (dwm-p2r.22 for substages, dwm-p2r.25 for stages):
+				# byte-identical replays of a durable record are duplicates, DIFFERENT bytes
+				# surface the domain's conflict at PREPARE time. Production reaches that conflict
+				# through `_completed_lifecycle`; this fake's prepare never touches its lifecycle,
+				# so the direct return is the faithful shape.
+				if _plan_receipt_from_envelope(receipt) == stage["receipt"]:
+					duplicate = true
+					record = {"receipt": stage["receipt"]}
+				else:
+					return {"ok": false, "code": &"duplicate_transaction_conflict",
+						"message": transaction_id}
 			for substage: Dictionary in stage["substages"]:
 				if str(substage["transaction_id"]) != transaction_id \
 						or str(substage["state"]) != "completed":
 					continue
-				# Mirrors the production port (dwm-p2r.22), asymmetry included: byte-identical
-				# substage replays are duplicates, DIFFERENT bytes surface the domain's conflict
-				# at PREPARE time (production reaches it through `_completed_lifecycle`), and the
-				# STAGE branch above keeps no byte gate because production has none there.
+				# The same law one level down.
 				if _plan_receipt_from_envelope(receipt) == substage["receipt"]:
 					duplicate = true
 					record = {"receipt": substage["receipt"]}

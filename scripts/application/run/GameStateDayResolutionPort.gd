@@ -431,17 +431,19 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 	if snapshot["active_resolution_plan"] != null:
 		for stage: Dictionary in snapshot["active_resolution_plan"]["stages"]:
 			if str(stage["transaction_id"]) == transaction_id and str(stage["state"]) == "completed":
-				# Already durable. Re-applying it would be a no-op, but building a candidate for it
-				# would misrepresent a replay as fresh work.
-				return _prepared(transaction_id, receipt, snapshot, true, stage["receipt"])
+				# Already durable, so byte-identical bytes are a duplicate: re-applying would be a
+				# no-op, and building a candidate would misrepresent a replay as fresh work.
+				# DIFFERENT bytes fall through instead (dwm-p2r.25), so the domain's
+				# `_complete_record` stays the one conflict authority and `_completed_lifecycle`
+				# surfaces its `duplicate_transaction_conflict` here at prepare time.
+				if _plan_receipt_from_envelope(receipt) == stage["receipt"]:
+					return _prepared(transaction_id, receipt, snapshot, true, stage["receipt"])
 			for substage: Dictionary in stage["substages"]:
 				if str(substage["transaction_id"]) != transaction_id \
 						or str(substage["state"]) != "completed":
 					continue
-				# A durable SUBSTAGE is a duplicate only for byte-identical bytes (dwm-p2r.22).
-				# DIFFERENT bytes fall through instead of short-circuiting, so the domain's
-				# `_complete_record` stays the one conflict authority and `_completed_lifecycle`
-				# surfaces its `duplicate_transaction_conflict` here at prepare time.
+				# The same law one level down (dwm-p2r.22): identical bytes are a duplicate,
+				# different bytes fall through to the domain conflict.
 				if _plan_receipt_from_envelope(receipt) == substage["receipt"]:
 					return _prepared(transaction_id, receipt, snapshot, true, substage["receipt"])
 	var produced := _completed_lifecycle(snapshot, transaction_id, receipt)

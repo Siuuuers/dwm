@@ -587,6 +587,77 @@ func test_a_replayed_substage_completion_with_different_bytes_is_a_conflict() ->
 		"and the persisted receipt is byte-identical to what was already there")
 
 
+## dwm-p2r.25. The STAGE branch of `prepare_completion` declares a duplicate on transaction id and
+## completed state alone, with no byte comparison against `stage["receipt"]`, so a completed stage
+## replayed with DIFFERENT bytes is answered with a benign duplicate carrying the stored receipt --
+## and the domain's `duplicate_transaction_conflict` (`DayResolutionPlan._complete_record`) is
+## unreachable for stages through this port. Since dwm-p2r.22 gated the SUBSTAGE branch on bytes,
+## substages have been stricter than their own parents. Same law, same door, top level this time.
+func test_a_replayed_stage_completion_with_different_bytes_is_a_conflict() -> void:
+	var committed: Dictionary = _commit("day1-stage-conflict", 1, [
+		_ordinary("draft-a", 0, "training", 1),
+	])
+	if committed.is_empty():
+		return
+	assert_true(_state_port.begin_or_resume("resolution.stageconflict.day1").get("ok", false))
+	var begun: Dictionary = _state_port.begin_next_stage()
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false):
+		return
+	var stage: Dictionary = (begun["value"] as Dictionary)["stage"]
+	var receipt: Dictionary = (begun["value"] as Dictionary)["receipt"]
+	assert_false(stage.has("substage_id"), "the walk really is on a top-level stage")
+	var transaction_id := str(stage["transaction_id"])
+	var settled: Dictionary = _state_port.prepare_completion(transaction_id, receipt)
+	assert_true(settled.get("ok", false), str(settled))
+	assert_true(_state_port.commit(
+		(settled["value"] as Dictionary)["run_candidate"]).get("ok", false))
+	var stored: Variant = _stage_receipt_for(transaction_id)
+
+	var tampered: Dictionary = receipt.duplicate(true)
+	(tampered["value"] as Dictionary)["locked"] = false
+	var rejected: Dictionary = _state_port.prepare_completion(transaction_id, tampered)
+
+	assert_false(rejected.get("ok", true), str(rejected))
+	assert_eq(str(rejected.get("code", "")), "duplicate_transaction_conflict",
+		"different bytes for a settled stage are refused, exactly as a substage's are")
+	assert_eq(_stage_receipt_for(transaction_id), stored,
+		"and the persisted receipt is byte-identical to what was already there")
+
+
+## The half that already works, pinned so the fix above cannot overshoot: a fix that simply DELETED
+## the stage short-circuit would push an identical replay through to the domain, whose bare ok
+## reports duplicate=false -- misrepresenting a replay as fresh work, which is dwm-p2r.22's bug
+## reborn one level up. Identical bytes stay a duplicate carrying the persisted receipt.
+func test_a_replayed_identical_stage_completion_is_a_duplicate_with_its_stored_receipt() -> void:
+	var committed: Dictionary = _commit("day1-stage-replay", 1, [
+		_ordinary("draft-a", 0, "training", 1),
+	])
+	if committed.is_empty():
+		return
+	assert_true(_state_port.begin_or_resume("resolution.stagereplay.day1").get("ok", false))
+	var begun: Dictionary = _state_port.begin_next_stage()
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false):
+		return
+	var stage: Dictionary = (begun["value"] as Dictionary)["stage"]
+	var receipt: Dictionary = (begun["value"] as Dictionary)["receipt"]
+	var transaction_id := str(stage["transaction_id"])
+	var settled: Dictionary = _state_port.prepare_completion(transaction_id, receipt)
+	assert_true(settled.get("ok", false), str(settled))
+	assert_true(_state_port.commit(
+		(settled["value"] as Dictionary)["run_candidate"]).get("ok", false))
+
+	var replay: Dictionary = _state_port.prepare_completion(transaction_id, receipt.duplicate(true))
+
+	assert_true(replay.get("ok", false), str(replay))
+	assert_true(bool(((replay["value"] as Dictionary).get("duplicate", false))),
+		"a stage that is already durable is a duplicate, exactly as before this law was gated")
+	assert_eq((replay["value"] as Dictionary).get("stored_receipt"),
+		_stage_receipt_for(transaction_id),
+		"and the replay reports the bytes already persisted")
+
+
 # ---- helpers ----
 
 ## Commits `drafts` for `day` through the REAL commit port AND installs the result in the owner, so
@@ -703,6 +774,18 @@ func _advance_stage() -> String:
 
 func _live_plan() -> Variant:
 	return _game_state._run_lifecycle.to_dict()["active_resolution_plan"]
+
+
+## The receipt a top-level stage has actually persisted, addressed by its transaction id. Returns
+## null when the stage exists but is unsettled, which is the same thing the plan stores.
+func _stage_receipt_for(transaction_id: String) -> Variant:
+	var plan: Variant = _live_plan()
+	if typeof(plan) != TYPE_DICTIONARY:
+		return null
+	for stage: Dictionary in ((plan as Dictionary)["stages"] as Array):
+		if str(stage["transaction_id"]) == transaction_id:
+			return stage["receipt"]
+	return null
 
 
 ## The receipt a substage has actually persisted, addressed by its transaction id. Returns null when

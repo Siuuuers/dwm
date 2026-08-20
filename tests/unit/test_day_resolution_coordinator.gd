@@ -267,10 +267,15 @@ func test_a_duplicate_completion_does_not_leave_the_coordinator_awaiting_a_finis
 	var command: Dictionary = (wired["paused"]["value"] as Dictionary)["command"]
 
 	# The plan completes the stage behind the coordinator's back -- the shape a crash between the
-	# durable completion and the coordinator hearing about it leaves.
+	# durable completion and the coordinator hearing about it leaves. The durable bytes are the
+	# FOLDED envelope (dwm-p2r.25): the only writer for a presentation stage is `_commit_completion`
+	# via `complete_presentation_stage`, which attaches the published completion before committing,
+	# so a record holding a bare null there is a state production never persists -- and the byte
+	# gate would rightly refuse the replay as a conflict instead of the duplicate this test pins.
+	var durable_value: Dictionary = (_hospital_receipt()["value"] as Dictionary).duplicate(true)
+	durable_value["presentation_completion_receipt"] = _completion_receipt()
 	var out_of_band: Dictionary = wired["state"]._lifecycle.complete_active_stage(
-		str(command["transaction_id"]),
-		{"value": (_hospital_receipt()["value"] as Dictionary).duplicate(true)})
+		str(command["transaction_id"]), {"value": durable_value})
 	assert_true(out_of_band.get("ok", false), JSON.stringify(out_of_band))
 
 	wired["hospital_port"].publish_completion(_completion_receipt())
@@ -923,6 +928,19 @@ func _hospital_receipt() -> Dictionary:
 			"presentation_completion_receipt": null}}
 
 
+## The whole top-level stage record, for the same reason `_substage_record` exists below:
+## "completed" does not say with WHAT bytes, and `_complete_record` persists whatever it is handed.
+func _stage_record(state: RefCounted, stage_id: String) -> Dictionary:
+	var plan: Variant = state._lifecycle.to_dict()["active_resolution_plan"]
+	if typeof(plan) != TYPE_DICTIONARY:
+		return {}
+	for stage_value: Variant in ((plan as Dictionary)["stages"] as Array):
+		var stage: Dictionary = stage_value
+		if str(stage["stage_id"]) == stage_id:
+			return stage
+	return {}
+
+
 func _stage_state(state: RefCounted, stage_id: String) -> String:
 	var plan: Variant = state._lifecycle.to_dict()["active_resolution_plan"]
 	if typeof(plan) != TYPE_DICTIONARY:
@@ -958,6 +976,44 @@ func test_duplicate_transaction_returns_stored_receipt_without_new_checkpoint() 
 	assert_true(replay.get("ok", false), "duplicate completion succeeds: " + JSON.stringify(replay))
 	assert_eq(wired["checkpoint"].peek_state(), checkpoints_after, "no second checkpoint")
 	assert_eq(wired["state"].get_publication_count(), publications_after, "no second publication")
+
+
+## dwm-p2r.25, FAKE-FIDELITY coverage, the stage-level twin of the substage duplicate test above:
+## production's half of the byte gate is held by
+## tests/integration/test_committed_schedule_day_resolution.gd over the REAL port, and without this
+## test reverting the fake's stage gate leaves every other test green while the double answers a
+## TAMPERED stage replay with a benign duplicate. The tamper flips a value field that
+## STAGE_CONTRACTS[hospital_if_triggered] does not pin, so it passes envelope validation and reaches
+## prepare, where the gate must refuse it BEFORE any checkpoint -- deliberately NOT lock_day, whose
+## const_true contract would stop a tamper at validation and never reach the gate at all.
+func test_a_stage_replay_with_different_bytes_is_a_conflict_with_no_second_checkpoint() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3)
+	wired["state"].set_registered_stage("hospital_if_triggered")
+	var paused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	var command: Dictionary = paused["value"]["command"]
+	wired["state"].set_registered_stage("")
+	assert_true(wired["coordinator"].complete_route_stage(
+		str(command["transaction_id"]), _hospital_receipt()).get("ok", false),
+		"the stage settled once, so the replay below carries different bytes for durable work")
+	var checkpoints_after: Dictionary = wired["checkpoint"].peek_state()
+	var publications_after: int = wired["state"].get_publication_count()
+	var stored: Dictionary = _receipt_value(_stage_record(wired["state"], "hospital_if_triggered"))
+
+	var tampered: Dictionary = _hospital_receipt()
+	(tampered["value"] as Dictionary)["required"] = true
+	var rejected: Dictionary = wired["coordinator"].complete_route_stage(
+		str(command["transaction_id"]), tampered)
+
+	assert_false(rejected.get("ok", true), JSON.stringify(rejected))
+	assert_eq(str(rejected.get("code", "")), "duplicate_transaction_conflict",
+		"different bytes for a settled stage are refused, never re-reported as a benign duplicate")
+	assert_eq(wired["checkpoint"].peek_state(), checkpoints_after, "no second checkpoint")
+	assert_eq(wired["state"].get_publication_count(), publications_after, "no second publication")
+	assert_eq(_receipt_value(_stage_record(wired["state"], "hospital_if_triggered")), stored,
+		"and the persisted receipt is byte-identical to what was already there")
 
 func test_checkpoint_preview_matches_prepare_without_mutation() -> void:
 	assert_true(_all_exist(), "coordinator artifacts must exist")
