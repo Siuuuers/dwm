@@ -461,6 +461,42 @@ func test_a_substage_resolved_from_history_still_answers_to_its_own_contract() -
 		"and the substage validator is what refused it")
 
 
+## dwm-p2r.22, FAKE-FIDELITY coverage. `_commit_completion` cannot tell a stage from a substage --
+## it only reads `prepared["duplicate"]` -- so production's half of this law is held by
+## tests/integration/test_committed_schedule_day_resolution.gd over the REAL port. This test exists
+## because the bead's acceptance criteria fix `FakeDayResolutionStatePort`'s stages-only duplicate
+## scan in the same change, and without it that fix is unobservable: revert the fake's descent and
+## every other test stays green while the double lies about replay idempotence. Under the broken
+## scan the replay below sails past prepare as fresh work and a second checkpoint and second
+## publication appear -- through `complete_route_stage`'s never-pruned `_registered_history`, the
+## same door the test above proves stays open.
+func test_a_replayed_identical_substage_completion_is_a_duplicate_with_no_second_checkpoint() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_substage(3)
+	var command: Dictionary = (wired["paused"]["value"] as Dictionary)["command"]
+	var transaction_id := str(command["transaction_id"])
+	assert_true(wired["coordinator"].complete_route_stage(
+		transaction_id, _substage_entry_receipt()).get("ok", false),
+		"the substage settled once, so the completion below replays durable work")
+	var checkpoints_after: Dictionary = wired["checkpoint"].peek_state()
+	var publications_after: int = wired["state"].get_publication_count()
+
+	var replay: Dictionary = wired["coordinator"].complete_route_stage(
+		transaction_id, _substage_entry_receipt())
+
+	assert_true(replay.get("ok", false), "duplicate completion succeeds: " + JSON.stringify(replay))
+	assert_eq(str(replay.get("code", "")), "duplicate_transaction",
+		"a replayed substage is reported as the duplicate it is, exactly as a stage would be")
+	assert_eq((replay.get("value", {}) as Dictionary).get("receipt"),
+		_substage_record(wired["state"], "execute_schedule_actions",
+			ORDINARY_SUBSTAGE_ID).get("receipt"),
+		"and it reports the bytes the plan already persisted")
+	assert_eq(wired["checkpoint"].peek_state(), checkpoints_after, "no second checkpoint")
+	assert_eq(wired["state"].get_publication_count(), publications_after, "no second publication")
+
+
 ## `DayResolutionPlan.create` reads exactly these three keys off a committed entry and discards the
 ## rest, so this is the honest minimum rather than a half-built `ScheduleStateSchema` aggregate.
 const ORDINARY_ENTRY := {"schedule_entry_id": "work", "slot_index": 0, "action_kind": "ordinary"}

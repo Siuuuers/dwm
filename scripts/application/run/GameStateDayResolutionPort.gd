@@ -434,6 +434,16 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 				# Already durable. Re-applying it would be a no-op, but building a candidate for it
 				# would misrepresent a replay as fresh work.
 				return _prepared(transaction_id, receipt, snapshot, true, stage["receipt"])
+			for substage: Dictionary in stage["substages"]:
+				if str(substage["transaction_id"]) != transaction_id \
+						or str(substage["state"]) != "completed":
+					continue
+				# A durable SUBSTAGE is a duplicate only for byte-identical bytes (dwm-p2r.22).
+				# DIFFERENT bytes fall through instead of short-circuiting, so the domain's
+				# `_complete_record` stays the one conflict authority and `_completed_lifecycle`
+				# surfaces its `duplicate_transaction_conflict` here at prepare time.
+				if _plan_receipt_from_envelope(receipt) == substage["receipt"]:
+					return _prepared(transaction_id, receipt, snapshot, true, substage["receipt"])
 	var produced := _completed_lifecycle(snapshot, transaction_id, receipt)
 	if not produced.get("ok", false):
 		return produced

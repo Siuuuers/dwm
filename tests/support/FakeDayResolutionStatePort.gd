@@ -164,6 +164,20 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 			if str(stage["transaction_id"]) == transaction_id and str(stage["state"]) == "completed":
 				duplicate = true
 				record = {"receipt": stage["receipt"]}
+			for substage: Dictionary in stage["substages"]:
+				if str(substage["transaction_id"]) != transaction_id \
+						or str(substage["state"]) != "completed":
+					continue
+				# Mirrors the production port (dwm-p2r.22), asymmetry included: byte-identical
+				# substage replays are duplicates, DIFFERENT bytes surface the domain's conflict
+				# at PREPARE time (production reaches it through `_completed_lifecycle`), and the
+				# STAGE branch above keeps no byte gate because production has none there.
+				if _plan_receipt_from_envelope(receipt) == substage["receipt"]:
+					duplicate = true
+					record = {"receipt": substage["receipt"]}
+				else:
+					return {"ok": false, "code": &"duplicate_transaction_conflict",
+						"message": transaction_id}
 	return {"ok": true, "code": &"ok", "value": {
 		"run_candidate": {"transaction_id": transaction_id, "receipt": receipt.duplicate(true)},
 		"snapshot_input": {"run_id": _run_id, "day": int(snapshot["day"])},

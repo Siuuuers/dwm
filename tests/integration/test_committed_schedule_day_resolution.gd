@@ -497,6 +497,96 @@ func test_the_execute_stage_receipt_reads_entry_ids_from_the_committed_substages
 		"the substage reports the registry effects it applied")
 
 
+
+## dwm-p2r.22. `prepare_completion` answers "have I already done this transaction?" by scanning
+## `active_resolution_plan["stages"]` and nothing else. A substage transaction id is
+## `resolution_id + ":" + substage_id` and can never equal any stage's, so a replayed SUBSTAGE
+## completion is reported as fresh work.
+##
+## THIS RUNS AGAINST THE REAL PORT ON PURPOSE. `FakeDayResolutionStatePort` carries the identical
+## bug, so the coordinator-level duplicate test in `tests/unit/test_day_resolution_coordinator.gd`
+## proves nothing about this: fixing the double would turn it green with production untouched.
+## The claim only means something over `GameStateDayResolutionPort` itself.
+##
+## THE CONSEQUENCE IS NOT COSMETIC. `DayResolutionCoordinator._commit_completion` reads this exact
+## flag, and its `duplicate_transaction` branch is what returns BEFORE the checkpoint prepare/commit,
+## before the state commit, and before `publish`. Reported as fresh, a replayed substage writes a
+## second checkpoint and emits a second publication -- the at-most-once law every stage already
+## keeps.
+func test_a_replayed_substage_completion_is_reported_as_a_duplicate_with_its_stored_receipt() -> void:
+	var committed: Dictionary = _commit("day1-substage-replay", 1, [
+		_ordinary("draft-a", 0, "training", 1),
+	])
+	if committed.is_empty():
+		return
+	assert_true(_state_port.begin_or_resume("resolution.substagereplay.day1").get("ok", false))
+	assert_eq(_advance_stage(), "lock_day")
+	assert_eq(_advance_stage(), "validate_schedule")
+
+	# The cursor is now the first entry SUBSTAGE, which is the record this law was never applied to.
+	var begun: Dictionary = _state_port.begin_next_stage()
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false):
+		return
+	var stage: Dictionary = (begun["value"] as Dictionary)["stage"]
+	var receipt: Dictionary = (begun["value"] as Dictionary)["receipt"]
+	assert_true(stage.has("substage_id"), "the walk really is on a substage, not on its parent")
+	var transaction_id := str(stage["transaction_id"])
+
+	# Settle it once through the production seam, so the replay below is a replay of real work.
+	var first: Dictionary = _state_port.prepare_completion(transaction_id, receipt)
+	assert_true(first.get("ok", false), str(first))
+	assert_false(bool(((first["value"] as Dictionary).get("duplicate", false))),
+		"the FIRST completion is fresh work, which is what makes the second one a duplicate")
+	assert_true(_state_port.commit(
+		(first["value"] as Dictionary)["run_candidate"]).get("ok", false))
+
+	var replay: Dictionary = _state_port.prepare_completion(transaction_id, receipt.duplicate(true))
+
+	assert_true(replay.get("ok", false), str(replay))
+	assert_true(bool(((replay["value"] as Dictionary).get("duplicate", false))),
+		"a substage that is already durable is a duplicate, exactly as a stage would be")
+	assert_eq((replay["value"] as Dictionary).get("stored_receipt"),
+		_substage_receipt_for(transaction_id),
+		"and the replay reports the bytes already persisted rather than null")
+
+
+## The other half of the same law, and the half that already works: a replay carrying DIFFERENT bytes
+## is a conflict, not a duplicate. Pinned here so the fix above cannot be mistaken for permission to
+## overwrite a settled substage.
+func test_a_replayed_substage_completion_with_different_bytes_is_a_conflict() -> void:
+	var committed: Dictionary = _commit("day1-substage-conflict", 1, [
+		_ordinary("draft-a", 0, "training", 1),
+	])
+	if committed.is_empty():
+		return
+	assert_true(_state_port.begin_or_resume("resolution.substageconflict.day1").get("ok", false))
+	assert_eq(_advance_stage(), "lock_day")
+	assert_eq(_advance_stage(), "validate_schedule")
+	var begun: Dictionary = _state_port.begin_next_stage()
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false):
+		return
+	var stage: Dictionary = (begun["value"] as Dictionary)["stage"]
+	var receipt: Dictionary = (begun["value"] as Dictionary)["receipt"]
+	var transaction_id := str(stage["transaction_id"])
+	var settled: Dictionary = _state_port.prepare_completion(transaction_id, receipt)
+	assert_true(settled.get("ok", false), str(settled))
+	assert_true(_state_port.commit(
+		(settled["value"] as Dictionary)["run_candidate"]).get("ok", false))
+	var stored: Variant = _substage_receipt_for(transaction_id)
+
+	var tampered: Dictionary = receipt.duplicate(true)
+	(tampered["value"] as Dictionary)["outcome_ids"] = ["forged"]
+	var rejected: Dictionary = _state_port.prepare_completion(transaction_id, tampered)
+
+	assert_false(rejected.get("ok", true), str(rejected))
+	assert_eq(str(rejected.get("code", "")), "duplicate_transaction_conflict",
+		"different bytes for a settled substage are refused, never silently accepted")
+	assert_eq(_substage_receipt_for(transaction_id), stored,
+		"and the persisted receipt is byte-identical to what was already there")
+
+
 # ---- helpers ----
 
 ## Commits `drafts` for `day` through the REAL commit port AND installs the result in the owner, so
@@ -613,6 +703,19 @@ func _advance_stage() -> String:
 
 func _live_plan() -> Variant:
 	return _game_state._run_lifecycle.to_dict()["active_resolution_plan"]
+
+
+## The receipt a substage has actually persisted, addressed by its transaction id. Returns null when
+## the substage exists but is unsettled, which is the same thing the plan stores.
+func _substage_receipt_for(transaction_id: String) -> Variant:
+	var plan: Variant = _live_plan()
+	if typeof(plan) != TYPE_DICTIONARY:
+		return null
+	for stage: Dictionary in ((plan as Dictionary)["stages"] as Array):
+		for substage: Dictionary in (stage["substages"] as Array):
+			if str(substage["transaction_id"]) == transaction_id:
+				return substage["receipt"]
+	return null
 
 
 func _substage_ids(plan: Dictionary) -> Array[String]:
