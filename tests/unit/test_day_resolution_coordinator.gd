@@ -524,6 +524,41 @@ func test_a_port_that_cannot_start_never_reaches_the_router() -> void:
 		"the stage stays active and resumable")
 
 
+## A presentation that is ALREADY SHOWING is never launched a second time.
+##
+## WHY THIS IS NOT COVERED BY THE REFUSED-ROUTE TEST ABOVE. There, the first launch FAILED, so
+## re-dispatching on the next `resume()` is exactly right and that test pins it. Here the first
+## launch SUCCEEDED, and `resume()` is a public seam (`GameState.resume_day_resolution`,
+## `GameState.begin_day_resolution_stage`) that any caller may drive again while the same stage is
+## still awaiting its completion.
+##
+## THE PHYSICAL LAYER WAS ALREADY SAFE; THE SCENE LAYER WAS NOT. `begin()` is idempotent per
+## completion transaction and the owner adapter refuses to restart an in-flight timeline, so nothing
+## replays there. But `SceneRouter.route_presentation` carries no such guard: it instantiates the
+## PackedScene, reassigns `tree.current_scene`, and frees the previous one -- so a second dispatch
+## tears down the live presentation scene and rebuilds it underneath a timeline that keeps playing,
+## taking every signal connection the freed scene held with it.
+func test_a_presentation_already_showing_is_not_launched_a_second_time() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired_presentation(3)
+	assert_eq(str(wired["paused"]["code"]), "await_registered_command", "the walk paused")
+	assert_eq(wired["hospital_port"].get_requests().size(), 1, "the first launch started the port")
+	assert_eq(wired["router"].get_routes().size(), 1, "and showed the scene")
+
+	var again: Dictionary = wired["coordinator"].resume()
+	assert_true(again.get("ok", false), JSON.stringify(again))
+	assert_eq(str(again["code"]), "await_registered_command",
+		"the walk still reports the same awaiting command rather than failing")
+	assert_eq(wired["router"].get_routes().size(), 1,
+		"and no second scene was shown for a presentation that is already on screen")
+	assert_eq(wired["hospital_port"].get_requests().size(), 1,
+		"nor was the port asked to begin a presentation it already started")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"the stage is still awaiting its completion: re-resuming advanced nothing")
+
+
 ## The port-published completion receipt, in the shape `_on_presentation_completion_ready` accepts.
 func _completion_receipt() -> Dictionary:
 	return {

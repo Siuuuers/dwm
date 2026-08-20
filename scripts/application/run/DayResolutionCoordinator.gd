@@ -122,6 +122,12 @@ var _dating_presentation_port: Object = null
 ## The ONE retained route surface. Bootstrap injects the same SceneRouter it already gave those two
 ## ports; the coordinator never constructs, wraps, or replaces it, and never changes a scene itself.
 var _presentation_router: Object = null
+## The transaction whose presentation is ALREADY SHOWING. `resume()` is a public seam any caller may
+## drive again while a stage is still awaiting, and the ports and the physical owner are idempotent
+## -- but `route_presentation` is NOT: a second dispatch instantiates a second scene and frees the
+## live one underneath a timeline that keeps playing. A FAILED launch records nothing here, so a
+## refused route still re-dispatches on the next `resume()`, which is what a retry is for.
+var _launched_transaction := ""
 var _last_presentation_completion: Dictionary = {}
 var _last_presentation_failure: Dictionary = {}
 var _run_id := ""
@@ -324,6 +330,7 @@ func complete_presentation_stage() -> Dictionary:
 	# `_awaiting` itself, so it can never be an older transaction whose replay should leave a newer
 	# awaiting command untouched.
 	_awaiting = {}
+	_launched_transaction = ""
 	_last_presentation_completion = {}
 	if completed.get("code") == &"duplicate_transaction":
 		return completed
@@ -415,8 +422,9 @@ func resume() -> Dictionary:
 			return completed
 	return {"ok": false, "code": &"unreachable", "message": ""}
 
-## Launches the adapter for ONE awaiting presentation command, and returns `{}` when the awaiting
-## command is not a presentation at all (dwm-p2r.18, the last SCOPE bullet).
+## Launches the adapter for ONE awaiting presentation command, and returns `{}` both when the
+## awaiting command is not a presentation at all and when its presentation is already showing
+## (dwm-p2r.18, the last SCOPE bullet).
 ##
 ## THE ORDER IS FORCED, not chosen. `route_presentation` hands the scene the CANONICAL command --
 ## the request plus the `command_sha256` and the owner-derived `physical_token` -- and only `begin()`
@@ -432,6 +440,8 @@ func resume() -> Dictionary:
 func _launch_presentation(command: Dictionary) -> Dictionary:
 	var request: Variant = command.get("presentation_request")
 	if typeof(request) != TYPE_DICTIONARY or (request as Dictionary).is_empty():
+		return {}
+	if str(command.get("transaction_id", "")) == _launched_transaction:
 		return {}
 	var route_id := str(command.get("route_id", ""))
 	if route_id != "hospital" and route_id != "dating":
@@ -459,6 +469,9 @@ func _launch_presentation(command: Dictionary) -> Dictionary:
 		(canonical as Dictionary).duplicate(true))
 	if typeof(routed) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"presentation_route_failed", "message": route_id}
+	if not (routed as Dictionary).get("ok", false):
+		return routed
+	_launched_transaction = str(command.get("transaction_id", ""))
 	return routed
 
 
@@ -484,6 +497,7 @@ func complete_route_stage(transaction_id: String, receipt: Dictionary) -> Dictio
 	if completed.get("code") == &"duplicate_transaction":
 		return completed
 	_awaiting = {}
+	_launched_transaction = ""
 	return resume()
 
 func _commit_completion(stage: Dictionary, receipt: Dictionary) -> Dictionary:
