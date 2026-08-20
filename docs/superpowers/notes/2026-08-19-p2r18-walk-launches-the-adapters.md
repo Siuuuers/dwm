@@ -49,17 +49,21 @@ claims, and mutations 2 and 6 below prove each is enforced rather than merely wr
 
 **What this does NOT cover, corrected 2026-08-20.** The first version of this paragraph ended "so a
 route that cannot be shown is refused before a timeline starts behind it," and that sentence was
-false as written. `SceneRouter.route_presentation` has four refusal branches, and at the time it was
-written every one of them landed *after* `begin()` had started a real Dialogic timeline. Three of
-them still do, and cannot be lifted: `presentation_scene_missing`, `presentation_scene_unconfigurable`
-and `presentation_tree_unavailable` are properties of the ROUTE, and the router cannot judge them
-without the canonical command only `begin()` produces. The fourth,
+false as written. `SceneRouter.route_presentation` has NINE refusal exits, and at the time it was
+written every one reachable from the walk landed *after* `begin()` had started a real Dialogic
+timeline. FOUR of them still do, and cannot be lifted: `presentation_scene_missing`,
+`presentation_scene_unconfigurable`, the scene's own `configure_presentation` refusal passed through
+verbatim, and `presentation_tree_unavailable` are properties of the ROUTE, and the router cannot
+judge them without the canonical command only `begin()` produces. A fifth,
 `schedule_presentation_ports_unconfigured`, is a property of the router OBJECT the coordinator
 already holds, so it was knowable in advance all along — and the capability to ask,
 `is_schedule_presentation_ports_configured`, was already declared in `PRESENTATION_ROUTER_METHODS`
 and already implemented on `FakePresentationRouter` (with an uncalled `set_ports_configured` behind
-it), yet the coordinator never called it. The check now exists, so that one refusal really is
-pre-`begin()`; the other three are named here rather than papered over.
+it), yet the coordinator never called it — though `route_presentation` itself always did, as its own
+first guard. The coordinator now asks BEFORE `begin()`, refusing with its own distinct code
+`presentation_router_ports_unconfigured`, which makes the router's branch unreachable from the walk
+rather than moving it; the other four are named here rather than papered over. The full nine-exit
+taxonomy is in `2026-08-20-p2r18-cold-review-repairs.md`.
 
 Note that no redundant `is_ready()` pre-check was added: `is_ready()` is false exactly when the port
 has no configured physical owner, and `begin()` already refuses on that same condition — so Phase

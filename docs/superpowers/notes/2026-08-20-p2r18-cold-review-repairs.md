@@ -34,35 +34,60 @@ must re-dispatch on the next `resume()`. Proved by mutation: recording on refusa
 called, so a route that cannot be shown is refused before a timeline starts behind it."* The same
 sentence stood verbatim in the `_launch_presentation` docstring.
 
-**Why it was false.** `SceneRouter.route_presentation` has four refusal branches, and at the time
-that sentence was written every one of them was reached only after `_launch_presentation` had already
-called `port.begin()` — that is, after a real Dialogic timeline had started. The antecedent of the
-sentence was true (those three checks really do precede `begin()`); the consequent did not follow
-from it and was not otherwise true.
+**Why it was false.** At the time that sentence was written, every `route_presentation` refusal
+reachable from the walk was reached only after `_launch_presentation` had already called
+`port.begin()` — that is, after a real Dialogic timeline had started. The antecedent of the sentence
+was true (those checks really do precede `begin()`); the consequent did not follow from it and was
+not otherwise true.
 
-**The split.** The four refusals are not alike, and the repair follows the difference:
+**The split.** `route_presentation` has NINE refusal exits, not four — eight `ok: false` returns
+plus one pass-through of the scene's own refusal (`autoload/SceneRouter.gd:112-149`). They are not
+alike, and the repair follows the difference. What matters is reachability FROM THE WALK, since most
+of them the coordinator can never provoke:
 
-| `route_presentation` refusal | property of | pre-`begin()`? |
+| `route_presentation` refusal | reachable from the walk? | pre-`begin()`? |
 |---|---|---|
-| `schedule_presentation_ports_unconfigured` | the router OBJECT the coordinator already holds | **now yes** |
-| `presentation_scene_missing` | the ROUTE | no, and cannot be |
-| `presentation_scene_unconfigurable` | the ROUTE | no, and cannot be |
-| `presentation_tree_unavailable` | the ROUTE | no, and cannot be |
+| `schedule_presentation_ports_unconfigured` | no — the coordinator now refuses first | n/a, see below |
+| `invalid_presentation_route` (route not registered) | no — route id whitelisted at `:452-454` | n/a |
+| `invalid_presentation_command` (not a dictionary) | no — canonical validated at `:481-484` | n/a |
+| `presentation_port_not_ready` | no — `begin()` refuses on the identical condition | n/a |
+| `invalid_presentation_route` (canonical disagrees with the arg) | only on a port defect | no |
+| `presentation_scene_missing` | **yes** | no, and cannot be |
+| `presentation_scene_unconfigurable` | **yes** | no, and cannot be |
+| the scene's own `configure_presentation` refusal, verbatim | **yes** | no, and cannot be |
+| `presentation_tree_unavailable` | **yes** | no, and cannot be |
 
-The last three need the canonical command that only `begin()` produces, so lifting them would mean
-asking the router to judge a command that does not exist yet. They stay post-`begin()`, and both the
-note and the docstring now say so instead of implying otherwise. What makes that survivable is
-unchanged and already proved: the stage stays ACTIVE and unreceipted, `_awaiting` keeps the exact
-command, and `begin()` is idempotent per completion transaction, so the run resumes at that exact
-boundary.
+So FOUR refusals still start a timeline they cannot show, not three. The last four all need the
+canonical command that only `begin()` produces, so lifting them would mean asking the router to
+judge a command that does not exist yet. They stay post-`begin()`, and both the note and the
+docstring now say so instead of implying otherwise. Note that the fourth of them is the least
+tractable: it is a PASS-THROUGH, so its code is not even fixed — the coordinator surfaces whatever
+`HospitalScene.configure_presentation` returned. What makes those four survivable is unchanged and
+already proved: the stage stays ACTIVE and unreceipted, `_awaiting` keeps the exact command, and
+`begin()` is idempotent per completion transaction, so the run resumes at that exact boundary.
+
+**On `presentation_port_not_ready`, which looks like a counterexample and is not.** It is a property
+of the PORT, not of the route, and `is_ready()` is a pure two-null-check accessor
+(`HospitalPresentationPort.gd:223-224`), so it IS knowable before `begin()`. It is deliberately not
+pre-checked, for the reason the 2026-08-19 note gave and this note initially dropped: `begin()`'s
+first line refuses on the identical condition (`HospitalPresentationPort.gd:111-112`), so the router
+branch is unreachable from the walk and a pre-check would be pure redundancy. Un-lifted because it
+is already unreachable — not because it cannot be lifted.
 
 **The first one was knowable all along, and the capability to ask was already declared.**
 `is_schedule_presentation_ports_configured` was listed in `PRESENTATION_ROUTER_METHODS`, implemented
 on the real `SceneRouter`, implemented on `FakePresentationRouter`, and reachable through an uncalled
-`FakePresentationRouter.set_ports_configured()` — and the coordinator never called it. So the
-capability agreement asserted in
-`test_the_real_router_satisfies_the_capability_the_coordinator_requires` was pinning a method that
-production could not have been broken by. It is now called, immediately before `begin()`.
+`FakePresentationRouter.set_ports_configured()` — and the coordinator never called it. It is now
+called, immediately before `begin()`.
+
+**Corrected on second review:** an earlier draft of this paragraph went on to claim the capability
+agreement in `test_the_real_router_satisfies_the_capability_the_coordinator_requires` was "pinning a
+method that production could not have been broken by." That is FALSE. `route_presentation` calls
+`is_schedule_presentation_ports_configured` as its own first guard (`autoload/SceneRouter.gd:113`)
+and did so well before this work, so the method always had exactly one production caller — the router
+itself. Break it and the router mis-gates in production with no coordinator involved. What was
+missing was a caller in the WALK, which is a narrower and less alarming statement than the one the
+draft made.
 
 **A distinct code, for the same reason the others are distinct.**
 `presentation_router_ports_unconfigured` is NOT `presentation_ports_unconfigured`: the latter means
@@ -119,10 +144,16 @@ unchanged. **No pre-existing test changed.**
 
 ## Honest limits
 
-- **Three router refusals still start a timeline they cannot show.** Named above. Making them
-  pre-`begin()` would require either a second router capability that can validate a route without a
-  command, or splitting `route_presentation` into a check phase and a show phase. Neither is a
-  cleanup, and neither is done here.
+- **Four router refusals still start a timeline they cannot show.** Named in the table above.
+  Making them pre-`begin()` would require either a second router capability that can validate a route
+  without a command, or splitting `route_presentation` into a check phase and a show phase. Neither is
+  a cleanup, and neither is done here.
+- **This note was itself wrong on first writing, and was corrected by a cold review the same day.**
+  It claimed four refusal branches where there are nine, classified three post-`begin()` refusals
+  where there are four, omitted the scene-configure pass-through entirely, and overstated the
+  consequence of the uncalled capability. Recorded rather than quietly amended, for the same reason
+  the 2026-08-19 note recorded its own vacuous first-version test: a document that silently stops
+  being wrong teaches nobody what it was wrong about.
 - **The new check is proved against the fake, not the real router.** `FakePresentationRouter` reports
   unconfigured while still routing, which no real router does; that inconsistency is deliberate and
   is what isolates the coordinator's behaviour. The REAL `SceneRouter`'s refusal on the same condition

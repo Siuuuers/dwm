@@ -434,10 +434,11 @@ func resume() -> Dictionary:
 ## them can leave a timeline running behind a scene that was never going to open.
 ##
 ## THE REMAINING ROUTER REFUSALS ARE NOT PRE-CHECKABLE, and this does not pretend otherwise. A
-## missing scene, a scene that cannot be configured, and an unavailable tree are properties of the
-## ROUTE, and `route_presentation` cannot judge them without the canonical command only `begin()`
-## produces. Those three necessarily land after the physical presentation started; the paragraph
-## below is what makes that survivable rather than a claim that it cannot happen.
+## missing scene, a scene that cannot be configured, the scene's OWN `configure_presentation` refusal
+## (returned verbatim, so not even a fixed code), and an unavailable tree are properties of the ROUTE,
+## and `route_presentation` cannot judge them without the canonical command only `begin()` produces.
+## Those four necessarily land after the physical presentation started; the paragraph below is what
+## makes that survivable rather than a claim that it cannot happen.
 ##
 ## A REFUSAL LEAVES THE RUN RESUMABLE, which is why nothing is rolled back here. The stage is already
 ## ACTIVE by this point and stays active and unreceipted, `_awaiting` keeps this exact command, and
