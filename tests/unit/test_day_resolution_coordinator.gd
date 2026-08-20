@@ -455,6 +455,44 @@ func test_a_presentation_site_with_no_configured_ports_fails_closed() -> void:
 		"the stage stays active and resumable")
 
 
+## A router that cannot show ANY scene must be refused before a timeline starts behind it.
+##
+## Distinct from `test_a_presentation_site_with_no_configured_ports_fails_closed`, which is about the
+## COORDINATOR's own ports. Here the coordinator is fully composed and the router is adopted -- but
+## the router's own presentation ports were never injected, so `route_presentation` can only answer
+## `schedule_presentation_ports_unconfigured`. That refusal is a property of the router the
+## coordinator ALREADY HOLDS, so it is knowable before `begin()` rather than only after, and the
+## coordinator asks. Every other router refusal (a missing scene, a scene that cannot be configured,
+## an unavailable tree) is a property of the ROUTE and is not knowable without the canonical command
+## only `begin()` produces -- those necessarily land after the physical presentation started, and
+## `_launch_presentation` says so rather than claiming otherwise.
+func test_a_router_whose_ports_are_unconfigured_never_starts_a_physical_presentation() -> void:
+	assert_true(_all_exist(), "coordinator artifacts must exist")
+	if not _all_exist():
+		return
+	var wired := _wired(3)
+	var calls: Array[String] = wired["calls"]
+	var hospital_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	var dating_port: RefCounted = load(PRESENTATION_PORT_PATH).new(calls)
+	assert_true(wired["coordinator"].configure_presentation_ports(
+		hospital_port, dating_port).get("ok", false))
+	var router: RefCounted = load(PRESENTATION_ROUTER_PATH).new(calls)
+	router.set_ports_configured(false)
+	assert_true(wired["coordinator"].configure_presentation_router(router).get("ok", false))
+	wired["state"].set_registered_stage("hospital_if_triggered")
+	wired["state"].set_registered_presentation(COMPLETION_TRANSACTION_ID)
+
+	var refused: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-3")
+	assert_false(refused.get("ok", true), "a router that can show nothing fails closed")
+	assert_eq(str(refused.get("code", "")), "presentation_router_ports_unconfigured",
+		"and names the ROUTER's missing ports, not the coordinator's own, which ARE configured")
+	assert_eq(hospital_port.get_requests(), [],
+		"the port was never asked to begin: no timeline runs behind a scene that cannot open")
+	assert_eq(router.get_routes(), [], "and no route was attempted")
+	assert_eq(_stage_state(wired["state"], "hospital_if_triggered"), "active",
+		"the stage stays active and unreceipted, so the run resumes at this exact boundary")
+
+
 ## A refused route leaves the stage resumable, and the retry replays the identical command.
 func test_a_refused_route_leaves_the_stage_active_and_replays_the_identical_command() -> void:
 	assert_true(_all_exist(), "coordinator artifacts must exist")

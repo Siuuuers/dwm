@@ -41,10 +41,25 @@ presentation stage and show nothing.
 `route_presentation` hands the off-tree scene the CANONICAL command — the request plus
 `command_sha256` and the owner-derived `physical_token` — and only `begin()` produces those bytes. So
 the physical presentation necessarily starts before the scene opens. That makes the ordering of the
-*checks* load-bearing rather than cosmetic: route id, then router, then port are all validated before
-`begin()` is called, so a route that cannot be shown is refused before a timeline starts behind it.
-`test_an_unconfigured_router_never_starts_a_physical_presentation` is exactly that claim, and
-mutation 2 below proves it is enforced rather than merely written down.
+*checks* load-bearing rather than cosmetic: route id, then router, then this coordinator's ports,
+then the router's OWN presentation ports are all validated before `begin()` is called.
+`test_an_unconfigured_router_never_starts_a_physical_presentation` and
+`test_a_router_whose_ports_are_unconfigured_never_starts_a_physical_presentation` are exactly those
+claims, and mutations 2 and 6 below prove each is enforced rather than merely written down.
+
+**What this does NOT cover, corrected 2026-08-20.** The first version of this paragraph ended "so a
+route that cannot be shown is refused before a timeline starts behind it," and that sentence was
+false as written. `SceneRouter.route_presentation` has four refusal branches, and at the time it was
+written every one of them landed *after* `begin()` had started a real Dialogic timeline. Three of
+them still do, and cannot be lifted: `presentation_scene_missing`, `presentation_scene_unconfigurable`
+and `presentation_tree_unavailable` are properties of the ROUTE, and the router cannot judge them
+without the canonical command only `begin()` produces. The fourth,
+`schedule_presentation_ports_unconfigured`, is a property of the router OBJECT the coordinator
+already holds, so it was knowable in advance all along — and the capability to ask,
+`is_schedule_presentation_ports_configured`, was already declared in `PRESENTATION_ROUTER_METHODS`
+and already implemented on `FakePresentationRouter` (with an uncalled `set_ports_configured` behind
+it), yet the coordinator never called it. The check now exists, so that one refusal really is
+pre-`begin()`; the other three are named here rather than papered over.
 
 Note that no redundant `is_ready()` pre-check was added: `is_ready()` is false exactly when the port
 has no configured physical owner, and `begin()` already refuses on that same condition — so Phase
@@ -79,6 +94,7 @@ has no configured physical owner, and `begin()` already refuses on that same con
 | command names a route that is neither Hospital nor Dating | `invalid_presentation_route` |
 | no route surface composed | `presentation_router_unconfigured` |
 | no presentation ports composed | `presentation_ports_unconfigured` |
+| the route surface itself has no presentation ports | `presentation_router_ports_unconfigured` |
 | the port refuses to start | the port's own code, verbatim |
 | the router refuses to show | the router's own code, verbatim |
 

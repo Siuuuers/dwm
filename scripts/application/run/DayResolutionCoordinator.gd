@@ -429,8 +429,15 @@ func resume() -> Dictionary:
 ## THE ORDER IS FORCED, not chosen. `route_presentation` hands the scene the CANONICAL command --
 ## the request plus the `command_sha256` and the owner-derived `physical_token` -- and only `begin()`
 ## produces those bytes, so the physical presentation necessarily starts before the scene opens.
-## Every cheap precondition is therefore checked FIRST: a route that cannot be shown must be refused
-## before a timeline starts behind it.
+## Every precondition knowable WITHOUT those bytes is therefore checked FIRST -- the route id, the
+## route surface, this coordinator's ports, and the router's OWN presentation ports -- so none of
+## them can leave a timeline running behind a scene that was never going to open.
+##
+## THE REMAINING ROUTER REFUSALS ARE NOT PRE-CHECKABLE, and this does not pretend otherwise. A
+## missing scene, a scene that cannot be configured, and an unavailable tree are properties of the
+## ROUTE, and `route_presentation` cannot judge them without the canonical command only `begin()`
+## produces. Those three necessarily land after the physical presentation started; the paragraph
+## below is what makes that survivable rather than a claim that it cannot happen.
 ##
 ## A REFUSAL LEAVES THE RUN RESUMABLE, which is why nothing is rolled back here. The stage is already
 ## ACTIVE by this point and stays active and unreceipted, `_awaiting` keeps this exact command, and
@@ -456,6 +463,14 @@ func _launch_presentation(command: Dictionary) -> Dictionary:
 		# it REFUSES. Nothing was refused here: the graph never composed one at all.
 		return {"ok": false, "code": &"presentation_ports_unconfigured",
 			"message": "a presentation stage requires the configured presentation ports"}
+	# The ONE router refusal knowable without the canonical command: the router's own presentation
+	# ports are a property of the object already held, not of this route. Asked BEFORE `begin()` so a
+	# router that can show nothing never gets a timeline running behind it. Distinct from
+	# `presentation_ports_unconfigured` above, which is THIS coordinator's ports; a mis-composed graph
+	# has to say which half is missing.
+	if not bool(_presentation_router.call(&"is_schedule_presentation_ports_configured")):
+		return {"ok": false, "code": &"presentation_router_ports_unconfigured",
+			"message": "the route surface has no presentation ports to show a scene with"}
 	var started: Variant = port.call(&"begin", (request as Dictionary).duplicate(true))
 	if typeof(started) != TYPE_DICTIONARY or not (started as Dictionary).get("ok", false):
 		return started if typeof(started) == TYPE_DICTIONARY else {"ok": false,
