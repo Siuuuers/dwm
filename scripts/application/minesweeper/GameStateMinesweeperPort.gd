@@ -368,8 +368,17 @@ func _task_ids_for(outcome: String, difficulty: String) -> Array:
 	return ids
 
 
-## Resolves the ONE active dating route substage. The untrusted request carries no friend or
-## entry identifier; these trusted values are stamped into the active round instead.
+## Resolves the ONE active dating route SUBSTAGE (dwm-p2r.23). The untrusted request carries no
+## friend or entry identifier; every trusted value is read from the active resolution plan
+## itself: the entry from the substage's own id, the friends from the FROZEN committed entry's
+## participants, the route transaction from the substage record. The parent stage is NOT
+## required to be active -- it stays pending while its substage runs -- so the descend inspects
+## every stage's substages and matches on the substage's own state and kind. A date Hospital
+## superseded is refused even while its substage sits ACTIVE between the route door's begin and
+## the caller's completion: the durable supersession set in the completed hospital stage's
+## receipt is the authority, never the live flag -- the same law the presentation settle seam
+## keeps (dwm-p2r.27). The deferred-pair presentation is a top-level STAGE with no substage, so
+## rounds cannot begin during it; that recorded gap is dwm-p2r.30.
 func _resolve_dating_evidence() -> Dictionary:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
@@ -378,25 +387,71 @@ func _resolve_dating_evidence() -> Dictionary:
 	var stages: Variant = (plan as Dictionary).get("stages", [])
 	if typeof(stages) != TYPE_ARRAY:
 		return _fail(&"DATING_ROUTE_NOT_ACTIVE", "resolution plan carries no stages")
+	var superseded: Array = _superseded_entry_ids(plan as Dictionary)
 	for stage: Variant in stages:
 		if typeof(stage) != TYPE_DICTIONARY:
 			continue
-		var record := stage as Dictionary
-		if str(record.get("state", "")) != "active":
-			continue
-		var friend_ids: Array = []
-		for fid: Variant in (record.get("friend_ids", []) as Array):
-			var text := str(fid)
-			if text != "" and not friend_ids.has(text):
-				friend_ids.append(text)
-		if friend_ids.is_empty() or friend_ids.size() > 2:
-			continue
-		return {"ok": true, "code": &"ok", "value": {
-			"entry_id": str(record.get("entry_id", "")),
-			"route_transaction_id": str(record.get("transaction_id", "")),
-			"friend_ids": friend_ids,
-		}}
+		for substage_value: Variant in ((stage as Dictionary).get("substages", []) as Array):
+			if typeof(substage_value) != TYPE_DICTIONARY:
+				continue
+			var record := substage_value as Dictionary
+			if str(record.get("state", "")) != "active":
+				continue
+			var substage_id := str(record.get("substage_id", ""))
+			if not substage_id.begins_with("surviving_date:"):
+				continue
+			var parts: PackedStringArray = substage_id.split(":")
+			var entry_id := parts[3] if parts.size() == 4 else ""
+			if entry_id in superseded:
+				continue
+			var friend_ids := _committed_participants(plan as Dictionary, entry_id)
+			if friend_ids.is_empty() or friend_ids.size() > 2:
+				continue
+			return {"ok": true, "code": &"ok", "value": {
+				"entry_id": entry_id,
+				"route_transaction_id": str(record.get("transaction_id", "")),
+				"friend_ids": friend_ids,
+			}}
 	return _fail(&"DATING_ROUTE_NOT_ACTIVE", "no active route substage")
+
+
+## The entry ids Hospital already superseded, read from this plan's COMPLETED hospital stage
+## receipt -- the durable authority, never the live flag (FINDING-4's law, dwm-p2r.27's read).
+func _superseded_entry_ids(plan: Dictionary) -> Array:
+	for stage_value: Variant in (plan.get("stages", []) as Array):
+		if typeof(stage_value) != TYPE_DICTIONARY:
+			continue
+		var stage := stage_value as Dictionary
+		if str(stage.get("stage_id", "")) != "hospital_if_triggered":
+			continue
+		var receipt: Variant = stage.get("receipt")
+		if typeof(receipt) != TYPE_DICTIONARY:
+			return []
+		var value: Variant = (receipt as Dictionary).get("value")
+		if typeof(value) != TYPE_DICTIONARY:
+			return []
+		var ids: Variant = (value as Dictionary).get("superseded_entry_ids", [])
+		return (ids as Array) if typeof(ids) == TYPE_ARRAY else []
+	return []
+
+
+## The deduped, nonblank participants of the FROZEN committed entry with this id -- the trusted
+## friend source the docstring above promises, read from the plan's own committed_schedule.
+func _committed_participants(plan: Dictionary, entry_id: String) -> Array:
+	var aggregate: Dictionary = plan.get("committed_schedule", {}) as Dictionary
+	for entry_value: Variant in (aggregate.get("entries", []) as Array):
+		if typeof(entry_value) != TYPE_DICTIONARY:
+			continue
+		var entry := entry_value as Dictionary
+		if str(entry.get("schedule_entry_id", "")) != entry_id:
+			continue
+		var out: Array = []
+		for fid: Variant in (entry.get("participants", []) as Array):
+			var text := str(fid)
+			if text != "" and not out.has(text):
+				out.append(text)
+		return out
+	return []
 
 
 ## The COMPLETE six-key bundle the real SaveManagerCheckpointPort requires. When a final

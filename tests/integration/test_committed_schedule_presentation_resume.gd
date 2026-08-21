@@ -45,6 +45,7 @@ const CONSEQUENCE_SOURCE := preload("res://tests/support/FakeDesktopConsequenceS
 const HOSPITAL_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
 const PRESENTATION_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const MINESWEEPER_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
 
 const CAUSAL_DAY := "causal_day_instance.5555555555555555555555555555555555555555555555555555555555555555"
 const VIEW_FINGERPRINT := "schedule_view.55555555555555555555555555555555"
@@ -418,6 +419,108 @@ func test_the_presentation_seam_refuses_a_superseded_date_transaction() -> void:
 		"refused as a substage that cannot present, exactly as a wrong kind is")
 	assert_eq(str(answer.get("message", "")), substage_id,
 		"naming the record that was wrongly addressed")
+
+
+## dwm-p2r.23. `_resolve_dating_evidence`'s docstring promises the ONE active dating route
+## SUBSTAGE, but its loop scanned top-level stages for keys (`friend_ids`, `entry_id`) that
+## STAGE_KEYS can never carry, so every iteration fell through and a DATING-context Minesweeper
+## round could NEVER begin through the real port -- and nothing noticed, because every dating
+## test in the repo drives `FakeMinesweeperStatePort`. This is the first real-port drive: with
+## the walk genuinely paused on a surviving date substage, prepare_begin(dating) must stamp the
+## TRUSTED evidence from the plan itself -- the entry id from the substage id, the friends from
+## the FROZEN committed entry's participants, the route transaction from the substage record --
+## and the impostor identifiers riding the untrusted request must contribute nothing.
+func test_a_dating_round_begins_from_the_active_date_substage_evidence() -> void:
+	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
+	var walked := _walk_until_date_substage()
+	assert_false(walked.is_empty(), "the walk reached the date substage pause")
+	if walked.is_empty():
+		return
+	var stage: Dictionary = walked["stage"]
+	assert_eq(str(walked["mode"]), "await_registered_command",
+		"a surviving date pauses, so its substage is genuinely ACTIVE now")
+	var port: RefCounted = MINESWEEPER_PORT.new(_game_state)
+
+	var prepared: Dictionary = port.prepare_begin(
+		{"context": "dating", "difficulty": "beginner",
+			"friend_ids": ["impostor"], "entry_id": "impostor-entry"},
+		"run-1:day-3:round-1")
+
+	assert_true(prepared.get("ok", false),
+		"an active dating route substage is exactly what a dating round begins from: "
+		+ str(prepared))
+	if not prepared.get("ok", false):
+		return
+	var evidence: Dictionary = ((prepared["value"] as Dictionary)["active_round"]
+		as Dictionary)["dating_evidence"]
+	var entry_id := str(stage["substage_id"]).split(":")[3]
+	assert_eq(str(evidence.get("entry_id", "")), entry_id,
+		"the entry id comes from the ACTIVE substage id, not the request")
+	assert_eq(evidence.get("friend_ids"), ["lavinia"],
+		"the friends come from the frozen committed entry participants, not the request")
+	assert_eq(str(evidence.get("route_transaction_id", "")), str(stage["transaction_id"]),
+		"the route transaction is the substage record own transaction")
+
+
+## dwm-p2r.23's .27-style guard, GREEN ON ARRIVAL and held by the superseded filter after the
+## fix. Between the route door's BEGIN and the caller's completion, a SUPERSEDED date's
+## substage is genuinely ACTIVE in the live plan (`complete_immediately` is a mode the caller
+## acts on, not an atomic completion), and in that window a kind+state descend alone would hand
+## a dating round the evidence of a date that provably never presents. The resolver reads the
+## durable supersession set from the completed hospital stage's receipt -- the same plan-read
+## the settle seam uses -- and refuses.
+func test_a_superseded_date_substage_yields_no_dating_evidence() -> void:
+	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
+	_game_state.pending_hospital = true
+	var walked := _walk_until_date_substage()
+	assert_false(walked.is_empty(), "the walk reached the superseded date substage")
+	if walked.is_empty():
+		return
+	assert_true(bool(((walked["receipt"] as Dictionary)["value"] as Dictionary)["superseded"]),
+		"the begun substage really is the superseded one, ACTIVE until the caller completes it")
+	var port: RefCounted = MINESWEEPER_PORT.new(_game_state)
+
+	var prepared: Dictionary = port.prepare_begin(
+		{"context": "dating", "difficulty": "beginner"}, "run-1:day-3:round-1")
+
+	assert_false(prepared.get("ok", true),
+		"a superseded date never presents, so no dating round can begin from it: " + str(prepared))
+	assert_eq(str(prepared.get("code", "")), "DATING_ROUTE_NOT_ACTIVE",
+		"refused as no-active-route, exactly as when no date is active at all")
+
+
+## dwm-p2r.23's order pin. With the first date SETTLED and the second genuinely active, the
+## resolver must return the ACTIVE substage's evidence -- a descend that dropped the state
+## check would hit the COMPLETED slot-0 substage first (substages ascend by slot) and stamp
+## the wrong date's identity into the round.
+func test_dating_evidence_names_the_active_date_not_a_settled_one() -> void:
+	_commit_and_begin(6, [_date("d-lav", 0, "lavinia", 6), _date("d-pri", 1, "priscilla", 6)])
+	var first := _await_date_presentation()
+	assert_false(first.is_empty(), "the first date paused")
+	if first.is_empty():
+		return
+	assert_true(_settle_presentation(first), "the first date settled to COMPLETED")
+	var walked := _walk_until_date_substage()
+	assert_false(walked.is_empty(), "the walk reached the SECOND date substage")
+	if walked.is_empty():
+		return
+	var stage: Dictionary = walked["stage"]
+	var port: RefCounted = MINESWEEPER_PORT.new(_game_state)
+
+	var prepared: Dictionary = port.prepare_begin(
+		{"context": "dating", "difficulty": "beginner"}, "run-1:day-6:round-1")
+
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false):
+		return
+	var evidence: Dictionary = ((prepared["value"] as Dictionary)["active_round"]
+		as Dictionary)["dating_evidence"]
+	assert_eq(evidence.get("friend_ids"), ["priscilla"],
+		"the friends are the ACTIVE second date own, not the settled first date")
+	assert_eq(str(evidence.get("entry_id", "")), str(stage["substage_id"]).split(":")[3],
+		"the entry is the ACTIVE substage own")
+	assert_eq(str(evidence.get("route_transaction_id", "")), str(stage["transaction_id"]),
+		"and the transaction is the ACTIVE record own")
 
 
 # -------------------------------------------------------------------------------------------------
