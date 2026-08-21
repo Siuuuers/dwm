@@ -22,7 +22,8 @@ const MINESWEEPER_ROUND_CAP := 5
 const MINESWEEPER_TASK_COIN_TOTAL_CAP := 9
 const MINESWEEPER_MONEY_DAILY_CAP_BASE := 108
 const MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND := 54
-const FRIEND_IDS := ["priscilla", "lavinia", "sylvia"]
+# Aliased from the contacts domain owner (dwm-pm4); one roster, three surfaces.
+const FRIEND_IDS := preload("res://scripts/domain/contact/ContactInvitationState.gd").FRIEND_IDS
 const STAT_PRESSURE := "pressure"
 const STAT_HEALTH := "health"
 const STAT_MOTIVATION := "motivation"

@@ -4,6 +4,8 @@ extends "res://addons/gut/test.gd"
 # stateful RefCounted suite; see docs/superpowers/plans/2026-07-22-phase-2r-06-contacts-stateless-reconciliation.md
 
 const CONTACT_STATE_PATH := "res://scripts/domain/contact/ContactInvitationState.gd"
+const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const DATA_CATALOG := preload("res://scripts/data/DataCatalog.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const FAKE_ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
@@ -1032,3 +1034,13 @@ func test_the_witness_index_only_accepts_the_schedule_done_resolution_kind() -> 
 	state[WITNESS_INDEX]["witness.1"] = record
 	assert_false(load(CONTACT_STATE_PATH).validate_state(state).get("ok", true),
 		"Plan 01 never persists a condition-Hospital witness here")
+
+
+## dwm-pm4. One canonical roster, owned here; DataCatalog and the GameState autoload are
+## aliases. This pin is what turns silent drift between the three surfaces into a red test --
+## the gap the bead was filed about.
+func test_the_friend_roster_has_one_owner_and_two_aliases() -> void:
+	assert_eq(DATA_CATALOG.FRIEND_IDS, CONTACT_STATE.FRIEND_IDS,
+		"DataCatalog serves exactly the domain-owned roster")
+	assert_eq(GameState.FRIEND_IDS, CONTACT_STATE.FRIEND_IDS,
+		"and so does the GameState autoload")

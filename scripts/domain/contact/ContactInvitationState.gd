@@ -14,6 +14,8 @@ extends RefCounted
 ## the SAME constants rather than keeping a second copy of the law (Task 7 Step 7.3).
 const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
 
+## THE canonical friend roster (dwm-pm4): DataCatalog and GameState alias this declaration, so
+## adding or renaming a friend is a one-line change with a drift pin watching all three surfaces.
 const FRIEND_IDS: Array[String] = ["priscilla", "lavinia", "sylvia"]
 ## The one counted Priscilla-Lavinia pair and its group-eligible windows.
 const GROUP_PAIR: Array[String] = ["priscilla", "lavinia"]

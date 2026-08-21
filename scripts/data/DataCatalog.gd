@@ -13,7 +13,10 @@ const _SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegist
 const _SCHEDULE_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
-const FRIEND_IDS := ["priscilla", "lavinia", "sylvia"]
+# The roster is OWNED by the contacts domain (dwm-pm4, maintainer decision 2026-08-21); this
+# catalog keeps only the alias, exactly as it already treats the registry-owned facts above.
+const _CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const FRIEND_IDS := _CONTACT_STATE.FRIEND_IDS
 
 const _INVITATION_DAYS := {
 	"priscilla": [1, 2, 4, 6],
