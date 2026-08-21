@@ -100,6 +100,9 @@ func capture() -> Dictionary:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"save": _game_state.to_save_dict(),
+		# Contacts ride the round transaction as a SIBLING section (dwm-p2r.17), mirroring
+		# capture_live_run_state: the whitelist walk cannot carry them.
+		"contacts": (_game_state.get("contacts") as Dictionary).duplicate(true),
 		"run_id": str(lifecycle.get("run_id", "")),
 		"day": int(lifecycle.get("day", 1)),
 		"next_ordinal": int(_game_state.get("minesweeper_app_rounds_finished_today")) + 1,
@@ -141,7 +144,10 @@ func prepare_begin(request: Dictionary, round_id: String) -> Dictionary:
 		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
 	if context == "app":
 		clone.call(&"start_minesweeper_app_round", difficulty)
-	var candidate: Dictionary = clone.call(&"to_save_dict")
+	var candidate := {
+		"gameplay": clone.call(&"to_save_dict"),
+		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
+	}
 	clone.free()
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": candidate,
@@ -167,6 +173,10 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	if clone == null:
 		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
 	var before := _counters(clone)
+	# Snapshot the receipt ids BEFORE the round, so the diff below reports exactly the contact
+	# transactions THIS round recorded and nothing older (dwm-p2r.17).
+	var receipts_before: Dictionary = (((clone.get("contacts") as Dictionary) \
+		.get("transaction_receipts", {})) as Dictionary).duplicate(true)
 	if context == "app":
 		# The production reward/task/message/group rules run UNCHANGED on the clone; every signal
 		# they emit lands on an out-of-tree node with no listeners.
@@ -177,7 +187,25 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 		# Dating rounds consume no app round and award no app money, task, or group activation.
 		clone.call(&"clear_unfinished_minesweeper_round")
 	var after := _counters(clone)
-	var candidate: Dictionary = clone.call(&"to_save_dict")
+	# Classify each NEW contact receipt by the kind the DOMAIN recorded -- the port never
+	# re-derives the activation rule (dwm-p2r.17, the bead's own design sentence).
+	var receipts_after: Dictionary = ((clone.get("contacts") as Dictionary) \
+		.get("transaction_receipts", {})) as Dictionary
+	var group_activation_id: Variant = null
+	var message_ids: Array = []
+	for tid: Variant in receipts_after:
+		if receipts_before.has(tid):
+			continue
+		var kind := str((receipts_after[tid] as Dictionary).get("kind", ""))
+		if kind == "activate_group":
+			group_activation_id = str(tid)
+		elif kind == "offer_solo":
+			message_ids.append(str(tid))
+	message_ids.sort()
+	var candidate := {
+		"gameplay": clone.call(&"to_save_dict"),
+		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
+	}
 	var claimed: Array = []
 	for tid: Variant in task_ids:
 		if (clone.get("minesweeper_task_rewards_claimed") as Dictionary).has(str(tid)):
@@ -199,8 +227,8 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 		"counter_deltas": deltas,
 		"task_ids": claimed,
 		"effect_transaction_ids": [],
-		"message_transaction_ids": [],
-		"group_activation_transaction_id": null,
+		"message_transaction_ids": message_ids,
+		"group_activation_transaction_id": group_activation_id,
 		"dating_outcome_id": null if context == "app" else "%s:%s" % [str(active_round.get("round_id", "")), outcome],
 		"checkpoint_id": "",
 	}
@@ -257,9 +285,16 @@ func prepare_abort(active_round: Dictionary, reason: StringName, transaction_id:
 		var stats: Dictionary = (restored.get("stats", {}) as Dictionary).duplicate()
 		stats["motivation"] = int(stats.get("motivation", 0)) + 1
 		restored["stats"] = stats
+	# The abort candidate is consumed by rollback() (the coordinator funnels it there), so it
+	# carries the ROLLBACK shape -- "save" beside "contacts" -- not the commit shape
+	# (dwm-p2r.17; the eleventh review's catch).
+	var abort_candidate := {
+		"save": restored,
+		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
+	}
 	clone.free()
 	return {"ok": true, "code": &"ok", "value": {
-		"candidate": restored,
+		"candidate": abort_candidate,
 		"abort_receipt": {
 			"round_id": str(active_round.get("round_id", "")),
 			"reason": reason,
@@ -273,7 +308,16 @@ func commit(candidate: Dictionary) -> Dictionary:
 		return _fail(&"invalid_minesweeper_state_port", "port requires a GameState")
 	if typeof(candidate) != TYPE_DICTIONARY or candidate.is_empty():
 		return _fail(&"invalid_candidate", "candidate was not issued by this port")
-	return _game_state.call(&"apply_save_dict", candidate)
+	var gameplay: Variant = candidate.get("gameplay")
+	if typeof(gameplay) != TYPE_DICTIONARY:
+		return _fail(&"invalid_candidate", "candidate was not issued by this port")
+	var applied: Dictionary = _game_state.call(&"apply_save_dict", gameplay)
+	if not applied.get("ok", false):
+		return applied
+	var contacts: Variant = candidate.get("contacts")
+	if typeof(contacts) == TYPE_DICTIONARY:
+		_game_state.set("contacts", (contacts as Dictionary).duplicate(true))
+	return applied
 
 
 func rollback(backup: Dictionary) -> Dictionary:
@@ -285,7 +329,13 @@ func rollback(backup: Dictionary) -> Dictionary:
 	var save: Variant = (payload as Dictionary).get("save", payload)
 	if typeof(save) != TYPE_DICTIONARY:
 		return _fail(&"invalid_backup", "backup was not issued by this port")
-	return _game_state.call(&"apply_save_dict", save)
+	var applied: Dictionary = _game_state.call(&"apply_save_dict", save)
+	if not applied.get("ok", false):
+		return applied
+	var contacts: Variant = (payload as Dictionary).get("contacts")
+	if typeof(contacts) == TYPE_DICTIONARY:
+		_game_state.set("contacts", (contacts as Dictionary).duplicate(true))
+	return applied
 
 
 ## Pre-emission failpoint: the WHOLE batch is validated before the first emission, so a
@@ -347,6 +397,9 @@ func _detached_clone() -> Object:
 		return null
 	clone.call(&"reset_game")
 	clone.call(&"apply_save_dict", _game_state.call(&"to_save_dict"))
+	# The whitelist round trip resets contacts to defaults; seed the live section so the
+	# production message/group rules run against real contacts on the clone (dwm-p2r.17).
+	clone.set("contacts", (_game_state.get("contacts") as Dictionary).duplicate(true))
 	return clone
 
 
@@ -461,11 +514,18 @@ func _checkpoint_inputs(lifecycle: Dictionary, candidate: Variant = null) -> Dic
 	var snapshot_input: Dictionary = _game_state.call(&"capture_run_snapshot_input")
 	snapshot_input["lifecycle"] = lifecycle.duplicate(true)
 	if typeof(candidate) == TYPE_DICTIONARY:
+		var source: Dictionary = candidate as Dictionary
+		var gameplay_section: Dictionary = source.get("gameplay", source) as Dictionary
 		var gameplay: Dictionary = (snapshot_input.get("gameplay", {}) as Dictionary).duplicate(true)
-		for key: Variant in (candidate as Dictionary):
+		for key: Variant in gameplay_section:
 			if gameplay.has(key):
-				gameplay[key] = (candidate as Dictionary)[key]
+				gameplay[key] = gameplay_section[key]
 		snapshot_input["gameplay"] = gameplay
+		# The candidate's contacts REPLACE the live read, so the post-result checkpoint can
+		# never record post-round gameplay beside pre-round contacts (dwm-p2r.17).
+		var candidate_contacts: Variant = source.get("contacts")
+		if typeof(candidate_contacts) == TYPE_DICTIONARY:
+			snapshot_input["contacts"] = (candidate_contacts as Dictionary).duplicate(true)
 	return {
 		"snapshot_input": snapshot_input,
 		"dialogic_checkpoint": _provided("dialogic_checkpoint", {}),
