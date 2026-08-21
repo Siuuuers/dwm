@@ -8,7 +8,8 @@ owner_choice_on: "2026-08-21"
 current_direction: registered_material_field_with_flush_caption_leaves
 conversational_design_status: approved_all_a
 conversationally_approved_on: "2026-08-21"
-written_spec_status: pending_owner_review
+written_spec_status: approved
+written_spec_approved_on: "2026-08-21"
 implementation_requested: false
 implementation_authorized: false
 created_on: "2026-08-21"
