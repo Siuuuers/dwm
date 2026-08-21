@@ -1442,6 +1442,54 @@
       "contract_test": "test_registered_command_pause_and_completion"
     },
     {
+      "symbol": "capture_schedule_commit_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "prepare_schedule_commit_candidate",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "commit_schedule_commit_candidate",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "rollback_schedule_commit_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "publish_schedule_commit",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "committed_schedule_published",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
       "symbol": "begin_minesweeper_round",
       "kind": "function",
       "availability": "current",

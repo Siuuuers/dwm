@@ -17,11 +17,11 @@ const TASK3_IMPLEMENTED_SIGNATURES := {
 	"reply_invitation": "func reply_invitation(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary",
 }
 
-# Plan 01 Task 4 (dwm-p2r.13) adds the five narrow committed-Schedule delegation seams plus the one
-# declared publication signal to GameState. The checked-in required-surface manifest is NOT a Task-4
-# path -- Task 9 regenerates it -- so the classifications live here, merged into the required set the
-# inventory build consumes. That keeps the single-script GameState inventory complete (no
-# SURFACE_UNCLASSIFIED) without this task editing evidence another task owns.
+# Plan 01 Task 4 (dwm-p2r.13) added the five narrow committed-Schedule delegation seams plus the one
+# declared publication signal to GameState, and pinned their classification to Task 9 because the
+# checked-in required-surface manifest was not a Task-4 path. Task 9 (dwm-p2r.15) has now classified
+# them in that manifest as current/retain, so the inventory is built from the checked-in manifest
+# alone and the frozen signatures below are asserted against it.
 const TASK4_SCHEDULE_COMMIT_SIGNATURES := {
 	"capture_schedule_commit_state": "func capture_schedule_commit_state() -> Dictionary",
 	"prepare_schedule_commit_candidate": "func prepare_schedule_commit_candidate(committed: Dictionary, motivation_charged: int) -> Dictionary",
@@ -298,7 +298,7 @@ func test_task3_required_surface_realizes_authenticated_contacts_and_retires_leg
 		assert_eq(record.get("availability"), "current", symbol)
 		assert_eq(record.get("disposition"), "retain", symbol)
 	assert_false(by_symbol.has("choose_contact_option"), "legacy scene-authored reply ID owner is removed")
-	var inventory: Dictionary = _build_game_state_inventory(_required_with_task4(parsed["value"]))
+	var inventory: Dictionary = _build_game_state_inventory(parsed["value"])
 	assert_true(inventory.get("ok", false), JSON.stringify(inventory.get("errors", [])))
 	if not inventory.get("ok", false):
 		return
@@ -312,10 +312,16 @@ func test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures() -
 	if not parsed.get("ok", false):
 		return
 	for symbol: String in TASK4_SCHEDULE_COMMIT_SIGNATURES:
+		var classified: Array = []
 		for entry: Dictionary in parsed["value"].get("symbols", []):
-			assert_ne(str(entry.get("symbol", "")), symbol,
-				"Task 9 regenerates the manifest; Task 4 must not classify " + symbol + " there")
-	var inventory: Dictionary = _build_game_state_inventory(_required_with_task4(parsed["value"]))
+			if str(entry.get("symbol", "")) == symbol and str(entry.get("availability", "")) == "current":
+				classified.append(entry)
+		assert_eq(classified.size(), 1, "Task 9 classifies " + symbol + " exactly once in the checked-in manifest")
+		if classified.size() == 1:
+			assert_eq(str((classified[0] as Dictionary).get("disposition", "")), "retain", symbol + " is retained")
+			assert_eq(str((classified[0] as Dictionary).get("contract_test", "")), TASK4_CONTRACT_TEST,
+				symbol + " names its Task-4 contract test")
+	var inventory: Dictionary = _build_game_state_inventory(parsed["value"])
 	assert_true(inventory.get("ok", false), JSON.stringify(inventory.get("errors", [])))
 	if not inventory.get("ok", false):
 		return
@@ -326,22 +332,6 @@ func test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures() -
 		assert_eq(str(record.get("disposition", "")), "retain", symbol)
 	assert_eq(str(_record(inventory, "committed_schedule_published").get("kind", "")), "signal",
 		"exactly one declared committed-Schedule publication signal")
-
-
-func _required_with_task4(required: Dictionary) -> Dictionary:
-	var merged: Dictionary = required.duplicate(true)
-	var symbols: Array = merged.get("symbols", [])
-	for symbol: String in TASK4_SCHEDULE_COMMIT_SIGNATURES:
-		symbols.append({
-			"symbol": symbol,
-			"kind": "signal" if symbol == "committed_schedule_published" else "function",
-			"availability": "current",
-			"disposition": "retain",
-			"replacement": "",
-			"contract_test": TASK4_CONTRACT_TEST,
-		})
-	merged["symbols"] = symbols
-	return merged
 
 
 func _build_game_state_inventory(required: Dictionary) -> Dictionary:
