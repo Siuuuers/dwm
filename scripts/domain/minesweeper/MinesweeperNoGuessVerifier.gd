@@ -95,10 +95,19 @@ static func _certified_result(trace: Array) -> Dictionary:
 ## are fully discharged and dropped). Cells are visited row-major; the resulting constraint list
 ## is then sorted by canonical serialized bytes so pass order never depends on Dictionary/Array
 ## insertion order.
+##
+## PERFORMANCE (dwm-p2r13 Task 4 Phase 1): each constraint's canonical bytes are computed exactly
+## ONCE here (immediately after the constraint is built) and sorted via a cached-bytes comparator,
+## instead of the previous _by_canonical_bytes comparator that re-canonicalized (stringify + strict
+## reparse + deep-equality self-check) BOTH operands on every comparison sort_custom() makes --
+## O(n log n) redundant re-serializations per fixpoint pass. The comparator logic itself (byte-by-
+## byte unsigned comparison, shorter-prefix-sorts-first) is byte-for-byte identical to the original
+## _by_canonical_bytes; only the WHEN of computing each constraint's bytes changed, so sort order
+## (and therefore rule priority, the proof trace, and proof_trace_sha256) is unchanged.
 static func _build_constraints(revealed: Dictionary, deduced_mine: Dictionary, width: int, height: int) -> Array:
 	var cell_indices: Array = revealed.keys()
 	cell_indices.sort()
-	var constraints: Array = []
+	var keyed: Array = []
 	for cell: Variant in cell_indices:
 		var idx: int = int(cell)
 		var true_count: int = int(revealed[cell])
@@ -114,16 +123,19 @@ static func _build_constraints(revealed: Dictionary, deduced_mine: Dictionary, w
 		if hidden.is_empty():
 			continue
 		hidden.sort()
-		constraints.append({"id": "cell:%d" % idx, "cells": hidden, "count": true_count - known_mine_neighbors})
-	constraints.sort_custom(_by_canonical_bytes)
+		var entry := {"id": "cell:%d" % idx, "cells": hidden, "count": true_count - known_mine_neighbors}
+		var entry_text: String = String(_CANONICAL_JSON.stringify(entry)["value"])
+		keyed.append([entry_text.to_utf8_buffer(), entry])
+	keyed.sort_custom(_by_cached_bytes)
+	var constraints: Array = []
+	for pair: Variant in keyed:
+		constraints.append((pair as Array)[1])
 	return constraints
 
 
-static func _by_canonical_bytes(a: Dictionary, b: Dictionary) -> bool:
-	var a_text: String = String(_CANONICAL_JSON.stringify(a)["value"])
-	var b_text: String = String(_CANONICAL_JSON.stringify(b)["value"])
-	var a_bytes := a_text.to_utf8_buffer()
-	var b_bytes := b_text.to_utf8_buffer()
+static func _by_cached_bytes(a: Array, b: Array) -> bool:
+	var a_bytes: PackedByteArray = a[0]
+	var b_bytes: PackedByteArray = b[0]
 	var shared: int = mini(a_bytes.size(), b_bytes.size())
 	for i in range(shared):
 		if a_bytes[i] != b_bytes[i]:
@@ -148,10 +160,19 @@ static func _apply_rules(constraints: Array, total_mines: int, deduced_mine_coun
 			return {"rule": _RULE_ADJACENT_FULL, "source_constraint_ids": [entry["id"]],
 				"proven_safe": [], "proven_mine": cells.duplicate()}
 
+	# PERFORMANCE (dwm-p2r13 Task 4 Phase 1): each constraint's cell-set is built exactly once here
+	# (was: _as_set(a_cells) once per outer 'a', but the inner subset check used b_cells.has(cell)
+	# -- an O(k) linear Array scan repeated for every (a,b) pair). Precomputing every constraint's
+	# set turns each subset check into O(k) Dictionary lookups instead of O(k^2) Array scans. The
+	# subset/diff/tie-break LOGIC below is unchanged.
+	var cell_sets: Dictionary = {}
+	for constraint: Variant in constraints:
+		var entry: Dictionary = constraint
+		cell_sets[entry["id"]] = _as_set(entry["cells"])
 	for a: Variant in constraints:
 		var a_entry: Dictionary = a
 		var a_cells: Array = a_entry["cells"]
-		var a_set := _as_set(a_cells)
+		var a_set: Dictionary = cell_sets[a_entry["id"]]
 		for b: Variant in constraints:
 			var b_entry: Dictionary = b
 			if a_entry["id"] == b_entry["id"]:
@@ -159,9 +180,10 @@ static func _apply_rules(constraints: Array, total_mines: int, deduced_mine_coun
 			var b_cells: Array = b_entry["cells"]
 			if a_cells.size() >= b_cells.size():
 				continue
+			var b_set: Dictionary = cell_sets[b_entry["id"]]
 			var is_subset := true
 			for cell: Variant in a_cells:
-				if not b_cells.has(cell):
+				if not b_set.has(cell):
 					is_subset = false
 					break
 			if not is_subset:
