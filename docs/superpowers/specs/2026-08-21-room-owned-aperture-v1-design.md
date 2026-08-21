@@ -55,8 +55,8 @@ this design narrowly supersedes the following older player-facing laws:
 - the centred portrait-register direction in the disposable
   `docs/superpowers/specs/2026-08-14-lawful-universe-atlas-presence-refinement-design.md`.
 
-It retains the existing story, progression, challenge, caption, choice,
-History, transport, save/load, focus, input, localization, recovery, and
+It retains the existing story, progression, challenge, caption, History,
+transport, save/load, focus, input, localization, recovery, and
 assistive-truth laws except where this document explicitly changes visual
 projection. In particular:
 
@@ -68,7 +68,8 @@ projection. In particular:
   explanatory prose, or stage direction;
 - bottom-up caption memory and the pinned control rail retain their accepted
   behavior;
-- canonical inline choices and challenge routing retain their accepted owners;
+- the canonical no-inline-scene-choice law and challenge routing retain their
+  accepted owners;
 - the audience receives no relationship statistics or explanatory horror
   symbols; and
 - Angela's existing desktop-workstation art remains outside this supersession.
@@ -147,7 +148,7 @@ addressing the lens.
 The fixed native canvas remains 640 by 360. The 32-pixel transport rail remains
 at `y = 328` in every text preset.
 
-| Text preset | Room-Owned Aperture | Caption/choice region | Rail |
+| Text preset | Room-Owned Aperture | Caption region | Rail |
 | --- | --- | --- | --- |
 | 100% | `(0,0,640,224)` | `(0,224,640,104)` | `(0,328,640,32)` |
 | 125% | `(0,0,640,196)` | `(0,196,640,132)` | `(0,328,640,32)` |
@@ -197,7 +198,7 @@ mask, frame asset, registration crown, or room-specific chrome.
 Legacy 1280-by-720 reference coordinates are exactly 2x the native layout, not
 a second topology:
 
-| Text preset | 2x aperture | 2x caption/choice region | 2x rail |
+| Text preset | 2x aperture | 2x caption region | 2x rail |
 | --- | --- | --- | --- |
 | 100% | `(0,0,1280,448)` | `(0,448,1280,208)` | `(0,656,1280,64)` |
 | 125% | `(0,0,1280,392)` | `(0,392,1280,264)` | `(0,656,1280,64)` |
@@ -420,7 +421,7 @@ WitnessShot
 ```
 
 Line data continues to own internal speaker, public speaker disclosure,
-caption, timing, choice, and transport facts. Aperture data does not duplicate
+caption, timing, and transport facts. Aperture data does not duplicate
 them. The ordinary assistive scene group is generated from
 `public_room_disclosure`, the selected shot's closed public-visual-fact ledger,
 and validated public participant identity tokens. Internal character IDs,
@@ -504,9 +505,8 @@ publishes any visible layer. It never exposes a half-populated composition.
 
 The entire aperture is pointer-inert, nonfocusable, and absent from sequential
 or directional focus. It has no click, hover, tooltip, inspection, drag, or
-hidden hotspot. Initial and restored focus remain owned by the current caption,
-an inline choice when present, or the existing control rail under their accepted
-precedence.
+hidden hotspot. Initial and restored focus remain owned by the current caption
+or the existing control rail under their accepted precedence.
 
 The existing Minesweeper challenge host freezes and dims the exact settled
 aperture before presenting its board. Room-Owned Aperture adds no board state,
@@ -543,7 +543,7 @@ description publishes only with its action atom. The same fact never has both
 owners and is never announced twice merely because its resulting object remains.
 
 High Contrast and colour-differentiation tuples remap functional captions,
-focus, choices, and rail controls only. They never recolour scene art. Reduced
+focus, and rail controls only. They never recolour scene art. Reduced
 Motion publishes the same static shot and pose state immediately.
 
 ## 11. Asset failure and recovery
@@ -776,7 +776,7 @@ Any later implementation plan must prove at minimum:
 The development proof is complete when one fixed rectangular scene renderer and
 one shot validator can simulate and validate every exact state in
 `pilot_proof_state_keys` outside canonical progression while reusing the
-existing caption, choice, challenge, focus, transport, save/load, and
+existing caption, challenge, focus, transport, save/load, and
 accessibility owners.
 
 Production v1 is complete only when that renderer and validator cover the full
