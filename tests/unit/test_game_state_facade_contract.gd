@@ -4,6 +4,26 @@ const GAME_STATE_PATH := "res://autoload/GameState.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
 const CHECKPOINT_PATH := "res://tests/support/FakeCheckpointPort.gd"
 const SURFACE_PATH := "res://evidence/phase_2r/runtime/game_state_surface.json"
+const DAY_ADVANCE_IDENTITY_PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")
+const IDENTITY_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
+const ISSUER_ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
+const CRYPTO_NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
+const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+
+## One real issuer over this suite's sandbox root, built the way ApplicationBootstrap builds the
+## production one. DWM_TEST_ROOT is supplied by tools/testing/Invoke-IsolatedGodot.ps1.
+func _sandbox_identity_issuer() -> RefCounted:
+	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
+	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
+	var root: String = wrapper.path_join("facade-contract-identity")
+	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var root_store: RefCounted = ISSUER_ROOT_STORE.new()
+	assert_true(root_store.configure(STORAGE.new(root), CRYPTO_NAMESPACE_SOURCE.new()).get("ok", false),
+		"root store configured")
+	assert_true(root_store.load_or_create().get("ok", false), "root store initialized")
+	var issuer: RefCounted = IDENTITY_ISSUER.new()
+	assert_true(issuer.configure(root_store).get("ok", false), "issuer configured")
+	return issuer
 
 func _fresh_game_state() -> Node:
 	var game_state: Node = load(GAME_STATE_PATH).new()
@@ -97,6 +117,15 @@ func test_request_schedule_done_delegates_through_production_port() -> void:
 	var state_port: RefCounted = load("res://scripts/application/run/GameStateDayResolutionPort.gd").new(game_state)
 	var coordinator: RefCounted = load("res://scripts/application/run/DayResolutionCoordinator.gd").new()
 	assert_true(coordinator.configure(state_port, checkpoint, gate)["ok"])
+	# The separate Task-7 seam (Plan 01 Step 7.3a, dwm-p2r.14): since d5a0f3e9 a Days 1-6 walk
+	# cannot pass increment_day without the one shared root-atomic CausalDayAdvanceIdentityPort, so
+	# this contract wires it exactly as ApplicationBootstrap._configure_causal_day_advance_identity
+	# does -- a real issuer over a GUID-isolated sandbox root, never user://.
+	var day_advance_port: RefCounted = DAY_ADVANCE_IDENTITY_PORT.new()
+	assert_true(day_advance_port.configure(_sandbox_identity_issuer()).get("ok", false),
+		"advance identity port bound to a real issuer")
+	assert_true(coordinator.configure_day_advance_identity_port(day_advance_port).get("ok", false),
+		"advance identity port injected through the separate seam")
 	assert_eq(game_state._install_day_resolution_runtime(state_port, coordinator, checkpoint, gate),
 		{"ok": true, "code": &"ok", "value": {"installed": true}, "receipt": {}},
 		"the install seam returns only the exact primitive envelope")
