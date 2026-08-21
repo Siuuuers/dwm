@@ -2,25 +2,18 @@ extends "res://addons/gut/test.gd"
 
 # Task 2 registry/host/identity contract suite (Plan 02 Task 2, dwm-p2r.32.1).
 #
-# CONCERN (full detail in .superpowers/sdd/task-2-report.md): DesktopAppRegistry.gd and
-# DesktopAppHostState.gd were delivered under the closed dwm-p2r.9 bead with their own suites
-# (test_desktop_app_registry.gd, test_desktop_app_host_state.gd) and this task is scoped to
-# read-not-edit them. Their actual public surface diverges from the interfaces this brief
-# declares:
-#   * DesktopAppRegistry's four methods are INSTANCE methods (call via .new()), not the
-#     `static func` the brief declares -- the verbatim `DesktopAppRegistry.get_ids()` call does
-#     not compile against it. Adapted below to instantiate first, exactly like the existing
-#     suite already does.
-#   * DesktopAppHostState has no `go_home(current_day, board_phase)` method and no `board_phase`
-#     parameter anywhere -- open_app()/change_day() take no board_phase. It has `close_app()`
-#     instead of `go_home()`, returning `hide_app_id`/`show_app_id`/`focus_target`, not a
-#     `commands` array with `kind=suspend_board|hide_app|resume_board|discard_candidate|
-#     forfeit_board`. None of this brief's board-phase-driven command derivation exists in the
-#     frozen class. Since it is out of scope to edit, the verbatim
-#     `test_home_suspends_a_started_board_without_eviction()` example cannot be delivered:
-#     GDScript's static type checker treats a call to a nonexistent method as a compile error,
-#     which would fail this entire suite to parse/load (forbidden by the RED evidence law). The
-#     host section below instead exercises the host's actual surface.
+# RESOLVED CONCERN (was: full detail in .superpowers/sdd/task-2-report.md): DesktopAppHostState.gd
+# was delivered under the closed dwm-p2r.9 bead without `go_home()` or `board_phase` support. The
+# controller ruled the board-phase command law is plan-mandated Task-2 functionality and lifted
+# the no-edit restriction for that file specifically; it was extended ADDITIVELY (new methods, new
+# trailing-defaulted `board_phase` parameters, new `value` member) so tests/unit/
+# test_desktop_app_host_state.gd -- the frozen dwm-p2r.9 suite -- stays green UNMODIFIED. The
+# verbatim `test_home_suspends_a_started_board_without_eviction()` example now runs below.
+#
+# STANDING CONCERN: DesktopAppRegistry's four methods remain INSTANCE methods (call via .new()),
+# not the `static func` the brief declares -- the verbatim `DesktopAppRegistry.get_ids()` call
+# does not compile against it. Adapted below to instantiate first, exactly like the existing
+# test_desktop_app_registry.gd suite already does.
 #
 # Overlap with the existing per-class suites is intentional (downstream gates name suites by
 # exact path).
@@ -75,7 +68,7 @@ func test_registry_validate_all_passes_for_the_frozen_set() -> void:
 	assert_true(result.get("ok", false), JSON.stringify(result))
 
 
-# ---- Host: actual surface (open_app/close_app/change_day/get_state/capture/prepare_restore) ----
+# ---- Host: unknown app / invalid day / no-op reopen / detachment ----
 
 func test_host_unknown_app_rejects() -> void:
 	var h := _host()
@@ -102,18 +95,6 @@ func test_host_open_app_duplicate_same_day_is_a_noop_reopen() -> void:
 	var reopen: Dictionary = h.open_app(&"minesweeper", 1)
 	assert_false(reopen["instantiate"], "already-cached same-day app does not reinstantiate")
 	assert_eq(reopen["show_app_id"], &"minesweeper")
-
-
-func test_host_minesweeper_resume_after_switch() -> void:
-	var h := _host()
-	h.reset(1)
-	h.open_app(&"minesweeper", 1)
-	h.open_app(&"contacts", 1)
-	var resumed: Dictionary = h.open_app(&"minesweeper", 1)
-	assert_true(resumed.get("ok", false))
-	assert_false(resumed["instantiate"], "resuming a cached board does not reinstantiate")
-	assert_eq(resumed["hide_app_id"], &"contacts")
-	assert_eq(resumed["show_app_id"], &"minesweeper")
 
 
 func test_host_same_day_switching_reports_the_previously_active_app() -> void:
@@ -143,6 +124,150 @@ func test_host_get_state_returns_a_detached_copy() -> void:
 	state_a["cached_app_ids"].append(&"tampered")
 	var state_b: Dictionary = h.get_state()
 	assert_false(state_b["cached_app_ids"].has(&"tampered"), "get_state() returns a detached copy")
+
+
+# ---- Host: board-phase-driven command derivation (brief SS "Host success", amendment SS6.6/6.7/9.1) ----
+
+func test_home_suspends_a_started_board_without_eviction() -> void:
+	var host := HOST.new()
+	host.reset(3)
+	host.open_app(&"minesweeper", 3, &"ACTIVE_VISIBLE")
+	var result := host.go_home(3, &"ACTIVE_VISIBLE")
+	assert_eq(result["value"]["commands"], [{"kind": "suspend_board"}, {"kind": "hide_app", "app_id": "minesweeper"}])
+
+
+func test_go_home_with_no_active_app_emits_no_commands() -> void:
+	var h := _host()
+	h.reset(1)
+	var result: Dictionary = h.go_home(1, &"NONE")
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(result["value"]["commands"], [])
+	assert_eq(result["value"]["state"]["active_app_id"], null)
+
+
+func test_go_home_hides_a_non_board_app_without_suspending() -> void:
+	var h := _host()
+	h.reset(1)
+	h.open_app(&"contacts", 1)
+	var result: Dictionary = h.go_home(1, &"NONE")
+	assert_eq(result["value"]["commands"], [{"kind": "hide_app", "app_id": "contacts"}])
+
+
+func test_go_home_with_an_already_suspended_board_hides_without_resuspending() -> void:
+	var h := _host()
+	h.reset(1)
+	h.open_app(&"minesweeper", 1, &"ACTIVE_SUSPENDED")
+	var result: Dictionary = h.go_home(1, &"ACTIVE_SUSPENDED")
+	assert_eq(result["value"]["commands"], [{"kind": "hide_app", "app_id": "minesweeper"}])
+
+
+func test_go_home_never_evicts_the_cache() -> void:
+	var h := _host()
+	h.reset(1)
+	h.open_app(&"minesweeper", 1, &"ACTIVE_VISIBLE")
+	h.go_home(1, &"ACTIVE_VISIBLE")
+	assert_eq(h.get_state()["cached_app_ids"], [&"minesweeper"], "home preserves the cache, unlike change_day")
+
+
+func test_host_switching_away_from_an_active_board_suspends_it() -> void:
+	var h := _host()
+	h.reset(1)
+	h.open_app(&"minesweeper", 1, &"NONE")
+	var switched: Dictionary = h.open_app(&"contacts", 1, &"ACTIVE_VISIBLE")
+	assert_eq(switched["value"]["commands"], [
+		{"kind": "suspend_board"}, {"kind": "hide_app", "app_id": "minesweeper"}, {"kind": "open_app", "app_id": "contacts"},
+	])
+
+
+func test_host_minesweeper_resume_after_switch() -> void:
+	var h := _host()
+	h.reset(1)
+	h.open_app(&"minesweeper", 1, &"NONE")
+	h.open_app(&"contacts", 1, &"ACTIVE_VISIBLE")
+	var resumed: Dictionary = h.open_app(&"minesweeper", 1, &"ACTIVE_SUSPENDED")
+	assert_true(resumed.get("ok", false))
+	assert_false(resumed["instantiate"], "resuming a cached board does not reinstantiate")
+	assert_eq(resumed["hide_app_id"], &"contacts")
+	assert_eq(resumed["show_app_id"], &"minesweeper")
+	assert_eq(resumed["value"]["commands"], [
+		{"kind": "hide_app", "app_id": "contacts"}, {"kind": "resume_board"}, {"kind": "open_app", "app_id": "minesweeper"},
+	])
+
+
+func test_host_open_app_reopening_the_same_app_emits_no_hide_or_suspend() -> void:
+	var h := _host()
+	h.reset(1)
+	h.open_app(&"minesweeper", 1, &"ACTIVE_VISIBLE")
+	var reopened: Dictionary = h.open_app(&"minesweeper", 1, &"ACTIVE_VISIBLE")
+	assert_eq(reopened["value"]["commands"], [{"kind": "open_app", "app_id": "minesweeper"}],
+		"reopening the already-active app neither hides nor suspends itself")
+
+
+func test_host_open_app_never_blocks_the_other_six_apps_regardless_of_board_phase() -> void:
+	var other_apps: Array[StringName] = [&"contacts", &"schedule", &"shop", &"backup", &"settings", &"logout"]
+	var phases: Array[StringName] = [
+		&"NONE", &"PREPARING", &"PREPARED_UNSTARTED", &"ACTIVE_VISIBLE", &"ACTIVE_SUSPENDED", &"SETTLING",
+	]
+	for app_id: StringName in other_apps:
+		for phase: StringName in phases:
+			var h := _host()
+			h.reset(1)
+			h.open_app(&"minesweeper", 1, &"ACTIVE_VISIBLE")
+			var opened: Dictionary = h.open_app(app_id, 1, phase)
+			assert_true(opened.get("ok", false), "%s must open under board_phase %s" % [app_id, phase])
+
+
+func test_host_change_day_discards_a_prepared_candidate() -> void:
+	for phase: StringName in [&"PREPARING", &"PREPARED_UNSTARTED"]:
+		var h := _host()
+		h.reset(1)
+		var changed: Dictionary = h.change_day(2, phase)
+		assert_eq(changed["value"]["commands"], [{"kind": "discard_candidate"}], "phase %s must discard" % phase)
+
+
+func test_host_change_day_forfeits_a_started_board() -> void:
+	for phase: StringName in [&"ACTIVE_VISIBLE", &"ACTIVE_SUSPENDED"]:
+		var h := _host()
+		h.reset(1)
+		var changed: Dictionary = h.change_day(2, phase)
+		assert_eq(changed["value"]["commands"], [{"kind": "forfeit_board"}], "phase %s must forfeit" % phase)
+
+
+func test_host_change_day_with_no_board_emits_no_command() -> void:
+	for phase: StringName in [&"NONE", &"SETTLING"]:
+		var h := _host()
+		h.reset(1)
+		var changed: Dictionary = h.change_day(2, phase)
+		assert_eq(changed["value"]["commands"], [], "phase %s must emit no board command" % phase)
+
+
+func test_host_change_day_still_carries_the_existing_eviction_command_unmodified() -> void:
+	var h := _host()
+	h.reset(1)
+	h.open_app(&"contacts", 1)
+	h.open_app(&"minesweeper", 1)
+	var changed: Dictionary = h.change_day(2, &"ACTIVE_VISIBLE")
+	var command: Dictionary = changed["value"]["eviction_command"]
+	assert_eq(command["command_id"], "desktop-day:2")
+	assert_eq(command["kind"], &"evict_cached_apps")
+	assert_eq(command["app_ids"], [&"minesweeper", &"contacts"])
+	assert_eq(changed["value"]["commands"], [{"kind": "forfeit_board"}])
+	assert_eq(changed["value"]["state"]["active_app_id"], null, "active is cleared after day change")
+
+
+func test_host_command_lists_are_detached() -> void:
+	var h := _host()
+	h.reset(1)
+	h.open_app(&"minesweeper", 1, &"ACTIVE_VISIBLE")
+	var result_a: Dictionary = h.go_home(1, &"ACTIVE_VISIBLE")
+	(result_a["value"]["commands"] as Array).append({"kind": "tampered"})
+
+	var h2 := _host()
+	h2.reset(1)
+	h2.open_app(&"minesweeper", 1, &"ACTIVE_VISIBLE")
+	var result_b: Dictionary = h2.go_home(1, &"ACTIVE_VISIBLE")
+	assert_eq(result_b["value"]["commands"].size(), 2,
+		"a fresh call's commands array is unaffected by tampering with a previous result")
 
 
 # ---- Identity: validate/fingerprint/remap ----
