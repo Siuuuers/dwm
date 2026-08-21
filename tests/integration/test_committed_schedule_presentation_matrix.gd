@@ -48,6 +48,7 @@ const LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPub
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const CONSEQUENCE_SOURCE := preload("res://tests/support/FakeDesktopConsequenceSource.gd")
 const STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+const MINESWEEPER_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
 
 const CAUSAL_DAY := "causal_day_instance.6666666666666666666666666666666666666666666666666666666666666666"
 const VIEW_FINGERPRINT := "schedule_view.66666666666666666666666666666666"
@@ -1061,6 +1062,113 @@ func test_the_deferred_pair_settles_through_the_presentation_seam() -> void:
 	assert_eq((receipt["value"] as Dictionary).get("presentation_completion_receipt"),
 		{"receipt_id": str(request["completion_transaction_id"])},
 		"with the published completion folded on verbatim")
+
+
+## dwm-p2r.30. The deferred pair PRESENTS AS A TOP-LEVEL STAGE, and its registered timelines
+## carry the same pre_challenge/post_challenge split as every other dating kind -- the board
+## between them IS the challenge -- yet `_resolve_dating_evidence` resolved only surviving_date
+## SUBSTAGES, so a dating round could never begin during the pair presentation. With the walk
+## genuinely paused on the pair stage, prepare_begin(dating) must stamp the pair's trusted
+## evidence from the plan itself: the Hospital-superseded committed GROUP entry's id and
+## participants, and the pair stage's own transaction. (The .23 superseded-date REFUSAL scopes
+## to the substage branch by design: the pair is the PRESENTATION OF a superseded entry --
+## refusing superseded entries here would refuse the pair's whole reason to exist.)
+func test_a_dating_round_begins_during_the_deferred_pair_presentation() -> void:
+	var source_receipt_id := _seed_group_source(2)
+	if source_receipt_id.is_empty():
+		return
+	_commit_and_begin(2, [_group_draft("g-pl", 0, 2, source_receipt_id)])
+	_game_state.pending_hospital = true
+	var request := _await_stage_presentation(PAIR_STAGE)
+	if request.is_empty():
+		return
+	var transaction_id := _active_stage_transaction_id()
+	assert_true(transaction_id.ends_with(":" + PAIR_STAGE),
+		"the walk really paused on the pair stage itself")
+	var entry := _committed_entry_at(0)
+	var port: RefCounted = MINESWEEPER_PORT.new(_game_state)
+
+	var prepared: Dictionary = port.prepare_begin(
+		{"context": "dating", "difficulty": "beginner"}, "run-1:day-2:pair-round-1")
+
+	assert_true(prepared.get("ok", false),
+		"the pair presentation hosts a board, so a dating round begins during it: "
+		+ str(prepared))
+	if not prepared.get("ok", false):
+		return
+	var evidence: Dictionary = ((prepared["value"] as Dictionary)["active_round"]
+		as Dictionary)["dating_evidence"]
+	assert_eq(str(evidence.get("entry_id", "")), str(entry["schedule_entry_id"]),
+		"the entry is the superseded committed GROUP entry the pair presents")
+	assert_eq(evidence.get("friend_ids"), ["priscilla", "lavinia"],
+		"the friends are the frozen entry's participants, from the plan, not the request")
+	assert_eq(str(evidence.get("route_transaction_id", "")), transaction_id,
+		"the route transaction is the pair stage's own")
+
+
+## dwm-p2r.30's stage-STATE law, GREEN ON ARRIVAL (the review-designed M2 killer). Only an
+## ACTIVE pair stage hosts a board. After the pair settles through the seam and its stage
+## COMPLETES, the presentation is over -- a dating round prepared then must be refused, or a
+## board could open against a finished presentation whose superseded group entry still sits
+## durably in the plan. (The owner-receipt gate has no twofriends case, so the settle receipt
+## completes the stage exactly as the suite's own walker does.)
+func test_no_dating_round_begins_after_the_pair_presentation_completes() -> void:
+	var source_receipt_id := _seed_group_source(2)
+	if source_receipt_id.is_empty():
+		return
+	_commit_and_begin(2, [_group_draft("g-pl", 0, 2, source_receipt_id)])
+	_game_state.pending_hospital = true
+	var request := _await_stage_presentation(PAIR_STAGE)
+	if request.is_empty():
+		return
+	var transaction_id := _active_stage_transaction_id()
+	var settled: Dictionary = _state_port.presentation_stage_receipt(
+		transaction_id, {"receipt_id": str(request["completion_transaction_id"])})
+	assert_true(settled.get("ok", false), "the settle must succeed first: " + str(settled))
+	if not settled.get("ok", false):
+		return
+	var receipt: Dictionary = (settled["value"] as Dictionary)["receipt"]
+	var completed: Dictionary = _game_state._run_lifecycle.complete_active_stage(
+		transaction_id, {"value": (receipt["value"] as Dictionary).duplicate(true)})
+	assert_true(completed.get("ok", false), "the pair stage completes: " + str(completed))
+
+	var prepared: Dictionary = MINESWEEPER_PORT.new(_game_state).prepare_begin(
+		{"context": "dating", "difficulty": "beginner"}, "run-1:day-2:pair-done-round")
+
+	assert_false(prepared.get("ok", false),
+		"a finished pair presentation hosts nothing: " + str(prepared))
+	assert_eq(str(prepared.get("code", "")), "DATING_ROUTE_NOT_ACTIVE",
+		"refused through the resolver's fail-closed door")
+
+
+## dwm-p2r.23's trusted-source law one level up, GREEN ON ARRIVAL (the review-designed M5
+## killer). The pair's friends come from the FROZEN committed entry inside the plan, never
+## from live contacts -- whose default group_action record happens to name the same pair, so
+## only a scrambled roster can tell the two sources apart. With live contacts claiming an
+## impostor, the evidence still names the frozen pair.
+func test_the_pair_evidence_ignores_scrambled_live_contacts() -> void:
+	var source_receipt_id := _seed_group_source(2)
+	if source_receipt_id.is_empty():
+		return
+	_commit_and_begin(2, [_group_draft("g-pl", 0, 2, source_receipt_id)])
+	_game_state.pending_hospital = true
+	var request := _await_stage_presentation(PAIR_STAGE)
+	if request.is_empty():
+		return
+	var scrambled: Dictionary = (_game_state.contacts as Dictionary).duplicate(true)
+	(scrambled["group_action"] as Dictionary)["participant_ids"] = ["sylvia"]
+	_game_state.contacts = scrambled
+
+	var prepared: Dictionary = MINESWEEPER_PORT.new(_game_state).prepare_begin(
+		{"context": "dating", "difficulty": "beginner"}, "run-1:day-2:pair-scramble-round")
+
+	assert_true(prepared.get("ok", false), "the scramble is invisible: " + str(prepared))
+	if not prepared.get("ok", false):
+		return
+	var evidence: Dictionary = ((prepared["value"] as Dictionary)["active_round"]
+		as Dictionary)["dating_evidence"]
+	assert_eq(evidence.get("friend_ids"), ["priscilla", "lavinia"],
+		"the friends are the frozen entry's participants, whatever live contacts claim")
 
 
 ## The transaction id of the one ACTIVE top-level stage, read from the live plan.

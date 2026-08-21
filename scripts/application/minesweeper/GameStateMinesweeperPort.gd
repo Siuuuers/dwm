@@ -430,8 +430,11 @@ func _task_ids_for(outcome: String, difficulty: String) -> Array:
 ## superseded is refused even while its substage sits ACTIVE between the route door's begin and
 ## the caller's completion: the durable supersession set in the completed hospital stage's
 ## receipt is the authority, never the live flag -- the same law the presentation settle seam
-## keeps (dwm-p2r.27). The deferred-pair presentation is a top-level STAGE with no substage, so
-## rounds cannot begin during it; that recorded gap is dwm-p2r.30.
+## keeps (dwm-p2r.27). The deferred-pair presentation is a top-level STAGE with no substage:
+## when that stage is ACTIVE the pair evidence is minted STAGE-LEVEL from the Hospital-
+## superseded committed GROUP entry (dwm-p2r.30). The substage branch's superseded-date
+## refusal deliberately does not reach it -- the pair IS the presentation of a superseded
+## entry, so refusing superseded entries there would refuse its whole reason to exist.
 func _resolve_dating_evidence() -> Dictionary:
 	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 	var plan: Variant = lifecycle.get("active_resolution_plan")
@@ -444,7 +447,12 @@ func _resolve_dating_evidence() -> Dictionary:
 	for stage: Variant in stages:
 		if typeof(stage) != TYPE_DICTIONARY:
 			continue
-		for substage_value: Variant in ((stage as Dictionary).get("substages", []) as Array):
+		var stage_record := stage as Dictionary
+		var stage_is_pair := str(stage_record.get("stage_id", "")) == "twofriends_if_deferred"
+		if stage_is_pair and str(stage_record.get("state", "")) == "active":
+			return _superseded_group_evidence(
+				plan as Dictionary, superseded, str(stage_record.get("transaction_id", "")))
+		for substage_value: Variant in (stage_record.get("substages", []) as Array):
 			if typeof(substage_value) != TYPE_DICTIONARY:
 				continue
 			var record := substage_value as Dictionary
@@ -486,6 +494,37 @@ func _superseded_entry_ids(plan: Dictionary) -> Array:
 		var ids: Variant = (value as Dictionary).get("superseded_entry_ids", [])
 		return (ids as Array) if typeof(ids) == TYPE_ARRAY else []
 	return []
+
+
+## The pair evidence for the ACTIVE deferred-pair STAGE (dwm-p2r.30): the Hospital-superseded
+## committed GROUP entry that stage exists to present. The derivation is the day-resolution
+## port's own `_deferred_pair_entry_id` law repeated byte-for-byte -- scan the FROZEN
+## committed entries for action_kind == "group" with membership in the durable superseded
+## set -- so the two ports agree BY CONSTRUCTION. First match wins to stay identical with
+## that law; uniqueness is a MANIFEST invariant (the registry's two group actions carry
+## disjoint allowed_days), not a registry-code law. FAILS CLOSED when nothing matches:
+## tampered restored bytes or the empty-site transient mint no evidence here.
+func _superseded_group_evidence(
+		plan: Dictionary, superseded: Array, stage_transaction_id: String) -> Dictionary:
+	var aggregate: Dictionary = plan.get("committed_schedule", {}) as Dictionary
+	for entry_value: Variant in (aggregate.get("entries", []) as Array):
+		if typeof(entry_value) != TYPE_DICTIONARY:
+			continue
+		var entry := entry_value as Dictionary
+		if str(entry.get("action_kind", "")) != "group":
+			continue
+		var entry_id := str(entry.get("schedule_entry_id", ""))
+		if not (entry_id in superseded):
+			continue
+		var friend_ids := _committed_participants(plan, entry_id)
+		if friend_ids.is_empty() or friend_ids.size() > 2:
+			continue
+		return {"ok": true, "code": &"ok", "value": {
+			"entry_id": entry_id,
+			"route_transaction_id": stage_transaction_id,
+			"friend_ids": friend_ids,
+		}}
+	return _fail(&"DATING_ROUTE_NOT_ACTIVE", "no superseded group entry for the pair stage")
 
 
 ## The deduped, nonblank participants of the FROZEN committed entry with this id -- the trusted
