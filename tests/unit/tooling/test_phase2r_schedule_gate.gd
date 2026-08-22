@@ -624,14 +624,23 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	# GameStateDesktopBoardPort.gd added as a sixth attributed producer: its board-start receipt
 	# is derived through the production issuer (bead dwm-p2r.32.4's issuer-derived board_start
 	# receipt fix), predating this task's own Phase A/B work but never folded into this census.
+	# MinesweeperShopPurchaseParticipant.gd added as a seventh (Plan 02 Task 7, dwm-p2r.32.7): its
+	# shop_quote/desktop_action receipts are likewise derived through the production issuer -- this
+	# gap predates Task 8 (landed with Task 7's own commit) and was never folded into this census
+	# either; found and fixed here rather than left broken, per this file's own established
+	# precedent (see the note above for GameStateDesktopBoardPort.gd's identical gap).
+	# DesktopBoardFatePort.gd added as an eighth (Plan 02 Task 8, dwm-p2r.32): its board_fate
+	# receipt is likewise derived through the production issuer's derive_child() seam.
 	assert_eq(call_paths, [
+		"scripts/application/minesweeper/DesktopBoardFatePort.gd",
 		"scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
 		"scripts/application/run/DayResolutionStartPort.gd",
 		"scripts/application/run/GameStateDayResolutionPort.gd",
 		"scripts/application/schedule/GameStateScheduleCommitPort.gd",
+		"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd",
 		"scripts/domain/contact/ContactInvitationState.gd",
 		"scripts/domain/schedule/Day7ScheduleProvenance.gd",
-	], "exactly the six attributed producers call derive_child")
+	], "exactly the eight attributed producers call derive_child")
 
 
 func test_bootstrap_probe_key_set_and_owner_bindings_are_exact() -> void:
