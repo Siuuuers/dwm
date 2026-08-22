@@ -8,7 +8,8 @@ owner_choice_on: "2026-08-22"
 current_direction: preserve_future_ui_intent_without_v1_scaffolding
 conversational_design_status: approved_owner_direction
 conversationally_approved_on: "2026-08-22"
-written_spec_status: pending_owner_review
+written_spec_status: approved
+written_spec_approved_on: "2026-08-22"
 implementation_requested: false
 implementation_authorized: false
 created_on: "2026-08-22"
