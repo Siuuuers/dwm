@@ -143,6 +143,60 @@ func test_prepare_builds_eight_plans_and_commits() -> void:
 	assert_eq(str(m._journal.get_current_bundle()["value"]["bundle"]["snapshot"]["run_id"]), "run-a",
 		"the restored run replaced the live journal")
 
+## IMPORTANT 5 (brief line 209): a caller-authored prepared dictionary carrying any issuer/
+## allocation/remap-shaped field must reject before durable allocation. Each stray key below is
+## exactly the shape produced INSIDE _begin_restore_continuation(), never legitimate top-level
+## input to commit_prepared_restore() itself.
+func _prepared_restore_with_stray_key(m: Node, slot_id: int, key: String, value: Variant) -> Dictionary:
+	m._journal.reset("run-stray-%s-a" % key)
+	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-stray-%s-a" % key, 1), &"day_start")["value"]["candidate"])
+	assert_true(m.save_latest_to_slot(slot_id)["ok"])
+	# A different game is live when the player loads, matching this file's own established pattern.
+	m._journal.reset("run-stray-%s-live" % key)
+	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-stray-%s-live" % key, 1), &"day_start")["value"]["candidate"])
+	var prepared: Dictionary = m.prepare_restore_slot(slot_id)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var stray: Dictionary = (prepared["value"]["prepared"] as Dictionary).duplicate(true)
+	stray[key] = value
+	return stray
+
+
+func test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key() -> void:
+	var m := _manager(Owner.new())
+	var stray := _prepared_restore_with_stray_key(m, 4, "identity_allocation_bundle", {"forged": true})
+	var rejected: Dictionary = m.commit_prepared_restore(stray)
+	assert_false(rejected.get("ok", true), "a stray identity_allocation_bundle key must reject before durable allocation")
+	assert_eq(rejected["code"], &"invalid_prepared_restore")
+	assert_eq(str(m._journal.get_current_bundle()["value"]["bundle"]["snapshot"]["run_id"]), "run-stray-identity_allocation_bundle-live",
+		"no journal write: the live run is untouched")
+	assert_eq((m._continuation_journal.list_incomplete() as Dictionary)["value"], [],
+		"no continuation-journal write either")
+
+
+func test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key() -> void:
+	var m := _manager(Owner.new())
+	var stray := _prepared_restore_with_stray_key(m, 5, "transaction_issuer_receipt", {"forged": true})
+	var rejected: Dictionary = m.commit_prepared_restore(stray)
+	assert_false(rejected.get("ok", true), "a stray transaction_issuer_receipt key must reject before durable allocation")
+	assert_eq(rejected["code"], &"invalid_prepared_restore")
+	assert_eq(str(m._journal.get_current_bundle()["value"]["bundle"]["snapshot"]["run_id"]), "run-stray-transaction_issuer_receipt-live",
+		"no journal write: the live run is untouched")
+	assert_eq((m._continuation_journal.list_incomplete() as Dictionary)["value"], [],
+		"no continuation-journal write either")
+
+
+func test_commit_prepared_restore_rejects_stray_transaction_remap_key() -> void:
+	var m := _manager(Owner.new())
+	var stray := _prepared_restore_with_stray_key(m, 6, "transaction_remap", {"forged": true})
+	var rejected: Dictionary = m.commit_prepared_restore(stray)
+	assert_false(rejected.get("ok", true), "a stray transaction_remap key must reject before durable allocation")
+	assert_eq(rejected["code"], &"invalid_prepared_restore")
+	assert_eq(str(m._journal.get_current_bundle()["value"]["bundle"]["snapshot"]["run_id"]), "run-stray-transaction_remap-live",
+		"no journal write: the live run is untouched")
+	assert_eq((m._continuation_journal.list_incomplete() as Dictionary)["value"], [],
+		"no continuation-journal write either")
+
+
 func test_late_narrative_incompatibility_selects_earlier_bundle() -> void:
 	var m := _manager(Owner.new())
 	m._journal.reset("run-b")

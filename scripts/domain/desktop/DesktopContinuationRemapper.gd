@@ -270,7 +270,7 @@ static func _remap_pending(pending: Dictionary, transaction_remap: Dictionary) -
 
 	var provenance: Variant = pending.get("source_commit_receipt_provenance")
 	if typeof(provenance) == TYPE_DICTIONARY:
-		var rederived := _rederive_anchored_child(provenance as Dictionary, new_receipt)
+		var rederived := _rederive_anchored_child(provenance as Dictionary, new_receipt, transaction_remap)
 		if not rederived.get("ok", false):
 			return rederived
 		remapped["source_commit_receipt_id"] = (rederived["value"] as Dictionary)["child_id"]
@@ -307,7 +307,7 @@ static func _remap_recovery_payload(payload: Dictionary, transaction_remap: Dict
 		record["transaction_issuer_receipt"] = (new_receipt as Dictionary).duplicate(true)
 		var provenance: Variant = record.get("source_commit_receipt_provenance")
 		if typeof(provenance) == TYPE_DICTIONARY:
-			var rederived := _rederive_anchored_child(provenance as Dictionary, new_receipt)
+			var rederived := _rederive_anchored_child(provenance as Dictionary, new_receipt, transaction_remap)
 			if not rederived.get("ok", false):
 				return rederived
 			record["source_commit_receipt_id"] = (rederived["value"] as Dictionary)["child_id"]
@@ -317,12 +317,18 @@ static func _remap_recovery_payload(payload: Dictionary, transaction_remap: Dict
 
 
 ## Re-derives an anchored-child id/provenance (plan line 537) under a NEW parent receipt, keeping
-## the child's own kind/ordinal/source_ids unchanged -- exactly "re-derives every allowlisted child
-## ID/provenance from the mapped parent using its unchanged kind/ordinal ... source IDs" (brief
-## line 291). Recursively mapped source IDs are out of this scoped remapper (see _REMAP_TABLE); the
-## source_ids carried on an already-issued provenance are themselves opaque content-derived strings,
-## not transaction IDs, so they pass through unchanged.
-static func _rederive_anchored_child(provenance: Dictionary, new_parent_receipt: Dictionary) -> Dictionary:
+## the child's own kind/ordinal unchanged. Any source_ids member that is itself a real rewindable
+## transaction ID is recursively remapped through `transaction_remap` (brief line 291: "recursively
+## mapped/sorted source IDs") -- this branch's own GameStateDesktopBoardPort anchors its board_start
+## children with source_ids=[transaction_id], a REAL transaction id, not an opaque hash, so passing
+## every source_id through unchanged (the prior behavior here) silently staled that id past a
+## restore. A source_id absent from transaction_remap is genuinely opaque (a content-derived hash
+## with no remap entry) and passes through unchanged. The result is lexically re-sorted and
+## revalidated non-blank/unique/sorted, matching derive_child()'s own precondition that source IDs
+## arrive already sorted rather than being repaired by the issuer; a malformed historical record
+## (unsorted, blank, or duplicated) rejects rather than being silently renormalized.
+static func _rederive_anchored_child(provenance: Dictionary, new_parent_receipt: Dictionary,
+		transaction_remap: Dictionary) -> Dictionary:
 	var keys: Array = provenance.keys()
 	keys.sort()
 	var expected := _PROVENANCE_KEYS.duplicate()
@@ -331,17 +337,56 @@ static func _rederive_anchored_child(provenance: Dictionary, new_parent_receipt:
 		return _fail(&"remap_provenance_invalid", "unexpected provenance keys: " + str(keys), {})
 	var child_kind := str(provenance["child_kind"])
 	var ordinal := int(provenance["ordinal"])
-	var source_ids: Array = (provenance["source_ids"] as Array).duplicate(true)
-	var new_child_id := _child_id(new_parent_receipt, child_kind, ordinal, source_ids)
+	var source_ids_check := _validate_sorted_unique_nonblank(provenance["source_ids"])
+	if not source_ids_check.get("ok", false):
+		return source_ids_check
+	var source_ids: Array = source_ids_check["value"]
+
+	var mapped_source_ids: Array = []
+	for source_id: Variant in source_ids:
+		var key := str(source_id)
+		var mapping: Variant = transaction_remap.get(key)
+		if typeof(mapping) == TYPE_DICTIONARY:
+			mapped_source_ids.append(str((mapping as Dictionary)["new_transaction_id"]))
+		else:
+			mapped_source_ids.append(key)
+	mapped_source_ids.sort()
+	var mapped_check := _validate_sorted_unique_nonblank(mapped_source_ids)
+	if not mapped_check.get("ok", false):
+		return mapped_check
+
+	var new_child_id := _child_id(new_parent_receipt, child_kind, ordinal, mapped_source_ids)
 	var new_provenance := {
 		"schema_version": CHILD_SCHEMA_VERSION,
 		"parent_receipt_id": str(new_parent_receipt.get("receipt_id", "")),
 		"child_kind": child_kind,
 		"ordinal": ordinal,
-		"source_ids": source_ids,
+		"source_ids": mapped_source_ids,
 		"child_id": new_child_id,
 	}
 	return {"ok": true, "code": &"ok", "value": {"child_id": new_child_id, "provenance": new_provenance}}
+
+
+## Shared precondition/postcondition check mirroring derive_child()'s own law (plan line 487):
+## source IDs must already be sorted, unique, and nonblank -- callers (and, here, historical
+## persisted records) may not submit an unsorted or duplicated set for silent repair.
+static func _validate_sorted_unique_nonblank(source_ids: Variant) -> Dictionary:
+	if typeof(source_ids) != TYPE_ARRAY:
+		return _fail(&"remap_source_ids_invalid", "source_ids must be an array", {})
+	var ids: Array = (source_ids as Array).duplicate(true)
+	var seen: Dictionary = {}
+	var previous := ""
+	for index: int in range(ids.size()):
+		var value := str(ids[index])
+		if value.strip_edges().is_empty():
+			return _fail(&"remap_source_ids_invalid", "source_ids must be nonblank", {})
+		if seen.has(value):
+			return _fail(&"remap_source_ids_invalid", "source_ids must be unique", {"duplicate": value})
+		seen[value] = true
+		if index > 0 and value < previous:
+			return _fail(&"remap_source_ids_invalid", "source_ids must already be lexically sorted", {})
+		previous = value
+	return {"ok": true, "value": ids}
 
 
 # -------------------------------------------------------------------------------------------------

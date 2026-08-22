@@ -280,3 +280,143 @@ func test_checkpoint_commit_failure_leaves_live_state_untouched() -> void:
 	var live: Dictionary = wired["state"].capture()["value"]["state"]
 	assert_eq(live["causal_sequence"], 0, "a failed checkpoint commit must not advance live causal_sequence")
 	assert_eq(live["run_revision"], 0)
+
+
+## Minimal in-memory wrapper over a real DesktopConsequenceState: forwards every call except a
+## one-shot forced failure on whichever method name is armed. Used to inject a failure strictly
+## AFTER the admission checkpoint has already committed to disk -- the exact CRITICAL-1 gap -- since
+## FakeAdmissionCheckpointPort alone can only fail BEFORE that point.
+class FailInjectingConsequenceState:
+	var _inner: RefCounted
+	var fail_next_call_name: String = ""
+
+	func _init(inner: RefCounted) -> void:
+		_inner = inner
+
+	func capture() -> Dictionary:
+		return _inner.capture()
+
+	func prepare_action_handoff(action_receipt: Dictionary, run_revision_before: int, payload: Dictionary) -> Dictionary:
+		return _inner.prepare_action_handoff(action_receipt, run_revision_before, payload)
+
+	func prepare_sequence_reservation(request: Dictionary, causal_sequence_receipt: Dictionary) -> Dictionary:
+		if fail_next_call_name == "prepare_sequence_reservation":
+			fail_next_call_name = ""
+			return {"ok": false, "code": &"forced_failure", "message": "test-forced live failure"}
+		return _inner.prepare_sequence_reservation(request, causal_sequence_receipt)
+
+	func prepare_restore(state: Dictionary) -> Dictionary:
+		if fail_next_call_name == "prepare_restore":
+			fail_next_call_name = ""
+			return {"ok": false, "code": &"forced_failure", "message": "test-forced live failure"}
+		return _inner.prepare_restore(state)
+
+	func commit(candidate: Dictionary) -> Dictionary:
+		return _inner.commit(candidate)
+
+	func rollback(backup: Dictionary) -> Dictionary:
+		return _inner.rollback(backup)
+
+
+func test_commit_partial_live_failure_after_checkpoint_returns_committed_pending_recovery() -> void:
+	var spy_state := FailInjectingConsequenceState.new(_fresh_state())
+	var wired := _wired(spy_state)
+	var port: RefCounted = wired["port"]
+	var gate: RefCounted = wired["gate"]
+	gate.acquire(&"causal_transaction")
+	var admission := _admit(wired)
+
+	spy_state.fail_next_call_name = "prepare_sequence_reservation"
+	var partial: Dictionary = port.commit(admission["admission_candidate"])
+	assert_false(partial.get("ok", true))
+	assert_eq(partial["code"], &"causal_admission_committed_pending_recovery")
+	assert_eq((wired["checkpoint_port"] as FakeAdmissionCheckpointPort).committed.size(), 1,
+		"the admission checkpoint genuinely committed to disk despite the live failure")
+	var details: Dictionary = partial["details"]
+	assert_eq(details["transaction_id"], "txn-1")
+	assert_true(details.has("causal_sequence_receipt"))
+	assert_eq((details["causal_sequence_receipt"] as Dictionary)["causal_sequence"], 1)
+	assert_true(details.has("admission_checkpoint_receipt"))
+	assert_true(details.has("live_failure"))
+
+	# Live consequence state never advanced (the injected failure fired before any live mutation).
+	var live: Dictionary = spy_state.capture()["value"]["state"]
+	assert_eq(live["causal_sequence"], 0)
+	assert_eq(live["run_revision"], 0)
+
+
+func test_commit_partial_live_failure_pre_admission_backup_rollback_refuses() -> void:
+	var spy_state := FailInjectingConsequenceState.new(_fresh_state())
+	var wired := _wired(spy_state)
+	var port: RefCounted = wired["port"]
+	var gate: RefCounted = wired["gate"]
+	gate.acquire(&"causal_transaction")
+	var pre_admission_backup: Dictionary = port.capture()
+
+	var admission := _admit(wired)
+	spy_state.fail_next_call_name = "prepare_sequence_reservation"
+	var partial: Dictionary = port.commit(admission["admission_candidate"])
+	assert_false(partial.get("ok", true))
+	assert_eq(partial["code"], &"causal_admission_committed_pending_recovery")
+
+	var rejected: Dictionary = port.rollback(pre_admission_backup["value"]["backup"])
+	assert_false(rejected.get("ok", true), "rollback must refuse once the admission checkpoint has committed, even if live adoption then failed")
+	assert_eq(rejected["code"], &"causal_admission_irreversible")
+
+
+func test_commit_partial_live_failure_then_retry_resumes_coherently() -> void:
+	var spy_state := FailInjectingConsequenceState.new(_fresh_state())
+	var wired := _wired(spy_state)
+	var port: RefCounted = wired["port"]
+	var gate: RefCounted = wired["gate"]
+	gate.acquire(&"causal_transaction")
+	var admission := _admit(wired)
+
+	spy_state.fail_next_call_name = "prepare_sequence_reservation"
+	var partial: Dictionary = port.commit(admission["admission_candidate"])
+	assert_false(partial.get("ok", true))
+
+	# fail_next_call_name self-clears after firing once: a second commit() of the SAME candidate
+	# resumes and completes normally.
+	var resumed: Dictionary = port.commit(admission["admission_candidate"])
+	assert_true(resumed.get("ok", false), JSON.stringify(resumed))
+	assert_eq(resumed["value"]["causal_sequence_receipt"]["causal_sequence"], 1)
+	assert_eq(resumed["value"]["causal_sequence_receipt"]["run_revision"], 1)
+
+	var live: Dictionary = spy_state.capture()["value"]["state"]
+	assert_eq(live["causal_sequence"], 1)
+	assert_eq(live["run_revision"], 1)
+
+
+func test_prepare_reservation_after_commit_identical_retry_replays_original_success() -> void:
+	var wired := _wired()
+	var port: RefCounted = wired["port"]
+	var gate: RefCounted = wired["gate"]
+	gate.acquire(&"causal_transaction")
+	var admission := _admit(wired)
+	var committed: Dictionary = port.commit(admission["admission_candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+
+	# _committed_transaction_ids is now actually read (IMPORTANT 2): an identical retry replays the
+	# original prepare_reservation() success rather than falling through to live validation, where
+	# expected_last_sequence=0 is now stale (live causal_sequence already advanced to 1).
+	var replay: Dictionary = port.prepare_reservation(admission["request"])
+	assert_true(replay.get("ok", false), JSON.stringify(replay))
+	assert_eq(replay["value"]["causal_sequence_receipt"], committed["value"]["causal_sequence_receipt"])
+	assert_ne(replay.get("code"), &"causal_sequence_stale")
+
+
+func test_prepare_reservation_after_commit_changed_bytes_conflicts() -> void:
+	var wired := _wired()
+	var port: RefCounted = wired["port"]
+	var gate: RefCounted = wired["gate"]
+	gate.acquire(&"causal_transaction")
+	var admission := _admit(wired)
+	var committed: Dictionary = port.commit(admission["admission_candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+
+	var changed: Dictionary = (admission["request"] as Dictionary).duplicate(true)
+	changed["source_commit_receipt_id"] = "commit-receipt-DIFFERENT"
+	var conflicted: Dictionary = port.prepare_reservation(changed)
+	assert_false(conflicted.get("ok", true))
+	assert_eq(conflicted["code"], &"causal_sequence_conflict")

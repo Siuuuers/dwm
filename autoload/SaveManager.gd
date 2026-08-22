@@ -42,6 +42,19 @@ const _CHECKPOINT_INPUT_KEYS: Array[String] = [
 	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint",
 	"route_id", "snapshot_input",
 ]
+## IMPORTANT 5 (brief line 209: "input containing any issuer/allocation/remap field rejects before
+## durable allocation"). The exact allow-list `commit_prepared_restore()` accepts: the 9 keys
+## `_prepare_bundle_with_all_participants()` puts into a genuine `prepare_restore_slot|quick|
+## autosave()` result, which is a superset of the 3-key hand-built shape the pure fake-participant
+## orchestration tests use (`participant_plans`, `checkpoint_id`, `route_id`). A stray issuer/
+## allocation/remap-shaped key (e.g. `identity_allocation_bundle`, `transaction_issuer_receipt`,
+## `transaction_remap`) is never legitimate top-level input here -- those are produced INSIDE
+## `_begin_restore_continuation()`, never accepted from a caller.
+const _PREPARED_RESTORE_ALLOWED_KEYS: Array[String] = [
+	"bundle", "journal_seed", "participant_plans", "route_id", "checkpoint_id",
+	"source_locator", "existing_run_id", "source_desktop_timeline_generation",
+	"remap_source_transaction_ids",
+]
 
 var _storage: RefCounted = null
 var _journal: RefCounted = CHECKPOINT_JOURNAL.new()
@@ -196,6 +209,9 @@ func prepare_restore_autosave() -> Dictionary:
 func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_restore_participants first")
+	for key: Variant in prepared.keys():
+		if str(key) not in _PREPARED_RESTORE_ALLOWED_KEYS:
+			return _fail(&"invalid_prepared_restore", "unexpected prepared key: " + str(key))
 	if typeof(prepared.get("participant_plans")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_prepared_restore", "prepared requires participant_plans")
 	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)

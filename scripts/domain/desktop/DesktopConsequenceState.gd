@@ -269,6 +269,8 @@ func prepare_sequence_reservation(request: Dictionary, causal_sequence_receipt: 
 	state_after["pending"] = pending_after
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"sequence_reservation", "pre_run_revision": _run_revision, "state_after": state_after,
+		"transaction_id": str(pending["transaction_id"]),
+		"request_fingerprint": _canonical_sha256({"request": request, "causal_sequence_receipt": causal_sequence_receipt}),
 	}}, "receipt": {}}
 
 
@@ -316,6 +318,11 @@ func prepare_action_handoff(action_receipt: Dictionary, expected_run_revision: i
 	state_after["pending"] = pending_after
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"action_handoff", "pre_run_revision": _run_revision, "state_after": state_after,
+		"transaction_id": str(action_receipt["transaction_id"]),
+		"request_fingerprint": _canonical_sha256({
+			"action_receipt": action_receipt, "expected_run_revision": expected_run_revision,
+			"recovery_payload": recovery_payload,
+		}),
 	}}, "receipt": {}}
 
 
@@ -359,6 +366,8 @@ func prepare_schedule_recovery_transport(header: Dictionary, recovery_payload: D
 	state_after["pending"] = pending_after
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"schedule_recovery_transport", "pre_run_revision": _run_revision, "state_after": state_after,
+		"transaction_id": str(header["transaction_id"]),
+		"request_fingerprint": _canonical_sha256({"header": header, "recovery_payload": recovery_payload}),
 	}}, "receipt": {}}
 
 
@@ -416,8 +425,19 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 		return {"ok": true, "code": &"ok", "value": {
 			"checkpoint_header": {
 				"kind": &"consequence_cleanup", "transaction_id": transaction_id,
-				"stage": String(STAGE_PUBLICATION_PENDING), "operation_ordinal": _command_receipts.size(),
-				"run_id": "", "source_ids": [],
+				"stage": String(STAGE_PUBLICATION_PENDING),
+				# Terminal cleanup is the one frozen ordinal shared by every source_kind
+				# (plan02-frozen-contracts.md line 132: "terminal cleanup 12").
+				"operation_ordinal": 12,
+				# ASSUMPTION (documented per this file's own established convention, see the class
+				# doc comment): run_id is not a member this class's live state ever holds --
+				# DesktopConsequenceState tracks only causal_day_instance/run_revision/causal_sequence,
+				# never run_id -- so it cannot be sourced honestly here. Left blank for the checkpoint
+				# port/coordinator, which does hold it, to fill in if the header truly needs it.
+				"run_id": "",
+				# Per the preimage/remap law (brief line 291): this checkpoint's own transaction is
+				# its only real source. A single-element array is trivially sorted/unique/nonblank.
+				"source_ids": [transaction_id],
 			},
 			"stage_candidate": state_after,
 		}, "receipt": {}}
@@ -430,11 +450,39 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 	return {"ok": true, "code": &"ok", "value": {
 		"checkpoint_header": {
 			"kind": &"consequence_advance", "transaction_id": transaction_id,
-			"stage": String(pending_after["stage"]), "operation_ordinal": _command_receipts.size(),
-			"run_id": "", "source_ids": [],
+			"stage": String(pending_after["stage"]),
+			"operation_ordinal": _operation_ordinal(
+				str(pending["source_kind"]), expected_stage, next_stage, publication_progress),
+			# ASSUMPTION: see the terminal-cleanup branch above -- run_id is not held by this class.
+			"run_id": "",
+			"source_ids": [transaction_id],
 		},
 		"stage_candidate": state_after2,
 	}, "receipt": {}}
+
+
+## Frozen per-source-kind continuation_operation ordinal table (plan02-frozen-contracts.md lines
+## 127-132, 319-321). This file's own documented interior-stage-graph simplification (see the class
+## doc comment) means the intermediate action/condition/board_fate/schedule_view/consequence_
+## checkpointed stage-entry ordinals never occur here; `prepare_recovery_advance()` only ever
+## produces the ordinary edge into publication_pending (8 for action sources, 6 for schedule_done)
+## and the appended one-callback-progress ordinals. Those progress ordinals are exactly sequential
+## starting at 9 (action) / 7 (schedule_done) in the frozen table regardless of departure/
+## no-departure list length, so `base + (new_cursor - 1)` reproduces the frozen table exactly using
+## only the publication_progress cursor this method already receives -- no mutable counter needed to
+## keep this a pure function of its own inputs (a mutable per-call counter would break replay safety
+## for a supposedly pure prepare method).
+static func _operation_ordinal(source_kind: String, expected_stage: StringName, next_stage: Variant,
+		publication_progress: Variant) -> int:
+	var is_action := source_kind in ACTION_SOURCE_KINDS
+	if String(expected_stage) == String(STAGE_SEQUENCE_COMMITTED) and String(next_stage) == String(STAGE_PUBLICATION_PENDING):
+		return 8 if is_action else 6
+	if String(expected_stage) == String(STAGE_PUBLICATION_PENDING) and next_stage != null \
+			and String(next_stage) == String(STAGE_PUBLICATION_PENDING):
+		var progress: Dictionary = publication_progress as Dictionary
+		var base := 9 if is_action else 7
+		return base + int(progress.get("cursor", 1)) - 1
+	return 0
 
 
 ## Toggles exactly one outbox entry's `published` bit from false to true. Outside the continuation
@@ -480,6 +528,15 @@ func prepare_outbox_publication(request: Dictionary) -> Dictionary:
 # commit() / rollback() -- sole mutator and transaction ledger
 # -------------------------------------------------------------------------------------------------
 
+## The sole mutator and, per this class's own doc comment, the sole transaction-id ledger: an
+## identical replay of an already-committed non-restore operation returns the stored result rather
+## than re-adopting (which would otherwise fail stale_run_revision or silently double-apply);
+## changed bytes at an occupied ledger key conflict instead. `restore` bypasses the ledger entirely
+## (mirrors DesktopBoardState.commit()'s own established precedent) since it is the sole legal
+## consumer for checkpoint-port-driven forward/cleanup adoption, whose own receipt is the idempotency
+## anchor. The ledger key is `transaction_id + "@" + kind` rather than bare transaction_id: one
+## pending transaction crosses MULTIPLE distinct commit() operations (action_handoff, then later a
+## direct sequence_reservation commit) that must not collide on the same key.
 func commit(candidate: Dictionary) -> Dictionary:
 	if not candidate.has("kind") or not (candidate["kind"] is StringName):
 		return _fail(&"invalid_candidate", "candidate.kind is required", {})
@@ -491,12 +548,36 @@ func commit(candidate: Dictionary) -> Dictionary:
 		return _live_view()
 	if typeof(candidate.get("state_after")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_candidate", "candidate.state_after is required", {})
+
+	var ledger_key := _ledger_key(candidate)
+	if not ledger_key.is_empty():
+		var request_fingerprint := str(candidate.get("request_fingerprint", ""))
+		if _command_receipts.has(ledger_key):
+			var recorded: Dictionary = _command_receipts[ledger_key]
+			if str(recorded["request_fingerprint"]) == request_fingerprint:
+				return (recorded["result"] as Dictionary).duplicate(true)
+			return _fail(&"consequence_command_conflict",
+				"this transaction's operation was already committed with different bytes", {"key": ledger_key})
+
 	if candidate.has("pre_run_revision") and int(candidate["pre_run_revision"]) != _run_revision:
 		return _fail(&"stale_run_revision",
 			"the candidate was prepared against a different run_revision than the current one",
 			{"expected": _run_revision, "candidate_pre_run_revision": candidate["pre_run_revision"]})
 	_adopt_state(candidate["state_after"])
-	return _live_view()
+	var result := _live_view()
+	if not ledger_key.is_empty():
+		_command_receipts[ledger_key] = {
+			"request_fingerprint": str(candidate.get("request_fingerprint", "")),
+			"result": result.duplicate(true),
+		}
+	return result
+
+
+static func _ledger_key(candidate: Dictionary) -> String:
+	var transaction_id := str(candidate.get("transaction_id", ""))
+	if transaction_id.is_empty():
+		return ""
+	return transaction_id + "@" + String(candidate["kind"])
 
 
 func rollback(backup: Dictionary) -> Dictionary:

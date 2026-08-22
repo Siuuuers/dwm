@@ -217,6 +217,29 @@ func test_configure_requires_the_root_scoped_capability_and_refuses_replacement(
 	assert_eq(rejected["code"], &"publication_ledger_already_configured")
 
 
+## MINOR: no malformed-on-disk-JSON startup test previously existed for this ledger (byte-for-byte
+## the Plan-01 ledger's own laws per this file's class doc comment, but that coverage was never
+## actually written here). A fresh ledger instance over bytes that are not even valid JSON syntax
+## must fail closed with a typed error, not crash or silently accept a corrupt document.
+func test_load_fails_closed_on_malformed_on_disk_json() -> void:
+	if not _require_ledger():
+		return
+	# Seed a genuine document first, then corrupt it in place -- exercising the same "restart over
+	# already-durable bytes" substrate every other test in this file uses.
+	_loaded()
+	var path := _root.path_join(FIXED_PATH)
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	assert_true(file != null, "the seeded document must be overwritable for this test")
+	file.store_string("{ not actually json ]")
+	file.close()
+
+	var restarted := _new_ledger()
+	var configured: Dictionary = restarted.configure(_storage)
+	assert_true(configured.get("ok", false), str(configured))
+	var loaded: Dictionary = restarted.load()
+	assert_false(loaded.get("ok", true), "malformed on-disk bytes must fail closed, not parse as an empty/valid document")
+
+
 func test_disjoint_from_plan01_schedule_foundation_ledger() -> void:
 	if not _require_ledger():
 		return

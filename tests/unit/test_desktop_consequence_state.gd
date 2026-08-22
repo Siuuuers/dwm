@@ -194,6 +194,31 @@ func _admitted(source_kind: String = "minesweeper_round", transaction_id: String
 	return state
 
 
+func _admitted_schedule(transaction_id: String = "txn-sched-1") -> RefCounted:
+	var state := _bootstrapped()
+	var payload := {
+		"source_kind": "schedule_done", "schedule_header": {"day": 1}, "run_revision_before": 0,
+		"participant_snapshot_ids": {},
+	}
+	var prepared: Dictionary = state.prepare_schedule_recovery_transport(_schedule_header(transaction_id), payload)
+	state.commit(prepared["value"]["candidate"])
+	var receipt := _causal_sequence_receipt(state, "schedule_done", transaction_id)
+	var reserved: Dictionary = state.prepare_sequence_reservation(
+		{"transaction_id": transaction_id, "source_kind": "schedule_done"}, receipt)
+	if not reserved.get("ok", false):
+		push_error("prepare_sequence_reservation failed: " + JSON.stringify(reserved))
+		return state
+	var candidate_state: Dictionary = reserved["value"]["candidate"]["state_after"]
+	var admission_receipt := {"checkpoint_id": "chk-sched-1", "sequence": 1}
+	candidate_state["pending"]["admission_checkpoint_receipt"] = admission_receipt
+	candidate_state["pending"]["checkpoint_receipt"] = admission_receipt.duplicate(true)
+	var prepared_restore: Dictionary = state.prepare_restore(candidate_state)
+	var committed: Dictionary = state.commit(prepared_restore["value"]["candidate"])
+	if not committed.get("ok", false):
+		push_error("admission commit failed: " + JSON.stringify(committed))
+	return state
+
+
 func test_prepare_sequence_reservation_advances_to_sequence_committed() -> void:
 	var state := _admitted()
 	var live: Dictionary = state.capture()["value"]["state"]
@@ -346,6 +371,104 @@ func test_commit_is_a_transaction_ledger_via_restore_replay() -> void:
 	var first: Dictionary = state.commit(prepared["value"]["candidate"])
 	assert_true(first["ok"])
 	assert_eq(first["value"]["state"]["causal_day_instance"], "causal-day-2")
+
+
+## IMPORTANT 3(a): the class doc comment claims commit() is a transaction-id ledger, but until this
+## fix _command_receipts was written nowhere and commit() adopted unconditionally -- a byte-identical
+## replay of an already-committed action_handoff would have fallen through to stale_run_revision
+## instead of replaying, since run_revision hadn't moved but the candidate's pre_run_revision now
+## disagrees with nothing (action_handoff never touches run_revision) -- so prove replay explicitly.
+func test_commit_is_a_transaction_ledger_for_action_handoff_replay() -> void:
+	var state := _bootstrapped()
+	var payload := _action_recovery_payload("minesweeper_round")
+	var prepared: Dictionary = state.prepare_action_handoff(_action_receipt("minesweeper_round"), 0, payload)
+	assert_true(prepared["ok"], JSON.stringify(prepared))
+	var candidate: Dictionary = prepared["value"]["candidate"]
+	var first: Dictionary = state.commit(candidate)
+	assert_true(first["ok"], JSON.stringify(first))
+
+	var replay: Dictionary = state.commit(candidate)
+	assert_true(replay["ok"], JSON.stringify(replay))
+	assert_eq(replay, first, "an identical replay returns the exact stored result, not a fresh re-adoption")
+
+
+func test_commit_rejects_changed_bytes_at_an_occupied_ledger_key() -> void:
+	var state := _bootstrapped()
+	var payload := _action_recovery_payload("minesweeper_round")
+	var prepared: Dictionary = state.prepare_action_handoff(_action_receipt("minesweeper_round"), 0, payload)
+	state.commit(prepared["value"]["candidate"])
+
+	# Same ledger key (transaction_id + kind), but a fingerprint that does not match what was
+	# actually committed: a caller resubmitting the SAME operation with different bytes.
+	var tampered: Dictionary = (prepared["value"]["candidate"] as Dictionary).duplicate(true)
+	tampered["request_fingerprint"] = "0".repeat(64)
+	var conflicted: Dictionary = state.commit(tampered)
+	assert_false(conflicted.get("ok", true))
+	assert_eq(conflicted["code"], &"consequence_command_conflict")
+
+
+## IMPORTANT 3(b): prepare_recovery_advance()'s checkpoint_header previously hardcoded
+## operation_ordinal=0 always (via unread _command_receipts.size()) and source_ids=[]. Prove the
+## frozen per-source-kind ordinal table (plan02-frozen-contracts.md lines 127-132, 319-321) instead.
+func test_prepare_recovery_advance_ordinary_edge_operation_ordinal_matches_frozen_table() -> void:
+	var action_state := _admitted("minesweeper_round", "txn-1")
+	var action_advance: Dictionary = action_state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"cursor": 0, "complete": false, "callback_receipts": {}})
+	assert_true(action_advance["ok"], JSON.stringify(action_advance))
+	assert_eq(action_advance["value"]["checkpoint_header"]["operation_ordinal"], 8,
+		"action-source publication_pending stage entry is frozen ordinal 8")
+	assert_eq(action_advance["value"]["checkpoint_header"]["source_ids"], ["txn-1"],
+		"source_ids honestly carries this checkpoint's own transaction, not an empty placeholder")
+
+	var schedule_state := _admitted_schedule("txn-sched-1")
+	var schedule_advance: Dictionary = schedule_state.prepare_recovery_advance(
+		"txn-sched-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"cursor": 0, "complete": false, "callback_receipts": {}})
+	assert_true(schedule_advance["ok"], JSON.stringify(schedule_advance))
+	assert_eq(schedule_advance["value"]["checkpoint_header"]["operation_ordinal"], 6,
+		"schedule_done publication_pending stage entry is frozen ordinal 6")
+
+
+func test_prepare_recovery_advance_callback_progress_operation_ordinal_is_sequential() -> void:
+	var state := _admitted("minesweeper_round", "txn-1")
+	var to_pending: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"cursor": 0, "complete": false, "callback_receipts": {}})
+	state.commit({"kind": &"recovery_advance", "state_after": to_pending["value"]["stage_candidate"]})
+
+	# First appended callback (causal_sequence): cursor advances 0 -> 1, frozen ordinal 9.
+	var progress1: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"publication_pending", &"publication_pending", {}, null, null,
+		{"cursor": 1, "complete": false, "callback_receipts": {"causal_sequence": {}}})
+	assert_true(progress1["ok"], JSON.stringify(progress1))
+	assert_eq(progress1["value"]["checkpoint_header"]["operation_ordinal"], 9)
+	state.commit({"kind": &"recovery_advance", "state_after": progress1["value"]["stage_candidate"]})
+
+	# Second appended callback (action_source): cursor advances 1 -> 2, frozen ordinal 10.
+	var progress2: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"publication_pending", &"publication_pending", {}, null, null,
+		{"cursor": 2, "complete": true, "callback_receipts": {"causal_sequence": {}, "action_source": {}}})
+	assert_true(progress2["ok"], JSON.stringify(progress2))
+	assert_eq(progress2["value"]["checkpoint_header"]["operation_ordinal"], 10)
+
+
+func test_prepare_recovery_advance_terminal_cleanup_operation_ordinal_is_twelve() -> void:
+	var state := _admitted("minesweeper_round", "txn-1")
+	var to_pending: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"cursor": 0, "complete": false, "callback_receipts": {}})
+	state.commit({"kind": &"recovery_advance", "state_after": to_pending["value"]["stage_candidate"]})
+	var to_complete: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"publication_pending", &"publication_pending", {}, null, null,
+		{"cursor": 1, "complete": true, "callback_receipts": {"notify": {}}})
+	state.commit({"kind": &"recovery_advance", "state_after": to_complete["value"]["stage_candidate"]})
+	var cleanup: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"publication_pending", null, {}, null, null, null)
+	assert_true(cleanup["ok"], JSON.stringify(cleanup))
+	# Terminal cleanup is the one ordinal shared by every source_kind (frozen table, both rows).
+	assert_eq(cleanup["value"]["checkpoint_header"]["operation_ordinal"], 12)
+	assert_eq(cleanup["value"]["checkpoint_header"]["source_ids"], ["txn-1"])
 
 
 func test_rollback_restores_the_captured_backup() -> void:

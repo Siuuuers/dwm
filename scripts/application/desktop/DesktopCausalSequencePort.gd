@@ -107,6 +107,16 @@ func prepare_reservation(request: Dictionary) -> Dictionary:
 			}, "receipt": (recorded["causal_sequence_receipt"] as Dictionary).duplicate(true)}
 		return _fail(&"causal_sequence_conflict",
 			"transaction_id is already reserved with a different request", {})
+	# Post-commit replay (IMPORTANT 2): a byte-identical retry of an already-committed transaction
+	# replays the original prepare_reservation() success rather than falling through to live
+	# validation, where expected_last_sequence/expected_run_revision are now stale by construction
+	# (commit() already advanced them). Changed bytes at the same transaction_id conflict.
+	if _committed_transaction_ids.has(transaction_id):
+		var committed_record: Dictionary = _committed_transaction_ids[transaction_id]
+		if committed_record["request"] == request:
+			return (committed_record["result"] as Dictionary).duplicate(true)
+		return _fail(&"causal_sequence_conflict",
+			"transaction_id was already committed with a different request", {})
 
 	var live: Dictionary = _state.call(&"capture")
 	if not live.get("ok", false):
@@ -213,25 +223,50 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if not checkpoint_committed.get("ok", false):
 		return checkpoint_committed
 
+	# CRITICAL 1: the admission checkpoint is now durable on disk -- this is the brief's compare-
+	# and-swap/admission point (line 249/253). From here forward rollback() must refuse (bumping
+	# _commit_generation now, not only after the live calls below also succeed) even if the
+	# subsequent live-adoption calls fail, so recovery only ever advances, never rewinds.
+	_commit_generation += 1
+
 	var reserved: Dictionary = _state.call(&"prepare_sequence_reservation", request, receipt)
 	if not reserved.get("ok", false):
-		return reserved
+		return _committed_pending_recovery_result(transaction_id, receipt, checkpoint_receipt, reserved)
 	var state_after: Dictionary = (reserved["value"] as Dictionary)["candidate"]["state_after"]
 	(state_after["pending"] as Dictionary)["admission_checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
 	(state_after["pending"] as Dictionary)["checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
 	var prepared_restore: Dictionary = _state.call(&"prepare_restore", state_after)
 	if not prepared_restore.get("ok", false):
-		return prepared_restore
+		return _committed_pending_recovery_result(transaction_id, receipt, checkpoint_receipt, prepared_restore)
 	var committed: Dictionary = _state.call(&"commit", (prepared_restore["value"] as Dictionary)["candidate"])
 	if not committed.get("ok", false):
-		return committed
+		return _committed_pending_recovery_result(transaction_id, receipt, checkpoint_receipt, committed)
 
-	_pending_reservations.erase(transaction_id)
-	_committed_transaction_ids[transaction_id] = true
-	_commit_generation += 1
-	return {"ok": true, "code": &"ok", "value": {
+	var success := {"ok": true, "code": &"ok", "value": {
 		"causal_sequence_receipt": receipt.duplicate(true), "admission_checkpoint_receipt": checkpoint_receipt.duplicate(true),
 	}, "receipt": {"causal_sequence_receipt": receipt.duplicate(true), "admission_checkpoint_receipt": checkpoint_receipt.duplicate(true)}}
+	_committed_transaction_ids[transaction_id] = {"request": request.duplicate(true), "result": success.duplicate(true)}
+	_pending_reservations.erase(transaction_id)
+	return success
+
+
+## Disk success followed by live failure (CRITICAL 1): distinct from a pre-checkpoint failure so a
+## caller can tell recovery is forward-only. Details carry the admitted checkpoint receipt plus the
+## sequence receipt; the pending reservation is deliberately left in place (never erased here) so a
+## second commit() of the same candidate can retry the live calls and resume/return coherently.
+func _committed_pending_recovery_result(transaction_id: String, causal_sequence_receipt: Dictionary,
+		admission_checkpoint_receipt: Dictionary, live_failure: Dictionary) -> Dictionary:
+	return {
+		"ok": false,
+		"code": &"causal_admission_committed_pending_recovery",
+		"message": "the admission checkpoint committed to disk but live adoption failed; recovery must advance forward, never rewind",
+		"details": {
+			"transaction_id": transaction_id,
+			"causal_sequence_receipt": causal_sequence_receipt.duplicate(true),
+			"admission_checkpoint_receipt": admission_checkpoint_receipt.duplicate(true),
+			"live_failure": live_failure.duplicate(true),
+		},
+	}
 
 
 ## Succeeds only before the admission checkpoint has durably committed for any transaction the

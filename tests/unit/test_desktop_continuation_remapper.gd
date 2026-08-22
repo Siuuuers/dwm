@@ -237,6 +237,71 @@ func test_prepare_is_a_pure_function_of_its_inputs() -> void:
 	assert_true(result.get("ok", false))
 	assert_eq(snapshot, frozen_snapshot, "prepare() never mutates its snapshot argument")
 
+## IMPORTANT 4: source_ids can carry REAL transaction IDs -- GameStateDesktopBoardPort anchors its
+## board_start children with source_ids=[transaction_id] (scripts/application/minesweeper/
+## GameStateDesktopBoardPort.gd:233), not an opaque hash. The prior _rederive_anchored_child()
+## passed source_ids through unchanged, silently staling that id past a restore. The other existing
+## tests in this file all use source_ids=[] (empty), which never exercised this branch at all.
+func test_prepare_remaps_source_ids_that_are_real_transaction_ids() -> void:
+	if not _exists(): return
+	var old_transaction_receipt := _transaction_receipt("old-tx-anchor")
+	var source_commit := _child_provenance(old_transaction_receipt, "board_start", 0, ["old-tx-anchor"])
+	var snapshot := _snapshot("old-tx-anchor", source_commit)
+	var bundle := _bundle("old-tx-anchor", "new-tx-anchor")
+
+	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-anchor", bundle)
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var pending: Dictionary = (result["value"] as Dictionary)["snapshot"]["desktop"]["consequence"]["pending"]
+	var new_provenance: Dictionary = pending["source_commit_receipt_provenance"]
+	assert_eq(new_provenance["source_ids"], ["new-tx-anchor"],
+		"a source_id that is itself a rewindable transaction id must be remapped, not passed through")
+
+	# Cross-check against the issuer's own formula: re-deriving the child id with the mapped parent
+	# receipt AND the mapped source_ids must reproduce the remapped child_id exactly.
+	var new_transaction_receipt: Dictionary = (bundle["transaction_remap"]["old-tx-anchor"] as Dictionary)["new_transaction_issuer_receipt"]
+	var expected_provenance := _child_provenance(new_transaction_receipt, "board_start", 0, ["new-tx-anchor"])
+	assert_eq(pending["source_commit_receipt_id"], expected_provenance["child_id"])
+	assert_eq(new_provenance["child_id"], expected_provenance["child_id"])
+
+
+func test_prepare_leaves_genuinely_opaque_source_ids_unchanged() -> void:
+	if not _exists(): return
+	var old_transaction_receipt := _transaction_receipt("old-tx-opaque")
+	var opaque_hash := "board_command.deadbeefdeadbeefdeadbeefdeadbeef"
+	var source_commit := _child_provenance(old_transaction_receipt, "board_start", 0, [opaque_hash])
+	var snapshot := _snapshot("old-tx-opaque", source_commit)
+	var bundle := _bundle("old-tx-opaque", "new-tx-opaque")
+
+	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-opaque", bundle)
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var pending: Dictionary = (result["value"] as Dictionary)["snapshot"]["desktop"]["consequence"]["pending"]
+	assert_eq(pending["source_commit_receipt_provenance"]["source_ids"], [opaque_hash],
+		"a source_id with no transaction_remap entry is genuinely opaque and must pass through unchanged")
+
+
+func test_prepare_rejects_an_unsorted_historical_source_ids_record() -> void:
+	if not _exists(): return
+	var old_transaction_receipt := _transaction_receipt("old-tx-unsorted")
+	# A malformed historical provenance: source_ids deliberately out of lexical order.
+	var source_commit := _child_provenance(old_transaction_receipt, "board_start", 0, ["z-id", "a-id"])
+	var snapshot := _snapshot("old-tx-unsorted", source_commit)
+	var bundle := _bundle("old-tx-unsorted", "new-tx-unsorted")
+	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-unsorted", bundle)
+	assert_false(result.get("ok", true), "an unsorted historical source_ids record must reject, not be silently renormalized")
+	assert_eq(result["code"], &"remap_source_ids_invalid")
+
+
+func test_prepare_rejects_a_duplicate_historical_source_ids_record() -> void:
+	if not _exists(): return
+	var old_transaction_receipt := _transaction_receipt("old-tx-dup")
+	var source_commit := _child_provenance(old_transaction_receipt, "board_start", 0, ["dup-id", "dup-id"])
+	var snapshot := _snapshot("old-tx-dup", source_commit)
+	var bundle := _bundle("old-tx-dup", "new-tx-dup")
+	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-dup", bundle)
+	assert_false(result.get("ok", true), "a duplicated historical source_ids record must reject")
+	assert_eq(result["code"], &"remap_source_ids_invalid")
+
+
 func test_validate_remap_accepts_its_own_prepare_output_and_rejects_a_tampered_candidate() -> void:
 	if not _exists(): return
 	var source_commit := _child_provenance(_transaction_receipt("old-tx-6"), "board_start", 0, [])
