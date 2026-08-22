@@ -8,7 +8,8 @@ owner_choice_on: "2026-08-22"
 current_direction: evidence_only_hospital_and_unbroken_ordered_ending_host
 conversational_design_status: approved_all_a_with_hospital_zero_or_one_sylvia_correction
 conversationally_approved_on: "2026-08-22"
-written_spec_status: pending_owner_review
+written_spec_status: approved
+written_spec_approved_on: "2026-08-22"
 implementation_requested: false
 implementation_authorized: false
 created_on: "2026-08-22"
