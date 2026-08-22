@@ -41,10 +41,26 @@ const OUTBOX_KINDS: Array[String] = ["notification", "hospital"]
 
 const _STATE_KEYS: Array[String] = [
 	"schema_version", "run_revision", "causal_sequence", "causal_day_instance",
-	"causal_day_instance_issuer_receipt", "pending", "outbox",
+	"causal_day_instance_issuer_receipt", "pending", "outbox", "shop_ledger",
 ]
 const _ISSUER_PROVENANCE_KEYS: Array[String] = ["causal_day_instance", "causal_day_instance_issuer_receipt"]
 const _ISSUER_RECEIPT_KEYS: Array[String] = ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]
+
+## Task 7 (dwm-p2r.32.7) registration seam filled in: amendment SS8.3's "current-causal-day
+## base-completion and Supportz records", scoped by controller ruling into this class as an
+## exact-key extension of the frozen state (see DesktopContinuationRemapper's own _REMAP_TABLE row
+## for the matching registration on that side). `base_completion_receipts` stores every historical
+## qualifying completion (kind=complete, app_round_ordinal in {1,2}) across every causal day, not
+## just today's -- MinesweeperCapabilityRules.supportz_eligible() does its own per-day filtering, so
+## this ledger stays a simple flat append log rather than a nested per-day index.
+const _SHOP_LEDGER_KEYS: Array[String] = [
+	"supportz_branch_purchase_count", "supportz_last_purchase_causal_day_instance",
+	"base_completion_receipts",
+]
+## Mirrors MinesweeperCapabilityRules._COMPLETION_RECEIPT_KEYS exactly (KNOWN CONSUMER CONTRACT,
+## Task-7 controller ruling): that rule fails closed unless projected to precisely these 3 keys.
+const _BASE_COMPLETION_RECEIPT_KEYS: Array[String] = ["kind", "app_round_ordinal", "causal_day_instance"]
+const _BASE_COMPLETION_ORDINALS := [1, 2]
 
 const _PENDING_KEYS: Array[String] = [
 	"source_kind", "stage", "transaction_id", "transaction_issuer_receipt", "source_commit_receipt_id",
@@ -70,6 +86,7 @@ var _causal_day_instance_issuer_receipt: Dictionary = {}
 var _pending: Variant = null
 var _outbox: Dictionary = {}
 var _command_receipts: Dictionary = {}
+var _shop_ledger: Dictionary = _empty_shop_ledger()
 
 
 func _init() -> void:
@@ -84,6 +101,14 @@ func _reset_defaults() -> void:
 	_pending = null
 	_outbox = {}
 	_command_receipts = {}
+	_shop_ledger = _empty_shop_ledger()
+
+
+static func _empty_shop_ledger() -> Dictionary:
+	return {
+		"supportz_branch_purchase_count": 0, "supportz_last_purchase_causal_day_instance": "",
+		"base_completion_receipts": [],
+	}
 
 
 # -------------------------------------------------------------------------------------------------
@@ -106,6 +131,7 @@ static func make_empty(issuer_provenance: Dictionary) -> Dictionary:
 		"causal_day_instance_issuer_receipt": (issuer_provenance["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true),
 		"pending": null,
 		"outbox": {},
+		"shop_ledger": _empty_shop_ledger(),
 	}
 	return {"ok": true, "code": &"ok", "value": {"state": state}, "receipt": {}}
 
@@ -146,6 +172,9 @@ static func _validate_impl(state: Dictionary, allow_pending_admission: bool) -> 
 	var outbox_check := _validate_outbox(state["outbox"])
 	if not outbox_check.get("ok", false):
 		return outbox_check
+	var shop_ledger_check := _validate_shop_ledger(state["shop_ledger"])
+	if not shop_ledger_check.get("ok", false):
+		return shop_ledger_check
 	return {"ok": true, "code": &"ok", "value": {"state": state.duplicate(true)}, "receipt": {}}
 
 
@@ -525,6 +554,85 @@ func prepare_outbox_publication(request: Dictionary) -> Dictionary:
 
 
 # -------------------------------------------------------------------------------------------------
+# Task 7 (dwm-p2r.32.7) shop ledger -- Supportz branch/day purchase record and current-causal-day
+# base-completion receipts, per the controller ruling scoping amendment SS8.3 into this class.
+# Independent of `_pending`: unlike the causal continuation graph above, these counters are plain
+# durable facts that MinesweeperShopPurchaseParticipant reads/advances around its own admission
+# boundary (a pending action transaction is routinely still live -- at `sequence_committed` -- when
+# the participant's forward commit() records a Supportz purchase here), so neither method gates on
+# `_pending == null`.
+# -------------------------------------------------------------------------------------------------
+
+## Records one qualifying base-completion receipt (a Minesweeper app round finishing at ordinal 1
+## or 2). Idempotent by content: a byte-identical entry already recorded is not appended twice,
+## since -- unlike every other prepare_*() here -- this has no caller-supplied transaction_id to
+## anchor a ledger replay against (Task 8's future round-completion flow is expected to call this
+## once per genuinely distinct completion; duplicate-content protection is a cheap, honest backstop,
+## not a substitute for that caller's own idempotency).
+func prepare_record_base_completion(receipt: Dictionary) -> Dictionary:
+	var receipt_check := _validate_base_completion_receipt(receipt)
+	if not receipt_check.get("ok", false):
+		return receipt_check
+	var normalized := {
+		"kind": "complete", "app_round_ordinal": int(receipt["app_round_ordinal"]),
+		"causal_day_instance": str(receipt["causal_day_instance"]),
+	}
+	var existing: Array = (_shop_ledger["base_completion_receipts"] as Array).duplicate(true)
+	if not existing.has(normalized):
+		existing.append(normalized)
+	var state_after := _live_state()
+	(state_after["shop_ledger"] as Dictionary)["base_completion_receipts"] = existing
+	return {"ok": true, "code": &"ok", "value": {"candidate": {
+		"kind": &"shop_ledger_base_completion", "state_after": state_after,
+	}}, "receipt": {}}
+
+
+## Records one Supportz purchase against the branch/day ledger. Reuses commit()'s existing
+## transaction-id ledger for idempotent replay (a byte-identical retry at the same transaction_id
+## returns the original result rather than incrementing the count twice); the participant's own
+## forward commit() is this method's sole caller, gated on the matching pending transaction already
+## being `sequence_committed` (Task-7 boundary ruling) -- so a merely-prepared, not-yet-admitted
+## purchase never advances this count.
+func prepare_record_supportz_purchase(transaction_id: String, causal_day_instance: String) -> Dictionary:
+	if transaction_id.strip_edges().is_empty():
+		return _fail(&"invalid_transaction_id", "transaction_id must be nonblank", {})
+	if causal_day_instance.strip_edges().is_empty():
+		return _fail(&"invalid_causal_day_instance", "causal_day_instance must be nonblank", {})
+	var state_after := _live_state()
+	var ledger: Dictionary = state_after["shop_ledger"]
+	ledger["supportz_branch_purchase_count"] = int(ledger["supportz_branch_purchase_count"]) + 1
+	ledger["supportz_last_purchase_causal_day_instance"] = causal_day_instance
+	return {"ok": true, "code": &"ok", "value": {"candidate": {
+		"kind": &"shop_ledger_supportz_purchase", "state_after": state_after,
+		"transaction_id": transaction_id,
+		"request_fingerprint": _canonical_sha256({"causal_day_instance": causal_day_instance}),
+	}}, "receipt": {}}
+
+
+## Pure projection into MinesweeperCapabilityRules.supportz_eligible()'s exact minimal 4-key input
+## shape (KNOWN CONSUMER CONTRACT, Task-7 controller ruling): every stored completion receipt is
+## already exactly {kind,app_round_ordinal,causal_day_instance}, so the projection below is an
+## identity copy today, but it stays an explicit projection rather than handing the rule this
+## ledger's own dictionary so the two shapes may not silently diverge.
+func supportz_eligibility_state(causal_day_instance: String) -> Dictionary:
+	if causal_day_instance.strip_edges().is_empty():
+		return _fail(&"invalid_causal_day_instance", "causal_day_instance must be nonblank", {})
+	var projected: Array = []
+	for entry: Variant in (_shop_ledger["base_completion_receipts"] as Array):
+		var record: Dictionary = entry
+		projected.append({
+			"kind": str(record["kind"]), "app_round_ordinal": int(record["app_round_ordinal"]),
+			"causal_day_instance": str(record["causal_day_instance"]),
+		})
+	return {"ok": true, "code": &"ok", "value": {"state": {
+		"causal_day_instance": causal_day_instance,
+		"completion_receipts": projected,
+		"branch_purchase_count": int(_shop_ledger["supportz_branch_purchase_count"]),
+		"daily_purchase_done": str(_shop_ledger["supportz_last_purchase_causal_day_instance"]) == causal_day_instance,
+	}}, "receipt": {}}
+
+
+# -------------------------------------------------------------------------------------------------
 # commit() / rollback() -- sole mutator and transaction ledger
 # -------------------------------------------------------------------------------------------------
 
@@ -594,6 +702,7 @@ func _adopt_state(state: Dictionary) -> void:
 	_causal_day_instance_issuer_receipt = (state["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true)
 	_pending = _dup_or_null(state["pending"])
 	_outbox = (state["outbox"] as Dictionary).duplicate(true)
+	_shop_ledger = (state["shop_ledger"] as Dictionary).duplicate(true)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -606,6 +715,7 @@ func _live_state() -> Dictionary:
 		"causal_day_instance": _causal_day_instance,
 		"causal_day_instance_issuer_receipt": _causal_day_instance_issuer_receipt.duplicate(true),
 		"pending": _dup_or_null(_pending), "outbox": _outbox.duplicate(true),
+		"shop_ledger": _shop_ledger.duplicate(true),
 	}
 
 
@@ -749,6 +859,47 @@ static func _validate_outbox(outbox: Variant) -> Dictionary:
 			return shape
 		if str(entry["status"]) not in _OUTBOX_STATUSES:
 			return _fail(&"outbox_status_invalid", str(entry["status"]), {})
+	return {"ok": true}
+
+
+static func _validate_shop_ledger(value: Variant) -> Dictionary:
+	if typeof(value) != TYPE_DICTIONARY:
+		return _fail(&"shop_ledger_invalid", "shop_ledger must be an object", {})
+	var shape := _exact_keys(value, _SHOP_LEDGER_KEYS, &"shop_ledger_member_set_invalid")
+	if not shape.get("ok", false):
+		return shape
+	var ledger: Dictionary = value
+	if typeof(ledger["supportz_branch_purchase_count"]) != TYPE_INT \
+			or int(ledger["supportz_branch_purchase_count"]) < 0:
+		return _fail(&"shop_ledger_field_invalid",
+			"supportz_branch_purchase_count must be a nonnegative integer", {})
+	if typeof(ledger["supportz_last_purchase_causal_day_instance"]) != TYPE_STRING:
+		return _fail(&"shop_ledger_field_invalid",
+			"supportz_last_purchase_causal_day_instance must be a string", {})
+	if typeof(ledger["base_completion_receipts"]) != TYPE_ARRAY:
+		return _fail(&"shop_ledger_field_invalid", "base_completion_receipts must be an array", {})
+	for entry: Variant in (ledger["base_completion_receipts"] as Array):
+		var receipt_check := _validate_base_completion_receipt(entry)
+		if not receipt_check.get("ok", false):
+			return receipt_check
+	return {"ok": true}
+
+
+static func _validate_base_completion_receipt(entry: Variant) -> Dictionary:
+	if typeof(entry) != TYPE_DICTIONARY:
+		return _fail(&"base_completion_receipt_invalid", "every base completion receipt must be an object", {})
+	var shape := _exact_keys(entry, _BASE_COMPLETION_RECEIPT_KEYS, &"base_completion_receipt_invalid")
+	if not shape.get("ok", false):
+		return shape
+	var receipt: Dictionary = entry
+	if str(receipt["kind"]) != "complete":
+		return _fail(&"base_completion_receipt_invalid", "kind must be complete", {})
+	if typeof(receipt["app_round_ordinal"]) != TYPE_INT \
+			or not _BASE_COMPLETION_ORDINALS.has(int(receipt["app_round_ordinal"])):
+		return _fail(&"base_completion_receipt_invalid", "app_round_ordinal must be 1 or 2", {})
+	if typeof(receipt["causal_day_instance"]) != TYPE_STRING \
+			or str(receipt["causal_day_instance"]).strip_edges().is_empty():
+		return _fail(&"base_completion_receipt_invalid", "causal_day_instance must be nonblank", {})
 	return {"ok": true}
 
 

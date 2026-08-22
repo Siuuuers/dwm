@@ -5,12 +5,13 @@ extends RefCounted
 ## .cross_app_actions), amendment plan lines 287-291.
 ##
 ## TABLE-DRIVEN SCOPE, resolving the brief's "current-causal-day base-completion and Supportz
-## records" clause (controller ruling, bead addendum 9): those members do not exist in v4 yet.
-## Amendment SS8.3 places them in Task 7 -- a per-branch Supportz purchase count, a per-causal-day
-## purchase flag, and per-causal-day base-completion receipts that
-## MinesweeperCapabilityRules.supportz_eligible() will consume. _REMAP_TABLE below is the one
-## explicit registration seam: Task 7 adds a row here (and the matching branch in _remap_consequence)
-## when it introduces those members. Nothing here invents a schema member that does not exist today.
+## records" clause (controller ruling, bead addendum 9). Amendment SS8.3 places them in Task 7 -- a
+## per-branch Supportz purchase count, a per-causal-day purchase flag, and base-completion receipts
+## that MinesweeperCapabilityRules.supportz_eligible() consumes -- and Task 7 has since landed them
+## on DesktopConsequenceState as the single `shop_ledger` member (see that file's own class doc).
+## _REMAP_TABLE's `shop_ledger` row is `handled: true`: none of its three members is a transaction id
+## or an anchored child provenance (a purchase count and opaque historical causal_day_instance
+## tokens), so _remap_consequence()'s existing duplicate(true) already carries it forward correctly.
 ##
 ## Every row this remapper actually HANDLES operates on a member RunSnapshotSchema v4 already
 ## declares (DesktopBoardState._CAPTURE_KEYS / DesktopConsequenceState's own _STATE_KEYS/
@@ -57,8 +58,7 @@ const _REMAP_TABLE: Array[Dictionary] = [
 		"reason": "no frozen member shape exists yet"},
 	{"path": "desktop.consequence.outbox.*.provenance/consumer", "handled": false,
 		"reason": "no frozen member shape exists yet"},
-	{"path": "desktop.consequence.<Task-7 Supportz/base-completion members>", "handled": false,
-		"reason": "amendment SS8.3; the members do not exist in v4 -- add a row here, not before"},
+	{"path": "desktop.consequence.shop_ledger", "handled": true},
 ]
 
 
@@ -255,6 +255,11 @@ static func _remap_consequence(consequence: Dictionary, bundle: Dictionary, tran
 		if not remapped_pending.get("ok", false):
 			return remapped_pending
 		remapped["pending"] = remapped_pending["value"]
+	# Task 7 (dwm-p2r.32.7) registration seam filled in: shop_ledger's three members are a plain
+	# purchase count and opaque HISTORICAL causal_day_instance tokens (the branch's running Supportz
+	# count and completion log; none is a transaction id or an anchored child provenance), so no
+	# rewrite is needed beyond the duplicate() above -- unlike board/pending's rewindable transaction
+	# references, remapping a NEW branch identity never changes what already happened on past days.
 	return {"ok": true, "code": &"ok", "value": remapped}
 
 

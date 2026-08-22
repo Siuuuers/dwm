@@ -244,6 +244,15 @@ func test_shop_projection_matches_the_frozen_literals() -> void:
 			"%s max_purchases" % item_id)
 
 
+# Task 7 (dwm-p2r.32.7): MinesweeperShopPurchaseParticipant interprets exactly this closed 3-item
+# union itself (no generic effect-string execution path, per the frozen contract's own words) --
+# lucky_charm/debug_key grant their capability via inventory ownership, supportz spends money and
+# decrements the round floor. A regression guard: if the registry's item-id set ever changes, this
+# fails loudly rather than the participant silently rejecting every purchase as unregistered.
+func test_registry_ids_are_the_closed_three_item_set_the_shop_purchase_participant_depends_on() -> void:
+	assert_eq(SHOP_REGISTRY.get_ids(), ["lucky_charm", "debug_key", "supportz"])
+
+
 # The only genuinely RED Shop assertion: get_record() answers not_implemented today, so this can go
 # green only once the registry works AND DataCatalog delegates to it (DECISION 11.9).
 func test_shop_projection_equals_the_registry_records() -> void:

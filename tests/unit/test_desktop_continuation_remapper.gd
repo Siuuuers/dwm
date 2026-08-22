@@ -93,7 +93,8 @@ func _snapshot(old_tx: String, old_source_commit: Dictionary) -> Dictionary:
 		"schema_version": 1, "run_revision": 2, "causal_sequence": 1,
 		"causal_day_instance": "causal-day-old",
 		"causal_day_instance_issuer_receipt": _issuer_receipt("causal_day_instance", "causal-day-old"),
-		"pending": pending, "outbox": {},
+		"pending": pending, "outbox": {}, "shop_ledger": {"supportz_branch_purchase_count": 0,
+			"supportz_last_purchase_causal_day_instance": "", "base_completion_receipts": []},
 	}
 	return {"lifecycle": {}, "desktop": {"board": board, "consequence": consequence}}
 

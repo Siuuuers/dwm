@@ -92,7 +92,12 @@
       },
       "pending": null,
       "run_revision": 0,
-      "schema_version": 1
+      "schema_version": 1,
+      "shop_ledger": {
+        "base_completion_receipts": [],
+        "supportz_branch_purchase_count": 0,
+        "supportz_last_purchase_causal_day_instance": ""
+      }
     }
   },
   "gameplay": {

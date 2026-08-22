@@ -65,7 +65,8 @@ func _consequence(run_revision: int = 0) -> Dictionary:
 			"receipt_id": "issuer_receipt.fixture-day-composer", "purpose": "causal_day_instance",
 			"namespace": "fixturenamespace", "counter": 1, "token": "day-composer", "numeric_value": null,
 		},
-		"pending": null, "outbox": {},
+		"pending": null, "outbox": {}, "shop_ledger": {"supportz_branch_purchase_count": 0,
+			"supportz_last_purchase_causal_day_instance": "", "base_completion_receipts": []},
 	}
 
 func _base_snapshot_input(run_revision: int = 0) -> Dictionary:

@@ -44,7 +44,8 @@ func _empty_desktop() -> Dictionary:
 		"consequence": {"schema_version": 1, "run_revision": 0, "causal_sequence": 0,
 			"causal_day_instance": "causal-day-1",
 			"causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
-			"pending": null, "outbox": {}},
+			"pending": null, "outbox": {}, "shop_ledger": {"supportz_branch_purchase_count": 0,
+				"supportz_last_purchase_causal_day_instance": "", "base_completion_receipts": []}},
 	}
 
 func _checkpoint_inputs(run_id: String, day: int = 3) -> Dictionary:

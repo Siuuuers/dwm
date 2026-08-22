@@ -498,3 +498,168 @@ func test_validate_recovery_payload_rejects_wrong_source_kind_shape() -> void:
 	var wrong: Dictionary = _STATE_SCRIPT.validate_recovery_payload(
 		&"schedule_done", action_payload, _sha256(action_payload))
 	assert_false(wrong.get("ok", true), "an action-shaped payload cannot validate as schedule_done")
+
+
+# -------------------------------------------------------------------------------------------------
+# Task 7 (dwm-p2r.32.7): shop_ledger registration seam -- Supportz branch/day purchase record and
+# current-causal-day base-completion receipts (controller ruling, bead addendum 9).
+# -------------------------------------------------------------------------------------------------
+
+func _completion(ordinal: int, causal_day_instance: String) -> Dictionary:
+	return {"kind": "complete", "app_round_ordinal": ordinal, "causal_day_instance": causal_day_instance}
+
+
+func test_make_empty_seeds_a_zeroed_shop_ledger() -> void:
+	var made: Dictionary = _STATE_SCRIPT.make_empty(_provenance())
+	var state: Dictionary = made["value"]["state"]
+	assert_true(state.has("shop_ledger"), "shop_ledger is a top-level v4 consequence member")
+	var ledger: Dictionary = state["shop_ledger"]
+	assert_eq(int(ledger["supportz_branch_purchase_count"]), 0)
+	assert_eq(str(ledger["supportz_last_purchase_causal_day_instance"]), "")
+	assert_eq((ledger["base_completion_receipts"] as Array), [])
+	assert_true(_STATE_SCRIPT.validate(state)["ok"])
+
+
+func test_validate_rejects_extra_and_missing_shop_ledger_keys() -> void:
+	var made: Dictionary = _STATE_SCRIPT.make_empty(_provenance())
+	var state: Dictionary = made["value"]["state"]
+	var missing := state.duplicate(true)
+	missing.erase("shop_ledger")
+	assert_false(_STATE_SCRIPT.validate(missing).get("ok", true), "missing shop_ledger must reject")
+
+	var extra_top: Dictionary = state.duplicate(true)
+	var bogus_ledger: Dictionary = (extra_top["shop_ledger"] as Dictionary).duplicate(true)
+	bogus_ledger["bogus"] = 1
+	extra_top["shop_ledger"] = bogus_ledger
+	assert_false(_STATE_SCRIPT.validate(extra_top).get("ok", true), "extra shop_ledger member must reject")
+
+	var missing_member: Dictionary = state.duplicate(true)
+	var incomplete_ledger: Dictionary = (missing_member["shop_ledger"] as Dictionary).duplicate(true)
+	incomplete_ledger.erase("base_completion_receipts")
+	missing_member["shop_ledger"] = incomplete_ledger
+	assert_false(_STATE_SCRIPT.validate(missing_member).get("ok", true), "missing shop_ledger member must reject")
+
+
+func test_validate_rejects_a_malformed_base_completion_receipt() -> void:
+	var made: Dictionary = _STATE_SCRIPT.make_empty(_provenance())
+	var state: Dictionary = made["value"]["state"]
+	var bad_ordinal: Dictionary = state.duplicate(true)
+	var ledger: Dictionary = (bad_ordinal["shop_ledger"] as Dictionary).duplicate(true)
+	ledger["base_completion_receipts"] = [_completion(3, "causal-day-1")]
+	bad_ordinal["shop_ledger"] = ledger
+	assert_false(_STATE_SCRIPT.validate(bad_ordinal).get("ok", true), "app_round_ordinal must be 1 or 2")
+
+	var bad_kind: Dictionary = state.duplicate(true)
+	var kind_ledger: Dictionary = (bad_kind["shop_ledger"] as Dictionary).duplicate(true)
+	var entry := _completion(1, "causal-day-1")
+	entry["kind"] = "incomplete"
+	kind_ledger["base_completion_receipts"] = [entry]
+	bad_kind["shop_ledger"] = kind_ledger
+	assert_false(_STATE_SCRIPT.validate(bad_kind).get("ok", true), "kind must be complete")
+
+
+func test_prepare_record_base_completion_appends_and_is_content_idempotent() -> void:
+	var state := _bootstrapped()
+	var first: Dictionary = state.prepare_record_base_completion(_completion(1, "causal-day-1"))
+	assert_true(first.get("ok", false), JSON.stringify(first))
+	var committed: Dictionary = state.commit((first["value"] as Dictionary)["candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	var ledger: Dictionary = (committed["value"] as Dictionary)["state"]["shop_ledger"]
+	assert_eq((ledger["base_completion_receipts"] as Array), [_completion(1, "causal-day-1")])
+
+	# A byte-identical record is not appended twice.
+	var replay: Dictionary = state.prepare_record_base_completion(_completion(1, "causal-day-1"))
+	var replay_committed: Dictionary = state.commit((replay["value"] as Dictionary)["candidate"])
+	var replay_ledger: Dictionary = (replay_committed["value"] as Dictionary)["state"]["shop_ledger"]
+	assert_eq((replay_ledger["base_completion_receipts"] as Array).size(), 1, "duplicate content is not appended twice")
+
+	var second: Dictionary = state.prepare_record_base_completion(_completion(2, "causal-day-1"))
+	var second_committed: Dictionary = state.commit((second["value"] as Dictionary)["candidate"])
+	var second_ledger: Dictionary = (second_committed["value"] as Dictionary)["state"]["shop_ledger"]
+	assert_eq((second_ledger["base_completion_receipts"] as Array).size(), 2)
+
+
+func test_prepare_record_base_completion_rejects_a_malformed_receipt() -> void:
+	var state := _bootstrapped()
+	var wrong_kind: Dictionary = state.prepare_record_base_completion({"kind": "incomplete",
+		"app_round_ordinal": 1, "causal_day_instance": "causal-day-1"})
+	assert_false(wrong_kind.get("ok", true))
+	var wrong_ordinal: Dictionary = state.prepare_record_base_completion(_completion(3, "causal-day-1"))
+	assert_false(wrong_ordinal.get("ok", true))
+	var blank_day: Dictionary = state.prepare_record_base_completion(_completion(1, ""))
+	assert_false(blank_day.get("ok", true))
+
+
+func test_prepare_record_supportz_purchase_increments_count_and_sets_the_last_purchase_day() -> void:
+	var state := _bootstrapped()
+	var prepared: Dictionary = state.prepare_record_supportz_purchase("txn-supportz-1", "causal-day-1")
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var committed: Dictionary = state.commit((prepared["value"] as Dictionary)["candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	var ledger: Dictionary = (committed["value"] as Dictionary)["state"]["shop_ledger"]
+	assert_eq(int(ledger["supportz_branch_purchase_count"]), 1)
+	assert_eq(str(ledger["supportz_last_purchase_causal_day_instance"]), "causal-day-1")
+
+
+func test_prepare_record_supportz_purchase_is_idempotent_via_the_transaction_ledger() -> void:
+	var state := _bootstrapped()
+	var prepared: Dictionary = state.prepare_record_supportz_purchase("txn-supportz-1", "causal-day-1")
+	var committed: Dictionary = state.commit((prepared["value"] as Dictionary)["candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+
+	var replay_prepared: Dictionary = state.prepare_record_supportz_purchase("txn-supportz-1", "causal-day-1")
+	var replay: Dictionary = state.commit((replay_prepared["value"] as Dictionary)["candidate"])
+	assert_eq(replay, committed, "an identical replay returns the stored result rather than incrementing again")
+
+	var conflicting_prepared: Dictionary = state.prepare_record_supportz_purchase("txn-supportz-1", "causal-day-2")
+	var conflicting: Dictionary = state.commit((conflicting_prepared["value"] as Dictionary)["candidate"])
+	assert_false(conflicting.get("ok", true))
+	assert_eq(conflicting.get("code"), &"consequence_command_conflict")
+
+
+func test_supportz_eligibility_state_projects_the_capability_rules_exact_four_key_shape() -> void:
+	var state := _bootstrapped()
+	var base_1: Dictionary = state.prepare_record_base_completion(_completion(1, "causal-day-1"))
+	state.commit((base_1["value"] as Dictionary)["candidate"])
+	var base_2: Dictionary = state.prepare_record_base_completion(_completion(2, "causal-day-1"))
+	state.commit((base_2["value"] as Dictionary)["candidate"])
+
+	var projected: Dictionary = state.supportz_eligibility_state("causal-day-1")
+	assert_true(projected.get("ok", false), JSON.stringify(projected))
+	var value: Dictionary = projected["value"]["state"]
+	var keys: Array = value.keys()
+	keys.sort()
+	assert_eq(keys, ["branch_purchase_count", "causal_day_instance", "completion_receipts", "daily_purchase_done"])
+	assert_eq(str(value["causal_day_instance"]), "causal-day-1")
+	assert_eq(int(value["branch_purchase_count"]), 0)
+	assert_false(bool(value["daily_purchase_done"]))
+	var receipts: Array = value["completion_receipts"]
+	assert_eq(receipts.size(), 2)
+	for receipt: Variant in receipts:
+		var entry_keys: Array = (receipt as Dictionary).keys()
+		entry_keys.sort()
+		assert_eq(entry_keys, ["app_round_ordinal", "causal_day_instance", "kind"],
+			"KNOWN CONSUMER CONTRACT: supportz_eligible() requires exactly these 3 keys")
+
+
+func test_supportz_eligibility_state_filters_completions_by_causal_day() -> void:
+	var state := _bootstrapped()
+	var other_day: Dictionary = state.prepare_record_base_completion(_completion(1, "causal-day-other"))
+	state.commit((other_day["value"] as Dictionary)["candidate"])
+	var this_day: Dictionary = state.prepare_record_base_completion(_completion(1, "causal-day-1"))
+	state.commit((this_day["value"] as Dictionary)["candidate"])
+
+	var projected: Dictionary = state.supportz_eligibility_state("causal-day-1")
+	var receipts: Array = (projected["value"] as Dictionary)["state"]["completion_receipts"]
+	assert_eq(receipts.size(), 2, "both days' receipts are present; supportz_eligible() itself filters by day")
+
+
+func test_supportz_eligibility_state_reflects_daily_purchase_done_after_a_recorded_purchase() -> void:
+	var state := _bootstrapped()
+	var prepared: Dictionary = state.prepare_record_supportz_purchase("txn-supportz-1", "causal-day-1")
+	state.commit((prepared["value"] as Dictionary)["candidate"])
+	var projected: Dictionary = state.supportz_eligibility_state("causal-day-1")
+	assert_true(bool((projected["value"] as Dictionary)["state"]["daily_purchase_done"]))
+	var other_day: Dictionary = state.supportz_eligibility_state("causal-day-2")
+	assert_false(bool((other_day["value"] as Dictionary)["state"]["daily_purchase_done"]),
+		"a different causal day is not marked done")
