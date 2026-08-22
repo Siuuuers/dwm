@@ -8,7 +8,8 @@ owner_choice_on: "2026-08-22"
 current_direction: orthogonal_fact_zones_with_truthful_operational_status
 conversational_design_status: approved_all_a_across_two_batches
 conversationally_approved_on: "2026-08-22"
-written_spec_status: pending_owner_review
+written_spec_status: approved
+written_spec_approved_on: "2026-08-22"
 implementation_requested: false
 implementation_authorized: false
 created_on: "2026-08-22"
@@ -29,8 +30,8 @@ legal-overlap model needed to apply those treatments without changing any
 application's behavior.
 
 This disposition records the conversationally approved conceptual functional-
-state grammar, subject to review of these written bytes, that must exist before
-the sixteen theme/accessibility tuples can be calibrated. It governs only how
+state grammar in owner-approved written bytes that must exist before the
+sixteen theme/accessibility tuples can be calibrated. It governs only how
 already-authorized operational facts remain visibly and assistively
 distinguishable. It adds no player command, narrative fact, mechanic,
 application, status message, story interpretation, or runtime state.
@@ -587,11 +588,10 @@ Those are future acceptance obligations, not claims about the present runtime.
 
 ## 14. Current completion boundary
 
-The two conversational all-A batches are approved and captured here. The exact
-written wording remains **pending owner review**. No implementation, asset,
-audio, palette, or planning authority follows from this file.
+The two conversational all-A batches and their exact written wording are
+**approved** as of 2026-08-22. No implementation, asset, audio, palette, or
+planning authority follows from this file.
 
-If the owner explicitly approves this written artifact, its written-review
-metadata may advance in a separately authorized documentation-only action.
-Tuple calibration remains a separate creative design decision, and runtime
-planning or implementation requires a separate explicit request.
+This approval advances only the written-review metadata. Tuple calibration
+remains a separate creative design decision, and runtime planning or
+implementation requires a separate explicit request.
