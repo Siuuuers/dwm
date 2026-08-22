@@ -43,7 +43,7 @@ func test_acquire_release_guard_owner_rules() -> void:
 		return
 	var gate := _fresh_gate()
 	assert_true(gate.guard_external(&"probe")["ok"], "guard succeeds while no owner is active")
-	assert_false(gate.acquire(&"minesweeper").get("ok", true), "only restore/new_run may acquire")
+	assert_false(gate.acquire(&"minesweeper").get("ok", true), "only restore/new_run/causal_transaction may acquire")
 	var acquired: Dictionary = gate.acquire(&"restore")
 	assert_true(acquired["ok"], JSON.stringify(acquired))
 	var token := str(acquired["value"]["token"])
@@ -60,6 +60,19 @@ func test_acquire_release_guard_owner_rules() -> void:
 	assert_true(gate.release(&"restore", token)["ok"])
 	assert_false(gate.is_active())
 	assert_eq(gate.get_active_owner(), &"")
+
+func test_causal_transaction_is_a_valid_owner() -> void:
+	assert_true(_gate_exists(), "ApplicationMutationGate must exist")
+	if not _gate_exists():
+		return
+	var gate := _fresh_gate()
+	var acquired: Dictionary = gate.acquire(&"causal_transaction")
+	assert_true(acquired["ok"], JSON.stringify(acquired))
+	assert_eq(gate.get_active_owner(), &"causal_transaction")
+	assert_true(gate.is_internal_owner_active(&"causal_transaction"))
+	assert_false(gate.acquire(&"restore").get("ok", true), "causal_transaction excludes restore")
+	var token := str(acquired["value"]["token"])
+	assert_true(gate.release(&"causal_transaction", token)["ok"])
 
 func test_latch_fatal_input_validation_changes_nothing() -> void:
 	assert_true(_gate_exists(), "ApplicationMutationGate must exist")

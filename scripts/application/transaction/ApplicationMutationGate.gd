@@ -6,7 +6,7 @@ extends RefCounted
 
 signal capability_changed(capability: Dictionary)
 
-const VALID_OWNERS: Array[StringName] = [&"restore", &"new_run"]
+const VALID_OWNERS: Array[StringName] = [&"restore", &"new_run", &"causal_transaction"]
 const FAILURE_KEYS: Array[String] = ["code", "details", "phase", "source"]
 const DETAIL_DEPTH_BUDGET := 32
 
