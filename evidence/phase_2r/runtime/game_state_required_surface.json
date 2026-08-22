@@ -1546,6 +1546,14 @@
       "contract_test": "test_run_restore_round_trips_via_participant"
     },
     {
+      "symbol": "apply_continuation_remap_silent",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_remaps_board_identity_and_command_receipt_keys"
+    },
+    {
       "symbol": "day",
       "kind": "property",
       "availability": "target",

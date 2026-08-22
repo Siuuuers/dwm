@@ -15,6 +15,16 @@ const ROUTE_P := "res://scripts/application/restore/RouteRestoreParticipant.gd"
 const NARR_P := "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
 const SAVE_CHECKPOINT_PORT := "res://scripts/application/run/SaveManagerCheckpointPort.gd"
 const DESKTOP_HOST := "res://scripts/domain/desktop/DesktopAppHostState.gd"
+## Plan 02 Task 6 (dwm-p2r.32), Phase C2: two more real restore adapters plus the real issuer stack
+## `commit_prepared_restore()` now drives for every genuine production restore.
+const DESKTOP_CONSEQUENCE_STATE := "res://scripts/domain/desktop/DesktopConsequenceState.gd"
+const DESKTOP_BOARD_STATE := "res://scripts/domain/minesweeper/DesktopBoardState.gd"
+const DESKTOP_CONSEQUENCE_PARTICIPANT := "res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd"
+const DESKTOP_BOARD_PARTICIPANT := "res://scripts/application/restore/DesktopBoardRestoreParticipant.gd"
+const IDENTITY_ALLOCATION_PARTICIPANT := "res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd"
+const ISSUER_PATH := "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd"
+const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd"
+const FAKE_NAMESPACE_SOURCE_PATH := "res://tests/support/FakeDesktopNamespaceSource.gd"
 
 # Failure-injectable owner returning the exact shapes the real adapters expect.
 class Owner extends RefCounted:
@@ -24,6 +34,12 @@ class Owner extends RefCounted:
 	func prepare_new_run_snapshot_input(run_id: String, _branch_id: String, _generation: int,
 			_causal_day_instance: String, _causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {"run_id": run_id, "day": 1}}}}
+	## Plan 02 Task 6 (dwm-p2r.32), Phase C2: RunRestoreParticipant.apply_continuation_remap()
+	## delegates here for a real restore's identity-remap step; this fake owner accepts it trivially
+	## (this file exercises the ORDINARY participant plumbing, not remap correctness itself -- see
+	## test_desktop_board_persistence.gd for that).
+	func apply_continuation_remap_silent(_restore_transaction_id: String, _identity_allocation_bundle: Dictionary) -> Dictionary:
+		return {"ok": true, "code": &"ok"}
 	func prepare_legacy_profile_patch(_l: Dictionary, _m: Dictionary = {}) -> Dictionary:
 		var g := _g("prepare_legacy_profile_patch")
 		return g if not g.is_empty() else {"ok": true, "value": {"preferences": {"language": "en"}}}
@@ -73,21 +89,41 @@ func _snapshot(run_id: String, seq: int, narrative: Dictionary = {}) -> Dictiona
 	assert_true(validated.get("ok", false), JSON.stringify(validated))
 	return validated["value"]["candidate"]
 
+## Real DesktopIdentityNonceIssuer/DesktopIssuerRootStore stack, isolated per manager (mirrors
+## test_desktop_identity_allocation_restore_participant.gd's own established substrate choice).
+func _fresh_issuer(root: String) -> RefCounted:
+	var file_ops: FakeFileOps = FakeFileOps.new()
+	var storage := JsonFileStorage.new(root.path_join("_issuer"), file_ops)
+	var namespace_source: RefCounted = load(FAKE_NAMESPACE_SOURCE_PATH).new("2".repeat(64))
+	var store: RefCounted = load(ROOT_STORE_PATH).new()
+	assert_true(store.configure(storage, namespace_source).get("ok", false))
+	assert_true(store.load_or_create().get("ok", false))
+	var issuer: RefCounted = load(ISSUER_PATH).new()
+	assert_true(issuer.configure(store).get("ok", false))
+	return issuer
+
 func _manager(owner: Owner) -> Node:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("prod_adapters").path_join(str(randi())).path_join("saves")
-	DirAccess.make_dir_recursive_absolute(root)
+	var root := OS.get_environment("DWM_TEST_ROOT").path_join("prod_adapters").path_join(str(randi()))
+	var saves_root := root.path_join("saves")
+	DirAccess.make_dir_recursive_absolute(saves_root)
 	var m: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(m)
-	m.initialize(load(STORAGE_PATH).new(root))
+	m.initialize(load(STORAGE_PATH).new(saves_root))
 	m.configure_mutation_gate(load(GATE_PATH).new())
+	var issuer := _fresh_issuer(root)
+	m.configure_identity_issuer(issuer)
+	m.configure_identity_allocation_participant(load(IDENTITY_ALLOCATION_PARTICIPANT).new(issuer, m))
 	m.configure_restore_participants({
-		"run": load(RUN_P).new(owner), "profile": load(PROFILE_P).new(owner),
+		"run": load(RUN_P).new(owner),
+		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
+		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
+		"profile": load(PROFILE_P).new(owner),
 		"localization": load(LOC_P).new(owner), "audio": load(AUDIO_P).new(owner),
 		"route": load(ROUTE_P).new(owner), "narrative": load(NARR_P).new(owner),
 	})
 	return m
 
-func test_prepare_builds_six_plans_and_commits() -> void:
+func test_prepare_builds_eight_plans_and_commits() -> void:
 	var m := _manager(Owner.new())
 	m._journal.reset("run-a")
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-a", 1), &"day_start")["value"]["candidate"])
@@ -98,10 +134,12 @@ func test_prepare_builds_six_plans_and_commits() -> void:
 	var prepared: Dictionary = m.prepare_restore_slot(1)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var value: Dictionary = prepared["value"]["prepared"]
-	for key: String in ["run", "profile", "localization", "audio", "route", "narrative"]:
+	for key: String in ["run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative"]:
 		assert_true(value["participant_plans"].has(key), "plan built for " + key)
+	assert_true(value.has("source_locator"), "prepare embeds the identity-continuation source locator")
 	assert_eq(value["route_id"], "main", "route id derived from the one selected bundle")
-	assert_true(m.commit_prepared_restore(value).get("ok", false), "the prepared restore commits atomically")
+	var committed: Dictionary = m.commit_prepared_restore(value)
+	assert_true(committed.get("ok", false), "the prepared restore commits atomically: " + JSON.stringify(committed))
 	assert_eq(str(m._journal.get_current_bundle()["value"]["bundle"]["snapshot"]["run_id"]), "run-a",
 		"the restored run replaced the live journal")
 

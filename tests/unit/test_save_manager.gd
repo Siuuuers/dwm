@@ -183,7 +183,7 @@ func test_restore_preparation_and_delete_families() -> void:
 	assert_false(manager.save_exists(&"slot", 2), "delete leaves the locator absent")
 	assert_true(manager.delete_quick_save()["ok"])
 	assert_false(manager.save_exists(&"quick", -1))
-	assert_true(manager.start_new_run("run-b", {}).get("code") == &"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
+	assert_true(manager.start_new_run({}).get("code") == &"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
 		"start_new_run stays disabled until Task 7")
 
 func test_configure_mutation_gate_matrix_without_side_effects() -> void:

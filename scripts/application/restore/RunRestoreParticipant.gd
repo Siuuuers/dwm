@@ -33,6 +33,17 @@ func prepare_new_run(run_id: String, branch_id: String, desktop_timeline_generat
 		"run_plan": {"snapshot_input": snapshot_input.duplicate(true)},
 	}}
 
+## Task 6 Phase C2 (dwm-p2r.32): after the ordinary snapshot apply above has installed day/state/
+## active_resolution_plan (still carrying whatever identity that snapshot's bytes held), this second
+## step swaps in the durably-allocated NEW identity for a restore transaction. Delegates to
+## RunLifecycle.prepare_continuation_remap()/commit_continuation_remap() (Phase C), which read the
+## lifecycle object's OWN just-installed to_dict() and replace only branch_id/desktop_timeline_
+## generation/causal_day_instance/its issuer receipt plus restore_provenance -- day/state/plan are
+## left exactly as apply_silent() above just set them. New Run never calls this: its identity is
+## correct from construction (prepare_new_run above), never remapped.
+func apply_continuation_remap(restore_transaction_id: String, identity_allocation_bundle: Dictionary) -> Dictionary:
+	return _owner.apply_continuation_remap_silent(restore_transaction_id, identity_allocation_bundle)
+
 func capture() -> Dictionary:
 	return _owner.capture_restore_state()
 

@@ -16,6 +16,14 @@ const CALL_LOG := "res://tests/support/RestoreCallLog.gd"
 const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd"
 const ISSUER_PATH := "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd"
 const FAKE_NAMESPACE_SOURCE := "res://tests/support/FakeDesktopNamespaceSource.gd"
+## Plan 02 Task 6 (dwm-p2r.32), Phase C2: start_new_run() now builds real desktop_consequence/
+## desktop_board plans by calling `.prepare()` on the configured participants (mirroring how it
+## already calls the real RunRestoreParticipant's prepare_new_run()), so these two must be the REAL
+## classes -- a generic FakeRestoreParticipant's prepare() returns the wrong shape.
+const DESKTOP_CONSEQUENCE_STATE := "res://scripts/domain/desktop/DesktopConsequenceState.gd"
+const DESKTOP_BOARD_STATE := "res://scripts/domain/minesweeper/DesktopBoardState.gd"
+const DESKTOP_CONSEQUENCE_PARTICIPANT := "res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd"
+const DESKTOP_BOARD_PARTICIPANT := "res://scripts/application/restore/DesktopBoardRestoreParticipant.gd"
 
 func _initial_context() -> Dictionary:
 	return {"route_id": "opening", "dialogic_checkpoint": {}, "active_app_id": null,
@@ -47,6 +55,8 @@ func _wired() -> Dictionary:
 	var log: RefCounted = load(CALL_LOG).new()
 	assert_true(manager.configure_restore_participants({
 		"run": load(RUN_PARTICIPANT).new(gs),
+		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
+		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
 		"profile": load(FAKE_PARTICIPANT).new("profile", log),
 		"localization": load(FAKE_PARTICIPANT).new("localization", log),
 		"audio": load(FAKE_PARTICIPANT).new("audio", log),
@@ -55,21 +65,20 @@ func _wired() -> Dictionary:
 	})["ok"])
 	return {"manager": manager, "gate": gate, "gs": gs, "log": log, "issuer": issuer}
 
-func test_start_new_run_rejects_bad_context_and_run_id() -> void:
+func test_start_new_run_rejects_bad_context() -> void:
 	var wired := _wired()
 	var manager: Node = wired["manager"]
-	assert_eq(manager.start_new_run("run-b", {"route_id": "main"}).get("code"), &"invalid_initial_context")
-	assert_eq(manager.start_new_run("", _initial_context()).get("code"), &"invalid_run_id")
+	assert_eq(manager.start_new_run({"route_id": "main"}).get("code"), &"invalid_initial_context")
 	var extra := _initial_context()
 	extra["surprise"] = 1
-	assert_eq(manager.start_new_run("run-b", extra).get("code"), &"invalid_initial_context")
+	assert_eq(manager.start_new_run(extra).get("code"), &"invalid_initial_context")
 
 func test_start_new_run_builds_day1_run_b() -> void:
 	var wired := _wired()
 	var manager: Node = wired["manager"]
-	# The caller-supplied run_id ("run-b") is validated but otherwise discarded (Plan 02 Task 6,
-	# dwm-p2r.32): the real identity comes from the desktop issuer's own durable allocation.
-	var result: Dictionary = manager.start_new_run("run-b", _initial_context())
+	# Plan 02 Task 6 (dwm-p2r.32): start_new_run() no longer accepts a caller-supplied run_id at all
+	# -- the real identity comes entirely from the desktop issuer's own durable allocation.
+	var result: Dictionary = manager.start_new_run(_initial_context())
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	var allocated_run_id: String = str(result["value"]["run_id"])
 	assert_ne(allocated_run_id, "", "the issuer allocates a real, nonblank run_id")
@@ -96,20 +105,23 @@ func test_start_new_run_requires_identity_issuer() -> void:
 	var log: RefCounted = load(CALL_LOG).new()
 	manager.configure_restore_participants({
 		"run": load(RUN_PARTICIPANT).new(gs),
+		"desktop_consequence": load(FAKE_PARTICIPANT).new("desktop_consequence", log),
+		"desktop_board": load(FAKE_PARTICIPANT).new("desktop_board", log),
 		"profile": load(FAKE_PARTICIPANT).new("profile", log),
 		"localization": load(FAKE_PARTICIPANT).new("localization", log),
 		"audio": load(FAKE_PARTICIPANT).new("audio", log),
 		"route": load(FAKE_PARTICIPANT).new("route", log),
 		"narrative": load(FAKE_PARTICIPANT).new("narrative", log),
 	})
-	var result: Dictionary = manager.start_new_run("run-b", _initial_context())
+	# The identity-issuer guard runs before any participant is ever consulted, so fakes suffice here.
+	var result: Dictionary = manager.start_new_run(_initial_context())
 	assert_false(result.get("ok", true))
 	assert_eq(result["code"], &"identity_issuer_not_configured")
 
 func test_start_new_run_allocates_a_fresh_identity_per_call() -> void:
 	var wired := _wired()
 	var manager: Node = wired["manager"]
-	var first: Dictionary = manager.start_new_run("run-first", _initial_context())
+	var first: Dictionary = manager.start_new_run(_initial_context())
 	assert_true(first.get("ok", false), JSON.stringify(first))
 	# A second New Run over the same manager needs a fresh GameState/participant set (the first run
 	# already occupies the live one), but the SAME issuer must allocate a genuinely different branch.
@@ -124,5 +136,5 @@ func test_start_new_run_requires_participants() -> void:
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
 	manager.initialize(load(STORAGE_PATH).new(root))
-	assert_eq(manager.start_new_run("run-b", _initial_context()).get("code"),
+	assert_eq(manager.start_new_run(_initial_context()).get("code"),
 		&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED")

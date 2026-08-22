@@ -2211,6 +2211,18 @@ func finalize_restore() -> Dictionary:
 	return {"ok": true, "code": &"ok"}
 
 
+## Task 6 Phase C2 (dwm-p2r.32): the second, identity-only step of a restore-with-remap (see
+## RunRestoreParticipant.apply_continuation_remap()'s doc). Called by SaveManager immediately after
+## the "run" participant's ordinary apply_silent() above has installed this restore's day/state/plan;
+## swaps in the durably-allocated new branch/generation/causal-day identity via RunLifecycle's own
+## already-tested prepare_continuation_remap()/commit_continuation_remap() pair. Silent: no signal.
+func apply_continuation_remap_silent(restore_transaction_id: String, identity_allocation_bundle: Dictionary) -> Dictionary:
+	var prepared: Dictionary = _run_lifecycle.prepare_continuation_remap(restore_transaction_id, identity_allocation_bundle)
+	if not prepared.get("ok", false):
+		return prepared
+	return _run_lifecycle.commit_continuation_remap((prepared["value"] as Dictionary)["candidate"])
+
+
 func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	if typeof(snapshot.get("lifecycle")) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_run_plan", "message": "snapshot.lifecycle is required"}

@@ -42,7 +42,6 @@ func _on_new_acc_pressed() -> void:
 	var save_manager := get_node("/root/SaveManager")
 	if not save_manager.has_method("start_new_run"):
 		return
-	var run_id := "run-%d-%d" % [Time.get_ticks_usec(), randi()]
 	var initial_context := {
 		"route_id": "opening",
 		"dialogic_checkpoint": {},
@@ -52,7 +51,7 @@ func _on_new_acc_pressed() -> void:
 	}
 	# Phase 2R route readiness resolves synchronously; when it becomes awaited
 	# (real target-scene layout readiness) this call gains `await`.
-	var result: Dictionary = save_manager.start_new_run(run_id, initial_context)
+	var result: Dictionary = save_manager.start_new_run(initial_context)
 	if not result.get("ok", false):
 		push_warning("MenuScene: start_new_run failed (%s)." % str(result.get("code", "")))
 

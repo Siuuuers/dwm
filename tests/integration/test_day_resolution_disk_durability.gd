@@ -41,6 +41,14 @@ func before_each() -> void:
 	_initialize_live_autoloads()
 	_manager.configure_restore_participants({
 		"run": preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(GameState),
+		# Plan 02 Task 6 (dwm-p2r.32), Phase C2: forced ripple -- SaveManager.configure_restore_
+		# participants() now requires all 8 of DesktopContinuationOperationJournal.PARTICIPANT_ORDER.
+		# This suite only calls prepare_restore_autosave() (never commit_prepared_restore()), so real,
+		# freshly-constructed DesktopConsequenceState/DesktopBoardState instances suffice here.
+		"desktop_consequence": preload("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd")
+			.new(preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()),
+		"desktop_board": preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd")
+			.new(preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()),
 		"profile": preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(ProfileManager),
 		"localization": preload("res://scripts/application/restore/LocalizationRestoreParticipant.gd").new(LocalizationManager),
 		"audio": preload("res://scripts/application/restore/AudioRestoreParticipant.gd").new(AudioManager),

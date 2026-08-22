@@ -37,6 +37,11 @@ const LOCALIZATION_RESTORE_PARTICIPANT := preload("res://scripts/application/res
 const AUDIO_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/AudioRestoreParticipant.gd")
 const ROUTE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/RouteRestoreParticipant.gd")
 const NARRATIVE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd")
+## Plan 02 Task 6 (dwm-p2r.32), Phase C2.
+const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const DESKTOP_CONSEQUENCE_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd")
+const DESKTOP_BOARD_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd")
 const FATAL_DIAGNOSTIC_PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
 const MINESWEEPER_ROUND_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
 const MINESWEEPER_STATE_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
@@ -120,6 +125,13 @@ var _ending_playback_port: Object = null
 var _desktop_host_state: RefCounted = null
 ## At most one Phase-3-owned desktop eviction port. Assigned via register_desktop_eviction_port.
 var _desktop_eviction_port: Object = null
+## Plan 02 Task 6 (dwm-p2r.32), Phase C2: the ONE Bootstrap-owned live desktop consequence/board
+## state pair the two new restore participants wrap directly (mirrors `_desktop_host_state` above --
+## constructed once, only while still null, so identical startup replay is safe). Production
+## first-Reveal wiring of these SAME live objects into gameplay is Task 9's job; here they exist only
+## so SaveManager's 8-key restore participant set has somewhere real to restore desktop state into.
+var _desktop_consequence_state: RefCounted = null
+var _desktop_board_state: RefCounted = null
 ## The ONE Minesweeper round coordinator and its two production adapters (dwm-p2r.9 Plan 06
 ## Task 2). Constructed once, configured with initialized production ports, and installed in
 ## GameState exactly once; identical startup replay reuses these exact instances.
@@ -664,8 +676,14 @@ func _configure_restore_participants() -> Dictionary:
 	var host_configured: Dictionary = route_participant.configure_desktop_host(_desktop_host_state)
 	if not host_configured.get("ok", false):
 		return host_configured
+	if _desktop_consequence_state == null:
+		_desktop_consequence_state = DESKTOP_CONSEQUENCE_STATE.new()
+	if _desktop_board_state == null:
+		_desktop_board_state = DESKTOP_BOARD_STATE.new()
 	var participants := {
 		"run": RUN_RESTORE_PARTICIPANT.new(game_state),
+		"desktop_consequence": DESKTOP_CONSEQUENCE_RESTORE_PARTICIPANT.new(_desktop_consequence_state),
+		"desktop_board": DESKTOP_BOARD_RESTORE_PARTICIPANT.new(_desktop_board_state),
 		"profile": PROFILE_RESTORE_PARTICIPANT.new(profile),
 		"localization": LOCALIZATION_RESTORE_PARTICIPANT.new(localization),
 		"audio": AUDIO_RESTORE_PARTICIPANT.new(audio),
