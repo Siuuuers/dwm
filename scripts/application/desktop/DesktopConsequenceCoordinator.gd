@@ -186,7 +186,7 @@ func configure_condition_departure_ports(condition_policy_port: Object, schedule
 ## for.
 func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 	if identity_issuer == null or not identity_issuer.has_method("derive_child"):
-		return _fail(&"invalid_identity_issuer", "an exact derive_child capability is required", {})
+		return _fail(&"invalid_identity_issuer", "an exact anchored-child-derivation capability is required", {})
 	if _identity_issuer != null:
 		if _identity_issuer != identity_issuer:
 			return _fail(&"identity_issuer_already_configured",
