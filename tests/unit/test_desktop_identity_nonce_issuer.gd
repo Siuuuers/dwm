@@ -56,7 +56,9 @@ const ORDINARY_PURPOSES: Array[StringName] = [
 	&"receipt_id",
 ]
 
-# The closed v1 child-kind union, plan line 537. All 22 members.
+# The v1 child-kind union, plan line 537. 22 members were frozen; Task 8's Review-fix pass
+# (dwm-p2r.32.8) additively registered a 23rd, "action_consequence" -- mirrored here so this
+# enumeration test covers it too. See DesktopIdentityNonceIssuer.CHILD_KINDS's own doc comment.
 const CHILD_KINDS: Array[StringName] = [
 	&"schedule_entry",
 	&"schedule_commit",
@@ -80,6 +82,7 @@ const CHILD_KINDS: Array[StringName] = [
 	&"warning",
 	&"navigation",
 	&"terminal_intent",
+	&"action_consequence",
 ]
 
 # Exact child provenance member set, plan line 537. Sorted, for a set comparison.

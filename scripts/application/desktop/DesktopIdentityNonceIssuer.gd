@@ -44,7 +44,13 @@ const CAUSAL_DAY_PURPOSE := &"causal_day_instance"
 ## The purpose an anchored child must be anchored to, plan line 537.
 const CHILD_PARENT_PURPOSE := &"transaction_id"
 
-## The closed v1 child-kind union, plan line 537. All 22 members.
+## The v1 child-kind union, plan line 537. 22 members were frozen; Task 8's Review-fix pass
+## (dwm-p2r.32.8, CRITICAL 1) additively registered a 23rd, "action_consequence", after confirming
+## none of the original 22 represents DesktopConsequenceCoordinator.accept_prepared_action()'s own
+## outer envelope receipt (every original member is either a domain artifact this desktop timeline
+## already names elsewhere, or one of the ingredient receipts that envelope itself carries by name --
+## causal_sequence, condition, board_fate, destination_intent, notification_intent). See the Task-8
+## report's Review-fix pass section for the full justification and validation coverage.
 const CHILD_KINDS: Array[String] = [
 	"schedule_entry",
 	"schedule_commit",
@@ -68,6 +74,7 @@ const CHILD_KINDS: Array[String] = [
 	"warning",
 	"navigation",
 	"terminal_intent",
+	"action_consequence",
 ]
 
 ## Exact `derive_child()` request member set, plan line 537.

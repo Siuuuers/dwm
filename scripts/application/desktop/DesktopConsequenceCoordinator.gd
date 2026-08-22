@@ -60,11 +60,29 @@ const _ACCEPT_REQUEST_KEYS: Array[String] = [
 	"expected_board_identity", "expected_board_revision",
 ]
 
+## Review-fix pass (dwm-p2r.32.8, CRITICAL 1/2): the frozen `destination_intent`/`notification_intent`
+## shapes and the (ordinal, stage) pairing this coordinator itself authors (IMPORTANT 3).
+const _DESTINATION_INTENT_KEYS: Array[String] = [
+	"intent_id", "intent_id_provenance", "kind", "day", "causal_day_instance",
+	"source_condition_receipt_id", "source_condition_receipt_provenance",
+	"accepted_unfulfilled_sources", "terminal_cause", "terminal_provenance", "prerequisite_receipt_ids",
+]
+const _DESTINATION_INTENT_KINDS: Array[String] = ["hospital_day", "day7_terminal"]
+const _NOTIFICATION_INTENT_KEYS: Array[String] = [
+	"intent_id", "intent_id_provenance", "action_kind", "action_commit_receipt_id",
+	"action_commit_receipt_provenance", "source_condition_receipt_id", "source_condition_receipt_provenance",
+]
+const _NOTIFICATION_INTENT_ACTION_KINDS: Array[String] = ["minesweeper_round", "shop_purchase"]
+const _ORDINAL_STAGE_LAW: Dictionary = {1: "action_prepared", 2: "sequence_committed"}
+
 var _state_port: Object = null
 var _causal_sequence_port: Object = null
 var _board_fate_port: Object = null
 var _checkpoint_port: Object = null
 var _mutation_gate: ApplicationMutationGate = null
+## Review-fix pass (dwm-p2r.32.8, CRITICAL 1) additive DI seam -- see configure_identity_issuer()'s
+## own doc comment.
+var _identity_issuer: Object = null
 
 var _minesweeper_round_source_port: Object = null
 var _shop_purchase_source_port: Object = null
@@ -160,6 +178,24 @@ func configure_condition_departure_ports(condition_policy_port: Object, schedule
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
+## Review-fix pass (dwm-p2r.32.8) additive DI seam beyond configure()'s frozen 5-argument signature
+## (own design choice, matching MinesweeperRoundCoordinator's own established
+## configure_durable_checkpoint()/configure_consequence_checkpoint() precedent for "the frozen seam is
+## too narrow, add a second one"): accept_prepared_action()'s own outer receipt_id/receipt_provenance
+## (CRITICAL 1) needs a derive_child()-capable issuer, which the frozen configure() has no parameter
+## for.
+func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
+	if identity_issuer == null or not identity_issuer.has_method("derive_child"):
+		return _fail(&"invalid_identity_issuer", "an exact derive_child capability is required", {})
+	if _identity_issuer != null:
+		if _identity_issuer != identity_issuer:
+			return _fail(&"identity_issuer_already_configured",
+				"a configured identity issuer never adopts a replacement owner", {})
+		return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+	_identity_issuer = identity_issuer
+	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
 # -------------------------------------------------------------------------------------------------
 # accept_prepared_action() -- validate -> reserve -> evaluate policy -> (departure: board fate +
 # ScheduleView) -> checkpoint ordinal 1 -> admission CAS -> forward commit -> publish -> cleanup.
@@ -175,6 +211,9 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	if _condition_policy_port == null or _schedule_view_port == null:
 		return _fail(&"condition_departure_ports_unconfigured",
 			"configure_condition_departure_ports() is required before admission", {})
+	if _identity_issuer == null:
+		return _fail(&"identity_issuer_unconfigured",
+			"configure_identity_issuer() is required before admission", {})
 
 	var receipt_valid := _ACTION_RECEIPT.validate(request["action_receipt"])
 	if not receipt_valid.get("ok", false):
@@ -262,6 +301,14 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 	var condition_receipt: Dictionary = condition_value["condition_receipt"]
 	var is_departure := str(condition_receipt["decision"]) != "no_departure"
 
+	# CRITICAL 2 (Review-fix pass): read and validate the intents the policy evaluated alongside
+	# condition_receipt, instead of discarding them here as before.
+	var destination_intent: Variant = condition_value.get("destination_intent")
+	var notification_intent: Variant = condition_value.get("notification_intent")
+	var intent_pairing := _validate_intent_pairing(is_departure, destination_intent, notification_intent)
+	if not intent_pairing.get("ok", false):
+		return intent_pairing
+
 	var board_fate_receipt: Variant = null
 	var board_candidate: Variant = null
 	var schedule_view_before: Variant = null
@@ -301,7 +348,8 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 
 	var recovery_built := _build_admission_ready_payload(source_kind, action_receipt, action_candidate,
 		condition_receipt, board_candidate, board_fate_receipt, schedule_view_before, schedule_view_after,
-		schedule_view_before_sha256, schedule_view_after_sha256, is_departure, reservation_request, sequence_candidate)
+		schedule_view_before_sha256, schedule_view_after_sha256, is_departure, reservation_request, sequence_candidate,
+		destination_intent, notification_intent)
 	var recovery_payload: Dictionary = recovery_built["recovery_payload"]
 
 	var pending_after: Dictionary = pending_dict.duplicate(true)
@@ -314,6 +362,9 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 		"kind": &"consequence_admission_ready", "operation_ordinal": 1, "run_id": str(action_receipt["run_id"]),
 		"source_ids": [transaction_id], "stage": "action_prepared", "transaction_id": transaction_id,
 	}
+	var pairing1 := _validate_ordinal_stage_pairing(header1)
+	if not pairing1.get("ok", false):
+		return pairing1
 	var checkpoint1: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", header1, state_after_ordinal1)
 	if not checkpoint1.get("ok", false):
 		return checkpoint1
@@ -365,6 +416,9 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
 		"kind": &"consequence_admission", "operation_ordinal": 2, "run_id": str(action_receipt["run_id"]),
 		"source_ids": [transaction_id], "stage": "sequence_committed", "transaction_id": transaction_id,
 	}
+	var pairing2 := _validate_ordinal_stage_pairing(header2)
+	if not pairing2.get("ok", false):
+		return pairing2
 	var checkpoint2: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", header2, state_after_ordinal2)
 	if not checkpoint2.get("ok", false):
 		return checkpoint2
@@ -405,6 +459,11 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	var source_port: Object = _minesweeper_round_source_port if source_kind == "minesweeper_round" else _shop_purchase_source_port
 	var action_candidate: Dictionary = recovery_payload["action_candidate"]
 	var is_departure: bool = recovery_payload["board_candidate"] != null
+	# CRITICAL 2 (Review-fix pass): retained on recovery_payload by _build_admission_ready_payload()
+	# so a reconstructed coordinator resuming forward recovery (resume_pending()) reads the SAME
+	# intents the policy evaluated during the original _prepare_and_admit() pass, never recomputes them.
+	var destination_intent: Variant = recovery_payload.get("destination_intent")
+	var notification_intent: Variant = recovery_payload.get("notification_intent")
 
 	# 1. Commit the action source (its sole live commit).
 	var source_committed: Dictionary = source_port.call(&"commit_recovery_action", action_candidate, action_receipt)
@@ -412,6 +471,7 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		return source_committed
 
 	# 2. Board fate (departure only).
+	var schedule_view_commit_receipt: Variant = null
 	if is_departure:
 		var board_candidate: Dictionary = recovery_payload["board_candidate"]
 		var board_committed: Dictionary = _board_fate_port.call(&"commit", board_candidate)
@@ -419,9 +479,9 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 			return board_committed
 
 		# 3. ScheduleView (departure only).
-		var condition_receipt: Dictionary = recovery_payload["condition_candidate"]
+		var condition_receipt_for_view: Dictionary = recovery_payload["condition_candidate"]
 		var view_committed: Dictionary = _schedule_view_port.call(&"commit_condition_departure", {
-			"condition_receipt": condition_receipt,
+			"condition_receipt": condition_receipt_for_view,
 			"schedule_view_before": recovery_payload["schedule_view_before"],
 			"schedule_view_before_sha256": recovery_payload["schedule_view_before_sha256"],
 			"schedule_view_after": recovery_payload["schedule_view_after"],
@@ -429,10 +489,16 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		})
 		if not view_committed.get("ok", false):
 			return view_committed
+		schedule_view_commit_receipt = (view_committed["receipt"] as Dictionary).duplicate(true)
 
-	# 4. Advance to publication_pending if not already there.
+	# 4. Advance to publication_pending if not already there. CRITICAL 2 (Review-fix pass): this is
+	# the ONE edge that persists destination_intent/notification_intent onto the durable pending
+	# record -- DesktopConsequenceState.prepare_recovery_advance() only overwrites pending.destination_
+	# intent/notification_intent when passed non-null, so every LATER advance below (which always
+	# passes null) leaves whatever was set here untouched, landing both fields in the persisted
+	# pending record exactly once per transaction, replay-safe under crash-then-resume.
 	if str(pending_dict["stage"]) != "publication_pending":
-		var advanced := _advance_to_publication_pending(transaction_id, pending_dict)
+		var advanced := _advance_to_publication_pending(transaction_id, pending_dict, destination_intent, notification_intent)
 		if not advanced.get("ok", false):
 			return advanced
 		pending_dict = advanced["pending_dict"]
@@ -457,17 +523,33 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	if not cleaned.get("ok", false):
 		return cleaned
 
-	return {"ok": true, "code": &"action_consequence_accepted", "value": {
-		"action_receipt": action_receipt.duplicate(true), "source_kind": source_kind, "departure": is_departure,
-	}, "receipt": {}}
+	# CRITICAL 1 (Review-fix pass): return the frozen accept_prepared_action() success shape exactly,
+	# never the fabricated {action_receipt,source_kind,departure} shape this returned before. Every
+	# ingredient below is already durably retained on recovery_payload/publication_plan or just
+	# computed above, so this assembly is itself replay-safe (a second _resume_forward() call for the
+	# same transaction reaches the same bytes).
+	var causal_sequence: int = int(((recovery_payload["causal_sequence_reservation_candidate"] as Dictionary)
+		["causal_sequence_receipt"] as Dictionary)["causal_sequence"])
+	var board_fate_receipt: Variant = (_board_fate_receipt_from_payload(recovery_payload) if is_departure else null)
+	var condition_receipt: Dictionary = recovery_payload["condition_candidate"]
+	var value := {
+		"causal_sequence": causal_sequence, "condition_receipt": condition_receipt.duplicate(true),
+		"board_fate_receipt": board_fate_receipt, "schedule_view_commit_receipt": schedule_view_commit_receipt,
+		"destination_intent": destination_intent, "notification_intent": notification_intent,
+	}
+	var receipt_built := _build_action_consequence_receipt(action_receipt, transaction_id, causal_sequence, is_departure)
+	if not receipt_built.get("ok", false):
+		return receipt_built
+	return {"ok": true, "code": &"action_consequence_accepted", "value": value, "receipt": receipt_built["receipt"]}
 
 
-func _advance_to_publication_pending(transaction_id: String, pending_dict: Dictionary) -> Dictionary:
+func _advance_to_publication_pending(transaction_id: String, pending_dict: Dictionary,
+		destination_intent: Variant, notification_intent: Variant) -> Dictionary:
 	var publication_progress := {
 		"cursor": 0, "complete": false, "callback_receipts": {},
 	}
 	var advanced: Dictionary = _state_port.call(&"prepare_recovery_advance", transaction_id, &"sequence_committed",
-		&"publication_pending", {}, null, null, publication_progress)
+		&"publication_pending", {}, destination_intent, notification_intent, publication_progress)
 	if not advanced.get("ok", false):
 		return advanced
 	var advance_value: Dictionary = advanced["value"]
@@ -524,6 +606,19 @@ func _board_fate_receipt_from_payload(recovery_payload: Dictionary) -> Dictionar
 		var entry: Dictionary = recipe
 		if str(entry["participant"]) == "board_fate":
 			return (entry["publication"] as Dictionary)["board_fate_receipt"]
+	return {}
+
+
+## Review-fix pass (dwm-p2r.32.8) bug fix -- see resume_pending()'s own doc comment at its call site.
+## Mirrors _board_fate_receipt_from_payload()'s identical recovery pattern: the full action_receipt is
+## not a top-level recovery_payload field, but IS durably retained inside publication_plan's own
+## "action_source" recipe, present for every payload_phase=admission_ready payload regardless of
+## departure/no-departure.
+func _action_receipt_from_payload(recovery_payload: Dictionary) -> Dictionary:
+	for recipe: Variant in (recovery_payload["publication_plan"] as Array):
+		var entry: Dictionary = recipe
+		if str(entry["participant"]) == "action_source":
+			return (entry["publication"] as Dictionary)["action_receipt"]
 	return {}
 
 
@@ -615,7 +710,15 @@ func resume_pending() -> Dictionary:
 			"resume_pending only resumes an already-admitted action-source transaction", {})
 
 	var recovery_payload: Dictionary = pending_dict["recovery_payload"]
-	var action_receipt: Dictionary = recovery_payload["action_receipt"]
+	# Review-fix pass (dwm-p2r.32.8) bug fix, discovered by the new CRITICAL 2 forward-recovery-replay
+	# test: recovery_payload has never carried a top-level "action_receipt" key (its only keys are the
+	# frozen admission-ready 17 plus this task's own free-form additions) -- this line has read an
+	# absent key since the original implementation, unreachable until a test actually drove
+	# resume_pending() over a transaction with a live pending recovery_payload (the pre-existing test
+	# only exercised the trivial "no pending transaction" branch). The full action_receipt IS durably
+	# retained, inside publication_plan's own "action_source" recipe (brief line 367's own
+	# publication_plan; mirrors _board_fate_receipt_from_payload()'s identical recovery pattern).
+	var action_receipt: Dictionary = _action_receipt_from_payload(recovery_payload)
 	var transaction_id := str(pending_dict["transaction_id"])
 	var result := _resume_forward(action_receipt, source_kind, transaction_id, live_state, pending_dict)
 	if not result.get("ok", false):
@@ -648,7 +751,7 @@ func _build_admission_ready_payload(source_kind: String, action_receipt: Diction
 		condition_receipt: Dictionary, board_candidate: Variant, board_fate_receipt: Variant,
 		schedule_view_before: Variant, schedule_view_after: Variant, schedule_view_before_sha256: Variant,
 		schedule_view_after_sha256: Variant, is_departure: bool, reservation_request: Dictionary,
-		sequence_candidate: Dictionary) -> Dictionary:
+		sequence_candidate: Dictionary, destination_intent: Variant, notification_intent: Variant) -> Dictionary:
 	var transaction_id := str(action_receipt["transaction_id"])
 	var action_candidate_sha256 := _canonical_sha256(action_candidate)
 	var condition_candidate_sha256 := _canonical_sha256(condition_receipt)
@@ -688,8 +791,108 @@ func _build_admission_ready_payload(source_kind: String, action_receipt: Diction
 		# prepare_reservation() without re-running policy/board-fate/view preparation.
 		"causal_sequence_reservation_request": reservation_request.duplicate(true),
 		"causal_sequence_reservation_candidate": sequence_candidate.duplicate(true),
+		# CRITICAL 2 (Review-fix pass, dwm-p2r.32.8): another free-form addition alongside the pair
+		# above, for the identical reason -- a reconstructed coordinator's _resume_forward() must read
+		# the SAME intents _prepare_and_admit() validated, never recompute them from a policy port it
+		# may not even have live access to during forward recovery.
+		"destination_intent": ((destination_intent as Dictionary).duplicate(true) if destination_intent != null else null),
+		"notification_intent": ((notification_intent as Dictionary).duplicate(true) if notification_intent != null else null),
 	}
 	return {"recovery_payload": recovery_payload}
+
+
+## CRITICAL 2 (Review-fix pass): shape-validates each nonnull intent against its frozen exact-key
+## contract, then enforces the brief's own departure/no-departure pairing law -- "a DEPARTURE enqueues
+## exactly one destination intent and suppresses notification; a NO-DEPARTURE may enqueue zero-or-one
+## notification intent and never calls the view port" -- so a misbehaving/misarmed condition policy
+## can never smuggle an invalid combination past this coordinator.
+func _validate_intent_pairing(is_departure: bool, destination_intent: Variant, notification_intent: Variant) -> Dictionary:
+	if destination_intent != null:
+		if typeof(destination_intent) != TYPE_DICTIONARY:
+			return _fail(&"destination_intent_invalid", "destination_intent must be null or an object", {})
+		var destination_shape := _exact_keys(destination_intent as Dictionary, _DESTINATION_INTENT_KEYS, &"destination_intent_invalid")
+		if not destination_shape.get("ok", false):
+			return destination_shape
+		if str((destination_intent as Dictionary)["kind"]) not in _DESTINATION_INTENT_KINDS:
+			return _fail(&"destination_intent_kind_invalid", str((destination_intent as Dictionary)["kind"]), {})
+	if notification_intent != null:
+		if typeof(notification_intent) != TYPE_DICTIONARY:
+			return _fail(&"notification_intent_invalid", "notification_intent must be null or an object", {})
+		var notification_shape := _exact_keys(notification_intent as Dictionary, _NOTIFICATION_INTENT_KEYS, &"notification_intent_invalid")
+		if not notification_shape.get("ok", false):
+			return notification_shape
+		if str((notification_intent as Dictionary)["action_kind"]) not in _NOTIFICATION_INTENT_ACTION_KINDS:
+			return _fail(&"notification_intent_action_kind_invalid", str((notification_intent as Dictionary)["action_kind"]), {})
+	if is_departure:
+		if destination_intent == null:
+			return _fail(&"destination_intent_required_for_departure",
+				"a departure requires exactly one destination intent", {})
+		if notification_intent != null:
+			return _fail(&"notification_intent_forbidden_for_departure",
+				"a departure suppresses notification", {})
+	else:
+		if destination_intent != null:
+			return _fail(&"destination_intent_forbidden_for_no_departure",
+				"a no-departure never calls the view port", {})
+	return {"ok": true}
+
+
+## IMPORTANT 3 (Review-fix pass): the checkpoint port's occupied-slot conflict law only rejects a
+## REWRITE of an already-written (transaction_id, ordinal) with different bytes -- it cannot catch a
+## WRONG ordinal/stage pairing being written the first time. This coordinator directly authors exactly
+## two checkpoint headers (ordinal 1/"action_prepared", ordinal 2/"sequence_committed" -- ordinal 0
+## belongs to the source participant, outside this file's scope); this cross-checks each against the
+## documented pairing before it is ever handed to the checkpoint port.
+func _validate_ordinal_stage_pairing(header: Dictionary) -> Dictionary:
+	var ordinal := int(header["operation_ordinal"])
+	var expected_stage: Variant = _ORDINAL_STAGE_LAW.get(ordinal)
+	if expected_stage == null or str(header["stage"]) != String(expected_stage):
+		return _fail(&"consequence_checkpoint_ordinal_stage_invalid",
+			"operation_ordinal %d must pair with stage %s" % [ordinal, str(expected_stage)],
+			{"operation_ordinal": ordinal, "stage": str(header["stage"])})
+	return {"ok": true}
+
+
+## CRITICAL 1 (Review-fix pass): derives accept_prepared_action()'s own outer receipt_id/receipt_
+## provenance through the injected identity issuer, mirroring MinesweeperRoundCoordinator._build_
+## round_action_receipt()'s established derive_child() pattern exactly -- same parent_receipt_id
+## source (the action's own transaction_issuer_receipt), same ordinal-0 convention. PROMINENT FLAG
+## (see the Task-8 report's Review-fix pass section): "action_consequence" is not one of the 22
+## originally frozen CHILD_KINDS members -- no existing kind represents this coordinator's own outer
+## envelope receipt, since every existing kind is either a domain artifact or one of the ingredient
+## receipts this envelope already carries by name -- so CHILD_KINDS was extended additively by one
+## member (dwm-p2r.32.8) to cover it, with matching enumeration-test coverage.
+func _build_action_consequence_receipt(action_receipt: Dictionary, transaction_id: String,
+		causal_sequence: int, is_departure: bool) -> Dictionary:
+	if _identity_issuer == null:
+		return _fail(&"identity_issuer_unconfigured",
+			"configure_identity_issuer() is required before accept_prepared_action() can complete", {})
+	var parent_receipt_id := str((action_receipt["transaction_issuer_receipt"] as Dictionary).get("receipt_id", ""))
+	var derived: Dictionary = _identity_issuer.call(&"derive_child", {
+		"child_kind": "action_consequence", "ordinal": 0, "parent_receipt_id": parent_receipt_id,
+		"source_ids": _sorted_unique([transaction_id, str(action_receipt["commit_receipt_id"]), str(causal_sequence)]),
+	})
+	if not derived.get("ok", false):
+		return derived
+	var derived_value: Dictionary = derived["value"]
+	return {"ok": true, "receipt": {
+		"receipt_id": str(derived_value["child_id"]),
+		"receipt_provenance": (derived_value["provenance"] as Dictionary).duplicate(true),
+		"action_commit_receipt_id": str(action_receipt["commit_receipt_id"]),
+		"action_commit_receipt_provenance": (action_receipt["commit_receipt_provenance"] as Dictionary).duplicate(true),
+		"causal_sequence": causal_sequence,
+		"disposition": ("departure_committed" if is_departure else "no_departure"),
+	}}
+
+
+static func _sorted_unique(values: Array) -> Array[String]:
+	var seen: Dictionary = {}
+	for value: Variant in values:
+		seen[str(value)] = true
+	var out: Array[String] = []
+	out.assign(seen.keys())
+	out.sort()
+	return out
 
 
 func _require_configured() -> Dictionary:

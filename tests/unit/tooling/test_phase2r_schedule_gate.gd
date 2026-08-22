@@ -634,7 +634,12 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	# MinesweeperRoundCoordinator.gd (application) added as a ninth (Plan 02 Task 8, dwm-p2r.32):
 	# complete_round()'s own desktop_action receipt is likewise derived through the production
 	# issuer, matching MinesweeperShopPurchaseParticipant's own identical derivation exactly.
+	# DesktopConsequenceCoordinator.gd added as a tenth (Plan 02 Task 8 Review-fix pass,
+	# dwm-p2r.32.8, CRITICAL 1): accept_prepared_action()'s own outer receipt_id/receipt_provenance
+	# is likewise derived through the production issuer's derive_child() seam, under the newly
+	# additive "action_consequence" child_kind.
 	assert_eq(call_paths, [
+		"scripts/application/desktop/DesktopConsequenceCoordinator.gd",
 		"scripts/application/minesweeper/DesktopBoardFatePort.gd",
 		"scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
 		"scripts/application/minesweeper/MinesweeperRoundCoordinator.gd",
@@ -644,7 +649,7 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd",
 		"scripts/domain/contact/ContactInvitationState.gd",
 		"scripts/domain/schedule/Day7ScheduleProvenance.gd",
-	], "exactly the nine attributed producers call derive_child")
+	], "exactly the ten attributed producers call derive_child")
 
 
 func test_bootstrap_probe_key_set_and_owner_bindings_are_exact() -> void:

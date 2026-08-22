@@ -28,6 +28,18 @@ const CHECKPOINT_GENERATION_PORT := preload("res://tests/support/FakeMinesweeper
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 
+## Review-fix pass (dwm-p2r.32.8, CRITICAL 1): the frozen accept_prepared_action() success shapes,
+## mirrored here (not read from production) so an accidental production regression back toward the
+## old fabricated shape is caught by an independent expectation, not a shared constant.
+const _FROZEN_VALUE_KEYS: Array = [
+	"causal_sequence", "condition_receipt", "board_fate_receipt", "schedule_view_commit_receipt",
+	"destination_intent", "notification_intent",
+]
+const _FROZEN_RECEIPT_KEYS: Array = [
+	"receipt_id", "receipt_provenance", "action_commit_receipt_id", "action_commit_receipt_provenance",
+	"causal_sequence", "disposition",
+]
+
 ## Minimal in-memory spy double for DesktopPublicationLedger's own record_before_emit() contract.
 class FakePublicationLedger:
 	var records: Dictionary = {}
@@ -52,6 +64,11 @@ class FakePublicationLedger:
 class FakeRoundSource:
 	var committed: Array = []
 	var published: Array = []
+	## Review-fix pass (dwm-p2r.32.8, CRITICAL 2): a one-shot injected publish failure, used to prove
+	## destination_intent/notification_intent already landed in the durable pending record BEFORE the
+	## publication loop (and this injected failure) ever ran, and that a subsequent forward-recovery
+	## replay on a reconstructed coordinator publishes exactly once, not twice.
+	var fail_publish_once := false
 
 	func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"publication": {
@@ -63,6 +80,9 @@ class FakeRoundSource:
 		return {"ok": true, "code": &"ok", "value": {"action_receipt": action_receipt}, "receipt": action_receipt}
 
 	func publish_recovery_action(publication: Dictionary) -> Dictionary:
+		if fail_publish_once:
+			fail_publish_once = false
+			return {"ok": false, "code": &"fake_injected_publish_failure", "message": "", "details": {}}
 		published.append(publication)
 		return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": publication["action_receipt"]}
 
@@ -135,6 +155,10 @@ func before_each() -> void:
 	assert_true(configured.get("ok", false), JSON.stringify(configured))
 	var sources_configured: Dictionary = _coordinator.configure_action_source_ports(_round_source, _shop_participant)
 	assert_true(sources_configured.get("ok", false), JSON.stringify(sources_configured))
+	# Review-fix pass (dwm-p2r.32.8, CRITICAL 1): accept_prepared_action()'s own outer receipt now
+	# requires an injected issuer -- wired here so every pre-existing test keeps passing unchanged.
+	var issuer_configured: Dictionary = _coordinator.configure_identity_issuer(_issuer)
+	assert_true(issuer_configured.get("ok", false), JSON.stringify(issuer_configured))
 
 
 func _bootstrap_consequence_state(causal_day_instance: String) -> void:
@@ -280,6 +304,71 @@ func _configure_departure_ports() -> void:
 	assert_true(configured.get("ok", false), JSON.stringify(configured))
 
 
+## Review-fix pass (dwm-p2r.32.8, CRITICAL 1): asserts accept_prepared_action()'s success carries
+## EXACTLY the frozen value/receipt key sets (not a spot check of a few fields), plus the receipt's
+## own internal consistency (disposition, causal_sequence echo, a nonblank derived receipt_id).
+func _assert_frozen_accept_shape(result: Dictionary, expected_disposition: String) -> void:
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var value: Dictionary = result["value"]
+	var value_keys: Array = value.keys()
+	value_keys.sort()
+	var expected_value_keys: Array = _FROZEN_VALUE_KEYS.duplicate(true)
+	expected_value_keys.sort()
+	assert_eq(value_keys, expected_value_keys, "value must carry exactly the frozen key set")
+
+	var receipt: Dictionary = result["receipt"]
+	var receipt_keys: Array = receipt.keys()
+	receipt_keys.sort()
+	var expected_receipt_keys: Array = _FROZEN_RECEIPT_KEYS.duplicate(true)
+	expected_receipt_keys.sort()
+	assert_eq(receipt_keys, expected_receipt_keys, "receipt must carry exactly the frozen key set")
+	assert_eq(str(receipt["disposition"]), expected_disposition)
+	assert_eq(int(receipt["causal_sequence"]), int(value["causal_sequence"]))
+	assert_false(str(receipt["receipt_id"]).is_empty())
+
+
+## CRITICAL 2 (Review-fix pass): minimal, already-valid fixtures for the frozen intent shapes -- built
+## through the SAME issuer/derive_child convention every other receipt in this suite uses, since
+## Plan 03 alone owns the real derivation and this coordinator's own validation is scoped to key-set
+## and enumerated `kind`/`action_kind`, not every field's deeper type.
+func _armed_destination_intent(action_receipt: Dictionary, transaction_id: String) -> Dictionary:
+	var derived: Dictionary = _issuer.derive_child({
+		"child_kind": "destination_intent", "ordinal": 0,
+		"parent_receipt_id": str((action_receipt["transaction_issuer_receipt"] as Dictionary)["receipt_id"]),
+		"source_ids": [transaction_id],
+	})
+	assert_true(derived.get("ok", false), JSON.stringify(derived))
+	return {
+		"intent_id": str((derived["value"] as Dictionary)["child_id"]),
+		"intent_id_provenance": (derived["value"] as Dictionary)["provenance"],
+		"kind": "hospital_day", "day": 3, "causal_day_instance": "causal-day-1",
+		"source_condition_receipt_id": "condition.fake.placeholder",
+		"source_condition_receipt_provenance": {"schema_version": 1, "parent_receipt_id": "",
+			"child_kind": "condition", "ordinal": 0, "source_ids": [transaction_id], "child_id": ""},
+		"accepted_unfulfilled_sources": [], "terminal_cause": null, "terminal_provenance": null,
+		"prerequisite_receipt_ids": [],
+	}
+
+
+func _armed_notification_intent(action_receipt: Dictionary, transaction_id: String) -> Dictionary:
+	var derived: Dictionary = _issuer.derive_child({
+		"child_kind": "notification_intent", "ordinal": 0,
+		"parent_receipt_id": str((action_receipt["transaction_issuer_receipt"] as Dictionary)["receipt_id"]),
+		"source_ids": [transaction_id],
+	})
+	assert_true(derived.get("ok", false), JSON.stringify(derived))
+	return {
+		"intent_id": str((derived["value"] as Dictionary)["child_id"]),
+		"intent_id_provenance": (derived["value"] as Dictionary)["provenance"],
+		"action_kind": str(action_receipt["action_kind"]),
+		"action_commit_receipt_id": str(action_receipt["commit_receipt_id"]),
+		"action_commit_receipt_provenance": action_receipt["commit_receipt_provenance"],
+		"source_condition_receipt_id": "condition.fake.placeholder",
+		"source_condition_receipt_provenance": {"schema_version": 1, "parent_receipt_id": "",
+			"child_kind": "condition", "ordinal": 0, "source_ids": [transaction_id], "child_id": ""},
+	}
+
+
 # ---- Step 8.1 parse proof ----
 
 func test_coordinator_script_loads() -> void:
@@ -325,7 +414,9 @@ func test_accept_prepared_action_no_departure_commits_and_publishes() -> void:
 	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result.get("code"), &"action_consequence_accepted")
-	assert_false(bool(result["value"]["departure"]))
+	# Review-fix pass (dwm-p2r.32.8, CRITICAL 1): the frozen shape has no "departure" key -- read the
+	# disposition off the receipt instead.
+	assert_eq(str(result["receipt"]["disposition"]), "no_departure")
 
 	# The shop economy actually committed (capability granted).
 	assert_true(bool(_shop_state_port.inventory.get("lucky_charm", false)))
@@ -386,10 +477,14 @@ func test_accept_prepared_action_departure_discards_the_preparing_board_and_comm
 
 	var prepared := _shop_prepared("debug_key")
 	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
-	_condition_policy_port.arm(action_txn, "hospital_day", false, true)
+	# Review-fix pass (dwm-p2r.32.8, CRITICAL 2): the brief requires a departure to enqueue exactly
+	# one destination intent -- arm one so this pre-existing departure fixture stays valid under the
+	# coordinator's own new pairing law.
+	var destination_intent := _armed_destination_intent(prepared["action_receipt"], action_txn)
+	_condition_policy_port.arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
 	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
 	assert_true(result.get("ok", false), JSON.stringify(result))
-	assert_true(bool(result["value"]["departure"]))
+	assert_eq(str(result["receipt"]["disposition"]), "departure_committed")
 
 	assert_eq(_board_state.capture()["phase"], "NONE", "the departure discards the unstarted candidate")
 	assert_eq(_schedule_view_port.commit_calls, 1)
@@ -420,7 +515,8 @@ func test_accept_prepared_action_minesweeper_round_departure_uses_the_action_can
 
 	var prepared := _round_prepared("cleared")
 	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
-	_condition_policy_port.arm(action_txn, "hospital_day", false, true)
+	var destination_intent := _armed_destination_intent(prepared["action_receipt"], action_txn)
+	_condition_policy_port.arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
 	var request := {
 		"action_receipt": prepared["action_receipt"], "action_candidate": prepared["action_candidate"],
 		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"], "expected_run_revision": 0,
@@ -428,7 +524,7 @@ func test_accept_prepared_action_minesweeper_round_departure_uses_the_action_can
 	}
 	var result: Dictionary = _coordinator.accept_prepared_action(request)
 	assert_true(result.get("ok", false), JSON.stringify(result))
-	assert_true(bool(result["value"]["departure"]))
+	assert_eq(str(result["receipt"]["disposition"]), "departure_committed")
 	# fate=none: the projected candidate (already NONE) is what board fate acted on, retaining the
 	# completed result rather than forfeiting the unrelated live PREPARING board -- proven by the
 	# ledger record's own board_fate kind.
@@ -467,3 +563,159 @@ func test_resume_pending_completes_forward_recovery_after_a_reconstructed_coordi
 	var resumed: Dictionary = fresh.resume_pending()
 	assert_true(resumed.get("ok", false), JSON.stringify(resumed))
 	assert_false(bool(resumed["value"]["resumed"]))
+
+
+# ---- Review-fix pass (dwm-p2r.32.8): CRITICAL 1 -- exact frozen value/receipt key sets ----
+
+func test_accept_prepared_action_shop_purchase_no_departure_returns_the_frozen_value_and_receipt_key_sets() -> void:
+	_configure_departure_ports()
+	var prepared := _shop_prepared("lucky_charm")
+	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
+	_assert_frozen_accept_shape(result, "no_departure")
+	assert_null(result["value"]["board_fate_receipt"])
+	assert_null(result["value"]["schedule_view_commit_receipt"])
+	assert_null(result["value"]["destination_intent"])
+	assert_null(result["value"]["notification_intent"])
+
+
+func test_accept_prepared_action_shop_purchase_departure_returns_the_frozen_value_and_receipt_key_sets() -> void:
+	_configure_departure_ports()
+	var prepared := _shop_prepared("debug_key")
+	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
+	var destination_intent := _armed_destination_intent(prepared["action_receipt"], action_txn)
+	_condition_policy_port.arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
+	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
+	_assert_frozen_accept_shape(result, "departure_committed")
+	assert_eq(typeof(result["value"]["board_fate_receipt"]), TYPE_DICTIONARY)
+	assert_eq(typeof(result["value"]["schedule_view_commit_receipt"]), TYPE_DICTIONARY)
+
+
+func test_accept_prepared_action_minesweeper_round_no_departure_returns_the_frozen_value_and_receipt_key_sets() -> void:
+	_configure_departure_ports()
+	var prepared := _round_prepared("exploded")
+	var request := {
+		"action_receipt": prepared["action_receipt"], "action_candidate": prepared["action_candidate"],
+		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"], "expected_run_revision": 0,
+		"expected_board_identity": _board_state.capture()["identity"], "expected_board_revision": int(_board_state.capture()["revision"]),
+	}
+	var result: Dictionary = _coordinator.accept_prepared_action(request)
+	_assert_frozen_accept_shape(result, "no_departure")
+	assert_null(result["value"]["board_fate_receipt"])
+	assert_null(result["value"]["schedule_view_commit_receipt"])
+
+
+func test_accept_prepared_action_minesweeper_round_departure_returns_the_frozen_value_and_receipt_key_sets() -> void:
+	_configure_departure_ports()
+	var prepared := _round_prepared("cleared")
+	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
+	var destination_intent := _armed_destination_intent(prepared["action_receipt"], action_txn)
+	_condition_policy_port.arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
+	var request := {
+		"action_receipt": prepared["action_receipt"], "action_candidate": prepared["action_candidate"],
+		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"], "expected_run_revision": 0,
+		"expected_board_identity": _board_state.capture()["identity"], "expected_board_revision": int(_board_state.capture()["revision"]),
+	}
+	var result: Dictionary = _coordinator.accept_prepared_action(request)
+	_assert_frozen_accept_shape(result, "departure_committed")
+	assert_eq(typeof(result["value"]["board_fate_receipt"]), TYPE_DICTIONARY)
+	assert_eq(typeof(result["value"]["schedule_view_commit_receipt"]), TYPE_DICTIONARY)
+
+
+# ---- Review-fix pass (dwm-p2r.32.8): CRITICAL 2 -- destination_intent/notification_intent ----
+
+func test_accept_prepared_action_departure_with_destination_intent_lands_it_in_the_final_value() -> void:
+	_configure_departure_ports()
+	var prepared := _shop_prepared("debug_key")
+	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
+	var destination_intent := _armed_destination_intent(prepared["action_receipt"], action_txn)
+	_condition_policy_port.arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
+	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(result["value"]["destination_intent"], destination_intent)
+	assert_null(result["value"]["notification_intent"])
+
+
+func test_accept_prepared_action_no_departure_with_notification_intent_lands_it_in_the_final_value() -> void:
+	_configure_departure_ports()
+	var prepared := _shop_prepared("lucky_charm")
+	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
+	var notification_intent := _armed_notification_intent(prepared["action_receipt"], action_txn)
+	_condition_policy_port.arm(action_txn, "no_departure", false, false, {}, [], null, null, notification_intent)
+	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(result["value"]["notification_intent"], notification_intent)
+	assert_null(result["value"]["destination_intent"])
+	assert_null(_live_consequence()["pending"], "the no-departure transaction still reaches a clean slate")
+
+
+func test_accept_prepared_action_no_departure_with_neither_intent_leaves_both_null() -> void:
+	_configure_departure_ports()
+	var prepared := _shop_prepared("lucky_charm")
+	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_null(result["value"]["destination_intent"])
+	assert_null(result["value"]["notification_intent"])
+
+
+## Proves both halves of CRITICAL 2's "outbox" wording at once: destination_intent lands in the
+## DURABLE pending record at the sequence_committed->publication_pending edge (inspected here BEFORE
+## the injected publish failure below even runs), and a forward-recovery replay on a reconstructed
+## coordinator publishes every participant exactly once -- never re-publishing the causal_sequence
+## callback that already succeeded before the crash.
+func test_accept_prepared_action_departure_intent_lands_in_the_persisted_pending_record_exactly_once_across_a_forward_recovery_replay() -> void:
+	_configure_departure_ports()
+	var prepared := _round_prepared("cleared")
+	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
+	var destination_intent := _armed_destination_intent(prepared["action_receipt"], action_txn)
+	_condition_policy_port.arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
+	_round_source.fail_publish_once = true
+
+	var request := {
+		"action_receipt": prepared["action_receipt"], "action_candidate": prepared["action_candidate"],
+		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"], "expected_run_revision": 0,
+		"expected_board_identity": _board_state.capture()["identity"], "expected_board_revision": int(_board_state.capture()["revision"]),
+	}
+	var first: Dictionary = _coordinator.accept_prepared_action(request)
+	assert_false(first.get("ok", false), "the injected action_source publish failure must surface")
+
+	var live_pending: Dictionary = _live_consequence()["pending"]
+	assert_eq(live_pending["destination_intent"], destination_intent)
+	assert_null(live_pending["notification_intent"])
+	assert_eq(str(live_pending["stage"]), "publication_pending")
+
+	var fresh := COORDINATOR.new()
+	fresh.configure(_consequence_state, _causal_sequence_port, _board_fate_port, _checkpoint_port, _gate)
+	fresh.configure_action_source_ports(_round_source, _shop_participant)
+	fresh.configure_condition_departure_ports(_condition_policy_port, _schedule_view_port)
+	fresh.configure_identity_issuer(_issuer)
+	var resumed: Dictionary = fresh.resume_pending()
+	assert_true(resumed.get("ok", false), JSON.stringify(resumed))
+	assert_true(bool(resumed["value"]["resumed"]))
+	assert_null(_live_consequence()["pending"])
+	assert_eq(_round_source.published.size(), 1, "exactly one publish despite the first attempt's injected failure")
+
+	# FakeRoundSource (this suite's own hand-built minesweeper_round stand-in, unlike the real
+	# MinesweeperRoundCoordinator) never writes to the publication ledger itself -- only its own
+	# `published` array, already asserted above -- so the ledger sees causal_sequence (kind=
+	# minesweeper_round) and board_fate, never action_source.
+	var kinds: Array = []
+	for record: Dictionary in _publication_ledger.records.values():
+		kinds.append(str(record["kind"]))
+	kinds.sort()
+	assert_eq(kinds, ["board_fate", "minesweeper_round"])
+
+
+# ---- Review-fix pass (dwm-p2r.32.8): IMPORTANT 3 -- checkpoint ordinal/stage cross-validation ----
+
+func test_validate_ordinal_stage_pairing_accepts_the_documented_pairing() -> void:
+	assert_true(_coordinator._validate_ordinal_stage_pairing(
+		{"operation_ordinal": 1, "stage": "action_prepared"}).get("ok", false))
+	assert_true(_coordinator._validate_ordinal_stage_pairing(
+		{"operation_ordinal": 2, "stage": "sequence_committed"}).get("ok", false))
+
+
+func test_validate_ordinal_stage_pairing_rejects_a_mismatched_pairing() -> void:
+	var result: Dictionary = _coordinator._validate_ordinal_stage_pairing(
+		{"operation_ordinal": 1, "stage": "sequence_committed"})
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"consequence_checkpoint_ordinal_stage_invalid")

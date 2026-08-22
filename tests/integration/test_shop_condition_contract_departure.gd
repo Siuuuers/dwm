@@ -136,6 +136,9 @@ func _wired() -> Dictionary:
 	assert_true(condition_policy_port.configure(RefCounted.new()).get("ok", false))
 	var schedule_view_port: Object = load(SCHEDULE_VIEW_PORT_PATH).new()
 	assert_true(coordinator.configure_condition_departure_ports(condition_policy_port, schedule_view_port).get("ok", false))
+	# Review-fix pass (dwm-p2r.32.8, CRITICAL 1): accept_prepared_action()'s own outer receipt now
+	# requires an injected issuer -- the same production issuer already retained above.
+	assert_true(coordinator.configure_identity_issuer(issuer).get("ok", false))
 
 	return {
 		"gs": gs, "issuer": issuer, "consequence_state": consequence_state, "gate": gate,
@@ -192,7 +195,27 @@ func test_shop_purchase_departure_discards_an_unstarted_candidate() -> void:
 
 	var prepared := _shop_prepared(wired, "debug_key")
 	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
-	(wired["condition_policy_port"] as Object).arm(action_txn, "hospital_day", false, true)
+	# Review-fix pass (dwm-p2r.32.8, CRITICAL 2): the brief requires a departure to enqueue exactly
+	# one destination intent -- arm one so this pre-existing departure fixture stays valid under the
+	# coordinator's own new pairing law.
+	var action_receipt_for_intent: Dictionary = prepared["action_receipt"]
+	var destination_derived: Dictionary = issuer.derive_child({
+		"child_kind": "destination_intent", "ordinal": 0,
+		"parent_receipt_id": str((action_receipt_for_intent["transaction_issuer_receipt"] as Dictionary)["receipt_id"]),
+		"source_ids": [action_txn],
+	})
+	assert_true(destination_derived.get("ok", false), JSON.stringify(destination_derived))
+	var destination_intent := {
+		"intent_id": str((destination_derived["value"] as Dictionary)["child_id"]),
+		"intent_id_provenance": (destination_derived["value"] as Dictionary)["provenance"],
+		"kind": "hospital_day", "day": 3, "causal_day_instance": "causal-day-1",
+		"source_condition_receipt_id": "condition.fake.placeholder",
+		"source_condition_receipt_provenance": {"schema_version": 1, "parent_receipt_id": "",
+			"child_kind": "condition", "ordinal": 0, "source_ids": [action_txn], "child_id": ""},
+		"accepted_unfulfilled_sources": [], "terminal_cause": null, "terminal_provenance": null,
+		"prerequisite_receipt_ids": [],
+	}
+	(wired["condition_policy_port"] as Object).arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
 
 	var coordinator: Object = wired["coordinator"]
 	# Recover the ordinal-0 checkpoint receipt directly from the shared checkpoint port instance
@@ -213,7 +236,9 @@ func test_shop_purchase_departure_discards_an_unstarted_candidate() -> void:
 		"expected_board_identity": live_board["identity"], "expected_board_revision": int(live_board["revision"]),
 	})
 	assert_true(result.get("ok", false), JSON.stringify(result))
-	assert_true(bool(result["value"]["departure"]))
+	# Review-fix pass (dwm-p2r.32.8, CRITICAL 1): the frozen shape has no "departure" key -- read the
+	# disposition off the receipt instead.
+	assert_eq(str(result["receipt"]["disposition"]), "departure_committed")
 
 	assert_eq(round_coordinator.get_state()["value"]["phase"], "NONE", "the unstarted candidate was discarded")
 	assert_eq(int((wired["gs"] as Node).inventory.get("debug_key", 0)), 1, "the real economy still committed")
@@ -253,7 +278,7 @@ func test_shop_purchase_without_a_departure_leaves_the_board_untouched() -> void
 		"expected_board_identity": live_board["identity"], "expected_board_revision": int(live_board["revision"]),
 	})
 	assert_true(result.get("ok", false), JSON.stringify(result))
-	assert_false(bool(result["value"]["departure"]))
+	assert_eq(str(result["receipt"]["disposition"]), "no_departure")
 	assert_eq(round_coordinator.get_state()["value"], before_board, "the unrelated in-flight candidate is byte-identical")
 	assert_eq(int((wired["gs"] as Node).inventory.get("lucky_charm", 0)), 1)
 	assert_eq((wired["schedule_view_port"] as Object).commit_calls, 0, "no-departure never calls the view port")

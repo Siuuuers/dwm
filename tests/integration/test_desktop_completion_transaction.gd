@@ -147,6 +147,9 @@ func _wired() -> Dictionary:
 	assert_true(condition_policy_port.configure(RefCounted.new()).get("ok", false))
 	var schedule_view_port: Object = load(SCHEDULE_VIEW_PORT_PATH).new()
 	assert_true(coordinator.configure_condition_departure_ports(condition_policy_port, schedule_view_port).get("ok", false))
+	# Review-fix pass (dwm-p2r.32.8, CRITICAL 1): accept_prepared_action()'s own outer receipt now
+	# requires an injected issuer -- the same production issuer already retained above.
+	assert_true(coordinator.configure_identity_issuer(issuer).get("ok", false))
 	assert_true(round_coordinator.configure_consequence_port(coordinator, gate).get("ok", false))
 	assert_true(round_coordinator.configure_consequence_checkpoint(consequence_state, checkpoint_port).get("ok", false))
 
@@ -209,7 +212,10 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	})
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result.get("code"), &"action_consequence_accepted")
-	assert_false(bool(result["value"]["departure"]))
+	# Review-fix pass (dwm-p2r.32.8, CRITICAL 1): the frozen shape has no "departure" key -- read the
+	# disposition off the receipt instead. Also proves MinesweeperRoundCoordinator.complete_round()
+	# surfaces the frozen shape verbatim through this REAL (non-fake) integration wiring.
+	assert_eq(str(result["receipt"]["disposition"]), "no_departure")
 
 	assert_eq(round_coordinator.get_state()["value"]["phase"], "NONE", "the board returned to NONE via the real forward commit")
 	var live_consequence: Dictionary = ((wired["consequence_state"] as Object).capture()["value"] as Dictionary)["state"]
