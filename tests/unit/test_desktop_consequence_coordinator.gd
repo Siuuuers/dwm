@@ -203,6 +203,78 @@ func _accept_request(prepared: Dictionary, expected_run_revision: int) -> Dictio
 	}
 
 
+## A hand-built minesweeper_round action receipt/candidate pair, standing in for what
+## MinesweeperRoundCoordinator.complete_round() itself produces (proven separately in that file's own
+## suite): `board_projection` is already phase NONE with a distinct, inspectable terminal_receipts
+## marker, so a test can prove the coordinator threads THIS projection (not a live board capture)
+## into the departure -- DesktopBoardFatePort's own suite already proves the port-level "projection,
+## never live" law in depth; this is the coordinator's own "did it actually forward the right value"
+## proof.
+func _round_prepared(marker: String) -> Dictionary:
+	if not _gate.is_internal_owner_active(&"causal_transaction"):
+		var acquired: Dictionary = _gate.acquire(&"causal_transaction")
+		assert_true(acquired.get("ok", false), JSON.stringify(acquired))
+	var txn := _mint_transaction()
+	var quote_derived: Dictionary = _issuer.derive_child({
+		"child_kind": "board_start", "ordinal": 0, "parent_receipt_id": str(txn["transaction_issuer_receipt"]["receipt_id"]),
+		"source_ids": ["board-start-source"],
+	})
+	var action_id_derived: Dictionary = _issuer.derive_child({
+		"child_kind": "desktop_action", "ordinal": 0, "parent_receipt_id": str(txn["transaction_issuer_receipt"]["receipt_id"]),
+		"source_ids": ["action-source"],
+	})
+	var action_id := str(action_id_derived["value"]["child_id"])
+	var action_id_provenance: Dictionary = action_id_derived["value"]["provenance"]
+	var action_receipt := {
+		"schema_version": 1, "action_kind": "minesweeper_round", "run_id": "run-fake", "branch_id": "branch-fake",
+		"desktop_timeline_generation": 0, "causal_day_instance": "causal-day-1", "day": 1,
+		"transaction_id": txn["transaction_id"], "transaction_issuer_receipt": txn["transaction_issuer_receipt"],
+		"source_commit_receipt_id": str(quote_derived["value"]["child_id"]),
+		"source_commit_receipt_provenance": quote_derived["value"]["provenance"],
+		"condition_before": {"health": 10, "pressure": 0, "carried_sequela": false},
+		"condition_after": {"health": 10, "pressure": 0, "carried_sequela": false}, "unlock_receipt_ids": [],
+		"action_id": action_id, "action_id_provenance": action_id_provenance,
+		"commit_receipt_id": action_id, "commit_receipt_provenance": (action_id_provenance as Dictionary).duplicate(true),
+	}
+	var validated := ACTION_RECEIPT.validate(action_receipt)
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	action_receipt = (validated["value"] as Dictionary)["receipt"]
+	var board_projection := {
+		"schema_version": 1, "phase": "NONE", "revision": 0, "identity": null, "candidate": null,
+		"board": null, "settlement": null, "command_receipts": {},
+		"terminal_receipts": {"round_complete.marker": {"kind": "complete", "outcome": marker}},
+	}
+	var action_candidate := {
+		"transaction_id": str(action_receipt["transaction_id"]), "outcome": marker,
+		"identity": {"run_id": "run-fake", "branch_id": "branch-fake", "desktop_timeline_generation": 0,
+			"causal_day_instance": "causal-day-1", "app_round_ordinal": 3},
+		"board_projection": board_projection,
+	}
+	var live := _live_consequence()
+	var recovery_payload := {
+		"source_kind": "minesweeper_round", "action_receipt": action_receipt.duplicate(true),
+		"run_revision_before": int(live["run_revision"]), "participant_snapshot_ids": {"outcome": marker},
+	}
+	var handoff_receipt := action_receipt.duplicate(true)
+	handoff_receipt["source_kind"] = "minesweeper_round"
+	var handoff: Dictionary = _consequence_state.prepare_action_handoff(handoff_receipt, int(live["run_revision"]), recovery_payload)
+	assert_true(handoff.get("ok", false), JSON.stringify(handoff))
+	var committed: Dictionary = _consequence_state.commit((handoff["value"] as Dictionary)["candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	var checkpoint_header := {
+		"kind": &"minesweeper_round_action_checkpoint", "operation_ordinal": 0, "run_id": "run-fake",
+		"source_ids": [str(action_receipt["transaction_id"])], "stage": "action_prepared",
+		"transaction_id": str(action_receipt["transaction_id"]),
+	}
+	var checkpoint: Dictionary = _checkpoint_port.prepare_consequence_checkpoint(checkpoint_header, (handoff["value"] as Dictionary)["candidate"]["state_after"])
+	assert_true(checkpoint.get("ok", false), JSON.stringify(checkpoint))
+	var checkpoint_committed: Dictionary = _checkpoint_port.commit_consequence_checkpoint(
+		(checkpoint["value"] as Dictionary)["candidate"], (checkpoint["value"] as Dictionary)["checkpoint_receipt"])
+	assert_true(checkpoint_committed.get("ok", false), JSON.stringify(checkpoint_committed))
+	return {"action_receipt": action_receipt, "action_candidate": action_candidate,
+		"prepared_checkpoint_receipt": (checkpoint["value"] as Dictionary)["checkpoint_receipt"]}
+
+
 func _configure_departure_ports() -> void:
 	var configured: Dictionary = _coordinator.configure_condition_departure_ports(_condition_policy_port, _schedule_view_port)
 	assert_true(configured.get("ok", false), JSON.stringify(configured))
@@ -328,6 +400,44 @@ func test_accept_prepared_action_departure_discards_the_preparing_board_and_comm
 		kinds.append(str(record["kind"]))
 	kinds.sort()
 	assert_eq(kinds, ["action_source", "board_fate", "shop_purchase"])
+
+
+func test_accept_prepared_action_minesweeper_round_departure_uses_the_action_candidate_projection_not_the_live_board() -> void:
+	_configure_departure_ports()
+	# Deliberately diverge the shared live board from the completed round's own projection (not
+	# domain-realistic on its own, but the sharpest proof available that board fate acts on
+	# action_candidate.board_projection specifically -- a mutation reading the LIVE board instead
+	# would see PREPARING and yield discarded_unstarted, not the projection's own "none".
+	var identity: Dictionary = _round_coordinator.get_entry_context("beginner")["value"]["identity"]
+	var begin_txn := _mint_transaction()
+	var begun: Dictionary = _round_coordinator.begin_debug_preparation({
+		"transaction_id": begin_txn["transaction_id"], "transaction_issuer_receipt": begin_txn["transaction_issuer_receipt"],
+		"expected_identity": identity, "expected_revision": 0, "difficulty_id": "beginner",
+	})
+	assert_true(begun.get("ok", false), JSON.stringify(begun))
+	var live: Dictionary = _board_state.capture()
+	assert_eq(live["phase"], "PREPARING")
+
+	var prepared := _round_prepared("cleared")
+	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
+	_condition_policy_port.arm(action_txn, "hospital_day", false, true)
+	var request := {
+		"action_receipt": prepared["action_receipt"], "action_candidate": prepared["action_candidate"],
+		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"], "expected_run_revision": 0,
+		"expected_board_identity": live["identity"], "expected_board_revision": int(live["revision"]),
+	}
+	var result: Dictionary = _coordinator.accept_prepared_action(request)
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_true(bool(result["value"]["departure"]))
+	# fate=none: the projected candidate (already NONE) is what board fate acted on, retaining the
+	# completed result rather than forfeiting the unrelated live PREPARING board -- proven by the
+	# ledger record's own board_fate kind.
+	var board_fate_records := 0
+	for record: Dictionary in _publication_ledger.records.values():
+		if str(record["kind"]) == "board_fate":
+			board_fate_records += 1
+			assert_eq(str((record["semantic_receipt"] as Dictionary)["fate"]), "none")
+	assert_eq(board_fate_records, 1)
 
 
 # ---- resume_pending(): admitted but not yet published, resumed by a reconstructed coordinator ----

@@ -42,6 +42,11 @@ const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoar
 
 const _STAT_MOTIVATION := "motivation"
 const _STAT_PRESSURE := "pressure"
+## Plan 02 Task 8 (dwm-p2r.32) additions, mirroring GameStateMinesweeperShopPort's own established
+## constants exactly: MinesweeperRoundCoordinator.complete_round() needs the same condition-triple
+## facts Shop's own action receipts already carry.
+const _STAT_HEALTH := "health"
+const _CONDITION_SEQUELA := "sequela"
 
 ## PLACEHOLDER pending a real registered difficulty adapter -- see class doc gap 2.
 const _DIFFICULTY_DIMENSIONS := {
@@ -132,6 +137,9 @@ func capture() -> Dictionary:
 		"desktop_timeline_generation": int(_desktop_identity_context["desktop_timeline_generation"]),
 		"causal_day_instance": causal_day_instance, "next_app_round_ordinal": next_ordinal,
 		"eligible": eligible, "motivation": motivation, "rounds_left": rounds_left,
+		"day": int(_game_state.day), "health": _game_state.get_stat(_STAT_HEALTH),
+		"pressure": _game_state.get_stat(_STAT_PRESSURE),
+		"carried_sequela": (_game_state.condition_effects_today as Array).has(_CONDITION_SEQUELA),
 		"backup": {
 			"motivation": motivation, "rounds_left": rounds_left, "starts_today": _starts_today.duplicate(true),
 		},

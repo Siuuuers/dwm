@@ -726,6 +726,100 @@ func test_publish_rejects_an_invalid_publication_shape() -> void:
 
 
 # ---------------------------------------------------------------------------------------------
+# Task 8 (dwm-p2r.32) additions: validate_recovery_action() / commit_recovery_action() /
+# publish_recovery_action() -- the frozen action-source recovery surface DesktopConsequenceCoordinator
+# consumes. Self-sufficient given only (action_candidate, action_receipt): action_candidate here is
+# the economy candidate GameStateMinesweeperShopPort.prepare_purchase() itself already built.
+# ---------------------------------------------------------------------------------------------
+
+func test_validate_recovery_action_is_mutation_free_and_returns_the_frozen_publication_shape() -> void:
+	var txn := _mint_transaction()
+	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
+	var economy_candidate: Dictionary = (_participant._transactions[txn["transaction_id"]] as Dictionary)["economy_candidate"]
+	var before_inventory: Dictionary = (_state_port.inventory as Dictionary).duplicate(true)
+
+	var validated: Dictionary = _participant.validate_recovery_action(economy_candidate, receipt)
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	var publication: Dictionary = (validated["value"] as Dictionary)["publication"]
+	var keys: Array = publication.keys()
+	keys.sort()
+	assert_eq(keys, ["action_candidate_sha256", "action_receipt"])
+	assert_eq(publication["action_receipt"], receipt)
+	assert_eq(_state_port.inventory, before_inventory, "validate_recovery_action never mutates")
+
+
+func test_commit_recovery_action_grants_the_capability_and_is_idempotent() -> void:
+	var txn := _mint_transaction()
+	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
+	var economy_candidate: Dictionary = (_participant._transactions[txn["transaction_id"]] as Dictionary)["economy_candidate"]
+
+	# prepare_purchase() already acquired the lease; release it to prove commit_recovery_action()
+	# independently requires it too, then reacquire for the real forward-commit below.
+	_gate.release(&"causal_transaction", _participant._gate_token)
+	var without_gate: Dictionary = _participant.commit_recovery_action(economy_candidate, receipt)
+	assert_false(without_gate.get("ok", true))
+	assert_eq(without_gate.get("code"), &"causal_transaction_lease_required")
+	assert_true(_gate.acquire(&"causal_transaction").get("ok", false))
+
+	_force_sequence_committed(txn["transaction_id"])
+	var committed: Dictionary = _participant.commit_recovery_action(economy_candidate, receipt)
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	assert_eq((committed["value"] as Dictionary)["action_receipt"], receipt)
+	assert_eq(int(_state_port.inventory.get("lucky_charm", 0)), 1)
+
+	var replay: Dictionary = _participant.commit_recovery_action(economy_candidate, receipt)
+	assert_eq(replay, committed, "an identical replay returns the stored result")
+	assert_eq(int(_state_port.inventory.get("lucky_charm", 0)), 1, "no double grant on replay")
+
+	# This is a SEPARATE idempotency ledger from commit()'s own -- proven by the pre-Task-8 commit()
+	# still succeeding independently against the exact same prepared candidate.
+	var legacy_commit: Dictionary = _participant.commit((prepared["value"] as Dictionary)["candidate"])
+	assert_true(legacy_commit.get("ok", false), JSON.stringify(legacy_commit))
+
+
+func test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity() -> void:
+	var txn := _mint_transaction()
+	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
+	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
+	var economy_candidate: Dictionary = (_participant._transactions[txn["transaction_id"]] as Dictionary)["economy_candidate"]
+	_force_sequence_committed(txn["transaction_id"])
+	_participant.commit_recovery_action(economy_candidate, receipt)
+
+	var changed := economy_candidate.duplicate(true)
+	changed["price"] = int(changed["price"]) + 100
+	var result: Dictionary = _participant.commit_recovery_action(changed, receipt)
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"action_receipt_conflict")
+
+
+func test_publish_recovery_action_records_through_action_source_and_releases_the_gate() -> void:
+	var txn := _mint_transaction()
+	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
+	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
+	var economy_candidate: Dictionary = (_participant._transactions[txn["transaction_id"]] as Dictionary)["economy_candidate"]
+	_force_sequence_committed(txn["transaction_id"])
+	_participant.commit_recovery_action(economy_candidate, receipt)
+
+	assert_true(_gate.is_internal_owner_active(&"causal_transaction"))
+	var validated: Dictionary = _participant.validate_recovery_action(economy_candidate, receipt)
+	var publication: Dictionary = (validated["value"] as Dictionary)["publication"]
+	var published: Dictionary = _participant.publish_recovery_action(publication)
+	assert_true(published.get("ok", false), JSON.stringify(published))
+	assert_false(_gate.is_active(), "publish_recovery_action releases the lease")
+	assert_true(_publication_ledger.records.has("action_source:" + str(receipt["commit_receipt_id"])),
+		"Ruling B: the same action_source ledger key convention as publish()")
+
+	assert_true(_gate.acquire(&"causal_transaction").get("ok", false))
+	var replay: Dictionary = _participant.publish_recovery_action(publication)
+	assert_true(replay.get("ok", false), JSON.stringify(replay))
+	assert_eq(_publication_ledger.records.size(), 1, "no second ledger record is written on replay")
+
+
+# ---------------------------------------------------------------------------------------------
 # Mutation detachment: returned dictionaries are deep copies, never live references.
 # ---------------------------------------------------------------------------------------------
 

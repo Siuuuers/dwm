@@ -23,6 +23,13 @@ const _BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardStat
 const _REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
+const _ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
+
+const _GATE_OWNER := &"causal_transaction"
+const _COMPLETE_ROUND_REQUEST_KEYS: Array[String] = [
+	"transaction_id", "transaction_issuer_receipt", "expected_identity", "expected_revision", "expected_run_revision",
+]
+const _BASE_COMPLETION_ORDINALS := [1, 2]
 
 const _STATE_PORT_METHODS: Array[String] = [
 	"guard_external", "capture", "prepare_spec", "prepare_first_reveal", "prepare_board_only",
@@ -77,6 +84,21 @@ var _durable_consequence_state_port: Object = null
 ## field first Reveal's own board_start receipt does not carry (own documented design choice, see
 ## the class doc above and the task-6 report).
 var _publication_ledger: Object = null
+
+## Plan 02 Task 8 (dwm-p2r.32) additions: complete_round()'s own action-source handoff into
+## DesktopConsequenceCoordinator, mirroring MinesweeperShopPurchaseParticipant's established shape.
+## `_consequence_coordinator`/`_consequence_gate` are the frozen configure_consequence_port() pair;
+## `_round_consequence_state_port`/`_round_checkpoint_port` are an additive DI seam beyond that
+## frozen 2-arg signature (own design choice -- see configure_consequence_checkpoint()'s own doc
+## comment), matching this file's own established configure_durable_checkpoint() precedent for
+## "the frozen seam is too narrow, add a second one" situations.
+var _consequence_coordinator: Object = null
+var _consequence_gate: ApplicationMutationGate = null
+var _round_consequence_state_port: Object = null
+var _round_checkpoint_port: Object = null
+var _consequence_gate_token := ""
+var _round_completions: Dictionary = {}
+var _round_recovery_committed: Dictionary = {}
 
 
 func _init() -> void:
@@ -141,6 +163,290 @@ func configure_durable_checkpoint(checkpoint_port: Object, snapshot_composer: Sc
 	_snapshot_composer = snapshot_composer
 	_durable_consequence_state_port = consequence_state_port
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+## Plan 02 Task 8 (dwm-p2r.32) frozen addition: `port` is the `DesktopConsequenceCoordinator` this
+## coordinator hands completed rounds to via `accept_prepared_action()`.
+func configure_consequence_port(port: Object, mutation_gate: ApplicationMutationGate) -> Dictionary:
+	if port == null or not port.has_method("accept_prepared_action"):
+		return _fail(&"invalid_consequence_port", "an exact accept_prepared_action capability is required", {})
+	if mutation_gate == null:
+		return _fail(&"invalid_mutation_gate", "mutation_gate is required", {})
+	if _consequence_coordinator != null or _consequence_gate != null:
+		if _consequence_coordinator != port or _consequence_gate != mutation_gate:
+			return _fail(&"consequence_port_already_configured", "a configured consequence port never adopts a replacement owner", {})
+		return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+	_consequence_coordinator = port
+	_consequence_gate = mutation_gate
+	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+## Additive DI seam beyond `configure_consequence_port()`'s frozen two-argument signature (own design
+## choice, matching this file's own established `configure_durable_checkpoint()` precedent):
+## `complete_round()` needs a `DesktopConsequenceState`-shaped port (for its own ordinal-0 action
+## handoff, mirroring `MinesweeperShopPurchaseParticipant.prepare_purchase()`) and a
+## `SaveManagerCheckpointPort`-shaped consequence-checkpoint port -- neither fits inside the frozen
+## seam's two parameters.
+func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint_port: Object) -> Dictionary:
+	if consequence_state_port == null or not _has_all_methods(consequence_state_port,
+			["capture", "prepare_action_handoff", "prepare_restore", "commit", "prepare_record_base_completion"]):
+		return _fail(&"invalid_consequence_state_port", "an exact consequence-state capability is required", {})
+	if checkpoint_port == null or not _has_all_methods(checkpoint_port,
+			["prepare_consequence_checkpoint", "commit_consequence_checkpoint"]):
+		return _fail(&"invalid_consequence_checkpoint_port", "an exact checkpoint-port capability is required", {})
+	if _round_consequence_state_port != null or _round_checkpoint_port != null:
+		if _round_consequence_state_port != consequence_state_port or _round_checkpoint_port != checkpoint_port:
+			return _fail(&"consequence_checkpoint_already_configured", "a configured checkpoint seam never adopts a replacement owner", {})
+		return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+	_round_consequence_state_port = consequence_state_port
+	_round_checkpoint_port = checkpoint_port
+	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+## Derives result/reward inputs from the terminal canonical board only -- callers cannot supply an
+## outcome, reward, counter delta, effect, unlock, identity, nonce, or sequence. Acquires
+## `causal_transaction` before reading/preparing the terminal action, prepares and durably checkpoints
+## the completion candidate (ordinal 0, `stage=action_prepared`, Ruling A) WITHOUT changing live
+## board truth, then delegates to `accept_prepared_action()` under the still-active lease. The actual
+## board transition to phase NONE happens later, as this action source's own
+## `commit_recovery_action()` -- the coordinator's forward-recovery "commit action candidate" step --
+## exactly mirroring how the Shop participant's own economy delta is applied only at that boundary.
+##
+## SCOPE NOTE (own documented judgment call): this task derives only a structural outcome
+## classification (`exploded`|`cleared`, read directly from the board reducer's own native `outcome`
+## field) and the `base_completion_receipts` Supportz-eligibility side effect Task 7 explicitly
+## reserved for Task 8. It does NOT reach into `autoload/GameState.gd`'s legacy money/coin/task/
+## contact/group reward pipeline (`finish_minesweeper_app_round()` and friends) -- that pipeline
+## operates on a hand-supplied 5-value outcome union the pure board reducer cannot derive, requires
+## edits to a file outside this task's own Files list, and sits outside the Interface Map's own
+## framing of Task 8 as building "generic action consequence/view recovery ports". `condition_before`/
+## `condition_after` mirror the Shop participant's own health/pressure/carried_sequela pattern via
+## `GameStateDesktopBoardPort`'s matching Task-8 extension.
+func complete_round(request: Dictionary) -> Dictionary:
+	var guard := _guard(&"complete_round")
+	if not guard.is_empty():
+		return guard
+	if _consequence_coordinator == null or _consequence_gate == null:
+		return _fail(&"consequence_port_not_configured", "configure_consequence_port() is required before complete_round()", {})
+	if _round_consequence_state_port == null or _round_checkpoint_port == null:
+		return _fail(&"consequence_checkpoint_not_configured", "configure_consequence_checkpoint() is required before complete_round()", {})
+	var shape := _exact_keys(request, _COMPLETE_ROUND_REQUEST_KEYS, &"invalid_request")
+	if not shape.get("ok", false):
+		return shape
+	var transaction_id := str(request["transaction_id"])
+	var fingerprint := _fingerprint(request)
+
+	if _round_completions.has(transaction_id):
+		var recorded: Dictionary = _round_completions[transaction_id]
+		if str(recorded["fingerprint"]) == fingerprint:
+			return (recorded["result"] as Dictionary).duplicate(true)
+		return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
+
+	var verify := _verify_transaction(transaction_id, request["transaction_issuer_receipt"])
+	if not verify.get("ok", false):
+		return verify
+
+	var captured: Dictionary = _board_state.capture()
+	if captured["phase"] != "ACTIVE_VISIBLE":
+		return _fail(&"complete_round_requires_active_visible_phase", "", {"phase": captured["phase"]})
+	if int(request["expected_revision"]) != int(captured["revision"]):
+		return _fail(&"stale_revision", "", {})
+	if request["expected_identity"] != captured["identity"]:
+		return _fail(&"identity_mismatch", "", {})
+	var identity: Dictionary = captured["identity"]
+	var live_board_wrapper: Dictionary = captured["board"]
+	var live_board: Dictionary = live_board_wrapper["board"]
+	if not bool(live_board["terminal"]):
+		return _fail(&"complete_round_requires_terminal_board", "", {})
+	var outcome := str(live_board["outcome"])
+	var paid_start_receipt: Dictionary = live_board_wrapper["paid_start_receipt"]
+
+	var acquired_fresh := false
+	if not _consequence_gate.is_internal_owner_active(_GATE_OWNER):
+		var acquired: Dictionary = _consequence_gate.acquire(_GATE_OWNER)
+		if not acquired.get("ok", false):
+			return _fail(&"causal_transaction_lease_unavailable",
+				"the shared causal_transaction lease is held by another transaction", {})
+		_consequence_gate_token = str((acquired["value"] as Dictionary)["token"])
+		acquired_fresh = true
+
+	var consequence_captured: Dictionary = _round_consequence_state_port.call(&"capture")
+	if not consequence_captured.get("ok", false):
+		if acquired_fresh:
+			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
+			_consequence_gate_token = ""
+		return consequence_captured
+	var live_consequence: Dictionary = (consequence_captured["value"] as Dictionary)["state"]
+
+	var board_projection := _project_completion_board(identity, captured, outcome, transaction_id)
+	var action_candidate := {
+		"transaction_id": transaction_id, "outcome": outcome, "identity": identity.duplicate(true),
+		"board_projection": board_projection,
+	}
+	var action_candidate_sha256 := _canonical_sha256(action_candidate)
+
+	var built_receipt := _build_round_action_receipt(transaction_id, request["transaction_issuer_receipt"],
+		identity, paid_start_receipt, action_candidate_sha256)
+	if not built_receipt.get("ok", false):
+		if acquired_fresh:
+			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
+			_consequence_gate_token = ""
+		return built_receipt
+	var action_receipt: Dictionary = (built_receipt["value"] as Dictionary)["receipt"]
+
+	var recovery_payload := {
+		"source_kind": "minesweeper_round", "action_receipt": action_receipt.duplicate(true),
+		"run_revision_before": int(live_consequence["run_revision"]),
+		"participant_snapshot_ids": {"transaction_id": transaction_id, "outcome": outcome},
+	}
+	var action_receipt_for_handoff := action_receipt.duplicate(true)
+	action_receipt_for_handoff["source_kind"] = action_receipt["action_kind"]
+	var handoff_prepared: Dictionary = _round_consequence_state_port.call(&"prepare_action_handoff",
+		action_receipt_for_handoff, int(live_consequence["run_revision"]), recovery_payload)
+	if not handoff_prepared.get("ok", false):
+		if acquired_fresh:
+			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
+			_consequence_gate_token = ""
+		return handoff_prepared
+	var handoff_candidate: Dictionary = (handoff_prepared["value"] as Dictionary)["candidate"]
+
+	# Ruling A: ordinal 0, stage "action_prepared" -- matches MinesweeperShopPurchaseParticipant's
+	# own established convention for the durable, unpromoted source-only checkpoint exactly.
+	var checkpoint_header := {
+		"kind": &"minesweeper_round_action_checkpoint", "operation_ordinal": 0, "run_id": str(identity["run_id"]),
+		"source_ids": [transaction_id], "stage": "action_prepared", "transaction_id": transaction_id,
+	}
+	var checkpoint_prepared: Dictionary = _round_checkpoint_port.call(&"prepare_consequence_checkpoint",
+		checkpoint_header, handoff_candidate["state_after"])
+	if not checkpoint_prepared.get("ok", false):
+		if acquired_fresh:
+			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
+			_consequence_gate_token = ""
+		return checkpoint_prepared
+	var checkpoint_value: Dictionary = checkpoint_prepared["value"]
+	var checkpoint_committed: Dictionary = _round_checkpoint_port.call(&"commit_consequence_checkpoint",
+		checkpoint_value["candidate"], checkpoint_value["checkpoint_receipt"])
+	if not checkpoint_committed.get("ok", false):
+		if acquired_fresh:
+			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
+			_consequence_gate_token = ""
+		return checkpoint_committed
+
+	# The disk checkpoint is now durable. From here forward this coordinator never rewinds on
+	# failure (mirrors MinesweeperShopPurchaseParticipant's own identical discipline).
+	var consequence_committed: Dictionary = _round_consequence_state_port.call(&"commit", handoff_candidate)
+	if not consequence_committed.get("ok", false):
+		return consequence_committed
+
+	var accepted: Dictionary = _consequence_coordinator.call(&"accept_prepared_action", {
+		"action_receipt": action_receipt, "action_candidate": action_candidate,
+		"prepared_checkpoint_receipt": checkpoint_value["checkpoint_receipt"],
+		"expected_run_revision": int(request["expected_run_revision"]),
+		"expected_board_identity": identity, "expected_board_revision": int(captured["revision"]),
+	})
+	_round_completions[transaction_id] = {"fingerprint": fingerprint, "result": accepted.duplicate(true)}
+	return accepted
+
+
+## Task 8 (dwm-p2r.32) frozen action-source recovery surface consumed by
+## DesktopConsequenceCoordinator, mirroring MinesweeperShopPurchaseParticipant's own three additions.
+func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+	var validated := _ACTION_RECEIPT.validate(action_receipt)
+	if not validated.get("ok", false):
+		return validated
+	var receipt: Dictionary = (validated["value"] as Dictionary)["receipt"]
+	if str(receipt["action_kind"]) != "minesweeper_round":
+		return _fail(&"action_receipt_source_kind_mismatch", "", {})
+	if str(action_candidate.get("transaction_id", "")) != str(receipt["transaction_id"]):
+		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
+	var action_candidate_sha256 := _canonical_sha256(action_candidate)
+	return {"ok": true, "code": &"ok", "value": {"publication": {
+		"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt.duplicate(true),
+	}}, "receipt": {}}
+
+
+## The source's sole live commit for this recovery boundary: adopts `action_candidate.board_projection`
+## into the live board (the completed round's own phase-NONE transition -- board_fate is never the
+## owner of this transition; it owns only a LATER condition-driven departure of an unrelated board)
+## and, for a qualifying ordinal (1 or 2), records the base-completion receipt Task 7 reserved this
+## seam for.
+func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+	var validated := _ACTION_RECEIPT.validate(action_receipt)
+	if not validated.get("ok", false):
+		return validated
+	var receipt: Dictionary = (validated["value"] as Dictionary)["receipt"]
+	if str(receipt["action_kind"]) != "minesweeper_round":
+		return _fail(&"action_receipt_source_kind_mismatch", "", {})
+	var transaction_id := str(receipt["transaction_id"])
+	if str(action_candidate.get("transaction_id", "")) != transaction_id:
+		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
+
+	if _round_recovery_committed.has(transaction_id):
+		var recorded: Dictionary = _round_recovery_committed[transaction_id]
+		if recorded["action_candidate"] == action_candidate and recorded["action_receipt"] == receipt:
+			return (recorded["result"] as Dictionary).duplicate(true)
+		return _fail(&"action_receipt_conflict", "this transaction was already committed with different bytes", {})
+
+	if not _consequence_gate.is_internal_owner_active(_GATE_OWNER):
+		return _fail(&"causal_transaction_lease_required", "commit_recovery_action requires the active causal_transaction lease", {})
+
+	var board_projection: Dictionary = action_candidate["board_projection"]
+	var prepared_restore: Dictionary = _board_state.prepare_restore(board_projection)
+	if not prepared_restore.get("ok", false):
+		return prepared_restore
+	var board_committed: Dictionary = _board_state.commit((prepared_restore["value"] as Dictionary)["candidate"])
+	if not board_committed.get("ok", false):
+		return board_committed
+
+	var identity: Dictionary = action_candidate["identity"]
+	if int(identity["app_round_ordinal"]) in _BASE_COMPLETION_ORDINALS:
+		var recorded_completion: Dictionary = _round_consequence_state_port.call(&"prepare_record_base_completion", {
+			"kind": "complete", "app_round_ordinal": int(identity["app_round_ordinal"]),
+			"causal_day_instance": str(identity["causal_day_instance"]),
+		})
+		if not recorded_completion.get("ok", false):
+			return recorded_completion
+		var ledger_committed: Dictionary = _round_consequence_state_port.call(&"commit",
+			(recorded_completion["value"] as Dictionary)["candidate"])
+		if not ledger_committed.get("ok", false):
+			return ledger_committed
+
+	var result := {"ok": true, "code": &"ok", "value": {"action_receipt": receipt.duplicate(true)}, "receipt": receipt.duplicate(true)}
+	_round_recovery_committed[transaction_id] = {
+		"action_candidate": action_candidate.duplicate(true), "action_receipt": receipt.duplicate(true), "result": result.duplicate(true),
+	}
+	return result
+
+
+## The source's sole audience boundary: records the at-most-once external observation through the
+## SAME shared `action_source` publication-ledger kind and key convention
+## `MinesweeperShopPurchaseParticipant.publish()`/`publish_recovery_action()` already established
+## (Ruling B), then releases the retained `causal_transaction` lease.
+func publish_recovery_action(publication: Dictionary) -> Dictionary:
+	var keys: Array = publication.keys()
+	keys.sort()
+	if keys != ["action_candidate_sha256", "action_receipt"]:
+		return _fail(&"invalid_publication", "publication must carry exactly action_candidate_sha256 and action_receipt", {})
+	var receipt: Dictionary = publication["action_receipt"]
+	var validated := _ACTION_RECEIPT.validate(receipt)
+	if not validated.get("ok", false):
+		return validated
+	receipt = (validated["value"] as Dictionary)["receipt"]
+	if _publication_ledger == null:
+		return _fail(&"publication_ledger_not_configured", "configure_publication_ledger() is required before publish_recovery_action()", {})
+	var ledger_publication := {
+		"action_candidate_sha256": str(publication["action_candidate_sha256"]), "action_receipt": receipt.duplicate(true),
+	}
+	var recorded: Dictionary = _publication_ledger.call(&"record_before_emit", {
+		"kind": "action_source", "semantic_receipt": receipt.duplicate(true),
+		"publication": ledger_publication, "publication_sha256": _canonical_sha256(ledger_publication),
+	})
+	if not recorded.get("ok", false):
+		return recorded
+	if _consequence_gate_token != "":
+		_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
+		_consequence_gate_token = ""
+	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
 
 
 func get_entry_context(difficulty_id: String) -> Dictionary:
@@ -842,6 +1148,99 @@ func _fingerprint(request: Dictionary) -> String:
 	if not canonical.get("ok", false):
 		return ""
 	return String(canonical["value"]).sha256_text()
+
+
+## The target phase-NONE snapshot for a completed round: every phase-gated slot null,
+## command_receipts unchanged, and one new terminal_receipts entry retaining the outcome/ordinal this
+## board completed with. `revision` advances by one, matching DesktopBoardFatePort's own identical
+## departed-snapshot bookkeeping convention. Deliberately skips the intermediate SETTLING phase
+## (DesktopBoardState has no dedicated completion transition of its own and this task does not add
+## one) -- the same hand-built-snapshot pattern DesktopBoardFatePort._build_departed_snapshot()
+## already established.
+func _project_completion_board(identity: Dictionary, captured: Dictionary, outcome: String,
+		transaction_id: String) -> Dictionary:
+	var terminal_receipt_id := "round_complete." + transaction_id
+	var terminal_receipts: Dictionary = (captured["terminal_receipts"] as Dictionary).duplicate(true)
+	terminal_receipts[terminal_receipt_id] = {
+		"kind": "complete", "outcome": outcome, "app_round_ordinal": int(identity["app_round_ordinal"]),
+	}
+	return {
+		"schema_version": 1, "phase": "NONE", "revision": int(captured["revision"]) + 1,
+		"identity": null, "candidate": null, "board": null, "settlement": null,
+		"command_receipts": (captured["command_receipts"] as Dictionary).duplicate(true),
+		"terminal_receipts": terminal_receipts,
+	}
+
+
+## Ruling B: `commit_receipt_id`/`commit_receipt_provenance` reuse `action_id`/`action_id_provenance`
+## byte-for-byte, matching MinesweeperShopPurchaseParticipant's own established convention exactly.
+## `source_commit_receipt_id` is the round's own retained `board_start` paid-receipt (the domain-level
+## artifact that authorized exactly this round), mirroring the derivation table's `desktop_action` row
+## and Shop's own `shop_quote`-anchored precedent. `condition_before`/`condition_after` mirror the
+## Shop participant's own health/pressure/carried_sequela pattern via `_state_port.capture()`'s Task-8
+## extension, falling back to zero/false only when a narrower test double omits them (see the class
+## doc's SCOPE NOTE).
+func _build_round_action_receipt(transaction_id: String, transaction_issuer_receipt: Dictionary,
+		identity: Dictionary, paid_start_receipt: Dictionary, action_candidate_sha256: String) -> Dictionary:
+	var facts: Dictionary = {}
+	var state_captured: Dictionary = _state_port.call(&"capture")
+	if state_captured.get("ok", false):
+		facts = state_captured["value"]
+	var condition := {
+		"health": int(facts.get("health", 0)), "pressure": int(facts.get("pressure", 0)),
+		"carried_sequela": bool(facts.get("carried_sequela", false)),
+	}
+	# The Task-5 fake-checkpoint reveal() path (this coordinator's own _first_reveal(), used whenever
+	# configure_durable_checkpoint() is unconfigured) stores only {"checkpoint_id":...} as the board's
+	# retained paid_start_receipt, not the full board_start receipt _first_reveal_durable() carries;
+	# fall back to checkpoint_id so complete_round() derives a nonblank source identity either way.
+	var source_commit_receipt_id := str(paid_start_receipt.get("receipt_id", paid_start_receipt.get("checkpoint_id", "")))
+	var action_candidate := {
+		"schema_version": 1, "action_kind": "minesweeper_round", "run_id": str(identity["run_id"]),
+		"branch_id": str(identity["branch_id"]), "desktop_timeline_generation": int(identity["desktop_timeline_generation"]),
+		"causal_day_instance": str(identity["causal_day_instance"]), "day": int(facts.get("day", 0)),
+		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
+		"source_commit_receipt_id": source_commit_receipt_id,
+		"source_commit_receipt_provenance": (paid_start_receipt.get("receipt_provenance", {}) as Dictionary).duplicate(true),
+		"condition_before": condition.duplicate(true), "condition_after": condition.duplicate(true),
+		"unlock_receipt_ids": [],
+	}
+	var derived: Dictionary = _identity_issuer.call(&"derive_child", {
+		"child_kind": "desktop_action", "ordinal": 0,
+		"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
+		"source_ids": _sorted_unique(["minesweeper_round", source_commit_receipt_id, action_candidate_sha256]),
+	})
+	if not derived.get("ok", false):
+		return derived
+	var derived_value: Dictionary = derived["value"]
+	var action_id := str(derived_value["child_id"])
+	var action_id_provenance: Dictionary = (derived_value["provenance"] as Dictionary).duplicate(true)
+	var receipt := action_candidate.duplicate(true)
+	receipt["action_id"] = action_id
+	receipt["action_id_provenance"] = action_id_provenance
+	receipt["commit_receipt_id"] = action_id
+	receipt["commit_receipt_provenance"] = action_id_provenance.duplicate(true)
+	var validated := _ACTION_RECEIPT.validate(receipt)
+	if not validated.get("ok", false):
+		return validated
+	return {"ok": true, "value": {"receipt": (validated["value"] as Dictionary)["receipt"]}}
+
+
+func _sorted_unique(values: Array) -> Array[String]:
+	var seen: Dictionary = {}
+	for value: Variant in values:
+		seen[str(value)] = true
+	var out: Array[String] = []
+	out.assign(seen.keys())
+	out.sort()
+	return out
+
+
+func _canonical_sha256(value: Variant) -> String:
+	var emitted: Dictionary = _CANONICAL_JSON.stringify(value)
+	if not emitted.get("ok", false):
+		return ""
+	return str(emitted["value"]).sha256_text()
 
 
 func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictionary:

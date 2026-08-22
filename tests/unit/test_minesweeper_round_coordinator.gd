@@ -18,6 +18,25 @@ const CHECKPOINT_PORT := preload("res://tests/support/FakeMinesweeperCheckpointP
 const GENERATION_PORT := preload("res://tests/support/FakeMinesweeperGenerationPort.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const FAKE_ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
+const CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+const CONSEQUENCE_CHECKPOINT_PORT := preload("res://tests/support/FakeDesktopConsequenceCheckpointPort.gd")
+const ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
+
+## Task 8 (dwm-p2r.32) contract fake for DesktopConsequenceCoordinator's own
+## accept_prepared_action() -- this file proves complete_round()'s OWN contract (request shape,
+## board-fate-neutral checkpointing, delegation), not the full causal admission pipeline, which is
+## test_desktop_consequence_coordinator.gd's and the Task-8 integration suite's own territory.
+class FakeConsequencePort:
+	var calls: Array[Dictionary] = []
+	var armed_result: Dictionary = {}
+
+	func accept_prepared_action(request: Dictionary) -> Dictionary:
+		calls.append(request.duplicate(true))
+		if not armed_result.is_empty():
+			return (armed_result as Dictionary).duplicate(true)
+		return {"ok": true, "code": &"action_consequence_accepted",
+			"value": {"action_receipt": request["action_receipt"], "source_kind": "minesweeper_round", "departure": false},
+			"receipt": {}}
 
 const RECEIPT_KEYS: Array[String] = [
 	"receipt_id", "receipt_provenance", "transaction_id", "transaction_issuer_receipt",
@@ -31,6 +50,10 @@ var _checkpoint_port: CHECKPOINT_PORT
 var _generation_port: GENERATION_PORT
 var _root_store: FAKE_ROOT_STORE
 var _issuer: ISSUER
+var _consequence_state: RefCounted
+var _consequence_checkpoint_port: CONSEQUENCE_CHECKPOINT_PORT
+var _consequence_gate: ApplicationMutationGate
+var _consequence_port: FakeConsequencePort
 
 
 func before_each() -> void:
@@ -45,6 +68,165 @@ func before_each() -> void:
 	_generation_port.arm_materialize(_layout())
 	var configured := _coordinator.configure(_state_port, _checkpoint_port, _generation_port, _issuer)
 	assert_true(configured.get("ok", false), "configure() must succeed in before_each: %s" % configured)
+
+	_consequence_state = _bootstrap_consequence_state("causal-day-1")
+	_consequence_checkpoint_port = CONSEQUENCE_CHECKPOINT_PORT.new()
+	_consequence_gate = ApplicationMutationGate.new()
+	_consequence_port = FakeConsequencePort.new()
+	var consequence_configured := _coordinator.configure_consequence_port(_consequence_port, _consequence_gate)
+	assert_true(consequence_configured.get("ok", false), JSON.stringify(consequence_configured))
+	var checkpoint_configured := _coordinator.configure_consequence_checkpoint(_consequence_state, _consequence_checkpoint_port)
+	assert_true(checkpoint_configured.get("ok", false), JSON.stringify(checkpoint_configured))
+
+
+func _bootstrap_consequence_state(causal_day_instance: String) -> RefCounted:
+	var state := CONSEQUENCE_STATE.new()
+	var receipt: Dictionary = _root_store.mint(&"causal_day_instance").duplicate(true)
+	receipt["token"] = causal_day_instance
+	var made: Dictionary = CONSEQUENCE_STATE.make_empty({
+		"causal_day_instance": causal_day_instance, "causal_day_instance_issuer_receipt": receipt,
+	})
+	assert_true(made.get("ok", false), JSON.stringify(made))
+	var prepared: Dictionary = state.prepare_restore((made["value"] as Dictionary)["state"])
+	state.commit((prepared["value"] as Dictionary)["candidate"])
+	return state
+
+
+## Drives a fresh round to a terminal EXPLODED board: reveal safely at cell 0, then reveal the known
+## mine at cell 1 (the fixed _layout() below always places its one mine there).
+func _explode_a_fresh_round() -> Dictionary:
+	var identity: Dictionary = _coordinator.get_entry_context("beginner")["value"]["identity"]
+	var reveal_result := _reveal_first(_next_tx(), "beginner", 0)
+	assert_true(reveal_result.get("ok", false), JSON.stringify(reveal_result))
+	var live: Dictionary = _coordinator.get_state()["value"]
+	var explode_request := _cell_request_with_real_transaction(live["identity"], live["revision"], 1)
+	var exploded := _coordinator.reveal(explode_request)
+	assert_true(exploded.get("ok", false), JSON.stringify(exploded))
+	assert_true(_coordinator.get_state()["value"]["board"]["board"]["terminal"])
+	return identity
+
+
+func _complete_round_request(transaction_id: String) -> Dictionary:
+	return {
+		"transaction_id": transaction_id, "transaction_issuer_receipt": _issue_transaction_receipt_for(transaction_id),
+		"expected_identity": _coordinator.get_state()["value"]["identity"],
+		"expected_revision": int(_coordinator.get_state()["value"]["revision"]), "expected_run_revision": 0,
+	}
+
+
+# ---- complete_round() (Plan 02 Task 8, dwm-p2r.32) ----
+
+func test_configure_consequence_port_rejects_before_it_is_configured() -> void:
+	var fresh := COORDINATOR.new()
+	fresh.configure(STATE_PORT.new(), CHECKPOINT_PORT.new(), GENERATION_PORT.new(), _issuer)
+	var result: Dictionary = fresh.complete_round(_complete_round_request(_next_tx()))
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"consequence_port_not_configured")
+
+
+func test_configure_consequence_checkpoint_rejects_an_invalid_state_port() -> void:
+	var fresh := COORDINATOR.new()
+	fresh.configure(STATE_PORT.new(), CHECKPOINT_PORT.new(), GENERATION_PORT.new(), _issuer)
+	fresh.configure_consequence_port(FakeConsequencePort.new(), ApplicationMutationGate.new())
+	var result: Dictionary = fresh.configure_consequence_checkpoint(RefCounted.new(), CONSEQUENCE_CHECKPOINT_PORT.new())
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"invalid_consequence_state_port")
+
+
+func test_complete_round_requires_a_terminal_board() -> void:
+	_reveal_first(_next_tx(), "beginner", 0)
+	assert_false(bool(_coordinator.get_state()["value"]["board"]["board"]["terminal"]))
+	var result: Dictionary = _coordinator.complete_round(_complete_round_request(_next_tx()))
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"complete_round_requires_terminal_board")
+
+
+func test_complete_round_delegates_to_accept_prepared_action_with_a_valid_receipt() -> void:
+	_explode_a_fresh_round()
+	var tx := _next_tx()
+	var result: Dictionary = _coordinator.complete_round(_complete_round_request(tx))
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(_consequence_port.calls.size(), 1)
+	var call: Dictionary = _consequence_port.calls[0]
+	var validated := ACTION_RECEIPT.validate(call["action_receipt"])
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	assert_eq(str(call["action_receipt"]["action_kind"]), "minesweeper_round")
+	assert_eq(str(call["action_receipt"]["commit_receipt_id"]), str(call["action_receipt"]["action_id"]),
+		"Ruling B: commit_receipt_id reuses action_id byte-for-byte")
+	assert_eq(str((call["action_candidate"] as Dictionary)["outcome"]), "exploded")
+	assert_eq(str(((call["action_candidate"] as Dictionary)["board_projection"] as Dictionary)["phase"]), "NONE")
+	assert_true((call["prepared_checkpoint_receipt"] as Dictionary).size() > 0)
+
+
+func test_complete_round_never_changes_live_board_truth_even_when_delegation_fails() -> void:
+	_explode_a_fresh_round()
+	# complete_round() itself never adopts the board_projection -- that is commit_recovery_action()'s
+	# own, later job. Proven here by forcing accept_prepared_action() to fail: the board must stay
+	# exactly the terminal ACTIVE_VISIBLE state complete_round() found it in.
+	_consequence_port.armed_result = {"ok": false, "code": &"forced_test_failure", "message": "", "details": {}}
+	var before: Dictionary = _coordinator.get_state()["value"]
+	var result: Dictionary = _coordinator.complete_round(_complete_round_request(_next_tx()))
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"forced_test_failure")
+	var after: Dictionary = _coordinator.get_state()["value"]
+	assert_eq(after["phase"], "ACTIVE_VISIBLE")
+	assert_eq(after, before, "the board must be byte-identical to its pre-delegation state")
+
+
+func test_complete_round_duplicate_replay_returns_identical_result() -> void:
+	_explode_a_fresh_round()
+	var tx := _next_tx()
+	var request := _complete_round_request(tx)
+	var first: Dictionary = _coordinator.complete_round(request)
+	assert_true(first.get("ok", false), JSON.stringify(first))
+	var replay: Dictionary = _coordinator.complete_round(request)
+	assert_true(replay.get("ok", false), JSON.stringify(replay))
+	assert_eq(replay, first)
+	assert_eq(_consequence_port.calls.size(), 1, "a duplicate replay never calls accept_prepared_action again")
+
+
+func test_commit_recovery_action_adopts_the_board_projection_and_rejects_without_the_gate() -> void:
+	var identity := _explode_a_fresh_round()
+	var tx := _next_tx()
+	var board_projection := {
+		"schema_version": 1, "phase": "NONE", "revision": int(_coordinator.get_state()["value"]["revision"]) + 1,
+		"identity": null, "candidate": null, "board": null, "settlement": null,
+		"command_receipts": (_coordinator.get_state()["value"]["command_receipts"] as Dictionary).duplicate(true),
+		"terminal_receipts": {},
+	}
+	var action_candidate := {"transaction_id": tx, "outcome": "exploded", "identity": identity, "board_projection": board_projection}
+	var action_receipt := _minimal_round_action_receipt(tx, identity)
+
+	var without_gate: Dictionary = _coordinator.commit_recovery_action(action_candidate, action_receipt)
+	assert_false(without_gate.get("ok", false))
+	assert_eq(without_gate.get("code"), &"causal_transaction_lease_required")
+
+	var acquired: Dictionary = _consequence_gate.acquire(&"causal_transaction")
+	assert_true(acquired.get("ok", false))
+	var committed: Dictionary = _coordinator.commit_recovery_action(action_candidate, action_receipt)
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	assert_eq(_coordinator.get_state()["value"]["phase"], "NONE")
+
+
+func _minimal_round_action_receipt(transaction_id: String, identity: Dictionary) -> Dictionary:
+	var receipt_txn := _issue_transaction_receipt_for(transaction_id)
+	var derived: Dictionary = _issuer.derive_child({
+		"child_kind": "desktop_action", "ordinal": 0, "parent_receipt_id": str(receipt_txn["receipt_id"]),
+		"source_ids": ["round-source"],
+	})
+	var action_id := str(derived["value"]["child_id"])
+	var provenance: Dictionary = derived["value"]["provenance"]
+	return {
+		"schema_version": 1, "action_kind": "minesweeper_round", "run_id": str(identity["run_id"]),
+		"branch_id": str(identity["branch_id"]), "desktop_timeline_generation": int(identity["desktop_timeline_generation"]),
+		"causal_day_instance": str(identity["causal_day_instance"]), "day": 1,
+		"transaction_id": transaction_id, "transaction_issuer_receipt": receipt_txn,
+		"source_commit_receipt_id": "board_start.fake", "source_commit_receipt_provenance": {},
+		"condition_before": {"health": 0, "pressure": 0, "carried_sequela": false},
+		"condition_after": {"health": 0, "pressure": 0, "carried_sequela": false}, "unlock_receipt_ids": [],
+		"action_id": action_id, "action_id_provenance": provenance,
+		"commit_receipt_id": action_id, "commit_receipt_provenance": provenance.duplicate(true),
+	}
 
 
 # ---- Step 5.1 parse proof ----
