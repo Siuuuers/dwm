@@ -2,6 +2,7 @@ extends "res://addons/gut/test.gd"
 
 const LIFECYCLE_PATH := "res://scripts/domain/run/RunLifecycle.gd"
 const RECEIPTS_PATH := "res://tests/support/DayResolutionReceiptFixtures.gd"
+const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 func _lifecycle_exists() -> bool:
 	return ResourceLoader.exists(LIFECYCLE_PATH, "Script")
@@ -252,15 +253,90 @@ func test_get_desktop_identity_context_shape() -> void:
 	assert_eq(context["branch_id"], "branch-1")
 	assert_eq(context["causal_day_instance"], "causal-day-1")
 
-func test_continuation_remap_seams_are_typed_not_implemented_skeletons() -> void:
-	# Phase C of this worktree's phased-commit plan wires the real DesktopContinuationRemapper.
+## Task 6 Phase C: a well-formed enriched identity_allocation_bundle, matching exactly what
+## DesktopIdentityAllocationRestoreParticipant is documented to hand RunLifecycle -- the raw
+## continuation-allocation identity plus the one continuation_operation remap receipt.
+func _remap_bundle(run_id: String, causal_day_instance: String = "causal-day-2") -> Dictionary:
+	return {
+		"run_id": run_id,
+		"allocation_receipt_id": "issuer_receipt.fixture-allocation-1",
+		"branch_id": "branch-2",
+		"desktop_timeline_generation": 1,
+		"causal_day_instance": causal_day_instance,
+		"causal_day_instance_issuer_receipt": _issuer_receipt(causal_day_instance),
+		"remap_receipt_id": "continuation_operation.fixture-remap-1",
+		"remap_receipt_provenance": {"parent_receipt_id": "transaction_id.fixture-restore-1",
+			"child_kind": "continuation_operation", "ordinal": 0, "source_ids": [], "schema_version": 1,
+			"child_id": "continuation_operation.fixture-remap-1"},
+		"transaction_remap": {"old-tx-1": {"source_transaction_id": "old-tx-1",
+			"new_transaction_id": "new-tx-1", "new_transaction_issuer_receipt": {}}},
+	}
+
+func test_continuation_remap_installs_the_new_identity_and_provenance() -> void:
 	assert_true(_lifecycle_exists(), "RunLifecycle must exist")
 	if not _lifecycle_exists():
 		return
-	var lifecycle: RefCounted = load(LIFECYCLE_PATH).new()
-	var prepared: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-1", {})
-	assert_false(prepared.get("ok", true))
-	assert_eq(prepared["code"], &"not_implemented")
-	var committed: Dictionary = lifecycle.commit_continuation_remap({})
-	assert_false(committed.get("ok", true))
-	assert_eq(committed["code"], &"not_implemented")
+	var lifecycle := _fresh("run-remap", 3)
+	var bundle := _remap_bundle("run-remap")
+	var prepared: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-1", bundle)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var candidate: Dictionary = prepared["value"]["candidate"]
+	assert_eq(candidate["run_id"], "run-remap", "restore never changes run_id")
+	assert_eq(candidate["branch_id"], "branch-2")
+	assert_eq(candidate["desktop_timeline_generation"], 1)
+	assert_eq(candidate["causal_day_instance"], "causal-day-2")
+	assert_eq((candidate["causal_day_instance_issuer_receipt"] as Dictionary)["token"], "causal-day-2")
+	var provenance: Dictionary = candidate["restore_provenance"]
+	assert_eq(provenance["source_branch_id"], "branch-1", "provenance records the PRE-remap identity")
+	assert_eq(provenance["source_desktop_timeline_generation"], 0)
+	assert_eq(provenance["source_causal_day_instance"], "causal-day-1")
+	assert_eq(provenance["source_issuer_observed_counter"], 1)
+	assert_eq(provenance["restore_transaction_id"], "restore-txn-1")
+	assert_eq(provenance["identity_allocation_receipt_id"], "issuer_receipt.fixture-allocation-1")
+	assert_eq(provenance["remap_receipt_id"], "continuation_operation.fixture-remap-1")
+	assert_eq(provenance["remap_receipt_provenance"], bundle["remap_receipt_provenance"])
+	var canonical: Dictionary = _CANONICAL_JSON.stringify(bundle["transaction_remap"])
+	assert_true(canonical.get("ok", false))
+	var expected_hash: String = str(canonical["value"]).sha256_text()
+	assert_eq(provenance["transaction_remap_sha256"], expected_hash,
+		"the hash is recomputed canonically from transaction_remap, never trusted from the caller")
+
+	var committed: Dictionary = lifecycle.commit_continuation_remap(candidate)
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	var context: Dictionary = lifecycle.get_desktop_identity_context()
+	assert_eq(context["branch_id"], "branch-2")
+	assert_eq(context["causal_day_instance"], "causal-day-2")
+	assert_eq(lifecycle.to_dict()["restore_provenance"]["restore_transaction_id"], "restore-txn-1")
+
+func test_continuation_remap_rejects_a_bundle_for_a_different_run() -> void:
+	assert_true(_lifecycle_exists(), "RunLifecycle must exist")
+	if not _lifecycle_exists():
+		return
+	var lifecycle := _fresh("run-remap-2", 3)
+	var rejected: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-2", _remap_bundle("some-other-run"))
+	assert_false(rejected.get("ok", true), "a bundle for a different run_id must reject")
+	assert_eq(rejected["code"], &"identity_allocation_run_id_mismatch")
+	assert_eq(lifecycle.to_dict()["run_id"], "run-remap-2", "a rejected prepare never mutates")
+
+func test_continuation_remap_rejects_a_blank_restore_transaction_id() -> void:
+	assert_true(_lifecycle_exists(), "RunLifecycle must exist")
+	if not _lifecycle_exists():
+		return
+	var lifecycle := _fresh("run-remap-3", 3)
+	var rejected: Dictionary = lifecycle.prepare_continuation_remap("", _remap_bundle("run-remap-3"))
+	assert_false(rejected.get("ok", true))
+	assert_eq(rejected["code"], &"invalid_restore_transaction_id")
+
+func test_continuation_remap_rejects_an_incomplete_bundle() -> void:
+	assert_true(_lifecycle_exists(), "RunLifecycle must exist")
+	if not _lifecycle_exists():
+		return
+	var lifecycle := _fresh("run-remap-4", 3)
+	for missing: String in ["allocation_receipt_id", "branch_id", "causal_day_instance",
+			"causal_day_instance_issuer_receipt", "desktop_timeline_generation", "remap_receipt_id",
+			"remap_receipt_provenance", "run_id", "transaction_remap"]:
+		var incomplete := _remap_bundle("run-remap-4")
+		incomplete.erase(missing)
+		var rejected: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-4", incomplete)
+		assert_false(rejected.get("ok", true), "a bundle missing " + missing + " must reject")
+		assert_eq(rejected["code"], &"invalid_identity_allocation_bundle", missing)

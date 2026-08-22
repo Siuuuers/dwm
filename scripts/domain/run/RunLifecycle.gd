@@ -5,6 +5,7 @@ extends RefCounted
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 2).
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
+const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const PLAYING := &"PLAYING"
 const ENDING := &"ENDING"
@@ -72,13 +73,69 @@ func get_desktop_identity_context() -> Dictionary:
 		"causal_day_instance_issuer_receipt": _causal_day_instance_issuer_receipt.duplicate(true),
 	}
 
-## Typed skeleton pending Task-6 Step 6.8's real DesktopContinuationRemapper wiring (Phase C of this
-## worktree's phased-commit plan). Deliberately fails closed rather than silently no-opping.
-func prepare_continuation_remap(_restore_transaction_id: String, _identity_allocation_bundle: Dictionary) -> Dictionary:
-	return _fail(&"not_implemented", "RunLifecycle.prepare_continuation_remap")
+## The exact members this object's own slice of the enriched identity_allocation_bundle needs
+## (Task 6 Phase C, brief lines 259-283/287). `DesktopIdentityAllocationRestoreParticipant` is the
+## sole producer: it projects the issuer's raw continuation-allocation candidate into the brief's
+## bundle shape and attaches the one `continuation_operation` remap receipt `DesktopContinuation
+## Remapper.prepare()` emits (brief line 291) before Run/consequence/board each build their own
+## candidate from the same bundle. `transaction_remap_sha256` is NOT carried on the bundle -- this
+## object computes it itself, canonically, from the bundle's own `transaction_remap` member, so it
+## can never drift from the bytes actually bound.
+const _IDENTITY_ALLOCATION_BUNDLE_KEYS: Array[String] = [
+	"allocation_receipt_id", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
+	"desktop_timeline_generation", "remap_receipt_id", "remap_receipt_provenance", "run_id",
+	"transaction_remap",
+]
 
-func commit_continuation_remap(_candidate: Dictionary) -> Dictionary:
-	return _fail(&"not_implemented", "RunLifecycle.commit_continuation_remap")
+## Builds this object's restore candidate from a durably-allocated, already-remapped identity
+## bundle (Task 6 Phase C). Restore-only: `run_id` must equal this object's OWN live run_id (brief
+## line 287, "for restore, run_id ... is validated source provenance rather than newly allocated"),
+## never a freshly minted one -- New Run installs identity through reset() instead. Pure: every
+## field this reads comes from the bundle or this object's own live state; nothing is mutated.
+func prepare_continuation_remap(restore_transaction_id: String, identity_allocation_bundle: Dictionary) -> Dictionary:
+	if restore_transaction_id.strip_edges().is_empty():
+		return _fail(&"invalid_restore_transaction_id", "restore_transaction_id must be nonblank")
+	for key: String in _IDENTITY_ALLOCATION_BUNDLE_KEYS:
+		if not identity_allocation_bundle.has(key):
+			return _fail(&"invalid_identity_allocation_bundle", "identity_allocation_bundle missing " + key)
+	if str(identity_allocation_bundle["run_id"]) != _run_id:
+		return _fail(&"identity_allocation_run_id_mismatch",
+			"a restore allocation bundle must carry the existing run_id, never a newly allocated one")
+	if typeof(identity_allocation_bundle["allocation_receipt_id"]) != TYPE_STRING \
+			or str(identity_allocation_bundle["allocation_receipt_id"]).strip_edges().is_empty():
+		return _fail(&"invalid_identity_allocation_bundle", "allocation_receipt_id must be nonblank")
+	if typeof(identity_allocation_bundle["remap_receipt_id"]) != TYPE_STRING \
+			or str(identity_allocation_bundle["remap_receipt_id"]).strip_edges().is_empty():
+		return _fail(&"invalid_identity_allocation_bundle", "remap_receipt_id must be nonblank")
+	if typeof(identity_allocation_bundle["remap_receipt_provenance"]) != TYPE_DICTIONARY:
+		return _fail(&"invalid_identity_allocation_bundle", "remap_receipt_provenance must be an object")
+	var remap_hash := _canonical_sha256(identity_allocation_bundle["transaction_remap"])
+	if remap_hash.is_empty():
+		return _fail(&"transaction_remap_not_canonicalizable", "transaction_remap is not canonically representable")
+	var receipt: Variant = identity_allocation_bundle["causal_day_instance_issuer_receipt"]
+	var candidate := to_dict()
+	candidate["branch_id"] = str(identity_allocation_bundle["branch_id"])
+	candidate["desktop_timeline_generation"] = int(identity_allocation_bundle["desktop_timeline_generation"])
+	candidate["causal_day_instance"] = str(identity_allocation_bundle["causal_day_instance"])
+	candidate["causal_day_instance_issuer_receipt"] = (receipt as Dictionary).duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else {}
+	candidate["restore_provenance"] = {
+		"source_branch_id": _branch_id,
+		"source_desktop_timeline_generation": _desktop_timeline_generation,
+		"source_causal_day_instance": _causal_day_instance,
+		"source_issuer_observed_counter": int(_causal_day_instance_issuer_receipt.get("counter", 0)),
+		"restore_transaction_id": restore_transaction_id,
+		"identity_allocation_receipt_id": str(identity_allocation_bundle["allocation_receipt_id"]),
+		"transaction_remap_sha256": remap_hash,
+		"remap_receipt_id": str(identity_allocation_bundle["remap_receipt_id"]),
+		"remap_receipt_provenance": (identity_allocation_bundle["remap_receipt_provenance"] as Dictionary).duplicate(true),
+	}
+	return prepare_restore(candidate)
+
+## The validated candidate `prepare_continuation_remap()` returned is already a complete, exact
+## lifecycle dict, so committing it is exactly what commit_restore() already does -- no separate
+## adoption path is needed.
+func commit_continuation_remap(candidate: Dictionary) -> Dictionary:
+	return commit_restore(candidate)
 
 func get_day() -> int:
 	return _day
@@ -317,6 +374,12 @@ func to_dict() -> Dictionary:
 		"causal_day_instance_issuer_receipt": _causal_day_instance_issuer_receipt.duplicate(true),
 		"restore_provenance": _dup_or_null(_restore_provenance),
 	}
+
+static func _canonical_sha256(value: Variant) -> String:
+	var emitted: Dictionary = _CANONICAL_JSON.stringify(value)
+	if not emitted.get("ok", false):
+		return ""
+	return str(emitted["value"]).sha256_text()
 
 static func _dup_or_null(value: Variant) -> Variant:
 	if value == null:
