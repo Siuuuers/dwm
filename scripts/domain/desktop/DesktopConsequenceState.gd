@@ -239,7 +239,20 @@ static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_can
 		return candidate_validation
 	var candidate: Dictionary = (candidate_validation["value"] as Dictionary)["state"]
 	if candidate["pending"] == null:
-		return _fail(&"checkpoint_header_required_at_cleanup", "terminal cleanup requires an explicit header", {})
+		# Terminal cleanup (Task 8, dwm-p2r.32): the target candidate's pending is already null, so
+		# there is no per-pending projection to strip -- the validated header plus the complete
+		# pending-null candidate together are already the exact preimage (brief line 477: "For
+		# terminal cleanup, the validated frozen header remains the only source of transaction/source
+		# identity after that complete candidate's pending value becomes null"). Previously this
+		# branch unconditionally rejected every null-pending candidate regardless of header content,
+		# which made cleanup impossible for every source kind; nothing in the existing suite exercised
+		# this path (Task 7's own report: "Task 7 never clears... pending back to null... explicitly
+		# Task 8's territory"), so this is a genuine, previously-unreachable gap this task closes,
+		# not a behavior change to any tested case.
+		return {"ok": true, "code": &"ok", "value": {"preimage": {
+			"header": normalized_header,
+			"stage_candidate": candidate.duplicate(true),
+		}}, "receipt": {}}
 	var pending: Dictionary = candidate["pending"]
 	var projected: Dictionary = pending.duplicate(true)
 	projected["checkpoint_receipt"] = null

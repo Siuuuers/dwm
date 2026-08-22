@@ -69,6 +69,9 @@ var _publication_ledger: Object = null
 ## DesktopConsequenceState's durable pending record survives.
 var _transactions: Dictionary = {}
 var _committed_transactions: Dictionary = {}
+## Task 8 (dwm-p2r.32) addition: a separate idempotency ledger for the recovery-boundary
+## commit_recovery_action(), so it never collides with commit()'s own pre-Task-8 transaction identity.
+var _recovery_committed: Dictionary = {}
 var _gate_token := ""
 
 
@@ -474,6 +477,121 @@ func publish(publication: Dictionary) -> Dictionary:
 		_mutation_gate.release(_GATE_OWNER, _gate_token)
 		_gate_token = ""
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": {}}
+
+
+# -------------------------------------------------------------------------------------------------
+# Task 8 (dwm-p2r.32) additions: the frozen three-method action-source recovery surface consumed by
+# DesktopConsequenceCoordinator. `action_candidate` here is the SELF-SUFFICIENT economy candidate
+# `GameStateMinesweeperShopPort.prepare_purchase()` already builds (`{transaction_id,item_id,
+# currency,price,grant_inventory_item_id}`) -- not the trivial `{transaction_id}` pointer
+# `prepare_purchase()`'s own PENDING result carries, which this task deliberately leaves unchanged
+# (a behavioral change to that already-committed Task-7 return shape is out of this task's surgical
+# scope). Whoever threads `action_candidate` into `DesktopConsequenceCoordinator.accept_prepared_
+# action()` (Plan 03's eventual Shop command facade) is expected to carry this richer shape forward
+# instead, exactly like `MinesweeperRoundCoordinator.complete_round()`'s own action_candidate does.
+# A genuinely reconstructed participant (empty `_transactions`) needs no recognition step here: the
+# pair (action_candidate, action_receipt) is already everything `commit_recovery_action()` needs,
+# independent of any process-local ledger.
+# -------------------------------------------------------------------------------------------------
+
+func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+	var ready := _require_configured()
+	if not ready.get("ok", false):
+		return ready
+	var validated := _ACTION_RECEIPT.validate(action_receipt)
+	if not validated.get("ok", false):
+		return validated
+	var receipt: Dictionary = (validated["value"] as Dictionary)["receipt"]
+	if str(receipt["action_kind"]) != _ACTION_KIND:
+		return _fail(&"action_receipt_source_kind_mismatch", "", {})
+	if str(action_candidate.get("transaction_id", "")) != str(receipt["transaction_id"]):
+		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
+	var action_candidate_sha256 := _action_candidate_sha256_from_receipt(receipt)
+	return {"ok": true, "code": &"ok", "value": {"publication": {
+		"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt.duplicate(true),
+	}}, "receipt": {}}
+
+
+## The source's sole live commit for this recovery boundary: applies the real economy delta (spend
+## currency, grant capability, decrement the Supportz floor) through the SAME `GameStateMinesweeperShopPort
+## .commit()`/`DesktopConsequenceState.prepare_record_supportz_purchase()` calls the pre-Task-8 `commit()`
+## already uses, but against its OWN ledger (`_recovery_committed`) so this new surface never collides
+## with `commit()`'s own pre-Task-8 transaction identity/replay law.
+func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+	var ready := _require_configured()
+	if not ready.get("ok", false):
+		return ready
+	var validated := _ACTION_RECEIPT.validate(action_receipt)
+	if not validated.get("ok", false):
+		return validated
+	var receipt: Dictionary = (validated["value"] as Dictionary)["receipt"]
+	if str(receipt["action_kind"]) != _ACTION_KIND:
+		return _fail(&"action_receipt_source_kind_mismatch", "", {})
+	var transaction_id := str(receipt["transaction_id"])
+	if str(action_candidate.get("transaction_id", "")) != transaction_id:
+		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
+
+	if _recovery_committed.has(transaction_id):
+		var recorded: Dictionary = _recovery_committed[transaction_id]
+		if recorded["action_candidate"] == action_candidate and recorded["action_receipt"] == receipt:
+			return (recorded["result"] as Dictionary).duplicate(true)
+		return _fail(&"action_receipt_conflict", "this transaction was already committed with different bytes", {})
+
+	if not _mutation_gate.is_internal_owner_active(_GATE_OWNER):
+		return _fail(&"causal_transaction_lease_required", "commit_recovery_action requires the active causal_transaction lease", {})
+
+	var economy_committed: Dictionary = _state_port.call(&"commit", action_candidate)
+	if not economy_committed.get("ok", false):
+		return economy_committed
+
+	if str(action_candidate.get("item_id", "")) == _SUPPORTZ_ITEM_ID:
+		var recorded_purchase: Dictionary = _consequence_state_port.call(&"prepare_record_supportz_purchase",
+			transaction_id, str(receipt["causal_day_instance"]))
+		if not recorded_purchase.get("ok", false):
+			return recorded_purchase
+		var ledger_committed: Dictionary = _consequence_state_port.call(&"commit",
+			(recorded_purchase["value"] as Dictionary)["candidate"])
+		if not ledger_committed.get("ok", false):
+			return ledger_committed
+
+	var result := {"ok": true, "code": &"ok", "value": {"action_receipt": receipt.duplicate(true)}, "receipt": receipt.duplicate(true)}
+	_recovery_committed[transaction_id] = {
+		"action_candidate": action_candidate.duplicate(true), "action_receipt": receipt.duplicate(true), "result": result.duplicate(true),
+	}
+	return result
+
+
+## The source's sole audience boundary for this recovery path: records the at-most-once external
+## observation through the SAME shared `action_source` publication-ledger kind and key convention
+## `publish()` already established (Ruling B), then releases the retained `causal_transaction` lease
+## -- mirroring `publish()`'s own "release only after publication" discipline, since this method (not
+## the pre-Task-8 `publish()`) is the one the coordinator actually calls along this path.
+func publish_recovery_action(publication: Dictionary) -> Dictionary:
+	var ready := _require_configured()
+	if not ready.get("ok", false):
+		return ready
+	var keys: Array = publication.keys()
+	keys.sort()
+	if keys != ["action_candidate_sha256", "action_receipt"]:
+		return _fail(&"invalid_publication", "publication must carry exactly action_candidate_sha256 and action_receipt", {})
+	var receipt: Dictionary = publication["action_receipt"]
+	var validated := _ACTION_RECEIPT.validate(receipt)
+	if not validated.get("ok", false):
+		return validated
+	receipt = (validated["value"] as Dictionary)["receipt"]
+	var ledger_publication := {
+		"action_candidate_sha256": str(publication["action_candidate_sha256"]), "action_receipt": receipt.duplicate(true),
+	}
+	var recorded: Dictionary = _publication_ledger.call(&"record_before_emit", {
+		"kind": "action_source", "semantic_receipt": receipt.duplicate(true),
+		"publication": ledger_publication, "publication_sha256": _canonical_sha256(ledger_publication),
+	})
+	if not recorded.get("ok", false):
+		return recorded
+	if _gate_token != "":
+		_mutation_gate.release(_GATE_OWNER, _gate_token)
+		_gate_token = ""
+	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
 
 
 # -------------------------------------------------------------------------------------------------
