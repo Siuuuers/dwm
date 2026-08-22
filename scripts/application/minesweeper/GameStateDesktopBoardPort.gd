@@ -54,6 +54,11 @@ var _game_state: Object = null
 var _identity_issuer: Object = null
 var _desktop_identity_context: Dictionary = {}
 var _starts_today: Dictionary = {}
+## Plan 02 Task 6 (dwm-p2r.32), Phase D: additive DI seam beyond the frozen 8-method interface (own
+## design choice -- prepare_first_reveal_consequence()'s frozen 4-arg signature has no room for a
+## live consequence-state reference, so it is injected here instead, mirroring configure()'s own
+## established "additive seam" pattern above). Duck-typed to DesktopConsequenceState's own capture().
+var _consequence_state_port: Object = null
 
 
 ## Additive configuration seam beyond the frozen 8-method interface (needed since GameState and
@@ -78,6 +83,30 @@ func configure(game_state: Object, identity_issuer: Object, desktop_identity_con
 	_identity_issuer = identity_issuer
 	_desktop_identity_context = desktop_identity_context.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+## Plan 02 Task 6 (dwm-p2r.32), Phase D addition. Idempotent on the same instance; a different one
+## is refused, matching every other configure seam in this file.
+func configure_consequence_state_port(consequence_state_port: Object) -> Dictionary:
+	if consequence_state_port == null or not consequence_state_port.has_method("capture"):
+		return _fail(&"invalid_consequence_state_port", "consequence_state_port must expose capture", {})
+	if _consequence_state_port != null:
+		if _consequence_state_port == consequence_state_port:
+			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+		return _fail(&"consequence_state_port_already_configured", "", {})
+	_consequence_state_port = consequence_state_port
+	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+## Plan 02 Task 6 (dwm-p2r.32), Phase D addition (own design choice): DesktopFirstRevealSnapshotComposer's
+## `base_snapshot_input` needs GameState's own full capture; this port is the only production seam
+## with a GameState reference, so it exposes a thin, read-only forward here rather than the
+## coordinator/caller reaching into GameState directly.
+func capture_base_snapshot_input() -> Dictionary:
+	var ready := _require_configured()
+	if not ready.get("ok", false):
+		return ready
+	return {"ok": true, "code": &"ok", "value": {"snapshot_input": _game_state.capture_run_snapshot_input()}, "receipt": {}}
 
 
 func guard_external(_operation_id: StringName) -> Dictionary:
@@ -228,6 +257,71 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 		"snapshot_input": {"transaction_id": transaction_id, "run_id": str(facts["run_id"])},
 		"publication": {"transaction_id": transaction_id, "receipt": receipt.duplicate(true)},
 	}, "receipt": {}}
+
+
+## Plan 02 Task 6 (dwm-p2r.32), Phase D, brief line 295 ("Production first-Reveal candidate law").
+## Reuses prepare_first_reveal()'s exact GameState cost/counter law unchanged (its own `board_
+## candidate` parameter is the SAME raw `{identity,difficulty_id,cell_index,board,proof_sha256}`
+## shape prepare_first_reveal() already takes -- Task 5's own established convention, not the
+## DesktopBoardState.prepare_first_reveal() candidate the coordinator separately prepares), then
+## additionally returns a DesktopConsequenceState first-Reveal checkpoint marker bound to the
+## currently-live consequence run_revision (see the class doc's DESIGN CHOICE note on
+## _consequence_state_port -- first Reveal never opens a causal-sequence pending transaction, so
+## this marker asserts revision agreement rather than carrying a content change). This method does
+## NOT produce the "DesktopBoardState adoption candidate" the brief's prose also mentions -- that is
+## DesktopBoardState.prepare_first_reveal()'s OWN output, which the coordinator prepares separately
+## (exactly as Task 5's existing _first_reveal() already does) and hands to validate_first_reveal_
+## candidates()/the composer directly.
+func prepare_first_reveal_consequence(board_candidate: Dictionary, transaction_id: String,
+		transaction_issuer_receipt: Dictionary, expected_checkpoint_id: String) -> Dictionary:
+	var base := prepare_first_reveal(board_candidate, transaction_id, transaction_issuer_receipt, expected_checkpoint_id)
+	if not base.get("ok", false):
+		return base
+	var base_value: Dictionary = base["value"]
+	var expected_run_revision := 0
+	if _consequence_state_port != null:
+		var captured: Dictionary = _consequence_state_port.call(&"capture")
+		if not captured.get("ok", false):
+			return captured
+		expected_run_revision = int(((captured["value"] as Dictionary)["state"] as Dictionary)["run_revision"])
+	return {"ok": true, "code": &"ok", "value": {
+		"game_state_candidate": (base_value["run_candidate"] as Dictionary).duplicate(true),
+		"consequence_candidate": {"expected_run_revision": expected_run_revision},
+		"receipt": (base_value["receipt"] as Dictionary).duplicate(true),
+		"publication": (base_value["publication"] as Dictionary).duplicate(true),
+	}, "receipt": {}}
+
+
+## Recomputes identity/transaction/revision/checkpoint parity across all three candidates (brief
+## line 295: "recomputes their identity, transaction, pre/post revision, paid-start receipt,
+## checkpoint ID, and board proof/hash parity"). Read-only; touches no live state.
+func validate_first_reveal_candidates(game_state_candidate: Dictionary,
+		board_candidate: Dictionary, consequence_candidate: Dictionary) -> Dictionary:
+	var ready := _require_configured()
+	if not ready.get("ok", false):
+		return ready
+	if typeof(game_state_candidate.get("transaction_id")) != TYPE_STRING \
+			or str(game_state_candidate["transaction_id"]).strip_edges().is_empty():
+		return _fail(&"invalid_first_reveal_candidates", "game_state_candidate.transaction_id is required", {})
+	if typeof(board_candidate.get("transaction_id")) != TYPE_STRING \
+			or str(board_candidate["transaction_id"]) != str(game_state_candidate["transaction_id"]):
+		return _fail(&"first_reveal_candidate_transaction_mismatch",
+			"board_candidate.transaction_id must match game_state_candidate", {})
+	if str(board_candidate.get("kind", "")) != "first_reveal":
+		return _fail(&"invalid_first_reveal_candidates", "board_candidate must be a first_reveal candidate", {})
+	if typeof(board_candidate.get("board_after")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_first_reveal_candidates", "board_candidate.board_after is required", {})
+	if typeof(consequence_candidate.get("expected_run_revision")) != TYPE_INT:
+		return _fail(&"invalid_first_reveal_candidates", "consequence_candidate.expected_run_revision is required", {})
+	if _consequence_state_port != null:
+		var captured: Dictionary = _consequence_state_port.call(&"capture")
+		if not captured.get("ok", false):
+			return captured
+		var live_revision := int(((captured["value"] as Dictionary)["state"] as Dictionary)["run_revision"])
+		if live_revision != int(consequence_candidate["expected_run_revision"]):
+			return _fail(&"first_reveal_candidate_revision_mismatch",
+				"consequence_candidate.expected_run_revision no longer matches live consequence state", {})
+	return {"ok": true, "code": &"ok", "value": {"valid": true}, "receipt": {}}
 
 
 func prepare_board_only(board_candidate: Dictionary, transaction_id: String,

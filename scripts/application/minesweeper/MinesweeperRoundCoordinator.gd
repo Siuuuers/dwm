@@ -61,6 +61,23 @@ var _generation_port: Object = null
 var _identity_issuer: Object = null
 var _fatal_failure: Dictionary = {}
 
+## Plan 02 Task 6 (dwm-p2r.32), Phase D additions (brief line 154-156). Deliberately separate from
+## the frozen `configure()` above: `configure_durable_checkpoint()` "replaces the Task-5 fake seam
+## only after v4 is green... retains the same issuer/generator/state owner identities" (brief line
+## 295) -- it swaps ONLY the checkpoint path, never installs a second coordinator, and `reveal()`
+## below falls back to the untouched Task-5 fake-checkpoint `_first_reveal()` path whenever this is
+## unconfigured (every existing Task-5 test never calls this, so their behavior is byte-for-byte
+## unchanged).
+var _durable_checkpoint_port: Object = null
+var _snapshot_composer: Script = null
+var _durable_consequence_state_port: Object = null
+## Stored for this coordinator's own causal-sequence publication paths (round completion through
+## DesktopCausalSequencePort) -- NOT first Reveal's own publish() step, which is unrelated and
+## untouched: DesktopPublicationLedger.record_before_emit() requires a `causal_sequence_receipt`
+## field first Reveal's own board_start receipt does not carry (own documented design choice, see
+## the class doc above and the task-6 report).
+var _publication_ledger: Object = null
+
 
 func _init() -> void:
 	_board_state = _BOARD_STATE.new()
@@ -86,6 +103,43 @@ func configure(state_port: Object, checkpoint_port: Object,
 	_checkpoint_port = checkpoint_port
 	_generation_port = generation_port
 	_identity_issuer = identity_issuer
+	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+## Plan 02 Task 6 (dwm-p2r.32), Phase D addition (brief line 154). Idempotent on the same instance.
+func configure_publication_ledger(publication_ledger: Object) -> Dictionary:
+	if publication_ledger == null or not publication_ledger.has_method("record_before_emit"):
+		return _fail(&"invalid_publication_ledger", "publication_ledger must expose record_before_emit", {})
+	if _publication_ledger != null:
+		if _publication_ledger == publication_ledger:
+			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+		return _fail(&"publication_ledger_already_configured", "", {})
+	_publication_ledger = publication_ledger
+	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+## Plan 02 Task 6 (dwm-p2r.32), Phase D addition (brief lines 155-156, 295). Once configured,
+## `reveal()`'s first-Reveal dispatch routes through `_first_reveal_durable()` instead of the
+## Task-5 fake-checkpoint `_first_reveal()`; `_state_port`/`_generation_port`/`_identity_issuer`
+## stay exactly what `configure()` already installed.
+func configure_durable_checkpoint(checkpoint_port: Object, snapshot_composer: Script,
+		consequence_state_port: Object) -> Dictionary:
+	if checkpoint_port == null or not _has_all_methods(checkpoint_port,
+			["capture", "preview_checkpoint_id", "prepare_checkpoint", "commit_checkpoint", "rollback"]):
+		return _fail(&"invalid_durable_checkpoint_port", "an exact durable-checkpoint capability is required", {})
+	if snapshot_composer == null or not snapshot_composer.has_method("compose"):
+		return _fail(&"invalid_snapshot_composer", "snapshot_composer must expose compose", {})
+	if consequence_state_port == null or not consequence_state_port.has_method("capture"):
+		return _fail(&"invalid_consequence_state_port", "consequence_state_port must expose capture", {})
+	if _durable_checkpoint_port != null:
+		if _durable_checkpoint_port == checkpoint_port and _snapshot_composer == snapshot_composer \
+				and _durable_consequence_state_port == consequence_state_port:
+			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
+		return _fail(&"durable_checkpoint_already_configured",
+			"a configured durable checkpoint never adopts a replacement owner", {})
+	_durable_checkpoint_port = checkpoint_port
+	_snapshot_composer = snapshot_composer
+	_durable_consequence_state_port = consequence_state_port
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
@@ -216,6 +270,8 @@ func reveal(request: Dictionary) -> Dictionary:
 	if not guard.is_empty():
 		return guard
 	if request.has("difficulty_id"):
+		if _durable_checkpoint_port != null:
+			return _first_reveal_durable(request)
 		return _first_reveal(request)
 	return _routine_command(request, &"reveal")
 
@@ -416,6 +472,180 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	if not published.get("ok", false):
 		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "",
 			{"receipt": receipt.duplicate(true)})
+	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
+
+
+## Plan 02 Task 6 (dwm-p2r.32), Phase D (brief Step 6.12's exact production order): guard (already
+## run by reveal()) -> duplicate/conflict lookup -> verify issuer receipt -> validate current state/
+## request -> purely materialize -> reduce the pure first-Reveal board -> prepare the GameState cost
+## candidate and consequence checkpoint marker -> prepare the DesktopBoardState adoption candidate
+## -> validate the candidate triple -> capture the base snapshot input -> compose and validate the
+## post-commit v4 SaveDocument input -> prepare checkpoint -> commit checkpoint (DURABLE: `disk_write
+## = {kind:autosave, reason:pre_board}`, the SAME registered disk-write member SaveManagerCheckpoint
+## Port already reserves for exactly this "durable before a round is consumed" law) -> forward-commit
+## GameState then board live candidates (consequence is untouched: the marker asserts revision
+## agreement, not a content change -- see GameStateDesktopBoardPort's DESIGN CHOICE note) -> publish.
+## Nothing is adopted live before checkpoint commit. Mirrors _first_reveal()'s exact rollback
+## ordering, substituting the durable checkpoint port for the Task-5 fake one.
+func _first_reveal_durable(request: Dictionary) -> Dictionary:
+	var shape := _exact_keys(request, _FIRST_REVEAL_REQUEST_KEYS, &"invalid_request")
+	if not shape.get("ok", false):
+		return shape
+	var transaction_id := str(request["transaction_id"])
+	var fingerprint := _fingerprint(request)
+	var ledger: Dictionary = _board_state.capture()["command_receipts"]
+	if ledger.has(transaction_id):
+		var entry: Dictionary = ledger[transaction_id]
+		if str(entry["request_fingerprint"]) != fingerprint:
+			return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
+		var stored: Dictionary = entry["result"]
+		var stored_value: Dictionary = stored.get("value", {})
+		return _republish_first_reveal(stored_value)
+
+	var verify := _verify_transaction(transaction_id, request["transaction_issuer_receipt"])
+	if not verify.get("ok", false):
+		return verify
+
+	var captured: Dictionary = _board_state.capture()
+	var phase: String = captured["phase"]
+	if phase != "NONE" and phase != "PREPARED_UNSTARTED":
+		return _fail(&"first_reveal_requires_none_or_prepared_phase", "", {"phase": phase})
+	if int(request["expected_revision"]) != int(captured["revision"]):
+		return _fail(&"stale_revision", "", {})
+
+	var identity: Dictionary
+	if phase == "NONE":
+		var entry_context := get_entry_context(str(request["difficulty_id"]))
+		if not entry_context.get("ok", false):
+			return entry_context
+		var context_value: Dictionary = entry_context["value"]
+		if not bool(context_value["eligible"]) or context_value["identity"] == null:
+			return _fail(&"not_eligible", "no eligible ordinal remains for a new round", {})
+		identity = context_value["identity"]
+	else:
+		identity = captured["identity"]
+	if request["expected_identity"] != identity:
+		return _fail(&"identity_mismatch", "", {})
+
+	var spec: Dictionary
+	var layout: Dictionary
+	var proof_sha256: Variant = null
+	if phase == "NONE":
+		var spec_prepared: Dictionary = _state_port.call(&"prepare_spec", str(request["difficulty_id"]),
+			transaction_id, request["transaction_issuer_receipt"])
+		if not spec_prepared.get("ok", false):
+			return spec_prepared
+		spec = (spec_prepared["value"] as Dictionary)["spec"]
+		var materialized: Dictionary = _generation_port.call(&"materialize", spec, int(request["cell_index"]))
+		if not materialized.get("ok", false):
+			return materialized
+		layout = (materialized["value"] as Dictionary)["layout"]
+	else:
+		var live_candidate: Dictionary = captured["candidate"]
+		if int(request["cell_index"]) != int(live_candidate["forced_cell"]):
+			return _fail(&"forced_cell_mismatch", "", {})
+		if str(request["difficulty_id"]) != str((live_candidate["spec"] as Dictionary)["difficulty_id"]):
+			return _fail(&"difficulty_mismatch", "", {})
+		spec = live_candidate["spec"]
+		layout = live_candidate["layout"]
+		proof_sha256 = live_candidate.get("proof_sha256")
+
+	var reveal_result := _REDUCER.first_reveal(layout, int(request["cell_index"]))
+	if not reveal_result.get("ok", false):
+		return reveal_result
+	var board: Dictionary = (reveal_result["value"] as Dictionary)["board"]
+
+	var run_id := str(identity["run_id"])
+	var preview: Dictionary = _durable_checkpoint_port.call(&"preview_checkpoint_id", run_id)
+	if not preview.get("ok", false):
+		return preview
+	var expected_checkpoint_id := str((preview["value"] as Dictionary)["checkpoint_id"])
+
+	var board_candidate_for_port := {
+		"identity": identity, "difficulty_id": str(request["difficulty_id"]),
+		"cell_index": int(request["cell_index"]), "board": board, "proof_sha256": proof_sha256,
+	}
+	var consequence_prepared: Dictionary = _state_port.call(&"prepare_first_reveal_consequence",
+		board_candidate_for_port, transaction_id, request["transaction_issuer_receipt"], expected_checkpoint_id)
+	if not consequence_prepared.get("ok", false):
+		return consequence_prepared
+	var prep_value: Dictionary = consequence_prepared["value"]
+	var game_state_candidate: Dictionary = prep_value["game_state_candidate"]
+	var consequence_candidate: Dictionary = prep_value["consequence_candidate"]
+	var receipt: Dictionary = prep_value["receipt"]
+	var publication: Dictionary = prep_value["publication"]
+
+	var board_input := {
+		"transaction_id": transaction_id, "identity": identity,
+		"expected_revision": int(request["expected_revision"]), "cell_index": int(request["cell_index"]),
+		"spec": spec, "request_fingerprint": fingerprint,
+	}
+	var board_prepared := _board_state.prepare_first_reveal(board_input, {"layout": layout, "board": board},
+		{"checkpoint_id": expected_checkpoint_id})
+	if not board_prepared.get("ok", false):
+		return board_prepared
+	var board_candidate: Dictionary = (board_prepared["value"] as Dictionary)["candidate"]
+
+	var validated: Dictionary = _state_port.call(&"validate_first_reveal_candidates",
+		game_state_candidate, board_candidate, consequence_candidate)
+	if not validated.get("ok", false):
+		return validated
+
+	var base_captured: Dictionary = _state_port.call(&"capture_base_snapshot_input")
+	if not base_captured.get("ok", false):
+		return base_captured
+	var base_snapshot_input: Dictionary = (base_captured["value"] as Dictionary)["snapshot_input"]
+
+	var composed: Dictionary = _snapshot_composer.call(&"compose", base_snapshot_input,
+		game_state_candidate, board_candidate, consequence_candidate)
+	if not composed.get("ok", false):
+		return composed
+	var post_commit_snapshot_input: Dictionary = (composed["value"] as Dictionary)["snapshot_input"]
+
+	board_candidate["result_override"] = {
+		"ok": true, "code": &"first_reveal_committed",
+		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
+		"receipt": {},
+	}
+
+	var state_backup_captured: Dictionary = _state_port.call(&"capture")
+	if not state_backup_captured.get("ok", false):
+		return state_backup_captured
+	var state_backup: Dictionary = (state_backup_captured["value"] as Dictionary)["backup"]
+	var checkpoint_backup_captured: Dictionary = _durable_checkpoint_port.call(&"capture")
+	if not checkpoint_backup_captured.get("ok", false):
+		return checkpoint_backup_captured
+	var checkpoint_backup: Dictionary = (checkpoint_backup_captured["value"] as Dictionary)["backup"]
+
+	var checkpoint_prepared: Dictionary = _durable_checkpoint_port.call(&"prepare_checkpoint",
+		post_commit_snapshot_input, &"pre_board", {"kind": &"autosave", "reason": &"pre_board"})
+	if not checkpoint_prepared.get("ok", false):
+		return checkpoint_prepared
+	var checkpoint_value: Dictionary = checkpoint_prepared["value"]
+	var checkpoint_candidate: Dictionary = checkpoint_value["candidate"]
+	if str(checkpoint_value["checkpoint_id"]) != expected_checkpoint_id:
+		return _fail(&"checkpoint_id_mismatch", "", {})
+
+	var checkpoint_commit: Dictionary = _durable_checkpoint_port.call(&"commit_checkpoint", checkpoint_candidate)
+	if not checkpoint_commit.get("ok", false):
+		return checkpoint_commit  # nothing applied yet; no charge, no sequence consumed
+
+	var state_commit: Dictionary = _state_port.call(&"commit", game_state_candidate)
+	if not state_commit.get("ok", false):
+		return _rollback_participants("state_commit", transaction_id, [
+			["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", checkpoint_backup)],
+		], state_commit)
+
+	var board_commit := _board_state.commit(board_candidate)
+	if not board_commit.get("ok", false):
+		return _rollback_participants("board_commit", transaction_id, [
+			["state_port", func(): return _state_port.call(&"rollback", state_backup)],
+			["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", checkpoint_backup)],
+		], board_commit)
+
+	var published: Dictionary = _state_port.call(&"publish", publication)
+	if not published.get("ok", false):
+		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt.duplicate(true)})
 	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
 
 
