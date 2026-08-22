@@ -38,6 +38,7 @@ func before_each() -> void:
 	_root_store = FAKE_ROOT_STORE.new("33".repeat(32), 1)
 	_issuer = ISSUER.new()
 	_issuer.configure(_root_store)
+	_state_port.identity_issuer = _issuer
 	_generation_port.arm_materialize({"schema_version": 1, "width": 3, "height": 3, "mine_indices": [1], "mine_count": 1})
 	var configured := _coordinator.configure(_state_port, _checkpoint_port, _generation_port, _issuer)
 	assert_true(configured.get("ok", false), "configure() must succeed: %s" % configured)

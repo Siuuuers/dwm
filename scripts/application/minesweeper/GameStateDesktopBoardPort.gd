@@ -195,13 +195,20 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 		"mine_indices": board["mine_indices"], "mine_count": board["mine_count"],
 	}
 	var layout_sha256: String = JSON.stringify(layout_view).sha256_text()
+	# The receipt's own identity is an issuer-derived anchored child of the ledger-verified
+	# transaction receipt -- never a hand-built string. "board_start" is a registered CHILD_KINDS
+	# member; source_ids is the closed, sorted, nonblank singleton [transaction_id].
+	var derived: Dictionary = _identity_issuer.call(&"derive_child", {
+		"child_kind": "board_start", "ordinal": 0,
+		"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
+		"source_ids": [transaction_id],
+	})
+	if not derived.get("ok", false):
+		return derived
+	var derived_value: Dictionary = derived["value"]
 	var receipt := {
-		"receipt_id": "board_start.%s" % transaction_id,
-		"receipt_provenance": {
-			"child_kind": "board_start",
-			"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
-			"ordinal": 0, "source_ids": [transaction_id],
-		},
+		"receipt_id": str(derived_value["child_id"]),
+		"receipt_provenance": (derived_value["provenance"] as Dictionary).duplicate(true),
 		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
 		"identity": (board_candidate["identity"] as Dictionary).duplicate(true),
 		"difficulty_id": str(board_candidate["difficulty_id"]), "first_cell": int(board_candidate["cell_index"]),

@@ -322,6 +322,8 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 		var live_candidate: Dictionary = captured["candidate"]
 		if int(request["cell_index"]) != int(live_candidate["forced_cell"]):
 			return _fail(&"forced_cell_mismatch", "", {})
+		if str(request["difficulty_id"]) != str((live_candidate["spec"] as Dictionary)["difficulty_id"]):
+			return _fail(&"difficulty_mismatch", "", {})
 		spec = live_candidate["spec"]
 		layout = live_candidate["layout"]
 		proof_sha256 = live_candidate.get("proof_sha256")

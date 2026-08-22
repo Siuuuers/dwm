@@ -26,6 +26,11 @@ var rounds_left := 2
 var round_floor := 0
 var next_ordinal := 1
 
+## Mirrors the exact API GameStateDesktopBoardPort consumes: the receipt's identity is an
+## issuer-derived anchored child, never a hand-built string. Test setup assigns a real,
+## already-configured DesktopIdentityNonceIssuer here before calling prepare_first_reveal().
+var identity_issuer: Object = null
+
 var call_log: Array[Dictionary] = []
 var published: Array[Dictionary] = []
 
@@ -94,19 +99,27 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 		return {"ok": false, "code": &"insufficient_capacity", "message": "", "details": {}}
 	if next_ordinal < 1 or next_ordinal > 5:
 		return {"ok": false, "code": &"insufficient_capacity", "message": "no eligible ordinal remains", "details": {}}
+	if identity_issuer == null:
+		return {"ok": false, "code": &"fake_identity_issuer_not_configured", "message": "", "details": {}}
 	var board: Dictionary = board_candidate["board"]
 	var layout_view := {
 		"schema_version": 1, "width": board["width"], "height": board["height"],
 		"mine_indices": board["mine_indices"], "mine_count": board["mine_count"],
 	}
 	var layout_sha256: String = JSON.stringify(layout_view).sha256_text()
+	# Mirrors the exact production seam: the receipt's identity is an issuer-derived anchored
+	# child of the ledger-verified transaction receipt, never a hand-built string.
+	var derived: Dictionary = identity_issuer.call(&"derive_child", {
+		"child_kind": "board_start", "ordinal": 0,
+		"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
+		"source_ids": [transaction_id],
+	})
+	if not derived.get("ok", false):
+		return derived
+	var derived_value: Dictionary = derived["value"]
 	var receipt := {
-		"receipt_id": "board_start.%s" % transaction_id,
-		"receipt_provenance": {
-			"child_kind": "board_start",
-			"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
-			"ordinal": 0, "source_ids": [transaction_id],
-		},
+		"receipt_id": str(derived_value["child_id"]),
+		"receipt_provenance": (derived_value["provenance"] as Dictionary).duplicate(true),
 		"transaction_id": transaction_id,
 		"transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
 		"identity": (board_candidate["identity"] as Dictionary).duplicate(true),

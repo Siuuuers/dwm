@@ -41,6 +41,7 @@ func before_each() -> void:
 	_root_store = FAKE_ROOT_STORE.new("22".repeat(32), 1)
 	_issuer = ISSUER.new()
 	_issuer.configure(_root_store)
+	_state_port.identity_issuer = _issuer
 	_generation_port.arm_materialize(_layout())
 	var configured := _coordinator.configure(_state_port, _checkpoint_port, _generation_port, _issuer)
 	assert_true(configured.get("ok", false), "configure() must succeed in before_each: %s" % configured)
@@ -162,6 +163,29 @@ func test_first_reveal_charges_exactly_once_and_advances_ordinal() -> void:
 	assert_eq(_state_port.published.size(), 1)
 
 
+func test_first_reveal_receipt_provenance_validates_against_the_issuer() -> void:
+	var result := _reveal_first(_next_tx(), "beginner", 0)
+	var receipt: Dictionary = result["value"]["receipt"]
+	var provenance: Dictionary = receipt["receipt_provenance"]
+	var validated := _issuer.validate_child(provenance, &"board_start")
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	assert_eq(receipt["receipt_id"], provenance["child_id"],
+		"receipt_id must be exactly the issuer-derived child_id")
+	assert_eq(provenance["child_kind"], "board_start")
+	assert_eq(provenance["ordinal"], 0)
+	assert_eq(provenance["source_ids"], [receipt["transaction_id"]])
+
+
+func test_first_reveal_receipt_provenance_rejects_a_tampered_member() -> void:
+	var result := _reveal_first(_next_tx(), "beginner", 0)
+	var receipt: Dictionary = result["value"]["receipt"]
+	var tampered: Dictionary = (receipt["receipt_provenance"] as Dictionary).duplicate(true)
+	tampered["ordinal"] = 1
+	var validated := _issuer.validate_child(tampered, &"board_start")
+	assert_false(validated.get("ok", false), "a mutated provenance member must fail issuer validation")
+	assert_ne(validated.get("code"), &"not_implemented")
+
+
 func test_default_and_lucky_remain_none_until_reveal() -> void:
 	assert_eq(_coordinator.get_state()["value"]["phase"], "NONE")
 	_reveal_first(_next_tx(), "beginner", 0)
@@ -184,6 +208,26 @@ func test_first_reveal_adopts_a_certified_debug_candidate() -> void:
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result["value"]["receipt"]["proof_sha256"], "proof-xyz")
 	assert_eq(_coordinator.get_state()["value"]["phase"], "ACTIVE_VISIBLE")
+
+
+func test_first_reveal_rejects_a_difficulty_id_that_does_not_match_the_certified_candidate() -> void:
+	var identity: Dictionary = _coordinator.get_entry_context("beginner")["value"]["identity"]
+	_coordinator.begin_debug_preparation(_debug_request(_next_tx(), identity, 0, "beginner"))
+	_generation_port.arm_search_slices([
+		{"done": true, "layout": _layout(), "forced_cell": 0, "proof_sha256": "proof-xyz"},
+	])
+	_coordinator.run_debug_preparation_slice(_generic_request(_next_tx(), identity, 1))
+	assert_eq(_coordinator.get_state()["value"]["phase"], "PREPARED_UNSTARTED")
+
+	# The candidate was certified for "beginner"; requesting first Reveal with a different
+	# difficulty_id must be rejected before any mutation, and the board must stay unstarted.
+	var mismatched := _first_reveal_request(_next_tx(), identity, 2, "expert", 0)
+	var result := _coordinator.reveal(mismatched)
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"difficulty_mismatch")
+	assert_eq(_coordinator.get_state()["value"]["phase"], "PREPARED_UNSTARTED",
+		"a rejected mismatch must not consume the certified candidate")
+	assert_eq(_state_port.motivation, 7, "a rejected mismatch must charge nothing")
 
 
 # ---- duplicate request equality / changed-payload conflict / stale / identity ----

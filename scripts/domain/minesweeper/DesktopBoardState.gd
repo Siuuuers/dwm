@@ -358,7 +358,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		_settlement = _dup_or_null(snapshot["settlement"])
 		_command_receipts = (snapshot["command_receipts"] as Dictionary).duplicate(true)
 		_terminal_receipts = (snapshot["terminal_receipts"] as Dictionary).duplicate(true)
-		return {"ok": true, "code": &"ok", "value": _state_view(), "receipt": {}}
+		return _state_view()
 
 	var transaction_id := str(candidate.get("transaction_id", ""))
 	var request_fingerprint := str(candidate.get("request_fingerprint", ""))

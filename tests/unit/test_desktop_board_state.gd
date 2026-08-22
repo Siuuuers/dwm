@@ -408,6 +408,10 @@ func test_prepare_restore_round_trips_a_captured_snapshot() -> void:
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var committed := fresh.commit(prepared["value"]["candidate"])
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	# commit()'s result is a single flat CommandResult -- never a CommandResult wrapping another
+	# CommandResult -- so "phase" reads at the same one level every other commit() caller relies on.
+	assert_true(committed["value"].has("phase"), "restore's result must not double-wrap its value")
+	assert_eq(committed["value"]["phase"], "ACTIVE_VISIBLE")
 	assert_eq(fresh.capture(), snapshot)
 
 
