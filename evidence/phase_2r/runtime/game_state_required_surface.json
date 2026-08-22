@@ -1569,7 +1569,7 @@
       "symbol": "prepare_new_run_snapshot_input",
       "kind": "function",
       "availability": "target",
-      "signature": "func prepare_new_run_snapshot_input(run_id: String) -> Dictionary"
+      "signature": "func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,"
     },
     {
       "symbol": "prepare_run_candidate",

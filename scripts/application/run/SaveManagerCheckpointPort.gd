@@ -10,6 +10,16 @@ const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDoc
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
+const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+
+## Plan 02 Task 6 (dwm-p2r.32): the narrow, self-contained durable record backing
+## `DesktopCausalSequencePort`'s admission checkpoint -- one small atomic JSON file at a fixed
+## relative path through the same injected StorageAdapter the autosave document already uses,
+## deliberately NOT routed through CheckpointJournal/SaveDocumentSchema: those own the full
+## RunSnapshot lifecycle, while this owns only the narrow consequence-admission compare-and-swap
+## point (brief line 249's "final compare-and-swap/admission point shared by every source kind").
+const CONSEQUENCE_CHECKPOINT_RELATIVE_PATH := "desktop-consequence-checkpoint.json"
+const CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS: Array[String] = ["checkpoint_receipt", "header", "schema_version", "stage_candidate"]
 
 const GATE_METHODS: Array[String] = [
 	"acquire", "release", "guard_external", "is_active", "get_active_owner",
@@ -195,6 +205,83 @@ func rollback(backup: Dictionary) -> Dictionary:
 	if journal_restored.get("ok", false) and storage_ok:
 		return {"ok": true, "code": &"ok"}
 	return _fatal_rollback("rollback", str((journal_backup as Dictionary).get("run_id", "")), attempts)
+
+## Task-6 addition (dwm-p2r.32): builds the narrow admission-checkpoint candidate for
+## `DesktopCausalSequencePort`. Mutation-free -- it computes the frozen preimage/receipt (the sole
+## legal builder is `DesktopConsequenceState.checkpoint_content_preimage()`) and captures the
+## current on-disk backup, but writes nothing; only `commit_consequence_checkpoint()` durably writes.
+func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
+	var readiness := _readiness()
+	if not readiness.is_empty():
+		return readiness
+	var preimage: Dictionary = DESKTOP_CONSEQUENCE_STATE.checkpoint_content_preimage(checkpoint_header, stage_candidate)
+	if not preimage.get("ok", false):
+		return preimage
+	var preimage_value: Dictionary = (preimage["value"] as Dictionary)["preimage"]
+	var canonical: Dictionary = CANONICAL_JSON.stringify(preimage_value)
+	if not canonical.get("ok", false):
+		return _fail(&"canonical_serialization_failed", "consequence checkpoint preimage is not canonicalizable")
+	var content_sha256 := str(canonical["value"]).sha256_text()
+	var checkpoint_receipt := {
+		"receipt_id": "consequence_checkpoint." + content_sha256,
+		"header": (preimage_value["header"] as Dictionary).duplicate(true),
+		"content_sha256": content_sha256,
+	}
+	var document := {
+		"schema_version": 1,
+		"header": (preimage_value["header"] as Dictionary).duplicate(true),
+		"stage_candidate": stage_candidate.duplicate(true),
+		"checkpoint_receipt": checkpoint_receipt,
+	}
+	var backup := _capture_storage_backup(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
+	if not backup.get("ok", false):
+		return backup
+	return {"ok": true, "code": &"ok", "value": {
+		"candidate": {"document": document, "storage_backup": backup["value"]["descriptor"]},
+		"checkpoint_receipt": checkpoint_receipt,
+	}}
+
+## Requires the exact receipt `prepare_consequence_checkpoint()` minted for this candidate (the
+## caller never mints its own); writes and re-reads before returning, matching this port's existing
+## autosave discipline.
+func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_receipt: Dictionary) -> Dictionary:
+	var readiness := _readiness()
+	if not readiness.is_empty():
+		return readiness
+	if typeof(checkpoint_candidate.get("document")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_candidate", "candidate was not issued by prepare_consequence_checkpoint")
+	var document: Dictionary = checkpoint_candidate["document"]
+	if document.get("checkpoint_receipt") != checkpoint_receipt:
+		return _fail(&"checkpoint_receipt_mismatch", "checkpoint_receipt does not match the prepared candidate")
+	var canonical: Dictionary = CANONICAL_JSON.stringify(document)
+	if not canonical.get("ok", false):
+		return _fail(&"canonical_serialization_failed", "consequence checkpoint document is not canonicalizable")
+	var text := str(canonical["value"]) + "\n"
+	var written: Dictionary = _storage().write_atomic(
+		CONSEQUENCE_CHECKPOINT_RELATIVE_PATH, text, _consequence_checkpoint_text_validator)
+	if not written.get("ok", false):
+		return written
+	var re_read: Dictionary = _storage().read_text(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
+	if not re_read.get("ok", false):
+		return re_read
+	if str(re_read["value"]) != text:
+		return _fail(&"reread_mismatch", CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
+	return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
+
+func _consequence_checkpoint_text_validator(text: String) -> Dictionary:
+	var parsed: Dictionary = STRICT_JSON.parse_object(text)
+	if not parsed.get("ok", false):
+		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
+	var document: Variant = parsed["value"]
+	if typeof(document) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "document must be an object"}
+	var keys: Array = (document as Dictionary).keys()
+	keys.sort()
+	var expected := CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS.duplicate()
+	expected.sort()
+	if keys != expected:
+		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "unexpected document keys"}
+	return {"ok": true, "code": &"ok", "value": document}
 
 func _fatal_rollback(phase: String, run_id: String, raw_diagnostics: Array) -> Dictionary:
 	var already_retained := false

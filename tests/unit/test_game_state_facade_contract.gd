@@ -70,21 +70,34 @@ func test_day_is_read_only_compatibility() -> void:
 		"the inventory reports every direct day-assignment caller for migration")
 	assert_true(str(day_record.get("contract_test", "")).length() > 0)
 
+## Plan 02 Task 6 (dwm-p2r.32): branch_id/desktop_timeline_generation/causal_day_instance/receipt
+## arrive already durably allocated in production; this test supplies a self-consistent placeholder.
+func _new_run_receipt(token: String) -> Dictionary:
+	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
+
 func test_prepare_new_run_snapshot_input_is_pure() -> void:
 	var game_state := _fresh_game_state()
 	game_state._lifecycle_set_playing_day(4)
 	game_state.money = 55
 	var live_before: Dictionary = game_state.to_save_dict()
-	assert_false(game_state.prepare_new_run_snapshot_input("").get("ok", true), "empty run id rejects")
-	assert_false(game_state.prepare_new_run_snapshot_input("run-local").get("ok", true),
+	var receipt := _new_run_receipt("causal-day-b")
+	assert_false(game_state.prepare_new_run_snapshot_input("", "branch-b", 0, "causal-day-b", receipt).get("ok", true),
+		"empty run id rejects")
+	assert_false(game_state.prepare_new_run_snapshot_input("run-local", "branch-b", 0, "causal-day-b", receipt).get("ok", true),
 		"reused run id rejects")
-	var prepared: Dictionary = game_state.prepare_new_run_snapshot_input("run-b")
+	var prepared: Dictionary = game_state.prepare_new_run_snapshot_input("run-b", "branch-b", 0, "causal-day-b", receipt)
 	assert_true(prepared["ok"], JSON.stringify(prepared))
 	var snapshot_input: Dictionary = prepared["value"]["snapshot_input"]
 	assert_eq(snapshot_input["lifecycle"], {
 		"run_id": "run-b", "day": 1, "state": "PLAYING",
 		"active_resolution_plan": null, "ending_plan": null,
+		"branch_id": "branch-b", "desktop_timeline_generation": 0,
+		"causal_day_instance": "causal-day-b", "causal_day_instance_issuer_receipt": receipt,
+		"restore_provenance": null,
 	})
+	assert_eq(snapshot_input["desktop"]["board"]["phase"], "NONE", "a fresh run has no board yet")
+	assert_eq(snapshot_input["desktop"]["consequence"]["pending"], null, "a fresh run has no pending consequence")
 	# Shape matches RunSnapshotSchema.build: gameplay bag plus own contacts/schedule/dating/ledgers.
 	assert_eq(int(snapshot_input["gameplay"]["money"]), 0, "detached defaults are the reset values")
 	assert_eq(snapshot_input["gameplay"]["narrative_variables"], {}, "gameplay carries the narrative bag")

@@ -16,10 +16,15 @@ func prepare(input: Dictionary) -> Dictionary:
 		return _fail(&"invalid_run_input", "run participant requires a snapshot")
 	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": (input["snapshot"] as Dictionary).duplicate(true)}}}
 
-func prepare_new_run(run_id: String) -> Dictionary:
+## `branch_id`/`desktop_timeline_generation`/`causal_day_instance`/`causal_day_instance_issuer_
+## receipt` (Plan 02 Task 6, dwm-p2r.32) arrive already durably allocated through SaveManager's
+## Task-1 issuer/journal seams; this thin adapter invents none of them, it only forwards.
+func prepare_new_run(run_id: String, branch_id: String, desktop_timeline_generation: int,
+		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
 	if run_id.is_empty():
 		return _fail(&"invalid_run_id", "run_id must be nonempty")
-	var prepared: Dictionary = _owner.prepare_new_run_snapshot_input(run_id)
+	var prepared: Dictionary = _owner.prepare_new_run_snapshot_input(run_id, branch_id,
+		desktop_timeline_generation, causal_day_instance, causal_day_instance_issuer_receipt)
 	if not prepared.get("ok", false):
 		return prepared
 	var snapshot_input: Dictionary = prepared["value"]["snapshot_input"]

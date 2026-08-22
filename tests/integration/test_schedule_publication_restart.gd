@@ -180,7 +180,7 @@ func test_committed_schedule_is_captured_into_the_v3_snapshot() -> void:
 	var aggregate := _commit_one_real_entry()
 	assert_false((aggregate["entries"] as Array).is_empty(), "a real entry was committed")
 	var snapshot := _v3_snapshot()
-	assert_eq(int(snapshot["schema_version"]), 3, "capture produces a v3 snapshot")
+	assert_eq(int(snapshot["schema_version"]), 4, "capture produces a v4 snapshot (dwm-p2r.32 Task 6)")
 	assert_eq(snapshot["committed_schedule"], aggregate,
 		"the canonical aggregate is captured byte-for-byte, receipt included")
 	assert_false(snapshot.has("schedule"), "no legacy top-level Schedule survives capture")
@@ -196,7 +196,7 @@ func test_committed_schedule_survives_a_whole_document_round_trip() -> void:
 	var built: Dictionary = document_schema.build(
 		&"slot", 1, &"manual", {"checkpoint_kind": "day_start", "snapshot": _v3_snapshot()}, [])
 	assert_true(built.get("ok", false), str(built))
-	assert_eq(int(built["value"]["schema_version"]), 3, "the document lands on v3")
+	assert_eq(int(built["value"]["schema_version"]), 4, "the document lands on v4 (dwm-p2r.32 Task 6)")
 
 	# A complete JSON round trip: the aggregate must survive serialization unchanged.
 	var text := JSON.stringify(built["value"])

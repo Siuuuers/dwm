@@ -21,7 +21,8 @@ class Owner extends RefCounted:
 	var fail: StringName = &""
 	func _g(m: String) -> Dictionary:
 		return {"ok": false, "code": &"forced_owner_failure", "message": m} if fail == StringName(m) else {}
-	func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
+	func prepare_new_run_snapshot_input(run_id: String, _branch_id: String, _generation: int,
+			_causal_day_instance: String, _causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {"run_id": run_id, "day": 1}}}}
 	func prepare_legacy_profile_patch(_l: Dictionary, _m: Dictionary = {}) -> Dictionary:
 		var g := _g("prepare_legacy_profile_patch")
@@ -39,14 +40,38 @@ class Owner extends RefCounted:
 	func rollback_restore_silent(_b: Dictionary) -> Dictionary: return {"ok": true}
 	func finalize_restore() -> Dictionary: return {"ok": true}
 
+## Plan 02 Task 6 (dwm-p2r.32): the v4 lifecycle/desktop identity fields this fixture now requires.
+func _issuer_receipt(token: String) -> Dictionary:
+	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
+
+func _empty_desktop() -> Dictionary:
+	return {
+		"board": {"schema_version": 1, "phase": "NONE", "revision": 0, "identity": null,
+			"candidate": null, "board": null, "settlement": null, "command_receipts": {}, "terminal_receipts": {}},
+		"consequence": {"schema_version": 1, "run_revision": 0, "causal_sequence": 0,
+			"causal_day_instance": "causal-day-1",
+			"causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
+			"pending": null, "outbox": {}},
+	}
+
 func _snapshot(run_id: String, seq: int, narrative: Dictionary = {}) -> Dictionary:
 	var s: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
+	s["schema_version"] = 4
 	s["run_id"] = run_id
 	s["checkpoint_sequence"] = seq
 	s["checkpoint_id"] = "%s:%d" % [run_id, seq]
 	s["lifecycle"]["run_id"] = run_id
+	s["lifecycle"]["branch_id"] = "branch-1"
+	s["lifecycle"]["desktop_timeline_generation"] = 0
+	s["lifecycle"]["causal_day_instance"] = "causal-day-1"
+	s["lifecycle"]["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
+	s["lifecycle"]["restore_provenance"] = null
+	s["desktop"] = _empty_desktop()
 	s["narrative_checkpoint"] = narrative
-	return load("res://scripts/domain/run/RunSnapshotSchema.gd").validate(s)["value"]["candidate"]
+	var validated: Dictionary = load("res://scripts/domain/run/RunSnapshotSchema.gd").validate(s)
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	return validated["value"]["candidate"]
 
 func _manager(owner: Owner) -> Node:
 	var root := OS.get_environment("DWM_TEST_ROOT").path_join("prod_adapters").path_join(str(randi())).path_join("saves")

@@ -23,9 +23,14 @@ const EMPTY_AGGREGATE := {
 }
 
 
+## Plan 02 Task 6 (dwm-p2r.32): branch_id/desktop_timeline_generation/causal_day_instance/receipt
+## arrive already allocated in production; this test supplies a self-consistent placeholder.
 func _lifecycle() -> RefCounted:
 	var lifecycle: RefCounted = LIFECYCLE.new()
-	lifecycle.reset("run-seams")
+	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-seams", "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-seams", "numeric_value": null}
+	lifecycle.reset("run-seams", "branch-seams", 0, "causal-day-seams",
+		{"causal_day_instance_issuer_receipt": receipt})
 	return lifecycle
 
 

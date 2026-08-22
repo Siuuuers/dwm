@@ -31,11 +31,32 @@ func _isolated_manager(suite_id: String) -> Dictionary:
 	assert_true(manager.initialize(storage)["ok"])
 	return {"manager": manager, "storage": storage, "root": root}
 
+## Plan 02 Task 6 (dwm-p2r.32): the v4 lifecycle/desktop identity fields this suite's hand-built
+## snapshot_input now requires.
+func _issuer_receipt(token: String) -> Dictionary:
+	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
+
+func _empty_desktop() -> Dictionary:
+	return {
+		"board": {"schema_version": 1, "phase": "NONE", "revision": 0, "identity": null,
+			"candidate": null, "board": null, "settlement": null, "command_receipts": {}, "terminal_receipts": {}},
+		"consequence": {"schema_version": 1, "run_revision": 0, "causal_sequence": 0,
+			"causal_day_instance": "causal-day-1",
+			"causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
+			"pending": null, "outbox": {}},
+	}
+
 func _checkpoint_inputs(run_id: String, day: int = 3) -> Dictionary:
 	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
 	var lifecycle: Dictionary = fixture["lifecycle"]
 	lifecycle["run_id"] = run_id
 	lifecycle["day"] = day
+	lifecycle["branch_id"] = "branch-1"
+	lifecycle["desktop_timeline_generation"] = 0
+	lifecycle["causal_day_instance"] = "causal-day-1"
+	lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
+	lifecycle["restore_provenance"] = null
 	return {
 		"snapshot_input": {
 			"lifecycle": lifecycle,
@@ -45,6 +66,7 @@ func _checkpoint_inputs(run_id: String, day: int = 3) -> Dictionary:
 				"schema_version": 1, "day": int(lifecycle["day"]),
 				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
 			},
+			"desktop": _empty_desktop(),
 			"dating": fixture["dating"],
 			"applied_effect_transaction_ids": [],
 			"applied_variable_transaction_ids": [],

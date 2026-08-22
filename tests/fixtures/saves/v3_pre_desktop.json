@@ -1,0 +1,91 @@
+{
+  "current_snapshot": {
+    "checkpoint_kind": "day_start",
+    "snapshot": {
+      "active_app_id": null,
+      "applied_effect_transaction_ids": [],
+      "applied_variable_transaction_ids": [],
+      "audio_context": {
+
+      },
+      "checkpoint_id": "legacy-run-v3:1",
+      "checkpoint_sequence": 1,
+      "command_receipts": {
+
+      },
+      "committed_schedule": {
+        "commit_receipt": null,
+        "day": 1,
+        "entries": [],
+        "registry_fingerprint": null,
+        "schema_version": 1
+      },
+      "contacts": {
+        "group_action": {
+          "action_id": null,
+          "day": null,
+          "history_generated": false,
+          "inviter_id": null,
+          "opened_ids": [],
+          "participant_ids": [
+            "priscilla",
+            "lavinia"
+          ],
+          "replied_ids": [],
+          "state": "INACTIVE",
+          "transaction_id": null
+        },
+        "messages": {
+          "lavinia": [],
+          "priscilla": [],
+          "sylvia": []
+        },
+        "next_sequence": 1,
+        "read_watermarks": {
+          "lavinia": 0,
+          "priscilla": 0,
+          "sylvia": 0
+        },
+        "schedule_source_receipts": {
+
+        },
+        "solo_actions": {
+
+        },
+        "sylvia_hospital_witness_receipts": {
+
+        },
+        "transaction_receipts": {
+
+        }
+      },
+      "content_version": 1,
+      "dating": {
+
+      },
+      "gameplay": {
+        "narrative_variables": {
+
+        }
+      },
+      "lifecycle": {
+        "active_resolution_plan": null,
+        "day": 1,
+        "ending_plan": null,
+        "run_id": "legacy-run-v3",
+        "state": "PLAYING"
+      },
+      "narrative_checkpoint": {
+
+      },
+      "route_id": "main",
+      "run_id": "legacy-run-v3",
+      "schema_version": 3
+    }
+  },
+  "kind": "slot",
+  "recovery_journal": [],
+  "save_reason": "manual",
+  "schema_version": 3,
+  "slot_id": 1
+}

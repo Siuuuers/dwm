@@ -14,13 +14,35 @@ const SEMANTIC_KINDS := [
 func _journal_exists() -> bool:
 	return ResourceLoader.exists(JOURNAL_PATH, "Script")
 
+## Plan 02 Task 6 (dwm-p2r.32): the v4 lifecycle/desktop identity fields this fixture now requires.
+func _issuer_receipt(token: String) -> Dictionary:
+	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
+
+func _empty_desktop() -> Dictionary:
+	return {
+		"board": {"schema_version": 1, "phase": "NONE", "revision": 0, "identity": null,
+			"candidate": null, "board": null, "settlement": null, "command_receipts": {}, "terminal_receipts": {}},
+		"consequence": {"schema_version": 1, "run_revision": 0, "causal_sequence": 0,
+			"causal_day_instance": "causal-day-1",
+			"causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
+			"pending": null, "outbox": {}},
+	}
+
 func _snapshot(run_id: String, sequence: int, day: int = 3) -> Dictionary:
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SNAPSHOT_FIXTURE))
+	snapshot["schema_version"] = 4
 	snapshot["run_id"] = run_id
 	snapshot["checkpoint_sequence"] = sequence
 	snapshot["checkpoint_id"] = "%s:%d" % [run_id, sequence]
 	snapshot["lifecycle"]["run_id"] = run_id
 	snapshot["lifecycle"]["day"] = day
+	snapshot["lifecycle"]["branch_id"] = "branch-1"
+	snapshot["lifecycle"]["desktop_timeline_generation"] = 0
+	snapshot["lifecycle"]["causal_day_instance"] = "causal-day-1"
+	snapshot["lifecycle"]["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
+	snapshot["lifecycle"]["restore_provenance"] = null
+	snapshot["desktop"] = _empty_desktop()
 	# v3 (dwm-p2r.13 Task 5): a snapshot names ONE day, so the committed aggregate moves with it.
 	(snapshot["committed_schedule"] as Dictionary)["day"] = day
 	if day == 1:

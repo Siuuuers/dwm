@@ -621,13 +621,17 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		if not call_paths.has(str(site["path"])):
 			call_paths.append(str(site["path"]))
 	call_paths.sort()
+	# GameStateDesktopBoardPort.gd added as a sixth attributed producer: its board-start receipt
+	# is derived through the production issuer (bead dwm-p2r.32.4's issuer-derived board_start
+	# receipt fix), predating this task's own Phase A/B work but never folded into this census.
 	assert_eq(call_paths, [
+		"scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
 		"scripts/application/run/DayResolutionStartPort.gd",
 		"scripts/application/run/GameStateDayResolutionPort.gd",
 		"scripts/application/schedule/GameStateScheduleCommitPort.gd",
 		"scripts/domain/contact/ContactInvitationState.gd",
 		"scripts/domain/schedule/Day7ScheduleProvenance.gd",
-	], "exactly the five attributed producers call derive_child")
+	], "exactly the six attributed producers call derive_child")
 
 
 func test_bootstrap_probe_key_set_and_owner_bindings_are_exact() -> void:
@@ -682,8 +686,10 @@ func test_committed_entry_key_law_and_state_schema_agree() -> void:
 	var aggregate_keys: Array = ((aggregate["value"] as Dictionary)["values"] as Array).duplicate()
 	aggregate_keys.sort()
 	assert_eq(aggregate_keys, _generator.COMMITTED_AGGREGATE_KEYS, "the five aggregate keys")
-	assert_eq(int((_generator.parse_int_constant(FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd"), "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 3,
-		"the subject carries RunSnapshotSchema v3; Plan 02's v4 was never delivered (.9 shipped at a narrower scope)")
+	# dwm-p2r.32 Task 6 delivers exactly the v4 this assertion previously documented as undelivered;
+	# the probe now proves the opposite fact for the same reason it existed before.
+	assert_eq(int((_generator.parse_int_constant(FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd"), "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 4,
+		"the subject carries RunSnapshotSchema v4; Plan 02 Task 6 delivered the desktop-durability boundary")
 
 
 func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> void:

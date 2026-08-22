@@ -37,6 +37,7 @@ const _CHECKPOINT_INPUT_KEYS: Array[String] = [
 var _storage: RefCounted = null
 var _journal: RefCounted = CHECKPOINT_JOURNAL.new()
 var _mutation_gate: Object = null
+var _identity_issuer: Object = null
 var _lock_owner: StringName = &""
 var _pending_deferred_save := false
 var _restore_participants: Dictionary = {}
@@ -50,6 +51,27 @@ func initialize(storage: StorageAdapter = null) -> Dictionary:
 		return _fail(&"invalid_storage", "SaveManager requires an injected StorageAdapter")
 	_storage = storage
 	return {"ok": true, "code": &"ok", "value": {"root": storage.describe_root()}}
+
+## Plan 02 Task 6 (dwm-p2r.32): the desktop identity issuer `start_new_run()` allocates a real
+## branch/generation/causal-day identity through, rather than inventing or accepting one from the
+## caller. Mirrors GameState's own `configure_identity_issuer` DI pattern; SaveManager needs its own
+## reference because it -- not GameState -- owns the New-Run transaction boundary.
+func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
+	if identity_issuer == null:
+		return _fail(&"invalid_identity_issuer", "identity issuer is required")
+	for method_name: String in ["issue", "prepare_continuation_allocation", "commit_continuation_allocation"]:
+		if not identity_issuer.has_method(method_name):
+			return _fail(&"invalid_identity_issuer", "missing " + method_name)
+	if _identity_issuer != null:
+		if _identity_issuer == identity_issuer:
+			return {"ok": true, "code": &"ok",
+				"value": {"issuer_instance_id": _identity_issuer.get_instance_id(), "already_configured": true},
+				"receipt": {}}
+		return _fail(&"identity_issuer_already_configured", "")
+	_identity_issuer = identity_issuer
+	return {"ok": true, "code": &"ok",
+		"value": {"issuer_instance_id": _identity_issuer.get_instance_id(), "already_configured": false},
+		"receipt": {}}
 
 func configure_mutation_gate(gate: Object) -> Dictionary:
 	if gate == null or not gate.has_signal("capability_changed"):
@@ -134,17 +156,33 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 	return _run_participant_transaction(&"restore", plans, prepared.get("journal_seed"),
 		str(prepared.get("route_id", "")), str(prepared.get("checkpoint_id", "")), true)
 
+## `run_id` is validated but otherwise ignored (Plan 02 Task 6, dwm-p2r.32): the real run identity
+## is durably allocated through the desktop issuer below, never invented by or accepted from a
+## caller. The parameter itself is kept for this phase's commit boundary -- brief line 209's "no
+## caller supplies a run/branch/generation/causal-day/transaction identity" is honored by discarding
+## its VALUE, not yet by removing the parameter; MenuScene's construction-site edit and the
+## signature narrowing are staged separately.
 func start_new_run(run_id: String, initial_context: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_restore_participants first")
 	if run_id.is_empty():
 		return _fail(&"invalid_run_id", "run_id must be nonempty")
+	if _identity_issuer == null:
+		return _fail(&"identity_issuer_not_configured", "configure_identity_issuer first")
 	var context_error := _validate_new_run_context(initial_context)
 	if context_error != "":
 		return _fail(&"invalid_initial_context", context_error)
 
-	# Ask the run participant for a detached Day-1 snapshot input for the new run.
-	var new_run: Dictionary = _restore_participants["run"].prepare_new_run(run_id)
+	var allocated := _allocate_new_run_identity()
+	if not allocated.get("ok", false):
+		return allocated
+	var identity: Dictionary = allocated["value"]
+
+	# Ask the run participant for a detached Day-1 snapshot input for the new run, bound to the
+	# durably allocated identity.
+	var new_run: Dictionary = _restore_participants["run"].prepare_new_run(
+		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
+		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"])
 	if not new_run.get("ok", false):
 		return new_run
 	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
@@ -172,8 +210,42 @@ func start_new_run(run_id: String, initial_context: Dictionary) -> Dictionary:
 		str(initial_context["route_id"]), str(snapshot["checkpoint_id"]), false)
 	if not result.get("ok", false):
 		return result
-	result["value"]["run_id"] = run_id
+	result["value"]["run_id"] = str(identity["run_id"])
 	return result
+
+## Real, durable Task-1 issuer allocation for the New-Run identity bundle (brief line 362: "direct-
+## v4 New Run over Task-1 issuer/journal seams"). Deliberately narrower than the full restore
+## allocation dance: it mints a transaction token and commits one continuation-allocation candidate
+## on the desktop issuer root, but does not yet write the external DesktopContinuationOperationJournal
+## intent record -- that additional crash-recovery bookkeeping (and startup's `list_incomplete()`
+## reconciliation) is staged into the restore-machinery phase of this worktree's phased-commit plan,
+## alongside DesktopIdentityAllocationRestoreParticipant. The root allocation itself is independently
+## atomic and durable without it (DesktopIssuerRootStore.commit_allocation()).
+func _allocate_new_run_identity() -> Dictionary:
+	var issued: Dictionary = _identity_issuer.call(&"issue", &"transaction_id")
+	if not issued.get("ok", false):
+		return issued
+	var transaction_id := str(issued["value"]["token"])
+	var transaction_issuer_receipt: Dictionary = issued["value"]["issuer_receipt"]
+	var request := {
+		"existing_run_id": null, "kind": "new_run", "remap_source_transaction_ids": [],
+		"source_desktop_timeline_generation": null, "transaction_id": transaction_id,
+		"transaction_issuer_receipt": transaction_issuer_receipt,
+	}
+	var prepared: Dictionary = _identity_issuer.call(&"prepare_continuation_allocation", request)
+	if not prepared.get("ok", false):
+		return prepared
+	var candidate: Dictionary = prepared["value"]
+	var committed: Dictionary = _identity_issuer.call(&"commit_continuation_allocation", candidate)
+	if not committed.get("ok", false):
+		return committed
+	var allocated: Dictionary = committed["value"]
+	return {"ok": true, "code": &"ok", "value": {
+		"run_id": str(allocated["run_id"]), "branch_id": str(allocated["branch_id"]),
+		"desktop_timeline_generation": int(allocated["desktop_timeline_generation"]),
+		"causal_day_instance": str(allocated["causal_day_instance"]),
+		"causal_day_instance_issuer_receipt": (allocated["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true),
+	}}
 
 func _run_participant_transaction(
 		owner: StringName, plans: Dictionary, journal_candidate: Variant,

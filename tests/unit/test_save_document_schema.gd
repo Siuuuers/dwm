@@ -16,10 +16,44 @@ const VALID_DISCRIMINATORS := [
 func _schema_exists() -> bool:
 	return ResourceLoader.exists(SCHEMA_PATH, "Script")
 
+## The on-disk fixture is shared with several other suites and is never edited (Plan 02 Task 6,
+## dwm-p2r.32): it is upgraded to v4 in memory, once, right where it is read from disk.
+func _issuer_receipt(token: String) -> Dictionary:
+	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
+
+func _empty_desktop() -> Dictionary:
+	return {
+		"board": {"schema_version": 1, "phase": "NONE", "revision": 0, "identity": null,
+			"candidate": null, "board": null, "settlement": null, "command_receipts": {}, "terminal_receipts": {}},
+		"consequence": {"schema_version": 1, "run_revision": 0, "causal_sequence": 0,
+			"causal_day_instance": "causal-day-1",
+			"causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
+			"pending": null, "outbox": {}},
+	}
+
+func _v4ify(snapshot: Dictionary) -> Dictionary:
+	var upgraded := snapshot.duplicate(true)
+	upgraded["schema_version"] = 4
+	var lifecycle: Dictionary = (upgraded["lifecycle"] as Dictionary).duplicate(true)
+	if not lifecycle.has("branch_id"):
+		lifecycle["branch_id"] = "branch-1"
+		lifecycle["desktop_timeline_generation"] = 0
+		lifecycle["causal_day_instance"] = "causal-day-1"
+		lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
+		lifecycle["restore_provenance"] = null
+	upgraded["lifecycle"] = lifecycle
+	if not upgraded.has("desktop"):
+		upgraded["desktop"] = _empty_desktop()
+	return upgraded
+
+func _fixture_snapshot() -> Dictionary:
+	return _v4ify(JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE)))
+
 func _bundle() -> Dictionary:
 	return {
 		"checkpoint_kind": "day_start",
-		"snapshot": JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE)),
+		"snapshot": _fixture_snapshot(),
 	}
 
 func test_save_document_schema_exists() -> void:
@@ -29,9 +63,7 @@ func test_quick_document_build_round_trips_json_null_slot_id() -> void:
 	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
 	if not _schema_exists():
 		return
-	var snapshot: Dictionary = JSON.parse_string(
-		FileAccess.get_file_as_string("res://tests/fixtures/snapshots/valid_day3.json")
-	)
+	var snapshot: Dictionary = _fixture_snapshot()
 	var bundle := {"checkpoint_kind": "day_start", "snapshot": snapshot}
 	var built: Dictionary = load(SCHEMA_PATH).build(&"quick", null, &"quick", bundle, [])
 	assert_true(built["ok"], JSON.stringify(built))
@@ -91,10 +123,29 @@ func test_validate_rejects_malformed_documents() -> void:
 	bad_journal["recovery_journal"] = [{"entry": &"stringname"}]
 	assert_false(schema.validate(bad_journal).get("ok", true), "non-primitive journal entry rejects")
 
-	# v3 is the CURRENT document version at the dwm-p2r.13 Task-5 boundary; the probe moves to 4.
+	# v4 is the CURRENT document version at the dwm-p2r.32 Task-6 boundary; the probe moves to 5.
 	var future: Dictionary = document.duplicate(true)
-	future["schema_version"] = 4
+	future["schema_version"] = 5
 	assert_false(schema.validate(future).get("ok", true), "unsupported future document version rejects")
+
+## dwm-p2r.32 Task 6: DOCUMENT_VERSION and the embedded RunSnapshot's schema_version are pinned to
+## the same integer (4) and independently enforced, so the two can never disagree and both pass.
+func test_document_version_is_four_and_embedded_snapshot_version_must_agree() -> void:
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	assert_eq(int(schema.DOCUMENT_VERSION), 4)
+	var built: Dictionary = schema.build(&"slot", 1, &"manual", _bundle(), [])
+	assert_true(built["ok"], JSON.stringify(built))
+	var document: Dictionary = built["value"]
+	assert_eq(int(document["schema_version"]), 4)
+	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 4)
+	# A document at v4 whose embedded snapshot is stamped v3 disagrees and rejects.
+	var skewed: Dictionary = document.duplicate(true)
+	(skewed["current_snapshot"]["snapshot"] as Dictionary)["schema_version"] = 3
+	assert_false(schema.validate(skewed).get("ok", true),
+		"a document/embedded-snapshot version mismatch rejects")
 
 func test_prepare_candidate_is_detached() -> void:
 	assert_true(_schema_exists(), "SaveDocumentSchema must exist")

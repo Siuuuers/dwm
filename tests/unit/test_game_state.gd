@@ -499,7 +499,12 @@ func test_contacts_restored_from_run_snapshot() -> void:
 
 func test_new_run_snapshot_input_carries_contacts_defaults() -> void:
 	GameState.reset_game()
-	var prepared: Dictionary = GameState.prepare_new_run_snapshot_input("run-facade-f2")
+	# Plan 02 Task 6 (dwm-p2r.32): branch_id/desktop_timeline_generation/causal_day_instance/receipt
+	# arrive already allocated in production; this test supplies a self-consistent placeholder.
+	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-f2", "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-f2", "numeric_value": null}
+	var prepared: Dictionary = GameState.prepare_new_run_snapshot_input(
+		"run-facade-f2", "branch-f2", 0, "causal-day-f2", receipt)
 	assert_true(prepared.get("ok", false), "valid run id prepares")
 	var section: Dictionary = prepared["value"]["snapshot_input"]["contacts"]
 	assert_eq(int(section["next_sequence"]), 1, "new-run contacts is a valid stateless defaults bag, not {}")
@@ -811,7 +816,10 @@ func test_gallery_record_recovers_forward_after_a_partial_profile_failure() -> v
 	profile.reset_gallery()
 	# A collision-free run id: sibling tests reuse run-local and the gallery ledger is retained across
 	# reset_gallery, so a fresh id keeps this scenario's transactions isolated.
-	GameState._run_lifecycle.reset("recovery-run")
+	var recovery_receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-recovery", "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-recovery", "numeric_value": null}
+	GameState._run_lifecycle.reset("recovery-run", "branch-recovery", 0, "causal-day-recovery",
+		{"causal_day_instance_issuer_receipt": recovery_receipt})
 	GameState._lifecycle_set_playing_day(7)
 	GameState.hospital_skipped_sylvia_solo_count = 2
 	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}

@@ -34,13 +34,23 @@ func seed_playing_day(run_id: String, day: int, entries: Array) -> void:
 	_source_day = day
 	_entries = entries.duplicate(true)
 	_lifecycle = LIFECYCLE_SCRIPT.new()
-	_lifecycle.reset(run_id)
+	# Plan 02 Task 6 (dwm-p2r.32): branch_id/desktop_timeline_generation/causal_day_instance/receipt
+	# arrive already allocated in production; this fake supplies a self-consistent placeholder.
+	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-%s" % run_id, "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-%s" % run_id, "numeric_value": null}
+	_lifecycle.reset(run_id, "branch-%s" % run_id, 0, "causal-day-%s" % run_id,
+		{"causal_day_instance_issuer_receipt": receipt})
 	var restored: Dictionary = _lifecycle.prepare_restore({
 		"run_id": run_id,
 		"day": day,
 		"state": "PLAYING",
 		"active_resolution_plan": null,
 		"ending_plan": null,
+		"branch_id": "branch-%s" % run_id,
+		"desktop_timeline_generation": 0,
+		"causal_day_instance": "causal-day-%s" % run_id,
+		"causal_day_instance_issuer_receipt": receipt,
+		"restore_provenance": null,
 	})
 	assert(restored["ok"])
 	assert(_lifecycle.commit_restore(restored["value"]["candidate"])["ok"])

@@ -11,9 +11,23 @@ const ENDING := &"ENDING"
 const COMPLETED := &"COMPLETED"
 
 const STATE_NAMES: Array[String] = ["PLAYING", "ENDING", "COMPLETED"]
-const LIFECYCLE_KEYS: Array[String] = ["run_id", "day", "state", "active_resolution_plan", "ending_plan"]
+const LIFECYCLE_KEYS: Array[String] = [
+	"active_resolution_plan", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
+	"day", "desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
+]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
 const ENDING_PLAN_KEYS: Array[String] = ["ending_id", "epilogue_ending_id", "source_day", "playback_stage", "playback_receipts"]
+
+## Desktop identity added in v4 (Plan 02 Task 6, dwm-p2r.32). `causal_day_instance` and its full
+## `causal_day_instance_issuer_receipt` are bound as one inseparable pair everywhere they travel
+## (brief line 203): reset() and commit_restore() are the only two places that may replace them, and
+## both always replace both fields together, never one alone.
+const _ISSUER_RECEIPT_KEYS: Array[String] = ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]
+const RESTORE_PROVENANCE_KEYS: Array[String] = [
+	"identity_allocation_receipt_id", "remap_receipt_id", "remap_receipt_provenance",
+	"restore_transaction_id", "source_branch_id", "source_causal_day_instance",
+	"source_desktop_timeline_generation", "source_issuer_observed_counter", "transaction_remap_sha256",
+]
 
 var _run_id := ""
 var _day := 1
@@ -21,14 +35,50 @@ var _state: StringName = PLAYING
 var _plan: RefCounted = null
 var _ending_plan: Dictionary = {}
 var _has_ending_plan := false
+var _branch_id := ""
+var _desktop_timeline_generation := 0
+var _causal_day_instance := ""
+var _causal_day_instance_issuer_receipt: Dictionary = {}
+var _restore_provenance: Variant = null
 
-func reset(run_id: String) -> void:
+## `identity_allocation_receipt` is the committed continuation allocation bundle (brief lines
+## 259-283): this extracts the exact `causal_day_instance_issuer_receipt` from it and binds it
+## alongside `causal_day_instance` as one pair. Void by design, matching this method's existing
+## no-envelope precedent (the OLD one-arg `reset()` never validated anything either): the actual
+## enforcement point for a malformed/mismatched bundle is RunSnapshotSchema, run against this
+## object's own `to_dict()` output before any checkpoint or save.
+func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
+		causal_day_instance: String, identity_allocation_receipt: Dictionary) -> void:
 	_run_id = run_id
 	_day = 1
 	_state = PLAYING
 	_plan = null
 	_ending_plan = {}
 	_has_ending_plan = false
+	_branch_id = branch_id
+	_desktop_timeline_generation = desktop_timeline_generation
+	_causal_day_instance = causal_day_instance
+	var receipt: Variant = identity_allocation_receipt.get("causal_day_instance_issuer_receipt")
+	_causal_day_instance_issuer_receipt = (receipt as Dictionary).duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else {}
+	_restore_provenance = null
+
+## Exactly `{run_id,branch_id,desktop_timeline_generation,causal_day_instance,causal_day_instance_
+## issuer_receipt}` as detached primitives (brief line 200).
+func get_desktop_identity_context() -> Dictionary:
+	return {
+		"run_id": _run_id, "branch_id": _branch_id,
+		"desktop_timeline_generation": _desktop_timeline_generation,
+		"causal_day_instance": _causal_day_instance,
+		"causal_day_instance_issuer_receipt": _causal_day_instance_issuer_receipt.duplicate(true),
+	}
+
+## Typed skeleton pending Task-6 Step 6.8's real DesktopContinuationRemapper wiring (Phase C of this
+## worktree's phased-commit plan). Deliberately fails closed rather than silently no-opping.
+func prepare_continuation_remap(_restore_transaction_id: String, _identity_allocation_bundle: Dictionary) -> Dictionary:
+	return _fail(&"not_implemented", "RunLifecycle.prepare_continuation_remap")
+
+func commit_continuation_remap(_candidate: Dictionary) -> Dictionary:
+	return _fail(&"not_implemented", "RunLifecycle.commit_continuation_remap")
 
 func get_day() -> int:
 	return _day
@@ -261,7 +311,17 @@ func to_dict() -> Dictionary:
 		"state": String(_state),
 		"active_resolution_plan": _plan.to_dict() if _plan != null else null,
 		"ending_plan": _ending_plan.duplicate(true) if _has_ending_plan else null,
+		"branch_id": _branch_id,
+		"desktop_timeline_generation": _desktop_timeline_generation,
+		"causal_day_instance": _causal_day_instance,
+		"causal_day_instance_issuer_receipt": _causal_day_instance_issuer_receipt.duplicate(true),
+		"restore_provenance": _dup_or_null(_restore_provenance),
 	}
+
+static func _dup_or_null(value: Variant) -> Variant:
+	if value == null:
+		return null
+	return (value as Dictionary).duplicate(true)
 
 func prepare_restore(data: Dictionary) -> Dictionary:
 	var error := _validate_lifecycle_dict(data)
@@ -285,6 +345,11 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 	_plan = plan
 	_has_ending_plan = candidate["ending_plan"] != null
 	_ending_plan = (candidate["ending_plan"] as Dictionary).duplicate(true) if _has_ending_plan else {}
+	_branch_id = str(candidate["branch_id"])
+	_desktop_timeline_generation = int(candidate["desktop_timeline_generation"])
+	_causal_day_instance = str(candidate["causal_day_instance"])
+	_causal_day_instance_issuer_receipt = (candidate["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true)
+	_restore_provenance = _dup_or_null(candidate["restore_provenance"])
 	return {"ok": true, "code": &"ok"}
 
 func _validate_lifecycle_dict(data: Dictionary) -> String:
@@ -301,6 +366,9 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 	var state := str(data["state"])
 	if state not in STATE_NAMES:
 		return "unknown state: " + state
+	var desktop_identity_error := _validate_desktop_identity(data)
+	if desktop_identity_error != "":
+		return desktop_identity_error
 	if data["active_resolution_plan"] != null:
 		if typeof(data["active_resolution_plan"]) != TYPE_DICTIONARY:
 			return "active_resolution_plan must be null or an object"
@@ -330,6 +398,43 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 			return "an ending plan requires day 7"
 		if state == "COMPLETED" and str((data["ending_plan"] as Dictionary)["playback_stage"]) != "GALLERY_RECORDED":
 			return "COMPLETED requires GALLERY_RECORDED playback"
+	return ""
+
+## Structural self-consistency only, mirroring DesktopConsequenceState's own issuer-provenance
+## check (this object has no root-store access, so it cannot verify against the ledger -- that
+## happens at the point of issuance): `branch_id`/`causal_day_instance` nonblank; the receipt has
+## the exact frozen issuer-receipt shape, purpose `causal_day_instance`, and a token equal to the
+## adjacent field; `restore_provenance` is null or carries the exact frozen member set.
+static func _validate_desktop_identity(data: Dictionary) -> String:
+	if typeof(data["branch_id"]) != TYPE_STRING or str(data["branch_id"]).strip_edges().is_empty():
+		return "branch_id must be a nonblank String"
+	if typeof(data["desktop_timeline_generation"]) != TYPE_INT or int(data["desktop_timeline_generation"]) < 0:
+		return "desktop_timeline_generation must be a nonnegative integer"
+	if typeof(data["causal_day_instance"]) != TYPE_STRING or str(data["causal_day_instance"]).strip_edges().is_empty():
+		return "causal_day_instance must be a nonblank String"
+	if typeof(data["causal_day_instance_issuer_receipt"]) != TYPE_DICTIONARY:
+		return "causal_day_instance_issuer_receipt must be an object"
+	var receipt: Dictionary = data["causal_day_instance_issuer_receipt"]
+	var receipt_keys: Array = receipt.keys()
+	receipt_keys.sort()
+	var expected_receipt_keys: Array = _ISSUER_RECEIPT_KEYS.duplicate()
+	expected_receipt_keys.sort()
+	if receipt_keys != expected_receipt_keys:
+		return "causal_day_instance_issuer_receipt has an unexpected member set"
+	if str(receipt.get("purpose", "")) != "causal_day_instance":
+		return "causal_day_instance_issuer_receipt.purpose must be causal_day_instance"
+	if str(receipt.get("token", "")) != str(data["causal_day_instance"]):
+		return "causal_day_instance_issuer_receipt.token must equal causal_day_instance"
+	if data["restore_provenance"] != null:
+		if typeof(data["restore_provenance"]) != TYPE_DICTIONARY:
+			return "restore_provenance must be null or an object"
+		var provenance: Dictionary = data["restore_provenance"]
+		var provenance_keys: Array = provenance.keys()
+		provenance_keys.sort()
+		var expected_provenance_keys: Array = RESTORE_PROVENANCE_KEYS.duplicate()
+		expected_provenance_keys.sort()
+		if provenance_keys != expected_provenance_keys:
+			return "restore_provenance has an unexpected member set"
 	return ""
 
 static func _validate_ending_plan(plan: Dictionary) -> String:

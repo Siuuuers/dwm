@@ -10,8 +10,41 @@ const V3_COMMITTED_FIXTURE := "res://tests/fixtures/snapshots/v3_committed_sched
 func _schema_exists() -> bool:
 	return ResourceLoader.exists(SCHEMA_PATH, "Script")
 
+## The on-disk fixtures are shared with several OTHER suites (test_minesweeper_save_lock.gd,
+## test_checkpoint_journal.gd, etc.) that must stay on their own historical v3-adjacent shape, so
+## they are never edited. Plan 02 Task 6 (dwm-p2r.32) instead upgrades them to v4 IN MEMORY, once,
+## right where they are read from disk.
+func _issuer_receipt(token: String) -> Dictionary:
+	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
+
+func _empty_desktop() -> Dictionary:
+	return {
+		"board": {"schema_version": 1, "phase": "NONE", "revision": 0, "identity": null,
+			"candidate": null, "board": null, "settlement": null, "command_receipts": {}, "terminal_receipts": {}},
+		"consequence": {"schema_version": 1, "run_revision": 0, "causal_sequence": 0,
+			"causal_day_instance": "causal-day-1",
+			"causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
+			"pending": null, "outbox": {}},
+	}
+
+func _v4ify(snapshot: Dictionary) -> Dictionary:
+	var upgraded := snapshot.duplicate(true)
+	upgraded["schema_version"] = 4
+	var lifecycle: Dictionary = (upgraded["lifecycle"] as Dictionary).duplicate(true)
+	if not lifecycle.has("branch_id"):
+		lifecycle["branch_id"] = "branch-1"
+		lifecycle["desktop_timeline_generation"] = 0
+		lifecycle["causal_day_instance"] = "causal-day-1"
+		lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
+		lifecycle["restore_provenance"] = null
+	upgraded["lifecycle"] = lifecycle
+	if not upgraded.has("desktop"):
+		upgraded["desktop"] = _empty_desktop()
+	return upgraded
+
 func _fixture(path: String) -> Dictionary:
-	return JSON.parse_string(FileAccess.get_file_as_string(path))
+	return _v4ify(JSON.parse_string(FileAccess.get_file_as_string(path)))
 
 func _snapshot_input_from(snapshot: Dictionary) -> Dictionary:
 	return {
@@ -19,6 +52,7 @@ func _snapshot_input_from(snapshot: Dictionary) -> Dictionary:
 		"gameplay": snapshot["gameplay"],
 		"contacts": snapshot["contacts"],
 		"committed_schedule": snapshot["committed_schedule"],
+		"desktop": snapshot["desktop"],
 		"dating": snapshot["dating"],
 		"applied_effect_transaction_ids": snapshot["applied_effect_transaction_ids"],
 		"applied_variable_transaction_ids": snapshot["applied_variable_transaction_ids"],
@@ -57,9 +91,9 @@ func test_validate_rejection_matrix() -> void:
 	var schema: Script = load(SCHEMA_PATH)
 	var base := _fixture(VALID_FIXTURE)
 
-	# v3 is now the CURRENT version (dwm-p2r.13 Task 5), so the unsupported-future probe moves to 4.
+	# v4 is now the CURRENT version (dwm-p2r.32 Task 6), so the unsupported-future probe moves to 5.
 	var future := base.duplicate(true)
-	future["schema_version"] = 4
+	future["schema_version"] = 5
 	assert_false(schema.validate(future).get("ok", true), "unsupported future schema version rejects")
 
 	var non_integral := base.duplicate(true)
@@ -196,12 +230,12 @@ func test_derive_route_restore_context_exact_shape() -> void:
 # retires in the same boundary. Committed validation is DELEGATED to ScheduleStateSchema; this module
 # owns no second copy of the aggregate law.
 
-func test_schema_version_is_three() -> void:
+func test_schema_version_is_four() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	assert_eq(int(schema.SCHEMA_VERSION), 3, "the committed-Schedule boundary is snapshot v3")
+	assert_eq(int(schema.SCHEMA_VERSION), 4, "the desktop-durability boundary is snapshot v4 (dwm-p2r.32)")
 
 func test_top_level_committed_schedule_replaces_legacy_schedule() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
@@ -309,7 +343,7 @@ func test_v3_build_round_trips_the_aggregate_unchanged() -> void:
 		_snapshot_input_from(fixture), {}, "main", null, {}, 1, 42)
 	assert_true(built.get("ok", false), JSON.stringify(built))
 	var snapshot: Dictionary = built["value"]["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 3, "build stamps the current version")
+	assert_eq(int(snapshot["schema_version"]), 4, "build stamps the current version")
 	# JSON parsing yields floats for integral numbers, so the expectation is the schema's own
 	# normalized projection of the same fixture -- not the raw parse.
 	var normalized_fixture: Dictionary = schema.validate(fixture)["value"]["candidate"]
@@ -335,3 +369,72 @@ func test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_
 	var nulled := base.duplicate(true)
 	nulled["active_app_id"] = null
 	assert_true(schema.validate(nulled).get("ok", false), "null active_app_id still validates")
+
+
+# ---- dwm-p2r.32 Task 6: the v4 desktop aggregate ----
+func test_desktop_is_a_v4_top_level_member() -> void:
+	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	assert_true("desktop" in schema.TOP_KEYS, "desktop is a v4 top-level member")
+	var base := _fixture(VALID_FIXTURE)
+	var missing := base.duplicate(true)
+	missing.erase("desktop")
+	assert_false(schema.validate(missing).get("ok", true), "desktop is mandatory and never silently defaulted")
+	var extra_desktop_key := base.duplicate(true)
+	(extra_desktop_key["desktop"] as Dictionary)["extra"] = 1
+	assert_false(schema.validate(extra_desktop_key).get("ok", true), "desktop carries exactly board and consequence")
+	var board_only := base.duplicate(true)
+	(board_only["desktop"] as Dictionary).erase("consequence")
+	assert_false(schema.validate(board_only).get("ok", true), "a board-only desktop value rejects")
+
+func test_desktop_lifecycle_identity_fields_are_exact_and_bound() -> void:
+	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var base := _fixture(VALID_FIXTURE)
+	assert_true("branch_id" in schema.LIFECYCLE_KEYS)
+	assert_true("desktop_timeline_generation" in schema.LIFECYCLE_KEYS)
+	assert_true("causal_day_instance" in schema.LIFECYCLE_KEYS)
+	assert_true("causal_day_instance_issuer_receipt" in schema.LIFECYCLE_KEYS)
+	assert_true("restore_provenance" in schema.LIFECYCLE_KEYS)
+
+	var blank_branch := base.duplicate(true)
+	(blank_branch["lifecycle"] as Dictionary)["branch_id"] = ""
+	assert_false(schema.validate(blank_branch).get("ok", true), "blank branch_id rejects")
+
+	var id_only_receipt := base.duplicate(true)
+	(id_only_receipt["lifecycle"] as Dictionary)["causal_day_instance_issuer_receipt"] = {"receipt_id": "x"}
+	assert_false(schema.validate(id_only_receipt).get("ok", true), "an ID-only receipt rejects")
+
+	var mismatched_token := base.duplicate(true)
+	(mismatched_token["lifecycle"] as Dictionary)["causal_day_instance_issuer_receipt"] = _issuer_receipt("some-other-token")
+	assert_false(schema.validate(mismatched_token).get("ok", true),
+		"a receipt whose token does not match causal_day_instance rejects")
+
+func test_desktop_board_and_consequence_delegate_to_their_own_owners() -> void:
+	# Neither module's own shape law is duplicated here; this schema surfaces their typed rejection.
+	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var base := _fixture(VALID_FIXTURE)
+	var bad_board := base.duplicate(true)
+	(bad_board["desktop"] as Dictionary)["board"] = {"phase": "NONE"}
+	assert_false(schema.validate(bad_board).get("ok", true), "a malformed board rejects")
+	var bad_consequence := base.duplicate(true)
+	(bad_consequence["desktop"] as Dictionary)["consequence"] = {"pending": null}
+	assert_false(schema.validate(bad_consequence).get("ok", true), "a malformed consequence rejects")
+
+func test_v3_pre_desktop_fixture_lacks_the_v4_member() -> void:
+	# The raw pre-desktop fixture is a genuine legacy artifact: it must NOT already carry desktop
+	# (that would make the "no v3->v4 migration" law untestable at the SaveMigrations boundary).
+	var raw: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://tests/fixtures/saves/v3_pre_desktop.json"))
+	var snapshot: Dictionary = raw["current_snapshot"]["snapshot"]
+	assert_eq(int(snapshot["schema_version"]), 3)
+	assert_false(snapshot.has("desktop"), "the pre-desktop fixture carries no desktop member")
+	assert_false((snapshot["lifecycle"] as Dictionary).has("branch_id"),
+		"the pre-desktop fixture's lifecycle carries no v4 identity members")

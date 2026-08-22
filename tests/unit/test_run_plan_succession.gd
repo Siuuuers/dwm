@@ -21,9 +21,14 @@ class _StubOwner extends RefCounted:
 		_run_lifecycle = lifecycle
 
 
+## Plan 02 Task 6 (dwm-p2r.32): branch_id/desktop_timeline_generation/causal_day_instance/receipt
+## arrive already allocated in production; this test supplies a self-consistent placeholder.
 func _lifecycle() -> RefCounted:
 	var lifecycle: RefCounted = RUN_LIFECYCLE.new()
-	lifecycle.reset("run-succession")
+	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-succession", "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-succession", "numeric_value": null}
+	lifecycle.reset("run-succession", "branch-succession", 0, "causal-day-succession",
+		{"causal_day_instance_issuer_receipt": receipt})
 	return lifecycle
 
 

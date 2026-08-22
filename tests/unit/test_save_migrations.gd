@@ -57,37 +57,52 @@ func test_snapshot_v1_to_v2() -> void:
 	assert_eq(snapshot["active_app_id"], null, "active_app_id default added")
 	assert_eq(snapshot["gameplay"]["narrative_variables"], {}, "narrative_variables default added")
 
-func test_migrate_document_strips_legacy_profile_members() -> void:
+## dwm-p2r.32 Task 6: v3 -> v4 is deliberately NOT a migration step. A v1 source still travels the
+## real v1->v2->v3 historical chain internally (proving the legacy-member-stripping law still runs),
+## but the whole operation now fails closed at the v3->v4 boundary rather than silently landing on a
+## desktop-less "current" document -- there is no v4 without a real issuer-backed desktop member,
+## and this module invents none.
+func test_migrate_document_rejects_pre_v4_source_after_running_the_historical_chain() -> void:
 	assert_true(_migrations_exist(), "SaveMigrations must exist")
 	if not _migrations_exist():
 		return
 	var m: Script = load(MIGRATIONS_PATH)
 	var raw: Dictionary = _fixture("v1_minimal_slot.json")
+	var before := raw.duplicate(true)
 	var migrated: Dictionary = m.migrate_document(raw, {"kind": "slot", "slot_id": 1})
-	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
-	var snapshot: Dictionary = migrated["value"]["document"]["current_snapshot"]["snapshot"]
-	assert_false(snapshot.has("settings"), "legacy settings leave the run candidate")
-	assert_false(snapshot.has("seen_endings"), "legacy seen_endings leave the run candidate")
-	var patch: Dictionary = migrated["value"]["legacy_profile_patch_input"]
-	assert_eq(patch["legacy_run_state"]["settings"], {"master_volume": 0.8},
-		"stripped settings move to the profile patch input")
-	assert_eq(patch["legacy_run_state"]["seen_endings"], ["ending.alone"])
-	assert_true(migrated["value"]["migration_receipts"].size() >= 1, "receipts record each migration step")
-	assert_eq(int(migrated["value"]["document"]["schema_version"]), 3,
-		"the whole document lands on the v3 committed-Schedule boundary")
+	assert_false(migrated.get("ok", true), "a pre-v4 source can never reach the current schema by migration")
+	assert_eq(migrated["code"], &"unsupported_pre_amendment_desktop_schema")
+	assert_eq(raw, before, "the rejected source is left completely unchanged")
 
 func test_schema_dispatch_rejects_future_and_invalid() -> void:
 	assert_true(_migrations_exist(), "SaveMigrations must exist")
 	if not _migrations_exist():
 		return
 	var m: Script = load(MIGRATIONS_PATH)
-	# v3 is the CURRENT snapshot version at the dwm-p2r.13 Task-5 boundary, so the unsupported-future
-	# probe moves to 4. The fixture bytes are deliberately left untouched; only this probe advances.
+	# v4 is the CURRENT snapshot version at the dwm-p2r.32 Task-6 boundary, so the unsupported-future
+	# probe moves to 5. The fixture bytes are deliberately left untouched; only this probe advances.
 	var future: Dictionary = _fixture("v2_future_schema.json")
-	(future["current_snapshot"]["snapshot"] as Dictionary)["schema_version"] = 4
+	(future["current_snapshot"]["snapshot"] as Dictionary)["schema_version"] = 5
 	var migrated: Dictionary = m.migrate_document(future, {"kind": "slot", "slot_id": 1})
-	assert_false(migrated.get("ok", true), "schema_version 4 is unsupported")
+	assert_false(migrated.get("ok", true), "schema_version 5 is unsupported")
 	assert_eq(migrated["code"], &"unsupported_future_schema")
+
+## The exact literal boundary code, plus proof it is reachable at every pre-v4 rung (not just v1):
+## a v3-shaped source with no desktop member -- constructed directly, never migrated to -- rejects
+## identically.
+func test_v3_pre_desktop_source_rejects_unchanged() -> void:
+	assert_true(_migrations_exist(), "SaveMigrations must exist")
+	if not _migrations_exist():
+		return
+	var m: Script = load(MIGRATIONS_PATH)
+	var raw: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://tests/fixtures/saves/v3_pre_desktop.json"))
+	var before := raw.duplicate(true)
+	var migrated: Dictionary = m.migrate_document(raw, {"kind": "slot", "slot_id": 1})
+	assert_false(migrated.get("ok", true))
+	assert_eq(migrated["code"], &"unsupported_pre_amendment_desktop_schema")
+	assert_eq(raw, before, "the rejected source is left completely unchanged")
+	assert_eq(m.UNSUPPORTED_PRE_AMENDMENT_DESKTOP_SCHEMA, &"unsupported_pre_amendment_desktop_schema")
 
 func test_migrate_document_rejects_bad_locator() -> void:
 	assert_true(_migrations_exist(), "SaveMigrations must exist")
@@ -122,22 +137,24 @@ func test_legacy_day8_non_group_preserved_at_day7() -> void:
 	assert_eq(result["value"]["ending_id"], "ending.sylvia.sweet", "valid non-group primary preserved")
 	assert_eq(int(result["value"]["snapshot"]["lifecycle"]["day"]), 7)
 
-func test_legacy_day8_falls_back_to_greatest_compatible_bundle() -> void:
+## dwm-p2r.32 Task 6: every candidate fallback bundle is itself a pre-v4 legacy snapshot, and
+## `_greatest_compatible_bundle()` runs each one through the same forward chain -- which now rejects
+## unchanged at the v3->v4 boundary (test_v3_pre_desktop_source_rejects_unchanged proves the boundary
+## itself). No legacy Day-7 bundle can therefore ever be selected as a Day-8 fallback any more; both
+## scenarios this test used to prove a successful fallback for now correctly find none.
+func test_legacy_day8_fallback_bundles_are_pre_v4_and_now_find_none() -> void:
 	assert_true(_migrations_exist(), "SaveMigrations must exist")
 	if not _migrations_exist():
 		return
 	var m: Script = load(MIGRATIONS_PATH)
 	var playing: Dictionary = _fixture("day8_playing_with_day7_journal.json")
 	var result: Dictionary = m.migrate_legacy_day8(playing["snapshot"], playing["day7_bundles"])
-	assert_true(result.get("ok", false), JSON.stringify(result))
-	assert_eq(result["value"]["resolution"], "day7_bundle_fallback")
-	assert_eq(int(result["value"]["bundle"]["snapshot"]["checkpoint_sequence"]), 7,
-		"the greatest compatible Day-7 bundle wins")
+	assert_false(result.get("ok", true), JSON.stringify(result))
+	assert_eq(result["code"], &"no_day8_reconstruction")
 	var invalid_group: Dictionary = _fixture("day8_group_invalid_with_day7_journal.json")
 	var fallback: Dictionary = m.migrate_legacy_day8(invalid_group["snapshot"], invalid_group["day7_bundles"])
-	assert_true(fallback.get("ok", false), JSON.stringify(fallback))
-	assert_eq(fallback["value"]["resolution"], "day7_bundle_fallback",
-		"a group primary without synchronized inputs falls back")
+	assert_false(fallback.get("ok", true), JSON.stringify(fallback))
+	assert_eq(fallback["code"], &"no_day8_reconstruction")
 
 func test_legacy_day8_no_fallback_rejects() -> void:
 	assert_true(_migrations_exist(), "SaveMigrations must exist")
@@ -227,7 +244,7 @@ func test_v1_to_v2_stamps_a_literal_two_not_the_current_constant() -> void:
 		return
 	var m: Script = load(MIGRATIONS_PATH)
 	var schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
-	assert_eq(int(schema.SCHEMA_VERSION), 3, "precondition: the current snapshot version is 3")
+	assert_eq(int(schema.SCHEMA_VERSION), 4, "precondition: the current snapshot version is 4")
 	var document: Dictionary = _fixture("v1_minimal_slot.json")
 	var v1_snapshot: Dictionary = document["current_snapshot"]["snapshot"]
 	v1_snapshot.erase("settings")
@@ -444,20 +461,29 @@ func test_v2_to_v3_never_adopts_the_current_registry_fingerprint() -> void:
 	assert_false(source.contains("ScheduleActionRegistry"),
 		"migration does not reference the registry at all")
 
-func test_document_migration_produces_a_v3_document() -> void:
+## dwm-p2r.32 Task 6: a v1 source can no longer reach a "current" document by migration at all (see
+## test_migrate_document_rejects_pre_v4_source_after_running_the_historical_chain above). The
+## isolated v1->v2->v3 step functions this test used to prove through migrate_document() are still
+## proven directly, at their own layer, by test_snapshot_v1_to_v2 and
+## test_v2_to_v3_migrates_empty_legacy_schedule_to_the_canonical_empty_aggregate.
+func test_v1_snapshot_still_travels_the_real_v1_to_v3_chain_before_the_v4_rejection() -> void:
 	assert_true(_migrations_exist(), "SaveMigrations must exist")
 	if not _migrations_exist():
 		return
 	var m: Script = load(MIGRATIONS_PATH)
-	var raw: Dictionary = _fixture("v1_minimal_slot.json")
-	var migrated: Dictionary = m.migrate_document(raw, {"kind": "slot", "slot_id": 1})
-	assert_true(migrated.get("ok", false), JSON.stringify(migrated))
-	assert_eq(int(migrated["value"]["document"]["schema_version"]), 3,
-		"the whole document lands on v3")
-	var snapshot: Dictionary = migrated["value"]["document"]["current_snapshot"]["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 3, "a v1 save migrates all the way through v2 to v3")
-	assert_true(snapshot.has("committed_schedule"), "the v3 member is present")
-	assert_false(snapshot.has("schedule"), "the legacy member is gone")
+	var document: Dictionary = _fixture("v1_minimal_slot.json")
+	var v1_snapshot: Dictionary = document["current_snapshot"]["snapshot"]
+	v1_snapshot.erase("settings")
+	v1_snapshot.erase("seen_endings")
+	var to_v2: Dictionary = m.migrate_snapshot_v1_to_v2(v1_snapshot)
+	assert_true(to_v2.get("ok", false), JSON.stringify(to_v2))
+	var to_v3: Dictionary = m.migrate_snapshot_v2_to_v3(to_v2["value"]["snapshot"])
+	assert_true(to_v3.get("ok", false), JSON.stringify(to_v3))
+	var v3_snapshot: Dictionary = to_v3["value"]["snapshot"]
+	assert_eq(int(v3_snapshot["schema_version"]), 3, "the real chain still reaches v3 by itself")
+	assert_true(v3_snapshot.has("committed_schedule"), "the v3 member is present")
+	assert_false(v3_snapshot.has("schedule"), "the legacy member is gone")
+	assert_false(v3_snapshot.has("desktop"), "no v1/v2/v3 step ever invents a desktop member")
 
 func test_migration_never_touches_the_external_publication_ledger() -> void:
 	assert_true(_migrations_exist(), "SaveMigrations must exist")

@@ -22,11 +22,17 @@ class FakeOwner extends RefCounted:
 		if fail_at == StringName(method):
 			return {"ok": false, "code": &"forced_owner_failure", "message": method}
 		return {}
-	func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
+	func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,
+			causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
 		_r("prepare_new_run_snapshot_input")
 		var g := _guard("prepare_new_run_snapshot_input")
 		if not g.is_empty(): return g
-		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {"run_id": run_id, "day": 1}}}}
+		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {
+			"run_id": run_id, "day": 1, "branch_id": branch_id,
+			"desktop_timeline_generation": desktop_timeline_generation,
+			"causal_day_instance": causal_day_instance,
+			"causal_day_instance_issuer_receipt": causal_day_instance_issuer_receipt,
+		}}}}
 	func prepare_legacy_profile_patch(_legacy: Dictionary, _mappings: Dictionary = {}) -> Dictionary:
 		_r("prepare_legacy_profile_patch")
 		var g := _guard("prepare_legacy_profile_patch")
@@ -88,7 +94,9 @@ func test_run_participant_prepare_and_delegation() -> void:
 	assert_true(prepared["ok"])
 	assert_eq(prepared["value"]["run_plan"]["snapshot"], {"run_id": "r"})
 	assert_false(participant.prepare({}).get("ok", true), "missing snapshot rejects")
-	var new_run: Dictionary = participant.prepare_new_run("run-b")
+	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-b", "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-b", "numeric_value": null}
+	var new_run: Dictionary = participant.prepare_new_run("run-b", "branch-b", 0, "causal-day-b", receipt)
 	assert_true(new_run["ok"], JSON.stringify(new_run))
 	assert_eq(new_run["value"]["snapshot_input"]["lifecycle"]["run_id"], "run-b")
 	assert_true(participant.capture()["ok"])

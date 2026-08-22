@@ -1,16 +1,20 @@
 class_name RunSnapshotSchema
 extends RefCounted
 
-## Frozen v3 run-snapshot schema
-## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 4;
-## v3 committed-Schedule boundary from Plan 01 Task 5, dwm-p2r.13).
+## v4 run-snapshot schema (Plan 02 Task 6, dwm-p2r.32, amendment §11.2; v3 committed-Schedule
+## boundary from Plan 01 Task 5, dwm-p2r.13).
 ##
-## v3 replaces the top-level legacy `schedule` array with the canonical top-level
-## `committed_schedule` aggregate and retires the legacy per-day gameplay draft field. The law is NOT
-## duplicated here: committed validation is delegated wholesale to `ScheduleStateSchema`, and this
-## module adds exactly one binding of its own -- the aggregate day and the lifecycle day are one fact.
+## v4 preserves v3's `committed_schedule` byte-for-byte and adds exactly one new top-level member,
+## `desktop` (exact keys `{board,consequence}`), plus five new members inside the already-existing
+## `lifecycle` object -- never as additional top-level aliases. `board` validation is delegated
+## wholesale to `DesktopBoardState` (via a throwaway instance's own `prepare_restore()`, its
+## established structural-validation entry point) and `consequence` to `DesktopConsequenceState.
+## validate()`; this module owns no second copy of either shape. Desktop-identity lifecycle
+## validation is likewise delegated wholesale to `RunLifecycle._validate_desktop_identity()` so the
+## two owners of a lifecycle dict's shape (this schema, and the live RunLifecycle state machine)
+## can never silently diverge.
 
-const SCHEMA_VERSION := 3
+const SCHEMA_VERSION := 4
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
@@ -18,16 +22,21 @@ const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRu
 const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const NARRATIVE_VARIABLE_REGISTRY_PATH := "res://data/manifests/narrative_variables.json"
 const DESKTOP_APP_REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRegistry.gd")
+const RUN_LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
+const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 
 const TOP_KEYS: Array[String] = [
 	"active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
 	"audio_context", "checkpoint_id", "checkpoint_sequence", "command_receipts", "committed_schedule",
-	"contacts", "content_version",
+	"contacts", "content_version", "desktop",
 	"dating", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id",
 	"schema_version",
 ]
+const DESKTOP_KEYS: Array[String] = ["board", "consequence"]
 const LIFECYCLE_KEYS: Array[String] = [
-	"active_resolution_plan", "day", "ending_plan", "run_id", "state",
+	"active_resolution_plan", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
+	"day", "desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
 ]
 const LIFECYCLE_STATES: Array[String] = ["PLAYING", "ENDING", "COMPLETED"]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
@@ -64,7 +73,7 @@ static func build(
 		checkpoint_sequence: int
 ) -> Dictionary:
 	for member: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
-			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop"]:
 		if not snapshot_input.has(member):
 			return _fail(&"invalid_snapshot_input", "missing member: " + member)
 	if typeof(snapshot_input["lifecycle"]) != TYPE_DICTIONARY:
@@ -87,6 +96,7 @@ static func build(
 		"gameplay": gameplay,
 		"contacts": _detached(snapshot_input["contacts"]),
 		"committed_schedule": _detached(snapshot_input["committed_schedule"]),
+		"desktop": _detached(snapshot_input["desktop"]),
 		"dating": _detached(snapshot_input["dating"]),
 		"applied_effect_transaction_ids": _sorted_ids(snapshot_input["applied_effect_transaction_ids"]),
 		"applied_variable_transaction_ids": _sorted_ids(snapshot_input["applied_variable_transaction_ids"]),
@@ -149,6 +159,9 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		candidate["committed_schedule"])
 	if not committed_check.get("ok", false):
 		return committed_check
+	var desktop_error := _validate_desktop(candidate["desktop"])
+	if desktop_error != "":
+		return _fail(&"invalid_desktop_aggregate", desktop_error)
 	# The single binding this module DOES own: a snapshot names one day, so the committed aggregate
 	# and the lifecycle cannot disagree about which day was committed.
 	if int((candidate["committed_schedule"] as Dictionary)["day"]) \
@@ -291,6 +304,11 @@ static func _validate_lifecycle(candidate: Dictionary) -> String:
 	var state := str(lifecycle["state"])
 	if state not in LIFECYCLE_STATES:
 		return "unknown lifecycle state: " + state
+	# Delegated wholesale to RunLifecycle so this schema and the live state machine never diverge
+	# about the shape of the desktop-identity lifecycle members it added in v4.
+	var desktop_identity_error: String = RUN_LIFECYCLE._validate_desktop_identity(lifecycle)
+	if desktop_identity_error != "":
+		return desktop_identity_error
 	if lifecycle["active_resolution_plan"] != null:
 		if typeof(lifecycle["active_resolution_plan"]) != TYPE_DICTIONARY:
 			return "active_resolution_plan must be null or an object"
@@ -347,6 +365,31 @@ static func _validate_ending_plan(plan: Variant) -> String:
 	})
 	if not semantic.get("ok", false):
 		return str(semantic.get("message", semantic.get("code", "invalid ending plan")))
+	return ""
+
+## Exact `{board,consequence}` (brief line 59). Both members are delegated wholesale to their own
+## owning modules: `board` to `DesktopBoardState.prepare_restore()` (its established structural-
+## validation entry point -- a throwaway instance is used since that method is not static),
+## `consequence` to `DesktopConsequenceState.validate()`.
+static func _validate_desktop(desktop: Variant) -> String:
+	if typeof(desktop) != TYPE_DICTIONARY:
+		return "desktop must be an object"
+	var keys: Array = (desktop as Dictionary).keys()
+	keys.sort()
+	var expected := DESKTOP_KEYS.duplicate()
+	expected.sort()
+	if keys != Array(expected):
+		return "unexpected desktop keys: " + str(keys)
+	if typeof((desktop as Dictionary)["board"]) != TYPE_DICTIONARY:
+		return "desktop.board must be an object"
+	var board_check: Dictionary = DESKTOP_BOARD_STATE.new().prepare_restore((desktop as Dictionary)["board"])
+	if not board_check.get("ok", false):
+		return str(board_check.get("message", board_check.get("code", "invalid desktop.board")))
+	if typeof((desktop as Dictionary)["consequence"]) != TYPE_DICTIONARY:
+		return "desktop.consequence must be an object"
+	var consequence_check: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate((desktop as Dictionary)["consequence"])
+	if not consequence_check.get("ok", false):
+		return str(consequence_check.get("message", consequence_check.get("code", "invalid desktop.consequence")))
 	return ""
 
 static func _validate_gameplay(gameplay: Variant) -> String:

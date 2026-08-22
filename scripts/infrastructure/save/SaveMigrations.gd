@@ -15,7 +15,15 @@ const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleSt
 ## every step in between. Each literal advances only when that step's own shape changes.
 const V2_SCHEMA_VERSION := 2
 const V3_SCHEMA_VERSION := 3
+const V4_SCHEMA_VERSION := 4
 const UNMIGRATABLE_LEGACY_SCHEDULE := &"unmigratable_legacy_schedule"
+## v3 -> v4 (Plan 02 Task 6, dwm-p2r.32) is deliberately NOT a migration step: no v1/v2/v3 source
+## carries a `desktop` member, and this module never invents identity, issuer provenance, layout,
+## capability, cost, receipt, sequence, recovery, or outbox state to synthesize one. Every pre-v4
+## source rejects unchanged with this code; only a literal v4 input (constructed directly by New Run
+## over a durably committed issuer allocation, never through this chain) ever reaches the current
+## schema.
+const UNSUPPORTED_PRE_AMENDMENT_DESKTOP_SCHEMA := &"unsupported_pre_amendment_desktop_schema"
 ## Acceptance is durable: an accepted invitation resolves into one of the RESOLVED_* states rather
 ## than reverting, so every state in this lineage still implies an acceptance whose source ancestry
 ## a migration cannot reconstruct.
@@ -173,16 +181,22 @@ static func migrate_snapshot_v2_to_v3(snapshot: Dictionary) -> Dictionary:
 	if not empty.get("ok", false):
 		return empty
 	v3["committed_schedule"] = (empty["value"] as Dictionary)["committed_schedule"]
-	# Only an EXISTING Contacts object gains the two indexes; an absent or malformed one is left
-	# untouched for the current schema to reject, exactly as before this boundary.
+	# Only an EXISTING Contacts object gains the two indexes; an absent or malformed one is rejected
+	# directly below rather than silently invented (dwm-p2r.32 Task 6: this narrow local check
+	# replaces the removed final RUN_SNAPSHOT_SCHEMA.validate() call, which can no longer run at this
+	# intermediate v3 rung -- see the literal-3 note below).
 	if typeof(v3.get("contacts")) == TYPE_DICTIONARY:
 		v3["contacts"] = _contacts_with_source_indexes(v3["contacts"])
+	else:
+		return _fail(&"invalid_snapshot", "contacts must be an object")
 	v3["schema_version"] = V3_SCHEMA_VERSION
 
-	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(v3)
-	if not validated.get("ok", false):
-		return validated
-	return {"ok": true, "code": &"ok", "value": {"snapshot": validated["value"]["candidate"]}}
+	# LITERAL 3, matching migrate_snapshot_v1_to_v2's own precedent (dwm-p2r.32 Task 6): this step
+	# emits a v3-shaped dict and hands off. It must NEVER validate against RUN_SNAPSHOT_SCHEMA.validate()
+	# here -- that now requires the CURRENT (v4) schema, and v3 is an intermediate rung the v3->v4
+	# boundary deliberately refuses to bridge (see UNSUPPORTED_PRE_AMENDMENT_DESKTOP_SCHEMA). Doing so
+	# would make this isolated historical step spuriously fail after any future schema bump.
+	return {"ok": true, "code": &"ok", "value": {"snapshot": v3}}
 
 
 ## Both legacy representations must be absent or exactly empty. A surviving entry, a non-array, or
@@ -274,7 +288,13 @@ static func _migrate_snapshot_to_current(snapshot: Dictionary, version: int,
 		if not to_v3.get("ok", false):
 			return to_v3
 		receipts.append({"migration": "snapshot_v2_to_v3"})
-		return to_v3
+		working = to_v3["value"]["snapshot"]
+		current_version = V3_SCHEMA_VERSION
+	if current_version < V4_SCHEMA_VERSION:
+		# v3 -> v4 is not a migration step (see UNSUPPORTED_PRE_AMENDMENT_DESKTOP_SCHEMA above): no
+		# v1/v2/v3 source carries a desktop member, and none is ever invented here.
+		return _fail(UNSUPPORTED_PRE_AMENDMENT_DESKTOP_SCHEMA,
+			"a pre-amendment save has no desktop member and cannot be migrated to v4")
 	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(working)
 	if not validated.get("ok", false):
 		return validated
@@ -396,7 +416,10 @@ static func migrate_document(raw: Dictionary, expected_locator: Dictionary) -> D
 		migrated_journal.append(migrated_entry["value"]["bundle"])
 
 	var document := {
-		"schema_version": V3_SCHEMA_VERSION,
+		# LITERAL 4, matching migrate_snapshot_v1_to_v2's own literal-version precedent (dwm-p2r.32
+		# Task 6): every current_snapshot/recovery_journal bundle above already had to reach v4 (the
+		# v3->v4 boundary rejects unchanged otherwise), so the document itself is always v4 here too.
+		"schema_version": V4_SCHEMA_VERSION,
 		"kind": str(expected_locator["kind"]),
 		"slot_id": expected_locator["slot_id"],
 		"save_reason": str(raw.get("save_reason", "")),
@@ -466,7 +489,7 @@ static func _dispatch_schema(snapshot: Dictionary) -> Dictionary:
 	var version := int(raw_version)
 	if version < 1:
 		return _fail(&"unsupported_legacy_schema", str(version))
-	if version > V3_SCHEMA_VERSION:
+	if version > V4_SCHEMA_VERSION:
 		return _fail(&"unsupported_future_schema", str(version))
 	return {"ok": true, "code": &"ok", "value": {"schema_version": version}}
 

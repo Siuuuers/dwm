@@ -126,7 +126,12 @@ func _init_profile() -> Node:
 func _enter(primary: String, epilogue: String, run_id: String) -> void:
 	# A fresh run id keeps each case's gallery transactions isolated (the ledger is retained across
 	# reset_gallery), then enter ENDING directly with the chosen plan.
-	GameState._run_lifecycle.reset(run_id)
+	# Plan 02 Task 6 (dwm-p2r.32): branch_id/desktop_timeline_generation/causal_day_instance/receipt
+	# arrive already allocated in production; this test supplies a self-consistent placeholder.
+	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-%s" % run_id, "purpose": "causal_day_instance",
+		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-%s" % run_id, "numeric_value": null}
+	GameState._run_lifecycle.reset(run_id, "branch-%s" % run_id, 0, "causal-day-%s" % run_id,
+		{"causal_day_instance_issuer_receipt": receipt})
 	GameState._lifecycle_set_playing_day(7)
 	var entered: Dictionary = GameState._run_lifecycle.enter_ending({
 		"ending_id": primary, "epilogue_ending_id": epilogue,

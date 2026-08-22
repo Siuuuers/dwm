@@ -131,6 +131,9 @@ signal committed_schedule_published(result: Dictionary)
 
 # ---- Run lifecycle (dwm-p2r.4 Task 3; plan 2026-07-17-phase-2r-03 §3) ----
 const _RUN_LIFECYCLE_SCRIPT := preload("res://scripts/domain/run/RunLifecycle.gd")
+const _DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const _DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+const _RUN_SNAPSHOT_SCHEMA_DESKTOP := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
 const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
@@ -140,6 +143,13 @@ const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/Schedu
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
 var _mutation_gate: Object = null
 var _identity_issuer: Object = null
+## v4 desktop aggregate (Plan 02 Task 6, dwm-p2r.32): `{board,consequence}`, held as plain detached
+## Dictionaries rather than live DesktopBoardState/DesktopConsequenceState objects. Production
+## gameplay wiring of those state machines into GameState is Task 9's job (per GameStateDesktop
+## BoardPort's own class doc); this field exists only so a v4 snapshot always has a schema-valid
+## `desktop` member to serialize, defaulting to the empty NONE-board/no-pending-consequence shape
+## and overwritten wholesale only by restore.
+var _desktop_snapshot: Dictionary = {}
 var _day_resolution_coordinator: RefCounted = null
 ## The ONE Bootstrap-owned Minesweeper round coordinator (dwm-p2r.9 Plan 06 Task 2). GameState
 ## never constructs it; the shared begin/complete round methods delegate here.
@@ -219,7 +229,23 @@ func _ready() -> void:
 
 # ---- Lifecycle / stats / money / coins ----
 func reset_game() -> void:
-	_run_lifecycle.reset("run-local")
+	# Fixed, self-consistent placeholder desktop identity (Plan 02 Task 6, dwm-p2r.32) -- mirrors
+	# the pre-existing "run-local" placeholder run_id immediately below: this is a generic reset for
+	# tests/template computation, never the real production New-Run path (that allocates through
+	# SaveManager's Task-1 issuer/journal seams and installs real identity via commit_restore(),
+	# never via reset()).
+	var placeholder_causal_day_instance := "causal-day-local"
+	var placeholder_identity_allocation_receipt := {
+		"causal_day_instance_issuer_receipt": {
+			"receipt_id": "issuer_receipt.local-placeholder", "purpose": "causal_day_instance",
+			"namespace": "0".repeat(64), "counter": 1,
+			"token": placeholder_causal_day_instance, "numeric_value": null,
+		},
+	}
+	_run_lifecycle.reset("run-local", "branch-local", 0, placeholder_causal_day_instance,
+		placeholder_identity_allocation_receipt)
+	_desktop_snapshot = _empty_desktop_snapshot(placeholder_causal_day_instance,
+		placeholder_identity_allocation_receipt["causal_day_instance_issuer_receipt"])
 	# A new run starts with an empty effect/variable ledger (dwm-p2r.8, Plan-05 Task 3): receipts
 	# and applied transaction ids are run-scoped and must never leak across runs.
 	_command_receipts = {}
@@ -1621,7 +1647,25 @@ func get_mutation_gate_instance_id() -> int:
 	return _mutation_gate.get_instance_id()
 
 
-func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
+## Fresh `{board,consequence}` for a run that has never touched Minesweeper: NONE-phase board
+## (DesktopBoardState's default-constructed capture) and an empty pending-free consequence bound to
+## the given causal-day identity pair (Plan 02 Task 6, dwm-p2r.32).
+func _empty_desktop_snapshot(causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
+	var empty_consequence: Dictionary = _DESKTOP_CONSEQUENCE_STATE.make_empty({
+		"causal_day_instance": causal_day_instance,
+		"causal_day_instance_issuer_receipt": causal_day_instance_issuer_receipt,
+	})
+	return {
+		"board": _DESKTOP_BOARD_STATE.new().capture(),
+		"consequence": (empty_consequence["value"] as Dictionary)["state"],
+	}
+
+## `branch_id`/`desktop_timeline_generation`/`causal_day_instance`/`causal_day_instance_issuer_
+## receipt` (Plan 02 Task 6, dwm-p2r.32) arrive from SaveManager's own Task-1 issuer/journal
+## allocation -- this method never mints or guesses any of them; a New Run constructs v4 directly
+## from that durably committed allocation, never through the migration chain.
+func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,
+		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
 	if run_id.is_empty():
 		return {"ok": false, "code": &"invalid_run_id", "message": "run_id must be nonempty"}
 	if str(_run_lifecycle.to_dict()["run_id"]) == run_id:
@@ -1645,6 +1689,11 @@ func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
 			"state": "PLAYING",
 			"active_resolution_plan": null,
 			"ending_plan": null,
+			"branch_id": branch_id,
+			"desktop_timeline_generation": desktop_timeline_generation,
+			"causal_day_instance": causal_day_instance,
+			"causal_day_instance_issuer_receipt": causal_day_instance_issuer_receipt.duplicate(true),
+			"restore_provenance": null,
 		},
 		"gameplay": gameplay,
 		"contacts": _CONTACT_INVITATION_STATE.make_defaults(),
@@ -1657,6 +1706,7 @@ func prepare_new_run_snapshot_input(run_id: String) -> Dictionary:
 			"entries": [],
 			"commit_receipt": null,
 		},
+		"desktop": _empty_desktop_snapshot(causal_day_instance, causal_day_instance_issuer_receipt),
 		"dating": {},
 		"applied_effect_transaction_ids": [],
 		"applied_variable_transaction_ids": [],
@@ -1779,6 +1829,14 @@ func _lifecycle_set_playing_day(target_day: int) -> void:
 		"state": "PLAYING",
 		"active_resolution_plan": null,
 		"ending_plan": null,
+		# Plan 02 Task 6 (dwm-p2r.32): the desktop-identity pair travels with every lifecycle
+		# candidate; this narrow day-only transition preserves it byte-for-byte from the live
+		# snapshot rather than replacing or dropping it.
+		"branch_id": snapshot["branch_id"],
+		"desktop_timeline_generation": snapshot["desktop_timeline_generation"],
+		"causal_day_instance": snapshot["causal_day_instance"],
+		"causal_day_instance_issuer_receipt": snapshot["causal_day_instance_issuer_receipt"],
+		"restore_provenance": snapshot["restore_provenance"],
 	})
 	if restored.get("ok", false):
 		_run_lifecycle.commit_restore(restored["value"]["candidate"])
@@ -1920,6 +1978,9 @@ func capture_restore_state() -> Dictionary:
 		# v3 (Plan 01 Task 5): the canonical aggregate is part of the restore transaction, so a
 		# later participant failure rolls it back with everything else.
 		"committed_schedule": _canonical_committed_schedule(),
+		# v4 (Plan 02 Task 6, dwm-p2r.32): the desktop aggregate travels with the same restore
+		# transaction, so a later participant failure rolls it back with everything else too.
+		"desktop": _desktop_snapshot.duplicate(true),
 	}}}
 
 
@@ -2078,6 +2139,7 @@ func capture_run_snapshot_input() -> Dictionary:
 		"gameplay": gameplay,
 		"contacts": contacts.duplicate(true),
 		"committed_schedule": _canonical_committed_schedule(),
+		"desktop": _desktop_snapshot.duplicate(true),
 		"dating": current.get("dating_route_state", {}).duplicate(true) if typeof(current.get("dating_route_state")) == TYPE_DICTIONARY else {},
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
@@ -2122,11 +2184,18 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		validated_backup = _SCHEDULE_STATE_SCHEMA.validate_aggregate(committed_backup)
 		if not validated_backup.get("ok", false):
 			return validated_backup
+	var desktop_backup: Variant = (source as Dictionary).get("desktop")
+	if typeof(desktop_backup) == TYPE_DICTIONARY:
+		var desktop_error := _RUN_SNAPSHOT_SCHEMA_DESKTOP._validate_desktop(desktop_backup)
+		if desktop_error != "":
+			return {"ok": false, "code": &"invalid_run_backup", "message": desktop_error}
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	_apply_gameplay_silent((source as Dictionary)["gameplay"])
 	_restore_contacts_section((source as Dictionary).get("contacts"))
 	if not validated_backup.is_empty():
 		_committed_schedule = (validated_backup["value"] as Dictionary)["committed_schedule"]
+	if typeof(desktop_backup) == TYPE_DICTIONARY:
+		_desktop_snapshot = (desktop_backup as Dictionary).duplicate(true)
 	return {"ok": true, "code": &"ok"}
 
 
@@ -2157,12 +2226,19 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 		validated_committed = _SCHEDULE_STATE_SCHEMA.validate_aggregate(committed)
 		if not validated_committed.get("ok", false):
 			return validated_committed
+	var desktop: Variant = snapshot.get("desktop")
+	if typeof(desktop) == TYPE_DICTIONARY:
+		var desktop_error := _RUN_SNAPSHOT_SCHEMA_DESKTOP._validate_desktop(desktop)
+		if desktop_error != "":
+			return {"ok": false, "code": &"invalid_run_plan", "message": desktop_error}
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	if typeof(snapshot.get("gameplay")) == TYPE_DICTIONARY:
 		_apply_gameplay_silent(snapshot["gameplay"])
 	_restore_contacts_section(snapshot.get("contacts"))
 	if not validated_committed.is_empty():
 		_committed_schedule = (validated_committed["value"] as Dictionary)["committed_schedule"]
+	if typeof(desktop) == TYPE_DICTIONARY:
+		_desktop_snapshot = (desktop as Dictionary).duplicate(true)
 	return {"ok": true, "code": &"ok"}
 
 
