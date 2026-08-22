@@ -8,7 +8,8 @@ owner_choice_on: "2026-08-22"
 current_direction: truthful_nocturnal_calibration_registry_with_visiting_folio
 conversational_design_status: approved_owner_batch
 conversationally_approved_on: "2026-08-22"
-written_spec_status: pending_owner_review
+written_spec_status: approved
+written_spec_approved_on: "2026-08-23"
 standard_master_status: provisional_pending_native_pixel_proof
 high_contrast_and_cvd_tuple_status: deliberately_unsettled
 implementation_requested: false
@@ -1201,6 +1202,6 @@ functional carrier, authority overreach, or accidental implementation
 permission; preserves the fixed Settings anatomy; and distinguishes
 provisional Standard calibration from production acceptance.
 
-Owner approval of these written bytes would close only the Settings
-After-Hours/Midnight Standard visual disposition. It would still authorize no
-implementation.
+The project owner approved these written bytes on 2026-08-23. That approval
+closes only the Settings After-Hours/Midnight Standard visual disposition. It
+authorizes no implementation.
