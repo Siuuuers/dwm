@@ -6,8 +6,12 @@ amends: spec.main_menu_desktop_shell_global_chrome_ui_ux_amendment
 amends_path: "docs/design/2026-08-12-main-menu-desktop-shell-global-chrome-ui-ux-amendment.md"
 related_authorities: ["spec.narrative_scene_host_dating_hospital_challenge_ui_ux_amendment","spec.minesweeper_board_session_challenge_ui_ux_amendment","spec.backup_save_load_ui_ux_amendment","spec.title_art_placement_bottom_up_scene_caption_rhythm_amendment","guide.visual_art_placement_and_asset_production"]
 decision_status: accepted
-conversational_design_status: approved_through_section_4_with_owner_corrections
+conversational_design_status: approved_through_section_4_with_owner_corrections_plus_section_5_1_covenant
 written_spec_status: pending_owner_review
+theory_to_form_covenant_status: approved
+theory_to_form_covenant_approved_on: "2026-08-23"
+theory_to_form_covenant_self_review_status: passed
+theory_to_form_covenant_self_reviewed_on: "2026-08-23"
 self_review_status: passed
 self_reviewed_on: "2026-08-14"
 implementation_requested: false
@@ -17,7 +21,7 @@ engine_line: godot_4_6
 verification_engine: "4.6.3-stable-mono"
 language: gdscript
 audience: private_spoiler_complete
-scope: ["manual_authority_and_identity","reliability_and_usability_law","native_canvas_and_spatial_architecture","witness_register_and_bottom_up_captions","haunted_instrumentarium_visual_system","relationship_phase_grammar","interaction_choreography","no_inline_scene_choices","backup_load_delete_confirmation_ownership","accessibility_localization_and_input_foundations","prototype_and_art_policy"]
+scope: ["manual_authority_and_identity","reliability_and_usability_law","native_canvas_and_spatial_architecture","witness_register_and_bottom_up_captions","haunted_instrumentarium_visual_system","four_lens_theory_to_form_covenant","relationship_phase_grammar","interaction_choreography","no_inline_scene_choices","backup_load_delete_confirmation_ownership","accessibility_localization_and_input_foundations","prototype_and_art_policy"]
 ---
 
 # Haunted Instrumentarium UI Manual: Foundation Decisions
@@ -152,6 +156,67 @@ UI decoration or quotations:
 
 The interface must not become affected, academically named, or overloaded with
 symbols in order to prove these influences.
+
+### 5.1 Approved four-lens theory-to-form covenant
+
+The project owner approved the following private styling covenant on
+2026-08-23. It is the shared theory-to-form test inherited by every application,
+host, and Standard-master disposition:
+
+> **Change composition only when represented reality changes. Let object,
+> position, repetition, replacement, and absence carry the evidence. Maintain
+> ordinary and impossible facts with the same competent materials. Supply no
+> privileged decoding key.**
+
+The four named lenses therefore have exact internal formal duties:
+
+- **Robert McKee — pressure at the boundary.** Visual pressure or reversal
+  follows a genuine causal boundary. The frame does not manufacture drama around
+  an unchanged fact.
+- **Alain Robbe-Grillet — exact objects.** Surfaces, positions, distances,
+  repetitions, replacements, and absences perform the observation without an
+  explanatory ornament or interpretive caption.
+- **Roland Barthes — open traces.** Recurring marks may rhyme, but they never
+  become a private symbol dictionary, conclusive annotation system, or decoding
+  key that tells the audience what a narrative sign means.
+- **Mark Fisher — administered impossibility.** When their complete functional
+  facts are otherwise identical, routine and impossible events receive the same
+  maintained institutional material, typography, geometry, input treatment, and
+  assistive parity.
+
+Every UI disposition applies those duties through the following six shared
+styling laws:
+
+1. **Repetition earns deviation.** Exact recurring geometry is established
+   before one charged surface may alter one measurable property. A whole
+   interface never becomes a separate horror skin.
+2. **Structure precedes colour.** Distance, alignment, enclosure, density,
+   shared axes, seam count, or one lawful boundary trespass carries pressure
+   before hue supports it.
+3. **One institution contains different instruments.** Every application feels
+   maintained by the same university while retaining its own material dialect,
+   composition, domain marks, and silence.
+4. **Blankness is lawful.** Structural capacity may remain as inert negative
+   space. Genuine absence leaves no placeholder, scar, silhouette, mystery
+   symbol, reassurance, hidden target, or assistive residue.
+5. **The project-wide mass remains restrained.** The existing blend of roughly
+   70–75% Quiet Instrumentality, 15–20% Tender Archive, and 5–10% Impossible
+   Procedure is a governing weight rather than a per-screen quota. Nocturnal
+   habitat remains dominant; pale or warm material is a bounded visitor, not
+   mandatory paper or global daylight.
+6. **Wear is geology; motion is punctuation.** UI fibres, soot, registration
+   drift, and age remain sparse, deterministic, stationary, and clear of text,
+   Focus, controls, and required evidence. Motion remains brief, local, and
+   governed by the existing Section 13 choreography and its exact surface owner;
+   this covenant neither removes nor creates a motion token or authorized use.
+   Neither wear nor motion reacts to importance or becomes ambient processing,
+   emotional instruction, or a substitute for state truth.
+
+This covenant generalizes verbs rather than nouns. It does not spread Backup's
+cabinet, Settings' folio, Contacts' correspondence, Shop's cards, Schedule's
+docket, Minesweeper's worksheet, or another application's material into a
+universal skin. The theorist names and this calibration vocabulary remain
+private documentation and never appear player-facing.
 
 ## 6. Native canvas and scaling
 
