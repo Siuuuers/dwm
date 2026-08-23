@@ -45,6 +45,15 @@ extends RefCounted
 ## in production -- `DesktopConsequenceCoordinator` holds the exclusive `causal_transaction` lease
 ## across one departure's whole prepare-to-publish span, so only one departure is ever in flight --
 ## and is called out here rather than papered over.
+##
+## dwm-p2r.13 remediation (finding 3), CONFIRMED rather than corrected: this paragraph's own
+## "prepare-to-publish span" assumption was, until this remediation, silently violated by both
+## action sources' `publish_recovery_action()` (each released the lease immediately after its own
+## callback -- index 1 of up to 3 -- leaving THIS port's board-fate publish and the coordinator's
+## terminal cleanup running unleased). The release now happens only in the new
+## `release_recovery_lease()`, called by `DesktopConsequenceCoordinator._resume_forward()` after
+## terminal cleanup succeeds, so this paragraph's own invariant is now actually enforced end-to-end,
+## not merely assumed.
 
 const _ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 const _BOARD_STATE_SCRIPT := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")

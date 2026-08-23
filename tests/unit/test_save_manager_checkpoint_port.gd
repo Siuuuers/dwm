@@ -72,6 +72,31 @@ func _admitted_state_candidate(transaction_id: String = "txn-1", run_revision_ma
 	assert_true(reserved.get("ok", false), JSON.stringify(reserved))
 	return reserved["value"]["candidate"]["state_after"]
 
+## dwm-p2r.13 remediation (finding 1): a pre-admission (action_prepared) candidate -- the shape the
+## source participant's own ordinal-0 checkpoint carries, mirroring _admitted_state_candidate()'s own
+## pattern but stopping before prepare_sequence_reservation() (i.e. before admission).
+func _pre_admission_state_candidate(transaction_id: String = "txn-1") -> Dictionary:
+	var state := CONSEQUENCE_STATE.new()
+	var made: Dictionary = CONSEQUENCE_STATE.make_empty({
+		"causal_day_instance": "causal-day-1", "causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
+	})
+	var prepared_restore: Dictionary = state.prepare_restore(made["value"]["state"])
+	state.commit(prepared_restore["value"]["candidate"])
+	var payload := {"source_kind": "minesweeper_round", "action_receipt": {"result": "completed"},
+		"run_revision_before": 0, "participant_snapshot_ids": {}}
+	var action_receipt := {
+		"source_kind": "minesweeper_round", "transaction_id": transaction_id,
+		"transaction_issuer_receipt": _issuer_receipt(transaction_id),
+		"source_commit_receipt_id": "commit-receipt-1", "source_commit_receipt_provenance": {"child_kind": "board_fate"},
+	}
+	var handoff: Dictionary = state.prepare_action_handoff(action_receipt, 0, payload)
+	assert_true(handoff.get("ok", false), JSON.stringify(handoff))
+	return handoff["value"]["candidate"]["state_after"]
+
+func _pre_admission_header(transaction_id: String = "txn-1") -> Dictionary:
+	return {"kind": &"round_action_checkpoint", "operation_ordinal": 0, "run_id": "run-1",
+		"source_ids": [transaction_id], "stage": "action_prepared", "transaction_id": transaction_id}
+
 func _header(transaction_id: String = "txn-1", operation_ordinal: int = 2, stage: String = "sequence_committed") -> Dictionary:
 	return {"kind": &"consequence_admission", "operation_ordinal": operation_ordinal, "run_id": "run-1",
 		"source_ids": [], "stage": stage, "transaction_id": transaction_id}
@@ -228,6 +253,66 @@ func test_a_committed_admission_checkpoint_reads_back_and_validates() -> void:
 	assert_eq(str((loaded_state["pending"] as Dictionary)["transaction_id"]), "txn-1")
 	var validated := CONSEQUENCE_STATE.validate(loaded_state)
 	assert_true(validated.get("ok", false), "the durable admission checkpoint must load and validate: " + JSON.stringify(validated))
+
+
+## dwm-p2r.13 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- marks the durable
+## unpromoted ordinal-0 checkpoint abandoned, and proves read_pending_consequence_checkpoint() no
+## longer reports it as still-pending (the exact mechanism that stops
+## adopt_durable_checkpoint_if_live_is_behind() from re-adopting an abandoned transaction on every
+## subsequent boot). Also proves it never creates or promotes a checkpoint (the frozen law's own
+## closing clause) and replays idempotently.
+func test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var candidate_state := _pre_admission_state_candidate()
+	var header := _pre_admission_header()
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(header, candidate_state)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var committed: Dictionary = port.commit_consequence_checkpoint(
+		prepared["value"]["candidate"], prepared["value"]["checkpoint_receipt"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+
+	var found_before: Dictionary = port.read_pending_consequence_checkpoint()
+	assert_true(bool(found_before["value"]["found"]), "the durable ordinal-0 checkpoint is pending before abandonment")
+
+	var abandoned: Dictionary = port.abandon_pending_consequence_checkpoint("txn-1")
+	assert_true(abandoned.get("ok", false), JSON.stringify(abandoned))
+	assert_false(bool(abandoned["value"]["already_abandoned"]))
+
+	var found_after: Dictionary = port.read_pending_consequence_checkpoint()
+	assert_true(found_after.get("ok", false), JSON.stringify(found_after))
+	assert_false(bool(found_after["value"]["found"]), "an abandoned transaction must never be reported as still-pending")
+
+	var replayed: Dictionary = port.abandon_pending_consequence_checkpoint("txn-1")
+	assert_true(replayed.get("ok", false), JSON.stringify(replayed))
+	assert_true(bool(replayed["value"]["already_abandoned"]))
+
+	var disk_path := str(wired["root"]).path_join("desktop-consequence-checkpoint.json")
+	var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(disk_path))
+	assert_eq((parsed["records"] as Dictionary).size(), 1, "abandonment never creates or promotes a checkpoint")
+
+
+func test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var rejected: Dictionary = port.abandon_pending_consequence_checkpoint("no-such-txn")
+	assert_false(rejected.get("ok", true))
+	assert_eq(rejected["code"], &"consequence_checkpoint_not_found")
+
+
+## Abandonment is legal only pre-admission -- an already-admitted (sequence_committed) checkpoint may
+## never be abandoned; forward recovery, not abandonment, is the only legal path from there.
+func test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var candidate_state := _admitted_state_candidate()
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	port.commit_consequence_checkpoint(prepared["value"]["candidate"], prepared["value"]["checkpoint_receipt"])
+
+	var rejected: Dictionary = port.abandon_pending_consequence_checkpoint("txn-1")
+	assert_false(rejected.get("ok", true))
+	assert_eq(rejected["code"], &"consequence_checkpoint_not_pre_admission")
 
 
 func test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists() -> void:

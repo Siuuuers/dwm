@@ -78,6 +78,22 @@ const _RECOVERY_PAYLOAD_KEYS_ACTION: Array[String] = [
 const _RECOVERY_PAYLOAD_KEYS_SCHEDULE: Array[String] = [
 	"source_kind", "schedule_header", "run_revision_before", "participant_snapshot_ids",
 ]
+## dwm-p2r.13 remediation (finding 4): the shape `DesktopConsequenceCoordinator
+## ._build_admission_ready_payload()` actually writes into `pending.recovery_payload` from ordinal 1
+## onward -- the frozen 17-key admission-ready shape (plan02-frozen-contracts.md lines 344-363) plus
+## that coordinator's own documented 4 free-form additions (`causal_sequence_reservation_request`,
+## `causal_sequence_reservation_candidate`, `destination_intent`, `notification_intent` -- see its own
+## class-doc SCOPE NOTE and CRITICAL-2 comments). `validate_recovery_payload()` below never accepted
+## this shape before this fix, even though it is the shape production actually persists for the
+## entire post-ordinal-1 life of every action-source transaction.
+const _RECOVERY_PAYLOAD_KEYS_ACTION_ADMISSION_READY: Array[String] = [
+	"schema_version", "source_kind", "payload_phase", "action_candidate", "action_candidate_sha256",
+	"condition_candidate", "condition_candidate_sha256", "board_candidate", "board_candidate_sha256",
+	"schedule_view_before", "schedule_view_before_sha256", "schedule_view_after", "schedule_view_after_sha256",
+	"consequence_candidate", "consequence_candidate_sha256", "publication_plan", "publication_plan_sha256",
+	"causal_sequence_reservation_request", "causal_sequence_reservation_candidate",
+	"destination_intent", "notification_intent",
+]
 
 var _run_revision: int = 0
 var _causal_sequence: int = 0
@@ -178,32 +194,55 @@ static func _validate_impl(state: Dictionary, allow_pending_admission: bool) -> 
 	return {"ok": true, "code": &"ok", "value": {"state": state.duplicate(true)}, "receipt": {}}
 
 
-## Discriminated recovery-payload union keyed by source_kind. Action sources (minesweeper_round,
-## shop_purchase) freeze one already-produced source commit receipt; schedule_done freezes the
-## Schedule transport header instead (brief line 249: "already-prepared_checkpointed for
+## Discriminated recovery-payload union keyed by source_kind AND (for action sources) payload_phase.
+## Action sources (minesweeper_round, shop_purchase) freeze one already-produced source commit
+## receipt at the pre-admission `payload_phase="source_checkpoint"` shape (this class's own ordinal-0
+## shape, predating its later payload_phase convention -- the field is simply absent rather than
+## literally "source_checkpoint", see the dwm-p2r.13 remediation note below); schedule_done freezes
+## the Schedule transport header instead (brief line 249: "already-prepared_checkpointed for
 ## Schedule"). Both bind `expected_sha256` -- the canonical hash the pending record and every later
 ## recovery-advance preimage anchors to -- so progress can never silently mutate the frozen payload.
+##
+## dwm-p2r.13 remediation (finding 4): added the `payload_phase="admission_ready"` branch. Before
+## this fix, this public static validator enforced ONLY the 4-key pre-admission shape, even though
+## `DesktopConsequenceCoordinator.accept_prepared_action()` overwrites `pending.recovery_payload` with
+## a richer admission-ready payload at ordinal 1 and every stage after -- so this validator rejected
+## the payload its own coordinator writes for the entire post-ordinal-1 life of every transaction.
+## `_validate_pending()` (the actual gate `commit()`/`validate()` run through) never called this
+## method and only hash-checks `recovery_payload`, which is why the bug was invisible there; a
+## downstream plan reaching for this validator directly would still have hit it.
 static func validate_recovery_payload(source_kind: StringName, payload: Dictionary,
 		expected_sha256: String) -> Dictionary:
 	if not SOURCE_KINDS.has(String(source_kind)):
 		return _fail(&"consequence_source_kind_invalid", String(source_kind), {})
-	var expected_keys := _RECOVERY_PAYLOAD_KEYS_SCHEDULE if String(source_kind) == "schedule_done" \
-		else _RECOVERY_PAYLOAD_KEYS_ACTION
+	var is_admission_ready := String(source_kind) in ACTION_SOURCE_KINDS \
+		and typeof(payload.get("payload_phase")) == TYPE_STRING and str(payload.get("payload_phase")) == "admission_ready"
+	var expected_keys: Array
+	if is_admission_ready:
+		expected_keys = _RECOVERY_PAYLOAD_KEYS_ACTION_ADMISSION_READY
+	elif String(source_kind) == "schedule_done":
+		expected_keys = _RECOVERY_PAYLOAD_KEYS_SCHEDULE
+	else:
+		expected_keys = _RECOVERY_PAYLOAD_KEYS_ACTION
 	var shape := _exact_keys(payload, expected_keys, &"recovery_payload_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if str(payload["source_kind"]) != String(source_kind):
 		return _fail(&"recovery_payload_source_kind_mismatch", str(payload["source_kind"]), {})
-	if typeof(payload["run_revision_before"]) != TYPE_INT or int(payload["run_revision_before"]) < 0:
-		return _fail(&"recovery_payload_field_invalid", "run_revision_before must be a nonnegative integer", {})
-	if typeof(payload["participant_snapshot_ids"]) != TYPE_DICTIONARY:
-		return _fail(&"recovery_payload_field_invalid", "participant_snapshot_ids must be an object", {})
-	if String(source_kind) == "schedule_done":
-		if typeof(payload["schedule_header"]) != TYPE_DICTIONARY:
-			return _fail(&"recovery_payload_field_invalid", "schedule_header must be an object", {})
+	if is_admission_ready:
+		if typeof(payload["schema_version"]) != TYPE_INT or int(payload["schema_version"]) != 1:
+			return _fail(&"recovery_payload_field_invalid", "schema_version must be exactly 1", {})
 	else:
-		if typeof(payload["action_receipt"]) != TYPE_DICTIONARY:
-			return _fail(&"recovery_payload_field_invalid", "action_receipt must be an object", {})
+		if typeof(payload["run_revision_before"]) != TYPE_INT or int(payload["run_revision_before"]) < 0:
+			return _fail(&"recovery_payload_field_invalid", "run_revision_before must be a nonnegative integer", {})
+		if typeof(payload["participant_snapshot_ids"]) != TYPE_DICTIONARY:
+			return _fail(&"recovery_payload_field_invalid", "participant_snapshot_ids must be an object", {})
+		if String(source_kind) == "schedule_done":
+			if typeof(payload["schedule_header"]) != TYPE_DICTIONARY:
+				return _fail(&"recovery_payload_field_invalid", "schedule_header must be an object", {})
+		else:
+			if typeof(payload["action_receipt"]) != TYPE_DICTIONARY:
+				return _fail(&"recovery_payload_field_invalid", "action_receipt must be an object", {})
 	if not _is_lowercase_sha256(expected_sha256):
 		return _fail(&"recovery_payload_hash_invalid", "expected_sha256 must be lowercase sha256 hex", {})
 	if _canonical_sha256(payload) != expected_sha256:
@@ -450,16 +489,26 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 		pending_after["publication_progress"] = _validate_publication_progress_shape(publication_progress)
 		if pending_after["publication_progress"] == null:
 			return _fail(&"consequence_publication_progress_invalid", "publication_progress is required at this edge", {})
+		var plan_hash_check := _check_publication_plan_hash(pending, pending_after["publication_progress"])
+		if not plan_hash_check.get("ok", false):
+			return plan_hash_check
 	elif String(expected_stage) == String(STAGE_PUBLICATION_PENDING) and next_stage != null \
 			and String(next_stage) == String(STAGE_PUBLICATION_PENDING):
 		var progress_check: Variant = _validate_publication_progress_shape(publication_progress)
 		if progress_check == null:
 			return _fail(&"consequence_publication_progress_invalid", "publication_progress is required for callback progress", {})
+		var plan_hash_check2 := _check_publication_plan_hash(pending, progress_check)
+		if not plan_hash_check2.get("ok", false):
+			return plan_hash_check2
 		pending_after["publication_progress"] = progress_check
 	elif String(expected_stage) == String(STAGE_PUBLICATION_PENDING) and next_stage == null:
 		var complete_progress: Variant = pending["publication_progress"]
-		if typeof(complete_progress) != TYPE_DICTIONARY \
-				or not bool((complete_progress as Dictionary).get("complete", false)):
+		if typeof(complete_progress) != TYPE_DICTIONARY:
+			return _fail(&"consequence_publication_cursor_incomplete",
+				"terminal cleanup requires a complete publication cursor", {})
+		var complete_dict: Dictionary = complete_progress
+		var is_complete: bool = int(complete_dict["next_callback_index"]) >= (complete_dict["callback_ids"] as Array).size()
+		if not is_complete:
 			return _fail(&"consequence_publication_cursor_incomplete",
 				"terminal cleanup requires a complete publication cursor", {})
 		var state_after := _live_state()
@@ -523,8 +572,29 @@ static func _operation_ordinal(source_kind: String, expected_stage: StringName, 
 			and String(next_stage) == String(STAGE_PUBLICATION_PENDING):
 		var progress: Dictionary = publication_progress as Dictionary
 		var base := 9 if is_action else 7
-		return base + int(progress.get("cursor", 1)) - 1
+		return base + int(progress.get("next_callback_index", 1)) - 1
 	return 0
+
+
+## dwm-p2r.13 remediation (finding 5): plan02-frozen-contracts.md line 319's own closing rule --
+## "a plan-hash mismatch... reject" -- enforced here, the one place both the live pending's own
+## admitted `publication_plan_sha256` (inside `recovery_payload`, frozen at ordinal 1 and immutable
+## thereafter) and a caller-supplied `publication_progress.publication_plan_sha256` are both in scope
+## together. A durable progress cursor that names a different plan than the one this transaction was
+## actually admitted under can never silently be adopted. Scoped to action source kinds only:
+## schedule_done's own recovery_payload has no `publication_plan_sha256` member in this codebase yet
+## (Plan 03 territory, matching this file's own established precedent of leaving that source_kind's
+## unreached stages/ordinals absent rather than inventing them) -- the check is a no-op when the live
+## recovery_payload carries no such field to compare against.
+static func _check_publication_plan_hash(pending: Dictionary, progress: Dictionary) -> Dictionary:
+	var recovery_payload: Dictionary = pending.get("recovery_payload", {})
+	var expected: Variant = recovery_payload.get("publication_plan_sha256")
+	if typeof(expected) != TYPE_STRING:
+		return {"ok": true}
+	if str(expected) != str(progress.get("publication_plan_sha256", "")):
+		return _fail(&"consequence_publication_plan_hash_mismatch",
+			"publication_progress.publication_plan_sha256 does not match the admitted publication_plan_sha256", {})
+	return {"ok": true}
 
 
 ## dwm-p2r.13 remediation (finding A-C3): the same frozen ordinal<->stage pairing above, reachable as
@@ -790,17 +860,31 @@ func _validate_causal_sequence_receipt(receipt: Dictionary, request: Dictionary,
 	return {"ok": true}
 
 
+## dwm-p2r.13 remediation (finding 5): adopts the frozen shape (plan02-frozen-contracts.md lines
+## 311-317) exactly -- `{publication_plan_sha256, callback_ids, next_callback_index,
+## callback_receipts}` -- replacing the previous local `{cursor, complete, callback_receipts}` shape,
+## which carried neither the plan hash nor the callback id list and therefore could never be checked
+## against a different plan (see _check_publication_plan_hash() above) nor let a resumed coordinator
+## recognize which ordered callback list a durable cursor belongs to. `complete` is no longer a
+## stored field -- it is derived wherever needed (`next_callback_index >= callback_ids.size()`), since
+## the frozen shape has no such member.
 func _validate_publication_progress_shape(progress: Variant) -> Variant:
 	if typeof(progress) != TYPE_DICTIONARY:
 		return null
 	var value: Dictionary = progress
 	var keys: Array = value.keys()
 	keys.sort()
-	if keys != ["callback_receipts", "complete", "cursor"]:
+	if keys != ["callback_ids", "callback_receipts", "next_callback_index", "publication_plan_sha256"]:
 		return null
-	if typeof(value["cursor"]) != TYPE_INT or int(value["cursor"]) < 0:
+	if typeof(value["publication_plan_sha256"]) != TYPE_STRING or not _is_lowercase_sha256(str(value["publication_plan_sha256"])):
 		return null
-	if typeof(value["complete"]) != TYPE_BOOL:
+	if typeof(value["callback_ids"]) != TYPE_ARRAY:
+		return null
+	for callback_id: Variant in (value["callback_ids"] as Array):
+		if typeof(callback_id) != TYPE_STRING:
+			return null
+	if typeof(value["next_callback_index"]) != TYPE_INT or int(value["next_callback_index"]) < 0 \
+			or int(value["next_callback_index"]) > (value["callback_ids"] as Array).size():
 		return null
 	if typeof(value["callback_receipts"]) != TYPE_DICTIONARY:
 		return null

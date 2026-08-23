@@ -245,7 +245,8 @@ func test_prepare_recovery_advance_ordinary_edge_to_publication_pending() -> voi
 	var state := _admitted()
 	var advanced: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
-		{"cursor": 0, "complete": false, "callback_receipts": {}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
 	assert_true(advanced["ok"], JSON.stringify(advanced))
 	var stage_candidate: Dictionary = advanced["value"]["stage_candidate"]
 	assert_eq(stage_candidate["pending"]["stage"], &"publication_pending")
@@ -253,11 +254,46 @@ func test_prepare_recovery_advance_ordinary_edge_to_publication_pending() -> voi
 		"the checkpoint_receipt still equals the admission receipt until a later advance rotates it")
 
 
+## dwm-p2r.13 remediation (finding 5): plan02-frozen-contracts.md line 319's "a plan-hash
+## mismatch... reject" rule. Patches the admitted pending's recovery_payload to carry a
+## publication_plan_sha256 (the admission-ready shape DesktopConsequenceCoordinator actually
+## produces) directly through the state's own validate()-gated prepare_restore()/commit() seam --
+## _validate_pending() only hash-checks recovery_payload's own bytes, never its internal shape, so
+## this stays a legitimately-adoptable live state.
+func test_prepare_recovery_advance_rejects_a_publication_plan_hash_mismatch() -> void:
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	var pending: Dictionary = (captured["pending"] as Dictionary).duplicate(true)
+	var recovery_payload: Dictionary = (pending["recovery_payload"] as Dictionary).duplicate(true)
+	recovery_payload["publication_plan_sha256"] = "b".repeat(64)
+	pending["recovery_payload"] = recovery_payload
+	pending["recovery_payload_sha256"] = _sha256(recovery_payload)
+	captured["pending"] = pending
+	var restored: Dictionary = state.prepare_restore(captured)
+	assert_true(restored["ok"], JSON.stringify(restored))
+	state.commit(restored["value"]["candidate"])
+
+	var mismatched: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
+	assert_false(mismatched.get("ok", true),
+		"a publication_progress plan hash that disagrees with the admitted recovery_payload must reject")
+	assert_eq(mismatched["code"], &"consequence_publication_plan_hash_mismatch")
+
+	var matched: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"publication_plan_sha256": "b".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
+	assert_true(matched["ok"], JSON.stringify(matched))
+
+
 func test_prepare_recovery_advance_rejects_stage_mismatch() -> void:
 	var state := _admitted()
 	var advanced: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"publication_pending", &"publication_pending", {}, null, null,
-		{"cursor": 0, "complete": false, "callback_receipts": {}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
 	assert_false(advanced.get("ok", true))
 	assert_eq(advanced["code"], &"consequence_stage_mismatch")
 
@@ -266,7 +302,8 @@ func test_prepare_recovery_advance_terminal_cleanup_requires_complete_cursor() -
 	var state := _admitted()
 	var to_pending: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
-		{"cursor": 0, "complete": false, "callback_receipts": {}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
 	state.commit({"kind": &"recovery_advance", "state_after": to_pending["value"]["stage_candidate"]})
 	var incomplete_cleanup: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"publication_pending", null, {}, null, null, null)
@@ -275,7 +312,8 @@ func test_prepare_recovery_advance_terminal_cleanup_requires_complete_cursor() -
 
 	var to_complete: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"publication_pending", &"publication_pending", {}, null, null,
-		{"cursor": 1, "complete": true, "callback_receipts": {"notify": {}}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["notify"],
+			"next_callback_index": 1, "callback_receipts": {"notify": {}}})
 	state.commit({"kind": &"recovery_advance", "state_after": to_complete["value"]["stage_candidate"]})
 	var cleanup: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"publication_pending", null, {}, null, null, null)
@@ -308,7 +346,8 @@ func test_checkpoint_content_preimage_omits_admission_receipt_only_at_admission(
 	var admitted := _admitted()
 	var later_advance: Dictionary = admitted.prepare_recovery_advance(
 		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
-		{"cursor": 0, "complete": false, "callback_receipts": {}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
 	var later_state: Dictionary = later_advance["value"]["stage_candidate"]
 	var later_preimage: Dictionary = _STATE_SCRIPT.checkpoint_content_preimage(header, later_state)
 	assert_true(later_preimage["ok"], JSON.stringify(later_preimage))
@@ -414,7 +453,8 @@ func test_prepare_recovery_advance_ordinary_edge_operation_ordinal_matches_froze
 	var action_state := _admitted("minesweeper_round", "txn-1")
 	var action_advance: Dictionary = action_state.prepare_recovery_advance(
 		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
-		{"cursor": 0, "complete": false, "callback_receipts": {}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
 	assert_true(action_advance["ok"], JSON.stringify(action_advance))
 	assert_eq(action_advance["value"]["checkpoint_header"]["operation_ordinal"], 8,
 		"action-source publication_pending stage entry is frozen ordinal 8")
@@ -424,7 +464,8 @@ func test_prepare_recovery_advance_ordinary_edge_operation_ordinal_matches_froze
 	var schedule_state := _admitted_schedule("txn-sched-1")
 	var schedule_advance: Dictionary = schedule_state.prepare_recovery_advance(
 		"txn-sched-1", &"sequence_committed", &"publication_pending", {}, null, null,
-		{"cursor": 0, "complete": false, "callback_receipts": {}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
 	assert_true(schedule_advance["ok"], JSON.stringify(schedule_advance))
 	assert_eq(schedule_advance["value"]["checkpoint_header"]["operation_ordinal"], 6,
 		"schedule_done publication_pending stage entry is frozen ordinal 6")
@@ -434,13 +475,15 @@ func test_prepare_recovery_advance_callback_progress_operation_ordinal_is_sequen
 	var state := _admitted("minesweeper_round", "txn-1")
 	var to_pending: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
-		{"cursor": 0, "complete": false, "callback_receipts": {}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
 	state.commit({"kind": &"recovery_advance", "state_after": to_pending["value"]["stage_candidate"]})
 
 	# First appended callback (causal_sequence): cursor advances 0 -> 1, frozen ordinal 9.
 	var progress1: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"publication_pending", &"publication_pending", {}, null, null,
-		{"cursor": 1, "complete": false, "callback_receipts": {"causal_sequence": {}}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+		"next_callback_index": 1, "callback_receipts": {"causal_sequence": {}}})
 	assert_true(progress1["ok"], JSON.stringify(progress1))
 	assert_eq(progress1["value"]["checkpoint_header"]["operation_ordinal"], 9)
 	state.commit({"kind": &"recovery_advance", "state_after": progress1["value"]["stage_candidate"]})
@@ -448,7 +491,8 @@ func test_prepare_recovery_advance_callback_progress_operation_ordinal_is_sequen
 	# Second appended callback (action_source): cursor advances 1 -> 2, frozen ordinal 10.
 	var progress2: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"publication_pending", &"publication_pending", {}, null, null,
-		{"cursor": 2, "complete": true, "callback_receipts": {"causal_sequence": {}, "action_source": {}}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+		"next_callback_index": 2, "callback_receipts": {"causal_sequence": {}, "action_source": {}}})
 	assert_true(progress2["ok"], JSON.stringify(progress2))
 	assert_eq(progress2["value"]["checkpoint_header"]["operation_ordinal"], 10)
 
@@ -457,11 +501,13 @@ func test_prepare_recovery_advance_terminal_cleanup_operation_ordinal_is_twelve(
 	var state := _admitted("minesweeper_round", "txn-1")
 	var to_pending: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
-		{"cursor": 0, "complete": false, "callback_receipts": {}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
 	state.commit({"kind": &"recovery_advance", "state_after": to_pending["value"]["stage_candidate"]})
 	var to_complete: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"publication_pending", &"publication_pending", {}, null, null,
-		{"cursor": 1, "complete": true, "callback_receipts": {"notify": {}}})
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["notify"],
+			"next_callback_index": 1, "callback_receipts": {"notify": {}}})
 	state.commit({"kind": &"recovery_advance", "state_after": to_complete["value"]["stage_candidate"]})
 	var cleanup: Dictionary = state.prepare_recovery_advance(
 		"txn-1", &"publication_pending", null, {}, null, null, null)
@@ -498,6 +544,51 @@ func test_validate_recovery_payload_rejects_wrong_source_kind_shape() -> void:
 	var wrong: Dictionary = _STATE_SCRIPT.validate_recovery_payload(
 		&"schedule_done", action_payload, _sha256(action_payload))
 	assert_false(wrong.get("ok", true), "an action-shaped payload cannot validate as schedule_done")
+
+
+func _admission_ready_payload(source_kind: String = "minesweeper_round") -> Dictionary:
+	return {
+		"schema_version": 1, "source_kind": source_kind, "payload_phase": "admission_ready",
+		"action_candidate": {}, "action_candidate_sha256": "a".repeat(64),
+		"condition_candidate": {}, "condition_candidate_sha256": "a".repeat(64),
+		"board_candidate": null, "board_candidate_sha256": null,
+		"schedule_view_before": null, "schedule_view_before_sha256": null,
+		"schedule_view_after": null, "schedule_view_after_sha256": null,
+		"consequence_candidate": {}, "consequence_candidate_sha256": "a".repeat(64),
+		"publication_plan": [], "publication_plan_sha256": "a".repeat(64),
+		"causal_sequence_reservation_request": {}, "causal_sequence_reservation_candidate": {},
+		"destination_intent": null, "notification_intent": null,
+	}
+
+
+## dwm-p2r.13 remediation (finding 4): validate_recovery_payload() used to enforce ONLY the 4-key
+## pre-admission shape -- rejecting the 21-key admission_ready shape DesktopConsequenceCoordinator
+## ._build_admission_ready_payload() actually writes into pending.recovery_payload from ordinal 1
+## onward. Proves the fixed discriminated union accepts BOTH phases it must accept and still rejects
+## a genuine violation of either.
+func test_validate_recovery_payload_accepts_both_phases_and_rejects_violations() -> void:
+	var admission_ready := _admission_ready_payload("minesweeper_round")
+	var accepted: Dictionary = _STATE_SCRIPT.validate_recovery_payload(
+		&"minesweeper_round", admission_ready, _sha256(admission_ready))
+	assert_true(accepted["ok"], JSON.stringify(accepted))
+
+	var pre_admission := _action_recovery_payload("minesweeper_round")
+	var pre_admission_accepted: Dictionary = _STATE_SCRIPT.validate_recovery_payload(
+		&"minesweeper_round", pre_admission, _sha256(pre_admission))
+	assert_true(pre_admission_accepted["ok"], JSON.stringify(pre_admission_accepted))
+
+	var truncated: Dictionary = admission_ready.duplicate(true)
+	truncated.erase("board_candidate")
+	var rejected: Dictionary = _STATE_SCRIPT.validate_recovery_payload(
+		&"minesweeper_round", truncated, _sha256(truncated))
+	assert_false(rejected.get("ok", true), "a truncated admission-ready payload must still reject")
+	assert_eq(rejected["code"], &"recovery_payload_member_set_invalid")
+
+	var bad_schema: Dictionary = admission_ready.duplicate(true)
+	bad_schema["schema_version"] = 2
+	var bad_schema_rejected: Dictionary = _STATE_SCRIPT.validate_recovery_payload(
+		&"minesweeper_round", bad_schema, _sha256(bad_schema))
+	assert_false(bad_schema_rejected.get("ok", true), "schema_version must be exactly 1")
 
 
 # -------------------------------------------------------------------------------------------------

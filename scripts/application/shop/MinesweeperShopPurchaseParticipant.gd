@@ -563,9 +563,16 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 
 ## The source's sole audience boundary for this recovery path: records the at-most-once external
 ## observation through the SAME shared `action_source` publication-ledger kind and key convention
-## `publish()` already established (Ruling B), then releases the retained `causal_transaction` lease
-## -- mirroring `publish()`'s own "release only after publication" discipline, since this method (not
-## the pre-Task-8 `publish()`) is the one the coordinator actually calls along this path.
+## `publish()` already established (Ruling B).
+##
+## dwm-p2r.13 remediation (finding 3): this method used to release the retained `causal_transaction`
+## lease here, immediately after recording -- but this is callback index 1 of up to 3 in
+## DesktopConsequenceCoordinator's own departure publication plan (causal_sequence, action_source,
+## optional board_fate), so releasing here left board-fate publish and terminal cleanup running
+## UNLEASED, contradicting `DesktopBoardFatePort`'s own class-doc argument that its one known
+## candidate-hash-collision limitation "is not reachable in production" BECAUSE the coordinator holds
+## the lease across one departure's whole prepare-to-publish span. The release now happens only in
+## `release_recovery_lease()`, which the coordinator calls after terminal cleanup succeeds.
 func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
@@ -588,10 +595,20 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	})
 	if not recorded.get("ok", false):
 		return recorded
+	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
+
+
+## dwm-p2r.13 remediation (finding 3): the fourth frozen recovery-method addition, called by
+## DesktopConsequenceCoordinator._resume_forward() only AFTER terminal cleanup succeeds -- see that
+## method's own doc comment for why the release moved out of publish_recovery_action(). Idempotent
+## no-op when no token is held (a resume_pending()-driven forward recovery in a fresh process never
+## acquired one in the first place, since this participant -- not the coordinator -- is the actual
+## lease holder).
+func release_recovery_lease() -> Dictionary:
 	if _gate_token != "":
 		_mutation_gate.release(_GATE_OWNER, _gate_token)
 		_gate_token = ""
-	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": {"released": true}, "receipt": {}}
 
 
 # -------------------------------------------------------------------------------------------------

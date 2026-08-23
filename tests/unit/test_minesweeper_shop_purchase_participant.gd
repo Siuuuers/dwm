@@ -796,7 +796,15 @@ func test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity() ->
 	assert_eq(result.get("code"), &"action_receipt_conflict")
 
 
-func test_publish_recovery_action_records_through_action_source_and_releases_the_gate() -> void:
+## dwm-p2r.13 remediation (finding 3): publish_recovery_action() used to release the causal_
+## transaction lease immediately -- callback index 1 of up to 3 (causal_sequence, action_source,
+## optional board_fate) -- leaving board-fate publish and terminal cleanup running unleased, which
+## contradicted DesktopBoardFatePort's own class-doc "KNOWN LIMITATION is not reachable in
+## production" argument (it rests on the coordinator holding the lease across the WHOLE
+## prepare-to-publish span). The lease is now released only by the new release_recovery_lease(),
+## which DesktopConsequenceCoordinator calls after terminal cleanup -- see that method's own doc
+## comment.
+func test_publish_recovery_action_records_through_action_source_and_retains_the_gate() -> void:
 	var txn := _mint_transaction()
 	var prepared: Dictionary = _quote_and_prepare("lucky_charm", txn)
 	var receipt: Dictionary = (prepared["value"] as Dictionary)["action_receipt"]
@@ -809,14 +817,20 @@ func test_publish_recovery_action_records_through_action_source_and_releases_the
 	var publication: Dictionary = (validated["value"] as Dictionary)["publication"]
 	var published: Dictionary = _participant.publish_recovery_action(publication)
 	assert_true(published.get("ok", false), JSON.stringify(published))
-	assert_false(_gate.is_active(), "publish_recovery_action releases the lease")
+	assert_true(_gate.is_internal_owner_active(&"causal_transaction"),
+		"publish_recovery_action retains the lease -- release_recovery_lease() is the sole release point")
 	assert_true(_publication_ledger.records.has("action_source:" + str(receipt["commit_receipt_id"])),
 		"Ruling B: the same action_source ledger key convention as publish()")
 
-	assert_true(_gate.acquire(&"causal_transaction").get("ok", false))
 	var replay: Dictionary = _participant.publish_recovery_action(publication)
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
 	assert_eq(_publication_ledger.records.size(), 1, "no second ledger record is written on replay")
+
+	var released: Dictionary = _participant.release_recovery_lease()
+	assert_true(released.get("ok", false), JSON.stringify(released))
+	assert_false(_gate.is_active(), "release_recovery_lease() releases the lease")
+	var idempotent_release: Dictionary = _participant.release_recovery_lease()
+	assert_true(idempotent_release.get("ok", false), JSON.stringify(idempotent_release))
 
 
 # ---------------------------------------------------------------------------------------------

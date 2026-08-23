@@ -76,8 +76,11 @@ const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.g
 
 const _GATE_OWNER := &"causal_transaction"
 const _ACTION_SOURCE_KINDS: Array[String] = ["minesweeper_round", "shop_purchase"]
+## dwm-p2r.13 remediation (finding 3): added `release_recovery_lease` -- see _resume_forward()'s own
+## doc comment on why the causal_transaction release moved out of publish_recovery_action() and into
+## this fourth, coordinator-driven method.
 const _SOURCE_RECOVERY_METHODS: Array[String] = [
-	"validate_recovery_action", "commit_recovery_action", "publish_recovery_action",
+	"validate_recovery_action", "commit_recovery_action", "publish_recovery_action", "release_recovery_lease",
 ]
 const _ACCEPT_REQUEST_KEYS: Array[String] = [
 	"action_receipt", "action_candidate", "prepared_checkpoint_receipt", "expected_run_revision",
@@ -232,12 +235,6 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	var shape := _exact_keys(request, _ACCEPT_REQUEST_KEYS, &"accept_prepared_action_request_invalid")
 	if not shape.get("ok", false):
 		return shape
-	if _condition_policy_port == null or _schedule_view_port == null:
-		return _fail(&"condition_departure_ports_unconfigured",
-			"configure_condition_departure_ports() is required before admission", {})
-	if _identity_issuer == null:
-		return _fail(&"identity_issuer_unconfigured",
-			"configure_identity_issuer() is required before admission", {})
 
 	var receipt_valid := _ACTION_RECEIPT.validate(request["action_receipt"])
 	if not receipt_valid.get("ok", false):
@@ -259,6 +256,21 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	if not bool(_mutation_gate.is_internal_owner_active(_GATE_OWNER)):
 		return _fail(&"causal_transaction_lease_required",
 			"accept_prepared_action requires the source participant to already hold the causal_transaction lease", {})
+
+	# dwm-p2r.13 remediation (finding 1): moved after receipt validation/transaction_id extraction
+	# (was checked first, before this coordinator had any idea which transaction it was even
+	# targeting) so pre-admission abandonment (plan02-frozen-contracts.md line 2271) can target only
+	# the matching pending transaction, never a blind global abandon. See _abandon_pre_admission()'s
+	# own doc comment for what "abandoned" means here.
+	if _condition_policy_port == null or _schedule_view_port == null:
+		var abandoned := _abandon_pre_admission(transaction_id, source_kind)
+		if not abandoned.get("ok", false):
+			return abandoned
+		return _fail(&"condition_departure_ports_unconfigured",
+			"configure_condition_departure_ports() is required before admission", {})
+	if _identity_issuer == null:
+		return _fail(&"identity_issuer_unconfigured",
+			"configure_identity_issuer() is required before admission", {})
 
 	var captured: Dictionary = _state_port.call(&"capture")
 	if not captured.get("ok", false):
@@ -289,6 +301,61 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	if bool(result.get("ok", false)):
 		_accepted[transaction_id] = {"request_fingerprint": request_fingerprint, "result": result.duplicate(true)}
 	return result
+
+
+## dwm-p2r.13 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- "Until Plan 03 injects
+## its real condition policy and sole ScheduleView/route composition, a merely pre-admission
+## accept_prepared_action() returns condition_departure_ports_unconfigured before causal admission,
+## marks only the already-durable unpromoted source checkpoint abandoned through the injected
+## checkpoint port, releases causal_transaction, and commits no live participant; it never creates or
+## promotes a consequence checkpoint." This method performs the first and third of those: marking the
+## checkpoint port's own durable record abandoned, and clearing DesktopConsequenceState's own pending
+## bookkeeping back to null through the state port's established prepare_restore()/commit()
+## "live-adopt" seam (the SAME seam _checkpoint_and_adopt()/adopt_durable_checkpoint_if_live_is_behind()
+## already use elsewhere in this file) -- a bookkeeping cleanup of this coordinator's OWN transaction
+## ledger, never "committing a participant" in this file's own established vocabulary (source/board/
+## view -- see _resume_forward()'s three forward-commit steps). It calls neither
+## prepare_consequence_checkpoint() nor commit_consequence_checkpoint(): no new ordinal is ever
+## created or promoted, matching the frozen law's own closing clause exactly. Releasing the actual
+## `causal_transaction` gate TOKEN is the caller's job: this coordinator never acquires that lease
+## itself (only the source participant does, and only it retains the token to release it with) -- see
+## MinesweeperRoundCoordinator._call_accept_and_finalize()'s own release on this exact failure code.
+##
+## Returns ok:true on successful abandonment (a coordinator-internal disposition, never surfaced to
+## an external caller directly) or a genuine failure if no matching pre-admission pending exists to
+## abandon. Both callers -- this method's own condition_departure_ports_unconfigured branch above,
+## and resume_pending()'s pre-admission branch below -- translate a successful abandonment into
+## their own appropriate public result.
+func _abandon_pre_admission(transaction_id: String, source_kind: String) -> Dictionary:
+	var captured: Dictionary = _state_port.call(&"capture")
+	if not captured.get("ok", false):
+		return captured
+	var live_state: Dictionary = (captured["value"] as Dictionary)["state"]
+	var pending: Variant = live_state.get("pending")
+	if pending == null or str((pending as Dictionary).get("transaction_id", "")) != transaction_id \
+			or str((pending as Dictionary).get("source_kind", "")) != source_kind:
+		return _fail(&"consequence_no_matching_pending_transaction",
+			"pre-admission abandonment requires a matching pending transaction", {})
+	if str((pending as Dictionary).get("stage", "")) != "action_prepared":
+		return _fail(&"consequence_abandon_requires_pre_admission_stage",
+			"pre-admission abandonment requires an unadmitted pending transaction",
+			{"stage": str((pending as Dictionary).get("stage", ""))})
+
+	if _checkpoint_port.has_method("abandon_pending_consequence_checkpoint"):
+		var checkpoint_abandoned: Dictionary = _checkpoint_port.call(&"abandon_pending_consequence_checkpoint", transaction_id)
+		if not checkpoint_abandoned.get("ok", false):
+			return checkpoint_abandoned
+
+	var state_after: Dictionary = live_state.duplicate(true)
+	state_after["pending"] = null
+	var prepared: Dictionary = _state_port.call(&"prepare_restore", state_after)
+	if not prepared.get("ok", false):
+		return prepared
+	var committed: Dictionary = _state_port.call(&"commit", (prepared["value"] as Dictionary)["candidate"])
+	if not committed.get("ok", false):
+		return committed
+	return {"ok": true, "code": &"consequence_pre_admission_abandoned",
+		"value": {"transaction_id": transaction_id, "source_kind": source_kind}, "receipt": {}}
 
 
 ## Fresh admission path: reservation -> policy -> (departure: board fate + view) -> ordinal-1
@@ -530,8 +597,8 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	# 5. Run every publication callback in order.
 	var publication_plan: Array = recovery_payload["publication_plan"]
 	var progress: Dictionary = pending_dict["publication_progress"]
-	while int(progress["cursor"]) < publication_plan.size():
-		var index: int = int(progress["cursor"])
+	while int(progress["next_callback_index"]) < publication_plan.size():
+		var index: int = int(progress["next_callback_index"])
 		var recipe: Dictionary = publication_plan[index]
 		var callback_result := _run_publication_callback(recipe, recovery_payload, action_receipt, source_port, pending_dict)
 		if not callback_result.get("ok", false):
@@ -546,6 +613,16 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	var cleaned := _terminal_cleanup(transaction_id)
 	if not cleaned.get("ok", false):
 		return cleaned
+
+	# dwm-p2r.13 remediation (finding 3): release causal_transaction HERE -- after terminal cleanup,
+	# not inside the action_source publish callback (index 1 of up to 3) -- so board-fate publish and
+	# terminal cleanup itself both run under the still-active lease, matching DesktopBoardFatePort's
+	# own class-doc invariant that the coordinator holds this lease across one departure's whole
+	# prepare-to-publish span. The source port is the actual token holder (this coordinator never
+	# acquires the lease itself, only checks is_internal_owner_active); release_recovery_lease() is
+	# idempotent when no token is held (e.g. a resume_pending()-driven forward recovery in a fresh
+	# process, which never acquired one in the first place).
+	source_port.call(&"release_recovery_lease")
 
 	# CRITICAL 1 (Review-fix pass): return the frozen accept_prepared_action() success shape exactly,
 	# never the fabricated {action_receipt,source_kind,departure} shape this returned before. Every
@@ -569,8 +646,16 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 
 func _advance_to_publication_pending(transaction_id: String, pending_dict: Dictionary,
 		destination_intent: Variant, notification_intent: Variant) -> Dictionary:
+	# dwm-p2r.13 remediation (finding 5): the frozen shape (plan02-frozen-contracts.md lines 311-317)
+	# carries its own admitted publication_plan_sha256/callback_ids -- both already durable inside
+	# recovery_payload since ordinal 1, never recomputed here.
+	var recovery_payload: Dictionary = pending_dict["recovery_payload"]
+	var callback_ids: Array[String] = []
+	for recipe: Variant in (recovery_payload["publication_plan"] as Array):
+		callback_ids.append(str((recipe as Dictionary)["participant"]))
 	var publication_progress := {
-		"cursor": 0, "complete": false, "callback_receipts": {},
+		"publication_plan_sha256": str(recovery_payload["publication_plan_sha256"]),
+		"callback_ids": callback_ids, "next_callback_index": 0, "callback_receipts": {},
 	}
 	var advanced: Dictionary = _state_port.call(&"prepare_recovery_advance", transaction_id, &"sequence_committed",
 		&"publication_pending", {}, destination_intent, notification_intent, publication_progress)
@@ -650,10 +735,13 @@ func _advance_publication_progress(transaction_id: String, callback_id: String, 
 		source_receipt: Dictionary, progress: Dictionary) -> Dictionary:
 	var callback_receipts: Dictionary = (progress["callback_receipts"] as Dictionary).duplicate(true)
 	callback_receipts[callback_id] = {"callback_id": callback_id, "source_receipt": source_receipt, "disposition": disposition}
-	var next_cursor: int = int(progress["cursor"]) + 1
+	var next_index: int = int(progress["next_callback_index"]) + 1
+	# dwm-p2r.13 remediation (finding 5): the frozen shape carries no "complete" member of its own --
+	# completeness is derived (next_callback_index >= callback_ids.size()) wherever needed, not stored.
 	var new_progress := {
-		"cursor": next_cursor, "complete": next_cursor >= _publication_plan_size(transaction_id),
-		"callback_receipts": callback_receipts,
+		"publication_plan_sha256": str(progress["publication_plan_sha256"]),
+		"callback_ids": (progress["callback_ids"] as Array).duplicate(true),
+		"next_callback_index": next_index, "callback_receipts": callback_receipts,
 	}
 	var advanced: Dictionary = _state_port.call(&"prepare_recovery_advance", transaction_id, &"publication_pending",
 		&"publication_pending", {}, null, null, new_progress)
@@ -694,17 +782,6 @@ func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dicti
 	if not live_committed.get("ok", false):
 		return live_committed
 	return {"ok": true, "state_after": stage_candidate}
-
-
-func _publication_plan_size(transaction_id: String) -> int:
-	var captured: Dictionary = _state_port.call(&"capture")
-	if not captured.get("ok", false):
-		return -1
-	var live_state: Dictionary = (captured["value"] as Dictionary)["state"]
-	var pending: Variant = live_state.get("pending")
-	if pending == null or str((pending as Dictionary).get("transaction_id", "")) != transaction_id:
-		return -1
-	return ((pending as Dictionary)["recovery_payload"] as Dictionary)["publication_plan"].size()
 
 
 # -------------------------------------------------------------------------------------------------
@@ -800,6 +877,30 @@ func resume_pending() -> Dictionary:
 	var source_kind := str(pending_dict["source_kind"])
 	if source_kind not in _ACTION_SOURCE_KINDS:
 		return {"ok": true, "code": &"ok", "value": {"resumed": false}, "receipt": {}}
+	# dwm-p2r.13 remediation (finding 1): a restored pre-admission pending (stage="action_prepared")
+	# previously hard-FAILED resume_pending() here -- and since ApplicationBootstrap propagates that
+	# failure straight out of _configure_desktop_production_graph() (autoload/ApplicationBootstrap.gd,
+	# _configure_desktop_production_graph()'s own `if not resumed.get("ok", false): return resumed`),
+	# a run restored with a minesweeper_round/shop_purchase pending at action_prepared could never
+	# even finish booting, let alone start a fresh transaction afterward (prepare_action_handoff()
+	# refuses while ANY pending exists). This coordinator's own bootstrap never configures the
+	# condition-departure ports (plan02-frozen-contracts.md line 2271: "construct but leave both
+	# production condition-departure slots fail-closed" -- Plan 03's own job), so a pre-admission
+	# pending found here can only ever be abandoned, never genuinely re-admitted without the original
+	# caller's request bytes (which this restart has no route back to). Abandonment gives it that
+	# legitimate path forward instead of deadlocking bootstrap.
+	if str(pending_dict["stage"]) == "action_prepared":
+		if _condition_policy_port != null and _schedule_view_port != null:
+			# Not reachable in this plan's own production bootstrap (see above), but stays honest
+			# rather than silently discarding a transaction that could, in principle, still be
+			# re-admitted by whichever caller originally drove it -- that re-admission needs the
+			# original request bytes this coordinator was never given.
+			return _fail(&"consequence_resume_pre_admission_requires_original_request",
+				"resume_pending cannot re-run policy evaluation for a pre-admission pending without the original request", {})
+		var abandoned := _abandon_pre_admission(str(pending_dict["transaction_id"]), source_kind)
+		if not abandoned.get("ok", false):
+			return abandoned
+		return {"ok": true, "code": &"ok", "value": {"resumed": false, "abandoned": true}, "receipt": {}}
 	if str(pending_dict["stage"]) != "sequence_committed" and str(pending_dict["stage"]) != "publication_pending":
 		return _fail(&"consequence_resume_requires_admitted_transaction",
 			"resume_pending only resumes an already-admitted action-source transaction", {})

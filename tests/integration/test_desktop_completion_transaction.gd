@@ -344,8 +344,13 @@ func test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_rel
 
 	# The gate tracks only the OWNER ROLE ("causal_transaction"), not which caller holds it, so
 	# complete_round() sees the role already active and does not attempt its own acquire() -- it
-	# proceeds straight to its own ordinal-0 handoff, which DesktopConsequenceState itself then
-	# correctly rejects: only one pending transaction may exist at a time.
+	# proceeds to recognize the durable pending record. dwm-p2r.13 remediation (findings 1/2): this
+	# coordinator now checks for an existing pending record itself (mirroring
+	# MinesweeperShopPurchaseParticipant.prepare_purchase()'s own established
+	# "...requires_no_other_pending_transaction" convention) BEFORE reaching prepare_action_handoff()
+	# -- a different source_kind (shop_purchase, not minesweeper_round) is a genuine conflict, not a
+	# same-transaction retry, so it is rejected here rather than by DesktopConsequenceState's own
+	# deeper check.
 	var live_board: Dictionary = round_coordinator.get_state()["value"]
 	var complete_txn := _mint_transaction(issuer)
 	var blocked: Dictionary = round_coordinator.complete_round({
@@ -353,7 +358,7 @@ func test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_rel
 		"expected_identity": live_board["identity"], "expected_revision": live_board["revision"], "expected_run_revision": 0,
 	})
 	assert_false(blocked.get("ok", false))
-	assert_eq(blocked.get("code"), &"consequence_transaction_already_pending")
+	assert_eq(blocked.get("code"), &"minesweeper_round_requires_no_other_pending_transaction")
 	assert_eq(round_coordinator.get_state()["value"]["phase"], "ACTIVE_VISIBLE", "the round completion never proceeded")
 
 	# Shop must fully clear its own transaction (admit, forward-commit, publish) before the gate frees.

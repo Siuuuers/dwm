@@ -26,7 +26,13 @@ const CONSEQUENCE_CHECKPOINT_RELATIVE_PATH := "desktop-consequence-checkpoint.js
 ## the single fixed-shape document this file previously overwrote on every write, which could never be
 ## addressed by transaction/ordinal and therefore could never support a reader, an occupied-slot
 ## conflict law, or more than one durable checkpoint at a time.
-const CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS: Array[String] = ["records", "schema_version"]
+## dwm-p2r.13 remediation (finding 1): `abandoned` added -- a flat `{transaction_id:true}` set,
+## disjoint from `records`, written only by `abandon_pending_consequence_checkpoint()` below. See
+## that method's own doc comment for why abandonment is a distinct top-level document member rather
+## than another keyed record: the frozen law it implements explicitly forbids abandonment from
+## creating or promoting a consequence checkpoint, so it cannot reuse the `records` keyspace, which
+## exists only for genuine checkpoint operations.
+const CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS: Array[String] = ["abandoned", "records", "schema_version"]
 const CONSEQUENCE_CHECKPOINT_RECORD_KEYS: Array[String] = ["checkpoint_receipt", "header", "key", "stage_candidate"]
 
 const GATE_METHODS: Array[String] = [
@@ -340,6 +346,66 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		return _fail(&"reread_mismatch", CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
 
+## dwm-p2r.13 remediation (finding 1): plan02-frozen-contracts.md line 2271's "marks only the
+## already-durable unpromoted source checkpoint abandoned through the injected checkpoint port".
+## Requires an existing durable pre-admission (`action_prepared`/`prepared_checkpointed`) record for
+## `transaction_id` -- abandonment is not legal for an already-admitted transaction, matching the
+## frozen law's own "before causal admission" scoping. Records the transaction_id in a SEPARATE
+## `abandoned` set rather than writing another keyed `records` entry: the frozen law explicitly says
+## this "never creates or promotes a consequence checkpoint", and every `records` entry IS a
+## checkpoint by this document's own convention, so reusing that keyspace here would contradict the
+## very law this method implements. Idempotent: an already-abandoned transaction_id replays success
+## without rewriting.
+func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionary:
+	var readiness := _readiness()
+	if not readiness.is_empty():
+		return readiness
+	if transaction_id.strip_edges().is_empty():
+		return _fail(&"invalid_transaction_id", "transaction_id must be nonempty")
+	var loaded := _load_consequence_checkpoint_document()
+	if not loaded.get("ok", false):
+		return loaded
+	var document: Dictionary = loaded["value"]["document"]
+	var abandoned: Dictionary = document.get("abandoned", {})
+	if bool(abandoned.get(transaction_id, false)):
+		return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": true}}
+
+	var records: Dictionary = document["records"]
+	var latest_ordinal := -1
+	var latest_stage := ""
+	for record_key: String in records.keys():
+		var record: Dictionary = records[record_key]
+		var header: Dictionary = record["header"]
+		if str(header["transaction_id"]) != transaction_id:
+			continue
+		var ordinal := int(header["operation_ordinal"])
+		if ordinal > latest_ordinal:
+			latest_ordinal = ordinal
+			latest_stage = str(header["stage"])
+	if latest_ordinal < 0:
+		return _fail(&"consequence_checkpoint_not_found", "no durable checkpoint exists for " + transaction_id)
+	if latest_stage not in ["action_prepared", "prepared_checkpointed"]:
+		return _fail(&"consequence_checkpoint_not_pre_admission", "abandonment requires an unpromoted pre-admission checkpoint")
+
+	var next_document := document.duplicate(true)
+	var next_abandoned: Dictionary = (next_document.get("abandoned", {}) as Dictionary).duplicate(true)
+	next_abandoned[transaction_id] = true
+	next_document["abandoned"] = next_abandoned
+	var canonical: Dictionary = CANONICAL_JSON.stringify(next_document)
+	if not canonical.get("ok", false):
+		return _fail(&"canonical_serialization_failed", "consequence checkpoint document is not canonicalizable")
+	var text := str(canonical["value"]) + "\n"
+	var written: Dictionary = _storage().write_atomic(
+		CONSEQUENCE_CHECKPOINT_RELATIVE_PATH, text, _consequence_checkpoint_text_validator)
+	if not written.get("ok", false):
+		return written
+	var re_read: Dictionary = _storage().read_text(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
+	if not re_read.get("ok", false):
+		return re_read
+	if str(re_read["value"]) != text:
+		return _fail(&"reread_mismatch", CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
+	return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": false}}
+
 ## dwm-p2r.13 remediation (finding A-C3, "no reader"): the sole reader `desktop-consequence-
 ## checkpoint.json` has ever had. For every transaction_id present in the durable records, keeps only
 ## its highest-ordinal record (the most-advanced durable truth for that transaction); among those,
@@ -355,7 +421,12 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 	var loaded := _load_consequence_checkpoint_document()
 	if not loaded.get("ok", false):
 		return loaded
-	var records: Dictionary = (loaded["value"] as Dictionary)["document"]["records"]
+	var document: Dictionary = (loaded["value"] as Dictionary)["document"]
+	var records: Dictionary = document["records"]
+	# dwm-p2r.13 remediation (finding 1): a transaction_id marked abandoned is never reported as
+	# still-pending -- otherwise adopt_durable_checkpoint_if_live_is_behind() would re-adopt the exact
+	# transaction accept_prepared_action() just abandoned on every subsequent boot.
+	var abandoned: Dictionary = document.get("abandoned", {})
 	var latest_by_transaction: Dictionary = {}
 	for record_key: String in records.keys():
 		var record: Dictionary = records[record_key]
@@ -367,6 +438,8 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 			latest_by_transaction[transaction_id] = record
 	var pending_transaction_ids: Array = []
 	for transaction_id: String in latest_by_transaction.keys():
+		if bool(abandoned.get(transaction_id, false)):
+			continue
 		var record: Dictionary = latest_by_transaction[transaction_id]
 		if (record["stage_candidate"] as Dictionary).get("pending") != null:
 			pending_transaction_ids.append(transaction_id)
@@ -389,7 +462,7 @@ func _canonical_text(value: Variant) -> String:
 
 func _load_consequence_checkpoint_document() -> Dictionary:
 	if not _storage().exists(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH):
-		return {"ok": true, "code": &"ok", "value": {"document": {"schema_version": 1, "records": {}}}}
+		return {"ok": true, "code": &"ok", "value": {"document": {"schema_version": 1, "records": {}, "abandoned": {}}}}
 	var read: Dictionary = _storage().read_text(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
 	if not read.get("ok", false):
 		return read
@@ -416,6 +489,13 @@ func _consequence_checkpoint_text_validator(text: String) -> Dictionary:
 		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "schema_version must be exactly 1"}
 	if typeof(document["records"]) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "records must be an object"}
+	if typeof(document["abandoned"]) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "abandoned must be an object"}
+	for abandoned_key: Variant in (document["abandoned"] as Dictionary):
+		if typeof(abandoned_key) != TYPE_STRING or str(abandoned_key).strip_edges().is_empty():
+			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "an abandoned key must be a nonblank string"}
+		if (document["abandoned"] as Dictionary)[abandoned_key] != true:
+			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "an abandoned value must be exactly true"}
 	var records: Dictionary = document["records"]
 	for record_key: Variant in records:
 		if typeof(record_key) != TYPE_STRING or str(record_key).strip_edges().is_empty():

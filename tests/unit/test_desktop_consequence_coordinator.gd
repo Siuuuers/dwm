@@ -90,6 +90,16 @@ class FakeRoundSource:
 	## finding W2 names ("the coordinator suite substitutes an inline FakeRoundSource whose
 	## commit_recovery_action touches no board").
 	var board_state: Object = null
+	## dwm-p2r.13 remediation (finding 3): the shared gate, wired in before_each() so
+	## publish_recovery_action() can record whether the causal_transaction lease is still active AT
+	## THE MOMENT it runs -- proving the lease survives past the action_source publish callback
+	## (index 1 of up to 3), not just that release_recovery_lease() eventually gets called.
+	var gate: ApplicationMutationGate = null
+	var gate_active_at_publish: Variant = null
+	## Set by whichever fixture acquired the lease on this fake's behalf (the fake has no
+	## acquire-and-retain dance of its own, unlike the real production sources) -- required so
+	## release_recovery_lease() below can perform a REAL release, not merely record a call count.
+	var gate_token := ""
 
 	func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"publication": {
@@ -111,8 +121,24 @@ class FakeRoundSource:
 		if fail_publish_once:
 			fail_publish_once = false
 			return {"ok": false, "code": &"fake_injected_publish_failure", "message": "", "details": {}}
+		if gate != null:
+			gate_active_at_publish = gate.is_internal_owner_active(&"causal_transaction")
 		published.append(publication)
 		return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": publication["action_receipt"]}
+
+	## dwm-p2r.13 remediation (finding 3): the fourth frozen recovery-method addition. Releases the
+	## real lease using gate_token when the fixture that acquired it recorded that token here;
+	## otherwise (no token retained -- e.g. resume_pending()-driven forward recovery, which never
+	## acquires the gate at all) stays a no-op success, honestly mirroring the production sources'
+	## own idempotent-when-untoken behavior.
+	var release_calls := 0
+
+	func release_recovery_lease() -> Dictionary:
+		release_calls += 1
+		if gate != null and gate_token != "":
+			gate.release(&"causal_transaction", gate_token)
+			gate_token = ""
+		return {"ok": true, "code": &"ok", "value": {"released": true}, "receipt": {}}
 
 	static func _sha(value: Variant) -> String:
 		var emitted: Dictionary = CanonicalJsonWriter.stringify(value)
@@ -174,6 +200,7 @@ func before_each() -> void:
 
 	_round_source = FakeRoundSource.new()
 	_round_source.board_state = _board_state
+	_round_source.gate = _gate
 	_condition_policy_port = CONDITION_POLICY_PORT.new()
 	_condition_policy_port.configure(RefCounted.new())
 	_schedule_view_port = SCHEDULE_VIEW_PORT.new()
@@ -267,6 +294,9 @@ func _round_prepared(marker: String) -> Dictionary:
 	if not _gate.is_internal_owner_active(&"causal_transaction"):
 		var acquired: Dictionary = _gate.acquire(&"causal_transaction")
 		assert_true(acquired.get("ok", false), JSON.stringify(acquired))
+		# dwm-p2r.13 remediation (finding 3): retained so FakeRoundSource.release_recovery_lease()
+		# (the coordinator's own post-terminal-cleanup release point) can perform a real release.
+		_round_source.gate_token = str((acquired["value"] as Dictionary)["token"])
 	var txn := _mint_transaction()
 	var quote_derived: Dictionary = _issuer.derive_child({
 		"child_kind": "board_start", "ordinal": 0, "parent_receipt_id": str(txn["transaction_issuer_receipt"]["receipt_id"]),
@@ -568,6 +598,115 @@ func test_accept_prepared_action_minesweeper_round_departure_uses_the_action_can
 			board_fate_records += 1
 			assert_eq(str((record["semantic_receipt"] as Dictionary)["fate"]), "none")
 	assert_eq(board_fate_records, 1)
+
+
+## dwm-p2r.13 remediation (finding 3): proves the lease is still held through board-fate publish
+## AND terminal cleanup for a departure, and released only after -- the exact defect this
+## remediation fixes (both action sources used to release inside publish_recovery_action(), callback
+## index 1 of up to 3, leaving board-fate publish and terminal cleanup running unleased).
+func test_accept_prepared_action_departure_retains_the_gate_through_board_fate_publish_and_releases_after() -> void:
+	_configure_departure_ports()
+	var identity: Dictionary = _round_coordinator.get_entry_context("beginner")["value"]["identity"]
+	var begin_txn := _mint_transaction()
+	var begun: Dictionary = _round_coordinator.begin_debug_preparation({
+		"transaction_id": begin_txn["transaction_id"], "transaction_issuer_receipt": begin_txn["transaction_issuer_receipt"],
+		"expected_identity": identity, "expected_revision": 0, "difficulty_id": "beginner",
+	})
+	assert_true(begun.get("ok", false), JSON.stringify(begun))
+	var live: Dictionary = _board_state.capture()
+
+	var prepared := _round_prepared("cleared")
+	var action_txn: String = str(prepared["action_receipt"]["transaction_id"])
+	var destination_intent := _armed_destination_intent(prepared["action_receipt"], action_txn)
+	_condition_policy_port.arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
+	var request := {
+		"action_receipt": prepared["action_receipt"], "action_candidate": prepared["action_candidate"],
+		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"], "expected_run_revision": 0,
+		"expected_board_identity": live["identity"], "expected_board_revision": int(live["revision"]),
+	}
+	assert_true(_gate.is_internal_owner_active(&"causal_transaction"),
+		"the round source already holds the lease before admission, as accept_prepared_action() requires")
+	var result: Dictionary = _coordinator.accept_prepared_action(request)
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(str(result["receipt"]["disposition"]), "departure_committed")
+
+	# action_source's own publish (callback index 1 of 3: causal_sequence, action_source, board_fate)
+	# ran while the lease was still active -- proving board_fate's publish (index 2) and terminal
+	# cleanup, both of which run strictly AFTER this point in the same synchronous call chain, also
+	# ran under the still-active lease.
+	assert_eq(_round_source.gate_active_at_publish, true,
+		"the lease must still be active when action_source publishes -- board_fate publish and terminal cleanup run after this")
+	# release_recovery_lease() is the coordinator-driven release point, called exactly once, only
+	# after _resume_forward() -- including terminal cleanup -- fully completes.
+	assert_eq(_round_source.release_calls, 1)
+	assert_false(_gate.is_active(), "the lease is released once terminal cleanup has completed")
+
+
+# ---- dwm-p2r.13 remediation (finding 1): pre-admission abandonment ----
+
+## plan02-frozen-contracts.md line 2271: a merely pre-admission accept_prepared_action() must not
+## deadlock the whole desktop stack when condition-departure ports are unconfigured (this plan's own
+## bootstrap never configures them -- Plan 03's job). Proves accept_prepared_action() itself abandons
+## the already-durable unpromoted source checkpoint, clears the live pending, and that a FRESH
+## transaction can then proceed -- not merely that the call returns some failure code.
+func test_accept_prepared_action_abandons_a_pre_admission_pending_when_departure_ports_are_unconfigured() -> void:
+	var prepared := _shop_prepared("lucky_charm")
+	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"condition_departure_ports_unconfigured")
+	assert_null(_live_consequence()["pending"], "abandonment must clear the pending so a new transaction can start")
+
+	# A brand new purchase can now be prepared and reach admission-refusal on its OWN terms (not
+	# blocked by the first transaction's stale pending) -- proving the desktop stack genuinely
+	# unblocked, not merely that this one call returned ok.
+	var second := _shop_prepared("debug_key")
+	var second_result: Dictionary = _coordinator.accept_prepared_action(_accept_request(second, 0))
+	assert_false(second_result.get("ok", false))
+	assert_eq(second_result.get("code"), &"condition_departure_ports_unconfigured",
+		"the second transaction must reach the SAME admission-refusal point, not a stale-pending conflict")
+
+
+## Acceptance: a run restored with a pre-admission pending (ordinal 0 durable, admission never
+## reached) must give resume_pending() -- and therefore ApplicationBootstrap._configure_desktop_
+## production_graph(), which propagates any resume_pending() failure straight out -- a legitimate
+## path forward instead of a hard failure. Builds the durable ordinal-0 checkpoint + live pending
+## through the REAL production MinesweeperShopPurchaseParticipant/SaveManagerCheckpointPort-fake
+## pair (mirroring _fresh_coordinator_sharing_the_checkpoint_port()'s own established "share the
+## checkpoint port, fresh everything else" pattern), then resumes on a FRESH coordinator/gate --
+## accurately simulating a fresh process boot, where nothing is ever acquired in memory across a
+## restart.
+func test_resume_pending_abandons_a_restored_pre_admission_pending_and_bootstrap_does_not_fail() -> void:
+	_shop_prepared("lucky_charm")
+	assert_not_null(_live_consequence()["pending"])
+
+	var fresh_gate := ApplicationMutationGate.new()
+	var fresh := COORDINATOR.new()
+	assert_true(fresh.configure(_consequence_state, _causal_sequence_port, _board_fate_port, _checkpoint_port, fresh_gate)
+		.get("ok", false))
+	assert_true(fresh.configure_action_source_ports(_round_source, _shop_participant).get("ok", false))
+	assert_true(fresh.configure_identity_issuer(_issuer).get("ok", false))
+	# Deliberately never configure_condition_departure_ports() -- this plan's own bootstrap never
+	# does either (plan02-frozen-contracts.md line 2271: "construct but leave both production
+	# condition-departure slots fail-closed").
+
+	var resumed: Dictionary = fresh.resume_pending()
+	assert_true(resumed.get("ok", false), "resume_pending must not fail bootstrap: " + JSON.stringify(resumed))
+	assert_false(bool(resumed["value"]["resumed"]))
+	assert_true(bool(resumed["value"]["abandoned"]))
+	assert_null(_live_consequence()["pending"], "the abandoned pending must be cleared")
+
+	# A brand new pending transaction can now be prepared -- proving the abandonment genuinely
+	# unblocked the desktop stack, not merely that resume_pending() itself returned ok.
+	var second := _shop_prepared("debug_key")
+	assert_not_null(_live_consequence()["pending"])
+	assert_eq(str(_live_consequence()["pending"]["transaction_id"]), str(second["action_receipt"]["transaction_id"]))
+
+
+func test_resume_pending_is_idempotent_when_nothing_is_pending() -> void:
+	var resumed: Dictionary = _coordinator.resume_pending()
+	assert_true(resumed.get("ok", false), JSON.stringify(resumed))
+	assert_false(bool(resumed["value"]["resumed"]))
+	assert_false(bool(resumed["value"].get("abandoned", false)))
 
 
 # ---- resume_pending(): admitted but not yet published, resumed by a reconstructed coordinator ----

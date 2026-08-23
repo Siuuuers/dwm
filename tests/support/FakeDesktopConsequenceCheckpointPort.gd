@@ -28,6 +28,9 @@ var committed: Dictionary = {}
 var commit_log: Array[Dictionary] = []
 var fail_next_commit := false
 var fail_next_prepare := false
+## dwm-p2r.13 remediation (finding 1): mirrors SaveManagerCheckpointPort's own abandoned-set --
+## transaction_id -> true, disjoint from `committed`.
+var abandoned: Dictionary = {}
 
 
 func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
@@ -88,6 +91,30 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		"receipt": checkpoint_receipt.duplicate(true)}
 
 
+## dwm-p2r.13 remediation (finding 1): abandonment mirrors SaveManagerCheckpointPort's own
+## abandon_pending_consequence_checkpoint() -- requires an existing pre-admission record, idempotent
+## on replay, marks the transaction_id rather than writing a new committed record.
+func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionary:
+	if bool(abandoned.get(transaction_id, false)):
+		return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": true}, "receipt": {}}
+	var latest_ordinal := -1
+	var latest_stage := ""
+	for record: Dictionary in committed.values():
+		var header: Dictionary = (record["receipt"] as Dictionary)["header"]
+		if str(header["transaction_id"]) != transaction_id:
+			continue
+		var ordinal := int(header["operation_ordinal"])
+		if ordinal > latest_ordinal:
+			latest_ordinal = ordinal
+			latest_stage = str(header["stage"])
+	if latest_ordinal < 0:
+		return {"ok": false, "code": &"consequence_checkpoint_not_found", "message": "", "details": {}}
+	if latest_stage not in ["action_prepared", "prepared_checkpointed"]:
+		return {"ok": false, "code": &"consequence_checkpoint_not_pre_admission", "message": "", "details": {}}
+	abandoned[transaction_id] = true
+	return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": false}, "receipt": {}}
+
+
 ## dwm-p2r.13 remediation (finding A-C3): mirrors SaveManagerCheckpointPort.
 ## read_pending_consequence_checkpoint()'s own logic -- keep only each transaction_id's highest-
 ## ordinal committed record, then return the one (there should be at most one, under the exclusive
@@ -103,6 +130,8 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 			latest_by_transaction[transaction_id] = record
 	var pending_transaction_ids: Array = []
 	for transaction_id: String in latest_by_transaction.keys():
+		if bool(abandoned.get(transaction_id, false)):
+			continue
 		var record: Dictionary = latest_by_transaction[transaction_id]
 		var stage_candidate: Dictionary = ((record["candidate"] as Dictionary)["document"] as Dictionary)["stage_candidate"]
 		if stage_candidate.get("pending") != null:

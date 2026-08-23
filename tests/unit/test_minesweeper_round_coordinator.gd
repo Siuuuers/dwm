@@ -38,6 +38,28 @@ class FakeConsequencePort:
 			"value": {"action_receipt": request["action_receipt"], "source_kind": "minesweeper_round", "departure": false},
 			"receipt": {}}
 
+## dwm-p2r.13 remediation (finding 3): minimal fake for publish_recovery_action()'s own
+## record_before_emit() call, mirroring test_minesweeper_shop_purchase_participant.gd's own
+## established _FakePublicationLedger exactly.
+class FakePublicationLedger:
+	var records: Dictionary = {}
+
+	func record_before_emit(request: Dictionary) -> Dictionary:
+		var kind: String = str(request.get("kind", ""))
+		var semantic_receipt: Dictionary = request.get("semantic_receipt", {})
+		var key := kind + ":" + str(semantic_receipt.get("commit_receipt_id", semantic_receipt.get("receipt_id", "")))
+		if records.has(key):
+			var existing: Dictionary = records[key]
+			if existing.get("publication") == request.get("publication") \
+					and existing.get("publication_sha256") == request.get("publication_sha256"):
+				return {"ok": true, "code": &"ok", "value": {"record": existing, "first_delivery": false}, "receipt": {}}
+			return {"ok": false, "code": &"publication_record_conflict", "message": "", "details": {}}
+		var record: Dictionary = request.duplicate(true)
+		record["key"] = key
+		records[key] = record
+		return {"ok": true, "code": &"ok", "value": {"record": record, "first_delivery": true}, "receipt": {}}
+
+
 const RECEIPT_KEYS: Array[String] = [
 	"receipt_id", "receipt_provenance", "transaction_id", "transaction_issuer_receipt",
 	"identity", "difficulty_id", "first_cell", "board_revision", "rounds_before", "rounds_after",
@@ -185,6 +207,57 @@ func test_complete_round_duplicate_replay_returns_identical_result() -> void:
 	assert_eq(_consequence_port.calls.size(), 1, "a duplicate replay never calls accept_prepared_action again")
 
 
+## dwm-p2r.13 remediation (finding 2): complete_round() used to cache EVERY accept_prepared_action()
+## result in _round_completions unconditionally, including failures -- freezing a transient failure
+## forever even though the ordinal-0 checkpoint and pending record were already durable, with no
+## forward path and no retry path. Proves a retry with the SAME request after a transient failure
+## genuinely re-drives accept_prepared_action() (via the new _recognize_live_round_pending() -- see
+## finding 1) and succeeds, rather than replaying the cached failure.
+func test_complete_round_retries_after_a_transient_accept_prepared_action_failure() -> void:
+	_explode_a_fresh_round()
+	var tx := _next_tx()
+	var request := _complete_round_request(tx)
+
+	_consequence_port.armed_result = {"ok": false, "code": &"forced_test_failure", "message": "", "details": {}}
+	var first: Dictionary = _coordinator.complete_round(request)
+	assert_false(first.get("ok", false))
+	assert_eq(first.get("code"), &"forced_test_failure")
+	# The failure must NOT be cached: a byte-identical retry must not replay it.
+	assert_eq(_consequence_port.calls.size(), 1)
+
+	_consequence_port.armed_result = {}
+	var retried: Dictionary = _coordinator.complete_round(request)
+	assert_true(retried.get("ok", false), JSON.stringify(retried))
+	assert_eq(retried.get("code"), &"action_consequence_accepted")
+	assert_eq(_consequence_port.calls.size(), 2, "the retry genuinely re-drove accept_prepared_action, not a cached replay")
+
+	# The success IS now cached: a further identical call replays it without a third call.
+	var third: Dictionary = _coordinator.complete_round(request)
+	assert_eq(third, retried)
+	assert_eq(_consequence_port.calls.size(), 2, "a successful result replays from cache, not a third live call")
+
+
+## dwm-p2r.13 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- when
+## accept_prepared_action() abandons a pre-admission pending because the condition-departure ports
+## are unconfigured, complete_round() -- the actual causal_transaction token holder, since
+## DesktopConsequenceCoordinator never acquires the lease itself -- releases it, completing the
+## frozen law's "releases causal_transaction". Also proves the abandoned pending is cleared so a
+## fresh complete_round() call for a NEW transaction can proceed (the deadlock this finding fixes).
+func test_complete_round_releases_the_gate_when_accept_prepared_action_abandons_a_pre_admission_pending() -> void:
+	_explode_a_fresh_round()
+	_consequence_port.armed_result = {"ok": false, "code": &"condition_departure_ports_unconfigured", "message": "", "details": {}}
+	var tx := _next_tx()
+	var blocked: Dictionary = _coordinator.complete_round(_complete_round_request(tx))
+	assert_false(blocked.get("ok", false))
+	assert_eq(blocked.get("code"), &"condition_departure_ports_unconfigured")
+	assert_false(_consequence_gate.is_active(), "the lease must be released, not left stranded, on abandonment")
+
+	# A later retry of the SAME transaction is not stuck forever either -- the failure was not cached.
+	_consequence_port.armed_result = {}
+	var retried: Dictionary = _coordinator.complete_round(_complete_round_request(tx))
+	assert_true(retried.get("ok", false), JSON.stringify(retried))
+
+
 func test_commit_recovery_action_adopts_the_board_projection_and_rejects_without_the_gate() -> void:
 	var identity := _explode_a_fresh_round()
 	var tx := _next_tx()
@@ -206,6 +279,41 @@ func test_commit_recovery_action_adopts_the_board_projection_and_rejects_without
 	var committed: Dictionary = _coordinator.commit_recovery_action(action_candidate, action_receipt)
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
 	assert_eq(_coordinator.get_state()["value"]["phase"], "NONE")
+
+
+## dwm-p2r.13 remediation (finding 3): publish_recovery_action() used to release the causal_
+## transaction lease itself, immediately after recording -- callback index 1 of up to 3 in
+## DesktopConsequenceCoordinator's own departure publication plan -- leaving board-fate publish and
+## terminal cleanup running unleased. Proves the lease survives publish_recovery_action() and is
+## released only by the new release_recovery_lease() (which DesktopConsequenceCoordinator now calls
+## after terminal cleanup). complete_round() is the real production path that populates this
+## coordinator's own _consequence_gate_token (never reached into directly here) -- armed to succeed
+## trivially so the gate is genuinely acquired the same way production acquires it.
+func test_publish_recovery_action_retains_the_gate_until_release_recovery_lease() -> void:
+	_explode_a_fresh_round()
+	var tx := _next_tx()
+	var completed: Dictionary = _coordinator.complete_round(_complete_round_request(tx))
+	assert_true(completed.get("ok", false), JSON.stringify(completed))
+	assert_true(_consequence_gate.is_internal_owner_active(&"causal_transaction"))
+
+	var identity: Dictionary = {"run_id": "run-fake", "branch_id": "branch-fake",
+		"desktop_timeline_generation": 0, "causal_day_instance": "causal-day-1"}
+	var action_receipt := _minimal_round_action_receipt(tx, identity)
+	var publication_ledger := FakePublicationLedger.new()
+	assert_true(_coordinator.configure_publication_ledger(publication_ledger).get("ok", false))
+
+	var validated := _coordinator.validate_recovery_action({"transaction_id": tx}, action_receipt)
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	var published: Dictionary = _coordinator.publish_recovery_action((validated["value"] as Dictionary)["publication"])
+	assert_true(published.get("ok", false), JSON.stringify(published))
+	assert_true(_consequence_gate.is_internal_owner_active(&"causal_transaction"),
+		"publish_recovery_action retains the lease -- release_recovery_lease() is the sole release point")
+
+	var released: Dictionary = _coordinator.release_recovery_lease()
+	assert_true(released.get("ok", false), JSON.stringify(released))
+	assert_false(_consequence_gate.is_active(), "release_recovery_lease() releases the lease")
+	var idempotent_release: Dictionary = _coordinator.release_recovery_lease()
+	assert_true(idempotent_release.get("ok", false), JSON.stringify(idempotent_release))
 
 
 func _minimal_round_action_receipt(transaction_id: String, identity: Dictionary) -> Dictionary:
