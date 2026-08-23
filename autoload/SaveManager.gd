@@ -216,10 +216,36 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 		return _fail(&"invalid_prepared_restore", "prepared requires participant_plans")
 	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)
 
+	var has_source_locator := typeof(prepared.get("source_locator")) == TYPE_DICTIONARY
+	var gate_token := ""
+	var gate_acquired := false
+	var lock_acquired := false
+	if has_source_locator:
+		# FIX (dwm-p2r.13 remediation, finding B-C1): the save lock and mutation-gate lease are the
+		# transaction's actual anti-interleave guarantee, so both must be held BEFORE the issuer mints
+		# `transaction_id` or the continuation journal commits `intent_committed` -- never after. A busy
+		# gate or an already-held `restore` save lock now fails closed here, before any identity is
+		# burned and before any journal record is ever written.
+		var lock: Dictionary = acquire_save_lock(&"restore")
+		if not lock.get("ok", false):
+			return lock
+		lock_acquired = true
+		if _mutation_gate != null:
+			var acquired: Dictionary = _mutation_gate.acquire(&"restore")
+			if not acquired.get("ok", false):
+				release_save_lock(&"restore")
+				return acquired
+			gate_token = str(acquired["value"]["token"])
+			gate_acquired = true
+
 	var continuation: Dictionary = {}
-	if typeof(prepared.get("source_locator")) == TYPE_DICTIONARY:
+	if has_source_locator:
 		var begun := _begin_restore_continuation(prepared)
 		if not begun.get("ok", false):
+			if gate_acquired:
+				_mutation_gate.release(&"restore", gate_token)
+			if lock_acquired:
+				release_save_lock(&"restore")
 			return begun
 		var remapped_snapshot: Dictionary = (begun["value"] as Dictionary)["remapped_snapshot"]
 		var run_plan: Dictionary = (plans.get("run", {}) as Dictionary).duplicate(true)
@@ -229,20 +255,32 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 		var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
 			{"state": remapped_desktop["consequence"]})
 		if not consequence_prep.get("ok", false):
+			if gate_acquired:
+				_mutation_gate.release(&"restore", gate_token)
+			if lock_acquired:
+				release_save_lock(&"restore")
 			return consequence_prep
 		plans["desktop_consequence"] = (consequence_prep["value"] as Dictionary)["consequence_plan"]
 		var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
 			{"state": remapped_desktop["board"]})
 		if not board_prep.get("ok", false):
+			if gate_acquired:
+				_mutation_gate.release(&"restore", gate_token)
+			if lock_acquired:
+				release_save_lock(&"restore")
 			return board_prep
 		plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
 		continuation = (begun["value"] as Dictionary)["continuation"]
 
 	for key: String in _PARTICIPANT_KEYS:
 		if typeof(plans.get(key)) != TYPE_DICTIONARY:
+			if gate_acquired:
+				_mutation_gate.release(&"restore", gate_token)
+			if lock_acquired:
+				release_save_lock(&"restore")
 			return _fail(&"invalid_prepared_restore", "missing participant plan: " + key)
 	return _run_participant_transaction(&"restore", plans, prepared.get("journal_seed"),
-		str(prepared.get("route_id", "")), str(prepared.get("checkpoint_id", "")), true, continuation)
+		str(prepared.get("route_id", "")), str(prepared.get("checkpoint_id", "")), true, continuation, gate_token)
 
 ## Drives the identity-allocation participant plus the external continuation journal's
 ## `intent_committed -> identity_allocation_committed -> participants_applying` sequence for a
@@ -352,8 +390,22 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 	if context_error != "":
 		return _fail(&"invalid_initial_context", context_error)
 
+	# FIX (dwm-p2r.13 remediation, finding B-C1): acquire the mutation-gate lease as owner `new_run`
+	# BEFORE the issuer mints `transaction_id` or the continuation journal commits `intent_committed`.
+	# A busy or fatal-latched gate now fails closed here, before any identity is burned.
+	var gate_token := ""
+	var gate_acquired := false
+	if _mutation_gate != null:
+		var acquired: Dictionary = _mutation_gate.acquire(&"new_run")
+		if not acquired.get("ok", false):
+			return acquired
+		gate_token = str(acquired["value"]["token"])
+		gate_acquired = true
+
 	var begun := _begin_new_run_continuation(initial_context)
 	if not begun.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
 		return begun
 	var identity: Dictionary = (begun["value"] as Dictionary)["identity"]
 	var continuation: Dictionary = (begun["value"] as Dictionary)["continuation"]
@@ -364,6 +416,8 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
 		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"])
 	if not new_run.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
 		return new_run
 	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
@@ -371,6 +425,8 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 		initial_context["active_app_id"], initial_context["audio_context"],
 		int(initial_context["content_version"]), 1)
 	if not built.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
 		return built
 	var snapshot: Dictionary = built["value"]["snapshot"]
 
@@ -379,10 +435,14 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 	var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
 		{"state": snapshot["desktop"]["consequence"]})
 	if not consequence_prep.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
 		return consequence_prep
 	var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
 		{"state": snapshot["desktop"]["board"]})
 	if not board_prep.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
 		return board_prep
 
 	# Empty profile patch preserves the complete global profile for a new game.
@@ -412,9 +472,11 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 	# Prepare the Run-B journal as a full reset with the Day-1 bundle current.
 	var reset: Dictionary = _journal.prepare_reset_with_initial(snapshot, &"day_start")
 	if not reset.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
 		return reset
 	var result := _run_participant_transaction(&"new_run", plans, reset["value"]["candidate"],
-		str(initial_context["route_id"]), str(snapshot["checkpoint_id"]), false, continuation)
+		str(initial_context["route_id"]), str(snapshot["checkpoint_id"]), false, continuation, gate_token)
 	if not result.get("ok", false):
 		return result
 	result["value"]["run_id"] = str(identity["run_id"])
@@ -504,18 +566,36 @@ func _begin_new_run_continuation(initial_context: Dictionary) -> Dictionary:
 ## pure fake-participant orchestration tests): this method then behaves exactly as it did before
 ## Task 6. When present, this drives `DesktopContinuationOperationJournal.advance()` for every
 ## participant position PLUS the run-identity remap step, right after "run"'s own ordinary apply.
+## `pre_acquired_gate_token` (dwm-p2r.13 remediation, finding B-C1): when nonempty, the caller
+## already holds the `owner` lease (acquired before minting `transaction_id`/committing
+## `intent_committed`, per the frozen continuation law) and this method must NOT try to acquire it
+## again (the gate is exclusive/non-reentrant). Empty means the caller never pre-acquired -- the
+## pure fake-participant orchestration path this method already supported before Task 6 -- so this
+## method acquires it itself, exactly as before.
+## `already_applied` (dwm-p2r.13 remediation, finding B-C2): true only when resuming an operation
+## whose journal record is ALREADY at `participants_applied` (every participant already durably
+## recorded before the crash). The journal's own per-participant replay path only accepts a replay
+## while the operation's stage is still `participants_applying` -- once it has moved past that to
+## `participants_applied`, resubmitting an index-N `advance()` call is correctly refused as
+## `illegal_stage`, not silently replayed. So a resume from `participants_applied` still needs every
+## participant's `apply_silent()` called (a fresh process's live participants start empty/default and
+## must be genuinely re-applied), but must skip the per-participant and to-`participants_applied`
+## `advance()` calls entirely -- there is nothing left for either to legitimately record.
 func _run_participant_transaction(
 		owner: StringName, plans: Dictionary, journal_candidate: Variant,
-		route_id: String, checkpoint_id: String, emit_restored: bool, continuation: Dictionary = {}
+		route_id: String, checkpoint_id: String, emit_restored: bool, continuation: Dictionary = {},
+		pre_acquired_gate_token: String = "", already_applied: bool = false
 ) -> Dictionary:
 	# `restore` also holds the SaveManager save lock; `new_run` relies on the gate.
+	# acquire_save_lock() is idempotent for an already-held `restore` lock, so this is safe to call
+	# again even when the caller pre-acquired the lock itself before this transaction began.
 	var holds_save_lock := owner == &"restore"
 	if holds_save_lock:
 		var lock: Dictionary = acquire_save_lock(&"restore")
 		if not lock.get("ok", false):
 			return lock
-	var gate_token := ""
-	if _mutation_gate != null:
+	var gate_token := pre_acquired_gate_token
+	if gate_token == "" and _mutation_gate != null:
 		var acquired: Dictionary = _mutation_gate.acquire(owner)
 		if not acquired.get("ok", false):
 			if holds_save_lock:
@@ -551,7 +631,7 @@ func _run_participant_transaction(
 		applied.append(key)
 		if key == "route":
 			route_ready_token = (result.get("value", {}) as Dictionary).get("route_ready_token")
-		if not continuation.is_empty():
+		if not continuation.is_empty() and not already_applied:
 			var receipt_value: Variant = result.get("value", {})
 			var participant_receipt: Dictionary = receipt_value if typeof(receipt_value) == TYPE_DICTIONARY else {}
 			var advanced: Dictionary = _continuation_journal.advance({
@@ -563,7 +643,7 @@ func _run_participant_transaction(
 			if not advanced.get("ok", false):
 				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, advanced)
 
-	if not continuation.is_empty():
+	if not continuation.is_empty() and not already_applied:
 		var advanced_to_applied: Dictionary = _continuation_journal.advance({
 			"transaction_id": continuation["transaction_id"], "request_fingerprint": continuation["request_fingerprint"],
 			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLYING, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLIED,
@@ -588,7 +668,11 @@ func _run_participant_transaction(
 	if not continuation.is_empty():
 		# Best-effort: participants are already finalized and the checkpoint journal already
 		# committed, so a failure here is NOT rolled back (that would undo genuinely-completed work).
-		# The journal's own replay-safe advance() lets a later reconciliation pass finish this.
+		# FIX (dwm-p2r.13 remediation, finding B-C2/B-C3): this advance's own failure is no longer a
+		# dead end. `reconcile_incomplete_continuations()` -> `_resume_operation()` finds this
+		# transaction still nonterminal on the next boot (stage stays `participants_applied`), reacquires
+		# the `owner` lease, and drives this exact APPLIED -> COMPLETED advance forward through
+		# `_resume_new_run()`/`_resume_restore()` -- see those methods below.
 		_continuation_journal.advance({
 			"transaction_id": continuation["transaction_id"], "request_fingerprint": continuation["request_fingerprint"],
 			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLIED, "next_stage": CONTINUATION_JOURNAL.STAGE_COMPLETED,
@@ -1111,6 +1195,16 @@ static func _canonical_sha256(value: Variant) -> String:
 ## owns application boot to call; NOT wired into any boot sequence by this task -- per the brief,
 ## Task 9 owns ApplicationBootstrap.gd's own stage sequence, and where exactly this hook belongs in
 ## it was never resolved by this task (see the handoff report).
+##
+## FIX (dwm-p2r.13 remediation, findings B-C2/B-C3): each nonterminal operation now goes through
+## `_resume_operation()` below, which genuinely drives the frozen continuation law's recovery
+## sequence -- reacquiring the gate lease, verifying the source/context, and advancing forward
+## through allocation/participants/completion (or recording a pre-allocation abort) -- instead of
+## merely calling the journal's own `reconcile_startup()` and reporting whatever it said. This
+## method's own outer envelope is unchanged (`{"ok": true, "value": {"reconciled": [...]}}`): a
+## per-operation resume outcome (completed/aborted/fatal_latched/already_terminal) is never treated
+## as a reason to fail the whole reconciliation pass, since one operation's fatal must not stop the
+## next incomplete operation from being examined.
 func reconcile_incomplete_continuations() -> Dictionary:
 	if _identity_issuer == null:
 		return _fail(&"identity_issuer_not_configured", "configure_identity_issuer first")
@@ -1120,9 +1214,367 @@ func reconcile_incomplete_continuations() -> Dictionary:
 	var results: Array = []
 	for operation: Variant in (listed["value"] as Array):
 		var transaction_id := str((operation as Dictionary)["transaction_id"])
-		var reconciled: Dictionary = _continuation_journal.reconcile_startup(transaction_id, _identity_issuer)
+		var reconciled: Dictionary = _resume_operation((operation as Dictionary).duplicate(true))
 		results.append({"transaction_id": transaction_id, "result": reconciled})
 	return {"ok": true, "code": &"ok", "value": {"reconciled": results}}
+
+## FIX (dwm-p2r.13 remediation, finding B-C2): the frozen continuation law (plan02-frozen-
+## contracts.md, around line 543) requires startup to, for every nonterminal operation, "reacquire[]
+## the owner implied by kind, reload[]/hash-verif[y] the exact restore locator or rehash[] the
+## retained New-Run initial context, and recompute[] the deterministic allocation candidate."
+## Before allocation, a proven missing/hash-changed source records `aborted` with a typed failure
+## and no live mutation. From `identity_allocation_committed` on, recovery can only advance forward
+## (never abort); when it cannot prove forward progress, it persists a typed diagnostic and latches
+## a fatal recovery failure instead, per `_latch_recovery_diagnostic()` below.
+func _resume_operation(operation: Dictionary) -> Dictionary:
+	var transaction_id := str(operation["transaction_id"])
+	var kind := str(operation["kind"])
+	var owner := StringName(kind)
+
+	var gate_token := ""
+	var gate_acquired := false
+	if _mutation_gate != null:
+		var acquired: Dictionary = _mutation_gate.acquire(owner)
+		if not acquired.get("ok", false):
+			return acquired
+		gate_token = str(acquired["value"]["token"])
+		gate_acquired = true
+
+	var verified: Dictionary = _continuation_journal.reconcile_startup(transaction_id, _identity_issuer)
+	if not verified.get("ok", false):
+		if str(operation.get("stage", "")) == CONTINUATION_JOURNAL.STAGE_INTENT:
+			# Before allocation: a proven missing/hash-changed source or mismatched context records
+			# `aborted` with a typed failure and no live mutation (frozen law) -- nothing was ever
+			# minted yet, so there is nothing to roll back.
+			var abort_failure := {
+				"code": "source_unprovable",
+				"message": "the retained restore source or new-run context could not be reverified at startup",
+				"details": {"transaction_id": transaction_id, "kind": kind, "verify_code": str(verified.get("code", ""))},
+			}
+			var aborted: Dictionary = _continuation_journal.advance({
+				"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
+				"expected_stage": CONTINUATION_JOURNAL.STAGE_INTENT, "next_stage": CONTINUATION_JOURNAL.STAGE_ABORTED,
+				"expected_next_participant_index": 0, "allocation_receipt": null,
+				"participant_name": null, "participant_receipt": null, "failure": abort_failure,
+			})
+			if gate_acquired:
+				_mutation_gate.release(owner, gate_token)
+			if not aborted.get("ok", false):
+				return aborted
+			return {"ok": true, "code": &"ok", "value": {"transaction_id": transaction_id, "outcome": "aborted"}}
+		return _latch_recovery_diagnostic(operation, owner, verified)
+
+	var refreshed: Dictionary = _continuation_journal.get_operation(transaction_id)
+	if not refreshed.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(owner, gate_token)
+		return refreshed
+	operation = refreshed["value"]
+	var stage := str(operation.get("stage", ""))
+	if stage == CONTINUATION_JOURNAL.STAGE_COMPLETED or stage == CONTINUATION_JOURNAL.STAGE_ABORTED:
+		if gate_acquired:
+			_mutation_gate.release(owner, gate_token)
+		return {"ok": true, "code": &"ok", "value": {"transaction_id": transaction_id, "outcome": "already_terminal"}}
+
+	if kind == "new_run":
+		return _resume_new_run(operation, gate_token)
+	return _resume_restore(operation, gate_token)
+
+## Drives a New-Run operation forward from wherever it stopped. At `intent_committed`, recomputes
+## and commits the real allocation exactly like `_begin_new_run_continuation()` does live (the
+## issuer's `commit_continuation_allocation()` is replay-safe for an identical request, per the
+## frozen law's own "identical replay of the same allocation transaction returns its recorded
+## bundle"). From `identity_allocation_committed` on, every input `_run_participant_transaction()`
+## needs is already retained in the journal record (`initial_context`, `allocation_receipt`) -- no
+## reload is required, unlike restore.
+func _resume_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
+	var transaction_id := str(operation["transaction_id"])
+	var initial_context: Dictionary = operation["initial_context"]
+	var stage := str(operation.get("stage", ""))
+
+	if stage == CONTINUATION_JOURNAL.STAGE_INTENT:
+		var request := {
+			"existing_run_id": null, "kind": "new_run", "remap_source_transaction_ids": [],
+			"source_desktop_timeline_generation": null, "transaction_id": transaction_id,
+			"transaction_issuer_receipt": operation["transaction_issuer_receipt"],
+		}
+		var prepared_alloc: Dictionary = _identity_issuer.call(&"prepare_continuation_allocation", request)
+		if not prepared_alloc.get("ok", false):
+			return _latch_recovery_diagnostic(operation, &"new_run", prepared_alloc)
+		var raw_candidate: Dictionary = prepared_alloc["value"]
+		var recomputed_fingerprint := _canonical_sha256(raw_candidate)
+		if recomputed_fingerprint.is_empty() or recomputed_fingerprint != str(operation["allocation_candidate_fingerprint"]):
+			return _latch_recovery_diagnostic(operation, &"new_run",
+				{"code": "allocation_candidate_fingerprint_mismatch"})
+		var committed: Dictionary = _identity_issuer.call(&"commit_continuation_allocation", raw_candidate)
+		if not committed.get("ok", false):
+			return _latch_recovery_diagnostic(operation, &"new_run", committed)
+		var allocated: Dictionary = committed["value"]
+		var advance_to_allocated: Dictionary = _continuation_journal.advance({
+			"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
+			"expected_stage": CONTINUATION_JOURNAL.STAGE_INTENT, "next_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED,
+			"expected_next_participant_index": 0, "allocation_receipt": allocated,
+			"participant_name": null, "participant_receipt": null, "failure": null,
+		})
+		if not advance_to_allocated.get("ok", false):
+			return _latch_recovery_diagnostic(operation, &"new_run", advance_to_allocated)
+		stage = CONTINUATION_JOURNAL.STAGE_ALLOCATED
+		var refreshed: Dictionary = _continuation_journal.get_operation(transaction_id)
+		if refreshed.get("ok", false):
+			operation = refreshed["value"]
+
+	if stage == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
+		var advance_to_applying: Dictionary = _continuation_journal.advance({
+			"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
+			"expected_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
+			"expected_next_participant_index": 0, "allocation_receipt": null,
+			"participant_name": null, "participant_receipt": null, "failure": null,
+		})
+		if not advance_to_applying.get("ok", false):
+			return _latch_recovery_diagnostic(operation, &"new_run", advance_to_applying)
+		var refreshed2: Dictionary = _continuation_journal.get_operation(transaction_id)
+		if refreshed2.get("ok", false):
+			operation = refreshed2["value"]
+
+	var allocation_receipt: Dictionary = operation["allocation_receipt"]
+	var identity := {
+		"run_id": str(allocation_receipt["run_id"]), "branch_id": str(allocation_receipt["branch_id"]),
+		"desktop_timeline_generation": int(allocation_receipt["desktop_timeline_generation"]),
+		"causal_day_instance": str(allocation_receipt["causal_day_instance"]),
+		"causal_day_instance_issuer_receipt": (allocation_receipt["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true),
+	}
+	var new_run: Dictionary = _restore_participants["run"].prepare_new_run(
+		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
+		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"])
+	if not new_run.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", new_run)
+	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
+		snapshot_input, initial_context["dialogic_checkpoint"], str(initial_context["route_id"]),
+		initial_context["active_app_id"], initial_context["audio_context"],
+		int(initial_context["content_version"]), 1)
+	if not built.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", built)
+	var snapshot: Dictionary = built["value"]["snapshot"]
+
+	var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
+		{"state": snapshot["desktop"]["consequence"]})
+	if not consequence_prep.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", consequence_prep)
+	var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
+		{"state": snapshot["desktop"]["board"]})
+	if not board_prep.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", board_prep)
+
+	var plans := {
+		"run": {"snapshot": snapshot},
+		"desktop_consequence": (consequence_prep["value"] as Dictionary)["consequence_plan"],
+		"desktop_board": (board_prep["value"] as Dictionary)["board_plan"],
+		"profile": {"profile": {}},
+		"localization": {},
+		"audio": {"snapshot": initial_context["audio_context"]},
+		"route": {"route_id": str(initial_context["route_id"]), "route_context": {}},
+		"narrative": {"narrative_checkpoint": initial_context["dialogic_checkpoint"]},
+	}
+	var reset: Dictionary = _journal.prepare_reset_with_initial(snapshot, &"day_start")
+	if not reset.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", reset)
+
+	var continuation := {"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"])}
+	var result := _run_participant_transaction(&"new_run", plans, reset["value"]["candidate"],
+		str(initial_context["route_id"]), str(snapshot["checkpoint_id"]), false, continuation, gate_token,
+		stage == CONTINUATION_JOURNAL.STAGE_APPLIED)
+	if not result.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", result)
+	(result["value"] as Dictionary)["run_id"] = str(identity["run_id"])
+	return {"ok": true, "code": &"ok", "value": {
+		"transaction_id": transaction_id, "outcome": "completed", "result": result["value"]}}
+
+## Drives a restore operation forward from wherever it stopped. Unlike new_run, restore's
+## participant plans depend on the source save document, so a resumed restore must first
+## reconstruct byte-identical plans through `_reconstruct_restore_materials()` before it can either
+## mint the allocation (at `intent_committed`) or replay/continue the participant loop (at
+## `identity_allocation_committed` or later).
+func _resume_restore(operation: Dictionary, gate_token: String) -> Dictionary:
+	var transaction_id := str(operation["transaction_id"])
+	var lock: Dictionary = acquire_save_lock(&"restore")
+	if not lock.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"restore", lock)
+
+	var materials := _reconstruct_restore_materials(operation)
+	if not materials.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"restore", materials)
+	var built: Dictionary = materials["value"]
+
+	var stage := str(operation.get("stage", ""))
+	if stage == CONTINUATION_JOURNAL.STAGE_INTENT:
+		var identity_applied: Dictionary = _identity_allocation_participant.apply_silent(built["identity_candidate"])
+		if not identity_applied.get("ok", false):
+			return _latch_recovery_diagnostic(operation, &"restore", identity_applied)
+		var allocation_receipt: Dictionary = (identity_applied["value"] as Dictionary)["allocation_receipt"]
+		var advance_to_allocated: Dictionary = _continuation_journal.advance({
+			"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
+			"expected_stage": CONTINUATION_JOURNAL.STAGE_INTENT, "next_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED,
+			"expected_next_participant_index": 0, "allocation_receipt": allocation_receipt,
+			"participant_name": null, "participant_receipt": null, "failure": null,
+		})
+		if not advance_to_allocated.get("ok", false):
+			return _latch_recovery_diagnostic(operation, &"restore", advance_to_allocated)
+		stage = CONTINUATION_JOURNAL.STAGE_ALLOCATED
+
+	if stage == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
+		var advance_to_applying: Dictionary = _continuation_journal.advance({
+			"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
+			"expected_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
+			"expected_next_participant_index": 0, "allocation_receipt": null,
+			"participant_name": null, "participant_receipt": null, "failure": null,
+		})
+		if not advance_to_applying.get("ok", false):
+			return _latch_recovery_diagnostic(operation, &"restore", advance_to_applying)
+
+	var result := _run_participant_transaction(&"restore", built["plans"], built["journal_candidate"],
+		str(built["route_id"]), str(built["checkpoint_id"]), true, built["continuation"], gate_token,
+		stage == CONTINUATION_JOURNAL.STAGE_APPLIED)
+	if not result.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"restore", result)
+	return {"ok": true, "code": &"ok", "value": {
+		"transaction_id": transaction_id, "outcome": "completed", "result": result["value"]}}
+
+## Reconstructs the exact `prepared`/plan bytes `_prepare_restore()` would have produced for this
+## operation's retained `source_locator`, by re-reading, re-migrating, and re-validating the SAME
+## save document and selecting the SAME specific bundle by `checkpoint_id` (never the "try every
+## candidate" search `_prepare_restore()` runs for a caller with no fixed locator -- the locator here
+## already names the exact bundle that was originally selected). `existing_run_id`/`source_desktop_
+## timeline_generation`/`remap_source_transaction_ids` are re-derived from the reloaded document,
+## byte-for-byte the same way `_prepare_bundle_with_all_participants()` derives them live; calling
+## `_identity_allocation_participant.prepare()` again is safe and mutation-free (its own doc comment:
+## "Mutation-free"), and its own fingerprint check against `allocation_candidate_fingerprint` is
+## exactly "recompute[ing] the deterministic allocation candidate" the frozen law requires.
+func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
+	var locator: Dictionary = operation["source_locator"]
+	var resolved := _resolve_locator_from_slot_id(str(locator.get("slot_id", "")))
+	if resolved.is_empty():
+		return _fail(&"invalid_source_locator", "unrecognized slot_id: " + str(locator.get("slot_id", "")))
+	var relative_path := str(resolved["relative_path"])
+	if not _storage.exists(relative_path):
+		return _fail(&"save_absent", relative_path)
+	var read: Dictionary = _storage.read_text(relative_path)
+	if not read.get("ok", false):
+		return read
+	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
+	if not parsed.get("ok", false):
+		return _fail(&"corrupt_save_document", relative_path)
+	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
+		{"kind": str(resolved["kind"]), "slot_id": resolved["slot_id"]})
+	if not migrated.get("ok", false):
+		return migrated
+	var document: Dictionary = migrated["value"]["document"]
+	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)
+	if not validated.get("ok", false):
+		return validated
+	document = validated["value"]["candidate"]
+
+	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
+	if bundle.is_empty():
+		return _fail(&"source_bundle_not_found", str(locator.get("checkpoint_id", "")))
+	var prepared_bundle := _prepare_bundle_with_all_participants(bundle, migrated["value"], document, resolved)
+	if not prepared_bundle.get("ok", false):
+		return prepared_bundle
+	var prepared: Dictionary = prepared_bundle["value"]
+	if prepared.get("source_locator") != locator:
+		return _fail(&"continuation_source_drifted",
+			"the reloaded bundle no longer reproduces the retained source_locator")
+
+	var identity_input := {
+		"restore_transaction_id": str(operation["transaction_id"]),
+		"transaction_issuer_receipt": operation["transaction_issuer_receipt"],
+		"source_locator": locator,
+		"existing_run_id": str(prepared["existing_run_id"]),
+		"source_desktop_timeline_generation": int(prepared["source_desktop_timeline_generation"]),
+		"remap_source_transaction_ids": prepared["remap_source_transaction_ids"],
+		"allocation_candidate_fingerprint": str(operation["allocation_candidate_fingerprint"]),
+	}
+	var identity_prepared: Dictionary = _identity_allocation_participant.prepare(identity_input)
+	if not identity_prepared.get("ok", false):
+		return identity_prepared
+	var identity_candidate: Dictionary = (identity_prepared["value"] as Dictionary)["candidate"]
+	var remapped_snapshot: Dictionary = identity_candidate["remapped_snapshot"]
+
+	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)
+	var run_plan: Dictionary = (plans.get("run", {}) as Dictionary).duplicate(true)
+	run_plan["snapshot"] = remapped_snapshot
+	plans["run"] = run_plan
+	var remapped_desktop: Dictionary = remapped_snapshot["desktop"]
+	var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
+		{"state": remapped_desktop["consequence"]})
+	if not consequence_prep.get("ok", false):
+		return consequence_prep
+	plans["desktop_consequence"] = (consequence_prep["value"] as Dictionary)["consequence_plan"]
+	var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
+		{"state": remapped_desktop["board"]})
+	if not board_prep.get("ok", false):
+		return board_prep
+	plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
+
+	return {"ok": true, "code": &"ok", "value": {
+		"plans": plans,
+		"identity_candidate": identity_candidate,
+		"journal_candidate": prepared.get("journal_seed"),
+		"route_id": str(prepared.get("route_id", "")),
+		"checkpoint_id": str(prepared.get("checkpoint_id", "")),
+		"continuation": {
+			"transaction_id": str(operation["transaction_id"]),
+			"request_fingerprint": str(operation["request_fingerprint"]),
+			"remap": {"restore_transaction_id": str(operation["transaction_id"]),
+				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"]},
+		},
+	}}
+
+## FIX (dwm-p2r.13 remediation, findings B-C2/B-C4): the frozen continuation law requires that once
+## `identity_allocation_committed`, a startup that cannot prove forward progress "persists the typed
+## failure diagnostic without changing that forward stage, latches a fatal recovery failure, and
+## leaves the retained operation/issuer high-water untouched." This is the one place that happens:
+## every resume failure past `intent_committed` funnels through here rather than being silently
+## swallowed (the old `reconcile_incomplete_continuations()` behavior finding B-C2 describes) or
+## left to strand the journal record with no trace and no blocked input. `code` is always
+## `source_unprovable` regardless of the underlying reason: the journal's own `_apply_recovery_
+## diagnostic()` requires exactly that code for a first-time diagnostic at `identity_allocation_
+## committed`, and using it uniformly keeps every stage's diagnostic replay-safe (byte-identical on
+## a retry of the same still-unrecoverable operation) without depending on the failing step's own
+## code staying stable. The real reason is preserved in `details.reason_code` for diagnosis. Always
+## returns `ok:true`: the reconciliation pass itself succeeded at doing its job (recording the
+## diagnostic and blocking further mutation) even though the underlying operation could not complete.
+func _latch_recovery_diagnostic(operation: Dictionary, owner: StringName, raw_failure_context: Dictionary) -> Dictionary:
+	var transaction_id := str(operation["transaction_id"])
+	var stage := str(operation.get("stage", ""))
+	var journal_failure := {
+		"code": "source_unprovable",
+		"message": "continuation recovery could not prove forward progress at startup",
+		"details": {
+			"transaction_id": transaction_id, "kind": String(owner), "stage": stage,
+			"reason_code": str(raw_failure_context.get("code", "")),
+		},
+	}
+	var diagnostic_advance: Dictionary = _continuation_journal.advance({
+		"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
+		"expected_stage": stage, "next_stage": stage,
+		"expected_next_participant_index": int(operation.get("next_participant_index", 0)),
+		"allocation_receipt": null, "participant_name": null, "participant_receipt": null,
+		"failure": journal_failure,
+	})
+	var gate_failure := {
+		"source": "continuation_reconciliation", "phase": "resume_" + String(owner),
+		"code": "source_unprovable",
+		"details": {"transaction_id": transaction_id, "stage": stage,
+			"reason_code": str(raw_failure_context.get("code", ""))},
+	}
+	var latched: Dictionary = {"ok": true}
+	if _mutation_gate != null:
+		latched = _mutation_gate.latch_fatal(gate_failure)
+	return {"ok": true, "code": &"ok", "value": {
+		"transaction_id": transaction_id, "outcome": "fatal_latched",
+		"diagnostic": diagnostic_advance, "gate_latch": latched,
+	}}
 
 func _delete(locator: Dictionary) -> Dictionary:
 	if locator.is_empty():
