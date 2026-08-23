@@ -386,6 +386,19 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 		return board_prep
 
 	# Empty profile patch preserves the complete global profile for a new game.
+	#
+	# dwm-p2r.32 Plan 02 Task 9, HONEST GAP (NOT fixed by Task 9): this comment's own stated intent
+	# is not what happens. Neither literal below is routed through its participant's `prepare()`, so
+	# neither can ever satisfy its real validator -- ProfileSchema.validate({}) rejects the empty
+	# "profile" candidate (an exact 7-key object is required) and
+	# LocalizationManager._is_restore_plan_valid({}) rejects the empty "localization" candidate (four
+	# keys are required) the same way. start_new_run() therefore cannot complete against the real
+	# ProfileManager/LocalizationManager pair today; confirmed live in
+	# tests/integration/test_desktop_crash_recovery.gd, which proves the fail-closed result rather
+	# than papering over it. This file is one of Task 9's own authorized Modify targets, so this is
+	# not blocked by file ownership -- it is left unfixed because the correct fix (what locale/
+	# profile a brand-new run should start from, including the case where no profile.json exists yet)
+	# is a real design decision this task's own brief never specifies.
 	var plans := {
 		"run": {"snapshot": snapshot},
 		"desktop_consequence": (consequence_prep["value"] as Dictionary)["consequence_plan"],
