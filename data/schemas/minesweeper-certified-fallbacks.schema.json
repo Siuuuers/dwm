@@ -1,0 +1,36 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "minesweeper-certified-fallbacks",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"schema_version", "kind", "registry_version", "generator_version", "verifier_version", "records"
+	],
+	"properties": {
+		"schema_version": {"const": 1},
+		"kind": {"const": "minesweeper_certified_fallbacks"},
+		"registry_version": {"const": "minesweeper_certified_fallbacks_v1"},
+		"generator_version": {"const": "dwm_generator_v1"},
+		"verifier_version": {"const": "visible_deduction_v1"},
+		"records": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"difficulty_id", "forced_cell", "first_cell_zero", "mine_indices", "mine_count"
+				],
+				"properties": {
+					"difficulty_id": {"enum": ["beginner", "intermediate", "expert"]},
+					"forced_cell": {"type": "integer", "minimum": 0},
+					"first_cell_zero": {"type": "boolean"},
+					"mine_indices": {
+						"type": "array",
+						"items": {"type": "integer", "minimum": 0}
+					},
+					"mine_count": {"type": "integer", "minimum": 0}
+				}
+			}
+		}
+	}
+}

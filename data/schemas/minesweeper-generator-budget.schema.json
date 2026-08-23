@@ -1,0 +1,83 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "minesweeper-generator-budget",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"schema_version", "benchmark_corpus_sha256", "device_evidence", "source_sha256", "rows",
+		"slice_operation_budget", "search_operation_budget", "reserved_fallback_operation_budget",
+		"hard_operation_budget"
+	],
+	"properties": {
+		"schema_version": {"const": 1},
+		"benchmark_corpus_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+		"device_evidence": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["declaration", "os_version", "cpu_model", "logical_processor_count", "godot_version"],
+			"properties": {
+				"declaration": {"const": "lowest_target_windows_v1"},
+				"os_version": {"type": "string", "minLength": 1},
+				"cpu_model": {"type": "string", "minLength": 1},
+				"logical_processor_count": {"type": "integer", "minimum": 1},
+				"godot_version": {"const": "4.6.3.stable.mono"}
+			}
+		},
+		"source_sha256": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"difficulty_manifest", "rng", "reducer", "kernel", "verifier", "tooling_limits",
+				"fallback_builder", "fallback_manifest", "benchmark_tool", "budget_schema"
+			],
+			"properties": {
+				"difficulty_manifest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"rng": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"reducer": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"kernel": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"verifier": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"tooling_limits": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"fallback_builder": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"fallback_manifest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"benchmark_tool": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+				"budget_schema": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+			}
+		},
+		"rows": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"kind", "case_id", "difficulty_id", "capability_ids", "nonce_ordinal", "forced_cell",
+					"first_cell_zero", "candidate_operations", "search_operations",
+					"fallback_validation_operations"
+				],
+				"properties": {
+					"kind": {"enum": ["search", "fallback"]},
+					"case_id": {"type": "string", "minLength": 1},
+					"difficulty_id": {"enum": ["beginner", "intermediate", "expert"]},
+					"capability_ids": {
+						"type": "array",
+						"items": {"type": "string"}
+					},
+					"nonce_ordinal": {
+						"anyOf": [
+							{"type": "integer", "minimum": 0, "maximum": 255},
+							{"type": "null"}
+						]
+					},
+					"forced_cell": {"type": "integer", "minimum": 0},
+					"first_cell_zero": {"type": "boolean"},
+					"candidate_operations": {"type": "integer", "minimum": 0},
+					"search_operations": {"type": "integer", "minimum": 0},
+					"fallback_validation_operations": {"type": "integer", "minimum": 0}
+				}
+			}
+		},
+		"slice_operation_budget": {"type": "integer", "minimum": 1},
+		"search_operation_budget": {"type": "integer", "minimum": 1},
+		"reserved_fallback_operation_budget": {"type": "integer", "minimum": 1},
+		"hard_operation_budget": {"type": "integer", "minimum": 1}
+	}
+}

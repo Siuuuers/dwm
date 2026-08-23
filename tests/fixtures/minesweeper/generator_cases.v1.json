@@ -1,0 +1,14 @@
+{
+	"schema_version": 1,
+	"difficulties": [
+		{"difficulty_id": "beginner", "width": 8, "height": 8, "base_mine_count": 10},
+		{"difficulty_id": "intermediate", "width": 16, "height": 16, "base_mine_count": 40},
+		{"difficulty_id": "expert", "width": 22, "height": 22, "base_mine_count": 99}
+	],
+	"beginner_sample_forced_cells": [0, 7, 27, 63],
+	"tiny_boards": [
+		{"case_id": "tiny_5x5_sparse", "width": 5, "height": 5, "base_mine_count": 3, "forced_cell": 12},
+		{"case_id": "tiny_4x4_dense", "width": 4, "height": 4, "base_mine_count": 6, "forced_cell": 0},
+		{"case_id": "tiny_6x6_medium", "width": 6, "height": 6, "base_mine_count": 6, "forced_cell": 14}
+	]
+}
