@@ -13,7 +13,7 @@ extends RefCounted
 ## All four functions are implemented. Both generated manifests are loaded and validated -- exact
 ## schema shape, plus a freshness cross-check of the budget manifest's recorded source hashes for
 ## the files this adapter itself depends on (kernel/verifier/reducer/rng/difficulty-manifest/
-## budget-schema) -- before the first runtime RNG draw. Missing or invalid data returns
+## budget-schema/fallback-manifest) -- before the first runtime RNG draw. Missing or invalid data returns
 ## generator_budget_unavailable; this adapter never substitutes a constant/default budget. The
 ## three purely-tooling source hashes the budget manifest also records (for the safety-ceiling
 ## script, the fallback-builder tool, and the benchmark tool) are validated structurally (present,
@@ -54,7 +54,7 @@ const _SOURCE_SHA256_KEYS := [
 const _FRESHNESS_CHECKED_SOURCES := {
 	"rng": _RNG_SOURCE_PATH, "reducer": _REDUCER_SOURCE_PATH, "kernel": _KERNEL_SOURCE_PATH,
 	"verifier": _VERIFIER_SOURCE_PATH, "difficulty_manifest": _DIFFICULTY_MANIFEST_PATH,
-	"budget_schema": _BUDGET_SCHEMA_PATH,
+	"budget_schema": _BUDGET_SCHEMA_PATH, "fallback_manifest": FALLBACK_MANIFEST_PATH,
 }
 const _ROW_KEYS := [
 	"kind", "case_id", "difficulty_id", "capability_ids", "nonce_ordinal", "forced_cell",

@@ -210,6 +210,36 @@ func test_validate_fallback_schema_rejects_wrong_kind() -> void:
 	assert_false(result.get("ok", true))
 
 
+# ---- _validate_budget_freshness(): fallback_manifest hash cross-check (Task-4 review fix) ----
+# _adopt_fallback() adopts fallback_records' mine_indices directly into certified boards, so the
+# freshness check must cover fallback_manifest the same way it already covers rng/reducer/kernel/
+# verifier/difficulty_manifest/budget_schema. Both cases use the real, unmodified frozen budget
+# manifest and only tamper the in-memory dict passed to the check -- the real fallback-manifest
+# file on disk is never touched.
+
+func test_validate_budget_freshness_accepts_the_real_fallback_manifest_digest() -> void:
+	if not _both_generated_manifests_present():
+		pending("requires both generated manifests")
+		return
+	var budget: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(GENERATOR.BUDGET_MANIFEST_PATH))
+	var result: Dictionary = GENERATOR._validate_budget_freshness(budget)
+	assert_true(result.get("ok", false), JSON.stringify(result))
+
+
+func test_validate_budget_freshness_rejects_a_drifted_fallback_manifest_digest() -> void:
+	if not _both_generated_manifests_present():
+		pending("requires both generated manifests")
+		return
+	var budget: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(GENERATOR.BUDGET_MANIFEST_PATH))
+	var sources: Dictionary = (budget["source_sha256"] as Dictionary).duplicate(true)
+	sources["fallback_manifest"] = _hex64("drifted-fallback-manifest")
+	budget["source_sha256"] = sources
+	var result: Dictionary = GENERATOR._validate_budget_freshness(budget)
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"budget_source_stale")
+	assert_eq((result.get("details", {}) as Dictionary).get("field"), "fallback_manifest")
+
+
 func test_begin_debug_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent() -> void:
 	if FileAccess.file_exists(GENERATOR.BUDGET_MANIFEST_PATH):
 		pending("this proof only applies while the generated budget manifest is absent")
