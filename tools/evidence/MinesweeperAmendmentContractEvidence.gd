@@ -258,6 +258,7 @@ static func validate_law(document: Dictionary, repository_root: String) -> Dicti
 		["action_matrix_records", _action_matrix_records()],
 		["desktop_board_lock", _desktop_board_lock()],
 		["honest_gaps", _honest_gaps()],
+		["red_green_command_records", _GIT.build_red_green_command_records(repository_root)],
 	]:
 		if document[str(pair[0])] != pair[1]:
 			return _fail(&"document_field_invalid", "field differs from the production contract",

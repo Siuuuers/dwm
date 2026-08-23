@@ -159,15 +159,40 @@ func test_published_documents_pass_law_and_schema_validation() -> void:
 		assert_true(validated.get("ok", false), JSON.stringify(validated))
 
 
+## Recursively confirms no DICTIONARY KEY ending in "_instance_id" ever carries an INTEGER value
+## anywhere in the tree. Deliberately narrower than banning the substring "instance_id" outright:
+## `bootstrap_probe.field_keys` legitimately lists the PROBE's own field NAMES as plain strings
+## (e.g. the string "mutation_gate_instance_id"), which is exactly the "field/role set" metadata
+## the brief requires evidence to record -- that is text describing a field, not a serialized
+## numeric instance id, and banning the substring outright would make the required field_keys
+## listing impossible to publish at all. What must never appear is an actual `"...instance_id":
+## <int>` key/value pair, which is what a live Object's numeric id leaking into the document would
+## look like.
 func test_no_field_in_either_published_document_is_a_numeric_object_instance_id() -> void:
 	for evidence: Script in [DESKTOP_EVIDENCE, MINESWEEPER_EVIDENCE]:
 		var published: Dictionary = _published(evidence)
 		if published.is_empty():
 			pending("evidence/phase_2r/contracts/... not yet generated")
 			return
-		assert_false(JSON.stringify(published).contains("instance_id"),
-			"the published document carries no *_instance_id key of its own; the probe attests " \
-			+ "relation verdicts, not numeric ids")
+		var violations: Array[String] = []
+		_collect_instance_id_integer_keys(published, "$", violations)
+		assert_eq(violations, [] as Array[String],
+			"the published document carries no *_instance_id KEY WITH AN INTEGER VALUE; the probe " \
+			+ "attests relation verdicts, not numeric ids (field NAME strings, e.g. inside " \
+			+ "bootstrap_probe.field_keys, are the required field/role-set metadata, not a violation)")
+
+
+func _collect_instance_id_integer_keys(node: Variant, path: String, violations: Array[String]) -> void:
+	if typeof(node) == TYPE_DICTIONARY:
+		for key: Variant in (node as Dictionary).keys():
+			var value: Variant = (node as Dictionary)[key]
+			var child_path: String = "%s.%s" % [path, str(key)]
+			if str(key).ends_with("instance_id") and typeof(value) == TYPE_INT:
+				violations.append(child_path)
+			_collect_instance_id_integer_keys(value, child_path, violations)
+	elif typeof(node) == TYPE_ARRAY:
+		for index: int in range((node as Array).size()):
+			_collect_instance_id_integer_keys((node as Array)[index], "%s[%d]" % [path, index], violations)
 
 
 func test_every_top_level_field_mutation_fails_closed() -> void:

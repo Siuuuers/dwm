@@ -328,6 +328,8 @@ static func validate_law(document: Dictionary, repository_root: String) -> Dicti
 		return _fail(&"requirement_ids_invalid", "requirement_ids is not the exact frozen set", {})
 	if (document["restore_order"] as Array) != Array(RESTORE_ORDER):
 		return _fail(&"restore_order_invalid", "restore_order is not the frozen live order", {})
+	if (document["startup_order"] as Array) != Array(STARTUP_ORDER):
+		return _fail(&"startup_order_invalid", "startup_order is not the frozen final startup order", {})
 	var bindings_valid: Dictionary = validate_source_bindings(document["source_bindings"], repository_root,
 		str(document["subject_commit"]))
 	if not bindings_valid.get("ok", false):
@@ -343,6 +345,8 @@ static func validate_law(document: Dictionary, repository_root: String) -> Dicti
 		["cas_before_mutation_law", _cas_before_mutation_law()],
 		["bootstrap_probe", _bootstrap_probe()],
 		["honest_gaps", _honest_gaps()],
+		["causal_transaction_gate_owners", ["causal_transaction", "restore", "new_run"]],
+		["red_green_command_records", _GIT.build_red_green_command_records(repository_root)],
 	]:
 		if document[str(pair[0])] != pair[1]:
 			return _fail(&"document_field_invalid", "field differs from the production contract",
