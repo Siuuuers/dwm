@@ -31,17 +31,29 @@ static func honest_gaps() -> Array:
 			"evidence": "grep -rn \"func seal_checkpoint\" scripts/ matches only " \
 				+ "tests/support/FakeMinesweeperCheckpointPort.gd; MinesweeperBoardGenerator.gd " \
 				+ "exposes materialize_first_reveal/begin_debug/run_debug_slice instead",
-			"asserted_by": ["test_desktop_simulator_authority.gd"],
+			"asserted_by": ["test_desktop_action_matrix.gd", "test_desktop_simulator_authority.gd"],
 		},
 		{
 			"gap_id": "desktop_identity_context_is_a_boot_time_placeholder",
 			"summary": "GameStateDesktopBoardPort/GameStateMinesweeperShopPort are configured with " \
 				+ "a fixed run_id/branch_id (real, issuer-minted) plus honestly blank " \
 				+ "desktop_timeline_generation=0/causal_day_instance=\"\", never a live per-run " \
-				+ "identity; configure() refuses reconfiguration so this cannot rotate per New Run.",
+				+ "identity; configure() refuses reconfiguration so this cannot rotate per New Run. " \
+				+ "CONCRETELY, NOT JUST THEORETICALLY: this blocks Shop purchases too, not only board " \
+				+ "reveal. MinesweeperShopPurchaseParticipant._build_action_receipt() reads " \
+				+ "run_id/branch_id/desktop_timeline_generation/causal_day_instance from " \
+				+ "GameStateMinesweeperShopPort.capture()'s facts (this placeholder), never from " \
+				+ "DesktopConsequenceState's own live causal_day_instance -- so even a fully seeded, " \
+				+ "otherwise-valid DesktopConsequenceState cannot make prepare_purchase() succeed: " \
+				+ "DesktopActionReceipt.validate() rejects the blank causal_day_instance every time, " \
+				+ "verified directly against the real production graph in " \
+				+ "test_desktop_action_matrix.gd. quote() itself is unaffected (it never reads the " \
+				+ "identity context), so registry/price/currency/quote_id contracts remain provable.",
 			"evidence": "DesktopIdentityNonceIssuer.issue() refuses GENERATION_PURPOSE and " \
-				+ "CAUSAL_DAY_PURPOSE directly (allocator-only); neither port is in Task 9's own Files list",
-			"asserted_by": ["test_desktop_simulator_authority.gd"],
+				+ "CAUSAL_DAY_PURPOSE directly (allocator-only); neither port is in Task 9's own Files " \
+				+ "list; MinesweeperShopPurchaseParticipant.gd:685 builds the action candidate's " \
+				+ "causal_day_instance from facts[\"causal_day_instance\"], not live_state's",
+			"asserted_by": ["test_desktop_action_matrix.gd", "test_desktop_simulator_authority.gd"],
 		},
 		{
 			"gap_id": "logout_coordinator_stable_board_port_missing",
@@ -50,6 +62,27 @@ static func honest_gaps() -> Array:
 			"evidence": "grep -rn \"capture_stable_board|is_slice_executing\" the whole repository " \
 				+ "matches only LogoutCoordinator.gd's own contract comment and its unit test",
 			"asserted_by": ["test_desktop_simulator_authority.gd"],
+		},
+		{
+			"gap_id": "new_run_empty_profile_patch_fails_closed",
+			"summary": "SaveManager.start_new_run() can never complete against a real ProfileManager: " \
+				+ "it hardcodes plans[\"profile\"] = {\"profile\": {}} (the literal empty dict, never " \
+				+ "the persisted profile.json), and ProfileManager.apply_restore_silent() has no " \
+				+ "no-op path for an empty candidate despite its own adjacent comment's stated intent " \
+				+ "(\"Empty profile patch preserves the complete global profile for a new game\") -- it " \
+				+ "always runs the empty dict through ProfileSchema.validate()'s exact-7-key check, " \
+				+ "which always fails. Not one of Task 9's own three gaps and NOT fixed by Task 9: " \
+				+ "autoload/SaveManager.gd and autoload/ProfileManager.gd are Task 1/6/7-owned, " \
+				+ "retained files outside Task 9's file list. Newly discovered because every prior " \
+				+ "test of start_new_run() (test_new_run_transaction.gd, test_save_manager.gd) wires " \
+				+ "a FAKE \"profile\" participant; Task 9's crash-recovery suite is the first to drive " \
+				+ "it through the complete real production graph.",
+			"evidence": "ProfileSchema.gd:87 (validate's 7-key _require_keys call), 216-220 " \
+				+ "(_require_keys itself); ProfileManager.gd:246-253 (apply_restore_silent, no " \
+				+ "emptiness special-case); SaveManager.gd:79 (profile fourth in " \
+				+ "_PARTICIPANT_APPLY_ORDER), 393 (the hardcoded {\"profile\": {}} literal) -- " \
+				+ "verified directly against the real production graph in test_desktop_crash_recovery.gd",
+			"asserted_by": ["test_desktop_crash_recovery.gd"],
 		},
 	]
 

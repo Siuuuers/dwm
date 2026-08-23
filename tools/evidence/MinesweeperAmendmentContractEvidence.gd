@@ -131,16 +131,29 @@ static func _publication_recipes() -> Dictionary:
 ## amendment proves against real production ports; each row's status is honestly reported
 ## (`proven` where a real production port reaches it, `fail_closed_unreachable` where an honest
 ## gap keeps it unreachable through this graph -- see honest_gaps).
+## Every row's status is honestly reported against the REAL Bootstrap-constructed production
+## graph (tests/integration/test_desktop_action_matrix.gd), not a separately hand-wired stack.
+## `quote()` rows are `proven` -- it never reads the placeholder identity context, so registry/
+## price/currency/quote_id contracts are genuinely provable. Every row that would go on to spend
+## currency, grant a capability, or admit a causal transaction is `fail_closed_unreachable`: both
+## honest gaps (missing generation/checkpoint adapter; placeholder identity context) block it, and
+## the matrix proves the REJECTION, not a fabricated success.
 static func _action_matrix_records() -> Array:
 	return [
-		{"row_id": "shop.lucky_charm.purchase", "app_id": "shop", "difficulty_or_item": "lucky_charm",
-			"expected_capability": "first_cell_zero and floor-halved extras", "status": "proven"},
-		{"row_id": "shop.debug_key.purchase", "app_id": "shop", "difficulty_or_item": "debug_key",
-			"expected_capability": "forced-cell deterministic no-guess certification", "status": "proven"},
-		{"row_id": "shop.supportz.purchase", "app_id": "shop", "difficulty_or_item": "supportz",
-			"expected_capability": "capacity floor decreases by one to minimum -3", "status": "proven"},
+		{"row_id": "shop.lucky_charm.quote", "app_id": "shop", "difficulty_or_item": "lucky_charm",
+			"expected_capability": "registry price 1 minesweeper_coin, cap once per saved branch", "status": "proven"},
+		{"row_id": "shop.debug_key.quote", "app_id": "shop", "difficulty_or_item": "debug_key",
+			"expected_capability": "registry price 3 minesweeper_coin, cap once per saved branch", "status": "proven"},
+		{"row_id": "shop.supportz.quote", "app_id": "shop", "difficulty_or_item": "supportz",
+			"expected_capability": "registry price 45 money, cap once per causal day/three per branch", "status": "proven"},
+		{"row_id": "shop.lucky_charm.prepare_purchase", "app_id": "shop", "difficulty_or_item": "lucky_charm",
+			"expected_capability": "first_cell_zero and floor-halved extras", "status": "fail_closed_unreachable"},
+		{"row_id": "shop.debug_key.prepare_purchase", "app_id": "shop", "difficulty_or_item": "debug_key",
+			"expected_capability": "forced-cell deterministic no-guess certification", "status": "fail_closed_unreachable"},
+		{"row_id": "shop.supportz.prepare_purchase", "app_id": "shop", "difficulty_or_item": "supportz",
+			"expected_capability": "capacity floor decreases by one to minimum -3", "status": "fail_closed_unreachable"},
 		{"row_id": "minesweeper.round.complete_round", "app_id": "minesweeper", "difficulty_or_item": "beginner",
-			"expected_capability": "action_consequence_accepted with no-departure disposition", "status": "proven"},
+			"expected_capability": "action_consequence_accepted with no-departure disposition", "status": "fail_closed_unreachable"},
 		{"row_id": "minesweeper.round.reveal", "app_id": "minesweeper", "difficulty_or_item": "beginner",
 			"expected_capability": "first Reveal materializes a certified board", "status": "fail_closed_unreachable"},
 	]

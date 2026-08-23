@@ -112,7 +112,7 @@ static func _external_stores() -> Dictionary:
 		},
 		"desktop_publication_ledger": {
 			"owner": "DesktopPublicationLedger", "fixed_path": "desktop-publications.json",
-			"kinds": ["causal_sequence", "action_source", "board_fate"],
+			"kinds": ["minesweeper_round", "shop_purchase", "schedule_done"],
 			"constructed_by": "ApplicationBootstrap._configure_desktop_production_graph()",
 			"selectable": false, "distinct_from": "ScheduleFoundationPublicationLedger",
 		},
