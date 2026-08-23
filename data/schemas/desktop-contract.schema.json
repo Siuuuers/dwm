@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dwm.local/schemas/phase2r/desktop-contract.schema.json",
+  "title": "Phase 2R desktop amendment contract evidence",
+  "description": "Closed declarative contract for evidence/phase_2r/contracts/desktop_contract.json (dwm-p2r.32 Plan 02 Task 9, req.test.desktop_amendment_gate). The repository's JsonSchemaValidator honours type, const, enum, required, properties, additionalProperties, items, uniqueItems and minLength; DesktopAmendmentContractEvidence.validate_law repeats every constraint expressed here and adds the ones this subset cannot reach, so a weakened schema cannot widen what is accepted. No field here ever carries a numeric Object instance ID.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "subject_commit",
+    "subject_commit_subject",
+    "requirement_ids",
+    "source_bindings",
+    "external_stores",
+    "restore_order",
+    "startup_order",
+    "run_snapshot_v4",
+    "causal_sequence_port_contract",
+    "board_fate_port_contract",
+    "consequence_coordinator_contract",
+    "action_source_recovery_apis",
+    "checkpoint_law",
+    "causal_transaction_gate_owners",
+    "cas_before_mutation_law",
+    "bootstrap_probe",
+    "schedule_view_owner",
+    "destination_composition_owner",
+    "honest_gaps",
+    "red_green_command_records"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "subject_commit": {"type": "string", "minLength": 40},
+    "subject_commit_subject": {
+      "type": "string",
+      "const": "feat(phase2r): seal desktop board and shop handoff contracts"
+    },
+    "requirement_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "source_bindings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "minLength": 64}
+        }
+      }
+    },
+    "external_stores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issuer_root", "continuation_journal", "desktop_publication_ledger"],
+      "properties": {
+        "issuer_root": {"type": "object"},
+        "continuation_journal": {"type": "object"},
+        "desktop_publication_ledger": {"type": "object"}
+      }
+    },
+    "restore_order": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "startup_order": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "run_snapshot_v4": {"type": "object"},
+    "causal_sequence_port_contract": {"type": "object"},
+    "board_fate_port_contract": {"type": "object"},
+    "consequence_coordinator_contract": {"type": "object"},
+    "action_source_recovery_apis": {"type": "object"},
+    "checkpoint_law": {"type": "object"},
+    "causal_transaction_gate_owners": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "enum": ["causal_transaction", "restore", "new_run"]}
+    },
+    "cas_before_mutation_law": {"type": "object"},
+    "bootstrap_probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field_keys", "role_relations", "test_log_bindings"],
+      "properties": {
+        "field_keys": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "role_relations": {"type": "array", "items": {"type": "object"}},
+        "test_log_bindings": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "schedule_view_owner": {"type": "string", "const": "dwm-oyo.3"},
+    "destination_composition_owner": {"type": "string", "const": "dwm-oyo.3"},
+    "honest_gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gap_id", "summary", "evidence", "asserted_by"],
+        "properties": {
+          "gap_id": {"type": "string", "minLength": 1},
+          "summary": {"type": "string", "minLength": 1},
+          "evidence": {"type": "string", "minLength": 1},
+          "asserted_by": {"type": "array", "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "red_green_command_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["suite_id", "log_path", "log_sha256", "exit_code"],
+        "properties": {
+          "suite_id": {"type": "string", "minLength": 1},
+          "log_path": {"type": "string", "minLength": 1},
+          "log_sha256": {"type": "string", "minLength": 64},
+          "exit_code": {"type": "integer"}
+        }
+      }
+    }
+  }
+}

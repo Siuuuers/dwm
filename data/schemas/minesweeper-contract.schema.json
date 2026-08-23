@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dwm.local/schemas/phase2r/minesweeper-contract.schema.json",
+  "title": "Phase 2R minesweeper amendment contract evidence",
+  "description": "Closed declarative contract for evidence/phase_2r/contracts/minesweeper_contract.json (dwm-p2r.32 Plan 02 Task 9, req.test.desktop_amendment_gate). The repository's JsonSchemaValidator honours type, const, enum, required, properties, additionalProperties, items, uniqueItems and minLength; MinesweeperAmendmentContractEvidence.validate_law repeats every constraint expressed here and adds the ones this subset cannot reach, so a weakened schema cannot widen what is accepted. No field here ever carries a numeric Object instance ID.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "subject_commit",
+    "subject_commit_subject",
+    "requirement_ids",
+    "source_bindings",
+    "shop_capability_registry",
+    "rng_stream_contracts",
+    "generator_kernel_verifier_versions",
+    "child_derivation_table",
+    "stage_graphs",
+    "publication_recipes",
+    "action_matrix_records",
+    "desktop_board_lock",
+    "honest_gaps",
+    "red_green_command_records"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "subject_commit": {"type": "string", "minLength": 40},
+    "subject_commit_subject": {
+      "type": "string",
+      "const": "feat(phase2r): seal desktop board and shop handoff contracts"
+    },
+    "requirement_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "source_bindings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "minLength": 64}
+        }
+      }
+    },
+    "shop_capability_registry": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "currency", "price", "cap", "effect"],
+        "properties": {
+          "id": {"type": "string", "enum": ["lucky_charm", "debug_key", "supportz"]},
+          "currency": {"type": "string", "minLength": 1},
+          "price": {"type": "integer"},
+          "cap": {"type": "string", "minLength": 1},
+          "effect": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "rng_stream_contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["placement", "debug", "explosion"],
+      "properties": {
+        "placement": {"type": "object"},
+        "debug": {"type": "object"},
+        "explosion": {"type": "object"}
+      }
+    },
+    "generator_kernel_verifier_versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generator_version", "verifier_version"],
+      "properties": {
+        "generator_version": {"type": "string", "const": "dwm_generator_v1"},
+        "verifier_version": {"type": "string", "const": "visible_deduction_v1"}
+      }
+    },
+    "child_derivation_table": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["child_kind", "parent", "ordinal", "source_value_set"],
+        "properties": {
+          "child_kind": {"type": "string", "minLength": 1},
+          "parent": {"type": "string", "minLength": 1},
+          "ordinal": {"type": "string", "minLength": 1},
+          "source_value_set": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "stage_graphs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action_source", "schedule_done"],
+      "properties": {
+        "action_source": {"type": "object"},
+        "schedule_done": {"type": "object"}
+      }
+    },
+    "publication_recipes": {"type": "object"},
+    "action_matrix_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["row_id", "app_id", "difficulty_or_item", "expected_capability", "status"],
+        "properties": {
+          "row_id": {"type": "string", "minLength": 1},
+          "app_id": {"type": "string", "minLength": 1},
+          "difficulty_or_item": {"type": "string", "minLength": 1},
+          "expected_capability": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "enum": ["proven", "fail_closed_unreachable"]}
+        }
+      }
+    },
+    "desktop_board_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["removed", "owner_present", "reason", "deferred_to"],
+      "properties": {
+        "removed": {"type": "boolean", "const": false},
+        "owner_present": {"type": "string", "const": "minesweeper_board"},
+        "reason": {"type": "string", "minLength": 1},
+        "deferred_to": {"type": "string", "const": "dwm-oyo.3"}
+      }
+    },
+    "honest_gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gap_id", "summary", "evidence", "asserted_by"],
+        "properties": {
+          "gap_id": {"type": "string", "minLength": 1},
+          "summary": {"type": "string", "minLength": 1},
+          "evidence": {"type": "string", "minLength": 1},
+          "asserted_by": {"type": "array", "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "red_green_command_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["suite_id", "log_path", "log_sha256", "exit_code"],
+        "properties": {
+          "suite_id": {"type": "string", "minLength": 1},
+          "log_path": {"type": "string", "minLength": 1},
+          "log_sha256": {"type": "string", "minLength": 64},
+          "exit_code": {"type": "integer"}
+        }
+      }
+    }
+  }
+}
