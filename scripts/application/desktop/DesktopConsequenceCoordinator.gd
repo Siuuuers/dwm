@@ -46,6 +46,30 @@ extends RefCounted
 ## genuinely a "consequence" planning artifact prepared alongside `publication_plan` before admission,
 ## and the one candidate/hash pair every payload_phase=admission_ready payload needs regardless of
 ## departure/no-departure, matching that law exactly.
+##
+## KNOWN GAP, LEFT OPEN AND FLAGGED (dwm-p2r.13 remediation, finding A-C3 review note; not fixed by
+## this remediation -- see that finding's own writeup for why): `DesktopConsequenceState.pending
+## .participant_receipts` is threaded through every `prepare_recovery_advance()` call in this file
+## (`_advance_to_publication_pending()`, `_advance_publication_progress()`, `_terminal_cleanup()`) but
+## every one of those call sites passes a literal `{}`, and `prepare_recovery_advance()` itself
+## unconditionally overwrites `pending_after["participant_receipts"]` with whatever it is handed
+## (`DesktopConsequenceState.gd`, inside `prepare_recovery_advance()`) -- so this field is durably
+## persisted as an always-empty dictionary at every stage, never the per-participant receipts its own
+## name implies. This coordinator does retain the equivalent information durably elsewhere (per-
+## callback publication receipts live in `pending.publication_progress.callback_receipts`; the
+## admission-time causal/action/board-fate receipts live inside `recovery_payload`'s own free-form
+## additions and `publication_plan` recipes -- see `_action_receipt_from_payload()`/
+## `_board_fate_receipt_from_payload()` above), so no recovery path in THIS plan actually reads
+## `participant_receipts` back. But nothing establishes that `participant_receipts` is dead-by-design
+## rather than dead-by-oversight, and a downstream plan that reads this file's own doc comments or the
+## frozen `DesktopContinuationOperationJournal` interface signature (which names an unrelated,
+## differently-shaped `participant_receipts` field of its own) could reasonably expect THIS field to
+## carry real per-participant presence rules it never does. Populating it correctly would mean
+## inventing an unstated semantic convention for what belongs in it -- the frozen contracts text never
+## defines presence rules for this exact field (unlike `action_receipt`/`condition_receipt`/
+## `board_fate_receipt`/etc., whose presence-by-stage IS frozen) -- which is a genuine design decision
+## beyond this remediation wave's scope, not a mechanical wiring fix. Left exactly as found;
+## explicitly flagged here so a future plan is told, not left to discover it the hard way.
 
 const _ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -688,12 +712,83 @@ func _publication_plan_size(transaction_id: String) -> int:
 # action receipt, publication recipe, and the retained production source object.
 # -------------------------------------------------------------------------------------------------
 
+## Stage rank for `adopt_durable_checkpoint_if_live_is_behind()`'s own "is live behind the durable
+## checkpoint" comparison -- the pre-admission pair collapses to the same rank since neither is ever
+## the checkpoint's own stage (the checkpoint port only ever stores an ordinal>=1 header; ordinal 0's
+## own pre-admission document is never adopted here, matching the frozen law that a pre-admission
+## checkpoint carries no live mutation obligation).
+const _STAGE_RANK: Dictionary = {
+	"action_prepared": 0, "prepared_checkpointed": 0, "sequence_committed": 1, "publication_pending": 2,
+}
+
+## dwm-p2r.13 remediation (finding A-C3, "no reader"): the durable admission checkpoint
+## (SaveManagerCheckpointPort's desktop-consequence-checkpoint.json) is the ONLY thing guaranteed
+## durable at the exact moment a source-kind transaction is admitted -- "the admission checkpoint is
+## now durable on disk... From here forward this coordinator never rewinds" (DesktopCausalSequencePort
+## .commit()'s own CRITICAL-1 comment). The containing v4 RunSnapshot autosave, by contrast, only
+## captures whatever was live at ITS OWN last write: a crash between admission-checkpoint-commit and
+## the next autosave leaves the durably admitted transaction invisible to ordinary Restore/New-Run
+## bootstrap, and resume_pending() below -- driven entirely by the state port's own live capture() --
+## would silently see nothing pending.
+##
+## Called at the top of resume_pending() (also reachable directly, e.g. for a caller that wants to
+## adopt without immediately forward-recovering). Reads the checkpoint port's own durable record and,
+## ONLY when live state does not already reflect an equally or more advanced record for the SAME
+## transaction, adopts it through the state port's own capture()/prepare_restore()/commit() seam --
+## never a raw dictionary write -- so every later step (including resume_pending()'s own forward
+## recovery) then sees it exactly as if the RunSnapshot itself had captured it. Never regresses: live
+## state already at or ahead of the durable checkpoint (or already tracking a DIFFERENT transaction --
+## which the exclusive `causal_transaction` gate owner should make impossible, but this stays
+## conservative rather than guessing) is left untouched.
+func adopt_durable_checkpoint_if_live_is_behind() -> Dictionary:
+	var ready := _require_configured()
+	if not ready.get("ok", false):
+		return ready
+	if not _checkpoint_port.has_method("read_pending_consequence_checkpoint"):
+		return {"ok": true, "code": &"ok", "value": {"adopted": false}, "receipt": {}}
+	var read: Dictionary = _checkpoint_port.call(&"read_pending_consequence_checkpoint")
+	if not read.get("ok", false):
+		return read
+	if not bool((read["value"] as Dictionary).get("found", false)):
+		return {"ok": true, "code": &"ok", "value": {"adopted": false}, "receipt": {}}
+	var checkpointed_state: Dictionary = (read["value"] as Dictionary)["stage_candidate"]
+	var checkpointed_pending: Dictionary = checkpointed_state["pending"]
+
+	var captured: Dictionary = _state_port.call(&"capture")
+	if not captured.get("ok", false):
+		return captured
+	var live_state: Dictionary = (captured["value"] as Dictionary)["state"]
+	var live_pending: Variant = live_state.get("pending")
+	var live_is_behind: bool
+	if live_pending == null:
+		live_is_behind = true
+	elif str((live_pending as Dictionary).get("transaction_id", "")) != str(checkpointed_pending["transaction_id"]):
+		live_is_behind = false
+	else:
+		var live_rank: int = int(_STAGE_RANK.get(str((live_pending as Dictionary).get("stage", "")), -1))
+		var checkpoint_rank: int = int(_STAGE_RANK.get(str(checkpointed_pending["stage"]), -1))
+		live_is_behind = checkpoint_rank > live_rank
+	if not live_is_behind:
+		return {"ok": true, "code": &"ok", "value": {"adopted": false}, "receipt": {}}
+
+	var prepared: Dictionary = _state_port.call(&"prepare_restore", checkpointed_state)
+	if not prepared.get("ok", false):
+		return prepared
+	var committed: Dictionary = _state_port.call(&"commit", (prepared["value"] as Dictionary)["candidate"])
+	if not committed.get("ok", false):
+		return committed
+	return {"ok": true, "code": &"ok", "value": {"adopted": true}, "receipt": {}}
+
+
 func resume_pending() -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
 	if _minesweeper_round_source_port == null or _shop_purchase_source_port == null:
 		return _fail(&"action_source_ports_unconfigured", "configure_action_source_ports() is required first", {})
+	var adopted := adopt_durable_checkpoint_if_live_is_behind()
+	if not adopted.get("ok", false):
+		return adopted
 	var captured: Dictionary = _state_port.call(&"capture")
 	if not captured.get("ok", false):
 		return captured
@@ -837,12 +932,24 @@ func _validate_intent_pairing(is_departure: bool, destination_intent: Variant, n
 	return {"ok": true}
 
 
-## IMPORTANT 3 (Review-fix pass): the checkpoint port's occupied-slot conflict law only rejects a
-## REWRITE of an already-written (transaction_id, ordinal) with different bytes -- it cannot catch a
-## WRONG ordinal/stage pairing being written the first time. This coordinator directly authors exactly
-## two checkpoint headers (ordinal 1/"action_prepared", ordinal 2/"sequence_committed" -- ordinal 0
-## belongs to the source participant, outside this file's scope); this cross-checks each against the
-## documented pairing before it is ever handed to the checkpoint port.
+## IMPORTANT 3 (Review-fix pass) -- CORRECTED (dwm-p2r.13 remediation, finding A-C3): this comment
+## previously justified leaving ordinal 0 (authored by the two source participants,
+## MinesweeperRoundCoordinator/MinesweeperShopPurchaseParticipant) and ordinals 8-12 (authored by
+## DesktopConsequenceState.prepare_recovery_advance(), reached only through this file's own
+## _checkpoint_and_adopt()) unguarded, by asserting "the checkpoint port's occupied-slot conflict law
+## already rejects a rewrite of an already-written (transaction_id, ordinal) with different bytes."
+## That law did not exist at the time this was written -- SaveManagerCheckpointPort.
+## commit_consequence_checkpoint() unconditionally overwrote one fixed-path document on every write,
+## tracked no slot, and could never return consequence_checkpoint_conflict. Even with that law now
+## implemented (it protects only against a REWRITE of an already-occupied slot, never a WRONG
+## ordinal/stage pairing on a slot's first write), the actual fix is that SaveManagerCheckpointPort
+## .prepare_consequence_checkpoint() itself now cross-checks EVERY checkpoint header --
+## DesktopConsequenceState.validate_checkpoint_ordinal_stage(), covering ordinals 0, 1, 2, and 8-12 --
+## since that method is the one place every author's write already passes through, regardless of
+## which file authors the header. This coordinator's own check below remains as a fast, early-fail
+## convenience for the two ordinals (1, 2) it directly authors as literal dict headers -- most prone
+## to a copy-paste mistake, since nothing else forces their ordinal and stage string to agree -- not
+## because it is the only guard.
 func _validate_ordinal_stage_pairing(header: Dictionary) -> Dictionary:
 	var ordinal := int(header["operation_ordinal"])
 	var expected_stage: Variant = _ORDINAL_STAGE_LAW.get(ordinal)

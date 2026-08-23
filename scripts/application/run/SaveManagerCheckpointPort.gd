@@ -19,7 +19,15 @@ const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/Desktop
 ## RunSnapshot lifecycle, while this owns only the narrow consequence-admission compare-and-swap
 ## point (brief line 249's "final compare-and-swap/admission point shared by every source kind").
 const CONSEQUENCE_CHECKPOINT_RELATIVE_PATH := "desktop-consequence-checkpoint.json"
-const CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS: Array[String] = ["checkpoint_receipt", "header", "schema_version", "stage_candidate"]
+## dwm-p2r.13 remediation (finding A-C3): the document is a keyed-records store, one record per
+## occupied `(transaction_id, operation_ordinal)` slot -- mirroring this codebase's own established
+## ledger precedent (`DesktopPublicationLedger`/`ScheduleFoundationPublicationLedger`'s
+## `{schema_version,records}` shape and read-before-write/atomic-replace discipline) -- rather than
+## the single fixed-shape document this file previously overwrote on every write, which could never be
+## addressed by transaction/ordinal and therefore could never support a reader, an occupied-slot
+## conflict law, or more than one durable checkpoint at a time.
+const CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS: Array[String] = ["records", "schema_version"]
+const CONSEQUENCE_CHECKPOINT_RECORD_KEYS: Array[String] = ["checkpoint_receipt", "header", "key", "stage_candidate"]
 
 const GATE_METHODS: Array[String] = [
 	"acquire", "release", "guard_external", "is_active", "get_active_owner",
@@ -208,8 +216,31 @@ func rollback(backup: Dictionary) -> Dictionary:
 
 ## Task-6 addition (dwm-p2r.32): builds the narrow admission-checkpoint candidate for
 ## `DesktopCausalSequencePort`. Mutation-free -- it computes the frozen preimage/receipt (the sole
-## legal builder is `DesktopConsequenceState.checkpoint_content_preimage()`) and captures the
-## current on-disk backup, but writes nothing; only `commit_consequence_checkpoint()` durably writes.
+## legal builder is `DesktopConsequenceState.checkpoint_content_preimage()`) but writes nothing; only
+## `commit_consequence_checkpoint()` durably writes.
+##
+## dwm-p2r.13 remediation (finding A-C3, fix 1 of 2): every checkpoint write is cross-checked against
+## the frozen ordinal<->stage law (`DesktopConsequenceState.validate_checkpoint_ordinal_stage()`) here
+## -- the one place every checkpoint author's write already passes through -- so ordinal 0 and
+## ordinals 8-12 are guarded exactly as uniformly as `DesktopConsequenceCoordinator`'s own two
+## directly-authored ordinals (1, 2) already were.
+##
+## dwm-p2r.13 remediation (finding A-C3, fix 2 of 2): the frozen "sole producer order" (plan02-frozen-
+## contracts.md line 479) requires that, for admission, the newly minted receipt is attached to BOTH
+## `checkpoint_receipt` and `admission_checkpoint_receipt`, and for a later forward/progress operation
+## it is attached only as the new `checkpoint_receipt` (the admission field is preserved byte-for-
+## byte) -- BEFORE the candidate/receipt relation is durably persisted. Previously this method stored
+## the raw, receipt-free `stage_candidate` verbatim: at the admission ordinal (`sequence_committed`
+## with both receipt fields still null -- `DesktopConsequenceState._validate_pending()`'s own in-
+## flight-admission relaxation, legal ONLY inside the preimage this method itself computes) that raw
+## shape is exactly what `DesktopConsequenceState.validate()` rejects with
+## `pending_admission_receipt_required`, so the one durable admission record a reader could ever load
+## was itself unloadable. `DesktopCausalSequencePort.commit()` separately patches these same two
+## fields onto the LIVE object after this checkpoint already committed to disk; that live patch is
+## unchanged (still correct, still redundant-but-harmless) -- this fix makes the DISK record carry the
+## identical patched bytes, so what gets persisted and what gets adopted live are the same shape.
+## Pre-admission stages (`action_prepared`, `prepared_checkpointed`) are left untouched: `validate()`
+## requires BOTH receipt fields null there, which the unpatched input already satisfies.
 func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
@@ -218,42 +249,83 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 	if not preimage.get("ok", false):
 		return preimage
 	var preimage_value: Dictionary = (preimage["value"] as Dictionary)["preimage"]
+	var normalized_header: Dictionary = preimage_value["header"]
+	var pairing := DESKTOP_CONSEQUENCE_STATE.validate_checkpoint_ordinal_stage(
+		int(normalized_header["operation_ordinal"]), str(normalized_header["stage"]))
+	if not pairing.get("ok", false):
+		return pairing
 	var canonical: Dictionary = CANONICAL_JSON.stringify(preimage_value)
 	if not canonical.get("ok", false):
 		return _fail(&"canonical_serialization_failed", "consequence checkpoint preimage is not canonicalizable")
 	var content_sha256 := str(canonical["value"]).sha256_text()
 	var checkpoint_receipt := {
 		"receipt_id": "consequence_checkpoint." + content_sha256,
-		"header": (preimage_value["header"] as Dictionary).duplicate(true),
+		"header": normalized_header.duplicate(true),
 		"content_sha256": content_sha256,
 	}
-	var document := {
-		"schema_version": 1,
-		"header": (preimage_value["header"] as Dictionary).duplicate(true),
-		"stage_candidate": stage_candidate.duplicate(true),
+	var receipt_attached_candidate: Dictionary = stage_candidate.duplicate(true)
+	var pending: Variant = receipt_attached_candidate.get("pending")
+	if typeof(pending) == TYPE_DICTIONARY:
+		var pending_dict: Dictionary = (pending as Dictionary).duplicate(true)
+		if str(pending_dict.get("stage", "")) not in ["action_prepared", "prepared_checkpointed"]:
+			pending_dict["checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
+			if pending_dict.get("admission_checkpoint_receipt") == null:
+				pending_dict["admission_checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
+			receipt_attached_candidate["pending"] = pending_dict
+	var key := str(checkpoint_header.get("transaction_id", "")) + ":" + str(normalized_header["operation_ordinal"])
+	var record := {
+		"key": key,
+		"header": normalized_header.duplicate(true),
+		"stage_candidate": receipt_attached_candidate,
 		"checkpoint_receipt": checkpoint_receipt,
 	}
-	var backup := _capture_storage_backup(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
-	if not backup.get("ok", false):
-		return backup
 	return {"ok": true, "code": &"ok", "value": {
-		"candidate": {"document": document, "storage_backup": backup["value"]["descriptor"]},
+		"candidate": {"document": record},
 		"checkpoint_receipt": checkpoint_receipt,
 	}}
 
-## Requires the exact receipt `prepare_consequence_checkpoint()` minted for this candidate (the
-## caller never mints its own); writes and re-reads before returning, matching this port's existing
-## autosave discipline.
+## dwm-p2r.13 remediation (finding A-C3): real occupied-slot conflict law keyed on
+## `(transaction_id, operation_ordinal)`, read-before-write/atomic-replace over a keyed-records
+## document -- mirroring `DesktopPublicationLedger`/`ScheduleFoundationPublicationLedger`'s own
+## established precedent, rather than the single fixed-shape document this method previously
+## overwrote unconditionally on every write (which never tracked a slot, never read anything back
+## first, and could never return `consequence_checkpoint_conflict`). An identical-bytes rewrite at an
+## occupied slot replays the retained record's receipt as success; a changed-bytes rewrite at an
+## occupied slot returns the frozen `consequence_checkpoint_conflict` (plan02-frozen-contracts.md
+## line 481) without touching disk.
 func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_receipt: Dictionary) -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
 	if typeof(checkpoint_candidate.get("document")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_candidate", "candidate was not issued by prepare_consequence_checkpoint")
-	var document: Dictionary = checkpoint_candidate["document"]
-	if document.get("checkpoint_receipt") != checkpoint_receipt:
+	var record: Dictionary = checkpoint_candidate["document"]
+	if record.get("checkpoint_receipt") != checkpoint_receipt:
 		return _fail(&"checkpoint_receipt_mismatch", "checkpoint_receipt does not match the prepared candidate")
-	var canonical: Dictionary = CANONICAL_JSON.stringify(document)
+	var key := str(record.get("key", ""))
+	if key.is_empty():
+		return _fail(&"invalid_candidate", "candidate is missing its occupied-slot key")
+
+	var loaded := _load_consequence_checkpoint_document()
+	if not loaded.get("ok", false):
+		return loaded
+	var document: Dictionary = loaded["value"]["document"]
+	var records: Dictionary = document["records"]
+	if records.has(key):
+		var existing: Dictionary = records[key]
+		# Compare by canonical serialization, not raw Dictionary `==`: `existing` came back through a
+		# JSON round-trip (StrictJson has no StringName type, so e.g. header.kind lands as a plain
+		# String), while `record` is the freshly built in-memory candidate this process never
+		# serialized (header.kind is still the caller's original StringName). The two are semantically
+		# byte-identical but would never compare `==` directly.
+		if _canonical_text(existing) == _canonical_text(record):
+			return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
+		return _fail(&"consequence_checkpoint_conflict",
+			"a different checkpoint is already durably recorded at " + key)
+
+	var next_document := document.duplicate(true)
+	(next_document["records"] as Dictionary)[key] = record.duplicate(true)
+	var canonical: Dictionary = CANONICAL_JSON.stringify(next_document)
 	if not canonical.get("ok", false):
 		return _fail(&"canonical_serialization_failed", "consequence checkpoint document is not canonicalizable")
 	var text := str(canonical["value"]) + "\n"
@@ -268,19 +340,97 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		return _fail(&"reread_mismatch", CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
 
+## dwm-p2r.13 remediation (finding A-C3, "no reader"): the sole reader `desktop-consequence-
+## checkpoint.json` has ever had. For every transaction_id present in the durable records, keeps only
+## its highest-ordinal record (the most-advanced durable truth for that transaction); among those,
+## returns the one whose `stage_candidate.pending` is still nonnull -- a transaction whose most-
+## advanced record already shows `pending=null` reached terminal cleanup and has nothing left to
+## recover. The exclusive `causal_transaction` mutation-gate owner means at most one transaction_id
+## should ever satisfy this at a time; more than one is a genuine anomaly and fails loudly rather than
+## silently picking one.
+func read_pending_consequence_checkpoint() -> Dictionary:
+	var readiness := _readiness()
+	if not readiness.is_empty():
+		return readiness
+	var loaded := _load_consequence_checkpoint_document()
+	if not loaded.get("ok", false):
+		return loaded
+	var records: Dictionary = (loaded["value"] as Dictionary)["document"]["records"]
+	var latest_by_transaction: Dictionary = {}
+	for record_key: String in records.keys():
+		var record: Dictionary = records[record_key]
+		var header: Dictionary = record["header"]
+		var transaction_id := str(header["transaction_id"])
+		var ordinal := int(header["operation_ordinal"])
+		if not latest_by_transaction.has(transaction_id) \
+				or ordinal > int((latest_by_transaction[transaction_id]["header"] as Dictionary)["operation_ordinal"]):
+			latest_by_transaction[transaction_id] = record
+	var pending_transaction_ids: Array = []
+	for transaction_id: String in latest_by_transaction.keys():
+		var record: Dictionary = latest_by_transaction[transaction_id]
+		if (record["stage_candidate"] as Dictionary).get("pending") != null:
+			pending_transaction_ids.append(transaction_id)
+	if pending_transaction_ids.is_empty():
+		return {"ok": true, "code": &"ok", "value": {"found": false}}
+	if pending_transaction_ids.size() > 1:
+		return _fail(&"consequence_checkpoint_multiple_pending_transactions",
+			"more than one transaction_id has an unresolved durable checkpoint: " + str(pending_transaction_ids))
+	var chosen: String = pending_transaction_ids[0]
+	return {"ok": true, "code": &"ok", "value": {
+		"found": true,
+		"stage_candidate": ((latest_by_transaction[chosen] as Dictionary)["stage_candidate"] as Dictionary).duplicate(true),
+	}}
+
+func _canonical_text(value: Variant) -> String:
+	var canonical: Dictionary = CANONICAL_JSON.stringify(value)
+	if not canonical.get("ok", false):
+		return ""
+	return str(canonical["value"])
+
+func _load_consequence_checkpoint_document() -> Dictionary:
+	if not _storage().exists(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH):
+		return {"ok": true, "code": &"ok", "value": {"document": {"schema_version": 1, "records": {}}}}
+	var read: Dictionary = _storage().read_text(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
+	if not read.get("ok", false):
+		return read
+	var validated := _consequence_checkpoint_text_validator(str(read["value"]))
+	if not validated.get("ok", false):
+		return validated
+	return {"ok": true, "code": &"ok", "value": {"document": validated["value"]}}
+
 func _consequence_checkpoint_text_validator(text: String) -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(text)
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
-	var document: Variant = parsed["value"]
-	if typeof(document) != TYPE_DICTIONARY:
+	var raw: Variant = parsed["value"]
+	if typeof(raw) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "document must be an object"}
-	var keys: Array = (document as Dictionary).keys()
+	var document: Dictionary = raw
+	var keys: Array = document.keys()
 	keys.sort()
 	var expected := CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS.duplicate()
 	expected.sort()
 	if keys != expected:
 		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "unexpected document keys"}
+	if typeof(document["schema_version"]) != TYPE_INT or int(document["schema_version"]) != 1:
+		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "schema_version must be exactly 1"}
+	if typeof(document["records"]) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "records must be an object"}
+	var records: Dictionary = document["records"]
+	for record_key: Variant in records:
+		if typeof(record_key) != TYPE_STRING or str(record_key).strip_edges().is_empty():
+			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "a record key must be a nonblank string"}
+		if typeof(records[record_key]) != TYPE_DICTIONARY:
+			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "a record must be an object"}
+		var record: Dictionary = records[record_key]
+		var record_keys: Array = record.keys()
+		record_keys.sort()
+		var expected_record_keys := CONSEQUENCE_CHECKPOINT_RECORD_KEYS.duplicate()
+		expected_record_keys.sort()
+		if record_keys != expected_record_keys:
+			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "unexpected record keys"}
+		if str(record["key"]) != str(record_key):
+			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "a record's key must equal its index"}
 	return {"ok": true, "code": &"ok", "value": document}
 
 func _fatal_rollback(phase: String, run_id: String, raw_diagnostics: Array) -> Dictionary:

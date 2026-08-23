@@ -48,8 +48,23 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 		"content_sha256": content_sha256,
 		"checkpoint_id": checkpoint_id,
 	}
+	# dwm-p2r.13 remediation (finding A-C3): mirrors SaveManagerCheckpointPort's own fix -- the stored
+	# candidate carries the just-minted receipt attached to its pending record (both fields at
+	# admission; only checkpoint_receipt at a later forward/progress operation) rather than the raw,
+	# receipt-free input, so a stored candidate here stays loadable by DesktopConsequenceState.validate()
+	# exactly like production now guarantees. Pre-admission stages are left untouched (validate()
+	# requires both fields null there).
+	var receipt_attached_candidate: Dictionary = stage_candidate.duplicate(true)
+	var pending: Variant = receipt_attached_candidate.get("pending")
+	if typeof(pending) == TYPE_DICTIONARY:
+		var pending_dict: Dictionary = (pending as Dictionary).duplicate(true)
+		if str(pending_dict.get("stage", "")) not in ["action_prepared", "prepared_checkpointed"]:
+			pending_dict["checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
+			if pending_dict.get("admission_checkpoint_receipt") == null:
+				pending_dict["admission_checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
+			receipt_attached_candidate["pending"] = pending_dict
 	return {"ok": true, "code": &"ok", "value": {
-		"candidate": {"document": {"stage_candidate": stage_candidate.duplicate(true)}},
+		"candidate": {"document": {"stage_candidate": receipt_attached_candidate}},
 		"checkpoint_receipt": checkpoint_receipt,
 	}, "receipt": checkpoint_receipt.duplicate(true)}
 
@@ -71,6 +86,36 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 	commit_log.append(record)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt.duplicate(true)},
 		"receipt": checkpoint_receipt.duplicate(true)}
+
+
+## dwm-p2r.13 remediation (finding A-C3): mirrors SaveManagerCheckpointPort.
+## read_pending_consequence_checkpoint()'s own logic -- keep only each transaction_id's highest-
+## ordinal committed record, then return the one (there should be at most one, under the exclusive
+## `causal_transaction` gate) whose stage_candidate.pending is still nonnull.
+func read_pending_consequence_checkpoint() -> Dictionary:
+	var latest_by_transaction: Dictionary = {}
+	for record: Dictionary in committed.values():
+		var header: Dictionary = (record["receipt"] as Dictionary)["header"]
+		var transaction_id := str(header["transaction_id"])
+		var ordinal := int(header["operation_ordinal"])
+		if not latest_by_transaction.has(transaction_id) \
+				or ordinal > int(((latest_by_transaction[transaction_id]["receipt"] as Dictionary)["header"] as Dictionary)["operation_ordinal"]):
+			latest_by_transaction[transaction_id] = record
+	var pending_transaction_ids: Array = []
+	for transaction_id: String in latest_by_transaction.keys():
+		var record: Dictionary = latest_by_transaction[transaction_id]
+		var stage_candidate: Dictionary = ((record["candidate"] as Dictionary)["document"] as Dictionary)["stage_candidate"]
+		if stage_candidate.get("pending") != null:
+			pending_transaction_ids.append(transaction_id)
+	if pending_transaction_ids.is_empty():
+		return {"ok": true, "code": &"ok", "value": {"found": false}}
+	if pending_transaction_ids.size() > 1:
+		return {"ok": false, "code": &"consequence_checkpoint_multiple_pending_transactions",
+			"message": str(pending_transaction_ids), "details": {}}
+	var chosen: String = pending_transaction_ids[0]
+	var chosen_record: Dictionary = latest_by_transaction[chosen]
+	var chosen_candidate: Dictionary = ((chosen_record["candidate"] as Dictionary)["document"] as Dictionary)["stage_candidate"]
+	return {"ok": true, "code": &"ok", "value": {"found": true, "stage_candidate": chosen_candidate.duplicate(true)}}
 
 
 func _canonical_sha256(value: Variant) -> String:

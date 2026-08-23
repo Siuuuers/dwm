@@ -527,6 +527,38 @@ static func _operation_ordinal(source_kind: String, expected_stage: StringName, 
 	return 0
 
 
+## dwm-p2r.13 remediation (finding A-C3): the same frozen ordinal<->stage pairing above, reachable as
+## a cross-check for every checkpoint AUTHOR, not just this class's own `prepare_recovery_advance()`
+## edges. Ordinal 0 is the action source participant's own durable pre-admission checkpoint
+## (`MinesweeperRoundCoordinator.complete_round()` / `MinesweeperShopPurchaseParticipant
+## .prepare_purchase()`); ordinal 1 is `DesktopConsequenceCoordinator`'s own admission-ready payload;
+## ordinal 2 is the admission itself; ordinals 8-12 are this class's own `prepare_recovery_advance()`
+## publication-progress/terminal-cleanup edges (`_operation_ordinal()` above). `schedule_done`'s own
+## ordinals are outside this codebase's current reach (Plan 03 territory) and are deliberately absent
+## here -- extending this table for that source_kind is that plan's own job, not a silent renumbering
+## of this one.
+const CHECKPOINT_ORDINAL_STAGE_LAW: Dictionary = {
+	0: "action_prepared", 1: "action_prepared", 2: "sequence_committed",
+	8: "publication_pending", 9: "publication_pending", 10: "publication_pending",
+	11: "publication_pending", 12: "publication_pending",
+}
+
+
+## The sole ordinal/stage cross-check every checkpoint write must satisfy, called centrally from
+## `SaveManagerCheckpointPort.prepare_consequence_checkpoint()` -- the one place every checkpoint
+## author's write already passes through -- so ordinal 0 (authored by two different source
+## participants) and ordinals 8-12 (authored by this class, never previously cross-checked) are
+## guarded exactly as uniformly as `DesktopConsequenceCoordinator`'s own directly-authored ordinals 1
+## and 2 already were.
+static func validate_checkpoint_ordinal_stage(operation_ordinal: int, stage: String) -> Dictionary:
+	var expected: Variant = CHECKPOINT_ORDINAL_STAGE_LAW.get(operation_ordinal)
+	if expected == null or stage != String(expected):
+		return _fail(&"consequence_checkpoint_ordinal_stage_invalid",
+			"operation_ordinal %d must pair with stage %s" % [operation_ordinal, str(expected)],
+			{"operation_ordinal": operation_ordinal, "stage": stage})
+	return {"ok": true}
+
+
 ## Toggles exactly one outbox entry's `published` bit from false to true. Outside the continuation
 ## graph (brief line 205): cannot run while a pending transaction is still live, cannot change
 ## run_revision/causal_sequence/receipts/payloads, and cannot touch the other outbox kind.

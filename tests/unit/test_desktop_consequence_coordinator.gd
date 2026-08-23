@@ -754,3 +754,84 @@ func test_validate_ordinal_stage_pairing_rejects_a_mismatched_pairing() -> void:
 		{"operation_ordinal": 1, "stage": "sequence_committed"})
 	assert_false(result.get("ok", false))
 	assert_eq(result.get("code"), &"consequence_checkpoint_ordinal_stage_invalid")
+
+
+# ---- dwm-p2r.13 remediation (finding A-C3): the durable checkpoint reader is USED at startup ----
+
+## Builds a genuinely fresh, never-adopted-anything DesktopConsequenceState -- standing in for a
+## RunSnapshot restore that crashed before capturing a pending transaction (finding A-C3's own "the
+## atomic admission point currently has no durable recovery value") -- and a coordinator configured
+## against it but sharing the SAME checkpoint port (standing in for the surviving desktop-consequence-
+## checkpoint.json file surviving the crash).
+func _fresh_coordinator_sharing_the_checkpoint_port() -> Dictionary:
+	var fresh_state: RefCounted = CONSEQUENCE_STATE.new()
+	assert_null((fresh_state.capture()["value"] as Dictionary)["state"]["pending"])
+	var fresh := COORDINATOR.new()
+	assert_true(fresh.configure(fresh_state, _causal_sequence_port, _board_fate_port, _checkpoint_port, _gate).get("ok", false))
+	assert_true(fresh.configure_action_source_ports(_round_source, _shop_participant).get("ok", false))
+	assert_true(fresh.configure_condition_departure_ports(_condition_policy_port, _schedule_view_port).get("ok", false))
+	assert_true(fresh.configure_identity_issuer(_issuer).get("ok", false))
+	return {"coordinator": fresh, "state": fresh_state}
+
+
+## Drives a REAL minesweeper_round no-departure transaction through admission and partway into
+## publication -- a one-shot injected publish failure leaves it genuinely stuck at publication_pending
+## (mirroring the established test_resume_pending_completes_forward_recovery_after_a_reconstructed_
+## coordinator pattern above), so the shared checkpoint port now holds real durable records for it.
+func _admit_a_round_transaction_stuck_at_publication_pending() -> Dictionary:
+	_configure_departure_ports()
+	var prepared := _round_prepared("exploded")
+	_round_source.fail_publish_once = true
+	var request := {
+		"action_receipt": prepared["action_receipt"], "action_candidate": prepared["action_candidate"],
+		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"], "expected_run_revision": 0,
+		"expected_board_identity": _board_state.capture()["identity"], "expected_board_revision": int(_board_state.capture()["revision"]),
+	}
+	var first: Dictionary = _coordinator.accept_prepared_action(request)
+	assert_false(first.get("ok", false), "the injected publish failure must surface")
+	var stuck_pending: Dictionary = _live_consequence()["pending"]
+	assert_eq(str(stuck_pending["stage"]), "publication_pending")
+	return stuck_pending
+
+
+## Direct proof that the reader-plus-adoption method itself is correct: the adopted live state is
+## non-null, matches the stuck transaction, and independently validates.
+func test_adopt_durable_checkpoint_if_live_is_behind_adopts_from_the_durable_checkpoint() -> void:
+	var stuck_pending := _admit_a_round_transaction_stuck_at_publication_pending()
+	var fresh := _fresh_coordinator_sharing_the_checkpoint_port()
+	var coordinator: RefCounted = fresh["coordinator"]
+	var fresh_state: RefCounted = fresh["state"]
+
+	var adopted: Dictionary = coordinator.adopt_durable_checkpoint_if_live_is_behind()
+	assert_true(adopted.get("ok", false), JSON.stringify(adopted))
+	assert_true(bool(adopted["value"]["adopted"]))
+	var adopted_state: Dictionary = (fresh_state.capture()["value"] as Dictionary)["state"]
+	assert_not_null(adopted_state["pending"])
+	assert_eq(str((adopted_state["pending"] as Dictionary)["transaction_id"]), str(stuck_pending["transaction_id"]))
+	var validated := CONSEQUENCE_STATE.validate(adopted_state)
+	assert_true(validated.get("ok", false), "the adopted state must itself be valid: " + JSON.stringify(validated))
+
+
+## Acceptance: startup recovery adopts a pending transaction from the durable checkpoint -- and this
+## proves the WIRING, not just the standalone method: resume_pending() is called directly, with no
+## prior adopt_durable_checkpoint_if_live_is_behind() call in this test, over a coordinator whose live
+## state has never seen this transaction. If resume_pending() ever stopped calling the adoption step
+## internally, this test (unlike a test that adopts explicitly first) would fail.
+func test_resume_pending_adopts_and_completes_a_pending_transaction_from_the_durable_checkpoint() -> void:
+	_admit_a_round_transaction_stuck_at_publication_pending()
+	var fresh := _fresh_coordinator_sharing_the_checkpoint_port()
+	var coordinator: RefCounted = fresh["coordinator"]
+	var fresh_state: RefCounted = fresh["state"]
+	assert_null((fresh_state.capture()["value"] as Dictionary)["state"]["pending"])
+
+	var resumed: Dictionary = coordinator.resume_pending()
+	assert_true(resumed.get("ok", false), JSON.stringify(resumed))
+	assert_true(bool(resumed["value"]["resumed"]))
+	assert_null((fresh_state.capture()["value"] as Dictionary)["state"]["pending"])
+	assert_eq(_round_source.published.size(), 1, "exactly one publish despite the first attempt's injected failure")
+
+
+func test_adopt_durable_checkpoint_if_live_is_behind_is_a_no_op_when_nothing_is_pending() -> void:
+	var result: Dictionary = _coordinator.adopt_durable_checkpoint_if_live_is_behind()
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_false(bool(result["value"]["adopted"]))
