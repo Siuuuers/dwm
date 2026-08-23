@@ -40,7 +40,17 @@ class FakePublicationLedger:
 	var records: Dictionary = {}
 
 	func record_before_emit(request: Dictionary) -> Dictionary:
-		var key := str(request["kind"]) + ":" + str((request["semantic_receipt"] as Dictionary)["receipt_id"])
+		var semantic_receipt: Dictionary = request["semantic_receipt"]
+		# FIX (dwm-p2r.13 remediation, finding W1): under the corrected ledger kind union, the
+		# causal_sequence kind's own semantic_receipt is {causal_sequence_receipt,
+		# admission_checkpoint_receipt} -- it carries no top-level receipt_id of its own (that lives
+		# nested inside causal_sequence_receipt), unlike this fake's previous single-shape assumption.
+		var receipt_id: String
+		if str(request["kind"]) == "causal_sequence":
+			receipt_id = str((semantic_receipt["causal_sequence_receipt"] as Dictionary)["receipt_id"])
+		else:
+			receipt_id = str(semantic_receipt.get("receipt_id", semantic_receipt.get("commit_receipt_id", "")))
+		var key := str(request["kind"]) + ":" + receipt_id
 		if records.has(key):
 			if records[key] == request:
 				return {"ok": true, "code": &"ok", "value": {"record": request, "first_delivery": false}, "receipt": {}}

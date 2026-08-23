@@ -264,7 +264,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		return _fail(&"board_fate_conflict", "candidate was already committed with different bytes", {})
 
 	var live: Dictionary = (_board_state.call(&"capture") as Dictionary).duplicate(true)
-	var pre_state_check := _check_pre_state(request, live)
+	var pre_state_check := _check_commit_pre_state(request, candidate, live)
 	if not pre_state_check.get("ok", false):
 		return _fail(&"board_fate_conflict", "the current board no longer matches the prepared pre-state", {})
 
@@ -377,6 +377,32 @@ func _check_pre_state(request: Dictionary, live: Dictionary) -> Dictionary:
 		return _fail(&"board_fate_stale_revision",
 			"expected_board_revision no longer matches the live board", {})
 	return {"ok": true}
+
+
+## FIX (dwm-p2r.13 remediation, finding W2): commit()'s own pre-state guard, distinct from prepare's
+## `_check_pre_state()`. For a `minesweeper_round`-sourced projected departure, `expected_board_
+## identity`/`expected_board_revision` name the board's PRE-completion state -- captured by
+## `DesktopConsequenceCoordinator` before the round's own forward-recovery commit runs. Forward
+## recovery then always commits the action source FIRST (`MinesweeperRoundCoordinator
+## .commit_recovery_action()` adopts `action_candidate.board_projection` -- this exact `candidate`,
+## since a minesweeper_round projection is always phase NONE and therefore always `fate=none`, i.e.
+## `board_candidate == base_snapshot` -- into the shared `DesktopBoardState`) and board fate SECOND,
+## post-admission with no rollback available. Re-checking the ORIGINAL pre-completion identity/
+## revision here would therefore always reject a transaction the round coordinator has already
+## legitimately advanced. The correct guard is instead "does the live board already equal the exact
+## candidate this transaction is about to (no-op, since fate=none) commit" -- validating against the
+## prepared candidate's own base rather than the stale original expectation, while every OTHER source
+## (`shop_purchase` projected departures, whose action never touches the board; plain `schedule_done`
+## live-board departures) keeps the original `_check_pre_state()` guard unchanged, since nothing
+## mutates the board between their own prepare and commit.
+func _check_commit_pre_state(request: Dictionary, candidate: Dictionary, live: Dictionary) -> Dictionary:
+	if request.has("source_action_receipt") \
+			and str((request["source_action_receipt"] as Dictionary).get("action_kind", "")) == "minesweeper_round":
+		if live != candidate:
+			return _fail(&"board_fate_conflict",
+				"the live board no longer matches the source's own post-commit projection", {})
+		return {"ok": true}
+	return _check_pre_state(request, live)
 
 
 ## Builds the board_fate_receipt (child_kind=board_fate, ordinal 0, plan02-frozen-contracts.md line

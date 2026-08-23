@@ -225,15 +225,15 @@ func test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload() ->
 	var process := _boot_process(_shared_root)
 	var ledger: Object = (process["bootstrap"] as Node).get("_retained_desktop_publication_ledger")
 	assert_true(ledger is DESKTOP_PUBLICATION_LEDGER)
-	# The ledger's closed kind union is ["minesweeper_round", "shop_purchase", "schedule_done"]
-	# (Task 6's own documented, deliberate deviation from the frozen contract's abstract
-	# "causal_sequence/action_source/board_fate" framing -- read directly from the as-built
-	# KINDS/PUBLICATION_KEYS constants, not assumed). Every publication shares one shape:
-	# {causal_sequence_receipt, outbox}.
-	var semantic_receipt := {"receipt_id": "causal-seq-crash-1"}
-	var publication := {"causal_sequence_receipt": semantic_receipt, "outbox": {}}
+	# FIX (dwm-p2r.13 remediation, finding W1): the ledger's closed kind union is exactly
+	# ["causal_sequence", "action_source", "board_fate"] (plan02-frozen-contracts.md line 328) --
+	# read directly from the as-built KINDS constant, not the causal reservation's own disjoint
+	# minesweeper_round|shop_purchase|schedule_done union a prior implementation reused here by
+	# mistake. Each kind has its own publication shape (line 335); board_fate's is exercised here.
+	var semantic_receipt := {"receipt_id": "board-fate-crash-1", "fate": "none"}
+	var publication := {"board_candidate": {"phase": "NONE"}, "board_fate_receipt": semantic_receipt}
 	var recorded: Dictionary = ledger.record_before_emit({
-		"kind": "shop_purchase", "semantic_receipt": semantic_receipt,
+		"kind": "board_fate", "semantic_receipt": semantic_receipt,
 		"publication": publication, "publication_sha256": _sha256_of(publication),
 	})
 	assert_true(recorded.get("ok", false), JSON.stringify(recorded))
@@ -245,7 +245,7 @@ func test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload() ->
 	assert_true(reloaded.configure((process["bootstrap"] as Node).get("_profile_storage")).get("ok", false))
 	assert_true(reloaded.load().get("ok", false))
 	var replayed: Dictionary = reloaded.record_before_emit({
-		"kind": "shop_purchase", "semantic_receipt": semantic_receipt,
+		"kind": "board_fate", "semantic_receipt": semantic_receipt,
 		"publication": publication, "publication_sha256": _sha256_of(publication),
 	})
 	assert_true(replayed.get("ok", false), JSON.stringify(replayed))

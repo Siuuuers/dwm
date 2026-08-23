@@ -42,30 +42,12 @@ const FAKE_MINESWEEPER_CHECKPOINT_PATH := "res://tests/support/FakeMinesweeperCh
 const FAKE_MINESWEEPER_GENERATION_PATH := "res://tests/support/FakeMinesweeperGenerationPort.gd"
 const CONDITION_POLICY_PORT_PATH := "res://tests/support/FakeDesktopConditionPolicyPort.gd"
 const SCHEDULE_VIEW_PORT_PATH := "res://tests/support/FakeScheduleDepartureViewPort.gd"
+const PUBLICATION_LEDGER_PATH := "res://scripts/infrastructure/save/DesktopPublicationLedger.gd"
 
 const IDENTITY_CONTEXT := {
 	"run_id": "run-complete", "branch_id": "branch-complete", "desktop_timeline_generation": 0,
 	"causal_day_instance": "causal-day-complete-1",
 }
-
-
-class _FakePublicationLedger extends RefCounted:
-	var records: Dictionary = {}
-
-	func record_before_emit(request: Dictionary) -> Dictionary:
-		var kind: String = str(request.get("kind", ""))
-		var semantic_receipt: Dictionary = request.get("semantic_receipt", {})
-		var key := kind + ":" + str(semantic_receipt.get("commit_receipt_id", semantic_receipt.get("receipt_id", "")))
-		if records.has(key):
-			var existing: Dictionary = records[key]
-			if existing.get("publication") == request.get("publication") \
-					and existing.get("publication_sha256") == request.get("publication_sha256"):
-				return {"ok": true, "code": &"ok", "value": {"record": existing, "first_delivery": false}, "receipt": {}}
-			return {"ok": false, "code": &"publication_record_conflict", "message": "", "details": {}}
-		var record: Dictionary = request.duplicate(true)
-		record["key"] = key
-		records[key] = record
-		return {"ok": true, "code": &"ok", "value": {"record": record, "first_delivery": true}, "receipt": {}}
 
 
 func _fresh_issuer(root: String) -> RefCounted:
@@ -109,7 +91,15 @@ func _wired() -> Dictionary:
 	identity_context["causal_day_instance"] = str(day_receipt["token"])
 
 	var gate := ApplicationMutationGate.new()
-	var publication_ledger := _FakePublicationLedger.new()
+	# FIX (dwm-p2r.13 remediation, finding W1): the REAL DesktopPublicationLedger, not a hand-rolled
+	# fake -- the fake this file used to build here accepted ANY kind/shape uniformly, which is
+	# exactly why W1 (three of four production publishers could not talk to the production ledger)
+	# was invisible to this suite. Wired over a real JsonFileStorage/FakeFileOps pair, matching the
+	# already-established issuer-root pattern immediately above.
+	var publication_storage: Object = load(STORAGE_PATH).new(root.path_join("_publications"))
+	var publication_ledger: Object = load(PUBLICATION_LEDGER_PATH).new()
+	assert_true(publication_ledger.configure(publication_storage).get("ok", false))
+	assert_true(publication_ledger.load().get("ok", false))
 
 	var board_state_port: Object = load(BOARD_STATE_PORT_PATH).new()
 	assert_true(board_state_port.configure(gs, issuer, identity_context).get("ok", false))
@@ -222,12 +212,103 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	assert_null(live_consequence["pending"], "terminal cleanup reached a clean slate")
 	assert_eq(int(live_consequence["causal_sequence"]), 1)
 
-	var ledger: _FakePublicationLedger = wired["publication_ledger"]
+	var ledger: Object = wired["publication_ledger"]
+	var ledger_loaded: Dictionary = ledger.load()
+	assert_true(ledger_loaded.get("ok", false), JSON.stringify(ledger_loaded))
+	var records: Dictionary = ((ledger_loaded["value"] as Dictionary)["document"] as Dictionary)["records"]
 	var kinds: Array = []
-	for record: Dictionary in ledger.records.values():
+	for record: Dictionary in records.values():
 		kinds.append(str(record["kind"]))
 	kinds.sort()
-	assert_eq(kinds, ["action_source", "minesweeper_round"])
+	# FIX (dwm-p2r.13 remediation, finding W1): the real ledger's closed kind union is
+	# causal_sequence|action_source|board_fate -- a no-departure completion publishes exactly the
+	# first two, proving both the causal-sequence port AND the round coordinator's action-source
+	# publish() now speak the ledger's real kind/shape (they always sent the correct frozen shape;
+	# only the ledger itself rejected it before the fix).
+	assert_eq(kinds, ["action_source", "causal_sequence"])
+
+	# Replaying the identical completion request never re-admits or re-transitions anything.
+	var replay: Dictionary = round_coordinator.complete_round({
+		"transaction_id": complete_txn["transaction_id"], "transaction_issuer_receipt": complete_txn["transaction_issuer_receipt"],
+		"expected_identity": live["identity"], "expected_revision": live["revision"], "expected_run_revision": 0,
+	})
+	assert_eq(replay, result, "a duplicate replay returns the identical result")
+
+
+## FIX (dwm-p2r.13 remediation, finding W2): a minesweeper_round completion whose condition policy
+## requests a departure. DesktopConsequenceCoordinator._build_projected_board_candidate() builds this
+## departure's board_candidate from action_candidate.board_projection -- the round's OWN
+## already-NONE post-completion projection -- and forward recovery then commits the action source
+## FIRST (MinesweeperRoundCoordinator.commit_recovery_action() adopts that exact projection into the
+## shared board) and board fate SECOND, post-admission with no rollback available. Before the fix,
+## DesktopBoardFatePort.commit() re-validated the ORIGINAL pre-completion expected_board_identity/
+## expected_board_revision against the now-already-advanced live board and always rejected with
+## board_fate_conflict, permanently stranding the transaction (RED, observed directly: reverting the
+## fix reproduces exactly this failure -- see the remediation report). This test proves commit
+## succeeds and the round's own completed result/reward (its terminal_receipts entry) survives the
+## resulting fate=none no-op board-fate commit untouched.
+func test_complete_round_departure_commits_board_fate_against_real_ports() -> void:
+	var wired := _wired()
+	var round_coordinator: Object = wired["round_coordinator"]
+	var issuer: Object = wired["issuer"]
+	var condition_policy_port: Object = wired["condition_policy_port"]
+	_reveal_and_explode(wired)
+
+	var live: Dictionary = round_coordinator.get_state()["value"]
+	var complete_txn := _mint_transaction(issuer)
+	var action_txn: String = str(complete_txn["transaction_id"])
+
+	# Review-fix pass precedent (dwm-p2r.32.8, CRITICAL 2), matching
+	# test_shop_condition_contract_departure.gd's own established fixture pattern exactly: a departure
+	# must enqueue exactly one destination intent for the coordinator's own pairing law to accept it.
+	var destination_derived: Dictionary = issuer.derive_child({
+		"child_kind": "destination_intent", "ordinal": 0,
+		"parent_receipt_id": str((complete_txn["transaction_issuer_receipt"] as Dictionary)["receipt_id"]),
+		"source_ids": [action_txn],
+	})
+	assert_true(destination_derived.get("ok", false), JSON.stringify(destination_derived))
+	var destination_intent := {
+		"intent_id": str((destination_derived["value"] as Dictionary)["child_id"]),
+		"intent_id_provenance": (destination_derived["value"] as Dictionary)["provenance"],
+		"kind": "hospital_day", "day": 3, "causal_day_instance": "causal-day-complete-1",
+		"source_condition_receipt_id": "condition.fake.placeholder",
+		"source_condition_receipt_provenance": {"schema_version": 1, "parent_receipt_id": "",
+			"child_kind": "condition", "ordinal": 0, "source_ids": [action_txn], "child_id": ""},
+		"accepted_unfulfilled_sources": [], "terminal_cause": null, "terminal_provenance": null,
+		"prerequisite_receipt_ids": [],
+	}
+	condition_policy_port.arm(action_txn, "hospital_day", false, true, {}, [], null, destination_intent, null)
+
+	var result: Dictionary = round_coordinator.complete_round({
+		"transaction_id": complete_txn["transaction_id"], "transaction_issuer_receipt": complete_txn["transaction_issuer_receipt"],
+		"expected_identity": live["identity"], "expected_revision": live["revision"], "expected_run_revision": 0,
+	})
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(result.get("code"), &"action_consequence_accepted")
+	assert_eq(str(result["receipt"]["disposition"]), "departure_committed")
+	assert_eq(str((result["value"] as Dictionary)["board_fate_receipt"]["fate"]), "none",
+		"a minesweeper_round projection is already phase NONE, so its own departure fate is always none")
+
+	assert_eq(round_coordinator.get_state()["value"]["phase"], "NONE")
+	var terminal_receipts: Dictionary = round_coordinator.get_state()["value"]["terminal_receipts"]
+	var terminal_receipt_id := "round_complete." + action_txn
+	assert_true(terminal_receipts.has(terminal_receipt_id),
+		"the round's own completed result/reward must survive the fate=none board-fate commit")
+	assert_eq(str((terminal_receipts[terminal_receipt_id] as Dictionary)["outcome"]), "exploded")
+
+	var live_consequence: Dictionary = ((wired["consequence_state"] as Object).capture()["value"] as Dictionary)["state"]
+	assert_null(live_consequence["pending"], "terminal cleanup reached a clean slate")
+
+	# The three-publisher fan-out for a departure, all against the REAL DesktopPublicationLedger.
+	var ledger: Object = wired["publication_ledger"]
+	var ledger_loaded: Dictionary = ledger.load()
+	assert_true(ledger_loaded.get("ok", false), JSON.stringify(ledger_loaded))
+	var records: Dictionary = ((ledger_loaded["value"] as Dictionary)["document"] as Dictionary)["records"]
+	var kinds: Array = []
+	for record: Dictionary in records.values():
+		kinds.append(str(record["kind"]))
+	kinds.sort()
+	assert_eq(kinds, ["action_source", "board_fate", "causal_sequence"])
 
 	# Replaying the identical completion request never re-admits or re-transitions anything.
 	var replay: Dictionary = round_coordinator.complete_round({

@@ -48,8 +48,18 @@ class FakePublicationLedger:
 		# The action_source semantic receipt is a DesktopActionReceipt, which has no receipt_id field
 		# of its own -- commit_receipt_id (Ruling B) is its identity for this key, mirroring
 		# test_minesweeper_shop_purchase_participant.gd's own established fake ledger precedent.
+		# FIX (dwm-p2r.13 remediation, finding W1): under the corrected ledger kind union, the
+		# causal_sequence kind's own semantic_receipt is {causal_sequence_receipt,
+		# admission_checkpoint_receipt} -- it carries no top-level receipt_id/commit_receipt_id of its
+		# own (that lives nested inside causal_sequence_receipt); the previous single-shape fallback
+		# silently produced an EMPTY identity for every causal_sequence record, so two distinct
+		# transactions' causal_sequence publications collided on the same "causal_sequence:" key.
 		var semantic_receipt: Dictionary = request["semantic_receipt"]
-		var identity := str(semantic_receipt.get("commit_receipt_id", semantic_receipt.get("receipt_id", "")))
+		var identity: String
+		if str(request["kind"]) == "causal_sequence":
+			identity = str((semantic_receipt["causal_sequence_receipt"] as Dictionary)["receipt_id"])
+		else:
+			identity = str(semantic_receipt.get("commit_receipt_id", semantic_receipt.get("receipt_id", "")))
 		var key := str(request["kind"]) + ":" + identity
 		if records.has(key):
 			if records[key] == request:
@@ -69,6 +79,17 @@ class FakeRoundSource:
 	## publication loop (and this injected failure) ever ran, and that a subsequent forward-recovery
 	## replay on a reconstructed coordinator publishes exactly once, not twice.
 	var fail_publish_once := false
+	## FIX (dwm-p2r.13 remediation, finding W2): the SAME shared DesktopBoardState the coordinator's
+	## own DesktopBoardFatePort is configured against (set by the test's own before_each(), mirroring
+	## the real MinesweeperRoundCoordinator.configure()'s ownership). Wiring this in and adopting
+	## action_candidate.board_projection through it below (matching MinesweeperRoundCoordinator
+	## .commit_recovery_action()'s own prepare_restore()+commit() call exactly) is required for
+	## DesktopBoardFatePort's own post-admission commit() guard to see a live board that has already
+	## caught up to the projected candidate -- without it, this fake's silent no-op left the live board
+	## permanently diverged from what a real round source would have produced, which is exactly the gap
+	## finding W2 names ("the coordinator suite substitutes an inline FakeRoundSource whose
+	## commit_recovery_action touches no board").
+	var board_state: Object = null
 
 	func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"publication": {
@@ -76,6 +97,13 @@ class FakeRoundSource:
 		}}, "receipt": {}}
 
 	func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+		if board_state != null and typeof(action_candidate.get("board_projection")) == TYPE_DICTIONARY:
+			var prepared_restore: Dictionary = board_state.call(&"prepare_restore", action_candidate["board_projection"])
+			if not prepared_restore.get("ok", false):
+				return prepared_restore
+			var board_committed: Dictionary = board_state.call(&"commit", (prepared_restore["value"] as Dictionary)["candidate"])
+			if not board_committed.get("ok", false):
+				return board_committed
 		committed.append({"action_candidate": action_candidate, "action_receipt": action_receipt})
 		return {"ok": true, "code": &"ok", "value": {"action_receipt": action_receipt}, "receipt": action_receipt}
 
@@ -145,6 +173,7 @@ func before_each() -> void:
 	_shop_participant.configure(_shop_state_port, _consequence_state, _checkpoint_port, SHOP_REGISTRY, _issuer, _gate)
 
 	_round_source = FakeRoundSource.new()
+	_round_source.board_state = _board_state
 	_condition_policy_port = CONDITION_POLICY_PORT.new()
 	_condition_policy_port.configure(RefCounted.new())
 	_schedule_view_port = SCHEDULE_VIEW_PORT.new()
@@ -429,13 +458,16 @@ func test_accept_prepared_action_no_departure_commits_and_publishes() -> void:
 	assert_eq(int(live["causal_sequence"]), 1)
 	assert_eq(int(live["run_revision"]), 1)
 
-	# Publication ledger recorded exactly causal_sequence (keyed by its own source_kind) + action_source
-	# (no board_fate for no-departure).
+	# Publication ledger recorded exactly causal_sequence + action_source (no board_fate for
+	# no-departure). FIX (dwm-p2r.13 remediation, finding W1): the ledger's own closed kind union is
+	# causal_sequence|action_source|board_fate (plan02-frozen-contracts.md line 328) -- never the
+	# causal reservation's own disjoint source_kind union ("shop_purchase") a prior implementation and
+	# this fixture assumed here by mistake.
 	var kinds: Array = []
 	for record: Dictionary in _publication_ledger.records.values():
 		kinds.append(str(record["kind"]))
 	kinds.sort()
-	assert_eq(kinds, ["action_source", "shop_purchase"])
+	assert_eq(kinds, ["action_source", "causal_sequence"])
 
 
 func test_accept_prepared_action_duplicate_replay_returns_identical_result() -> void:
@@ -490,11 +522,13 @@ func test_accept_prepared_action_departure_discards_the_preparing_board_and_comm
 	assert_eq(_schedule_view_port.commit_calls, 1)
 	assert_eq(_live_consequence()["pending"], null)
 
+	# FIX (dwm-p2r.13 remediation, finding W1): see the no-departure test above for the same
+	# causal_sequence-not-shop_purchase correction.
 	var kinds: Array = []
 	for record: Dictionary in _publication_ledger.records.values():
 		kinds.append(str(record["kind"]))
 	kinds.sort()
-	assert_eq(kinds, ["action_source", "board_fate", "shop_purchase"])
+	assert_eq(kinds, ["action_source", "board_fate", "causal_sequence"])
 
 
 func test_accept_prepared_action_minesweeper_round_departure_uses_the_action_candidate_projection_not_the_live_board() -> void:
@@ -696,13 +730,14 @@ func test_accept_prepared_action_departure_intent_lands_in_the_persisted_pending
 
 	# FakeRoundSource (this suite's own hand-built minesweeper_round stand-in, unlike the real
 	# MinesweeperRoundCoordinator) never writes to the publication ledger itself -- only its own
-	# `published` array, already asserted above -- so the ledger sees causal_sequence (kind=
-	# minesweeper_round) and board_fate, never action_source.
+	# `published` array, already asserted above -- so the ledger sees causal_sequence and board_fate,
+	# never action_source. FIX (dwm-p2r.13 remediation, finding W1): causal_sequence, not the causal
+	# reservation's own disjoint source_kind union ("minesweeper_round").
 	var kinds: Array = []
 	for record: Dictionary in _publication_ledger.records.values():
 		kinds.append(str(record["kind"]))
 	kinds.sort()
-	assert_eq(kinds, ["board_fate", "minesweeper_round"])
+	assert_eq(kinds, ["board_fate", "causal_sequence"])
 
 
 # ---- Review-fix pass (dwm-p2r.32.8): IMPORTANT 3 -- checkpoint ordinal/stage cross-validation ----

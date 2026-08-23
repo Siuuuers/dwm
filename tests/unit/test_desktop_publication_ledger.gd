@@ -4,6 +4,12 @@ extends "res://addons/gut/test.gd"
 # Mirrors test_schedule_foundation_publication_ledger.gd's discipline: the subject is the REAL
 # ledger over the REAL JsonFileStorage over a GUID-isolated temporary root. A restart is modelled by
 # rebuilding the whole stack over the same bytes, never by flipping an in-memory flag.
+#
+# FIX (dwm-p2r.13 remediation, finding W1): the ledger's closed kind union is exactly
+# `causal_sequence|action_source|board_fate` (plan02-frozen-contracts.md line 328), each with its OWN
+# publication shape (line 335) -- NOT the causal reservation's own `minesweeper_round|shop_purchase|
+# schedule_done` union a prior implementation/test pair reused here uniformly. This file's fixtures
+# below build the three REAL per-kind shapes.
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const LEDGER_PATH := "res://scripts/infrastructure/save/DesktopPublicationLedger.gd"
@@ -74,25 +80,69 @@ func _sha256(value: Variant) -> String:
 	return _canonical(value).sha256_text()
 
 
-func _publication(receipt_id: String) -> Dictionary:
-	var receipt := {"receipt_id": receipt_id, "causal_sequence": 1}
-	return {"causal_sequence_receipt": receipt, "outbox": {"notification": {"status": "pending"}}}
+# ---- per-kind fixture builders (frozen contract line 335) ----
 
-
-func _request(kind: String, receipt_id: String) -> Dictionary:
-	var publication := _publication(receipt_id)
+func _causal_publication(receipt_id: String) -> Dictionary:
 	return {
-		"kind": kind, "publication": publication,
-		"publication_sha256": _sha256(publication),
-		"semantic_receipt": publication["causal_sequence_receipt"],
+		"admission_checkpoint_receipt": {"receipt_id": "admission." + receipt_id},
+		"causal_sequence_receipt": {"receipt_id": receipt_id, "causal_sequence": 1},
 	}
+
+
+func _causal_request(receipt_id: String) -> Dictionary:
+	var publication := _causal_publication(receipt_id)
+	return {
+		"kind": "causal_sequence", "publication": publication,
+		"publication_sha256": _sha256(publication), "semantic_receipt": publication,
+	}
+
+
+func _action_publication(commit_receipt_id: String) -> Dictionary:
+	return {
+		"action_candidate_sha256": "sha-" + commit_receipt_id,
+		"action_receipt": {"commit_receipt_id": commit_receipt_id, "action_kind": "minesweeper_round"},
+	}
+
+
+func _action_request(commit_receipt_id: String) -> Dictionary:
+	var publication := _action_publication(commit_receipt_id)
+	return {
+		"kind": "action_source", "publication": publication,
+		"publication_sha256": _sha256(publication), "semantic_receipt": publication["action_receipt"],
+	}
+
+
+func _board_fate_publication(receipt_id: String) -> Dictionary:
+	return {
+		"board_candidate": {"phase": "NONE"},
+		"board_fate_receipt": {"receipt_id": receipt_id, "fate": "none"},
+	}
+
+
+func _board_fate_request(receipt_id: String) -> Dictionary:
+	var publication := _board_fate_publication(receipt_id)
+	return {
+		"kind": "board_fate", "publication": publication,
+		"publication_sha256": _sha256(publication), "semantic_receipt": publication["board_fate_receipt"],
+	}
+
+
+func _request_for(kind: String, id_value: String) -> Dictionary:
+	match kind:
+		"causal_sequence":
+			return _causal_request(id_value)
+		"action_source":
+			return _action_request(id_value)
+		"board_fate":
+			return _board_fate_request(id_value)
+	return {}
 
 
 func test_fixed_path_and_kinds_are_frozen() -> void:
 	if not _require_ledger():
 		return
 	assert_eq(_ledger_script.FIXED_PATH, FIXED_PATH)
-	assert_eq(_ledger_script.KINDS, ["minesweeper_round", "shop_purchase", "schedule_done"])
+	assert_eq(_ledger_script.KINDS, ["causal_sequence", "action_source", "board_fate"])
 
 
 func test_missing_file_initializes_the_exact_empty_document() -> void:
@@ -112,38 +162,104 @@ func test_three_exact_kind_unions_accepted_and_extra_kind_rejected() -> void:
 	if not _require_ledger():
 		return
 	var ledger := _loaded()
-	for kind: String in ["minesweeper_round", "shop_purchase", "schedule_done"]:
-		var recorded: Dictionary = ledger.record_before_emit(_request(kind, "receipt-" + kind))
+	for kind: String in ["causal_sequence", "action_source", "board_fate"]:
+		var recorded: Dictionary = ledger.record_before_emit(_request_for(kind, "receipt-" + kind))
 		assert_true(recorded.get("ok", false), str(recorded))
 		assert_eq(recorded["value"]["record"]["kind"], kind)
 		assert_true(recorded["value"]["first_delivery"])
-	var bad_kind: Dictionary = _request("desktop_notification", "receipt-bad")
-	var rejected: Dictionary = ledger.record_before_emit(bad_kind)
-	assert_false(rejected.get("ok", true))
-	assert_eq(rejected["code"], &"publication_request_invalid")
+	# The causal reservation's OWN source_kind union is a closed but DISJOINT set: the ledger must
+	# reject it exactly as it rejects any other out-of-union kind (finding W1's own root cause).
+	for bad_kind: String in ["minesweeper_round", "shop_purchase", "schedule_done", "desktop_notification"]:
+		var bad_request := _causal_request("receipt-bad-" + bad_kind)
+		bad_request["kind"] = bad_kind
+		var rejected: Dictionary = ledger.record_before_emit(bad_request)
+		assert_false(rejected.get("ok", true), bad_kind + " must be rejected")
+		assert_eq(rejected["code"], &"publication_request_invalid")
 
 
 func test_document_and_record_union_is_exact_after_one_publication() -> void:
 	if not _require_ledger():
 		return
 	var ledger := _loaded()
-	var recorded: Dictionary = ledger.record_before_emit(_request("minesweeper_round", "receipt-1"))
+	var recorded: Dictionary = ledger.record_before_emit(_causal_request("receipt-1"))
 	assert_true(recorded.get("ok", false), str(recorded))
 	var record: Dictionary = recorded["value"]["record"]
 	var keys: Array = record.keys()
 	keys.sort()
 	assert_eq(keys, RECORD_KEYS)
-	assert_eq(record["key"], "minesweeper_round:receipt-1")
+	assert_eq(record["key"], "causal_sequence:receipt-1")
 	var loaded: Dictionary = ledger.load()
 	var document_keys: Array = (loaded["value"]["document"] as Dictionary).keys()
 	document_keys.sort()
 	assert_eq(document_keys, ["records", "schema_version"])
 
 
+## Regression guard requested during dwm-p2r.13 remediation review: a hand-rolled test double
+## elsewhere in this suite once derived the causal_sequence key's id from the WRONG (absent)
+## top-level field, silently producing an empty suffix ("causal_sequence:") for every transaction --
+## which made two DISTINCT transactions collide on the identical key and reject the second as a
+## conflict. The REAL ledger's own _receipt_id_for_key() already reads the correct NESTED path
+## (causal_sequence_receipt.receipt_id) and _publication_binding_error() already rejects a blank id
+## outright, but this test pins the externally observable guarantee directly: two different
+## transactions' causal_sequence publications must derive two different, nonblank keys.
+func test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction() -> void:
+	if not _require_ledger():
+		return
+	var ledger := _loaded()
+	var first: Dictionary = ledger.record_before_emit(_causal_request("txn-a-receipt"))
+	assert_true(first.get("ok", false), str(first))
+	var second: Dictionary = ledger.record_before_emit(_causal_request("txn-b-receipt"))
+	assert_true(second.get("ok", false), str(second))
+	var first_key: String = first["value"]["record"]["key"]
+	var second_key: String = second["value"]["record"]["key"]
+	assert_false(first_key.trim_prefix("causal_sequence:").is_empty(), "the first key's id suffix must be nonblank")
+	assert_false(second_key.trim_prefix("causal_sequence:").is_empty(), "the second key's id suffix must be nonblank")
+	assert_ne(first_key, second_key, "two distinct transactions must never collide on the same ledger key")
+
+
+func test_action_source_key_derives_from_commit_receipt_id_not_receipt_id() -> void:
+	# Finding W1: DesktopActionReceipt has no top-level receipt_id member at all -- the record key
+	# must derive from its own commit_receipt_id instead.
+	if not _require_ledger():
+		return
+	var ledger := _loaded()
+	var recorded: Dictionary = ledger.record_before_emit(_action_request("commit-1"))
+	assert_true(recorded.get("ok", false), str(recorded))
+	assert_eq(recorded["value"]["record"]["key"], "action_source:commit-1")
+	assert_false((recorded["value"]["record"]["semantic_receipt"] as Dictionary).has("receipt_id"))
+
+
+func test_board_fate_key_derives_from_ordinary_receipt_id() -> void:
+	if not _require_ledger():
+		return
+	var ledger := _loaded()
+	var recorded: Dictionary = ledger.record_before_emit(_board_fate_request("board-fate-1"))
+	assert_true(recorded.get("ok", false), str(recorded))
+	assert_eq(recorded["value"]["record"]["key"], "board_fate:board-fate-1")
+
+
+func test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety() -> void:
+	# Frozen contract line 335: "semantic receipt and publication are both exactly
+	# {causal_sequence_receipt,admission_checkpoint_receipt}" -- unlike action_source/board_fate,
+	# there is no separate wrapper: the two dictionaries must be byte-equal, not merely one nested
+	# inside the other.
+	if not _require_ledger():
+		return
+	var ledger := _loaded()
+	var publication := _causal_publication("receipt-equal")
+	var mismatched := {
+		"kind": "causal_sequence", "publication": publication,
+		"publication_sha256": _sha256(publication),
+		"semantic_receipt": publication["causal_sequence_receipt"],
+	}
+	var rejected: Dictionary = ledger.record_before_emit(mismatched)
+	assert_false(rejected.get("ok", true), "semantic_receipt must equal the WHOLE publication, not just the nested receipt")
+
+
 func test_first_delivery_then_byte_identical_replay_across_a_cold_restart() -> void:
 	if not _require_ledger():
 		return
-	var request := _request("shop_purchase", "receipt-2")
+	var request := _action_request("receipt-2")
 	var first_ledger := _loaded()
 	var first: Dictionary = first_ledger.record_before_emit(request)
 	assert_true(first.get("ok", false), str(first))
@@ -161,17 +277,17 @@ func test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage() 
 	if not _require_ledger():
 		return
 	var ledger := _loaded()
-	var first: Dictionary = ledger.record_before_emit(_request("schedule_done", "receipt-3"))
+	var first: Dictionary = ledger.record_before_emit(_board_fate_request("receipt-3"))
 	assert_true(first.get("ok", false), str(first))
 	var path := _root.path_join(FIXED_PATH)
 	var before := FileAccess.get_file_as_string(path)
 
-	var changed_publication := _publication("receipt-3")
-	changed_publication["outbox"] = {"notification": {"status": "published"}}
+	var changed_publication := _board_fate_publication("receipt-3")
+	changed_publication["board_candidate"] = {"phase": "PREPARING"}
 	var changed_request := {
-		"kind": "schedule_done", "publication": changed_publication,
+		"kind": "board_fate", "publication": changed_publication,
 		"publication_sha256": _sha256(changed_publication),
-		"semantic_receipt": changed_publication["causal_sequence_receipt"],
+		"semantic_receipt": changed_publication["board_fate_receipt"],
 	}
 	var conflicted: Dictionary = ledger.record_before_emit(changed_request)
 	assert_false(conflicted.get("ok", true))
@@ -186,13 +302,13 @@ func test_request_hash_and_receipt_binding_enforced_before_any_write() -> void:
 	var path := _root.path_join(FIXED_PATH)
 	var before := FileAccess.get_file_as_string(path)
 
-	var wrong_hash := _request("minesweeper_round", "receipt-4")
+	var wrong_hash := _causal_request("receipt-4")
 	wrong_hash["publication_sha256"] = "0".repeat(64)
 	var rejected_hash: Dictionary = ledger.record_before_emit(wrong_hash)
 	assert_false(rejected_hash.get("ok", true))
 
-	var unbound := _request("minesweeper_round", "receipt-5")
-	unbound["semantic_receipt"] = {"receipt_id": "receipt-different"}
+	var unbound := _action_request("receipt-5")
+	unbound["semantic_receipt"] = {"commit_receipt_id": "receipt-different"}
 	var rejected_binding: Dictionary = ledger.record_before_emit(unbound)
 	assert_false(rejected_binding.get("ok", true))
 

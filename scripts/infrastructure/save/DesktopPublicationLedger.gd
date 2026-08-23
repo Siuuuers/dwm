@@ -20,22 +20,44 @@ extends RefCounted
 ## but deliberately disjoint from it: a distinct `FIXED_PATH`, a distinct closed `kind` union, and a
 ## distinct publication shape, so neither ledger's bytes can ever be mistaken for the other's.
 ##
-## ASSUMPTION (documented per this project's convention for text the source plan leaves open, e.g.
-## `DesktopIdentityNonceIssuer`'s schema_version note): the brief requires three closed kinds but
-## never spells them out. Read as the causal reservation's own `source_kind` union --
-## `minesweeper_round`, `shop_purchase`, `schedule_done` -- since that is the only closed
-## three-member union anywhere in Task 6 that the brief's "each Plan-02 publisher" phrase could mean.
+## FIX (dwm-p2r.13 remediation, finding W1): the closed `kind` union is exactly the three record
+## kinds the frozen contract names at plan02-frozen-contracts.md line 328 -- `causal_sequence`,
+## `action_source`, `board_fate` -- one per Plan-02 publisher (`DesktopCausalSequencePort`; the two
+## action-source participants, `MinesweeperRoundCoordinator`/`MinesweeperShopPurchaseParticipant`,
+## sharing one kind; `DesktopBoardFatePort`), never the causal reservation's own
+## `minesweeper_round|shop_purchase|schedule_done` `source_kind` union a prior implementation reused
+## here by mistake. Each kind has its OWN publication shape and its OWN receipt-id field for key
+## derivation (line 335): `causal_sequence`'s `semantic_receipt` equals `publication` in its entirety
+## (`{causal_sequence_receipt,admission_checkpoint_receipt}`), keyed off the nested
+## `causal_sequence_receipt.receipt_id`; `action_source`'s `semantic_receipt` is the exact
+## `DesktopActionReceipt`, keyed off its `commit_receipt_id` (that receipt has no top-level
+## `receipt_id` member at all); `board_fate`'s `semantic_receipt` is the exact `board_fate_receipt`,
+## keyed off its ordinary `receipt_id`.
 
 const FIXED_PATH := "desktop-publications.json"
 const SCHEMA_VERSION := 1
 
-const KINDS: Array[String] = ["minesweeper_round", "shop_purchase", "schedule_done"]
+const KINDS: Array[String] = ["causal_sequence", "action_source", "board_fate"]
 
-## A publication is the same shape for every kind: the causal-sequence receipt that anchors the
-## consequence transaction, byte-equal to the record's own `semantic_receipt`, plus the outbox
-## snapshot being published under it.
-const PUBLICATION_KEYS: Array[String] = ["causal_sequence_receipt", "outbox"]
-const _PUBLICATION_RECEIPT_FIELD := "causal_sequence_receipt"
+## The exact publication member set for each kind (frozen contract line 335).
+const PUBLICATION_KEYS := {
+	"causal_sequence": ["admission_checkpoint_receipt", "causal_sequence_receipt"],
+	"action_source": ["action_candidate_sha256", "action_receipt"],
+	"board_fate": ["board_candidate", "board_fate_receipt"],
+}
+## The publication member that must be byte-equal to `semantic_receipt`; an empty string means
+## `semantic_receipt` equals `publication` in its entirety instead of nesting inside one member
+## (`causal_sequence` alone -- frozen contract line 335's "semantic receipt and publication are both
+## exactly {causal_sequence_receipt,admission_checkpoint_receipt}").
+const _PUBLICATION_RECEIPT_MEMBER := {
+	"causal_sequence": "", "action_source": "action_receipt", "board_fate": "board_fate_receipt",
+}
+## The path inside `semantic_receipt` whose final String value is the record key's id suffix.
+const _RECEIPT_ID_PATH := {
+	"causal_sequence": ["causal_sequence_receipt", "receipt_id"],
+	"action_source": ["commit_receipt_id"],
+	"board_fate": ["receipt_id"],
+}
 
 const DOCUMENT_KEYS: Array[String] = ["records", "schema_version"]
 const RECORD_KEYS: Array[String] = [
@@ -67,7 +89,7 @@ const _RECORD_SCHEMA := {
 	"additionalProperties": false,
 	"properties": {
 		"key": {"type": "string", "minLength": 1},
-		"kind": {"enum": ["minesweeper_round", "shop_purchase", "schedule_done"]},
+		"kind": {"enum": ["causal_sequence", "action_source", "board_fate"]},
 		"publication": {"type": "object"},
 		"publication_sha256": {"type": "string", "minLength": 64},
 		"semantic_receipt": {"type": "object"},
@@ -132,7 +154,12 @@ func record_before_emit(request: Dictionary) -> Dictionary:
 	var existing_records: Dictionary = _cached_document.get("records", {})
 	if existing_records.has(entry["key"]):
 		var stored: Dictionary = existing_records[entry["key"]]
-		if stored == entry:
+		# FIX: same canonical-representation comparison as _confirm_written_entry() below, for the
+		# identical reason -- after a cold restart, `stored` is read fresh from disk (plain String
+		# throughout), while a genuinely byte-identical replay's freshly built `entry` may still carry
+		# a StringName a production caller embedded (e.g. a checkpoint header's own `kind`). Raw `!=`
+		# would misreport that replay as a conflict instead of the no-op success it actually is.
+		if _digest_source(stored) == _digest_source(entry):
 			return _accepted({"record": stored.duplicate(true), "first_delivery": false})
 		return _rejected(&"publication_record_conflict", str(entry["key"]))
 
@@ -150,7 +177,7 @@ func _check_request(request: Dictionary) -> Dictionary:
 		return _rejected(&"publication_request_invalid", "kind is not one of the closed union")
 	var publication: Variant = request["publication"]
 	var semantic_receipt: Variant = request["semantic_receipt"]
-	var binding_error := _publication_binding_error(publication, semantic_receipt)
+	var binding_error := _publication_binding_error(kind, publication, semantic_receipt)
 	if not binding_error.is_empty():
 		return _rejected(&"publication_request_invalid", binding_error)
 	var digest := _digest(publication)
@@ -158,7 +185,7 @@ func _check_request(request: Dictionary) -> Dictionary:
 		return _rejected(&"publication_request_invalid", "publication is not canonically representable")
 	if str(request.get("publication_sha256", "")) != digest:
 		return _rejected(&"publication_request_invalid", "publication_sha256 does not match the canonical digest")
-	var receipt_id := str((semantic_receipt as Dictionary)["receipt_id"])
+	var receipt_id := str(_receipt_id_for_key(kind, semantic_receipt as Dictionary))
 	return {"ok": true, "value": {"entry": {
 		"key": _ledger_key(kind, receipt_id),
 		"kind": kind,
@@ -201,7 +228,16 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dict
 	var reshaped := _document_shape_error(reparsed["value"])
 	if not reshaped.is_empty():
 		return _rejected(&"publication_ledger_schema_invalid", reshaped)
-	if (reparsed["value"] as Dictionary)["records"].get(entry["key"]) != entry:
+	var reparsed_entry: Variant = (reparsed["value"] as Dictionary)["records"].get(entry["key"])
+	# FIX: compare canonical representations, not raw Variant equality. A production receipt
+	# routinely embeds StringName literals (e.g. a checkpoint header's `kind: &"consequence_admission"`
+	# -- see DesktopConsequenceCoordinator.gd); canonical JSON round-tripping normalizes those to plain
+	# String on the way back through disk, so `reparsed_entry` and the in-memory `entry` can be
+	# semantically byte-identical while still failing a raw `!=` Dictionary comparison. This durability
+	# check exists to prove "the same bytes survived," which canonical-string equality proves directly
+	# (and more precisely) without being sensitive to a Variant subtype the JSON wire format never
+	# distinguished in the first place.
+	if _digest_source(reparsed_entry) != _digest_source(entry):
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
 	return {"ok": true}
 
@@ -283,32 +319,52 @@ func _record_shape_error(candidate: Variant, expected_key: String) -> String:
 		return str(against_schema.get("message", "record rejected by schema"))
 	if str(record["key"]) != expected_key:
 		return "record key must equal its map index"
-	var binding_error := _publication_binding_error(record["publication"], record["semantic_receipt"])
+	var kind := str(record["kind"])
+	var binding_error := _publication_binding_error(kind, record["publication"], record["semantic_receipt"])
 	if not binding_error.is_empty():
 		return binding_error
-	var receipt_id := str((record["semantic_receipt"] as Dictionary)["receipt_id"])
-	if _ledger_key(str(record["kind"]), receipt_id) != expected_key:
-		return "key must equal kind + ':' + semantic_receipt.receipt_id"
+	var receipt_id := str(_receipt_id_for_key(kind, record["semantic_receipt"] as Dictionary))
+	if _ledger_key(kind, receipt_id) != expected_key:
+		return "key must equal kind + ':' + the kind-specific semantic-receipt id"
 	var digest := _digest(record["publication"])
 	if digest.is_empty() or str(record["publication_sha256"]) != digest:
 		return "publication_sha256 must equal the canonical publication digest"
 	return ""
 
 
-func _publication_binding_error(publication: Variant, semantic_receipt: Variant) -> String:
+## Kind-specific binding law (frozen contract line 335, see the class doc's FIX note): every kind
+## pins its own publication member set, which member (if any) must be byte-equal to `semantic_receipt`,
+## and where inside `semantic_receipt` the record key's id suffix lives.
+func _publication_binding_error(kind: String, publication: Variant, semantic_receipt: Variant) -> String:
 	if typeof(publication) != TYPE_DICTIONARY or typeof(semantic_receipt) != TYPE_DICTIONARY:
 		return "publication and semantic_receipt must both be dictionaries"
-	var member_error := _mismatched_members(publication as Dictionary, PUBLICATION_KEYS)
+	var expected_keys: Array = PUBLICATION_KEYS[kind]
+	var member_error := _mismatched_members(publication as Dictionary, expected_keys)
 	if not member_error.is_empty():
 		return member_error
-	if (publication as Dictionary)[_PUBLICATION_RECEIPT_FIELD] != semantic_receipt:
-		return "publication." + _PUBLICATION_RECEIPT_FIELD + " must be byte-equal to semantic_receipt"
-	var receipt_id: Variant = (semantic_receipt as Dictionary).get("receipt_id")
+	var receipt_member := str(_PUBLICATION_RECEIPT_MEMBER[kind])
+	if receipt_member.is_empty():
+		if (publication as Dictionary) != (semantic_receipt as Dictionary):
+			return "publication must be byte-equal to semantic_receipt"
+	elif (publication as Dictionary)[receipt_member] != semantic_receipt:
+		return "publication." + receipt_member + " must be byte-equal to semantic_receipt"
+	var receipt_id: Variant = _receipt_id_for_key(kind, semantic_receipt as Dictionary)
 	if typeof(receipt_id) != TYPE_STRING or str(receipt_id).strip_edges().is_empty():
-		return "semantic_receipt.receipt_id must be a nonblank String"
-	if typeof((publication as Dictionary)["outbox"]) != TYPE_DICTIONARY:
-		return "publication.outbox must be a dictionary"
+		return "semantic_receipt does not carry a nonblank id for this kind"
 	return ""
+
+
+## Walks `_RECEIPT_ID_PATH[kind]` inside `semantic_receipt` and returns the final String value, or
+## null when any path segment is absent -- e.g. `action_source` reads the top-level `commit_receipt_id`
+## while `causal_sequence` reads the nested `causal_sequence_receipt.receipt_id`.
+func _receipt_id_for_key(kind: String, semantic_receipt: Dictionary) -> Variant:
+	var path: Array = _RECEIPT_ID_PATH[kind]
+	var cursor: Variant = semantic_receipt
+	for segment: Variant in path:
+		if typeof(cursor) != TYPE_DICTIONARY or not (cursor as Dictionary).has(str(segment)):
+			return null
+		cursor = (cursor as Dictionary)[str(segment)]
+	return cursor
 
 
 func _first_missing_capability(candidate: Object) -> String:

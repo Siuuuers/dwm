@@ -36,30 +36,12 @@ const FAKE_MINESWEEPER_CHECKPOINT_PATH := "res://tests/support/FakeMinesweeperCh
 const FAKE_MINESWEEPER_GENERATION_PATH := "res://tests/support/FakeMinesweeperGenerationPort.gd"
 const CONDITION_POLICY_PORT_PATH := "res://tests/support/FakeDesktopConditionPolicyPort.gd"
 const SCHEDULE_VIEW_PORT_PATH := "res://tests/support/FakeScheduleDepartureViewPort.gd"
+const PUBLICATION_LEDGER_PATH := "res://scripts/infrastructure/save/DesktopPublicationLedger.gd"
 
 const IDENTITY_CONTEXT := {
 	"run_id": "run-shop-departure", "branch_id": "branch-shop-departure", "desktop_timeline_generation": 0,
 	"causal_day_instance": "causal-day-shop-departure-1",
 }
-
-
-class _FakePublicationLedger extends RefCounted:
-	var records: Dictionary = {}
-
-	func record_before_emit(request: Dictionary) -> Dictionary:
-		var kind: String = str(request.get("kind", ""))
-		var semantic_receipt: Dictionary = request.get("semantic_receipt", {})
-		var key := kind + ":" + str(semantic_receipt.get("commit_receipt_id", semantic_receipt.get("receipt_id", "")))
-		if records.has(key):
-			var existing: Dictionary = records[key]
-			if existing.get("publication") == request.get("publication") \
-					and existing.get("publication_sha256") == request.get("publication_sha256"):
-				return {"ok": true, "code": &"ok", "value": {"record": existing, "first_delivery": false}, "receipt": {}}
-			return {"ok": false, "code": &"publication_record_conflict", "message": "", "details": {}}
-		var record: Dictionary = request.duplicate(true)
-		record["key"] = key
-		records[key] = record
-		return {"ok": true, "code": &"ok", "value": {"record": record, "first_delivery": true}, "receipt": {}}
 
 
 func _fresh_issuer(root: String) -> RefCounted:
@@ -102,7 +84,12 @@ func _wired() -> Dictionary:
 	identity_context["causal_day_instance"] = str(day_receipt["token"])
 
 	var gate := ApplicationMutationGate.new()
-	var publication_ledger := _FakePublicationLedger.new()
+	# FIX (dwm-p2r.13 remediation, finding W1): the REAL DesktopPublicationLedger, not a hand-rolled
+	# fake -- see test_desktop_completion_transaction.gd's identical fix for the full rationale.
+	var publication_storage: Object = load(STORAGE_PATH).new(root.path_join("_publications"))
+	var publication_ledger: Object = load(PUBLICATION_LEDGER_PATH).new()
+	assert_true(publication_ledger.configure(publication_storage).get("ok", false))
+	assert_true(publication_ledger.load().get("ok", false))
 
 	var board_state_port: Object = load(BOARD_STATE_PORT_PATH).new()
 	assert_true(board_state_port.configure(gs, issuer, identity_context).get("ok", false))

@@ -289,7 +289,12 @@ func rollback(backup: Dictionary) -> Dictionary:
 
 ## Records the at-most-once external observation of this admitted causal transaction through the
 ## configured publication ledger (brief line 362: "each Plan-02 publisher calls only the configured
-## ledger's record-before-emit seam"), keyed by `source_kind`.
+## ledger's record-before-emit seam"), under the ledger's own closed `causal_sequence` kind (frozen
+## contract line 328/335): `semantic_receipt` and `publication` are both exactly
+## `{admission_checkpoint_receipt,causal_sequence_receipt}` -- NOT `source_kind` (the causal
+## reservation's own `minesweeper_round|shop_purchase|schedule_done` union, disjoint from the
+## ledger's three-kind union) and never a `{causal_sequence_receipt,outbox}` shape the ledger does
+## not define (finding W1 fix).
 func publish(publication: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.is_empty():
@@ -299,18 +304,22 @@ func publish(publication: Dictionary) -> Dictionary:
 	if keys != ["admission_checkpoint_receipt", "causal_sequence_receipt"]:
 		return _fail(&"invalid_publication", "publication must carry exactly causal_sequence_receipt and admission_checkpoint_receipt", {})
 	var causal_sequence_receipt: Dictionary = publication["causal_sequence_receipt"]
-	var ledger_publication := {"causal_sequence_receipt": causal_sequence_receipt.duplicate(true), "outbox": {}}
+	var admission_checkpoint_receipt: Dictionary = publication["admission_checkpoint_receipt"]
+	var ledger_publication := {
+		"admission_checkpoint_receipt": admission_checkpoint_receipt.duplicate(true),
+		"causal_sequence_receipt": causal_sequence_receipt.duplicate(true),
+	}
 	var recorded: Dictionary = _publication_ledger.call(&"record_before_emit", {
-		"kind": str(causal_sequence_receipt.get("source_kind", "")),
+		"kind": "causal_sequence",
 		"publication": ledger_publication,
 		"publication_sha256": _canonical_sha256(ledger_publication),
-		"semantic_receipt": causal_sequence_receipt.duplicate(true),
+		"semantic_receipt": ledger_publication.duplicate(true),
 	})
 	if not recorded.get("ok", false):
 		return recorded
 	return {"ok": true, "code": &"ok", "value": {"published": true},
 		"receipt": {"causal_sequence_receipt": causal_sequence_receipt.duplicate(true),
-			"admission_checkpoint_receipt": (publication["admission_checkpoint_receipt"] as Dictionary).duplicate(true)}}
+			"admission_checkpoint_receipt": admission_checkpoint_receipt.duplicate(true)}}
 
 
 func _sequence_candidate(record: Dictionary) -> Dictionary:
