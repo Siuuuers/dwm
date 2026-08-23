@@ -8,20 +8,28 @@ extends "res://addons/gut/test.gd"
 # therefore nothing pending of that kind to crash-recover here, and this file does not pretend
 # otherwise.
 #
-# A FOURTH, NEWLY-DISCOVERED GAP (not one of Task 9's own three, and not fixed here -- it lives in
-# autoload/SaveManager.gd and autoload/ProfileManager.gd, both outside Task 9's file ownership,
-# retained from Task 1/6/7): driving SaveManager.start_new_run() through a REAL ProfileManager for
-# the first time (every prior test of start_new_run(), in test_new_run_transaction.gd and
-# test_save_manager.gd, wires a FAKE "profile" participant) proves it can never succeed.
-# start_new_run() hardcodes `plans["profile"] = {"profile": {}}` (SaveManager.gd, "Empty profile
-# patch preserves the complete global profile for a new game"), but ProfileManager.
-# apply_restore_silent() has no no-op path for an empty candidate -- it always runs the literal `{}`
-# through ProfileSchema.validate(), which requires an EXACT 7-key object and therefore always fails
-# with `{"code":"invalid_profile","path":"profile","message":"object has unknown or missing
-# fields"}`. This is unconditional: no profile.json content on disk can change it, since the plan
-# never reads `_profile` at all. Confirmed against HEAD by direct code reading (ProfileSchema.gd:87,
-# 216-220; ProfileManager.gd:246-253; SaveManager.gd:79,393). Below, this is proven fail-closed
-# rather than either faked past or silently left to surface as a mysterious failure elsewhere.
+# A FOURTH, NEWLY-DISCOVERED GAP (not one of Task 9's own three, and not fixed here): driving
+# SaveManager.start_new_run() through a REAL ProfileManager for the first time (every prior test of
+# start_new_run(), in test_new_run_transaction.gd and test_save_manager.gd, wires FAKE participants
+# for every key) proves it can never succeed. start_new_run() hardcodes `plans["profile"] =
+# {"profile": {}}` (SaveManager.gd, "Empty profile patch preserves the complete global profile for a
+# new game"), never routed through ProfileRestoreParticipant.prepare() the way the ordinary restore
+# path uses it, and ProfileManager.apply_restore_silent() has no no-op path for an empty candidate --
+# it always runs the literal `{}` through ProfileSchema.validate(), which requires an EXACT 7-key
+# object and therefore always fails with `{"code":"invalid_profile","path":"profile","message":
+# "object has unknown or missing fields"}`. This is unconditional: no profile.json content on disk
+# can change it, since the plan never reads `_profile` at all. The identical pattern also blocks
+# `plans["localization"] = {}` immediately afterward (confirmed by code reading:
+# LocalizationManager._is_restore_plan_valid({}) requires four keys an empty dict never carries), not
+# exercised live below only because the profile failure is always reached first in participant order.
+# Confirmed against HEAD by direct code reading (ProfileSchema.gd:87, 216-220; ProfileManager.gd:
+# 246-253; LocalizationManager.gd:391-392; SaveManager.gd:79,393-394). autoload/SaveManager.gd IS one
+# of Task 9's own authorized Modify targets per the brief's Files list -- unlike ProfileManager.gd/
+# LocalizationManager.gd, which are not -- so this is not a file-ownership gap the way gaps 1-3 are;
+# it is left unfixed because the correct fix is a real design decision (what locale/profile a
+# brand-new run should start from, including the no-prior-profile.json case) the brief's own prose
+# never specifies, not a mechanical wiring gap. Below, this is proven fail-closed rather than either
+# faked past or silently left to surface as a mysterious failure elsewhere.
 #
 # What Task 9's own wiring genuinely adds and IS crash-recoverable, independent of all four gaps, is
 # the desktop publication ledger's own durability across a fresh reload, plus the production graph's

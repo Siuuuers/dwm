@@ -67,21 +67,36 @@ static func honest_gaps() -> Array:
 			"gap_id": "new_run_empty_profile_patch_fails_closed",
 			"summary": "SaveManager.start_new_run() can never complete against a real ProfileManager: " \
 				+ "it hardcodes plans[\"profile\"] = {\"profile\": {}} (the literal empty dict, never " \
-				+ "the persisted profile.json), and ProfileManager.apply_restore_silent() has no " \
-				+ "no-op path for an empty candidate despite its own adjacent comment's stated intent " \
-				+ "(\"Empty profile patch preserves the complete global profile for a new game\") -- it " \
-				+ "always runs the empty dict through ProfileSchema.validate()'s exact-7-key check, " \
-				+ "which always fails. Not one of Task 9's own three gaps and NOT fixed by Task 9: " \
-				+ "autoload/SaveManager.gd and autoload/ProfileManager.gd are Task 1/6/7-owned, " \
-				+ "retained files outside Task 9's file list. Newly discovered because every prior " \
-				+ "test of start_new_run() (test_new_run_transaction.gd, test_save_manager.gd) wires " \
-				+ "a FAKE \"profile\" participant; Task 9's crash-recovery suite is the first to drive " \
-				+ "it through the complete real production graph.",
+				+ "the persisted profile.json, and never routed through ProfileRestoreParticipant." \
+				+ "prepare() the way the ordinary restore path uses it), and ProfileManager." \
+				+ "apply_restore_silent() has no no-op path for an empty candidate despite its own " \
+				+ "adjacent comment's stated intent (\"Empty profile patch preserves the complete " \
+				+ "global profile for a new game\") -- it always runs the empty dict through " \
+				+ "ProfileSchema.validate()'s exact-7-key check, which always fails. The SAME pattern " \
+				+ "(a hardcoded, caller-independent literal that bypasses .prepare() and cannot " \
+				+ "satisfy its own participant's real validator) also blocks plans[\"localization\"] " \
+				+ "= {} immediately afterward -- LocalizationManager._is_restore_plan_valid({}) " \
+				+ "requires canonical_locale_id/bundle/presentation_profile/root_plans, none of which " \
+				+ "an empty dict carries -- confirmed by code reading, not exercised live since the " \
+				+ "profile failure (participant order: run, desktop_consequence, desktop_board, " \
+				+ "PROFILE, localization, audio, route, narrative) is always reached first. NOT fixed " \
+				+ "by Task 9. Note for the record: autoload/SaveManager.gd IS one of Task 9's own " \
+				+ "authorized Modify targets per the brief's Files list (unlike autoload/" \
+				+ "ProfileManager.gd and autoload/LocalizationManager.gd, which are not), so this is " \
+				+ "not blocked by file ownership the way gaps 1-3 are -- it is left unfixed because " \
+				+ "the correct fix is a real design decision (what locale/profile a brand-new run " \
+				+ "should start from, including the no-prior-profile.json case) that the brief's own " \
+				+ "prose never specifies, not a mechanical wiring gap. Newly discovered because every " \
+				+ "prior test of start_new_run() (test_new_run_transaction.gd, test_save_manager.gd) " \
+				+ "wires FAKE participants for every key; Task 9's crash-recovery suite is the first " \
+				+ "to drive it through the complete real production graph.",
 			"evidence": "ProfileSchema.gd:87 (validate's 7-key _require_keys call), 216-220 " \
 				+ "(_require_keys itself); ProfileManager.gd:246-253 (apply_restore_silent, no " \
-				+ "emptiness special-case); SaveManager.gd:79 (profile fourth in " \
-				+ "_PARTICIPANT_APPLY_ORDER), 393 (the hardcoded {\"profile\": {}} literal) -- " \
-				+ "verified directly against the real production graph in test_desktop_crash_recovery.gd",
+				+ "emptiness special-case); LocalizationManager.gd:391-392 (_is_restore_plan_valid's " \
+				+ "4-key has_all check); SaveManager.gd:79 (profile fourth in " \
+				+ "_PARTICIPANT_APPLY_ORDER), 393-394 (the hardcoded {\"profile\": {}} and {} " \
+				+ "literals) -- verified directly against the real production graph in " \
+				+ "test_desktop_crash_recovery.gd",
 			"asserted_by": ["test_desktop_crash_recovery.gd"],
 		},
 	]
