@@ -8,7 +8,8 @@ owner_choice_on: "2026-08-23"
 current_direction: truthful_nine_drawer_archive_with_record_bound_transfer_bloom
 conversational_design_status: approved_owner_batches
 conversationally_approved_on: "2026-08-23"
-written_spec_status: pending_owner_review
+written_spec_status: approved
+written_spec_approved_on: "2026-08-23"
 standard_master_status: provisional_pending_native_pixel_proof
 high_contrast_and_cvd_tuple_status: deliberately_unsettled
 implementation_requested: false
@@ -1169,7 +1170,6 @@ interpretive hint, or implementation permission; preserves every retained
 Backup behavior; and distinguishes provisional Standard calibration from
 production acceptance.
 
-The conversational design direction is approved. These exact written bytes
-remain pending project-owner review. Approval of them would close only the
-Backup After-Hours/Midnight Standard visual disposition and would authorize no
-implementation.
+The project owner approved these written bytes on 2026-08-23. That approval
+closes only the Backup After-Hours/Midnight Standard visual disposition. It
+authorizes no implementation.
