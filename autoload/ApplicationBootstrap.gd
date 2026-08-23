@@ -46,6 +46,30 @@ const FATAL_DIAGNOSTIC_PROJECTOR := preload("res://scripts/application/transacti
 const MINESWEEPER_ROUND_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
 const MINESWEEPER_STATE_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
 const MINESWEEPER_SAVE_PORT := preload("res://scripts/application/minesweeper/SaveManagerMinesweeperPort.gd")
+## Plan 02 Task 9 (dwm-p2r.32): the one production desktop board/consequence/causal graph, kept
+## distinct from the retained .9-era simulator stack above (no shared identity, no shared state).
+const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
+const DESKTOP_CAUSAL_SEQUENCE_PORT := preload("res://scripts/application/desktop/DesktopCausalSequencePort.gd")
+const DESKTOP_CONSEQUENCE_COORDINATOR := preload("res://scripts/application/desktop/DesktopConsequenceCoordinator.gd")
+const DESKTOP_BOARD_FATE_PORT := preload("res://scripts/application/minesweeper/DesktopBoardFatePort.gd")
+const MINESWEEPER_ROUND_COORDINATOR_APP := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
+const MINESWEEPER_SHOP_PURCHASE_PARTICIPANT := preload("res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd")
+const GAME_STATE_DESKTOP_BOARD_PORT := preload("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd")
+const GAME_STATE_MINESWEEPER_SHOP_PORT := preload("res://scripts/application/shop/GameStateMinesweeperShopPort.gd")
+const SAVE_MANAGER_DESKTOP_BOARD_PORT := preload("res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd")
+const DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER := preload("res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd")
+const MINESWEEPER_SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
+const DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd")
+const RUN_SNAPSHOT_SCHEMA_FOR_PROBE := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const SAVE_DOCUMENT_SCHEMA_FOR_PROBE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+const RUN_SNAPSHOT_SCHEMA_VERSION := RUN_SNAPSHOT_SCHEMA_FOR_PROBE.SCHEMA_VERSION
+const SAVE_DOCUMENT_SCHEMA_VERSION := SAVE_DOCUMENT_SCHEMA_FOR_PROBE.DOCUMENT_VERSION
+## Frozen live restore order (dwm-p2r.32 Plan 02 Task 9 brief): identity_allocation applies once,
+## before the ordinary 8-participant loop SaveManager itself drives.
+const _RESTORE_ORDER: Array[StringName] = [
+	&"identity_allocation", &"run", &"desktop_consequence", &"desktop_board",
+	&"profile", &"localization", &"audio", &"route", &"narrative",
+]
 
 const MODE_FINAL := &"final"
 const MODE_TEST_MANUAL := &"test_manual"
@@ -141,6 +165,47 @@ var _retained_minesweeper_coordinator: RefCounted = null
 ## The exact provider bundle handed to BOTH checkpoint producers, so the Minesweeper port and
 ## the day-resolution port read one set of Callable identities.
 var _checkpoint_provider_bundle: Dictionary = {}
+## The 8-key restore-participant dict SaveManager was configured with, retained here so the
+## desktop-contract probe never has to reach back into SaveManager for identities Bootstrap itself
+## already built (dwm-p2r.32 Plan 02 Task 9).
+var _retained_restore_participants: Dictionary = {}
+## The identity-allocation restore participant (separate from the 8-key set above; applies once,
+## before it, only for a restore). Constructed and handed to SaveManager during `initialize_saves`.
+var _desktop_identity_allocation_participant: RefCounted = null
+## The ONE production desktop board/consequence/causal graph (dwm-p2r.32 Plan 02 Task 9). Distinct
+## identities from the retained .9-era simulator stack above; never shares state with it.
+var _retained_desktop_publication_ledger: RefCounted = null
+var _retained_desktop_causal_sequence_port: RefCounted = null
+var _retained_desktop_board_fate_port: RefCounted = null
+var _retained_desktop_consequence_coordinator: RefCounted = null
+## The Plan-02 application-level round coordinator (no class_name; preload by path). Its base
+## `configure(state_port, checkpoint_port, generation_port, identity_issuer)` is deliberately never
+## called here: no production `generation_port` (materialize/begin_search/run_search_slice) or
+## Task-5-shaped fake-checkpoint (seal_checkpoint) adapter exists anywhere in this codebase, and
+## building one is outside this task's file list. Only the seams real production machinery can
+## satisfy are configured: shared board state, publication ledger, the consequence-port pair, and
+## the durable first-Reveal checkpoint path. `complete_round()`'s own forward/initiating call and
+## `reveal()` therefore remain unreachable until a later task supplies those two missing adapters;
+## the action-source RECOVERY methods `validate_recovery_action()`/`commit_recovery_action()`/
+## `publish_recovery_action()` do not depend on base `configure()` at all (verified against the
+## source: they never call `_guard()` or read `_state_port`/`_generation_port`/`_checkpoint_port`),
+## so registering this coordinator as a consequence action source is still fully honest production
+## wiring.
+var _retained_minesweeper_round_coordinator_app: RefCounted = null
+var _retained_minesweeper_shop_purchase_participant: RefCounted = null
+var _retained_game_state_desktop_board_port: RefCounted = null
+var _retained_game_state_minesweeper_shop_port: RefCounted = null
+var _retained_save_manager_desktop_board_port: RefCounted = null
+## Placeholder desktop identity context (dwm-p2r.32 Plan 02 Task 9). `GameStateDesktopBoardPort`/
+## `GameStateMinesweeperShopPort` accept only ONE fixed `{run_id,branch_id,
+## desktop_timeline_generation,causal_day_instance}` at configure() time and refuse any later
+## reconfiguration (both files' own doc comments flag this as a gap explicitly deferred to "Task
+## 6/9" -- confirmed still unresolved: neither file is in this task's own Files list to edit). Real
+## per-New-Run identity rotation for these two ports is NOT implemented; this mints one real,
+## schema-valid, non-blank identity bundle through the retained production issuer so `configure()`
+## succeeds and every derived receipt is genuinely issuer-anchored, but it is NOT the live run's own
+## identity. See the Task-9 report for the full honest account of this carried-forward gap.
+var _desktop_board_identity_context: Dictionary = {}
 var _state := {
 	"started": false, "ready": false, "mode": &"",
 	"completed_stages": [], "planned_blockers": [], "fatal_result": {},
@@ -225,6 +290,22 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 					var save_latched: Dictionary = _retained_checkpoint_port.configure_fatal_latch(_application_gate)
 					if not save_latched.get("ok", false):
 						return save_latched
+				# dwm-p2r.32 Plan 02 Task 9: SaveManager needs the exact retained production issuer
+				# for New Run/restore identity allocation and continuation reconciliation. The
+				# identity issuer stage already ran (STAGE_ORDER position 3), so it exists here.
+				if _desktop_identity_nonce_issuer != null:
+					var save_issuer: Dictionary = save_manager.call(&"configure_identity_issuer",
+						_desktop_identity_nonce_issuer)
+					if not save_issuer.get("ok", false):
+						return save_issuer
+					if _desktop_identity_allocation_participant == null:
+						_desktop_identity_allocation_participant = DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT.new(
+							_desktop_identity_nonce_issuer, save_manager)
+					var save_allocation: Dictionary = save_manager.call(
+						&"configure_identity_allocation_participant",
+						_desktop_identity_allocation_participant)
+					if not save_allocation.get("ok", false):
+						return save_allocation
 			return save_initialized
 		&"initialize_dialogic_bridge":
 			var bridge := _target(&"DialogicBridge")
@@ -240,7 +321,7 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 				return bound
 			return _wire_narrative_and_ending_ports(bridge)
 		&"publish_application_ready":
-			return {"ok": true}
+			return _configure_desktop_production_graph()
 		&"configure_restore_participants":
 			return _configure_restore_participants()
 		&"configure_day_resolution":
@@ -600,7 +681,7 @@ func _construct_schedule_presentation(coordinator: RefCounted) -> Dictionary:
 ## THESE NUMBERS ARE PROCESS-LOCAL. They are meaningless across runs and must never be compared to a
 ## prior run or to a committed evidence file; only to another reading from this same boot.
 func get_desktop_contract_state() -> Dictionary:
-	return {
+	var state := {
 		"root_store_instance_id": _instance_id(_desktop_issuer_root_store),
 		"issuer_instance_id": _instance_id(_desktop_identity_nonce_issuer),
 		"contact_command_port_instance_id": _instance_id(_contact_command_port),
@@ -625,6 +706,57 @@ func get_desktop_contract_state() -> Dictionary:
 		# desktop-consequence source, which no bootstrap may construct yet. Reported so the gap is
 		# visible in evidence rather than surfacing as a stage that quietly presents nothing.
 		"presentation_producer_ready": _retained_day_resolution_state_port != null 			and _retained_day_resolution_state_port.has_method("is_presentation_producer_ready") 			and bool(_retained_day_resolution_state_port.call(&"is_presentation_producer_ready")),
+	}
+	state.merge(_desktop_amendment_probe_fields())
+	return state
+
+
+## The Plan-02 Task-9 desktop-amendment probe subset. Kept in its own function so
+## `get_desktop_contract_state()`'s original Plan-01 Task-8 fields above stay byte-for-byte
+## unchanged. Every value here is an int/bool/String/Array/Dictionary of the same -- never a live
+## Object -- matching the parent probe's own law.
+func _desktop_amendment_probe_fields() -> Dictionary:
+	var save_manager := _target(&"SaveManager")
+	var game_state := _target(&"GameState")
+	var continuation_journal: Object = save_manager.get("_continuation_journal") if save_manager != null else null
+	var restore_participant_ids := {
+		"identity_allocation": _instance_id(_desktop_identity_allocation_participant),
+	}
+	for key: String in ["run", "desktop_consequence", "desktop_board", "profile", "localization",
+			"audio", "route", "narrative"]:
+		restore_participant_ids[key] = _instance_id(
+			_retained_restore_participants.get(key) if _retained_restore_participants.has(key) else null)
+	var graph_ready := _retained_desktop_publication_ledger != null \
+		and _retained_desktop_causal_sequence_port != null \
+		and _retained_desktop_board_fate_port != null \
+		and _retained_desktop_consequence_coordinator != null \
+		and _retained_minesweeper_round_coordinator_app != null \
+		and _retained_minesweeper_shop_purchase_participant != null
+	return {
+		"mutation_gate_instance_id": _instance_id(_application_gate),
+		"continuation_journal_instance_id": _instance_id(continuation_journal),
+		"desktop_publication_ledger_instance_id": _instance_id(_retained_desktop_publication_ledger),
+		"host_instance_id": _instance_id(_desktop_host_state),
+		"board_state_instance_id": _instance_id(_desktop_board_state),
+		"consequence_state_instance_id": _instance_id(_desktop_consequence_state),
+		"causal_sequence_port_instance_id": _instance_id(_retained_desktop_causal_sequence_port),
+		"admission_checkpoint_port_instance_id": _instance_id(_retained_checkpoint_port),
+		"board_fate_port_instance_id": _instance_id(_retained_desktop_board_fate_port),
+		"minesweeper_round_source_port_instance_id": _instance_id(_retained_minesweeper_round_coordinator_app),
+		"shop_purchase_source_port_instance_id": _instance_id(_retained_minesweeper_shop_purchase_participant),
+		"consequence_coordinator_instance_id": _instance_id(_retained_desktop_consequence_coordinator),
+		"game_state_desktop_board_port_instance_id": _instance_id(_retained_game_state_desktop_board_port),
+		"game_state_minesweeper_shop_port_instance_id": _instance_id(_retained_game_state_minesweeper_shop_port),
+		"save_manager_desktop_board_port_instance_id": _instance_id(_retained_save_manager_desktop_board_port),
+		"snapshot_provider_instance_id": _instance_id(game_state),
+		"restore_order": _RESTORE_ORDER.duplicate(),
+		"restore_participant_instance_ids": restore_participant_ids,
+		"run_snapshot_schema_version": RUN_SNAPSHOT_SCHEMA_VERSION,
+		"save_document_schema_version": SAVE_DOCUMENT_SCHEMA_VERSION,
+		"registry_versions": {"minesweeper_shop": MINESWEEPER_SHOP_REGISTRY.REGISTRY_VERSION},
+		"desktop_contract_ready": graph_ready,
+		# Always false: Plan 03 owns real destination composition and never lands inside Plan 02.
+		"destination_composition_ready": false,
 	}
 
 
@@ -690,7 +822,238 @@ func _configure_restore_participants() -> Dictionary:
 		"route": route_participant,
 		"narrative": NARRATIVE_RESTORE_PARTICIPANT.new(bridge),
 	}
-	return save_manager.call(&"configure_restore_participants", participants)
+	var configured: Dictionary = save_manager.call(&"configure_restore_participants", participants)
+	if configured.get("ok", false):
+		_retained_restore_participants = participants.duplicate()
+	return configured
+
+
+## Wires the ONE production Plan-02 desktop board/consequence/causal graph (dwm-p2r.32 Plan 02
+## Task 9). Runs as the final content stage, after restore participants, day resolution, and the
+## retained .9-era Minesweeper stage have all completed -- every dependency it needs (host, board,
+## consequence state, checkpoint port, gate, issuer, publication ledger's storage root) already
+## exists by then. Distinct identities from the retained .9-era simulator stack: this graph never
+## reads or writes GameState.minesweeper_round_floor/inventory/money, never touches
+## `_minesweeper_round_coordinator`, and is never installed there.
+##
+## Identical replay reuses every retained instance (every construction below is gated on the field
+## still being null), matching this file's own established idempotent-restart discipline.
+##
+## HONEST SCOPE, DOCUMENTED: `MinesweeperRoundCoordinator`'s own base `configure()` (needs a real
+## `generation_port` and a Task-5-shaped fake-checkpoint `seal_checkpoint` adapter -- confirmed
+## absent from production anywhere in this codebase) is never called, so `reveal()`/
+## `begin_debug_preparation()`/`complete_round()` remain unreachable through this graph; only the
+## action-source RECOVERY methods are registered, which do not require it. `GameStateDesktopBoardPort`
+## /`GameStateMinesweeperShopPort` are configured with a PLACEHOLDER identity context (both files'
+## own doc comments flag per-run identity wiring as an unresolved gap deferred to "Task 6/9", and
+## neither file is in this task's own Files list to fix) -- real forward gameplay (quote/
+## prepare_purchase/reveal/complete_round) is therefore also not reachable through this graph.
+## `LogoutCoordinator` is left unconstructed for the identical reason: no production
+## `stable_board_port` (`is_slice_executing`/`capture_stable_board`) implementation exists anywhere.
+## These three gaps are reported prominently in the Task-9 report rather than papered over with a
+## fake or a stub -- "Contract fakes are never bootstrap dependencies" applies here exactly as it
+## does to the condition-policy/ScheduleView seam below.
+func _configure_desktop_production_graph() -> Dictionary:
+	if _application_gate == null:
+		return _failure(&"mutation_gate_not_configured", "Bootstrap has not constructed the application gate")
+	if _desktop_identity_nonce_issuer == null or _profile_storage == null:
+		return _failure(&"missing_stage_adapter", "the desktop production graph requires the retained issuer and root storage")
+	if _desktop_host_state == null or _desktop_board_state == null or _desktop_consequence_state == null:
+		return _failure(&"missing_stage_adapter", "the desktop production graph requires the retained host/board/consequence state")
+	if _retained_checkpoint_port == null:
+		return _failure(&"missing_stage_adapter", "the desktop production graph requires the retained checkpoint port")
+	var game_state := _target(&"GameState")
+	if game_state == null:
+		return _failure(&"missing_stage_adapter", "the desktop production graph requires GameState")
+
+	# One distinct root-scoped desktop publication ledger, loaded before any recovery/publish call.
+	if _retained_desktop_publication_ledger == null:
+		var ledger: RefCounted = DESKTOP_PUBLICATION_LEDGER.new()
+		var ledger_configured: Dictionary = ledger.configure(_profile_storage)
+		if not ledger_configured.get("ok", false):
+			return ledger_configured
+		var ledger_loaded: Dictionary = ledger.load()
+		if not ledger_loaded.get("ok", false):
+			return ledger_loaded
+		_retained_desktop_publication_ledger = ledger
+	var ledger: RefCounted = _retained_desktop_publication_ledger
+
+	# Reconcile the external New-Run/restore continuation journal before any run mutation is enabled
+	# (frozen contract: "reconciles the external operation journal ... before enabling any run
+	# mutation"). SaveManager's own issuer/identity-allocation participant were configured during
+	# initialize_saves; this is a pure reconciliation pass over any incomplete operation.
+	var save_manager := _target(&"SaveManager")
+	if save_manager != null and save_manager.has_method("reconcile_incomplete_continuations"):
+		var reconciled: Dictionary = save_manager.call(&"reconcile_incomplete_continuations")
+		if not reconciled.get("ok", false):
+			return reconciled
+
+	var placeholder := _placeholder_desktop_identity_context()
+	if not placeholder.get("ok", false):
+		return placeholder
+
+	# GameState-facing state ports. Configured with the documented placeholder identity above; see
+	# this function's own doc comment for the honest limitation this carries forward.
+	if _retained_game_state_desktop_board_port == null:
+		var board_port: RefCounted = GAME_STATE_DESKTOP_BOARD_PORT.new()
+		var board_port_configured: Dictionary = board_port.configure(
+			game_state, _desktop_identity_nonce_issuer, _desktop_board_identity_context)
+		if not board_port_configured.get("ok", false):
+			return board_port_configured
+		_retained_game_state_desktop_board_port = board_port
+	if _retained_game_state_minesweeper_shop_port == null:
+		var shop_port: RefCounted = GAME_STATE_MINESWEEPER_SHOP_PORT.new()
+		var shop_port_configured: Dictionary = shop_port.configure(
+			game_state, _desktop_board_identity_context)
+		if not shop_port_configured.get("ok", false):
+			return shop_port_configured
+		_retained_game_state_minesweeper_shop_port = shop_port
+
+	# The Plan-02 application-level round coordinator adopts Bootstrap's ALREADY-shared board state
+	# (constructed by _configure_restore_participants and wrapped by DesktopBoardRestoreParticipant)
+	# instead of the empty one its own _init() constructs, so DesktopBoardFatePort, the restore
+	# participant, and this coordinator all drive the exact same live object (Task 8's own documented
+	# concern: "the SAME direct-property-access pattern Task 6's own restore tests already
+	# established for this exact wiring gap"). Done immediately after construction, before anything
+	# else touches the coordinator's board.
+	if _retained_minesweeper_round_coordinator_app == null:
+		var round_coordinator: RefCounted = MINESWEEPER_ROUND_COORDINATOR_APP.new()
+		round_coordinator.set("_board_state", _desktop_board_state)
+		var round_ledger: Dictionary = round_coordinator.configure_publication_ledger(ledger)
+		if not round_ledger.get("ok", false):
+			return round_ledger
+		# The real durable first-Reveal checkpoint path (Task 6 Phase D). Configured even though
+		# reveal() cannot reach it without base configure() (see this function's doc comment) --
+		# harmless now, and already correct for whichever later task supplies the missing state/
+		# generation adapters.
+		var save_board_port: RefCounted = SAVE_MANAGER_DESKTOP_BOARD_PORT.new(_retained_checkpoint_port)
+		var save_board_configured: Dictionary = save_board_port.configure(_retained_checkpoint_port)
+		if not save_board_configured.get("ok", false):
+			return save_board_configured
+		_retained_save_manager_desktop_board_port = save_board_port
+		var durable: Dictionary = round_coordinator.configure_durable_checkpoint(
+			save_board_port, DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER, _desktop_consequence_state)
+		if not durable.get("ok", false):
+			return durable
+		_retained_minesweeper_round_coordinator_app = round_coordinator
+
+	# The Shop purchase participant, over the real economy port, consequence state, and checkpoint.
+	if _retained_minesweeper_shop_purchase_participant == null:
+		# The registry is a static loader, never wired into any existing boot stage; load it here.
+		var registry_loaded: Dictionary = MINESWEEPER_SHOP_REGISTRY.initialize()
+		if not registry_loaded.get("ok", false):
+			return registry_loaded
+		var shop_participant: RefCounted = MINESWEEPER_SHOP_PURCHASE_PARTICIPANT.new()
+		var shop_ledger: Dictionary = shop_participant.configure_publication_ledger(ledger)
+		if not shop_ledger.get("ok", false):
+			return shop_ledger
+		var shop_configured: Dictionary = shop_participant.configure(
+			_retained_game_state_minesweeper_shop_port, _desktop_consequence_state,
+			_retained_checkpoint_port, MINESWEEPER_SHOP_REGISTRY, _desktop_identity_nonce_issuer,
+			_application_gate)
+		if not shop_configured.get("ok", false):
+			return shop_configured
+		_retained_minesweeper_shop_purchase_participant = shop_participant
+
+	# The board-fate port, over the EXACT same shared board state.
+	if _retained_desktop_board_fate_port == null:
+		var board_fate_port: RefCounted = DESKTOP_BOARD_FATE_PORT.new()
+		var board_fate_ledger: Dictionary = board_fate_port.configure_publication_ledger(ledger)
+		if not board_fate_ledger.get("ok", false):
+			return board_fate_ledger
+		var board_fate_configured: Dictionary = board_fate_port.configure(
+			_desktop_board_state, _desktop_identity_nonce_issuer)
+		if not board_fate_configured.get("ok", false):
+			return board_fate_configured
+		_retained_desktop_board_fate_port = board_fate_port
+
+	# The shared causal-sequence admission port, over the real consequence state, gate, and checkpoint.
+	if _retained_desktop_causal_sequence_port == null:
+		var causal_port: RefCounted = DESKTOP_CAUSAL_SEQUENCE_PORT.new()
+		var causal_ledger: Dictionary = causal_port.configure_publication_ledger(ledger)
+		if not causal_ledger.get("ok", false):
+			return causal_ledger
+		var causal_configured: Dictionary = causal_port.configure(
+			_desktop_consequence_state, _application_gate, _retained_checkpoint_port)
+		if not causal_configured.get("ok", false):
+			return causal_configured
+		_retained_desktop_causal_sequence_port = causal_port
+
+	# The consequence coordinator: consequence state, causal port, board-fate port, checkpoint port,
+	# gate, then the exact retained Round/Shop action sources, then the identity issuer. The
+	# production condition-policy/ScheduleView pair is DELIBERATELY left unconfigured -- Plan 03 owns
+	# both and configures them together; a fake here would be exactly the bootstrap dependency the
+	# brief forbids.
+	if _retained_desktop_consequence_coordinator == null:
+		var coordinator: RefCounted = DESKTOP_CONSEQUENCE_COORDINATOR.new()
+		var coordinator_configured: Dictionary = coordinator.configure(
+			_desktop_consequence_state, _retained_desktop_causal_sequence_port,
+			_retained_desktop_board_fate_port, _retained_checkpoint_port, _application_gate)
+		if not coordinator_configured.get("ok", false):
+			return coordinator_configured
+		var sources_configured: Dictionary = coordinator.configure_action_source_ports(
+			_retained_minesweeper_round_coordinator_app, _retained_minesweeper_shop_purchase_participant)
+		if not sources_configured.get("ok", false):
+			return sources_configured
+		var issuer_configured: Dictionary = coordinator.configure_identity_issuer(_desktop_identity_nonce_issuer)
+		if not issuer_configured.get("ok", false):
+			return issuer_configured
+		_retained_desktop_consequence_coordinator = coordinator
+
+	# The round coordinator's own additive consequence-port/checkpoint seams (Task 8's own two named
+	# Task-9 concerns): required before complete_round() -- itself still unreachable here, see this
+	# function's doc comment -- but a restart's forward-recovery replay of an ALREADY-admitted
+	# minesweeper_round transaction needs them regardless.
+	var round_consequence_port: Dictionary = _retained_minesweeper_round_coordinator_app.configure_consequence_port(
+		_retained_desktop_consequence_coordinator, _application_gate)
+	if not round_consequence_port.get("ok", false):
+		return round_consequence_port
+	var round_consequence_checkpoint: Dictionary = _retained_minesweeper_round_coordinator_app.configure_consequence_checkpoint(
+		_desktop_consequence_state, _retained_checkpoint_port)
+	if not round_consequence_checkpoint.get("ok", false):
+		return round_consequence_checkpoint
+
+	# Under disabled input (no stage before this one enables it), resume any restored v4 pending
+	# action-source transaction exactly once. A no-op when there is none.
+	var resumed: Dictionary = _retained_desktop_consequence_coordinator.resume_pending()
+	if not resumed.get("ok", false):
+		return resumed
+
+	return {"ok": true, "code": &"ok", "value": {
+		"desktop_publication_ledger_instance_id": ledger.get_instance_id(),
+		"causal_sequence_port_instance_id": _retained_desktop_causal_sequence_port.get_instance_id(),
+		"board_fate_port_instance_id": _retained_desktop_board_fate_port.get_instance_id(),
+		"consequence_coordinator_instance_id": _retained_desktop_consequence_coordinator.get_instance_id(),
+		"minesweeper_round_source_port_instance_id": _retained_minesweeper_round_coordinator_app.get_instance_id(),
+		"shop_purchase_source_port_instance_id": _retained_minesweeper_shop_purchase_participant.get_instance_id(),
+		"resumed_pending": bool(resumed.get("value", {}).get("resumed", false)),
+	}, "receipt": {}}
+
+
+## One real, issuer-backed run_id/branch_id plus an honestly-blank generation/causal_day_instance
+## pair (both allocator-only purposes `issue()` itself refuses -- they require the full New-Run
+## allocation dance `SaveManager.start_new_run()` drives, which cannot honestly run before any
+## player has asked to start or restore a run). `configure()`'s own shape check validates only the
+## exact 4-key set, never blankness, so this placeholder satisfies it without pretending to be a
+## resolved per-run identity. Minted once and retained; never rebuilt on replay.
+func _placeholder_desktop_identity_context() -> Dictionary:
+	if not _desktop_board_identity_context.is_empty():
+		return {"ok": true, "code": &"ok", "value": {"context": _desktop_board_identity_context}, "receipt": {}}
+	var run_issued: Variant = _desktop_identity_nonce_issuer.call(&"issue", &"run_id")
+	if typeof(run_issued) != TYPE_DICTIONARY or not (run_issued as Dictionary).get("ok", false):
+		return run_issued if typeof(run_issued) == TYPE_DICTIONARY else _failure(
+			&"desktop_identity_context_unavailable", "run_id issuance failed")
+	var branch_issued: Variant = _desktop_identity_nonce_issuer.call(&"issue", &"branch_id")
+	if typeof(branch_issued) != TYPE_DICTIONARY or not (branch_issued as Dictionary).get("ok", false):
+		return branch_issued if typeof(branch_issued) == TYPE_DICTIONARY else _failure(
+			&"desktop_identity_context_unavailable", "branch_id issuance failed")
+	_desktop_board_identity_context = {
+		"run_id": str((run_issued["value"] as Dictionary)["token"]),
+		"branch_id": str((branch_issued["value"] as Dictionary)["token"]),
+		"desktop_timeline_generation": 0,
+		"causal_day_instance": "",
+	}
+	return {"ok": true, "code": &"ok", "value": {"context": _desktop_board_identity_context}, "receipt": {}}
 
 
 ## Constructs EXACTLY ONE Minesweeper round coordinator with initialized production adapters and

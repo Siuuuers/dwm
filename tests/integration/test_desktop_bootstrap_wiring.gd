@@ -30,6 +30,27 @@ const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutio
 const COORDINATOR := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
 const CONTACT_COMMAND_PORT := preload("res://scripts/application/contact/ContactCommandPort.gd")
 const GAME_STATE_PATH := "res://autoload/GameState.gd"
+## dwm-p2r.32 Plan 02 Task 9 additions below: the one production desktop board/consequence/causal
+## graph, built and probed against the SAME harness/foundation helpers Plan 01 Task 8 established
+## above -- extending this file rather than creating a second one, since
+## `ApplicationBootstrap.get_desktop_contract_state()` is the ONE probe both plans read.
+const SAVE_MANAGER_PATH := "res://autoload/SaveManager.gd"
+const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const APPLICATION_MUTATION_GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
+const MINESWEEPER_ROUND_COORDINATOR_APP := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
+const MINESWEEPER_SHOP_PURCHASE_PARTICIPANT := preload("res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd")
+const DESKTOP_CONSEQUENCE_COORDINATOR := preload("res://scripts/application/desktop/DesktopConsequenceCoordinator.gd")
+const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
+
+const EXPECTED_RESTORE_ORDER: Array[StringName] = [
+	&"identity_allocation", &"run", &"desktop_consequence", &"desktop_board",
+	&"profile", &"localization", &"audio", &"route", &"narrative",
+]
+const EXPECTED_RESTORE_PARTICIPANT_KEYS: Array[String] = [
+	"identity_allocation", "run", "desktop_consequence", "desktop_board",
+	"profile", "localization", "audio", "route", "narrative",
+]
 
 ## Every foundation identity Step 8.1 requires to survive presentation configuration unchanged.
 const FOUNDATION_IDENTITY_KEYS: Array[String] = [
@@ -92,6 +113,54 @@ func before_each() -> void:
 	})
 
 
+## dwm-p2r.32 Plan 02 Task 9: wires the remaining five targets `_configure_restore_participants()`
+## and `_configure_desktop_production_graph()` need, plus the shared gate/checkpoint port, then
+## drives both stages in the exact production order. Kept as a separate builder (never folded into
+## `before_each()`) so the Plan-01 Task-8 tests above stay exercising the narrower foundation they
+## were written against.
+func _build_desktop_graph() -> Dictionary:
+	_build_foundation()
+	var profile: Node = load("res://autoload/ProfileManager.gd").new()
+	add_child_autofree(profile)
+	var localization: Node = load("res://autoload/LocalizationManager.gd").new()
+	add_child_autofree(localization)
+	var audio: Node = load("res://autoload/AudioManager.gd").new()
+	add_child_autofree(audio)
+	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
+	add_child_autofree(save_manager)
+	var storage: RefCounted = JSON_STORAGE.new(_isolated_root())
+	assert_true(save_manager.call(&"initialize", storage).get("ok", false))
+	# Mirrors the initialize_saves stage's own new Task-9 wiring (never exercised here since this
+	# helper builds SaveManager directly rather than driving _run_stage(&"initialize_saves", ...)).
+	assert_true(save_manager.call(&"configure_identity_issuer", _issuer).get("ok", false))
+	var allocation_participant: RefCounted = load(
+		"res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd").new(
+		_issuer, save_manager)
+	assert_true(save_manager.call(
+		&"configure_identity_allocation_participant", allocation_participant).get("ok", false))
+	_bootstrap.set("_desktop_identity_allocation_participant", allocation_participant)
+	var targets: Dictionary = _bootstrap.get("targets")
+	targets["ProfileManager"] = profile
+	targets["LocalizationManager"] = localization
+	targets["AudioManager"] = audio
+	targets["GameState"] = _game_state
+	targets["SaveManager"] = save_manager
+	_bootstrap.set("targets", targets)
+
+	var gate: RefCounted = APPLICATION_MUTATION_GATE.new()
+	_bootstrap.set("_application_gate", gate)
+	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
+	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false))
+	_bootstrap.set("_retained_checkpoint_port", checkpoint_port)
+
+	var restore_result: Dictionary = _bootstrap.call(&"_configure_restore_participants")
+	assert_true(restore_result.get("ok", false), "restore participants: " + str(restore_result))
+	var graph_result: Dictionary = _bootstrap.call(&"_configure_desktop_production_graph")
+	assert_true(graph_result.get("ok", false), "desktop production graph: " + str(graph_result))
+	return {"gate": gate, "checkpoint_port": checkpoint_port, "save_manager": save_manager,
+		"restore_result": restore_result, "graph_result": graph_result}
+
+
 func _bridge() -> Node:
 	var bridge: Node = load("res://autoload/DialogicBridge.gd").new()
 	add_child_autofree(bridge)
@@ -148,9 +217,25 @@ func test_the_probe_exists_and_returns_only_integers_and_booleans() -> void:
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	assert_false(state.is_empty())
 	for key: Variant in state:
-		var value: Variant = state[key]
-		assert_true(typeof(value) == TYPE_INT or typeof(value) == TYPE_BOOL,
-			"%s must be an int or bool, never a live Object" % str(key))
+		_assert_detached_primitive(state[key], str(key))
+
+
+## dwm-p2r.32 Plan 02 Task 9 broadened this law: the extended probe legitimately carries
+## `restore_order` (Array[StringName]), `restore_participant_instance_ids`/`registry_versions`
+## (Dictionary) alongside the original int/bool fields. The SAFETY property this test protects --
+## no live Object/Node/RefCounted ever leaks out -- is unchanged and checked recursively.
+func _assert_detached_primitive(value: Variant, path: String) -> void:
+	match typeof(value):
+		TYPE_INT, TYPE_BOOL, TYPE_STRING, TYPE_STRING_NAME:
+			pass
+		TYPE_ARRAY:
+			for index in range((value as Array).size()):
+				_assert_detached_primitive((value as Array)[index], "%s[%d]" % [path, index])
+		TYPE_DICTIONARY:
+			for inner_key: Variant in (value as Dictionary):
+				_assert_detached_primitive((value as Dictionary)[inner_key], "%s.%s" % [path, str(inner_key)])
+		_:
+			assert_true(false, "%s must be a detached primitive, never a live Object (got type %d)" % [path, typeof(value)])
 
 
 func test_the_probe_names_every_foundation_identity_step_8_1_requires() -> void:
@@ -256,3 +341,113 @@ func test_an_unbuilt_foundation_reports_zero_rather_than_guessing() -> void:
 	assert_false(bool(state["hospital_presentation_ready"]))
 	assert_false(bool(state["dating_presentation_ready"]))
 	assert_false(bool(state["presentation_producer_ready"]))
+	assert_false(bool(state["desktop_contract_ready"]))
+	assert_false(bool(state["destination_composition_ready"]))
+
+
+# -------------------------------------------------------------------------------------------------
+# dwm-p2r.32 Plan 02 Task 9: the one production desktop board/consequence/causal graph
+# -------------------------------------------------------------------------------------------------
+
+func test_the_production_graph_wires_every_object_identity_and_readiness() -> void:
+	_build_desktop_graph()
+	var state: Dictionary = _bootstrap.get_desktop_contract_state()
+	for key: String in ["desktop_publication_ledger_instance_id", "causal_sequence_port_instance_id",
+			"board_fate_port_instance_id", "consequence_coordinator_instance_id",
+			"minesweeper_round_source_port_instance_id", "shop_purchase_source_port_instance_id",
+			"host_instance_id", "board_state_instance_id", "consequence_state_instance_id",
+			"mutation_gate_instance_id", "admission_checkpoint_port_instance_id",
+			"continuation_journal_instance_id"]:
+		assert_true(int(state[key]) != 0, key + " must name a retained instance")
+	assert_true(bool(state["desktop_contract_ready"]))
+	assert_false(bool(state["destination_composition_ready"]),
+		"Plan 03 owns real destination composition; Plan 02 never claims it")
+
+
+func test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate() -> void:
+	_build_desktop_graph()
+	var causal_port: Object = _bootstrap.get("_retained_desktop_causal_sequence_port")
+	var round_coordinator: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
+	var shop_participant: Object = _bootstrap.get("_retained_minesweeper_shop_purchase_participant")
+	var board_fate_port: Object = _bootstrap.get("_retained_desktop_board_fate_port")
+	var ledger: Object = _bootstrap.get("_retained_desktop_publication_ledger")
+	assert_true(ledger is DESKTOP_PUBLICATION_LEDGER)
+	assert_same(causal_port.get("_publication_ledger"), ledger)
+	assert_same(round_coordinator.get("_publication_ledger"), ledger)
+	assert_same(shop_participant.get("_publication_ledger"), ledger)
+	assert_same(board_fate_port.get("_publication_ledger"), ledger)
+
+
+func test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state() -> void:
+	_build_desktop_graph()
+	var round_coordinator: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
+	var board_fate_port: Object = _bootstrap.get("_retained_desktop_board_fate_port")
+	var restore_board: Object = _bootstrap.get("_desktop_board_state")
+	assert_same(round_coordinator.get("_board_state"), restore_board,
+		"the round coordinator adopted Bootstrap's already-shared board object")
+	assert_same(board_fate_port.get("_board_state"), restore_board)
+
+
+func test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects() -> void:
+	_build_desktop_graph()
+	var coordinator: Object = _bootstrap.get("_retained_desktop_consequence_coordinator")
+	var round_coordinator: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
+	var shop_participant: Object = _bootstrap.get("_retained_minesweeper_shop_purchase_participant")
+	assert_true(round_coordinator is MINESWEEPER_ROUND_COORDINATOR_APP)
+	assert_true(shop_participant is MINESWEEPER_SHOP_PURCHASE_PARTICIPANT)
+	assert_same(coordinator.get("_minesweeper_round_source_port"), round_coordinator)
+	assert_same(coordinator.get("_shop_purchase_source_port"), shop_participant)
+	assert_not_same(round_coordinator, shop_participant, "the two source roles are distinct objects")
+	assert_true(coordinator is DESKTOP_CONSEQUENCE_COORDINATOR)
+
+
+func test_the_consequence_coordinator_leaves_condition_departure_ports_unconfigured() -> void:
+	_build_desktop_graph()
+	var coordinator: Object = _bootstrap.get("_retained_desktop_consequence_coordinator")
+	assert_null(coordinator.get("_condition_policy_port"),
+		"Plan 03 owns the condition-policy port; Task 9 never fakes or stubs it")
+	assert_null(coordinator.get("_schedule_view_port"),
+		"Plan 03 owns the ScheduleView port; Task 9 never fakes or stubs it")
+
+
+func test_snapshot_provider_instance_id_equals_game_state() -> void:
+	_build_desktop_graph()
+	var state: Dictionary = _bootstrap.get_desktop_contract_state()
+	assert_eq(int(state["snapshot_provider_instance_id"]), _game_state.get_instance_id())
+	assert_true(_game_state.has_method("capture_run_snapshot_input"))
+
+
+func test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys() -> void:
+	_build_desktop_graph()
+	var state: Dictionary = _bootstrap.get_desktop_contract_state()
+	assert_eq(state["restore_order"], EXPECTED_RESTORE_ORDER)
+	var participant_ids: Dictionary = state["restore_participant_instance_ids"]
+	var keys: Array = participant_ids.keys()
+	keys.sort()
+	var expected := EXPECTED_RESTORE_PARTICIPANT_KEYS.duplicate()
+	expected.sort()
+	assert_eq(keys, expected)
+	for key: String in EXPECTED_RESTORE_PARTICIPANT_KEYS:
+		assert_true(int(participant_ids[key]) != 0, key + " must name a retained participant")
+
+
+func test_identical_replay_of_the_production_graph_reuses_every_instance() -> void:
+	_build_desktop_graph()
+	var first: Dictionary = _bootstrap.get_desktop_contract_state()
+	var replayed: Dictionary = _bootstrap.call(&"_configure_desktop_production_graph")
+	assert_true(replayed.get("ok", false), str(replayed))
+	var second: Dictionary = _bootstrap.get_desktop_contract_state()
+	for key: String in ["desktop_publication_ledger_instance_id", "causal_sequence_port_instance_id",
+			"board_fate_port_instance_id", "consequence_coordinator_instance_id",
+			"minesweeper_round_source_port_instance_id", "shop_purchase_source_port_instance_id"]:
+		assert_eq(int(second[key]), int(first[key]), key + ": replay rebuilt instead of reusing")
+
+
+## The simulator-authority law (brief Step 9.1): the retained .9-era stack is never touched or
+## registered by this graph. GameState's OWN `_minesweeper_round_coordinator` slot (the .9-era
+## install seam) stays untouched by `_configure_desktop_production_graph()`; only the retained
+## .9-era `_configure_minesweeper_rounds()` stage -- a SEPARATE, untouched stage -- may ever fill it.
+func test_the_production_graph_never_touches_the_retained_simulator_install_seam() -> void:
+	_build_desktop_graph()
+	assert_null(_game_state.get("_minesweeper_round_coordinator"),
+		"the Plan-02 graph must never install into the .9-era GameState seam")
