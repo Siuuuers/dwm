@@ -10,7 +10,8 @@ conversational_design_status: approved_owner_batches_with_header_correction
 conversationally_approved_on: "2026-08-23"
 self_review_status: passed
 self_reviewed_on: "2026-08-23"
-written_spec_status: pending_owner_review
+written_spec_status: approved
+written_spec_approved_on: "2026-08-23"
 standard_master_status: provisional_pending_native_pixel_and_real_locale_proof
 localization_proof_status: blocked_pending_approved_real_catalog_copy
 high_contrast_and_cvd_tuple_status: deliberately_unsettled
@@ -923,7 +924,8 @@ release acceptance.
 
 ## 12. Written acceptance gate
 
-This written disposition is complete for owner byte review. Its Standard status
-remains provisional pending native-pixel and real-locale evidence. Approval of
-these written bytes will not authorize implementation; any later Godot plan
-requires a separate owner request and the normal planning gate.
+The project owner approved these written bytes on 2026-08-23 and asked to
+continue to the next creative UI exploration. The Shop Standard remains
+provisional pending native-pixel and real-locale evidence. Written approval does
+not authorize implementation; any later Godot plan requires a separate owner
+request and the normal planning gate.
