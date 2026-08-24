@@ -174,28 +174,134 @@ static func blob_bytes_at_commit(repository_root: String, commit: String, path: 
 	return {"ok": true, "code": &"ok", "value": {"bytes": bytes}, "receipt": {}}
 
 
-## Curated, permanent P2R9 logs already copied into evidence/phase_2r/logs/, hashed off the
-## working tree (--write) or, once committed, off the subject commit's own tree via the caller's
-## own validate() -> source binding path (this helper itself only reads the working tree, matching
-## generate_schedule_v3_boundary.gd's identical "the focused log is the sole working-tree read at
-## write time" precedent).
+const CURATED_LOG_DIRECTORY := "evidence/phase_2r/logs/"
+
+## The curated, permanent red/green proof this amendment binds. Every name here is a verbatim
+## copy of the run that produced it, kept under its original run name so the record traces back
+## to a real command, and every one is read FROM THE SUBJECT COMMIT'S TREE like every other
+## binding in this file -- never off the working tree, which would re-bind itself every time the
+## logs directory lawfully changes.
+##
+## THE SET IS A RED AND ITS GREEN, NOT A PILE OF GREENS. p2r9-bootstrap-wiring-check.log is the
+## genuine RED for tests/integration/test_desktop_bootstrap_wiring.gd (18 tests, none passing);
+## p2r9-bootstrap-wiring-check3.log is the same suite's GREEN (18/18); p2r9-bootstrap-regression.log
+## is the nine-suite regression that proves the fix broke nothing. A field named
+## red_green_command_records whose every record carried exit_code 0 would make a parsed exit code
+## indistinguishable from the hardcoded one this replaces.
+##
+## WHY p2r9-desktop-amendment-gate.log IS NOT HERE (dwm-p2r.35.5). The only surviving copy of it,
+## in the transient .godot/phase2r_logs/ directory it was written to, is TRUNCATED: it stops in
+## the middle of listing res://tests/unit/test_desktop_continuation_operation_journal.gd's tests,
+## with no Totals block and no terminal verdict, so its outcome is simply unknown. It is not bound
+## because a log nobody can vouch for is not evidence, and it is not regenerated under its own
+## p2r9 name because a re-run today would record this branch's tip, not the P2R9 state that name
+## claims. parse_gut_log_exit_code() below refuses that exact shape rather than recording it as a
+## pass.
 const RED_GREEN_LOG_NAMES: Array[String] = [
-	"p2r9-bootstrap-wiring-check3.log",
 	"p2r9-bootstrap-regression.log",
-	"p2r9-desktop-amendment-gate.log",
+	"p2r9-bootstrap-wiring-check.log",
+	"p2r9-bootstrap-wiring-check3.log",
 ]
 
-static func build_red_green_command_records(repository_root: String) -> Array:
+const _SUMMARY_BANNER := "= Run Summary"
+const _ALL_PASSED_VERDICT := "---- All tests passed! ----"
+
+## Derives a bound log's REAL outcome from its own bytes. A complete GUT run always ends with a
+## Run Summary banner, a Totals block and exactly one terminal verdict line; a run that was killed
+## or whose file was clobbered mid-write has none of them, and is refused here instead of being
+## recorded as exit_code 0. Note GUT prints the word "none", not "0", for a zero count, and omits
+## the Failing Tests line entirely when nothing failed -- which is why this is a parse and not a
+## substring search. Pending/risky tests are not failures: GUT exits 0 for them, so passing <
+## tests with no failures is a lawful zero.
+static func parse_gut_log_exit_code(bytes: PackedByteArray) -> Dictionary:
+	var text: String = bytes.get_string_from_utf8()
+	var banner_at: int = text.rfind(_SUMMARY_BANNER)
+	if banner_at < 0:
+		return {"ok": false, "code": &"red_green_log_incomplete",
+			"message": "the log carries no GUT run summary", "details": {}}
+	var tests: int = -1
+	var passing: int = -1
+	var failing: int = 0
+	var verdict: String = ""
+	for raw_line: String in text.substr(banner_at).split("\n"):
+		var line: String = raw_line.strip_edges()
+		if line.begins_with("Tests "):
+			tests = _summary_count(line, "Tests")
+		elif line.begins_with("Passing Tests "):
+			passing = _summary_count(line, "Passing Tests")
+		elif line.begins_with("Failing Tests "):
+			failing = _summary_count(line, "Failing Tests")
+		elif line.begins_with("---- ") and line.ends_with(" ----"):
+			verdict = line
+	if tests < 0 or passing < 0 or failing < 0:
+		return {"ok": false, "code": &"red_green_log_incomplete",
+			"message": "the run summary has no readable totals block", "details": {}}
+	if verdict.is_empty():
+		return {"ok": false, "code": &"red_green_log_incomplete",
+			"message": "the log stops before GUT's terminal verdict", "details": {}}
+	if (verdict == _ALL_PASSED_VERDICT) != (failing == 0 and passing == tests):
+		return {"ok": false, "code": &"red_green_log_inconsistent",
+			"message": "the terminal verdict contradicts the totals block",
+			"details": {"verdict": verdict, "tests": tests, "passing_tests": passing,
+				"failing_tests": failing}}
+	return {"ok": true, "code": &"ok", "value": {"exit_code": 0 if failing == 0 else 1,
+		"tests": tests, "passing_tests": passing, "failing_tests": failing}, "receipt": {}}
+
+
+static func _summary_count(line: String, label: String) -> int:
+	var tail: String = line.substr(label.length()).strip_edges()
+	if tail == "none":
+		return 0
+	if not tail.is_valid_int():
+		return -1
+	return tail.to_int()
+
+
+## Every bound log must resolve in the subject commit's tree and must carry a complete, self-
+## consistent GUT summary. A name that no longer resolves fails the whole build closed; the
+## previous revision skipped it silently, which is how both sealed documents came to carry an
+## empty record set while --check still reported OK (dwm-p2r.35.5, reviewer finding B-C5).
+static func build_red_green_command_records(repository_root: String, subject_commit: String) -> Dictionary:
+	if RED_GREEN_LOG_NAMES.is_empty():
+		return {"ok": false, "code": &"red_green_command_records_empty",
+			"message": "no red/green log is bound at all", "details": {}}
 	var records: Array = []
 	for name: String in RED_GREEN_LOG_NAMES:
-		var relative := "evidence/phase_2r/logs/" + name
-		var absolute := repository_root.path_join(relative)
-		if not FileAccess.file_exists(absolute):
-			continue
+		var relative: String = CURATED_LOG_DIRECTORY + name
+		var blob: Dictionary = blob_bytes_at_commit(repository_root, subject_commit, relative)
+		if not blob.get("ok", false):
+			return {"ok": false, "code": &"red_green_log_missing",
+				"message": "a bound red/green log is absent from the subject commit",
+				"details": {"log_path": relative, "subject_commit": subject_commit}}
+		var bytes: PackedByteArray = (blob.get("value", {}) as Dictionary).get("bytes", PackedByteArray())
+		var outcome: Dictionary = parse_gut_log_exit_code(bytes)
+		if not outcome.get("ok", false):
+			outcome["details"] = {"log_path": relative, "subject_commit": subject_commit}
+			return outcome
 		records.append({
 			"suite_id": name.trim_suffix(".log"),
 			"log_path": relative,
-			"log_sha256": digest_bytes(FileAccess.get_file_as_bytes(absolute)),
-			"exit_code": 0,
+			"log_sha256": digest_bytes(bytes),
+			"exit_code": int((outcome.get("value", {}) as Dictionary).get("exit_code", -1)),
 		})
-	return records
+	return {"ok": true, "code": &"ok", "value": {"records": records}, "receipt": {}}
+
+
+## Confirms a document's declared test-log bindings are not dangling. The sealed desktop document
+## named evidence/phase_2r/logs/p2r9-bootstrap-wiring-check3.log while that file had never been
+## curated out of the transient logs directory, and nothing in the tree noticed (dwm-p2r.35.5,
+## reviewer finding B-I1).
+static func validate_log_paths_at_commit(repository_root: String, subject_commit: String,
+		log_paths: Array) -> Dictionary:
+	for path: Variant in log_paths:
+		var relative: String = str(path)
+		if not relative.begins_with(CURATED_LOG_DIRECTORY):
+			return {"ok": false, "code": &"test_log_binding_outside_curated_directory",
+				"message": "a bound test log is not under the curated logs directory",
+				"details": {"log_path": relative}}
+		var blob: Dictionary = blob_bytes_at_commit(repository_root, subject_commit, relative)
+		if not blob.get("ok", false):
+			return {"ok": false, "code": &"test_log_binding_dangling",
+				"message": "a bound test log is absent from the subject commit",
+				"details": {"log_path": relative, "subject_commit": subject_commit}}
+	return {"ok": true, "code": &"ok", "value": {"log_paths": log_paths.duplicate()}, "receipt": {}}

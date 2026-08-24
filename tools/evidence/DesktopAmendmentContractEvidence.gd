@@ -240,6 +240,15 @@ static func _bootstrap_probe() -> Dictionary:
 	}
 
 
+## The repository-relative log paths _bootstrap_probe() commits this document to. Public so the
+## amendment gate can assert they resolve rather than trusting the literal.
+static func bootstrap_probe_log_paths() -> Array:
+	var paths: Array = []
+	for binding: Variant in (_bootstrap_probe()["test_log_bindings"] as Array):
+		paths.append(str((binding as Dictionary)["log_path"]))
+	return paths
+
+
 static func _honest_gaps() -> Array:
 	return _GIT.honest_gaps()
 
@@ -264,6 +273,9 @@ static func build(repository_root: String, subject_commit: String) -> Dictionary
 	var bindings: Dictionary = build_source_bindings(repository_root, subject_commit)
 	if not bindings.get("ok", false):
 		return bindings
+	var red_green: Dictionary = _GIT.build_red_green_command_records(repository_root, subject_commit)
+	if not red_green.get("ok", false):
+		return red_green
 	var document := {
 		"schema_version": SCHEMA_VERSION,
 		"subject_commit": subject_commit,
@@ -285,7 +297,7 @@ static func build(repository_root: String, subject_commit: String) -> Dictionary
 		"schedule_view_owner": "dwm-oyo.3",
 		"destination_composition_owner": "dwm-oyo.3",
 		"honest_gaps": _honest_gaps(),
-		"red_green_command_records": _GIT.build_red_green_command_records(repository_root),
+		"red_green_command_records": (red_green.get("value", {}) as Dictionary).get("records", []),
 	}
 	var validated: Dictionary = validate(document, repository_root)
 	if not validated.get("ok", false):
@@ -334,6 +346,17 @@ static func validate_law(document: Dictionary, repository_root: String) -> Dicti
 		str(document["subject_commit"]))
 	if not bindings_valid.get("ok", false):
 		return bindings_valid
+	# Recomputed from the subject commit's own tree, exactly like source_bindings above, so an
+	# empty, shrunken or dangling record set cannot pass as proof (dwm-p2r.35.5, finding B-C5).
+	var red_green: Dictionary = _GIT.build_red_green_command_records(repository_root,
+		str(document["subject_commit"]))
+	if not red_green.get("ok", false):
+		return red_green
+	# Finding B-I1: the probe's declared test logs must resolve in that same tree.
+	var probe_logs: Dictionary = _GIT.validate_log_paths_at_commit(repository_root,
+		str(document["subject_commit"]), bootstrap_probe_log_paths())
+	if not probe_logs.get("ok", false):
+		return probe_logs
 	for pair: Array in [
 		["external_stores", _external_stores()],
 		["run_snapshot_v4", _run_snapshot_v4()],
@@ -346,7 +369,7 @@ static func validate_law(document: Dictionary, repository_root: String) -> Dicti
 		["bootstrap_probe", _bootstrap_probe()],
 		["honest_gaps", _honest_gaps()],
 		["causal_transaction_gate_owners", ["causal_transaction", "restore", "new_run"]],
-		["red_green_command_records", _GIT.build_red_green_command_records(repository_root)],
+		["red_green_command_records", (red_green.get("value", {}) as Dictionary).get("records", [])],
 	]:
 		if document[str(pair[0])] != pair[1]:
 			return _fail(&"document_field_invalid", "field differs from the production contract",

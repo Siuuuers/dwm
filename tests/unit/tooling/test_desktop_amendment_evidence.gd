@@ -22,7 +22,18 @@ const DESKTOP_EVIDENCE := preload("res://tools/evidence/DesktopAmendmentContract
 const MINESWEEPER_EVIDENCE := preload("res://tools/evidence/MinesweeperAmendmentContractEvidence.gd")
 const GIT_PLUMBING := preload("res://tools/evidence/DesktopAmendmentEvidenceGit.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const SCHEMA_VALIDATOR := preload("res://scripts/validation/JsonSchemaValidator.gd")
 const GENERATOR_PATH := "res://tools/evidence/generate_desktop_amendment_evidence.gd"
+const CURATED_LOGS := "res://evidence/phase_2r/logs/"
+
+## The outcome each curated log ACTUALLY records, read off its own Totals block by hand. Written
+## down here so a parser that silently reverted to hardcoding zero -- the defect this suite
+## exists to keep dead -- has something to contradict.
+const EXPECTED_LOG_OUTCOMES := {
+	"p2r9-bootstrap-regression.log": {"exit_code": 0, "tests": 190, "passing_tests": 190, "failing_tests": 0},
+	"p2r9-bootstrap-wiring-check.log": {"exit_code": 1, "tests": 18, "passing_tests": 0, "failing_tests": 18},
+	"p2r9-bootstrap-wiring-check3.log": {"exit_code": 0, "tests": 18, "passing_tests": 18, "failing_tests": 0},
+}
 
 ## A real, already-committed commit on this branch that does NOT carry the frozen amendment
 ## subject -- used only as a negative fixture, never asserted to succeed.
@@ -142,6 +153,8 @@ func test_published_documents_bind_the_frozen_subject_and_recompute_byte_equal()
 		assert_true(GIT_PLUMBING.is_commit_id(subject_commit))
 		var rebuilt: Dictionary = evidence.build(_repository_root(), subject_commit)
 		assert_true(rebuilt.get("ok", false), JSON.stringify(rebuilt))
+		if not rebuilt.get("ok", false):
+			continue
 		var rebuilt_document: Dictionary = (rebuilt["value"] as Dictionary)["document"]
 		var fresh_bytes: Dictionary = evidence.canonical_bytes(rebuilt_document)
 		var published_bytes: Dictionary = evidence.canonical_bytes(published)
@@ -252,3 +265,177 @@ func test_check_mode_never_opens_either_target_for_write() -> void:
 	var after_modified: int = FileAccess.get_modified_time(DESKTOP_EVIDENCE.ARTIFACT_PATH)
 	assert_eq(after, before)
 	assert_eq(after_modified, before_modified)
+
+
+# -------------------------------------------------------------------------------------------------
+# dwm-p2r.35.5 -- red/green evidence integrity (reviewer findings B-C5 and B-I1). Both sealed
+# documents shipped red_green_command_records: [] and a bootstrap_probe test-log path that pointed
+# at a file nobody had ever curated, and --check still said OK, because the builder skipped any
+# absent log without a word, hashed the working tree rather than the subject commit's tree,
+# hardcoded exit_code 0, and neither schema set a floor. Everything below is about making each of
+# those four silent-pass paths audible.
+# -------------------------------------------------------------------------------------------------
+
+func test_every_bound_red_green_log_is_curated_and_parses_to_its_real_outcome() -> void:
+	var bound: Array = Array(GIT_PLUMBING.RED_GREEN_LOG_NAMES)
+	assert_false(bound.is_empty(), "the amendment binds at least one red/green log")
+	var exit_codes: Array[int] = []
+	for name: String in bound:
+		var resource_path: String = CURATED_LOGS + name
+		assert_true(FileAccess.file_exists(resource_path),
+			"%s must be curated into evidence/phase_2r/logs/, not left in .godot/phase2r_logs/" % name)
+		var outcome: Dictionary = GIT_PLUMBING.parse_gut_log_exit_code(
+			FileAccess.get_file_as_bytes(resource_path))
+		assert_true(outcome.get("ok", false), "%s parses: %s" % [name, JSON.stringify(outcome)])
+		assert_eq(outcome.get("value", {}), EXPECTED_LOG_OUTCOMES.get(name, {}),
+			"%s parses to the outcome its own Totals block records" % name)
+		exit_codes.append(int((outcome.get("value", {}) as Dictionary)["exit_code"]))
+	assert_true(exit_codes.has(1),
+		"the bound set contains a genuine RED; an all-green set makes a parsed exit code " \
+		+ "indistinguishable from the hardcoded zero it replaces")
+	assert_true(exit_codes.has(0), "the bound set contains a green")
+
+
+## The exact shape of the log this wave refused to bind: .godot/phase2r_logs/
+## p2r9-desktop-amendment-gate.log stops mid-listing, with no Totals block and no verdict.
+func test_the_gut_parser_refuses_a_log_truncated_before_its_run_summary() -> void:
+	var whole: PackedByteArray = FileAccess.get_file_as_bytes(
+		CURATED_LOGS + "p2r9-bootstrap-wiring-check3.log")
+	var banner_at: int = whole.get_string_from_utf8().rfind("= Run Summary")
+	assert_true(banner_at > 0, "the fixture log has a run summary to cut away")
+	var truncated: Dictionary = GIT_PLUMBING.parse_gut_log_exit_code(whole.slice(0, banner_at))
+	assert_false(truncated.get("ok", false), "a truncated log is not proof of anything")
+	assert_eq(truncated.get("code"), &"red_green_log_incomplete")
+
+
+## A log cut AFTER the banner but before GUT's terminal verdict is still incomplete.
+func test_the_gut_parser_refuses_a_log_that_stops_before_the_terminal_verdict() -> void:
+	var text: String = FileAccess.get_file_as_bytes(
+		CURATED_LOGS + "p2r9-bootstrap-wiring-check3.log").get_string_from_utf8()
+	var verdict_at: int = text.rfind("---- All tests passed! ----")
+	assert_true(verdict_at > 0, "the fixture log has a verdict to cut away")
+	var cut: Dictionary = GIT_PLUMBING.parse_gut_log_exit_code(
+		text.substr(0, verdict_at).to_utf8_buffer())
+	assert_false(cut.get("ok", false))
+	assert_eq(cut.get("code"), &"red_green_log_incomplete")
+
+
+## A green verdict pasted over a failing Totals block must not mint an exit_code 0 record.
+func test_the_gut_parser_refuses_a_verdict_that_contradicts_the_totals() -> void:
+	var red: String = FileAccess.get_file_as_bytes(
+		CURATED_LOGS + "p2r9-bootstrap-wiring-check.log").get_string_from_utf8()
+	var forged: String = red.replace("---- 18 failing tests ----", "---- All tests passed! ----")
+	assert_ne(forged, red, "the fixture's verdict line was actually replaced")
+	var parsed: Dictionary = GIT_PLUMBING.parse_gut_log_exit_code(forged.to_utf8_buffer())
+	assert_false(parsed.get("ok", false))
+	assert_eq(parsed.get("code"), &"red_green_log_inconsistent")
+
+
+## The B-C5 core: a bound log that does not resolve in the named commit's tree fails the whole
+## record build closed. A_REAL_WRONG_SUBJECT_COMMIT is a real, immutable commit from before these
+## logs were curated, so it stands in permanently for "the log is not there".
+func test_a_bound_log_absent_from_the_named_commit_fails_the_record_build_closed() -> void:
+	var built: Dictionary = GIT_PLUMBING.build_red_green_command_records(
+		_repository_root(), A_REAL_WRONG_SUBJECT_COMMIT)
+	assert_false(built.get("ok", false),
+		"a missing bound log must fail the build, not be skipped into a shorter record set")
+	assert_eq(built.get("code"), &"red_green_log_missing")
+
+
+## The B-I1 core: bootstrap_probe.test_log_bindings must name files that really exist, and the
+## check that says so must itself be capable of failing.
+func test_the_bootstrap_probe_test_log_bindings_are_curated_and_checked() -> void:
+	var declared: Array = DESKTOP_EVIDENCE.bootstrap_probe_log_paths()
+	assert_false(declared.is_empty(), "the probe declares at least one test log")
+	for relative: Variant in declared:
+		assert_true(FileAccess.file_exists("res://" + str(relative)),
+			"%s is curated, not dangling" % str(relative))
+	var dangling: Dictionary = GIT_PLUMBING.validate_log_paths_at_commit(
+		_repository_root(), A_REAL_WRONG_SUBJECT_COMMIT, declared)
+	assert_false(dangling.get("ok", false), "the binding check can actually fail")
+	assert_eq(dangling.get("code"), &"test_log_binding_dangling")
+
+
+## The schema floor tracks the frozen log set, so shrinking the set is a deliberate, visible edit
+## in two files rather than a silent one in one.
+func test_both_schemas_floor_the_red_green_record_count_at_the_frozen_log_set_size() -> void:
+	for schema_path: String in [DESKTOP_EVIDENCE.SCHEMA_PATH, MINESWEEPER_EVIDENCE.SCHEMA_PATH]:
+		var schema: Dictionary = (STRICT_JSON.parse_object(
+			FileAccess.get_file_as_string(schema_path))["value"] as Dictionary)
+		var records: Dictionary = ((schema["properties"] as Dictionary)["red_green_command_records"]
+			as Dictionary)
+		assert_eq(records.get("minItems"), GIT_PLUMBING.RED_GREEN_LOG_NAMES.size(), schema_path)
+
+
+## minItems in a schema this repository's own validator ignored would be decoration, which is the
+## same silent-pass shape as the bug it is here to close.
+func test_the_repository_schema_validator_actually_enforces_min_items() -> void:
+	var schema := {"type": "array", "minItems": 2}
+	assert_false(SCHEMA_VALIDATOR.validate([] as Array, schema).get("ok", false), "empty")
+	assert_false(SCHEMA_VALIDATOR.validate([1] as Array, schema).get("ok", false), "one short")
+	assert_true(SCHEMA_VALIDATOR.validate([1, 2] as Array, schema).get("ok", false), "at the floor")
+
+
+func test_both_schemas_reject_an_empty_red_green_record_set() -> void:
+	for evidence: Script in [DESKTOP_EVIDENCE, MINESWEEPER_EVIDENCE]:
+		var published: Dictionary = _published(evidence)
+		assert_false(published.is_empty(), "%s is published" % evidence.ARTIFACT_PATH)
+		var emptied: Dictionary = published.duplicate(true)
+		emptied["red_green_command_records"] = [] as Array
+		var validated: Dictionary = evidence.validate_schema(emptied)
+		assert_false(validated.get("ok", false),
+			"%s: an empty record set must not pass the published schema" % evidence.ARTIFACT_PATH)
+		assert_eq(validated.get("code"), &"document_schema_rejected")
+
+
+## STRUCTURALLY BLOCKED UNTIL THE FINAL RE-SEAL (dwm-p2r.35.5). Both documents on disk were sealed
+## carrying red_green_command_records: [], and this wave is forbidden to regenerate them; the
+## controller's single closing re-seal is what turns this green. It is written now, and left red
+## on purpose, because it is the assertion whose absence let --check report CHECK_OK forever.
+func test_the_published_documents_bind_a_real_non_empty_red_green_record_set() -> void:
+	for evidence: Script in [DESKTOP_EVIDENCE, MINESWEEPER_EVIDENCE]:
+		var published: Dictionary = _published(evidence)
+		assert_false(published.is_empty(), "%s is published" % evidence.ARTIFACT_PATH)
+		var records: Array = published["red_green_command_records"] as Array
+		assert_eq(records.size(), GIT_PLUMBING.RED_GREEN_LOG_NAMES.size(),
+			"%s binds one record per frozen log" % evidence.ARTIFACT_PATH)
+		var exit_codes: Array[int] = []
+		for entry: Variant in records:
+			var record := entry as Dictionary
+			var log_path: String = str(record["log_path"])
+			assert_true(FileAccess.file_exists("res://" + log_path), "%s is curated" % log_path)
+			assert_eq(str(record["log_sha256"]),
+				GIT_PLUMBING.digest_bytes(FileAccess.get_file_as_bytes("res://" + log_path)),
+				"%s binds the curated bytes" % log_path)
+			exit_codes.append(int(record["exit_code"]))
+		assert_true(exit_codes.has(1), "%s binds a real red" % evidence.ARTIFACT_PATH)
+
+
+## Proves the record BUILDER carries the parsed outcome rather than a constant: the previous
+## revision wrote exit_code 0 into every record without looking at the log at all. HEAD is used
+## because it is the nearest commit that certainly carries the curated logs -- the sealed
+## subject_commit predates their curation until the closing re-seal.
+func test_the_record_builder_carries_each_bound_log_s_parsed_exit_code_from_the_tree() -> void:
+	var head: Dictionary = GIT_PLUMBING.git_run(_repository_root(), PackedStringArray(["rev-parse", "HEAD"]))
+	assert_true(head.get("ok", false), "HEAD resolves")
+	var commit: String = str(head.get("output", "")).strip_edges()
+	assert_true(GIT_PLUMBING.is_commit_id(commit), commit)
+	var built: Dictionary = GIT_PLUMBING.build_red_green_command_records(_repository_root(), commit)
+	assert_true(built.get("ok", false), JSON.stringify(built))
+	if not built.get("ok", false):
+		return
+	var records: Array = (built["value"] as Dictionary)["records"]
+	assert_eq(records.size(), GIT_PLUMBING.RED_GREEN_LOG_NAMES.size())
+	for index: int in range(records.size()):
+		var record := records[index] as Dictionary
+		var name: String = str(GIT_PLUMBING.RED_GREEN_LOG_NAMES[index])
+		var keys: Array = record.keys()
+		keys.sort()
+		assert_eq(keys, ["exit_code", "log_path", "log_sha256", "suite_id"], name)
+		assert_eq(str(record["log_path"]), "evidence/phase_2r/logs/" + name)
+		assert_eq(str(record["log_sha256"]),
+			GIT_PLUMBING.digest_bytes(FileAccess.get_file_as_bytes(CURATED_LOGS + name)),
+			"%s binds the curated bytes" % name)
+		assert_eq(int(record["exit_code"]),
+			int((EXPECTED_LOG_OUTCOMES[name] as Dictionary)["exit_code"]),
+			"%s carries its own parsed exit code" % name)
