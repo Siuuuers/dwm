@@ -25,6 +25,46 @@ const DESKTOP_BOARD_STATE := "res://scripts/domain/minesweeper/DesktopBoardState
 const DESKTOP_CONSEQUENCE_PARTICIPANT := "res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd"
 const DESKTOP_BOARD_PARTICIPANT := "res://scripts/application/restore/DesktopBoardRestoreParticipant.gd"
 
+## dwm-p2r.33: start_new_run() now routes profile/localization/audio through their participants'
+## real prepare() seam and reads the production-shaped keys (`profile_plan`+`locale_id`,
+## `localization_plan`, `audio_plan`) from those preps, so the three fakes must return those exact
+## shapes -- the generic FakeRestoreParticipant's `{"plan": {...}}` no longer suffices, mirroring
+## test_desktop_continuation_resume.gd's own ShapedFakeParticipant precedent.
+class ShapedFakeParticipant extends RefCounted:
+	var _id: String
+	var _plan_key: String
+	var _log: RefCounted
+	var _extra_value: Dictionary
+
+	func _init(participant_id: String, plan_key: String, call_log: RefCounted, extra_value: Dictionary = {}) -> void:
+		_id = participant_id
+		_plan_key = plan_key
+		_log = call_log
+		_extra_value = extra_value
+
+	func prepare(input: Dictionary) -> Dictionary:
+		_log.record(_id, "prepare")
+		var value: Dictionary = {_plan_key: {"id": _id, "input": input.duplicate(true)}}
+		for key: String in _extra_value:
+			value[key] = _extra_value[key]
+		return {"ok": true, "code": &"ok", "value": value}
+
+	func capture() -> Dictionary:
+		_log.record(_id, "capture")
+		return {"ok": true, "code": &"ok", "value": {"backup": {"id": _id}}}
+
+	func apply_silent(plan: Variant) -> Dictionary:
+		_log.record(_id, "apply_silent")
+		return {"ok": true, "code": &"ok", "value": {"applied": _id, "plan": plan}}
+
+	func rollback_silent(backup: Dictionary) -> Dictionary:
+		_log.record(_id, "rollback_silent")
+		return {"ok": true, "code": &"ok", "value": {"rolled_back": _id, "backup": backup}}
+
+	func finalize() -> Dictionary:
+		_log.record(_id, "finalize")
+		return {"ok": true, "code": &"ok"}
+
 func _initial_context() -> Dictionary:
 	return {"route_id": "opening", "dialogic_checkpoint": {}, "active_app_id": null,
 		"audio_context": {}, "content_version": 1}
@@ -57,9 +97,9 @@ func _wired() -> Dictionary:
 		"run": load(RUN_PARTICIPANT).new(gs),
 		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
 		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
-		"profile": load(FAKE_PARTICIPANT).new("profile", log),
-		"localization": load(FAKE_PARTICIPANT).new("localization", log),
-		"audio": load(FAKE_PARTICIPANT).new("audio", log),
+		"profile": ShapedFakeParticipant.new("profile", "profile_plan", log, {"locale_id": "en"}),
+		"localization": ShapedFakeParticipant.new("localization", "localization_plan", log),
+		"audio": ShapedFakeParticipant.new("audio", "audio_plan", log),
 		"route": load(FAKE_PARTICIPANT).new("route", log),
 		"narrative": load(FAKE_PARTICIPANT).new("narrative", log),
 	})["ok"])

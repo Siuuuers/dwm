@@ -420,9 +420,17 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 			_mutation_gate.release(&"new_run", gate_token)
 		return new_run
 	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
+	# dwm-p2r.33 addendum (user decision, 2026-08-24): the frozen `audio_context must be {}` contract
+	# in _validate_new_run_context() means a new run starts with NO audio context, and AudioManager's
+	# canonical spelling of that state is the four-key empty snapshot (empty ids, empty contexts --
+	# `{}` itself fails AudioManager._validate_snapshot()'s exact-key check). Translate the frozen {}
+	# exactly once here, so the persisted snapshot stays restorable through the real audio prep and
+	# the real audio participant below can prepare it.
+	var new_run_audio_context := {"ambience_context": {}, "ambience_context_id": "",
+		"music_context": {}, "music_context_id": ""}
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
 		snapshot_input, initial_context["dialogic_checkpoint"], str(initial_context["route_id"]),
-		initial_context["active_app_id"], initial_context["audio_context"],
+		initial_context["active_app_id"], new_run_audio_context,
 		int(initial_context["content_version"]), 1)
 	if not built.get("ok", false):
 		if gate_acquired:
@@ -445,27 +453,42 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 			_mutation_gate.release(&"new_run", gate_token)
 		return board_prep
 
-	# Empty profile patch preserves the complete global profile for a new game.
-	#
-	# dwm-p2r.32 Plan 02 Task 9, HONEST GAP (NOT fixed by Task 9): this comment's own stated intent
-	# is not what happens. Neither literal below is routed through its participant's `prepare()`, so
-	# neither can ever satisfy its real validator -- ProfileSchema.validate({}) rejects the empty
-	# "profile" candidate (an exact 7-key object is required) and
-	# LocalizationManager._is_restore_plan_valid({}) rejects the empty "localization" candidate (four
-	# keys are required) the same way. start_new_run() therefore cannot complete against the real
-	# ProfileManager/LocalizationManager pair today; confirmed live in
-	# tests/integration/test_desktop_crash_recovery.gd, which proves the fail-closed result rather
-	# than papering over it. This file is one of Task 9's own authorized Modify targets, so this is
-	# not blocked by file ownership -- it is left unfixed because the correct fix (what locale/
-	# profile a brand-new run should start from, including the case where no profile.json exists yet)
-	# is a real design decision this task's own brief never specifies.
+	# dwm-p2r.33: the empty legacy patch, routed through the REAL profile participant, preserves the
+	# complete global profile for a new game -- prepare_legacy_profile_patch({}, {}) returns the live
+	# profile unchanged once migration_receipts.legacy_game_state_profile_v1 is true, and a
+	# defaults-merged validated candidate otherwise (fresh install: ProfileSchema defaults).
+	var profile_prep: Dictionary = _restore_participants["profile"].prepare(
+		{"legacy_profile_patch_input": {}})
+	if not profile_prep.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
+		return profile_prep
+	# The locale chains from the prepared profile candidate's preferences.language, exactly as
+	# _prepare_bundle_with_all_participants() chains it on the restore path.
+	var loc_prep: Dictionary = _restore_participants["localization"].prepare(
+		{"locale_id": str(profile_prep["value"]["locale_id"])})
+	if not loc_prep.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
+		return loc_prep
+	# The audio plan is prepared from the prepared profile candidate's preferences plus the
+	# translated audio context, exactly as _prepare_bundle_with_all_participants() prepares it on
+	# the restore path (dwm-p2r.33 addendum).
+	var preferences: Dictionary = (((profile_prep["value"] as Dictionary)["profile_plan"] as Dictionary) \
+		.get("profile", {}) as Dictionary).get("preferences", {})
+	var audio_prep: Dictionary = _restore_participants["audio"].prepare(
+		{"preferences": preferences, "audio_context": snapshot["audio_context"]})
+	if not audio_prep.get("ok", false):
+		if gate_acquired:
+			_mutation_gate.release(&"new_run", gate_token)
+		return audio_prep
 	var plans := {
 		"run": {"snapshot": snapshot},
 		"desktop_consequence": (consequence_prep["value"] as Dictionary)["consequence_plan"],
 		"desktop_board": (board_prep["value"] as Dictionary)["board_plan"],
-		"profile": {"profile": {}},
-		"localization": {},
-		"audio": {"snapshot": initial_context["audio_context"]},
+		"profile": (profile_prep["value"] as Dictionary)["profile_plan"],
+		"localization": (loc_prep["value"] as Dictionary)["localization_plan"],
+		"audio": (audio_prep["value"] as Dictionary)["audio_plan"],
 		"route": {"route_id": str(initial_context["route_id"]), "route_context": {}},
 		"narrative": {"narrative_checkpoint": initial_context["dialogic_checkpoint"]},
 	}
@@ -1349,9 +1372,13 @@ func _resume_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
 	if not new_run.get("ok", false):
 		return _latch_recovery_diagnostic(operation, &"new_run", new_run)
 	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
+	# dwm-p2r.33: same frozen-{}-to-canonical-empty-snapshot translation as start_new_run() -- a
+	# resumed new run must build the same restorable snapshot the original attempt would have built.
+	var new_run_audio_context := {"ambience_context": {}, "ambience_context_id": "",
+		"music_context": {}, "music_context_id": ""}
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
 		snapshot_input, initial_context["dialogic_checkpoint"], str(initial_context["route_id"]),
-		initial_context["active_app_id"], initial_context["audio_context"],
+		initial_context["active_app_id"], new_run_audio_context,
 		int(initial_context["content_version"]), 1)
 	if not built.get("ok", false):
 		return _latch_recovery_diagnostic(operation, &"new_run", built)
@@ -1366,13 +1393,31 @@ func _resume_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
 	if not board_prep.get("ok", false):
 		return _latch_recovery_diagnostic(operation, &"new_run", board_prep)
 
+	# dwm-p2r.33: the same real participant preps as start_new_run() -- a resumed new run builds
+	# its profile/localization/audio plans from the LIVE participants (new_run has no source
+	# document to reconstruct from, unlike _resume_restore below).
+	var profile_prep: Dictionary = _restore_participants["profile"].prepare(
+		{"legacy_profile_patch_input": {}})
+	if not profile_prep.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", profile_prep)
+	var loc_prep: Dictionary = _restore_participants["localization"].prepare(
+		{"locale_id": str(profile_prep["value"]["locale_id"])})
+	if not loc_prep.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", loc_prep)
+	var preferences: Dictionary = (((profile_prep["value"] as Dictionary)["profile_plan"] as Dictionary) \
+		.get("profile", {}) as Dictionary).get("preferences", {})
+	var audio_prep: Dictionary = _restore_participants["audio"].prepare(
+		{"preferences": preferences, "audio_context": snapshot["audio_context"]})
+	if not audio_prep.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", audio_prep)
+
 	var plans := {
 		"run": {"snapshot": snapshot},
 		"desktop_consequence": (consequence_prep["value"] as Dictionary)["consequence_plan"],
 		"desktop_board": (board_prep["value"] as Dictionary)["board_plan"],
-		"profile": {"profile": {}},
-		"localization": {},
-		"audio": {"snapshot": initial_context["audio_context"]},
+		"profile": (profile_prep["value"] as Dictionary)["profile_plan"],
+		"localization": (loc_prep["value"] as Dictionary)["localization_plan"],
+		"audio": (audio_prep["value"] as Dictionary)["audio_plan"],
 		"route": {"route_id": str(initial_context["route_id"]), "route_context": {}},
 		"narrative": {"narrative_checkpoint": initial_context["dialogic_checkpoint"]},
 	}

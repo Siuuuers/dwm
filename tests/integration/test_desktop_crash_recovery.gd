@@ -8,33 +8,39 @@ extends "res://addons/gut/test.gd"
 # therefore nothing pending of that kind to crash-recover here, and this file does not pretend
 # otherwise.
 #
-# A FOURTH, NEWLY-DISCOVERED GAP (not one of Task 9's own three, and not fixed here): driving
-# SaveManager.start_new_run() through a REAL ProfileManager for the first time (every prior test of
+# A FOURTH GAP WAS DISCOVERED HERE AND IS NOW FIXED (dwm-p2r.33): driving SaveManager.
+# start_new_run() through a REAL ProfileManager for the first time (every prior test of
 # start_new_run(), in test_new_run_transaction.gd and test_save_manager.gd, wires FAKE participants
-# for every key) proves it can never succeed. start_new_run() hardcodes `plans["profile"] =
-# {"profile": {}}` (SaveManager.gd, "Empty profile patch preserves the complete global profile for a
-# new game"), never routed through ProfileRestoreParticipant.prepare() the way the ordinary restore
-# path uses it, and ProfileManager.apply_restore_silent() has no no-op path for an empty candidate --
-# it always runs the literal `{}` through ProfileSchema.validate(), which requires an EXACT 7-key
-# object and therefore always fails with `{"code":"invalid_profile","path":"profile","message":
-# "object has unknown or missing fields"}`. This is unconditional: no profile.json content on disk
-# can change it, since the plan never reads `_profile` at all. The identical pattern also blocks
-# `plans["localization"] = {}` immediately afterward (confirmed by code reading:
-# LocalizationManager._is_restore_plan_valid({}) requires four keys an empty dict never carries), not
-# exercised live below only because the profile failure is always reached first in participant order.
-# Confirmed against HEAD by direct code reading (ProfileSchema.gd:87, 216-220; ProfileManager.gd:
-# 246-253; LocalizationManager.gd:391-392; SaveManager.gd:79,393-394). autoload/SaveManager.gd IS one
-# of Task 9's own authorized Modify targets per the brief's Files list -- unlike ProfileManager.gd/
-# LocalizationManager.gd, which are not -- so this is not a file-ownership gap the way gaps 1-3 are;
-# it is left unfixed because the correct fix is a real design decision (what locale/profile a
-# brand-new run should start from, including the no-prior-profile.json case) the brief's own prose
-# never specifies, not a mechanical wiring gap. Below, this is proven fail-closed rather than either
-# faked past or silently left to surface as a mysterious failure elsewhere.
+# for every key) proved it could never succeed -- it hardcoded `plans["profile"] = {"profile": {}}`
+# and `plans["localization"] = {}`, two caller-independent literals that bypassed their
+# participants' prepare() and could never satisfy the real validators. The dwm-p2r.33 product
+# decision (recorded in that bead's DESIGN field, 2026-08-24): a New Run PRESERVES the complete
+# global profile by routing the live profile through the real participant seam with an EMPTY legacy
+# patch -- ProfileRestoreParticipant.prepare({"legacy_profile_patch_input": {}}), where
+# prepare_legacy_profile_patch({}, {}) returns the live profile unchanged once migration_receipts.
+# legacy_game_state_profile_v1 is true and a defaults-merged validated candidate otherwise, so a
+# fresh install starts from ProfileSchema defaults (language "en") -- and the locale is CHAINED
+# from the prepared profile candidate's preferences.language exactly as the ordinary restore path
+# chains it in _prepare_bundle_with_all_participants(). Completing that fix surfaced a THIRD
+# literal of the same class: plans["audio"] passed the caller's audio_context through verbatim,
+# and the frozen `audio_context must be {}` contract made it permanently invalid against
+# AudioManager._validate_snapshot()'s exact-4-key shape. Per the dwm-p2r.33 addendum (user
+# decision, 2026-08-24), start_new_run() now translates the frozen {} into AudioManager's own
+# canonical empty snapshot (no music, no ambience), builds the persisted RunSnapshot from the
+# translated shape so a new-run save stays restorable, and routes plans["audio"] through the real
+# audio participant. This file now proves the working path end to end against the real
+# ProfileManager/LocalizationManager pair (fresh install and preserved-profile both), and keeps
+# the crash-recovery proofs alive through a post-intent failure still genuinely reachable through
+# the fixed graph: a live-committed profile language with no bundle in this build fails
+# LocalizationManager.prepare_locale() with `unknown_locale` AFTER the continuation intent was
+# durably committed. That is fail-closed behavior on bad input, not a gap: ProfileSchema
+# deliberately accepts any trimmed nonempty language string, and which languages have bundles is
+# LocalizationManager's own domain.
 #
-# What Task 9's own wiring genuinely adds and IS crash-recoverable, independent of all four gaps, is
-# the desktop publication ledger's own durability across a fresh reload, plus the production graph's
-# own boot-time reconciliation call surviving both an empty journal and a journal left with a
-# genuinely stuck entry by gap 4 above.
+# What Task 9's own wiring genuinely adds and IS crash-recoverable, independent of the remaining
+# gaps, is the desktop publication ledger's own durability across a fresh reload, plus the
+# production graph's own boot-time reconciliation call surviving both an empty journal and a
+# journal left with a genuinely stuck entry by the unknown-locale failure above.
 
 const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
@@ -106,8 +112,12 @@ func _boot_process(storage_root: String) -> Dictionary:
 		"ProfileManager must be initialized the same way the real initialize_profile stage does it")
 	var localization: Node = load("res://autoload/LocalizationManager.gd").new()
 	add_child_autofree(localization)
+	assert_true(localization.call(&"initialize", profile).get("ok", false),
+		"LocalizationManager must be initialized the same way the real initialize_localization stage does it")
 	var audio: Node = load("res://autoload/AudioManager.gd").new()
 	add_child_autofree(audio)
+	assert_true(audio.call(&"initialize", profile).get("ok", false),
+		"AudioManager must be initialized the same way the real initialize_audio stage does it")
 	var bridge: Node = load("res://autoload/DialogicBridge.gd").new()
 	add_child_autofree(bridge)
 	var router: Node = load("res://autoload/SceneRouter.gd").new()
@@ -139,7 +149,8 @@ func _boot_process(storage_root: String) -> Dictionary:
 	var graph_result: Dictionary = bootstrap.call(&"_configure_desktop_production_graph")
 	assert_true(graph_result.get("ok", false), "desktop production graph: " + str(graph_result))
 
-	return {"bootstrap": bootstrap, "game_state": game_state, "save_manager": save_manager, "issuer": issuer}
+	return {"bootstrap": bootstrap, "game_state": game_state, "save_manager": save_manager,
+		"issuer": issuer, "profile": profile, "localization": localization}
 
 
 func _initial_context() -> Dictionary:
@@ -148,34 +159,72 @@ func _initial_context() -> Dictionary:
 
 
 # -------------------------------------------------------------------------------------------------
-# Gap 4 (see header): New Run against the REAL ProfileManager fails closed, every time, on the
-# hardcoded empty profile patch -- proven concretely rather than left to surface as a mystery.
+# dwm-p2r.33: New Run against the REAL ProfileManager/LocalizationManager pair completes end to
+# end. The empty legacy patch preserves the complete global profile and the locale chains from the
+# prepared profile candidate, exactly as the ordinary restore path does.
 # -------------------------------------------------------------------------------------------------
 
-func test_start_new_run_fails_closed_on_the_hardcoded_empty_profile_patch_gap() -> void:
+func test_start_new_run_completes_against_the_real_profile_and_localization_pair() -> void:
 	var process := _boot_process(_shared_root)
 	var save_manager: Node = process["save_manager"]
 	var started: Dictionary = save_manager.call(&"start_new_run", _initial_context())
-	assert_false(started.get("ok", true), "gap 4 blocks every start_new_run against a real " \
-		+ "ProfileManager; a passing result here means the gap was fixed and this test (and the " \
-		+ "evidence documents' honest_gaps()) must be updated together")
-	assert_eq(str(started.get("code", "")), "invalid_profile")
-	assert_eq(str(started.get("path", "")), "profile")
+	assert_true(started.get("ok", false), "dwm-p2r.33: a fresh install (this boot persisted schema " \
+		+ "defaults; no earlier profile.json existed) must complete a New Run through the REAL " \
+		+ "ProfileManager/LocalizationManager pair: " + JSON.stringify(started))
+	assert_false(str((started.get("value", {}) as Dictionary).get("run_id", "")).is_empty(),
+		"a completed New Run reports the durably allocated run_id")
+	assert_eq(str((process["profile"] as Node).call(&"get_preference", &"preferences.language", "")),
+		"en", "fresh install: the schema-default locale survives the run unchanged")
+	var reconciled: Dictionary = save_manager.call(&"reconcile_incomplete_continuations")
+	assert_true(reconciled.get("ok", false), JSON.stringify(reconciled))
+	assert_eq(((reconciled["value"] as Dictionary)["reconciled"] as Array).size(), 0,
+		"a completed New Run leaves nothing incomplete in the continuation journal")
 
 
-## The failed attempt above rolls the three participants that DID apply (run, desktop_consequence,
-## desktop_board) back in-process, but SaveManager never tells the continuation journal the
-## transaction was abandoned (_rollback_transaction returns the original failure directly, with no
-## journal.advance() call), so the journal's own "applying" record for it is left genuinely
-## incomplete -- list_incomplete() finds it, and reconcile_startup() (DesktopContinuationOperation
-## Journal.gd:311-312) leaves it exactly as found whenever `failure` is null, so it stays incomplete
-## on every subsequent boot too. Proven directly rather than assumed: this is what "the journal
-## honestly reflects a stuck gap 4 attempt" looks like, and reconciling it must still return ok
-## (never crash or hang) even though the entry cannot be cleared until gap 4 itself is fixed.
+func test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale() -> void:
+	var process_a := _boot_process(_shared_root)
+	var profile_a: Node = process_a["profile"]
+	var prepared: Dictionary = profile_a.call(&"prepare_locale_preference", "zh_CN")
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	assert_true(profile_a.call(&"commit_prepared_profile", prepared["value"], false).get("ok", false),
+		"zh_CN is a registered locale, so the live commit publishes cleanly")
+
+	# A fresh "process" over the SAME root models the player restarting before starting a new run.
+	var process_b := _boot_process(_shared_root)
+	var started: Dictionary = (process_b["save_manager"] as Node).call(&"start_new_run", _initial_context())
+	assert_true(started.get("ok", false), JSON.stringify(started))
+	assert_eq(str((process_b["profile"] as Node).call(&"get_preference", &"preferences.language", "")),
+		"zh_CN", "the New Run PRESERVED the committed global profile (dwm-p2r.33 product decision) " \
+		+ "and the locale was chained from the prepared profile candidate, never hardcoded")
+
+
+## With the gap fixed, the one post-intent failure still genuinely reachable through the fixed
+## graph drives the same crash-recovery proof: a locale committed to the live profile with NO
+## bundle in this build. ProfileSchema accepts any trimmed nonempty language string by design, and
+## the commit defers its signals (a real production seam -- LocalizationManager.initialize() itself
+## commits with defer_signals=true) so nothing reacts before the New Run reads the profile. A first,
+## SUCCESSFUL New Run runs first so migration_receipts.legacy_game_state_profile_v1 is true and
+## prepare_legacy_profile_patch({}, {}) returns the live profile (with the bad language) unchanged.
+## start_new_run() then fails in LocalizationManager.prepare_locale() with `unknown_locale` AFTER
+## _begin_new_run_continuation() durably committed the continuation intent and advanced it to the
+## applying stage, and the prep-failure path releases the gate and returns the failure directly,
+## with no journal.advance() call -- so the journal's own record for it is left genuinely
+## incomplete. list_incomplete() finds it, and reconcile_startup() (DesktopContinuationOperation
+## Journal.gd) leaves it exactly as found whenever `failure` is null, so it stays incomplete on
+## every subsequent boot too. Reconciling it must still return ok (never crash or hang).
 func test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing() -> void:
 	var process := _boot_process(_shared_root)
 	var save_manager: Node = process["save_manager"]
-	assert_false(save_manager.call(&"start_new_run", _initial_context()).get("ok", true))
+	assert_true(save_manager.call(&"start_new_run", _initial_context()).get("ok", false),
+		"the seeding New Run itself must complete (receipt flips true; the journal entry completes)")
+	var profile: Node = process["profile"]
+	var prepared: Dictionary = profile.call(&"prepare_locale_preference", "ja")
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	assert_true(profile.call(&"commit_prepared_profile", prepared["value"], true).get("ok", false),
+		"the deferred commit persists a language no bundle in this build can serve")
+	var started: Dictionary = save_manager.call(&"start_new_run", _initial_context())
+	assert_false(started.get("ok", true), "no bundle for the committed language exists in this build")
+	assert_eq(str(started.get("code", "")), "unknown_locale")
 	var reconciled: Dictionary = save_manager.call(&"reconcile_incomplete_continuations")
 	assert_true(reconciled.get("ok", false), JSON.stringify(reconciled))
 	var results: Array = (reconciled["value"] as Dictionary)["reconciled"]
@@ -183,26 +232,39 @@ func test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_recon
 	if results.size() == 1:
 		var entry: Dictionary = results[0]
 		assert_true((entry["result"] as Dictionary).get("ok", false),
-			"reconciling a stuck gap-4 entry must not itself fail")
+			"reconciling a stuck unknown-locale entry must not itself fail")
 
 
-## Models a genuine crash: process A's New Run attempt fails closed (gap 4) and leaves a stuck
-## continuation behind; process B is a FRESH Bootstrap+SaveManager pair over the SAME on-disk root
-## (a new "boot" after the "crash"). Process B's own boot-time reconciliation --
-## _configure_desktop_production_graph() calling reconcile_incomplete_continuations() itself, proven
-## separately below -- must inherit that stuck entry without crashing or hanging the boot, and
-## _boot_process()'s own assertion that the graph came up `ok` is that proof.
+## Models a genuine crash: process A's second New Run attempt fails closed (unknown_locale, the
+## construction proven in the test above) and leaves a stuck continuation behind; process B is a
+## FRESH Bootstrap+SaveManager pair over the SAME on-disk root (a new "boot" after the "crash").
+## With dwm-p2r.33's fix extended to _resume_new_run(), the crash-recovery machinery now does
+## MORE than tolerate the stuck entry: process B's LocalizationManager.initialize() first HEALS
+## the stored unregistered locale back to the source locale (its own documented law), and then
+## B's boot-time reconciliation -- _configure_desktop_production_graph() calling
+## reconcile_incomplete_continuations(), which RESUMES every incomplete operation -- drives the
+## interrupted New Run to COMPLETION through the real participants. Observed live, not assumed:
+## before the fix this same scenario left the entry permanently incomplete on every boot.
 func test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run() -> void:
 	var process_a := _boot_process(_shared_root)
-	assert_false((process_a["save_manager"] as Node).call(&"start_new_run", _initial_context()).get("ok", true))
+	var save_manager_a: Node = process_a["save_manager"]
+	assert_true(save_manager_a.call(&"start_new_run", _initial_context()).get("ok", false))
+	var profile_a: Node = process_a["profile"]
+	var prepared: Dictionary = profile_a.call(&"prepare_locale_preference", "ja")
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	assert_true(profile_a.call(&"commit_prepared_profile", prepared["value"], true).get("ok", false))
+	assert_false(save_manager_a.call(&"start_new_run", _initial_context()).get("ok", true))
 
 	var process_b := _boot_process(_shared_root)
 	var reconciled: Dictionary = (process_b["save_manager"] as Node).call(&"reconcile_incomplete_continuations")
 	assert_true(reconciled.get("ok", false), JSON.stringify(reconciled))
-	assert_eq(((reconciled["value"] as Dictionary)["reconciled"] as Array).size(), 1,
-		"process B's own boot-time reconciliation (already run once inside _configure_desktop_" \
-		+ "production_graph() during _boot_process()) inherits the SAME stuck entry process A left, " \
-		+ "not a fresh duplicate")
+	assert_eq(((reconciled["value"] as Dictionary)["reconciled"] as Array).size(), 0,
+		"process B's own boot-time reconciliation (inside _configure_desktop_production_graph() " \
+		+ "during _boot_process()) RESUMED the interrupted New Run to completion after the locale " \
+		+ "heal, so nothing is left incomplete for this follow-up call to find")
+	assert_true((process_b["save_manager"] as Node).call(&"get_latest_stable_checkpoint").get("ok", false),
+		"the resumed run's Day-1 bundle is genuinely live in process B's journal -- the stuck " \
+		+ "entry COMPLETED, it did not just vanish")
 
 
 func test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time() -> void:
