@@ -155,6 +155,11 @@ func _build_desktop_graph() -> Dictionary:
 
 	var restore_result: Dictionary = _bootstrap.call(&"_configure_restore_participants")
 	assert_true(restore_result.get("ok", false), "restore participants: " + str(restore_result))
+	# dwm-oyo.3 slice (2026-08-24): the desktop graph stage now composes the Plan-03 condition pair,
+	# the consequence source, and the Done dispatcher, which consume the presentation ports and the
+	# state port's identity half -- both composed by the EARLIER configure_day_resolution stage in
+	# production. The harness mirrors that exact order.
+	assert_true(_build_presentation().get("ok", false), "presentation ports compose first")
 	var graph_result: Dictionary = _bootstrap.call(&"_configure_desktop_production_graph")
 	assert_true(graph_result.get("ok", false), "desktop production graph: " + str(graph_result))
 	return {"gate": gate, "checkpoint_port": checkpoint_port, "save_manager": save_manager,
@@ -308,17 +313,16 @@ func test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready() -
 		"the Dating port is still CONSTRUCTED and retained, just unconfigured")
 
 
-## The dwm-p2r.18 twin of the Dating handoff above. The presentation PRODUCER needs Plan 02's
-## board-fate and condition receipts, which `dwm-p2r.9` never delivered and Plan 01 line 1303
-## forbids this plan from building. Bootstrap therefore composes the identity half and deliberately
-## leaves the consequence source unconfigured -- and says so, rather than letting a resolution
-## quietly resolve a day with the presentations missing from it.
-func test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready() -> void:
+## The dwm-p2r.18 twin of the Dating handoff above, NARROWED by the dwm-oyo.3 slice (2026-08-24):
+## the consequence source is now composed by the LATER desktop-graph stage, so after only the
+## foundation and presentation stages the producer honestly reports not-ready -- the identity half
+## exists, the Plan-02 record source does not yet. The graph-stage test below proves the flip.
+func test_the_producer_is_not_ready_before_the_desktop_graph_stage() -> void:
 	_build_foundation()
 	assert_true(_build_presentation().get("ok", false))
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	assert_false(bool(state["presentation_producer_ready"]),
-		"Phase 2R exposes the producer as NOT ready; Plan 02 owns the desktop consequence source")
+		"before the desktop-graph stage there is no consequence source to consume")
 	assert_true(int(state["day_resolution_start_port_instance_id"]) != 0,
 		"the start port the producer would drive is still constructed and retained")
 
@@ -401,13 +405,24 @@ func test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_ob
 	assert_true(coordinator is DESKTOP_CONSEQUENCE_COORDINATOR)
 
 
-func test_the_consequence_coordinator_leaves_condition_departure_ports_unconfigured() -> void:
+## SUPERSEDED LAW, updated by the dwm-oyo.3 slice (2026-08-24): Task 9's original assertion here
+## was that the pair stays NULL because "Plan 03 owns the condition-policy port; Task 9 never fakes
+## or stubs it". Plan 03's REAL ports now exist and the graph stage configures them together, so
+## the surviving law is the second half -- the configured objects are the retained production
+## classes, never a fake, and no other object ever occupies either slot.
+func test_the_consequence_coordinator_holds_the_real_condition_departure_pair() -> void:
 	_build_desktop_graph()
 	var coordinator: Object = _bootstrap.get("_retained_desktop_consequence_coordinator")
-	assert_null(coordinator.get("_condition_policy_port"),
-		"Plan 03 owns the condition-policy port; Task 9 never fakes or stubs it")
-	assert_null(coordinator.get("_schedule_view_port"),
-		"Plan 03 owns the ScheduleView port; Task 9 never fakes or stubs it")
+	var policy_port: Object = coordinator.get("_condition_policy_port")
+	var view_port: Object = coordinator.get("_schedule_view_port")
+	assert_true(policy_port != null and policy_port.get_script()
+		== preload("res://scripts/application/desktop/DesktopConditionPolicyPort.gd"),
+		"the configured policy port is the real Plan-03 class, never a fake")
+	assert_true(view_port != null and view_port.get_script()
+		== preload("res://scripts/application/schedule/ScheduleDepartureViewPort.gd"),
+		"the configured view port is the real Plan-03 class, never a fake")
+	assert_same(policy_port, _bootstrap.get("_retained_desktop_condition_policy_port"))
+	assert_same(view_port, _bootstrap.get("_retained_schedule_departure_view_port"))
 
 
 func test_snapshot_provider_instance_id_equals_game_state() -> void:
@@ -451,3 +466,48 @@ func test_the_production_graph_never_touches_the_retained_simulator_install_seam
 	_build_desktop_graph()
 	assert_null(_game_state.get("_minesweeper_round_coordinator"),
 		"the Plan-02 graph must never install into the .9-era GameState seam")
+
+
+# -------------------------------------------------------------------------------------------------
+# dwm-oyo.3 slice (2026-08-24, dwm-p2r.21): the condition pair, consequence source, and Done
+# dispatcher -- the desktop-graph stage's Plan-03 composition
+# -------------------------------------------------------------------------------------------------
+
+func test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_ready() -> void:
+	_build_desktop_graph()
+	var state: Dictionary = _bootstrap.get_desktop_contract_state()
+	assert_true(bool(state["presentation_producer_ready"]),
+		"the composed consequence source makes the presentation producer reachable (DEVIATION-5 done)")
+	for key: String in ["condition_context_port_instance_id", "condition_policy_port_instance_id",
+			"schedule_departure_view_port_instance_id", "desktop_consequence_source_port_instance_id",
+			"schedule_done_dispatcher_instance_id"]:
+		assert_true(state.has(key), "the probe must expose " + key)
+		assert_true(int(state.get(key, 0)) != 0, key + " must name a retained instance")
+
+	# The pair really is CONFIGURED on the one shared consequence coordinator (identical replay is
+	# idempotent; anything else would conflict), in the together-order Plan 03 owns.
+	var coordinator: Object = _bootstrap.get("_retained_desktop_consequence_coordinator")
+	var pair_replay: Dictionary = coordinator.configure_condition_departure_ports(
+		_bootstrap.get("_retained_desktop_condition_policy_port"),
+		_bootstrap.get("_retained_schedule_departure_view_port"))
+	assert_true(pair_replay.get("ok", false), str(pair_replay))
+	assert_true(bool((pair_replay.get("value", {}) as Dictionary).get("already_configured", false)))
+
+	# The retained source object is THE configured consequence source on the day-resolution seam.
+	var source_replay: Dictionary = _state_port.configure_desktop_consequence_source(
+		_bootstrap.get("_retained_desktop_consequence_source_port"))
+	assert_true(source_replay.get("ok", false), str(source_replay))
+	assert_true(bool((source_replay.get("value", {}) as Dictionary).get("already_configured", false)))
+
+
+func test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher() -> void:
+	_build_desktop_graph()
+	var first: Dictionary = _bootstrap.get_desktop_contract_state()
+	var replayed: Dictionary = _bootstrap.call(&"_configure_desktop_production_graph")
+	assert_true(replayed.get("ok", false), str(replayed))
+	var second: Dictionary = _bootstrap.get_desktop_contract_state()
+	for key: String in ["condition_context_port_instance_id", "condition_policy_port_instance_id",
+			"schedule_departure_view_port_instance_id", "desktop_consequence_source_port_instance_id",
+			"schedule_done_dispatcher_instance_id"]:
+		assert_eq(int(second.get(key, 0)), int(first.get(key, -1)),
+			key + ": replay rebuilt instead of reusing")

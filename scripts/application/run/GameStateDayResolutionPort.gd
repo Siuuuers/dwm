@@ -50,12 +50,14 @@ var _day_resolution_start_port: Object = null
 ## the board-fate receipt bound by `P01.day_resolution.start`, and the condition receipt projected
 ## by `P01.hospital.resolution`.
 ##
-## DELIBERATELY UNCONFIGURED IN PHASE 2R (DEVIATION-5, user-approved on dwm-p2r.18). `dwm-p2r.9`
-## never delivered the integrated `DesktopBoardFatePort`, and Plan 01 line 1303 forbids this plan
-## from implementing desktop board fate, so there is no lawful production source for either record
-## yet. This seam is the handoff point, exactly as `DatingPresentationPort` is for `dwm-oyo.4`:
-## Bootstrap constructs nothing for it, and a resolution that genuinely needs a presentation fails
-## closed naming the missing input rather than silently skipping the presentation.
+## DEVIATION-5, FINISHED BY THE dwm-oyo.3 SLICE (2026-08-24, authorized on dwm-p2r.21 /
+## dwm-oyo.3). The seam stood deliberately unconfigured through Phase 2R (user-approved on
+## dwm-p2r.18) because no lawful production source existed; Bootstrap's desktop-graph stage now
+## configures the real `DesktopConsequenceSourcePort` -- board fate settled through the retained
+## `DesktopBoardFatePort`, condition truth read from the shared consequence coordinator's
+## policy-produced receipts. The fail-closed law is unchanged in kind and narrower in scope: a
+## resolution that needs a condition receipt no committed action produced still fails closed
+## naming the missing input rather than fabricating one.
 var _desktop_consequence_source: Object = null
 
 const _ISSUER_METHODS: Array[String] = ["issue", "verify_issued", "derive_child", "validate_child"]
@@ -623,8 +625,9 @@ func configure_resolution_identity(identity_issuer: Object, start_port: Object) 
 		"value": {"configured": true, "already_configured": false}, "receipt": {}}
 
 
-## The Plan-02 desktop-consequence handoff (DEVIATION-5). Bootstrap deliberately never calls this;
-## see the field comment above for why. Same idempotent/refuse-replacement law as every other seam.
+## The Plan-02 desktop-consequence handoff (DEVIATION-5, finished by the dwm-oyo.3 slice --
+## Bootstrap's desktop-graph stage now calls this with the real `DesktopConsequenceSourcePort`;
+## see the field comment above). Same idempotent/refuse-replacement law as every other seam.
 func configure_desktop_consequence_source(source: Object) -> Dictionary:
 	if source == null or not _has_methods(source, _CONSEQUENCE_SOURCE_METHODS):
 		return {"ok": false, "code": &"desktop_consequence_source_conflict",

@@ -974,3 +974,31 @@ func test_adopt_durable_checkpoint_if_live_is_behind_is_a_no_op_when_nothing_is_
 	var result: Dictionary = _coordinator.adopt_durable_checkpoint_if_live_is_behind()
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_false(bool(result["value"]["adopted"]))
+
+
+# ---- the day's committed condition receipt (dwm-oyo.3 slice, 2026-08-24) ----
+# The narrow read seam DesktopConsequenceSourcePort consumes for resolve_condition_receipt: after a
+# transaction completes, the coordinator retains the day's LATEST policy-produced condition receipt
+# keyed by causal_day_instance. Process-local by design (the durable per-day condition record is
+# later Plan-03 work, recorded on dwm-oyo.3); a Schedule-Done resolution in the same process reads
+# honest policy output, and a fresh process fails closed instead of fabricating one.
+
+
+func test_a_completed_transaction_retains_the_days_condition_receipt() -> void:
+	_configure_departure_ports()
+	if not _coordinator.has_method("committed_condition_receipt"):
+		assert_true(false, "DesktopConsequenceCoordinator.committed_condition_receipt is absent")
+		return
+	assert_eq(_coordinator.committed_condition_receipt("causal-day-1"), {},
+		"no condition committed yet, so the read is empty")
+	var prepared := _shop_prepared("lucky_charm")
+	var result: Dictionary = _coordinator.accept_prepared_action(_accept_request(prepared, 0))
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var retained: Dictionary = _coordinator.committed_condition_receipt("causal-day-1")
+	assert_eq(retained, (result["value"] as Dictionary)["condition_receipt"],
+		"the retained receipt is the transaction's own committed condition receipt")
+	assert_eq(_coordinator.committed_condition_receipt("some-other-day"), {},
+		"retention is keyed by causal day instance")
+	retained["decision"] = "mutated"
+	assert_eq(str((_coordinator.committed_condition_receipt("causal-day-1") as Dictionary)["decision"]),
+		"no_departure", "the read returns detached bytes")

@@ -79,6 +79,11 @@ const RESTORE_ORDER: Array[String] = [
 ]
 
 ## The startup order named by task-9-brief.md's "Final startup order" paragraph, as short tokens.
+## AMENDED by the dwm-oyo.3 slice (2026-08-24, authorized on dwm-p2r.21 / dwm-oyo.3): the
+## condition-departure slots are no longer left unconfigured -- the desktop-graph stage now
+## configures Plan 03's real condition-policy/ScheduleView pair before resuming any pending
+## transaction, then composes the Schedule-Done consequence source (finishing DEVIATION-5) and the
+## Done dispatcher after it.
 const STARTUP_ORDER: Array[String] = [
 	"open_or_create_issuer_root_and_external_journal",
 	"configure_desktop_publication_ledger",
@@ -88,8 +93,9 @@ const STARTUP_ORDER: Array[String] = [
 	"reconcile_external_continuation_journal",
 	"configure_generation_first_reveal_board_fate_shop_pending_causal_ports",
 	"configure_consequence_coordinator_action_source_pair",
-	"construct_but_leave_condition_departure_slots_unconfigured",
+	"configure_condition_departure_pair_with_plan03_ports",
 	"resume_pending_action_source_transaction_under_disabled_input",
+	"configure_consequence_source_and_done_dispatcher",
 	"configure_logout",
 	"validate_evidence_bound_registries",
 	"emit_application_ready",
@@ -163,7 +169,7 @@ static func _consequence_coordinator_contract() -> Dictionary:
 			"configure(state_port, causal_sequence_port, board_fate_port, checkpoint_port, mutation_gate)",
 			"configure_action_source_ports(minesweeper_round_source_port, shop_purchase_source_port)",
 			"configure_identity_issuer(identity_issuer)",
-			"configure_condition_departure_ports(condition_policy_port, schedule_view_port) -- Plan 03 only, never called by this amendment",
+			"configure_condition_departure_ports(condition_policy_port, schedule_view_port) -- Plan 03's pair; configured by the dwm-oyo.3 slice (2026-08-24) with the real DesktopConditionPolicyPort/ScheduleDepartureViewPort, never a fake",
 		],
 		"accept_prepared_action_value_keys": ["causal_sequence", "condition_receipt",
 			"board_fate_receipt", "schedule_view_commit_receipt", "destination_intent",
@@ -171,7 +177,7 @@ static func _consequence_coordinator_contract() -> Dictionary:
 		"accept_prepared_action_receipt_keys": ["receipt_id", "receipt_provenance",
 			"action_commit_receipt_id", "action_commit_receipt_provenance", "causal_sequence",
 			"disposition"],
-		"fail_closed_until": "Plan 03 configures both configure_condition_departure_ports() arguments together",
+		"fail_closed_until": "FULFILLED by the dwm-oyo.3 slice (2026-08-24): the desktop-graph stage configures both configure_condition_departure_ports() arguments together with Plan 03's real ports",
 		"resume_pending_is_boot_wired": true,
 	}
 
@@ -225,6 +231,11 @@ static func _bootstrap_probe() -> Dictionary:
 			"snapshot_provider_instance_id", "restore_order", "restore_participant_instance_ids",
 			"run_snapshot_schema_version", "save_document_schema_version", "registry_versions",
 			"desktop_graph_constructed", "destination_composition_ready",
+			# dwm-oyo.3 slice (2026-08-24): the condition pair, consequence source, and Done
+			# dispatcher the desktop-graph stage now composes.
+			"condition_context_port_instance_id", "condition_policy_port_instance_id",
+			"schedule_departure_view_port_instance_id", "desktop_consequence_source_port_instance_id",
+			"schedule_done_dispatcher_instance_id",
 		],
 		"role_relations": [
 			{"relation": "ledger_shared_by_causal_round_shop_board_fate", "verdict": "equal"},

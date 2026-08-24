@@ -122,6 +122,15 @@ var _schedule_view_port: Object = null
 ## record, which `resume_pending()` reads fresh.
 var _accepted: Dictionary = {}
 
+## The day's LATEST fully committed condition receipt, keyed by causal_day_instance (dwm-oyo.3
+## slice, 2026-08-24). `DesktopConsequenceSourcePort.resolve_condition_receipt` reads this so a
+## Schedule-Done resolution consumes honest policy output rather than fabricated condition truth.
+## Process-local by the same law as `_accepted` above: forward recovery of an in-flight admitted
+## transaction re-lands it (retention sits at `_resume_forward`'s completion), while a fresh process
+## with no pending transaction fails closed at the source port instead -- the durable per-day
+## condition record is later Plan-03 work, recorded on dwm-oyo.3.
+var _committed_condition_receipts: Dictionary = {}
+
 
 # -------------------------------------------------------------------------------------------------
 # Configuration
@@ -221,6 +230,16 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
 	_identity_issuer = identity_issuer
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
+
+
+## The day's latest fully committed condition receipt as detached bytes, or `{}` when no completed
+## transaction has committed one this process (dwm-oyo.3 slice; see `_committed_condition_receipts`'
+## own doc comment for the honesty boundary). Read-only: consumed by
+## `DesktopConsequenceSourcePort.resolve_condition_receipt`, which turns the empty read into a
+## fail-closed `condition_receipt_unavailable` rather than fabricating condition truth.
+func committed_condition_receipt(causal_day_instance: String) -> Dictionary:
+	var receipt: Variant = _committed_condition_receipts.get(causal_day_instance)
+	return (receipt as Dictionary).duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else {}
 
 
 # -------------------------------------------------------------------------------------------------
@@ -633,6 +652,11 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		["causal_sequence_receipt"] as Dictionary)["causal_sequence"])
 	var board_fate_receipt: Variant = (_board_fate_receipt_from_payload(recovery_payload) if is_departure else null)
 	var condition_receipt: Dictionary = recovery_payload["condition_candidate"]
+	# dwm-oyo.3 slice (2026-08-24): the transaction is fully committed, published, and cleaned up, so
+	# its condition receipt is now the day's condition truth -- retained for the Schedule-Done
+	# consequence source's resolve_condition_receipt read (see the field's own doc comment).
+	_committed_condition_receipts[str(action_receipt["causal_day_instance"])] = \
+		condition_receipt.duplicate(true)
 	var value := {
 		"causal_sequence": causal_sequence, "condition_receipt": condition_receipt.duplicate(true),
 		"board_fate_receipt": board_fate_receipt, "schedule_view_commit_receipt": schedule_view_commit_receipt,

@@ -209,9 +209,13 @@ func test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
 ## _begin_new_run_continuation() durably committed the continuation intent and advanced it to the
 ## applying stage, and the prep-failure path releases the gate and returns the failure directly,
 ## with no journal.advance() call -- so the journal's own record for it is left genuinely
-## incomplete. list_incomplete() finds it, and reconcile_startup() (DesktopContinuationOperation
-## Journal.gd) leaves it exactly as found whenever `failure` is null, so it stays incomplete on
-## every subsequent boot too. Reconciling it must still return ok (never crash or hang).
+## incomplete. list_incomplete() finds it, and the in-process reconcile then ATTEMPTS the resume:
+## it fails again at localization prep, persists a `source_unprovable` diagnostic, and latches it
+## through `_latch_recovery_diagnostic` -- which returns ok, so reconciling never crashes or
+## hangs. The entry does NOT stay stuck forever: a subsequent fresh boot COMPLETES it once the
+## locale heals, which the neighboring fresh-boot test proves. (Comment corrected under
+## dwm-p2r.38 -- the assertions below were always sound; only this narrative overhung the
+## pre-fix reconcile behavior.)
 func test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing() -> void:
 	var process := _boot_process(_shared_root)
 	var save_manager: Node = process["save_manager"]

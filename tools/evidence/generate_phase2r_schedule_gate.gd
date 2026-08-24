@@ -329,6 +329,13 @@ const COMMAND_BINDINGS := [
 
 ## The two bootstrap-wiring tests whose names must appear in the bound bootstrap-identity log for
 ## the readiness attestation to stand.
+##
+## HISTORICAL NAMES, deliberately unrenamed (dwm-oyo.3 slice, 2026-08-24): this generator's --check
+## re-verifies the .15-era seal against its own BOUND logs and subject commit, where these exact
+## test names ran and `presentation_producer_ready` was honestly false. The slice later renamed the
+## producer test to `test_the_producer_is_not_ready_before_the_desktop_graph_stage` and added the
+## graph-stage flip test; the sealed record stays byte-frozen and historical, exactly like the .13
+## boundary after its own close.
 const READINESS_ATTESTING_TESTS := [
 	"test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready",
 	"test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready",
@@ -1628,6 +1635,10 @@ static func _bind_bootstrap_probe(sources: Dictionary, bootstrap_test_names: Arr
 		"readiness": {
 			"hospital_presentation_ready": true,
 			"dating_presentation_ready": false,
+			# HISTORICAL: false at the .15 seal's subject commit. The dwm-oyo.3 slice (2026-08-24)
+			# later flipped live production readiness true by composing the real consequence source
+			# (DEVIATION-5 finished); that truth is attested by the CURRENT bootstrap-wiring suite,
+			# not by rewriting this sealed record.
 			"presentation_producer_ready": false,
 		},
 		"readiness_attested_by_tests": READINESS_ATTESTING_TESTS.duplicate(),

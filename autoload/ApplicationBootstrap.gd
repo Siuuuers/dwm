@@ -61,6 +61,13 @@ const DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER := preload("res://scripts/applicati
 const MINESWEEPER_SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
 const DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd")
 const RUN_SNAPSHOT_SCHEMA_FOR_PROBE := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+## dwm-oyo.3 slice (2026-08-24, authorized on dwm-p2r.21 / dwm-oyo.3): the Plan-03 condition
+## pair, the Schedule-Done consequence source finishing DEVIATION-5, and the Done dispatch surface.
+const DESKTOP_CONDITION_CONTEXT_PORT := preload("res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd")
+const DESKTOP_CONDITION_POLICY_PORT := preload("res://scripts/application/desktop/DesktopConditionPolicyPort.gd")
+const SCHEDULE_DEPARTURE_VIEW_PORT := preload("res://scripts/application/schedule/ScheduleDepartureViewPort.gd")
+const DESKTOP_CONSEQUENCE_SOURCE_PORT := preload("res://scripts/application/desktop/DesktopConsequenceSourcePort.gd")
+const SCHEDULE_DONE_DISPATCHER := preload("res://scripts/application/schedule/ScheduleDoneDispatcher.gd")
 const SAVE_DOCUMENT_SCHEMA_FOR_PROBE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const RUN_SNAPSHOT_SCHEMA_VERSION := RUN_SNAPSHOT_SCHEMA_FOR_PROBE.SCHEMA_VERSION
 const SAVE_DOCUMENT_SCHEMA_VERSION := SAVE_DOCUMENT_SCHEMA_FOR_PROBE.DOCUMENT_VERSION
@@ -196,6 +203,14 @@ var _retained_minesweeper_shop_purchase_participant: RefCounted = null
 var _retained_game_state_desktop_board_port: RefCounted = null
 var _retained_game_state_minesweeper_shop_port: RefCounted = null
 var _retained_save_manager_desktop_board_port: RefCounted = null
+## dwm-oyo.3 slice (2026-08-24): the Plan-03 condition-policy/ScheduleView pair configured together
+## on the one shared consequence coordinator, the Schedule-Done consequence source that finishes
+## DEVIATION-5, and the Done dispatch surface dwm-p2r.21 records as Plan 03's resolution.
+var _retained_desktop_condition_context_port: RefCounted = null
+var _retained_desktop_condition_policy_port: RefCounted = null
+var _retained_schedule_departure_view_port: RefCounted = null
+var _retained_desktop_consequence_source_port: RefCounted = null
+var _retained_schedule_done_dispatcher: RefCounted = null
 ## Placeholder desktop identity context (dwm-p2r.32 Plan 02 Task 9). `GameStateDesktopBoardPort`/
 ## `GameStateMinesweeperShopPort` accept only ONE fixed `{run_id,branch_id,
 ## desktop_timeline_generation,causal_day_instance}` at configure() time and refuse any later
@@ -702,9 +717,9 @@ func get_desktop_contract_state() -> Dictionary:
 		# Deliberately false in Phase 2R; dwm-oyo.4 flips it by configuring the retained port.
 		"dating_presentation_ready": _retained_dating_presentation_port != null \
 			and bool(_retained_dating_presentation_port.call(&"is_ready")),
-		# Also deliberately false in Phase 2R (dwm-p2r.18): the producer needs Plan 02's
-		# desktop-consequence source, which no bootstrap may construct yet. Reported so the gap is
-		# visible in evidence rather than surfacing as a stage that quietly presents nothing.
+		# False until the desktop-graph stage composes the consequence source (dwm-oyo.3 slice,
+		# 2026-08-24, finishing DEVIATION-5); before that stage the gap stays visible in evidence
+		# rather than surfacing as a stage that quietly presents nothing.
 		"presentation_producer_ready": _retained_day_resolution_state_port != null 			and _retained_day_resolution_state_port.has_method("is_presentation_producer_ready") 			and bool(_retained_day_resolution_state_port.call(&"is_presentation_producer_ready")),
 	}
 	state.merge(_desktop_amendment_probe_fields())
@@ -763,8 +778,15 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 		"save_document_schema_version": SAVE_DOCUMENT_SCHEMA_VERSION,
 		"registry_versions": {"minesweeper_shop": MINESWEEPER_SHOP_REGISTRY.REGISTRY_VERSION},
 		"desktop_graph_constructed": desktop_graph_constructed,
-		# Always false: Plan 03 owns real destination composition and never lands inside Plan 02.
+		# Still false: the destination-outbox dispatcher (hospital_day / day7_terminal consumers)
+		# remains Plan-03 Task-7 work outside the dwm-oyo.3 slice.
 		"destination_composition_ready": false,
+		# dwm-oyo.3 slice (2026-08-24): the condition pair, consequence source, and Done dispatcher.
+		"condition_context_port_instance_id": _instance_id(_retained_desktop_condition_context_port),
+		"condition_policy_port_instance_id": _instance_id(_retained_desktop_condition_policy_port),
+		"schedule_departure_view_port_instance_id": _instance_id(_retained_schedule_departure_view_port),
+		"desktop_consequence_source_port_instance_id": _instance_id(_retained_desktop_consequence_source_port),
+		"schedule_done_dispatcher_instance_id": _instance_id(_retained_schedule_done_dispatcher),
 	}
 
 
@@ -883,8 +905,9 @@ func _configure_restore_participants() -> Dictionary:
 ## `LogoutCoordinator` is left unconstructed for the identical reason: no production
 ## `stable_board_port` (`is_slice_executing`/`capture_stable_board`) implementation exists anywhere.
 ## These three gaps are reported prominently in the Task-9 report rather than papered over with a
-## fake or a stub -- "Contract fakes are never bootstrap dependencies" applies here exactly as it
-## does to the condition-policy/ScheduleView seam below.
+## fake or a stub -- "Contract fakes are never bootstrap dependencies" holds throughout: the
+## condition-policy/ScheduleView seam below waited unconfigured until the dwm-oyo.3 slice
+## (2026-08-24) supplied Plan 03's REAL ports, and was never bridged with a fake.
 func _configure_desktop_production_graph() -> Dictionary:
 	if _application_gate == null:
 		return _failure(&"mutation_gate_not_configured", "Bootstrap has not constructed the application gate")
@@ -1013,9 +1036,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 
 	# The consequence coordinator: consequence state, causal port, board-fate port, checkpoint port,
 	# gate, then the exact retained Round/Shop action sources, then the identity issuer. The
-	# production condition-policy/ScheduleView pair is DELIBERATELY left unconfigured -- Plan 03 owns
-	# both and configures them together; a fake here would be exactly the bootstrap dependency the
-	# brief forbids.
+	# production condition-policy/ScheduleView pair is configured together BELOW (dwm-oyo.3 slice,
+	# 2026-08-24) with Plan 03's real ports -- never a fake, exactly as the brief demanded while the
+	# real ports did not exist.
 	if _retained_desktop_consequence_coordinator == null:
 		var coordinator: RefCounted = DESKTOP_CONSEQUENCE_COORDINATOR.new()
 		var coordinator_configured: Dictionary = coordinator.configure(
@@ -1045,11 +1068,87 @@ func _configure_desktop_production_graph() -> Dictionary:
 	if not round_consequence_checkpoint.get("ok", false):
 		return round_consequence_checkpoint
 
+	# The Plan-03 condition-policy/ScheduleView pair, configured TOGETHER on the one shared
+	# consequence coordinator (dwm-oyo.3 slice, 2026-08-24, authorized on dwm-p2r.21 / dwm-oyo.3).
+	# Both halves are the real production ports: the policy reads only through the GameState context
+	# adapter over the retained issuer, and the view port owns the canonical (empty-until-Tasks-1-5)
+	# ScheduleView with its condition-departure receipt retention. Configured BEFORE resume_pending()
+	# so a restored departure transaction recovers forward through the real pair.
+	if _retained_desktop_condition_context_port == null:
+		var context_port: RefCounted = DESKTOP_CONDITION_CONTEXT_PORT.new()
+		var context_configured: Dictionary = context_port.configure(
+			game_state, _desktop_identity_nonce_issuer)
+		if not context_configured.get("ok", false):
+			return context_configured
+		_retained_desktop_condition_context_port = context_port
+	if _retained_desktop_condition_policy_port == null:
+		var policy_port: RefCounted = DESKTOP_CONDITION_POLICY_PORT.new()
+		var policy_configured: Dictionary = policy_port.configure(
+			_retained_desktop_condition_context_port)
+		if not policy_configured.get("ok", false):
+			return policy_configured
+		_retained_desktop_condition_policy_port = policy_port
+	if _retained_schedule_departure_view_port == null:
+		var view_port: RefCounted = SCHEDULE_DEPARTURE_VIEW_PORT.new()
+		var view_configured: Dictionary = view_port.configure(_application_gate)
+		if not view_configured.get("ok", false):
+			return view_configured
+		_retained_schedule_departure_view_port = view_port
+	var pair_configured: Dictionary = _retained_desktop_consequence_coordinator.configure_condition_departure_ports(
+		_retained_desktop_condition_policy_port, _retained_schedule_departure_view_port)
+	if not pair_configured.get("ok", false):
+		return pair_configured
+
 	# Under disabled input (no stage before this one enables it), resume any restored v4 pending
 	# action-source transaction exactly once. A no-op when there is none.
 	var resumed: Dictionary = _retained_desktop_consequence_coordinator.resume_pending()
 	if not resumed.get("ok", false):
 		return resumed
+
+	# The Schedule-Done consequence source, finishing DEVIATION-5: the ONE object carrying both
+	# resolve methods, composed from the retained coordinator (condition truth) and board-fate port
+	# (a real Schedule-Done departure), then configured into the day-resolution state port so
+	# `is_presentation_producer_ready()` finally reports true. The state port, its identity half,
+	# and the presentation ports are composed by the EARLIER configure_day_resolution stage in the
+	# full production STAGE_ORDER, so on a real boot this branch always runs; a harness (or a
+	# development subset) that deliberately builds only the desktop graph stops here instead --
+	# the same established pattern as initialize_dialogic_bridge's own checkpoint-port early-out
+	# -- and the skip is REPORTED in the value plus the probe's zero instance ids, never silent.
+	# The bootstrap-wiring suite's graph test drives the full order and proves the composed flip.
+	var producer_composed := false
+	if _retained_day_resolution_state_port != null:
+		if _retained_desktop_consequence_source_port == null:
+			var source_port: RefCounted = DESKTOP_CONSEQUENCE_SOURCE_PORT.new()
+			var source_configured: Dictionary = source_port.configure(
+				_retained_desktop_consequence_coordinator, _retained_desktop_board_fate_port,
+				_desktop_identity_nonce_issuer, _desktop_board_identity_context)
+			if not source_configured.get("ok", false):
+				return source_configured
+			_retained_desktop_consequence_source_port = source_port
+		var source_installed: Dictionary = _retained_day_resolution_state_port.call(
+			&"configure_desktop_consequence_source", _retained_desktop_consequence_source_port)
+		if not source_installed.get("ok", false):
+			return source_installed
+		producer_composed = true
+
+	# The Done dispatch surface (dwm-p2r.21's recorded resolution: Plan 03 owns it, and the
+	# GameState facade option is rejected). Configured AFTER configure_presentation_ports connected
+	# the coordinator's own completion handlers, so the coordinator retains each receipt before the
+	# dispatcher's handler drives the settle. Same reported early-out as the source above when the
+	# presentation half was deliberately not built.
+	var dispatcher_composed := false
+	if _retained_day_resolution_coordinator != null \
+			and _retained_hospital_presentation_port != null \
+			and _retained_dating_presentation_port != null:
+		if _retained_schedule_done_dispatcher == null:
+			var dispatcher: RefCounted = SCHEDULE_DONE_DISPATCHER.new()
+			var dispatcher_configured: Dictionary = dispatcher.configure(
+				_retained_day_resolution_coordinator, _retained_hospital_presentation_port,
+				_retained_dating_presentation_port)
+			if not dispatcher_configured.get("ok", false):
+				return dispatcher_configured
+			_retained_schedule_done_dispatcher = dispatcher
+		dispatcher_composed = true
 
 	return {"ok": true, "code": &"ok", "value": {
 		"desktop_publication_ledger_instance_id": ledger.get_instance_id(),
@@ -1058,6 +1157,13 @@ func _configure_desktop_production_graph() -> Dictionary:
 		"consequence_coordinator_instance_id": _retained_desktop_consequence_coordinator.get_instance_id(),
 		"minesweeper_round_source_port_instance_id": _retained_minesweeper_round_coordinator_app.get_instance_id(),
 		"shop_purchase_source_port_instance_id": _retained_minesweeper_shop_purchase_participant.get_instance_id(),
+		"condition_context_port_instance_id": _retained_desktop_condition_context_port.get_instance_id(),
+		"condition_policy_port_instance_id": _retained_desktop_condition_policy_port.get_instance_id(),
+		"schedule_departure_view_port_instance_id": _retained_schedule_departure_view_port.get_instance_id(),
+		"desktop_consequence_source_port_instance_id": _instance_id(_retained_desktop_consequence_source_port),
+		"schedule_done_dispatcher_instance_id": _instance_id(_retained_schedule_done_dispatcher),
+		"presentation_producer_composed": producer_composed,
+		"schedule_done_dispatcher_composed": dispatcher_composed,
 		"resumed_pending": bool(resumed.get("value", {}).get("resumed", false)),
 	}, "receipt": {}}
 
