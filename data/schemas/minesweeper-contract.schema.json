@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://dwm.local/schemas/phase2r/minesweeper-contract.schema.json",
   "title": "Phase 2R minesweeper amendment contract evidence",
-  "description": "Closed declarative contract for evidence/phase_2r/contracts/minesweeper_contract.json (dwm-p2r.32 Plan 02 Task 9, req.test.desktop_amendment_gate). The repository's JsonSchemaValidator honours type, const, enum, required, properties, additionalProperties, items, uniqueItems and minLength; MinesweeperAmendmentContractEvidence.validate_law repeats every constraint expressed here and adds the ones this subset cannot reach, so a weakened schema cannot widen what is accepted. No field here ever carries a numeric Object instance ID.",
+  "description": "Closed declarative contract for evidence/phase_2r/contracts/minesweeper_contract.json (dwm-p2r.32 Plan 02 Task 9, req.test.desktop_amendment_gate). The repository's JsonSchemaValidator honours type, const, enum, required, properties, additionalProperties, items, minItems, uniqueItems and minLength; MinesweeperAmendmentContractEvidence.validate_law repeats every constraint expressed here and adds the ones this subset cannot reach, so a weakened schema cannot widen what is accepted. No field here ever carries a numeric Object instance ID.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -148,6 +148,8 @@
     },
     "red_green_command_records": {
       "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
       "items": {
         "type": "object",
         "additionalProperties": false,

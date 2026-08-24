@@ -33,6 +33,7 @@ static func _validate_at(value: Variant, schema: Dictionary, path: String, error
 		if schema.get("uniqueItems", false):
 			for index in range(array.size()):
 				if array.slice(0, index).has(array[index]): _add(errors, path, "array items must be unique")
+		if array.size() < int(schema.get("minItems", 0)): _add(errors, path, "array is shorter than minItems")
 		if schema.has("items"):
 			for index in range(array.size()): _validate_at(array[index], schema["items"], "%s[%d]" % [path, index], errors)
 	if typeof(value) == TYPE_STRING and value.length() < int(schema.get("minLength", 0)): _add(errors, path, "string is shorter than minLength")
