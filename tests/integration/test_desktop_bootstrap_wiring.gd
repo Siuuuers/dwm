@@ -341,7 +341,7 @@ func test_an_unbuilt_foundation_reports_zero_rather_than_guessing() -> void:
 	assert_false(bool(state["hospital_presentation_ready"]))
 	assert_false(bool(state["dating_presentation_ready"]))
 	assert_false(bool(state["presentation_producer_ready"]))
-	assert_false(bool(state["desktop_contract_ready"]))
+	assert_false(bool(state["desktop_graph_constructed"]))
 	assert_false(bool(state["destination_composition_ready"]))
 
 
@@ -359,7 +359,7 @@ func test_the_production_graph_wires_every_object_identity_and_readiness() -> vo
 			"mutation_gate_instance_id", "admission_checkpoint_port_instance_id",
 			"continuation_journal_instance_id"]:
 		assert_true(int(state[key]) != 0, key + " must name a retained instance")
-	assert_true(bool(state["desktop_contract_ready"]))
+	assert_true(bool(state["desktop_graph_constructed"]))
 	assert_false(bool(state["destination_composition_ready"]),
 		"Plan 03 owns real destination composition; Plan 02 never claims it")
 

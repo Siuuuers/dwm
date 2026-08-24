@@ -348,8 +348,16 @@ static func _read_budget_manifest() -> Dictionary:
 
 
 ## Pure structural schema validation of a budget manifest dictionary -- exact member set at every
-## level, closed values, and the four budget formulas independently recomputed from the rows and
-## required to match exactly. Directly testable with a hand-built dictionary, independent of disk.
+## level, closed values, and one derived-field cross-check: `hard_operation_budget` must equal
+## `search_operation_budget + reserved_fallback_operation_budget`. It does NOT independently
+## recompute `slice_operation_budget`/`search_operation_budget`/`reserved_fallback_operation_budget`
+## from the rows -- those formulas (percentile/power-of-two math over the benchmark corpus) live
+## only in the offline `tools/minesweeper/BenchmarkMinesweeperGenerator.gd`, which this runtime
+## adapter has no dependency on (import or literal constant), per this file's own class-level doc
+## and its static source-text scan in `test_minesweeper_generator_artifacts.gd`. Nor does it
+## recompute `benchmark_corpus_sha256` from the rows: a hand-edited row is undetectable by this
+## check alone unless a bound source file also changes and trips the freshness cross-check.
+## Directly testable with a hand-built dictionary, independent of disk.
 static func validate_budget_schema(budget: Dictionary) -> Dictionary:
 	var shape := _exact_keys(budget, _BUDGET_KEYS, &"budget_member_set_invalid")
 	if not shape.get("ok", false):
@@ -388,19 +396,10 @@ static func validate_budget_schema(budget: Dictionary) -> Dictionary:
 	var rows: Variant = budget["rows"]
 	if typeof(rows) != TYPE_ARRAY:
 		return _fail(&"budget_field_invalid", "rows must be an array", {})
-	var search_candidate_operations: Array = []
-	var max_search_operations := 0
-	var max_fallback_validation_operations := 0
 	for entry: Variant in (rows as Array):
 		var row_check := _validate_row_shape(entry)
 		if not row_check.get("ok", false):
 			return row_check
-		var row: Dictionary = entry
-		if row["nonce_ordinal"] != null:
-			search_candidate_operations.append(int(row["candidate_operations"]))
-			max_search_operations = maxi(max_search_operations, int(row["search_operations"]))
-		else:
-			max_fallback_validation_operations = maxi(max_fallback_validation_operations, int(row["fallback_validation_operations"]))
 
 	for budget_field: String in ["slice_operation_budget", "search_operation_budget",
 			"reserved_fallback_operation_budget", "hard_operation_budget"]:

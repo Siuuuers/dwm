@@ -726,7 +726,15 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 			"audio", "route", "narrative"]:
 		restore_participant_ids[key] = _instance_id(
 			_retained_restore_participants.get(key) if _retained_restore_participants.has(key) else null)
-	var graph_ready := _retained_desktop_publication_ledger != null \
+	# TRUE once these six desktop-graph objects are retained (non-null) -- a CONSTRUCTION check
+	# only, not a usability check. It does NOT mean the desktop contract can be exercised:
+	# `MinesweeperRoundCoordinator`'s own base `configure()` is never called, the identity context
+	# `GameStateDesktopBoardPort`/`GameStateMinesweeperShopPort` carry is a boot-time placeholder,
+	# and no `LogoutCoordinator` is constructed -- see `_configure_desktop_production_graph()`'s
+	# own "HONEST SCOPE, DOCUMENTED" comment above for the complete list of gaps this flag is
+	# silent on. Named `desktop_graph_constructed`, not `..._ready`, precisely so a downstream
+	# reader does not conclude the desktop contract is usable from this field alone.
+	var desktop_graph_constructed := _retained_desktop_publication_ledger != null \
 		and _retained_desktop_causal_sequence_port != null \
 		and _retained_desktop_board_fate_port != null \
 		and _retained_desktop_consequence_coordinator != null \
@@ -754,7 +762,7 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 		"run_snapshot_schema_version": RUN_SNAPSHOT_SCHEMA_VERSION,
 		"save_document_schema_version": SAVE_DOCUMENT_SCHEMA_VERSION,
 		"registry_versions": {"minesweeper_shop": MINESWEEPER_SHOP_REGISTRY.REGISTRY_VERSION},
-		"desktop_contract_ready": graph_ready,
+		"desktop_graph_constructed": desktop_graph_constructed,
 		# Always false: Plan 03 owns real destination composition and never lands inside Plan 02.
 		"destination_composition_ready": false,
 	}
@@ -832,9 +840,26 @@ func _configure_restore_participants() -> Dictionary:
 ## Task 9). Runs as the final content stage, after restore participants, day resolution, and the
 ## retained .9-era Minesweeper stage have all completed -- every dependency it needs (host, board,
 ## consequence state, checkpoint port, gate, issuer, publication ledger's storage root) already
-## exists by then. Distinct identities from the retained .9-era simulator stack: this graph never
-## reads or writes GameState.minesweeper_round_floor/inventory/money, never touches
-## `_minesweeper_round_coordinator`, and is never installed there.
+## exists by then. Distinct OBJECT IDENTITIES from the retained .9-era simulator stack: this graph
+## never touches `_minesweeper_round_coordinator` and is never installed there (proven by
+## `test_desktop_bootstrap_wiring.gd`'s own `_minesweeper_round_coordinator == null` assertion
+## after this stage runs).
+##
+## NOT DISJOINT ON GAMESTATE FIELDS, THOUGH -- this is a real hazard, not a formality: the ports
+## this same function configures below read and write the identical legacy `GameState` fields the
+## .9-era stack owns. `GameStateMinesweeperShopPort.capture()` reads `money`/`coins`/`inventory`/
+## `minesweeper_round_floor`; its `commit()` writes them back via `try_spend_money()`/
+## `try_spend_coins()`/`add_inventory()`/`change_minesweeper_round_floor()`.
+## `GameStateDesktopBoardPort.commit()`/`rollback()` write `set_stat("motivation", ...)` -- the
+## SAME stat key `GameState.consume_minesweeper_app_round()` decrements via
+## `change_stat(STAT_MOTIVATION, -1)`. The two stacks are coupled semantically too:
+## `GameState.get_minesweeper_safety_level()` reads `inventory["debug_key"]`/`["lucky_charm"]`,
+## exactly what the new Shop grants. So once the new graph's forward path is enabled (today it
+## is not -- see the HONEST SCOPE note below), TWO independent transaction disciplines can mutate
+## the same fields with no mutual exclusion between them: the legacy `minesweeper_board` save-lock
+## owner (`SaveManagerMinesweeperPort.BOARD_LOCK_OWNER`, one of `SaveManager._LOCK_OWNERS`) and the
+## new graph's `causal_transaction` `ApplicationMutationGate` owner. A future plan enabling the
+## forward path must account for this before assuming the two stacks can run concurrently.
 ##
 ## Identical replay reuses every retained instance (every construction below is gated on the field
 ## still being null), matching this file's own established idempotent-restart discipline.

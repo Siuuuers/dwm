@@ -21,30 +21,12 @@ const ISSUER_PATH := "res://scripts/application/desktop/DesktopIdentityNonceIssu
 const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd"
 const FAKE_NAMESPACE_SOURCE_PATH := "res://tests/support/FakeDesktopNamespaceSource.gd"
 const FAKE_FILE_OPS_PATH := "res://tests/support/FakeFileOps.gd"
+const PUBLICATION_LEDGER_PATH := "res://scripts/infrastructure/save/DesktopPublicationLedger.gd"
 
 const IDENTITY_CONTEXT := {
 	"run_id": "run-shop", "branch_id": "branch-shop", "desktop_timeline_generation": 0,
 	"causal_day_instance": "causal-day-shop-1",
 }
-
-
-class _FakePublicationLedger extends RefCounted:
-	var records: Dictionary = {}
-
-	func record_before_emit(request: Dictionary) -> Dictionary:
-		var kind: String = str(request.get("kind", ""))
-		var semantic_receipt: Dictionary = request.get("semantic_receipt", {})
-		var key := kind + ":" + str(semantic_receipt.get("commit_receipt_id", semantic_receipt.get("receipt_id", "")))
-		if records.has(key):
-			var existing: Dictionary = records[key]
-			if existing.get("publication") == request.get("publication") \
-					and existing.get("publication_sha256") == request.get("publication_sha256"):
-				return {"ok": true, "code": &"ok", "value": {"record": existing, "first_delivery": false}, "receipt": {}}
-			return {"ok": false, "code": &"publication_record_conflict", "message": "", "details": {}}
-		var record: Dictionary = request.duplicate(true)
-		record["key"] = key
-		records[key] = record
-		return {"ok": true, "code": &"ok", "value": {"record": record, "first_delivery": true}, "receipt": {}}
 
 
 func _fresh_issuer(root: String) -> RefCounted:
@@ -100,7 +82,13 @@ func _wired() -> Dictionary:
 	assert_true(state_port.configure(gs, identity_context).get("ok", false))
 
 	var gate := ApplicationMutationGate.new()
-	var publication_ledger := _FakePublicationLedger.new()
+	# FIX (dwm-p2r.35.6 remediation, finding 5): the REAL DesktopPublicationLedger, not a hand-rolled
+	# fake that accepted any kind/shape the real ledger rejects -- see
+	# test_desktop_completion_transaction.gd's identical W1 fix for the full rationale.
+	var publication_storage: Object = load(STORAGE_PATH).new(root.path_join("_publications"))
+	var publication_ledger: Object = load(PUBLICATION_LEDGER_PATH).new()
+	assert_true(publication_ledger.configure(publication_storage).get("ok", false))
+	assert_true(publication_ledger.load().get("ok", false))
 	var participant: Object = load(PARTICIPANT_PATH).new()
 	assert_true(participant.configure_publication_ledger(publication_ledger).get("ok", false))
 	assert_true(participant.configure(state_port, consequence_state, checkpoint_port,
@@ -163,8 +151,12 @@ func test_lucky_charm_purchase_transacts_exactly_once_against_real_ports() -> vo
 
 	var published: Dictionary = participant.publish({"action_receipt": (committed["value"] as Dictionary)["action_receipt"]})
 	assert_true(published.get("ok", false), JSON.stringify(published))
-	var ledger: _FakePublicationLedger = wired["publication_ledger"]
-	assert_true(ledger.records.has("action_source:" + str(receipt["commit_receipt_id"])))
+	var ledger: Object = wired["publication_ledger"]
+	var ledger_loaded: Dictionary = ledger.load()
+	assert_true(ledger_loaded.get("ok", false), JSON.stringify(ledger_loaded))
+	var records: Dictionary = ((ledger_loaded["value"] as Dictionary)["document"] as Dictionary)["records"]
+	assert_true(records.has("action_source:" + str(receipt["commit_receipt_id"])),
+		"the REAL ledger accepted and durably recorded the real action_source publication")
 	assert_false((wired["gate"] as ApplicationMutationGate).is_active(), "publish released the lease")
 
 

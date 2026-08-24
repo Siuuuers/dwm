@@ -37,6 +37,20 @@ const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.g
 const CHILD_SCHEMA_VERSION := 1
 const _PROVENANCE_KEYS: Array[String] = ["child_id", "child_kind", "ordinal", "parent_receipt_id", "schema_version", "source_ids"]
 
+## Duplicated from DesktopIdentityNonceIssuer.CHILD_KINDS (plan line 537) for the SAME reason
+## `_child_id()` below duplicates that file's preimage formula rather than importing it: this is
+## domain layer and must not depend on the application-layer issuer. Kept byte-for-byte identical
+## by `test_the_remappers_duplicated_child_kinds_equal_the_real_issuers_child_kinds_exactly` in
+## tests/unit/test_desktop_continuation_remapper.gd, which loads the REAL issuer and compares this
+## list against its own CHILD_KINDS member-for-member, in order.
+const _CHILD_KINDS: Array[String] = [
+	"schedule_entry", "schedule_commit", "day7_schedule_provenance", "empty_schedule_done",
+	"contact_source", "hospital_resolution", "hospital_miss", "sylvia_hospital_witness",
+	"day_resolution_stage", "board_command", "board_start", "shop_quote", "desktop_action",
+	"causal_sequence", "condition", "board_fate", "destination_intent", "notification_intent",
+	"continuation_operation", "warning", "navigation", "terminal_intent", "action_consequence",
+]
+
 ## Registration seam (bead addendum 9). `handled=true` rows are implemented in `_remap_board()`/
 ## `_remap_consequence()` below; `handled=false` rows are deliberately deferred, with `reason`
 ## explaining why, per the scoping above.
@@ -126,11 +140,11 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 
 	var source_ids: Array = transaction_remap.keys()
 	source_ids.sort()
-	var mapping_hash := _canonical_sha256(_source_target_mapping(transaction_remap, source_ids))
-	if mapping_hash.is_empty():
-		return _fail(&"remap_mapping_not_canonicalizable", "the source->target mapping is not canonically representable", {})
 	var parent_receipt: Dictionary = identity_allocation_bundle["transaction_issuer_receipt"]
-	var remap_receipt_id := _child_id(parent_receipt, "continuation_operation", 0, source_ids)
+	var remap_receipt_id_check := _child_id(parent_receipt, "continuation_operation", 0, source_ids)
+	if not remap_receipt_id_check.get("ok", false):
+		return remap_receipt_id_check
+	var remap_receipt_id: String = remap_receipt_id_check["value"]
 	var remap_receipt_provenance := {
 		"schema_version": CHILD_SCHEMA_VERSION,
 		"parent_receipt_id": str(parent_receipt.get("receipt_id", "")),
@@ -143,7 +157,6 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 		"snapshot": remapped_snapshot,
 		"remap_receipt_id": remap_receipt_id,
 		"remap_receipt_provenance": remap_receipt_provenance,
-		"mapping_sha256": mapping_hash,
 	}, "receipt": remap_receipt_provenance.duplicate(true)}
 
 
@@ -341,6 +354,8 @@ static func _rederive_anchored_child(provenance: Dictionary, new_parent_receipt:
 	if keys != expected:
 		return _fail(&"remap_provenance_invalid", "unexpected provenance keys: " + str(keys), {})
 	var child_kind := str(provenance["child_kind"])
+	if not _CHILD_KINDS.has(child_kind):
+		return _fail(&"remap_child_kind_unregistered", child_kind, {})
 	var ordinal := int(provenance["ordinal"])
 	var source_ids_check := _validate_sorted_unique_nonblank(provenance["source_ids"])
 	if not source_ids_check.get("ok", false):
@@ -360,7 +375,10 @@ static func _rederive_anchored_child(provenance: Dictionary, new_parent_receipt:
 	if not mapped_check.get("ok", false):
 		return mapped_check
 
-	var new_child_id := _child_id(new_parent_receipt, child_kind, ordinal, mapped_source_ids)
+	var new_child_id_check := _child_id(new_parent_receipt, child_kind, ordinal, mapped_source_ids)
+	if not new_child_id_check.get("ok", false):
+		return new_child_id_check
+	var new_child_id: String = new_child_id_check["value"]
 	var new_provenance := {
 		"schema_version": CHILD_SCHEMA_VERSION,
 		"parent_receipt_id": str(new_parent_receipt.get("receipt_id", "")),
@@ -453,13 +471,6 @@ static func _validate_transaction_remap_matches_snapshot(snapshot: Dictionary, t
 	return {"ok": true}
 
 
-static func _source_target_mapping(transaction_remap: Dictionary, sorted_source_ids: Array) -> Dictionary:
-	var mapping: Dictionary = {}
-	for source_id: Variant in sorted_source_ids:
-		mapping[str(source_id)] = str((transaction_remap[source_id] as Dictionary).get("new_transaction_id", ""))
-	return mapping
-
-
 ## validate_remap()'s independent re-derivation: pairs source/candidate board command/terminal
 ## receipt keys by POSITION (both dictionaries preserve insertion order, and prepare() inserts
 ## remapped entries in the same order it iterated the source), plus the one live consequence
@@ -512,19 +523,26 @@ static func _derive_transaction_map(source_desktop: Dictionary, candidate_deskto
 	return {"ok": true, "value": transaction_remap}
 
 
-## Mirrors DesktopIdentityNonceIssuer._child_id()'s frozen preimage (plan line 537) exactly. That
-## file's own header forbids adding a shared static to its frozen public surface, so the pure,
-## domain-separated formula is duplicated here rather than imported -- it needs only the (already
-## remapped) parent receipt's namespace/counter/receipt_id, never a live root/issuer object.
-static func _child_id(parent_receipt: Dictionary, child_kind: String, ordinal: int, source_ids: Array) -> String:
+## Mirrors DesktopIdentityNonceIssuer._child_id()'s frozen preimage (plan line 537) exactly,
+## INCLUDING its fail-closed behavior on a non-canonicalizable `source_ids`: the issuer's own
+## `_child_id()` returns `child_source_ids_malformed` rather than guessing, so this duplicate
+## fails closed too instead of silently substituting a placeholder "[]" for an uncanonicalizable
+## value. That file's own header forbids adding a shared static to its frozen public surface, so
+## the pure, domain-separated formula is duplicated here rather than imported -- it needs only the
+## (already remapped) parent receipt's namespace/counter/receipt_id, never a live root/issuer
+## object.
+static func _child_id(parent_receipt: Dictionary, child_kind: String, ordinal: int, source_ids: Array) -> Dictionary:
 	var canonical: Dictionary = _CANONICAL_JSON.stringify(source_ids)
-	var canonical_ids := str(canonical.get("value", "[]"))
-	return "%s.%s" % [child_kind, _sha256_hex("desktop_child_v1\n%s\n%d\n%s\n%s\n%d\n%s" % [
+	if not canonical.get("ok", false):
+		return _fail(&"remap_child_source_ids_malformed",
+			str(canonical.get("message", "source IDs are not canonically representable")), {})
+	var canonical_ids := str(canonical["value"])
+	return {"ok": true, "value": "%s.%s" % [child_kind, _sha256_hex("desktop_child_v1\n%s\n%d\n%s\n%s\n%d\n%s" % [
 		str(parent_receipt.get("namespace", "")),
 		int(parent_receipt.get("counter", 0)),
 		str(parent_receipt.get("receipt_id", "")),
 		child_kind, ordinal, canonical_ids,
-	])]
+	])]}
 
 
 static func _canonical_sha256(value: Variant) -> String:

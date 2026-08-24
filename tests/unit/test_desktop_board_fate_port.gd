@@ -25,23 +25,35 @@ const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceI
 const FAKE_ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
 
-## Minimal in-memory spy double for DesktopPublicationLedger's own record_before_emit() contract.
-class FakePublicationLedger:
-	var records: Dictionary = {}
+## A pass-through call COUNTER wrapped around the REAL DesktopPublicationLedger. It decides
+## nothing: every request is forwarded verbatim and the real ledger's verbatim result comes back,
+## so every acceptance and every rejection in this file is production's own. The counter exists
+## only because the real ledger keeps no call count of its own, and one test below has to prove
+## `record_before_emit` is still CALLED on a republish (where it correctly becomes a no-op) rather
+## than skipped.
+##
+## FIX (dwm-p2r.35.6, the W6 truthfulness wave): what stood here was a hand-rolled double that
+## keyed every record off `semantic_receipt["receipt_id"]` whatever the kind, compared whole
+## requests with raw `==`, and accepted ANY `kind` with ANY publication shape. The real ledger has
+## a CLOSED three-kind union (`causal_sequence`/`action_source`/`board_fate`), an exact per-kind
+## publication member set, a per-kind receipt-id path, a canonical `publication_sha256` check and a
+## write-then-re-read durability confirmation -- none of which the double could ever refuse. Same
+## root cause as the whole dwm-p2r.35 remediation: a double accepting what production rejects.
+class CountingPublicationLedger extends RefCounted:
+	var real: Object = null
 	var record_calls := 0
+
+	func _init(real_ledger: Object) -> void:
+		real = real_ledger
 
 	func record_before_emit(request: Dictionary) -> Dictionary:
 		record_calls += 1
-		var key := str(request["kind"]) + ":" + str((request["semantic_receipt"] as Dictionary)["receipt_id"])
-		if records.has(key):
-			if records[key] == request:
-				return {"ok": true, "code": &"ok", "value": {"record": request, "first_delivery": false}, "receipt": {}}
-			return {"ok": false, "code": &"publication_record_conflict", "message": key}
-		records[key] = request.duplicate(true)
-		return {"ok": true, "code": &"ok", "value": {"record": request, "first_delivery": true}, "receipt": {}}
+		return real.call(&"record_before_emit", request)
 
 var _coordinator: COORDINATOR
+var _publication_root_counter := 0
 var _root_store: FAKE_ROOT_STORE
 var _issuer: ISSUER
 
@@ -57,6 +69,39 @@ func before_each() -> void:
 	generation_port.arm_materialize(_layout())
 	_coordinator = COORDINATOR.new()
 	_coordinator.configure(state_port, checkpoint_port, generation_port, _issuer)
+
+
+## The REAL DesktopPublicationLedger needs a real storage root. Mirrors
+## test_desktop_publication_ledger.gd's own isolation discipline exactly -- the wrapper-provided
+## DWM_TEST_ROOT, never the production user:// directory -- with a FRESH root per ledger so each
+## test starts against an empty durable ledger, the way the deleted in-memory double did.
+func _isolated_publication_root() -> String:
+	var wrapper := OS.get_environment("DWM_TEST_ROOT")
+	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
+	_publication_root_counter += 1
+	var root: String = wrapper.path_join("board-fate-publications-%d" % _publication_root_counter)
+	var production := ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
+	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
+		"an isolated root is never the production user directory")
+	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	return root
+
+
+func _real_publication_ledger() -> CountingPublicationLedger:
+	var ledger: Object = PUBLICATION_LEDGER.new()
+	var configured: Dictionary = ledger.configure(JsonFileStorage.new(_isolated_publication_root()))
+	assert_true(configured.get("ok", false), JSON.stringify(configured))
+	var loaded: Dictionary = ledger.load()
+	assert_true(loaded.get("ok", false), JSON.stringify(loaded))
+	return CountingPublicationLedger.new(ledger)
+
+
+## The real ledger's DURABLE records, re-read from disk -- the deleted double exposed a plain
+## in-memory `records` Dictionary instead.
+func _ledger_records(ledger: CountingPublicationLedger) -> Dictionary:
+	var loaded: Dictionary = ledger.real.call(&"load")
+	assert_true(loaded.get("ok", false), JSON.stringify(loaded))
+	return ((loaded["value"] as Dictionary)["document"] as Dictionary)["records"]
 
 
 func _layout() -> Dictionary:
@@ -95,8 +140,8 @@ func _begin_debug(transaction_id: String, difficulty_id: String) -> Dictionary:
 
 ## Reconnects the port to the coordinator's own privately owned board-state instance, mirroring the
 ## established test precedent for this exact wiring gap (see the class doc's OWNERSHIP WIRING note).
-func _wired(ledger: FakePublicationLedger = null) -> Dictionary:
-	var live_ledger := ledger if ledger != null else FakePublicationLedger.new()
+func _wired(ledger: CountingPublicationLedger = null) -> Dictionary:
+	var live_ledger: CountingPublicationLedger = ledger if ledger != null else _real_publication_ledger()
 	var port := PORT.new()
 	var configured_ledger: Dictionary = port.configure_publication_ledger(live_ledger)
 	assert_true(configured_ledger.get("ok", false), JSON.stringify(configured_ledger))
@@ -178,7 +223,7 @@ func test_port_instantiates() -> void:
 
 func test_configure_publication_ledger_is_idempotent_on_identical_replay() -> void:
 	var port := PORT.new()
-	var ledger := FakePublicationLedger.new()
+	var ledger: Object = PUBLICATION_LEDGER.new()
 	port.configure_publication_ledger(ledger)
 	var replay := port.configure_publication_ledger(ledger)
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
@@ -187,8 +232,8 @@ func test_configure_publication_ledger_is_idempotent_on_identical_replay() -> vo
 
 func test_configure_publication_ledger_rejects_replacement() -> void:
 	var port := PORT.new()
-	port.configure_publication_ledger(FakePublicationLedger.new())
-	var result := port.configure_publication_ledger(FakePublicationLedger.new())
+	port.configure_publication_ledger(PUBLICATION_LEDGER.new())
+	var result := port.configure_publication_ledger(PUBLICATION_LEDGER.new())
 	assert_false(result.get("ok", false))
 	assert_eq(result.get("code"), &"publication_ledger_already_configured")
 
@@ -218,7 +263,7 @@ func test_configure_rejects_a_replacement_board_state() -> void:
 
 func test_configure_rejects_an_invalid_board_state() -> void:
 	var port := PORT.new()
-	port.configure_publication_ledger(FakePublicationLedger.new())
+	port.configure_publication_ledger(PUBLICATION_LEDGER.new())
 	var result: Dictionary = port.configure(RefCounted.new(), _issuer)
 	assert_false(result.get("ok", false))
 	assert_eq(result.get("code"), &"invalid_board_state")
@@ -481,7 +526,7 @@ func test_prepare_projected_departure_rejects_stale_pre_state() -> void:
 func test_commit_adopts_the_fate_none_candidate_and_publish_records_once() -> void:
 	var wired := _wired()
 	var port: RefCounted = wired["port"]
-	var ledger: FakePublicationLedger = wired["ledger"]
+	var ledger: CountingPublicationLedger = wired["ledger"]
 	var live: Dictionary = _coordinator._board_state.capture()
 	var prepared: Dictionary = port.prepare_causal_departure(_schedule_request(_next_tx(), live))
 	var board_candidate: Dictionary = prepared["value"]["board_candidate"]
@@ -507,7 +552,7 @@ func test_commit_adopts_the_fate_none_candidate_and_publish_records_once() -> vo
 	var republish: Dictionary = port.publish({"board_candidate": board_candidate, "board_fate_receipt": board_fate_receipt})
 	assert_true(republish.get("ok", false), JSON.stringify(republish))
 	assert_eq(ledger.record_calls, 2, "record_before_emit is still called, but its own replay stays a no-op")
-	assert_eq(ledger.records.size(), 1, "no second distinct ledger record is created")
+	assert_eq(_ledger_records(ledger).size(), 1, "no second distinct ledger record is created")
 
 	# Rollback is forbidden once admitted.
 	var rollback_result: Dictionary = port.rollback(backup)

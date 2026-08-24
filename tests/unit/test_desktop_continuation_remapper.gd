@@ -9,6 +9,13 @@ const REMAPPER_PATH := "res://scripts/domain/desktop/DesktopContinuationRemapper
 const IDENTITY_PATH := "res://scripts/domain/desktop/DesktopIdentity.gd"
 const CANONICAL_JSON_PATH := "res://scripts/validation/CanonicalJsonWriter.gd"
 
+# Cross-check against the REAL issuer (not the hand-computed preimage in _child_provenance()
+# below): the remapper's _child_id() duplicates DesktopIdentityNonceIssuer._child_id()'s formula
+# byte-for-byte (that file's own frozen public surface forbids adding a shared static), so nothing
+# short of loading the genuine issuer proves the two never drift.
+const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
+const FAKE_ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
+
 func _exists() -> bool:
 	return ResourceLoader.exists(REMAPPER_PATH, "Script")
 
@@ -324,3 +331,114 @@ func test_validate_remap_accepts_its_own_prepare_output_and_rejects_a_tampered_c
 	tampered["desktop"]["board"] = tampered_board
 	var rejected: Dictionary = _remapper().call("validate_remap", snapshot, tampered)
 	assert_false(rejected.get("ok", true), "a hand-edited identity must fail re-derivation")
+
+
+# ---------------------------------------------------------------------------------------------
+# Cross-check against the REAL DesktopIdentityNonceIssuer (item 4 of the truthfulness
+# remediation): the remapper's _child_id() duplicates the issuer's own frozen preimage formula
+# rather than importing it (that file's frozen public surface forbids adding a shared static),
+# and until now nothing in this suite ever loaded the real issuer to prove the duplicate still
+# agrees with the original. A silent drift here would produce restored children that the real
+# issuer's own validate_child() rejects, discovered only at a later restore.
+# ---------------------------------------------------------------------------------------------
+
+func _real_issuer(namespace_hex: String, next_counter: int) -> Object:
+	var root: Object = FAKE_ROOT_STORE.new(namespace_hex, next_counter)
+	var issuer: Object = ISSUER.new()
+	assert_true(issuer.configure(root).get("ok", false), "issuer configure must succeed")
+	return issuer
+
+
+func test_prepare_rederives_a_source_commit_child_through_the_real_issuer_byte_for_byte() -> void:
+	if not _exists(): return
+	var issuer := _real_issuer("3333333333333333333333333333333333333333333333333333333333333333", 1)
+
+	var parent: Dictionary = issuer.issue(&"transaction_id")
+	assert_true(parent.get("ok", false), JSON.stringify(parent))
+	var parent_receipt: Dictionary = parent["receipt"]
+	var old_tx := str((parent["value"] as Dictionary)["token"])
+
+	# A real anchored child, derived by the genuine issuer -- not the hand-computed preimage
+	# `_child_provenance()` uses elsewhere in this file.
+	var derived: Dictionary = issuer.derive_child({
+		"parent_receipt_id": parent_receipt["receipt_id"], "child_kind": "board_start",
+		"ordinal": 0, "source_ids": [],
+	})
+	assert_true(derived.get("ok", false), JSON.stringify(derived))
+	var real_child_id := str((derived["value"] as Dictionary)["child_id"])
+	var real_provenance: Dictionary = (derived["value"] as Dictionary)["provenance"]
+
+	var snapshot := _snapshot(old_tx, real_provenance)
+	# An identity remap: old_tx maps to itself under the EXACT SAME real parent receipt, so
+	# _rederive_anchored_child() is exercised with the identical preimage the real issuer used --
+	# proving the remapper's duplicated formula agrees with the original, not just with itself.
+	var bundle := {
+		"transaction_id": old_tx, "transaction_issuer_receipt": parent_receipt,
+		"branch_id": "branch-new", "desktop_timeline_generation": 1,
+		"causal_day_instance": "causal-day-new",
+		"causal_day_instance_issuer_receipt": _issuer_receipt("causal_day_instance", "causal-day-new"),
+		"transaction_remap": {
+			old_tx: {"source_transaction_id": old_tx, "new_transaction_id": old_tx,
+				"new_transaction_issuer_receipt": parent_receipt},
+		},
+	}
+
+	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-real-issuer", bundle)
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var pending: Dictionary = (result["value"] as Dictionary)["snapshot"]["desktop"]["consequence"]["pending"]
+	var new_provenance: Dictionary = pending["source_commit_receipt_provenance"]
+
+	assert_eq(str(pending["source_commit_receipt_id"]), real_child_id,
+		"the remapper's duplicated preimage formula must reproduce the real issuer's own child id byte-for-byte")
+	assert_eq(str(new_provenance["child_id"]), real_child_id)
+
+	# The strongest cross-check: feed the remapper's OWN output back into the REAL issuer.
+	# validate_child() independently recomputes the child id from the provenance's own members
+	# and compares it to the stored child_id -- exactly the rejection a live restore would hit if
+	# the two duplicated formulas had drifted.
+	var revalidated: Dictionary = issuer.validate_child(new_provenance, &"board_start")
+	assert_true(revalidated.get("ok", false),
+		"the real issuer must accept the remapper's re-derived provenance as authentic: "
+			+ JSON.stringify(revalidated))
+
+
+func test_prepare_rejects_a_historical_source_commit_with_an_unregistered_child_kind() -> void:
+	if not _exists(): return
+	var old_transaction_receipt := _transaction_receipt("old-tx-badkind")
+	# Shape-valid (exact _PROVENANCE_KEYS member set) but a child_kind that is not a member of the
+	# real issuer's frozen CHILD_KINDS union -- the real issuer's own derive_child()/validate_child()
+	# would refuse this at the door; the remapper must too, not silently re-derive a child id under
+	# a kind the issuer would never have minted.
+	var bad_provenance := {
+		"schema_version": 1, "parent_receipt_id": str(old_transaction_receipt["receipt_id"]),
+		"child_kind": "not_a_registered_kind", "ordinal": 0, "source_ids": [],
+		"child_id": "not_a_registered_kind.deadbeef",
+	}
+	var snapshot := _snapshot("old-tx-badkind", bad_provenance)
+	var bundle := _bundle("old-tx-badkind", "new-tx-badkind")
+	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-badkind", bundle)
+	assert_false(result.get("ok", true), "an unregistered historical child_kind must reject")
+	assert_eq(result["code"], &"remap_child_kind_unregistered")
+
+
+## The cross-check the remapper's own `_CHILD_KINDS` comment names: that duplicated list is a
+## hand-copy of `DesktopIdentityNonceIssuer.CHILD_KINDS` (the domain layer must not depend on the
+## application-layer issuer), so nothing but a direct member-for-member comparison against the
+## real issuer can prove the copy has not drifted. Drift is silent and expensive: a kind added to
+## the issuer but not here makes `_rederive_anchored_child()` reject a child the issuer legitimately
+## minted, and a kind left here after the issuer dropped it makes the remapper re-derive an id under
+## a kind the issuer would refuse -- either way discovered only at a live restore.
+func test_the_remappers_duplicated_child_kinds_equal_the_real_issuers_child_kinds_exactly() -> void:
+	if not _exists(): return
+	var constants: Dictionary = _remapper().get_script_constant_map()
+	assert_true(constants.has("_CHILD_KINDS"), "the remapper must still declare _CHILD_KINDS")
+	var duplicated: Array = constants["_CHILD_KINDS"]
+	var authoritative: Array = ISSUER.CHILD_KINDS
+	assert_eq(duplicated.size(), authoritative.size(),
+		"the duplicate must carry exactly as many kinds as the real issuer")
+	for index in range(authoritative.size()):
+		var mirrored: String = str(duplicated[index]) if index < duplicated.size() else "<missing>"
+		assert_eq(mirrored, str(authoritative[index]),
+			"kind %d must match the real issuer's CHILD_KINDS in the same position" % index)
+	assert_eq(duplicated, authoritative,
+		"the domain-layer duplicate must equal DesktopIdentityNonceIssuer.CHILD_KINDS exactly")

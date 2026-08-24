@@ -4,9 +4,19 @@ extends "res://addons/gut/test.gd"
 ## req.shop.capabilities). Drives the REAL DesktopConsequenceState and ApplicationMutationGate (pure
 ## domain objects with no storage dependency) plus FakeMinesweeperShopStatePort, a real
 ## DesktopIdentityNonceIssuer over FakeDesktopIssuerRootStore (the established lightweight issuer
-## substrate for unit-level tests, per test_desktop_identity_nonce_issuer.gd's own precedent), and
-## two small test-local fakes for the checkpoint port and publication ledger (no dedicated file is in
-## Task 7's own Create set for either).
+## substrate for unit-level tests, per test_desktop_identity_nonce_issuer.gd's own precedent), the
+## REAL DesktopPublicationLedger over a real JsonFileStorage at a wrapper-isolated root, and one
+## small test-local fake for the checkpoint port (no dedicated file is in Task 7's own Create set
+## for it).
+##
+## FIX (dwm-p2r.35.6, the W6 truthfulness wave): the publication ledger here used to be a test-local
+## double that keyed records off `commit_receipt_id` OR `receipt_id`, whichever it happened to find,
+## and accepted ANY `kind` with ANY publication shape. The real ledger has a CLOSED three-kind union
+## (`causal_sequence`/`action_source`/`board_fate`), an exact per-kind publication member set, a
+## per-kind receipt-id path, and a `publication_sha256` that must equal the canonical digest -- none
+## of which the double could ever refuse. Same root cause as the whole dwm-p2r.35 remediation (a
+## double accepting what production rejects), so this file now drives the real object and every
+## ledger acceptance below is production's own decision.
 
 const _PARTICIPANT := preload("res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd")
 const _STATE_PORT := preload("res://tests/support/FakeMinesweeperShopStatePort.gd")
@@ -16,6 +26,7 @@ const _ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonce
 const _FAKE_ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
+const _PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
 
 const _PARTICIPANT_PATH := "res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd"
 const _STATE_PORT_PATH := "res://tests/support/FakeMinesweeperShopStatePort.gd"
@@ -72,29 +83,11 @@ class _FakeConsequenceCheckpointPort extends RefCounted:
 		return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
 
 
-class _FakePublicationLedger extends RefCounted:
-	var records: Dictionary = {}
-
-	func record_before_emit(request: Dictionary) -> Dictionary:
-		var kind: String = str(request.get("kind", ""))
-		var semantic_receipt: Dictionary = request.get("semantic_receipt", {})
-		var key := kind + ":" + str(semantic_receipt.get("commit_receipt_id", semantic_receipt.get("receipt_id", "")))
-		if records.has(key):
-			var existing: Dictionary = records[key]
-			if existing.get("publication") == request.get("publication") \
-					and existing.get("publication_sha256") == request.get("publication_sha256"):
-				return {"ok": true, "code": &"ok", "value": {"record": existing, "first_delivery": false}, "receipt": {}}
-			return {"ok": false, "code": &"publication_record_conflict", "message": "", "details": {}}
-		var record: Dictionary = request.duplicate(true)
-		record["key"] = key
-		records[key] = record
-		return {"ok": true, "code": &"ok", "value": {"record": record, "first_delivery": true}, "receipt": {}}
-
-
 var _state_port: RefCounted
 var _consequence_state: RefCounted
 var _checkpoint_port: _FakeConsequenceCheckpointPort
-var _publication_ledger: _FakePublicationLedger
+var _publication_ledger: Object
+var _publication_root_counter := 0
 var _issuer: RefCounted
 var _root: RefCounted
 var _gate: ApplicationMutationGate
@@ -105,7 +98,7 @@ func before_each() -> void:
 	_state_port = _STATE_PORT.new()
 	_consequence_state = _CONSEQUENCE_STATE.new()
 	_checkpoint_port = _FakeConsequenceCheckpointPort.new()
-	_publication_ledger = _FakePublicationLedger.new()
+	_publication_ledger = _real_publication_ledger()
 	_root = _FAKE_ROOT_STORE.new("ab".repeat(32), 1)
 	_issuer = _ISSUER.new()
 	_issuer.configure(_root)
@@ -130,6 +123,39 @@ func _bootstrap_consequence_state(causal_day_instance: String) -> void:
 	assert_true(made.get("ok", false), JSON.stringify(made))
 	var prepared: Dictionary = _consequence_state.prepare_restore((made["value"] as Dictionary)["state"])
 	_consequence_state.commit((prepared["value"] as Dictionary)["candidate"])
+
+
+## The REAL DesktopPublicationLedger needs a real storage root. This mirrors
+## test_desktop_publication_ledger.gd's own isolation discipline exactly -- the wrapper-provided
+## DWM_TEST_ROOT, never the production user:// directory -- and takes a FRESH root per test so each
+## test starts against an empty durable ledger, the way the deleted in-memory double did.
+func _isolated_publication_root() -> String:
+	var wrapper := OS.get_environment("DWM_TEST_ROOT")
+	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
+	_publication_root_counter += 1
+	var root: String = wrapper.path_join("shop-purchase-publications-%d" % _publication_root_counter)
+	var production := ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
+	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
+		"an isolated root is never the production user directory")
+	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	return root
+
+
+func _real_publication_ledger() -> Object:
+	var ledger: Object = _PUBLICATION_LEDGER.new()
+	var configured: Dictionary = ledger.configure(JsonFileStorage.new(_isolated_publication_root()))
+	assert_true(configured.get("ok", false), JSON.stringify(configured))
+	var loaded: Dictionary = ledger.load()
+	assert_true(loaded.get("ok", false), JSON.stringify(loaded))
+	return ledger
+
+
+## The real ledger's DURABLE records, re-read from disk on every call -- the deleted double exposed
+## a plain in-memory `records` Dictionary instead.
+func _ledger_records() -> Dictionary:
+	var loaded: Dictionary = _publication_ledger.load()
+	assert_true(loaded.get("ok", false), JSON.stringify(loaded))
+	return ((loaded["value"] as Dictionary)["document"] as Dictionary)["records"]
 
 
 func _configured_participant() -> RefCounted:
@@ -183,7 +209,7 @@ func test_configure_publication_ledger_is_idempotent_and_rejects_replacement() -
 	var replay: Dictionary = participant.configure_publication_ledger(_publication_ledger)
 	assert_true(replay.get("ok", false))
 	assert_true(bool((replay["value"] as Dictionary)["already_configured"]))
-	var other := _FakePublicationLedger.new()
+	var other: Object = _PUBLICATION_LEDGER.new()
 	assert_false(participant.configure_publication_ledger(other).get("ok", true))
 
 
@@ -709,13 +735,14 @@ func test_publish_records_through_the_action_source_kind_and_releases_the_gate()
 	var published: Dictionary = _participant.publish({"action_receipt": receipt})
 	assert_true(published.get("ok", false), JSON.stringify(published))
 	assert_false(_gate.is_active(), "publish releases the lease")
-	assert_true(_publication_ledger.records.has("action_source:" + str(receipt["commit_receipt_id"])))
+	assert_true(_ledger_records().has("action_source:" + str(receipt["commit_receipt_id"])),
+		"the REAL ledger accepted and durably recorded the action_source publication")
 
 	# record-before-emit retry with no second signal: an identical publish() replay is safe.
 	assert_true(_gate.acquire(&"causal_transaction").get("ok", false))
 	var replay: Dictionary = _participant.publish({"action_receipt": receipt})
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
-	assert_eq(_publication_ledger.records.size(), 1, "no second ledger record is written on replay")
+	assert_eq(_ledger_records().size(), 1, "no second ledger record is written on replay")
 
 
 func test_publish_rejects_an_invalid_publication_shape() -> void:
@@ -796,7 +823,7 @@ func test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity() ->
 	assert_eq(result.get("code"), &"action_receipt_conflict")
 
 
-## dwm-p2r.13 remediation (finding 3): publish_recovery_action() used to release the causal_
+## dwm-p2r.35.7 remediation (finding 3): publish_recovery_action() used to release the causal_
 ## transaction lease immediately -- callback index 1 of up to 3 (causal_sequence, action_source,
 ## optional board_fate) -- leaving board-fate publish and terminal cleanup running unleased, which
 ## contradicted DesktopBoardFatePort's own class-doc "KNOWN LIMITATION is not reachable in
@@ -819,12 +846,12 @@ func test_publish_recovery_action_records_through_action_source_and_retains_the_
 	assert_true(published.get("ok", false), JSON.stringify(published))
 	assert_true(_gate.is_internal_owner_active(&"causal_transaction"),
 		"publish_recovery_action retains the lease -- release_recovery_lease() is the sole release point")
-	assert_true(_publication_ledger.records.has("action_source:" + str(receipt["commit_receipt_id"])),
+	assert_true(_ledger_records().has("action_source:" + str(receipt["commit_receipt_id"])),
 		"Ruling B: the same action_source ledger key convention as publish()")
 
 	var replay: Dictionary = _participant.publish_recovery_action(publication)
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
-	assert_eq(_publication_ledger.records.size(), 1, "no second ledger record is written on replay")
+	assert_eq(_ledger_records().size(), 1, "no second ledger record is written on replay")
 
 	var released: Dictionary = _participant.release_recovery_lease()
 	assert_true(released.get("ok", false), JSON.stringify(released))
