@@ -1,5 +1,5 @@
 extends "res://addons/gut/test.gd"
-# dwm-p2r.13 remediation: crash-boundary resume tests for New Run / restore continuation
+# dwm-p2r.35.4 remediation: crash-boundary resume tests for New Run / restore continuation
 # (findings B-C1 "gate lease acquired too late", B-C2 "nothing resumes a continuation forward",
 # B-C3 "the cross-task advance() comment describes a pass that never existed", B-C4 "the abort/
 # failure half is unreachable"). Frozen law: plan02-frozen-contracts.md around line 543.

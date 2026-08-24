@@ -41,7 +41,7 @@ class FakePublicationLedger:
 
 	func record_before_emit(request: Dictionary) -> Dictionary:
 		var semantic_receipt: Dictionary = request["semantic_receipt"]
-		# FIX (dwm-p2r.13 remediation, finding W1): under the corrected ledger kind union, the
+		# FIX (dwm-p2r.35.1 remediation, finding W1): under the corrected ledger kind union, the
 		# causal_sequence kind's own semantic_receipt is {causal_sequence_receipt,
 		# admission_checkpoint_receipt} -- it carries no top-level receipt_id of its own (that lives
 		# nested inside causal_sequence_receipt), unlike this fake's previous single-shape assumption.

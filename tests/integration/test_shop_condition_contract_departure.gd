@@ -84,7 +84,7 @@ func _wired() -> Dictionary:
 	identity_context["causal_day_instance"] = str(day_receipt["token"])
 
 	var gate := ApplicationMutationGate.new()
-	# FIX (dwm-p2r.13 remediation, finding W1): the REAL DesktopPublicationLedger, not a hand-rolled
+	# FIX (dwm-p2r.35.1 remediation, finding W1): the REAL DesktopPublicationLedger, not a hand-rolled
 	# fake -- see test_desktop_completion_transaction.gd's identical fix for the full rationale.
 	var publication_storage: Object = load(STORAGE_PATH).new(root.path_join("_publications"))
 	var publication_ledger: Object = load(PUBLICATION_LEDGER_PATH).new()

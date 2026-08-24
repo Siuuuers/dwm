@@ -38,7 +38,7 @@ class FakeConsequencePort:
 			"value": {"action_receipt": request["action_receipt"], "source_kind": "minesweeper_round", "departure": false},
 			"receipt": {}}
 
-## dwm-p2r.13 remediation (finding 3): minimal fake for publish_recovery_action()'s own
+## dwm-p2r.35.7 remediation (finding 3): minimal fake for publish_recovery_action()'s own
 ## record_before_emit() call, mirroring test_minesweeper_shop_purchase_participant.gd's own
 ## established _FakePublicationLedger exactly.
 class FakePublicationLedger:
@@ -207,7 +207,7 @@ func test_complete_round_duplicate_replay_returns_identical_result() -> void:
 	assert_eq(_consequence_port.calls.size(), 1, "a duplicate replay never calls accept_prepared_action again")
 
 
-## dwm-p2r.13 remediation (finding 2): complete_round() used to cache EVERY accept_prepared_action()
+## dwm-p2r.35.7 remediation (finding 2): complete_round() used to cache EVERY accept_prepared_action()
 ## result in _round_completions unconditionally, including failures -- freezing a transient failure
 ## forever even though the ordinal-0 checkpoint and pending record were already durable, with no
 ## forward path and no retry path. Proves a retry with the SAME request after a transient failure
@@ -237,7 +237,7 @@ func test_complete_round_retries_after_a_transient_accept_prepared_action_failur
 	assert_eq(_consequence_port.calls.size(), 2, "a successful result replays from cache, not a third live call")
 
 
-## dwm-p2r.13 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- when
+## dwm-p2r.35.7 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- when
 ## accept_prepared_action() abandons a pre-admission pending because the condition-departure ports
 ## are unconfigured, complete_round() -- the actual causal_transaction token holder, since
 ## DesktopConsequenceCoordinator never acquires the lease itself -- releases it, completing the
@@ -281,7 +281,7 @@ func test_commit_recovery_action_adopts_the_board_projection_and_rejects_without
 	assert_eq(_coordinator.get_state()["value"]["phase"], "NONE")
 
 
-## dwm-p2r.13 remediation (finding 3): publish_recovery_action() used to release the causal_
+## dwm-p2r.35.7 remediation (finding 3): publish_recovery_action() used to release the causal_
 ## transaction lease itself, immediately after recording -- callback index 1 of up to 3 in
 ## DesktopConsequenceCoordinator's own departure publication plan -- leaving board-fate publish and
 ## terminal cleanup running unleased. Proves the lease survives publish_recovery_action() and is

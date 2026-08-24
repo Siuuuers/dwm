@@ -20,7 +20,7 @@ extends RefCounted
 ## but deliberately disjoint from it: a distinct `FIXED_PATH`, a distinct closed `kind` union, and a
 ## distinct publication shape, so neither ledger's bytes can ever be mistaken for the other's.
 ##
-## FIX (dwm-p2r.13 remediation, finding W1): the closed `kind` union is exactly the three record
+## FIX (dwm-p2r.35.1 remediation, finding W1): the closed `kind` union is exactly the three record
 ## kinds the frozen contract names at plan02-frozen-contracts.md line 328 -- `causal_sequence`,
 ## `action_source`, `board_fate` -- one per Plan-02 publisher (`DesktopCausalSequencePort`; the two
 ## action-source participants, `MinesweeperRoundCoordinator`/`MinesweeperShopPurchaseParticipant`,

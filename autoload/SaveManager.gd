@@ -221,7 +221,7 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 	var gate_acquired := false
 	var lock_acquired := false
 	if has_source_locator:
-		# FIX (dwm-p2r.13 remediation, finding B-C1): the save lock and mutation-gate lease are the
+		# FIX (dwm-p2r.35.4 remediation, finding B-C1): the save lock and mutation-gate lease are the
 		# transaction's actual anti-interleave guarantee, so both must be held BEFORE the issuer mints
 		# `transaction_id` or the continuation journal commits `intent_committed` -- never after. A busy
 		# gate or an already-held `restore` save lock now fails closed here, before any identity is
@@ -390,7 +390,7 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 	if context_error != "":
 		return _fail(&"invalid_initial_context", context_error)
 
-	# FIX (dwm-p2r.13 remediation, finding B-C1): acquire the mutation-gate lease as owner `new_run`
+	# FIX (dwm-p2r.35.4 remediation, finding B-C1): acquire the mutation-gate lease as owner `new_run`
 	# BEFORE the issuer mints `transaction_id` or the continuation journal commits `intent_committed`.
 	# A busy or fatal-latched gate now fails closed here, before any identity is burned.
 	var gate_token := ""
@@ -566,13 +566,13 @@ func _begin_new_run_continuation(initial_context: Dictionary) -> Dictionary:
 ## pure fake-participant orchestration tests): this method then behaves exactly as it did before
 ## Task 6. When present, this drives `DesktopContinuationOperationJournal.advance()` for every
 ## participant position PLUS the run-identity remap step, right after "run"'s own ordinary apply.
-## `pre_acquired_gate_token` (dwm-p2r.13 remediation, finding B-C1): when nonempty, the caller
+## `pre_acquired_gate_token` (dwm-p2r.35.4 remediation, finding B-C1): when nonempty, the caller
 ## already holds the `owner` lease (acquired before minting `transaction_id`/committing
 ## `intent_committed`, per the frozen continuation law) and this method must NOT try to acquire it
 ## again (the gate is exclusive/non-reentrant). Empty means the caller never pre-acquired -- the
 ## pure fake-participant orchestration path this method already supported before Task 6 -- so this
 ## method acquires it itself, exactly as before.
-## `already_applied` (dwm-p2r.13 remediation, finding B-C2): true only when resuming an operation
+## `already_applied` (dwm-p2r.35.4 remediation, finding B-C2): true only when resuming an operation
 ## whose journal record is ALREADY at `participants_applied` (every participant already durably
 ## recorded before the crash). The journal's own per-participant replay path only accepts a replay
 ## while the operation's stage is still `participants_applying` -- once it has moved past that to
@@ -668,7 +668,7 @@ func _run_participant_transaction(
 	if not continuation.is_empty():
 		# Best-effort: participants are already finalized and the checkpoint journal already
 		# committed, so a failure here is NOT rolled back (that would undo genuinely-completed work).
-		# FIX (dwm-p2r.13 remediation, finding B-C2/B-C3): this advance's own failure is no longer a
+		# FIX (dwm-p2r.35.4 remediation, finding B-C2/B-C3): this advance's own failure is no longer a
 		# dead end. `reconcile_incomplete_continuations()` -> `_resume_operation()` finds this
 		# transaction still nonterminal on the next boot (stage stays `participants_applied`), reacquires
 		# the `owner` lease, and drives this exact APPLIED -> COMPLETED advance forward through
@@ -1196,7 +1196,7 @@ static func _canonical_sha256(value: Variant) -> String:
 ## Task 9 owns ApplicationBootstrap.gd's own stage sequence, and where exactly this hook belongs in
 ## it was never resolved by this task (see the handoff report).
 ##
-## FIX (dwm-p2r.13 remediation, findings B-C2/B-C3): each nonterminal operation now goes through
+## FIX (dwm-p2r.35.4 remediation, findings B-C2/B-C3): each nonterminal operation now goes through
 ## `_resume_operation()` below, which genuinely drives the frozen continuation law's recovery
 ## sequence -- reacquiring the gate lease, verifying the source/context, and advancing forward
 ## through allocation/participants/completion (or recording a pre-allocation abort) -- instead of
@@ -1218,7 +1218,7 @@ func reconcile_incomplete_continuations() -> Dictionary:
 		results.append({"transaction_id": transaction_id, "result": reconciled})
 	return {"ok": true, "code": &"ok", "value": {"reconciled": results}}
 
-## FIX (dwm-p2r.13 remediation, finding B-C2): the frozen continuation law (plan02-frozen-
+## FIX (dwm-p2r.35.4 remediation, finding B-C2): the frozen continuation law (plan02-frozen-
 ## contracts.md, around line 543) requires startup to, for every nonterminal operation, "reacquire[]
 ## the owner implied by kind, reload[]/hash-verif[y] the exact restore locator or rehash[] the
 ## retained New-Run initial context, and recompute[] the deterministic allocation candidate."
@@ -1530,7 +1530,7 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 		},
 	}}
 
-## FIX (dwm-p2r.13 remediation, findings B-C2/B-C4): the frozen continuation law requires that once
+## FIX (dwm-p2r.35.4 remediation, findings B-C2/B-C4): the frozen continuation law requires that once
 ## `identity_allocation_committed`, a startup that cannot prove forward progress "persists the typed
 ## failure diagnostic without changing that forward stage, latches a fatal recovery failure, and
 ## leaves the retained operation/issuer high-water untouched." This is the one place that happens:

@@ -48,7 +48,7 @@ class FakePublicationLedger:
 		# The action_source semantic receipt is a DesktopActionReceipt, which has no receipt_id field
 		# of its own -- commit_receipt_id (Ruling B) is its identity for this key, mirroring
 		# test_minesweeper_shop_purchase_participant.gd's own established fake ledger precedent.
-		# FIX (dwm-p2r.13 remediation, finding W1): under the corrected ledger kind union, the
+		# FIX (dwm-p2r.35.1 remediation, finding W1): under the corrected ledger kind union, the
 		# causal_sequence kind's own semantic_receipt is {causal_sequence_receipt,
 		# admission_checkpoint_receipt} -- it carries no top-level receipt_id/commit_receipt_id of its
 		# own (that lives nested inside causal_sequence_receipt); the previous single-shape fallback
@@ -79,7 +79,7 @@ class FakeRoundSource:
 	## publication loop (and this injected failure) ever ran, and that a subsequent forward-recovery
 	## replay on a reconstructed coordinator publishes exactly once, not twice.
 	var fail_publish_once := false
-	## FIX (dwm-p2r.13 remediation, finding W2): the SAME shared DesktopBoardState the coordinator's
+	## FIX (dwm-p2r.35.2 remediation, finding W2): the SAME shared DesktopBoardState the coordinator's
 	## own DesktopBoardFatePort is configured against (set by the test's own before_each(), mirroring
 	## the real MinesweeperRoundCoordinator.configure()'s ownership). Wiring this in and adopting
 	## action_candidate.board_projection through it below (matching MinesweeperRoundCoordinator
@@ -90,7 +90,7 @@ class FakeRoundSource:
 	## finding W2 names ("the coordinator suite substitutes an inline FakeRoundSource whose
 	## commit_recovery_action touches no board").
 	var board_state: Object = null
-	## dwm-p2r.13 remediation (finding 3): the shared gate, wired in before_each() so
+	## dwm-p2r.35.7 remediation (finding 3): the shared gate, wired in before_each() so
 	## publish_recovery_action() can record whether the causal_transaction lease is still active AT
 	## THE MOMENT it runs -- proving the lease survives past the action_source publish callback
 	## (index 1 of up to 3), not just that release_recovery_lease() eventually gets called.
@@ -126,7 +126,7 @@ class FakeRoundSource:
 		published.append(publication)
 		return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": publication["action_receipt"]}
 
-	## dwm-p2r.13 remediation (finding 3): the fourth frozen recovery-method addition. Releases the
+	## dwm-p2r.35.7 remediation (finding 3): the fourth frozen recovery-method addition. Releases the
 	## real lease using gate_token when the fixture that acquired it recorded that token here;
 	## otherwise (no token retained -- e.g. resume_pending()-driven forward recovery, which never
 	## acquires the gate at all) stays a no-op success, honestly mirroring the production sources'
@@ -294,7 +294,7 @@ func _round_prepared(marker: String) -> Dictionary:
 	if not _gate.is_internal_owner_active(&"causal_transaction"):
 		var acquired: Dictionary = _gate.acquire(&"causal_transaction")
 		assert_true(acquired.get("ok", false), JSON.stringify(acquired))
-		# dwm-p2r.13 remediation (finding 3): retained so FakeRoundSource.release_recovery_lease()
+		# dwm-p2r.35.7 remediation (finding 3): retained so FakeRoundSource.release_recovery_lease()
 		# (the coordinator's own post-terminal-cleanup release point) can perform a real release.
 		_round_source.gate_token = str((acquired["value"] as Dictionary)["token"])
 	var txn := _mint_transaction()
@@ -489,7 +489,7 @@ func test_accept_prepared_action_no_departure_commits_and_publishes() -> void:
 	assert_eq(int(live["run_revision"]), 1)
 
 	# Publication ledger recorded exactly causal_sequence + action_source (no board_fate for
-	# no-departure). FIX (dwm-p2r.13 remediation, finding W1): the ledger's own closed kind union is
+	# no-departure). FIX (dwm-p2r.35.1 remediation, finding W1): the ledger's own closed kind union is
 	# causal_sequence|action_source|board_fate (plan02-frozen-contracts.md line 328) -- never the
 	# causal reservation's own disjoint source_kind union ("shop_purchase") a prior implementation and
 	# this fixture assumed here by mistake.
@@ -552,7 +552,7 @@ func test_accept_prepared_action_departure_discards_the_preparing_board_and_comm
 	assert_eq(_schedule_view_port.commit_calls, 1)
 	assert_eq(_live_consequence()["pending"], null)
 
-	# FIX (dwm-p2r.13 remediation, finding W1): see the no-departure test above for the same
+	# FIX (dwm-p2r.35.1 remediation, finding W1): see the no-departure test above for the same
 	# causal_sequence-not-shop_purchase correction.
 	var kinds: Array = []
 	for record: Dictionary in _publication_ledger.records.values():
@@ -600,7 +600,7 @@ func test_accept_prepared_action_minesweeper_round_departure_uses_the_action_can
 	assert_eq(board_fate_records, 1)
 
 
-## dwm-p2r.13 remediation (finding 3): proves the lease is still held through board-fate publish
+## dwm-p2r.35.7 remediation (finding 3): proves the lease is still held through board-fate publish
 ## AND terminal cleanup for a departure, and released only after -- the exact defect this
 ## remediation fixes (both action sources used to release inside publish_recovery_action(), callback
 ## index 1 of up to 3, leaving board-fate publish and terminal cleanup running unleased).
@@ -642,7 +642,7 @@ func test_accept_prepared_action_departure_retains_the_gate_through_board_fate_p
 	assert_false(_gate.is_active(), "the lease is released once terminal cleanup has completed")
 
 
-# ---- dwm-p2r.13 remediation (finding 1): pre-admission abandonment ----
+# ---- dwm-p2r.35.7 remediation (finding 1): pre-admission abandonment ----
 
 ## plan02-frozen-contracts.md line 2271: a merely pre-admission accept_prepared_action() must not
 ## deadlock the whole desktop stack when condition-departure ports are unconfigured (this plan's own
@@ -870,7 +870,7 @@ func test_accept_prepared_action_departure_intent_lands_in_the_persisted_pending
 	# FakeRoundSource (this suite's own hand-built minesweeper_round stand-in, unlike the real
 	# MinesweeperRoundCoordinator) never writes to the publication ledger itself -- only its own
 	# `published` array, already asserted above -- so the ledger sees causal_sequence and board_fate,
-	# never action_source. FIX (dwm-p2r.13 remediation, finding W1): causal_sequence, not the causal
+	# never action_source. FIX (dwm-p2r.35.1 remediation, finding W1): causal_sequence, not the causal
 	# reservation's own disjoint source_kind union ("minesweeper_round").
 	var kinds: Array = []
 	for record: Dictionary in _publication_ledger.records.values():
@@ -895,7 +895,7 @@ func test_validate_ordinal_stage_pairing_rejects_a_mismatched_pairing() -> void:
 	assert_eq(result.get("code"), &"consequence_checkpoint_ordinal_stage_invalid")
 
 
-# ---- dwm-p2r.13 remediation (finding A-C3): the durable checkpoint reader is USED at startup ----
+# ---- dwm-p2r.35.3 remediation (finding A-C3): the durable checkpoint reader is USED at startup ----
 
 ## Builds a genuinely fresh, never-adopted-anything DesktopConsequenceState -- standing in for a
 ## RunSnapshot restore that crashed before capturing a pending transaction (finding A-C3's own "the

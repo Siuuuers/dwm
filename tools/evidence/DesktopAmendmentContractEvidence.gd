@@ -234,8 +234,11 @@ static func _bootstrap_probe() -> Dictionary:
 			{"relation": "old_simulator_install_seam_untouched", "verdict": "never_written"},
 			{"relation": "identical_replay_reuses_every_instance", "verdict": "stable"},
 		],
+		# One suite_id spelling repo-wide (dwm-p2r.36, review M-4): a suite_id IS its log's file
+		# name minus .log, exactly as build_red_green_command_records() derives it, so the same
+		# log can never carry two names across the two record families again.
 		"test_log_bindings": [
-			{"suite_id": "p2r9_bootstrap_wiring_check3", "log_path": "evidence/phase_2r/logs/p2r9-bootstrap-wiring-check3.log"},
+			{"suite_id": "p2r9-bootstrap-wiring-check3", "log_path": "evidence/phase_2r/logs/p2r9-bootstrap-wiring-check3.log"},
 		],
 	}
 

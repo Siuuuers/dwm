@@ -51,8 +51,8 @@ static func honest_gaps() -> Array:
 				+ "identity context), so registry/price/currency/quote_id contracts remain provable.",
 			"evidence": "DesktopIdentityNonceIssuer.issue() refuses GENERATION_PURPOSE and " \
 				+ "CAUSAL_DAY_PURPOSE directly (allocator-only); neither port is in Task 9's own Files " \
-				+ "list; MinesweeperShopPurchaseParticipant.gd:685 builds the action candidate's " \
-				+ "causal_day_instance from facts[\"causal_day_instance\"], not live_state's",
+				+ "list; MinesweeperShopPurchaseParticipant._build_action_receipt() builds the action " \
+				+ "candidate's causal_day_instance from facts[\"causal_day_instance\"], not live_state's",
 			"asserted_by": ["test_desktop_action_matrix.gd", "test_desktop_simulator_authority.gd"],
 		},
 		{
@@ -93,10 +93,10 @@ static func honest_gaps() -> Array:
 			"evidence": "ProfileSchema.gd:87 (validate's 7-key _require_keys call), 216-220 " \
 				+ "(_require_keys itself); ProfileManager.gd:246-253 (apply_restore_silent, no " \
 				+ "emptiness special-case); LocalizationManager.gd:391-392 (_is_restore_plan_valid's " \
-				+ "4-key has_all check); SaveManager.gd:79 (profile fourth in " \
-				+ "_PARTICIPANT_APPLY_ORDER), 393-394 (the hardcoded {\"profile\": {}} and {} " \
-				+ "literals) -- verified directly against the real production graph in " \
-				+ "test_desktop_crash_recovery.gd",
+				+ "4-key has_all check); SaveManager.gd's _PARTICIPANT_APPLY_ORDER (profile fourth) " \
+				+ "and start_new_run()'s hardcoded {\"profile\": {}} and {} literals (cited by symbol, " \
+				+ "not line, after the dwm-p2r.36 pointer-drift finding I-1) -- verified directly " \
+				+ "against the real production graph in test_desktop_crash_recovery.gd",
 			"asserted_by": ["test_desktop_crash_recovery.gd"],
 		},
 	]
@@ -197,6 +197,15 @@ const CURATED_LOG_DIRECTORY := "evidence/phase_2r/logs/"
 ## p2r9 name because a re-run today would record this branch's tip, not the P2R9 state that name
 ## claims. parse_gut_log_exit_code() below refuses that exact shape rather than recording it as a
 ## pass.
+##
+## SCHEMA COUPLING (dwm-p2r.36, review Q3): this set's size is pinned by three independent
+## literals -- `minItems` in data/schemas/desktop-contract.schema.json, `minItems` in
+## data/schemas/minesweeper-contract.schema.json, and this array's own size -- held together only
+## by test_both_schemas_floor_the_red_green_record_count_at_the_frozen_log_set_size's equality
+## check. A coordinated 3-to-2 edit across all three passes silently by design (shrinking the set
+## is a deliberate two-schema, one-array edit, never a drive-by), but it cannot drop below two:
+## test_every_bound_red_green_log_is_curated_and_parses_to_its_real_outcome requires the set to
+## carry both a 0 and a 1 exit code.
 const RED_GREEN_LOG_NAMES: Array[String] = [
 	"p2r9-bootstrap-regression.log",
 	"p2r9-bootstrap-wiring-check.log",
@@ -213,6 +222,14 @@ const _ALL_PASSED_VERDICT := "---- All tests passed! ----"
 ## the Failing Tests line entirely when nothing failed -- which is why this is a parse and not a
 ## substring search. Pending/risky tests are not failures: GUT exits 0 for them, so passing <
 ## tests with no failures is a lawful zero.
+##
+## THE ASSERTS LINE IS THE REAL EXIT CONDITION (dwm-p2r.36, review M-1). GUT exits nonzero on
+## failing ASSERTS, not failing tests: the Totals block prints `Asserts <passing>/<total>` when any
+## assert failed and a bare `Asserts <count>` when none did. A before_all/after_all assert failure
+## produces zero Failing Tests but a slashed Asserts line and a nonzero GUT exit, so a parser that
+## read only the Failing Tests line minted exit_code 0 for a run GUT exited 1 on (reachable only
+## alongside a pending; without one the verdict check already failed closed). Both lines are now
+## read and must agree with the verdict.
 static func parse_gut_log_exit_code(bytes: PackedByteArray) -> Dictionary:
 	var text: String = bytes.get_string_from_utf8()
 	var banner_at: int = text.rfind(_SUMMARY_BANNER)
@@ -222,6 +239,8 @@ static func parse_gut_log_exit_code(bytes: PackedByteArray) -> Dictionary:
 	var tests: int = -1
 	var passing: int = -1
 	var failing: int = 0
+	var passing_asserts: int = -1
+	var total_asserts: int = -1
 	var verdict: String = ""
 	for raw_line: String in text.substr(banner_at).split("\n"):
 		var line: String = raw_line.strip_edges()
@@ -231,21 +250,46 @@ static func parse_gut_log_exit_code(bytes: PackedByteArray) -> Dictionary:
 			passing = _summary_count(line, "Passing Tests")
 		elif line.begins_with("Failing Tests "):
 			failing = _summary_count(line, "Failing Tests")
+		elif line.begins_with("Asserts "):
+			var counts: Array[int] = _asserts_counts(line)
+			passing_asserts = counts[0]
+			total_asserts = counts[1]
 		elif line.begins_with("---- ") and line.ends_with(" ----"):
 			verdict = line
 	if tests < 0 or passing < 0 or failing < 0:
 		return {"ok": false, "code": &"red_green_log_incomplete",
 			"message": "the run summary has no readable totals block", "details": {}}
+	if passing_asserts < 0 or total_asserts < 0 or passing_asserts > total_asserts:
+		return {"ok": false, "code": &"red_green_log_incomplete",
+			"message": "the run summary has no readable asserts line", "details": {}}
 	if verdict.is_empty():
 		return {"ok": false, "code": &"red_green_log_incomplete",
 			"message": "the log stops before GUT's terminal verdict", "details": {}}
-	if (verdict == _ALL_PASSED_VERDICT) != (failing == 0 and passing == tests):
+	if (verdict == _ALL_PASSED_VERDICT) \
+			!= (failing == 0 and passing == tests and passing_asserts == total_asserts):
 		return {"ok": false, "code": &"red_green_log_inconsistent",
 			"message": "the terminal verdict contradicts the totals block",
 			"details": {"verdict": verdict, "tests": tests, "passing_tests": passing,
-				"failing_tests": failing}}
-	return {"ok": true, "code": &"ok", "value": {"exit_code": 0 if failing == 0 else 1,
-		"tests": tests, "passing_tests": passing, "failing_tests": failing}, "receipt": {}}
+				"failing_tests": failing, "passing_asserts": passing_asserts,
+				"total_asserts": total_asserts}}
+	return {"ok": true, "code": &"ok", "value": {
+		"exit_code": 0 if failing == 0 and passing_asserts == total_asserts else 1,
+		"tests": tests, "passing_tests": passing, "failing_tests": failing,
+		"passing_asserts": passing_asserts, "total_asserts": total_asserts}, "receipt": {}}
+
+
+## `Asserts 100/125` (some failed) or `Asserts 272` (none failed). Returns [passing, total];
+## [-1, -1] when the line is unreadable, which the caller refuses as incomplete.
+static func _asserts_counts(line: String) -> Array[int]:
+	var tail: String = line.substr("Asserts".length()).strip_edges()
+	if tail.contains("/"):
+		var halves: PackedStringArray = tail.split("/")
+		if halves.size() == 2 and halves[0].is_valid_int() and halves[1].is_valid_int():
+			return [halves[0].to_int(), halves[1].to_int()]
+		return [-1, -1]
+	if tail.is_valid_int():
+		return [tail.to_int(), tail.to_int()]
+	return [-1, -1]
 
 
 static func _summary_count(line: String, label: String) -> int:

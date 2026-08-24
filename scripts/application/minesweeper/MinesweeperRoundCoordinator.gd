@@ -98,7 +98,7 @@ var _round_consequence_state_port: Object = null
 var _round_checkpoint_port: Object = null
 var _consequence_gate_token := ""
 var _round_completions: Dictionary = {}
-## dwm-p2r.13 remediation (findings 1 and 2): the exact accept_prepared_action() request this same
+## dwm-p2r.35.7 remediation (findings 1 and 2): the exact accept_prepared_action() request this same
 ## process retained when it first durably wrote ordinal 0 for a transaction -- mirrors
 ## MinesweeperShopPurchaseParticipant's own `participant_snapshot_ids` retention pattern, adapted to
 ## this source's own richer request shape. Consulted only by _recognize_live_round_pending() below,
@@ -255,7 +255,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 	if not verify.get("ok", false):
 		return verify
 
-	# dwm-p2r.13 remediation (findings 1 and 2): recognize a durable pending transaction this same
+	# dwm-p2r.35.7 remediation (findings 1 and 2): recognize a durable pending transaction this same
 	# process already handed off (ordinal 0 committed, accept_prepared_action() transiently failed) --
 	# mirrors MinesweeperShopPurchaseParticipant.prepare_purchase()'s own established
 	# _recognize_live_pending() pattern. prepare_action_handoff() below rejects any second pending
@@ -370,7 +370,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 		"expected_run_revision": int(request["expected_run_revision"]),
 		"expected_board_identity": identity, "expected_board_revision": int(captured["revision"]),
 	}
-	# dwm-p2r.13 remediation (finding 2): retained so a same-process retry of this now-durably-pending
+	# dwm-p2r.35.7 remediation (finding 2): retained so a same-process retry of this now-durably-pending
 	# transaction (recognized above by _recognize_live_round_pending()) can replay this exact
 	# accept_prepared_action() call without recomputing action_candidate/action_receipt/checkpoint
 	# receipt -- prepare_action_handoff() above can never run a second time for this transaction_id.
@@ -378,10 +378,10 @@ func complete_round(request: Dictionary) -> Dictionary:
 	return _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
 
 
-## dwm-p2r.13 remediation (findings 1 and 2): a durable pending record for THIS transaction already
+## dwm-p2r.35.7 remediation (findings 1 and 2): a durable pending record for THIS transaction already
 ## exists -- either this same process already committed ordinal 0 during an earlier attempt whose
 ## accept_prepared_action() call transiently failed, or the gate/lease was released by the
-## dwm-p2r.13 abandonment path below and this is a genuine caller-driven retry. Re-drives
+## dwm-p2r.35.7 abandonment path below and this is a genuine caller-driven retry. Re-drives
 ## accept_prepared_action() directly using the exact request this same process retained when it
 ## first wrote ordinal 0 -- prepare_action_handoff() cannot run a second time (it rejects any
 ## already-pending transaction). A genuinely fresh process (no retained in-memory request) has
@@ -400,10 +400,10 @@ func _recognize_live_round_pending(transaction_id: String, fingerprint: String) 
 	return _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
 
 
-## dwm-p2r.13 remediation (finding 2): caches ONLY a success -- previously `_round_completions` cached
+## dwm-p2r.35.7 remediation (finding 2): caches ONLY a success -- previously `_round_completions` cached
 ## every result unconditionally, so a transient accept_prepared_action() failure froze that exact
 ## failure forever even though the ordinal-0 checkpoint and pending record were already durable and a
-## real forward path existed. dwm-p2r.13 remediation (finding 1): when accept_prepared_action()
+## real forward path existed. dwm-p2r.35.7 remediation (finding 1): when accept_prepared_action()
 ## abandons a pre-admission pending because the condition-departure ports are unconfigured, this
 ## coordinator -- the actual causal_transaction token holder, since DesktopConsequenceCoordinator
 ## never acquires the lease itself -- releases it here, completing the frozen law's "releases
@@ -494,7 +494,7 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 ## `MinesweeperShopPurchaseParticipant.publish()`/`publish_recovery_action()` already established
 ## (Ruling B).
 ##
-## dwm-p2r.13 remediation (finding 3): this method used to release the retained `causal_transaction`
+## dwm-p2r.35.7 remediation (finding 3): this method used to release the retained `causal_transaction`
 ## lease here, immediately after recording -- but this is callback index 1 of up to 3 in
 ## DesktopConsequenceCoordinator's own departure publication plan (causal_sequence, action_source,
 ## optional board_fate), so releasing here left board-fate publish and terminal cleanup running
@@ -526,7 +526,7 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
 
 
-## dwm-p2r.13 remediation (finding 3): the fourth frozen recovery-method addition, called by
+## dwm-p2r.35.7 remediation (finding 3): the fourth frozen recovery-method addition, called by
 ## DesktopConsequenceCoordinator._resume_forward() only AFTER terminal cleanup succeeds -- see that
 ## method's own doc comment for why the release moved out of publish_recovery_action(). Idempotent
 ## no-op when no token is held (a resume_pending()-driven forward recovery in a fresh process never

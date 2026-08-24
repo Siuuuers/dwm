@@ -3,7 +3,7 @@ extends "res://addons/gut/test.gd"
 # (Plan 02 Task 6, dwm-p2r.32). Controller ruling: this file is listed as Modify in the brief but
 # did not exist on this branch -- created here per that ruling.
 #
-# dwm-p2r.13 remediation (finding A-C3): extended for the keyed-records document, occupied-slot
+# dwm-p2r.35.3 remediation (finding A-C3): extended for the keyed-records document, occupied-slot
 # conflict law, receipt-attached stored candidate, and the new read_pending_consequence_checkpoint()
 # reader -- see SaveManagerCheckpointPort.gd's own updated doc comments for the frozen-law citations.
 
@@ -72,7 +72,7 @@ func _admitted_state_candidate(transaction_id: String = "txn-1", run_revision_ma
 	assert_true(reserved.get("ok", false), JSON.stringify(reserved))
 	return reserved["value"]["candidate"]["state_after"]
 
-## dwm-p2r.13 remediation (finding 1): a pre-admission (action_prepared) candidate -- the shape the
+## dwm-p2r.35.7 remediation (finding 1): a pre-admission (action_prepared) candidate -- the shape the
 ## source participant's own ordinal-0 checkpoint carries, mirroring _admitted_state_candidate()'s own
 ## pattern but stopping before prepare_sequence_reservation() (i.e. before admission).
 func _pre_admission_state_candidate(transaction_id: String = "txn-1") -> Dictionary:
@@ -118,7 +118,7 @@ func test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt() -> voi
 	assert_false(FileAccess.file_exists(str(wired["root"]).path_join("desktop-consequence-checkpoint.json")))
 
 
-## dwm-p2r.13 remediation (finding A-C3, fix 2): the candidate prepare_consequence_checkpoint() builds
+## dwm-p2r.35.3 remediation (finding A-C3, fix 2): the candidate prepare_consequence_checkpoint() builds
 ## carries the just-minted receipt attached to BOTH pending.checkpoint_receipt and
 ## pending.admission_checkpoint_receipt (this is the admission ordinal: both were null on the input),
 ## unlike the raw un-patched input -- the exact shape that makes the durable record loadable.
@@ -176,7 +176,7 @@ func test_commit_consequence_checkpoint_rejects_a_receipt_mismatch() -> void:
 	assert_false(FileAccess.file_exists(disk_path), "a rejected commit never writes to disk")
 
 
-## dwm-p2r.13 remediation (finding A-C3): real occupied-slot conflict law. An identical-bytes rewrite
+## dwm-p2r.35.3 remediation (finding A-C3): real occupied-slot conflict law. An identical-bytes rewrite
 ## at an occupied (transaction_id, operation_ordinal) slot replays as success with no duplicate
 ## record; a changed-bytes rewrite at the same slot returns the frozen consequence_checkpoint_conflict
 ## and leaves the durable record untouched.
@@ -255,7 +255,7 @@ func test_a_committed_admission_checkpoint_reads_back_and_validates() -> void:
 	assert_true(validated.get("ok", false), "the durable admission checkpoint must load and validate: " + JSON.stringify(validated))
 
 
-## dwm-p2r.13 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- marks the durable
+## dwm-p2r.35.7 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- marks the durable
 ## unpromoted ordinal-0 checkpoint abandoned, and proves read_pending_consequence_checkpoint() no
 ## longer reports it as still-pending (the exact mechanism that stops
 ## adopt_durable_checkpoint_if_live_is_behind() from re-adopting an abandoned transaction on every
@@ -346,7 +346,7 @@ func test_checkpoint_content_preimage_is_the_sole_builder() -> void:
 	assert_eq(str(prepared["value"]["checkpoint_receipt"]["content_sha256"]), expected_hash)
 
 
-## dwm-p2r.13 remediation (finding A-C3): ordinal/stage cross-validation is now centralized in
+## dwm-p2r.35.3 remediation (finding A-C3): ordinal/stage cross-validation is now centralized in
 ## prepare_consequence_checkpoint() (DesktopConsequenceState.validate_checkpoint_ordinal_stage()), so
 ## it fires for EVERY checkpoint author -- not only DesktopConsequenceCoordinator's own two directly-
 ## authored ordinals. Ordinal 0 (the source participant's own pre-admission checkpoint) must pair with

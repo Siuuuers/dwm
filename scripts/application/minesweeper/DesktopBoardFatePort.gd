@@ -46,7 +46,7 @@ extends RefCounted
 ## across one departure's whole prepare-to-publish span, so only one departure is ever in flight --
 ## and is called out here rather than papered over.
 ##
-## dwm-p2r.13 remediation (finding 3), CONFIRMED rather than corrected: this paragraph's own
+## dwm-p2r.35.7 remediation (finding 3), CONFIRMED rather than corrected: this paragraph's own
 ## "prepare-to-publish span" assumption was, until this remediation, silently violated by both
 ## action sources' `publish_recovery_action()` (each released the lease immediately after its own
 ## callback -- index 1 of up to 3 -- leaving THIS port's board-fate publish and the coordinator's
@@ -388,7 +388,7 @@ func _check_pre_state(request: Dictionary, live: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-## FIX (dwm-p2r.13 remediation, finding W2): commit()'s own pre-state guard, distinct from prepare's
+## FIX (dwm-p2r.35.2 remediation, finding W2): commit()'s own pre-state guard, distinct from prepare's
 ## `_check_pre_state()`. For a `minesweeper_round`-sourced projected departure, `expected_board_
 ## identity`/`expected_board_revision` name the board's PRE-completion state -- captured by
 ## `DesktopConsequenceCoordinator` before the round's own forward-recovery commit runs. Forward

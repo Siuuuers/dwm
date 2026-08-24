@@ -78,7 +78,7 @@ const _RECOVERY_PAYLOAD_KEYS_ACTION: Array[String] = [
 const _RECOVERY_PAYLOAD_KEYS_SCHEDULE: Array[String] = [
 	"source_kind", "schedule_header", "run_revision_before", "participant_snapshot_ids",
 ]
-## dwm-p2r.13 remediation (finding 4): the shape `DesktopConsequenceCoordinator
+## dwm-p2r.35.7 remediation (finding 4): the shape `DesktopConsequenceCoordinator
 ## ._build_admission_ready_payload()` actually writes into `pending.recovery_payload` from ordinal 1
 ## onward -- the frozen 17-key admission-ready shape (plan02-frozen-contracts.md lines 344-363) plus
 ## that coordinator's own documented 4 free-form additions (`causal_sequence_reservation_request`,
@@ -198,12 +198,12 @@ static func _validate_impl(state: Dictionary, allow_pending_admission: bool) -> 
 ## Action sources (minesweeper_round, shop_purchase) freeze one already-produced source commit
 ## receipt at the pre-admission `payload_phase="source_checkpoint"` shape (this class's own ordinal-0
 ## shape, predating its later payload_phase convention -- the field is simply absent rather than
-## literally "source_checkpoint", see the dwm-p2r.13 remediation note below); schedule_done freezes
+## literally "source_checkpoint", see the dwm-p2r.35.7 remediation note below); schedule_done freezes
 ## the Schedule transport header instead (brief line 249: "already-prepared_checkpointed for
 ## Schedule"). Both bind `expected_sha256` -- the canonical hash the pending record and every later
 ## recovery-advance preimage anchors to -- so progress can never silently mutate the frozen payload.
 ##
-## dwm-p2r.13 remediation (finding 4): added the `payload_phase="admission_ready"` branch. Before
+## dwm-p2r.35.7 remediation (finding 4): added the `payload_phase="admission_ready"` branch. Before
 ## this fix, this public static validator enforced ONLY the 4-key pre-admission shape, even though
 ## `DesktopConsequenceCoordinator.accept_prepared_action()` overwrites `pending.recovery_payload` with
 ## a richer admission-ready payload at ordinal 1 and every stage after -- so this validator rejected
@@ -576,7 +576,7 @@ static func _operation_ordinal(source_kind: String, expected_stage: StringName, 
 	return 0
 
 
-## dwm-p2r.13 remediation (finding 5): plan02-frozen-contracts.md line 319's own closing rule --
+## dwm-p2r.35.7 remediation (finding 5): plan02-frozen-contracts.md line 319's own closing rule --
 ## "a plan-hash mismatch... reject" -- enforced here, the one place both the live pending's own
 ## admitted `publication_plan_sha256` (inside `recovery_payload`, frozen at ordinal 1 and immutable
 ## thereafter) and a caller-supplied `publication_progress.publication_plan_sha256` are both in scope
@@ -597,7 +597,7 @@ static func _check_publication_plan_hash(pending: Dictionary, progress: Dictiona
 	return {"ok": true}
 
 
-## dwm-p2r.13 remediation (finding A-C3): the same frozen ordinal<->stage pairing above, reachable as
+## dwm-p2r.35.3 remediation (finding A-C3): the same frozen ordinal<->stage pairing above, reachable as
 ## a cross-check for every checkpoint AUTHOR, not just this class's own `prepare_recovery_advance()`
 ## edges. Ordinal 0 is the action source participant's own durable pre-admission checkpoint
 ## (`MinesweeperRoundCoordinator.complete_round()` / `MinesweeperShopPurchaseParticipant
@@ -860,7 +860,7 @@ func _validate_causal_sequence_receipt(receipt: Dictionary, request: Dictionary,
 	return {"ok": true}
 
 
-## dwm-p2r.13 remediation (finding 5): adopts the frozen shape (plan02-frozen-contracts.md lines
+## dwm-p2r.35.7 remediation (finding 5): adopts the frozen shape (plan02-frozen-contracts.md lines
 ## 311-317) exactly -- `{publication_plan_sha256, callback_ids, next_callback_index,
 ## callback_receipts}` -- replacing the previous local `{cursor, complete, callback_receipts}` shape,
 ## which carried neither the plan hash nor the callback id list and therefore could never be checked

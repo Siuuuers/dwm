@@ -91,7 +91,7 @@ func _wired() -> Dictionary:
 	identity_context["causal_day_instance"] = str(day_receipt["token"])
 
 	var gate := ApplicationMutationGate.new()
-	# FIX (dwm-p2r.13 remediation, finding W1): the REAL DesktopPublicationLedger, not a hand-rolled
+	# FIX (dwm-p2r.35.1 remediation, finding W1): the REAL DesktopPublicationLedger, not a hand-rolled
 	# fake -- the fake this file used to build here accepted ANY kind/shape uniformly, which is
 	# exactly why W1 (three of four production publishers could not talk to the production ledger)
 	# was invisible to this suite. Wired over a real JsonFileStorage/FakeFileOps pair, matching the
@@ -220,7 +220,7 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	for record: Dictionary in records.values():
 		kinds.append(str(record["kind"]))
 	kinds.sort()
-	# FIX (dwm-p2r.13 remediation, finding W1): the real ledger's closed kind union is
+	# FIX (dwm-p2r.35.1 remediation, finding W1): the real ledger's closed kind union is
 	# causal_sequence|action_source|board_fate -- a no-departure completion publishes exactly the
 	# first two, proving both the causal-sequence port AND the round coordinator's action-source
 	# publish() now speak the ledger's real kind/shape (they always sent the correct frozen shape;
@@ -235,7 +235,7 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	assert_eq(replay, result, "a duplicate replay returns the identical result")
 
 
-## FIX (dwm-p2r.13 remediation, finding W2): a minesweeper_round completion whose condition policy
+## FIX (dwm-p2r.35.2 remediation, finding W2): a minesweeper_round completion whose condition policy
 ## requests a departure. DesktopConsequenceCoordinator._build_projected_board_candidate() builds this
 ## departure's board_candidate from action_candidate.board_projection -- the round's OWN
 ## already-NONE post-completion projection -- and forward recovery then commits the action source
@@ -344,7 +344,7 @@ func test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_rel
 
 	# The gate tracks only the OWNER ROLE ("causal_transaction"), not which caller holds it, so
 	# complete_round() sees the role already active and does not attempt its own acquire() -- it
-	# proceeds to recognize the durable pending record. dwm-p2r.13 remediation (findings 1/2): this
+	# proceeds to recognize the durable pending record. dwm-p2r.35.7 remediation (findings 1/2): this
 	# coordinator now checks for an existing pending record itself (mirroring
 	# MinesweeperShopPurchaseParticipant.prepare_purchase()'s own established
 	# "...requires_no_other_pending_transaction" convention) BEFORE reaching prepare_action_handoff()

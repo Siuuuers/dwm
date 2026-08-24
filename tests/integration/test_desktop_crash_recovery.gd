@@ -225,7 +225,7 @@ func test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload() ->
 	var process := _boot_process(_shared_root)
 	var ledger: Object = (process["bootstrap"] as Node).get("_retained_desktop_publication_ledger")
 	assert_true(ledger is DESKTOP_PUBLICATION_LEDGER)
-	# FIX (dwm-p2r.13 remediation, finding W1): the ledger's closed kind union is exactly
+	# FIX (dwm-p2r.35.1 remediation, finding W1): the ledger's closed kind union is exactly
 	# ["causal_sequence", "action_source", "board_fate"] (plan02-frozen-contracts.md line 328) --
 	# read directly from the as-built KINDS constant, not the causal reservation's own disjoint
 	# minesweeper_round|shop_purchase|schedule_done union a prior implementation reused here by

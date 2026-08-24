@@ -28,7 +28,7 @@ var committed: Dictionary = {}
 var commit_log: Array[Dictionary] = []
 var fail_next_commit := false
 var fail_next_prepare := false
-## dwm-p2r.13 remediation (finding 1): mirrors SaveManagerCheckpointPort's own abandoned-set --
+## dwm-p2r.35.7 remediation (finding 1): mirrors SaveManagerCheckpointPort's own abandoned-set --
 ## transaction_id -> true, disjoint from `committed`.
 var abandoned: Dictionary = {}
 
@@ -51,7 +51,7 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 		"content_sha256": content_sha256,
 		"checkpoint_id": checkpoint_id,
 	}
-	# dwm-p2r.13 remediation (finding A-C3): mirrors SaveManagerCheckpointPort's own fix -- the stored
+	# dwm-p2r.35.3 remediation (finding A-C3): mirrors SaveManagerCheckpointPort's own fix -- the stored
 	# candidate carries the just-minted receipt attached to its pending record (both fields at
 	# admission; only checkpoint_receipt at a later forward/progress operation) rather than the raw,
 	# receipt-free input, so a stored candidate here stays loadable by DesktopConsequenceState.validate()
@@ -91,7 +91,7 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		"receipt": checkpoint_receipt.duplicate(true)}
 
 
-## dwm-p2r.13 remediation (finding 1): abandonment mirrors SaveManagerCheckpointPort's own
+## dwm-p2r.35.7 remediation (finding 1): abandonment mirrors SaveManagerCheckpointPort's own
 ## abandon_pending_consequence_checkpoint() -- requires an existing pre-admission record, idempotent
 ## on replay, marks the transaction_id rather than writing a new committed record.
 func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionary:
@@ -115,7 +115,7 @@ func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionar
 	return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": false}, "receipt": {}}
 
 
-## dwm-p2r.13 remediation (finding A-C3): mirrors SaveManagerCheckpointPort.
+## dwm-p2r.35.3 remediation (finding A-C3): mirrors SaveManagerCheckpointPort.
 ## read_pending_consequence_checkpoint()'s own logic -- keep only each transaction_id's highest-
 ## ordinal committed record, then return the one (there should be at most one, under the exclusive
 ## `causal_transaction` gate) whose stage_candidate.pending is still nonnull.

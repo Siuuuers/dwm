@@ -19,14 +19,14 @@ const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/Desktop
 ## RunSnapshot lifecycle, while this owns only the narrow consequence-admission compare-and-swap
 ## point (brief line 249's "final compare-and-swap/admission point shared by every source kind").
 const CONSEQUENCE_CHECKPOINT_RELATIVE_PATH := "desktop-consequence-checkpoint.json"
-## dwm-p2r.13 remediation (finding A-C3): the document is a keyed-records store, one record per
+## dwm-p2r.35.3 remediation (finding A-C3): the document is a keyed-records store, one record per
 ## occupied `(transaction_id, operation_ordinal)` slot -- mirroring this codebase's own established
 ## ledger precedent (`DesktopPublicationLedger`/`ScheduleFoundationPublicationLedger`'s
 ## `{schema_version,records}` shape and read-before-write/atomic-replace discipline) -- rather than
 ## the single fixed-shape document this file previously overwrote on every write, which could never be
 ## addressed by transaction/ordinal and therefore could never support a reader, an occupied-slot
 ## conflict law, or more than one durable checkpoint at a time.
-## dwm-p2r.13 remediation (finding 1): `abandoned` added -- a flat `{transaction_id:true}` set,
+## dwm-p2r.35.7 remediation (finding 1): `abandoned` added -- a flat `{transaction_id:true}` set,
 ## disjoint from `records`, written only by `abandon_pending_consequence_checkpoint()` below. See
 ## that method's own doc comment for why abandonment is a distinct top-level document member rather
 ## than another keyed record: the frozen law it implements explicitly forbids abandonment from
@@ -225,13 +225,13 @@ func rollback(backup: Dictionary) -> Dictionary:
 ## legal builder is `DesktopConsequenceState.checkpoint_content_preimage()`) but writes nothing; only
 ## `commit_consequence_checkpoint()` durably writes.
 ##
-## dwm-p2r.13 remediation (finding A-C3, fix 1 of 2): every checkpoint write is cross-checked against
+## dwm-p2r.35.3 remediation (finding A-C3, fix 1 of 2): every checkpoint write is cross-checked against
 ## the frozen ordinal<->stage law (`DesktopConsequenceState.validate_checkpoint_ordinal_stage()`) here
 ## -- the one place every checkpoint author's write already passes through -- so ordinal 0 and
 ## ordinals 8-12 are guarded exactly as uniformly as `DesktopConsequenceCoordinator`'s own two
 ## directly-authored ordinals (1, 2) already were.
 ##
-## dwm-p2r.13 remediation (finding A-C3, fix 2 of 2): the frozen "sole producer order" (plan02-frozen-
+## dwm-p2r.35.3 remediation (finding A-C3, fix 2 of 2): the frozen "sole producer order" (plan02-frozen-
 ## contracts.md line 479) requires that, for admission, the newly minted receipt is attached to BOTH
 ## `checkpoint_receipt` and `admission_checkpoint_receipt`, and for a later forward/progress operation
 ## it is attached only as the new `checkpoint_receipt` (the admission field is preserved byte-for-
@@ -290,7 +290,7 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 		"checkpoint_receipt": checkpoint_receipt,
 	}}
 
-## dwm-p2r.13 remediation (finding A-C3): real occupied-slot conflict law keyed on
+## dwm-p2r.35.3 remediation (finding A-C3): real occupied-slot conflict law keyed on
 ## `(transaction_id, operation_ordinal)`, read-before-write/atomic-replace over a keyed-records
 ## document -- mirroring `DesktopPublicationLedger`/`ScheduleFoundationPublicationLedger`'s own
 ## established precedent, rather than the single fixed-shape document this method previously
@@ -346,7 +346,7 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		return _fail(&"reread_mismatch", CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
 
-## dwm-p2r.13 remediation (finding 1): plan02-frozen-contracts.md line 2271's "marks only the
+## dwm-p2r.35.7 remediation (finding 1): plan02-frozen-contracts.md line 2271's "marks only the
 ## already-durable unpromoted source checkpoint abandoned through the injected checkpoint port".
 ## Requires an existing durable pre-admission (`action_prepared`/`prepared_checkpointed`) record for
 ## `transaction_id` -- abandonment is not legal for an already-admitted transaction, matching the
@@ -406,7 +406,7 @@ func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionar
 		return _fail(&"reread_mismatch", CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
 	return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": false}}
 
-## dwm-p2r.13 remediation (finding A-C3, "no reader"): the sole reader `desktop-consequence-
+## dwm-p2r.35.3 remediation (finding A-C3, "no reader"): the sole reader `desktop-consequence-
 ## checkpoint.json` has ever had. For every transaction_id present in the durable records, keeps only
 ## its highest-ordinal record (the most-advanced durable truth for that transaction); among those,
 ## returns the one whose `stage_candidate.pending` is still nonnull -- a transaction whose most-
@@ -423,7 +423,7 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 		return loaded
 	var document: Dictionary = (loaded["value"] as Dictionary)["document"]
 	var records: Dictionary = document["records"]
-	# dwm-p2r.13 remediation (finding 1): a transaction_id marked abandoned is never reported as
+	# dwm-p2r.35.7 remediation (finding 1): a transaction_id marked abandoned is never reported as
 	# still-pending -- otherwise adopt_durable_checkpoint_if_live_is_behind() would re-adopt the exact
 	# transaction accept_prepared_action() just abandoned on every subsequent boot.
 	var abandoned: Dictionary = document.get("abandoned", {})

@@ -47,7 +47,7 @@ extends RefCounted
 ## and the one candidate/hash pair every payload_phase=admission_ready payload needs regardless of
 ## departure/no-departure, matching that law exactly.
 ##
-## KNOWN GAP, LEFT OPEN AND FLAGGED (dwm-p2r.13 remediation, finding A-C3 review note; not fixed by
+## KNOWN GAP, LEFT OPEN AND FLAGGED (dwm-p2r.35.3 remediation, finding A-C3 review note; not fixed by
 ## this remediation -- see that finding's own writeup for why): `DesktopConsequenceState.pending
 ## .participant_receipts` is threaded through every `prepare_recovery_advance()` call in this file
 ## (`_advance_to_publication_pending()`, `_advance_publication_progress()`, `_terminal_cleanup()`) but
@@ -76,7 +76,7 @@ const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.g
 
 const _GATE_OWNER := &"causal_transaction"
 const _ACTION_SOURCE_KINDS: Array[String] = ["minesweeper_round", "shop_purchase"]
-## dwm-p2r.13 remediation (finding 3): added `release_recovery_lease` -- see _resume_forward()'s own
+## dwm-p2r.35.7 remediation (finding 3): added `release_recovery_lease` -- see _resume_forward()'s own
 ## doc comment on why the causal_transaction release moved out of publish_recovery_action() and into
 ## this fourth, coordinator-driven method.
 const _SOURCE_RECOVERY_METHODS: Array[String] = [
@@ -257,7 +257,7 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 		return _fail(&"causal_transaction_lease_required",
 			"accept_prepared_action requires the source participant to already hold the causal_transaction lease", {})
 
-	# dwm-p2r.13 remediation (finding 1): moved after receipt validation/transaction_id extraction
+	# dwm-p2r.35.7 remediation (finding 1): moved after receipt validation/transaction_id extraction
 	# (was checked first, before this coordinator had any idea which transaction it was even
 	# targeting) so pre-admission abandonment (plan02-frozen-contracts.md line 2271) can target only
 	# the matching pending transaction, never a blind global abandon. See _abandon_pre_admission()'s
@@ -303,7 +303,7 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 	return result
 
 
-## dwm-p2r.13 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- "Until Plan 03 injects
+## dwm-p2r.35.7 remediation (finding 1): plan02-frozen-contracts.md line 2271 -- "Until Plan 03 injects
 ## its real condition policy and sole ScheduleView/route composition, a merely pre-admission
 ## accept_prepared_action() returns condition_departure_ports_unconfigured before causal admission,
 ## marks only the already-durable unpromoted source checkpoint abandoned through the injected
@@ -614,7 +614,7 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	if not cleaned.get("ok", false):
 		return cleaned
 
-	# dwm-p2r.13 remediation (finding 3): release causal_transaction HERE -- after terminal cleanup,
+	# dwm-p2r.35.7 remediation (finding 3): release causal_transaction HERE -- after terminal cleanup,
 	# not inside the action_source publish callback (index 1 of up to 3) -- so board-fate publish and
 	# terminal cleanup itself both run under the still-active lease, matching DesktopBoardFatePort's
 	# own class-doc invariant that the coordinator holds this lease across one departure's whole
@@ -646,7 +646,7 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 
 func _advance_to_publication_pending(transaction_id: String, pending_dict: Dictionary,
 		destination_intent: Variant, notification_intent: Variant) -> Dictionary:
-	# dwm-p2r.13 remediation (finding 5): the frozen shape (plan02-frozen-contracts.md lines 311-317)
+	# dwm-p2r.35.7 remediation (finding 5): the frozen shape (plan02-frozen-contracts.md lines 311-317)
 	# carries its own admitted publication_plan_sha256/callback_ids -- both already durable inside
 	# recovery_payload since ordinal 1, never recomputed here.
 	var recovery_payload: Dictionary = pending_dict["recovery_payload"]
@@ -736,7 +736,7 @@ func _advance_publication_progress(transaction_id: String, callback_id: String, 
 	var callback_receipts: Dictionary = (progress["callback_receipts"] as Dictionary).duplicate(true)
 	callback_receipts[callback_id] = {"callback_id": callback_id, "source_receipt": source_receipt, "disposition": disposition}
 	var next_index: int = int(progress["next_callback_index"]) + 1
-	# dwm-p2r.13 remediation (finding 5): the frozen shape carries no "complete" member of its own --
+	# dwm-p2r.35.7 remediation (finding 5): the frozen shape carries no "complete" member of its own --
 	# completeness is derived (next_callback_index >= callback_ids.size()) wherever needed, not stored.
 	var new_progress := {
 		"publication_plan_sha256": str(progress["publication_plan_sha256"]),
@@ -798,7 +798,7 @@ const _STAGE_RANK: Dictionary = {
 	"action_prepared": 0, "prepared_checkpointed": 0, "sequence_committed": 1, "publication_pending": 2,
 }
 
-## dwm-p2r.13 remediation (finding A-C3, "no reader"): the durable admission checkpoint
+## dwm-p2r.35.3 remediation (finding A-C3, "no reader"): the durable admission checkpoint
 ## (SaveManagerCheckpointPort's desktop-consequence-checkpoint.json) is the ONLY thing guaranteed
 ## durable at the exact moment a source-kind transaction is admitted -- "the admission checkpoint is
 ## now durable on disk... From here forward this coordinator never rewinds" (DesktopCausalSequencePort
@@ -877,7 +877,7 @@ func resume_pending() -> Dictionary:
 	var source_kind := str(pending_dict["source_kind"])
 	if source_kind not in _ACTION_SOURCE_KINDS:
 		return {"ok": true, "code": &"ok", "value": {"resumed": false}, "receipt": {}}
-	# dwm-p2r.13 remediation (finding 1): a restored pre-admission pending (stage="action_prepared")
+	# dwm-p2r.35.7 remediation (finding 1): a restored pre-admission pending (stage="action_prepared")
 	# previously hard-FAILED resume_pending() here -- and since ApplicationBootstrap propagates that
 	# failure straight out of _configure_desktop_production_graph() (autoload/ApplicationBootstrap.gd,
 	# _configure_desktop_production_graph()'s own `if not resumed.get("ok", false): return resumed`),
@@ -1033,7 +1033,7 @@ func _validate_intent_pairing(is_departure: bool, destination_intent: Variant, n
 	return {"ok": true}
 
 
-## IMPORTANT 3 (Review-fix pass) -- CORRECTED (dwm-p2r.13 remediation, finding A-C3): this comment
+## IMPORTANT 3 (Review-fix pass) -- CORRECTED (dwm-p2r.35.3 remediation, finding A-C3): this comment
 ## previously justified leaving ordinal 0 (authored by the two source participants,
 ## MinesweeperRoundCoordinator/MinesweeperShopPurchaseParticipant) and ordinals 8-12 (authored by
 ## DesktopConsequenceState.prepare_recovery_advance(), reached only through this file's own

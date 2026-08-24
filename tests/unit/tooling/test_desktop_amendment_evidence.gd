@@ -30,9 +30,12 @@ const CURATED_LOGS := "res://evidence/phase_2r/logs/"
 ## down here so a parser that silently reverted to hardcoding zero -- the defect this suite
 ## exists to keep dead -- has something to contradict.
 const EXPECTED_LOG_OUTCOMES := {
-	"p2r9-bootstrap-regression.log": {"exit_code": 0, "tests": 190, "passing_tests": 190, "failing_tests": 0},
-	"p2r9-bootstrap-wiring-check.log": {"exit_code": 1, "tests": 18, "passing_tests": 0, "failing_tests": 18},
-	"p2r9-bootstrap-wiring-check3.log": {"exit_code": 0, "tests": 18, "passing_tests": 18, "failing_tests": 0},
+	"p2r9-bootstrap-regression.log": {"exit_code": 0, "tests": 190, "passing_tests": 190,
+		"failing_tests": 0, "passing_asserts": 1891, "total_asserts": 1891},
+	"p2r9-bootstrap-wiring-check.log": {"exit_code": 1, "tests": 18, "passing_tests": 0,
+		"failing_tests": 18, "passing_asserts": 100, "total_asserts": 125},
+	"p2r9-bootstrap-wiring-check3.log": {"exit_code": 0, "tests": 18, "passing_tests": 18,
+		"failing_tests": 0, "passing_asserts": 272, "total_asserts": 272},
 }
 
 ## A real, already-committed commit on this branch that does NOT carry the frozen amendment
@@ -142,12 +145,16 @@ func test_generator_rejects_mixed_missing_duplicate_and_extra_flags() -> void:
 # real recorded subject_commit
 # -------------------------------------------------------------------------------------------------
 
+## Fail-closed on a missing document (dwm-p2r.36, review M-5): this test and the law/schema one
+## below used to pending() when a published document was absent, so deleting a sealed document
+## left them green. Both documents have been sealed since 6bb2c5b83; absence is a failure now.
 func test_published_documents_bind_the_frozen_subject_and_recompute_byte_equal() -> void:
 	for evidence: Script in [DESKTOP_EVIDENCE, MINESWEEPER_EVIDENCE]:
 		var published: Dictionary = _published(evidence)
+		assert_false(published.is_empty(),
+			"%s is published; a deleted sealed document is a failure, not a pending" % evidence.ARTIFACT_PATH)
 		if published.is_empty():
-			pending("evidence/phase_2r/contracts/... not yet generated (Step 9.5 has not run this session)")
-			return
+			continue
 		assert_eq(str(published["subject_commit_subject"]), evidence.SUBJECT_COMMIT_SUBJECT)
 		var subject_commit: String = str(published["subject_commit"])
 		assert_true(GIT_PLUMBING.is_commit_id(subject_commit))
@@ -165,9 +172,10 @@ func test_published_documents_bind_the_frozen_subject_and_recompute_byte_equal()
 func test_published_documents_pass_law_and_schema_validation() -> void:
 	for evidence: Script in [DESKTOP_EVIDENCE, MINESWEEPER_EVIDENCE]:
 		var published: Dictionary = _published(evidence)
+		assert_false(published.is_empty(),
+			"%s is published; a deleted sealed document is a failure, not a pending" % evidence.ARTIFACT_PATH)
 		if published.is_empty():
-			pending("evidence/phase_2r/contracts/... not yet generated")
-			return
+			continue
 		var validated: Dictionary = evidence.validate(published, _repository_root())
 		assert_true(validated.get("ok", false), JSON.stringify(validated))
 
@@ -440,3 +448,84 @@ func test_the_record_builder_carries_each_bound_log_s_parsed_exit_code_from_the_
 		assert_eq(int(record["exit_code"]),
 			int((EXPECTED_LOG_OUTCOMES[name] as Dictionary)["exit_code"]),
 			"%s carries its own parsed exit code" % name)
+
+
+# -------------------------------------------------------------------------------------------------
+# dwm-p2r.36 -- amendment evidence must not self-certify its literals (2026-08-24 fresh-review
+# findings I-3/Q4, M-1, M-4). validate_law() compares every non-source field against the builder's
+# own hand-written literal, so builder and published document were only ever held consistent WITH
+# EACH OTHER; before the dwm-p2r.35.5 re-seal both carried "desktop_contract_ready" long after the
+# live probe renamed that field, and the suite stayed green about a literal that was false about
+# production. Everything below binds a literal to something live, or a parsed outcome to the line
+# GUT actually exits on.
+# -------------------------------------------------------------------------------------------------
+
+## I-3/Q4: the one binding from the builder's field_keys literal to the live production probe --
+## the keys ApplicationBootstrap._desktop_amendment_probe_fields() actually returns, in
+## declaration order. A bare instance is the real production script (never added to the tree, so
+## _ready() cannot fire and _target() lawfully resolves nothing); the KEY SET is declared by the
+## return literal itself, independent of what the retained members hold. If the probe is renamed
+## again, this fails even when test_desktop_bootstrap_wiring.gd's direct indexing is edited in the
+## same sweep.
+func test_the_builder_field_keys_literal_equals_the_live_bootstrap_probe_field_list() -> void:
+	var bootstrap: Node = load("res://autoload/ApplicationBootstrap.gd").new()
+	autofree(bootstrap)
+	var live: Dictionary = bootstrap._desktop_amendment_probe_fields()
+	assert_eq(Array((DESKTOP_EVIDENCE._bootstrap_probe() as Dictionary)["field_keys"]), live.keys(),
+		"the builder's field_keys literal is the live probe's own key list, in declaration order")
+
+
+## M-1, the narrow false-zero the review found: before_all/after_all assert failures produce a
+## slashed Asserts line and a nonzero GUT exit but ZERO Failing Tests; alongside a pending
+## (passing < tests with a non-all-passed verdict) the old parser called that consistent and
+## minted exit_code 0. The totals block below mirrors GUT's real shape for exactly that run.
+func test_the_gut_parser_reads_the_asserts_line_gut_actually_exits_on() -> void:
+	var log_text: String = "\n".join(PackedStringArray([
+		"==============================================",
+		"= Run Summary",
+		"==============================================",
+		"",
+		"Totals",
+		"------",
+		"Scripts               1",
+		"Tests                18",
+		"Passing Tests        17",
+		"Risky/Pending         1",
+		"Asserts           250/272",
+		"Orphans              24",
+		"Time              4.299s",
+		"",
+		"",
+		"---- 1 pending/risky tests. ----",
+		"",
+	]))
+	var parsed: Dictionary = GIT_PLUMBING.parse_gut_log_exit_code(log_text.to_utf8_buffer())
+	assert_true(parsed.get("ok", false), JSON.stringify(parsed))
+	assert_eq(int((parsed.get("value", {}) as Dictionary).get("exit_code", -1)), 1,
+		"failing asserts with zero failing tests is a run GUT exited 1 on, never a lawful zero")
+
+
+## M-1's forgery half: an all-passed verdict pasted over a slashed Asserts line must be refused,
+## exactly as the failing-Totals forgery above it already is.
+func test_the_gut_parser_refuses_an_all_passed_verdict_over_failing_asserts() -> void:
+	var green: String = FileAccess.get_file_as_bytes(
+		CURATED_LOGS + "p2r9-bootstrap-wiring-check3.log").get_string_from_utf8()
+	var forged: String = green.replace("Asserts             272", "Asserts           270/272")
+	assert_ne(forged, green, "the fixture's Asserts line was actually replaced")
+	var parsed: Dictionary = GIT_PLUMBING.parse_gut_log_exit_code(forged.to_utf8_buffer())
+	assert_false(parsed.get("ok", false))
+	assert_eq(parsed.get("code"), &"red_green_log_inconsistent")
+
+
+## M-4: the same log used to carry two suite_id spellings -- p2r9_bootstrap_wiring_check3 in
+## test_log_bindings, p2r9-bootstrap-wiring-check3 in red_green_command_records -- and nothing
+## reconciled them. One rule now, the one build_red_green_command_records() already derives its
+## suite_id by: a suite_id IS its log's file name minus .log.
+func test_every_test_log_binding_suite_id_is_its_log_file_name_minus_the_extension() -> void:
+	var bindings: Array = (DESKTOP_EVIDENCE._bootstrap_probe() as Dictionary)["test_log_bindings"]
+	assert_false(bindings.is_empty(), "the probe declares at least one test-log binding")
+	for entry: Variant in bindings:
+		var binding := entry as Dictionary
+		assert_eq(str(binding["suite_id"]),
+			str(binding["log_path"]).get_file().trim_suffix(".log"),
+			"%s names its suite by the record family's own derivation rule" % str(binding["log_path"]))

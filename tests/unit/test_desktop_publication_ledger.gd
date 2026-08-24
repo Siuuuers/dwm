@@ -5,7 +5,7 @@ extends "res://addons/gut/test.gd"
 # ledger over the REAL JsonFileStorage over a GUID-isolated temporary root. A restart is modelled by
 # rebuilding the whole stack over the same bytes, never by flipping an in-memory flag.
 #
-# FIX (dwm-p2r.13 remediation, finding W1): the ledger's closed kind union is exactly
+# FIX (dwm-p2r.35.1 remediation, finding W1): the ledger's closed kind union is exactly
 # `causal_sequence|action_source|board_fate` (plan02-frozen-contracts.md line 328), each with its OWN
 # publication shape (line 335) -- NOT the causal reservation's own `minesweeper_round|shop_purchase|
 # schedule_done` union a prior implementation/test pair reused here uniformly. This file's fixtures
@@ -194,7 +194,7 @@ func test_document_and_record_union_is_exact_after_one_publication() -> void:
 	assert_eq(document_keys, ["records", "schema_version"])
 
 
-## Regression guard requested during dwm-p2r.13 remediation review: a hand-rolled test double
+## Regression guard requested during dwm-p2r.35.1 remediation review: a hand-rolled test double
 ## elsewhere in this suite once derived the causal_sequence key's id from the WRONG (absent)
 ## top-level field, silently producing an empty suffix ("causal_sequence:") for every transaction --
 ## which made two DISTINCT transactions collide on the identical key and reject the second as a

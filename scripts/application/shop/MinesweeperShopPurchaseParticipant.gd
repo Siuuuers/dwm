@@ -565,7 +565,7 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 ## observation through the SAME shared `action_source` publication-ledger kind and key convention
 ## `publish()` already established (Ruling B).
 ##
-## dwm-p2r.13 remediation (finding 3): this method used to release the retained `causal_transaction`
+## dwm-p2r.35.7 remediation (finding 3): this method used to release the retained `causal_transaction`
 ## lease here, immediately after recording -- but this is callback index 1 of up to 3 in
 ## DesktopConsequenceCoordinator's own departure publication plan (causal_sequence, action_source,
 ## optional board_fate), so releasing here left board-fate publish and terminal cleanup running
@@ -598,7 +598,7 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
 
 
-## dwm-p2r.13 remediation (finding 3): the fourth frozen recovery-method addition, called by
+## dwm-p2r.35.7 remediation (finding 3): the fourth frozen recovery-method addition, called by
 ## DesktopConsequenceCoordinator._resume_forward() only AFTER terminal cleanup succeeds -- see that
 ## method's own doc comment for why the release moved out of publish_recovery_action(). Idempotent
 ## no-op when no token is held (a resume_pending()-driven forward recovery in a fresh process never

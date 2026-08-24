@@ -254,7 +254,7 @@ func test_prepare_recovery_advance_ordinary_edge_to_publication_pending() -> voi
 		"the checkpoint_receipt still equals the admission receipt until a later advance rotates it")
 
 
-## dwm-p2r.13 remediation (finding 5): plan02-frozen-contracts.md line 319's "a plan-hash
+## dwm-p2r.35.7 remediation (finding 5): plan02-frozen-contracts.md line 319's "a plan-hash
 ## mismatch... reject" rule. Patches the admitted pending's recovery_payload to carry a
 ## publication_plan_sha256 (the admission-ready shape DesktopConsequenceCoordinator actually
 ## produces) directly through the state's own validate()-gated prepare_restore()/commit() seam --
@@ -561,7 +561,7 @@ func _admission_ready_payload(source_kind: String = "minesweeper_round") -> Dict
 	}
 
 
-## dwm-p2r.13 remediation (finding 4): validate_recovery_payload() used to enforce ONLY the 4-key
+## dwm-p2r.35.7 remediation (finding 4): validate_recovery_payload() used to enforce ONLY the 4-key
 ## pre-admission shape -- rejecting the 21-key admission_ready shape DesktopConsequenceCoordinator
 ## ._build_admission_ready_payload() actually writes into pending.recovery_payload from ordinal 1
 ## onward. Proves the fixed discriminated union accepts BOTH phases it must accept and still rejects
