@@ -23,6 +23,15 @@ extends "res://addons/gut/test.gd"
 # would make Step 1.4 GREEN structurally impossible (DECISION 9.6). Shop records carry none of that
 # risk: Step 1.3 populates the manifest, which is why 11.7 can extend the scope safely.
 #
+# RETIRED MODE (dwm-p2r.34, 2026-08-24): the DWM_REQUIRE_CURRENT_P2R16_BOUNDARY=1 current-byte
+# branch this file later gained is GONE. Plan line 851 scopes that invariant to "only through the
+# close of dwm-p2r.9" (closed 2026-08-17), and the plan's `.9` entry gate rules that after closure
+# consumers validate the immutable v1 record against its named commit tree plus ancestry, never
+# against current working-tree bytes -- and that re-pinning v1 hashes to evolved files does not
+# satisfy the gate. The environment value the plan's gate blocks export is therefore a no-op now:
+# those blocks run the same permanent historical validation the default suite runs, and the
+# drift-independence test below pins the retirement against reintroduction.
+#
 # TWO PARSE HAZARDS THIS FILE IS WRITTEN AGAINST:
 #   * DECISION 9.18 -- the 20 new Task-1 scripts are absent from the global class cache under a
 #     headless run, so they are preloaded by path as file-level consts, never referenced by
@@ -123,7 +132,18 @@ const FOCUSED_LOG := "res://evidence/phase_2r/logs/p2r16-identity-catalog-green.
 const LOG_FLAG := "--focused-log=res://evidence/phase_2r/logs/p2r16-identity-catalog-green.log"
 const OUTPUT := "res://evidence/phase_2r/contracts/desktop_identity_issuer_boundary.json"
 const OUTPUT_FLAG := "--output=res://evidence/phase_2r/contracts/desktop_identity_issuer_boundary.json"
-const CURRENT_BOUNDARY_ENV := "DWM_REQUIRE_CURRENT_P2R16_BOUNDARY"
+
+# The seven named-commit source bindings of the v1 record, as field prefixes: each contributes
+# <prefix>_path and <prefix>_sha256 members (plan line 851's exact member set).
+const BOUND_SOURCE_FIELD_PREFIXES := [
+	"issuer",
+	"root_store",
+	"day_advance_identity_port",
+	"operation_journal",
+	"data_catalog",
+	"schedule_registry",
+	"shop_registry",
+]
 
 const ARGUMENT_REJECTIONS := [
 	{"name": "both modes", "args": [COMMIT_FLAG, LOG_FLAG, OUTPUT_FLAG, "--write", "--check"]},
@@ -291,9 +311,10 @@ func test_parse_arguments_rejects_every_malformed_invocation() -> void:
 
 
 # The record is necessarily absent at the preceding code commit and is added by the following
-# evidence commit. Once present, default runs always validate its subject/ancestry, named-commit
-# tree bytes, public surfaces, and focused-log bytes. The exact environment value enables the
-# temporary current-file comparison required at `.9` entry and immediately before `.9` closure.
+# evidence commit. Once present, every run validates its subject/ancestry, named-commit tree
+# bytes, public surfaces, and focused-log bytes -- the permanent law. The temporary current-file
+# comparison the DWM_REQUIRE_CURRENT_P2R16_BOUNDARY=1 environment value used to enable here was
+# retired by dwm-p2r.34 (see the header note), so this validation no longer branches on anything.
 func test_immutable_boundary_record_binds_the_named_commit_tree() -> void:
 	if not FileAccess.file_exists(OUTPUT):
 		pass_test("the immutable record is generated only after the named code commit exists")
@@ -303,14 +324,51 @@ func test_immutable_boundary_record_binds_the_named_commit_tree() -> void:
 		"the immutable boundary record must strict-parse: %s" % str(parsed.get("message", "")))
 	if not parsed.get("ok", false):
 		return
-	var require_current: bool = OS.get_environment(CURRENT_BOUNDARY_ENV) == "1"
 	var validated: Dictionary = GENERATOR.validate_boundary_record(
-		parsed.get("value", {}) as Dictionary,
-		require_current
+		parsed.get("value", {}) as Dictionary
 	)
 	assert_true(validated.get("ok", false),
-		"the immutable boundary must validate (current=%s): %s %s" % [
-			require_current,
+		"the immutable boundary must validate: %s %s" % [
+			str(validated.get("code", &"")),
+			str(validated.get("message", "")),
+		])
+
+
+# THE dwm-p2r.34 RETIREMENT PIN. Bound sources have lawfully evolved since the boundary sealed at
+# 86b125484 (DesktopIdentityNonceIssuer.gd first at b9206a685, DataCatalog.gd at 69cf694e0), so
+# the working tree genuinely diverges from the recorded v1 hashes -- exactly the state the retired
+# current-byte mode rejected with boundary_current_source_hash_mismatch. This test proves the v1
+# record remains valid historical evidence UNDER that real drift, so any reintroduction of a
+# current-working-tree pin inside validate_boundary_record() turns it red. The premise assertion
+# keeps it honest: were every bound source ever byte-identical to v1 again, the drift claim would
+# be vacuous and this test says so loudly instead of passing silently.
+func test_the_record_validates_while_bound_sources_drift_from_the_named_commit_tree() -> void:
+	if not FileAccess.file_exists(OUTPUT):
+		pass_test("the immutable record is generated only after the named code commit exists")
+		return
+	var parsed: Dictionary = StrictJson.parse_object(FileAccess.get_file_as_string(OUTPUT))
+	assert_true(parsed.get("ok", false),
+		"the immutable boundary record must strict-parse: %s" % str(parsed.get("message", "")))
+	if not parsed.get("ok", false):
+		return
+	var record: Dictionary = parsed.get("value", {}) as Dictionary
+	var drifted: PackedStringArray = PackedStringArray()
+	for prefix: String in BOUND_SOURCE_FIELD_PREFIXES:
+		var path: String = str(record.get("%s_path" % prefix, ""))
+		var recorded: String = str(record.get("%s_sha256" % prefix, ""))
+		var current_path: String = "res://" + path
+		assert_true(FileAccess.file_exists(current_path),
+			"%s must exist in the working tree" % path)
+		if not FileAccess.file_exists(current_path):
+			continue
+		if _sha256_of_bytes(FileAccess.get_file_as_bytes(current_path)) != recorded:
+			drifted.append(path)
+	assert_gt(drifted.size(), 0,
+		"at least one bound source must have lawfully evolved past the sealed v1 bytes; " +
+		"if none has, this retirement pin is vacuous and needs a new premise")
+	var validated: Dictionary = GENERATOR.validate_boundary_record(record)
+	assert_true(validated.get("ok", false),
+		"the v1 record must remain valid historical evidence under working-tree drift: %s %s" % [
 			str(validated.get("code", &"")),
 			str(validated.get("message", "")),
 		])
@@ -409,4 +467,11 @@ func _sha256_of(text: String) -> String:
 	var context: HashingContext = HashingContext.new()
 	context.start(HashingContext.HASH_SHA256)
 	context.update(text.to_utf8_buffer())
+	return context.finish().hex_encode()
+
+
+func _sha256_of_bytes(bytes: PackedByteArray) -> String:
+	var context: HashingContext = HashingContext.new()
+	context.start(HashingContext.HASH_SHA256)
+	context.update(bytes)
 	return context.finish().hex_encode()

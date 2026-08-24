@@ -240,15 +240,26 @@ static func build_boundary_record(boundary_commit: String, focused_log: String) 
 			return parsed_surface
 		var preimage: String = str((parsed_surface.get("value", {}) as Dictionary).get("preimage", ""))
 		record[str(binding["field"])] = _digest(preimage)
-	var valid: Dictionary = validate_boundary_record(record, false)
+	var valid: Dictionary = validate_boundary_record(record)
 	if not valid.get("ok", false):
 		return valid
 	return _ok({"record": record})
 
 
-## Permanent verifier used by the default boundary test. With require_current=true it additionally
-## enforces the temporary current-working-tree invariant required at `.9` entry and close.
-static func validate_boundary_record(record: Dictionary, require_current: bool) -> Dictionary:
+## Permanent verifier used by the boundary test: member set, frozen owner/subject, commit ancestry,
+## named-commit tree bytes, public surfaces, and focused-log bytes.
+##
+## RETIRED MODE (dwm-p2r.34, 2026-08-24). This function used to take a require_current flag whose
+## true branch additionally pinned every bound source's CURRENT working-tree bytes to the recorded
+## v1 hashes -- the temporary handoff invariant plan line 851 scopes to "only through the close of
+## dwm-p2r.9". dwm-p2r.9 closed 2026-08-17 and bound sources have since lawfully evolved
+## (DesktopIdentityNonceIssuer.gd first at b9206a685, DataCatalog.gd at 69cf694e0), so per the
+## plan's own `.9` entry-gate law ("After closure, consumers validate the immutable v1 record
+## against its named commit tree plus ancestry, not against current working-tree bytes" -- and
+## re-pinning v1 to evolved files is explicitly forbidden) the mode is retired, superseded by the
+## historical checks below. The DWM_REQUIRE_CURRENT_P2R16_BOUNDARY environment value the plan's
+## gate blocks still export is now a no-op: those blocks validate the same permanent law.
+static func validate_boundary_record(record: Dictionary) -> Dictionary:
 	var keys: Array = record.keys()
 	keys.sort()
 	if keys != _RECORD_KEYS:
@@ -285,13 +296,6 @@ static func validate_boundary_record(record: Dictionary, require_current: bool) 
 				!= str(record[str(binding["hash_field"])]):
 			return _fail(&"boundary_source_hash_mismatch", "a named-commit source hash differs",
 				{"path": path})
-		if require_current:
-			var current_path: String = "res://" + path
-			if not FileAccess.file_exists(current_path) \
-					or _digest_bytes(FileAccess.get_file_as_bytes(current_path)) \
-						!= str(record[str(binding["hash_field"])]):
-				return _fail(&"boundary_current_source_hash_mismatch",
-					"the temporary current-file invariant differs", {"path": path})
 	for binding: Dictionary in _SURFACE_BINDINGS:
 		var path: String = str(binding["path"])
 		var parsed_surface: Dictionary = parse_public_surface(str(source_texts[path]))
