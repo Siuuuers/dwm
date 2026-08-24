@@ -352,10 +352,19 @@ static func _read_budget_manifest() -> Dictionary:
 ## `search_operation_budget + reserved_fallback_operation_budget`. It does NOT independently
 ## recompute `slice_operation_budget`/`search_operation_budget`/`reserved_fallback_operation_budget`
 ## from the rows -- those formulas (percentile/power-of-two math over the benchmark corpus) live
-## only in the offline `tools/minesweeper/BenchmarkMinesweeperGenerator.gd`, which this runtime
-## adapter has no dependency on (import or literal constant), per this file's own class-level doc
-## and its static source-text scan in `test_minesweeper_generator_artifacts.gd`. Nor does it
-## recompute `benchmark_corpus_sha256` from the rows: a hand-edited row is undetectable by this
+## only in the offline `tools/minesweeper/BenchmarkMinesweeperGenerator.gd`. This adapter does not
+## import or otherwise depend on that tool -- every `preload()` at the top of this file names a
+## `scripts/` sibling, and the only mention of the tool anywhere in here is this sentence's own
+## prose -- but that is an UNGUARDED FACT, not a proven one: no test asserts it. The two static
+## scans that do exist in `tests/unit/tooling/test_minesweeper_generator_artifacts.gd` cover
+## NEIGHBOURING claims. `test_runtime_generator_never_imports_tooling_limits_or_the_raw_ceiling_literal`
+## scans this file for the tools-only per-request safety-ceiling script and its raw ceiling
+## constant -- a DIFFERENT file, and the only one this file's class-level doc claims independence
+## from -- while `test_neither_tool_preloads_or_calls_the_runtime_generator` scans the benchmark
+## tool for a reference back to this file, i.e. the OPPOSITE direction. Nothing scans this file
+## for a reference to the benchmark tool.
+##
+## Nor does it recompute `benchmark_corpus_sha256` from the rows: a hand-edited row is undetectable by this
 ## check alone unless a bound source file also changes and trips the freshness cross-check.
 ## Directly testable with a hand-built dictionary, independent of disk.
 static func validate_budget_schema(budget: Dictionary) -> Dictionary:

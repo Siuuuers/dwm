@@ -847,12 +847,19 @@ func _configure_restore_participants() -> Dictionary:
 ##
 ## NOT DISJOINT ON GAMESTATE FIELDS, THOUGH -- this is a real hazard, not a formality: the ports
 ## this same function configures below read and write the identical legacy `GameState` fields the
-## .9-era stack owns. `GameStateMinesweeperShopPort.capture()` reads `money`/`coins`/`inventory`/
-## `minesweeper_round_floor`; its `commit()` writes them back via `try_spend_money()`/
-## `try_spend_coins()`/`add_inventory()`/`change_minesweeper_round_floor()`.
-## `GameStateDesktopBoardPort.commit()`/`rollback()` write `set_stat("motivation", ...)` -- the
-## SAME stat key `GameState.consume_minesweeper_app_round()` decrements via
-## `change_stat(STAT_MOTIVATION, -1)`. The two stacks are coupled semantically too:
+## .9-era stack owns. `GameStateMinesweeperShopPort.capture()` (`:68`) reads `money`/`coins`/
+## `inventory`/`minesweeper_round_floor`; its `commit()` (`:147`) writes them back via
+## `try_spend_money()`/`try_spend_coins()`/`add_inventory()`/`change_minesweeper_round_floor()`,
+## and its `rollback()` (`:170`) writes those SAME four fields again, by direct assignment
+## (`:174-177`), bypassing the accessors entirely.
+## `GameStateDesktopBoardPort.commit()` (`:346`) / `rollback()` (`:361`) write BOTH of the fields
+## `GameState.consume_minesweeper_app_round()` (`:531`) mutates:
+##   - `set_stat("motivation", ...)` (`:353`/`:365`) -- the SAME stat key that method decrements
+##     via `change_stat(STAT_MOTIVATION, -1)` (`:535`); and
+##   - `minesweeper_rounds_left` (`:355`/`:366`) -- a SHARPER clash still, because both sides write
+##     the field DIRECTLY (`_game_state.minesweeper_rounds_left = ...` here against that method's
+##     `minesweeper_rounds_left -= 1` at `:534`), with no accessor in between to arbitrate.
+## The two stacks are coupled semantically too:
 ## `GameState.get_minesweeper_safety_level()` reads `inventory["debug_key"]`/`["lucky_charm"]`,
 ## exactly what the new Shop grants. So once the new graph's forward path is enabled (today it
 ## is not -- see the HONEST SCOPE note below), TWO independent transaction disciplines can mutate

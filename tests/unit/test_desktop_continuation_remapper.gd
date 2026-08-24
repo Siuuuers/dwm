@@ -310,6 +310,59 @@ func test_prepare_rejects_a_duplicate_historical_source_ids_record() -> void:
 	assert_eq(result["code"], &"remap_source_ids_invalid")
 
 
+## The remapper's own `_child_id()` fail-closed branch (`remap_child_source_ids_malformed`) --
+## nothing else in this repository reaches that code. It is genuinely reachable, not defensive
+## padding: `_validate_sorted_unique_nonblank()` checks only array/nonblank/unique/sorted, so a
+## code point in the surrogate range sails straight through it; a source_id with no
+## `transaction_remap` entry is then handed to `_child_id()` verbatim; and there
+## `CanonicalJsonWriter._emit_string()` refuses it (`invalid_surrogate`). Failing closed is the
+## whole point -- the alternative is minting a child id off some substituted canonicalization,
+## i.e. an id `DesktopIdentityNonceIssuer._child_id()`, whose frozen preimage the remapper
+## duplicates, would have refused to mint at all.
+##
+## CONSTRUCTION NOTE: the surrogate has to arrive via `get_string_from_utf16()`, the one route
+## that PRESERVES an unpaired lead surrogate (the engine logs a Unicode WARNING, not an error,
+## and GUT's error watcher does not trip on it). Godot closes every other door:
+## `String.chr(0xD800)` substitutes U+FFFD, `get_string_from_utf8()` substitutes U+FFFD per byte,
+## `JSON.parse_string()` rejects a backslash-u escape naming a surrogate outright, and the
+## GDScript tokenizer rejects that same escape in source at PARSE time -- which is why this
+## string cannot simply be written as a literal here.
+func test_prepare_rejects_a_source_id_that_is_not_canonically_representable() -> void:
+	if not _exists(): return
+	var utf16 := PackedByteArray()
+	utf16.append(0x00)
+	utf16.append(0xD8)  # U+D800, an unpaired lead surrogate, little-endian
+	var lone_surrogate: String = utf16.get_string_from_utf16()
+
+	# Pin both halves of the reachability argument so this test cannot pass for another reason.
+	assert_eq(lone_surrogate.length(), 1, "the fixture must be exactly one code point")
+	assert_eq(lone_surrogate.unicode_at(0), 0xD800,
+		"the fixture must really carry a lone surrogate, not a U+FFFD substitution")
+	var canonical: Dictionary = load(CANONICAL_JSON_PATH).call("stringify", [lone_surrogate])
+	assert_false(canonical.get("ok", true), "the canonical writer must refuse the fixture source_id")
+	assert_eq(canonical.get("code", &""), &"invalid_surrogate")
+
+	# The snapshot fixture canonicalizes the whole recovery payload, so build it from a
+	# representable provenance and swap the malformed record onto the pending only.
+	var old_transaction_receipt := _transaction_receipt("old-tx-surrogate")
+	var clean_provenance := _child_provenance(old_transaction_receipt, "board_start", 0, ["opaque-id"])
+	var snapshot := _snapshot("old-tx-surrogate", clean_provenance)
+	var malformed_provenance := {
+		"schema_version": 1, "parent_receipt_id": str(old_transaction_receipt["receipt_id"]),
+		"child_kind": "board_start", "ordinal": 0, "source_ids": [lone_surrogate],
+		"child_id": "board_start.deadbeef",
+	}
+	var pending: Dictionary = snapshot["desktop"]["consequence"]["pending"]
+	pending["source_commit_receipt_provenance"] = malformed_provenance
+	pending["source_commit_receipt_id"] = str(malformed_provenance["child_id"])
+
+	var bundle := _bundle("old-tx-surrogate", "new-tx-surrogate")
+	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-surrogate", bundle)
+	assert_false(result.get("ok", true),
+		"a source_id that cannot be canonicalized must fail closed, not mint a child id anyway")
+	assert_eq(result["code"], &"remap_child_source_ids_malformed")
+
+
 func test_validate_remap_accepts_its_own_prepare_output_and_rejects_a_tampered_candidate() -> void:
 	if not _exists(): return
 	var source_commit := _child_provenance(_transaction_receipt("old-tx-6"), "board_start", 0, [])
