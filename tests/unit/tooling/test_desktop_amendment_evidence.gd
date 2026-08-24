@@ -388,10 +388,11 @@ func test_both_schemas_reject_an_empty_red_green_record_set() -> void:
 		assert_eq(validated.get("code"), &"document_schema_rejected")
 
 
-## STRUCTURALLY BLOCKED UNTIL THE FINAL RE-SEAL (dwm-p2r.35.5). Both documents on disk were sealed
-## carrying red_green_command_records: [], and this wave is forbidden to regenerate them; the
-## controller's single closing re-seal is what turns this green. It is written now, and left red
-## on purpose, because it is the assertion whose absence let --check report CHECK_OK forever.
+## Written RED during the wave (dwm-p2r.35.5): both documents on disk were then sealed carrying
+## red_green_command_records: [], and the wave itself was forbidden to regenerate them. The
+## controller's closing re-seal (subject commit 6d28f7492e75 plus the document commit on top of
+## it) is what turned this green. It stays because it is the assertion whose absence let --check
+## report CHECK_OK forever.
 func test_the_published_documents_bind_a_real_non_empty_red_green_record_set() -> void:
 	for evidence: Script in [DESKTOP_EVIDENCE, MINESWEEPER_EVIDENCE]:
 		var published: Dictionary = _published(evidence)
@@ -413,8 +414,8 @@ func test_the_published_documents_bind_a_real_non_empty_red_green_record_set() -
 
 ## Proves the record BUILDER carries the parsed outcome rather than a constant: the previous
 ## revision wrote exit_code 0 into every record without looking at the log at all. HEAD is used
-## because it is the nearest commit that certainly carries the curated logs -- the sealed
-## subject_commit predates their curation until the closing re-seal.
+## as a commit that certainly carries the curated logs; since the closing re-seal introduced them
+## in the sealed subject commit itself, any commit from 6d28f7492e75 forward carries them.
 func test_the_record_builder_carries_each_bound_log_s_parsed_exit_code_from_the_tree() -> void:
 	var head: Dictionary = GIT_PLUMBING.git_run(_repository_root(), PackedStringArray(["rev-parse", "HEAD"]))
 	assert_true(head.get("ok", false), "HEAD resolves")
