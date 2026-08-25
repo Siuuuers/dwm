@@ -195,8 +195,41 @@ func _derive(child_kind: String, action_receipt: Dictionary, projections: Array)
 			str((action_receipt["transaction_issuer_receipt"] as Dictionary)["receipt_id"]),
 		"source_ids": source_ids,
 	})
-	return derived if typeof(derived) == TYPE_DICTIONARY else {
-		"ok": false, "code": &"condition_child_unavailable", "message": child_kind, "details": {}}
+	if typeof(derived) != TYPE_DICTIONARY:
+		return {"ok": false, "code": &"condition_child_unavailable", "message": child_kind,
+			"details": {}}
+	var envelope: Dictionary = derived
+	return envelope if not envelope.get("ok", false) else _revalidated(child_kind, envelope)
+
+
+## Plan line 874: every persisted child id validates through `validate_child` BEFORE it is written
+## into a receipt or an intent. Derivation alone is not proof, which is why `validate_child` is a
+## configure-time requirement -- this is the same derive-then-revalidate shape every sibling producer
+## uses (`DayResolutionStartPort`, `HospitalPresentationPort`, `DatingPresentationPort`,
+## `GameStateScheduleCommitPort`, `Day7ScheduleProvenance`, `GameStateDayResolutionPort`). The
+## context port is duck-typed at `configure`, so without this a seam answering with an id the one
+## `.16` issuer never minted would be copied verbatim into the day's condition receipt, into both
+## intents, and thence into the durable `recovery_payload.condition_candidate`.
+func _revalidated(child_kind: String, envelope: Dictionary) -> Dictionary:
+	var child: Variant = envelope.get("value")
+	if typeof(child) != TYPE_DICTIONARY:
+		return _unverified("the derivation carried no child", child_kind)
+	var provenance: Variant = (child as Dictionary).get("provenance")
+	if typeof(provenance) != TYPE_DICTIONARY:
+		return _unverified("the derived child carried no provenance", child_kind)
+	var child_id := str((child as Dictionary).get("child_id", ""))
+	if child_id.is_empty() or str((provenance as Dictionary).get("child_id", "")) != child_id:
+		return _unverified("the derived identity disagrees with its provenance", child_kind)
+	var revalidated: Variant = _context_port.call(&"validate_child",
+		(provenance as Dictionary).duplicate(true), StringName(child_kind))
+	if typeof(revalidated) != TYPE_DICTIONARY or not (revalidated as Dictionary).get("ok", false):
+		return _unverified("the issuer refused to revalidate its own child", child_kind)
+	return envelope
+
+
+static func _unverified(reason: String, child_kind: String) -> Dictionary:
+	return {"ok": false, "code": &"condition_child_unverified",
+		"message": reason + ": " + child_kind, "details": {}}
 
 
 static func _projection(name: String, value: Variant) -> String:

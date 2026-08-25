@@ -13,8 +13,12 @@ extends RefCounted
 ## current identity/revision, `commit()`, then `publish()` into the desktop publication ledger --
 ## and retains the receipt per `causal_day_instance`, so a replayed resolution binds the SAME board
 ## fate rather than departing a second time (the law `FakeDesktopConsequenceSource` documented as
-## "what the real ports will do"). Cross-restart a replayed Done command never reaches this seam at
-## all: `GameStateDayResolutionPort._resolution_start` answers it from the persisted active plan.
+## "what the real ports will do"). ONCE THE PLAN IS PERSISTED a replayed Done command never reaches
+## this seam at all: `GameStateDayResolutionPort._resolution_start` answers it from the persisted
+## active plan. Before that checkpoint a narrow window remains -- the board fate publishes ahead of
+## `begin_day_resolution` -- in which a crash-replay mints a second departure under a fresh command
+## root, which the `command_id`-keyed idempotency cannot dedupe. It is the same window the
+## resolution root already carries, and Plan-03 Tasks 1-5 own closing it.
 ##
 ## CONDITION TRUTH IS NEVER FABRICATED. `resolve_condition_receipt` returns only the day's latest
 ## policy-produced condition receipt retained by the one shared `DesktopConsequenceCoordinator`

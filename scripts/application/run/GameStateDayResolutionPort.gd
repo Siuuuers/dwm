@@ -1110,8 +1110,8 @@ func _presentation_inputs(site: Dictionary, hospital_rows: Dictionary) -> Dictio
 ## Derives `P01.hospital.resolution` and then its `P01.hospital.miss[]` children, in that order.
 ##
 ## The condition receipt is a PLAN-02 record this resolution consumes but does not own, so it
-## arrives through the deliberately-unconfigured desktop-consequence seam and its absence fails
-## closed. Deriving a Hospital aggregate against a condition nobody anchored would be exactly the
+## arrives through the desktop-consequence seam -- configured in production since the dwm-oyo.3
+## slice -- and its absence still fails closed. Deriving a Hospital aggregate against a condition nobody anchored would be exactly the
 ## forged ancestry the matrix exists to prevent.
 func _derive_hospital_rows(plan: Dictionary, root: Dictionary, start: Dictionary) -> Dictionary:
 	if _desktop_consequence_source == null:

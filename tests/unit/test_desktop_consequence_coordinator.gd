@@ -1002,3 +1002,28 @@ func test_a_completed_transaction_retains_the_days_condition_receipt() -> void:
 	retained["decision"] = "mutated"
 	assert_eq(str((_coordinator.committed_condition_receipt("causal-day-1") as Dictionary)["decision"]),
 		"no_departure", "the read returns detached bytes")
+
+
+## The seam documents the day's LATEST receipt, so a SECOND action on the same day must replace the
+## first -- retention that merely kept the earliest would still pass every assertion above while
+## handing a Schedule-Done resolution a stale condition.
+func test_a_second_action_on_the_same_day_replaces_the_retained_receipt() -> void:
+	_configure_departure_ports()
+	if not _coordinator.has_method("committed_condition_receipt"):
+		assert_true(false, "DesktopConsequenceCoordinator.committed_condition_receipt is absent")
+		return
+	var first: Dictionary = _coordinator.accept_prepared_action(
+		_accept_request(_shop_prepared("lucky_charm"), 0))
+	assert_true(first.get("ok", false), JSON.stringify(first))
+	var after_first: Dictionary = _coordinator.committed_condition_receipt("causal-day-1")
+	assert_eq(after_first, (first["value"] as Dictionary)["condition_receipt"],
+		"the first action's receipt is retained")
+
+	var second: Dictionary = _coordinator.accept_prepared_action(
+		_accept_request(_shop_prepared("debug_key"), 1))
+	assert_true(second.get("ok", false), JSON.stringify(second))
+	var after_second: Dictionary = _coordinator.committed_condition_receipt("causal-day-1")
+	assert_ne(after_second, after_first,
+		"the premise needs two DISTINCT receipts or the overwrite would prove nothing")
+	assert_eq(after_second, (second["value"] as Dictionary)["condition_receipt"],
+		"the day's LATEST condition receipt replaces the earlier one, exactly as the seam documents")

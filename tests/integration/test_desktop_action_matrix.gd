@@ -118,6 +118,18 @@ func before_each() -> void:
 	var graph_result: Dictionary = _bootstrap.call(&"_configure_desktop_production_graph")
 	assert_true(graph_result.get("ok", false), "desktop production graph: " + str(graph_result))
 
+	# This harness boots the desktop graph PARTIALLY by design, and the dwm-oyo.3 Plan-03 composition
+	# early-outs accordingly. That skip must be REPORTED, never silent -- so the stage's two composed
+	# flags are pinned against the probe's own instance ids here. Nothing else read these flags, which
+	# is exactly how a report drifts into decoration; the invariant holds on the full path too.
+	var graph_value: Dictionary = graph_result["value"]
+	assert_eq(bool(graph_value["presentation_producer_composed"]),
+		int(graph_value["desktop_consequence_source_port_instance_id"]) != 0,
+		"presentation_producer_composed must never disagree with the retained instance id")
+	assert_eq(bool(graph_value["schedule_done_dispatcher_composed"]),
+		int(graph_value["schedule_done_dispatcher_instance_id"]) != 0,
+		"schedule_done_dispatcher_composed must never disagree with the retained instance id")
+
 	# Seed the retained DesktopConsequenceState with a real, nonblank causal_day_instance of its
 	# OWN -- proving the gap below is specifically about GameStateMinesweeperShopPort's facts, not
 	# merely "nobody seeded anything anywhere". DesktopConsequenceState's own provenance check is

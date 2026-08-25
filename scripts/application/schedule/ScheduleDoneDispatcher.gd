@@ -10,12 +10,19 @@ extends RefCounted
 ## drive the settle-and-resume. dwm-p2r.21's recorded direction rejects a GameState facade for
 ## this; the Done dispatch is its own application object, composed by Bootstrap.
 ##
-## THE TWO DOORS. `dispatch_done(command_id)` issues one Schedule-Done command into
-## `request_schedule_done` -- the walk begins, pauses at the first presentation, and the routed
-## scene plays. When the player finishes the presentation, the scene settles its port; the port
-## publishes `completion_ready`; and THIS object -- connected AFTER the coordinator's own
-## connections, so the receipt is already retained when its handler runs -- drives exactly one
-## `complete_presentation_stage()`, which checkpoints the receipt and resumes the walk atomically.
+## THE COMPLETION DOOR IS LIVE IN PRODUCTION. When the player finishes the presentation, the
+## scene settles its port; the port publishes `completion_ready`; and THIS object -- connected by
+## Bootstrap AFTER the coordinator's own connections, so the receipt is already retained when its
+## handler runs -- drives exactly one `complete_presentation_stage()`, which checkpoints the receipt
+## and resumes the walk atomically. That half is what closes dwm-p2r.21's seam.
+##
+## THE DISPATCH DOOR IS NOT WIRED YET, AND THAT IS RECORDED RATHER THAN OVERLOOKED.
+## `dispatch_done(command_id)` forwards one Schedule-Done command into `request_schedule_done`, but
+## it has NO production caller: Bootstrap retains this object privately and exposes no accessor, so
+## only the acceptance suite reaches it. The Schedule-UI Done button that will own it is Plan-03
+## Tasks 1-5. Production's Done command travels `GameState.request_schedule_done` today, which
+## forwards to the SAME Bootstrap-retained coordinator this object is configured against -- so the
+## two paths converge on one walk rather than competing.
 ##
 ## RE-ENTRANCY IS QUEUED AWAY. A physical owner that completes synchronously inside `begin()` would
 ## otherwise publish a completion while the previous dispatch's `resume()` is still unwinding, and
@@ -88,6 +95,12 @@ func get_last_dispatch_result() -> Dictionary:
 ## One retained port published a completion. The coordinator's own handler already retained the
 ## receipt (its connection precedes this one); this drives the settle exactly once, after any
 ## already-running dispatch has fully unwound.
+##
+## The port identity check is defence in depth, not a live branch: the handler is only ever bound to
+## those two ports. It mirrors `DayResolutionCoordinator`'s own guard, and returns silently rather
+## than recording, because a foreign publisher has no completion for THIS object to settle.
+## `completion_failed` is required at `configure` but deliberately NOT connected: the coordinator
+## owns the failure path, and a second listener would double-report it.
 func _on_completion_ready(_completion_result: Dictionary, port: Object) -> void:
 	if port != _hospital_port and port != _dating_port:
 		return

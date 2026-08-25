@@ -5,8 +5,9 @@ extends RefCounted
 ##
 ## WHY THIS EXISTS. `complete_presentation_stage()` -- the seam dwm-p2r.14's acceptance criteria
 ## name, where the port's completion receipt is checkpointed BEFORE the stage advances -- had no
-## caller anywhere in the repo: not in production, where Plan 03 still owns the Done dispatch, and
-## not in any test. The suites that drive real presentations call the state port's
+## caller anywhere in the repo WHEN THIS FAKE WAS WRITTEN: not in production, and not in any test.
+## (Production reached it in the dwm-oyo.3 slice -- `ScheduleDoneDispatcher` now drives it from the
+## presentation ports' `completion_ready`. This fake still isolates the coordinator's own ordering.) The suites that drive real presentations call the state port's
 ## `presentation_stage_receipt()` and then complete the stage through `RunLifecycle` directly, which
 ## bypasses the coordinator's ordering entirely. This fake exists to reach that path.
 ##

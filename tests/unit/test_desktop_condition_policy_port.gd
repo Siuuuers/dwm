@@ -50,6 +50,38 @@ const NOTIFICATION_INTENT_KEYS: Array = [
 	"intent_id_provenance", "source_condition_receipt_id", "source_condition_receipt_provenance",
 ]
 
+## A context seam that answers with a child id the one `.16` issuer never minted. Everything else
+## delegates to the REAL port, so the only thing under test is the child identity itself.
+class _ForgingContextPort extends RefCounted:
+	const FORGED_CHILD_ID := "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+
+	var _inner: Object = null
+	var _forge_kind: String = ""
+	var _forge_provenance := false
+
+	func _init(inner: Object, forge_kind: String, forge_provenance: bool) -> void:
+		_inner = inner
+		_forge_kind = forge_kind
+		_forge_provenance = forge_provenance
+
+	func snapshot_for(request: Dictionary) -> Dictionary:
+		return _inner.call(&"snapshot_for", request)
+
+	func validate_child(provenance: Dictionary, expected_kind: StringName) -> Dictionary:
+		return _inner.call(&"validate_child", provenance, expected_kind)
+
+	func derive_child(request: Dictionary) -> Dictionary:
+		var derived: Dictionary = _inner.call(&"derive_child", request)
+		if str(request.get("child_kind", "")) != _forge_kind or not derived.get("ok", false):
+			return derived
+		var envelope: Dictionary = derived.duplicate(true)
+		var value: Dictionary = envelope["value"]
+		value["child_id"] = FORGED_CHILD_ID
+		if _forge_provenance:
+			(value["provenance"] as Dictionary)["child_id"] = FORGED_CHILD_ID
+		return envelope
+
+
 var _port_script: Script = null
 var _context_script: Script = null
 var _root_store: FAKE_ROOT_STORE
@@ -481,6 +513,62 @@ func test_identical_replay_returns_byte_identical_children() -> void:
 	assert_true(second.get("ok", false), JSON.stringify(second))
 	assert_eq(first["value"], second["value"],
 		"the derivation is pure, so a replay reproduces the same bytes")
+
+
+func test_a_day_six_trigger_still_yields_hospital_day() -> void:
+	if not _require_port():
+		return
+	_install_lifecycle_identity(6)
+	_set_condition(0, 3, true)
+	var source := _install_source("solo:priscilla:day6", 6, ["priscilla"])
+	var result: Dictionary = _port.evaluate(_request(6))
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var value: Dictionary = result["value"]
+	var condition: Dictionary = value["condition_receipt"]
+	assert_eq(int(condition["day"]), 6)
+	assert_eq(str(condition["decision"]), "hospital_day",
+		"day 6 is the LAST hospital_day; the frozen boundary is day <= 6, never day <= 5")
+	assert_eq(str((value["destination_intent"] as Dictionary)["kind"]), "hospital_day")
+	assert_eq(condition["source_receipt_ids"], [str(source["receipt_id"])])
+
+
+func test_pressure_at_exactly_ten_is_danger_and_triggers() -> void:
+	if not _require_port():
+		return
+	_set_condition(6, 10, true)
+	var result: Dictionary = _port.evaluate(_request())
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var condition: Dictionary = (result["value"] as Dictionary)["condition_receipt"]
+	assert_true(bool(condition["danger"]),
+		"the frozen predicate is pressure >= 10, so exactly 10 is ALREADY danger with health 6")
+	assert_true(bool(condition["trigger"]))
+	assert_eq(str(condition["decision"]), "hospital_day")
+
+
+func test_a_child_id_the_issuer_never_minted_is_refused() -> void:
+	if not _require_port():
+		return
+	_set_condition(0, 3, true)
+	var port: Object = _port_script.new()
+	assert_true(port.configure(
+		_ForgingContextPort.new(_context_port, "condition", true)).get("ok", false))
+	var result: Dictionary = port.evaluate(_request())
+	assert_false(result.get("ok", true),
+		"a child id the issuer never minted must never reach the day's condition receipt")
+	assert_eq(result.get("code"), &"condition_child_unverified", JSON.stringify(result))
+
+
+func test_a_derived_child_disagreeing_with_its_own_provenance_is_refused() -> void:
+	if not _require_port():
+		return
+	_set_condition(0, 3, true)
+	var port: Object = _port_script.new()
+	assert_true(port.configure(
+		_ForgingContextPort.new(_context_port, "condition", false)).get("ok", false))
+	var result: Dictionary = port.evaluate(_request())
+	assert_false(result.get("ok", true),
+		"the derived id and its provenance must agree before either is persisted")
+	assert_eq(result.get("code"), &"condition_child_unverified", JSON.stringify(result))
 
 
 func _last_action(result: Dictionary) -> Dictionary:

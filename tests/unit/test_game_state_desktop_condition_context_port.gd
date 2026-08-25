@@ -384,3 +384,63 @@ func test_derive_child_round_trips_through_the_real_issuer() -> void:
 	assert_true(validated.get("ok", false), JSON.stringify(validated))
 	var mismatched: Dictionary = _port.validate_child(provenance, &"destination_intent")
 	assert_false(mismatched.get("ok", true), "a swapped expected_kind must fail")
+
+
+# ---- the Schedule-Done discriminator (`_schedule_done_state`) ----
+
+func test_snapshot_reports_committed_once_the_day_carries_a_commit_receipt() -> void:
+	if not _require_port():
+		return
+	_install_committed_aggregate()
+	var result: Dictionary = _port.snapshot_for(_request())
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var context: Dictionary = ((result["value"] as Dictionary)["context"] as Dictionary)
+	assert_eq(str(context["schedule_done_state"]), "committed",
+		"a committed aggregate for the LIVE day is the post-Done state, not open")
+
+
+func test_a_completed_resolution_plan_is_not_resolving() -> void:
+	if not _require_port():
+		return
+	var begun: Dictionary = _game_state._run_lifecycle.begin_day_resolution(
+		"completed-resolution", {"schema_version": 1, "day": 1, "registry_fingerprint": null,
+			"entries": [], "commit_receipt": null}, [], null, null, {})
+	assert_true(begun.get("ok", false), JSON.stringify(begun))
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Dictionary = lifecycle["active_resolution_plan"]
+	var stages: Array = plan["stages"]
+	assert_false(stages.is_empty(), "the premise needs a plan that actually carries stages")
+	for stage: Dictionary in stages:
+		_complete_record(stage)
+		for substage: Dictionary in (stage.get("substages", []) as Array):
+			_complete_record(substage)
+	var prepared: Dictionary = _game_state._run_lifecycle.prepare_restore(lifecycle)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var committed: Dictionary = _game_state._run_lifecycle.commit_restore(
+		(prepared["value"] as Dictionary)["candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	_install_committed_aggregate()
+	var result: Dictionary = _port.snapshot_for(_request())
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var context: Dictionary = ((result["value"] as Dictionary)["context"] as Dictionary)
+	assert_eq(str(context["schedule_done_state"]), "committed",
+		"COMPLETENESS, not presence, is the discriminator: a completed plan is never resolving")
+
+
+## A completed plan record: the lifecycle refuses "completed" unless the receipt is exactly the
+## one-key {"value": Dictionary} envelope `DayResolutionPlan._normalize_receipt` accepts.
+func _complete_record(record: Dictionary) -> void:
+	record["state"] = "completed"
+	record["receipt"] = {"value": {"completed_by": "the completed-plan premise"}}
+
+
+## A day-scoped committed aggregate for the LIVE day, which is what `_canonical_committed_schedule`
+## requires before it will hand back anything but the canonical empty aggregate.
+func _install_committed_aggregate() -> void:
+	_game_state._committed_schedule = {
+		"schema_version": 1,
+		"day": int(_game_state.day),
+		"registry_fingerprint": null,
+		"entries": [],
+		"commit_receipt": {"receipt_id": "commit-receipt-ctx"},
+	}

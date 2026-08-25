@@ -10,12 +10,16 @@ extends "res://addons/gut/test.gd"
 #
 #   1. the production Schedule commit port commits the day's draft (the committed-Schedule door);
 #   2. `ScheduleDoneDispatcher.dispatch_done()` issues the one Done command (the Done dispatch
-#      surface Plan 03 owns -- dwm-p2r.21's recorded resolution, GameState facade REJECTED);
+#      surface Plan 03 owns -- dwm-p2r.21's recorded resolution, GameState facade REJECTED). That
+#      door has no production caller yet -- the Schedule-UI Done button is Plan-03 Tasks 1-5, and
+#      production reaches the SAME coordinator through `GameState.request_schedule_done`;
 #   3. the physical owner FINISHES the date (`owner.finish()` -- the player completing the scene),
 #      which flows owner -> port -> coordinator -> dispatcher -> `complete_presentation_stage()`
 #      with no test code in between.
 #
-# No `_run_lifecycle` access, no direct coordinator drive, no state-port stepping. The walk's
+# The WALK touches no `_run_lifecycle`, drives no coordinator directly, steps no state port.
+# (Setup reads `_run_lifecycle.to_dict()["run_id"]` twice, to name the journal and the identity
+# context -- reads only, before the walk begins, never a drive call.) The walk's
 # advance is observed from the OUTSIDE: the public `GameState.day` property and the dispatcher's
 # own retained dispatch result.
 #
