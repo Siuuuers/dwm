@@ -13,7 +13,7 @@ written_spec_approved_on: 2026-08-11
 implementation_authorized: true
 implementation_plan_suite_path: "prompt_docs/metadata/desktop_minesweeper_shop_schedule_plan_suite.v1.json"
 implementation_plan_suite_status: approved
-implementation_plan_suite_sha256: "9d1ef6f0b8874516cd52b4e79da97368f4e89022ec9817654ffa05881bc6b3cc"
+implementation_plan_suite_sha256: "f63c62cc54577965cca5c7d30cce81659fcffcb82795dbe40c9b9d3a280fe23b"
 created_on: 2026-08-11
 engine_line: godot_4_6
 verification_engine: 4.6.3-stable-mono

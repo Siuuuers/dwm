@@ -655,7 +655,7 @@ The following canonical hashes bind the reviewed child plans. Canonical binding 
 | `docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-01-phase2r-schedule-foundation.md` | `d7c04b66f3645f31ea9a4fc06a7d321f6bf41449fed2619c0e7034e6ab006669` |
 | `docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-02-desktop-board-shop-contracts.md` | `2aaa9965f45208ecc12a119ce5ba5eae199895ea4076649a4df83386ca4b934d` |
 | `docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-03-seven-day-flow-integration.md` | `a945d8988670b24ba5b1c919fcaf807dad03dbf659756c4a384110aebc49c1b1` |
-| `docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-04-verification-closeout.md` | `93eab5ca74e2ceb7afacdb7573bae971a1a3b4c9c8f8bd5a617448b64676f964` |
+| `docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-04-verification-closeout.md` | `856419b0ef8f0fdf4b267ac626d2074b3945a1554b3bbabcabb982871881f97a` |
 
 The rebound child hashes bind the table. The suite manifest records this roadmap's canonical hash and all four child hashes; the accepted amendment frontmatter records the suite manifest's canonical hash. The suite, roadmap, and children are approved and hash-bound, while `implementation_authorized` remains `false` until the user separately grants runtime authority.
 
