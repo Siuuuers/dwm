@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dwm.local/schemas/evidence/phase2r-closeout-inventory.schema.json",
+  "title": "Phase 2R closeout inventory envelope",
+  "description": "Closed shape of the success value returned by Phase2RCloseoutInventory.validate and generated into evidence/phase_2r/closeout/contract_inventory.json. The repository's JsonSchemaValidator honours only type, const, enum, required, properties, additionalProperties, items, uniqueItems, minItems and minLength; it cannot express an exact array length, a dynamic-key mapping, or a nullable union. Phase2RCloseoutInventory.validate repeats every constraint expressed here and adds the ones this subset cannot reach - the exact sixteen-record count, the exact two class counts and their declaration-ordered id lists, the requirement_evidence key set and record ordering, and the null/binding discipline of closeout_evidence - so a weakened schema cannot widen what is accepted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "mode",
+    "epic_id",
+    "closeout_issue_id",
+    "child_contracts",
+    "non_contract_children",
+    "requirement_evidence",
+    "deferred_requirements",
+    "closeout_evidence"
+  ],
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["PREREQUISITE", "PRE_SEAL", "SEALED_PRE_ATTACH", "ATTACHED_PRE_CLOSE", "POST_CLOSE"]
+    },
+    "epic_id": {"type": "string", "const": "dwm-p2r"},
+    "closeout_issue_id": {"type": "string", "const": "dwm-p2r.10"},
+    "child_contracts": {
+      "type": "array",
+      "minItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "issue_id",
+          "status",
+          "plan_path",
+          "spec_id",
+          "requirement_ids",
+          "evidence_links",
+          "evidence_verdict"
+        ],
+        "properties": {
+          "issue_id": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "enum": ["open", "in_progress", "closed"]},
+          "plan_path": {"type": "string", "minLength": 1},
+          "spec_id": {"type": "string", "minLength": 1},
+          "requirement_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "evidence_links": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["command_record_id", "path", "requirement_id", "sha256"],
+              "properties": {
+                "command_record_id": {"type": "string", "minLength": 1},
+                "path": {"type": "string", "minLength": 1},
+                "requirement_id": {"type": "string", "minLength": 1},
+                "sha256": {"type": "string", "minLength": 64}
+              }
+            }
+          },
+          "evidence_verdict": {
+            "type": "string",
+            "enum": ["declared", "pending_final_gate", "satisfied_by_final_gate"]
+          }
+        }
+      }
+    },
+    "non_contract_children": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["historical_helpers", "execution_remediation_children"],
+      "properties": {
+        "historical_helpers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["count", "ids"],
+          "properties": {
+            "count": {"type": "integer", "const": 2},
+            "ids": {
+              "type": "array",
+              "minItems": 2,
+              "uniqueItems": true,
+              "items": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "execution_remediation_children": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["count", "ids"],
+          "properties": {
+            "count": {"type": "integer", "const": 22},
+            "ids": {
+              "type": "array",
+              "minItems": 22,
+              "uniqueItems": true,
+              "items": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "requirement_evidence": {"type": "object"},
+    "deferred_requirements": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["obligation_id", "owner_beads_id", "requirement_ids"],
+        "properties": {
+          "obligation_id": {"type": "string", "minLength": 1},
+          "owner_beads_id": {"type": "string", "minLength": 1},
+          "requirement_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "closeout_evidence": {}
+  },
+  "$defs": {
+    "requirement_evidence_record": {
+      "description": "Unreachable by this validator subset because requirement_evidence is keyed by requirement ID. Retained as the normative shape that validate enforces directly: a sorted nonempty Array of these records per key, ordered by command_id then log_path.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command_id", "command_record_sha256", "log_path", "log_sha256"],
+      "properties": {
+        "command_id": {"type": "string", "minLength": 1},
+        "command_record_sha256": {"type": "string", "minLength": 64},
+        "log_path": {"type": "string", "minLength": 1},
+        "log_sha256": {"type": "string", "minLength": 64}
+      }
+    },
+    "closeout_evidence_binding": {
+      "description": "Unreachable by this validator subset because closeout_evidence is null in PREREQUISITE and PRE_SEAL. Retained as the normative shape that validate enforces directly for the three committed-evidence modes.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject_commit", "gate_sha256", "validation_receipt_sha256", "evidence_commit"],
+      "properties": {
+        "subject_commit": {"type": "string", "minLength": 40},
+        "gate_sha256": {"type": "string", "minLength": 64},
+        "validation_receipt_sha256": {"type": "string", "minLength": 64},
+        "evidence_commit": {"type": "string", "minLength": 40}
+      }
+    }
+  }
+}
