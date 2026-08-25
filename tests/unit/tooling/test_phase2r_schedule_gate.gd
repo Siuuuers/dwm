@@ -612,9 +612,22 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	if not census.get("ok", false):
 		return
 	var value: Dictionary = census["value"]
-	assert_eq((value["definition"] as Array).size(), 1, "derive_child is defined once")
-	assert_eq(str(((value["definition"] as Array)[0] as Dictionary)["path"]),
-		"scripts/application/desktop/DesktopIdentityNonceIssuer.gd", "by the production issuer")
+	# The dwm-oyo.3 slice (2026-08-24, dwm-p2r.21) added a SECOND definition: the frozen Plan-03
+	# context seam GameStateDesktopConditionContextPort.derive_child (plan line 854), which DELEGATES
+	# to the one production issuer and mints nothing -- proven below by requiring its executable text
+	# to route through the issuer's own call. The issuer remains the sole minting definition.
+	var definition_paths: Array[String] = []
+	for definition_site: Dictionary in (value["definition"] as Array):
+		definition_paths.append(str(definition_site["path"]))
+	definition_paths.sort()
+	assert_eq(definition_paths, [
+		"scripts/application/desktop/DesktopIdentityNonceIssuer.gd",
+		"scripts/application/desktop/GameStateDesktopConditionContextPort.gd",
+	], "derive_child is defined by the minting issuer plus the one delegating Plan-03 context seam")
+	var context_seam_code: String = _generator.strip_comments(FileAccess.get_file_as_string(
+		"res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd"))
+	assert_true(context_seam_code.find("_identity_issuer.call(&\"derive_child\"") >= 0,
+		"the context seam delegates every derivation to the retained issuer, never minting itself")
 	assert_eq(value["dynamic"], [], "no dynamic derive_child site exists")
 	var call_paths: Array[String] = []
 	for site: Dictionary in (value["call_sites"] as Array):
@@ -638,8 +651,14 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	# dwm-p2r.32.8, CRITICAL 1): accept_prepared_action()'s own outer receipt_id/receipt_provenance
 	# is likewise derived through the production issuer's derive_child() seam, under the newly
 	# additive "action_consequence" child_kind.
+	# DesktopConditionPolicyPort.gd and GameStateDesktopConditionContextPort.gd added as the
+	# eleventh and twelfth (dwm-oyo.3 slice, 2026-08-24, dwm-p2r.21): the policy derives the
+	# P03.condition.decision/.destination/.notification rows exclusively THROUGH the context seam,
+	# and that seam's own single call is the delegation into the production issuer proven above.
 	assert_eq(call_paths, [
+		"scripts/application/desktop/DesktopConditionPolicyPort.gd",
 		"scripts/application/desktop/DesktopConsequenceCoordinator.gd",
+		"scripts/application/desktop/GameStateDesktopConditionContextPort.gd",
 		"scripts/application/minesweeper/DesktopBoardFatePort.gd",
 		"scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
 		"scripts/application/minesweeper/MinesweeperRoundCoordinator.gd",
@@ -649,7 +668,7 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd",
 		"scripts/domain/contact/ContactInvitationState.gd",
 		"scripts/domain/schedule/Day7ScheduleProvenance.gd",
-	], "exactly the ten attributed producers call derive_child")
+	], "exactly the twelve attributed producers call derive_child")
 
 
 func test_bootstrap_probe_key_set_and_owner_bindings_are_exact() -> void:
