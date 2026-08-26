@@ -3,10 +3,12 @@ extends "res://addons/gut/test.gd"
 ## RED-first binding suite for tools/evidence/Phase2RCloseoutInventory.gd.
 ##
 ## Every committed-evidence mode is proven against a throwaway `git clone --shared --no-checkout`
-## of this repository. The alternates link keeps the pinned historical commit
-## d229ba82e4990336fb5309f3d6b21d16d4cae675 reachable while the fixture commits its own synthetic
-## evidence, so SEALED_PRE_ATTACH, ATTACHED_PRE_CLOSE and POST_CLOSE get honest exact-success
-## coverage through real Git plumbing without touching this repository's refs or worktree.
+## of this repository whose subject history is synthesized rather than inherited (dwm-6wa), so
+## the mode tests hold whether or not the real repository carries the sealed closeout. The
+## alternates link keeps the pinned historical commit d229ba82e4990336fb5309f3d6b21d16d4cae675
+## readable while the fixture commits its own synthetic evidence, so SEALED_PRE_ATTACH,
+## ATTACHED_PRE_CLOSE and POST_CLOSE get honest exact-success coverage through real Git
+## plumbing without touching this repository's refs or worktree.
 ##
 ## Every rejection asserts an exact failure code. Asserting only `ok == false` would pass against
 ## the unimplemented stub and against any validator that rejects everything, so it would prove
@@ -160,6 +162,37 @@ func test_the_fixture_git_helper_still_permits_an_uncontained_clone() -> void:
 	assert_false(result["ok"], "an argument-less clone must still fail inside git")
 	assert_false(str(result["output"]).begins_with("GIT_WORKING_DIRECTORY_REQUIRED"),
 		"the guard must not refuse the one call that legitimately has no working directory")
+
+
+# =============================================================================================
+# Fixture hermeticity (dwm-6wa).
+#
+# The fixture clone inherits the real repository's tip, and the mode fixtures must not: once
+# the real closeout seal landed, inherited-subject fixtures recorded the sealed paths as
+# deletions inside their synthetic evidence commits and 27 committed-mode tests failed
+# `evidence_commit_mode_invalid` while identical bytes stayed green pre-seal. The subject
+# history is therefore synthesized, and this section pins every law that keeps it hermetic.
+# =============================================================================================
+
+func test_the_fixture_subject_history_is_hermetic_to_the_repository_under_test() -> void:
+	var fixture: Dictionary = _sealed_fixture("hermetic-subject", "PRE_SEAL")
+	var repository: String = str(fixture["repository"])
+	var inherited: String = str(_run_git(repository,
+		PackedStringArray(["rev-parse", "refs/remotes/origin/HEAD"]))["output"]).strip_edges()
+	assert_true(inherited.length() == 40,
+		"the clone must still record the inherited tip it was cut from: %s" % inherited)
+	assert_ne(str(fixture["subject_commit"]), inherited,
+		"the fixture subject must be synthetic rather than the inherited real tip")
+	assert_true(_run_git(repository, PackedStringArray(["rev-parse", "--verify", "HEAD~1"]))["ok"],
+		"the synthetic base must exist so rejection fixtures can name a real other commit")
+	assert_false(_run_git(repository, PackedStringArray(["rev-parse", "--verify", "HEAD~2"]))["ok"],
+		"the fixture history must stop at its own synthetic base rather than reach real history")
+	assert_eq(str(_run_git(repository, PackedStringArray(["ls-tree", "-r", "--name-only", "HEAD",
+		"--", EVIDENCE_ROOT_RELATIVE]))["output"]).strip_edges(), "",
+		"the synthetic subject tree must not carry a sealed closeout root")
+	assert_eq(str(_run_git(repository, PackedStringArray(["diff-tree", "-r", "--no-commit-id",
+		"--name-only", "HEAD"]))["output"]).strip_edges(), "",
+		"the synthetic subject commit must diff empty so PRE_SEAL holds in every world")
 
 
 ## Returns the first 40-character lowercase hex token in the text, or "" when there is none.
@@ -1199,7 +1232,31 @@ func _make_fixture_repository(name: String) -> String:
 		return destination
 	assert_true(_run_git(destination, PackedStringArray(["read-tree", head]))["ok"],
 		"the fixture index must be populated from HEAD without a full checkout")
-	var checkout: PackedStringArray = PackedStringArray(["checkout", head, "--"])
+	## dwm-6wa: the subject history is synthesized rather than inherited so every ceremony-mode
+	## test holds in both the pre-seal and the post-seal world. Dropping the sealed closeout
+	## root from the index makes the later evidence commit stage pure additions, committing the
+	## same tree twice (a parentless base, then the subject) keeps the subject's own diff empty
+	## for PRE_SEAL's head-touches check, and the two-commit chain preserves exactly the history
+	## depth the wrong-parent rejection needs. Two mutation survivors are documented rather
+	## than chased: checking out from `head` instead of the subject is equivalent by
+	## construction (both trees agree on every FIXTURE_CHECKOUT_PATHS entry), and dropping
+	## `--ignore-unmatch` is unobservable while the real repository carries the seal, because
+	## the pathspec then always matches - the flag exists so the same fixture still builds in
+	## a pre-seal world.
+	assert_true(_run_git(destination, PackedStringArray(["rm", "--cached", "-r", "-q",
+		"--ignore-unmatch", "--", EVIDENCE_ROOT_RELATIVE]))["ok"],
+		"the sealed closeout root must leave the fixture index")
+	var tree: String = str(_run_git(destination, PackedStringArray(["write-tree"]))["output"]).strip_edges()
+	assert_true(tree.length() == 40, "the synthetic fixture tree must be written: %s" % tree)
+	var genesis: String = str(_run_git(destination, PackedStringArray(["commit-tree", tree, "-m",
+		"fixture: synthetic phase2r history base"]))["output"]).strip_edges()
+	assert_true(genesis.length() == 40, "the synthetic base commit must be created: %s" % genesis)
+	var subject: String = str(_run_git(destination, PackedStringArray(["commit-tree", tree, "-p",
+		genesis, "-m", "fixture: synthetic phase2r subject"]))["output"]).strip_edges()
+	assert_true(subject.length() == 40, "the synthetic subject commit must be created: %s" % subject)
+	assert_true(_run_git(destination, PackedStringArray(["reset", "--soft", subject]))["ok"],
+		"the fixture head must move to the synthetic subject")
+	var checkout: PackedStringArray = PackedStringArray(["checkout", subject, "--"])
 	checkout.append_array(PackedStringArray(FIXTURE_CHECKOUT_PATHS))
 	assert_true(_run_git(destination, checkout)["ok"], "the fixture working files must materialise")
 	_fixture_directories.append(destination)
