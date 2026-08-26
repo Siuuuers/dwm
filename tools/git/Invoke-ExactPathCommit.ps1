@@ -162,7 +162,7 @@ foreach ($path in $WhitespaceExemptPaths) {
     Assert-RepoPath $path
     if ($whitespaceExempt.Contains($path)) { throw ('Duplicate whitespace-exempt path: ' + $path) }
     if (-not $expected.Contains($path)) { throw ('Whitespace-exempt path is not in the commit set: ' + $path) }
-    if ($path -cnotmatch '^evidence/phase_2r/logs/[^/]+\.log$') {
+    if ($path -cnotmatch '^evidence/phase_2r/(logs|closeout/logs)/[^/]+\.log$') {
         throw ('Whitespace exemption is restricted to immutable Phase 2R logs: ' + $path)
     }
     $whitespaceExempt[$path] = $true

@@ -205,6 +205,11 @@ try {
     Assert-Success (Invoke-CommitFixture $repo ([ordered]@{'evidence/phase_2r/logs/captured.log'='A'}) -WhitespaceExempt @('evidence/phase_2r/logs/captured.log')) 'explicit-immutable-log-whitespace-exemption'
 
     $repo = New-FixtureRepository
+    [void][IO.Directory]::CreateDirectory((Join-Path $repo 'evidence\phase_2r\closeout\logs'))
+    Write-Utf8File (Join-Path $repo 'evidence\phase_2r\closeout\logs\closeout-captured.log') "captured trailing whitespace `n"
+    Assert-Success (Invoke-CommitFixture $repo ([ordered]@{'evidence/phase_2r/closeout/logs/closeout-captured.log'='A'}) -WhitespaceExempt @('evidence/phase_2r/closeout/logs/closeout-captured.log')) 'explicit-closeout-log-whitespace-exemption'
+
+    $repo = New-FixtureRepository
     Write-Utf8File (Join-Path $repo 'source.gd') "var unsafe = true `n"
     Assert-Rejected (Invoke-CommitFixture $repo ([ordered]@{'source.gd'='A'}) -WhitespaceExempt @('source.gd')) 'Whitespace exemption is restricted to immutable Phase 2R logs' 'source-whitespace-exemption-forbidden'
 
