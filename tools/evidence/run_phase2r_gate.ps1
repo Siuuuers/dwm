@@ -1459,14 +1459,17 @@ function Invoke-Phase2RCloseoutGate {
         }
         if ($bindings.Count -eq 0) { throw ('GATE_REQUIREMENT_UNCOVERED: ' + $requirementId) }
         ## Both consumers order these records by ordinal comparison of command_id|log_path;
-        ## Sort-Object's linguistic comparison can disagree on hyphenated ids, so sort ordinal.
-        $bindingArray = $bindings.ToArray()
-        $bindingKeys = New-Object string[] $bindingArray.Length
-        for ($bindingIndex = 0; $bindingIndex -lt $bindingArray.Length; $bindingIndex += 1) {
-            $bindingKeys[$bindingIndex] = [string]$bindingArray[$bindingIndex]['command_id'] + '|' + [string]$bindingArray[$bindingIndex]['log_path']
+        ## Sort-Object's linguistic comparison can disagree on hyphenated ids, and the
+        ## parallel-array [Array]::Sort(keys, items, comparer) overload leaves the items
+        ## array unsorted under Windows PowerShell 5.1, so order the records through an
+        ## ordinal SortedDictionary instead.
+        $sortedBindings = New-Object 'Collections.Generic.SortedDictionary[string,object]' ([StringComparer]::Ordinal)
+        foreach ($binding in $bindings) {
+            $bindingKey = [string]$binding['command_id'] + '|' + [string]$binding['log_path']
+            if ($sortedBindings.ContainsKey($bindingKey)) { throw ('GATE_REQUIREMENT_RECORD_DUPLICATE: ' + $requirementId + ' ' + $bindingKey) }
+            $sortedBindings.Add($bindingKey, $binding)
         }
-        [Array]::Sort($bindingKeys, $bindingArray, [StringComparer]::Ordinal)
-        $requirementEvidence[$requirementId] = $bindingArray
+        $requirementEvidence[$requirementId] = @($sortedBindings.Values)
     }
 
     ## Beads results from the three read-only commands' own logs.
