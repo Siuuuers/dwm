@@ -99,7 +99,7 @@
         "expected_priority": 0,
         "allowed_statuses": ["open", "in_progress", "closed"],
         "expected_blockers": ["dwm-p2r.1", "dwm-p2r.2", "dwm-p2r.3", "dwm-p2r.4", "dwm-p2r.5", "dwm-p2r.6", "dwm-p2r.7", "dwm-p2r.8", "dwm-p2r.9"],
-        "expected_contract_sha256": "f66315ddd2367565d22fab059562392d67a691310f561f34f9ebbef476788aa2"
+        "expected_contract_sha256": "7f71df456624042a95cb99470c78d45245650feb20e4accc2372efe5322699e2"
       },
       {
         "issue_id": "dwm-p2r.1",
