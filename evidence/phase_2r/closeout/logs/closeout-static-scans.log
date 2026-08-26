@@ -1,0 +1,15 @@
+STATIC_SCAN unconditional_passes violations=0
+STATIC_SCAN test_production_user_dir violations=0
+STATIC_SCAN unclassified_diagnostics violations=0
+STATIC_SCAN duplicate_identity_owners violations=0
+STATIC_SCAN canonical_identity_minting violations=0
+STATIC_SCAN caller_supplied_route_effect_cost violations=0
+STATIC_SCAN direct_domain_bag_mutation violations=0
+STATIC_SCAN schedule_migration_receipts violations=0
+STATIC_SCAN synthetic_empty_day_resolution violations=0
+STATIC_SCAN minesweeper_lifetime_save_lock violations=0
+STATIC_SCAN whole_pre_board_rollback violations=0
+STATIC_SCAN player_facing_simulation_authority violations=0
+STATIC_SCAN oyo3_schedule_view_owner violations=0
+STATIC_SCAN relationship_witness_application violations=0
+STATIC_SCAN final_ending_claim violations=0

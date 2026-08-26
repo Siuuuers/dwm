@@ -1,0 +1,420 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm-p2r13-resealed/.godot/phase2r_tests/9527ea6e-4348-4d85-b48b-40d89da7635b/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_timeline_manifest.gd
+* test_exact_timeline_manifest_is_required
+* test_exactly_61_records_one_per_physical_file
+* test_status_counts_are_24_placeholder_37_draft
+* test_no_broad_pattern_lookup_remains_in_catalog
+* test_catalog_resolves_ids_through_manifest
+* test_endings_manifest_matches_canonical_rules
+6/6 passed.
+
+
+res://tests/unit/test_dialogic_runtime_adapter.gd
+* test_adapter_script_exists
+* test_bind_connects_audited_signals_once
+* test_bind_rejects_missing_text_subsystem
+* test_bind_rejects_missing_choices_subsystem
+* test_bind_rejects_null_runtime
+* test_start_timeline_orders_clear_reapply_then_start
+* test_capture_checkpoint_never_serializes_full_state
+* test_capture_and_restore_state_roundtrip
+* test_halt_ends_timeline_and_returns_error
+9/9 passed.
+
+
+res://tests/unit/test_narrative_checkpoint_schema.gd
+* test_schema_script_exists
+* test_effect_boundary_builds_and_validates
+* test_line_boundary_uses_revealed_event
+* test_choice_boundary_uses_before_event
+* test_timeline_start_stages_first_event
+* test_timeline_complete_is_terminal
+* test_scene_transition_is_external_route
+* test_reject_wrong_fingerprint
+* test_reject_illegal_successor
+* test_reject_timeline_start_with_semantic_id
+* test_reject_line_with_transaction_id
+* test_reject_unregistered_event
+* test_reject_event_kind_mismatch
+* test_reject_timeline_completed_flag_on_nonterminal
+14/14 passed.
+
+
+res://tests/unit/test_save_manager_narrative_checkpoint_port.gd
+* test_port_script_exists
+* test_configure_first_returns_instance_ids
+* test_configure_same_is_idempotent
+* test_configure_rejects_replacement_with_different_port
+* test_configure_rejects_missing_provider_key
+* test_configure_rejects_extra_provider_key
+* test_configure_rejects_non_callable_provider
+* test_configure_rejects_missing_real_port_method
+* test_commit_current_boundary_success_and_receipt
+* test_commit_current_boundary_calls_providers_in_order
+* test_commit_current_boundary_rejects_boundary_id_mismatch
+* test_commit_current_boundary_duplicate_returns_stored_receipt
+* test_commit_current_boundary_conflict_on_different_bytes
+* test_commit_current_boundary_rolls_back_on_commit_failure
+* test_line_boundary_derives_event_id
+* test_preview_checkpoint_id_proxies
+* test_low_level_prepare_commit_roundtrip
+* test_low_level_rejects_foreign_owner
+* test_narrative_provider_refusal_blocks_prepare
+* test_prepare_rejects_checkpoint_id_mismatch
+* test_commit_rejects_modified_candidate
+* test_commit_rejects_foreign_owner
+* test_only_one_candidate_may_exist_at_a_time
+* test_rollback_releases_the_owner_for_a_later_transaction
+* test_prepare_result_is_recursively_detached
+25/25 passed.
+
+
+res://tests/unit/test_dialogic_ending_playback_port.gd
+* test_port_script_exists
+* test_initialize_accepts_bridge_and_rejects_replacement
+* test_initialize_rejects_bad_bridge
+* test_start_primary_returns_immediate_start_receipt
+* test_start_epilogue_ok
+* test_start_rejects_illegal_triples
+* test_synchronous_bridge_failure_creates_no_binding
+* test_completion_emits_playback_completed
+* test_mismatched_token_does_not_complete
+* test_async_failure_clears_binding_and_allows_restart
+* test_concurrent_identical_start_returns_cached_result
+* test_different_in_flight_returns_playback_in_progress
+12/12 passed.
+
+
+res://tests/unit/test_effect_resolver.gd
+* test_known_stat_effects_mutate
+* test_known_money_and_coin_effects
+* test_unknown_effect_blocks_all
+WARNING: EffectResolver: unknown effect id(s) in ["pressure:+2", "bogus:+1"]; applying nothing. Source: 
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] apply_effect_ids (res://autoload/EffectResolver.gd:117)
+       [1] test_unknown_effect_blocks_all (res://tests/unit/test_effect_resolver.gd:28)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_inventory_and_gift_effects
+* test_affection_and_attitude_and_inter_friend
+* test_minesweeper_floor_alias_and_clamp
+* test_resolve_effects_normalizes_without_mutating
+* test_resolve_effects_rejects_unknown_and_non_string_ids
+* test_resolve_effects_accepts_an_empty_batch
+* test_apply_resolved_descriptors_requires_an_explicit_target
+* test_apply_resolved_descriptors_applies_onto_the_given_target
+* test_apply_resolved_descriptors_rejects_malformed_descriptors
+12/12 passed.
+
+
+res://tests/unit/test_effect_transactions.gd
+* test_variable_transaction_api_is_required
+* test_effect_transaction_api_is_required
+* test_detached_run_candidate_seam_is_required
+* test_resolver_exposes_pure_resolution
+* test_resolver_rejects_unknown_id_without_mutation
+* test_effect_transaction_is_atomic_on_invalid_member
+* test_effect_transaction_applies_once_and_is_idempotent
+* test_effect_transaction_conflict_on_same_id_different_payload
+* test_variable_transaction_commits_registered_value_once
+* test_variable_transaction_rejects_without_mutation
+* test_command_receipts_are_present_and_detached
+* test_applied_transaction_id_sets_start_empty
+* test_game_state_never_touches_the_gallery_ledger
+13/13 passed.
+
+
+res://tests/unit/test_run_snapshot_schema.gd
+* test_run_snapshot_schema_exists
+* test_build_produces_exact_valid_shape
+* test_validate_accepts_fixture_and_rejects_day8_and_shapes
+* test_validate_rejection_matrix
+* test_validate_enforces_ending_id_is_a_canonical_primary
+* test_validate_primitive_tree_rejects_engine_types
+* test_prepare_candidate_is_detached
+* test_is_compatible_bundle_checks_versions
+* test_derive_route_restore_context_exact_shape
+* test_schema_version_is_four
+* test_top_level_committed_schedule_replaces_legacy_schedule
+* test_gameplay_schedule_entries_is_retired
+* test_committed_schedule_validation_delegates_to_schedule_state_schema
+* test_committed_schedule_day_must_equal_lifecycle_day
+* test_committed_schedule_is_recursively_detached
+* test_v3_build_round_trips_the_aggregate_unchanged
+* test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_null
+* test_desktop_is_a_v4_top_level_member
+* test_desktop_lifecycle_identity_fields_are_exact_and_bound
+* test_desktop_board_and_consequence_delegate_to_their_own_owners
+* test_v3_pre_desktop_fixture_lacks_the_v4_member
+21/21 passed.
+
+
+res://tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_four_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+6/6 passed.
+
+
+res://tests/unit/test_save_migrations.gd
+* test_save_migrations_exists
+* test_ending_id_migration_map_and_passthrough
+* test_pair_token_migration
+* test_snapshot_v1_to_v2
+* test_migrate_document_rejects_pre_v4_source_after_running_the_historical_chain
+* test_schema_dispatch_rejects_future_and_invalid
+* test_v3_pre_desktop_source_rejects_unchanged
+* test_migrate_document_rejects_bad_locator
+* test_legacy_day8_group_synchronized_recompute
+* test_legacy_day8_non_group_preserved_at_day7
+* test_legacy_day8_fallback_bundles_are_pre_v4_and_now_find_none
+* test_legacy_day8_no_fallback_rejects
+* test_migrate_retired_true_ending_ids
+* test_snapshot_migration_fails_for_receiptless_applied_ids
+* test_document_migration_fails_for_receiptless_applied_ids
+* test_migration_adds_empty_ledger_only_when_both_arrays_are_empty
+* test_v1_to_v2_stamps_a_literal_two_not_the_current_constant
+* test_v2_to_v3_migrates_empty_legacy_schedule_to_the_canonical_empty_aggregate
+* test_v2_to_v3_takes_the_day_from_the_validated_lifecycle
+* test_v2_to_v3_rejects_nonempty_top_level_schedule
+* test_v2_to_v3_rejects_nonempty_gameplay_schedule_entries
+* test_v2_to_v3_rejects_malformed_legacy_representations
+* test_v2_to_v3_never_invents_a_source_receipt_for_an_accepted_invitation
+* test_v2_to_v3_rejects_an_invitation_accepted_earlier_and_since_resolved
+* test_v2_to_v3_never_fabricates_a_contacts_section
+* test_v2_to_v3_adds_only_the_two_empty_contacts_indexes
+* test_v2_to_v3_never_adopts_the_current_registry_fingerprint
+* test_v1_snapshot_still_travels_the_real_v1_to_v3_chain_before_the_v4_rejection
+* test_migration_never_touches_the_external_publication_ledger
+29/29 passed.
+
+
+res://tests/unit/test_skip_policy.gd
+* test_skip_policy_script_exists
+* test_skip_stops_before_variable_transaction
+* test_every_registered_boundary_stops_the_skip_in_both_modes
+* test_all_text_advances_through_unseen_text
+* test_all_text_advances_through_seen_text
+* test_read_only_advances_only_through_previously_visited_text
+* test_current_line_is_always_revealed_and_marked_visited
+* test_invalid_mode_behaves_exactly_as_read_only
+* test_decision_shape_is_exact
+9/9 passed.
+
+
+res://tests/unit/test_input_accessibility.gd
+* test_required_actions_exist
+* test_make_button_focusable
+* test_focus_first_control_finds_button
+* test_rebind_unknown_action_safe
+* test_permanent_settings_are_not_owned_by_game_state
+* test_accessibility_apply_no_crash
+* test_minimum_click_size_positive
+[WARNING]:  Test script has 3 unfreed children.  Increase log level for more details.
+7/7 passed.
+
+
+res://tests/unit/tooling/test_no_unconditional_pass.gd
+* test_audit_tool_exists
+* test_audit_flags_a_constant_true_assertion
+* test_audit_flags_bare_pass_test
+* test_audit_accepts_a_real_assertion
+* test_audit_accepts_constant_true_alongside_a_real_assertion
+* test_audit_ignores_non_test_functions
+* test_repository_contains_no_unconditional_pass_tests
+7/7 passed.
+
+
+res://tests/unit/tooling/test_dialogic_gate_summary.gd
+* test_gate_summary_writer_is_required
+* test_build_succeeds_on_complete_green_inputs
+* test_build_rejects_wrong_input_key_set
+* test_build_rejects_a_missing_or_escaping_path
+* test_build_rejects_fixture_count_mismatch
+* test_build_rejects_any_fixture_failure
+* test_build_rejects_duplicate_or_empty_requirement_ids
+* test_summary_links_dwm_p2r_8_and_claims_no_authorization
+* test_summary_contains_only_sorted_primitive_records
+9/9 passed.
+
+
+res://tests/integration/test_dialogic_restore.gd
+* test_prepare_accepts_matching_checkpoint
+* test_prepare_still_accepts_empty_checkpoint
+* test_prepare_rejects_malformed_input_fail_closed
+* test_prepare_reports_content_incompatible_for_unknown_timeline
+* test_prepare_reports_content_incompatible_for_fingerprint_drift
+* test_prepare_reports_content_incompatible_for_removed_event
+* test_prepare_fails_closed_on_structurally_broken_checkpoint
+* test_apply_requires_route_ready_token
+* test_revealed_event_starts_and_reveals
+* test_before_event_stages_without_executing_then_resumes_on_finalize
+* test_rollback_cancels_pending_resume
+11/11 passed.
+
+
+res://tests/integration/test_narrative_checkpoint_wiring.gd
+* test_bridge_and_game_state_retain_the_same_adapter_instance
+* test_both_consumers_reject_a_second_adapter
+* test_adapter_configures_from_one_real_checkpoint_port
+* test_game_state_snapshot_input_provider_is_pure
+* test_scene_router_injects_exact_ending_ports
+* test_scene_router_rejects_replacement_and_bad_ports
+* test_active_app_id_callable_is_stable_and_null_before_host
+7/7 passed.
+
+
+res://tests/integration/test_ending_dialogic_wiring.gd
+* test_initialize_loads_ending_manifest
+* test_start_primary_returns_six_field_receipt
+* test_start_epilogue_resolves_manifest
+* test_unknown_and_retired_ids_reject
+* test_role_mismatch_rejects
+* test_invalid_context_keys_reject
+* test_completion_emits_tokenized_finish
+* test_invalid_runtime_event_halts_and_fails_playback
+* test_postscript_start_accepts_only_postscript_role
+* test_postscript_finishes_with_its_own_token
+* test_configure_narrative_checkpoint_port_identity
+11/11 passed.
+
+
+res://tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+11/11 passed.
+
+
+res://tests/integration/test_dialogic_effect_boundary.gd
+* test_effect_transaction_payload_commits_through_game_state
+* test_effect_transaction_is_idempotent_across_repeat_signals
+* test_gate_failure_blocks_before_any_mutation
+* test_gate_release_allows_the_same_transaction_afterwards
+* test_unknown_effect_in_payload_leaves_state_unchanged
+* test_unregistered_payload_kind_halts_without_mutation
+* test_malformed_transaction_payload_rejects_without_mutation
+* test_transaction_checkpoint_provider_serves_only_the_active_event
+* test_variable_transaction_payload_rejects_unregistered_variable
+9/9 passed.
+
+
+res://tests/integration/test_dialogic_skip.gd
+* test_bridge_exposes_the_skip_command
+* test_all_text_fast_forwards_through_unread_text
+* test_read_only_stops_at_the_first_unread_line
+* test_read_only_advances_through_previously_visited_text
+* test_visited_is_read_before_it_is_marked
+* test_every_boundary_stops_the_skip_without_being_consumed
+* test_profile_write_failure_halts_advancement
+* test_skip_requires_a_configured_context
+8/8 passed.
+
+
+res://tests/integration/test_dialogic_bridge_contract.gd
+* test_physical_fixture_and_manifest_are_required
+* test_fixture_manifest_is_strict_and_separate_from_production
+* test_fixture_registers_every_declared_semantic_id
+* test_fixture_signal_descriptors_are_exact_and_non_gameplay
+* test_physical_fixture_text_declares_its_header_and_labels
+* test_fixture_event_indices_are_recorded_after_import
+* test_fixture_content_fingerprint_matches_the_physical_file
+* test_the_caller_forgeable_finisher_is_gone_from_source_and_from_the_instance
+* test_the_runtime_end_signal_finalizes_the_retained_timeline_exactly_once
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#311771008178>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_an_idle_bridge_emits_no_completion_at_all
+2 orphans
+10/10 passed.
+
+
+res://tests/integration/test_restore_transaction.gd
+* test_configure_restore_participants_validates_eight_keys
+* test_restore_success_applies_and_finalizes_in_order
+* test_apply_failure_rolls_back_in_reverse_and_emits_nothing
+* test_rollback_failure_latches_shared_gate
+* test_narrative_content_incompatibility_is_typed_for_bundle_fallback
+* test_empty_playhead_stays_compatible_across_bundles
+* test_malformed_narrative_input_is_fail_closed_not_incompatible
+7/7 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_timeline_manifest.gd
+    - Outside Tests
+        * [<Node#96468993760>(subsystem_animation.gd)]
+        * [<Node#96485770977>(subsystem_audio.gd)]
+        * [<Node#96502548194>]
+        * [<Node#96519325411>]
+        * [<Node#96536102628>(subsystem_backgrounds.gd)]
+        * [<Node#97072973541>(subsystem_choices.gd)]
+        * [<Timer#97089750758>]
+        * [<Node#97106527975>(subsystem_expression.gd)]
+        * [<Node#97140082412>(subsystem_glossary.gd)]
+        * [<Node#97156859629>(subsystem_history.gd)]
+        * [<Node#97173636846>(subsystem_input.gd)]
+        * [<Timer#97190414063>]
+        * [<Node#97207191280>(subsystem_jump.gd)]
+        * [<Node#97223968497>(subsystem_containers.gd)]
+        * [<Node#97240745714>(subsystem_portraits.gd)]
+        * [<Node#97777616627>(subsystem_save.gd)]
+        * [<Timer#97794393844>]
+        * [<Node#97811171061>(subsystem_settings.gd)]
+        * [<Node#97827948281>(subsystem_styles.gd)]
+        * [<Node#97844725498>(subsystem_text.gd)]
+        * [<Node#97928611583>(subsystem_text_input.gd)]
+        * [<Node#97945388800>(subsystem_variables.gd)]
+        * [<Node#97962166017>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#97978943234>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Warnings              1
+
+Scripts              22
+Tests               253
+Passing Tests       253
+Asserts            1469
+Orphans              24
+Time              3.834s
+
+
+---- All tests passed! ----
+
