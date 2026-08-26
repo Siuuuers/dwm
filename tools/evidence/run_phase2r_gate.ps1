@@ -1289,7 +1289,7 @@ function Invoke-Phase2RCloseoutGate {
         $contractId = [string]$contract.issue_id
         $inventoryContracts.Add([ordered]@{
             issue_id = $contractId
-            expected_spec_id = [string]$contract.expected_metadata.spec_id
+            expected_spec_id = [string]$contract.expected_spec_id
             status = [string]$issuesById[$contractId].status
             requirement_ids = @($contract.expected_metadata.requirement_ids | ForEach-Object { [string]$_ })
         })
