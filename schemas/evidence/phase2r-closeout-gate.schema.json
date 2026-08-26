@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Phase-2R closeout gate",
+  "description": "The single strict shape of evidence/phase_2r/closeout/gate.json. The envelope members (schema_version, evidence_id, kind, captured_at_utc, worktree, versions, counts, diagnostics) follow prompt_docs/schemas/evidence_report.v1.json so one document-aware validator can carry both. The consumer-pinned members (subject_commit, preclose_beads_snapshot_sha256, non_contract_children, generated_paths, requirement_evidence, command_records, primary_logs) are fixed by Phase2RCloseoutInventory and must never drift from it. Only keywords supported by tools/evidence/EvidenceValidator.gd appear here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_id",
+    "kind",
+    "captured_at_utc",
+    "subject_commit",
+    "worktree",
+    "versions",
+    "digests",
+    "counts",
+    "contract_inventory_sha256",
+    "preclose_beads_snapshot_sha256",
+    "non_contract_children",
+    "generated_paths",
+    "requirement_evidence",
+    "command_records",
+    "diagnostics",
+    "beads_results",
+    "source_binding_scans",
+    "static_scans",
+    "primary_logs"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "evidence_id": {
+      "type": "string",
+      "const": "phase_2r.closeout_gate"
+    },
+    "kind": {
+      "description": "The document-kind discriminator EvidenceValidator dispatches its cross-field pass on.",
+      "type": "string",
+      "const": "phase2r_closeout_gate"
+    },
+    "captured_at_utc": {
+      "type": "string",
+      "minLength": 20,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    },
+    "subject_commit": {
+      "description": "The clean tooling commit the gate attests. Phase2RCloseoutInventory requires the evidence commit's sole parent to equal it.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "worktree": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "tree", "status_porcelain_sha256", "clean"],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "status_porcelain_sha256": {
+          "description": "sha256 of the exact bytes of `git status --porcelain`. The clean run hashes the empty string.",
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "clean": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["godot", "gut", "dialogic", "beads", "config"],
+      "properties": {
+        "godot": {"type": "string", "minLength": 1},
+        "gut": {"type": "string", "minLength": 1},
+        "dialogic": {"type": "string", "minLength": 1},
+        "beads": {"type": "string", "minLength": 1},
+        "config": {
+          "description": "project.godot config_version, the single canonical assignment ProjectConfigGuard pins.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "digests": {
+      "description": "The four authority documents the gate binds by path and content.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority", "plan", "requirement_index", "design_authority_registry"],
+      "properties": {
+        "authority": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+        "plan": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+        "requirement_index": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+        "design_authority_registry": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}
+      }
+    },
+    "counts": {
+      "description": "The summed test counts across every command record. failing is zero by construction; pending carries the explicit allowance.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scripts", "tests", "passing", "failing", "pending", "asserts", "load_failures"],
+      "properties": {
+        "scripts": {"type": "integer", "minimum": 0},
+        "tests": {"type": "integer", "minimum": 0},
+        "passing": {"type": "integer", "minimum": 0},
+        "failing": {"type": "integer", "const": 0},
+        "pending": {"type": "integer", "minimum": 0},
+        "asserts": {"type": "integer", "minimum": 0},
+        "load_failures": {"type": "integer", "const": 0}
+      }
+    },
+    "contract_inventory_sha256": {
+      "description": "sha256 of evidence/phase_2r/closeout/contract_inventory.json, the child/evidence inventory the gate carries forward.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "preclose_beads_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "non_contract_children": {
+      "description": "Carried through unmerged from the inventory envelope. Phase2RCloseoutInventory compares this to _non_contract_children() by exact equality, so counts and ID lists stay separate and declaration-ordered.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["historical_helpers", "execution_remediation_children"],
+      "properties": {
+        "historical_helpers": {"type": "object", "additionalProperties": false, "required": ["count", "ids"], "properties": {"count": {"type": "integer", "minimum": 0}, "ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}}},
+        "execution_remediation_children": {"type": "object", "additionalProperties": false, "required": ["count", "ids"], "properties": {"count": {"type": "integer", "minimum": 0}, "ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}}}
+      }
+    },
+    "generated_paths": {
+      "description": "The exact sorted projected regular-file inventory below evidence/phase_2r/closeout/. Phase2RCloseoutInventory requires it to equal the evidence commit's changed-path set.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^evidence/phase_2r/closeout/[A-Za-z0-9._/-]+$"
+      }
+    },
+    "requirement_evidence": {
+      "description": "Sorted-key map of fully satisfied Phase-2R requirement IDs to nonempty arrays of fresh command/log bindings. Key names are dynamic, so the exact key set, insertion order, record order and triple-hash agreement are enforced by the cross-field pass and by Phase2RCloseoutInventory rather than by this schema.",
+      "type": "object"
+    },
+    "command_records": {
+      "description": "The sealed evidence/phase_2r/schedule/gate.json commands[] shape plus command_id, sha256, argv and exit_code. sha256 covers the canonical bytes of the record with sha256 removed.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "sha256",
+          "suite_id",
+          "argv",
+          "exit_code",
+          "log_name",
+          "log_path",
+          "log_sha256",
+          "scripts",
+          "suites",
+          "executed_suites",
+          "tests",
+          "passing",
+          "failing",
+          "pending",
+          "asserts",
+          "load_failures"
+        ],
+        "properties": {
+          "command_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "suite_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]*$"},
+          "argv": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "exit_code": {"type": "integer", "const": 0},
+          "log_name": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+          "log_path": {"type": "string", "pattern": "^evidence/phase_2r/closeout/logs/[A-Za-z0-9._-]+$"},
+          "log_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "scripts": {"type": "integer", "minimum": 0},
+          "suites": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "executed_suites": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "tests": {"type": "integer", "minimum": 0},
+          "passing": {"type": "integer", "minimum": 0},
+          "failing": {"type": "integer", "const": 0},
+          "pending": {"type": "integer", "minimum": 0},
+          "asserts": {"type": "integer", "minimum": 0},
+          "load_failures": {"type": "integer", "const": 0}
+        }
+      }
+    },
+    "diagnostics": {
+      "description": "Every non-fatal observation a command emitted, each classified. An unclassified diagnostic fails the static scan.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command_id", "classification", "detail", "log_sha256"],
+        "properties": {
+          "command_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+          "classification": {"type": "string", "enum": ["gut_orphan_count", "pending_test", "external_tool_notice"]},
+          "detail": {"type": "string", "minLength": 1},
+          "log_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "beads_results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dep_cycles", "lint", "orphans"],
+      "properties": {
+        "dep_cycles": {"type": "object", "additionalProperties": false, "required": ["command_id", "exit_code", "finding_count"], "properties": {"command_id": {"type": "string", "minLength": 1}, "exit_code": {"type": "integer", "const": 0}, "finding_count": {"type": "integer", "const": 0}}},
+        "lint": {"type": "object", "additionalProperties": false, "required": ["command_id", "exit_code", "finding_count"], "properties": {"command_id": {"type": "string", "minLength": 1}, "exit_code": {"type": "integer", "const": 0}, "finding_count": {"type": "integer", "const": 0}}},
+        "orphans": {"type": "object", "additionalProperties": false, "required": ["command_id", "exit_code", "finding_count"], "properties": {"command_id": {"type": "string", "minLength": 1}, "exit_code": {"type": "integer", "const": 0}, "finding_count": {"type": "integer", "const": 0}}}
+      }
+    },
+    "source_binding_scans": {
+      "description": "One record per sealed evidence document whose source_bindings were walked, with the distinct bound-path count observed.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["document_path", "document_sha256", "bound_path_count"],
+        "properties": {
+          "document_path": {"type": "string", "minLength": 1},
+          "document_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bound_path_count": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "static_scans": {
+      "description": "The frozen Step-5 scans. Every scan must report zero violations.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scan_id", "command_id", "violation_count"],
+        "properties": {
+          "scan_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_]*$"},
+          "command_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+          "violation_count": {"type": "integer", "const": 0}
+        }
+      }
+    },
+    "primary_logs": {
+      "description": "Every bound log's repo-relative path and hash. Excludes logs/phase2r-closeout-validate.log and logs/validation-command.jsonl, which the command record and receipt bind instead, so the gate never hashes a file produced after it.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string", "pattern": "^evidence/phase_2r/closeout/logs/[A-Za-z0-9._-]+$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  }
+}

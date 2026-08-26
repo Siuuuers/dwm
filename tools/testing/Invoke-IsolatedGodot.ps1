@@ -217,10 +217,26 @@ try {
         $evidenceFull = Get-CanonicalPath $(if ([IO.Path]::IsPathRooted($EvidenceLogPath)) { $EvidenceLogPath } else { Join-Path $repositoryRoot $EvidenceLogPath })
         [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $evidenceFull -RequireStrictDescendant)
         $parent = Split-Path -Parent $evidenceFull
-        $creationAllowed = (Test-StrictDescendant -Root (Join-Path $repositoryRoot 'evidence\phase_2r\logs') -Candidate $parent) -or
-            $parent.Equals((Get-CanonicalPath (Join-Path $repositoryRoot 'evidence\phase_2r\logs')), [StringComparison]::OrdinalIgnoreCase) -or
-            (Test-StrictDescendant -Root $dotGodot -Candidate $parent) -or
-            $parent.Equals((Get-CanonicalPath $dotGodot), [StringComparison]::OrdinalIgnoreCase)
+        # The only roots whose missing parents this runner may create on demand:
+        # evidence/phase_2r/logs is the Plan-01/02 evidence log root, evidence/phase_2r/closeout/logs
+        # is the Plan-04 Task-3 closeout runner's log root, and .godot holds throwaway run output.
+        # Every other missing parent stays refused, so this is a narrowing of one allowlist rather
+        # than a relaxation of containment: the strict-descendant, non-reparse, filename,
+        # exclusive-append and production-user-data guards around it are untouched.
+        $creationRoots = @(
+            (Join-Path $repositoryRoot 'evidence\phase_2r\logs'),
+            (Join-Path $repositoryRoot 'evidence\phase_2r\closeout\logs'),
+            $dotGodot
+        )
+        $creationAllowed = $false
+        foreach ($creationRoot in $creationRoots) {
+            $creationFull = Get-CanonicalPath $creationRoot
+            if ($parent.Equals($creationFull, [StringComparison]::OrdinalIgnoreCase) -or
+                (Test-StrictDescendant -Root $creationFull -Candidate $parent)) {
+                $creationAllowed = $true
+                break
+            }
+        }
         if (-not (Test-Path -LiteralPath $parent)) {
             if (-not $creationAllowed) { throw 'EVIDENCE_PARENT_MISSING_OUTSIDE_ALLOWED_ROOT' }
             New-VerifiedDirectory -RepositoryRoot $repositoryRoot -Path $parent

@@ -138,6 +138,30 @@ func test_the_fixture_git_helper_cannot_commit_from_a_non_repository_path() -> v
 		"an uncontained amend must fail rather than rewrite the repository under test")
 
 
+## dwm-p2r.10 Task 1 residual, folded in by Task 3 Step 2. The two tests above pin containment
+## for a non-repository PATH; this pins the remaining hole, an EMPTY path, which used to skip
+## the --git-dir/--work-tree block entirely and let git resolve up to the repository under test.
+func test_the_fixture_git_helper_refuses_an_empty_working_directory() -> void:
+	var result: Dictionary = _run_git("", PackedStringArray(["rev-parse", "HEAD"]))
+	assert_false(result["ok"],
+		"an uncontained helper call must fail closed: %s" % str(result))
+	assert_eq(_first_commit_id(str(result["output"])), "",
+		"an uncontained helper call must never resolve the repository under test")
+	assert_true(str(result["output"]).begins_with("GIT_WORKING_DIRECTORY_REQUIRED"),
+		"the refusal must be the helper's own guard rather than git's own error: %s"
+			% str(result))
+
+
+## Argument-less `clone` fails inside git rather than inside the guard, and that distinction is
+## the point: the guard classifies by argv, so a regression into a blanket ban is caught here
+## without paying for a real clone or leaving a directory behind.
+func test_the_fixture_git_helper_still_permits_an_uncontained_clone() -> void:
+	var result: Dictionary = _run_git("", PackedStringArray(["clone"]))
+	assert_false(result["ok"], "an argument-less clone must still fail inside git")
+	assert_false(str(result["output"]).begins_with("GIT_WORKING_DIRECTORY_REQUIRED"),
+		"the guard must not refuse the one call that legitimately has no working directory")
+
+
 ## Returns the first 40-character lowercase hex token in the text, or "" when there is none.
 func _first_commit_id(text: String) -> String:
 	for token: String in text.replace("\n", " ").replace("\r", " ").split(" ", false):
@@ -1679,7 +1703,15 @@ func _globalized_repository_root() -> String:
 
 func _run_git(working_directory: String, arguments: PackedStringArray) -> Dictionary:
 	var full: PackedStringArray = PackedStringArray(["-c", "core.longpaths=true"])
-	if not working_directory.is_empty():
+	if working_directory.is_empty():
+		## An empty working directory carries no --git-dir/--work-tree, so git resolves upward
+		## to the repository under test. `clone` is the sole legitimate uncontained call,
+		## because its repository does not exist yet; every other one fails closed here rather
+		## than relying on each call site to remember to pass a path.
+		if arguments.is_empty() or arguments[0] != "clone":
+			return {"ok": false, "exit_code": -1,
+				"output": "GIT_WORKING_DIRECTORY_REQUIRED: " + " ".join(arguments)}
+	else:
 		## --git-dir/--work-tree are the containment. Without them git walks up out of a missing
 		## fixture directory and silently targets the repository under test.
 		full.append_array(PackedStringArray(["-c", "safe.directory=%s" % working_directory,

@@ -2,6 +2,31 @@ class_name EvidenceValidator
 extends RefCounted
 
 const SHA256_PATTERN := "^[0-9a-f]{64}$"
+const EMPTY_SHA256 := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+
+const CLOSEOUT_ROOT := "evidence/phase_2r/closeout/"
+
+## The command-record members summed into the gate's own `counts`.
+const CLOSEOUT_COUNT_KEYS: Array[String] = [
+	"scripts", "tests", "passing", "failing", "pending", "asserts", "load_failures",
+]
+
+## The exact four members of one requirement-evidence record.
+const CLOSEOUT_EVIDENCE_KEYS: Array[String] = [
+	"command_id", "command_record_sha256", "log_path", "log_sha256",
+]
+
+## Every closeout path the runner always produces, whichever commands ran.
+const CLOSEOUT_FIXED_PATHS: Array[String] = [
+	CLOSEOUT_ROOT + "contract_inventory.json",
+	CLOSEOUT_ROOT + "gate.json",
+	CLOSEOUT_ROOT + "logs/phase2r-closeout-validate.log",
+	CLOSEOUT_ROOT + "logs/validation-command.jsonl",
+	CLOSEOUT_ROOT + "preclose_beads_snapshot.json",
+	CLOSEOUT_ROOT + "validation_receipt.json",
+]
 
 class StrictReader:
 	var source := ""
@@ -154,8 +179,19 @@ static func validate_file(path: String, schema_path: String) -> Dictionary:
 		errors.append("EVIDENCE_OR_SCHEMA_NOT_OBJECT")
 		return {"ok": false, "errors": errors, "evidence": {}}
 	_validate_schema(evidence_result.value, schema_result.value, "$", errors)
-	if errors.is_empty(): _validate_cross_fields(evidence_result.value, errors)
+	if errors.is_empty(): _validate_document(evidence_result.value, errors)
 	return {"ok": errors.is_empty(), "errors": errors, "evidence": evidence_result.value}
+
+## The cross-field pass is document-aware, dispatched on the document's own `kind`. The baseline's
+## archive, command and heading-inventory bijections have no meaning for a closeout gate, and
+## reading the baseline shape out of every document is exactly what made validate_file unusable for
+## anything but baseline.json. An unrecognised kind fails closed rather than quietly skipping every
+## cross-field law, so a new document type cannot pass on schema alone.
+static func _validate_document(evidence: Dictionary, errors: Array[String]) -> void:
+	match str(evidence.get("kind", "")):
+		"baseline": _validate_cross_fields(evidence, errors)
+		"phase2r_closeout_gate": _validate_closeout_gate(evidence, errors)
+		_: errors.append("EVIDENCE_KIND_UNSUPPORTED: " + str(evidence.get("kind", "")))
 
 static func parse_strict_text(text: String) -> Dictionary:
 	return StrictReader.new(text).parse()
@@ -231,6 +267,154 @@ static func _validate_cross_fields(evidence: Dictionary, errors: Array[String]) 
 	_validate_logs(evidence, errors)
 	_validate_inventory(evidence, source_by_path, errors)
 	if not _primitive_only(evidence): errors.append("EVIDENCE_NONPRIMITIVE")
+
+# =============================================================================================
+# Phase-2R closeout gate cross-field laws.
+#
+# Every law below is settled inside the document. Nothing here reads a log off disk: the on-disk
+# triple-hash is Phase2RCloseoutInventory._validate_requirement_mapping's job, which resolves logs
+# against the evidence root it was handed, and duplicating it here would only create a second,
+# divergent copy of the same law.
+#
+# The schema has already run and passed when this is reached, so every declared member exists with
+# its declared type. The one exception is requirement_evidence, whose keys are dynamic and whose
+# values the schema cannot constrain at all, so its records are typed-checked here.
+# =============================================================================================
+
+static func _validate_closeout_gate(gate: Dictionary, errors: Array[String]) -> void:
+	var worktree: Dictionary = gate.worktree
+	if str(worktree.commit) != str(gate.subject_commit):
+		errors.append("CLOSEOUT_SUBJECT_COMMIT_MISMATCH: " + str(worktree.commit))
+	if bool(worktree.clean) and str(worktree.status_porcelain_sha256) != EMPTY_SHA256:
+		errors.append("CLOSEOUT_WORKTREE_NOT_CLEAN")
+
+	var bound_records := {}
+	var command_logs := {}
+	var totals := {}
+	for key: String in CLOSEOUT_COUNT_KEYS: totals[key] = 0
+	var seen_commands := {}
+	for record: Dictionary in gate.command_records:
+		var command_id := str(record.command_id)
+		if seen_commands.has(command_id): errors.append("CLOSEOUT_COMMAND_ID_DUPLICATE: " + command_id)
+		seen_commands[command_id] = true
+		var bare := record.duplicate(true)
+		bare.erase("sha256")
+		if _sha256(_canonical(bare).to_utf8_buffer()) != str(record.sha256):
+			errors.append("CLOSEOUT_COMMAND_RECORD_SHA256: " + command_id)
+		## The law that commit 727051ca broke: a suite that never ran must never be reported.
+		if record.executed_suites != record.suites:
+			errors.append("CLOSEOUT_SUITE_NOT_EXECUTED: " + command_id)
+		if int(record.passing) + int(record.failing) + int(record.pending) != int(record.tests):
+			errors.append("CLOSEOUT_COMMAND_COUNTS: " + command_id)
+		if _has_traversal(str(record.log_path)):
+			errors.append("CLOSEOUT_PATH_TRAVERSAL: " + str(record.log_path))
+		bound_records["%s|%s" % [command_id, str(record.sha256)]] = record
+		command_logs[str(record.log_path)] = str(record.log_sha256)
+		for key: String in CLOSEOUT_COUNT_KEYS: totals[key] = int(totals[key]) + int(record[key])
+
+	var counts: Dictionary = gate.counts
+	for key: String in CLOSEOUT_COUNT_KEYS:
+		if int(counts[key]) != int(totals[key]): errors.append("CLOSEOUT_COUNTS_MISMATCH: " + key)
+	if int(counts.pending) > 0:
+		var declared := false
+		for diagnostic: Dictionary in gate.diagnostics:
+			declared = declared or str(diagnostic.classification) == "pending_test"
+		if not declared: errors.append("CLOSEOUT_PENDING_UNDECLARED")
+
+	var primary := {}
+	var previous_log := ""
+	for entry: Dictionary in gate.primary_logs:
+		var path := str(entry.path)
+		if not previous_log.is_empty() and path <= previous_log:
+			errors.append("CLOSEOUT_PRIMARY_LOG_UNSORTED: " + path)
+		previous_log = path
+		if _has_traversal(path): errors.append("CLOSEOUT_PATH_TRAVERSAL: " + path)
+		primary[path] = str(entry.sha256)
+		if not command_logs.has(path): errors.append("CLOSEOUT_PRIMARY_LOG_UNBOUND: " + path)
+		elif str(command_logs[path]) != str(entry.sha256):
+			errors.append("CLOSEOUT_LOG_SHA256_MISMATCH: " + path)
+	for path: Variant in command_logs.keys():
+		if not primary.has(path): errors.append("CLOSEOUT_COMMAND_LOG_UNLISTED: " + str(path))
+
+	var generated := {}
+	var previous_path := ""
+	for entry: Variant in gate.generated_paths:
+		var path := str(entry)
+		if not previous_path.is_empty() and path <= previous_path:
+			errors.append("CLOSEOUT_GENERATED_PATHS_UNSORTED: " + path)
+		previous_path = path
+		if _has_traversal(path): errors.append("CLOSEOUT_PATH_TRAVERSAL: " + path)
+		generated[path] = true
+	var projected: Array = CLOSEOUT_FIXED_PATHS.duplicate()
+	projected.append_array(primary.keys())
+	for path: Variant in projected:
+		if not generated.has(path): errors.append("CLOSEOUT_GENERATED_PATH_MISSING: " + str(path))
+
+	_validate_closeout_requirements(gate, bound_records, primary, errors)
+
+	for class_key: String in ["historical_helpers", "execution_remediation_children"]:
+		var record: Dictionary = (gate.non_contract_children as Dictionary)[class_key]
+		if int(record.count) != (record.ids as Array).size():
+			errors.append("CLOSEOUT_NON_CONTRACT_COUNT: " + class_key)
+
+
+static func _validate_closeout_requirements(gate: Dictionary, bound_records: Dictionary,
+		primary: Dictionary, errors: Array[String]) -> void:
+	var mapping: Dictionary = gate.requirement_evidence
+	var keys: Array = mapping.keys()
+	var sorted_keys: Array = keys.duplicate()
+	sorted_keys.sort()
+	if keys != sorted_keys: errors.append("CLOSEOUT_REQUIREMENT_KEY_ORDER")
+	for requirement_id: Variant in keys:
+		var records: Variant = mapping[requirement_id]
+		if typeof(records) != TYPE_ARRAY or (records as Array).is_empty():
+			errors.append("CLOSEOUT_REQUIREMENT_RECORDS_EMPTY: " + str(requirement_id))
+			continue
+		var seen := {}
+		var previous := ""
+		for entry: Variant in (records as Array):
+			if typeof(entry) != TYPE_DICTIONARY or not _exact_keys(entry, CLOSEOUT_EVIDENCE_KEYS):
+				errors.append("CLOSEOUT_REQUIREMENT_RECORD_KEYS: " + str(requirement_id))
+				continue
+			var record: Dictionary = entry
+			var ordering := "%s|%s" % [str(record.command_id), str(record.log_path)]
+			if seen.has(ordering):
+				errors.append("CLOSEOUT_REQUIREMENT_RECORD_DUPLICATE: " + str(requirement_id))
+			seen[ordering] = true
+			if not previous.is_empty() and ordering < previous:
+				errors.append("CLOSEOUT_REQUIREMENT_RECORD_ORDER: " + str(requirement_id))
+			previous = ordering
+			var bound := "%s|%s" % [str(record.command_id), str(record.command_record_sha256)]
+			if not bound_records.has(bound):
+				errors.append("CLOSEOUT_REQUIREMENT_COMMAND_UNBOUND: " + str(requirement_id))
+				continue
+			var command_record: Dictionary = bound_records[bound]
+			if str(record.log_sha256) != str(command_record.log_sha256) \
+					or str(record.log_sha256) != str(primary.get(str(record.log_path), "")):
+				errors.append("CLOSEOUT_REQUIREMENT_LOG_HASH: " + str(requirement_id))
+
+
+## A schema pattern cannot forbid a "." or ".." component: both are built only from characters
+## every legal component needs, so "evidence/phase_2r/closeout/logs/.." satisfies the pattern
+## exactly. Components, not characters, are the only level this can be settled at.
+static func _has_traversal(path: String) -> bool:
+	for component: String in path.split("/"):
+		if component == "." or component == "..": return true
+	return false
+
+
+static func _exact_keys(value: Dictionary, expected: Array[String]) -> bool:
+	var actual: Array = value.keys()
+	actual.sort()
+	var wanted: Array = expected.duplicate()
+	wanted.sort()
+	return actual == wanted
+
+
+static func _canonical(value: Variant) -> String:
+	var written: Dictionary = _CANONICAL_JSON.stringify(value)
+	return str(written.get("value", "")) if written.get("ok", false) else " uncanonicalisable"
+
 
 static func _validate_archive_record(record: Dictionary, label: String, errors: Array[String]) -> void:
 	_validate_base64_hash(record, "content_base64", "sha256", "byte_length", label + ":" + str(record.path), errors)
