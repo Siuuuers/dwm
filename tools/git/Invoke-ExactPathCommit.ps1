@@ -181,12 +181,12 @@ foreach ($path in $OptionalPresentStatus.Keys) {
 
 $nonemptyCode = Invoke-GitQuiet @('diff','--cached','--quiet') 'Staged index inspection'
 if ($nonemptyCode -eq 0) { throw 'Refusing an empty commit.' }
-$stagedResult = Invoke-GitSafe @('-c','core.quotepath=false','diff','--cached','--name-status','--find-renames=50%','--find-copies=50%','--find-copies-harder')
+$stagedResult = Invoke-GitSafe @('-c','core.quotepath=false','diff','--cached','--name-status','--no-renames')
 if ($stagedResult.ExitCode -ne 0) { throw 'Unable to inspect staged statuses.' }
 $stagedLines = @($stagedResult.Stdout)
 $stagedMap = ConvertTo-StatusMap $stagedLines 'Staged index'
 Assert-ExactMap $stagedMap $expected 'Staged index'
-$stagedRawResult = Invoke-GitSafe @('-c','core.quotepath=false','diff','--cached','--raw','--no-abbrev','--find-renames=50%','--find-copies=50%','--find-copies-harder')
+$stagedRawResult = Invoke-GitSafe @('-c','core.quotepath=false','diff','--cached','--raw','--no-abbrev','--no-renames')
 if ($stagedRawResult.ExitCode -ne 0) { throw 'Unable to inspect staged raw modes.' }
 $stagedRawLines = @($stagedRawResult.Stdout)
 $stagedRawMap = ConvertTo-RawModeMap $stagedRawLines 'Staged index'
@@ -223,12 +223,12 @@ $parentLine = [string]::Join(' ', @($parentResult.Stdout)).Trim() -split ' '
 if ($parentResult.ExitCode -ne 0 -or $parentLine.Count -ne 2 -or $parentLine[1] -cne $parent) {
     throw 'Committed boundary is not the sole direct child of the expected parent.'
 }
-$committedResult = Invoke-GitSafe @('-c','core.quotepath=false','diff-tree','--no-commit-id','-r','--name-status','--find-renames=50%','--find-copies=50%','--find-copies-harder',$head)
+$committedResult = Invoke-GitSafe @('-c','core.quotepath=false','diff-tree','--no-commit-id','-r','--name-status','--no-renames',$head)
 if ($committedResult.ExitCode -ne 0) { throw 'Unable to inspect committed statuses.' }
 $committedLines = @($committedResult.Stdout)
 $committedMap = ConvertTo-StatusMap $committedLines 'Committed boundary'
 Assert-ExactMap $committedMap $expected 'Committed boundary'
-$committedRawResult = Invoke-GitSafe @('-c','core.quotepath=false','diff-tree','--no-commit-id','-r','--raw','--no-abbrev','--find-renames=50%','--find-copies=50%','--find-copies-harder',$head)
+$committedRawResult = Invoke-GitSafe @('-c','core.quotepath=false','diff-tree','--no-commit-id','-r','--raw','--no-abbrev','--no-renames',$head)
 if ($committedRawResult.ExitCode -ne 0) { throw 'Unable to inspect committed raw modes.' }
 $committedRawLines = @($committedRawResult.Stdout)
 $committedRawMap = ConvertTo-RawModeMap $committedRawLines 'Committed boundary'

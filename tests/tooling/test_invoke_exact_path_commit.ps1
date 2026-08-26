@@ -219,11 +219,11 @@ try {
     $same = [IO.File]::ReadAllText((Join-Path $repo 'delete.txt'))
     Remove-Item -LiteralPath (Join-Path $repo 'delete.txt')
     Write-Utf8File (Join-Path $repo 'renamed.txt') $same
-    Assert-Rejected (Invoke-CommitFixture $repo ([ordered]@{'delete.txt'='D';'renamed.txt'='A'})) 'rename/copy/type/unmerged' 'rename-detection'
+    Assert-Success (Invoke-CommitFixture $repo ([ordered]@{'delete.txt'='D';'renamed.txt'='A'})) 'declared-rename-pair-commits-as-literal-statuses'
 
     $repo = New-FixtureRepository
     Write-Utf8File (Join-Path $repo 'copied.txt') ([IO.File]::ReadAllText((Join-Path $repo 'source.txt')))
-    Assert-Rejected (Invoke-CommitFixture $repo ([ordered]@{'copied.txt'='A'})) 'rename/copy/type/unmerged' 'copy-detection'
+    Assert-Success (Invoke-CommitFixture $repo ([ordered]@{'copied.txt'='A'})) 'content-copy-commits-as-a-literal-add'
 
     $repo = New-FixtureRepository
     Write-Utf8File (Join-Path $repo 'modify.txt') "hook-failure`n"
