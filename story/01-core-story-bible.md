@@ -13,6 +13,13 @@ Authority follows this order:
 5. The original brief controls only decisions not superseded by later approval.
 6. Research may correct physical-world terminology and plausibility, but it may not change approved fictional canon.
 
+**Mechanical supersession notice (2026-08-07).** Where this file's ending or
+mechanics wording conflicts with the approved bounded specification
+`docs/design/2026-08-07-seven-day-dialogic-flow-design.md`, that specification
+supersedes the conflicting mechanical detail. This notice changes no character,
+relationship, voice, atmosphere, or narrative canon, which this file continues
+to own.
+
 Use approved first names only. Do not invent surnames. Production notes may describe staging, but they are not released narration. This authority does not create exact schedules, variables, thresholds, UI styling, replay logic, or other implementation facts that belong to code.
 
 ## Project Identity

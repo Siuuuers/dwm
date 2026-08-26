@@ -9,6 +9,12 @@ recorded here and the Bible text is left pristine; this file wins on the amended
 points. Implementation details named here remain code-owned; this file records
 approved intent.
 
+**Mechanical supersession notice (2026-08-07).** Where a mechanical ruling in
+this file conflicts with the approved bounded specification
+`docs/design/2026-08-07-seven-day-dialogic-flow-design.md`, the specification
+supersedes that ruling for the seven-day flow domain. The historical reasoning
+below is preserved unchanged as amendment evidence.
+
 ---
 
 ## 1. True and Observer fuse — the "true (observation) end"

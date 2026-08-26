@@ -21,6 +21,20 @@ Within the amendment's scope it takes precedence over conflicting base-plan,
 requirement, recovered-document, test, or skeleton-code wording. Outside that
 scope the August base specification remains authoritative.
 
+Within this bounded domain, interpretive authority follows this ladder,
+highest first:
+
+1. The approved seven-day specification, with the accepted amendment's
+   precedence inside its own scope as above.
+2. The nonconflicting story canon in `story/01-core-story-bible.md` and
+   `story/02-character-relationship-handbook.md`.
+3. The derived plot-neutral production map
+   `story/03-seven-day-production-map.md`.
+4. The noncanonical idea library
+   `story/library/03-seven-day-plot-material-library.md`.
+5. The recovered historical reference under `docs/design/recovered/` and the
+   other preserved historical documents.
+
 Approved requirement and decision packets under `prompt_docs/` translate this
 design into atomic executable contracts. Beads owns mutable work status and
 dependencies. Reviewed hash-bound plans own procedure. Runtime and evidence
