@@ -827,6 +827,9 @@ static func validate_export_equivalence(list_snapshot_path: Variant, export_json
 		projected.erase("parent")
 		var candidate: Dictionary = (exported[issue_id] as Dictionary).duplicate(true)
 		candidate.erase("_type")
+		## bd export additionally serializes each issue's comment thread; the list
+		## transport never carries it, so comments is the second export-only field.
+		candidate.erase("comments")
 		if _canonical(projected) != _canonical(candidate):
 			return _fail(&"export_record_mismatch", "an export record is not byte-equivalent",
 				{"id": issue_id})

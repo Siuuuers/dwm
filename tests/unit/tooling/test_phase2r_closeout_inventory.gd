@@ -948,6 +948,18 @@ func test_export_equivalence_accepts_a_faithful_projection() -> void:
 	assert_true(result.get("ok", false), str(result))
 
 
+func test_export_equivalence_projects_the_export_only_comment_thread() -> void:
+	var fixture: Dictionary = _export_fixture("export-comments")
+	_rewrite_export(fixture, 1, {"comments": [{
+		"author": "Siuuuers",
+		"id": "01a00058-0000-7000-8000-000000000001",
+		"text": "execution evidence recorded on the bead",
+	}]})
+	var result: Dictionary = INVENTORY.validate_export_equivalence(str(fixture["list_path"]),
+		str(fixture["export_path"]))
+	assert_true(result.get("ok", false), str(result))
+
+
 func test_export_equivalence_rejects_a_consistently_truncated_projection() -> void:
 	var fixture: Dictionary = _export_fixture("export-truncated")
 	var listing: Array = fixture["list"]
