@@ -1476,15 +1476,18 @@ function Invoke-Phase2RCloseoutGate {
         $logFull = Join-Path $script:Phase2RRepositoryRoot (([string]$sealedRecord['log_path']) -replace '/', '\')
         $findingCount = 0
         $bodyText = (ConvertFrom-Phase2RLenientLogText -Bytes ([IO.File]::ReadAllBytes($logFull))).Trim()
-        if ($bodyText.Length -gt 0) {
-            $jsonStart = $bodyText.IndexOfAny(@('[', '{'))
-            if ($jsonStart -lt 0) { throw ('GATE_BEADS_FINDINGS: ' + $pair[0] + ' produced no JSON payload') }
-            $payload = ConvertFrom-Json -InputObject ($bodyText.Substring($jsonStart))
+        ## bd prints operational notices prefixed 'beads:' beside its JSON payload, reports
+        ## lint findings as a numeric issues field, and prints a bare null for no orphans.
+        $payloadText = ([string]::Join("`n", @($bodyText -split "`r?`n" | Where-Object { $_ -notmatch '^beads: ' }))).Trim()
+        if ($payloadText.Length -gt 0) {
+            $payload = ConvertFrom-Json -InputObject $payloadText
             if ($payload -is [Collections.IEnumerable] -and $payload -isnot [string]) {
                 $findingCount = @($payload).Count
             } elseif ($null -ne $payload) {
                 $issuesProperty = $payload.PSObject.Properties['issues']
-                if ($null -ne $issuesProperty) { $findingCount = @($issuesProperty.Value).Count } else { $findingCount = 1 }
+                if ($null -eq $issuesProperty) { $findingCount = 1 }
+                elseif ($issuesProperty.Value -is [Collections.IEnumerable] -and $issuesProperty.Value -isnot [string]) { $findingCount = @($issuesProperty.Value).Count }
+                else { $findingCount = [int]$issuesProperty.Value }
             }
         }
         if ($findingCount -ne 0) { throw ('GATE_BEADS_FINDINGS: ' + $pair[0] + ' reported ' + $findingCount + ' finding(s)') }
