@@ -1,11 +1,23 @@
-# Seven-Day Two-Pass Constellation Design
+---
+id: spec.seven_day_two_pass_constellation
+kind: design_specification
+schema_version: 1
+conversational_design_status: approved
+written_spec_status: approved
+self_review_status: passed
+implementation_requested: false
+implementation_authorized: false
+implementation_plan_path: "docs/superpowers/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md"
+implementation_plan_status: proposed
+implementation_plan_sha256: "d0b0e1ce8e4bae1bb07f0553d905d074754d7f16b6e0899b6813fa6a56c441c2"
+implementation_plan_created_on: 2026-08-28
+created_on: 2026-08-28
+written_spec_approved_on: 2026-08-28
+verification_staging_clarified_on: 2026-08-28
+scope: seven_day_narrative_documentation_reconciliation
+---
 
-- **Status:** Conversational design approved; written specification pending owner review
-- **Date:** 2026-08-28
-- **Artifact class:** Narrative architecture and canon-development workflow
-- **Self-review:** Passed — authority, calendar, canon, link, and scope audit
-- **Implementation requested:** False
-- **Implementation authorized:** False
+# Seven-Day Two-Pass Constellation Design
 
 ## 1. Status and objective
 
@@ -514,8 +526,22 @@ boundaries:
 
 ## 12. Verification matrix
 
-Before any reconciliation is called complete, verification must produce fresh
-evidence for every row below.
+Verification is staged by the Two-Pass architecture. The bounded documentation
+reconciliation and Pass One freeze must produce fresh evidence for every
+plot-free row below, including window count, initial state, promotion, anchor
+carriers, messages, pair modes, Day 7 order, causal agency, reality/care
+boundaries, presentation status, documentation, and contradiction removal.
+
+Rows that require an **approved premise** or an **auditioned candidate** cannot be
+honestly passed while every window is `UNSELECTED`. During Pass One, perceptible
+change is `NOT EXERCISED — NO APPROVED PREMISE`, and the requirement that an
+ordinary candidate be considered for every window is
+`DEFERRED TO PASS TWO`. Pass One must instead prove that no candidate-specific
+content leaked into the skeleton and that an anomaly-free candidate remains
+lawfully possible for every window. These staged statuses permit the approved
+plot-free obligation lattice to freeze under section 6.2; they do not permit the
+seven-day plot or the complete matrix below to be declared finished. Pass Two
+must close both candidate-dependent rows before full plot completion.
 
 | Axis | Required proof |
 |---|---|
@@ -553,16 +579,17 @@ Room 2.17 into the pattern every other scene must imitate.
 
 ## 14. Approval and implementation boundary
 
-The conversational architecture captured here is approved. The written artifact
-still requires owner review. Until that review occurs:
+The conversational architecture and this written specification are approved.
+The separate documentation-reconciliation implementation plan is linked in
+frontmatter and remains proposed until the owner explicitly selects an execution
+mode. Before that plan approval:
 
-- do not invoke the implementation-planning stage;
-- do not rewrite `story/03`;
-- do not create or populate `story/07`;
-- do not move candidate material or change authority notices;
-- do not begin the Day 1 candidate audition as if reconciliation were complete;
+- do not execute its Task 0 or rewrite any story artifact under its authority;
+- do not begin the Day 1 candidate audition as if Pass One were frozen;
 - do not edit runtime code or Dialogic timelines under this specification.
 
-After written-spec approval, the next artifact is a separate, reviewable
-implementation plan for documentation reconciliation only. Creative Pass Two
-begins after that plan is executed and verified.
+After the owner approves the exact plan digest and execution mode, the
+frontmatter approval transaction authorizes only its documentation-reconciliation
+tasks. Creative Pass Two begins after that plan is executed and the plot-free
+Pass One lattice is verified. Runtime and Dialogic implementation remain outside
+this specification.
