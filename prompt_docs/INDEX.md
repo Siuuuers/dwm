@@ -8,6 +8,8 @@
 | `req.beads.execution` | `req_packet.documentation_tooling` | `prompt_docs/requirements/documentation_tooling.md` | `approved` | `dwm-p2r.1,dwm-p2r.2` |
 | `req.codegraph.removal` | `req_packet.documentation_tooling` | `prompt_docs/requirements/documentation_tooling.md` | `approved` | `dwm-p2r.1,dwm-p2r.2` |
 | `req.config.version` | `req_packet.verification` | `prompt_docs/requirements/verification.md` | `approved` | `dwm-oyo.3,dwm-oyo.7,dwm-p2r.1,dwm-p2r.10,dwm-p2r.13,dwm-p2r.15,dwm-p2r.7,dwm-p2r.8,dwm-p2r.9,dwm-wks` |
+| `req.contact.echo` | `req_packet.contacts_invitations` | `prompt_docs/requirements/contacts_invitations.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.14,dwm-p2r.6` |
+| `req.contact.fixed_calendar` | `req_packet.contacts_invitations` | `prompt_docs/requirements/contacts_invitations.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.14,dwm-p2r.6` |
 | `req.contact.history_watermark` | `req_packet.contacts_invitations` | `prompt_docs/requirements/contacts_invitations.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.14,dwm-p2r.6` |
 | `req.desktop.cross_app_actions` | `req_packet.desktop_minesweeper_handoff` | `prompt_docs/requirements/desktop_minesweeper_handoff.md` | `approved` | `dwm-oyo.3,dwm-p2r.16,dwm-p2r.9` |
 | `req.desktop.host` | `req_packet.desktop_minesweeper_handoff` | `prompt_docs/requirements/desktop_minesweeper_handoff.md` | `approved` | `dwm-oyo.3,dwm-p2r.16,dwm-p2r.9` |
@@ -15,8 +17,12 @@
 | `req.desktop.registry` | `req_packet.desktop_minesweeper_handoff` | `prompt_docs/requirements/desktop_minesweeper_handoff.md` | `approved` | `dwm-oyo.3,dwm-p2r.16,dwm-p2r.9` |
 | `req.dialogic.authority` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
 | `req.dialogic.content_status` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
+| `req.dialogic.context` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
 | `req.dialogic.effects` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
+| `req.dialogic.line_identity` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
 | `req.dialogic.manifest` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
+| `req.dialogic.masters` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
+| `req.dialogic.signals` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
 | `req.dialogic.skip` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
 | `req.dialogic.visited` | `req_packet.dialogic_skip` | `prompt_docs/requirements/dialogic_skip.md` | `approved` | `dwm-p2r.8` |
 | `req.docs.amendment_reconciliation` | `req_packet.authority_context` | `prompt_docs/requirements/authority_context.md` | `approved` | `dwm-0hi,dwm-p2r.1` |
@@ -51,7 +57,14 @@
 | `req.minesweeper.safety_capabilities` | `req_packet.desktop_minesweeper_handoff` | `prompt_docs/requirements/desktop_minesweeper_handoff.md` | `approved` | `dwm-oyo.3,dwm-p2r.16,dwm-p2r.9` |
 | `req.preferences.profile` | `req_packet.audio_preferences` | `prompt_docs/requirements/audio_preferences.md` | `approved` | `dwm-p2r.3` |
 | `req.preferences.reset` | `req_packet.audio_preferences` | `prompt_docs/requirements/audio_preferences.md` | `approved` | `dwm-p2r.3` |
+| `req.profile.mastery` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
 | `req.profile.partition` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
+| `req.profile.rehearsal` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
+| `req.relationship.axes` | `req_packet.dating_endings` | `prompt_docs/requirements/dating_endings.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.14,dwm-p2r.7` |
+| `req.relationship.outcome_table` | `req_packet.dating_endings` | `prompt_docs/requirements/dating_endings.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.14,dwm-p2r.7` |
+| `req.relationship.pair_isolation` | `req_packet.dating_endings` | `prompt_docs/requirements/dating_endings.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.14,dwm-p2r.7` |
+| `req.relationship.promotion_valves` | `req_packet.dating_endings` | `prompt_docs/requirements/dating_endings.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.14,dwm-p2r.7` |
+| `req.run.day7_echo_drain` | `req_packet.run_lifecycle` | `prompt_docs/requirements/run_lifecycle.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.13,dwm-p2r.14,dwm-p2r.4,dwm-p2r.7` |
 | `req.run.day7_terminal` | `req_packet.run_lifecycle` | `prompt_docs/requirements/run_lifecycle.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.13,dwm-p2r.14,dwm-p2r.4,dwm-p2r.7` |
 | `req.run.day7_terminal_intent` | `req_packet.run_lifecycle` | `prompt_docs/requirements/run_lifecycle.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.13,dwm-p2r.14,dwm-p2r.4,dwm-p2r.7` |
 | `req.run.day_range` | `req_packet.run_lifecycle` | `prompt_docs/requirements/run_lifecycle.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.13,dwm-p2r.14,dwm-p2r.4,dwm-p2r.7` |
@@ -60,9 +73,13 @@
 | `req.run.no_day8` | `req_packet.run_lifecycle` | `prompt_docs/requirements/run_lifecycle.md` | `approved` | `dwm-oyo.3,dwm-oyo.6,dwm-oyo.7,dwm-p2r.13,dwm-p2r.14,dwm-p2r.4,dwm-p2r.7` |
 | `req.runtime.commands_signals` | `req_packet.runtime_ownership` | `prompt_docs/requirements/runtime_ownership.md` | `approved` | `dwm-oyo.3,dwm-p2r.13,dwm-p2r.14,dwm-p2r.16,dwm-p2r.4,dwm-p2r.7` |
 | `req.runtime.game_state_facade` | `req_packet.runtime_ownership` | `prompt_docs/requirements/runtime_ownership.md` | `approved` | `dwm-oyo.3,dwm-p2r.13,dwm-p2r.14,dwm-p2r.16,dwm-p2r.4,dwm-p2r.7` |
+| `req.runtime.playback_boundary` | `req_packet.runtime_ownership` | `prompt_docs/requirements/runtime_ownership.md` | `approved` | `dwm-oyo.3,dwm-p2r.13,dwm-p2r.14,dwm-p2r.16,dwm-p2r.4,dwm-p2r.7` |
 | `req.runtime.schedule_ownership` | `req_packet.runtime_ownership` | `prompt_docs/requirements/runtime_ownership.md` | `approved` | `dwm-oyo.3,dwm-p2r.13,dwm-p2r.14,dwm-p2r.16,dwm-p2r.4,dwm-p2r.7` |
 | `req.runtime.sole_owners` | `req_packet.runtime_ownership` | `prompt_docs/requirements/runtime_ownership.md` | `approved` | `dwm-oyo.3,dwm-p2r.13,dwm-p2r.14,dwm-p2r.16,dwm-p2r.4,dwm-p2r.7` |
+| `req.save.board_ledger` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
+| `req.save.branch_attempts` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
 | `req.save.desktop_board_continuity` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
+| `req.save.ending_transaction` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
 | `req.save.journal` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
 | `req.save.migration` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
 | `req.save.restore_atomic` | `req_packet.persistence` | `prompt_docs/requirements/persistence.md` | `approved` | `dwm-oyo.3,dwm-oyo.4,dwm-p2r.13,dwm-p2r.15,dwm-p2r.16,dwm-p2r.3,dwm-p2r.5,dwm-p2r.9` |
@@ -85,6 +102,7 @@
 | `req.test.phase2r_gate` | `req_packet.verification` | `prompt_docs/requirements/verification.md` | `approved` | `dwm-oyo.3,dwm-oyo.7,dwm-p2r.1,dwm-p2r.10,dwm-p2r.13,dwm-p2r.15,dwm-p2r.7,dwm-p2r.8,dwm-p2r.9,dwm-wks` |
 | `req.test.schedule_foundation_gate` | `req_packet.verification` | `prompt_docs/requirements/verification.md` | `approved` | `dwm-oyo.3,dwm-oyo.7,dwm-p2r.1,dwm-p2r.10,dwm-p2r.13,dwm-p2r.15,dwm-p2r.7,dwm-p2r.8,dwm-p2r.9,dwm-wks` |
 | `req.test.schedule_gate` | `req_packet.verification` | `prompt_docs/requirements/verification.md` | `approved` | `dwm-oyo.3,dwm-oyo.7,dwm-p2r.1,dwm-p2r.10,dwm-p2r.13,dwm-p2r.15,dwm-p2r.7,dwm-p2r.8,dwm-p2r.9,dwm-wks` |
+| `req.test.seven_day_evidence` | `req_packet.verification` | `prompt_docs/requirements/verification.md` | `approved` | `dwm-oyo.3,dwm-oyo.7,dwm-p2r.1,dwm-p2r.10,dwm-p2r.13,dwm-p2r.15,dwm-p2r.7,dwm-p2r.8,dwm-p2r.9,dwm-wks` |
 
 # Decision Index
 

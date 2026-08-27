@@ -3,6 +3,7 @@ id: req_packet.verification
 kind: requirement_packet
 schema_version: 1
 specification_status: approved
+depends_on: ["spec.seven_day_dialogic_flow"]
 beads: ["dwm-p2r.1","dwm-p2r.7","dwm-p2r.8","dwm-p2r.9","dwm-p2r.10","dwm-p2r.13","dwm-p2r.15","dwm-wks","dwm-oyo.3","dwm-oyo.7"]
 requirements:
   - {"id":"req.test.layers","depends_on":[],"implementation_evidence":[],"verification_evidence":[]}
@@ -13,9 +14,12 @@ requirements:
   - {"id":"req.test.schedule_gate","depends_on":["req.test.schedule_foundation_gate","req.schedule.done_board_fate","req.schedule.warning_queue"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.test.desktop_amendment_gate","depends_on":["req.test.layers","req.minesweeper.phase_boundary","req.save.desktop_board_continuity"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.config.version","depends_on":["req.test.isolation"],"implementation_evidence":[],"verification_evidence":[]}
+  - {"id":"req.test.seven_day_evidence","depends_on":["req.test.layers"],"implementation_evidence":[],"verification_evidence":[]}
 ---
 
 # req_packet.verification
+
+Reconciled 2026-08-26 with the approved `docs/design/2026-08-07-seven-day-dialogic-flow-design.md` (`spec.seven_day_dialogic_flow`, the typed packet dependency); the approved specification supersedes conflicting mechanical wording.
 
 ## Rule req.test.layers
 
@@ -48,3 +52,7 @@ One subject commit MUST pass fresh lifecycle, property, integration, crash-injec
 ## Rule req.config.version
 
 project.godot MUST contain exactly one canonical config_version=5 assignment and MUST reject malformed or duplicate alternatives.
+
+## Rule req.test.seven_day_evidence
+
+Seven-day release evidence MUST prove the P0 invariant families - manifest closure with no label fallthrough; seeded seven-day model legality for day bounds, invitation closure, schedule legality, stat ownership, monotonic tiers, and one valid terminal plan; save/restore/continue equivalence to uninterrupted canonical execution outside the explicit post-first-ending pre-challenge regeneration boundary; exactly-once behavior for generation, reply, result, Hospital, pair-count, promotion, ending, and Gallery receipts; promotion valves at the affection 3/4 and 7/8 boundaries with one-step maximum and no relocation; the exhaustive Priscilla-Lavinia window truth table; exhaustive legal one-to-four-step ending plans with every resume cursor; and the Day 7 faint/echo terminal order - plus the release gates: domain, save, manifest, and receipt suites on every relevant change, the complete headless GUT suite on every pull request, DTL label and manifest smokes whenever timeline, locale, manifest, calendar, or ending entries change, all full-run smokes before release, approved accessibility assistance preserving Perfect validity, and recorded engine and addon versions, worktree identity, commands, counts, diagnostics, and bounded third-party exceptions in release evidence.

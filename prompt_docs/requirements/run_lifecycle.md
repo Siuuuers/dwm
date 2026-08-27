@@ -3,6 +3,7 @@ id: req_packet.run_lifecycle
 kind: requirement_packet
 schema_version: 1
 specification_status: approved
+depends_on: ["spec.seven_day_dialogic_flow"]
 beads: ["dwm-p2r.4","dwm-p2r.7","dwm-p2r.13","dwm-p2r.14","dwm-oyo.3","dwm-oyo.6","dwm-oyo.7"]
 requirements:
   - {"id":"req.run.day_range","depends_on":[],"implementation_evidence":[],"verification_evidence":[]}
@@ -11,9 +12,12 @@ requirements:
   - {"id":"req.run.day7_terminal_intent","depends_on":["req.run.day_resolution_plan","req.schedule.day7_provenance","req.flow.hospital_order"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.run.day7_terminal","depends_on":["req.run.day7_terminal_intent","req.ending.playback"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.run.no_day8","depends_on":["req.run.day7_terminal_intent"],"implementation_evidence":[],"verification_evidence":[]}
+  - {"id":"req.run.day7_echo_drain","depends_on":["req.run.lifecycle_states"],"implementation_evidence":[],"verification_evidence":[]}
 ---
 
 # req_packet.run_lifecycle
+
+Reconciled 2026-08-26 with the approved `docs/design/2026-08-07-seven-day-dialogic-flow-design.md` (`spec.seven_day_dialogic_flow`, the typed packet dependency); the approved specification supersedes conflicting mechanical wording.
 
 ## Rule req.run.day_range
 
@@ -40,3 +44,7 @@ Resolving Day 7 through Done MUST consume the validated Schedule commit and Day-
 ## Rule req.run.no_day8
 
 No successful runtime transition, save, restore, or user-visible flow MUST create an active Day 8.
+
+## Rule req.run.day7_echo_drain
+
+Day 7 MUST first present the due Day 6 follow-ups, then hand the immutable remaining pending-echo list to the unavoidable fallback entry and drain every item oldest first; desktop app and Shop controls, Done, and every faint-capable action MUST remain unavailable until all matching presentation-atom receipts are durable, and an interruption resumes at the first unsatisfied echo. Day 7 has no ordinary three-choice message and no dating challenge, so no legal ending or Hospital transition can strand a chosen ordinary reply without one visibly experienced echo.

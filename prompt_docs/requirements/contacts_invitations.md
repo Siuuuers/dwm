@@ -3,9 +3,12 @@ id: req_packet.contacts_invitations
 kind: requirement_packet
 schema_version: 1
 specification_status: approved
+depends_on: ["spec.seven_day_dialogic_flow"]
 beads: ["dwm-p2r.6","dwm-p2r.13","dwm-p2r.14","dwm-oyo.3","dwm-oyo.4"]
 requirements:
   - {"id":"req.contact.history_watermark","depends_on":[],"implementation_evidence":[],"verification_evidence":[]}
+  - {"id":"req.contact.fixed_calendar","depends_on":["req.contact.history_watermark"],"implementation_evidence":[],"verification_evidence":[]}
+  - {"id":"req.contact.echo","depends_on":["req.contact.fixed_calendar"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.invitation.solo","depends_on":["req.contact.history_watermark"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.invitation.group_activation","depends_on":["req.contact.history_watermark"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.invitation.group_resolution","depends_on":["req.invitation.group_activation"],"implementation_evidence":[],"verification_evidence":[]}
@@ -16,9 +19,19 @@ requirements:
 
 Amended 2026-07-19 per `story/05-canon-amendments-2026-07-19.md`; that file wins on amended points.
 
+Reconciled 2026-08-26 with the approved `docs/design/2026-08-07-seven-day-dialogic-flow-design.md` (`spec.seven_day_dialogic_flow`, the typed packet dependency); the approved specification supersedes conflicting mechanical wording.
+
 ## Rule req.contact.history_watermark
 
 Contact history MUST use monotonic per-contact sequence watermarks so generated messages remain ordered, idempotent, and restorable: history is an append-only per-friend log, generation appends at the next sequence, and re-generation at an existing sequence is a no-op (per `story/05-canon-amendments-2026-07-19.md` §13).
+
+## Rule req.contact.fixed_calendar
+
+The seven-day message and invitation calendars are fixed code-owned facts and MUST NOT move, regenerate, or vary by route: exactly six ordinary replyable messages (Day 1 Lavinia, Day 2 Sylvia, Day 3 Priscilla, Day 4 Lavinia, Day 5 Priscilla, Day 6 Sylvia; Day 7 none), each with exactly three stat-neutral semantic choices; exactly four Days-1-6 solo invitation windows per friend (Priscilla days 1/2/4/6, Lavinia days 2/3/5/6, Sylvia days 1/3/4/5) presented in the fixed daily round order (Day 1 Priscilla then Sylvia; Day 2 Priscilla then Lavinia; Day 3 Lavinia then Sylvia; Day 4 Priscilla then Sylvia; Day 5 Lavinia then Sylvia; Day 6 Priscilla then Lavinia); and the original Priscilla-Lavinia group protocol only at round 3 of Days 2 and 6. Same-day contact items MUST present in stacking order - previous-day causal follow-up, that day's fixed ordinary message, then a newly unlocked invitation - and MUST append rather than replace one another.
+
+## Rule req.contact.echo
+
+Each committed ordinary reply MUST record its stable semantic reply ID, the authoritative witnessed line ID, a content-versioned, length-bounded, markup-escaped plain-text snapshot that is never parsed as DTL, BBCode, a resource path, or a command, the scripted immediate response, and one pending echo obligation. Ignoring an ordinary message until midnight MUST erase it as if it never existed - no player-facing history record, unanswered flag, late reply, echo, or unwitnessed knowledge - with only the invisible non-narrative expiry/sequence tombstone required for deterministic idempotent generation surviving. Echo obligations resolve `pending -> satisfied`, oldest first, with an unavoidable Day 7 fallback; an echo changes presentation only and MUST NOT alter stats, tier, tone, attitude, invitation availability, schedule eligibility, mastery, or ending destination. Every authored echo MUST bind its `echo_id` to one stable `presentation_atom_id` (a dialogue atom also owns a `line_id`; action, visual, and deliberate-silence atoms do not invent one), and consumption becomes durable only on the semantic presentation-atom receipt: Skip, Auto, TTS, instant-text, and accessibility input count, dwell time does not, and a crash before the durable receipt leaves the echo pending and replayable. Authored variation MUST stay within the layered order - causal spine, durable tier, tone, short current-attitude insert, short message-echo insert, exact witnessed-detail insert - with tier by tone permitting at most six core authored versions per entry.
 
 ## Rule req.invitation.solo
 
@@ -32,8 +45,8 @@ The group offer MUST become available immediately after the third Minesweeper ro
 
 ## Rule req.invitation.group_resolution
 
-The first participating contact opened MUST assign `inviter_id` for opening variation and date-image position only. The group is the sole invitation exception that requires a reply: replying through either participant MUST issue one exact source receipt bound to canonical participants `["priscilla","lavinia"]`, make the group date available to the Schedule draft, and supersede the corresponding solo offers. That exact pair receipt, not caller-supplied participants, is the only group-date or condition-Hospital source proof. Hospital records one source-level miss for that pair receipt exactly once; its required per-participant follow-up projection MUST NOT fabricate a second acceptance or a duplicate source-level miss.
+The first participating contact opened MUST assign `inviter_id` for opening variation and date-image position only. The group is the sole invitation exception that requires a reply: replying through either participant MUST issue one exact source receipt bound to canonical participants `["priscilla","lavinia"]` and make the group date available to the Schedule draft; the corresponding solo offers were already atomically hidden/superseded at group activation and MUST remain superseded. That exact pair receipt, not caller-supplied participants, is the only group-date or condition-Hospital source proof. Hospital records one source-level miss for that pair receipt exactly once; its required per-participant follow-up projection MUST NOT fabricate a second acceptance or a duplicate source-level miss.
 
 ## Rule req.invitation.run_end
 
-At day end, group-offer message effects MUST follow the existing history rules (busy, nevermind, and judge branches), and a counted Priscilla–Lavinia window MUST resolve on one rule — did Angela solo-date either woman? — per `story/05-canon-amendments-2026-07-19.md` §7. Solo-dating one participant is prevented (no meeting, no count). Solo-dating neither always counts once: group (offer generated, attended), missed (offer generated, accepted then unattended; guilt flavor), private-visible (offer generated, both group messages unread; neutral flavor scene), or private-offscreen (offer never generated; the pair meets with no player-visible scene). Only the three offer-generated outcomes are audience-visible and mark the state/tone combination seen; offscreen private counts invisibly. A prevented window MUST NOT increment the pair counter. When Hospital determines a visible deferred pair outcome, Hospital presentation MUST complete before that pair resolution/presentation, and both MUST complete before day advance reopens desktop input.
+At day end, group-offer message effects MUST follow the existing history rules (busy, nevermind, and judge branches), and a counted Priscilla–Lavinia window MUST resolve on one rule — did Angela solo-date either woman? — per `story/05-canon-amendments-2026-07-19.md` §7. Solo-dating one participant is prevented (no meeting, no count). Solo-dating neither always counts once: group (offer generated, attended), missed (offer generated, accepted then unattended; guilt flavor), private-visible (offer generated but not accepted; both-unread is the neutral/busy subvariant and opened-but-unanswered the nevermind subvariant, not a fifth outcome), or private-offscreen (offer never generated; the pair meets with no player-visible scene). Only the three offer-generated outcomes are audience-visible; offscreen private counts invisibly. The drawn combination is marked witnessed only when a visible Perfect or Solved pair board permits the full observation and its registered line is presented; an Exploded board truncates the observation and MUST NOT mark the combination witnessed, and offscreen windows carry no witness capability; physical completion of the Priscilla-Lavinia visible ending also marks its portrayed combination witnessed. A prevented window MUST NOT increment the pair counter. When Hospital determines a visible deferred pair outcome, Hospital presentation MUST complete before that pair resolution/presentation, and both MUST complete before day advance reopens desktop input.
