@@ -292,9 +292,14 @@ const ALL_FAILURE_CODES := [
 	CODE_ENGLISH_LOCATOR_AMBIGUOUS, CODE_FILE_MISSING, CODE_PARSE_FAILED, CODE_SCHEMA_MISSING,
 ]
 
-## Sub-commit 2B owns these three. This commit must not stub them; an empty stub would advertise a
-## capability the entry contract cannot yet honour.
-const DEFERRED_METHOD_NAMES := ["validate_signal", "validate_line_id", "validate_atom_id"]
+## Sub-commit 2B landed these five on the same class. Their BEHAVIOUR is owned by
+## tests/unit/test_dialogic_ids_manifest.gd, which also owns the ids registry they read; this
+## suite asserts only that the method surface it depends on is present, so a deletion in 2B
+## territory cannot pass unnoticed here either.
+const SUB_COMMIT_2B_METHOD_NAMES := [
+	"load_ids_default", "validate_ids_document", "validate_signal", "validate_line_id",
+	"validate_atom_id",
+]
 const DECLARED_METHOD_NAMES := ["load_default", "validate_document", "resolve_entry", "fingerprint"]
 
 
@@ -1375,7 +1380,7 @@ func _with_locator_label(document: Dictionary, label: String) -> Dictionary:
 # DialogicEntryManifest: the four methods this sub-commit owns.
 # --------------------------------------------------------------------------------------------
 
-func test_the_manifest_script_exists_and_declares_only_this_commits_methods() -> void:
+func test_the_manifest_script_exists_and_declares_its_expected_method_surface() -> void:
 	var script := _manifest_script()
 	assert_true(script != null, "expected RED: missing " + SCRIPT_PATH)
 	if script == null:
@@ -1385,9 +1390,9 @@ func test_the_manifest_script_exists_and_declares_only_this_commits_methods() ->
 		names.append(str(method.get("name", "")))
 	for declared: String in DECLARED_METHOD_NAMES:
 		assert_true(names.has(declared), "%s is implemented in this commit" % declared)
-	for deferred: String in DEFERRED_METHOD_NAMES:
-		assert_false(names.has(deferred),
-			"%s belongs to sub-commit 2B and must not be stubbed here" % deferred)
+	for landed: String in SUB_COMMIT_2B_METHOD_NAMES:
+		assert_true(names.has(landed),
+			"%s landed in sub-commit 2B; test_dialogic_ids_manifest.gd owns its behaviour" % landed)
 
 
 func test_load_default_returns_the_shipped_document() -> void:
@@ -1649,9 +1654,12 @@ func test_resolve_entry_fails_closed_on_an_unknown_entry_id() -> void:
 		return
 	var script := _manifest_script()
 	var document := _document()
+	# ending.lavinia.true moved out of this list in sub-commit 2B: the three labels Task 1
+	# retired now fail closed with ENTRY_MANIFEST_RETIRED_ENTRY instead, which
+	# test_dialogic_ids_manifest.gd asserts for all three. Everything below is still a
+	# stranger nobody ever registered.
 	for unknown: String in [
 		"contact.ordinary.nobody.day9",
-		"ending.lavinia.true",
 		"contact.ordinary.lavinia.day1.extra",
 		"",
 	]:

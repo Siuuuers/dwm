@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "description": "Exact Dialogic ID registries for Seven-Day Flow Plan 01 Task 2, sub-commit 2B. scripts/validation/JsonSchemaValidator.gd implements exactly ten keywords - type, const, enum, required, properties, additionalProperties, items, minItems, minLength, uniqueItems - and silently ignores every other one, so dwm-oyo.2 DEVIATION-3 Ruling 3 forbids writing any other constraint keyword here. This schema therefore owns every CLOSED VOCABULARY and every SHAPE, and DialogicEntryManifest.validate_ids_document owns every cross-record and cross-registry law, each under its own named IDS_MANIFEST_ code. Neither half restates the other: a code law duplicating an enum would be unreachable by mutation, and a vocabulary left to code would lose the validator that really does enforce it.",
+  "required": [
+    "atom_count",
+    "atoms",
+    "ending_form_count",
+    "ending_form_union",
+    "ending_id_count",
+    "ending_ids",
+    "kind",
+    "reply_id_count",
+    "reply_ids",
+    "reply_line_count",
+    "reply_lines",
+    "retired_id_count",
+    "retired_ids",
+    "schema_version",
+    "signal_count",
+    "signals",
+    "source_stage_count",
+    "source_stages"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "dialogic_ids"
+    },
+    "ending_id_count": {
+      "type": "integer",
+      "description": "Declared number of stable ending identities, which is the 13 of specification 11.2 and 13.8. Deliberately NOT pinned by const. Every count in this document is cross-checked against its real collection length by DialogicEntryManifest.validate_ids_document as IDS_MANIFEST_COUNT_MISMATCH, and the only mutation that can reach that code for a block the schema already pins exactly is the declared number itself. A const here would make the code half unreachable. Measured, not assumed."
+    },
+    "ending_ids": {
+      "type": "array",
+      "minItems": 13,
+      "uniqueItems": true,
+      "description": "minItems 13 with a 13-value enum and uniqueItems pins this array to exactly the thirteen 13.8 identities using only implemented keywords: at least thirteen items, all drawn from thirteen values, none repeated. maxItems would express the same thing in one keyword and is forbidden, because JsonSchemaValidator ignores it. DEVIATION-5 RULING L, DELIBERATELY UNREACHABLE: the type array above can never be reached by any document, because DialogicEntryManifest.validate_ids_document runs its own block-is-an-array check at line 496 and returns IDS_MANIFEST_BLOCK_SHAPE before this schema is loaded at line 505 or applied at line 508. It is KEPT because it is correct, it costs nothing, and it defends this schema if that code order is ever changed or that check removed. No mutation can kill it, but note precisely why: not because the keyword is inert - the identical type array on each of the five RECORD blocks is a live pinned literal - but because Ruling L deliberately added no literal pin here and enumerated no campaign site, so that a later campaign cannot report it as a false survivor.",
+      "items": {
+        "enum": [
+          "ending.priscilla.sweet",
+          "ending.priscilla.dark",
+          "ending.priscilla.observer",
+          "ending.lavinia.sweet",
+          "ending.lavinia.dark",
+          "ending.lavinia.observer",
+          "ending.sylvia.sweet",
+          "ending.sylvia.dark",
+          "ending.sylvia.special",
+          "ending.priscilla_lavinia.sweet",
+          "ending.priscilla_lavinia.dark",
+          "ending.priscilla_lavinia.observer",
+          "ending.alone"
+        ]
+      }
+    },
+    "ending_form_count": {
+      "type": "integer",
+      "description": "Declared size of the ending_form union, which specification 12.3 writes as eleven values. Cross-checked in code as IDS_MANIFEST_COUNT_MISMATCH; see ending_id_count for why no const appears here."
+    },
+    "ending_form_union": {
+      "type": "array",
+      "minItems": 11,
+      "uniqueItems": true,
+      "description": "The closed union of specification 12.3, pinned exactly by the same minItems/enum/uniqueItems triple. Which values are legal for a given ending identity is the 13.8 capability map, which sub-commit 2A already enforces on allowed_ending_forms; this block only declares that the union itself has not grown. DEVIATION-5 RULING L, DELIBERATELY UNREACHABLE: the type array above can never be reached by any document, because DialogicEntryManifest.validate_ids_document runs its own block-is-an-array check at line 496 and returns IDS_MANIFEST_BLOCK_SHAPE before this schema is loaded at line 505 or applied at line 508. It is KEPT because it is correct, it costs nothing, and it defends this schema if that code order is ever changed or that check removed. No mutation can kill it, but note precisely why: not because the keyword is inert - the identical type array on each of the five RECORD blocks is a live pinned literal - but because Ruling L deliberately added no literal pin here and enumerated no campaign site, so that a later campaign cannot report it as a false survivor.",
+      "items": {
+        "enum": [
+          "derived_sweet",
+          "derived_dark",
+          "special_forced_dark",
+          "deck_sweet",
+          "deck_dark",
+          "alone_normal",
+          "alone_dark_mode",
+          "observer_full",
+          "observer_residue",
+          "special_full",
+          "special_residue"
+        ]
+      }
+    },
+    "source_stage_count": {
+      "type": "integer",
+      "description": "Declared size of the source-stage vocabulary, which dwm-oyo.2 DEVIATION-4 Ruling D closes at four. Cross-checked in code as IDS_MANIFEST_COUNT_MISMATCH."
+    },
+    "source_stages": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "description": "DEVIATION-4 Ruling D's closed four-value vocabulary, each snake-cased from a source phrase: awaiting_reply from 12.8 'while awaiting reply', current_entry from 12.8 'in the current entry', after_full_observation_atom from 12.8 'after its full Perfect/Solved observation atom', and registered_dating_scene_action from 12.5 'at its registered canonical dating-scene action'. Note that allowed_source_stages on a signal record is deliberately NOT given this enum: the law that a signal draws its stages from THIS block is a cross-block reference no implemented keyword can express, and it lives in code as IDS_MANIFEST_SIGNAL_STAGE_INVALID. DEVIATION-5 RULING L, DELIBERATELY UNREACHABLE: the type array above can never be reached by any document, because DialogicEntryManifest.validate_ids_document runs its own block-is-an-array check at line 496 and returns IDS_MANIFEST_BLOCK_SHAPE before this schema is loaded at line 505 or applied at line 508. It is KEPT because it is correct, it costs nothing, and it defends this schema if that code order is ever changed or that check removed. No mutation can kill it, but note precisely why: not because the keyword is inert - the identical type array on each of the five RECORD blocks is a live pinned literal - but because Ruling L deliberately added no literal pin here and enumerated no campaign site, so that a later campaign cannot report it as a false survivor.",
+      "items": {
+        "enum": [
+          "awaiting_reply",
+          "current_entry",
+          "after_full_observation_atom",
+          "registered_dating_scene_action"
+        ]
+      }
+    },
+    "reply_id_count": {
+      "type": "integer",
+      "description": "Declared number of stable ordinary reply ids, which specification 12.8 fixes at 18. Cross-checked in code as IDS_MANIFEST_COUNT_MISMATCH."
+    },
+    "reply_ids": {
+      "type": "array",
+      "minItems": 18,
+      "description": "The 18 reply ids of specification 12.8, each with its declared owning ordinary entry. dwm-oyo.2 DEVIATION-3 Ruling 2 fixes the spelling as reply.ordinary.<friend>.day<N>.<a|b|c>, NOT the plan table's reply.contact.ordinary.* column. No enum closes this list, because the ids are data rather than a vocabulary, and no uniqueItems appears, because on an array of objects it could only catch a byte-identical record, which is strictly weaker than the duplicate-reply_id law that matters; that law is IDS_MANIFEST_DUPLICATE_ID. Ownership is DECLARED here and must never be re-derived from the string shape.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "owning_entry_id",
+          "reply_id"
+        ],
+        "properties": {
+          "reply_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owning_entry_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "reply_line_count": {
+      "type": "integer",
+      "description": "Declared number of authoritative reply line ids, three for each of the six ordinary entries the plan's presentation table names. Cross-checked in code as IDS_MANIFEST_COUNT_MISMATCH."
+    },
+    "reply_lines": {
+      "type": "array",
+      "minItems": 18,
+      "description": "The 18 authoritative reply line ids of the plan's own presentation table, each with its declared home. DEVIATION-4 Ruling E: validate_line_id resolves ownership from owning_entry_id and enforces NO string shape whatsoever. Specification 12.6 is explicit that a line id is not derived from file path, line number, translated text or label position; a namespace prefix is the same kind of derivation and is equally refused.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "line_id",
+          "owning_entry_id"
+        ],
+        "properties": {
+          "line_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owning_entry_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "atom_count": {
+      "type": "integer",
+      "description": "Declared number of presentation atom records: the 18 guaranteed Day-7 fallback atoms of the plan's presentation table plus the four full Priscilla-Lavinia observation atoms its next bullet names. Cross-checked in code as IDS_MANIFEST_COUNT_MISMATCH."
+    },
+    "atoms": {
+      "type": "array",
+      "minItems": 22,
+      "description": "Specification 12.6 says an atom record declares kind, owning entry/stage and optional associated line id. dwm-oyo.2 DEVIATION-4 Ruling C adds the presentation sites, so validate_atom_id can accept an atom either at the entry that OWNS it or at an entry that PRESENTS it, and report which. RULING B is binding here: an atom id nests under NEITHER owning entry's atom_namespace - atom.echo.lavinia.day1.reply.a.fallback.day7 belongs to contact.ordinary.lavinia.day1 - so ownership is declared and never a string prefix.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "associated_line_id",
+          "atom_id",
+          "echo_id",
+          "kind",
+          "owning_entry_id",
+          "presented_in_entry_ids"
+        ],
+        "properties": {
+          "atom_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "echo_fallback",
+              "pair_full_observation"
+            ]
+          },
+          "owning_entry_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "presented_in_entry_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "echo_id": {
+            "description": "DEVIATION-4 Ruling G. A non-empty echo id on an echo_fallback atom, derived from the plan's own mandated atom id by stripping the atom. prefix and the .fallback.day7 suffix, and null on a pair_full_observation atom. JsonSchemaValidator implements no nullable union and no oneOf, so the partition is owned by validate_ids_document as IDS_MANIFEST_ATOM_PARTITION_INVALID and the derivation by IDS_MANIFEST_ECHO_BINDING_INVALID, exactly as sub-commit 2A owns day and ending_id."
+          },
+          "associated_line_id": {
+            "description": "Specification 12.6's optional associated line id, null on all 22 records in this phase. Specification 12.8 defers final content line ids to the lines they identify, and none of these atoms has an authored line yet, so inventing one here would fabricate a content identity Task 2 is forbidden to create. Null is therefore the honest value, not a placeholder. A non-null value must name a registered reply line, which validate_ids_document owns as IDS_MANIFEST_ASSOCIATED_LINE_INVALID."
+          }
+        }
+      }
+    },
+    "signal_count": {
+      "type": "integer",
+      "description": "Declared number of registered signal records, which specification 12.8 fixes at five. Cross-checked in code as IDS_MANIFEST_COUNT_MISMATCH."
+    },
+    "signals": {
+      "type": "array",
+      "minItems": 5,
+      "description": "The five 12.8 command kinds, each with the exact payload field list that table row prints and the source stages DEVIATION-4 Ruling D assigns it. observer.evidence.commit is registered here but granted by NO entry in the 2A manifest, because the plan holds production Observer evidence capabilities absent until an approved content card supplies an exact source entry and atom; validate_signal therefore refuses it from every one of the 139 entries as SIGNAL_NOT_GRANTED.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "allowed_source_stages",
+          "payload_fields",
+          "signal_id"
+        ],
+        "properties": {
+          "signal_id": {
+            "enum": [
+              "message.reply.commit",
+              "history.line.witness",
+              "message.echo.satisfy",
+              "observer.evidence.commit",
+              "pair.combination.witness"
+            ]
+          },
+          "payload_fields": {
+            "type": "array",
+            "minItems": 4,
+            "uniqueItems": true,
+            "description": "minItems 4 is the smallest payload specification 12.8 prints, which is history.line.witness. The enum closes the field vocabulary at the ten names the five rows use between them. Two laws about this list are NOT expressible here and live in code as IDS_MANIFEST_SIGNAL_PAYLOAD_INVALID: that every payload carries the entry_id, playback_token and receipt_id envelope 12.4 and 12.5 make mandatory, and that the list is stored sorted so equal payloads cannot differ in bytes.",
+            "items": {
+              "enum": [
+                "combination_id",
+                "echo_id",
+                "entry_id",
+                "evidence_id",
+                "line_id",
+                "playback_token",
+                "presentation_atom_id",
+                "receipt_id",
+                "reply_id",
+                "witnessed_line_id"
+              ]
+            }
+          },
+          "allowed_source_stages": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "Deliberately NOT given the source_stages enum. The real law is that these values are drawn from THIS DOCUMENT'S source_stages block, which is a cross-block reference no implemented keyword expresses; duplicating the vocabulary here would create a schema law and leave the cross-block law untested. It lives in validate_ids_document as IDS_MANIFEST_SIGNAL_STAGE_INVALID.",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "REACHABLE AND PINNED. An earlier reading of DEVIATION-5 Ruling L called this minLength unreachable on the grounds that IDS_MANIFEST_SIGNAL_STAGE_INVALID runs before the schema. It does not: DialogicEntryManifest.validate_ids_document applies this schema at line 508 and only reaches that stage check at line 592, so an EMPTY source stage is refused here first and deleting this minLength changes the observed failure code from IDS_MANIFEST_SCHEMA_INVALID to IDS_MANIFEST_SIGNAL_STAGE_INVALID. It is therefore a live law with a fixture of its own, the signal_stage row of test_the_ids_schema_rejects_every_empty_identifier, and a campaign site. The type string beside it is live in the same way and is pinned by test_the_published_ids_schema_pins_its_own_literals."
+            }
+          }
+        }
+      }
+    },
+    "retired_id_count": {
+      "type": "integer",
+      "description": "Declared number of retired labels carried through from Task 1, which froze exactly three. Cross-checked in code as IDS_MANIFEST_COUNT_MISMATCH."
+    },
+    "retired_ids": {
+      "type": "array",
+      "minItems": 3,
+      "description": "The three ending.<friend>.true labels data/migrations/dialogic_61_to_8.json retired, with Task 1's reject_on_restore flag carried through unchanged. Registering them lets DialogicEntryManifest.resolve_entry refuse a legacy label arriving from a save as ENTRY_MANIFEST_RETIRED_ENTRY rather than as a generic ENTRY_MANIFEST_UNKNOWN_ENTRY. A registered retired label whose flag is false would silently alias a dead ending, which validate_ids_document refuses as IDS_MANIFEST_RETIRED_ID_INVALID.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label_id",
+          "reject_on_restore"
+        ],
+        "properties": {
+          "label_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reject_on_restore": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
