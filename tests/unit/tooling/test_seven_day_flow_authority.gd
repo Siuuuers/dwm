@@ -29,7 +29,7 @@ const AUTHORITY_LADDER: Array[String] = [
 const SPEC_REGISTRY_PATH := "docs/design/2026-08-07-seven-day-dialogic-flow-design.md"
 
 
-func test_written_spec_is_approved_but_implementation_is_not() -> void:
+func test_written_spec_is_approved_and_implementation_is_authorized() -> void:
 	var registry_result := DesignAuthorityRegistry.new().validate()
 	assert_true(bool(registry_result.get("ok", false)), "the design authority registry must validate: " + JSON.stringify(registry_result.get("errors", [])))
 	var spec_fields := {}
@@ -40,7 +40,8 @@ func test_written_spec_is_approved_but_implementation_is_not() -> void:
 			spec_fields = record.get("fields", {})
 	assert_eq(matches, 1, "the approved specification must be registered exactly once")
 	assert_eq(spec_fields.get("written_spec_status"), "approved", "written_spec_status must stay approved")
-	assert_eq(spec_fields.get("implementation_authorized"), false, "implementation_authorized must stay false until a separate explicit authorization")
+	assert_eq(spec_fields.get("implementation_authorized"), true, "implementation_authorized must be true after the separate explicit maintainer authorization")
+	assert_eq(spec_fields.get("implementation_plan_status"), "approved", "implementation_plan_status must be approved, which the registry requires whenever implementation is authorized")
 	var raw_text := FileAccess.get_file_as_string(SPEC_PATH).replace("\r\n", "\n").replace("\r", "\n")
 	assert_true(raw_text.contains("\nself_review_status: passed\n"), "self_review_status must stay passed")
 

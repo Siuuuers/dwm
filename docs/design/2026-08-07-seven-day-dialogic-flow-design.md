@@ -5,11 +5,20 @@ schema_version: 1
 conversational_design_status: approved
 written_spec_status: approved
 self_review_status: passed
-implementation_authorized: false
+implementation_authorized: true
 implementation_plan_path: "docs/superpowers/plans/2026-08-07-seven-day-flow-implementation-roadmap.md"
-implementation_plan_status: proposed
+implementation_plan_status: approved
 implementation_plan_sha256: "288c73f7eeca6bc80fe8775cd77f25aba8bc68e0945dd244592a1d6128a7c32f"
 implementation_plan_created_on: 2026-08-07
+implementation_execution_mode: subagent_driven
+implementation_approved_by: project_owner
+implementation_authorization_state: approved
+implementation_authorization_scope: seven_day_flow_phase_01_dwm_oyo_2_only
+implementation_base_commit: ed037cb2b1781a02905a232b0747b093abc377c7
+implementation_plan_approved_on: 2026-08-27
+implementation_authorized_on: 2026-08-27
+implementation_commit_authorized: true
+implementation_commit_approved_by: project_owner
 created_on: 2026-08-07
 written_spec_approved_on: 2026-08-07
 engine_line: godot_4_6
@@ -1688,3 +1697,13 @@ Runtime implementation may begin only when:
 
 Planning is now authorized. Runtime implementation remains unauthorized until
 all remaining conditions are explicitly satisfied.
+
+Authorization update, 2026-08-27: the three conditions above are satisfied. The
+plan suite exists as the roadmap plus seven child plans, the maintainer reviewed
+that suite and separately granted runtime implementation authorization, and the
+grant is recorded on Beads issue dwm-oyo.2. The paragraph above states the
+position at written-spec review time and is retained unchanged as history.
+Authorization is scoped to Phase 01, tracked as dwm-oyo.2, and every later phase
+requires its own separate grant. The frontmatter of this document is the live
+approval state; neither this section nor the roadmap prose is, because the
+roadmap is SHA-256 bound and its review-time wording is deliberately frozen.
