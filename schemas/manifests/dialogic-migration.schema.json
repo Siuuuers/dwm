@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ambiguous_checkpoint_disposition",
+    "cutover_status",
+    "kind",
+    "legacy_files",
+    "legacy_label_count",
+    "master_timelines",
+    "retired_labels",
+    "schema_version",
+    "source_branch",
+    "source_commit",
+    "tracked_target_count",
+    "transformations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "dialogic_migration"
+    },
+    "source_commit": {
+      "type": "string",
+      "minLength": 40
+    },
+    "source_branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cutover_status": {
+      "enum": [
+        "legacy_present",
+        "legacy_retired"
+      ]
+    },
+    "tracked_target_count": {
+      "const": 122
+    },
+    "legacy_label_count": {
+      "const": 89
+    },
+    "ambiguous_checkpoint_disposition": {
+      "const": "incompatible"
+    },
+    "master_timelines": {
+      "type": "array",
+      "minItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "legacy_files": {
+      "type": "array",
+      "minItems": 61,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "checkpoint_discriminator_required",
+          "disposition",
+          "labels",
+          "path",
+          "sha256",
+          "source_blob_id",
+          "timeline_id",
+          "uid_path",
+          "uid_sha256",
+          "uid_source_blob_id"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timeline_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "disposition": {
+            "enum": [
+              "retained",
+              "split",
+              "retired"
+            ]
+          },
+          "source_blob_id": {
+            "type": "string",
+            "minLength": 40
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64
+          },
+          "uid_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uid_source_blob_id": {
+            "type": "string",
+            "minLength": 40
+          },
+          "uid_sha256": {
+            "type": "string",
+            "minLength": 64
+          },
+          "labels": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "checkpoint_discriminator_required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "retired_labels": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "alias_to_observer",
+          "disposition",
+          "label_id",
+          "reject_on_restore",
+          "retired_by_commit"
+        ],
+        "properties": {
+          "label_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "retired_by_commit": {
+            "type": "string",
+            "minLength": 40
+          },
+          "disposition": {
+            "const": "retired"
+          },
+          "reject_on_restore": {
+            "const": true
+          },
+          "alias_to_observer": {
+            "const": false
+          }
+        }
+      }
+    },
+    "transformations": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "label_roles",
+          "note",
+          "source_paths",
+          "spec_sections",
+          "target_entry_ids",
+          "transformation_id"
+        ],
+        "properties": {
+          "transformation_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "retained",
+              "split",
+              "retired"
+            ]
+          },
+          "spec_sections": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "source_paths": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "target_entry_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "label_roles": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "entry_role",
+                "label"
+              ],
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "entry_role": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
