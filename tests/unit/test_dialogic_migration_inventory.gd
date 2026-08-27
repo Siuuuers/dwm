@@ -41,6 +41,13 @@ const EXPECTED_LABEL_COUNT := 89
 const EXPECTED_SPLIT_COUNT := 27
 const EXPECTED_RETAINED_COUNT := 34
 
+## Status tallies over every label-mapping row in the manifest. mapped plus unmapped is exactly
+## the tree label total; a rejected row stands outside it because its label is not in the tree.
+## The reconciliation invariant counts mapped and unmapped together, so without these two a row
+## could flip status without moving any total.
+const EXPECTED_MAPPED_ROW_COUNT := 70
+const EXPECTED_UNMAPPED_ROW_COUNT := 19
+
 ## Spec section 12.1: English authoring consolidates to exactly these eight masters. Task 3 creates
 ## them, so this suite asserts the declared list and never that the files exist yet.
 const MASTER_TIMELINES := [
@@ -129,6 +136,26 @@ const ALLOWED_MAPPING_STATUSES := ["mapped", "unmapped", "rejected"]
 
 const LABEL_MAPPING_KEYS := [
 	"label", "reason", "source_path", "status", "target_entry_ids",
+]
+
+## A legacy label whose spelling diverges from the specification carries an explicit typed flag,
+## so a consumer detects the rename programmatically instead of parsing the reason prose. The
+## flag is present only where it is true, and a row that carries it always resolves.
+const NON_CANONICAL_FLAG := "legacy_name_is_non_canonical"
+
+const LABEL_MAPPING_KEYS_RENAMED := [
+	"label", "legacy_name_is_non_canonical", "reason", "source_path", "status",
+	"target_entry_ids",
+]
+
+## The bead that tracks correcting the legacy label spelling at physical cutover.
+const RENAME_BEAD := "dwm-ihm"
+
+## The exact (source_path, label) pairs whose legacy spelling is non-canonical, in manifest
+## order. Nothing else in the manifest may carry the flag.
+const NON_CANONICAL_RENAME_ROWS := [
+	["res://dialogic/timelines/en/ending/lavinia.dtl", "ending.lavinia.observation"],
+	["res://dialogic/timelines/en/ending/priscilla.dtl", "ending.priscilla.observation"],
 ]
 
 ## Columns: contact file basename under CONTACTS_ROOT, legacy label in file order, and the exact
@@ -221,22 +248,33 @@ const CONTACT_LABEL_MAPPINGS := [
 ]
 
 ## Columns: ending file basename under ENDING_ROOT, legacy label in file order, and the callable
-## entry ids of the specification 13.8 row whose stable ending id equals that label verbatim. A
-## legacy label with no such row reaches nothing: 13.8 renamed observation to observer and split
-## the undifferentiated Priscilla-Lavinia label, and picking one neighbour would be an alias.
+## entry ids of its specification 13.8 row.
+##
+## RETIRING_COMMIT renamed the three retired ending.*.true labels in a single pass, but not
+## consistently: sylvia took special, which is the specification word and resolves cleanly, while
+## lavinia and priscilla took observation, which 13.8 never uses as an ending identity. Those two
+## occupy the same structural slot as ending.sylvia.special, so they resolve to the observer rows
+## of 13.8 and carry NON_CANONICAL_FLAG. The undifferentiated ending.priscilla_lavinia label
+## names none of its three ending ids, so it reaches nothing and is not guessed at.
 const ENDING_LABEL_MAPPINGS := [
 	["alone.dtl", "ending.alone", ["ending.alone.normal", "ending.alone.dark_mode"]],
 	["lavinia.dtl", "ending.lavinia.sweet", ["ending.lavinia.sweet"]],
 	["lavinia.dtl", "ending.lavinia.dark", ["ending.lavinia.dark"]],
-	["lavinia.dtl", "ending.lavinia.observation", []],
+	["lavinia.dtl", "ending.lavinia.observation",
+		["ending.lavinia.observer.full", "ending.lavinia.observer.residue"]],
 	["priscilla.dtl", "ending.priscilla.sweet", ["ending.priscilla.sweet"]],
 	["priscilla.dtl", "ending.priscilla.dark", ["ending.priscilla.dark"]],
-	["priscilla.dtl", "ending.priscilla.observation", []],
+	["priscilla.dtl", "ending.priscilla.observation",
+		["ending.priscilla.observer.full", "ending.priscilla.observer.residue"]],
 	["priscilla_lavinia.dtl", "ending.priscilla_lavinia", []],
 	["sylvia.dtl", "ending.sylvia.sweet", ["ending.sylvia.sweet"]],
 	["sylvia.dtl", "ending.sylvia.dark", ["ending.sylvia.dark"]],
 	["sylvia.dtl", "ending.sylvia.special", ["ending.sylvia.special.full", "ending.sylvia.special.residue"]],
 ]
+
+## Ten of the eleven ending rows resolve; only the undifferentiated pairing label does not.
+const EXPECTED_ENDING_MAPPED_COUNT := 10
+const EXPECTED_ENDING_UNMAPPED_COUNT := 1
 
 ## The distinct entry ids the contact labels actually reach. Specification sections 13.1 through
 ## 13.7 enumerate further contact entries that no legacy label produces; those belong to Task 2
@@ -848,6 +886,17 @@ func test_ending_labels_map_to_the_specification_thirteen_eight_rows() -> void:
 			"%s: the exact specification 13.8 callable entry ids" % where)
 		assert_eq(row.get("status"), "unmapped" if expected_targets.is_empty() else "mapped",
 			"%s: status states in data whether 13.8 enumerates a row for this label" % where)
+	var mapped := 0
+	var unmapped := 0
+	for row: Dictionary in rows:
+		if str(row.get("status", "")) == "mapped":
+			mapped += 1
+		elif str(row.get("status", "")) == "unmapped":
+			unmapped += 1
+	assert_eq(mapped, EXPECTED_ENDING_MAPPED_COUNT,
+		"the ending transformation resolves exactly %d rows" % EXPECTED_ENDING_MAPPED_COUNT)
+	assert_eq(unmapped, EXPECTED_ENDING_UNMAPPED_COUNT,
+		"only the undifferentiated ending.priscilla_lavinia label reaches nothing")
 
 
 func test_every_legacy_label_occurrence_is_accounted_for_exactly_once() -> void:
@@ -872,6 +921,8 @@ func test_every_legacy_label_occurrence_is_accounted_for_exactly_once() -> void:
 	var seen: Dictionary = {}
 	var accounted := 0
 	var rejected := 0
+	var mapped := 0
+	var unmapped := 0
 	for transformation: Dictionary in manifest.get("transformations", []):
 		for row: Dictionary in transformation.get("label_mappings", []):
 			var key: String = "%s|%s" % [str(row.get("source_path", "")), str(row.get("label", ""))]
@@ -887,10 +938,20 @@ func test_every_legacy_label_occurrence_is_accounted_for_exactly_once() -> void:
 			assert_false(seen.has(key), "%s: no label occurrence is mapped twice" % key)
 			seen[key] = true
 			accounted += 1
+			if str(row.get("status", "")) == "mapped":
+				mapped += 1
+			else:
+				unmapped += 1
 	assert_eq(accounted, occurrences,
 		"every one of the %d label occurrences is mapped or explicitly unmapped, exactly once" %
 		EXPECTED_LABEL_COUNT)
 	assert_eq(rejected, EXPECTED_RETIRED_LABEL_COUNT, "one rejected row per retired label")
+	assert_eq(mapped, EXPECTED_MAPPED_ROW_COUNT,
+		"exactly %d label occurrences resolve to at least one entry id" % EXPECTED_MAPPED_ROW_COUNT)
+	assert_eq(unmapped, EXPECTED_UNMAPPED_ROW_COUNT,
+		"exactly %d label occurrences are explicitly unmapped" % EXPECTED_UNMAPPED_ROW_COUNT)
+	assert_eq(mapped + unmapped, EXPECTED_LABEL_COUNT,
+		"the mapped and unmapped tallies partition every tree label occurrence")
 	var unaccounted: Array = []
 	for key: Variant in outstanding:
 		if not seen.has(key):
@@ -916,7 +977,14 @@ func test_every_label_mapping_row_is_well_formed() -> void:
 			var source_path: String = str(row.get("source_path", ""))
 			var keys: Array = row.keys()
 			keys.sort()
-			assert_eq(keys, LABEL_MAPPING_KEYS, "%s: exact label-mapping row keys" % source_path)
+			var renamed: bool = keys.has(NON_CANONICAL_FLAG)
+			assert_eq(keys, LABEL_MAPPING_KEYS_RENAMED if renamed else LABEL_MAPPING_KEYS,
+				"%s: exact label-mapping row keys" % source_path)
+			if renamed:
+				assert_eq(typeof(row.get(NON_CANONICAL_FLAG)), TYPE_BOOL,
+					"%s: the non-canonical spelling flag is a real boolean" % source_path)
+				assert_true(bool(row.get(NON_CANONICAL_FLAG)),
+					"%s: the flag is recorded only where it is true" % source_path)
 			var status: String = str(row.get("status", ""))
 			assert_has(ALLOWED_MAPPING_STATUSES, status,
 				"%s: status is a closed enum member, never a bare magic string" % source_path)
@@ -927,7 +995,12 @@ func test_every_label_mapping_row_is_well_formed() -> void:
 			if status == "mapped":
 				assert_false(row_targets.is_empty(),
 					"%s: a mapped row carries at least one entry id" % source_path)
-				assert_true(reason.is_empty(), "%s: a mapped row needs no reason" % source_path)
+				if renamed:
+					assert_false(reason.is_empty(),
+						"%s: a renamed row states the divergence in the data" % source_path)
+				else:
+					assert_true(reason.is_empty(),
+						"%s: a mapped row needs no reason" % source_path)
 			else:
 				assert_true(row_targets.is_empty(),
 					"%s: a %s row resolves to no entry id at all" % [source_path, status])
@@ -1193,3 +1266,62 @@ func test_the_schema_rejects_an_unknown_property() -> void:
 	(records[0] as Dictionary)["unexpected"] = true
 	var result: Dictionary = JsonSchemaValidator.validate(mutated, schema)
 	assert_false(result.get("ok", true), "an unknown record property is rejected")
+
+
+func test_only_the_two_renamed_ending_labels_are_flagged_non_canonical() -> void:
+	var manifest := _load_migration_manifest()
+	assert_false(manifest.is_empty(),
+		"expected RED: manifest absent or unparseable: " + _parse_diagnostic(MANIFEST_PATH))
+	if manifest.is_empty():
+		return
+	var flagged: Array = []
+	var by_key: Dictionary = {}
+	for transformation: Dictionary in manifest.get("transformations", []):
+		for row: Dictionary in transformation.get("label_mappings", []):
+			var pair: Array = [str(row.get("source_path", "")), str(row.get("label", ""))]
+			by_key["%s|%s" % pair] = row
+			if row.has(NON_CANONICAL_FLAG):
+				flagged.append(pair)
+	assert_eq(flagged, NON_CANONICAL_RENAME_ROWS,
+		"expected RED: exactly the two observation labels carry the non-canonical spelling flag")
+	for pair: Array in NON_CANONICAL_RENAME_ROWS:
+		var row: Dictionary = by_key.get("%s|%s" % pair, {})
+		var reason: String = str(row.get("reason", ""))
+		assert_eq(row.get("status"), "mapped", "%s: a renamed label resolves" % str(pair[1]))
+		assert_true(reason.contains(RENAME_BEAD),
+			"%s: the reason cites the bead that tracks the cutover rename" % str(pair[1]))
+		assert_true(reason.contains("observer"),
+			"%s: the reason names the specification 13.8 identity" % str(pair[1]))
+
+
+func test_the_retired_true_labels_are_untouched_by_the_observer_rename() -> void:
+	var rows := _label_mapping_rows("retired_ending_true_labels_rejected")
+	assert_eq(rows.size(), EXPECTED_RETIRED_LABEL_COUNT, "expected RED: the retired rows are absent")
+	if rows.size() != EXPECTED_RETIRED_LABEL_COUNT:
+		return
+	for row: Dictionary in rows:
+		var label: String = str(row.get("label", ""))
+		assert_true(RETIRED_LABEL_IDS.has(label), "%s: is a retired ending.*.true label" % label)
+		assert_eq(row.get("status"), "rejected", "%s: stays rejected" % label)
+		assert_eq(row.get("target_entry_ids"), [],
+			"%s: is never aliased to an Observer entry" % label)
+		assert_false(row.has(NON_CANONICAL_FLAG),
+			"%s: a label retired out of the tree is not a renamed live label" % label)
+
+
+func test_the_schema_types_the_non_canonical_spelling_flag() -> void:
+	var schema := _parse(SCHEMA_PATH)
+	var manifest := _load_migration_manifest()
+	if schema.is_empty() or manifest.is_empty():
+		assert_false(schema.is_empty(), "expected RED: schema absent or unparseable")
+		return
+	var accepted: Dictionary = manifest.duplicate(true)
+	var accepted_rows: Array = (accepted["transformations"][0] as Dictionary)["label_mappings"]
+	(accepted_rows[0] as Dictionary)[NON_CANONICAL_FLAG] = true
+	assert_true(JsonSchemaValidator.validate(accepted, schema).get("ok", false),
+		"expected RED: the schema declares the non-canonical spelling flag")
+	var refused: Dictionary = manifest.duplicate(true)
+	var refused_rows: Array = (refused["transformations"][0] as Dictionary)["label_mappings"]
+	(refused_rows[0] as Dictionary)[NON_CANONICAL_FLAG] = "yes"
+	assert_false(JsonSchemaValidator.validate(refused, schema).get("ok", true),
+		"the flag is a real boolean, never any non-empty value")

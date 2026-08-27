@@ -259,6 +259,9 @@
                 },
                 "reason": {
                   "type": "string"
+                },
+                "legacy_name_is_non_canonical": {
+                  "type": "boolean"
                 }
               }
             }
