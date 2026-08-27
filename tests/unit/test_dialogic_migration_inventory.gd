@@ -11,6 +11,12 @@ extends "res://addons/gut/test.gd"
 ## recomputes both SHA-256 and the Git blob id, so a defect in whatever produced the manifest
 ## cannot vouch for itself.
 ##
+## Legacy label to entry id: the contact and ending transformations carry per-(source_path, label)
+## rows whose targets are exact entry ids transcribed from specification sections 13.1 through
+## 13.8. The relation is many-to-one and one-to-many, so a single dotted role string cannot
+## express it. Where the specification enumerates no entry the row is explicitly unmapped with a
+## reason; no id is ever guessed, invented or aliased to a neighbour.
+##
 ## Access idiom: Dictionary dot access does work in this project (verified), but a missing key
 ## raises "Invalid access to property or key" and aborts the test body. Every accessor below uses
 ## get()/[] so that RED reports a clean assertion failure instead of a script error.
@@ -98,17 +104,196 @@ const TRANSFORMATION_IDS := [
 ]
 
 const RECORD_KEYS := [
-	"checkpoint_discriminator_required", "disposition", "labels", "path", "sha256",
+	"disposition", "labels", "path", "sha256",
 	"source_blob_id", "timeline_id", "uid_path", "uid_sha256", "uid_source_blob_id",
 ]
 
 const TRANSFORMATION_KEYS := [
-	"kind", "label_roles", "note", "source_paths", "spec_sections", "target_entry_ids",
+	"kind", "label_mappings", "note", "source_paths", "spec_sections", "target_entry_ids",
 	"transformation_id",
 ]
 
 const RETIRED_LABEL_KEYS := [
 	"alias_to_observer", "disposition", "label_id", "reject_on_restore", "retired_by_commit",
+]
+
+const TIMELINE_MANIFEST_PATH := "res://data/manifests/timelines.json"
+const CONTACTS_ROOT := "res://dialogic/timelines/en/contacts/"
+const ENDING_ROOT := "res://dialogic/timelines/en/ending/"
+
+const EXPECTED_MASTER_TIMELINE_COUNT := 8
+const EXPECTED_RETIRED_LABEL_COUNT := 3
+const EXPECTED_TRANSFORMATION_COUNT := 5
+
+const ALLOWED_MAPPING_STATUSES := ["mapped", "unmapped", "rejected"]
+
+const LABEL_MAPPING_KEYS := [
+	"label", "reason", "source_path", "status", "target_entry_ids",
+]
+
+## Columns: contact file basename under CONTACTS_ROOT, legacy label in file order, and the exact
+## target entry ids transcribed from specification sections 13.1 through 13.7. Every id below was
+## grep-confirmed to appear verbatim in the specification. An empty list means the specification
+## enumerates no entry for that (file, label) pair, which the manifest records with a reason rather
+## than guessing, inventing or aliasing an id. The relation is deliberately not one-to-one: sixteen
+## group-open labels converge onto eight entries, fifteen daily_message labels reach no entry
+## because specification 7.1 fixes exactly six ordinary replyable messages, and a follow-up label
+## sits one day later than the invitation window it closes.
+const CONTACT_LABEL_MAPPINGS := [
+	["lavinia_day1.dtl", "history", []],
+	["lavinia_day1.dtl", "daily_message", ["contact.ordinary.lavinia.day1"]],
+	["lavinia_day2.dtl", "daily_message", []],
+	["lavinia_day2.dtl", "offer", ["contact.invitation.solo.lavinia.day2.offer"]],
+	["lavinia_day2.dtl", "first_open_priscilla", ["contact.invitation.group.priscilla_lavinia.day2.first_open_priscilla"]],
+	["lavinia_day2.dtl", "first_open_lavinia", ["contact.invitation.group.priscilla_lavinia.day2.first_open_lavinia"]],
+	["lavinia_day2.dtl", "second_open_priscilla", ["contact.invitation.group.priscilla_lavinia.day2.second_open_priscilla"]],
+	["lavinia_day2.dtl", "second_open_lavinia", ["contact.invitation.group.priscilla_lavinia.day2.second_open_lavinia"]],
+	["lavinia_day3.dtl", "daily_message", []],
+	["lavinia_day3.dtl", "offer", ["contact.invitation.solo.lavinia.day3.offer"]],
+	["lavinia_day3.dtl", "nevermind", ["contact.invitation.solo.lavinia.day2.nevermind"]],
+	["lavinia_day3.dtl", "missed_question", ["contact.invitation.solo.lavinia.day2.missed_question"]],
+	["lavinia_day4.dtl", "daily_message", ["contact.ordinary.lavinia.day4"]],
+	["lavinia_day4.dtl", "nevermind", ["contact.invitation.solo.lavinia.day3.nevermind"]],
+	["lavinia_day4.dtl", "missed_question", ["contact.invitation.solo.lavinia.day3.missed_question"]],
+	["lavinia_day5.dtl", "daily_message", []],
+	["lavinia_day5.dtl", "offer", ["contact.invitation.solo.lavinia.day5.offer"]],
+	["lavinia_day6.dtl", "daily_message", []],
+	["lavinia_day6.dtl", "offer", ["contact.invitation.solo.lavinia.day6.offer"]],
+	["lavinia_day6.dtl", "nevermind", ["contact.invitation.solo.lavinia.day5.nevermind"]],
+	["lavinia_day6.dtl", "missed_question", ["contact.invitation.solo.lavinia.day5.missed_question"]],
+	["lavinia_day6.dtl", "first_open_priscilla", ["contact.invitation.group.priscilla_lavinia.day6.first_open_priscilla"]],
+	["lavinia_day6.dtl", "first_open_lavinia", ["contact.invitation.group.priscilla_lavinia.day6.first_open_lavinia"]],
+	["lavinia_day6.dtl", "second_open_priscilla", ["contact.invitation.group.priscilla_lavinia.day6.second_open_priscilla"]],
+	["lavinia_day6.dtl", "second_open_lavinia", ["contact.invitation.group.priscilla_lavinia.day6.second_open_lavinia"]],
+	["lavinia_day7.dtl", "daily_message", []],
+	["lavinia_day7.dtl", "offer", ["contact.invitation.ending.lavinia.day7.offer"]],
+	["lavinia_day7.dtl", "nevermind", ["contact.invitation.solo.lavinia.day6.nevermind"]],
+	["lavinia_day7.dtl", "missed_question", ["contact.invitation.solo.lavinia.day6.missed_question"]],
+	["priscilla_day1.dtl", "history", []],
+	["priscilla_day1.dtl", "daily_message", []],
+	["priscilla_day1.dtl", "offer", ["contact.invitation.solo.priscilla.day1.offer"]],
+	["priscilla_day2.dtl", "daily_message", []],
+	["priscilla_day2.dtl", "offer", ["contact.invitation.solo.priscilla.day2.offer"]],
+	["priscilla_day2.dtl", "nevermind", ["contact.invitation.solo.priscilla.day1.nevermind"]],
+	["priscilla_day2.dtl", "missed_question", ["contact.invitation.solo.priscilla.day1.missed_question"]],
+	["priscilla_day2.dtl", "first_open_priscilla", ["contact.invitation.group.priscilla_lavinia.day2.first_open_priscilla"]],
+	["priscilla_day2.dtl", "first_open_lavinia", ["contact.invitation.group.priscilla_lavinia.day2.first_open_lavinia"]],
+	["priscilla_day2.dtl", "second_open_priscilla", ["contact.invitation.group.priscilla_lavinia.day2.second_open_priscilla"]],
+	["priscilla_day2.dtl", "second_open_lavinia", ["contact.invitation.group.priscilla_lavinia.day2.second_open_lavinia"]],
+	["priscilla_day3.dtl", "daily_message", ["contact.ordinary.priscilla.day3"]],
+	["priscilla_day3.dtl", "nevermind", ["contact.invitation.solo.priscilla.day2.nevermind"]],
+	["priscilla_day3.dtl", "missed_question", ["contact.invitation.solo.priscilla.day2.missed_question"]],
+	["priscilla_day4.dtl", "daily_message", []],
+	["priscilla_day4.dtl", "offer", ["contact.invitation.solo.priscilla.day4.offer"]],
+	["priscilla_day5.dtl", "daily_message", ["contact.ordinary.priscilla.day5"]],
+	["priscilla_day5.dtl", "nevermind", ["contact.invitation.solo.priscilla.day4.nevermind"]],
+	["priscilla_day5.dtl", "missed_question", ["contact.invitation.solo.priscilla.day4.missed_question"]],
+	["priscilla_day6.dtl", "daily_message", []],
+	["priscilla_day6.dtl", "offer", ["contact.invitation.solo.priscilla.day6.offer"]],
+	["priscilla_day6.dtl", "first_open_priscilla", ["contact.invitation.group.priscilla_lavinia.day6.first_open_priscilla"]],
+	["priscilla_day6.dtl", "first_open_lavinia", ["contact.invitation.group.priscilla_lavinia.day6.first_open_lavinia"]],
+	["priscilla_day6.dtl", "second_open_priscilla", ["contact.invitation.group.priscilla_lavinia.day6.second_open_priscilla"]],
+	["priscilla_day6.dtl", "second_open_lavinia", ["contact.invitation.group.priscilla_lavinia.day6.second_open_lavinia"]],
+	["priscilla_day7.dtl", "daily_message", []],
+	["priscilla_day7.dtl", "offer", ["contact.invitation.ending.priscilla.day7.offer"]],
+	["priscilla_day7.dtl", "nevermind", ["contact.invitation.solo.priscilla.day6.nevermind"]],
+	["priscilla_day7.dtl", "missed_question", ["contact.invitation.solo.priscilla.day6.missed_question"]],
+	["sylvia_day1.dtl", "history", []],
+	["sylvia_day1.dtl", "daily_message", []],
+	["sylvia_day1.dtl", "offer", ["contact.invitation.solo.sylvia.day1.offer"]],
+	["sylvia_day2.dtl", "daily_message", ["contact.ordinary.sylvia.day2"]],
+	["sylvia_day2.dtl", "nevermind", ["contact.invitation.solo.sylvia.day1.nevermind"]],
+	["sylvia_day2.dtl", "missed_question", ["contact.invitation.solo.sylvia.day1.missed_question"]],
+	["sylvia_day3.dtl", "daily_message", []],
+	["sylvia_day3.dtl", "offer", ["contact.invitation.solo.sylvia.day3.offer"]],
+	["sylvia_day4.dtl", "daily_message", []],
+	["sylvia_day4.dtl", "offer", ["contact.invitation.solo.sylvia.day4.offer"]],
+	["sylvia_day4.dtl", "nevermind", ["contact.invitation.solo.sylvia.day3.nevermind"]],
+	["sylvia_day4.dtl", "missed_question", ["contact.invitation.solo.sylvia.day3.missed_question"]],
+	["sylvia_day5.dtl", "daily_message", []],
+	["sylvia_day5.dtl", "offer", ["contact.invitation.solo.sylvia.day5.offer"]],
+	["sylvia_day5.dtl", "nevermind", ["contact.invitation.solo.sylvia.day4.nevermind"]],
+	["sylvia_day5.dtl", "missed_question", ["contact.invitation.solo.sylvia.day4.missed_question"]],
+	["sylvia_day6.dtl", "daily_message", ["contact.ordinary.sylvia.day6"]],
+	["sylvia_day6.dtl", "nevermind", ["contact.invitation.solo.sylvia.day5.nevermind"]],
+	["sylvia_day6.dtl", "missed_question", ["contact.invitation.solo.sylvia.day5.missed_question"]],
+	["sylvia_day7.dtl", "daily_message", []],
+]
+
+## Columns: ending file basename under ENDING_ROOT, legacy label in file order, and the callable
+## entry ids of the specification 13.8 row whose stable ending id equals that label verbatim. A
+## legacy label with no such row reaches nothing: 13.8 renamed observation to observer and split
+## the undifferentiated Priscilla-Lavinia label, and picking one neighbour would be an alias.
+const ENDING_LABEL_MAPPINGS := [
+	["alone.dtl", "ending.alone", ["ending.alone.normal", "ending.alone.dark_mode"]],
+	["lavinia.dtl", "ending.lavinia.sweet", ["ending.lavinia.sweet"]],
+	["lavinia.dtl", "ending.lavinia.dark", ["ending.lavinia.dark"]],
+	["lavinia.dtl", "ending.lavinia.observation", []],
+	["priscilla.dtl", "ending.priscilla.sweet", ["ending.priscilla.sweet"]],
+	["priscilla.dtl", "ending.priscilla.dark", ["ending.priscilla.dark"]],
+	["priscilla.dtl", "ending.priscilla.observation", []],
+	["priscilla_lavinia.dtl", "ending.priscilla_lavinia", []],
+	["sylvia.dtl", "ending.sylvia.sweet", ["ending.sylvia.sweet"]],
+	["sylvia.dtl", "ending.sylvia.dark", ["ending.sylvia.dark"]],
+	["sylvia.dtl", "ending.sylvia.special", ["ending.sylvia.special.full", "ending.sylvia.special.residue"]],
+]
+
+## The distinct entry ids the contact labels actually reach. Specification sections 13.1 through
+## 13.7 enumerate further contact entries that no legacy label produces; those belong to Task 2
+## and are deliberately not claimed here.
+const CONTACT_TARGET_ENTRY_IDS := [
+	"contact.invitation.ending.lavinia.day7.offer",
+	"contact.invitation.ending.priscilla.day7.offer",
+	"contact.invitation.group.priscilla_lavinia.day2.first_open_lavinia",
+	"contact.invitation.group.priscilla_lavinia.day2.first_open_priscilla",
+	"contact.invitation.group.priscilla_lavinia.day2.second_open_lavinia",
+	"contact.invitation.group.priscilla_lavinia.day2.second_open_priscilla",
+	"contact.invitation.group.priscilla_lavinia.day6.first_open_lavinia",
+	"contact.invitation.group.priscilla_lavinia.day6.first_open_priscilla",
+	"contact.invitation.group.priscilla_lavinia.day6.second_open_lavinia",
+	"contact.invitation.group.priscilla_lavinia.day6.second_open_priscilla",
+	"contact.invitation.solo.lavinia.day2.missed_question",
+	"contact.invitation.solo.lavinia.day2.nevermind",
+	"contact.invitation.solo.lavinia.day2.offer",
+	"contact.invitation.solo.lavinia.day3.missed_question",
+	"contact.invitation.solo.lavinia.day3.nevermind",
+	"contact.invitation.solo.lavinia.day3.offer",
+	"contact.invitation.solo.lavinia.day5.missed_question",
+	"contact.invitation.solo.lavinia.day5.nevermind",
+	"contact.invitation.solo.lavinia.day5.offer",
+	"contact.invitation.solo.lavinia.day6.missed_question",
+	"contact.invitation.solo.lavinia.day6.nevermind",
+	"contact.invitation.solo.lavinia.day6.offer",
+	"contact.invitation.solo.priscilla.day1.missed_question",
+	"contact.invitation.solo.priscilla.day1.nevermind",
+	"contact.invitation.solo.priscilla.day1.offer",
+	"contact.invitation.solo.priscilla.day2.missed_question",
+	"contact.invitation.solo.priscilla.day2.nevermind",
+	"contact.invitation.solo.priscilla.day2.offer",
+	"contact.invitation.solo.priscilla.day4.missed_question",
+	"contact.invitation.solo.priscilla.day4.nevermind",
+	"contact.invitation.solo.priscilla.day4.offer",
+	"contact.invitation.solo.priscilla.day6.missed_question",
+	"contact.invitation.solo.priscilla.day6.nevermind",
+	"contact.invitation.solo.priscilla.day6.offer",
+	"contact.invitation.solo.sylvia.day1.missed_question",
+	"contact.invitation.solo.sylvia.day1.nevermind",
+	"contact.invitation.solo.sylvia.day1.offer",
+	"contact.invitation.solo.sylvia.day3.missed_question",
+	"contact.invitation.solo.sylvia.day3.nevermind",
+	"contact.invitation.solo.sylvia.day3.offer",
+	"contact.invitation.solo.sylvia.day4.missed_question",
+	"contact.invitation.solo.sylvia.day4.nevermind",
+	"contact.invitation.solo.sylvia.day4.offer",
+	"contact.invitation.solo.sylvia.day5.missed_question",
+	"contact.invitation.solo.sylvia.day5.nevermind",
+	"contact.invitation.solo.sylvia.day5.offer",
+	"contact.ordinary.lavinia.day1",
+	"contact.ordinary.lavinia.day4",
+	"contact.ordinary.priscilla.day3",
+	"contact.ordinary.priscilla.day5",
+	"contact.ordinary.sylvia.day2",
+	"contact.ordinary.sylvia.day6",
 ]
 
 ## Columns: path, timeline_id, disposition, labels in file order.
@@ -186,8 +371,27 @@ func _parse(path: String) -> Dictionary:
 	return parsed["value"]
 
 
+## Minor 7: _parse() collapses missing and unparseable into {}. This reports which it was, and
+## where, so a future JSON break names a code, line and column instead of a bare parse failure.
+func _parse_diagnostic(path: String) -> String:
+	if not FileAccess.file_exists(path):
+		return "%s: file does not exist" % path
+	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(path))
+	if parsed.get("ok", false):
+		return ""
+	return "%s: StrictJson rejected the document, code %s at line %s column %s: %s" % [
+		path, str(parsed.get("code", "")), str(parsed.get("line", "")),
+		str(parsed.get("column", "")), str(parsed.get("message", "")),
+	]
+
+
 func _load_migration_manifest() -> Dictionary:
 	return _parse(MANIFEST_PATH)
+
+
+func _label_mapping_rows(transformation_id: String) -> Array:
+	var rows: Variant = _transformation(transformation_id).get("label_mappings", [])
+	return rows if rows is Array else []
 
 
 func _legacy_files() -> Array:
@@ -304,7 +508,8 @@ func test_the_manifest_file_exists_and_parses_as_strict_json() -> void:
 	if not FileAccess.file_exists(MANIFEST_PATH):
 		return
 	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(MANIFEST_PATH))
-	assert_true(parsed.get("ok", false), "the manifest must parse under StrictJson")
+	assert_true(parsed.get("ok", false),
+		"the manifest must parse under StrictJson: " + _parse_diagnostic(MANIFEST_PATH))
 
 
 func test_the_manifest_top_level_is_exact_key_and_names_its_true_source() -> void:
@@ -315,9 +520,10 @@ func test_the_manifest_top_level_is_exact_key_and_names_its_true_source() -> voi
 	var keys: Array = manifest.keys()
 	keys.sort()
 	assert_eq(keys, [
-		"ambiguous_checkpoint_disposition", "cutover_status", "kind", "legacy_files",
-		"legacy_label_count", "master_timelines", "retired_labels", "schema_version",
-		"source_branch", "source_commit", "tracked_target_count", "transformations",
+		"ambiguous_checkpoint_disposition", "cutover_status", "kind", "legacy_file_count",
+		"legacy_files", "legacy_label_count", "master_timeline_count", "master_timelines",
+		"retired_label_count", "retired_labels", "schema_version", "source_branch",
+		"source_commit", "tracked_target_count", "transformation_count", "transformations",
 	], "the top level is exact-key")
 	assert_eq(manifest.get("schema_version"), 1, "schema_version is exactly 1")
 	assert_eq(typeof(manifest.get("schema_version")), TYPE_INT, "schema_version is an int")
@@ -370,8 +576,6 @@ func test_the_inventory_holds_exactly_the_frozen_sixty_one_records() -> void:
 		assert_eq(record.get("disposition"), expected[2], "%s: disposition" % path)
 		assert_eq(record.get("labels"), expected[3], "%s: labels, in file order" % path)
 		assert_eq(record.get("uid_path"), expected[0] + ".uid", "%s: adjacent UID path" % path)
-		assert_eq(record.get("checkpoint_discriminator_required"), expected[2] == "split",
-			"%s: a split source cannot resolve an undiscriminated checkpoint" % path)
 
 
 func test_records_are_ordered_by_path_and_unique() -> void:
@@ -475,6 +679,9 @@ func test_the_legacy_tree_on_disk_is_exactly_sixty_one_pairs() -> void:
 			dtl.append(path)
 		elif path.ends_with(".dtl.uid"):
 			uid.append(path)
+	assert_eq(found.size(), EXPECTED_TRACKED_TARGET_COUNT,
+		"the tree under the legacy root holds exactly the %d tracked targets and nothing else" %
+		EXPECTED_TRACKED_TARGET_COUNT)
 	assert_eq(dtl.size(), EXPECTED_LEGACY_FILE_COUNT, "the tree still holds 61 legacy .dtl files")
 	assert_eq(uid.size(), EXPECTED_UID_COUNT, "the tree still holds 61 adjacent .dtl.uid files")
 	for path: Variant in dtl:
@@ -563,7 +770,7 @@ func test_exactly_the_five_named_transformations_are_declared() -> void:
 	assert_eq(ids, TRANSFORMATION_IDS, "the exact transformation ids, in order")
 
 
-func test_contact_sources_split_into_ordinary_offer_and_followup_roles() -> void:
+func test_contact_labels_map_to_exact_spec_entry_ids() -> void:
 	var transformation := _transformation("contacts_split_into_ordinary_offer_followup")
 	assert_false(transformation.is_empty(), "expected RED: the contact transformation is absent")
 	if transformation.is_empty():
@@ -572,34 +779,242 @@ func test_contact_sources_split_into_ordinary_offer_and_followup_roles() -> void
 	var sources: Array = transformation.get("source_paths", [])
 	assert_eq(sources.size(), 21, "every contact source is listed")
 	for path: Variant in sources:
-		assert_true(str(path).begins_with("res://dialogic/timelines/en/contacts/"),
-			"%s: is a contact source" % str(path))
-	var roles: Dictionary = {}
-	for entry: Dictionary in transformation.get("label_roles", []):
-		roles[str(entry.get("label", ""))] = str(entry.get("entry_role", ""))
-	assert_eq(roles.get("daily_message"), "contact.ordinary", "ordinary entry role")
-	assert_eq(roles.get("offer"), "contact.invitation.solo.offer", "offer entry role")
-	assert_eq(roles.get("nevermind"), "contact.invitation.solo.nevermind", "follow-up entry role")
-	assert_eq(roles.get("missed_question"), "contact.invitation.solo.missed_question",
-		"follow-up entry role")
-	assert_eq(roles.get("first_open_priscilla"),
-		"contact.invitation.group.first_open_priscilla", "group invitation part")
-	assert_eq(roles.get("first_open_lavinia"),
-		"contact.invitation.group.first_open_lavinia", "group invitation part")
-	assert_eq(roles.get("second_open_priscilla"),
-		"contact.invitation.group.second_open_priscilla", "group invitation part")
-	assert_eq(roles.get("second_open_lavinia"),
-		"contact.invitation.group.second_open_lavinia", "group invitation part")
-	assert_eq(roles.get("history"), "unmapped",
-		"spec 13.1-13.7 enumerates no history entry; it is recorded, never guessed")
-	var every_contact_label: Array = []
+		assert_true(str(path).begins_with(CONTACTS_ROOT), "%s: is a contact source" % str(path))
+	var rows: Array = transformation.get("label_mappings", [])
+	assert_eq(rows.size(), CONTACT_LABEL_MAPPINGS.size(),
+		"expected RED: one row per contact label occurrence, %d in all" % CONTACT_LABEL_MAPPINGS.size())
+	if rows.size() != CONTACT_LABEL_MAPPINGS.size():
+		return
+	for index in range(CONTACT_LABEL_MAPPINGS.size()):
+		var expected: Array = CONTACT_LABEL_MAPPINGS[index]
+		var row: Dictionary = rows[index]
+		var expected_targets: Array = expected[2]
+		var where: String = "%s/%s" % [str(expected[0]), str(expected[1])]
+		assert_eq(row.get("source_path"), CONTACTS_ROOT + str(expected[0]),
+			"%s: mapping row %d source" % [where, index])
+		assert_eq(row.get("label"), expected[1], "%s: mapping row %d label" % [where, index])
+		assert_eq(row.get("target_entry_ids"), expected_targets,
+			"%s: the exact specification 13.1-13.7 entry ids" % where)
+		assert_eq(row.get("status"), "unmapped" if expected_targets.is_empty() else "mapped",
+			"%s: status states in data whether the specification enumerates an entry" % where)
+	assert_eq(transformation.get("target_entry_ids"), CONTACT_TARGET_ENTRY_IDS,
+		"the contact transformation reaches exactly the entries its legacy labels name")
+
+
+func test_the_day_seven_offer_gap_and_the_follow_up_day_shift_are_recorded() -> void:
+	var rows := _label_mapping_rows("contacts_split_into_ordinary_offer_followup")
+	assert_false(rows.is_empty(), "expected RED: the contact mapping is absent")
+	if rows.is_empty():
+		return
+	var by_key: Dictionary = {}
+	for row: Dictionary in rows:
+		by_key["%s|%s" % [str(row.get("source_path", "")), str(row.get("label", ""))]] = row
+	var shifted: Dictionary = by_key.get(CONTACTS_ROOT + "lavinia_day3.dtl|nevermind", {})
+	assert_eq(shifted.get("target_entry_ids"), ["contact.invitation.solo.lavinia.day2.nevermind"],
+		"a Day-3 file closes the Day-2 invitation window, so the locator shifts one day back")
+	assert_eq(by_key.get(CONTACTS_ROOT + "priscilla_day7.dtl|offer", {}).get("target_entry_ids"),
+		["contact.invitation.ending.priscilla.day7.offer"],
+		"a Day-7 offer is an ending invitation, not a solo invitation window")
+	assert_eq(by_key.get(CONTACTS_ROOT + "lavinia_day7.dtl|offer", {}).get("target_entry_ids"),
+		["contact.invitation.ending.lavinia.day7.offer"],
+		"a Day-7 offer is an ending invitation, not a solo invitation window")
+	assert_false(by_key.has(CONTACTS_ROOT + "sylvia_day7.dtl|offer"),
+		"sylvia_day7.dtl carries no offer label at all")
+	var targets: Array = _transformation("contacts_split_into_ordinary_offer_followup").get(
+		"target_entry_ids", [])
+	assert_false(targets.has("contact.invitation.ending.sylvia.day7.offer"),
+		"an entry with no legacy label behind it is never claimed as a transformation target")
+
+
+func test_ending_labels_map_to_the_specification_thirteen_eight_rows() -> void:
+	var transformation := _transformation("endings_split_into_presentation_entries")
+	assert_false(transformation.is_empty(), "expected RED: the ending transformation is absent")
+	if transformation.is_empty():
+		return
+	var rows: Array = transformation.get("label_mappings", [])
+	assert_eq(rows.size(), ENDING_LABEL_MAPPINGS.size(),
+		"expected RED: one row per ending label occurrence, %d in all" % ENDING_LABEL_MAPPINGS.size())
+	if rows.size() != ENDING_LABEL_MAPPINGS.size():
+		return
+	for index in range(ENDING_LABEL_MAPPINGS.size()):
+		var expected: Array = ENDING_LABEL_MAPPINGS[index]
+		var row: Dictionary = rows[index]
+		var expected_targets: Array = expected[2]
+		var where: String = "%s/%s" % [str(expected[0]), str(expected[1])]
+		assert_eq(row.get("source_path"), ENDING_ROOT + str(expected[0]),
+			"%s: mapping row %d source" % [where, index])
+		assert_eq(row.get("label"), expected[1], "%s: mapping row %d label" % [where, index])
+		assert_eq(row.get("target_entry_ids"), expected_targets,
+			"%s: the exact specification 13.8 callable entry ids" % where)
+		assert_eq(row.get("status"), "unmapped" if expected_targets.is_empty() else "mapped",
+			"%s: status states in data whether 13.8 enumerates a row for this label" % where)
+
+
+func test_every_legacy_label_occurrence_is_accounted_for_exactly_once() -> void:
+	var manifest := _load_migration_manifest()
+	assert_false(manifest.is_empty(),
+		"expected RED: manifest absent or unparseable: " + _parse_diagnostic(MANIFEST_PATH))
+	if manifest.is_empty():
+		return
+	var outstanding: Dictionary = {}
+	var occurrences := 0
 	for record: Dictionary in _legacy_files():
-		if str(record.get("path", "")).begins_with("res://dialogic/timelines/en/contacts/"):
-			for label: Variant in record.get("labels", []):
-				if not every_contact_label.has(label):
-					every_contact_label.append(label)
-	for label: Variant in every_contact_label:
-		assert_true(roles.has(label), "%s: every contact label has a declared role" % str(label))
+		for label: Variant in record.get("labels", []):
+			var key: String = "%s|%s" % [str(record.get("path", "")), str(label)]
+			assert_false(outstanding.has(key),
+				"%s: a label occurrence is unique within its file" % key)
+			outstanding[key] = true
+			occurrences += 1
+	assert_eq(occurrences, EXPECTED_LABEL_COUNT,
+		"the inventory holds exactly %d label occurrences" % EXPECTED_LABEL_COUNT)
+	assert_eq(manifest.get("legacy_label_count"), occurrences,
+		"legacy_label_count equals the number of recorded label occurrences")
+	var seen: Dictionary = {}
+	var accounted := 0
+	var rejected := 0
+	for transformation: Dictionary in manifest.get("transformations", []):
+		for row: Dictionary in transformation.get("label_mappings", []):
+			var key: String = "%s|%s" % [str(row.get("source_path", "")), str(row.get("label", ""))]
+			if str(row.get("status", "")) == "rejected":
+				rejected += 1
+				assert_true(RETIRED_LABEL_IDS.has(str(row.get("label", ""))),
+					"%s: only a retired label may carry the rejected status" % key)
+				assert_false(outstanding.has(key),
+					"%s: a rejected label is absent from the tree inventory" % key)
+				continue
+			assert_true(outstanding.has(key),
+				"%s: every mapping row names a real label occurrence" % key)
+			assert_false(seen.has(key), "%s: no label occurrence is mapped twice" % key)
+			seen[key] = true
+			accounted += 1
+	assert_eq(accounted, occurrences,
+		"every one of the %d label occurrences is mapped or explicitly unmapped, exactly once" %
+		EXPECTED_LABEL_COUNT)
+	assert_eq(rejected, EXPECTED_RETIRED_LABEL_COUNT, "one rejected row per retired label")
+	var unaccounted: Array = []
+	for key: Variant in outstanding:
+		if not seen.has(key):
+			unaccounted.append(str(key))
+	unaccounted.sort()
+	assert_eq(unaccounted, [], "no label occurrence is left out of the transformation mappings")
+
+
+func test_every_label_mapping_row_is_well_formed() -> void:
+	var manifest := _load_migration_manifest()
+	assert_false(manifest.is_empty(),
+		"expected RED: manifest absent or unparseable: " + _parse_diagnostic(MANIFEST_PATH))
+	if manifest.is_empty():
+		return
+	var known_paths: Array = []
+	for record: Dictionary in _legacy_files():
+		known_paths.append(str(record.get("path", "")))
+	var rows_seen := 0
+	for transformation: Dictionary in manifest.get("transformations", []):
+		var declared: Array = transformation.get("target_entry_ids", [])
+		for row: Dictionary in transformation.get("label_mappings", []):
+			rows_seen += 1
+			var source_path: String = str(row.get("source_path", ""))
+			var keys: Array = row.keys()
+			keys.sort()
+			assert_eq(keys, LABEL_MAPPING_KEYS, "%s: exact label-mapping row keys" % source_path)
+			var status: String = str(row.get("status", ""))
+			assert_has(ALLOWED_MAPPING_STATUSES, status,
+				"%s: status is a closed enum member, never a bare magic string" % source_path)
+			assert_true(known_paths.has(source_path),
+				"%s: every mapping row names an inventoried legacy file" % source_path)
+			var row_targets: Array = row.get("target_entry_ids", [])
+			var reason: String = str(row.get("reason", ""))
+			if status == "mapped":
+				assert_false(row_targets.is_empty(),
+					"%s: a mapped row carries at least one entry id" % source_path)
+				assert_true(reason.is_empty(), "%s: a mapped row needs no reason" % source_path)
+			else:
+				assert_true(row_targets.is_empty(),
+					"%s: a %s row resolves to no entry id at all" % [source_path, status])
+				assert_false(reason.is_empty(),
+					"%s: a %s row states why in the data, not in prose" % [source_path, status])
+			for target: Variant in row_targets:
+				assert_true(declared.has(target),
+					"%s: a row target is declared by its own transformation" % str(target))
+				assert_false(RETIRED_LABEL_IDS.has(target),
+					"%s: no retired label is resurrected as an entry id" % str(target))
+	assert_eq(rows_seen, EXPECTED_LABEL_COUNT + EXPECTED_RETIRED_LABEL_COUNT,
+		"%d tree label occurrences plus %d rejected retired labels" %
+		[EXPECTED_LABEL_COUNT, EXPECTED_RETIRED_LABEL_COUNT])
+
+
+func test_an_empty_target_list_means_a_retired_transformation_and_nothing_else() -> void:
+	var manifest := _load_migration_manifest()
+	assert_false(manifest.is_empty(),
+		"expected RED: manifest absent or unparseable: " + _parse_diagnostic(MANIFEST_PATH))
+	if manifest.is_empty():
+		return
+	var transformations: Array = manifest.get("transformations", [])
+	assert_eq(transformations.size(), EXPECTED_TRANSFORMATION_COUNT,
+		"expected RED: no transformations to inspect")
+	if transformations.size() != EXPECTED_TRANSFORMATION_COUNT:
+		return
+	for transformation: Dictionary in transformations:
+		var id: String = str(transformation.get("transformation_id", ""))
+		var targets: Array = transformation.get("target_entry_ids", [])
+		assert_eq(targets.is_empty(), str(transformation.get("kind", "")) == "retired",
+			"%s: an empty target list means retired, and never a deferral" % id)
+
+
+func test_every_collection_declares_its_own_exact_length() -> void:
+	var manifest := _load_migration_manifest()
+	assert_false(manifest.is_empty(),
+		"expected RED: manifest absent or unparseable: " + _parse_diagnostic(MANIFEST_PATH))
+	if manifest.is_empty():
+		return
+	var pairs: Array = [
+		["legacy_file_count", "legacy_files", EXPECTED_LEGACY_FILE_COUNT],
+		["master_timeline_count", "master_timelines", EXPECTED_MASTER_TIMELINE_COUNT],
+		["retired_label_count", "retired_labels", EXPECTED_RETIRED_LABEL_COUNT],
+		["transformation_count", "transformations", EXPECTED_TRANSFORMATION_COUNT],
+	]
+	for pair: Array in pairs:
+		var count_key: String = str(pair[0])
+		var collection_key: String = str(pair[1])
+		var collection: Array = manifest.get(collection_key, [])
+		assert_eq(typeof(manifest.get(count_key)), TYPE_INT, "%s is an int" % count_key)
+		assert_eq(manifest.get(count_key), pair[2], "%s is the frozen exact length" % count_key)
+		assert_eq(manifest.get(count_key), collection.size(),
+			"%s equals the real length of %s" % [count_key, collection_key])
+
+
+func test_the_frozen_inventory_agrees_with_the_existing_timeline_manifest() -> void:
+	var timelines := _parse(TIMELINE_MANIFEST_PATH)
+	assert_false(timelines.is_empty(),
+		"the existing timeline manifest must load: " + _parse_diagnostic(TIMELINE_MANIFEST_PATH))
+	var legacy_files := _legacy_files()
+	assert_eq(legacy_files.size(), EXPECTED_LEGACY_FILE_COUNT, "expected RED: no records to bind")
+	if timelines.is_empty() or legacy_files.size() != EXPECTED_LEGACY_FILE_COUNT:
+		return
+	var records: Array = timelines.get("records", [])
+	assert_eq(records.size(), EXPECTED_LEGACY_FILE_COUNT,
+		"the timeline manifest inventories the same %d files" % EXPECTED_LEGACY_FILE_COUNT)
+	var by_path: Dictionary = {}
+	for record: Dictionary in records:
+		by_path["res://" + str(record.get("path", ""))] = record
+	var total := 0
+	for record: Dictionary in legacy_files:
+		var path: String = str(record.get("path", ""))
+		assert_true(by_path.has(path), "%s: is inventoried by the timeline manifest too" % path)
+		if not by_path.has(path):
+			continue
+		var other: Dictionary = by_path[path]
+		assert_eq(str(other.get("id", "")), str(record.get("timeline_id", "")),
+			"%s: the two manifests agree on the timeline id" % path)
+		assert_eq(other.get("labels"), record.get("labels"),
+			"%s: the two manifests agree on the label list" % path)
+		assert_eq(str(other.get("content_fingerprint", "")),
+			"sha256:" + str(record.get("sha256", "")),
+			"%s: the two manifests agree on the content digest" % path)
+		var other_labels: Array = other.get("labels", [])
+		total += other_labels.size()
+	assert_eq(total, EXPECTED_LABEL_COUNT,
+		"the timeline manifest independently totals the same %d labels" % EXPECTED_LABEL_COUNT)
 
 
 func test_hospital_faint_splits_into_day_one_through_day_seven() -> void:
@@ -669,15 +1084,17 @@ func test_the_retired_label_transformation_points_at_the_retired_block() -> void
 		"the labels are retired, neither split nor retained")
 	assert_eq(transformation.get("target_entry_ids"), [],
 		"a retired label resolves to no entry at all")
-	var roles: Array = transformation.get("label_roles", [])
-	assert_eq(roles.size(), RETIRED_LABEL_IDS.size(), "one role row per retired label")
-	if roles.size() != RETIRED_LABEL_IDS.size():
+	var rows: Array = transformation.get("label_mappings", [])
+	assert_eq(rows.size(), RETIRED_LABEL_IDS.size(), "one mapping row per retired label")
+	if rows.size() != RETIRED_LABEL_IDS.size():
 		return
 	var ids: Array = []
-	for entry: Dictionary in roles:
-		ids.append(str(entry.get("label", "")))
-		assert_eq(entry.get("entry_role"), "rejected",
+	for row: Dictionary in rows:
+		ids.append(str(row.get("label", "")))
+		assert_eq(row.get("status"), "rejected",
 			"a retired label is rejected, never aliased to Observer")
+		assert_eq(row.get("target_entry_ids"), [],
+			"a rejected label resolves to no entry id at all")
 	assert_eq(ids, RETIRED_LABEL_IDS, "the exact retired label ids")
 
 

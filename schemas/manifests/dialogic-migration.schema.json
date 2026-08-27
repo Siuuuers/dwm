@@ -6,14 +6,18 @@
     "ambiguous_checkpoint_disposition",
     "cutover_status",
     "kind",
+    "legacy_file_count",
     "legacy_files",
     "legacy_label_count",
+    "master_timeline_count",
     "master_timelines",
+    "retired_label_count",
     "retired_labels",
     "schema_version",
     "source_branch",
     "source_commit",
     "tracked_target_count",
+    "transformation_count",
     "transformations"
   ],
   "properties": {
@@ -46,6 +50,9 @@
     "ambiguous_checkpoint_disposition": {
       "const": "incompatible"
     },
+    "master_timeline_count": {
+      "const": 8
+    },
     "master_timelines": {
       "type": "array",
       "minItems": 8,
@@ -55,6 +62,9 @@
         "minLength": 1
       }
     },
+    "legacy_file_count": {
+      "const": 61
+    },
     "legacy_files": {
       "type": "array",
       "minItems": 61,
@@ -62,7 +72,6 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "checkpoint_discriminator_required",
           "disposition",
           "labels",
           "path",
@@ -116,12 +125,12 @@
               "type": "string",
               "minLength": 1
             }
-          },
-          "checkpoint_discriminator_required": {
-            "type": "boolean"
           }
         }
       }
+    },
+    "retired_label_count": {
+      "const": 3
     },
     "retired_labels": {
       "type": "array",
@@ -157,6 +166,9 @@
         }
       }
     },
+    "transformation_count": {
+      "const": 5
+    },
     "transformations": {
       "type": "array",
       "minItems": 5,
@@ -165,7 +177,7 @@
         "additionalProperties": false,
         "required": [
           "kind",
-          "label_roles",
+          "label_mappings",
           "note",
           "source_paths",
           "spec_sections",
@@ -208,24 +220,45 @@
               "minLength": 1
             }
           },
-          "label_roles": {
+          "label_mappings": {
             "type": "array",
             "uniqueItems": true,
             "items": {
               "type": "object",
               "additionalProperties": false,
               "required": [
-                "entry_role",
-                "label"
+                "label",
+                "reason",
+                "source_path",
+                "status",
+                "target_entry_ids"
               ],
               "properties": {
+                "source_path": {
+                  "type": "string",
+                  "minLength": 1
+                },
                 "label": {
                   "type": "string",
                   "minLength": 1
                 },
-                "entry_role": {
-                  "type": "string",
-                  "minLength": 1
+                "status": {
+                  "enum": [
+                    "mapped",
+                    "unmapped",
+                    "rejected"
+                  ]
+                },
+                "target_entry_ids": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "reason": {
+                  "type": "string"
                 }
               }
             }
