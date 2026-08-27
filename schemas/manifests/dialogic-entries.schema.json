@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "day_entry_count",
+    "default_locale",
+    "ending_entry_count",
+    "entries",
+    "entry_count",
+    "kind",
+    "locales",
+    "schema_version"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "dialogic_entries"
+    },
+    "default_locale": {
+      "const": "en"
+    },
+    "locales": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "en"
+        ]
+      }
+    },
+    "entry_count": {
+      "const": 139,
+      "description": "Pinned here AND cross-checked against the real record count by DialogicEntryManifest.validate_document as ENTRY_MANIFEST_ENTRY_COUNT_MISMATCH. Both halves stay live because the code law is reachable without changing this value: appending a record leaves entry_count schema-valid while making it disagree with reality. day_entry_count and ending_entry_count are deliberately NOT pinned, because their cross-checks run after the partition law and the only mutation that reaches them is the declared value itself, so a const there would make the code half unreachable. Measured, not assumed."
+    },
+    "day_entry_count": {
+      "type": "integer",
+      "description": "Declared number of records that own a day master, which is 121 across the seven day files. Cross-checked against the real tally by DialogicEntryManifest.validate_document as ENTRY_MANIFEST_ENTRY_COUNT_MISMATCH."
+    },
+    "ending_entry_count": {
+      "type": "integer",
+      "description": "Declared number of records that own no day and present an ending identity instead, which is the 18 callable entries the specification 13.8 table expands to. Cross-checked against the real tally by DialogicEntryManifest.validate_document as ENTRY_MANIFEST_ENTRY_COUNT_MISMATCH."
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 139,
+      "description": "minItems is the schema half of a defence-in-depth pair with the ENTRY_MANIFEST_ENTRY_COUNT_MISMATCH cross-check in DialogicEntryManifest.validate_document. Sub-commit 2A mutation site S08 deleted it and the whole suite still passed, so test_the_published_schema_declares_exactly_the_closed_vocabularies now asserts it directly; do not remove either half. uniqueItems is deliberately absent, because it could only catch byte-identical records, which is strictly weaker than the two laws that matter - a duplicate entry_id and a duplicate {path,label} locator pair - and both of those are named code laws.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "allowed_ending_forms",
+          "allowed_signals",
+          "atom_namespace",
+          "content_version",
+          "context_schema_id",
+          "day",
+          "ending_id",
+          "entry_id",
+          "line_namespace",
+          "locators",
+          "role",
+          "visual_ids"
+        ],
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "enum": [
+              "ordinary_message",
+              "solo_invitation_offer",
+              "group_contact_offer",
+              "consequence_followup",
+              "solo_pre_challenge",
+              "solo_post_challenge",
+              "hospital",
+              "pair_pre_challenge_scene",
+              "pair_post_challenge_scene",
+              "solo_ending_step",
+              "pair_ending_step",
+              "alone_step",
+              "opening",
+              "tutorial",
+              "echo_fallback",
+              "ending_invitation_offer"
+            ]
+          },
+          "day": {
+            "description": "An int from 1 to 7 on a day entry and null on an ending entry. JsonSchemaValidator implements no nullable union and no oneOf, so DialogicEntryManifest.validate_document owns this as ENTRY_MANIFEST_ENDING_PARTITION_INVALID."
+          },
+          "ending_id": {
+            "description": "A non-empty stable ending id on one of the eighteen 13.8 presentation entries and null on all others, including the three Day 7 ending invitations, which offer an ending without presenting one. Owned by ENTRY_MANIFEST_ENDING_PARTITION_INVALID for the same reason as day."
+          },
+          "allowed_ending_forms": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "derived_sweet",
+                "derived_dark",
+                "special_forced_dark",
+                "deck_sweet",
+                "deck_dark",
+                "alone_normal",
+                "alone_dark_mode",
+                "observer_full",
+                "observer_residue",
+                "special_full",
+                "special_residue"
+              ]
+            }
+          },
+          "allowed_signals": {
+            "type": "array",
+            "uniqueItems": true,
+            "description": "minItems is deliberately absent. The real law is that every entry carries history.line.witness, which no implemented keyword can express; it lives in validate_document as ENTRY_MANIFEST_SIGNAL_LIST_INVALID.",
+            "items": {
+              "enum": [
+                "message.reply.commit",
+                "history.line.witness",
+                "message.echo.satisfy",
+                "observer.evidence.commit",
+                "pair.combination.witness"
+              ]
+            }
+          },
+          "locators": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "en"
+            ],
+            "properties": {
+              "en": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "label",
+                  "path"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          "context_schema_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line_namespace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "atom_namespace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content_version": {
+            "const": 1
+          },
+          "visual_ids": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "optional",
+              "required"
+            ],
+            "properties": {
+              "required": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "optional": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
