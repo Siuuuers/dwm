@@ -6,38 +6,42 @@ This is a private, spoiler-complete, writer-facing record of approved scene deve
 
 Authority remains upstream:
 
-1. later explicit approvals and the applicable rulings in [`05-canon-amendments-2026-07-19.md`](./05-canon-amendments-2026-07-19.md);
-2. existing code for its owned scheduling, state, tone, line-identity, replay, localization, and save/load boundaries;
-3. [`01-core-story-bible.md`](./01-core-story-bible.md) for narrative canon and audience-facing meaning;
-4. [`02-character-relationship-handbook.md`](./02-character-relationship-handbook.md) for derived character and relationship performance guidance;
-5. [`03-seven-day-production-map.md`](./03-seven-day-production-map.md) for encounter premises, placement boundaries, triggers, counters, and consequences;
-6. this Beatbook for detailed execution inside a Map-authorized encounter.
+1. the [August 7 design](../docs/design/2026-08-07-seven-day-dialogic-flow-design.md) owns intended calendar, contact, promotion, Hospital, pair, Day 7, ending, and presentation mechanics;
+2. the [Core Story Bible](./01-core-story-bible.md) owns narrative canon and audience-facing meaning;
+3. the [Character & Relationship Handbook](./02-character-relationship-handbook.md) owns derived character and relationship performance guidance;
+4. an `APPROVED` row in the [Seven-Day Causal Matrix](./07-seven-day-causal-matrix.md) normally owns an encounter's placement and compact causal facts;
+5. this Beatbook owns detailed execution only after a premise earns expansion, with the bounded unplaced Room 2.17 core below as the sole current exception;
+6. the [July amendments](./05-canon-amendments-2026-07-19.md) and [Plot Material Library](./library/03-seven-day-plot-material-library.md) are historical, noncanonical provenance;
+7. the [Seven-Day Production Map](./03-seven-day-production-map.md) owns no plot and cannot select or approve a premise; and
+8. runtime inspection may reveal implementation drift from intended law, but runtime cannot amend, place, or approve a scene.
 
-The Beatbook may specialize an approved Map card but may not silently revise an upstream fact, create an encounter window, level a relationship, settle an unresolved cause, or assign a relationship label. If an entry conflicts with an upstream authority, follow the upstream authority and correct the entry.
+The Beatbook may expand only explicitly approved causal facts and may not silently revise an upstream fact, create an encounter window, level a relationship, settle an unresolved cause, assign a relationship label, or infer placement from an eligible set. If an entry conflicts with an upstream authority, follow the upstream authority and correct the entry.
 
-Under the current Dialogue-Only Writing Contract, prose in a reference beat is staging and rhythm guidance rather than released narration. Every short illustrative exchange is labeled `REACTION TEST` and is not final DTL unless a later approval explicitly gives it that status. Exact weekdays and clock times remain provisional until checked against code-owned availability.
+Under the current Dialogue-Only Writing Contract, prose in a reference beat is staging and rhythm guidance rather than released narration. Every short illustrative exchange is labeled `REACTION TEST` and is not final DTL unless a later approval explicitly gives it that status. Exact weekdays and clock times remain provisional pending the applicable August-authorized placement and calendar validation, plus explicit premise approval.
 
 ## Entry Shape
 
 Each developed encounter records only the fields it has earned:
 
-- approval status and Map anchor;
-- purpose and smallest scene change;
-- entry conditions and knowledge boundaries;
-- fixed causal spine;
-- writer-facing reaction tests;
-- relationship-state and tone variations;
-- group, missed, private-visible, private-offscreen, and prevented visibility boundaries;
-- later evidence and residue;
+- a dated approval record and exact selection status;
+- a link to its `APPROVED` Causal Matrix row, or an explicit approved-unplaced exception boundary;
+- causal obligations: ordinary task, incoming cause, lawful knowledge, smallest irreversible change, outgoing consequence, and any Day 7 debt;
+- purpose, entry conditions, fixed causal spine, and relationship-state or tone variation;
+- exact Group, Missed, Private-visible, Private-offscreen, and Prevented mode coverage where applicable;
+- concrete evidence, guaranteed fallback carrier, and later residue;
+- absence behavior, including what remains lawful without Angela or without the encounter;
+- writer-facing illustrative language labeled `REACTION TEST`, never final DTL without separate approval; and
 - rejected interpretations that must not return by accident.
 
-Do not manufacture detail merely to fill every field. An undeveloped variation remains governed by the Map and upstream canon rather than being guessed here.
+Do not manufacture detail merely to fill every field. An undeveloped variation remains unapproved rather than being guessed here.
 
-## Event 13: Three Versions of the Sky — Room 2.17
+## Room 2.17 — Approved Causal Core
 
-**Status:** Private-visible causal design approved. Its reaction-test wording is writer-facing, not final DTL. The Group and Missed visible adaptations have not received their own Angela-presence, guilt, or Hospital-pressure wording; only the shared Map spine applies to them. Private-offscreen inherits the causal result and counter without displaying this dialogue. The Prevented version remains unchanged.
+**Status:** APPROVED CAUSAL CORE — PLACEMENT UNSELECTED
 
-**Map anchor:** [`03-seven-day-production-map.md`](./03-seven-day-production-map.md), Event 13.
+The eligible set is the Day 2 and Day 6 Priscilla–Lavinia pair windows identified by the [Causal Matrix](./07-seven-day-causal-matrix.md#approved-causal-cores-awaiting-placement). Neither window is selected, and no matrix approval row exists. Eligibility is not placement: no exact weekday, protected-anchor assignment, later debt, or runtime identifier may be inferred. Production placement must return through audition and explicit approval.
+
+The former Event 13 card survives only in the [Plot Material Library](./library/03-seven-day-plot-material-library.md) as noncanonical audition history; it supplies no approval or placement.
 
 ### Purpose and Smallest Change
 
@@ -146,18 +150,18 @@ State and tone remain independent.
 >
 > **LAVINIA:** After rehearsal.
 
-The practical event is clear; its emotional motive remains non-final. The wording must stay flat and ordinary. `Friday` is a reference weekday, not permission for this document to change code-owned availability. If the authorized calendar cannot support it, preserve Lavinia’s authorship of the future meeting’s day, room, and time while changing the literal weekday during final scheduling work.
+The practical event is clear; its emotional motive remains non-final. The wording must stay flat and ordinary. `Friday` is a provisional reference weekday pending August-authorized placement and calendar validation plus explicit premise approval. Runtime is checked only for implementation drift and cannot select or amend placement. If a later approved placement cannot support the literal weekday, preserve Lavinia’s authorship of the future meeting’s day, room, and time while changing that weekday during final scheduling work.
 
 The Love insert can accompany either tone. Sweet or Totally Dark determines whether the second folder opens now; Love determines whether Lavinia personally creates a future meeting.
 
 ### Visibility Boundary
 
-- **Group (visible):** Angela is present while the same required collaboration produces the third version. This entry does not invent Angela’s dialogue, interpretation, or witness effect. Those must receive separate approval before final scene authorship.
-- **Missed (visible):** Angela accepted the group action but is absent. Priscilla and Lavinia still meet and count, but the code-owned guilt or Hospital flavor requires a separately approved insert; this entry does not pretend the neutral private rhythm already supplies it.
-- **Private-visible:** The causal design above is approved for the neutral Angela-absent scene. Lavinia supplies the perceptual anchor for writer-facing staging, but the released form remains subject to the project’s Dialogue-Only Writing Contract and the pure-observation board’s legibility result.
-- **Private-offscreen:** If no group offer generated and Angela solo-dated neither woman, Priscilla and Lavinia still meet and the pair counter advances. No scene or board appears, no combination is marked seen, and the reaction-test wording does not become audience or Angela knowledge.
-- **Prevented:** If Angela separately occupies Priscilla or Lavinia during the code-owned window, the women do not meet, the pair counter does not advance, and none of this dialogue occurs.
-- **Sylvia’s occupancy mark:** Sylvia’s unrelated, off-screen Room 2.17 mark remains only the provisional causal seed defined in the Map. It receives no standalone scene and is not part of this encounter’s emotional action.
+- **Group (visible):** The same ordinary Open Week work and resulting third-version spine may be tested with Angela present. Angela’s dialogue, guilt, Hospital-pressure adaptation, interpretation, and witness effect remain unapproved and require separate premise approval before final scene authorship. August-owned intended pair law supplies the visible scene and board only after a placement is approved.
+- **Missed (visible):** The same ordinary work and resulting third-version spine may be tested when Angela accepted the group action but is absent. Priscilla and Lavinia meet and count under August-owned intended pair law, but guilt, Hospital-pressure, follow-up, and other absence adaptations remain unapproved. The neutral private rhythm does not approve them by implication.
+- **Private-visible:** The detailed chair/folder/`will` execution above is approved only for the neutral Angela-absent Private-visible scene. Lavinia supplies the perceptual anchor for writer-facing staging, while August-owned intended pair law supplies the visible board and its legibility boundary after placement approval.
+- **Private-offscreen:** Under August-owned intended pair law, only the lawful meeting result and pair counter carry forward. No scene or board appears, no combination is marked seen, and no chair/folder/`will` execution or reaction-test wording becomes audience or Angela knowledge.
+- **Prevented:** Under August-owned intended pair law, Angela’s separate attendance with Priscilla or Lavinia means the women do not meet, the pair counter does not advance, and none of this execution occurs.
+- **Sylvia’s occupancy mark:** Sylvia’s unrelated, offscreen Room 2.17 mark is optional and causally inert unless a later approved contradiction needs it. It receives no standalone scene, ominous emphasis, or emotional role here; remove it if no approved contradiction requires it.
 
 ### Later Evidence and Residue
 
@@ -180,4 +184,4 @@ The Love insert can accompany either tone. Sweet or Totally Dark determines whet
 
 ### Non-Canon Craft Reference
 
-The source-grounded comparison behind the explicit Love-state logistics is recorded in [`2026-08-27-room-217-narrative-theory-check.md`](../docs/research/2026-08-27-room-217-narrative-theory-check.md). It informs craft only and cannot override story canon or code-owned boundaries.
+The source-grounded comparison behind the explicit Love-state logistics is recorded in [`2026-08-27-room-217-narrative-theory-check.md`](../docs/research/2026-08-27-room-217-narrative-theory-check.md). It informs craft only and cannot override story canon, August-owned intended law, or an approved Causal Matrix row.
