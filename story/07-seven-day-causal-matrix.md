@@ -2,7 +2,7 @@
 
 ## Authority and Status
 
-PASS ONE OPEN
+PASS ONE FROZEN — 2026-08-28
 
 This matrix is the inspectable Pass One owner of the fixed seven-day obligations and any later explicitly approved placements. The [August 7 design](../docs/design/2026-08-07-seven-day-dialogic-flow-design.md) owns calendar, contact, promotion, Hospital, pair, Day 7, ending, and presentation mechanics. The [Two-Pass Constellation specification](../docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md) owns the plot-free selection workflow. The [Core Story Bible](01-core-story-bible.md) owns protected narrative facts, character history, and fact-versus-inference boundaries. The [Character & Relationship Handbook](02-character-relationship-handbook.md) is derived performance guidance.
 
@@ -143,19 +143,27 @@ An approved row remains compact. Exact dialogue, full state branches, broad craf
 
 ## Pass One Freeze Evidence
 
-Task 9 owns the integrated freeze transaction. This matrix remains open while recording the candidate-independent evidence needed by the [Pass One freeze gate](../docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md#62-pass-one-freeze-gate).
+Task 9 froze the candidate-independent obligation lattice after the fresh integrated gates and human audit required by the [Pass One freeze gate](../docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md#62-pass-one-freeze-gate). This freeze does not finish or approve the seven-day plot: every encounter row remains `UNSELECTED`, no placed premise exists, and candidate-dependent proof remains staged for Pass Two.
 
-| Axis | Current evidence |
+| Axis | Freeze evidence and staged verdict |
 |---|---|
-| Window count | Fourteen marked rows: twelve solo windows and two conditional pair windows, each initially `UNSELECTED`. |
-| Initial state and promotion | All three solo friends begin at Friend; only the six exact third/fourth rows contain promotion text; attendance and eligibility remain mandatory. |
-| Messages | Six marked ordinary-message rows on Days 1–6; every chosen reply has contextual opportunity and oldest-first Day 7 fallback; Day 7 has none. |
-| Pair modes | Five dispositions preserve count, visibility, board, and witnessed-combination boundaries; opened-but-unanswered is not a sixth mode. |
-| Daily residue | Every day exports a protected residue, fixed receipt/payoff sequence, zero next-day debt, or one of the two deliberate negative-space markers. |
+| Window count | The marked Encounter-Window Registry contains exactly twelve solo and two conditional pair rows on the approved days; all fourteen remain `UNSELECTED`. |
+| Initial state and promotion | The Fixed Seven-Day Obligation Lattice starts Priscilla, Lavinia, and Sylvia at Friend. Only the six exact registry rows for Priscilla D4/D6, Lavinia D5/D6, and Sylvia D4/D5 contain third/fourth promotion text; attendance and eligibility remain mandatory, with only Sylvia's upstream Hospital-witness exception. |
+| Protected anchors | The four-row Protected-Anchor Carrier Audit below explicitly covers zero dates, alternate solo selection, applicable pair outcomes or their mechanical impossibility, Hospital/supersession, unseen or Angela-absence handling, lawful knowledge route, exported residue, and unresolved fact/inference boundary for the D1 roster, D2 premature reply, D4 slip, and D6 prompt. |
+| Messages | The six marked Days 1–6 ordinary-contact rows each name an auditable contextual opportunity and unavoidable oldest-first `echo.fallback.day7`; Day 7 has no ordinary message. |
+| Pair modes | The pair disposition preserves five and only five modes—Group, Missed, Private-visible, Private-offscreen, and Prevented—with distinct count, visibility, board, and witnessed-combination effects. |
+| Day 7 order and faint precedence | The Day 7 lattice and ledger preserve due Day 6 follow-ups, then oldest-first echo fallback, boardless Priscilla/Lavinia/Sylvia rounds and the pre-Done faint check, then one selected solo destination or Alone, qualified solo Observer, qualified P–L ending, and qualified P–L Observer. Dark-mode Alone wins when enabled; otherwise the read-Sylvia branch is Special then Dark, and the unread branch is Hospital-flavored normal Alone. |
+| Causal agency and lawful knowledge | All seven Causal-Agency Invariant rows state what cannot become Angela's knowledge and the record, receipt, direct witness, or authorized dialogue route required before she can know it. |
+| Non-attendance and offscreen progress | No absence itself advances an encounter. Offscreen progress is limited to cited Bible private causality, the August pair protocol, and the separately authorized umbrella trigger; every other unattended window fabricates neither challenge, meeting, board, promotion, nor knowledge. |
+| Daily residue | All seven Day-Causality Ledger rows own a necessary outgoing residue or resolution. Days 3 and 5 alone use exact `NONE — NEGATIVE SPACE`; Day 7 exports zero Day 8 debt. |
 | Candidate-specific perceptible change | `NOT EXERCISED — NO APPROVED PREMISE` |
-| Ordinary candidate consideration | `DEFERRED TO PASS TWO`; every window remains lawful without an anomaly. |
-| Presentation | Dialogue-led presentation and sparse precise perception remain upstream; no final wording or candidate-specific perceptual solution appears here. |
-| Freeze ownership | Still open; Task 9 must rerun integrated documentation, carrier, link, and contradiction gates before changing lifecycle state. |
+| Ordinary anomaly-free option | `PASS ONE PROVED`: every encounter abnormality cell leaves a candidate-specific anomaly unselected or expressly keeps an anomaly-free candidate lawful. |
+| Ordinary candidate consideration | `DEFERRED TO PASS TWO`: no candidate has been considered, selected, or approved for any window. This deferral blocks declaring the seven-day plot finished. |
+| Abnormality and non-proof | Every Causal-Agency Invariant row preserves competing readings or negative space; no roster, reply, slip, prompt, umbrella detail, pair result, faint, or ending layer proves a supernatural cause or solves the week. |
+| Reality and care | The carrier and invariant audits distinguish established evidence from character inference and unresolved cause across knowledge, consent, medical, institutional, geographic, scheduling, and physical claims. |
+| Presentation | The Beatbook keeps essential relationship action dialogue-led, bounds perceptual prose to sparse staging evidence, and labels every illustrative exchange `REACTION TEST`; this matrix selects no final wording or perceptual solution. |
+| Authority and contradiction removal | The active authority index, Bible, Handbook, plot-neutral Map, matrix, and Beatbook distinguish current authority from the noncanonical library and historical July evidence. Fresh contradiction scans reject the old Hate start, movable promotion, named-premise leakage, and Map-owned mechanics; all tracked local links resolve. |
+| Completion boundary | `PASS ONE FROZEN` approves only this plot-free lattice. Approved Placed Premises remains `None.`, Room 2.17 remains `APPROVED CAUSAL CORE — PLACEMENT UNSELECTED`, and the full plot still requires Pass Two ordinary-candidate consideration plus explicit owner approval of selected causal records. |
 
 ### Protected-Anchor Carrier Audit
 
