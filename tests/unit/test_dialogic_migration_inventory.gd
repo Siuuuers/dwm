@@ -37,6 +37,15 @@ const ALLOWED_DISPOSITIONS := ["retained", "split", "retired"]
 const EXPECTED_LEGACY_FILE_COUNT := 61
 const EXPECTED_UID_COUNT := 61
 const EXPECTED_TRACKED_TARGET_COUNT := 122
+
+## RULING P (Seven-Day Flow Plan 01 Task 3, dwm-oyo.2 DEVIATION-7). Task 3 adds the eight
+## plot-neutral masters and their import-generated sidecars directly under the locale root, so the
+## tree walk below now holds 138 targets rather than 122. EXPECTED_TRACKED_TARGET_COUNT is
+## deliberately NOT changed: it also pins the frozen migration manifest's own
+## tracked_target_count field, which describes the 61 legacy pairs and stays 122 forever.
+const EXPECTED_MASTER_FILE_COUNT := 8
+const EXPECTED_MASTER_UID_COUNT := 8
+const EXPECTED_TREE_TARGET_COUNT := 138
 const EXPECTED_LABEL_COUNT := 89
 const EXPECTED_SPLIT_COUNT := 27
 const EXPECTED_RETAINED_COUNT := 34
@@ -706,24 +715,44 @@ func test_no_retired_ending_label_survives_in_the_tree_inventory() -> void:
 				str(record.get("path", "")))
 
 
+## Asserts BOTH sides of the Ruling O partition exactly, which is strictly stronger than the
+## single 122-target claim this test made before Task 3: 61 legacy pairs in SUBDIRECTORIES, 8
+## master pairs at the ROOT, 138 targets in total, and nothing else anywhere.
 func test_the_legacy_tree_on_disk_is_exactly_sixty_one_pairs() -> void:
 	var found: Array = []
 	_walk(LEGACY_ROOT, found)
 	var dtl: Array = []
 	var uid: Array = []
+	var master_dtl: Array = []
+	var master_uid: Array = []
 	for entry: Variant in found:
 		var path: String = str(entry)
+		var at_root: bool = not path.substr(LEGACY_ROOT.length() + 1).contains("/")
 		if path.ends_with(".dtl"):
-			dtl.append(path)
+			if at_root:
+				master_dtl.append(path)
+			else:
+				dtl.append(path)
 		elif path.ends_with(".dtl.uid"):
-			uid.append(path)
-	assert_eq(found.size(), EXPECTED_TRACKED_TARGET_COUNT,
-		"the tree under the legacy root holds exactly the %d tracked targets and nothing else" %
-		EXPECTED_TRACKED_TARGET_COUNT)
-	assert_eq(dtl.size(), EXPECTED_LEGACY_FILE_COUNT, "the tree still holds 61 legacy .dtl files")
-	assert_eq(uid.size(), EXPECTED_UID_COUNT, "the tree still holds 61 adjacent .dtl.uid files")
+			if at_root:
+				master_uid.append(path)
+			else:
+				uid.append(path)
+	assert_eq(found.size(), EXPECTED_TREE_TARGET_COUNT,
+		"the tree under the legacy root holds exactly the %d targets and nothing else" %
+		EXPECTED_TREE_TARGET_COUNT)
+	assert_eq(dtl.size(), EXPECTED_LEGACY_FILE_COUNT,
+		"the tree still holds 61 legacy .dtl files in subdirectories")
+	assert_eq(uid.size(), EXPECTED_UID_COUNT,
+		"the tree still holds 61 adjacent .dtl.uid files in subdirectories")
+	assert_eq(master_dtl.size(), EXPECTED_MASTER_FILE_COUNT,
+		"the tree holds exactly 8 master .dtl files at the locale root")
+	assert_eq(master_uid.size(), EXPECTED_MASTER_UID_COUNT,
+		"the tree holds exactly 8 adjacent master .dtl.uid files at the locale root")
 	for path: Variant in dtl:
 		assert_true(uid.has(str(path) + ".uid"), "%s: has an adjacent UID file" % str(path))
+	for path: Variant in master_dtl:
+		assert_true(master_uid.has(str(path) + ".uid"), "%s: has an adjacent UID file" % str(path))
 
 
 func test_dispositions_split_twenty_seven_and_retain_thirty_four() -> void:
