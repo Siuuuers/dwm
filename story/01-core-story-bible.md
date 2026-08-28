@@ -220,23 +220,26 @@ Angela has known Sylvia since childhood as Priscilla’s sister but still knows 
 
 Relationship state progresses in one direction:
 
-`hate → friend → ambiguous → love`
+`Friend → Ambiguous → Love`
 
-- A relationship-leveling event advances only one tier.
-- No intimate leveling opportunity occurs from hate. A non-intimate qualifying event may advance hate to friend.
-- Friend receives a restrained version of an intimate leveling opportunity and may advance to ambiguous.
-- Ambiguous receives a fuller mutual version and may advance to love.
-- Love receives a deeper variation without another tier.
+- Priscilla, Lavinia, and Sylvia each begin at Friend in Angela's relationship state.
+- Hate is not a reachable tier; hostility, refusal, and resistance remain character-specific attitudes that can occur at any tier.
+- Affection is eligibility fuel, not a movable promotion event.
+- Ordinary promotion valves are fixed at Priscilla Day 4 and Day 6, Lavinia Day 5 and Day 6, and Sylvia Day 4 and Day 5.
+- A valve moves one tier only when that exact challenge is attended and eligibility is met.
+- Unread, missed, prevented, and Hospital-superseded ordinary valves do not move.
+- Sylvia's separately authorized Hospital witness is the sole exception defined by the August design.
+- Friend receives restrained mutuality, Ambiguous receives fuller mutuality, and Love receives deeper specificity without another tier.
 - A fragment never advances state.
 
 Personal Day 7 endings are eligible only at ambiguous or love. An ineligible action is absent rather than visibly locked.
 
-The existing code-owned tone state selects **Sweet** or **Dark** and remains stable for the relevant outcome. A fragment does not create or change tone.
+The August design owns intended state and tone mechanics, while runtime is inspected for drift. A fragment does not create or change tone.
 
 - **Sweet:** One destructive pattern is interrupted and one concrete boundary is honored. Nobody is cured and no relationship is labeled.
 - **Totally Dark:** Both participants knowingly reinforce a dangerous pattern because it satisfies something genuine. Harm remains real; attachment does not make it harmless.
 
-State controls what mutuality is available; tone controls the visible ending variation. Neither authorizes another person’s desire or consent.
+State controls what mutuality is available; tone controls the visible ending variation. State never grants consent, rewrites desire, or erases refusal; tone never authorizes another person's desire or consent.
 
 For every romance-capable pairing, no state, tone, event, or ending applies an official relationship label. Dialogue and visible behavior may support “couple,” “lovers,” “friends,” or something unclassifiable, but the released text never settles the question for the audience.
 

@@ -2,7 +2,7 @@
 
 ## How to Use This Handbook
 
-This is a private, writer-facing dialogue and performance reference derived from the Core Story Bible. The Core Story Bible remains the sole narrative authority. If this handbook appears to add a fact, history, diagnosis, route, causal answer, or confirmed relationship label, discard the addition and follow the Bible.
+This is a private, writer-facing dialogue and performance reference derived from Core Story Bible canon and the August design's intended mechanics. The Core Story Bible remains the sole narrative authority, and the August design owns intended relationship-state and tone mechanics. If this handbook appears to add a fact, history, diagnosis, route, causal answer, or confirmed relationship label, discard the addition and follow the Bible.
 
 Use the dossiers to answer three practical questions before writing a beat:
 
@@ -10,7 +10,7 @@ Use the dossiers to answer three practical questions before writing a beat:
 2. What strategy does she use instead of saying that want plainly?
 3. What visible or audible detail lets the audience detect the gap?
 
-Relationship state controls the mutuality available in a scene. The code-owned tone controls whether a destructive pattern is interrupted or knowingly reinforced. Neither state nor tone creates desire, consent, or a new personality. Do not infer exact schedules, counters, thresholds, or UI behavior from this document.
+Relationship state controls the mutuality available in a scene. Tone controls whether a destructive pattern is interrupted or knowingly reinforced. Runtime is inspected for drift from the August design's intended mechanics; it does not silently define them. Neither state nor tone creates desire, consent, or a new personality. Do not infer exact schedules, counters, thresholds, or UI behavior from this document.
 
 All production prose below is staging guidance, not narration. Dialogue examples are reaction tests only. Approved first names are the only character names used.
 
@@ -32,12 +32,19 @@ Language use is relational rather than decorative. Cantonese carries everyday lo
 
 ## State and Tone Performance Rules
 
-Relationship state progresses only `hate → friend → ambiguous → love`, one tier at a qualifying event. A past fragment never advances state. Personal ending actions are available only at ambiguous or love; the implementation of availability remains code-owned.
+Relationship state progresses only `Friend → Ambiguous → Love`. Priscilla, Lavinia, and Sylvia each begin at Friend in Angela's relationship state. A past fragment never advances state. Personal ending actions are available only at Ambiguous or Love; runtime availability is inspected for drift from the August design.
 
-- **Hate:** Write functional contact, wary accuracy, or active resistance. Do not smuggle in intimate reciprocity. A qualifying non-intimate event may establish friend.
-- **Friend:** Permit chosen company and limited trust, but keep disclosures restrained. An intimate opportunity, if present, is bounded and may establish ambiguous.
-- **Ambiguous:** Let attraction, dependency, or private importance become mutually legible without applying a relationship label. A fuller mutual event may establish love.
+- **Hostile attitude:** Hostility, refusal, and resistance are current attitudes that can occur at any relationship tier. Hostile attitude is not a lower relationship tier and cannot smuggle reciprocity or consent.
+- **Friend:** Permit chosen company and limited trust, but keep disclosures restrained.
+- **Ambiguous:** Let attraction, dependency, or private importance become mutually legible without applying a relationship label.
 - **Love:** Deepen specificity and consequence, not ownership. Love does not erase refusal, independent motives, or dangerous patterns.
+
+Affection is eligibility fuel, not a movable promotion event. Ordinary promotion valves are fixed at Priscilla Day 4 and Day 6, Lavinia Day 5 and Day 6, and Sylvia Day 4 and Day 5.
+
+- A valve moves one tier only when that exact challenge is attended and eligibility is met.
+- Unread, missed, prevented, and Hospital-superseded ordinary valves do not move.
+- Sylvia's separately authorized Hospital witness is the sole exception defined by the August design.
+- State never grants consent, rewrites desire, erases refusal, or changes personality.
 
 Tone is not mood or kindness:
 
@@ -61,7 +68,8 @@ Every complete dossier answers all of the following fields:
 - **Voice / sentence rhythm:** Vocabulary, structure, pace, correction, silence, and humor.
 - **Body language:** How pressure becomes visible without narration.
 - **Language choice:** Which language serves intimacy, precision, privacy, or public control.
-- **Relationship-state variation:** What changes from hate through love without rewriting personality.
+- **Current attitude / resistance:** How Hostile attitude, refusal, or resistance performs independently of relationship tier.
+- **Relationship-state variation:** What changes from Friend through Love without rewriting personality.
 - **Tone variation:** How Sweet interruption and Totally Dark reinforcement alter the same core pattern.
 - **Growth test:** The specific action that demonstrates costly change.
 - **Never flatten her into:** Shortcuts that erase contradiction or agency.
@@ -85,7 +93,8 @@ Every complete dossier answers all of the following fields:
 - **Sentence rhythm:** Usually short declaratives, exact questions, and delayed additions. A deadpan line may start literal, take one impossible turn, then stop before explaining the joke. Under honest vulnerability, the sentence often becomes plainer rather than longer.
 - **Body language:** Watches objects and systems as closely as faces; verifies settings, messages, or positions with a small deliberate action. Stillness can mean concentration, refusal, or invitation, so pair it with a concrete choice. When she yields control, show whether she keeps or surrenders access to the evidence.
 - **Language choice:** Everyday Cantonese is natural and intimate; academic English is fluent and may sharpen technical precision or create professional distance; Putonghua is situational. Switching languages never functions as a magical truth detector.
-- **Relationship-state variation:** At hate, she limits contact to verifiable function. At friend, she permits useful company and dry play. At ambiguous, she names a preference indirectly but leaves room for refusal. At love, she can make an intended action explicit and accept that evidence cannot remove all moral risk.
+- **Current attitude / resistance:** In a Hostile attitude, Angela remains functionally exact, limits contact, and verifies claims.
+- **Relationship-state variation:** At Friend, she permits useful company and dry play. At Ambiguous, she names a preference indirectly but leaves room for refusal. At Love, she can make an intended action explicit and accept that evidence cannot remove all moral risk.
 - **Tone variation:** In Sweet material, Angela interrupts delegation long enough to state her own imperfect preference and preserves the other person's right to answer. In Totally Dark material, she knowingly validates control, testing, or care-debt because surrender satisfies her, then treats her awareness as if it made the pattern safe.
 - **Growth test:** Angela chooses in her own words before certainty arrives, states what she can and cannot consent to, and accepts responsibility for the choice without demanding that someone else make the world conclusive first.
 - **Never flatten her into:** a robot; a trauma-coded blank; an omniscient detective; a constant science-joke machine; a passive self-insert; or an innocent victim with no appetite for delegated control.
@@ -111,7 +120,8 @@ Every complete dossier answers all of the following fields:
 - **Sentence rhythm:** Balanced clauses, careful qualifications, and clean conclusions. In public she can close a conversational opening with one impeccable sentence. In private, control may arrive more softly: a lowered voice, fewer formal transitions, and a question whose available answers she has already arranged.
 - **Body language:** Aligns paper, closes clasps, controls doors, moves a cup or bag into the useful position, and enters another person's task with minimal wasted motion. Her attention is concrete: tea preference, walking pace, silence pattern, stress tell, familiar route, and repeated habit. When she stops herself, make the interruption visible: a hand withdrawn, a sentence left uncorrected, a document returned.
 - **Language choice:** Selects polished Cantonese or English according to audience and the nuance she wants to control. Public language can create institutional authority; private Cantonese can intensify tenderness rather than reduce control. A language switch changes relational pressure, not factual access.
-- **Relationship-state variation:** At hate, her accuracy becomes formal and prosecutorial. At friend, she offers bounded help and keeps an account of what was accepted. At ambiguous, private interpretation and anticipation become more intimate. At love, she may risk presence without usefulness—or seek deeper authority because she believes intimacy has earned it.
+- **Current attitude / resistance:** In a Hostile attitude, Priscilla becomes formal, prosecutorial, and controlling through procedure.
+- **Relationship-state variation:** At Friend, she offers bounded help and keeps an account of what was accepted. At Ambiguous, private interpretation and anticipation become more intimate. At Love, she may risk presence without usefulness—or seek deeper authority because she believes intimacy has earned it.
 - **Tone variation:** In Sweet material, Priscilla catches herself before speaking for someone and supports the imperfect wording that follows. In Totally Dark material, she answers increasingly personal questions, manages consequences in advance, and receives conscious confirmation as permission to continue authoring the other person.
 - **Growth test:** Priscilla discloses what she changed or arranged, distinguishes concern from authority, and lets another person make a decision she considers inferior without covertly correcting the outcome.
 - **Never flatten her into:** a cold mastermind; a flawless fixer; a mind reader; a literary quotation machine; a hypocrite whose care is fake; or a gentle caretaker whose effective help cancels coercion.
@@ -139,7 +149,8 @@ Every complete dossier answers all of the following fields:
 - **Sentence rhythm:** Elastic in play—quick challenge, pause, sudden sincere clause. Under discipline or anger, sentences shorten and land cleanly. A direct request should sound almost stark because it abandons her usual test.
 - **Body language:** Communicates through weight, placement, breath, floor contact, and meaningful stillness. Ordinary nerves produce movement and claimed proximity; public hurt may become laughter or performance, while genuine injury produces frightening stillness and increasingly exact English. She may smile before a dangerous confession. Direct requests use unwavering eye contact because she has surrendered the protection of the test. Ballet discipline governs even casual movement without making every gesture dance-like. Pain appears through load, adjustment, guarded transfer, interrupted action, or changed rehearsal volume—not a decorative limp assigned to a fixed diagnosis.
 - **Language choice:** English is fluent and credible as a shared language. Romanian belongs to private, familial, or self-directed moments and can expose privacy without automatically exposing truth. Cantonese is developing; write competence, listening, and context-aware effort without comic error.
-- **Relationship-state variation:** At hate, she makes distance and refusal unmistakable. At friend, physical play remains bounded and reversible. At ambiguous, tests and selective devotion intensify because the stakes become legible. At love, she can ask directly—or make manipulation more dangerous by treating established importance as a guarantee of response.
+- **Current attitude / resistance:** In a Hostile attitude, Lavinia makes distance and refusal unmistakable rather than manufacturing intimacy.
+- **Relationship-state variation:** At Friend, physical play remains bounded and reversible. At Ambiguous, tests and selective devotion intensify because the stakes become legible. At Love, she can ask directly—or make manipulation more dangerous by treating established importance as a guarantee of response.
 - **Tone variation:** In Sweet material, Lavinia abandons a jealousy or crisis test and asks plainly for presence, while accepting the answer. In Totally Dark material, she knowingly engineers intensity and treats the other person's possessive intervention as the proof she wanted.
 - **Growth test:** Lavinia makes a direct request before provoking distress, permits a refusal without escalating, and accepts ordinary attention as meaningful evidence.
 - **Never flatten her into:** a volatile foreign seductress; a reckless dancer without discipline; a jealous stereotype; a rich dilettante; a patient defined by injury; or a language-learning joke.
@@ -171,12 +182,13 @@ Every complete dossier answers all of the following fields:
 - **Sentence rhythm:** Small courtesies followed by a prepared conclusion. She often begins with permission language, then makes refusal costly through context. When reciprocity unsettles her, the sentence may lose its complete rationale and become briefly personal.
 - **Body language:** Badge clip, kit zipper, packaging, kettle, and chair placement register preparation before need is understood. She keeps touch efficient and role-framed in public. Any unnecessary touch or examination is a boundary breach, not evidence of medical competence.
 - **Language choice:** Uses the shared language suited to the institutional setting and the other speaker. Register, not linguistic mystery, carries her control: formal welfare phrasing can distance her from desire; a plain personal sentence marks risk.
-- **Relationship-state variation:** At hate, help is strictly role-limited and refusal must remain available. At friend, she can offer ordinary assistance without claiming intimacy. At ambiguous, studied familiarity becomes mutually visible and reciprocity becomes possible. At love, she may accept bounded mutual care—or rationalize comprehensive management as the only safe expression of devotion.
+- **Current attitude / resistance:** In a Hostile attitude, Sylvia limits help to her role and leaves refusal physically possible.
+- **Relationship-state variation:** At Friend, she can offer ordinary assistance without claiming intimacy. At Ambiguous, studied familiarity becomes mutually visible and reciprocity becomes possible. At Love, she may accept bounded mutual care—or rationalize comprehensive management as the only safe expression of devotion.
 - **Tone variation:** In Sweet material, Sylvia returns control, accepts a bounded request selected by Angela, and permits Angela to care for her without manufacturing a balancing debt. In Totally Dark material, Sylvia's prepared management is knowingly accepted and expanded, satisfying both her need to be necessary and Angela's appetite for delegated control.
 - **Growth test:** Sylvia states a personal want without a welfare rationale, accepts refusal without creating new urgency, and receives care that does not place the giver in her debt.
 - **Never flatten her into:** an innocent nurse; a medical expert; a prudish angel hiding a separate “true” monster; a statistics robot; a stalker with supernatural knowledge; or a villain whose genuine care is irrelevant.
 
-**Reciprocity-leveling moment:** Angela notices Sylvia neglecting her own food or rest and offers bounded care. The growth-bearing version lets Sylvia receive it without converting the exchange into a ledger. This can advance only one relationship tier and cannot occur intimately from hate.
+**Reciprocity-leveling moment:** Angela notices Sylvia neglecting her own food or rest and offers bounded care. The growth-bearing version lets Sylvia receive it without converting the exchange into a ledger. Hostile attitude is not a lower relationship tier, so this moment cannot use hostility to smuggle reciprocity or consent.
 
 **Rationalized-desire rule:** While Angela is conscious and responsive, Sylvia may call an intimate or sexual action a practical check, protective adjustment, medical precaution, or moral duty so that she need not name it as want. Those labels never create consent, and the writing must expose rather than validate the rationalization. After Angela loses consciousness, only genuine emergency care within first-aid scope is defensible; no sexualized or intimate contact occurs.
 
@@ -373,6 +385,9 @@ These short exchanges test differentiation. They did not necessarily happen and 
 - [ ] Sylvia's care can be genuine, but her self-deception and care-debt logic remain visible.
 - [ ] Sylvia stays inside peer-welfare and first-aid limits; no private medical authority or actionable harm method appears.
 - [ ] No character knows another person's desire, consent, hidden intent, or an unresolved cause without evidence or disclosure.
+- [ ] Priscilla, Lavinia, and Sylvia each begin at Friend in Angela's relationship state.
+- [ ] Hostile attitude remains separate from relationship tier; each woman keeps her character-specific refusal and resistance without smuggled reciprocity or consent.
+- [ ] Fixed promotion valves remain Priscilla Day 4/Day 6, Lavinia Day 5/Day 6, and Sylvia Day 4/Day 5; only the exact attended, eligible challenge moves one tier, ordinary superseded or unavailable valves do not move, and Sylvia's authorized Hospital witness is the sole exception.
 - [ ] State changes mutuality by at most one tier and never changes personality or assigns a label.
 - [ ] Sweet interrupts one destructive pattern and honors one boundary without curing anyone.
 - [ ] Totally Dark shows knowing reinforcement, genuine satisfaction, and continuing harm.
