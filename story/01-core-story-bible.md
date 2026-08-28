@@ -245,13 +245,15 @@ For every romance-capable pairing, no state, tone, event, or ending applies an o
 
 ## Event Architecture
 
-There are fourteen event premises: four Angela–Priscilla dates, four Angela–Lavinia dates, four Angela–Sylvia dates, and two counted Priscilla–Lavinia encounters. Exact schedule availability remains code-owned.
+The mechanically fixed architecture contains twelve solo invitation windows and two conditional Priscilla–Lavinia windows. That count fixes windows, not premises. Named Events 1–12 and 14 below are noncanonical audition material preserved in the library, and the former Event 13 Production Map card is likewise noncanonical. Room 2.17 is a separate `APPROVED CAUSAL CORE — PLACEMENT UNSELECTED`: its causal design remains protected, but Day 2 versus Day 6 has not been selected. The four mystery anchors, the Day 2 umbrella pickup, character canon, and hidden histories remain protected regardless of which premises are later approved. An exact production card may arise only from an `APPROVED` Causal Matrix row.
 
-Every production card derives from the same compact model:
+The production boundary is the Two-Pass Constellation. Pass One records the plot-free global skeleton: fixed windows, promotion valves, anchor and residue obligations, absence and fallback behavior, and cross-day debt. Pass Two auditions whole-day causal constellations. Only an explicitly approved survivor enters the Causal Matrix; only then may the Beatbook expand its approved causal facts into execution guidance. Neither a retained library card nor current runtime behavior promotes a premise into canon.
 
-`fixed spine + short relationship insert + one tone action + contextual echo`
+### Noncanonical Audition-History Catalogue
 
-Each card identifies the ordinary activity and setting, characters present and absence version, fixed dialogue/action spine, relationship pressure, state insert, tone action, and mystery clue, fragment eligibility, and later echo. Do not write complete branch-permutation scripts.
+Everything through the end marker below is a bounded catalogue of earlier premise summaries and arc notes. The names, numbering, activities, clue carriers, and arc descriptions are preserved for audition history only; they do not define the active fourteen-window plot, select a weekday, or authorize production.
+
+<!-- BEGIN NONCANONICAL AUDITION-HISTORY CATALOGUE -->
 
 ### Angela–Priscilla Premises
 
@@ -287,9 +289,11 @@ The arc moves from timely help through studied familiarity and genuine reciproci
 
 Each counted event has an Angela-attended group version and an audience-observed private version. Increment the pair counter only when the encounter actually occurs in either version. If Angela separately occupies Priscilla or Lavinia during that window, they do not meet and the counter does not advance.
 
+<!-- END NONCANONICAL AUDITION-HISTORY CATALOGUE -->
+
 ### Day 2 Non-Counting Micro-Scene — The Umbrella Pickup
 
-When Angela is occupied elsewhere during the relevant arrival window, the audience directly sees a short cutaway. Still estranged after the disclosure-form fight, Lavinia asks Priscilla to bring the long umbrella to arrivals despite being indoors. This is Lavinia’s first move across the post-fight distance, and both women feel its embarrassment: she names an umbrella when what she needs is Priscilla’s presence. Priscilla comes, takes the heavier bag without permission, and answers the unspoken request by over-helping, so genuine care and control resume in the same gesture. If the cutaway is not shown, later object and dialogue residue confirms that the pickup occurred. It never increments the pair counter or marks a pair state/tone combination seen.
+This separately approved micro-scene is outside the fourteen-window audition catalogue and outside the pair counter. When Angela is occupied elsewhere during the relevant arrival window, the audience directly sees a short cutaway. Still estranged after the disclosure-form fight, Lavinia asks Priscilla to bring the long umbrella to arrivals despite being indoors. This is Lavinia’s first move across the post-fight distance, and both women feel its embarrassment: she names an umbrella when what she needs is Priscilla’s presence. Priscilla comes, takes the heavier bag without permission, and answers the unspoken request by over-helping, so genuine care and control resume in the same gesture. If the cutaway is not shown, later object and dialogue residue confirms that the pickup occurred. It never increments the pair counter or marks a pair state/tone combination seen.
 
 ## Priscilla–Lavinia Four-State Deck
 
@@ -318,14 +322,20 @@ Fragments provide evidence and characterization only. They never gate or assign 
 
 ## Ending Architecture
 
-The internal catalogue contains thirteen authored ending identities. This is a catalogue count, not thirteen mutually exclusive terminal paths: Observer and Special identities are postscripts following visible Sweet or Totally Dark scenes.
+The internal catalogue contains thirteen authored ending identities. This is a catalogue count, not thirteen mutually exclusive terminal paths: Observer identities are postscripts, while Sylvia Special is a prelude to a forced Sylvia Totally Dark ending.
 
-When multiple results qualify, use this exact four-layer order:
+Day 7 first presents any due Day 6 follow-ups, then drains the unavoidable echo fallback before any boardless ending invitation round or faint-capable action becomes available. Eligible invitations unlock in fixed rounds: Priscilla, then Lavinia, then Sylvia. Ineligible invitations are absent. Reading an eligible invitation makes that destination available; Done commits at most one selected solo destination, or normal Alone when none is selected. Day 7 creates no dating board.
 
-1. Angela’s visible relationship ending or the Alone Ending;
-2. the Angela pairing’s Observer postscript or Sylvia’s Special postscript, if qualified;
-3. the Priscilla–Lavinia visible counter-ending, if both counted encounters completed;
-4. the Priscilla–Lavinia Observer postscript, if qualified.
+For a normally selected solo destination, stored dark 0 or 1 selects Sweet and stored dark 2 through 4 selects Totally Dark. The ordered ending plan is frozen before playback. Subject to the pre-Done faint precedence below, it resolves in this order:
+
+1. one selected solo destination or Alone;
+2. a qualifying solo Observer postscript after its matching Sweet ending;
+3. a qualifying Priscilla–Lavinia visible ending after the solo layer;
+4. the Priscilla–Lavinia Observer postscript after its matching Sweet ending when independently eligible.
+
+A solo Observer is evidence-qualified aftermath, never a selectable destination. A Priscilla or Lavinia solo Observer and a counted P–L ending cannot coexist in one run because their attendance evidence is mechanically incompatible: solo Perfect mastery occupies a Day 2 or Day 6 window whose corresponding P–L encounter would have to count.
+
+Sylvia Special uses an abnormal two-step plan. Its sole trigger is a qualifying pre-Done faint after Sylvia’s eligible invitation has already been read; it plays first and then forces Sylvia Totally Dark, regardless of her stored dark count. If Dark mode is enabled, however, Dark-mode Alone has faint precedence over Sylvia Special. Otherwise a qualifying faint without a previously read eligible Sylvia invitation resolves through Hospital-flavored normal Alone. A Day 7 faint creates no missed-date record and zero Day 8 follow-up.
 
 ### Angela–Priscilla — Attend the Closing Reception
 
@@ -343,7 +353,7 @@ When multiple results qualify, use this exact four-layer order:
 
 7. **Sweet:** Sylvia returns every object and permits Angela to choose one bounded form of help.
 8. **Totally Dark:** Angela knowingly returns the prepared bag and permits Sylvia to manage her routine and messages.
-9. **Special:** Angela must select an eligible Sylvia destination, complete its visible Sweet or Totally Dark ending, and meet the code-owned health-neglect condition. The postscript follows the visible scene; health neglect alone is insufficient.
+9. **Special:** A qualifying pre-Done faint after Sylvia’s eligible invitation has been read begins this prelude. It is followed by the forced-form Sylvia Totally Dark scene; it is not selected as a destination and does not require a prior Sylvia ending.
 
 **FIXED FACT — Sylvia’s intent:** Sylvia intends that Angela lose consciousness and prepares to control what follows.
 
@@ -365,7 +375,7 @@ When multiple results qualify, use this exact four-layer order:
 
 Sweet, Totally Dark, Observer, and Special are internal production categories. Audience-facing entries receive evocative titles only after discovery. Unseen entries are completely invisible: no silhouette, question mark, lock, or completion percentage.
 
-Each full Observer or Special postscript plays once per global profile. Later matching endings restore the normal conclusion with small randomized residue. The full postscript remains replayable through history. Gallery and replay presentation beyond these audience-visible requirements remains code-owned.
+Observer and Special are exceptional identities with one full-once policy. The first profile discovery of each exceptional identity always plays in full. After any such discovery, the hidden setting `Replay discovered exceptional scenes in full` becomes available and defaults Off. On a later qualification, Off uses a short residue under the same semantic identity, while On uses the full entry; a newly discovered exceptional identity remains full regardless of the setting. The setting value and any selected residue variant are frozen into the ordered ending plan so reload cannot change or reroll them. Gallery replay of a discovered exceptional identity is always full.
 
 ## Observer Languages
 
@@ -395,7 +405,7 @@ Only Verification and Restraint may receive diegetic discovery hints from Angela
 - The unseen-first state draw makes multiple playthroughs necessary in practice.
 - All four state/tone combinations must be actually witnessed before the Observer postscript qualifies.
 
-Sylvia’s Special postscript is not an Observer language or Observer route. Its eligibility remains the selected Sylvia ending plus the code-owned health condition.
+Sylvia Special is not an Observer language or Observer route. It is a prelude triggered only by a qualifying pre-Done faint after Sylvia’s eligible invitation has been read, and it is followed by forced-form Sylvia Totally Dark.
 
 ## Anti-Optimization
 
@@ -456,7 +466,7 @@ The two subtitle modes preserve these meanings:
 - The secondary display language appears second.
 - For a diegetic native-language line, the native original is omitted from the dialogue box and retained in history.
 
-No language tag restores information the audience chose not to display. There is no recorded character voice acting. Existing TTS behavior remains code-authoritative: live dialogue reads the first display language; history replay of a native-language line reads the original and then the first display translation.
+No language tag restores information the audience chose not to display. There is no recorded character voice acting. The intended TTS contract is: live dialogue reads the first display language; history replay of a native-language line reads the original and then the first display translation. Runtime drift must be recorded for reconciliation rather than treated as narrative canon.
 
 ## Content Boundaries
 
@@ -489,14 +499,17 @@ Public character descriptions may carry one unsettling trait each without reveal
 ## Canon Maintenance Rules
 
 1. Resolve conflicts by the authority order in this file; do not silently merge incompatible versions.
-2. Keep code-owned details code-owned. Narrative documentation may state intended meaning but may not invent an implementation.
+2. Treat the August design as intended mechanical law. Inspect the runtime to record what physically exists and identify drift as a reconciliation finding; neither current runtime behavior nor the Production Map may silently amend the approved design or narrative canon.
 3. Use the four canon categories only when ambiguity matters and never use a label to disguise indecision.
-4. Preserve one-tier relationship progression, ambiguous/love ending eligibility, and code-owned tone selection.
-5. Never let a fragment set state, tone, or ending eligibility.
-6. Keep the three Observer languages separate and keep Sylvia’s Special distinct from them.
-7. Preserve every unresolved cause: contradiction may be proved, but mechanism and author remain unconfirmed where specified.
-8. Maintain the exact four-layer ending order and the actual two-encounter Priscilla–Lavinia trigger.
-9. Apply physical-world corrections without rewriting approved fictional relationships, mystery anchors, or the umbrella history.
-10. Audit safety language for accidental diagnosis, medical authority, actionable harm, unconscious sexual contact, and confirmed death.
-11. Audit public material against the private boundary before release.
-12. Do not add a triad route, public ending count, in-game warning system, visible statistics, full scene scripts, surnames, or a new Observer mechanic without a later explicit canon approval.
+4. Preserve Friend starts, one-tier progression, ambiguous/love ending eligibility, and only the fixed third/fourth promotion valves. Derive Sweet or Totally Dark ending form from the August dark-count law and freeze it into the ordered ending plan.
+5. Promote a premise only through owner approval recorded as an `APPROVED` Causal Matrix row. Library retention, Map wording, Beatbook detail, or executable presence is not approval.
+6. Expand only the approved causal facts of a Causal Matrix row in the Beatbook; writer-facing reaction tests do not become shipped dialogue or broader canon by proximity.
+7. Reopen an approved premise when later work exposes a mechanical, character, causal, coexistence, or verified physical-world conflict. Preserve the superseded version, its former status, source, date, and reason in the noncanonical library; provenance-safe reopening never silently rewrites history.
+8. Never let a fragment set state, tone, or ending eligibility.
+9. Keep the three Observer languages separate and keep Sylvia Special distinct from them.
+10. Preserve every unresolved cause: contradiction may be proved, but mechanism and author remain unconfirmed where specified.
+11. Maintain the ordered ending plan, including Sylvia Special before forced Sylvia Totally Dark, the solo/Pair evidence incompatibility, and the actual two-encounter Priscilla–Lavinia trigger.
+12. Apply physical-world corrections without rewriting approved fictional relationships, mystery anchors, or the umbrella history.
+13. Audit safety language for accidental diagnosis, medical authority, actionable harm, unconscious sexual contact, and confirmed death.
+14. Audit public material against the private boundary before release.
+15. Do not add a triad route, public ending count, in-game warning system, visible statistics, full scene scripts, surnames, or a new Observer mechanic without a later explicit canon approval.
