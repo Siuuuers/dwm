@@ -529,7 +529,9 @@ boundaries:
   about urgency, and Lavinia knowingly chooses to stay.
 - In Love state, Lavinia chooses a future return and its practical boundary.
   Priscilla asks rather than presumes. The literal reference weekday remains
-  provisional until code-owned availability is checked.
+  provisional pending August-authorized placement and calendar validation plus
+  explicit premise approval. Runtime may be inspected only for implementation
+  drift and cannot select, amend, or approve placement.
 - Sylvia's routine offscreen occupancy mark is optional causal seed only. It gets
   no independent scene, no ominous emphasis, and no emotional role in this
   encounter. Remove it if no later approved contradiction needs it.
