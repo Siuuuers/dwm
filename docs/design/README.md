@@ -28,6 +28,8 @@ material or historical amendments as current mechanics.
   preserves noncanonical named history only.
 - [July canon amendments](../../story/05-canon-amendments-2026-07-19.md) are
   historical amendments, not current mechanics.
-- [recovered design documents](recovered/) are evidence only.
-- [runtime code](../../scripts/) is the physical implementation. It may expose
-  drift from intended mechanics, but it never silently becomes narrative authority.
+- [recovered CONTENT evidence](recovered/CONTENT.md) and [recovered Dialogic
+  evidence](recovered/DIALOGIC.md) are evidence only.
+- [runtime day-resolution implementation](../../scripts/application/run/DayResolutionCoordinator.gd)
+  is physical implementation. It may expose drift from intended mechanics, but it
+  never silently becomes narrative authority.
