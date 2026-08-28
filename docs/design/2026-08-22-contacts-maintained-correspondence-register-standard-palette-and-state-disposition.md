@@ -394,17 +394,13 @@ localized content, screen position, clock bleed, and minute grouping never
 reorder entries or alter read, invitation, expiry, Schedule, route,
 relationship, echo, ending, or command facts.
 
-### 9.2 Day-2 shared-minute pair
+### 9.2 Day-2 return without a message pair
 
-The Day-2 `I know` then `Lavinia is back` pair remains two ordinary slips in the
-exact canonical order with one ordinary shared `HH:MM` marker immediately
-before the first slip. The duplicate per-slip timestamps alone are replaced by
-that one group-boundary marker.
-
-The pair receives no group card, connector, reply arrow, anomaly border,
-special colour, animation, sound, causal label, character explanation, or
-assistive interpretation. Assistive traversal announces the minute once at the
-group boundary and presents both entries in visual order.
+Lavinia's ordinary Day-2 return creates no dedicated Contacts slips, shared
+`HH:MM` marker, minute-group reservation, notification, or anomaly treatment.
+The absence of a return-message pair is ordinary absence, not erasure or visual
+evidence. Other registered shared-minute groups, if separately authorized,
+retain the general timestamp treatment above.
 
 ### 9.3 Rare clock bleed
 
@@ -571,7 +567,8 @@ The closed fixture family contains:
 9. linked Priscilla-Lavinia correspondence with literal sender labels, exactly
    three rail rows, and participant-specific Unread clearing;
 10. top and bottom overflow notches with no separate semantic nodes;
-11. the Day-2 shared-minute pair in exact visual and assistive order;
+11. an ordinary Day-2 Contacts state with no dedicated return-message pair,
+    shared-minute reservation, or anomaly treatment;
 12. routine, clock-bleed, and same-run-restored timestamps whose styled pixels
     are identical after displayed digit glyphs are masked;
 13. pre/post unanswered-ordinary erasure with geometry, Focus, History, and

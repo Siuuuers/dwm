@@ -439,8 +439,8 @@ abnormal sting.
 ### Day 2: return and transit
 
 Luggage, umbrella hardware, passing sheltered rain, returned seats, equipment
-settings, and normal device cues support return. Priscilla's premature reply
-uses no supernatural notification.
+settings, and normal device cues support return. No dedicated message pair,
+anomalous cue, or replacement sting accompanies it.
 
 ### Day 3: repetition
 

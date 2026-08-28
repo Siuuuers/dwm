@@ -238,7 +238,8 @@ Required fixtures and safe interactions:
 - linked Priscilla/Lavinia exchange with literal sender labels only where
   needed;
 - arrival while an already-open thread remains withheld until reopen;
-- Day-2 `I know` / `Lavinia is back` presentation;
+- an ordinary Day-2 Contacts state without a dedicated return-message pair or
+  anomaly treatment;
 - before/after midnight erasure; and
 - Dual-language slip.
 

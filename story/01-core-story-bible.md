@@ -90,15 +90,20 @@ Dates and meetings occupy practical windows around these responsibilities. The A
 - A personal ending action appears only when the relevant relationship is at ambiguous or love. Ineligible actions do not appear as locks, silhouettes, or disabled alternatives.
 - If Angela attends no Day 7 date and completes her final observation, she receives the Alone Ending. This is a deliberate choice, not a failed route.
 
-Four evidence anchors are fixed to the calendar:
+Three evidence anchors are fixed to the calendar. Day 2 also owns one ordinary
+continuity that pays off Day 1 without becoming a separate anchor:
 
 ### Day 1 — Institutional Uncertainty
 
 Lavinia’s name appears prematurely on an Open Week roster. It may reflect an old template, an ordinary clerical choice, a human alteration, or anticipation of her return. The selected event determines which facet Angela can examine.
 
-### Day 2 — Priscilla’s Concealed Knowledge
+### Day 2 — Ordinary Return, Not a Separate Anchor
 
-Angela types but does not send `Lavinia is back`. Priscilla replies `I know` before the message is sent. The hidden shared apartment explains why Priscilla knows Lavinia is back; it does not explain the reply’s timing.
+Lavinia returns to Hong Kong. Her return ordinarily fulfills the Day 1 roster
+entry by making her inclusion current, but it does not explain why her name
+appeared before she returned. Day 2 adds no dedicated message pair, timing
+contradiction, or replacement anomaly. The hidden shared apartment remains canon
+without being used to manufacture a Day 2 mystery.
 
 ### Day 4 — Sylvia’s Preparation
 
@@ -245,7 +250,7 @@ For every romance-capable pairing, no state, tone, event, or ending applies an o
 
 ## Event Architecture
 
-The mechanically fixed architecture contains twelve solo invitation windows and two conditional Priscilla–Lavinia windows. That count fixes windows, not premises. Named Events 1–12 and 14 below are noncanonical audition material preserved in the library, and the former Event 13 Production Map card is likewise noncanonical. Room 2.17 is a separate `APPROVED CAUSAL CORE — PLACEMENT UNSELECTED`: its causal design remains protected, but Day 2 versus Day 6 has not been selected. The four mystery anchors, the Day 2 umbrella pickup, character canon, and hidden histories remain protected regardless of which premises are later approved. An exact production card may arise only from an `APPROVED` Causal Matrix row.
+The mechanically fixed architecture contains twelve solo invitation windows and two conditional Priscilla–Lavinia windows. That count fixes windows, not premises. Named Events 1–12 and 14 below are noncanonical audition material preserved in the library, and the former Event 13 Production Map card is likewise noncanonical. Room 2.17 is a separate `APPROVED CAUSAL CORE — PLACEMENT UNSELECTED`: its causal design remains protected, but Day 2 versus Day 6 has not been selected. The three mystery anchors, Day 2 ordinary roster fulfillment, the Day 2 umbrella pickup, character canon, and hidden histories remain protected regardless of which premises are later approved. An exact production card may arise only from an `APPROVED` Causal Matrix row.
 
 The production boundary is the Two-Pass Constellation. Pass One records the plot-free global skeleton: fixed windows, promotion valves, anchor and residue obligations, absence and fallback behavior, and cross-day debt. Pass Two auditions whole-day causal constellations. For ordinary audition survivors, explicit approval and an `APPROVED` Causal Matrix row are required before the Beatbook may expand that row's approved causal facts. The already approved, placement-unselected Room 2.17 causal core is the sole bounded current Beatbook exception. That exception preserves only its existing approved causal and execution boundary: its exact Day 2 versus Day 6 placement and any unapproved adaptations must return through audition and explicit approval. Neither a retained library card nor current runtime behavior promotes a premise into canon.
 

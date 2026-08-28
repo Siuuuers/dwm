@@ -96,7 +96,7 @@ appearing in an upstream-looking document.
 | Class | Current examples | Treatment |
 |---|---|---|
 | Mechanically fixed | Twelve solo windows; Day 2 and Day 6 pair protocol; third/fourth promotion valves; six ordinary messages; Day 7 flow | Preserve exactly unless a later mechanical design explicitly supersedes it |
-| Narratively protected | Character and relationship canon; the four mystery anchors; Day 2 umbrella history and trigger; approved Room 2.17 causal design | May be expressed through different lawful scenes, but not casually discarded or contradicted |
+| Narratively protected | Character and relationship canon; the three mystery anchors; Day 2 ordinary roster fulfillment; Day 2 umbrella history and trigger; approved Room 2.17 causal design | May be expressed through different lawful scenes, but not casually discarded or contradicted |
 | Audition material | Unapproved named Events 1–12 and 14; unapproved delivery premises surrounding fixed anchors | Preserve as candidates, not canon |
 | Writer-facing reaction test | Illustrative dialogue and prose used to test rhythm or character response | Never becomes shipped dialogue merely because its premise is approved |
 | Historical or craft evidence | Superseded amendments, recovered documents, theory comparisons | Consult for reasoning and provenance; do not grant authority |
@@ -222,7 +222,7 @@ date premise that carries it.
 | Day | Ordinary message | Solo invitation windows in fixed round order | Pair window | Promotion valve after attended challenge | Protected anchor or residue duty |
 |---:|---|---|---|---|---|
 | 1 | Lavinia | R1 Priscilla; R2 Sylvia | None | None | Institutional uncertainty: Lavinia's name appears prematurely on an Open Week roster. Export concrete roster residue. |
-| 2 | Sylvia | R1 Priscilla; R2 Lavinia | Conditional P–L activation at R3 | None | Priscilla's concealed knowledge: Angela does not send `Lavinia is back`, yet receives `I know`. Preserve the separately triggered, non-counting umbrella pickup and its later residue when unseen. |
+| 2 | Sylvia | R1 Priscilla; R2 Lavinia | Conditional P–L activation at R3 | None | Ordinary fulfillment: Lavinia returns, making Day 1's roster inclusion current without explaining why it appeared early. Preserve the separately triggered, non-counting umbrella pickup and its later residue when unseen. Day 2 adds no replacement anomaly. |
 | 3 | Priscilla | R1 Lavinia; R2 Sylvia | None | None | Deliberate negative space: receive and transform prior residue without inventing a new fixed anomaly. Export a necessary ordinary consequence or record `NONE — NEGATIVE SPACE`. |
 | 4 | Lavinia | R1 Priscilla; R2 Sylvia | None | Priscilla Friend→Ambiguous; Sylvia Friend→Ambiguous | Sylvia's preparation: the welfare slip is already prefilled with Lavinia's name, correct location, and the kind of help soon required. |
 | 5 | Priscilla | R1 Lavinia; R2 Sylvia | None | Lavinia Friend→Ambiguous; Sylvia Ambiguous→Love | Deliberate negative space: pressure or complicate existing evidence without adding a compulsory mystery. Export a necessary consequence or record `NONE — NEGATIVE SPACE`. |
@@ -561,7 +561,7 @@ must close both candidate-dependent rows before full plot completion.
 | Window count | Exactly twelve solo windows and two conditional P–L windows, on the approved days |
 | Initial state | Priscilla, Lavinia, and Sylvia each begin at Friend; no Hate variant remains in active production guidance |
 | Promotion | Third and fourth valves occur only at Priscilla 4/6, Lavinia 5/6, Sylvia 4/5 and obey attendance/Hospital law |
-| Anchors | Day 1 roster, Day 2 premature reply, Day 4 prefilled slip, and Day 6 location prompt survive zero-date, alternate, Hospital, and pair paths |
+| Anchors and ordinary fulfillment | Day 1 roster, Day 4 prefilled slip, and Day 6 location prompt survive zero-date, alternate, Hospital, and pair paths; Lavinia's ordinary Day 2 return fulfills the roster without becoming a fourth anchor or replacement anomaly |
 | Messages | Six ordinary messages appear on Days 1–6; each selected reply has contextual echo opportunity and Day 7 fallback; Day 7 has none |
 | Pair modes | Group, Missed, Private-visible, Private-offscreen, and Prevented remain distinct and grant only their authorized visibility, board, and counter effects |
 | Day 7 order | Due follow-ups and echo fallback precede boardless Priscilla/Lavinia/Sylvia rounds; faint precedence, selected destination or Alone, solo postscript, P–L ending, and P–L postscript obey the upstream ordered plan |

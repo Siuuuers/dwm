@@ -8,14 +8,14 @@ decision_status: accepted
 conversational_design_status: approved
 written_spec_status: approved
 self_review_status: passed
-self_reviewed_on: "2026-08-12"
+self_reviewed_on: "2026-08-28"
 written_spec_approved_on: "2026-08-12"
 implementation_authorized: false
 created_on: "2026-08-12"
 engine_line: godot_4_6
 verification_engine: 4.6.3-stable-mono
 language: gdscript
-scope: ["contacts_entry_lifecycle","contacts_ui_ux","contacts_notifications","contacts_time_and_anomaly_presentation","contacts_persistence_and_accessibility","day2_pre_echo_canon","sylvia_special_draft_removal"]
+scope: ["contacts_entry_lifecycle","contacts_ui_ux","contacts_notifications","contacts_time_and_anomaly_presentation","contacts_persistence_and_accessibility","day2_pre_echo_retirement","sylvia_special_draft_removal"]
 ---
 
 # Contacts Messaging, UI/UX, and Canon Amendment
@@ -24,11 +24,12 @@ scope: ["contacts_entry_lifecycle","contacts_ui_ux","contacts_notifications","co
 
 This accepted written artifact records the conversationally approved Contacts
 messaging, UI/UX, timing, expiry, and anomaly design discovered while preparing
-the game's future UI/UX, visual-art, and music/audio manuals. It also records two
-narrow story changes:
+the game's future UI/UX, visual-art, and music/audio manuals. As amended by the
+owner-approved 2026-08-28 retirement, it also records two narrow story changes:
 
-- Day 2 replaces the former unsent-message contradiction with an ordinary
-  same-minute semantic pre-echo; and
+- Day 2 contains neither the former unsent-message contradiction nor its later
+  same-minute semantic pre-echo; Lavinia's ordinary return fulfills the Day 1
+  roster without a replacement anomaly; and
 - Sylvia Special removes its separate unsent draft without replacement.
 
 The objective is an ordinary university correspondence application whose
@@ -37,11 +38,13 @@ audience may wonder whether the game, the application, memory, or coincidence
 is responsible. The interface never supplies an answer and never corrupts an
 accepted command to create that doubt.
 
-The user approved this exact written artifact on 2026-08-12 after self-review
-passed. `decision_status: accepted` and `written_spec_status: approved` make it
-bounded written authority within its declared scope. Approval does not authorize
-implementation. Requirements, Beads, hash-bound plans, schemas, tests, scenes,
-timelines, and runtime code remain unchanged.
+The user approved the original written artifact on 2026-08-12 after self-review
+passed and approved the bounded Day-2 retirement on 2026-08-28. Together,
+`decision_status: accepted`, `written_spec_status: approved`, and the later
+owner decision make this the bounded written authority within its declared
+scope. Approval does not authorize runtime implementation. Requirements, Beads,
+hash-bound plans, schemas, tests, scenes, timelines, and runtime code remain
+unchanged.
 
 ### 1.1 Proposed derived closures
 
@@ -68,17 +71,14 @@ within scope:
 - Timestamps use a compact tabular 24-hour `HH:MM` rendering. Stored authored
   time and canonical ordering never depend on localized text or the audience's
   current clock.
-- A routine slip owns one time marker beneath it. Only a registered contiguous
-  minute group replaces duplicate per-slip markers with one shared marker; the
-  Day-2 pair is such a group.
-- Day 2 first presents its two slips during the authored Returned Seat beat and
-  then projects the same immutable pair into Priscilla's Contacts history.
+- A routine slip owns one time marker beneath it. Only a separately registered
+  contiguous minute group replaces duplicate per-slip markers with one shared
+  marker. Day 2 owns no dedicated return-message group.
 - Every saved or restored correspondence snapshot is plain text. Trusted
   authored markup, if later needed, is a separate manifest capability and can
   never be parsed from save-derived text.
-- The Day-2 pre-echo and Sylvia Special wake sequence resume by semantic stage;
-  presentation animation, caret position, and scene-tree state are never save
-  facts.
+- The Sylvia Special wake sequence resumes by semantic stage; presentation
+  animation, caret position, and scene-tree state are never save facts.
 - The run-scoped clock-anomaly family uses one exact 1-in-16 occurrence gate and
   one shared allocation record across Contacts and the audience clock strip.
 - The rare solo-invitation erasure independently uses one exact 1-in-16
@@ -103,9 +103,9 @@ routing, board fate, and technical-trust law. The accepted 2026-08-12 Shop
 amendment retains authority only for its Shop scope.
 
 The Core Story Bible and its later approved 2026-07-19 canon amendment remain
-narrative authority except for the exact Day-2 and Sylvia clauses superseded in
-sections 15, 16, and 23. The Seven-Day Production Map remains the derived
-working view of that canon except for its matching listed clauses. This
+narrative authority except for the exact Day-2 retirement and Sylvia clauses
+recorded in sections 15, 16, and 23. The Seven-Day Production Map remains the
+derived working view of that canon except for its matching listed clauses. This
 amendment preserves the historical source files and records the later decisions
 rather than silently rewriting their decision trail.
 
@@ -148,13 +148,13 @@ runtime compatibility.
   solo-invitation erasure.
 - Contacts-specific persistence, idempotency, history, localization, text-size,
   TTS, assistive, and input behavior.
-- The Day-2 same-minute Priscilla/Angela pre-echo.
+- Retirement of every dedicated Day-2 return-message pair without replacement.
 - Removal of the Sylvia Special unsent draft.
 
 ### 3.2 Out of scope
 
 - Final prose for the six ordinary messages, invitations, follow-ups, or
-  character replies beyond the two fixed Day-2 lines.
+  character replies. This amendment fixes no Day-2 return-message lines.
 - Changing the number or calendar positions of ordinary messages and solo
   invitation windows.
 - Changing Schedule eligibility, date attendance, Hospital, relationship
@@ -481,7 +481,6 @@ The closed notification-eligibility table is:
 | A scripted immediate response inside an already open exchange | No |
 | Angela's outgoing or scripted acceptance slip | No |
 | Priscilla-Lavinia group activation or linked-thread update | No |
-| Day-2 pre-echo pair | No |
 | Hospital-scene, ending, History-only, echo-only, technical, or recovery record | No |
 
 Here, a `safe desktop state` means the desktop host owns input after the owning
@@ -573,8 +572,8 @@ entry, not a causal scheduler.
 Each routine slip renders its own time marker beneath the slip. A registered
 `minute_group_id` instead renders one shared marker before or between its
 contiguous members when all members own the same authored minute. Grouping never
-changes semantic order or creates a causal relation. Day 2 requires this shared
-form; assistive traversal announces the minute once at the group boundary.
+changes semantic order or creates a causal relation. Assistive traversal
+announces the minute once at the group boundary.
 
 Time never controls:
 
@@ -619,7 +618,6 @@ The target must not be:
 - a solo or group invitation;
 - a Hospital, ending, technical, save, purchase, or Schedule record;
 - required evidence;
-- the Day-2 pre-echo pair; or
 - any entry whose time could imply an actionable deadline.
 
 This is the same zero-or-one-per-run clock-anomaly allowance as the audience
@@ -718,8 +716,7 @@ continuation, including:
 - seeded rare invitation-erasure gate, set version, and identity;
 - the shared clock-anomaly allocation, manifest version, seed receipt, and its
   same-run monotonic materialization receipt; a Contacts allocation also stores
-  its one frozen displayed `HH:MM`; and
-- in-flight semantic presentation stages for the Day-2 pair.
+  its one frozen displayed `HH:MM`.
 
 It does not persist Controls, Nodes, RichTextLabel state, BBCode, pixel offsets,
 hover, pressed state, scrollbar objects, focus rings, toast lifetime, temporary
@@ -734,80 +731,45 @@ merge unrelated Contacts state from an abandoned future branch.
 ### 14.3 Atomicity and recovery
 
 Bulk read, reply, invitation acceptance, group first-open, group reply, expiry,
-and story anomaly presentation each commit through bounded idempotent commands.
+and any separately authorized story-anomaly presentation each commit through
+bounded idempotent commands.
 
 A technical failure leaves the last stable state unchanged or resumes the one
 pending transaction forward. It never partially reads a stack, accepts a solo
 without its receipt, duplicates a response, changes the group inviter, reorders
-Day 2, resurrects erased text, or fabricates a fictional glitch.
+an authored batch, resurrects erased text, or fabricates a fictional glitch.
 
-## 15. Day-2 semantic pre-echo
+## 15. Day-2 pre-echo retirement
 
-### 15.1 New fixed fact
+### 15.1 Current fixed fact
 
-The former unsent-message contradiction is retired. During Returned Seat, the
-application presents one ordinary authored minute group in this exact order:
+The former unsent-message contradiction and its later same-minute semantic
+pre-echo are both retired without replacement. Historically, the discarded
+pre-echo would have placed Priscilla's `I know` before Angela's `Lavinia is back`;
+neither line now belongs to a fixed Day-2 pair, shared minute group, return-scene
+presentation, or mystery anchor.
 
-1. Priscilla sends `I know`.
-2. Angela sends `Lavinia is back`.
+Lavinia's Day-2 return is ordinary. It fulfills the Day-1 roster entry by making
+her inclusion current, but it does not retroactively explain why her name
+appeared before she returned. That unresolved question remains part of the Day-1
+roster anchor. Day 2 adds no dedicated message pair, timing contradiction,
+missing-message clue, or replacement anomaly.
 
-Both display the same authored `HH:MM` minute through one ordinary shared time
-marker. They use the standard incoming/outgoing correspondence slips and no
-special frame, draft state, label, glitch, animation, sound cue, narrator, or
-explanation.
+This retirement does not change the six ordinary A/B/C message slots or their
+calendar positions. It also does not change the independently triggered,
+non-counting umbrella continuity.
 
-Canonical presentation order, not the minute-resolution timestamp, proves only
-which record appears first. The game does not label Priscilla's line a reply to
-Angela's later line, and it does not establish that the two messages are
-causally connected. The audience may interpret the order as coincidence,
-anticipation, application error, game error, or something else.
+### 15.2 Contacts and persistence boundary
 
-Hidden cohabitation may make Priscilla's knowledge credible; it does not settle
-why these two statements occupy that order. No later dialogue confirms the
-mechanism.
+The return creates no dedicated Contacts entries, authored minute token,
+presentation stages, notification, unread mark, History projection, message
+receipt, or accessibility announcement. Save/load therefore owns no special
+Day-2 message-pair state to resume.
 
-For the Core Story Bible's mystery-fairness rule, this supersedes only the claim
-that the apartment fails to explain an `impossible timing` event. The retained
-meaning is: the apartment can explain Priscilla's knowledge, but it does not
-settle why `I know` precedes `Lavinia is back` within their shared displayed
-minute. The surrounding three-source braid and plausible-mundane-explanation
-law remain unchanged.
-
-### 15.2 Presentation and persistence
-
-The first presentation belongs to the Returned Seat beat. Angela and the
-audience see the correspondence while Lavinia shares the surrounding return
-scene. Lavinia's authored reaction is to Angela's observable pause or behavior,
-not knowledge of Priscilla's private thread. She sees the message text only if a
-later authored shot explicitly establishes that the screen is physically within
-her view; this amendment establishes no such shot. The pair then remains
-inspectable in Priscilla's Contacts history as the same immutable semantic
-entries.
-
-The sequence owns distinct line IDs, one authored minute token, canonical
-sequence numbers, and resumable stages:
-
-- before pair;
-- Priscilla visible;
-- Angela visible; and
-- complete.
-
-A save between stages resumes by appending only the missing line. It never
-duplicates, swaps, or reannounces an already committed line. With reduced motion,
-both publications use hard state changes while preserving order. Accessibility
-tree order and live announcements match visual order exactly.
-
-When the audience experiences Returned Seat, the pair is recorded as already
-read and witnessed when it is projected into Priscilla's thread. It produces no
-unread mark or notification and does not advance a bulk-read watermark across
-any unrelated Priscilla entry. The pair owns its own presentation receipts. If
-Returned Seat is not experienced, neither private line is projected into
-Contacts; only the separately authored indirect residue for the unexperienced
-path may appear.
-
-The sequence is a fixed authored mystery anchor, not randomized Observer
-evidence, a technical error, a clock-bleed target, or one of the six ordinary
-A/B/C message slots.
+An authorized scene or lawful later residue may establish only the ordinary
+return fact according to its own narrative and knowledge boundary. Absence of a
+dedicated pair is not an erased message, glitch, contradiction, or audience clue
+and must never be presented as one.
 
 ## 16. Sylvia Special without an unsent draft
 
@@ -957,8 +919,9 @@ interaction. Contacts contains no non-speech caption stream.
 Contacts thread history, global narrative History, profile visited-line state,
 and Observer evidence are separate owners.
 
-- Replied correspondence, accepted invitations, fixed follow-ups, linked group
-  records, and the Day-2 pair remain in the appropriate friend transcript.
+- Replied correspondence, accepted invitations, fixed follow-ups, and linked
+  group records remain in the appropriate friend transcript. Day 2 adds no
+  dedicated return-message pair.
 - Erased ordinary/invitation entries leave no player-facing transcript or
   global-History reconstruction.
 - A technical visited-line receipt may survive only for skip/idempotency and
@@ -1043,8 +1006,8 @@ The following approaches are intentionally rejected:
 - expiring entries leave `deleted`, gaps, timestamps, tombstones, or late-reply
   affordances visible;
 - the rare invitation erasure applies to P-L group or Day 7;
-- Day 2 uses an unsent draft, fake composer, anomaly frame, or claimed causal
-  reply;
+- Day 2 gains any dedicated return-message pair, unsent draft, fake composer,
+  anomaly frame, or claimed causal reply;
 - Sylvia Special replaces its removed draft with a missing-message clue, phone
   inspection, or another text; and
 - a modern messenger, terminal log, or decorative glitch system substitutes for
@@ -1056,8 +1019,9 @@ The following approaches are intentionally rejected:
 
 Within scope, this amendment supersedes or retires:
 
-- the Day-2 unsent `Lavinia is back` contradiction and every claim that
-  Priscilla replied before Send;
+- both the Day-2 unsent `Lavinia is back` contradiction and the later authored
+  `I know` / `Lavinia is back` pre-echo, including every dedicated message-pair,
+  shared-minute, receipt, projection, or resumable-stage requirement;
 - the phrase `unsent-message anomaly` for Returned Seat;
 - the Sylvia Special draft `I'm with Sylvia. Don't come.` and its unknown-typist
   question;
@@ -1075,7 +1039,8 @@ Within scope, this amendment supersedes or retires:
 - current scaffold geometry, visible speaker labels, BBCode treatment, and
   empty content hosts where they conflict with this document.
 
-Direct narrative references superseded are:
+The earlier 2026-08-12 decision historically superseded these direct narrative
+references before its own pre-echo was retired:
 
 - `story/01-core-story-bible.md` Day-2 anchor, Returned Seat label, and only the
   `impossible timing` phrase in its mystery-fairness paragraph, plus only the
@@ -1092,9 +1057,10 @@ reordered-image clause remains intact. Trigger, precedence, identity, and ending
 order continue to follow the accepted 2026-08-07 design and later scoped
 amendments; this document does not alter them.
 
-Returned Seat's return fact, setting, relationship pressure, state/tone actions,
-Lavinia reaction, concealed-knowledge/cohabitation law, and every nonconflicting
-residue/facet remain intact.
+Returned Seat's historical return fact, setting, relationship pressure,
+state/tone actions, Lavinia reaction, cohabitation history, and every
+nonconflicting residue/facet remain available only at their independently
+authorized status. None restores the retired message pair.
 
 The historical files must be preserved and linked from this later amendment,
 not edited as though the former decisions never existed.
@@ -1242,21 +1208,14 @@ accepted document.
 
 ### 25.6 Day 2 and Sylvia Special
 
-- Returned Seat publishes `I know` then sent `Lavinia is back` under one authored
-  minute marker and ordinary slip styling.
-- Routine slips own individual time markers; only registered contiguous minute
-  groups share one, and grouping never changes order or causality.
-- Visual order, accessibility order, safe text snapshots, save stages, and
-  Priscilla-history projection agree exactly.
-- No label calls the first line a reply or claims causality.
-- The experienced pair enters Priscilla history already read/witnessed without a
-  toast, unread mark, or unrelated bulk watermark; the unexperienced path
-  exposes neither private line.
-- Lavinia's reaction is grounded only in Angela's visible pause and never grants
-  her private-message knowledge; this amendment establishes no screen-sharing
-  shot.
-- Save at every stage resumes only the missing stage without duplicate live
-  announcement.
+- Day 2 publishes no dedicated return-message pair, shared minute group,
+  receipt, History projection, notification, or resumable presentation stage.
+- Lavinia's ordinary return makes the Day-1 roster inclusion current without
+  explaining its premature appearance or creating a replacement anomaly.
+- The six ordinary A/B/C message slots and their calendar positions remain
+  unchanged.
+- The independently triggered umbrella continuity remains ordinary,
+  non-counting, and outside Contacts message replacement.
 - Sylvia Special creates no draft/message/contact mutation and ends through the
   ceiling-to-wake sequence.
 - Special trigger, semantic identity, Special-to-Dark order, discovery receipt,
