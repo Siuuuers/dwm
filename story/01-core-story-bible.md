@@ -35,6 +35,12 @@ Angela is the only affectable character, but she is not the centre of every rela
 
 Use **audience** for narrative analysis. Use **player** only for technical input, accessibility, or platform language.
 
+### Audience-Visible Scene Boundary
+
+Before endings and postscripts, audience-visible plot appears through Angela-attended solo dates or scheduled actions, Angela-attended group dates, and the explicitly authorized Priscilla–Lavinia private counterparts. No standalone scene follows Priscilla, Lavinia, or Sylvia outside those surfaces. The Day 2 umbrella pickup is the sole separately authorized micro-scene and may be shown only under its fixed trigger.
+
+Friends continue acting outside Angela's attention. Those actions may exist as private causality and may later enter an authorized scene through an object, record, message, changed circumstance, or dialogue. Hidden detail earns canon only when it changes visible behavior, supplies necessary causality, or prevents contradiction; otherwise omit it.
+
 ## Dramatic Questions
 
 - **Angela:** When does refusing to act become choosing?
@@ -145,19 +151,19 @@ Do not stack arbitrary anomalies to manufacture surrealism. The atmosphere comes
 
 ### Angela
 
-Angela is 20, Hong Kong-born, and a second-year astrophysics student. Cantonese is her everyday language, academic English is fluent, and Putonghua is situational. Her emotional minimalism is temperament, not trauma shorthand. She uses absurd deductions, performance, and occasional physics or game language when those metaphors are genuinely precise. She willingly delegates choices but requires reality to remain independently inspectable. Her greatest danger is using uncertainty as moral shelter while enjoying another person’s controlling care.
+Angela is 20, Hong Kong-born, and a second-year astrophysics student. Cantonese is her everyday language, academic English is fluent, and Putonghua is situational. Her emotional minimalism is temperament, not trauma shorthand. She loves astronomy and strategy games with disproportionate intensity; she is skilled at resource management and often lucky, but neither advantage transfers cleanly into relationships or moral responsibility. Her deadpan is partly performed: she invents elaborate, intentionally ridiculous deductions to amuse, annoy, or destabilize, and uses physics or game language only when the metaphor is genuinely precise. Once someone enters her inner circle, she accepts strange requests she would dismiss as unnecessary side content from anyone else. She has no prior romantic experience and is drawn to attentive care. She willingly delegates choices but requires reality to remain independently inspectable. Her greatest danger is using uncertainty as moral shelter while enjoying another person’s controlling care.
 
 ### Priscilla
 
-Priscilla is 20, Hong Kong-born, and an English literature student with institutional credibility. She speaks polished Cantonese and English, selecting public language for control of nuance. Care appears as management, correction, anticipation, and selective truth. She overreads language and patterns but is not a mind reader. Her love is genuine; its coexistence with acquisition and control makes it frightening.
+Priscilla is 20, Hong Kong-born, and an English literature student with institutional credibility. She speaks polished Cantonese and English, selecting public language for control of nuance. Care appears as management, correction, anticipation, and selective truth; her attention inventory includes preferences, walking pace, silence patterns, stress tells, familiar routes, and habits. She overreads language and patterns but is not a mind reader, and desire makes her most likely to overfit or use the right lever at the wrong moment precisely when accuracy matters most. Her deepest fear is not dramatic abandonment but informed independence: someone becoming completely capable of leaving and calmly preferring an imperfect life outside her management. Her love is genuine; its coexistence with acquisition and control makes it frightening.
 
 ### Lavinia
 
-Lavinia is 22, Romanian, from a wealthy Bucharest family, and a conservatory ballet student. She is fluent in English, uses Romanian in private, and is developing Cantonese without comic incompetence. She treats powerful reaction as evidence of importance and may provoke attention rather than ask directly. Her professional discipline coexists with physical and emotional boldness. Her persistent load-related lower-limb pain is symptom-based canon; no exact diagnosis is fixed.
+Lavinia is 22, Romanian, from a wealthy Bucharest family, and a conservatory ballet student. She is fluent in English, uses Romanian in private, and is developing Cantonese without comic incompetence. She treats powerful reaction as evidence of importance and may provoke attention rather than ask directly. Her parents’ generous freedom and material support do not always feel like precise attunement; she may administer tests other people do not know exist and associate resistance with attention. Her professional discipline coexists with physical and emotional boldness. Her persistent load-related lower-limb pain is symptom-based canon; no exact diagnosis is fixed.
 
 ### Sylvia
 
-Sylvia is 21 and a third-year statistics or decision-science student. She is an Open Week peer-welfare and safety volunteer with a current basic first-aid certificate. She may know public schedules, assigned rooms, check-in procedures, and incident workflow. She has no diagnostic authority, private-record access, or legitimate right to conduct a general physical examination. Unable to risk asking to be wanted, she arranges to be owed and translates desire into practical, medical, or moral necessity.
+Sylvia is 21 and a third-year statistics or decision-science student. She is an Open Week peer-welfare and safety volunteer with a current basic first-aid certificate. She may know public schedules, assigned rooms, check-in procedures, and incident workflow. She has no diagnostic authority, private-record access, or legitimate right to conduct a general physical examination. Unable to risk asking to be wanted, she arranges to be owed and translates personal or erotic desire into practical, medical, or moral necessity. In her darker private logic, each successful rescue should narrow Angela’s alternatives until Sylvia appears to be the only reliable person, gratitude becomes permanent debt, and compliance feels like reasonable repayment. Her prudishness governs how she explains desire, not whether desire exists; no explanatory label creates consent.
 
 ## Fixed Hidden Histories
 
@@ -167,23 +173,45 @@ These facts are private canon. The released game reveals them only through parti
 
 At age twelve or thirteen, Angela was wrongly blamed for alteration or deletion of a group science project. Priscilla possessed suggestive but inconclusive evidence, fabricated one recovery record, and correctly identified the culprit. Angela believed the exonerating evidence was authentic. Priscilla then arranged the culprit’s private humiliation through truthful information, without charge or appeal. Her conclusion was right; her procedure was wrong. The incident taught Angela that Priscilla could make disputed reality legible and taught Priscilla that a true conclusion could justify control of the record.
 
+Angela initially withdrew rather than perform innocence for adults who already preferred the easier account. Priscilla began investigating because an incorrect version of events offended her sense of order, not because she consciously understood the act as devotion. The incident trained both sides of their later pattern: Angela learned that Priscilla could spare her the labor of making reality believed, while Priscilla learned that controlling the record could make a true conclusion socially real. Being correct in this first case never makes the method safe; it trains Priscilla to confuse confidence with proof and leaves her capable of privately sentencing the wrong person in another case.
+
+### Priscilla–Sylvia Sisters
+
+Priscilla and Sylvia are sisters, and Angela has known both since childhood. Knowing Sylvia as Priscilla’s sister never produced equal intimacy: Angela’s relationship with Sylvia remains that of a long-standing occasional acquaintance, while Sylvia has had more opportunity and inclination to observe Angela than Angela recognized. The sisterhood is an ordinary family fact to Angela and the sisters and should reach the audience incidentally rather than as a conspiratorial reveal. It creates no romance, route, state deck, or ending between the sisters and grants no automatic access to the other’s records, rooms, messages, desires, or hidden intentions.
+
+Their control methods share a family resemblance without establishing a shared formative cause. Priscilla makes desire defensible through wording, records, and social authorship; Sylvia makes it defensible through preparation, risk, access, and care debt. Each may recognize the other’s overreach more readily than her own. They do not coordinate hidden intentions, and Sylvia’s fixed harmful intent toward Angela belongs to Sylvia alone.
+
+### Angela–Lavinia University Friendship
+
+Angela and Lavinia first met through an astronomy class and became university friends there. Their later astronomy encounters resume an existing ordinary intimacy rather than manufacturing a first bond.
+
 ### Priscilla–Lavinia First Recognition
 
-At a bar gathering, Priscilla recognizes Lavinia before their formal introduction. Lavinia has already made a subtle refusal to a persistent pursuer, who continues anyway. Priscilla is also irritated by the disturbance and uses precise sarcasm to embarrass the pursuer into leaving. Lavinia is grateful. This recognition is fixed; the reason Priscilla knew Lavinia first is not separately established.
+At a bar gathering, Priscilla recognizes Lavinia before their formal introduction. Lavinia has already made a subtle refusal to a persistent pursuer, who continues anyway. Priscilla is also irritated by the disturbance and uses precise sarcasm to embarrass the pursuer into leaving. Lavinia is grateful. Priscilla already experiences Lavinia as fascinating and threatening, while Lavinia does not initially recognize the danger in Priscilla’s attention. This recognition and asymmetry are fixed; the reason Priscilla knew Lavinia first is not separately established.
+
+Before the company attachment, their conduct became openly flirtatious and near-romantic without acquiring an agreed label. Their immediate fluency on Lavinia’s return therefore belongs neither to strangers beginning an attraction nor to confirmed lovers resuming one.
 
 ### Priscilla–Lavinia Shared Apartment
 
-Lavinia’s family provides a private two-bedroom flat near campus. Priscilla obtained family permission to live there by presenting Lavinia as a respectable roommate and family connection. The arrangement became irregular cohabitation before England, with one bedroom each. Lavinia retained a key and did not expose Priscilla’s family deception after their fight. Priscilla kept Lavinia’s room prepared while maintaining the appearance that they still lived together. The game never directly confirms the apartment arrangement, and neither woman treats possession of the key as an agreed relationship label.
+Lavinia’s family provides a private two-bedroom flat near campus. Priscilla obtained family permission to live there by presenting Lavinia as a respectable roommate and family connection. Lavinia knowingly joined the deception and initially found it amusing. The arrangement became irregular cohabitation before England, with one bedroom each. After their fight, Lavinia could expose Priscilla’s lie to Priscilla’s parents with one message and chooses not to; that silence is one of her embarrassing proofs of care. She retains a key.
+
+While Lavinia is in England, Priscilla maintains the appearance that they still live together. During video calls with her parents, she carefully frames a second cup, Lavinia’s coat, or another domestic residue. When asked for photographs, she may reuse an older image without falsely stating when it was taken, and she occasionally refers to something “we” purchased. She sustains the misunderstanding through selective truth rather than an easily disproved claim.
+
+Sylvia is sometimes present on the family side of these calls. Their parents accept the surface because each displayed object and statement is individually plausible, not because they are foolish or uncaring. Sylvia recognizes that Priscilla is constructing evidence of continuity rather than merely showing the flat. Across multiple calls, she correctly infers a rupture between Priscilla and Lavinia, but she does not learn its cause, the disclosure-form conflict, either woman’s private interpretation, or any agreed relationship label. She does not tell their parents. Whether Priscilla knows that Sylvia has inferred the rupture remains unresolved.
+
+Priscilla keeps Lavinia’s bedroom prepared and insists that preserving it is necessary for the cover story. Whether she enters it to clean, inspect, remember, or search remains unresolved. The game never directly confirms the apartment arrangement, and neither woman treats possession of the key as an agreed relationship label.
 
 ### Lavinia’s Company Attachment and Lower-Limb Conflict
 
-Lavinia spent approximately four months in England on a **sponsored company attachment** arranged through the conservatory. She trained with the company, rehearsed selected repertoire, and was considered for future professional work.
+Lavinia spent approximately four months in England on a **sponsored company attachment** arranged through the conservatory. She trained with the company, rehearsed selected repertoire, and was considered for future professional work. Distance did not turn her into a penitent lover waiting to return: she did not settle on missing one particular person and reconsidered whether she had been entirely right, but she did not become repentant or forgive Priscilla’s overreach.
 
-Before departure, Lavinia authorized Priscilla to polish and submit institutional language, not to change its substance. Priscilla changed a minimized description into a factually defensible but maximally consequential account of persistent load-related lower-limb pain and its functional effect, then submitted it without Lavinia’s review. The revision prompted assessment and temporary modified participation, including reduced high-load material or adjusted rehearsal volume. Lavinia was later cleared to continue under an agreed plan; this did not prove her pain-free or uninjured. The exact site, cause, and diagnosis remain unfixed. Priscilla’s protective concern was legitimate; her expansion of limited permission and secured outcome were not.
+Before departure, Lavinia authorized Priscilla to polish and submit institutional language, not to change its substance. Priscilla changed a minimized description into a factually defensible but maximally consequential account of persistent load-related lower-limb pain and its functional effect, then submitted it without Lavinia’s review. The revision prompted assessment and temporary modified participation, including reduced high-load material or adjusted rehearsal volume. Lavinia was later cleared to continue under an agreed plan; this did not prove her pain-free or uninjured. The exact site, cause, and diagnosis remain unfixed.
+
+Priscilla acted from two true motives at once. She genuinely feared that continued training could turn Lavinia’s condition into lasting injury, and she also welcomed any legitimate institutional consequence that might delay Lavinia’s departure. She selected the defensible wording most likely to make assessment mandatory and thereby create a credible risk of delay, then ensured the consequence occurred before Lavinia could object. Had protection been her only aim, she could have confronted Lavinia, refused to submit the minimized account, or insisted upon assessment openly; secrecy converted legitimate care into control. Lavinia was legitimately violated and professionally frightened, but also affected by Priscilla noticing what she had tried not to admit. Being moved by the care never reduces the violation. Lavinia ultimately left, so the intervention failed to keep her in Hong Kong but contaminated the departure psychologically. The writing must never settle whether Priscilla wanted someone to stop the injury or stop Lavinia from leaving.
 
 ### Sylvia’s Asymmetrical Familiarity
 
-Angela recognizes Sylvia’s name, volunteer role, and status as an occasional acquaintance. Sylvia has studied Angela far more closely than this relationship justifies. Schedule access and observation explain much, but not her exact timing or private knowledge. Any unauthorized use of check-in or incident information is a boundary violation, not a privilege of peer welfare. Sylvia has no past-fragment deck and no Observer Ending.
+Angela has known Sylvia since childhood as Priscilla’s sister but still knows her personally only as an occasional acquaintance and recognizes her current volunteer role. Shared family context may explain Sylvia’s early awareness of Angela’s name and limited old habits; it does not justify the depth of her present study. Public schedule access and observation explain much, but not her exact timing or private knowledge. Sisterhood grants no access to current messages, private records, medical information, rooms, or consent, and any unauthorized use of check-in or incident information remains a boundary violation rather than a privilege of family or peer welfare. Sylvia has no past-fragment deck and no Observer Ending.
 
 ## Relationship State and Tone
 
@@ -206,6 +234,8 @@ The existing code-owned tone state selects **Sweet** or **Dark** and remains sta
 - **Totally Dark:** Both participants knowingly reinforce a dangerous pattern because it satisfies something genuine. Harm remains real; attachment does not make it harmless.
 
 State controls what mutuality is available; tone controls the visible ending variation. Neither authorizes another person’s desire or consent.
+
+For every romance-capable pairing, no state, tone, event, or ending applies an official relationship label. Dialogue and visible behavior may support “couple,” “lovers,” “friends,” or something unclassifiable, but the released text never settles the question for the audience.
 
 ## Event Architecture
 
@@ -253,7 +283,7 @@ Each counted event has an Angela-attended group version and an audience-observed
 
 ### Day 2 Non-Counting Micro-Scene — The Umbrella Pickup
 
-When Angela is occupied elsewhere during the relevant arrival window, the audience directly sees a short cutaway. Still estranged after the disclosure-form fight, Lavinia asks Priscilla to bring the long umbrella to arrivals despite being indoors. Priscilla comes, takes the heavier bag without permission, and receives the umbrella request as an indirect demand for presence. If the cutaway is not shown, later object and dialogue residue confirms that the pickup occurred. It never increments the pair counter or marks a pair state/tone combination seen.
+When Angela is occupied elsewhere during the relevant arrival window, the audience directly sees a short cutaway. Still estranged after the disclosure-form fight, Lavinia asks Priscilla to bring the long umbrella to arrivals despite being indoors. This is Lavinia’s first move across the post-fight distance, and both women feel its embarrassment: she names an umbrella when what she needs is Priscilla’s presence. Priscilla comes, takes the heavier bag without permission, and answers the unspoken request by over-helping, so genuine care and control resume in the same gesture. If the cutaway is not shown, later object and dialogue residue confirms that the pickup occurred. It never increments the pair counter or marks a pair state/tone combination seen.
 
 ## Priscilla–Lavinia Four-State Deck
 
@@ -334,6 +364,8 @@ Each full Observer or Special postscript plays once per global profile. Later ma
 ## Observer Languages
 
 Observer behavior can accrue from the first playthrough, but not every Observer ending can be completed on the first playthrough. Each pairing has a separate grammar.
+
+Only Verification and Restraint may receive diegetic discovery hints from Angela, because only those Observer languages directly involve her. These hints may occur inside the relevant Angela–Priscilla or Angela–Lavinia dating scene only. They must sound like natural audible self-talk: independent replication, competing measurements, or reproducibility may hint at Verification; response inhibition, restraint, or the ethics of intervening may hint at Restraint. Angela never names `CAPTURE`, `COMPARE`, the cursor, the audience, or Observer Pressure, and every hint must remain plausible even when the hidden behavior is not discovered. Persistence receives no Angela tutorial or equivalent hint hierarchy.
 
 ### Verification — Angela–Priscilla
 
@@ -426,7 +458,7 @@ Allowed in non-graphic form: coercive dialogue, stalking, privacy invasion, unwa
 
 Never depict torture, gore spectacle, explicit sexual assault, a reproducible fainting method, sexual contact while unconscious, or a false claim that intimate contact is medically required for fainting. Do not name a substance, dose, pressure technique, breathing maneuver, deprivation schedule, or physiological trick that could make Sylvia’s intent actionable.
 
-Sylvia may rationalize an act as practical, protective, or medical, but the work must not validate that framing. A conscious and responsive adult retains the right to understand and refuse touch. While Angela is unresponsive, only genuine emergency care within first-aid scope is defensible; there is no sexualized or intimate contact. Sylvia’s badge, volunteer role, and first-aid certificate confer no diagnostic or private medical authority.
+While Angela is conscious and responsive, Sylvia may rationalize an intimate or sexual action as a practical check, protective adjustment, medical precaution, or moral duty so that she need not name it as desire. The work must not validate that framing, and those labels never create consent. A conscious and responsive adult retains the right to understand and refuse touch. While Angela is unresponsive, only genuine emergency care within first-aid scope is defensible; there is no sexualized or intimate contact. Sylvia’s badge, volunteer role, and first-aid certificate confer no diagnostic or private medical authority.
 
 No ending confirms death. Severe injury, disappearance, or death may remain an interpretation supported by non-graphic evidence. There is no triad route in approved canon, no visible statistics requirement, and no newly invented Observer mechanic.
 
