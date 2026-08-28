@@ -5,11 +5,22 @@ schema_version: 1
 conversational_design_status: approved
 written_spec_status: approved
 self_review_status: passed
-implementation_requested: false
-implementation_authorized: false
+implementation_requested: true
+implementation_authorized: true
 implementation_plan_path: "docs/superpowers/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md"
-implementation_plan_status: proposed
+implementation_plan_status: approved
 implementation_plan_sha256: "d0b0e1ce8e4bae1bb07f0553d905d074754d7f16b6e0899b6813fa6a56c441c2"
+implementation_execution_mode: subagent_driven
+implementation_approved_by: project_owner
+implementation_authorization_state: approved
+implementation_authorization_scope: seven_day_documentation_reconciliation_tasks_0_through_9_only
+implementation_base_commit: 8642da2a7e404622dbb716d19a6bf49ded7cd852
+implementation_plan_approved_on: 2026-08-28
+implementation_authorized_on: 2026-08-28
+implementation_commit_authorized: true
+implementation_commit_approved_by: project_owner
+implementation_commit_scope: exact_path_boundaries_in_approved_plan_only
+implementation_commit_authorized_on: 2026-08-28
 implementation_plan_created_on: 2026-08-28
 created_on: 2026-08-28
 written_spec_approved_on: 2026-08-28
@@ -579,17 +590,13 @@ Room 2.17 into the pattern every other scene must imitate.
 
 ## 14. Approval and implementation boundary
 
-The conversational architecture and this written specification are approved.
-The separate documentation-reconciliation implementation plan is linked in
-frontmatter and remains proposed until the owner explicitly selects an execution
-mode. Before that plan approval:
+The conversational architecture, this written specification, and the exact
+documentation-reconciliation implementation-plan digest are approved. On
+2026-08-28, the project owner selected Subagent-Driven execution. The frontmatter
+approval transaction authorizes only Tasks 0 through 9, their exact-path commits,
+and their bounded documentation-reconciliation scope.
 
-- do not execute its Task 0 or rewrite any story artifact under its authority;
-- do not begin the Day 1 candidate audition as if Pass One were frozen;
-- do not edit runtime code or Dialogic timelines under this specification.
-
-After the owner approves the exact plan digest and execution mode, the
-frontmatter approval transaction authorizes only its documentation-reconciliation
-tasks. Creative Pass Two begins after that plan is executed and the plot-free
-Pass One lattice is verified. Runtime and Dialogic implementation remain outside
-this specification.
+This authorization does not select a Day 1 candidate, place Room 2.17, write final
+dialogue, or permit runtime and Dialogic implementation. Creative Pass Two begins
+only after the authorized plan is complete and the plot-free Pass One lattice is
+verified.
