@@ -324,7 +324,7 @@ Fragments provide evidence and characterization only. They never gate or assign 
 
 The internal catalogue contains thirteen authored ending identities. This is a catalogue count, not thirteen mutually exclusive terminal paths: Observer identities are postscripts, while Sylvia Special is a prelude to a forced Sylvia Totally Dark ending.
 
-Day 7 first presents any due Day 6 follow-ups, then drains the unavoidable echo fallback before any boardless ending invitation round or faint-capable action becomes available. Eligible invitations unlock in fixed rounds: Priscilla, then Lavinia, then Sylvia. Ineligible invitations are absent. Reading an eligible invitation makes that destination available; Done commits at most one selected solo destination, or normal Alone when none is selected. Day 7 creates no dating board.
+Day 7 first presents any due Day 6 follow-ups, then drains the unavoidable echo fallback before any boardless ending invitation round or faint-capable action becomes available. Eligible invitations unlock in fixed rounds: Priscilla, then Lavinia, then Sylvia. Ineligible invitations are absent. Reading an eligible invitation makes that destination available; Done commits at most one selected solo destination, or Alone when none is selected. Day 7 creates no dating board.
 
 For a normally selected solo destination, stored dark 0 or 1 selects Sweet and stored dark 2 through 4 selects Totally Dark. The ordered ending plan is frozen before playback. Subject to the pre-Done faint precedence below, it resolves in this order:
 
