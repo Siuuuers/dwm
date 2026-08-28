@@ -1,18 +1,33 @@
-# docs/design — recovered design reference
+# Documentation authority map
 
-This folder holds the game's design brain, recovered read-only, plus session notes.
+Use this index to navigate the active authority for DWM's seven-day work. Resolve
+conflicts by the ownership stated in the linked document; do not treat recovered
+material or historical amendments as current mechanics.
 
-- `recovered/` — the full design spec (`CONTENT`, `CONTRACTS`, `DIALOGIC`, `FLOWS`,
-  `PHASES`, `TESTING`, `REPORT`, `GLOSSARY`, plus `Beads`, `ResultReport`) as it
-  existed just before it was deleted from the working tree in commit `6d304ea`.
-  These are **reference**, not the live pipeline. The authoritative runtime pipeline
-  remains `prompt_docs/` (requirement packets) + Beads issues + the `.gd` code, per
-  `Prompt.md` and `CONTRACTS.md §1`. Where recovered docs and the live pipeline
-  disagree, the live pipeline wins; recovered docs explain *intent*.
+## Active working authority
 
-- `session-addendum-2026-07-18.md` — ideas from a design session that are NOT in the
-  recovered docs (dark-mode Angela toggle; three-tier saves/meta-horror), plus a
-  verification note on how faithfully the Beads issues capture the original design.
+- [August 7 seven-day Dialogic-flow design](2026-08-07-seven-day-dialogic-flow-design.md)
+  owns intended mechanics and Dialogic flow.
+- [Core Story Bible](../../story/01-core-story-bible.md) is the sole narrative
+  authority for character, relationship, atmosphere, hidden history, and intended
+  audience-facing meaning.
+- [Character & Relationship Handbook](../../story/02-character-relationship-handbook.md)
+  is derived performance guidance.
+- [approved Two-Pass Constellation specification](../superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md)
+  owns the selection workflow.
+- [Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md) owns fixed
+  obligations and approved placements.
+- [Seven-Day Production Map](../../story/03-seven-day-production-map.md) is the
+  plot-neutral production rendering.
+- [Seven-Day Scene Beatbook](../../story/06-seven-day-scene-beatbook.md) expands
+  approved load-bearing scenes for execution.
 
-Recovering these files restores design visibility that was lost when the docs were
-trimmed on the theory that the generated Beads issues had fully absorbed them.
+## Provenance and implementation evidence
+
+- [Plot Material Library](../../story/library/03-seven-day-plot-material-library.md)
+  preserves noncanonical named history only.
+- [July canon amendments](../../story/05-canon-amendments-2026-07-19.md) are
+  historical amendments, not current mechanics.
+- [recovered design documents](recovered/) are evidence only.
+- [runtime code](../../scripts/) is the physical implementation. It may expose
+  drift from intended mechanics, but it never silently becomes narrative authority.

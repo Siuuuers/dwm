@@ -2,16 +2,19 @@
 
 ## Document Authority
 
-This is the private, spoiler-complete narrative authority for DWM. It records what is true, what may vary, and what must remain unresolved. The Character & Relationship Handbook and Seven-Day Production Map are derived working views; the Public Project Profile is a spoiler-safe projection. If any derived document conflicts with this file, this file wins unless the disputed detail belongs to existing code.
+This is the private, spoiler-complete narrative authority for DWM. It records what is true, what may vary, and what must remain unresolved. This Bible remains the sole narrative authority. The Character & Relationship Handbook is derived performance guidance; the Seven-Day Production Map is a plot-neutral production rendering; the Public Project Profile is a spoiler-safe projection. Runtime code owns physically implemented behavior and may expose drift, but it never silently revises narrative canon or intended audience-facing meaning.
 
 Authority follows this order:
 
 1. Later explicit approvals supersede earlier proposals and the original brief.
-2. Existing code owns exact daily availability, UI appearance, replay and skip behavior, health counters, line identity, localization implementation, and save/load implementation.
-3. This file owns narrative canon and intended audience-facing meaning.
-4. Derived project documents may restate but may not revise this canon.
-5. The original brief controls only decisions not superseded by later approval.
-6. Research may correct physical-world terminology and plausibility, but it may not change approved fictional canon.
+2. The August 7 seven-day design owns intended mechanics and Dialogic flow.
+3. Runtime code owns physically implemented behavior, including its availability, UI, replay and skip behavior, health counters, line identity, localization, and save/load implementation. Compare it with the August design to identify drift; do not promote implementation drift into intended law without approval.
+4. This file is the sole narrative authority for character, relationship, atmosphere, hidden history, and intended audience-facing meaning.
+5. The Seven-Day Causal Matrix owns fixed obligations and approved placements.
+6. The Character & Relationship Handbook is derived; the Seven-Day Production Map is plot-neutral; and the Seven-Day Scene Beatbook expands approved load-bearing scenes. None may revise the authority above.
+7. The Plot Material Library and July canon amendments preserve provenance, not active authority.
+8. The original brief controls only decisions not superseded by later approval.
+9. Research may correct physical-world terminology and plausibility, but it may not change approved fictional canon.
 
 Use approved first names only. Do not invent surnames. Production notes may describe staging, but they are not released narration. This authority does not create exact schedules, variables, thresholds, UI styling, replay logic, or other implementation facts that belong to code.
 
@@ -76,13 +79,13 @@ The conservatory is institutionally affiliated with the university. Angela studi
 - Lavinia rehearses and performs through the conservatory.
 - Sylvia supports welfare, safety, scheduling, and visitor logistics within her limited volunteer role.
 
-Dates and meetings occupy practical windows around these responsibilities. Their exact availability and slot ownership remain code-authoritative.
+Dates and meetings occupy practical windows around these responsibilities. The August 7 design fixes the intended twelve solo and two conditional pair windows. Runtime decides what is physically implemented and is checked against that design for drift; implementation availability never silently becomes intended law.
 
 ## Seven-Day Fixed Spine
 
 - Priscilla is present from Day 1.
 - Lavinia returns to Hong Kong on Day 2.
-- On Days 1–6, Angela may attend up to two dates or scheduled actions with two different code-available women. Documentation does not assign the exact day or slot of the fourteen event premises.
+- On Days 1–6, Angela may attend up to two dates or scheduled actions with two different women in the intended windows. The Seven-Day Causal Matrix owns approved placements; this Bible does not reproduce the calendar.
 - Day 7 contains one decisive schedule choice during the public culmination.
 - A personal ending action appears only when the relevant relationship is at ambiguous or love. Ineligible actions do not appear as locks, silhouettes, or disabled alternatives.
 - If Angela attends no Day 7 date and completes her final observation, she receives the Alone Ending. This is a deliberate choice, not a failed route.
