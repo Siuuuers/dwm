@@ -539,7 +539,7 @@ duplicate announcements.
 
 Public action-description and scene-description atoms are localized,
 modality-equivalent factual accessibility metadata. They are not rendered as
-captions, History entries, narrator prose, stage directions, or interpretation.
+captions, History entries, narrator UI, stage directions, or interpretation.
 Their actor disclosure and factual content may never exceed what the ordinary
 sighted presentation already makes public. They do not become story prose or
 add consciousness or knowledge.
