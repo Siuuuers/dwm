@@ -17,7 +17,7 @@ Authority remains upstream:
 
 The Beatbook may expand only explicitly approved causal facts and may not silently revise an upstream fact, create an encounter window, level a relationship, settle an unresolved cause, assign a relationship label, or infer placement from an eligible set. If an entry conflicts with an upstream authority, follow the upstream authority and correct the entry.
 
-Under the current Dialogue-Only Writing Contract, prose in a reference beat is staging and rhythm guidance rather than released narration. Every short illustrative exchange is labeled `REACTION TEST` and is not final DTL unless a later approval explicitly gives it that status. Exact weekdays and clock times remain provisional pending the applicable August-authorized placement and calendar validation, plus explicit premise approval.
+Under the current Dialogue-Led Perceptual Writing Contract, reference prose may be tested as audience-visible anchor-bound perception while remaining a `REACTION TEST`, not final DTL. Every prose passage and short illustrative exchange remains labeled `REACTION TEST` and is not final DTL unless a later approval explicitly gives it that status. Exact weekdays and clock times remain provisional pending the applicable August-authorized placement and calendar validation, plus explicit premise approval.
 
 ## Entry Shape
 
@@ -71,7 +71,7 @@ That document establishes an unspoken working truce. Lavinia remains angry and h
 
 ### Reaction Test: Chair, Folder, and `will`
 
-**REACTION TEST — approved writer-facing rhythm; illustrative, not shipped dialogue. Prose is staging guidance under the current Dialogue-Only Writing Contract.**
+**REACTION TEST — approved writer-facing rhythm; illustrative prose and dialogue, not final DTL. Prose is tested here as anchor-bound perception, not approved audience-visible text.**
 
 > The chair was comfortable. This was not a useful answer.
 >
@@ -158,7 +158,7 @@ The Love insert can accompany either tone. Sweet or Totally Dark determines whet
 
 - **Group (visible):** The same ordinary Open Week work and resulting third-version spine may be tested with Angela present. Angela’s dialogue, guilt, Hospital-pressure adaptation, interpretation, and witness effect remain unapproved and require separate premise approval before final scene authorship. August-owned intended pair law supplies the visible scene and board only after a placement is approved.
 - **Missed (visible):** The same ordinary work and resulting third-version spine may be tested when Angela accepted the group action but is absent. Priscilla and Lavinia meet and count under August-owned intended pair law, but guilt, Hospital-pressure, follow-up, and other absence adaptations remain unapproved. The neutral private rhythm does not approve them by implication.
-- **Private-visible:** The detailed chair/folder/`will` execution above is approved only for the neutral Angela-absent Private-visible scene. Lavinia supplies the perceptual anchor for writer-facing staging, while August-owned intended pair law supplies the visible board and its legibility boundary after placement approval.
+- **Private-visible:** The detailed chair/folder/`will` execution above is approved only for the neutral Angela-absent Private-visible scene. Lavinia is the declared anchor for this reaction test. Audience-visible use of its prose still requires separate final approval, while August-owned intended pair law supplies the visible board and its legibility boundary after placement approval.
 - **Private-offscreen:** Under August-owned intended pair law, only the lawful meeting result and pair counter carry forward. No scene or board appears, no combination is marked seen, and no chair/folder/`will` execution or reaction-test wording becomes audience or Angela knowledge.
 - **Prevented:** Under August-owned intended pair law, Angela’s separate attendance with Priscilla or Lavinia means the women do not meet, the pair counter does not advance, and none of this execution occurs.
 - **Sylvia’s occupancy mark:** Sylvia’s unrelated, offscreen Room 2.17 mark is optional and causally inert unless a later approved contradiction needs it. It receives no standalone scene, ominous emphasis, or emotional role here; remove it if no approved contradiction requires it.

@@ -334,7 +334,7 @@ it, but it does not become a scene.
 | Refusal and consent | What can she decline, redirect, accept partially, or leave without the plot preventing her? |
 | Consequence | What becomes troublesome enough that ignoring it now costs something later? |
 | Autonomy | Does each friend retain a life, task, and motive not organized around Angela? |
-| Dialogue-only communicability | Can the essential relationship action and evidence survive dialogue-led presentation with only sparse, precise perceptual narration? |
+| Dialogue-led perceptual communicability | Can the essential relationship action and evidence survive dialogue-led presentation with only sparse, precise perceptual narration? |
 | Author greed | Is the scene asking a character to perform a beautiful idea that she herself would not choose? |
 
 The verdict vocabulary is deliberately qualitative:

@@ -44,7 +44,7 @@ A third-year statistics or decision-science student serving as an Open Week peer
 
 - Autonomous character lives: people form private relationships, make consequential choices, and continue moving when Angela is absent.
 - A responsive interface that remembers how the audience observes, hesitates, revisits, and persists, turning attention itself into part of the relationship mystery.
-- Dialogue-only storytelling through spoken words, messages, visible action, objects, body language, sound, and interface behavior—without a narrator explaining what to believe.
+- Dialogue-led storytelling through speech, messages, visible action, objects, body language, sound, interface behavior, and rare character-bound perception, without an explanatory narrator telling the audience what to believe.
 - Romantic choices with genuine local consequences, bounded by personalities, desires, and consent that the audience cannot author.
 - Replay built around changing context and accumulating uncertainty rather than exposed statistics, completion chores, or a promised master solution.
 

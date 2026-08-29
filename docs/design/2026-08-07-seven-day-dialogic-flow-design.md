@@ -138,8 +138,9 @@ idempotent commands.
 These rules govern later content; they do not require prose in this structural
 phase.
 
-- Only character dialogue and executable character action presentation may tell
-  the story. Do not add an explanatory narrator.
+- Dialogue and executable character action remain the primary story carriers.
+  Sparse character-bound perceptual prose may support them under the Core Story
+  Bible's anchor and epistemic law. Do not add an explanatory narrator.
 - The surface may be dreamlike, surreal, psychedelic, absurd, ridiculous,
   unrealistic, and chilling. Causality underneath must remain exact.
 - Normalize abnormal events. Do not announce their meaning.
@@ -174,8 +175,9 @@ The named craft references remain lenses, not formulas or imitation targets.
 McKee, Truby, USC Eight Reels, Syd Field, Rossio, and Martell may test causal
 turns and sequence pressure; Robbe-Grillet, Barthes, Mark Fisher, and Masaaki
 Yuasa may test perception, estrangement, normalized abnormality, and elastic
-rhythm. None may override character autonomy, physical plausibility, dialogue-only
-story delivery, or the prohibition on deliberate symbolic decoding.
+rhythm. None may override character autonomy, physical plausibility, dialogue-led
+story delivery with sparse, character-bound perceptual prose, or the prohibition
+on deliberate symbolic decoding.
 
 ## 6. Domain terminology and ownership
 
