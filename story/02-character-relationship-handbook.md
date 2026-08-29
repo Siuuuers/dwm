@@ -12,17 +12,23 @@ Use the dossiers to answer three practical questions before writing a beat:
 
 Relationship state controls the mutuality available in a scene. Tone controls whether a destructive pattern is interrupted or knowingly reinforced. Runtime is inspected for drift from the August design's intended mechanics; it does not silently define them. Neither state nor tone creates desire, consent, or a new personality. Do not infer exact schedules, counters, thresholds, or UI behavior from this document.
 
-All production prose below is staging guidance, not narration. Dialogue examples are reaction tests only. Approved first names are the only character names used.
+Production descriptions remain private staging instructions unless separately approved as audience-visible perceptual prose. Reaction tests remain illustrative rather than final DTL. Approved first names are the only character names used.
 
-## Dialogue-Only Character Writing
+## Dialogue-Led Character Writing
 
-The released game has no narrator, thought box, or invisible explanatory prose. Put character information into one or more of these channels:
+Dialogue must carry the relationship turn. Sparse perceptual prose supports exact perceived evidence rather than translating a dossier or explaining what a performance means. Put character information into one or more of these channels:
 
 - **Spoken language:** word choice, correction, evasion, direct requests, and what a character refuses to name.
 - **Audible self-talk:** brief muttering or rehearsal that another person could plausibly hear.
 - **Diegetic text:** messages, schedules, programme copy, voice-note text, and institutional documents.
 - **Visible action:** distance, touch, object placement, gaze, breath, stillness, and interrupted movement.
 - **Diegetic sound:** equipment, paper, fabric, a badge clip, a zipper, a chair moved before anyone asks.
+
+Before drafting a continuous passage, name its eligible anchor and keep that anchor stable; unmarked head-hopping is forbidden. Angela may anchor an Angela-attended or Angela-owned surface only while conscious and physically able to perceive the stated fact. An authorized audience-visible Priscilla–Lavinia surface may instead declare Priscilla or Lavinia, while group presentation with Angela present defaults to Angela. The prose may register only what the declared anchor consciously and physically perceives. Separately presented visual or audio evidence may exceed what the anchor notices only through its already authorized external channel; do not restate it as perceptual prose or grant it as character knowledge.
+
+An immediate judgment may be partial, irritated, mistaken, or withholding. It may not diagnose emotion, state another person's private motive, identify an unresolved cause, explain symbolism, or settle the interpretation. An unowned past fragment, private-offscreen event, Angela-owned passage while Angela is unconscious, or UI/archive surface without inherited source prose supplies no eligible anchor and therefore no character-bound perceptual prose. Gallery and Rehearsal replay inherit the source passage's anchor rather than creating one.
+
+Omission is permitted. Some visual or audio evidence may remain subtle or missable, and absence of a carrier does not prove whether an event occurred, who authored it, or what caused it. Accessibility description remains a later, separately designed layer and may not force the base prose to explain the mystery.
 
 Do not make a character announce her dossier. A line should perform a strategy, not explain one. Pair every important internal pressure with something perceptible: a correction that replaces a confession, a joke that delays a decision, a practical offer that creates debt, or a provocation that demands proof.
 
@@ -35,7 +41,7 @@ Language use is relational rather than decorative. Cantonese carries everyday lo
 Relationship state progresses only `Friend → Ambiguous → Love`. Priscilla, Lavinia, and Sylvia each begin at Friend in Angela's relationship state. A past fragment never advances state. Personal ending actions are available only at Ambiguous or Love; runtime availability is inspected for drift from the August design.
 
 - **Hostile attitude:** Hostility, refusal, and resistance are current attitudes that can occur at any relationship tier. Hostile attitude is not a lower relationship tier and cannot smuggle reciprocity or consent.
-- **Friend:** Permit chosen company and limited trust, but keep disclosures restrained.
+- **Friend:** Permit chosen familiarity, company, teasing, flirtation, dangerous comfort, uneven investment, and limited trust where the established pairing supports them; these may predate Day 1. Keep disclosures restrained. Promotion changes mutual legibility and consequence, not desire.
 - **Ambiguous:** Let attraction, dependency, or private importance become mutually legible without applying a relationship label.
 - **Love:** Deepen specificity and consequence, not ownership. Love does not erase refusal, independent motives, or dangerous patterns.
 
@@ -204,13 +210,13 @@ Every complete dossier answers all of the following fields:
 - **Mutual blind spot:** Both can mistake Angela's conscious confirmation for proof that Priscilla's authorship is harmless. Angela may leave a choice conspicuously unresolved because she expects Priscilla to take over, then call the outcome Priscilla's decision. Knowing that control is happening does not make its consequences neutral.
 - **Sweet interruption:** Priscilla stops before answering for Angela; Angela speaks imperfectly; Priscilla supports the answer without polishing it into her preferred version.
 - **Totally Dark complicity:** Priscilla supplies increasingly personal language and Angela knowingly adopts it, enjoying the transfer of authorship while both call the result accurate.
-- **Ordinary dialogue rhythm:** Angela offers a compressed or absurd proposition; Priscilla parses it, improves it, and returns a cleaner version. The key variation is whether Angela keeps, revises, or rejects the edit.
+- **Ordinary dialogue rhythm:** Preserve their familiar correction, verification, and selective-delegation rhythm: Angela offers a compressed or absurd proposition; Priscilla parses it, improves it, and returns a cleaner version. Test consent by making the request and available refusal legible, then show whether Angela keeps, revises, or refuses Priscilla's wording. Familiar fluency never supplies blanket permission.
 - **Physical-distance rules:** Priscilla organizes shared objects and angles herself into the task rather than making broad displays. Angela tolerates closeness when she can still see the document, device, exit, or evidence. Sweet staging returns an object or leaves space; Dark staging quietly removes the need for Angela to reach.
 - **Information each woman possesses:** Angela knows her own intended meaning, remembers being exonerated, and senses that Priscilla's management has a darker edge without knowing the childhood fabrication. Priscilla knows the record was fabricated, the conclusion was correct, and the punishment she arranged. Neither knows the cause of timing contradictions or what the other privately believes without being told.
 
 ## Angela–Lavinia
 
-- **Baseline:** Angela and Lavinia first became university friends through astronomy class. Their ordinary scenes resume that existing intimacy: Angela's stillness meets Lavinia's embodied vitality, letting one woman's attention become visible without forcing the other to perform in the same register.
+- **Baseline:** Angela and Lavinia first became university friends through astronomy class. Their ordinary scenes resume that existing intimacy and permit natural, knowingly understood teasing and flirtation: Angela's stillness meets Lavinia's embodied vitality, letting one woman's attention become visible without forcing the other to perform in the same register. Lavinia does not habitually prepare an “I was only joking” escape from a charged exchange. Never use her clarity to assert Angela's reciprocal desire; Angela may recognize the register and preserve neutrality.
 - **Attraction or tension:** Lavinia wants powerful evidence that she matters; Angela is drawn to bold presence but resists demands for emotional theatre. Angela's distinctive gift is attention without ownership: she may notice a bodily discrepancy, name only what she observed, ask what Lavinia wants, and permit the answer to stand. For Lavinia, being accurately seen without being overruled is less intense than rescue and harder to dismiss.
 - **Asymmetry:** Lavinia is more practiced at making desire bodily legible; Angela is more practiced at withholding judgment. Lavinia may read Angela's restraint as indifference, while Angela may treat Lavinia's provocation as data rather than a request.
 - **Mutual blind spot:** Both can let a crisis do the work of a direct question. Lavinia receives intensity; Angela receives a situation that appears to decide for her.
@@ -222,7 +228,7 @@ Every complete dossier answers all of the following fields:
 
 ## Angela–Sylvia
 
-- **Baseline:** Angela has known Sylvia since childhood as Priscilla's sister but knows her personally only as an occasional acquaintance and recognizes her current volunteer role. Sylvia knows Angela's habits and likely needs with an accuracy that neither family context nor their actual relationship justifies.
+- **Baseline:** The investment remains asymmetric. Angela has known Sylvia since childhood as Priscilla's sister but knows her personally only as an occasional acquaintance and recognizes her current volunteer role. Sylvia knows Angela's habits and likely needs with an accuracy that neither family context nor their actual relationship justifies. Sylvia's personal and erotic investment is already present; Angela brings childhood recognition, occasional familiarity, and possible receptivity to useful care, not established reciprocal romantic intent.
 - **Attraction or tension:** Angela may enjoy practical care that reduces decisions; Sylvia wants usefulness to become permanent personal access. The tension lies in whether familiarity is offered, observed, or arranged.
 - **Asymmetry:** Sylvia possesses far more studied familiarity. Angela has the authority to define what help she wants; Sylvia repeatedly tries to make procedure define it for her.
 - **Mutual blind spot:** Both can mistake explicit awareness of management for a sufficient safeguard. Angela's knowing delegation and Sylvia's genuine competence do not erase care-debt or boundary violations.
@@ -278,6 +284,30 @@ These are character-facing hypotheses, never knowledge of a Love God or Observer
 
 No interpretation identifies a confirmed cause, grants supernatural knowledge, or authorizes consent or desire.
 
+## Incidental Cast and Encounter Economy
+
+Do not invent an individuated speaking extra merely to carry exposition, logistics, causality, or interpretation. Let routine institutional labor remain ambient or become legible through an established record, object, queue, room state, schedule, message, or changed circumstance. Already established people and physically necessary qualified help remain bounded to their existing or required functions; convenience grants no subplot, name, or interpretive authority.
+
+`Date` is production shorthand for an Angela-attended solo encounter, not diegetic proof that either woman considers it romantic. Let the selected encounter perform as deliberate, practical, obligatory, or incidental without using apparent coincidence to bypass the established invitation, scheduling, attendance, Hospital, or absence law.
+
+## Character-Faithfulness Gate
+
+Run this character-faithfulness gate before a premise or beat survives, and answer all seven questions:
+
+- [ ] Would this character initiate or continue the action without the author's need for a clue, symbol, romance beat, or shock?
+- [ ] Could she physically know every fact she uses?
+- [ ] Is she using her own established control signature rather than borrowing another woman's method?
+- [ ] What may she refuse, redirect, accept partially, ignore, or leave?
+- [ ] What consequence makes continued non-action costly?
+- [ ] Does each woman retain a task and motive not organized around Angela?
+- [ ] Is a beautiful idea making the character perform for the author?
+
+A failed gate requires mutation or rejection. A dossier constrains performance but does not exhaust a person or reduce every act to one wound.
+
+**Lawful knowledge test:** Identify the established lawful knowledge channel for every plot-bearing fact a character uses—witnessed action, established history, public or institutional access within her role, or disclosed confidence—and confirm the required approval. If a line depends on mind reading, an unapproved record, a private-offscreen event, another character's perception, or a settled supernatural cause, remove or rewrite it.
+
+**Physical-world verification test:** Verify every plot-bearing medical, astronomical, geographic, technological, scheduling, or institutional claim before premise approval. Until verified, keep it a candidate or fallible character inference rather than private world fact; failed verification reopens or revises the premise.
+
 ## Cross-Character Dialogue Tests
 
 Before accepting a line, remove its speaker name and test whether vocabulary, strategy, and rhythm still identify her:
@@ -290,6 +320,15 @@ Before accepting a line, remove its speaker name and test whether vocabulary, st
 Then run the consent test: can the addressee understand what is being asked and refuse? If not, the writing must recognize the coercive pressure rather than presenting the exchange as uncomplicated care.
 
 Run the knowledge test: could the speaker know this from witnessed action, established history, public/institutional access, or a disclosed confidence? If the answer depends on mind reading, an unapproved record, or a settled supernatural cause, rewrite it.
+
+## Whole-Scene Consistency Check
+
+- [ ] Are craft references used only as diagnostic lenses, never as recipes or styles the characters imitate?
+- [ ] Does normalized abnormality stay within the Bible's budget instead of stacking anomalies or announcing them through spectacle?
+- [ ] Are material facts and local causality exact even where emotional or global causal meaning remains unsettled, with no causality-free randomness?
+- [ ] May subtle evidence remain missable, without omission or an absent carrier being turned into proof?
+- [ ] Do characters neither explain nor praise state, tone, valves, Observer rules, or other mechanics, and do those mechanics avoid settling desire or interpretation?
+- [ ] Does dialogue refuse explanatory or symbolic solution work—diagnosing emotion, decoding imagery, naming an unresolved cause, or telling the audience which interpretation is correct?
 
 ## Body-Language Contrast Tests
 
