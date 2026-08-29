@@ -839,9 +839,9 @@ Scenes always excludes:
 - Contacts correspondence, drafts, offers, follow-ups, and message history;
 - desktop, app, notification, system, and technical events;
 - Angela self-talk;
-- archive-authored narrator identity, unrestricted private-thought transcription, viewpoint,
-  interpretation, new prose, consciousness, or knowledge; replayed source
-  material retains its already-approved perceptual prose and source anchor;
+- Archive adds no narrator identity, unrestricted private-thought transcription,
+  viewpoint, interpretation, new prose, consciousness, or knowledge; source
+  replay inherits its already-approved perceptual prose and source anchor;
 - erased, expired, no-trace, superseded, unread, or unseen entries;
 - offscreen encounters and Private-offscreen pair meetings;
 - History-only records not backed by a completed exact scene signature; and
