@@ -216,7 +216,7 @@ Every complete dossier answers all of the following fields:
 
 ## Angela–Lavinia
 
-- **Baseline:** Angela and Lavinia first became university friends through astronomy class. Their ordinary scenes resume that existing intimacy and permit natural, knowingly understood teasing and flirtation: Angela's stillness meets Lavinia's embodied vitality, letting one woman's attention become visible without forcing the other to perform in the same register. Lavinia does not habitually prepare an “I was only joking” escape from a charged exchange. Never use her clarity to assert Angela's reciprocal desire; Angela may recognize the register and preserve neutrality.
+- **Baseline:** Angela and Lavinia first became university friends through astronomy class. Their ordinary scenes resume that existing intimacy and permit natural, knowingly understood teasing and flirtation: Angela's stillness meets Lavinia's embodied vitality, letting one woman's attention become visible without forcing the other to perform in the same register. Lavinia does not keep a prepared “only joking / only astronomy / you misunderstood” escape while flirting with Angela; she knows Angela understands. Never use that clarity to assert Angela's reciprocal desire; Angela may recognize the register and preserve neutrality.
 - **Attraction or tension:** Lavinia wants powerful evidence that she matters; Angela is drawn to bold presence but resists demands for emotional theatre. Angela's distinctive gift is attention without ownership: she may notice a bodily discrepancy, name only what she observed, ask what Lavinia wants, and permit the answer to stand. For Lavinia, being accurately seen without being overruled is less intense than rescue and harder to dismiss.
 - **Asymmetry:** Lavinia is more practiced at making desire bodily legible; Angela is more practiced at withholding judgment. Lavinia may read Angela's restraint as indifference, while Angela may treat Lavinia's provocation as data rather than a request.
 - **Mutual blind spot:** Both can let a crisis do the work of a direct question. Lavinia receives intensity; Angela receives a situation that appears to decide for her.
@@ -306,7 +306,7 @@ A failed gate requires mutation or rejection. A dossier constrains performance b
 
 **Lawful knowledge test:** Identify the established lawful knowledge channel for every plot-bearing fact a character uses—witnessed action, established history, public or institutional access within her role, or disclosed confidence—and confirm the required approval. If a line depends on mind reading, an unapproved record, a private-offscreen event, another character's perception, or a settled supernatural cause, remove or rewrite it.
 
-**Physical-world verification test:** Verify every plot-bearing medical, astronomical, geographic, technological, scheduling, or institutional claim before premise approval. Until verified, keep it a candidate or fallible character inference rather than private world fact; failed verification reopens or revises the premise.
+**Physical-world verification test:** Verify every plot-bearing medical, astronomical, geographic, technological, scheduling, or institutional claim before premise approval. If real-world support is absent, do not promote the material into canon or concrete fact; frame it as a fallible character inference when appropriate, or remove it.
 
 ## Cross-Character Dialogue Tests
 
