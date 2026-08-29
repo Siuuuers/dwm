@@ -321,6 +321,8 @@ Then run the consent test: can the addressee understand what is being asked and 
 
 Run the knowledge test: could the speaker know this from witnessed action, established history, public/institutional access, or a disclosed confidence? If the answer depends on mind reading, an unapproved record, or a settled supernatural cause, rewrite it.
 
+An explicitly stated current preference becomes lawful knowledge for its recipient at that bounded scope and from that point forward; it proves neither motive nor future repetition. Acceptance of one bounded convenience, delegated choice, or period of company grants no broader access and no continuing or future consent.
+
 ## Whole-Scene Consistency Check
 
 - [ ] Are craft references used only as diagnostic lenses, never as recipes or styles the characters imitate?
