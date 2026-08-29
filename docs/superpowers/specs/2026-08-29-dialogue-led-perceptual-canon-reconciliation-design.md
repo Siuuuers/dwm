@@ -3,13 +3,17 @@ id: spec.dialogue_led_perceptual_canon_reconciliation
 kind: design_specification
 schema_version: 1
 conversational_design_status: approved
-written_spec_status: pending_owner_review
+written_spec_status: approved
 self_review_status: passed
 implementation_requested: true
 implementation_authorized: false
-implementation_authorization_state: pending_written_spec_review
+implementation_plan_path: "docs/superpowers/plans/2026-08-29-dialogue-led-perceptual-canon-reconciliation.md"
+implementation_plan_status: proposed
+implementation_plan_created_on: 2026-08-29
+implementation_authorization_state: pending_plan_execution_choice
 design_base_commit: ec6b4cbcd843856d4c8475bfe294aed5ec59ebad
 created_on: 2026-08-29
+written_spec_approved_on: 2026-08-29
 scope: dialogue_led_perception_and_conversation_canon_reconciliation
 ---
 
