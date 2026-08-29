@@ -480,7 +480,7 @@ environmental withdrawal, and silence.
 | The Borrowed Book | Cover, page, receipt, annotation handling | Quiet bookshop/campus bed; no sentimental cue |
 | The Public Question | Public-room air, prompt card, restrained equipment | No success/failure music when Priscilla stops or speaks |
 | No Task Left | Final clasp, packed material, chair settling | Activity ends into room-held silence |
-| The Returned Seat | Chair/equipment setting, controls, normal message cues | No return theme; contradiction remains textual |
+| The Returned Seat | Chair/equipment setting, controls, ordinary device cues | No return theme; ordinary return remains unscored |
 | Borrowed Gravity | Floor contact, shoes, fabric, bounded breath | No erotic exaggeration or pain cue |
 | After the Music | Social room and visibly sourced recording | Optional classical/chamber source continues indifferently, then ends plausibly into room sound |
 | Before It Hurts | Pace change, fabric, load adjustment, exterior threshold | No diagnosis or crisis sting |

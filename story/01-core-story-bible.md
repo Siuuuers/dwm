@@ -147,7 +147,7 @@ The evidence mystery is a three-source braid:
 2. mundane error or coincidence;
 3. unresolved Observer Pressure.
 
-It is locally fair and globally insoluble. Every incident has at least one plausible ordinary explanation; no single explanation accounts for the complete pattern. The hidden apartment can explain knowledge without explaining impossible timing. Sylvia’s preparation can explain readiness without proving the means or cause of later harm.
+It is locally fair and globally insoluble. Every incident has at least one plausible ordinary explanation; no single explanation accounts for the complete pattern. The hidden apartment can explain knowledge without accounting for the complete pattern. Sylvia’s preparation can explain readiness without proving the means or cause of later harm.
 
 Normalized abnormality follows a strict budget:
 
