@@ -103,7 +103,7 @@ Lavinia’s name appears prematurely on an Open Week roster. It may reflect an o
 
 Lavinia returns to Hong Kong because the agreed period of her sponsored company attachment has ordinarily concluded. Her return ordinarily fulfills the Day 1 roster
 entry by making her inclusion current, but it does not explain why her name
-appeared before she returned. Day 2 adds no dedicated message pair, timing
+appeared before she returned. Day 2 adds no dedicated message pair, pre-echo, timing
 contradiction, or replacement anomaly. The hidden shared apartment remains canon
 without being used to manufacture a Day 2 mystery.
 
@@ -163,7 +163,7 @@ Do not stack arbitrary anomalies to manufacture surrealism. The atmosphere comes
 
 Angela is 20, Hong Kong-born, and a second-year astrophysics student. Cantonese is her everyday language, academic English is fluent, and Putonghua is situational. Her emotional minimalism is temperament, not trauma shorthand. She loves astronomy and strategy games with disproportionate intensity; she is skilled at resource management and often lucky, but neither advantage transfers cleanly into relationships or moral responsibility. Her deadpan is partly performed: she invents elaborate, intentionally ridiculous deductions to amuse, annoy, or destabilize, and uses physics or game language only when the metaphor is genuinely precise. Once someone enters her inner circle, she accepts strange requests she would dismiss as unnecessary side content from anyone else. She has no prior romantic experience and is drawn to attentive care. She willingly delegates choices but requires reality to remain independently inspectable. Her greatest danger is using uncertainty as moral shelter while enjoying another person’s controlling care.
 
-Recognition is not classification. Angela may accurately notice an abnormality, flirtation, controlling gesture, or prepared arrangement and still decline to classify, investigate, or answer it when doing so would create an obligation she prefers to postpone. Normalization is selective priority, not perceptual failure. Ignoring what she noticed remains a consequential character choice. A person, task, threatened result, or loss of inspectability may become more troublesome to Angela than the impossible-looking detail itself. `Troublesome` remains a writer-facing threshold, not a required catchphrase or supernatural alarm.
+Recognition is not classification. Angela may accurately notice an abnormality, flirtation, control, or preparation—including a controlling gesture or prepared arrangement—and still decline to classify, investigate, or answer it when doing so would create an obligation she prefers to postpone. Normalization is selective priority, not perceptual failure. Ignoring what she noticed remains a consequential character choice. A person, task, threatened result, or loss of inspectability may become more troublesome to Angela than the impossible-looking detail itself. `Troublesome` remains a writer-facing threshold, not a required catchphrase or supernatural alarm.
 
 ### Priscilla
 
