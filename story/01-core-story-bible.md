@@ -74,6 +74,8 @@ The conservatory is institutionally affiliated with the university. Angela studi
 
 “Open Week” is East Harbour’s name for the seven-day production period, not seven full public open days. Preparation, limited departmental activities, rehearsals, tours, appointments, and visitor-facing sessions culminate in a single major Saturday Information Day—the week’s one-day public culmination. Classes, rehearsals, shifts, and assigned duties continue throughout.
 
+Open Week does not manufacture attraction to justify a seven-day progression. Neutral institutional duties place existing familiarity, desire, curiosity, investment, receptivity, care, and control methods into a shared timetable. Experience may expose, test, deepen, or reciprocate them. Records, expectations, attendance, absence, and practical consequences make postponement harder and previously deniable conduct more difficult to isolate. Observer Pressure may amplify clustering or urgency, but it cannot originate desire, consent, obligation, or decision. Day 7 culminates accumulated pressure; it is not sudden love, a compulsory confession, an official label, or the end of the characters’ lives.
+
 - Angela supports astronomy demonstrations and late observation.
 - Priscilla handles programme language, communications, and student organization.
 - Lavinia rehearses and performs through the conservatory.
@@ -99,7 +101,7 @@ Lavinia’s name appears prematurely on an Open Week roster. It may reflect an o
 
 ### Day 2 — Ordinary Return, Not a Separate Anchor
 
-Lavinia returns to Hong Kong. Her return ordinarily fulfills the Day 1 roster
+Lavinia returns to Hong Kong because the agreed period of her sponsored company attachment has ordinarily concluded. Her return ordinarily fulfills the Day 1 roster
 entry by making her inclusion current, but it does not explain why her name
 appeared before she returned. Day 2 adds no dedicated message pair, timing
 contradiction, or replacement anomaly. The hidden shared apartment remains canon
@@ -160,6 +162,8 @@ Do not stack arbitrary anomalies to manufacture surrealism. The atmosphere comes
 ### Angela
 
 Angela is 20, Hong Kong-born, and a second-year astrophysics student. Cantonese is her everyday language, academic English is fluent, and Putonghua is situational. Her emotional minimalism is temperament, not trauma shorthand. She loves astronomy and strategy games with disproportionate intensity; she is skilled at resource management and often lucky, but neither advantage transfers cleanly into relationships or moral responsibility. Her deadpan is partly performed: she invents elaborate, intentionally ridiculous deductions to amuse, annoy, or destabilize, and uses physics or game language only when the metaphor is genuinely precise. Once someone enters her inner circle, she accepts strange requests she would dismiss as unnecessary side content from anyone else. She has no prior romantic experience and is drawn to attentive care. She willingly delegates choices but requires reality to remain independently inspectable. Her greatest danger is using uncertainty as moral shelter while enjoying another person’s controlling care.
+
+Recognition is not classification. Angela may accurately notice an abnormality, flirtation, controlling gesture, or prepared arrangement and still decline to classify, investigate, or answer it when doing so would create an obligation she prefers to postpone. Normalization is selective priority, not perceptual failure. Ignoring what she noticed remains a consequential character choice. A person, task, threatened result, or loss of inspectability may become more troublesome to Angela than the impossible-looking detail itself. `Troublesome` remains a writer-facing threshold, not a required catchphrase or supernatural alarm.
 
 ### Priscilla
 
@@ -227,6 +231,14 @@ Relationship state progresses in one direction:
 
 `Friend → Ambiguous → Love`
 
+Friend names the starting degree of reciprocal enactment available in Angela’s route. It does not mean the absence of attraction, flirtation, long history or familiarity, dangerous comfort, or one-sided investment. Promotion changes what may become mutually legible and consequential; it does not manufacture desire or personality.
+
+The three Angela pairings remain deliberately unequal on Day 1:
+
+- **Angela–Priscilla:** Correction, verification, and selective delegation form a familiar, relationally charged rhythm. Long practice supplies neither an agreed romance nor blanket permission and does not contradict Angela’s lack of prior romantic experience.
+- **Angela–Lavinia:** Their existing astronomy friendship already permits natural, knowingly understood teasing and flirtation. Lavinia does not habitually retain a prepared “only joking” escape in a charged exchange. Angela may recognize the register without knowing Lavinia’s whole private desire or owing reciprocity.
+- **Angela–Sylvia:** The baseline is asymmetric. Sylvia is already personally and erotically invested. Angela brings childhood recognition, occasional familiarity, and possible receptivity to useful care rather than established reciprocal romantic intent.
+
 - Priscilla, Lavinia, and Sylvia each begin at Friend in Angela's relationship state.
 - Hate is not a reachable tier; hostility, refusal, and resistance remain character-specific attitudes that can occur at any tier.
 - Affection is eligibility fuel, not a movable promotion event.
@@ -249,6 +261,10 @@ State controls what mutuality is available; tone controls the visible ending var
 For every romance-capable pairing, no state, tone, event, or ending applies an official relationship label. Dialogue and visible behavior may support “couple,” “lovers,” “friends,” or something unclassifiable, but the released text never settles the question for the audience.
 
 ## Event Architecture
+
+Date is production shorthand for an Angela-attended solo encounter, not a diegetic promise that either woman considers it romantic. A selected premise may surface as deliberate, practical, obligatory, or incidental, but apparent coincidence cannot bypass the August-owned invitation, scheduling, attendance, Hospital, or absence law.
+
+Group remains the authorized Angela–Priscilla–Lavinia presentation of a Priscilla–Lavinia pair window. Its private counterparts remain Priscilla and Lavinia without Angela. This clarification creates no triad route or additional surface.
 
 The mechanically fixed architecture contains twelve solo invitation windows and two conditional Priscilla–Lavinia windows. That count fixes windows, not premises. Named Events 1–12 and 14 below are noncanonical audition material preserved in the library, and the former Event 13 Production Map card is likewise noncanonical. Room 2.17 is a separate `APPROVED CAUSAL CORE — PLACEMENT UNSELECTED`: its causal design remains protected, but Day 2 versus Day 6 has not been selected. The three mystery anchors, Day 2 ordinary roster fulfillment, the Day 2 umbrella pickup, character canon, and hidden histories remain protected regardless of which premises are later approved. An exact production card may arise only from an `APPROVED` Causal Matrix row.
 
@@ -422,17 +438,57 @@ Reload does not calculate a subjective “worst outcome.” It resists optimizat
 
 A character may remember an erased detail while another denies or misremembers it. These changes do not multiply complete scene branches, reroll the stable pair deck, or answer an unresolved cause.
 
-## Dialogue-Only Writing Contract
+## Incidental Cast Economy
 
-The released game contains no narrator, thought boxes, invisible explanatory prose, or personalized narration. It may tell the story through:
+No individuated speaking extra exists merely to carry exposition, logistics, causality, or interpretation. Routine institutional labor may remain ambient or become known through records, objects, queues, rooms, schedules, messages, and changed circumstances.
 
-- spoken dialogue;
-- audible self-talk or muttering;
-- messages, schedules, voice-note text, and institutional documents;
-- visible actions, objects, and body language;
-- interface behavior and diegetic sound.
+This economy rule does not deny that a university contains other people. Already established parents, the childhood culprit, the bar pursuer, visitors, and physically necessary qualified help remain bounded to their existing or physically required roles. None receives a new subplot, name, or interpretive authority by convenience.
 
-Production descriptions in private documents are staging instructions, not in-game prose. Complete scenes are not part of project documentation. Short illustrative dialogue must be labeled `REACTION TEST` unless it is explicitly an approved ending synopsis line.
+## Character Agency and Author Greed
+
+Before a premise or beat may survive, its author must answer:
+
+1. Would this character initiate or continue the action without the author’s need for a clue, symbol, romance beat, or shock?
+2. Could she physically know every fact she uses?
+3. Is she using her own established control signature rather than borrowing another woman’s method?
+4. What may she refuse, redirect, accept partially, ignore, or leave?
+5. What consequence makes continued non-action costly?
+6. Does each woman retain a task and motive not organized around Angela?
+7. Is a beautiful idea making the character perform for the author?
+
+A dossier constrains a performance but does not exhaust a person or reduce every act to one wound. A failed gate requires mutation or rejection; elegance cannot excuse character betrayal.
+
+## Interpretive, Mechanical, and Physical Restraint
+
+Material facts remain exact while their emotional or global causal meaning may stay unsettled. Show behavior and consequence before explanation. Keep sweetness genuinely attractive and danger genuinely nearby. Prefer normalized procedure to cinematic threat signals. Avoid graphic brutality used only to raise intensity, sentimental reconciliation, ornate symbolic decoding, coy feyness, melodramatic declarations, dialogue written as a solution key, and causality-free randomness.
+
+Craft references are diagnostics, not recipes or styles the characters must imitate. Mechanics are neither explained nor praised by characters. State, tone, valves, Observer rules, and other mechanics organize availability and consequence without settling desire or interpretation.
+
+A plot-bearing medical, astronomical, geographic, technological, scheduling, or institutional claim must be verified before premise approval. Until verified, it remains a candidate or fallible character inference rather than private world fact. Failed verification reopens or revises the premise. Knowledge required for a character-faithful action needs an established lawful channel and explicit approval; it cannot be smuggled into dialogue.
+
+## Dialogue-Led Perceptual Writing Contract
+
+Dialogue remains the dramatic engine. Visible action, diegetic text, objects, and sound remain primary evidence. Sparse perceptual prose may register an exact object, bodily sensation, position, line of sight, repetition, replacement, omission, or immediate judgment when that fact becomes salient to one eligible consciousness.
+
+The game has no narrator identity, omniscient or explanatory narration, unrestricted private-thought transcription, invisible stage directions, or prose that grants hidden knowledge. Perceptual prose may be subjective without announcing itself as an interior-monologue box. An immediate judgment is not permission to transcribe unrestricted private thought, and the prose may withhold the reason an observation matters. It may not diagnose emotion, state another person’s motive, reveal a fact the declared anchor did not perceive, explain symbolism, identify an unresolved cause, dictate interpretation, or head-hop.
+
+Every authorized audience-visible surface uses these exact anchor rules:
+
+- An Angela-attended solo or group scene, Angela-owned ending or postscript, or Hospital passage may use Angela-bound prose only while Angela is conscious and can physically perceive the stated fact.
+- An authorized audience-visible Priscilla–Lavinia surface—including a private counterpart, pair ending or postscript, or the Day 2 umbrella cutaway—may declare Priscilla or Lavinia as its anchor. Group presentation with Angela present defaults to Angela.
+- An unowned past fragment has no character-bound prose because assigning an anchor would assign memory ownership. It retains dialogue, action, objects, sound, and other already authorized external presentation.
+- Gallery and Rehearsal replay inherit the source passage’s anchor and cannot add one. No UI or archive surface becomes a new consciousness.
+- When no eligible character is conscious and perceiving, there is no character-bound perceptual prose. This includes an Angela-owned passage while Angela is unresponsive unless another viewpoint has been separately approved.
+- Separately presented visual or audio evidence may exceed what the anchor notices only through its already authorized external channel. It cannot be restated as perceptual prose or become character knowledge.
+- The active anchor remains stable through a continuous passage. Unmarked head-hopping is forbidden.
+- A private-offscreen event supplies no prose, scene, board, or private knowledge merely because a private-visible counterpart exists elsewhere.
+- No perceptual anchor creates a new audience-visible surface or makes another character playable.
+
+Missing, unseen, or unreceived evidence proves only the absence of that carrier for the relevant audience or character unless an authorized system separately records more. It does not prove that an event did or did not occur, identify authorship, or settle an unresolved cause.
+
+Not every visual or audio fact receives prose; some evidence may remain subtle or missable. The base prose is not required to restate every visual fact for TTS. Any later optional description or accessibility layer requires its own design and may not force the base prose to explain the mystery.
+
+Production descriptions remain private staging instructions unless explicitly authored and separately approved as audience-visible perceptual prose. Reaction tests and complete scenes do not become final DTL by proximity.
 
 ## Visual Direction
 
