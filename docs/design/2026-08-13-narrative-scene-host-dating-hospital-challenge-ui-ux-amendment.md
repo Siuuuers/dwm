@@ -192,10 +192,12 @@ supplies the reusable visual host and control capabilities without granting
 Save or Load to consequence-free archive playback.
 
 The Core Story Bible and later accepted canon amendments retain authority for
-character truth, no-narrator and no-private-thought law, consent and epistemic
-boundaries, exact authored events, and restrained layered-2D direction. Final
-dialogue, locations, expressions, objects, poses, CGs, and sound cues remain
-authored content rather than UI invention.
+character truth, sparse source-authored anchor-bound perception, the
+prohibitions on narrator identity, unrestricted thought boxes, and
+player-authored Angela, consent and epistemic boundaries, exact authored events,
+and restrained layered-2D direction. Final dialogue, locations, expressions,
+objects, poses, CGs, and sound cues remain authored content rather than UI
+invention.
 
 Authority resolves by declared scope, not document date. If an observable rule
 cannot be assigned unambiguously to one owner, implementation remains blocked
@@ -1684,7 +1686,8 @@ This amendment retains without redesign:
   and suspension law;
 - Backup storage, confirmation, transaction, failure, and restore law;
 - direct Day-1 desktop start and complete Opening/tutorial retirement;
-- no narrator, no private thought box, and no player-authored Angela; and
+- sparse source-authored anchor-bound perception, no narrator identity or
+  unrestricted thought box, and no player-authored Angela; and
 - final story canon and content-authoring ownership.
 
 ## 25. Reconciliation path before implementation
@@ -1905,9 +1908,12 @@ keyboard, controller, and assistive activation.
 
 ### 26.12 Visual and failure truth
 
-Verify no routine speaker nameplate, offscreen speaker treatment, narrator,
-thought box, POV Angela, relationship/stat/result summary, hidden mechanic,
-debug identifier, fake glitch, or horror-styled technical failure appears.
+Verify no routine speaker nameplate, offscreen speaker treatment, narrator
+identity, unrestricted thought box, player-authored Angela,
+relationship/stat/result summary, hidden mechanic, debug identifier, fake
+glitch, or horror-styled technical failure appears. No prose receives a speaker
+nameplate or makes Angela a visible avatar; her independently staged
+third-person physical presence remains unchanged.
 
 Verify optional expression fallback versus required-asset recovery, missing
 localization, unknown host mode, invalid participant layout, stale Next plan,

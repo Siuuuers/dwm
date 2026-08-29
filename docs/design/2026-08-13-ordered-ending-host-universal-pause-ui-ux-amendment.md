@@ -177,10 +177,12 @@ sandbox isolation, archive exit, and return to the exact archive record.
 Canonical ending playback reveals no public ending title. Gallery and Rehearsal
 replay never invokes terminal completion or the final title route.
 
-The Core Story Bible and accepted canon amendments retain character, voice,
-no-narrator, no-private-thought, epistemic, consent, and authored-content
-authority. Every spoken ending line still requires its speaker to be physically
-present and visibly staged.
+The Core Story Bible and accepted canon amendments retain character, voice, the
+source ending's lawful perceptual anchor, epistemic, consent, and authored-
+content authority. The host adds no narrator identity, unrestricted private-
+thought transcription, UI-authored content, consciousness, or knowledge. Every
+spoken ending line still requires its speaker to be physically present and
+visibly staged.
 
 Scope ownership wins. Document date alone does not. If an observable behavior
 has no single unambiguous owner, implementation remains blocked until a

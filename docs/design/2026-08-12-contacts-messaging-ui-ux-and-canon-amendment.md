@@ -1080,7 +1080,9 @@ This amendment does not change:
   Observer rules;
 - the Day-7 Sylvia Special trigger, precedence, Special-to-Dark order, identity,
   or fixed harmful intent;
-- the no-narrator, no-thought-box, no-hidden-stat, and technical-trust laws; or
+- the law allowing sparse source-authored anchor-bound perception while
+  forbidding any narrator identity or unrestricted thought box, and the
+  existing no-hidden-stat and technical-trust laws; or
 - the requirement that causality underneath surreal presentation remain exact.
 
 ## 24. Reconciliation path before implementation

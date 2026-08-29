@@ -64,8 +64,9 @@ projection. In particular:
 - every physically present non-Angela participant remains visibly staged,
   whether speaking or silent;
 - remote, hidden, or routine offscreen non-Angela speech remains invalid;
-- the released game still contains no narrator, thought box, invisible
-  explanatory prose, or stage direction;
+- the released game still contains no narrator identity or thought box and no
+  omniscient or explanatory prose or invisible stage direction; approved sparse
+  source-authored anchor-bound perception remains lawful;
 - bottom-up caption memory and the pinned control rail retain their accepted
   behavior;
 - the canonical no-inline-scene-choice law and challenge routing retain their
@@ -307,8 +308,11 @@ evidence. Ambiguity that is authored in the scene is not repaired by new UI
 metadata.
 
 Angela may speak dialogue or audible self-talk while unpictured. Her visual
-absence does not permit narration, thought transcription, prose interpretation,
-or action brackets. A nonverbal beat owns no speaker.
+absence does not permit unanchored narration, unrestricted thought
+transcription, explanatory interpretation, or action brackets. Angela-bound
+prose is lawful only when the source passage authorizes it and Angela is
+conscious, on scene, and physically perceiving. A nonverbal beat owns no
+speaker.
 
 Assistive presentation consumes only `public_speaker_disclosure`, never the
 internal `speaker_id`. It may announce a named public identity when the same
@@ -537,7 +541,8 @@ Public action-description and scene-description atoms are localized,
 modality-equivalent factual accessibility metadata. They are not rendered as
 captions, History entries, narrator prose, stage directions, or interpretation.
 Their actor disclosure and factual content may never exceed what the ordinary
-sighted presentation already makes public.
+sighted presentation already makes public. They do not become story prose or
+add consciousness or knowledge.
 Persistent-object descriptions follow scene-group change cadence; an action
 description publishes only with its action atom. The same fact never has both
 owners and is never announced twice merely because its resulting object remains.
@@ -622,7 +627,9 @@ requires a new owner decision that explicitly supersedes this specification:
   reflection, or other effect that establishes impossible physics;
 - an Observer-specific discontinuity that visibly exposes hidden Observer
   state; and
-- narrator prose, thoughts, invisible stage directions, or explanatory labels.
+- a narrator identity or system, unrestricted thought transcription, invisible
+  stage directions, explanatory labels, or source-unanchored prose. This does
+  not prohibit sparse source-authored anchor-bound perception.
 
 Literal Venetian blinds, permanent empty chairs, measuring grids, and other
 recognizable literary shorthand are not required future milestones. If ever

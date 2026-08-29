@@ -136,10 +136,12 @@ defines how the archive reprojects those facts and clarifies the newly named
 Rehearsal records in the reset matrix.
 
 The Core Story Bible and later accepted canon amendments retain authority for
-character truth, no-narrator law, no private-thought prose, final ending and
-scene language, epistemic boundaries, and visual restraint. Final record titles,
-descriptions, excerpts, stills, and object marks are authored narrative content,
-not domain labels invented by the UI.
+character truth, final ending and scene language, sparse source-authored
+anchor-bound perception that retains its source anchor, the prohibition on a
+narrator identity and unrestricted private-thought transcription, epistemic
+boundaries, and visual restraint. Final record titles, descriptions, excerpts,
+stills, and object marks are authored narrative content, not domain labels
+invented by the UI.
 
 Authority resolves by declared scope, not document date. If an observable rule
 cannot be assigned unambiguously to one owner, implementation remains blocked
@@ -837,7 +839,9 @@ Scenes always excludes:
 - Contacts correspondence, drafts, offers, follow-ups, and message history;
 - desktop, app, notification, system, and technical events;
 - Angela self-talk;
-- narrator or private-thought material;
+- archive-authored narrator or private-thought material, viewpoint,
+  interpretation, new prose, consciousness, or knowledge; replayed source
+  material retains its already-approved perceptual prose and source anchor;
 - erased, expired, no-trace, superseded, unread, or unseen entries;
 - offscreen encounters and Private-offscreen pair meetings;
 - History-only records not backed by a completed exact scene signature; and

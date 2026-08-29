@@ -140,11 +140,13 @@ cannot be assigned unambiguously to one declared owner, implementation is
 blocked until an explicit reconciliation assigns it; neither document wins by
 being newer or more general.
 
-The Core Story Bible retains the dialogue-only, no-narrator, no-thought-box,
-audible-self-talk, visual, sound, and epistemic boundaries. The approved July
-canon amendment retains the desktop-only Observer exclusion and Dark Angela's
-left-panel refusal/self-talk law. This amendment defines their shell
-projection; it does not add knowledge, motives, or a new Observer mechanic.
+The Core Story Bible retains dialogue-led story delivery, sparse source-authored
+anchor-bound perception, no narrator identity or unrestricted thought box, and
+the audible-self-talk, visual, sound, and epistemic boundaries. The approved
+July canon amendment retains the desktop-only Observer exclusion and Dark
+Angela's left-panel refusal/self-talk law. This amendment defines their shell
+projection; it does not add consciousness, knowledge, motives, or a new Observer
+mechanic.
 
 Beads owns mutable work status, dependencies, and implementation evidence. A
 written design approval does not authorize runtime, packet, plan, schema,
@@ -1510,7 +1512,9 @@ This amendment retains without reinterpretation:
 - Settings language, caption, TTS, audio, inactive suspension, Dark capture,
   controls, text size, target size, colour, and reset law;
 - Logout Autosave and failure law;
-- story dialogue-only, no-narrator, epistemic, and Observer boundaries; and
+- dialogue-led story delivery, sparse source-authored anchor-bound perception,
+  no narrator identity or unrestricted thought box, and the audible-self-talk,
+  visual, sound, epistemic, and Observer boundaries; and
 - every unrelated run, relationship, Hospital, ending, Gallery, and persistence
   rule.
 
