@@ -1908,8 +1908,8 @@ keyboard, controller, and assistive activation.
 
 ### 26.12 Visual and failure truth
 
-Verify no routine speaker nameplate, offscreen speaker treatment, narrator
-identity, unrestricted thought box, player-authored Angela,
+Verify no routine speaker nameplate, narrator identity, unrestricted thought
+box, offscreen speaker treatment, player-authored Angela,
 relationship/stat/result summary, hidden mechanic, debug identifier, fake
 glitch, or horror-styled technical failure appears. No prose receives a speaker
 nameplate or makes Angela a visible avatar; her independently staged
