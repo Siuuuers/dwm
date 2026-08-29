@@ -66,7 +66,7 @@ projection. In particular:
 - remote, hidden, or routine offscreen non-Angela speech remains invalid;
 - the released game still contains no narrator identity or thought box and no
   omniscient or explanatory prose or invisible stage direction; approved sparse
-  source-authored anchor-bound perception remains lawful;
+  anchor-bound perception remains lawful;
 - bottom-up caption memory and the pinned control rail retain their accepted
   behavior;
 - the canonical no-inline-scene-choice law and challenge routing retain their
