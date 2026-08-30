@@ -24,6 +24,9 @@ routing contract, not an additional source of narrative authority.
 - Ordinary promotion requires explicit owner approval and an `APPROVED` row in
   the [Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md) before
   the Scene Beatbook may expand the approved causal facts.
+- Room 2.17's existing approved-but-unplaced Beatbook core is the sole bounded
+  exception. An audition may import that core, but it cannot place or expand it
+  without whole-day review and explicit approval.
 - The [Core Story Bible](../../story/01-core-story-bible.md) remains the sole
   narrative authority. It changes only when a promoted candidate establishes a
   durable cross-scene truth, not merely because detailed scene material exists.
@@ -45,15 +48,27 @@ The lifecycle is:
 3. Reconcile it as part of the complete day or constellation.
 4. Mark its disposition explicitly after review: promoted, revised, superseded,
    or retained for later audition.
+5. Migrate every surviving constraint to its proper active authority before
+   retiring the disposed audition material.
 
 Never silently delete or rewrite superseded reasoning. Preserve provenance, and
 do not make an old candidate look as if it had always been canon.
+
+For the current Day 2 cohort, the owner has selected a temporary-workspace
+lifecycle. Once the complete Day 2 constellation is approved, every active file
+must receive an explicit disposition and every surviving instruction must be
+migrated into its proper `story/` authority. The disposed files—and this
+directory if no other active cohort remains—may then be deliberately deleted as
+part of the same documented promotion change. A candidate retained for another
+eligible window remains active material and blocks deletion until it is moved or
+disposed. This future cleanup does not authorize deletion before reconciliation.
 
 ## Active Audition Index
 
 | Audition | Candidate | Preserved status | Canon placement |
 |---|---|---|---|
 | [Angela–Lavinia Day 2 Focus](2026-08-30-angela-lavinia-day-2-focus-audition-design.md) | `solo.lavinia.day_2` | Owner-approved audition design | Day 2 `UNSELECTED` |
+| [Room 2.17 Group Adaptation](2026-08-30-room-217-group-adaptation-audition-record.md) | `pair.priscilla_lavinia.day_2` or `pair.priscilla_lavinia.day_6` | Owner-approved audition design; Group adaptation open | Placement `UNSELECTED` |
 
 The [Two-Pass Constellation specification](../superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md)
 continues to own the selection workflow.

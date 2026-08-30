@@ -7,7 +7,15 @@ material or historical amendments as current mechanics.
 ## Active working authority
 
 - [August 7 seven-day Dialogic-flow design](2026-08-07-seven-day-dialogic-flow-design.md)
-  owns intended mechanics and Dialogic flow.
+  owns baseline intended mechanics and Dialogic flow except where a later
+  design amendment with `written_spec_status: approved` declares bounded
+  precedence.
+- [August 11 Desktop Minesweeper Lifecycle, Shop Capabilities, and Schedule-Warning Amendment](2026-08-11-desktop-minesweeper-shop-schedule-amendment.md)
+  owns baseline Supportz purchase, capacity, and receipt law.
+- [August 30 Supportz Audience Priority and Three-Truth Mechanism Amendment](2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md)
+  owns the Day-2 Supportz purchase floor, the three-truth receipt separation,
+  selected-snapshot activation remap, and double-R3 Priscilla/Lavinia Day-7
+  invitation silence.
 - [Core Story Bible](../../story/01-core-story-bible.md) is the sole narrative
   authority for character, relationship, atmosphere, hidden history, and intended
   audience-facing meaning.
