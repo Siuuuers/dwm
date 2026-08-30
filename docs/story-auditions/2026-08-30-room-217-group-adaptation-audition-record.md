@@ -168,6 +168,19 @@ glance, explanatory prose, or line about what the accommodation means. Angela
 has changed the route through the task by removing a false technical necessity;
 she has changed neither woman's reason for acting.
 
+Lavinia does not acknowledge the decision. This is not a held silence: while
+Priscilla updates the dependent entries, Lavinia moves directly to the next
+unrelated pre-existing work problem—not one of the entries Priscilla is
+updating. Her next spoken line names that problem rather than answering
+Priscilla. The exact item and wording remain open. Continued spoken work—not
+silence staged as an emblem—is the visible evidence that she remains engaged.
+
+Do not place the private `You wrote “will”` correction immediately after this
+hinge. That order would make Angela's finding appear to trigger the pair's
+correction rhythm and would create a conspicuously reciprocal exchange of
+edits. If `will` survives Group at all, it must arise later from Lavinia's
+independent encounter with Priscilla's wording after ordinary intervening work.
+
 The counterfactual boundary is strict: remove Angela and Priscilla and Lavinia
 must still produce the same third-version result and pair-owned working truce
 through a different surface. Substitute another ordinary qualified operator
@@ -359,10 +372,14 @@ The following do not survive as requirements:
   field as the Group task;
 - treating `Either` as equivalence, indifference, or a judgment about the pair;
 - asking Lavinia to choose again after her mark already supplies the answer;
+- giving Lavinia `It was already marked`, which restates visible evidence and
+  turns her agency into an authorial explanation;
 - making Priscilla announce her preference or explain her accommodation when
   the inspectable versions already preserve both judgments;
 - adding thanks, a meaningful pause, approving eye contact, or thematic
   narration after `Then the marked order stays`;
+- following the marked-order hinge immediately with `You wrote “will”`, which
+  would make two independent corrections look causally and symbolically paired;
 - requiring every later solo to mention the other woman;
 - importing the private Room choreography unchanged merely because Group shares
   its causal spine;
