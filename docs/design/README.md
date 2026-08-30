@@ -22,6 +22,13 @@ material or historical amendments as current mechanics.
 - [Seven-Day Scene Beatbook](../../story/06-seven-day-scene-beatbook.md) expands
   approved load-bearing scenes for execution.
 
+## Noncanonical working material
+
+- [Story Auditions](../story-auditions/README.md) preserve owner-approved active
+  candidates for later whole-constellation review. Their folder location and
+  owner-approved status grant no canon, placement, mechanical, or implementation
+  authority.
+
 ## Provenance and implementation evidence
 
 - [Plot Material Library](../../story/library/03-seven-day-plot-material-library.md)

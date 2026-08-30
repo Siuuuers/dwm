@@ -458,13 +458,13 @@ The following alternatives do not survive this audition:
 
 Local authority used for this audition:
 
-- [Core Story Bible](../../../story/01-core-story-bible.md)
-- [Character & Relationship Handbook](../../../story/02-character-relationship-handbook.md)
-- [Seven-Day Scene Beatbook](../../../story/06-seven-day-scene-beatbook.md)
-- [Seven-Day Causal Matrix](../../../story/07-seven-day-causal-matrix.md)
-- [August 7 Seven-Day Dialogic Flow Design](../../design/2026-08-07-seven-day-dialogic-flow-design.md)
-- [August 12 Contacts Amendment](../../design/2026-08-12-contacts-messaging-ui-ux-and-canon-amendment.md)
-- [August 13 Minesweeper Board Amendment](../../design/2026-08-13-minesweeper-board-session-and-challenge-ui-ux-amendment.md)
+- [Core Story Bible](../../story/01-core-story-bible.md)
+- [Character & Relationship Handbook](../../story/02-character-relationship-handbook.md)
+- [Seven-Day Scene Beatbook](../../story/06-seven-day-scene-beatbook.md)
+- [Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md)
+- [August 7 Seven-Day Dialogic Flow Design](../design/2026-08-07-seven-day-dialogic-flow-design.md)
+- [August 12 Contacts Amendment](../design/2026-08-12-contacts-messaging-ui-ux-and-canon-amendment.md)
+- [August 13 Minesweeper Board Amendment](../design/2026-08-13-minesweeper-board-session-and-challenge-ui-ux-amendment.md)
 
 Physical-world checks:
 
