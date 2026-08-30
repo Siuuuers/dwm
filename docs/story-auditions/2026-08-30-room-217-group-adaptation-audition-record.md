@@ -1,7 +1,7 @@
 # Room 2.17 Group Adaptation Audition Record
 
 **Date:** 2026-08-30 \
-**Status:** OWNER-APPROVED AUDITION DESIGN — PROTECTED CORE; GROUP COMMON HINGE, DESKTOP SOURCE PASS, AND VIEWER-ACTION DEPENDENCY APPROVED; FULL ADAPTATION OPEN; PLACEMENT UNSELECTED \
+**Status:** OWNER-APPROVED AUDITION DESIGN — PROTECTED CORE; GROUP HINGE, DESKTOP SOURCE PASS, VIEWER-ACTION DEPENDENCY, STAGING, AND PERCEPTUAL GRAMMAR APPROVED; FULL ADAPTATION OPEN; PLACEMENT UNSELECTED \
 **Eligible candidate windows:** `pair.priscilla_lavinia.day_2` or `pair.priscilla_lavinia.day_6` \
 **Current audition preference:** Day 2, pending whole-day reconciliation \
 **Working phrase:** `The Room Already in Use`; not an approved title \
@@ -17,7 +17,7 @@ Three different completion states must not be collapsed:
 |---|---|
 | Day 2/Day 6 R3 invitation, attendance, visibility, pair-count, and pair-board protocol | **Mechanically fixed upstream** |
 | Neutral Angela-absent Room 2.17 causal and Private-visible execution core | **Approved and protected upstream** |
-| Angela-attended Group, Missed/Hospital adaptations, exact weekday, board-result actions, and whole-day coexistence | **Common Group run-sheet hinge, desktop source pass, and viewer-action dependency owner-approved; full adaptation open** |
+| Angela-attended Group, Missed/Hospital adaptations, exact weekday, board-result actions, and whole-day coexistence | **Common Group run-sheet hinge, desktop source pass, viewer-action dependency, staging, and perceptual grammar owner-approved; full adaptation open** |
 
 The actual Day 2 Group is therefore **not finished**. This record exists so its
 finished foundations and unfinished adaptations can be carried forward without
@@ -137,8 +137,31 @@ Priscilla can genuinely want Angela's judgment while arriving with her own best
 combined version already prepared. She neither blindly follows Angela nor asks
 a false question whose answer cannot matter: if one order failed the operator
 test, its dependent entries would require revision. Exact invitation wording
-and final three-person staging remain open. The minimum visible artifact and
-source state are fixed below.
+remains open. The minimum visible artifact, source state, and three-person
+geometry are fixed below.
+
+#### Approved Three-Person Geometry — The Asymmetric Working Triangle
+
+The Group passage opens after Priscilla and Lavinia have begun substantive work;
+Lavinia's pencil mark already exists before Angela enters their work axis. One
+ordinary table carries both jurisdictions. Priscilla and Lavinia retain the
+document axis from opposing long sides. Angela takes the remaining short-end
+operator position with the laptop oriented primarily toward herself. The short
+end is a working position, not head-of-table authority.
+
+The one-page sheet remains between Priscilla and Lavinia and outside Angela's
+hands. Angela operates and resets the laptop; Priscilla integrates the working
+record; Lavinia owns her existing mark and viewer-action dependency. Nobody
+hands the sheet to Angela or repositions it to make her its owner or adjudicator.
+Neither Priscilla nor Lavinia touches Angela's controls for her or turns the
+laptop into a miniature public presentation.
+
+Group does not mechanically reproduce the Private-visible chair claim. No chair
+is identified as prepared, comfortable, specially turned, or privately owned.
+After the common hinge, Priscilla updates the dependent entries, Angela returns
+the source pack to its known state, and Lavinia advances to the next unrelated
+pre-existing work problem. Their concurrent work continues before anyone can
+convert the accommodation into a statement about the relationship.
 
 #### Approved Physical Artifact — The Desktop Source Pass
 
@@ -338,7 +361,7 @@ or narration to praise.
 
 | Mode | Fixed if Room is selected | What remains open |
 |---|---|---|
-| **Group** | Angela attends as the assigned operator; P and L meet and count; visible scene and pair board; ordinary work reaches the third version; Lavinia's assigned nontechnical viewer action supports her `DETAIL`-first mark; one marked internal sheet and one local laptop support the cue-ID-and-reset desktop source pass; the common run-sheet hinge retains that operable order | Exact invitation and prompt wording; final source subject, provenance, credits, and visible labels; three-person staging around the fixed pass; whether and how chair/folder/`will` mutates; each board-result act; state/tone legibility; stopping point; final prose/dialogue |
+| **Group** | Angela attends as the assigned operator and stable perceptual anchor; P and L remain the causal and relational subject, meet, and count; visible scene and pair board; ordinary work reaches the third version; Lavinia's assigned nontechnical viewer action supports her `DETAIL`-first mark; one marked internal sheet and one local laptop support the cue-ID-and-reset desktop source pass; the asymmetric working triangle preserves the pair's document axis; the common run-sheet hinge retains the operable marked order | Exact invitation and prompt wording; final source subject, provenance, credits, and visible labels; whether and how chair/folder/`will` mutates; each board-result act; state/tone legibility; stopping point; final prose/dialogue |
 | **Missed** | Angela accepted but is absent; P and L still meet and count; visible scene and board; Hospital may select its Missed flavor | Ordinary versus Hospital pressure; any prior Angela material influence; guilt and follow-up; whether neutral private rhythm changes; final anchor/prose/dialogue |
 | **Private-visible** | P and L meet and count; visible scene and board; neutral detailed Room rhythm protected; Lavinia is the current reaction-test anchor | Contact-flavor variation and final audience prose/dialogue |
 | **Private-offscreen** | P and L meet and count; no scene, board, witnessed combination, or private knowledge | Only a later lawful carrier may show ordinary collaboration residue |
@@ -353,6 +376,27 @@ not attended and therefore does not Prevent the pair.
 Dialogue remains the dramatic engine. Sparse perceptual prose may register an
 exact position, line of sight, repetition, replacement, omission, bodily fact,
 or immediate judgment when it becomes salient.
+
+Group uses a Robbe-Grillet-adjacent restricted-surface grammar without making
+jealousy an Angela fact. Priscilla and Lavinia remain the dramatic, causal, and
+relational subject. Angela remains an active operator and the stable perceptual
+centre, not automatically the emotional centre. Her selection of exact surfaces
+may invite several audience interpretations; attention alone proves none of
+them.
+
+In Group, **Angela-bound does not mean Angela-tagged**. Objective-seeming surface
+prose remains hers without repeatedly saying `Angela saw`, `Angela noticed`, or
+`Angela could see`. The illustrative sentence `There was no mark connecting the
+two rows` is lawful only when both rows and the intervening paper are physically
+visible from her approved position. It reports the absence of a visible mark;
+it neither establishes nor denies another connection between Priscilla and
+Lavinia.
+
+Angela may speak whenever her task, pressure, or temperament earns speech. She
+may provide a bounded technical fact, exact question, correction, refusal, or
+dry observation; she may not explain the pair's shorthand, diagnose their
+relationship, or fill a gap merely because the audience could miss its meaning.
+**Silence is optional; unexplained meaning is essential.**
 
 - Group defaults to Angela as the stable anchor.
 - The neutral Private-visible Room reaction test currently uses Lavinia.
@@ -425,9 +469,8 @@ Further discussion should concentrate on what is actually open:
    Day 6?
 2. What ordinary invitation and prompt bring the assigned operator to the
    internal run-sheet test without claiming that Angela is indispensable?
-3. How does three-person staging around the fixed one-sheet, one-laptop source
-   pass preserve the pair's agency without mechanically copying the private
-   chair/folder/`will` rhythm?
+3. Which sparse, ordinary Priscilla-Lavinia exchange best exposes their shared
+   fluency through Angela-bound surface prose without becoming a repeated trick?
 4. Beyond the common `Either` / marked-order hinge, what exact Angela act or
    omission carries Perfect, Solved, and Exploded?
 5. How much of the Sweet/Totally Dark hinge can remain legible with Angela
