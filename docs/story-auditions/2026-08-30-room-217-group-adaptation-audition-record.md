@@ -1,7 +1,7 @@
 # Room 2.17 Group Adaptation Audition Record
 
 **Date:** 2026-08-30 \
-**Status:** OWNER-APPROVED AUDITION DESIGN — PROTECTED CORE; GROUP ADAPTATION OPEN; PLACEMENT UNSELECTED \
+**Status:** OWNER-APPROVED AUDITION DESIGN — PROTECTED CORE; GROUP COMMON HINGE APPROVED; FULL ADAPTATION OPEN; PLACEMENT UNSELECTED \
 **Eligible candidate windows:** `pair.priscilla_lavinia.day_2` or `pair.priscilla_lavinia.day_6` \
 **Current audition preference:** Day 2, pending whole-day reconciliation \
 **Working phrase:** `The Room Already in Use`; not an approved title \
@@ -17,7 +17,7 @@ Three different completion states must not be collapsed:
 |---|---|
 | Day 2/Day 6 R3 invitation, attendance, visibility, pair-count, and pair-board protocol | **Mechanically fixed upstream** |
 | Neutral Angela-absent Room 2.17 causal and Private-visible execution core | **Approved and protected upstream** |
-| Angela-attended Group, Missed/Hospital adaptations, exact weekday, board-result actions, and whole-day coexistence | **Open audition work** |
+| Angela-attended Group, Missed/Hospital adaptations, exact weekday, board-result actions, and whole-day coexistence | **Common Group run-sheet hinge owner-approved; full adaptation open** |
 
 The actual Day 2 Group is therefore **not finished**. This record exists so its
 finished foundations and unfinished adaptations can be carried forward without
@@ -117,15 +117,63 @@ scheduling, attendance, Hospital, or absence law.
 ### 4.2 Angela Has Her Own Work
 
 Angela must not enter merely to watch Priscilla and Lavinia for the author. Her
-approved practical direction is demonstration-side technical responsibility:
-she is qualified to test what the astronomy copy can truthfully promise because
-she may be responsible for the demonstration itself.
+approved practical direction is assigned demonstration-side operator
+responsibility. Group uses a modest shared internal run sheet containing
+Priscilla's prepared order and Lavinia's already-marked alternative. It does not
+assert a literal public handoff from Lavinia's performance to Angela's astronomy
+demonstration.
+
+Day 1 tests whether the public astronomy promise is factually truthful. This
+Group tests whether the operator-facing order can actually be used. It does not
+reopen the Day 1 roster, sentence, weather condition, or verification field.
+
+Angela is the assigned operator whose judgment is ordinarily relevant, not the
+only qualified person or an indispensable technical key. If she is absent,
+Priscilla and Lavinia can still produce the pair-owned third version from the
+existing source brief; no live Angela contribution is fabricated. Her presence
+changes the Group surface without becoming the cause of the meeting or truce.
 
 Priscilla can genuinely want Angela's judgment while arriving with her own best
 combined version already prepared. She neither blindly follows Angela nor asks
-a false question whose answer cannot matter. Angela may verify, compress,
-object, refuse unnecessary revision, or identify a physical condition. The
-exact need, invitation wording, and contribution remain open.
+a false question whose answer cannot matter: if one order failed the operator
+test, its dependent entries would require revision. Exact invitation wording,
+visible run-sheet notation, equipment or source state, and physical staging
+remain open and require later verification.
+
+#### Approved Common Group Hinge — The Marked Order
+
+The acceptance pass occurs only after Priscilla and Lavinia have already begun
+the substantive joint revision and Lavinia has independently marked an
+alternative order. Angela tests Priscilla's prepared order and Lavinia's marked
+order. Both are operable for the bounded task.
+
+`Either` reports only that bounded operability. It does not declare the orders
+identical, equally desirable, aesthetically equivalent, or emotionally empty,
+and it gives no judgment about Priscilla and Lavinia.
+
+**REACTION TEST — owner-approved common hinge; illustrative dialogue, not final
+DTL. The exact question preceding it remains open.**
+
+> **ANGELA:** Either.
+>
+> **PRISCILLA:** Then the marked order stays.
+
+Priscilla advances Lavinia's already-authored mark and updates only the entries
+that depend on it. Her own prepared order remains visibly inspectable; she does
+not erase the record of a different judgment, ask Lavinia to choose again,
+rewrite Lavinia's mark herself, or announce a concession.
+
+The work continues immediately. Add no thanks, meaningful pause, approving
+glance, explanatory prose, or line about what the accommodation means. Angela
+has changed the route through the task by removing a false technical necessity;
+she has changed neither woman's reason for acting.
+
+The counterfactual boundary is strict: remove Angela and Priscilla and Lavinia
+must still produce the same third-version result and pair-owned working truce
+through a different surface. Substitute another ordinary qualified operator
+who supplies the same bounded fact, and only local address, sequencing, or
+document marks may change—not motive, state, tone, desire, consent, pair count,
+or ending eligibility.
 
 `Supporter` is useful only as writer-facing shorthand for Angela's local role:
 an active technical participant and observing instrument who is not the pair's
@@ -161,6 +209,12 @@ woman desires the other.
 
 The three exact action mappings remain open.
 
+The approved `Either` / marked-order hinge is common Group structure. It does
+not fill any Perfect, Solved, or Exploded mapping. Those results may alter only
+Angela's actions immediately before or after the hinge; they cannot omit,
+qualify, or change the bounded-operability finding or Priscilla's marked-order
+adoption.
+
 ### 4.5 An Unannounced Cross-Scene Resonance May Survive
 
 The earlier Angela-Priscilla proofing rhythm can show Priscilla refining
@@ -171,11 +225,15 @@ This resemblance is valuable only while incidental. Nobody names the symmetry,
 the narration does not praise it, and the Group adaptation must not manufacture
 matching corrections merely to complete an authorial pattern.
 
+Day 1 public-truth verification and Group operator-facing operability are a
+useful production distinction, not an audience-facing parallel for characters
+or narration to praise.
+
 ## 5. Presentation-Mode Ledger
 
 | Mode | Fixed if Room is selected | What remains open |
 |---|---|---|
-| **Group** | Angela attends; P and L meet and count; visible scene and pair board; ordinary work reaches the third version | Angela's exact need and contribution; three-person staging; whether and how chair/folder/`will` mutates; each board-result act; state/tone legibility; stopping point; final prose/dialogue |
+| **Group** | Angela attends as the assigned operator; P and L meet and count; visible scene and pair board; ordinary work reaches the third version; the common run-sheet hinge retains Lavinia's marked operable order | Exact invitation and prompt; physical artifact and equipment state; three-person staging; whether and how chair/folder/`will` mutates; each board-result act; state/tone legibility; stopping point; final prose/dialogue |
 | **Missed** | Angela accepted but is absent; P and L still meet and count; visible scene and board; Hospital may select its Missed flavor | Ordinary versus Hospital pressure; any prior Angela material influence; guilt and follow-up; whether neutral private rhythm changes; final anchor/prose/dialogue |
 | **Private-visible** | P and L meet and count; visible scene and board; neutral detailed Room rhythm protected; Lavinia is the current reaction-test anchor | Contact-flavor variation and final audience prose/dialogue |
 | **Private-offscreen** | P and L meet and count; no scene, board, witnessed combination, or private knowledge | Only a later lawful carrier may show ordinary collaboration residue |
@@ -247,6 +305,10 @@ No individuated ordinary worker should appear or be mentioned merely to carry
 logistics or interpretation. Institutional labor may remain physically real
 through rooms, records, queues, schedules, objects, and changed circumstances.
 
+The adjacent `17:40` conservatory and `18:10` astronomy rows visible on Day 1
+do not establish a shared audience, route, venue, or literal public handoff for
+this scene. The approved Group hinge needs none of those additional facts.
+
 Day 6 remains mechanically eligible until one complete day constellation wins
 explicit approval.
 
@@ -256,12 +318,14 @@ Further discussion should concentrate on what is actually open:
 
 1. Does Room 2.17 survive whole-constellation testing more strongly on Day 2 or
    Day 6?
-2. What exact Open Week obligation makes Angela's technical presence necessary
-   in Group rather than convenient for the author?
-3. What may Angela change, refuse, or leave that remains recognizably hers?
+2. What ordinary invitation and prompt bring the assigned operator to the
+   internal run-sheet test without claiming that Angela is indispensable?
+3. What minimum visible run-sheet notation and equipment or source state make
+   both tested orders legible and physically credible?
 4. How does three-person staging preserve the pair's agency without copying the
    private chair/folder/`will` rhythm mechanically?
-5. What exact Angela act or omission carries Perfect, Solved, and Exploded?
+5. Beyond the common `Either` / marked-order hinge, what exact Angela act or
+   omission carries Perfect, Solved, and Exploded?
 6. How much of the Sweet/Totally Dark hinge can remain legible with Angela
    present?
 7. Where can a Love-state future return occur without creating another window
@@ -287,6 +351,18 @@ The following do not survive as requirements:
 - Angela secretly observing Missed or private surfaces;
 - pair boards changing Angela relationship stats or P-L relationship truth;
 - making Angela a shipper, mediator, spokesperson, or passive spectator;
+- making Angela uniquely indispensable, the only qualified operator, or the
+  cause of the pair's usable third version;
+- turning the adjacent performance and astronomy rows into a literal public
+  audience handoff without separate approval;
+- reopening Day 1's public copy, weather condition, roster, or verification
+  field as the Group task;
+- treating `Either` as equivalence, indifference, or a judgment about the pair;
+- asking Lavinia to choose again after her mark already supplies the answer;
+- making Priscilla announce her preference or explain her accommodation when
+  the inspectable versions already preserve both judgments;
+- adding thanks, a meaningful pause, approving eye contact, or thematic
+  narration after `Then the marked order stays`;
 - requiring every later solo to mention the other woman;
 - importing the private Room choreography unchanged merely because Group shares
   its causal spine;
@@ -315,8 +391,8 @@ The Day 2 Group becomes finished only when one integrated review establishes:
 5. ordinary and Hospital absence/follow-up behavior;
 6. correct pair count, audience-priority, and Angela-knowledge separation;
 7. stable perceptual anchors and lawful evidence in every visible surface;
-8. physical and institutional plausibility without an invented expositional
-   extra;
+8. physical and institutional plausibility—including the internal run-sheet
+   notation and operator test—without an invented expositional extra;
 9. character-agency review against author greed; and
 10. explicit owner approval of the complete constellation and its Matrix rows.
 
@@ -368,7 +444,8 @@ audition material. Completion of Day 2 alone cannot delete that unresolved Day
 | Chair/folder/`will` rhythm | **PROTECTED REACTION TEST; NOT FINAL DTL** |
 | Day 2 preference | **OWNER-APPROVED AUDITION DIRECTION** |
 | Day 2 versus Day 6 placement | **UNSELECTED** |
-| Angela-present Group adaptation | **OPEN** |
+| Angela-present Group adaptation | **PARTIALLY SPECIFIED — COMMON RUN-SHEET HINGE OWNER-APPROVED; STAGING AND BRANCHES OPEN** |
+| Day 1 public-truth / Group operability distinction | **OWNER-APPROVED AUDITION DIRECTION** |
 | Missed/Hospital adaptation | **OPEN** |
 | Board-result action mappings | **OPEN** |
 | Later pair-aware Angela insertions | **CONTEXTUAL LAW PRESERVED; INDIVIDUAL USE OPEN** |
@@ -376,6 +453,7 @@ audition material. Completion of Day 2 alone cannot delete that unresolved Day
 | Matrix approval | **NONE** |
 | Final DTL and implementation | **NOT AUTHORIZED** |
 
-The next creative task is not to rewrite the private chair or `will` exchange.
-It is to find the exact independent technical obligation that brings Angela into
-the same work without making Priscilla and Lavinia perform their truce for her.
+The next creative task is not to reopen why Angela is present. It is to stage
+the approved run-sheet hinge among all three women, then discover the distinct
+Perfect, Solved, and Exploded acts without changing pair truth or mechanically
+copying the private chair/folder/`will` rhythm.
