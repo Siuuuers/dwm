@@ -1,7 +1,7 @@
 # Room 2.17 Group Adaptation Audition Record
 
 **Date:** 2026-08-30 \
-**Status:** OWNER-APPROVED AUDITION DESIGN — PROTECTED CORE; GROUP COMMON HINGE APPROVED; FULL ADAPTATION OPEN; PLACEMENT UNSELECTED \
+**Status:** OWNER-APPROVED AUDITION DESIGN — PROTECTED CORE; GROUP COMMON HINGE AND DESKTOP SOURCE PASS APPROVED; FULL ADAPTATION OPEN; PLACEMENT UNSELECTED \
 **Eligible candidate windows:** `pair.priscilla_lavinia.day_2` or `pair.priscilla_lavinia.day_6` \
 **Current audition preference:** Day 2, pending whole-day reconciliation \
 **Working phrase:** `The Room Already in Use`; not an approved title \
@@ -17,7 +17,7 @@ Three different completion states must not be collapsed:
 |---|---|
 | Day 2/Day 6 R3 invitation, attendance, visibility, pair-count, and pair-board protocol | **Mechanically fixed upstream** |
 | Neutral Angela-absent Room 2.17 causal and Private-visible execution core | **Approved and protected upstream** |
-| Angela-attended Group, Missed/Hospital adaptations, exact weekday, board-result actions, and whole-day coexistence | **Common Group run-sheet hinge owner-approved; full adaptation open** |
+| Angela-attended Group, Missed/Hospital adaptations, exact weekday, board-result actions, and whole-day coexistence | **Common Group run-sheet hinge and desktop source pass owner-approved; full adaptation open** |
 
 The actual Day 2 Group is therefore **not finished**. This record exists so its
 finished foundations and unfinished adaptations can be carried forward without
@@ -136,9 +136,93 @@ changes the Group surface without becoming the cause of the meeting or truce.
 Priscilla can genuinely want Angela's judgment while arriving with her own best
 combined version already prepared. She neither blindly follows Angela nor asks
 a false question whose answer cannot matter: if one order failed the operator
-test, its dependent entries would require revision. Exact invitation wording,
-visible run-sheet notation, equipment or source state, and physical staging
-remain open and require later verification.
+test, its dependent entries would require revision. Exact invitation wording
+and final three-person staging remain open. The minimum visible artifact and
+source state are fixed below.
+
+#### Approved Physical Artifact — The Desktop Source Pass
+
+Group uses a single one-page sheet headed `INTERNAL OPERATOR CHECK` and carrying
+the local source-pack version. Its minimum fields are `cue/source`, `trigger`,
+`operator action`, and `dependent note`. It is a bounded technical sheet, not a
+complete public-event run sheet, venue plan, safety plan, or rehearsal script.
+Relative order is sufficient; the sheet need not invent public clock times.
+
+Priscilla's typed sequence remains legible as:
+
+`HOLD -> FIELD -> DETAIL -> HOLD`
+
+Lavinia's already-present pencil arrow or renumbering reverses only the two
+middle states:
+
+`HOLD -> DETAIL -> FIELD -> HOLD`
+
+`FIELD` is one locally stored astronomical overview image. `DETAIL` is a
+locally stored view of one selected region at greater scale. These are stable
+functional labels, not approved filenames or final audience copy. The exact
+astronomical subject, image provenance, credits, and final visible labels remain
+later asset and continuity choices; none may add an observing-date, weather, or
+live-target claim.
+
+Approval fixes Lavinia's `DETAIL`-first mark, not why the institution or shared
+task gives her standing to make it. Final staging must supply one ordinary,
+pre-existing presentation-side dependency that makes the order her legitimate
+work concern. Her mark may use performance knowledge; it grants her no
+astronomy authority and may not exist merely to embody her personality or
+complete the three-woman pattern.
+
+One local laptop is already open to the fixed source pack. Its built-in display
+is sufficient. `FIELD` and `DETAIL` each have a stable cue/source ID. Angela
+actually runs the typed order, returns to the same neutral `HOLD` state, and
+runs the marked order. The source files, device, cue IDs, and pass condition
+remain constant so order is the only tested variable.
+
+The order-sensitive test is cue resolution and reset, not mere file existence.
+From `HOLD`, each first cue must call the named state without unlisted searching
+or source rearrangement; the second cue must call the other state; reset must
+restore the known holding state. A wrong cue-to-source mapping, an unavailable
+direct call, or a failed reset can invalidate one written order. A missing or
+broken asset invalidates the pack rather than proving that the other order is
+preferable.
+
+No projector, telescope, network connection, stage, shared audience route,
+venue acceptance, or literal performance-to-astronomy handoff is created.
+
+This is a **desktop source pass** or **operator cue pass**, never a full
+cue-to-cue or full technical rehearsal. It can establish only that each local
+state opens in the stated order, the transitions can be called, and reset
+returns to the known holding state. It cannot establish projection, public
+visibility, acoustics, telescope readiness, venue power, visitor movement,
+performer spacing, safety, or exact live timing.
+
+The source pass does not reopen Day 1's approved astronomy sentence. It tests a
+local presentation order within the already-supported archived-image material.
+Angela's result does not select the more beautiful, pedagogically preferable,
+or emotionally meaningful order.
+
+The physical and institutional basis for this bounded choice is recorded in the
+[noncanonical operator-pass research note](../research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md).
+
+**REACTION TEST — owner-approved physical rhythm; illustrative prose and
+question, not final DTL. Only `Either` and Priscilla's reply remain the approved
+common dialogue hinge.**
+
+> The field came before the detail once.
+>
+> Angela returned the screen to the holding frame.
+>
+> The detail came before the field once.
+>
+> **PRISCILLA:** Which can you run?
+>
+> **ANGELA:** Either.
+>
+> **PRISCILLA:** Then the marked order stays.
+
+Do not explain the overview/detail reversal as a metaphor for evidence,
+intimacy, context, or either woman's personality. Its character pressure should
+remain available through ordinary preference and conduct, not an authorial line
+that interprets the images.
 
 #### Approved Common Group Hinge — The Marked Order
 
@@ -246,7 +330,7 @@ or narration to praise.
 
 | Mode | Fixed if Room is selected | What remains open |
 |---|---|---|
-| **Group** | Angela attends as the assigned operator; P and L meet and count; visible scene and pair board; ordinary work reaches the third version; the common run-sheet hinge retains Lavinia's marked operable order | Exact invitation and prompt; physical artifact and equipment state; three-person staging; whether and how chair/folder/`will` mutates; each board-result act; state/tone legibility; stopping point; final prose/dialogue |
+| **Group** | Angela attends as the assigned operator; P and L meet and count; visible scene and pair board; ordinary work reaches the third version; one marked internal sheet and one local laptop support the cue-ID-and-reset desktop source pass; the common run-sheet hinge retains Lavinia's marked operable `DETAIL`-first order | Exact invitation and prompt; Lavinia's ordinary presentation-side dependency and bounded authority for the mark; final source subject, provenance, credits, and visible labels; three-person staging around the fixed pass; whether and how chair/folder/`will` mutates; each board-result act; state/tone legibility; stopping point; final prose/dialogue |
 | **Missed** | Angela accepted but is absent; P and L still meet and count; visible scene and board; Hospital may select its Missed flavor | Ordinary versus Hospital pressure; any prior Angela material influence; guilt and follow-up; whether neutral private rhythm changes; final anchor/prose/dialogue |
 | **Private-visible** | P and L meet and count; visible scene and board; neutral detailed Room rhythm protected; Lavinia is the current reaction-test anchor | Contact-flavor variation and final audience prose/dialogue |
 | **Private-offscreen** | P and L meet and count; no scene, board, witnessed combination, or private knowledge | Only a later lawful carrier may show ordinary collaboration residue |
@@ -333,10 +417,12 @@ Further discussion should concentrate on what is actually open:
    Day 6?
 2. What ordinary invitation and prompt bring the assigned operator to the
    internal run-sheet test without claiming that Angela is indispensable?
-3. What minimum visible run-sheet notation and equipment or source state make
-   both tested orders legible and physically credible?
-4. How does three-person staging preserve the pair's agency without copying the
-   private chair/folder/`will` rhythm mechanically?
+3. What ordinary pre-existing presentation-side dependency makes the
+   `DETAIL`-first order Lavinia's legitimate work concern without granting her
+   astronomy authority?
+4. How does three-person staging around the fixed one-sheet, one-laptop source
+   pass preserve the pair's agency without mechanically copying the private
+   chair/folder/`will` rhythm?
 5. Beyond the common `Either` / marked-order hinge, what exact Angela act or
    omission carries Perfect, Solved, and Exploded?
 6. How much of the Sweet/Totally Dark hinge can remain legible with Angela
@@ -368,6 +454,11 @@ The following do not survive as requirements:
   cause of the pair's usable third version;
 - turning the adjacent performance and astronomy rows into a literal public
   audience handoff without separate approval;
+- replacing the operated desktop source pass with a paper-only reading while
+  retaining `Either` as a claim about executable source order;
+- calling the desktop pass a full cue-to-cue, venue acceptance, or technical
+  rehearsal, or adding a projector, telescope, network, stage, public route, or
+  live equipment merely to make the beat look consequential;
 - reopening Day 1's public copy, weather condition, roster, or verification
   field as the Group task;
 - treating `Either` as equivalence, indifference, or a judgment about the pair;
@@ -385,6 +476,10 @@ The following do not survive as requirements:
   its causal spine;
 - making Group participation itself proof of a triad or exclusive P-L route;
 - making P-L state or tone depend on Angela;
+- explaining the `FIELD` / `DETAIL` reversal as a metaphor for context,
+  evidence, intimacy, or either woman's personality;
+- granting Lavinia astronomy authority, or inventing her mark solely so all
+  three women can express a signature trait in the same technical beat;
 - turning `will`, the chair, folder, or room into an explained symbol;
 - making `will` bait, a planned test, or an objective surrender by Priscilla;
 - extending `There are two more` into decorative symmetry or confession;
@@ -461,7 +556,7 @@ audition material. Completion of Day 2 alone cannot delete that unresolved Day
 | Chair/folder/`will` rhythm | **PROTECTED REACTION TEST; NOT FINAL DTL** |
 | Day 2 preference | **OWNER-APPROVED AUDITION DIRECTION** |
 | Day 2 versus Day 6 placement | **UNSELECTED** |
-| Angela-present Group adaptation | **PARTIALLY SPECIFIED — COMMON RUN-SHEET HINGE OWNER-APPROVED; STAGING AND BRANCHES OPEN** |
+| Angela-present Group adaptation | **PARTIALLY SPECIFIED — COMMON RUN-SHEET HINGE AND DESKTOP SOURCE PASS OWNER-APPROVED; THREE-PERSON STAGING AND BRANCHES OPEN** |
 | Day 1 public-truth / Group operability distinction | **OWNER-APPROVED AUDITION DIRECTION** |
 | Missed/Hospital adaptation | **OPEN** |
 | Board-result action mappings | **OPEN** |
@@ -470,7 +565,9 @@ audition material. Completion of Day 2 alone cannot delete that unresolved Day
 | Matrix approval | **NONE** |
 | Final DTL and implementation | **NOT AUTHORIZED** |
 
-The next creative task is not to reopen why Angela is present. It is to stage
-the approved run-sheet hinge among all three women, then discover the distinct
+The next creative task is not to reopen why Angela is present or what physical
+artifact she tests. It is to establish Lavinia's ordinary presentation-side
+reason for the mark and stage the approved one-sheet, one-laptop source pass
+among all three women. Only then should the audition discover the distinct
 Perfect, Solved, and Exploded acts without changing pair truth or mechanically
 copying the private chair/folder/`will` rhythm.
