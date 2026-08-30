@@ -3,7 +3,9 @@ id: spec.steam_store_page.copy_and_capture_architecture
 kind: design_specification
 schema_version: 1
 conversational_design_status: approved_core_store_page_design
-written_spec_status: pending_owner_review
+written_spec_status: approved
+written_spec_approved_on: 2026-08-30
+written_spec_approved_revision: 084a801c88a5d0cd66e93c608c3bf341137fa392
 self_review_status: passed
 self_reviewed_on: 2026-08-30
 copy_gate_status: locked_pending_evidence
