@@ -108,19 +108,28 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 	var bridge: Node = BRIDGE.new()
 	add_child_autofree(bridge)
 	assert_true(bridge.bind_profile_preferences(profile).get("ok", false))
+	# Task 5 (Ruling Y / R-II): the boundary starts are semantic entry starts now, so the bridge
+	# needs its manifest surface initialized. No runtime adapter is bound: the fallback branch
+	# drives the REAL Dialogic autoload below, exactly as the retired path start used to.
+	assert_true(bridge.initialize().get("ok", false), "bridge initialize for semantic starts")
+	if not bridge.has_method("start_entry"):
+		assert_true(false, "DialogicBridge must declare start_entry (Task 5, Ruling Y)")
+		return
 	var dialogic := get_node("/root/Dialogic")
 	var state := {"waiting": false, "order": [], "first_values": {}}
 	bridge.preference_boundary_step.connect(func(step_id: StringName) -> void:
 		if state["waiting"]:
 			state["order"].append(step_id)
 	)
-	dialogic.event_handled.connect(func(_event: Resource) -> void:
+	dialogic.event_handled.connect(func(event: Resource) -> void:
 		if state["waiting"]:
 			state["order"].append(&"first_event")
 			state["first_values"] = {
 				"text": float(dialogic.Settings.settings[&"text_speed"]),
 				"auto": float(dialogic.Inputs.auto_advance.delay_modifier),
 				"enabled": bool(dialogic.Inputs.auto_advance.enabled_until_user_input),
+				"event_kind": str(event.get("event_name")),
+				"event_label": str(event.get("name")),
 			}
 			state["waiting"] = false
 	)
@@ -142,8 +151,22 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 		state["first_values"] = {}
 		state["waiting"] = true
 		var operations_before: int = file_ops.operation_count()
-		var started: Dictionary = bridge.start_timeline_path("res://dialogic/timelines/en/contacts/lavinia_day1.dtl")
-		assert_true(started.get("ok", false), "%s: %s" % [boundary["boundary"], started])
+		# Ruling Y (DEVIATION-8) executed per R-II: the retired external path start becomes a
+		# label-aware semantic start of the SAME conversation, and the receipt must prove the
+		# resolved master path and label - not merely that an event fired (DEVIATION-9 item 3).
+		var started: Variant = bridge.call(&"start_entry", "contact.ordinary.lavinia.day1", {
+			"expected_stage": "current_entry",
+			"playback_id": "profile-reset-%s" % str(boundary["boundary"]),
+			"role": "primary",
+			"transaction_id": "tx-profile-reset-%s" % str(boundary["boundary"]),
+		}, &"canonical")
+		assert_true(typeof(started) == TYPE_DICTIONARY and (started as Dictionary).get("ok", false),
+			"%s: %s" % [boundary["boundary"], str(started)])
+		var start_receipt: Dictionary = (started as Dictionary).get("receipt", {}) if typeof(started) == TYPE_DICTIONARY else {}
+		assert_eq(str(start_receipt.get("path", "")), "res://dialogic/timelines/en/day_1.dtl",
+			"%s: the semantic start resolves the exact master path" % boundary["boundary"])
+		assert_eq(str(start_receipt.get("label", "")), "contact.ordinary.lavinia.day1",
+			"%s: the semantic start resolves the exact label" % boundary["boundary"])
 		await wait_process_frames(5)
 		assert_false(state["waiting"], "%s did not handle a first event" % boundary["boundary"])
 		assert_eq(state["order"].slice(0, 3), [&"clear", &"profile_preferences_reapplied", &"first_event"], boundary["boundary"])
@@ -151,7 +174,17 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 		assert_almost_eq(state["first_values"]["text"], 1.0 / float(boundary["text_speed"]), 0.001, boundary["boundary"])
 		assert_almost_eq(state["first_values"]["auto"], 1.0 / float(boundary["auto_speed"]), 0.001, boundary["boundary"])
 		assert_eq(state["first_values"]["enabled"], boundary["enabled"], boundary["boundary"])
+		# Campaign surprise P03: an event merely firing does not prove the LABEL was reached -
+		# the first handled event of a labelled start is the DialogicLabelEvent itself.
+		assert_eq(str(state["first_values"].get("event_kind", "")), "Label",
+			"%s: the first handled event is the label jump itself" % boundary["boundary"])
+		assert_eq(str(state["first_values"].get("event_label", "")), "contact.ordinary.lavinia.day1",
+			"%s: playback physically starts AT the semantic label" % boundary["boundary"])
 		assert_eq(file_ops.operation_count(), operations_before, "%s wrote profile storage" % boundary["boundary"])
+		# One-active-entry law: release the semantic playback before the next boundary starts.
+		var cleanup: Variant = bridge.call(&"abort_current_entry", &"boundary_iteration_done")
+		assert_true(typeof(cleanup) == TYPE_DICTIONARY and (cleanup as Dictionary).get("ok", false),
+			"%s cleanup abort: %s" % [boundary["boundary"], str(cleanup)])
 		dialogic.clear(1)
 	for path in ["res://autoload/DialogicBridge.gd", "res://scripts/narrative/DialogicPreferenceAdapter.gd"]:
 		var source := FileAccess.get_file_as_string(path)

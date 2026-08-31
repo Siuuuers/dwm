@@ -159,3 +159,96 @@ func test_an_idle_bridge_emits_no_completion_at_all() -> void:
 		finished.append(1))
 	bridge.call(&"_on_runtime_timeline_ended")
 	assert_true(finished.is_empty(), "a bridge with no retained timeline finishes nothing")
+
+
+# -------------------------------------------------------------------------------------------------
+# Seven-Day Flow Plan 01 Task 5 (dwm-oyo.2 DEVIATION-9, rulings R-CC and R-DD).
+#
+# The production path start is retired BODY-first: its declared signature must stay byte-exact
+# because the frozen schedule gate pins the bridge's declared surface, so retirement means the
+# body fails closed in the legacy failure shape while the spelling survives. The bridge's legacy
+# timeline vocabulary now resolves through the exact locator API (get_path_for_id) instead of the
+# deprecated permissive resolver. The scans below are scoped to production code and to tokens the
+# frozen positive scan does not require, so they cannot collide with the schedule-gate law that
+# REQUIRES the literal start_timeline_id call inside DialogicPresentationOwnerAdapter.
+# -------------------------------------------------------------------------------------------------
+
+
+func _gd_files(root: String) -> Array[String]:
+	var output: Array[String] = []
+	var directories: Array[String] = [root]
+	while not directories.is_empty():
+		var current: String = directories.pop_back()
+		var handle := DirAccess.open(current)
+		if handle == null:
+			continue
+		handle.list_dir_begin()
+		var name := handle.get_next()
+		while name != "":
+			var path := current + "/" + name
+			if handle.current_is_dir():
+				directories.append(path)
+			elif name.ends_with(".gd"):
+				output.append(path)
+			name = handle.get_next()
+		handle.list_dir_end()
+	return output
+
+
+func _comment_stripped(source: String) -> String:
+	var kept: Array[String] = []
+	for line: String in source.split("\n"):
+		var hash_index := line.find("#")
+		kept.append(line.substr(0, hash_index) if hash_index >= 0 else line)
+	return "\n".join(kept)
+
+
+func test_start_timeline_path_is_retired_for_production() -> void:
+	var bridge := _fresh_bridge()
+	var failures: Array = []
+	bridge.timeline_failed.connect(func(result: Dictionary) -> void: failures.append(result.duplicate(true)))
+	var refused: Dictionary = bridge.start_timeline_path("res://dialogic/timelines/en/contacts/lavinia_day1.dtl")
+	if refused.get("ok", false):
+		# RED-phase tidy-up only: never leave a physically started timeline running behind a failure.
+		var dialogic := bridge.get_node_or_null("/root/Dialogic")
+		if dialogic != null and dialogic.has_method("clear"):
+			dialogic.call("clear", 1)
+	assert_false(refused.get("ok", true), "a production path start must fail closed (R-CC)")
+	assert_eq(str(refused.get("reason", "")), "start_timeline_path_retired",
+		"the legacy surface keeps its legacy failure shape: " + str(refused))
+	assert_false(str(refused.get("message", "")).is_empty(), "the refusal explains itself")
+	assert_eq(failures.size(), 1, "the refusal is announced on timeline_failed")
+	var source := FileAccess.get_file_as_string(BRIDGE_SCRIPT_PATH)
+	assert_true(source.contains("func start_timeline_path(path: String, context: Dictionary = {}) -> Dictionary:"),
+		"the declared signature stays byte-exact while the body fails closed (frozen gate law)")
+
+
+func test_no_production_code_calls_the_retired_path_start() -> void:
+	var checked := 0
+	for root: String in ["res://autoload", "res://scripts"]:
+		for path: String in _gd_files(root):
+			if path == BRIDGE_SCRIPT_PATH:
+				continue
+			checked += 1
+			var code := _comment_stripped(FileAccess.get_file_as_string(path))
+			assert_false(code.contains("start_timeline_path("),
+				path + " must not call the retired production path start")
+	assert_true(checked > 100, "the scan actually walked the production tree: %d files" % checked)
+
+
+func test_the_bridge_resolves_legacy_ids_through_the_exact_locator_api() -> void:
+	var code := _comment_stripped(FileAccess.get_file_as_string(BRIDGE_SCRIPT_PATH))
+	assert_false(code.contains("get_timeline_path("),
+		"the deprecated permissive resolver is gone from the bridge (R-DD)")
+	assert_true(code.contains("get_path_for_id("),
+		"the exact locator API answers the legacy timeline vocabulary")
+
+
+func test_an_unregistered_timeline_marker_is_ignored_and_a_safe_marker_passes() -> void:
+	var bridge := _fresh_bridge()
+	var markers: Array = []
+	bridge.timeline_marker_received.connect(func(marker_id: String, _payload: Dictionary) -> void: markers.append(marker_id))
+	bridge.timeline_marker("not.a.registered.marker")
+	assert_true(markers.is_empty(), "an unregistered marker emits nothing (fails closed)")
+	bridge.timeline_marker("opening_done")
+	assert_eq(markers, ["opening_done"], "a whitelisted marker still passes")

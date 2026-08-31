@@ -60,15 +60,19 @@ func bind_runtime(dialogic: Node) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_bound": false}}
 
 
-func start_timeline(path: String, event_index: int = 0) -> Dictionary:
+## Task 5 (dwm-oyo.2 R-BB): widened to Dialogic's own two-argument vocabulary - the second
+## argument is a String label to jump to or an int event index, exactly like
+## DialogicGameHandler.start(timeline, label_or_idx). The default stays 0 so every existing int
+## caller (the restore state machine) is byte-compatible.
+func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 	if not _bound:
 		return _fail(&"runtime_not_bound", "bind_runtime must be called first")
 	if path.is_empty():
 		return _fail(&"invalid_timeline_path", "path is required")
 	_dialogic.clear(CLEAR_KEEP_VARIABLES)
 	preference_reapply_requested.emit()
-	_dialogic.start(path, event_index)
-	return {"ok": true, "code": &"ok", "value": {"path": path, "event_index": event_index}}
+	_dialogic.start(path, label_or_index)
+	return {"ok": true, "code": &"ok", "value": {"path": path, "label_or_index": label_or_index}}
 
 
 func capture_checkpoint() -> Dictionary:

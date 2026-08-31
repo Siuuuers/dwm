@@ -26,6 +26,12 @@ const _NARRATIVE_PORT_METHODS := ["commit_current_boundary", "preview_checkpoint
 const _RUNTIME_EVENT_KINDS := ["safe_marker", "effect_transaction", "variable_transaction", "scene_transition", "minesweeper_entry"]
 const _PLAYBACK_CONTEXT_KEYS := ["expected_stage", "playback_id", "role", "transaction_id"]
 
+## Task 5 semantic-entry surface (Seven-Day Flow Plan 01; dwm-oyo.2 R-AA..R-KK).
+const _ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const _EXECUTION_MODES: Array[StringName] = [&"canonical", &"rehearsal"]
+const _RESUME_CHECKPOINT_KEYS := ["content_version", "entry_id", "frozen_context", "stage", "transaction_id"]
+
 # Whitelisted safe marker ids (DTL may only call DialogicBridge.timeline_marker("<id>")).
 const _SAFE_MARKERS := [
 	"opening_done", "tutorial_done", "hospital_recovered",
@@ -52,6 +58,22 @@ var _narrative_checkpoint_port: Object = null
 var _initialized := false
 ## The ONE transient, manifest-validated effect/variable event the checkpoint provider may serve.
 var _active_transaction: Dictionary = {}
+
+# --- Task 5 semantic-entry playback state (Seven-Day Flow Plan 01, dwm-oyo.2 R-AA..R-KK) ---
+## The validated entries document, cached statically the way DialogicTimelineCatalog caches its
+## registries: nothing is cached until validate_document accepts it, and ONE shared table keeps a
+## fresh bridge instance from re-running the published schema over all 139 records (the Task-4
+## E05 measurement made that cost a law, not decoration).
+static var _entry_document_cache: Dictionary = {}
+static var _entry_document_ready := false
+var _signal_command_port: Object = null
+var _playback_completion_port: Object = null
+## The ONE active semantic-entry playback; one process-local token, staleness by exact equality.
+var _active_entry: Dictionary = {}
+## Acknowledge ledger keyed by receipt_id, with the SaveManagerNarrativeCheckpointPort
+## duplicate/conflict semantics verbatim (R-JJ): an identical replay returns the STORED receipt,
+## a conflicting reuse refuses and mutates nothing.
+var _signal_receipts: Dictionary = {}
 
 
 func _ready() -> void:
@@ -154,6 +176,14 @@ func require_dialogic() -> Dictionary:
 
 
 func start_timeline_id(timeline_id: String, context: Dictionary = {}) -> Dictionary:
+	if not _active_entry.is_empty():
+		# Reviewer I-1: a legacy id start may not physically replace a live semantic entry -
+		# the entry branch would later deliver a natural_end intent for prose that was cancelled
+		# mid-play. The refusal keeps the legacy failure shape (a reason key, no code).
+		var fail0 := {"ok": false, "reason": "semantic_entry_active", "timeline_id": timeline_id,
+			"message": "a semantic entry playback is active; abort or complete it first"}
+		emit_signal("timeline_failed", fail0)
+		return fail0
 	var req := require_dialogic()
 	if not req["ok"]:
 		var fail := {"ok": false, "reason": "dialogic_missing", "timeline_id": timeline_id, "message": MISSING_DIALOGIC_MESSAGE}
@@ -163,34 +193,37 @@ func start_timeline_id(timeline_id: String, context: Dictionary = {}) -> Diction
 		var fail2 := {"ok": false, "reason": "unknown_timeline_id", "timeline_id": timeline_id}
 		emit_signal("timeline_failed", fail2)
 		return fail2
-	var locale := _current_locale()
-	var path := DialogicTimelineCatalog.get_timeline_path(timeline_id, locale)
+	# Task 5 (R-DD): the deprecated locale-suffixed resolver is retired here. get_path_for_id
+	# reads the same single-path registry the old call read while IGNORING its locale argument,
+	# so the old locale-then-en double lookup could never produce two different paths and this
+	# collapse is behaviour-identical. The on-disk check is unchanged; an id that failed to
+	# resolve would land in the same timeline_file_missing refusal via the empty path, though
+	# has_timeline_id above already refused every unknown id.
+	var located := DialogicTimelineCatalog.get_path_for_id(timeline_id)
+	var path := str((located.get("value", {}) as Dictionary).get("path", ""))
 	if not (ResourceLoader.exists(path) or FileAccess.file_exists(path)):
-		# Permitted English fallback (prompt_docs/requirements/dialogic_skip.md).
-		var en_path := DialogicTimelineCatalog.get_timeline_path(timeline_id, "en")
-		if ResourceLoader.exists(en_path) or FileAccess.file_exists(en_path):
-			path = en_path
-		else:
-			var fail3 := {"ok": false, "reason": "timeline_file_missing", "timeline_id": timeline_id, "path": path}
-			emit_signal("timeline_failed", fail3)
-			return fail3
+		var fail3 := {"ok": false, "reason": "timeline_file_missing", "timeline_id": timeline_id, "path": path}
+		emit_signal("timeline_failed", fail3)
+		return fail3
 	return _start_at_path(timeline_id, path, context)
 
 
+## RETIRED for production (Task 5, R-CC): the sole caller moved to start_entry per Ruling Y, and
+## a physical path may never again choose what plays. The signature stays byte-exact because the
+## frozen schedule gate pins the bridge's declared surface, so retirement is a fail-closed BODY
+## in the legacy failure shape (a reason key, no code - DEVIATION-9 item 8), not a deletion.
+@warning_ignore("unused_parameter")
 func start_timeline_path(path: String, context: Dictionary = {}) -> Dictionary:
-	var req := require_dialogic()
-	if not req["ok"]:
-		var fail := {"ok": false, "reason": "dialogic_missing", "path": path, "message": MISSING_DIALOGIC_MESSAGE}
-		emit_signal("timeline_failed", fail)
-		return fail
-	if not (ResourceLoader.exists(path) or FileAccess.file_exists(path)):
-		var fail2 := {"ok": false, "reason": "timeline_file_missing", "path": path}
-		emit_signal("timeline_failed", fail2)
-		return fail2
-	return _start_at_path("", path, context)
+	var fail := {"ok": false, "reason": "start_timeline_path_retired", "path": path,
+		"message": "production path starts are retired; start_entry is the semantic surface"}
+	emit_signal("timeline_failed", fail)
+	return fail
 
 
-func _start_at_path(timeline_id: String, path: String, context: Dictionary) -> Dictionary:
+## Task 5 (R-BB): the label reaches Dialogic's two-argument start after validation. The legacy
+## timeline vocabulary passes the empty label, which is Dialogic's own default and starts at the
+## top exactly as the old one-argument call did.
+func _start_at_path(timeline_id: String, path: String, context: Dictionary, label: String = "") -> Dictionary:
 	var dialogic := get_node_or_null("/root/Dialogic")
 	if dialogic == null or not dialogic.has_method("start"):
 		var fail := {"ok": false, "reason": "dialogic_missing", "path": path, "message": MISSING_DIALOGIC_MESSAGE}
@@ -201,7 +234,7 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary) -> D
 	if dialogic.has_method("clear"):
 		dialogic.call("clear", DIALOGIC_CLEAR_KEEP_VARIABLES)
 		preference_boundary_step.emit(&"clear")
-	dialogic.call("start", path)
+	dialogic.call("start", path, label)
 	emit_signal("timeline_started", timeline_id, path)
 	return {"ok": true, "timeline_id": timeline_id, "path": path}
 
@@ -517,18 +550,303 @@ func restore_captured_state(backup: Dictionary) -> Dictionary:
 	return rollback_restore_silent(backup)
 
 
+# ---- Task 5: label-aware, token-bound semantic entry playback (Seven-Day Flow Plan 01) ----
+# dwm-oyo.2 DEVIATION-9, rulings R-AA through R-KK, and DEVIATION-10. The bridge stays the only
+# narrative seam: it resolves the closed 139-entry vocabulary through the injected catalog's
+# get_entry, owns the process-local playback/resume tokens and the acknowledge receipt ledger,
+# and delegates every state commitment to the two configured ports. Physical completion advances
+# nothing directly - see _on_runtime_timeline_ended.
+
+
+static func _ensure_entry_document() -> Dictionary:
+	if _entry_document_ready:
+		return {"ok": true, "value": _entry_document_cache}
+	var loaded: Dictionary = _ENTRY_MANIFEST.load_default()
+	if not loaded.get("ok", false):
+		return loaded
+	var validated: Dictionary = _ENTRY_MANIFEST.validate_document(loaded["value"])
+	if not validated.get("ok", false):
+		return validated
+	_entry_document_cache = loaded["value"]
+	_entry_document_ready = true
+	return {"ok": true, "value": _entry_document_cache}
+
+
+static func _entry_record(entry_id: String) -> Dictionary:
+	var document := _ensure_entry_document()
+	if not document.get("ok", false):
+		return {}
+	for record: Variant in ((document["value"] as Dictionary).get("entries", []) as Array):
+		if record is Dictionary and str((record as Dictionary).get("entry_id", "")) == entry_id:
+			# A copy, never a reference into the shared static document, so no caller can poison
+			# every bridge instance for the process lifetime (reviewer M-4).
+			return (record as Dictionary).duplicate(true)
+	return {}
+
+
+static func _exact_keys(target: Dictionary, keys: Array) -> bool:
+	if target.size() != keys.size():
+		return false
+	for key in keys:
+		if not target.has(key):
+			return false
+	return true
+
+
+func configure_signal_command_port(port: Object) -> Dictionary:
+	if port == null or not port.has_method("commit_signal"):
+		return _command_failure(&"invalid_signal_command_port")
+	if _signal_command_port != null and _signal_command_port.get_instance_id() != port.get_instance_id():
+		return _command_failure(&"signal_command_port_already_configured")
+	var already := _signal_command_port != null
+	_signal_command_port = port
+	return {"ok": true, "code": &"ok", "value": {"port_instance_id": port.get_instance_id(), "already_configured": already}, "receipt": {}}
+
+
+func configure_playback_completion_port(port: Object) -> Dictionary:
+	if port == null or not port.has_method("complete_entry"):
+		return _command_failure(&"invalid_playback_completion_port")
+	if _playback_completion_port != null and _playback_completion_port.get_instance_id() != port.get_instance_id():
+		return _command_failure(&"playback_completion_port_already_configured")
+	var already := _playback_completion_port != null
+	_playback_completion_port = port
+	return {"ok": true, "code": &"ok", "value": {"port_instance_id": port.get_instance_id(), "already_configured": already}, "receipt": {}}
+
+
+func start_entry(entry_id: String, context: Dictionary, execution_mode: StringName = &"canonical") -> Dictionary:
+	if not _initialized:
+		return _playback_failure(&"not_initialized", "initialize the bridge first")
+	if not (execution_mode in _EXECUTION_MODES):
+		return _playback_failure(&"invalid_execution_mode",
+			"%s is not a declared execution mode (canonical or rehearsal)" % String(execution_mode))
+	if not _exact_context_keys(context):
+		return _playback_failure(&"invalid_playback_context",
+			"start_entry context keys must be exactly " + str(_PLAYBACK_CONTEXT_KEYS))
+	return _begin_entry_playback(entry_id, context, execution_mode, "playback")
+
+
+func resume_entry(checkpoint: Dictionary, execution_mode: StringName = &"canonical") -> Dictionary:
+	if not _initialized:
+		return _playback_failure(&"not_initialized", "initialize the bridge first")
+	if not (execution_mode in _EXECUTION_MODES):
+		return _playback_failure(&"invalid_execution_mode",
+			"%s is not a declared execution mode (canonical or rehearsal)" % String(execution_mode))
+	if not _exact_keys(checkpoint, _RESUME_CHECKPOINT_KEYS):
+		return _playback_failure(&"invalid_resume_checkpoint",
+			"resume checkpoint keys must be exactly " + str(_RESUME_CHECKPOINT_KEYS))
+	var frozen: Variant = checkpoint["frozen_context"]
+	if typeof(frozen) != TYPE_DICTIONARY or not _exact_context_keys(frozen as Dictionary):
+		return _playback_failure(&"invalid_playback_context",
+			"resume frozen_context keys must be exactly " + str(_PLAYBACK_CONTEXT_KEYS))
+	if str(checkpoint["stage"]) != str((frozen as Dictionary)["expected_stage"]):
+		return _playback_failure(&"resume_stage_mismatch",
+			"checkpoint stage %s != frozen expected_stage %s"
+			% [str(checkpoint["stage"]), str((frozen as Dictionary)["expected_stage"])])
+	if str(checkpoint["transaction_id"]) != str((frozen as Dictionary)["transaction_id"]):
+		return _playback_failure(&"resume_transaction_mismatch",
+			"checkpoint transaction %s != frozen transaction %s"
+			% [str(checkpoint["transaction_id"]), str((frozen as Dictionary)["transaction_id"])])
+	return _begin_entry_playback(str(checkpoint["entry_id"]), frozen as Dictionary, execution_mode,
+		"resume", int(checkpoint["content_version"]))
+
+
+## The shared start/resume pipeline. expected_version >= 0 means a durable checkpoint is being
+## revalidated against the record (resume); -1 means a fresh start. token_kind picks the counter:
+## playback-%d for starts, resume-%d for restores - both monotonic and process-local, so an
+## old-process token can never equal a live one (staleness is exact string equality).
+func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
+		token_kind: String, expected_version: int = -1) -> Dictionary:
+	if not _active_entry.is_empty() or not _active_playback.is_empty():
+		var standing := str(_active_entry.get("token", _active_playback.get("token", "")))
+		return _playback_failure(&"entry_already_active", "%s is still active" % standing)
+	var resolved: Variant = _catalog.get_entry(entry_id, _current_locale())
+	if typeof(resolved) != TYPE_DICTIONARY:
+		return _playback_failure(&"entry_resolution_failed", entry_id)
+	if not (resolved as Dictionary).get("ok", false):
+		# The owning validator's code and message reach the caller verbatim (compositional law):
+		# ENTRY_MANIFEST_UNKNOWN_ENTRY, ENTRY_MANIFEST_RETIRED_ENTRY, and the locator refusals.
+		return resolved
+	var locator: Dictionary = (resolved as Dictionary)["value"]
+	var path := str(locator.get("path", ""))
+	var label := str(locator.get("label", ""))
+	if not (ResourceLoader.exists(path) or FileAccess.file_exists(path)):
+		# Specification 14.1: a missing master starts NOTHING and the event stays pending.
+		return _playback_failure(&"entry_master_missing", path)
+	var record := _entry_record(entry_id)
+	if record.is_empty():
+		return _playback_failure(&"entry_record_missing",
+			"%s resolves through the catalog but has no record in the shipped entry document" % entry_id)
+	var content_version := int(record.get("content_version", 0))
+	if expected_version >= 0 and content_version != expected_version:
+		return _playback_failure(&"entry_content_version_mismatch",
+			"checkpoint content_version %d != record content_version %d"
+			% [expected_version, content_version])
+	var frozen := context.duplicate(true)
+	var emitted: Dictionary = _CANONICAL_JSON.stringify(frozen)
+	if not emitted.get("ok", false):
+		return _playback_failure(&"context_not_canonical", str(emitted.get("message", "")))
+	var fingerprint := str(emitted["value"]).sha256_text()
+	var started := _start_semantic_playback(path, label)
+	if not started.get("ok", false):
+		return started
+	var token := ""
+	if token_kind == "resume":
+		_resume_counter += 1
+		token = "resume-%d" % _resume_counter
+	else:
+		_playback_counter += 1
+		token = "playback-%d" % _playback_counter
+	_active_entry = {
+		"token": token,
+		"entry_id": entry_id,
+		"stage": str(frozen["expected_stage"]),
+		"transaction_id": str(frozen["transaction_id"]),
+		"context_fingerprint": fingerprint,
+		"execution_mode": execution_mode,
+		"content_version": content_version,
+		"path": path,
+		"label": label,
+		"used_fallback": bool(locator.get("used_fallback", false)),
+		"frozen_context": frozen,
+	}
+	return {"ok": true, "code": &"started", "value": {}, "receipt": {
+		"entry_id": entry_id,
+		"playback_token": token,
+		"content_version": content_version,
+		"context_fingerprint": fingerprint,
+		"path": path,
+		"label": label,
+		"used_fallback": bool(locator.get("used_fallback", false)),
+	}}
+
+
+## Task 5 semantic starts ONLY (DEVIATION-10): the ending vocabulary keeps _start_through_runtime
+## byte-identical, because five frozen integration fakes type the adapter's second parameter as
+## int and the ending-label transport belongs to the task that owns ending playback. R-BB's label
+## law is delivered here for the closed entry vocabulary on BOTH branches, and the clear boundary
+## step is announced on BOTH branches so the frozen [clear, profile_preferences_reapplied,
+## first_event] order holds whether or not an adapter is bound.
+func _start_semantic_playback(path: String, label: String) -> Dictionary:
+	if _runtime_adapter != null:
+		# The adapter performs the physical clear inside start_timeline, so the boundary step is
+		# announced first; the reapply itself arrives via the runtime's own timeline_started.
+		preference_boundary_step.emit(&"clear")
+		var result: Variant = _runtime_adapter.start_timeline(path, label)
+		if typeof(result) != TYPE_DICTIONARY or not (result as Dictionary).get("ok", false):
+			return _playback_failure(&"runtime_start_failed", label)
+		return {"ok": true}
+	var required := require_dialogic()
+	if not required.get("ok", false):
+		return _playback_failure(&"dialogic_missing", MISSING_DIALOGIC_MESSAGE)
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic == null or not dialogic.has_method("start"):
+		return _playback_failure(&"dialogic_missing", MISSING_DIALOGIC_MESSAGE)
+	if dialogic.has_method("clear"):
+		dialogic.call("clear", DIALOGIC_CLEAR_KEEP_VARIABLES)
+		preference_boundary_step.emit(&"clear")
+	dialogic.call("start", path, label)
+	return {"ok": true}
+
+
+func acknowledge_signal(signal_id: String, payload: Dictionary) -> Dictionary:
+	if _active_entry.is_empty():
+		return _playback_failure(&"no_active_entry", "no semantic entry is active")
+	var token := str(payload.get("playback_token", ""))
+	if token != str(_active_entry["token"]):
+		# Staleness is exact string equality: an old-process or superseded token never matches.
+		return _playback_failure(&"stale_playback_token", "%s is not the active playback token" % token)
+	var document := _ensure_entry_document()
+	if not document.get("ok", false):
+		return document
+	var entry_id := str(_active_entry["entry_id"])
+	var stage := StringName(str(_active_entry["stage"]))
+	var validated: Dictionary = _ENTRY_MANIFEST.validate_signal(document["value"], entry_id, stage, signal_id, payload)
+	if not validated.get("ok", false):
+		# The owning validator's SIGNAL_* code and message reach the caller verbatim.
+		return validated
+	if _active_entry["execution_mode"] == &"rehearsal":
+		# R-HH: rehearsal may start and observe, never commit. Checked AFTER validate_signal so
+		# the refusal is provably about the mode, not about a grant the entry lacks.
+		return _playback_failure(&"rehearsal_commit_denied",
+			"a rehearsal playback may not commit %s" % signal_id)
+	# validate_signal enforced the registered payload field set, and every shipped signal
+	# carries receipt_id; the soft read keeps the file's never-crashes law even against a
+	# parseable-but-corrupt registry (reviewer M-1).
+	var receipt_id := str(payload.get("receipt_id", ""))
+	var emitted: Dictionary = _CANONICAL_JSON.stringify({"payload": payload, "signal_id": signal_id})
+	if not emitted.get("ok", false):
+		# Defence in depth behind validate_signal: only canonical bytes may enter the ledger.
+		return _playback_failure(&"payload_not_canonical", str(emitted.get("message", "")))
+	var fingerprint := str(emitted["value"]).sha256_text()
+	if _signal_receipts.has(receipt_id):
+		var stored: Dictionary = _signal_receipts[receipt_id]
+		if str(stored["fingerprint"]) == fingerprint:
+			return {"ok": true, "code": &"acknowledged", "value": {"duplicate": true},
+				"receipt": (stored["receipt"] as Dictionary).duplicate(true)}
+		return _playback_failure(&"duplicate_transaction_conflict", receipt_id)
+	if _signal_command_port == null:
+		return _playback_failure(&"signal_command_port_not_configured",
+			"configure_signal_command_port must install the state owner first")
+	var committed: Variant = _signal_command_port.call(&"commit_signal",
+		entry_id, stage, signal_id, payload.duplicate(true), _active_entry["execution_mode"])
+	if typeof(committed) != TYPE_DICTIONARY or not (committed as Dictionary).get("ok", false):
+		# A rejected boundary pauses playback at the registered continuation stage so no
+		# consequence-dependent prose can show; NOTHING enters the ledger, so a retry is fresh.
+		if _runtime_adapter != null and _runtime_adapter.has_method("set_paused"):
+			_runtime_adapter.set_paused(true)
+		if typeof(committed) == TYPE_DICTIONARY:
+			return committed
+		return _playback_failure(&"signal_command_failed", signal_id)
+	var receipt := {
+		"receipt_id": receipt_id,
+		"entry_id": entry_id,
+		"signal_id": signal_id,
+		"stage": str(stage),
+		"playback_token": token,
+	}
+	_signal_receipts[receipt_id] = {"fingerprint": fingerprint, "receipt": receipt.duplicate(true)}
+	return {"ok": true, "code": &"acknowledged", "value": {"duplicate": false}, "receipt": receipt}
+
+
+func abort_current_entry(code: StringName) -> Dictionary:
+	if _active_entry.is_empty():
+		return _playback_failure(&"no_active_entry", "no semantic entry is active")
+	var entry := _active_entry.duplicate(true)
+	# Clear BEFORE halting: the physical end signal the halt provokes must find no active entry,
+	# so an aborted playback can never reach the completion port (the stale-completion law).
+	_active_entry = {}
+	if _runtime_adapter != null and _runtime_adapter.has_method("halt_with_error"):
+		_runtime_adapter.halt_with_error({"ok": false, "code": &"entry_aborted",
+			"message": String(code), "details": {}})
+	return {"ok": true, "code": &"aborted", "value": {}, "receipt": {
+		"entry_id": str(entry["entry_id"]),
+		"playback_token": str(entry["token"]),
+		"completion_kind": &"aborted",
+		"reason_code": code,
+	}}
+
+
 func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
 	if not _initialized:
 		return _playback_failure(&"not_initialized", "initialize the bridge first")
+	if not _active_entry.is_empty():
+		# Reviewer I-1: the one-active law is bidirectional. An ending may not cancel a live
+		# semantic entry and later masquerade its completion through the entry branch.
+		return _playback_failure(&"entry_already_active",
+			"%s is still active" % str(_active_entry["token"]))
 	if not _ending_records.has(ending_id):
 		return _playback_failure(&"unknown_ending_id", ending_id)
 	var record: Dictionary = _ending_records[ending_id]
 	if str(record["role"]) != expected_role:
 		return _playback_failure(&"ending_role_mismatch", "%s is %s, not %s" % [ending_id, str(record["role"]), expected_role])
 	var timeline_id := str(record["timeline_id"])
-	var path: String = _catalog.get_timeline_path(timeline_id, "en")
-	if path.is_empty():
+	# Task 5 (R-DD): the ending locator resolves through the exact single-path API. This site
+	# keeps its established failure code and message; an unknown id now arrives as the locator's
+	# ok:false envelope instead of an empty string.
+	var located: Variant = _catalog.get_path_for_id(timeline_id)
+	if typeof(located) != TYPE_DICTIONARY or not (located as Dictionary).get("ok", false):
 		return _playback_failure(&"unknown_timeline_id", timeline_id)
+	var path := str(((located as Dictionary)["value"] as Dictionary).get("path", ""))
 	var label := str(record["label"])
 	var started: Dictionary = _start_through_runtime(path, label)
 	if not started.get("ok", false):
@@ -571,8 +889,39 @@ func _on_runtime_timeline_ended() -> void:
 	if not _active_playback.is_empty():
 		var playback := _active_playback.duplicate(true)
 		_active_playback = {}
+		# Reviewer I-2: _start_playback retained this timeline id; consuming the completion must
+		# clear it, or a later semantic abort's halt replays it as a phantom generic completion.
+		# Conditional on the exact id so a retained id this branch does NOT own is untouched.
+		if _current_timeline_id == str(playback["timeline_id"]):
+			_current_timeline_id = ""
+			_current_timeline_context = {}
 		ending_playback_finished.emit(str(playback["token"]), str(playback["ending_id"]),
 			{"receipt_id": "%s:complete" % str(playback["token"]), "ending_id": str(playback["ending_id"]), "timeline_id": str(playback["timeline_id"])})
+		return
+	# Task 5 semantic-entry branch (R-FF): physical completion advances NOTHING directly; it
+	# builds ONE intent from the validated frozen context (R-GG: stage and transaction_id come
+	# from _PLAYBACK_CONTEXT_KEYS) and hands it to the ONE configured completion port. Clearing
+	# before the call makes a duplicate runtime signal a no-op, exactly like the branches around
+	# it. A completion with no configured port is reported, never swallowed.
+	if not _active_entry.is_empty():
+		var entry := _active_entry.duplicate(true)
+		_active_entry = {}
+		var intent := {
+			"entry_id": str(entry["entry_id"]),
+			"transaction_id": str(entry["transaction_id"]),
+			"stage": str(entry["stage"]),
+			"playback_token": str(entry["token"]),
+			"context_fingerprint": str(entry["context_fingerprint"]),
+			"execution_mode": StringName(entry["execution_mode"]),
+			"completion_kind": &"natural_end",
+		}
+		if _playback_completion_port != null:
+			_playback_completion_port.call(&"complete_entry", intent)
+		else:
+			narrative_validation_failed.emit({"ok": false,
+				"code": &"playback_completion_port_not_configured",
+				"message": "a semantic entry completed with no configured completion port",
+				"details": {"entry_id": str(entry["entry_id"])}})
 		return
 	# The generic branch: finalize the retained timeline/context and emit exactly ONE completion.
 	# Clearing before the emit is what makes a duplicate runtime signal a no-op rather than a second
