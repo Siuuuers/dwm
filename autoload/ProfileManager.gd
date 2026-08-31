@@ -160,6 +160,7 @@ func is_line_visited(line_id: String) -> bool:
 
 func mark_line_visited(line_id: String) -> Dictionary:
 	if line_id.is_empty(): return _failure(&"invalid_line_id", "Line ID must be nonempty")
+	if not _line_registry_admits(line_id): return _failure(&"unregistered_line_id", "%s is not a registered line id" % line_id)
 	if is_line_visited(line_id): return {"ok": true, "value": {"visited": true}, "unchanged": true}
 	var candidate := _profile.duplicate(true)
 	candidate["visited_line_ids"].append(line_id)
@@ -389,3 +390,51 @@ func _failure(code: StringName, message: String, fatal: bool = false) -> Diction
 
 func _command_failure(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "details": {}, "receipt": {}}
+
+# ---- Registered line identity (Phase 01 Task 6, DEVIATION-11 Ruling A) ----
+# Appended rather than inserted so the only line-number shift in this file is the single line
+# mark_line_visited gains above.
+
+## The reply-line registry, taken explicitly the way DialogicEntryManifest.validate_ids_document
+## takes its own document, so every law here is reachable from a fixture without writing a mutated
+## manifest to disk. A predicate that loads its own registry cannot be driven by a fixture, which
+## is the defect dwm-oyo.2.1 records against _is_retired_label.
+##
+## The FINGERPRINT, not the index, is the configured/unconfigured sentinel: an EMPTY registry is
+## configured and therefore strict, which _line_registry_index.is_empty() could not express.
+##
+## UNIQUENESS IS NOT THIS SEAM'S LAW. schemas/manifests/dialogic-ids.schema.json already closes
+## reply_lines with uniqueItems, and validate_ids_document already enforces it as
+## IDS_MANIFEST_DUPLICATE_ID. A repeated line_id collapses into one index entry here and counts
+## once in line_count; membership, which is all this seam decides, is unaffected.
+var _line_registry_index: Dictionary = {}
+var _line_registry_fingerprint := ""
+
+## One-shot, like configure_mutation_gate. Identity is a canonical fingerprint of the DERIVED index
+## rather than the get_instance_id() the four precedent seams use, because a Dictionary has no such
+## handle; fingerprinting the derived index also means record order, and blocks this seam never
+## reads, cannot make one registry look like another.
+func configure_line_registry(registry: Dictionary) -> Dictionary:
+	var block: Variant = registry.get("reply_lines")
+	if not (block is Array): return _command_failure(&"invalid_line_registry")
+	var index: Dictionary = {}
+	for record: Variant in (block as Array):
+		if not (record is Dictionary): return _command_failure(&"invalid_line_record")
+		var line_id: Variant = (record as Dictionary).get("line_id")
+		if typeof(line_id) != TYPE_STRING or (line_id as String).is_empty(): return _command_failure(&"invalid_line_record_id")
+		index[line_id] = true
+	var emitted: Dictionary = WRITER.stringify(index)
+	if not emitted.get("ok", false): return _command_failure(&"unfingerprintable_line_registry")
+	var fingerprint: String = str(emitted["value"]).sha256_text()
+	if not _line_registry_fingerprint.is_empty() and _line_registry_fingerprint != fingerprint:
+		return _command_failure(&"line_registry_already_configured")
+	var already := not _line_registry_fingerprint.is_empty()
+	_line_registry_index = index
+	_line_registry_fingerprint = fingerprint
+	return {"ok": true, "code": &"ok", "value": {"line_count": index.size(), "registry_fingerprint": fingerprint, "already_configured": already}, "receipt": {}}
+
+## Permissive while unconfigured, which is _guard's own shape one call level below in this file and
+## is what keeps every legacy line literal green until something configures a registry.
+func _line_registry_admits(line_id: String) -> bool:
+	if _line_registry_fingerprint.is_empty(): return true
+	return _line_registry_index.has(line_id)
