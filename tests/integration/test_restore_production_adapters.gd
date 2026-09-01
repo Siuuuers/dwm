@@ -300,3 +300,76 @@ func test_checkpoint_port_configures_desktop_context_provider() -> void:
 	assert_false(different.get("ok", true), "a different provider is rejected")
 	var nullp: Dictionary = port.configure_desktop_context_provider(null)
 	assert_false(nullp.get("ok", true), "a null provider is rejected")
+# ---- Seven-Day Flow Plan 01 Task 7 (dwm-oyo.2): the SEMANTIC narrative participant ----
+# The same real class over the REAL DialogicBridge and its REAL entry catalog, so the semantic
+# branch is exercised against production wiring rather than a duck-typed owner. Deliberately only
+# two tests: this file is sha256-bound in evidence/phase_2r/handoff/desktop_contract.json and moves
+# the restore-consumer baseline, so Task 7's share of it stays small.
+
+const SEMANTIC_BRIDGE := preload("res://autoload/DialogicBridge.gd")
+const SEMANTIC_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
+const SEMANTIC_RUNTIME := preload("res://tests/support/FakeDialogicRuntime.gd")
+const SEMANTIC_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const SEMANTIC_ENTRY := "contact.ordinary.lavinia.day1"
+const SEMANTIC_PLAN_FIELDS := ["content_version", "entry_id", "frozen_context",
+	"manifest_fingerprint", "stage", "transaction_id"]
+
+
+func _semantic_bridge() -> Node:
+	var runtime: Node = autofree(SEMANTIC_RUNTIME.new())
+	var adapter: RefCounted = SEMANTIC_ADAPTER.new()
+	assert_true(adapter.bind_runtime(runtime).get("ok", false), "the fake runtime binds")
+	var bridge: Node = SEMANTIC_BRIDGE.new()
+	add_child_autofree(bridge)
+	assert_true(bridge.initialize(null, adapter).get("ok", false), "the real bridge initializes")
+	return bridge
+
+
+func _live_entry_document_fingerprint() -> String:
+	var loaded: Dictionary = SEMANTIC_MANIFEST.load_default()
+	if not loaded.get("ok", false):
+		return ""
+	return str(SEMANTIC_MANIFEST.fingerprint(loaded["value"]))
+
+
+func _semantic_entry_checkpoint(manifest_fingerprint: String) -> Dictionary:
+	return {
+		"content_version": 1,
+		"entry_id": SEMANTIC_ENTRY,
+		"frozen_context": {"expected_stage": "current_entry", "playback_id": "prod-restore",
+			"role": "primary", "transaction_id": "tx-prod"},
+		"manifest_fingerprint": manifest_fingerprint,
+		"stage": "current_entry",
+		"transaction_id": "tx-prod",
+	}
+
+
+func _semantic_plan_of(prepared: Dictionary) -> Dictionary:
+	var value: Variant = prepared.get("value", {})
+	if typeof(value) != TYPE_DICTIONARY:
+		return {}
+	var plan: Variant = (value as Dictionary).get("narrative_plan", {})
+	return plan if typeof(plan) == TYPE_DICTIONARY else {}
+
+
+func test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge() -> void:
+	var participant: Object = load(NARR_P).new(_semantic_bridge(), NarrativeCatalogStub.new())
+	var prepared: Dictionary = participant.prepare({
+		"narrative_checkpoint": _semantic_entry_checkpoint(_live_entry_document_fingerprint()),
+		"content_version": 1})
+	assert_true(prepared.get("ok", false), str(prepared))
+	var keys: Array = _semantic_plan_of(prepared).keys()
+	keys.sort()
+	assert_eq(keys, SEMANTIC_PLAN_FIELDS,
+		"the production participant prepares exactly the six declared fields: " + str(keys))
+	assert_false(keys.has("timeline_path"),
+		"specification 14.4: a prepared plan never carries a physical path")
+
+
+func test_semantic_narrative_participant_reports_manifest_drift_as_recoverable() -> void:
+	var participant: Object = load(NARR_P).new(_semantic_bridge(), NarrativeCatalogStub.new())
+	var prepared: Dictionary = participant.prepare({
+		"narrative_checkpoint": _semantic_entry_checkpoint("sha256:" + "0".repeat(64)),
+		"content_version": 1})
+	assert_eq(str(prepared.get("code", "")), "NARRATIVE_CONTENT_UNAVAILABLE",
+		"a drifted manifest fingerprint advances to an earlier bundle instead of failing the restore")

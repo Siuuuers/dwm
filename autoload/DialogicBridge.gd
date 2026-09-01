@@ -626,6 +626,69 @@ func start_entry(entry_id: String, context: Dictionary, execution_mode: StringNa
 
 
 func resume_entry(checkpoint: Dictionary, execution_mode: StringName = &"canonical") -> Dictionary:
+	var checked := _check_resume_checkpoint(checkpoint, execution_mode)
+	if not checked.get("ok", false):
+		return checked
+	return _begin_entry_playback(str(checkpoint["entry_id"]),
+		(checked["value"] as Dictionary)["frozen"], execution_mode,
+		"resume", int(checkpoint["content_version"]))
+
+
+## Task 7 (Seven-Day Flow Plan 01; dwm-oyo.2 Ruling 14-A). A PURE validator: it resolves and
+## revalidates a durable resume checkpoint and starts NOTHING, so a restore can prove compatibility
+## at prepare time and finalize can no longer refuse for a reason prepare never saw. It is composed
+## from the SAME two private steps resume_entry uses, so its acceptance set cannot diverge from
+## finalize's - the divergence that would otherwise commit a checkpoint journal and then fail past
+## its own rollback point.
+##
+## Its success value reports SEMANTIC fields ONLY. Physical locators never leave this method:
+## specification 12.4 and 14.4 forbid a caller storing or inspecting a path or a label. Contrast
+## resume_entry's receipt below, which does carry them to the playback caller that starts Dialogic.
+##
+## entry_already_active is DELIBERATELY not checked here. Activity is a transient runtime
+## precondition, not a compatibility property of the save, so a compatible bundle is never rejected
+## because playback happens to be live. The restore participant asks has_active_playback() at APPLY
+## time instead - see Ruling 15-B and that method's own comment for why the distinction matters.
+func validate_resume_checkpoint(checkpoint: Dictionary,
+		execution_mode: StringName = &"canonical") -> Dictionary:
+	var checked := _check_resume_checkpoint(checkpoint, execution_mode)
+	if not checked.get("ok", false):
+		return checked
+	var resolved := _resolve_entry_for_playback(str(checkpoint["entry_id"]),
+		int(checkpoint["content_version"]))
+	if not resolved.get("ok", false):
+		return resolved
+	var fingerprinted := _context_fingerprint((checked["value"] as Dictionary)["frozen"])
+	if not fingerprinted.get("ok", false):
+		return fingerprinted
+	return {"ok": true, "code": &"validated", "value": {
+		"content_version": int((resolved["value"] as Dictionary)["content_version"]),
+		"context_fingerprint": str((fingerprinted["value"] as Dictionary)["fingerprint"]),
+		"entry_id": str(checkpoint["entry_id"]),
+		"stage": str(checkpoint["stage"]),
+		"transaction_id": str(checkpoint["transaction_id"]),
+	}, "receipt": {}}
+
+
+## Task 7 (dwm-oyo.2 Ruling 15-B). Whether ANY playback is standing - a semantic entry or an
+## ending. A pure read: it starts, stops, clears and mutates nothing.
+##
+## Why a restore needs this at APPLY time rather than at prepare time. SaveManager runs its
+## apply_silent loop, then commits the checkpoint journal, then runs its finalize loop; a refusal
+## from apply rolls back BEFORE that commit, a refusal from finalize only after it. Activity is
+## still not a compatibility property of the save, so validate_resume_checkpoint stays blind to it
+## and prepare never rejects a compatible bundle for a transient runtime state - but the refusal
+## that IS owed to activity must surface on the recoverable side of the commit.
+##
+## _begin_entry_playback asks the same question through this method, so the one-active-playback law
+## has ONE copy rather than two that can drift apart.
+func has_active_playback() -> bool:
+	return not (_active_entry.is_empty() and _active_playback.is_empty())
+
+
+## The six durable-checkpoint checks resume_entry has always made, in this exact order and with
+## these exact codes, extracted so the pure validator and the playback path share ONE copy.
+func _check_resume_checkpoint(checkpoint: Dictionary, execution_mode: StringName) -> Dictionary:
 	if not _initialized:
 		return _playback_failure(&"not_initialized", "initialize the bridge first")
 	if not (execution_mode in _EXECUTION_MODES):
@@ -646,19 +709,14 @@ func resume_entry(checkpoint: Dictionary, execution_mode: StringName = &"canonic
 		return _playback_failure(&"resume_transaction_mismatch",
 			"checkpoint transaction %s != frozen transaction %s"
 			% [str(checkpoint["transaction_id"]), str((frozen as Dictionary)["transaction_id"])])
-	return _begin_entry_playback(str(checkpoint["entry_id"]), frozen as Dictionary, execution_mode,
-		"resume", int(checkpoint["content_version"]))
+	return {"ok": true, "value": {"frozen": frozen as Dictionary}}
 
 
-## The shared start/resume pipeline. expected_version >= 0 means a durable checkpoint is being
-## revalidated against the record (resume); -1 means a fresh start. token_kind picks the counter:
-## playback-%d for starts, resume-%d for restores - both monotonic and process-local, so an
-## old-process token can never equal a live one (staleness is exact string equality).
-func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
-		token_kind: String, expected_version: int = -1) -> Dictionary:
-	if not _active_entry.is_empty() or not _active_playback.is_empty():
-		var standing := str(_active_entry.get("token", _active_playback.get("token", "")))
-		return _playback_failure(&"entry_already_active", "%s is still active" % standing)
+## Catalog resolution, master existence, record presence and the content_version revalidation, in
+## this exact order, extracted from _begin_entry_playback so the pure validator cannot hold a
+## SECOND copy of the resolution law. expected_version >= 0 revalidates a durable checkpoint
+## against the record; -1 is a fresh start.
+func _resolve_entry_for_playback(entry_id: String, expected_version: int) -> Dictionary:
 	var resolved: Variant = _catalog.get_entry(entry_id, _current_locale())
 	if typeof(resolved) != TYPE_DICTIONARY:
 		return _playback_failure(&"entry_resolution_failed", entry_id)
@@ -668,7 +726,6 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		return resolved
 	var locator: Dictionary = (resolved as Dictionary)["value"]
 	var path := str(locator.get("path", ""))
-	var label := str(locator.get("label", ""))
 	if not (ResourceLoader.exists(path) or FileAccess.file_exists(path)):
 		# Specification 14.1: a missing master starts NOTHING and the event stays pending.
 		return _playback_failure(&"entry_master_missing", path)
@@ -681,11 +738,47 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		return _playback_failure(&"entry_content_version_mismatch",
 			"checkpoint content_version %d != record content_version %d"
 			% [expected_version, content_version])
+	return {"ok": true, "value": {
+		"content_version": content_version,
+		"label": str(locator.get("label", "")),
+		"path": path,
+		"used_fallback": bool(locator.get("used_fallback", false)),
+	}}
+
+
+## The frozen context's canonical fingerprint, extracted so the validator reports the SAME digest
+## the playback path stores rather than a second derivation of it. The duplicate travels with the
+## digest, so both callers freeze exactly the bytes they fingerprinted.
+func _context_fingerprint(context: Dictionary) -> Dictionary:
 	var frozen := context.duplicate(true)
 	var emitted: Dictionary = _CANONICAL_JSON.stringify(frozen)
 	if not emitted.get("ok", false):
 		return _playback_failure(&"context_not_canonical", str(emitted.get("message", "")))
-	var fingerprint := str(emitted["value"]).sha256_text()
+	return {"ok": true, "value": {
+		"fingerprint": str(emitted["value"]).sha256_text(), "frozen": frozen}}
+
+
+## The shared start/resume pipeline. expected_version >= 0 means a durable checkpoint is being
+## revalidated against the record (resume); -1 means a fresh start. token_kind picks the counter:
+## playback-%d for starts, resume-%d for restores - both monotonic and process-local, so an
+## old-process token can never equal a live one (staleness is exact string equality).
+func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
+		token_kind: String, expected_version: int = -1) -> Dictionary:
+	if has_active_playback():
+		var standing := str(_active_entry.get("token", _active_playback.get("token", "")))
+		return _playback_failure(&"entry_already_active", "%s is still active" % standing)
+	var resolved := _resolve_entry_for_playback(entry_id, expected_version)
+	if not resolved.get("ok", false):
+		return resolved
+	var locator: Dictionary = resolved["value"]
+	var path := str(locator["path"])
+	var label := str(locator["label"])
+	var content_version := int(locator["content_version"])
+	var fingerprinted := _context_fingerprint(context)
+	if not fingerprinted.get("ok", false):
+		return fingerprinted
+	var frozen: Dictionary = (fingerprinted["value"] as Dictionary)["frozen"]
+	var fingerprint := str((fingerprinted["value"] as Dictionary)["fingerprint"])
 	var started := _start_semantic_playback(path, label)
 	if not started.get("ok", false):
 		return started
