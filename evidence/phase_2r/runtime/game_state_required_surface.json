@@ -1450,6 +1450,14 @@
       "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
     },
     {
+      "symbol": "capture_schedule_warning_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_capture_schedule_warning_state_is_narrow_read_only_and_exact"
+    },
+    {
       "symbol": "prepare_schedule_commit_candidate",
       "kind": "function",
       "availability": "current",
