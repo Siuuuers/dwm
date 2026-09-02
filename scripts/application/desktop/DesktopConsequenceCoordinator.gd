@@ -232,6 +232,30 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
+## Plan 03's frozen Schedule-departure extension (consumed-interface lock): STUBBED under
+## DEVIATION-18 Ruling 18-A (maintainer AskUserQuestion, recorded 2026-09-02 on dwm-oyo.3).
+## Plan 03 Task 6 implements the real binding and composition; until then both methods fail closed
+## exactly like the repo's unconfigured playback ports (DialogicPlaybackCompletionPort /
+## DialogicSignalCommandPort's `not_configured` precedent), so no caller can mistake the unshipped
+## extension for a configured surface and the frozen five-argument signature is already load-bearing
+## for Task 1's downstream-contract census.
+@warning_ignore("unused_parameter")
+func configure_schedule_departure_ports(schedule_port: Object, day_start_port: Object,
+		schedule_view_port: Object, terminal_intent_port: Object,
+		publication_port: Object) -> Dictionary:
+	return _fail(&"not_configured",
+		"the Schedule-departure extension is Plan 03 Task 6 work; this Ruling 18-A stub binds nothing",
+		{})
+
+
+## See configure_schedule_departure_ports() above -- the same DEVIATION-18 Ruling 18-A stub pair.
+@warning_ignore("unused_parameter")
+func request_schedule_departure(raw_request: Dictionary) -> Dictionary:
+	return _fail(&"not_configured",
+		"request_schedule_departure requires the Task-6 Schedule-departure composition",
+		{})
+
+
 ## The day's latest fully committed condition receipt as detached bytes, or `{}` when no completed
 ## transaction has committed one this process (dwm-oyo.3 slice; see `_committed_condition_receipts`'
 ## own doc comment for the honesty boundary). Read-only: consumed by

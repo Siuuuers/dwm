@@ -121,6 +121,14 @@ func prepare_from_committed_schedule(request: Dictionary) -> Dictionary:
 		return _fail(&"invalid_day_resolution_start",
 			"a receiptless aggregate may not start a resolution", {})
 	var commit_receipt: Dictionary = committed["commit_receipt"]
+	# DEVIATION-18 Ruling 18-A (dwm-oyo.3, 2026-09-02), safety half: the consumed-interface lock
+	# says a start rejects "a different causal day" -- the request's day instance must be the
+	# committed Schedule's own saved instance, so a caller can never re-day a saved commit.
+	if str(request["causal_day_instance"]) != str(commit_receipt.get("causal_day_instance", "")):
+		return _fail(&"day_resolution_causal_day_mismatch",
+			"the request causal_day_instance is not the committed Schedule's own",
+			{"requested": str(request["causal_day_instance"]),
+				"committed": str(commit_receipt.get("causal_day_instance", ""))})
 
 	# The SAVED fingerprint is the truth; a caller's current registry record is never a replacement.
 	if str(committed["registry_fingerprint"]) != str(_action_registry.call(&"fingerprint")):
@@ -136,6 +144,13 @@ func prepare_from_committed_schedule(request: Dictionary) -> Dictionary:
 	if typeof(verified) != TYPE_DICTIONARY or not (verified as Dictionary).get("ok", false):
 		return _fail(&"day_resolution_root_unverified",
 			"the resolution issuer receipt did not verify", {})
+	# DEVIATION-18 Ruling 18-A (dwm-oyo.3, 2026-09-02), safety half: the lock fixes
+	# `resolution_id == resolution_issuer_receipt.token`, so a second identity may never ride the
+	# verified root (the Task-4 commit port's schedule_transaction_id_mismatch precedent).
+	if str(root_receipt.get("token", "")) != str(request["resolution_id"]):
+		return _fail(&"day_resolution_id_mismatch",
+			"resolution_id must equal the issued token",
+			{"resolution_id": str(request["resolution_id"])})
 
 	var derived := _derive_start(request, committed, commit_receipt, board_fate as Dictionary)
 	if not derived.get("ok", false):
