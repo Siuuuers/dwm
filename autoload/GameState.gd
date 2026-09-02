@@ -2274,6 +2274,97 @@ const _SCHEDULE_PUBLICATION_KEYS: Array[String] = ["committed_schedule", "schedu
 var _committed_schedule: Dictionary = {}
 
 
+## Task 3 (Amendment Plan 03, dwm-oyo.3, plan line 364): the ONE read-only Schedule-warning
+## fact capture. Success is the master envelope with exact value={state}, receipt={}, where
+## state is {run_id, branch_id, desktop_timeline_generation, causal_day_instance, day,
+## eligible_unread_date_message_ids, accepted_date_action_ids, next_app_round_ordinal,
+## base_opportunity_remaining, motivation}. Both ID arrays are sorted, unique, detached
+## canonical facts derived from persisted GameState/Contacts state -- never from action-ID
+## parsing, scenes, or caller-supplied values. Every helper below is underscore-private by
+## design: this method is the single public entry the frozen surface walk counts.
+func capture_schedule_warning_state() -> Dictionary:
+	var identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
+	var next_ordinal: Variant = _warning_next_app_round_ordinal()
+	return {"ok": true, "code": &"ok", "value": {"state": {
+		"run_id": str(identity["run_id"]),
+		"branch_id": str(identity["branch_id"]),
+		"desktop_timeline_generation": int(identity["desktop_timeline_generation"]),
+		"causal_day_instance": str(identity["causal_day_instance"]),
+		"day": int(day),
+		"eligible_unread_date_message_ids": _warning_unread_date_message_ids(),
+		"accepted_date_action_ids": _warning_accepted_date_action_ids(),
+		"next_app_round_ordinal": next_ordinal,
+		"base_opportunity_remaining": next_ordinal != null and int(next_ordinal) <= 2,
+		"motivation": int(get_stat(STAT_MOTIVATION)),
+	}}, "receipt": {}}
+
+
+## 1..5 | null, null only after opportunity exhaustion: the next app-round ordinal is the
+## count of rounds finished today plus one, and the opportunity is exhausted once no round
+## can be exposed at all (five finished, or the daily round budget is spent to the floor).
+func _warning_next_app_round_ordinal() -> Variant:
+	var next_ordinal: int = int(minesweeper_app_rounds_finished_today) + 1
+	if next_ordinal > 5 or not has_minesweeper_app_round_available():
+		return null
+	return next_ordinal
+
+
+## Visible unread (above the friend's read watermark) date-enabling offer messages whose
+## target day is the CURRENT day. This deliberately DIVERGES from get_unread_count(),
+## which counts every unread message with target_day <= day: only a current-day offer
+## can enable a date entry in the current day's Schedule view, so past-day unread
+## messages are excluded here on purpose.
+func _warning_unread_date_message_ids() -> Array:
+	var ids: Dictionary = {}
+	var current_day: int = int(day)
+	var messages: Dictionary = contacts.get("messages", {})
+	var watermarks: Dictionary = contacts.get("read_watermarks", {})
+	for friend_id: String in messages:
+		var watermark: int = int(watermarks.get(friend_id, 0))
+		for raw: Variant in messages.get(friend_id, []) as Array:
+			if typeof(raw) != TYPE_DICTIONARY:
+				continue
+			var record := raw as Dictionary
+			if str(record.get("visibility", "")) != "visible":
+				continue
+			if int(record.get("sequence", 0)) <= watermark:
+				continue
+			if int(record.get("target_day", -1)) != current_day:
+				continue
+			if str(record.get("type", "")) not in ["solo_offer", "group_offer"]:
+				continue
+			var message_id := str(record.get("message_id", ""))
+			if not message_id.is_empty():
+				ids[message_id] = true
+	var sorted_ids: Array = ids.keys()
+	sorted_ids.sort()
+	return sorted_ids
+
+
+## Valid, nonsuperseded current-day Contacts acceptances: solo actions in the ACCEPTED
+## state for the current day, plus the group action when it is ACCEPTED for the current
+## day. Any superseded or closed state is simply not ACCEPTED.
+func _warning_accepted_date_action_ids() -> Array:
+	var ids: Dictionary = {}
+	var current_day: int = int(day)
+	var solo_actions: Dictionary = contacts.get("solo_actions", {})
+	for action_id: String in solo_actions:
+		var action: Dictionary = solo_actions[action_id]
+		if str(action.get("state", "")) == "ACCEPTED" \
+				and int(action.get("day", -1)) == current_day:
+			ids[str(action_id)] = true
+	var group: Dictionary = contacts.get("group_action", {})
+	if str(group.get("state", "")) == "ACCEPTED" \
+			and typeof(group.get("day")) == TYPE_INT \
+			and int(group.get("day")) == current_day:
+		var group_id := str(group.get("action_id", ""))
+		if not group_id.is_empty():
+			ids[group_id] = true
+	var sorted_ids: Array = ids.keys()
+	sorted_ids.sort()
+	return sorted_ids
+
+
 func capture_schedule_commit_state() -> Dictionary:
 	var current := _canonical_committed_schedule()
 	var motivation := int(stats.get(STAT_MOTIVATION, 0))

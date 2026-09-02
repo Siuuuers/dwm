@@ -9,6 +9,7 @@ const IDENTITY_ISSUER := preload("res://scripts/application/desktop/DesktopIdent
 const ISSUER_ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const CRYPTO_NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 
 ## One real issuer over this suite's sandbox root, built the way ApplicationBootstrap builds the
 ## production one. DWM_TEST_ROOT is supplied by tools/testing/Invoke-IsolatedGodot.ps1.
@@ -243,3 +244,67 @@ func test_day7_terminal_via_facade_never_creates_day8() -> void:
 	assert_true(applied.get("ok", false))
 	assert_eq(game_state.day, 7, "a legacy Day-8 sentinel migrates to the Day-7 terminal")
 	assert_eq(game_state._run_lifecycle.get_state(), &"ENDING")
+
+
+# ---- Task 3 (Amendment Plan 03, dwm-oyo.3): the read-only Schedule-warning capture ----
+
+const WARNING_STATE_KEYS: Array = [
+	"accepted_date_action_ids", "base_opportunity_remaining", "branch_id",
+	"causal_day_instance", "day", "desktop_timeline_generation",
+	"eligible_unread_date_message_ids", "motivation", "next_app_round_ordinal", "run_id",
+]
+
+func test_capture_schedule_warning_state_is_narrow_read_only_and_exact() -> void:
+	var game_state := _fresh_game_state()
+	var live_before: Dictionary = game_state.to_save_dict()
+	var captured: Dictionary = game_state.capture_schedule_warning_state()
+	assert_true(captured.get("ok", false), JSON.stringify(captured))
+	var envelope_keys: Array = captured.keys()
+	envelope_keys.sort()
+	assert_eq(envelope_keys, ["code", "ok", "receipt", "value"], "the master envelope")
+	assert_eq(captured.get("receipt", {"x": 1}), {}, "a read issues no receipt")
+	var value_keys: Array = (captured.get("value", {}) as Dictionary).keys()
+	assert_eq(value_keys, ["state"], "the value is exactly {state}")
+	var state: Dictionary = (captured.get("value", {}) as Dictionary).get("state", {})
+	var state_keys: Array = state.keys()
+	state_keys.sort()
+	assert_eq(state_keys, WARNING_STATE_KEYS, "the exact ten-member warning state")
+	assert_eq(int(state.get("day", -1)), game_state.day, "day is the lifecycle's")
+	assert_eq(int(state.get("motivation", -1)), 7, "motivation is the canonical stat")
+	assert_eq(state.get("eligible_unread_date_message_ids", ["x"]), [],
+		"a fresh run has no unread date-enabling message")
+	assert_eq(state.get("accepted_date_action_ids", ["x"]), [],
+		"a fresh run has no acceptance")
+	var ordinal: Variant = state.get("next_app_round_ordinal", -1)
+	assert_true(ordinal == null or (typeof(ordinal) == TYPE_INT
+		and int(ordinal) >= 1 and int(ordinal) <= 5),
+		"next_app_round_ordinal is 1..5 or null, null only after exhaustion")
+	assert_true(typeof(state.get("base_opportunity_remaining", "x")) == TYPE_BOOL,
+		"base_opportunity_remaining is a strict bool")
+	assert_eq(game_state.to_save_dict(), live_before, "the capture mutates nothing")
+
+
+func test_capture_schedule_warning_state_facts_are_day_scoped_and_detached() -> void:
+	var game_state := _fresh_game_state()
+	var offered_b: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
+		game_state.contacts, "sylvia", 1, "msg:s1", "tx:offer:s1")
+	assert_true(offered_b.get("ok", false), JSON.stringify(offered_b))
+	game_state.contacts = (offered_b.get("value", {}) as Dictionary).get("candidate", {})
+	var offered_a: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
+		game_state.contacts, "priscilla", 1, "msg:p1", "tx:offer:p1")
+	assert_true(offered_a.get("ok", false), JSON.stringify(offered_a))
+	game_state.contacts = (offered_a.get("value", {}) as Dictionary).get("candidate", {})
+	var offered_far: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
+		game_state.contacts, "lavinia", 2, "msg:l2", "tx:offer:l2")
+	assert_true(offered_far.get("ok", false), JSON.stringify(offered_far))
+	game_state.contacts = (offered_far.get("value", {}) as Dictionary).get("candidate", {})
+	var captured: Dictionary = game_state.capture_schedule_warning_state()
+	assert_true(captured.get("ok", false), JSON.stringify(captured))
+	var state: Dictionary = (captured.get("value", {}) as Dictionary).get("state", {})
+	assert_eq(state.get("eligible_unread_date_message_ids", []), ["msg:p1", "msg:s1"],
+		"unread current-day offers, sorted and unique; another day's offer is excluded")
+	(state.get("eligible_unread_date_message_ids", []) as Array).clear()
+	var recaptured: Dictionary = game_state.capture_schedule_warning_state()
+	assert_eq(((recaptured.get("value", {}) as Dictionary).get("state", {})
+		as Dictionary).get("eligible_unread_date_message_ids", []), ["msg:p1", "msg:s1"],
+		"the returned arrays are detached canonical facts")

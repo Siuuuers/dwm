@@ -3,7 +3,8 @@ extends RefCounted
 
 ## The editable saved-ScheduleView owner (Amendment Plan 03 Task 2, dwm-oyo.3).
 ##
-## Exact frozen 12-method surface from the plan (Task 2 Step 4). The controller derives
+## Exact frozen 12-method surface from the plan (Task 2 Step 4), plus the Task-3
+## warning surface (see the derived-surface note above the warning methods). The controller derives
 ## kind, participants, repeatability and eligibility from the injected registry through
 ## ScheduleActionRegistry.lookup() at the configured fingerprint; every edit is validated
 ## through the injected ScheduleRules (validate_draft_candidate for adds -- existing-state
@@ -23,6 +24,7 @@ extends RefCounted
 
 const _VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const _WARNING_POLICY := preload("res://scripts/domain/schedule/ScheduleWarningPolicy.gd")
 
 ## The day-local members commit/rollback/transition installs replace; the ledger is not
 ## among them by design.
@@ -40,6 +42,8 @@ var _registry: Object = null
 var _rules: Object = null
 var _fingerprint := ""
 var _view: Dictionary = {}
+var _warning_identity: Object = null
+var _warning_identity_configured := false
 
 
 func configure(action_registry: Object, schedule_rules: Object,
@@ -242,6 +246,303 @@ func commit(candidate: Dictionary) -> Dictionary:
 
 func rollback(backup: Dictionary) -> Dictionary:
 	return _install_checked(backup, &"invalid_view_backup", "backup")
+
+
+# ---- the Task-3 warning surface (Amendment Plan 03 Task 3 Steps 5-6, dwm-oyo.3) ----
+#
+# DERIVED SURFACE NOTE (deviation-class design decision, Task 3 Phase A -- reviewer, see the
+# task record). The plan names only configure_warning_identity() (Step 5) and the terminal
+# resolve_warning() transaction root (child-identity rows P03.warning.dismissal/navigation,
+# plan lines 108-109). The activation entry request_warning_activation(transaction_id,
+# transaction_issuer_receipt, context) is DERIVED from Step 5's "ScheduleDoneCommandPort
+# later passes {transaction_id,transaction_issuer_receipt}" plus row P03.warning.activation
+# (parent: the request_done() transaction receipt) and Step 6's modal idempotence law.
+# resolve_warning(transaction_id, transaction_issuer_receipt, resolution) carries one exact
+# resolution Dictionary: {outcome:"dismissed"} | {outcome:"navigation_committed",
+# intent:String} | {outcome:"navigation_failed", intent:String, failure_code:String}.
+# No separate read methods exist: pending_warning, its attempt_receipts, and
+# consumed_warning_receipts are Task-2 view members and ride snapshot().
+
+
+func configure_warning_identity(identity_issuer: Object) -> Dictionary:
+	if identity_issuer == null or not identity_issuer.has_method("verify_issued") \
+			or not identity_issuer.has_method("validate_child") \
+			or not identity_issuer.has_method("derive_child"):
+		return _fail(&"invalid_warning_identity_issuer",
+			"the exact Plan-02 issuer object is required", {})
+	if _warning_identity_configured:
+		if identity_issuer == _warning_identity:
+			return _ok({"configured": true, "already_configured": true})
+		return _fail(&"warning_identity_already_configured",
+			"the warning identity issuer is retained once and never replaced", {})
+	_warning_identity = identity_issuer
+	_warning_identity_configured = true
+	return _ok({"configured": true, "already_configured": false})
+
+
+func request_warning_activation(transaction_id: String,
+		transaction_issuer_receipt: Dictionary, context: Dictionary) -> Dictionary:
+	var guard := _warning_guard()
+	if not guard.is_empty():
+		return guard
+	var validated_context: Dictionary = _WARNING_POLICY.validate_context(context)
+	if not validated_context.get("ok", false):
+		return validated_context
+	var root := _warning_root_error(transaction_id, transaction_issuer_receipt)
+	if not root.is_empty():
+		return root
+	var crossover := _terminal_transaction_error(transaction_id)
+	if not crossover.is_empty():
+		return crossover
+	var pending: Variant = _view["pending_warning"]
+	if typeof(pending) == TYPE_DICTIONARY:
+		# Modal idempotence: the same Done command returns the same pending activation;
+		# any different Done command is rejected while the modal is open.
+		if str((pending as Dictionary)["opened_by_transaction_id"]) == transaction_id:
+			return _ok({"warning": (pending as Dictionary).duplicate(true)})
+		return _fail(&"warning_modal_active",
+			"a warning modal is open under another Done transaction", {})
+	var next: Dictionary = _WARNING_POLICY.next_warning(_view, context)
+	if not next.get("ok", false):
+		return next
+	var warning: Variant = (next["value"] as Dictionary)["warning"]
+	if warning == null:
+		return _ok({"warning": null})
+	var kind := str((warning as Dictionary)["warning_kind"])
+	var digest := str((warning as Dictionary)["warning_state_fingerprint"])
+	# The immutable preimage is exactly {view_projection, context}; canonical hashing of
+	# this stored preimage equals warning_state_fingerprint, and no later copy is ever
+	# reconstructed from live owners.
+	var preimage := {
+		"view_projection": {
+			"day": int(_view["day"]),
+			"causal_day_instance": str(_view["causal_day_instance"]),
+			"entries": (_view["entries"] as Array).duplicate(true),
+			"date_entry_seen": bool(_view["date_entry_seen"]),
+		},
+		"context": context.duplicate(true),
+	}
+	var sources: Array = [
+		_p("warning_kind", kind),
+		_p("warning_state_fingerprint", digest),
+	]
+	sources.sort()
+	var request := {
+		"child_kind": "warning",
+		"ordinal": 0,
+		"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
+		"source_ids": sources,
+	}
+	var derived: Dictionary = _warning_identity.call(&"derive_child", request)
+	if not derived.get("ok", false):
+		return derived
+	var value: Dictionary = derived["value"]
+	var record := {
+		"activation_id": str(value["child_id"]),
+		"activation_id_provenance": (value["provenance"] as Dictionary).duplicate(true),
+		"warning_fingerprint_preimage": preimage.duplicate(true),
+		"warning_state_fingerprint": digest,
+		"warning_kind": kind,
+		"opened_by_transaction_id": transaction_id,
+		"opened_by_transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
+		"state": "pending",
+		"attempt_receipts": {},
+	}
+	_view["pending_warning"] = record.duplicate(true)
+	return _ok({"warning": record.duplicate(true)})
+
+
+func resolve_warning(transaction_id: String, transaction_issuer_receipt: Dictionary,
+		resolution: Dictionary) -> Dictionary:
+	var guard := _warning_guard()
+	if not guard.is_empty():
+		return guard
+	var shape := _resolution_error(resolution)
+	if not shape.is_empty():
+		return shape
+	var root := _warning_root_error(transaction_id, transaction_issuer_receipt)
+	if not root.is_empty():
+		return root
+	var outcome := str(resolution["outcome"])
+	# Terminal-transaction idempotence and conflict law, checked before anything mutates:
+	# an identical replay returns the original durable receipt; changed bytes refuse.
+	var consumed: Dictionary = _view["consumed_warning_receipts"]
+	for key: Variant in consumed:
+		var stored: Variant = consumed[key]
+		if typeof(stored) != TYPE_DICTIONARY:
+			continue
+		if str((stored as Dictionary).get("transaction_id", "")) != transaction_id:
+			continue
+		if _matches_terminal(stored as Dictionary, resolution):
+			return _ok({"receipt": (stored as Dictionary).duplicate(true)})
+		return _fail(&"warning_transaction_conflict",
+			"a terminal transaction is never reused with different bytes", {})
+	var pending: Variant = _view["pending_warning"]
+	if typeof(pending) == TYPE_DICTIONARY:
+		var attempts: Dictionary = (pending as Dictionary)["attempt_receipts"]
+		if attempts.has(transaction_id):
+			var attempt: Dictionary = attempts[transaction_id]
+			if _matches_terminal(attempt, resolution):
+				return _ok({"receipt": attempt.duplicate(true)})
+			return _fail(&"warning_transaction_conflict",
+				"a terminal transaction is never reused with different bytes", {})
+	else:
+		return _fail(&"no_pending_warning", "no warning activation is open", {})
+	var open_pending := pending as Dictionary
+	if str(open_pending["opened_by_transaction_id"]) == transaction_id:
+		return _fail(&"warning_transaction_conflict",
+			"the activation's own transaction never resolves it", {})
+	var child_kind := "warning" if outcome == "dismissed" else "navigation"
+	var request := {
+		"child_kind": child_kind,
+		"ordinal": 0,
+		"parent_receipt_id": str(transaction_issuer_receipt.get("receipt_id", "")),
+		"source_ids": _terminal_sources(open_pending, resolution),
+	}
+	var derived: Dictionary = _warning_identity.call(&"derive_child", request)
+	if not derived.get("ok", false):
+		return derived
+	var value: Dictionary = derived["value"]
+	var receipt := {
+		"receipt_id": str(value["child_id"]),
+		"receipt_provenance": (value["provenance"] as Dictionary).duplicate(true),
+		"activation_id": str(open_pending["activation_id"]),
+		"activation_id_provenance":
+			(open_pending["activation_id_provenance"] as Dictionary).duplicate(true),
+		"warning_fingerprint_preimage":
+			(open_pending["warning_fingerprint_preimage"] as Dictionary).duplicate(true),
+		"warning_state_fingerprint": str(open_pending["warning_state_fingerprint"]),
+		"warning_kind": str(open_pending["warning_kind"]),
+		"transaction_id": transaction_id,
+		"transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
+		"terminal_result": outcome,
+	}
+	if outcome == "navigation_failed":
+		# A failed route appends its terminal receipt durably, leaves the same activation
+		# pending, and never enters the consumed map.
+		receipt["failure_code"] = str(resolution["failure_code"])
+		var live_attempts: Dictionary = \
+			(_view["pending_warning"] as Dictionary)["attempt_receipts"]
+		live_attempts[transaction_id] = receipt.duplicate(true)
+		return _ok({"receipt": receipt.duplicate(true)})
+	# A successful terminal stores its durable receipt under fingerprint|kind FIRST and
+	# removes the pending activation only afterwards.
+	var consumed_key := str(open_pending["warning_state_fingerprint"]) + "|" \
+			+ str(open_pending["warning_kind"])
+	(_view["consumed_warning_receipts"] as Dictionary)[consumed_key] = \
+		receipt.duplicate(true)
+	_view["pending_warning"] = null
+	return _ok({"receipt": receipt.duplicate(true)})
+
+
+# ---- warning internals ----
+
+func _warning_guard() -> Dictionary:
+	var guard := _view_guard()
+	if not guard.is_empty():
+		return guard
+	if not _warning_identity_configured:
+		return _fail(&"warning_identity_unconfigured",
+			"configure_warning_identity() was never called", {})
+	return {}
+
+
+## A transaction root is single-purpose (Important-1, Task 3 review): an ID that
+## already anchors a terminal receipt -- consumed or failed-attempt -- never opens
+## an activation, and the activation's own root never resolves it.
+func _terminal_transaction_error(transaction_id: String) -> Dictionary:
+	var consumed: Dictionary = _view["consumed_warning_receipts"]
+	for key: Variant in consumed:
+		var stored: Variant = consumed[key]
+		if typeof(stored) == TYPE_DICTIONARY \
+				and str((stored as Dictionary).get("transaction_id", "")) == transaction_id:
+			return _fail(&"warning_transaction_conflict",
+				"a terminal transaction never reopens an activation", {})
+	var pending: Variant = _view["pending_warning"]
+	if typeof(pending) == TYPE_DICTIONARY \
+			and ((pending as Dictionary)["attempt_receipts"] as Dictionary)\
+			.has(transaction_id):
+		return _fail(&"warning_transaction_conflict",
+			"a terminal transaction never reopens an activation", {})
+	return {}
+
+
+func _warning_root_error(transaction_id: String, receipt: Dictionary) -> Dictionary:
+	if transaction_id.is_empty() or str(receipt.get("token", "")) != transaction_id:
+		return _fail(&"invalid_warning_transaction_root",
+			"the transaction receipt must carry its own transaction token", {})
+	var proven: Dictionary = _warning_identity.verify_issued(receipt, &"transaction_id")
+	if not proven.get("ok", false):
+		return _fail(&"invalid_warning_transaction_root",
+			"the transaction root does not verify against the issuer ledger",
+			{"cause": proven.get("code", &"")})
+	return {}
+
+
+func _resolution_error(resolution: Dictionary) -> Dictionary:
+	var keys: Array = resolution.keys()
+	keys.sort()
+	var outcome := str(resolution.get("outcome", ""))
+	var expected: Array = []
+	match outcome:
+		"dismissed":
+			expected = ["outcome"]
+		"navigation_committed":
+			expected = ["intent", "outcome"]
+		"navigation_failed":
+			expected = ["failure_code", "intent", "outcome"]
+		_:
+			return _fail(&"invalid_warning_resolution",
+				"outcome is dismissed | navigation_committed | navigation_failed",
+				{"outcome": outcome})
+	if keys != expected:
+		return _fail(&"invalid_warning_resolution",
+			"the resolution carries exactly " + str(expected), {"field": "keys"})
+	for field: String in expected:
+		if typeof(resolution[field]) != TYPE_STRING or str(resolution[field]).is_empty():
+			return _fail(&"invalid_warning_resolution",
+				field + " is a nonempty String", {"field": field})
+	return {}
+
+
+## The exact P03.warning.dismissal / P03.warning.navigation source projections (plan lines
+## 108-109), lexically sorted before issuance.
+func _terminal_sources(anchor: Dictionary, resolution: Dictionary) -> Array:
+	var sources: Array = []
+	if str(resolution["outcome"]) == "dismissed":
+		sources = [
+			_p("activation_id", str(anchor.get("activation_id", ""))),
+			_p("warning_state_fingerprint",
+				str(anchor.get("warning_state_fingerprint", ""))),
+			_p("warning_kind", str(anchor.get("warning_kind", ""))),
+			_p("outcome", "dismissed"),
+		]
+	else:
+		sources = [
+			_p("activation_id", str(anchor.get("activation_id", ""))),
+			_p("warning_kind", str(anchor.get("warning_kind", ""))),
+			_p("intent", str(resolution.get("intent", ""))),
+		]
+	sources.sort()
+	return sources
+
+
+func _matches_terminal(stored: Dictionary, resolution: Dictionary) -> bool:
+	if str(stored.get("terminal_result", "")) != str(resolution["outcome"]):
+		return false
+	var provenance: Dictionary = stored.get("receipt_provenance", {})
+	if provenance.get("source_ids", []) != _terminal_sources(stored, resolution):
+		return false
+	if str(resolution["outcome"]) == "navigation_failed" \
+			and str(stored.get("failure_code", "")) != str(resolution["failure_code"]):
+		return false
+	return true
+
+
+## P(name,value): the single nonblank String name + "=" + canonical JSON (plan line 103).
+func _p(name: String, value: Variant) -> String:
+	var emitted: Dictionary = _CANONICAL_JSON.stringify(value)
+	return name + "=" + str(emitted.get("value", ""))
 
 
 # ---- internals ----

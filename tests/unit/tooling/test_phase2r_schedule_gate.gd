@@ -655,6 +655,12 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	# eleventh and twelfth (dwm-oyo.3 slice, 2026-08-24, dwm-p2r.21): the policy derives the
 	# P03.condition.decision/.destination/.notification rows exclusively THROUGH the context seam,
 	# and that seam's own single call is the delegation into the production issuer proven above.
+	# ScheduleViewController.gd added as the thirteenth (Amendment Plan 03 Task 3,
+	# dwm-oyo.3, recorded deviation authorized by the maintainer): its warning
+	# activation and terminal receipts (rows P03.warning.activation/dismissal/
+	# navigation) are likewise derived through the production issuer's own seam under
+	# the already-registered "warning" and "navigation" child kinds; folded here per
+	# this file's own established precedent above.
 	assert_eq(call_paths, [
 		"scripts/application/desktop/DesktopConditionPolicyPort.gd",
 		"scripts/application/desktop/DesktopConsequenceCoordinator.gd",
@@ -665,10 +671,11 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"scripts/application/run/DayResolutionStartPort.gd",
 		"scripts/application/run/GameStateDayResolutionPort.gd",
 		"scripts/application/schedule/GameStateScheduleCommitPort.gd",
+		"scripts/application/schedule/ScheduleViewController.gd",
 		"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd",
 		"scripts/domain/contact/ContactInvitationState.gd",
 		"scripts/domain/schedule/Day7ScheduleProvenance.gd",
-	], "exactly the twelve attributed producers call derive_child")
+	], "exactly the thirteen attributed producers call derive_child")
 
 
 func test_bootstrap_probe_key_set_and_owner_bindings_are_exact() -> void:
