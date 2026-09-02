@@ -23,6 +23,15 @@ extends RefCounted
 ## Cross-manifest effect-vocabulary parity deliberately lives in the tooling validator, never here:
 ## tests/support/ScheduleRegistryFixtures.stale_records() uses an effect id outside effects.json and
 ## must keep constructing so the stale-fingerprint rejection test stays honest.
+##
+## TASK-2 SAME-OWNER ADAPTER (Amendment Plan 03 Task 2, dwm-oyo.3; DEVIATION-18 Ruling 18-A
+## item 4, recorded 2026-09-02 on the bead). The plan's consumed-interface lock names
+## lookup(action_id, expected_fingerprint) and snapshot(expected_fingerprint); the ratified
+## surface above ships find_record(action_id). The sanctioned "one thin same-owner adapter"
+## (plan Global Constraints line 19) lands HERE, in the owning file: lookup() verifies the
+## caller's expected fingerprint against fingerprint() and then delegates to find_record();
+## snapshot() returns a fingerprint-verified detached copy of the records. Neither issues a
+## validation receipt -- pure lookup law -- and the ratified two-method surface is unchanged.
 
 const MANIFEST_PATH := "res://data/manifests/schedule_actions.v1.json"
 const SCHEMA_PATH := "res://schemas/manifests/schedule-actions.schema.json"
@@ -161,6 +170,48 @@ func find_record(action_id: String) -> Dictionary:
 		"value": {"record": (_records[action_id] as Dictionary).duplicate(true)},
 		"receipt": {},
 	}
+
+
+# ---- the Task-2 consumed-interface-lock adapter (Ruling 18-A item 4) ----
+
+
+## Fingerprint-verified lookup from the Plan 03 consumed-interface lock. A caller-supplied
+## fingerprint string alone is never proof: it must equal this registry's own fingerprint
+## before any record is served. Pure lookup issues no validation receipt.
+func lookup(action_id: String, expected_fingerprint: Variant) -> Dictionary:
+	var guard := _expected_fingerprint_error(expected_fingerprint)
+	if not guard.is_empty():
+		return guard
+	return find_record(action_id)
+
+
+## Fingerprint-verified detached snapshot from the same lock. Mutating the returned records
+## can never reach the retained registry.
+func snapshot(expected_fingerprint: Variant) -> Dictionary:
+	var guard := _expected_fingerprint_error(expected_fingerprint)
+	if not guard.is_empty():
+		return guard
+	var records: Dictionary = {}
+	for action_id: String in _records:
+		records[action_id] = (_records[action_id] as Dictionary).duplicate(true)
+	return {
+		"ok": true,
+		"code": &"ok",
+		"value": {"records": records, "registry_fingerprint": _fingerprint},
+		"receipt": {},
+	}
+
+
+func _expected_fingerprint_error(expected_fingerprint: Variant) -> Dictionary:
+	if typeof(expected_fingerprint) != TYPE_STRING or str(expected_fingerprint).is_empty():
+		return _fail(&"invalid_expected_fingerprint",
+			"an expected registry fingerprint must be a nonempty String",
+			{"expected": expected_fingerprint})
+	if str(expected_fingerprint) != _fingerprint:
+		return _fail(&"stale_registry_fingerprint",
+			"the registry no longer matches the expected fingerprint",
+			{"expected": str(expected_fingerprint), "actual": _fingerprint})
+	return {}
 
 
 # ---- validation ----
