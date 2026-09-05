@@ -1,2 +1,24 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
+
+# Retained UI proof and font provenance use hashes of their original bytes.
+/evidence/backup_ui/** -text
+/evidence/contacts_component/** -text
+/evidence/contacts_integration/** -text
+/evidence/desktop_shell/** -text
+/evidence/integration_readiness/** -text
+/evidence/save_load_loop/** -text
+/evidence/title_resume/** -text
+/evidence/title_shell/** -text
+/evidence/ui_checkpoint/** -text
+/tools/backup_ui/evidence/** -text
+/tools/desktop_shell/evidence/** -text
+/tools/save_load_loop/evidence/** -text
+/tools/title_resume/evidence/** -text
+/tools/title_shell/evidence/** -text
+/assets/ui/contacts/fonts/sources.json -text
+
+# Preserve these existing runner bytes bound by retained source receipts.
+/tests/save_load_capture/verify.py -text
+/tools/desktop_shell/verify.py -text
+/tests/backup_operations/README.md -text

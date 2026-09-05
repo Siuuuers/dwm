@@ -1,0 +1,113 @@
+{
+  "status": "desktop_shell_foundation_verified",
+  "date": "2026-09-05",
+  "worktree": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build",
+  "base_commit": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+  "requirements": {
+    "workspace_and_single_strip": {
+      "evidence": [
+        "shell",
+        "contacts_regression"
+      ],
+      "proved": "Actual MainGameScene workspace800x720 at480,0; shared64px strip; Contacts800x656 at480,64, hidden inherited bar; Settings scrollable content with hidden bar."
+    },
+    "seven_entry_launcher": {
+      "evidence": [
+        "shell",
+        "independent-review.md"
+      ],
+      "proved": "Registry order,176px square cells,inset24,gutter16,seven targets,no eighth target. Current/Disabled Home independently projected; source review of independent focus/hover/press drawing."
+    },
+    "keyboard_controller_navigation": {
+      "evidence": [
+        "shell",
+        "settings",
+        "contacts_regression"
+      ],
+      "proved": "Nonwrapping directional and Tab paths,focus does not activate,semantic app return focus,one-level Back and popup priority. Input simulation; no controller hardware claim."
+    },
+    "multilingual_readability": {
+      "evidence": [
+        "shell"
+      ],
+      "proved": "English,zh-CN,zh-HK at100/125/150;actual font glyph coverage,caption bounds,fixedgrid/strip;clock digits tabular."
+    },
+    "contacts_reading_and_lifecycle": {
+      "evidence": [
+        "shell",
+        "contacts_regression",
+        "real_owner"
+      ],
+      "proved": "Selection/unread/reply and scrolling preserved;semantic cached focus;Home rebinding;day/restore eviction including failed restored views;owner-issued actions remain guarded."
+    },
+    "supported_routes_and_failure": {
+      "evidence": [
+        "shell",
+        "settings",
+        "real_owner",
+        "owner-route-audit.md"
+      ],
+      "proved": "Contacts real owners retained;real existing Settings preferences use initialized real managers with isolated storage. Otherfive routes reject beforehostmutation. Unsupported restore keepsactual identity/title untilownerreset."
+    },
+    "routine_clock": {
+      "evidence": [
+        "shell",
+        "independent-review.md"
+      ],
+      "proved": "Read-only localHH:MM,minute scheduling,invalidunavailable,unfocusedinitial/transition no reads,timer stop,foregroundrefresh,no gameplaywrites."
+    },
+    "focused_verification_and_review": {
+      "evidence": [
+        "shell",
+        "settings",
+        "contacts_regression",
+        "real_owner",
+        "independent-review.md"
+      ],
+      "proved": "All four final receipts pass and all recorded source hashes match current files. Review resolved material findings. No ablation added because there is no unresolved layout alternative to measure."
+    }
+  },
+  "checks": {
+    "shell": {
+      "passed": true,
+      "source_bindings_matched": 71,
+      "receipt": "shell-result.json",
+      "log": "shell.log",
+      "receipt_sha256": "b978d9bca55411e221f261a9d3fafb278cbde4a1bf53c628bc985865b9fa242d",
+      "scope": "Real MainGameScene, desktop, Contacts and Settings scenes/controller; real ProfileManager and LocalizationManager explicitly initialized with a shared mutation gate and in-memory FakeFileOps for cross-app routing. Contacts projection and desktop host are fakes. Covers launcher/shared strip, multilingual layout, clock, navigation and cache focus. No configured game autoloads, player persistence, full Bootstrap startup or GPU raster proof."
+    },
+    "settings": {
+      "passed": true,
+      "source_bindings_matched": 31,
+      "receipt": "settings-result.json",
+      "log": "settings.log",
+      "receipt_sha256": "d384cbcdb60bfab6e48f2245b960e4552cebdf6dd304f77ee84970fba45de7c2",
+      "scope": "Real Settings scene/controller/ProfileManager/LocalizationManager, fake FileOps, headless geometry and focus; no production profile writes or full startup."
+    },
+    "contacts_regression": {
+      "passed": true,
+      "source_bindings_matched": 51,
+      "receipt": "contacts_regression-result.json",
+      "log": "contacts_regression.log",
+      "receipt_sha256": "3c0f74ee5c7ecc7f6ee7906256b239ef4824094cf1cfc7f345d532c0fc09fca8",
+      "scope": "Real Contacts and shared-shell scene integration with fake application ports, isolated headless Godot; no game autoloads or user persistence. Not GPU raster proof."
+    },
+    "real_owner": {
+      "passed": true,
+      "source_bindings_matched": 139,
+      "receipt": "real_owner-result.json",
+      "log": "real_owner.log",
+      "receipt_sha256": "a29143285a3d527263d3b96c885de0a5d8ce544242467591e449f83f3c24903a",
+      "scope": "Real GameState preview/commit and real Bootstrap Contacts configuration; manual fixture startup, not full application startup."
+    }
+  },
+  "limits": [
+    "Only the desktop shell foundation is complete; other Shared Shell areas and UI-00R recovery are not completed.",
+    "Minesweeper,Schedule,Shop,Backup,Logout launcher operations remain unavailable pending documented production bindings.",
+    "Final Contacts correspondence and general durable history-read remain incomplete.",
+    "Settings hosting reuses existing controls; full Settings design and continuous font preference/preset reconciliation are outside this milestone.",
+    "Headless geometry/input and manual owner fixtures do not prove full startup,GPU rendering,WindowsDPI orhardware accessibility.",
+    "Unfiltered logs retain known sandbox certificate-store and inherited JsonFileStorage Unicode NUL diagnostics.",
+    "Changes remain uncommitted in the isolated worktree; no installation into root/destination,registry orsource archival."
+  ]
+}

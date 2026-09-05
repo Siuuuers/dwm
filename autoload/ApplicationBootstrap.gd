@@ -3,11 +3,21 @@ extends Node
 signal application_ready()
 signal development_subset_ready(subset_id: StringName)
 
+## The cache disappears with its desktop scene; the host owner outlives both.
+class ContactsDesktopEvictionPort extends RefCounted:
+	var view: WeakRef
+	func dispatch_desktop_eviction(command: Dictionary) -> Dictionary:
+		var desktop: Object = view.get_ref() if view != null else null
+		if desktop == null:
+			return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+		return desktop.dispatch_desktop_eviction(command)
+
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const DESKTOP_ISSUER_ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const CRYPTO_DESKTOP_NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
 const DESKTOP_IDENTITY_NONCE_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const CONTACT_COMMAND_PORT := preload("res://scripts/application/contact/ContactCommandPort.gd")
+const CONTACTS_PRESENTATION_PORT := preload("res://scripts/application/contact/ContactsPresentationPort.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 ## dwm-p2r.13 Plan-01 Task 6: Bootstrap owns day-resolution construction, GameState only installs.
 const DAY_RESOLUTION_STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
@@ -145,6 +155,8 @@ var _retained_presentation_owner_adapter: RefCounted = null
 var _retained_hospital_presentation_port: RefCounted = null
 var _retained_dating_presentation_port: RefCounted = null
 var _contact_command_port: RefCounted = null
+var _contacts_presentation_port: RefCounted = null
+var _contacts_desktop_eviction_port: RefCounted = null
 ## The ONE real checkpoint port, constructed in initialize_saves and reused by the narrative
 ## adapter and the later configure_day_resolution stage. A second construction is a wiring bug.
 var _retained_checkpoint_port: RefCounted = null
@@ -336,7 +348,10 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 				return bound
 			return _wire_narrative_and_ending_ports(bridge)
 		&"publish_application_ready":
-			return _configure_desktop_production_graph()
+			var graph := _configure_desktop_production_graph()
+			if not graph.get("ok", false):
+				return graph
+			return _target(&"SaveManager").configure_backup_capture_provider(_capture_backup_checkpoint_inputs)
 		&"configure_restore_participants":
 			return _configure_restore_participants()
 		&"configure_day_resolution":
@@ -555,6 +570,65 @@ func _active_app_id_context() -> Variant:
 	if _desktop_host_state == null:
 		return null
 	return _desktop_host_state.capture_persistent_state().get("active_app_id", null)
+
+## One pure desktop capture. Physical route readiness and narrative inactivity are
+## required; a semantic route token or an old journal entry cannot stand in for them.
+func _capture_backup_checkpoint_inputs() -> Dictionary:
+	if not _state.get("ready", false) or _application_gate == null or _checkpoint_provider_bundle.is_empty():
+		return _failure(&"backup_capture_unavailable", "Application owners are not ready")
+	var guarded: Dictionary = _application_gate.guard_external(&"backup_capture")
+	if not guarded.get("ok", false):
+		return guarded
+	var scene := get_tree().current_scene
+	var desktop: Object = _contacts_desktop_eviction_port.view.get_ref() if _contacts_desktop_eviction_port != null and _contacts_desktop_eviction_port.view != null else null
+	if scene == null or scene.scene_file_path != "res://scenes/main/MainGameScene.tscn" or desktop == null or not scene.is_ancestor_of(desktop) or not desktop.is_visible_in_tree():
+		return _failure(&"backup_capture_unavailable", "The in-run desktop is not ready")
+	var bridge := _target(&"DialogicBridge")
+	var game_state := _target(&"GameState")
+	if bridge == null or game_state == null or bridge.has_active_playback() or not bridge.get_current_timeline_id().is_empty():
+		return _failure(&"backup_capture_unavailable", "Narrative playback is active or unavailable")
+	if _desktop_board_state == null or _desktop_consequence_state == null:
+		return _failure(&"backup_capture_unavailable", "Desktop state owners are unavailable")
+	var consequence: Dictionary = _desktop_consequence_state.capture()
+	if not consequence.get("ok", false):
+		return consequence
+	var snapshot_input: Dictionary = game_state.capture_run_snapshot_input()
+	# GameState's desktop mirror is a restore cache; the retained owners are live.
+	snapshot_input["desktop"] = {"board": _desktop_board_state.capture(), "consequence": consequence["value"]["state"]}
+	var inputs := {"snapshot_input": snapshot_input}
+	for key in _checkpoint_provider_bundle:
+		inputs[key] = (_checkpoint_provider_bundle[key] as Callable).call()
+	if inputs["route_id"] != "main" or inputs["active_app_id"] != "backup" or not inputs["dialogic_checkpoint"].is_empty():
+		return _failure(&"backup_capture_unavailable", "Backup is not the stable active desktop app")
+	return {"ok": true, "value": inputs}
+
+
+## Mount the UI on the already constructed owners. No production correspondence
+## catalog exists yet; unresolved bodies remain unavailable before any acceptance.
+func configure_contacts_desktop(desktop: Node) -> Dictionary:
+	if not _state.get("ready", false) or _contact_command_port == null or _desktop_host_state == null:
+		return _failure(&"contacts_owners_not_ready", "application owners are not ready")
+	if desktop == null or not desktop.has_method("configure_contacts"):
+		return _failure(&"invalid_contacts_desktop", "desktop presentation seam required")
+	var game_state := get_node_or_null("/root/GameState")
+	if _contacts_presentation_port == null:
+		_contacts_presentation_port = CONTACTS_PRESENTATION_PORT.new()
+		var configured: Dictionary = _contacts_presentation_port.configure(game_state, _contact_command_port, {})
+		if not configured.get("ok", false):
+			_contacts_presentation_port = null
+			return configured
+	if _contacts_desktop_eviction_port == null:
+		_contacts_desktop_eviction_port = ContactsDesktopEvictionPort.new()
+	var registered := register_desktop_eviction_port(_contacts_desktop_eviction_port)
+	if not registered.get("ok", false):
+		return registered
+	# Restored Backup can query live capture synchronously while being mounted.
+	# Bind first, including failed projections that still need owner eviction.
+	_contacts_desktop_eviction_port.view = weakref(desktop)
+	var mounted: Dictionary = desktop.configure_contacts(_contacts_presentation_port,
+		get_node_or_null("/root/LocalizationManager"), get_node_or_null("/root/ProfileManager"),
+		_desktop_host_state, int(game_state.day))
+	return mounted
 
 
 ## Narrative manifest content version provider (positive integer, stable identity/arity).
@@ -1269,7 +1343,7 @@ func _connect_desktop_day_change(game_state: Object) -> void:
 func register_desktop_eviction_port(port: Object) -> Dictionary:
 	if port == null or not port.has_method("dispatch_desktop_eviction"):
 		return _failure(&"invalid_desktop_eviction_port", "port must expose dispatch_desktop_eviction")
-	if _desktop_eviction_port != null:
+	if _desktop_eviction_port != null and is_instance_valid(_desktop_eviction_port):
 		if port == _desktop_eviction_port:
 			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
 		return _failure(&"desktop_eviction_port_already_configured", "a desktop eviction port is already configured")

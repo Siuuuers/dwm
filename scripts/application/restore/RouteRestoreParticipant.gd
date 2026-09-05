@@ -3,13 +3,11 @@ extends RefCounted
 
 ## Restore participant wrapping SceneRouter's semantic route + target-layout
 ## readiness (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
-## apply_silent does not succeed until the registered target scene reports its
-## narrative layout ready, and returns the route-ready token the narrative
-## participant validates before touching Dialogic.
+## SceneRouter owns the route-ready token and physical transition. This participant
+## carries the saved desktop host state within the same prepared route transaction.
 
 var _owner: Object = null
 var _desktop_host: Object = null
-var _desktop_backup: Dictionary = {}
 
 func _init(owner: Object) -> void:
 	_owner = owner
@@ -23,6 +21,8 @@ func configure_desktop_host(host: Object) -> Dictionary:
 			or not host.has_method("reset") or not host.has_method("open_app") \
 			or not host.has_method("close_app") or not host.has_method("capture_persistent_state"):
 		return _fail(&"invalid_desktop_host", "host must expose the DesktopAppHostState contract")
+	if not host.has_method("commit_restore"):
+		return _fail(&"invalid_desktop_host", "host must expose explicit restore commit")
 	if _desktop_host != null:
 		if host == _desktop_host:
 			return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
@@ -39,56 +39,47 @@ func prepare(input: Dictionary) -> Dictionary:
 	if not prepared.get("ok", false):
 		return prepared
 	var value := {"route_plan": prepared.get("value", {})}
-	if _desktop_host != null and input.has("active_app_id") and input.has("day"):
-		_desktop_backup = _desktop_host.get_state().duplicate(true)
-		var restored: Dictionary = _desktop_host.prepare_restore(input["active_app_id"], int(input["day"]))
+	var desktop_context: Dictionary = input["route_context"]
+	if input.has("active_app_id") and input.has("day"):
+		desktop_context = input
+	if _desktop_host != null and desktop_context.has("active_app_id") and desktop_context.has("day"):
+		if typeof(desktop_context["day"]) != TYPE_INT:
+			return _fail(&"invalid_route_input", "saved desktop day must be an integer")
+		var restored: Dictionary = _desktop_host.prepare_restore(desktop_context["active_app_id"], desktop_context["day"])
 		if not restored.get("ok", false):
 			return restored
-		value["desktop"] = restored.get("value", {})
+		value["route_plan"]["desktop"] = restored["value"]["candidate_state"]
 	return {"ok": true, "code": &"ok", "value": value}
 
 func capture() -> Dictionary:
-	return _owner.capture_restore_state()
+	var captured: Dictionary = _owner.capture_restore_state()
+	if captured.get("ok", false) and _desktop_host != null:
+		captured["value"]["desktop_backup"] = _desktop_host.get_state().duplicate(true)
+	return captured
 
 func apply_silent(plan: Dictionary) -> Dictionary:
-	# Succeeds only once the registered target scene reports its narrative layout
-	# ready; the returned route_ready_token gates the narrative participant.
-	var applied: Dictionary = _owner.apply_route_restore_silent(plan)
-	if not applied.get("ok", false):
-		return applied
+	# Preserve SceneRouter's token contract; no scene is instantiated by this adapter.
+	var desktop_backup := {}
 	if _desktop_host != null and plan.has("desktop"):
-		var candidate: Dictionary = plan["desktop"].get("candidate_state", {})
-		var day: int = int(candidate.get("current_day", 1))
-		var active: Variant = candidate.get("active_app_id", null)
-		if active != null:
-			var opened: Dictionary = _desktop_host.open_app(StringName(active), day)
-			if not opened.get("ok", false):
-				return opened
+		if typeof(plan["desktop"]) != TYPE_DICTIONARY:
+			return _fail(&"invalid_route_input", "desktop restore plan must be an object")
+		desktop_backup = _desktop_host.get_state().duplicate(true)
+		var committed: Dictionary = _desktop_host.commit_restore(plan["desktop"])
+		if not committed.get("ok", false):
+			return committed
+	var applied: Dictionary = _owner.apply_route_restore_silent(plan)
+	if not applied.get("ok", false) and not desktop_backup.is_empty():
+		var rolled: Dictionary = _desktop_host.commit_restore(desktop_backup)
+		if not rolled.get("ok", false):
+			return rolled
 	return applied
 
 func rollback_silent(backup: Dictionary) -> Dictionary:
 	var rolled: Dictionary = _owner.rollback_restore_silent(backup)
 	if not rolled.get("ok", false):
 		return rolled
-	if _desktop_host != null and not _desktop_backup.is_empty():
-		# Reconstruct the captured host state deterministically from its get_state() snapshot.
-		var captured: Dictionary = _desktop_backup.duplicate(true)
-		var day: int = int(captured.get("current_day", 1))
-		_desktop_host.reset(day)
-		for cached_id in captured.get("cached_app_ids", []):
-			var reopened: Dictionary = _desktop_host.open_app(StringName(cached_id), day)
-			if not reopened.get("ok", false):
-				return reopened
-		var active: Variant = captured.get("active_app_id", null)
-		if active != null:
-			var reopened: Dictionary = _desktop_host.open_app(StringName(active), day)
-			if not reopened.get("ok", false):
-				return reopened
-		else:
-			var closed: Dictionary = _desktop_host.close_app()
-			if not closed.get("ok", false):
-				return closed
-		_desktop_backup = {}
+	if _desktop_host != null and backup.has("desktop_backup"):
+		return _desktop_host.commit_restore(backup["desktop_backup"])
 	return rolled
 
 func finalize() -> Dictionary:

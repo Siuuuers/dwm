@@ -15,6 +15,7 @@ script = ExtResource("2")
 script = ExtResource("99_presentation")
 
 [node name="RootHBox" type="HBoxContainer" parent="."]
+theme_override_constants/separation = 0
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

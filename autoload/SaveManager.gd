@@ -65,6 +65,21 @@ var _identity_allocation_participant: Object = null
 var _lock_owner: StringName = &""
 var _pending_deferred_save := false
 var _restore_participants: Dictionary = {}
+var _backup_actions: Dictionary = {}
+var _backup_action_sequence := 0
+var _backup_capture_provider: Callable
+var _backup_capture_configured := false
+
+## Bootstrap owns the live desktop source. Fixtures without this provider retain
+## their explicit latest-stable contract; production never silently falls back.
+func configure_backup_capture_provider(provider: Callable) -> Dictionary:
+	if not provider.is_valid() or provider.get_argument_count() != 0 or provider.get_object_id() == 0:
+		return _fail(&"invalid_backup_capture_provider", "A bound zero-argument provider is required")
+	if _backup_capture_configured and _backup_capture_provider != provider:
+		return _fail(&"backup_capture_already_configured", "")
+	_backup_capture_provider = provider
+	_backup_capture_configured = true
+	return {"ok": true}
 
 ## The exact 8-item `DesktopContinuationOperationJournal.PARTICIPANT_ORDER` (Plan 02 Task 6,
 ## dwm-p2r.32, Phase C2): this array IS already the correct apply order, so a single constant now
@@ -141,6 +156,7 @@ func configure_mutation_gate(gate: Object) -> Dictionary:
 				"receipt": {}}
 		return _fail(&"mutation_gate_already_configured", "")
 	_mutation_gate = gate
+	gate.capability_changed.connect(_on_backup_gate_capability_changed)
 	return {"ok": true, "code": &"ok",
 		"value": {"gate_instance_id": _mutation_gate.get_instance_id(), "already_configured": false},
 		"receipt": {}}
@@ -171,6 +187,7 @@ func record_stable_checkpoint(checkpoint_inputs: Dictionary, checkpoint_kind: St
 	if _pending_deferred_save and _lock_owner == &"":
 		_pending_deferred_save = false
 		autosave_latest()
+	save_capability_changed.emit(get_save_capability())
 	return committed
 
 func get_latest_stable_checkpoint() -> Dictionary:
@@ -683,7 +700,12 @@ func _run_participant_transaction(
 		if checkpoint_id.is_empty():
 			checkpoint_id = str(committed["value"]["checkpoint_id"])
 
-	for key: String in _PARTICIPANT_APPLY_ORDER:
+	# Route dispatch queues a physical scene change that rollback cannot cancel.
+	# Finish every other fallible participant before requesting that change.
+	var finalize_order := _PARTICIPANT_APPLY_ORDER.duplicate()
+	finalize_order.erase("route")
+	finalize_order.append("route")
+	for key: String in finalize_order:
 		var finalized: Dictionary = _restore_participants[key].finalize()
 		if not finalized.get("ok", false):
 			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, finalized)
@@ -816,6 +838,270 @@ func get_all_save_metadata() -> Array[Dictionary]:
 	records.append(get_save_metadata(&"autosave", -1))
 	return records
 
+## Read-only Backup projection. Revision is custody evidence, never UI copy or save validity.
+func inspect_backup(locator_id: String) -> Dictionary:
+	var inspected := _inspect_backup(locator_id)
+	if inspected.get("ok", false):
+		inspected["value"].erase("prepared_restore")
+	return inspected
+
+func get_backup_save_capability() -> Dictionary:
+	var allowed := _backup_guard()
+	if not allowed.get("ok", false):
+		return {"enabled": false, "reason": str(allowed.get("code", "unavailable"))}
+	if not get_latest_stable_checkpoint().get("ok", false):
+		return {"enabled": false, "reason": "no_stable_checkpoint"}
+	if _backup_capture_configured:
+		var captured := _capture_backup_inputs()
+		if not captured.get("ok", false):
+			return {"enabled": false, "reason": str(captured.get("code", "backup_capture_unavailable"))}
+	return {"enabled": true, "reason": ""}
+
+func _on_backup_gate_capability_changed(_capability: Dictionary) -> void:
+	save_capability_changed.emit(get_backup_save_capability())
+
+func _inspect_backup(locator_id: String) -> Dictionary:
+	var locator := _backup_locator(locator_id)
+	if locator.is_empty():
+		return _fail(&"INVALID_SAVE_REFERENCE", "")
+	if _storage == null:
+		return _fail(&"not_initialized", "")
+	var inspected: Dictionary = _storage.inspect_revision(str(locator["relative_path"]))
+	if not inspected.get("ok", false):
+		return inspected
+	var evidence: Dictionary = inspected["value"]
+	var record := {"locator": locator_id, "revision": evidence["revision"],
+		"state": "empty" if not evidence["exists"] else "unavailable", "day": null,
+		"saved_time": null, "fallback": false, "load_day": null, "load_saved_time": null,
+		"reason": "", "loadable": false, "operation_allowed": _backup_guard().get("ok", false)}
+	if not evidence["exists"]:
+		return {"ok": true, "value": record}
+	if typeof(evidence.get("text")) != TYPE_STRING:
+		record["reason"] = "unreadable"
+		return {"ok": true, "value": record}
+	var parsed := STRICT_JSON.parse_object(evidence["text"])
+	if not parsed.get("ok", false):
+		record["reason"] = "unreadable"
+		return {"ok": true, "value": record}
+	# The legacy migrator reconstructs outer keys. Validate the actual outer evidence first;
+	# otherwise a future version/wrong locator or false time could be silently relabeled.
+	var valid := SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
+	if not valid.get("ok", false):
+		var version: Variant = parsed["value"].get("schema_version")
+		record["reason"] = "newer_version" if typeof(version) in [TYPE_INT, TYPE_FLOAT] and version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION else "unreadable"
+		return {"ok": true, "value": record}
+	var document: Dictionary = valid["value"]["candidate"]
+	var migrated := SAVE_MIGRATIONS.migrate_document(parsed["value"],
+		{"kind": locator["kind"], "slot_id": locator["slot_id"]})
+	if not migrated.get("ok", false):
+		record["reason"] = "unreadable"
+		return {"ok": true, "value": record}
+	if document["kind"] != locator["kind"] or document["slot_id"] != locator["slot_id"]:
+		record["reason"] = "unreadable"
+		return {"ok": true, "value": record}
+	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
+	record["state"] = "occupied"
+	record["day"] = int(snapshot["lifecycle"]["day"])
+	record["saved_time"] = document.get("saved_time", {}).get("hhmm")
+	var prepared := _prepare_restore_document(locator, document, migrated["value"])
+	if prepared.get("ok", false):
+		var target: Dictionary = prepared["value"]["prepared"]
+		record["loadable"] = true
+		record["fallback"] = str(target["checkpoint_id"]) != str(snapshot["checkpoint_id"])
+		record["load_day"] = int(target["bundle"]["snapshot"]["lifecycle"]["day"])
+		record["load_saved_time"] = null if record["fallback"] else record["saved_time"]
+		record["prepared_restore"] = target
+	else:
+		record["reason"] = "no_compatible_checkpoint" if prepared.get("code") == &"NO_COMPATIBLE_BUNDLE" else "restore_unavailable"
+		if prepared.get("code") != &"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED":
+			record["state"] = "unavailable"
+			record["day"] = null
+			record["saved_time"] = null
+	return {"ok": true, "value": record}
+
+## Detached candidates remain owner-private; tokens convey consent to exactly one candidate.
+func prepare_backup_action(action: String, locator_id: String) -> Dictionary:
+	if action not in ["save", "load", "delete"]:
+		return _fail(&"invalid_backup_action", "")
+	var guard := _backup_guard()
+	if not guard.get("ok", false):
+		return guard
+	var inspected := _inspect_backup(locator_id)
+	if not inspected.get("ok", false):
+		return inspected
+	var record: Dictionary = inspected["value"]
+	var locator := _backup_locator(locator_id)
+	var candidate := {"action": action, "locator": locator, "revision": record["revision"]}
+	if action == "save":
+		if locator_id == "autosave":
+			return _fail(&"automatic_save_only", "")
+		var stable := get_latest_stable_checkpoint()
+		if not stable.get("ok", false):
+			return _fail(&"no_stable_checkpoint", "")
+		var bundle: Dictionary = stable["value"]["bundle"]
+		var earlier: Array = _journal.get_bundles_for_disk()
+		if _backup_capture_configured:
+			var fresh := _prepare_backup_capture()
+			if not fresh.get("ok", false):
+				return fresh
+			candidate.merge(fresh["value"])
+			bundle = candidate["journal_candidate"]["current"]
+			earlier = candidate["journal_candidate"]["earlier"]
+		var built := SAVE_DOCUMENT_SCHEMA.build(StringName(locator["kind"]), locator["slot_id"],
+			&"quick" if locator_id == "quick" else &"manual", bundle, earlier, _capture_saved_time())
+		if not built.get("ok", false):
+			return built
+		candidate["document"] = built["value"]
+		candidate["stable_hash"] = _canonical_sha256(stable["value"]["bundle"])
+	elif action == "load":
+		if not record["loadable"]:
+			return _fail(&"backup_load_unavailable", "")
+		candidate["prepared_restore"] = record["prepared_restore"]
+	elif record["state"] == "empty":
+		return _fail(&"save_absent", "")
+	record.erase("prepared_restore")
+	_backup_action_sequence += 1
+	var token := "backup-%d" % _backup_action_sequence
+	_backup_actions[token] = candidate.duplicate(true)
+	return {"ok": true, "value": {"token": token, "record": record}}
+
+func cancel_backup_action(token: String) -> void:
+	_backup_actions.erase(token)
+
+func commit_backup_action(token: String) -> Dictionary:
+	if not _backup_actions.has(token):
+		return _fail(&"stale_backup_action", "")
+	var candidate: Dictionary = _backup_actions[token]
+	# Every result consumes consent; retries require a fresh prepare and confirmation.
+	_backup_actions.erase(token)
+	var guard := _backup_guard()
+	if not guard.get("ok", false):
+		return guard
+	var locator: Dictionary = candidate["locator"]
+	var path := str(locator["relative_path"])
+	var current: Dictionary = _storage.inspect_revision(path)
+	if not current.get("ok", false):
+		return current
+	if current["value"]["revision"] != candidate["revision"]:
+		return _fail(&"stale_backup_target", "")
+	match str(candidate["action"]):
+		"load":
+			var reconciled: Dictionary = _storage.reconcile(path, _document_text_validator)
+			if not reconciled.get("ok", false):
+				return reconciled
+			current = _storage.inspect_revision(path)
+			if not current.get("ok", false) or current["value"]["revision"] != candidate["revision"]:
+				return _fail(&"stale_backup_target", "")
+			return commit_prepared_restore(candidate["prepared_restore"])
+		"delete":
+			var removed: Dictionary = _storage.remove_if_revision(path, candidate["revision"])
+			if removed.get("ok", false):
+				slot_metadata_changed.emit()
+			return removed
+		"save":
+			var stable := get_latest_stable_checkpoint()
+			if not stable.get("ok", false) or _canonical_sha256(stable["value"]["bundle"]) != candidate["stable_hash"]:
+				return _fail(&"stale_backup_source", "")
+			if candidate.has("journal_candidate"):
+				var captured := _capture_backup_inputs()
+				if not captured.get("ok", false):
+					return captured
+				if _canonical_sha256(captured["value"]) != candidate["capture_hash"] or _backup_journal_hash() != candidate["journal_hash"]:
+					return _fail(&"stale_backup_source", "")
+			var canonical := CANONICAL_JSON.stringify(candidate["document"])
+			if not canonical.get("ok", false):
+				return canonical
+			var bytes := str(canonical["value"]) + "\n"
+			var written: Dictionary = _storage.write_atomic_if_revision(path, bytes, _document_text_validator, candidate["revision"])
+			if not written.get("ok", false):
+				save_failed.emit(written)
+				return written
+			var read: Dictionary = _storage.read_text(path)
+			if not read.get("ok", false) or str(read["value"]) != bytes:
+				return _fail(&"reread_mismatch", "")
+			if candidate.has("journal_candidate"):
+				if _backup_journal_hash() != candidate["journal_hash"]:
+					return _fail(&"backup_journal_changed_after_write", "Durable save remains available; journal was not overwritten")
+				var advanced: Dictionary = _journal.commit_prepared(candidate["journal_candidate"])
+				if not advanced.get("ok", false):
+					return _fail(&"backup_journal_commit_failed", "Durable save remains available; checkpoint publication failed")
+			var result := {"ok": true, "value": {"written": true}}
+			save_completed.emit(result)
+			slot_metadata_changed.emit()
+			return result
+	return _fail(&"invalid_backup_action", "")
+
+func _capture_backup_inputs() -> Dictionary:
+	if not _backup_capture_provider.is_valid():
+		return _fail(&"backup_capture_unavailable", "Configured source is no longer available")
+	var raw: Variant = _backup_capture_provider.call()
+	if not raw is Dictionary:
+		return _fail(&"invalid_backup_capture", "Capture provider must return a result")
+	if not raw.get("ok", false):
+		return raw.duplicate(true)
+	if not raw.get("value") is Dictionary:
+		return _fail(&"invalid_backup_capture", "Capture inputs are required")
+	var inputs: Dictionary = raw["value"].duplicate(true)
+	var shape_error := _validate_checkpoint_inputs(inputs)
+	if shape_error != "":
+		return _fail(&"invalid_backup_capture", shape_error)
+	if not inputs["dialogic_checkpoint"] is Dictionary or not inputs["audio_context"] is Dictionary \
+			or typeof(inputs["route_id"]) not in [TYPE_STRING, TYPE_STRING_NAME] \
+			or typeof(inputs["active_app_id"]) not in [TYPE_STRING, TYPE_STRING_NAME] \
+			or not inputs["content_version"] is int:
+		return _fail(&"invalid_backup_capture", "Capture context types are invalid")
+	inputs["route_id"] = str(inputs["route_id"])
+	inputs["active_app_id"] = str(inputs["active_app_id"])
+	if inputs["route_id"] != "main" or inputs["active_app_id"] != "backup" or not inputs["dialogic_checkpoint"].is_empty() or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
+		return _fail(&"backup_capture_unavailable", "A stable in-run Backup desktop is required")
+	return {"ok": true, "value": inputs}
+
+func _backup_journal_hash() -> String:
+	return _canonical_sha256(_journal.capture_state()["value"]["backup"])
+
+func _prepare_backup_capture() -> Dictionary:
+	var journal_hash := _backup_journal_hash()
+	var captured := _capture_backup_inputs()
+	if not captured.get("ok", false):
+		return captured
+	var inputs: Dictionary = captured["value"]
+	var run_id := str(inputs["snapshot_input"]["lifecycle"].get("run_id", ""))
+	var sequence: Dictionary = _journal.peek_next_sequence(run_id)
+	if not sequence.get("ok", false):
+		return sequence
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(inputs["snapshot_input"], inputs["dialogic_checkpoint"],
+		inputs["route_id"], inputs["active_app_id"], inputs["audio_context"], inputs["content_version"], sequence["value"]["checkpoint_sequence"])
+	if not built.get("ok", false):
+		return built
+	var prepared: Dictionary = _journal.prepare_record(built["value"]["snapshot"], &"manual_save")
+	if not prepared.get("ok", false):
+		return prepared
+	if _backup_journal_hash() != journal_hash:
+		return _fail(&"stale_backup_source", "Journal changed during capture")
+	return {"ok": true, "value": {"journal_candidate": prepared["value"]["candidate"],
+		"capture_hash": _canonical_sha256(inputs), "journal_hash": journal_hash}}
+
+func _backup_guard() -> Dictionary:
+	if _storage == null:
+		return _fail(&"not_initialized", "")
+	if is_save_locked():
+		return _fail(&"save_locked", "")
+	if _mutation_gate != null:
+		return _mutation_gate.guard_external(&"backup")
+	return {"ok": true}
+
+func _backup_locator(locator_id: String) -> Dictionary:
+	if locator_id not in ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]:
+		return {}
+	return _resolve_locator_from_slot_id(locator_id)
+
+func _capture_saved_time() -> Dictionary:
+	var instant := int(Time.get_unix_time_from_system())
+	var offset := int(Time.get_time_zone_from_system()["bias"])
+	var clock := Time.get_datetime_dict_from_unix_time(instant + offset * 60)
+	return {"unix_seconds": instant, "utc_offset_minutes": offset,
+		"hhmm": "%02d:%02d" % [clock["hour"], clock["minute"]]}
+
 func acquire_save_lock(owner_id: StringName) -> Dictionary:
 	if owner_id not in _LOCK_OWNERS:
 		return _fail(&"invalid_lock_owner", String(owner_id))
@@ -944,7 +1230,7 @@ func _write_latest(locator: Dictionary, save_reason: String) -> Dictionary:
 		return _fail(&"no_stable_checkpoint", "")
 	var built: Dictionary = SAVE_DOCUMENT_SCHEMA.build(
 		StringName(str(locator["kind"])), locator["slot_id"], StringName(save_reason),
-		bundle["value"]["bundle"], _journal.get_bundles_for_disk())
+		bundle["value"]["bundle"], _journal.get_bundles_for_disk(), _capture_saved_time())
 	if not built.get("ok", false):
 		save_failed.emit(built)
 		return built
@@ -969,6 +1255,8 @@ func _write_latest(locator: Dictionary, save_reason: String) -> Dictionary:
 	var document: Dictionary = validated["value"]["candidate"]
 	if str(document["kind"]) != str(locator["kind"]) or str(document["save_reason"]) != save_reason:
 		return _fail(&"reread_mismatch", "locator or reason drift")
+	if _canonical_sha256(document) != _canonical_sha256(built["value"]):
+		return _fail(&"reread_mismatch", "saved candidate drift")
 	var result := {"ok": true, "code": &"ok", "value": {
 		"kind": str(locator["kind"]),
 		"slot_id": locator["slot_id"],
@@ -1008,6 +1296,12 @@ func _prepare_restore(locator: Dictionary) -> Dictionary:
 	if not validated.get("ok", false):
 		return validated
 	document = validated["value"]["candidate"]
+	return _prepare_restore_document(locator, document, migrated["value"])
+
+## Pure shared preparation: Backup inspections do not reconcile files or acquire leases.
+func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary) -> Dictionary:
+	if _restore_participants.is_empty():
+		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 
 	# Order candidates: current bundle first, then earlier journal bundles by
 	# descending checkpoint_sequence. No field is ever combined across bundles.
@@ -1020,7 +1314,7 @@ func _prepare_restore(locator: Dictionary) -> Dictionary:
 
 	var causes: Array = []
 	for bundle: Dictionary in candidates:
-		var prepared := _prepare_bundle_with_all_participants(bundle, migrated["value"], document, locator)
+		var prepared := _prepare_bundle_with_all_participants(bundle, migration_output, document, locator)
 		if prepared.get("ok", false):
 			return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
 		if prepared.get("code") == &"BUNDLE_CONTENT_INCOMPATIBLE":

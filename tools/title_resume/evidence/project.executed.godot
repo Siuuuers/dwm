@@ -1,0 +1,145 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="DWM"
+run/main_scene="res://scenes/menu/MenuScene.tscn"
+config/features=PackedStringArray("4.6", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+SaveLoadLoopObserver="*res://tests/title_resume/Observe.gd"
+
+ProfileManager="*res://autoload/ProfileManager.gd"
+GameState="*res://autoload/GameState.gd"
+SaveManager="*res://autoload/SaveManager.gd"
+LocalizationManager="*res://autoload/LocalizationManager.gd"
+AudioManager="*res://autoload/AudioManager.gd"
+EffectResolver="*res://autoload/EffectResolver.gd"
+SceneRouter="*res://autoload/SceneRouter.gd"
+InputManager="*res://autoload/InputManager.gd"
+AccessibilityManager="*res://autoload/AccessibilityManager.gd"
+Dialogic="*uid://ds2q0uclmolvu"
+DialogicBridge="*res://autoload/DialogicBridge.gd"
+ApplicationBootstrap="*res://autoload/ApplicationBootstrap.gd"
+
+[dialogic]
+
+directories/dch_directory={}
+directories/dtl_directory={
+"alone": "res://dialogic/timelines/en/ending/alone.dtl",
+"day_1": "res://dialogic/timelines/en/day_1.dtl",
+"day_2": "res://dialogic/timelines/en/day_2.dtl",
+"day_3": "res://dialogic/timelines/en/day_3.dtl",
+"day_4": "res://dialogic/timelines/en/day_4.dtl",
+"day_5": "res://dialogic/timelines/en/day_5.dtl",
+"day_6": "res://dialogic/timelines/en/day_6.dtl",
+"day_7": "res://dialogic/timelines/en/day_7.dtl",
+"endings": "res://dialogic/timelines/en/endings.dtl",
+"hospital_faint": "res://dialogic/timelines/en/core/hospital_faint.dtl",
+"lavinia": "res://dialogic/timelines/en/ending/lavinia.dtl",
+"lavinia_day1": "res://dialogic/timelines/en/contacts/lavinia_day1.dtl",
+"lavinia_day2": "res://dialogic/timelines/en/contacts/lavinia_day2.dtl",
+"lavinia_day2_post_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day2_post_challenge.dtl",
+"lavinia_day2_pre_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day2_pre_challenge.dtl",
+"lavinia_day3": "res://dialogic/timelines/en/contacts/lavinia_day3.dtl",
+"lavinia_day3_post_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day3_post_challenge.dtl",
+"lavinia_day3_pre_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day3_pre_challenge.dtl",
+"lavinia_day4": "res://dialogic/timelines/en/contacts/lavinia_day4.dtl",
+"lavinia_day5": "res://dialogic/timelines/en/contacts/lavinia_day5.dtl",
+"lavinia_day5_post_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day5_post_challenge.dtl",
+"lavinia_day5_pre_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day5_pre_challenge.dtl",
+"lavinia_day6": "res://dialogic/timelines/en/contacts/lavinia_day6.dtl",
+"lavinia_day6_post_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day6_post_challenge.dtl",
+"lavinia_day6_pre_challenge": "res://dialogic/timelines/en/dating/solo/lavinia_day6_pre_challenge.dtl",
+"lavinia_day7": "res://dialogic/timelines/en/contacts/lavinia_day7.dtl",
+"opening_day1": "res://dialogic/timelines/en/core/opening_day1.dtl",
+"phase2r_contract_fixture": "res://tests/fixtures/dialogic/phase2r_contract_fixture.dtl",
+"priscilla": "res://dialogic/timelines/en/ending/priscilla.dtl",
+"priscilla_day1": "res://dialogic/timelines/en/contacts/priscilla_day1.dtl",
+"priscilla_day1_post_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day1_post_challenge.dtl",
+"priscilla_day1_pre_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day1_pre_challenge.dtl",
+"priscilla_day2": "res://dialogic/timelines/en/contacts/priscilla_day2.dtl",
+"priscilla_day2_post_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day2_post_challenge.dtl",
+"priscilla_day2_pre_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day2_pre_challenge.dtl",
+"priscilla_day3": "res://dialogic/timelines/en/contacts/priscilla_day3.dtl",
+"priscilla_day4": "res://dialogic/timelines/en/contacts/priscilla_day4.dtl",
+"priscilla_day4_post_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day4_post_challenge.dtl",
+"priscilla_day4_pre_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day4_pre_challenge.dtl",
+"priscilla_day5": "res://dialogic/timelines/en/contacts/priscilla_day5.dtl",
+"priscilla_day6": "res://dialogic/timelines/en/contacts/priscilla_day6.dtl",
+"priscilla_day6_post_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day6_post_challenge.dtl",
+"priscilla_day6_pre_challenge": "res://dialogic/timelines/en/dating/solo/priscilla_day6_pre_challenge.dtl",
+"priscilla_day7": "res://dialogic/timelines/en/contacts/priscilla_day7.dtl",
+"priscilla_lavinia": "res://dialogic/timelines/en/ending/priscilla_lavinia.dtl",
+"priscilla_lavinia_day2_post_challenge": "res://dialogic/timelines/en/dating/group/priscilla_lavinia_day2_post_challenge.dtl",
+"priscilla_lavinia_day2_pre_challenge": "res://dialogic/timelines/en/dating/group/priscilla_lavinia_day2_pre_challenge.dtl",
+"priscilla_lavinia_day6_post_challenge": "res://dialogic/timelines/en/dating/group/priscilla_lavinia_day6_post_challenge.dtl",
+"priscilla_lavinia_day6_pre_challenge": "res://dialogic/timelines/en/dating/group/priscilla_lavinia_day6_pre_challenge.dtl",
+"sylvia": "res://dialogic/timelines/en/ending/sylvia.dtl",
+"sylvia_day1": "res://dialogic/timelines/en/contacts/sylvia_day1.dtl",
+"sylvia_day1_post_challenge": "res://dialogic/timelines/en/dating/solo/sylvia_day1_post_challenge.dtl",
+"sylvia_day1_pre_challenge": "res://dialogic/timelines/en/dating/solo/sylvia_day1_pre_challenge.dtl",
+"sylvia_day2": "res://dialogic/timelines/en/contacts/sylvia_day2.dtl",
+"sylvia_day3": "res://dialogic/timelines/en/contacts/sylvia_day3.dtl",
+"sylvia_day3_post_challenge": "res://dialogic/timelines/en/dating/solo/sylvia_day3_post_challenge.dtl",
+"sylvia_day3_pre_challenge": "res://dialogic/timelines/en/dating/solo/sylvia_day3_pre_challenge.dtl",
+"sylvia_day4": "res://dialogic/timelines/en/contacts/sylvia_day4.dtl",
+"sylvia_day4_post_challenge": "res://dialogic/timelines/en/dating/solo/sylvia_day4_post_challenge.dtl",
+"sylvia_day4_pre_challenge": "res://dialogic/timelines/en/dating/solo/sylvia_day4_pre_challenge.dtl",
+"sylvia_day5": "res://dialogic/timelines/en/contacts/sylvia_day5.dtl",
+"sylvia_day5_post_challenge": "res://dialogic/timelines/en/dating/solo/sylvia_day5_post_challenge.dtl",
+"sylvia_day5_pre_challenge": "res://dialogic/timelines/en/dating/solo/sylvia_day5_pre_challenge.dtl",
+"sylvia_day6": "res://dialogic/timelines/en/contacts/sylvia_day6.dtl",
+"sylvia_day7": "res://dialogic/timelines/en/contacts/sylvia_day7.dtl",
+"tutorial_desktop_day1": "res://dialogic/timelines/en/core/tutorial_desktop_day1.dtl",
+"twofriends/priscilla_lavinia_day2_post_challenge": "res://dialogic/timelines/en/dating/twofriends/priscilla_lavinia_day2_post_challenge.dtl",
+"twofriends/priscilla_lavinia_day2_pre_challenge": "res://dialogic/timelines/en/dating/twofriends/priscilla_lavinia_day2_pre_challenge.dtl",
+"twofriends/priscilla_lavinia_day6_post_challenge": "res://dialogic/timelines/en/dating/twofriends/priscilla_lavinia_day6_post_challenge.dtl",
+"twofriends/priscilla_lavinia_day6_pre_challenge": "res://dialogic/timelines/en/dating/twofriends/priscilla_lavinia_day6_pre_challenge.dtl"
+}
+layout/style_directory={}
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+
+[dotnet]
+
+project/assembly_name="DWM"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/dialogic/plugin.cfg", "res://addons/godot_state_charts/plugin.cfg", "res://addons/gut/plugin.cfg")
+
+[input]
+
+dialogic_default_action={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194309,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":true,"double_click":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":32,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":88,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":0,"pressure":0.0,"pressed":false,"script":null)
+]
+}
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"

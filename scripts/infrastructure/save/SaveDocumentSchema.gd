@@ -21,7 +21,7 @@ const DOCUMENT_KEYS: Array[String] = [
 const CHECKPOINT_KINDS: Array[String] = [
 	"line", "day_start", "timeline_start", "timeline_complete", "choice",
 	"variable_transaction", "effect_transaction", "safe_marker", "scene_transition",
-	"pre_board", "post_result", "day_resolution_stage",
+	"pre_board", "post_result", "day_resolution_stage", "manual_save",
 ]
 const AUTOSAVE_REASONS: Array[String] = ["automatic", "day_start", "ending", "pre_board", "logout"]
 const MIN_SLOT := 1
@@ -32,7 +32,8 @@ static func build(
 		slot_id: Variant,
 		save_reason: StringName,
 		current_bundle: Dictionary,
-		journal: Array
+		journal: Array,
+		saved_time: Dictionary = {}
 ) -> Dictionary:
 	var discriminator_error := _validate_discriminators(String(kind), slot_id, String(save_reason))
 	if discriminator_error != "":
@@ -54,6 +55,8 @@ static func build(
 		},
 		"recovery_journal": journal.duplicate(true),
 	}
+	if not saved_time.is_empty():
+		document["saved_time"] = saved_time.duplicate(true)
 	var validated := validate(document)
 	if not validated.get("ok", false):
 		return validated
@@ -64,9 +67,13 @@ static func validate(document: Dictionary) -> Dictionary:
 	var keys: Array = candidate.keys()
 	keys.sort()
 	var expected := DOCUMENT_KEYS.duplicate()
+	if candidate.has("saved_time"):
+		expected.append("saved_time")
 	expected.sort()
 	if keys != Array(expected):
 		return _fail(&"invalid_document_shape", "unexpected document keys: " + str(keys))
+	if candidate.has("saved_time") and not validate_saved_time(candidate["saved_time"]):
+		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
 	if typeof(candidate["schema_version"]) != TYPE_INT:
 		return _fail(&"invalid_document_shape", "schema_version must be an integer")
 	if int(candidate["schema_version"]) > DOCUMENT_VERSION:
@@ -92,6 +99,24 @@ static func validate(document: Dictionary) -> Dictionary:
 
 static func prepare_candidate(document: Dictionary) -> Dictionary:
 	return validate(document)
+
+## Optional outer metadata; absence means legacy time unknown, never current wall time.
+static func validate_saved_time(value: Variant) -> bool:
+	if typeof(value) != TYPE_DICTIONARY:
+		return false
+	var keys: Array = value.keys()
+	keys.sort()
+	if keys != ["hhmm", "unix_seconds", "utc_offset_minutes"]:
+		return false
+	if typeof(value["unix_seconds"]) != TYPE_INT or int(value["unix_seconds"]) < 0 \
+			or int(value["unix_seconds"]) > 253402300799 \
+			or typeof(value["utc_offset_minutes"]) != TYPE_INT \
+			or absi(int(value["utc_offset_minutes"])) > 14 * 60 \
+			or typeof(value["hhmm"]) != TYPE_STRING:
+		return false
+	var local_seconds := int(value["unix_seconds"]) + int(value["utc_offset_minutes"]) * 60
+	var clock := Time.get_datetime_dict_from_unix_time(local_seconds)
+	return str(value["hhmm"]) == "%02d:%02d" % [clock["hour"], clock["minute"]]
 
 static func _validate_discriminators(kind: String, slot_id: Variant, save_reason: String) -> String:
 	match kind:

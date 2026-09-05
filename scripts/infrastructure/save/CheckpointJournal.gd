@@ -7,10 +7,11 @@ extends RefCounted
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 
 const LINE_RETENTION := 32
+const MANUAL_SAVE_RETENTION := 32
 const SEMANTIC_KINDS: Array[String] = [
 	"day_start", "timeline_start", "timeline_complete", "choice", "variable_transaction",
 	"effect_transaction", "safe_marker", "scene_transition", "pre_board", "post_result",
-	"day_resolution_stage",
+	"day_resolution_stage", "manual_save",
 ]
 const CANDIDATE_KEYS: Array[String] = ["candidate_kind", "current", "earlier", "next_sequence", "run_id"]
 
@@ -94,9 +95,11 @@ func commit_prepared(candidate: Dictionary) -> Dictionary:
 			if current_sequence != _next_sequence:
 				return _fail(&"sequence_mismatch",
 					"expected %d, got %d" % [_next_sequence, current_sequence])
-		"reset", "seed":
+		"reset":
 			if str(candidate["run_id"]) == _run_id and int(candidate["next_sequence"]) == _next_sequence:
 				return {"ok": false, "code": &"duplicate_commit", "message": str(candidate["run_id"])}
+	# A validated restore seed replaces the complete saved history, including when
+	# its cursor equals the live cursor. SaveManager owns restore consent and replay.
 	_run_id = str(candidate["run_id"])
 	_next_sequence = int(candidate["next_sequence"])
 	_current = (candidate["current"] as Dictionary).duplicate(true)
@@ -228,14 +231,19 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 static func _retained(earlier: Array[Dictionary]) -> Array[Dictionary]:
 	var anchors: Array[Dictionary] = []
 	var lines: Array[Dictionary] = []
+	var manual_saves: Array[Dictionary] = []
 	for bundle: Dictionary in earlier:
 		if str(bundle.get("checkpoint_kind", "")) == "line":
 			lines.append(bundle)
+		elif str(bundle.get("checkpoint_kind", "")) == "manual_save":
+			manual_saves.append(bundle)
 		else:
 			anchors.append(bundle)
 	if lines.size() > LINE_RETENTION:
 		lines = lines.slice(lines.size() - LINE_RETENTION)
-	var retained: Array[Dictionary] = anchors + lines
+	if manual_saves.size() > MANUAL_SAVE_RETENTION:
+		manual_saves = manual_saves.slice(manual_saves.size() - MANUAL_SAVE_RETENTION)
+	var retained: Array[Dictionary] = anchors + lines + manual_saves
 	retained.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a["snapshot"]["checkpoint_sequence"]) < int(b["snapshot"]["checkpoint_sequence"]))
 	return retained

@@ -1,0 +1,29 @@
+# Backup owner verification
+
+Run `python tests/backup_operations/verify.py` from this isolated worktree. The runner copies tested source bytes into a disposable `.godot/backup-operations-*` project, redirects APPDATA/LOCALAPPDATA and DWM_TEST_ROOT there, and hashes those copied bytes in its receipt. The new suite uses real SaveManager, schema, checkpoint journal, storage, identity issuer/root, and restore participant adapters over FakeFileOps. External audio/profile/locale/narrative/route presentation owners are fixtures. Actual SceneRouter preparation/apply/rollback is tested separately without scene navigation. Existing save-schema, SaveManager and production-restore adapter GUT suites also run with isolated storage.
+
+## Contract and authority
+
+`scripts/application/backup/BackupPresentationPort.gd` exposes `configure`, `get_projection`, `prepare_action`, `commit_action`, `cancel_action`, and deferred/coalesced `projection_changed`. Records always follow autosave, quick, slot:1 through slot:7. Projection contains safe state, Day, frozen HH:MM or null, fallback target metadata, semantic reasons, and action booleans; it excludes storage paths, revisions, checkpoint identifiers and owner plans.
+
+SaveManager owns inspection, detached candidate preparation, timestamp capture, revision/source checks and mutation. Tokens retain candidate plans inside the owner; cancellation removes only transient plans. Every attempted commit consumes consent. Another attempt is a new preparation, not a retry of the old transaction. Autosave is never a manual Backup command. A save lock rejects before the old deferred-autosave path can be entered.
+
+Inspection uses StorageAdapter.inspect_revision without reconciliation or leases. SaveDocumentSchema validates the actual outer document before the legacy migrator is allowed to reconstruct it, preserving future-version, locator and saved-time rejection. Actual restore candidate selection is shared with existing SaveManager restore logic: only typed content incompatibility permits an earlier whole bundle. Structural failures never combine or salvage fields. Commit checks the whole raw document revision, not the existing source locator's snapshot-only hash. Save also checks the stable bundle revision. Restore delegates identity allocation, all-participant application and routing to the existing transaction; the adapter never calls SceneRouter again.
+
+`SaveDocumentSchema.saved_time` is optional outer metadata containing integral UTC unix_seconds, original utc_offset_minutes, and an exact derived HH:MM. New saves capture it once at preparation. Existing snapshots and recovery journal bundles are unchanged. Legacy records and earlier fallback checkpoints without durable time display unknown time (null, rendered `--:--`), preserving their loadability. This is an explicit small departure from the dossier's assumed universally available saved-time fact; filesystem time and current wall time are never substitutes.
+
+## Preparation audit
+
+RunRestoreParticipant copies the snapshot; desktop consequence and board participants use detached domain validation; ProfileManager.prepare_legacy_profile_patch builds a detached candidate; LocalizationManager.prepare_locale and its live roots prepare presentation plans; AudioManager.prepare_semantic_restore validates and copies; NarrativeRestoreParticipant resolves/validates content (with a benign static manifest cache). No canonical commit or route occurs in these preparations. RouteRestoreParticipant now reads saved active-app/day from SaveManager's existing route context and nests a detached desktop candidate inside the retained route plan. DesktopAppHostState.prepare_restore is pure; explicit commit installs the selected app/day with an empty scene cache, while rollback reinstates the complete captured prior host state. A failed route apply restores the host before returning failure.
+
+SceneRouter.prepare_route_restore formerly incremented its generation counter. It now returns a prospective token without mutation. Apply checks and advances that token; stale tokens reject, and rollback restores the prior generation. Existing route-ready tokens are semantic placeholders, not proof of fully rendered target-scene readiness. That inherited owner limitation is preserved, not silently claimed solved here.
+
+## Storage review
+
+The independent storage implementation adds revision-bound operations because the old validated-read lease could neither fingerprint nor replace opaque/corrupt saves. Its v2 immutable marker records exact raw prior custody and outgoing hash. Raw prior bytes never become playable documents; outgoing bytes still pass the real validator. Restart reconciles only marker-bound artifacts. Independent review found a final-validator callback could replace a marker before cleanup; the implementation now rechecks durable marker and clean artifact family immediately before removal, with a dedicated regression. The bounded review found no remaining material issue. This is a single-process protocol with repeated foreign-byte checks, not an operating-system filesystem lock against arbitrary concurrent writers.
+
+## Evidence limits
+
+The focused suite covers all nine locators, empty/occupied/corrupt/future records, action confirmations, cancellation, changed target/stable source rejection, saved-time validation, unknown legacy time, disabled locked actions, real save/delete, real whole-current/fallback restore, single owner routing, pure actual route preparation and deferred capability events. Storage fault positions and crash/restart snapshots belong to `tests/backup_storage/verify.py` and its separate receipt. No actual player save is opened or written.
+
+Known environment diagnostics are retained: sandbox certificate-store access and the inherited literal-NUL diagnostic in JsonFileStorage. Passing receipts are not a claim of clean engine diagnostics or full application startup.

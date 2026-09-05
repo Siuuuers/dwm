@@ -41,19 +41,21 @@ func configure(game_state: Object, identity_issuer: Object) -> Dictionary:
 	}, "receipt": {}}
 
 
-func request_open_contact(friend_id: String) -> Dictionary:
-	return _issue_and_delegate(&"open_contact", friend_id)
+func request_open_contact(friend_id: String, before_commit: Callable = Callable()) -> Dictionary:
+	return _issue_and_delegate(&"open_contact", friend_id, before_commit)
 
 
 func request_reply_invitation(friend_id: String) -> Dictionary:
 	return _issue_and_delegate(&"reply_invitation", friend_id)
 
 
-func _issue_and_delegate(method: StringName, friend_id: String) -> Dictionary:
+func _issue_and_delegate(method: StringName, friend_id: String, before_commit: Callable = Callable()) -> Dictionary:
 	if _game_state == null or _identity_issuer == null:
 		return _fail(&"contact_command_port_unconfigured", "configure must succeed first")
 	if friend_id.strip_edges().is_empty():
 		return _fail(&"invalid_contact_friend", "friend_id must be nonblank")
+	if before_commit.is_valid() and not _game_state.has_method("preview_open_contact"):
+		return _fail(&"contact_preview_unavailable", "content preflight requires owner preview")
 	var issued: Variant = _identity_issuer.call(&"issue", &"transaction_id")
 	if typeof(issued) != TYPE_DICTIONARY or not (issued as Dictionary).get("ok", false):
 		return _fail(&"contact_command_issue_failed", "durable transaction issuance failed",
@@ -70,6 +72,22 @@ func _issue_and_delegate(method: StringName, friend_id: String) -> Dictionary:
 	var verified: Variant = _identity_issuer.call(&"verify_issued", receipt, &"transaction_id")
 	if typeof(verified) != TYPE_DICTIONARY or not (verified as Dictionary).get("ok", false):
 		return _fail(&"contact_command_issue_unverified", "issued proof did not verify")
+	if before_commit.is_valid():
+		var prior_contacts: Dictionary = (_game_state.get("contacts") as Dictionary).duplicate(true)
+		var prior_day: int = int(_game_state.get("day"))
+		var preview: Variant = _game_state.call(&"preview_open_contact", friend_id,
+			command_id, receipt.duplicate(true))
+		if typeof(preview) != TYPE_DICTIONARY:
+			return _fail(&"contact_preview_malformed", "owner returned no preview result")
+		if not (preview as Dictionary).get("ok", false):
+			return (preview as Dictionary).duplicate(true)
+		var admitted: Variant = before_commit.call((preview as Dictionary).duplicate(true))
+		if typeof(admitted) != TYPE_DICTIONARY:
+			return _fail(&"contact_content_guard_malformed", "content guard returned no result")
+		if not (admitted as Dictionary).get("ok", false):
+			return (admitted as Dictionary).duplicate(true)
+		if prior_day != int(_game_state.get("day")) or prior_contacts != _game_state.get("contacts"):
+			return _fail(&"contact_preview_stale", "owner changed during content preflight")
 	var delegated: Variant = _game_state.call(method, friend_id, command_id, receipt.duplicate(true))
 	if typeof(delegated) != TYPE_DICTIONARY:
 		return _fail(&"contact_command_result_malformed", "GameState returned no CommandResult")

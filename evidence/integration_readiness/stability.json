@@ -1,0 +1,14 @@
+{
+  "ui": {
+    "changed_bytes_since_snapshot": [],
+    "added_paths": [],
+    "removed_paths": []
+  },
+  "destination": {
+    "changed_bytes_since_snapshot": [
+      "scripts/domain/desktop/DesktopContinuationRemapper.gd"
+    ],
+    "added_paths": [],
+    "removed_paths": []
+  }
+}

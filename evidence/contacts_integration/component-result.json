@@ -1,0 +1,144 @@
+{
+  "engine": "Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org",
+  "suite": "CONTACTS_COMPONENT_PASS",
+  "ablation": {
+    "fixed_two_lines": {
+      "hidden_lines": 72,
+      "labels": [
+        {
+          "height_px": 1093.0,
+          "hidden_lines": 18,
+          "locale": "en",
+          "total_lines": 20,
+          "visible_lines": 2,
+          "width_px": 464.0
+        },
+        {
+          "height_px": 1098.0,
+          "hidden_lines": 18,
+          "locale": "zh-HK",
+          "total_lines": 20,
+          "visible_lines": 2,
+          "width_px": 464.0
+        },
+        {
+          "height_px": 1093.0,
+          "hidden_lines": 18,
+          "locale": "en",
+          "total_lines": 20,
+          "visible_lines": 2,
+          "width_px": 432.0
+        },
+        {
+          "height_px": 1098.0,
+          "hidden_lines": 18,
+          "locale": "zh-HK",
+          "total_lines": 20,
+          "visible_lines": 2,
+          "width_px": 432.0
+        }
+      ],
+      "total_lines": 80,
+      "transcript_content_height_px": 4510.0,
+      "viewport_height_px": 560.0,
+      "viewport_width_px": 552.0,
+      "visible_lines": 8
+    },
+    "font_size_px": 36,
+    "normal_reflow": {
+      "hidden_lines": 0,
+      "labels": [
+        {
+          "height_px": 1093.0,
+          "hidden_lines": 0,
+          "locale": "en",
+          "total_lines": 20,
+          "visible_lines": 20,
+          "width_px": 464.0
+        },
+        {
+          "height_px": 1098.0,
+          "hidden_lines": 0,
+          "locale": "zh-HK",
+          "total_lines": 20,
+          "visible_lines": 20,
+          "width_px": 464.0
+        },
+        {
+          "height_px": 1093.0,
+          "hidden_lines": 0,
+          "locale": "en",
+          "total_lines": 20,
+          "visible_lines": 20,
+          "width_px": 432.0
+        },
+        {
+          "height_px": 1098.0,
+          "hidden_lines": 0,
+          "locale": "zh-HK",
+          "total_lines": 20,
+          "visible_lines": 20,
+          "width_px": 432.0
+        }
+      ],
+      "total_lines": 80,
+      "transcript_content_height_px": 4510.0,
+      "viewport_height_px": 560.0,
+      "viewport_width_px": 552.0,
+      "visible_lines": 80
+    },
+    "restored_reflow": {
+      "hidden_lines": 0,
+      "labels": [
+        {
+          "height_px": 1093.0,
+          "hidden_lines": 0,
+          "locale": "en",
+          "total_lines": 20,
+          "visible_lines": 20,
+          "width_px": 464.0
+        },
+        {
+          "height_px": 1098.0,
+          "hidden_lines": 0,
+          "locale": "zh-HK",
+          "total_lines": 20,
+          "visible_lines": 20,
+          "width_px": 464.0
+        },
+        {
+          "height_px": 1093.0,
+          "hidden_lines": 0,
+          "locale": "en",
+          "total_lines": 20,
+          "visible_lines": 20,
+          "width_px": 432.0
+        },
+        {
+          "height_px": 1098.0,
+          "hidden_lines": 0,
+          "locale": "zh-HK",
+          "total_lines": 20,
+          "visible_lines": 20,
+          "width_px": 432.0
+        }
+      ],
+      "total_lines": 80,
+      "transcript_content_height_px": 4510.0,
+      "viewport_height_px": 560.0,
+      "viewport_width_px": 552.0,
+      "visible_lines": 80
+    },
+    "text_percent": 150
+  },
+  "known_environment_diagnostic": "Windows root certificate store inaccessible in sandbox; no network used. This single engine diagnostic is retained in logs; other errors fail verification.",
+  "scope": "Isolated headless Godot layout and input checks, not GPU raster or whole-game integration proof",
+  "log": ".godot/contacts-component-jtral0sy/verification.log",
+  "sources": {
+    "scripts/ui/contacts/ContactsPanel.gd": "4f6e692fa50f571ce90aa2689c0bcff0d0916cb73339199f455d701d111d18ab",
+    "scripts/ui/contacts/ContactsRow.gd": "916a880649b5c5aaee769a0b36cb123d1ca067f5c862b8851b32b4450ec5d917",
+    "tests/contacts_component/ablate_fixed_text.gd": "7a0f60d92adee3497356b3f197709593c07677c5068c034aa84f5144e755e391",
+    "tests/contacts_component/test_contacts_panel.gd": "15d1a701faff9d5c9e6b6d531c12ca29d71bf539db4b1acb834302e5630a051a",
+    "tools/contacts_component/verify.py": "48924c03a48ccd4405e2d47997f7bd8879e44738f11822f858afb597b0298364"
+  }
+}

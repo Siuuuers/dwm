@@ -1,0 +1,2878 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started 项目初始化 (5 steps)[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | 正在加载全局类名……[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | 正在校验 GDExtension……[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | 正在创建自动加载脚本……[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | 正在初始化插件……[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | 正在启动文件扫描……[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started 正在注册全局类…… (785 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DialogicGameHandler[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DialogicResourceUtil[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DialogicUtil[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DialogicSubsystem[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DialogicIndexer[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DialogicCharacterEditorMainSection[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | DialogicCharacterEditorPortraitSection[39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | DialogicCharacterPrefixSuffixSection[39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | DCSS[39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | DialogicSidebar[39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | DialogicVisualEditorFieldNumber[39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | DialogicVisualEditorFieldVector[39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | DialogicVisualEditorField[39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | DialogicCsvFile[39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | DialogicSettingsPage[39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | DialogicEditor[39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | DialogicRichTextTransitionEffect[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | DialogicAudioEvent[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | DialogicBackgroundTransition[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | DialogicBackground[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | DialogicBackgroundEvent[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_BackgroundHolder[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | DialogicCallEvent[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | DialogicAnimation[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | DialogicPortraitAnimationUtil[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | DialogicPortrait[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | DialogicCharacterEvent[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_PortraitContainer[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | DialogicChoiceEvent[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_ButtonSound[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_ChoiceButton[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | DialogicClearEvent[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | DialogicCommentEvent[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | DialogicConditionEvent[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | DialogicEndBranchEvent[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | DialogicEndTimelineEvent[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | DialogicGlossaryEvent[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | DialogicGlossary[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | DialogicHistoryEvent[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | DialogicJumpEvent[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | DialogicLabelEvent[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | DialogicReturnEvent[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | DialogicSaveEvent[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | DialogicSettingEvent[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | DialogicSignalEvent[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | DialogicStylesUtil[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | DialogicStyleEvent[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_StyleLayer[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | DialogicAutoAdvance[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | DialogicAutoSkip[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | DialogicTextEvent[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | DialogicManualAdvance[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_DialogText[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_Input[39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_NameLabel[39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_NextIndicator[39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_TypeSounds[39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | DialogicTextInputEvent[39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_TextInput[39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | DialogicVariableEvent[39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | DialogicVoiceEvent[39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | DialogicWaitEvent[39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | DialogicWaitInputEvent[39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | DialogicCharacter[39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | DialogicCharacterFormatLoader[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | DialogicCharacterFormatSaver[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | DialogicLayoutBase[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | DialogicLayoutLayer[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | DialogicStyle[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | DialogicStyleLayer[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | DialogicEvent[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | DialogicTimeline[39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | DialogicTimelineFormatLoader[39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | DialogicTimelineFormatSaver[39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | AllOfGuard[39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | AnimationPlayerState[39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | AnimationTreeState[39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | AnyOfGuard[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | AtomicState[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | CompoundState[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | ExpressionGuard[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | Guard[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | HistoryState[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | NotGuard[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | ParallelState[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | SavedState[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | SerializedStateChart[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | SerializedStateChartState[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | StateChart[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | StateChartSerializer[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | StateChartState[39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | StateIsActiveGuard[39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | Transition[39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | GutErrorTracker[39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | GutMain[39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | GutTrackedError[39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | GutHookScript[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | GutInputFactory[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | GutInputSender[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | GutStringUtils[39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | GutTest[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | GutUtils[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | BackupPresentationPort[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | ContactCommandPort[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | ContactsPresentationPort[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | DesktopCausalSequencePort[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | DesktopConditionPolicyPort[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceCoordinator[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceSourcePort[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentityNonceIssuer[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | GameStateDesktopConditionContextPort[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | LogoutCoordinator[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | DialogicEndingPlaybackPort[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | DesktopBoardFatePort[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | DesktopFirstRevealSnapshotComposer[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | GameStateDesktopBoardPort[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | GameStateMinesweeperPort[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | SaveManagerDesktopBoardPort[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | SaveManagerMinesweeperPort[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | DialogicPlaybackCompletionPort[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | DialogicSignalCommandPort[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | SaveManagerNarrativeCheckpointPort[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | AudioRestoreParticipant[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | DesktopBoardRestoreParticipant[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceRestoreParticipant[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentityAllocationRestoreParticipant[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | LocalizationRestoreParticipant[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | NarrativeRestoreParticipant[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | ProfileRestoreParticipant[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | RouteRestoreParticipant[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | RunRestoreParticipant[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | CausalDayAdvanceIdentityPort[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | DayResolutionCoordinator[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | GameStateDayResolutionPort[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | SaveManagerCheckpointPort[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | GameStateScheduleCommitPort[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | GameStateScheduleWarningContextPort[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | ScheduleDepartureViewPort[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | ScheduleDoneDispatcher[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | ScheduleDownstreamContractGuard[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | ScheduleViewController[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | GameStateMinesweeperShopPort[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | MinesweeperShopPurchaseParticipant[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | ApplicationMutationGate[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | FatalDiagnosticProjector[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | AudioPlaybackPort[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | ArtManifest[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | AudioManifest[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | DataCatalog[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | DialogicTimelineCatalog[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | ContactInvitationState[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | DesktopActionReceipt[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | DesktopAppHostState[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | DesktopAppRegistry[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceState[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | DesktopContinuationRemapper[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentity[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | LogoutPolicy[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | DatingEndingRules[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | HospitalRules[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | DesktopBoardState[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | DeterministicRng32[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | MinesweeperBoardGenerator[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | MinesweeperBoardReducer[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | MinesweeperBoardSchema[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | MinesweeperCapabilityRules[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | MinesweeperGeneratorKernel[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | MinesweeperNoGuessVerifier[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | MinesweeperPreparationState[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | MinesweeperRoundContract[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | MinesweeperRoundCoordinator[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | DayResolutionPlan[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | RunLifecycle[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | RunSnapshotSchema[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | ScheduleActionRegistry[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | ScheduleRules[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | ScheduleStateSchema[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | ScheduleViewState[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | ScheduleWarningPolicy[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | MinesweeperShopRegistry[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | CryptoDesktopNamespaceSource[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | DesktopIssuerRootStore[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | CheckpointJournal[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | DesktopContinuationOperationJournal[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | DesktopPublicationLedger[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | SaveDocumentSchema[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | SaveMigrations[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | ScheduleFoundationPublicationLedger[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | FileOps[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | JsonFileStorage[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | StorageAdapter[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | LocalizationCatalog[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | LocalizationSchema[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | DialogicEntryManifest[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | DialogicPreferenceAdapter[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | DialogicRuntimeAdapter[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | NarrativeCheckpointSchema[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | SkipPolicy[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | ProfileMigration[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | ProfileSchema[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | AudioCueData[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | BgmTrackData[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | ChatMessageData[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | EffectData[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | FriendData[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | InvitationData[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | MinesweeperTaskData[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | ScheduleActionData[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | ShopItemData[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | StatValue[39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | AccessibleButton[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | AppWindowBase[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | BackupApp[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | BoxMeter[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | ChatBubble[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | ComputerDesktop[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | ContactBox[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | ContactListApp[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | DatingScene[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | DialogueBox[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | EndingScene[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | FocusGrid[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | GalleryScene[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | HospitalScene[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | IconButton[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | LocalePresentationRoot[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | LocalizedBinding[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | LogOutApp[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | MainGameScene[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | MenuScene[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | MinesweeperApp[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | MinesweeperChallengeOverlay[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | OpeningScene[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | SafeImage[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | SaveSlotRow[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | ScheduleApp[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | ScheduleEntryBox[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | Setting[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | SettingsApp[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | SettingsPanelController[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | ShopApp[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | ShopItemBox[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | StatHud[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | TutorialOverlay[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | CanonicalJsonWriter[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | JsonSchemaValidator[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | StrictJson[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | DayResolutionReceiptFixtures[39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | DynamicScriptProbe[39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | FakeApplicationMutationGate[39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | FakeAudioPlaybackPort[39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | FakeCheckpointPort[39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | FakeDayResolutionStatePort[39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | FakeDesktopBoardStatePort[39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | FakeDesktopConditionPolicyPort[39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | FakeDesktopConsequenceCheckpointPort[39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | FakeDesktopContinuationJournalStorage[39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | FakeDesktopEvictionPort[39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | FakeDesktopIssuerRootStore[39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | FakeDesktopNamespaceSource[39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | FakeFileOps[39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | FakeMinesweeperCheckpointPort[39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | FakeMinesweeperGenerationPort[39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | FakeMinesweeperSavePort[39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | FakeMinesweeperShopStatePort[39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | FakeMinesweeperStatePort[39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | FakeRestoreParticipant[39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | FakeScheduleDepartureViewPort[39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | RestoreCallLog[39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | ScheduleRegistryFixtures[39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | TemporaryStorage[39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started 正在扫描动作…… (197 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | icon_bg.png[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | default.svg[39m[0m
+[   1% ] [90m[1m_update_scan_actions[22m | divide.svg[39m[0m
+[   1% ] [90m[1m_update_scan_actions[22m | join.svg[39m[0m
+[   2% ] [90m[1m_update_scan_actions[22m | leave.svg[39m[0m
+[   2% ] [90m[1m_update_scan_actions[22m | minus.svg[39m[0m
+[   3% ] [90m[1m_update_scan_actions[22m | multiply.svg[39m[0m
+[   3% ] [90m[1m_update_scan_actions[22m | plus.svg[39m[0m
+[   4% ] [90m[1m_update_scan_actions[22m | set.svg[39m[0m
+[   4% ] [90m[1m_update_scan_actions[22m | update.svg[39m[0m
+[   5% ] [90m[1m_update_scan_actions[22m | decrement_icon.svg[39m[0m
+[   5% ] [90m[1m_update_scan_actions[22m | increment_icon.svg[39m[0m
+[   6% ] [90m[1m_update_scan_actions[22m | add-folder.svg[39m[0m
+[   6% ] [90m[1m_update_scan_actions[22m | close-icon.svg[39m[0m
+[   7% ] [90m[1m_update_scan_actions[22m | closed-icon.svg[39m[0m
+[   7% ] [90m[1m_update_scan_actions[22m | expand-icon.svg[39m[0m
+[   8% ] [90m[1m_update_scan_actions[22m | open-icon.svg[39m[0m
+[   8% ] [90m[1m_update_scan_actions[22m | variable.svg[39m[0m
+[   9% ] [90m[1m_update_scan_actions[22m | variable_icon.png[39m[0m
+[   9% ] [90m[1m_update_scan_actions[22m | warning.svg[39m[0m
+[  10% ] [90m[1m_update_scan_actions[22m | character.svg[39m[0m
+[  10% ] [90m[1m_update_scan_actions[22m | icon_character.png[39m[0m
+[  11% ] [90m[1m_update_scan_actions[22m | portrait.svg[39m[0m
+[  11% ] [90m[1m_update_scan_actions[22m | timeline.svg[39m[0m
+[  12% ] [90m[1m_update_scan_actions[22m | add-character.svg[39m[0m
+[  12% ] [90m[1m_update_scan_actions[22m | add-timeline.svg[39m[0m
+[  13% ] [90m[1m_update_scan_actions[22m | dialogic-logo.svg[39m[0m
+[  13% ] [90m[1m_update_scan_actions[22m | plugin-icon.svg[39m[0m
+[  14% ] [90m[1m_update_scan_actions[22m | preview_character.png[39m[0m
+[  14% ] [90m[1m_update_scan_actions[22m | preview_character_speaker.png[39m[0m
+[  15% ] [90m[1m_update_scan_actions[22m | Unknown.png[39m[0m
+[  15% ] [90m[1m_update_scan_actions[22m | BubbleEnd.png[39m[0m
+[  16% ] [90m[1m_update_scan_actions[22m | rpg_box.webp[39m[0m
+[  16% ] [90m[1m_update_scan_actions[22m | Roboto-Bold.ttf[39m[0m
+[  17% ] [90m[1m_update_scan_actions[22m | Roboto-Italic.ttf[39m[0m
+[  17% ] [90m[1m_update_scan_actions[22m | Roboto-Regular.ttf[39m[0m
+[  18% ] [90m[1m_update_scan_actions[22m | next-indicator-dialogic-1.png[39m[0m
+[  18% ] [90m[1m_update_scan_actions[22m | next-indicator.png[39m[0m
+[  19% ] [90m[1m_update_scan_actions[22m | pl5 blink.png[39m[0m
+[  19% ] [90m[1m_update_scan_actions[22m | pl5 doubt.png[39m[0m
+[  20% ] [90m[1m_update_scan_actions[22m | pl5 hate.png[39m[0m
+[  20% ] [90m[1m_update_scan_actions[22m | pl5 plot.png[39m[0m
+[  21% ] [90m[1m_update_scan_actions[22m | pl5 sad.png[39m[0m
+[  21% ] [90m[1m_update_scan_actions[22m | pl5 scoff.png[39m[0m
+[  22% ] [90m[1m_update_scan_actions[22m | pl5 shy.png[39m[0m
+[  22% ] [90m[1m_update_scan_actions[22m | pl5 surprise.png[39m[0m
+[  23% ] [90m[1m_update_scan_actions[22m | pl5.png[39m[0m
+[  23% ] [90m[1m_update_scan_actions[22m | pl3 avoid.png[39m[0m
+[  24% ] [90m[1m_update_scan_actions[22m | pl3 blink.png[39m[0m
+[  24% ] [90m[1m_update_scan_actions[22m | pl3 concept.png[39m[0m
+[  25% ] [90m[1m_update_scan_actions[22m | pl3 confusion.png[39m[0m
+[  25% ] [90m[1m_update_scan_actions[22m | pl3 doubt.png[39m[0m
+[  26% ] [90m[1m_update_scan_actions[22m | pl3 happy.png[39m[0m
+[  26% ] [90m[1m_update_scan_actions[22m | pl3 plot.png[39m[0m
+[  27% ] [90m[1m_update_scan_actions[22m | pl3 sad.png[39m[0m
+[  27% ] [90m[1m_update_scan_actions[22m | pl3 shy.png[39m[0m
+[  28% ] [90m[1m_update_scan_actions[22m | pl3 surprise.png[39m[0m
+[  28% ] [90m[1m_update_scan_actions[22m | anger.png[39m[0m
+[  29% ] [90m[1m_update_scan_actions[22m | frown.png[39m[0m
+[  29% ] [90m[1m_update_scan_actions[22m | joy.png[39m[0m
+[  30% ] [90m[1m_update_scan_actions[22m | neutral.png[39m[0m
+[  30% ] [90m[1m_update_scan_actions[22m | princess_blank.png[39m[0m
+[  31% ] [90m[1m_update_scan_actions[22m | shock.png[39m[0m
+[  31% ] [90m[1m_update_scan_actions[22m | smile.png[39m[0m
+[  32% ] [90m[1m_update_scan_actions[22m | base1.png[39m[0m
+[  32% ] [90m[1m_update_scan_actions[22m | base2.png[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | base3.png[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | base4.png[39m[0m
+[  34% ] [90m[1m_update_scan_actions[22m | Portrait1.png[39m[0m
+[  34% ] [90m[1m_update_scan_actions[22m | Portrait2.png[39m[0m
+[  35% ] [90m[1m_update_scan_actions[22m | typing1.wav[39m[0m
+[  35% ] [90m[1m_update_scan_actions[22m | typing2.wav[39m[0m
+[  36% ] [90m[1m_update_scan_actions[22m | typing3.wav[39m[0m
+[  36% ] [90m[1m_update_scan_actions[22m | typing4.wav[39m[0m
+[  37% ] [90m[1m_update_scan_actions[22m | typing5.wav[39m[0m
+[  37% ] [90m[1m_update_scan_actions[22m | icon_music.png[39m[0m
+[  38% ] [90m[1m_update_scan_actions[22m | icon_sound.png[39m[0m
+[  38% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  39% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  39% ] [90m[1m_update_scan_actions[22m | custom_portrait_thumbnail.png[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | default_portrait_thumbnail.png[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  41% ] [90m[1m_update_scan_actions[22m | icon_position.png[39m[0m
+[  41% ] [90m[1m_update_scan_actions[22m | portrait_position.svg[39m[0m
+[  42% ] [90m[1m_update_scan_actions[22m | simple_image_portrait_thumbnail.png[39m[0m
+[  42% ] [90m[1m_update_scan_actions[22m | update_mirror.svg[39m[0m
+[  43% ] [90m[1m_update_scan_actions[22m | update_portrait.svg[39m[0m
+[  43% ] [90m[1m_update_scan_actions[22m | update_position.svg[39m[0m
+[  44% ] [90m[1m_update_scan_actions[22m | update_position.svg.2023_09_23_08_37_47.0.svg[39m[0m
+[  44% ] [90m[1m_update_scan_actions[22m | update_z_index.svg[39m[0m
+[  45% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  45% ] [90m[1m_update_scan_actions[22m | clear_background.svg[39m[0m
+[  46% ] [90m[1m_update_scan_actions[22m | clear_characters.svg[39m[0m
+[  46% ] [90m[1m_update_scan_actions[22m | clear_music.svg[39m[0m
+[  47% ] [90m[1m_update_scan_actions[22m | clear_positions.svg[39m[0m
+[  47% ] [90m[1m_update_scan_actions[22m | clear_style.svg[39m[0m
+[  48% ] [90m[1m_update_scan_actions[22m | clear_textbox.svg[39m[0m
+[  48% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  49% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  51% ] [90m[1m_update_scan_actions[22m | background_layer_icon.svg[39m[0m
+[  51% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  52% ] [90m[1m_update_scan_actions[22m | popup_glossary_layer_icon.svg[39m[0m
+[  52% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  53% ] [90m[1m_update_scan_actions[22m | history_icon.svg[39m[0m
+[  53% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  54% ] [90m[1m_update_scan_actions[22m | input_layer_icon.svg[39m[0m
+[  54% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  55% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  55% ] [90m[1m_update_scan_actions[22m | speaker-textbox-icon.svg[39m[0m
+[  56% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  56% ] [90m[1m_update_scan_actions[22m | text_bubble_layer_icon.svg[39m[0m
+[  57% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  57% ] [90m[1m_update_scan_actions[22m | text_input_layer_icon.svg[39m[0m
+[  58% ] [90m[1m_update_scan_actions[22m | choices_layer_icon.svg[39m[0m
+[  58% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  59% ] [90m[1m_update_scan_actions[22m | portrait_layer_icon.svg[39m[0m
+[  59% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  60% ] [90m[1m_update_scan_actions[22m | next.svg[39m[0m
+[  60% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  61% ] [90m[1m_update_scan_actions[22m | textbox_layer_icon.svg[39m[0m
+[  61% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  62% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  62% ] [90m[1m_update_scan_actions[22m | preview.png[39m[0m
+[  63% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  63% ] [90m[1m_update_scan_actions[22m | add-glossary.svg[39m[0m
+[  64% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  64% ] [90m[1m_update_scan_actions[22m | highlight_portrait_thumbnail.png[39m[0m
+[  65% ] [90m[1m_update_scan_actions[22m | definition.svg[39m[0m
+[  65% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | icon_jump.png[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | icon_label.png[39m[0m
+[  67% ] [90m[1m_update_scan_actions[22m | icon_return.svg[39m[0m
+[  67% ] [90m[1m_update_scan_actions[22m | layered_portrait_thumbnail.png[39m[0m
+[  68% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  68% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  69% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  69% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | styles_icon.svg[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  71% ] [90m[1m_update_scan_actions[22m | node_dialog_text_icon.svg[39m[0m
+[  71% ] [90m[1m_update_scan_actions[22m | node_name_label_icon.svg[39m[0m
+[  72% ] [90m[1m_update_scan_actions[22m | node_next_indicator_icon.svg[39m[0m
+[  72% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  73% ] [90m[1m_update_scan_actions[22m | add-variable.svg[39m[0m
+[  73% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  74% ] [90m[1m_update_scan_actions[22m | variable.svg[39m[0m
+[  74% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  75% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  75% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[  76% ] [90m[1m_update_scan_actions[22m | state_chart_debugger.svg[39m[0m
+[  76% ] [90m[1m_update_scan_actions[22m | all_of_guard.svg[39m[0m
+[  77% ] [90m[1m_update_scan_actions[22m | animation_player_state.svg[39m[0m
+[  77% ] [90m[1m_update_scan_actions[22m | animation_tree_state.svg[39m[0m
+[  78% ] [90m[1m_update_scan_actions[22m | any_of_guard.svg[39m[0m
+[  78% ] [90m[1m_update_scan_actions[22m | atomic_state.svg[39m[0m
+[  79% ] [90m[1m_update_scan_actions[22m | compound_state.svg[39m[0m
+[  79% ] [90m[1m_update_scan_actions[22m | expression_guard.svg[39m[0m
+[  80% ] [90m[1m_update_scan_actions[22m | guard.svg[39m[0m
+[  80% ] [90m[1m_update_scan_actions[22m | history_state.svg[39m[0m
+[  81% ] [90m[1m_update_scan_actions[22m | not_guard.svg[39m[0m
+[  81% ] [90m[1m_update_scan_actions[22m | parallel_state.svg[39m[0m
+[  82% ] [90m[1m_update_scan_actions[22m | state_chart.svg[39m[0m
+[  82% ] [90m[1m_update_scan_actions[22m | state_is_active_guard.svg[39m[0m
+[  83% ] [90m[1m_update_scan_actions[22m | toggle_sidebar.svg[39m[0m
+[  83% ] [90m[1m_update_scan_actions[22m | transition.svg[39m[0m
+[  84% ] [90m[1m_update_scan_actions[22m | AnonymousPro-Bold.ttf[39m[0m
+[  84% ] [90m[1m_update_scan_actions[22m | AnonymousPro-BoldItalic.ttf[39m[0m
+[  85% ] [90m[1m_update_scan_actions[22m | AnonymousPro-Italic.ttf[39m[0m
+[  85% ] [90m[1m_update_scan_actions[22m | AnonymousPro-Regular.ttf[39m[0m
+[  86% ] [90m[1m_update_scan_actions[22m | CourierPrime-Bold.ttf[39m[0m
+[  86% ] [90m[1m_update_scan_actions[22m | CourierPrime-BoldItalic.ttf[39m[0m
+[  87% ] [90m[1m_update_scan_actions[22m | CourierPrime-Italic.ttf[39m[0m
+[  87% ] [90m[1m_update_scan_actions[22m | CourierPrime-Regular.ttf[39m[0m
+[  88% ] [90m[1m_update_scan_actions[22m | LobsterTwo-Bold.ttf[39m[0m
+[  88% ] [90m[1m_update_scan_actions[22m | LobsterTwo-BoldItalic.ttf[39m[0m
+[  89% ] [90m[1m_update_scan_actions[22m | LobsterTwo-Italic.ttf[39m[0m
+[  89% ] [90m[1m_update_scan_actions[22m | LobsterTwo-Regular.ttf[39m[0m
+[  90% ] [90m[1m_update_scan_actions[22m | arrow.png[39m[0m
+[  90% ] [90m[1m_update_scan_actions[22m | play.png[39m[0m
+[  91% ] [90m[1m_update_scan_actions[22m | eyey.png[39m[0m
+[  91% ] [90m[1m_update_scan_actions[22m | Folder.svg[39m[0m
+[  92% ] [90m[1m_update_scan_actions[22m | green.png[39m[0m
+[  92% ] [90m[1m_update_scan_actions[22m | GutIconV2_base.png[39m[0m
+[  93% ] [90m[1m_update_scan_actions[22m | GutIconV2_no_shine.png[39m[0m
+[  93% ] [90m[1m_update_scan_actions[22m | HSplitContainer.svg[39m[0m
+[  94% ] [90m[1m_update_scan_actions[22m | red.png[39m[0m
+[  94% ] [90m[1m_update_scan_actions[22m | Script.svg[39m[0m
+[  95% ] [90m[1m_update_scan_actions[22m | VSplitContainer.svg[39m[0m
+[  95% ] [90m[1m_update_scan_actions[22m | yellow.png[39m[0m
+[  96% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  96% ] [90m[1m_update_scan_actions[22m | source_code_pro.fnt[39m[0m
+[  97% ] [90m[1m_update_scan_actions[22m | source-han-sans-hc-regular.otf[39m[0m
+[  97% ] [90m[1m_update_scan_actions[22m | source-han-sans-sc-regular.otf[39m[0m
+[  98% ] [90m[1m_update_scan_actions[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[  98% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started 正在导入或重新导入资产 (138 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   1% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   2% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   2% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   3% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   4% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   5% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   5% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   6% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   7% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   7% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   8% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   9% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  10% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  10% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  11% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  12% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  12% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  13% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  14% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  15% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  15% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  16% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  17% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  17% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  18% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  19% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  20% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  20% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  21% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  22% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  23% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  23% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  24% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  25% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  25% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  26% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  27% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  28% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  28% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  29% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  30% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  30% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  31% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  32% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  33% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  33% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  34% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  35% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  35% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  36% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  37% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  38% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  38% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  39% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  40% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  41% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  41% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  42% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  43% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  43% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  44% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  45% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  46% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  46% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  47% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  48% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  48% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  49% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  50% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  51% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  51% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  52% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  53% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  53% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  54% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  55% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  56% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  56% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  57% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  58% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  58% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  59% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  60% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  61% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  61% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  62% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  63% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  64% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  64% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  65% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  66% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  66% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  67% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  68% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  69% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  69% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  70% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  71% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  71% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  72% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  73% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  74% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  74% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  75% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  76% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  76% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  77% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  78% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  79% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  79% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  80% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  81% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  82% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  82% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  83% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  84% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  84% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  85% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  86% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  87% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  87% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  88% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  89% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  89% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  90% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  91% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  92% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  92% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  93% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  94% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  94% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  95% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  96% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  97% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  97% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  98% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在执行重新导入的前置操作……[39m[0m
+[   0% ] [90m[1mreimport[22m | source_code_pro.fnt[39m[0m
+[   0% ] [90m[1mreimport[22m | source_code_pro.fnt[39m[0m
+[   1% ] [90m[1mreimport[22m | Roboto-Bold.ttf[39m[0m
+[   2% ] [90m[1mreimport[22m | Roboto-Italic.ttf[39m[0m
+[   2% ] [90m[1mreimport[22m | Roboto-Regular.ttf[39m[0m
+[   3% ] [90m[1mreimport[22m | AnonymousPro-Bold.ttf[39m[0m
+[   4% ] [90m[1mreimport[22m | AnonymousPro-BoldItalic.ttf[39m[0m
+[   5% ] [90m[1mreimport[22m | AnonymousPro-Italic.ttf[39m[0m
+[   5% ] [90m[1mreimport[22m | CourierPrime-Bold.ttf[39m[0m
+[   6% ] [90m[1mreimport[22m | CourierPrime-BoldItalic.ttf[39m[0m
+[   7% ] [90m[1mreimport[22m | CourierPrime-Italic.ttf[39m[0m
+[   7% ] [90m[1mreimport[22m | LobsterTwo-Bold.ttf[39m[0m
+[   8% ] [90m[1mreimport[22m | LobsterTwo-BoldItalic.ttf[39m[0m
+[   9% ] [90m[1mreimport[22m | LobsterTwo-Italic.ttf[39m[0m
+[  10% ] [90m[1mreimport[22m | LobsterTwo-Regular.ttf[39m[0m
+[  10% ] [90m[1mreimport[22m | source-han-sans-hc-regular.otf[39m[0m
+[  11% ] [90m[1mreimport[22m | source-han-sans-sc-regular.otf[39m[0m
+[  12% ] [90m[1mreimport[22m | source_code_pro.fnt[39m[0m
+[  12% ] [90m[1mreimport[22m | Roboto-Bold.ttf[39m[0m
+[  13% ] [90m[1mreimport[22m | Roboto-Italic.ttf[39m[0m
+[  14% ] [90m[1mreimport[22m | Roboto-Regular.ttf[39m[0m
+[  15% ] [90m[1mreimport[22m | AnonymousPro-Bold.ttf[39m[0m
+[  15% ] [90m[1mreimport[22m | AnonymousPro-BoldItalic.ttf[39m[0m
+[  16% ] [90m[1mreimport[22m | AnonymousPro-Italic.ttf[39m[0m
+[  17% ] [90m[1mreimport[22m | CourierPrime-Bold.ttf[39m[0m
+[  17% ] [90m[1mreimport[22m | CourierPrime-BoldItalic.ttf[39m[0m
+[  18% ] [90m[1mreimport[22m | CourierPrime-Italic.ttf[39m[0m
+[  19% ] [90m[1mreimport[22m | LobsterTwo-Bold.ttf[39m[0m
+[  20% ] [90m[1mreimport[22m | LobsterTwo-BoldItalic.ttf[39m[0m
+[  20% ] [90m[1mreimport[22m | LobsterTwo-Italic.ttf[39m[0m
+[  21% ] [90m[1mreimport[22m | LobsterTwo-Regular.ttf[39m[0m
+[  22% ] [90m[1mreimport[22m | source-han-sans-hc-regular.otf[39m[0m
+[  23% ] [90m[1mreimport[22m | source-han-sans-sc-regular.otf[39m[0m
+[  23% ] [90m[1mreimport[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[  24% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  25% ] [90m[1mreimport[22m | history_icon.svg[39m[0m
+[  25% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  26% ] [90m[1mreimport[22m | input_layer_icon.svg[39m[0m
+[  27% ] [90m[1mreimport[22m | popup_glossary_layer_icon.svg[39m[0m
+[  28% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  28% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  29% ] [90m[1mreimport[22m | speaker-textbox-icon.svg[39m[0m
+[  30% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  30% ] [90m[1mreimport[22m | text_bubble_layer_icon.svg[39m[0m
+[  31% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  32% ] [90m[1mreimport[22m | text_input_layer_icon.svg[39m[0m
+[  33% ] [90m[1mreimport[22m | choices_layer_icon.svg[39m[0m
+[  33% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  34% ] [90m[1mreimport[22m | background_layer_icon.svg[39m[0m
+[  35% ] [90m[1mreimport[22m | icon.png[39m[0m
+[  35% ] [90m[1mreimport[22m | clear_textbox.svg[39m[0m
+[  36% ] [90m[1mreimport[22m | clear_style.svg[39m[0m
+[  37% ] [90m[1mreimport[22m | clear_positions.svg[39m[0m
+[  38% ] [90m[1mreimport[22m | clear_music.svg[39m[0m
+[  38% ] [90m[1mreimport[22m | clear_characters.svg[39m[0m
+[  39% ] [90m[1mreimport[22m | clear_background.svg[39m[0m
+[  40% ] [90m[1mreimport[22m | update_z_index.svg[39m[0m
+[  41% ] [90m[1mreimport[22m | update_position.svg.2023_09_23_08_37_47.0.svg[39m[0m
+[  41% ] [90m[1mreimport[22m | update_position.svg[39m[0m
+[  42% ] [90m[1mreimport[22m | update_portrait.svg[39m[0m
+[  43% ] [90m[1mreimport[22m | icon.svg[39m[0m
+[  43% ] [90m[1mreimport[22m | Script.svg[39m[0m
+[  44% ] [90m[1mreimport[22m | GutIconV2_no_shine.png[39m[0m
+[  45% ] [90m[1mreimport[22m | Folder.svg[39m[0m
+[  46% ] [90m[1mreimport[22m | state_is_active_guard.svg[39m[0m
+[  46% ] [90m[1mreimport[22m | not_guard.svg[39m[0m
+[  47% ] [90m[1mreimport[22m | guard.svg[39m[0m
+[  48% ] [90m[1mreimport[22m | expression_guard.svg[39m[0m
+[  48% ] [90m[1mreimport[22m | any_of_guard.svg[39m[0m
+[  49% ] [90m[1mreimport[22m | all_of_guard.svg[39m[0m
+[  50% ] [90m[1mreimport[22m | state_chart_debugger.svg[39m[0m
+[  51% ] [90m[1mreimport[22m | add-variable.svg[39m[0m
+[  51% ] [90m[1mreimport[22m | node_next_indicator_icon.svg[39m[0m
+[  52% ] [90m[1mreimport[22m | node_name_label_icon.svg[39m[0m
+[  53% ] [90m[1mreimport[22m | node_dialog_text_icon.svg[39m[0m
+[  53% ] [90m[1mreimport[22m | layered_portrait_thumbnail.png[39m[0m
+[  54% ] [90m[1mreimport[22m | definition.svg[39m[0m
+[  55% ] [90m[1mreimport[22m | highlight_portrait_thumbnail.png[39m[0m
+[  56% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  56% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  57% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  58% ] [90m[1mreimport[22m | textbox_layer_icon.svg[39m[0m
+[  58% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  59% ] [90m[1mreimport[22m | next.svg[39m[0m
+[  60% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  61% ] [90m[1mreimport[22m | portrait_layer_icon.svg[39m[0m
+[  61% ] [90m[1mreimport[22m | preview.png[39m[0m
+[  62% ] [90m[1mreimport[22m | preview_character.png[39m[0m
+[  63% ] [90m[1mreimport[22m | preview_character_speaker.png[39m[0m
+[  64% ] [90m[1mreimport[22m | Unknown.png[39m[0m
+[  64% ] [90m[1mreimport[22m | BubbleEnd.png[39m[0m
+[  65% ] [90m[1mreimport[22m | rpg_box.webp[39m[0m
+[  66% ] [90m[1mreimport[22m | next-indicator-dialogic-1.png[39m[0m
+[  66% ] [90m[1mreimport[22m | next-indicator.png[39m[0m
+[  67% ] [90m[1mreimport[22m | pl5 blink.png[39m[0m
+[  68% ] [90m[1mreimport[22m | pl5 doubt.png[39m[0m
+[  69% ] [90m[1mreimport[22m | pl5 hate.png[39m[0m
+[  69% ] [90m[1mreimport[22m | pl5 plot.png[39m[0m
+[  70% ] [90m[1mreimport[22m | pl5 sad.png[39m[0m
+[  71% ] [90m[1mreimport[22m | pl5 scoff.png[39m[0m
+[  71% ] [90m[1mreimport[22m | pl5 shy.png[39m[0m
+[  72% ] [90m[1mreimport[22m | pl5 surprise.png[39m[0m
+[  73% ] [90m[1mreimport[22m | pl5.png[39m[0m
+[  74% ] [90m[1mreimport[22m | pl3 avoid.png[39m[0m
+[  74% ] [90m[1mreimport[22m | default.svg[39m[0m
+[  75% ] [90m[1mreimport[22m | divide.svg[39m[0m
+[  76% ] [90m[1mreimport[22m | join.svg[39m[0m
+[  76% ] [90m[1mreimport[22m | leave.svg[39m[0m
+[  77% ] [90m[1mreimport[22m | minus.svg[39m[0m
+[  78% ] [90m[1mreimport[22m | multiply.svg[39m[0m
+[  79% ] [90m[1mreimport[22m | plus.svg[39m[0m
+[  79% ] [90m[1mreimport[22m | set.svg[39m[0m
+[  80% ] [90m[1mreimport[22m | update.svg[39m[0m
+[  81% ] [90m[1mreimport[22m | close-icon.svg[39m[0m
+[  82% ] [90m[1mreimport[22m | closed-icon.svg[39m[0m
+[  82% ] [90m[1mreimport[22m | expand-icon.svg[39m[0m
+[  83% ] [90m[1mreimport[22m | open-icon.svg[39m[0m
+[  84% ] [90m[1mreimport[22m | variable.svg[39m[0m
+[  84% ] [90m[1mreimport[22m | variable_icon.png[39m[0m
+[  85% ] [90m[1mreimport[22m | warning.svg[39m[0m
+[  86% ] [90m[1mreimport[22m | icon_character.png[39m[0m
+[  87% ] [90m[1mreimport[22m | update_mirror.svg[39m[0m
+[  87% ] [90m[1mreimport[22m | simple_image_portrait_thumbnail.png[39m[0m
+[  88% ] [90m[1mreimport[22m | portrait_position.svg[39m[0m
+[  89% ] [90m[1mreimport[22m | icon_position.png[39m[0m
+[  89% ] [90m[1mreimport[22m | default_portrait_thumbnail.png[39m[0m
+[  90% ] [90m[1mreimport[22m | custom_portrait_thumbnail.png[39m[0m
+[  91% ] [90m[1mreimport[22m | icon_sound.png[39m[0m
+[  92% ] [90m[1mreimport[22m | Portrait2.png[39m[0m
+[  92% ] [90m[1mreimport[22m | Portrait1.png[39m[0m
+[  93% ] [90m[1mreimport[22m | base4.png[39m[0m
+[  94% ] [90m[1mreimport[22m | base3.png[39m[0m
+[  94% ] [90m[1mreimport[22m | base2.png[39m[0m
+[  95% ] [90m[1mreimport[22m | source_code_pro.fnt[39m[0m
+[  96% ] [90m[1mreimport[22m | Roboto-Bold.ttf[39m[0m
+[  97% ] [90m[1mreimport[22m | Roboto-Italic.ttf[39m[0m
+[  97% ] [90m[1mreimport[22m | Roboto-Regular.ttf[39m[0m
+[  98% ] [90m[1mreimport[22m | AnonymousPro-Bold.ttf[39m[0m
+[  99% ] [90m[1mreimport[22m | 正在结束资产导入……[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started 正在导入或重新导入资产 (138 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在执行重新导入的后置操作……[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started 正在加载编辑器 (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | 正在加载编辑器布局……[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | 正在加载停靠面板……[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2663)
+
+WorkerThreadPool: 20 threads, 6 max low-priority.
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Unrecognized output string "misc2" in mapping:
+030000008a2e0000dd10000000000000,Hand Held Legend GC Ultimate,a:b0,b:b2,back:b17,dpdown:b5,dpleft:b6,dpright:b7,dpup:b4,guide:b18,leftshoulder:b10,leftstick:b8,lefttrigger:a3,leftx:a0,lefty:a1,misc1:b19,misc2:b24,paddle1:b13,paddle2:b12,rightshoulder:b11,rightstick:b9,righttrigger:a4,rightx:a2,righty:a5,start:b16,x:b1,y:b3,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000000d0f00000202000000000000,Horipad O Nintendo Switch 2 Controller,a:b1,b:b0,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,misc1:b13,misc2:b14,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b3,y:b2,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000000d0f00009601000000000000,Horipad Steam,a:b0,b:b1,back:b10,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b6,leftstick:b13,lefttrigger:b8,leftx:a0,lefty:a1,misc2:b2,paddle1:b5,paddle2:b15,paddle3:b18,paddle4:b19,rightshoulder:b7,rightstick:b14,righttrigger:b9,rightx:a3,righty:a4,start:b11,x:b3,y:b4,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000007e0500006920000000000000,Nintendo Switch 2 Pro Controller,a:b0,b:b1,back:b14,dpdown:b8,dpleft:b10,dpright:b9,dpup:b11,guide:b16,leftshoulder:b12,leftstick:b15,lefttrigger:b13,leftx:a0,lefty:a1~,misc1:b17,misc2:b20,paddle1:b18,paddle2:b19,rightshoulder:b4,rightstick:b7,righttrigger:b5,rightx:a2,righty:a3~,start:b6,x:b2,y:b3,platform:Windows,
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+.NET: Initializing module...
+Found hostfxr: C:/Program Files/dotnet/host/fxr/8.0.14/hostfxr.dll
+.NET: hostfxr initialized
+.NET: GodotPlugins initialized
+CORE API HASH: 3177001854
+EDITOR API HASH: 3251481983
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: res://addons/dialogic/Resources/CharacterResourceLoader.gd
+Loading resource: res://addons/dialogic/Resources/TimelineResourceLoader.gd
+Loading resource: res://addons/dialogic/Resources/CharacterResourceSaver.gd
+Loading resource: res://addons/dialogic/Resources/TimelineResourceSaver.gd
+Loading resource: res://autoload/ProfileManager.gd
+Loading resource: res://autoload/GameState.gd
+Loading resource: res://autoload/SaveManager.gd
+Loading resource: res://autoload/LocalizationManager.gd
+Loading resource: res://autoload/AudioManager.gd
+Loading resource: res://autoload/EffectResolver.gd
+Loading resource: res://autoload/SceneRouter.gd
+Loading resource: res://autoload/InputManager.gd
+Loading resource: res://autoload/AccessibilityManager.gd
+Loading resource: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.tscn
+Loading resource: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd
+Loading resource: res://addons/dialogic/Modules/Character/default_portrait.tscn
+Loading resource: res://addons/dialogic/Modules/Character/default_portrait.gd
+Loading resource: res://autoload/DialogicBridge.gd
+Loading resource: res://autoload/ApplicationBootstrap.gd
+Loaded builtin CA certificates
+Loading resource: res://scenes/menu/MenuScene.tscn
+Loading resource: res://scripts/ui/MenuScene.gd
+Loading resource: res://scenes/apps/BackupApp.tscn
+Loading resource: res://scenes/shared/AppWindowBase.tscn
+Loading resource: res://scripts/ui/AppWindowBase.gd
+Loading resource: res://scripts/ui/BackupApp.gd
+Loading resource: res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2
+Loading resource: res://.godot/imported/source-sans-3-regular.ttf.woff2-e8d731430889c54e3a411177ddbdd371.fontdata
+Loading resource: res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf
+Loading resource: res://.godot/imported/source-han-sans-sc-regular.otf-0a176df5494ddbf564882f6fa3e63197.fontdata
+Loading resource: res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf
+Loading resource: res://.godot/imported/source-han-sans-hc-regular.otf-edbb7d6ca258cfcc93ca616282ada129.fontdata
+Loading resource: res://scenes/menu/Setting.tscn
+Loading resource: res://scripts/ui/Setting.gd
+Loading resource: res://scripts/ui/LocalePresentationRoot.gd
+Loading resource: res://scripts/ui/LocalizedBinding.gd
+Loading resource: res://addons/dialogic/Modules/Audio/index.gd
+Loading resource: res://addons/dialogic/Modules/Background/index.gd
+Loading resource: res://addons/dialogic/Modules/Call/index.gd
+Loading resource: res://addons/dialogic/Modules/Character/index.gd
+Loading resource: res://addons/dialogic/Modules/Choice/index.gd
+Loading resource: res://addons/dialogic/Modules/Clear/index.gd
+Loading resource: res://addons/dialogic/Modules/Comment/index.gd
+Loading resource: res://addons/dialogic/Modules/Condition/index.gd
+Loading resource: res://addons/dialogic/Modules/Core/index.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/index.gd
+Loading resource: res://addons/dialogic/Modules/End/index.gd
+Loading resource: res://addons/dialogic/Modules/Glossary/index.gd
+Loading resource: res://addons/dialogic/Modules/HighlightPortrait/index.gd
+Loading resource: res://addons/dialogic/Modules/History/index.gd
+Loading resource: res://addons/dialogic/Modules/Jump/index.gd
+Loading resource: res://addons/dialogic/Modules/LayeredPortrait/index.gd
+Loading resource: res://addons/dialogic/Modules/Save/index.gd
+Loading resource: res://addons/dialogic/Modules/Settings/index.gd
+Loading resource: res://addons/dialogic/Modules/Signal/index.gd
+Loading resource: res://addons/dialogic/Modules/Style/index.gd
+Loading resource: res://addons/dialogic/Modules/StyleEditor/index.gd
+Loading resource: res://addons/dialogic/Modules/Text/index.gd
+Loading resource: res://addons/dialogic/Modules/TextInput/index.gd
+Loading resource: res://addons/dialogic/Modules/Variable/index.gd
+Loading resource: res://addons/dialogic/Modules/Voice/index.gd
+Loading resource: res://addons/dialogic/Modules/Wait/index.gd
+Loading resource: res://addons/dialogic/Modules/WaitInput/index.gd
+Loading resource: res://addons/dialogic/Modules/Audio/event_audio.gd
+Loading resource: res://addons/dialogic/Modules/Background/event_background.gd
+Loading resource: res://addons/dialogic/Modules/Call/event_call.gd
+Loading resource: res://addons/dialogic/Modules/Clear/event_clear.gd
+Loading resource: res://addons/dialogic/Modules/Comment/event_comment.gd
+Loading resource: res://addons/dialogic/Modules/Condition/event_condition.gd
+Loading resource: res://addons/dialogic/Modules/End/event_end.gd
+Loading resource: res://addons/dialogic/Modules/History/event_history.gd
+Loading resource: res://addons/dialogic/Modules/Jump/event_return.gd
+Loading resource: res://addons/dialogic/Modules/Save/event_save.gd
+Loading resource: res://addons/dialogic/Modules/Settings/event_setting.gd
+Loading resource: res://addons/dialogic/Modules/Signal/event_signal.gd
+Loading resource: res://addons/dialogic/Modules/Style/event_style.gd
+Loading resource: res://addons/dialogic/Modules/TextInput/event_text_input.gd
+Loading resource: res://addons/dialogic/Modules/Variable/event_variable.gd
+Loading resource: res://addons/dialogic/Modules/Wait/event_wait.gd
+Loading resource: res://addons/dialogic/Modules/WaitInput/event_wait_input.gd
+Unloading: Disposing tracked instances...
+Unloading: Finished disposing tracked instances.
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
+Leaked instance: GDScriptNativeClass:9223372049454465749 - Reference count: 23
+Leaked instance: GDScriptNativeClass:9223372052541473677 - Reference count: 30
+Leaked instance: GDScriptNativeClass:9223372052860240800 - Reference count: 1
+Leaked instance: GDScript:9223372064637846986 - Reference count: 1
+Leaked instance: GDScript:9223372066449786325 - Reference count: 1
+Leaked instance: GDScript:9223372066818885080 - Reference count: 1
+Leaked instance: GDScript:9223372067104097754 - Reference count: 1
+Leaked instance: GDScript:9223372067389310428 - Reference count: 1
+Leaked instance: GDScript:9223372067674523102 - Reference count: 1
+Leaked instance: GDScript:9223372067959735776 - Reference count: 1
+Leaked instance: GDScript:9223372068244948450 - Reference count: 1
+Leaked instance: GDScript:9223372068530161124 - Reference count: 1
+Leaked instance: GDScript:9223372068815373798 - Reference count: 1
+Leaked instance: GDScript:9223372069100586472 - Reference count: 1
+Leaked instance: GDScript:9223372069385799146 - Reference count: 1
+Leaked instance: GDScript:9223372069671011820 - Reference count: 1
+Leaked instance: GDScript:9223372069956224494 - Reference count: 1
+Leaked instance: GDScript:9223372070241437168 - Reference count: 1
+Leaked instance: GDScript:9223372070526649842 - Reference count: 1
+Leaked instance: GDScript:9223372070811862516 - Reference count: 1
+Leaked instance: GDScript:9223372071097075190 - Reference count: 1
+Leaked instance: GDScript:9223372071399065081 - Reference count: 1
+Leaked instance: GDScript:9223372071633946107 - Reference count: 36
+Leaked instance: GDScript:9223372075559814671 - Reference count: 2
+Leaked instance: GDScript:9223372082639799836 - Reference count: 2
+Leaked instance: GDScript:9223372087505192489 - Reference count: 1
+Leaked instance: GDScript:9223372087790405163 - Reference count: 1
+Leaked instance: GDScript:9223372088646043185 - Reference count: 1
+Leaked instance: GDScript:9223372089300354613 - Reference count: 1
+Leaked instance: GDScript:9223372098343274058 - Reference count: 2
+Leaked instance: Node:66655880789 - Node path: 
+Leaked instance: Node:66672658006 - Node path: 
+Leaked instance: Node:66689435223 - Node path: 
+Leaked instance: Node:66706212440 - Node path: 
+Leaked instance: Node:66722989657 - Node path: 
+Leaked instance: Node:67259860570 - Node path: 
+Leaked instance: Timer:67276637787 - Node path: 
+Leaked instance: Node:67293415004 - Node path: 
+Leaked instance: GDScript:9223372103728760413 - Reference count: 1
+Leaked instance: PackedScene:9223372104047527518 - Reference count: 1
+Leaked instance: SceneState:9223372104064304735 - Reference count: 1
+Leaked instance: RegEx:9223372104164968032 - Reference count: 1
+Leaked instance: Node:67326969441 - Node path: 
+Leaked instance: Node:67343746658 - Node path: 
+Leaked instance: Node:67360523875 - Node path: 
+Leaked instance: Timer:67377301092 - Node path: 
+Leaked instance: Node:67394078309 - Node path: 
+Leaked instance: Node:67410855526 - Node path: 
+Leaked instance: Node:67427632743 - Node path: 
+Leaked instance: Node:67964503656 - Node path: 
+Leaked instance: Timer:67981280873 - Node path: 
+Leaked instance: Node:67998058090 - Node path: 
+Leaked instance: GDScript:9223372104433403499 - Reference count: 1
+Leaked instance: PackedScene:9223372104752170604 - Reference count: 1
+Leaked instance: SceneState:9223372104768947821 - Reference count: 1
+Leaked instance: Node:68014835310 - Node path: 
+Leaked instance: Node:68031612527 - Node path: 
+Leaked instance: RegEx:9223372104903165552 - Reference count: 1
+Leaked instance: RegEx:9223372104919942769 - Reference count: 1
+Leaked instance: RegEx:9223372104936719986 - Reference count: 1
+Leaked instance: RegEx:9223372104953497203 - Reference count: 1
+Leaked instance: Node:68115498612 - Node path: 
+Leaked instance: Node:68132275829 - Node path: 
+Leaked instance: Node:68149053046 - Node path: 
+Leaked instance: AudioStreamPlayer:68165830263 - Node path: 
+Leaked instance: AudioStreamPlayerInternal:68182607480
+Leaked instance: GDScript:9223372107285530240 - Reference count: 1
+Leaked instance: GDScript:9223372107654628996 - Reference count: 1
+Leaked instance: GDScript:9223372107939841670 - Reference count: 1
+Leaked instance: GDScript:9223372108225054344 - Reference count: 1
+Leaked instance: GDScript:9223372109080692366 - Reference count: 1
+Leaked instance: GDScript:9223372110003439253 - Reference count: 1
+Leaked instance: GDScript:9223372110573864601 - Reference count: 1
+Leaked instance: GDScript:9223372110859077275 - Reference count: 1
+Leaked instance: GDScript:9223372111999927971 - Reference count: 1
+Leaked instance: GDScript:9223372113258219180 - Reference count: 1
+Leaked instance: GDScript:9223372117033092807 - Reference count: 1
+Leaked instance: GDScript:9223372117318305481 - Reference count: 1
+Leaked instance: GDScript:9223372117603518155 - Reference count: 1
+Leaked instance: GDScript:9223372117888730829 - Reference count: 1
+Leaked instance: GDScript:9223372118173943503 - Reference count: 1
+Leaked instance: GDScript:9223372118459156177 - Reference count: 1
+Leaked instance: GDScript:9223372119029581525 - Reference count: 1
+Leaked instance: GDScript:9223372119314794199 - Reference count: 1
+Leaked instance: GDScript:9223372119600006873 - Reference count: 1
+Leaked instance: GDScript:9223372119885219547 - Reference count: 1
+Leaked instance: GDScript:9223372120573085408 - Reference count: 1
+Leaked instance: GDScript:9223372120858298082 - Reference count: 1
+Leaked instance: GDScript:9223372121143510756 - Reference count: 1
+Leaked instance: GDScript:9223372121428723430 - Reference count: 1
+Leaked instance: GDScript:9223372122217252588 - Reference count: 1
+Leaked instance: RefCounted:9223372160586745747 - Reference count: 3
+Leaked instance: RefCounted:9223372160603522964 - Reference count: 1
+Leaked instance: RefCounted:9223372160620300181 - Reference count: 6
+Leaked instance: RefCounted:9223372160637077398 - Reference count: 1
+Leaked instance: RefCounted:9223372160653854615 - Reference count: 1
+Leaked instance: RefCounted:9223372161677264792 - Reference count: 8
+Leaked instance: RefCounted:9223372162834892700 - Reference count: 5
+Leaked instance: RefCounted:9223372187782612952 - Reference count: 1
+Leaked instance: RefCounted:9223372187816167386 - Reference count: 5
+Leaked instance: RefCounted:9223372187832944603 - Reference count: 2
+Leaked instance: RefCounted:9223372187967162339 - Reference count: 1
+Leaked instance: RefCounted:9223372188101380070 - Reference count: 2
+Leaked instance: RefCounted:9223372188118157287 - Reference count: 1
+Leaked instance: RefCounted:9223372189292562409 - Reference count: 1
+Leaked instance: RefCounted:9223372189309339626 - Reference count: 1
+Leaked instance: RefCounted:9223372189426780145 - Reference count: 4
+Leaked instance: RefCounted:9223372193017104371 - Reference count: 1
+Leaked instance: RefCounted:9223372193033881588 - Reference count: 1
+Leaked instance: RefCounted:9223372193067436021 - Reference count: 1
+Leaked instance: RefCounted:9223372193134544886 - Reference count: 1
+Leaked instance: RefCounted:9223372193151322103 - Reference count: 2
+Leaked instance: RefCounted:9223372193168099320 - Reference count: 1
+Leaked instance: RefCounted:9223372193184876537 - Reference count: 2
+Leaked instance: RefCounted:9223372193201653754 - Reference count: 1
+Leaked instance: RefCounted:9223372193218430971 - Reference count: 1
+Leaked instance: RefCounted:9223372193235208188 - Reference count: 1
+Leaked instance: RefCounted:9223372193268762621 - Reference count: 1
+Hint: Leaked instances typically happen when nodes are removed from the scene tree (with `remove_child()`) but not freed (with `free()` or `queue_free()`).
+Resource still in use: res://addons/dialogic/Core/Dialogic_Subsystem.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Character/dialogic_portrait.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Character/subsystem_containers.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Core/subsystem_expression.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Variable/subsystem_variables.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Jump/subsystem_jump.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Save/subsystem_save.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/History/subsystem_history.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Voice/subsystem_voice.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Settings/subsystem_settings.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Glossary/subsystem_glossary.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Core/subsystem_animation.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Text/subsystem_text.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Core/subsystem_input.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Character/subsystem_portraits.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Style/subsystem_styles.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Choice/subsystem_choices.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Audio/subsystem_audio.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Background/dialogic_background.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Background/subsystem_backgrounds.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/TextInput/subsystem_text_input.gd (GDScript)
+Resource still in use: res://addons/dialogic/Resources/event.gd (GDScript)
+Resource still in use: res://scripts/domain/minesweeper/DesktopBoardState.gd (GDScript)
+Resource still in use: res://scripts/domain/desktop/DesktopConsequenceState.gd (GDScript)
+Resource still in use: res://scripts/domain/schedule/ScheduleActionRegistry.gd (GDScript)
+Resource still in use: res://scripts/application/run/GameStateDayResolutionPort.gd (GDScript)
+Resource still in use: res://scripts/infrastructure/storage/StorageAdapter.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.tscn (PackedScene)
+Resource still in use: res://addons/dialogic/Modules/Character/default_portrait.gd (GDScript)
+Resource still in use: res://addons/dialogic/Modules/Character/default_portrait.tscn (PackedScene)
+Resource still in use: res://scripts/infrastructure/storage/FileOps.gd (GDScript)
+Resource still in use: res://scripts/infrastructure/storage/JsonFileStorage.gd (GDScript)
+Resource still in use: res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd (GDScript)
+Resource still in use: res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd (GDScript)
+Resource still in use: res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd (GDScript)
+Resource still in use: res://scripts/application/run/SaveManagerCheckpointPort.gd (GDScript)
+Resource still in use: res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd (GDScript)
+Resource still in use: res://scripts/application/run/DayResolutionStartPort.gd (GDScript)
+Resource still in use: res://scripts/domain/schedule/Day7ScheduleProvenance.gd (GDScript)
+Resource still in use: res://scripts/application/transaction/ApplicationMutationGate.gd (GDScript)
+Resource still in use: res://scripts/domain/desktop/DesktopAppHostState.gd (GDScript)
+Resource still in use: res://scripts/infrastructure/save/DesktopPublicationLedger.gd (GDScript)
+Resource still in use: res://scripts/application/desktop/DesktopCausalSequencePort.gd (GDScript)
+Resource still in use: res://scripts/application/desktop/DesktopConsequenceCoordinator.gd (GDScript)
+Resource still in use: res://scripts/application/minesweeper/DesktopBoardFatePort.gd (GDScript)
+Resource still in use: res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd (GDScript)
+Resource still in use: res://scripts/domain/shop/MinesweeperShopRegistry.gd (GDScript)
+Resource still in use: res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd (GDScript)
+Resource still in use: res://scripts/application/shop/GameStateMinesweeperShopPort.gd (GDScript)
+Resource still in use: res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd (GDScript)
+Resource still in use: res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd (GDScript)
+Resource still in use: res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd (GDScript)
+Resource still in use: res://scripts/application/desktop/DesktopConditionPolicyPort.gd (GDScript)
+Resource still in use: res://scripts/application/schedule/ScheduleDepartureViewPort.gd (GDScript)
+Resource still in use: res://scripts/application/desktop/DesktopConsequenceSourcePort.gd (GDScript)
+Orphan StringName: auto_advance (static: 0, total: 4)
+Orphan StringName: _rejected (static: 0, total: 1)
+Orphan StringName: has_setting (static: 0, total: 1)
+Orphan StringName: get_setting (static: 0, total: 1)
+Orphan StringName: save_game_state (static: 0, total: 2)
+Orphan StringName: _causal_day_instance_issuer_receipt (static: 0, total: 3)
+Orphan StringName: text_effect_extradata (static: 0, total: 1)
+Orphan StringName: _check_revision (static: 0, total: 1)
+Orphan StringName: load_game_state (static: 0, total: 9)
+Orphan StringName: _on_choice_selected (static: 0, total: 1)
+Orphan StringName: _receipt_id_for (static: 0, total: 1)
+Orphan StringName: _minimum_root_next_counter (static: 0, total: 1)
+Orphan StringName: full_event_history_content (static: 0, total: 3)
+Orphan StringName: _START_PORT_METHODS (static: 0, total: 1)
+Orphan StringName: _board (static: 0, total: 4)
+Orphan StringName: _build_projected_board_candidate (static: 0, total: 1)
+Orphan StringName: _content_version_context (static: 0, total: 1)
+Orphan StringName: CONSEQUENCE_CHECKPOINT_RELATIVE_PATH (static: 0, total: 1)
+Orphan StringName: _derive (static: 0, total: 1)
+Orphan StringName: stop_animation (static: 0, total: 1)
+Orphan StringName: _validate_impl (static: 0, total: 1)
+Orphan StringName: animation_textbox_hide (static: 0, total: 2)
+Orphan StringName: _file_ops (static: 0, total: 3)
+Orphan StringName: event_description (static: 0, total: 3)
+Orphan StringName: CHILD_PARENT_PURPOSE (static: 0, total: 1)
+Orphan StringName: update_text_version (static: 0, total: 1)
+Orphan StringName: _CONTEXT_PORT_METHODS (static: 0, total: 1)
+Orphan StringName: _board_fate_receipt_id (static: 0, total: 1)
+Orphan StringName: can_be_translated (static: 0, total: 1)
+Orphan StringName: _make_write_marker (static: 0, total: 1)
+Orphan StringName: commit_continuation_allocation (static: 0, total: 1)
+Orphan StringName: ROOT_PURPOSE (static: 0, total: 3)
+Orphan StringName: _surviving_date_site (static: 0, total: 1)
+Orphan StringName: _PENDING_KEYS (static: 0, total: 1)
+Orphan StringName: hotkey_behaviour (static: 0, total: 4)
+Orphan StringName: validate_recovery_payload (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Text/subsystem_text.gd" (static: 0, total: 1)
+Orphan StringName: _fatal (static: 0, total: 1)
+Orphan StringName: _validate_allocation_request (static: 0, total: 1)
+Orphan StringName: _CONDITION_SEQUELA (static: 0, total: 1)
+Orphan StringName: _empty_shop_ledger (static: 0, total: 1)
+Orphan StringName: handle_input (static: 0, total: 1)
+Orphan StringName: _update_character_transform (static: 0, total: 1)
+Orphan StringName: _STRICT_JSON (static: 0, total: 4)
+Orphan StringName: DialogicBackground (static: 0, total: 3)
+Orphan StringName: _resolve_parent (static: 0, total: 1)
+Orphan StringName: CONTACT_STATE (static: 0, total: 1)
+Orphan StringName: resolve_board_fate_receipt (static: 0, total: 1)
+Orphan StringName: prepare_consequence_checkpoint (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Save/subsystem_save.gd" (static: 0, total: 1)
+Orphan StringName: color_character_names (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Background/subsystem_backgrounds.gd" (static: 0, total: 1)
+Orphan StringName: _token_for (static: 0, total: 1)
+Orphan StringName: HOSPITAL_MISS_CHILD_KIND (static: 0, total: 1)
+Orphan StringName: _readiness (static: 0, total: 2)
+Orphan StringName: reset_all (static: 0, total: 1)
+Orphan StringName: _durable_checkpoint_port (static: 0, total: 4)
+Orphan StringName: simple_history_enabled (static: 0, total: 4)
+Orphan StringName: _classify_family (static: 0, total: 1)
+Orphan StringName: animation_textbox_show (static: 0, total: 2)
+Orphan StringName: prepare (static: 0, total: 1)
+Orphan StringName: _first_missing_capability (static: 0, total: 1)
+Orphan StringName: event_color (static: 0, total: 3)
+Orphan StringName: prev_state (static: 0, total: 4)
+Orphan StringName: _detached_or_null (static: 0, total: 1)
+Orphan StringName: run_debug_preparation_slice (static: 0, total: 1)
+Orphan StringName: variable_changed (static: 0, total: 2)
+Orphan StringName: _fate_for_phase (static: 0, total: 1)
+Orphan StringName: has_slot (static: 0, total: 1)
+Orphan StringName: rename_path (static: 0, total: 1)
+Orphan StringName: _IDENTITY (static: 0, total: 1)
+Orphan StringName: _unhandled_input (static: 1, total: 2)
+Orphan StringName: animation_finished (static: 1, total: 2)
+Orphan StringName: _restore_board_state (static: 0, total: 1)
+Orphan StringName: _board_fate_port (static: 0, total: 8)
+Orphan StringName: _ready (static: 1, total: 12)
+Orphan StringName: _validate_phase_invariants (static: 0, total: 1)
+Orphan StringName: SAVE_DOCUMENT_SCHEMA (static: 0, total: 1)
+Orphan StringName: _failed (static: 0, total: 3)
+Orphan StringName: _default_ending_plan (static: 0, total: 1)
+Orphan StringName: _top_level_stage_transaction_id (static: 0, total: 1)
+Orphan StringName: REGISTRY (static: 0, total: 1)
+Orphan StringName: DesktopBoardState (static: 0, total: 3)
+Orphan StringName: DialogicSubsystem (static: 0, total: 3)
+Orphan StringName: script (static: 0, total: 2)
+Orphan StringName: _pending (static: 0, total: 4)
+Orphan StringName: prepare_causal_departure (static: 0, total: 1)
+Orphan StringName: _active_committed_entries (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Variable/subsystem_variables.gd" (static: 0, total: 1)
+Orphan StringName: handle_node_gui_input (static: 0, total: 1)
+Orphan StringName: delete_slot (static: 0, total: 1)
+Orphan StringName: save_slot_thumbnail (static: 0, total: 1)
+Orphan StringName: _immediate_receipt (static: 0, total: 1)
+Orphan StringName: CHILD_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: SOURCE_KINDS (static: 0, total: 1)
+Orphan StringName: DAY_RESOLUTION_PLAN (static: 0, total: 1)
+Orphan StringName: viewport (static: 0, total: 2)
+Orphan StringName: AUTOSAVE_RELATIVE_PATH (static: 0, total: 1)
+Orphan StringName: visited_event (static: 0, total: 2)
+Orphan StringName: apply_character_and_portrait (static: 0, total: 1)
+Orphan StringName: _enter_visual_editor (static: 0, total: 1)
+Orphan StringName: _DESTINATION_INTENT_KINDS (static: 0, total: 1)
+Orphan StringName: _state_port (static: 0, total: 16)
+Orphan StringName: _LEDGER_METHODS (static: 0, total: 1)
+Orphan StringName: close_app (static: 0, total: 1)
+Orphan StringName: _build_departed_snapshot (static: 0, total: 1)
+Orphan StringName: inspect_next_stage (static: 0, total: 1)
+Orphan StringName: _live_state (static: 0, total: 1)
+Orphan StringName: validate_all (static: 0, total: 1)
+Orphan StringName: dialogic_action_priority (static: 0, total: 2)
+Orphan StringName: effect_pause (static: 0, total: 1)
+Orphan StringName: has_active_layout_node (static: 0, total: 1)
+Orphan StringName: get_ids (static: 0, total: 1)
+Orphan StringName: exists (static: 0, total: 3)
+Orphan StringName: _classify_document (static: 0, total: 1)
+Orphan StringName: issue (static: 0, total: 2)
+Orphan StringName: _change_portrait_z_index (static: 0, total: 1)
+Orphan StringName: set_variable (static: 0, total: 1)
+Orphan StringName: is_presentation_producer_ready (static: 0, total: 1)
+Orphan StringName: color_overrides (static: 0, total: 3)
+Orphan StringName: SCHEDULE_STATE_SCHEMA (static: 0, total: 1)
+Orphan StringName: ALL_STAGES (static: 0, total: 1)
+Orphan StringName: resolve_condition_receipt (static: 0, total: 1)
+Orphan StringName: prepare_record_base_completion (static: 0, total: 1)
+Orphan StringName: MAXIMUM_DAY (static: 0, total: 1)
+Orphan StringName: _active_commit_receipt_id (static: 0, total: 1)
+Orphan StringName: _envelope (static: 0, total: 2)
+Orphan StringName: release (static: 0, total: 1)
+Orphan StringName: _load_custom_defaults (static: 0, total: 1)
+Orphan StringName: _board_fates (static: 0, total: 3)
+Orphan StringName: _JSON (static: 0, total: 1)
+Orphan StringName: leave_character (static: 0, total: 1)
+Orphan StringName: change_character_mirror (static: 0, total: 1)
+Orphan StringName: _RECOVERY_PAYLOAD_KEYS_SCHEDULE (static: 0, total: 1)
+Orphan StringName: _PHASE_NONE (static: 0, total: 1)
+Orphan StringName: has_last_event_been_visited (static: 0, total: 1)
+Orphan StringName: reset_slot (static: 0, total: 1)
+Orphan StringName: anchors_preset (static: 0, total: 3)
+Orphan StringName: _on_dialogic_event_handled (static: 0, total: 1)
+Orphan StringName: _reset_defaults (static: 0, total: 1)
+Orphan StringName: _change_portrait (static: 0, total: 1)
+Orphan StringName: open_requested (static: 0, total: 2)
+Orphan StringName: HOSPITAL_RESOLUTION_ROLE (static: 0, total: 1)
+Orphan StringName: jumped_to_label (static: 0, total: 2)
+Orphan StringName: load_current (static: 0, total: 1)
+Orphan StringName: add_body_line_break (static: 0, total: 1)
+Orphan StringName: simple_history_changed (static: 0, total: 2)
+Orphan StringName: get_autoloads (static: 0, total: 1)
+Orphan StringName: _republish_first_reveal (static: 0, total: 1)
+Orphan StringName: current_audio_file (static: 0, total: 3)
+Orphan StringName: get_containers (static: 0, total: 1)
+Orphan StringName: _RECOVERY_PAYLOAD_KEYS_ACTION (static: 0, total: 1)
+Orphan StringName: meta_hover_started (static: 0, total: 2)
+Orphan StringName: change_speaker (static: 0, total: 1)
+Orphan StringName: _set (static: 0, total: 2)
+Orphan StringName: prepare_settlement (static: 0, total: 1)
+Orphan StringName: _transaction_remap (static: 0, total: 1)
+Orphan StringName: _visibility_command (static: 0, total: 1)
+Orphan StringName: _leases (static: 0, total: 3)
+Orphan StringName: "addons/dialogic/Modules/Character/subsystem_portraits.gd" (static: 0, total: 1)
+Orphan StringName: is_any_channel_playing (static: 0, total: 1)
+Orphan StringName: _finish_delete_without_validator (static: 0, total: 1)
+Orphan StringName: set_file (static: 0, total: 1)
+Orphan StringName: acquire (static: 0, total: 1)
+Orphan StringName: reset_setting (static: 0, total: 1)
+Orphan StringName: _settlement (static: 0, total: 4)
+Orphan StringName: _marker_path (static: 0, total: 1)
+Orphan StringName: get_end_branch_index (static: 0, total: 1)
+Orphan StringName: _sha256_hex (static: 0, total: 2)
+Orphan StringName: get_character_info (static: 0, total: 1)
+Orphan StringName: _active_plan (static: 0, total: 1)
+Orphan StringName: _action_registry (static: 0, total: 8)
+Orphan StringName: prepare_record_supportz_purchase (static: 0, total: 1)
+Orphan StringName: DATES_STAGE (static: 0, total: 1)
+Orphan StringName: validate (static: 0, total: 1)
+Orphan StringName: effect_signal (static: 0, total: 1)
+Orphan StringName: one_shot_audio_node (static: 0, total: 3)
+Orphan StringName: start_autoskip_timer (static: 0, total: 1)
+Orphan StringName: _key_for (static: 0, total: 1)
+Orphan StringName: ScheduleActionRegistry (static: 0, total: 3)
+Orphan StringName: _empty_document (static: 0, total: 2)
+Orphan StringName: START_CHILD_KIND (static: 0, total: 1)
+Orphan StringName: capture_root (static: 0, total: 1)
+Orphan StringName: portrait (static: 0, total: 2)
+Orphan StringName: autofocus_first_choice (static: 0, total: 4)
+Orphan StringName: this_folder (static: 0, total: 2)
+Orphan StringName: _collect_embedded_receipts (static: 0, total: 1)
+Orphan StringName: show_textbox (static: 0, total: 1)
+Orphan StringName: store_to_shortcode_parameters (static: 0, total: 1)
+Orphan StringName: _finish_delete (static: 0, total: 1)
+Orphan StringName: _root_dir (static: 0, total: 3)
+Orphan StringName: _unsupported (static: 0, total: 1)
+Orphan StringName: PROVENANCE_KEYS (static: 0, total: 1)
+Orphan StringName: _make_sure_slot_dir_exists (static: 0, total: 1)
+Orphan StringName: validate_checkpoint_ordinal_stage (static: 0, total: 1)
+Orphan StringName: _is_lowercase_sha256 (static: 0, total: 3)
+Orphan StringName: HOSPITAL_MISS_ROLE (static: 0, total: 1)
+Orphan StringName: _DESTINATION_INTENT_KEYS (static: 0, total: 1)
+Orphan StringName: event_sorting_index (static: 0, total: 3)
+Orphan StringName: animation_interrupted (static: 0, total: 2)
+Orphan StringName: PAIR_SLUG (static: 0, total: 1)
+Orphan StringName: invalid_question_reached (static: 0, total: 2)
+Orphan StringName: _REQUIRED_STORAGE_CAPABILITY (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Core/subsystem_animation.gd" (static: 0, total: 1)
+Orphan StringName: _resume_forward (static: 0, total: 1)
+Orphan StringName: _SOURCE_KINDS (static: 0, total: 1)
+Orphan StringName: ui_update_needed (static: 0, total: 2)
+Orphan StringName: _BOARD_STATE (static: 0, total: 1)
+Orphan StringName: commit_allocation (static: 0, total: 1)
+Orphan StringName: ValueType (static: 0, total: 1)
+Orphan StringName: guard_external (static: 0, total: 2)
+Orphan StringName: _validate_namespace (static: 0, total: 1)
+Orphan StringName: _failure (static: 0, total: 1)
+Orphan StringName: _canonical_text (static: 0, total: 1)
+Orphan StringName: _deferred_pair_site (static: 0, total: 1)
+Orphan StringName: background_changed (static: 0, total: 2)
+Orphan StringName: TextureRect (static: 0, total: 1)
+Orphan StringName: reset_container (static: 0, total: 1)
+Orphan StringName: _test_event_string (static: 0, total: 1)
+Orphan StringName: set_flag (static: 0, total: 1)
+Orphan StringName: CHECKPOINT_INPUT_KEYS (static: 0, total: 1)
+Orphan StringName: DesktopIssuerRootStore (static: 0, total: 3)
+Orphan StringName: publish (static: 0, total: 6)
+Orphan StringName: _write_marker (static: 0, total: 1)
+Orphan StringName: set_text_voice_synced (static: 0, total: 1)
+Orphan StringName: _get_event_key (static: 0, total: 1)
+Orphan StringName: prepare_schedule_recovery_transport (static: 0, total: 1)
+Orphan StringName: load (static: 1, total: 4)
+Orphan StringName: _revalidated (static: 0, total: 1)
+Orphan StringName: voiceline_started (static: 0, total: 2)
+Orphan StringName: _path (static: 0, total: 1)
+Orphan StringName: mouse_filter (static: 0, total: 1)
+Orphan StringName: _desktop_consequence_source (static: 0, total: 4)
+Orphan StringName: read_text (static: 0, total: 2)
+Orphan StringName: dialogic_action (static: 0, total: 2)
+Orphan StringName: _SETTING_INPUT_ACTION_DEFAULT (static: 0, total: 1)
+Orphan StringName: _receipts_mismatch (static: 0, total: 1)
+Orphan StringName: _commit_new_entry (static: 0, total: 1)
+Orphan StringName: _capture_generations (static: 0, total: 3)
+Orphan StringName: committed_condition_receipt (static: 0, total: 1)
+Orphan StringName: _CANONICAL_WRITER (static: 0, total: 3)
+Orphan StringName: configure_schedule_departure_ports (static: 0, total: 1)
+Orphan StringName: get_active_owner (static: 0, total: 1)
+Orphan StringName: _update_background (static: 0, total: 2)
+Orphan StringName: verify_receipt (static: 0, total: 1)
+Orphan StringName: _update_portrait (static: 0, total: 2)
+Orphan StringName: _backup_path (static: 0, total: 1)
+Orphan StringName: _cleanup_owned (static: 0, total: 1)
+Orphan StringName: _id_list (static: 0, total: 1)
+Orphan StringName: save_visited_history (static: 0, total: 1)
+Orphan StringName: validate_child (static: 0, total: 2)
+Orphan StringName: _fatal_failure (static: 0, total: 6)
+Orphan StringName: connect_meta_signals (static: 0, total: 1)
+Orphan StringName: _presentation_site (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Core/subsystem_input.gd" (static: 0, total: 1)
+Orphan StringName: _storage_failure (static: 0, total: 2)
+Orphan StringName: update_typing_sound_mood_from_character (static: 0, total: 1)
+Orphan StringName: _stage_index (static: 0, total: 1)
+Orphan StringName: to_text (static: 0, total: 1)
+Orphan StringName: _file_error (static: 0, total: 1)
+Orphan StringName: take_thumbnail (static: 0, total: 1)
+Orphan StringName: select_choice (static: 0, total: 1)
+Orphan StringName: default_false_behaviour (static: 0, total: 4)
+Orphan StringName: prepare_condition_departure (static: 0, total: 1)
+Orphan StringName: str_to_vector (static: 0, total: 1)
+Orphan StringName: _SCHEMA_VALIDATOR (static: 0, total: 4)
+Orphan StringName: _STAGE_RANK (static: 0, total: 1)
+Orphan StringName: needs_indentation (static: 0, total: 3)
+Orphan StringName: _change_portrait_mirror (static: 0, total: 1)
+Orphan StringName: _validate_shop_ledger (static: 0, total: 1)
+Orphan StringName: derive_child (static: 0, total: 2)
+Orphan StringName: FIXED_PATH (static: 0, total: 2)
+Orphan StringName: MINIMUM_DAY (static: 0, total: 1)
+Orphan StringName: _load (static: 0, total: 1)
+Orphan StringName: ALLOCATION_CANDIDATE_KEYS (static: 0, total: 1)
+Orphan StringName: _letter_speed_absolute (static: 0, total: 4)
+Orphan StringName: _require_bound (static: 0, total: 1)
+Orphan StringName: saved (static: 0, total: 2)
+Orphan StringName: CHILD_KINDS (static: 0, total: 1)
+Orphan StringName: reveal (static: 0, total: 1)
+Orphan StringName: animation_textbox_new_text (static: 0, total: 2)
+Orphan StringName: _reconcile_revision (static: 0, total: 1)
+Orphan StringName: _RECEIPT_ID_PATH (static: 0, total: 1)
+Orphan StringName: add_glossary (static: 0, total: 1)
+Orphan StringName: _set_absent_lease (static: 0, total: 1)
+Orphan StringName: _SCHEDULE_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: _project_board (static: 0, total: 1)
+Orphan StringName: Control (static: 0, total: 1)
+Orphan StringName: anchor_bottom (static: 0, total: 3)
+Orphan StringName: PURPOSE_UNION (static: 0, total: 1)
+Orphan StringName: _day7_handoff (static: 0, total: 1)
+Orphan StringName: _DEBUG_BEGIN_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: DesktopPublicationLedger (static: 0, total: 3)
+Orphan StringName: _BASE_COMPLETION_RECEIPT_KEYS (static: 0, total: 1)
+Orphan StringName: simple_history_save (static: 0, total: 4)
+Orphan StringName: text_finished (static: 0, total: 2)
+Orphan StringName: _validate_condition_receipt (static: 0, total: 1)
+Orphan StringName: _decision (static: 0, total: 1)
+Orphan StringName: _game_state (static: 0, total: 12)
+Orphan StringName: _ensure_ready (static: 0, total: 1)
+Orphan StringName: load_from_shortcode_parameters (static: 0, total: 1)
+Orphan StringName: _document_shape_error (static: 0, total: 1)
+Orphan StringName: write_bytes (static: 0, total: 1)
+Orphan StringName: SCHEDULE_ACTION_REGISTRY (static: 0, total: 1)
+Orphan StringName: set_volume (static: 0, total: 1)
+Orphan StringName: select_focused_choice (static: 0, total: 1)
+Orphan StringName: open_history (static: 0, total: 1)
+Orphan StringName: _round_checkpoint_port (static: 0, total: 4)
+Orphan StringName: _projection (static: 0, total: 1)
+Orphan StringName: load_file (static: 0, total: 1)
+Orphan StringName: Location (static: 0, total: 1)
+Orphan StringName: DesktopAppHostState (static: 0, total: 3)
+Orphan StringName: voiceline_finished (static: 0, total: 2)
+Orphan StringName: get_encryption_password (static: 0, total: 1)
+Orphan StringName: DAY_ADVANCE_RECEIPT_KEYS (static: 0, total: 1)
+Orphan StringName: get_container (static: 0, total: 1)
+Orphan StringName: _commit_candidate (static: 0, total: 1)
+Orphan StringName: _reconcile_write (static: 0, total: 1)
+Orphan StringName: _committed_entry_receipt_ids (static: 0, total: 1)
+Orphan StringName: _gate (static: 0, total: 4)
+Orphan StringName: update_text_speed (static: 0, total: 1)
+Orphan StringName: load_style (static: 0, total: 1)
+Orphan StringName: _PREPARED_UNSTARTED (static: 0, total: 1)
+Orphan StringName: _is_hash (static: 0, total: 1)
+Orphan StringName: effect_autoadvance (static: 0, total: 1)
+Orphan StringName: _day7_terminal_provenance (static: 0, total: 1)
+Orphan StringName: _CAPTURE_KEYS (static: 0, total: 1)
+Orphan StringName: _BOARD_SCHEMA (static: 0, total: 1)
+Orphan StringName: START_ROLE (static: 0, total: 1)
+Orphan StringName: _visited_last_event (static: 0, total: 4)
+Orphan StringName: prepare_allocation (static: 0, total: 1)
+Orphan StringName: _state_view (static: 0, total: 1)
+Orphan StringName: reset (static: 0, total: 3)
+Orphan StringName: _execute (static: 0, total: 1)
+Orphan StringName: passed_label (static: 0, total: 2)
+Orphan StringName: get_semantic_audio_context (static: 0, total: 1)
+Orphan StringName: _SUPPORTZ_ITEM_ID (static: 0, total: 2)
+Orphan StringName: _pending_reservations (static: 0, total: 3)
+Orphan StringName: _terminal_receipts (static: 0, total: 3)
+Orphan StringName: read_bytes (static: 0, total: 1)
+Orphan StringName: _REGISTRY_METHODS (static: 0, total: 2)
+Orphan StringName: store_simple_history_entry (static: 0, total: 1)
+Orphan StringName: _current_event_key (static: 0, total: 1)
+Orphan StringName: hide_text_input (static: 0, total: 1)
+Orphan StringName: post_install (static: 0, total: 5)
+Orphan StringName: _mint_receipt (static: 0, total: 1)
+Orphan StringName: _outbox (static: 0, total: 3)
+Orphan StringName: emit_meta_signal (static: 0, total: 1)
+Orphan StringName: prepare_first_reveal (static: 0, total: 1)
+Orphan StringName: sha256 (static: 0, total: 1)
+Orphan StringName: ColorRect (static: 0, total: 2)
+Orphan StringName: SAVE_SLOTS_DIR (static: 0, total: 1)
+Orphan StringName: _create_character_node (static: 0, total: 1)
+Orphan StringName: _resolved_primary_id (static: 0, total: 1)
+Orphan StringName: STAGE_PREPARED_CHECKPOINTED (static: 0, total: 1)
+Orphan StringName: inspect_revision (static: 0, total: 2)
+Orphan StringName: _confirm_written_entry (static: 0, total: 1)
+Orphan StringName: _derive_start (static: 0, total: 1)
+Orphan StringName: PAIR_STAGE (static: 0, total: 1)
+Orphan StringName: configure_consequence_port (static: 0, total: 1)
+Orphan StringName: configure_condition_departure_ports (static: 0, total: 1)
+Orphan StringName: _identity_context (static: 0, total: 3)
+Orphan StringName: presentation_stage_receipt (static: 0, total: 1)
+Orphan StringName: ALLOCATION_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: grow_vertical (static: 0, total: 3)
+Orphan StringName: _raw_artifact (static: 0, total: 1)
+Orphan StringName: hide_all_choices (static: 0, total: 1)
+Orphan StringName: _remove_portrait (static: 0, total: 1)
+Orphan StringName: _animate_node (static: 0, total: 1)
+Orphan StringName: capture_persistent_state (static: 0, total: 1)
+Orphan StringName: z_sort_portrait_containers (static: 0, total: 1)
+Orphan StringName: publish_recovery_action (static: 0, total: 2)
+Orphan StringName: prepare_purchase (static: 0, total: 2)
+Orphan StringName: _resolve_cause (static: 0, total: 1)
+Orphan StringName: _current_day (static: 0, total: 4)
+Orphan StringName: _derive_child (static: 0, total: 2)
+Orphan StringName: _digest (static: 0, total: 2)
+Orphan StringName: "addons/dialogic/Modules/Audio/subsystem_audio.gd" (static: 0, total: 1)
+Orphan StringName: text_started (static: 0, total: 2)
+Orphan StringName: DialogicPortrait (static: 0, total: 3)
+Orphan StringName: abandon_pending_consequence_checkpoint (static: 0, total: 1)
+Orphan StringName: _ISSUER_METHODS (static: 0, total: 6)
+Orphan StringName: move_container (static: 0, total: 1)
+Orphan StringName: _on_autoskip_toggled (static: 0, total: 1)
+Orphan StringName: set_slot_info (static: 0, total: 1)
+Orphan StringName: _digest_source (static: 0, total: 1)
+Orphan StringName: rollback (static: 0, total: 9)
+Orphan StringName: update_textbox (static: 0, total: 1)
+Orphan StringName: is_string_full_event (static: 0, total: 1)
+Orphan StringName: prepare_recovery_advance (static: 0, total: 1)
+Orphan StringName: set_text_reveal_skippable (static: 0, total: 1)
+Orphan StringName: TERMINAL_KEYS (static: 0, total: 1)
+Orphan StringName: _should_do_portrait_update (static: 0, total: 1)
+Orphan StringName: PROJECTOR (static: 0, total: 1)
+Orphan StringName: _verify_transaction (static: 0, total: 2)
+Orphan StringName: _ledger_key (static: 0, total: 2)
+Orphan StringName: event_category (static: 0, total: 3)
+Orphan StringName: effect_speed (static: 0, total: 1)
+Orphan StringName: get_remaining_time (static: 0, total: 1)
+Orphan StringName: _call_validator (static: 0, total: 1)
+Orphan StringName: _CAPABILITY_RULES (static: 0, total: 1)
+Orphan StringName: _project_completion_board (static: 0, total: 1)
+Orphan StringName: _receipts_from_specs (static: 0, total: 1)
+Orphan StringName: resume_pending (static: 0, total: 1)
+Orphan StringName: _consequence_checkpoint_text_validator (static: 0, total: 1)
+Orphan StringName: change_character_z_index (static: 0, total: 1)
+Orphan StringName: full_event_history_enabled (static: 0, total: 4)
+Orphan StringName: add_container (static: 0, total: 1)
+Orphan StringName: commit_causal_day_advance (static: 0, total: 2)
+Orphan StringName: _ok (static: 0, total: 4)
+Orphan StringName: _token_counter (static: 0, total: 4)
+Orphan StringName: _routine_command (static: 0, total: 1)
+Orphan StringName: _RECORD_SCHEMA (static: 0, total: 2)
+Orphan StringName: _get_syntax_highlighting (static: 0, total: 1)
+Orphan StringName: _PROJECTED_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: _update_user_speed (static: 0, total: 1)
+Orphan StringName: _round_pending_admission_requests (static: 0, total: 3)
+Orphan StringName: _SNAPSHOT_INPUT_KEYS (static: 0, total: 1)
+Orphan StringName: _next_path (static: 0, total: 1)
+Orphan StringName: prepare_debug_slice (static: 0, total: 1)
+Orphan StringName: Sprite2D (static: 0, total: 1)
+Orphan StringName: _live_view (static: 0, total: 4)
+Orphan StringName: _exact_keys (static: 0, total: 14)
+Orphan StringName: execute_condition (static: 0, total: 1)
+Orphan StringName: editor_list (static: 0, total: 2)
+Orphan StringName: parse_stack (static: 0, total: 3)
+Orphan StringName: _on_dialogic_timeline_ended (static: 0, total: 1)
+Orphan StringName: folders (static: 0, total: 1)
+Orphan StringName: _derive_receipt_id (static: 0, total: 1)
+Orphan StringName: CAUSE_EMPTY_DONE (static: 0, total: 1)
+Orphan StringName: is_active (static: 0, total: 1)
+Orphan StringName: _on_voice_finished (static: 0, total: 1)
+Orphan StringName: is_jump_stack_empty (static: 0, total: 1)
+Orphan StringName: _day_advance_record_matches_root_request (static: 0, total: 1)
+Orphan StringName: ROOT_DOCUMENT_PATH (static: 0, total: 1)
+Orphan StringName: show_next_indicators (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Jump/subsystem_jump.gd" (static: 0, total: 1)
+Orphan StringName: created_by_button (static: 0, total: 3)
+Orphan StringName: _provider_identity (static: 0, total: 3)
+Orphan StringName: record_before_emit (static: 0, total: 2)
+Orphan StringName: STORAGE_METHODS (static: 0, total: 1)
+Orphan StringName: prepare_debug_candidate (static: 0, total: 1)
+Orphan StringName: voiceline_stopped (static: 0, total: 2)
+Orphan StringName: _capture_storage_backup (static: 0, total: 1)
+Orphan StringName: _refresh_from_disk (static: 0, total: 1)
+Orphan StringName: get_current_speaker (static: 0, total: 1)
+Orphan StringName: DesktopBoardFatePort (static: 0, total: 3)
+Orphan StringName: _day_advance_candidate (static: 0, total: 1)
+Orphan StringName: _cached_app_ids (static: 0, total: 3)
+Orphan StringName: NUMERIC_PURPOSE (static: 0, total: 1)
+Orphan StringName: _committed_condition_receipts (static: 0, total: 3)
+Orphan StringName: is_textbox_visible (static: 0, total: 1)
+Orphan StringName: SCHEMA_PATH (static: 0, total: 3)
+Orphan StringName: _RECOVERY_PAYLOAD_KEYS_ACTION_ADMISSION_READY (static: 0, total: 1)
+Orphan StringName: transform_regex (static: 0, total: 4)
+Orphan StringName: get_saved_visited_history (static: 0, total: 1)
+Orphan StringName: _BOARD_STATE_SCRIPT (static: 0, total: 1)
+Orphan StringName: _MINESWEEPER_ID (static: 0, total: 1)
+Orphan StringName: modifier_break (static: 0, total: 1)
+Orphan StringName: "scripts/application/minesweeper/MinesweeperRoundCoordinator.gd" (static: 0, total: 1)
+Orphan StringName: _minted_document (static: 0, total: 1)
+Orphan StringName: _from_storage_failure (static: 0, total: 1)
+Orphan StringName: configure (static: 0, total: 16)
+Orphan StringName: _first_reveal_durable (static: 0, total: 1)
+Orphan StringName: _verify_receipt_in_document (static: 0, total: 1)
+Orphan StringName: _build_action_receipt (static: 0, total: 1)
+Orphan StringName: _active_owner (static: 0, total: 4)
+Orphan StringName: finished (static: 0, total: 2)
+Orphan StringName: _transactions (static: 0, total: 3)
+Orphan StringName: is_character_joined (static: 0, total: 1)
+Orphan StringName: _validate_intent_pairing (static: 0, total: 1)
+Orphan StringName: _minesweeper_round_source_port (static: 0, total: 4)
+Orphan StringName: _canonical_sha256 (static: 0, total: 8)
+Orphan StringName: glossaries (static: 0, total: 3)
+Orphan StringName: ParserModes (static: 0, total: 1)
+Orphan StringName: apply_texture (static: 0, total: 1)
+Orphan StringName: _presentation_command (static: 0, total: 1)
+Orphan StringName: variable_was_set (static: 0, total: 2)
+Orphan StringName: PRE_ADMISSION_STAGES (static: 0, total: 1)
+Orphan StringName: _sequence_candidate (static: 0, total: 1)
+Orphan StringName: modifier_condition (static: 0, total: 1)
+Orphan StringName: finish (static: 0, total: 1)
+Orphan StringName: write_atomic (static: 0, total: 2)
+Orphan StringName: _deferred_pair_entry_id (static: 0, total: 1)
+Orphan StringName: stop_all_channels (static: 0, total: 1)
+Orphan StringName: FalseBehaviour (static: 0, total: 1)
+Orphan StringName: _state (static: 0, total: 4)
+Orphan StringName: VALID_OWNERS (static: 0, total: 1)
+Orphan StringName: _DESKTOP_KEYS (static: 0, total: 1)
+Orphan StringName: remove_path (static: 0, total: 1)
+Orphan StringName: _presentation_context (static: 0, total: 1)
+Orphan StringName: collect_text_modifiers (static: 0, total: 1)
+Orphan StringName: DialogicEvent (static: 0, total: 5)
+Orphan StringName: _update_saved_connection (static: 0, total: 1)
+Orphan StringName: _input (static: 1, total: 2)
+Orphan StringName: prepare_reservation (static: 0, total: 1)
+Orphan StringName: begin_next_stage (static: 0, total: 1)
+Orphan StringName: _rollback_participants (static: 0, total: 1)
+Orphan StringName: character (static: 0, total: 2)
+Orphan StringName: stop_audio (static: 0, total: 1)
+Orphan StringName: STRICT_JSON (static: 0, total: 2)
+Orphan StringName: _document (static: 0, total: 6)
+Orphan StringName: change_character_extradata (static: 0, total: 1)
+Orphan StringName: skip_text_reveal (static: 0, total: 1)
+Orphan StringName: _get_property_original_translation (static: 0, total: 1)
+Orphan StringName: parse_text_effects (static: 0, total: 1)
+Orphan StringName: INTENT_ROLE (static: 0, total: 1)
+Orphan StringName: _schedule_done_state (static: 0, total: 1)
+Orphan StringName: _PUBLICATION_RECEIPT_MEMBER (static: 0, total: 1)
+Orphan StringName: _retained (static: 0, total: 3)
+Orphan StringName: get_event_editor_info (static: 0, total: 1)
+Orphan StringName: _continuation_candidate_from (static: 0, total: 1)
+Orphan StringName: full_event_history_changed (static: 0, total: 2)
+Orphan StringName: value_to_string (static: 0, total: 1)
+Orphan StringName: get_entry_context (static: 0, total: 1)
+Orphan StringName: invalid_choice_behaviour (static: 0, total: 4)
+Orphan StringName: configure_publication_ledger (static: 0, total: 4)
+Orphan StringName: START_RECEIPT_KEYS (static: 0, total: 1)
+Orphan StringName: _has_all_methods (static: 0, total: 5)
+Orphan StringName: commit_consequence_checkpoint (static: 0, total: 1)
+Orphan StringName: _get_end_branch_control (static: 0, total: 1)
+Orphan StringName: REGISTRY_VERSION (static: 0, total: 1)
+Orphan StringName: hide_next_indicators (static: 0, total: 1)
+Orphan StringName: prepare_action_handoff (static: 0, total: 1)
+Orphan StringName: _PREPARE_KEYS (static: 0, total: 1)
+Orphan StringName: _clear_state (static: 0, total: 1)
+Orphan StringName: get_global_info (static: 0, total: 1)
+Orphan StringName: RECEIPT_KEYS (static: 0, total: 1)
+Orphan StringName: get_current_style (static: 0, total: 1)
+Orphan StringName: add_header_button (static: 0, total: 1)
+Orphan StringName: d_range (static: 0, total: 1)
+Orphan StringName: _accepted (static: 0, total: 4)
+Orphan StringName: _backup_evidence_matches (static: 0, total: 1)
+Orphan StringName: get_latest_slot (static: 0, total: 1)
+Orphan StringName: CryptoDesktopNamespaceSource (static: 0, total: 3)
+Orphan StringName: chord (static: 0, total: 1)
+Orphan StringName: _hospital_envelope (static: 0, total: 1)
+Orphan StringName: show_current_question (static: 0, total: 1)
+Orphan StringName: event_node_as_text (static: 0, total: 3)
+Orphan StringName: get_container_container (static: 0, total: 1)
+Orphan StringName: audio_started (static: 0, total: 2)
+Orphan StringName: merge_folder (static: 0, total: 1)
+Orphan StringName: _SCHEMA (static: 0, total: 4)
+Orphan StringName: _context_port (static: 0, total: 4)
+Orphan StringName: _sha256 (static: 0, total: 2)
+Orphan StringName: "addons/dialogic/Modules/Character/subsystem_containers.gd" (static: 0, total: 1)
+Orphan StringName: meta_clicked (static: 0, total: 2)
+Orphan StringName: _active_token (static: 0, total: 4)
+Orphan StringName: has_background (static: 0, total: 1)
+Orphan StringName: default_portrait_scene (static: 0, total: 3)
+Orphan StringName: DAY_ADVANCE_DISPOSITION (static: 0, total: 1)
+Orphan StringName: HOSPITAL_RULES (static: 0, total: 1)
+Orphan StringName: _causal_day_instance (static: 0, total: 4)
+Orphan StringName: GameStateDayResolutionPort (static: 0, total: 3)
+Orphan StringName: preview_checkpoint_id (static: 0, total: 2)
+Orphan StringName: _finish_new_winner (static: 0, total: 1)
+Orphan StringName: _round_recovery_committed (static: 0, total: 3)
+Orphan StringName: _check_seen (static: 0, total: 1)
+Orphan StringName: _completed_lifecycle (static: 0, total: 1)
+Orphan StringName: Image (static: 0, total: 1)
+Orphan StringName: _active_app_id_context (static: 0, total: 1)
+Orphan StringName: adopt_durable_checkpoint_if_live_is_behind (static: 0, total: 1)
+Orphan StringName: _GENERIC_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: Resource (static: 1, total: 3)
+Orphan StringName: character_colors (static: 0, total: 3)
+Orphan StringName: update_name_label (static: 0, total: 1)
+Orphan StringName: supportz_eligibility_state (static: 0, total: 1)
+Orphan StringName: _route_plan_entry (static: 0, total: 1)
+Orphan StringName: is_running (static: 0, total: 1)
+Orphan StringName: choice_selected (static: 0, total: 2)
+Orphan StringName: is_question (static: 0, total: 1)
+Orphan StringName: STAGE_SEQUENCE_COMMITTED (static: 0, total: 1)
+Orphan StringName: _PUBLICATION_KEYS (static: 0, total: 1)
+Orphan StringName: _FLAG_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: _project (static: 0, total: 3)
+Orphan StringName: change_style (static: 0, total: 1)
+Orphan StringName: help_page_path (static: 0, total: 3)
+Orphan StringName: _consequence_state_port (static: 0, total: 4)
+Orphan StringName: CANONICAL_WRITER (static: 0, total: 1)
+Orphan StringName: _abandon_pre_admission (static: 0, total: 1)
+Orphan StringName: _require_loaded (static: 0, total: 1)
+Orphan StringName: reveal_by_input (static: 0, total: 4)
+Orphan StringName: _board_state (static: 0, total: 7)
+Orphan StringName: effect_noskip (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Voice/subsystem_voice.gd" (static: 0, total: 1)
+Orphan StringName: PRESENTATION_CHILD_KIND (static: 0, total: 1)
+Orphan StringName: from_text (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Core/subsystem_expression.gd" (static: 0, total: 1)
+Orphan StringName: _build_action_consequence_receipt (static: 0, total: 1)
+Orphan StringName: _to_string (static: 0, total: 1)
+Orphan StringName: _consequence_coordinator (static: 0, total: 8)
+Orphan StringName: _has_exact_keys (static: 0, total: 1)
+Orphan StringName: HOSPITAL_TIMELINE_ID (static: 0, total: 1)
+Orphan StringName: play_voice (static: 0, total: 1)
+Orphan StringName: get_current_choice_indexes (static: 0, total: 1)
+Orphan StringName: _require_configured (static: 0, total: 7)
+Orphan StringName: _action_receipt_from_payload (static: 0, total: 1)
+Orphan StringName: remove (static: 0, total: 2)
+Orphan StringName: _check_pre_state (static: 0, total: 1)
+Orphan StringName: _SCHEMA_CHECK (static: 0, total: 1)
+Orphan StringName: latch_fatal (static: 0, total: 1)
+Orphan StringName: effect_input (static: 0, total: 1)
+Orphan StringName: is_channel_playing (static: 0, total: 1)
+Orphan StringName: prepare_visibility (static: 0, total: 1)
+Orphan StringName: _plan_receipt_from_envelope (static: 0, total: 1)
+Orphan StringName: _open_writes (static: 0, total: 3)
+Orphan StringName: translate_container (static: 0, total: 1)
+Orphan StringName: _validate_sorted_unique (static: 0, total: 1)
+Orphan StringName: AUTO_SAVE_MODE_SETTINGS (static: 0, total: 1)
+Orphan StringName: speaker_updated (static: 0, total: 2)
+Orphan StringName: _pure_letter_speed (static: 0, total: 4)
+Orphan StringName: _validate_child_shape (static: 0, total: 1)
+Orphan StringName: _fingerprint (static: 0, total: 5)
+Orphan StringName: HotkeyBehaviour (static: 0, total: 1)
+Orphan StringName: load_or_create (static: 0, total: 1)
+Orphan StringName: _unhighlight (static: 0, total: 1)
+Orphan StringName: _PHASE_PREPARING (static: 0, total: 1)
+Orphan StringName: centered (static: 0, total: 1)
+Orphan StringName: _derive_row (static: 0, total: 1)
+Orphan StringName: _should_do_background_update (static: 0, total: 1)
+Orphan StringName: _decode_utf8 (static: 0, total: 1)
+Orphan StringName: block_input (static: 0, total: 1)
+Orphan StringName: has (static: 0, total: 1)
+Orphan StringName: _set_lease (static: 0, total: 1)
+Orphan StringName: _voice_synced_text (static: 0, total: 4)
+Orphan StringName: HASH_PATTERN (static: 0, total: 1)
+Orphan StringName: compose (static: 0, total: 1)
+Orphan StringName: mark_event_as_visited (static: 0, total: 1)
+Orphan StringName: character_left (static: 0, total: 2)
+Orphan StringName: "scripts/application/run/DayResolutionStartPort.gd" (static: 0, total: 1)
+Orphan StringName: get_character_name_parsed (static: 0, total: 1)
+Orphan StringName: _GAME_STATE_CANDIDATE_KEYS (static: 0, total: 1)
+Orphan StringName: d_regex (static: 0, total: 1)
+Orphan StringName: _write_document (static: 0, total: 1)
+Orphan StringName: image (static: 0, total: 4)
+Orphan StringName: _checkpoint_inputs (static: 0, total: 1)
+Orphan StringName: text_modifiers (static: 0, total: 3)
+Orphan StringName: _CANON (static: 0, total: 1)
+Orphan StringName: get_slot_path (static: 0, total: 1)
+Orphan StringName: _candidate_receipts (static: 0, total: 1)
+Orphan StringName: lookup (static: 0, total: 1)
+Orphan StringName: change_day (static: 0, total: 1)
+Orphan StringName: _sorted_unique (static: 0, total: 4)
+Orphan StringName: open_app (static: 0, total: 1)
+Orphan StringName: _identity (static: 0, total: 4)
+Orphan StringName: _cached_document (static: 0, total: 3)
+Orphan StringName: RESERVED_START_ORDINAL (static: 0, total: 1)
+Orphan StringName: _STATE_PORT_METHODS (static: 0, total: 3)
+Orphan StringName: _run_publication_callback (static: 0, total: 1)
+Orphan StringName: _fatal_result (static: 0, total: 1)
+Orphan StringName: _validate_for_preimage (static: 0, total: 1)
+Orphan StringName: get_valid_portrait (static: 0, total: 1)
+Orphan StringName: _SETTING_INPUT_ACTION (static: 0, total: 1)
+Orphan StringName: PAIR_PARTICIPANTS (static: 0, total: 1)
+Orphan StringName: _board_fate_receipt_from_payload (static: 0, total: 1)
+Orphan StringName: _ACTION_RECEIPT (static: 0, total: 4)
+Orphan StringName: CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS (static: 0, total: 1)
+Orphan StringName: _is_branch_starter (static: 0, total: 1)
+Orphan StringName: _desktop_identity_context (static: 0, total: 3)
+Orphan StringName: _PROJECTOR (static: 0, total: 1)
+Orphan StringName: CHECKPOINT_METHODS (static: 0, total: 1)
+Orphan StringName: commit_recovery_action (static: 0, total: 2)
+Orphan StringName: _check_publication_plan_hash (static: 0, total: 1)
+Orphan StringName: _STAT_PRESSURE (static: 0, total: 1)
+Orphan StringName: audio_node (static: 0, total: 3)
+Orphan StringName: _root (static: 0, total: 4)
+Orphan StringName: add_empty_slot (static: 0, total: 1)
+Orphan StringName: reveal_delay (static: 0, total: 4)
+Orphan StringName: create_layout (static: 0, total: 1)
+Orphan StringName: _current (static: 0, total: 2)
+Orphan StringName: _day_resolution_start_port (static: 0, total: 4)
+Orphan StringName: _consequence_gate (static: 0, total: 4)
+Orphan StringName: d_len (static: 0, total: 1)
+Orphan StringName: visited_event_save_key (static: 0, total: 4)
+Orphan StringName: prepare_from_committed_schedule (static: 0, total: 1)
+Orphan StringName: configure_identity_issuer (static: 0, total: 1)
+Orphan StringName: _active_app_id (static: 0, total: 4)
+Orphan StringName: _schedule_view_port (static: 0, total: 4)
+Orphan StringName: _phase (static: 0, total: 4)
+Orphan StringName: _PHASE_ACTIVE_VISIBLE (static: 0, total: 1)
+Orphan StringName: _fatal_latched (static: 0, total: 4)
+Orphan StringName: _check_identity_matches_live (static: 0, total: 1)
+Orphan StringName: SaveManagerDesktopBoardPort (static: 0, total: 3)
+Orphan StringName: input_confirmed (static: 0, total: 2)
+Orphan StringName: _presentation_timeline_id (static: 0, total: 1)
+Orphan StringName: _STATE_KEYS (static: 0, total: 1)
+Orphan StringName: voice_player (static: 0, total: 3)
+Orphan StringName: Portrait (static: 0, total: 1)
+Orphan StringName: visited_event_history_content (static: 0, total: 3)
+Orphan StringName: collect_character_names (static: 0, total: 1)
+Orphan StringName: editor_node (static: 0, total: 3)
+Orphan StringName: _CONTEXT_KEYS (static: 0, total: 1)
+Orphan StringName: _reload_settings (static: 0, total: 1)
+Orphan StringName: _resolution_start (static: 0, total: 1)
+Orphan StringName: complete_round (static: 0, total: 1)
+Orphan StringName: NAMESPACE_HEX_LENGTH (static: 0, total: 1)
+Orphan StringName: _committed (static: 0, total: 3)
+Orphan StringName: save_position_container (static: 0, total: 1)
+Orphan StringName: _ACTIVE_SUSPENDED (static: 0, total: 1)
+Orphan StringName: KINDS (static: 0, total: 2)
+Orphan StringName: _CANONICAL_JSON (static: 0, total: 9)
+Orphan StringName: color_node (static: 0, total: 2)
+Orphan StringName: _build_round_action_receipt (static: 0, total: 1)
+Orphan StringName: interpolate_volume_linearly (static: 0, total: 1)
+Orphan StringName: is_animating (static: 0, total: 1)
+Orphan StringName: load_position_container (static: 0, total: 1)
+Orphan StringName: set_global_info (static: 0, total: 1)
+Orphan StringName: ACTION_RECEIPT (static: 0, total: 1)
+Orphan StringName: DETAIL_DEPTH_BUDGET (static: 0, total: 1)
+Orphan StringName: _prepared (static: 0, total: 4)
+Orphan StringName: _validate_supportz_eligibility (static: 0, total: 1)
+Orphan StringName: set_latest_slot (static: 0, total: 1)
+Orphan StringName: _init (static: 0, total: 9)
+Orphan StringName: capability_changed (static: 0, total: 3)
+Orphan StringName: _hospital_site (static: 0, total: 1)
+Orphan StringName: ApplicationMutationGate (static: 0, total: 3)
+Orphan StringName: _superseded_entry_ids (static: 0, total: 1)
+Orphan StringName: question_shown (static: 0, total: 2)
+Orphan StringName: prepare_admission (static: 0, total: 1)
+Orphan StringName: VariableFolder (static: 0, total: 1)
+Orphan StringName: _require_dependencies (static: 0, total: 1)
+Orphan StringName: _gate_token (static: 0, total: 4)
+Orphan StringName: Node2D (static: 0, total: 1)
+Orphan StringName: execute_effects (static: 0, total: 1)
+Orphan StringName: _get_code_completion (static: 0, total: 1)
+Orphan StringName: Master (static: 0, total: 1)
+Orphan StringName: find_glossary (static: 0, total: 1)
+Orphan StringName: reset_visited_history (static: 0, total: 1)
+Orphan StringName: _is_nonblank_string (static: 0, total: 2)
+Orphan StringName: _finish_revision_write (static: 0, total: 1)
+Orphan StringName: _durable_consequence_state_port (static: 0, total: 4)
+Orphan StringName: _continuation_candidate (static: 0, total: 1)
+Orphan StringName: _close_pending (static: 0, total: 1)
+Orphan StringName: DesktopFirstRevealSnapshotComposer (static: 0, total: 3)
+Orphan StringName: update_background (static: 0, total: 1)
+Orphan StringName: get_entry (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Settings/subsystem_settings.gd" (static: 0, total: 1)
+Orphan StringName: _get_covered_rect (static: 0, total: 1)
+Orphan StringName: reconcile (static: 0, total: 2)
+Orphan StringName: remove_character (static: 0, total: 1)
+Orphan StringName: _highlight (static: 0, total: 1)
+Orphan StringName: _validate_base_completion_receipt (static: 0, total: 1)
+Orphan StringName: _convert_state_info (static: 0, total: 1)
+Orphan StringName: resize_container (static: 0, total: 1)
+Orphan StringName: AUTO_SAVE_SETTINGS (static: 0, total: 1)
+Orphan StringName: GameStateMinesweeperShopPort (static: 0, total: 3)
+Orphan StringName: _change_day_commands (static: 0, total: 1)
+Orphan StringName: character_portrait_changed (static: 0, total: 2)
+Orphan StringName: GameStateDesktopConditionContextPort (static: 0, total: 3)
+Orphan StringName: SCHEMA_VERSION (static: 0, total: 3)
+Orphan StringName: _SHOP_LEDGER_KEYS (static: 0, total: 1)
+Orphan StringName: collect_text_effects (static: 0, total: 1)
+Orphan StringName: skip_question (static: 0, total: 1)
+Orphan StringName: modifier_select_split_regex (static: 0, total: 3)
+Orphan StringName: execute (static: 0, total: 1)
+Orphan StringName: validate_handoff (static: 0, total: 1)
+Orphan StringName: _revision_prior_path (static: 0, total: 1)
+Orphan StringName: get_dependencies (static: 0, total: 1)
+Orphan StringName: _admit_and_forward (static: 0, total: 1)
+Orphan StringName: StorageAdapter (static: 0, total: 3)
+Orphan StringName: ui_update_warning (static: 0, total: 2)
+Orphan StringName: CANONICAL_JSON (static: 0, total: 1)
+Orphan StringName: ScheduleFoundationPublicationLedger (static: 0, total: 3)
+Orphan StringName: _validate_relative_path (static: 0, total: 1)
+Orphan StringName: get_property_translated (static: 0, total: 1)
+Orphan StringName: _CELL_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: _is_hospital_stage (static: 0, total: 1)
+Orphan StringName: _COORDINATOR_METHODS (static: 0, total: 1)
+Orphan StringName: CHILD_SCHEMA_VERSION (static: 0, total: 1)
+Orphan StringName: prepare_completion (static: 0, total: 1)
+Orphan StringName: _command_receipts (static: 0, total: 6)
+Orphan StringName: event_finished (static: 0, total: 2)
+Orphan StringName: modifier_autopauses (static: 0, total: 1)
+Orphan StringName: DEFAULT_ROUTE_ID (static: 0, total: 1)
+Orphan StringName: _begin_surviving_date_substage (static: 0, total: 1)
+Orphan StringName: _snapshot_composer (static: 0, total: 4)
+Orphan StringName: is_internal_owner_active (static: 0, total: 1)
+Orphan StringName: DesktopConditionPolicyPort (static: 0, total: 3)
+Orphan StringName: _publication_ledger (static: 0, total: 20)
+Orphan StringName: remove_translation_id (static: 0, total: 1)
+Orphan StringName: rotate_container (static: 0, total: 1)
+Orphan StringName: PUBLICATION_RECEIPT_MEMBER (static: 0, total: 1)
+Orphan StringName: disable_editor_button (static: 0, total: 3)
+Orphan StringName: default_background_scene (static: 0, total: 3)
+Orphan StringName: _process (static: 2, total: 3)
+Orphan StringName: input_block_timer (static: 0, total: 3)
+Orphan StringName: get_slot_thumbnail (static: 0, total: 1)
+Orphan StringName: stop_timers (static: 0, total: 1)
+Orphan StringName: _custom_fade_out (static: 0, total: 1)
+Orphan StringName: get_shortcode_parameters (static: 0, total: 1)
+Orphan StringName: release_recovery_lease (static: 0, total: 2)
+Orphan StringName: _canonical (static: 0, total: 1)
+Orphan StringName: condition_modifier_regex (static: 0, total: 3)
+Orphan StringName: DesktopConsequenceCoordinator (static: 0, total: 3)
+Orphan StringName: _candidate (static: 0, total: 4)
+Orphan StringName: parse_glossary (static: 0, total: 1)
+Orphan StringName: is_channel_playing_file (static: 0, total: 1)
+Orphan StringName: input_was_mouse_input (static: 0, total: 4)
+Orphan StringName: leave_all_characters (static: 0, total: 1)
+Orphan StringName: AutoSaveMode (static: 0, total: 1)
+Orphan StringName: DAY_ADVANCE_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: autosave_time (static: 0, total: 4)
+Orphan StringName: _check_request (static: 0, total: 1)
+Orphan StringName: has_event_been_visited (static: 0, total: 1)
+Orphan StringName: suspend (static: 0, total: 1)
+Orphan StringName: configure_day7_provenance (static: 0, total: 1)
+Orphan StringName: close_history (static: 0, total: 1)
+Orphan StringName: _recover_revision_start (static: 0, total: 1)
+Orphan StringName: configure_fatal_latch (static: 0, total: 1)
+Orphan StringName: get_simple_history (static: 0, total: 1)
+Orphan StringName: _looks_like_receipt (static: 0, total: 1)
+Orphan StringName: jump_to_label (static: 0, total: 1)
+Orphan StringName: get_last_label_identifier (static: 0, total: 1)
+Orphan StringName: flush_path (static: 0, total: 1)
+Orphan StringName: _is_animating (static: 0, total: 4)
+Orphan StringName: _set_mirror (static: 0, total: 1)
+Orphan StringName: _prepared_by_candidate_hash (static: 0, total: 3)
+Orphan StringName: _recovery_committed (static: 0, total: 3)
+Orphan StringName: _terminal_cleanup (static: 0, total: 1)
+Orphan StringName: CHILD_KIND (static: 0, total: 1)
+Orphan StringName: get_last_label_name (static: 0, total: 1)
+Orphan StringName: copy_container_setup (static: 0, total: 1)
+Orphan StringName: autosave_enabled (static: 0, total: 4)
+Orphan StringName: CONSEQUENCE_CHECKPOINT_RECORD_KEYS (static: 0, total: 1)
+Orphan StringName: get_default_slot (static: 0, total: 1)
+Orphan StringName: RUN_LIFECYCLE (static: 0, total: 1)
+Orphan StringName: commit_restore (static: 0, total: 1)
+Orphan StringName: _update_portrait_transform (static: 0, total: 1)
+Orphan StringName: _journal (static: 0, total: 1)
+Orphan StringName: _validate_issuer_provenance (static: 0, total: 1)
+Orphan StringName: expand_by_default (static: 0, total: 3)
+Orphan StringName: _committed_pending_recovery_result (static: 0, total: 1)
+Orphan StringName: _desktop_context_provider (static: 0, total: 4)
+Orphan StringName: _get_translatable_properties (static: 0, total: 1)
+Orphan StringName: hide_textbox (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Style/subsystem_styles.gd" (static: 0, total: 1)
+Orphan StringName: _fatal_rollback (static: 0, total: 2)
+Orphan StringName: _records (static: 0, total: 4)
+Orphan StringName: store_full_event (static: 0, total: 1)
+Orphan StringName: _sylvia_source (static: 0, total: 1)
+Orphan StringName: _autopauses (static: 0, total: 3)
+Orphan StringName: add_header_label (static: 0, total: 1)
+Orphan StringName: _ACTION_KINDS (static: 0, total: 1)
+Orphan StringName: get_choice_button (static: 0, total: 1)
+Orphan StringName: event_started (static: 0, total: 2)
+Orphan StringName: character_moved (static: 0, total: 2)
+Orphan StringName: about_to_show_text (static: 0, total: 2)
+Orphan StringName: _admit_revision (static: 0, total: 1)
+Orphan StringName: _document_text_validator (static: 0, total: 1)
+Orphan StringName: _speed_multiplier (static: 0, total: 4)
+Orphan StringName: parsed_text_effect_info (static: 0, total: 3)
+Orphan StringName: DesktopConsequenceSourcePort (static: 0, total: 3)
+Orphan StringName: _recover_known_write (static: 0, total: 1)
+Orphan StringName: _has_cached_document (static: 0, total: 4)
+Orphan StringName: save_visited_history_on_save (static: 0, total: 4)
+Orphan StringName: _BOARD_FATE_METHODS (static: 0, total: 1)
+Orphan StringName: HOSPITAL_RESOLUTION_CHILD_KIND (static: 0, total: 1)
+Orphan StringName: _ACTIVE_VISIBLE (static: 0, total: 1)
+Orphan StringName: _registry (static: 0, total: 4)
+Orphan StringName: update_typing_sound_mood (static: 0, total: 1)
+Orphan StringName: PUBLICATION_KEYS (static: 0, total: 2)
+Orphan StringName: is_voiced (static: 0, total: 1)
+Orphan StringName: _fail (static: 0, total: 15)
+Orphan StringName: _root_fingerprint (static: 0, total: 1)
+Orphan StringName: _document_before_counter (static: 0, total: 1)
+Orphan StringName: _DOCUMENT_SCHEMA (static: 0, total: 1)
+Orphan StringName: _ACCEPT_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: go_home (static: 0, total: 1)
+Orphan StringName: _CONSEQUENCE_STATE_PORT_METHODS (static: 0, total: 1)
+Orphan StringName: _CAPABILITY_ITEM_IDS (static: 0, total: 2)
+Orphan StringName: _store_as_string (static: 0, total: 1)
+Orphan StringName: modifier_random_selection (static: 0, total: 1)
+Orphan StringName: _publication_binding_error (static: 0, total: 2)
+Orphan StringName: get_variable (static: 0, total: 1)
+Orphan StringName: get_layout_node (static: 0, total: 1)
+Orphan StringName: RUN_SNAPSHOT_SCHEMA (static: 0, total: 1)
+Orphan StringName: _validate_receipt_members (static: 0, total: 1)
+Orphan StringName: _identity_issuer (static: 0, total: 36)
+Orphan StringName: _save_manager (static: 0, total: 4)
+Orphan StringName: modifier_select_regex (static: 0, total: 3)
+Orphan StringName: _load_from_string (static: 0, total: 1)
+Orphan StringName: . (static: 1, total: 4)
+Orphan StringName: _auto_skip_timer_left (static: 0, total: 4)
+Orphan StringName: verify_issued (static: 0, total: 1)
+Orphan StringName: JsonFileStorage (static: 0, total: 3)
+Orphan StringName: is_input_blocked (static: 0, total: 1)
+Orphan StringName: _STATE_SCHEMA (static: 0, total: 2)
+Orphan StringName: OUTBOX_KINDS (static: 0, total: 1)
+Orphan StringName: DialogicCharacter (static: 0, total: 1)
+Orphan StringName: save_visited_history_on_autosave (static: 0, total: 4)
+Orphan StringName: prepare_projected_causal_departure (static: 0, total: 1)
+Orphan StringName: commit_condition_departure (static: 0, total: 1)
+Orphan StringName: _operation_ordinal (static: 0, total: 1)
+Orphan StringName: CHECKPOINT_ORDINAL_STAGE_LAW (static: 0, total: 1)
+Orphan StringName: simple_history_content (static: 0, total: 3)
+Orphan StringName: Node (static: 5, total: 6)
+Orphan StringName: ScheduleDepartureViewPort (static: 0, total: 3)
+Orphan StringName: dialogic (static: 0, total: 24)
+Orphan StringName: _open_app_commands (static: 0, total: 1)
+Orphan StringName: _COMMIT_KEYS (static: 0, total: 1)
+Orphan StringName: show_text_input (static: 0, total: 1)
+Orphan StringName: _has_methods (static: 0, total: 6)
+Orphan StringName: _connections (static: 0, total: 3)
+Orphan StringName: find_record (static: 0, total: 1)
+Orphan StringName: _revision_marker (static: 0, total: 1)
+Orphan StringName: configure_action_source_ports (static: 0, total: 1)
+Orphan StringName: configure_durable_checkpoint (static: 0, total: 1)
+Orphan StringName: _on_start_or_end_autosave (static: 0, total: 1)
+Orphan StringName: get_character_portrait (static: 0, total: 1)
+Orphan StringName: CAUSAL_DAY_PURPOSE (static: 0, total: 1)
+Orphan StringName: _PREPARING (static: 0, total: 1)
+Orphan StringName: CHECKPOINT_PROVIDER_KEYS (static: 0, total: 1)
+Orphan StringName: _checkpoint_providers (static: 0, total: 3)
+Orphan StringName: SCHEDULE_RULES (static: 0, total: 1)
+Orphan StringName: _validate_marker (static: 0, total: 1)
+Orphan StringName: parse_text (static: 0, total: 1)
+Orphan StringName: _setting_changed (static: 0, total: 1)
+Orphan StringName: _get_join_default_length (static: 0, total: 1)
+Orphan StringName: _on_autosave_timer_timeout (static: 0, total: 1)
+Orphan StringName: InvalidChoiceBehaviour (static: 0, total: 1)
+Orphan StringName: _choice_blocker (static: 0, total: 3)
+Orphan StringName: _validate_causal_sequence_receipt (static: 0, total: 1)
+Orphan StringName: PUBLICATION_KIND (static: 0, total: 1)
+Orphan StringName: get_first_node_in_layout (static: 0, total: 1)
+Orphan StringName: switched_timeline (static: 0, total: 2)
+Orphan StringName: anchor_right (static: 0, total: 3)
+Orphan StringName: _validate_ordinal_stage_pairing (static: 0, total: 1)
+Orphan StringName: connect_to_change (static: 0, total: 1)
+Orphan StringName: add_body_edit (static: 0, total: 1)
+Orphan StringName: is_text_reveal_skippable (static: 0, total: 1)
+Orphan StringName: style_changed (static: 0, total: 2)
+Orphan StringName: FAILURE_KEYS (static: 0, total: 1)
+Orphan StringName: meta_hover_ended (static: 0, total: 2)
+Orphan StringName: _checkpoint_port (static: 0, total: 16)
+Orphan StringName: _PHASE_ACTIVE_SUSPENDED (static: 0, total: 1)
+Orphan StringName: _on_dialogic_action (static: 0, total: 1)
+Orphan StringName: input_shown (static: 0, total: 2)
+Orphan StringName: _commit_generation (static: 0, total: 8)
+Orphan StringName: get_current_route_id (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Glossary/subsystem_glossary.gd" (static: 0, total: 1)
+Orphan StringName: grow_horizontal (static: 0, total: 3)
+Orphan StringName: effect_lspeed (static: 0, total: 1)
+Orphan StringName: _change_portrait_extradata (static: 0, total: 1)
+Orphan StringName: _revalidate_entries (static: 0, total: 1)
+Orphan StringName: DefaultPortrait (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/TextInput/subsystem_text_input.gd" (static: 0, total: 1)
+Orphan StringName: _day_advance_candidate_from (static: 0, total: 1)
+Orphan StringName: configure_desktop_context_provider (static: 0, total: 1)
+Orphan StringName: _validate_record (static: 0, total: 1)
+Orphan StringName: _mutation_gate (static: 0, total: 16)
+Orphan StringName: _validate_pending (static: 0, total: 1)
+Orphan StringName: _BASE_COMPLETION_ORDINALS (static: 0, total: 2)
+Orphan StringName: checkpoint_content_preimage (static: 0, total: 1)
+Orphan StringName: initialize (static: 0, total: 1)
+Orphan StringName: empty_lines_above (static: 0, total: 3)
+Orphan StringName: _ISSUER_PROVENANCE_KEYS (static: 0, total: 1)
+Orphan StringName: RefCounted (static: 1, total: 2)
+Orphan StringName: is_text_voice_synced (static: 0, total: 1)
+Orphan StringName: validate_recovery_action (static: 0, total: 2)
+Orphan StringName: _finish_prepare (static: 0, total: 1)
+Orphan StringName: can_contain_events (static: 0, total: 3)
+Orphan StringName: add_header_edit (static: 0, total: 1)
+Orphan StringName: current_audio_channels (static: 0, total: 3)
+Orphan StringName: full_event_history_save (static: 0, total: 4)
+Orphan StringName: DesktopCausalSequencePort (static: 0, total: 3)
+Orphan StringName: _guard (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Character/default_portrait.gd" (static: 0, total: 1)
+Orphan StringName: auto_skip (static: 0, total: 4)
+Orphan StringName: autosave_timer (static: 0, total: 3)
+Orphan StringName: HOSPITAL_STAGE (static: 0, total: 1)
+Orphan StringName: autoskip_timer_finished (static: 0, total: 2)
+Orphan StringName: update_dialog_text (static: 0, total: 1)
+Orphan StringName: REQUEST_KEYS (static: 0, total: 4)
+Orphan StringName: _storage (static: 0, total: 13)
+Orphan StringName: close_requested (static: 0, total: 2)
+Orphan StringName: _validate_request (static: 0, total: 2)
+Orphan StringName: _advance_publication_progress (static: 0, total: 1)
+Orphan StringName: _validate_document (static: 0, total: 2)
+Orphan StringName: save (static: 0, total: 1)
+Orphan StringName: _validate_common (static: 0, total: 1)
+Orphan StringName: GENERATION_PURPOSE (static: 0, total: 1)
+Orphan StringName: _ACTION_SOURCE_KINDS (static: 0, total: 1)
+Orphan StringName: _CONSEQUENCE_SOURCE_METHODS (static: 0, total: 1)
+Orphan StringName: effect_mood (static: 0, total: 1)
+Orphan StringName: event_name (static: 0, total: 3)
+Orphan StringName: TextTypes (static: 0, total: 1)
+Orphan StringName: stop_all_one_shot_sounds (static: 0, total: 1)
+Orphan StringName: _ledger_lookup (static: 0, total: 1)
+Orphan StringName: text_already_read (static: 0, total: 4)
+Orphan StringName: _condition_policy_port (static: 0, total: 4)
+Orphan StringName: CAUSE_SCHEDULED_SOLO (static: 0, total: 1)
+Orphan StringName: DATING_TIMELINE_PHASE (static: 0, total: 1)
+Orphan StringName: get_record (static: 0, total: 1)
+Orphan StringName: DEFAULT_CONTENT_VERSION (static: 0, total: 1)
+Orphan StringName: collapse_on_create (static: 0, total: 3)
+Orphan StringName: _PHASES (static: 0, total: 1)
+Orphan StringName: _plan_is_complete (static: 0, total: 1)
+Orphan StringName: _sha256_value (static: 0, total: 1)
+Orphan StringName: _ACTION_KIND (static: 0, total: 1)
+Orphan StringName: _generation_port (static: 0, total: 4)
+Orphan StringName: reload_current_info_into_new_style (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/History/subsystem_history.gd" (static: 0, total: 1)
+Orphan StringName: clear_game_state (static: 0, total: 16)
+Orphan StringName: _adopt_state (static: 0, total: 1)
+Orphan StringName: _receipt_id_for_key (static: 0, total: 1)
+Orphan StringName: SETTING_DEFAULT_COLOR (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Choice/subsystem_choices.gd" (static: 0, total: 1)
+Orphan StringName: _expected_fingerprint_error (static: 0, total: 1)
+Orphan StringName: set_bus (static: 0, total: 1)
+Orphan StringName: _committed_transaction_ids (static: 0, total: 3)
+Orphan StringName: read_pending_consequence_checkpoint (static: 0, total: 1)
+Orphan StringName: commit_checkpoint (static: 0, total: 1)
+Orphan StringName: get_current_narrative_checkpoint (static: 0, total: 1)
+Orphan StringName: save_file (static: 0, total: 1)
+Orphan StringName: _BOARD_CANDIDATE_KEYS (static: 0, total: 1)
+Orphan StringName: _day7_provenance (static: 0, total: 4)
+Orphan StringName: text_effect_portrait (static: 0, total: 1)
+Orphan StringName: fingerprint (static: 0, total: 1)
+Orphan StringName: _PHASE_SETTLING (static: 0, total: 1)
+Orphan StringName: _loaded (static: 0, total: 11)
+Orphan StringName: _round_consequence_state_port (static: 0, total: 4)
+Orphan StringName: DesktopConsequenceState (static: 0, total: 3)
+Orphan StringName: _admission_checkpoint_port (static: 0, total: 4)
+Orphan StringName: _CHECKPOINT_PORT_METHODS (static: 0, total: 2)
+Orphan StringName: _PHASE_INVARIANTS (static: 0, total: 1)
+Orphan StringName: text_effects (static: 0, total: 3)
+Orphan StringName: load_parse_stack (static: 0, total: 1)
+Orphan StringName: _translation_id (static: 0, total: 3)
+Orphan StringName: _dup_or_null (static: 0, total: 3)
+Orphan StringName: capture (static: 0, total: 11)
+Orphan StringName: execute_string (static: 0, total: 1)
+Orphan StringName: _presentation_inputs (static: 0, total: 1)
+Orphan StringName: _validate_desktop_shape (static: 0, total: 1)
+Orphan StringName: end_branch_event (static: 0, total: 3)
+Orphan StringName: load_visited_history (static: 0, total: 1)
+Orphan StringName: focus_choice (static: 0, total: 1)
+Orphan StringName: _move_character (static: 0, total: 1)
+Orphan StringName: change_character_portrait (static: 0, total: 1)
+Orphan StringName: resume (static: 0, total: 7)
+Orphan StringName: _namespace_source (static: 0, total: 4)
+Orphan StringName: evaluate (static: 0, total: 1)
+Orphan StringName: _OUTBOX_STATUSES (static: 0, total: 1)
+Orphan StringName: configure_consequence_checkpoint (static: 0, total: 1)
+Orphan StringName: NAMESPACE_BYTE_LENGTH (static: 0, total: 1)
+Orphan StringName: visited_event_history_enabled (static: 0, total: 4)
+Orphan StringName: join_character (static: 0, total: 1)
+Orphan StringName: _derive_terminal (static: 0, total: 1)
+Orphan StringName: get_slot_names (static: 0, total: 1)
+Orphan StringName: MinesweeperShopRegistry (static: 0, total: 3)
+Orphan StringName: @group_0_Main (static: 0, total: 1)
+Orphan StringName: configure_checkpoint_providers (static: 0, total: 1)
+Orphan StringName: vector_to_str (static: 0, total: 1)
+Orphan StringName: MinesweeperShopPurchaseParticipant (static: 0, total: 3)
+Orphan StringName: SaveManagerCheckpointPort (static: 0, total: 3)
+Orphan StringName: _revision_family (static: 0, total: 1)
+Orphan StringName: "scripts/domain/schedule/Day7ScheduleProvenance.gd" (static: 0, total: 1)
+Orphan StringName: _resume_and_admit (static: 0, total: 1)
+Orphan StringName: _parse_document (static: 0, total: 2)
+Orphan StringName: _build_admission_ready_payload (static: 0, total: 1)
+Orphan StringName: _active_source_day (static: 0, total: 1)
+Orphan StringName: _call_accept_and_finalize (static: 0, total: 1)
+Orphan StringName: _load_consequence_checkpoint_document (static: 0, total: 1)
+Orphan StringName: text_effects_regex (static: 0, total: 3)
+Orphan StringName: DESKTOP_CONSEQUENCE_STATE (static: 0, total: 1)
+Orphan StringName: _validate_candidate (static: 0, total: 1)
+Orphan StringName: _presentation_ordinal (static: 0, total: 1)
+Orphan StringName: GATE_METHODS (static: 0, total: 1)
+Orphan StringName: from_manifest (static: 0, total: 1)
+Orphan StringName: unvisited_event (static: 0, total: 2)
+Orphan StringName: settings (static: 0, total: 3)
+Orphan StringName: get_slot_info (static: 0, total: 1)
+Orphan StringName: _on_transition_finished (static: 0, total: 1)
+Orphan StringName: _round_completions (static: 0, total: 3)
+Orphan StringName: _PHASE_PREPARED_UNSTARTED (static: 0, total: 1)
+Orphan StringName: DAY (static: 0, total: 1)
+Orphan StringName: describe_root (static: 0, total: 2)
+Orphan StringName: DefaultBackground (static: 0, total: 1)
+Orphan StringName: _custom_fade_in (static: 0, total: 1)
+Orphan StringName: ALLOCATION_KINDS (static: 0, total: 1)
+Orphan StringName: make_empty (static: 0, total: 1)
+Orphan StringName: _advance_to_publication_pending (static: 0, total: 1)
+Orphan StringName: _provided (static: 0, total: 1)
+Orphan StringName: _committed_entry (static: 0, total: 1)
+Orphan StringName: _COMPLETE_ROUND_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: character_joined (static: 0, total: 2)
+Orphan StringName: LoadFlags (static: 0, total: 1)
+Orphan StringName: _derive_hospital_rows (static: 0, total: 1)
+Orphan StringName: _OUTBOX_ENTRY_KEYS (static: 0, total: 1)
+Orphan StringName: _STAT_HEALTH (static: 0, total: 1)
+Orphan StringName: sort_by_length (static: 0, total: 1)
+Orphan StringName: _set_extra_data (static: 0, total: 1)
+Orphan StringName: _on_dialog_text_finished (static: 0, total: 1)
+Orphan StringName: _mismatched_members (static: 0, total: 1)
+Orphan StringName: quote (static: 0, total: 1)
+Orphan StringName: is_fatal_latched (static: 0, total: 1)
+Orphan StringName: _get_icon (static: 0, total: 1)
+Orphan StringName: variables (static: 0, total: 1)
+Orphan StringName: _current_day_sources (static: 0, total: 1)
+Orphan StringName: _committed_transactions (static: 0, total: 3)
+Orphan StringName: _NOTIFICATION_INTENT_ACTION_KINDS (static: 0, total: 1)
+Orphan StringName: _REQUEST_KEYS (static: 0, total: 5)
+Orphan StringName: _revision (static: 0, total: 4)
+Orphan StringName: viewport_container (static: 0, total: 2)
+Orphan StringName: remove_if_revision (static: 0, total: 2)
+Orphan StringName: get_character_node (static: 0, total: 1)
+Orphan StringName: _shop_ledger (static: 0, total: 3)
+Orphan StringName: autosave_mode (static: 0, total: 4)
+Orphan StringName: _prepare_and_admit (static: 0, total: 1)
+Orphan StringName: RECORD_KEYS (static: 0, total: 2)
+Orphan StringName: DAY_ADVANCE_RESOLUTION_KINDS (static: 0, total: 1)
+Orphan StringName: layout_mode (static: 0, total: 3)
+Orphan StringName: move_character (static: 0, total: 1)
+Orphan StringName: _GATE_OWNER (static: 0, total: 5)
+Orphan StringName: get_state (static: 0, total: 2)
+Orphan StringName: ThumbnailMode (static: 0, total: 1)
+Orphan StringName: prepare_continuation_allocation (static: 0, total: 1)
+Orphan StringName: _unverified (static: 0, total: 1)
+Orphan StringName: _validate_common_request_types (static: 0, total: 1)
+Orphan StringName: _GENERATION_PORT_METHODS (static: 0, total: 1)
+Orphan StringName: _details_valid (static: 0, total: 1)
+Orphan StringName: _prepared_lookup (static: 0, total: 1)
+Orphan StringName: _write_and_flush (static: 0, total: 1)
+Orphan StringName: _normalize_failure (static: 0, total: 1)
+Orphan StringName: MANIFEST_PATH (static: 0, total: 2)
+Orphan StringName: _shop_purchase_source_port (static: 0, total: 4)
+Orphan StringName: snapshot_for (static: 0, total: 1)
+Orphan StringName: _causal_sequence_port (static: 0, total: 4)
+Orphan StringName: wants_to_group (static: 0, total: 3)
+Orphan StringName: _ORDINAL_STAGE_LAW (static: 0, total: 1)
+Orphan StringName: _recognize_live_round_pending (static: 0, total: 1)
+Orphan StringName: AUTO_SAVE_TIME_SETTINGS (static: 0, total: 1)
+Orphan StringName: _validate_semantics (static: 0, total: 2)
+Orphan StringName: _SEQUENCE_RECEIPT_KEYS (static: 0, total: 1)
+Orphan StringName: dialogic_color_name (static: 0, total: 3)
+Orphan StringName: enabled (static: 0, total: 4)
+Orphan StringName: push_to_jump_stack (static: 0, total: 1)
+Orphan StringName: _on_save (static: 0, total: 1)
+Orphan StringName: accept_prepared_action (static: 0, total: 1)
+Orphan StringName: pause (static: 0, total: 6)
+Orphan StringName: add_character (static: 0, total: 1)
+Orphan StringName: update_audio (static: 0, total: 1)
+Orphan StringName: resume_from_last_jump (static: 0, total: 1)
+Orphan StringName: _get (static: 0, total: 2)
+Orphan StringName: begin_debug_preparation (static: 0, total: 1)
+Orphan StringName: STAGE_ACTION_PREPARED (static: 0, total: 1)
+Orphan StringName: DOCUMENT_KEYS (static: 0, total: 2)
+Orphan StringName: SOLO_KIND (static: 0, total: 1)
+Orphan StringName: prepare_sequence_reservation (static: 0, total: 1)
+Orphan StringName: _FIRST_REVEAL_REQUEST_KEYS (static: 0, total: 1)
+Orphan StringName: prepare_checkpoint (static: 0, total: 1)
+Orphan StringName: _classify_marker (static: 0, total: 1)
+Orphan StringName: _hospital_contacts_candidate (static: 0, total: 1)
+Orphan StringName: translate (static: 0, total: 1)
+Orphan StringName: _on_passed_label (static: 0, total: 1)
+Orphan StringName: _validate_publication_progress_shape (static: 0, total: 1)
+Orphan StringName: _validate_day_advance_receipt (static: 0, total: 1)
+Orphan StringName: _consequence_gate_token (static: 0, total: 4)
+Orphan StringName: textbox_visibility_changed (static: 0, total: 2)
+Orphan StringName: _validate_outbox (static: 0, total: 1)
+Orphan StringName: _frozen_route_plan (static: 0, total: 1)
+Orphan StringName: DAY7_PROVENANCE_STAGES (static: 0, total: 1)
+Orphan StringName: prepare_outbox_publication (static: 0, total: 1)
+Orphan StringName: parse_shortcode_parameters (static: 0, total: 1)
+Orphan StringName: request_schedule_departure (static: 0, total: 1)
+Orphan StringName: _GAME_STATE_METHODS (static: 0, total: 1)
+Orphan StringName: prepare_board_command (static: 0, total: 1)
+Orphan StringName: _day_advance_key (static: 0, total: 1)
+Orphan StringName: _checkpoint_and_adopt (static: 0, total: 1)
+Orphan StringName: build_event_editor (static: 0, total: 1)
+Orphan StringName: parse_variables (static: 0, total: 1)
+Orphan StringName: _DAY7_CAUSE (static: 0, total: 1)
+Orphan StringName: STAGE_PUBLICATION_PENDING (static: 0, total: 1)
+Orphan StringName: FILE_OPS (static: 0, total: 1)
+Orphan StringName: is_input_pressed (static: 0, total: 1)
+Orphan StringName: _on_audio_finished (static: 0, total: 1)
+Orphan StringName: last_question_info (static: 0, total: 3)
+Orphan StringName: get_current_question_info (static: 0, total: 1)
+Orphan StringName: event_node_ready (static: 0, total: 3)
+Orphan StringName: perform_autosave (static: 0, total: 1)
+Orphan StringName: position_changed (static: 0, total: 2)
+Orphan StringName: get_property_translation_key (static: 0, total: 1)
+Orphan StringName: returned_from_jump (static: 0, total: 2)
+Orphan StringName: generate_namespace (static: 0, total: 1)
+Orphan StringName: _get_start_code_completion (static: 0, total: 1)
+Orphan StringName: _record_shape_error (static: 0, total: 1)
+Orphan StringName: prepare_causal_day_advance (static: 0, total: 2)
+Orphan StringName: _ids (static: 0, total: 1)
+Orphan StringName: get_shortcode (static: 0, total: 1)
+Orphan StringName: _child_id (static: 0, total: 1)
+Orphan StringName: "addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd" (static: 0, total: 1)
+Orphan StringName: image_node (static: 0, total: 2)
+Orphan StringName: _causal_sequence (static: 0, total: 4)
+Orphan StringName: _parse (static: 0, total: 1)
+Orphan StringName: GROUP_PAIR (static: 0, total: 1)
+Orphan StringName: preload_style (static: 0, total: 1)
+Orphan StringName: add_background_node (static: 0, total: 1)
+Orphan StringName: _recognize_live_pending (static: 0, total: 1)
+Orphan StringName: animate_character (static: 0, total: 1)
+Orphan StringName: _REDUCER (static: 0, total: 1)
+Orphan StringName: _ISSUER_RECEIPT_KEYS (static: 0, total: 1)
+Orphan StringName: _NOTIFICATION_INTENT_KEYS (static: 0, total: 1)
+Orphan StringName: color_regex (static: 0, total: 3)
+Orphan StringName: configure_resolution_identity (static: 0, total: 1)
+Orphan StringName: prepare_restore (static: 0, total: 3)
+Orphan StringName: ACTION_SOURCE_KINDS (static: 0, total: 1)
+Orphan StringName: begin_or_resume (static: 0, total: 1)
+Orphan StringName: _check_commit_pre_state (static: 0, total: 1)
+Orphan StringName: _dark_mode_active (static: 0, total: 1)
+Orphan StringName: _validate_day_advance_request (static: 0, total: 1)
+Orphan StringName: is_valid_event (static: 0, total: 1)
+Orphan StringName: add_translation_id (static: 0, total: 1)
+Orphan StringName: latest_thumbnail (static: 0, total: 4)
+Orphan StringName: DISK_WRITES (static: 0, total: 1)
+Orphan StringName: CAPABILITY_UNION (static: 0, total: 1)
+Orphan StringName: set_default_color (static: 0, total: 1)
+Orphan StringName: FileOps (static: 0, total: 3)
+Orphan StringName: _run_revision (static: 0, total: 4)
+Orphan StringName: _CHECKPOINT_METHODS (static: 0, total: 1)
+Orphan StringName: snapshot (static: 0, total: 1)
+Orphan StringName: get_joined_characters (static: 0, total: 1)
+Orphan StringName: configure_desktop_consequence_source (static: 0, total: 1)
+Orphan StringName: reset_all_containers (static: 0, total: 1)
+Orphan StringName: use_input_action (static: 0, total: 4)
+Orphan StringName: _get_leave_default_length (static: 0, total: 1)
+Orphan StringName: block_delay (static: 0, total: 4)
+Orphan StringName: start_animating (static: 0, total: 1)
+Orphan StringName: _seed_empty_document (static: 0, total: 1)
+Orphan StringName: _begin_ordinary_action_substage (static: 0, total: 1)
+Orphan StringName: default_transition (static: 0, total: 3)
+Orphan StringName: write_atomic_if_revision (static: 0, total: 2)
+Orphan StringName: commit (static: 0, total: 9)
+Orphan StringName: COMPLETION_ROLE (static: 0, total: 1)
+Orphan StringName: DesktopIdentityNonceIssuer (static: 0, total: 3)
+Orphan StringName: manual_advance (static: 0, total: 4)
+Orphan StringName: _can_afford (static: 0, total: 1)
+Orphan StringName: action_was_consumed (static: 0, total: 4)
+Orphan StringName: _owns (static: 0, total: 1)
+Orphan StringName: _action_candidate_sha256_from_receipt (static: 0, total: 1)
+Orphan StringName: _SOURCE_RECOVERY_METHODS (static: 0, total: 1)
+Orphan StringName: _first_reveal (static: 0, total: 1)
+StringName: 1240 unclaimed string names at exit.
+.NET: Failed to load project assembly
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2663)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: Cannot get path of node as it is not in a scene tree.
+   at: get_path (scene/main/node.cpp:2419)
+ERROR: 56 resources still in use at exit.
+   at: clear (core/io/resource.cpp:805)

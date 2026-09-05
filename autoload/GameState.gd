@@ -663,18 +663,24 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 	}, "receipt": {}}
 
 
-func open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
+## Uses the same pure preparation as commit so UI content can be checked before any read or
+## acceptance mutation. The authentic issuer proof is required even for this detached candidate.
+func preview_open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
 	var verified := _verify_contact_command(command_id, command_issuer_receipt)
 	if not verified.get("ok", false):
 		return verified
-	var replayed: bool = (contacts.get("transaction_receipts", {}) as Dictionary).has(command_id)
 	var action_id := _contact_action_id(friend_id)
 	var record := _schedule_action_record(action_id)
 	if record.is_empty():
 		return _transaction_failure(&"contact_offer_absent", action_id)
-	var opened: Dictionary = _CONTACT_INVITATION_STATE.prepare_open_contact(
+	return _CONTACT_INVITATION_STATE.prepare_open_contact(
 		contacts, friend_id, day, command_id, command_issuer_receipt,
 		_identity_issuer, record)
+
+
+func open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
+	var replayed: bool = (contacts.get("transaction_receipts", {}) as Dictionary).has(command_id)
+	var opened := preview_open_contact(friend_id, command_id, command_issuer_receipt)
 	if not opened.get("ok", false):
 		return opened
 	contacts = opened["value"]["candidate"]
@@ -754,7 +760,7 @@ func get_contact_choices(friend_id: String, target_day: int = -1) -> Array:
 func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
 	# Player-visible contact history for a friend (dwm-p2r.6); delegates to the pure module.
 	var d: int = target_day if target_day >= 0 else day
-	return _CONTACT_INVITATION_STATE.get_contact_view(contacts, friend_id, d)
+	return _CONTACT_INVITATION_STATE.get_contact_view(contacts, friend_id, d).duplicate(true)
 
 
 func _group_is_active() -> bool:
@@ -1971,8 +1977,13 @@ func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> 
 # are silent: apply/rollback emit no domain signals; only finalize publishes.
 
 func capture_restore_state() -> Dictionary:
+	var gameplay := to_save_dict()
+	gameplay["narrative_variables"] = _narrative_variables.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"gameplay": to_save_dict(),
+		"gameplay": gameplay,
+		"command_receipts": _command_receipts.duplicate(true),
+		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
+		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
 		"lifecycle": _run_lifecycle.to_dict(),
 		"contacts": contacts.duplicate(true),
 		# v3 (Plan 01 Task 5): the canonical aggregate is part of the restore transaction, so a
@@ -2174,6 +2185,9 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	if typeof(source) != TYPE_DICTIONARY or typeof((source as Dictionary).get("gameplay")) != TYPE_DICTIONARY \
 			or typeof((source as Dictionary).get("lifecycle")) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_run_backup", "message": "run backup requires gameplay and lifecycle"}
+	var bookkeeping := _prepare_restore_bookkeeping(source, true)
+	if not bookkeeping.get("ok", false):
+		return bookkeeping
 	var restored: Dictionary = _run_lifecycle.prepare_restore((source as Dictionary)["lifecycle"])
 	if not restored.get("ok", false):
 		return restored
@@ -2191,6 +2205,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 			return {"ok": false, "code": &"invalid_run_backup", "message": desktop_error}
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	_apply_gameplay_silent((source as Dictionary)["gameplay"])
+	_apply_restore_bookkeeping(bookkeeping["value"])
 	_restore_contacts_section((source as Dictionary).get("contacts"))
 	if not validated_backup.is_empty():
 		_committed_schedule = (validated_backup["value"] as Dictionary)["committed_schedule"]
@@ -2226,6 +2241,9 @@ func apply_continuation_remap_silent(restore_transaction_id: String, identity_al
 func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	if typeof(snapshot.get("lifecycle")) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_run_plan", "message": "snapshot.lifecycle is required"}
+	var bookkeeping := _prepare_restore_bookkeeping(snapshot)
+	if not bookkeeping.get("ok", false):
+		return bookkeeping
 	var restored: Dictionary = _run_lifecycle.prepare_restore(snapshot["lifecycle"])
 	if not restored.get("ok", false):
 		return restored
@@ -2246,12 +2264,73 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	if typeof(snapshot.get("gameplay")) == TYPE_DICTIONARY:
 		_apply_gameplay_silent(snapshot["gameplay"])
+	_apply_restore_bookkeeping(bookkeeping["value"])
 	_restore_contacts_section(snapshot.get("contacts"))
 	if not validated_committed.is_empty():
 		_committed_schedule = (validated_committed["value"] as Dictionary)["committed_schedule"]
 	if typeof(desktop) == TYPE_DICTIONARY:
 		_desktop_snapshot = (desktop as Dictionary).duplicate(true)
 	return {"ok": true, "code": &"ok"}
+
+
+## Canonical saves carry all receipt fields; old partial owner plans may omit the
+## whole group. Live rollback preserves insertion order, unlike sorted disk IDs.
+func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false) -> Dictionary:
+	var candidate := {}
+	var ledger_fields := ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]
+	var has_ledger := false
+	for field: String in ledger_fields:
+		has_ledger = has_ledger or source.has(field)
+	if has_ledger:
+		for field: String in ledger_fields:
+			if not source.has(field):
+				return _transaction_failure(&"invalid_run_bookkeeping", "incomplete transaction ledger")
+		for field: String in ["applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+			var ids: Variant = source[field]
+			if typeof(ids) != TYPE_ARRAY:
+				return _transaction_failure(&"invalid_run_bookkeeping", field + " must be an array")
+			var checked: Array = ids.duplicate(true)
+			# Validate elements before sorting so malformed mixed types cannot error.
+			for id: Variant in checked:
+				if typeof(id) != TYPE_STRING or str(id).is_empty():
+					return _transaction_failure(&"invalid_run_bookkeeping", "invalid transaction ID")
+			if live_backup:
+				checked.sort()
+			var ids_error := _NARRATIVE_VARIABLE_SCHEMA._validate_transaction_ids(checked, field)
+			if ids_error != "":
+				return _transaction_failure(&"invalid_run_bookkeeping", ids_error)
+		var receipt_error := _NARRATIVE_VARIABLE_SCHEMA._validate_command_receipts(source["command_receipts"],
+			source["applied_effect_transaction_ids"], source["applied_variable_transaction_ids"])
+		if receipt_error != "":
+			return _transaction_failure(&"invalid_run_bookkeeping", receipt_error)
+		var checked_receipts: Dictionary = source["command_receipts"].duplicate(true)
+		if live_backup:
+			for receipt: Dictionary in checked_receipts.values():
+				# The live recorder stores its registered kind as StringName. Validate
+				# its wire spelling without changing the exact captured owner value.
+				if typeof(receipt["kind"]) == TYPE_STRING_NAME:
+					receipt["kind"] = str(receipt["kind"])
+		var primitive := _NARRATIVE_VARIABLE_SCHEMA.validate_primitive_tree(checked_receipts, "$.command_receipts")
+		if not primitive.get("ok", false):
+			return primitive
+		for field: String in ledger_fields:
+			candidate[field] = source[field].duplicate(true)
+	var gameplay: Variant = source.get("gameplay")
+	if typeof(gameplay) == TYPE_DICTIONARY and gameplay.has("narrative_variables"):
+		var variables_error := _NARRATIVE_VARIABLE_SCHEMA._validate_gameplay({"narrative_variables": gameplay["narrative_variables"]})
+		if variables_error != "":
+			return _transaction_failure(&"invalid_run_bookkeeping", variables_error)
+		candidate["narrative_variables"] = gameplay["narrative_variables"].duplicate(true)
+	return {"ok": true, "code": &"ok", "value": candidate}
+
+
+func _apply_restore_bookkeeping(candidate: Dictionary) -> void:
+	if candidate.has("command_receipts"):
+		_command_receipts = candidate["command_receipts"].duplicate(true)
+		_applied_effect_transaction_ids = candidate["applied_effect_transaction_ids"].duplicate(true)
+		_applied_variable_transaction_ids = candidate["applied_variable_transaction_ids"].duplicate(true)
+	if candidate.has("narrative_variables"):
+		_narrative_variables = candidate["narrative_variables"].duplicate(true)
 
 
 # ---- Committed-Schedule facade delegation seams (Plan 01 Task 4, dwm-p2r.13) ----

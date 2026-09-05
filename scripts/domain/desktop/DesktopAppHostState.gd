@@ -120,6 +120,8 @@ func capture_persistent_state() -> Dictionary:
 
 
 func prepare_restore(active_app_id: Variant, current_day: int) -> Dictionary:
+	if current_day <= 0:
+		return {"ok": false, "code": &"invalid_day", "message": "restore day must be positive"}
 	var saved_id: StringName = &""
 	if active_app_id != null:
 		if typeof(active_app_id) == TYPE_STRING_NAME:
@@ -130,11 +132,8 @@ func prepare_restore(active_app_id: Variant, current_day: int) -> Dictionary:
 			return {"ok": false, "code": &"invalid_active_app_id", "message": "active_app_id must be a registered ID or null"}
 		if not REGISTRY.new().has_app(saved_id):
 			return {"ok": false, "code": &"unknown_app_id", "message": "saved active_app_id is not a registered desktop app"}
-	_current_day = current_day
-	_active_app_id = &""
-	_cached_app_ids = []
 	var candidate_state := {
-		"current_day": _current_day,
+		"current_day": current_day,
 		"active_app_id": saved_id if saved_id != &"" else null,
 		"cached_app_ids": [],
 	}
@@ -150,6 +149,31 @@ func prepare_restore(active_app_id: Variant, current_day: int) -> Dictionary:
 		}
 	return {"ok": true, "code": &"ok",
 		"value": {"candidate_state": candidate_state, "instantiate_command": instantiate_command}, "receipt": {}}
+
+
+## Installs a prepared restore or a captured rollback snapshot. Preparation never edits the host.
+func commit_restore(candidate: Dictionary) -> Dictionary:
+	var keys: Array = candidate.keys()
+	keys.sort()
+	if keys != ["active_app_id", "cached_app_ids", "current_day"] \
+			or typeof(candidate.get("current_day")) != TYPE_INT or int(candidate["current_day"]) < 0 \
+			or typeof(candidate.get("cached_app_ids")) != TYPE_ARRAY:
+		return {"ok": false, "code": &"invalid_desktop_restore", "message": "invalid host snapshot"}
+	var active: Variant = candidate["active_app_id"]
+	if active != null and (typeof(active) not in [TYPE_STRING, TYPE_STRING_NAME] or not REGISTRY.new().has_app(StringName(active))):
+		return {"ok": false, "code": &"invalid_desktop_restore", "message": "unknown active app"}
+	var cached: Array[StringName] = []
+	for id: Variant in candidate["cached_app_ids"]:
+		if typeof(id) not in [TYPE_STRING, TYPE_STRING_NAME] or not REGISTRY.new().has_app(StringName(id)) or cached.has(StringName(id)):
+			return {"ok": false, "code": &"invalid_desktop_restore", "message": "invalid cached app"}
+		cached.append(StringName(id))
+	# Day zero is only the pristine host before Bootstrap initializes it.
+	if int(candidate["current_day"]) == 0 and (active != null or not cached.is_empty()):
+		return {"ok": false, "code": &"invalid_desktop_restore", "message": "uninitialized host cannot contain apps"}
+	_current_day = int(candidate["current_day"])
+	_active_app_id = StringName(active) if active != null else &""
+	_cached_app_ids = cached
+	return {"ok": true, "code": &"ok", "value": {"state": get_state()}}
 
 
 ## Reopening the already-active app neither hides nor suspends itself. Switching away from a

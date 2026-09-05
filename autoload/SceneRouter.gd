@@ -180,19 +180,20 @@ func _gs() -> Node:
 	return get_node_or_null("/root/GameState")
 
 
-func _change_to(scene_id: String) -> void:
+func _change_to(scene_id: String) -> Dictionary:
 	if not _SCENE_PATHS.has(scene_id):
-		push_warning("SceneRouter: unknown scene id '%s'." % scene_id)
-		return
+		return {"ok": false, "code": &"unknown_scene_id", "message": scene_id}
 	var path: String = _SCENE_PATHS[scene_id]
 	if not ResourceLoader.exists(path):
-		push_warning("SceneRouter: scene path missing '%s' (deferred/placeholder)." % path)
-		_current_scene_id = scene_id
-		return
-	_current_scene_id = scene_id
+		return {"ok": false, "code": &"scene_missing", "message": path}
 	var tree := get_tree()
-	if tree != null:
-		tree.change_scene_to_file(path)
+	if tree == null:
+		return {"ok": false, "code": &"scene_tree_unavailable", "message": scene_id}
+	var changed := tree.change_scene_to_file(path)
+	if changed != OK:
+		return {"ok": false, "code": &"scene_change_failed", "message": str(changed)}
+	_current_scene_id = scene_id
+	return {"ok": true, "code": &"ok"}
 
 
 func start_game_from_menu() -> void:
@@ -272,9 +273,9 @@ func goto_scene_id(scene_id: String, context: Dictionary = {}) -> void:
 
 
 ## ---- Semantic route restore seams (dwm-p2r.5 Task 7) ----
-## Restore suppresses ordinary route signals; apply reports the target scene's
-## narrative layout ready via a route-ready token the narrative participant
-## validates. Phase 2R scenes are placeholder, so readiness resolves synchronously.
+## Preparation admits a registered PackedScene; apply stages semantic route state.
+## The route-ready token binds that preparation, not a rendered layout. Godot
+## installs the actual scene after finalize; integration checks observe the tree.
 
 var _route_restore_backup: Dictionary = {}
 var _route_generation: int = 0
@@ -284,20 +285,25 @@ var _pending_restore_scene_id: String = ""
 func prepare_route_restore(route_id: String, route_context: Dictionary) -> Dictionary:
 	if route_id.is_empty():
 		return {"ok": false, "code": &"invalid_route_id", "message": "route_id must be nonempty"}
-	_route_generation += 1
+	if not _SCENE_PATHS.has(route_id):
+		return {"ok": false, "code": &"unknown_scene_id", "message": route_id}
+	var path: String = _SCENE_PATHS[route_id]
+	if not ResourceLoader.exists(path) or not ResourceLoader.load(path) is PackedScene:
+		return {"ok": false, "code": &"scene_missing", "message": path}
 	return {"ok": true, "code": &"ok", "value": {
 		"route_id": route_id,
 		"route_context": route_context.duplicate(true),
 		"route_ready_token": {
 			"route_id": route_id,
 			"layout_id": route_id + "_layout",
-			"generation": _route_generation,
+			"generation": _route_generation + 1,
 		},
 	}}
 
 
 func capture_restore_state() -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {"backup": {"scene_id": _current_scene_id}}}
+	return {"ok": true, "code": &"ok", "value": {"backup": {
+		"scene_id": _current_scene_id, "route_generation": _route_generation}}}
 
 
 func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
@@ -306,14 +312,19 @@ func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
 		route_id = str((plan["route_ready_token"] as Dictionary).get("route_id", ""))
 	if route_id.is_empty():
 		return {"ok": false, "code": &"invalid_route_plan", "message": "route plan requires a route_id"}
+	var token: Variant = plan.get("route_ready_token", {
+		"route_id": route_id, "layout_id": route_id + "_layout", "generation": _route_generation + 1})
+	if typeof(token) != TYPE_DICTIONARY or token.get("route_id") != route_id \
+			or typeof(token.get("generation")) != TYPE_INT \
+			or int(token["generation"]) != _route_generation + 1:
+		return {"ok": false, "code": &"stale_route_plan", "message": "route preparation is no longer current"}
 	# Semantic apply: record the target route and safe context without changing the
 	# live scene (finalize performs the navigation). Ordinary route signals stay silent.
+	_route_generation = int(token["generation"])
 	_pending_restore_scene_id = route_id
 	var gs := _gs()
 	if gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY:
 		gs.route_context = (plan["route_context"] as Dictionary).duplicate(true)
-	var token: Variant = plan.get("route_ready_token", {
-		"route_id": route_id, "layout_id": route_id + "_layout", "generation": _route_generation})
 	return {"ok": true, "code": &"ok", "value": {"route_ready_token": token}}
 
 
@@ -323,12 +334,15 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"invalid_route_backup", "message": "route backup requires a scene_id"}
 	_pending_restore_scene_id = ""
 	_current_scene_id = str((source as Dictionary)["scene_id"])
+	_route_generation = int(source.get("route_generation", _route_generation))
 	return {"ok": true, "code": &"ok"}
 
 
 func finalize_restore() -> Dictionary:
 	if _pending_restore_scene_id != "":
-		_change_to(_pending_restore_scene_id)
+		var changed := _change_to(_pending_restore_scene_id)
+		if not changed.get("ok", false):
+			return changed
 		_pending_restore_scene_id = ""
 	_route_restore_backup = {}
 	return {"ok": true, "code": &"ok"}

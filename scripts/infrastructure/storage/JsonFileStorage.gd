@@ -20,6 +20,228 @@ func describe_root() -> String:
 func exists(relative_path: String) -> bool:
 	return _validate_relative_path(relative_path).get("ok", false) and _file_ops.call(&"exists", _path(relative_path))
 
+## Unlike read_text, raw inspection does not reconcile, validate a save, or grant
+## a lease. Invalid UTF-8 still has exact revision evidence but no text projection.
+func inspect_revision(relative_path: String) -> Dictionary:
+	var safe := _validate_relative_path(relative_path)
+	if not safe.get("ok", false):
+		return safe
+	for artifact in [_marker_path(relative_path), _next_path(relative_path), _revision_prior_path(relative_path)]:
+		if _file_ops.call(&"exists", artifact):
+			return _failure(&"reconcile_required", "Pending transaction artifacts require recovery")
+	var raw := _raw_artifact(_path(relative_path))
+	if not raw.get("ok", false):
+		return raw
+	if raw["hash"] == null and _file_ops.call(&"exists", _backup_path(relative_path)):
+		return _failure(&"reconcile_required", "An orphaned backup requires recovery")
+	var text: Variant = null
+	if raw["hash"] != null:
+		var decoded := _decode_utf8(raw["bytes"])
+		if decoded.get("ok", false):
+			text = decoded["value"]
+	return {"ok": true, "value": {"exists": raw["hash"] != null,
+		"revision": raw["hash"] if raw["hash"] != null else "absent", "text": text}}
+
+func write_atomic_if_revision(relative_path: String, text: String, validator: Callable, revision: String) -> Dictionary:
+	var request := _validate_request(relative_path, validator)
+	if not request.get("ok", false):
+		return request
+	var outgoing := _call_validator(validator, text)
+	if not outgoing.get("ok", false) or typeof(outgoing.get("value")) != TYPE_DICTIONARY:
+		return _failure(&"outgoing_validation_failed", "Outgoing document rejected")
+	var bytes := text.to_utf8_buffer()
+	if bytes.get_string_from_utf8() != text:
+		return _failure(&"invalid_utf8", "Outgoing text is not stable UTF-8")
+	var admitted := _admit_revision(relative_path, revision)
+	if not admitted.get("ok", false):
+		return admitted
+	_leases.erase(relative_path)
+	var marker := _revision_marker(relative_path, "write_revision", admitted,
+		_file_ops.call(&"sha256", bytes))
+	var step := _write_marker(relative_path, marker)
+	if not step.get("ok", false):
+		return _recover_revision_start(relative_path, validator, marker)
+	step = _write_and_flush(_next_path(relative_path), bytes)
+	if not step.get("ok", false):
+		return _recover_revision_start(relative_path, validator, marker)
+	return _reconcile_revision(relative_path, validator, marker)
+
+func remove_if_revision(relative_path: String, revision: String) -> Dictionary:
+	var admitted := _admit_revision(relative_path, revision)
+	if not admitted.get("ok", false):
+		return admitted
+	_leases.erase(relative_path)
+	if admitted["previous_hash"] == null:
+		return {"ok": true, "exists": false}
+	var marker := _revision_marker(relative_path, "delete_revision", admitted, null)
+	var step := _write_marker(relative_path, marker)
+	if not step.get("ok", false):
+		return _recover_revision_start(relative_path, Callable(), marker)
+	return _reconcile_revision(relative_path, Callable(), marker)
+
+func _admit_revision(relative_path: String, revision: String) -> Dictionary:
+	if revision != "absent" and not _is_hash(revision):
+		return _failure(&"invalid_revision", "Expected an exact raw hash or absent")
+	var inspected := inspect_revision(relative_path)
+	if not inspected.get("ok", false):
+		return inspected
+	if inspected["value"]["revision"] != revision:
+		return _failure(&"revision_changed", "The confirmed record has changed")
+	var backup := _raw_artifact(_backup_path(relative_path))
+	if not backup.get("ok", false):
+		return backup
+	return {"ok": true, "previous_hash": null if revision == "absent" else revision,
+		"backup_hash": backup["hash"]}
+
+func _revision_marker(relative_path: String, operation: String, admitted: Dictionary, outgoing: Variant) -> Dictionary:
+	return {"schema_version": 2, "relative_path": relative_path, "operation": operation,
+		"stage": "prepared" if operation == "write_revision" else "delete_marked",
+		"previous_hash": admitted["previous_hash"], "backup_hash": admitted["backup_hash"],
+		"outgoing_hash": outgoing}
+
+func _raw_artifact(path: String) -> Dictionary:
+	if not _file_ops.call(&"exists", path):
+		return {"ok": true, "hash": null, "bytes": PackedByteArray()}
+	var read: Dictionary = _file_ops.call(&"read_bytes", path)
+	if not read.get("ok", false):
+		return read
+	# HashingContext.update rejects an empty buffer; an empty file still has an
+	# exact SHA-256 revision and must remain distinguishable from absent.
+	var raw_hash: String = "".sha256_text() if read["value"].is_empty() else _file_ops.call(&"sha256", read["value"])
+	return {"ok": true, "hash": raw_hash, "bytes": read["value"]}
+
+func _revision_family(relative_path: String, marker: Dictionary, require_marker: bool = true) -> Dictionary:
+	if require_marker:
+		var durable := _classify_marker(_marker_path(relative_path), relative_path)
+		if durable["state"] != &"valid" or durable["value"] != marker:
+			return _fatal(&"indeterminate_commit", "Durable transaction intent changed")
+	var family := {}
+	for key in ["final", "next", "prior", "backup"]:
+		var paths := {"final": _path(relative_path), "next": _next_path(relative_path),
+			"prior": _revision_prior_path(relative_path), "backup": _backup_path(relative_path)}
+		var raw := _raw_artifact(paths[key])
+		if not raw.get("ok", false):
+			return _fatal(&"indeterminate_commit", "Transaction artifact could not be inspected")
+		family[key] = raw
+	var prior: Variant = marker["previous_hash"]
+	var outgoing: Variant = marker["outgoing_hash"]
+	if family["final"]["hash"] not in [null, prior, outgoing] \
+			or family["backup"]["hash"] not in [null, marker["backup_hash"]] \
+			or family["next"]["hash"] not in [null, outgoing] \
+			or family["prior"]["hash"] not in [null, prior]:
+		return _fatal(&"indeterminate_commit", "Unbound transaction bytes were preserved")
+	if marker["operation"] == "delete_revision" and (family["next"]["hash"] != null or family["prior"]["hash"] != null):
+		return _fatal(&"indeterminate_commit", "Delete contains unowned candidate artifacts")
+	family["ok"] = true
+	return family
+
+## V2 has one immutable durable intent. Hash-bound artifacts, rather than marker
+## rewrites, identify interrupted stages. Opaque prior bytes are only rollback
+## custody and are never classified as a playable document or granted a lease.
+func _reconcile_revision(relative_path: String, validator: Callable, marker: Dictionary) -> Dictionary:
+	var family := _revision_family(relative_path, marker)
+	if not family.get("ok", false):
+		return family
+	if marker["operation"] == "delete_revision":
+		for path in [_path(relative_path), _backup_path(relative_path), _marker_path(relative_path)]:
+			family = _revision_family(relative_path, marker)
+			if not family.get("ok", false):
+				return family
+			if path == _marker_path(relative_path) and (family["final"]["hash"] != null or family["backup"]["hash"] != null):
+				return _fatal(&"indeterminate_commit", "Delete artifacts reappeared before completion")
+			var removed: Dictionary = _file_ops.call(&"remove_path", path)
+			if not removed.get("ok", false):
+				return _fatal(&"indeterminate_commit", "Bound delete requires reconciliation")
+		_set_absent_lease(relative_path)
+		return {"ok": true, "exists": false}
+	var outgoing: String = marker["outgoing_hash"]
+	if family["final"]["hash"] == outgoing:
+		return _finish_revision_write(relative_path, validator, marker)
+	if family["next"]["hash"] == outgoing:
+		var candidate := _classify_document(_next_path(relative_path), validator)
+		if candidate["state"] != &"valid" or candidate["hash"] != outgoing:
+			return _fatal(&"indeterminate_commit", "Outgoing candidate no longer validates")
+		family = _revision_family(relative_path, marker)
+		if not family.get("ok", false):
+			return family
+		if marker["previous_hash"] != null and family["final"]["hash"] == null and family["prior"]["hash"] == null:
+			return _fatal(&"indeterminate_commit", "Previous transaction evidence is missing")
+		if family["final"]["hash"] != null:
+			if family["prior"]["hash"] != null:
+				return _fatal(&"indeterminate_commit", "Duplicated prior artifacts require recovery")
+			var preserved: Dictionary = _file_ops.call(&"rename_path", _path(relative_path), _revision_prior_path(relative_path))
+			if not preserved.get("ok", false):
+				return _fatal(&"indeterminate_commit", "Prior preservation requires reconciliation")
+		# Recheck exact ownership after preservation, before replacing the final.
+		family = _revision_family(relative_path, marker)
+		if not family.get("ok", false):
+			return family
+		if family["final"]["hash"] != null or family["next"]["hash"] != outgoing:
+			return _fatal(&"indeterminate_commit", "Artifacts changed before promotion")
+		var promoted: Dictionary = _file_ops.call(&"rename_path", _next_path(relative_path), _path(relative_path))
+		if not promoted.get("ok", false):
+			return _fatal(&"indeterminate_commit", "Promotion requires reconciliation")
+		return _finish_revision_write(relative_path, validator, marker)
+	# No outgoing candidate survived: restore only the exact bound prior, never a
+	# schema-valid but foreign backup. A restored opaque prior creates no lease.
+	if family["final"]["hash"] == null and family["prior"]["hash"] != null:
+		var restored: Dictionary = _file_ops.call(&"rename_path", _revision_prior_path(relative_path), _path(relative_path))
+		if not restored.get("ok", false):
+			return _fatal(&"indeterminate_commit", "Prior rollback requires reconciliation")
+		family = _revision_family(relative_path, marker)
+		if not family.get("ok", false):
+			return family
+	if family["final"]["hash"] != marker["previous_hash"] or family["prior"]["hash"] != null:
+		return _fatal(&"indeterminate_commit", "No exact previous winner remains")
+	family = _revision_family(relative_path, marker)
+	if not family.get("ok", false):
+		return family
+	var cleanup: Dictionary = _file_ops.call(&"remove_path", _marker_path(relative_path))
+	if not cleanup.get("ok", false):
+		return _fatal(&"indeterminate_commit", "Rollback cleanup requires reconciliation")
+	return _failure(&"write_not_committed", "Exact previous bytes remain unchanged")
+
+func _finish_revision_write(relative_path: String, validator: Callable, marker: Dictionary) -> Dictionary:
+	var family := _revision_family(relative_path, marker)
+	if not family.get("ok", false):
+		return family
+	var final := _classify_document(_path(relative_path), validator)
+	if final["state"] != &"valid" or final["hash"] != marker["outgoing_hash"]:
+		return _fatal(&"indeterminate_commit", "Final outgoing document did not validate")
+	for path in [_next_path(relative_path), _revision_prior_path(relative_path), _backup_path(relative_path)]:
+		family = _revision_family(relative_path, marker)
+		if not family.get("ok", false):
+			return family
+		var removed: Dictionary = _file_ops.call(&"remove_path", path)
+		if not removed.get("ok", false):
+			return _fatal(&"indeterminate_commit", "Committed cleanup requires reconciliation")
+	final = _classify_document(_path(relative_path), validator)
+	if final["state"] != &"valid" or final["hash"] != marker["outgoing_hash"]:
+		return _fatal(&"indeterminate_commit", "Final changed before marker cleanup")
+	family = _revision_family(relative_path, marker)
+	if not family.get("ok", false):
+		return family
+	if family["final"]["hash"] != marker["outgoing_hash"] or family["next"]["hash"] != null or family["prior"]["hash"] != null or family["backup"]["hash"] != null:
+		return _fatal(&"indeterminate_commit", "Committed family changed before marker cleanup")
+	var cleaned: Dictionary = _file_ops.call(&"remove_path", _marker_path(relative_path))
+	if not cleaned.get("ok", false):
+		return _fatal(&"indeterminate_commit", "Marker cleanup requires reconciliation")
+	_set_lease(relative_path, final)
+	return {"ok": true, "exists": true, "value": final["value"].duplicate(true), "hash": final["hash"]}
+
+func _recover_revision_start(relative_path: String, validator: Callable, expected: Dictionary) -> Dictionary:
+	var marker := _classify_marker(_marker_path(relative_path), relative_path)
+	if marker["state"] == &"valid" and marker["value"] == expected:
+		return _reconcile_revision(relative_path, validator, expected)
+	if marker["state"] != &"absent":
+		return _fatal(&"indeterminate_commit", "Revision marker did not become provable")
+	var family := _revision_family(relative_path, expected, false)
+	if not family.get("ok", false):
+		return family
+	if family["final"]["hash"] != expected["previous_hash"] or family["next"]["hash"] != null or family["prior"]["hash"] != null:
+		return _fatal(&"indeterminate_commit", "Failed marker left uncertain transaction evidence")
+	return _failure(&"write_not_committed", "Revision operation was not admitted durably")
+
 func read_text(relative_path: String) -> Dictionary:
 	var path_result := _validate_relative_path(relative_path)
 	if not path_result.get("ok", false):
@@ -52,6 +274,13 @@ func reconcile(relative_path: String, validator: Callable) -> Dictionary:
 	var path_result := _validate_request(relative_path, validator)
 	if not path_result.get("ok", false):
 		return path_result
+	var revision_marker := _classify_marker(_marker_path(relative_path), relative_path)
+	if revision_marker["state"] == &"invalid":
+		return _fatal(&"indeterminate_transaction", "Transaction marker could not be proved; artifacts were preserved")
+	if revision_marker["state"] == &"valid" and revision_marker["value"].get("schema_version") == 2:
+		return _reconcile_revision(relative_path, validator, revision_marker["value"])
+	if _file_ops.call(&"exists", _revision_prior_path(relative_path)):
+		return _fatal(&"indeterminate_transaction", "Unowned opaque prior was preserved")
 	var family := _classify_family(relative_path, validator)
 	var marker: Dictionary = family["marker"]
 	if marker["state"] == &"invalid":
@@ -331,6 +560,19 @@ func _classify_marker(path: String, relative_path: String) -> Dictionary:
 	return {"state": &"valid", "value": (parsed["value"] as Dictionary).duplicate(true)}
 
 func _validate_marker(marker: Dictionary, relative_path: String) -> Dictionary:
+	if marker.get("schema_version") == 2:
+		if not _has_exact_keys(marker, ["schema_version", "relative_path", "operation", "stage", "previous_hash", "backup_hash", "outgoing_hash"]) or marker.get("relative_path") != relative_path:
+			return _failure(&"invalid_marker", "Revision marker keys or path differ")
+		for nullable_hash in [marker["previous_hash"], marker["backup_hash"]]:
+			if nullable_hash != null and not _is_hash(nullable_hash):
+				return _failure(&"invalid_marker", "Revision prior hash is invalid")
+		if marker["previous_hash"] == null and marker["backup_hash"] != null:
+			return _failure(&"invalid_marker", "Absent prior cannot own an orphan backup")
+		if marker["operation"] == "write_revision" and marker["stage"] == "prepared" and _is_hash(marker["outgoing_hash"]):
+			return {"ok": true}
+		if marker["operation"] == "delete_revision" and marker["stage"] == "delete_marked" and _is_hash(marker["previous_hash"]) and marker["outgoing_hash"] == null:
+			return {"ok": true}
+		return _failure(&"invalid_marker", "Revision operation values are invalid")
 	if marker.get("schema_version") != 1 or marker.get("relative_path") != relative_path:
 		return _failure(&"invalid_marker", "Marker version or path does not match")
 	var operation: Variant = marker.get("operation")
@@ -437,6 +679,9 @@ func _marker_path(relative_path: String) -> String:
 
 func _backup_path(relative_path: String) -> String:
 	return _path(relative_path) + ".bak"
+
+func _revision_prior_path(relative_path: String) -> String:
+	return _path(relative_path) + ".revision-prior"
 
 func _set_lease(relative_path: String, artifact: Dictionary) -> void:
 	_leases[relative_path] = {"absent": false, "hash": artifact["hash"]}

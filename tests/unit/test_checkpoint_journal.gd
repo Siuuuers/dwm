@@ -169,6 +169,8 @@ func test_reset_with_initial_replaces_run_and_restore_reinstates() -> void:
 	assert_eq(journal.capture_state()["value"]["backup"], backup,
 		"preparation does not mutate the live Run-A journal")
 	assert_true(journal.commit_prepared(prepared["value"]["candidate"])["ok"])
+	var replay: Dictionary = journal.commit_prepared(prepared["value"]["candidate"])
+	assert_eq(replay.get("code"), &"duplicate_commit", "reset duplicate guard remains")
 	assert_eq(int(journal.peek_next_sequence("run-b")["value"]["checkpoint_sequence"]), 2,
 		"the replacement journal continues at sequence 2")
 	assert_eq(journal.get_bundles_for_disk(), [], "no earlier bundles after a reset")
@@ -205,3 +207,30 @@ func test_prepare_seed_selects_and_excludes() -> void:
 	assert_false(journal.prepare_seed(built["value"], {"checkpoint_kind": "line",
 		"snapshot": _snapshot("run-z", 9)}).get("ok", true),
 		"a selected bundle outside the document rejects")
+
+func test_seed_replaces_same_counter_contents_and_history_and_can_repeat() -> void:
+	var journal := _fresh("run-a")
+	_commit_record(journal, "run-a", 1, &"day_start")
+	_commit_record(journal, "run-a", 2, &"line")
+	var original: Dictionary = journal.capture_state()["value"]["backup"]
+	var changed := _snapshot("run-a", 2)
+	changed["gameplay"]["money"] = 7
+	var selected := {"checkpoint_kind": "line", "snapshot": changed}
+	var document: Dictionary = load(DOCUMENT_SCHEMA_PATH).build(&"slot", 1, &"manual", selected, [])
+	assert_true(document.get("ok", false), "same-counter saved document is valid: " + JSON.stringify(document))
+	if not document.get("ok", false):
+		return
+	var prepared: Dictionary = journal.prepare_seed(document["value"], selected)
+	assert_true(prepared.get("ok", false))
+	assert_eq(journal.capture_state()["value"]["backup"], original, "seed preparation remains pure")
+	var candidate: Dictionary = prepared["value"]["candidate"]
+	assert_true(journal.commit_prepared(candidate).get("ok", false), "seed may replace its current counter")
+	assert_eq(journal.get_current_bundle()["value"]["bundle"], candidate["current"], "same identity installs saved contents")
+	assert_eq(journal.get_bundles_for_disk(), [], "same identity replaces earlier history instead of keeping live entries")
+	var seeded: Dictionary = journal.capture_state()["value"]["backup"]
+	assert_true(journal.commit_prepared(candidate.duplicate(true)).get("ok", false), "validated seed can repeat")
+	assert_eq(journal.capture_state()["value"]["backup"], seeded, "repeated seed is exact")
+	var invalid := candidate.duplicate(true)
+	invalid["next_sequence"] = 99
+	assert_false(journal.commit_prepared(invalid).get("ok", true), "invalid seed still rejects")
+	assert_eq(journal.capture_state()["value"]["backup"], seeded, "invalid seed cannot mutate")

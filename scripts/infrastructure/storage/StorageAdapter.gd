@@ -4,6 +4,16 @@ extends RefCounted
 func read_text(_relative_path: String) -> Dictionary:
 	return _unsupported()
 
+## Read-only raw revision evidence; it never reconciles or grants a read lease.
+func inspect_revision(_relative_path: String) -> Dictionary:
+	return _unsupported()
+
+func write_atomic_if_revision(_relative_path: String, _text: String, _validator: Callable, _revision: String) -> Dictionary:
+	return _unsupported()
+
+func remove_if_revision(_relative_path: String, _revision: String) -> Dictionary:
+	return _unsupported()
+
 func write_atomic(_relative_path: String, _text: String, _validator: Callable, _keep_backup: bool = true) -> Dictionary:
 	return _unsupported()
 
