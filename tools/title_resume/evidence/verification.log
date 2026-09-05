@@ -8,7 +8,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | 正在启动文件扫描……[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started 正在注册全局类…… (791 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started 正在注册全局类…… (792 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | DialogicGameHandler[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | DialogicResourceUtil[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | DialogicUtil[39m[0m
@@ -112,7 +112,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  12% ] [90m[1mupdate_scripts_classes[22m | DialogicBackground[39m[0m
 [  12% ] [90m[1mupdate_scripts_classes[22m | DialogicBackgroundEvent[39m[0m
-[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  13% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_BackgroundHolder[39m[0m
 [  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  13% ] [90m[1mupdate_scripts_classes[22m | DialogicCallEvent[39m[0m
@@ -120,7 +120,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -207,7 +207,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  24% ] [90m[1mupdate_scripts_classes[22m | DialogicSettingEvent[39m[0m
 [  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | DialogicSignalEvent[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | DialogicSignalEvent[39m[0m
 [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  25% ] [90m[1mupdate_scripts_classes[22m | DialogicStylesUtil[39m[0m
@@ -215,6 +215,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  25% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_StyleLayer[39m[0m
 [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -222,8 +223,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  26% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  27% ] [90m[1mupdate_scripts_classes[22m | DialogicAutoAdvance[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | DialogicAutoAdvance[39m[0m
 [  27% ] [90m[1mupdate_scripts_classes[22m | DialogicAutoSkip[39m[0m
 [  27% ] [90m[1mupdate_scripts_classes[22m | DialogicTextEvent[39m[0m
 [  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -231,7 +231,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  27% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_DialogText[39m[0m
 [  27% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_Input[39m[0m
 [  27% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_NameLabel[39m[0m
-[  28% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_NextIndicator[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_NextIndicator[39m[0m
 [  28% ] [90m[1mupdate_scripts_classes[22m | DialogicNode_TypeSounds[39m[0m
 [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -310,6 +310,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  37% ] [90m[1mupdate_scripts_classes[22m | StateChartState[39m[0m
 [  37% ] [90m[1mupdate_scripts_classes[22m | StateIsActiveGuard[39m[0m
 [  37% ] [90m[1mupdate_scripts_classes[22m | Transition[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -342,7 +343,6 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -405,7 +405,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | BackupPresentationPort[39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | ContactCommandPort[39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | ContactsPresentationPort[39m[0m
@@ -413,7 +413,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  50% ] [90m[1mupdate_scripts_classes[22m | DesktopConditionPolicyPort[39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceCoordinator[39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceSourcePort[39m[0m
-[  51% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentityNonceIssuer[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentityNonceIssuer[39m[0m
 [  51% ] [90m[1mupdate_scripts_classes[22m | GameStateDesktopConditionContextPort[39m[0m
 [  51% ] [90m[1mupdate_scripts_classes[22m | LogoutCoordinator[39m[0m
 [  51% ] [90m[1mupdate_scripts_classes[22m | DialogicEndingPlaybackPort[39m[0m
@@ -421,7 +421,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  51% ] [90m[1mupdate_scripts_classes[22m | DesktopFirstRevealSnapshotComposer[39m[0m
 [  51% ] [90m[1mupdate_scripts_classes[22m | GameStateDesktopBoardPort[39m[0m
 [  51% ] [90m[1mupdate_scripts_classes[22m | GameStateMinesweeperPort[39m[0m
-[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  52% ] [90m[1mupdate_scripts_classes[22m | SaveManagerDesktopBoardPort[39m[0m
 [  52% ] [90m[1mupdate_scripts_classes[22m | SaveManagerMinesweeperPort[39m[0m
 [  52% ] [90m[1mupdate_scripts_classes[22m | DialogicPlaybackCompletionPort[39m[0m
@@ -429,7 +429,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  52% ] [90m[1mupdate_scripts_classes[22m | DialogicSignalCommandPort[39m[0m
 [  52% ] [90m[1mupdate_scripts_classes[22m | SaveManagerNarrativeCheckpointPort[39m[0m
 [  52% ] [90m[1mupdate_scripts_classes[22m | AudioRestoreParticipant[39m[0m
-[  53% ] [90m[1mupdate_scripts_classes[22m | DesktopBoardRestoreParticipant[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | DesktopBoardRestoreParticipant[39m[0m
 [  53% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceRestoreParticipant[39m[0m
 [  53% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentityAllocationRestoreParticipant[39m[0m
 [  53% ] [90m[1mupdate_scripts_classes[22m | LocalizationRestoreParticipant[39m[0m
@@ -437,7 +437,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  53% ] [90m[1mupdate_scripts_classes[22m | ProfileRestoreParticipant[39m[0m
 [  53% ] [90m[1mupdate_scripts_classes[22m | RouteRestoreParticipant[39m[0m
 [  53% ] [90m[1mupdate_scripts_classes[22m | RunRestoreParticipant[39m[0m
-[  54% ] [90m[1mupdate_scripts_classes[22m | CausalDayAdvanceIdentityPort[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | CausalDayAdvanceIdentityPort[39m[0m
 [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  54% ] [90m[1mupdate_scripts_classes[22m | DayResolutionCoordinator[39m[0m
 [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -445,7 +445,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  54% ] [90m[1mupdate_scripts_classes[22m | SaveManagerCheckpointPort[39m[0m
 [  54% ] [90m[1mupdate_scripts_classes[22m | GameStateScheduleCommitPort[39m[0m
-[  55% ] [90m[1mupdate_scripts_classes[22m | GameStateScheduleWarningContextPort[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | GameStateScheduleWarningContextPort[39m[0m
 [  55% ] [90m[1mupdate_scripts_classes[22m | ScheduleDepartureViewPort[39m[0m
 [  55% ] [90m[1mupdate_scripts_classes[22m | ScheduleDoneDispatcher[39m[0m
 [  55% ] [90m[1mupdate_scripts_classes[22m | ScheduleDownstreamContractGuard[39m[0m
@@ -453,7 +453,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  55% ] [90m[1mupdate_scripts_classes[22m | GameStateMinesweeperShopPort[39m[0m
 [  55% ] [90m[1mupdate_scripts_classes[22m | MinesweeperShopPurchaseParticipant[39m[0m
 [  55% ] [90m[1mupdate_scripts_classes[22m | ApplicationMutationGate[39m[0m
-[  56% ] [90m[1mupdate_scripts_classes[22m | FatalDiagnosticProjector[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | FatalDiagnosticProjector[39m[0m
 [  56% ] [90m[1mupdate_scripts_classes[22m | AudioPlaybackPort[39m[0m
 [  56% ] [90m[1mupdate_scripts_classes[22m | ArtManifest[39m[0m
 [  56% ] [90m[1mupdate_scripts_classes[22m | AudioManifest[39m[0m
@@ -461,7 +461,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  56% ] [90m[1mupdate_scripts_classes[22m | DialogicTimelineCatalog[39m[0m
 [  56% ] [90m[1mupdate_scripts_classes[22m | ContactInvitationState[39m[0m
 [  56% ] [90m[1mupdate_scripts_classes[22m | DesktopActionReceipt[39m[0m
-[  57% ] [90m[1mupdate_scripts_classes[22m | DesktopAppHostState[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | DesktopAppHostState[39m[0m
 [  57% ] [90m[1mupdate_scripts_classes[22m | DesktopAppRegistry[39m[0m
 [  57% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceState[39m[0m
 [  57% ] [90m[1mupdate_scripts_classes[22m | DesktopContinuationRemapper[39m[0m
@@ -508,7 +508,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  62% ] [90m[1mupdate_scripts_classes[22m | DialogicRuntimeAdapter[39m[0m
 [  62% ] [90m[1mupdate_scripts_classes[22m | NarrativeCheckpointSchema[39m[0m
 [  62% ] [90m[1mupdate_scripts_classes[22m | SkipPolicy[39m[0m
-[  63% ] [90m[1mupdate_scripts_classes[22m | ProfileMigration[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | ProfileMigration[39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | ProfileSchema[39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | AudioCueData[39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | BgmTrackData[39m[0m
@@ -516,7 +516,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  63% ] [90m[1mupdate_scripts_classes[22m | EffectData[39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | FriendData[39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | InvitationData[39m[0m
-[  64% ] [90m[1mupdate_scripts_classes[22m | MinesweeperTaskData[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | MinesweeperTaskData[39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | ScheduleActionData[39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | ShopItemData[39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | StatValue[39m[0m
@@ -524,7 +524,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -532,7 +532,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | AccessibleButton[39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | AppWindowBase[39m[0m
-[  66% ] [90m[1mupdate_scripts_classes[22m | BackupApp[39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | BackupApp[39m[0m
 [  66% ] [90m[1mupdate_scripts_classes[22m | BoxMeter[39m[0m
 [  66% ] [90m[1mupdate_scripts_classes[22m | ChatBubble[39m[0m
 [  66% ] [90m[1mupdate_scripts_classes[22m | ComputerDesktop[39m[0m
@@ -540,7 +540,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  66% ] [90m[1mupdate_scripts_classes[22m | ContactListApp[39m[0m
 [  66% ] [90m[1mupdate_scripts_classes[22m | DatingScene[39m[0m
 [  66% ] [90m[1mupdate_scripts_classes[22m | DialogueBox[39m[0m
-[  67% ] [90m[1mupdate_scripts_classes[22m | EndingScene[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | EndingScene[39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | FocusGrid[39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | GalleryScene[39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | HospitalScene[39m[0m
@@ -548,7 +548,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  67% ] [90m[1mupdate_scripts_classes[22m | LocalePresentationRoot[39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | LocalizedBinding[39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | LogOutApp[39m[0m
-[  68% ] [90m[1mupdate_scripts_classes[22m | MainGameScene[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | MainGameScene[39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | MenuScene[39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | MinesweeperApp[39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | MinesweeperChallengeOverlay[39m[0m
@@ -556,7 +556,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  68% ] [90m[1mupdate_scripts_classes[22m | SafeImage[39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | SaveSlotRow[39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | ScheduleApp[39m[0m
-[  69% ] [90m[1mupdate_scripts_classes[22m | ScheduleEntryBox[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | ScheduleEntryBox[39m[0m
 [  69% ] [90m[1mupdate_scripts_classes[22m | Setting[39m[0m
 [  69% ] [90m[1mupdate_scripts_classes[22m | SettingsApp[39m[0m
 [  69% ] [90m[1mupdate_scripts_classes[22m | SettingsPanelController[39m[0m
@@ -564,7 +564,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  69% ] [90m[1mupdate_scripts_classes[22m | ShopItemBox[39m[0m
 [  69% ] [90m[1mupdate_scripts_classes[22m | StatHud[39m[0m
 [  69% ] [90m[1mupdate_scripts_classes[22m | TutorialOverlay[39m[0m
-[  70% ] [90m[1mupdate_scripts_classes[22m | CanonicalJsonWriter[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | CanonicalJsonWriter[39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | JsonSchemaValidator[39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | StrictJson[39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -572,7 +572,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -596,6 +596,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -690,7 +691,6 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -699,6 +699,7 @@ Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -1360,7 +1361,7 @@ Loading resource: res://scenes/menu/Setting.tscn
 Loading resource: res://scripts/ui/Setting.gd
 Loading resource: res://scripts/ui/LocalePresentationRoot.gd
 Loading resource: res://scripts/ui/LocalizedBinding.gd
-SAVE_LOAD_ISOLATION_PROVEN C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-ht5bhs5h/appdata/Godot/app_userdata/DWM
+SAVE_LOAD_ISOLATION_PROVEN C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-h88obqzq/appdata/Godot/app_userdata/DWM
 Loading resource: res://addons/dialogic/Modules/Audio/index.gd
 Loading resource: res://addons/dialogic/Modules/Background/index.gd
 Loading resource: res://addons/dialogic/Modules/Call/index.gd
@@ -1476,17 +1477,14 @@ load_threaded_get_status(): No threaded load for resource path 'res://addons/dia
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
 Loading resource: res://scripts/ui/StatHud.gd
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scripts/ui/MainGameScene.gd
 Loading resource: res://scenes/desktop/ComputerDesktop.tscn
 Loading resource: res://scripts/ui/ComputerDesktop.gd
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
-TITLE_RESUME_SUMMARY {"checks":44,"facts":{"phase":"seed","process_id":49096,"saved":{"day":1,"money":5,"opening_seen":true,"seed_process_id":49096,"slot_sha256":"286a705591136cde12873fb5987a544d40ed571ee440047b3d4d47cab3f89c35"},"startup":{"completed_stages":["select_and_prove_roots","construct_and_inject_mutation_gate","construct_identity_issuer_and_contact_commands","initialize_profile","initialize_saves","initialize_localization","initialize_input","initialize_accessibility","initialize_audio","initialize_dialogic_bridge","configure_restore_participants","configure_day_resolution","configure_minesweeper_rounds","publish_application_ready"],"fatal_result":{},"gate_injection":{"factory_invocation_count":1,"gate_instance_id":-9223371909616367711,"target_instance_ids":[-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711],"targets":["SaveManager","GameState","ProfileManager","LocalizationManager","AudioManager","SceneRouter","DialogicBridge","InputManager"]},"mode":"final","planned_blockers":[],"ready":true,"started":true},"user_root":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-ht5bhs5h/appdata/Godot/app_userdata/DWM"},"failures":[]}
+TITLE_RESUME_SUMMARY {"checks":55,"facts":{"phase":"seed","process_id":884,"saved":{"day":1,"money":5,"opening_seen":true,"seed_process_id":884,"slot_sha256":"ad38da77060ba5e75e516e863563e46adce3ebeed51c296f5e3e0db4f3f5d59a"},"startup":{"completed_stages":["select_and_prove_roots","construct_and_inject_mutation_gate","construct_identity_issuer_and_contact_commands","initialize_profile","initialize_saves","initialize_localization","initialize_input","initialize_accessibility","initialize_audio","initialize_dialogic_bridge","configure_restore_participants","configure_day_resolution","configure_minesweeper_rounds","publish_application_ready"],"fatal_result":{},"gate_injection":{"factory_invocation_count":1,"gate_instance_id":-9223371909616367711,"target_instance_ids":[-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711],"targets":["SaveManager","GameState","ProfileManager","LocalizationManager","AudioManager","SceneRouter","DialogicBridge","InputManager"]},"mode":"final","planned_blockers":[],"ready":true,"started":true},"user_root":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-h88obqzq/appdata/Godot/app_userdata/DWM"},"failures":[]}
 TITLE_RESUME_SEED_PASS
 Unloading: Disposing tracked instances...
 Unloading: Finished disposing tracked instances.
@@ -3028,7 +3026,7 @@ Loading resource: res://scenes/menu/Setting.tscn
 Loading resource: res://scripts/ui/Setting.gd
 Loading resource: res://scripts/ui/LocalePresentationRoot.gd
 Loading resource: res://scripts/ui/LocalizedBinding.gd
-SAVE_LOAD_ISOLATION_PROVEN C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-ht5bhs5h/appdata/Godot/app_userdata/DWM
+SAVE_LOAD_ISOLATION_PROVEN C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-h88obqzq/appdata/Godot/app_userdata/DWM
 Loading resource: res://addons/dialogic/Modules/Audio/index.gd
 Loading resource: res://addons/dialogic/Modules/Background/index.gd
 Loading resource: res://addons/dialogic/Modules/Call/index.gd
@@ -3076,56 +3074,40 @@ Loading resource: res://addons/dialogic/Modules/WaitInput/event_wait_input.gd
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
 Loading resource: res://scripts/ui/StatHud.gd
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scripts/ui/MainGameScene.gd
 Loading resource: res://scenes/desktop/ComputerDesktop.tscn
 Loading resource: res://scripts/ui/ComputerDesktop.gd
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
 Loading resource: res://scenes/main/MainGameScene.tscn
 Loading resource: res://scenes/shared/StatHud.tscn
-Loading resource: res://scenes/shared/BoxMeter.tscn
-TITLE_RESUME_SUMMARY {"checks":59,"facts":{"load_result":{"code":"ok","ok":true,"value":{"action":"load","checkpoint_id":"run_id.6feb923f149cf7523a7c7f62eca5056a9ef091f58bc34acdc0a8f625d052c97e:2","locator":"slot:1","route_id":"main"}},"phase":"resume","process_id":44288,"restore_notifications":1,"restored":{"day":1,"money":5,"scene":"res://scenes/main/MainGameScene.tscn"},"startup":{"completed_stages":["select_and_prove_roots","construct_and_inject_mutation_gate","construct_identity_issuer_and_contact_commands","initialize_profile","initialize_saves","initialize_localization","initialize_input","initialize_accessibility","initialize_audio","initialize_dialogic_bridge","configure_restore_participants","configure_day_resolution","configure_minesweeper_rounds","publish_application_ready"],"fatal_result":{},"gate_injection":{"factory_invocation_count":1,"gate_instance_id":-9223371909616367711,"target_instance_ids":[-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711],"targets":["SaveManager","GameState","ProfileManager","LocalizationManager","AudioManager","SceneRouter","DialogicBridge","InputManager"]},"mode":"final","planned_blockers":[],"ready":true,"started":true},"user_root":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-ht5bhs5h/appdata/Godot/app_userdata/DWM"},"failures":[]}
+TITLE_RESUME_SUMMARY {"checks":70,"facts":{"load_result":{"code":"ok","ok":true,"value":{"action":"load","checkpoint_id":"run_id.b6b6a4e0e5bc315188b433c4b0dd76b866ef4a14351901df79af7e77afde8e35:2","locator":"slot:1","route_id":"main"}},"phase":"resume","process_id":33240,"restore_notifications":1,"restored":{"day":1,"money":5,"scene":"res://scenes/main/MainGameScene.tscn"},"startup":{"completed_stages":["select_and_prove_roots","construct_and_inject_mutation_gate","construct_identity_issuer_and_contact_commands","initialize_profile","initialize_saves","initialize_localization","initialize_input","initialize_accessibility","initialize_audio","initialize_dialogic_bridge","configure_restore_participants","configure_day_resolution","configure_minesweeper_rounds","publish_application_ready"],"fatal_result":{},"gate_injection":{"factory_invocation_count":1,"gate_instance_id":-9223371909616367711,"target_instance_ids":[-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711,-9223371909616367711],"targets":["SaveManager","GameState","ProfileManager","LocalizationManager","AudioManager","SceneRouter","DialogicBridge","InputManager"]},"mode":"final","planned_blockers":[],"ready":true,"started":true},"user_root":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-h88obqzq/appdata/Godot/app_userdata/DWM"},"failures":[]}
 TITLE_RESUME_PASS
 Unloading: Disposing tracked instances...
 Unloading: Finished disposing tracked instances.

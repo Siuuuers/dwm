@@ -1,0 +1,23 @@
+{
+  "base_commit": "6d3dff42dc684a0991eab24e78b5547da0a0bcf9",
+  "bead": "dwm-i1s.1",
+  "checks": {
+    "hud": {
+      "receipt": "tools/stat_hud/evidence/result.json",
+      "sha256": "1481d3bfcb69dca876cbf9c3fc93ce771eacb6908b12a4116c068a03a40520c2",
+      "checks": 57,
+      "source_bindings": 12,
+      "matched": 12
+    },
+    "restart": {
+      "receipt": "tools/title_resume/evidence/result.json",
+      "sha256": "26924e41df573680701e65975f027f85c4d1fdf77ae6d3e2b735197a09bdc8e5",
+      "checks": 125,
+      "source_bindings": 2404,
+      "matched": 2404
+    }
+  },
+  "scope": "View-only public HUD. Existing production startup/save/cold resume plus real mounted geometry; no gameplay/audio owner changes, no v5 merge.",
+  "review": "Independent HUD/source/test review: no material findings. Locale/scale matrix standalone; actual parent baseline in both processes. No GPU/physical assistive certification.",
+  "remaining_work_bead": "dwm-eei"
+}

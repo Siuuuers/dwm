@@ -22,3 +22,5 @@
 /tests/save_load_capture/verify.py -text
 /tools/desktop_shell/verify.py -text
 /tests/backup_operations/README.md -text
+/evidence/independent_ui/** -text
+/tools/stat_hud/evidence/** -text

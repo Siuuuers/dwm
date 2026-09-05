@@ -1565,7 +1565,7 @@
     "scenes/shared/SaveSlotRow.tscn": "af49daeba7a7e55186d21efe1d0827811f1260d72eb1f7e9eddfbd5425a76bcc",
     "scenes/shared/ScheduleEntryBox.tscn": "2c042828f0f3684da2948cc40f687d10ebdb9be6e60059018a0dd9dc31d070a3",
     "scenes/shared/ShopItemBox.tscn": "ce0f2099ed6be9647039ede0fa344ce22d7602f875892531651d57303c84fc9a",
-    "scenes/shared/StatHud.tscn": "334eda81da3845aad4d49d7f087001f5abb7a9b187cf202356f59ec2b35a635a",
+    "scenes/shared/StatHud.tscn": "533157f2fd8ab92f3e0b5fb31ed8a8a62cb55f72376b63eb12457fbb84cf67a6",
     "schemas/evidence/desktop-contract.schema.json": "e15b2587edf2befe2e802c9ea9250152faf286404389f41909a9f544d5f286c0",
     "schemas/evidence/minesweeper-contract.schema.json": "977d204548ab9234147646efe4264737af474b611f0f2fb4dd0ca1e78d913b7b",
     "schemas/evidence/phase2r-closeout-gate.schema.json": "e525ff8f41016f2e5add2bcc58fdc93aed49d90f76d12542c51f67ecc4229300",
@@ -1880,7 +1880,7 @@
     "scripts/ui/ShopApp.gd.uid": "095fd7c6050dbbe06e45e9d10bfb9ab9f8fa51a7ade7093ac81e7a21c3d623de",
     "scripts/ui/ShopItemBox.gd": "dc96cb41d12db90379a8156066648b8d7b0fa0199e5c6ce01534920581011646",
     "scripts/ui/ShopItemBox.gd.uid": "58dd7375f35c0af8b036bf7a626448577dba9907f111683f75f1b3237d87e05b",
-    "scripts/ui/StatHud.gd": "84f9b14932ebfd977725ce554ebdd449f390b03b72bcc6dfd7d7190f64353f01",
+    "scripts/ui/StatHud.gd": "396b2824e611dbde4d3e2615f1b84035308b7a67a501bdfc294d70eb8ab32ed4",
     "scripts/ui/StatHud.gd.uid": "3a7d2fe756b609950a0e09bd8096868991095be3def03eb6b4e5f0a14a801d0a",
     "scripts/ui/TutorialOverlay.gd": "2c505c1bbca30cc9c809de0258507db23a95a8c972afa5f5e4765c249a838453",
     "scripts/ui/TutorialOverlay.gd.uid": "7274ec8a19dd07693cda6373c4d4a6b3b1d40b48121101f9606890b646da9912",
@@ -2073,6 +2073,7 @@
     "tests/smoke_dialogic_timelines.gd.uid": "0bb6dcdd8891d534990debc3686ee71cab62557774e4b9ed40716353008d9cae",
     "tests/smoke_load_scenes.gd": "c9c9789506b66d2c4034cd57a3b346a4e85109c9f667d5878016c53973e2e458",
     "tests/smoke_load_scenes.gd.uid": "ac893dfb9bd4b1cf5518de509dc71c7e2e326da9feefbefbf177cdf5f51ecfa2",
+    "tests/stat_hud/test_stat_hud.gd": "7ce58042afb7e1618aae602aa754773f0f0af46e9ae54a1dccd234ffe38405fa",
     "tests/support/DayResolutionReceiptFixtures.gd": "0cc03fe7ce8a8b2fb490a1206a6bb3508b4690cbfc5727959d5fc89f7e4a0ff2",
     "tests/support/DayResolutionReceiptFixtures.gd.uid": "f37610fb4ffc786dcd1ca541098b35edd86cf4b96e70fda34880cb4dd6055bdf",
     "tests/support/DynamicScriptProbe.gd": "be1a0afcbf7c697ca213825713ae49093d346610fda5a8749e296a02d11a17a7",
@@ -2137,7 +2138,7 @@
     "tests/support/ScheduleRegistryFixtures.gd.uid": "278a25acc5829b5a5a16a432606f9a2222c665993c23b8bfeaa317572c0c0921",
     "tests/support/TemporaryStorage.gd": "c62f95a748273f79e91df9b0d90d948ff0a8a549077ed23604edc78c7c46faf7",
     "tests/support/TemporaryStorage.gd.uid": "b0c6bb33505fbc81cfbd78f507cddaab21bd62d7f820b67416fb5eb622bdf7cc",
-    "tests/title_resume/Observe.gd": "b368dfd40ca9187c4af8e163fbbffa81b5aa2683f9e3c7f829677c9eb8332b95",
+    "tests/title_resume/Observe.gd": "5b484da1756417d63b137b5286c8a9cffa1bc4bdd99dc75c9091aeb4786c7112",
     "tests/title_shell/README.md": "9c36421e90408547395bd099e0c00617e95f96f495040684288d527dd42ecfa0",
     "tests/title_shell/SafeMenu.gd": "f31c4b05b8fad0fe18d5fd5d3123b735f2f7a044c720baa1bf8c0d47b1d6c3ad",
     "tests/title_shell/test_title_shell.gd": "41729903006be7c6e908cbdd224b423199dbad5c6db296b7769b0f8c75aa62c9",
@@ -2611,15 +2612,15 @@
     " GameState=\"*res://autoload/GameState.gd\""
   ],
   "isolation": {
-    "scratch": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h",
-    "expected_user_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\appdata\\Godot\\app_userdata\\DWM",
+    "scratch": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq",
+    "expected_user_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\appdata\\Godot\\app_userdata\\DWM",
     "environment": {
-      "APPDATA": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\appdata",
-      "LOCALAPPDATA": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\localappdata",
-      "TEMP": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\temp",
-      "TMP": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\tmp",
-      "DWM_EXPECTED_USER_ROOT": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\appdata\\Godot\\app_userdata\\DWM",
-      "DWM_SAVE_LOAD_LOOP_ROOT": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h",
+      "APPDATA": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\appdata",
+      "LOCALAPPDATA": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\localappdata",
+      "TEMP": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\temp",
+      "TMP": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\tmp",
+      "DWM_EXPECTED_USER_ROOT": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\appdata\\Godot\\app_userdata\\DWM",
+      "DWM_SAVE_LOAD_LOOP_ROOT": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq",
       "DWM_SAVE_LOAD_PHASE": "resume"
     },
     "cleared_environment": [
@@ -2636,7 +2637,7 @@
         "--rendering-method",
         "gl_compatibility",
         "--path",
-        "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\project",
+        "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\project",
         "--editor",
         "--import",
         "--quit",
@@ -2656,7 +2657,7 @@
         "--rendering-method",
         "gl_compatibility",
         "--path",
-        "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\project",
+        "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\project",
         "--verbose",
         "--",
         "--phase2r-bootstrap-mode=final"
@@ -2749,7 +2750,7 @@
         "--rendering-method",
         "gl_compatibility",
         "--path",
-        "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-ht5bhs5h\\project",
+        "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build\\.godot\\title-resume-h88obqzq\\project",
         "--verbose",
         "--",
         "--phase2r-bootstrap-mode=final"
@@ -2837,16 +2838,16 @@
   ],
   "summaries": [
     {
-      "checks": 44,
+      "checks": 55,
       "facts": {
         "phase": "seed",
-        "process_id": 49096,
+        "process_id": 884,
         "saved": {
           "day": 1,
           "money": 5,
           "opening_seen": true,
-          "seed_process_id": 49096,
-          "slot_sha256": "286a705591136cde12873fb5987a544d40ed571ee440047b3d4d47cab3f89c35"
+          "seed_process_id": 884,
+          "slot_sha256": "ad38da77060ba5e75e516e863563e46adce3ebeed51c296f5e3e0db4f3f5d59a"
         },
         "startup": {
           "completed_stages": [
@@ -2895,25 +2896,25 @@
           "ready": true,
           "started": true
         },
-        "user_root": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-ht5bhs5h/appdata/Godot/app_userdata/DWM"
+        "user_root": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-h88obqzq/appdata/Godot/app_userdata/DWM"
       },
       "failures": []
     },
     {
-      "checks": 59,
+      "checks": 70,
       "facts": {
         "load_result": {
           "code": "ok",
           "ok": true,
           "value": {
             "action": "load",
-            "checkpoint_id": "run_id.6feb923f149cf7523a7c7f62eca5056a9ef091f58bc34acdc0a8f625d052c97e:2",
+            "checkpoint_id": "run_id.b6b6a4e0e5bc315188b433c4b0dd76b866ef4a14351901df79af7e77afde8e35:2",
             "locator": "slot:1",
             "route_id": "main"
           }
         },
         "phase": "resume",
-        "process_id": 44288,
+        "process_id": 33240,
         "restore_notifications": 1,
         "restored": {
           "day": 1,
@@ -2967,7 +2968,7 @@
           "ready": true,
           "started": true
         },
-        "user_root": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-ht5bhs5h/appdata/Godot/app_userdata/DWM"
+        "user_root": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/title-resume-h88obqzq/appdata/Godot/app_userdata/DWM"
       },
       "failures": []
     }

@@ -133,6 +133,7 @@ func _seed(menu: Node, bootstrap: Node) -> void:
 	if not _check(changed.get("ok", false) and state.money == 5, "Real effect owner changes money before saving"):
 		_facts["effect_result"] = changed
 		return
+	await _check_public_hud()
 	var desktop: Node = get_tree().current_scene._computer_desktop_instance
 	desktop.launcher_buttons[&"backup"].pressed.emit()
 	await _settle()
@@ -250,6 +251,7 @@ func _resume(menu: Node) -> void:
 	await _settle()
 	_check(_facts.restore_notifications == 1, "Cold Load publishes one completed restore")
 	_check(state.money == int(expected.money) and state.day == int(expected.day) and state.opening_seen == expected.opening_seen, "Cold Load restores saved money, day and opening progress")
+	await _check_public_hud()
 	var desktop: Node = get_tree().current_scene._computer_desktop_instance
 	if not _check(is_instance_valid(desktop) and desktop._active_id == &"backup", "Restored real desktop opens the saved Backup app"):
 		return
@@ -257,6 +259,21 @@ func _resume(menu: Node) -> void:
 	_check(is_instance_valid(restored) and restored.is_visible_in_tree() and not restored.action_buttons.save.disabled, "Resumed Backup is usable after the restore owner releases its gate")
 	_check(desktop.return_home().get("ok", false), "Home works after cold resume")
 	_facts["restored"] = {"money": state.money, "day": state.day, "scene": get_tree().current_scene.scene_file_path}
+
+func _check_public_hud() -> void:
+	await _settle()
+	var main: Control = get_tree().current_scene
+	var hud: Control = main.get_node("%StatHud")
+	var state: Node = get_node("/root/GameState")
+	_check(hud.get_node("%MoneyRow").text == "Money: %d" % state.money, "Actual mounted HUD follows the canonical money owner")
+	_check(hud.get_node("%PressureRow").text == "Pressure: %d / 9" % state.get_stat_display_value("pressure"), "Actual HUD shows only audience-safe pressure")
+	_check(hud.get_node_or_null("%MinesweeperRoundRow") == null, "Global HUD has no Minesweeper round counter")
+	var computer: Control = main.get_node("%ComputerPanel")
+	_check(computer.get_global_rect().end.x <= main.get_global_rect().end.x + 1.0, "HUD minimum size does not push the desktop beyond the viewport")
+	_check(hud.get_global_rect().end.x <= computer.get_global_rect().position.x + 1.0, "HUD stays inside the Angela side of the shell")
+	for row: Label in hud.get_node("%Rows").get_children():
+		if row.is_visible_in_tree():
+			_check(row.get_global_rect().end.y <= main.get_global_rect().end.y + 1.0, "Mounted HUD row remains vertically reachable: " + row.name)
 
 func _finish(passed: bool) -> void:
 	print("TITLE_RESUME_SUMMARY ", JSON.stringify({"checks": _checks, "failures": _failures, "facts": _facts}))
