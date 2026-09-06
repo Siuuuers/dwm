@@ -2,7 +2,7 @@
 
 This implements the current caption field on the installed Dialogic text node. The Hospital bridge selects the owned style before starting its timeline; the global default stays unchanged. The Hospital host no longer adds generic body copy or an inert Continue button. Physical completion still comes from the existing narrative owner.
 
-The standalone style replaces only the textbox layer. One installed `DialogicNode_DialogText` retains reveal, append, text effects, and Dialogic history behavior; its addon source is unchanged. The presentation reads plain rendered text and the native reveal count; it does not infer speakers, create semantic receipts, or advance playback when its theme changes.
+The standalone style replaces only the textbox layer. One installed `DialogicNode_DialogText` retains reveal, append, text effects, and Dialogic history behavior. A subsequent local addon correction guards asynchronous work after caption replacement; see [text-effect cancellation](witnessed-text-effect-cancellation.md). The presentation reads plain rendered text and the native reveal count; it does not infer speakers, create semantic receipts, or advance playback when its theme changes.
 
 At the project's 1280 × 720 reference size, the registered field starts at y448, y392, or y328 for 100%, 125%, or 150%, ending at y656. Text uses the existing licensed Source Sans 3 / Source Han Sans fonts at 20, 25, or 30 logical pixels: 10 native pixels at 100%. The remaining 64 logical pixels reserve the transport region. No unimplemented controls are represented as working controls.
 
@@ -20,7 +20,7 @@ This integration uses the project's existing Dialogic default `end_behaviour=0`,
 
 This is a live caption-stack subset, not the complete witnessed-scene cutover. Canonical saved-caption restoration, retained-copy locale retranslation and ending-chain continuity need public data from the narrative owner; runtime event indices and parsed text cannot supply canonical identity. The six-control rail, exact seek/History, dual-language behavior, authored art and dialogue, challenge/Pause custody, High Contrast/CVD palettes, controller page scrolling, and assistive-technology acceptance remain open in the overall UI goal and Beads.
 
-Native asynchronous text effects need a separate cancellation check: an already-awaited pause effect resumes outside `_process`. The clear guard proves an empty hold and ordinary hide/show; it does not prove that an old effect cannot resume after immediate text replacement. No addon effect-lifecycle fix is claimed by this checkpoint.
+The stack's local clear guard proves an empty hold and ordinary hide/show. A later native regression confirmed that an already-awaited pause could resume against replacement text; the separate [text-effect cancellation correction](witnessed-text-effect-cancellation.md) records that fix and its evidence. Hiding during a pending asynchronous effect and arbitrary custom-callback side effects retain the narrower limits documented there.
 
 ## Verification
 

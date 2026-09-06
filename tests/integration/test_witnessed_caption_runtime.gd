@@ -155,7 +155,7 @@ func _assert_single_text() -> void:
 	if nodes.size() != 1: return
 	assert_eq(nodes[0],caption.caption_text)
 	assert_true(caption.caption_text is DialogicNode_DialogText)
-	assert_eq(caption.caption_text.get_script().resource_path,"res://addons/dialogic/Modules/Text/node_dialog_text.gd","unmodified installed DialogText owns reveal")
+	assert_eq(caption.caption_text.get_script().resource_path,"res://addons/dialogic/Modules/Text/node_dialog_text.gd","installed DialogText owns reveal")
 	assert_true(get_tree().get_nodes_in_group("dialogic_name_label").is_empty(),"no separate speaker plate")
 	assert_true(layout.find_children("*NameLabel*","",true,false).is_empty())
 
@@ -593,3 +593,97 @@ func test_hiding_and_showing_incomplete_caption_pauses_without_cancelling_its_re
 	assert_eq(_finished,finished_before)
 	assert_eq(runtime.current_event_idx,0)
 	assert_eq(caption.get_caption_projection().retained_captions,["Earlier local caption."])
+
+func test_skipping_a_native_pause_cannot_resume_effects_or_reveal_on_the_replacement_line() -> void:
+	if not _mount(): return
+	await _settle()
+	var effects: Array[String] = []
+	runtime.text_signal.connect(func(argument: String): effects.append(argument))
+	# Pause the replacement through the real owner before its first process tick.
+	# Its index-zero effect must remain pending until that owner resumes it.
+	runtime.Text.text_started.connect(func(_info: Dictionary):
+		if runtime.current_event_idx == 1: runtime.paused = true)
+	runtime.start(_timeline("[signal=pause-entered][pause=0.5!][signal=old-skipped-effect]Old caption.\n[signal=replacement-effect][pause=0.15!][signal=replacement-resumed]Replacement caption."))
+	var native: DialogicNode_DialogText = caption.caption_text
+	for frame in 60:
+		if effects == ["pause-entered"] and not native.revealing: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects,["pause-entered"],"the actual built-in signal marks entry into the native pause")
+	assert_false(native.revealing,"continue_reveal is awaiting the native pause effect")
+	assert_eq(native.visible_characters,0)
+	assert_eq(runtime.current_event_idx,0)
+	if effects != ["pause-entered"] or native.revealing: return
+	# Ordinary input first skips the unfinished line, then advances to the next one.
+	_advance()
+	assert_eq(effects,["pause-entered","old-skipped-effect"],"ordinary skip executes the old line's remaining native signal once")
+	_advance()
+	for frame in 60:
+		if runtime.current_event_idx == 1 and runtime.paused: break
+		await get_tree().create_timer(0.01).timeout
+	assert_true(runtime.paused)
+	assert_eq(native.get_parsed_text(),"Replacement caption.")
+	assert_eq(native.visible_characters,0)
+	assert_eq(_finished,1,"only the explicitly skipped original line completed")
+	var before := _stack_invariants()
+	# SceneTreeTimer still runs while the Dialogic owner is paused. Let the old
+	# effect return without changing its private queue or invoking reveal ourselves.
+	await get_tree().create_timer(0.65).timeout
+	assert_eq(effects,["pause-entered","old-skipped-effect"],"the late timer neither repeats the skipped signal nor consumes replacement effects")
+	assert_eq(native.visible_characters,0,"an old reveal continuation cannot increment the replacement line")
+	assert_eq(_stack_invariants(),before,"stale work cannot change replacement reveal, completion, history, or position")
+	assert_eq(caption.caption_text,native)
+	assert_eq(caption.get_caption_projection().retained_captions,["Old caption."])
+	runtime.paused = false
+	for frame in 60:
+		if "replacement-effect" in effects: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects,["pause-entered","old-skipped-effect","replacement-effect"],"resuming starts the replacement's own native effect and pause")
+	assert_false(native.revealing,"an ordinary awaited pause still suspends native character reveal")
+	assert_eq(native.visible_characters,0)
+	for frame in 120:
+		if _finished >= 2: break
+		await get_tree().create_timer(0.025).timeout
+	assert_eq(effects,["pause-entered","old-skipped-effect","replacement-effect","replacement-resumed"],"each replacement effect executes once through its surviving native await")
+	assert_eq(_finished,2,"the replacement finishes naturally after its own pause")
+	assert_false(native.revealing)
+	assert_eq(native.visible_ratio,1.0)
+	assert_eq(runtime.current_event_idx,1)
+	assert_eq(_history(),before.history)
+	assert_eq(_ended,0)
+
+func test_real_text_clear_and_immediate_replacement_invalidate_an_awaiting_native_pause() -> void:
+	if not _mount(): return
+	await _settle()
+	var effects: Array[String] = []
+	runtime.text_signal.connect(func(argument: String): effects.append(argument))
+	runtime.Text.text_started.connect(func(info: Dictionary):
+		if info.text == "After clear.": runtime.paused = true)
+	runtime.start(_timeline("[signal=clear-pause-entered][pause=0.5!]Before clear."))
+	var native: DialogicNode_DialogText = caption.caption_text
+	for frame in 60:
+		if effects == ["clear-pause-entered"] and not native.revealing: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects,["clear-pause-entered"])
+	assert_false(native.revealing)
+	assert_eq(native.visible_characters,0)
+	if effects != ["clear-pause-entered"] or native.revealing: return
+	# Unlike skip, clearing must cancel without emitting a text completion. Replace
+	# in the same frame so an empty-only visible-character sentinel cannot suffice.
+	runtime.Text.clear_game_state()
+	assert_eq(native.get_parsed_text(),"")
+	assert_eq(_finished,0)
+	runtime.start_timeline(_timeline("[signal=clear-replacement-effect]After clear."))
+	for frame in 60:
+		if runtime.paused: break
+		await get_tree().create_timer(0.01).timeout
+	assert_true(runtime.paused)
+	assert_eq(native.get_parsed_text(),"After clear.")
+	assert_eq(native.visible_characters,0)
+	var before := _stack_invariants()
+	await get_tree().create_timer(0.65).timeout
+	assert_eq(effects,["clear-pause-entered"],"cleared work cannot consume the replacement's native effect")
+	assert_eq(native.visible_characters,0)
+	assert_eq(_finished,0,"clear and its late timer never complete a line")
+	assert_eq(_stack_invariants(),before)
+	assert_eq(caption.caption_text,native)
+	assert_eq(caption.get_caption_projection().retained_captions,[])

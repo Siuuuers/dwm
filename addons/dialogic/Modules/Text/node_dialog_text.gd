@@ -24,10 +24,16 @@ var base_visible_characters := 0
 var active_speed: float = 0.01
 
 var speed_counter: float = 0
+var _reveal_generation: int = 0
+
+
+## Process-local ownership of an in-flight reveal, never a narrative identity.
+func get_reveal_generation() -> int:
+	return _reveal_generation
 
 func _set(property: StringName, what: Variant) -> bool:
 	if property == 'text' and typeof(what) == TYPE_STRING:
-
+		_reveal_generation += 1
 		text = what
 
 		if hide_when_empty:
@@ -64,6 +70,7 @@ func _ready() -> void:
 func reveal_text(_text: String, keep_previous:=false) -> void:
 	if !enabled:
 		return
+	_reveal_generation += 1
 	show()
 
 	custom_fx_reset()
@@ -112,9 +119,10 @@ func continue_reveal() -> void:
 		revealing = false
 
 		var current_index := visible_characters - base_visible_characters
+		var generation := _reveal_generation
 		await DialogicUtil.autoload().Text.execute_effects(current_index, self, false)
 
-		if visible_characters == -1:
+		if generation != _reveal_generation or visible_characters == -1:
 			return
 
 		revealing = true
@@ -123,6 +131,8 @@ func continue_reveal() -> void:
 		if visible_characters > -1 and visible_characters <= len(get_parsed_text()):
 			continued_revealing_text.emit(get_parsed_text()[visible_characters-1])
 
+		if generation != _reveal_generation:
+			return
 		custom_fx_update()
 	else:
 		finish_text(true)
@@ -133,11 +143,17 @@ func continue_reveal() -> void:
 
 ## Reveals the entire text instantly.
 func finish_text(is_organic := false) -> void:
+	_reveal_generation += 1
+	var generation := _reveal_generation
 	visible_ratio = 1
 	custom_fx_update()
 	if not is_organic:
 		custom_fx_skip()
+	if generation != _reveal_generation:
+		return
 	DialogicUtil.autoload().Text.execute_effects(-1, self, true)
+	if generation != _reveal_generation:
+		return
 	revealing = false
 	DialogicUtil.autoload().current_state = DialogicGameHandler.States.IDLE
 

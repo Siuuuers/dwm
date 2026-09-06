@@ -58,6 +58,7 @@ var text_already_read := false
 
 var text_effects := {}
 var parsed_text_effect_info: Array[Dictionary] = []
+var _effect_generation: int = 0
 var text_effects_regex := RegEx.new()
 enum ParserModes {ALL=-1, TEXT_ONLY=0, CHOICES_ONLY=1}
 enum TextTypes {DIALOG_TEXT, CHOICE_TEXT}
@@ -186,6 +187,9 @@ func update_textbox(text: String, instant := false) -> void:
 ## Instant can be used to skip all revieling.
 ## If additional is true, the previous text will be kept.
 func update_dialog_text(text: String, instant := false, additional := false) -> String:
+	# Instant rehydration and empty clears have no freshly parsed effect batch.
+	if instant or (text.is_empty() and not additional):
+		_retire_effect_batch()
 	update_text_speed()
 
 	if !instant: dialogic.current_state = dialogic.States.REVEALING_TEXT
@@ -412,7 +416,7 @@ func collect_text_effects() -> void:
 ## Returns the string with all text effects removed
 ## Use get_parsed_text_effects() after calling this to get all effect information
 func parse_text_effects(text:String) -> String:
-	parsed_text_effect_info.clear()
+	_retire_effect_batch()
 	var rtl: RichTextLabel = null
 	if get_tree().get_first_node_in_group("dialogic_dialog_text"):
 		rtl = get_tree().get_first_node_in_group("dialogic_dialog_text").duplicate()
@@ -435,9 +439,24 @@ func parse_text_effects(text:String) -> String:
 	return text
 
 
+func _retire_effect_batch() -> void:
+	_effect_generation += 1
+	parsed_text_effect_info.clear()
+
+
 func execute_effects(current_index:int, text_node:Control, skipping := false) -> void:
+	if not is_instance_valid(text_node):
+		return
+	var batch_generation := _effect_generation
+	# Custom Control callers retain the existing API without needing this native-node method.
+	var node_generation: int = int(text_node.call("get_reveal_generation")) if text_node.has_method("get_reveal_generation") else -1
 	# might have to execute multiple effects
 	while true:
+		# Recheck after every awaited callback, before touching a possibly replaced queue.
+		if batch_generation != _effect_generation or not is_instance_valid(text_node):
+			return
+		if node_generation != -1 and int(text_node.call("get_reveal_generation")) != node_generation:
+			return
 		if parsed_text_effect_info.is_empty():
 			return
 		if current_index != -1 and current_index < parsed_text_effect_info[0]['index']:
