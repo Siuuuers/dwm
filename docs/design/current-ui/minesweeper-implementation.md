@@ -54,7 +54,7 @@ does not enable inspection prematurely. A durable retained terminal view must be
 integrated with the existing save/restore owners.
 
 Canonical solo/pair owners, the specially marked solo mine, pre-Reveal history,
-action-count/Foresight/No-flag registers, real New Board/replacement,
+complete action-count/Foresight owners, real New Board/replacement,
 platform pen mapping and configured secondary-controller action,
 desktop/challenge mounts, audio, launcher/Pause/recovery/save connections, other
 accessibility palettes and native assistive-technology acceptance remain unfinished.
@@ -198,3 +198,62 @@ invocation ledger, including earlier failures. Text shaping and focus routing
 follow the [TextParagraph reference](https://docs.godotengine.org/en/stable/classes/class_textparagraph.html)
 and [Control reference](https://docs.godotengine.org/en/stable/classes/class_control.html),
 with behavior checked in the project's installed Godot 4.6.3.
+
+## Status register and action dock continuation
+
+The register presents the seven desktop bays in their accepted horizontal order.
+Canonical hosts contain only the three right-hand metrics; their 280-native-pixel
+blank capacity has no field node, placeholder or painted field face. Values keep
+literal signs and percentages, including negative mine estimates and Foresight
+above 100. Tabular font features are applied to value shaping. Only difficulty
+and mode controls own Selected; input emits an intent and never changes their
+published commitment by itself.
+
+The dock retains the exact target X coordinates, widths, gaps and vacant middle
+capacity. All actions use one `MinesweeperActionButton`, including the information
+sheet's Return. The former separate Return implementation was removed; its
+regression tests now exercise the shared primitive. Disabled actions keep readable
+copy and a visible blocked action edge, leave the focus order, and accept no
+command. Focus remains detached from the Selected plane and within the hit target.
+
+The requested 10-native-pixel baseline font requires measured vertical adaptation
+in narrow English bays. English 100 percent resolves to native bands **58/234/36**
+(register/worksheet/dock); English 150 percent with Large Targets resolves to
+**92/176/60**. These are font-driven changes to the dossier's smaller-font baseline
+heights. Every sample still closes at 328 native pixels, with full cell/rail target
+capacity, fixed horizontal bays, and no text shrinking. Long English labels wrap
+within words at the largest size; these captures establish legible containment,
+while final usability and assistive-technology acceptance remain open.
+
+`MinesweeperRegisterQuery` supplies the real retained desktop facts: current signed
+rounds, selected tier for NONE, frozen candidate or paid-receipt tier thereafter,
+mine estimate and No-flag. It validates Flag history and reconstructs the current
+flag set before deriving Lost, so Unflag cannot restore Intact and malformed
+history cannot silently claim it. The query does not mutate gameplay or expose
+identities, hidden layouts, raw metric operands or history.
+
+Current owner gaps remain concrete: first Reveal is absent from the retained
+action ledger, no versioned 3BV/Foresight owner exists, and there is no persistent
+unpaid-tier or free paid-envelope replacement command. The query therefore
+publishes an unavailable Foresight value and no enabled difficulty actions.
+The UI formats supplied lawful percentages but does not fabricate them for the
+current owner. New Board dispatch, reactive register updates, shared host focus
+order, register/dock inertness during sheets, and production app composition must
+be connected in the next host layer. Individual component proof is not runtime
+cutover or completed Minesweeper screen acceptance.
+
+Verification: **134 tests / 4,790 assertions pass** across seventeen suites,
+including prior cells, gestures, information sheets and durable board transaction
+tests. Six final OpenGL composition fixtures cover both Standard palettes, all
+three locales, three text scales, ordinary/Large targets and both host widths.
+Pixel checks verify the continuous register separator, visibly blocked New Board
+edge, and empty canonical capacity. The rendered 125-percent Foresight values and
+enabled difficulty examples are explicitly supplied formatting fixtures; the real
+query's unavailable output is independently tested.
+
+The first run caught an off-tree `release_focus` call during disabled-state
+publication; it is now tree-guarded. Independent drawing review found metric
+backgrounds overpainting the register separator; each metric now restores its
+portion after painting. Final tests and GPU runs exit zero with the existing
+24 Dialogic orphans and certificate/Unicode environment messages. Logs, six
+captures and the full invocation ledger are in `evidence/minesweeper_chrome`.

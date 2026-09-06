@@ -6,7 +6,7 @@ signal return_requested()
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const COPY := preload("res://scripts/ui/minesweeper/MinesweeperSheetCopy.gd")
 const ROW := preload("res://scripts/ui/minesweeper/MinesweeperSheetRow.gd")
-const RETURN := preload("res://scripts/ui/minesweeper/MinesweeperSheetReturn.gd")
+const RETURN := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const RAIL := preload("res://scripts/ui/minesweeper/MinesweeperScrollRail.gd")
 
 var rows: Array[Control] = []

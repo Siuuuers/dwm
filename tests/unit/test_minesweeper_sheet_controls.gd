@@ -1,7 +1,7 @@
 extends "res://addons/gut/test.gd"
 
 const ROW := preload("res://scripts/ui/minesweeper/MinesweeperSheetRow.gd")
-const RETURN := preload("res://scripts/ui/minesweeper/MinesweeperSheetReturn.gd")
+const RETURN := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 
 
