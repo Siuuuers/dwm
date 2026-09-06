@@ -5,6 +5,9 @@ extends SceneTree
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
 const THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
+const COLOUR_PRESETS := ["standard", "protan", "deutan", "tritan"]
+const OVERFLOW_PRESETS := {"en":"protan", "zh-CN":"deutan", "zh-HK":"tritan"}
+const TUPLE_COUNT := 144
 const COPY := {
 	"en":"Synthetic caption fixture. This sentence checks the current caption at its full requested font size.",
 	"zh-CN":"字幕测试样本。这段合成文字用于检查当前字幕的位置、完整字号与阅读空间。",
@@ -47,14 +50,20 @@ func _render() -> void:
 	for locale: String in ["en","zh-CN","zh-HK"]:
 		for percent: int in [100,125,150]:
 			for palette: String in ["AfterHours","Midnight"]:
-				if not await _show_fixture(locale,percent,palette,false):
-					quit(1)
-					return
-				if not await _capture(locale,percent,palette,"stack"):
-					quit(1)
-					return
+				for high_contrast: bool in [false,true]:
+					for colour_preset: String in COLOUR_PRESETS:
+						if not await _show_fixture(locale,percent,palette,false,high_contrast,colour_preset):
+							quit(1)
+							return
+						if not await _capture(locale,percent,palette,"stack",high_contrast,colour_preset):
+							quit(1)
+							return
+	if not _check(_records.size() == TUPLE_COUNT,"incomplete caption tuple matrix"):
+		quit(1)
+		return
 	for locale: String in ["en","zh-CN","zh-HK"]:
-		if not await _show_fixture(locale,150,"AfterHours",true):
+		var colour_preset: String = OVERFLOW_PRESETS[locale]
+		if not await _show_fixture(locale,150,"AfterHours",true,true,colour_preset):
 			quit(1)
 			return
 		# Real focused page navigation creates the photographed manual scroll.
@@ -62,11 +71,14 @@ func _render() -> void:
 		page.keycode = KEY_PAGEDOWN
 		page.pressed = true
 		_viewport.push_input(page,true)
-		if not await _capture(locale,150,"AfterHours","overflow"):
+		var release := InputEventKey.new()
+		release.keycode = KEY_PAGEDOWN
+		_viewport.push_input(release,true)
+		if not await _capture(locale,150,"AfterHours","overflow",true,colour_preset):
 			quit(1)
 			return
 	_runtime.Text.clear_game_state()
-	if not await _capture("zh-HK",150,"AfterHours","empty"):
+	if not await _capture("zh-HK",150,"AfterHours","empty",true,"tritan"):
 		quit(1)
 		return
 	var report := FileAccess.open(_folder.path_join("caption-measurements.json"),FileAccess.WRITE)
@@ -75,10 +87,12 @@ func _render() -> void:
 		return
 	report.store_string(JSON.stringify({"scope":"synthetic caption fixtures; actual authored Hospital timeline currently has no text",
 		"runtime":"installed DialogicGameHandler, deferred Styles mount and native Text reveal; original application runtime preserved",
-		"captures":_records.size(),"unfocused_overflow_captures":_unfocused_captures,"tuples":18,"samples":_records},"\t")+"\n")
+		"accessibility_scope":"explicit authored tuple extension; provisional family mappings, no perceptual or AT acceptance",
+		"contrast_measurement":"opaque rendered sRGB role pairs; glyph antialiasing and perception are not certified",
+		"captures":_records.size(),"unfocused_overflow_captures":_unfocused_captures,"tuples":TUPLE_COUNT,"samples":_records},"\t")+"\n")
 	report.close()
 	await _restore()
-	print("WITNESSED_CAPTION_RENDER_VERIFIED captures=",_records.size()," unfocused_overflow_captures=",_unfocused_captures," tuples=18 overflow=3 empty=1 fixture=synthetic production_authored_caption_acceptance=false evidence=",_folder)
+	print("WITNESSED_CAPTION_RENDER_VERIFIED captures=",_records.size()," unfocused_overflow_captures=",_unfocused_captures," tuples=",TUPLE_COUNT," overflow=3 empty=1 fixture=synthetic production_authored_caption_acceptance=false evidence=",_folder)
 	quit(0)
 
 func _mount() -> bool:
@@ -126,9 +140,9 @@ func _mount() -> bool:
 	await _frames()
 	return _check(get_nodes_in_group("dialogic_dialog_text").size() == 1 and get_nodes_in_group("dialogic_name_label").is_empty(),"style must expose one native DialogText and no NameLabel")
 
-func _show_fixture(locale: String, percent: int, palette: String, overflow: bool) -> bool:
+func _show_fixture(locale: String, percent: int, palette: String, overflow: bool, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	await _runtime.clear()
-	if not _check(_caption.configure_presentation(locale,percent,palette),"valid presentation tuple rejected"): return false
+	if not _check(_caption.configure_presentation(locale,percent,palette,high_contrast,colour_preset),"valid presentation tuple rejected"): return false
 	var copy: String = COPY[locale]
 	if overflow: copy = (copy+" ").repeat(100).strip_edges()
 	var timeline := DialogicTimeline.new()
@@ -146,14 +160,17 @@ func _show_fixture(locale: String, percent: int, palette: String, overflow: bool
 	if not _check(_caption.get_caption_projection().retained_captions == RETAINED_COPY[locale],"actual text events did not publish the three-leaf stack"): return false
 	var before := _invariants()
 	# Reapplying presentation must not duplicate history, move the event or finish it.
-	if not _check(_caption.configure_presentation(locale,percent,palette),"idempotent presentation rejected"): return false
+	if not _check(_caption.configure_presentation(locale,percent,palette,high_contrast,colour_preset),"idempotent presentation rejected"): return false
 	await _frames()
 	return _check(_invariants() == before,"presentation reapply changed native timeline/history/completion")
 
-func _capture(locale: String, percent: int, palette: String, kind: String) -> bool:
+func _capture(locale: String, percent: int, palette: String, kind: String, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	await _frames()
 	var projection: Dictionary = _caption.get_caption_projection()
-	var expected: Theme = THEME.build(locale,percent,palette)
+	var expected: Theme = THEME.build(locale,percent,palette,high_contrast,colour_preset)
+	if not _check(expected != null,"capture tuple has no Theme"): return false
+	if not _check(projection.locale == locale and projection.text_percent == percent and projection.palette == palette \
+			and projection.high_contrast == high_contrast and projection.colour_preset == colour_preset,"capture tuple differs from published presentation"): return false
 	var node: RichTextLabel = _caption.caption_text
 	var field: Rect2 = projection.field_rect
 	var leaf: Rect2 = projection.caption_rect
@@ -174,7 +191,8 @@ func _capture(locale: String, percent: int, palette: String, kind: String) -> bo
 			if not _check(projection.scroll_extent > 0 and projection.scroll_offset > 0 and leaf.size.y > field.size.y and projection.caption_visible_rect.has_area(),"long current did not use shared document scrolling"): return false
 		elif not _check(projection.visible_leaf_rects.size() == 3 and field.encloses(leaf),"three-leaf fixture is not visible in the shared field"): return false
 	var pixels: Image = _viewport.get_texture().get_image()
-	var name := "%s%d-%s-%s.png" % [locale,percent,palette,kind]
+	var contrast_name := "high" if high_contrast else "standard"
+	var name := "%s%d-%s-%s-%s-%s.png" % [locale,percent,palette,contrast_name,colour_preset,kind]
 	if not _check(pixels != null and pixels.save_png(_folder.path_join(name)) == OK,"cannot save caption capture"): return false
 	if not _pixel(pixels,Vector2i(2,expected_top+8),expected,&"field"): return false
 	if not _pixel(pixels,Vector2i(2,expected_top),expected,&"rule"): return false
@@ -182,24 +200,67 @@ func _capture(locale: String, percent: int, palette: String, kind: String) -> bo
 	for y in range(expected_top,expected_top+2):
 		for x in 1280:
 			if not _pixel(pixels,Vector2i(x,y),expected,&"rule"): return false
+	var rendered_contrast := {}
 	if kind != "empty":
 		if kind == "stack":
 			for retained_index in 2:
 				var retained_rect: Rect2 = projection.leaf_rects[retained_index]
 				if not _pixel(pixels,Vector2i(retained_rect.position)+Vector2i(12,12),expected,&"deep" if retained_index == 0 else &"field"): return false
 		var ink_pixels := 0
+		var ink_point := Vector2i(-1,-1)
 		var ink: Color = expected.get_color(&"text",&"WitnessedCaption")
 		var interior := Rect2i(leaf.grow(-18)).intersection(_visible_aperture())
 		for y in range(interior.position.y,interior.end.y):
 			for x in range(interior.position.x,interior.end.x):
-				if _same_color(pixels.get_pixel(x,y),ink): ink_pixels += 1
+				if _same_color(pixels.get_pixel(x,y),ink):
+					ink_pixels += 1
+					ink_point = Vector2i(x,y)
 		if not _check(ink_pixels > 20,"caption has no rendered interior glyph ink"): return false
+		rendered_contrast = _rendered_contrast(pixels,leaf,ink_point,expected_top)
 		if not await _protected_text_proof(pixels,node,expected,name,kind == "overflow"): return false
-	_records.append({"file":name,"locale":locale,"text_percent":percent,"palette":palette,"kind":kind,"font_size":projection.font_size,
+	_records.append({"file":name,"locale":locale,"text_percent":percent,"palette":palette,"high_contrast":high_contrast,
+		"colour_preset":colour_preset,"tuple":"%s/%s/%s" % [palette,contrast_name,colour_preset],"kind":kind,"font_size":projection.font_size,
+		"rendered_contrast":rendered_contrast,
 		"field_rect":str(field),"caption_rect":str(leaf),"visible_leaf_rects":str(projection.visible_leaf_rects),"retained_captions":projection.retained_captions,
 		"scroll_offset":projection.scroll_offset,"scroll_extent":projection.scroll_extent,"focused":node.has_focus()})
 	print("WITNESSED_CAPTION_CAPTURE ",name," field=",field," leaf=",leaf," font=",projection.font_size," scroll=",projection.scroll_offset)
 	return true
+
+func _rendered_contrast(pixels: Image, leaf: Rect2, ink_point: Vector2i, field_top: int) -> Dictionary:
+	# These are final framebuffer samples, not ratios calculated from Theme inputs.
+	# The exact-colour/protected-frame checks independently verify their intended roles.
+	var sample_y := maxi(int(leaf.position.y) + 18, field_top + 18)
+	var sample_x := int(leaf.position.x)
+	var points := {
+		"text":ink_point, "current":Vector2i(sample_x+12,sample_y),
+		"field":Vector2i(2,field_top+8), "deep":Vector2i(2,680),
+		"rule":Vector2i(2,field_top), "focus_outer":Vector2i(sample_x+2,sample_y),
+		"focus_inner":Vector2i(sample_x+6,sample_y),
+	}
+	var samples := {}
+	var colors := {}
+	for role: String in points:
+		var point: Vector2i = points[role]
+		var color := pixels.get_pixelv(point)
+		colors[role] = color
+		samples[role] = {"pixel":[point.x,point.y],"srgb":color.to_html(false)}
+	var ratios := {}
+	for pair: Array in [["text","current"],["text","field"],["text","deep"],
+			["rule","current"],["rule","field"],["rule","deep"],
+			["focus_outer","current"],["focus_inner","current"]]:
+		var first := _luminance(colors[pair[0]])
+		var second := _luminance(colors[pair[1]])
+		ratios["%s/%s" % pair] = (maxf(first,second)+0.05)/(minf(first,second)+0.05)
+	return {"samples":samples,"ratios":ratios,
+		"minimum_text":minf(ratios["text/current"],minf(ratios["text/field"],ratios["text/deep"])),
+		"minimum_structure_focus":minf(minf(ratios["rule/current"],ratios["rule/field"]),
+			minf(ratios["rule/deep"],minf(ratios["focus_outer/current"],ratios["focus_inner/current"]))) }
+
+func _luminance(color: Color) -> float:
+	return 0.2126 * _linear_channel(color.r) + 0.7152 * _linear_channel(color.g) + 0.0722 * _linear_channel(color.b)
+
+func _linear_channel(value: float) -> float:
+	return value / 12.92 if value <= 0.04045 else pow((value+0.055)/1.055,2.4)
 
 func _protected_text_proof(focused: Image, node: RichTextLabel, expected: Theme, name: String, save_unfocused: bool) -> bool:
 	var bar: VScrollBar = _caption.get_scroll_bar()

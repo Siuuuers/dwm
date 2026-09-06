@@ -1,27 +1,23 @@
 extends RefCounted
 ## Caption materials only; no narrative or transport state.
 
+const PALETTES := preload("res://scripts/ui/witnessed/WitnessedPaletteRegistry.gd")
+
 const FONTS := {
 	"en": preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2"),
 	"zh-CN": preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf"),
 	"zh-HK": preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf"),
 }
 
-static func build(locale: String, text_percent: int, palette: String) -> Theme:
+static func build(locale: String, text_percent: int, palette: String, high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
 	locale = locale.replace("_", "-")
+	var roles := PALETTES.resolve(palette, high_contrast, colour_preset)
 	if locale not in FONTS or text_percent not in [100, 125, 150] \
-			or palette not in ["AfterHours", "Midnight"]:
+			or roles.is_empty():
 		return null
 	var result := Theme.new()
 	result.default_font = FONTS[locale]
 	result.default_font_size = int(20 * text_percent / 100.0)
-	var roles := {
-		&"field": Color("151b25") if palette == "AfterHours" else Color("14201d"),
-		&"deep": Color("0b0d13") if palette == "AfterHours" else Color("0d1514"),
-		&"current": Color("2f2936"), &"text": Color("d8cfb7"),
-		&"rule": Color("657d89"), &"focus_outer": Color("d8cfb7"),
-		&"focus_inner": Color("a9935f"),
-	}
 	for role: StringName in roles:
 		result.set_color(role, &"WitnessedCaption", roles[role])
 	for font_name: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:

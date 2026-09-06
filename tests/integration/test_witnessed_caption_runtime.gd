@@ -23,11 +23,16 @@ var _finished := 0
 var _emulate_mouse_from_touch := false
 var _window_size := Vector2i.ZERO
 var _window_content_size := Vector2i.ZERO
+var _caption_display_sources: Array[Dictionary] = []
 
 class MemoryProfile extends Node:
 	signal preference_changed(path: StringName, value: Variant)
 	func get_profile_snapshot() -> Dictionary:
 		return {"preferences":{"dialogue":{"text_speed":2.0,"auto_text_speed":4.0,"auto_advance_dialogue":false}}}
+
+class CaptionFixtureLocale extends Node:
+	signal locale_changed(locale: String)
+	func get_locale() -> String: return "en"
 
 class MissingStylesRuntime extends Node:
 	var clear_calls := 0
@@ -100,6 +105,12 @@ func after_each() -> void:
 		viewport.queue_free()
 		await get_tree().process_frame
 	if is_instance_valid(runtime): runtime.free()
+	_caption_display_sources.reverse()
+	for source: Dictionary in _caption_display_sources:
+		if is_instance_valid(source.replacement): source.replacement.free()
+		get_tree().root.add_child(source.original)
+		get_tree().root.move_child(source.original,source.index)
+	_caption_display_sources.clear()
 	get_tree().remove_meta("dialogic_layout_node")
 	get_tree().root.add_child(_original_runtime)
 	get_tree().root.move_child(_original_runtime,_original_runtime_index)
@@ -173,7 +184,9 @@ func test_deferred_first_mount_reapplies_bound_bridge_preferences_before_first_t
 		first_speed.append(float(runtime.Settings.settings[&"text_speed"])))
 	if not _mount(): return
 	assert_false(layout.is_inside_tree(),"Styles mount is actually deferred")
-	assert_true(caption.configure_presentation("zh-HK",150,"Midnight"))
+	assert_true(caption.configure_presentation("zh-HK",150,"Midnight",true,"protan"))
+	assert_eq(caption.get_caption_projection().high_contrast,true,"optional material tuple configures before deferred mount")
+	assert_eq(caption.get_caption_projection().colour_preset,"protan")
 	var started: Node = runtime.start(_timeline("First mounted caption."))
 	assert_eq(started,layout)
 	await _settle()
@@ -184,10 +197,15 @@ func test_deferred_first_mount_reapplies_bound_bridge_preferences_before_first_t
 	assert_false(runtime.Inputs.auto_advance.enabled_until_user_input)
 	var source_locale: String = str(get_node("/root/LocalizationManager").get_locale()).replace("_","-")
 	var source_scale: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.font_scale",1.0)
-	var valid_source: bool = source_locale in ["en","zh-CN","zh-HK"] and typeof(source_scale) in [TYPE_INT,TYPE_FLOAT] and source_scale in [1.0,1.25,1.5]
+	var source_high: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.high_contrast",false)
+	var source_mode: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.colorblind_mode","none")
+	var preset_map := {"none":"standard","protanopia":"protan","deuteranopia":"deutan","tritanopia":"tritan"}
+	var valid_source: bool = source_locale in ["en","zh-CN","zh-HK"] and typeof(source_scale) in [TYPE_INT,TYPE_FLOAT] and source_scale in [1.0,1.25,1.5] and typeof(source_high) == TYPE_BOOL and preset_map.has(source_mode)
 	assert_eq(caption.get_caption_projection().locale,source_locale if valid_source else "zh-HK","valid live sources apply; uninitialized source tuple retains explicit valid configuration")
 	assert_eq(caption.get_caption_projection().font_size,int(20*float(source_scale)) if valid_source else 30)
 	assert_eq(caption.get_caption_projection().palette,"Midnight")
+	assert_eq(caption.get_caption_projection().high_contrast,source_high if valid_source else true)
+	assert_eq(caption.get_caption_projection().colour_preset,preset_map[source_mode] if valid_source else "protan")
 	assert_eq(caption.caption_text.get_parsed_text(),"First mounted caption.")
 	assert_eq(_ended,0)
 	assert_false(runtime.Save.autosave_enabled)
@@ -245,32 +263,42 @@ func test_presentation_matrix_preserves_live_reveal_history_and_event_position()
 	var state_before := runtime.current_state
 	var history_before := _history()
 	var finished_before := _finished
+	var tuple_count := 0
 	for locale: String in ["en","zh-CN","zh-HK"]:
 		for percent: int in [100,125,150]:
 			for palette: String in ["AfterHours","Midnight"]:
-				assert_true(caption.configure_presentation(locale,percent,palette))
-				await _settle()
-				var projection: Dictionary = caption.get_caption_projection()
-				var height: int = {100:208,125:264,150:328}[percent]
-				assert_eq(projection.field_rect,Rect2(0,656-height,1280,height))
-				assert_eq(projection.font_size,int(percent/5))
-				assert_true(projection.field_rect.encloses(projection.caption_visible_rect))
-				assert_true(projection.caption_visible_rect.has_area(),"current caption intersects the common viewport")
-				assert_eq(fposmod(projection.caption_rect.size.y,2.0),0.0)
-				assert_eq(projection.locale,locale)
-				assert_eq(projection.palette,palette)
-				assert_eq(caption.caption_text,node)
-				assert_eq(node.text,text_before)
-				assert_eq(node.visible_characters,visible_before)
-				assert_eq(runtime.current_state,state_before)
-				assert_eq(runtime.current_event_idx,0)
-				assert_eq(_history(),history_before)
-				assert_eq(_finished,finished_before,"theme changes cannot complete a line")
-				assert_eq(_ended,0,"theme changes cannot complete a timeline")
+				for high_contrast: bool in [false,true]:
+					for preset: String in ["standard","protan","deutan","tritan"]:
+						tuple_count += 1
+						assert_true(caption.configure_presentation(locale,percent,palette,high_contrast,preset))
+						await _settle()
+						var projection: Dictionary = caption.get_caption_projection()
+						var height: int = {100:208,125:264,150:328}[percent]
+						assert_eq(projection.field_rect,Rect2(0,656-height,1280,height))
+						assert_eq(projection.font_size,int(percent/5))
+						assert_true(projection.field_rect.encloses(projection.caption_visible_rect))
+						assert_true(projection.caption_visible_rect.has_area(),"current caption intersects the common viewport")
+						assert_eq(fposmod(projection.caption_rect.size.y,2.0),0.0)
+						assert_eq(projection.locale,locale)
+						assert_eq(projection.palette,palette)
+						assert_eq(projection.high_contrast,high_contrast)
+						assert_eq(projection.colour_preset,preset)
+						assert_eq(caption.caption_text,node)
+						assert_eq(node.text,text_before)
+						assert_eq(node.visible_characters,visible_before)
+						assert_eq(runtime.current_state,state_before)
+						assert_eq(runtime.current_event_idx,0)
+						assert_eq(_history(),history_before)
+						assert_eq(_finished,finished_before,"theme changes cannot complete a line")
+						assert_eq(_ended,0,"theme changes cannot complete a timeline")
+	assert_eq(tuple_count,144)
 	var stable: Dictionary = caption.get_caption_projection()
-	for tuple: Array in [["fr",100,"AfterHours"],["en",110,"AfterHours"],["en",100,"unknown"]]:
-		assert_false(caption.configure_presentation(tuple[0],tuple[1],tuple[2]))
+	var stable_theme: Theme = caption.canvas.theme
+	for tuple: Array in [["fr",100,"AfterHours",false,"standard"],["en",110,"AfterHours",false,"standard"],
+			["en",100,"unknown",false,"standard"],["en",100,"AfterHours",true,"unknown"],["en",100,"AfterHours",false,"none"]]:
+		assert_false(caption.configure_presentation(tuple[0],tuple[1],tuple[2],tuple[3],tuple[4]))
 		assert_eq(caption.get_caption_projection(),stable,"malformed presentation request is atomic")
+		assert_eq(caption.canvas.theme,stable_theme,"invalid requests cannot replace the rendered theme")
 	var detached: Dictionary = caption.get_caption_projection()
 	detached.text = "caller mutation"
 	assert_ne(caption.get_caption_projection().text,"caller mutation")
@@ -1227,3 +1255,70 @@ func test_actual_scroll_gestures_cancel_armed_pointer_accept_before_inside_relea
 		assert_eq(_finished,int(before.finished) + 1,mode + " permits a later fresh non-scrolling click to finish once")
 		assert_eq(runtime.current_event_idx,before.event)
 		assert_eq(_history(),before.history)
+
+func _replace_caption_display_source(source_name: String, replacement: Node) -> void:
+	var original := get_tree().root.get_node(source_name)
+	_caption_display_sources.append({"original":original,"index":original.get_index(),"replacement":replacement})
+	get_tree().root.remove_child(original)
+	replacement.name = source_name
+	get_tree().root.add_child(replacement)
+
+func test_real_profile_material_preferences_preserve_native_reading_and_pending_click() -> void:
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"caption-profile-fixture",preload("res://tests/support/FakeFileOps.gd").new())
+	var initialized: Dictionary = profile.initialize(storage)
+	assert_true(initialized.get("ok",false),str(initialized))
+	_replace_caption_display_source("ProfileManager",profile)
+	_replace_caption_display_source("LocalizationManager",CaptionFixtureLocale.new())
+	if not await _mount_root_accept_fixture("Live material preferences preserve this native caption and its reading position. ".repeat(100)): return
+	assert_true(caption.configure_presentation("en",100,"AfterHours"))
+	assert_true(caption.reproject_retained_captions(["Older fixture.","Previous fixture."]))
+	await _settle()
+	var native: DialogicNode_DialogText = caption.caption_text
+	var bar: VScrollBar = caption.get_scroll_bar()
+	bar.value = 100
+	native.grab_focus()
+	var baseline: Dictionary = {}
+	for role: StringName in [&"field",&"deep",&"current",&"text",&"rule",&"focus_outer",&"focus_inner"]:
+		baseline[role] = caption.canvas.theme.get_color(role,&"WitnessedCaption")
+	var before := _stack_invariants()
+	var point := _root_caption_point(caption.get_caption_projection().caption_visible_rect.get_center())
+	_parse_accept_mouse(point,true)
+	Input.flush_buffered_events()
+	# Literal role subset from SettingsPaletteRegistry at26de279be5f6490ff453db359b1964ec10596962.
+	# No runtime dependency on the separate Settings worktree or its registry.
+	var high_roles := {&"field":Color("0b1018"),&"deep":Color("080b10"),&"current":Color("24212d"),
+		&"text":Color("f6efdc"),&"rule":Color("98a7ae"),&"focus_outer":Color("f6efdc")}
+	for tuple: Array in [["none","standard","d0b977"],["protanopia","protan","e0c187"],
+			["deuteranopia","deutan","d9c585"],["tritanopia","tritan","e3b6ac"]]:
+		var changed: Dictionary = profile.set_preferences({&"preferences.accessibility.high_contrast":true,
+			&"preferences.accessibility.colorblind_mode":tuple[0]})
+		assert_true(changed.get("ok",false),str(changed))
+		await _settle()
+		var projection: Dictionary = caption.get_caption_projection()
+		assert_eq(projection.get("high_contrast",false),true)
+		assert_eq(projection.get("colour_preset","standard"),tuple[1])
+		assert_eq(projection.palette,"AfterHours")
+		for role: StringName in high_roles:
+			assert_eq(caption.canvas.theme.get_color(role,&"WitnessedCaption"),high_roles[role],str(role))
+		assert_eq(caption.canvas.theme.get_color(&"focus_inner",&"WitnessedCaption"),Color(tuple[2]))
+		assert_eq(native.get_theme_color(&"default_color"),Color("f6efdc"),"the actual native text receives the published ink")
+		assert_eq(_stack_invariants(),before)
+		assert_eq(bar.value,100.0)
+		assert_true(native.has_focus())
+		assert_eq(caption.caption_text,native)
+	var reset: Dictionary = profile.set_preferences({&"preferences.accessibility.high_contrast":false,
+		&"preferences.accessibility.colorblind_mode":"none"})
+	assert_true(reset.get("ok",false))
+	await _settle()
+	for role: StringName in baseline:
+		assert_eq(caption.canvas.theme.get_color(role,&"WitnessedCaption"),baseline[role],"Standard material parity: " + str(role))
+	assert_eq(_stack_invariants(),before)
+	assert_eq(bar.value,100.0)
+	assert_true(native.has_focus())
+	_parse_accept_mouse(point,false)
+	await _settle()
+	assert_eq(_finished,int(before.finished) + 1,"material publication preserves the armed click, which still finishes once on release")
+	assert_eq(runtime.current_event_idx,before.event)
+	assert_eq(_history(),before.history)

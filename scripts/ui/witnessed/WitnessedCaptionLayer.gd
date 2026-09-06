@@ -4,10 +4,15 @@ extends DialogicLayoutLayer
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
 const FIELD_TOP := {100: 448, 125: 392, 150: 328}
 const FIELD_BOTTOM := 656
+const PROFILE_COLOUR_PRESETS := {
+	"none": "standard", "protanopia": "protan", "deuteranopia": "deutan", "tritanopia": "tritan",
+}
 
 var _locale := "en"
 var _text_percent := 100
 var _palette := "AfterHours"
+var _high_contrast := false
+var _colour_preset := "standard"
 var _caption_theme: Theme
 var _last_text := ""
 var _last_content_height := -1
@@ -47,7 +52,7 @@ func _ready() -> void:
 	canvas.draw.connect(_draw_canvas)
 	overlay.draw.connect(_draw_seam)
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
-	configure_presentation(_locale, _text_percent, _palette)
+	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
 	if _profile != null and _profile.has_signal("preference_changed"):
@@ -65,19 +70,26 @@ func _ready() -> void:
 		if runtime.has_signal("timeline_started"):
 			runtime.connect("timeline_started", reset_caption_stack)
 
-func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours") -> bool:
-	var next_theme := CAPTION_THEME.build(locale, text_percent, palette)
+func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset)
 	if next_theme == null:
 		return false
+	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent
 	_locale = locale.replace("_", "-")
 	_text_percent = text_percent
 	_palette = palette
+	_high_contrast = high_contrast
+	_colour_preset = colour_preset
 	_caption_theme = next_theme
 	if is_instance_valid(canvas):
+		var first_mount := canvas.theme == null
 		canvas.theme = next_theme
-		_layout_stack()
+		# Colour-only updates preserve native reveal, scroll and pending contacts.
+		if metrics_changed or first_mount:
+			_layout_stack()
 		canvas.queue_redraw()
 		overlay.queue_redraw()
+		caption_text.queue_redraw()
 	return true
 
 func reset_caption_stack() -> void:
@@ -119,6 +131,7 @@ func get_caption_projection() -> Dictionary:
 	var current_rect := _leaf_rect(caption_text) if mounted else Rect2()
 	return {
 		"locale": _locale, "text_percent": _text_percent, "palette": _palette,
+		"high_contrast": _high_contrast, "colour_preset": _colour_preset,
 		"font_size": int(20 * _text_percent / 100.0),
 		"text": caption_text.get_parsed_text() if mounted else "",
 		"visible_characters": caption_text.visible_characters if mounted else 0,
@@ -182,13 +195,23 @@ func _apply_preferences() -> void:
 	var scale_value: Variant = _profile.call("get_preference", &"preferences.accessibility.font_scale", 1.0) if _profile != null and _profile.has_method("get_preference") else _text_percent / 100.0
 	if typeof(scale_value) not in [TYPE_INT, TYPE_FLOAT] or scale_value not in [1.0, 1.25, 1.5]:
 		return
-	configure_presentation(locale, int(float(scale_value) * 100), _palette)
+	var high_contrast: Variant = _high_contrast
+	var colour_preset := _colour_preset
+	if _profile != null and _profile.has_method("get_preference"):
+		high_contrast = _profile.call("get_preference", &"preferences.accessibility.high_contrast", false)
+		var colour_mode: Variant = _profile.call("get_preference", &"preferences.accessibility.colorblind_mode", "none")
+		if typeof(colour_mode) != TYPE_STRING or not PROFILE_COLOUR_PRESETS.has(colour_mode):
+			return
+		colour_preset = PROFILE_COLOUR_PRESETS[colour_mode]
+	if typeof(high_contrast) != TYPE_BOOL:
+		return
+	configure_presentation(locale, int(float(scale_value) * 100), _palette, high_contrast, colour_preset)
 
 func _on_locale_changed(_locale_id: String) -> void:
 	_apply_preferences()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.font_scale":
+	if path in [&"preferences.accessibility.font_scale", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colorblind_mode"]:
 		_apply_preferences()
 
 func _process(_delta: float) -> void:

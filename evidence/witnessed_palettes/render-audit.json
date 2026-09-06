@@ -1,0 +1,105 @@
+{
+  "stack_combinations": 144,
+  "captures": 148,
+  "images": 151,
+  "minimum_rendered_text": 8.98096776089766,
+  "minimum_rendered_structure_focus": 3.25084080820714,
+  "standard_image_parity": [
+    {
+      "old": "evidence\\witnessed_stack\\en100-AfterHours-stack.png",
+      "new": "en100-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\en100-Midnight-stack.png",
+      "new": "en100-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\en125-AfterHours-stack.png",
+      "new": "en125-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\en125-Midnight-stack.png",
+      "new": "en125-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\en150-AfterHours-stack.png",
+      "new": "en150-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\en150-Midnight-stack.png",
+      "new": "en150-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-CN100-AfterHours-stack.png",
+      "new": "zh-CN100-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-CN100-Midnight-stack.png",
+      "new": "zh-CN100-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-CN125-AfterHours-stack.png",
+      "new": "zh-CN125-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-CN125-Midnight-stack.png",
+      "new": "zh-CN125-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-CN150-AfterHours-stack.png",
+      "new": "zh-CN150-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-CN150-Midnight-stack.png",
+      "new": "zh-CN150-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-HK100-AfterHours-stack.png",
+      "new": "zh-HK100-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-HK100-Midnight-stack.png",
+      "new": "zh-HK100-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-HK125-AfterHours-stack.png",
+      "new": "zh-HK125-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-HK125-Midnight-stack.png",
+      "new": "zh-HK125-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-HK150-AfterHours-stack.png",
+      "new": "zh-HK150-AfterHours-standard-standard-stack.png",
+      "changed_pixels": 0
+    },
+    {
+      "old": "evidence\\witnessed_stack\\zh-HK150-Midnight-stack.png",
+      "new": "zh-HK150-Midnight-standard-standard-stack.png",
+      "changed_pixels": 0
+    }
+  ],
+  "final_suite": "witnessed-palettes-render-20260906b",
+  "final_exit_code": 0,
+  "repeat_images_compared": 151,
+  "repeat_images_with_changed_pixels": 0,
+  "first_suite_exit_code": -1,
+  "first_suite_limit": "completed image checks; explicit termination after stalled native shutdown"
+}

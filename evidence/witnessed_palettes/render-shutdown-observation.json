@@ -1,0 +1,16 @@
+{
+  "suite_id": "witnessed-palettes-render-20260906a",
+  "image_checks": "completed:148primary+3unfocused,144uniquecombinations",
+  "unassisted_exit": "stalled after verification marker and completed script restore",
+  "engine_pid": 12356,
+  "console_pid": 37280,
+  "observed_main_thread": 43648,
+  "main_thread_state": "Wait/UserRequest",
+  "remaining_window_class": "UAC_InputIndicatorOverlayWnd",
+  "remaining_window_owner": 12356,
+  "remaining_window_thread": 34388,
+  "graceful_close_request": "CloseMainWindow returned true; process remained live",
+  "intervention": "Stop-Process on exact PID after process name, executable path and UTC start-minute verification",
+  "native_receipt_exit_code": -1,
+  "cause": "not established; no driver/resource blame or production cleanup change inferred"
+}
