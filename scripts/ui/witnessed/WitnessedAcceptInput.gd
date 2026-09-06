@@ -5,7 +5,7 @@ const ACTION_SETTING := "dialogic/text/input_action"
 const TAP_LIMIT_MSEC := 500
 
 var _caption: DialogicNode_DialogText
-var _viewport_control: Control
+var _viewport_control: ScrollContainer
 var _runtime: Node
 var _contacts: Dictionary = {}
 var _candidate: Dictionary = {}
@@ -13,20 +13,32 @@ var _fresh_key_event := 0
 var _accepted_frame := -1
 var _await_initial_neutral := false
 var _foreground := true
+var _page_contacts: Dictionary = {}
+var _fresh_page_source := ""
+var _await_page_neutral := false
+var _paged_frame := -1
 
 func _enter_tree() -> void:
 	add_to_group("dialogic_input_policy")
 
-func bind(caption: DialogicNode_DialogText, viewport_control: Control, runtime: Node) -> void:
+func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, runtime: Node) -> void:
 	_caption = caption
 	_viewport_control = viewport_control
 	_runtime = runtime
 	_await_initial_neutral = Input.is_action_pressed(_action())
+	_await_page_neutral = _page_is_held()
 	_caption.visibility_changed.connect(_cancel_candidate)
+	_caption.focus_exited.connect(_cancel_candidate)
+	_viewport_control.get_v_scroll_bar().value_changed.connect(cancel_pending_accept)
 	if _runtime != null and _runtime.has_signal("dialogic_paused"):
 		_runtime.connect("dialogic_paused", _cancel_candidate)
 
 func _cancel_candidate() -> void:
+	_candidate.clear()
+	_fresh_page_source = ""
+
+func cancel_pending_accept(_scroll_value: float = 0.0) -> void:
+	# Real scrollbar movement (including its native gutter) also cancels contact.
 	_candidate.clear()
 
 func _action() -> StringName:
@@ -45,13 +57,16 @@ func _process(_delta: float) -> void:
 func _notification(what: int) -> void:
 	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT]:
 		_foreground = false
-		_candidate.clear()
+		_cancel_candidate()
 		_fresh_key_event = 0
 	elif what in [NOTIFICATION_WM_WINDOW_FOCUS_IN, NOTIFICATION_APPLICATION_FOCUS_IN]:
 		_foreground = true
 
 func _input(event: InputEvent) -> void:
 	if event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
+	if _page_direction(event) != 0:
+		_track_page_contact(event)
 		return
 	if event is InputEventScreenDrag:
 		_candidate.clear()
@@ -85,6 +100,9 @@ func _input(event: InputEvent) -> void:
 				_candidate.clear()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if handle_page_input(event):
+		get_viewport().set_input_as_handled()
+		return
 	if _is_pointer(event) or _source(event).is_empty():
 		return
 	# Consume rejected mapped packets too: a held contact must not reach fallback.
@@ -92,6 +110,59 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.get_instance_id() == _fresh_key_event and event.is_pressed() \
 			and not event.is_echo() and is_instance_valid(_caption) and _caption.has_focus():
 		_submit(false)
+
+func handle_page_input(event: InputEvent) -> bool:
+	var direction := _page_direction(event)
+	if direction == 0 or not is_instance_valid(_caption) or not _caption.has_focus():
+		return false
+	# Current-caption GUI gets first refusal; unhandled input is the controller fallback.
+	if event.is_pressed() and not event.is_echo() and _fresh_page_source == _physical_source(event):
+		_fresh_page_source = ""
+		if _admissible():
+			cancel_pending_accept()
+			var bar := _viewport_control.get_v_scroll_bar()
+			if bar.max_value > bar.page and _paged_frame != Engine.get_process_frames():
+				_paged_frame = Engine.get_process_frames()
+				bar.value += bar.page * direction
+	return true
+
+func _track_page_contact(event: InputEvent) -> void:
+	var source := _physical_source(event)
+	_fresh_page_source = ""
+	if event.is_pressed():
+		if event.is_echo() or _page_contacts.has(source):
+			return
+		var neutral := _page_contacts.is_empty()
+		_page_contacts[source] = true
+		if neutral and not _await_page_neutral and _admissible() and _caption.has_focus():
+			_fresh_page_source = source
+	else:
+		_page_contacts.erase(source)
+		if _page_contacts.is_empty() and not _page_is_held():
+			_await_page_neutral = false
+
+func _page_direction(event: InputEvent) -> int:
+	# Shoulder defaults are local to this viewport; shared Controls mapping is separate.
+	if event is InputEventJoypadButton:
+		if event.button_index == JOY_BUTTON_LEFT_SHOULDER:
+			return -1
+		if event.button_index == JOY_BUTTON_RIGHT_SHOULDER:
+			return 1
+	if event is InputEventKey or event is InputEventAction:
+		if event.is_action(&"ui_page_up", true):
+			return -1
+		if event.is_action(&"ui_page_down", true):
+			return 1
+	return 0
+
+func _page_is_held() -> bool:
+	if Input.is_action_pressed(&"ui_page_up") or Input.is_action_pressed(&"ui_page_down"):
+		return true
+	for device: int in Input.get_connected_joypads():
+		if Input.is_joy_button_pressed(device, JOY_BUTTON_LEFT_SHOULDER) \
+				or Input.is_joy_button_pressed(device, JOY_BUTTON_RIGHT_SHOULDER):
+			return true
+	return false
 
 func handle_caption_gui_input(event: InputEvent) -> void:
 	if event.device == InputEvent.DEVICE_ID_EMULATION or not _is_pointer(event):
@@ -161,6 +232,9 @@ func _source(event: InputEvent) -> String:
 		return "mouse:%s" % event.device if event.button_index == MOUSE_BUTTON_LEFT else ""
 	if not event.is_action(_action()):
 		return ""
+	return _physical_source(event)
+
+func _physical_source(event: InputEvent) -> String:
 	if event is InputEventKey:
 		return "key:%s:%s" % [event.device, event.physical_keycode if event.physical_keycode else event.keycode]
 	if event is InputEventJoypadButton:

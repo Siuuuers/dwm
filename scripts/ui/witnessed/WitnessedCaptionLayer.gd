@@ -191,12 +191,6 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path == &"preferences.accessibility.font_scale":
 		_apply_preferences()
 
-func _input(event: InputEvent) -> void:
-	if caption_text.has_focus() and event is InputEventKey and event.pressed \
-			and event.keycode in [KEY_PAGEUP, KEY_PAGEDOWN]:
-		_on_caption_input(event)
-		get_viewport().set_input_as_handled()
-
 func _process(_delta: float) -> void:
 	if _caption_theme == null:
 		return
@@ -310,21 +304,25 @@ func _handle_input(event: InputEvent, current: bool) -> void:
 		scroll.accept_event()
 		return
 	var bar := get_scroll_bar()
-	if event is InputEventKey and event.pressed and event.keycode in [KEY_PAGEUP, KEY_PAGEDOWN]:
-		bar.value += bar.page * (-1 if event.keycode == KEY_PAGEUP else 1)
+	if current and accept_input.handle_page_input(event):
+		scroll.accept_event()
+		return
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+			accept_input.cancel_pending_accept()
 			var direction := -1.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0
 			bar.value += direction * _caption_theme.default_font_size * 3.0 * event.factor
 		elif current and event.button_index == MOUSE_BUTTON_LEFT:
 			accept_input.handle_caption_gui_input(event)
 	elif event is InputEventPanGesture:
+		accept_input.cancel_pending_accept()
 		bar.value += event.delta.y * 20
 	elif event is InputEventScreenTouch:
 		if current:
 			accept_input.handle_caption_gui_input(event)
 	elif event is InputEventScreenDrag:
 		if event.device != InputEvent.DEVICE_ID_EMULATION:
+			accept_input.cancel_pending_accept()
 			bar.value -= event.relative.y
 	else:
 		return

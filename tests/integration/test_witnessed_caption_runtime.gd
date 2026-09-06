@@ -1081,3 +1081,149 @@ func test_actual_accept_held_before_policy_mount_and_simulated_focus_return_requ
 	assert_eq(runtime.current_event_idx,1,"a genuinely fresh post-focus contact advances once")
 	assert_eq(_finished,1)
 	assert_true(caption.caption_text.revealing)
+
+func _parse_caption_shoulder(button: JoyButton, pressed: bool) -> void:
+	var event := InputEventJoypadButton.new()
+	event.device = 0
+	event.button_index = button
+	event.pressed = pressed
+	Input.parse_input_event(event)
+
+func test_actual_controller_shoulders_page_shared_caption_without_narrative_changes() -> void:
+	# Shoulder bindings are this implementation's choice for controller paging.
+	if not await _mount_root_accept_fixture("The long current caption remains a single native reveal while reading. ".repeat(100)): return
+	var bar: VScrollBar = caption.get_scroll_bar()
+	assert_true(bar.visible)
+	bar.value = 0
+	var before := _stack_invariants()
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	await _settle()
+	assert_eq(bar.value,bar.page,"right shoulder moves one shared viewport page")
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	await _settle()
+	assert_eq(bar.value,bar.page,"repeated held shoulder packets cannot page again")
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+	await _settle()
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+	await _settle()
+	assert_eq(bar.value,bar.page * 2,"a released and freshly pressed shoulder re-arms paging")
+	_parse_caption_shoulder(JOY_BUTTON_LEFT_SHOULDER,true)
+	_parse_caption_shoulder(JOY_BUTTON_LEFT_SHOULDER,false)
+	await _settle()
+	assert_eq(bar.value,bar.page,"left shoulder moves one page back")
+	var limit := bar.max_value - bar.page
+	bar.value = limit - 5
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+	await _settle()
+	assert_eq(bar.value,limit,"paging clamps at the end of the shared document")
+	bar.value = 5
+	_parse_caption_shoulder(JOY_BUTTON_LEFT_SHOULDER,true)
+	_parse_caption_shoulder(JOY_BUTTON_LEFT_SHOULDER,false)
+	await _settle()
+	assert_eq(bar.value,0.0,"paging clamps at the start")
+	assert_eq(_stack_invariants(),before,"controller reading changes no reveal, completion, history, or event state")
+	bar.value = 80
+	runtime.paused = true
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	await _settle()
+	assert_eq(bar.value,80.0,"a shoulder pressed while paused cannot page")
+	runtime.paused = false
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	await _settle()
+	assert_eq(bar.value,80.0,"resuming does not reinterpret the held shoulder as a fresh page request")
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+	await _settle()
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+	await _settle()
+	assert_eq(bar.value,80.0 + bar.page,"release and a fresh post-resume shoulder press re-arm paging")
+	assert_eq(_stack_invariants(),before)
+	var button := Button.new()
+	button.position = Vector2(32,128)
+	button.size = Vector2(200,64)
+	caption.canvas.add_child(button)
+	button.grab_focus()
+	bar.value = 80
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+	await _settle()
+	assert_eq(bar.value,80.0,"another focused GUI control owns input before caption paging")
+	assert_eq(_stack_invariants(),before)
+	caption.caption_text.grab_focus()
+	caption.caption_text.hide()
+	await _settle()
+	var hidden_value := bar.value
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+	await _settle()
+	assert_eq(bar.value,hidden_value,"hidden captions do not page")
+	assert_eq(_stack_invariants(),before)
+	caption.caption_text.show()
+	caption.caption_text.set_process(false)
+	runtime.start_timeline(_timeline("Short caption."))
+	await _settle()
+	assert_false(bar.visible)
+	before = _stack_invariants()
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+	_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+	await _settle()
+	assert_eq(bar.value,0.0,"a fitting caption has no controller scroll")
+	assert_eq(_stack_invariants(),before)
+
+func test_actual_scroll_gestures_cancel_armed_pointer_accept_before_inside_release() -> void:
+	var long_copy := "A long current caption remains under the pointer throughout shared scrolling. ".repeat(100)
+	if not await _mount_root_accept_fixture(long_copy): return
+	for mode: String in ["wheel","pan","page","shoulder"]:
+		if mode != "wheel":
+			runtime.start_timeline(_timeline(long_copy + "\nGuard."))
+			await _settle()
+		caption.caption_text.grab_focus()
+		var bar: VScrollBar = caption.get_scroll_bar()
+		bar.value = 0
+		await _settle()
+		# Every TextEvent starts its own skip-delay timer, including later loop
+		# fixtures. Keep Accept live so that a leaked release cannot pass silently.
+		runtime.Inputs.input_block_timer.stop()
+		assert_false(runtime.Inputs.is_input_blocked(),mode + " fixture permits native Accept")
+		assert_true(caption.caption_text.revealing,mode + " fixture starts with an unfinished reveal")
+		var before := _stack_invariants()
+		var logical: Vector2 = caption.get_caption_projection().caption_visible_rect.get_center()
+		var point := _root_caption_point(logical)
+		_parse_accept_mouse(point,true)
+		Input.flush_buffered_events()
+		assert_eq(_stack_invariants(),before,"mouse-down only arms a candidate before " + mode)
+		match mode:
+			"wheel":
+				for pressed: bool in [true,false]:
+					var wheel := InputEventMouseButton.new()
+					wheel.position = point
+					wheel.global_position = point
+					wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+					wheel.button_mask = MOUSE_BUTTON_MASK_LEFT
+					wheel.pressed = pressed
+					Input.parse_input_event(wheel)
+			"pan":
+				var pan := InputEventPanGesture.new()
+				pan.position = point
+				pan.delta = Vector2(0,3)
+				Input.parse_input_event(pan)
+			"page":
+				_parse_accept_key(true,false,KEY_PAGEDOWN)
+				_parse_accept_key(false,false,KEY_PAGEDOWN)
+			"shoulder":
+				_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,true)
+				_parse_caption_shoulder(JOY_BUTTON_RIGHT_SHOULDER,false)
+		await _settle()
+		assert_gt(bar.value,0.0,mode + " performs actual shared scrolling while the pointer is held")
+		assert_true(caption.get_caption_projection().caption_visible_rect.has_point(logical),"release remains inside the same current leaf after " + mode)
+		_parse_accept_mouse(point,false)
+		await _settle()
+		assert_eq(_stack_invariants(),before,mode + " cancels pointer Accept instead of finishing or advancing on release")
+		_parse_accept_mouse(point,true)
+		_parse_accept_mouse(point,false)
+		await _settle()
+		assert_eq(_finished,int(before.finished) + 1,mode + " permits a later fresh non-scrolling click to finish once")
+		assert_eq(runtime.current_event_idx,before.event)
+		assert_eq(_history(),before.history)
