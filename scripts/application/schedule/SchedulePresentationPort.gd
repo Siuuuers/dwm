@@ -49,6 +49,16 @@ func configure(contacts_owner: Object, view_controller: Object, registry: Object
 
 
 func project(locale: String) -> Dictionary:
+	return _project(locale,false)
+
+
+func project_modal_background(locale: String) -> Dictionary:
+	# Restored warnings still need their exact undimmed desk. Edit entry points
+	# continue to call project(), so this read does not grant mutation access.
+	return _project(locale,true)
+
+
+func _project(locale: String, modal_background: bool) -> Dictionary:
 	if _contacts_owner == null:
 		return _fail(&"schedule_presentation_unconfigured")
 	if locale not in _LOCALES:
@@ -59,7 +69,7 @@ func project(locale: String) -> Dictionary:
 	var view: Dictionary = snapshot["value"]["view"]
 	if int(view["day"]) != int(_contacts_owner.get("day")):
 		return _fail(&"schedule_owner_day_mismatch")
-	if view["pending_warning"] != null:
+	if view["pending_warning"] != null and not modal_background:
 		return _fail(&"warning_modal_active")
 	var entries_error := _packed_error(view["entries"])
 	if not entries_error.is_empty():

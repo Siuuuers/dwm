@@ -116,3 +116,17 @@ func test_both_standard_palettes_reach_mounted_paper_text_and_art_without_recolo
 		assert_false(panel.configure("en",100,false,&"unsupported"))
 		assert_same(panel.theme,before,"Unsupported palette does not replace the valid theme")
 		panel.hide()
+
+func test_long_public_name_wraps_inside_its_source_and_occurrence_columns() -> void:
+	var panel := _panel()
+	var public_name := "Working with notes"
+	assert_true(panel.set_projection(_projection([_entry("a",public_name)],false,[_source("working",public_name)]),"a"))
+	await get_tree().process_frame
+	var source_label: Label = panel.source_buttons.working.find_children("*","Label",true,false)[0]
+	var entry_label: Label = panel.entry_buttons.a.find_children("*","Label",true,false)[0]
+	assert_eq(source_label.size.x,112.0)
+	assert_eq(entry_label.size.x,88.0)
+	assert_gt(source_label.get_line_count(),1)
+	assert_gt(entry_label.get_line_count(),1)
+	assert_lte(source_label.get_rect().end.y,panel.source_buttons.working.size.y-8)
+	assert_lte(entry_label.get_rect().end.y,panel.entry_buttons.a.size.y-8)

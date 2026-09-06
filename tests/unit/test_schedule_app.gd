@@ -7,6 +7,7 @@ const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
+const WARNING_PORT := preload("res://scripts/application/schedule/ScheduleWarningPresentationPort.gd")
 
 class Owner extends RefCounted:
 	var contacts := CONTACTS.make_defaults()
@@ -17,6 +18,8 @@ var _app: Control
 var _port: Object
 var _home: Button
 var _viewport: SubViewport
+var _issuer: Object
+var _warning_context: Dictionary
 
 func before_each() -> void:
 	var loaded := REGISTRY.load_current()
@@ -24,6 +27,7 @@ func before_each() -> void:
 	assert_true(_view.configure(loaded.value.registry,RULES,loaded.value.registry_fingerprint).ok)
 	assert_true(_view.open_day(3,"mounted-schedule-day").ok)
 	var issuer := ISSUER.new()
+	_issuer = issuer
 	assert_true(issuer.configure(ROOT.new("55".repeat(32),17)).ok)
 	var names := {}
 	for id: String in ["training","working","rest"]:
@@ -354,3 +358,195 @@ func test_cached_return_keeps_a_manually_scrolled_position_with_focus_elsewhere(
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert_eq(_app.panel.docket_scroll.scroll_vertical,offset,"Restoring cached focus must not undo manual paper scrolling")
+
+class WarningCommands extends RefCounted:
+	var view: Object
+	var issuer: Object
+	var calls: Array = []
+	var tree: SceneTree
+	var delay := false
+	var refuse := false
+	func resolve_warning(activation: String, intent: StringName) -> Dictionary:
+		calls.append([activation,intent])
+		if delay: await tree.process_frame
+		if refuse: return {"ok":false,"code":&"fixture_warning_command_failed"}
+		var issued: Dictionary = issuer.issue(&"transaction_id")
+		if not issued.ok: return issued
+		var resolution := {"outcome":"dismissed"}
+		if intent != &"dismiss": resolution = {"outcome":"navigation_failed","intent":str(intent),"failure_code":"fixture_route_unavailable"}
+		return view.resolve_warning(issued.value.token,issued.value.issuer_receipt,resolution)
+
+func _mount_warning(kind: String = "unread_invitation", activate: bool = true) -> Object:
+	assert_true(_view.configure_warning_identity(_issuer).ok)
+	var issued: Dictionary = _issuer.issue(&"transaction_id")
+	var context := {"run_id":"run-fixture","branch_id":"branch-fixture","desktop_timeline_generation":0,
+		"causal_day_instance":"mounted-schedule-day","eligible_unread_date_message_ids":["fixture-message"],
+		"accepted_unscheduled_date_ids":[],"board_identity":null,"board_phase":"NONE","base_round_ordinal":1,
+		"base_opportunity_remaining":false,"unfinished_base_board":false,"motivation":1}
+	if kind != "unread_invitation": context.eligible_unread_date_message_ids = []
+	if kind == "accepted_date":
+		context.accepted_unscheduled_date_ids = ["fixture-date"]
+		context.motivation = 0
+	elif kind == "base_minesweeper": context.base_opportunity_remaining = true
+	_warning_context = context
+	if activate: assert_true(_view.request_warning_activation(issued.value.token,issued.value.issuer_receipt,context).ok)
+	var copy := {}
+	for copy_kind: String in ["unread_invitation","accepted_date","base_minesweeper"]:
+		copy[copy_kind] = {}
+		for locale: String in ["en","zh-CN","zh-HK"]:
+			copy[copy_kind][locale] = {"title":"Fixture notice","body":"Fixture body. ".repeat(35),"close":"Close","go":"Go","failed_go":"Fixture route could not open."}
+	var warning_port := WARNING_PORT.new()
+	assert_true(warning_port.configure(_view,copy).ok)
+	var commands := WarningCommands.new()
+	commands.view = _view
+	commands.issuer = _issuer
+	commands.tree = get_tree()
+	assert_true(_app.configure_warning(warning_port,commands).ok)
+	return commands
+
+func test_pending_warning_mounts_real_retained_desk_and_blocks_background_input() -> void:
+	assert_true(_app.configure_presentation(_port,"en",150,true).ok)
+	for index in 6:
+		_app.panel.source_buttons.training.pressed.emit()
+		await get_tree().process_frame
+	var selected: String = _app.panel.selected_id
+	var commands := _mount_warning()
+	await get_tree().process_frame
+	assert_true(_app.warning_sheet.close_button.has_focus())
+	assert_false(_app.can_return_home())
+	assert_true(_app.panel.visible,"The desk remains undimmed beneath the sheet")
+	assert_eq(_app.panel.process_mode,Node.PROCESS_MODE_DISABLED)
+	assert_eq(_app.panel.selected_id,selected)
+	var before: Dictionary = _view.snapshot().value.view
+	_app.panel.source_buttons.rest.pressed.emit()
+	_pointer(Vector2(5,5),true)
+	_pointer(Vector2(5,5),false)
+	assert_eq(commands.calls.size(),0,"Outside click does not dismiss")
+	assert_eq(_view.snapshot().value.view,before)
+	var docket_offset: int = _app.panel.docket_scroll.scroll_vertical
+	_key_press(KEY_TAB)
+	assert_true(_app.warning_sheet.go_button.has_focus())
+	_key_press(KEY_TAB)
+	assert_true(_app.warning_sheet.close_button.has_focus())
+	_key_press(KEY_PAGEDOWN)
+	assert_gt(_app.warning_sheet.body_scroll.scroll_vertical,0)
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,docket_offset,"Modal Page affects only its body")
+	var wheel := InputEventMouseButton.new()
+	wheel.position = Vector2(740,300)
+	wheel.global_position = wheel.position
+	wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+	wheel.pressed = true
+	_viewport.push_input(wheel,true)
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,docket_offset,"Covered paper rejects wheel outside the opaque sheet too")
+	assert_false(_port.project("en").ok,"Ordinary editing projection still refuses modal access")
+	assert_true(_port.project_modal_background("en").ok)
+	_key_press(KEY_ESCAPE)
+	await get_tree().process_frame
+	assert_eq(commands.calls.size(),1)
+	assert_eq(commands.calls[0][1],&"dismiss")
+	assert_null(_app.warning_sheet)
+	assert_null(_view.snapshot().value.view.pending_warning)
+	assert_eq(_view.snapshot().value.view.entries,before.entries)
+	assert_eq(_app.panel.selected_id,selected)
+	assert_true(_app.can_return_home())
+
+func test_failed_warning_go_keeps_activation_and_projects_only_the_operational_error() -> void:
+	var commands := _mount_warning()
+	await get_tree().process_frame
+	var activation: String = _app.warning_sheet.activation_id
+	_app.warning_sheet.go_button.pressed.emit()
+	await get_tree().process_frame
+	assert_eq(commands.calls[0][1],&"open_contacts_list")
+	assert_eq(_app.warning_sheet.activation_id,activation)
+	assert_true(_app.warning_sheet.close_button.has_focus())
+	var view: Dictionary = _view.snapshot().value.view
+	assert_eq(view.pending_warning.attempt_receipts.size(),1)
+	assert_eq(view.consumed_warning_receipts.size(),0)
+	assert_eq(_app._warning_data.error,"Fixture route could not open.")
+	assert_false(str(_app._warning_data).contains("fixture_route_unavailable"),"Technical failure code stays private")
+	assert_false(str(_app._warning_data).contains("receipt_provenance"))
+	_app.warning_sheet.go_button.grab_focus()
+	var same_button: Button = _app.warning_sheet.go_button
+	assert_true(_app.refresh_view().ok)
+	await get_tree().process_frame
+	assert_same(_app.warning_sheet.go_button,same_button)
+	assert_true(same_button.has_focus(),"Duplicate projection does not steal modal focus")
+
+func test_warning_command_failure_requests_recovery_without_fabricating_a_navigation_attempt() -> void:
+	var commands := _mount_warning()
+	commands.refuse = true
+	await get_tree().process_frame
+	var before: Dictionary = _view.snapshot().value.view
+	watch_signals(_app)
+	_app.warning_sheet.go_button.pressed.emit()
+	await get_tree().process_frame
+	assert_signal_emitted_with_parameters(_app,"recovery_requested",[&"fixture_warning_command_failed"])
+	assert_false(_app.last_result.ok)
+	assert_false(_app.panel.visible)
+	assert_null(_app.warning_sheet)
+	assert_eq(_view.snapshot().value.view,before,"Recovery preserves the pending activation and all receipt facts")
+	assert_eq(commands.calls.size(),1)
+	assert_true(_app.refresh_view().ok,"A later refresh can restore the retained warning")
+	await get_tree().process_frame
+	assert_eq(_app.warning_sheet.activation_id,before.pending_warning.activation_id)
+	assert_eq(_app._warning_data.error,"","Technical command refusal is not a failed navigation receipt")
+
+func test_accepted_date_warning_go_is_dismissal_without_navigation() -> void:
+	_app.panel.source_buttons.training.pressed.emit()
+	await get_tree().process_frame
+	var commands := _mount_warning("accepted_date")
+	await get_tree().process_frame
+	_app.warning_sheet.go_button.pressed.emit()
+	await get_tree().process_frame
+	assert_eq(commands.calls[0][1],&"dismiss")
+	assert_null(_app.warning_sheet)
+	assert_eq(_view.snapshot().value.view.entries.size(),1)
+	assert_eq(_view.snapshot().value.view.consumed_warning_receipts.size(),1)
+
+func test_base_warning_emits_only_minesweeper_intent_and_projection_is_detached() -> void:
+	var commands := _mount_warning("base_minesweeper")
+	await get_tree().process_frame
+	var projected: Dictionary = _app._warning_port.project("en")
+	projected.value.warning.copy.title = "Caller mutation"
+	assert_eq(_app._warning_port.project("en").value.warning.copy.title,"Fixture notice")
+	_app.warning_sheet.go_button.pressed.emit()
+	await get_tree().process_frame
+	assert_eq(commands.calls[0][1],&"open_minesweeper")
+	assert_eq(_view.snapshot().value.view.pending_warning.attempt_receipts.size(),1)
+
+func _done_creates_warning() -> Dictionary:
+	var issued: Dictionary = _issuer.issue(&"transaction_id")
+	return _view.request_warning_activation(issued.value.token,issued.value.issuer_receipt,_warning_context)
+
+func test_done_activation_opens_warning_once_without_replacing_the_draft() -> void:
+	_mount_warning("unread_invitation",false)
+	assert_true(_app.configure_presentation(_port,"en",100,false,_done_creates_warning).ok)
+	_app.panel.source_buttons.training.pressed.emit()
+	await get_tree().process_frame
+	var entries: Array = _view.snapshot().value.view.entries
+	_app.panel.done_button.pressed.emit()
+	await get_tree().process_frame
+	assert_not_null(_app.warning_sheet)
+	assert_true(_app.warning_sheet.close_button.has_focus())
+	var view: Dictionary = _view.snapshot().value.view
+	assert_eq(view.entries,entries)
+	_app.panel.done_button.pressed.emit()
+	assert_eq(_view.snapshot().value.view,view,"Duplicate Done cannot create or skip another warning")
+
+func test_native_back_and_page_cannot_queue_another_warning_command_during_await() -> void:
+	var commands := _mount_warning()
+	commands.delay = true
+	await get_tree().process_frame
+	_app.warning_sheet.go_button.pressed.emit()
+	assert_true(_app._busy)
+	var offset: int = _app.warning_sheet.body_scroll.scroll_vertical
+	_key_press(KEY_ESCAPE)
+	_key_press(KEY_PAGEDOWN)
+	assert_eq(commands.calls.size(),1)
+	assert_eq(_app.warning_sheet.body_scroll.scroll_vertical,offset)
+	assert_false(_app.can_return_home())
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_false(_app._busy)
+	assert_true(_app.warning_sheet.close_button.has_focus())
+	assert_eq(commands.calls.size(),1)

@@ -89,3 +89,10 @@ both Standard palettes, and detached focus rails outside the scroll aperture.
 That checkpoint supersedes the Standard-palette and same-view focus gaps above;
 the production owner/launcher, warning, save/Load, semantic reflow anchors,
 High Contrast/CVD, RTL and platform accessibility work remains incomplete.
+
+## Subsequent warning presentation checkpoint
+
+See [warning presentation evidence](warnings.md) for the mounted modal sheet,
+retained-owner warning projection, command recovery and multilingual wrapping
+correction. Production warning copy/navigation and the listed integration and
+accessibility gaps remain open.

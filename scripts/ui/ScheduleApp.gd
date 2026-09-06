@@ -2,7 +2,9 @@ extends AppWindowBase
 class_name ScheduleApp
 
 signal recovery_requested(code: StringName)
+signal warning_foreground_changed(active: bool)
 const PANEL := preload("res://scripts/ui/schedule/SchedulePanel.gd")
+const WARNING_SHEET := preload("res://scripts/ui/schedule/ScheduleWarningSheet.gd")
 
 var panel: Control
 var last_result: Dictionary = {"ok":false,"code":&"schedule_unconfigured"}
@@ -14,6 +16,14 @@ var _done: Callable
 var _busy := false
 var _failure: Label
 var _remembered_focus := "fresh"
+var warning_sheet: Control
+var _warning_port: Object
+var _warning_commands: Object
+var _warning_data: Dictionary = {}
+var _warning_prior_process := Node.PROCESS_MODE_INHERIT
+var _percent := 100
+var _large := false
+var _palette := &"after_hours"
 
 func _ready() -> void:
 	super._ready()
@@ -42,6 +52,9 @@ func configure_presentation(port: Object, locale: String = "en", percent: int = 
 	var next_locale := locale.replace("_","-")
 	if not panel.configure(next_locale,percent,large,palette): return _fail(&"invalid_schedule_configuration")
 	_locale = next_locale
+	_percent = percent
+	_large = large
+	_palette = palette
 	_port = port
 	_done = done_handler
 	panel.set_done_enabled(_done.is_valid())
@@ -51,10 +64,24 @@ func configure_desktop_home(home: Button) -> void:
 	_home = home
 	panel.configure_home(home)
 
-func refresh_view() -> Dictionary:
+func configure_warning(presentation: Object, commands: Object) -> Dictionary:
+	if presentation == null or not presentation.has_method("project") or commands == null or not commands.has_method("resolve_warning"):
+		return {"ok":false,"code":&"invalid_warning_presentation"}
+	if _warning_port != null and (_warning_port != presentation or _warning_commands != commands):
+		return {"ok":false,"code":&"warning_presentation_already_configured"}
+	_warning_port = presentation
+	_warning_commands = commands
+	return refresh_view()
+
+func refresh_view(preserve_presentation: bool = false) -> Dictionary:
 	if _port == null: return _fail(&"schedule_unconfigured")
+	if _warning_port != null:
+		var warning: Dictionary = _warning_port.project(_locale)
+		if not warning.get("ok",false): return _fail(StringName(warning.get("code","warning_unavailable")))
+		if warning.value.warning != null: return _show_warning(warning.value.warning)
+		_clear_warning()
 	var projected: Dictionary = _port.project(_locale)
-	if projected.get("ok",false) and not _projection.is_empty() and projected.value.fingerprint != _projection.fingerprint:
+	if not preserve_presentation and projected.get("ok",false) and not _projection.is_empty() and projected.value.fingerprint != _projection.fingerprint:
 		# An externally replaced view is a fresh presentation, not an old cache.
 		clear_presentation_cache()
 	return _publish(projected,panel.selected_id,_remembered_focus)
@@ -79,7 +106,7 @@ func show_window() -> void:
 	refresh_view()
 
 func can_return_home() -> bool:
-	if _busy: return false
+	if _busy or is_instance_valid(warning_sheet): return false
 	if panel.has_method("is_dragging") and panel.is_dragging(): return false
 	if _port != null:
 		var current: Dictionary = _port.project(_locale)
@@ -88,6 +115,10 @@ func can_return_home() -> bool:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_visible_in_tree(): return
+	if is_instance_valid(warning_sheet):
+		# The sheet handles Back; unhandled input cannot reach the desk or Home.
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_cancel"):
 		if panel.has_method("is_dragging") and panel.is_dragging():
 			panel.cancel_drag()
@@ -156,10 +187,62 @@ func _dispatch_done() -> void:
 	_busy = false
 	if typeof(result) != TYPE_DICTIONARY: _fail(&"schedule_done_invalid_result")
 	elif not result.get("ok",false): _refused(result)
+	elif _warning_port != null and is_visible_in_tree(): refresh_view(true)
 	# Done's actual navigation/warning owner controls the accepted next surface.
 
 func _admit() -> bool:
-	return not _busy and not panel.is_dragging() and is_visible_in_tree() and _port != null and last_result.get("ok",false)
+	return not _busy and not is_instance_valid(warning_sheet) and not panel.is_dragging() and is_visible_in_tree() and _port != null and last_result.get("ok",false)
+
+func _show_warning(data: Dictionary) -> Dictionary:
+	if not _port.has_method("project_modal_background"): return _fail(&"warning_background_unavailable")
+	var background: Dictionary = _port.project_modal_background(_locale)
+	if not background.get("ok",false): return _fail(StringName(background.get("code","warning_background_unavailable")))
+	# Preserve exact Docket evidence. No disabled/source-state repaint is fabricated.
+	var published := _publish(background,panel.selected_id,"")
+	if not published.ok: return published
+	if not is_instance_valid(warning_sheet):
+		_warning_prior_process = panel.process_mode
+		panel.cancel_contacts()
+		panel.cancel_drag()
+		var focused := get_viewport().gui_get_focus_owner()
+		if focused != null and panel.is_ancestor_of(focused): focused.release_focus()
+		panel.process_mode = Node.PROCESS_MODE_DISABLED
+		warning_sheet = WARNING_SHEET.new()
+		warning_sheet.z_index = 40
+		_content_host.add_child(warning_sheet)
+		warning_sheet.close_requested.connect(func(): _resolve_warning(&"dismiss"))
+		warning_sheet.go_requested.connect(func(): _resolve_warning(_warning_data.go_intent))
+		warning_foreground_changed.emit(true)
+	if not warning_sheet.configure(_locale,_percent,_large,_palette) or not warning_sheet.present(data.activation_id,data.copy,data.error):
+		return _fail(&"invalid_warning_copy_layout")
+	_warning_data = data.duplicate(true)
+	return last_result
+
+func _clear_warning() -> void:
+	if not is_instance_valid(warning_sheet): return
+	warning_sheet.hide()
+	warning_sheet.queue_free()
+	warning_sheet = null
+	_warning_data.clear()
+	panel.process_mode = _warning_prior_process
+	warning_foreground_changed.emit(false)
+
+func _resolve_warning(intent: StringName) -> void:
+	if _busy or not is_instance_valid(warning_sheet) or _warning_data.is_empty(): return
+	_busy = true
+	warning_sheet.set_busy(true)
+	var result: Variant = await _warning_commands.resolve_warning(_warning_data.activation_id,intent)
+	_busy = false
+	if is_instance_valid(warning_sheet): warning_sheet.set_busy(false)
+	if not is_visible_in_tree():
+		_clear_warning()
+		return
+	if typeof(result) != TYPE_DICTIONARY: _fail(&"invalid_warning_command_result")
+	elif not result.get("ok",false): _fail(StringName(result.get("code","warning_command_failed")))
+	else:
+		# A failed Go is projected only from the owner's retained failed-attempt
+		# fact. The UI neither consumes its receipt nor invents a success route.
+		refresh_view(true)
 
 func _publish(result: Dictionary, selected: String = "", focus_key: String = "") -> Dictionary:
 	if not result.get("ok",false): return _fail(StringName(result.get("code","schedule_unavailable")))
@@ -192,6 +275,7 @@ func _focused_key() -> String:
 	return "done" if focused == panel.done_button else "fresh"
 
 func _fail(code: StringName) -> Dictionary:
+	_clear_warning()
 	last_result = {"ok":false,"code":code}
 	if is_instance_valid(panel):
 		panel.cancel_contacts()

@@ -22,7 +22,7 @@ const COPY := {
 	"zh-CN": ["可选", "提前", "延后", "移除", "完成", "不可用"],
 	"zh-HK": ["可選", "提前", "延後", "移除", "完成", "不可用"],
 }
-const BREAKS := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_GRAPHEME_BOUND
+const BREAKS := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 
 var source_buttons: Dictionary = {}
 var entry_buttons: Dictionary = {}
@@ -364,14 +364,15 @@ func _key(parent: Node, rect: Rect2, kind: String, enabled: bool = true) -> Butt
 
 func _label(parent: Node, text_value: String, rect: Rect2, role: String = "paper_ink") -> Label:
 	var label := Label.new()
-	label.text = text_value
-	label.position = rect.position
-	label.size = rect.size
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.autowrap_trim_flags = 0
+	label.add_theme_constant_override("line_spacing",0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_color_override("font_color",get_theme_color(role,"Schedule"))
 	parent.add_child(label)
+	label.position = rect.position
+	label.size = rect.size
+	label.text = text_value
 	return label
 
 func _paper(parent: Node, rect: Rect2, role: String = "paper") -> void:
