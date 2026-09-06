@@ -41,6 +41,21 @@ func test_removed_voice_setters_cannot_write_profile_or_change_playback() -> voi
 	assert_eq(f.port.operations.size(),operations)
 	assert_eq(f.port.players.size(),18,"the existing playback pools remain unchanged")
 
+func test_music_and_ambience_use_profile_gain_once_at_the_bus() -> void:
+	var f := _fixture()
+	assert_true(f.profile.set_preference(&"preferences.audio.music_volume", 0.5).ok)
+	assert_true(f.profile.set_preference(&"preferences.audio.ambience_volume", 0.25).ok)
+	assert_true(f.manager.set_music_context("menu").ok)
+	assert_true(f.manager.set_ambience_context("room").ok)
+	for channel: StringName in [&"music", &"ambience"]:
+		var tween: Dictionary = f.port.active_tweens[channel]
+		assert_eq(tween.tracks[0].to_db, 0.0, "crossfade destination does not apply profile volume again")
+		assert_true(f.port.complete_tween(channel).ok)
+		var player: StringName = f.manager._active_players[channel]
+		assert_eq(f.port.players[player].db, 0.0)
+	assert_almost_eq(f.port.bus_states[&"Music"].db, linear_to_db(0.5), 0.0001)
+	assert_almost_eq(f.port.bus_states[&"Ambience"].db, linear_to_db(0.25), 0.0001)
+
 func test_inactive_muting_defaults_true_and_preference_change_while_inactive_is_applied() -> void:
 	var f := _fixture()
 	f.manager._notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
@@ -88,8 +103,8 @@ func test_invalid_canonical_restore_is_rejected_before_any_playback_mutation() -
 		assert_eq(f.manager.capture_restore_state().value,before)
 	var mono: Dictionary = SCHEMA.make_defaults().preferences.audio.duplicate(true)
 	mono.output_mode = "mono"
-	assert_eq(f.manager.prepare_semantic_restore(EMPTY,{"audio":mono}).code,&"unsupported_audio_output_mode",
-		"a legacy fake port cannot claim mono without the real output operation")
+	assert_true(f.manager.prepare_semantic_restore(EMPTY,{"audio":mono}).ok,
+		"the output-capable fake models the real mono operation")
 
 func test_bus_failure_restores_master_and_keeps_prior_settings() -> void:
 	var f := _fixture()

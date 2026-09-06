@@ -323,6 +323,92 @@ func _restore_output_state(state: Dictionary) -> Dictionary:
 	AudioServer.set_bus_effect_enabled(bus,index,bool(state.enabled))
 	return _ok({})
 
+## Output-only Settings transaction capsule. Reading must not create buses, restart streams,
+## replace tweens, or disturb a retained Pause suspension.
+func capture_output() -> Dictionary:
+	var buses := {}
+	var names: Array = _bus_states.keys()
+	if &"Master" not in names: names.append(&"Master")
+	for bus_name: Variant in names:
+		var index := AudioServer.get_bus_index(bus_name)
+		if index < 0: return _failure(&"invalid_audio_runtime")
+		buses[bus_name] = {"db": AudioServer.get_bus_volume_db(index), "muted": AudioServer.is_bus_mute(index)}
+	if not _valid_output_buses(buses) or not _owned_mono_is_valid(): return _failure(&"invalid_audio_runtime")
+	return _ok({"bus_states": buses, "output_state": _capture_output_state()})
+
+
+func restore_output(snapshot: Dictionary) -> Dictionary:
+	if snapshot.size() != 2 or not snapshot.has_all(["bus_states", "output_state"]) \
+			or typeof(snapshot.bus_states) != TYPE_DICTIONARY or typeof(snapshot.output_state) != TYPE_DICTIONARY:
+		return _failure(&"invalid_audio_runtime")
+	var current := capture_output()
+	if not current.get("ok", false): return current
+	if not _valid_output_buses(snapshot.bus_states) \
+			or snapshot.bus_states.size() != current.value.bus_states.size() \
+			or not _valid_output_capsule(snapshot.output_state):
+		return _failure(&"invalid_audio_runtime")
+	for bus_name: Variant in current.value.bus_states:
+		if not snapshot.bus_states.has(bus_name): return _failure(&"invalid_audio_runtime")
+	var output_result := _restore_output_state(snapshot.output_state)
+	if not output_result.get("ok", false): return output_result
+	for bus_name: Variant in snapshot.bus_states:
+		var state: Dictionary = snapshot.bus_states[bus_name]
+		var applied := set_bus_state(bus_name, state.db, state.muted)
+		if not applied.get("ok", false): return applied
+	var mode := "mono" if snapshot.output_state.enabled else "stereo"
+	if not output_matches(snapshot.bus_states, mode) or _capture_output_state() != snapshot.output_state:
+		return _failure(&"audio_output_restore_unproven")
+	return _ok({})
+
+
+func output_matches(expected_bus_states: Dictionary, output_mode: String) -> bool:
+	if output_mode not in ["stereo", "mono"] or not _valid_output_buses(expected_bus_states) \
+			or not _owned_mono_is_valid(): return false
+	for bus_name: Variant in expected_bus_states:
+		var index := AudioServer.get_bus_index(bus_name)
+		var state: Dictionary = expected_bus_states[bus_name]
+		if index < 0 or not is_equal_approx(AudioServer.get_bus_volume_db(index), state.db) \
+				or AudioServer.is_bus_mute(index) != state.muted: return false
+	var bus := AudioServer.get_bus_index(&"Master")
+	var effect_index := _mono_effect_index(bus)
+	var enabled := effect_index >= 0 and AudioServer.is_bus_effect_enabled(bus, effect_index)
+	return enabled == (output_mode == "mono")
+
+
+func _valid_output_buses(buses: Dictionary) -> bool:
+	if buses.is_empty(): return false
+	for name: Variant in buses:
+		if typeof(name) not in [TYPE_STRING, TYPE_STRING_NAME] \
+				or (name != &"Master" and not _bus_states.has(name)) \
+				or AudioServer.get_bus_index(name) < 0: return false
+		var state: Variant = buses[name]
+		if typeof(state) != TYPE_DICTIONARY or state.size() != 2 or not state.has_all(["db", "muted"]) \
+				or typeof(state.db) != TYPE_FLOAT or not is_finite(state.db) or typeof(state.muted) != TYPE_BOOL: return false
+	return true
+
+
+func _valid_output_capsule(state: Dictionary) -> bool:
+	if state.size() != 4 or not state.has_all(["owner_id", "present", "index", "enabled"]) \
+			or typeof(state.owner_id) != TYPE_INT or state.owner_id != get_instance_id() \
+			or typeof(state.present) != TYPE_BOOL or typeof(state.index) != TYPE_INT \
+			or typeof(state.enabled) != TYPE_BOOL: return false
+	if not state.present: return state.index == -1 and not state.enabled
+	var bus := AudioServer.get_bus_index(&"Master")
+	if _mono_effect == null or bus < 0 or state.index < 0: return false
+	var count := AudioServer.get_bus_effect_count(bus)
+	return state.index < count if _mono_effect_index(bus) >= 0 else state.index <= count
+
+
+func _owned_mono_is_valid() -> bool:
+	var bus := AudioServer.get_bus_index(&"Master")
+	if bus < 0: return false
+	if _mono_effect == null: return true
+	var matches := 0
+	for index: int in AudioServer.get_bus_effect_count(bus):
+		if AudioServer.get_bus_effect(bus, index) == _mono_effect: matches += 1
+	return matches <= 1 and _mono_effect.pan_pullout == 0.0 \
+		and _mono_effect.surround == 0.0 and _mono_effect.time_pullout_ms == 0.0
+
 
 func capture_runtime() -> Dictionary:
 	ensure_bus(&"Master")

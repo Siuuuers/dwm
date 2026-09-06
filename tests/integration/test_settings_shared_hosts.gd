@@ -247,8 +247,8 @@ func test_paused_settings_mouse_release_after_custody_cycle_cannot_commit() -> v
 	await _click(toggle)
 	assert_true(_profile.get_preference(&"preferences.accessibility.high_contrast"), "a fresh contact still works")
 
-func test_actual_audio_without_settings_preview_apis_disables_tests_and_sliders() -> void:
-	assert_false(_audio.has_method("preview_settings_volume"))
+func test_actual_audio_output_capability_does_not_invent_sample_assets() -> void:
+	assert_true(_audio.has_method("preview_settings_volume"))
 	assert_false(_audio.has_method("start_settings_preview"))
 	var app := _settings()
 	app.size = Vector2(800, 656)
@@ -260,8 +260,7 @@ func test_actual_audio_without_settings_preview_apis_disables_tests_and_sliders(
 	var before: Dictionary = _profile.get_profile_snapshot()
 	for channel: String in ["master", "music", "ambience", "sfx"]:
 		var slider: HSlider = content.control_for(StringName("preferences.audio." + channel + "_volume"))
-		assert_false(slider.editable, channel)
-		slider.value = 0.15
+		assert_true(slider.editable, channel)
 	for kind: String in ["Music", "Ambience", "SFX"]:
 		assert_true(content.test_buttons[kind].disabled, kind)
 		content.test_buttons[kind].pressed.emit()

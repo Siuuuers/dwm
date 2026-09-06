@@ -46,10 +46,10 @@ without replacing other Master effects.
 Several Settings choices still need their runtime owners before this family
 can be accepted as complete:
 
-- Audio volume preview, samples, and reset settlement use a capability contract;
-  the current AudioManager does not yet provide that Settings transaction API.
-  The corresponding controls show unavailable and do not fall back to direct
-  profile writes.
+- Audio sample playback still needs registered production Music, Ambience, and
+  SFX assets. The Test controls remain unavailable. Volume preview, mute,
+  stereo/mono output, and preference-reset settlement now have their real owner
+  transaction API; see the successor checkpoint below.
 - Read-aloud requires a TTS owner. Its unavailable state preserves desired
   preferences without pretending speech is available.
 - Publishing rebound gameplay actions does not yet connect Quick Save/Load or
@@ -81,3 +81,40 @@ Retained logs include the Windows certificate-store and Unicode NUL diagnostics,
 and 864 reported orphan objects from the native Dialogic fixtures. Passing this
 run is not a claim that those fixtures are free of leaks, nor does it establish
 screen-reader or full production-route acceptance.
+
+## Audio preferences successor — 2026-09-07
+
+Starting from `448d4d8f046f8f1d8160081db40a00f1f4c3dfd6`, the shared Settings
+surface now enables four volume controls through AudioManager. A pointer drag
+changes physical output without writing Profile; release commits once. Native
+keyboard adjustment uses the existing five-percent step. Mute, output mode,
+Restore Preferences, and Reset Entire Profile use the same physical settlement
+boundary and existing Profile publication/reset rules.
+
+The output capsule contains bus gains/mutes and the owner's mono effect. It
+excludes players and crossfades, so cancellation and failed persistence preserve
+playback identity, playhead, tween identity, and Pause suspension. Native
+AudioServer readback proves settlement. Music and Ambience apply preference gain
+once at their buses; player gain describes the crossfade only.
+
+Transient handles retain their issuing holder and preference path. Cancel,
+departure, focus loss, Pause entry/resume, and restore retire current previews
+before the corresponding transition. A refused or repeated suspension request
+preserves the current holder's preview. Deferred publication remains fenced
+through synchronous callbacks; a changed Profile revision or focus generation
+requires settlement against current state. Unprovable settlement latches both
+the Audio owner and the shared mutation gate. Primitive gate diagnostics retain
+the cause code; local audio warnings retain full adapter diagnostics.
+
+No new audio asset is fabricated or repurposed. The active manifest's production
+paths lack sample bytes, and the pinned reference catalogue has an empty assets
+list. Dialogic's example typing sounds are not registered production samples.
+This is preference-control acceptance, not audible quality or sample acceptance.
+No layout or font changed in this successor.
+
+The successor's exact source hashes, isolated invocations, retained initial
+failures, final regression counts, and limitations are in
+[the audio evidence summary](../../../evidence/settings_audio/summary.json).
+The earlier 367-test report and GPU captures above describe the preceding shared
+Settings checkpoint. Settings and the all-family UI goal remain in progress;
+there is no merge or push.

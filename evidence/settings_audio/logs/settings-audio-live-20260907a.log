@@ -1,0 +1,107 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/32b6a637-8b74-4a26-9263-f6f74a9754cd/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/scene/test_settings_audio_live.gd
+* test_registered_output_controls_are_live_but_unregistered_samples_are_unavailable
+* test_native_pointer_drag_previews_physical_output_without_a_profile_write_then_commits_once
+* test_escape_and_departure_cancel_to_latest_output_and_ignore_stale_pointer_release
+* test_native_keyboard_step_and_mute_output_mode_commit_through_the_audio_owner
+    [Failed]
+      at line 234
+    [Failed]
+      at line 235
+* test_confirmed_preferences_restore_settles_output_and_retains_language_and_controls
+4/5 passed.
+
+
+tests/integration/test_settings_shared_hosts.gd
+* test_pause_preview_is_inert_and_native_back_retreats_one_level_each
+* test_desktop_canonical_commit_updates_fonts_without_resetting_controls
+* test_pause_enter_restores_native_paging_on_overflowing_settings_sheet
+* test_pause_controls_capture_blocks_parent_leave_and_back_only_cancels_capture
+* test_paused_settings_mouse_release_after_custody_cycle_cannot_commit
+* test_actual_audio_output_capability_does_not_invent_sample_assets
+* test_title_caches_settings_and_shared_return_preserves_capture_then_restores_row
+7/7 passed.
+
+
+tests/scene/test_settings_reset_confirmation.gd
+* test_all_reset_sheets_fit_the_actual_workfield_in_nine_presentations
+* test_activating_initial_cancel_is_inert_for_every_reset_and_locale
+* test_escape_cancels_even_after_the_scoped_action_gains_focus
+* test_changed_profile_invalidates_consent_and_cancel_reopen_binds_the_new_revision
+* test_focus_loss_during_sample_shutdown_cannot_open_a_late_reset_sheet
+* test_leaving_records_during_sample_shutdown_cannot_open_the_old_reset_sheet
+* test_revision_change_during_reset_departure_releases_busy_controls_after_refusal
+7/7 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/scene/test_settings_audio_live.gd
+    - Outside Tests
+        * [<Node#99488892647>(subsystem_animation.gd)]
+        * [<Node#99505669864>(subsystem_audio.gd)]
+        * [<Node#99522447081>]
+        * [<Node#99539224298>]
+        * [<Node#99556001515>(subsystem_backgrounds.gd)]
+        * [<Node#100092872428>(subsystem_choices.gd)]
+        * [<Timer#100109649645>]
+        * [<Node#100126426862>(subsystem_expression.gd)]
+        * [<Node#100159981299>(subsystem_glossary.gd)]
+        * [<Node#100176758516>(subsystem_history.gd)]
+        * [<Node#100193535733>(subsystem_input.gd)]
+        * [<Timer#100210312950>]
+        * [<Node#100227090167>(subsystem_jump.gd)]
+        * [<Node#100243867384>(subsystem_containers.gd)]
+        * [<Node#100260644601>(subsystem_portraits.gd)]
+        * [<Node#100797515514>(subsystem_save.gd)]
+        * [<Timer#100814292731>]
+        * [<Node#100831069948>(subsystem_settings.gd)]
+        * [<Node#100847847168>(subsystem_styles.gd)]
+        * [<Node#100864624385>(subsystem_text.gd)]
+        * [<Node#100948510470>(subsystem_text_input.gd)]
+        * [<Node#100965287687>(subsystem_variables.gd)]
+        * [<Node#100982064904>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#100998842121>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/scene/test_settings_audio_live.gd
+- test_native_keyboard_step_and_mute_output_mode_commit_through_the_audio_owner
+    [Failed]:
+          at line 234
+    [Failed]:
+          at line 235
+
+Totals
+------
+Scripts               3
+Tests                19
+Passing Tests        18
+Failing Tests         1
+Asserts           2261/2263
+Orphans              24
+Time              22.202s
+
+
+---- 1 failing tests ----

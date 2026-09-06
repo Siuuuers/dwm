@@ -1,6 +1,7 @@
 extends Node
 
 const PLAYBACK_PORT := preload("res://scripts/audio/AudioPlaybackPort.gd")
+const SETTINGS_TRANSACTIONS := preload("res://scripts/audio/AudioSettingsTransactions.gd")
 const VOLUME_SILENCE_THRESHOLD := 0.0001
 const SILENCE_DB := -80.0
 const CHANNELS := {
@@ -47,14 +48,46 @@ var _play_sequence := 0
 var _restore_backup := {}
 var _pause_handle: Dictionary = {}
 var _pause_frontier_id := ""
+var _settings_transactions: RefCounted
 
 
 func _init(playback_port: RefCounted = null) -> void:
 	_playback_port = playback_port
+	_settings_transactions = SETTINGS_TRANSACTIONS.new(self)
+
+
+func preview_settings_volume(holder_id: Variant, path: Variant, value: Variant, preview_handle: Variant = null) -> Dictionary:
+	return _settings_transactions.preview_settings_volume(holder_id, path, value, preview_handle)
+
+
+func commit_settings_audio_preference(holder_id: Variant, path: Variant, value: Variant, preview_handle: Variant = null) -> Dictionary:
+	return _settings_transactions.commit_settings_audio_preference(holder_id, path, value, preview_handle)
+
+
+func cancel_settings_volume_preview(preview_handle: Variant) -> Dictionary:
+	return _settings_transactions.cancel_settings_volume_preview(preview_handle)
+
+
+func commit_settings_profile_reset(holder_id: Variant, method: Variant, expected_revision: int = -1) -> Dictionary:
+	return _settings_transactions.commit_settings_profile_reset(holder_id, method, expected_revision)
+
+
+func get_settings_audio_capability() -> Dictionary:
+	var available := _initialized and not _fatal and is_instance_valid(_playback_port) and is_instance_valid(_profile)
+	for method: StringName in [&"capture_output", &"restore_output", &"output_matches", &"set_output_mode"]:
+		available = available and _playback_port.has_method(method)
+	for method: StringName in [&"prepare_preferences", &"commit_prepared_profile", &"get_profile_snapshot", &"get_profile_revision", &"publish_deferred_profile_signals"]:
+		available = available and _profile.has_method(method)
+	return {"ok": true, "value": {"volume": available, "samples": false}}
 
 
 func _ready() -> void:
 	pass
+
+
+func _exit_tree() -> void:
+	if _settings_transactions != null and _settings_transactions.has_preview():
+		_settings_transactions.cancel_current_preview()
 
 
 func configure_mutation_gate(gate: Object) -> Dictionary:
@@ -138,6 +171,8 @@ func begin_suspend(handle: Dictionary) -> Dictionary:
 			or not _playback_port.has_method(&"resume_pause_suspension") \
 			or not _playback_port.has_method(&"get_pause_suspension_state"):
 		return _lifecycle_failure(&"invalid_audio_runtime")
+	var settled: Dictionary = _settings_transactions.cancel_current_preview()
+	if not settled.get("ok", false): return settled
 	var suspended: Variant = _playback_port.call(
 		&"begin_pause_suspension", MUSIC_PLAYERS + AMBIENCE_PLAYERS,
 		SFX_PLAYERS + VOICE_PLAYERS
@@ -157,6 +192,8 @@ func resume(handle: Dictionary) -> Dictionary:
 	if not _valid_pause_handle(handle) or _pause_handle.is_empty() \
 			or handle != _pause_handle:
 		return _lifecycle_failure(&"invalid_suspension_handle")
+	var settled: Dictionary = _settings_transactions.cancel_current_preview()
+	if not settled.get("ok", false): return settled
 	var resumed: Variant = _playback_port.call(&"resume_pause_suspension")
 	if not _valid_port_pause_result(resumed, &"resumed") \
 			or _port_pause_state() != &"Active":
@@ -266,6 +303,11 @@ func set_channel_muted(channel_id: StringName, muted: bool) -> Dictionary:
 func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
 	if _profile == null:
 		return _failure(&"not_initialized")
+	if _settings_transactions.is_busy():
+		return {"ok": true, "code": &"ok", "deferred": true}
+	if _settings_transactions.has_preview():
+		_settings_transactions.invalidate_preview()
+		changed_path = &""
 	if changed_path != &"" and not String(changed_path).begins_with("preferences.audio."):
 		return {"ok": true, "code": &"ok", "value": _settings.duplicate(true), "receipt": {}, "unchanged": true}
 	var audio := {}
@@ -310,6 +352,8 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	if not audio.is_empty():
 		if not _valid_prepared_audio(audio): return _failure(&"invalid_restore_plan")
 		if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
+	var settled: Dictionary = _settings_transactions.cancel_current_preview()
+	if not settled.get("ok", false): return settled
 	_restore_backup = capture_restore_state()["value"].duplicate(true)
 	var music := _set_context(&"music", snapshot["music_context_id"], snapshot["music_context"], 0.0, true, true)
 	if not music.get("ok", false):
@@ -358,10 +402,22 @@ func _notification(what: int) -> void:
 	if not _initialized: return
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		_focus_loss_mute = true
-		_apply_settings_silent(_settings)
+		if _settings_transactions.is_busy():
+			_settings_transactions.invalidate_preview()
+			return
+		var settled: Dictionary = _settings_transactions.cancel_current_preview()
+		if not settled.get("ok", false):
+			_latch_consumer_fatal(&"settings_focus_cleanup", settled)
+			return
+		var applied := _apply_settings_silent(_settings)
+		if not applied.get("ok", false): _latch_consumer_fatal(&"focus_output_apply", applied)
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN and _focus_loss_mute:
 		_focus_loss_mute = false
-		_apply_settings_silent(_settings)
+		if _settings_transactions.is_busy():
+			_settings_transactions.invalidate_preview()
+			return
+		var applied := _apply_settings_silent(_settings)
+		if not applied.get("ok", false): _latch_consumer_fatal(&"focus_output_apply", applied)
 
 
 func _set_context(channel_id: StringName, context_id: String, context: Dictionary, duration_override: float, silent: bool, force_restart: bool = false) -> Dictionary:
@@ -394,7 +450,8 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 	var old_player: StringName = _active_players[channel_id]
 	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
 	var new_player: StringName = players[1] if old_player == players[0] else players[0]
-	var target_db := _channel_db(channel_id)
+	# Profile gain belongs to the bus. Player gain expresses the crossfade only.
+	var target_db := 0.0
 	var duration := duration_override if duration_override >= 0.0 else maxf(float(prior_record.get("fade_out_seconds", 0.0)), float(record["fade_in_seconds"]))
 	var operations: Array = [
 		[&"kill_tween", [channel_id]],
@@ -482,6 +539,9 @@ func _rollback_failed_context(channel_id: StringName, backup: Dictionary, prior_
 
 
 func _apply_settings_silent(candidate: Dictionary) -> Dictionary:
+	if _playback_port.has_method(&"capture_output") and _playback_port.has_method(&"restore_output") \
+			and _playback_port.has_method(&"output_matches"):
+		return _apply_settings_output(candidate)
 	var output_mode: String = candidate.get(&"output_mode", "stereo")
 	if not _supports_output_mode(output_mode): return _failure(&"unsupported_audio_output_mode")
 	var captured: Dictionary = _playback_port.call(&"capture_runtime")
@@ -508,6 +568,45 @@ func _apply_settings_silent(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true), "receipt": {}}
 
 
+## Settings compensation changes buses and our mono effect only. Playback and
+## crossfade timelines retain their current position and Pause ownership.
+func _apply_settings_output(candidate: Dictionary) -> Dictionary:
+	var audio := {}
+	for channel: StringName in CHANNELS:
+		var value: Variant = candidate.get(channel)
+		if typeof(value) != TYPE_DICTIONARY or value.size() != 2: return _failure(&"invalid_audio_settings")
+		audio[String(channel) + "_volume"] = value.get("volume")
+		audio[String(channel) + "_muted"] = value.get("muted")
+	audio["output_mode"] = candidate.get(&"output_mode")
+	audio["mute_when_inactive"] = candidate.get(&"mute_when_inactive")
+	if not _valid_prepared_audio(audio): return _failure(&"invalid_audio_settings")
+	for method: StringName in [&"capture_output", &"restore_output", &"output_matches", &"set_output_mode"]:
+		if not _playback_port.has_method(method): return _failure(&"settings_audio_unavailable")
+	var captured: Dictionary = _playback_port.capture_output()
+	if not captured.get("ok", false): return captured
+	var states := {}
+	for channel: StringName in CHANNELS:
+		var linear: float = audio[String(channel) + "_volume"]
+		var muted: bool = audio[String(channel) + "_muted"] or linear <= VOLUME_SILENCE_THRESHOLD \
+			or (_focus_loss_mute and audio.mute_when_inactive)
+		states[CHANNELS[channel].bus] = {"db": SILENCE_DB if linear <= VOLUME_SILENCE_THRESHOLD else linear_to_db(linear), "muted": muted}
+	states[&"UI"] = states[&"SFX"].duplicate()
+	var applied: Dictionary = _playback_port.set_output_mode(audio.output_mode)
+	if applied.get("ok", false):
+		for bus: StringName in states:
+			applied = _playback_port.set_bus_state(bus, states[bus].db, states[bus].muted)
+			if not applied.get("ok", false): break
+	if applied.get("ok", false) and not _playback_port.output_matches(states, audio.output_mode):
+		applied = _failure(&"audio_output_unproven")
+	if not applied.get("ok", false):
+		var restored: Dictionary = _playback_port.restore_output(captured.value)
+		if not restored.get("ok", false):
+			_latch_consumer_fatal(&"settings_output_rollback", restored)
+			return _failure(&"audio_runtime_indeterminate")
+		return applied
+	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true), "receipt": {}}
+
+
 func _rollback_settings(backup: Dictionary, cause: Dictionary) -> Dictionary:
 	var rollback: Dictionary = _playback_port.call(&"restore_runtime", backup.duplicate(true))
 	if rollback.get("ok", false):
@@ -516,11 +615,6 @@ func _rollback_settings(backup: Dictionary, cause: Dictionary) -> Dictionary:
 	var fatal := _failure(&"audio_runtime_indeterminate")
 	fatal["fatal"] = true
 	return fatal
-
-
-func _channel_db(channel_id: StringName) -> float:
-	var linear := float(_settings.get(channel_id, {}).get("volume", 1.0))
-	return SILENCE_DB if linear <= VOLUME_SILENCE_THRESHOLD else linear_to_db(linear)
 
 
 func _validate_snapshot(snapshot: Dictionary) -> Dictionary:
@@ -576,7 +670,7 @@ func _warn_missing(semantic_id: String) -> Dictionary:
 
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if String(path).begins_with("preferences.audio."):
+	if String(path).begins_with("preferences.audio.") or _settings_transactions.has_preview():
 		var applied := apply_profile_preferences(path)
 		if not applied.get("ok", false):
 			_latch_consumer_fatal(&"committed_preference_apply", applied)
@@ -595,7 +689,11 @@ func _latch_consumer_fatal(phase: StringName, result: Dictionary) -> void:
 		"details": result.duplicate(true),
 	}
 	if _mutation_gate != null:
-		_mutation_gate.call(&"latch_fatal", failure.duplicate(true))
+		# The shared gate accepts primitive JSON only; port diagnostics may contain
+		# StringNames or opaque runtime handles. Keep those on the local warning.
+		var gate_failure := failure.duplicate(true)
+		gate_failure["details"] = {"cause_code": String(failure.code)}
+		_mutation_gate.call(&"latch_fatal", gate_failure)
 	var warning := _failure(&"audio_runtime_indeterminate")
 	warning["fatal"] = true
 	warning["details"] = failure.duplicate(true)

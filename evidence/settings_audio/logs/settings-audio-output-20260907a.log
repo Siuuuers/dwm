@@ -1,0 +1,119 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/4d95b140-3f57-4ae4-b67a-4b5c8969d589/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_audio_output_custody.gd
+* test_capture_reads_actual_server_values_and_returns_detached_output_only
+* test_output_restore_retains_paused_player_playhead_tween_and_foreign_effect
+* test_owned_mono_snapshot_restores_enabled_state_without_touching_foreign_effects
+* test_malformed_and_other_owner_capsules_refuse_before_any_setter
+* test_restore_propagates_failed_setter_and_refuses_success_without_readback
+* test_output_proof_observes_native_owned_effect_disable_and_parameter_tamper
+* test_fake_output_capsule_failure_ordinals_do_not_reconstruct_playback
+7/7 passed.
+
+
+tests/unit/test_canonical_audio_preferences.gd
+* test_real_canonical_profile_initializes_master_and_three_channels_without_voice_preferences
+* test_removed_voice_setters_cannot_write_profile_or_change_playback
+* test_music_and_ambience_use_profile_gain_once_at_the_bus
+* test_inactive_muting_defaults_true_and_preference_change_while_inactive_is_applied
+* test_canonical_restore_is_silent_and_rollback_preserves_profile_revision
+* test_invalid_canonical_restore_is_rejected_before_any_playback_mutation
+* test_bus_failure_restores_master_and_keeps_prior_settings
+* test_native_mono_effect_and_master_rollback_preserve_foreign_effects_without_players
+8/8 passed.
+
+
+tests/unit/test_audio_manager.gd
+* test_ending_audio_map_covers_every_canonical_id
+* test_ending_audio_rejects_retired_unknown_and_empty_ids
+* test_initialization_preserves_gate_and_builds_exact_pools
+* test_failed_initialization_is_retryable_and_does_not_connect_profile
+* test_volume_clamp_silence_threshold_and_explicit_mute
+* test_exact_threshold_and_focus_loss_overlay_do_not_replace_preferences
+* test_semantic_contexts_are_exact_and_same_context_is_idempotent
+* test_unknown_context_and_cue_never_mutate_semantic_state
+* test_commands_before_initialization_fail_without_touching_port
+* test_sfx_dispatch_uses_registered_manifest_bus
+* test_full_sfx_pool_reuses_oldest_playing_after_a_free_slot_was_reused
+* test_failed_context_change_rolls_back_runtime_and_semantics
+* test_every_crossfade_operation_failpoint_preserves_semantics
+* test_rollback_failure_latches_fatal_and_best_effort_mutes_channel
+* test_async_old_player_stop_failure_latches_fatal
+* test_committed_preference_apply_failure_latches_shared_gate
+* test_semantic_restore_is_silent_and_rollback_restarts_prior_context
+* test_restore_can_clear_channels_and_force_restart_same_context
+* test_restore_rejects_non_json_context_and_malformed_audio_preferences
+* test_runtime_audio_context_is_not_run_save_state
+20/20 passed.
+
+
+tests/unit/test_audio_pause_suspension.gd
+* test_real_players_and_native_crossfade_suspend_and_resume_in_place
+* test_handle_contract_is_exact_idempotent_and_consumed_once
+* test_failed_begin_compensates_an_ambiguous_physical_suspend
+* test_unproved_begin_latches_a_truthful_indeterminate_state
+* test_failed_resume_stays_suspended_and_exact_retry_resumes_once
+* test_failed_resume_compensates_an_ambiguous_physical_resume
+6/6 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_audio_output_custody.gd
+    - Outside Tests
+        * [<Node#99488892647>(subsystem_animation.gd)]
+        * [<Node#99505669864>(subsystem_audio.gd)]
+        * [<Node#99522447081>]
+        * [<Node#99539224298>]
+        * [<Node#99556001515>(subsystem_backgrounds.gd)]
+        * [<Node#100092872428>(subsystem_choices.gd)]
+        * [<Timer#100109649645>]
+        * [<Node#100126426862>(subsystem_expression.gd)]
+        * [<Node#100159981299>(subsystem_glossary.gd)]
+        * [<Node#100176758516>(subsystem_history.gd)]
+        * [<Node#100193535733>(subsystem_input.gd)]
+        * [<Timer#100210312950>]
+        * [<Node#100227090167>(subsystem_jump.gd)]
+        * [<Node#100243867384>(subsystem_containers.gd)]
+        * [<Node#100260644601>(subsystem_portraits.gd)]
+        * [<Node#100797515514>(subsystem_save.gd)]
+        * [<Timer#100814292731>]
+        * [<Node#100831069948>(subsystem_settings.gd)]
+        * [<Node#100847847168>(subsystem_styles.gd)]
+        * [<Node#100864624385>(subsystem_text.gd)]
+        * [<Node#100948510470>(subsystem_text_input.gd)]
+        * [<Node#100965287687>(subsystem_variables.gd)]
+        * [<Node#100982064904>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#100998842121>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               4
+Tests                41
+Passing Tests        41
+Asserts             448
+Orphans              24
+Time              0.964s
+
+
+---- All tests passed! ----

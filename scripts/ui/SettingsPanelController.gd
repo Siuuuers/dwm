@@ -533,6 +533,9 @@ func _channel_reason(kind: String) -> String:
 
 
 func _has_audio_sink() -> bool:
+	if _volume != null and _volume.has_method("get_settings_audio_capability"):
+		var capability: Dictionary = _volume.get_settings_audio_capability()
+		if not capability.get("ok", false) or not capability.get("value", {}).get("volume", false): return false
 	return _volume != null and _volume.has_method("preview_settings_volume") and _volume.has_method("commit_settings_audio_preference") and _volume.has_method("cancel_settings_volume_preview")
 
 func _has_audio_samples() -> bool:
