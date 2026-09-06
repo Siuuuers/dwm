@@ -16,21 +16,15 @@ extends RefCounted
 ## suite (no dedicated unit test is in its Create set) -- Task 5 proves the coordinator contract
 ## exclusively against FakeDesktopBoardStatePort.
 ##
-## TWO DELIBERATE, EXPLICITLY-FLAGGED SCOPING GAPS (both because their real sources do not exist
-## anywhere in this codebase yet, confirmed absent as of Task 5):
+## One deliberate, explicitly flagged identity-context gap remains:
 ##
 ## 1. `branch_id`, `desktop_timeline_generation`, and `causal_day_instance` are NOT yet fields on
 ##    GameState/RunLifecycle -- the plan adds them to the v4 Run snapshot only in Task 6. Since this
 ##    port may not edit GameState.gd, it cannot derive them from there. They are supplied instead as
 ##    `desktop_identity_context` at configure() time by whoever wires this port into production
 ##    (Task 6/9), never invented or derived here.
-## 2. Per-difficulty board dimensions/base mine count have no registered difficulty adapter
-##    anywhere in this codebase yet (confirmed: no manifest, no registry script). `_DIFFICULTY_
-##    DIMENSIONS` below is an explicitly-labeled placeholder table just large enough to satisfy this
-##    port's own typed contract; it is not player-facing difficulty balance and a future task
-##    replacing it with a real registered adapter is expected, per the frozen board spec's own text
-##    ("This plan validates dimensions and base mines supplied by the registered difficulty adapter;
-##    it does not invent or revise player-facing difficulty balance").
+## Board dimensions and base mine counts come from MinesweeperBoardCatalog, the closed current-v1
+## host/difficulty source shared with presentation. This desktop port requests only `desktop_app`.
 ##
 ## "starts-today" (frozen contracts: "increments starts-today once") has no existing GameState
 ## field either, and is not one of the first-Reveal receipt's exact keys -- it is kept entirely as
@@ -39,6 +33,7 @@ extends RefCounted
 
 const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
+const _BOARD_CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 
 const _STAT_MOTIVATION := "motivation"
 const _STAT_PRESSURE := "pressure"
@@ -47,13 +42,6 @@ const _STAT_PRESSURE := "pressure"
 ## facts Shop's own action receipts already carry.
 const _STAT_HEALTH := "health"
 const _CONDITION_SEQUELA := "sequela"
-
-## PLACEHOLDER pending a real registered difficulty adapter -- see class doc gap 2.
-const _DIFFICULTY_DIMENSIONS := {
-	"beginner": {"width": 9, "height": 9, "base_mine_count": 10},
-	"intermediate": {"width": 16, "height": 16, "base_mine_count": 40},
-	"expert": {"width": 30, "height": 16, "base_mine_count": 99},
-}
 
 var _game_state: Object = null
 var _identity_issuer: Object = null
@@ -151,8 +139,9 @@ func prepare_spec(difficulty_id: String, transaction_id: String,
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
-	if not _DIFFICULTY_DIMENSIONS.has(difficulty_id):
-		return _fail(&"unregistered_difficulty", difficulty_id, {})
+	var catalog_result: Dictionary = _BOARD_CATALOG.lookup("desktop_app", difficulty_id)
+	if not catalog_result.get("ok", false):
+		return catalog_result
 	if typeof(transaction_issuer_receipt) != TYPE_DICTIONARY:
 		return _fail(&"invalid_transaction_issuer_receipt", "", {})
 	var captured := capture()
@@ -165,7 +154,7 @@ func prepare_spec(difficulty_id: String, transaction_id: String,
 		"causal_day_instance": str(facts["causal_day_instance"]),
 		"app_round_ordinal": int(facts["next_app_round_ordinal"]),
 	}
-	var dimensions: Dictionary = _DIFFICULTY_DIMENSIONS[difficulty_id]
+	var dimensions: Dictionary = catalog_result["value"]
 	var owned := _CAPABILITY_RULES.resolve_owned(_game_state.inventory)
 	if not owned.get("ok", false):
 		return owned

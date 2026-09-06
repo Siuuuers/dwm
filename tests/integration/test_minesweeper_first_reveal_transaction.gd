@@ -87,7 +87,7 @@ func _wired() -> Dictionary:
 	assert_true(state_port.configure_consequence_state_port(consequence_state).get("ok", false))
 
 	var generation_port: RefCounted = load(FAKE_GENERATION_PATH).new()
-	generation_port.arm_materialize({"schema_version": 1, "width": 9, "height": 9, "mine_indices": [70,71,72,73,74,75,76,77,78,79,80], "mine_count": 11})
+	generation_port.arm_materialize({"schema_version": 1, "width": 8, "height": 8, "mine_indices": [53,54,55,56,57,58,59,60,61,62,63], "mine_count": 11})
 
 	var coordinator: RefCounted = load(COORDINATOR_PATH).new()
 	var fake_checkpoint: RefCounted = load(FAKE_CHECKPOINT_PATH).new()
@@ -229,7 +229,7 @@ func _wired_for_recovery() -> Dictionary:
 	var crash_state_port := _CrashBeforeGameStateCommitPort.new(real_state_port)
 
 	var generation_port: RefCounted = load(FAKE_GENERATION_PATH).new()
-	generation_port.arm_materialize({"schema_version": 1, "width": 9, "height": 9, "mine_indices": [70,71,72,73,74,75,76,77,78,79,80], "mine_count": 11})
+	generation_port.arm_materialize({"schema_version": 1, "width": 8, "height": 8, "mine_indices": [53,54,55,56,57,58,59,60,61,62,63], "mine_count": 11})
 
 	var coordinator: RefCounted = load(COORDINATOR_PATH).new()
 	var fake_checkpoint: RefCounted = load(FAKE_CHECKPOINT_PATH).new()
@@ -455,7 +455,7 @@ func test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_con
 	var issuer := _fresh_issuer(root)
 	var fake_checkpoint: RefCounted = load(FAKE_CHECKPOINT_PATH).new()
 	var generation_port: RefCounted = load(FAKE_GENERATION_PATH).new()
-	generation_port.arm_materialize({"schema_version": 1, "width": 9, "height": 9, "mine_indices": [70,71,72,73,74,75,76,77,78,79,80], "mine_count": 11})
+	generation_port.arm_materialize({"schema_version": 1, "width": 8, "height": 8, "mine_indices": [53,54,55,56,57,58,59,60,61,62,63], "mine_count": 11})
 	var gs: Node = load(GS_PATH).new()
 	add_child_autofree(gs)
 	gs.reset_game()

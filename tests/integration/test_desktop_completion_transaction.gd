@@ -107,13 +107,13 @@ func _wired() -> Dictionary:
 	assert_true(round_coordinator.configure(board_state_port, load(FAKE_MINESWEEPER_CHECKPOINT_PATH).new(),
 		load(FAKE_MINESWEEPER_GENERATION_PATH).new(), issuer).get("ok", false))
 	assert_true(round_coordinator.configure_publication_ledger(publication_ledger).get("ok", false))
-	# beginner's real registered dimensions are 9x9 with 10 base mines (GameStateDesktopBoardPort
-	# ._DIFFICULTY_DIMENSIONS) -- unlike the Task-5 fake state port, the real port builds a real spec
-	# these layout dimensions/mine_count must match exactly. Cell 0 stays safe (the forced first
-	# reveal); cell 1 is a mine, used later to force a terminal EXPLODED board deterministically.
+	# Beginner's accepted catalog dimensions are 8x8 with 10 base mines. Unlike the Task-5 fake
+	# state port, the real port builds a real spec, so these layout dimensions/mine_count must match
+	# exactly. Cell 0 stays safe for the forced first reveal; cell 1 is a mine, used later to force a
+	# terminal EXPLODED board deterministically.
 	var mine_indices: Array[int] = [1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 	(round_coordinator._generation_port as Object).arm_materialize(
-		{"schema_version": 1, "width": 9, "height": 9, "mine_indices": mine_indices, "mine_count": mine_indices.size()})
+		{"schema_version": 1, "width": 8, "height": 8, "mine_indices": mine_indices, "mine_count": mine_indices.size()})
 
 	var shop_state_port: Object = load(SHOP_STATE_PORT_PATH).new()
 	assert_true(shop_state_port.configure(gs, identity_context).get("ok", false))
