@@ -28,6 +28,10 @@ var _publication_pending := false
 var _scroll_restore_waiting := false
 var _scroll_restore_value := 0.0
 var _scroll_restore_retries := 0
+var _pause_capture_id := 0
+var _pause_anchor: Dictionary = {}
+var _pause_view: Dictionary = {}
+var _pause_covered := false
 
 @onready var canvas: Control = $Canvas
 @onready var scroll: ScrollContainer = $Canvas/Scroll
@@ -70,6 +74,68 @@ func _ready() -> void:
 			text_owner.connect("text_started", _on_text_started)
 		if runtime.has_signal("timeline_started"):
 			runtime.connect("timeline_started", reset_caption_stack)
+
+## Transient navigation anchor only. Canonical source admission belongs to the coordinator.
+func capture_pause_view(source: Dictionary) -> Dictionary:
+	if (source.is_empty() or not is_inside_tree() or not is_node_ready() or _pause_covered
+		or not canvas.is_visible_in_tree() or not _has_caption()):
+		return {"ok":false,"code":&"pause_view_unavailable","value":{}}
+	_pause_capture_id += 1
+	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id,"source":source.duplicate(true)}
+	var focused := get_viewport().gui_get_focus_owner()
+	var focus_id := focused.get_instance_id() if focused != null and canvas.is_ancestor_of(focused) else 0
+	_pause_view = {"caption_id":caption_text.get_instance_id(),"reveal_generation":caption_text.get_reveal_generation(),
+		"runtime":_pause_runtime_identity(),"focus_id":focus_id,"scroll":get_scroll_bar().value,
+		"canvas_visible":canvas.visible,"layer_processing":is_processing(),"caption_processing":caption_text.is_processing()}
+	return {"ok":true,"code":&"ok","value":_pause_anchor.duplicate(true)}
+
+func cover_pause_view(anchor: Dictionary) -> bool:
+	if not _valid_pause_anchor(anchor): return false
+	if _pause_covered: return true
+	_pause_covered = true
+	accept_input.cancel_pending_accept()
+	# Ancestor visibility hides the complete source from pointer and assistive traversal,
+	# without assigning empty text or changing the native node's own visibility flag.
+	canvas.hide()
+	_sync_focus()
+	caption_text.set_process(false)
+	set_process(false)
+	return true
+
+func restore_pause_view(anchor: Dictionary) -> bool:
+	if not _valid_pause_anchor(anchor): return false
+	if not _pause_covered: return true
+	_pause_covered = false
+	canvas.visible = bool(_pause_view.canvas_visible)
+	_sync_focus()
+	var focused: Object = instance_from_id(int(_pause_view.focus_id)) if int(_pause_view.focus_id) != 0 else null
+	if (focused is Control and canvas.is_ancestor_of(focused) and focused.is_visible_in_tree()
+		and focused.focus_mode != Control.FOCUS_NONE):
+		focused.grab_focus()
+	# Focus restoration and container settling must never replace the user's pan.
+	_layout_generation += 1
+	_publication_pending = false
+	_scroll_restore_waiting = false
+	_scroll_restore_retries = 3
+	var retained_scroll := float(_pause_view.scroll)
+	get_scroll_bar().value = clampf(retained_scroll,0,maxf(0,get_scroll_bar().max_value-get_scroll_bar().page))
+	call_deferred("_restore_scroll",_layout_generation,retained_scroll,false)
+	caption_text.set_process(bool(_pause_view.caption_processing) and caption_text.is_visible_in_tree())
+	set_process(bool(_pause_view.layer_processing))
+	return true
+
+func _valid_pause_anchor(anchor: Dictionary) -> bool:
+	return (is_inside_tree() and is_node_ready() and not _pause_anchor.is_empty() and anchor == _pause_anchor
+		and is_instance_valid(caption_text) and int(_pause_view.caption_id) == caption_text.get_instance_id()
+		and int(_pause_view.reveal_generation) == caption_text.get_reveal_generation()
+		and _pause_view.runtime == _pause_runtime_identity())
+
+func _pause_runtime_identity() -> Dictionary:
+	var runtime := get_node_or_null("/root/Dialogic")
+	if runtime == null: return {}
+	return {"instance_id":runtime.get_instance_id(),
+		"generation":int(runtime.call("get_timeline_generation")) if runtime.has_method("get_timeline_generation") else 0,
+		"event_index":runtime.get("current_event_idx")}
 
 func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false) -> bool:
 	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets)
@@ -185,6 +251,9 @@ func _on_caption_visibility_changed() -> void:
 	_request_layout()
 
 func _sync_native_processing() -> void:
+	if _pause_covered:
+		caption_text.set_process(false)
+		return
 	if caption_text.get_parsed_text().is_empty():
 		# Native empty clears can leave revealing true; cancellation must emit no finish.
 		caption_text.revealing = false
@@ -321,6 +390,11 @@ func _has_caption() -> bool:
 	return caption_text.visible and not caption_text.get_parsed_text().is_empty()
 
 func _sync_focus() -> void:
+	if _pause_covered:
+		caption_text.focus_mode = Control.FOCUS_NONE
+		caption_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if caption_text.has_focus(): caption_text.release_focus()
+		return
 	var has_caption := _has_caption()
 	caption_text.focus_mode = Control.FOCUS_ALL if has_caption else Control.FOCUS_NONE
 	caption_text.mouse_filter = Control.MOUSE_FILTER_STOP if has_caption else Control.MOUSE_FILTER_IGNORE
@@ -337,6 +411,7 @@ func _on_caption_input(event: InputEvent) -> void:
 	_handle_input(event, true)
 
 func _handle_input(event: InputEvent, current: bool) -> void:
+	if _pause_covered: return
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		scroll.accept_event()
 		return

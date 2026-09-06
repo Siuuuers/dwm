@@ -64,6 +64,7 @@ var _bridge: Object = null
 var _in_flight: Dictionary = {}
 ## completion_transaction_id -> the exact receipt this adapter emitted. Replay returns these bytes.
 var _completed: Dictionary = {}
+var _presentation_revision := 0
 
 
 ## Retains the exact existing `DialogicBridge` and connects its trusted completion signal once.
@@ -125,10 +126,13 @@ func begin_physical(command: Dictionary) -> Dictionary:
 				"an in-flight completion id cannot be reused with different bytes", {})
 		return _ok({"physical_token": token, "command_sha256": command_sha256})
 
+	_presentation_revision += 1
 	_in_flight[completion_id] = {
 		"command_sha256": command_sha256,
 		"physical_token": token,
 		"timeline_id": timeline_id,
+		"route_id": str(command["route_id"]),
+		"revision": _presentation_revision,
 	}
 	var started: Variant = _bridge.call(&"start_timeline_id", timeline_id,
 		(command["context"] as Dictionary).duplicate(true))
@@ -138,6 +142,22 @@ func begin_physical(command: Dictionary) -> Dictionary:
 			"the bridge refused to start the timeline",
 			{"timeline_id": timeline_id, "cause": started})
 	return _ok({"physical_token": token, "command_sha256": command_sha256})
+
+
+## Pause queries the retained owner, never a scene-authored readiness flag or cached timeline ID.
+func capture_pause_source() -> Dictionary:
+	if _bridge == null or not _bridge.has_method("capture_pause_frontier") or _in_flight.size() != 1:
+		return _fail(&"pause_source_unavailable", "no unique owned presentation", {})
+	var completion_id: String = str(_in_flight.keys()[0])
+	var pending: Dictionary = _in_flight[completion_id]
+	if pending.route_id != "hospital":
+		return _fail(&"pause_source_unavailable", "this owner has no canonical Pause source", {})
+	var frontier: Dictionary = _bridge.capture_pause_frontier(str(pending.timeline_id))
+	if not frontier.get("ok", false): return frontier
+	var source := pending.duplicate(true)
+	source["completion_transaction_id"] = completion_id
+	source["frontier"] = frontier.value.duplicate(true)
+	return _ok(source)
 
 
 func _on_playback_failed(timeline_id: String, result: Dictionary) -> void:

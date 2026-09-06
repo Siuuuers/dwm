@@ -7,6 +7,7 @@ signal input_scheme_changed(scheme: String)
 signal controller_connected(device_id: int)
 signal controller_disconnected(device_id: int)
 signal input_bindings_changed()
+signal source_input_custody_changed()
 
 # game_* actions and their default keyboard keys. The ui_* actions are provided by Godot.
 const _DEFAULT_GAME_ACTIONS := {
@@ -35,6 +36,87 @@ const _REQUIRED_UI_ACTIONS := [
 var _current_scheme: String = "keyboard"
 var _profile: Node
 var _mutation_gate: Object
+var _suspension_handle: Dictionary = {}
+var _physical_contacts: Dictionary = {}
+var _resume_quarantine: Dictionary = {}
+var _resume_frame := -1
+
+
+func _enter_tree() -> void:
+	# Observe releases during Pause without consuming input from its ALWAYS UI.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+func begin_suspend(handle: Variant) -> Dictionary:
+	if not _valid_suspension_handle(handle):
+		return _input_lifecycle_failure(&"invalid_suspension_handle")
+	if not _suspension_handle.is_empty() and _suspension_handle != handle:
+		return _input_lifecycle_failure(&"input_already_suspended")
+	if _suspension_handle.is_empty():
+		_suspension_handle = handle.duplicate(true)
+		source_input_custody_changed.emit()
+	return {"ok": true, "code": &"ok", "value": {"frontier_id": "input:%s" % handle.handle_id}}
+
+
+func resume(handle: Variant) -> Dictionary:
+	if not _valid_suspension_handle(handle) or _suspension_handle.is_empty() or _suspension_handle != handle:
+		return _input_lifecycle_failure(&"invalid_suspension_handle")
+	_suspension_handle.clear()
+	_resume_quarantine = _physical_contacts.duplicate()
+	_resume_frame = Engine.get_process_frames()
+	source_input_custody_changed.emit()
+	return {"ok": true, "code": &"ok", "value": {"resumed": true}}
+
+
+func get_state() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {"state": &"Active" if _suspension_handle.is_empty() else &"Suspended"}}
+
+
+func is_source_input_admitted() -> bool:
+	return _suspension_handle.is_empty() and _resume_quarantine.is_empty() \
+		and Engine.get_process_frames() != _resume_frame
+
+
+func _input(event: InputEvent) -> void:
+	if event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
+	var contact := _physical_contact(event)
+	if contact.is_empty():
+		return
+	if event.is_pressed():
+		_physical_contacts[contact] = true
+	else:
+		_physical_contacts.erase(contact)
+		_resume_quarantine.erase(contact)
+
+
+func _physical_contact(event: InputEvent) -> String:
+	if event is InputEventKey:
+		return "key:%s:%s" % [event.device, event.physical_keycode if event.physical_keycode else event.keycode]
+	if event is InputEventMouseButton:
+		# Wheel packets are impulses and do not provide a held release frontier.
+		if event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_LEFT, MOUSE_BUTTON_WHEEL_RIGHT]:
+			return ""
+		return "mouse:%s:%s" % [event.device, event.button_index]
+	if event is InputEventScreenTouch:
+		return "touch:%s:%s" % [event.device, event.index]
+	if event is InputEventJoypadButton:
+		return "joy:%s:%s" % [event.device, event.button_index]
+	if event is InputEventAction:
+		return "action:%s:%s" % [event.device, event.action]
+	return ""
+
+
+func _valid_suspension_handle(handle: Variant) -> bool:
+	return typeof(handle) == TYPE_DICTIONARY and handle.size() == 4 \
+		and typeof(handle.get("generation")) == TYPE_INT and handle.generation > 0 \
+		and typeof(handle.get("handle_id")) == TYPE_STRING and not handle.handle_id.is_empty() \
+		and typeof(handle.get("holder")) == TYPE_STRING_NAME and handle.holder != &"" \
+		and typeof(handle.get("reason")) == TYPE_STRING_NAME and handle.reason == &"universal_pause"
+
+
+func _input_lifecycle_failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "value": null}
 
 
 func _ready() -> void:

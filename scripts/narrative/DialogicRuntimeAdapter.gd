@@ -128,6 +128,23 @@ func is_bound_to_runtime(runtime: Node) -> bool:
 	return _bound and runtime == _dialogic
 
 
+## Ephemeral reading frontier only. Startup, cleanup and non-text events cannot open Pause.
+func capture_pause_frontier() -> Dictionary:
+	if not _bound or not _qualified_runtime or _activity_phase != "live" \
+		or _request_id.is_empty() or _requested_path.is_empty() or _dialogic.current_timeline == null \
+		or _dialogic.is_ending_timeline():
+		return _fail(&"pause_frontier_unavailable", "no admitted live reading frontier")
+	var index := int(_dialogic.current_event_idx)
+	if index < 0 or index >= _dialogic.current_timeline_events.size() \
+		or not _dialogic.current_timeline_events[index] is DialogicTextEvent \
+		or _dialogic.current_state not in [DialogicGameHandler.States.IDLE, DialogicGameHandler.States.REVEALING_TEXT]:
+		return _fail(&"pause_frontier_unavailable", "the current event has no reading frontier")
+	return {"ok": true, "code": &"ok", "value": {
+		"generation": _runtime_generation, "event_index": index,
+		"request_id": _request_id, "paused": bool(_dialogic.paused),
+	}}
+
+
 func _verify_pending_start(generation: int) -> void:
 	if generation != _start_generation or _activity_phase != "starting":
 		return
@@ -206,6 +223,8 @@ func set_paused(value: bool) -> Dictionary:
 	if not _bound:
 		return _fail(&"runtime_not_bound", "bind_runtime must be called first")
 	_dialogic.paused = value
+	if bool(_dialogic.paused) != value:
+		return _fail(&"runtime_pause_not_applied", "runtime pause readback did not match")
 	return {"ok": true, "code": &"ok", "value": {"paused": value}}
 
 

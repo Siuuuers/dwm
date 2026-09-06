@@ -38,6 +38,8 @@ var _settings := {}
 var _pool_play_sequence := {&"SFX": {}, &"UI": {}, &"Voice": {}}
 var _play_sequence := 0
 var _restore_backup := {}
+var _pause_handle: Dictionary = {}
+var _pause_frontier_id := ""
 
 
 func _init(playback_port: RefCounted = null) -> void:
@@ -113,6 +115,61 @@ func set_ambience_context(context_id: String, context: Dictionary = {}) -> Dicti
 	return _set_context(&"ambience", context_id, context, -1.0, false)
 
 
+## Lifecycle suspension is transient process custody. It never enters the semantic audio snapshot.
+func begin_suspend(handle: Dictionary) -> Dictionary:
+	if not _valid_pause_handle(handle):
+		return _lifecycle_failure(&"invalid_suspension_handle")
+	if not _initialized:
+		return _lifecycle_failure(&"not_initialized")
+	if _fatal:
+		return _lifecycle_failure(&"audio_runtime_indeterminate")
+	if not _pause_handle.is_empty():
+		if _pause_handle == handle:
+			return _lifecycle_success({"frontier_id": _pause_frontier_id})
+		return _lifecycle_failure(&"audio_suspended")
+	if not _playback_port.has_method(&"begin_pause_suspension") \
+			or not _playback_port.has_method(&"resume_pause_suspension") \
+			or not _playback_port.has_method(&"get_pause_suspension_state"):
+		return _lifecycle_failure(&"invalid_audio_runtime")
+	var suspended: Variant = _playback_port.call(
+		&"begin_pause_suspension", MUSIC_PLAYERS + AMBIENCE_PLAYERS,
+		SFX_PLAYERS + VOICE_PLAYERS
+	)
+	if not _valid_port_pause_result(suspended, &"suspended") \
+			or _port_pause_state() != &"Suspended":
+		if not _prove_or_recover_port_active():
+			_latch_consumer_fatal(&"pause_begin", _failure(&"audio_runtime_indeterminate"))
+			return _lifecycle_failure(&"audio_runtime_indeterminate")
+		return _lifecycle_failure(_port_failure_code(suspended, &"audio_suspend_failed"))
+	_pause_handle = handle.duplicate(true)
+	_pause_frontier_id = "audio:%s:%d" % [handle.handle_id, int(handle.generation)]
+	return _lifecycle_success({"frontier_id": _pause_frontier_id})
+
+
+func resume(handle: Dictionary) -> Dictionary:
+	if not _valid_pause_handle(handle) or _pause_handle.is_empty() \
+			or handle != _pause_handle:
+		return _lifecycle_failure(&"invalid_suspension_handle")
+	var resumed: Variant = _playback_port.call(&"resume_pause_suspension")
+	if not _valid_port_pause_result(resumed, &"resumed") \
+			or _port_pause_state() != &"Active":
+		if not _prove_or_recover_port_suspended():
+			_latch_consumer_fatal(&"pause_resume", _failure(&"audio_runtime_indeterminate"))
+			return _lifecycle_failure(&"audio_runtime_indeterminate")
+		return _lifecycle_failure(_port_failure_code(resumed, &"audio_resume_failed"))
+	_pause_handle = {}
+	_pause_frontier_id = ""
+	return _lifecycle_success({"resumed": true})
+
+
+func get_state() -> Dictionary:
+	if _fatal:
+		return _lifecycle_failure(&"audio_runtime_indeterminate")
+	return _lifecycle_success({
+		"state": &"Suspended" if not _pause_handle.is_empty() else &"Active",
+	})
+
+
 func play_sfx(cue_id: String, context: Dictionary = {}) -> Dictionary:
 	if not _initialized:
 		return _failure(&"not_initialized")
@@ -124,6 +181,8 @@ func play_sfx(cue_id: String, context: Dictionary = {}) -> Dictionary:
 	if not resolved.get("ok", false):
 		return resolved
 	var record: Dictionary = resolved["value"]
+	if not _pause_handle.is_empty() and record["bus"] != &"UI":
+		return _failure(&"audio_suspended")
 	var loaded: Dictionary = _playback_port.call(&"load_stream", record["path"])
 	if not loaded.get("ok", false):
 		return _warn_missing(cue_id)
@@ -306,6 +365,8 @@ func _set_context(channel_id: StringName, context_id: String, context: Dictionar
 		return _failure(&"not_initialized")
 	if _fatal:
 		return _failure(&"audio_runtime_indeterminate")
+	if not _pause_handle.is_empty():
+		return _failure(&"audio_suspended")
 	if context_id.is_empty():
 		if not context.is_empty():
 			return _failure(&"invalid_audio_snapshot")
@@ -521,6 +582,85 @@ func _latch_consumer_fatal(phase: StringName, result: Dictionary) -> void:
 	warning["fatal"] = true
 	warning["details"] = failure.duplicate(true)
 	audio_warning.emit(warning.duplicate(true))
+
+
+func _valid_pause_handle(handle: Dictionary) -> bool:
+	var keys: Array = handle.keys()
+	keys.sort()
+	return keys == ["generation", "handle_id", "holder", "reason"] \
+			and typeof(handle.generation) == TYPE_INT and int(handle.generation) > 0 \
+			and typeof(handle.handle_id) == TYPE_STRING \
+			and not str(handle.handle_id).is_empty() \
+			and str(handle.handle_id) == str(handle.handle_id).strip_edges() \
+			and typeof(handle.holder) == TYPE_STRING_NAME \
+			and not String(handle.holder).is_empty() \
+			and String(handle.holder) == String(handle.holder).strip_edges() \
+			and typeof(handle.reason) == TYPE_STRING_NAME \
+			and handle.reason == &"universal_pause"
+
+
+func _valid_port_pause_result(result: Variant, member: StringName) -> bool:
+	var key := String(member)
+	return typeof(result) == TYPE_DICTIONARY \
+			and typeof(result.get("ok")) == TYPE_BOOL and result.ok \
+			and result.get("code") == &"ok" \
+			and typeof(result.get("value")) == TYPE_DICTIONARY \
+			and result.value.size() == 1 and typeof(result.value.get(key)) == TYPE_BOOL \
+			and bool(result.value[key])
+
+
+func _port_pause_state() -> StringName:
+	var state: Variant = _playback_port.call(&"get_pause_suspension_state")
+	if typeof(state) != TYPE_DICTIONARY \
+			or typeof(state.get("ok")) != TYPE_BOOL or not state.ok \
+			or state.get("code") != &"ok" \
+			or typeof(state.get("value")) != TYPE_DICTIONARY \
+			or state.value.size() != 1 \
+			or typeof(state.value.get("state")) != TYPE_STRING_NAME \
+			or state.value.state not in [&"Active", &"Suspended"]:
+		return &""
+	return state.value.state
+
+
+func _port_failure_code(result: Variant, fallback: StringName) -> StringName:
+	if typeof(result) != TYPE_DICTIONARY or result.get("ok", true) \
+			or typeof(result.get("code")) != TYPE_STRING_NAME \
+			or String(result.code).is_empty():
+		return fallback
+	return result.code
+
+
+func _prove_or_recover_port_active() -> bool:
+	var state := _port_pause_state()
+	if state == &"Active":
+		return true
+	if state != &"Suspended":
+		return false
+	var recovered: Variant = _playback_port.call(&"resume_pause_suspension")
+	return _valid_port_pause_result(recovered, &"resumed") \
+			and _port_pause_state() == &"Active"
+
+
+func _prove_or_recover_port_suspended() -> bool:
+	var state := _port_pause_state()
+	if state == &"Suspended":
+		return true
+	if state != &"Active":
+		return false
+	var recovered: Variant = _playback_port.call(
+		&"begin_pause_suspension", MUSIC_PLAYERS + AMBIENCE_PLAYERS,
+		SFX_PLAYERS + VOICE_PLAYERS
+	)
+	return _valid_port_pause_result(recovered, &"suspended") \
+			and _port_pause_state() == &"Suspended"
+
+
+func _lifecycle_success(value: Dictionary) -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": value.duplicate(true)}
+
+
+func _lifecycle_failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "value": null}
 
 
 func _failure(code: StringName) -> Dictionary:

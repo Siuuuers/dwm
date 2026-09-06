@@ -8,6 +8,7 @@ var _players: Dictionary = {}
 var _tweens: Dictionary = {}
 var _tween_specs: Dictionary = {}
 var _bus_states: Dictionary = {}
+var _pause_capture: Dictionary = {}
 
 
 func ensure_bus(bus_name: StringName) -> Dictionary:
@@ -113,6 +114,134 @@ func create_parallel_tween(channel_id: StringName, tracks: Array[Dictionary], du
 	_tweens[channel_id] = tween
 	_tween_specs[channel_id] = {"tracks": tracks.duplicate(true), "duration": duration}
 	return _ok({"duration": duration})
+
+
+## Freezes long-lived semantic playback without seeking or reconstructing it. Transient story
+## players are stopped and deliberately are not part of the resume capsule; Pause UI remains on
+## its separate, untouched pool.
+func begin_pause_suspension(
+		freeze_player_ids: Array[StringName], stop_player_ids: Array[StringName]
+) -> Dictionary:
+	if not _pause_capture.is_empty():
+		return _failure(&"audio_suspended")
+	var seen: Dictionary = {}
+	for player_id: StringName in freeze_player_ids + stop_player_ids:
+		if seen.has(player_id) or not _players.has(player_id) \
+				or not is_instance_valid(_players[player_id]):
+			return _failure(&"invalid_audio_runtime")
+		seen[player_id] = true
+	var capture := {"players": {}, "running_tweens": []}
+	for player_id: StringName in freeze_player_ids:
+		var player: AudioStreamPlayer = _players[player_id]
+		var has_stream_playback := player.has_stream_playback()
+		capture.players[player_id] = {
+			"instance_id": player.get_instance_id(),
+			"has_stream_playback": has_stream_playback,
+			"stream": player.stream,
+			"stream_playback": player.get_stream_playback() if has_stream_playback else null,
+			"stream_paused": player.stream_paused,
+		}
+	for channel_value: Variant in _tweens.keys():
+		var channel_id: StringName = channel_value
+		var tween: Tween = _tweens[channel_id]
+		if tween != null and tween.is_valid() and tween.is_running():
+			(capture.running_tweens as Array).append(channel_id)
+
+	for player_id: StringName in freeze_player_ids:
+		var player: AudioStreamPlayer = _players[player_id]
+		if bool(capture.players[player_id].has_stream_playback):
+			player.stream_paused = true
+			if not player.stream_paused:
+				_restore_pause_capture(capture)
+				return _failure(&"invalid_audio_runtime")
+	for channel_id: StringName in capture.running_tweens:
+		var tween: Tween = _tweens.get(channel_id)
+		if tween == null or not tween.is_valid():
+			_restore_pause_capture(capture)
+			return _failure(&"invalid_audio_runtime")
+		tween.pause()
+		if tween.is_running():
+			_restore_pause_capture(capture)
+			return _failure(&"invalid_audio_runtime")
+	# Do irreversible transient stops last, after every fallible reversible readback.
+	for player_id: StringName in stop_player_ids:
+		var player: AudioStreamPlayer = _players[player_id]
+		player.stop()
+		player.stream_paused = false
+		if player.playing or player.stream_paused:
+			_restore_pause_capture(capture)
+			return _failure(&"invalid_audio_runtime")
+	_pause_capture = capture
+	return _ok({"suspended": true})
+
+
+func resume_pause_suspension() -> Dictionary:
+	if _pause_capture.is_empty():
+		return _failure(&"invalid_suspension_handle")
+	var capture := _pause_capture
+	var resumed_players: Array[StringName] = []
+	var resumed_tweens: Array[StringName] = []
+	for player_value: Variant in capture.players.keys():
+		var player_id: StringName = player_value
+		var player: AudioStreamPlayer = _players.get(player_id)
+		var prior: Dictionary = capture.players[player_id]
+		if player == null or not is_instance_valid(player) \
+				or player.get_instance_id() != int(prior.instance_id) \
+				or player.stream != prior.stream \
+				or player.has_stream_playback() != bool(prior.has_stream_playback) \
+				or (bool(prior.has_stream_playback) \
+						and player.get_stream_playback() != prior.stream_playback):
+			_resuspend_pause_capture(capture, resumed_players, resumed_tweens)
+			return _failure(&"invalid_audio_runtime")
+		player.stream_paused = bool(prior.stream_paused)
+		if player.stream_paused != bool(prior.stream_paused):
+			_resuspend_pause_capture(capture, resumed_players, resumed_tweens)
+			return _failure(&"invalid_audio_runtime")
+		resumed_players.append(player_id)
+	for channel_id: StringName in capture.running_tweens:
+		var tween: Tween = _tweens.get(channel_id)
+		if tween == null or not tween.is_valid():
+			_resuspend_pause_capture(capture, resumed_players, resumed_tweens)
+			return _failure(&"invalid_audio_runtime")
+		tween.play()
+		if not tween.is_running():
+			_resuspend_pause_capture(capture, resumed_players, resumed_tweens)
+			return _failure(&"invalid_audio_runtime")
+		resumed_tweens.append(channel_id)
+	_pause_capture = {}
+	return _ok({"resumed": true})
+
+
+func get_pause_suspension_state() -> Dictionary:
+	return _ok({"state": &"Suspended" if not _pause_capture.is_empty() else &"Active"})
+
+
+func _restore_pause_capture(capture: Dictionary) -> void:
+	for player_value: Variant in capture.players.keys():
+		var player_id: StringName = player_value
+		var player: AudioStreamPlayer = _players.get(player_id)
+		if player != null and is_instance_valid(player):
+			player.stream_paused = bool(capture.players[player_id].stream_paused)
+	for channel_id: StringName in capture.running_tweens:
+		var tween: Tween = _tweens.get(channel_id)
+		if tween != null and tween.is_valid() and not tween.is_running():
+			tween.play()
+
+
+func _resuspend_pause_capture(
+		capture: Dictionary,
+		resumed_players: Array[StringName],
+		resumed_tweens: Array[StringName]
+) -> void:
+	for player_id: StringName in resumed_players:
+		var player: AudioStreamPlayer = _players.get(player_id)
+		if player != null and is_instance_valid(player) \
+				and bool(capture.players[player_id].has_stream_playback):
+			player.stream_paused = true
+	for channel_id: StringName in resumed_tweens:
+		var tween: Tween = _tweens.get(channel_id)
+		if tween != null and tween.is_valid() and tween.is_running():
+			tween.pause()
 
 
 func _complete_tween(channel_id: StringName) -> void:

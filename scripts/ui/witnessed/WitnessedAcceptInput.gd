@@ -17,14 +17,20 @@ var _page_contacts: Dictionary = {}
 var _fresh_page_source := ""
 var _await_page_neutral := false
 var _paged_frame := -1
+var _input_custody: Node
 
 func _enter_tree() -> void:
 	add_to_group("dialogic_input_policy")
+	# Paused source input remains inert, but releases must not be lost with the tree.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, runtime: Node) -> void:
 	_caption = caption
 	_viewport_control = viewport_control
 	_runtime = runtime
+	var input_owner := get_node_or_null("/root/InputManager")
+	if input_owner != null:
+		bind_input_custody(input_owner)
 	_await_initial_neutral = Input.is_action_pressed(_action())
 	_await_page_neutral = _page_is_held()
 	_caption.visibility_changed.connect(_cancel_candidate)
@@ -32,6 +38,27 @@ func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, r
 	_viewport_control.get_v_scroll_bar().value_changed.connect(cancel_pending_accept)
 	if _runtime != null and _runtime.has_signal("dialogic_paused"):
 		_runtime.connect("dialogic_paused", _cancel_candidate)
+
+func bind_input_custody(owner: Node) -> bool:
+	if owner == null or not owner.has_method("is_source_input_admitted") \
+			or not owner.has_signal("source_input_custody_changed"):
+		return false
+	if _input_custody != null:
+		return _input_custody == owner
+	_input_custody = owner
+	owner.connect("source_input_custody_changed", _on_input_custody_changed)
+	_on_input_custody_changed()
+	return true
+
+func _on_input_custody_changed() -> void:
+	_cancel_candidate()
+	_fresh_key_event = 0
+	_await_initial_neutral = not _contacts.is_empty() or Input.is_action_pressed(_action())
+	_await_page_neutral = not _page_contacts.is_empty() or _page_is_held()
+
+func _source_has_custody() -> bool:
+	return _input_custody == null or (is_instance_valid(_input_custody) \
+		and bool(_input_custody.call("is_source_input_admitted")))
 
 func _cancel_candidate() -> void:
 	_candidate.clear()
@@ -45,7 +72,7 @@ func _action() -> StringName:
 	return StringName(ProjectSettings.get_setting(ACTION_SETTING, "dialogic_default_action"))
 
 func _admissible() -> bool:
-	return _foreground and is_instance_valid(_runtime) and not bool(_runtime.get("paused")) \
+	return _source_has_custody() and not get_tree().paused and _foreground and is_instance_valid(_runtime) and not bool(_runtime.get("paused")) \
 		and is_instance_valid(_caption) and _caption.is_visible_in_tree() \
 		and not _caption.get_parsed_text().is_empty()
 
@@ -100,6 +127,8 @@ func _input(event: InputEvent) -> void:
 				_candidate.clear()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if get_tree().paused or not _source_has_custody():
+		return
 	if handle_page_input(event):
 		get_viewport().set_input_as_handled()
 		return
@@ -112,6 +141,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_submit(false)
 
 func handle_page_input(event: InputEvent) -> bool:
+	if get_tree().paused or not _source_has_custody():
+		return false
 	var direction := _page_direction(event)
 	if direction == 0 or not is_instance_valid(_caption) or not _caption.has_focus():
 		return false
@@ -165,6 +196,8 @@ func _page_is_held() -> bool:
 	return false
 
 func handle_caption_gui_input(event: InputEvent) -> void:
+	if get_tree().paused or not _source_has_custody():
+		return
 	if event.device == InputEvent.DEVICE_ID_EMULATION or not _is_pointer(event):
 		return
 	var source := _source(event)

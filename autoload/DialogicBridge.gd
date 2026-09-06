@@ -46,6 +46,9 @@ var _current_timeline_context: Dictionary = {}
 ## Ephemeral ordinary playback, never inferred from a restored checkpoint cache.
 var _ordinary_playback: Dictionary = {}
 var _start_in_progress := false
+var _pause_handle: Dictionary = {}
+var _pause_frontier: Dictionary = {}
+var _pause_changing := false
 var _mutation_gate: Object
 var _profile: Node
 var _preference_adapter: RefCounted
@@ -181,6 +184,8 @@ func require_dialogic() -> Dictionary:
 
 
 func start_timeline_id(timeline_id: String, context: Dictionary = {}) -> Dictionary:
+	if not _pause_handle.is_empty():
+		return {"ok": false, "reason": "narrative_suspended", "timeline_id": timeline_id}
 	if not _active_entry.is_empty():
 		# Reviewer I-1: a legacy id start may not physically replace a live semantic entry -
 		# the entry branch would later deliver a natural_end intent for prose that was cancelled
@@ -563,6 +568,8 @@ func set_skip_mode(mode: StringName) -> Dictionary:
 ## One held-skip step, in the exact frozen order: read the PRE-reveal visited state, reveal, mark
 ## visited, classify the next event WITHOUT consuming it, evaluate, advance only when allowed.
 func request_skip_step() -> Dictionary:
+	if not _pause_handle.is_empty():
+		return _command_failure(&"narrative_suspended")
 	if _skip_profile == null or _runtime_adapter == null:
 		return _command_failure(&"skip_context_not_configured")
 	var line_id: String = str(_runtime_adapter.current_line_id())
@@ -796,6 +803,105 @@ func has_active_playback() -> bool:
 		or (_runtime_adapter != null and _runtime_adapter.has_method("has_active_playback") and _runtime_adapter.has_active_playback())
 
 
+func capture_pause_frontier(timeline_id: String = "") -> Dictionary:
+	if _ordinary_playback.is_empty() or _start_in_progress or not _active_transaction.is_empty() or _restore_playback_started \
+		or not _pending_resume_token.is_empty() or _runtime_adapter == null \
+		or not _runtime_adapter.has_method("capture_pause_frontier"):
+		return _command_failure(&"pause_frontier_unavailable")
+	if not timeline_id.is_empty() and str(_ordinary_playback.get("timeline_id", "")) != timeline_id:
+		return _command_failure(&"pause_source_mismatch")
+	if _mutation_gate != null:
+		var guarded: Dictionary = _mutation_gate.guard_external(&"narrative_pause")
+		if not guarded.get("ok", false): return guarded
+	var captured: Dictionary = _runtime_adapter.capture_pause_frontier()
+	if not captured.get("ok", false): return captured
+	var frontier: Dictionary = captured.value.duplicate(true)
+	frontier.erase("paused")
+	return {"ok": true, "code": &"ok", "value": frontier}
+
+
+func begin_suspend(handle: Dictionary) -> Dictionary:
+	if not _valid_pause_handle(handle): return _pause_failure(&"invalid_suspension_handle")
+	if _pause_changing: return _pause_failure(&"narrative_suspended")
+	if not _pause_handle.is_empty():
+		if _pause_handle != handle: return _pause_failure(&"narrative_suspended")
+		var state := get_state()
+		if not state.get("ok", false): return state
+		var live := capture_pause_frontier()
+		var expected := _pause_frontier.duplicate(true)
+		expected.erase("paused")
+		if not live.get("ok", false) or live.value != expected:
+			return _pause_failure(&"pause_source_changed")
+		return _pause_success({"frontier_id": _pause_frontier_id()})
+	var captured := capture_pause_frontier()
+	if not captured.get("ok", false): return _pause_failure(captured.get("code", &"pause_frontier_unavailable"))
+	var runtime_before: Dictionary = _runtime_adapter.capture_pause_frontier()
+	if not runtime_before.get("ok", false): return _pause_failure(&"pause_frontier_unavailable")
+	_pause_handle = handle.duplicate(true)
+	_pause_frontier = runtime_before.value.duplicate(true)
+	_pause_changing = true
+	var paused: Dictionary = _runtime_adapter.set_paused(true)
+	var after := capture_pause_frontier()
+	_pause_changing = false
+	if not paused.get("ok", false) or not after.get("ok", false) or after.value != captured.value:
+		# Keep custody until the coordinator compensates or enters recovery.
+		return _pause_failure(&"pause_source_changed")
+	return _pause_success({"frontier_id": _pause_frontier_id()})
+
+
+func resume(handle: Dictionary) -> Dictionary:
+	if _pause_changing or _pause_handle.is_empty() or handle != _pause_handle:
+		return _pause_failure(&"invalid_suspension_handle")
+	var current := capture_pause_frontier()
+	var expected := _pause_frontier.duplicate(true)
+	expected.erase("paused")
+	if not current.get("ok", false) or current.value != expected:
+		return _pause_failure(&"pause_source_changed")
+	_pause_changing = true
+	var restored: Dictionary = _runtime_adapter.set_paused(bool(_pause_frontier.paused))
+	_pause_changing = false
+	if not restored.get("ok", false): return _pause_failure(&"pause_resume_failed")
+	_pause_handle = {}
+	_pause_frontier = {}
+	return _pause_success({"resumed": true})
+
+
+func get_state() -> Dictionary:
+	if _pause_handle.is_empty(): return _pause_success({"state": &"Active"})
+	if _pause_changing: return _pause_failure(&"narrative_runtime_indeterminate")
+	var current := capture_pause_frontier()
+	var expected := _pause_frontier.duplicate(true)
+	expected.erase("paused")
+	if not current.get("ok", false) or current.value != expected:
+		return _pause_failure(&"narrative_runtime_indeterminate")
+	var physical: Dictionary = _runtime_adapter.capture_pause_frontier()
+	if not physical.get("ok", false) or not physical.value.get("paused", false):
+		return _pause_failure(&"narrative_runtime_indeterminate")
+	return _pause_success({"state": &"Suspended"})
+
+
+func _pause_frontier_id() -> String:
+	return "dialogic:%s:%d:%d" % [_pause_frontier.request_id, _pause_frontier.generation, _pause_frontier.event_index]
+
+
+static func _valid_pause_handle(handle: Dictionary) -> bool:
+	var keys := handle.keys()
+	keys.sort()
+	return keys == ["generation", "handle_id", "holder", "reason"] \
+		and typeof(handle.generation) == TYPE_INT and handle.generation > 0 \
+		and typeof(handle.handle_id) == TYPE_STRING and not handle.handle_id.strip_edges().is_empty() \
+		and typeof(handle.holder) == TYPE_STRING_NAME and not String(handle.holder).strip_edges().is_empty() \
+		and handle.reason == &"universal_pause" and typeof(handle.reason) == TYPE_STRING_NAME
+
+
+static func _pause_success(value: Dictionary) -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": value}
+
+
+static func _pause_failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "value": null}
+
+
 ## The six durable-checkpoint checks resume_entry has always made, in this exact order and with
 ## these exact codes, extracted so the pure validator and the playback path share ONE copy.
 func _check_resume_checkpoint(checkpoint: Dictionary, execution_mode: StringName) -> Dictionary:
@@ -874,6 +980,7 @@ func _context_fingerprint(context: Dictionary) -> Dictionary:
 ## old-process token can never equal a live one (staleness is exact string equality).
 func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
 		token_kind: String, expected_version: int = -1) -> Dictionary:
+	if not _pause_handle.is_empty(): return _playback_failure(&"narrative_suspended", "Pause retains playback custody")
 	if has_active_playback():
 		var standing := str(_active_entry.get("token", _active_playback.get("token", "")))
 		return _playback_failure(&"entry_already_active", "%s is still active" % standing)
@@ -1028,6 +1135,7 @@ func abort_current_entry(code: StringName) -> Dictionary:
 
 
 func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
+	if not _pause_handle.is_empty(): return _playback_failure(&"narrative_suspended", "Pause retains playback custody")
 	if not _initialized:
 		return _playback_failure(&"not_initialized", "initialize the bridge first")
 	if not _active_entry.is_empty():
