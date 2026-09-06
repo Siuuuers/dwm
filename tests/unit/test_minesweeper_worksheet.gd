@@ -32,6 +32,81 @@ func test_fit_axes_have_no_rail_nodes_or_targets_and_large_keeps_only_vertical()
 	assert_eq(large.vertical_rail.position,Vector2(736,0))
 	assert_eq(large.vertical_rail.size,Vector2(64,400))
 
+func test_rules_replace_only_worksheet_and_return_restores_mode_cell_scroll_and_source() -> void:
+	var worksheet := _worksheet("expert")
+	assert_true(worksheet.set_mode(&"flag"))
+	worksheet.grid._set_focused(200)
+	worksheet.set_scroll(Vector2i(80,140))
+	worksheet.vertical_rail.grab_focus()
+	var source: Control = worksheet.vertical_rail
+	var before: Dictionary = worksheet.grid.projection.duplicate(true)
+	assert_true(worksheet.open_rules())
+	assert_false(worksheet.well.visible)
+	assert_false(source.visible)
+	assert_eq(worksheet.grid.process_mode,Node.PROCESS_MODE_DISABLED)
+	assert_true(worksheet.information_sheet.rows[0].has_focus())
+	assert_false(worksheet.set_mode(&"drag"))
+	worksheet.set_scroll(Vector2i.ZERO)
+	assert_eq(worksheet.get_scroll(),Vector2i(80,140))
+	worksheet.information_sheet.return_button.pressed.emit()
+	assert_null(worksheet.information_sheet)
+	assert_true(worksheet.well.visible)
+	assert_true(source.has_focus())
+	assert_eq(worksheet.grid.mode,&"flag")
+	assert_eq(worksheet.grid.focused_index,200)
+	assert_eq(worksheet.get_scroll(),Vector2i(80,140))
+	assert_eq(worksheet.grid.projection,before)
+
+func test_sheet_tab_traps_focus_and_escape_restores_grid_without_command() -> void:
+	var worksheet := _worksheet()
+	worksheet.grid.grab_focus()
+	watch_signals(worksheet)
+	assert_true(worksheet.open_rules())
+	var viewport: SubViewport = worksheet.get_viewport()
+	var sheet: Control = worksheet.information_sheet
+	var tab := InputEventKey.new()
+	tab.keycode = KEY_TAB
+	tab.pressed = true
+	for index in 5:
+		viewport.push_input(tab,true)
+		await get_tree().process_frame
+	assert_true(sheet.rows[0].has_focus())
+	var confirm := InputEventKey.new()
+	confirm.keycode = KEY_ENTER
+	confirm.pressed = true
+	viewport.push_input(confirm,true)
+	assert_signal_emit_count(worksheet,"cell_action_requested",0)
+	var back := InputEventKey.new()
+	back.keycode = KEY_ESCAPE
+	back.pressed = true
+	viewport.push_input(back,true)
+	await get_tree().process_frame
+	assert_null(worksheet.information_sheet)
+	assert_true(worksheet.grid.has_focus())
+	assert_signal_emit_count(worksheet,"cell_action_requested",0)
+
+func test_missing_assignment_truth_does_not_open_or_disturb_grid() -> void:
+	var worksheet := _worksheet()
+	worksheet.grid.grab_focus()
+	assert_false(worksheet.open_assignments([]))
+	assert_null(worksheet.information_sheet)
+	assert_true(worksheet.well.visible)
+	assert_true(worksheet.grid.has_focus())
+	assert_true(worksheet.open_assignments([false,false,false,false,false,false,false,false,true]))
+	assert_eq(worksheet.information_sheet.rows[8].accessibility_name,"Complete all three tiers — Claimed")
+
+func test_sheet_return_preserves_manual_pan_even_when_source_grid_cell_is_offscreen() -> void:
+	var worksheet := _worksheet("expert")
+	worksheet.grid.grab_focus()
+	worksheet.set_scroll(Vector2i(100,200))
+	assert_eq(worksheet.grid.focused_index,0)
+	assert_true(worksheet.open_rules())
+	worksheet.close_information()
+	assert_true(worksheet.grid.has_focus())
+	assert_eq(worksheet.get_scroll(),Vector2i(100,200),"Sheet Return restores the exact retained pan before any new navigation.")
+	worksheet.grid._move_focus(Vector2i.RIGHT)
+	assert_eq(worksheet.get_scroll(),Vector2i(25,1),"A later navigation still reveals its complete target.")
+
 func test_scroll_clamps_integer_geometry_and_never_changes_public_board() -> void:
 	var worksheet := _worksheet("expert")
 	var original: Dictionary = worksheet.grid.projection.duplicate(true)

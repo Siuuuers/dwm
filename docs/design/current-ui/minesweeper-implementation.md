@@ -54,8 +54,8 @@ does not enable inspection prematurely. A durable retained terminal view must be
 integrated with the existing save/restore owners.
 
 Canonical solo/pair owners, the specially marked solo mine, pre-Reveal history,
-action-count/Foresight/No-flag registers, real New Board/replacement, Rules and
-Assignments sheets, platform pen mapping and configured secondary-controller action,
+action-count/Foresight/No-flag registers, real New Board/replacement,
+platform pen mapping and configured secondary-controller action,
 desktop/challenge mounts, audio, launcher/Pause/recovery/save connections, other
 accessibility palettes and native assistive-technology acceptance remain unfinished.
 The full ten-family UI goal and Bead `dwm-eei.9` remain in progress.
@@ -146,3 +146,55 @@ exits are zero. The existing 24 Dialogic orphans and environment messages remain
 `evidence/minesweeper_viewport` contains the final logs, four captures and the full
 invocation ledger, including earlier failures. This is a viewport checkpoint;
 full-screen, production integration and all-ten-family acceptance remain open.
+
+## Rules and Assignments continuation
+
+`MinesweeperInformationSheet` replaces the worksheet band with opaque paper,
+pinned heading and Return, and a clipped body. Four Rules rows state only the
+accepted Reveal, Flag, Chord and Drag facts. Nine Assignments use the accepted
+order and literal Claimed/Unclaimed status. The localized strings implement the
+dossier's English, Simplified Chinese and Traditional Chinese copy intent; they
+do not add reward, route, cost or metric explanations. Rows are focusable
+read-only Controls with no activation API. Return is the only visible action.
+
+Baseline heading/body/footer rectangles match section 4.8. Full-size licensed
+fonts wrap within fixed widths; row and footer heights grow on whole native
+pixels. Overflow reserves the target-width paper rail and reuses the worksheet's
+integer thumb arithmetic. Fit bodies have no rail node or assistive target. All
+baseline Rules tuples fit, while all nine Assignment rows require scrolling.
+
+`MinesweeperAssignmentsQuery` reads the real cumulative run receipt map and
+validates its nine-row order against `DataCatalog`. It returns only nine booleans.
+Opening or reading the sheet cannot claim rewards, change Coins or infer the
+all-tier receipt from three other rows. Tests exercise the real owner's automatic
+all-tier receipt and compare its complete save dictionary before and after
+projection and inspection. Unknown sources or invalid registry order produce a
+generic refusal, not default Unclaimed statuses.
+
+The worksheet mounts these ephemeral sheets, suppresses its hidden grid and
+rails, and traps focus locally. Return/Back restores the source control, mode,
+semantic cell and exact manual scroll; subsequent navigation resumes normal
+focus revelation. Outside clicks do not dismiss. These APIs are ready for the
+future register/dock host, which must also make its visible surrounding controls
+inert. Production launcher/dock wiring and final assistive-technology acceptance
+are still outstanding; this is not a complete mounted Minesweeper application.
+
+Verification: **112 tests / 3,624 assertions pass** across thirteen suites,
+including the existing board transaction tests. Seven actual OpenGL captures
+cover both Standard palettes, all three locales, text scales and target sizes,
+Rules, scrolled Assignments and the wider canonical Rules sheet. A rendered
+comparison removes only row text and proves every changed pixel stays inside
+the visible copy aperture. English Rules and large Traditional Chinese
+Assignments were also visually inspected. This sample set does not establish
+every final native-platform accessibility tuple.
+
+The first sheet tests found Godot's cached off-tree minimum width retaining a
+wider row after scrollbar allocation. Mount now refreshes the minimum cache.
+Independent review found focus restoration resetting manual pan; a failing
+regression preceded the fix. Final tests and GPU runs exit zero; the existing
+24 Dialogic orphans and certificate/Unicode environment messages remain.
+`evidence/minesweeper_sheets` retains final logs, seven images and the complete
+invocation ledger, including earlier failures. Text shaping and focus routing
+follow the [TextParagraph reference](https://docs.godotengine.org/en/stable/classes/class_textparagraph.html)
+and [Control reference](https://docs.godotengine.org/en/stable/classes/class_control.html),
+with behavior checked in the project's installed Godot 4.6.3.

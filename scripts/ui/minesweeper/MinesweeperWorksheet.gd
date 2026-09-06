@@ -3,11 +3,13 @@ extends Control
 
 signal cell_action_requested(action: StringName, index: int, revision: int)
 signal new_board_requested()
+signal information_closed()
 
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const RAIL := preload("res://scripts/ui/minesweeper/MinesweeperScrollRail.gd")
 const LAYOUT := preload("res://scripts/ui/minesweeper/MinesweeperWorksheetLayout.gd")
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
+const SHEET := preload("res://scripts/ui/minesweeper/MinesweeperInformationSheet.gd")
 
 class ContactSeam extends Control:
 	func _draw() -> void:
@@ -17,11 +19,17 @@ var grid: Control
 var well: Control
 var vertical_rail: Control
 var horizontal_rail: Control
+var information_sheet: Control
 var geometry: Dictionary = {}
 var _seam: Control
 var _band := Vector2i(400, 246)
 var _large := false
 var _locale := "en"
+var _host := "desktop_app"
+var _percent := 100
+var _palette: StringName = &"after_hours"
+var _source_focus: WeakRef
+var _grid_process_mode: ProcessMode
 var _scroll := Vector2i.ZERO
 var _pan_remainder := Vector2.ZERO
 var _panning := false
@@ -61,9 +69,13 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	var candidate_band := native_band
 	if candidate_band == Vector2i.ZERO: candidate_band = Vector2i(400 if host == "desktop_app" else 480, 232 if large else 246)
 	if candidate_theme == null or not LAYOUT.measure(1, 1, candidate_band, large).ok: return false
+	if information_sheet != null and not information_sheet.configure(host,locale,percent,large,palette,candidate_band): return false
 	grid.cancel_pointer_gesture()
 	if not grid.configure(locale, percent, large, palette): return false
 	_locale = locale.replace("_", "-")
+	_host = host
+	_percent = percent
+	_palette = palette
 	_large = large
 	_band = candidate_band
 	theme = candidate_theme
@@ -83,10 +95,62 @@ func present(projection: Dictionary) -> bool:
 	return true
 
 func set_mode(mode: StringName) -> bool:
+	if information_sheet != null: return false
 	return grid.set_mode(mode)
 
+func open_rules(source: Control = null) -> bool:
+	return _open_information("rules",[],source)
+
+func open_assignments(claimed: Array, source: Control = null) -> bool:
+	return _open_information("assignments",claimed,source)
+
+func _open_information(kind: String, claimed: Array, source: Control) -> bool:
+	if information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return false
+	var sheet: Control = SHEET.new()
+	sheet.hide()
+	add_child(sheet)
+	var accepted: bool = sheet.configure(_host,_locale,_percent,_large,_palette,_band)
+	if accepted: accepted = sheet.present_rules() if kind == "rules" else sheet.present_assignments(claimed)
+	if not accepted:
+		remove_child(sheet)
+		sheet.queue_free()
+		return false
+	var focused: Control = source if source != null else get_viewport().gui_get_focus_owner()
+	_source_focus = weakref(focused) if focused != null else null
+	information_sheet = sheet
+	grid.cancel_pointer_gesture()
+	_grid_process_mode = grid.process_mode
+	grid.process_mode = Node.PROCESS_MODE_DISABLED
+	well.hide()
+	if vertical_rail != null: vertical_rail.hide()
+	if horizontal_rail != null: horizontal_rail.hide()
+	sheet.return_requested.connect(close_information)
+	sheet.show()
+	sheet.rows[0].grab_focus()
+	return true
+
+func close_information() -> void:
+	if information_sheet == null: return
+	var sheet := information_sheet
+	information_sheet = null
+	remove_child(sheet)
+	sheet.queue_free()
+	grid.process_mode = _grid_process_mode
+	well.show()
+	if vertical_rail != null: vertical_rail.show()
+	if horizontal_rail != null: horizontal_rail.show()
+	var source: Control = _source_focus.get_ref() if _source_focus != null else null
+	_source_focus = null
+	# Returning from a sheet restores its exact pan, even if the retained cell is
+	# offscreen. A subsequent grid navigation resumes normal focus revelation.
+	_applying = true
+	if source != null and source.is_visible_in_tree() and source.focus_mode != Control.FOCUS_NONE: source.grab_focus()
+	elif grid.focus_mode != Control.FOCUS_NONE: grid.grab_focus()
+	_applying = false
+	information_closed.emit()
+
 func set_scroll(native_offset: Vector2i) -> void:
-	if grid.projection.is_empty() or grid.projection.custody: return
+	if information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return
 	grid.cancel_pointer_gesture()
 	_scroll = native_offset
 	_pan_remainder = Vector2.ZERO
@@ -110,6 +174,8 @@ func _apply_geometry() -> void:
 	var interactive: bool = not grid.projection.custody
 	vertical_rail = _update_rail(vertical_rail, geometry.vertical, true, interactive)
 	horizontal_rail = _update_rail(horizontal_rail, geometry.horizontal, false, interactive)
+	if vertical_rail != null: vertical_rail.visible = information_sheet == null
+	if horizontal_rail != null: horizontal_rail.visible = information_sheet == null
 	_update_seam()
 	queue_redraw()
 
@@ -136,14 +202,14 @@ func _scroll_axis(value: int, vertical: bool) -> void:
 	set_scroll(next)
 
 func _reveal_focus(index: int) -> void:
-	if _applying or grid.projection.is_empty() or grid.projection.custody or index < 0: return
+	if information_sheet != null or _applying or grid.projection.is_empty() or grid.projection.custody or index < 0: return
 	var result := LAYOUT.reveal_cell(grid.projection.width, grid.projection.height, index, _band, _large, _scroll)
 	if result.ok:
 		_scroll = result.value.scroll
 		_apply_geometry()
 
 func _pan(delta: Vector2) -> void:
-	if grid.projection.is_empty() or grid.projection.custody: return
+	if information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return
 	_pan_remainder -= delta / 2.0
 	var whole := Vector2i(int(_pan_remainder.x), int(_pan_remainder.y))
 	_pan_remainder -= Vector2(whole)
