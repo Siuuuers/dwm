@@ -133,21 +133,22 @@ func test_an_unconfigured_scene_reaching_the_tree_does_nothing_at_all() -> void:
 # ownership: input
 # -------------------------------------------------------------------------------------------------
 
-func test_button_input_mutates_no_gameplay_state() -> void:
+func test_host_exposes_no_substitute_caption_or_completion_button() -> void:
 	var scene := _instantiate()
 	assert_true(scene.configure_presentation(_port, _command()).get("ok", false))
 	add_child_autofree(scene)
 	var before := _owner_snapshot()
 
-	var button: Button = scene.get_node("%ContinueButton")
-	button.pressed.emit()
-	button.pressed.emit()
+	assert_eq(scene.find_children("*", "Button", true, false).size(), 0,
+		"only the live dialogue apparatus may expose playback controls")
+	assert_eq(scene.find_children("*", "Label", true, false).size(), 0,
+		"no generic hospital body replaces authored captions")
 
 	assert_eq(_owner_snapshot(), before,
-		"the continue button advances no day, applies no recovery, and selects no ending")
+		"the host advances no day, applies no recovery, and selects no ending")
 
 
-func test_button_input_never_advances_the_day_or_enters_an_ending() -> void:
+func test_host_ignores_input_without_advancing_the_day_or_entering_an_ending() -> void:
 	# The two specific mutations the OLD scene performed, named explicitly so a regression is
 	# unmistakable rather than buried in a snapshot diff.
 	var scene := _instantiate()
@@ -155,7 +156,12 @@ func test_button_input_never_advances_the_day_or_enters_an_ending() -> void:
 	add_child_autofree(scene)
 	var day_before := int(GameState._run_lifecycle.get_day())
 
-	scene.get_node("%ContinueButton").pressed.emit()
+	var accept := InputEventAction.new()
+	accept.action = &"ui_accept"
+	accept.pressed = true
+	scene.gui_input.emit(accept)
+	assert_eq(scene.mouse_filter, Control.MOUSE_FILTER_IGNORE,
+		"the empty host does not intercept the live caption apparatus")
 
 	assert_eq(int(GameState._run_lifecycle.get_day()), day_before, "no day advance")
 	assert_eq(String(GameState._run_lifecycle.get_state()), "PLAYING", "no ENDING transition")

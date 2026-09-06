@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedCaptionLayer.gd" id="1_layer"]
+[ext_resource type="Script" path="res://addons/dialogic/Modules/Text/node_dialog_text.gd" id="2_text"]
+
+[node name="WitnessedCaptionLayer" type="Node"]
+script = ExtResource("1_layer")
+
+[node name="Canvas" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+
+[node name="Caption" type="RichTextLabel" parent="Canvas" node_paths=PackedStringArray("textbox_root")]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 604.0
+offset_right = 1264.0
+offset_bottom = 656.0
+mouse_filter = 0
+focus_mode = 0
+bbcode_enabled = true
+scroll_following = false
+visible_characters_behavior = 1
+script = ExtResource("2_text")
+textbox_root = NodePath(".")
+hide_when_empty = true
+start_hidden = true

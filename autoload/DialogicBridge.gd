@@ -229,11 +229,25 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 		var fail := {"ok": false, "reason": "dialogic_missing", "path": path, "message": MISSING_DIALOGIC_MESSAGE}
 		emit_signal("timeline_failed", fail)
 		return fail
+	var caption_styles: Object = null
+	if timeline_id == "hospital.faint":
+		if dialogic.has_method("get_subsystem"):
+			caption_styles = dialogic.get_subsystem("Styles")
+		if caption_styles == null or not caption_styles.has_method("load_style"):
+			var fail := {"ok": false, "reason": "dialogic_style_unavailable", "timeline_id": timeline_id}
+			emit_signal("timeline_failed", fail)
+			return fail
 	_current_timeline_id = timeline_id
 	_current_timeline_context = context.duplicate(true)
 	if dialogic.has_method("clear"):
 		dialogic.call("clear", DIALOGIC_CLEAR_KEEP_VARIABLES)
 		preference_boundary_step.emit(&"clear")
+	if caption_styles != null:
+		# The configured physical owner starts Hospital before its host scene is mounted.
+		# Select presentation here without changing timeline/history/completion ownership.
+		# The project's default end_behaviour=0 removes this layout at natural end.
+		caption_styles.load_style(
+			"res://dialogic/styles/witnessed_caption_style.tres", null, true, false)
 	dialogic.call("start", path, label)
 	emit_signal("timeline_started", timeline_id, path)
 	return {"ok": true, "timeline_id": timeline_id, "path": path}

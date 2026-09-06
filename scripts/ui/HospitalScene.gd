@@ -8,9 +8,9 @@ class_name HospitalScene
 ## a Control node the owner of recovery, of the day, and of the ending -- three things a scene must
 ## never decide. All of it is gone.
 ##
-## WHAT IT MAY DO NOW. Exactly two things: display the projection of a coordinator-owned presentation
-## command, and hand button input to its injected presentation port. It starts no timeline (the
-## port's physical owner does), decides no outcome, advances no day, touches no stat, invitation,
+## Retains the coordinator-owned presentation command. Live captions are mounted by the existing
+## Dialogic playback owner; this scene adds no substitute prose or inert Continue button.
+## It starts no timeline, decides no outcome, advances no day, touches no stat, invitation,
 ## Schedule or ending, and calls no autoload. `SceneRouter` injects the exact retained port and the
 ## command while this scene is still OFF-TREE, so it cannot reach `_ready()` unconfigured.
 ##
@@ -19,9 +19,6 @@ class_name HospitalScene
 ## failure than inventing a recovery.
 
 const _PORT_METHODS: Array[String] = ["begin", "complete"]
-
-@onready var _hospital_body_label: Label = %HospitalBodyLabel
-@onready var _continue_button: Button = %ContinueButton
 
 var _presentation_port: Object = null
 var _presentation_command: Dictionary = {}
@@ -46,40 +43,6 @@ func configure_presentation(port: Object, presentation_command: Dictionary) -> D
 
 func is_presentation_configured() -> bool:
 	return _presentation_port != null and not _presentation_command.is_empty()
-
-
-func _ready() -> void:
-	if is_instance_valid(_continue_button) \
-			and not _continue_button.pressed.is_connected(_on_continue_pressed):
-		_continue_button.pressed.connect(_on_continue_pressed)
-	_render_projection()
-
-
-## Scene-safe projection ONLY. It reads the command's own context and writes it to a label; it never
-## re-derives a value, never asks an autoload for state, and never starts anything.
-func _render_projection() -> void:
-	if not is_instance_valid(_hospital_body_label):
-		return
-	if not is_presentation_configured():
-		_hospital_body_label.text = ""
-		if is_instance_valid(_continue_button):
-			_continue_button.disabled = true
-		return
-	_hospital_body_label.text = tr("hospital.body")
-	if is_instance_valid(_continue_button):
-		_continue_button.disabled = false
-
-
-## Button input reaches the presentation port and nothing else.
-##
-## There is deliberately NO port call here. The physical owner completes a Hospital presentation when
-## its timeline actually ends; a button press is not evidence that it did, and the port exposes no
-## method that would let a scene claim otherwise. So this acknowledges the press and stops.
-func _on_continue_pressed() -> void:
-	if not is_presentation_configured():
-		return
-	if is_instance_valid(_continue_button):
-		_continue_button.disabled = true
 
 
 ## The exact command this scene was given, for tests and for a restore that re-projects it. Detached,
