@@ -103,6 +103,7 @@ const STAGE_ORDER: Array[StringName] = [
 	&"initialize_input",
 	&"initialize_accessibility",
 	&"initialize_audio",
+	&"initialize_window_mode",
 	&"initialize_dialogic_bridge",
 	&"configure_restore_participants",
 	&"configure_day_resolution",
@@ -112,7 +113,7 @@ const STAGE_ORDER: Array[StringName] = [
 
 const FINAL_GATE_TARGETS: Array[StringName] = [
 	&"SaveManager", &"GameState", &"ProfileManager", &"LocalizationManager",
-	&"AudioManager", &"SceneRouter", &"DialogicBridge", &"InputManager",
+	&"AudioManager", &"WindowModeManager", &"SceneRouter", &"DialogicBridge", &"InputManager",
 ]
 
 const DEVELOPMENT_GATE_TARGETS := {
@@ -302,6 +303,14 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if target == null or not target.has_method("initialize"): return _failure(&"missing_stage_adapter", "%s initializer is unavailable" % target_name)
 			if profile == null: return _failure(&"missing_profile_manager", "ProfileManager dependency is unavailable")
 			return target.call(&"initialize", profile)
+		&"initialize_window_mode":
+			var window := _target(&"WindowModeManager")
+			var audio := _target(&"AudioManager")
+			var profile := _target(&"ProfileManager")
+			if window == null or audio == null or profile == null \
+				or not window.has_method("initialize") or not audio.has_method("get_settings_output_transactions"):
+				return _failure(&"missing_stage_adapter", "Window output requires Profile and shared Settings transactions")
+			return window.initialize(profile, audio.get_settings_output_transactions())
 		&"initialize_saves":
 			var save_manager := _target(&"SaveManager")
 			if save_manager == null or not save_manager.has_method("initialize"):
@@ -899,9 +908,20 @@ func _configure_restore_participants() -> Dictionary:
 	var audio := _target(&"AudioManager")
 	var router := _target(&"SceneRouter")
 	var bridge := _target(&"DialogicBridge")
+	var window := _target(&"WindowModeManager")
 	if save_manager == null or game_state == null or profile == null or localization == null \
 			or audio == null or router == null or bridge == null:
 		return _failure(&"missing_stage_adapter", "Restore participants require all target managers")
+	if window == null or not window.has_method("get_settings_window_capability") \
+		or not window.has_method("is_output_initialized") or not window.is_output_initialized() \
+		or not window.has_method("get_settings_output_transactions") or not audio.has_method("get_settings_output_transactions") \
+		or window.get_settings_output_transactions() != audio.get_settings_output_transactions():
+		return _failure(&"missing_stage_adapter", "Window output must share the initialized Settings transaction owner")
+	var window_capability: Variant = window.get_settings_window_capability()
+	if typeof(window_capability) != TYPE_DICTIONARY or not window_capability.get("ok", false) \
+		or typeof(window_capability.get("value")) != TYPE_DICTIONARY \
+		or typeof(window_capability.value.get("available")) != TYPE_BOOL:
+		return _failure(&"missing_stage_adapter", "Window output capability is malformed")
 	if _desktop_host_state == null:
 		_desktop_host_state = DESKTOP_APP_HOST_STATE.new()
 		var day: int = 1
@@ -926,6 +946,11 @@ func _configure_restore_participants() -> Dictionary:
 		"route": route_participant,
 		"narrative": NARRATIVE_RESTORE_PARTICIPANT.new(bridge),
 	}
+	# A headless process has no native window to capture or restore. Its explicit
+	# unavailable capability is retained; it supplies no window acceptance evidence.
+	if window_capability.value.available:
+		var configured_window: Dictionary = participants.profile.configure_window_output(window)
+		if not configured_window.get("ok", false): return configured_window
 	var configured: Dictionary = save_manager.call(&"configure_restore_participants", participants)
 	if configured.get("ok", false):
 		_retained_restore_participants = participants.duplicate()

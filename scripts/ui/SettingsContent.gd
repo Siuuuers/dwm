@@ -102,7 +102,7 @@ func is_departure_blocked() -> bool:
 
 func _ready() -> void:
 	set_interaction_enabled(interaction_enabled)
-	for entry: Array in [["profile", "ProfileManager"], ["localization", "LocalizationManager"], ["audio", "AudioManager"], ["tts", "SystemTtsCoordinator"], ["input", "InputManager"]]:
+	for entry: Array in [["profile", "ProfileManager"], ["localization", "LocalizationManager"], ["audio", "AudioManager"], ["tts", "SystemTtsCoordinator"], ["input", "InputManager"], ["window", "WindowModeManager"]]:
 		if not _services.has(entry[0]):
 			_services[entry[0]] = get_node_or_null("/root/" + entry[1])
 	if not _services.has("volume"):

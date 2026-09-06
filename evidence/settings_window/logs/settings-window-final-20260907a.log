@@ -1,0 +1,2638 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/91b40008-72d6-464c-8b62-10256e611db4/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_window_mode_port.gd
+* test_capture_is_actual_detached_and_main_window_only
+* test_borderless_uses_current_screen_usable_bounds_and_preserves_foreign_flags
+* test_windowed_uses_baseline_without_fullscreen_and_readback_detects_external_drift
+* test_restore_proves_exact_prior_mode_screen_position_size_and_borderless
+* test_invalid_modes_and_capsules_refuse_before_mutation
+* test_headless_unsupported_missing_window_and_bad_screen_bounds_refuse
+* test_silent_setter_failure_cannot_claim_apply_or_restoration_success
+7/7 passed.
+
+
+tests/unit/test_settings_window_transactions.gd
+* test_window_binding_has_one_identity_and_requires_the_same_profile
+* test_window_commit_applies_before_one_deferred_profile_publication
+* test_audio_preview_commit_and_cancel_never_touch_an_unchanged_window
+* test_invalid_stale_and_gate_refusals_happen_before_capture_or_output
+* test_reset_that_changes_window_refuses_unbound_or_unavailable_output_before_audio
+* test_disk_failure_restores_exact_resized_window_before_audio_compensation
+* test_reset_combines_audio_window_and_one_profile_reset_publication
+* test_failed_reset_restores_both_outputs_without_partial_profile_adoption
+* test_new_profile_commit_during_window_apply_wins_over_original_geometry
+* test_publication_callback_reverting_mode_applies_latest_instead_of_old_geometry
+* test_unproved_window_compensation_latches_shared_fatal
+* test_window_apply_failure_compensates_audio_and_retains_exact_prior_geometry
+12/12 passed.
+
+
+tests/unit/test_window_mode_manager.gd
+* test_ready_owner_commits_once_through_real_profile_and_shared_output_transaction
+* test_headless_owner_initializes_as_unavailable_without_physical_or_profile_mutation
+* test_failed_physical_apply_restores_exact_prior_geometry_and_does_not_publish
+* test_failed_persistence_restores_prior_output_not_generic_windowed_geometry
+* test_unproved_apply_and_failed_rollback_latch_shared_fatal
+* test_publication_profile_change_is_settled_to_latest_committed_mode
+* test_second_window_owner_binding_refuses_and_restores_its_prior_physical_state
+* test_invalid_restore_plans_refuse_and_silent_restore_does_not_publish_profile
+* test_failed_initialization_retains_one_binding_and_only_exact_dependencies_can_retry
+* test_get_preference_only_profile_is_cleanly_refused_before_binding_or_output
+10/10 passed.
+
+
+tests/unit/test_profile_window_restore.gd
+* test_configuration_is_identity_immutable_and_validates_the_contract
+* test_composite_prepare_apply_capture_rollback_and_finalize_use_one_profile_plan
+* test_bound_participant_rejects_missing_window_plan_before_mutation
+* test_window_apply_failure_is_compensated_without_touching_profile
+* test_profile_apply_failure_compensates_the_already_applied_window
+* test_unproved_rollback_latches_window_failure_and_returns_fatal
+* test_unbound_participant_preserves_the_legacy_profile_only_contract
+7/7 passed.
+
+
+tests/unit/test_bootstrap_window_output.gd
+* test_window_stage_order_and_missing_dependencies_refuse_before_physical_output
+* test_real_stage_applies_saved_mode_and_rejects_replacement_owner_before_setters
+* test_restore_wiring_embeds_exact_window_in_profile_without_adding_outer_participant
+* test_uninitialized_or_other_transaction_window_refuses_before_save_configuration
+* test_unavailable_native_window_is_ready_but_supplies_no_physical_restore_binding
+* test_actual_final_gate_injection_retains_one_identity_in_real_window_and_every_target
+6/6 passed.
+
+
+tests/unit/test_application_bootstrap.gd
+* test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
+* test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+* test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+* test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+* test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+* test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+* test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+* test_identical_startup_replay_reuses_the_exact_same_round_graph
+* test_game_state_refuses_a_second_distinct_round_coordinator
+* test_round_facade_fails_closed_before_the_coordinator_is_installed
+* test_game_state_reports_only_its_gate_identity_never_the_gate
+* test_bootstrap_stage_and_this_suite_are_source_bound_by_uid
+12/12 passed.
+
+
+tests/scene/test_settings_window_mode_live.gd
+* test_actual_window_option_commits_one_profile_revision_and_proven_output
+* test_failed_physical_selection_restores_option_geometry_focus_and_factual_error
+* test_absent_window_service_disables_row_and_refuses_programmatic_commit
+* test_unavailable_window_owner_disables_row_and_refuses_programmatic_commit
+* test_actual_preferences_confirmation_resets_both_outputs_once_and_preserves_language_controls
+5/5 passed.
+
+
+tests/unit/test_audio_output_custody.gd
+* test_capture_reads_actual_server_values_and_returns_detached_output_only
+* test_output_restore_retains_paused_player_playhead_tween_and_foreign_effect
+* test_owned_mono_snapshot_restores_enabled_state_without_touching_foreign_effects
+* test_malformed_and_other_owner_capsules_refuse_before_any_setter
+* test_restore_propagates_failed_setter_and_refuses_success_without_readback
+* test_output_proof_observes_native_owned_effect_disable_and_parameter_tamper
+* test_fake_output_capsule_failure_ordinals_do_not_reconstruct_playback
+7/7 passed.
+
+
+tests/unit/test_audio_settings_transactions.gd
+* test_preview_changes_only_output_and_cancel_restores_committed_settings
+* test_stale_holder_path_and_handle_refuse_without_discarding_current_preview
+* test_commit_publishes_only_after_output_and_committed_settings_are_proved
+* test_publication_callback_can_commit_new_profile_and_latest_output_wins
+* test_profile_write_during_physical_apply_refuses_stale_candidate_and_settles_latest
+* test_failed_physical_apply_does_not_write_profile_or_restart_players
+* test_disk_failure_compensates_output_without_preference_publication
+* test_cancel_uses_latest_committed_profile_even_before_deferred_publication
+* test_reset_rejects_stale_revision_before_output_then_commits_one_current_reset
+* test_shared_gate_blocks_output_without_acquiring_or_releasing_it
+* test_failed_cancel_proof_latches_fatal_and_retires_preview
+* test_invalid_drag_commit_settles_output_and_retires_detached_ui_handle
+* test_legacy_profile_can_initialize_audio_but_cannot_admit_settings_transactions
+* test_freed_profile_refuses_transactions_without_touching_output
+* test_focus_loss_during_preview_or_commit_retires_handles_without_persistence
+* test_focus_loss_during_cancel_settlement_retries_with_current_focus_state
+* test_pause_entry_and_resume_each_retire_live_preview_and_keep_committed_audio
+* test_failed_focus_output_apply_latches_shared_fatal_without_profile_write
+* test_pause_handle_refusals_and_idempotent_begin_preserve_owned_live_preview
+19/19 passed.
+
+
+tests/scene/test_settings_audio_live.gd
+* test_registered_output_controls_are_live_but_unregistered_samples_are_unavailable
+* test_native_pointer_drag_previews_physical_output_without_a_profile_write_then_commits_once
+* test_escape_and_departure_cancel_to_latest_output_and_ignore_stale_pointer_release
+* test_native_keyboard_step_and_mute_output_mode_commit_through_the_audio_owner
+* test_confirmed_preferences_restore_settles_output_and_retains_language_and_controls
+5/5 passed.
+
+
+tests/unit/test_controls_binding_import.gd
+* test_fresh_profile_is_v4_without_manufactured_legacy_provenance
+* test_default_v2_keeps_n_and_every_original_field
+* test_cross_swapped_imports_validate_after_all_transfers
+* test_missing_slots_use_defaults_without_replacing_existing_n
+* test_unsupported_records_preserve_source_and_make_entire_import_pending
+* test_multiple_same_kind_records_never_choose_a_winner
+* test_complete_import_collision_including_new_mode_stays_pending
+* test_retired_actions_do_not_claim_new_semantics_or_block_import
+* test_multiple_independent_import_issues_are_retained
+* test_upgrade_rejects_malformed_v2_before_any_conversion
+* test_v4_requires_closed_roots_valid_controls_and_boolean_pending
+* test_machine_schema_closes_v4_slots_and_accepts_both_provenance_forms
+12/12 passed.
+
+
+tests/unit/test_controls_binding_rules.gd
+* test_defaults_validate_and_reads_are_detached
+* test_invalid_inventory_and_slot_shapes_fail_without_mutating_input
+* test_keyboard_shape_codes_and_unarbitrated_modifiers_are_refused
+* test_protected_navigation_cannot_be_displaced
+* test_controller_records_are_semantic_and_navigation_is_protected
+* test_direct_proposal_preserves_other_slots_before_map_and_revision
+* test_single_conflict_swap_validates_entire_result
+* test_swap_refuses_to_push_grid_space_into_global_quick_action
+* test_space_is_available_to_grid_mode_when_new_board_moves
+* test_same_controller_position_conflicts_without_touching_keyboard
+* test_invalid_prior_map_cannot_be_partially_repaired_by_a_proposal
+* test_unknown_action_slot_and_revision_are_refused
+12/12 passed.
+
+
+tests/unit/test_controls_capture_session.gd
+* test_activation_identity_waits_for_its_release_without_inventing_input
+* test_held_events_are_independent_and_snapshot_physical_identity
+* test_keyboard_captures_physical_identity_and_explicit_modifiers_without_mutating_event
+* test_captured_result_is_single_use_and_detached_from_later_sessions
+* test_back_requires_a_fresh_press_after_held_release
+* test_controller_activation_pins_device_and_matching_disconnect_cancels
+* test_controller_capture_stores_semantic_button_without_physical_device
+* test_unsupported_controller_contact_keeps_waiting_but_owns_device_until_disconnect
+* test_unsupported_events_and_malformed_keyboard_never_end_capture
+* test_other_slot_is_ignored_except_explicit_back
+* test_registration_and_overlapping_begin_cannot_replace_live_capture
+* test_protected_navigation_candidate_remains_subject_to_owner_rules
+12/12 passed.
+
+
+tests/unit/test_controls_legacy_presentation.gd
+* test_every_stored_action_and_duplicate_record_is_visible_and_source_unchanged
+* test_physical_and_logical_identity_modifiers_and_empty_records_are_not_inferred
+* test_controller_records_keep_device_and_raw_button_truth_without_semantic_guess
+* test_unknown_and_unspecified_keys_are_described_without_manufactured_names
+4/4 passed.
+
+
+tests/unit/test_control_input_publication.gd
+* test_committed_multi_action_reset_is_published_once_as_a_complete_map
+* test_failed_binding_commit_keeps_live_slots_and_publishes_nothing
+* test_controller_rebind_preserves_keyboard_and_uses_any_device_position
+* test_canonical_cutover_preserves_native_ui_and_refuses_unconfirmed_reset
+* test_binding_publication_during_pause_preserves_physical_release_quarantine
+* test_pending_import_removes_all_live_canonical_bindings_without_inventing_defaults
+6/6 passed.
+
+
+tests/unit/test_canonical_preference_consumers.gd
+* test_reading_enums_map_exactly_without_mutating_profile
+* test_invalid_reading_has_no_partial_plan
+* test_instant_and_skip_plan_survive_native_cache_capture_and_rollback
+* test_localization_reads_and_publishes_only_canonical_primary_locale
+* test_restore_checks_committed_canonical_primary_before_applying
+* test_restore_participant_preserves_legacy_input_and_extracts_canonical_primary
+6/6 passed.
+
+
+tests/unit/test_canonical_audio_preferences.gd
+* test_real_canonical_profile_initializes_master_and_three_channels_without_voice_preferences
+* test_removed_voice_setters_cannot_write_profile_or_change_playback
+* test_music_and_ambience_use_profile_gain_once_at_the_bus
+* test_inactive_muting_defaults_true_and_preference_change_while_inactive_is_applied
+* test_canonical_restore_is_silent_and_rollback_preserves_profile_revision
+* test_invalid_canonical_restore_is_rejected_before_any_playback_mutation
+* test_bus_failure_restores_master_and_keeps_prior_settings
+* test_native_mono_effect_and_master_rollback_preserve_foreign_effects_without_players
+8/8 passed.
+
+
+tests/unit/test_audio_manager.gd
+* test_ending_audio_map_covers_every_canonical_id
+* test_ending_audio_rejects_retired_unknown_and_empty_ids
+* test_initialization_preserves_gate_and_builds_exact_pools
+* test_failed_initialization_is_retryable_and_does_not_connect_profile
+* test_volume_clamp_silence_threshold_and_explicit_mute
+* test_exact_threshold_and_focus_loss_overlay_do_not_replace_preferences
+* test_semantic_contexts_are_exact_and_same_context_is_idempotent
+* test_unknown_context_and_cue_never_mutate_semantic_state
+* test_commands_before_initialization_fail_without_touching_port
+* test_sfx_dispatch_uses_registered_manifest_bus
+* test_full_sfx_pool_reuses_oldest_playing_after_a_free_slot_was_reused
+* test_failed_context_change_rolls_back_runtime_and_semantics
+* test_every_crossfade_operation_failpoint_preserves_semantics
+* test_rollback_failure_latches_fatal_and_best_effort_mutes_channel
+* test_async_old_player_stop_failure_latches_fatal
+* test_committed_preference_apply_failure_latches_shared_gate
+* test_semantic_restore_is_silent_and_rollback_restarts_prior_context
+* test_restore_can_clear_channels_and_force_restart_same_context
+* test_restore_rejects_non_json_context_and_malformed_audio_preferences
+* test_runtime_audio_context_is_not_run_save_state
+20/20 passed.
+
+
+tests/unit/test_dialogic_preferences.gd
+* test_installed_version_preference_adapter_exists
+* test_dialogic_bridge_exposes_profile_preference_seams
+* test_adapter_maps_profile_values_to_live_caches_without_persistence
+* test_committed_dialogue_apply_failure_latches_shared_gate
+* test_failed_bridge_binding_is_retryable_and_connects_only_after_apply
+* test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once
+6/6 passed.
+
+
+tests/unit/test_localization.gd
+* test_initialization_loads_manifest_and_returns_detached_selectable_records
+* test_alias_switch_commits_profile_before_signals_and_publishes_once
+* test_lookup_uses_registered_fallback_and_exact_placeholder_sets
+WARNING: Localization format for key 'hud.minesweeper_rounds'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:434)
+       [1] t (res://autoload/LocalizationManager.gd:190)
+       [2] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:114)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+WARNING: Localization missing for key 'missing.key'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:434)
+       [1] t (res://autoload/LocalizationManager.gd:184)
+       [2] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:116)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+[ExpectedError]
+* test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing
+* test_pending_root_is_applied_during_initialization
+* test_pending_root_can_unregister_and_pending_failure_fails_initialization
+* test_ready_registration_applies_current_presentation_without_stale_state
+* test_root_apply_failure_rolls_back_prior_root_and_preserves_profile
+* test_profile_write_failure_rolls_back_all_roots_and_manager
+* test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values
+* test_prepared_bundle_contains_only_candidate_fallback_chain
+* test_external_committed_language_change_applies_validated_memory_without_second_write
+* test_configured_mutation_gate_identity_survives_initialization
+* test_restore_apply_and_rollback_are_silent_and_detached
+14/14 passed.
+
+
+tests/scene/test_settings_localization_scene.gd
+* test_settings_controller_and_scenes_exist_with_shared_contract
+* test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets
+* test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_legacy_aliases
+* test_each_reset_is_inert_until_its_own_confirmation
+* test_task9_hosts_instance_the_same_shared_content_scene
+* test_task9_pointer_drag_previews_then_commits_once_with_exact_handle
+* test_task9_discrete_volume_steps_and_failure_restore_committed_visible_value
+* test_task9_mute_and_output_mode_use_atomic_audio_sink
+* test_task9_audio_tests_never_autoplay_and_muted_or_zero_prevent_admission
+* test_task9_test_replacement_and_back_precedence_preserve_host
+* test_task9_tts_test_works_while_read_aloud_off_and_uses_frozen_specimen
+* test_task9_unavailable_tts_preserves_desired_preference_and_disables_controls
+* test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes
+* test_task9_stale_drag_completion_cancels_only_its_old_handle
+* test_task9_missing_audio_sink_has_no_direct_profile_write_fallback
+* test_task9_exact_localized_tts_specimens_and_rates_use_no_receipt_api
+* test_task9_committed_primary_locale_refreshes_shared_rail_labels
+* test_task9_title_settings_reopens_after_closing_its_cached_host
+* test_review_back_cancels_pending_drag_before_returning_focus
+* test_review_late_tts_admission_cannot_rebind_new_test
+* test_review_old_departure_cannot_stop_test_started_after_reopen
+* test_review_busy_commit_restores_rejected_control_value
+* test_review_drag_cancel_cannot_release_unrelated_pending_commit
+* test_review_reset_labels_exist_in_each_locale_without_fallback
+* test_review_confirmation_body_and_buttons_follow_accessibility_size
+* test_audio_affecting_reset_uses_physical_sink_and_never_falls_back_after_refusal
+* test_audio_affecting_reset_without_sink_does_not_write_profile
+27/27 passed.
+
+
+tests/scene/test_settings_folio.gd
+* test_fixed_geometry_fonts_and_targets_in_all_eighteen_presentations
+* test_every_enabled_control_can_be_revealed_at_all_locales_and_sizes
+* test_selected_category_and_focus_have_independent_evidence
+* test_real_input_enters_sheet_and_back_returns_to_selected_directory_row
+* test_scroll_owners_keep_their_offsets_independent
+* test_control_sample_is_noninteractive_and_only_in_accessibility_footer
+* test_title_and_desktop_hosts_fit_the_complete_plate_without_close_overlap
+* test_boolean_captions_use_localized_on_off_and_follow_committed_values
+8/8 passed.
+
+
+tests/scene/test_settings_host_geometry.gd
+* test_both_bare_wrappers_fit_canonical_shell_rectangles_in_nine_presentations
+* test_desktop_readiness_refuses_uninitialized_real_dependencies
+* test_desktop_home_and_back_preserve_native_modal_then_sheet_then_rail_custody
+* test_departure_blocks_input_and_reopen_until_held_sample_cleanup_finishes
+* test_busy_reset_cannot_be_detached_by_either_wrapper
+5/5 passed.
+
+
+tests/scene/test_settings_binding_capture.gd
+* test_native_capture_persists_one_slot_and_releases_before_destination
+* test_native_back_and_departure_cancel_without_mutation
+* test_native_enter_activation_is_not_captured_and_echo_cannot_choose
+* test_back_retires_captured_candidate_even_before_its_release
+* test_back_retires_swap_consent_even_before_accept_release
+* test_focus_loss_cancels_lost_release_and_allows_fresh_same_key
+* test_departure_consumes_both_held_candidate_and_back_until_release
+* test_second_capture_request_cannot_replace_an_open_capture
+* test_conflict_cancel_then_swap_publishes_complete_map_once
+* test_stale_and_failed_swap_preserve_committed_bindings
+* test_illegal_displacement_keeps_swap_separately_disabled
+* test_controller_capture_persists_semantic_position_for_any_device
+* test_controller_disconnect_retires_contact_and_reused_device_index_can_capture
+* test_pending_import_keeps_cells_disabled_until_confirmed_restore
+* test_unmapped_controller_contact_is_not_saved_as_semantic_position
+* test_binding_cells_and_conflict_fit_nine_presentations
+16/16 passed.
+
+
+tests/scene/test_settings_import_review.gd
+* test_custom_draft_is_local_until_whole_map_confirmation_and_publishes_once
+* test_local_swap_and_capture_cancel_preserve_draft_without_publishing
+* test_pending_nondefault_source_gets_explicit_default_draft_and_requires_apply
+* test_external_departures_discard_custom_review_without_any_write
+* test_stale_or_failed_apply_never_activates_the_review
+* test_original_records_and_complete_apply_table_fit_nine_presentations
+* test_old_capture_cleanup_cannot_clear_a_newer_opening_guard
+* test_original_records_scroll_by_native_keyboard_and_controller_without_losing_cancel_focus
+* test_open_original_records_relocalize_without_changing_their_source
+* test_keyboard_and_controller_draft_edits_activate_together_after_final_apply
+10/10 passed.
+
+
+tests/scene/test_settings_reset_confirmation.gd
+* test_all_reset_sheets_fit_the_actual_workfield_in_nine_presentations
+* test_activating_initial_cancel_is_inert_for_every_reset_and_locale
+* test_escape_cancels_even_after_the_scoped_action_gains_focus
+* test_changed_profile_invalidates_consent_and_cancel_reopen_binds_the_new_revision
+* test_focus_loss_during_sample_shutdown_cannot_open_a_late_reset_sheet
+* test_leaving_records_during_sample_shutdown_cannot_open_the_old_reset_sheet
+* test_revision_change_during_reset_departure_releases_busy_controls_after_refusal
+7/7 passed.
+
+
+tests/scene/test_settings_motion.gd
+* test_reduced_motion_retains_every_shake_choice_across_locales_and_sizes
+* test_motion_change_retires_open_dropdown_and_rejects_queued_and_direct_mutation
+* test_failed_motion_commit_retains_profile_and_presentation
+* test_hidden_motion_changes_do_not_take_focus
+4/4 passed.
+
+
+tests/scene/test_settings_palettes.gd
+* test_both_standard_palettes_preserve_geometry_and_native_bindings_in_nine_presentations
+* test_simultaneous_palettes_do_not_recolour_other_instances_or_their_native_resources
+* test_title_pending_dark_changes_existing_native_popup_without_extra_profile_writes_or_dark_ui
+* test_desktop_and_pause_never_project_pending_title_intent_as_captured_run_dark
+4/4 passed.
+
+
+tests/integration/test_settings_shared_hosts.gd
+* test_pause_preview_is_inert_and_native_back_retreats_one_level_each
+* test_desktop_canonical_commit_updates_fonts_without_resetting_controls
+* test_pause_enter_restores_native_paging_on_overflowing_settings_sheet
+* test_pause_controls_capture_blocks_parent_leave_and_back_only_cancels_capture
+* test_paused_settings_mouse_release_after_custody_cycle_cannot_commit
+* test_actual_audio_output_capability_does_not_invent_sample_assets
+* test_title_caches_settings_and_shared_return_preserves_capture_then_restores_row
+7/7 passed.
+
+
+tests/unit/test_json_schema_references.gd
+* test_nested_referenced_closed_object_is_validated_and_detached
+* test_reference_siblings_are_additional_constraints
+* test_local_pointer_escapes_and_array_indices_resolve_exactly
+* test_malformed_external_unresolved_and_cyclic_references_fail_closed
+* test_one_of_requires_exactly_one_match_and_preserves_root_reference_scope
+* test_reference_cycle_guard_does_not_leak_between_siblings_or_array_items
+* test_numeric_limits_are_inclusive_and_boolean_and_nonfinite_are_not_numbers
+* test_const_enum_and_unique_items_use_json_equality_without_bool_coercion
+* test_schema_valued_additional_properties_validate_sparse_values_with_root_refs
+9/9 passed.
+
+
+tests/unit/test_profile_manager.gd
+* test_defaults_are_schema_valid_and_exact
+* test_schema_rejects_unknown_nested_fields_bad_types_and_aliases
+* test_invalid_skip_is_the_only_narrow_document_repair
+* test_legacy_patch_is_exact_detached_and_discards_runtime_audio
+* test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched
+* test_manager_initializes_once_and_uses_detached_snapshots
+* test_flat_fully_qualified_preference_batch_is_atomic
+* test_locale_candidate_commits_deferred_and_publishes_exactly_once
+* test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail
+* test_gallery_and_entire_reset_retain_internal_ledgers
+* test_preference_reset_publishes_leaf_changes_before_one_summary
+* test_mutation_gate_configuration_is_identity_stable_and_side_effect_free
+* test_profile_schema_registers_observation_not_true
+* test_profile_document_remaps_retired_true_gallery_unlocks
+* test_visited_history_is_global_and_idempotent
+* test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it
+* test_visited_reset_leaves_other_profile_state_intact
+17/17 passed.
+
+
+tests/unit/test_profile_v4_upgrade.gd
+* test_v1_upgrade_maps_canonical_peers_and_archives_every_original_preference
+* test_unmappable_v1_values_use_defaults_only_at_runtime_and_remain_archived
+* test_invalid_v1_skip_is_the_only_repair_and_the_repaired_archive_is_valid
+* test_v3_upgrade_closes_legacy_replay_without_inventing_archived_values
+* test_initialize_persists_v4_before_publish_and_resets_clear_only_archive
+* test_initialize_reconcile_uses_semantic_migration_validation_for_v1_through_v4
+* test_every_reset_refuses_cleanly_before_initialization
+* test_deferred_raw_mapping_publication_survives_as_inert_compatibility_signal
+8/8 passed.
+
+
+tests/unit/test_audio_pause_suspension.gd
+* test_real_players_and_native_crossfade_suspend_and_resume_in_place
+* test_handle_contract_is_exact_idempotent_and_consumed_once
+* test_failed_begin_compensates_an_ambiguous_physical_suspend
+* test_unproved_begin_latches_a_truthful_indeterminate_state
+* test_failed_resume_stays_suspended_and_exact_retry_resumes_once
+* test_failed_resume_compensates_an_ambiguous_physical_resume
+6/6 passed.
+
+
+tests/integration/test_profile_reset_consumers.gd
+* test_profile_reset_consumer_contracts_are_present
+* test_preference_reset_updates_every_plan02_consumer_in_same_frame
+* test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event
+[Dialogic Comment] #PURPOSE: ordinary_message
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness, message.echo.satisfy, message.reply.commit
+[Dialogic Comment] #PURPOSE: ordinary_message
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness, message.echo.satisfy, message.reply.commit
+[Dialogic Comment] #PURPOSE: ordinary_message
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness, message.echo.satisfy, message.reply.commit
+3/3 passed.
+
+
+tests/unit/test_settings_preference_registry.gd
+* test_registry_records_are_the_complete_accepted_vocabulary
+* test_registry_validates_manual_extensions_and_rejects_retired_names
+* test_registry_rejects_non_finite_audio_and_wrong_numeric_shapes
+* test_visible_records_are_section_authority_and_audio_uses_five_percent_steps
+* test_capability_owned_fields_are_the_only_non_player_writable_records
+5/5 passed.
+
+
+tests/unit/test_settings_controls_reset.gd
+* test_valid_reset_preserves_every_other_profile_field_and_persists_on_reload
+* test_every_binding_listener_sees_complete_committed_multi_action_map
+* test_stale_reset_changes_neither_disk_profile_nor_live_input
+* test_persistence_refusal_preserves_prior_live_input_and_revision
+* test_detached_candidate_has_only_registered_defaults_and_does_not_commit
+* test_rebind_keeps_other_device_and_reloads_both_slots
+* test_controller_rebind_matches_any_connected_device_without_changing_event
+* test_pending_multi_event_import_cannot_be_activated_by_one_row_rebind
+* test_rebind_persistence_failure_keeps_both_slots_and_emits_no_publication
+* test_invalid_rebinding_never_reaches_storage_or_changes_navigation
+10/10 passed.
+
+
+tests/integration/test_witnessed_caption_runtime.gd
+* test_deferred_first_mount_reapplies_bound_bridge_preferences_before_first_text
+    24 Orphans
+        * [<Node#32808802192975>(subsystem_styles.gd)]
+        * [<Node#32808617644331>(subsystem_glossary.gd)]
+        * [<Node#32808718308694>(subsystem_portraits.gd)]
+        * [<Node#32808516982143>(subsystem_backgrounds.gd)]
+        * [<Node#32808651199894>(subsystem_input.gd)]
+        * [<Node#32808684754351>(subsystem_jump.gd)]
+        * [<Node#32808466650607>(subsystem_audio.gd)]
+        * [<Timer#32808567313948>]
+        * [<Node#32808936412717>(subsystem_voice.gd)]
+        * [<Node#32808818972470>(subsystem_text.gd)]
+        * [<Timer#32808768640903>]
+        * [<Node#32808701532120>(subsystem_containers.gd)]
+        * [<Node#32808550537244>(subsystem_choices.gd)]
+        * [<Timer#32808667977779>]
+        * [<Node#32808449873991>(subsystem_animation.gd)]
+        * [<Node#32808919636050>(subsystem_variables.gd)]
+        * [<Node#32808500205660>]
+        * [<Node#32808584091741>(subsystem_expression.gd)]
+        * [<Node#32808751863925>(subsystem_save.gd)]
+        * [<Node#32808634423447>(subsystem_history.gd)]
+        * [<Node#32808483428878>]
+        * [<Node#32808902859299>(subsystem_text_input.gd)]
+        * [<AudioStreamPlayer#32808953191032>]
+        * [<Node#32808785418953>(subsystem_settings.gd)]
+* test_real_timeline_reveal_append_clear_and_end_keep_one_text_node
+    24 Orphans
+        * [<Timer#32820160368483>]
+        * [<Node#32820143591352>(subsystem_save.gd)]
+        * [<Node#32820311363982>(subsystem_variables.gd)]
+        * [<Node#32820042928562>(subsystem_input.gd)]
+        * [<Timer#32819959042519>]
+        * [<Node#32820009374268>(subsystem_glossary.gd)]
+        * [<Node#32820177147157>(subsystem_settings.gd)]
+        * [<Node#32819975820592>(subsystem_expression.gd)]
+        * [<Node#32820193924564>(subsystem_styles.gd)]
+        * [<Node#32819908711968>(subsystem_backgrounds.gd)]
+        * [<Node#32820076484299>(subsystem_jump.gd)]
+        * [<Timer#32820059707098>]
+        * [<Node#32820294588124>(subsystem_text_input.gd)]
+        * [<Node#32820093261652>(subsystem_containers.gd)]
+        * [<Node#32819942266791>(subsystem_choices.gd)]
+        * [<Node#32819891935144>]
+        * [<AudioStreamPlayer#32820344920056>]
+        * [<Node#32820328143091>(subsystem_voice.gd)]
+        * [<Node#32819858381057>(subsystem_audio.gd)]
+        * [<Node#32820210702732>(subsystem_text.gd)]
+        * [<Node#32819875158625>]
+        * [<Node#32820110039746>(subsystem_portraits.gd)]
+        * [<Node#32820026153742>(subsystem_history.gd)]
+        * [<Node#32819841604401>(subsystem_animation.gd)]
+* test_presentation_matrix_preserves_live_reveal_history_and_event_position
+    24 Orphans
+        * [<Timer#32843732356847>]
+        * [<Node#32843816243337>(subsystem_input.gd)]
+        * [<Node#32843849798797>(subsystem_jump.gd)]
+        * [<Node#32843631695093>(subsystem_audio.gd)]
+        * [<Node#32843682026909>(subsystem_backgrounds.gd)]
+        * [<Node#32843614918081>(subsystem_animation.gd)]
+        * [<Node#32843665249774>]
+        * [<Node#32843883353621>(subsystem_portraits.gd)]
+        * [<Node#32843916908073>(subsystem_save.gd)]
+        * [<Timer#32843933685474>]
+        * [<Node#32843749136134>(subsystem_expression.gd)]
+        * [<Node#32843715581731>(subsystem_choices.gd)]
+        * [<AudioStreamPlayer#32844118234916>]
+        * [<Node#32843950462822>(subsystem_settings.gd)]
+        * [<Node#32843967240123>(subsystem_styles.gd)]
+        * [<Timer#32843833022477>]
+        * [<Node#32843799468052>(subsystem_history.gd)]
+        * [<Node#32844101457949>(subsystem_voice.gd)]
+        * [<Node#32843866577050>(subsystem_containers.gd)]
+        * [<Node#32844084681004>(subsystem_variables.gd)]
+        * [<Node#32843984017798>(subsystem_text.gd)]
+        * [<Node#32843648473576>]
+        * [<Node#32844067904015>(subsystem_text_input.gd)]
+        * [<Node#32843782691498>(subsystem_glossary.gd)]
+* test_overflow_scroll_is_local_and_reconfigure_does_not_complete_text
+    24 Orphans
+        * [<Timer#32988637171397>]
+        * [<Node#32988754611996>(subsystem_settings.gd)]
+        * [<Timer#32988737835202>]
+        * [<Node#32988620395104>(subsystem_input.gd)]
+        * [<Node#32988771390135>(subsystem_styles.gd)]
+        * [<Timer#32988536509346>]
+        * [<Node#32988419069266>(subsystem_animation.gd)]
+        * [<Node#32988519732603>(subsystem_choices.gd)]
+        * [<Node#32988586841624>(subsystem_glossary.gd)]
+        * [<Node#32988469401249>]
+        * [<Node#32988603618979>(subsystem_history.gd)]
+        * [<Node#32988788168403>(subsystem_text.gd)]
+        * [<Node#32988888831727>(subsystem_variables.gd)]
+        * [<Node#32988721059865>(subsystem_save.gd)]
+        * [<Node#32988653951023>(subsystem_jump.gd)]
+        * [<Node#32988486178920>(subsystem_backgrounds.gd)]
+        * [<Node#32988452624600>]
+        * [<Node#32988905609747>(subsystem_voice.gd)]
+        * [<Node#32988687505989>(subsystem_portraits.gd)]
+        * [<Node#32988670728810>(subsystem_containers.gd)]
+        * [<Node#32988553288321>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#32988922387086>]
+        * [<Node#32988872055448>(subsystem_text_input.gd)]
+        * [<Node#32988435847871>(subsystem_audio.gd)]
+* test_actual_hospital_bridge_path_selects_caption_then_natural_end_restores_default_scope
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+    24 Orphans
+        * [<Timer#33002243493313>]
+        * [<Node#33001941503559>(subsystem_audio.gd)]
+        * [<Node#33001924727142>(subsystem_animation.gd)]
+        * [<Node#33001991836475>(subsystem_backgrounds.gd)]
+        * [<Node#33002226718151>(subsystem_save.gd)]
+        * [<Node#33002260272584>(subsystem_settings.gd)]
+        * [<Node#33002277049823>(subsystem_styles.gd)]
+        * [<Node#33002058946148>(subsystem_expression.gd)]
+        * [<Node#33002159609469>(subsystem_jump.gd)]
+        * [<AudioStreamPlayer#33002428045126>]
+        * [<Node#33002126055297>(subsystem_input.gd)]
+        * [<Timer#33002042169226>]
+        * [<Node#33002193164236>(subsystem_portraits.gd)]
+        * [<Timer#33002142832597>]
+        * [<Node#33002411268065>(subsystem_voice.gd)]
+        * [<Node#33001975060451>]
+        * [<Node#33001958283244>]
+        * [<Node#33002176387106>(subsystem_containers.gd)]
+        * [<Node#33002293827755>(subsystem_text.gd)]
+        * [<Node#33002109278435>(subsystem_history.gd)]
+        * [<Node#33002394491172>(subsystem_variables.gd)]
+        * [<Node#33002025392633>(subsystem_choices.gd)]
+        * [<Node#33002092501563>(subsystem_glossary.gd)]
+        * [<Node#33002377714238>(subsystem_text_input.gd)]
+* test_hospital_missing_styles_refuses_before_clear_start_or_bridge_context
+    24 Orphans
+        * [<Node#33028063626688>(subsystem_audio.gd)]
+        * [<Node#33028097181676>]
+        * [<Node#33028080404461>]
+        * [<Node#33028315287445>(subsystem_portraits.gd)]
+        * [<Timer#33028365619620>]
+        * [<Node#33028214625323>(subsystem_glossary.gd)]
+        * [<Timer#33028264957288>]
+        * [<Node#33028113962354>(subsystem_backgrounds.gd)]
+        * [<Node#33028281734535>(subsystem_jump.gd)]
+        * [<Node#33028147516923>(subsystem_choices.gd)]
+        * [<Node#33028248180235>(subsystem_input.gd)]
+        * [<Timer#33028164294160>]
+        * [<Node#33028231403139>(subsystem_history.gd)]
+        * [<Node#33028399175355>(subsystem_styles.gd)]
+        * [<Node#33028181071570>(subsystem_expression.gd)]
+        * [<Node#33028499838829>(subsystem_text_input.gd)]
+        * [<Node#33028533393538>(subsystem_voice.gd)]
+        * [<Node#33028046854276>(subsystem_animation.gd)]
+        * [<Node#33028298512585>(subsystem_containers.gd)]
+        * [<Node#33028516616409>(subsystem_variables.gd)]
+        * [<Node#33028382398772>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#33028550170944>]
+        * [<Node#33028415953234>(subsystem_text.gd)]
+        * [<Node#33028348844515>(subsystem_save.gd)]
+* test_real_touch_drag_with_mouse_emulation_scrolls_without_finishing_native_reveal
+CAPTION_TOUCH_FIXTURE root_size=(1280, 720) content_size=(1280, 720) transform=[X: (1.0, 0.0), Y: (0.0, 1.0), O: (0.0, 0.0)] pointer=(616.0, 492.0)
+    24 Orphans
+        * [<Node#33031737839136>(subsystem_save.gd)]
+        * [<Node#33031486180963>]
+        * [<Node#33031888834471>(subsystem_text_input.gd)]
+        * [<Node#33031536513457>(subsystem_choices.gd)]
+        * [<Node#33031687508539>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#33031939167485>]
+        * [<Node#33031771395361>(subsystem_settings.gd)]
+        * [<Timer#33031653954897>]
+        * [<Node#33031804949897>(subsystem_text.gd)]
+        * [<Node#33031603623322>(subsystem_glossary.gd)]
+        * [<Node#33031502960027>(subsystem_backgrounds.gd)]
+        * [<Node#33031452628450>(subsystem_audio.gd)]
+        * [<Timer#33031754618406>]
+        * [<Node#33031620400725>(subsystem_history.gd)]
+        * [<Node#33031637177979>(subsystem_input.gd)]
+        * [<Node#33031570069426>(subsystem_expression.gd)]
+        * [<Timer#33031553292254>]
+        * [<Node#33031704287256>(subsystem_portraits.gd)]
+        * [<Node#33031670732987>(subsystem_jump.gd)]
+        * [<Node#33031905614034>(subsystem_variables.gd)]
+        * [<Node#33031435852294>(subsystem_animation.gd)]
+        * [<Node#33031922391565>(subsystem_voice.gd)]
+        * [<Node#33031469406813>]
+        * [<Node#33031788173952>(subsystem_styles.gd)]
+* test_stack_keeps_newest_three_published_captions_with_one_native_current
+    24 Orphans
+        * [<Node#33043767100859>(subsystem_animation.gd)]
+        * [<Node#33043800657480>]
+        * [<Node#33044102648978>(subsystem_settings.gd)]
+        * [<Node#33043951654149>(subsystem_history.gd)]
+        * [<Node#33043817436428>]
+        * [<Node#33044236866901>(subsystem_variables.gd)]
+        * [<Node#33044253644192>(subsystem_voice.gd)]
+        * [<Node#33043901322657>(subsystem_expression.gd)]
+        * [<Node#33044119426467>(subsystem_styles.gd)]
+        * [<Node#33044220089882>(subsystem_text_input.gd)]
+        * [<Node#33044069095011>(subsystem_save.gd)]
+        * [<AudioStreamPlayer#33044270421692>]
+        * [<Timer#33043985209067>]
+        * [<Node#33043968431852>(subsystem_input.gd)]
+        * [<Node#33043867768747>(subsystem_choices.gd)]
+        * [<Node#33044035541028>(subsystem_portraits.gd)]
+        * [<Node#33044018763965>(subsystem_containers.gd)]
+        * [<Timer#33044085872866>]
+        * [<Node#33044001986788>(subsystem_jump.gd)]
+        * [<Node#33044136204586>(subsystem_text.gd)]
+        * [<Timer#33043884546380>]
+        * [<Node#33043834214802>(subsystem_backgrounds.gd)]
+        * [<Node#33043934878363>(subsystem_glossary.gd)]
+        * [<Node#33043783883620>(subsystem_audio.gd)]
+* test_stack_append_newline_sections_and_identical_copy_are_distinct_publications
+    24 Orphans
+        * [<Node#33058732379690>(subsystem_voice.gd)]
+        * [<Node#33058346503817>(subsystem_choices.gd)]
+        * [<Node#33058413612867>(subsystem_glossary.gd)]
+        * [<Node#33058598163055>(subsystem_styles.gd)]
+        * [<Node#33058380059992>(subsystem_expression.gd)]
+        * [<Node#33058430391688>(subsystem_history.gd)]
+        * [<Timer#33058363282860>]
+        * [<Node#33058279396871>]
+        * [<Node#33058262619663>(subsystem_audio.gd)]
+        * [<Node#33058715604531>(subsystem_variables.gd)]
+        * [<Node#33058245842485>(subsystem_animation.gd)]
+        * [<Node#33058614941354>(subsystem_text.gd)]
+        * [<Node#33058497501001>(subsystem_containers.gd)]
+        * [<Node#33058514278423>(subsystem_portraits.gd)]
+        * [<Node#33058581387299>(subsystem_settings.gd)]
+        * [<Node#33058547832976>(subsystem_save.gd)]
+        * [<Node#33058698827971>(subsystem_text_input.gd)]
+        * [<Timer#33058564610310>]
+        * [<Node#33058480724242>(subsystem_jump.gd)]
+        * [<Timer#33058463947027>]
+        * [<Node#33058447169813>(subsystem_input.gd)]
+        * [<Node#33058296174888>]
+        * [<Node#33058312952144>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#33058749159893>]
+* test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll
+    24 Orphans
+        * [<Node#33071231405592>(subsystem_jump.gd)]
+        * [<Node#33071332069137>(subsystem_settings.gd)]
+        * [<Node#33071063633713>(subsystem_backgrounds.gd)]
+        * [<Node#33071097188598>(subsystem_choices.gd)]
+        * [<Timer#33071315293088>]
+        * [<Node#33071348847978>(subsystem_styles.gd)]
+        * [<Node#33071248184762>(subsystem_containers.gd)]
+        * [<Node#33071449511603>(subsystem_text_input.gd)]
+        * [<Timer#33071214630589>]
+        * [<Timer#33071113967383>]
+        * [<Node#33071013304188>(subsystem_audio.gd)]
+        * [<Node#33071483066243>(subsystem_voice.gd)]
+        * [<Node#33071365625765>(subsystem_text.gd)]
+        * [<Node#33071298517035>(subsystem_save.gd)]
+        * [<AudioStreamPlayer#33071499843659>]
+        * [<Node#33070996527319>(subsystem_animation.gd)]
+        * [<Node#33071197854141>(subsystem_input.gd)]
+        * [<Node#33071181076926>(subsystem_history.gd)]
+        * [<Node#33071130745385>(subsystem_expression.gd)]
+        * [<Node#33071466289722>(subsystem_variables.gd)]
+        * [<Node#33071264963190>(subsystem_portraits.gd)]
+        * [<Node#33071046859483>]
+        * [<Node#33071030082376>]
+        * [<Node#33071164300156>(subsystem_glossary.gd)]
+* test_runtime_pause_preserves_the_pending_native_pause_remaining_time
+Native pause timing [runtime pause]: before=221ms remaining=379ms after-resume=386ms
+    24 Orphans
+        * [<Node#33098427272813>(subsystem_expression.gd)]
+        * [<Node#33098326610172>]
+        * [<Node#33098477605169>(subsystem_history.gd)]
+        * [<AudioStreamPlayer#33098796372486>]
+        * [<Node#33098662155199>(subsystem_text.gd)]
+        * [<Node#33098393720208>(subsystem_choices.gd)]
+        * [<Node#33098779596191>(subsystem_voice.gd)]
+        * [<Node#33098628601386>(subsystem_settings.gd)]
+        * [<Node#33098527938230>(subsystem_jump.gd)]
+        * [<Node#33098746042109>(subsystem_text_input.gd)]
+        * [<Node#33098762819326>(subsystem_variables.gd)]
+        * [<Node#33098494383902>(subsystem_input.gd)]
+        * [<Timer#33098611824518>]
+        * [<Node#33098293057515>(subsystem_animation.gd)]
+        * [<Timer#33098511161351>]
+        * [<Node#33098460829819>(subsystem_glossary.gd)]
+        * [<Node#33098561493237>(subsystem_portraits.gd)]
+        * [<Node#33098360166913>(subsystem_backgrounds.gd)]
+        * [<Node#33098343389736>]
+        * [<Timer#33098410498620>]
+        * [<Node#33098595048028>(subsystem_save.gd)]
+        * [<Node#33098544716474>(subsystem_containers.gd)]
+        * [<Node#33098645379861>(subsystem_styles.gd)]
+        * [<Node#33098309835557>(subsystem_audio.gd)]
+* test_hidden_caption_preserves_the_pending_native_pause_remaining_time
+Native pause timing [caption hide]: before=221ms remaining=379ms after-resume=392ms
+    24 Orphans
+        * [<Node#33116613775501>(subsystem_save.gd)]
+        * [<Node#33116328563347>(subsystem_audio.gd)]
+        * [<Timer#33116630553716>]
+        * [<Node#33116412450115>(subsystem_choices.gd)]
+        * [<Node#33116378895767>(subsystem_backgrounds.gd)]
+        * [<Node#33116680885688>(subsystem_text.gd)]
+        * [<Timer#33116429227501>]
+        * [<Node#33116479559174>(subsystem_glossary.gd)]
+        * [<Node#33116647331345>(subsystem_settings.gd)]
+        * [<Node#33116664108601>(subsystem_styles.gd)]
+        * [<Node#33116781549202>(subsystem_variables.gd)]
+        * [<Node#33116798326489>(subsystem_voice.gd)]
+        * [<Node#33116580222875>(subsystem_portraits.gd)]
+        * [<Node#33116362119094>]
+        * [<Node#33116345342043>]
+        * [<Node#33116546668646>(subsystem_jump.gd)]
+        * [<Node#33116513114257>(subsystem_input.gd)]
+        * [<Timer#33116529891511>]
+        * [<Node#33116563445954>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#33116815104224>]
+        * [<Node#33116764772931>(subsystem_text_input.gd)]
+        * [<Node#33116311788108>(subsystem_animation.gd)]
+        * [<Node#33116496337606>(subsystem_history.gd)]
+        * [<Node#33116446005967>(subsystem_expression.gd)]
+* test_hidden_same_frame_clear_and_replace_and_next_timeline_do_not_retain_old_caption
+    24 Orphans
+        * [<Node#33134481509778>(subsystem_choices.gd)]
+        * [<Node#33134867386284>(subsystem_voice.gd)]
+        * [<Node#33134733168668>(subsystem_styles.gd)]
+        * [<Node#33134397624409>(subsystem_audio.gd)]
+        * [<Timer#33134598951167>]
+        * [<Node#33134749946592>(subsystem_text.gd)]
+        * [<Node#33134414402450>]
+        * [<Node#33134380848149>(subsystem_animation.gd)]
+        * [<Node#33134447957198>(subsystem_backgrounds.gd)]
+        * [<Node#33134632506903>(subsystem_containers.gd)]
+        * [<Node#33134716393012>(subsystem_settings.gd)]
+        * [<Timer#33134498289254>]
+        * [<Node#33134582175352>(subsystem_input.gd)]
+        * [<Node#33134548620993>(subsystem_glossary.gd)]
+        * [<Node#33134565398218>(subsystem_history.gd)]
+        * [<Node#33134850610971>(subsystem_variables.gd)]
+        * [<Node#33134682838831>(subsystem_save.gd)]
+        * [<Node#33134515066707>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#33134884165649>]
+        * [<Node#33134615730252>(subsystem_jump.gd)]
+        * [<Timer#33134699616549>]
+        * [<Node#33134833834383>(subsystem_text_input.gd)]
+        * [<Node#33134431181358>]
+        * [<Node#33134649285209>(subsystem_portraits.gd)]
+* test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal
+    24 Orphans
+        * [<Node#33147936837278>(subsystem_input.gd)]
+        * [<Node#33148071055359>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#33148238828811>]
+        * [<Node#33147869730128>(subsystem_expression.gd)]
+        * [<Node#33148205274466>(subsystem_variables.gd)]
+        * [<Node#33147802621392>(subsystem_backgrounds.gd)]
+        * [<Node#33148188497437>(subsystem_text_input.gd)]
+        * [<Node#33147769067071>]
+        * [<Node#33148104611440>(subsystem_text.gd)]
+        * [<Node#33147735512698>(subsystem_animation.gd)]
+        * [<Node#33148222052121>(subsystem_voice.gd)]
+        * [<Node#33147987171140>(subsystem_containers.gd)]
+        * [<Node#33147836176206>(subsystem_choices.gd)]
+        * [<Node#33147970393962>(subsystem_jump.gd)]
+        * [<Node#33147903285129>(subsystem_glossary.gd)]
+        * [<Node#33147752290225>(subsystem_audio.gd)]
+        * [<Node#33147785844776>]
+        * [<Timer#33147852953684>]
+        * [<Node#33147920062686>(subsystem_history.gd)]
+        * [<Node#33148037503601>(subsystem_save.gd)]
+        * [<Node#33148087835295>(subsystem_styles.gd)]
+        * [<Timer#33148054280865>]
+        * [<Node#33148003949241>(subsystem_portraits.gd)]
+        * [<Timer#33147953617621>]
+* test_hiding_and_showing_incomplete_caption_pauses_without_cancelling_its_reveal
+    24 Orphans
+        * [<Node#33159328566929>(subsystem_glossary.gd)]
+        * [<Node#33159362122973>(subsystem_input.gd)]
+        * [<Node#33159429231864>(subsystem_portraits.gd)]
+        * [<Node#33159630558473>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#33159664113117>]
+        * [<Timer#33159278237160>]
+        * [<Node#33159227905515>(subsystem_backgrounds.gd)]
+        * [<Node#33159513118226>(subsystem_styles.gd)]
+        * [<Node#33159194351187>]
+        * [<Node#33159160796830>(subsystem_animation.gd)]
+        * [<Node#33159529895614>(subsystem_text.gd)]
+        * [<Timer#33159378900770>]
+        * [<Node#33159261460269>(subsystem_choices.gd)]
+        * [<Node#33159177574248>(subsystem_audio.gd)]
+        * [<Node#33159613781870>(subsystem_text_input.gd)]
+        * [<Node#33159211128701>]
+        * [<Node#33159412455531>(subsystem_containers.gd)]
+        * [<Timer#33159479564493>]
+        * [<Node#33159395678481>(subsystem_jump.gd)]
+        * [<Node#33159462787355>(subsystem_save.gd)]
+        * [<Node#33159647336915>(subsystem_voice.gd)]
+        * [<Node#33159345347172>(subsystem_history.gd)]
+        * [<Node#33159295015539>(subsystem_expression.gd)]
+        * [<Node#33159496342198>(subsystem_settings.gd)]
+* test_skipping_a_native_pause_cannot_resume_effects_or_reveal_on_the_replacement_line
+    24 Orphans
+        * [<Node#33171324276330>(subsystem_voice.gd)]
+        * [<Node#33171072618420>(subsystem_jump.gd)]
+        * [<Node#33171206836532>(subsystem_text.gd)]
+        * [<Node#33171190060288>(subsystem_styles.gd)]
+        * [<Node#33171290723667>(subsystem_text_input.gd)]
+        * [<Node#33170854516090>(subsystem_audio.gd)]
+        * [<Node#33171089397180>(subsystem_containers.gd)]
+        * [<Node#33171106174411>(subsystem_portraits.gd)]
+        * [<Node#33170971956958>(subsystem_expression.gd)]
+        * [<Node#33170871293704>]
+        * [<Node#33171139729185>(subsystem_save.gd)]
+        * [<Timer#33170955179818>]
+        * [<Node#33170837739353>(subsystem_animation.gd)]
+        * [<Node#33170888071054>]
+        * [<Node#33171039066000>(subsystem_input.gd)]
+        * [<Node#33170938402871>(subsystem_choices.gd)]
+        * [<Timer#33171055843481>]
+        * [<AudioStreamPlayer#33171341056169>]
+        * [<Timer#33171156507204>]
+        * [<Node#33171022289480>(subsystem_history.gd)]
+        * [<Node#33171005512279>(subsystem_glossary.gd)]
+        * [<Node#33171173284454>(subsystem_settings.gd)]
+        * [<Node#33170904849182>(subsystem_backgrounds.gd)]
+        * [<Node#33171307502441>(subsystem_variables.gd)]
+* test_real_text_clear_and_immediate_replacement_invalidate_an_awaiting_native_pause
+    24 Orphans
+        * [<Node#33186625097730>(subsystem_glossary.gd)]
+        * [<Node#33186692206603>(subsystem_jump.gd)]
+        * [<Node#33186759315967>(subsystem_save.gd)]
+        * [<Timer#33186776093262>]
+        * [<Node#33186943865500>(subsystem_voice.gd)]
+        * [<Timer#33186675430344>]
+        * [<Node#33186474103921>(subsystem_audio.gd)]
+        * [<Node#33186910311649>(subsystem_text_input.gd)]
+        * [<Node#33186591544719>(subsystem_expression.gd)]
+        * [<Node#33186725762533>(subsystem_portraits.gd)]
+        * [<Node#33186507658886>]
+        * [<Node#33186457327463>(subsystem_animation.gd)]
+        * [<Timer#33186574768083>]
+        * [<Node#33186524436439>(subsystem_backgrounds.gd)]
+        * [<Node#33186490882053>]
+        * [<Node#33186641877023>(subsystem_history.gd)]
+        * [<Node#33186809649190>(subsystem_styles.gd)]
+        * [<Node#33186708985974>(subsystem_containers.gd)]
+        * [<Node#33186826426538>(subsystem_text.gd)]
+        * [<Node#33186927089908>(subsystem_variables.gd)]
+        * [<Node#33186792872367>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#33186960644548>]
+        * [<Node#33186557991598>(subsystem_choices.gd)]
+        * [<Node#33186658655010>(subsystem_input.gd)]
+* test_actual_pointer_accept_belongs_only_to_current_caption_and_one_press
+    24 Orphans
+        * [<Node#33199996539347>(subsystem_history.gd)]
+        * [<Node#33199845544555>]
+        * [<Timer#33200130757234>]
+        * [<Node#33200046871378>(subsystem_jump.gd)]
+        * [<Node#33200164312019>(subsystem_styles.gd)]
+        * [<Node#33199979762945>(subsystem_glossary.gd)]
+        * [<Node#33200264975740>(subsystem_text_input.gd)]
+        * [<Node#33200181089743>(subsystem_text.gd)]
+        * [<Node#33199828768210>(subsystem_audio.gd)]
+        * [<Node#33199879099937>(subsystem_backgrounds.gd)]
+        * [<Node#33200013317686>(subsystem_input.gd)]
+        * [<Node#33200080426646>(subsystem_portraits.gd)]
+        * [<Node#33200281753343>(subsystem_variables.gd)]
+        * [<Node#33199862323060>]
+        * [<Node#33199811991539>(subsystem_animation.gd)]
+        * [<Node#33199946209366>(subsystem_expression.gd)]
+        * [<Node#33200298530952>(subsystem_voice.gd)]
+        * [<Timer#33199929432264>]
+        * [<AudioStreamPlayer#33200315308250>]
+        * [<Node#33199912655129>(subsystem_choices.gd)]
+        * [<Timer#33200030095877>]
+        * [<Node#33200113982035>(subsystem_save.gd)]
+        * [<Node#33200063650450>(subsystem_containers.gd)]
+        * [<Node#33200147536601>(subsystem_settings.gd)]
+* test_actual_enter_and_same_frame_unrelated_packets_issue_one_accept
+    24 Orphans
+        * [<Node#33217377732630>(subsystem_expression.gd)]
+        * [<Timer#33217360956817>]
+        * [<Node#33217545507024>(subsystem_save.gd)]
+        * [<Node#33217243517340>(subsystem_animation.gd)]
+        * [<Node#33217713279807>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#33217746834589>]
+        * [<Node#33217495176544>(subsystem_containers.gd)]
+        * [<Node#33217277072821>]
+        * [<Node#33217293850109>]
+        * [<Node#33217696503529>(subsystem_text_input.gd)]
+        * [<Node#33217344182000>(subsystem_choices.gd)]
+        * [<Node#33217478399754>(subsystem_jump.gd)]
+        * [<Node#33217260296023>(subsystem_audio.gd)]
+        * [<Node#33217595840371>(subsystem_styles.gd)]
+        * [<Node#33217511954520>(subsystem_portraits.gd)]
+        * [<Node#33217612617833>(subsystem_text.gd)]
+        * [<Timer#33217562286202>]
+        * [<Node#33217579063585>(subsystem_settings.gd)]
+        * [<Node#33217444845878>(subsystem_input.gd)]
+        * [<Node#33217411291469>(subsystem_glossary.gd)]
+        * [<Node#33217310628301>(subsystem_backgrounds.gd)]
+        * [<Timer#33217461623306>]
+        * [<Node#33217428068930>(subsystem_history.gd)]
+        * [<Node#33217730058837>(subsystem_voice.gd)]
+* test_actual_accept_waits_for_all_held_contacts_to_release
+    24 Orphans
+        * [<Node#33231655145364>]
+        * [<Node#33231755808725>(subsystem_expression.gd)]
+        * [<Node#33231890026719>(subsystem_portraits.gd)]
+        * [<Node#33231789364135>(subsystem_glossary.gd)]
+        * [<Node#33231822918657>(subsystem_input.gd)]
+        * [<Node#33231671923758>]
+        * [<Node#33231990691262>(subsystem_text.gd)]
+        * [<Node#33232108131790>(subsystem_voice.gd)]
+        * [<Node#33232091354586>(subsystem_variables.gd)]
+        * [<Node#33231923582519>(subsystem_save.gd)]
+        * [<Node#33231873250914>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#33232124909204>]
+        * [<Node#33231722256334>(subsystem_choices.gd)]
+        * [<Node#33231957137454>(subsystem_settings.gd)]
+        * [<Timer#33231739033703>]
+        * [<Node#33231973914770>(subsystem_styles.gd)]
+        * [<Node#33232074578082>(subsystem_text_input.gd)]
+        * [<Timer#33231839697257>]
+        * [<Node#33231688702374>(subsystem_backgrounds.gd)]
+        * [<Node#33231806142913>(subsystem_history.gd)]
+        * [<Timer#33231940360765>]
+        * [<Node#33231621593673>(subsystem_animation.gd)]
+        * [<Node#33231638370890>(subsystem_audio.gd)]
+        * [<Node#33231856474943>(subsystem_jump.gd)]
+* test_actual_current_short_tap_accepts_but_drag_only_scrolls
+    24 Orphans
+        * [<AudioStreamPlayer#33246922411863>]
+        * [<Node#33246721085919>(subsystem_save.gd)]
+        * [<Node#33246603645629>(subsystem_history.gd)]
+        * [<Node#33246687531854>(subsystem_portraits.gd)]
+        * [<Timer#33246536537160>]
+        * [<Node#33246620423531>(subsystem_input.gd)]
+        * [<Node#33246888859051>(subsystem_variables.gd)]
+        * [<Node#33246452651479>]
+        * [<Node#33246788195870>(subsystem_text.gd)]
+        * [<Node#33246553314880>(subsystem_expression.gd)]
+        * [<Timer#33246737864265>]
+        * [<Node#33246586869447>(subsystem_glossary.gd)]
+        * [<Node#33246653978319>(subsystem_jump.gd)]
+        * [<Node#33246872082128>(subsystem_text_input.gd)]
+        * [<Node#33246486206264>(subsystem_backgrounds.gd)]
+        * [<Node#33246771419053>(subsystem_styles.gd)]
+        * [<Node#33246469429429>]
+        * [<Node#33246519761099>(subsystem_choices.gd)]
+        * [<Node#33246419097811>(subsystem_animation.gd)]
+        * [<Node#33246754642204>(subsystem_settings.gd)]
+        * [<Node#33246905637404>(subsystem_voice.gd)]
+        * [<Timer#33246637202019>]
+        * [<Node#33246670756477>(subsystem_containers.gd)]
+        * [<Node#33246435875573>(subsystem_audio.gd)]
+* test_actual_joypad_accept_refuses_paused_or_held_contact_then_rearms
+    24 Orphans
+        * [<Node#33264337162030>(subsystem_history.gd)]
+        * [<Timer#33264270054169>]
+        * [<Node#33264253277188>(subsystem_choices.gd)]
+        * [<Node#33264286832052>(subsystem_expression.gd)]
+        * [<Timer#33264471381475>]
+        * [<Node#33264219723343>(subsystem_backgrounds.gd)]
+        * [<Node#33264605599327>(subsystem_text_input.gd)]
+        * [<Node#33264152614552>(subsystem_animation.gd)]
+        * [<Node#33264622376783>(subsystem_variables.gd)]
+        * [<Node#33264521713489>(subsystem_text.gd)]
+        * [<Node#33264404273001>(subsystem_containers.gd)]
+        * [<Node#33264488159094>(subsystem_settings.gd)]
+        * [<Node#33264639154215>(subsystem_voice.gd)]
+        * [<Node#33264169392234>(subsystem_audio.gd)]
+        * [<Node#33264387496070>(subsystem_jump.gd)]
+        * [<Node#33264353941680>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#33264655931596>]
+        * [<Node#33264320387530>(subsystem_glossary.gd)]
+        * [<Node#33264504936952>(subsystem_styles.gd)]
+        * [<Node#33264454605307>(subsystem_save.gd)]
+        * [<Timer#33264370719389>]
+        * [<Node#33264202947245>]
+        * [<Node#33264186170190>]
+        * [<Node#33264421051226>(subsystem_portraits.gd)]
+* test_actual_focused_gui_button_gets_first_refusal_before_caption_accept
+    24 Orphans
+        * [<Node#33279654760500>(subsystem_variables.gd)]
+        * [<Node#33279184998721>(subsystem_animation.gd)]
+        * [<Node#33279453434413>(subsystem_portraits.gd)]
+        * [<Timer#33279503766124>]
+        * [<Timer#33279403103145>]
+        * [<Node#33279218553883>]
+        * [<Node#33279235331393>]
+        * [<Node#33279319217691>(subsystem_expression.gd)]
+        * [<Timer#33279302440599>]
+        * [<Node#33279419881207>(subsystem_jump.gd)]
+        * [<Node#33279486990121>(subsystem_save.gd)]
+        * [<Node#33279252109111>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#33279688316805>]
+        * [<Node#33279520544730>(subsystem_settings.gd)]
+        * [<Node#33279386327119>(subsystem_input.gd)]
+        * [<Node#33279637985391>(subsystem_text_input.gd)]
+        * [<Node#33279352772735>(subsystem_glossary.gd)]
+        * [<Node#33279436658816>(subsystem_containers.gd)]
+        * [<Node#33279554099342>(subsystem_text.gd)]
+        * [<Node#33279671539998>(subsystem_voice.gd)]
+        * [<Node#33279537322309>(subsystem_styles.gd)]
+        * [<Node#33279369550152>(subsystem_history.gd)]
+        * [<Node#33279285664242>(subsystem_choices.gd)]
+        * [<Node#33279201778330>(subsystem_audio.gd)]
+* test_actual_accept_held_before_policy_mount_and_simulated_focus_return_requires_release
+    24 Orphans
+        * [<Node#33294049611233>]
+        * [<Node#33294032834129>]
+        * [<Node#33294267715456>(subsystem_portraits.gd)]
+        * [<Node#33294234161026>(subsystem_jump.gd)]
+        * [<Node#33294334824347>(subsystem_settings.gd)]
+        * [<Node#33293999280299>(subsystem_animation.gd)]
+        * [<Node#33294016057525>(subsystem_audio.gd)]
+        * [<Node#33294485819836>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#33294502597155>]
+        * [<Node#33294167052940>(subsystem_glossary.gd)]
+        * [<Node#33294351602552>(subsystem_styles.gd)]
+        * [<Node#33294133499142>(subsystem_expression.gd)]
+        * [<Node#33294099944809>(subsystem_choices.gd)]
+        * [<Node#33294368380424>(subsystem_text.gd)]
+        * [<Node#33294200608486>(subsystem_input.gd)]
+        * [<Timer#33294116722435>]
+        * [<Node#33294183831339>(subsystem_history.gd)]
+        * [<Node#33294066390983>(subsystem_backgrounds.gd)]
+        * [<Timer#33294217386163>]
+        * [<Node#33294250940662>(subsystem_containers.gd)]
+        * [<Timer#33294318049704>]
+        * [<Node#33294452267499>(subsystem_text_input.gd)]
+        * [<Node#33294301272603>(subsystem_save.gd)]
+        * [<Node#33294469044770>(subsystem_variables.gd)]
+* test_actual_controller_shoulders_page_shared_caption_without_narrative_changes
+    24 Orphans
+        * [<Node#33309065219597>(subsystem_expression.gd)]
+        * [<Node#33308931002047>(subsystem_animation.gd)]
+        * [<Node#33308964556524>]
+        * [<Node#33309031665618>(subsystem_choices.gd)]
+        * [<Node#33308981334025>]
+        * [<Timer#33309048443020>]
+        * [<Node#33308998111718>(subsystem_backgrounds.gd)]
+        * [<Node#33309199438500>(subsystem_portraits.gd)]
+        * [<Node#33309115552580>(subsystem_history.gd)]
+        * [<Node#33309232993231>(subsystem_save.gd)]
+        * [<Node#33308947780802>(subsystem_audio.gd)]
+        * [<Node#33309182661891>(subsystem_containers.gd)]
+        * [<Node#33309300102501>(subsystem_text.gd)]
+        * [<Node#33309165884915>(subsystem_jump.gd)]
+        * [<Node#33309283325655>(subsystem_styles.gd)]
+        * [<Node#33309098776394>(subsystem_glossary.gd)]
+        * [<AudioStreamPlayer#33309434320748>]
+        * [<Node#33309266548649>(subsystem_settings.gd)]
+        * [<Node#33309400766458>(subsystem_variables.gd)]
+        * [<Timer#33309149108246>]
+        * [<Node#33309417543761>(subsystem_voice.gd)]
+        * [<Node#33309383989385>(subsystem_text_input.gd)]
+        * [<Timer#33309249772014>]
+        * [<Node#33309132331553>(subsystem_input.gd)]
+* test_actual_scroll_gestures_cancel_armed_pointer_accept_before_inside_release
+    24 Orphans
+        * [<Timer#33328677785096>]
+        * [<Node#33328627453476>(subsystem_backgrounds.gd)]
+        * [<Node#33328661007976>(subsystem_choices.gd)]
+        * [<Node#33328577121906>(subsystem_audio.gd)]
+        * [<Node#33328828780326>(subsystem_portraits.gd)]
+        * [<Node#33328560344907>(subsystem_animation.gd)]
+        * [<Node#33328895889379>(subsystem_settings.gd)]
+        * [<Node#33328795226088>(subsystem_jump.gd)]
+        * [<Node#33329013330084>(subsystem_text_input.gd)]
+        * [<Node#33328912667136>(subsystem_styles.gd)]
+        * [<Node#33329030107751>(subsystem_variables.gd)]
+        * [<Node#33328593900186>]
+        * [<Node#33328694563590>(subsystem_expression.gd)]
+        * [<Node#33328610677838>]
+        * [<Node#33328812004474>(subsystem_containers.gd)]
+        * [<Timer#33328879113733>]
+        * [<Node#33328761673447>(subsystem_input.gd)]
+        * [<Node#33329046886666>(subsystem_voice.gd)]
+        * [<Node#33328862337435>(subsystem_save.gd)]
+        * [<Timer#33328778451397>]
+        * [<AudioStreamPlayer#33329063664176>]
+        * [<Node#33328929446534>(subsystem_text.gd)]
+        * [<Node#33328744897205>(subsystem_history.gd)]
+        * [<Node#33328728120117>(subsystem_glossary.gd)]
+* test_real_profile_large_targets_resize_current_caption_without_accepting_held_click
+    24 Orphans
+        * [<Node#33355823320872>(subsystem_jump.gd)]
+        * [<Node#33355722657829>(subsystem_expression.gd)]
+        * [<Timer#33355907207226>]
+        * [<Node#33355689103510>(subsystem_choices.gd)]
+        * [<Timer#33355806544055>]
+        * [<Node#33355840098551>(subsystem_containers.gd)]
+        * [<Node#33355923984655>(subsystem_settings.gd)]
+        * [<Node#33355957539092>(subsystem_text.gd)]
+        * [<Node#33355856876155>(subsystem_portraits.gd)]
+        * [<Node#33355890430715>(subsystem_save.gd)]
+        * [<Node#33355621995334>]
+        * [<Node#33355638772776>]
+        * [<Node#33355588441227>(subsystem_animation.gd)]
+        * [<Node#33356041426062>(subsystem_text_input.gd)]
+        * [<Node#33355789767851>(subsystem_input.gd)]
+        * [<Timer#33355705881805>]
+        * [<Node#33355655550232>(subsystem_backgrounds.gd)]
+        * [<Node#33355940762916>(subsystem_styles.gd)]
+        * [<Node#33355605218609>(subsystem_audio.gd)]
+        * [<Node#33356058203652>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#33356091758806>]
+        * [<Node#33356074981736>(subsystem_voice.gd)]
+        * [<Node#33355772992243>(subsystem_history.gd)]
+        * [<Node#33355756215134>(subsystem_glossary.gd)]
+* test_large_target_overflow_scrollbar_keeps_reading_position_and_minimum_hit_geometry
+    24 Orphans
+        * [<Timer#33374311812622>]
+        * [<Timer#33374110486123>]
+        * [<Node#33374295035741>(subsystem_save.gd)]
+        * [<Node#33374127263615>(subsystem_expression.gd)]
+        * [<Node#33374446030762>(subsystem_text_input.gd)]
+        * [<Node#33374009823161>(subsystem_audio.gd)]
+        * [<Node#33374362144870>(subsystem_text.gd)]
+        * [<Node#33374093709608>(subsystem_choices.gd)]
+        * [<Node#33374026600842>]
+        * [<Node#33374345368119>(subsystem_styles.gd)]
+        * [<Node#33374462808738>(subsystem_variables.gd)]
+        * [<Node#33373993046803>(subsystem_animation.gd)]
+        * [<Node#33374194373404>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#33374496363349>]
+        * [<Node#33374043378528>]
+        * [<Node#33374227928219>(subsystem_jump.gd)]
+        * [<Node#33374244705476>(subsystem_containers.gd)]
+        * [<Node#33374060156142>(subsystem_backgrounds.gd)]
+        * [<Node#33374328591606>(subsystem_settings.gd)]
+        * [<Node#33374479586728>(subsystem_voice.gd)]
+        * [<Node#33374160820420>(subsystem_glossary.gd)]
+        * [<Timer#33374211152315>]
+        * [<Node#33374177598166>(subsystem_history.gd)]
+        * [<Node#33374261484362>(subsystem_portraits.gd)]
+* test_native_scrollbar_wide_hit_area_pages_and_drags_without_accepting_caption
+    24 Orphans
+        * [<Timer#33412614196723>]
+        * [<Node#33412966518549>(subsystem_variables.gd)]
+        * [<Node#33412496756771>(subsystem_animation.gd)]
+        * [<Timer#33412714860998>]
+        * [<Node#33412530311742>]
+        * [<Timer#33412815524557>]
+        * [<Node#33412765192973>(subsystem_portraits.gd)]
+        * [<Node#33412731638723>(subsystem_jump.gd)]
+        * [<Node#33412563866623>(subsystem_backgrounds.gd)]
+        * [<Node#33412949742660>(subsystem_text_input.gd)]
+        * [<Node#33412748416093>(subsystem_containers.gd)]
+        * [<Node#33412547089608>]
+        * [<Node#33412513535230>(subsystem_audio.gd)]
+        * [<Node#33412832302505>(subsystem_settings.gd)]
+        * [<Node#33412849079744>(subsystem_styles.gd)]
+        * [<Node#33412681307775>(subsystem_history.gd)]
+        * [<Node#33412983297685>(subsystem_voice.gd)]
+        * [<Node#33412698085058>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#33413000074956>]
+        * [<Node#33412798748730>(subsystem_save.gd)]
+        * [<Node#33412865857704>(subsystem_text.gd)]
+        * [<Node#33412630976766>(subsystem_expression.gd)]
+        * [<Node#33412597422467>(subsystem_choices.gd)]
+        * [<Node#33412664531547>(subsystem_glossary.gd)]
+* test_real_profile_material_preferences_preserve_native_reading_and_pending_click
+    24 Orphans
+        * [<Node#33430398045778>(subsystem_input.gd)]
+        * [<Node#33430297382721>(subsystem_choices.gd)]
+        * [<Node#33430666481579>(subsystem_variables.gd)]
+        * [<Node#33430565818424>(subsystem_text.gd)]
+        * [<Node#33430381269061>(subsystem_history.gd)]
+        * [<Node#33430196719732>(subsystem_animation.gd)]
+        * [<Node#33430263828676>(subsystem_backgrounds.gd)]
+        * [<Timer#33430314160542>]
+        * [<Node#33430364492249>(subsystem_glossary.gd)]
+        * [<AudioStreamPlayer#33430700036576>]
+        * [<Node#33430683259429>(subsystem_voice.gd)]
+        * [<Node#33430465155663>(subsystem_portraits.gd)]
+        * [<Node#33430549041756>(subsystem_styles.gd)]
+        * [<Node#33430230274787>]
+        * [<Node#33430532264725>(subsystem_settings.gd)]
+        * [<Node#33430330938167>(subsystem_expression.gd)]
+        * [<Timer#33430515487585>]
+        * [<Timer#33430414824531>]
+        * [<Node#33430448379009>(subsystem_containers.gd)]
+        * [<Node#33430498710677>(subsystem_save.gd)]
+        * [<Node#33430247052834>]
+        * [<Node#33430649706212>(subsystem_text_input.gd)]
+        * [<Node#33430431603583>(subsystem_jump.gd)]
+        * [<Node#33430213499792>(subsystem_audio.gd)]
+* test_real_profile_target_resize_cancels_held_native_thumb_drag_until_fresh_contact
+    24 Orphans
+        * [<Node#33452174872181>]
+        * [<Node#33452141317755>(subsystem_animation.gd)]
+        * [<Node#33452241981248>(subsystem_choices.gd)]
+        * [<Node#33452208426973>(subsystem_backgrounds.gd)]
+        * [<Node#33452611080390>(subsystem_variables.gd)]
+        * [<Node#33452342644947>(subsystem_input.gd)]
+        * [<Node#33452594303240>(subsystem_text_input.gd)]
+        * [<AudioStreamPlayer#33452644634921>]
+        * [<Node#33452409753916>(subsystem_portraits.gd)]
+        * [<Node#33452158095696>(subsystem_audio.gd)]
+        * [<Node#33452476862835>(subsystem_settings.gd)]
+        * [<Timer#33452359422465>]
+        * [<Node#33452309090897>(subsystem_glossary.gd)]
+        * [<Node#33452493640330>(subsystem_styles.gd)]
+        * [<Timer#33452460085945>]
+        * [<Node#33452443308780>(subsystem_save.gd)]
+        * [<Node#33452376200068>(subsystem_jump.gd)]
+        * [<Node#33452191650780>]
+        * [<Node#33452627858418>(subsystem_voice.gd)]
+        * [<Node#33452275536984>(subsystem_expression.gd)]
+        * [<Node#33452392977512>(subsystem_containers.gd)]
+        * [<Node#33452510418192>(subsystem_text.gd)]
+        * [<Timer#33452258761111>]
+        * [<Node#33452325870349>(subsystem_history.gd)]
+744 orphans
+31/31 passed.
+
+
+tests/integration/test_pause_backup_host.gd
+* test_preview_retains_real_nine_records_and_source_save_refusal_without_mutation
+* test_confirmation_cancel_then_backup_retreat_then_continue_each_need_their_own_back
+* test_confirmed_delete_uses_real_record_revision_without_resuming_or_changing_quick
+* test_changed_record_enters_recovery_and_back_does_not_escape_backup
+* test_confirmation_is_inert_during_parent_custody_and_close_cancels_its_token
+* test_source_change_after_confirmation_prevents_delete_and_consumes_consent
+* test_removing_backup_cancels_prepared_owner_token
+* test_parent_interaction_restores_exact_backup_focus_without_resetting_mode_or_record
+* test_parent_custody_change_retires_held_touch_consent_before_reactivation
+9/9 passed.
+
+
+tests/unit/test_pause_surface.gd
+* test_all_locales_scales_and_target_modes_keep_full_copy_and_exact_geometry
+* test_invalid_copy_and_presentation_leave_previous_tuple_focus_and_copy_unchanged
+* test_native_navigation_previews_without_entering_and_never_wraps
+* test_injected_host_enters_on_right_and_back_performs_one_retreat
+* test_released_pointer_enters_once_and_return_cancel_restores_exact_row
+* test_controller_accept_and_return_confirmation_only_emit_intents
+* test_inert_custody_and_close_prevent_commands_without_claiming_disabled_rows
+7/7 passed.
+
+
+tests/unit/test_pause_input_custody.gd
+* test_exact_handle_admission_idempotence_and_refusal_are_atomic
+* test_malformed_handles_never_change_custody_or_expose_partial_values
+* test_native_held_contacts_require_all_releases_after_resume
+* test_release_observed_while_tree_paused_does_not_poison_fresh_input
+* test_source_policy_refuses_paused_and_held_contacts_then_accepts_fresh_contacts
+* test_pending_pointer_is_canceled_and_pause_always_button_still_operates
+6/6 passed.
+
+
+tests/unit/test_witnessed_pause_view.gd
+* test_cover_hides_complete_native_view_without_changing_reveal_or_history_then_restores_pan_focus
+    24 Orphans
+        * [<Node#33603438252037>(subsystem_text_input.gd)]
+        * [<Node#33603169816593>(subsystem_history.gd)]
+        * [<Timer#33603102707772>]
+        * [<Node#33603085930750>(subsystem_choices.gd)]
+        * [<Node#33603018821894>]
+        * [<Node#33603035599128>]
+        * [<Node#33603119485266>(subsystem_expression.gd)]
+        * [<Node#33603253703017>(subsystem_portraits.gd)]
+        * [<Node#33603186594256>(subsystem_input.gd)]
+        * [<Node#33603153039891>(subsystem_glossary.gd)]
+        * [<Node#33603455029802>(subsystem_variables.gd)]
+        * [<Node#33603220148834>(subsystem_jump.gd)]
+        * [<Node#33603002045420>(subsystem_audio.gd)]
+        * [<Node#33603320812614>(subsystem_settings.gd)]
+        * [<Node#33603354367055>(subsystem_text.gd)]
+        * [<Node#33603052377242>(subsystem_backgrounds.gd)]
+        * [<Timer#33603304035547>]
+        * [<Timer#33603203372316>]
+        * [<Node#33603236927709>(subsystem_containers.gd)]
+        * [<Node#33603287259481>(subsystem_save.gd)]
+        * [<Node#33603471808938>(subsystem_voice.gd)]
+        * [<Node#33602985269730>(subsystem_animation.gd)]
+        * [<AudioStreamPlayer#33603488586528>]
+        * [<Node#33603337591610>(subsystem_styles.gd)]
+* test_tampered_stale_and_foreign_view_anchors_are_refused_without_mutation
+    24 Orphans
+        * [<Node#33608806960668>(subsystem_expression.gd)]
+        * [<Node#33608907624068>(subsystem_jump.gd)]
+        * [<Node#33608874069683>(subsystem_input.gd)]
+        * [<Node#33608672743207>(subsystem_animation.gd)]
+        * [<Node#33609125728113>(subsystem_text_input.gd)]
+        * [<Node#33609142505336>(subsystem_variables.gd)]
+        * [<Timer#33608890847162>]
+        * [<Node#33608924401662>(subsystem_containers.gd)]
+        * [<Node#33608857292820>(subsystem_history.gd)]
+        * [<Node#33608773406965>(subsystem_choices.gd)]
+        * [<Timer#33608790184192>]
+        * [<Node#33609041842434>(subsystem_text.gd)]
+        * [<Node#33609159282973>(subsystem_voice.gd)]
+        * [<Node#33608974733642>(subsystem_save.gd)]
+        * [<Node#33608840516019>(subsystem_glossary.gd)]
+        * [<Node#33608941179406>(subsystem_portraits.gd)]
+        * [<Node#33608689521513>(subsystem_audio.gd)]
+        * [<Timer#33608991511495>]
+        * [<Node#33608706298909>]
+        * [<Node#33608723076147>]
+        * [<Node#33608739854318>(subsystem_backgrounds.gd)]
+        * [<Node#33609008290044>(subsystem_settings.gd)]
+        * [<Node#33609025067485>(subsystem_styles.gd)]
+        * [<AudioStreamPlayer#33609176062596>]
+* test_settings_reprojection_under_cover_preserves_native_copy_and_restores_clamped_pan
+    24 Orphans
+        * [<Node#33614913867310>(subsystem_text_input.gd)]
+        * [<Node#33614477659931>(subsystem_audio.gd)]
+        * [<Node#33614527991853>(subsystem_backgrounds.gd)]
+        * [<Node#33614595100793>(subsystem_expression.gd)]
+        * [<Node#33614695764095>(subsystem_jump.gd)]
+        * [<Timer#33614678986921>]
+        * [<Node#33614561546419>(subsystem_choices.gd)]
+        * [<Node#33614460883136>(subsystem_animation.gd)]
+        * [<Node#33614712541703>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#33614964200057>]
+        * [<Node#33614813205346>(subsystem_styles.gd)]
+        * [<Node#33614628656136>(subsystem_glossary.gd)]
+        * [<Node#33614829982860>(subsystem_text.gd)]
+        * [<Timer#33614578324678>]
+        * [<Node#33614494438688>]
+        * [<Node#33614645434615>(subsystem_history.gd)]
+        * [<Node#33614762875237>(subsystem_save.gd)]
+        * [<Node#33614511217037>]
+        * [<Node#33614930647457>(subsystem_variables.gd)]
+        * [<Node#33614729320905>(subsystem_portraits.gd)]
+        * [<Node#33614662212304>(subsystem_input.gd)]
+        * [<Node#33614947425030>(subsystem_voice.gd)]
+        * [<Node#33614796430225>(subsystem_settings.gd)]
+        * [<Timer#33614779653012>]
+* test_no_source_focus_is_not_invented_and_empty_capture_is_refused
+    24 Orphans
+        * [<Node#33620282576495>(subsystem_animation.gd)]
+        * [<Node#33620349685361>(subsystem_backgrounds.gd)]
+        * [<Node#33620450348750>(subsystem_glossary.gd)]
+        * [<Node#33620735561478>(subsystem_text_input.gd)]
+        * [<Node#33620383240176>(subsystem_choices.gd)]
+        * [<Node#33620634898519>(subsystem_styles.gd)]
+        * [<Node#33620551012590>(subsystem_portraits.gd)]
+        * [<Node#33620332908862>]
+        * [<Timer#33620500681029>]
+        * [<Node#33620651675998>(subsystem_text.gd)]
+        * [<Timer#33620400017774>]
+        * [<Node#33620483904021>(subsystem_input.gd)]
+        * [<Node#33620316131864>]
+        * [<Node#33620752339512>(subsystem_variables.gd)]
+        * [<Node#33620584567480>(subsystem_save.gd)]
+        * [<Node#33620517458928>(subsystem_jump.gd)]
+        * [<Node#33620618122322>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#33620785894560>]
+        * [<Timer#33620601345322>]
+        * [<Node#33620416796043>(subsystem_expression.gd)]
+        * [<Node#33620769118551>(subsystem_voice.gd)]
+        * [<Node#33620534237959>(subsystem_containers.gd)]
+        * [<Node#33620467129227>(subsystem_history.gd)]
+        * [<Node#33620299357075>(subsystem_audio.gd)]
+96 orphans
+4/4 passed.
+
+
+tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+* test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge
+* test_semantic_narrative_participant_reports_manifest_drift_as_recoverable
+13/13 passed.
+
+
+tests/integration/test_desktop_board_persistence.gd
+* test_restore_remaps_board_identity_and_command_receipt_keys
+* test_restore_remaps_consequence_causal_day_pair
+* test_restore_rejects_a_corrupted_board_before_touching_live_state
+* test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation
+* test_a_completed_restore_leaves_no_incomplete_continuation
+5/5 passed.
+
+
+tests/integration/test_minesweeper_first_reveal_transaction.gd
+* test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state
+* test_first_reveal_charges_exactly_once_across_a_retried_request
+* test_adapter_rejects_a_desktop_less_post_commit_snapshot_input
+* test_adapter_rejects_a_board_only_desktop_value
+* test_adapter_rejects_an_extra_desktop_key
+* test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal
+* test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured
+7/7 passed.
+
+
+tests/integration/test_desktop_crash_recovery.gd
+* test_start_new_run_completes_against_the_real_profile_and_localization_pair
+    [Failed]
+      at line 188
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 188
+    [Failed]:  dwm-p2r.33: a fresh install (this boot persisted schema defaults; no earlier profile.json existed) must complete a New Run through the REAL ProfileManager/LocalizationManager pair: {"code":"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED","details":{},"message":"configure_restore_participants first","ok":false}
+      at line 191
+    [Failed]:  a completed New Run reports the durably allocated run_id
+      at line 194
+* test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
+    [Failed]
+      at line 205
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 205
+    [Failed]
+      at line 213
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 213
+    [Failed]:  {"code":"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED","details":{},"message":"configure_restore_participants first","ok":false}
+      at line 215
+* test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing
+    [Failed]
+      at line 226
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 226
+    [Failed]:  the seeding New Run itself must complete (receipt flips true; the journal entry completes)
+      at line 228
+    [Failed]:  ["TRANSACTION_PARTICIPANTS_NOT_CONFIGURED"] expected to equal ["root_prepare_failed"]:
+      at line 238
+    [Failed]:  [0] expected to equal [1]:  the failed attempt's own operation is exactly the one left incomplete
+      at line 243
+* test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run
+    [Failed]
+      at line 254
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 254
+    [Failed]
+      at line 256
+    [Failed]:  [STRING_NAME(TRANSACTION_PARTICIPANTS_NOT_CONFIGURED)] expected to equal [STRING_NAME(root_prepare_failed)]:
+      at line 260
+    [Failed]
+      at line 262
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 262
+    [Failed]:  the resumed run's Day-1 bundle is genuinely live in process B's journal -- the stuck entry COMPLETED, it did not just vanish
+      at line 269
+* test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time
+    [Failed]
+      at line 279
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 279
+    [Failed]:  identical replay of the graph construction (which reconciles again) is still ok
+      at line 280
+* test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload
+    [Failed]
+      at line 291
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 291
+    [Failed]
+      at line 293
+SCRIPT ERROR: Invalid call. Nonexistent function 'record_before_emit' in base 'Nil'.
+   at: test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload (res://tests/integration/test_desktop_crash_recovery.gd:301)
+   GDScript backtrace (most recent call first):
+       [0] test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload (res://tests/integration/test_desktop_crash_recovery.gd:301)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'record_before_emit' in base 'Nil'.
+      at line -1
+0/6 passed.
+
+
+tests/unit/test_input_accessibility.gd
+* test_required_actions_exist
+* test_make_button_focusable
+* test_focus_first_control_finds_button
+* test_rebind_unknown_action_safe
+* test_permanent_settings_are_not_owned_by_game_state
+* test_accessibility_apply_no_crash
+* test_minimum_click_size_positive
+[WARNING]:  Test script has 3 unfreed children.  Increase log level for more details.
+7/7 passed.
+
+
+tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_four_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+6/6 passed.
+
+
+tests/unit/test_run_snapshot_schema.gd
+* test_run_snapshot_schema_exists
+* test_build_produces_exact_valid_shape
+* test_validate_accepts_fixture_and_rejects_day8_and_shapes
+* test_validate_rejection_matrix
+* test_validate_enforces_ending_id_is_a_canonical_primary
+* test_validate_primitive_tree_rejects_engine_types
+* test_prepare_candidate_is_detached
+* test_is_compatible_bundle_checks_versions
+* test_derive_route_restore_context_exact_shape
+* test_schema_version_is_four
+* test_top_level_committed_schedule_replaces_legacy_schedule
+* test_gameplay_schedule_entries_is_retired
+* test_committed_schedule_validation_delegates_to_schedule_state_schema
+* test_committed_schedule_day_must_equal_lifecycle_day
+* test_committed_schedule_is_recursively_detached
+* test_v3_build_round_trips_the_aggregate_unchanged
+* test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_null
+* test_desktop_is_a_v4_top_level_member
+* test_desktop_lifecycle_identity_fields_are_exact_and_bound
+* test_desktop_board_and_consequence_delegate_to_their_own_owners
+* test_v3_pre_desktop_fixture_lacks_the_v4_member
+21/21 passed.
+
+
+
+
+==============================================
+= 864 Orphans
+==============================================
+tests/unit/test_window_mode_port.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+test_witnessed_caption_runtime.gd
+    - test_deferred_first_mount_reapplies_bound_bridge_preferences_before_first_text
+        * [<Node#32808802192975>(subsystem_styles.gd)]
+        * [<Node#32808617644331>(subsystem_glossary.gd)]
+        * [<Node#32808718308694>(subsystem_portraits.gd)]
+        * [<Node#32808516982143>(subsystem_backgrounds.gd)]
+        * [<Node#32808651199894>(subsystem_input.gd)]
+        * [<Node#32808684754351>(subsystem_jump.gd)]
+        * [<Node#32808466650607>(subsystem_audio.gd)]
+        * [<Timer#32808567313948>]
+        * [<Node#32808936412717>(subsystem_voice.gd)]
+        * [<Node#32808818972470>(subsystem_text.gd)]
+        * [<Timer#32808768640903>]
+        * [<Node#32808701532120>(subsystem_containers.gd)]
+        * [<Node#32808550537244>(subsystem_choices.gd)]
+        * [<Timer#32808667977779>]
+        * [<Node#32808449873991>(subsystem_animation.gd)]
+        * [<Node#32808919636050>(subsystem_variables.gd)]
+        * [<Node#32808500205660>]
+        * [<Node#32808584091741>(subsystem_expression.gd)]
+        * [<Node#32808751863925>(subsystem_save.gd)]
+        * [<Node#32808634423447>(subsystem_history.gd)]
+        * [<Node#32808483428878>]
+        * [<Node#32808902859299>(subsystem_text_input.gd)]
+        * [<AudioStreamPlayer#32808953191032>]
+        * [<Node#32808785418953>(subsystem_settings.gd)]
+    - test_real_timeline_reveal_append_clear_and_end_keep_one_text_node
+        * [<Timer#32820160368483>]
+        * [<Node#32820143591352>(subsystem_save.gd)]
+        * [<Node#32820311363982>(subsystem_variables.gd)]
+        * [<Node#32820042928562>(subsystem_input.gd)]
+        * [<Timer#32819959042519>]
+        * [<Node#32820009374268>(subsystem_glossary.gd)]
+        * [<Node#32820177147157>(subsystem_settings.gd)]
+        * [<Node#32819975820592>(subsystem_expression.gd)]
+        * [<Node#32820193924564>(subsystem_styles.gd)]
+        * [<Node#32819908711968>(subsystem_backgrounds.gd)]
+        * [<Node#32820076484299>(subsystem_jump.gd)]
+        * [<Timer#32820059707098>]
+        * [<Node#32820294588124>(subsystem_text_input.gd)]
+        * [<Node#32820093261652>(subsystem_containers.gd)]
+        * [<Node#32819942266791>(subsystem_choices.gd)]
+        * [<Node#32819891935144>]
+        * [<AudioStreamPlayer#32820344920056>]
+        * [<Node#32820328143091>(subsystem_voice.gd)]
+        * [<Node#32819858381057>(subsystem_audio.gd)]
+        * [<Node#32820210702732>(subsystem_text.gd)]
+        * [<Node#32819875158625>]
+        * [<Node#32820110039746>(subsystem_portraits.gd)]
+        * [<Node#32820026153742>(subsystem_history.gd)]
+        * [<Node#32819841604401>(subsystem_animation.gd)]
+    - test_presentation_matrix_preserves_live_reveal_history_and_event_position
+        * [<Timer#32843732356847>]
+        * [<Node#32843816243337>(subsystem_input.gd)]
+        * [<Node#32843849798797>(subsystem_jump.gd)]
+        * [<Node#32843631695093>(subsystem_audio.gd)]
+        * [<Node#32843682026909>(subsystem_backgrounds.gd)]
+        * [<Node#32843614918081>(subsystem_animation.gd)]
+        * [<Node#32843665249774>]
+        * [<Node#32843883353621>(subsystem_portraits.gd)]
+        * [<Node#32843916908073>(subsystem_save.gd)]
+        * [<Timer#32843933685474>]
+        * [<Node#32843749136134>(subsystem_expression.gd)]
+        * [<Node#32843715581731>(subsystem_choices.gd)]
+        * [<AudioStreamPlayer#32844118234916>]
+        * [<Node#32843950462822>(subsystem_settings.gd)]
+        * [<Node#32843967240123>(subsystem_styles.gd)]
+        * [<Timer#32843833022477>]
+        * [<Node#32843799468052>(subsystem_history.gd)]
+        * [<Node#32844101457949>(subsystem_voice.gd)]
+        * [<Node#32843866577050>(subsystem_containers.gd)]
+        * [<Node#32844084681004>(subsystem_variables.gd)]
+        * [<Node#32843984017798>(subsystem_text.gd)]
+        * [<Node#32843648473576>]
+        * [<Node#32844067904015>(subsystem_text_input.gd)]
+        * [<Node#32843782691498>(subsystem_glossary.gd)]
+    - test_overflow_scroll_is_local_and_reconfigure_does_not_complete_text
+        * [<Timer#32988637171397>]
+        * [<Node#32988754611996>(subsystem_settings.gd)]
+        * [<Timer#32988737835202>]
+        * [<Node#32988620395104>(subsystem_input.gd)]
+        * [<Node#32988771390135>(subsystem_styles.gd)]
+        * [<Timer#32988536509346>]
+        * [<Node#32988419069266>(subsystem_animation.gd)]
+        * [<Node#32988519732603>(subsystem_choices.gd)]
+        * [<Node#32988586841624>(subsystem_glossary.gd)]
+        * [<Node#32988469401249>]
+        * [<Node#32988603618979>(subsystem_history.gd)]
+        * [<Node#32988788168403>(subsystem_text.gd)]
+        * [<Node#32988888831727>(subsystem_variables.gd)]
+        * [<Node#32988721059865>(subsystem_save.gd)]
+        * [<Node#32988653951023>(subsystem_jump.gd)]
+        * [<Node#32988486178920>(subsystem_backgrounds.gd)]
+        * [<Node#32988452624600>]
+        * [<Node#32988905609747>(subsystem_voice.gd)]
+        * [<Node#32988687505989>(subsystem_portraits.gd)]
+        * [<Node#32988670728810>(subsystem_containers.gd)]
+        * [<Node#32988553288321>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#32988922387086>]
+        * [<Node#32988872055448>(subsystem_text_input.gd)]
+        * [<Node#32988435847871>(subsystem_audio.gd)]
+    - test_actual_hospital_bridge_path_selects_caption_then_natural_end_restores_default_scope
+        * [<Timer#33002243493313>]
+        * [<Node#33001941503559>(subsystem_audio.gd)]
+        * [<Node#33001924727142>(subsystem_animation.gd)]
+        * [<Node#33001991836475>(subsystem_backgrounds.gd)]
+        * [<Node#33002226718151>(subsystem_save.gd)]
+        * [<Node#33002260272584>(subsystem_settings.gd)]
+        * [<Node#33002277049823>(subsystem_styles.gd)]
+        * [<Node#33002058946148>(subsystem_expression.gd)]
+        * [<Node#33002159609469>(subsystem_jump.gd)]
+        * [<AudioStreamPlayer#33002428045126>]
+        * [<Node#33002126055297>(subsystem_input.gd)]
+        * [<Timer#33002042169226>]
+        * [<Node#33002193164236>(subsystem_portraits.gd)]
+        * [<Timer#33002142832597>]
+        * [<Node#33002411268065>(subsystem_voice.gd)]
+        * [<Node#33001975060451>]
+        * [<Node#33001958283244>]
+        * [<Node#33002176387106>(subsystem_containers.gd)]
+        * [<Node#33002293827755>(subsystem_text.gd)]
+        * [<Node#33002109278435>(subsystem_history.gd)]
+        * [<Node#33002394491172>(subsystem_variables.gd)]
+        * [<Node#33002025392633>(subsystem_choices.gd)]
+        * [<Node#33002092501563>(subsystem_glossary.gd)]
+        * [<Node#33002377714238>(subsystem_text_input.gd)]
+    - test_hospital_missing_styles_refuses_before_clear_start_or_bridge_context
+        * [<Node#33028063626688>(subsystem_audio.gd)]
+        * [<Node#33028097181676>]
+        * [<Node#33028080404461>]
+        * [<Node#33028315287445>(subsystem_portraits.gd)]
+        * [<Timer#33028365619620>]
+        * [<Node#33028214625323>(subsystem_glossary.gd)]
+        * [<Timer#33028264957288>]
+        * [<Node#33028113962354>(subsystem_backgrounds.gd)]
+        * [<Node#33028281734535>(subsystem_jump.gd)]
+        * [<Node#33028147516923>(subsystem_choices.gd)]
+        * [<Node#33028248180235>(subsystem_input.gd)]
+        * [<Timer#33028164294160>]
+        * [<Node#33028231403139>(subsystem_history.gd)]
+        * [<Node#33028399175355>(subsystem_styles.gd)]
+        * [<Node#33028181071570>(subsystem_expression.gd)]
+        * [<Node#33028499838829>(subsystem_text_input.gd)]
+        * [<Node#33028533393538>(subsystem_voice.gd)]
+        * [<Node#33028046854276>(subsystem_animation.gd)]
+        * [<Node#33028298512585>(subsystem_containers.gd)]
+        * [<Node#33028516616409>(subsystem_variables.gd)]
+        * [<Node#33028382398772>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#33028550170944>]
+        * [<Node#33028415953234>(subsystem_text.gd)]
+        * [<Node#33028348844515>(subsystem_save.gd)]
+    - test_real_touch_drag_with_mouse_emulation_scrolls_without_finishing_native_reveal
+        * [<Node#33031737839136>(subsystem_save.gd)]
+        * [<Node#33031486180963>]
+        * [<Node#33031888834471>(subsystem_text_input.gd)]
+        * [<Node#33031536513457>(subsystem_choices.gd)]
+        * [<Node#33031687508539>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#33031939167485>]
+        * [<Node#33031771395361>(subsystem_settings.gd)]
+        * [<Timer#33031653954897>]
+        * [<Node#33031804949897>(subsystem_text.gd)]
+        * [<Node#33031603623322>(subsystem_glossary.gd)]
+        * [<Node#33031502960027>(subsystem_backgrounds.gd)]
+        * [<Node#33031452628450>(subsystem_audio.gd)]
+        * [<Timer#33031754618406>]
+        * [<Node#33031620400725>(subsystem_history.gd)]
+        * [<Node#33031637177979>(subsystem_input.gd)]
+        * [<Node#33031570069426>(subsystem_expression.gd)]
+        * [<Timer#33031553292254>]
+        * [<Node#33031704287256>(subsystem_portraits.gd)]
+        * [<Node#33031670732987>(subsystem_jump.gd)]
+        * [<Node#33031905614034>(subsystem_variables.gd)]
+        * [<Node#33031435852294>(subsystem_animation.gd)]
+        * [<Node#33031922391565>(subsystem_voice.gd)]
+        * [<Node#33031469406813>]
+        * [<Node#33031788173952>(subsystem_styles.gd)]
+    - test_stack_keeps_newest_three_published_captions_with_one_native_current
+        * [<Node#33043767100859>(subsystem_animation.gd)]
+        * [<Node#33043800657480>]
+        * [<Node#33044102648978>(subsystem_settings.gd)]
+        * [<Node#33043951654149>(subsystem_history.gd)]
+        * [<Node#33043817436428>]
+        * [<Node#33044236866901>(subsystem_variables.gd)]
+        * [<Node#33044253644192>(subsystem_voice.gd)]
+        * [<Node#33043901322657>(subsystem_expression.gd)]
+        * [<Node#33044119426467>(subsystem_styles.gd)]
+        * [<Node#33044220089882>(subsystem_text_input.gd)]
+        * [<Node#33044069095011>(subsystem_save.gd)]
+        * [<AudioStreamPlayer#33044270421692>]
+        * [<Timer#33043985209067>]
+        * [<Node#33043968431852>(subsystem_input.gd)]
+        * [<Node#33043867768747>(subsystem_choices.gd)]
+        * [<Node#33044035541028>(subsystem_portraits.gd)]
+        * [<Node#33044018763965>(subsystem_containers.gd)]
+        * [<Timer#33044085872866>]
+        * [<Node#33044001986788>(subsystem_jump.gd)]
+        * [<Node#33044136204586>(subsystem_text.gd)]
+        * [<Timer#33043884546380>]
+        * [<Node#33043834214802>(subsystem_backgrounds.gd)]
+        * [<Node#33043934878363>(subsystem_glossary.gd)]
+        * [<Node#33043783883620>(subsystem_audio.gd)]
+    - test_stack_append_newline_sections_and_identical_copy_are_distinct_publications
+        * [<Node#33058732379690>(subsystem_voice.gd)]
+        * [<Node#33058346503817>(subsystem_choices.gd)]
+        * [<Node#33058413612867>(subsystem_glossary.gd)]
+        * [<Node#33058598163055>(subsystem_styles.gd)]
+        * [<Node#33058380059992>(subsystem_expression.gd)]
+        * [<Node#33058430391688>(subsystem_history.gd)]
+        * [<Timer#33058363282860>]
+        * [<Node#33058279396871>]
+        * [<Node#33058262619663>(subsystem_audio.gd)]
+        * [<Node#33058715604531>(subsystem_variables.gd)]
+        * [<Node#33058245842485>(subsystem_animation.gd)]
+        * [<Node#33058614941354>(subsystem_text.gd)]
+        * [<Node#33058497501001>(subsystem_containers.gd)]
+        * [<Node#33058514278423>(subsystem_portraits.gd)]
+        * [<Node#33058581387299>(subsystem_settings.gd)]
+        * [<Node#33058547832976>(subsystem_save.gd)]
+        * [<Node#33058698827971>(subsystem_text_input.gd)]
+        * [<Timer#33058564610310>]
+        * [<Node#33058480724242>(subsystem_jump.gd)]
+        * [<Timer#33058463947027>]
+        * [<Node#33058447169813>(subsystem_input.gd)]
+        * [<Node#33058296174888>]
+        * [<Node#33058312952144>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#33058749159893>]
+    - test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll
+        * [<Node#33071231405592>(subsystem_jump.gd)]
+        * [<Node#33071332069137>(subsystem_settings.gd)]
+        * [<Node#33071063633713>(subsystem_backgrounds.gd)]
+        * [<Node#33071097188598>(subsystem_choices.gd)]
+        * [<Timer#33071315293088>]
+        * [<Node#33071348847978>(subsystem_styles.gd)]
+        * [<Node#33071248184762>(subsystem_containers.gd)]
+        * [<Node#33071449511603>(subsystem_text_input.gd)]
+        * [<Timer#33071214630589>]
+        * [<Timer#33071113967383>]
+        * [<Node#33071013304188>(subsystem_audio.gd)]
+        * [<Node#33071483066243>(subsystem_voice.gd)]
+        * [<Node#33071365625765>(subsystem_text.gd)]
+        * [<Node#33071298517035>(subsystem_save.gd)]
+        * [<AudioStreamPlayer#33071499843659>]
+        * [<Node#33070996527319>(subsystem_animation.gd)]
+        * [<Node#33071197854141>(subsystem_input.gd)]
+        * [<Node#33071181076926>(subsystem_history.gd)]
+        * [<Node#33071130745385>(subsystem_expression.gd)]
+        * [<Node#33071466289722>(subsystem_variables.gd)]
+        * [<Node#33071264963190>(subsystem_portraits.gd)]
+        * [<Node#33071046859483>]
+        * [<Node#33071030082376>]
+        * [<Node#33071164300156>(subsystem_glossary.gd)]
+    - test_runtime_pause_preserves_the_pending_native_pause_remaining_time
+        * [<Node#33098427272813>(subsystem_expression.gd)]
+        * [<Node#33098326610172>]
+        * [<Node#33098477605169>(subsystem_history.gd)]
+        * [<AudioStreamPlayer#33098796372486>]
+        * [<Node#33098662155199>(subsystem_text.gd)]
+        * [<Node#33098393720208>(subsystem_choices.gd)]
+        * [<Node#33098779596191>(subsystem_voice.gd)]
+        * [<Node#33098628601386>(subsystem_settings.gd)]
+        * [<Node#33098527938230>(subsystem_jump.gd)]
+        * [<Node#33098746042109>(subsystem_text_input.gd)]
+        * [<Node#33098762819326>(subsystem_variables.gd)]
+        * [<Node#33098494383902>(subsystem_input.gd)]
+        * [<Timer#33098611824518>]
+        * [<Node#33098293057515>(subsystem_animation.gd)]
+        * [<Timer#33098511161351>]
+        * [<Node#33098460829819>(subsystem_glossary.gd)]
+        * [<Node#33098561493237>(subsystem_portraits.gd)]
+        * [<Node#33098360166913>(subsystem_backgrounds.gd)]
+        * [<Node#33098343389736>]
+        * [<Timer#33098410498620>]
+        * [<Node#33098595048028>(subsystem_save.gd)]
+        * [<Node#33098544716474>(subsystem_containers.gd)]
+        * [<Node#33098645379861>(subsystem_styles.gd)]
+        * [<Node#33098309835557>(subsystem_audio.gd)]
+    - test_hidden_caption_preserves_the_pending_native_pause_remaining_time
+        * [<Node#33116613775501>(subsystem_save.gd)]
+        * [<Node#33116328563347>(subsystem_audio.gd)]
+        * [<Timer#33116630553716>]
+        * [<Node#33116412450115>(subsystem_choices.gd)]
+        * [<Node#33116378895767>(subsystem_backgrounds.gd)]
+        * [<Node#33116680885688>(subsystem_text.gd)]
+        * [<Timer#33116429227501>]
+        * [<Node#33116479559174>(subsystem_glossary.gd)]
+        * [<Node#33116647331345>(subsystem_settings.gd)]
+        * [<Node#33116664108601>(subsystem_styles.gd)]
+        * [<Node#33116781549202>(subsystem_variables.gd)]
+        * [<Node#33116798326489>(subsystem_voice.gd)]
+        * [<Node#33116580222875>(subsystem_portraits.gd)]
+        * [<Node#33116362119094>]
+        * [<Node#33116345342043>]
+        * [<Node#33116546668646>(subsystem_jump.gd)]
+        * [<Node#33116513114257>(subsystem_input.gd)]
+        * [<Timer#33116529891511>]
+        * [<Node#33116563445954>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#33116815104224>]
+        * [<Node#33116764772931>(subsystem_text_input.gd)]
+        * [<Node#33116311788108>(subsystem_animation.gd)]
+        * [<Node#33116496337606>(subsystem_history.gd)]
+        * [<Node#33116446005967>(subsystem_expression.gd)]
+    - test_hidden_same_frame_clear_and_replace_and_next_timeline_do_not_retain_old_caption
+        * [<Node#33134481509778>(subsystem_choices.gd)]
+        * [<Node#33134867386284>(subsystem_voice.gd)]
+        * [<Node#33134733168668>(subsystem_styles.gd)]
+        * [<Node#33134397624409>(subsystem_audio.gd)]
+        * [<Timer#33134598951167>]
+        * [<Node#33134749946592>(subsystem_text.gd)]
+        * [<Node#33134414402450>]
+        * [<Node#33134380848149>(subsystem_animation.gd)]
+        * [<Node#33134447957198>(subsystem_backgrounds.gd)]
+        * [<Node#33134632506903>(subsystem_containers.gd)]
+        * [<Node#33134716393012>(subsystem_settings.gd)]
+        * [<Timer#33134498289254>]
+        * [<Node#33134582175352>(subsystem_input.gd)]
+        * [<Node#33134548620993>(subsystem_glossary.gd)]
+        * [<Node#33134565398218>(subsystem_history.gd)]
+        * [<Node#33134850610971>(subsystem_variables.gd)]
+        * [<Node#33134682838831>(subsystem_save.gd)]
+        * [<Node#33134515066707>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#33134884165649>]
+        * [<Node#33134615730252>(subsystem_jump.gd)]
+        * [<Timer#33134699616549>]
+        * [<Node#33134833834383>(subsystem_text_input.gd)]
+        * [<Node#33134431181358>]
+        * [<Node#33134649285209>(subsystem_portraits.gd)]
+    - test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal
+        * [<Node#33147936837278>(subsystem_input.gd)]
+        * [<Node#33148071055359>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#33148238828811>]
+        * [<Node#33147869730128>(subsystem_expression.gd)]
+        * [<Node#33148205274466>(subsystem_variables.gd)]
+        * [<Node#33147802621392>(subsystem_backgrounds.gd)]
+        * [<Node#33148188497437>(subsystem_text_input.gd)]
+        * [<Node#33147769067071>]
+        * [<Node#33148104611440>(subsystem_text.gd)]
+        * [<Node#33147735512698>(subsystem_animation.gd)]
+        * [<Node#33148222052121>(subsystem_voice.gd)]
+        * [<Node#33147987171140>(subsystem_containers.gd)]
+        * [<Node#33147836176206>(subsystem_choices.gd)]
+        * [<Node#33147970393962>(subsystem_jump.gd)]
+        * [<Node#33147903285129>(subsystem_glossary.gd)]
+        * [<Node#33147752290225>(subsystem_audio.gd)]
+        * [<Node#33147785844776>]
+        * [<Timer#33147852953684>]
+        * [<Node#33147920062686>(subsystem_history.gd)]
+        * [<Node#33148037503601>(subsystem_save.gd)]
+        * [<Node#33148087835295>(subsystem_styles.gd)]
+        * [<Timer#33148054280865>]
+        * [<Node#33148003949241>(subsystem_portraits.gd)]
+        * [<Timer#33147953617621>]
+    - test_hiding_and_showing_incomplete_caption_pauses_without_cancelling_its_reveal
+        * [<Node#33159328566929>(subsystem_glossary.gd)]
+        * [<Node#33159362122973>(subsystem_input.gd)]
+        * [<Node#33159429231864>(subsystem_portraits.gd)]
+        * [<Node#33159630558473>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#33159664113117>]
+        * [<Timer#33159278237160>]
+        * [<Node#33159227905515>(subsystem_backgrounds.gd)]
+        * [<Node#33159513118226>(subsystem_styles.gd)]
+        * [<Node#33159194351187>]
+        * [<Node#33159160796830>(subsystem_animation.gd)]
+        * [<Node#33159529895614>(subsystem_text.gd)]
+        * [<Timer#33159378900770>]
+        * [<Node#33159261460269>(subsystem_choices.gd)]
+        * [<Node#33159177574248>(subsystem_audio.gd)]
+        * [<Node#33159613781870>(subsystem_text_input.gd)]
+        * [<Node#33159211128701>]
+        * [<Node#33159412455531>(subsystem_containers.gd)]
+        * [<Timer#33159479564493>]
+        * [<Node#33159395678481>(subsystem_jump.gd)]
+        * [<Node#33159462787355>(subsystem_save.gd)]
+        * [<Node#33159647336915>(subsystem_voice.gd)]
+        * [<Node#33159345347172>(subsystem_history.gd)]
+        * [<Node#33159295015539>(subsystem_expression.gd)]
+        * [<Node#33159496342198>(subsystem_settings.gd)]
+    - test_skipping_a_native_pause_cannot_resume_effects_or_reveal_on_the_replacement_line
+        * [<Node#33171324276330>(subsystem_voice.gd)]
+        * [<Node#33171072618420>(subsystem_jump.gd)]
+        * [<Node#33171206836532>(subsystem_text.gd)]
+        * [<Node#33171190060288>(subsystem_styles.gd)]
+        * [<Node#33171290723667>(subsystem_text_input.gd)]
+        * [<Node#33170854516090>(subsystem_audio.gd)]
+        * [<Node#33171089397180>(subsystem_containers.gd)]
+        * [<Node#33171106174411>(subsystem_portraits.gd)]
+        * [<Node#33170971956958>(subsystem_expression.gd)]
+        * [<Node#33170871293704>]
+        * [<Node#33171139729185>(subsystem_save.gd)]
+        * [<Timer#33170955179818>]
+        * [<Node#33170837739353>(subsystem_animation.gd)]
+        * [<Node#33170888071054>]
+        * [<Node#33171039066000>(subsystem_input.gd)]
+        * [<Node#33170938402871>(subsystem_choices.gd)]
+        * [<Timer#33171055843481>]
+        * [<AudioStreamPlayer#33171341056169>]
+        * [<Timer#33171156507204>]
+        * [<Node#33171022289480>(subsystem_history.gd)]
+        * [<Node#33171005512279>(subsystem_glossary.gd)]
+        * [<Node#33171173284454>(subsystem_settings.gd)]
+        * [<Node#33170904849182>(subsystem_backgrounds.gd)]
+        * [<Node#33171307502441>(subsystem_variables.gd)]
+    - test_real_text_clear_and_immediate_replacement_invalidate_an_awaiting_native_pause
+        * [<Node#33186625097730>(subsystem_glossary.gd)]
+        * [<Node#33186692206603>(subsystem_jump.gd)]
+        * [<Node#33186759315967>(subsystem_save.gd)]
+        * [<Timer#33186776093262>]
+        * [<Node#33186943865500>(subsystem_voice.gd)]
+        * [<Timer#33186675430344>]
+        * [<Node#33186474103921>(subsystem_audio.gd)]
+        * [<Node#33186910311649>(subsystem_text_input.gd)]
+        * [<Node#33186591544719>(subsystem_expression.gd)]
+        * [<Node#33186725762533>(subsystem_portraits.gd)]
+        * [<Node#33186507658886>]
+        * [<Node#33186457327463>(subsystem_animation.gd)]
+        * [<Timer#33186574768083>]
+        * [<Node#33186524436439>(subsystem_backgrounds.gd)]
+        * [<Node#33186490882053>]
+        * [<Node#33186641877023>(subsystem_history.gd)]
+        * [<Node#33186809649190>(subsystem_styles.gd)]
+        * [<Node#33186708985974>(subsystem_containers.gd)]
+        * [<Node#33186826426538>(subsystem_text.gd)]
+        * [<Node#33186927089908>(subsystem_variables.gd)]
+        * [<Node#33186792872367>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#33186960644548>]
+        * [<Node#33186557991598>(subsystem_choices.gd)]
+        * [<Node#33186658655010>(subsystem_input.gd)]
+    - test_actual_pointer_accept_belongs_only_to_current_caption_and_one_press
+        * [<Node#33199996539347>(subsystem_history.gd)]
+        * [<Node#33199845544555>]
+        * [<Timer#33200130757234>]
+        * [<Node#33200046871378>(subsystem_jump.gd)]
+        * [<Node#33200164312019>(subsystem_styles.gd)]
+        * [<Node#33199979762945>(subsystem_glossary.gd)]
+        * [<Node#33200264975740>(subsystem_text_input.gd)]
+        * [<Node#33200181089743>(subsystem_text.gd)]
+        * [<Node#33199828768210>(subsystem_audio.gd)]
+        * [<Node#33199879099937>(subsystem_backgrounds.gd)]
+        * [<Node#33200013317686>(subsystem_input.gd)]
+        * [<Node#33200080426646>(subsystem_portraits.gd)]
+        * [<Node#33200281753343>(subsystem_variables.gd)]
+        * [<Node#33199862323060>]
+        * [<Node#33199811991539>(subsystem_animation.gd)]
+        * [<Node#33199946209366>(subsystem_expression.gd)]
+        * [<Node#33200298530952>(subsystem_voice.gd)]
+        * [<Timer#33199929432264>]
+        * [<AudioStreamPlayer#33200315308250>]
+        * [<Node#33199912655129>(subsystem_choices.gd)]
+        * [<Timer#33200030095877>]
+        * [<Node#33200113982035>(subsystem_save.gd)]
+        * [<Node#33200063650450>(subsystem_containers.gd)]
+        * [<Node#33200147536601>(subsystem_settings.gd)]
+    - test_actual_enter_and_same_frame_unrelated_packets_issue_one_accept
+        * [<Node#33217377732630>(subsystem_expression.gd)]
+        * [<Timer#33217360956817>]
+        * [<Node#33217545507024>(subsystem_save.gd)]
+        * [<Node#33217243517340>(subsystem_animation.gd)]
+        * [<Node#33217713279807>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#33217746834589>]
+        * [<Node#33217495176544>(subsystem_containers.gd)]
+        * [<Node#33217277072821>]
+        * [<Node#33217293850109>]
+        * [<Node#33217696503529>(subsystem_text_input.gd)]
+        * [<Node#33217344182000>(subsystem_choices.gd)]
+        * [<Node#33217478399754>(subsystem_jump.gd)]
+        * [<Node#33217260296023>(subsystem_audio.gd)]
+        * [<Node#33217595840371>(subsystem_styles.gd)]
+        * [<Node#33217511954520>(subsystem_portraits.gd)]
+        * [<Node#33217612617833>(subsystem_text.gd)]
+        * [<Timer#33217562286202>]
+        * [<Node#33217579063585>(subsystem_settings.gd)]
+        * [<Node#33217444845878>(subsystem_input.gd)]
+        * [<Node#33217411291469>(subsystem_glossary.gd)]
+        * [<Node#33217310628301>(subsystem_backgrounds.gd)]
+        * [<Timer#33217461623306>]
+        * [<Node#33217428068930>(subsystem_history.gd)]
+        * [<Node#33217730058837>(subsystem_voice.gd)]
+    - test_actual_accept_waits_for_all_held_contacts_to_release
+        * [<Node#33231655145364>]
+        * [<Node#33231755808725>(subsystem_expression.gd)]
+        * [<Node#33231890026719>(subsystem_portraits.gd)]
+        * [<Node#33231789364135>(subsystem_glossary.gd)]
+        * [<Node#33231822918657>(subsystem_input.gd)]
+        * [<Node#33231671923758>]
+        * [<Node#33231990691262>(subsystem_text.gd)]
+        * [<Node#33232108131790>(subsystem_voice.gd)]
+        * [<Node#33232091354586>(subsystem_variables.gd)]
+        * [<Node#33231923582519>(subsystem_save.gd)]
+        * [<Node#33231873250914>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#33232124909204>]
+        * [<Node#33231722256334>(subsystem_choices.gd)]
+        * [<Node#33231957137454>(subsystem_settings.gd)]
+        * [<Timer#33231739033703>]
+        * [<Node#33231973914770>(subsystem_styles.gd)]
+        * [<Node#33232074578082>(subsystem_text_input.gd)]
+        * [<Timer#33231839697257>]
+        * [<Node#33231688702374>(subsystem_backgrounds.gd)]
+        * [<Node#33231806142913>(subsystem_history.gd)]
+        * [<Timer#33231940360765>]
+        * [<Node#33231621593673>(subsystem_animation.gd)]
+        * [<Node#33231638370890>(subsystem_audio.gd)]
+        * [<Node#33231856474943>(subsystem_jump.gd)]
+    - test_actual_current_short_tap_accepts_but_drag_only_scrolls
+        * [<AudioStreamPlayer#33246922411863>]
+        * [<Node#33246721085919>(subsystem_save.gd)]
+        * [<Node#33246603645629>(subsystem_history.gd)]
+        * [<Node#33246687531854>(subsystem_portraits.gd)]
+        * [<Timer#33246536537160>]
+        * [<Node#33246620423531>(subsystem_input.gd)]
+        * [<Node#33246888859051>(subsystem_variables.gd)]
+        * [<Node#33246452651479>]
+        * [<Node#33246788195870>(subsystem_text.gd)]
+        * [<Node#33246553314880>(subsystem_expression.gd)]
+        * [<Timer#33246737864265>]
+        * [<Node#33246586869447>(subsystem_glossary.gd)]
+        * [<Node#33246653978319>(subsystem_jump.gd)]
+        * [<Node#33246872082128>(subsystem_text_input.gd)]
+        * [<Node#33246486206264>(subsystem_backgrounds.gd)]
+        * [<Node#33246771419053>(subsystem_styles.gd)]
+        * [<Node#33246469429429>]
+        * [<Node#33246519761099>(subsystem_choices.gd)]
+        * [<Node#33246419097811>(subsystem_animation.gd)]
+        * [<Node#33246754642204>(subsystem_settings.gd)]
+        * [<Node#33246905637404>(subsystem_voice.gd)]
+        * [<Timer#33246637202019>]
+        * [<Node#33246670756477>(subsystem_containers.gd)]
+        * [<Node#33246435875573>(subsystem_audio.gd)]
+    - test_actual_joypad_accept_refuses_paused_or_held_contact_then_rearms
+        * [<Node#33264337162030>(subsystem_history.gd)]
+        * [<Timer#33264270054169>]
+        * [<Node#33264253277188>(subsystem_choices.gd)]
+        * [<Node#33264286832052>(subsystem_expression.gd)]
+        * [<Timer#33264471381475>]
+        * [<Node#33264219723343>(subsystem_backgrounds.gd)]
+        * [<Node#33264605599327>(subsystem_text_input.gd)]
+        * [<Node#33264152614552>(subsystem_animation.gd)]
+        * [<Node#33264622376783>(subsystem_variables.gd)]
+        * [<Node#33264521713489>(subsystem_text.gd)]
+        * [<Node#33264404273001>(subsystem_containers.gd)]
+        * [<Node#33264488159094>(subsystem_settings.gd)]
+        * [<Node#33264639154215>(subsystem_voice.gd)]
+        * [<Node#33264169392234>(subsystem_audio.gd)]
+        * [<Node#33264387496070>(subsystem_jump.gd)]
+        * [<Node#33264353941680>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#33264655931596>]
+        * [<Node#33264320387530>(subsystem_glossary.gd)]
+        * [<Node#33264504936952>(subsystem_styles.gd)]
+        * [<Node#33264454605307>(subsystem_save.gd)]
+        * [<Timer#33264370719389>]
+        * [<Node#33264202947245>]
+        * [<Node#33264186170190>]
+        * [<Node#33264421051226>(subsystem_portraits.gd)]
+    - test_actual_focused_gui_button_gets_first_refusal_before_caption_accept
+        * [<Node#33279654760500>(subsystem_variables.gd)]
+        * [<Node#33279184998721>(subsystem_animation.gd)]
+        * [<Node#33279453434413>(subsystem_portraits.gd)]
+        * [<Timer#33279503766124>]
+        * [<Timer#33279403103145>]
+        * [<Node#33279218553883>]
+        * [<Node#33279235331393>]
+        * [<Node#33279319217691>(subsystem_expression.gd)]
+        * [<Timer#33279302440599>]
+        * [<Node#33279419881207>(subsystem_jump.gd)]
+        * [<Node#33279486990121>(subsystem_save.gd)]
+        * [<Node#33279252109111>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#33279688316805>]
+        * [<Node#33279520544730>(subsystem_settings.gd)]
+        * [<Node#33279386327119>(subsystem_input.gd)]
+        * [<Node#33279637985391>(subsystem_text_input.gd)]
+        * [<Node#33279352772735>(subsystem_glossary.gd)]
+        * [<Node#33279436658816>(subsystem_containers.gd)]
+        * [<Node#33279554099342>(subsystem_text.gd)]
+        * [<Node#33279671539998>(subsystem_voice.gd)]
+        * [<Node#33279537322309>(subsystem_styles.gd)]
+        * [<Node#33279369550152>(subsystem_history.gd)]
+        * [<Node#33279285664242>(subsystem_choices.gd)]
+        * [<Node#33279201778330>(subsystem_audio.gd)]
+    - test_actual_accept_held_before_policy_mount_and_simulated_focus_return_requires_release
+        * [<Node#33294049611233>]
+        * [<Node#33294032834129>]
+        * [<Node#33294267715456>(subsystem_portraits.gd)]
+        * [<Node#33294234161026>(subsystem_jump.gd)]
+        * [<Node#33294334824347>(subsystem_settings.gd)]
+        * [<Node#33293999280299>(subsystem_animation.gd)]
+        * [<Node#33294016057525>(subsystem_audio.gd)]
+        * [<Node#33294485819836>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#33294502597155>]
+        * [<Node#33294167052940>(subsystem_glossary.gd)]
+        * [<Node#33294351602552>(subsystem_styles.gd)]
+        * [<Node#33294133499142>(subsystem_expression.gd)]
+        * [<Node#33294099944809>(subsystem_choices.gd)]
+        * [<Node#33294368380424>(subsystem_text.gd)]
+        * [<Node#33294200608486>(subsystem_input.gd)]
+        * [<Timer#33294116722435>]
+        * [<Node#33294183831339>(subsystem_history.gd)]
+        * [<Node#33294066390983>(subsystem_backgrounds.gd)]
+        * [<Timer#33294217386163>]
+        * [<Node#33294250940662>(subsystem_containers.gd)]
+        * [<Timer#33294318049704>]
+        * [<Node#33294452267499>(subsystem_text_input.gd)]
+        * [<Node#33294301272603>(subsystem_save.gd)]
+        * [<Node#33294469044770>(subsystem_variables.gd)]
+    - test_actual_controller_shoulders_page_shared_caption_without_narrative_changes
+        * [<Node#33309065219597>(subsystem_expression.gd)]
+        * [<Node#33308931002047>(subsystem_animation.gd)]
+        * [<Node#33308964556524>]
+        * [<Node#33309031665618>(subsystem_choices.gd)]
+        * [<Node#33308981334025>]
+        * [<Timer#33309048443020>]
+        * [<Node#33308998111718>(subsystem_backgrounds.gd)]
+        * [<Node#33309199438500>(subsystem_portraits.gd)]
+        * [<Node#33309115552580>(subsystem_history.gd)]
+        * [<Node#33309232993231>(subsystem_save.gd)]
+        * [<Node#33308947780802>(subsystem_audio.gd)]
+        * [<Node#33309182661891>(subsystem_containers.gd)]
+        * [<Node#33309300102501>(subsystem_text.gd)]
+        * [<Node#33309165884915>(subsystem_jump.gd)]
+        * [<Node#33309283325655>(subsystem_styles.gd)]
+        * [<Node#33309098776394>(subsystem_glossary.gd)]
+        * [<AudioStreamPlayer#33309434320748>]
+        * [<Node#33309266548649>(subsystem_settings.gd)]
+        * [<Node#33309400766458>(subsystem_variables.gd)]
+        * [<Timer#33309149108246>]
+        * [<Node#33309417543761>(subsystem_voice.gd)]
+        * [<Node#33309383989385>(subsystem_text_input.gd)]
+        * [<Timer#33309249772014>]
+        * [<Node#33309132331553>(subsystem_input.gd)]
+    - test_actual_scroll_gestures_cancel_armed_pointer_accept_before_inside_release
+        * [<Timer#33328677785096>]
+        * [<Node#33328627453476>(subsystem_backgrounds.gd)]
+        * [<Node#33328661007976>(subsystem_choices.gd)]
+        * [<Node#33328577121906>(subsystem_audio.gd)]
+        * [<Node#33328828780326>(subsystem_portraits.gd)]
+        * [<Node#33328560344907>(subsystem_animation.gd)]
+        * [<Node#33328895889379>(subsystem_settings.gd)]
+        * [<Node#33328795226088>(subsystem_jump.gd)]
+        * [<Node#33329013330084>(subsystem_text_input.gd)]
+        * [<Node#33328912667136>(subsystem_styles.gd)]
+        * [<Node#33329030107751>(subsystem_variables.gd)]
+        * [<Node#33328593900186>]
+        * [<Node#33328694563590>(subsystem_expression.gd)]
+        * [<Node#33328610677838>]
+        * [<Node#33328812004474>(subsystem_containers.gd)]
+        * [<Timer#33328879113733>]
+        * [<Node#33328761673447>(subsystem_input.gd)]
+        * [<Node#33329046886666>(subsystem_voice.gd)]
+        * [<Node#33328862337435>(subsystem_save.gd)]
+        * [<Timer#33328778451397>]
+        * [<AudioStreamPlayer#33329063664176>]
+        * [<Node#33328929446534>(subsystem_text.gd)]
+        * [<Node#33328744897205>(subsystem_history.gd)]
+        * [<Node#33328728120117>(subsystem_glossary.gd)]
+    - test_real_profile_large_targets_resize_current_caption_without_accepting_held_click
+        * [<Node#33355823320872>(subsystem_jump.gd)]
+        * [<Node#33355722657829>(subsystem_expression.gd)]
+        * [<Timer#33355907207226>]
+        * [<Node#33355689103510>(subsystem_choices.gd)]
+        * [<Timer#33355806544055>]
+        * [<Node#33355840098551>(subsystem_containers.gd)]
+        * [<Node#33355923984655>(subsystem_settings.gd)]
+        * [<Node#33355957539092>(subsystem_text.gd)]
+        * [<Node#33355856876155>(subsystem_portraits.gd)]
+        * [<Node#33355890430715>(subsystem_save.gd)]
+        * [<Node#33355621995334>]
+        * [<Node#33355638772776>]
+        * [<Node#33355588441227>(subsystem_animation.gd)]
+        * [<Node#33356041426062>(subsystem_text_input.gd)]
+        * [<Node#33355789767851>(subsystem_input.gd)]
+        * [<Timer#33355705881805>]
+        * [<Node#33355655550232>(subsystem_backgrounds.gd)]
+        * [<Node#33355940762916>(subsystem_styles.gd)]
+        * [<Node#33355605218609>(subsystem_audio.gd)]
+        * [<Node#33356058203652>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#33356091758806>]
+        * [<Node#33356074981736>(subsystem_voice.gd)]
+        * [<Node#33355772992243>(subsystem_history.gd)]
+        * [<Node#33355756215134>(subsystem_glossary.gd)]
+    - test_large_target_overflow_scrollbar_keeps_reading_position_and_minimum_hit_geometry
+        * [<Timer#33374311812622>]
+        * [<Timer#33374110486123>]
+        * [<Node#33374295035741>(subsystem_save.gd)]
+        * [<Node#33374127263615>(subsystem_expression.gd)]
+        * [<Node#33374446030762>(subsystem_text_input.gd)]
+        * [<Node#33374009823161>(subsystem_audio.gd)]
+        * [<Node#33374362144870>(subsystem_text.gd)]
+        * [<Node#33374093709608>(subsystem_choices.gd)]
+        * [<Node#33374026600842>]
+        * [<Node#33374345368119>(subsystem_styles.gd)]
+        * [<Node#33374462808738>(subsystem_variables.gd)]
+        * [<Node#33373993046803>(subsystem_animation.gd)]
+        * [<Node#33374194373404>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#33374496363349>]
+        * [<Node#33374043378528>]
+        * [<Node#33374227928219>(subsystem_jump.gd)]
+        * [<Node#33374244705476>(subsystem_containers.gd)]
+        * [<Node#33374060156142>(subsystem_backgrounds.gd)]
+        * [<Node#33374328591606>(subsystem_settings.gd)]
+        * [<Node#33374479586728>(subsystem_voice.gd)]
+        * [<Node#33374160820420>(subsystem_glossary.gd)]
+        * [<Timer#33374211152315>]
+        * [<Node#33374177598166>(subsystem_history.gd)]
+        * [<Node#33374261484362>(subsystem_portraits.gd)]
+    - test_native_scrollbar_wide_hit_area_pages_and_drags_without_accepting_caption
+        * [<Timer#33412614196723>]
+        * [<Node#33412966518549>(subsystem_variables.gd)]
+        * [<Node#33412496756771>(subsystem_animation.gd)]
+        * [<Timer#33412714860998>]
+        * [<Node#33412530311742>]
+        * [<Timer#33412815524557>]
+        * [<Node#33412765192973>(subsystem_portraits.gd)]
+        * [<Node#33412731638723>(subsystem_jump.gd)]
+        * [<Node#33412563866623>(subsystem_backgrounds.gd)]
+        * [<Node#33412949742660>(subsystem_text_input.gd)]
+        * [<Node#33412748416093>(subsystem_containers.gd)]
+        * [<Node#33412547089608>]
+        * [<Node#33412513535230>(subsystem_audio.gd)]
+        * [<Node#33412832302505>(subsystem_settings.gd)]
+        * [<Node#33412849079744>(subsystem_styles.gd)]
+        * [<Node#33412681307775>(subsystem_history.gd)]
+        * [<Node#33412983297685>(subsystem_voice.gd)]
+        * [<Node#33412698085058>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#33413000074956>]
+        * [<Node#33412798748730>(subsystem_save.gd)]
+        * [<Node#33412865857704>(subsystem_text.gd)]
+        * [<Node#33412630976766>(subsystem_expression.gd)]
+        * [<Node#33412597422467>(subsystem_choices.gd)]
+        * [<Node#33412664531547>(subsystem_glossary.gd)]
+    - test_real_profile_material_preferences_preserve_native_reading_and_pending_click
+        * [<Node#33430398045778>(subsystem_input.gd)]
+        * [<Node#33430297382721>(subsystem_choices.gd)]
+        * [<Node#33430666481579>(subsystem_variables.gd)]
+        * [<Node#33430565818424>(subsystem_text.gd)]
+        * [<Node#33430381269061>(subsystem_history.gd)]
+        * [<Node#33430196719732>(subsystem_animation.gd)]
+        * [<Node#33430263828676>(subsystem_backgrounds.gd)]
+        * [<Timer#33430314160542>]
+        * [<Node#33430364492249>(subsystem_glossary.gd)]
+        * [<AudioStreamPlayer#33430700036576>]
+        * [<Node#33430683259429>(subsystem_voice.gd)]
+        * [<Node#33430465155663>(subsystem_portraits.gd)]
+        * [<Node#33430549041756>(subsystem_styles.gd)]
+        * [<Node#33430230274787>]
+        * [<Node#33430532264725>(subsystem_settings.gd)]
+        * [<Node#33430330938167>(subsystem_expression.gd)]
+        * [<Timer#33430515487585>]
+        * [<Timer#33430414824531>]
+        * [<Node#33430448379009>(subsystem_containers.gd)]
+        * [<Node#33430498710677>(subsystem_save.gd)]
+        * [<Node#33430247052834>]
+        * [<Node#33430649706212>(subsystem_text_input.gd)]
+        * [<Node#33430431603583>(subsystem_jump.gd)]
+        * [<Node#33430213499792>(subsystem_audio.gd)]
+    - test_real_profile_target_resize_cancels_held_native_thumb_drag_until_fresh_contact
+        * [<Node#33452174872181>]
+        * [<Node#33452141317755>(subsystem_animation.gd)]
+        * [<Node#33452241981248>(subsystem_choices.gd)]
+        * [<Node#33452208426973>(subsystem_backgrounds.gd)]
+        * [<Node#33452611080390>(subsystem_variables.gd)]
+        * [<Node#33452342644947>(subsystem_input.gd)]
+        * [<Node#33452594303240>(subsystem_text_input.gd)]
+        * [<AudioStreamPlayer#33452644634921>]
+        * [<Node#33452409753916>(subsystem_portraits.gd)]
+        * [<Node#33452158095696>(subsystem_audio.gd)]
+        * [<Node#33452476862835>(subsystem_settings.gd)]
+        * [<Timer#33452359422465>]
+        * [<Node#33452309090897>(subsystem_glossary.gd)]
+        * [<Node#33452493640330>(subsystem_styles.gd)]
+        * [<Timer#33452460085945>]
+        * [<Node#33452443308780>(subsystem_save.gd)]
+        * [<Node#33452376200068>(subsystem_jump.gd)]
+        * [<Node#33452191650780>]
+        * [<Node#33452627858418>(subsystem_voice.gd)]
+        * [<Node#33452275536984>(subsystem_expression.gd)]
+        * [<Node#33452392977512>(subsystem_containers.gd)]
+        * [<Node#33452510418192>(subsystem_text.gd)]
+        * [<Timer#33452258761111>]
+        * [<Node#33452325870349>(subsystem_history.gd)]
+test_witnessed_pause_view.gd
+    - test_cover_hides_complete_native_view_without_changing_reveal_or_history_then_restores_pan_focus
+        * [<Node#33603438252037>(subsystem_text_input.gd)]
+        * [<Node#33603169816593>(subsystem_history.gd)]
+        * [<Timer#33603102707772>]
+        * [<Node#33603085930750>(subsystem_choices.gd)]
+        * [<Node#33603018821894>]
+        * [<Node#33603035599128>]
+        * [<Node#33603119485266>(subsystem_expression.gd)]
+        * [<Node#33603253703017>(subsystem_portraits.gd)]
+        * [<Node#33603186594256>(subsystem_input.gd)]
+        * [<Node#33603153039891>(subsystem_glossary.gd)]
+        * [<Node#33603455029802>(subsystem_variables.gd)]
+        * [<Node#33603220148834>(subsystem_jump.gd)]
+        * [<Node#33603002045420>(subsystem_audio.gd)]
+        * [<Node#33603320812614>(subsystem_settings.gd)]
+        * [<Node#33603354367055>(subsystem_text.gd)]
+        * [<Node#33603052377242>(subsystem_backgrounds.gd)]
+        * [<Timer#33603304035547>]
+        * [<Timer#33603203372316>]
+        * [<Node#33603236927709>(subsystem_containers.gd)]
+        * [<Node#33603287259481>(subsystem_save.gd)]
+        * [<Node#33603471808938>(subsystem_voice.gd)]
+        * [<Node#33602985269730>(subsystem_animation.gd)]
+        * [<AudioStreamPlayer#33603488586528>]
+        * [<Node#33603337591610>(subsystem_styles.gd)]
+    - test_tampered_stale_and_foreign_view_anchors_are_refused_without_mutation
+        * [<Node#33608806960668>(subsystem_expression.gd)]
+        * [<Node#33608907624068>(subsystem_jump.gd)]
+        * [<Node#33608874069683>(subsystem_input.gd)]
+        * [<Node#33608672743207>(subsystem_animation.gd)]
+        * [<Node#33609125728113>(subsystem_text_input.gd)]
+        * [<Node#33609142505336>(subsystem_variables.gd)]
+        * [<Timer#33608890847162>]
+        * [<Node#33608924401662>(subsystem_containers.gd)]
+        * [<Node#33608857292820>(subsystem_history.gd)]
+        * [<Node#33608773406965>(subsystem_choices.gd)]
+        * [<Timer#33608790184192>]
+        * [<Node#33609041842434>(subsystem_text.gd)]
+        * [<Node#33609159282973>(subsystem_voice.gd)]
+        * [<Node#33608974733642>(subsystem_save.gd)]
+        * [<Node#33608840516019>(subsystem_glossary.gd)]
+        * [<Node#33608941179406>(subsystem_portraits.gd)]
+        * [<Node#33608689521513>(subsystem_audio.gd)]
+        * [<Timer#33608991511495>]
+        * [<Node#33608706298909>]
+        * [<Node#33608723076147>]
+        * [<Node#33608739854318>(subsystem_backgrounds.gd)]
+        * [<Node#33609008290044>(subsystem_settings.gd)]
+        * [<Node#33609025067485>(subsystem_styles.gd)]
+        * [<AudioStreamPlayer#33609176062596>]
+    - test_settings_reprojection_under_cover_preserves_native_copy_and_restores_clamped_pan
+        * [<Node#33614913867310>(subsystem_text_input.gd)]
+        * [<Node#33614477659931>(subsystem_audio.gd)]
+        * [<Node#33614527991853>(subsystem_backgrounds.gd)]
+        * [<Node#33614595100793>(subsystem_expression.gd)]
+        * [<Node#33614695764095>(subsystem_jump.gd)]
+        * [<Timer#33614678986921>]
+        * [<Node#33614561546419>(subsystem_choices.gd)]
+        * [<Node#33614460883136>(subsystem_animation.gd)]
+        * [<Node#33614712541703>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#33614964200057>]
+        * [<Node#33614813205346>(subsystem_styles.gd)]
+        * [<Node#33614628656136>(subsystem_glossary.gd)]
+        * [<Node#33614829982860>(subsystem_text.gd)]
+        * [<Timer#33614578324678>]
+        * [<Node#33614494438688>]
+        * [<Node#33614645434615>(subsystem_history.gd)]
+        * [<Node#33614762875237>(subsystem_save.gd)]
+        * [<Node#33614511217037>]
+        * [<Node#33614930647457>(subsystem_variables.gd)]
+        * [<Node#33614729320905>(subsystem_portraits.gd)]
+        * [<Node#33614662212304>(subsystem_input.gd)]
+        * [<Node#33614947425030>(subsystem_voice.gd)]
+        * [<Node#33614796430225>(subsystem_settings.gd)]
+        * [<Timer#33614779653012>]
+    - test_no_source_focus_is_not_invented_and_empty_capture_is_refused
+        * [<Node#33620282576495>(subsystem_animation.gd)]
+        * [<Node#33620349685361>(subsystem_backgrounds.gd)]
+        * [<Node#33620450348750>(subsystem_glossary.gd)]
+        * [<Node#33620735561478>(subsystem_text_input.gd)]
+        * [<Node#33620383240176>(subsystem_choices.gd)]
+        * [<Node#33620634898519>(subsystem_styles.gd)]
+        * [<Node#33620551012590>(subsystem_portraits.gd)]
+        * [<Node#33620332908862>]
+        * [<Timer#33620500681029>]
+        * [<Node#33620651675998>(subsystem_text.gd)]
+        * [<Timer#33620400017774>]
+        * [<Node#33620483904021>(subsystem_input.gd)]
+        * [<Node#33620316131864>]
+        * [<Node#33620752339512>(subsystem_variables.gd)]
+        * [<Node#33620584567480>(subsystem_save.gd)]
+        * [<Node#33620517458928>(subsystem_jump.gd)]
+        * [<Node#33620618122322>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#33620785894560>]
+        * [<Timer#33620601345322>]
+        * [<Node#33620416796043>(subsystem_expression.gd)]
+        * [<Node#33620769118551>(subsystem_voice.gd)]
+        * [<Node#33620534237959>(subsystem_containers.gd)]
+        * [<Node#33620467129227>(subsystem_history.gd)]
+        * [<Node#33620299357075>(subsystem_audio.gd)]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/integration/test_desktop_crash_recovery.gd
+- test_start_new_run_completes_against_the_real_profile_and_localization_pair
+    [Failed]:
+          at line 188
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 188
+    [Failed]:  dwm-p2r.33: a fresh install (this boot persisted schema defaults; no earlier profile.json existed) must complete a New Run through the REAL ProfileManager/LocalizationManager pair: {"code":"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED","details":{},"message":"configure_restore_participants first","ok":false}
+          at line 191
+    [Failed]:  a completed New Run reports the durably allocated run_id
+          at line 194
+- test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
+    [Failed]:
+          at line 205
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 205
+    [Failed]:
+          at line 213
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 213
+    [Failed]:  {"code":"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED","details":{},"message":"configure_restore_participants first","ok":false}
+          at line 215
+- test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing
+    [Failed]:
+          at line 226
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 226
+    [Failed]:  the seeding New Run itself must complete (receipt flips true; the journal entry completes)
+          at line 228
+    [Failed]:  ["TRANSACTION_PARTICIPANTS_NOT_CONFIGURED"] expected to equal ["root_prepare_failed"]:
+          at line 238
+    [Failed]:  [0] expected to equal [1]:  the failed attempt's own operation is exactly the one left incomplete
+          at line 243
+- test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run
+    [Failed]:
+          at line 254
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 254
+    [Failed]:
+          at line 256
+    [Failed]:  [STRING_NAME(TRANSACTION_PARTICIPANTS_NOT_CONFIGURED)] expected to equal [STRING_NAME(root_prepare_failed)]:
+          at line 260
+    [Failed]:
+          at line 262
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 262
+    [Failed]:  the resumed run's Day-1 bundle is genuinely live in process B's journal -- the stuck entry COMPLETED, it did not just vanish
+          at line 269
+- test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time
+    [Failed]:
+          at line 279
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 279
+    [Failed]:  identical replay of the graph construction (which reconciles again) is still ok
+          at line 280
+- test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload
+    [Failed]:
+          at line 291
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 291
+    [Failed]:
+          at line 293
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'record_before_emit' in base 'Nil'.
+          at line -1
+
+Totals
+------
+Warnings              1
+
+Scripts              48
+Tests               458
+Passing Tests       452
+Failing Tests         6
+Asserts           23244/23272
+Orphans             864
+Time              178.612s
+
+
+---- 6 failing tests ----

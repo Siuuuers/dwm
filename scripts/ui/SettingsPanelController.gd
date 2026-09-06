@@ -7,6 +7,7 @@ const REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd"
 const PRIMARY := &"preferences.language.primary_locale_id"
 const REDUCED_MOTION := &"preferences.accessibility.reduced_motion"
 const SCREEN_SHAKE := &"preferences.accessibility.screen_shake"
+const WINDOW_MODE := &"preferences.display.window_mode"
 const SPECIMENS := {"en": "This is a reading test.", "zh_CN": "这是朗读测试。", "zh_HK": "這是朗讀測試。"}
 
 var _content: Control
@@ -15,6 +16,7 @@ var _localization: Object
 var _audio: Object
 var _tts: Object
 var _volume: Object
+var _window: Object
 var _input: Object
 var _controls: Dictionary = {}
 var _holder: StringName
@@ -40,6 +42,7 @@ func bind(content: Control, services: Dictionary) -> Dictionary:
 	_audio = services.get("audio")
 	_tts = services.get("tts")
 	_volume = services.get("volume")
+	_window = services.get("window")
 	_input = services.get("input")
 	_holder = StringName("settings_ui_" + str(content.get_instance_id()))
 	_controls = content.controls
@@ -93,6 +96,9 @@ func refresh() -> void:
 		var disabled: bool = _busy or not REGISTRY.is_player_writable(path)
 		var reason := ""
 		if String(path).begins_with("preferences.audio.") and not _has_audio_sink():
+			disabled = true
+			reason = "settings.status.unavailable"
+		elif path == WINDOW_MODE and not _has_window_sink():
 			disabled = true
 			reason = "settings.status.unavailable"
 		elif path == &"preferences.language.secondary_locale_id" and not _value(&"preferences.language.dual_enabled"):
@@ -155,6 +161,8 @@ func commit_preference(path: StringName, value: Variant, preview_handle: Variant
 	var result: Dictionary
 	if String(path).begins_with("preferences.audio."):
 		result = await _volume.commit_settings_audio_preference(_holder, path, value, preview_handle) if _has_audio_sink() else _failure()
+	elif path == WINDOW_MODE:
+		result = await _window.commit_settings_window_preference(_holder, value) if _has_window_sink() else _failure()
 	elif path == PRIMARY:
 		result = _localization.set_locale(str(value))
 	elif path == &"preferences.language.secondary_locale_id" and value == _value(PRIMARY):
@@ -167,6 +175,13 @@ func commit_preference(path: StringName, value: Variant, preview_handle: Variant
 	if is_instance_valid(_content):
 		_content.set_general_status("" if result.get("ok", false) else "settings.status.failed")
 	return result
+
+
+func _has_window_sink() -> bool:
+	if not is_instance_valid(_window) or not _window.has_method("get_settings_window_capability") \
+		or not _window.has_method("commit_settings_window_preference"): return false
+	var capability: Dictionary = _window.get_settings_window_capability()
+	return capability.get("ok", false) and capability.get("value", {}).get("available", false)
 
 
 func _focus_motion_control() -> void:

@@ -54,7 +54,7 @@ can be accepted as complete:
   preferences without pretending speech is available.
 - Publishing rebound gameplay actions does not yet connect Quick Save/Load or
   replace the remaining hardcoded Minesweeper commands.
-- Window mode, dual-language reading, native skip policy, screen shake, and
+- Dual-language reading, native skip policy, screen shake, and
   sound-detail presentation still require end-to-end runtime acceptance.
 - The injected Pause host is tested separately from mounting Pause in production
   narrative playback. The remaining admission work is described in
@@ -118,3 +118,6 @@ failures, final regression counts, and limitations are in
 The earlier 367-test report and GPU captures above describe the preceding shared
 Settings checkpoint. Settings and the all-family UI goal remain in progress;
 there is no merge or push.
+
+The following [Window Mode successor](settings-window-output.md) connects native
+window preferences and their combined reset/restore behavior on Windows.

@@ -1,0 +1,175 @@
+{
+  "backend": "Windows",
+  "checks": [
+    {
+      "check": "capture_entry_window",
+      "ok": true
+    },
+    {
+      "check": "apply_borderless",
+      "ok": true
+    },
+    {
+      "check": "borderless_native_readback",
+      "ok": true
+    },
+    {
+      "check": "borderless_not_fullscreen",
+      "ok": true
+    },
+    {
+      "check": "exact_current_usable_bounds",
+      "ok": true
+    },
+    {
+      "check": "apply_windowed",
+      "ok": true
+    },
+    {
+      "check": "windowed_native_readback",
+      "ok": true
+    },
+    {
+      "check": "windowed_1280_by_720",
+      "ok": true
+    },
+    {
+      "check": "memory_profile_initialized",
+      "ok": true
+    },
+    {
+      "check": "profile_gate",
+      "ok": true
+    },
+    {
+      "check": "audio_gate",
+      "ok": true
+    },
+    {
+      "check": "silent_audio_initialized",
+      "ok": true
+    },
+    {
+      "check": "window_gate",
+      "ok": true
+    },
+    {
+      "check": "window_manager_initialized",
+      "ok": true
+    },
+    {
+      "check": "manager_commit_borderless",
+      "ok": true
+    },
+    {
+      "check": "exactly_one_profile_revision",
+      "ok": true
+    },
+    {
+      "check": "exactly_one_preference_publication",
+      "ok": true
+    },
+    {
+      "check": "committed_profile_mode",
+      "ok": true
+    },
+    {
+      "check": "committed_native_mode",
+      "ok": true
+    },
+    {
+      "check": "shared_gate_healthy",
+      "ok": true
+    },
+    {
+      "check": "restore_entry_window",
+      "ok": true
+    },
+    {
+      "check": "exact_entry_readback",
+      "ok": true
+    },
+    {
+      "check": "evidence_directory",
+      "ok": true
+    },
+    {
+      "check": "evidence_file",
+      "ok": true
+    }
+  ],
+  "ok": true,
+  "scope": "Native main-window geometry and one real Profile commit; memory-only storage, fake silent audio; no audible or GPU typography claim.",
+  "states": {
+    "borderless": {
+      "borderless": true,
+      "mode": 0,
+      "owner_id": -9223371933154802028,
+      "position": [
+        0,
+        0
+      ],
+      "screen": 0,
+      "size": [
+        2520,
+        1608
+      ]
+    },
+    "entry": {
+      "borderless": false,
+      "mode": 0,
+      "owner_id": -9223371933154802028,
+      "position": [
+        620,
+        444
+      ],
+      "screen": 0,
+      "size": [
+        1280,
+        720
+      ]
+    },
+    "manager_commit": {
+      "borderless": true,
+      "mode": 0,
+      "owner_id": -9223371933154802028,
+      "position": [
+        0,
+        0
+      ],
+      "screen": 0,
+      "size": [
+        2520,
+        1608
+      ]
+    },
+    "restored": {
+      "borderless": false,
+      "mode": 0,
+      "owner_id": -9223371933154802028,
+      "position": [
+        620,
+        444
+      ],
+      "screen": 0,
+      "size": [
+        1280,
+        720
+      ]
+    },
+    "windowed": {
+      "borderless": false,
+      "mode": 0,
+      "owner_id": -9223371933154802028,
+      "position": [
+        620,
+        444
+      ],
+      "screen": 0,
+      "size": [
+        1280,
+        720
+      ]
+    }
+  }
+}

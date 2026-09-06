@@ -1,4 +1,4 @@
-class_name AudioSettingsTransactions
+class_name SettingsOutputTransactions
 extends RefCounted
 ## Settings output transactions. The Audio owner retains playback and committed state.
 
@@ -13,9 +13,39 @@ var _owner: Node
 var _busy := false
 var _drag: Dictionary = {}
 var _generation := 0
+var _window: Node
+var _window_bound := false
+var _window_backup: Dictionary = {}
+var _window_baseline_mode := ""
 
 func _init(owner: Node) -> void:
 	_owner = owner
+
+## One physical window owner shares this helper and the Audio owner's Profile.
+func bind_window_output(window: Node) -> Dictionary:
+	if _busy or has_preview(): return _failure(&"settings_audio_busy")
+	if _window_bound:
+		return _success({"already_bound": true}) if is_instance_valid(_window) and window == _window else _failure(&"settings_window_already_bound")
+	if not is_instance_valid(window) or not is_instance_valid(_owner._profile) or window.get("_profile") != _owner._profile:
+		return _failure(&"invalid_settings_window_output")
+	for method: StringName in [&"get_settings_window_capability", &"get_applied_mode", &"capture_restore_state", &"apply_restore_silent", &"rollback_restore_silent", &"latch_output_failure"]:
+		if not window.has_method(method): return _failure(&"invalid_settings_window_output")
+	_window = window
+	_window_bound = true
+	return _success({"already_bound": false})
+
+func commit_settings_window_preference(holder_id: Variant, value: Variant) -> Dictionary:
+	if not _valid_path(holder_id, &"preferences.audio.master_volume"):
+		return _failure(&"invalid_settings_window_preference")
+	if has_preview(): return _failure(&"settings_audio_busy")
+	var admitted := _begin()
+	if not admitted.ok: return admitted
+	if not _window_available(): return _finish(_failure(&"settings_window_unavailable"))
+	var revision := _revision()
+	var baseline := _snapshot()
+	var prepared: Dictionary = _owner._profile.prepare_preferences({&"preferences.display.window_mode": value})
+	if not prepared.get("ok", false): return _finish(prepared)
+	return _commit(prepared.value, baseline, revision)
 
 func is_busy() -> bool:
 	return _busy
@@ -92,9 +122,26 @@ func cancel_settings_volume_preview(preview_handle: Variant) -> Dictionary:
 
 func _commit(candidate: Dictionary, baseline: Dictionary, revision: int, section: StringName = &"") -> Dictionary:
 	var generation := _generation
+	if not _unchanged(revision, baseline, generation):
+		var conflict := _failure(&"settings_audio_commit_conflict")
+		return _recover(conflict) if has_preview() else _finish(conflict)
+	if String(candidate.preferences.display.window_mode) != String(baseline.preferences.display.window_mode) and not _window_available():
+		return _finish(_failure(&"settings_window_unavailable"))
+	if _window_bound:
+		if not _window_identity_valid(): return _finish(_failure(&"settings_window_unavailable"))
+		if String(candidate.preferences.display.window_mode) != _window.get_applied_mode():
+			if not _window_available(): return _finish(_failure(&"settings_window_unavailable"))
+			var captured: Dictionary = _window.capture_restore_state()
+			if not captured.get("ok", false): return _finish(captured)
+			_window_backup = captured.value.duplicate(true)
+			_window_baseline_mode = String(baseline.preferences.display.window_mode)
+			if not _unchanged(revision, baseline, generation): return _recover(_failure(&"settings_audio_commit_conflict"))
 	var settings := _candidate(candidate)
 	var applied: Dictionary = _owner._apply_settings_output(settings)
 	if not applied.get("ok", false): return _recover(applied)
+	if not _unchanged(revision, baseline, generation): return _recover(_failure(&"settings_audio_commit_conflict"))
+	var window_applied := _apply_window(candidate)
+	if not window_applied.ok: return _recover(window_applied)
 	if not _unchanged(revision, baseline, generation): return _recover(_failure(&"settings_audio_commit_conflict"))
 	var committed: Dictionary
 	if section.is_empty():
@@ -111,7 +158,7 @@ func _commit(candidate: Dictionary, baseline: Dictionary, revision: int, section
 	if not settled.ok: return _fatal(settled)
 	return _finish(published)
 
-func _settle_latest() -> Dictionary:
+func _settle_latest(restore_original_window: bool = false) -> Dictionary:
 	# A hostile output callback must not make settlement an unbounded loop.
 	for _attempt in range(8):
 		if _owner._fatal: return _failure(&"audio_runtime_indeterminate")
@@ -119,16 +166,45 @@ func _settle_latest() -> Dictionary:
 		var generation := _generation
 		var snapshot := _snapshot()
 		var settings := _candidate(snapshot)
+		# Reverse compensation order: window was applied after audio.
+		if restore_original_window:
+			var restored := _apply_window(snapshot, true)
+			if not restored.ok: return restored
+			if _generation != generation or _revision() != revision or _snapshot() != snapshot: continue
 		var result: Dictionary = _owner._apply_settings_output(settings)
 		if not result.get("ok", false): return result
+		# Never write a window target made stale by an audio callback.
+		if _generation != generation or _revision() != revision or _snapshot() != snapshot: continue
+		if not restore_original_window:
+			var window_result := _apply_window(snapshot)
+			if not window_result.ok: return window_result
 		if _generation == generation and _revision() == revision and _snapshot() == snapshot:
 			_owner._settings = settings.duplicate(true)
 			return _success({})
 	return _failure(&"settings_audio_settlement_conflict")
 
+func _window_identity_valid() -> bool:
+	return is_instance_valid(_window) and is_instance_valid(_window._profile) and _window._profile == _owner._profile
+
+func _window_available() -> bool:
+	if not _window_bound or not _window_identity_valid() or _window._fatal: return false
+	var capability: Dictionary = _window.get_settings_window_capability()
+	return capability.get("ok", false) and capability.get("value", {}).get("available", false)
+
+func _apply_window(profile: Dictionary, restore_original: bool = false) -> Dictionary:
+	if not _window_bound: return _success({})
+	if not _window_identity_valid(): return _failure(&"settings_window_unavailable")
+	var mode := String(profile.preferences.display.window_mode)
+	if restore_original and not _window_backup.is_empty() and mode == _window_baseline_mode:
+		return _window.rollback_restore_silent(_window_backup.duplicate(true))
+	if _window._fatal: return _failure(&"settings_window_unavailable")
+	if mode == _window.get_applied_mode(): return _success({})
+	if not _window_available(): return _failure(&"settings_window_unavailable")
+	return _window.apply_restore_silent({"window_mode": mode})
+
 func _recover(cause: Dictionary) -> Dictionary:
 	invalidate_preview()
-	var settled := _settle_latest()
+	var settled := _settle_latest(true)
 	if not settled.ok: return _fatal(settled)
 	return _finish(cause)
 
@@ -176,6 +252,8 @@ func _valid_path(holder_id: Variant, path: Variant) -> bool:
 		and typeof(path) in [TYPE_STRING, TYPE_STRING_NAME] and String(path) in PATHS)
 
 func _finish(result: Dictionary) -> Dictionary:
+	_window_backup.clear()
+	_window_baseline_mode = ""
 	_busy = false
 	return result
 

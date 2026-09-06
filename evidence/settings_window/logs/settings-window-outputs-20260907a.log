@@ -1,0 +1,113 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/af6a2566-4578-475d-aa73-e6031582cabf/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_window_mode_port.gd
+* test_capture_is_actual_detached_and_main_window_only
+* test_borderless_uses_current_screen_usable_bounds_and_preserves_foreign_flags
+* test_windowed_uses_baseline_without_fullscreen_and_readback_detects_external_drift
+* test_restore_proves_exact_prior_mode_screen_position_size_and_borderless
+* test_invalid_modes_and_capsules_refuse_before_mutation
+* test_headless_unsupported_missing_window_and_bad_screen_bounds_refuse
+* test_silent_setter_failure_cannot_claim_apply_or_restoration_success
+7/7 passed.
+
+
+tests/unit/test_settings_window_transactions.gd
+* test_window_binding_has_one_identity_and_requires_the_same_profile
+* test_window_commit_applies_before_one_deferred_profile_publication
+* test_audio_preview_commit_and_cancel_never_touch_an_unchanged_window
+* test_invalid_stale_and_gate_refusals_happen_before_capture_or_output
+* test_reset_that_changes_window_refuses_unbound_or_unavailable_output_before_audio
+* test_disk_failure_restores_exact_resized_window_before_audio_compensation
+* test_reset_combines_audio_window_and_one_profile_reset_publication
+* test_failed_reset_restores_both_outputs_without_partial_profile_adoption
+* test_new_profile_commit_during_window_apply_wins_over_original_geometry
+* test_publication_callback_reverting_mode_applies_latest_instead_of_old_geometry
+* test_unproved_window_compensation_latches_shared_fatal
+* test_window_apply_failure_compensates_audio_and_retains_exact_prior_geometry
+12/12 passed.
+
+
+tests/unit/test_audio_settings_transactions.gd
+* test_preview_changes_only_output_and_cancel_restores_committed_settings
+* test_stale_holder_path_and_handle_refuse_without_discarding_current_preview
+* test_commit_publishes_only_after_output_and_committed_settings_are_proved
+* test_publication_callback_can_commit_new_profile_and_latest_output_wins
+* test_profile_write_during_physical_apply_refuses_stale_candidate_and_settles_latest
+* test_failed_physical_apply_does_not_write_profile_or_restart_players
+* test_disk_failure_compensates_output_without_preference_publication
+* test_cancel_uses_latest_committed_profile_even_before_deferred_publication
+* test_reset_rejects_stale_revision_before_output_then_commits_one_current_reset
+* test_shared_gate_blocks_output_without_acquiring_or_releasing_it
+* test_failed_cancel_proof_latches_fatal_and_retires_preview
+* test_invalid_drag_commit_settles_output_and_retires_detached_ui_handle
+* test_legacy_profile_can_initialize_audio_but_cannot_admit_settings_transactions
+* test_freed_profile_refuses_transactions_without_touching_output
+* test_focus_loss_during_preview_or_commit_retires_handles_without_persistence
+* test_focus_loss_during_cancel_settlement_retries_with_current_focus_state
+* test_pause_entry_and_resume_each_retire_live_preview_and_keep_committed_audio
+* test_failed_focus_output_apply_latches_shared_fatal_without_profile_write
+* test_pause_handle_refusals_and_idempotent_begin_preserve_owned_live_preview
+19/19 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_window_mode_port.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                38
+Passing Tests        38
+Asserts             533
+Orphans              24
+Time              2.424s
+
+
+---- All tests passed! ----

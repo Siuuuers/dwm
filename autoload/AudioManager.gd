@@ -1,7 +1,7 @@
 extends Node
 
 const PLAYBACK_PORT := preload("res://scripts/audio/AudioPlaybackPort.gd")
-const SETTINGS_TRANSACTIONS := preload("res://scripts/audio/AudioSettingsTransactions.gd")
+const SETTINGS_TRANSACTIONS := preload("res://scripts/settings/SettingsOutputTransactions.gd")
 const VOLUME_SILENCE_THRESHOLD := 0.0001
 const SILENCE_DB := -80.0
 const CHANNELS := {
@@ -70,6 +70,10 @@ func cancel_settings_volume_preview(preview_handle: Variant) -> Dictionary:
 
 func commit_settings_profile_reset(holder_id: Variant, method: Variant, expected_revision: int = -1) -> Dictionary:
 	return _settings_transactions.commit_settings_profile_reset(holder_id, method, expected_revision)
+
+
+func get_settings_output_transactions() -> RefCounted:
+	return _settings_transactions
 
 
 func get_settings_audio_capability() -> Dictionary:

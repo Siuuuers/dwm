@@ -54,6 +54,8 @@ const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManager
 const SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
 const DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd")
 const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
+const WINDOW_MANAGER := preload("res://autoload/WindowModeManager.gd")
+const WINDOW_FIXTURES := preload("res://tests/unit/test_window_mode_manager.gd")
 
 class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 	var targets: Dictionary = {}
@@ -131,6 +133,10 @@ func _boot_process(storage_root: String) -> Dictionary:
 	add_child_autofree(audio)
 	assert_true(audio.call(&"initialize", profile).get("ok", false),
 		"AudioManager must be initialized the same way the real initialize_audio stage does it")
+	var window := WINDOW_MANAGER.new(WINDOW_FIXTURES.PhysicalWindow.new())
+	add_child_autofree(window)
+	assert_true(window.initialize(profile, audio.get_settings_output_transactions()).get("ok", false),
+		"Window output uses the real manager and shared transaction with isolated physical geometry")
 	var bridge: Node = load("res://autoload/DialogicBridge.gd").new()
 	add_child_autofree(bridge)
 	var router: Node = load("res://autoload/SceneRouter.gd").new()
@@ -146,6 +152,7 @@ func _boot_process(storage_root: String) -> Dictionary:
 
 	bootstrap.set("targets", {
 		"ProfileManager": profile, "LocalizationManager": localization, "AudioManager": audio,
+		"WindowModeManager": window,
 		"DialogicBridge": bridge, "SceneRouter": router, "GameState": game_state,
 		"SaveManager": save_manager,
 	})
