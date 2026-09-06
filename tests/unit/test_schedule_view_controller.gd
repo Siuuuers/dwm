@@ -595,6 +595,19 @@ func test_every_edit_leaves_motivation_and_the_committed_schedule_byte_equal() -
 	assert_true(controller.rollback(
 		(captured.get("value", {}) as Dictionary).get("backup", {})).get("ok", false),
 		"rollback succeeds")
+	var ledger_before := _canonical(_view_of(controller)["condition_departure_receipts"])
+	for command: Dictionary in [
+		{"kind": "append", "action_id": "working", "source_receipt_id": null,
+			"draft_entry_id": "d-work"},
+		{"kind": "move", "draft_entry_id": "d-work", "target_index": 0},
+		{"kind": "remove", "draft_entry_id": "d-rest"},
+	]:
+		var view_fingerprint: Dictionary = controller.fingerprint()
+		var edited: Dictionary = controller.apply_docket_edit(command,
+			view_fingerprint["value"]["fingerprint"])
+		assert_true(edited.get("ok", false), str(edited))
+		assert_eq(_canonical(_view_of(controller)["condition_departure_receipts"]),
+			ledger_before, "docket edits preserve the retained departure receipt")
 
 	var after: Dictionary = game_state.capture_schedule_commit_state()
 	assert_true(after.get("ok", false), str(after))

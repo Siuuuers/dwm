@@ -3,8 +3,9 @@ extends RefCounted
 
 ## The editable saved-ScheduleView owner (Amendment Plan 03 Task 2, dwm-oyo.3).
 ##
-## Exact frozen 12-method surface from the plan (Task 2 Step 4), plus the Task-3
-## warning surface (see the derived-surface note above the warning methods). The controller derives
+## Exact frozen 12-method surface from the plan (Task 2 Step 4), the Task-3 warning surface
+## (see the derived-surface note above the warning methods), and the synchronous UI docket-edit
+## seam. The controller derives
 ## kind, participants, repeatability and eligibility from the injected registry through
 ## ScheduleActionRegistry.lookup() at the configured fingerprint; every edit is validated
 ## through the injected ScheduleRules (validate_draft_candidate for adds -- existing-state
@@ -92,31 +93,102 @@ func prepare_add(action_id: String, source_receipt_id: Variant, slot_index: int,
 	var guard := _view_guard()
 	if not guard.is_empty():
 		return guard
+	return _prepare_add_on_view(_view, action_id, source_receipt_id, slot_index, draft_entry_id)
+
+
+func _prepare_add_on_view(view: Dictionary, action_id: String, source_receipt_id: Variant,
+		slot_index: int, draft_entry_id: String) -> Dictionary:
 	var found: Dictionary = _registry.lookup(action_id, _fingerprint)
 	if not found.get("ok", false):
 		return found
 	var record: Dictionary = (found["value"] as Dictionary)["record"]
 	var entry := {
 		"draft_entry_id": draft_entry_id,
-		"day": int(_view["day"]),
+		"day": int(view["day"]),
 		"slot_index": slot_index,
 		"action_id": action_id,
 		"action_kind": str(record["action_kind"]),
 		"participants": (record["participants"] as Array).duplicate(true),
 		"source_receipt_id": source_receipt_id,
 	}
-	var existing: Array = (_view["entries"] as Array).duplicate(true)
+	var existing: Array = (view["entries"] as Array).duplicate(true)
 	var prospective: Array = existing.duplicate(true)
 	prospective.append(entry.duplicate(true))
-	var checked: Dictionary = _rules.validate_draft_candidate(int(_view["day"]), existing,
+	var checked: Dictionary = _rules.validate_draft_candidate(int(view["day"]), existing,
 		entry, _registry, _fingerprint, _source_class_index(prospective))
 	if not checked.get("ok", false):
 		return checked
-	var candidate := _view.duplicate(true)
+	var candidate := view.duplicate(true)
 	candidate["entries"] = prospective
 	if str(record["action_kind"]) != "ordinary":
 		candidate["date_entry_seen"] = true
 	return _ok({"candidate": candidate})
+
+
+func apply_docket_edit(command: Dictionary, expected_fingerprint: String) -> Dictionary:
+	var guard := _view_guard()
+	if not guard.is_empty():
+		return guard
+	var validated: Dictionary = _VIEW_STATE.validate(_view, _registry, _fingerprint)
+	if not validated.get("ok", false):
+		return validated
+	var current_fingerprint: Dictionary = fingerprint()
+	if not current_fingerprint.get("ok", false):
+		return current_fingerprint
+	var actual := str((current_fingerprint["value"] as Dictionary)["fingerprint"])
+	if expected_fingerprint.is_empty() or expected_fingerprint != actual:
+		return _fail(&"stale_view_fingerprint", "the live Schedule view has changed",
+			{"expected": expected_fingerprint, "actual": actual})
+	if _view["pending_warning"] != null:
+		return _fail(&"warning_modal_active", "docket edits are refused while a warning is open", {})
+
+	var shape := _docket_command_error(command)
+	if not shape.is_empty():
+		return shape
+	var kind := str(command["kind"])
+	var ordered := _packed_entries(_view["entries"] as Array)
+	_reindex(ordered)
+	match kind:
+		"move":
+			if int(_view["day"]) == 7:
+				return _fail(&"day7_move_refused", "the single Day-7 destination cannot move", {})
+			var target := int(command["target_index"])
+			if target < 0 or target >= ordered.size():
+				return _fail(&"invalid_target_index", "target_index names a current ordinal", {})
+			var move_source := _entry_ordinal(ordered, str(command["draft_entry_id"]))
+			if move_source < 0:
+				return _fail(&"draft_entry_not_found", "no draft entry carries this id", {})
+			if move_source == target:
+				# The accepted same-position operation is strictly a no-change, including
+				# legacy sparse views. A presentation host must reject sparse input before
+				# mounting; this command is not an implicit save migration.
+				return _ok({"view": _view.duplicate(true)})
+			var moved: Dictionary = ordered.pop_at(move_source)
+			ordered.insert(target, moved)
+			_reindex(ordered)
+			return _commit_entries(ordered)
+		"remove":
+			var remove_source := _entry_ordinal(ordered, str(command["draft_entry_id"]))
+			if remove_source < 0:
+				return _fail(&"draft_entry_not_found", "no draft entry carries this id", {})
+			ordered.remove_at(remove_source)
+			_reindex(ordered)
+			return _commit_entries(ordered)
+		"append":
+			if int(_view["day"]) == 7 and not ordered.is_empty():
+				var current: Dictionary = ordered[0]
+				if current["action_id"] == command["action_id"] \
+						and current["source_receipt_id"] == command["source_receipt_id"]:
+					return _ok({"view": _view.duplicate(true)})
+				ordered.clear()
+			var base := _view.duplicate(true)
+			base["entries"] = ordered
+			var prepared := _prepare_add_on_view(base, str(command["action_id"]),
+				command["source_receipt_id"], ordered.size(), str(command["draft_entry_id"]))
+			if not prepared.get("ok", false):
+				return prepared
+			return commit((prepared["value"] as Dictionary)["candidate"])
+	return _fail(&"invalid_docket_command", "unsupported docket command", {})
 
 
 func prepare_remove(draft_entry_id: String) -> Dictionary:
@@ -546,6 +618,59 @@ func _p(name: String, value: Variant) -> String:
 
 
 # ---- internals ----
+
+func _docket_command_error(command: Dictionary) -> Dictionary:
+	var keys: Array = command.keys()
+	keys.sort()
+	if typeof(command.get("kind")) != TYPE_STRING:
+		return _fail(&"invalid_docket_command", "kind is an exact String", {})
+	match command["kind"]:
+		"move":
+			if keys != ["draft_entry_id", "kind", "target_index"] \
+					or typeof(command["draft_entry_id"]) != TYPE_STRING \
+					or str(command["draft_entry_id"]).is_empty() \
+					or typeof(command["target_index"]) != TYPE_INT:
+				return _fail(&"invalid_docket_command", "invalid move command shape", {})
+		"remove":
+			if keys != ["draft_entry_id", "kind"] \
+					or typeof(command["draft_entry_id"]) != TYPE_STRING \
+					or str(command["draft_entry_id"]).is_empty():
+				return _fail(&"invalid_docket_command", "invalid remove command shape", {})
+		"append":
+			if keys != ["action_id", "draft_entry_id", "kind", "source_receipt_id"] \
+					or typeof(command["action_id"]) != TYPE_STRING \
+					or str(command["action_id"]).is_empty() \
+					or typeof(command["draft_entry_id"]) != TYPE_STRING \
+					or str(command["draft_entry_id"]).is_empty():
+				return _fail(&"invalid_docket_command", "invalid append command shape", {})
+		_:
+			return _fail(&"invalid_docket_command", "unsupported docket command", {})
+	return {}
+
+
+func _packed_entries(entries: Array) -> Array:
+	var ordered: Array = entries.duplicate(true)
+	ordered.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+		return int(left["slot_index"]) < int(right["slot_index"]))
+	return ordered
+
+
+func _entry_ordinal(entries: Array, draft_entry_id: String) -> int:
+	for index: int in range(entries.size()):
+		if str((entries[index] as Dictionary)["draft_entry_id"]) == draft_entry_id:
+			return index
+	return -1
+
+
+func _reindex(entries: Array) -> void:
+	for index: int in range(entries.size()):
+		(entries[index] as Dictionary)["slot_index"] = index
+
+
+func _commit_entries(entries: Array) -> Dictionary:
+	var candidate := _view.duplicate(true)
+	candidate["entries"] = entries
+	return commit(candidate)
 
 func _configured_guard() -> Dictionary:
 	if not _configured:

@@ -155,6 +155,25 @@ func _warning_controller() -> Object:
 	return controller
 
 
+func test_docket_commands_cannot_change_an_active_warning_or_its_view() -> void:
+	var controller := _warning_controller()
+	var activation := _activate(controller, _context())
+	assert_false((activation["pending"] as Dictionary).is_empty())
+	var before := _canonical(_view_of(controller))
+	var fingerprint_result: Dictionary = controller.fingerprint()
+	var fingerprint: String = fingerprint_result["value"]["fingerprint"]
+	for command: Dictionary in [
+		{"kind": "append", "action_id": "training", "source_receipt_id": null,
+			"draft_entry_id": "blocked-id"},
+		{"kind": "move", "draft_entry_id": "d-rest", "target_index": 0},
+		{"kind": "remove", "draft_entry_id": "d-rest"},
+	]:
+		var result: Dictionary = controller.apply_docket_edit(command, fingerprint)
+		_refused(result, "warning_modal_active", str(command["kind"]))
+		assert_eq(_canonical(_view_of(controller)), before,
+			"warning activation and editable state remain byte-equal")
+
+
 func _view_of(controller: Object) -> Dictionary:
 	var snap: Dictionary = controller.snapshot()
 	assert_true(snap.get("ok", false), "snapshot: " + str(snap))
