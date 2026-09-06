@@ -99,3 +99,7 @@ accessibility gaps remain open.
 
 See [refused-edit status evidence](status.md) for the pinned dock fact and its
 refresh, reflow, announcement-request and departure lifecycle.
+
+See [semantic scroll restoration](scroll.md) for identity-based reflow, cached
+return, rapid-projection and cache-reset behavior. Production lifecycle hooks
+and combined runtime validation remain outstanding.

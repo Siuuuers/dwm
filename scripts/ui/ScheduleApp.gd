@@ -83,10 +83,12 @@ func refresh_view(preserve_presentation: bool = false) -> Dictionary:
 		if warning.value.warning != null: return _show_warning(warning.value.warning)
 		_clear_warning()
 	var projected: Dictionary = _port.project(_locale)
+	var restore_scroll := not _projection.is_empty()
 	if not preserve_presentation and projected.get("ok",false) and not _projection.is_empty() and projected.value.fingerprint != _projection.fingerprint:
 		# An externally replaced view is a fresh presentation, not an old cache.
 		clear_presentation_cache()
-	return _publish(projected,panel.selected_id,_remembered_focus)
+		restore_scroll = false
+	return _publish(projected,panel.selected_id,_remembered_focus,restore_scroll)
 
 func remember_focus() -> void:
 	var focused := get_viewport().gui_get_focus_owner()
@@ -96,8 +98,7 @@ func clear_presentation_cache() -> void:
 	_remembered_focus = "fresh"
 	panel.clear_status()
 	panel.selected_id = ""
-	if is_instance_valid(panel.available_scroll): panel.available_scroll.scroll_vertical = 0
-	if is_instance_valid(panel.docket_scroll): panel.docket_scroll.scroll_vertical = 0
+	panel.clear_scroll_anchors()
 
 func hide_window() -> void:
 	if not can_return_home(): return
@@ -210,7 +211,7 @@ func _show_warning(data: Dictionary) -> Dictionary:
 	var background: Dictionary = _port.project_modal_background(_locale)
 	if not background.get("ok",false): return _fail(StringName(background.get("code","warning_background_unavailable")))
 	# Preserve exact Docket evidence. No disabled/source-state repaint is fabricated.
-	var published := _publish(background,panel.selected_id,"")
+	var published := _publish(background,panel.selected_id,"",true)
 	if not published.ok: return published
 	if not is_instance_valid(warning_sheet):
 		_warning_prior_process = panel.process_mode
@@ -256,9 +257,9 @@ func _resolve_warning(intent: StringName) -> void:
 		# fact. The UI neither consumes its receipt nor invents a success route.
 		refresh_view(true)
 
-func _publish(result: Dictionary, selected: String = "", focus_key: String = "") -> Dictionary:
+func _publish(result: Dictionary, selected: String = "", focus_key: String = "", preserve_scroll: bool = false) -> Dictionary:
 	if not result.get("ok",false): return _fail(StringName(result.get("code","schedule_unavailable")))
-	if not panel.set_projection(result.value,selected,focus_key): return _fail(&"schedule_presentation_integrity_failed")
+	if not panel.set_projection(result.value,selected,focus_key,preserve_scroll): return _fail(&"schedule_presentation_integrity_failed")
 	_projection = result.value.duplicate(true)
 	last_result = {"ok":true,"code":&"ok"}
 	panel.show()
@@ -268,7 +269,7 @@ func _publish(result: Dictionary, selected: String = "", focus_key: String = "")
 func _refused(result: Dictionary) -> void:
 	if str(result.get("code","")) in ["stale_view_fingerprint","schedule_source_unavailable"]:
 		var focus_key := _focused_key()
-		var refreshed := _publish(_port.project(_locale),panel.selected_id,focus_key)
+		var refreshed := _publish(_port.project(_locale),panel.selected_id,focus_key,true)
 		if refreshed.ok: panel.set_refusal_status(str(_command_sequence))
 		return
 	if str(result.get("code","")) in ["invalid_target_index","draft_entry_not_found","day7_move_refused"]:

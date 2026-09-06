@@ -46,6 +46,9 @@ var _projection_revision := 0
 var _refusal_id := ""
 var _status_nodes: Array[Node] = []
 var _last_announced_refusal_id := ""
+var _source_rows: Array[Dictionary] = []
+var _docket_rows: Array[Dictionary] = []
+var _pending_anchors: Array[Dictionary] = []
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(800,656)
@@ -113,7 +116,7 @@ func clear_status() -> void:
 	_refusal_id = ""
 	_clear_status_nodes()
 
-func set_projection(value: Dictionary, inspection: String = "", focus_key: String = "") -> bool:
+func set_projection(value: Dictionary, inspection: String = "", focus_key: String = "", preserve_scroll: bool = false) -> bool:
 	if typeof(value.get("day_seven")) != TYPE_BOOL or typeof(value.get("sources")) != TYPE_ARRAY or typeof(value.get("entries")) != TYPE_ARRAY:
 		return false
 	if value.entries.size() > (1 if value.day_seven else 7): return false
@@ -132,13 +135,16 @@ func set_projection(value: Dictionary, inspection: String = "", focus_key: Strin
 		# Keep the registered 64px art intact inside the fixed folio document field.
 		if not _fits_folio(entry.name,value.day_seven): return false
 		seen_entries[entry.id] = true
+	# A second projection must not capture temporary zero offsets before the
+	# preceding same-frame reconstruction has settled.
+	var source_anchor: Dictionary = _pending_anchors[0] if not _pending_anchors.is_empty() else _capture_anchor(_source_rows,available_scroll)
+	var docket_anchor: Dictionary = _pending_anchors[1] if not _pending_anchors.is_empty() else _capture_anchor(_docket_rows,docket_scroll)
+	_pending_anchors = [source_anchor,docket_anchor]
 	cancel_drag()
 	_projection_revision += 1
 	_projection = value.duplicate(true)
 	selected_id = inspection if seen_entries.has(inspection) else ""
 	if value.day_seven and not value.entries.is_empty(): selected_id = value.entries[0].id
-	var source_y := available_scroll.scroll_vertical if is_instance_valid(available_scroll) else 0
-	var docket_y := docket_scroll.scroll_vertical if is_instance_valid(docket_scroll) else 0
 	cancel_contacts()
 	for child in get_children():
 		if child is Button and child.has_method("cancel_contact"): child.cancel_contact()
@@ -148,11 +154,53 @@ func set_projection(value: Dictionary, inspection: String = "", focus_key: Strin
 	entry_buttons.clear()
 	commands.clear()
 	_status_nodes.clear()
+	_source_rows.clear()
+	_docket_rows.clear()
 	_build()
-	available_scroll.set_deferred("scroll_vertical",source_y)
-	docket_scroll.set_deferred("scroll_vertical",docket_y)
-	if focus_key != "": focus_target.call_deferred(focus_key)
+	var revision: int = _projection_revision
+	if preserve_scroll and focus_key != "": _restore_focus.call_deferred(revision,focus_key)
+	_restore_anchors.call_deferred(revision,source_anchor,docket_anchor)
+	if not preserve_scroll and focus_key != "": _restore_focus.call_deferred(revision,focus_key)
 	return true
+
+func _restore_focus(revision: int, focus_key: String) -> void:
+	if revision == _projection_revision: focus_target(focus_key)
+
+func clear_scroll_anchors() -> void:
+	_projection_revision += 1
+	_pending_anchors.clear()
+	if is_instance_valid(available_scroll): available_scroll.scroll_vertical = 0
+	if is_instance_valid(docket_scroll): docket_scroll.scroll_vertical = 0
+
+func _capture_anchor(rows: Array[Dictionary], scroll: ScrollContainer) -> Dictionary:
+	if rows.is_empty() or not is_instance_valid(scroll): return {}
+	var offset: int = scroll.scroll_vertical
+	var ordinal := 0
+	for index in rows.size():
+		if rows[index].y <= offset: ordinal = index
+		else: break
+	return {"key":rows[ordinal].key,"ordinal":ordinal,"delta":offset-int(rows[ordinal].y)}
+
+func _restore_anchors(revision: int, source_anchor: Dictionary, docket_anchor: Dictionary) -> void:
+	if revision != _projection_revision: return
+	_restore_anchor(_source_rows,available_scroll,source_anchor)
+	_restore_anchor(_docket_rows,docket_scroll,docket_anchor)
+	_pending_anchors.clear()
+
+func _restore_anchor(rows: Array[Dictionary], scroll: ScrollContainer, anchor: Dictionary) -> void:
+	if rows.is_empty() or not is_instance_valid(scroll) or anchor.is_empty():
+		if is_instance_valid(scroll): scroll.scroll_vertical = 0
+		return
+	var ordinal: int = clampi(int(anchor.ordinal),0,rows.size()-1)
+	for index in rows.size():
+		if rows[index].key == anchor.key:
+			ordinal = index
+			break
+	var minimum_delta: int = -int(rows[ordinal].y) if ordinal == 0 else 0
+	var delta: int = clampi(int(anchor.delta),minimum_delta,maxi(0,int(rows[ordinal].span)-1))
+	var body: Control = _source_body if scroll == available_scroll else _docket_body
+	var maximum: int = maxi(0,int(body.custom_minimum_size.y-scroll.size.y))
+	scroll.scroll_vertical = clampi(int(rows[ordinal].y)+delta,0,maximum)
 
 func focus_target(key: String = "") -> void:
 	var target: Control = null
@@ -232,6 +280,7 @@ func _build() -> void:
 		var label_h := _height(source.name,112)
 		var status_h := 0.0 if source.available else _height(COPY[_locale][5],112)+4
 		var height := 16 + maxf(64 if _large else 48,label_h+status_h)
+		_source_rows.append({"key":"source:"+source.id,"y":y,"span":height+8})
 		var key := _key(_source_body,Rect2(8,y,202,height),"source",source.available)
 		key.name = "Source_%d" % source_buttons.size()
 		key.unavailable = not source.available
@@ -262,6 +311,7 @@ func _build() -> void:
 	for index in count:
 		if index >= _projection.entries.size():
 			var empty_h := 80 if _large else 64
+			_docket_rows.append({"key":"slot:"+str(index),"y":y,"span":empty_h+8})
 			_label(_docket_body,str(index+1),Rect2(8,y,24,empty_h))
 			_paper(_docket_body,Rect2(40,y+empty_h/2,144,2),"paper_ink")
 			y += empty_h+8
@@ -270,6 +320,7 @@ func _build() -> void:
 		var name_width := 160 if _projection.day_seven else (72 if _large else 88)
 		var label_h := _height(entry.name,name_width)
 		var height := 16 + maxf(64 if _large else 48,label_h)
+		_docket_rows.append({"key":"entry:"+entry.id,"y":y,"span":height+8})
 		var key := _key(_docket_body,Rect2(8,y,176,height),"day7" if _projection.day_seven else "entry")
 		key.selected = entry.id == selected_id and not _projection.day_seven
 		key.accessibility_name = entry.name if _projection.day_seven else "%s, %d / 7" % [entry.name,index+1]

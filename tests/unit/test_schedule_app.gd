@@ -397,6 +397,27 @@ func test_cached_return_keeps_a_manually_scrolled_position_with_focus_elsewhere(
 	await get_tree().process_frame
 	assert_eq(_app.panel.docket_scroll.scroll_vertical,offset,"Restoring cached focus must not undo manual paper scrolling")
 
+func test_locale_reflow_retains_semantic_docket_top_even_with_focus_elsewhere() -> void:
+	assert_true(_app.configure_presentation(_port,"zh-HK",150,true).ok)
+	for index in 6:
+		_app.panel.source_buttons.training.pressed.emit()
+		await get_tree().process_frame
+	var entries: Array = _view.snapshot().value.view.entries
+	var second_id: String = entries[1].draft_entry_id
+	_app.panel.entry_buttons[entries[0].draft_entry_id].grab_focus()
+	await get_tree().process_frame
+	var before_top: int = int(_app.panel.entry_buttons[second_id].position.y) + 2
+	_app.panel.docket_scroll.scroll_vertical = before_top
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,before_top)
+	assert_true(_app.configure_presentation(_port,"en",150,true).ok)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_true(_app.panel.entry_buttons[entries[0].draft_entry_id].has_focus())
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,int(_app.panel.entry_buttons[second_id].position.y)+2)
+	assert_ne(_app.panel.docket_scroll.scroll_vertical,before_top,"Reflow follows occurrence identity instead of the old pixel offset")
+	assert_eq(_view.snapshot().value.view.entries,entries)
+
 class WarningCommands extends RefCounted:
 	var view: Object
 	var issuer: Object

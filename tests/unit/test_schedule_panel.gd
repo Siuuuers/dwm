@@ -171,3 +171,71 @@ func test_refusal_status_persists_reflow_and_announces_distinct_ids_once() -> vo
 	panel.set_refusal_status("refusal-2")
 	assert_signal_emit_count(panel,"status_announced",2,"Duplicate delivery stays silent after lifecycle clearing.")
 	assert_eq(panel.get_node("DockStatus").accessibility_live,DisplayServer.LIVE_OFF)
+
+func test_semantic_source_anchor_survives_scaled_locale_reflow() -> void:
+	var panel: Control = _panel()
+	var sources: Array = []
+	for index in 8: sources.append(_source(str(index),"Long source name %d with wrapping words" % index))
+	assert_true(panel.set_projection(_projection([],false,sources)))
+	await get_tree().process_frame
+	panel.available_scroll.scroll_vertical = int(panel._source_rows[2].y)+7
+	assert_true(panel.configure("zh-HK",150,true))
+	var translated: Array = []
+	for index in 8: translated.append(_source(str(index),"很長的來源名稱 %d 包含換行文字" % index))
+	assert_true(panel.set_projection(_projection([],false,translated),"","",true))
+	await get_tree().process_frame
+	assert_eq(panel.available_scroll.scroll_vertical,int(panel._source_rows[2].y)+7)
+
+func test_removed_source_anchor_repairs_to_identity_at_old_ordinal() -> void:
+	var panel: Control = _panel("en",150,true)
+	var sources: Array = []
+	for id: String in ["a","b","c","d","e","f","g","h","i","j"]: sources.append(_source(id,id+" wrapping source name"))
+	assert_true(panel.set_projection(_projection([],false,sources)))
+	await get_tree().process_frame
+	panel.available_scroll.scroll_vertical = int(panel._source_rows[2].y)+5
+	sources.remove_at(2)
+	assert_true(panel.set_projection(_projection([],false,sources),"","",true))
+	await get_tree().process_frame
+	assert_eq(panel._source_rows[2].key,"source:d")
+	assert_eq(panel.available_scroll.scroll_vertical,int(panel._source_rows[2].y)+5)
+
+func test_empty_docket_slot_anchor_and_rapid_projection_revision() -> void:
+	var panel: Control = _panel("en",100,true)
+	assert_true(panel.set_projection(_projection()))
+	await get_tree().process_frame
+	panel.docket_scroll.scroll_vertical = int(panel._docket_rows[1].y)+2
+	assert_true(panel.set_projection(_projection([],false,[_source("old","Old")]),"","source:old",true))
+	assert_true(panel.set_projection(_projection([_entry("a","Training")],false,[_source("training","Training")]),"","source:training",true))
+	await get_tree().process_frame
+	assert_eq(panel._docket_rows[1].key,"slot:1")
+	assert_eq(panel.docket_scroll.scroll_vertical,int(panel._docket_rows[1].y)+2)
+	assert_true(panel.source_buttons.training.has_focus(),"A stale queued focus restore cannot win over the latest projection.")
+
+func test_fresh_projection_without_existing_anchors_starts_at_zero() -> void:
+	var panel: Control = _panel("en",150,true)
+	assert_true(panel.set_projection(_projection()))
+	await get_tree().process_frame
+	assert_eq(panel.available_scroll.scroll_vertical,0)
+	assert_eq(panel.docket_scroll.scroll_vertical,0)
+	var sources: Array = []
+	for index in 8: sources.append(_source(str(index),"Source name %d" % index))
+	assert_true(panel.set_projection(_projection([],false,sources),"","",true))
+	await get_tree().process_frame
+	assert_eq(panel.available_scroll.scroll_vertical,0,"The first row's native top inset preserves an explicit zero offset.")
+	assert_true(panel.set_projection(_projection([],false,sources),"","",true))
+	await get_tree().process_frame
+	assert_eq(panel.available_scroll.scroll_vertical,0,"Repeated cached refresh keeps the explicit top of an overflowing list.")
+
+func test_cache_clear_cancels_pending_semantic_restore() -> void:
+	var panel: Control = _panel("en",100,true)
+	assert_true(panel.set_projection(_projection()))
+	await get_tree().process_frame
+	panel.docket_scroll.scroll_vertical = 90
+	assert_eq(panel.docket_scroll.scroll_vertical,90)
+	assert_true(panel.set_projection(_projection(),"","",true))
+	panel.clear_scroll_anchors()
+	await get_tree().process_frame
+	assert_eq(panel.docket_scroll.scroll_vertical,0)
+	assert_true(panel.set_projection(_projection(),"","",true))
+	await get_tree().process_frame
+	assert_eq(panel.docket_scroll.scroll_vertical,0)
