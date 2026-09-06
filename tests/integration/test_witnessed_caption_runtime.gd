@@ -337,6 +337,7 @@ func test_actual_hospital_bridge_path_selects_caption_then_natural_end_restores_
 	await _settle()
 	assert_eq(_ended,1)
 	assert_false(runtime.Styles.has_active_layout_node(),"default end mode removes scoped Hospital layout")
+	assert_true(get_tree().get_nodes_in_group("dialogic_input_policy").is_empty(),"ending the scoped layout removes its input policy")
 	assert_true(text_events.is_empty(),"current authored Hospital timeline is comments + return; no prose acceptance claimed")
 	assert_eq(ProjectSettings.get_setting("dialogic/layout/default_style"),default_before,"Hospital selection does not mutate global default")
 	layout = runtime.start(_timeline("Ordinary follow-up fixture."))
@@ -346,6 +347,27 @@ func test_actual_hospital_bridge_path_selects_caption_then_natural_end_restores_
 	assert_true(is_instance_valid(layout))
 	assert_ne(layout.get_meta("style").resource_path,STYLE,"following ordinary timeline uses the original default")
 	assert_eq(text_events.size(),1)
+	var default_texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
+	assert_eq(default_texts.size(),1)
+	if default_texts.size() != 1: return
+	var default_text: DialogicNode_DialogText = default_texts[0]
+	default_text.set_process(false)
+	layout.layer = 129
+	get_tree().root.size = Vector2i(1280,720)
+	get_tree().root.content_scale_size = Vector2i(1280,720)
+	var focus_owner := get_tree().root.gui_get_focus_owner()
+	if focus_owner != null: focus_owner.release_focus()
+	runtime.Inputs.input_block_timer.stop()
+	assert_true(default_text.revealing)
+	# Default input remains native: separated physical press/release demonstrates
+	# fallback restoration without claiming a global fix to its existing polling.
+	_parse_accept_key(true)
+	await _settle()
+	_parse_accept_key(false)
+	await _settle()
+	assert_eq(_finished,1,"ordinary native Accept works after the scoped layout has ended")
+	assert_eq(runtime.current_event_idx,0)
+	assert_false(default_text.revealing)
 
 func test_hospital_missing_styles_refuses_before_clear_start_or_bridge_context() -> void:
 	get_tree().root.remove_child(runtime)
@@ -750,3 +772,312 @@ func test_real_text_clear_and_immediate_replacement_invalidate_an_awaiting_nativ
 	assert_eq(_stack_invariants(),before)
 	assert_eq(caption.caption_text,native)
 	assert_eq(caption.get_caption_projection().retained_captions,[])
+
+func _mount_root_accept_fixture(copy: String) -> bool:
+	if not _mount(): return false
+	await _settle()
+	layout.reparent(get_tree().root)
+	layout.layer = 129 # Above GUT's own CanvasLayer128, as in the real touch fixture.
+	get_tree().root.size = Vector2i(1280,720)
+	get_tree().root.content_scale_size = Vector2i(1280,720)
+	# Keep real runtime input live while making every published typewriter stationary.
+	runtime.Text.text_started.connect(func(_info: Dictionary):
+		caption.caption_text.set_process(false)
+		caption.set_process(false))
+	# Keep the real timeline valid even when a RED run exposes several extra accepts.
+	runtime.start(_timeline(copy + "\nFixture guard caption.".repeat(16)))
+	await _settle()
+	caption.caption_text.grab_focus()
+	runtime.Inputs.input_block_timer.stop()
+	assert_false(runtime.paused)
+	assert_true(caption.caption_text.revealing)
+	return true
+
+func _root_caption_point(point: Vector2) -> Vector2:
+	return get_tree().root.get_final_transform() * (caption.canvas.get_global_transform_with_canvas() * point)
+
+func _parse_accept_mouse(point: Vector2, pressed: bool, double_click: bool = false) -> void:
+	var event := InputEventMouseButton.new()
+	event.position = point
+	event.global_position = point
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	event.pressed = pressed
+	event.double_click = double_click
+	Input.parse_input_event(event)
+
+func _parse_accept_key(pressed: bool, echo: bool = false, code: Key = KEY_ENTER) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.pressed = pressed
+	event.echo = echo
+	Input.parse_input_event(event)
+
+func _parse_caption_touch(point: Vector2, pressed: bool, canceled: bool = false, double_tap: bool = false) -> void:
+	var event := InputEventScreenTouch.new()
+	event.index = 0
+	event.position = point
+	event.pressed = pressed
+	event.canceled = canceled
+	event.double_tap = double_tap
+	Input.parse_input_event(event)
+
+func test_actual_pointer_accept_belongs_only_to_current_caption_and_one_press() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	assert_true(caption.reproject_retained_captions(["Older.","Previous."]))
+	await _settle()
+	var projection: Dictionary = caption.get_caption_projection()
+	assert_eq(projection.visible_leaf_rects.size(),3)
+	var before := _stack_invariants()
+	for point: Vector2 in [Vector2(640,200),projection.leaf_rects[0].get_center(),projection.leaf_rects[1].get_center()]:
+		_parse_accept_mouse(_root_caption_point(point),true)
+		_parse_accept_mouse(_root_caption_point(point),false)
+		await _settle()
+		assert_eq(_stack_invariants(),before,"aperture and retained captions cannot issue narrative Accept")
+	var current := _root_caption_point(projection.caption_visible_rect.get_center())
+	_parse_accept_mouse(current,true)
+	Input.flush_buffered_events()
+	assert_eq(_finished,0,"pointer-down waits for release inside the current caption")
+	var jitter := InputEventMouseMotion.new()
+	jitter.position = current + Vector2(3,2)
+	jitter.global_position = jitter.position
+	jitter.relative = Vector2(3,2)
+	jitter.button_mask = MOUSE_BUTTON_MASK_LEFT
+	Input.parse_input_event(jitter)
+	_parse_accept_mouse(jitter.position,false)
+	await _settle()
+	assert_eq(_finished,1,"a physical click with small inside jitter finishes the current reveal once")
+	assert_eq(runtime.current_event_idx,0,"the same click and release cannot also advance")
+	_parse_accept_mouse(current,true,true)
+	_parse_accept_mouse(current,false)
+	await _settle()
+	assert_eq(runtime.current_event_idx,0,"the double-click second contact cannot advance")
+	_parse_accept_mouse(current,true)
+	_parse_accept_mouse(_root_caption_point(Vector2(640,200)),false)
+	await _settle()
+	assert_eq(runtime.current_event_idx,0,"release outside the current caption cancels the contact")
+	_parse_accept_mouse(current,true)
+	_parse_accept_mouse(current,false)
+	await _settle()
+	assert_eq(runtime.current_event_idx,1,"a later fresh click advances once")
+	assert_eq(_finished,1)
+	assert_true(caption.caption_text.revealing)
+	assert_eq(caption.caption_text.get_parsed_text(),"Following.")
+
+func test_actual_enter_and_same_frame_unrelated_packets_issue_one_accept() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var accepts: Array[int] = []
+	runtime.Inputs.dialogic_action.connect(func(): accepts.append(runtime.current_event_idx))
+	_parse_accept_key(true)
+	_parse_accept_key(true,false,KEY_A)
+	_parse_accept_key(false,false,KEY_A)
+	_parse_accept_key(false)
+	await _settle()
+	assert_eq(accepts.size(),1,"unrelated key packets and Enter release cannot reuse global just-pressed state")
+	assert_eq(_finished,1)
+	assert_eq(runtime.current_event_idx,0)
+	_parse_accept_key(true)
+	_parse_accept_key(false)
+	await _settle()
+	assert_eq(accepts.size(),2,"release followed by a later fresh press re-arms Accept")
+	assert_eq(runtime.current_event_idx,1)
+	assert_eq(_finished,1)
+	assert_true(caption.caption_text.revealing)
+
+func test_actual_accept_waits_for_all_held_contacts_to_release() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var accepts: Array[int] = []
+	runtime.Inputs.dialogic_action.connect(func(): accepts.append(runtime.current_event_idx))
+	var current := _root_caption_point(caption.get_caption_projection().caption_visible_rect.get_center())
+	_parse_accept_key(true)
+	await _settle()
+	_parse_accept_key(true,true)
+	_parse_accept_key(true)
+	_parse_accept_mouse(current,true)
+	await _settle()
+	assert_eq(accepts.size(),1,"echo, repeated held press, and simultaneous mouse contact cannot issue a second Accept")
+	assert_eq(_finished,1)
+	assert_eq(runtime.current_event_idx,0)
+	_parse_accept_key(false)
+	await _settle()
+	_parse_accept_key(true)
+	_parse_accept_key(false)
+	_parse_accept_mouse(current,false)
+	await _settle()
+	assert_eq(accepts.size(),1,"releasing only one device does not re-arm while another contact remains held")
+	_parse_accept_key(true)
+	_parse_accept_key(false)
+	await _settle()
+	assert_eq(accepts.size(),2)
+	assert_eq(runtime.current_event_idx,1)
+	assert_eq(_finished,1)
+	assert_true(caption.caption_text.revealing)
+
+func test_actual_current_short_tap_accepts_but_drag_only_scrolls() -> void:
+	if not await _mount_root_accept_fixture("A long current caption supports both touch reading and a deliberate short tap. ".repeat(100)+"\nFollowing."): return
+	Input.emulate_mouse_from_touch = true
+	var accepts: Array[int] = []
+	runtime.Inputs.dialogic_action.connect(func(): accepts.append(runtime.current_event_idx))
+	var current := _root_caption_point(caption.get_caption_projection().caption_visible_rect.get_center())
+	_parse_caption_touch(current,true)
+	_parse_caption_touch(current,false,true)
+	await _settle()
+	assert_eq(accepts.size(),0,"a canceled touch cannot accept")
+	_parse_caption_touch(current,true)
+	await _settle()
+	assert_eq(accepts.size(),0,"touch-down alone waits for tap-versus-drag resolution")
+	_parse_caption_touch(current,false)
+	await _settle()
+	assert_eq(accepts.size(),1,"a short current-caption tap, including native mouse emulation, accepts once")
+	assert_eq(_finished,1)
+	assert_eq(runtime.current_event_idx,0)
+	_parse_caption_touch(current,true,false,true)
+	_parse_caption_touch(current,false)
+	await _settle()
+	assert_eq(accepts.size(),1,"the double-tap second contact cannot advance")
+	var scroll_before: float = caption.get_scroll_bar().value
+	_parse_caption_touch(current,true)
+	var drag := InputEventScreenDrag.new()
+	drag.index = 0
+	drag.position = current - Vector2(0,64)
+	drag.relative = Vector2(0,-64)
+	Input.parse_input_event(drag)
+	_parse_caption_touch(drag.position,false)
+	await _settle()
+	assert_gt(caption.get_scroll_bar().value,scroll_before)
+	assert_eq(accepts.size(),1,"drag release and its emulated mouse events cannot advance a completed caption")
+	assert_eq(runtime.current_event_idx,0)
+	current = _root_caption_point(caption.get_caption_projection().caption_visible_rect.get_center())
+	_parse_caption_touch(current,true)
+	_parse_caption_touch(current,false)
+	await _settle()
+	assert_eq(accepts.size(),2,"a fresh short tap after the drag advances once")
+	assert_eq(runtime.current_event_idx,1)
+	assert_eq(_finished,1)
+	assert_true(caption.caption_text.revealing)
+	current = _root_caption_point(caption.get_caption_projection().caption_visible_rect.get_center())
+	_parse_caption_touch(current,true)
+	Input.flush_buffered_events()
+	runtime.start_timeline(_timeline("Replacement.\nGuard."))
+	await _settle()
+	var replacement := _stack_invariants()
+	_parse_caption_touch(current,false)
+	await _settle()
+	assert_eq(accepts.size(),2,"a contact begun on the previous caption cannot accept its replacement")
+	assert_eq(_stack_invariants(),replacement)
+	assert_eq(caption.caption_text.get_parsed_text(),"Replacement.")
+
+func _parse_accept_joypad(pressed: bool) -> void:
+	var event := InputEventJoypadButton.new()
+	event.device = 0
+	event.button_index = JOY_BUTTON_A
+	event.pressed = pressed
+	Input.parse_input_event(event)
+
+func test_actual_joypad_accept_refuses_paused_or_held_contact_then_rearms() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var accepts: Array[int] = []
+	runtime.Inputs.dialogic_action.connect(func(): accepts.append(runtime.current_event_idx))
+	runtime.paused = true
+	_parse_accept_joypad(true)
+	await _settle()
+	assert_eq(accepts.size(),0,"a real joypad event cannot accept while its owner is paused")
+	runtime.paused = false
+	_parse_accept_joypad(true)
+	await _settle()
+	assert_eq(accepts.size(),0,"resuming with the same held contact does not accept")
+	_parse_accept_joypad(false)
+	await _settle()
+	_parse_accept_joypad(true)
+	await _settle()
+	assert_eq(accepts.size(),1,"a fresh joypad A press finishes the reveal")
+	assert_eq(_finished,1)
+	assert_eq(runtime.current_event_idx,0)
+	_parse_accept_joypad(true)
+	await _settle()
+	assert_eq(accepts.size(),1,"a repeated held joypad packet does not advance")
+	_parse_accept_joypad(false)
+	await _settle()
+	_parse_accept_joypad(true)
+	_parse_accept_joypad(false)
+	await _settle()
+	assert_eq(accepts.size(),2)
+	assert_eq(runtime.current_event_idx,1)
+	assert_eq(_finished,1)
+	assert_true(caption.caption_text.revealing)
+
+func test_actual_focused_gui_button_gets_first_refusal_before_caption_accept() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var button := Button.new()
+	button.text = "Fixture GUI action"
+	button.position = Vector2(64,128)
+	button.size = Vector2(240,64)
+	caption.canvas.add_child(button)
+	var presses: Array[bool] = []
+	button.pressed.connect(func(): presses.append(true))
+	button.grab_focus()
+	await _settle()
+	assert_true(button.has_focus())
+	var before := _stack_invariants()
+	_parse_accept_key(true)
+	_parse_accept_key(false)
+	await _settle()
+	assert_eq(presses.size(),1,"the real focused native button receives its normal Enter activation")
+	assert_eq(_stack_invariants(),before,"a GUI-consumed Accept never reaches the narrative owner")
+	caption.caption_text.grab_focus()
+	_parse_accept_key(true)
+	_parse_accept_key(false)
+	await _settle()
+	assert_eq(presses.size(),1)
+	assert_eq(_finished,1,"fresh Accept works after returning focus to the caption")
+	assert_eq(runtime.current_event_idx,0)
+
+func test_actual_accept_held_before_policy_mount_and_simulated_focus_return_requires_release() -> void:
+	# The real key event predates policy mounting. With no active timeline, pause
+	# the isolated owner and remove GUT GUI focus while establishing that contact.
+	var focus_owner := get_tree().root.gui_get_focus_owner()
+	if focus_owner != null: focus_owner.release_focus()
+	runtime.paused = true
+	_parse_accept_key(true)
+	# parse_input_event can queue under accumulated/agile input. Deliver the actual
+	# packet before mounting, so bind() observes a held action rather than a queue.
+	Input.flush_buffered_events()
+	runtime.paused = false
+	assert_true(Input.is_action_pressed("dialogic_default_action"))
+	if not await _mount_root_accept_fixture("Current.\nFollowing."):
+		_parse_accept_key(false)
+		return
+	assert_true(Input.is_action_pressed("dialogic_default_action"),"the pre-mount physical packet remains held after policy binding")
+	_parse_accept_key(true,true)
+	_parse_accept_key(true)
+	await _settle()
+	assert_eq(_finished,0,"a contact already held when the policy mounts cannot accept")
+	assert_eq(runtime.current_event_idx,0)
+	_parse_accept_key(false)
+	await _settle()
+	_parse_accept_key(true)
+	await _settle()
+	assert_eq(_finished,1,"release and a fresh press activate the mounted policy")
+	var policies := get_tree().get_nodes_in_group("dialogic_input_policy")
+	assert_eq(policies.size(),1)
+	if policies.size() != 1:
+		_parse_accept_key(false)
+		return
+	# Engine notifications simulate the focus lifecycle; this is not an OS-window
+	# focus acceptance claim. The held/repeat/release packets remain real Input events.
+	policies[0].notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	policies[0].notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	_parse_accept_key(true,true)
+	_parse_accept_key(true)
+	await _settle()
+	assert_eq(_finished,1)
+	assert_eq(runtime.current_event_idx,0,"focus return cannot turn the held contact into a fresh Accept")
+	_parse_accept_key(false)
+	await _settle()
+	_parse_accept_key(true)
+	_parse_accept_key(false)
+	await _settle()
+	assert_eq(runtime.current_event_idx,1,"a genuinely fresh post-focus contact advances once")
+	assert_eq(_finished,1)
+	assert_true(caption.caption_text.revealing)

@@ -30,6 +30,7 @@ var _scroll_restore_retries := 0
 @onready var older: RichTextLabel = $Canvas/Scroll/Stack/Older
 @onready var previous: RichTextLabel = $Canvas/Scroll/Stack/Previous
 @onready var overlay: Control = $Canvas/Overlay
+@onready var accept_input: Node = $AcceptInput
 
 func _ready() -> void:
 	super._ready()
@@ -55,6 +56,7 @@ func _ready() -> void:
 		_localization.connect("locale_changed", _on_locale_changed)
 	_apply_preferences()
 	var runtime := get_node_or_null("/root/Dialogic")
+	accept_input.bind(caption_text, scroll, runtime)
 	if runtime != null and runtime.has_method("get_subsystem"):
 		var text_owner: Object = runtime.call("get_subsystem", "Text")
 		if text_owner != null:
@@ -315,14 +317,12 @@ func _handle_input(event: InputEvent, current: bool) -> void:
 			var direction := -1.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0
 			bar.value += direction * _caption_theme.default_font_size * 3.0 * event.factor
 		elif current and event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				caption_text.grab_focus()
-			caption_text.on_gui_input(event)
+			accept_input.handle_caption_gui_input(event)
 	elif event is InputEventPanGesture:
 		bar.value += event.delta.y * 20
 	elif event is InputEventScreenTouch:
-		if current and event.pressed and event.device != InputEvent.DEVICE_ID_EMULATION:
-			caption_text.grab_focus()
+		if current:
+			accept_input.handle_caption_gui_input(event)
 	elif event is InputEventScreenDrag:
 		if event.device != InputEvent.DEVICE_ID_EMULATION:
 			bar.value -= event.relative.y

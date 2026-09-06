@@ -115,6 +115,8 @@ func handle_input() -> void:
 ## Mouse based input is handled by the InputCatcher and Textbox nodes calling [method handle_node_gui_input].
 ## Calls [method handle_input].
 func _unhandled_input(event:InputEvent) -> void:
+	if get_tree().get_first_node_in_group('dialogic_input_policy') != null:
+		return
 	if is_input_pressed(event, true):
 		if event is InputEventMouse or event is InputEventScreenTouch:
 			return
@@ -125,6 +127,9 @@ func _unhandled_input(event:InputEvent) -> void:
 ## Input is used for all mouse based inputs.
 ## If any DialogicInputNode is present this won't do anything (because that node handles MouseInput then).
 func _input(event:InputEvent) -> void:
+	# A mounted policy owns event admission, including while its surface is hidden.
+	if get_tree().get_first_node_in_group('dialogic_input_policy') != null:
+		return
 	if is_input_pressed(event):
 		if not event is InputEventMouse:
 			return
