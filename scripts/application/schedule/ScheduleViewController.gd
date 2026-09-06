@@ -126,12 +126,7 @@ func _prepare_add_on_view(view: Dictionary, action_id: String, source_receipt_id
 
 
 func apply_docket_edit(command: Dictionary, expected_fingerprint: String) -> Dictionary:
-	var guard := _view_guard()
-	if not guard.is_empty():
-		return guard
-	var validated: Dictionary = _VIEW_STATE.validate(_view, _registry, _fingerprint)
-	if not validated.get("ok", false):
-		return validated
+	# fingerprint() already guards and validates the complete live view.
 	var current_fingerprint: Dictionary = fingerprint()
 	if not current_fingerprint.get("ok", false):
 		return current_fingerprint
