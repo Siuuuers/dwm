@@ -9,6 +9,20 @@ const FAKE := preload("res://tests/support/FakeDialogicRuntime.gd")
 
 var _adapter_script: GDScript
 
+class NoStartRuntime extends FAKE:
+	func start(_timeline: Variant, _label_or_idx: Variant = "") -> Object:
+		calls.append("refused_start")
+		return null
+
+class ReadyLayoutNoStartRuntime extends FAKE:
+	var layout: Node
+	func start(_timeline: Variant, _label_or_idx: Variant = "") -> Object:
+		return layout
+
+class PartialQualifiedRuntime extends FAKE:
+	signal timeline_started_with_generation(generation: int, request_id: String)
+	signal timeline_ended_with_generation(generation: int)
+
 
 func before_all() -> void:
 	if ResourceLoader.exists(ADAPTER_PATH, "Script"):
@@ -56,6 +70,13 @@ func test_bind_rejects_null_runtime() -> void:
 	assert_false(_new_adapter().bind_runtime(null).get("ok", false), "null runtime must reject")
 
 
+func test_bind_rejects_partial_qualified_lifecycle_without_query_methods() -> void:
+	var fake: Node = autofree(PartialQualifiedRuntime.new())
+	var result: Dictionary = _new_adapter().bind_runtime(fake)
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"invalid_runtime")
+
+
 func test_start_timeline_orders_clear_reapply_then_start() -> void:
 	if _adapter_script == null:
 		return
@@ -82,6 +103,40 @@ func test_capture_checkpoint_never_serializes_full_state() -> void:
 	assert_true(captured.get("ok", false), str(captured))
 	assert_eq(fake.full_state_reads(), 0, "adapter must never call get_full_state")
 	assert_true(captured["value"]["timeline_active"], "timeline active after start")
+
+
+func test_runtime_start_refusal_does_not_leave_admission_occupied() -> void:
+	var fake: Node = autofree(NoStartRuntime.new())
+	var adapter: Object = _new_adapter()
+	assert_true(adapter.bind_runtime(fake).get("ok",false))
+	assert_false(adapter.start_timeline("res://refused.dtl").get("ok",true))
+	assert_false(adapter.has_active_playback())
+	assert_null(fake.current_timeline)
+
+
+func test_ready_layout_without_timeline_is_removed_after_failed_start() -> void:
+	var fake: Node = autofree(ReadyLayoutNoStartRuntime.new())
+	fake.layout = Node.new()
+	add_child(fake.layout)
+	var layout: Node = fake.layout
+	var adapter: Object = _new_adapter()
+	assert_true(adapter.bind_runtime(fake).get("ok",false))
+	assert_false(adapter.start_timeline("res://refused.dtl").get("ok",true))
+	assert_false(adapter.has_active_playback())
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_false(is_instance_valid(layout), "failed startup leaves no mounted layout")
+
+
+func test_reentrant_cancel_before_native_start_cannot_be_overwritten_by_startup() -> void:
+	var fake: Node = autofree(FAKE.new())
+	var adapter: Object = _new_adapter()
+	assert_true(adapter.bind_runtime(fake).get("ok",false))
+	adapter.preference_reapply_requested.connect(func(): adapter.halt_with_error({"code":"fixture_cancel"}))
+	assert_false(adapter.start_timeline("res://cancelled.dtl").get("ok",true))
+	assert_eq(fake.calls,["clear:1"],"cancelled startup never reaches the native start call")
+	assert_false(adapter.has_active_playback())
+	assert_null(fake.current_timeline)
 
 
 func test_capture_and_restore_state_roundtrip() -> void:

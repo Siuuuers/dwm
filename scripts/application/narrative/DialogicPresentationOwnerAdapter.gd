@@ -82,6 +82,8 @@ func configure(bridge: Object) -> Dictionary:
 	_bridge = bridge
 	if not bridge.is_connected("timeline_finished", _on_timeline_finished):
 		bridge.connect("timeline_finished", _on_timeline_finished)
+	if bridge.has_signal("ordinary_playback_failed") and not bridge.is_connected("ordinary_playback_failed", _on_playback_failed):
+		bridge.connect("ordinary_playback_failed", _on_playback_failed)
 	return _ok({"configured": true, "already_configured": false,
 		"bridge_instance_id": bridge.get_instance_id()})
 
@@ -123,18 +125,27 @@ func begin_physical(command: Dictionary) -> Dictionary:
 				"an in-flight completion id cannot be reused with different bytes", {})
 		return _ok({"physical_token": token, "command_sha256": command_sha256})
 
-	var started: Variant = _bridge.call(&"start_timeline_id", timeline_id,
-		(command["context"] as Dictionary).duplicate(true))
-	if typeof(started) != TYPE_DICTIONARY or not (started as Dictionary).get("ok", false):
-		return _fail(&"narrative_presentation_unavailable",
-			"the bridge refused to start the timeline",
-			{"timeline_id": timeline_id, "cause": started})
 	_in_flight[completion_id] = {
 		"command_sha256": command_sha256,
 		"physical_token": token,
 		"timeline_id": timeline_id,
 	}
+	var started: Variant = _bridge.call(&"start_timeline_id", timeline_id,
+		(command["context"] as Dictionary).duplicate(true))
+	if typeof(started) != TYPE_DICTIONARY or not (started as Dictionary).get("ok", false):
+		_in_flight.erase(completion_id)
+		return _fail(&"narrative_presentation_unavailable",
+			"the bridge refused to start the timeline",
+			{"timeline_id": timeline_id, "cause": started})
 	return _ok({"physical_token": token, "command_sha256": command_sha256})
+
+
+func _on_playback_failed(timeline_id: String, result: Dictionary) -> void:
+	for completion_id: Variant in _in_flight.keys():
+		if str((_in_flight[completion_id] as Dictionary).timeline_id) == timeline_id:
+			_in_flight.erase(completion_id)
+			physical_completion_failed.emit(_fail(&"narrative_presentation_unavailable",
+				"admitted playback failed", {"completion_transaction_id": completion_id, "cause": result.duplicate(true)}))
 
 
 ## Proves that one owner receipt is byte-identical to the record THIS adapter actually emitted for

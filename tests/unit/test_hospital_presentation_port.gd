@@ -18,6 +18,7 @@ extends "res://addons/gut/test.gd"
 # changing it still breaks the binding -- which is what the tests below assert.
 
 const PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
+const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
@@ -28,6 +29,21 @@ const FAKE_DATING_OWNER := preload("res://tests/support/FakeDatingPresentationOw
 const TIMELINE_ID := "hospital.faint"
 const STAGE_ID := "resolution.day3:hospital_if_triggered"
 const SUBSTAGE_ID := "presentation.intent.hospital.day3"
+
+var _owner_receipts: Array[Dictionary] = []
+var _runtime: DialogicGameHandler
+var _runtime_adapter: RefCounted
+var _original_runtime: Node
+var _original_runtime_index := 0
+var _original_layout: Node
+var _original_layout_parent: Node
+var _original_layout_index := 0
+var _settings: Dictionary = {}
+var _persistent: Variant
+var _had_persistent := false
+var _style_directory: Dictionary = {}
+var _native_starts := 0
+var _native_ends := 0
 
 var _root_counter := 0
 var _issuer: RefCounted
@@ -40,6 +56,10 @@ var _failures: Array = []
 
 
 func before_each() -> void:
+	# Let any preceding shared-runtime cleanup settle before detaching its autoload.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_owner_receipts.clear()
 	_ready_results = []
 	_failures = []
 	_root_counter += 1
@@ -56,10 +76,45 @@ func before_each() -> void:
 	assert_true(issued.get("ok", false), str(issued))
 	_root_receipt = ((issued["value"] as Dictionary)["issuer_receipt"] as Dictionary).duplicate(true)
 
+	_native_starts = 0
+	_native_ends = 0
+	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
+	_persistent = Engine.get_meta("dialogic_persistent_style_info", {})
+	_style_directory = DialogicStylesUtil.style_directory.duplicate(true)
+	_original_runtime = get_node("/root/Dialogic")
+	_original_runtime_index = _original_runtime.get_index()
+	_original_layout = _original_runtime.Styles.get_layout_node()
+	if is_instance_valid(_original_layout) and _original_layout.is_inside_tree():
+		_original_layout_parent = _original_layout.get_parent()
+		_original_layout_index = _original_layout.get_index()
+		_original_layout_parent.remove_child(_original_layout)
+	get_tree().remove_meta("dialogic_layout_node")
+	get_tree().root.remove_child(_original_runtime)
+	_settings = {}
+	for key: String in ["dialogic/save/autosave", "dialogic/layout/end_behaviour"]:
+		_settings[key] = {
+			"exists": ProjectSettings.has_setting(key),
+			"value": ProjectSettings.get_setting(key),
+		}
+	ProjectSettings.set_setting("dialogic/save/autosave", false)
+	ProjectSettings.set_setting("dialogic/layout/end_behaviour", 0)
+	_runtime = DialogicGameHandler.new()
+	_runtime.name = "Dialogic"
+	get_tree().root.add_child(_runtime)
+	_runtime.History.simple_history_enabled = true
+	_runtime.History.save_visited_history_on_save = false
+	_runtime.History.save_visited_history_on_autosave = false
+	_runtime.timeline_started.connect(func() -> void: _native_starts += 1)
+	_runtime.timeline_ended.connect(func() -> void: _native_ends += 1)
+	_runtime_adapter = RUNTIME_ADAPTER.new()
+	assert_true(_runtime_adapter.bind_runtime(_runtime).get("ok", false))
 	_bridge = load("res://autoload/DialogicBridge.gd").new()
-	add_child_autofree(_bridge)
+	_bridge.name = "TestDialogicBridge"
+	add_child(_bridge)
+	assert_true(_bridge.initialize(null, _runtime_adapter).get("ok", false))
 	_owner = OWNER.new()
 	assert_true(_owner.configure(_bridge).get("ok", false))
+	_owner.physical_completion_ready.connect(func(receipt: Dictionary): _owner_receipts.append(receipt.duplicate(true)))
 
 	_port = PORT.new()
 	assert_true(_port.configure(_issuer, _owner).get("ok", false))
@@ -67,6 +122,44 @@ func before_each() -> void:
 		_ready_results.append(result.duplicate(true)))
 	_port.completion_failed.connect(func(failure: Dictionary) -> void:
 		_failures.append(failure.duplicate(true)))
+
+
+func after_each() -> void:
+	# Every admitted return-only presentation drains through its real native end
+	# before its bridge, owner, layout, or runtime can be destroyed.
+	if is_instance_valid(_bridge) and _bridge.has_active_playback():
+		await _end_runtime_timeline()
+	if is_instance_valid(_bridge):
+		_bridge.free()
+	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
+		text_node.set_process(false)
+	if is_instance_valid(_runtime):
+		await _runtime.clear()
+		var remaining: Node = _runtime.Styles.get_layout_node()
+		if is_instance_valid(remaining):
+			remaining.queue_free()
+		await get_tree().process_frame
+		_runtime.free()
+	_owner = null
+	_port = null
+	_runtime_adapter = null
+	get_tree().remove_meta("dialogic_layout_node")
+	get_tree().root.add_child(_original_runtime)
+	get_tree().root.move_child(_original_runtime, _original_runtime_index)
+	if is_instance_valid(_original_layout):
+		if is_instance_valid(_original_layout_parent):
+			_original_layout_parent.add_child(_original_layout)
+			_original_layout_parent.move_child(_original_layout, _original_layout_index)
+		get_tree().set_meta("dialogic_layout_node", _original_layout)
+	for key: String in _settings:
+		ProjectSettings.set_setting(key,
+			_settings[key].value if _settings[key].exists else null)
+	if _had_persistent:
+		Engine.set_meta("dialogic_persistent_style_info", _persistent)
+	else:
+		Engine.remove_meta("dialogic_persistent_style_info")
+	DialogicStylesUtil.style_directory = _style_directory
+	_original_layout_parent = null
 
 
 # -------------------------------------------------------------------------------------------------
@@ -120,6 +213,7 @@ func test_a_valid_intent_returns_the_canonical_command_and_nothing_else() -> voi
 	var request := _request()
 	var begun: Dictionary = _port.begin(request)
 	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false): return
 	assert_eq(begun.get("code"), &"ok")
 	assert_eq(begun["receipt"], {}, "port success carries an empty receipt")
 	var keys: Array = (begun["value"] as Dictionary).keys()
@@ -267,8 +361,11 @@ func test_a_changed_context_preimage_breaks_the_completion_binding() -> void:
 func test_a_byte_identical_replay_returns_the_identical_command_and_token() -> void:
 	var request := _request()
 	var first: Dictionary = _port.begin(request)
+	assert_true(first.get("ok", false), str(first))
+	if not first.get("ok", false): return
 	var second: Dictionary = _port.begin(request.duplicate(true))
 	assert_true(second.get("ok", false), str(second))
+	if not second.get("ok", false): return
 	assert_eq(second["value"]["presentation_command"], first["value"]["presentation_command"],
 		"an unfinished restore reconstructs the SAME command and token")
 
@@ -278,7 +375,10 @@ func test_a_drifted_replay_cannot_overwrite_the_stored_command() -> void:
 	# bytes are refused by the BINDING before the command-identity guard is even reached. What
 	# matters for a restore is what survives the refusal: the honest command, unchanged.
 	var request := _request()
-	var honest: Dictionary = _port.begin(request)["value"]["presentation_command"]
+	var begun: Dictionary = _port.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false): return
+	var honest: Dictionary = begun["value"]["presentation_command"]
 
 	var drifted := request.duplicate(true)
 	(drifted["context"] as Dictionary)["source_entry_ids"] = ["entry.z"]
@@ -287,7 +387,10 @@ func test_a_drifted_replay_cannot_overwrite_the_stored_command() -> void:
 	assert_eq(refused.get("code"), &"presentation_completion_unverified",
 		"drifted bytes break the completion binding first")
 
-	assert_eq(_port.begin(request)["value"]["presentation_command"], honest,
+	var replayed: Dictionary = _port.begin(request)
+	assert_true(replayed.get("ok", false), str(replayed))
+	if not replayed.get("ok", false): return
+	assert_eq(replayed["value"]["presentation_command"], honest,
 		"the refused attempt left the stored command untouched")
 
 
@@ -295,9 +398,13 @@ func test_a_bypassed_binding_still_conflicts_on_command_identity() -> void:
 	# Defence in depth for the same law: complete() compares the supplied command against the one
 	# this port actually issued, so a command mutated AFTER begin() is a conflict, not a completion.
 	var request := _request()
-	var command: Dictionary = _port.begin(request)["value"]["presentation_command"]
+	var begun: Dictionary = _port.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false): return
+	var command: Dictionary = begun["value"]["presentation_command"]
 	var tampered: Dictionary = command.duplicate(true)
 	tampered["command_sha256"] = "0".repeat(64)
+	await _end_runtime_timeline()
 	var result: Dictionary = _port.complete({
 		"presentation_command": tampered,
 		"physical_completion_receipt": _emitted_owner_receipt(request),
@@ -314,10 +421,12 @@ func test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once() ->
 	var request := _request()
 	var begun: Dictionary = _port.begin(request)
 	assert_true(begun.get("ok", false), str(begun))
-	_bridge.call(&"_on_runtime_timeline_ended")
+	if not begun.get("ok", false): return
+	await _end_runtime_timeline()
 
 	assert_eq(_ready_results.size(), 1, "exactly one completion is published")
 	assert_true(_failures.is_empty(), str(_failures))
+	if _ready_results.is_empty(): return
 	var result: Dictionary = _ready_results[0]
 	assert_true(result.get("ok", false))
 	var receipt: Dictionary = result["receipt"]
@@ -339,14 +448,19 @@ func test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once() ->
 func test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication() -> void:
 	var request := _request()
 	assert_true(_port.begin(request).get("ok", false))
-	_bridge.call(&"_on_runtime_timeline_ended")
+	await _end_runtime_timeline()
+	assert_eq(_ready_results.size(), 1, "the real native end published its first completion")
+	if _ready_results.is_empty(): return
 	var first: Dictionary = (_ready_results[0] as Dictionary)["receipt"]
 
 	# A restored owner replaying its settled record must not publish a second completion.
 	_owner.physical_completion_ready.emit(_emitted_owner_receipt(request))
 	assert_eq(_ready_results.size(), 1, "no second coordinator publication")
+	var replayed: Dictionary = _port.begin(request)
+	assert_true(replayed.get("ok", false), str(replayed))
+	if not replayed.get("ok", false): return
 	var settled: Dictionary = _port.complete({
-		"presentation_command": _port.begin(request)["value"]["presentation_command"],
+		"presentation_command": replayed["value"]["presentation_command"],
 		"physical_completion_receipt": _emitted_owner_receipt(request),
 	})
 	assert_true(settled.get("ok", false), str(settled))
@@ -356,6 +470,8 @@ func test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_p
 func test_a_scene_authored_receipt_never_reaches_a_stage() -> void:
 	var request := _request()
 	var begun: Dictionary = _port.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false): return
 	var command: Dictionary = begun["value"]["presentation_command"]
 	var forged := {
 		"owner_kind": "narrative",
@@ -376,8 +492,11 @@ func test_a_scene_authored_receipt_never_reaches_a_stage() -> void:
 
 func test_owner_receipt_drift_is_refused_before_any_stage_mutation() -> void:
 	var request := _request()
-	var command: Dictionary = _port.begin(request)["value"]["presentation_command"]
-	_bridge.call(&"_on_runtime_timeline_ended")
+	var begun: Dictionary = _port.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false): return
+	var command: Dictionary = begun["value"]["presentation_command"]
+	await _end_runtime_timeline()
 	var honest := _emitted_owner_receipt(request)
 
 	for field: String in ["owner_kind", "physical_token", "command_sha256",
@@ -407,8 +526,11 @@ func test_a_command_this_port_never_issued_is_refused() -> void:
 
 func test_a_tampered_command_is_a_conflict_not_a_completion() -> void:
 	var request := _request()
-	var command: Dictionary = _port.begin(request)["value"]["presentation_command"]
-	_bridge.call(&"_on_runtime_timeline_ended")
+	var begun: Dictionary = _port.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false): return
+	var command: Dictionary = begun["value"]["presentation_command"]
+	await _end_runtime_timeline()
 	var tampered: Dictionary = command.duplicate(true)
 	tampered["timeline_id"] = "opening.day1"
 	var result: Dictionary = _port.complete({
@@ -449,19 +571,24 @@ func test_an_emission_for_an_unknown_command_fails_rather_than_completing() -> v
 # helpers
 # -------------------------------------------------------------------------------------------------
 
-## Reconstructs the exact owner receipt the adapter emitted for one request.
+## Waits for the shipped return-only Hospital timeline to reach Dialogic's own natural end. The
+## native signal count proves this completion came from the isolated runtime, not a bridge callback.
+func _end_runtime_timeline() -> void:
+	for attempt in 100:
+		if _native_ends > 0:
+			break
+		await get_tree().create_timer(0.02).timeout
+	assert_eq(_native_starts, 1, "the shipped Hospital timeline physically started exactly once")
+	assert_eq(_native_ends, 1, "the shipped return-only Hospital timeline naturally ended exactly once")
+
+
+## Returns detached bytes captured from the real configured owner's completion signal.
 func _emitted_owner_receipt(request: Dictionary) -> Dictionary:
-	var completion_id := str(request["completion_transaction_id"])
-	var command_sha256: String = str(
-		(STATE_SCHEMA.canonical_sha256(request)["value"] as Dictionary)["sha256"])
-	return {
-		"owner_kind": "narrative",
-		"physical_token": OWNER.derive_token(completion_id, command_sha256),
-		"command_sha256": command_sha256,
-		"completion_transaction_id": completion_id,
-		"status": "completed",
-		"result": {"timeline_id": TIMELINE_ID, "context": request["context"]},
-	}
+	for receipt: Dictionary in _owner_receipts:
+		if str(receipt.completion_transaction_id) == str(request.completion_transaction_id):
+			return receipt.duplicate(true)
+	fail_test("the requested owner receipt has not actually been emitted")
+	return {}
 
 
 func _context() -> Dictionary:

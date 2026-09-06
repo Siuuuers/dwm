@@ -17,8 +17,8 @@ class _FakeAdapter extends RefCounted:
 	signal preference_reapply_requested
 	var calls: Array = []
 	var halted := false
-	func start_timeline(path: String, event_index: int = 0) -> Dictionary:
-		calls.append("start:%s:%d" % [path, event_index])
+	func start_timeline(path: String, event_index: Variant = 0) -> Dictionary:
+		calls.append("start:%s:%s" % [path, event_index])
 		return {"ok": true, "code": &"ok", "value": {"path": path, "event_index": event_index}}
 	func halt_with_error(result: Dictionary) -> Dictionary:
 		halted = true
@@ -71,6 +71,7 @@ func test_start_primary_returns_six_field_receipt() -> void:
 	assert_eq(receipt["started"], true)
 	assert_false(str(receipt["playback_token"]).is_empty(), "opaque token issued")
 	assert_eq(adapter.calls.size(), 1, "runtime started once")
+	assert_true(str(adapter.calls[0]).ends_with(":ending.sylvia.special"), "the resolved ending label reaches the runtime adapter")
 
 
 func test_start_epilogue_resolves_manifest() -> void:

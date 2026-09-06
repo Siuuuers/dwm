@@ -27,6 +27,9 @@ enum ClearFlags {
 
 ## Reference to the currently executed timeline.
 var current_timeline: DialogicTimeline = null
+var _timeline_generation := 0
+var _last_started_generation := 0
+var _ending_timeline_count := 0
 ## Copy of the [member current_timeline]'s events.
 var current_timeline_events: Array = []
 
@@ -83,9 +86,11 @@ signal dialogic_resumed
 ## Emitted when a timeline starts by calling either [method start]
 ## or [method start_timeline].
 signal timeline_started
+signal timeline_started_with_generation(generation: int, request_id: String)
 ## Emitted when the timeline ends.
 ## This can be a timeline ending or [method end_timeline] being called.
 signal timeline_ended
+signal timeline_ended_with_generation(generation: int)
 ## Emitted when an event starts being executed.
 ## The event may not have finished executing yet.
 signal event_handled(resource: DialogicEvent)
@@ -177,12 +182,12 @@ func _ready() -> void:
 ## Method to start a timeline AND ensure that a layout scene is present.
 ## For argument info, checkout [method start_timeline].
 ## -> returns the layout node
-func start(timeline:Variant, label_or_idx:Variant="") -> Node:
+func start(timeline:Variant, label_or_idx:Variant="", request_id: String = "") -> Node:
 	# If we don't have a style subsystem, default to just start_timeline()
 	if not has_subsystem('Styles'):
 		printerr("[Dialogic] You called Dialogic.start() but the Styles subsystem is missing!")
 		clear(ClearFlags.KEEP_VARIABLES)
-		start_timeline(timeline, label_or_idx)
+		start_timeline(timeline, label_or_idx, request_id)
 		return null
 
 	# Otherwise make sure there is a style active.
@@ -196,10 +201,10 @@ func start(timeline:Variant, label_or_idx:Variant="") -> Node:
 	if not scene.is_node_ready():
 		if not scene.ready.is_connected(clear.bind(ClearFlags.KEEP_VARIABLES)):
 			scene.ready.connect(clear.bind(ClearFlags.KEEP_VARIABLES))
-		if not scene.ready.is_connected(start_timeline.bind(timeline, label_or_idx)):
-			scene.ready.connect(start_timeline.bind(timeline, label_or_idx))
+		if not scene.ready.is_connected(start_timeline.bind(timeline, label_or_idx, request_id)):
+			scene.ready.connect(start_timeline.bind(timeline, label_or_idx, request_id))
 	else:
-		start_timeline(timeline, label_or_idx)
+		start_timeline(timeline, label_or_idx, request_id)
 
 	return scene
 
@@ -207,7 +212,7 @@ func start(timeline:Variant, label_or_idx:Variant="") -> Node:
 ## Method to start a timeline without adding a layout scene.
 ## @timeline can be either a loaded timeline resource or a path to a timeline file.
 ## @label_or_idx can be a label (string) or index (int) to skip to immediatly.
-func start_timeline(timeline:Variant, label_or_idx:Variant = "") -> void:
+func start_timeline(timeline:Variant, label_or_idx:Variant = "", request_id: String = "") -> void:
 	# load the resource if only the path is given
 	if typeof(timeline) in [TYPE_STRING, TYPE_STRING_NAME]:
 		#check the lookup table if it's not a full file name
@@ -222,6 +227,9 @@ func start_timeline(timeline:Variant, label_or_idx:Variant = "") -> void:
 
 	(timeline as DialogicTimeline).process()
 
+	_timeline_generation += 1
+	if timeline != dialog_ending_timeline:
+		_last_started_generation = _timeline_generation
 	current_timeline = timeline
 	current_timeline_events = current_timeline.events
 	for event in current_timeline_events:
@@ -237,6 +245,7 @@ func start_timeline(timeline:Variant, label_or_idx:Variant = "") -> void:
 			current_event_idx = label_or_idx -1
 
 	if not current_timeline == dialog_ending_timeline:
+		timeline_started_with_generation.emit(_last_started_generation, request_id)
 		timeline_started.emit()
 
 	handle_next_event()
@@ -268,7 +277,14 @@ func end_timeline(skip_ending := false) -> void:
 		start(dialog_ending_timeline)
 		return
 
+	var ended_generation := _last_started_generation
+	_ending_timeline_count += 1
 	await clear(ClearFlags.TIMELINE_INFO_ONLY)
+	_ending_timeline_count -= 1
+	if _last_started_generation != ended_generation:
+		# A direct native replacement owns its layout. Retire only the old generation.
+		timeline_ended_with_generation.emit(ended_generation)
+		return
 
 	if Styles.has_active_layout_node() and Styles.get_layout_node().is_inside_tree():
 		match ProjectSettings.get_setting('dialogic/layout/end_behaviour', 0):
@@ -279,6 +295,15 @@ func end_timeline(skip_ending := false) -> void:
 				Styles.get_layout_node().hide()
 
 	timeline_ended.emit()
+	timeline_ended_with_generation.emit(ended_generation)
+
+
+func get_timeline_generation() -> int:
+	return _last_started_generation
+
+
+func is_ending_timeline() -> bool:
+	return _ending_timeline_count > 0
 
 
 ## Method to check if timeline exists.
@@ -307,7 +332,10 @@ func handle_event(event_index:int) -> void:
 	_cleanup_previous_event()
 
 	if paused:
+		var generation := _timeline_generation
 		await dialogic_resumed
+		if generation != _timeline_generation:
+			return
 
 	if event_index >= len(current_timeline_events):
 		end_timeline()
@@ -335,6 +363,7 @@ func handle_event(event_index:int) -> void:
 ## what info should be kept.
 ## For example, at timeline end usually it doesn't clear node or subsystem info.
 func clear(clear_flags := ClearFlags.FULL_CLEAR) -> void:
+	_timeline_generation += 1
 	_cleanup_previous_event()
 
 	if !clear_flags & ClearFlags.TIMELINE_INFO_ONLY:

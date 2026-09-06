@@ -7,6 +7,8 @@ extends Node
 signal timeline_started(timeline_id: String, path: String)
 signal timeline_finished(timeline_id: String, result: Dictionary)
 signal timeline_failed(result: Dictionary)
+signal ordinary_playback_failed(timeline_id: String, result: Dictionary)
+signal entry_playback_failed(playback_token: String, entry_id: String, result: Dictionary)
 signal timeline_marker_received(marker_id: String, payload: Dictionary)
 signal preference_boundary_step(step_id: StringName)
 
@@ -41,6 +43,9 @@ const _SAFE_MARKERS := [
 
 var _current_timeline_id: String = ""
 var _current_timeline_context: Dictionary = {}
+## Ephemeral ordinary playback, never inferred from a restored checkpoint cache.
+var _ordinary_playback: Dictionary = {}
+var _start_in_progress := false
 var _mutation_gate: Object
 var _profile: Node
 var _preference_adapter: RefCounted
@@ -184,6 +189,10 @@ func start_timeline_id(timeline_id: String, context: Dictionary = {}) -> Diction
 			"message": "a semantic entry playback is active; abort or complete it first"}
 		emit_signal("timeline_failed", fail0)
 		return fail0
+	if has_active_playback():
+		var busy := {"ok": false, "reason": "narrative_playback_active", "timeline_id": timeline_id}
+		timeline_failed.emit(busy)
+		return busy
 	var req := require_dialogic()
 	if not req["ok"]:
 		var fail := {"ok": false, "reason": "dialogic_missing", "timeline_id": timeline_id, "message": MISSING_DIALOGIC_MESSAGE}
@@ -237,20 +246,87 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 			var fail := {"ok": false, "reason": "dialogic_style_unavailable", "timeline_id": timeline_id}
 			emit_signal("timeline_failed", fail)
 			return fail
+	var bound := _ensure_runtime_adapter(dialogic)
+	if not bound.get("ok", false):
+		timeline_failed.emit(bound)
+		return bound
+	if _runtime_adapter.has_method("is_bound_to_runtime") and not _runtime_adapter.is_bound_to_runtime(dialogic):
+		return {"ok": false, "reason": "dialogic_runtime_mismatch", "timeline_id": timeline_id}
+	if has_active_playback():
+		return {"ok": false, "reason": "narrative_playback_active", "timeline_id": timeline_id}
+	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+	_start_in_progress = true
 	_current_timeline_id = timeline_id
 	_current_timeline_context = context.duplicate(true)
-	if dialogic.has_method("clear"):
-		dialogic.call("clear", DIALOGIC_CLEAR_KEEP_VARIABLES)
-		preference_boundary_step.emit(&"clear")
+	_ordinary_playback = {"timeline_id": timeline_id, "context": context.duplicate(true), "cache_before": before}
 	if caption_styles != null:
 		# The configured physical owner starts Hospital before its host scene is mounted.
 		# Select presentation here without changing timeline/history/completion ownership.
 		# The project's default end_behaviour=0 removes this layout at natural end.
 		caption_styles.load_style(
 			"res://dialogic/styles/witnessed_caption_style.tres", null, true, false)
-	dialogic.call("start", path, label)
+	preference_boundary_step.emit(&"clear")
+	var started: Dictionary = _runtime_adapter.start_timeline(path, label)
+	_start_in_progress = false
+	if not started.get("ok", false):
+		_ordinary_playback = {}
+		_current_timeline_id = before.id
+		_current_timeline_context = before.context
+		var failed := {"ok": false, "reason": "runtime_start_failed", "timeline_id": timeline_id, "cause": started}
+		timeline_failed.emit(failed)
+		return failed
 	emit_signal("timeline_started", timeline_id, path)
 	return {"ok": true, "timeline_id": timeline_id, "path": path}
+
+
+func _ensure_runtime_adapter(dialogic: Node) -> Dictionary:
+	if _runtime_adapter != null:
+		return {"ok": true}
+	var adapter := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").new()
+	var bound := adapter.bind_runtime(dialogic)
+	if not bound.get("ok", false):
+		return bound
+	_connect_runtime_adapter(adapter)
+	return {"ok": true}
+
+
+func _connect_runtime_adapter(adapter: RefCounted) -> void:
+	_runtime_adapter = adapter
+	if adapter.has_signal("timeline_ended_signal") and not adapter.timeline_ended_signal.is_connected(_on_runtime_timeline_ended):
+		adapter.timeline_ended_signal.connect(_on_runtime_timeline_ended)
+	if adapter.has_signal("runtime_signal_event") and not adapter.runtime_signal_event.is_connected(_on_runtime_signal_event):
+		adapter.runtime_signal_event.connect(_on_runtime_signal_event)
+	if adapter.has_signal("playback_start_failed") and not adapter.playback_start_failed.is_connected(_on_playback_start_failed):
+		adapter.playback_start_failed.connect(_on_playback_start_failed)
+
+
+func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) -> void:
+	var ordinary := _ordinary_playback.duplicate(true)
+	var ordinary_id := str(_ordinary_playback.get("timeline_id", ""))
+	var ending := _active_playback.duplicate(true)
+	var entry := _active_entry.duplicate(true)
+	var before: Dictionary = ordinary.get("cache_before", ending.get("cache_before", {}))
+	_ordinary_playback = {}
+	_active_entry = {}
+	_active_playback = {}
+	if not before.is_empty():
+		_current_timeline_id = str(before.id)
+		_current_timeline_context = before.context.duplicate(true)
+	if ordinary.has("runtime_before"):
+		_restore_playback_started = false
+		_pending_resume_token = ""
+	if halt_runtime and _runtime_adapter != null:
+		_runtime_adapter.halt_with_error(failure.duplicate(true))
+	if ordinary.has("runtime_before") and failure.get("code") != &"runtime_playback_replaced":
+		# Invalidate a canceled event coroutine before restoring a possibly unpaused state.
+		_runtime_adapter.restore_captured_state(ordinary.runtime_before)
+	if not ordinary_id.is_empty():
+		ordinary_playback_failed.emit(ordinary_id, failure.duplicate(true))
+	if not entry.is_empty():
+		entry_playback_failed.emit(str(entry.token), str(entry.entry_id), failure.duplicate(true))
+	if not ending.is_empty():
+		ending_playback_failed.emit(str(ending.token), str(ending.ending_id), failure.duplicate(true))
+	timeline_failed.emit(failure.duplicate(true))
 
 
 func validate_required_timelines() -> Dictionary:
@@ -317,6 +393,7 @@ func _latch_preference_fatal(phase: StringName, result: Dictionary) -> void:
 var _narrative_restore_backup: Dictionary = {}
 var _pending_resume_token := ""
 var _resume_counter := 0
+var _restore_playback_started := false
 
 
 func capture_restore_state() -> Dictionary:
@@ -329,6 +406,8 @@ func capture_restore_state() -> Dictionary:
 func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	if typeof(plan.get("route_ready_token")) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"missing_route_ready_token", "message": "narrative apply requires the route-ready token"}
+	if has_active_playback():
+		return _playback_failure(&"narrative_playback_active", "restore cannot replace standing playback")
 	var checkpoint: Dictionary = plan.get("narrative_checkpoint", {}) if typeof(plan.get("narrative_checkpoint")) == TYPE_DICTIONARY else {}
 	_narrative_restore_backup = {
 		"timeline_id": _current_timeline_id,
@@ -341,16 +420,30 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 		var path := str(plan.get("timeline_path", ""))
 		var index := int(plan.get("resume_event_index", 0)) if plan.get("resume_event_index") != null else 0
 		match position:
-			"revealed_event":
-				# Start the exact text event, reapply cached preferences (emitted by the adapter),
-				# then finish the reveal. Literal reveal count/tween state is not restored.
-				_runtime_adapter.start_timeline(path, index)
-				_runtime_adapter.reveal_current_line()
-			"before_event":
-				_runtime_adapter.set_paused(true)
-				_runtime_adapter.start_timeline(path, index)
-				_resume_counter += 1
-				_pending_resume_token = "resume-%d" % _resume_counter
+			"revealed_event", "before_event":
+				var captured: Dictionary = _runtime_adapter.capture_restore_state()
+				if not captured.get("ok", false): return captured
+				var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+				_ordinary_playback = {"timeline_id": str(checkpoint.get("timeline_id", "")),
+					"context": checkpoint.duplicate(true), "cache_before": before,
+					"runtime_before": captured.get("value", {}).get("backup", {}).duplicate(true)}
+				_current_timeline_id = str(checkpoint.get("timeline_id", ""))
+				_current_timeline_context = checkpoint.duplicate(true)
+				_restore_playback_started = true
+				if position == "before_event": _runtime_adapter.set_paused(true)
+				_start_in_progress = true
+				var started: Dictionary = _runtime_adapter.start_timeline(path, index)
+				_start_in_progress = false
+				if not started.get("ok", false):
+					_on_playback_start_failed(started)
+					return started
+				if position == "before_event":
+					_resume_counter += 1
+					_pending_resume_token = "resume-%d" % _resume_counter
+				else:
+					# Literal reveal count/tween state is intentionally not restored.
+					_runtime_adapter.reveal_current_line()
+				return {"ok": true, "code": &"ok"}
 			"external_route", "timeline_complete":
 				pass
 			_:
@@ -364,6 +457,11 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var source: Variant = backup.get("backup", backup)
 	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("timeline_id"):
 		return {"ok": false, "code": &"invalid_narrative_backup", "message": "narrative backup requires a timeline_id"}
+	var runtime_before: Dictionary = _ordinary_playback.get("runtime_before", source).duplicate(true)
+	if _restore_playback_started:
+		_restore_playback_started = false
+		_ordinary_playback = {}
+		_runtime_adapter.halt_with_error({"ok": false, "code": &"restore_rolled_back"})
 	_current_timeline_id = str((source as Dictionary)["timeline_id"])
 	var ctx: Variant = (source as Dictionary).get("timeline_context", {})
 	_current_timeline_context = (ctx as Dictionary).duplicate(true) if typeof(ctx) == TYPE_DICTIONARY else {}
@@ -371,12 +469,13 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	# Cancel any staged resume: a rolled-back restore must never resume the successor.
 	_pending_resume_token = ""
 	if _runtime_adapter != null and _runtime_adapter.has_method("restore_captured_state"):
-		_runtime_adapter.restore_captured_state(source)
+		_runtime_adapter.restore_captured_state(runtime_before)
 	return {"ok": true, "code": &"ok"}
 
 
 func finalize_restore() -> Dictionary:
 	_narrative_restore_backup = {}
+	_restore_playback_started = false
 	# before_event only: schedule exactly one deferred resume, after SaveManager releases the gate.
 	if _pending_resume_token != "":
 		call_deferred("_resume_pending_restore", _pending_resume_token)
@@ -405,11 +504,7 @@ func initialize(catalog: Script = null, runtime_adapter: RefCounted = null) -> D
 	if runtime_adapter != null:
 		if _runtime_adapter != null and _runtime_adapter != runtime_adapter:
 			return _command_failure(&"runtime_adapter_already_bound")
-		_runtime_adapter = runtime_adapter
-		if _runtime_adapter.has_signal("timeline_ended_signal") and not _runtime_adapter.timeline_ended_signal.is_connected(_on_runtime_timeline_ended):
-			_runtime_adapter.timeline_ended_signal.connect(_on_runtime_timeline_ended)
-		if _runtime_adapter.has_signal("runtime_signal_event") and not _runtime_adapter.runtime_signal_event.is_connected(_on_runtime_signal_event):
-			_runtime_adapter.runtime_signal_event.connect(_on_runtime_signal_event)
+		_connect_runtime_adapter(runtime_adapter)
 	_initialized = true
 	return {"ok": true, "code": &"ok", "value": {"ending_count": _ending_records.size()}, "receipt": {}}
 
@@ -697,7 +792,8 @@ func validate_resume_checkpoint(checkpoint: Dictionary,
 ## _begin_entry_playback asks the same question through this method, so the one-active-playback law
 ## has ONE copy rather than two that can drift apart.
 func has_active_playback() -> bool:
-	return not (_active_entry.is_empty() and _active_playback.is_empty())
+	return _start_in_progress or not (_ordinary_playback.is_empty() and _active_entry.is_empty() and _active_playback.is_empty()) \
+		or (_runtime_adapter != null and _runtime_adapter.has_method("has_active_playback") and _runtime_adapter.has_active_playback())
 
 
 ## The six durable-checkpoint checks resume_entry has always made, in this exact order and with
@@ -793,9 +889,6 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		return fingerprinted
 	var frozen: Dictionary = (fingerprinted["value"] as Dictionary)["frozen"]
 	var fingerprint := str((fingerprinted["value"] as Dictionary)["fingerprint"])
-	var started := _start_semantic_playback(path, label)
-	if not started.get("ok", false):
-		return started
 	var token := ""
 	if token_kind == "resume":
 		_resume_counter += 1
@@ -816,6 +909,13 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		"used_fallback": bool(locator.get("used_fallback", false)),
 		"frozen_context": frozen,
 	}
+	_start_in_progress = true
+	var started := _start_semantic_playback(path, label)
+	_start_in_progress = false
+	if not started.get("ok", false):
+		if str(_active_entry.get("token", "")) == token:
+			_active_entry = {}
+		return started
 	return {"ok": true, "code": &"started", "value": {}, "receipt": {
 		"entry_id": entry_id,
 		"playback_token": token,
@@ -827,12 +927,8 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 	}}
 
 
-## Task 5 semantic starts ONLY (DEVIATION-10): the ending vocabulary keeps _start_through_runtime
-## byte-identical, because five frozen integration fakes type the adapter's second parameter as
-## int and the ending-label transport belongs to the task that owns ending playback. R-BB's label
-## law is delivered here for the closed entry vocabulary on BOTH branches, and the clear boundary
-## step is announced on BOTH branches so the frozen [clear, profile_preferences_reapplied,
-## first_event] order holds whether or not an adapter is bound.
+## All physical starts use the retained runtime adapter, including deferred layout admission.
+## Entry labels and ending labels retain the native String-or-index vocabulary.
 func _start_semantic_playback(path: String, label: String) -> Dictionary:
 	if _runtime_adapter != null:
 		# The adapter performs the physical clear inside start_timeline, so the boundary step is
@@ -848,11 +944,9 @@ func _start_semantic_playback(path: String, label: String) -> Dictionary:
 	var dialogic := get_node_or_null("/root/Dialogic")
 	if dialogic == null or not dialogic.has_method("start"):
 		return _playback_failure(&"dialogic_missing", MISSING_DIALOGIC_MESSAGE)
-	if dialogic.has_method("clear"):
-		dialogic.call("clear", DIALOGIC_CLEAR_KEEP_VARIABLES)
-		preference_boundary_step.emit(&"clear")
-	dialogic.call("start", path, label)
-	return {"ok": true}
+	var bound := _ensure_runtime_adapter(dialogic)
+	if not bound.get("ok", false): return bound
+	return _start_semantic_playback(path, label)
 
 
 func acknowledge_signal(signal_id: String, payload: Dictionary) -> Dictionary:
@@ -941,6 +1035,8 @@ func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
 		# semantic entry and later masquerade its completion through the entry branch.
 		return _playback_failure(&"entry_already_active",
 			"%s is still active" % str(_active_entry["token"]))
+	if has_active_playback():
+		return _playback_failure(&"narrative_playback_active", "complete or cancel standing playback first")
 	if not _ending_records.has(ending_id):
 		return _playback_failure(&"unknown_ending_id", ending_id)
 	var record: Dictionary = _ending_records[ending_id]
@@ -955,13 +1051,20 @@ func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
 		return _playback_failure(&"unknown_timeline_id", timeline_id)
 	var path := str(((located as Dictionary)["value"] as Dictionary).get("path", ""))
 	var label := str(record["label"])
-	var started: Dictionary = _start_through_runtime(path, label)
-	if not started.get("ok", false):
-		return started
 	_playback_counter += 1
 	var token := "playback-%d" % _playback_counter
+	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
 	_current_timeline_id = timeline_id
-	_active_playback = {"token": token, "ending_id": ending_id, "role": expected_role, "timeline_id": timeline_id, "label": label}
+	_active_playback = {"token": token, "ending_id": ending_id, "role": expected_role, "timeline_id": timeline_id, "label": label, "cache_before": before}
+	_start_in_progress = true
+	var started: Dictionary = _start_through_runtime(path, label)
+	_start_in_progress = false
+	if not started.get("ok", false):
+		if str(_active_playback.get("token", "")) == token:
+			_active_playback = {}
+			_current_timeline_id = before.id
+			_current_timeline_context = before.context
+		return started
 	return {"ok": true, "code": &"started", "value": {}, "receipt": {
 		"playback_token": token, "ending_id": ending_id, "role": StringName(expected_role),
 		"timeline_id": timeline_id, "label": label, "started": true,
@@ -970,7 +1073,7 @@ func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
 
 func _start_through_runtime(path: String, label: String) -> Dictionary:
 	if _runtime_adapter != null:
-		var result: Variant = _runtime_adapter.start_timeline(path, 0)
+		var result: Variant = _runtime_adapter.start_timeline(path, label)
 		if typeof(result) != TYPE_DICTIONARY or not (result as Dictionary).get("ok", false):
 			return _playback_failure(&"runtime_start_failed", label)
 		return {"ok": true}
@@ -980,11 +1083,9 @@ func _start_through_runtime(path: String, label: String) -> Dictionary:
 	var dialogic := get_node_or_null("/root/Dialogic")
 	if dialogic == null or not dialogic.has_method("start"):
 		return _playback_failure(&"dialogic_missing", MISSING_DIALOGIC_MESSAGE)
-	if dialogic.has_method("clear"):
-		dialogic.call("clear", DIALOGIC_CLEAR_KEEP_VARIABLES)
-		preference_boundary_step.emit(&"clear")
-	dialogic.call("start", path, label)
-	return {"ok": true}
+	var bound := _ensure_runtime_adapter(dialogic)
+	if not bound.get("ok", false): return bound
+	return _start_through_runtime(path, label)
 
 
 ## The runtime's own end-of-timeline signal, and since Task 8 (dwm-p2r.14) the ONLY way a timeline
@@ -1033,10 +1134,11 @@ func _on_runtime_timeline_ended() -> void:
 	# The generic branch: finalize the retained timeline/context and emit exactly ONE completion.
 	# Clearing before the emit is what makes a duplicate runtime signal a no-op rather than a second
 	# completion for the same presentation.
-	if _current_timeline_id.is_empty():
+	if _ordinary_playback.is_empty():
 		return
-	var finished_id := _current_timeline_id
-	var context := _current_timeline_context.duplicate(true)
+	var finished_id := str(_ordinary_playback.timeline_id)
+	var context: Dictionary = _ordinary_playback.context.duplicate(true)
+	_ordinary_playback = {}
 	_current_timeline_id = ""
 	_current_timeline_context = {}
 	timeline_finished.emit(finished_id, {"timeline_id": finished_id, "context": context})
@@ -1049,13 +1151,9 @@ func _on_runtime_signal_event(argument: Variant) -> void:
 			_handle_narrative_transaction(kind, argument as Dictionary)
 		return
 	var failure := {"ok": false, "code": &"invalid_runtime_event", "message": "unregistered signal payload", "details": {"argument": argument}}
-	if _runtime_adapter != null:
-		_runtime_adapter.halt_with_error(failure.duplicate(true))
+	# Retire ownership before halt: its physical end is cancellation, never natural completion.
+	_on_playback_start_failed(failure, true)
 	narrative_validation_failed.emit(failure.duplicate(true))
-	if not _active_playback.is_empty():
-		var playback := _active_playback.duplicate(true)
-		_active_playback = {}
-		ending_playback_failed.emit(str(playback["token"]), str(playback["ending_id"]), failure.duplicate(true))
 
 
 func _load_ending_records() -> Dictionary:

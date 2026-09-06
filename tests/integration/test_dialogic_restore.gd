@@ -32,8 +32,8 @@ class _FakeAdapter extends RefCounted:
 	signal preference_reapply_requested
 	var calls: Array = []
 	var paused := false
-	func start_timeline(path: String, event_index: int = 0) -> Dictionary:
-		calls.append("start:%d" % event_index)
+	func start_timeline(path: String, event_index: Variant = 0) -> Dictionary:
+		calls.append("start:%s" % event_index)
 		return {"ok": true, "code": &"ok", "value": {"path": path, "event_index": event_index}}
 	func reveal_current_line() -> Dictionary:
 		calls.append("reveal")
@@ -49,6 +49,16 @@ class _FakeAdapter extends RefCounted:
 	func restore_captured_state(_b: Dictionary) -> Dictionary:
 		calls.append("restore_captured")
 		return {"ok": true, "code": &"ok", "value": {}}
+
+
+class _RefusingAdapter extends _FakeAdapter:
+	func start_timeline(_path: String, _event_index: Variant = 0) -> Dictionary:
+		return {"ok": false, "code": &"fixture_start_refused"}
+	func capture_restore_state() -> Dictionary:
+		return {"ok": true, "value": {"backup": {"paused": paused}}}
+	func restore_captured_state(backup: Dictionary) -> Dictionary:
+		paused = backup.paused
+		return {"ok": true}
 
 
 func _record() -> Dictionary:
@@ -164,6 +174,27 @@ func test_apply_requires_route_ready_token() -> void:
 	var participant: Object = _new_participant(_catalog())
 	var prepared: Dictionary = participant.prepare({"narrative_checkpoint": _line_checkpoint(), "content_version": 1})
 	assert_false(participant.apply_silent(prepared["value"]["narrative_plan"]).get("ok", false), "apply without route token rejects")
+
+
+func test_refused_before_event_start_restores_cache_and_prior_pause_without_a_resume() -> void:
+	var adapter := _RefusingAdapter.new()
+	assert_true(_bridge.initialize(null, adapter).get("ok", false))
+	var old_checkpoint := {"timeline_id": "dormant", "position": "external_route"}
+	assert_true(_bridge.apply_restore_silent({"route_ready_token": {}, "position": "external_route",
+		"narrative_checkpoint": old_checkpoint}).get("ok", false))
+	for prior_pause: bool in [false, true]:
+		adapter.paused = prior_pause
+		var refused: Dictionary = _bridge.apply_restore_silent({"route_ready_token": {},
+			"position": "before_event", "timeline_path": "res://refused.dtl", "resume_event_index": 0,
+			"narrative_checkpoint": {"timeline_id": "replacement"}})
+		assert_false(refused.get("ok", true))
+		assert_false(_bridge.has_active_playback())
+		assert_eq(_bridge.get_current_timeline_id(), "dormant")
+		assert_eq(_bridge.get_current_timeline_context(), old_checkpoint)
+		assert_eq(adapter.paused, prior_pause)
+		_bridge.finalize_restore()
+		await get_tree().process_frame
+		assert_eq(adapter.paused, prior_pause, "failed apply leaves no deferred resume")
 
 
 func test_revealed_event_starts_and_reveals() -> void:

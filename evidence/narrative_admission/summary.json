@@ -1,0 +1,21 @@
+{
+  "task": "dwm-eei.19",
+  "base_commit": "203b7708983a7ce3e226585e6bb83e839ce4f730",
+  "acceptance_suite": "witnessed-admission-accepted-20260907a",
+  "scripts": 15,
+  "tests": 248,
+  "passing_tests": 248,
+  "assertions": 6248,
+  "exit_code": 0,
+  "script_errors": 0,
+  "addon_fixture_orphans": 2352,
+  "real_runtime_admission_tests": 20,
+  "environment_diagnostics": ["Windows root certificate store unavailable", "Unicode startup parsing warnings"],
+  "save_schema_changed": false,
+  "player_data_used": false,
+  "visual_acceptance_added": false,
+  "full_pause_complete": false,
+  "overall_ui_goal_complete": false,
+  "merged": false,
+  "pushed": false
+}

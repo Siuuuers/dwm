@@ -16,7 +16,7 @@ class _FakeAdapter extends RefCounted:
 	signal runtime_signal_event(argument)
 	signal preference_reapply_requested
 	var halted := false
-	func start_timeline(path: String, event_index: int = 0) -> Dictionary:
+	func start_timeline(path: String, event_index: Variant = 0) -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"path": path, "event_index": event_index}}
 	func halt_with_error(_r: Dictionary) -> Dictionary:
 		halted = true

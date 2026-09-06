@@ -36,7 +36,7 @@ class _FakeAdapter extends RefCounted:
 	var script_events: Array = []
 	var cursor := 0
 	var calls: Array[String] = []
-	func start_timeline(path: String, event_index: int = 0) -> Dictionary:
+	func start_timeline(path: String, event_index: Variant = 0) -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"path": path, "event_index": event_index}}
 	func reveal_current_line() -> Dictionary:
 		calls.append("reveal:%d" % cursor)

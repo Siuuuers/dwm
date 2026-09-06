@@ -14,24 +14,76 @@ extends "res://addons/gut/test.gd"
 
 const ADAPTER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const BRIDGE_PATH := "res://autoload/DialogicBridge.gd"
+const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 
 const TIMELINE_ID := "hospital.faint"
 const OTHER_TIMELINE_ID := "opening.day1"
 
 var _bridge: Node
 var _adapter: RefCounted
+var _runtime: DialogicGameHandler
+var _runtime_adapter: RefCounted
+var _original_runtime: Node
+var _original_runtime_index := 0
+var _original_layout: Node
+var _original_layout_parent: Node
+var _original_layout_index := 0
+var _settings: Dictionary = {}
+var _persistent: Variant
+var _had_persistent := false
+var _style_directory: Dictionary = {}
+var _native_starts := 0
+var _native_ends := 0
 var _ready_receipts: Array = []
 var _failures: Array = []
 var _started_timelines: Array = []
 
 
 func before_each() -> void:
+	# A preceding suite may have entered DialogicTimeline.clean(), whose native end_timeline()
+	# continuation resumes one frame later. Keep the shared autoload attached for that continuation
+	# and for the queued layout cleanup before this fixture snapshots and detaches it.
+	await get_tree().process_frame
+	await get_tree().process_frame
 	_ready_receipts = []
 	_failures = []
 	_started_timelines = []
+	_native_starts = 0
+	_native_ends = 0
+	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
+	_persistent = Engine.get_meta("dialogic_persistent_style_info", {})
+	_style_directory = DialogicStylesUtil.style_directory.duplicate(true)
+	_original_runtime = get_node("/root/Dialogic")
+	_original_runtime_index = _original_runtime.get_index()
+	_original_layout = _original_runtime.Styles.get_layout_node()
+	if is_instance_valid(_original_layout) and _original_layout.is_inside_tree():
+		_original_layout_parent = _original_layout.get_parent()
+		_original_layout_index = _original_layout.get_index()
+		_original_layout_parent.remove_child(_original_layout)
+	get_tree().remove_meta("dialogic_layout_node")
+	get_tree().root.remove_child(_original_runtime)
+	_settings = {}
+	for key: String in ["dialogic/save/autosave", "dialogic/layout/end_behaviour"]:
+		_settings[key] = {
+			"exists": ProjectSettings.has_setting(key),
+			"value": ProjectSettings.get_setting(key),
+		}
+	ProjectSettings.set_setting("dialogic/save/autosave", false)
+	ProjectSettings.set_setting("dialogic/layout/end_behaviour", 0)
+	_runtime = DialogicGameHandler.new()
+	_runtime.name = "Dialogic"
+	get_tree().root.add_child(_runtime)
+	_runtime.History.simple_history_enabled = true
+	_runtime.History.save_visited_history_on_save = false
+	_runtime.History.save_visited_history_on_autosave = false
+	_runtime.timeline_started.connect(func() -> void: _native_starts += 1)
+	_runtime.timeline_ended.connect(func() -> void: _native_ends += 1)
+	_runtime_adapter = RUNTIME_ADAPTER.new()
+	assert_true(_runtime_adapter.bind_runtime(_runtime).get("ok", false))
 	_bridge = load(BRIDGE_PATH).new()
 	_bridge.name = "TestDialogicBridge"
-	add_child_autofree(_bridge)
+	add_child(_bridge)
+	assert_true(_bridge.initialize(null, _runtime_adapter).get("ok", false))
 	_bridge.timeline_started.connect(func(timeline_id: String, _path: String) -> void:
 		_started_timelines.append(timeline_id))
 	_adapter = ADAPTER.new()
@@ -40,6 +92,39 @@ func before_each() -> void:
 		_ready_receipts.append(receipt.duplicate(true)))
 	_adapter.physical_completion_failed.connect(func(failure: Dictionary) -> void:
 		_failures.append(failure.duplicate(true)))
+
+
+func after_each() -> void:
+	if is_instance_valid(_bridge):
+		_bridge.free()
+	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
+		text_node.set_process(false)
+	if is_instance_valid(_runtime):
+		await _runtime.clear()
+		var remaining: Node = _runtime.Styles.get_layout_node()
+		if is_instance_valid(remaining):
+			remaining.queue_free()
+		await get_tree().process_frame
+		_runtime.free()
+	_adapter = null
+	_runtime_adapter = null
+	get_tree().remove_meta("dialogic_layout_node")
+	get_tree().root.add_child(_original_runtime)
+	get_tree().root.move_child(_original_runtime, _original_runtime_index)
+	if is_instance_valid(_original_layout):
+		if is_instance_valid(_original_layout_parent):
+			_original_layout_parent.add_child(_original_layout)
+			_original_layout_parent.move_child(_original_layout, _original_layout_index)
+		get_tree().set_meta("dialogic_layout_node", _original_layout)
+	for key: String in _settings:
+		ProjectSettings.set_setting(key,
+			_settings[key].value if _settings[key].exists else null)
+	if _had_persistent:
+		Engine.set_meta("dialogic_persistent_style_info", _persistent)
+	else:
+		Engine.remove_meta("dialogic_persistent_style_info")
+	DialogicStylesUtil.style_directory = _style_directory
+	_original_layout_parent = null
 
 
 # -------------------------------------------------------------------------------------------------
@@ -143,7 +228,7 @@ func test_an_unregistered_timeline_never_starts_a_presentation() -> void:
 func test_the_runtime_end_signal_produces_exactly_one_trusted_completion() -> void:
 	var command := _command()
 	assert_true(_adapter.begin_physical(command).get("ok", false))
-	_end_runtime_timeline()
+	await _end_runtime_timeline()
 
 	assert_eq(_ready_receipts.size(), 1, "exactly one completion is emitted")
 	var receipt: Dictionary = _ready_receipts[0]
@@ -160,8 +245,9 @@ func test_the_runtime_end_signal_produces_exactly_one_trusted_completion() -> vo
 
 func test_a_duplicate_runtime_end_signal_emits_no_second_completion() -> void:
 	assert_true(_adapter.begin_physical(_command()).get("ok", false))
-	_end_runtime_timeline()
-	_end_runtime_timeline()
+	await _end_runtime_timeline()
+	_runtime.timeline_ended.emit()
+	assert_eq(_native_ends, 2, "the duplicate entered through the runtime's native signal seam")
 	assert_eq(_ready_receipts.size(), 1,
 		"the bridge clears its retained timeline before emitting, so a repeat is a no-op")
 
@@ -189,7 +275,7 @@ func test_no_public_bridge_method_can_forge_a_completion() -> void:
 func test_the_emitted_receipt_validates_and_a_drifted_one_does_not() -> void:
 	var command := _command()
 	assert_true(_adapter.begin_physical(command).get("ok", false))
-	_end_runtime_timeline()
+	await _end_runtime_timeline()
 	var emitted: Dictionary = _ready_receipts[0]
 
 	assert_true(_adapter.validate_physical_completion({
@@ -213,7 +299,7 @@ func test_a_scene_authored_result_is_refused() -> void:
 	# The single most important refusal: a scene cannot decide what physically happened.
 	var command := _command()
 	assert_true(_adapter.begin_physical(command).get("ok", false))
-	_end_runtime_timeline()
+	await _end_runtime_timeline()
 	var forged: Dictionary = (_ready_receipts[0] as Dictionary).duplicate(true)
 	forged["result"] = {"outcome": "attended", "affection_delta": 99}
 	var result: Dictionary = _adapter.validate_physical_completion({
@@ -248,7 +334,7 @@ func test_a_completion_that_never_happened_cannot_be_validated() -> void:
 func test_a_receipt_from_another_command_is_refused() -> void:
 	var first := _command()
 	assert_true(_adapter.begin_physical(first).get("ok", false))
-	_end_runtime_timeline()
+	await _end_runtime_timeline()
 	var emitted: Dictionary = _ready_receipts[0]
 
 	var second := _command("completion.other", "b".repeat(64))
@@ -292,9 +378,15 @@ func test_the_validate_request_and_receipt_member_sets_are_exact() -> void:
 # helpers
 # -------------------------------------------------------------------------------------------------
 
-## Ends the timeline through the RUNTIME seam, which is the only path Task 8 leaves open.
+## Waits for the shipped return-only Hospital timeline to reach Dialogic's own natural end. The
+## native signal count proves this completion came from the isolated runtime, not a bridge callback.
 func _end_runtime_timeline() -> void:
-	_bridge.call(&"_on_runtime_timeline_ended")
+	for attempt in 100:
+		if _native_ends > 0:
+			break
+		await get_tree().create_timer(0.02).timeout
+	assert_eq(_native_starts, 1, "the shipped Hospital timeline physically started exactly once")
+	assert_eq(_native_ends, 1, "the shipped return-only Hospital timeline naturally ended exactly once")
 
 
 ## The canonical command: begin_physical()'s command plus the token this owner derived for it. This
@@ -320,3 +412,63 @@ func _command(completion_id: String = "completion.hospital.day3",
 		"completion_transaction_provenance": {"child_id": completion_id},
 		"command_sha256": sha256,
 	}
+
+
+func test_failure_observer_can_immediately_retry_without_reusing_the_retired_layout() -> void:
+	var command := _command()
+	_runtime.paused = true
+	var first: Dictionary = _adapter.begin_physical(command)
+	assert_true(first.get("ok", false), str(first))
+	if not first.get("ok", false): return
+	var old_layout: Node = _runtime.Styles.get_layout_node()
+	assert_not_null(old_layout)
+	if old_layout == null: return
+	assert_false(old_layout.is_node_ready())
+	assert_eq(_native_starts, 0)
+	var queued_start := Callable()
+	var located: Dictionary = DialogicTimelineCatalog.get_path_for_id(TIMELINE_ID)
+	assert_true(located.get("ok", false))
+	for connection: Dictionary in old_layout.ready.get_connections():
+		var callback: Callable = connection.callable
+		if callback.get_object() != _runtime or callback.get_method() != &"start_timeline": continue
+		var arguments: Array = callback.get_bound_arguments()
+		if arguments.size() >= 2 and str(arguments[0]) == str(located.value.path) and arguments[1] == "":
+			queued_start = callback
+			break
+	assert_true(queued_start.is_valid(), "target the real admitted ready callback including its native request identity")
+	if not queued_start.is_valid(): return
+	var retries: Array[Dictionary] = []
+	var replacement_layouts: Array[Node] = []
+	_adapter.physical_completion_failed.connect(func(_failure: Dictionary):
+		if not retries.is_empty(): return
+		assert_eq(_native_starts, 0)
+		assert_true(_ready_receipts.is_empty())
+		# Synchronous retry is essential: no frame or deferred deletion may occur
+		# between the failure notification and this new admission.
+		var retry: Dictionary = _adapter.begin_physical(command)
+		retries.append(retry)
+		assert_true(retry.get("ok", false), str(retry))
+		var replacement: Node = _runtime.Styles.get_layout_node()
+		replacement_layouts.append(replacement)
+		assert_not_null(replacement)
+		assert_ne(replacement, old_layout, "retry must not adopt the failed layout awaiting deferred deletion"))
+	old_layout.ready.disconnect(queued_start)
+	for frame in 8: await get_tree().process_frame
+	assert_eq(retries.size(), 1)
+	assert_eq(_failures.size(), 1)
+	assert_false(is_instance_valid(old_layout), "failed layout is actually freed after mounting")
+	assert_eq(_native_starts, 1, "only the immediate retry physically starts")
+	assert_eq(_native_ends, 0, "retry remains paused before its first event")
+	assert_true(_bridge.has_active_playback())
+	if replacement_layouts.is_empty(): return
+	assert_true(is_instance_valid(replacement_layouts[0]), "the retry layout survives the old layout's deferred deletion")
+	assert_eq(_runtime.Styles.get_layout_node(), replacement_layouts[0])
+	if not retries.is_empty() and retries[0].get("ok", false):
+		assert_eq(retries[0].value.physical_token, first.value.physical_token)
+	_runtime.paused = false
+	await _end_runtime_timeline()
+	assert_eq(_ready_receipts.size(), 1, "the retried command has exactly one real natural completion")
+	assert_eq(_failures.size(), 1)
+	if not _ready_receipts.is_empty():
+		assert_eq(_ready_receipts[0].physical_token, first.value.physical_token)
+	assert_false(_bridge.has_active_playback())
