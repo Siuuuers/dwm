@@ -53,6 +53,11 @@ func configure_title_login() -> void:
 	_title_login = true
 	active_mode = "load"
 
+func _exit_tree() -> void:
+	if _pending_token != null and is_instance_valid(_port):
+		_port.cancel_action(_pending_token)
+	_pending_token = null
+
 func _ready() -> void:
 	super._ready()
 	custom_minimum_size = Vector2(800, 656)
@@ -418,6 +423,7 @@ func _operation_failed(result: Dictionary) -> void:
 		action_buttons.cancel.grab_focus()
 
 func _restore_source_focus() -> void:
+	if not is_visible_in_tree() or focus_behavior_recursive == Control.FOCUS_BEHAVIOR_DISABLED: return
 	if _recovering and action_buttons.has("cancel"):
 		action_buttons.cancel.grab_focus()
 	elif action_buttons.has(_source_action) and not action_buttons[_source_action].disabled:
@@ -504,12 +510,20 @@ func _information_input(event: InputEvent) -> void:
 		info_scroll.scroll_vertical += -240 if event.keycode == KEY_PAGEUP else 240
 		get_viewport().set_input_as_handled()
 
+## True means this child consumed one retreat; false yields to its enclosing host.
+func handle_back() -> bool:
+	if _in_operation: return true
+	if is_instance_valid(confirmation):
+		confirmation._finish(false)
+		return true
+	if _recovering:
+		_action_pressed("cancel")
+		return true
+	return false
+
 func _unhandled_input(event: InputEvent) -> void:
-	if is_visible_in_tree() and not _in_operation and not is_instance_valid(confirmation) and event.is_action_pressed("ui_cancel"):
-		if _recovering:
-			_action_pressed("cancel")
-		else:
-			hide_window()
+	if is_visible_in_tree() and event.is_action_pressed("ui_cancel", false):
+		if not handle_back(): hide_window()
 		get_viewport().set_input_as_handled()
 
 func _remember_focus(control: Control) -> void:

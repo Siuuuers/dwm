@@ -60,8 +60,6 @@ func _sync_caption() -> void:
 	caption.add_theme_color_override("font_color", get_theme_color("paper_ink" if selected else "ink", "Backup"))
 
 func _draw() -> void:
-	if theme == null:
-		return
 	var face := get_theme_color("filed" if selected else "face", "Backup")
 	var ink := get_theme_color("paper_ink" if selected else "ink", "Backup")
 	draw_rect(Rect2(Vector2.ZERO, size), face)

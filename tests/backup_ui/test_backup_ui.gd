@@ -404,7 +404,7 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	await settle()
 	check(is_instance_valid(app.confirmation), "Overflowing fallback record opens confirmation")
 	if is_instance_valid(app.confirmation):
-		check(app.info_scroll.focus_mode == Control.FOCUS_NONE, "Deferred information measurement cannot reactivate a modal-covered viewport")
+		check(app.info_scroll.get_focus_mode_with_override() == Control.FOCUS_NONE, "Deferred information measurement cannot reactivate a modal-covered viewport")
 		check(app.confirmation.is_ancestor_of(root.gui_get_focus_owner()), "Modal retains exclusive focus after deferred remeasurement")
 
 func check_title_login() -> void:

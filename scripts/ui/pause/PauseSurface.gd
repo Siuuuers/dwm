@@ -7,6 +7,7 @@ signal return_confirmed
 
 const PRESENTATION := preload("res://scripts/ui/pause/PauseTheme.gd")
 const ACTION := preload("res://scripts/ui/pause/PauseActionButton.gd")
+const HOST_CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const ACTIONS := [&"continue",&"backup",&"settings",&"return"]
 const COPY_KEYS := ["continue","backup","settings","return","title","question","warning","cancel"]
 
@@ -23,9 +24,11 @@ var _question: Label
 var _warning: Label
 var _left: Control
 var _hosts: Dictionary = {}
+var _host_confirmation: Control
 var _suspended_inputs: Dictionary = {}
 var _opened := false
 var _interactive := true
+var _suspended_focus: WeakRef
 var _pointer_contact := false
 var _high_contrast := false
 var _large_targets := false
@@ -182,11 +185,13 @@ func _mount_host(id: StringName) -> void:
 	host.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
 	host.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED
 	workfield.add_child(host)
+	if id == &"backup" and host.has_method("set_confirmation_host"):
+		host.set_confirmation_host(self)
 	for close_signal: StringName in [&"close_requested",&"window_hidden"]:
 		if host.has_signal(close_signal): host.connect(close_signal,_host_closed.bind(id))
 
 func open_surface() -> void:
-	if not is_node_ready(): return
+	if not is_node_ready() or _opened: return
 	_opened = true
 	selected_action = &"continue"
 	entered_action = &""
@@ -195,14 +200,45 @@ func open_surface() -> void:
 	if _interactive: rows[&"continue"].grab_focus()
 
 func close_surface() -> void:
+	if is_instance_valid(_host_confirmation): _host_confirmation._finish(false)
 	_opened = false
 	entered_action = &""
 	_sync_custody()
 	hide()
 
 func set_interactive(value: bool) -> void:
+	if value == _interactive: return
+	if not value and is_inside_tree():
+		var focused := get_viewport().gui_get_focus_owner()
+		if focused != null and is_ancestor_of(focused): _suspended_focus = weakref(focused)
 	_interactive = value
 	if is_node_ready(): _sync_custody()
+	if value and _suspended_focus != null:
+		var focused := _suspended_focus.get_ref() as Control
+		_suspended_focus = null
+		if is_instance_valid(focused) and is_ancestor_of(focused) and focused.is_visible_in_tree() \
+			and focused.get_focus_mode_with_override() != Control.FOCUS_NONE:
+			focused.grab_focus()
+
+## Backup owns preparation and commit tokens. Pause supplies its existing trusted
+## confirmation component in the same workfield; it never interprets save contents.
+func present_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
+	if not _opened or not _interactive or entered_action != &"backup" \
+		or is_instance_valid(_host_confirmation) or not accept.is_valid() or not cancel.is_valid():
+		return {"ok": false, "code": &"pause_confirmation_unavailable"}
+	var sheet := HOST_CONFIRMATION.new()
+	sheet.request = request.duplicate(true)
+	sheet.theme = request.get("theme", theme)
+	_host_confirmation = sheet
+	_sync_custody()
+	sheet.finished.connect(func(accepted: bool):
+		if _host_confirmation != sheet: return
+		_host_confirmation = null
+		_sync_custody()
+		var callback := accept if accepted else cancel
+		if callback.is_valid(): callback.call())
+	workfield.add_child(sheet)
+	return {"ok": true, "value": {"confirmation": sheet}}
 
 func _wire_rows() -> void:
 	for index: int in ACTIONS.size():
@@ -261,6 +297,9 @@ func _row_input(event: InputEvent, id: StringName) -> void:
 func handle_back() -> bool:
 	if not _opened: return false
 	if not _interactive: return true
+	if is_instance_valid(_host_confirmation):
+		_host_confirmation._finish(false)
+		return true
 	if entered_action == &"": continue_requested.emit()
 	elif entered_action == &"return": leave_host()
 	else:
@@ -271,6 +310,11 @@ func handle_back() -> bool:
 
 func leave_host() -> void:
 	if entered_action == &"": return
+	if is_instance_valid(_host_confirmation):
+		_host_confirmation._finish(false)
+		return
+	var host: Control = _hosts.get(entered_action)
+	if host != null and host.has_method("can_return_home") and not host.can_return_home(): return
 	var source := entered_action
 	entered_action = &""
 	_sync_custody()
@@ -283,6 +327,12 @@ func _confirm_return() -> void:
 	if _opened and _interactive and entered_action == &"return": return_confirmed.emit()
 
 func _sync_custody() -> void:
+	for instance_id: int in _suspended_inputs.keys():
+		if not is_instance_id_valid(instance_id): _suspended_inputs.erase(instance_id)
+	for id: StringName in _hosts.keys():
+		if not is_instance_valid(_hosts[id]):
+			_hosts.erase(id)
+			if entered_action == id: entered_action = &""
 	var root_active := _opened and _interactive and entered_action == &""
 	_set_custody(_left,root_active)
 	for id: StringName in ACTIONS:
@@ -290,10 +340,13 @@ func _sync_custody() -> void:
 		rows[id].queue_redraw()
 	for id: StringName in _hosts:
 		var host: Control = _hosts[id]
-		host.visible = _opened and selected_action == id
-		var active := _opened and _interactive and entered_action == id
+		host.visible = _opened and selected_action == id and not is_instance_valid(_host_confirmation)
+		var active := _opened and _interactive and entered_action == id and not is_instance_valid(_host_confirmation)
 		_set_custody(host,active)
 		_host_script_input(host,active)
+	if is_instance_valid(_host_confirmation):
+		_set_custody(_host_confirmation,_opened and _interactive)
+		_host_script_input(_host_confirmation,_opened and _interactive)
 	confirmation.visible = _opened and selected_action == &"return"
 	_set_custody(confirmation,_opened and _interactive and entered_action == &"return")
 	context_strip.visible = _opened and selected_action != &"continue"
@@ -312,6 +365,7 @@ func _host_script_input(node: Node, active: bool) -> void:
 	var id := node.get_instance_id()
 	if not active and not _suspended_inputs.has(id):
 		_suspended_inputs[id] = [node.is_processing_input(),node.is_processing_unhandled_input(),node.is_processing_unhandled_key_input()]
+		if node.has_method("invalidate_pending_input"): node.invalidate_pending_input()
 		node.set_process_input(false)
 		node.set_process_unhandled_input(false)
 		node.set_process_unhandled_key_input(false)

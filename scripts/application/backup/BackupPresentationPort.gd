@@ -8,21 +8,28 @@ const LOCATORS: Array[String] = ["autosave", "quick", "slot:1", "slot:2", "slot:
 
 var _owner: Object
 var _context := "in_run"
+var _admission := Callable()
+var _admission_required := false
 var _pending: Dictionary = {}
 var _projection_change_queued := false
 
-func configure(save_manager: Object, context: String = "in_run") -> Dictionary:
+func configure(save_manager: Object, context: String = "in_run",
+		admission: Callable = Callable()) -> Dictionary:
 	if context not in ["in_run", "title"]:
 		return _fail(&"invalid_backup_context")
 	if save_manager == null:
 		return _fail(&"backup_owner_unavailable")
+	if not admission.is_null() and (not admission.is_valid() or admission.get_argument_count() != 0):
+		return _fail(&"invalid_backup_admission")
 	for method: String in ["inspect_backup", "get_backup_save_capability", "prepare_backup_action", "commit_backup_action", "cancel_backup_action"]:
 		if not save_manager.has_method(method):
 			return _fail(&"backup_owner_unavailable")
-	if _owner != null and (_owner != save_manager or _context != context):
+	if _owner != null and (_owner != save_manager or _context != context or _admission != admission):
 		return _fail(&"backup_already_configured")
 	_owner = save_manager
 	_context = context
+	_admission = admission
+	_admission_required = not admission.is_null()
 	if _owner.has_signal("slot_metadata_changed") and not _owner.slot_metadata_changed.is_connected(_queue_projection_changed):
 		_owner.slot_metadata_changed.connect(_queue_projection_changed)
 	if _owner.has_signal("save_capability_changed") and not _owner.save_capability_changed.is_connected(_on_capability_changed):
@@ -47,12 +54,13 @@ func get_projection() -> Dictionary:
 	var capability: Dictionary = _owner.get_backup_save_capability()
 	if _context == "title":
 		capability = {"enabled": false, "reason": "title_load_only"}
+	var operations_admitted: bool = bool(_admission_result().get("ok", false))
 	var records: Array[Dictionary] = []
 	for locator: String in LOCATORS:
 		var inspected: Dictionary = _owner.inspect_backup(locator)
 		var record: Dictionary
 		if inspected.get("ok", false):
-			record = _project_record(inspected["value"], capability)
+			record = _project_record(inspected["value"], capability, operations_admitted)
 		else:
 			record = {"locator": locator, "state": "unavailable", "day": null, "saved_time": null,
 				"fallback": false, "load_day": null, "load_saved_time": null, "reason": "unreadable",
@@ -67,19 +75,22 @@ func prepare_action(action: String, locator: String) -> Dictionary:
 		return _fail(&"invalid_backup_action")
 	if _context == "title" and action == "save":
 		return _fail(&"backup_action_unavailable")
+	var admitted: Dictionary = _admission_result()
+	if not admitted.get("ok", false):
+		return admitted
 	for pending_token: String in _pending.keys():
 		cancel_action(pending_token)
 	var inspected: Dictionary = _owner.inspect_backup(locator)
 	if not inspected.get("ok", false):
 		return inspected
-	var record := _project_record(inspected["value"], _owner.get_backup_save_capability())
+	var record := _project_record(inspected["value"], _owner.get_backup_save_capability(), true)
 	if not record["actions"][action]:
 		return _fail(&"backup_action_unavailable")
 	var prepared: Dictionary = _owner.prepare_backup_action(action, locator)
 	if not prepared.get("ok", false):
 		return prepared
 	# Owner's final preparation is authoritative if bytes changed since inspection.
-	record = _project_record(prepared["value"]["record"], _owner.get_backup_save_capability())
+	record = _project_record(prepared["value"]["record"], _owner.get_backup_save_capability(), true)
 	var confirmation_kind := "none"
 	if action == "load":
 		if _context == "title":
@@ -100,6 +111,10 @@ func commit_action(token: String) -> Dictionary:
 		return _fail(&"stale_backup_action")
 	var pending: Dictionary = _pending[token]
 	_pending.erase(token)
+	var admitted: Dictionary = _admission_result()
+	if not admitted.get("ok", false):
+		_owner.cancel_backup_action(token)
+		return admitted
 	var result: Dictionary = _owner.commit_backup_action(token)
 	if result.get("ok", false):
 		var value: Dictionary = result.get("value", {}).duplicate(true)
@@ -113,17 +128,27 @@ func cancel_action(token: String) -> void:
 			_owner.cancel_backup_action(token)
 		_pending.erase(token)
 
-func _project_record(source: Dictionary, capability: Dictionary) -> Dictionary:
+func _project_record(source: Dictionary, capability: Dictionary, admitted: bool) -> Dictionary:
 	var record := {}
 	for key: String in ["locator", "state", "day", "saved_time", "fallback", "load_day", "load_saved_time", "reason"]:
 		record[key] = source[key]
 	var accessible: bool = source.has("revision") and source.get("operation_allowed", false)
 	record["actions"] = {
-		"save": _context != "title" and accessible and capability.get("enabled", false) and source["locator"] != "autosave",
-		"load": accessible and source.get("loadable", false),
-		"delete": accessible and source["state"] != "empty",
+		"save": admitted and _context != "title" and accessible and capability.get("enabled", false) and source["locator"] != "autosave",
+		"load": admitted and accessible and source.get("loadable", false),
+		"delete": admitted and accessible and source["state"] != "empty",
 	}
 	return record
+
+func _admission_result() -> Dictionary:
+	if not _admission_required:
+		return {"ok": true, "code": &"ok"}
+	if not _admission.is_valid():
+		return _fail(&"backup_action_unavailable")
+	var result: Variant = _admission.call()
+	if typeof(result) != TYPE_DICTIONARY or typeof((result as Dictionary).get("ok")) != TYPE_BOOL:
+		return _fail(&"backup_action_unavailable")
+	return (result as Dictionary).duplicate(true)
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}

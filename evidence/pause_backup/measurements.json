@@ -1,0 +1,1417 @@
+{
+  "cancel_restores": 18,
+  "captures": 27,
+  "failure": "",
+  "geometry_space": "Logical parent-relative control rectangles; native 640x360 PNGs from a 1280x720 logical SubViewport.",
+  "ok": true,
+  "palette_scope": "AfterHours Standard ordinary targets only. Backup does not yet consume all shared palette/accessibility contexts; no broader tuple acceptance.",
+  "recovery_scope": "Explicit rejected commit (backup_commit_failed), not an actual stale-storage transaction.",
+  "samples": [
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "Slot 2\n\nDay 7 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 20,
+      "file": "images/en-100-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "Day 7 · 09:07\n\nThis save will be deleted.",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          172.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "Delete Slot 2?"
+      },
+      "drawer_font_size": 20,
+      "file": "images/en-100-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "Slot 2\n\nDay 7 · 09:07\n\nThe operation did not complete. Cancel or try again using current record details.",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "Operation failed.",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 20,
+      "file": "images/en-100-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "Slot 2\n\nDay 7 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 25,
+      "file": "images/en-125-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "Day 7 · 09:07\n\nThis save will be deleted.",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          212.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "Delete Slot 2?"
+      },
+      "drawer_font_size": 25,
+      "file": "images/en-125-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "Slot 2\n\nDay 7 · 09:07\n\nThe operation did not complete. Cancel or try again using current record details.",
+        "information_extent": 29.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "Operation failed.",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 25,
+      "file": "images/en-125-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "Slot 2\n\nDay 7 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 30,
+      "file": "images/en-150-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 150
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "Day 7 · 09:07\n\nThis save will be deleted.",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          252.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "Delete Slot 2?"
+      },
+      "drawer_font_size": 30,
+      "file": "images/en-150-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 150
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "Slot 2\n\nDay 7 · 09:07\n\nThe operation did not complete. Cancel or try again using current record details.",
+        "information_extent": 195.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "Operation failed.",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 30,
+      "file": "images/en-150-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 150
+    },
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存档 2\n\n第 7 天 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 20,
+      "file": "images/zh_CN-100-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "第 7 天 · 09:07\n\n此存档将被删除。",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          187.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "删除存档 2？"
+      },
+      "drawer_font_size": 20,
+      "file": "images/zh_CN-100-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存档 2\n\n第 7 天 · 09:07\n\n操作未完成。请取消，或根据当前存档信息重试。",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "操作失败。",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 20,
+      "file": "images/zh_CN-100-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存档 2\n\n第 7 天 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 25,
+      "file": "images/zh_CN-125-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "第 7 天 · 09:07\n\n此存档将被删除。",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          232.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "删除存档 2？"
+      },
+      "drawer_font_size": 25,
+      "file": "images/zh_CN-125-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存档 2\n\n第 7 天 · 09:07\n\n操作未完成。请取消，或根据当前存档信息重试。",
+        "information_extent": 14.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "操作失败。",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 25,
+      "file": "images/zh_CN-125-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存档 2\n\n第 7 天 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 30,
+      "file": "images/zh_CN-150-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 150
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "第 7 天 · 09:07\n\n此存档将被删除。",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          277.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "删除存档 2？"
+      },
+      "drawer_font_size": 30,
+      "file": "images/zh_CN-150-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 150
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存档 2\n\n第 7 天 · 09:07\n\n操作未完成。请取消，或根据当前存档信息重试。",
+        "information_extent": 133.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "操作失败。",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 30,
+      "file": "images/zh_CN-150-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 150
+    },
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存檔 2\n\n第 7 天 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 20,
+      "file": "images/zh_HK-100-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "第 7 天 · 09:07\n\n此存檔將被刪除。",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          187.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "刪除存檔 2？"
+      },
+      "drawer_font_size": 20,
+      "file": "images/zh_HK-100-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 20,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存檔 2\n\n第 7 天 · 09:07\n\n操作未完成。請取消，或根據目前存檔資訊重試。",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "操作失敗。",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 20,
+      "file": "images/zh_HK-100-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 24,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 100
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存檔 2\n\n第 7 天 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 25,
+      "file": "images/zh_HK-125-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "第 7 天 · 09:07\n\n此存檔將被刪除。",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          232.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "刪除存檔 2？"
+      },
+      "drawer_font_size": 25,
+      "file": "images/zh_HK-125-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 25,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存檔 2\n\n第 7 天 · 09:07\n\n操作未完成。請取消，或根據目前存檔資訊重試。",
+        "information_extent": 14.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "操作失敗。",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 25,
+      "file": "images/zh_HK-125-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 30,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 125
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存檔 2\n\n第 7 天 · 09:07",
+        "information_extent": 0.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 30,
+      "file": "images/zh_HK-150-AfterHours-ordinary-backup.png",
+      "focus": "Drawer3",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "backup",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 0,
+      "text_percent": 150
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 0,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "body": "第 7 天 · 09:07\n\n此存檔將被刪除。",
+        "body_rect": [
+          0.0,
+          0.0,
+          528.0,
+          277.0
+        ],
+        "scroll_extent": 0.0,
+        "sheet_rect": [
+          120.0,
+          112.0,
+          560.0,
+          480.0
+        ],
+        "title": "刪除存檔 2？"
+      },
+      "drawer_font_size": 30,
+      "file": "images/zh_HK-150-AfterHours-ordinary-delete-confirmation.png",
+      "focus": "CancelButton",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "delete-confirmation",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 1,
+      "text_percent": 150
+    },
+    {
+      "action_dock_font_size": 30,
+      "cancelled": 1,
+      "colour_preset": "standard",
+      "committed": 0,
+      "details": {
+        "action_dock_rect": [
+          480.0,
+          528.0,
+          304.0,
+          112.0
+        ],
+        "information": "存檔 2\n\n第 7 天 · 09:07\n\n操作未完成。請取消，或根據目前存檔資訊重試。",
+        "information_extent": 133.0,
+        "information_rect": [
+          480.0,
+          96.0,
+          304.0,
+          336.0
+        ],
+        "status": "操作失敗。",
+        "status_rect": [
+          480.0,
+          432.0,
+          304.0,
+          96.0
+        ]
+      },
+      "drawer_font_size": 30,
+      "file": "images/zh_HK-150-AfterHours-ordinary-operation-recovery.png",
+      "focus": "CancelAction",
+      "high_contrast": false,
+      "host_rect": [
+        0.0,
+        0.0,
+        800.0,
+        656.0
+      ],
+      "large_targets": false,
+      "locale": "zh-HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "main_font_size": 36,
+      "mode": "operation-recovery",
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "prepared": 2,
+      "text_percent": 150
+    }
+  ],
+  "scope": "Real PauseSurface, BackupApp and DesktopConfirmation presentation with existing FakeBackupPort projection/operation double. No storage, save/load durability, full lifecycle or assistive-technology acceptance.",
+  "source_art": "Absent; no authored narrative art or substitute background."
+}
