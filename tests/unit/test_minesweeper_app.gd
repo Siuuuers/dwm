@@ -268,6 +268,95 @@ func test_configured_dependencies_are_idempotent_and_cannot_be_rebound() -> void
 	assert_eq(_port.lifecycle.size(),1)
 	assert_true(replacement.lifecycle.is_empty())
 
+func test_accessibility_preferences_retheme_without_owner_commands_or_navigation_changes() -> void:
+	_show()
+	_app.panel.dock.buttons.flag.pressed.emit()
+	_app.panel.worksheet.grid._set_focused(200)
+	_app.panel.worksheet.set_scroll(Vector2i(80,140))
+	_app.panel.dock.buttons.rules.grab_focus()
+	var before: Dictionary = _app.panel.public_view.duplicate(true)
+	var lifecycle_before: int = _port.lifecycle.size()
+	_profile.change("preferences.accessibility.high_contrast",true)
+	assert_eq(_app.panel.worksheet.grid.cell_nodes[0].get_theme_color("controlled_face","Minesweeper"),Color("0b1018"))
+	_profile.change("preferences.accessibility.colour_differentiation","tritan")
+	assert_eq(_app.panel.dock.buttons.flag.get_theme_color("selected_plane","Minesweeper"),Color("c4aba2"))
+	assert_eq(_app.panel.worksheet.grid.mode,&"flag")
+	assert_eq(_app.panel.worksheet.grid.focused_index,200)
+	assert_eq(_app.panel.worksheet.get_scroll(),Vector2i(80,140))
+	assert_true(_app.panel.dock.buttons.rules.has_focus())
+	assert_eq(_app.panel.public_view,before)
+	assert_eq(_port.lifecycle.size(),lifecycle_before)
+	assert_true(_port.commands.is_empty())
+
+func test_legacy_colour_preference_is_read_only_compatibility_with_canonical_precedence() -> void:
+	_show()
+	var pairs := {"none":"789083","protanopia":"7d94ae","deuteranopia":"869aaa","tritanopia":"a59289"}
+	for legacy: String in pairs:
+		_profile.change("preferences.accessibility.colorblind_mode",legacy)
+		assert_eq(_app.panel.dock.buttons.flag.get_theme_color("selected_plane","Minesweeper"),Color(pairs[legacy]))
+	_profile.change("preferences.accessibility.colour_differentiation","protan")
+	_profile.change("preferences.accessibility.colorblind_mode","tritanopia")
+	assert_eq(_app.panel.dock.buttons.flag.get_theme_color("selected_plane","Minesweeper"),Color("7d94ae"))
+	assert_eq(_profile.values.size(),2,"Reading compatibility does not write defaults or migrate saves.")
+	assert_true(_port.commands.is_empty())
+
+func test_invalid_accessibility_preference_keeps_last_valid_theme_and_public_facts() -> void:
+	_show()
+	var before: Dictionary = _app.panel.public_view.duplicate(true)
+	var before_theme: Theme = _app.panel.dock.theme
+	watch_signals(_app)
+	_profile.change("preferences.accessibility.high_contrast","true")
+	assert_eq(_app.last_result.code,&"invalid_minesweeper_preferences")
+	assert_same(_app.panel.dock.theme,before_theme)
+	_profile.change("preferences.accessibility.high_contrast",false)
+	before_theme = _app.panel.dock.theme
+	_profile.change("preferences.accessibility.colour_differentiation","invented")
+	assert_eq(_app.last_result.code,&"invalid_minesweeper_preferences")
+	assert_same(_app.panel.dock.theme,before_theme)
+	assert_eq(_app.panel.public_view,before)
+	assert_true(_app.panel.has_valid_presentation())
+	assert_signal_emit_count(_app,"recovery_requested",2)
+	assert_true(_port.commands.is_empty())
+
+func test_palette_change_with_open_sheet_retains_sheet_focus_scroll_and_home_block() -> void:
+	_show()
+	_profile.change("preferences.accessibility.text_size",150)
+	_profile.change("preferences.accessibility.large_targets",true)
+	_app.panel.dock.buttons.assignments.pressed.emit()
+	var sheet: Control = _app.panel.worksheet.information_sheet
+	assert_not_null(sheet.rail)
+	sheet.rail.grab_focus()
+	var before: Dictionary = _app.panel.public_view.duplicate(true)
+	_profile.change("preferences.accessibility.high_contrast",true)
+	_profile.change("preferences.accessibility.colour_differentiation","deutan")
+	assert_same(_app.panel.worksheet.information_sheet,sheet)
+	assert_true(sheet.rail.has_focus())
+	assert_eq(sheet.get_theme_color("paper","Minesweeper"),Color("e9e2d0"))
+	assert_eq(sheet.return_button.get_theme_color("selected_plane","Minesweeper"),Color("acbecd"))
+	assert_true(_home.disabled)
+	assert_false(_app.can_return_home())
+	assert_eq(_app.panel.public_view,before)
+	assert_true(_port.commands.is_empty())
+
+func test_palette_publication_preserves_pending_touch_without_issuing_an_action() -> void:
+	_show()
+	var grid: Control = _app.panel.worksheet.grid
+	grid.set_process(false)
+	var touch := InputEventScreenTouch.new()
+	touch.index = 11
+	touch.position = Vector2(10,10)
+	touch.pressed = true
+	grid._gui_input(touch)
+	assert_true(grid.has_held_touch())
+	_profile.change("preferences.accessibility.high_contrast",true)
+	assert_true(grid.has_held_touch())
+	_profile.change("preferences.accessibility.colour_differentiation","protan")
+	assert_true(grid.has_held_touch())
+	assert_true(_port.commands.is_empty())
+	touch.pressed = false
+	touch.canceled = true
+	grid._gui_input(touch)
+
 func _prepared_view(forced: int) -> Dictionary:
 	var view: Dictionary = _view()
 	for index: int in view.board.cells.size():

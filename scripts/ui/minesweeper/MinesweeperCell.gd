@@ -23,9 +23,10 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	_resize()
 
-func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours") -> bool:
+func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
+		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	locale = locale.replace("_","-")
-	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette)
+	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette,high_contrast,colour_preset)
 	if candidate == null: return false
 	_locale = locale
 	_large = large

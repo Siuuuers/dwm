@@ -20,6 +20,8 @@ var _locale := "en"
 var _percent := 100
 var _large := false
 var _palette: StringName = &"after_hours"
+var _high_contrast := false
+var _colour_preset := "standard"
 var _band := Vector2i.ZERO
 var _failed := true
 var _sheet_source := ""
@@ -44,16 +46,18 @@ func _init() -> void:
 	worksheet.information_closed.connect(_information_closed)
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false,
-		palette: StringName = &"after_hours") -> bool:
-	var measured := _measure(public_view,locale,percent,large,palette)
+		palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+	var measured := _measure(public_view,locale,percent,large,palette,high_contrast,colour_preset)
 	if measured.is_empty(): return false
-	if not worksheet.configure("desktop_app",locale,percent,large,palette,measured.band): return false
-	register.configure("desktop_app",locale,percent,large,palette)
-	dock.configure("desktop_app",locale,percent,large,palette)
+	if not worksheet.configure("desktop_app",locale,percent,large,palette,measured.band,high_contrast,colour_preset): return false
+	register.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset)
+	dock.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset)
 	_locale = locale
 	_percent = percent
 	_large = large
 	_palette = palette
+	_high_contrast = high_contrast
+	_colour_preset = colour_preset
 	_band = measured.band
 	_place(measured.register_height)
 	_apply_availability()
@@ -83,16 +87,16 @@ func connect_host_focus(previous: Control, next: Control) -> bool:
 
 func present(value: Dictionary) -> bool:
 	if not _valid(value): return _fail(&"minesweeper_panel_invalid_view")
-	var measured := _measure(value,_locale,_percent,_large,_palette)
+	var measured := _measure(value,_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
 	if measured.is_empty(): return _fail(&"minesweeper_panel_invalid_view")
 	# Reconfigure only for changed geometry: a synchronous Flag publication must
 	# retain the grid's touch-release latch and all existing cell nodes.
 	if worksheet.theme == null or measured.band != _band:
-		if not worksheet.configure("desktop_app",_locale,_percent,_large,_palette,measured.band):
+		if not worksheet.configure("desktop_app",_locale,_percent,_large,_palette,measured.band,_high_contrast,_colour_preset):
 			return _fail(&"minesweeper_panel_invalid_view")
 		_band = measured.band
-	if register.theme == null: register.configure("desktop_app",_locale,_percent,_large,_palette)
-	if dock.theme == null: dock.configure("desktop_app",_locale,_percent,_large,_palette)
+	if register.theme == null: register.configure("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
+	if dock.theme == null: dock.configure("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
 	var assignments_changed: bool = public_view.get("assignments") != value.assignments
 	register.present(value.register)
 	worksheet.present(value.board)
@@ -123,20 +127,21 @@ func _valid(value: Dictionary) -> bool:
 	if value.register.get("difficulty_enabled") != []: return false
 	return value.actions.is_empty() if value.board.custody else seen.size() == ACTIONS.size()
 
-func _measure(value: Dictionary, locale: String, percent: int, large: bool, palette: StringName) -> Dictionary:
+func _measure(value: Dictionary, locale: String, percent: int, large: bool, palette: StringName,
+		high_contrast: bool = false, colour_preset: String = "standard") -> Dictionary:
 	var probe_register: Control = REGISTER.new()
 	var probe_dock: Control = DOCK.new()
 	var probe_sheet: Control = SHEET.new()
 	var facts: Dictionary = value.get("register",{"difficulty":"beginner","rounds":2,"mine_estimate":null,
 		"foresight":null,"no_flag":"intact","custody":false,"difficulty_enabled":[]})
-	var valid: bool = probe_register.configure("desktop_app",locale,percent,large,palette)
+	var valid: bool = probe_register.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset)
 	if valid: valid = probe_register.present(facts)
-	if valid: valid = probe_dock.configure("desktop_app",locale,percent,large,palette)
+	if valid: valid = probe_dock.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset)
 	var result: Dictionary = {}
 	if valid:
 		var band := Vector2i(400,328-int(probe_register.size.y/2)-int(probe_dock.size.y/2))
 		valid = LAYOUT.measure(1,1,band,large).ok
-		if valid: valid = probe_sheet.configure("desktop_app",locale,percent,large,palette,band)
+		if valid: valid = probe_sheet.configure("desktop_app",locale,percent,large,palette,band,high_contrast,colour_preset)
 		if valid: valid = probe_sheet.present_assignments(value.get("assignments",[false,false,false,false,false,false,false,false,false]))
 		if valid: result = {"band":band,"register_height":probe_register.size.y}
 	probe_register.free()

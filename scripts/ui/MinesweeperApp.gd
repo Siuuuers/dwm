@@ -7,7 +7,10 @@ signal foreground_availability_changed()
 
 const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
 const PREFERENCE_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets",
-	"preferences.accessibility.font_scale","preferences.accessibility.large_click_targets"]
+	"preferences.accessibility.font_scale","preferences.accessibility.large_click_targets",
+	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation",
+	"preferences.accessibility.colorblind_mode"]
+const LEGACY_COLOUR_PRESETS := {"none":"standard","protanopia":"protan","deuteranopia":"deutan","tritanopia":"tritan"}
 
 var panel: Control
 var last_result: Dictionary = {"ok":false,"code":&"minesweeper_unconfigured"}
@@ -186,10 +189,17 @@ func _apply_preferences() -> bool:
 	var large: Variant = _profile.get_preference("preferences.accessibility.large_targets",null) if _profile != null else false
 	if large == null: large = _profile.get_preference("preferences.accessibility.large_click_targets",false)
 	if typeof(percent) != TYPE_INT or typeof(large) != TYPE_BOOL: return false
+	var high_contrast: Variant = _profile.get_preference("preferences.accessibility.high_contrast",false) if _profile != null else false
+	var colour: Variant = _profile.get_preference("preferences.accessibility.colour_differentiation",null) if _profile != null else "standard"
+	if colour == null:
+		var legacy: Variant = _profile.get_preference("preferences.accessibility.colorblind_mode","none")
+		if typeof(legacy) != TYPE_STRING or not LEGACY_COLOUR_PRESETS.has(legacy): return false
+		colour = LEGACY_COLOUR_PRESETS[legacy]
+	if typeof(high_contrast) != TYPE_BOOL or typeof(colour) != TYPE_STRING: return false
 	# No captured Dark palette owner exists on this run lineage yet.
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
-	if not panel.configure(locale,percent,large,&"after_hours"): return false
-	panel.worksheet.set_scroll(retained_scroll)
+	if not panel.configure(locale,percent,large,&"after_hours",high_contrast,colour): return false
+	if panel.worksheet.get_scroll() != retained_scroll: panel.worksheet.set_scroll(retained_scroll)
 	return true
 
 func _on_locale_changed(_locale: String) -> void:

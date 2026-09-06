@@ -389,3 +389,47 @@ This is an implemented and tested injected desktop route, not production gamepla
 cutover or Minesweeper completion. Production generation/live identity, New Board,
 tier changes, Foresight, settled terminal inspection, canonical hosts, remaining
 accessibility/input palettes and combined restore/save integration remain open.
+
+## Accessibility palette continuation
+
+Minesweeper now supplies all sixteen After-Hours/Midnight, Standard/High Contrast,
+and Standard/Protan/Deutan/Tritan combinations. The literal role tables reuse the
+authored Settings values through the documented semantic mapping in
+[presentation tuples](minesweeper-presentation-tuples.md). Both original Standard
+appearances are unchanged. Domain marks, single-ink numbers, labels, selected seams
+and detached focus rails retain their meaning and geometry.
+
+The tuple reaches existing and newly created cells, register metrics, dock actions,
+worksheet rails, and open or newly opened Rules/Assignments sheets. Invalid tuple
+requests retain the previous valid presentation. Colour-only reconfiguration keeps
+manual pan, sheet scroll, semantic focus, mode, public board facts and held input.
+An independent review found that the App's unconditional scroll restoration cancelled
+held touches even when the scroll was unchanged. An App-level failing regression
+preceded the conditional restoration fix; both preference publications now retain
+that touch without issuing an action.
+
+The App observes `high_contrast` and `colour_differentiation` under
+`preferences.accessibility`. When the latter is absent, the existing profile's
+`colorblind_mode` values map read-only from none/protanopia/deuteranopia/tritanopia
+to standard/protan/deutan/tritan. A present canonical value takes precedence.
+This changes neither profile storage nor migration. The App still uses After-Hours
+until a real captured-run palette owner is available; pending next-run Dark intent
+is not used as current-run evidence.
+
+Verification: **218 tests / 7,800 assertions pass** across twenty-five suites,
+including retained transaction and actual desktop-host integration regressions.
+Numeric sRGB tests check the authored text and state-ink pairs against project
+thresholds; they are not a claim of full assistive-technology acceptance. Eighteen
+OpenGL captures cover all sixteen tuples plus Rules and scrolled Assignments,
+distributed across EN100, zh-CN125 and zh-HK150 Large. Pixel assertions check actual
+cell/mark, register, selected seam, disabled bar, scrollbar, focus and sheet colours.
+The renderer uses explicitly labelled public reducer fixtures, not production
+generation. Evidence is in `evidence/minesweeper_accessibility`; its invocation
+ledger includes initial preference failures and the held-touch regression.
+Final runs exit zero with the pre-existing 24 Dialogic orphans and known environment
+diagnostics. Portable logs use LF and one final newline; raw logs remain intact.
+
+This completes the palette implementation checkpoint. Final AT/readability and
+largest-English-label usability, remaining input support, captured-run palette,
+production gameplay owners, canonical hosts and combined save/restore integration
+remain open. Minesweeper and the ten-family goal remain in progress.

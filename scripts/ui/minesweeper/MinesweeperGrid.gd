@@ -20,6 +20,8 @@ var _locale := "en"
 var _percent := 100
 var _large := false
 var _palette: StringName = &"after_hours"
+var _high_contrast := false
+var _colour_preset := "standard"
 var _held_index := -1
 var _held_revision := -1
 var _held_action: StringName = &""
@@ -47,19 +49,23 @@ func _ready() -> void:
 	focus_exited.connect(_on_focus_exited)
 	mouse_exited.connect(_cancel_contacts)
 
-func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours") -> bool:
+func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
+		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	var probe: Control = CELL.new()
-	if not probe.configure(locale,percent,large,palette):
+	if not probe.configure(locale,percent,large,palette,high_contrast,colour_preset):
 		probe.free()
 		return false
+	var content_changed: bool = _locale != locale.replace("_","-") or _percent != percent or _large != large
 	_locale = locale.replace("_","-")
 	_percent = percent
 	_large = large
 	_palette = palette
+	_high_contrast = high_contrast
+	_colour_preset = colour_preset
 	theme = probe.theme
 	probe.free()
-	cancel_pointer_gesture()
-	for cell: Control in cell_nodes: cell.configure(_locale,_percent,_large,_palette)
+	if content_changed: cancel_pointer_gesture()
+	for cell: Control in cell_nodes: cell.configure(_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
 	_reflow()
 	_refresh_accessibility()
 	return true
@@ -161,7 +167,7 @@ func _rebuild() -> void:
 	while cell_nodes.size() < projection.cells.size():
 		var cell: Control = CELL.new()
 		add_child(cell)
-		cell.configure(_locale,_percent,_large,_palette)
+		cell.configure(_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
 		cell_nodes.append(cell)
 	for index in projection.cells.size(): cell_nodes[index].present(projection.cells[index])
 	_reflow()

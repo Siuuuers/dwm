@@ -24,9 +24,10 @@ func _init() -> void:
 	auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
-		large: bool = false, palette: StringName = &"after_hours") -> bool:
+		large: bool = false, palette: StringName = &"after_hours",
+		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	if host not in ["desktop_app","canonical_solo","canonical_pair"]: return false
-	var next_theme := MS_THEME.build(locale,percent,palette)
+	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset)
 	if next_theme == null: return false
 	var copy := COPY.get_copy(locale)
 	var allocations: Array = LEFT+(DESKTOP if host == "desktop_app" else CANONICAL)

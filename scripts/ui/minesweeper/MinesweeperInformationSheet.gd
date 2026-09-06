@@ -33,11 +33,12 @@ func _init() -> void:
 	clip_contents = true
 
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
-		large: bool = false, palette: StringName = &"after_hours", native_band: Vector2i = Vector2i.ZERO) -> bool:
+		large: bool = false, palette: StringName = &"after_hours", native_band: Vector2i = Vector2i.ZERO,
+		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	if host not in ["desktop_app","canonical_solo","canonical_pair"]: return false
 	if kind == "assignments" and host != "desktop_app": return false
 	locale = locale.replace("_","-")
-	var next_theme := MS_THEME.build(locale,percent,palette)
+	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset)
 	var band := native_band
 	if band == Vector2i.ZERO: band = Vector2i(400 if host == "desktop_app" else 480,232 if large else 246)
 	if next_theme == null or band.x != (400 if host == "desktop_app" else 480) or band.y <= 0: return false
