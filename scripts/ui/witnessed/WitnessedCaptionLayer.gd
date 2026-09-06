@@ -13,6 +13,7 @@ var _text_percent := 100
 var _palette := "AfterHours"
 var _high_contrast := false
 var _colour_preset := "standard"
+var _large_targets := false
 var _caption_theme: Theme
 var _last_text := ""
 var _last_content_height := -1
@@ -52,7 +53,7 @@ func _ready() -> void:
 	canvas.draw.connect(_draw_canvas)
 	overlay.draw.connect(_draw_seam)
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
-	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset)
+	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
 	if _profile != null and _profile.has_signal("preference_changed"):
@@ -70,22 +71,31 @@ func _ready() -> void:
 		if runtime.has_signal("timeline_started"):
 			runtime.connect("timeline_started", reset_caption_stack)
 
-func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard") -> bool:
-	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset)
+func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false) -> bool:
+	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets)
 	if next_theme == null:
 		return false
-	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent
+	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets
 	_locale = locale.replace("_", "-")
 	_text_percent = text_percent
 	_palette = palette
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
+	_large_targets = large_targets
 	_caption_theme = next_theme
 	if is_instance_valid(canvas):
 		var first_mount := canvas.theme == null
+		if metrics_changed:
+			var bar := get_scroll_bar()
+			if bar.visible:
+				# Native ScrollBar retires its held drag on hide. Restore visibility
+				# synchronously before layout, keeping its value and focus owner.
+				bar.hide()
+				bar.show()
 		canvas.theme = next_theme
 		# Colour-only updates preserve native reveal, scroll and pending contacts.
 		if metrics_changed or first_mount:
+			accept_input.cancel_pending_accept()
 			_layout_stack()
 		canvas.queue_redraw()
 		overlay.queue_redraw()
@@ -132,6 +142,7 @@ func get_caption_projection() -> Dictionary:
 	return {
 		"locale": _locale, "text_percent": _text_percent, "palette": _palette,
 		"high_contrast": _high_contrast, "colour_preset": _colour_preset,
+		"large_targets": _large_targets,
 		"font_size": int(20 * _text_percent / 100.0),
 		"text": caption_text.get_parsed_text() if mounted else "",
 		"visible_characters": caption_text.visible_characters if mounted else 0,
@@ -196,22 +207,24 @@ func _apply_preferences() -> void:
 	if typeof(scale_value) not in [TYPE_INT, TYPE_FLOAT] or scale_value not in [1.0, 1.25, 1.5]:
 		return
 	var high_contrast: Variant = _high_contrast
+	var large_targets: Variant = _large_targets
 	var colour_preset := _colour_preset
 	if _profile != null and _profile.has_method("get_preference"):
 		high_contrast = _profile.call("get_preference", &"preferences.accessibility.high_contrast", false)
+		large_targets = _profile.call("get_preference", &"preferences.accessibility.large_click_targets", false)
 		var colour_mode: Variant = _profile.call("get_preference", &"preferences.accessibility.colorblind_mode", "none")
 		if typeof(colour_mode) != TYPE_STRING or not PROFILE_COLOUR_PRESETS.has(colour_mode):
 			return
 		colour_preset = PROFILE_COLOUR_PRESETS[colour_mode]
-	if typeof(high_contrast) != TYPE_BOOL:
+	if typeof(high_contrast) != TYPE_BOOL or typeof(large_targets) != TYPE_BOOL:
 		return
-	configure_presentation(locale, int(float(scale_value) * 100), _palette, high_contrast, colour_preset)
+	configure_presentation(locale, int(float(scale_value) * 100), _palette, high_contrast, colour_preset, large_targets)
 
 func _on_locale_changed(_locale_id: String) -> void:
 	_apply_preferences()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path in [&"preferences.accessibility.font_scale", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colorblind_mode"]:
+	if path in [&"preferences.accessibility.font_scale", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colorblind_mode", &"preferences.accessibility.large_click_targets"]:
 		_apply_preferences()
 
 func _process(_delta: float) -> void:
@@ -274,7 +287,8 @@ func _measure_leaves(leaves: Array[RichTextLabel], width: float) -> float:
 	var total := 0.0
 	for leaf: RichTextLabel in leaves:
 		leaf.size.x = width
-		var height := maxi(52, int(ceil((leaf.get_content_height() + 32) / 2.0)) * 2)
+		var minimum := 64 if _large_targets and leaf == caption_text else 52
+		var height := maxi(minimum, int(ceil((leaf.get_content_height() + 32) / 2.0)) * 2)
 		leaf.update_minimum_size()
 		leaf.size = Vector2(width, height)
 		total += leaf.size.y

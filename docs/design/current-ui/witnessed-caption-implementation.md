@@ -24,6 +24,8 @@ The stack's local clear guard proves an empty hold and ordinary hide/show. Later
 
 ## Verification
 
+The later [caption target-size checkpoint](witnessed-caption-targets.md) connects the saved Large Targets setting to the live current caption and enlarges the shared scrollbar's native hit area, with ordinary and Large visual evidence. Other family controls retain their separately documented acceptance gaps.
+
 The stack native run passed **109 tests / 2,026 assertions across eight suites**, exit 0 (`witnessed-stack-final-20260906a`). Its focused suite passed 13 tests / 846 assertions. Coverage includes actual deferred style mounting, preference reapply before first text, native reveal/append/clear, newest-three rotation and identical publications, oversized-current publication scroll, silent reprojection and malformed-input refusal, eighteen presentation tuples, wheel/page/pan scrolling, real touch-to-mouse emulation, empty-hold cancellation, temporary hide/show retention, Hospital selection/natural end/default-style follow-up, missing-Styles refusal, and existing Hospital/physical-owner boundaries.
 
 The isolated fixtures retain the installed addon's known constructor overhead: 24 orphan subsystem objects per fresh handler, 336 in this run including the application handler. The environment also reports its existing certificate-store and Unicode-NUL diagnostics. No new script error remains. The tests do not use player saves.

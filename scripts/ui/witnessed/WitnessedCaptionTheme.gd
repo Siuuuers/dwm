@@ -9,7 +9,7 @@ const FONTS := {
 	"zh-HK": preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf"),
 }
 
-static func build(locale: String, text_percent: int, palette: String, high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
+static func build(locale: String, text_percent: int, palette: String, high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false) -> Theme:
 	locale = locale.replace("_", "-")
 	var roles := PALETTES.resolve(palette, high_contrast, colour_preset)
 	if locale not in FONTS or text_percent not in [100, 125, 150] \
@@ -42,20 +42,24 @@ static func build(locale: String, text_percent: int, palette: String, high_contr
 		result.set_stylebox(&"normal", variation, retained_leaf)
 	result.set_stylebox(&"panel", &"ScrollContainer", StyleBoxEmpty.new())
 	var track := StyleBoxFlat.new()
+	var target_size := 64 if large_targets else 48
 	track.bg_color = roles[&"deep"]
 	track.border_color = roles[&"rule"]
 	track.set_border_width_all(2)
-	track.content_margin_left = 6
-	track.content_margin_right = 6
+	track.content_margin_left = target_size / 2.0
+	track.content_margin_right = target_size / 2.0
+	# Keep the visible gutter narrow inside its full native pointer target.
+	track.expand_margin_left = -(target_size - 12) / 2.0
+	track.expand_margin_right = -(target_size - 12) / 2.0
 	result.set_stylebox(&"scroll", &"VScrollBar", track)
 	for state: StringName in [&"grabber", &"grabber_highlight", &"grabber_pressed"]:
 		var thumb := StyleBoxFlat.new()
 		thumb.bg_color = roles[&"text"]
-		thumb.expand_margin_left = -4
-		thumb.expand_margin_right = -4
+		thumb.expand_margin_left = -(target_size - 4) / 2.0
+		thumb.expand_margin_right = -(target_size - 4) / 2.0
 		thumb.expand_margin_top = -4
 		thumb.expand_margin_bottom = -4
-		thumb.content_margin_top = 8
-		thumb.content_margin_bottom = 8
+		thumb.content_margin_top = target_size / 2.0
+		thumb.content_margin_bottom = target_size / 2.0
 		result.set_stylebox(state, &"VScrollBar", thumb)
 	return result

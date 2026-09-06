@@ -631,6 +631,7 @@ func _assert_native_pause_preserves_remaining_time(pause_owner: bool) -> void:
 	assert_eq(native.visible_ratio,1.0)
 	assert_eq(runtime.current_event_idx,0)
 	assert_eq(_history(),before.history)
+
 	assert_eq(_ended,0)
 
 func test_hidden_same_frame_clear_and_replace_and_next_timeline_do_not_retain_old_caption() -> void:
@@ -1263,6 +1264,111 @@ func _replace_caption_display_source(source_name: String, replacement: Node) -> 
 	replacement.name = source_name
 	get_tree().root.add_child(replacement)
 
+func test_real_profile_large_targets_resize_current_caption_without_accepting_held_click() -> void:
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"caption-target-fixture",preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(profile.initialize(storage).get("ok",false))
+	_replace_caption_display_source("ProfileManager",profile)
+	_replace_caption_display_source("LocalizationManager",CaptionFixtureLocale.new())
+	if not await _mount_root_accept_fixture("Short caption."): return
+	var before := _stack_invariants()
+	var native: Node = caption.caption_text
+	var ordinary_rect: Rect2 = caption.get_caption_projection().caption_rect
+	assert_gte(ordinary_rect.size.y,48.0)
+	var point := _root_caption_point(ordinary_rect.get_center())
+	_parse_accept_mouse(point,true)
+	Input.flush_buffered_events()
+	assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":true}).get("ok",false))
+	await _settle()
+	var projection: Dictionary = caption.get_caption_projection()
+	assert_true(projection.get("large_targets",false))
+	assert_gte(projection.caption_visible_rect.size.y,64.0,"a short live caption is a full Large Target")
+	assert_gte(projection.caption_visible_rect.size.x,64.0)
+	assert_false(profile.set_preferences({&"preferences.accessibility.large_click_targets":"true"}).get("ok",false))
+	await _settle()
+	assert_eq(caption.get_caption_projection(),projection,"malformed preference is refused without changing the live target")
+	assert_eq(_stack_invariants(),before)
+	assert_eq(caption.caption_text,native)
+	assert_true(native.has_focus())
+	_parse_accept_mouse(point,false)
+	await _settle()
+	assert_eq(_stack_invariants(),before,"resizing cancels the old pointer candidate even if release stays inside")
+	assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":false}).get("ok",false))
+	await _settle()
+	assert_eq(caption.get_caption_projection().caption_rect,ordinary_rect,"turning off Large Targets restores ordinary geometry")
+	assert_eq(_stack_invariants(),before)
+	_parse_accept_mouse(point,true)
+	_parse_accept_mouse(point,false)
+	await _settle()
+	assert_eq(_finished,int(before.finished)+1,"a fresh click still finishes exactly once")
+	assert_eq(runtime.current_event_idx,before.event)
+	assert_eq(_history(),before.history)
+
+func test_large_target_overflow_scrollbar_keeps_reading_position_and_minimum_hit_geometry() -> void:
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"caption-overflow-target-fixture",preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(profile.initialize(storage).get("ok",false))
+	assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":true}).get("ok",false))
+	_replace_caption_display_source("ProfileManager",profile)
+	_replace_caption_display_source("LocalizationManager",CaptionFixtureLocale.new())
+	if not _mount(): return
+	runtime.start(_timeline("Overflow keeps its real native reveal and scroll owner. ".repeat(100)))
+	await _settle()
+	runtime.paused = true
+	var before := _stack_invariants()
+	var bar: VScrollBar = caption.get_scroll_bar()
+	assert_true(caption.get_caption_projection().get("large_targets",false),"the saved setting applies during initial mount")
+	assert_gte(bar.size.x,64.0)
+	bar.value = 100
+	for enabled: bool in [true,false,true]:
+		assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":enabled}).get("ok",false))
+		for locale: String in ["en","zh-CN","zh-HK"]:
+			for percent: int in [100,125,150]:
+				assert_true(caption.configure_presentation(locale,percent,"AfterHours",false,"standard",enabled))
+				await _settle()
+				var minimum := 64.0 if enabled else 48.0
+				assert_true(bar.visible)
+				assert_gte(bar.size.x,minimum,"the actual native scrollbar is wide enough to operate")
+				assert_gte(bar.get_theme_stylebox(&"grabber").get_minimum_size().y,minimum,"short thumbs retain the required hit height")
+				assert_eq(bar.value,100.0,"target and font changes preserve feasible manual scroll")
+				assert_eq(caption.get_caption_projection().get("large_targets",false),enabled)
+				assert_eq(_stack_invariants(),before)
+
+func test_native_scrollbar_wide_hit_area_pages_and_drags_without_accepting_caption() -> void:
+	if not await _mount_root_accept_fixture("Real scrollbar pointer target fixture. ".repeat(100)): return
+	for enabled: bool in [false,true]:
+		assert_true(caption.configure_presentation("en",100,"AfterHours",false,"standard",enabled))
+		await _settle()
+		var bar: VScrollBar = caption.get_scroll_bar()
+		bar.value = 0
+		await _settle()
+		var before := _stack_invariants()
+		var rect := bar.get_global_rect()
+		# The left edge belongs to the native control but lies outside the narrow ink.
+		var point := _root_caption_point(rect.position + Vector2(2,rect.size.y - 24))
+		_parse_accept_mouse(point,true)
+		_parse_accept_mouse(point,false)
+		await _settle()
+		assert_gt(bar.value,0.0,"the expanded native track edge performs page scrolling")
+		assert_eq(_stack_invariants(),before)
+		bar.value = 0
+		await _settle()
+		point = _root_caption_point(rect.position + Vector2(2,24))
+		_parse_accept_mouse(point,true)
+		Input.flush_buffered_events()
+		var drag := InputEventMouseMotion.new()
+		drag.position = point + Vector2(0,50)
+		drag.global_position = drag.position
+		drag.relative = Vector2(0,50)
+		drag.button_mask = MOUSE_BUTTON_MASK_LEFT
+		Input.parse_input_event(drag)
+		_parse_accept_mouse(drag.position,false)
+		await _settle()
+		assert_gt(bar.value,0.0,"the expanded short-thumb edge remains draggable")
+		assert_eq(_stack_invariants(),before)
+
 func test_real_profile_material_preferences_preserve_native_reading_and_pending_click() -> void:
 	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
 	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
@@ -1322,3 +1428,60 @@ func test_real_profile_material_preferences_preserve_native_reading_and_pending_
 	assert_eq(_finished,int(before.finished) + 1,"material publication preserves the armed click, which still finishes once on release")
 	assert_eq(runtime.current_event_idx,before.event)
 	assert_eq(_history(),before.history)
+
+func test_real_profile_target_resize_cancels_held_native_thumb_drag_until_fresh_contact() -> void:
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"caption-held-thumb-fixture",preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(profile.initialize(storage).get("ok",false))
+	_replace_caption_display_source("ProfileManager",profile)
+	_replace_caption_display_source("LocalizationManager",CaptionFixtureLocale.new())
+	if not await _mount_root_accept_fixture("A real native scrollbar keeps reading separate from narrative completion. ".repeat(100)): return
+	var bar: VScrollBar = caption.get_scroll_bar()
+	assert_true(bar.visible)
+	bar.value = 0
+	await _settle()
+	var before := _stack_invariants()
+	var point := _root_caption_point(bar.get_global_rect().position + Vector2(2,24))
+	_parse_accept_mouse(point,true)
+	Input.flush_buffered_events()
+	var motion := InputEventMouseMotion.new()
+	motion.position = point + Vector2(0,12)
+	motion.global_position = motion.position
+	motion.relative = Vector2(0,12)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	Input.parse_input_event(motion)
+	await _settle()
+	assert_gt(bar.value,0.0,"real held motion proves the native thumb drag is armed before resize")
+	var retained_scroll := bar.value
+	assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":true}).get("ok",false))
+	await _settle()
+	assert_true(caption.get_caption_projection().large_targets)
+	assert_gte(bar.size.x,64.0)
+	assert_eq(bar.value,retained_scroll,"metric publication preserves the feasible reading position")
+	motion = InputEventMouseMotion.new()
+	motion.position = point + Vector2(0,24)
+	motion.global_position = motion.position
+	motion.relative = Vector2(0,12)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	Input.parse_input_event(motion)
+	await _settle()
+	assert_eq(bar.value,retained_scroll,"held motion cannot continue a native thumb drag after its geometry changes")
+	_parse_accept_mouse(motion.position,false)
+	await _settle()
+	assert_eq(_stack_invariants(),before)
+	bar.value = 0
+	await _settle()
+	point = _root_caption_point(bar.get_global_rect().position + Vector2(2,24))
+	_parse_accept_mouse(point,true)
+	Input.flush_buffered_events()
+	motion = InputEventMouseMotion.new()
+	motion.position = point + Vector2(0,50)
+	motion.global_position = motion.position
+	motion.relative = Vector2(0,50)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	Input.parse_input_event(motion)
+	_parse_accept_mouse(motion.position,false)
+	await _settle()
+	assert_gt(bar.value,0.0,"a released and fresh native thumb drag works with the new target size")
+	assert_eq(_stack_invariants(),before)

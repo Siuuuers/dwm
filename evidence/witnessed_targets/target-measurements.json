@@ -1,0 +1,2143 @@
+{
+	"captures": 24,
+	"samples": [
+		{
+			"caption_rect": "[P: (16.0, 596.0), S: (1248.0, 60.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "en100-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "en",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							614
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							456
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							614
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							614
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							448
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							542,
+							635
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 100,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 476.0), S: (1248.0, 60.0)], [P: (16.0, 536.0), S: (1248.0, 60.0)], [P: (16.0, 596.0), S: (1248.0, 60.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 590.0), S: (1248.0, 66.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "en125-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "en",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							608
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							400
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							608
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							608
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							392
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							854,
+							635
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 125,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 458.0), S: (1248.0, 66.0)], [P: (16.0, 524.0), S: (1248.0, 66.0)], [P: (16.0, 590.0), S: (1248.0, 66.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 584.0), S: (1248.0, 72.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "en150-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "en",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							602
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							602
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							602
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1018,
+							635
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 440.0), S: (1248.0, 72.0)], [P: (16.0, 512.0), S: (1248.0, 72.0)], [P: (16.0, 584.0), S: (1248.0, 72.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 144.0), S: (1200.0, 4352.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "en150-AfterHours-standard-standard-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "overflow",
+			"large_targets": false,
+			"locale": "en",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							346
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							346
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							346
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1116,
+							655
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 4168.0,
+			"scroll_offset": 328.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1200.0, 328.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 594.0), S: (1248.0, 62.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "zh-CN100-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							612
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							456
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							612
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							612
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							448
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							694,
+							634
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 100,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 470.0), S: (1248.0, 62.0)], [P: (16.0, 532.0), S: (1248.0, 62.0)], [P: (16.0, 594.0), S: (1248.0, 62.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 586.0), S: (1248.0, 70.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "zh-CN125-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 8.98096776089766,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 8.98096776089766,
+					"text/deep": 12.3875200515463,
+					"text/field": 11.0200021815173
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							604
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							400
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							604
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							604
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							392
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							876,
+							632
+						],
+						"srgb": "d7ceb6"
+					}
+				}
+			},
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 125,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 446.0), S: (1248.0, 70.0)], [P: (16.0, 516.0), S: (1248.0, 70.0)], [P: (16.0, 586.0), S: (1248.0, 70.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-CN150-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							598
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							598
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							598
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1046,
+							633
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 428.0), S: (1248.0, 76.0)], [P: (16.0, 504.0), S: (1248.0, 76.0)], [P: (16.0, 580.0), S: (1248.0, 76.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 152.0), S: (1200.0, 4124.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-CN150-AfterHours-standard-standard-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "overflow",
+			"large_targets": false,
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							346
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							346
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							346
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1160,
+							645
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 3948.0,
+			"scroll_offset": 328.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1200.0, 328.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 594.0), S: (1248.0, 62.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "zh-HK100-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							612
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							456
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							612
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							612
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							448
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							694,
+							634
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 100,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 470.0), S: (1248.0, 62.0)], [P: (16.0, 532.0), S: (1248.0, 62.0)], [P: (16.0, 594.0), S: (1248.0, 62.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 586.0), S: (1248.0, 70.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "zh-HK125-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							604
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							400
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							604
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							604
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							392
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							878,
+							632
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 125,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 446.0), S: (1248.0, 70.0)], [P: (16.0, 516.0), S: (1248.0, 70.0)], [P: (16.0, 586.0), S: (1248.0, 70.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-HK150-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": false,
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 8.98096776089766,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 8.98096776089766,
+					"text/deep": 12.3875200515463,
+					"text/field": 11.0200021815173
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							598
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							598
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							598
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1047,
+							633
+						],
+						"srgb": "d7ceb6"
+					}
+				}
+			},
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 428.0), S: (1248.0, 76.0)], [P: (16.0, 504.0), S: (1248.0, 76.0)], [P: (16.0, 580.0), S: (1248.0, 76.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 152.0), S: (1200.0, 4124.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-HK150-AfterHours-standard-standard-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "overflow",
+			"large_targets": false,
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							346
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							346
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							346
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1176,
+							645
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 3948.0,
+			"scroll_offset": 328.0,
+			"scrollbar_hit_width": 48.0,
+			"scrollbar_thumb_minimum": 48.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1200.0, 328.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 592.0), S: (1248.0, 64.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "en100-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "en",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							610
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							456
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							610
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							610
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							448
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							542,
+							631
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 100,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 472.0), S: (1248.0, 60.0)], [P: (16.0, 532.0), S: (1248.0, 60.0)], [P: (16.0, 592.0), S: (1248.0, 64.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 590.0), S: (1248.0, 66.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "en125-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "en",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							608
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							400
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							608
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							608
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							392
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							854,
+							635
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 125,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 458.0), S: (1248.0, 66.0)], [P: (16.0, 524.0), S: (1248.0, 66.0)], [P: (16.0, 590.0), S: (1248.0, 66.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 584.0), S: (1248.0, 72.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "en150-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "en",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							602
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							602
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							602
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1018,
+							635
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 440.0), S: (1248.0, 72.0)], [P: (16.0, 512.0), S: (1248.0, 72.0)], [P: (16.0, 584.0), S: (1248.0, 72.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 144.0), S: (1184.0, 4352.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "en150-AfterHours-standard-standard-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "overflow",
+			"large_targets": true,
+			"locale": "en",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							346
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							346
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							346
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1105,
+							655
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 4168.0,
+			"scroll_offset": 328.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1184.0, 328.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 592.0), S: (1248.0, 64.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "zh-CN100-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							610
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							456
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							610
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							610
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							448
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							694,
+							632
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 100,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 468.0), S: (1248.0, 62.0)], [P: (16.0, 530.0), S: (1248.0, 62.0)], [P: (16.0, 592.0), S: (1248.0, 64.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 586.0), S: (1248.0, 70.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "zh-CN125-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 8.98096776089766,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 8.98096776089766,
+					"text/deep": 12.3875200515463,
+					"text/field": 11.0200021815173
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							604
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							400
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							604
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							604
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							392
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							876,
+							632
+						],
+						"srgb": "d7ceb6"
+					}
+				}
+			},
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 125,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 446.0), S: (1248.0, 70.0)], [P: (16.0, 516.0), S: (1248.0, 70.0)], [P: (16.0, 586.0), S: (1248.0, 70.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-CN150-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							598
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							598
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							598
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1046,
+							633
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 428.0), S: (1248.0, 76.0)], [P: (16.0, 504.0), S: (1248.0, 76.0)], [P: (16.0, 580.0), S: (1248.0, 76.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 152.0), S: (1184.0, 4124.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-CN150-AfterHours-standard-standard-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "overflow",
+			"large_targets": true,
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							346
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							346
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							346
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1160,
+							645
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 3948.0,
+			"scroll_offset": 328.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1184.0, 328.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 592.0), S: (1248.0, 64.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "zh-HK100-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							610
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							456
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							610
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							610
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							448
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							694,
+							632
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 100,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 468.0), S: (1248.0, 62.0)], [P: (16.0, 530.0), S: (1248.0, 62.0)], [P: (16.0, 592.0), S: (1248.0, 64.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 586.0), S: (1248.0, 70.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "zh-HK125-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							604
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							400
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							604
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							604
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							392
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							878,
+							632
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 125,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 446.0), S: (1248.0, 70.0)], [P: (16.0, 516.0), S: (1248.0, 70.0)], [P: (16.0, 586.0), S: (1248.0, 70.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-HK150-AfterHours-standard-standard-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "stack",
+			"large_targets": true,
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 8.98096776089766,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 8.98096776089766,
+					"text/deep": 12.3875200515463,
+					"text/field": 11.0200021815173
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							598
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							598
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							598
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1047,
+							633
+						],
+						"srgb": "d7ceb6"
+					}
+				}
+			},
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 428.0), S: (1248.0, 76.0)], [P: (16.0, 504.0), S: (1248.0, 76.0)], [P: (16.0, 580.0), S: (1248.0, 76.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 152.0), S: (1184.0, 4124.0)]",
+			"colour_preset": "standard",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-HK150-AfterHours-standard-standard-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"high_contrast": false,
+			"kind": "overflow",
+			"large_targets": true,
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"rendered_contrast": {
+				"minimum_structure_focus": 3.25084080820714,
+				"minimum_text": 9.07167841755598,
+				"ratios": {
+					"focus_inner/current": 4.71111328722351,
+					"focus_outer/current": 9.07167841755598,
+					"rule/current": 3.25084080820714,
+					"rule/deep": 4.48391050587914,
+					"rule/field": 3.98891007650465,
+					"text/current": 9.07167841755598,
+					"text/deep": 12.5126379796093,
+					"text/field": 11.1313077402137
+				},
+				"samples": {
+					"current": {
+						"pixel": [
+							28,
+							346
+						],
+						"srgb": "2f2936"
+					},
+					"deep": {
+						"pixel": [
+							2,
+							680
+						],
+						"srgb": "0b0d13"
+					},
+					"field": {
+						"pixel": [
+							2,
+							336
+						],
+						"srgb": "151b25"
+					},
+					"focus_inner": {
+						"pixel": [
+							22,
+							346
+						],
+						"srgb": "a9935f"
+					},
+					"focus_outer": {
+						"pixel": [
+							18,
+							346
+						],
+						"srgb": "d8cfb7"
+					},
+					"rule": {
+						"pixel": [
+							2,
+							328
+						],
+						"srgb": "657d89"
+					},
+					"text": {
+						"pixel": [
+							1176,
+							645
+						],
+						"srgb": "d8cfb7"
+					}
+				}
+			},
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 3948.0,
+			"scroll_offset": 328.0,
+			"scrollbar_hit_width": 64.0,
+			"scrollbar_thumb_minimum": 64.0,
+			"text_percent": 150,
+			"tuple": "AfterHours/standard/standard",
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1184.0, 328.0)]]"
+		}
+	],
+	"scope": "synthetic current-caption and native shared-scrollbar targets; no whole-family or assistive-technology acceptance",
+	"unfocused": 6
+}
