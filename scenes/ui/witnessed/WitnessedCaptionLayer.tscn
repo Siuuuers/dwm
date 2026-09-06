@@ -12,19 +12,58 @@ offset_right = 1280.0
 offset_bottom = 720.0
 mouse_filter = 2
 
-[node name="Caption" type="RichTextLabel" parent="Canvas" node_paths=PackedStringArray("textbox_root")]
-unique_name_in_owner = true
+[node name="Scroll" type="ScrollContainer" parent="Canvas"]
 layout_mode = 0
 offset_left = 16.0
-offset_top = 604.0
+offset_top = 448.0
 offset_right = 1264.0
 offset_bottom = 656.0
 mouse_filter = 0
+horizontal_scroll_mode = 0
+follow_focus = false
+
+[node name="Stack" type="Control" parent="Canvas/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
+
+[node name="Caption" type="RichTextLabel" parent="Canvas/Scroll/Stack" node_paths=PackedStringArray("textbox_root")]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 1248.0
+offset_bottom = 52.0
+mouse_filter = 0
 focus_mode = 0
 bbcode_enabled = true
+fit_content = true
+scroll_active = false
 scroll_following = false
 visible_characters_behavior = 1
 script = ExtResource("2_text")
 textbox_root = NodePath(".")
 hide_when_empty = true
 start_hidden = true
+
+[node name="Older" type="RichTextLabel" parent="Canvas/Scroll/Stack"]
+visible = false
+layout_mode = 0
+mouse_filter = 2
+focus_mode = 0
+theme_type_variation = &"WitnessedOldest"
+fit_content = true
+scroll_active = false
+
+[node name="Previous" type="RichTextLabel" parent="Canvas/Scroll/Stack"]
+visible = false
+layout_mode = 0
+mouse_filter = 2
+focus_mode = 0
+theme_type_variation = &"WitnessedPrevious"
+fit_content = true
+scroll_active = false
+
+[node name="Overlay" type="Control" parent="Canvas"]
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2

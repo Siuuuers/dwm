@@ -10,6 +10,11 @@ const COPY := {
 	"zh-CN":"字幕测试样本。这段合成文字用于检查当前字幕的位置、完整字号与阅读空间。",
 	"zh-HK":"字幕測試樣本。這段合成文字用於檢查目前字幕的位置、完整字號與閱讀空間。",
 }
+const RETAINED_COPY := {
+	"en":["Earlier synthetic caption.","Previous synthetic caption."],
+	"zh-CN":["较早的字幕测试样本。","上一条字幕测试样本。"],
+	"zh-HK":["較早的字幕測試樣本。","上一條字幕測試樣本。"],
+}
 var _runtime: DialogicGameHandler
 var _viewport: SubViewport
 var _layout: Node
@@ -45,7 +50,7 @@ func _render() -> void:
 				if not await _show_fixture(locale,percent,palette,false):
 					quit(1)
 					return
-				if not await _capture(locale,percent,palette,"short"):
+				if not await _capture(locale,percent,palette,"stack"):
 					quit(1)
 					return
 	for locale: String in ["en","zh-CN","zh-HK"]:
@@ -127,12 +132,18 @@ func _show_fixture(locale: String, percent: int, palette: String, overflow: bool
 	var copy: String = COPY[locale]
 	if overflow: copy = (copy+" ").repeat(100).strip_edges()
 	var timeline := DialogicTimeline.new()
-	timeline.from_text(copy)
+	timeline.from_text(str(RETAINED_COPY[locale][0])+"\n"+str(RETAINED_COPY[locale][1])+"\n"+copy)
 	_runtime.start_timeline(timeline)
 	await _frames()
-	_runtime.Text.skip_text_reveal()
-	await _frames()
+	for segment in 3:
+		if _caption.caption_text.revealing: _runtime.Text.skip_text_reveal()
+		await _frames()
+		if segment < 2:
+			_runtime.Inputs.input_block_timer.stop()
+			_runtime.Inputs.handle_input()
+			await _frames()
 	if not _check(_caption.caption_text.get_parsed_text() == copy and _caption.caption_text.visible_ratio == 1.0,"native fixture text did not reveal fully"): return false
+	if not _check(_caption.get_caption_projection().retained_captions == RETAINED_COPY[locale],"actual text events did not publish the three-leaf stack"): return false
 	var before := _invariants()
 	# Reapplying presentation must not duplicate history, move the event or finish it.
 	if not _check(_caption.configure_presentation(locale,percent,palette),"idempotent presentation rejected"): return false
@@ -146,44 +157,53 @@ func _capture(locale: String, percent: int, palette: String, kind: String) -> bo
 	var node: RichTextLabel = _caption.caption_text
 	var field: Rect2 = projection.field_rect
 	var leaf: Rect2 = projection.caption_rect
+	var bar: VScrollBar = _caption.get_scroll_bar()
 	var expected_top: int = {100:448,125:392,150:328}[percent]
-	if not _check(field == Rect2(0,expected_top,1280,656-expected_top) and leaf.end.y == 656 and leaf.position.x == 16 and leaf.size.x == 1248,"fixed field/rail/leaf geometry changed"): return false
-	if not _check(fposmod(leaf.position.y,2.0) == 0 and fposmod(leaf.size.y,2.0) == 0,"leaf origin/height escaped the two-logical-pixel lattice"): return false
+	if not _check(field == Rect2(0,expected_top,1280,656-expected_top),"fixed common field/rail geometry changed"): return false
+	if kind != "empty":
+		if not _check(leaf.position.x == 16 and leaf.size.x == 1248-(bar.size.x if bar.visible else 0),"visible document leaf width changed"): return false
+		if not _check(fposmod(node.position.y,2.0) == 0 and fposmod(leaf.size.y,2.0) == 0,"document leaf origin/height escaped the two-logical-pixel lattice"): return false
 	if not _check(projection.font_size == int(percent/5) and node.get_theme_font_size(&"normal_font_size") == int(percent/5),"caption font was reduced"): return false
-	if not _check(_runtime.current_event_idx == 0 and _ended == 0,"caption changed timeline ownership"): return false
+	if not _check(_runtime.current_event_idx == 2 and _ended == 0,"caption changed timeline ownership"): return false
+	if not _check(not node.scroll_active and not node.get_v_scroll_bar().visible,"current leaf has an independent scrollbar"): return false
 	if kind == "empty":
-		if not _check(projection.text.is_empty() and not projection.caption_visible and node.focus_mode == Control.FOCUS_NONE and not node.has_focus(),"empty caption retains visible or focused leaf"): return false
+		if not _check(projection.text.is_empty() and projection.retained_captions.is_empty() and not projection.caption_visible and node.focus_mode == Control.FOCUS_NONE and not node.has_focus(),"empty caption retains visible or focused leaves"): return false
 	else:
 		if not _check(projection.caption_visible and node.has_focus() and not projection.revealing,"visible fixture lacks stable caption focus"): return false
 		if kind == "overflow":
-			if not _check(projection.scroll_extent > 0 and projection.scroll_offset > 0 and leaf.size.y == field.size.y,"overflow did not cap and page-scroll actual rich text"): return false
-		elif not _check(not node.get_v_scroll_bar().visible and projection.scroll_offset == 0,"short caption has unnecessary scrolling"): return false
+			if not _check(projection.scroll_extent > 0 and projection.scroll_offset > 0 and leaf.size.y > field.size.y and projection.caption_visible_rect.has_area(),"long current did not use shared document scrolling"): return false
+		elif not _check(projection.visible_leaf_rects.size() == 3 and field.encloses(leaf),"three-leaf fixture is not visible in the shared field"): return false
 	var pixels: Image = _viewport.get_texture().get_image()
 	var name := "%s%d-%s-%s.png" % [locale,percent,palette,kind]
 	if not _check(pixels != null and pixels.save_png(_folder.path_join(name)) == OK,"cannot save caption capture"): return false
 	if not _pixel(pixels,Vector2i(2,expected_top+8),expected,&"field"): return false
 	if not _pixel(pixels,Vector2i(2,expected_top),expected,&"rule"): return false
 	if not _pixel(pixels,Vector2i(2,680),expected,&"deep"): return false
+	for y in range(expected_top,expected_top+2):
+		for x in 1280:
+			if not _pixel(pixels,Vector2i(x,y),expected,&"rule"): return false
 	if kind != "empty":
-		if not _pixel(pixels,Vector2i(leaf.position)+Vector2i(12,12),expected,&"current"): return false
-		if not _pixel(pixels,Vector2i(leaf.position)+Vector2i(3,20),expected,&"focus_outer"): return false
-		if not _pixel(pixels,Vector2i(leaf.position)+Vector2i(7,20),expected,&"focus_inner"): return false
+		if kind == "stack":
+			for retained_index in 2:
+				var retained_rect: Rect2 = projection.leaf_rects[retained_index]
+				if not _pixel(pixels,Vector2i(retained_rect.position)+Vector2i(12,12),expected,&"deep" if retained_index == 0 else &"field"): return false
 		var ink_pixels := 0
 		var ink: Color = expected.get_color(&"text",&"WitnessedCaption")
-		var interior := Rect2i(leaf.grow(-18))
+		var interior := Rect2i(leaf.grow(-18)).intersection(_visible_aperture())
 		for y in range(interior.position.y,interior.end.y):
 			for x in range(interior.position.x,interior.end.x):
 				if _same_color(pixels.get_pixel(x,y),ink): ink_pixels += 1
 		if not _check(ink_pixels > 20,"caption has no rendered interior glyph ink"): return false
 		if not await _protected_text_proof(pixels,node,expected,name,kind == "overflow"): return false
 	_records.append({"file":name,"locale":locale,"text_percent":percent,"palette":palette,"kind":kind,"font_size":projection.font_size,
-		"field_rect":str(field),"caption_rect":str(leaf),"scroll_offset":projection.scroll_offset,"scroll_extent":projection.scroll_extent,"focused":node.has_focus()})
+		"field_rect":str(field),"caption_rect":str(leaf),"visible_leaf_rects":str(projection.visible_leaf_rects),"retained_captions":projection.retained_captions,
+		"scroll_offset":projection.scroll_offset,"scroll_extent":projection.scroll_extent,"focused":node.has_focus()})
 	print("WITNESSED_CAPTION_CAPTURE ",name," field=",field," leaf=",leaf," font=",projection.font_size," scroll=",projection.scroll_offset)
 	return true
 
 func _protected_text_proof(focused: Image, node: RichTextLabel, expected: Theme, name: String, save_unfocused: bool) -> bool:
-	var bar: VScrollBar = node.get_v_scroll_bar()
-	var frame_width := int(node.size.x-(bar.size.x if bar.visible else 0))
+	var bar: VScrollBar = _caption.get_scroll_bar()
+	var frame_width := int(node.size.x)
 	var frame_height := int(node.size.y)
 	var origin := Vector2i(node.get_global_transform_with_canvas()*Vector2.ZERO)
 	# Exact coverage checks include partially scrolled glyphs at every protected boundary.
@@ -201,13 +221,15 @@ func _protected_text_proof(focused: Image, node: RichTextLabel, expected: Theme,
 	if not _protected_frame(unfocused,origin,frame_width,frame_height,expected,false): return false
 	var changed := 0
 	var first_changed := Vector2i(-1,-1)
-	# Compare every pixel in the actual glyph aperture, including its first and last rows.
-	for y in range(16,frame_height-16):
-		for x in range(16,frame_width-16):
-			var point := origin+Vector2i(x,y)
-			if not _same_color(focused.get_pixelv(point),unfocused.get_pixelv(point)):
-				changed += 1
-				if first_changed.x < 0: first_changed = point
+	# All document leaves, including retained copy, keep identical visible glyph pixels.
+	for rect: Rect2 in _caption.get_caption_projection().leaf_rects:
+		var visible := Rect2i(rect.grow(-16)).intersection(_visible_aperture())
+		for y in range(visible.position.y,visible.end.y):
+			for x in range(visible.position.x,visible.end.x):
+				var point := Vector2i(x,y)
+				if not _same_color(focused.get_pixelv(point),unfocused.get_pixelv(point)):
+					changed += 1
+					if first_changed.x < 0: first_changed = point
 	node.grab_focus()
 	await _frames()
 	if not _check(bar.value == scroll_before and _invariants() == before,"focus comparison altered scroll or narrative state"): return false
@@ -222,8 +244,9 @@ func _protected_frame(pixels: Image, origin: Vector2i, width: int, height: int, 
 	var mismatches := 0
 	var first := Vector2i(-1,-1)
 	var first_role := &""
-	for y in height:
-		for x in width:
+	var visible := Rect2i(origin,Vector2i(width,height)).intersection(_visible_aperture())
+	for y in range(visible.position.y-origin.y,visible.end.y-origin.y):
+		for x in range(visible.position.x-origin.x,visible.end.x-origin.x):
 			if y >= 16 and y < height-16 and x >= 16 and x < width-16: continue
 			var local := Vector2i(x,y)
 			var role := &"rule" if y < 2 else &"current"
@@ -236,8 +259,14 @@ func _protected_frame(pixels: Image, origin: Vector2i, width: int, height: int, 
 					first_role = role
 	return _check(mismatches == 0,"protected caption band contains glyph/rail overpaint: focused=%s pixels=%d first_local=%s expected=%s" % [focused,mismatches,first,first_role])
 
+func _visible_aperture() -> Rect2i:
+	var field: Rect2 = _caption.get_caption_projection().field_rect
+	# The shared aperture has its own two-pixel seam; real leaf rails can scroll offscreen.
+	return Rect2i(16,int(field.position.y)+2,1248,int(field.size.y)-2)
+
 func _invariants() -> Dictionary:
 	return {"text":_caption.caption_text.text,"visible":_caption.caption_text.visible_characters,"event":_runtime.current_event_idx,
+		"retained_captions":_caption.get_caption_projection().retained_captions,
 		"simple_history":_runtime.History.simple_history_content.duplicate(true),"full_history":_runtime.History.full_event_history_content.duplicate(),"finished":_finished,"ended":_ended}
 
 func _pixel(pixels: Image, point: Vector2i, expected: Theme, role: StringName) -> bool:

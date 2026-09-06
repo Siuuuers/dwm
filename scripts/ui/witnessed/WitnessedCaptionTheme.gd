@@ -1,5 +1,5 @@
 extends RefCounted
-## Current-caption material only; no narrative or transport state.
+## Caption materials only; no narrative or transport state.
 
 const FONTS := {
 	"en": preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2"),
@@ -39,6 +39,12 @@ static func build(locale: String, text_percent: int, palette: String) -> Theme:
 		leaf.set_content_margin(side, 16)
 	result.set_stylebox(&"normal", &"RichTextLabel", leaf)
 	result.set_stylebox(&"focus", &"RichTextLabel", StyleBoxEmpty.new())
+	for variation: StringName in [&"WitnessedPrevious", &"WitnessedOldest"]:
+		result.set_type_variation(variation, &"RichTextLabel")
+		var retained_leaf: StyleBoxFlat = leaf.duplicate()
+		retained_leaf.bg_color = roles[&"field"] if variation == &"WitnessedPrevious" else roles[&"deep"]
+		result.set_stylebox(&"normal", variation, retained_leaf)
+	result.set_stylebox(&"panel", &"ScrollContainer", StyleBoxEmpty.new())
 	var track := StyleBoxFlat.new()
 	track.bg_color = roles[&"deep"]
 	track.border_color = roles[&"rule"]

@@ -38,6 +38,12 @@ class MissingStylesRuntime extends Node:
 		start_calls += 1
 		return null
 
+class ClearTextFixtureEvent extends DialogicEvent:
+	# Real subsystem clear and next real event run synchronously, without a render frame.
+	func _execute() -> void:
+		dialogic.Text.clear_game_state()
+		finish()
+
 func before_each() -> void:
 	_ended = 0
 	_finished = 0
@@ -248,7 +254,9 @@ func test_presentation_matrix_preserves_live_reveal_history_and_event_position()
 				var height: int = {100:208,125:264,150:328}[percent]
 				assert_eq(projection.field_rect,Rect2(0,656-height,1280,height))
 				assert_eq(projection.font_size,int(percent/5))
-				assert_true(projection.caption_rect.end.y <= 656 and projection.caption_rect.position.y >= 656-height)
+				assert_true(projection.field_rect.encloses(projection.caption_visible_rect))
+				assert_true(projection.caption_visible_rect.has_area(),"current caption intersects the common viewport")
+				assert_eq(fposmod(projection.caption_rect.size.y,2.0),0.0)
 				assert_eq(projection.locale,locale)
 				assert_eq(projection.palette,palette)
 				assert_eq(caption.caption_text,node)
@@ -275,14 +283,16 @@ func test_overflow_scroll_is_local_and_reconfigure_does_not_complete_text() -> v
 	runtime.Text.skip_text_reveal()
 	await _settle()
 	var node: RichTextLabel = caption.caption_text
-	var bar: VScrollBar = node.get_v_scroll_bar()
-	assert_true(bar.visible,"real capped rich text provides overflow scrolling")
+	var bar: VScrollBar = caption.get_scroll_bar()
+	assert_false(node.scroll_active,"current native text has no independent scroll owner")
+	assert_false(node.get_v_scroll_bar().visible)
+	assert_true(bar.visible,"one common viewport provides overflow scrolling")
 	assert_gt(float(caption.get_caption_projection().scroll_extent),0.0)
 	var history_before := _history()
 	var finished_before := _finished
 	assert_true(node.has_focus(),"first real caption appearance receives caption focus")
 	var wheel := InputEventMouseButton.new()
-	wheel.position = node.global_position+node.size/2
+	wheel.position = caption.get_caption_projection().caption_visible_rect.get_center()
 	wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
 	wheel.pressed = true
 	var page := InputEventKey.new()
@@ -368,6 +378,7 @@ func test_real_touch_drag_with_mouse_emulation_scrolls_without_finishing_native_
 	get_tree().root.content_scale_size = Vector2i(1280,720)
 	var node: RichTextLabel = caption.caption_text
 	node.set_process(false)
+	caption.set_process(false)
 	await _settle()
 	assert_true(node.revealing)
 	var visible_before := node.visible_characters
@@ -378,7 +389,7 @@ func test_real_touch_drag_with_mouse_emulation_scrolls_without_finishing_native_
 		if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION: emulated.append(event))
 	Input.emulate_mouse_from_touch = true
 	runtime.Inputs.input_block_timer.stop()
-	var start: Vector2 = get_tree().root.get_final_transform()*(node.get_global_transform_with_canvas()*(node.size/2))
+	var start: Vector2 = get_tree().root.get_final_transform()*(caption.canvas.get_global_transform_with_canvas()*caption.get_caption_projection().caption_visible_rect.get_center())
 	print("CAPTION_TOUCH_FIXTURE root_size=",get_tree().root.size," content_size=",get_tree().root.content_scale_size," transform=",get_tree().root.get_final_transform()," pointer=",start)
 	var touch := InputEventScreenTouch.new()
 	touch.index = 0
@@ -406,3 +417,179 @@ func test_real_touch_drag_with_mouse_emulation_scrolls_without_finishing_native_
 	assert_eq(_history(),history_before)
 	assert_eq(_finished,finished_before)
 	assert_eq(_ended,0)
+
+func _next_caption() -> void:
+	if caption.caption_text.revealing: runtime.Text.skip_text_reveal()
+	_advance()
+	await _settle()
+
+func _stack_invariants() -> Dictionary:
+	return {"text":caption.caption_text.text,"visible":caption.caption_text.visible_characters,"revealing":caption.caption_text.revealing,
+		"event":runtime.current_event_idx,"state":runtime.current_state,"history":_history(),"finished":_finished,"ended":_ended}
+
+func _assert_passive_stack(expected: Array) -> void:
+	_assert_single_text()
+	assert_eq(caption.get_caption_projection().retained_captions,expected)
+	var passive: Array[String] = []
+	for label: Node in caption.find_children("*","RichTextLabel",true,false):
+		if label == caption.caption_text or not label.visible: continue
+		passive.append(label.get_parsed_text())
+		assert_eq(label.focus_mode,Control.FOCUS_NONE,"retained copy is not another focus or reveal owner")
+		assert_false(label.scroll_active,"retained copy has no private scrollbar")
+		assert_eq(label.get_theme_font_size(&"normal_font_size"),caption.get_caption_projection().font_size,"retained copy keeps the full requested font")
+	assert_eq(passive.size(),expected.size())
+	for copy: String in expected: assert_true(copy in passive)
+	assert_false(caption.caption_text.scroll_active)
+	assert_false(caption.caption_text.get_v_scroll_bar().visible)
+
+func test_stack_keeps_newest_three_published_captions_with_one_native_current() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("[b]One.[/b]\nTwo.\nThree.\nFour.\n"+"The newest long caption begins in view. ".repeat(100)))
+	await _settle()
+	var native: Node = caption.caption_text
+	_assert_passive_stack([])
+	for expected: Array in [["One."],["One.","Two."],["Two.","Three."]]:
+		await _next_caption()
+		_assert_passive_stack(expected)
+		assert_eq(caption.caption_text,native)
+	assert_eq(native.get_parsed_text(),"Four.")
+	assert_eq(runtime.current_event_idx,3)
+	assert_eq(runtime.History.simple_history_content.size(),4)
+	assert_eq(caption.get_caption_projection().leaf_rects.size(),3)
+	assert_eq(caption.get_caption_projection().caption_visible_rect,caption.get_caption_projection().caption_rect,"a fitting newly published current is entirely visible")
+	await _next_caption()
+	_assert_passive_stack(["Three.","Four."])
+	var projection: Dictionary = caption.get_caption_projection()
+	assert_gt(projection.caption_rect.size.y,projection.field_rect.size.y)
+	assert_eq(projection.caption_rect.position.y,projection.field_rect.position.y,"new long current is shown from its beginning")
+	assert_true(caption.get_scroll_bar().visible)
+	assert_gt(caption.get_scroll_bar().value,0.0,"publication scrolls past older retained leaves")
+	assert_eq(_ended,0)
+
+func test_stack_append_newline_sections_and_identical_copy_are_distinct_publications() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("Repeat.[n+] More.[n]Repeat.[n]Repeat."))
+	await _settle()
+	await _next_caption()
+	assert_eq(caption.caption_text.get_parsed_text(),"Repeat. More.")
+	_assert_passive_stack([])
+	await _next_caption()
+	_assert_passive_stack(["Repeat. More."])
+	assert_eq(caption.caption_text.get_parsed_text(),"Repeat.")
+	await _next_caption()
+	_assert_passive_stack(["Repeat. More.","Repeat."])
+	assert_eq(caption.caption_text.get_parsed_text(),"Repeat.","identical text still occupies the newest separate caption")
+	assert_eq(runtime.current_event_idx,0,"[n] sections remain within their real TextEvent")
+	assert_eq(runtime.History.simple_history_content.size(),4)
+	assert_eq(_ended,0)
+
+func test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("Current long caption remains under its native reveal owner. ".repeat(100)))
+	await _settle()
+	runtime.paused = true
+	assert_true(caption.caption_text.revealing)
+	var before := _stack_invariants()
+	assert_true(caption.reproject_retained_captions(["Earlier fixture.","Previous fixture."]))
+	await _settle()
+	_assert_passive_stack(["Earlier fixture.","Previous fixture."])
+	assert_eq(_stack_invariants(),before,"reprojection is presentation only, not a history restore")
+	var bar: VScrollBar = caption.get_scroll_bar()
+	bar.value = 100
+	await _settle()
+	for locale: String in ["en","zh-CN","zh-HK"]:
+		for percent: int in [100,125,150]:
+			assert_true(caption.configure_presentation(locale,percent,"AfterHours"))
+			await _settle()
+			assert_eq(bar.value,100.0,"remeasure preserves feasible manual scroll")
+			assert_eq(_stack_invariants(),before)
+			_assert_passive_stack(["Earlier fixture.","Previous fixture."])
+	assert_true(caption.reproject_retained_captions(["Earlier fixture.","Previous fixture."]))
+	await _settle()
+	assert_eq(bar.value,100.0)
+	assert_eq(_stack_invariants(),before)
+	var stable: Dictionary = caption.get_caption_projection()
+	for invalid: Array in [["One","Two","Three"],[""],["   "],[42],["Valid",null]]:
+		assert_false(caption.reproject_retained_captions(invalid))
+		assert_eq(caption.get_caption_projection(),stable,"invalid retained copy refuses atomically")
+	var detached: Dictionary = caption.get_caption_projection()
+	detached.retained_captions[0] = "Mutated caller copy"
+	assert_eq(caption.get_caption_projection().retained_captions,["Earlier fixture.","Previous fixture."])
+	caption.reset_caption_stack()
+	await _settle()
+	assert_eq(caption.get_caption_projection().retained_captions,[])
+	assert_eq(_stack_invariants(),before,"explicit local reset does not clear the live native caption or history")
+
+func test_hidden_same_frame_clear_and_replace_and_next_timeline_do_not_retain_old_caption() -> void:
+	if not _mount(): return
+	var timeline := _timeline("Old caption.\nSecond caption.\n[signal arg=\"fixture-placeholder\"]\nNew caption.")
+	timeline.process()
+	var clear_event := ClearTextFixtureEvent.new()
+	clear_event.event_node_ready = true
+	clear_event.event_name = "Fixture Text Clear"
+	timeline.events[2] = clear_event
+	runtime.start(timeline)
+	await _settle()
+	await _next_caption()
+	_assert_passive_stack(["Old caption."])
+	if caption.caption_text.revealing: runtime.Text.skip_text_reveal()
+	caption.caption_text.hide()
+	_advance()
+	await _settle()
+	assert_eq(caption.caption_text.get_parsed_text(),"New caption.")
+	_assert_passive_stack([])
+	assert_true(caption.reproject_retained_captions(["Presentation-only earlier caption."]))
+	if caption.caption_text.revealing: runtime.Text.skip_text_reveal()
+	runtime.start_timeline(_timeline("Another timeline."))
+	await _settle()
+	assert_eq(caption.caption_text.get_parsed_text(),"Another timeline.")
+	_assert_passive_stack([])
+	assert_eq(_ended,0)
+
+func test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("This incomplete native caption is cancelled by a real text clear. ".repeat(100)))
+	await _settle()
+	assert_true(caption.caption_text.revealing)
+	assert_true(caption.reproject_retained_captions(["Older local caption."]))
+	var history_before := _history()
+	var finished_before := _finished
+	caption.caption_text.hide()
+	runtime.Text.clear_game_state()
+	await _settle()
+	var projection: Dictionary = caption.get_caption_projection()
+	assert_eq(projection.text,"")
+	assert_eq(projection.retained_captions,[])
+	assert_false(projection.caption_visible)
+	assert_false(projection.revealing)
+	assert_eq(_finished,finished_before,"clearing must not emit a synthetic line completion")
+	assert_eq(_history(),history_before)
+	assert_eq(runtime.current_event_idx,0,"the actual timeline remains valid during the clear hold")
+	assert_eq(_ended,0)
+
+func test_hiding_and_showing_incomplete_caption_pauses_without_cancelling_its_reveal() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("The hidden caption must resume its existing native reveal. ".repeat(100)))
+	await _settle()
+	var node: RichTextLabel = caption.caption_text
+	assert_true(node.revealing)
+	assert_true(caption.reproject_retained_captions(["Earlier local caption."]))
+	var visible_before := node.visible_characters
+	var history_before := _history()
+	var finished_before := _finished
+	node.hide()
+	await _settle()
+	assert_true(node.revealing,"temporary hiding does not cancel the pending line")
+	assert_false(node.is_processing())
+	assert_eq(node.visible_characters,visible_before)
+	assert_eq(_finished,finished_before)
+	assert_eq(caption.get_caption_projection().retained_captions,["Earlier local caption."],"hiding is not a stack-clear boundary")
+	node.show()
+	await _settle()
+	assert_true(node.revealing)
+	assert_true(node.is_processing(),"showing resumes the same native typewriter")
+	assert_gte(node.visible_characters,visible_before)
+	assert_eq(_history(),history_before)
+	assert_eq(_finished,finished_before)
+	assert_eq(runtime.current_event_idx,0)
+	assert_eq(caption.get_caption_projection().retained_captions,["Earlier local caption."])
