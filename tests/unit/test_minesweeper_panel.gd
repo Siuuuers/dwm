@@ -1,5 +1,9 @@
 extends GutTest
 
+const INPUT_FIXTURE := preload("res://tests/support/MinesweeperInputFixture.gd")
+var _input_fixture: RefCounted
+
+
 const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
 const BOARD_QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
 const STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
@@ -37,6 +41,7 @@ func _panel(port: PublicPort) -> Control:
 	add_child_autofree(viewport)
 	var panel: Control = PANEL.new()
 	viewport.add_child(panel)
+	assert_true(_input_fixture.bind_grid(panel.worksheet.grid,viewport))
 	assert_true(panel.configure())
 	assert_true(panel.bind(port))
 	assert_true(panel.refresh())
@@ -45,6 +50,7 @@ func _panel(port: PublicPort) -> Control:
 func _key(panel: Control, code: Key, pressed: bool = true) -> void:
 	var event := InputEventKey.new()
 	event.keycode = code
+	event.physical_keycode = code
 	event.pressed = pressed
 	panel.get_viewport().push_input(event,true)
 
@@ -315,3 +321,10 @@ func test_unchanged_assignment_refresh_preserves_scrolled_rail_identity_and_focu
 	assert_true(retained_rail.has_focus())
 	assert_eq(sheet.get_scroll(),retained_scroll)
 	assert_true(port.calls.is_empty())
+
+func before_each() -> void:
+	_input_fixture = INPUT_FIXTURE.new()
+
+func after_each() -> void:
+	_input_fixture.restore_map()
+	_input_fixture = null

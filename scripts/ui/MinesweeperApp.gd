@@ -6,6 +6,7 @@ signal recovery_requested(code: StringName)
 signal foreground_availability_changed()
 
 const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
+const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const PREFERENCE_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets",
 	"preferences.accessibility.font_scale","preferences.accessibility.large_click_targets",
 	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation",
@@ -17,6 +18,7 @@ var last_result: Dictionary = {"ok":false,"code":&"minesweeper_unconfigured"}
 var _port: Object
 var _localization: Object
 var _profile: Object
+var _input_owner: Object
 var _home: Button
 var _busy := false
 var _show_prepared := false
@@ -45,18 +47,23 @@ func _ready() -> void:
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
 
-func configure_presentation(port: Object, localization: Object = null, profile: Object = null) -> Dictionary:
+func configure_presentation(port: Object, localization: Object = null, profile: Object = null,
+		input_owner: Object = null) -> Dictionary:
 	if not is_node_ready() or not is_instance_valid(port): return _fail(&"minesweeper_unconfigured")
 	for method: String in ["pull","dispatch","set_foreground"]:
 		if not port.has_method(method): return _fail(&"invalid_minesweeper_presentation")
 	if localization != null and not localization.has_method("get_locale"): return _fail(&"invalid_minesweeper_preferences")
 	if profile != null and not profile.has_method("get_preference"): return _fail(&"invalid_minesweeper_preferences")
-	if _port != null and (_port != port or _localization != localization or _profile != profile):
+	var candidate_input: Object = input_owner if input_owner != null else get_node_or_null("/root/InputManager")
+	if candidate_input != null and not GRID.accepts_input_owner(candidate_input): return _fail(&"invalid_minesweeper_input")
+	if _port != null and (_port != port or _localization != localization or _profile != profile or _input_owner != candidate_input):
 		return {"ok":false,"code":&"minesweeper_already_configured"}
 	if not panel.bind(port): return _fail(&"invalid_minesweeper_presentation")
+	if candidate_input != null and not panel.worksheet.grid.configure_input(candidate_input): return _fail(&"invalid_minesweeper_input")
 	_port = port
 	_localization = localization
 	_profile = profile
+	_input_owner = candidate_input
 	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed",_on_locale_changed):
 		localization.connect("locale_changed",_on_locale_changed)
 	if profile != null and profile.has_signal("preference_changed") and not profile.is_connected("preference_changed",_on_preference_changed):

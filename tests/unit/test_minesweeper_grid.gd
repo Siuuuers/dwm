@@ -1,5 +1,9 @@
 extends "res://addons/gut/test.gd"
 
+const INPUT_FIXTURE := preload("res://tests/support/MinesweeperInputFixture.gd")
+var _input_fixture: RefCounted
+
+
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 
 func _cell(index: int, overrides: Dictionary = {}) -> Dictionary:
@@ -151,19 +155,33 @@ func test_accessibility_exposes_one_based_coordinate_and_visible_fact_only() -> 
 
 func test_keyboard_f_toggles_mode_and_space_requests_new_board_without_cell_action() -> void:
 	var grid: Control = _grid()
+	assert_true(_input_fixture.bind_grid(grid,grid))
 	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
 	watch_signals(grid)
 	var f: InputEventKey = InputEventKey.new()
 	f.keycode = KEY_F
+	f.physical_keycode = KEY_F
 	f.pressed = true
+	grid.grab_focus()
+	grid._input_owner._input(f)
 	grid._gui_input(f)
 	assert_eq(grid.mode,&"flag")
+	f.pressed = false
+	grid._input_owner._input(f)
+	grid._gui_input(f)
 	assert_true(grid.set_mode(&"drag"))
+	f.pressed = true
+	grid._input_owner._input(f)
 	grid._gui_input(f)
 	assert_eq(grid.mode,&"flag")
+	f.pressed = false
+	grid._input_owner._input(f)
+	grid._gui_input(f)
 	var space: InputEventKey = InputEventKey.new()
 	space.keycode = KEY_SPACE
+	space.physical_keycode = KEY_SPACE
 	space.pressed = true
+	grid._input_owner._input(space)
 	grid._gui_input(space)
 	assert_signal_emit_count(grid,"new_board_requested",1)
 	assert_signal_emit_count(grid,"cell_action_requested",0)
@@ -212,6 +230,7 @@ func test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release()
 	assert_eq(grid._held_index,-1)
 	var space: InputEventKey = InputEventKey.new()
 	space.keycode = KEY_SPACE
+	space.physical_keycode = KEY_SPACE
 	space.pressed = true
 	grid._gui_input(space)
 	assert_signal_emit_count(grid,"new_board_requested",0)
@@ -368,6 +387,7 @@ func test_second_touch_does_not_steal_and_public_cancel_ends_pan_without_releasi
 	assert_eq(grid._held_index,-1,"Mouse cannot steal a live touch gesture.")
 	var space: InputEventKey = InputEventKey.new()
 	space.keycode = KEY_SPACE
+	space.physical_keycode = KEY_SPACE
 	space.pressed = true
 	grid._gui_input(space)
 	assert_signal_emit_count(grid,"new_board_requested",0)
@@ -448,6 +468,7 @@ func test_real_f_route_emits_only_actual_valid_mode_changes() -> void:
 	add_child_autofree(viewport)
 	var grid: Control = GRID.new()
 	viewport.add_child(grid)
+	assert_true(_input_fixture.bind_grid(grid,viewport))
 	assert_true(grid.configure())
 	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
 	grid.grab_focus()
@@ -457,6 +478,7 @@ func test_real_f_route_emits_only_actual_valid_mode_changes() -> void:
 	assert_signal_emit_count(grid,"mode_changed",0)
 	var event := InputEventKey.new()
 	event.keycode = KEY_F
+	event.physical_keycode = KEY_F
 	event.pressed = true
 	viewport.push_input(event,true)
 	assert_eq(grid.mode,&"flag")
@@ -576,3 +598,10 @@ func test_interaction_block_cancels_real_touch_and_ignores_input_without_changin
 	viewport.push_input(click,true)
 	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"flag",0,7])
 	assert_eq(grid.projection,retained)
+
+func before_each() -> void:
+	_input_fixture = INPUT_FIXTURE.new()
+
+func after_each() -> void:
+	_input_fixture.restore_map()
+	_input_fixture = null

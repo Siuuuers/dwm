@@ -1,5 +1,9 @@
 extends GutTest
 
+const INPUT_FIXTURE := preload("res://tests/support/MinesweeperInputFixture.gd")
+var _input_fixture: RefCounted
+
+
 const PORT := preload("res://scripts/application/minesweeper/MinesweeperPresentationPort.gd")
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
@@ -19,6 +23,7 @@ var generation
 
 
 func before_each() -> void:
+	_input_fixture = INPUT_FIXTURE.new()
 	root_store = ROOT_STORE.new("42".repeat(32), 1)
 	issuer = ISSUER.new()
 	issuer.configure(root_store)
@@ -63,6 +68,7 @@ func test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordin
 	add_child_autofree(viewport)
 	var grid: Control = GRID.new()
 	viewport.add_child(grid)
+	assert_true(_input_fixture.bind_grid(grid,viewport))
 	assert_true(grid.configure())
 	var initial: Dictionary = port.pull("beginner")
 	assert_true(initial.ok, JSON.stringify(initial))
@@ -128,6 +134,7 @@ func test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end() 
 	add_child_autofree(viewport)
 	var worksheet: Control = WORKSHEET.new()
 	viewport.add_child(worksheet)
+	assert_true(_input_fixture.bind_grid(worksheet.grid,viewport))
 	assert_true(worksheet.configure())
 	var initial: Dictionary = port.pull("beginner")
 	assert_true(initial.ok, JSON.stringify(initial))
@@ -181,10 +188,12 @@ func test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end() 
 	viewport.push_input(wheel,true)
 	assert_true(worksheet.grid.has_held_touch(),"Wheel on the board or fit-axis blank well cannot clear the touch release gate.")
 	shortcut.keycode = KEY_F
+	shortcut.physical_keycode = KEY_F
 	shortcut.pressed = true
 	viewport.push_input(shortcut,true)
 	var confirm := InputEventKey.new()
 	confirm.keycode = KEY_ENTER
+	confirm.physical_keycode = KEY_ENTER
 	confirm.pressed = true
 	viewport.push_input(confirm,true)
 	assert_eq(worksheet.grid.mode,&"reveal","Mode shortcuts cannot clear a held finger's activation gate.")
@@ -212,6 +221,17 @@ func test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end() 
 	assert_eq(dispatched.size(),1,"Emulated mouse follow-up cannot duplicate the touch gesture.")
 	assert_eq(root_store.next_counter,counter_before_touch+1)
 	assert_eq(worksheet.grid.projection.revision,revision_before_touch+1)
+	# Prove the earlier held-touch refusal used a live mapped action. The same
+	# shortcut works after all contacts release, without another board command.
+	shortcut.pressed = false
+	viewport.push_input(shortcut,true)
+	shortcut.pressed = true
+	viewport.push_input(shortcut,true)
+	assert_eq(worksheet.grid.mode,&"flag")
+	assert_eq(dispatched.size(),1)
+	assert_eq(root_store.next_counter,counter_before_touch+1)
+	shortcut.pressed = false
+	viewport.push_input(shortcut,true)
 
 
 func test_unconfigured_invalid_and_stale_actions_allocate_nothing() -> void:
@@ -402,3 +422,7 @@ func test_foreground_cannot_hide_or_resume_an_unsettled_terminal() -> void:
 	assert_eq(port.set_foreground(true, terminal.value.revision).code, &"minesweeper_action_not_available")
 	assert_eq(root_store.next_counter, counter_before)
 	assert_eq(coordinator.get_state().value, snapshot_before)
+
+func after_each() -> void:
+	_input_fixture.restore_map()
+	_input_fixture = null

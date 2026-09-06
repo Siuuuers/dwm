@@ -13,6 +13,10 @@ const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceI
 const ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const GAME_STATE := preload("res://autoload/GameState.gd")
 const CATALOG := preload("res://scripts/data/DataCatalog.gd")
+const PROFILE := preload("res://autoload/ProfileManager.gd")
+const INPUT := preload("res://autoload/InputManager.gd")
+const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const FILES := preload("res://tests/support/FakeFileOps.gd")
 
 class IsolatedDesktop extends "res://scripts/ui/ComputerDesktop.gd":
 	# Keep all production scene routing; prevent unrelated global Contacts/host auto-injection.
@@ -28,9 +32,16 @@ var generation
 var panel_port
 var catalog
 var viewport: SubViewport
+var profile: Node
+var input: Node
+var input_map_backup: Dictionary = {}
 
 
 func before_each() -> void:
+	input_map_backup.clear()
+	for action: StringName in InputMap.get_actions():
+		input_map_backup[action] = {"deadzone": InputMap.action_get_deadzone(action),
+			"events": InputMap.action_get_events(action).duplicate(true)}
 	state = GAME_STATE.new()
 	state.reset_game()
 	state.set_stat("pressure", 0)
@@ -56,9 +67,23 @@ func before_each() -> void:
 	viewport.size = Vector2i(1024, 720)
 	viewport.handle_input_locally = true
 	add_child_autofree(viewport)
+	profile = PROFILE.new()
+	add_child_autofree(profile)
+	assert_true(profile.initialize(STORAGE.new("minesweeper-desktop-input.memory", FILES.new())).ok)
+	input = INPUT.new()
+	viewport.add_child(input)
+	assert_true(input.initialize(profile).ok)
 
 
 func after_each() -> void:
+	for action: StringName in InputMap.get_actions():
+		if not input_map_backup.has(action): InputMap.erase_action(action)
+	for action: StringName in input_map_backup:
+		if not InputMap.has_action(action): InputMap.add_action(action)
+		InputMap.action_set_deadzone(action, input_map_backup[action].deadzone)
+		InputMap.action_erase_events(action)
+		for event: InputEvent in input_map_backup[action].events: InputMap.action_add_event(action, event)
+	input_map_backup.clear()
 	state.free()
 
 
@@ -67,8 +92,19 @@ func _desktop(configured: bool = true) -> Control:
 	desktop.set_script(IsolatedDesktop)
 	viewport.add_child(desktop)
 	if configured:
-		assert_true(desktop.configure_minesweeper(panel_port, null, null, host, 1).ok)
+		assert_true(desktop.configure_minesweeper(panel_port, null, profile, host, 1, input).ok)
 	return desktop
+
+
+func _key(code: int, pressed: bool = true) -> InputEventKey:
+	var event := InputEventKey.new()
+	event.physical_keycode = code
+	event.pressed = pressed
+	return event
+
+
+func _send_key(code: int, pressed: bool = true) -> void:
+	viewport.push_input(_key(code, pressed), true)
 
 
 func _open_from_launcher(desktop: Control) -> Control:
@@ -230,15 +266,91 @@ func test_unconfigured_production_route_remains_unavailable_without_an_injected_
 
 func test_desktop_rejects_port_and_host_rebinding_without_replacing_working_owners() -> void:
 	var desktop := _desktop()
-	assert_true(desktop.configure_minesweeper(panel_port, null, null, host, 1).ok)
+	assert_true(desktop.configure_minesweeper(panel_port, null, profile, host, 1, input).ok)
 	var replacement := PANEL_PORT.new()
 	assert_true(replacement.configure(coordinator, issuer, state, catalog).ok)
-	assert_eq(desktop.configure_minesweeper(replacement, null, null, host, 1).code, &"minesweeper_already_configured")
+	assert_eq(desktop.configure_minesweeper(replacement, null, profile, host, 1, input).code, &"minesweeper_already_configured")
 	var other_host := HOST.new()
 	other_host.reset(1)
-	assert_eq(desktop.configure_minesweeper(panel_port, null, null, other_host, 1).code, &"desktop_owner_mismatch")
+	assert_eq(desktop.configure_minesweeper(panel_port, null, profile, other_host, 1, input).code, &"desktop_owner_mismatch")
 	var app := _open_from_launcher(desktop)
 	if app == null: return
 	_reveal_first(app)
 	assert_null(other_host.get_state().active_app_id)
 	assert_eq(host.get_state().active_app_id, &"minesweeper")
+
+
+func test_real_profile_input_owner_is_forwarded_to_the_cached_app_and_rebound_keyboard_route() -> void:
+	var desktop := _desktop()
+	# Drain the desktop's deferred initial launcher focus before activating it;
+	# otherwise that startup callback can steal focus from the opened grid.
+	await get_tree().process_frame
+	var app := _open_from_launcher(desktop)
+	if app == null: return
+	await get_tree().process_frame
+	var grid: Control = app.panel.worksheet.grid
+	assert_same(desktop._minesweeper_input, input)
+	assert_same(app._input_owner, input)
+	assert_same(grid._input_owner, input)
+	assert_true(grid.has_focus())
+	assert_true(input.rebind_action("game_toggle_board_mode", _key(KEY_F6)).ok)
+	assert_false(_key(KEY_F).is_action_pressed(&"game_toggle_board_mode", false, true))
+	assert_true(_key(KEY_F6).is_action_pressed(&"game_toggle_board_mode", false, true))
+	_send_key(KEY_F)
+	_send_key(KEY_F, false)
+	assert_eq(grid.mode, &"reveal", "The displaced default key no longer reaches the board.")
+	_send_key(KEY_F6)
+	_send_key(KEY_F6, false)
+	assert_eq(grid.mode, &"flag")
+	assert_true(input.get_physical_contacts().is_empty())
+	assert_true(desktop.return_home().ok)
+	var reopened: Dictionary = desktop.open_app(&"minesweeper")
+	assert_true(reopened.ok)
+	if not reopened.ok: return
+	assert_same(reopened.value.app, app)
+	assert_same(reopened.value.app.panel.worksheet.grid, grid)
+	assert_same(grid._input_owner, input)
+
+
+func test_hidden_cached_app_quarantines_a_held_rebound_toggle_until_release() -> void:
+	var desktop := _desktop()
+	var app := _open_from_launcher(desktop)
+	if app == null: return
+	await get_tree().process_frame
+	_reveal_first(app)
+	var grid: Control = app.panel.worksheet.grid
+	assert_true(input.rebind_action("game_toggle_board_mode", _key(KEY_F6)).ok)
+	assert_true(desktop.return_home().ok)
+	_send_key(KEY_F6)
+	assert_eq(grid.mode, &"reveal", "A hidden app cannot act on a newly held contact.")
+	var held: Dictionary = input.get_physical_contacts()
+	assert_eq(held.size(), 1)
+	var reopened: Dictionary = desktop.open_app(&"minesweeper")
+	assert_true(reopened.ok)
+	if not reopened.ok: return
+	await get_tree().process_frame
+	_send_key(KEY_F6)
+	assert_eq(input.get_physical_contacts(), held, "A duplicate press retains the original physical generation.")
+	assert_eq(grid.mode, &"reveal", "Returning while held cannot replay the toggle.")
+	_send_key(KEY_F6, false)
+	assert_true(input.get_physical_contacts().is_empty())
+	_send_key(KEY_F6)
+	_send_key(KEY_F6, false)
+	assert_eq(grid.mode, &"flag", "A fresh post-release generation is admitted once.")
+
+
+func test_input_owner_replacement_is_refused_without_rebinding_the_cached_grid() -> void:
+	var desktop := _desktop()
+	var app := _open_from_launcher(desktop)
+	if app == null: return
+	var grid: Control = app.panel.worksheet.grid
+	var replacement := INPUT.new()
+	viewport.add_child(replacement)
+	assert_eq(desktop.configure_minesweeper(panel_port, null, profile, host, 1, replacement).code,
+		&"minesweeper_already_configured")
+	assert_eq(app.configure_presentation(panel_port, null, profile, replacement).code,
+		&"minesweeper_already_configured")
+	assert_false(grid.configure_input(replacement))
+	assert_same(desktop._minesweeper_input, input)
+	assert_same(app._input_owner, input)
+	assert_same(grid._input_owner, input)

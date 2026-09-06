@@ -7,6 +7,7 @@ const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
+const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const LABELS := {
 	"en": ["Minesweeper", "Contacts", "Schedule", "Shop", "Backup", "Settings", "Log out"],
 	"zh-CN": ["扫雷", "联系人", "日程", "商店", "备份", "设置", "退出登录"],
@@ -29,6 +30,7 @@ var _cached_app_windows: Dictionary = {}
 var _presentation_port: Object
 var _backup_port: Object
 var _minesweeper_port: Object
+var _minesweeper_input: Object
 var _confirmation: Control
 var _localization: Object
 var _profile: Object
@@ -162,10 +164,12 @@ func open_contacts() -> Dictionary:
 	return open_app(&"contacts")
 
 func configure_minesweeper(port: Object, localization: Object = null, profile: Object = null,
-		host_state: Object = null, day: int = 1) -> Dictionary:
+		host_state: Object = null, day: int = 1, input_owner: Object = null) -> Dictionary:
 	for method: String in ["pull","dispatch","set_foreground"]:
 		if not is_instance_valid(port) or not port.has_method(method): return {"ok":false,"code":&"invalid_minesweeper_port"}
-	if _minesweeper_port != null and _minesweeper_port != port: return {"ok":false,"code":&"minesweeper_already_configured"}
+	var candidate_input: Object = input_owner if input_owner != null else get_node_or_null("/root/InputManager")
+	if candidate_input != null and not MINESWEEPER_GRID.accepts_input_owner(candidate_input): return {"ok":false,"code":&"invalid_minesweeper_input"}
+	if _minesweeper_port != null and (_minesweeper_port != port or _minesweeper_input != candidate_input): return {"ok":false,"code":&"minesweeper_already_configured"}
 	if (_host_state != null and host_state != null and _host_state != host_state) \
 			or (_localization != null and localization != null and _localization != localization) \
 			or (_profile != null and profile != null and _profile != profile): return {"ok":false,"code":&"desktop_owner_mismatch"}
@@ -175,6 +179,7 @@ func configure_minesweeper(port: Object, localization: Object = null, profile: O
 		if not candidate_host.has_method(method): return {"ok":false,"code":&"desktop_owner_unavailable"}
 	if day < 1: return {"ok":false,"code":&"desktop_owner_unavailable"}
 	_minesweeper_port = port
+	_minesweeper_input = candidate_input
 	if host_state != null: _host_state = host_state
 	if localization != null: _localization = localization
 	if profile != null: _profile = profile
@@ -244,7 +249,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		if app_id == &"contacts":
 			configured = app.configure_presentation(_presentation_port, _localization, _profile)
 		elif app_id == &"minesweeper":
-			configured = app.configure_presentation(_minesweeper_port, _localization, _profile)
+			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
 			configured = app.configure_backup(_backup_port, _localization, _profile)

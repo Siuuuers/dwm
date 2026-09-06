@@ -212,7 +212,7 @@ func _build_content() -> void:
 		if category == "controls":
 			_controls_sheet = CONTROLS_SHEET.new()
 			_controls_sheet.name = "ControlsBindings"
-			_controls_sheet.configure(self, _services.get("profile"), _services.get("controller_mapped", Callable()))
+			_controls_sheet.configure(self, _services.get("profile"), _services.get("controller_mapped", Callable()), _services.get("input"))
 			sheet.add_child(_controls_sheet)
 			_add_resets(sheet, ["controls"])
 		if category == "records":

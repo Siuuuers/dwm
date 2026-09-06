@@ -11,6 +11,7 @@ signal mode_changed(mode: StringName)
 const CELL := preload("res://scripts/ui/minesweeper/MinesweeperCell.gd")
 const TOP_KEYS := ["width","height","revision","mine_estimate","terminal","custody","cells"]
 const MODES := [&"reveal",&"flag",&"drag"]
+const TOGGLE_ACTION := &"game_toggle_board_mode"
 
 var cell_nodes: Array[Control] = []
 var focused_index := -1
@@ -41,6 +42,9 @@ var _panning := false
 var _right_stick_direction: StringName = &""
 var _longpress_callback_active := false
 var _interaction_blocked := false
+var _input_owner: Object
+var _toggle_contacts: Dictionary = {}
+var _foreground_input := true
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -48,6 +52,35 @@ func _ready() -> void:
 	focus_entered.connect(_on_focus_entered)
 	focus_exited.connect(_on_focus_exited)
 	mouse_exited.connect(_cancel_contacts)
+	visibility_changed.connect(_retain_toggle_contacts)
+
+static func accepts_input_owner(input_owner: Object) -> bool:
+	if not is_instance_valid(input_owner): return false
+	for method: String in ["get_physical_contacts","get_physical_contact_id","is_source_input_admitted"]:
+		if not input_owner.has_method(method): return false
+	for event: String in ["input_bindings_changed","source_input_custody_changed"]:
+		if not input_owner.has_signal(event): return false
+	return true
+
+func configure_input(input_owner: Object) -> bool:
+	if not accepts_input_owner(input_owner): return false
+	if _input_owner != null: return _input_owner == input_owner
+	_input_owner = input_owner
+	_input_owner.connect("input_bindings_changed",_retain_toggle_contacts)
+	_input_owner.connect("source_input_custody_changed",_retain_toggle_contacts)
+	_retain_toggle_contacts()
+	return true
+
+func _retain_toggle_contacts() -> void:
+	if is_instance_valid(_input_owner):
+		_toggle_contacts = _input_owner.get_physical_contacts()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT: _foreground_input = false
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN: _foreground_input = true
+	if what in [NOTIFICATION_DISABLED,NOTIFICATION_ENABLED,NOTIFICATION_PAUSED,NOTIFICATION_UNPAUSED,
+			NOTIFICATION_APPLICATION_FOCUS_OUT,NOTIFICATION_APPLICATION_FOCUS_IN]:
+		_retain_toggle_contacts()
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
 		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
@@ -102,6 +135,7 @@ func present(value: Dictionary) -> bool:
 	projection = value.duplicate(true)
 	_rebuild()
 	if projection.custody:
+		_retain_toggle_contacts()
 		_confirm_held = false
 		cancel_pointer_gesture()
 	return true
@@ -118,6 +152,7 @@ func cancel_pointer_gesture() -> void:
 	_cancel_gestures()
 
 func cancel_input() -> void:
+	_retain_toggle_contacts()
 	_cancel_gestures()
 	_confirm_held = false
 	_joy_direction = &""
@@ -133,6 +168,7 @@ func focus_cell(index: int) -> bool:
 func set_interaction_blocked(blocked: bool) -> void:
 	if _interaction_blocked == blocked: return
 	_interaction_blocked = blocked
+	_retain_toggle_contacts()
 	_cancel_gestures()
 	_confirm_held = false
 	_joy_direction = &""
@@ -262,11 +298,7 @@ func _gui_input(event: InputEvent) -> void:
 
 func _handle_navigation(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.echo: return
-	if event is InputEventKey and event.pressed and event.keycode == KEY_F:
-		if _held_index >= 0 or _mouse_dragging or _touch_id >= 0 or _confirm_held: return
-		set_mode(&"flag" if mode in [&"drag",&"reveal"] else &"reveal")
-		accept_event()
-		return
+	if _handle_toggle(event): return
 	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
 		if _held_index >= 0 or _mouse_dragging or _touch_id >= 0 or _confirm_held: return
 		new_board_requested.emit()
@@ -316,6 +348,26 @@ func _handle_navigation(event: InputEvent) -> void:
 		var action: StringName = _mode_action(focused_index)
 		if action != &"": cell_action_requested.emit(action,focused_index,projection.revision)
 		accept_event()
+
+func _handle_toggle(event: InputEvent) -> bool:
+	if not (event is InputEventKey or event is InputEventJoypadButton) \
+			or not InputMap.has_action(TOGGLE_ACTION) or not event.is_action_pressed(TOGGLE_ACTION,false,true): return false
+	# This action belongs to the focused board. Observe physical generations from
+	# the ALWAYS input owner so releases during a disabled sheet or Pause count.
+	if not is_instance_valid(_input_owner): return true
+	var contacts: Dictionary = _input_owner.get_physical_contacts()
+	for held: String in _toggle_contacts.keys():
+		if contacts.get(held) != _toggle_contacts[held]: _toggle_contacts.erase(held)
+	var contact: String = _input_owner.get_physical_contact_id(event)
+	if contact.is_empty() or not contacts.has(contact): return true
+	var held_before := not _toggle_contacts.is_empty()
+	_toggle_contacts[contact] = contacts[contact]
+	accept_event()
+	if held_before or not _foreground_input or not has_focus() or not is_visible_in_tree() or not can_process() \
+			or not _input_owner.is_source_input_admitted(): return true
+	if _held_index >= 0 or _mouse_dragging or _touch_id >= 0 or _confirm_held: return true
+	set_mode(&"flag" if mode in [&"drag",&"reveal"] else &"reveal")
+	return true
 
 func _move_focus(delta: Vector2i) -> void:
 	if focused_index < 0: return
@@ -436,10 +488,12 @@ func _set_focused(index: int) -> void:
 	focused_cell_changed.emit(index)
 
 func _on_focus_entered() -> void:
+	_retain_toggle_contacts()
 	_refresh_contacts()
 	if focused_index >= 0: focused_cell_changed.emit(focused_index)
 
 func _on_focus_exited() -> void:
+	_retain_toggle_contacts()
 	_cancel_gestures()
 	_confirm_held = false
 	_joy_direction = &""

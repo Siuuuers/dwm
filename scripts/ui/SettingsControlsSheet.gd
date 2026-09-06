@@ -30,6 +30,7 @@ var apply_review_button: Button
 var cancel_review_button: Button
 var _content: Control
 var _profile: Object
+var _input_owner: Object
 var _buttons: Dictionary = {}
 var _headers: Dictionary = {}
 var _slot_labels: Array[Label] = []
@@ -67,11 +68,12 @@ var _review_scrolls: Array[ScrollContainer] = []
 var _original_source: Dictionary = {}
 
 
-func configure(content: Control, profile: Object, controller_mapped: Callable = Callable()) -> void:
+func configure(content: Control, profile: Object, controller_mapped: Callable = Callable(), input_owner: Object = null) -> void:
 	if not is_node_ready():
 		_content = content
 		_profile = profile
 		_controller_mapped = controller_mapped
+		_input_owner = input_owner
 
 
 func _ready() -> void:
@@ -360,6 +362,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _track(event: InputEvent) -> void:
+	if is_instance_valid(_input_owner) and _input_owner.has_method("observe_physical_contact"):
+		_input_owner.observe_physical_contact(event)
 	var id := _identity(event)
 	if id.is_empty():
 		return

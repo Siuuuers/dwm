@@ -28,6 +28,7 @@ var _profile: Node
 var _mutation_gate: Object
 var _suspension_handle: Dictionary = {}
 var _physical_contacts: Dictionary = {}
+var _contact_generation := 0
 var _resume_quarantine: Dictionary = {}
 var _resume_frame := -1
 
@@ -67,14 +68,34 @@ func is_source_input_admitted() -> bool:
 		and Engine.get_process_frames() != _resume_frame
 
 
+## Contact identity is independent of action mappings. Callers receive no mutable
+## ownership of the ledger, and a released contact never reuses its generation.
+func get_physical_contacts() -> Dictionary:
+	return _physical_contacts.duplicate()
+
+
+func get_physical_contact_id(event: InputEvent) -> String:
+	if event == null or event.device == InputEvent.DEVICE_ID_EMULATION:
+		return ""
+	return _physical_contact(event)
+
+
 func _input(event: InputEvent) -> void:
-	if event.device == InputEvent.DEVICE_ID_EMULATION:
-		return
-	var contact := _physical_contact(event)
+	observe_physical_contact(event)
+
+
+## Embedded input windows forward here before consuming their packets. A parent
+## delivery of the same press/release is harmless and does not create a new edge.
+func observe_physical_contact(event: InputEvent) -> void:
+	var contact := get_physical_contact_id(event)
 	if contact.is_empty():
 		return
 	if event.is_pressed():
-		_physical_contacts[contact] = true
+		if not _physical_contacts.has(contact):
+			# An echo without its original press is not a fresh activation.
+			if event is InputEventKey and event.echo: return
+			_contact_generation += 1
+			_physical_contacts[contact] = _contact_generation
 	else:
 		_physical_contacts.erase(contact)
 		_resume_quarantine.erase(contact)
@@ -205,6 +226,11 @@ func _on_joy_connection_changed(device_id: int, connected: bool) -> void:
 	if connected:
 		emit_signal("controller_connected", device_id)
 	else:
+		var prefix := "joy:%s:" % device_id
+		for contact: String in _physical_contacts.keys():
+			if contact.begins_with(prefix): _physical_contacts.erase(contact)
+		for contact: String in _resume_quarantine.keys():
+			if contact.begins_with(prefix): _resume_quarantine.erase(contact)
 		emit_signal("controller_disconnected", device_id)
 
 
