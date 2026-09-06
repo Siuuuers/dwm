@@ -24,6 +24,7 @@ var _warning_prior_process := Node.PROCESS_MODE_INHERIT
 var _percent := 100
 var _large := false
 var _palette := &"after_hours"
+var _command_sequence := 0
 
 func _ready() -> void:
 	super._ready()
@@ -42,6 +43,7 @@ func _ready() -> void:
 	visibility_changed.connect(func():
 		if not is_visible_in_tree():
 			panel.cancel_contacts()
+			panel.clear_status()
 			if panel.has_method("cancel_drag"): panel.cancel_drag())
 
 func configure_presentation(port: Object, locale: String = "en", percent: int = 100,
@@ -92,6 +94,7 @@ func remember_focus() -> void:
 
 func clear_presentation_cache() -> void:
 	_remembered_focus = "fresh"
+	panel.clear_status()
 	panel.selected_id = ""
 	if is_instance_valid(panel.available_scroll): panel.available_scroll.scroll_vertical = 0
 	if is_instance_valid(panel.docket_scroll): panel.docket_scroll.scroll_vertical = 0
@@ -135,12 +138,14 @@ func _notification(what: int) -> void:
 
 func _append(source_id: String) -> void:
 	if not _admit(): return
+	_command_sequence += 1
 	_busy = true
 	var result: Dictionary = _port.append(source_id,_projection.fingerprint,_locale)
 	_busy = false
 	if not result.get("ok",false):
 		_refused(result)
 		return
+	panel.clear_status()
 	var entries: Array = result.value.entries
 	var selected: String = entries[-1].id if not entries.is_empty() else ""
 	var focus_key := "source:"+source_id
@@ -150,14 +155,18 @@ func _append(source_id: String) -> void:
 
 func _move(id: String, target: int) -> void:
 	if not _admit(): return
+	_command_sequence += 1
 	_busy = true
 	var result: Dictionary = _port.move(id,target,_projection.fingerprint,_locale)
 	_busy = false
 	if not result.get("ok",false): _refused(result)
-	else: _publish(result,id,"entry:"+id)
+	else:
+		panel.clear_status()
+		_publish(result,id,"entry:"+id)
 
 func _remove(id: String) -> void:
 	if not _admit(): return
+	_command_sequence += 1
 	var old_index := 0
 	for i in _projection.entries.size():
 		if _projection.entries[i].id == id: old_index = i
@@ -167,12 +176,15 @@ func _remove(id: String) -> void:
 	if not result.get("ok",false):
 		_refused(result)
 		return
+	panel.clear_status()
 	var entries: Array = result.value.entries
 	var selected: String = entries[mini(old_index,entries.size()-1)].id if not entries.is_empty() else ""
 	_publish(result,selected,"entry:"+selected if selected != "" else "fresh")
 
 func _dispatch_done() -> void:
 	if not _admit() or not _done.is_valid(): return
+	_command_sequence += 1
+	panel.clear_status()
 	_busy = true
 	panel.cancel_contacts()
 	var prior_process := panel.process_mode
@@ -256,10 +268,11 @@ func _publish(result: Dictionary, selected: String = "", focus_key: String = "")
 func _refused(result: Dictionary) -> void:
 	if str(result.get("code","")) in ["stale_view_fingerprint","schedule_source_unavailable"]:
 		var focus_key := _focused_key()
-		_publish(_port.project(_locale),panel.selected_id,focus_key)
+		var refreshed := _publish(_port.project(_locale),panel.selected_id,focus_key)
+		if refreshed.ok: panel.set_refusal_status(str(_command_sequence))
 		return
 	if str(result.get("code","")) in ["invalid_target_index","draft_entry_not_found","day7_move_refused"]:
-		# Expected refusal retains this frame and its Focus/inspection. Host may refresh.
+		panel.set_refusal_status(str(_command_sequence))
 		return
 	_fail(StringName(result.get("code","schedule_unavailable")))
 
@@ -276,6 +289,7 @@ func _focused_key() -> String:
 
 func _fail(code: StringName) -> Dictionary:
 	_clear_warning()
+	if is_instance_valid(panel): panel.clear_status()
 	last_result = {"ok":false,"code":code}
 	if is_instance_valid(panel):
 		panel.cancel_contacts()

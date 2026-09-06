@@ -22,6 +22,8 @@ func _run() -> void:
 		{"locale":"en","percent":100,"large":false,"day7":false,"palette":&"midnight","focus":"source:0","selected":"0","unavailable":true,"file":"schedule-midnight-focus.png"},
 		{"locale":"zh-HK","percent":150,"large":true,"day7":false,"palette":&"midnight","focus":"remove","file":"schedule-midnight-hk150.png"},
 		{"locale":"en","percent":100,"large":false,"day7":false,"focus":"entry:0","selected":"0","file":"schedule-first-entry-focus.png"},
+		{"locale":"en","percent":100,"large":false,"day7":false,"status":true,"file":"schedule-status-en100.png"},
+		{"locale":"zh-HK","percent":150,"large":true,"day7":false,"palette":&"midnight","status":true,"file":"schedule-status-hk150.png"},
 	]:
 		var panel := PANEL.new()
 		viewport.add_child(panel)
@@ -42,12 +44,24 @@ func _run() -> void:
 		await process_frame
 		await process_frame
 		panel.focus_target(sample.get("focus","entry:1"))
+		if sample.get("status",false): panel.set_refusal_status("fixture-refusal")
 		for frame in 5: await RenderingServer.frame_post_draw
 		var pixels := viewport.get_texture().get_image()
 		if pixels == null or pixels.is_empty() or pixels.save_png("res://.godot/phase2r_logs/"+sample.file) != OK:
 			push_error("render capture failed")
 			quit(1)
 			return
+		if not sample.day7:
+			var compact_ink := 0
+			for py in range(104,152):
+				for px in range(48,96):
+					var pixel := pixels.get_pixel(px,py)
+					if pixel.r < 0.275 and pixel.g < 0.275 and pixel.b < 0.275: compact_ink += 1
+			if compact_ink != 256:
+				push_error("First registered compact-art pixels missing in %s: %d" % [sample.file,compact_ink])
+				quit(1)
+				return
+			print("FIRST_COMPACT_ART_VERIFIED ",sample.file," ",compact_ink)
 		# These exact native rails lie outside the ScrollContainer aperture. A
 		# clipped focus can pass all layout tests; prove the real rendered pixels.
 		var rail_pixels: Array[Vector2i] = []

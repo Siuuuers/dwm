@@ -96,3 +96,6 @@ See [warning presentation evidence](warnings.md) for the mounted modal sheet,
 retained-owner warning projection, command recovery and multilingual wrapping
 correction. Production warning copy/navigation and the listed integration and
 accessibility gaps remain open.
+
+See [refused-edit status evidence](status.md) for the pinned dock fact and its
+refresh, reflow, announcement-request and departure lifecycle.

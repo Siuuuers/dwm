@@ -6,6 +6,7 @@ signal source_requested(source_id: String)
 signal move_requested(entry_id: String, target_index: int)
 signal remove_requested(entry_id: String)
 signal done_requested
+signal status_announced(refusal_id: String)
 
 const KEY := preload("res://scripts/ui/schedule/SchedulePaperButton.gd")
 const WELL := preload("res://scripts/ui/schedule/ScheduleScrollWell.gd")
@@ -42,6 +43,9 @@ var _docket_body: Control
 var _done_enabled := false
 var _drag_entry_id := ""
 var _projection_revision := 0
+var _refusal_id := ""
+var _status_nodes: Array[Node] = []
+var _last_announced_refusal_id := ""
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(800,656)
@@ -82,6 +86,7 @@ func configure(locale: String = "en", percent: int = 100, large_targets: bool = 
 	theme = next_theme
 	theme.default_font = FONTS[locale]
 	theme.default_font_size = _font_size
+	if not _refusal_id.is_empty() and is_instance_valid(done_button): _rebuild_status()
 	return true
 
 func configure_home(home: Button) -> void:
@@ -95,6 +100,18 @@ func set_done_enabled(enabled: bool) -> void:
 		done_button.disabled = not enabled
 		done_button.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 		_wire_focus()
+
+func set_refusal_status(refusal_id: String) -> void:
+	if refusal_id.is_empty() or refusal_id == _refusal_id: return
+	_refusal_id = refusal_id
+	_rebuild_status(refusal_id != _last_announced_refusal_id)
+	if refusal_id != _last_announced_refusal_id:
+		_last_announced_refusal_id = refusal_id
+		status_announced.emit(refusal_id)
+
+func clear_status() -> void:
+	_refusal_id = ""
+	_clear_status_nodes()
 
 func set_projection(value: Dictionary, inspection: String = "", focus_key: String = "") -> bool:
 	if typeof(value.get("day_seven")) != TYPE_BOOL or typeof(value.get("sources")) != TYPE_ARRAY or typeof(value.get("entries")) != TYPE_ARRAY:
@@ -130,6 +147,7 @@ func set_projection(value: Dictionary, inspection: String = "", focus_key: Strin
 	source_buttons.clear()
 	entry_buttons.clear()
 	commands.clear()
+	_status_nodes.clear()
 	_build()
 	available_scroll.set_deferred("scroll_vertical",source_y)
 	docket_scroll.set_deferred("scroll_vertical",docket_y)
@@ -288,7 +306,32 @@ func _build() -> void:
 	_label(done_button,COPY[_locale][4],Rect2(8,0,116,done_button.size.y),"ink")
 	done_button.accessibility_name = COPY[_locale][4]
 	done_button.pressed.connect(func(): done_requested.emit())
+	_build_status()
 	_wire_focus()
+
+func _rebuild_status(announce: bool = false) -> void:
+	_clear_status_nodes()
+	if is_instance_valid(done_button): _build_status(announce)
+
+func _build_status(announce: bool = false) -> void:
+	if _refusal_id.is_empty(): return
+	var rule_rect: Rect2 = Rect2(24,580,2,56) if _large else Rect2(24,588,2,40)
+	var text_rect: Rect2 = Rect2(40,576,600,64) if _large else Rect2(40,584,600,48)
+	var before: int = get_child_count()
+	_paper(self,rule_rect,"structure")
+	var status: Label = _label(self,COPY[_locale][5],text_rect,"ink")
+	status.name = "DockStatus"
+	# Reconstructing the same fact for layout must not request live speech again.
+	status.accessibility_live = DisplayServer.LIVE_POLITE if announce else DisplayServer.LIVE_OFF
+	for index in range(before,get_child_count()):
+		_status_nodes.append(get_child(index))
+
+func _clear_status_nodes() -> void:
+	for node: Node in _status_nodes:
+		if is_instance_valid(node):
+			remove_child(node)
+			node.queue_free()
+	_status_nodes.clear()
 
 func _inspect(id: String) -> void:
 	selected_id = id

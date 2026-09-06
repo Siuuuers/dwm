@@ -93,6 +93,44 @@ func test_done_needs_a_real_handler_and_home_preserves_draft() -> void:
 	assert_eq(_view.snapshot().value.view,before)
 	assert_false(_app.visible)
 
+func test_refused_edit_status_survives_refresh_and_clears_on_success_or_departure() -> void:
+	_app.panel.source_buttons.training.pressed.emit()
+	await get_tree().process_frame
+	var id: String = _app.panel.selected_id
+	var before: Dictionary = _view.snapshot().value.view
+	watch_signals(_app.panel)
+	_app._move(id,99)
+	assert_eq(_view.snapshot().value.view,before)
+	assert_signal_emit_count(_app.panel,"status_announced",1)
+	_app._refused({"code":"invalid_target_index"})
+	assert_signal_emit_count(_app.panel,"status_announced",1,"Duplicate delivery retains one admitted refusal")
+	assert_true(_app.refresh_view().ok)
+	await get_tree().process_frame
+	assert_signal_emit_count(_app.panel,"status_announced",1)
+	_app._move(id,99)
+	assert_signal_emit_count(_app.panel,"status_announced",2,"A distinct admitted edit announces anew")
+	_app.panel.source_buttons.rest.pressed.emit()
+	assert_true(_app.panel.get_node_or_null("DockStatus") == null,"Successful append clears status")
+	_app._remove("missing-entry")
+	assert_not_null(_app.panel.get_node_or_null("DockStatus"))
+	_app.hide_window()
+	assert_null(_app.panel.get_node_or_null("DockStatus"),"Safe departure clears transient status")
+	_app.show_window()
+	await get_tree().process_frame
+	assert_null(_app.panel.get_node_or_null("DockStatus"))
+
+func test_stale_refusal_publishes_status_and_new_done_clears_it_before_await() -> void:
+	assert_true(_app.configure_presentation(_port,"en",100,false,_delayed_done).ok)
+	_app._projection.fingerprint = "stale"
+	_app.panel.source_buttons.training.pressed.emit()
+	assert_not_null(_app.panel.get_node_or_null("DockStatus"))
+	assert_eq(_view.snapshot().value.view.entries.size(),0)
+	_app.panel.done_button.pressed.emit()
+	assert_null(_app.panel.get_node_or_null("DockStatus"))
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+
 func test_pending_done_awaits_its_owner_and_refuses_edits_or_home() -> void:
 	assert_true(_app.configure_presentation(_port,"en",100,false,_delayed_done).ok)
 	_app.panel.done_button.grab_focus()
