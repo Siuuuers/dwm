@@ -111,6 +111,19 @@ func set_mode(next_mode: StringName) -> bool:
 func cancel_pointer_gesture() -> void:
 	_cancel_gestures()
 
+func cancel_input() -> void:
+	_cancel_gestures()
+	_confirm_held = false
+	_joy_direction = &""
+	_right_stick_direction = &""
+
+func focus_cell(index: int) -> bool:
+	if _interaction_blocked or projection.is_empty() or projection.custody or index < 0 or index >= cell_nodes.size(): return false
+	if not projection.cells[index].inspectable: return false
+	_set_focused(index)
+	if is_inside_tree(): grab_focus()
+	return true
+
 func set_interaction_blocked(blocked: bool) -> void:
 	if _interaction_blocked == blocked: return
 	_interaction_blocked = blocked

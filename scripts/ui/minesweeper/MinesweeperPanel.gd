@@ -2,6 +2,7 @@ extends Control
 ## Desktop composition over a public application port. Hosts explicitly refresh external changes.
 
 signal presentation_failed(code: StringName)
+signal presentation_changed()
 
 const REGISTER := preload("res://scripts/ui/minesweeper/MinesweeperRegister.gd")
 const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
@@ -68,6 +69,9 @@ func refresh() -> bool:
 	if not is_instance_valid(_port): return _fail(&"minesweeper_panel_unavailable")
 	return _receive(_port.call("pull"))
 
+func has_valid_presentation() -> bool:
+	return not _failed and not public_view.is_empty()
+
 func connect_host_focus(previous: Control, next: Control) -> bool:
 	if not is_inside_tree(): return false
 	for control: Control in [previous,next]:
@@ -98,6 +102,7 @@ func present(value: Dictionary) -> bool:
 	if assignments_changed and worksheet.information_sheet != null and _sheet_source == "assignments":
 		worksheet.information_sheet.present_assignments(public_view.assignments)
 	_apply_availability()
+	presentation_changed.emit()
 	return true
 
 func _valid(value: Dictionary) -> bool:

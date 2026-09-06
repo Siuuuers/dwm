@@ -305,3 +305,100 @@ func _assert_public_grid_projection(value: Dictionary) -> void:
 	var encoded: String = JSON.stringify(value)
 	for private_key: String in ["mine_indices", "adjacency_counts", "identity", "receipt"]:
 		assert_false(encoded.contains(private_key), private_key)
+
+
+func test_foreground_suspends_and_resumes_real_board_without_spending_or_regenerating() -> void:
+	var initial: Dictionary = port.pull("beginner")
+	var active: Dictionary = port.dispatch("reveal", 0, initial.value.revision)
+	assert_true(active.ok)
+	var flagged: Dictionary = port.dispatch("flag", 2, active.value.revision)
+	assert_true(flagged.ok)
+	var board_before: Dictionary = coordinator.get_state().value.board
+	var economy_before: Dictionary = state_port.capture().value.backup
+	var generation_before: Array = generation.call_log.duplicate(true)
+	var suspended: Dictionary = port.set_foreground(false, flagged.value.revision)
+	assert_true(suspended.ok)
+	assert_true(suspended.value.custody)
+	assert_eq(coordinator.get_state().value.phase, "ACTIVE_SUSPENDED")
+	assert_eq(coordinator.get_state().value.board, board_before)
+	_assert_public_grid_projection(suspended.value)
+	for cell: Dictionary in suspended.value.cells: assert_eq(cell.actions, [])
+	var counter_before: int = root_store.next_counter
+	assert_false(port.dispatch("unflag", 2, suspended.value.revision).ok)
+	assert_true(port.set_foreground(false, suspended.value.revision).ok)
+	assert_eq(root_store.next_counter, counter_before, "Hidden idempotence and inert cells allocate nothing.")
+	var resumed: Dictionary = port.set_foreground(true, suspended.value.revision)
+	assert_true(resumed.ok)
+	assert_false(resumed.value.custody)
+	assert_eq(coordinator.get_state().value.phase, "ACTIVE_VISIBLE")
+	assert_eq(coordinator.get_state().value.board, board_before)
+	assert_eq(resumed.value.cells, flagged.value.cells)
+	assert_eq(state_port.capture().value.backup, economy_before)
+	assert_eq(generation.call_log, generation_before)
+	counter_before = root_store.next_counter
+	assert_true(port.set_foreground(true, resumed.value.revision).ok)
+	assert_eq(root_store.next_counter, counter_before)
+
+
+func test_foreground_noops_unpaid_and_prepared_but_refuses_preparation_custody() -> void:
+	var unpaid: Dictionary = port.pull("beginner")
+	var counter_before: int = root_store.next_counter
+	assert_true(port.set_foreground(false, unpaid.value.revision).ok)
+	assert_true(port.set_foreground(true, unpaid.value.revision).ok)
+	assert_eq(root_store.next_counter, counter_before)
+	var context: Dictionary = coordinator.get_entry_context("beginner").value
+	var begin_tx := _issue_transaction()
+	assert_true(coordinator.begin_debug_preparation({
+		"transaction_id": begin_tx.id, "transaction_issuer_receipt": begin_tx.receipt,
+		"expected_identity": context.identity, "expected_revision": context.revision, "difficulty_id": "beginner",
+	}).ok)
+	var preparing: Dictionary = port.pull("beginner")
+	counter_before = root_store.next_counter
+	assert_false(port.set_foreground(false, preparing.value.revision).ok)
+	assert_false(port.set_foreground(true, preparing.value.revision).ok)
+	assert_eq(root_store.next_counter, counter_before)
+	var slices: Array[Dictionary] = [{"done": true, "layout": {"schema_version": 1, "width": 3, "height": 3,
+		"mine_indices": [1], "mine_count": 1}, "forced_cell": 0, "proof_sha256": null}]
+	generation.arm_search_slices(slices)
+	var slice_tx := _issue_transaction()
+	assert_true(coordinator.run_debug_preparation_slice({
+		"transaction_id": slice_tx.id, "transaction_issuer_receipt": slice_tx.receipt,
+		"expected_identity": context.identity, "expected_revision": preparing.value.revision,
+	}).ok)
+	var prepared: Dictionary = port.pull("beginner")
+	var snapshot_before: Dictionary = coordinator.get_state().value
+	counter_before = root_store.next_counter
+	assert_true(port.set_foreground(false, prepared.value.revision).ok)
+	assert_true(port.set_foreground(true, prepared.value.revision).ok)
+	assert_eq(root_store.next_counter, counter_before)
+	assert_eq(coordinator.get_state().value, snapshot_before)
+
+
+func test_foreground_stale_revision_refuses_before_allocation_and_returns_current_public_view() -> void:
+	var initial: Dictionary = port.pull("beginner")
+	var active: Dictionary = port.dispatch("reveal", 0, initial.value.revision)
+	var snapshot: Dictionary = coordinator.get_state().value
+	var tx := _issue_transaction()
+	assert_true(coordinator.set_flag({"transaction_id": tx.id, "transaction_issuer_receipt": tx.receipt,
+		"expected_identity": snapshot.identity, "expected_revision": snapshot.revision, "cell_index": 2, "flagged": true}).ok)
+	var counter_before: int = root_store.next_counter
+	var refused: Dictionary = port.set_foreground(false, active.value.revision)
+	assert_eq(refused.code, &"stale_minesweeper_presentation")
+	assert_eq(refused.value.cells[2].mark, "flag")
+	assert_eq(coordinator.get_state().value.phase, "ACTIVE_VISIBLE")
+	assert_eq(root_store.next_counter, counter_before)
+	assert_eq(port.set_foreground(false, initial.value.revision).code, &"stale_minesweeper_presentation")
+	assert_eq(root_store.next_counter, counter_before)
+
+
+func test_foreground_cannot_hide_or_resume_an_unsettled_terminal() -> void:
+	var initial: Dictionary = port.pull("beginner")
+	var active: Dictionary = port.dispatch("reveal", 0, initial.value.revision)
+	var terminal: Dictionary = port.dispatch("reveal", 1, active.value.revision)
+	assert_true(terminal.value.terminal)
+	var snapshot_before: Dictionary = coordinator.get_state().value
+	var counter_before: int = root_store.next_counter
+	assert_eq(port.set_foreground(false, terminal.value.revision).code, &"minesweeper_action_not_available")
+	assert_eq(port.set_foreground(true, terminal.value.revision).code, &"minesweeper_action_not_available")
+	assert_eq(root_store.next_counter, counter_before)
+	assert_eq(coordinator.get_state().value, snapshot_before)

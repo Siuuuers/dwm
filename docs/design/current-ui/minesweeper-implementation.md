@@ -319,3 +319,73 @@ mismatch, and the Tab-wrap regression runs as well as the passing final runs.
 Independent review checked the journal linkage, command freshness, publication
 boundaries and host focus connection. No merge, runtime cutover or player-save
 mutation was performed.
+
+## Desktop app and Home lifecycle continuation
+
+The actual `MinesweeperApp.tscn` now mounts the connected panel. The placeholder
+difficulty tabs, simulation outcome buttons and invitation notification nodes are
+removed. The inherited local title bar is hidden; the app occupies the desktop's
+800-by-656 logical body beneath its single shared 64-pixel strip.
+
+`ComputerDesktop.configure_minesweeper` accepts an explicitly supplied ready
+presentation/lifecycle port and the retained desktop host. The launcher remains
+unavailable when that service is absent. It does not obtain a private Bootstrap
+field or install a fixture. The stable Bootstrap's application coordinator still
+lacks base generation/checkpoint configuration and a live-run identity context;
+its recorded object IDs are construction evidence, not readiness. Production
+startup wiring remains an integration dependency alongside the ongoing external
+`dwm-oyo.3` work, whose last inspected state is still uncommitted Step 5 at
+`1790785bc`. No files from that dirty worktree were changed or absorbed.
+
+Both presentation ports now provide `set_foreground`. Home suspends an active
+board before the host hides its cached app; reopening resumes it before input is
+restored. Identity, phase, revision and public projection are rechecked before
+issuer allocation. Unpaid/prepared and already-correct visibility transitions are
+no-ops. Suspension preserves the board, Flags, action history and frozen tier,
+spends nothing and performs no generation. Preparing, unsettled terminal and
+settling custody still refuse departure; visibility cannot invent settlement.
+
+The app remembers semantic focus, mode, cell and manual scroll across Home. First
+entry uses the grid's repaired legal cell, including an offscreen forced first
+cell; an invalid remembered cell falls back to current legal focus. Hidden apps
+and application/window focus loss cancel pointer, touch and keyboard latches.
+Rules and Assignments disable shared Home and consume Back locally. Missing
+lifecycle publications block the old view without rewriting its public facts;
+the existing desktop failure route receives recovery requests.
+
+Locale and text/target preferences update the mounted app without resetting its
+board or reading position. Canonical `text_size` and `large_targets` keys take
+precedence, with the committed lineage's `font_scale` and `large_click_targets`
+used only when the newer keys are absent. This is read compatibility, not a save
+migration or proof that the separate Settings branch is integrated. The app uses
+After Hours until a captured run palette owner is available.
+
+Actual GPU inspection found that shared Home's draw guard rejected an inherited
+theme even though the button was clickable. The primitive now checks its resolved
+Desktop color instead of requiring a local Theme resource. A failing pixel
+regression preceded the fix; final captures prove the Home pictogram and its
+blocked-action edge while Rules owns input.
+
+Verification: **205 tests / 6,269 assertions pass** across twenty-three suites,
+including seven actual Desktop/App tests over the real host, coordinator, issuer,
+GameState and public queries. Generation and checkpoint fixtures remain explicitly
+in-memory and test-only. Three OpenGL captures show real Reveal/Flag, Rules, and
+Home/reopen in EN100, zh-CN125 and zh-HK150 Large. Evidence and the complete wrapper
+invocation ledger are in `evidence/minesweeper_app`. Existing durable transaction
+tests also pass. The final runs retain the existing 24 Dialogic orphans and known
+certificate/Unicode diagnostics.
+
+The documented `tools/desktop_shell/verify.py` runner also passes the existing
+Contacts/Settings/shared-shell regression in its disposable no-autoload project;
+its portable evidence and exact source hashes are refreshed. An earlier direct
+invocation of that suite in the main project failed because game autoloads
+conflicted with the suite's explicitly constructed managers; that invocation is
+retained and is not reported as a product regression. Raw disposable-project logs
+remain intact; portable copies use LF and one final newline. A separate initial
+focus test's zero-scroll assumption was corrected to the actual contract: the
+current legal cell must be fully visible and the obsolete manual pan discarded.
+
+This is an implemented and tested injected desktop route, not production gameplay
+cutover or Minesweeper completion. Production generation/live identity, New Board,
+tier changes, Foresight, settled terminal inspection, canonical hosts, remaining
+accessibility/input palettes and combined restore/save integration remain open.

@@ -1,19 +1,213 @@
 extends AppWindowBase
 class_name MinesweeperApp
+## Cached desktop body. Lifecycle admission precedes visibility; gameplay stays in the injected port.
 
-## Minesweeper app window. Placeholder difficulty/status/simulation controls (prompt_docs/requirements/desktop_minesweeper_handoff.md).
+signal recovery_requested(code: StringName)
+signal foreground_availability_changed()
 
-@onready var difficulty_tabs: TabBar = %DifficultyTabs
-@onready var status_row: HBoxContainer = %StatusRow
-@onready var tool_row: HBoxContainer = %ToolRow
-@onready var task_list_panel: Control = %TaskListPanel
-@onready var board_scroll: ScrollContainer = %BoardScroll
-@onready var simulation_buttons: HBoxContainer = %SimulationButtons
-@onready var invitation_notification: Control = %InvitationNotification
+const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
+const PREFERENCE_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets",
+	"preferences.accessibility.font_scale","preferences.accessibility.large_click_targets"]
+
+var panel: Control
+var last_result: Dictionary = {"ok":false,"code":&"minesweeper_unconfigured"}
+var _port: Object
+var _localization: Object
+var _profile: Object
+var _home: Button
+var _busy := false
+var _show_prepared := false
+var _hide_prepared := false
+var _focus_key := "grid"
+var _cell := 0
+var _scroll := Vector2i.ZERO
+var _restoring_focus := false
+var _has_cached_navigation := false
 
 func _ready() -> void:
 	super._ready()
-	if is_instance_valid(task_list_panel):
-		task_list_panel.visible = false
-	if is_instance_valid(invitation_notification):
-		invitation_notification.visible = false
+	custom_minimum_size = Vector2(800,656)
+	add_theme_stylebox_override("panel",StyleBoxEmpty.new())
+	$VBoxContainer/TopBar.hide()
+	$VBoxContainer.add_theme_constant_override("separation",0)
+	_content_host.custom_minimum_size = custom_minimum_size
+	panel = PANEL.new()
+	panel.name = "MinesweeperPanel"
+	_content_host.add_child(panel)
+	panel.presentation_failed.connect(_on_failure)
+	panel.presentation_changed.connect(_on_presented)
+	panel.dock.action_requested.connect(func(_action: StringName): _update_home())
+	panel.worksheet.information_closed.connect(_update_home)
+	get_viewport().gui_focus_changed.connect(func(_control: Control): remember_focus())
+	visibility_changed.connect(_on_visibility_changed)
+	_on_visibility_changed()
+
+func configure_presentation(port: Object, localization: Object = null, profile: Object = null) -> Dictionary:
+	if not is_node_ready() or not is_instance_valid(port): return _fail(&"minesweeper_unconfigured")
+	for method: String in ["pull","dispatch","set_foreground"]:
+		if not port.has_method(method): return _fail(&"invalid_minesweeper_presentation")
+	if localization != null and not localization.has_method("get_locale"): return _fail(&"invalid_minesweeper_preferences")
+	if profile != null and not profile.has_method("get_preference"): return _fail(&"invalid_minesweeper_preferences")
+	if _port != null and (_port != port or _localization != localization or _profile != profile):
+		return {"ok":false,"code":&"minesweeper_already_configured"}
+	if not panel.bind(port): return _fail(&"invalid_minesweeper_presentation")
+	_port = port
+	_localization = localization
+	_profile = profile
+	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed",_on_locale_changed):
+		localization.connect("locale_changed",_on_locale_changed)
+	if profile != null and profile.has_signal("preference_changed") and not profile.is_connected("preference_changed",_on_preference_changed):
+		profile.connect("preference_changed",_on_preference_changed)
+	if not _apply_preferences(): return _fail(&"invalid_minesweeper_preferences")
+	return refresh_view()
+
+func refresh_view() -> Dictionary:
+	if _port == null or not panel.refresh(): return _fail(&"minesweeper_presentation_unavailable")
+	last_result = {"ok":true}
+	_update_home()
+	return last_result.duplicate()
+
+func prepare_show_window() -> Dictionary:
+	if _show_prepared: return {"ok":true}
+	var result := _foreground(true)
+	_show_prepared = result.get("ok",false)
+	return result
+
+func prepare_return_home() -> Dictionary:
+	if _hide_prepared: return {"ok":true}
+	if not can_return_home(): return {"ok":false,"code":&"desktop_modal_active"}
+	remember_focus()
+	_cell = maxi(0,panel.worksheet.grid.focused_index)
+	_scroll = panel.worksheet.get_scroll()
+	_has_cached_navigation = true
+	var result := _foreground(false)
+	_hide_prepared = result.get("ok",false)
+	return result
+
+func _foreground(foreground: bool) -> Dictionary:
+	if _busy or _port == null or not panel.has_valid_presentation(): return _fail(&"minesweeper_presentation_unavailable")
+	_busy = true
+	var result: Variant = _port.call("set_foreground",foreground,panel.public_view.board.revision)
+	_busy = false
+	if not result is Dictionary:
+		panel.present({})
+		return _fail(&"minesweeper_presentation_unavailable")
+	if result.get("value") is Dictionary: panel.present(result.value)
+	else: panel.present({})
+	if not result.get("ok",false): return _fail(&"minesweeper_foreground_refused")
+	if not result.get("value") is Dictionary or not panel.has_valid_presentation(): return _fail(&"minesweeper_presentation_unavailable")
+	last_result = {"ok":true}
+	return last_result.duplicate()
+
+func show_window() -> void:
+	if not prepare_show_window().get("ok",false): return
+	_show_prepared = false
+	_hide_prepared = false
+	show()
+	panel.process_mode = Node.PROCESS_MODE_INHERIT
+	_restore_focus()
+	_update_home()
+
+func hide_window() -> void:
+	if not prepare_return_home().get("ok",false): return
+	_show_prepared = false
+	hide()
+	window_hidden.emit()
+
+func can_return_home() -> bool:
+	if _hide_prepared: return true
+	return not _busy and panel != null and panel.has_valid_presentation() \
+		and panel.worksheet.information_sheet == null and not panel.public_view.board.custody
+
+func configure_desktop_home(home: Button) -> void:
+	_home = home
+	if is_node_ready(): _update_home()
+
+func _update_home() -> void:
+	if not is_instance_valid(_home) or not is_visible_in_tree(): return
+	var enabled := can_return_home()
+	_home.disabled = not enabled
+	_home.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
+	panel.connect_host_focus(_home,_home)
+	_home.focus_next = _home.get_path_to(panel.worksheet.grid)
+	_home.focus_neighbor_bottom = _home.focus_next
+	_home.focus_previous = _home.get_path_to(panel.dock.buttons.rules) if panel.dock.buttons.has("rules") else NodePath()
+	foreground_availability_changed.emit()
+
+func remember_focus() -> void:
+	if panel == null or not is_visible_in_tree() or _restoring_focus or _busy: return
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused == panel.worksheet.grid: _focus_key = "grid"
+	elif focused != null and focused == panel.worksheet.vertical_rail: _focus_key = "vertical"
+	elif focused != null and focused == panel.worksheet.horizontal_rail: _focus_key = "horizontal"
+	else:
+		for key: String in panel.dock.buttons:
+			if focused == panel.dock.buttons[key]: _focus_key = key
+
+func _restore_focus() -> void:
+	_restoring_focus = true
+	var restore_scroll := _has_cached_navigation
+	var target: Control = panel.dock.buttons.get(_focus_key)
+	if _focus_key == "vertical": target = panel.worksheet.vertical_rail
+	elif _focus_key == "horizontal": target = panel.worksheet.horizontal_rail
+	if _focus_key == "grid" or target == null or target.focus_mode == Control.FOCUS_NONE:
+		var index: int = _cell if _has_cached_navigation else panel.worksheet.grid.focused_index
+		if not panel.worksheet.grid.focus_cell(index):
+			restore_scroll = false
+			if not panel.worksheet.grid.focus_cell(panel.worksheet.grid.focused_index) and is_instance_valid(_home): _home.grab_focus()
+	else: target.grab_focus()
+	if restore_scroll: panel.worksheet.set_scroll(_scroll)
+	_restoring_focus = false
+
+func _on_visibility_changed() -> void:
+	if panel == null: return
+	if not is_visible_in_tree():
+		panel.worksheet.grid.cancel_input()
+		panel.process_mode = Node.PROCESS_MODE_DISABLED
+	else: panel.process_mode = Node.PROCESS_MODE_INHERIT
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_visible_in_tree(): return
+	if panel.worksheet.information_sheet != null: return
+	if event.is_action_pressed("ui_cancel"):
+		hide_window()
+		get_viewport().set_input_as_handled()
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT,NOTIFICATION_APPLICATION_FOCUS_OUT] and is_instance_valid(panel): panel.worksheet.grid.cancel_input()
+
+func _apply_preferences() -> bool:
+	var locale := str(_localization.get_locale()).replace("_","-") if _localization != null else "en"
+	var percent: Variant = _profile.get_preference("preferences.accessibility.text_size",null) if _profile != null else 100
+	if percent == null:
+		var scale_value: Variant = _profile.get_preference("preferences.accessibility.font_scale",1.0)
+		if typeof(scale_value) not in [TYPE_INT,TYPE_FLOAT]: return false
+		percent = 150 if scale_value >= 1.5 else (125 if scale_value >= 1.25 else 100)
+	var large: Variant = _profile.get_preference("preferences.accessibility.large_targets",null) if _profile != null else false
+	if large == null: large = _profile.get_preference("preferences.accessibility.large_click_targets",false)
+	if typeof(percent) != TYPE_INT or typeof(large) != TYPE_BOOL: return false
+	# No captured Dark palette owner exists on this run lineage yet.
+	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
+	if not panel.configure(locale,percent,large,&"after_hours"): return false
+	panel.worksheet.set_scroll(retained_scroll)
+	return true
+
+func _on_locale_changed(_locale: String) -> void:
+	if not _apply_preferences(): _fail(&"invalid_minesweeper_preferences")
+	_update_home()
+
+func _on_preference_changed(path: StringName, _value: Variant) -> void:
+	if String(path) in PREFERENCE_KEYS: _on_locale_changed("")
+
+func _on_presented() -> void:
+	last_result = {"ok":true}
+	_update_home()
+
+func _on_failure(code: StringName) -> void:
+	last_result = {"ok":false,"code":code}
+	recovery_requested.emit(code)
+	_update_home()
+
+func _fail(code: StringName) -> Dictionary:
+	_on_failure(code)
+	return last_result.duplicate()

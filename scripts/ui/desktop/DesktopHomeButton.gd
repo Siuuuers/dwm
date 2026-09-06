@@ -13,7 +13,7 @@ func _ready() -> void:
 		event.connect(queue_redraw)
 
 func _draw() -> void:
-	if theme == null:
+	if not has_theme_color("face", "Desktop"):
 		return
 	var ink := get_theme_color("face" if current_on_launcher else "ink", "Desktop")
 	draw_rect(Rect2(0, 0, 64, 64), get_theme_color("current" if current_on_launcher else "face", "Desktop"))

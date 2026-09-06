@@ -28,6 +28,7 @@ var _clock_reader: Callable
 var _cached_app_windows: Dictionary = {}
 var _presentation_port: Object
 var _backup_port: Object
+var _minesweeper_port: Object
 var _confirmation: Control
 var _localization: Object
 var _profile: Object
@@ -160,6 +161,33 @@ func configure_contacts(port: Object, localization: Object = null, profile: Obje
 func open_contacts() -> Dictionary:
 	return open_app(&"contacts")
 
+func configure_minesweeper(port: Object, localization: Object = null, profile: Object = null,
+		host_state: Object = null, day: int = 1) -> Dictionary:
+	for method: String in ["pull","dispatch","set_foreground"]:
+		if not is_instance_valid(port) or not port.has_method(method): return {"ok":false,"code":&"invalid_minesweeper_port"}
+	if _minesweeper_port != null and _minesweeper_port != port: return {"ok":false,"code":&"minesweeper_already_configured"}
+	if (_host_state != null and host_state != null and _host_state != host_state) \
+			or (_localization != null and localization != null and _localization != localization) \
+			or (_profile != null and profile != null and _profile != profile): return {"ok":false,"code":&"desktop_owner_mismatch"}
+	if host_state == null and _host_state == null: return {"ok":false,"code":&"desktop_owner_unavailable"}
+	var candidate_host: Object = host_state if host_state != null else _host_state
+	for method: String in ["get_state","open_app","close_app"]:
+		if not candidate_host.has_method(method): return {"ok":false,"code":&"desktop_owner_unavailable"}
+	if day < 1: return {"ok":false,"code":&"desktop_owner_unavailable"}
+	_minesweeper_port = port
+	if host_state != null: _host_state = host_state
+	if localization != null: _localization = localization
+	if profile != null: _profile = profile
+	_day = day
+	if _localization != null and _localization.has_signal("locale_changed") and not _localization.is_connected("locale_changed",_on_launcher_locale_changed):
+		_localization.connect("locale_changed",_on_launcher_locale_changed)
+	if _profile != null and _profile.has_signal("preference_changed") and not _profile.is_connected("preference_changed",_on_preference_changed):
+		_profile.connect("preference_changed",_on_preference_changed)
+	if is_node_ready():
+		_refresh_launcher()
+		if _host_state.get_state().get("active_app_id") == &"minesweeper": return open_app(&"minesweeper")
+	return {"ok":true}
+
 func configure_backup_port(port: Object) -> Dictionary:
 	for method in ["get_projection", "prepare_action", "commit_action", "cancel_action"]:
 		if port == null or not port.has_method(method):
@@ -189,7 +217,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		return {"ok": false, "code": &"desktop_modal_active"}
 	if not APP_REGISTRY.new().has_app(app_id):
 		return _route_failure(&"unknown_app_id")
-	if app_id not in [&"contacts", &"settings", &"backup"]:
+	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper"] or (app_id == &"minesweeper" and _minesweeper_port == null):
 		return _route_failure(&"desktop_app_unavailable")
 	if _active_id != &"" and _active_id != app_id:
 		return _route_failure(&"desktop_app_transition_unavailable")
@@ -215,6 +243,8 @@ func open_app(app_id: StringName) -> Dictionary:
 		var configured: Dictionary
 		if app_id == &"contacts":
 			configured = app.configure_presentation(_presentation_port, _localization, _profile)
+		elif app_id == &"minesweeper":
+			configured = app.configure_presentation(_minesweeper_port, _localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
 			configured = app.configure_backup(_backup_port, _localization, _profile)
@@ -226,11 +256,17 @@ func open_app(app_id: StringName) -> Dictionary:
 			return _route_failure(configured.get("code", &"desktop_app_unavailable"))
 		app.configure_desktop_home(home_button)
 		app.window_hidden.connect(_on_app_hidden.bind(app_id))
+		if app_id == &"minesweeper":
+			app.recovery_requested.connect(_route_failure)
+			app.panel.presentation_changed.connect(status_label.hide)
 		_cached_app_windows[app_id] = app
-	elif app_id == &"backup":
+	elif app_id in [&"backup", &"minesweeper"]:
 		var refreshed: Dictionary = app.refresh_view()
 		if not refreshed.get("ok", false):
-			return _route_failure(&"backup_unavailable")
+			return _route_failure(refreshed.get("code", &"desktop_app_unavailable"))
+	if app.has_method("prepare_show_window"):
+		var prepared: Dictionary = app.prepare_show_window()
+		if not prepared.get("ok",false): return _route_failure(prepared.get("code",&"desktop_open_rejected"))
 	if _host_state != null:
 		var opened: Dictionary = _host_state.open_app(app_id, _day)
 		if not opened.get("ok", false):
@@ -252,6 +288,9 @@ func return_home() -> Dictionary:
 		return _route_failure(&"desktop_view_unavailable")
 	if app.has_method("can_return_home") and not app.can_return_home():
 		return {"ok": false, "code": &"desktop_modal_active"}
+	if app.has_method("prepare_return_home"):
+		var prepared: Dictionary = app.prepare_return_home()
+		if not prepared.get("ok",false): return _route_failure(prepared.get("code",&"desktop_home_rejected"))
 	if _host_state != null:
 		var closed: Dictionary = _host_state.close_app()
 		if not closed.get("ok", false):

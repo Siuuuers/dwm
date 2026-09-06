@@ -288,3 +288,46 @@ func test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only(
 	assert_eq(state.to_save_dict(), state_before)
 	assert_eq(coordinator.get_state().value, board_before)
 	assert_signal_not_emitted(panel, "presentation_failed")
+
+
+func test_panel_foreground_preserves_frozen_register_and_history_without_spending() -> void:
+	var initial: Dictionary = port.pull()
+	var active: Dictionary = port.dispatch("reveal", 0, initial.value.board.revision)
+	var flagged: Dictionary = port.dispatch("flag", 2, active.value.board.revision)
+	state.minesweeper_selected_difficulty = "expert"
+	var state_before: Dictionary = state.to_save_dict().duplicate(true)
+	var board_before: Dictionary = coordinator.get_state().value.board
+	var generation_before: Array = generation.call_log.duplicate(true)
+	var suspended: Dictionary = port.set_foreground(false, flagged.value.board.revision)
+	assert_true(suspended.ok)
+	assert_true(suspended.value.register.custody)
+	assert_eq(suspended.value.actions, [])
+	assert_eq(suspended.value.register.difficulty, "beginner")
+	assert_eq(suspended.value.register.no_flag, "lost")
+	assert_eq(suspended.value.register.mine_estimate, 9)
+	var counter_before: int = root_store.next_counter
+	assert_true(port.set_foreground(false, suspended.value.board.revision).ok)
+	assert_false(port.dispatch("unflag", 2, suspended.value.board.revision).ok)
+	assert_eq(root_store.next_counter, counter_before)
+	var resumed: Dictionary = port.set_foreground(true, suspended.value.board.revision)
+	assert_true(resumed.ok)
+	assert_false(resumed.value.register.custody)
+	assert_eq(resumed.value.actions, ACTIONS)
+	assert_eq(resumed.value.register, flagged.value.register)
+	assert_eq(coordinator.get_state().value.board, board_before)
+	assert_eq(state.to_save_dict(), state_before)
+	assert_eq(generation.call_log, generation_before)
+	counter_before = root_store.next_counter
+	assert_true(port.set_foreground(true, resumed.value.board.revision).ok)
+	assert_eq(root_store.next_counter, counter_before)
+
+
+func test_panel_foreground_refuses_changed_unpaid_tier_before_allocation() -> void:
+	var initial: Dictionary = port.pull()
+	state.minesweeper_selected_difficulty = "expert"
+	var counter_before: int = root_store.next_counter
+	var refused: Dictionary = port.set_foreground(false, initial.value.board.revision)
+	assert_eq(refused.code, &"minesweeper_panel_command_refused")
+	assert_eq(refused.value.register.difficulty, "expert")
+	assert_eq(root_store.next_counter, counter_before)
+	assert_eq(coordinator.get_state().value.phase, "NONE")

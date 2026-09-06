@@ -74,19 +74,29 @@ func pull() -> Dictionary:
 
 
 func dispatch(action: String, index: int, revision: int) -> Dictionary:
+	if not _has_fresh_difficulty(): return _refused()
+	var result: Dictionary = _board_port.call(&"dispatch", action, index, revision)
+	if not result.get("ok", false): return _refused()
+	return pull()
+
+
+func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
+	if not _has_fresh_difficulty(): return _refused()
+	var result: Dictionary = _board_port.call(&"set_foreground", foreground, expected_revision)
+	if not result.get("ok", false): return _refused()
+	return pull()
+
+
+func _has_fresh_difficulty() -> bool:
 	if not _presented or not is_instance_valid(_owner) or not is_instance_valid(_issuer):
-		return _refused()
+		return false
 	# The unpaid tier can change without a board revision. Read it without adopting a new
 	# board-port identity: that port must still reject commands from a stale presentation.
 	var current: Variant = _owner.call(&"get_state")
 	if not current is Dictionary or not current.get("ok", false) or not current.get("value") is Dictionary:
-		return _refused()
+		return false
 	var register: Dictionary = REGISTER.desktop(current.value, _game_state)
-	if not register.get("ok", false) or register.value.difficulty != _presented_difficulty:
-		return _refused()
-	var result: Dictionary = _board_port.call(&"dispatch", action, index, revision)
-	if not result.get("ok", false): return _refused()
-	return pull()
+	return register.get("ok", false) and register.value.difficulty == _presented_difficulty
 
 
 func _refused() -> Dictionary:

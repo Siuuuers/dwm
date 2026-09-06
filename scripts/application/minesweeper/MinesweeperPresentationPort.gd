@@ -104,6 +104,45 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	return _success(_projection.duplicate(true))
 
 
+func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
+	if not is_instance_valid(_owner) or not is_instance_valid(_issuer) or _projection.is_empty():
+		return _failure(&"minesweeper_presentation_unavailable")
+	var current := _read_owner(_difficulty)
+	if not current.ok:
+		_clear()
+		return _failure(&"minesweeper_presentation_unavailable")
+	if expected_revision != _revision or int(current.value.revision) != _revision \
+			or current.value.identity != _identity or current.value.phase != _phase \
+			or current.value.projection != _projection:
+		_adopt(current.value)
+		return _failure(&"stale_minesweeper_presentation", _projection)
+	# An unsettled terminal is still under owner custody. Visibility cannot settle or bypass it.
+	if _projection.terminal or _phase in ["PREPARING", "SETTLING"]:
+		return _failure(&"minesweeper_action_not_available", _projection)
+	if _phase in ["NONE", "PREPARED_UNSTARTED"] \
+			or foreground and _phase == "ACTIVE_VISIBLE" \
+			or not foreground and _phase == "ACTIVE_SUSPENDED":
+		return _success(_projection.duplicate(true))
+	var method: StringName = &"resume" if foreground else &"suspend"
+	if not _owner.has_method(method): return _failure(&"minesweeper_action_not_available", _projection)
+	var issued: Dictionary = _issuer.call(&"issue", &"transaction_id")
+	if not issued.get("ok", false): return _failure(&"minesweeper_command_refused", _projection)
+	var value: Dictionary = issued.get("value", {})
+	if not value.has("token") or not value.get("issuer_receipt") is Dictionary:
+		return _failure(&"minesweeper_command_refused", _projection)
+	var result: Dictionary = _owner.call(method, {
+		"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt.duplicate(true),
+		"expected_identity": (_identity as Dictionary).duplicate(true), "expected_revision": _revision,
+	})
+	var after := _read_owner(_difficulty)
+	if not after.ok:
+		_clear()
+		return _failure(&"minesweeper_presentation_unavailable")
+	_adopt(after.value)
+	if not result.get("ok", false): return _failure(&"minesweeper_command_refused", _projection)
+	return _success(_projection.duplicate(true))
+
+
 func _read_owner(difficulty: String) -> Dictionary:
 	var state_result: Dictionary = _owner.call(&"get_state")
 	if not state_result.get("ok", false) or not state_result.get("value") is Dictionary:
