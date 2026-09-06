@@ -23,7 +23,7 @@ func prepare(input: Dictionary) -> Dictionary:
 	var candidate: Dictionary = prepared.get("value", {})
 	return {"ok": true, "code": &"ok", "value": {
 		"profile_plan": {"profile": candidate.duplicate(true)},
-		"locale_id": str((candidate.get("preferences", {}) as Dictionary).get("language", "")),
+		"locale_id": str(((candidate.get("preferences", {}) as Dictionary).get("language", {}) as Dictionary).get("primary_locale_id", "")),
 	}}
 
 func capture() -> Dictionary:

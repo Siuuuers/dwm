@@ -2,6 +2,7 @@ extends "res://addons/gut/test.gd"
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const ROOT := "localization-tests/root"
+const PROFILE_SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 
 class FakePresentationRoot:
 	extends Node
@@ -61,10 +62,26 @@ func _require(path: String) -> Script:
 func _initialize() -> Dictionary:
 	return _manager.initialize(_profile)
 
-func _seed_language(locale_id: String) -> Dictionary:
-	var prepared: Dictionary = _profile.prepare_locale_preference(locale_id)
-	if not prepared.get("ok", false): return prepared
-	return _profile.commit_prepared_profile(prepared["value"])
+func _legacy_v1_profile(locale_id: String) -> Dictionary:
+	# Explicit persisted v1 fixture: aliases/removed locales are migration input,
+	# never values smuggled through the canonical Profile preference validator.
+	var preferences := {}
+	for path in PROFILE_SCHEMA.LEGACY_PREFERENCE_DEFAULTS:
+		var parts: PackedStringArray = String(path).split(".")
+		if parts.size() == 2:
+			preferences[parts[1]] = PROFILE_SCHEMA.LEGACY_PREFERENCE_DEFAULTS[path]
+		else:
+			if not preferences.has(parts[1]): preferences[parts[1]] = {}
+			preferences[parts[1]][parts[2]] = PROFILE_SCHEMA.LEGACY_PREFERENCE_DEFAULTS[path]
+	preferences["language"] = locale_id
+	return {
+		"schema_version": 1, "gallery_unlocks": [], "gallery_transaction_receipts": {},
+		"visited_line_ids": [], "preferences": preferences, "input_mappings": {},
+		"migration_receipts": {
+			"legacy_game_state_profile_v1": false, "legacy_input_bindings_v1": false,
+			"invalid_persisted_skip_mode_v1": false,
+		},
+	}
 
 func test_initialization_loads_manifest_and_returns_detached_selectable_records() -> void:
 	assert_eq(_manager.get_readiness(), &"uninitialized")
@@ -82,12 +99,12 @@ func test_alias_switch_commits_profile_before_signals_and_publishes_once() -> vo
 	assert_true(_initialize().get("ok", false))
 	var observations: Array = []
 	_profile.preference_changed.connect(func(path: StringName, value: Variant) -> void: observations.append([&"profile", path, value, _manager.get_locale()]))
-	_manager.locale_changed.connect(func(locale: String) -> void: observations.append([&"locale", locale, _profile.get_preference(&"preferences.language")]))
+	_manager.locale_changed.connect(func(locale: String) -> void: observations.append([&"locale", locale, _profile.get_preference(&"preferences.language.primary_locale_id")]))
 	var result: Dictionary = _manager.set_locale("zh_hk")
 	assert_true(result.get("ok", false), str(result))
 	assert_eq(_manager.get_locale(), "zh_HK")
-	assert_eq(_profile.get_preference(&"preferences.language"), "zh_HK")
-	assert_eq(observations, [[&"profile", &"preferences.language", "zh_HK", "zh_HK"], [&"locale", "zh_HK", "zh_HK"]])
+	assert_eq(_profile.get_preference(&"preferences.language.primary_locale_id"), "zh_HK")
+	assert_eq(observations, [[&"profile", &"preferences.language.primary_locale_id", "zh_HK", "zh_HK"], [&"locale", "zh_HK", "zh_HK"]])
 
 func test_lookup_uses_registered_fallback_and_exact_placeholder_sets() -> void:
 	assert_true(_initialize().get("ok", false))
@@ -168,20 +185,24 @@ func test_profile_write_failure_rolls_back_all_roots_and_manager() -> void:
 	assert_eq(_profile.get_profile_snapshot(), before_profile)
 
 func test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values() -> void:
-	assert_true(_seed_language("zh_hk").get("ok", false))
-	assert_true(_initialize().get("ok", false))
-	assert_eq(_manager.get_locale(), "zh_HK")
-	assert_eq(_profile.get_preference(&"preferences.language"), "zh_HK")
-
-	var second_ops: RefCounted = _fake_ops_script.new()
-	var second_profile: Node = autofree(_profile_script.new())
-	assert_true(second_profile.initialize(_storage_script.new("localization-tests/removed", second_ops)).get("ok", false))
-	var removed_candidate: Dictionary = second_profile.prepare_locale_preference("fr_removed")
-	assert_true(second_profile.commit_prepared_profile(removed_candidate["value"]).get("ok", false))
-	var second_manager: Node = autofree(_localization_script.new())
-	assert_true(second_manager.initialize(second_profile).get("ok", false))
-	assert_eq(second_manager.get_locale(), "en")
-	assert_eq(second_profile.get_preference(&"preferences.language"), "en")
+	for case in [["zh_hk", "zh_HK"], ["fr_removed", "en"]]:
+		var root_path := "localization-tests/legacy-" + str(case[0])
+		var legacy := _legacy_v1_profile(case[0])
+		assert_true(PROFILE_SCHEMA.validate_v1_source(legacy).get("ok", false))
+		var legacy_ops: RefCounted = _fake_ops_script.new({root_path + "/profile.json": JSON.stringify(legacy)})
+		var migrated_profile: Node = autofree(_profile_script.new())
+		assert_true(migrated_profile.initialize(_storage_script.new(root_path, legacy_ops)).get("ok", false))
+		var manager: Node = autofree(_localization_script.new())
+		assert_true(manager.initialize(migrated_profile).get("ok", false))
+		assert_eq(manager.get_locale(), case[1])
+		assert_eq(migrated_profile.get_preference(&"preferences.language.primary_locale_id"), case[1])
+		var snapshot: Dictionary = migrated_profile.get_profile_snapshot()
+		assert_eq(snapshot["schema_version"], 4)
+		assert_eq(snapshot["legacy_preferences_v1"]["language"], case[0])
+		# The canonical result survives another real Profile load from the same storage.
+		var restarted: Node = autofree(_profile_script.new())
+		assert_true(restarted.initialize(_storage_script.new(root_path, legacy_ops)).get("ok", false))
+		assert_eq(restarted.get_preference(&"preferences.language.primary_locale_id"), case[1])
 
 func test_prepared_bundle_contains_only_candidate_fallback_chain() -> void:
 	assert_true(_initialize().get("ok", false))

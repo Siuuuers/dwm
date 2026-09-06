@@ -351,8 +351,7 @@ func _refresh_launcher() -> void:
 		var requested := str(_localization.get_locale()).replace("_", "-")
 		if LABELS.has(requested):
 			_locale = requested
-	var scale_value := float(_profile.get_preference("preferences.accessibility.font_scale", 1.0)) if _profile != null and _profile.has_method("get_preference") else 1.0
-	var percent := 150 if scale_value >= 1.5 else (125 if scale_value >= 1.25 else 100)
+	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
 	theme = DESKTOP_THEME.build(_locale, percent)
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
 	for index in ids.size():
@@ -387,7 +386,7 @@ func _on_launcher_locale_changed(_locale_id: String) -> void:
 	_refresh_launcher()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.font_scale":
+	if path == &"preferences.accessibility.text_size":
 		_refresh_launcher()
 
 func _on_contacts_changed(_result: Dictionary) -> void:

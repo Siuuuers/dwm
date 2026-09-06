@@ -213,8 +213,7 @@ func _apply_typography() -> void:
 		var requested := str(_localization.get_locale()).replace("_", "-")
 		if COPY.has(requested):
 			_locale = requested
-	var scale_value := float(_profile.get_preference("preferences.accessibility.font_scale", 1.0)) if _profile != null else 1.0
-	_percent = 150 if scale_value >= 1.5 else (125 if scale_value >= 1.25 else 100)
+	_percent = int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null else 100
 	theme = BACKUP_THEME.build(_locale, _percent)
 	for drawer in drawer_buttons.values():
 		drawer.theme = theme
@@ -577,7 +576,7 @@ func _on_locale_changed(_value: String) -> void:
 	refresh_view()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.font_scale":
+	if path == &"preferences.accessibility.text_size":
 		_on_locale_changed("")
 
 func _t(key: String, replacements: Dictionary = {}) -> String:

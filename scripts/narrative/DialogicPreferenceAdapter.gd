@@ -4,6 +4,10 @@ extends RefCounted
 var _dialogic: Node
 var _plan: Dictionary = {}
 
+const _REVEAL_MULTIPLIERS := {"instant": 0.0, "fast": 0.5, "normal": 1.0, "slow": 2.0}
+const _AUTO_DELAY_MULTIPLIERS := {"short": 0.5, "normal": 1.0, "long": 1.5}
+const _SKIP_MODES := [&"read_only", &"all_text"]
+
 
 func bind(dialogic: Node) -> Dictionary:
 	if dialogic == null:
@@ -17,15 +21,23 @@ func bind(dialogic: Node) -> Dictionary:
 
 func prepare(profile: Dictionary) -> Dictionary:
 	var preferences: Dictionary = profile.get("preferences", profile)
-	var dialogue: Dictionary = preferences.get("dialogue", {})
-	var text_speed := float(dialogue.get("text_speed", 0.0))
-	var auto_speed := float(dialogue.get("auto_text_speed", 0.0))
-	if not is_finite(text_speed) or not is_finite(auto_speed) or text_speed <= 0.0 or auto_speed <= 0.0:
-		return _failure(&"invalid_dialogic_preferences")
+	if typeof(preferences.get("reading")) != TYPE_DICTIONARY:
+		return _failure(&"invalid_profile")
+	var reading: Dictionary = preferences["reading"]
+	var reveal_speed := str(reading.get("reveal_speed", ""))
+	var auto_delay := str(reading.get("auto_delay", ""))
+	var skip_mode := StringName(str(reading.get("skip_mode", "")))
+	if not _REVEAL_MULTIPLIERS.has(reveal_speed) or not _AUTO_DELAY_MULTIPLIERS.has(auto_delay):
+		return _failure(&"invalid_profile")
+	if typeof(reading.get("auto_enabled")) != TYPE_BOOL:
+		return _failure(&"invalid_profile")
+	if skip_mode not in _SKIP_MODES:
+		return _failure(&"invalid_profile")
 	return _ok({
-		"text_delay_multiplier": 1.0 / text_speed,
-		"auto_delay_multiplier": 1.0 / auto_speed,
-		"auto_advance_enabled": bool(dialogue.get("auto_advance_dialogue", false)),
+		"text_delay_multiplier": _REVEAL_MULTIPLIERS[reveal_speed],
+		"auto_delay_multiplier": _AUTO_DELAY_MULTIPLIERS[auto_delay],
+		"auto_advance_enabled": bool(reading["auto_enabled"]),
+		"skip_mode": skip_mode,
 	})
 
 
@@ -44,15 +56,19 @@ func capture_state() -> Dictionary:
 		"text_delay_multiplier": float(settings_cache.get(&"text_speed", _plan.get("text_delay_multiplier", 1.0))),
 		"auto_delay_multiplier": float(settings_cache.get(&"autoadvance_delay_modifier", _plan.get("auto_delay_multiplier", 1.0))),
 		"auto_advance_enabled": bool(auto_advance.get("enabled_until_user_input")),
+		"skip_mode": _plan.get("skip_mode", &"read_only"),
 	}})
 
 
 func apply_silent(plan: Dictionary) -> Dictionary:
 	if _dialogic == null:
 		return _failure(&"dialogic_missing")
-	for key in ["text_delay_multiplier", "auto_delay_multiplier", "auto_advance_enabled"]:
+	for key in ["text_delay_multiplier", "auto_delay_multiplier", "auto_advance_enabled", "skip_mode"]:
 		if not plan.has(key):
 			return _failure(&"invalid_dialogic_preferences")
+	var skip_mode := StringName(str(plan["skip_mode"]))
+	if skip_mode not in _SKIP_MODES:
+		return _failure(&"invalid_dialogic_preferences")
 	var settings := _subsystem(&"Settings")
 	var text := _subsystem(&"Text")
 	var inputs := _subsystem(&"Inputs")
@@ -73,6 +89,7 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 	auto_advance.set("delay_modifier", float(plan["auto_delay_multiplier"]))
 	auto_advance.set("enabled_until_user_input", bool(plan["auto_advance_enabled"]))
 	_plan = plan.duplicate(true)
+	_plan["skip_mode"] = skip_mode
 	return _ok({})
 
 

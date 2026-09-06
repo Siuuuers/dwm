@@ -9,24 +9,14 @@ signal controller_disconnected(device_id: int)
 signal input_bindings_changed()
 signal source_input_custody_changed()
 
-# game_* actions and their default keyboard keys. The ui_* actions are provided by Godot.
-const _DEFAULT_GAME_ACTIONS := {
-	"game_quick_save": KEY_F5,
-	"game_quick_load": KEY_F9,
-	"game_open_log": KEY_L,
-	"game_skip_text": KEY_CTRL,
-	"game_toggle_auto": KEY_A,
-	"game_hint": KEY_H,
-	"game_new_board": KEY_N,
-	"game_close_window": KEY_ESCAPE,
-	"game_next_tab": KEY_E,
-	"game_prev_tab": KEY_Q,
-	"game_page_next": KEY_BRACKETRIGHT,
-	"game_page_prev": KEY_BRACKETLEFT,
-	"game_open_settings": KEY_F1,
-	"game_open_schedule": KEY_F2,
-	"game_open_contacts": KEY_F3,
-}
+const ACTION_REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.gd")
+# These names are no longer active shortcuts. Stored legacy records stay in the
+# profile as provenance; their installed events must not survive the cutover.
+const _RETIRED_GAME_ACTIONS := [
+	"game_open_log", "game_skip_text", "game_toggle_auto", "game_hint",
+	"game_close_window", "game_next_tab", "game_prev_tab", "game_page_next",
+	"game_page_prev", "game_open_settings", "game_open_schedule", "game_open_contacts",
+]
 
 const _REQUIRED_UI_ACTIONS := [
 	"ui_accept", "ui_cancel", "ui_up", "ui_down", "ui_left", "ui_right",
@@ -129,29 +119,30 @@ func initialize(profile: Node) -> Dictionary:
 	if profile == null or not profile.has_method("get_input_mappings") or not profile.has_method("set_input_mapping"):
 		return {"ok": false, "code": &"invalid_profile_manager"}
 	_profile = profile
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	ensure_default_input_map()
 	if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed): Input.joy_connection_changed.connect(_on_joy_connection_changed)
-	if not profile.input_mappings_changed.is_connected(apply_profile_mappings): profile.input_mappings_changed.connect(apply_profile_mappings)
+	if profile.has_signal("controls_bindings_changed"):
+		if not profile.controls_bindings_changed.is_connected(apply_profile_mappings): profile.controls_bindings_changed.connect(apply_profile_mappings)
+	elif not profile.input_mappings_changed.is_connected(apply_profile_mappings):
+		profile.input_mappings_changed.connect(apply_profile_mappings)
+	if profile.has_signal("profile_restored") and not profile.profile_restored.is_connected(_on_profile_restored):
+		profile.profile_restored.connect(_on_profile_restored)
 	apply_profile_mappings()
 	return {"ok": true}
 
-func apply_profile_mappings(action_id: StringName = &"") -> Dictionary:
+func apply_profile_mappings(_action_id: StringName = &"") -> Dictionary:
 	if _profile == null: return {"ok": false, "code": &"not_initialized"}
 	var mappings: Dictionary = _profile.get_input_mappings()
-	var actions: Array = [String(action_id)] if action_id != &"" else mappings.keys()
+	# A profile publication may change several actions. Apply the complete committed
+	# map before notifying listeners, even when reached through a per-action signal.
+	var actions: Array = _game_action_ids()
 	for action_value in actions:
 		var action := String(action_value)
 		if not InputMap.has_action(action):
 			continue
-		if not mappings.has(action):
-			if _DEFAULT_GAME_ACTIONS.has(action):
-				InputMap.action_erase_events(action)
-				var default_event := InputEventKey.new()
-				default_event.physical_keycode = _DEFAULT_GAME_ACTIONS[action]
-				InputMap.action_add_event(action, default_event)
-			continue
 		InputMap.action_erase_events(action)
-		for record: Dictionary in mappings[action]:
+		for record: Dictionary in mappings.get(action, []):
 			var event: InputEvent
 			if record["kind"] == "key":
 				var key_event := InputEventKey.new()
@@ -172,19 +163,28 @@ func apply_profile_mappings(action_id: StringName = &"") -> Dictionary:
 	return {"ok": true}
 
 
+func _on_profile_restored(_snapshot: Dictionary) -> void:
+	apply_profile_mappings()
+
+
+func _game_action_ids() -> Array:
+	var actions: Array = []
+	for record in ACTION_REGISTRY.records(): actions.append(String(record.id))
+	return actions
+
+
 func ensure_default_input_map() -> void:
 	# Ensure ui_* exist (Godot usually provides them; add empty ones if missing so lookups are safe).
 	for action in _REQUIRED_UI_ACTIONS:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
-	# Add the game_* actions with default keyboard bindings if absent.
-	for action in _DEFAULT_GAME_ACTIONS.keys():
+	for action in _RETIRED_GAME_ACTIONS:
+		if InputMap.has_action(action): InputMap.erase_action(action)
+	# Only create the canonical actions. The profile publishes their complete
+	# bindings, or none while import resolution is pending.
+	for action in _game_action_ids():
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
-		if InputMap.action_get_events(action).is_empty():
-			var ev := InputEventKey.new()
-			ev.physical_keycode = _DEFAULT_GAME_ACTIONS[action]
-			InputMap.action_add_event(action, ev)
 
 
 func get_current_input_scheme() -> String:
@@ -229,23 +229,30 @@ func rebind_action(action_name: String, event: InputEvent) -> Dictionary:
 	if event == null:
 		return {"ok": false, "reason": "null_event", "action": action_name}
 	if _profile == null: return {"ok": false, "reason": "not_initialized", "action": action_name}
+	var mappings: Dictionary = _profile.get_input_mappings()
+	if not mappings.has(action_name):
+		return {"ok": false, "reason": "unregistered_action", "action": action_name}
 	var record: Dictionary
 	if event is InputEventKey:
 		var key_event := event as InputEventKey
+		if key_event.physical_keycode == 0 and key_event.keycode == 0:
+			return {"ok": false, "reason": "empty_key", "action": action_name}
 		record = {"kind": "key", "physical_keycode": key_event.physical_keycode, "keycode": key_event.keycode, "shift": key_event.shift_pressed, "alt": key_event.alt_pressed, "ctrl": key_event.ctrl_pressed, "meta": key_event.meta_pressed}
 	elif event is InputEventJoypadButton:
 		var joy_event := event as InputEventJoypadButton
-		record = {"kind": "joypad_button", "button_index": joy_event.button_index, "device": joy_event.device}
+		if joy_event.button_index < 0 or joy_event.button_index >= JOY_BUTTON_SDL_MAX:
+			return {"ok": false, "reason": "invalid_button", "action": action_name}
+		# Bind a controller position, not the transient device that supplied it.
+		record = {"kind": "joypad_button", "button_index": joy_event.button_index, "device": -1}
 	else: return {"ok": false, "reason": "unsupported_event", "action": action_name}
-	return _profile.set_input_mapping(StringName(action_name), [record])
+	# ProfileManager preserves the other slot, checks the complete canonical map,
+	# and publishes only after commit. A conflict requires an explicit Swap path.
+	var events: Array[Dictionary] = [record]
+	return _profile.set_input_mapping(StringName(action_name), events)
 
 
-func reset_bindings_to_default() -> void:
-	for action in _DEFAULT_GAME_ACTIONS.keys():
-		if InputMap.has_action(action):
-			InputMap.action_erase_events(action)
-	ensure_default_input_map()
-	emit_signal("input_bindings_changed")
+func reset_bindings_to_default() -> Dictionary:
+	return {"ok": false, "code": &"controls_reset_confirmation_required"}
 
 
 # ---- Focus helpers ----

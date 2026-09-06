@@ -105,10 +105,9 @@ func _requested_locale() -> String:
 
 
 func _apply_typography() -> void:
-	var scale_value := 1.0
+	var percent := 100
 	if _profile != null and _profile.has_method("get_preference"):
-		scale_value = float(_profile.get_preference("preferences.accessibility.font_scale", 1.0))
-	var percent := 150 if scale_value >= 1.5 else (125 if scale_value >= 1.25 else 100)
+		percent = int(_profile.get_preference("preferences.accessibility.text_size", 100))
 	contacts_panel.configure(ENGLISH_FONT, SIMPLIFIED_FONT, TRADITIONAL_FONT, percent)
 	theme = contacts_panel.theme
 	for state in ["normal", "hover", "pressed", "disabled"]:
@@ -196,7 +195,7 @@ func _on_presentation_locale_changed(_locale_id: String) -> void:
 
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.font_scale":
+	if path == &"preferences.accessibility.text_size":
 		refresh_view()
 
 

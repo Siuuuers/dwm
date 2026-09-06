@@ -1,0 +1,205 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/cbb415be-1a55-4a35-b2c1-aa9fec344696/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/scene/test_settings_localization_scene.gd
+* test_settings_controller_and_scenes_exist_with_shared_contract
+* test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets
+* test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_legacy_aliases
+* test_each_reset_is_inert_until_its_own_confirmation
+* test_task9_hosts_instance_the_same_shared_content_scene
+* test_task9_pointer_drag_previews_then_commits_once_with_exact_handle
+* test_task9_discrete_volume_steps_and_failure_restore_committed_visible_value
+* test_task9_mute_and_output_mode_use_atomic_audio_sink
+* test_task9_audio_tests_never_autoplay_and_muted_or_zero_prevent_admission
+* test_task9_test_replacement_and_back_precedence_preserve_host
+* test_task9_tts_test_works_while_read_aloud_off_and_uses_frozen_specimen
+* test_task9_unavailable_tts_preserves_desired_preference_and_disables_controls
+* test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes
+* test_task9_stale_drag_completion_cancels_only_its_old_handle
+* test_task9_missing_audio_sink_has_no_direct_profile_write_fallback
+* test_task9_exact_localized_tts_specimens_and_rates_use_no_receipt_api
+* test_task9_committed_primary_locale_refreshes_shared_rail_labels
+* test_task9_title_settings_reopens_after_closing_its_cached_host
+    [Failed]:  Closing title Settings closes the host that MenuScene reopens.
+      at line 469
+    [Failed]:  Reopening the cached host must reveal its existing panel.
+      at line 471
+* test_review_back_cancels_pending_drag_before_returning_focus
+* test_review_late_tts_admission_cannot_rebind_new_test
+* test_review_old_departure_cannot_stop_test_started_after_reopen
+* test_review_busy_commit_restores_rejected_control_value
+* test_review_drag_cancel_cannot_release_unrelated_pending_commit
+* test_review_reset_labels_exist_in_each_locale_without_fallback
+* test_review_confirmation_body_and_buttons_follow_accessibility_size
+* test_audio_affecting_reset_uses_physical_sink_and_never_falls_back_after_refusal
+* test_audio_affecting_reset_without_sink_does_not_write_profile
+26/27 passed.
+
+
+tests/scene/test_settings_folio.gd
+* test_fixed_geometry_fonts_and_targets_in_all_eighteen_presentations
+* test_every_enabled_control_can_be_revealed_at_all_locales_and_sizes
+* test_selected_category_and_focus_have_independent_evidence
+* test_real_input_enters_sheet_and_back_returns_to_selected_directory_row
+* test_scroll_owners_keep_their_offsets_independent
+* test_control_sample_is_noninteractive_and_only_in_accessibility_footer
+* test_title_and_desktop_hosts_fit_the_complete_plate_without_close_overlap
+* test_boolean_captions_use_localized_on_off_and_follow_committed_values
+8/8 passed.
+
+
+tests/scene/test_settings_host_geometry.gd
+* test_both_bare_wrappers_fit_canonical_shell_rectangles_in_nine_presentations
+* test_desktop_readiness_refuses_uninitialized_real_dependencies
+* test_desktop_home_and_back_preserve_native_modal_then_sheet_then_rail_custody
+* test_departure_blocks_input_and_reopen_until_held_sample_cleanup_finishes
+* test_busy_reset_cannot_be_detached_by_either_wrapper
+5/5 passed.
+
+
+tests/scene/test_settings_binding_capture.gd
+* test_native_capture_persists_one_slot_and_releases_before_destination
+* test_native_back_and_departure_cancel_without_mutation
+* test_native_enter_activation_is_not_captured_and_echo_cannot_choose
+* test_back_retires_captured_candidate_even_before_its_release
+* test_back_retires_swap_consent_even_before_accept_release
+* test_focus_loss_cancels_lost_release_and_allows_fresh_same_key
+* test_departure_consumes_both_held_candidate_and_back_until_release
+* test_second_capture_request_cannot_replace_an_open_capture
+* test_conflict_cancel_then_swap_publishes_complete_map_once
+* test_stale_and_failed_swap_preserve_committed_bindings
+* test_illegal_displacement_keeps_swap_separately_disabled
+* test_controller_capture_persists_semantic_position_for_any_device
+* test_controller_disconnect_retires_contact_and_reused_device_index_can_capture
+* test_pending_import_keeps_cells_disabled_until_confirmed_restore
+* test_unmapped_controller_contact_is_not_saved_as_semantic_position
+* test_binding_cells_and_conflict_fit_nine_presentations
+16/16 passed.
+
+
+tests/scene/test_settings_import_review.gd
+* test_custom_draft_is_local_until_whole_map_confirmation_and_publishes_once
+* test_local_swap_and_capture_cancel_preserve_draft_without_publishing
+* test_pending_nondefault_source_gets_explicit_default_draft_and_requires_apply
+* test_external_departures_discard_custom_review_without_any_write
+* test_stale_or_failed_apply_never_activates_the_review
+* test_original_records_and_complete_apply_table_fit_nine_presentations
+* test_old_capture_cleanup_cannot_clear_a_newer_opening_guard
+* test_original_records_scroll_by_native_keyboard_and_controller_without_losing_cancel_focus
+* test_open_original_records_relocalize_without_changing_their_source
+* test_keyboard_and_controller_draft_edits_activate_together_after_final_apply
+10/10 passed.
+
+
+tests/scene/test_settings_reset_confirmation.gd
+* test_all_reset_sheets_fit_the_actual_workfield_in_nine_presentations
+* test_activating_initial_cancel_is_inert_for_every_reset_and_locale
+* test_escape_cancels_even_after_the_scoped_action_gains_focus
+* test_changed_profile_invalidates_consent_and_cancel_reopen_binds_the_new_revision
+* test_focus_loss_during_sample_shutdown_cannot_open_a_late_reset_sheet
+* test_leaving_records_during_sample_shutdown_cannot_open_the_old_reset_sheet
+* test_revision_change_during_reset_departure_releases_busy_controls_after_refusal
+7/7 passed.
+
+
+tests/scene/test_settings_motion.gd
+* test_reduced_motion_retains_every_shake_choice_across_locales_and_sizes
+* test_motion_change_retires_open_dropdown_and_rejects_queued_and_direct_mutation
+* test_failed_motion_commit_retains_profile_and_presentation
+* test_hidden_motion_changes_do_not_take_focus
+4/4 passed.
+
+
+tests/scene/test_settings_palettes.gd
+* test_both_standard_palettes_preserve_geometry_and_native_bindings_in_nine_presentations
+* test_simultaneous_palettes_do_not_recolour_other_instances_or_their_native_resources
+* test_title_pending_dark_changes_existing_native_popup_without_extra_profile_writes_or_dark_ui
+* test_desktop_and_pause_never_project_pending_title_intent_as_captured_run_dark
+4/4 passed.
+
+
+tests/integration/test_settings_shared_hosts.gd
+* test_pause_preview_is_inert_and_native_back_retreats_one_level_each
+* test_desktop_canonical_commit_updates_fonts_without_resetting_controls
+* test_pause_enter_restores_native_paging_on_overflowing_settings_sheet
+* test_pause_controls_capture_blocks_parent_leave_and_back_only_cancels_capture
+* test_paused_settings_mouse_release_after_custody_cycle_cannot_commit
+* test_actual_audio_without_settings_preview_apis_disables_tests_and_sliders
+* test_title_caches_settings_and_shared_return_preserves_capture_then_restores_row
+7/7 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/scene/test_settings_localization_scene.gd
+    - Outside Tests
+        * [<Node#99136571109>(subsystem_animation.gd)]
+        * [<Node#99153348326>(subsystem_audio.gd)]
+        * [<Node#99170125543>]
+        * [<Node#99186902760>]
+        * [<Node#99203679977>(subsystem_backgrounds.gd)]
+        * [<Node#99740550890>(subsystem_choices.gd)]
+        * [<Timer#99757328107>]
+        * [<Node#99774105324>(subsystem_expression.gd)]
+        * [<Node#99807659761>(subsystem_glossary.gd)]
+        * [<Node#99824436978>(subsystem_history.gd)]
+        * [<Node#99841214195>(subsystem_input.gd)]
+        * [<Timer#99857991412>]
+        * [<Node#99874768629>(subsystem_jump.gd)]
+        * [<Node#99891545846>(subsystem_containers.gd)]
+        * [<Node#99908323063>(subsystem_portraits.gd)]
+        * [<Node#100445193976>(subsystem_save.gd)]
+        * [<Timer#100461971193>]
+        * [<Node#100478748410>(subsystem_settings.gd)]
+        * [<Node#100495525630>(subsystem_styles.gd)]
+        * [<Node#100512302847>(subsystem_text.gd)]
+        * [<Node#100596188932>(subsystem_text_input.gd)]
+        * [<Node#100612966149>(subsystem_variables.gd)]
+        * [<Node#100629743366>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#100646520583>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/scene/test_settings_localization_scene.gd
+- test_task9_title_settings_reopens_after_closing_its_cached_host
+    [Failed]:  Closing title Settings closes the host that MenuScene reopens.
+          at line 469
+    [Failed]:  Reopening the cached host must reveal its existing panel.
+          at line 471
+
+Totals
+------
+Scripts               9
+Tests                88
+Passing Tests        87
+Failing Tests         1
+Asserts           14363/14365
+Orphans              24
+Time              119.88s
+
+
+---- 1 failing tests ----

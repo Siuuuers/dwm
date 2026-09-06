@@ -5,7 +5,7 @@ const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme
 const FIELD_TOP := {100: 448, 125: 392, 150: 328}
 const FIELD_BOTTOM := 656
 const PROFILE_COLOUR_PRESETS := {
-	"none": "standard", "protanopia": "protan", "deuteranopia": "deutan", "tritanopia": "tritan",
+	"standard": "standard", "protan": "protan", "deutan": "deutan", "tritan": "tritan",
 }
 
 var _locale := "en"
@@ -272,28 +272,28 @@ func _sync_native_processing() -> void:
 
 func _apply_preferences() -> void:
 	var locale := str(_localization.call("get_locale")) if _localization != null and _localization.has_method("get_locale") else _locale
-	var scale_value: Variant = _profile.call("get_preference", &"preferences.accessibility.font_scale", 1.0) if _profile != null and _profile.has_method("get_preference") else _text_percent / 100.0
-	if typeof(scale_value) not in [TYPE_INT, TYPE_FLOAT] or scale_value not in [1.0, 1.25, 1.5]:
+	var text_size: Variant = _profile.call("get_preference", &"preferences.accessibility.text_size", 100) if _profile != null and _profile.has_method("get_preference") else _text_percent
+	if typeof(text_size) != TYPE_INT or text_size not in [100, 125, 150]:
 		return
 	var high_contrast: Variant = _high_contrast
 	var large_targets: Variant = _large_targets
 	var colour_preset := _colour_preset
 	if _profile != null and _profile.has_method("get_preference"):
 		high_contrast = _profile.call("get_preference", &"preferences.accessibility.high_contrast", false)
-		large_targets = _profile.call("get_preference", &"preferences.accessibility.large_click_targets", false)
-		var colour_mode: Variant = _profile.call("get_preference", &"preferences.accessibility.colorblind_mode", "none")
+		large_targets = _profile.call("get_preference", &"preferences.accessibility.large_targets", false)
+		var colour_mode: Variant = _profile.call("get_preference", &"preferences.accessibility.colour_differentiation", "standard")
 		if typeof(colour_mode) != TYPE_STRING or not PROFILE_COLOUR_PRESETS.has(colour_mode):
 			return
 		colour_preset = PROFILE_COLOUR_PRESETS[colour_mode]
 	if typeof(high_contrast) != TYPE_BOOL or typeof(large_targets) != TYPE_BOOL:
 		return
-	configure_presentation(locale, int(float(scale_value) * 100), _palette, high_contrast, colour_preset, large_targets)
+	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets)
 
 func _on_locale_changed(_locale_id: String) -> void:
 	_apply_preferences()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path in [&"preferences.accessibility.font_scale", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colorblind_mode", &"preferences.accessibility.large_click_targets"]:
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.large_targets"]:
 		_apply_preferences()
 
 func _process(_delta: float) -> void:

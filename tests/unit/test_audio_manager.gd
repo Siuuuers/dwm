@@ -44,15 +44,17 @@ class FakeProfile:
 		&"preferences.audio.ambience_muted": false,
 		&"preferences.audio.sfx_volume": 0.8,
 		&"preferences.audio.sfx_muted": false,
-		&"preferences.audio.voice_volume": 0.8,
-		&"preferences.audio.voice_muted": false,
-		&"preferences.audio.mute_audio_on_focus_loss": false,
+		&"preferences.audio.master_volume": 1.0,
+		&"preferences.audio.master_muted": false,
+		&"preferences.audio.mute_when_inactive": true,
+		&"preferences.audio.output_mode": "stereo",
 	}
 
 	func get_preference(path: StringName, default_value: Variant = null) -> Variant:
 		return values.get(path, default_value)
 
 	func set_preference(path: StringName, value: Variant) -> Dictionary:
+		if not values.has(path): return {"ok":false,"code":&"unknown_preference"}
 		values[path] = value
 		preference_changed.emit(path, value)
 		return {"ok": true, "code": &"ok", "value": value, "receipt": {}}
@@ -108,7 +110,7 @@ func test_exact_threshold_and_focus_loss_overlay_do_not_replace_preferences() ->
 	assert_true(_port.bus_states[&"Music"]["muted"])
 	assert_true(_manager.set_channel_volume(&"music", 0.00011).get("ok", false))
 	assert_false(_port.bus_states[&"Music"]["muted"])
-	assert_true(_profile.set_preference(&"preferences.audio.mute_audio_on_focus_loss", true).get("ok", false))
+	assert_true(_profile.set_preference(&"preferences.audio.mute_when_inactive", true).get("ok", false))
 	_manager.notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	assert_true(_port.bus_states[&"Music"]["muted"])
 	assert_false(_profile.values[&"preferences.audio.music_muted"])
@@ -246,8 +248,8 @@ func test_semantic_restore_is_silent_and_rollback_restarts_prior_context() -> vo
 		"music_volume": 0.5, "music_muted": false,
 		"ambience_volume": 0.4, "ambience_muted": false,
 		"sfx_volume": 0.3, "sfx_muted": false,
-		"voice_volume": 0.2, "voice_muted": true,
-		"mute_audio_on_focus_loss": true,
+		"master_volume": 0.2, "master_muted": true,
+		"mute_when_inactive": true, "output_mode":"stereo",
 	}}}
 	var plan: Dictionary = _manager.prepare_semantic_restore(snapshot, prepared_profile)
 	assert_true(plan.get("ok", false), str(plan))
@@ -274,8 +276,8 @@ func test_restore_can_clear_channels_and_force_restart_same_context() -> void:
 		"music_volume": 0.8, "music_muted": false,
 		"ambience_volume": 0.65, "ambience_muted": false,
 		"sfx_volume": 0.8, "sfx_muted": false,
-		"voice_volume": 0.8, "voice_muted": false,
-		"mute_audio_on_focus_loss": false,
+		"master_volume": 1.0, "master_muted": false,
+		"mute_when_inactive": false, "output_mode":"stereo",
 	}}}
 	var empty_plan: Dictionary = _manager.prepare_semantic_restore(empty_snapshot, prepared_profile)
 	assert_true(empty_plan.get("ok", false), str(empty_plan))

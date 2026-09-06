@@ -1,5 +1,6 @@
 extends SceneTree
 
+const SETTINGS_FIXTURES := preload("res://tests/desktop_shell/test_settings_host.gd")
 const SAFE_MENU := preload("res://tests/title_shell/SafeMenu.gd")
 
 class FakeLocale extends Node:
@@ -23,10 +24,10 @@ class FakeProfile extends Node:
 	signal preference_changed(path: StringName, value: Variant)
 	var scale := 1.0
 	func get_preference(path: StringName, default: Variant = null) -> Variant:
-		return scale if path == &"preferences.accessibility.font_scale" else default
+		return roundi(scale*100.0) if path == &"preferences.accessibility.text_size" else default
 	func change(value: float) -> void:
 		scale = value
-		preference_changed.emit(&"preferences.accessibility.font_scale", value)
+		preference_changed.emit(&"preferences.accessibility.text_size", roundi(value*100.0))
 
 class SaveCounter extends Node:
 	var calls := 0
@@ -174,8 +175,34 @@ func _run() -> void:
 	menu._confirmation.confirm_button.pressed.emit()
 	await settle()
 	check(menu.quit_requests == 1, "Explicit shutdown confirmation reaches the intercepted production quit seam once")
+	var settings_gate := SETTINGS_FIXTURES.GATE.new()
+	var settings_profile: Node = SETTINGS_FIXTURES.PROFILE.new()
+	root.add_child(settings_profile)
+	check(settings_profile.configure_mutation_gate(settings_gate).get("ok",false), "title Settings profile gate")
+	check(settings_profile.initialize(SETTINGS_FIXTURES.STORAGE.new("title-settings.memory",SETTINGS_FIXTURES.FILES.new())).get("ok",false), "title Settings uses real profile")
+	var settings_locale: Node = SETTINGS_FIXTURES.LOCALIZATION.new()
+	root.add_child(settings_locale)
+	check(settings_locale.configure_mutation_gate(settings_gate).get("ok",false), "title Settings locale gate")
+	check(settings_locale.initialize(settings_profile).get("ok",false), "title Settings uses real catalogs")
+	menu.configure_settings_services({"profile":settings_profile,"localization":settings_locale,"audio":null,"volume":null,"tts":null,"input":null})
+	ledger[3].pressed.emit()
+	await settle()
+	var settings: Control = menu._setting_instance
+	check(is_instance_valid(settings) and settings.is_visible_in_tree(), "title opens the shared canonical Settings host")
+	if is_instance_valid(settings):
+		var content: Control = settings.settings_content
+		check(content.find_child("LanguageCategory",true,false).has_focus(), "title Settings starts on the category rail")
+		check(content.host_context == "title", "shared content retains actual title custody")
+		check(content.confirmations.has("entire_profile"), "title-only reset remains available for owner admission")
+		check(not content.control_for(&"preferences.audio.music_volume").editable, "title Settings does not claim missing audio preview")
+		menu._title_home.pressed.emit()
+		await settle()
+		check(not settings.is_visible_in_tree() and ledger[3].has_focus(), "title Return closes Settings and restores its ledger source")
+		check(saves.calls == 0 and routes.calls == 0, "Settings visit performs no save or route command")
 	menu.queue_free()
 	await settle()
+	settings_locale.queue_free()
+	settings_profile.queue_free()
 	locale.queue_free()
 	profile.queue_free()
 	saves.queue_free()

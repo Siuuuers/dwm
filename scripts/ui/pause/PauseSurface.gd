@@ -180,6 +180,7 @@ func set_host(action_id: StringName, host: Control) -> bool:
 
 func _mount_host(id: StringName) -> void:
 	var host: Control = _hosts[id]
+	if id == &"settings" and host.has_method("configure_pause"): host.configure_pause()
 	host.position = Vector2.ZERO
 	host.size = Vector2(800,656)
 	host.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
@@ -344,6 +345,8 @@ func _sync_custody() -> void:
 		var active := _opened and _interactive and entered_action == id and not is_instance_valid(_host_confirmation)
 		_set_custody(host,active)
 		_host_script_input(host,active)
+		# Restore captured script flags before the host applies its current admission.
+		if host.has_method("set_interaction_enabled"): host.set_interaction_enabled(active)
 	if is_instance_valid(_host_confirmation):
 		_set_custody(_host_confirmation,_opened and _interactive)
 		_host_script_input(_host_confirmation,_opened and _interactive)

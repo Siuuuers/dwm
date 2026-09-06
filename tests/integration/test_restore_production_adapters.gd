@@ -42,7 +42,7 @@ class Owner extends RefCounted:
 		return {"ok": true, "code": &"ok"}
 	func prepare_legacy_profile_patch(_l: Dictionary, _m: Dictionary = {}) -> Dictionary:
 		var g := _g("prepare_legacy_profile_patch")
-		return g if not g.is_empty() else {"ok": true, "value": {"preferences": {"language": "en"}}}
+		return g if not g.is_empty() else {"ok": true, "value": {"preferences": {"language": {"primary_locale_id": "en"}}}}
 	func prepare_locale(locale_id: String) -> Dictionary:
 		return {"ok": true, "value": {"canonical_locale_id": locale_id}}
 	func prepare_semantic_restore(ctx: Dictionary, _p: Dictionary) -> Dictionary:

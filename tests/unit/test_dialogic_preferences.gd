@@ -33,7 +33,7 @@ class FakeInputs:
 class FakeBridgeProfile:
 	extends Node
 	signal preference_changed(path: StringName, value: Variant)
-	var snapshot := {"preferences": {"dialogue": {"text_speed": 1.0, "auto_text_speed": 1.0, "auto_advance_dialogue": false}}}
+	var snapshot := {"preferences": {"reading": {"reveal_speed": "normal", "auto_delay": "normal", "auto_enabled": false, "skip_mode": "read_only"}}}
 
 	func get_profile_snapshot() -> Dictionary:
 		return snapshot.duplicate(true)
@@ -47,7 +47,7 @@ class FailingPreferenceAdapter:
 		return {"ok": true, "value": {}}
 
 	func prepare(_profile: Dictionary) -> Dictionary:
-		return {"ok": true, "value": {"text_delay_multiplier": 1.0, "auto_delay_multiplier": 1.0, "auto_advance_enabled": false}}
+		return {"ok": true, "value": {"text_delay_multiplier": 1.0, "auto_delay_multiplier": 1.0, "auto_advance_enabled": false, "skip_mode": &"read_only"}}
 
 	func apply_silent(_plan: Dictionary) -> Dictionary:
 		return {"ok": not fail_apply, "code": &"injected_dialogic_failure" if fail_apply else &"ok", "details": {}, "receipt": {}}
@@ -111,22 +111,24 @@ func test_adapter_maps_profile_values_to_live_caches_without_persistence() -> vo
 	var fake := _fake_dialogic()
 	var adapter: RefCounted = ADAPTER.new()
 	assert_true(adapter.call(&"bind", fake["dialogic"]).get("ok", false))
-	var profile := {"preferences": {"dialogue": {
-		"text_speed": 2.0,
-		"auto_text_speed": 4.0,
-		"auto_advance_dialogue": true,
+	var profile := {"preferences": {"reading": {
+		"reveal_speed": "fast",
+		"auto_delay": "short",
+		"auto_enabled": true,
+		"skip_mode": "all_text",
 	}}}
 	var prepared: Dictionary = adapter.call(&"prepare", profile)
 	assert_eq(prepared["value"], {
 		"text_delay_multiplier": 0.5,
-		"auto_delay_multiplier": 0.25,
+		"auto_delay_multiplier": 0.5,
 		"auto_advance_enabled": true,
+		"skip_mode": &"all_text",
 	})
 	assert_true(adapter.call(&"apply_silent", prepared["value"]).get("ok", false))
 	assert_eq(fake["settings"].settings[&"text_speed"], 0.5)
-	assert_eq(fake["settings"].settings[&"autoadvance_delay_modifier"], 0.25)
+	assert_eq(fake["settings"].settings[&"autoadvance_delay_modifier"], 0.5)
 	assert_eq(fake["text"].calls, [[-1.0, false, 1.0, 0.5]])
-	assert_eq(fake["auto"].delay_modifier, 0.25)
+	assert_eq(fake["auto"].delay_modifier, 0.5)
 	assert_true(fake["auto"].enabled_until_user_input)
 	var backup: Dictionary = adapter.call(&"capture_state")["value"]
 	fake["auto"].enabled_until_user_input = false
@@ -145,7 +147,7 @@ func test_committed_dialogue_apply_failure_latches_shared_gate() -> void:
 	assert_true(bridge.configure_mutation_gate(gate).get("ok", false))
 	assert_true(bridge.bind_profile_preferences(profile, adapter).get("ok", false))
 	adapter.fail_apply = true
-	profile.preference_changed.emit(&"preferences.dialogue.text_speed", 2.0)
+	profile.preference_changed.emit(&"preferences.reading.reveal_speed", "fast")
 	assert_true(gate.is_fatal_latched())
 
 
@@ -167,10 +169,11 @@ func test_failed_bridge_binding_is_retryable_and_connects_only_after_apply() -> 
 func test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once() -> void:
 	var profile := FakeBridgeProfile.new()
 	add_child_autofree(profile)
-	profile.snapshot["preferences"]["dialogue"] = {
-		"text_speed": 2.0,
-		"auto_text_speed": 4.0,
-		"auto_advance_dialogue": true,
+	profile.snapshot["preferences"]["reading"] = {
+		"reveal_speed": "fast",
+		"auto_delay": "short",
+		"auto_enabled": true,
+		"skip_mode": "read_only",
 	}
 	var adapter := CountingPreferenceAdapter.new()
 	var bridge: Node = BRIDGE.new()
@@ -179,5 +182,5 @@ func test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once(
 	assert_eq(adapter.apply_count, 1)
 	var dialogic := get_node("/root/Dialogic")
 	assert_almost_eq(float(dialogic.Settings.settings[&"text_speed"]), 0.5, 0.001)
-	assert_almost_eq(float(dialogic.Inputs.auto_advance.delay_modifier), 0.25, 0.001)
+	assert_almost_eq(float(dialogic.Inputs.auto_advance.delay_modifier), 0.5, 0.001)
 	assert_true(dialogic.Inputs.auto_advance.enabled_until_user_input)

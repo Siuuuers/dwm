@@ -40,7 +40,7 @@ const FIXTURE_PATH := "res://tests/fixtures/saves/v4_desktop_prepared.json"
 ## ordinary (non-desktop, non-run) participants.
 class Owner extends RefCounted:
 	func prepare_legacy_profile_patch(_l: Dictionary, _m: Dictionary = {}) -> Dictionary:
-		return {"ok": true, "value": {"preferences": {"language": "en"}}}
+		return {"ok": true, "value": {"preferences": {"language": {"primary_locale_id": "en"}}}}
 	func prepare_locale(locale_id: String) -> Dictionary:
 		return {"ok": true, "value": {"canonical_locale_id": locale_id}}
 	func prepare_semantic_restore(ctx: Dictionary, _p: Dictionary) -> Dictionary:

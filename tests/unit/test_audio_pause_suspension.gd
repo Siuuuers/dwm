@@ -14,9 +14,10 @@ class Profile extends Node:
 		&"preferences.audio.ambience_muted": false,
 		&"preferences.audio.sfx_volume": 0.8,
 		&"preferences.audio.sfx_muted": false,
-		&"preferences.audio.voice_volume": 0.8,
-		&"preferences.audio.voice_muted": false,
-		&"preferences.audio.mute_audio_on_focus_loss": false,
+		&"preferences.audio.master_volume": 1.0,
+		&"preferences.audio.master_muted": false,
+		&"preferences.audio.mute_when_inactive": false,
+		&"preferences.audio.output_mode": "stereo",
 	}
 
 	func get_preference(path: StringName, default_value: Variant = null) -> Variant:

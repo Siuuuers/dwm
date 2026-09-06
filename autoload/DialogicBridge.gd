@@ -135,9 +135,10 @@ func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
 	if not _preferences_bound or _profile == null:
 		return _command_failure(&"not_initialized")
 	if changed_path != &"" and changed_path not in [
-		&"preferences.dialogue.text_speed",
-		&"preferences.dialogue.auto_text_speed",
-		&"preferences.dialogue.auto_advance_dialogue",
+		&"preferences.reading.reveal_speed",
+		&"preferences.reading.auto_delay",
+		&"preferences.reading.auto_enabled",
+		&"preferences.reading.skip_mode",
 	]:
 		return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(true), "receipt": {}, "unchanged": true}
 	var prepared: Dictionary = _preference_adapter.call(&"prepare", _profile.call(&"get_profile_snapshot"))

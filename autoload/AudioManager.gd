@@ -4,10 +4,17 @@ const PLAYBACK_PORT := preload("res://scripts/audio/AudioPlaybackPort.gd")
 const VOLUME_SILENCE_THRESHOLD := 0.0001
 const SILENCE_DB := -80.0
 const CHANNELS := {
+	&"master": {"bus": &"Master", "volume": &"preferences.audio.master_volume", "muted": &"preferences.audio.master_muted"},
 	&"music": {"bus": &"Music", "volume": &"preferences.audio.music_volume", "muted": &"preferences.audio.music_muted"},
 	&"ambience": {"bus": &"Ambience", "volume": &"preferences.audio.ambience_volume", "muted": &"preferences.audio.ambience_muted"},
 	&"sfx": {"bus": &"SFX", "volume": &"preferences.audio.sfx_volume", "muted": &"preferences.audio.sfx_muted"},
-	&"voice": {"bus": &"Voice", "volume": &"preferences.audio.voice_volume", "muted": &"preferences.audio.voice_muted"},
+}
+const AUDIO_DEFAULTS := {
+	"master_volume":1.0,"master_muted":false,
+	"music_volume":0.8,"music_muted":false,
+	"ambience_volume":0.65,"ambience_muted":false,
+	"sfx_volume":0.8,"sfx_muted":false,
+	"mute_when_inactive":true,"output_mode":"stereo",
 }
 const MUSIC_PLAYERS: Array[StringName] = [&"MusicA", &"MusicB"]
 const AMBIENCE_PLAYERS: Array[StringName] = [&"AmbienceA", &"AmbienceB"]
@@ -71,7 +78,7 @@ func initialize(profile: Node) -> Dictionary:
 	_profile = profile
 	if _playback_port == null:
 		_playback_port = PLAYBACK_PORT.new()
-	for bus_name in [&"Music", &"Ambience", &"SFX", &"UI", &"Voice"]:
+	for bus_name in [&"Master", &"Music", &"Ambience", &"SFX", &"UI", &"Voice"]:
 		var bus_result: Dictionary = _playback_port.call(&"ensure_bus", bus_name)
 		if not bus_result.get("ok", false):
 			return bus_result
@@ -261,14 +268,11 @@ func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
 		return _failure(&"not_initialized")
 	if changed_path != &"" and not String(changed_path).begins_with("preferences.audio."):
 		return {"ok": true, "code": &"ok", "value": _settings.duplicate(true), "receipt": {}, "unchanged": true}
-	var candidate := {}
-	for channel_id in CHANNELS:
-		var definition: Dictionary = CHANNELS[channel_id]
-		candidate[channel_id] = {
-			"volume": clampf(float(_profile.get_preference(definition["volume"], 1.0)), 0.0, 1.0),
-			"muted": bool(_profile.get_preference(definition["muted"], false)),
-		}
-	candidate[&"mute_audio_on_focus_loss"] = bool(_profile.get_preference(&"preferences.audio.mute_audio_on_focus_loss", false))
+	var audio := {}
+	for key: String in AUDIO_DEFAULTS:
+		audio[key] = _profile.get_preference(StringName("preferences.audio."+key),AUDIO_DEFAULTS[key])
+	if not _valid_prepared_audio(audio): return _failure(&"invalid_audio_settings")
+	var candidate := _settings_from_audio(audio)
 	var applied := _apply_settings_silent(candidate)
 	if not applied.get("ok", false):
 		return applied
@@ -285,6 +289,7 @@ func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary
 	var audio: Dictionary = preferences.get("audio", {})
 	if not _valid_prepared_audio(audio):
 		return _failure(&"invalid_restore_plan")
+	if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
 	return {"ok": true, "code": &"ok", "value": {"snapshot": snapshot.duplicate(true), "audio": audio.duplicate(true)}, "receipt": {}}
 
 
@@ -299,6 +304,12 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var validated := _validate_snapshot(snapshot)
 	if not validated.get("ok", false):
 		return validated
+	var audio_value: Variant = plan.get("audio", {})
+	if not audio_value is Dictionary: return _failure(&"invalid_restore_plan")
+	var audio: Dictionary = audio_value
+	if not audio.is_empty():
+		if not _valid_prepared_audio(audio): return _failure(&"invalid_restore_plan")
+		if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
 	_restore_backup = capture_restore_state()["value"].duplicate(true)
 	var music := _set_context(&"music", snapshot["music_context_id"], snapshot["music_context"], 0.0, true, true)
 	if not music.get("ok", false):
@@ -306,16 +317,8 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var ambience := _set_context(&"ambience", snapshot["ambience_context_id"], snapshot["ambience_context"], 0.0, true, true)
 	if not ambience.get("ok", false):
 		return ambience
-	var audio: Dictionary = plan.get("audio", {})
 	if not audio.is_empty():
-		var candidate := _settings.duplicate(true)
-		for channel_id in CHANNELS:
-			var key := String(channel_id)
-			candidate[channel_id] = {
-				"volume": clampf(float(audio.get("%s_volume" % key, candidate.get(channel_id, {}).get("volume", 1.0))), 0.0, 1.0),
-				"muted": bool(audio.get("%s_muted" % key, candidate.get(channel_id, {}).get("muted", false))),
-			}
-		candidate[&"mute_audio_on_focus_loss"] = bool(audio.get("mute_audio_on_focus_loss", false))
+		var candidate := _settings_from_audio(audio)
 		var settings_result := _apply_settings_silent(candidate)
 		if not settings_result.get("ok", false):
 			return settings_result
@@ -352,7 +355,8 @@ func get_missing_audio_report() -> Array:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and bool(_settings.get(&"mute_audio_on_focus_loss", false)):
+	if not _initialized: return
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		_focus_loss_mute = true
 		_apply_settings_silent(_settings)
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN and _focus_loss_mute:
@@ -478,15 +482,20 @@ func _rollback_failed_context(channel_id: StringName, backup: Dictionary, prior_
 
 
 func _apply_settings_silent(candidate: Dictionary) -> Dictionary:
+	var output_mode: String = candidate.get(&"output_mode", "stereo")
+	if not _supports_output_mode(output_mode): return _failure(&"unsupported_audio_output_mode")
 	var captured: Dictionary = _playback_port.call(&"capture_runtime")
 	if not captured.get("ok", false):
 		return captured
+	if _playback_port.has_method(&"set_output_mode"):
+		var output_result: Dictionary = _playback_port.call(&"set_output_mode",output_mode)
+		if not output_result.get("ok",false): return _rollback_settings(captured["value"],output_result)
 	for channel_id in CHANNELS:
 		var setting: Dictionary = candidate.get(channel_id, {})
 		if setting.is_empty():
 			return _failure(&"invalid_audio_settings")
 		var linear := clampf(float(setting["volume"]), 0.0, 1.0)
-		var muted := bool(setting["muted"]) or linear <= VOLUME_SILENCE_THRESHOLD or _focus_loss_mute
+		var muted := bool(setting["muted"]) or linear <= VOLUME_SILENCE_THRESHOLD or (_focus_loss_mute and bool(candidate.get(&"mute_when_inactive",true)))
 		var db := SILENCE_DB if linear <= VOLUME_SILENCE_THRESHOLD else linear_to_db(linear)
 		var bus_name: StringName = CHANNELS[channel_id]["bus"]
 		var applied: Dictionary = _playback_port.call(&"set_bus_state", bus_name, db, muted)
@@ -533,21 +542,30 @@ func _validate_snapshot(snapshot: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": snapshot.duplicate(true), "receipt": {}}
 
 
+func _settings_from_audio(audio: Dictionary) -> Dictionary:
+	var result := {}
+	for channel_id in CHANNELS:
+		result[channel_id] = {"volume":audio[String(channel_id)+"_volume"],"muted":audio[String(channel_id)+"_muted"]}
+	result[&"mute_when_inactive"] = audio.mute_when_inactive
+	result[&"output_mode"] = audio.output_mode
+	return result
+
+
+func _supports_output_mode(mode: String) -> bool:
+	return mode == "stereo" or (mode == "mono" and _playback_port != null and _playback_port.has_method(&"set_output_mode"))
+
+
 func _valid_prepared_audio(audio: Dictionary) -> bool:
-	var exact := [
-		"ambience_muted", "ambience_volume", "music_muted", "music_volume",
-		"mute_audio_on_focus_loss", "sfx_muted", "sfx_volume", "voice_muted", "voice_volume",
-	]
-	var keys: Array = audio.keys()
-	keys.sort()
-	if keys != exact:
-		return false
-	for channel_id in ["music", "ambience", "sfx", "voice"]:
-		var volume: Variant = audio["%s_volume" % channel_id]
-		var muted: Variant = audio["%s_muted" % channel_id]
-		if typeof(volume) != TYPE_FLOAT or not is_finite(volume) or volume < 0.0 or volume > 1.0 or typeof(muted) != TYPE_BOOL:
+	if audio.size() != AUDIO_DEFAULTS.size(): return false
+	for key: String in AUDIO_DEFAULTS:
+		if not audio.has(key): return false
+	for channel_id in ["master","music","ambience","sfx"]:
+		var volume: Variant = audio[channel_id+"_volume"]
+		if typeof(volume) != TYPE_FLOAT or not is_finite(volume) or volume < 0.0 or volume > 1.0:
 			return false
-	return typeof(audio["mute_audio_on_focus_loss"]) == TYPE_BOOL
+		if typeof(audio[channel_id+"_muted"]) != TYPE_BOOL: return false
+	return (typeof(audio.mute_when_inactive) == TYPE_BOOL
+		and typeof(audio.output_mode) == TYPE_STRING and audio.output_mode in ["stereo","mono"])
 
 
 func _warn_missing(semantic_id: String) -> Dictionary:

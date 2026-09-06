@@ -1,1 +1,516 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"description":"Normative shape is enforced by res://scripts/profile/ProfileSchema.gd; this machine-readable boundary freezes the root keys and schema version.","properties":{"gallery_transaction_receipts":{"type":"object"},"gallery_unlocks":{"items":{"type":"string"},"type":"array","uniqueItems":true},"input_mappings":{"type":"object"},"migration_receipts":{"type":"object"},"preferences":{"type":"object"},"schema_version":{"const":1},"visited_line_ids":{"items":{"minLength":1,"type":"string"},"type":"array","uniqueItems":true}},"required":["schema_version","gallery_unlocks","gallery_transaction_receipts","visited_line_ids","preferences","input_mappings","migration_receipts"],"title":"DWM profile schema v1","type":"object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DWM profile schema v4",
+  "description": "Profile v4: ten exact roots, canonical Settings and Controls, preserved migration receipts and historical version-one preferences. ProfileSchema.gd additionally validates archive contents, key identities, protected bindings and context conflicts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "gallery_unlocks",
+    "gallery_transaction_receipts",
+    "visited_line_ids",
+    "preferences",
+    "input_mappings",
+    "controls_bindings",
+    "controls_import_pending",
+    "migration_receipts",
+    "legacy_preferences_v1"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 4
+    },
+    "gallery_unlocks": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "gallery_transaction_receipts": {
+      "type": "object"
+    },
+    "visited_line_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "reading",
+        "audio",
+        "display",
+        "accessibility",
+        "exceptional_replay",
+        "dark_mode"
+      ],
+      "properties": {
+        "language": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "primary_locale_id",
+            "secondary_locale_id",
+            "dual_enabled"
+          ],
+          "properties": {
+            "primary_locale_id": {
+              "type": "string",
+              "enum": [
+                "en",
+                "zh_CN",
+                "zh_HK"
+              ]
+            },
+            "secondary_locale_id": {
+              "type": "string",
+              "enum": [
+                "en",
+                "zh_CN",
+                "zh_HK"
+              ]
+            },
+            "dual_enabled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "reading": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reveal_speed",
+            "auto_enabled",
+            "auto_delay",
+            "skip_mode",
+            "read_aloud_enabled",
+            "read_aloud_rate",
+            "lower_background_during_narration"
+          ],
+          "properties": {
+            "reveal_speed": {
+              "type": "string",
+              "enum": [
+                "instant",
+                "fast",
+                "normal",
+                "slow"
+              ]
+            },
+            "auto_enabled": {
+              "type": "boolean"
+            },
+            "auto_delay": {
+              "type": "string",
+              "enum": [
+                "short",
+                "normal",
+                "long"
+              ]
+            },
+            "skip_mode": {
+              "type": "string",
+              "enum": [
+                "read_only",
+                "all_text"
+              ]
+            },
+            "read_aloud_enabled": {
+              "type": "boolean"
+            },
+            "read_aloud_rate": {
+              "type": "string",
+              "enum": [
+                "slow",
+                "normal",
+                "fast"
+              ]
+            },
+            "lower_background_during_narration": {
+              "type": "boolean"
+            }
+          }
+        },
+        "audio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "master_volume",
+            "master_muted",
+            "music_volume",
+            "music_muted",
+            "ambience_volume",
+            "ambience_muted",
+            "sfx_volume",
+            "sfx_muted",
+            "mute_when_inactive",
+            "output_mode"
+          ],
+          "properties": {
+            "master_volume": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "master_muted": {
+              "type": "boolean"
+            },
+            "music_volume": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "music_muted": {
+              "type": "boolean"
+            },
+            "ambience_volume": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "ambience_muted": {
+              "type": "boolean"
+            },
+            "sfx_volume": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "sfx_muted": {
+              "type": "boolean"
+            },
+            "mute_when_inactive": {
+              "type": "boolean"
+            },
+            "output_mode": {
+              "type": "string",
+              "enum": [
+                "stereo",
+                "mono"
+              ]
+            }
+          }
+        },
+        "display": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "window_mode"
+          ],
+          "properties": {
+            "window_mode": {
+              "type": "string",
+              "enum": [
+                "windowed",
+                "borderless"
+              ]
+            }
+          }
+        },
+        "accessibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "text_size",
+            "large_targets",
+            "high_contrast",
+            "reduced_motion",
+            "screen_shake",
+            "colour_differentiation",
+            "sound_detail_text"
+          ],
+          "properties": {
+            "text_size": {
+              "type": "integer",
+              "enum": [
+                100,
+                125,
+                150
+              ]
+            },
+            "large_targets": {
+              "type": "boolean"
+            },
+            "high_contrast": {
+              "type": "boolean"
+            },
+            "reduced_motion": {
+              "type": "boolean"
+            },
+            "screen_shake": {
+              "type": "string",
+              "enum": [
+                "off",
+                "low",
+                "normal"
+              ]
+            },
+            "colour_differentiation": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "protan",
+                "deutan",
+                "tritan"
+              ]
+            },
+            "sound_detail_text": {
+              "type": "string",
+              "enum": [
+                "story_relevant",
+                "off"
+              ]
+            }
+          }
+        },
+        "exceptional_replay": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "available",
+            "replay_full"
+          ],
+          "properties": {
+            "available": {
+              "type": "boolean"
+            },
+            "replay_full": {
+              "type": "boolean"
+            }
+          }
+        },
+        "dark_mode": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "available",
+            "next_run_enabled"
+          ],
+          "properties": {
+            "available": {
+              "type": "boolean"
+            },
+            "next_run_enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "input_mappings": {
+      "type": "object",
+      "description": "Inactive legacy provenance, including sparse version-one maps. Runtime additionally rejects empty action identities.",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/legacy_key"
+            },
+            {
+              "$ref": "#/$defs/legacy_controller"
+            }
+          ]
+        }
+      }
+    },
+    "controls_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_quick_save",
+        "game_quick_load",
+        "game_toggle_board_mode",
+        "game_new_board"
+      ],
+      "properties": {
+        "game_quick_save": {
+          "$ref": "#/$defs/controls_slots"
+        },
+        "game_quick_load": {
+          "$ref": "#/$defs/controls_slots"
+        },
+        "game_toggle_board_mode": {
+          "$ref": "#/$defs/controls_slots"
+        },
+        "game_new_board": {
+          "$ref": "#/$defs/controls_slots"
+        }
+      }
+    },
+    "controls_import_pending": {
+      "type": "boolean",
+      "description": "True keeps the legal Controls draft inactive until explicit import resolution or confirmed Restore Controls."
+    },
+    "migration_receipts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "legacy_game_state_profile_v1",
+        "legacy_input_bindings_v1",
+        "invalid_persisted_skip_mode_v1"
+      ],
+      "properties": {
+        "legacy_game_state_profile_v1": {
+          "type": "boolean"
+        },
+        "legacy_input_bindings_v1": {
+          "type": "boolean"
+        },
+        "invalid_persisted_skip_mode_v1": {
+          "type": "boolean"
+        }
+      }
+    },
+    "legacy_preferences_v1": {
+      "type": "object",
+      "description": "Empty or the complete validated version-one preference tree, retained as historical data. Exact archive contents are validated by ProfileSchema.gd."
+    }
+  },
+  "$defs": {
+    "legacy_key": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "physical_keycode",
+        "keycode",
+        "shift",
+        "alt",
+        "ctrl",
+        "meta"
+      ],
+      "properties": {
+        "kind": {
+          "const": "key"
+        },
+        "physical_keycode": {
+          "type": "integer"
+        },
+        "keycode": {
+          "type": "integer"
+        },
+        "shift": {
+          "type": "boolean"
+        },
+        "alt": {
+          "type": "boolean"
+        },
+        "ctrl": {
+          "type": "boolean"
+        },
+        "meta": {
+          "type": "boolean"
+        }
+      }
+    },
+    "legacy_controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "button_index",
+        "device"
+      ],
+      "properties": {
+        "kind": {
+          "const": "joypad_button"
+        },
+        "button_index": {
+          "type": "integer"
+        },
+        "device": {
+          "type": "integer"
+        }
+      }
+    },
+    "controls_keyboard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "physical_keycode",
+        "keycode",
+        "shift",
+        "alt",
+        "ctrl",
+        "meta"
+      ],
+      "properties": {
+        "kind": {
+          "const": "key"
+        },
+        "physical_keycode": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "keycode": {
+          "type": "integer",
+          "const": 0
+        },
+        "shift": {
+          "type": "boolean",
+          "const": false
+        },
+        "alt": {
+          "type": "boolean",
+          "const": false
+        },
+        "ctrl": {
+          "type": "boolean",
+          "const": false
+        },
+        "meta": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "controls_controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "button_index",
+        "device"
+      ],
+      "properties": {
+        "kind": {
+          "const": "joypad_button"
+        },
+        "button_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "device": {
+          "type": "integer",
+          "const": -1
+        }
+      }
+    },
+    "controls_slots": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "keyboard",
+        "controller"
+      ],
+      "properties": {
+        "keyboard": {
+          "$ref": "#/$defs/controls_keyboard"
+        },
+        "controller": {
+          "$ref": "#/$defs/controls_controller"
+        }
+      }
+    }
+  }
+}

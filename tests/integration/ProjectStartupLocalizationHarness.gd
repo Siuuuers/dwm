@@ -65,12 +65,12 @@ func _verify_ready_state() -> void:
 		return
 	var events := {"profile": 0, "locale": 0}
 	profile.preference_changed.connect(func(path: StringName, _value: Variant) -> void:
-		if path == &"preferences.language": events["profile"] += 1
+		if path == &"preferences.language.primary_locale_id": events["profile"] += 1
 	)
 	localization.locale_changed.connect(func(_locale_id: String) -> void: events["locale"] += 1)
 	var switched: Dictionary = localization.set_locale("zh_hk")
-	if not switched.get("ok", false) or localization.get_locale() != "zh_HK" or profile.get_preference(&"preferences.language") != "zh_HK" or events["profile"] != 1 or events["locale"] != 1:
-		_abort("alias transaction did not publish exactly once: result=%s locale=%s profile=%s events=%s" % [JSON.stringify(switched), localization.get_locale(), profile.get_preference(&"preferences.language"), JSON.stringify(events)])
+	if not switched.get("ok", false) or localization.get_locale() != "zh_HK" or profile.get_preference(&"preferences.language.primary_locale_id") != "zh_HK" or events["profile"] != 1 or events["locale"] != 1:
+		_abort("alias transaction did not publish exactly once: result=%s locale=%s profile=%s events=%s" % [JSON.stringify(switched), localization.get_locale(), profile.get_preference(&"preferences.language.primary_locale_id"), JSON.stringify(events)])
 		return
 	if localization.prepare_locale("en")["value"]["root_plans"].size() < 1:
 		_abort("live menu root was not registered")

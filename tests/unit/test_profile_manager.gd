@@ -35,11 +35,39 @@ func _new_manager() -> Dictionary:
 	assert_true(initialized.get("ok", false), str(initialized))
 	return {"manager": manager, "ops": ops, "storage": storage}
 
+func _v1_profile() -> Dictionary:
+	return {
+		"schema_version": 1,
+		"gallery_unlocks": [], "gallery_transaction_receipts": {}, "visited_line_ids": [],
+		"preferences": {
+			"language": "en",
+			"audio": {"music_volume": 0.8, "music_muted": false, "ambience_volume": 0.65,
+				"ambience_muted": false, "sfx_volume": 0.8, "sfx_muted": false,
+				"voice_volume": 0.8, "voice_muted": false, "mute_audio_on_focus_loss": false},
+			"dialogue": {"text_speed": 1.0, "auto_text_speed": 1.0,
+				"skip_mode": "read_only", "auto_advance_dialogue": false},
+			"display": {"fullscreen": false},
+			"accessibility": {"font_scale": 1.0, "high_contrast": false,
+				"reduced_motion": false, "screen_shake_strength": 0.5,
+				"large_click_targets": false, "hold_to_confirm": false,
+				"colorblind_mode": "none", "show_focus_ring": true,
+				"controller_cursor_enabled": false, "subtitles_enabled": true,
+				"captions_enabled": true, "subtitle_speaker_names": true,
+				"subtitle_background_opacity": 0.85, "text_box_opacity": 0.9,
+				"visual_audio_cues": true, "flashing_effects_enabled": false,
+				"tutorial_replay_available": true, "pause_on_focus_loss": true},
+		},
+		"input_mappings": {},
+		"migration_receipts": {"legacy_game_state_profile_v1": false,
+			"legacy_input_bindings_v1": false, "invalid_persisted_skip_mode_v1": false},
+	}.duplicate(true)
+
 func test_defaults_are_schema_valid_and_exact() -> void:
 	var profile: Dictionary = _schema.call(&"make_defaults")
 	var result: Dictionary = _schema.call(&"validate", profile)
 	assert_true(result.get("ok", false), str(result))
-	assert_eq(profile["preferences"]["dialogue"]["skip_mode"], "read_only")
+	assert_eq(profile["schema_version"], 4)
+	assert_eq(profile["preferences"]["reading"]["skip_mode"], "read_only")
 	assert_eq(profile["gallery_transaction_receipts"], {})
 	assert_eq(profile["migration_receipts"].size(), 3)
 
@@ -57,11 +85,11 @@ func test_schema_rejects_unknown_nested_fields_bad_types_and_aliases() -> void:
 
 func test_invalid_skip_is_the_only_narrow_document_repair() -> void:
 	var migration := _load("res://scripts/profile/ProfileMigration.gd")
-	var profile: Dictionary = _schema.call(&"make_defaults")
+	var profile: Dictionary = _v1_profile()
 	profile["preferences"]["dialogue"]["skip_mode"] = "legacy-invalid"
 	var repaired: Dictionary = migration.call(&"prepare_document", profile)
 	assert_true(repaired.get("ok", false), str(repaired))
-	assert_eq(repaired["value"]["preferences"]["dialogue"]["skip_mode"], "read_only")
+	assert_eq(repaired["value"]["preferences"]["reading"]["skip_mode"], "read_only")
 	assert_true(repaired["value"]["migration_receipts"]["invalid_persisted_skip_mode_v1"])
 	profile["unexpected"] = true
 	assert_false(migration.call(&"prepare_document", profile).get("ok", true))
@@ -73,7 +101,7 @@ func test_legacy_patch_is_exact_detached_and_discards_runtime_audio() -> void:
 	var result: Dictionary = migration.call(&"prepare_legacy_patch", run_input, input_input)
 	assert_true(result.get("ok", false), str(result))
 	var profile: Dictionary = result["value"]
-	assert_eq(profile["preferences"]["dialogue"]["skip_mode"], "all_text")
+	assert_eq(profile["preferences"]["reading"]["skip_mode"], "all_text")
 	assert_eq(profile["preferences"]["audio"]["music_muted"], true)
 	assert_false(JSON.stringify(profile).contains("current_bgm_id"))
 	assert_eq(profile["gallery_unlocks"], ["ending.alone", "ending.priscilla.sweet", "ending.priscilla_lavinia"])
@@ -81,7 +109,8 @@ func test_legacy_patch_is_exact_detached_and_discards_runtime_audio() -> void:
 	assert_false(profile["input_mappings"].has("not_registered"))
 	run_input["settings"]["font_scale"] = 99.0
 	input_input["game_quick_save"].append(KEY_F8)
-	assert_eq(profile["preferences"]["accessibility"]["font_scale"], 1.25)
+	assert_eq(profile["preferences"]["accessibility"]["text_size"], 125)
+	assert_eq(profile["legacy_preferences_v1"]["accessibility"]["font_scale"], 1.25)
 	assert_eq((profile["input_mappings"]["game_quick_save"] as Array).size(), 1)
 
 func test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched() -> void:
@@ -100,7 +129,8 @@ func test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched(
 	var restarted_ops: RefCounted = _fake_ops_script.new(ops.call(&"snapshot_persisted"))
 	var restarted: Node = autofree(_manager_script.new())
 	assert_true(restarted.call(&"initialize", _storage_script.new(ROOT, restarted_ops)).get("ok", false))
-	assert_eq(restarted.call(&"get_input_mappings"), snapshot["input_mappings"])
+	assert_true(snapshot["controls_import_pending"], "incomplete legacy Controls provenance requires review")
+	assert_eq(restarted.call(&"get_input_mappings"), {}, "unreviewed legacy bindings are never published")
 
 func test_manager_initializes_once_and_uses_detached_snapshots() -> void:
 	var fixture := _new_manager()
@@ -114,13 +144,13 @@ func test_flat_fully_qualified_preference_batch_is_atomic() -> void:
 	var manager: Node = _new_manager()["manager"]
 	var prepared: Dictionary = manager.call(&"prepare_preferences", {
 		&"preferences.audio.music_volume": 0.5,
-		&"preferences.dialogue.skip_mode": "all_text",
+		&"preferences.reading.skip_mode": "all_text",
 	})
 	assert_true(prepared.get("ok", false), str(prepared))
-	assert_eq(prepared["changed_paths"], [&"preferences.audio.music_volume", &"preferences.dialogue.skip_mode"])
+	assert_eq(prepared["changed_paths"], [&"preferences.audio.music_volume", &"preferences.reading.skip_mode"])
 	assert_eq(manager.call(&"prepare_preferences", {"preferences.audio.music_volume": 0.2}).get("code"), &"invalid_preference_path")
 	assert_eq(manager.call(&"prepare_preferences", {&"audio.music_volume": 0.2}).get("code"), &"invalid_preference_path")
-	assert_eq(manager.call(&"prepare_preferences", {&"preferences.language": "zh_HK", &"preferences.audio.music_volume": 0.2}).get("code"), &"managed_preference")
+	assert_eq(manager.call(&"prepare_preferences", {&"preferences.language.primary_locale_id": "zh_HK", &"preferences.audio.music_volume": 0.2}).get("code"), &"managed_preference")
 	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), 0.8)
 
 func test_locale_candidate_commits_deferred_and_publishes_exactly_once() -> void:
@@ -134,7 +164,7 @@ func test_locale_candidate_commits_deferred_and_publishes_exactly_once() -> void
 	assert_eq(events, [])
 	var publication_id: String = committed["value"]["publication_id"]
 	assert_true(manager.call(&"publish_deferred_profile_signals", publication_id).get("ok", false))
-	assert_eq(events, [[&"preferences.language", "zh_HK"]])
+	assert_eq(events, [[&"preferences.language.primary_locale_id", "zh_HK"]])
 	assert_eq(manager.call(&"publish_deferred_profile_signals", publication_id).get("code"), &"unknown_publication")
 
 func test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail() -> void:
@@ -165,7 +195,7 @@ func test_preference_reset_publishes_leaf_changes_before_one_summary() -> void:
 	var manager: Node = _new_manager()["manager"]
 	assert_true(manager.call(&"set_preferences", {
 		&"preferences.audio.music_volume": 0.2,
-		&"preferences.dialogue.text_speed": 2.0,
+		&"preferences.reading.reveal_speed": "slow",
 	}).get("ok", false))
 	var events: Array = []
 	manager.preference_changed.connect(func(path: StringName, _value: Variant) -> void: events.append(["preference", path]))
@@ -173,11 +203,11 @@ func test_preference_reset_publishes_leaf_changes_before_one_summary() -> void:
 	assert_true(manager.call(&"reset_preferences").get("ok", false))
 	assert_eq(events, [
 		["preference", &"preferences.audio.music_volume"],
-		["preference", &"preferences.dialogue.text_speed"],
+		["preference", &"preferences.reading.reveal_speed"],
 		["reset", &"preferences"],
 	])
 	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), 0.8)
-	assert_eq(manager.call(&"get_preference", &"preferences.dialogue.text_speed"), 1.0)
+	assert_eq(manager.call(&"get_preference", &"preferences.reading.reveal_speed"), "normal")
 
 func test_mutation_gate_configuration_is_identity_stable_and_side_effect_free() -> void:
 	var manager: Node = autofree(_manager_script.new())
@@ -230,11 +260,11 @@ func test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it() 
 	# A new run must NOT touch visited ids or skip mode (Plan-05 Task 4).
 	var snapshot: Dictionary = manager.call(&"get_profile_snapshot")
 	assert_true("dating.solo.sylvia.day3.line.1" in snapshot["visited_line_ids"], "persisted in the profile")
-	var mode_before: Variant = manager.call(&"get_preference", &"preferences.dialogue.skip_mode")
+	var mode_before: Variant = manager.call(&"get_preference", &"preferences.reading.skip_mode")
 	var reset: Dictionary = manager.call(&"reset_visited_history")
 	assert_true(reset.get("ok", false), str(reset))
 	assert_false(manager.call(&"is_line_visited", "dating.solo.sylvia.day3.line.1"), "explicit reset clears visited ids")
-	assert_eq(manager.call(&"get_preference", &"preferences.dialogue.skip_mode"), mode_before,
+	assert_eq(manager.call(&"get_preference", &"preferences.reading.skip_mode"), mode_before,
 		"a visited-history reset never changes skip mode")
 
 func test_visited_reset_leaves_other_profile_state_intact() -> void:

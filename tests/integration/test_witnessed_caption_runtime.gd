@@ -28,7 +28,7 @@ var _caption_display_sources: Array[Dictionary] = []
 class MemoryProfile extends Node:
 	signal preference_changed(path: StringName, value: Variant)
 	func get_profile_snapshot() -> Dictionary:
-		return {"preferences":{"dialogue":{"text_speed":2.0,"auto_text_speed":4.0,"auto_advance_dialogue":false}}}
+		return {"preferences":{"reading":{"reveal_speed":"fast","auto_delay":"short","auto_enabled":false,"skip_mode":"read_only"}}}
 
 class CaptionFixtureLocale extends Node:
 	signal locale_changed(locale: String)
@@ -193,16 +193,16 @@ func test_deferred_first_mount_reapplies_bound_bridge_preferences_before_first_t
 	_assert_single_text()
 	assert_eq(order,["preferences","text"],"ready clear precedes bound Bridge reapply, which precedes first event")
 	assert_eq(first_speed,[0.5])
-	assert_almost_eq(float(runtime.Inputs.auto_advance.delay_modifier),0.25,0.001)
+	assert_almost_eq(float(runtime.Inputs.auto_advance.delay_modifier),0.5,0.001)
 	assert_false(runtime.Inputs.auto_advance.enabled_until_user_input)
 	var source_locale: String = str(get_node("/root/LocalizationManager").get_locale()).replace("_","-")
-	var source_scale: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.font_scale",1.0)
+	var source_scale: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.text_size",100)
 	var source_high: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.high_contrast",false)
-	var source_mode: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.colorblind_mode","none")
-	var preset_map := {"none":"standard","protanopia":"protan","deuteranopia":"deutan","tritanopia":"tritan"}
-	var valid_source: bool = source_locale in ["en","zh-CN","zh-HK"] and typeof(source_scale) in [TYPE_INT,TYPE_FLOAT] and source_scale in [1.0,1.25,1.5] and typeof(source_high) == TYPE_BOOL and preset_map.has(source_mode)
+	var source_mode: Variant = get_node("/root/ProfileManager").get_preference(&"preferences.accessibility.colour_differentiation","standard")
+	var preset_map := {"standard":"standard","protan":"protan","deutan":"deutan","tritan":"tritan"}
+	var valid_source: bool = source_locale in ["en","zh-CN","zh-HK"] and typeof(source_scale) == TYPE_INT and source_scale in [100,125,150] and typeof(source_high) == TYPE_BOOL and preset_map.has(source_mode)
 	assert_eq(caption.get_caption_projection().locale,source_locale if valid_source else "zh-HK","valid live sources apply; uninitialized source tuple retains explicit valid configuration")
-	assert_eq(caption.get_caption_projection().font_size,int(20*float(source_scale)) if valid_source else 30)
+	assert_eq(caption.get_caption_projection().font_size,int(20*float(source_scale)/100) if valid_source else 30)
 	assert_eq(caption.get_caption_projection().palette,"Midnight")
 	assert_eq(caption.get_caption_projection().high_contrast,source_high if valid_source else true)
 	assert_eq(caption.get_caption_projection().colour_preset,preset_map[source_mode] if valid_source else "protan")
@@ -1279,13 +1279,13 @@ func test_real_profile_large_targets_resize_current_caption_without_accepting_he
 	var point := _root_caption_point(ordinary_rect.get_center())
 	_parse_accept_mouse(point,true)
 	Input.flush_buffered_events()
-	assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":true}).get("ok",false))
+	assert_true(profile.set_preferences({&"preferences.accessibility.large_targets":true}).get("ok",false))
 	await _settle()
 	var projection: Dictionary = caption.get_caption_projection()
 	assert_true(projection.get("large_targets",false))
 	assert_gte(projection.caption_visible_rect.size.y,64.0,"a short live caption is a full Large Target")
 	assert_gte(projection.caption_visible_rect.size.x,64.0)
-	assert_false(profile.set_preferences({&"preferences.accessibility.large_click_targets":"true"}).get("ok",false))
+	assert_false(profile.set_preferences({&"preferences.accessibility.large_targets":"true"}).get("ok",false))
 	await _settle()
 	assert_eq(caption.get_caption_projection(),projection,"malformed preference is refused without changing the live target")
 	assert_eq(_stack_invariants(),before)
@@ -1294,7 +1294,7 @@ func test_real_profile_large_targets_resize_current_caption_without_accepting_he
 	_parse_accept_mouse(point,false)
 	await _settle()
 	assert_eq(_stack_invariants(),before,"resizing cancels the old pointer candidate even if release stays inside")
-	assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":false}).get("ok",false))
+	assert_true(profile.set_preferences({&"preferences.accessibility.large_targets":false}).get("ok",false))
 	await _settle()
 	assert_eq(caption.get_caption_projection().caption_rect,ordinary_rect,"turning off Large Targets restores ordinary geometry")
 	assert_eq(_stack_invariants(),before)
@@ -1310,7 +1310,7 @@ func test_large_target_overflow_scrollbar_keeps_reading_position_and_minimum_hit
 	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
 		"caption-overflow-target-fixture",preload("res://tests/support/FakeFileOps.gd").new())
 	assert_true(profile.initialize(storage).get("ok",false))
-	assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":true}).get("ok",false))
+	assert_true(profile.set_preferences({&"preferences.accessibility.large_targets":true}).get("ok",false))
 	_replace_caption_display_source("ProfileManager",profile)
 	_replace_caption_display_source("LocalizationManager",CaptionFixtureLocale.new())
 	if not _mount(): return
@@ -1323,7 +1323,7 @@ func test_large_target_overflow_scrollbar_keeps_reading_position_and_minimum_hit
 	assert_gte(bar.size.x,64.0)
 	bar.value = 100
 	for enabled: bool in [true,false,true]:
-		assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":enabled}).get("ok",false))
+		assert_true(profile.set_preferences({&"preferences.accessibility.large_targets":enabled}).get("ok",false))
 		for locale: String in ["en","zh-CN","zh-HK"]:
 			for percent: int in [100,125,150]:
 				assert_true(caption.configure_presentation(locale,percent,"AfterHours",false,"standard",enabled))
@@ -1396,10 +1396,10 @@ func test_real_profile_material_preferences_preserve_native_reading_and_pending_
 	# No runtime dependency on the separate Settings worktree or its registry.
 	var high_roles := {&"field":Color("0b1018"),&"deep":Color("080b10"),&"current":Color("24212d"),
 		&"text":Color("f6efdc"),&"rule":Color("98a7ae"),&"focus_outer":Color("f6efdc")}
-	for tuple: Array in [["none","standard","d0b977"],["protanopia","protan","e0c187"],
-			["deuteranopia","deutan","d9c585"],["tritanopia","tritan","e3b6ac"]]:
+	for tuple: Array in [["standard","standard","d0b977"],["protan","protan","e0c187"],
+			["deutan","deutan","d9c585"],["tritan","tritan","e3b6ac"]]:
 		var changed: Dictionary = profile.set_preferences({&"preferences.accessibility.high_contrast":true,
-			&"preferences.accessibility.colorblind_mode":tuple[0]})
+			&"preferences.accessibility.colour_differentiation":tuple[0]})
 		assert_true(changed.get("ok",false),str(changed))
 		await _settle()
 		var projection: Dictionary = caption.get_caption_projection()
@@ -1415,7 +1415,7 @@ func test_real_profile_material_preferences_preserve_native_reading_and_pending_
 		assert_true(native.has_focus())
 		assert_eq(caption.caption_text,native)
 	var reset: Dictionary = profile.set_preferences({&"preferences.accessibility.high_contrast":false,
-		&"preferences.accessibility.colorblind_mode":"none"})
+		&"preferences.accessibility.colour_differentiation":"standard"})
 	assert_true(reset.get("ok",false))
 	await _settle()
 	for role: StringName in baseline:
@@ -1454,7 +1454,7 @@ func test_real_profile_target_resize_cancels_held_native_thumb_drag_until_fresh_
 	await _settle()
 	assert_gt(bar.value,0.0,"real held motion proves the native thumb drag is armed before resize")
 	var retained_scroll := bar.value
-	assert_true(profile.set_preferences({&"preferences.accessibility.large_click_targets":true}).get("ok",false))
+	assert_true(profile.set_preferences({&"preferences.accessibility.large_targets":true}).get("ok",false))
 	await _settle()
 	assert_true(caption.get_caption_projection().large_targets)
 	assert_gte(bar.size.x,64.0)

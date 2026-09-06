@@ -38,6 +38,10 @@ var _title_strip: Control
 var _clock_label: Label
 var _locale := "en"
 var _percent := 100
+var _settings_services: Dictionary = {}
+
+func configure_settings_services(services: Dictionary) -> void:
+	_settings_services = services.duplicate()
 
 func _ready() -> void:
 	_build_login_shell()
@@ -122,18 +126,16 @@ func _on_setting_pressed() -> void:
 	_close_backup_app()
 	if is_instance_valid(_setting_instance):
 		_setting_host.visible = true
-		_setting_instance.show()
+		_setting_instance.show_window()
 		_update_title_destination()
-		_setting_instance.get_node("%LanguageOption").grab_focus()
 		return
 	_setting_instance = SETTING_SCENE.instantiate()
+	_setting_instance.get_node("SettingsContent").configure_services(_settings_services)
 	_setting_host.add_child(_setting_instance)
-	_setting_instance.visibility_changed.connect(func():
-		if is_instance_valid(_setting_instance) and not _setting_instance.visible and _setting_host.visible:
-			_close_setting())
+	_setting_instance.window_hidden.connect(_setting_closed)
 	_setting_host.visible = true
 	_update_title_destination()
-	_setting_instance.get_node("%LanguageOption").grab_focus()
+	_setting_instance.show_window()
 
 func _on_shut_down_pressed() -> void:
 	if not _can_leave_login():
@@ -160,6 +162,12 @@ func _close_backup_app() -> void:
 func _close_setting() -> void:
 	if not _can_leave_login():
 		return
+	if is_instance_valid(_setting_instance) and _setting_instance.is_visible_in_tree():
+		_setting_instance.hide_window()
+	else:
+		_setting_closed()
+
+func _setting_closed() -> void:
 	var was_visible := _setting_host.visible
 	if is_instance_valid(_setting_host):
 		_setting_host.visible = false
@@ -177,8 +185,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				_close_backup_app()
 			get_viewport().set_input_as_handled()
 		elif is_instance_valid(_setting_host) and _setting_host.visible:
-			_close_setting()
 			get_viewport().set_input_as_handled()
+			if is_instance_valid(_setting_instance): _setting_instance.settings_content.handle_back()
 
 func _build_login_shell() -> void:
 	_title_strip = Control.new()
@@ -227,8 +235,7 @@ func _refresh_login_shell(_value: String = "") -> void:
 	var locale := str(localization.get_locale()).replace("_", "-") if localization != null else "en"
 	_locale = locale if SHUTDOWN_COPY.has(locale) else "en"
 	var profile := get_node_or_null("/root/ProfileManager")
-	var scale_value := float(profile.get_preference("preferences.accessibility.font_scale", 1.0)) if profile != null else 1.0
-	_percent = 150 if scale_value >= 1.5 else (125 if scale_value >= 1.25 else 100)
+	_percent = int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
 	theme = DESKTOP_THEME.build(_locale, _percent)
 	_title_home.theme = theme
 	_title_home.accessibility_name = {"en": "Return", "zh-CN": "返回", "zh-HK": "返回"}.get(locale, "Return")
@@ -281,10 +288,10 @@ func _update_ledger_navigation() -> void:
 		_title_home.focus_neighbor_top = _title_home.get_path_to(_title_home)
 		_title_home.focus_neighbor_right = _title_home.get_path_to(_title_home)
 		if _setting_host.visible and is_instance_valid(_setting_instance):
-			var first: Control = _setting_instance.get_node("%LanguageOption")
+			var first: Control = _setting_instance.settings_content.find_child("LanguageCategory",true,false)
 			_title_home.focus_next = _title_home.get_path_to(first)
 			_title_home.focus_neighbor_bottom = _title_home.get_path_to(first)
-			_title_home.focus_previous = _title_home.get_path_to(_setting_instance.get_node("%CloseButton"))
+			_title_home.focus_previous = _title_home.get_path_to(first)
 		elif not is_instance_valid(_backup_app_instance):
 			_title_home.focus_next = _title_home.get_path_to(source)
 			_title_home.focus_previous = _title_home.get_path_to(source)
@@ -313,7 +320,9 @@ func _show_login_unavailable() -> void:
 	_title_home.grab_focus()
 
 func _can_leave_login() -> bool:
-	return not is_instance_valid(_confirmation) and (not is_instance_valid(_backup_app_instance) or _backup_app_instance.can_return_home())
+	return not is_instance_valid(_confirmation) \
+		and (not is_instance_valid(_backup_app_instance) or _backup_app_instance.can_return_home()) \
+		and (not is_instance_valid(_setting_instance) or _setting_instance.can_return_home())
 
 func _sync_title_navigation() -> void:
 	# The shared sheet owns modal masks. Recovery owns this separate ledger mask;

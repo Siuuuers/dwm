@@ -9,6 +9,7 @@ var _tweens: Dictionary = {}
 var _tween_specs: Dictionary = {}
 var _bus_states: Dictionary = {}
 var _pause_capture: Dictionary = {}
+var _mono_effect: AudioEffectStereoEnhance
 
 
 func ensure_bus(bus_name: StringName) -> Dictionary:
@@ -17,6 +18,7 @@ func ensure_bus(bus_name: StringName) -> Dictionary:
 		AudioServer.add_bus()
 		index = AudioServer.bus_count - 1
 		AudioServer.set_bus_name(index, bus_name)
+	_bus_states[bus_name] = {"db":AudioServer.get_bus_volume_db(index),"muted":AudioServer.is_bus_mute(index)}
 	return _ok({"bus": bus_name})
 
 
@@ -268,7 +270,64 @@ func set_bus_state(bus_name: StringName, value_db: float, muted: bool) -> Dictio
 	return _ok({})
 
 
+func set_output_mode(mode: String) -> Dictionary:
+	if mode not in ["stereo","mono"]: return _failure(&"invalid_audio_output_mode")
+	var ensured := ensure_bus(&"Master")
+	if not ensured.ok: return ensured
+	var bus := AudioServer.get_bus_index(&"Master")
+	var index := _mono_effect_index(bus)
+	if mode == "stereo" and index < 0: return _ok({"output_mode":mode})
+	if _mono_effect == null:
+		_mono_effect = AudioEffectStereoEnhance.new()
+		_mono_effect.resource_name = "DWM owned mono output"
+	# Godot 4.6 AudioEffectStereoEnhance: pan_pullout=0 downmixes stereo to mono.
+	# https://docs.godotengine.org/en/4.6/classes/class_audioeffectstereoenhance.html
+	_mono_effect.pan_pullout = 0.0
+	_mono_effect.surround = 0.0
+	_mono_effect.time_pullout_ms = 0.0
+	if index < 0:
+		AudioServer.add_bus_effect(bus,_mono_effect)
+		index = _mono_effect_index(bus)
+	if index < 0: return _failure(&"invalid_audio_runtime")
+	AudioServer.set_bus_effect_enabled(bus,index,mode == "mono")
+	return _ok({"output_mode":mode})
+
+
+func _mono_effect_index(bus: int) -> int:
+	if bus < 0 or _mono_effect == null: return -1
+	for index in AudioServer.get_bus_effect_count(bus):
+		if AudioServer.get_bus_effect(bus,index) == _mono_effect: return index
+	return -1
+
+
+func _capture_output_state() -> Dictionary:
+	var bus := AudioServer.get_bus_index(&"Master")
+	var index := _mono_effect_index(bus)
+	return {"owner_id":get_instance_id(),"present":index >= 0,"index":index,
+		"enabled":AudioServer.is_bus_effect_enabled(bus,index) if index >= 0 else false}
+
+
+func _restore_output_state(state: Dictionary) -> Dictionary:
+	if state.get("owner_id") != get_instance_id(): return _failure(&"invalid_audio_runtime")
+	var bus := AudioServer.get_bus_index(&"Master")
+	if bus < 0: return _failure(&"invalid_audio_runtime")
+	var index := _mono_effect_index(bus)
+	if not state.get("present",false):
+		if index >= 0: AudioServer.remove_bus_effect(bus,index)
+		return _ok({})
+	if _mono_effect == null: return _failure(&"invalid_audio_runtime")
+	if index < 0:
+		AudioServer.add_bus_effect(bus,_mono_effect,mini(int(state.index),AudioServer.get_bus_effect_count(bus)))
+		index = _mono_effect_index(bus)
+	if index < 0: return _failure(&"invalid_audio_runtime")
+	AudioServer.set_bus_effect_enabled(bus,index,bool(state.enabled))
+	return _ok({})
+
+
 func capture_runtime() -> Dictionary:
+	ensure_bus(&"Master")
+	for bus_name in _bus_states.keys():
+		ensure_bus(bus_name)
 	var players := {}
 	for id in _players:
 		var player: AudioStreamPlayer = _players[id]
@@ -288,10 +347,13 @@ func capture_runtime() -> Dictionary:
 			"tracks": specification["tracks"].duplicate(true),
 			"remaining": maxf(0.0, float(specification["duration"]) - (tween.get_total_elapsed_time() if tween != null and tween.is_valid() else 0.0)),
 		}
-	return _ok({"players": players, "bus_states": _bus_states.duplicate(true), "transitions": transitions})
+	return _ok({"players": players, "bus_states": _bus_states.duplicate(true), "transitions": transitions, "output_state":_capture_output_state()})
 
 
 func restore_runtime(backup: Dictionary) -> Dictionary:
+	if backup.has("output_state"):
+		var output_result := _restore_output_state(backup.output_state)
+		if not output_result.ok: return output_result
 	for channel_id in _tweens.keys():
 		kill_tween(channel_id)
 	for id in backup.get("players", {}):

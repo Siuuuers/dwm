@@ -48,10 +48,10 @@ class FakeProfile extends RefCounted:
 	signal preference_changed(path: StringName, value: Variant)
 	var font_scale := 1.0
 	func get_preference(path: StringName, default: Variant = null) -> Variant:
-		return font_scale if path == &"preferences.accessibility.font_scale" else default
+		return int(font_scale * 100) if path == &"preferences.accessibility.text_size" else default
 	func change_scale(value: float) -> void:
 		font_scale = value
-		preference_changed.emit(&"preferences.accessibility.font_scale", value)
+		preference_changed.emit(&"preferences.accessibility.text_size", int(value * 100))
 
 class FakeHost extends RefCounted:
 	var reject_next := true

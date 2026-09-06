@@ -58,7 +58,7 @@ func initialize(profile: Node, manifest_path: String = "res://localization/manif
 		return loaded
 	var catalog_store: Dictionary = (loaded["value"] as Dictionary).duplicate(true)
 	var source_locale: String = catalog_store["manifest"]["source_locale"]
-	var stored_locale := str(profile.get_preference(&"preferences.language", source_locale))
+	var stored_locale := str(profile.get_preference(&"preferences.language.primary_locale_id", source_locale))
 	var canonical_locale := _resolve_locale_in_bundle(catalog_store, stored_locale)
 	if canonical_locale.is_empty():
 		canonical_locale = source_locale
@@ -243,7 +243,7 @@ func capture_restore_state() -> Dictionary:
 func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	if not _is_restore_plan_valid(plan):
 		return _fail(&"invalid_localization_restore_plan")
-	if str(_profile.get_preference(&"preferences.language", "")) != str(plan["canonical_locale_id"]):
+	if str(_profile.get_preference(&"preferences.language.primary_locale_id", "")) != str(plan["canonical_locale_id"]):
 		return _fail(&"localization_restore_profile_mismatch")
 	var backup := capture_restore_state()
 	if not backup.get("ok", false):
@@ -393,7 +393,7 @@ func _is_restore_plan_valid(plan: Dictionary) -> bool:
 
 
 func _on_profile_preference_changed(path: StringName, value: Variant) -> void:
-	if path != &"preferences.language":
+	if path != &"preferences.language.primary_locale_id":
 		return
 	var requested := str(value)
 	if _publishing_own_locale:

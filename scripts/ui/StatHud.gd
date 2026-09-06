@@ -113,8 +113,7 @@ func _refresh_presentation() -> void:
 	_locale = str(_localization.get_locale()).replace("_", "-") if is_instance_valid(_localization) and _localization.has_method("get_locale") else "en"
 	if not COPY.has(_locale):
 		_locale = "en"
-	var scale_value := float(_profile.get_preference("preferences.accessibility.font_scale", 1.0)) if is_instance_valid(_profile) and _profile.has_method("get_preference") else 1.0
-	var percent := 150 if scale_value >= 1.5 else (125 if scale_value >= 1.25 else 100)
+	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if is_instance_valid(_profile) and _profile.has_method("get_preference") else 100
 	var presentation_key := "%s:%d" % [_locale, percent]
 	if presentation_key == _presentation_key:
 		return

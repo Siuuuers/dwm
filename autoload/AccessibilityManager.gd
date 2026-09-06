@@ -21,14 +21,13 @@ func initialize(profile: Node) -> Dictionary:
 
 func _setting(key: String, default_value: Variant) -> Variant:
 	if _profile == null: return default_value
-	var group := "dialogue" if key in ["text_speed", "auto_text_speed"] else "accessibility"
-	return _profile.get_preference(StringName("preferences.%s.%s" % [group, key]), default_value)
+	return _profile.get_preference(StringName("preferences.accessibility." + key), default_value)
 
 
 func apply_settings_to_tree(root: Node) -> void:
 	if root == null:
 		return
-	apply_font_scale(root, float(_setting("font_scale", 1.0)))
+	apply_font_scale(root, int(_setting("text_size", 100)) / 100.0)
 	apply_high_contrast(root, bool(_setting("high_contrast", false)))
 	apply_large_click_targets(root)
 	apply_reduced_motion_to_tree(root)
@@ -55,9 +54,9 @@ func apply_high_contrast(root: Node, enabled: bool) -> void:
 
 
 func get_minimum_click_size() -> Vector2:
-	if bool(_setting("large_click_targets", false)):
+	if bool(_setting("large_targets", false)):
 		return Vector2(64, 64)
-	return Vector2(44, 44)
+	return Vector2(48, 48)
 
 
 func make_control_accessible(control: Control, label_key: String = "") -> void:
@@ -78,17 +77,17 @@ func should_reduce_motion() -> bool:
 
 
 func get_text_delay() -> float:
-	var speed := float(_setting("text_speed", 1.0))
-	return 0.03 / maxf(0.1, speed)
+	var speed: String = str(_profile.get_preference(&"preferences.reading.reveal_speed","normal")) if _profile != null else "normal"
+	return {"instant":0.0,"fast":0.015,"normal":0.03,"slow":0.06}.get(speed,0.03)
 
 
 func get_auto_advance_delay() -> float:
-	var speed := float(_setting("auto_text_speed", 1.0))
-	return 2.0 / maxf(0.1, speed)
+	var delay: String = str(_profile.get_preference(&"preferences.reading.auto_delay","normal")) if _profile != null else "normal"
+	return {"short":1.0,"normal":2.0,"long":3.0}.get(delay,2.0)
 
 
 func apply_large_click_targets(root: Node) -> void:
-	if root == null or not bool(_setting("large_click_targets", false)):
+	if root == null or not bool(_setting("large_targets", false)):
 		return
 	var min_size := get_minimum_click_size()
 	if root is Control and (root is BaseButton or root.focus_mode == Control.FOCUS_ALL):

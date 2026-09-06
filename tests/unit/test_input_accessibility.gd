@@ -3,9 +3,7 @@
 
 const REQUIRED_ACTIONS := [
 	"ui_accept", "ui_cancel", "ui_up", "ui_down", "ui_left", "ui_right",
-	"game_quick_save", "game_quick_load", "game_skip_text", "game_toggle_auto",
-	"game_hint", "game_new_board", "game_close_window", "game_next_tab", "game_prev_tab",
-	"game_page_next", "game_page_prev", "game_open_settings", "game_open_schedule", "game_open_contacts",
+	"game_quick_save", "game_quick_load", "game_toggle_board_mode", "game_new_board",
 ]
 
 

@@ -11,6 +11,13 @@ const ACCESSIBILITY := preload("res://autoload/AccessibilityManager.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const FAKE_AUDIO := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 
+class CompletionRecorder extends RefCounted:
+	# Observe the real runtime's completion intent without advancing application state.
+	var intents: Array[Dictionary] = []
+	func complete_entry(intent: Dictionary) -> Dictionary:
+		intents.append(intent.duplicate(true))
+		return {"ok": true}
+
 
 func test_profile_reset_consumer_contracts_are_present() -> void:
 	for path in [
@@ -51,19 +58,27 @@ func test_preference_reset_updates_every_plan02_consumer_in_same_frame() -> void
 		"kind": "key", "physical_keycode": KEY_F6, "keycode": 0,
 		"shift": false, "alt": false, "ctrl": false, "meta": false,
 	}]
-	assert_true(profile.set_input_mapping(&"game_quick_save", custom_mapping).get("ok", false))
+	var proposed: Dictionary = profile.prepare_controls_change("game_quick_save", "keyboard", custom_mapping[0])
+	assert_true(proposed.get("ok", false))
+	assert_true(profile.commit_controls_change(proposed["value"]).get("ok", false))
 	assert_eq(input.get_action_label("game_quick_save"), OS.get_keycode_string(KEY_F6))
 	var changed: Dictionary = profile.set_preferences({
 		&"preferences.audio.music_volume": 0.2,
 		&"preferences.audio.music_muted": true,
-		&"preferences.dialogue.text_speed": 2.0,
-		&"preferences.dialogue.auto_text_speed": 4.0,
-		&"preferences.dialogue.auto_advance_dialogue": true,
-		&"preferences.accessibility.font_scale": 1.5,
+		&"preferences.reading.reveal_speed": "fast",
+		&"preferences.reading.auto_delay": "short",
+		&"preferences.reading.auto_enabled": true,
+		&"preferences.reading.skip_mode": "all_text",
+		&"preferences.accessibility.text_size": 150,
 	})
 	assert_true(changed.get("ok", false), str(changed))
+	var retained_language: Dictionary = _profile_language(profile)
 	assert_true(profile.reset_preferences().get("ok", false))
-	assert_eq(localization.get_locale(), "en")
+	assert_eq(localization.get_locale(), "zh_HK", "Reset Preferences preserves the language tuple")
+	assert_eq(_profile_language(profile), retained_language)
+	assert_eq(profile.get_preference(&"preferences.accessibility.text_size"), 100)
+	assert_eq(profile.get_preference(&"preferences.reading.skip_mode"), "read_only")
+	assert_eq(input.get_action_label("game_quick_save"), OS.get_keycode_string(KEY_F6), "preference reset retains canonical Controls")
 	assert_eq(port.bus_states[&"Music"]["muted"], false)
 	assert_almost_eq(port.bus_states[&"Music"]["db"], linear_to_db(0.8), 0.001)
 	assert_almost_eq(accessibility.get_text_delay(), 0.03, 0.001)
@@ -90,14 +105,18 @@ func test_preference_reset_updates_every_plan02_consumer_in_same_frame() -> void
 	assert_eq(profile.get_profile_snapshot()["preferences"], preferences_before_nonpreference_resets)
 	assert_true(profile.set_preferences({
 		&"preferences.audio.music_muted": true,
-		&"preferences.dialogue.text_speed": 2.0,
+		&"preferences.reading.reveal_speed": "fast",
 	}).get("ok", false))
 	assert_true(profile.reset_entire_profile().get("ok", false))
+	assert_eq(localization.get_locale(), "en", "Reset Entire Profile also resets language")
 	assert_false(port.bus_states[&"Music"]["muted"])
 	assert_almost_eq(accessibility.get_text_delay(), 0.03, 0.001)
 	assert_almost_eq(float(dialogic.Settings.settings[&"text_speed"]), 1.0, 0.001)
 	assert_eq(input.get_action_label("game_quick_save"), OS.get_keycode_string(KEY_F5))
 	assert_true(profile.get_profile_snapshot()["gallery_transaction_receipts"].has("reset-retained-receipt"))
+
+func _profile_language(profile: Node) -> Dictionary:
+	return profile.get_profile_snapshot()["preferences"]["language"]
 
 
 func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event() -> void:
@@ -108,10 +127,11 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 	var bridge: Node = BRIDGE.new()
 	add_child_autofree(bridge)
 	assert_true(bridge.bind_profile_preferences(profile).get("ok", false))
-	# Task 5 (Ruling Y / R-II): the boundary starts are semantic entry starts now, so the bridge
-	# needs its manifest surface initialized. No runtime adapter is bound: the fallback branch
-	# drives the REAL Dialogic autoload below, exactly as the retired path start used to.
+	# Semantic starts resolve the real manifest and retain the real runtime adapter. The shipped
+	# label is comments + return, so its physical completion is observed without advancing a run.
 	assert_true(bridge.initialize().get("ok", false), "bridge initialize for semantic starts")
+	var completion := CompletionRecorder.new()
+	assert_true(bridge.configure_playback_completion_port(completion).get("ok", false))
 	if not bridge.has_method("start_entry"):
 		assert_true(false, "DialogicBridge must declare start_entry (Task 5, Ruling Y)")
 		return
@@ -134,15 +154,15 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 			state["waiting"] = false
 	)
 	var cases: Array[Dictionary] = [
-		{"boundary": "new_game", "text_speed": 2.0, "auto_speed": 4.0, "enabled": true},
-		{"boundary": "stable_checkpoint_restore", "text_speed": 1.25, "auto_speed": 2.5, "enabled": false},
-		{"boundary": "different_slot_restore", "text_speed": 3.0, "auto_speed": 5.0, "enabled": true},
+		{"boundary": "new_game", "reveal_speed": "fast", "auto_delay": "short", "text_multiplier": 0.5, "auto_multiplier": 0.5, "enabled": true},
+		{"boundary": "stable_checkpoint_restore", "reveal_speed": "slow", "auto_delay": "long", "text_multiplier": 2.0, "auto_multiplier": 1.5, "enabled": false},
+		{"boundary": "different_slot_restore", "reveal_speed": "instant", "auto_delay": "normal", "text_multiplier": 0.0, "auto_multiplier": 1.0, "enabled": true},
 	]
 	for boundary: Dictionary in cases:
 		assert_true(profile.set_preferences({
-			&"preferences.dialogue.text_speed": boundary["text_speed"],
-			&"preferences.dialogue.auto_text_speed": boundary["auto_speed"],
-			&"preferences.dialogue.auto_advance_dialogue": boundary["enabled"],
+			&"preferences.reading.reveal_speed": boundary["reveal_speed"],
+			&"preferences.reading.auto_delay": boundary["auto_delay"],
+			&"preferences.reading.auto_enabled": boundary["enabled"],
 		}).get("ok", false), boundary["boundary"])
 		dialogic.Settings.settings[&"text_speed"] = 99.0
 		dialogic.Inputs.auto_advance.delay_modifier = 99.0
@@ -151,6 +171,7 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 		state["first_values"] = {}
 		state["waiting"] = true
 		var operations_before: int = file_ops.operation_count()
+		var completions_before: int = completion.intents.size()
 		# Ruling Y (DEVIATION-8) executed per R-II: the retired external path start becomes a
 		# label-aware semantic start of the SAME conversation, and the receipt must prove the
 		# resolved master path and label - not merely that an event fired (DEVIATION-9 item 3).
@@ -171,8 +192,8 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 		assert_false(state["waiting"], "%s did not handle a first event" % boundary["boundary"])
 		assert_eq(state["order"].slice(0, 3), [&"clear", &"profile_preferences_reapplied", &"first_event"], boundary["boundary"])
 		assert_eq(state["order"].count(&"profile_preferences_reapplied"), 1, boundary["boundary"])
-		assert_almost_eq(state["first_values"]["text"], 1.0 / float(boundary["text_speed"]), 0.001, boundary["boundary"])
-		assert_almost_eq(state["first_values"]["auto"], 1.0 / float(boundary["auto_speed"]), 0.001, boundary["boundary"])
+		assert_almost_eq(state["first_values"]["text"], boundary["text_multiplier"], 0.001, boundary["boundary"])
+		assert_almost_eq(state["first_values"]["auto"], boundary["auto_multiplier"], 0.001, boundary["boundary"])
 		assert_eq(state["first_values"]["enabled"], boundary["enabled"], boundary["boundary"])
 		# Campaign surprise P03: an event merely firing does not prove the LABEL was reached -
 		# the first handled event of a labelled start is the DialogicLabelEvent itself.
@@ -181,10 +202,21 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 		assert_eq(str(state["first_values"].get("event_label", "")), "contact.ordinary.lavinia.day1",
 			"%s: playback physically starts AT the semantic label" % boundary["boundary"])
 		assert_eq(file_ops.operation_count(), operations_before, "%s wrote profile storage" % boundary["boundary"])
-		# One-active-entry law: release the semantic playback before the next boundary starts.
+		# The short shipped label ends naturally during the wait. Prove the actual completion
+		# releases playback before the next boundary; a late abort cannot fabricate another end.
+		assert_eq(completion.intents.size(), completions_before + 1, boundary["boundary"])
+		if completion.intents.size() == completions_before + 1:
+			var intent: Dictionary = completion.intents.back()
+			assert_eq(intent["completion_kind"], &"natural_end")
+			assert_eq(intent["entry_id"], "contact.ordinary.lavinia.day1")
+			assert_eq(intent["playback_token"], start_receipt.get("playback_token"))
+			assert_eq(intent["transaction_id"], "tx-profile-reset-%s" % str(boundary["boundary"]))
+		assert_false(bridge.has_active_playback(), boundary["boundary"])
 		var cleanup: Variant = bridge.call(&"abort_current_entry", &"boundary_iteration_done")
-		assert_true(typeof(cleanup) == TYPE_DICTIONARY and (cleanup as Dictionary).get("ok", false),
-			"%s cleanup abort: %s" % [boundary["boundary"], str(cleanup)])
+		assert_true(typeof(cleanup) == TYPE_DICTIONARY and not (cleanup as Dictionary).get("ok", true),
+			"%s late abort: %s" % [boundary["boundary"], str(cleanup)])
+		assert_eq(cleanup.get("code"), &"no_active_entry")
+		assert_eq(completion.intents.size(), completions_before + 1)
 		dialogic.clear(1)
 	for path in ["res://autoload/DialogicBridge.gd", "res://scripts/narrative/DialogicPreferenceAdapter.gd"]:
 		var source := FileAccess.get_file_as_string(path)
