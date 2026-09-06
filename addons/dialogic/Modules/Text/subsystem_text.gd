@@ -444,6 +444,17 @@ func _retire_effect_batch() -> void:
 	parsed_text_effect_info.clear()
 
 
+func _effect_context_is_current(text_node: Control, batch_generation: int, node_generation: int) -> bool:
+	if batch_generation != _effect_generation or not is_inside_tree() \
+			or not is_instance_valid(text_node) or not text_node.is_inside_tree():
+		return false
+	return node_generation == -1 or int(text_node.call("get_reveal_generation")) == node_generation
+
+
+func _effect_is_foreground(text_node: Control) -> bool:
+	return not dialogic.paused and text_node.is_visible_in_tree()
+
+
 func execute_effects(current_index:int, text_node:Control, skipping := false) -> void:
 	if not is_instance_valid(text_node):
 		return
@@ -453,10 +464,13 @@ func execute_effects(current_index:int, text_node:Control, skipping := false) ->
 	# might have to execute multiple effects
 	while true:
 		# Recheck after every awaited callback, before touching a possibly replaced queue.
-		if batch_generation != _effect_generation or not is_instance_valid(text_node):
+		if not _effect_context_is_current(text_node, batch_generation, node_generation):
 			return
-		if node_generation != -1 and int(text_node.call("get_reveal_generation")) != node_generation:
-			return
+		# Gate even an empty queue: returning would resume the native character reveal.
+		# Explicit skip execution remains immediate and may consume its current batch.
+		if not skipping and not _effect_is_foreground(text_node):
+			await get_tree().process_frame
+			continue
 		if parsed_text_effect_info.is_empty():
 			return
 		if current_index != -1 and current_index < parsed_text_effect_info[0]['index']:
@@ -605,7 +619,7 @@ func sort_by_length(a:String, b:String) -> bool:
 #region DEFAULT TEXT EFFECTS & MODIFIERS
 ################################################################################
 
-func effect_pause(_text_node:Control, skipped:bool, argument:String) -> void:
+func effect_pause(text_node:Control, skipped:bool, argument:String) -> void:
 	if skipped:
 		return
 
@@ -614,16 +628,23 @@ func effect_pause(_text_node:Control, skipped:bool, argument:String) -> void:
 		return
 
 	var text_speed: float = dialogic.Settings.get_setting('text_speed', 1)
-
-	if argument:
-		if argument.ends_with('!'):
-			await get_tree().create_timer(float(argument.trim_suffix('!'))).timeout
-
-		elif _speed_multiplier != 0 and text_speed != 0:
-			await get_tree().create_timer(float(argument) * _speed_multiplier * text_speed).timeout
-
-	elif _speed_multiplier != 0 and text_speed != 0:
-		await get_tree().create_timer(0.5 * _speed_multiplier * text_speed).timeout
+	var remaining: float = float(argument.trim_suffix('!')) if argument.ends_with('!') \
+			else (float(argument) if not argument.is_empty() else 0.5) * _speed_multiplier * text_speed
+	if remaining <= 0 or not is_instance_valid(text_node):
+		return
+	var batch_generation := _effect_generation
+	var node_generation: int = int(text_node.call("get_reveal_generation")) if text_node.has_method("get_reveal_generation") else -1
+	while remaining > 0:
+		if not _effect_context_is_current(text_node, batch_generation, node_generation):
+			return
+		var was_foreground := _effect_is_foreground(text_node)
+		# Await first: the delta before entering this effect does not belong to its delay.
+		await get_tree().process_frame
+		if not _effect_context_is_current(text_node, batch_generation, node_generation):
+			return
+		if was_foreground and _effect_is_foreground(text_node):
+			# Engine-scaled simulation delta preserves the installed timer's time-scale law.
+			remaining -= get_process_delta_time()
 
 
 func effect_speed(_text_node:Control, skipped:bool, argument:String) -> void:

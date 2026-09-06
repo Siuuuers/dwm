@@ -122,7 +122,7 @@ func continue_reveal() -> void:
 		var generation := _reveal_generation
 		await DialogicUtil.autoload().Text.execute_effects(current_index, self, false)
 
-		if generation != _reveal_generation or visible_characters == -1:
+		if generation != _reveal_generation or not is_inside_tree() or visible_characters == -1:
 			return
 
 		revealing = true

@@ -20,7 +20,7 @@ This integration uses the project's existing Dialogic default `end_behaviour=0`,
 
 This is a live caption-stack subset, not the complete witnessed-scene cutover. Canonical saved-caption restoration, retained-copy locale retranslation and ending-chain continuity need public data from the narrative owner; runtime event indices and parsed text cannot supply canonical identity. The six-control rail, exact seek/History, dual-language behavior, authored art and dialogue, challenge/Pause custody, High Contrast/CVD palettes, controller page scrolling, and assistive-technology acceptance remain open in the overall UI goal and Beads.
 
-The stack's local clear guard proves an empty hold and ordinary hide/show. A later native regression confirmed that an already-awaited pause could resume against replacement text; the separate [text-effect cancellation correction](witnessed-text-effect-cancellation.md) records that fix and its evidence. Hiding during a pending asynchronous effect and arbitrary custom-callback side effects retain the narrower limits documented there.
+The stack's local clear guard proves an empty hold and ordinary hide/show. Later native regressions confirmed stale work after replacement and loss of pause time during suspension; the [text-effect cancellation correction](witnessed-text-effect-cancellation.md) and [pause-suspension correction](witnessed-pause-suspension.md) record those fixes and their evidence. Application-focus/Pause admission and arbitrary custom-callback side effects retain the narrower limits documented there.
 
 ## Verification
 

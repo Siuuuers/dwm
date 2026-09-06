@@ -13,7 +13,7 @@ This is a local correction to the installed addon, not an upstream release updat
 - `addons/dialogic/Modules/Text/node_dialog_text.gd`
 - `addons/dialogic/Modules/Text/subsystem_text.gd`
 
-The fix does not establish canonical saved-caption identity or History restoration. Temporary hiding during an already-awaited effect needs a separate suspension policy; stopping `_process` alone does not pause its timer. Arbitrary custom asynchronous callbacks also need their own cancellation checks for side effects they perform internally. The actual Hospital timeline still contains no authored captions, so these fixtures prove installed-runtime behavior rather than authored Hospital content.
+The fix does not establish canonical saved-caption identity or History restoration. The subsequent [pause-suspension correction](witnessed-pause-suspension.md) preserves native pause time during runtime pause and caption hiding; stopping `_process` alone was insufficient. Arbitrary custom asynchronous callbacks still need their own cancellation checks for side effects they perform internally. The actual Hospital timeline still contains no authored captions, so these fixtures prove installed-runtime behavior rather than authored Hospital content.
 
 ## Verification
 

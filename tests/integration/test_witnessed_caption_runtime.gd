@@ -520,6 +520,69 @@ func test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history
 	assert_eq(caption.get_caption_projection().retained_captions,[])
 	assert_eq(_stack_invariants(),before,"explicit local reset does not clear the live native caption or history")
 
+func test_runtime_pause_preserves_the_pending_native_pause_remaining_time() -> void:
+	await _assert_native_pause_preserves_remaining_time(true)
+
+func test_hidden_caption_preserves_the_pending_native_pause_remaining_time() -> void:
+	await _assert_native_pause_preserves_remaining_time(false)
+
+func _assert_native_pause_preserves_remaining_time(pause_owner: bool) -> void:
+	if not _mount(): return
+	await _settle()
+	var effects: Array[String] = []
+	var effect_times := {}
+	runtime.text_signal.connect(func(argument: String):
+		effects.append(argument)
+		effect_times[argument] = Time.get_ticks_msec())
+	runtime.start(_timeline("[signal=foreground-pause-entered][pause=0.6!][signal=foreground-pause-resumed]Done."))
+	var native: DialogicNode_DialogText = caption.caption_text
+	for frame in 60:
+		if effects == ["foreground-pause-entered"] and not native.revealing: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects,["foreground-pause-entered"],"the real native pause has started")
+	assert_false(native.revealing)
+	assert_eq(native.visible_characters,0)
+	if effects != ["foreground-pause-entered"] or native.revealing: return
+	# Spend a measurable foreground portion: restarting the full delay on resume
+	# must fall outside the upper bound, rather than accidentally satisfying it.
+	await get_tree().create_timer(0.22).timeout
+	var suspended_at := Time.get_ticks_msec()
+	var elapsed_before_suspend := suspended_at - int(effect_times["foreground-pause-entered"])
+	assert_gte(elapsed_before_suspend,200,"the spent delay exceeds the scheduling tolerance")
+	assert_lt(elapsed_before_suspend,350,"enough foreground delay remains for the post-resume check")
+	assert_eq(effects,["foreground-pause-entered"])
+	var remaining_expected := 600 - elapsed_before_suspend
+	if pause_owner: runtime.paused = true
+	else: native.hide()
+	var before := _stack_invariants()
+	await get_tree().create_timer(0.8).timeout
+	assert_eq(effects,["foreground-pause-entered"],"suspended wall time cannot run the next native effect")
+	assert_eq(native.visible_characters,0)
+	assert_eq(_finished,0)
+	assert_eq(_stack_invariants(),before,"suspension preserves native reveal, history, and event position")
+	var resumed_at := Time.get_ticks_msec()
+	if pause_owner: runtime.paused = false
+	else: native.show()
+	await get_tree().create_timer(0.1).timeout
+	assert_eq(effects,["foreground-pause-entered"],"resuming cannot immediately spend delay accrued while suspended")
+	assert_eq(native.visible_characters,0)
+	assert_eq(_finished,0)
+	for frame in 120:
+		if _finished > 0: break
+		await get_tree().create_timer(0.025).timeout
+	assert_eq(effects,["foreground-pause-entered","foreground-pause-resumed"],"the pending native effect resumes exactly once")
+	var completed_at := int(effect_times.get("foreground-pause-resumed",0))
+	var observed_after_resume := completed_at - resumed_at
+	print("Native pause timing [%s]: before=%dms remaining=%dms after-resume=%dms" % ["runtime pause" if pause_owner else "caption hide",elapsed_before_suspend,remaining_expected,observed_after_resume])
+	assert_gte(observed_after_resume,remaining_expected - 120,"suspension preserves the remaining delay within frame/timer tolerance")
+	assert_lte(observed_after_resume,remaining_expected + 120,"resuming preserves the remainder instead of restarting the full native delay")
+	assert_eq(_finished,1,"native playback completes normally after the remaining delay")
+	assert_false(native.revealing)
+	assert_eq(native.visible_ratio,1.0)
+	assert_eq(runtime.current_event_idx,0)
+	assert_eq(_history(),before.history)
+	assert_eq(_ended,0)
+
 func test_hidden_same_frame_clear_and_replace_and_next_timeline_do_not_retain_old_caption() -> void:
 	if not _mount(): return
 	var timeline := _timeline("Old caption.\nSecond caption.\n[signal arg=\"fixture-placeholder\"]\nNew caption.")
