@@ -4,6 +4,7 @@ extends Control
 signal cell_action_requested(action: StringName, index: int, revision: int)
 signal new_board_requested()
 signal information_closed()
+signal information_closing()
 
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const RAIL := preload("res://scripts/ui/minesweeper/MinesweeperScrollRail.gd")
@@ -34,6 +35,7 @@ var _scroll := Vector2i.ZERO
 var _pan_remainder := Vector2.ZERO
 var _panning := false
 var _applying := false
+var _interaction_blocked := false
 
 func _init() -> void:
 	clip_contents = true
@@ -95,8 +97,15 @@ func present(projection: Dictionary) -> bool:
 	return true
 
 func set_mode(mode: StringName) -> bool:
-	if information_sheet != null: return false
+	if _interaction_blocked or information_sheet != null: return false
 	return grid.set_mode(mode)
+
+func set_interaction_blocked(blocked: bool) -> void:
+	if _interaction_blocked == blocked: return
+	_interaction_blocked = blocked
+	grid.set_interaction_blocked(blocked)
+	_pan_remainder = Vector2.ZERO
+	_apply_geometry()
 
 func open_rules(source: Control = null) -> bool:
 	return _open_information("rules",[],source)
@@ -105,7 +114,7 @@ func open_assignments(claimed: Array, source: Control = null) -> bool:
 	return _open_information("assignments",claimed,source)
 
 func _open_information(kind: String, claimed: Array, source: Control) -> bool:
-	if information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return false
+	if _interaction_blocked or information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return false
 	var sheet: Control = SHEET.new()
 	sheet.hide()
 	add_child(sheet)
@@ -144,13 +153,14 @@ func close_information() -> void:
 	# Returning from a sheet restores its exact pan, even if the retained cell is
 	# offscreen. A subsequent grid navigation resumes normal focus revelation.
 	_applying = true
+	information_closing.emit()
 	if source != null and source.is_visible_in_tree() and source.focus_mode != Control.FOCUS_NONE: source.grab_focus()
 	elif grid.focus_mode != Control.FOCUS_NONE: grid.grab_focus()
 	_applying = false
 	information_closed.emit()
 
 func set_scroll(native_offset: Vector2i) -> void:
-	if information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return
+	if _interaction_blocked or information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return
 	grid.cancel_pointer_gesture()
 	_scroll = native_offset
 	_pan_remainder = Vector2.ZERO
@@ -171,7 +181,7 @@ func _apply_geometry() -> void:
 	well.size = Vector2(geometry.well.size * 2)
 	grid.position = Vector2(geometry.mount.position * 2)
 	_seam.size = well.size
-	var interactive: bool = not grid.projection.custody
+	var interactive: bool = not _interaction_blocked and not grid.projection.custody
 	vertical_rail = _update_rail(vertical_rail, geometry.vertical, true, interactive)
 	horizontal_rail = _update_rail(horizontal_rail, geometry.horizontal, false, interactive)
 	if vertical_rail != null: vertical_rail.visible = information_sheet == null
@@ -202,14 +212,14 @@ func _scroll_axis(value: int, vertical: bool) -> void:
 	set_scroll(next)
 
 func _reveal_focus(index: int) -> void:
-	if information_sheet != null or _applying or grid.projection.is_empty() or grid.projection.custody or index < 0: return
+	if _interaction_blocked or information_sheet != null or _applying or grid.projection.is_empty() or grid.projection.custody or index < 0: return
 	var result := LAYOUT.reveal_cell(grid.projection.width, grid.projection.height, index, _band, _large, _scroll)
 	if result.ok:
 		_scroll = result.value.scroll
 		_apply_geometry()
 
 func _pan(delta: Vector2) -> void:
-	if information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return
+	if _interaction_blocked or information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return
 	_pan_remainder -= delta / 2.0
 	var whole := Vector2i(int(_pan_remainder.x), int(_pan_remainder.y))
 	_pan_remainder -= Vector2(whole)
@@ -226,6 +236,7 @@ func _update_seam() -> void:
 	_seam.queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
+	if _interaction_blocked: return
 	if not event is InputEventMouseButton or not event.pressed or geometry.is_empty(): return
 	if not Rect2(Vector2.ZERO, well.size).has_point(event.position): return
 	var direction := Vector2i.ZERO

@@ -27,14 +27,21 @@ func _spec() -> Dictionary:
 		"generator_version": "dwm_generator_v1", "verifier_version": "visible_deduction_v1"}
 
 
-func _snapshot(mines: Array = [1]) -> Dictionary:
+func _snapshot(mines: Array = [1], journal_receipt: bool = false) -> Dictionary:
 	var state := STATE.new()
 	var layout := _layout(mines)
 	var board: Dictionary = REDUCER.first_reveal(layout, 0).value.board
+	var marker := {"checkpoint_id": "private-checkpoint"}
+	if not journal_receipt: marker["difficulty_id"] = "intermediate"
 	var prepared := state.prepare_first_reveal({"transaction_id": "private-command", "identity": IDENTITY,
 		"expected_revision": 0, "cell_index": 0, "spec": _spec(), "request_fingerprint": "private-fingerprint"},
-		{"layout": layout, "board": board}, {"difficulty_id": "intermediate", "checkpoint_id": "private-checkpoint"})
+		{"layout": layout, "board": board}, marker)
 	assert_true(prepared.ok)
+	if journal_receipt:
+		prepared.value.candidate.result_override = {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": {
+			"checkpoint_id": "private-checkpoint", "transaction_id": "private-command", "identity": IDENTITY.duplicate(),
+			"difficulty_id": "intermediate", "first_cell": 0, "board_revision": 0,
+		}}, "receipt": {}}
 	assert_true(state.commit(prepared.value.candidate).ok)
 	return state.capture()
 
@@ -160,3 +167,42 @@ func test_bad_sources_or_frozen_difficulty_never_expose_private_diagnostics() ->
 	var corrupt := _snapshot()
 	corrupt.board.board.adjacency_counts[0] = 7
 	assert_eq(QUERY.desktop(corrupt, state), UNAVAILABLE)
+
+
+func test_checkpoint_only_marker_resolves_frozen_journal_difficulty_without_mutation() -> void:
+	var state := StateFixture.new()
+	state.minesweeper_selected_difficulty = "expert"
+	var snapshot := _snapshot([1], true)
+	var before := snapshot.duplicate(true)
+	assert_eq(snapshot.board.paid_start_receipt.keys(), ["checkpoint_id"])
+	assert_eq(QUERY.desktop(snapshot, state), QUERY.desktop(_snapshot(), state))
+	assert_eq(snapshot, before)
+	snapshot.board.board = REDUCER.set_flag(snapshot.board.board, 2, true, "flag").value.board
+	assert_eq(QUERY.desktop(snapshot, state).value.difficulty, "intermediate")
+
+
+func test_missing_ambiguous_or_mismatched_first_reveal_journal_fails_closed() -> void:
+	var state := StateFixture.new()
+	for corruption: String in ["missing", "checkpoint", "transaction", "identity", "fingerprint", "pre", "post",
+		"kind", "code", "first_cell", "board_revision", "difficulty", "duplicate"]:
+		var snapshot := _snapshot([1], true)
+		var entry: Dictionary = snapshot.command_receipts["private-command"]
+		var receipt: Dictionary = entry.result.value.receipt
+		match corruption:
+			"missing": snapshot.command_receipts.clear()
+			"checkpoint": receipt.checkpoint_id = "private-other-checkpoint"
+			"transaction": receipt.transaction_id = "private-other-command"
+			"identity": receipt.identity.run_id = "private-other-run"
+			"fingerprint": entry.identity_fingerprint = "private-other-fingerprint"
+			"pre": entry.pre_revision = -1
+			"post": entry.post_revision = 3
+			"kind": entry.command_kind = "board_command"
+			"code": entry.result.code = &"private-uncommitted"
+			"first_cell": receipt.first_cell = 1
+			"board_revision": receipt.board_revision = 1
+			"difficulty": receipt.difficulty_id = "private-other-tier"
+			"duplicate":
+				var duplicate := entry.duplicate(true)
+				duplicate.result.value.receipt.transaction_id = "private-second-command"
+				snapshot.command_receipts["private-second-command"] = duplicate
+		assert_eq(QUERY.desktop(snapshot, state), UNAVAILABLE, corruption)

@@ -441,3 +441,138 @@ func test_focus_signal_reports_repair_move_and_focus_reentry() -> void:
 	assert_signal_emitted_with_parameters(grid,"focused_cell_changed",[1])
 	grid._on_focus_entered()
 	assert_signal_emit_count(grid,"focused_cell_changed",3)
+
+func test_real_f_route_emits_only_actual_valid_mode_changes() -> void:
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(320,240)
+	add_child_autofree(viewport)
+	var grid: Control = GRID.new()
+	viewport.add_child(grid)
+	assert_true(grid.configure())
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	grid.grab_focus()
+	watch_signals(grid)
+	assert_true(grid.set_mode(&"reveal"))
+	assert_false(grid.set_mode(&"unknown"))
+	assert_signal_emit_count(grid,"mode_changed",0)
+	var event := InputEventKey.new()
+	event.keycode = KEY_F
+	event.pressed = true
+	viewport.push_input(event,true)
+	assert_eq(grid.mode,&"flag")
+	assert_signal_emitted_with_parameters(grid,"mode_changed",[&"flag"])
+	event.echo = true
+	viewport.push_input(event,true)
+	assert_signal_emit_count(grid,"mode_changed",1)
+	event.echo = false
+	event.pressed = false
+	viewport.push_input(event,true)
+	event.pressed = true
+	viewport.push_input(event,true)
+	assert_eq(grid.mode,&"reveal")
+	assert_signal_emitted_with_parameters(grid,"mode_changed",[&"reveal"])
+	assert_signal_emit_count(grid,"mode_changed",2)
+	assert_signal_emit_count(grid,"cell_action_requested",0)
+
+func test_identical_or_rejected_mode_preserves_pending_contact_and_active_pan() -> void:
+	var grid := _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	watch_signals(grid)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = Vector2(10,10)
+	click.pressed = true
+	grid._gui_input(click)
+	assert_eq(grid._held_index,0)
+	assert_true(grid.set_mode(&"reveal"))
+	assert_false(grid.set_mode(&"unknown"))
+	assert_eq(grid._held_index,0)
+	assert_signal_emit_count(grid,"mode_changed",0)
+	click.pressed = false
+	grid._gui_input(click)
+	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"reveal",0,7])
+	assert_true(grid.set_mode(&"drag"))
+	click.pressed = true
+	grid._gui_input(click)
+	var motion := InputEventMouseMotion.new()
+	motion.relative = Vector2(0,-12)
+	grid._gui_input(motion)
+	assert_true(grid._panning)
+	assert_true(grid.set_mode(&"drag"))
+	assert_true(grid._mouse_dragging)
+	assert_true(grid._panning)
+	grid._gui_input(motion)
+	assert_signal_emit_count(grid,"pan_requested",2)
+	assert_signal_emit_count(grid,"mode_changed",1)
+	click.pressed = false
+	grid._gui_input(click)
+	assert_false(grid._panning)
+
+func test_can_present_validates_without_changing_grid_projection_focus_or_children() -> void:
+	var grid := _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	grid._set_focused(1)
+	grid.grab_focus()
+	var retained: Dictionary = grid.projection.duplicate(true)
+	var retained_nodes: Array = grid.cell_nodes.duplicate()
+	var retained_count: int = grid.get_child_count()
+	watch_signals(grid)
+	assert_true(grid.can_present(_projection([_cell(0),_cell(1),_cell(2),_cell(3)])))
+	assert_false(grid.can_present(_projection([_cell(0),_cell(1,{"private_mine":true})])))
+	assert_eq(grid.projection,retained)
+	assert_eq(grid.focused_index,1)
+	assert_true(grid.has_focus())
+	assert_eq(grid.get_child_count(),retained_count)
+	assert_eq(grid.cell_nodes.size(),retained_nodes.size())
+	for index: int in retained_nodes.size(): assert_same(grid.cell_nodes[index],retained_nodes[index])
+	assert_signal_emit_count(grid,"focused_cell_changed",0)
+	assert_signal_emit_count(grid,"cell_action_requested",0)
+
+func test_interaction_block_cancels_real_touch_and_ignores_input_without_changing_facts() -> void:
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(320,240)
+	add_child_autofree(viewport)
+	var grid: Control = GRID.new()
+	viewport.add_child(grid)
+	assert_true(grid.configure())
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	assert_true(grid.set_mode(&"flag"))
+	grid.grab_focus()
+	var retained: Dictionary = grid.projection.duplicate(true)
+	watch_signals(grid)
+	var touch := InputEventScreenTouch.new()
+	touch.index = 2
+	touch.position = Vector2(10,10)
+	touch.pressed = true
+	viewport.push_input(touch,true)
+	assert_true(grid.has_held_touch())
+	grid.set_interaction_blocked(true)
+	assert_false(grid.has_held_touch())
+	assert_eq(grid.focus_mode,Control.FOCUS_NONE)
+	assert_false(grid.has_focus())
+	grid._process(1.0)
+	touch.pressed = false
+	viewport.push_input(touch,true)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = Vector2(10,10)
+	click.pressed = true
+	viewport.push_input(click,true)
+	click.pressed = false
+	viewport.push_input(click,true)
+	assert_eq(grid.projection,retained)
+	assert_eq(grid.mode,&"flag")
+	assert_signal_emit_count(grid,"cell_action_requested",0)
+	assert_signal_emit_count(grid,"pan_requested",0)
+	assert_true(grid.present(retained))
+	assert_eq(grid.focus_mode,Control.FOCUS_NONE,"Projection rebuild cannot bypass the interaction block.")
+	grid.set_interaction_blocked(false)
+	assert_eq(grid.focus_mode,Control.FOCUS_ALL)
+	grid.grab_focus()
+	assert_true(grid.has_focus())
+	click.pressed = true
+	viewport.push_input(click,true)
+	click.pressed = false
+	viewport.push_input(click,true)
+	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"flag",0,7])
+	assert_eq(grid.projection,retained)

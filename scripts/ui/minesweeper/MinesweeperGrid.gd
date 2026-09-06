@@ -6,6 +6,7 @@ signal new_board_requested()
 signal pan_requested(delta: Vector2)
 signal panning_changed(active: bool)
 signal focused_cell_changed(index: int)
+signal mode_changed(mode: StringName)
 
 const CELL := preload("res://scripts/ui/minesweeper/MinesweeperCell.gd")
 const TOP_KEYS := ["width","height","revision","mine_estimate","terminal","custody","cells"]
@@ -37,10 +38,11 @@ var _touch_long_pressed := false
 var _panning := false
 var _right_stick_direction: StringName = &""
 var _longpress_callback_active := false
+var _interaction_blocked := false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	focus_mode = Control.FOCUS_ALL if not projection.is_empty() and not projection.custody and focused_index >= 0 else Control.FOCUS_NONE
+	_update_focus_mode()
 	focus_entered.connect(_on_focus_entered)
 	focus_exited.connect(_on_focus_exited)
 	mouse_exited.connect(_cancel_contacts)
@@ -62,7 +64,7 @@ func configure(locale: String = "en", percent: int = 100, large: bool = false, p
 	_refresh_accessibility()
 	return true
 
-func present(value: Dictionary) -> bool:
+func can_present(value: Dictionary) -> bool:
 	if value.size() != TOP_KEYS.size(): return false
 	for key: String in TOP_KEYS:
 		if not value.has(key): return false
@@ -86,6 +88,10 @@ func present(value: Dictionary) -> bool:
 			probe.free()
 			return false
 	probe.free()
+	return true
+
+func present(value: Dictionary) -> bool:
+	if not can_present(value): return false
 	_cancel_for_projection()
 	projection = value.duplicate(true)
 	_rebuild()
@@ -96,18 +102,34 @@ func present(value: Dictionary) -> bool:
 
 func set_mode(next_mode: StringName) -> bool:
 	if next_mode not in MODES: return false
+	if next_mode == mode: return true
 	_cancel_gestures()
 	mode = next_mode
+	mode_changed.emit(mode)
 	return true
 
 func cancel_pointer_gesture() -> void:
 	_cancel_gestures()
 
+func set_interaction_blocked(blocked: bool) -> void:
+	if _interaction_blocked == blocked: return
+	_interaction_blocked = blocked
+	_cancel_gestures()
+	_confirm_held = false
+	_joy_direction = &""
+	_right_stick_direction = &""
+	_update_focus_mode()
+	if blocked: release_focus()
+	_refresh_contacts()
+
+func _update_focus_mode() -> void:
+	focus_mode = Control.FOCUS_ALL if not _interaction_blocked and not projection.is_empty() and not projection.custody and focused_index >= 0 else Control.FOCUS_NONE
+
 func has_held_touch() -> bool:
 	return _touch_id >= 0
 
 func _process(delta: float) -> void:
-	if _touch_id < 0 or _panning or _touch_long_pressed or _touch_displacement.length() > 8.0: return
+	if _interaction_blocked or _touch_id < 0 or _panning or _touch_long_pressed or _touch_displacement.length() > 8.0: return
 	_touch_elapsed += delta
 	if _touch_elapsed < 0.5 or _touch_revision != projection.get("revision",-1): return
 	var action: StringName = _pointer_action(_touch_index,MOUSE_BUTTON_RIGHT)
@@ -131,7 +153,7 @@ func _rebuild() -> void:
 	for index in projection.cells.size(): cell_nodes[index].present(projection.cells[index])
 	_reflow()
 	focused_index = _repair_focus(focused_index)
-	focus_mode = Control.FOCUS_NONE if projection.custody or focused_index < 0 else Control.FOCUS_ALL
+	_update_focus_mode()
 	_refresh_contacts()
 	if focused_index >= 0: focused_cell_changed.emit(focused_index)
 
@@ -153,7 +175,7 @@ func _repair_focus(prior: int) -> int:
 	return -1
 
 func _gui_input(event: InputEvent) -> void:
-	if projection.is_empty() or projection.custody: return
+	if _interaction_blocked or projection.is_empty() or projection.custody: return
 	if event is InputEventScreenTouch or event is InputEventScreenDrag:
 		_handle_touch(event)
 	elif event is InputEventMouseMotion:

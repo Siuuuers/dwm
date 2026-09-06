@@ -24,6 +24,7 @@ var _scroll := 0
 var _extent := 0
 var _page := 0
 var _content: Control
+var _restoring_focus := false
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -124,6 +125,7 @@ func _install(measured: Dictionary, reset: bool) -> void:
 	var prior_focus: Control = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	var focus_index := rows.find(prior_focus)
 	var return_focused := return_button != null and prior_focus == return_button
+	var rail_focused := rail != null and prior_focus == rail
 	if _content != null:
 		remove_child(_content)
 		_content.queue_free()
@@ -187,8 +189,11 @@ func _install(measured: Dictionary, reset: bool) -> void:
 		control.focus_neighbor_left = control.get_path_to(control)
 		control.focus_neighbor_right = control.get_path_to(control)
 	if is_inside_tree() and is_visible_in_tree():
+		_restoring_focus = not reset
 		if not reset and return_focused: return_button.grab_focus()
+		elif not reset and rail_focused and rail != null: rail.grab_focus()
 		else: rows[maxi(0,focus_index) if not reset else 0].grab_focus()
+		_restoring_focus = false
 	queue_redraw()
 
 func get_scroll() -> int:
@@ -210,6 +215,8 @@ func _update_scroll() -> void:
 	rail.present({"rect":rect,"thumb":thumb},_extent-_page,_scroll,_page,true)
 
 func _reveal_row(index: int) -> void:
+	# Rebuilding preserves the clamped manual scroll; a later navigation reveals its row.
+	if _restoring_focus: return
 	var row := rows[index]
 	var leading := int(row.position.y/2)
 	var trailing := int((row.position.y+row.size.y)/2)

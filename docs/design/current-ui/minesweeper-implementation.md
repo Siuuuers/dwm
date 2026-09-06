@@ -257,3 +257,65 @@ backgrounds overpainting the register separator; each metric now restores its
 portion after painting. Final tests and GPU runs exit zero with the existing
 24 Dialogic orphans and certificate/Unicode environment messages. Logs, six
 captures and the full invocation ledger are in `evidence/minesweeper_chrome`.
+
+## Connected desktop panel continuation
+
+`MinesweeperPanel` now composes the register, worksheet and dock in one 400-by-328
+native body. Font-driven band heights remain measured, including full Rules and
+Assignments row capacity. The panel binds one application port, refreshes after
+its own commands, and exposes an explicit `refresh()` for external publications.
+There is no speculative per-frame owner polling. Canonical host composition and
+production desktop launcher cutover remain separate work.
+
+`MinesweeperPanelPort` publishes only the public board, register, nine assignment
+statuses and current action availability. It rejects mixed reads, preserves the
+board port's identity/revision admission, and checks unpaid difficulty before
+allocating a Reveal command. Changing the selected tier at the same board revision
+therefore refuses the old command without spending a round. Active boards retain
+their frozen tier even when the preference changes.
+
+Real coordinator integration exposed a retained-data distinction that component
+fixtures had missed: its board wrapper stores only the paid checkpoint marker.
+The complete paid receipt lives in the first-Reveal command journal. The register
+query now resolves that existing receipt with checkpoint, transaction, identity,
+revision and first-cell checks. Missing, mismatched or ambiguous evidence remains
+unavailable. No persistent schema or gameplay transaction was changed, and private
+receipt evidence stays outside UI controls.
+
+Dock mode buttons and the grid's F shortcut share selection. Information sheets
+leave the register and dock visible but inactive, then restore the source action,
+mode, cell and manual board scroll. Retained sheet focus includes its scrollbar
+through language, scale and claim updates. An unchanged assignment publication
+does not rebuild the sheet. A failed public read retains the last drawn facts and
+blocks input without inventing a custody transition; a valid refresh restores
+interaction. Current mode actions follow the port's all-or-none contract.
+Hosts connect the panel's first/last focus stops with
+`connect_host_focus(previous, next)`. Explicit endpoints avoid Godot's nested
+default Tab wrap; both forward and reverse exits survive a public refresh.
+
+Same-size board publications reuse existing cell controls. Grid validation uses
+one probe rather than allocating a duplicate grid, and panel refresh avoids
+reconfiguring the worksheet when its measured band is unchanged. This preserves
+the touch long-press release latch during synchronous Flag publication.
+
+New Board, difficulty changes and Foresight still have no complete owner contract
+and remain unavailable. Terminal inspection/settlement, canonical challenge
+owners, production host/save integration, further input and accessibility proof,
+and largest-English-label usability remain open. This checkpoint does not close
+Minesweeper or the full ten-family UI goal.
+
+Verification: **165 tests / 5,757 assertions pass** across nineteen suites,
+including real coordinator/issuer/GameState integration, existing durable first
+Reveal/completion transactions, all eighteen locale/scale/target combinations,
+sheet focus, failed-read lockout/recovery, and synchronous long-press publication.
+Four final OpenGL captures show the assembled desktop panel and information sheets
+in `evidence/minesweeper_panel`; they use explicitly supplied public fixtures.
+Actual-owner behavior is established by the integration tests, not inferred from
+those images. The final tests and render runs exit zero with the same pre-existing
+24 Dialogic orphans and certificate/Unicode environment messages.
+
+The invocation ledger retains the failed initial compile, the retained receipt
+mismatch, and the Tab-wrap regression runs as well as the passing final runs.
+Independent review checked the journal linkage, command freshness, publication
+boundaries and host focus connection. No merge, runtime cutover or player-save
+mutation was performed.
