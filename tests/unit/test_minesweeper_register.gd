@@ -87,6 +87,18 @@ func test_canonical_blank_capacity_has_no_placeholder_control_or_difficulty() ->
 	for metric: Control in register.metrics.values(): assert_gte(metric.position.x,560.0)
 	assert_false(register.present(_view()))
 
+func test_large_foresight_label_wraps_at_word_parts_without_changing_metric_truth() -> void:
+	var register := _register()
+	assert_true(register.configure("desktop_app","en",150,true))
+	var metric: Control = register.metrics.foresight
+	assert_eq(metric.size.x,128.0)
+	assert_eq(metric.label_copy,"Foresight")
+	assert_eq(metric.value_copy,"125%")
+	assert_eq(metric.accessibility_name,"Foresight: 125%")
+	assert_eq(metric.theme.default_font_size,30)
+	assert_eq(metric.label_shape.paragraph.get_line_count(),2)
+	assert_almost_eq(metric.label_shape.paragraph.get_line_width(0),metric.theme.default_font.get_string_size("Fore-",HORIZONTAL_ALIGNMENT_LEFT,-1,30).x,0.01)
+
 func test_invalid_or_private_input_preserves_existing_facts() -> void:
 	var register := _register()
 	var original: Dictionary = register.public_view.duplicate(true)

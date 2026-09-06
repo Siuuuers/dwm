@@ -93,7 +93,7 @@ func _draw() -> void:
 		if is_pressed():
 			draw_rect(Rect2(face.position+Vector2(4,4),Vector2(face.size.x-8,2)),structure)
 		elif is_hovered():
-			draw_rect(Rect2(face.position+Vector2(4,4),Vector2(2,face.size.y-8)),structure)
+			draw_rect(Rect2(face.position+Vector2(2,4),Vector2(2,face.size.y-8)),structure)
 	var top: float = floorf((size.y-_text_height)/4.0)*2.0
 	for line: int in _paragraph.get_line_count():
 		var x: float = floorf((size.x-_paragraph.get_line_width(line))/4.0)*2.0

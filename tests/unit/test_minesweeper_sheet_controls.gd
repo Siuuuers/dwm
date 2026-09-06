@@ -82,6 +82,24 @@ func test_invalid_row_configuration_retains_every_public_state() -> void:
 	assert_eq(row.public_copy,"Complete Beginner — Unclaimed")
 	assert_eq(row.accessibility_name,row.public_copy)
 
+func test_discretionary_hyphens_are_invisible_when_whole_words_fit() -> void:
+	for percent: int in [100,125,150]:
+		var next_theme: Theme = MS_THEME.build("en",percent,&"after_hours")
+		for copy: String in ["Intermediate","Expert","Reveal","Assignments","Foresight","Beginner"]:
+			var measured: Dictionary = ROW.measure_copy(copy,next_theme,400)
+			assert_eq(measured.paragraph.get_line_count(),1)
+			assert_almost_eq(measured.paragraph.get_line_width(0),next_theme.default_font.get_string_size(copy,HORIZONTAL_ALIGNMENT_LEFT,-1,next_theme.default_font_size).x,0.01)
+	var row := _row("Intermediate")
+	assert_eq(row.public_copy,"Intermediate")
+	assert_eq(row.accessibility_name,"Intermediate")
+
+func test_exact_label_typesetting_does_not_insert_break_hints_into_sentences_or_chinese() -> void:
+	for copy: String in ["Complete Intermediate — Unclaimed","中級","规则","IntermediateMode"]:
+		var next_theme: Theme = MS_THEME.build("zh-HK",150,&"after_hours")
+		var measured: Dictionary = ROW.measure_copy(copy,next_theme,800)
+		assert_eq(measured.paragraph.get_line_count(),1)
+		assert_eq(measured.paragraph.get_line_range(0),Vector2i(0,copy.length()),"Only exact authored chrome labels receive discretionary characters.")
+
 
 func test_return_has_fixed_width_native_release_activation_and_growing_height() -> void:
 	var button: Button = RETURN.new()

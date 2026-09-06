@@ -3,6 +3,12 @@ extends Control
 
 const BREAKS := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 const ROLES := [&"paper",&"primary_paper_copy",&"paper_structure",&"paper_focus_outer",&"paper_focus_inner"]
+# Authored break opportunities for exact English chrome labels only. Public and
+# accessibility copy remain plain; a soft hyphen is drawn only at a taken break.
+const CHROME_BREAKS := {
+	"Intermediate":"Inter\u00adme\u00addi\u00adate", "Expert":"Ex\u00adpert",
+	"Reveal":"Re\u00adveal", "Assignments":"As\u00adsign\u00adments", "Foresight":"Fore\u00adsight",
+}
 
 var public_copy := ""
 var _paragraph: TextParagraph
@@ -48,6 +54,16 @@ func configure(copy: String, next_theme: Theme, width_logical: int, minimum_heig
 
 ## Shape once for both measurement and drawing; preserve full font size and every line.
 static func measure_copy(copy: String, next_theme: Theme, width_logical: int) -> Dictionary:
+	var shaped_copy: String = CHROME_BREAKS.get(copy,copy)
+	var measured := _measure_text(shaped_copy,next_theme,width_logical)
+	# Godot can include a discretionary hyphen beyond a very narrow line's width.
+	# Preserve the existing adaptive layout when that optional decoration cannot fit.
+	if measured.is_empty() and shaped_copy != copy:
+		return _measure_text(copy,next_theme,width_logical)
+	return measured
+
+
+static func _measure_text(copy: String, next_theme: Theme, width_logical: int) -> Dictionary:
 	if copy.strip_edges().is_empty() or next_theme == null or width_logical <= 0: return {}
 	if next_theme.default_font == null or next_theme.default_font_size not in [20,25,30]: return {}
 	var paragraph := TextParagraph.new()

@@ -130,6 +130,24 @@ func test_invalid_configuration_preserves_selected_disabled_state_and_measuremen
 	assert_true(button.disabled,"Configuration does not overwrite owner-published state.")
 	assert_true(button.selected)
 
+func test_english_word_breaks_preserve_plain_copy_full_font_and_fixed_bounds() -> void:
+	var button := _button()
+	for sample: Array in [["Intermediate",100,false,96,"Interme-"],["Expert",150,true,96,"Ex-"],
+		["Reveal",150,true,96,"Re-"],["Assignments",150,true,160,"Assign-"]]:
+		var next_theme: Theme = MS_THEME.build("en",sample[1],&"after_hours")
+		assert_true(button.configure(sample[0],next_theme,sample[2],sample[3]))
+		assert_eq(button.size.x,float(sample[3]))
+		assert_same(button.theme.default_font,next_theme.default_font)
+		assert_eq(button.get_theme_default_font_size(),next_theme.default_font_size)
+		assert_eq(button.public_copy,sample[0])
+		assert_eq(button.accessibility_name,sample[0])
+		assert_almost_eq(button._paragraph.get_line_width(0),next_theme.default_font.get_string_size(sample[4],HORIZONTAL_ALIGNMENT_LEFT,-1,next_theme.default_font_size).x,0.01)
+		for line: int in button._paragraph.get_line_count():
+			var line_width: float = button._paragraph.get_line_width(line)
+			var x: float = floorf((button.size.x-line_width)/4.0)*2.0
+			assert_gte(x,button._face_rect().position.x+2,"Text starts inside the border.")
+			assert_lte(x+line_width,button._face_rect().end.x-4,"Text ends before the Selected seam.")
+
 
 func test_off_tree_reconfiguration_shrinks_to_measured_size_on_mount() -> void:
 	var button: Button = ACTION.new()

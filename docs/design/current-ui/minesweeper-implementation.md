@@ -433,3 +433,47 @@ This completes the palette implementation checkpoint. Final AT/readability and
 largest-English-label usability, remaining input support, captured-run palette,
 production gameplay owners, canonical hosts and combined save/restore integration
 remain open. Minesweeper and the ten-family goal remain in progress.
+
+## English wrapping and contact clearance continuation
+
+Five exact English chrome labels now receive discretionary break hints during
+shaping: Intermediate, Expert, Reveal, Assignments and Foresight. Source copy,
+accessibility names, sentences, Chinese text, fonts and fixed bay widths remain
+unchanged. The hints follow [Unicode soft-hyphen semantics](https://www.unicode.org/reports/tr14/#SoftHyphen):
+they display a hyphen only at a taken line break. A fitting single-line label has
+the same measured width as its plain source.
+
+The native comparison kept full 20/25/30-logical-pixel fonts and both target sizes.
+It rejected a Beginner candidate that added a third line at 150%, and rejected a
+coarser Intermediate pattern whose `medi-` line measured 73 pixels against the
+Large target's 72-pixel aperture. No aperture relaxation or bay redistribution was
+adopted. The selected Intermediate pattern uses three lines at 125%; the register
+grows under the existing vertical-measurement law and the worksheet yields.
+When an optional hinted paragraph exceeds a narrower supported aperture, shaping
+retries the original adaptive text with the same font, width and validation.
+The existing 80-pixel/125% component case established this fallback requirement.
+
+Real pointer-state captures then found five cases where the old Hover edge
+intersected antialiased glyph pixels, including the unchanged Beginner label.
+The edge moves one native pixel toward the inner face border, retaining its
+thickness and height. It stays outside detached Focus rails; Press still replaces
+Hover and Disabled suppresses both. A failing GPU run preceded the correction.
+
+Verification: **222 tests / 7,904 assertions pass** across twenty-five suites.
+The final OpenGL run covers eighteen assembled panels and eighteen contact atlases:
+all three locales, three text sizes, and both target sizes. All 360 resting,
+pointer-Hover, held-Press and Selected-plus-Focus samples have zero changed glyph
+pixels against a separately rendered text reference, including antialiased edges.
+This proves the sampled ink clearance, not full assistive-technology acceptance.
+Evidence, measurements, the initial comparison and the complete invocation ledger
+are in `evidence/minesweeper_typography`; raw isolated logs remain intact. Final
+native runs exit zero with the existing 24 Dialogic orphans and environment messages.
+
+Large English labels remain constrained by the accepted fixed-width design;
+Beginner and Drag still wrap, and final readability acceptance remains open.
+The latest external `dwm-oyo.3` E9 work is still uncommitted at `1790785bc`.
+Inspection found no public ready Schedule or Minesweeper owner seam: Schedule
+services are private, Minesweeper base configuration is absent and its board port
+retains a boot identity. No dirty owner work was copied or integrated.
+The next independent family task is `dwm-eei.10`, a live witnessed-scene caption
+field on actual Dialogic/Hospital playback. The full ten-family goal stays active.
