@@ -1,0 +1,122 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/schedule-ui-build/.godot/phase2r_tests/f69c30ac-a45b-4d99-8ce3-2b9882bad287/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_schedule_app.gd
+* test_real_mounted_source_append_inspect_reorder_remove_and_focus_repair
+* test_expected_stale_refusal_preserves_visible_inspection_without_mutation
+    120 Orphans
+        * [@Button@355:<Button#187535722474>(SchedulePaperButton.gd)] + 1
+        * [@Control@354:<Control#187502168046>(ScheduleScrollWell.gd)]
+        * [@ScrollContainer@375:<ScrollContainer#189246998851>] + 29
+        * [@ColorRect@309:<ColorRect#184868145510>]
+        * [@Label@310:<Label#184901699944>]
+        * [@ColorRect@359:<ColorRect#188223588714>]
+        * [@ColorRect@361:<ColorRect#188290697580>]
+        * [@ColorRect@311:<ColorRect#184935254383>]
+        * [@ScrollContainer@314:<ScrollContainer#184968808817>] + 10
+        * [@ColorRect@307:<ColorRect#184801036659>]
+        * [@ColorRect@357:<ColorRect#188156479887>]
+        * [@Label@360:<Label#188257143184>]
+        * [@ScrollContainer@364:<ScrollContainer#188324252052>] + 10
+        * [@ColorRect@358:<ColorRect#188190034326>]
+        * [@Control@404:<Control#190857611801>(ScheduleScrollWell.gd)]
+        * [@Button@405:<Button#190891166237>(SchedulePaperButton.gd)] + 1
+        * [@Control@322:<Control#185858001441>(ScheduleScrollWell.gd)]
+        * [@ScrollContainer@325:<ScrollContainer#185891555880>] + 29
+        * [@ColorRect@308:<ColorRect#184834591287>]
+        * [@Control@372:<Control#189213444712>(ScheduleScrollWell.gd)]
+* test_done_needs_a_real_handler_and_home_preserves_draft
+* test_pending_done_awaits_its_owner_and_refuses_edits_or_home
+* test_pointer_release_after_projection_replacement_cannot_activate_new_source
+* test_native_grip_drag_reorders_once_and_home_is_inert_during_drag
+* test_native_drag_cancels_on_refresh_and_outside_release_without_edit
+* test_non_grip_pointer_drag_cannot_reorder_and_arrow_stays_in_its_region
+    9 Orphans
+        * [@Button@1290:<Button#258570455012>(SchedulePaperButton.gd)] + 1
+        * [@Label@1286:<Label#258302019912>]
+        * [RegisteredArt:<TextureRect#258369128778>]
+        * [@Label@1287:<Label#258335574412>]
+        * [@Button@1288:<Button#258402683362>(SchedulePaperButton.gd)] + 1
+        * [@Button@1292:<Button#258738227701>(SchedulePaperButton.gd)] + 1
+* test_page_keys_scroll_only_the_focused_paper_without_changing_the_draft
+    [Failed]:  [0] expected to be > than [0]:  Page Down addresses the focused Docket owner
+      at line 252
+    [Failed]:  [0.0] expected to equal [188.0]:  
+      at line 258
+* test_cached_return_restores_semantic_focus_and_does_not_retain_hidden_contact
+    [Failed]:  Safe return restores the same semantic command
+      at line 275
+* test_keyboard_scroll_is_inert_while_done_owns_custody
+9/11 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_schedule_app.gd
+    - Outside Tests
+        * [<Node#97089750753>(subsystem_animation.gd)]
+        * [<Node#97106527970>(subsystem_audio.gd)]
+        * [<Node#97123305187>]
+        * [<Node#97140082404>]
+        * [<Node#97156859621>(subsystem_backgrounds.gd)]
+        * [<Node#97693730534>(subsystem_choices.gd)]
+        * [<Timer#97710507751>]
+        * [<Node#97727284968>(subsystem_expression.gd)]
+        * [<Node#97760839405>(subsystem_glossary.gd)]
+        * [<Node#97777616622>(subsystem_history.gd)]
+        * [<Node#97794393839>(subsystem_input.gd)]
+        * [<Timer#97811171056>]
+        * [<Node#97827948273>(subsystem_jump.gd)]
+        * [<Node#97844725490>(subsystem_containers.gd)]
+        * [<Node#97861502707>(subsystem_portraits.gd)]
+        * [<Node#98398373620>(subsystem_save.gd)]
+        * [<Timer#98415150837>]
+        * [<Node#98431928054>(subsystem_settings.gd)]
+        * [<Node#98448705274>(subsystem_styles.gd)]
+        * [<Node#98465482491>(subsystem_text.gd)]
+        * [<Node#98549368576>(subsystem_text_input.gd)]
+        * [<Node#98566145793>(subsystem_variables.gd)]
+        * [<Node#98582923010>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#98599700227>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_schedule_app.gd
+- test_page_keys_scroll_only_the_focused_paper_without_changing_the_draft
+    [Failed]:  [0] expected to be > than [0]:  Page Down addresses the focused Docket owner
+          at line 252
+    [Failed]:  [0.0] expected to equal [188.0]:  
+          at line 258
+- test_cached_return_restores_semantic_focus_and_does_not_retain_hidden_contact
+    [Failed]:  Safe return restores the same semantic command
+          at line 275
+
+Totals
+------
+Scripts               1
+Tests                11
+Passing Tests         9
+Failing Tests         2
+Asserts           125/128
+Orphans              24
+Time              1.047s
+
+
+---- 2 failing tests ----
+

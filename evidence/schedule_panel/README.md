@@ -80,3 +80,12 @@ native assistive-tree verification and touch/controller platform checks; full
 required rendered state matrix and cache/Load return behavior. The local
 Unavailable recovery leaf must connect to the shared recovery host. This checkpoint
 is a working draft screen, not a claim that Schedule or all ten UI families are done.
+
+## Subsequent navigation and Standard palette checkpoint
+
+See [navigation and palette evidence](navigation.md) for the changes following
+84a56fa49: native Page keys, retained-view focus return, explicit cache reset,
+both Standard palettes, and detached focus rails outside the scroll aperture.
+That checkpoint supersedes the Standard-palette and same-view focus gaps above;
+the production owner/launcher, warning, save/Load, semantic reflow anchors,
+High Contrast/CVD, RTL and platform accessibility work remains incomplete.

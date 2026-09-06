@@ -10,8 +10,9 @@ class InsertionWitness extends Control:
 	var boundary_y := -1.0
 	func _draw() -> void:
 		if boundary_y < 0.0: return
-		draw_rect(Rect2(8,boundary_y,204,2),Color("151b25"))
-		draw_rect(Rect2(210,boundary_y-2,2,6),Color("151b25"))
+		var ink := get_theme_color(&"paper_ink",&"Schedule")
+		draw_rect(Rect2(8,boundary_y,204,2),ink)
+		draw_rect(Rect2(210,boundary_y-2,2,6),ink)
 
 func _ready() -> void:
 	_overlay = InsertionWitness.new()

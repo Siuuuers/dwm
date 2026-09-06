@@ -16,5 +16,6 @@ func _draw() -> void:
 	var extent := bar.max_value / 2
 	var thumb := maxf(8,floorf(viewport_h*viewport_h/extent))
 	var offset := floorf((viewport_h-thumb)*bar.value/(bar.max_value-bar.page))
-	draw_rect(Rect2(8,0,2,size.y),Color("151b25"))
-	draw_rect(Rect2(6,offset*2,6,thumb*2),Color("151b25"))
+	var ink := get_theme_color(&"paper_ink",&"Schedule")
+	draw_rect(Rect2(8,0,2,size.y),ink)
+	draw_rect(Rect2(6,offset*2,6,thumb*2),ink)

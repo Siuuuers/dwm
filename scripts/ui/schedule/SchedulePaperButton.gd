@@ -7,6 +7,7 @@ var unavailable := false
 var drag_grip := Rect2()
 var drag_started := Callable()
 var drag_ended := Callable()
+var detached_focus := false
 
 func _ready() -> void:
 	action_mode = BaseButton.ACTION_MODE_BUTTON_RELEASE
@@ -33,27 +34,35 @@ func _notification(what: int) -> void:
 func _line(rect: Rect2, ink: Color) -> void:
 	draw_rect(Rect2(rect.position * 2, rect.size * 2), ink)
 
-func _outline(rect: Rect2, ink: Color) -> void:
-	_line(Rect2(rect.position, Vector2(rect.size.x, 1)), ink)
-	_line(Rect2(rect.position + Vector2(0, rect.size.y - 1), Vector2(rect.size.x, 1)), ink)
-	_line(Rect2(rect.position, Vector2(1, rect.size.y)), ink)
-	_line(Rect2(rect.position + Vector2(rect.size.x - 1, 0), Vector2(1, rect.size.y)), ink)
+func draw_focus_on(canvas: CanvasItem, offset: Vector2 = Vector2.ZERO) -> void:
+	var outer := get_theme_color(&"ink",&"Schedule") if kind == "done" else get_theme_color(&"habitat",&"Schedule")
+	var inner := get_theme_color(&"focus",&"Schedule") if kind == "done" else get_theme_color(&"face" if selected else &"paper_focus",&"Schedule")
+	for margin: int in [8,4]:
+		var rect := Rect2(offset-Vector2(margin,margin),size+Vector2(margin*2,margin*2))
+		var ink := outer if margin == 8 else inner
+		for line: Rect2 in [Rect2(rect.position,Vector2(rect.size.x,2)),
+			Rect2(rect.position+Vector2(0,rect.size.y-2),Vector2(rect.size.x,2)),
+			Rect2(rect.position,Vector2(2,rect.size.y)),
+			Rect2(rect.position+Vector2(rect.size.x-2,0),Vector2(2,rect.size.y))]:
+			canvas.draw_rect(line,ink)
 
 func _draw() -> void:
 	var width := size.x / 2
 	var height := size.y / 2
-	var ink := Color("151b25")
+	var paper_ink := get_theme_color(&"paper_ink",&"Schedule")
+	var face := get_theme_color(&"face",&"Schedule")
+	var structure := get_theme_color(&"structure",&"Schedule")
 	var command := kind in ["command", "done"]
 	var carrier := Rect2(0, 0, width, height)
 	if kind == "source": carrier = Rect2(28, 0, width - 28, height)
 	if kind == "entry": carrier = Rect2(12, 0, width - 12, height)
-	if command: _line(Rect2(0, 0, width, height), ink)
+	if command: _line(Rect2(0, 0, width, height), face)
 	if selected:
 		if kind == "source":
 			for rect in [Rect2(0,0,width,4), Rect2(0,4,4,24), Rect2(28,4,width-28,24), Rect2(0,28,width,height-28)]:
-				_line(rect, Color("789083"))
-		else: _line(carrier, Color("789083"))
-		_line(Rect2(width-2, 0, 2, height), ink)
+				_line(rect,get_theme_color(&"filed",&"Schedule"))
+		else: _line(carrier,get_theme_color(&"filed",&"Schedule"))
+		_line(Rect2(width-2, 0, 2, height),paper_ink)
 	if unavailable:
 		# Clockwise one-native-pixel perimeter, two on/two off.
 		var perimeter: Array[Vector2] = []
@@ -62,18 +71,16 @@ func _draw() -> void:
 		for x in range(int(width)-2,-1,-1): perimeter.append(Vector2(x,height-1))
 		for y in range(int(height)-2,0,-1): perimeter.append(Vector2(0,y))
 		for index in perimeter.size():
-			if index % 4 < 2: _line(Rect2(perimeter[index],Vector2.ONE),ink)
+			if index % 4 < 2: _line(Rect2(perimeter[index],Vector2.ONE),paper_ink)
 		for y in range(1,int(height)-1):
 			for x in range(92,100):
-				if (x-92+y-1)%4 == 0: _line(Rect2(x,y,1,1),ink)
+				if (x-92+y-1)%4 == 0: _line(Rect2(x,y,1,1),paper_ink)
 	elif disabled and command:
 		var gy := floorf((height-5)/2)
 		for rect in [Rect2(width-5,gy,5,1),Rect2(width-5,gy,1,5),Rect2(width-1,gy,1,5)]:
-			_line(rect,Color("657d89"))
+			_line(rect,structure)
 	elif not disabled:
-		var mark := Color("657d89") if command else ink
+		var mark := structure if command else paper_ink
 		if is_pressed(): _line(Rect2(carrier.position+Vector2(2,2),Vector2(carrier.size.x-4,1)),mark)
 		elif is_hovered(): _line(Rect2(carrier.position+Vector2(2,2),Vector2(1,carrier.size.y-4)),mark)
-		if has_focus():
-			_outline(Rect2(-4,-4,width+8,height+8),Color("d8cfb7") if kind == "done" else Color("0b0d13"))
-			_outline(Rect2(-2,-2,width+4,height+4),ink if selected else Color("a9935f"))
+		if has_focus() and not detached_focus: draw_focus_on(self)

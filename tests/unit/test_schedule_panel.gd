@@ -94,3 +94,25 @@ func test_unavailable_sources_keep_name_but_leave_focus_graph_and_invalid_art_re
 	invalid.sources[0].compact = null
 	assert_false(panel.set_projection(invalid))
 	assert_true(panel.source_buttons.training.disabled,"Invalid replacement did not publish partial data")
+
+func test_both_standard_palettes_reach_mounted_paper_text_and_art_without_recolouring_art() -> void:
+	for palette: StringName in [&"after_hours",&"midnight"]:
+		var panel := _panel()
+		assert_true(panel.configure("en",100,false,palette))
+		assert_true(panel.set_projection(_projection([_entry("a","Training")],false,[_source("training","Training")]),"a"))
+		await get_tree().process_frame
+		var dark := Color("151b25") if palette == &"after_hours" else Color("14201d")
+		assert_eq(panel.get_child(0).color,Color("0b0d13") if palette == &"after_hours" else Color("0d1514"))
+		assert_eq(panel.get_child(1).color,Color("c3baa3"))
+		assert_eq(panel.source_buttons.training.get_theme_color("paper_ink","Schedule"),dark)
+		assert_eq(panel.commands.remove.get_theme_color("face","Schedule"),dark)
+		for label: Label in panel.source_buttons.training.find_children("*","Label",true,false):
+			assert_eq(label.get_theme_color("font_color"),dark)
+		for art: TextureRect in panel.find_children("RegisteredArt","TextureRect",true,false):
+			assert_eq(art.modulate,Color.WHITE)
+			assert_eq(art.self_modulate,Color.WHITE)
+			assert_true(art.texture in [_art.compact,_art.folio])
+		var before: Theme = panel.theme
+		assert_false(panel.configure("en",100,false,&"unsupported"))
+		assert_same(panel.theme,before,"Unsupported palette does not replace the valid theme")
+		panel.hide()

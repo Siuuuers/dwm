@@ -10,6 +10,8 @@ signal done_requested
 const KEY := preload("res://scripts/ui/schedule/SchedulePaperButton.gd")
 const WELL := preload("res://scripts/ui/schedule/ScheduleScrollWell.gd")
 const DOCKET_LANE := preload("res://scripts/ui/schedule/ScheduleDocketLane.gd")
+const PALETTE := preload("res://scripts/ui/schedule/ScheduleTheme.gd")
+const FOCUS_RAIL := preload("res://scripts/ui/schedule/ScheduleFocusRail.gd")
 const FONTS := {
 	"en": preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2"),
 	"zh-CN": preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf"),
@@ -55,13 +57,29 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
 		cancel_drag()
 
-func configure(locale: String = "en", percent: int = 100, large_targets: bool = false) -> bool:
+func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree(): return
+	var direction := int(event.is_action_pressed("ui_page_down")) - int(event.is_action_pressed("ui_page_up"))
+	if direction == 0: return
+	var focused := get_viewport().gui_get_focus_owner()
+	var owner: ScrollContainer = null
+	for scroll: ScrollContainer in [available_scroll,docket_scroll]:
+		if is_instance_valid(scroll) and focused != null and scroll.is_ancestor_of(focused): owner = scroll
+	if owner == null: return
+	# Page commands never become selection, reordering or focus navigation.
+	get_viewport().set_input_as_handled()
+	if not is_dragging(): owner.scroll_vertical += direction * int(owner.size.y)
+
+func configure(locale: String = "en", percent: int = 100, large_targets: bool = false,
+		palette: StringName = &"after_hours") -> bool:
 	locale = locale.replace("_","-")
 	if locale not in FONTS or percent not in [100,125,150]: return false
+	var next_theme: Theme = PALETTE.build(palette)
+	if next_theme == null: return false
 	_locale = locale
 	_font_size = 20 * percent / 100
 	_large = large_targets
-	theme = Theme.new()
+	theme = next_theme
 	theme.default_font = FONTS[locale]
 	theme.default_font_size = _font_size
 	return true
@@ -184,11 +202,11 @@ func _entry_index(entry_id: String) -> int:
 	return -1
 
 func _build() -> void:
-	_paper(self,Rect2(0,0,800,656),Color("0b0d13"))
+	_paper(self,Rect2(0,0,800,656),"habitat")
 	_paper(self,Rect2(16,16,250,548))
 	_paper(self,Rect2(278,16,506,548))
 	_label(self,COPY[_locale][0],Rect2(32,32,218,48))
-	_paper(self,Rect2(32,78,218,2),Color("151b25"))
+	_paper(self,Rect2(32,78,218,2),"paper_ink")
 	available_scroll = _scroll(Rect2(32,88,218,460))
 	_source_body = _body(available_scroll,Vector2(218,460))
 	var y := 8.0
@@ -227,7 +245,7 @@ func _build() -> void:
 		if index >= _projection.entries.size():
 			var empty_h := 80 if _large else 64
 			_label(_docket_body,str(index+1),Rect2(8,y,24,empty_h))
-			_paper(_docket_body,Rect2(40,y+empty_h/2,144,2),Color("151b25"))
+			_paper(_docket_body,Rect2(40,y+empty_h/2,144,2),"paper_ink")
 			y += empty_h+8
 			continue
 		var entry: Dictionary = _projection.entries[index]
@@ -242,8 +260,8 @@ func _build() -> void:
 			_label(key,str(index+1),Rect2(0,0,24,height))
 			var gx := 136 if _large else 144
 			var gy := 34 if _large else 26
-			_paper(key,Rect2(gx,gy,16,2),Color("151b25"))
-			_paper(key,Rect2(gx,gy+8,16,2),Color("151b25"))
+			_paper(key,Rect2(gx,gy,16,2),"paper_ink")
+			_paper(key,Rect2(gx,gy+8,16,2),"paper_ink")
 			key.drag_grip = Rect2(112 if _large else 128,8,64 if _large else 48,64 if _large else 48)
 			key.drag_started = func(): return _begin_docket_drag(entry.id)
 			key.drag_ended = _finish_docket_drag
@@ -260,8 +278,14 @@ func _build() -> void:
 		_docket_body.boundaries.append(last.x+last.y+4.0)
 	_build_folio()
 	_well(docket_scroll,Rect2(768,32,16,516))
+	for scroll: ScrollContainer in [available_scroll,docket_scroll]:
+		var rail := FOCUS_RAIL.new()
+		rail.scroll = scroll
+		rail.position = scroll.position-Vector2(8,8)
+		rail.size = scroll.size+Vector2(16,16)
+		add_child(rail)
 	done_button = _key(self,Rect2(644,576 if _large else 584,132,64 if _large else 48),"done",_done_enabled)
-	_label(done_button,COPY[_locale][4],Rect2(8,0,116,done_button.size.y),Color("d8cfb7"))
+	_label(done_button,COPY[_locale][4],Rect2(8,0,116,done_button.size.y),"ink")
 	done_button.accessibility_name = COPY[_locale][4]
 	done_button.pressed.connect(func(): done_requested.emit())
 	_wire_focus()
@@ -297,7 +321,7 @@ func _build_folio() -> void:
 		var y := (308+index*72) if _large else (356+index*56)
 		var enabled: bool = index == 2 or (selected_index > 0 if index == 0 else selected_index < _projection.entries.size()-1)
 		var key := _key(_folio,Rect2(8,y,254,64 if _large else 48),"command",enabled)
-		_label(key,COPY[_locale][index+1],Rect2(8,0,238,key.size.y),Color("d8cfb7"))
+		_label(key,COPY[_locale][index+1],Rect2(8,0,238,key.size.y),"ink")
 		key.accessibility_name = COPY[_locale][index+1]
 		commands[["earlier","later","remove"][index]] = key
 		if index == 2: key.pressed.connect(func(): remove_requested.emit(selected_id))
@@ -330,6 +354,7 @@ func _key(parent: Node, rect: Rect2, kind: String, enabled: bool = true) -> Butt
 	key.position = rect.position
 	key.size = rect.size
 	key.kind = kind
+	key.detached_focus = kind != "done"
 	# Native drop lookup must reach the owning insertion lane behind this row.
 	if kind == "entry": key.mouse_filter = Control.MOUSE_FILTER_PASS
 	key.disabled = not enabled
@@ -337,7 +362,7 @@ func _key(parent: Node, rect: Rect2, kind: String, enabled: bool = true) -> Butt
 	parent.add_child(key)
 	return key
 
-func _label(parent: Node, text_value: String, rect: Rect2, color: Color = Color("151b25")) -> Label:
+func _label(parent: Node, text_value: String, rect: Rect2, role: String = "paper_ink") -> Label:
 	var label := Label.new()
 	label.text = text_value
 	label.position = rect.position
@@ -345,13 +370,13 @@ func _label(parent: Node, text_value: String, rect: Rect2, color: Color = Color(
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.autowrap_trim_flags = 0
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_color_override("font_color",color)
+	label.add_theme_color_override("font_color",get_theme_color(role,"Schedule"))
 	parent.add_child(label)
 	return label
 
-func _paper(parent: Node, rect: Rect2, color: Color = Color("c3baa3")) -> void:
+func _paper(parent: Node, rect: Rect2, role: String = "paper") -> void:
 	var paper := ColorRect.new()
-	paper.color = color
+	paper.color = get_theme_color(role,"Schedule")
 	paper.position = rect.position
 	paper.size = rect.size
 	paper.mouse_filter = Control.MOUSE_FILTER_IGNORE

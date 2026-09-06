@@ -13,6 +13,7 @@ var _home: Button
 var _done: Callable
 var _busy := false
 var _failure: Label
+var _remembered_focus := "fresh"
 
 func _ready() -> void:
 	super._ready()
@@ -27,18 +28,20 @@ func _ready() -> void:
 	panel.move_requested.connect(_move)
 	panel.remove_requested.connect(_remove)
 	panel.done_requested.connect(_dispatch_done)
+	get_viewport().gui_focus_changed.connect(func(_control): remember_focus())
 	visibility_changed.connect(func():
 		if not is_visible_in_tree():
 			panel.cancel_contacts()
 			if panel.has_method("cancel_drag"): panel.cancel_drag())
 
 func configure_presentation(port: Object, locale: String = "en", percent: int = 100,
-		large: bool = false, done_handler: Callable = Callable()) -> Dictionary:
+		large: bool = false, done_handler: Callable = Callable(), palette: StringName = &"after_hours") -> Dictionary:
 	if port == null: return _fail(&"schedule_unconfigured")
 	for method in ["project","append","move","remove"]:
 		if not port.has_method(method): return _fail(&"invalid_schedule_presentation")
-	_locale = locale.replace("_","-")
-	if not panel.configure(_locale,percent,large): return _fail(&"invalid_schedule_configuration")
+	var next_locale := locale.replace("_","-")
+	if not panel.configure(next_locale,percent,large,palette): return _fail(&"invalid_schedule_configuration")
+	_locale = next_locale
 	_port = port
 	_done = done_handler
 	panel.set_done_enabled(_done.is_valid())
@@ -51,12 +54,29 @@ func configure_desktop_home(home: Button) -> void:
 func refresh_view() -> Dictionary:
 	if _port == null: return _fail(&"schedule_unconfigured")
 	var projected: Dictionary = _port.project(_locale)
-	return _publish(projected,panel.selected_id,_focused_key())
+	if projected.get("ok",false) and not _projection.is_empty() and projected.value.fingerprint != _projection.fingerprint:
+		# An externally replaced view is a fresh presentation, not an old cache.
+		clear_presentation_cache()
+	return _publish(projected,panel.selected_id,_remembered_focus)
+
+func remember_focus() -> void:
+	var focused := get_viewport().gui_get_focus_owner()
+	if focused != null and panel.is_ancestor_of(focused): _remembered_focus = _focused_key()
+
+func clear_presentation_cache() -> void:
+	_remembered_focus = "fresh"
+	panel.selected_id = ""
+	if is_instance_valid(panel.available_scroll): panel.available_scroll.scroll_vertical = 0
+	if is_instance_valid(panel.docket_scroll): panel.docket_scroll.scroll_vertical = 0
+
+func hide_window() -> void:
+	if not can_return_home(): return
+	remember_focus()
+	super.hide_window()
 
 func show_window() -> void:
 	show()
-	if last_result.get("ok",false): panel.focus_target()
-	elif is_instance_valid(_home): _home.grab_focus()
+	refresh_view()
 
 func can_return_home() -> bool:
 	if _busy: return false

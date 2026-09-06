@@ -95,6 +95,8 @@ func test_pending_done_awaits_its_owner_and_refuses_edits_or_home() -> void:
 	_app.panel.done_button.pressed.emit()
 	assert_true(_app._busy)
 	assert_false(_app.can_return_home())
+	_app.hide_window()
+	assert_true(_app.visible,"Direct hide also respects the accepted Done custody")
 	assert_false(_home.disabled,"The app refuses Home through its admission gate without writing shared host state")
 	assert_eq(_app.panel.process_mode,Node.PROCESS_MODE_DISABLED)
 	_app.panel.source_buttons.rest.pressed.emit()
@@ -225,3 +227,130 @@ func test_non_grip_pointer_drag_cannot_reorder_and_arrow_stays_in_its_region() -
 	await get_tree().process_frame
 	assert_false(_viewport.gui_is_dragging())
 	_pointer(point,false)
+
+func _key_press(code: Key) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.pressed = true
+	_viewport.push_input(event,true)
+	event = InputEventKey.new()
+	event.keycode = code
+	event.pressed = false
+	_viewport.push_input(event,true)
+
+func test_page_keys_scroll_only_the_focused_paper_without_changing_the_draft() -> void:
+	assert_true(_app.configure_presentation(_port,"en",150,true).ok)
+	for index in 6:
+		_app.panel.source_buttons.training.pressed.emit()
+		await get_tree().process_frame
+	var before: Dictionary = _view.snapshot().value.view
+	var selected: String = _app.panel.selected_id
+	var first: String = before.entries[0].draft_entry_id
+	_app.panel.entry_buttons[first].grab_focus()
+	await get_tree().process_frame
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,0)
+	_key_press(KEY_PAGEDOWN)
+	await get_tree().process_frame
+	assert_gt(_app.panel.docket_scroll.scroll_vertical,0,"Page Down addresses the focused Docket owner")
+	assert_eq(_app.panel.available_scroll.scroll_vertical,0)
+	assert_true(_app.panel.entry_buttons[first].has_focus())
+	assert_eq(_app.panel.selected_id,selected)
+	var bar: VScrollBar = _app.panel.docket_scroll.get_v_scroll_bar()
+	for index in 8: _key_press(KEY_PAGEDOWN)
+	assert_eq(float(_app.panel.docket_scroll.scroll_vertical),bar.max_value-bar.page)
+	for index in 8: _key_press(KEY_PAGEUP)
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,0)
+	_app.panel.source_buttons.rest.grab_focus()
+	_key_press(KEY_PAGEDOWN)
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,0,"Fitting Available paper does not redirect to the Docket")
+	assert_eq(_view.snapshot().value.view,before)
+
+func test_cached_return_restores_semantic_focus_without_changing_the_draft() -> void:
+	_app.panel.source_buttons.training.pressed.emit()
+	await get_tree().process_frame
+	_app.panel.commands.remove.grab_focus()
+	var before: Dictionary = _view.snapshot().value.view
+	var selected: String = _app.panel.selected_id
+	_app.hide_window()
+	_app.show_window()
+	await get_tree().process_frame
+	assert_true(_app.panel.commands.remove.has_focus(),"Safe return restores the same semantic command")
+	assert_eq(_app.panel.selected_id,selected)
+	assert_eq(_view.snapshot().value.view,before)
+	assert_true(_app.panel.source_buttons.training.is_visible_in_tree())
+
+func test_cached_return_reprojects_and_clears_inspection_for_external_view_replacement() -> void:
+	_app.panel.source_buttons.training.pressed.emit()
+	await get_tree().process_frame
+	_app.panel.commands.remove.grab_focus()
+	_app.hide_window()
+	assert_true(_view.open_day(3,"replacement-schedule-day").ok)
+	_app.show_window()
+	await get_tree().process_frame
+	assert_eq(_app.panel.entry_buttons.size(),0)
+	assert_eq(_app.panel.selected_id,"")
+	assert_true(_app.panel.source_buttons.training.has_focus())
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,0)
+
+func test_host_cache_clear_supports_load_even_when_view_fingerprint_is_unchanged() -> void:
+	_app.panel.source_buttons.training.pressed.emit()
+	await get_tree().process_frame
+	_app.panel.commands.remove.grab_focus()
+	var before: Dictionary = _view.snapshot().value.view
+	_app.hide_window()
+	_app.clear_presentation_cache()
+	_app.show_window()
+	await get_tree().process_frame
+	assert_eq(_app.panel.selected_id,"")
+	assert_eq(_app.panel.commands.size(),0)
+	assert_true(_app.panel.source_buttons.training.has_focus())
+	assert_eq(_view.snapshot().value.view,before,"Cache reset is presentation-only")
+
+func test_cached_return_cancels_a_held_pointer_contact() -> void:
+	var point: Vector2 = _app.panel.source_buttons.rest.get_global_rect().get_center()
+	_pointer(point,true)
+	assert_true(_app.panel.source_buttons.rest.is_pressed())
+	_app.hide_window()
+	_app.show_window()
+	await get_tree().process_frame
+	_pointer(point,false)
+	await get_tree().process_frame
+	assert_eq(_view.snapshot().value.view.entries.size(),0)
+
+func test_keyboard_scroll_is_inert_while_done_owns_custody() -> void:
+	assert_true(_app.configure_presentation(_port,"en",150,true,_delayed_done).ok)
+	for index in 6:
+		_app.panel.source_buttons.training.pressed.emit()
+		await get_tree().process_frame
+	_app.panel.entry_buttons.values()[0].grab_focus()
+	await get_tree().process_frame
+	var offset: int = _app.panel.docket_scroll.scroll_vertical
+	_app.panel.done_button.pressed.emit()
+	_key_press(KEY_PAGEDOWN)
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,offset)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+func test_failed_configuration_retains_valid_locale_for_recovery_refresh() -> void:
+	assert_false(_app.configure_presentation(_port,"unsupported").ok)
+	assert_true(_app.refresh_view().ok)
+	assert_true(_app.panel.visible)
+	assert_eq(_app.panel.source_buttons.training.accessibility_name,"Training")
+
+func test_cached_return_keeps_a_manually_scrolled_position_with_focus_elsewhere() -> void:
+	assert_true(_app.configure_presentation(_port,"en",150,true).ok)
+	for index in 6:
+		_app.panel.source_buttons.training.pressed.emit()
+		await get_tree().process_frame
+	_app.panel.entry_buttons.values()[0].grab_focus()
+	await get_tree().process_frame
+	_key_press(KEY_PAGEDOWN)
+	var offset: int = _app.panel.docket_scroll.scroll_vertical
+	assert_gt(offset,0)
+	_app.hide_window()
+	_app.show_window()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,offset,"Restoring cached focus must not undo manual paper scrolling")

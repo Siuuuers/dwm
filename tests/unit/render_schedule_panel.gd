@@ -18,31 +18,47 @@ func _run() -> void:
 		{"locale":"en","percent":100,"large":false,"day7":false,"file":"schedule-en100.png"},
 		{"locale":"zh-CN","percent":150,"large":true,"day7":false,"file":"schedule-cn150-large.png"},
 		{"locale":"en","percent":100,"large":false,"day7":true,"file":"schedule-day7-empty.png"},
+		{"locale":"en","percent":100,"large":false,"day7":false,"focus":"source:0","selected":"0","unavailable":true,"file":"schedule-paper-focus.png"},
+		{"locale":"en","percent":100,"large":false,"day7":false,"palette":&"midnight","focus":"source:0","selected":"0","unavailable":true,"file":"schedule-midnight-focus.png"},
+		{"locale":"zh-HK","percent":150,"large":true,"day7":false,"palette":&"midnight","focus":"remove","file":"schedule-midnight-hk150.png"},
+		{"locale":"en","percent":100,"large":false,"day7":false,"focus":"entry:0","selected":"0","file":"schedule-first-entry-focus.png"},
 	]:
 		var panel := PANEL.new()
 		viewport.add_child(panel)
-		panel.configure(sample.locale,sample.percent,sample.large)
+		panel.configure(sample.locale,sample.percent,sample.large,sample.get("palette",&"after_hours"))
 		panel.set_done_enabled(true)
 		var names: Array = ["Training","Working","Rest"] if sample.locale == "en" else ["训练","工作","休息"]
+		if sample.locale == "zh-HK": names = ["訓練","工作","休息"]
 		var sources: Array = []
 		var entries: Array = []
 		if not sample.day7:
 			for i in 3:
-				sources.append({"id":str(i),"name":names[i],"available":true,"compact":art.compact,"folio":art.folio})
+				sources.append({"id":str(i),"name":names[i],"available":not (i == 2 and sample.get("unavailable",false)),"compact":art.compact,"folio":art.folio})
 				entries.append({"id":str(i),"source_id":str(i),"name":names[i],"folio":art.folio})
-		if not panel.set_projection({"day_seven":sample.day7,"sources":sources,"entries":entries},"1"):
+		if not panel.set_projection({"day_seven":sample.day7,"sources":sources,"entries":entries},sample.get("selected","1")):
 			push_error("render projection refused")
 			quit(1)
 			return
 		await process_frame
 		await process_frame
-		panel.focus_target("entry:1")
+		panel.focus_target(sample.get("focus","entry:1"))
 		for frame in 5: await RenderingServer.frame_post_draw
 		var pixels := viewport.get_texture().get_image()
 		if pixels == null or pixels.is_empty() or pixels.save_png("res://.godot/phase2r_logs/"+sample.file) != OK:
 			push_error("render capture failed")
 			quit(1)
 			return
+		# These exact native rails lie outside the ScrollContainer aperture. A
+		# clipped focus can pass all layout tests; prove the real rendered pixels.
+		var rail_pixels: Array[Vector2i] = []
+		if sample.file == "schedule-midnight-hk150.png": rail_pixels = [Vector2i(500,554),Vector2i(766,554)]
+		elif sample.file == "schedule-first-entry-focus.png": rail_pixels = [Vector2i(296,24),Vector2i(480,24)]
+		for point: Vector2i in rail_pixels:
+			if pixels.get_pixelv(point).to_html(false) != panel.get_theme_color("habitat","Schedule").to_html(false):
+				push_error("Detached focus pixel missing at %s in %s" % [point,sample.file])
+				quit(1)
+				return
+		if not rail_pixels.is_empty(): print("DETACHED_FOCUS_VERIFIED ",sample.file," ",rail_pixels)
 		print("CAPTURE ",sample.file," ",pixels.get_size())
 		viewport.remove_child(panel)
 		panel.queue_free()
