@@ -2,6 +2,7 @@ extends GutTest
 
 const PORT := preload("res://scripts/application/minesweeper/MinesweeperPresentationPort.gd")
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
+const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
 const COORDINATOR := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
 const STATE_PORT := preload("res://tests/support/FakeDesktopBoardStatePort.gd")
 const CHECKPOINT_PORT := preload("res://tests/support/FakeMinesweeperCheckpointPort.gd")
@@ -119,6 +120,98 @@ func test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordin
 	_assert_public_grid_projection(grid.projection)
 	var owner_board: Dictionary = coordinator.get_state().value.board.board
 	assert_true((owner_board.flagged_indices as Array).has(2))
+
+
+func test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end() -> void:
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(1024,720)
+	add_child_autofree(viewport)
+	var worksheet: Control = WORKSHEET.new()
+	viewport.add_child(worksheet)
+	assert_true(worksheet.configure())
+	var initial: Dictionary = port.pull("beginner")
+	assert_true(initial.ok, JSON.stringify(initial))
+	assert_true(worksheet.present(initial.value))
+	var after_reveal: Dictionary = port.dispatch("reveal",0,initial.value.revision)
+	assert_true(after_reveal.ok, JSON.stringify(after_reveal))
+	assert_true(worksheet.present(after_reveal.value))
+	assert_eq(worksheet.grid.projection.revision,1)
+	worksheet.grid.set_process(false)
+
+	var dispatched: Array[Dictionary] = []
+	worksheet.cell_action_requested.connect(func(action: StringName, index: int, revision: int) -> void:
+		var result: Dictionary = port.dispatch(String(action),index,revision)
+		dispatched.append(result)
+		if result.get("ok",false): assert_true(worksheet.present(result.value))
+	)
+	var counter_before_touch: int = root_store.next_counter
+	var revision_before_touch: int = coordinator.get_state().value.revision
+	var cell_two_center: Vector2 = worksheet.grid.position+Vector2(122,26)
+	# This native ScreenTouch route does not establish pen or platform event-synthesis behavior.
+	var touch_down: InputEventScreenTouch = InputEventScreenTouch.new()
+	touch_down.index = 4
+	touch_down.position = cell_two_center
+	touch_down.pressed = true
+	viewport.push_input(touch_down,true)
+	await get_tree().process_frame
+	assert_eq(worksheet.grid.get("_touch_id"),4)
+	assert_eq(worksheet.grid.get("_touch_index"),2)
+	worksheet.grid._process(0.499)
+	assert_eq(dispatched.size(),0)
+	assert_eq(root_store.next_counter,counter_before_touch)
+	worksheet.grid._process(0.001)
+	assert_eq(dispatched.size(),1)
+	if dispatched.size() != 1: return
+	assert_true(dispatched[0].ok,JSON.stringify(dispatched[0]))
+	assert_eq(worksheet.grid.projection.revision,revision_before_touch+1)
+	assert_eq(coordinator.get_state().value.revision,revision_before_touch+1)
+	assert_eq(root_store.next_counter,counter_before_touch+1)
+	assert_eq(worksheet.grid.projection.cells[2].mark,"flag")
+	_assert_public_grid_projection(worksheet.grid.projection)
+	var owner_board: Dictionary = coordinator.get_state().value.board.board
+	assert_true((owner_board.flagged_indices as Array).has(2))
+
+	var shortcut := InputEventKey.new()
+	var wheel := InputEventMouseButton.new()
+	wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+	wheel.pressed = true
+	wheel.position = cell_two_center
+	viewport.push_input(wheel,true)
+	wheel.position = Vector2(4,4)
+	viewport.push_input(wheel,true)
+	assert_true(worksheet.grid.has_held_touch(),"Wheel on the board or fit-axis blank well cannot clear the touch release gate.")
+	shortcut.keycode = KEY_F
+	shortcut.pressed = true
+	viewport.push_input(shortcut,true)
+	var confirm := InputEventKey.new()
+	confirm.keycode = KEY_ENTER
+	confirm.pressed = true
+	viewport.push_input(confirm,true)
+	assert_eq(worksheet.grid.mode,&"reveal","Mode shortcuts cannot clear a held finger's activation gate.")
+	assert_eq(dispatched.size(),1,"F then Enter cannot issue Unflag before the long-press finger lifts.")
+	assert_eq(root_store.next_counter,counter_before_touch+1)
+	confirm.pressed = false
+	viewport.push_input(confirm,true)
+	var touch_up: InputEventScreenTouch = touch_down.duplicate()
+	touch_up.pressed = false
+	viewport.push_input(touch_up,true)
+	await get_tree().process_frame
+	assert_eq(worksheet.grid.get("_touch_id"),-1)
+	assert_eq(dispatched.size(),1,"Touch release after long press cannot Reveal or Unflag.")
+	assert_eq(root_store.next_counter,counter_before_touch+1)
+	var emulated_down: InputEventMouseButton = InputEventMouseButton.new()
+	emulated_down.device = -1
+	emulated_down.button_index = MOUSE_BUTTON_LEFT
+	emulated_down.position = cell_two_center
+	emulated_down.pressed = true
+	viewport.push_input(emulated_down,true)
+	var emulated_up: InputEventMouseButton = emulated_down.duplicate()
+	emulated_up.pressed = false
+	viewport.push_input(emulated_up,true)
+	await get_tree().process_frame
+	assert_eq(dispatched.size(),1,"Emulated mouse follow-up cannot duplicate the touch gesture.")
+	assert_eq(root_store.next_counter,counter_before_touch+1)
+	assert_eq(worksheet.grid.projection.revision,revision_before_touch+1)
 
 
 func test_unconfigured_invalid_and_stale_actions_allocate_nothing() -> void:

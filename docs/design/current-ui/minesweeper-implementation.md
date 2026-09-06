@@ -55,7 +55,7 @@ integrated with the existing save/restore owners.
 
 Canonical solo/pair owners, the specially marked solo mine, pre-Reveal history,
 action-count/Foresight/No-flag registers, real New Board/replacement, Rules and
-Assignments sheets, viewport scrolling/panning and touch/pen long-press behavior,
+Assignments sheets, platform pen mapping and configured secondary-controller action,
 desktop/challenge mounts, audio, launcher/Pause/recovery/save connections, other
 accessibility palettes and native assistive-technology acceptance remain unfinished.
 The full ten-family UI goal and Bead `dwm-eei.9` remain in progress.
@@ -90,3 +90,59 @@ Native/wrapper exits are zero for the final suites and both successful GPU runs.
 The existing 24 Dialogic orphans and certificate/Unicode environment messages also
 occurred in the initial owner baseline; no new runtime script errors remain in
 these final logs. Earlier failed runs remain in the invocation ledger.
+
+## Viewport and gesture continuation
+
+The worksheet now mounts the grid in a clipped content well, creates rails only
+for overflowing axes, keeps fit-axis gutters and the corner empty, and restores
+the retained semantic cell into view on focus return. Scrollbar thumb dragging,
+track paging, axis keys and wheel input change integer-native presentation scroll
+only. A single worksheet contact seam represents panning or custody. No cell fact,
+revision, count, identity or transaction changes during scrolling.
+
+Drag mode begins panning only beyond eight logical pixels of displacement. Touch
+uses the same radial slop: a short tap performs the current legal primary action;
+a hold of at least 500 ms requests the legal direct Flag/Unflag action; crossing
+slop pans instead. A held finger remains latched across the synchronous Flag
+publication, so release cannot submit a second action. Mouse emulation events are
+ignored by the grid, and simultaneous pointer/keyboard/controller gestures share
+admission guards. The configured secondary controller binding remains a host
+integration requirement. ScreenTouch tests do not establish how a particular
+Windows pen driver maps pressure-bearing mouse or touch events.
+
+The implementation follows Godot's Control event routing and logical relative
+motion, verified against the [Control documentation](https://docs.godotengine.org/en/stable/classes/class_control.html)
+and [ScreenDrag reference](https://docs.godotengine.org/en/stable/classes/class_inputeventscreendrag.html).
+Real SubViewport tests cover wheel propagation, mouse/touch panning, scrollbar
+dragging through synchronous viewport updates, and long-press through the real
+presentation port and coordinator. The latter verifies exactly one revision and
+one issuer allocation, and no additional command from release or emulated mouse.
+
+A small allocation simplification preserves existing cell nodes and their Themes
+across same-size revisions; only added/removed cells allocate or free nodes. Tests
+verify those identities and resize geometry. This removes full-grid reconstruction
+from each Flag/publication; no frame-time improvement is claimed without profiling.
+
+Viewport GPU evidence is stored separately under `evidence/minesweeper_viewport`.
+It includes ordinary Beginner, Large Beginner with final-cell focus, Expert with
+both axes scrolled to final-cell focus, and a canonical 18×18 covered fixture.
+The canonical capture verifies presentation geometry only. Pixel checks require
+empty fit-axis gutters/corners and no drawing outside the worksheet allocation.
+The first GPU run found an outer rail stroke entering the corner; both rail
+outlines now remain inside their allocations. This continuation does not remove
+the owner, runtime, save and final accessibility gaps listed above.
+
+Final continuation verification: **88 tests / 2,727 assertions pass** across ten
+suites, including canceled-touch and double-tap suppression. Independent review
+found that F could clear a held touch's activation gate and right-stick input
+could pan during a pending touch. Regression tests reproduced both defects before
+the fix: these inputs now wait for the active gesture to finish. The real command
+path verifies wheel scrolling over the board or blank well followed by F then
+Enter cannot issue another command after a long press while the finger remains
+down. Four
+OpenGL captures pass the gutter, corner and allocation clipping checks; the
+scrolled Expert capture was also visually inspected. Both final native/wrapper
+exits are zero. The existing 24 Dialogic orphans and environment messages remain.
+`evidence/minesweeper_viewport` contains the final logs, four captures and the full
+invocation ledger, including earlier failures. This is a viewport checkpoint;
+full-screen, production integration and all-ten-family acceptance remain open.

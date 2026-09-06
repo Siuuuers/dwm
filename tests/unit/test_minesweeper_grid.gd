@@ -31,6 +31,7 @@ func test_strict_projection_builds_contiguous_exact_mount() -> void:
 func test_invalid_projection_is_atomic_and_rejects_private_keys() -> void:
 	var grid: Control = _grid()
 	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	watch_signals(grid)
 	var retained: Dictionary = grid.projection
 	var retained_node: Control = grid.cell_nodes[0]
 	var invalid: Dictionary = _projection([_cell(0),_cell(1)])
@@ -38,6 +39,35 @@ func test_invalid_projection_is_atomic_and_rejects_private_keys() -> void:
 	assert_false(grid.present(invalid))
 	assert_eq(grid.projection,retained)
 	assert_same(grid.cell_nodes[0],retained_node)
+
+func test_same_dimensions_reuse_cell_and_theme_instances_across_revisions() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1),_cell(2),_cell(3)])))
+	var retained_nodes: Array = grid.cell_nodes.duplicate()
+	var retained_themes: Array = []
+	for cell: Control in grid.cell_nodes: retained_themes.append(cell.theme)
+	var changed: Dictionary = _projection([_cell(0,{"mark":"flag","actions":["unflag"]}),_cell(1),_cell(2),_cell(3)])
+	changed.revision = 8
+	assert_true(grid.present(changed))
+	for index in 4:
+		assert_same(grid.cell_nodes[index],retained_nodes[index])
+		assert_same(grid.cell_nodes[index].theme,retained_themes[index])
+	assert_eq(grid.cell_nodes[0].public_cell.mark,"flag")
+
+func test_resize_keeps_prefix_frees_removed_suffix_and_reflows_positions() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1),_cell(2),_cell(3)])))
+	var first: Control = grid.cell_nodes[0]
+	var second: Control = grid.cell_nodes[1]
+	var removed: Control = grid.cell_nodes[3]
+	assert_true(grid.present(_projection([_cell(0),_cell(1)],1)))
+	assert_eq(grid.cell_nodes.size(),2)
+	assert_same(grid.cell_nodes[0],first)
+	assert_same(grid.cell_nodes[1],second)
+	assert_false(is_instance_valid(removed))
+	assert_eq(grid.cell_nodes[0].position,Vector2(2,2))
+	assert_eq(grid.cell_nodes[1].position,Vector2(2,50))
+	assert_eq(grid.size,Vector2(52,100))
 
 func test_roving_focus_moves_without_wrap_and_bracketed_repairs_first() -> void:
 	var grid: Control = _grid()
@@ -74,6 +104,7 @@ func test_paired_pointer_release_and_keyboard_emit_once_with_revision() -> void:
 	watch_signals(grid)
 	var down: InputEventMouseButton = InputEventMouseButton.new()
 	down.button_index = MOUSE_BUTTON_LEFT
+	down.device = 0
 	down.position = Vector2(10,10)
 	down.pressed = true
 	grid._gui_input(down)
@@ -91,6 +122,7 @@ func test_pointer_focuses_read_only_cell_and_button_pair_must_match() -> void:
 	watch_signals(grid)
 	var down: InputEventMouseButton = InputEventMouseButton.new()
 	down.button_index = MOUSE_BUTTON_LEFT
+	down.device = 0
 	down.position = Vector2(60,10)
 	down.pressed = true
 	grid._gui_input(down)
@@ -173,6 +205,7 @@ func test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release()
 	assert_signal_emit_count(grid,"cell_action_requested",1)
 	var down: InputEventMouseButton = InputEventMouseButton.new()
 	down.button_index = MOUSE_BUTTON_LEFT
+	down.device = 0
 	down.position = Vector2(10,10)
 	down.pressed = true
 	grid._gui_input(down)
@@ -196,3 +229,215 @@ func test_custody_cancels_contact_and_removes_grid_focus() -> void:
 	assert_eq(grid._held_index,-1)
 	assert_eq(grid.focused_index,-1)
 	assert_eq(grid.focus_mode,Control.FOCUS_NONE)
+
+func test_drag_mode_mouse_slop_emits_content_motion_and_stationary_release_is_inert() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	assert_true(grid.set_mode(&"drag"))
+	watch_signals(grid)
+	var down: InputEventMouseButton = InputEventMouseButton.new()
+	down.device = 0
+	down.button_index = MOUSE_BUTTON_LEFT
+	down.position = Vector2(10,10)
+	down.pressed = true
+	grid._gui_input(down)
+	var small: InputEventMouseMotion = InputEventMouseMotion.new()
+	small.device = 0
+	small.position = Vector2(15,10)
+	small.relative = Vector2(5,0)
+	grid._gui_input(small)
+	assert_signal_emit_count(grid,"pan_requested",0)
+	var jitter_back: InputEventMouseMotion = small.duplicate()
+	jitter_back.position = Vector2(10,10)
+	jitter_back.relative = Vector2(-5,0)
+	grid._gui_input(jitter_back)
+	assert_signal_emit_count(grid,"pan_requested",0,"Jitter distance is radial from the gesture origin, not cumulative travel.")
+	var crossing: InputEventMouseMotion = small.duplicate()
+	crossing.position = Vector2(20,10)
+	crossing.relative = Vector2(9,0)
+	grid._gui_input(crossing)
+	assert_signal_emitted_with_parameters(grid,"panning_changed",[true])
+	assert_signal_emitted_with_parameters(grid,"pan_requested",[Vector2(9,0)])
+	var up: InputEventMouseButton = down.duplicate()
+	up.pressed = false
+	grid._gui_input(up)
+	assert_signal_emitted_with_parameters(grid,"panning_changed",[false])
+	assert_signal_emit_count(grid,"cell_action_requested",0)
+
+func test_touch_short_tap_long_press_and_pan_are_mutually_exclusive() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	watch_signals(grid)
+	var touch: InputEventScreenTouch = InputEventScreenTouch.new()
+	touch.index = 3
+	touch.position = Vector2(10,10)
+	touch.pressed = true
+	grid._gui_input(touch)
+	assert_true(grid.cell_nodes[0].pressed,"A legal pending Reveal tap shows Press chrome.")
+	grid._process(0.49)
+	assert_signal_emit_count(grid,"cell_action_requested",0)
+	grid._process(0.011)
+	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"flag",0,7])
+	touch.pressed = false
+	grid._gui_input(touch)
+	assert_signal_emit_count(grid,"cell_action_requested",1,"Release after long press cannot activate.")
+	touch.pressed = true
+	grid._gui_input(touch)
+	var drag: InputEventScreenDrag = InputEventScreenDrag.new()
+	drag.index = 3
+	drag.position = Vector2(20,10)
+	drag.relative = Vector2(9,0)
+	grid._gui_input(drag)
+	assert_false(grid.cell_nodes[0].pressed,"Crossing pan slop clears Press chrome.")
+	grid._process(1.0)
+	assert_signal_emitted_with_parameters(grid,"pan_requested",[Vector2(9,0)])
+	touch.position = Vector2(20,10)
+	touch.pressed = false
+	grid._gui_input(touch)
+	assert_false(grid.cell_nodes[0].pressed)
+	assert_signal_emit_count(grid,"cell_action_requested",1)
+	touch.position = Vector2(10,10)
+	touch.pressed = true
+	grid._gui_input(touch)
+	touch.pressed = false
+	grid._gui_input(touch)
+	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"reveal",0,7])
+	assert_signal_emit_count(grid,"cell_action_requested",2)
+
+func test_touch_press_chrome_requires_current_mode_primary_action() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0,{"mark":"flag","actions":["unflag"]}),_cell(1)])))
+	var touch: InputEventScreenTouch = InputEventScreenTouch.new()
+	touch.index = 8
+	touch.position = Vector2(10,10)
+	touch.pressed = true
+	grid._gui_input(touch)
+	assert_false(grid.cell_nodes[0].pressed,"Reveal mode does not show Press for a flag whose only primary action is unavailable.")
+	grid.cancel_pointer_gesture()
+	assert_true(grid.set_mode(&"flag"))
+	grid._gui_input(touch)
+	assert_true(grid.cell_nodes[0].pressed)
+	touch.pressed = false
+	grid._gui_input(touch)
+	assert_false(grid.cell_nodes[0].pressed)
+
+func test_canceled_touch_and_double_tap_never_activate() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	watch_signals(grid)
+	var touch: InputEventScreenTouch = InputEventScreenTouch.new()
+	touch.index = 6
+	touch.position = Vector2(10,10)
+	touch.pressed = true
+	grid._gui_input(touch)
+	assert_true(grid.cell_nodes[0].pressed)
+	touch.pressed = false
+	touch.canceled = true
+	grid._gui_input(touch)
+	assert_eq(grid._touch_id,-1)
+	assert_false(grid.cell_nodes[0].pressed)
+	assert_signal_emit_count(grid,"cell_action_requested",0)
+	touch.canceled = false
+	touch.double_tap = true
+	touch.pressed = true
+	grid._gui_input(touch)
+	assert_eq(grid._touch_id,-1)
+	touch.pressed = false
+	grid._gui_input(touch)
+	assert_signal_emit_count(grid,"cell_action_requested",0)
+
+func test_second_touch_does_not_steal_and_public_cancel_ends_pan_without_releasing_confirm() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	watch_signals(grid)
+	var first: InputEventScreenTouch = InputEventScreenTouch.new()
+	first.index = 1
+	first.position = Vector2(10,10)
+	first.pressed = true
+	grid._gui_input(first)
+	var second: InputEventScreenTouch = first.duplicate()
+	second.index = 2
+	grid._gui_input(second)
+	assert_eq(grid._touch_id,1)
+	var mouse: InputEventMouseButton = InputEventMouseButton.new()
+	mouse.device = 0
+	mouse.button_index = MOUSE_BUTTON_LEFT
+	mouse.position = Vector2(10,10)
+	mouse.pressed = true
+	grid._gui_input(mouse)
+	assert_eq(grid._held_index,-1,"Mouse cannot steal a live touch gesture.")
+	var space: InputEventKey = InputEventKey.new()
+	space.keycode = KEY_SPACE
+	space.pressed = true
+	grid._gui_input(space)
+	assert_signal_emit_count(grid,"new_board_requested",0)
+	grid._confirm_held = true
+	grid.cancel_pointer_gesture()
+	assert_eq(grid._touch_id,-1)
+	assert_true(grid._confirm_held)
+
+func test_long_press_refresh_keeps_release_gate_until_same_finger_lifts() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	watch_signals(grid)
+	grid.cell_action_requested.connect(func(_action: StringName, _index: int, _revision: int) -> void:
+		var changed: Dictionary = _projection([_cell(0,{"mark":"flag","actions":["unflag"]}),_cell(1)])
+		changed.revision = 8
+		assert_true(grid.present(changed))
+	)
+	var touch: InputEventScreenTouch = InputEventScreenTouch.new()
+	touch.index = 4
+	touch.position = Vector2(10,10)
+	touch.pressed = true
+	grid._gui_input(touch)
+	grid._process(0.5)
+	assert_eq(grid._touch_id,4,"Synchronous projection replacement retains the release gate.")
+	var mouse: InputEventMouseButton = InputEventMouseButton.new()
+	mouse.device = 0
+	mouse.button_index = MOUSE_BUTTON_RIGHT
+	mouse.position = Vector2(10,10)
+	mouse.pressed = true
+	grid._gui_input(mouse)
+	assert_eq(grid._held_index,-1)
+	touch.pressed = false
+	grid._gui_input(touch)
+	assert_eq(grid._touch_id,-1)
+	assert_signal_emit_count(grid,"cell_action_requested",1)
+
+func test_right_stick_pan_waits_for_touch_release_and_latches_until_neutral() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	watch_signals(grid)
+	var touch := InputEventScreenTouch.new()
+	touch.index = 2
+	touch.position = Vector2(10,10)
+	touch.pressed = true
+	grid._gui_input(touch)
+	var axis := InputEventJoypadMotion.new()
+	axis.axis = JOY_AXIS_RIGHT_X
+	axis.axis_value = 1.0
+	grid._gui_input(axis)
+	assert_signal_emit_count(grid,"pan_requested",0,"Pending touch cannot be displaced by another input device.")
+	assert_eq(grid._touch_id,2)
+	touch.pressed = false
+	touch.canceled = true
+	grid._gui_input(touch)
+	grid._gui_input(axis)
+	grid._gui_input(axis)
+	assert_signal_emit_count(grid,"pan_requested",1)
+	axis.axis_value = 0.0
+	grid._gui_input(axis)
+	axis.axis_value = 1.0
+	grid._gui_input(axis)
+	assert_signal_emit_count(grid,"pan_requested",2)
+	assert_signal_emit_count(grid,"cell_action_requested",0)
+
+func test_focus_signal_reports_repair_move_and_focus_reentry() -> void:
+	var grid: Control = _grid()
+	watch_signals(grid)
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	assert_signal_emitted_with_parameters(grid,"focused_cell_changed",[0])
+	grid._move_focus(Vector2i.RIGHT)
+	assert_signal_emitted_with_parameters(grid,"focused_cell_changed",[1])
+	grid._on_focus_entered()
+	assert_signal_emit_count(grid,"focused_cell_changed",3)
