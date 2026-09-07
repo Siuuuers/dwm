@@ -32,6 +32,10 @@ var _presentation_port: Object
 var _backup_port: Object
 var _minesweeper_port: Object
 var _minesweeper_input: Object
+var _schedule_port: Object
+var _schedule_done := Callable()
+var _schedule_warning_port: Object
+var _schedule_warning_commands: Object
 var _confirmation: Control
 var _quick_commands: Node
 var _localization: Object
@@ -68,7 +72,9 @@ func _ready() -> void:
 		for event in ["contact_message_unlocked", "contact_open_committed", "contact_choice_selected", "invitation_reply_committed"]:
 			if state.has_signal(event) and not state.is_connected(event, _on_contacts_changed):
 				state.connect(event, _on_contacts_changed)
-	if _active_id == &"":
+	if _schedule_port != null and _host_state != null and _host_state.get_state().get("active_app_id") == &"schedule":
+		_restore_schedule_host()
+	elif _active_id == &"":
 		launcher_buttons[&"minesweeper"].call_deferred("grab_focus")
 
 func _build_shell() -> void:
@@ -137,6 +143,8 @@ func configure_contacts(port: Object, localization: Object = null, profile: Obje
 		return {"ok": false, "code": &"invalid_contacts_presentation_port"}
 	if _presentation_port != null and _presentation_port != port:
 		return {"ok": false, "code": &"contacts_already_configured"}
+	if _schedule_port != null and (localization != _localization or profile != _profile or host_state != _host_state or day != _day):
+		return {"ok":false,"code":&"desktop_owner_mismatch"}
 	_presentation_port = port
 	_localization = localization
 	_profile = profile
@@ -194,6 +202,61 @@ func configure_minesweeper(port: Object, localization: Object = null, profile: O
 		_refresh_launcher()
 		if _host_state.get_state().get("active_app_id") == &"minesweeper": return open_app(&"minesweeper")
 	return {"ok":true}
+
+func configure_schedule(port: Object, localization: Object = null, profile: Object = null,
+		host_state: Object = null, day: int = 1, done_handler: Callable = Callable(),
+		warning_presentation: Object = null, warning_commands: Object = null) -> Dictionary:
+	for method: String in ["project", "append", "move", "remove"]:
+		if not is_instance_valid(port) or not port.has_method(method): return {"ok":false,"code":&"invalid_schedule_port"}
+	if not done_handler.is_null() and (not done_handler.is_valid() or done_handler.get_argument_count() != 0):
+		return {"ok":false,"code":&"invalid_schedule_done"}
+	if (warning_presentation == null) != (warning_commands == null): return {"ok":false,"code":&"invalid_schedule_warning"}
+	if warning_presentation != null and (not is_instance_valid(warning_presentation) or not is_instance_valid(warning_commands)
+			or not warning_presentation.has_method("project") or not warning_commands.has_method("resolve_warning")
+			or Callable(warning_presentation,"project").get_argument_count() != 1
+			or Callable(warning_commands,"resolve_warning").get_argument_count() != 2
+			or not port.has_method("project_modal_background")): return {"ok":false,"code":&"invalid_schedule_warning"}
+	if _schedule_port != null and (_schedule_port != port or _schedule_done != done_handler
+			or _schedule_warning_port != warning_presentation or _schedule_warning_commands != warning_commands):
+		return {"ok":false,"code":&"schedule_already_configured"}
+	if (_host_state != null and host_state != null and _host_state != host_state) \
+			or (_localization != null and localization != null and _localization != localization) \
+			or (_profile != null and profile != null and _profile != profile): return {"ok":false,"code":&"desktop_owner_mismatch"}
+	var candidate_host: Object = host_state if host_state != null else _host_state
+	for method: String in ["get_state", "open_app", "close_app"]:
+		if not is_instance_valid(candidate_host) or not candidate_host.has_method(method): return {"ok":false,"code":&"desktop_owner_unavailable"}
+	if day < 1 or int(candidate_host.get_state().get("current_day",0)) != day: return {"ok":false,"code":&"desktop_owner_day_mismatch"}
+	var candidate_locale: Object = localization if localization != null else _localization
+	var candidate_profile: Object = profile if profile != null else _profile
+	if candidate_locale != null and (not is_instance_valid(candidate_locale) or not candidate_locale.has_method("get_locale") or not candidate_locale.has_signal("locale_changed")):
+		return {"ok":false,"code":&"invalid_schedule_preferences"}
+	if candidate_profile != null and (not is_instance_valid(candidate_profile) or not candidate_profile.has_method("get_preference") or not candidate_profile.has_signal("preference_changed")):
+		return {"ok":false,"code":&"invalid_schedule_preferences"}
+	_schedule_port = port
+	_schedule_done = done_handler
+	_schedule_warning_port = warning_presentation
+	_schedule_warning_commands = warning_commands
+	_host_state = candidate_host
+	if localization != null: _localization = localization
+	if profile != null: _profile = profile
+	_day = day
+	if _localization != null and not _localization.is_connected("locale_changed",_on_launcher_locale_changed):
+		_localization.connect("locale_changed",_on_launcher_locale_changed)
+	if _profile != null and not _profile.is_connected("preference_changed",_on_preference_changed):
+		_profile.connect("preference_changed",_on_preference_changed)
+	if is_node_ready():
+		_refresh_launcher()
+		if _host_state.get_state().get("active_app_id") == &"schedule": return _restore_schedule_host()
+	return {"ok":true}
+
+func _restore_schedule_host() -> Dictionary:
+	var restored := open_app(&"schedule")
+	if not restored.get("ok",false):
+		_restoration_failed = true
+		_active_id = &"schedule"
+		icon_grid.hide()
+		_refresh_launcher()
+	return restored
 
 func configure_backup_port(port: Object) -> Dictionary:
 	for method in ["get_projection", "prepare_action", "commit_action", "cancel_action"]:
@@ -259,7 +322,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		return {"ok": false, "code": &"desktop_modal_active"}
 	if not APP_REGISTRY.new().has_app(app_id):
 		return _route_failure(&"unknown_app_id")
-	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper"] or (app_id == &"minesweeper" and _minesweeper_port == null):
+	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper", &"schedule"] or (app_id == &"minesweeper" and _minesweeper_port == null):
 		return _route_failure(&"desktop_app_unavailable")
 	if _active_id != &"" and _active_id != app_id:
 		return _route_failure(&"desktop_app_transition_unavailable")
@@ -269,6 +332,8 @@ func open_app(app_id: StringName) -> Dictionary:
 			return _route_failure(&"desktop_app_transition_unavailable")
 	if app_id == &"contacts" and _presentation_port == null:
 		return _route_failure(&"contacts_unavailable")
+	if app_id == &"schedule" and _schedule_port == null:
+		return _route_failure(&"schedule_unavailable")
 	if app_id == &"backup" and _backup_port == null:
 		return _route_failure(&"backup_unavailable")
 	if app_id == &"settings" and (_host_state == null or get_node_or_null("/root/ProfileManager") == null or get_node_or_null("/root/LocalizationManager") == null):
@@ -287,6 +352,11 @@ func open_app(app_id: StringName) -> Dictionary:
 			configured = app.configure_presentation(_presentation_port, _localization, _profile)
 		elif app_id == &"minesweeper":
 			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input)
+		elif app_id == &"schedule":
+			app.configure_desktop_home(home_button)
+			configured = app.configure_presentation(_schedule_port, _locale, int(theme.default_font_size * 100 / 24),
+				false, _schedule_done, &"after_hours", _schedule_warning_port, _schedule_warning_commands)
+			if configured.get("ok",false): configured = app.configure_shared_preferences(_localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
 			configured = app.configure_backup(_backup_port, _localization, _profile)
@@ -301,8 +371,12 @@ func open_app(app_id: StringName) -> Dictionary:
 		if app_id == &"minesweeper":
 			app.recovery_requested.connect(_route_failure)
 			app.panel.presentation_changed.connect(status_label.hide)
+		if app_id == &"schedule":
+			app.recovery_requested.connect(_route_failure)
+			app.warning_foreground_changed.connect(func(_active: bool): _refresh_launcher())
+			app.command_custody_changed.connect(func(_active: bool): _refresh_launcher())
 		_cached_app_windows[app_id] = app
-	elif app_id in [&"backup", &"minesweeper"]:
+	elif app_id in [&"backup", &"minesweeper", &"schedule"]:
 		var refreshed: Dictionary = app.refresh_view()
 		if not refreshed.get("ok", false):
 			return _route_failure(refreshed.get("code", &"desktop_app_unavailable"))

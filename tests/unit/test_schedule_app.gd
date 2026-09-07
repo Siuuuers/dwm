@@ -609,3 +609,229 @@ func test_native_back_and_page_cannot_queue_another_warning_command_during_await
 	assert_false(_app._busy)
 	assert_true(_app.warning_sheet.close_button.has_focus())
 	assert_eq(commands.calls.size(),1)
+
+
+class SharedPreferences extends RefCounted:
+	signal locale_changed(locale_id: String)
+	signal preference_changed(path: StringName, value: Variant)
+	var locale := "en"
+	var percent: Variant = 100
+	var large := false
+	func get_locale() -> String: return locale
+	func get_preference(path: String, fallback: Variant = null) -> Variant:
+		if path == "preferences.accessibility.text_size": return percent
+		if path == "preferences.accessibility.large_targets": return large
+		return fallback
+	func publish_size(value: Variant) -> void:
+		percent = value
+		preference_changed.emit(&"preferences.accessibility.text_size",value)
+
+func test_shared_preferences_reflow_preserves_occurrences_selection_focus_and_semantic_anchor() -> void:
+	var preferences := SharedPreferences.new()
+	preferences.locale = "zh_HK"
+	preferences.percent = 150
+	preferences.large = true
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	for index in 6:
+		_app.panel.source_buttons.training.pressed.emit()
+		await get_tree().process_frame
+	var entries: Array = _view.snapshot().value.view.entries
+	var selected: String = _app.panel.selected_id
+	var first: String = entries[0].draft_entry_id
+	var second: String = entries[1].draft_entry_id
+	_app.panel.entry_buttons[first].grab_focus()
+	await get_tree().process_frame
+	_app.panel.docket_scroll.scroll_vertical = int(_app.panel.entry_buttons[second].position.y)+2
+	preferences.locale = "en"
+	preferences.locale_changed.emit("en")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(_view.snapshot().value.view.entries,entries)
+	assert_eq(_app.panel.selected_id,selected)
+	assert_true(_app.panel.entry_buttons[first].has_focus())
+	assert_eq(_app.panel.docket_scroll.scroll_vertical,int(_app.panel.entry_buttons[second].position.y)+2)
+	assert_eq(_app.panel._font_size,30)
+	assert_true(_app.panel._large)
+
+func test_hidden_shared_refresh_keeps_foreground_focus_then_reflows_on_return() -> void:
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	_app.panel.source_buttons.rest.grab_focus()
+	_app.hide_window()
+	_home.grab_focus()
+	var old_button: Button = _app.panel.source_buttons.rest
+	preferences.locale = "zh_CN"
+	preferences.large = true
+	preferences.publish_size(150)
+	await get_tree().process_frame
+	assert_true(_home.has_focus())
+	assert_same(_app.panel.source_buttons.rest,old_button,"Cached hidden source is not reconstructed under another host")
+	_app.show_window()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(_app._locale,"zh-CN")
+	assert_eq(_app.panel._font_size,30)
+	assert_true(_app.panel._large)
+	assert_true(_app.panel.source_buttons.rest.has_focus())
+
+func test_shared_reflow_cancels_armed_native_input_but_duplicate_and_invalid_tuple_do_not_rebuild() -> void:
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	var button: Button = _app.panel.source_buttons.rest
+	preferences.publish_size(100)
+	assert_same(_app.panel.source_buttons.rest,button)
+	preferences.publish_size(110)
+	assert_same(_app.panel.source_buttons.rest,button)
+	assert_eq(_app._percent,100)
+	var replacement := SharedPreferences.new()
+	assert_false(_app.configure_shared_preferences(replacement,replacement).ok)
+	var point: Vector2 = button.get_global_rect().get_center()
+	_pointer(point,true)
+	assert_true(button.is_pressed())
+	preferences.publish_size(150)
+	await get_tree().process_frame
+	_pointer(point,false)
+	await get_tree().process_frame
+	assert_eq(_view.snapshot().value.view.entries.size(),0)
+	assert_eq(_app._percent,150)
+	point = _app.panel.source_buttons.rest.get_global_rect().get_center()
+	_pointer(point,true)
+	_pointer(point,false)
+	await get_tree().process_frame
+	assert_eq(_view.snapshot().value.view.entries.size(),1)
+
+func test_shared_modal_custody_defers_reconstruction_and_reflow_until_source_focus_returns() -> void:
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	var old_button: Button = _app.panel.source_buttons.rest
+	_app.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
+	_home.grab_focus()
+	preferences.publish_size(150)
+	old_button.pressed.emit()
+	await get_tree().process_frame
+	assert_same(_app.panel.source_buttons.rest,old_button)
+	assert_true(_home.has_focus())
+	assert_eq(_view.snapshot().value.view.entries.size(),0)
+	_app.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_INHERITED
+	old_button.grab_focus()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(_app._percent,150)
+	assert_true(_app.panel.source_buttons.rest.has_focus())
+
+func test_warning_shared_reflow_uses_retained_owner_copy_and_preserves_modal_focus() -> void:
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	_mount_warning()
+	await get_tree().process_frame
+	_app.warning_sheet.go_button.grab_focus()
+	var before: Dictionary = _view.snapshot().value.view
+	preferences.locale = "zh_HK"
+	preferences.large = true
+	preferences.publish_size(150)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_true(_app.warning_sheet.go_button.has_focus())
+	assert_eq(_app.warning_sheet._font_size,30)
+	assert_eq(_app._warning_data,_app._warning_port.project("zh-HK").value.warning)
+	assert_eq(_app.panel.process_mode,Node.PROCESS_MODE_DISABLED)
+	assert_eq(_view.snapshot().value.view,before)
+	_app.panel.source_buttons.rest.pressed.emit()
+	assert_eq(_view.snapshot().value.view,before)
+
+func test_initial_pending_warning_pair_is_bound_before_hidden_projection_and_cannot_be_replaced() -> void:
+	var commands := _mount_warning()
+	var warning_port: Object = _app._warning_port
+	_app.hide()
+	_home.grab_focus()
+	var restored: Control = APP.instantiate()
+	restored.hide()
+	_viewport.add_child(restored)
+	restored.configure_desktop_home(_home)
+	assert_true(restored.configure_presentation(_port,"en",100,false,Callable(),&"after_hours",warning_port,commands).ok)
+	await get_tree().process_frame
+	assert_not_null(restored.warning_sheet)
+	assert_true(_home.has_focus(),"A hidden restored warning cannot claim foreground focus")
+	var before: Dictionary = _view.snapshot().value.view
+	assert_false(restored.configure_presentation(_port,"en",150,true,Callable(),&"after_hours",warning_port,null).ok)
+	assert_eq(restored._percent,100)
+	assert_eq(_view.snapshot().value.view,before)
+	restored.show_window()
+	await get_tree().process_frame
+	assert_eq(restored.warning_sheet.activation_id,before.pending_warning.activation_id)
+	assert_true(restored.warning_sheet.close_button.has_focus(),"Explicitly opening the unchanged restored warning focuses Close")
+
+func test_done_custody_publishes_both_transitions_and_defers_shared_reflow() -> void:
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_presentation(_port,"en",100,false,_delayed_done).ok)
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	watch_signals(_app)
+	_app.panel.done_button.pressed.emit()
+	assert_signal_emitted_with_parameters(_app,"command_custody_changed",[true])
+	preferences.publish_size(150)
+	assert_eq(_app._percent,100)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_signal_emitted_with_parameters(_app,"command_custody_changed",[false])
+	assert_eq(_app._percent,150)
+
+
+func test_optional_shared_owners_preserve_explicit_configuration_and_bind_independently() -> void:
+	assert_true(_app.configure_presentation(_port,"zh-HK",125,true).ok)
+	assert_true(_app.configure_shared_preferences().ok)
+	assert_eq([_app._locale,_app._percent,_app._large],["zh-HK",125,true])
+	var preferences := SharedPreferences.new()
+	preferences.percent = 150
+	assert_true(_app.configure_shared_preferences(null,preferences).ok)
+	assert_eq([_app._locale,_app._percent,_app._large],["zh-HK",150,false])
+	assert_true(_app.configure_shared_preferences(preferences,null).ok)
+	assert_eq(_app._locale,"en")
+	assert_true(_app.configure_shared_preferences().ok)
+	assert_same(_app._profile,preferences)
+	assert_same(_app._localization,preferences)
+
+
+func test_done_scene_replacement_rejects_outgoing_ui_continuation_before_deletion() -> void:
+	await _assert_done_route_retirement(false)
+
+func test_done_queued_source_ancestor_rejects_outgoing_ui_continuation() -> void:
+	await _assert_done_route_retirement(true)
+
+func _assert_done_route_retirement(queue_source: bool) -> void:
+	var tree := get_tree()
+	var prior_scene := tree.current_scene
+	var source := Node.new()
+	tree.root.add_child(source)
+	_viewport.reparent(source)
+	tree.current_scene = source
+	var destination := Node.new()
+	tree.root.add_child(destination)
+	var destination_focus := Button.new()
+	destination.add_child(destination_focus)
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	var routed_done := func() -> Dictionary:
+		# The same native ordering as SceneRouter: destination becomes current
+		# before the old root is physically deleted at the end of the frame.
+		tree.current_scene = destination
+		if queue_source: source.queue_free()
+		destination_focus.grab_focus()
+		preferences.publish_size(150)
+		return {"ok":false,"code":&"fixture_destination_owns_result"}
+	assert_true(_app.configure_presentation(_port,"en",100,false,routed_done).ok)
+	watch_signals(_app)
+	var revision: int = _app.panel._projection_revision
+	_app.panel.done_button.pressed.emit()
+	assert_signal_emit_count(_app,"command_custody_changed",1,"Only entry custody is published by the retiring source")
+	assert_signal_not_emitted(_app,"recovery_requested")
+	assert_eq(_app.panel._projection_revision,revision)
+	assert_eq(_app._percent,100)
+	assert_true(destination_focus.has_focus())
+	tree.current_scene = prior_scene
+	if not queue_source: source.queue_free()
+	destination.queue_free()
+	await tree.process_frame

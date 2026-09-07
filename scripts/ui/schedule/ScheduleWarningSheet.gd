@@ -27,6 +27,8 @@ var _sheet: Control
 var _body_document: Control
 var _config_key: Array = []
 var _presentation_key: Array = []
+var _focus_generation := 0
+var _focus_target := "close"
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(800,656)
@@ -34,6 +36,11 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	set_process_unhandled_key_input(true)
+	visibility_changed.connect(func():
+		_focus_generation += 1
+		if is_visible_in_tree() and not _presentation_key.is_empty():
+			_restore_focus.call_deferred(_focus_generation)
+		else: _cancel_contacts())
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours") -> bool:
 	locale = locale.replace("_","-")
@@ -72,14 +79,26 @@ func present(next_activation_id: String, copy: Dictionary, error_text: String = 
 	activation_id = next_activation_id
 	_presentation_key = key
 	_build(copy,error_text)
-	if new_activation or new_error or prior_focus == "": close_button.call_deferred("grab_focus")
-	elif prior_focus == "go": go_button.call_deferred("grab_focus")
-	else: close_button.call_deferred("grab_focus")
+	_focus_target = "close" if new_activation or new_error or prior_focus == "" else prior_focus
+	_focus_generation += 1
+	close_button.focus_entered.connect(func(): _focus_target = "close")
+	go_button.focus_entered.connect(func(): _focus_target = "go")
+	_restore_focus.call_deferred(_focus_generation)
 	var maximum_scroll: int = maxi(0,int(_body_document.custom_minimum_size.y-body_scroll.size.y))
 	var restored_scroll: int = mini(prior_scroll,maximum_scroll)
 	if new_error: restored_scroll = maxi(restored_scroll,maximum_scroll)
 	body_scroll.set_deferred("scroll_vertical",restored_scroll)
 	return true
+
+func _restore_focus(generation: int) -> void:
+	if generation != _focus_generation or not is_visible_in_tree() or not can_process() or _busy: return
+	var ancestor: Node = self
+	while ancestor != null:
+		if ancestor.is_queued_for_deletion(): return
+		ancestor = ancestor.get_parent()
+	var target: Button = go_button if _focus_target == "go" else close_button
+	if not is_instance_valid(target) or not target.is_visible_in_tree() or not target.can_process() or target.get_focus_mode_with_override() != Control.FOCUS_ALL: return
+	target.grab_focus()
 
 func set_busy(value: bool) -> void:
 	_busy = value

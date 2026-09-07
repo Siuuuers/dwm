@@ -128,3 +128,38 @@ func test_registered_locale_scale_target_matrix_preserves_all_text_geometry() ->
 					if label.text == "!": assert_eq(label.size,Vector2(32,32),"The invariant warning mark never grows with text scale")
 					assert_lte(label.get_minimum_size().y,label.size.y,"No glyph or text exceeds its exact measure: %s/%d/%s/%s" % [locale,percent,large,label.text])
 				sheet.hide()
+
+
+func test_deferred_focus_respects_hidden_custody_and_unchanged_visible_opening() -> void:
+	var foreground := Button.new()
+	add_child_autofree(foreground)
+	var sheet: Control = _sheet()
+	sheet.hide()
+	foreground.grab_focus()
+	assert_true(sheet.present("activation-hidden",COPY))
+	await get_tree().process_frame
+	assert_true(foreground.has_focus())
+	sheet.show()
+	assert_true(sheet.present("activation-hidden",COPY))
+	await get_tree().process_frame
+	assert_true(sheet.close_button.has_focus())
+	sheet.go_button.grab_focus()
+	assert_true(sheet.present("activation-hidden",COPY))
+	await get_tree().process_frame
+	assert_true(sheet.go_button.has_focus(),"Identical visible publication does not steal focus")
+
+func test_retired_or_custody_disabled_deferred_focus_requests_do_not_claim_focus() -> void:
+	var foreground := Button.new()
+	add_child_autofree(foreground)
+	var sheet: Control = _sheet()
+	assert_true(sheet.present("activation-1",COPY))
+	var retired_generation: int = sheet._focus_generation
+	assert_true(sheet.configure("en",150,true))
+	assert_true(sheet.present("activation-1",COPY))
+	sheet.go_button.grab_focus()
+	sheet._restore_focus(retired_generation)
+	assert_true(sheet.go_button.has_focus())
+	sheet.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
+	foreground.grab_focus()
+	await get_tree().process_frame
+	assert_true(foreground.has_focus(),"A queued request cannot bypass newer modal custody")
