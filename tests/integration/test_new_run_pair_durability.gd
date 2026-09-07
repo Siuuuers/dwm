@@ -83,6 +83,7 @@ func _fixture(seed: Dictionary = {}, initialize_profile: bool = true) -> Diction
 	assert_true(manager.configure_identity_issuer(issuer).get("ok", false))
 	assert_true(manager.configure_new_run_profile_owner(profile).get("ok", false))
 	var gs: Node = autofree(GS.new())
+	assert_true(gs.configure_mutation_gate(gate).get("ok", false))
 	var calls: Array = []
 	var localization := Participant.new("localization", "localization_plan", calls)
 	var audio := Participant.new("audio", "audio_plan", calls)

@@ -24,6 +24,7 @@ func _snapshot(owner: Node, run_id: String = "run-replacement-fixture") -> Dicti
 		"causal-replacement-fixture", _receipt(), true)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return {}
+	prepared.value.snapshot_input["schedule_view"] = preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(1, "causal-replacement-fixture").value.view
 	var built: Dictionary = SNAPSHOT.build(prepared.value.snapshot_input, {}, "main", null,
 		{"ambience_context": {}, "ambience_context_id": "", "music_context": {}, "music_context_id": ""}, 1, 1)
 	assert_true(built.get("ok", false), str(built))

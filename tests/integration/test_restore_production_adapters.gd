@@ -29,19 +29,11 @@ const FAKE_NAMESPACE_SOURCE_PATH := "res://tests/support/FakeDesktopNamespaceSou
 # Failure-injectable owner returning the exact shapes the real adapters expect.
 class Owner extends RefCounted:
 	var fail: StringName = &""
-	var remap_source: Dictionary = {}
 	func _g(m: String) -> Dictionary:
 		return {"ok": false, "code": &"forced_owner_failure", "message": m} if fail == StringName(m) else {}
 	func prepare_new_run_snapshot_input(run_id: String, _branch_id: String, _generation: int,
 			_causal_day_instance: String, _causal_day_instance_issuer_receipt: Dictionary, dark_mode: bool) -> Dictionary:
 		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {"run_id": run_id, "dark_mode": dark_mode, "day": 1}}}}
-	## Plan 02 Task 6 (dwm-p2r.32), Phase C2: RunRestoreParticipant.apply_continuation_remap()
-	## delegates here for a real restore's identity-remap step; this fake owner accepts it trivially
-	## (this file exercises the ORDINARY participant plumbing, not remap correctness itself -- see
-	## test_desktop_board_persistence.gd for that).
-	func apply_continuation_remap_silent(_restore_transaction_id: String, _identity_allocation_bundle: Dictionary, source_identity: Dictionary) -> Dictionary:
-		remap_source = source_identity.duplicate(true)
-		return {"ok": true, "code": &"ok"}
 	func get_profile_snapshot() -> Dictionary:
 		return preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
 	func prepare_profile_document(candidate: Dictionary) -> Dictionary:
@@ -133,8 +125,11 @@ func _manager(owner: Owner) -> Node:
 	var registry: RefCounted = preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd").load_current().value.registry
 	var view: RefCounted = preload("res://scripts/application/schedule/ScheduleViewController.gd").new()
 	assert_true(view.configure(registry, preload("res://scripts/domain/schedule/ScheduleRules.gd"), registry.fingerprint()).ok)
+	var run_owner: Node = add_child_autofree(preload("res://autoload/GameState.gd").new())
+	assert_true(run_owner.configure_mutation_gate(m._mutation_gate).ok)
+	m.set_meta("run_owner", run_owner)
 	m.configure_restore_participants({
-		"run": load(RUN_P).new(owner),
+		"run": load(RUN_P).new(run_owner),
 		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
 		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
 		"schedule_view": preload("res://scripts/application/restore/ScheduleViewRestoreParticipant.gd").new(
@@ -163,8 +158,11 @@ func test_prepare_builds_nine_plans_and_commits() -> void:
 	assert_eq(value["route_id"], "main", "route id derived from the one selected bundle")
 	var committed: Dictionary = m.commit_prepared_restore(value)
 	assert_true(committed.get("ok", false), "the prepared restore commits atomically: " + JSON.stringify(committed))
-	assert_eq(owner.remap_source.branch_id, "branch-1")
-	assert_eq(owner.remap_source.causal_day_instance, "causal-day-1")
+	var run_owner: Node = m.get_meta("run_owner")
+	var provenance: Dictionary = run_owner.capture_run_snapshot_input().lifecycle.restore_provenance
+	assert_eq(provenance.source_branch_id, "branch-1")
+	assert_eq(provenance.source_causal_day_instance, "causal-day-1")
+	assert_true(run_owner.capture_live_session().value.active)
 	assert_eq(str(m._journal.get_current_bundle()["value"]["bundle"]["snapshot"]["run_id"]), "run-a",
 		"the restored run replaced the live journal")
 

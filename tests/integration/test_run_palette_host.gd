@@ -4,6 +4,7 @@ extends GutTest
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const GAME_STATE := preload("res://autoload/GameState.gd")
 const SNAPSHOT := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const SCHEDULE_VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
@@ -57,6 +58,12 @@ static func make_captured_run(dark: bool) -> Dictionary:
 	if not prepared.ok:
 		state.free()
 		return prepared
+	var empty_view: Dictionary = SCHEDULE_VIEW_STATE.make_empty(1,
+		str(identity.causal_day_instance))
+	if not empty_view.get("ok", false):
+		state.free()
+		return empty_view
+	prepared.value.snapshot_input["schedule_view"] = empty_view.value.view
 	var built := SNAPSHOT.build(prepared.value.snapshot_input,{},"main",null,
 		{"ambience_context":{},"ambience_context_id":"","music_context":{},"music_context_id":""},1,1)
 	if not built.ok:
@@ -193,9 +200,13 @@ class StartupFixture extends Node:
 	signal application_ready()
 	var available := false
 	var configured_hosts := 0
+	var configured_gameplay_hosts := 0
 	func get_startup_state() -> Dictionary: return {"ready":available}
 	func configure_contacts_desktop(_desktop: Control) -> Dictionary:
 		configured_hosts += 1
+		return {"ok":true}
+	func configure_gameplay_desktop(_desktop: Control) -> Dictionary:
+		configured_gameplay_hosts += 1
 		return {"ok":true}
 
 class InertQuickFixture extends Node:
@@ -240,6 +251,8 @@ func test_early_production_bootstrap_path_stays_hidden_until_captured_palette_is
 	assert_eq(desktop.theme.get_color("face","Desktop"),Color("14201d"))
 	assert_eq(desktop.theme.get_color("habitat","Desktop"),Color("0d1514"))
 	assert_eq(startup.configured_hosts,1)
+	assert_eq(startup.configured_gameplay_hosts,1,
+		"Gameplay desktop wiring follows the Contacts owner on the same ready signal.")
 	assert_true(desktop._cached_app_windows.is_empty())
 	await _settle()
 	assert_same(desktop.get_viewport().gui_get_focus_owner(), desktop.launcher_buttons[&"minesweeper"], "Delayed readiness gives the visible launcher its initial native focus")

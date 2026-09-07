@@ -39,7 +39,7 @@ const AUDIO_PARTICIPANT_PATH := "res://scripts/application/restore/AudioRestoreP
 const ROUTE_PARTICIPANT_PATH := "res://scripts/application/restore/RouteRestoreParticipant.gd"
 const NARRATIVE_PARTICIPANT_PATH := "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
 const RUN_SNAPSHOT_SCHEMA_PATH := "res://scripts/domain/run/RunSnapshotSchema.gd"
-const RECOVERY_FIXTURE_PATH := "res://tests/fixtures/saves/v5_desktop_prepared.json"
+const RECOVERY_FIXTURE_PATH := "res://tests/fixtures/saves/v6_desktop_prepared.json"
 
 const RUN_ID := "run-local"
 const IDENTITY_CONTEXT := {
@@ -76,10 +76,15 @@ func _wired() -> Dictionary:
 	var durable_port: Object = load(DESKTOP_BOARD_SAVE_PORT_PATH).new(checkpoint_port)
 
 	var gs: Node = load(GS_PATH).new()
+	assert_true(gs.configure_mutation_gate(gate).get("ok", false))
 	add_child_autofree(gs)
 	gs.reset_game()
 
 	var issuer := _fresh_issuer(root)
+	var schedule := preload("res://tests/support/ScheduleRestoreFixture.gd").create(issuer)
+	assert_true(schedule.ok)
+	assert_true(schedule.value.view.open_day(int(gs.day), str(IDENTITY_CONTEXT.causal_day_instance)).ok)
+	save_manager._restore_participants["schedule_view"] = schedule.value.participant
 	var consequence_state: RefCounted = load(CONSEQUENCE_STATE_PATH).new()
 
 	var state_port: Object = load(STATE_PORT_PATH).new()
@@ -211,7 +216,8 @@ func _wired_for_recovery() -> Dictionary:
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(save_manager)
 	save_manager.initialize(load(STORAGE_PATH).new(root.path_join("saves")))
-	save_manager.configure_mutation_gate(load(GATE_PATH).new())
+	var gate: RefCounted = load(GATE_PATH).new()
+	save_manager.configure_mutation_gate(gate)
 	save_manager._journal.reset(RUN_ID)
 
 	var checkpoint_port: Object = load(CHECKPOINT_PORT_PATH).new(save_manager)
@@ -220,10 +226,15 @@ func _wired_for_recovery() -> Dictionary:
 	var crash_durable_port := _CrashBeforeRollbackPort.new(real_durable_port)
 
 	var gs: Node = load(GS_PATH).new()
+	assert_true(gs.configure_mutation_gate(gate).get("ok", false))
 	add_child_autofree(gs)
 	gs.reset_game()
 
 	var issuer := _fresh_issuer(root)
+	var schedule := preload("res://tests/support/ScheduleRestoreFixture.gd").create(issuer)
+	assert_true(schedule.ok)
+	assert_true(schedule.value.view.open_day(int(gs.day), str(IDENTITY_CONTEXT.causal_day_instance)).ok)
+	save_manager._restore_participants["schedule_view"] = schedule.value.participant
 	var consequence_state: RefCounted = load(CONSEQUENCE_STATE_PATH).new()
 	var board_state: RefCounted = load(DESKTOP_BOARD_STATE_PATH).new()
 
@@ -248,6 +259,7 @@ func _wired_for_recovery() -> Dictionary:
 		"run": load(RUN_PARTICIPANT_PATH).new(gs),
 		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT_PATH).new(consequence_state),
 		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT_PATH).new(board_state),
+		"schedule_view": schedule.value.participant,
 		"profile": load(PROFILE_PARTICIPANT_PATH).new(owner),
 		"localization": load(LOCALIZATION_PARTICIPANT_PATH).new(owner),
 		"audio": load(AUDIO_PARTICIPANT_PATH).new(owner),

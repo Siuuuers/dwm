@@ -16,6 +16,15 @@ func get_new_run_replacement_baseline() -> Dictionary:
 		return _fail(&"new_run_replacement_unavailable", "")
 	return _owner.get_new_run_replacement_baseline()
 
+func capture_live_session() -> Dictionary:
+	return _owner.capture_live_session()
+
+func validate_live_session_activation(ticket: Dictionary) -> Dictionary:
+	return _owner.validate_live_session_activation(ticket)
+
+func activate_live_session(ticket: Dictionary) -> Dictionary:
+	return _owner.activate_live_session(ticket)
+
 func prepare(input: Dictionary) -> Dictionary:
 	if typeof(input.get("snapshot")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_run_input", "run participant requires a snapshot")

@@ -43,13 +43,13 @@ const _REQUEST_KEYS: Array[String] = ["causal_day_instance", "source_day"]
 var _consequence_coordinator: Object = null
 var _board_fate_port: Object = null
 var _identity_issuer: Object = null
-var _identity_context: Dictionary = {}
+var _identity_context: Variant = {}
 ## causal_day_instance -> the settled board-fate receipt, so one causal day departs exactly once.
 var _board_fates: Dictionary = {}
 
 
 func configure(consequence_coordinator: Object, board_fate_port: Object,
-		identity_issuer: Object, identity_context: Dictionary) -> Dictionary:
+		identity_issuer: Object, identity_context: Variant) -> Dictionary:
 	if consequence_coordinator == null \
 			or not _has_methods(consequence_coordinator, _COORDINATOR_METHODS) \
 			or board_fate_port == null or not _has_methods(board_fate_port, _BOARD_FATE_METHODS) \
@@ -57,13 +57,11 @@ func configure(consequence_coordinator: Object, board_fate_port: Object,
 		return {"ok": false, "code": &"invalid_consequence_source_configuration",
 			"message": "the coordinator, board-fate port, and issuer capabilities are required",
 			"details": {}}
-	var context_keys: Array = identity_context.keys()
-	context_keys.sort()
-	if context_keys != _CONTEXT_KEYS \
-			or str(identity_context["run_id"]).strip_edges().is_empty() \
-			or str(identity_context["branch_id"]).strip_edges().is_empty():
-		return {"ok": false, "code": &"invalid_consequence_source_configuration",
-			"message": "identity_context must be the exact 4-key issuer-backed context", "details": {}}
+	if identity_context is Callable:
+		if not identity_context.is_valid() or identity_context.get_argument_count() != 0:
+			return {"ok": false, "code": &"invalid_consequence_source_configuration"}
+	elif not _valid_identity_context(identity_context):
+		return {"ok": false, "code": &"invalid_consequence_source_configuration"}
 	if _consequence_coordinator != null:
 		if _consequence_coordinator != consequence_coordinator \
 				or _board_fate_port != board_fate_port or _identity_issuer != identity_issuer \
@@ -75,7 +73,7 @@ func configure(consequence_coordinator: Object, board_fate_port: Object,
 	_consequence_coordinator = consequence_coordinator
 	_board_fate_port = board_fate_port
 	_identity_issuer = identity_issuer
-	_identity_context = identity_context.duplicate(true)
+	_identity_context = identity_context.duplicate(true) if identity_context is Dictionary else identity_context
 	return {"ok": true, "code": &"ok",
 		"value": {"configured": true, "already_configured": false}, "receipt": {}}
 
@@ -84,6 +82,15 @@ func resolve_board_fate_receipt(request: Dictionary) -> Dictionary:
 	var shaped := _validate_request(request)
 	if not shaped.get("ok", false):
 		return shaped
+	var current: Variant = _identity_context.call() if _identity_context is Callable \
+		else {"ok": true, "value": _identity_context}
+	if not current is Dictionary or not current.get("ok", false):
+		return current if current is Dictionary else {"ok": false, "code": &"invalid_desktop_identity_context"}
+	if not _valid_identity_context(current.get("value")):
+		return {"ok": false, "code": &"invalid_desktop_identity_context"}
+	var identity: Dictionary = current.value
+	if _identity_context is Callable and identity.causal_day_instance != request.causal_day_instance:
+		return {"ok": false, "code": &"stale_desktop_identity"}
 	var causal_day_instance := str(request["causal_day_instance"])
 	if _board_fates.has(causal_day_instance):
 		return {"ok": true, "code": &"ok", "value": {
@@ -107,8 +114,8 @@ func resolve_board_fate_receipt(request: Dictionary) -> Dictionary:
 	var prepared: Variant = _board_fate_port.call(&"prepare_causal_departure", {
 		"command_id": str(issued_value["token"]),
 		"command_issuer_receipt": (issued_value["issuer_receipt"] as Dictionary).duplicate(true),
-		"run_id": str(_identity_context["run_id"]),
-		"branch_id": str(_identity_context["branch_id"]),
+		"run_id": str(identity["run_id"]),
+		"branch_id": str(identity["branch_id"]),
 		"causal_day_instance": causal_day_instance,
 		"reason": "schedule_done",
 		"expected_board_identity": _detached_or_null(live_board.get("identity")),
@@ -182,3 +189,12 @@ static func _has_methods(target: Object, methods: Array[String]) -> bool:
 		if not target.has_method(method_name):
 			return false
 	return true
+
+
+static func _valid_identity_context(context: Variant) -> bool:
+	if not context is Dictionary: return false
+	var keys: Array = context.keys()
+	keys.sort()
+	return keys == _CONTEXT_KEYS and typeof(context.run_id) == TYPE_STRING \
+		and not context.run_id.is_empty() and typeof(context.branch_id) == TYPE_STRING \
+		and not context.branch_id.is_empty()

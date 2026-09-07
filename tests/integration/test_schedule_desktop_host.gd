@@ -16,6 +16,7 @@ const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.g
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const WARNING_PORT := preload("res://scripts/application/schedule/ScheduleWarningPresentationPort.gd")
+const WARNING_COMMAND_PORT := preload("res://scripts/application/schedule/ScheduleWarningCommandPort.gd")
 
 
 class IsolatedDesktop extends "res://scripts/ui/ComputerDesktop.gd":
@@ -24,8 +25,13 @@ class IsolatedDesktop extends "res://scripts/ui/ComputerDesktop.gd":
 
 
 class ContactsPort extends RefCounted:
-	func get_projection(_day: int = 1) -> Dictionary:
-		return {"ok":true,"value":{"friends":[],"group":{}}}
+	func get_projection(_friend_id: String = "", _primary: String = "en",
+			_secondary: String = "") -> Dictionary:
+		return {"ok":true,"value":{
+			"friend_id":"","entries":[],
+			"unread":{"priscilla":false,"lavinia":false,"sylvia":false},
+			"reply_required":false,
+		}}
 	func open_friend(_friend_id: String) -> Dictionary:
 		return {"ok":false,"code":&"fixture_command_unavailable"}
 	func reply_to_group(_choice_id: String) -> Dictionary:
@@ -390,3 +396,87 @@ func test_real_pending_warning_owns_modal_custody_without_background_commands() 
 	assert_eq(_host.get_state().active_app_id,&"schedule")
 	assert_eq(_view.snapshot().value.view,before)
 	assert_eq((warning.commands as WarningCommands).calls.size(),0)
+
+
+func test_warning_navigation_preflight_refuses_an_unconfigured_real_target_without_mutation() -> void:
+	var desktop := _desktop_on_tree()
+	var warning: Dictionary = _warning_fixture()
+	assert_true(_configure_schedule(desktop,Callable(),warning).ok)
+	var app := _open_schedule(desktop)
+	if app == null: return
+	_activate_warning()
+	assert_true(app.refresh_view().ok)
+	await get_tree().process_frame
+	var before_host: Dictionary = _host.get_state()
+	var before_view: Dictionary = _view.snapshot().value.view
+	assert_true(desktop.has_method("prepare_warning_navigation"))
+	if not desktop.has_method("prepare_warning_navigation"): return
+	var prepared: Dictionary = desktop.prepare_warning_navigation(&"open_minesweeper")
+	assert_false(prepared.get("ok",true))
+	assert_eq(prepared.get("code"),&"desktop_app_unavailable")
+	assert_eq(_host.get_state(),before_host)
+	assert_eq(_view.snapshot().value.view,before_view)
+	assert_true(app.visible)
+	assert_not_null(app.warning_sheet)
+
+
+func test_prepared_warning_navigation_moves_the_real_scene_without_consuming_domain_warning() -> void:
+	var desktop := _desktop_on_tree()
+	var warning: Dictionary = _warning_fixture()
+	assert_true(_configure_schedule(desktop,Callable(),warning).ok)
+	var schedule := _open_schedule(desktop)
+	if schedule == null: return
+	_activate_warning()
+	assert_true(schedule.refresh_view().ok)
+	await get_tree().process_frame
+	assert_true(desktop.has_method("prepare_warning_navigation"))
+	assert_true(desktop.has_method("commit_warning_navigation"))
+	if not desktop.has_method("prepare_warning_navigation") \
+			or not desktop.has_method("commit_warning_navigation"): return
+	var prepared: Dictionary = desktop.prepare_warning_navigation(&"open_contacts_list")
+	assert_true(prepared.get("ok",false),str(prepared))
+	if not prepared.get("ok",false): return
+	var receipt: Dictionary = prepared.value.receipt
+	var keys: Array = receipt.keys()
+	keys.sort()
+	assert_eq(keys,["day","intent","navigation_id","source_app_id","target_app_id"])
+	assert_eq(receipt.intent,"open_contacts_list")
+	assert_eq(receipt.source_app_id,"schedule")
+	assert_eq(receipt.target_app_id,"contacts")
+	var committed: Dictionary = desktop.commit_warning_navigation(receipt)
+	assert_true(committed.get("ok",false),str(committed))
+	assert_eq(committed.get("receipt"),receipt)
+	assert_eq(desktop._active_id,&"contacts")
+	assert_eq(_host.get_state().active_app_id,&"contacts")
+	assert_false(schedule.visible)
+	assert_true(desktop._cached_app_windows[&"contacts"].is_visible_in_tree())
+	assert_not_null(_view.snapshot().value.view.pending_warning,
+		"the desktop moves the scene but never invents the warning terminal receipt")
+
+func test_real_warning_go_opens_contacts_before_consuming_the_warning() -> void:
+	var desktop := _desktop_on_tree()
+	var warning: Dictionary = _warning_fixture()
+	var commands := WARNING_COMMAND_PORT.new()
+	assert_true(commands.configure(_view,_issuer,desktop).ok)
+	warning.commands = commands
+	assert_true(_configure_schedule(desktop,Callable(),warning).ok)
+	var schedule := _open_schedule(desktop)
+	if schedule == null: return
+	_activate_warning()
+	assert_true(schedule.refresh_view().ok)
+	await get_tree().process_frame
+	assert_not_null(schedule.warning_sheet)
+	if schedule.warning_sheet == null: return
+	schedule.warning_sheet.go_button.pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(desktop._active_id,&"contacts")
+	assert_eq(_host.get_state().active_app_id,&"contacts")
+	assert_true(desktop._cached_app_windows[&"contacts"].is_visible_in_tree())
+	assert_false(schedule.visible)
+	assert_null(schedule.warning_sheet)
+	var view: Dictionary = _view.snapshot().value.view
+	assert_null(view.pending_warning)
+	assert_eq(view.consumed_warning_receipts.size(),1)
+	var receipt: Dictionary = view.consumed_warning_receipts.values()[0]
+	assert_eq(receipt.terminal_result,"navigation_committed")

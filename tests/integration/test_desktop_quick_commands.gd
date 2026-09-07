@@ -32,7 +32,7 @@ const IDENTITY_RESTORE := preload("res://scripts/application/restore/DesktopIden
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const NAMESPACE := preload("res://tests/support/FakeDesktopNamespaceSource.gd")
-const FIXTURE := "res://tests/fixtures/saves/v5_desktop_prepared.json"
+const FIXTURE := "res://tests/fixtures/saves/v6_desktop_prepared.json"
 
 
 class IsolatedDesktop extends "res://scripts/ui/ComputerDesktop.gd":
@@ -79,7 +79,8 @@ func before_each() -> void:
 	_manager = MANAGER.new()
 	add_child_autofree(_manager)
 	assert_true(_manager.initialize(_storage).ok)
-	assert_true(_manager.configure_mutation_gate(GATE.new()).ok)
+	var gate: RefCounted = GATE.new()
+	assert_true(_manager.configure_mutation_gate(gate).ok)
 
 	_profile = PROFILE.new()
 	add_child_autofree(_profile)
@@ -88,6 +89,7 @@ func before_each() -> void:
 	add_child_autofree(_input)
 	assert_true(_input.initialize(_profile).ok)
 	_game_state = GAME_STATE.new()
+	assert_true(_game_state.configure_mutation_gate(gate).get("ok", false))
 	add_child_autofree(_game_state)
 	_game_state.reset_game()
 	_host = HOST.new()
@@ -143,7 +145,7 @@ func _restore_input_map() -> void:
 
 func _capture_inputs(snapshot: Dictionary) -> Dictionary:
 	var raw := {}
-	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating",
+	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating", "schedule_view",
 			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
 		var value: Variant = snapshot[key]
 		raw[key] = value.duplicate(true) if value is Dictionary or value is Array else value
@@ -198,6 +200,7 @@ func _configure_real_restore_graph() -> Dictionary:
 		"run": RUN_RESTORE.new(_game_state),
 		"desktop_consequence": CONSEQUENCE_RESTORE.new(CONSEQUENCE_STATE.new()),
 		"desktop_board": BOARD_RESTORE.new(BOARD_STATE.new()),
+		"schedule_view": preload("res://tests/support/ScheduleRestoreFixture.gd").create(issuer).value.participant,
 		"profile": PROFILE_RESTORE.new(_profile),
 		"localization": LOCALIZATION_RESTORE.new(_localization),
 		"audio": AUDIO_RESTORE.new(audio),

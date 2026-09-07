@@ -36,17 +36,23 @@ const _CAPABILITY_ITEM_IDS: Array[String] = ["lucky_charm", "debug_key"]
 const _SUPPORTZ_ITEM_ID := "supportz"
 
 var _game_state: Object = null
-var _desktop_identity_context: Dictionary = {}
+var _desktop_identity_context: Variant = {}
 
 
 ## Idempotent on identical replay; a changed owner or context is refused before any mutation,
 ## mirroring every other configure seam in this codebase.
-func configure(game_state: Object, desktop_identity_context: Dictionary) -> Dictionary:
+func configure(game_state: Object, desktop_identity_context: Variant) -> Dictionary:
 	if game_state == null or not game_state.has_method("get_stat"):
 		return _fail(&"invalid_game_state", "game_state must expose get_stat", {})
-	var context_shape := _exact_keys(desktop_identity_context,
-		["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"],
-		&"invalid_desktop_identity_context")
+	var context_shape: Dictionary
+	if desktop_identity_context is Callable:
+		context_shape = {"ok": desktop_identity_context.is_valid() and desktop_identity_context.get_argument_count() == 0}
+	elif desktop_identity_context is Dictionary:
+		context_shape = _exact_keys(desktop_identity_context,
+			["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"],
+			&"invalid_desktop_identity_context")
+	else:
+		context_shape = _fail(&"invalid_desktop_identity_context", "", {})
 	if not context_shape.get("ok", false):
 		return context_shape
 	if _game_state != null:
@@ -54,7 +60,7 @@ func configure(game_state: Object, desktop_identity_context: Dictionary) -> Dict
 			return _fail(&"port_already_configured", "a configured port never adopts a replacement owner", {})
 		return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
 	_game_state = game_state
-	_desktop_identity_context = desktop_identity_context.duplicate(true)
+	_desktop_identity_context = desktop_identity_context.duplicate(true) if desktop_identity_context is Dictionary else desktop_identity_context
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
@@ -62,6 +68,8 @@ func guard_external(_operation_id: StringName) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	if _desktop_identity_context is Callable:
+		return _game_state.validate_live_session(_game_state.capture_live_session().value)
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
@@ -69,6 +77,9 @@ func capture() -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	var captured_identity := _capture_identity()
+	if not captured_identity.get("ok", false): return captured_identity
+	var identity_context: Dictionary = captured_identity.value
 	var money: int = int(_game_state.money)
 	var coins: int = int(_game_state.coins)
 	var inventory: Dictionary = (_game_state.inventory as Dictionary).duplicate(true)
@@ -77,10 +88,10 @@ func capture() -> Dictionary:
 	for item_id: String in _CAPABILITY_ITEM_IDS:
 		owned_item_ids[item_id] = _owns(inventory, item_id)
 	return {"ok": true, "code": &"ok", "value": {
-		"run_id": str(_desktop_identity_context["run_id"]),
-		"branch_id": str(_desktop_identity_context["branch_id"]),
-		"desktop_timeline_generation": int(_desktop_identity_context["desktop_timeline_generation"]),
-		"causal_day_instance": str(_desktop_identity_context["causal_day_instance"]),
+		"run_id": str(identity_context["run_id"]),
+		"branch_id": str(identity_context["branch_id"]),
+		"desktop_timeline_generation": int(identity_context["desktop_timeline_generation"]),
+		"causal_day_instance": str(identity_context["causal_day_instance"]),
 		"day": int(_game_state.day),
 		"money": money, "coins": coins,
 		"health": _game_state.get_stat(_STAT_HEALTH), "pressure": _game_state.get_stat(_STAT_PRESSURE),
@@ -225,3 +236,13 @@ func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictio
 
 func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+func _capture_identity() -> Dictionary:
+	var captured: Variant = _desktop_identity_context.call() if _desktop_identity_context is Callable \
+		else {"ok": true, "value": _desktop_identity_context.duplicate(true)}
+	if not captured is Dictionary or not captured.get("ok", false) or not captured.get("value") is Dictionary:
+		return captured if captured is Dictionary else _fail(&"invalid_desktop_identity_context", "", {})
+	var shaped := _exact_keys(captured.value,
+		["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"], &"invalid_desktop_identity_context")
+	return captured if shaped.get("ok", false) else shaped

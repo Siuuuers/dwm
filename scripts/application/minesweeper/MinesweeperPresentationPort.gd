@@ -3,7 +3,7 @@ extends RefCounted
 ## Narrow UI command boundary. Owner identities and issuer receipts never leave this object.
 
 const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
-const OWNER_METHODS := ["get_state", "get_entry_context", "reveal", "set_flag", "chord"]
+const OWNER_METHODS := ["get_state", "get_entry_context", "reveal", "set_flag", "chord", "complete_round"]
 
 var _owner: Object = null
 var _issuer: Object = null
@@ -12,6 +12,7 @@ var _phase := ""
 var _identity: Variant = null
 var _revision := -1
 var _projection: Dictionary = {}
+var _pending_settlement_request: Dictionary = {}
 
 
 func configure(owner: Object, issuer: Object) -> Dictionary:
@@ -37,6 +38,9 @@ func pull(difficulty: String) -> Dictionary:
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
 	_adopt(refreshed.value)
+	var settled := _settle_terminal(refreshed.value)
+	if not settled.get("ok", false):
+		return _failure(&"minesweeper_settlement_refused", _projection)
 	return _success(_projection.duplicate(true))
 
 
@@ -101,7 +105,48 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
 	_adopt(after_commit.value)
+	var settled := _settle_terminal(after_commit.value)
+	if not settled.get("ok", false):
+		return _failure(&"minesweeper_settlement_refused", _projection)
 	return _success(_projection.duplicate(true))
+
+
+## A terminal board is already committed and safe to render before settlement starts. Retain the
+## exact completion request across transient failures so retry cannot allocate a second reward.
+func _settle_terminal(owner_view: Dictionary) -> Dictionary:
+	var projection: Dictionary = owner_view["projection"]
+	if not bool(projection["terminal"]) or str(owner_view["phase"]) != "ACTIVE_VISIBLE":
+		if not bool(projection["terminal"]):
+			_pending_settlement_request = {}
+		return {"ok": true}
+	if typeof(owner_view["identity"]) != TYPE_DICTIONARY:
+		return {"ok": false}
+
+	var identity: Dictionary = owner_view["identity"]
+	var revision := int(owner_view["revision"])
+	if (
+			_pending_settlement_request.is_empty()
+			or _pending_settlement_request.get("expected_identity") != identity
+			or int(_pending_settlement_request.get("expected_revision", -1)) != revision
+	):
+		var issued: Dictionary = _issuer.call(&"issue", &"transaction_id")
+		if not issued.get("ok", false):
+			return {"ok": false}
+		var issued_value: Dictionary = issued.get("value", {})
+		if not issued_value.has("token") or not issued_value.get("issuer_receipt") is Dictionary:
+			return {"ok": false}
+		_pending_settlement_request = {
+			"transaction_id": str(issued_value["token"]),
+			"transaction_issuer_receipt": (issued_value["issuer_receipt"] as Dictionary).duplicate(true),
+			"expected_identity": identity.duplicate(true),
+			"expected_revision": revision,
+		}
+
+	var completed: Dictionary = _owner.call(&"complete_round", _pending_settlement_request.duplicate(true))
+	if not completed.get("ok", false):
+		return completed
+	_pending_settlement_request = {}
+	return completed
 
 
 func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:

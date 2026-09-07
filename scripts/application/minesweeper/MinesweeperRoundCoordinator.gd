@@ -27,7 +27,7 @@ const _ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionRece
 
 const _GATE_OWNER := &"causal_transaction"
 const _COMPLETE_ROUND_REQUEST_KEYS: Array[String] = [
-	"transaction_id", "transaction_issuer_receipt", "expected_identity", "expected_revision", "expected_run_revision",
+	"transaction_id", "transaction_issuer_receipt", "expected_identity", "expected_revision",
 ]
 const _BASE_COMPLETION_ORDINALS := [1, 2]
 
@@ -38,6 +38,9 @@ const _STATE_PORT_METHODS: Array[String] = [
 const _CHECKPOINT_PORT_METHODS: Array[String] = [
 	"capture", "preview_checkpoint_id", "prepare_checkpoint", "commit_checkpoint",
 	"seal_checkpoint", "rollback",
+]
+const _DURABLE_CHECKPOINT_PORT_METHODS: Array[String] = [
+	"capture", "preview_checkpoint_id", "prepare_checkpoint", "commit_checkpoint", "rollback",
 ]
 const _GENERATION_PORT_METHODS: Array[String] = ["materialize", "begin_search", "run_search_slice"]
 const _ISSUER_METHODS: Array[String] = ["verify_issued"]
@@ -118,8 +121,16 @@ func configure(state_port: Object, checkpoint_port: Object,
 		generation_port: Object, identity_issuer: Object) -> Dictionary:
 	if state_port == null or not _has_all_methods(state_port, _STATE_PORT_METHODS):
 		return _fail(&"invalid_state_port", "an exact state-port capability is required", {})
-	if checkpoint_port == null or not _has_all_methods(checkpoint_port, _CHECKPOINT_PORT_METHODS):
-		return _fail(&"invalid_checkpoint_port", "an exact checkpoint-port capability is required", {})
+	var has_legacy_checkpoint := checkpoint_port != null and _has_all_methods(
+		checkpoint_port, _CHECKPOINT_PORT_METHODS)
+	var is_configured_durable_checkpoint := (
+		checkpoint_port != null
+		and checkpoint_port == _durable_checkpoint_port
+		and _has_all_methods(checkpoint_port, _DURABLE_CHECKPOINT_PORT_METHODS)
+	)
+	if not has_legacy_checkpoint and not is_configured_durable_checkpoint:
+		return _fail(&"invalid_checkpoint_port",
+			"the checkpoint port must provide legacy seal or be the configured durable port", {})
 	if generation_port == null or not _has_all_methods(generation_port, _GENERATION_PORT_METHODS):
 		return _fail(&"invalid_generation_port", "an exact generation-port capability is required", {})
 	if identity_issuer == null or not _has_all_methods(identity_issuer, _ISSUER_METHODS):
@@ -156,7 +167,7 @@ func configure_publication_ledger(publication_ledger: Object) -> Dictionary:
 func configure_durable_checkpoint(checkpoint_port: Object, snapshot_composer: Script,
 		consequence_state_port: Object) -> Dictionary:
 	if checkpoint_port == null or not _has_all_methods(checkpoint_port,
-			["capture", "preview_checkpoint_id", "prepare_checkpoint", "commit_checkpoint", "rollback"]):
+			_DURABLE_CHECKPOINT_PORT_METHODS):
 		return _fail(&"invalid_durable_checkpoint_port", "an exact durable-checkpoint capability is required", {})
 	if snapshot_composer == null or not snapshot_composer.has_method("compose"):
 		return _fail(&"invalid_snapshot_composer", "snapshot_composer must expose compose", {})
@@ -367,7 +378,9 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var accept_request := {
 		"action_receipt": action_receipt, "action_candidate": action_candidate,
 		"prepared_checkpoint_receipt": checkpoint_value["checkpoint_receipt"],
-		"expected_run_revision": int(request["expected_run_revision"]),
+		# Run revision is consequence-state concurrency, inaccessible to presentation callers. The
+		# coordinator captured it alongside this exact completion and carries that authoritative value.
+		"expected_run_revision": int(live_consequence["run_revision"]),
 		"expected_board_identity": identity, "expected_board_revision": int(captured["revision"]),
 	}
 	# dwm-p2r.35.7 remediation (finding 2): retained so a same-process retry of this now-durably-pending

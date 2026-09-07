@@ -64,6 +64,8 @@ var _identity_issuer: Object = null
 var _new_run_profile_owner: Object = null
 var _new_run_busy := false
 var _new_run_gate_token := ""
+# Process-local tickets survive same-operation retries; never saved in player data.
+var _session_activation_tickets: Dictionary = {}
 var _new_run_transaction_id := ""
 var _new_run_intent: Dictionary = {}
 var _prepared_new_run: Dictionary = {}
@@ -934,6 +936,13 @@ func _run_participant_transaction(
 			return acquired
 		gate_token = str(acquired["value"]["token"])
 
+	var operation_id := str(continuation.get("transaction_id", gate_token))
+	var activation := _prepare_live_session_activation(plans, operation_id)
+	if not activation.get("ok", false):
+		_release_transaction(owner, gate_token, holds_save_lock)
+		return activation
+	var activation_ticket: Dictionary = activation["value"]
+
 	var journal_backup: Variant = null
 	if typeof(journal_candidate) == TYPE_DICTIONARY:
 		var captured_journal: Dictionary = _journal.capture_state()
@@ -1006,9 +1015,19 @@ func _run_participant_transaction(
 	finalize_order.erase("route")
 	finalize_order.append("route")
 	for key: String in finalize_order:
+		if key == "route" and not activation_ticket.is_empty():
+			var validated: Dictionary = _restore_participants["run"].validate_live_session_activation(activation_ticket)
+			if not validated.get("ok", false):
+				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, validated, journal_backup)
 		var finalized: Dictionary = _restore_participants[key].finalize()
 		if not finalized.get("ok", false):
 			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, finalized, journal_backup)
+	if not activation_ticket.is_empty():
+		var activated: Dictionary = _restore_participants["run"].activate_live_session(activation_ticket)
+		if not activated.get("ok", false):
+			# The route has dispatched: compensating the previous run is no longer safe.
+			return _fatal_transaction_recovery(String(owner), [{"owner_id": "run",
+				"operation": "activate_live_session", "result": activated}])
 	_release_transaction(owner, gate_token, holds_save_lock)
 	if not continuation.is_empty():
 		# Best-effort: participants are already finalized and the checkpoint journal already
@@ -1018,12 +1037,16 @@ func _run_participant_transaction(
 		# transaction still nonterminal on the next boot (stage stays `participants_applied`), reacquires
 		# the `owner` lease, and drives this exact APPLIED -> COMPLETED advance forward through
 		# `_resume_new_run()`/`_resume_restore()` -- see those methods below.
-		_continuation_journal.advance({
+		var completed: Dictionary = _continuation_journal.advance({
 			"transaction_id": continuation["transaction_id"], "request_fingerprint": continuation["request_fingerprint"],
 			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLIED, "next_stage": CONTINUATION_JOURNAL.STAGE_COMPLETED,
 			"expected_next_participant_index": _PARTICIPANT_APPLY_ORDER.size(), "allocation_receipt": null,
 			"participant_name": null, "participant_receipt": null, "failure": null,
 		})
+		if completed.get("ok", false):
+			_session_activation_tickets.erase(operation_id)
+	else:
+		_session_activation_tickets.erase(operation_id)
 	if emit_restored:
 		run_restored.emit(checkpoint_id, route_id)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "route_id": route_id}}
@@ -1517,6 +1540,8 @@ func is_save_locked() -> bool:
 	return _lock_owner != &""
 
 func get_save_capability() -> Dictionary:
+	if _mutation_gate != null and not _mutation_gate.guard_external(&"save_write").get("ok", false):
+		return {"enabled": false, "silent": true, "deferred": false}
 	match _lock_owner:
 		&"minesweeper_board":
 			return {"enabled": false, "silent": true, "deferred": false}
@@ -1603,6 +1628,9 @@ func _resolve_locator(kind: StringName, public_slot_id: int) -> Dictionary:
 	return {}
 
 func _write_latest(locator: Dictionary, save_reason: String) -> Dictionary:
+	if _mutation_gate != null:
+		var admitted: Dictionary = _mutation_gate.guard_external(&"save_write")
+		if not admitted.get("ok", false): return admitted
 	if locator.is_empty():
 		return _fail(&"INVALID_SAVE_REFERENCE", "")
 	if _storage == null:
@@ -2025,6 +2053,9 @@ func _resume_new_run(operation: Dictionary, _gate_token: String) -> Dictionary:
 	var prepared := _prepare_new_run_plans(snapshot, materials["profile"]["candidate"])
 	if not prepared.get("ok", false): return _new_run_failure(prepared)
 	var plans: Dictionary = prepared["value"]
+	var activation := _prepare_live_session_activation(plans, str(operation["transaction_id"]))
+	if not activation.get("ok", false): return _new_run_failure(activation)
+	var activation_ticket: Dictionary = activation["value"]
 	var reset: Dictionary = _journal.prepare_reset_with_initial(snapshot, &"day_start")
 	if not reset.get("ok", false): return _new_run_failure(reset)
 	# Reapply every live owner in a fresh process. Persist only the unrecorded suffix:
@@ -2063,10 +2094,19 @@ func _resume_new_run(operation: Dictionary, _gate_token: String) -> Dictionary:
 	finalize_order.erase("route")
 	finalize_order.append("route")
 	for key: String in finalize_order:
+		if key == "route" and not activation_ticket.is_empty():
+			var validated: Dictionary = _restore_participants["run"].validate_live_session_activation(activation_ticket)
+			if not validated.get("ok", false): return _new_run_failure(validated)
 		var finalized: Dictionary = _restore_participants[key].finalize()
 		if not finalized.get("ok", false): return _new_run_failure(finalized)
+	if not activation_ticket.is_empty():
+		var activated: Dictionary = _restore_participants["run"].activate_live_session(activation_ticket)
+		if not activated.get("ok", false):
+			return _fatal_transaction_recovery("new_run", [{"owner_id": "run",
+				"operation": "activate_live_session", "result": activated}])
 	var completed := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_COMPLETED)
 	if not completed.get("ok", false): return _new_run_failure(completed)
+	_session_activation_tickets.erase(str(operation["transaction_id"]))
 	var released := _release_new_run_custody()
 	if not released.get("ok", false): return released
 	return {"ok": true, "code": &"ok", "value": {"transaction_id": operation["transaction_id"],
@@ -2315,3 +2355,22 @@ static func _source_identity_from_lifecycle(lifecycle: Dictionary) -> Dictionary
 static func _schedule_view_input(snapshot: Dictionary) -> Dictionary:
 	return {"schedule_view": snapshot["schedule_view"],
 		"registry_fingerprint": snapshot["committed_schedule"]["registry_fingerprint"]}
+
+## Freeze the current lifetime before any candidate apply. Pure participant
+## orchestration without a run snapshot has no live session to replace.
+func _prepare_live_session_activation(plans: Dictionary, operation_id: String) -> Dictionary:
+	var plan: Dictionary = plans.get("run", {})
+	if not plan.has("snapshot"):
+		return {"ok": true, "value": {}}
+	if _session_activation_tickets.has(operation_id):
+		return {"ok": true, "value": _session_activation_tickets[operation_id].duplicate(true)}
+	var run: Object = _restore_participants["run"]
+	if not run.has_method("capture_live_session"):
+		return _fail(&"session_owner_unconfigured", "run participant requires live-session ownership")
+	var captured: Dictionary = run.capture_live_session()
+	if not captured.get("ok", false): return captured
+	var session: Dictionary = captured["value"]
+	var ticket := {"operation_id": operation_id, "expected_generation": session["generation"],
+		"owner_id": session["owner_id"], "run_id": plan["snapshot"]["run_id"]}
+	_session_activation_tickets[operation_id] = ticket.duplicate(true)
+	return {"ok": true, "value": ticket}

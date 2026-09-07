@@ -98,6 +98,7 @@ func _boot_process(storage_root: String) -> Dictionary:
 	assert_true(save_manager.call(&"configure_identity_allocation_participant", allocation_participant).get("ok", false))
 	bootstrap.set("_desktop_identity_allocation_participant", allocation_participant)
 	assert_true(save_manager.call(&"configure_mutation_gate", gate).get("ok", false))
+	assert_true(game_state.configure_mutation_gate(gate).get("ok", false))
 
 	assert_true(profile.configure_mutation_gate(gate).get("ok", false))
 	assert_true(profile.configure_new_run_storage(storage).get("ok", false))

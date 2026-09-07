@@ -530,3 +530,74 @@ func test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher()
 			"schedule_done_dispatcher_instance_id"]:
 		assert_eq(int(second.get(key, 0)), int(first.get(key, -1)),
 			key + ": replay rebuilt instead of reusing")
+
+
+class GameplayDesktop extends Node:
+	var panel: Object
+	var schedule: Object
+	var done: Callable
+	func configure_minesweeper(port: Object, _locale: Object, _profile: Object,
+			_host: Object, _day: int, _input: Object) -> Dictionary:
+		panel = port
+		return {"ok": true}
+	func configure_schedule(port: Object, _locale: Object, _profile: Object,
+			_host: Object, _day: int, handler: Callable, _warning: Object, _commands: Object) -> Dictionary:
+		schedule = port
+		done = handler
+		return {"ok": true}
+	func prepare_warning_navigation(_intent: StringName) -> Dictionary:
+		return {"ok": false, "code": &"not_used"}
+	func commit_warning_navigation(_receipt: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"not_used"}
+
+
+func test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge() -> void:
+	var graph := _build_desktop_graph()
+	if not _bootstrap.has_method("configure_gameplay_desktop"):
+		fail_test("Bootstrap must mount the real gameplay ports")
+		return
+	var gate: Object = graph.gate
+	assert_true(_game_state.configure_mutation_gate(gate).ok)
+	assert_true(graph.save_manager.configure_mutation_gate(gate).ok)
+	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://tests/fixtures/saves/v6_desktop_prepared.json"))
+	var validated: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(snapshot)
+	assert_true(validated.get("ok", false), str(validated))
+	if not validated.get("ok", false): return
+	snapshot = validated.value.candidate
+	assert_true(graph.save_manager.get("_journal").reset(snapshot.run_id).ok)
+	var acquired: Dictionary = gate.acquire(&"new_run")
+	assert_true(acquired.ok)
+	var applied: Dictionary = _game_state.apply_restore_silent({"snapshot": snapshot})
+	assert_true(applied.get("ok", false), str(applied))
+	var consequence: Object = _bootstrap.get("_desktop_consequence_state")
+	var consequence_restored: Dictionary = consequence.prepare_restore(snapshot.desktop.consequence)
+	assert_true(consequence_restored.get("ok", false), str(consequence_restored))
+	assert_true(consequence.commit(consequence_restored.value.candidate).ok)
+	assert_true(_game_state.activate_live_session({"operation_id": "fixture-install",
+		"expected_generation": 0, "owner_id": _game_state.get_instance_id(), "run_id": snapshot.run_id}).ok)
+	assert_true(gate.release(&"new_run", str(acquired.value.token)).ok)
+	var view: Object = _bootstrap.get("_retained_schedule_view_controller")
+	assert_true(view.open_day(snapshot.lifecycle.day, snapshot.lifecycle.causal_day_instance).ok)
+	var targets: Dictionary = _bootstrap.get("targets")
+	_bootstrap.set("targets", targets)
+	_bootstrap.get("_state")["ready"] = true
+	var desktop := GameplayDesktop.new()
+	autofree(desktop)
+	var mounted: Dictionary = _bootstrap.call(&"configure_gameplay_desktop", desktop)
+	assert_true(mounted.get("ok", false), str(mounted))
+	if not mounted.get("ok", false): return
+	assert_eq(desktop.schedule.get("_view_controller"), view)
+	assert_eq(desktop.done.get_argument_count(), 0)
+	var projected: Dictionary = desktop.panel.pull()
+	assert_true(projected.get("ok", false), str(projected))
+	if not projected.get("ok", false): return
+	var before_rounds: int = _game_state.minesweeper_rounds_left
+	var before_motivation: int = _game_state.get_stat("motivation")
+	var revealed: Dictionary = desktop.panel.dispatch("reveal", 0, int(projected.value.board.revision))
+	assert_true(revealed.get("ok", false), str(revealed))
+	assert_eq(_game_state.minesweeper_rounds_left, before_rounds - 1)
+	assert_eq(_game_state.get_stat("motivation"), before_motivation - 1)
+	assert_true(graph.save_manager.save_exists(&"autosave"))
+	assert_eq(_game_state.capture_run_snapshot_input().desktop.board,
+		_bootstrap.get("_desktop_board_state").capture(), "snapshots must read live board state after the first action")

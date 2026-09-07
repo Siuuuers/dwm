@@ -83,17 +83,21 @@ func _fixture(seed: Dictionary = {}, initialize_profile: bool = true) -> Diction
 	assert_true(manager.configure_identity_issuer(issuer).get("ok", false))
 	assert_true(manager.configure_new_run_profile_owner(profile).get("ok", false))
 	var gs: Node = autofree(GS.new())
+	assert_true(gs.configure_mutation_gate(gate).get("ok", false))
 	var calls: Array = []
 	var localization := Participant.new("localization", "localization_plan", calls)
 	var audio := Participant.new("audio", "audio_plan", calls)
 	var route := Participant.new("route", "route_plan", calls)
 	var narrative := Participant.new("narrative", "narrative_plan", calls)
+	var schedule: Dictionary = preload("res://tests/support/ScheduleRestoreFixture.gd").create(issuer)
+	assert_true(schedule.ok)
 	assert_true(manager.configure_restore_participants({
 		"run": preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(gs),
 		"desktop_consequence": preload("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd").new(
 			preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()),
 		"desktop_board": preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd").new(
 			preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()),
+		"schedule_view": schedule.value.participant,
 		"profile": preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(profile),
 		"localization": localization, "audio": audio, "route": route, "narrative": narrative}).get("ok", false))
 	return {"ops": ops, "saves": saves, "profiles": profiles, "gate": gate, "profile": profile,

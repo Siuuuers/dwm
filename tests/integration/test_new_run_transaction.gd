@@ -105,13 +105,17 @@ func _wired() -> Dictionary:
 	assert_true(manager.configure_new_run_profile_owner(profile).get("ok", false))
 
 	var gs: Node = load(GS_PATH).new()
+	assert_true(gs.configure_mutation_gate(gate).get("ok", false))
 	add_child_autofree(gs)
 	gs.reset_game()
 	var log: RefCounted = load(CALL_LOG).new()
+	var schedule: Dictionary = preload("res://tests/support/ScheduleRestoreFixture.gd").create(issuer)
+	assert_true(schedule.ok)
 	assert_true(manager.configure_restore_participants({
 		"run": load(RUN_PARTICIPANT).new(gs),
 		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
 		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
+		"schedule_view": schedule.value.participant,
 		"profile": preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(profile),
 		"localization": ShapedFakeParticipant.new("localization", "localization_plan", log),
 		"audio": ShapedFakeParticipant.new("audio", "audio_plan", log),
@@ -162,6 +166,7 @@ func test_start_new_run_requires_identity_issuer() -> void:
 		"run": load(RUN_PARTICIPANT).new(gs),
 		"desktop_consequence": load(FAKE_PARTICIPANT).new("desktop_consequence", log),
 		"desktop_board": load(FAKE_PARTICIPANT).new("desktop_board", log),
+		"schedule_view": load(FAKE_PARTICIPANT).new("schedule_view", log),
 		"profile": load(FAKE_PARTICIPANT).new("profile", log),
 		"localization": load(FAKE_PARTICIPANT).new("localization", log),
 		"audio": load(FAKE_PARTICIPANT).new("audio", log),

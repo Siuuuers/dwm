@@ -21,6 +21,24 @@ const FAKE_ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore
 const CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const CONSEQUENCE_CHECKPOINT_PORT := preload("res://tests/support/FakeDesktopConsequenceCheckpointPort.gd")
 const ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
+const FIRST_REVEAL_COMPOSER := preload("res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd")
+
+
+class DurableCheckpointWithoutSeal:
+	func capture() -> Dictionary:
+		return {"ok": true, "code": &"ok", "value": {"backup": {}}, "receipt": {}}
+
+	func preview_checkpoint_id(_run_id: String) -> Dictionary:
+		return {"ok": true, "code": &"ok", "value": {"checkpoint_id": "unused"}, "receipt": {}}
+
+	func prepare_checkpoint(_snapshot: Dictionary, _kind: StringName, _disk_write: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"unused", "message": "", "details": {}}
+
+	func commit_checkpoint(_candidate: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"unused", "message": "", "details": {}}
+
+	func rollback(_backup: Dictionary) -> Dictionary:
+		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 ## Task 8 (dwm-p2r.32) contract fake for DesktopConsequenceCoordinator's own
 ## accept_prepared_action() -- this file proves complete_round()'s OWN contract (request shape,
@@ -101,6 +119,16 @@ func before_each() -> void:
 	assert_true(checkpoint_configured.get("ok", false), JSON.stringify(checkpoint_configured))
 
 
+func test_base_configure_accepts_the_same_durable_port_without_legacy_seal() -> void:
+	var fresh := COORDINATOR.new()
+	var durable := DurableCheckpointWithoutSeal.new()
+	var consequence := CONSEQUENCE_STATE.new()
+	var durable_configured: Dictionary = fresh.configure_durable_checkpoint(
+		durable, FIRST_REVEAL_COMPOSER, consequence)
+	assert_true(durable_configured.get("ok", false), JSON.stringify(durable_configured))
+	var configured: Dictionary = fresh.configure(_state_port, durable, _generation_port, _issuer)
+	assert_true(configured.get("ok", false), JSON.stringify(configured))
+
 func _bootstrap_consequence_state(causal_day_instance: String) -> RefCounted:
 	var state := CONSEQUENCE_STATE.new()
 	var receipt: Dictionary = _root_store.mint(&"causal_day_instance").duplicate(true)
@@ -132,7 +160,7 @@ func _complete_round_request(transaction_id: String) -> Dictionary:
 	return {
 		"transaction_id": transaction_id, "transaction_issuer_receipt": _issue_transaction_receipt_for(transaction_id),
 		"expected_identity": _coordinator.get_state()["value"]["identity"],
-		"expected_revision": int(_coordinator.get_state()["value"]["revision"]), "expected_run_revision": 0,
+		"expected_revision": int(_coordinator.get_state()["value"]["revision"]),
 	}
 
 

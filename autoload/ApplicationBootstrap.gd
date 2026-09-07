@@ -63,6 +63,15 @@ const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/D
 const DESKTOP_CAUSAL_SEQUENCE_PORT := preload("res://scripts/application/desktop/DesktopCausalSequencePort.gd")
 const DESKTOP_CONSEQUENCE_COORDINATOR := preload("res://scripts/application/desktop/DesktopConsequenceCoordinator.gd")
 const DESKTOP_BOARD_FATE_PORT := preload("res://scripts/application/minesweeper/DesktopBoardFatePort.gd")
+const MINESWEEPER_GENERATION_PORT := preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd")
+const MINESWEEPER_PANEL_PORT := preload("res://scripts/application/minesweeper/MinesweeperPanelPort.gd")
+const PROVISIONAL_CORRESPONDENCE := preload("res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd")
+const GAMEPLAY_DATA_CATALOG := preload("res://scripts/data/DataCatalog.gd")
+const SCHEDULE_PRESENTATION := preload("res://scripts/application/schedule/SchedulePresentationPort.gd")
+const SCHEDULE_COMMANDS := preload("res://scripts/application/schedule/ScheduleCommandPort.gd")
+const SCHEDULE_WARNING_CONTEXT := preload("res://scripts/application/schedule/GameStateScheduleWarningContextPort.gd")
+const SCHEDULE_WARNING_PRESENTATION := preload("res://scripts/application/schedule/ScheduleWarningPresentationPort.gd")
+const SCHEDULE_COPY := preload("res://scripts/ui/schedule/ScheduleCopy.gd")
 const MINESWEEPER_ROUND_COORDINATOR_APP := preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd")
 const MINESWEEPER_SHOP_PURCHASE_PARTICIPANT := preload("res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd")
 const GAME_STATE_DESKTOP_BOARD_PORT := preload("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd")
@@ -213,19 +222,9 @@ var _retained_desktop_causal_sequence_port: RefCounted = null
 var _retained_desktop_board_fate_port: RefCounted = null
 var _retained_desktop_consequence_coordinator: RefCounted = null
 ## The Plan-02 application-level round coordinator (no class_name; preload by path). Its base
-## `configure(state_port, checkpoint_port, generation_port, identity_issuer)` is deliberately never
-## called here: no production `generation_port` (materialize/begin_search/run_search_slice) or
-## Task-5-shaped fake-checkpoint (seal_checkpoint) adapter exists anywhere in this codebase, and
-## building one is outside this task's file list. Only the seams real production machinery can
-## satisfy are configured: shared board state, publication ledger, the consequence-port pair, and
-## the durable first-Reveal checkpoint path. `complete_round()`'s own forward/initiating call and
-## `reveal()` therefore remain unreachable until a later task supplies those two missing adapters;
-## the action-source RECOVERY methods `validate_recovery_action()`/`commit_recovery_action()`/
-## `publish_recovery_action()` do not depend on base `configure()` at all (verified against the
-## source: they never call `_guard()` or read `_state_port`/`_generation_port`/`_checkpoint_port`),
-## so registering this coordinator as a consequence action source is still fully honest production
-## wiring.
+## The real generator and durable checkpoint path share the restored board owner.
 var _retained_minesweeper_round_coordinator_app: RefCounted = null
+var _retained_minesweeper_generation_port: RefCounted = null
 var _retained_minesweeper_shop_purchase_participant: RefCounted = null
 var _retained_game_state_desktop_board_port: RefCounted = null
 var _retained_game_state_minesweeper_shop_port: RefCounted = null
@@ -245,15 +244,8 @@ var _retained_schedule_done_dispatcher: RefCounted = null
 var _retained_schedule_view_controller: RefCounted = null
 var _retained_schedule_view_restore_participant: RefCounted = null
 ## Placeholder desktop identity context (dwm-p2r.32 Plan 02 Task 9). `GameStateDesktopBoardPort`/
-## `GameStateMinesweeperShopPort` accept only ONE fixed `{run_id,branch_id,
-## desktop_timeline_generation,causal_day_instance}` at configure() time and refuse any later
-## reconfiguration (both files' own doc comments flag this as a gap explicitly deferred to "Task
-## 6/9" -- confirmed still unresolved: neither file is in this task's own Files list to edit). Real
-## per-New-Run identity rotation for these two ports is NOT implemented; this mints one real,
-## schema-valid, non-blank identity bundle through the retained production issuer so `configure()`
-## succeeds and every derived receipt is genuinely issuer-anchored, but it is NOT the live run's own
-## identity. See the Task-9 report for the full honest account of this carried-forward gap.
-var _desktop_board_identity_context: Dictionary = {}
+## Stable reader of the activated run; no placeholder identity is minted at boot.
+var _desktop_identity_provider := Callable()
 var _state := {
 	"started": false, "ready": false, "mode": &"",
 	"completed_stages": [], "planned_blockers": [], "fatal_result": {}, "failed_stage": null,
@@ -779,17 +771,16 @@ func _capture_backup_checkpoint_inputs() -> Dictionary:
 	return {"ok": true, "value": inputs}
 
 
-## Mount the UI on the already constructed owners. No production correspondence
-## catalog exists yet; unresolved bodies remain unavailable before any acceptance.
+## Mount the retained Contacts owners with explicitly provisional, replaceable copy.
 func configure_contacts_desktop(desktop: Node) -> Dictionary:
 	if not _state.get("ready", false) or _contact_command_port == null or _desktop_host_state == null:
 		return _failure(&"contacts_owners_not_ready", "application owners are not ready")
 	if desktop == null or not desktop.has_method("configure_contacts"):
 		return _failure(&"invalid_contacts_desktop", "desktop presentation seam required")
-	var game_state := get_node_or_null("/root/GameState")
+	var game_state := _target(&"GameState")
 	if _contacts_presentation_port == null:
 		_contacts_presentation_port = CONTACTS_PRESENTATION_PORT.new()
-		var configured: Dictionary = _contacts_presentation_port.configure(game_state, _contact_command_port, {})
+		var configured: Dictionary = _contacts_presentation_port.configure(game_state, _contact_command_port, PROVISIONAL_CORRESPONDENCE.build())
 		if not configured.get("ok", false):
 			_contacts_presentation_port = null
 			return configured
@@ -802,9 +793,56 @@ func configure_contacts_desktop(desktop: Node) -> Dictionary:
 	# Bind first, including failed projections that still need owner eviction.
 	_contacts_desktop_eviction_port.view = weakref(desktop)
 	var mounted: Dictionary = desktop.configure_contacts(_contacts_presentation_port,
-		get_node_or_null("/root/LocalizationManager"), get_node_or_null("/root/ProfileManager"),
+		_target(&"LocalizationManager"), _target(&"ProfileManager"),
 		_desktop_host_state, int(game_state.day))
 	return mounted
+
+
+## UI ports live with their desktop scene; every one reads the same retained run owners.
+func configure_gameplay_desktop(desktop: Node) -> Dictionary:
+	if not _state.get("ready", false) or _retained_minesweeper_round_coordinator_app == null \
+			or _retained_schedule_done_dispatcher == null:
+		return _failure(&"gameplay_owners_not_ready", "gameplay owners are not ready")
+	if desktop == null or not desktop.has_method("configure_minesweeper") or not desktop.has_method("configure_schedule"):
+		return _failure(&"invalid_gameplay_desktop", "desktop gameplay seams required")
+	if desktop.has_meta("gameplay_ports"): return {"ok": true}
+	var game_state := _target(&"GameState")
+	var admitted: Dictionary = game_state.validate_live_session(game_state.capture_live_session().value)
+	if not admitted.get("ok", false): return admitted
+	var locale := _target(&"LocalizationManager")
+	var profile := _target(&"ProfileManager")
+	var panel: RefCounted = MINESWEEPER_PANEL_PORT.new()
+	var configured: Dictionary = panel.configure(_retained_minesweeper_round_coordinator_app,
+		_desktop_identity_nonce_issuer, game_state, GAMEPLAY_DATA_CATALOG.new())
+	if not configured.get("ok", false): return configured
+	var fingerprint: String = _retained_schedule_registry.fingerprint()
+	var registry: Dictionary = _retained_schedule_registry.snapshot(fingerprint)
+	if not registry.get("ok", false): return registry
+	var schedule: RefCounted = SCHEDULE_PRESENTATION.new()
+	configured = schedule.configure(game_state, _retained_schedule_view_controller, _retained_schedule_registry,
+		fingerprint, _desktop_identity_nonce_issuer, SCHEDULE_COPY.action_names(registry.value.records))
+	if not configured.get("ok", false): return configured
+	var context: RefCounted = SCHEDULE_WARNING_CONTEXT.new()
+	configured = context.configure(game_state, _desktop_board_state)
+	if not configured.get("ok", false): return configured
+	var commands: RefCounted = SCHEDULE_COMMANDS.new()
+	configured = commands.configure(_retained_schedule_view_controller, context, _desktop_identity_nonce_issuer,
+		_retained_schedule_commit_port, _retained_schedule_done_dispatcher, fingerprint)
+	if not configured.get("ok", false): return configured
+	var warning: RefCounted = SCHEDULE_WARNING_PRESENTATION.new()
+	configured = warning.configure(_retained_schedule_view_controller, SCHEDULE_COPY.warning_catalog())
+	if not configured.get("ok", false): return configured
+	var warning_commands: RefCounted = load("res://scripts/application/schedule/ScheduleWarningCommandPort.gd").new()
+	configured = warning_commands.configure(_retained_schedule_view_controller, _desktop_identity_nonce_issuer, desktop)
+	if not configured.get("ok", false): return configured
+	configured = desktop.configure_minesweeper(panel, locale, profile, _desktop_host_state, int(game_state.day), _target(&"InputManager"))
+	if not configured.get("ok", false): return configured
+	configured = desktop.configure_schedule(schedule, locale, profile, _desktop_host_state, int(game_state.day),
+		Callable(commands, "dispatch_done"), warning, warning_commands)
+	if not configured.get("ok", false): return configured
+	desktop.set_meta("gameplay_ports", {"panel": panel, "schedule": schedule, "commands": commands,
+		"warning": warning, "warning_commands": warning_commands})
+	return {"ok": true}
 
 
 ## Narrative manifest content version provider (positive integer, stable identity/arity).
@@ -1175,56 +1213,9 @@ func _configure_restore_participants() -> Dictionary:
 	return configured
 
 
-## Wires the ONE production Plan-02 desktop board/consequence/causal graph (dwm-p2r.32 Plan 02
-## Task 9). Runs as the final content stage, after restore participants, day resolution, and the
-## retained .9-era Minesweeper stage have all completed -- every dependency it needs (host, board,
-## consequence state, checkpoint port, gate, issuer, publication ledger's storage root) already
-## exists by then. Distinct OBJECT IDENTITIES from the retained .9-era simulator stack: this graph
-## never touches `_minesweeper_round_coordinator` and is never installed there (proven by
-## `test_desktop_bootstrap_wiring.gd`'s own `_minesweeper_round_coordinator == null` assertion
-## after this stage runs).
-##
-## NOT DISJOINT ON GAMESTATE FIELDS, THOUGH -- this is a real hazard, not a formality: the ports
-## this same function configures below read and write the identical legacy `GameState` fields the
-## .9-era stack owns. `GameStateMinesweeperShopPort.capture()` (`:68`) reads `money`/`coins`/
-## `inventory`/`minesweeper_round_floor`; its `commit()` (`:147`) writes them back via
-## `try_spend_money()`/`try_spend_coins()`/`add_inventory()`/`change_minesweeper_round_floor()`,
-## and its `rollback()` (`:170`) writes those SAME four fields again, by direct assignment
-## (`:174-177`), bypassing the accessors entirely.
-## `GameStateDesktopBoardPort.commit()` (`:346`) / `rollback()` (`:361`) write BOTH of the fields
-## `GameState.consume_minesweeper_app_round()` (`:531`) mutates:
-##   - `set_stat("motivation", ...)` (`:353`/`:365`) -- the SAME stat key that method decrements
-##     via `change_stat(STAT_MOTIVATION, -1)` (`:535`); and
-##   - `minesweeper_rounds_left` (`:355`/`:366`) -- a SHARPER clash still, because both sides write
-##     the field DIRECTLY (`_game_state.minesweeper_rounds_left = ...` here against that method's
-##     `minesweeper_rounds_left -= 1` at `:534`), with no accessor in between to arbitrate.
-## The two stacks are coupled semantically too:
-## `GameState.get_minesweeper_safety_level()` reads `inventory["debug_key"]`/`["lucky_charm"]`,
-## exactly what the new Shop grants. So once the new graph's forward path is enabled (today it
-## is not -- see the HONEST SCOPE note below), TWO independent transaction disciplines can mutate
-## the same fields with no mutual exclusion between them: the legacy `minesweeper_board` save-lock
-## owner (`SaveManagerMinesweeperPort.BOARD_LOCK_OWNER`, one of `SaveManager._LOCK_OWNERS`) and the
-## new graph's `causal_transaction` `ApplicationMutationGate` owner. A future plan enabling the
-## forward path must account for this before assuming the two stacks can run concurrently.
-##
-## Identical replay reuses every retained instance (every construction below is gated on the field
-## still being null), matching this file's own established idempotent-restart discipline.
-##
-## HONEST SCOPE, DOCUMENTED: `MinesweeperRoundCoordinator`'s own base `configure()` (needs a real
-## `generation_port` and a Task-5-shaped fake-checkpoint `seal_checkpoint` adapter -- confirmed
-## absent from production anywhere in this codebase) is never called, so `reveal()`/
-## `begin_debug_preparation()`/`complete_round()` remain unreachable through this graph; only the
-## action-source RECOVERY methods are registered, which do not require it. `GameStateDesktopBoardPort`
-## /`GameStateMinesweeperShopPort` are configured with a PLACEHOLDER identity context (both files'
-## own doc comments flag per-run identity wiring as an unresolved gap deferred to "Task 6/9", and
-## neither file is in this task's own Files list to fix) -- real forward gameplay (quote/
-## prepare_purchase/reveal/complete_round) is therefore also not reachable through this graph.
-## `LogoutCoordinator` is left unconstructed for the identical reason: no production
-## `stable_board_port` (`is_slice_executing`/`capture_stable_board`) implementation exists anywhere.
-## These three gaps are reported prominently in the Task-9 report rather than papered over with a
-## fake or a stub -- "Contract fakes are never bootstrap dependencies" holds throughout: the
-## condition-policy/ScheduleView seam below waited unconfigured until the dwm-oyo.3 slice
-## (2026-08-24) supplied Plan 03's REAL ports, and was never bridged with a fake.
+## Composes the retained board, consequence, Schedule, and checkpoint owners.
+## Only the application coordinator is mounted into the desktop. The earlier
+## simulator facade remains unexposed while its remaining callers are reconciled.
 func _configure_desktop_production_graph() -> Dictionary:
 	if _application_gate == null:
 		return _failure(&"mutation_gate_not_configured", "Bootstrap has not constructed the application gate")
@@ -1237,6 +1228,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 	var game_state := _target(&"GameState")
 	if game_state == null:
 		return _failure(&"missing_stage_adapter", "the desktop production graph requires GameState")
+
+	var snapshot_bound: Dictionary = game_state.configure_desktop_snapshot_provider(Callable(self, "_capture_live_desktop_snapshot"))
+	if not snapshot_bound.get("ok", false): return snapshot_bound
 
 	# One distinct root-scoped desktop publication ledger, loaded before any recovery/publish call.
 	if _retained_desktop_publication_ledger == null:
@@ -1260,23 +1254,23 @@ func _configure_desktop_production_graph() -> Dictionary:
 		if not reconciled.get("ok", false):
 			return reconciled
 
-	var placeholder := _placeholder_desktop_identity_context()
-	if not placeholder.get("ok", false):
-		return placeholder
+	if _desktop_identity_provider.is_null():
+		_desktop_identity_provider = Callable(game_state, "capture_desktop_identity_context")
+	if not _desktop_identity_provider.is_valid():
+		return _failure(&"desktop_identity_unavailable", "GameState live identity is required")
 
-	# GameState-facing state ports. Configured with the documented placeholder identity above; see
-	# this function's own doc comment for the honest limitation this carries forward.
+	# Every command captures the currently activated run through the same stable reader.
 	if _retained_game_state_desktop_board_port == null:
 		var board_port: RefCounted = GAME_STATE_DESKTOP_BOARD_PORT.new()
 		var board_port_configured: Dictionary = board_port.configure(
-			game_state, _desktop_identity_nonce_issuer, _desktop_board_identity_context)
+			game_state, _desktop_identity_nonce_issuer, _desktop_identity_provider)
 		if not board_port_configured.get("ok", false):
 			return board_port_configured
 		_retained_game_state_desktop_board_port = board_port
 	if _retained_game_state_minesweeper_shop_port == null:
 		var shop_port: RefCounted = GAME_STATE_MINESWEEPER_SHOP_PORT.new()
 		var shop_port_configured: Dictionary = shop_port.configure(
-			game_state, _desktop_board_identity_context)
+			game_state, _desktop_identity_provider)
 		if not shop_port_configured.get("ok", false):
 			return shop_port_configured
 		_retained_game_state_minesweeper_shop_port = shop_port
@@ -1294,10 +1288,7 @@ func _configure_desktop_production_graph() -> Dictionary:
 		var round_ledger: Dictionary = round_coordinator.configure_publication_ledger(ledger)
 		if not round_ledger.get("ok", false):
 			return round_ledger
-		# The real durable first-Reveal checkpoint path (Task 6 Phase D). Configured even though
-		# reveal() cannot reach it without base configure() (see this function's doc comment) --
-		# harmless now, and already correct for whichever later task supplies the missing state/
-		# generation adapters.
+		# Install durable checkpoint capability before enabling the generation path.
 		var save_board_port: RefCounted = SAVE_MANAGER_DESKTOP_BOARD_PORT.new(_retained_checkpoint_port)
 		var save_board_configured: Dictionary = save_board_port.configure(_retained_checkpoint_port)
 		if not save_board_configured.get("ok", false):
@@ -1307,6 +1298,10 @@ func _configure_desktop_production_graph() -> Dictionary:
 			save_board_port, DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER, _desktop_consequence_state)
 		if not durable.get("ok", false):
 			return durable
+		_retained_minesweeper_generation_port = MINESWEEPER_GENERATION_PORT.new()
+		var playable: Dictionary = round_coordinator.configure(_retained_game_state_desktop_board_port,
+			save_board_port, _retained_minesweeper_generation_port, _desktop_identity_nonce_issuer)
+		if not playable.get("ok", false): return playable
 		_retained_minesweeper_round_coordinator_app = round_coordinator
 
 	# The Shop purchase participant, over the real economy port, consequence state, and checkpoint.
@@ -1438,7 +1433,7 @@ func _configure_desktop_production_graph() -> Dictionary:
 			var source_port: RefCounted = DESKTOP_CONSEQUENCE_SOURCE_PORT.new()
 			var source_configured: Dictionary = source_port.configure(
 				_retained_desktop_consequence_coordinator, _retained_desktop_board_fate_port,
-				_desktop_identity_nonce_issuer, _desktop_board_identity_context)
+				_desktop_identity_nonce_issuer, _desktop_identity_provider)
 			if not source_configured.get("ok", false):
 				return source_configured
 			_retained_desktop_consequence_source_port = source_port
@@ -1483,32 +1478,6 @@ func _configure_desktop_production_graph() -> Dictionary:
 		"schedule_done_dispatcher_composed": dispatcher_composed,
 		"resumed_pending": bool(resumed.get("value", {}).get("resumed", false)),
 	}, "receipt": {}}
-
-
-## One real, issuer-backed run_id/branch_id plus an honestly-blank generation/causal_day_instance
-## pair (both allocator-only purposes `issue()` itself refuses -- they require the full New-Run
-## allocation dance `SaveManager.start_new_run()` drives, which cannot honestly run before any
-## player has asked to start or restore a run). `configure()`'s own shape check validates only the
-## exact 4-key set, never blankness, so this placeholder satisfies it without pretending to be a
-## resolved per-run identity. Minted once and retained; never rebuilt on replay.
-func _placeholder_desktop_identity_context() -> Dictionary:
-	if not _desktop_board_identity_context.is_empty():
-		return {"ok": true, "code": &"ok", "value": {"context": _desktop_board_identity_context}, "receipt": {}}
-	var run_issued: Variant = _desktop_identity_nonce_issuer.call(&"issue", &"run_id")
-	if typeof(run_issued) != TYPE_DICTIONARY or not (run_issued as Dictionary).get("ok", false):
-		return run_issued if typeof(run_issued) == TYPE_DICTIONARY else _failure(
-			&"desktop_identity_context_unavailable", "run_id issuance failed")
-	var branch_issued: Variant = _desktop_identity_nonce_issuer.call(&"issue", &"branch_id")
-	if typeof(branch_issued) != TYPE_DICTIONARY or not (branch_issued as Dictionary).get("ok", false):
-		return branch_issued if typeof(branch_issued) == TYPE_DICTIONARY else _failure(
-			&"desktop_identity_context_unavailable", "branch_id issuance failed")
-	_desktop_board_identity_context = {
-		"run_id": str((run_issued["value"] as Dictionary)["token"]),
-		"branch_id": str((branch_issued["value"] as Dictionary)["token"]),
-		"desktop_timeline_generation": 0,
-		"causal_day_instance": "",
-	}
-	return {"ok": true, "code": &"ok", "value": {"context": _desktop_board_identity_context}, "receipt": {}}
 
 
 ## Constructs EXACTLY ONE Minesweeper round coordinator with initialized production adapters and
@@ -1601,6 +1570,14 @@ func register_desktop_eviction_port(port: Object) -> Dictionary:
 func _on_day_changed(new_day: int) -> void:
 	if _desktop_host_state == null:
 		return
+	if _retained_schedule_view_controller != null:
+		var state := _target(&"GameState")
+		var identity: Dictionary = state.capture_schedule_warning_state()
+		var opened: Dictionary = _retained_schedule_view_controller.open_day(new_day,
+			str(identity.value.state.causal_day_instance))
+		if not opened.get("ok", false):
+			_desktop_day_change_fatal(&"SCHEDULE_DAY_OPEN_FAILED", new_day, [])
+			return
 	if _desktop_eviction_port == null:
 		_desktop_day_change_fatal(&"DESKTOP_EVICTION_PORT_MISSING", new_day, [])
 		return
@@ -1766,3 +1743,9 @@ func _latch_startup_fatal(code: StringName, message: String) -> Dictionary:
 
 func _failure(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}, "receipt": {}}
+
+
+func _capture_live_desktop_snapshot() -> Dictionary:
+	var consequence: Dictionary = _desktop_consequence_state.capture()
+	if not consequence.get("ok", false): return {}
+	return {"board": _desktop_board_state.capture(), "consequence": consequence.value.state}

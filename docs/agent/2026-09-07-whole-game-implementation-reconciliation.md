@@ -163,3 +163,18 @@ explicit original-source identity assertions, and all eight durable-pair cases
 without numeric-type warnings. Its four stale bootstrap-harness failures were
 then fixed and all 35 bootstrap cases rerun in `save-bootstrap-verified.log`.
 `git diff --check` passes. This is a local source checkpoint; nothing is pushed.
+
+
+## Continued integration ? provisional mechanics authorized
+
+The user explicitly approved provisional rules on 2026-09-07 while preserving all promised branches. Numeric relationship windows, Hospital recovery tuning, and ending predicates are labeled noncanonical in one pure rules owner. This is implementation authority for playability, not a story-canon decision or DTL cancellation.
+
+Following checkpoint d111f1d80, the preserved GameState session work is integrated with SaveManager ticket freezing and activation after route finalization. The completion-write retry checks preserve one generation; a post-route activation error latches the shared fatal fence. Public save writes now honor that gate. Current focused evidence: 43 New Run/restore cases; 7 session boundary cases and 6 desktop crash cases passed in session-desktop-regressions.log; the corrected v6 desktop fixture/restore-owner suites passed 32/32 in desktop-v6-verified.log. The 7 owner session tests passed before the later live-identity accessor addition. Board generation passed 3/3; Schedule Done passed 4/4; provisional pure rules passed 6/6. Exact runner commands and isolated roots are recorded in .godot/phase2r_logs/live-session-integration.jsonl.
+
+Still in progress: Bootstrap mount/real first reveal; warning navigation scene checks; mutable provisional-rule integration; Shop purchases; actual dating challenges; condition destination consumption; complete Day-7 playback/Gallery/return flow. These are not completion claims. Original stopped worktrees and root story edits remain preserved. Tests still report the pre-existing 24 Dialogic nodes outside test ownership and Unicode NUL diagnostics.
+
+### Live desktop integration checkpoint
+
+The shared live-session owner now fences New Run, Load, retired handles, and public saves during unresolved custody. GameState snapshot capture reads the retained live board/consequence owners rather than stale restored copies. Bootstrap mounts actual Minesweeper generation/presentation and Schedule Done/warnings; Contacts uses replaceable provisional correspondence. Provisional relationship/Hospital/ending eligibility is implemented as an explicitly labeled policy and wired into GameState; full dating and ending presentation are still in progress.
+
+Verification: desktop v6 regression group 32/32; New Run/restore group 43/43; session activation 8/8 including post-route fatal recovery and restored round ordinals; provisional GameState policy 5/5; bootstrap composition 21/21 including real first Reveal, one charge, Autosave, and live snapshot identity. Schedule host 11/11 and correspondence 3/3 passed; Contacts deferred-scroll teardown diagnostics are tracked in the UI follow-up. Whole-game completion is not claimed. Original worktrees remain untouched; no feature or DTL cancellation and no Bead closure.

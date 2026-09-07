@@ -29,7 +29,7 @@ const CONTINUATION_JOURNAL := preload("res://scripts/infrastructure/save/Desktop
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
 const PARTICIPANT_APPLY_ORDER: Array[String] = [
-	"run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative",
+	"run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative",
 ]
 
 ## Unlike tests/support/FakeRestoreParticipant.gd (a generic `{"plan": {...}}` fake, used elsewhere
@@ -171,6 +171,7 @@ func _wired(save_root: String, issuer_root: String, fail_profile_once: bool,
 	assert_true(profile_owner.initialize(storage).get("ok", false))
 
 	var gs: Node = load(GS_PATH).new()
+	assert_true(gs.configure_mutation_gate(gate).get("ok", false))
 	add_child_autofree(gs)
 	gs.reset_game()
 	var log: RefCounted = load(CALL_LOG).new()
@@ -179,6 +180,7 @@ func _wired(save_root: String, issuer_root: String, fail_profile_once: bool,
 		"run": load(RUN_PARTICIPANT).new(gs),
 		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
 		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
+		"schedule_view": preload("res://tests/support/ScheduleRestoreFixture.gd").create(issuer).value.participant,
 		"profile": profile_participant,
 		"localization": ShapedFakeParticipant.new("localization", "localization_plan", log),
 		"audio": ShapedFakeParticipant.new("audio", "audio_plan", log),
@@ -435,8 +437,8 @@ func test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot() -> void
 	assert_eq((listed_a["value"] as Array).size(), 1)
 	var stuck: Dictionary = (listed_a["value"] as Array)[0]
 	assert_eq(str(stuck.get("stage", "")), CONTINUATION_JOURNAL.STAGE_APPLYING)
-	assert_eq(int(stuck.get("next_participant_index", -1)), 3,
-		"run/desktop_consequence/desktop_board (indices 0-2) applied before profile (index 3) failed")
+	assert_eq(int(stuck.get("next_participant_index", -1)), 4,
+		"run/desktop_consequence/desktop_board/schedule_view (indices 0-3) applied before profile (index 4) failed")
 
 	# A fresh process reopens the SAME on-disk journal/issuer/save roots -- the fake profile
 	# participant does not fail this time, modelling whatever transient condition caused the

@@ -14,6 +14,62 @@ const GENERATION_PORT := preload("res://tests/support/FakeMinesweeperGenerationP
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 
+class TerminalSettlementOwner:
+	const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
+	var completion_calls: Array[Dictionary] = []
+	var _snapshot: Dictionary
+
+	func _init() -> void:
+		var revealed: Dictionary = REDUCER.first_reveal({
+			"schema_version": 1, "width": 3, "height": 3,
+			"mine_indices": [1], "mine_count": 1,
+		}, 0)
+		_snapshot = {
+			"schema_version": 1, "phase": "ACTIVE_VISIBLE", "revision": 1,
+			"identity": {"run_id": "run-ui", "branch_id": "branch-ui",
+				"desktop_timeline_generation": 1, "causal_day_instance": "day-ui",
+				"app_round_ordinal": 1},
+			"candidate": null,
+			"board": {"board": revealed["value"]["board"],
+				"paid_start_receipt": {"receipt_id": "paid-ui"}},
+			"settlement": null, "command_receipts": {}, "terminal_receipts": {},
+		}
+
+	func get_state() -> Dictionary:
+		return {"ok": true, "code": &"ok", "value": _snapshot.duplicate(true), "receipt": {}}
+
+	func get_entry_context(difficulty_id: String) -> Dictionary:
+		return {"ok": true, "code": &"ok", "value": {
+			"identity": _snapshot["identity"], "revision": int(_snapshot["revision"]),
+			"difficulty_id": difficulty_id, "eligible": false,
+		}, "receipt": {}}
+
+	func reveal(request: Dictionary) -> Dictionary:
+		var reduced: Dictionary = REDUCER.reveal(
+			_snapshot["board"]["board"], int(request["cell_index"]), str(request["transaction_id"]))
+		if not reduced.get("ok", false):
+			return reduced
+		_snapshot["board"]["board"] = reduced["value"]["board"]
+		_snapshot["revision"] = int(_snapshot["revision"]) + 1
+		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+	func set_flag(_request: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"unused", "message": "", "details": {}}
+
+	func chord(_request: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"unused", "message": "", "details": {}}
+
+	func complete_round(request: Dictionary) -> Dictionary:
+		completion_calls.append(request.duplicate(true))
+		if completion_calls.size() == 1:
+			return {"ok": false, "code": &"temporary_settlement_failure", "message": "", "details": {}}
+		_snapshot = {
+			"schema_version": 1, "phase": "NONE", "revision": int(_snapshot["revision"]) + 1,
+			"identity": null, "candidate": null, "board": null, "settlement": null,
+			"command_receipts": {}, "terminal_receipts": {},
+		}
+		return {"ok": true, "code": &"action_consequence_accepted", "value": {}, "receipt": {}}
+
 var coordinator
 var issuer
 var root_store
@@ -312,6 +368,33 @@ func test_owner_refusal_is_sanitized_and_refreshes_the_public_projection() -> vo
 	assert_false(JSON.stringify(refused).contains("layout_dimensions_mismatch"))
 	assert_false(JSON.stringify(refused).contains("mine_indices"))
 
+
+func test_terminal_action_settles_once_and_pull_retries_the_same_request_without_losing_projection() -> void:
+	var settlement_owner := TerminalSettlementOwner.new()
+	var settlement_port := PORT.new()
+	assert_true(settlement_port.configure(settlement_owner, issuer).get("ok", false))
+	var active: Dictionary = settlement_port.pull("beginner")
+	var counter_before := int(root_store.next_counter)
+
+	var first_attempt: Dictionary = settlement_port.dispatch("reveal", 1, active["value"]["revision"])
+	assert_false(first_attempt.get("ok", true))
+	assert_eq(first_attempt.get("code"), &"minesweeper_settlement_refused")
+	assert_true(bool(first_attempt["value"]["terminal"]))
+	assert_eq(settlement_owner.completion_calls.size(), 1)
+	assert_eq(settlement_owner.completion_calls[0].keys(),
+		["transaction_id", "transaction_issuer_receipt", "expected_identity", "expected_revision"])
+	assert_eq(root_store.next_counter, counter_before + 2,
+		"the board command and first settlement each allocate once")
+
+	var retried: Dictionary = settlement_port.pull("beginner")
+	assert_true(retried.get("ok", false), JSON.stringify(retried))
+	assert_true(bool(retried["value"]["terminal"]),
+		"the accepted settlement must not replace the just-rendered terminal projection")
+	assert_eq(settlement_owner.completion_calls.size(), 2)
+	assert_eq(settlement_owner.completion_calls[1], settlement_owner.completion_calls[0],
+		"a transient settlement retry reuses its transaction and cannot repeat rewards")
+	assert_eq(root_store.next_counter, counter_before + 2,
+		"retrying a terminal settlement allocates no second settlement identity")
 
 func _issue_transaction() -> Dictionary:
 	var issued: Dictionary = issuer.issue(&"transaction_id")

@@ -45,7 +45,7 @@ const _CONDITION_SEQUELA := "sequela"
 
 var _game_state: Object = null
 var _identity_issuer: Object = null
-var _desktop_identity_context: Dictionary = {}
+var _desktop_identity_context: Variant = {}
 var _starts_today: Dictionary = {}
 ## Plan 02 Task 6 (dwm-p2r.32), Phase D: additive DI seam beyond the frozen 8-method interface (own
 ## design choice -- prepare_first_reveal_consequence()'s frozen 4-arg signature has no room for a
@@ -57,14 +57,20 @@ var _consequence_state_port: Object = null
 ## Additive configuration seam beyond the frozen 8-method interface (needed since GameState and
 ## the identity issuer arrive by injection, never constructed here). Idempotent on identical
 ## replay; a changed owner is refused before any mutation.
-func configure(game_state: Object, identity_issuer: Object, desktop_identity_context: Dictionary) -> Dictionary:
+func configure(game_state: Object, identity_issuer: Object, desktop_identity_context: Variant) -> Dictionary:
 	if game_state == null or not game_state.has_method("get_stat"):
 		return _fail(&"invalid_game_state", "game_state must expose get_stat", {})
 	if identity_issuer == null or not identity_issuer.has_method("issue"):
 		return _fail(&"invalid_identity_issuer", "identity_issuer must expose issue", {})
-	var context_shape := _exact_keys(desktop_identity_context,
-		["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"],
-		&"invalid_desktop_identity_context")
+	var context_shape: Dictionary
+	if desktop_identity_context is Callable:
+		context_shape = {"ok": desktop_identity_context.is_valid() and desktop_identity_context.get_argument_count() == 0}
+	elif desktop_identity_context is Dictionary:
+		context_shape = _exact_keys(desktop_identity_context,
+			["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"],
+			&"invalid_desktop_identity_context")
+	else:
+		context_shape = _fail(&"invalid_desktop_identity_context", "", {})
 	if not context_shape.get("ok", false):
 		return context_shape
 	if _game_state != null or _identity_issuer != null:
@@ -74,7 +80,7 @@ func configure(game_state: Object, identity_issuer: Object, desktop_identity_con
 		return {"ok": true, "code": &"ok", "value": {"already_configured": true}, "receipt": {}}
 	_game_state = game_state
 	_identity_issuer = identity_issuer
-	_desktop_identity_context = desktop_identity_context.duplicate(true)
+	_desktop_identity_context = desktop_identity_context.duplicate(true) if desktop_identity_context is Dictionary else desktop_identity_context
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
@@ -106,6 +112,8 @@ func guard_external(_operation_id: StringName) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	if _desktop_identity_context is Callable:
+		return _game_state.validate_live_session(_game_state.capture_live_session().value)
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
@@ -113,16 +121,22 @@ func capture() -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	var captured_identity := _capture_identity()
+	if not captured_identity.get("ok", false): return captured_identity
+	var identity_context: Dictionary = captured_identity.value
 	var motivation: int = _game_state.get_stat(_STAT_MOTIVATION)
 	var rounds_left: int = int(_game_state.minesweeper_rounds_left)
 	var round_floor: int = int(_game_state.minesweeper_round_floor)
-	var causal_day_instance: String = str(_desktop_identity_context["causal_day_instance"])
-	var next_ordinal: int = int(_starts_today.get(causal_day_instance, 0)) + 1
+	var causal_day_instance: String = str(identity_context["causal_day_instance"])
+	# Live ports survive Load and use the persisted completed-round count.
+	# Fixed-context fixtures retain their isolated preparation bookkeeping.
+	var next_ordinal: int = int(_game_state.minesweeper_app_rounds_finished_today) + 1 \
+		if _desktop_identity_context is Callable else int(_starts_today.get(causal_day_instance, 0)) + 1
 	var eligible: bool = motivation > 0 and rounds_left > round_floor and next_ordinal >= 1 and next_ordinal <= 5
 	return {"ok": true, "code": &"ok", "value": {
-		"run_id": str(_desktop_identity_context["run_id"]),
-		"branch_id": str(_desktop_identity_context["branch_id"]),
-		"desktop_timeline_generation": int(_desktop_identity_context["desktop_timeline_generation"]),
+		"run_id": str(identity_context["run_id"]),
+		"branch_id": str(identity_context["branch_id"]),
+		"desktop_timeline_generation": int(identity_context["desktop_timeline_generation"]),
 		"causal_day_instance": causal_day_instance, "next_app_round_ordinal": next_ordinal,
 		"eligible": eligible, "motivation": motivation, "rounds_left": rounds_left,
 		"day": int(_game_state.day), "health": _game_state.get_stat(_STAT_HEALTH),
@@ -391,3 +405,13 @@ func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictio
 
 func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+func _capture_identity() -> Dictionary:
+	var captured: Variant = _desktop_identity_context.call() if _desktop_identity_context is Callable \
+		else {"ok": true, "value": _desktop_identity_context.duplicate(true)}
+	if not captured is Dictionary or not captured.get("ok", false) or not captured.get("value") is Dictionary:
+		return captured if captured is Dictionary else _fail(&"invalid_desktop_identity_context", "", {})
+	var shaped := _exact_keys(captured.value,
+		["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"], &"invalid_desktop_identity_context")
+	return captured if shaped.get("ok", false) else shaped

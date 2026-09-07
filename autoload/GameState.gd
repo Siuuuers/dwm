@@ -138,11 +138,20 @@ const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/r
 const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
+const _PROVISIONAL_RELATIONSHIP_RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
 const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
 # Transient installation evidence, never part of a player snapshot.
 var _run_configuration_installed := false
+# Process-local lifetime, independent of candidate apply and compensating rollback.
+var _live_session_generation := 0
+var _live_session_active := false
+var _live_session_run_id := ""
+var _live_session_activation_ticket: Dictionary = {}
+var _retired_live_session_handle: Dictionary = {}
+var _retired_live_session_generation := -1
+
 var _mutation_gate: Object = null
 var _identity_issuer: Object = null
 ## v4 desktop aggregate (Plan 02 Task 6, dwm-p2r.32): `{board,consequence}`, held as plain detached
@@ -152,6 +161,7 @@ var _identity_issuer: Object = null
 ## `desktop` member to serialize, defaulting to the empty NONE-board/no-pending-consequence shape
 ## and overwritten wholesale only by restore.
 var _desktop_snapshot: Dictionary = {}
+var _desktop_snapshot_provider := Callable()
 var _day_resolution_coordinator: RefCounted = null
 ## The ONE Bootstrap-owned Minesweeper round coordinator (dwm-p2r.9 Plan 06 Task 2). GameState
 ## never constructs it; the shared begin/complete round methods delegate here.
@@ -229,6 +239,7 @@ func _ready() -> void:
 
 # ---- Lifecycle / stats / money / coins ----
 func reset_game() -> void:
+	if _live_session_generation > 0: _invalidate_live_session()
 	_run_configuration_installed = false
 	# Fixed, self-consistent placeholder desktop identity (Plan 02 Task 6, dwm-p2r.32) -- mirrors
 	# the pre-existing "run-local" placeholder run_id immediately below: this is a generic reset for
@@ -266,6 +277,7 @@ func reset_game() -> void:
 		# dating_route_state schema (CONTRACTS §2): date_count, dark_points, true_path_count, previous_entered_true_path.
 		dating_route_state[fid] = {
 			"date_count": 0, "dark_points": 0, "true_path_count": 0, "previous_entered_true_path": false,
+			"relationship_state": "friend", "progression_event_ids": [], "provisional_receipts": {},
 		}
 	inter_friend_affection = {}
 	inter_friend_route_state = {}
@@ -936,6 +948,52 @@ func get_day7_ending_candidates_from_schedule() -> Array[String]:
 	return candidates
 
 
+func capture_provisional_day7_ending_plan() -> Dictionary:
+	if day != 7:
+		return _transaction_failure(&"not_day7", "ending eligibility is captured only on Day 7")
+	var existing: Variant = route_context.get("provisional_ending_plan")
+	if typeof(existing) == TYPE_DICTIONARY and not (existing as Dictionary).is_empty():
+		return {"ok": true, "code": &"ok", "value": (existing as Dictionary).duplicate(true)}
+
+	var destination := ""
+	for entry: Dictionary in _committed_entries():
+		if str(entry.get("action_kind", "")) != "solo":
+			continue
+		var participants: Array = entry.get("participants", [])
+		if participants.size() == 1 and str(participants[0]) in FRIEND_IDS:
+			if not destination.is_empty():
+				return _transaction_failure(&"ambiguous_day7_destination",
+					"more than one personal destination was committed")
+			destination = str(participants[0])
+	var states := {}
+	var invitations := {}
+	for friend_id: String in FRIEND_IDS:
+		var state: Dictionary = dating_route_state.get(friend_id, {})
+		states[friend_id] = str(state.get("relationship_state", "friend"))
+		invitations[friend_id] = bool(
+			daily_opened_contacts.get("day:7:friend:%s" % friend_id, false))
+	var pair: Dictionary = inter_friend_route_state.get("priscilla_lavinia", {})
+	var observer_variants: Dictionary = route_context.get("observer_variant_by_scope", {})
+	var rules_input := {
+		"day": 7,
+		"committed_destination": destination,
+		"relationship_states": states,
+		"invitation_read": invitations,
+		"tone_points": int((dating_route_state.get(destination, {}) as Dictionary).get(
+			"dark_points", 0)) if not destination.is_empty() else 0,
+		"hospital_required": pending_hospital,
+		"pair_ending_eligible": bool(pair.get("ending_eligible", false)),
+		"pair_form": str(pair.get("frozen_form", "")),
+		"observer_variant_by_scope": observer_variants.duplicate(true),
+	}
+	var frozen: Dictionary = _PROVISIONAL_RELATIONSHIP_RULES.new().freeze_day7_ending_plan(
+		rules_input)
+	if not frozen.get("ok", false):
+		return frozen
+	route_context["provisional_ending_plan"] = frozen["value"].duplicate(true)
+	emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok", "value": frozen["value"].duplicate(true)}
+
 func resolve_day7_ending() -> Dictionary:
 	if day != 7:
 		return {"ok": false, "candidate_friend_id": "", "ending_id": "", "epilogue_ending_id": "", "route_context_set": false, "reason": "not_day7"}
@@ -980,11 +1038,16 @@ func resolve_day7_ending() -> Dictionary:
 
 
 func should_route_priscilla_lavinia_post_ending() -> bool:
-	return int(missed_group_date_counts.get("priscilla_lavinia", 0)) >= 2
+	return bool((inter_friend_route_state.get("priscilla_lavinia", {}) as Dictionary).get(
+		"ending_eligible", false))
+
 
 func should_route_sylvia_special_ending() -> bool:
-	return hospital_skipped_sylvia_solo_count >= 2
-
+	var plan: Variant = route_context.get("provisional_ending_plan")
+	if typeof(plan) != TYPE_DICTIONARY:
+		return false
+	var steps: Variant = (plan as Dictionary).get("steps")
+	return typeof(steps) == TYPE_ARRAY and not (steps as Array).is_empty() and str(((steps as Array)[0] as Dictionary).get("ending_id", "")) == "ending.sylvia.special"
 
 func can_respond_to_invitation(friend_id: String) -> bool:
 	if is_invitation_day(friend_id) and not is_contact_choice_selected(friend_id):
@@ -1248,6 +1311,10 @@ func resolve_pressure_health_condition_end_of_day() -> Dictionary:
 
 	var pressure: int = get_stat(STAT_PRESSURE)
 	var health: int = get_stat(STAT_HEALTH)
+	var hospital: Dictionary = _PROVISIONAL_RELATIONSHIP_RULES.new().resolve_hospital(
+		_provisional_hospital_input(pressure, health))
+	if not hospital.get("ok", false):
+		return hospital
 	var danger: bool = pressure >= 10 or health <= 0
 	var condition: String = CONDITION_NONE
 	var daily_penalty: int = 0
@@ -1268,54 +1335,74 @@ func resolve_pressure_health_condition_end_of_day() -> Dictionary:
 			set_stat(STAT_PRESSURE, 9)
 		if health < 1:
 			set_stat(STAT_HEALTH, 1)
-
-		# Danger day applies sequela to the NEXT day (consumed in begin_new_day).
 		condition_streak_days = 1
 
-	var faint: bool = false
+	var faint := bool(hospital["value"]["required"])
 	if condition != CONDITION_NONE:
 		condition_effects_today.append(condition)
-		if CONDITION_SEQUELA in condition_effects_today and (condition == CONDITION_NAUSEA or condition == CONDITION_DIZZY):
+		if faint:
 			condition_effects_today.append(CONDITION_FAINT)
-			faint = true
 		pending_hospital = faint
 		emit_signal("condition_effect_resolved", {"condition": condition, "faint": faint})
 		if faint:
+			route_context["provisional_hospital_resolution"] = hospital["value"].duplicate(true)
 			emit_signal("hospital_needed", {"condition": condition})
+		else:
+			route_context.erase("provisional_hospital_resolution")
 
 	condition_resolved_day = day
 	emit_signal("save_relevant_state_changed")
-	return {"ok": true, "needs_hospital": pending_hospital, "condition": condition, "faint": faint}
+	return {"ok": true, "needs_hospital": pending_hospital, "condition": condition, "faint": faint,
+		"hospital_resolution": hospital["value"].duplicate(true)}
 
+func _provisional_hospital_input(pressure: int, health: int) -> Dictionary:
+	return {
+		"day": day,
+		"pressure": pressure,
+		"health": health,
+		"sylvia_encounter_committed": _has_committed_sylvia_solo(),
+		"sylvia_invitation_read": bool(
+			daily_opened_contacts.get("day:7:friend:sylvia", false)),
+	}
+
+
+func _has_committed_sylvia_solo() -> bool:
+	for entry: Dictionary in _committed_entries():
+		if str(entry.get("action_kind", "")) == "solo" and (entry.get("participants", []) as Array).has("sylvia"):
+			return true
+	return false
 
 func should_route_hospital() -> bool:
 	return pending_hospital
 
 func check_immediate_faint() -> bool:
-	if condition_effects_today.has(CONDITION_SEQUELA) and (get_stat(STAT_PRESSURE) >= 10 or get_stat(STAT_HEALTH) <= 0):
-		pending_hospital = true
-		emit_signal("condition_effect_resolved", {"condition": CONDITION_SEQUELA, "faint": true})
-		emit_signal("hospital_needed", {"condition": CONDITION_SEQUELA})
-		return true
-	return false
-
+	var hospital: Dictionary = _PROVISIONAL_RELATIONSHIP_RULES.new().resolve_hospital(
+		_provisional_hospital_input(get_stat(STAT_PRESSURE), get_stat(STAT_HEALTH)))
+	if not hospital.get("ok", false) or not bool(hospital["value"]["required"]):
+		return false
+	pending_hospital = true
+	route_context["provisional_hospital_resolution"] = hospital["value"].duplicate(true)
+	if not condition_effects_today.has(CONDITION_FAINT):
+		condition_effects_today.append(CONDITION_FAINT)
+	emit_signal("condition_effect_resolved", {"condition": CONDITION_FAINT, "faint": true})
+	emit_signal("hospital_needed", {"condition": CONDITION_FAINT})
+	emit_signal("save_relevant_state_changed")
+	return true
 
 func apply_hospital_recovery_and_advance_day() -> bool:
-	set_stat(STAT_HEALTH, 6)
-	set_stat(STAT_PRESSURE, 3)
+	if day >= 7:
+		capture_provisional_day7_ending_plan()
+	var resolution: Dictionary = route_context.get("provisional_hospital_resolution", {})
+	var recovery: Dictionary = resolution.get("recovery", {})
+	set_stat(STAT_HEALTH, int(recovery.get("health",
+		_PROVISIONAL_RELATIONSHIP_RULES.HOSPITAL_RECOVERY["health"])))
+	set_stat(STAT_PRESSURE, int(recovery.get("pressure",
+		_PROVISIONAL_RELATIONSHIP_RULES.HOSPITAL_RECOVERY["pressure"])))
 	pending_hospital = false
 	condition_streak_days = 0
 	condition_resolved_day = 0
 	condition_effects_today = []
-	# Special Sylvia ending evidence: count committed Sylvia solo dates skipped by this hospital
-	# trip. MUST read the committed entries BEFORE the day-end reset — pending_date_entries is
-	# empty on a hospital route (dates are skipped, never queued via prepare_dating_entries).
-	for _e in _committed_entries():
-		if str(_e.get("action_kind", "")) == "solo" \
-				and (_e.get("participants", []) as Array).has("sylvia"):
-			hospital_skipped_sylvia_solo_count += 1
 	_reset_committed_schedule_for_day_end()
-	# Clear pending Angela dates (post-hospital twofriends are not re-routed; see FLOWS §6).
 	pending_date_entries = []
 	pending_date_entry_index = 0
 	pending_date_friend_id = ""
@@ -1332,7 +1419,6 @@ func apply_hospital_recovery_and_advance_day() -> bool:
 	emit_signal("save_relevant_state_changed")
 	_autosave_after_advance()
 	return true
-
 
 func advance_day_or_end() -> bool:
 	# 1. Record accepted-but-unscheduled invitations before clearing. Solo miss -> one record;
@@ -1426,43 +1512,116 @@ func get_current_pending_date_entry() -> Dictionary:
 	return {}
 
 
-func apply_dating_challenge_result(entry: Dictionary, result: Dictionary) -> bool:
+func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary) -> Dictionary:
+	var fact_keys: Array = terminal_fact.keys()
+	fact_keys.sort()
+	if fact_keys != ["outcome", "transaction_id"] 			or typeof(terminal_fact.get("transaction_id")) != TYPE_STRING 			or str(terminal_fact["transaction_id"]).strip_edges().is_empty() 			or typeof(terminal_fact.get("outcome")) not in [TYPE_STRING, TYPE_STRING_NAME]:
+		return _transaction_failure(&"invalid_dating_terminal_fact",
+			"only a trusted transaction_id and board outcome are accepted")
+	var entry_type := str(entry.get("type", ""))
+	var event_id := str(terminal_fact["transaction_id"])
+	var outcome := str(terminal_fact["outcome"])
+	var scene_id := _provisional_dating_scene_id(entry)
+	if scene_id.is_empty():
+		return _transaction_failure(&"invalid_dating_entry", "a supported dated entry is required")
+	var rules: RefCounted = _PROVISIONAL_RELATIONSHIP_RULES.new()
+	var resolved: Dictionary = rules.resolve_scene_response(scene_id, outcome)
+	if not resolved.get("ok", false):
+		return resolved
+	var response: Dictionary = resolved["value"]
+
 	var participants: Array = []
-	var t: String = entry.get("type", "")
-	if t == "solo":
-		participants = [entry.get("friend_id", "")]
-	elif t == "group":
-		participants = entry.get("friend_ids", [])
-	# twofriends => [] (Angela absent)
+	if entry_type == "solo":
+		participants = [str(entry.get("friend_id", ""))]
+	elif entry_type == "group":
+		participants = (entry.get("friend_ids", []) as Array).duplicate()
+	for participant: String in participants:
+		if participant not in FRIEND_IDS:
+			return _transaction_failure(&"invalid_dating_entry", "unknown participant")
+	var pair_state: Dictionary = inter_friend_route_state.get("priscilla_lavinia", {}).duplicate(true)
+	if entry_type in ["group", "twofriends"] and not pair_state.has("frozen_form"):
+		return _transaction_failure(&"pair_form_unavailable", "new-run pair form was not frozen")
 
-	for p in participants:
-		if p == "":
-			continue
-		change_affection(p, int(result.get("affection_delta", 0)))
-		var drs: Dictionary = dating_route_state.get(p, {})
-		drs["date_count"] = int(drs.get("date_count", 0)) + 1
-		drs["dark_points"] = int(drs.get("dark_points", 0)) + int(result.get("dark_point", 0))
-		if bool(result.get("entered_true_path", false)):
-			drs["true_path_count"] = int(drs.get("true_path_count", 0)) + 1
-		drs["previous_entered_true_path"] = bool(result.get("entered_true_path", false))
-		dating_route_state[p] = drs
+	var receipt_owner: Dictionary = pair_state if entry_type == "twofriends" else 		(dating_route_state.get(str(participants[0]), {}) if not participants.is_empty() else pair_state)
+	var prior_receipts: Dictionary = receipt_owner.get("provisional_receipts", {})
+	if prior_receipts.has(event_id):
+		return {"ok": true, "code": &"ok", "value": {
+			"replayed": true, "receipt": prior_receipts[event_id].duplicate(true)}}
 
-	# Pair tracking for group AND twofriends.
-	if t in ["group", "twofriends"]:
-		var fids: Array = entry.get("friend_ids", [])
-		if fids.size() >= 2:
-			var pkey: String = _sorted_pair_key(fids[0], fids[1])
-			var irs: Dictionary = inter_friend_route_state.get(pkey, {})
-			irs["date_count"] = int(irs.get("date_count", 0)) + 1
-			irs["dark_points"] = int(irs.get("dark_points", 0)) + int(result.get("dark_point", 0))
-			inter_friend_route_state[pkey] = irs
-		if t == "twofriends":
-			change_inter_friend_affection(fids[0], fids[1], int(result.get("affection_delta", 0)))
+	for participant: String in participants:
+		var state: Dictionary = dating_route_state.get(participant, {}).duplicate(true)
+		state["date_count"] = int(state.get("date_count", 0)) + 1
+		state["dark_points"] = int(state.get("dark_points", 0)) + int(response["tone_delta"])
+		state["relationship_state"] = str(state.get("relationship_state", "friend"))
+		state["progression_event_ids"] = (state.get("progression_event_ids", []) as Array).duplicate()
+		state["provisional_receipts"] = (state.get("provisional_receipts", {}) as Dictionary).duplicate(true)
+		affection[participant] = clampi(int(affection.get(participant, 0))
+			+ int(response["momentum_delta"]), AFFECTION_MIN, AFFECTION_MAX)
+		var progression: Dictionary = rules.evaluate_progression({
+			"window_id": scene_id, "event_id": event_id, "friend_id": participant,
+			"attended": true, "hospital_superseded": false,
+			"current_state": state["relationship_state"],
+			"relational_momentum": affection[participant],
+			"response_qualifies": response["progression_qualifies"],
+			"committed_event_ids": state["progression_event_ids"],
+		})
+		if not progression.get("ok", false):
+			return progression
+		state["relationship_state"] = progression["value"]["state"]
+		if progression["value"]["evaluated"]:
+			(state["progression_event_ids"] as Array).append(event_id)
+		state["provisional_receipts"][event_id] = _provisional_dating_receipt(
+			response, progression["value"])
+		dating_route_state[participant] = state
+
+	if entry_type in ["group", "twofriends"]:
+		pair_state["date_count"] = int(pair_state.get("date_count", 0)) + 1
+		pair_state["dark_points"] = int(pair_state.get("dark_points", 0)) + int(response["tone_delta"])
+		pair_state["ending_eligible"] = int(pair_state["date_count"]) >= 2
+		pair_state["provisional_receipts"] = (pair_state.get("provisional_receipts", {}) as Dictionary).duplicate(true)
+		pair_state["provisional_receipts"][event_id] = _provisional_dating_receipt(response, {})
+		inter_friend_route_state["priscilla_lavinia"] = pair_state
+		if entry_type == "twofriends":
+			inter_friend_affection["lavinia_priscilla"] = int(
+				inter_friend_affection.get("lavinia_priscilla", 0)) + int(response["momentum_delta"])
 
 	emit_signal("friends_changed")
 	emit_signal("save_relevant_state_changed")
-	return true
+	var stored: Dictionary = pair_state if entry_type == "twofriends" else 		dating_route_state[str(participants[0])]
+	return {"ok": true, "code": &"ok", "value": {
+		"replayed": false,
+		"receipt": (stored["provisional_receipts"] as Dictionary)[event_id].duplicate(true),
+	}}
 
+func _provisional_dating_scene_id(entry: Dictionary) -> String:
+	var day_value: Variant = entry.get("day", day)
+	if typeof(day_value) != TYPE_INT or int(day_value) < 1 or int(day_value) > 7:
+		return ""
+	var entry_type := str(entry.get("type", ""))
+	if entry_type == "solo":
+		var friend_id := str(entry.get("friend_id", ""))
+		if friend_id not in FRIEND_IDS:
+			return ""
+		return "dating.solo.%s.day%d" % [friend_id, int(day_value)]
+	if entry_type in ["group", "twofriends"]:
+		var friend_ids: Variant = entry.get("friend_ids")
+		if typeof(friend_ids) != TYPE_ARRAY or (friend_ids as Array).size() != 2 				or not (friend_ids as Array).has("priscilla") 				or not (friend_ids as Array).has("lavinia"):
+			return ""
+		return "dating.%s.priscilla_lavinia.day%d" % [entry_type, int(day_value)]
+	return ""
+
+
+func _provisional_dating_receipt(response: Dictionary, progression: Dictionary) -> Dictionary:
+	return {
+		"outcome": response["outcome"],
+		"scene_id": response["scene_id"],
+		"momentum_delta": response["momentum_delta"],
+		"tone_delta": response["tone_delta"],
+		"progression_evaluated": bool(progression.get("evaluated", false)),
+		"relationship_state": str(progression.get("state", "")),
+		"ruleset_id": response["ruleset_id"],
+		"ruleset_status": response["ruleset_status"],
+	}
 
 func advance_date_queue_or_day() -> bool:
 	if pending_date_entry_index < pending_date_entries.size() - 1:
@@ -1658,7 +1817,8 @@ func _empty_desktop_snapshot(causal_day_instance: String, causal_day_instance_is
 ## allocation -- this method never mints or guesses any of them; a New Run constructs v4 directly
 ## from that durably committed allocation, never through the migration chain.
 func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,
-		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: Variant) -> Dictionary:
+		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: Variant,
+		pair_witnessed_forms: Variant = null) -> Dictionary:
 	if typeof(dark_mode) != TYPE_BOOL:
 		return {"ok": false, "code": &"invalid_run_configuration", "message": "dark_mode must be a Boolean"}
 	if run_id.is_empty():
@@ -1669,6 +1829,32 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 	template.reset_game()
 	var defaults: Dictionary = template.to_save_dict()
 	template.free()
+	var witnessed: Array[String] = []
+	var selection_source := "profile_witness_unavailable"
+	if pair_witnessed_forms != null:
+		if typeof(pair_witnessed_forms) != TYPE_ARRAY:
+			return {"ok": false, "code": &"invalid_pair_witness_pool", "message": "expected an Array"}
+		selection_source = "supplied_profile_witness_pool"
+		for form: Variant in pair_witnessed_forms:
+			if typeof(form) != TYPE_STRING:
+				return {"ok": false, "code": &"invalid_pair_witness_pool", "message": "forms must be Strings"}
+			witnessed.append(str(form))
+	var rules: RefCounted = _PROVISIONAL_RELATIONSHIP_RULES.new()
+	var pair_selection: Dictionary = rules.select_pair_form(
+		witnessed, posmod(run_id.hash(), 2147483647))
+	if not pair_selection.get("ok", false):
+		return pair_selection
+	defaults["inter_friend_route_state"] = {
+		"priscilla_lavinia": {
+			"frozen_form": pair_selection["value"]["form"],
+			"form_ruleset_id": pair_selection["value"]["ruleset_id"],
+			"form_selection_source": selection_source,
+			"date_count": 0,
+			"dark_points": 0,
+			"ending_eligible": false,
+			"provisional_receipts": {},
+		},
+	}
 	# Shape the detached Day-1 input to match RunSnapshotSchema.build: gameplay bag
 	# (whitelisted fields minus day/contacts/committed_schedule/dating), plus their own fields.
 	var gameplay := {"narrative_variables": {}}
@@ -1988,13 +2174,14 @@ func capture_restore_state() -> Dictionary:
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
 		"lifecycle": _run_lifecycle.to_dict(),
 		"run_configuration_installed": _run_configuration_installed,
+		"session_generation": _live_session_generation,
 		"contacts": contacts.duplicate(true),
 		# v3 (Plan 01 Task 5): the canonical aggregate is part of the restore transaction, so a
 		# later participant failure rolls it back with everything else.
 		"committed_schedule": _canonical_committed_schedule(),
 		# v4 (Plan 02 Task 6, dwm-p2r.32): the desktop aggregate travels with the same restore
 		# transaction, so a later participant failure rolls it back with everything else too.
-		"desktop": _desktop_snapshot.duplicate(true),
+		"desktop": _capture_desktop_snapshot(),
 	}}}
 
 
@@ -2137,6 +2324,95 @@ func restore_live_run_state(backup: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
+## Captures the last activated session, not candidate bytes temporarily applied by
+## Restore. Validation separately fences callbacks while a transaction owns the gate.
+func capture_live_session() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": _live_session_fact()}
+
+
+## Internal capture remains usable by the current causal transaction. External
+## commands separately validate the session and shared gate before mutation.
+func capture_desktop_identity_context() -> Dictionary:
+	if not _live_session_active or not _run_configuration_installed:
+		return _session_failure(&"stale_live_session")
+	var identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
+	if str(identity.run_id) != _live_session_run_id:
+		return _session_failure(&"stale_live_session")
+	identity.erase("causal_day_instance_issuer_receipt")
+	return {"ok": true, "value": identity.duplicate(true)}
+
+func validate_live_session(handle: Variant) -> Dictionary:
+	if not is_instance_valid(_mutation_gate): return _session_failure(&"session_gate_unconfigured")
+	var admitted: Dictionary = _mutation_gate.guard_external(&"live_session")
+	if not admitted.get("ok", false): return admitted
+	if not handle is Dictionary or not _live_session_active or handle != _live_session_fact() 			or not _run_configuration_installed or str(_run_lifecycle.to_dict().run_id) != _live_session_run_id:
+		return _session_failure(&"stale_live_session")
+	return {"ok": true, "code": &"ok", "value": {"valid": true}}
+
+func capture_live_run_snapshot_input(handle: Variant) -> Dictionary:
+	var admitted := validate_live_session(handle)
+	if not admitted.get("ok", false): return admitted
+	return {"ok": true, "code": &"ok", "value": capture_run_snapshot_input()}
+
+## SaveManager freezes this ticket before apply, checks it before route dispatch,
+## and activates only after every participant has finalized successfully.
+func validate_live_session_activation(ticket: Variant) -> Dictionary:
+	if not is_instance_valid(_mutation_gate) or not (
+		_mutation_gate.is_internal_owner_active(&"restore") or _mutation_gate.is_internal_owner_active(&"new_run")):
+		return _session_failure(&"session_activation_custody_required")
+	if not ticket is Dictionary or ticket.size() != 4 			or typeof(ticket.get("expected_generation")) != TYPE_INT or ticket.expected_generation < 0 			or typeof(ticket.get("owner_id")) != TYPE_INT or ticket.owner_id != get_instance_id() 			or typeof(ticket.get("operation_id")) != TYPE_STRING or ticket.operation_id.strip_edges().is_empty() 			or typeof(ticket.get("run_id")) != TYPE_STRING or ticket.run_id.strip_edges().is_empty():
+		return _session_failure(&"invalid_session_activation")
+	if not _run_configuration_installed or str(_run_lifecycle.to_dict().run_id) != ticket.run_id:
+		return _session_failure(&"session_candidate_mismatch")
+	if not _live_session_activation_ticket.is_empty() 			and ticket.operation_id == _live_session_activation_ticket.operation_id:
+		if ticket == _live_session_activation_ticket and _live_session_active 				and _live_session_generation == ticket.expected_generation + 1 and _live_session_run_id == ticket.run_id:
+			return {"ok": true, "code": &"ok", "value": {"already_active": true}}
+		return _session_failure(&"stale_session_activation")
+	if ticket.expected_generation != _live_session_generation:
+		return _session_failure(&"stale_session_activation")
+	return {"ok": true, "code": &"ok", "value": {"already_active": false}}
+
+func activate_live_session(ticket: Variant) -> Dictionary:
+	var admitted := validate_live_session_activation(ticket)
+	if not admitted.get("ok", false): return admitted
+	if not admitted.value.already_active:
+		_live_session_generation += 1
+		_live_session_active = true
+		_live_session_run_id = ticket.run_id
+		_live_session_activation_ticket = ticket.duplicate(true)
+	return {"ok": true, "code": &"ok", "value": _live_session_fact()}
+
+func retire_live_session(handle: Variant) -> Dictionary:
+	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_internal_owner_active(&"session_abandonment"):
+		return _session_failure(&"session_abandonment_custody_required")
+	if not handle is Dictionary: return _session_failure(&"stale_live_session")
+	if not _live_session_active:
+		if not _retired_live_session_handle.is_empty() and handle == _retired_live_session_handle 				and _live_session_generation == _retired_live_session_generation:
+			return {"ok": true, "code": &"ok", "value": {"retired": true}}
+		return _session_failure(&"stale_live_session")
+	if handle != _live_session_fact() or not _run_configuration_installed 			or str(_run_lifecycle.to_dict().run_id) != _live_session_run_id:
+		return _session_failure(&"stale_live_session")
+	_invalidate_live_session()
+	_run_configuration_installed = false
+	_retired_live_session_handle = handle.duplicate(true)
+	_retired_live_session_generation = _live_session_generation
+	return {"ok": true, "code": &"ok", "value": {"retired": true}}
+
+func _invalidate_live_session() -> void:
+	_live_session_generation += 1
+	_live_session_active = false
+	_live_session_run_id = ""
+	_retired_live_session_handle.clear()
+	_retired_live_session_generation = -1
+
+func _live_session_fact() -> Dictionary:
+	return {"active": _live_session_active, "generation": _live_session_generation,
+		"run_id": _live_session_run_id, "owner_id": get_instance_id()}
+
+static func _session_failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code}
+
+
 ## Public run configuration exists only after validated snapshot installation.
 ## Reset/local fixture state and detached New Run preparation grant no live-run evidence.
 func get_run_configuration() -> Dictionary:
@@ -2162,6 +2438,21 @@ func get_new_run_replacement_baseline() -> Dictionary:
 
 ## Pure read seam for the shared narrative checkpoint adapter (dwm-p2r.8, Plan-05 Task 2).
 ## Returns the complete detached CURRENT RunSnapshot input without mutation or publication.
+func configure_desktop_snapshot_provider(provider: Callable) -> Dictionary:
+	if not provider.is_valid() or provider.get_argument_count() != 0:
+		return {"ok": false, "code": &"invalid_desktop_snapshot_provider"}
+	if _desktop_snapshot_provider.is_valid() and _desktop_snapshot_provider != provider:
+		return {"ok": false, "code": &"desktop_snapshot_provider_already_configured"}
+	_desktop_snapshot_provider = provider
+	return {"ok": true}
+
+
+func _capture_desktop_snapshot() -> Dictionary:
+	if not _desktop_snapshot_provider.is_valid(): return _desktop_snapshot.duplicate(true)
+	var captured: Variant = _desktop_snapshot_provider.call()
+	return captured.duplicate(true) if captured is Dictionary else {}
+
+
 func capture_run_snapshot_input() -> Dictionary:
 	var current: Dictionary = to_save_dict()
 	var gameplay := {"narrative_variables": _narrative_variables.duplicate(true)}
@@ -2175,7 +2466,7 @@ func capture_run_snapshot_input() -> Dictionary:
 		"gameplay": gameplay,
 		"contacts": contacts.duplicate(true),
 		"committed_schedule": _canonical_committed_schedule(),
-		"desktop": _desktop_snapshot.duplicate(true),
+		"desktop": _capture_desktop_snapshot(),
 		"dating": current.get("dating_route_state", {}).duplicate(true) if typeof(current.get("dating_route_state")) == TYPE_DICTIONARY else {},
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
@@ -2207,6 +2498,9 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 
 func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var source: Variant = backup.get("backup", backup)
+	if not source is Dictionary or typeof(source.get("session_generation")) != TYPE_INT 			or source.session_generation != _live_session_generation:
+		return {"ok": false, "code": &"stale_run_backup", "message": "session lifetime changed"}
+
 	if typeof(source) != TYPE_DICTIONARY or typeof((source as Dictionary).get("gameplay")) != TYPE_DICTIONARY \
 			or typeof((source as Dictionary).get("lifecycle")) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_run_backup", "message": "run backup requires gameplay and lifecycle"}

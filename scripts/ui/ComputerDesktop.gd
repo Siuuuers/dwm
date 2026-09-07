@@ -9,6 +9,10 @@ const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentatio
 const QUICK_COMMANDS := preload("res://scripts/ui/desktop/DesktopQuickCommands.gd")
 const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
+const WARNING_NAVIGATION_TARGETS := {
+	&"open_contacts_list": &"contacts",
+	&"open_minesweeper": &"minesweeper",
+}
 const LABELS := {
 	"en": ["Minesweeper", "Contacts", "Schedule", "Shop", "Backup", "Settings", "Log out"],
 	"zh-CN": ["扫雷", "联系人", "日程", "商店", "备份", "设置", "退出登录"],
@@ -55,6 +59,8 @@ var _run_configuration_required := false
 var _run_configuration_ready := false
 var _run_configuration_masked := false
 var _show_after_run_configuration := false
+var _warning_navigation_serial := 0
+var _prepared_warning_navigation: Dictionary = {}
 
 func configure_run_configuration(owner: Object) -> Dictionary:
 	if not is_instance_valid(owner) or not owner.has_method("get_run_configuration") or Callable(owner,"get_run_configuration").get_argument_count() != 0:
@@ -479,6 +485,110 @@ func open_app(app_id: StringName) -> Dictionary:
 	app.show_window()
 	return {"ok": true, "value": {"app": app}}
 
+## Preflights the real warning target while Schedule still owns modal custody. The detached receipt
+## is retained by this desktop and is the only value commit_warning_navigation accepts.
+func prepare_warning_navigation(intent: StringName) -> Dictionary:
+	if not WARNING_NAVIGATION_TARGETS.has(intent):
+		return _warning_navigation_fail(&"invalid_warning_navigation_intent")
+	if not _prepared_warning_navigation.is_empty():
+		if str(_prepared_warning_navigation["intent"]) == str(intent):
+			return _warning_navigation_ok(_prepared_warning_navigation)
+		return _warning_navigation_fail(&"warning_navigation_already_prepared")
+	var target: StringName = WARNING_NAVIGATION_TARGETS[intent]
+	var available := _warning_navigation_preflight(target)
+	if not available.get("ok", false):
+		return available
+	_warning_navigation_serial += 1
+	_prepared_warning_navigation = {
+		"navigation_id": "warning-navigation-%d" % _warning_navigation_serial,
+		"intent": str(intent),
+		"source_app_id": "schedule",
+		"target_app_id": str(target),
+		"day": _day,
+	}
+	return _warning_navigation_ok(_prepared_warning_navigation)
+
+
+## Moves the actual foreground scene before the warning controller records navigation_committed.
+## A failed target open restores Schedule with its still-pending modal and returns the real code.
+func commit_warning_navigation(receipt: Dictionary) -> Dictionary:
+	var keys: Array = receipt.keys()
+	keys.sort()
+	if keys != ["day", "intent", "navigation_id", "source_app_id", "target_app_id"] \
+			or receipt != _prepared_warning_navigation:
+		return _warning_navigation_fail(&"invalid_warning_navigation_receipt")
+	var target := StringName(receipt["target_app_id"])
+	var available := _warning_navigation_preflight(target)
+	if not available.get("ok", false):
+		return available
+	var schedule: Node = _cached_app_windows[&"schedule"]
+	var closed: Variant = _host_state.close_app()
+	if typeof(closed) != TYPE_DICTIONARY or not (closed as Dictionary).get("ok", false):
+		return closed as Dictionary if typeof(closed) == TYPE_DICTIONARY \
+			else _warning_navigation_fail(&"desktop_home_rejected")
+	schedule.hide()
+	_active_id = &""
+	icon_grid.show()
+	_refresh_launcher()
+	var opened: Dictionary = open_app(target)
+	if not opened.get("ok", false):
+		var restored: Variant = _host_state.open_app(&"schedule", _day)
+		if typeof(restored) != TYPE_DICTIONARY or not (restored as Dictionary).get("ok", false):
+			_prepared_warning_navigation = {}
+			return _warning_navigation_fail(&"warning_navigation_restore_failed")
+		_active_id = &"schedule"
+		icon_grid.hide()
+		status_label.hide()
+		_refresh_launcher()
+		schedule.show()
+		return opened
+	_prepared_warning_navigation = {}
+	return {
+		"ok": true,
+		"code": &"ok",
+		"value": {"app": opened["value"]["app"], "target_app_id": target},
+		"receipt": receipt.duplicate(true),
+	}
+
+
+func _warning_navigation_preflight(target: StringName) -> Dictionary:
+	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
+		return _warning_navigation_fail(&"run_configuration_unavailable")
+	if is_instance_valid(_confirmation):
+		return _warning_navigation_fail(&"desktop_modal_active")
+	if _active_id != &"schedule" or not is_instance_valid(_host_state):
+		return _warning_navigation_fail(&"desktop_app_transition_unavailable")
+	var host_view: Dictionary = _host_state.get_state()
+	if host_view.get("active_app_id") != &"schedule" or int(host_view.get("current_day", 0)) != _day:
+		return _warning_navigation_fail(&"desktop_app_transition_unavailable")
+	var schedule: Node = _cached_app_windows.get(&"schedule")
+	if not is_instance_valid(schedule) or not schedule.visible \
+			or not is_instance_valid(schedule.get("warning_sheet")):
+		return _warning_navigation_fail(&"schedule_warning_unavailable")
+	if target == &"contacts" and _presentation_port == null:
+		return _warning_navigation_fail(&"contacts_unavailable")
+	if target == &"minesweeper" and _minesweeper_port == null:
+		return _warning_navigation_fail(&"desktop_app_unavailable")
+	if target not in [&"contacts", &"minesweeper"]:
+		return _warning_navigation_fail(&"desktop_app_unavailable")
+	if not is_instance_valid(_cached_app_windows.get(target)):
+		var record: Dictionary = APP_REGISTRY.new().get_record(target)
+		if not record.get("ok", false):
+			return _warning_navigation_fail(StringName(record.get("code", &"unknown_app_id")))
+		if load(record["scene"]) as PackedScene == null:
+			return _warning_navigation_fail(&"desktop_scene_unavailable")
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
+func _warning_navigation_ok(receipt: Dictionary) -> Dictionary:
+	return {"ok": true, "code": &"ok",
+		"value": {"receipt": receipt.duplicate(true)}, "receipt": receipt.duplicate(true)}
+
+
+func _warning_navigation_fail(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "message": "", "details": {}}
+
+
 func return_home() -> Dictionary:
 	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	if _active_id == &"":
@@ -571,6 +681,8 @@ func _configure_from_bootstrap() -> void:
 				configure_backup_port(port)
 	if _bootstrap.has_method("configure_contacts_desktop"):
 		_bootstrap.configure_contacts_desktop(self)
+	if _bootstrap.has_method("configure_gameplay_desktop"):
+		_bootstrap.configure_gameplay_desktop(self)
 	if _quick_commands == null and _backup_port != null:
 		configure_quick_commands(_backup_port, get_node_or_null("/root/InputManager"))
 	if reveal_after_configuration and not _run_configuration_masked:
