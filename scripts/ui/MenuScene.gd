@@ -5,6 +5,7 @@ class_name MenuScene
 
 const BACKUP_APP_SCENE := preload("res://scenes/apps/BackupApp.tscn")
 const SETTING_SCENE := preload("res://scenes/menu/Setting.tscn")
+const GALLERY_SCENE := preload("res://scenes/menu/GalleryScene.tscn")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
@@ -39,9 +40,22 @@ var _clock_label: Label
 var _locale := "en"
 var _percent := 100
 var _settings_services: Dictionary = {}
+var _gallery_host: Control
+var _gallery_instance: Control
+var _title_transition := false
 
 func configure_settings_services(services: Dictionary) -> void:
 	_settings_services = services.duplicate()
+	if not is_node_ready() and services.get("localization") != null:
+		for child: Node in get_children():
+			if child.name == &"LocalePresentationRoot" or String(child.name).begins_with("L10n"):
+				child.set("_localization", services.localization)
+
+func _menu_profile() -> Object:
+	return _settings_services.get("profile", get_node_or_null("/root/ProfileManager"))
+
+func _menu_localization() -> Node:
+	return _settings_services.get("localization", get_node_or_null("/root/LocalizationManager"))
 
 func _ready() -> void:
 	_build_login_shell()
@@ -84,21 +98,26 @@ func _on_new_acc_pressed() -> void:
 		push_warning("MenuScene: start_new_run failed (%s)." % str(result.get("code", "")))
 
 func _on_log_in_pressed() -> void:
-	if not _can_leave_login():
+	if not _begin_title_transition(): return
+	if not await _close_setting():
+		_end_title_transition()
 		return
-	_close_setting()
+	_close_gallery()
 	_backup_app_host.visible = true
 	_update_title_destination()
 	if is_instance_valid(_backup_app_instance):
 		_backup_app_instance.show_window()
+		_end_title_transition()
 		return
 	var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
 	if bootstrap == null or not bootstrap.get_startup_state().get("ready", false):
+		_end_title_transition()
 		_show_login_unavailable()
 		return
 	_title_port = BACKUP_PORT.new()
 	_login_result = _title_port.configure(get_node_or_null("/root/SaveManager"), "title")
 	if not _login_result.get("ok", false):
+		_end_title_transition()
 		_show_login_unavailable()
 		return
 	_backup_app_instance = BACKUP_APP_SCENE.instantiate()
@@ -113,17 +132,32 @@ func _on_log_in_pressed() -> void:
 		get_node_or_null("/root/LocalizationManager"), get_node_or_null("/root/ProfileManager"))
 	_title_status.hide()
 	_backup_app_instance.show_window()
+	_end_title_transition()
 
 func _on_gallery_pressed() -> void:
-	if not _can_leave_login():
+	if not _begin_title_transition(): return
+	if not await _close_setting():
+		_end_title_transition()
 		return
-	if has_node("/root/SceneRouter"):
-		get_node("/root/SceneRouter").goto_scene_id("gallery")
+	_close_backup_app()
+	if not is_instance_valid(_gallery_instance):
+		_gallery_instance = GALLERY_SCENE.instantiate()
+		var configured: Dictionary = _gallery_instance.configure_title_host(_title_home, _menu_localization(), _menu_profile())
+		if not configured.get("ok", false):
+			_gallery_instance.free()
+			_gallery_instance = null
+			_end_title_transition()
+			return
+		_gallery_host.add_child(_gallery_instance)
+	_gallery_host.show()
+	_gallery_instance.open_in_title_host()
+	_end_title_transition()
 
 func _on_setting_pressed() -> void:
 	if not _can_leave_login():
 		return
 	_close_backup_app()
+	_close_gallery()
 	if is_instance_valid(_setting_instance):
 		_setting_host.visible = true
 		_setting_instance.show_window()
@@ -150,33 +184,57 @@ func _on_shut_down_confirmed() -> void:
 	get_tree().quit()
 
 func _close_backup_app() -> void:
-	if not _can_leave_login():
+	if not _source_departure_admitted():
 		return
 	var was_visible := _backup_app_host.visible
 	if is_instance_valid(_backup_app_host):
 		_backup_app_host.visible = false
 	_update_title_destination()
-	if was_visible:
+	if was_visible and not _title_transition:
 		_log_in_button.grab_focus()
 
-func _close_setting() -> void:
-	if not _can_leave_login():
-		return
+func _close_setting() -> bool:
+	if not _source_departure_admitted(): return false
 	if is_instance_valid(_setting_instance) and _setting_instance.is_visible_in_tree():
-		_setting_instance.hide_window()
+		await _setting_instance.hide_window()
+		if not is_inside_tree() or _setting_instance.is_visible_in_tree(): return false
 	else:
 		_setting_closed()
+	return true
+
+func _close_gallery() -> void:
+	if not is_instance_valid(_gallery_host) or not _gallery_host.visible: return
+	if is_instance_valid(_gallery_instance) and not _gallery_instance.close_for_title_host(): return
+	_gallery_host.hide()
+	_update_title_destination()
+	if not _title_transition: _gallery_button.grab_focus()
+
+func _begin_title_transition() -> bool:
+	if not _can_leave_login(): return false
+	_title_transition = true
+	_sync_title_navigation()
+	_update_title_destination()
+	return true
+
+func _end_title_transition() -> void:
+	_title_transition = false
+	if not is_inside_tree(): return
+	_sync_title_navigation()
+	_update_title_destination()
 
 func _setting_closed() -> void:
 	var was_visible := _setting_host.visible
 	if is_instance_valid(_setting_host):
 		_setting_host.visible = false
 	_update_title_destination()
-	if was_visible:
+	if was_visible and not _title_transition:
 		_setting_button.grab_focus()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
+		if _title_transition:
+			get_viewport().set_input_as_handled()
+			return
 		if is_instance_valid(_backup_app_host) and _backup_app_host.visible:
 			# Backup owns recovery cancellation; one Back never closes two layers.
 			if is_instance_valid(_backup_app_instance):
@@ -187,8 +245,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif is_instance_valid(_setting_host) and _setting_host.visible:
 			get_viewport().set_input_as_handled()
 			if is_instance_valid(_setting_instance): _setting_instance.settings_content.handle_back()
+		elif is_instance_valid(_gallery_host) and _gallery_host.visible and _can_leave_login():
+			get_viewport().set_input_as_handled()
+			_close_gallery()
 
 func _build_login_shell() -> void:
+	_gallery_host = Control.new()
+	_gallery_host.name = "GalleryHost"
+	_gallery_host.position = Vector2(320,64)
+	_gallery_host.size = Vector2(960,656)
+	_gallery_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_gallery_host.hide()
+	add_child(_gallery_host)
 	_title_strip = Control.new()
 	_title_strip.name = "TitleStrip"
 	_title_strip.position = Vector2(320, 0)
@@ -219,8 +287,8 @@ func _build_login_shell() -> void:
 	_title_status.size = Vector2(800, 96)
 	_title_status.hide()
 	_backup_app_host.add_child(_title_status)
-	var locale := get_node_or_null("/root/LocalizationManager")
-	var profile := get_node_or_null("/root/ProfileManager")
+	var locale := _menu_localization()
+	var profile := _menu_profile()
 	if locale != null:
 		locale.locale_changed.connect(_refresh_login_shell)
 	if profile != null:
@@ -231,10 +299,10 @@ func _build_login_shell() -> void:
 	_refresh_login_shell()
 
 func _refresh_login_shell(_value: String = "") -> void:
-	var localization := get_node_or_null("/root/LocalizationManager")
+	var localization := _menu_localization()
 	var locale := str(localization.get_locale()).replace("_", "-") if localization != null else "en"
 	_locale = locale if SHUTDOWN_COPY.has(locale) else "en"
-	var profile := get_node_or_null("/root/ProfileManager")
+	var profile := _menu_profile()
 	_percent = int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
 	theme = DESKTOP_THEME.build(_locale, _percent)
 	_title_home.theme = theme
@@ -250,20 +318,26 @@ func _refresh_login_shell(_value: String = "") -> void:
 func _update_title_destination() -> void:
 	if not is_instance_valid(_title_home):
 		return
-	var hosted := _backup_app_host.visible or _setting_host.visible
+	var hosted := _backup_app_host.visible or _setting_host.visible or _gallery_host.visible
 	_title_home.visible = hosted
 	_title_home.focus_mode = Control.FOCUS_ALL if hosted and _can_leave_login() else Control.FOCUS_NONE
 	_title_label.visible = hosted
-	var key := "menu.login" if _backup_app_host.visible else "menu.setting"
-	var localization := get_node_or_null("/root/LocalizationManager")
-	_title_label.text = localization.t(key) if localization != null and localization.has_key(key) else ("Log in" if _backup_app_host.visible else "Setting")
+	var key := "menu.login" if _backup_app_host.visible else ("menu.gallery" if _gallery_host.visible else "menu.setting")
+	var localization := _menu_localization()
+	_title_label.text = localization.t(key) if localization != null and localization.has_key(key) else ("Log in" if _backup_app_host.visible else ("Gallery" if _gallery_host.visible else "Setting"))
 	_update_ledger_navigation()
 
 func _return_from_title_host() -> void:
+	if not _can_leave_login(): return
 	if _backup_app_host.visible:
 		_close_backup_app()
 	elif _setting_host.visible:
-		_close_setting()
+		if _begin_title_transition():
+			var closed := await _close_setting()
+			_end_title_transition()
+			if closed and is_inside_tree(): _setting_button.grab_focus()
+	elif _gallery_host.visible:
+		_close_gallery()
 
 func _ledger_buttons() -> Array[Button]:
 	var rows: Array[Button] = []
@@ -283,7 +357,7 @@ func _update_ledger_navigation() -> void:
 		button.focus_previous = button.get_path_to(rows[posmod(index - 1, rows.size())])
 		button.focus_next = button.get_path_to(rows[index + 1] if index + 1 < rows.size() else (_title_home if _title_home.visible else rows[0]))
 	if _title_home.visible:
-		var source: Button = _log_in_button if _backup_app_host.visible else _setting_button
+		var source: Button = _log_in_button if _backup_app_host.visible else (_gallery_button if _gallery_host.visible else _setting_button)
 		_title_home.focus_neighbor_left = _title_home.get_path_to(source)
 		_title_home.focus_neighbor_top = _title_home.get_path_to(_title_home)
 		_title_home.focus_neighbor_right = _title_home.get_path_to(_title_home)
@@ -292,6 +366,8 @@ func _update_ledger_navigation() -> void:
 			_title_home.focus_next = _title_home.get_path_to(first)
 			_title_home.focus_neighbor_bottom = _title_home.get_path_to(first)
 			_title_home.focus_previous = _title_home.get_path_to(first)
+		elif _gallery_host.visible and is_instance_valid(_gallery_instance):
+			_gallery_instance.refresh_return_navigation()
 		elif not is_instance_valid(_backup_app_instance):
 			_title_home.focus_next = _title_home.get_path_to(source)
 			_title_home.focus_previous = _title_home.get_path_to(source)
@@ -320,6 +396,9 @@ func _show_login_unavailable() -> void:
 	_title_home.grab_focus()
 
 func _can_leave_login() -> bool:
+	return not _title_transition and _source_departure_admitted()
+
+func _source_departure_admitted() -> bool:
 	return not is_instance_valid(_confirmation) \
 		and (not is_instance_valid(_backup_app_instance) or _backup_app_instance.can_return_home()) \
 		and (not is_instance_valid(_setting_instance) or _setting_instance.can_return_home())

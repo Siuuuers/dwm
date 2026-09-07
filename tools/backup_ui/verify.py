@@ -31,6 +31,13 @@ while pending:
     if not source.is_file():
         continue  # Dynamic paths are checked by the actual suite if they are used.
     copied.add(relative)
+    # Locale catalogs and font files are named relative to the manifest, rather
+    # than as literal res:// dependencies in GDScript.
+    if relative == 'localization/manifest.json':
+        manifest = json.loads(source.read_text(encoding='utf-8-sig'))
+        pending.extend('localization/' + entry['ui_file'] for entry in manifest['locales'])
+        for profile in manifest['font_profiles']:
+            pending.extend('localization/' + file for file in profile['font_files'])
     target = scratch / relative
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source, target)

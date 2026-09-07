@@ -1,0 +1,84 @@
+{
+  "base_commit": "a28f29cf7a0de9d219e3d405ebc4a9e047a6104f",
+  "donor_checkpoint": "26de279be5f6490ff453db359b1964ec10596962",
+  "task": "dwm-eei.6",
+  "acceptance_suite": "gallery-title-final-20260907a",
+  "counts": {
+    "Scripts": 7,
+    "Tests": 65,
+    "Passing Tests": 65,
+    "Asserts": 5212,
+    "Orphans": 24
+  },
+  "exit_code": 0,
+  "title_shell_checks": 337,
+  "rendered_tuples": 18,
+  "native_captures": 19,
+  "sources": {
+    "localization/ui/en.json": "e8918a20aa9a75d0f8663f323c1174bf29deec56b3cd2ba8a6c361885cd37f94",
+    "localization/ui/zh_CN.json": "8c5c086d0d0c43aa39dd8ba8c2a5d70526785be96ba64c8f7b5a000ff4c1840d",
+    "localization/ui/zh_HK.json": "7a2d44f616be29d4a354dc2e6351ff76d359ff605a6ad611afec9b98d765efe6",
+    "scenes/menu/GalleryScene.tscn": "443a459f7c574a3d16c439e202452259ff6bdfd4c369e5a76419d8d3770b44e6",
+    "scripts/ui/GalleryScene.gd": "1edf9a530d2355603cd337e75d4dc49d21951838ee70f7cea312a20e8ec7f99a",
+    "scripts/ui/MenuScene.gd": "b923189044a7829a8ed8d1e14d7d2fd8766976e84e9795e70b31a9218e7a6796",
+    "scripts/ui/gallery/GalleryCanvas.gd": "dc8e3e666613044cc17e54e5ae20ffc0a15add349e95ab19ceafc9cccd2f7d79",
+    "scripts/ui/gallery/GalleryRecordButton.gd": "316d66672b36083ad55515b8d2fc44eadd41ca05266da9ca423afe795f5885c7",
+    "scripts/ui/gallery/GalleryReplayButton.gd": "aabec3cb327827c5ca53e058ace44ae2571fc1049762fbd8ff1142d87dffc984",
+    "scripts/ui/gallery/GalleryTheme.gd": "edcec330a674ddb105ff36ea746b9ab54534a068b26974c6a3317c45b992c994",
+    "tests/integration/test_menu_gallery_host.gd": "f7c5cd42fb534fcc5fa8c19266a6182b0cdcb7804be072f538cb226fa225da38",
+    "tests/manual/verify_gallery_title_native.gd": "e62e7e2adf38fb236ed48042ac16e3bd23723c8e25b1857d353b69bd40c658db",
+    "tests/unit/test_gallery_registrar.gd": "c03f571afa25b42c93e4cbf3ed78fa6c1a235b7a2695c9f59c1269a1159baf44",
+    "tools/backup_ui/verify.py": "cb717fcdbfd3c5d72baf95534d89e0415293ee9cc2388879ce71bbe7de6b28da"
+  },
+  "source_git_blobs": {
+    "localization/ui/en.json": "f4af3795ef98963b74933f57322033554ff7bca9",
+    "localization/ui/zh_CN.json": "ee83cf4b71fe0169691501989683c6c3e7093a52",
+    "localization/ui/zh_HK.json": "78afb74684ab24c85ea310f4d6041e05d2d5e64c",
+    "scenes/menu/GalleryScene.tscn": "dbab4a598175641303f52bd59a5ba93a68c66795",
+    "scripts/ui/GalleryScene.gd": "ac82d330a6882767fa153d0c8ed234fb5856d016",
+    "scripts/ui/MenuScene.gd": "67543aa9eeb3eadf9a9dd60e8645349e01464ebe",
+    "scripts/ui/gallery/GalleryCanvas.gd": "53c9419da77032e3cc9fdc1c0101b49a5d17de68",
+    "scripts/ui/gallery/GalleryRecordButton.gd": "222476c0f50b468101b8dc846ce77582381a9daf",
+    "scripts/ui/gallery/GalleryReplayButton.gd": "37de70eeaf44ce8b88d03a777c676ed5c44db00a",
+    "scripts/ui/gallery/GalleryTheme.gd": "d9a286516de88c53188ca8771b81bbd547821762",
+    "tests/integration/test_menu_gallery_host.gd": "ab3886bc6896af6cf80dedeb90aee7ce36ed0b11",
+    "tests/manual/verify_gallery_title_native.gd": "aba0c39d88c2668e29bd09693acdccd5de8cf97d",
+    "tests/unit/test_gallery_registrar.gd": "202c0407b952145245b058174b22def76c81e6a4",
+    "tools/backup_ui/verify.py": "b1faf6e78f703741dccaa6eed9a113dbc74b3a3a"
+  },
+  "raw_log_sha256": {
+    ".godot/phase2r_logs/gallery-title-focused-20260907a.log": "e9712b0618098444a8750a4db9442fd29e78b72e42109a6ba5627285d36bf57d",
+    ".godot/phase2r_logs/gallery-title-native-20260907a.log": "e1ea33a83091f55323c11862875d165751facda4c7a8b5c17e3c6c5ce6df3518",
+    ".godot/phase2r_logs/gallery-title-final-20260907a.log": "f8c043bfa864baf48510675711237a024eca3e478d66823971629799f81f0b13"
+  },
+  "palette_scope": "After Hours and Midnight, Standard only",
+  "localization_scope": "Gallery unavailable/empty/replay copy uses three catalogs. Existing untranslated title ledger keys still use English fallback; this is not complete title localization.",
+  "save_schema_changed": false,
+  "replay_owner_added": false,
+  "public_record_metadata_added": false,
+  "full_gallery_complete": false,
+  "overall_ui_goal_complete": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false,
+  "protected_worktrees": [
+    {
+      "path": "C:/Users/glori/Documents/dwm",
+      "head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+      "tracked_dirty_paths": 20
+    },
+    {
+      "path": "C:/Users/glori/Documents/dwm-p2r13-resealed",
+      "head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+      "tracked_dirty_paths": 50
+    }
+  ],
+  "known_diagnostics": [
+    "Existing Unicode NUL diagnostics retained",
+    "24 Dialogic fixture orphans retained; no leak-free acceptance claim"
+  ],
+  "visual_inspection": [
+    "en-150-AfterHours-scrolled.png",
+    "zh_HK-150-Midnight-scrolled.png"
+  ]
+}

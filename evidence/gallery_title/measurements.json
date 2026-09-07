@@ -1,0 +1,4296 @@
+{
+  "captures": 19,
+  "checks": 38813,
+  "failures": [],
+  "fixture": "In-memory mock public Profile explicitly reports all canonical discoveries. No public ending metadata/version or player entitlement is inferred. Real locale catalogs and production font themes.",
+  "geometry_space": "Global logical rectangles; screenshots are native 640x360.",
+  "ok": true,
+  "requested_tuples": 18,
+  "samples": [
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/en-100-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "Unavailable record",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        36.0
+      ],
+      "text_percent": 100
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/en-100-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            36.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "Unavailable record",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        36.0
+      ],
+      "text_percent": 100
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/en-125-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "Unavailable record",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        44.0
+      ],
+      "text_percent": 125
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/en-125-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            44.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "Unavailable record",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        44.0
+      ],
+      "text_percent": 125
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 1438.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/en-150-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            122.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            242.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            234.0,
+            296.0,
+            122.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            372.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            364.0,
+            296.0,
+            122.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            502.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            494.0,
+            296.0,
+            122.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            632.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            624.0,
+            296.0,
+            122.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            762.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            754.0,
+            296.0,
+            122.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            892.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            884.0,
+            296.0,
+            122.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            1022.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            1014.0,
+            296.0,
+            122.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            1152.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            1144.0,
+            296.0,
+            122.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            1282.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            1274.0,
+            296.0,
+            122.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            1412.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            1404.0,
+            296.0,
+            122.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 846.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "Unavailable record",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        54.0
+      ],
+      "text_percent": 150
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 1438.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/en-150-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            122.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            242.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            234.0,
+            296.0,
+            122.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            372.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            364.0,
+            296.0,
+            122.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            502.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            494.0,
+            296.0,
+            122.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            632.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            624.0,
+            296.0,
+            122.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            762.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            754.0,
+            296.0,
+            122.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            892.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            884.0,
+            296.0,
+            122.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            1022.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            1014.0,
+            296.0,
+            122.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            1152.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            1144.0,
+            296.0,
+            122.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            1282.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            1274.0,
+            296.0,
+            122.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            1412.0,
+            264.0,
+            106.0
+          ],
+          "copy": "Unavailable record",
+          "font_size": 36,
+          "line_count": 2,
+          "rect": [
+            360.0,
+            1404.0,
+            296.0,
+            122.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 846.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "Unavailable record",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        54.0
+      ],
+      "text_percent": 150
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/zh_CN-100-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "记录不可用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        36.0
+      ],
+      "text_percent": 100
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/zh_CN-100-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            36.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "记录不可用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        36.0
+      ],
+      "text_percent": 100
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/zh_CN-125-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "记录不可用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        44.0
+      ],
+      "text_percent": 125
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/zh_CN-125-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            44.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "记录不可用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        44.0
+      ],
+      "text_percent": 125
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/zh_CN-150-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "记录不可用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        54.0
+      ],
+      "text_percent": 150
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/zh_CN-150-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            54.0
+          ],
+          "copy": "记录不可用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "记录不可用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        54.0
+      ],
+      "text_percent": 150
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/zh_HK-100-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "記錄無法使用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        36.0
+      ],
+      "text_percent": 100
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/zh_HK-100-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            36.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 24,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "記錄無法使用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        36.0
+      ],
+      "text_percent": 100
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/zh_HK-125-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "記錄無法使用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        44.0
+      ],
+      "text_percent": 125
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/zh_HK-125-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            44.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 30,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "記錄無法使用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        44.0
+      ],
+      "text_percent": 125
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "path": "renders/zh_HK-150-AfterHours-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "記錄無法使用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        54.0
+      ],
+      "text_percent": 150
+    },
+    {
+      "colour_preset": "standard",
+      "high_contrast": false,
+      "index_extent": 976.0,
+      "index_rect": [
+        352.0,
+        96.0,
+        312.0,
+        592.0
+      ],
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "Midnight",
+      "path": "renders/zh_HK-150-Midnight-scrolled.png",
+      "row_count": 11,
+      "rows": [
+        {
+          "caption_rect": [
+            376.0,
+            112.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            104.0,
+            296.0,
+            80.0
+          ],
+          "row": 0
+        },
+        {
+          "caption_rect": [
+            376.0,
+            200.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            192.0,
+            296.0,
+            80.0
+          ],
+          "row": 1
+        },
+        {
+          "caption_rect": [
+            376.0,
+            288.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            280.0,
+            296.0,
+            80.0
+          ],
+          "row": 2
+        },
+        {
+          "caption_rect": [
+            376.0,
+            376.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            368.0,
+            296.0,
+            80.0
+          ],
+          "row": 3
+        },
+        {
+          "caption_rect": [
+            376.0,
+            464.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            456.0,
+            296.0,
+            80.0
+          ],
+          "row": 4
+        },
+        {
+          "caption_rect": [
+            376.0,
+            552.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            544.0,
+            296.0,
+            80.0
+          ],
+          "row": 5
+        },
+        {
+          "caption_rect": [
+            376.0,
+            640.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            632.0,
+            296.0,
+            80.0
+          ],
+          "row": 6
+        },
+        {
+          "caption_rect": [
+            376.0,
+            728.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            720.0,
+            296.0,
+            80.0
+          ],
+          "row": 7
+        },
+        {
+          "caption_rect": [
+            376.0,
+            816.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            808.0,
+            296.0,
+            80.0
+          ],
+          "row": 8
+        },
+        {
+          "caption_rect": [
+            376.0,
+            904.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            896.0,
+            296.0,
+            80.0
+          ],
+          "row": 9
+        },
+        {
+          "caption_rect": [
+            376.0,
+            992.0,
+            264.0,
+            54.0
+          ],
+          "copy": "記錄無法使用",
+          "font_size": 36,
+          "line_count": 1,
+          "rect": [
+            360.0,
+            984.0,
+            296.0,
+            80.0
+          ],
+          "row": 10
+        }
+      ],
+      "scrolled_offset": 384.0,
+      "shared_return_rect": [
+        320.0,
+        0.0,
+        64.0,
+        64.0
+      ],
+      "status_copy": "記錄無法使用",
+      "status_rect": [
+        728.0,
+        104.0,
+        464.0,
+        54.0
+      ],
+      "text_percent": 150
+    }
+  ],
+  "scope": "Actual Menu/Gallery rendering, native keyboard focus and tree accessibility strings; no replay, metadata, OS assistive technology or complete Gallery acceptance."
+}
