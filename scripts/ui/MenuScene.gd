@@ -18,6 +18,26 @@ const SHUTDOWN_COPY := {
 	"zh-HK": ["關閉遊戲？", "退出遊戲。", "取消", "關閉遊戲"],
 }
 
+# Operational copy follows the accepted New Acc sheet; live-only replacement
+# must not claim an Autosave exists. These facts come only from the owner.
+const NEW_ACC_COPY := {
+	"en": ["Start a new account?", "Autosave will be replaced. Other saves will remain.",
+		"Current progress will be replaced. Other saves will remain.", "Cancel", "Start",
+		"New Acc unavailable", "The account could not be prepared. Try again.",
+		"The available state changed. Review New Acc again before starting.",
+		"New Acc needs recovery", "The account has not finished starting. Retry to complete the same operation.", "Retry"],
+	"zh-CN": ["开始新账号？", "自动存档将被替换。其他存档将保留。",
+		"当前进度将被替换。其他存档将保留。", "取消", "开始",
+		"无法新建账号", "暂时无法准备新账号。请重试。",
+		"当前状态已改变。开始前，请重新确认新建账号。",
+		"新账号需要恢复", "新账号尚未完成启动。请重试以完成同一次操作。", "重试"],
+	"zh-HK": ["開始新帳號？", "自動存檔將被替換。其他存檔將保留。",
+		"目前進度將被替換。其他存檔將保留。", "取消", "開始",
+		"無法建立帳號", "暫時無法準備新帳號。請重試。",
+		"目前狀態已改變。開始前，請重新確認建立帳號。",
+		"新帳號需要復原", "新帳號尚未完成啟動。請重試以完成同一次操作。", "重試"],
+}
+
 @onready var _new_acc_button: Button = %NewAccButton
 @onready var _log_in_button: Button = %LogInButton
 @onready var _gallery_button: Button = %GalleryButton
@@ -43,6 +63,11 @@ var _settings_services: Dictionary = {}
 var _gallery_host: Control
 var _gallery_instance: Control
 var _title_transition := false
+var _new_acc_owner: Object
+var _new_acc_token := ""
+var _new_acc_transaction := ""
+var _new_acc_source: WeakRef
+var _new_acc_source_captured := false
 
 func configure_settings_services(services: Dictionary) -> void:
 	_settings_services = services.duplicate()
@@ -74,28 +99,142 @@ func _ready() -> void:
 	_update_title_destination()
 	_new_acc_button.call_deferred("grab_focus")
 
+func configure_new_acc_owner(owner: Object) -> void:
+	# A presentation seam for the same SaveManager capability used in production.
+	_new_acc_owner = owner
+
+func _menu_new_acc_owner() -> Object:
+	if is_instance_valid(_new_acc_owner): return _new_acc_owner
+	return get_node_or_null("/root/SaveManager") if is_inside_tree() else null
+
+func _title_source_alive() -> bool:
+	if not is_inside_tree(): return false
+	var node: Node = self
+	while node != null:
+		if node.is_queued_for_deletion(): return false
+		node = node.get_parent()
+	return true
+
+func _new_acc_source_is_current() -> bool:
+	if not _title_source_alive() or not _new_acc_source_captured: return false
+	if _new_acc_source == null: return get_tree().current_scene == null
+	var source: Node = _new_acc_source.get_ref() as Node
+	return is_instance_valid(source) and not source.is_queued_for_deletion() and get_tree().current_scene == source
+
+func _finish_new_acc_transition() -> bool:
+	_title_transition = false
+	if not _new_acc_source_is_current(): return false
+	_end_title_transition()
+	return true
+
 func _on_new_acc_pressed() -> void:
-	if not _can_leave_login():
+	if not _title_source_alive() or not _begin_title_transition(): return
+	var scene := get_tree().current_scene
+	_new_acc_source = weakref(scene) if scene != null else null
+	_new_acc_source_captured = true
+	if not await _close_setting():
+		_finish_new_acc_transition()
 		return
-	# New Game runs as one atomic transaction; the prepared route participant is the
-	# only scene transition (no separate SceneRouter.start_game_from_menu call).
-	if not has_node("/root/SaveManager"):
+	if not _new_acc_source_is_current():
+		_title_transition = false
 		return
-	var save_manager := get_node("/root/SaveManager")
-	if not save_manager.has_method("start_new_run"):
+	_close_backup_app()
+	_close_gallery()
+	if _backup_app_host.visible or _gallery_host.visible:
+		_end_title_transition()
 		return
-	var initial_context := {
-		"route_id": "main",
-		"dialogic_checkpoint": {},
-		"active_app_id": null,
-		"audio_context": {},
-		"content_version": 1,
-	}
-	# Phase 2R route readiness resolves synchronously; when it becomes awaited
-	# (real target-scene layout readiness) this call gains `await`.
-	var result: Dictionary = save_manager.start_new_run(initial_context)
-	if not result.get("ok", false):
-		push_warning("MenuScene: start_new_run failed (%s)." % str(result.get("code", "")))
+	var owner := _menu_new_acc_owner()
+	if owner == null or not owner.has_method("prepare_new_run_action"):
+		_end_title_transition()
+		_show_new_acc_unavailable(false)
+		return
+	# Route finalization can detach Menu before commit returns. Retain this exact
+	# capability for transient cleanup and Retry instead of looking up a new owner.
+	_new_acc_owner = owner
+	var prepared: Dictionary = owner.prepare_new_run_action({
+		"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
+		"audio_context": {}, "content_version": 1})
+	if not _finish_new_acc_transition():
+		if prepared.get("ok", false): owner.cancel_prepared_new_run(str(prepared.value.token))
+		return
+	if not prepared.get("ok", false):
+		_handle_new_acc_result(prepared)
+		return
+	_new_acc_token = str(prepared.value.token)
+	if not prepared.value.requires_confirmation:
+		_commit_new_acc()
+		return
+	var copy: Array = NEW_ACC_COPY[_locale]
+	present_confirmation({"title": copy[0],
+		"body": copy[1] if prepared.value.replaces_autosave else copy[2],
+		"cancel": copy[3], "confirm": copy[4], "risk": "danger", "warning": true,
+		"theme": BACKUP_THEME.build(_locale, _percent)}, _commit_new_acc, _cancel_new_acc)
+
+func _cancel_new_acc() -> void:
+	var owner := _menu_new_acc_owner()
+	if not _new_acc_token.is_empty() and owner != null:
+		owner.cancel_prepared_new_run(_new_acc_token)
+	_new_acc_token = ""
+	_focus_new_acc()
+
+func _commit_new_acc() -> void:
+	if _new_acc_token.is_empty() or _title_transition: return
+	if not _new_acc_source_is_current():
+		_cancel_new_acc()
+		return
+	_title_transition = true
+	_sync_title_navigation()
+	var result: Dictionary = _menu_new_acc_owner().commit_prepared_new_run(_new_acc_token)
+	# Release only the transient preparation. A durable decision belongs to Retry.
+	_cancel_new_acc()
+	if _finish_new_acc_transition(): _handle_new_acc_result(result)
+
+func _handle_new_acc_result(result: Dictionary) -> void:
+	if not _new_acc_source_is_current(): return
+	if result.get("ok", false):
+		_new_acc_transaction = ""
+		_sync_title_navigation()
+		return
+	if result.get("recovery_required", false) and not str(result.get("transaction_id", "")).is_empty():
+		_new_acc_transaction = str(result.transaction_id)
+		_show_new_acc_recovery()
+		return
+	_show_new_acc_unavailable(str(result.get("code", "")) == "NEW_RUN_PREPARATION_STALE")
+
+func _show_new_acc_unavailable(stale: bool) -> void:
+	var copy: Array = NEW_ACC_COPY[_locale]
+	present_confirmation({"title": copy[5], "body": copy[7] if stale else copy[6],
+		"cancel": copy[3], "confirm": copy[10], "risk": "neutral", "warning": false,
+		"theme": BACKUP_THEME.build(_locale, _percent)}, _on_new_acc_pressed, _focus_new_acc)
+
+func _show_new_acc_recovery() -> void:
+	var copy: Array = NEW_ACC_COPY[_locale]
+	present_confirmation({"title": copy[8], "body": copy[9], "confirm": copy[10],
+		"cancelable": false, "risk": "neutral", "warning": false,
+		"theme": BACKUP_THEME.build(_locale, _percent)}, _retry_new_acc, Callable())
+
+func _retry_new_acc() -> void:
+	if _new_acc_transaction.is_empty() or _title_transition or not _new_acc_source_is_current(): return
+	_title_transition = true
+	_sync_title_navigation()
+	var result: Dictionary = _menu_new_acc_owner().retry_new_run(_new_acc_transaction)
+	if not _finish_new_acc_transition(): return
+	if result.get("ok", false):
+		_handle_new_acc_result(result)
+	else:
+		# Even an unavailable retry cannot grant cancellation of a durable decision.
+		_show_new_acc_recovery()
+
+func _focus_new_acc() -> void:
+	if _new_acc_source_is_current() and not _title_transition:
+		_new_acc_button.grab_focus()
+
+func _exit_tree() -> void:
+	# Menu teardown can cancel preparation only, never a retained durable operation.
+	if not _new_acc_token.is_empty():
+		var owner := _menu_new_acc_owner()
+		if is_instance_valid(owner): owner.cancel_prepared_new_run(_new_acc_token)
+		_new_acc_token = ""
 
 func _on_log_in_pressed() -> void:
 	if not _begin_title_transition(): return
@@ -396,7 +535,7 @@ func _show_login_unavailable() -> void:
 	_title_home.grab_focus()
 
 func _can_leave_login() -> bool:
-	return not _title_transition and _source_departure_admitted()
+	return not _title_transition and _new_acc_transaction.is_empty() and _source_departure_admitted()
 
 func _source_departure_admitted() -> bool:
 	return not is_instance_valid(_confirmation) \

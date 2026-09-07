@@ -66,6 +66,8 @@ var _new_run_busy := false
 var _new_run_gate_token := ""
 var _new_run_transaction_id := ""
 var _new_run_intent: Dictionary = {}
+var _prepared_new_run: Dictionary = {}
+var _prepared_new_run_counter := 0
 var _identity_allocation_participant: Object = null
 var _lock_owner: StringName = &""
 var _pending_deferred_save := false
@@ -458,9 +460,150 @@ func _admit_new_run_journal_io() -> Dictionary:
 		return _mutation_gate.guard_external(&"new_run_journal")
 	if _mutation_gate.is_fatal_latched():
 		return _mutation_gate.guard_external(&"new_run_journal")
-	if not _mutation_gate.is_internal_owner_active(&"new_run") or _new_run_transaction_id.is_empty():
+	if not _mutation_gate.is_internal_owner_active(&"new_run"):
 		return _fail(&"new_run_recovery_conflict", "retained custody is no longer active")
+	# A prepared UI commit holds the New Run lease before it checks durable
+	# incompletes, but has deliberately not issued its transaction identity yet.
+	if _new_run_transaction_id.is_empty() and _prepared_new_run.is_empty():
+		return _fail(&"new_run_recovery_conflict", "retained custody has no operation")
 	return {"ok": true}
+
+## Freezes the exact replaceable sources for the title consent sheet. This is a
+## read-only operation: it neither loads the continuation journal nor allocates
+## identity, reconciles storage, or changes live run state.
+func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
+	if _new_run_busy: return _fail(&"new_run_busy", "")
+	var ready := _new_run_ready(true)
+	if not ready.get("ok", false): return ready
+	var context_error := _validate_new_run_context(initial_context)
+	if not context_error.is_empty(): return _fail(&"invalid_initial_context", context_error)
+	if not _new_run_transaction_id.is_empty() or not _new_run_intent.is_empty():
+		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
+	var admitted: Dictionary = _mutation_gate.guard_external(&"new_run_prepare")
+	if not admitted.get("ok", false): return admitted
+	var profile: Dictionary = _new_run_profile_owner.prepare_new_run_consumption(
+		_new_run_profile_owner.get_profile_revision())
+	if not profile.get("ok", false): return profile
+	var autosave := _capture_prepared_autosave_baseline()
+	if not autosave.get("ok", false): return autosave
+	var live := _capture_prepared_live_baseline()
+	if not live.get("ok", false): return live
+	_prepared_new_run_counter += 1
+	var token := "prepared-new-run-%d-%d" % [get_instance_id(), _prepared_new_run_counter]
+	_prepared_new_run = {
+		"token": token,
+		"initial_context": initial_context.duplicate(true),
+		"profile": (profile["value"] as Dictionary).duplicate(true),
+		"autosave": (autosave["value"] as Dictionary).duplicate(true),
+		"live": (live["value"] as Dictionary).duplicate(true),
+	}
+	var replaces_live: bool = bool(_prepared_new_run["live"]["present"])
+	var replaces_autosave: bool = bool(_prepared_new_run["autosave"]["occupied"])
+	return {"ok": true, "code": &"ok", "value": {
+		"token": token,
+		"requires_confirmation": replaces_live or replaces_autosave,
+		"replaces_live": replaces_live,
+		"replaces_autosave": replaces_autosave,
+	}}
+
+func cancel_prepared_new_run(token: String) -> Dictionary:
+	if token.is_empty() or _prepared_new_run.is_empty() or token != str(_prepared_new_run.get("token", "")):
+		return _fail(&"invalid_new_run_preparation", "")
+	_prepared_new_run.clear()
+	return {"ok": true, "code": &"ok", "value": {"cancelled": true}}
+
+func commit_prepared_new_run(token: String) -> Dictionary:
+	if _new_run_busy: return _fail(&"new_run_busy", "")
+	if token.is_empty() or _prepared_new_run.is_empty() or token != str(_prepared_new_run.get("token", "")):
+		return _fail(&"invalid_new_run_preparation", "")
+	var ready := _new_run_ready(true)
+	if not ready.get("ok", false): return ready
+	if not _new_run_transaction_id.is_empty() or not _new_run_intent.is_empty():
+		_prepared_new_run.clear()
+		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
+	_new_run_busy = true
+	var result := _commit_prepared_new_run()
+	_new_run_busy = false
+	return result
+
+func _commit_prepared_new_run() -> Dictionary:
+	var acquired := _take_new_run_custody()
+	if not acquired.get("ok", false): return acquired
+	var retained := _prepared_new_run.duplicate(true)
+	var listed: Dictionary = _continuation_journal.list_incomplete()
+	if not listed.get("ok", false):
+		return _release_prepared_new_run_after_refusal(listed, false)
+	if not listed["value"].is_empty():
+		return _release_prepared_new_run_after_refusal(
+			_fail(&"continuation_recovery_required", "an unresolved operation must recover before New Run"), false)
+	var profile: Dictionary = _new_run_profile_owner.prepare_new_run_consumption(
+		retained["profile"]["profile_revision"])
+	if not profile.get("ok", false):
+		if profile.get("code") in [&"profile_revision_changed", &"profile_source_changed"]:
+			return _release_prepared_new_run_after_refusal(
+				_fail(&"NEW_RUN_PREPARATION_STALE", "Profile changed after preparation"), true)
+		return _release_prepared_new_run_after_refusal(profile, false)
+	if profile["value"] != retained["profile"]:
+		return _release_prepared_new_run_after_refusal(
+			_fail(&"NEW_RUN_PREPARATION_STALE", "Profile changed after preparation"), true)
+	var autosave := _capture_prepared_autosave_baseline()
+	if not autosave.get("ok", false):
+		return _release_prepared_new_run_after_refusal(autosave, false)
+	if autosave["value"] != retained["autosave"]:
+		return _release_prepared_new_run_after_refusal(
+			_fail(&"NEW_RUN_PREPARATION_STALE", "Autosave changed after preparation"), true)
+	var live := _capture_prepared_live_baseline()
+	if not live.get("ok", false):
+		return _release_prepared_new_run_after_refusal(live, false)
+	if live["value"] != retained["live"]:
+		return _release_prepared_new_run_after_refusal(
+			_fail(&"NEW_RUN_PREPARATION_STALE", "Live run changed after preparation"), true)
+	var prepared := _prepare_new_run_decision_from_sources(
+		retained["initial_context"], retained["profile"], retained["autosave"])
+	if not prepared.get("ok", false):
+		return _release_prepared_new_run_after_refusal(prepared, false)
+	# The next write establishes (or ambiguously may establish) the durable decision.
+	# From this point recovery is by transaction id, never by replaying the UI token.
+	_prepared_new_run.clear()
+	return _commit_new_run_intent(prepared)
+
+func _release_prepared_new_run_after_refusal(failure: Dictionary, consume: bool) -> Dictionary:
+	if consume: _prepared_new_run.clear()
+	var released := _release_new_run_custody()
+	return failure if released.get("ok", false) else released
+
+func _capture_prepared_autosave_baseline() -> Dictionary:
+	var inspected: Dictionary = _storage.inspect_revision("autosave.json")
+	if not inspected.get("ok", false): return inspected
+	var evidence: Variant = inspected.get("value")
+	if typeof(evidence) != TYPE_DICTIONARY:
+		return _fail(&"invalid_autosave_revision_evidence", "")
+	var source := evidence as Dictionary
+	if typeof(source.get("exists")) != TYPE_BOOL or typeof(source.get("revision")) != TYPE_STRING:
+		return _fail(&"invalid_autosave_revision_evidence", "")
+	var text: Variant = source.get("text")
+	if text != null and typeof(text) != TYPE_STRING:
+		return _fail(&"invalid_autosave_revision_evidence", "")
+	var occupied: bool = bool(source["exists"]) and (text == null or not str(text).is_empty())
+	return {"ok": true, "code": &"ok", "value": {
+		"revision": str(source["revision"]), "occupied": occupied}}
+
+func _capture_prepared_live_baseline() -> Dictionary:
+	var participant: Object = _restore_participants.get("run")
+	if participant == null or not participant.has_method("get_new_run_replacement_baseline"):
+		return _fail(&"new_run_replacement_unavailable", "")
+	var captured: Dictionary = participant.get_new_run_replacement_baseline()
+	if not captured.get("ok", false): return captured
+	var value: Variant = captured.get("value")
+	if typeof(value) != TYPE_DICTIONARY:
+		return _fail(&"new_run_replacement_unavailable", "")
+	var baseline := value as Dictionary
+	var keys: Array = baseline.keys()
+	keys.sort()
+	if keys != ["present", "revision"] or typeof(baseline["present"]) != TYPE_BOOL \
+			or typeof(baseline["revision"]) != TYPE_STRING or not _is_sha256(str(baseline["revision"])):
+		return _fail(&"new_run_replacement_unavailable", "")
+	return {"ok": true, "code": &"ok", "value": baseline.duplicate(true)}
 
 func start_new_run(initial_context: Dictionary) -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
@@ -471,6 +614,8 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 	# A fresh Start cannot replace an unresolved decision or resample its preferences.
 	if not _new_run_transaction_id.is_empty():
 		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
+	# An explicit non-UI start supersedes any uncommitted title preparation.
+	_prepared_new_run.clear()
 	var admitted := _admit_new_run_journal_io()
 	if not admitted.get("ok", false): return admitted
 	var listed: Dictionary = _continuation_journal.list_incomplete()
@@ -489,6 +634,9 @@ func _start_new_run_decision(initial_context: Dictionary) -> Dictionary:
 	if not prepared.get("ok", false):
 		var released := _release_new_run_custody()
 		return prepared if released.get("ok", false) else released
+	return _commit_new_run_intent(prepared)
+
+func _commit_new_run_intent(prepared: Dictionary) -> Dictionary:
 	_new_run_intent = prepared["value"].duplicate(true)
 	_new_run_transaction_id = str(_new_run_intent["transaction_id"])
 	# Even an uncertain journal write keeps the exact candidate for an explicit retry.
@@ -567,6 +715,14 @@ func _prepare_new_run_decision(initial_context: Dictionary) -> Dictionary:
 	if not profile.get("ok", false): return profile
 	var source: Dictionary = _storage.inspect_revision("autosave.json")
 	if not source.get("ok", false): return source
+	return _prepare_new_run_decision_from_sources(initial_context, profile["value"], {
+		"revision": source["value"]["revision"],
+		"occupied": bool(source["value"]["exists"]) and (source["value"]["text"] == null
+			or not str(source["value"]["text"]).is_empty()),
+	})
+
+func _prepare_new_run_decision_from_sources(initial_context: Dictionary,
+		profile_material: Dictionary, autosave_source: Dictionary) -> Dictionary:
 	var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
 	if not issued.get("ok", false): return issued
 	var transaction_id := str(issued["value"]["token"])
@@ -577,7 +733,7 @@ func _prepare_new_run_decision(initial_context: Dictionary) -> Dictionary:
 	if not allocation.get("ok", false): return allocation
 	var identity: Dictionary = allocation["value"]
 	var context := initial_context.duplicate(true)
-	context["dark_mode"] = profile["value"]["captured_dark"]
+	context["dark_mode"] = profile_material["captured_dark"]
 	var run: Dictionary = _restore_participants["run"].prepare_new_run(
 		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
 		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"], context["dark_mode"])
@@ -587,7 +743,7 @@ func _prepare_new_run_decision(initial_context: Dictionary) -> Dictionary:
 		audio_context, int(context["content_version"]), 1)
 	if not built.get("ok", false): return built
 	var snapshot: Dictionary = built["value"]["snapshot"]
-	var plans := _prepare_new_run_plans(snapshot, profile["value"]["candidate"])
+	var plans := _prepare_new_run_plans(snapshot, profile_material["candidate"])
 	if not plans.get("ok", false): return plans
 	var reset: Dictionary = _journal.prepare_reset_with_initial(snapshot, &"day_start")
 	if not reset.get("ok", false): return reset
@@ -597,8 +753,8 @@ func _prepare_new_run_decision(initial_context: Dictionary) -> Dictionary:
 	var serialized: Dictionary = CANONICAL_JSON.stringify(document["value"])
 	if not serialized.get("ok", false): return serialized
 	var outgoing := str(serialized["value"]) + "\n"
-	var materials := {"allocation_candidate": identity, "profile": profile["value"],
-		"autosave": {"source_revision": source["value"]["revision"], "outgoing_text": outgoing,
+	var materials := {"allocation_candidate": identity, "profile": profile_material,
+		"autosave": {"source_revision": autosave_source["revision"], "outgoing_text": outgoing,
 			"outgoing_hash": outgoing.sha256_text()}}
 	var fingerprint := _canonical_sha256({"kind": "new_run", "transaction_id": transaction_id,
 		"initial_context": context, "new_run_materials": materials})
@@ -1713,6 +1869,14 @@ static func _slot_id_string(kind: String, slot_id: Variant) -> String:
 	if kind == "slot":
 		return "slot:%d" % int(slot_id)
 	return kind
+
+static func _is_sha256(value: String) -> bool:
+	if value.length() != 64:
+		return false
+	for character: String in value:
+		if character not in "0123456789abcdef":
+			return false
+	return true
 
 static func _canonical_sha256(value: Variant) -> String:
 	var emitted: Dictionary = CANONICAL_JSON.stringify(value)

@@ -11,6 +11,11 @@ var _owner: Object = null
 func _init(owner: Object) -> void:
 	_owner = owner
 
+func get_new_run_replacement_baseline() -> Dictionary:
+	if not is_instance_valid(_owner) or not _owner.has_method("get_new_run_replacement_baseline"):
+		return _fail(&"new_run_replacement_unavailable", "")
+	return _owner.get_new_run_replacement_baseline()
+
 func prepare(input: Dictionary) -> Dictionary:
 	if typeof(input.get("snapshot")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_run_input", "run participant requires a snapshot")

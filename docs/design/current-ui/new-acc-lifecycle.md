@@ -223,3 +223,46 @@ remain visible. Full evidence and source bindings are in
 This checkpoint completes the retained-pair prerequisite. Prepared Start, truthful
 replacement consent, live-session presence, and mounted Retry/recovery remain open.
 The all-ten-family UI goal remains active; no merge or push is included.
+
+## Prepared title consent and retained Retry
+
+This local slice adds a pure `prepare_new_run_action` capability, one transient
+preparation token, explicit cancellation, and a gated commit that revalidates the
+Profile, raw Autosave bytes and full live-run baseline before identity issuance.
+Preparation does not load or reconcile the continuation journal. Commit must refuse
+an older unfinished continuation; a transient title preparation is not a claim that
+startup recovery is complete. A changed baseline invalidates consent.
+
+GameState reports replacement presence only for a validated installed, unfinished
+run. Its revision covers its complete restore backup. An empty/reset placeholder,
+detached preparation and a completed lifecycle do not count as a live continuation.
+Simply routing to Title does not abandon GameState; no-save Return still requires
+actual lifecycle-owner invalidation in later production wiring.
+
+The actual Menu waits for Settings departure, obtains the prepared owner facts,
+and uses the shared Warning sheet with Cancel focus and Danger Start only when
+replacement is required. Existing Autosave uses the exact accepted English body.
+Live-only replacement uses factual operational copy about current progress, without
+claiming an Autosave exists. Empty Title needs no replacement confirmation. Source
+scene identity and queued ancestors are checked across departure and owner calls.
+
+A stale preparation returns to fresh preparation and renewed consent. After a
+durable decision, the shared sheet has a single neutral Retry action, retains the
+transaction identity, consumes Back, and blocks other title commands. Menu teardown
+can cancel transient preparation only. This slice adds English, Simplified Chinese
+and Traditional Chinese operational copy using the existing font themes.
+
+Verification: 58 distinct GUT tests across seven suites pass on their latest runs.
+The actual Menu/shared-sheet native probe passes 422 checks with 18 captures across
+three locales and three text sizes. These rendering fixtures use synthetic owner
+outcomes; the separate real-owner suites prove preparation and durability. A real
+production title seed and cold-process resume pass 56 and 71 checks. Production
+verification caught a detached-title owner lookup; retaining the resolved owner
+before preparation fixes cleanup after route detachment. The failed attempt and
+its correction are preserved alongside final results in
+[evidence/new_acc_consent/summary.json](../../../evidence/new_acc_consent/summary.json).
+Existing Unicode NUL and the exact pre-existing Dialogic shutdown diagnostics remain;
+this checkpoint does not claim a leak-free engine exit.
+It does not claim full New Acc acceptance: cold-start failure needs a Bootstrap
+retry/resume host, session abandonment needs production ownership, and broader
+palette/accessibility acceptance and the ten-family UI work remain open.

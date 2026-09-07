@@ -2134,6 +2134,21 @@ func get_run_configuration() -> Dictionary:
 	return {"ok": true, "value": {"dark_mode": _run_lifecycle.to_dict()["dark_mode"]}}
 
 
+## Replacement consent concerns the installed unfinished state held by this owner.
+## A raw menu route does not abandon it. No-save Return must later invalidate its
+## session through the actual lifecycle owner; this read seam does not implement Return.
+func get_new_run_replacement_baseline() -> Dictionary:
+	var captured: Dictionary = capture_restore_state()
+	if not captured.get("ok", false):
+		return {"ok": false, "code": &"new_run_replacement_unavailable"}
+	var backup: Dictionary = captured["value"]["backup"]
+	var encoded: Dictionary = _CANONICAL_JSON.stringify(backup)
+	if not encoded.get("ok", false):
+		return {"ok": false, "code": &"new_run_replacement_unavailable"}
+	var present: bool = backup["run_configuration_installed"] and backup["lifecycle"]["state"] in ["PLAYING", "ENDING"]
+	return {"ok": true, "value": {"present": present, "revision": str(encoded["value"]).sha256_text()}}
+
+
 ## Pure read seam for the shared narrative checkpoint adapter (dwm-p2r.8, Plan-05 Task 2).
 ## Returns the complete detached CURRENT RunSnapshot input without mutation or publication.
 func capture_run_snapshot_input() -> Dictionary:

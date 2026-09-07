@@ -14,6 +14,7 @@ var confirm_button: Button
 var body_scroll: ScrollContainer
 var _lower_controls: Array[Dictionary] = []
 var _settled := false
+var _cancelable := true
 var _held: Dictionary = {}
 var _navigation_held: Dictionary = {}
 var _native_source := ""
@@ -21,6 +22,7 @@ var _touch: Dictionary = {}
 var _await_neutral := false
 
 func _ready() -> void:
+	_cancelable = request.get("cancelable", true)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_await_neutral = Input.is_action_pressed(&"ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
@@ -76,7 +78,7 @@ func _ready() -> void:
 	confirm_button = KEY.new()
 	confirm_button.name = "ConfirmButton"
 	confirm_button.set_caption(str(request.get("confirm", "")))
-	confirm_button.risk = str(request.get("risk", "neutral"))
+	confirm_button.risk = str(request.get("risk", "neutral")) if _cancelable else "neutral"
 	for button in [cancel_button, confirm_button]:
 		button.action_mode = BaseButton.ACTION_MODE_BUTTON_RELEASE
 		button.custom_minimum_size = Vector2(248, 64)
@@ -84,17 +86,22 @@ func _ready() -> void:
 		actions.add_child(button)
 	cancel_button.pressed.connect(_finish.bind(false))
 	confirm_button.pressed.connect(_finish.bind(true))
+	if not _cancelable:
+		cancel_button.hide()
+		cancel_button.disabled = true
+		cancel_button.focus_mode = Control.FOCUS_NONE
+		confirm_button.accessibility_description = body.text
 	cancel_button.accessibility_description = body.text
 	for button: Button in [cancel_button, confirm_button]:
-		var other: Button = confirm_button if button == cancel_button else cancel_button
+		var other: Button = (confirm_button if button == cancel_button else cancel_button) if _cancelable else button
 		button.focus_next = button.get_path_to(other)
 		button.focus_previous = button.get_path_to(other)
-		button.focus_neighbor_left = button.get_path_to(cancel_button)
-		button.focus_neighbor_right = button.get_path_to(confirm_button)
+		button.focus_neighbor_left = button.get_path_to(cancel_button if _cancelable else button)
+		button.focus_neighbor_right = button.get_path_to(confirm_button if _cancelable else button)
 		button.focus_neighbor_top = button.get_path()
 		button.focus_neighbor_bottom = button.get_path()
 	body_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_NONE
-	cancel_button.grab_focus()
+	(cancel_button if _cancelable else confirm_button).grab_focus()
 	visibility_changed.connect(_on_visibility_changed)
 
 func _suspend(node: Node) -> void:
@@ -120,7 +127,7 @@ func _exit_tree() -> void:
 	_restore_custody()
 
 func _finish(accepted: bool) -> void:
-	if _settled: return
+	if _settled or (not accepted and not _cancelable): return
 	_settled = true
 	# Consume before lower controls or a finished observer regain custody.
 	get_viewport().set_input_as_handled()
@@ -152,7 +159,9 @@ func _input(event: InputEvent) -> void:
 		return
 	if event.is_action(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
-		if event.is_pressed(): _finish(false)
+		if event.is_pressed():
+			if not _cancelable: invalidate_pending_input()
+			_finish(false)
 		return
 	if event is InputEventScreenDrag:
 		invalidate_pending_input()
