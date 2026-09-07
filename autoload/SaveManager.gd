@@ -643,6 +643,14 @@ func _run_participant_transaction(
 			return acquired
 		gate_token = str(acquired["value"]["token"])
 
+	var journal_backup: Variant = null
+	if typeof(journal_candidate) == TYPE_DICTIONARY:
+		var captured_journal: Dictionary = _journal.capture_state()
+		if not captured_journal.get("ok", false):
+			_release_transaction(owner, gate_token, holds_save_lock)
+			return captured_journal
+		journal_backup = captured_journal["value"]["backup"]
+
 	var backups := {}
 	for key: String in _PARTICIPANT_APPLY_ORDER:
 		var captured: Dictionary = _restore_participants[key].capture()
@@ -708,7 +716,7 @@ func _run_participant_transaction(
 	for key: String in finalize_order:
 		var finalized: Dictionary = _restore_participants[key].finalize()
 		if not finalized.get("ok", false):
-			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, finalized)
+			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, finalized, journal_backup)
 	_release_transaction(owner, gate_token, holds_save_lock)
 	if not continuation.is_empty():
 		# Best-effort: participants are already finalized and the checkpoint journal already
@@ -751,9 +759,16 @@ func _release_transaction(owner: StringName, gate_token: String, holds_save_lock
 	if holds_save_lock:
 		release_save_lock(&"restore")
 
-func _rollback_transaction(owner: StringName, applied: Array[String], backups: Dictionary, gate_token: String, holds_save_lock: bool, original_failure: Dictionary) -> Dictionary:
+func _rollback_transaction(owner: StringName, applied: Array[String], backups: Dictionary, gate_token: String, holds_save_lock: bool, original_failure: Dictionary, journal_backup: Variant = null) -> Dictionary:
 	var attempts: Array = []
 	var all_recovered := true
+	# The checkpoint commits after participant apply, so compensate it first.
+	# Only post-commit failures supply this backup; earlier refusals leave it alone.
+	if typeof(journal_backup) == TYPE_DICTIONARY:
+		var journal_rolled: Dictionary = _journal.restore_state(journal_backup)
+		attempts.append({"owner_id": "checkpoint_journal", "operation": "restore_state", "result": journal_rolled})
+		if not journal_rolled.get("ok", false):
+			all_recovered = false
 	for index: int in range(applied.size() - 1, -1, -1):
 		var key: String = applied[index]
 		var rolled: Dictionary = _restore_participants[key].rollback_silent(backups[key])

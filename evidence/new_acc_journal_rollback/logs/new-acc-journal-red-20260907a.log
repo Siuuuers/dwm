@@ -1,0 +1,95 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/82deb03d-c22c-4be3-9110-3bdef760e098/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+* test_start_new_run_builds_day1_run_b
+* test_start_new_run_requires_identity_issuer
+* test_start_new_run_allocates_a_fresh_identity_per_call
+* test_start_new_run_requires_participants
+* test_finalize_failure_restores_original_live_run_and_populated_checkpoint_history
+    [Failed]:  DICTIONARY({ "run_id": "run_id.0b3d0da6cfffd4a1cb932943069eee26e17f3a7892b00bef83f42f513f8...er": [] }) != DICTIONARY({ "run_id": "run_id.c315084b637fee7cf5e838ff88103367a45ad250334b919b89720f43917... } } }] }).
+    { "run_id": "run_id.0b3d0da6cfffd4a1cb93...ier": [] } != { "run_id": "run_id.c315084b637fee7cf5e8..." } } }] }  4 of 4 keys do not match.  Rollback restores current checkpoint, history and sequence together
+      at line 232
+* test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+* test_precommit_and_participant_apply_failures_leave_populated_journal_unchanged
+* test_failed_checkpoint_compensation_latches_fatal_after_attempting_live_rollback
+    [Failed]:  [0] expected to equal [1]:
+      at line 289
+    [Failed]:  A failed checkpoint rollback cannot return an ordinary retryable failure
+      at line 290
+    [Failed]:  [STRING_NAME(fixture_finalize_failure)] expected to equal [STRING_NAME(APPLICATION_FATAL)]:
+      at line 291
+7/9 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/integration/test_new_run_transaction.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/integration/test_new_run_transaction.gd
+- test_finalize_failure_restores_original_live_run_and_populated_checkpoint_history
+    [Failed]:  DICTIONARY({ "run_id": "run_id.0b3d0da6cfffd4a1cb932943069eee26e17f3a7892b00bef83f42f513f8...er": [] }) != DICTIONARY({ "run_id": "run_id.c315084b637fee7cf5e838ff88103367a45ad250334b919b89720f43917... } } }] }).
+    { "run_id": "run_id.0b3d0da6cfffd4a1cb93...ier": [] } != { "run_id": "run_id.c315084b637fee7cf5e8..." } } }] }  4 of 4 keys do not match.  Rollback restores current checkpoint, history and sequence together
+          at line 232
+- test_failed_checkpoint_compensation_latches_fatal_after_attempting_live_rollback
+    [Failed]:  [0] expected to equal [1]:
+          at line 289
+    [Failed]:  A failed checkpoint rollback cannot return an ordinary retryable failure
+          at line 290
+    [Failed]:  [STRING_NAME(fixture_finalize_failure)] expected to equal [STRING_NAME(APPLICATION_FATAL)]:
+          at line 291
+
+Totals
+------
+Scripts               1
+Tests                 9
+Passing Tests         7
+Failing Tests         2
+Asserts           141/145
+Orphans              24
+Time              14.841s
+
+
+---- 2 failing tests ----

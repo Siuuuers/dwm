@@ -35,6 +35,9 @@ class ShapedFakeParticipant extends RefCounted:
 	var _plan_key: String
 	var _log: RefCounted
 	var _extra_value: Dictionary
+	var fail_at: StringName = &""
+	var observed_journal: RefCounted
+	var journal_at_finalize: Dictionary = {}
 
 	func _init(participant_id: String, plan_key: String, call_log: RefCounted, extra_value: Dictionary = {}) -> void:
 		_id = participant_id
@@ -55,6 +58,7 @@ class ShapedFakeParticipant extends RefCounted:
 
 	func apply_silent(plan: Variant) -> Dictionary:
 		_log.record(_id, "apply_silent")
+		if fail_at == &"apply_silent": return {"ok":false,"code":&"fixture_apply_failure"}
 		return {"ok": true, "code": &"ok", "value": {"applied": _id, "plan": plan}}
 
 	func rollback_silent(backup: Dictionary) -> Dictionary:
@@ -63,6 +67,8 @@ class ShapedFakeParticipant extends RefCounted:
 
 	func finalize() -> Dictionary:
 		_log.record(_id, "finalize")
+		if observed_journal != null: journal_at_finalize = observed_journal.capture_state()["value"]["backup"]
+		if fail_at == &"finalize": return {"ok":false,"code":&"fixture_finalize_failure"}
 		return {"ok": true, "code": &"ok"}
 
 func _initial_context() -> Dictionary:
@@ -178,3 +184,110 @@ func test_start_new_run_requires_participants() -> void:
 	manager.initialize(load(STORAGE_PATH).new(root))
 	assert_eq(manager.start_new_run(_initial_context()).get("code"),
 		&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED")
+
+
+class FailingJournal extends "res://scripts/infrastructure/save/CheckpointJournal.gd":
+	var refuse_commit := false
+	var refuse_rollback := false
+	var rollback_attempts := 0
+	func commit_prepared(candidate: Dictionary) -> Dictionary:
+		if refuse_commit: return {"ok":false,"code":&"fixture_journal_commit_failure"}
+		return super.commit_prepared(candidate)
+	func restore_state(backup: Dictionary) -> Dictionary:
+		rollback_attempts += 1
+		if refuse_rollback: return {"ok":false,"code":&"fixture_journal_rollback_failure"}
+		return super.restore_state(backup)
+
+func _seed_populated_journal(wired: Dictionary) -> Dictionary:
+	var manager: Node = wired.manager
+	var started: Dictionary = manager.start_new_run(_initial_context())
+	assert_true(started.get("ok",false),JSON.stringify(started))
+	if not started.get("ok",false): return {}
+	var snapshot: Dictionary = manager._journal.get_current_bundle()["value"]["bundle"]["snapshot"].duplicate(true)
+	snapshot.checkpoint_sequence = 2
+	snapshot.checkpoint_id = str(snapshot.run_id)+":2"
+	var prepared: Dictionary = manager._journal.prepare_record(snapshot,&"safe_marker")
+	assert_true(prepared.get("ok",false),JSON.stringify(prepared))
+	if not prepared.get("ok",false): return {}
+	assert_true(manager._journal.commit_prepared(prepared.value.candidate).ok)
+	var baseline: Dictionary = manager._journal.capture_state().value.backup
+	assert_eq(baseline.earlier.size(),1,"The rollback baseline contains real earlier checkpoint history")
+	assert_eq(baseline.current.snapshot.checkpoint_sequence,2)
+	return baseline
+
+func test_finalize_failure_restores_original_live_run_and_populated_checkpoint_history() -> void:
+	var wired := _wired()
+	var before := _seed_populated_journal(wired)
+	if before.is_empty(): return
+	var manager: Node = wired.manager
+	var live_before: Dictionary = wired.gs.capture_restore_state()
+	var audio: ShapedFakeParticipant = manager._restore_participants.audio
+	audio.observed_journal = manager._journal
+	audio.fail_at = &"finalize"
+	var result: Dictionary = manager.start_new_run(_initial_context())
+	assert_false(result.ok)
+	assert_eq(result.code,&"fixture_finalize_failure")
+	assert_ne(audio.journal_at_finalize.current.snapshot.run_id,before.current.snapshot.run_id,"The failure occurs after the candidate journal has actually committed")
+	assert_eq(audio.journal_at_finalize.earlier,[])
+	assert_eq(manager._journal.capture_state().value.backup,before,"Rollback restores current checkpoint, history and sequence together")
+	assert_eq(wired.gs.capture_restore_state(),live_before,"The same real live run is restored")
+	assert_false(wired.gate.is_active())
+	assert_false(wired.gate.is_fatal_latched())
+	assert_false(manager.is_save_locked())
+
+func test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup() -> void:
+	var wired := _wired()
+	var before := _seed_populated_journal(wired)
+	if before.is_empty(): return
+	var result: Dictionary = wired.manager.start_new_run(_initial_context())
+	assert_true(result.get("ok",false),JSON.stringify(result))
+	if not result.get("ok",false): return
+	var after: Dictionary = wired.manager._journal.capture_state().value.backup
+	assert_ne(after.run_id,before.run_id)
+	assert_eq(after.current.snapshot.checkpoint_id,result.value.checkpoint_id)
+	assert_eq(after.earlier,[])
+	assert_eq(after.next_sequence,2)
+	assert_eq(wired.gs._run_lifecycle.get_desktop_identity_context().run_id,after.run_id)
+	assert_false(wired.gate.is_active())
+
+func test_precommit_and_participant_apply_failures_leave_populated_journal_unchanged() -> void:
+	for phase: String in ["invalid_context","apply","journal_commit"]:
+		var wired := _wired()
+		var before := _seed_populated_journal(wired)
+		if before.is_empty(): continue
+		var manager: Node = wired.manager
+		var live_before: Dictionary = wired.gs.capture_restore_state()
+		var context := _initial_context()
+		var journal := FailingJournal.new()
+		assert_true(journal.restore_state(before).ok)
+		journal.rollback_attempts = 0
+		manager._journal = journal
+		if phase == "invalid_context": context.route_id = "main"
+		elif phase == "apply": manager._restore_participants.audio.fail_at = &"apply_silent"
+		else: journal.refuse_commit = true
+		var result: Dictionary = manager.start_new_run(context)
+		assert_false(result.ok,phase)
+		assert_eq(manager._journal.capture_state().value.backup,before,phase)
+		assert_eq(wired.gs.capture_restore_state(),live_before,phase)
+		assert_eq(journal.rollback_attempts,0,"A journal never committed by this attempt needs no compensation")
+		assert_false(wired.gate.is_active(),phase)
+
+func test_failed_checkpoint_compensation_latches_fatal_after_attempting_live_rollback() -> void:
+	var wired := _wired()
+	var before := _seed_populated_journal(wired)
+	if before.is_empty(): return
+	var manager: Node = wired.manager
+	var live_before: Dictionary = wired.gs.capture_restore_state()
+	var journal := FailingJournal.new()
+	assert_true(journal.restore_state(before).ok)
+	journal.rollback_attempts = 0
+	journal.refuse_rollback = true
+	manager._journal = journal
+	manager._restore_participants.audio.fail_at = &"finalize"
+	var result: Dictionary = manager.start_new_run(_initial_context())
+	assert_false(result.ok)
+	assert_eq(journal.rollback_attempts,1)
+	assert_true(wired.gate.is_fatal_latched(),"A failed checkpoint rollback cannot return an ordinary retryable failure")
+	assert_eq(result.code,&"APPLICATION_FATAL")
+	assert_eq(wired.gs.capture_restore_state(),live_before,"Journal rollback failure does not skip participant compensation")
+	assert_ne(manager._journal.capture_state().value.backup,before,"The test does not pretend the refused journal rollback succeeded")

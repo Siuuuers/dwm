@@ -27,11 +27,13 @@ const SAVE_MANAGER := preload("res://autoload/SaveManager.gd")
 const PROFILE_MANAGER := preload("res://autoload/ProfileManager.gd")
 const LOCALIZATION_MANAGER := preload("res://autoload/LocalizationManager.gd")
 const AUDIO_MANAGER := preload("res://autoload/AudioManager.gd")
+const WINDOW_MODE_MANAGER := preload("res://autoload/WindowModeManager.gd")
 const SCENE_ROUTER := preload("res://autoload/SceneRouter.gd")
 const INPUT_MANAGER := preload("res://autoload/InputManager.gd")
 const ACCESSIBILITY_MANAGER := preload("res://autoload/AccessibilityManager.gd")
 const DIALOGIC_BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const FAKE_AUDIO_PORT := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const DAY_RESOLUTION_STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const MINESWEEPER_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
@@ -41,7 +43,7 @@ const FAKE_EVICTION := preload("res://tests/support/FakeDesktopEvictionPort.gd")
 ## The exact literal autoload order project.godot must reach in this task.
 const EXPECTED_AUTOLOAD_ORDER: Array[String] = [
 	"ProfileManager", "GameState", "SaveManager", "LocalizationManager", "AudioManager",
-	"EffectResolver", "SceneRouter", "InputManager", "AccessibilityManager", "Dialogic",
+	"WindowModeManager", "EffectResolver", "SceneRouter", "InputManager", "AccessibilityManager", "Dialogic",
 	"DialogicBridge", "ApplicationBootstrap",
 ]
 
@@ -55,6 +57,7 @@ const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"initialize_input",
 	&"initialize_accessibility",
 	&"initialize_audio",
+	&"initialize_window_mode",
 	&"initialize_dialogic_bridge",
 	&"configure_restore_participants",
 	&"configure_day_resolution",
@@ -73,6 +76,22 @@ class InjectableBootstrap:
 		return injected_targets.get(target_name)
 
 
+class UnavailableWindowOutput:
+	extends RefCounted
+
+	func capture_output() -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
+
+	func apply_mode(_mode: String) -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
+
+	func output_matches(_mode: String) -> bool:
+		return false
+
+	func restore_output(_snapshot: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
+
+
 func _isolated_root(label: String) -> String:
 	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
 	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
@@ -84,8 +103,9 @@ func _isolated_root(label: String) -> String:
 	return root
 
 
-## Builds the eight gate targets plus the bootstrap, with the gate already injected into all of
-## them exactly as the production stage does.
+## Builds the nine gate targets plus the bootstrap, with the gate already injected into all of
+## them exactly as the production stage does. Profile, Audio, and WindowMode then run in their
+## production order so WindowMode retains Audio's exact shared Settings transaction owner.
 func _make_graph(label: String) -> Dictionary:
 	var root: String = _isolated_root(label)
 	var targets := {
@@ -93,7 +113,8 @@ func _make_graph(label: String) -> Dictionary:
 		&"GameState": autofree(GAME_STATE.new()),
 		&"SaveManager": autofree(SAVE_MANAGER.new()),
 		&"LocalizationManager": autofree(LOCALIZATION_MANAGER.new()),
-		&"AudioManager": autofree(AUDIO_MANAGER.new()),
+		&"AudioManager": autofree(AUDIO_MANAGER.new(FAKE_AUDIO_PORT.new())),
+		&"WindowModeManager": autofree(WINDOW_MODE_MANAGER.new(UnavailableWindowOutput.new())),
 		&"SceneRouter": autofree(SCENE_ROUTER.new()),
 		&"InputManager": autofree(INPUT_MANAGER.new()),
 		&"AccessibilityManager": autofree(ACCESSIBILITY_MANAGER.new()),
@@ -106,6 +127,14 @@ func _make_graph(label: String) -> Dictionary:
 	bootstrap.set("_profile_storage", JSON_STORAGE.new(root))
 	var injected: Dictionary = bootstrap.call(&"_construct_and_inject_mutation_gate", &"final")
 	assert_true(injected.get("ok", false), str(injected))
+	var profile_initialized: Dictionary = bootstrap.call(&"_run_stage", &"initialize_profile", &"final")
+	assert_true(profile_initialized.get("ok", false), str(profile_initialized))
+	var audio_initialized: Dictionary = bootstrap.call(&"_run_stage", &"initialize_audio", &"final")
+	assert_true(audio_initialized.get("ok", false), str(audio_initialized))
+	var window_initialized: Dictionary = bootstrap.call(&"_run_stage", &"initialize_window_mode", &"final")
+	assert_true(window_initialized.get("ok", false), str(window_initialized))
+	assert_same(targets[&"WindowModeManager"].call(&"get_settings_output_transactions"),
+		targets[&"AudioManager"].call(&"get_settings_output_transactions"))
 	assert_true(targets[&"SaveManager"].call(&"initialize",
 		JSON_STORAGE.new(root.path_join("saves"))).get("ok", false))
 	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(targets[&"SaveManager"])
@@ -131,10 +160,10 @@ func test_project_autoload_order_is_the_exact_final_literal_sequence() -> void:
 func test_master_stage_order_is_frozen() -> void:
 	var bootstrap: Node = autofree(BOOTSTRAP.new())
 	assert_eq(bootstrap.get("STAGE_ORDER"), EXPECTED_STAGE_ORDER)
-	assert_eq(bootstrap.get("FINAL_GATE_TARGETS").size(), 8, "exactly eight gate targets")
+	assert_eq(bootstrap.get("FINAL_GATE_TARGETS").size(), 9, "exactly nine gate targets")
 
 
-func test_exactly_eight_targets_retain_one_shared_gate_identity() -> void:
+func test_exactly_nine_targets_retain_one_shared_gate_identity() -> void:
 	var made := _make_graph("gate-identity")
 	var bootstrap: Node = made["bootstrap"]
 	var gate: Object = bootstrap.get("_application_gate")
@@ -142,12 +171,12 @@ func test_exactly_eight_targets_retain_one_shared_gate_identity() -> void:
 	var state: Dictionary = bootstrap.call(&"get_startup_state")
 	var injection: Dictionary = state["gate_injection"]
 	assert_eq(int(injection["factory_invocation_count"]), 1, "the gate is constructed exactly once")
-	assert_eq((injection["targets"] as Array).size(), 8)
-	assert_eq((injection["target_instance_ids"] as Array).size(), 8)
+	assert_eq((injection["targets"] as Array).size(), 9)
+	assert_eq((injection["target_instance_ids"] as Array).size(), 9)
 	for retained_id: Variant in injection["target_instance_ids"]:
 		assert_eq(int(retained_id), gate.get_instance_id(), "every target retained the ONE gate")
 	assert_eq(injection["targets"], Array(bootstrap.get("FINAL_GATE_TARGETS")),
-		"the eight targets are injected in the frozen order")
+		"the nine targets are injected in the frozen order")
 	# GameState reports that same identity to its adapters, without exposing the fence.
 	assert_eq(int(made["targets"][&"GameState"].call(&"get_mutation_gate_instance_id")),
 		gate.get_instance_id())
@@ -278,12 +307,18 @@ func test_a_missing_eviction_port_latches_one_primitive_validated_fatal() -> voi
 func test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness() -> void:
 	# Injecting a missing target at each stage must stop startup there: no later stage runs and
 	# readiness is never published.
-	for stage_id: StringName in [&"initialize_saves", &"configure_restore_participants",
-			&"configure_day_resolution", &"configure_minesweeper_rounds"]:
+	var failures := {
+		&"initialize_window_mode": &"WindowModeManager",
+		&"initialize_saves": &"SaveManager",
+		&"configure_restore_participants": &"SaveManager",
+		&"configure_day_resolution": &"SaveManager",
+		&"configure_minesweeper_rounds": &"SaveManager",
+	}
+	for stage_id: StringName in failures:
 		var made := _make_graph("stage-fail-%s" % stage_id)
 		var bootstrap: Node = made["bootstrap"]
 		var targets: Dictionary = bootstrap.injected_targets.duplicate()
-		targets.erase(&"SaveManager")
+		targets.erase(failures[stage_id])
 		bootstrap.injected_targets = targets
 		var result: Dictionary = bootstrap.call(&"_run_stage", stage_id, &"final")
 		assert_false(result.get("ok", false), String(stage_id))

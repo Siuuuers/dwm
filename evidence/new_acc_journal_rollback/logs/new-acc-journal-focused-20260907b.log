@@ -1,0 +1,108 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/e03a6196-ab5e-4fcf-be79-bf0da56bf1df/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+* test_start_new_run_builds_day1_run_b
+* test_start_new_run_requires_identity_issuer
+* test_start_new_run_allocates_a_fresh_identity_per_call
+* test_start_new_run_requires_participants
+* test_finalize_failure_restores_original_live_run_and_populated_checkpoint_history
+* test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+* test_precommit_and_participant_apply_failures_leave_populated_journal_unchanged
+* test_failed_checkpoint_compensation_latches_fatal_after_attempting_live_rollback
+9/9 passed.
+
+
+tests/integration/test_restore_transaction.gd
+* test_configure_restore_participants_validates_eight_keys
+* test_restore_success_applies_and_finalizes_in_order
+* test_apply_failure_rolls_back_in_reverse_and_emits_nothing
+* test_rollback_failure_latches_shared_gate
+* test_narrative_content_incompatibility_is_typed_for_bundle_fallback
+* test_empty_playhead_stays_compatible_across_bundles
+* test_malformed_narrative_input_is_fail_closed_not_incompatible
+* test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock
+8/8 passed.
+
+
+tests/integration/test_desktop_continuation_resume.gd
+* test_a_busy_gate_rejects_new_run_before_any_identity_is_minted_or_intent_is_written
+* test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is_written
+* test_crash_after_intent_committed_resumes_forward_to_completion
+* test_crash_after_allocation_resumes_forward_to_completion
+* test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot
+* test_crash_after_participants_applied_resumes_to_completion
+* test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_failure
+7/7 passed.
+
+
+tests/unit/test_checkpoint_journal.gd
+* test_checkpoint_journal_exists
+* test_reset_peek_and_run_mismatch
+* test_failed_preparation_never_consumes_sequence
+* test_commit_advances_and_duplicate_commit_rejects
+* test_every_accepted_checkpoint_kind_including_line
+* test_retention_after_forty_lines_and_semantic_anchor
+* test_reset_with_initial_replaces_run_and_restore_reinstates
+* test_prepare_seed_selects_and_excludes
+* test_seed_replaces_same_counter_contents_and_history_and_can_repeat
+9/9 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/integration/test_new_run_transaction.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               4
+Tests                33
+Passing Tests        33
+Asserts             594
+Orphans              24
+Time              18.656s
+
+
+---- All tests passed! ----

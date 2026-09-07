@@ -61,7 +61,8 @@ func test_restore_success_applies_and_finalizes_in_order() -> void:
 		if entry.ends_with(".apply_silent"): applies.append(entry.trim_suffix(".apply_silent"))
 		if entry.ends_with(".finalize"): finals.append(entry.trim_suffix(".finalize"))
 	assert_eq(applies, KEYS, "apply runs run->desktop_consequence->desktop_board->profile->localization->audio->route->narrative")
-	assert_eq(finals, KEYS, "finalize runs in the same order")
+	assert_eq(finals, ["run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "narrative", "route"],
+		"Only dispatch the irreversible scene change after every other participant finalizes")
 	assert_eq(emissions.size(), 1, "exactly one run_restored")
 	assert_false(manager.is_save_locked(), "restore lock released on success")
 	assert_false(wired["gate"].is_active(), "mutation gate released on success")
@@ -136,3 +137,41 @@ func test_malformed_narrative_input_is_fail_closed_not_incompatible() -> void:
 	assert_eq(str(missing_version.get("code")), "invalid_narrative_input", "malformed input keeps the fail-closed code")
 	var missing_checkpoint: Dictionary = participant.prepare({"content_version": 1})
 	assert_eq(str(missing_checkpoint.get("code")), "invalid_narrative_input", "missing checkpoint keeps the fail-closed code")
+
+
+func test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock() -> void:
+	var log: RefCounted = load(CALL_LOG).new()
+	var wired := _manager(log)
+	var manager: Node = wired.manager
+	var fixtures: Node = load("res://tests/unit/test_checkpoint_journal.gd").new()
+	var old_first: Dictionary = fixtures._snapshot("old-run",1)
+	var old_current: Dictionary = fixtures._snapshot("old-run",2)
+	var incoming: Dictionary = fixtures._snapshot("loaded-run",5)
+	fixtures.free()
+	assert_true(manager._journal.reset("old-run").ok)
+	for snapshot: Dictionary in [old_first,old_current]:
+		var record: Dictionary = manager._journal.prepare_record(snapshot,&"safe_marker")
+		assert_true(record.ok,JSON.stringify(record))
+		if not record.ok: return
+		assert_true(manager._journal.commit_prepared(record.value.candidate).ok)
+	var before: Dictionary = manager._journal.capture_state().value.backup
+	var bundle := {"checkpoint_kind":"safe_marker","snapshot":incoming}
+	var seed: Dictionary = manager._journal.prepare_seed({"current_snapshot":bundle,"recovery_journal":[]},bundle)
+	assert_true(seed.ok,JSON.stringify(seed))
+	if not seed.ok: return
+	var prepared := _prepared()
+	prepared.journal_seed = seed.value.candidate
+	prepared.checkpoint_id = incoming.checkpoint_id
+	wired.participants.narrative.set_failure(&"finalize")
+	var restored: Array = []
+	manager.run_restored.connect(func(_checkpoint: String,_route: String): restored.append(true))
+	var result: Dictionary = manager.commit_prepared_restore(prepared)
+	assert_false(result.ok)
+	assert_eq(result.code,&"forced_finalize_failure")
+	assert_eq(manager._journal.capture_state().value.backup,before,"Failed restore preserves the full prior checkpoint history")
+	for participant in wired.participants.values(): assert_false(participant.was_applied())
+	assert_false(manager.is_save_locked())
+	assert_false(wired.gate.is_active())
+	assert_false(wired.gate.is_fatal_latched())
+	assert_true(restored.is_empty(),"No successful restore is published")
+	assert_false(log.entries.has("route.finalize"),"Narrative failure cannot dispatch the scene")
