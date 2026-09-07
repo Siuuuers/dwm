@@ -1,0 +1,167 @@
+{
+  "base_commit": "3858a106e619927cda82c98c50caf699fc5654d1",
+  "task": "dwm-eei.3",
+  "scope": "Prepared real Title routing and exact suspended-input retirement prerequisites for no-save Return. Not yet wired into production Pause or complete session abandonment.",
+  "sources": {
+    "autoload/InputManager.gd": {
+      "sha256": "fb41ac6d64ffaf4e4de91e2c65a8984760b01aa4d6883c29c95530e8798f2f21",
+      "git_blob": "56aa593ed8c7873d396d2a4fde7214dd4959eed6"
+    },
+    "autoload/SceneRouter.gd": {
+      "sha256": "2cb075d80dad3c79c59d2fc1da563fa22b9a0d3310a8de1219c15f160cfeff30",
+      "git_blob": "7ce046221f40fcc0e4b008c97cce0f4cbaadf040"
+    },
+    "scripts/application/transaction/ApplicationMutationGate.gd": {
+      "sha256": "09ad3673ec1bb0fb37d8e275b5a7c2d2917384bf12e152a2c7f7e627e0a55762",
+      "git_blob": "98867d81cb91d9a88a4f08ed850498eb249907e8"
+    },
+    "tests/unit/test_return_input_retirement.gd": {
+      "sha256": "71d597eecf35aa5e1bbe304de0922dbe9075c27d68fb339e535bfeb76028f168",
+      "git_blob": "76f11b98ed2098ff87b9884ac627e96a2ffc0e2b"
+    },
+    "tests/unit/test_return_title_route.gd": {
+      "sha256": "2821e462249dc66b6210467c092914ee99a510e742cb4ea4553ff65b0c643543",
+      "git_blob": "dfc4df9b6afcc17a5f4fd63ae9a9d7df719b2d55"
+    },
+    "docs/design/current-ui/no-save-return.md": {
+      "sha256": "1d09e8325eebef8d407014fe8076f3177932a3390b2a902d49e8f263dd6bf6ee",
+      "git_blob": "e1aed911776b19cdc4f4685c86a657c5809ab6e0"
+    }
+  },
+  "gut": {
+    "passed": true,
+    "tests": 38,
+    "assertions": 541,
+    "suites": {
+      "res://tests/unit/test_return_input_retirement.gd": {
+        "passed": 6,
+        "tests": 6
+      },
+      "res://tests/unit/test_return_title_route.gd": {
+        "passed": 8,
+        "tests": 8
+      },
+      "res://tests/unit/test_pause_input_custody.gd": {
+        "passed": 6,
+        "tests": 6
+      },
+      "res://tests/unit/test_application_mutation_gate.gd": {
+        "passed": 7,
+        "tests": 7
+      },
+      "res://tests/unit/test_startup_route_publication.gd": {
+        "passed": 8,
+        "tests": 8
+      },
+      "res://tests/integration/test_new_run_startup_publication.gd": {
+        "passed": 3,
+        "tests": 3
+      }
+    },
+    "log": "logs/return-title-final-20260907j.log"
+  },
+  "production": {
+    "passed": true,
+    "checks": [
+      56,
+      71
+    ],
+    "result": "production/result.json",
+    "changed_production_source_hashes_match": true,
+    "scope": "Production Title New Acc and cold saved-game resume after adding dormant prepared Return routing and input retirement prerequisites. Isolated user data. This regression does not invoke or prove complete no-save Return, native rendering or external save compatibility."
+  },
+  "earlier_production_passes": [
+    {
+      "result": "production/before-pending-guard-result.json",
+      "passed": true,
+      "checks": [
+        56,
+        71
+      ]
+    },
+    {
+      "result": "production/before-route-generation-result.json",
+      "passed": true,
+      "checks": [
+        56,
+        71
+      ]
+    }
+  ],
+  "test_attempts": [
+    {
+      "suite_id": "return-input-red-20260907a",
+      "exit_code": 1,
+      "log": "logs/return-input-red-20260907a.log"
+    },
+    {
+      "suite_id": "return-input-red-20260907b",
+      "exit_code": 1,
+      "log": "logs/return-input-red-20260907b.log"
+    },
+    {
+      "suite_id": "return-input-green-20260907c",
+      "exit_code": 0,
+      "log": "logs/return-input-green-20260907c.log"
+    },
+    {
+      "suite_id": "return-route-red-20260907d",
+      "exit_code": 1,
+      "log": "logs/return-route-red-20260907d.log"
+    },
+    {
+      "suite_id": "return-route-red-20260907e",
+      "exit_code": 1,
+      "log": "logs/return-route-red-20260907e.log"
+    },
+    {
+      "suite_id": "return-title-green-20260907f",
+      "exit_code": 0,
+      "log": "logs/return-title-green-20260907f.log"
+    },
+    {
+      "suite_id": "return-pending-red-20260907g",
+      "exit_code": 1,
+      "log": "logs/return-pending-red-20260907g.log"
+    },
+    {
+      "suite_id": "return-title-final-20260907h",
+      "exit_code": 0,
+      "log": "logs/return-title-final-20260907h.log"
+    },
+    {
+      "suite_id": "return-route-token-red-20260907i",
+      "exit_code": 1,
+      "log": "logs/return-route-token-red-20260907i.log"
+    },
+    {
+      "suite_id": "return-title-final-20260907j",
+      "exit_code": 0,
+      "log": "logs/return-title-final-20260907j.log"
+    }
+  ],
+  "review_corrections": [
+    "Retired suspension identities cannot be reacquired, including after later retirements.",
+    "Pending semantic route restore refuses Return and remains available to its original owner.",
+    "Successful Return advances route generation so older prepared restore-route tokens are refused."
+  ],
+  "limitations": [
+    "No complete no-save Return or production Pause mount claim.",
+    "Post-mount authority change invalidates and frees prepared Title; it does not promise retry with that token.",
+    "Input quarantine still needs combined successor-Title/coordinator consumption validation.",
+    "No new rendering captures or OS assistive-technology acceptance; real Menu mount uses explicit presentation-service fixtures.",
+    "Existing Unicode NUL, 24 Dialogic GUT orphans and established production shutdown baseline remain."
+  ],
+  "remaining": [
+    "Live-session generation and generation-bound prepared save/checkpoint/callback capabilities.",
+    "Quiet ordinary playback, Audio and Pause retirement with forward recovery after irreversible discard.",
+    "Complete Return storage/Profile byte preservation and subsequent NewAcc/Load tests.",
+    "Production Pause/Logout and remaining ten-family content/owner/accessibility integration."
+  ],
+  "all_ui_complete": false,
+  "return_complete": false,
+  "merged": false,
+  "pushed": false,
+  "player_data_modified": false,
+  "preserved_untracked_files": 582
+}

@@ -1,0 +1,123 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/dc4f353b-3a96-4a46-8e0b-769c03cb2f9b/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_return_input_retirement.gd
+* test_abandonment_custody_excludes_other_owners_and_external_commands
+* test_retirement_requires_exact_suspended_handle_and_dedicated_custody
+* test_held_contact_survives_retirement_until_release_and_next_frame
+* test_retry_does_not_requarantine_fresh_input_or_retire_new_pause
+* test_retirement_refuses_fatal_gate_and_leaves_suspension_intact
+* test_retired_handles_cannot_be_reacquired_even_after_another_retirement
+6/6 passed.
+
+
+res://tests/unit/test_return_title_route.gd
+* test_prepare_retains_actual_off_tree_title_without_changing_source_or_focus
+* test_competing_transaction_and_foreign_tokens_refuse_without_retiring_source
+* test_source_replacement_and_queued_source_make_preparation_stale
+* test_restore_apply_then_rollback_cannot_revalidate_an_old_title_capability
+* test_publication_mounts_same_prepared_instance_once_and_reentrant_routes_refuse
+* test_preparation_refuses_missing_source_and_startup_hold_without_publishing
+* test_pending_semantic_restore_blocks_return_preparation_until_rollback
+* test_successful_return_invalidates_older_restore_route_tokens_but_accepts_fresh_plans
+8/8 passed.
+
+
+res://tests/unit/test_pause_input_custody.gd
+* test_exact_handle_admission_idempotence_and_refusal_are_atomic
+* test_malformed_handles_never_change_custody_or_expose_partial_values
+* test_native_held_contacts_require_all_releases_after_resume
+* test_release_observed_while_tree_paused_does_not_poison_fresh_input
+* test_source_policy_refuses_paused_and_held_contacts_then_accepts_fresh_contacts
+* test_pending_pointer_is_canceled_and_pause_always_button_still_operates
+6/6 passed.
+
+
+res://tests/unit/test_application_mutation_gate.gd
+* test_application_mutation_gate_exists_with_contract
+* test_acquire_release_guard_owner_rules
+* test_causal_transaction_is_a_valid_owner
+* test_latch_fatal_input_validation_changes_nothing
+* test_first_latch_repeat_and_conflict
+* test_post_latch_fences_all_operations
+* test_single_production_gate_class
+7/7 passed.
+
+
+res://tests/unit/test_startup_route_publication.gd
+* test_hold_is_idempotent_and_foreign_publication_cannot_remove_title
+* test_repeated_finalize_publishes_only_final_target_once
+* test_restore_rollback_recovers_prior_held_target_and_rejects_foreign_backup
+* test_rollback_preserves_a_semantic_route_pending_before_finalize
+* test_presentation_route_cannot_bypass_hold_and_reentrant_requests_are_refused
+* test_failed_presentation_publication_retains_request_and_same_hold_for_retry
+* test_ordinary_routing_and_backup_shape_remain_unchanged_without_hold
+* test_empty_hold_publication_keeps_title_and_invalid_route_does_not_replace_request
+8/8 passed.
+
+
+res://tests/integration/test_new_run_startup_publication.gd
+* test_real_completion_journal_failure_keeps_title_then_same_startup_retry_publishes_once
+* test_real_late_consequence_read_failure_keeps_title_after_completed_new_run
+* test_real_early_pair_failure_retries_before_profile_initialization_with_same_owners
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_return_input_retirement.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               6
+Tests                38
+Passing Tests        38
+Asserts             541
+Orphans              24
+Time              13.211s
+
+
+---- All tests passed! ----
+

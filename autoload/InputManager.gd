@@ -31,6 +31,8 @@ var _physical_contacts: Dictionary = {}
 var _contact_generation := 0
 var _resume_quarantine: Dictionary = {}
 var _resume_frame := -1
+var _retired_suspension_handle: Dictionary = {}
+var _retired_suspension_ids: Dictionary = {}
 
 
 func _enter_tree() -> void:
@@ -39,7 +41,7 @@ func _enter_tree() -> void:
 
 
 func begin_suspend(handle: Variant) -> Dictionary:
-	if not _valid_suspension_handle(handle):
+	if not _valid_suspension_handle(handle) or _retired_suspension_ids.has(handle.handle_id):
 		return _input_lifecycle_failure(&"invalid_suspension_handle")
 	if not _suspension_handle.is_empty() and _suspension_handle != handle:
 		return _input_lifecycle_failure(&"input_already_suspended")
@@ -57,6 +59,28 @@ func resume(handle: Variant) -> Dictionary:
 	_resume_frame = Engine.get_process_frames()
 	source_input_custody_changed.emit()
 	return {"ok": true, "code": &"ok", "value": {"resumed": true}}
+
+
+## No-save Return retires input custody without inventing physical releases.
+## Retrying the same retirement must not quarantine a later fresh contact again.
+func retire_suspended_source(handle: Variant) -> Dictionary:
+	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"session_abandonment"):
+		return _input_lifecycle_failure(&"session_abandonment_custody_required")
+	if not _valid_suspension_handle(handle):
+		return _input_lifecycle_failure(&"invalid_suspension_handle")
+	if _suspension_handle.is_empty():
+		if handle == _retired_suspension_handle:
+			return {"ok": true, "code": &"ok", "value": {"retired": true}}
+		return _input_lifecycle_failure(&"invalid_suspension_handle")
+	if _suspension_handle != handle:
+		return _input_lifecycle_failure(&"invalid_suspension_handle")
+	_retired_suspension_handle = handle.duplicate(true)
+	_retired_suspension_ids[handle.handle_id] = true
+	_suspension_handle.clear()
+	_resume_quarantine = _physical_contacts.duplicate()
+	_resume_frame = Engine.get_process_frames()
+	source_input_custody_changed.emit()
+	return {"ok": true, "code": &"ok", "value": {"retired": true}}
 
 
 func get_state() -> Dictionary:

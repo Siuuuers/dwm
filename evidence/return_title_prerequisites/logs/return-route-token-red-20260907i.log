@@ -1,0 +1,80 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/3b6bb5bd-e90c-4f99-a5c4-bf6461b2485a/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_return_title_route.gd
+* test_prepare_retains_actual_off_tree_title_without_changing_source_or_focus
+* test_competing_transaction_and_foreign_tokens_refuse_without_retiring_source
+* test_source_replacement_and_queued_source_make_preparation_stale
+* test_restore_apply_then_rollback_cannot_revalidate_an_old_title_capability
+* test_publication_mounts_same_prepared_instance_once_and_reentrant_routes_refuse
+* test_preparation_refuses_missing_source_and_startup_hold_without_publishing
+* test_pending_semantic_restore_blocks_return_preparation_until_rollback
+* test_successful_return_invalidates_older_restore_route_tokens_but_accepts_fresh_plans
+    [Failed]:  Return must retire route tokens prepared for the abandoned source
+      at line 237
+7/8 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_return_title_route.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_return_title_route.gd
+- test_successful_return_invalidates_older_restore_route_tokens_but_accepts_fresh_plans
+    [Failed]:  Return must retire route tokens prepared for the abandoned source
+          at line 237
+
+Totals
+------
+Scripts               1
+Tests                 8
+Passing Tests         7
+Failing Tests         1
+Asserts           97/98
+Orphans              24
+Time              0.553s
+
+
+---- 1 failing tests ----
+
