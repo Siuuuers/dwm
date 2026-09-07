@@ -1,0 +1,155 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/4dcb77c3-02c6-4a8f-b1d3-6c64dcb9adb7/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Parse Error: There is already a variable named "request" declared in this scope.
+   at: GDScript::reload (res://tests/unit/test_desktop_continuation_operation_journal.gd:2197)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed to load script "res://tests/unit/test_desktop_continuation_operation_journal.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+[WARNING]:  Ignoring script tests/unit/test_desktop_continuation_operation_journal.gd because it does not extend GutTest
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_profile_new_run_consumption.gd
+* test_storage_binding_is_quiet_immutable_and_can_precede_initialization
+* test_preparation_freezes_current_first_process_profile_without_legacy_patch_or_side_effects
+* test_preparation_rejects_stale_revision_invalid_dark_and_live_disk_disagreement_without_writes
+* test_canonical_journal_roundtrip_persists_without_adoption_and_is_idempotent
+* test_source_revision_binds_actual_bytes_and_accepts_valid_noncanonical_source_formatting
+* test_disabled_selector_is_already_persisted_without_writes
+* test_persistence_requires_exact_nonfatal_new_run_custody
+* test_malformed_or_rewritten_material_is_refused_before_storage_mutation
+* test_foreign_final_bytes_and_stale_live_revision_are_refused
+* test_pending_preparation_is_pure_and_foreign_marker_is_never_reconciled
+* test_restart_recovers_failures_before_promotion_and_after_committed_write_without_adoption
+* test_consumption_proof_is_read_only_before_adoption_after_restart_and_with_foreign_bytes
+12/12 passed.
+
+
+tests/unit/test_new_run_materials.gd
+* test_complete_material_accepts_raw_profile_source_revision_and_round_trips_detached
+* test_profile_material_allows_only_pending_dark_consumption_and_exact_canonical_output
+* test_autosave_is_exact_initial_day_one_and_binds_context_and_allocated_identity
+* test_material_and_allocation_shapes_are_closed_and_fingerprint_bound
+4/4 passed.
+
+
+tests/unit/test_new_run_durability_journal.gd
+* test_complete_intent_is_the_durable_decision_and_survives_restart_byte_exact
+* test_target_readback_proofs_are_strictly_ordered_exact_and_gate_participant_apply
+* test_failed_target_persistence_returns_no_proof_and_exact_retry_advances_same_operation
+* test_post_promotion_failure_invalidates_cache_and_retry_observes_durable_target
+* test_new_run_intent_cannot_abort_and_startup_reconciliation_retains_the_decision
+* test_schema_v2_journal_is_refused_without_conversion
+6/6 passed.
+
+
+tests/integration/test_new_run_pair_durability.gd
+* test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed
+SCRIPT ERROR: Invalid access to property or key 'controls' on a base object of type 'Dictionary'.
+   at: test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed (res://tests/integration/test_new_run_pair_durability.gd:131)
+   GDScript backtrace (most recent call first):
+       [0] test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed (res://tests/integration/test_new_run_pair_durability.gd:131)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'controls' on a base object of type 'Dictionary'.
+      at line -1
+* test_predecision_failure_preserves_both_targets_and_has_no_live_effects
+* test_profile_write_failure_retains_decision_and_startup_settles_without_live_launch
+    [Failed]
+      at line 167
+* test_partial_live_replay_uses_same_snapshot_with_fresh_route_token
+* test_foreign_autosave_bytes_and_pending_marker_refuse_without_reconciliation
+* test_completed_retry_does_not_restore_old_targets_after_subsequent_changes
+4/6 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_profile_new_run_consumption.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/integration/test_new_run_pair_durability.gd
+- test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'controls' on a base object of type 'Dictionary'.
+          at line -1
+- test_profile_write_failure_retains_decision_and_startup_settles_without_live_launch
+    [Failed]:
+          at line 167
+
+Totals
+------
+Warnings              1
+
+Scripts               4
+Tests                28
+Passing Tests        26
+Failing Tests         2
+Asserts           859/861
+Orphans              24
+Time              22.229s
+
+
+---- 2 failing tests ----

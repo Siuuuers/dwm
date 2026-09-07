@@ -33,11 +33,18 @@ class FakeOwner extends RefCounted:
 			"causal_day_instance": causal_day_instance,
 			"causal_day_instance_issuer_receipt": causal_day_instance_issuer_receipt,
 		}}}}
+	func get_profile_snapshot() -> Dictionary:
+		return preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
+	func prepare_profile_document(candidate: Dictionary) -> Dictionary:
+		_r("prepare_profile_document")
+		var guarded := _guard("prepare_profile_document")
+		if not guarded.is_empty(): return guarded
+		return preload("res://scripts/profile/ProfileSchema.gd").validate(candidate)
 	func prepare_legacy_profile_patch(_legacy: Dictionary, _mappings: Dictionary = {}) -> Dictionary:
 		_r("prepare_legacy_profile_patch")
 		var g := _guard("prepare_legacy_profile_patch")
 		if not g.is_empty(): return g
-		return {"ok": true, "value": {"preferences": {"language": {"primary_locale_id": "en"}}}}
+		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
 	func prepare_locale(locale_id: String) -> Dictionary:
 		_r("prepare_locale")
 		var g := _guard("prepare_locale")

@@ -1,0 +1,585 @@
+{
+  "base_commit": "12560e45ef2fe8c4d0c2fb05c2a63fe7e82a804a",
+  "task": "dwm-eei.20",
+  "scope": "Durable initial New Acc Autosave and Profile Dark consumption, v3 retained decision/target proofs, exact same-operation recovery, and startup settlement before Profile adoption. Empty restore patches preserve current Profile.",
+  "latest_gut_suites": {
+    "tests/unit/test_profile_new_run_consumption.gd": {
+      "passed": 12,
+      "tests": 12,
+      "suite_id": "new-run-pair-memory-20260907b",
+      "log": "new-run-pair-memory-20260907b.log"
+    },
+    "tests/integration/test_restore_preserves_current_profile.gd": {
+      "passed": 4,
+      "tests": 4,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/integration/test_application_bootstrap.gd": {
+      "passed": 10,
+      "tests": 10,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/unit/test_new_run_materials.gd": {
+      "passed": 4,
+      "tests": 4,
+      "suite_id": "new-run-pair-memory-20260907b",
+      "log": "new-run-pair-memory-20260907b.log"
+    },
+    "tests/unit/test_new_run_durability_journal.gd": {
+      "passed": 6,
+      "tests": 6,
+      "suite_id": "new-run-pair-memory-20260907b",
+      "log": "new-run-pair-memory-20260907b.log"
+    },
+    "tests/integration/test_new_run_transaction.gd": {
+      "passed": 12,
+      "tests": 12,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/integration/test_desktop_crash_recovery.gd": {
+      "passed": 6,
+      "tests": 6,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/unit/test_desktop_continuation_operation_journal.gd": {
+      "passed": 32,
+      "tests": 32,
+      "suite_id": "new-run-pair-memory-20260907b",
+      "log": "new-run-pair-memory-20260907b.log"
+    },
+    "tests/integration/test_new_run_pair_durability.gd": {
+      "passed": 8,
+      "tests": 8,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/integration/test_desktop_continuation_resume.gd": {
+      "passed": 9,
+      "tests": 9,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/unit/test_save_manager.gd": {
+      "passed": 7,
+      "tests": 7,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/integration/test_restore_transaction.gd": {
+      "passed": 8,
+      "tests": 8,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/integration/test_restore_mutation_gate.gd": {
+      "passed": 3,
+      "tests": 3,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/unit/test_restore_participants.gd": {
+      "passed": 7,
+      "tests": 7,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/integration/test_restore_production_adapters.gd": {
+      "passed": 13,
+      "tests": 13,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/integration/test_desktop_board_persistence.gd": {
+      "passed": 5,
+      "tests": 5,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/integration/test_minesweeper_first_reveal_transaction.gd": {
+      "passed": 7,
+      "tests": 7,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    },
+    "tests/unit/test_canonical_preference_consumers.gd": {
+      "passed": 6,
+      "tests": 6,
+      "suite_id": "new-run-pair-regression-20260907a",
+      "log": "new-run-pair-regression-20260907a.log"
+    }
+  },
+  "unique_gut_suites": 18,
+  "unique_gut_tests": 159,
+  "production": {
+    "passed": true,
+    "summaries": [
+      {
+        "checks": 56,
+        "facts": {
+          "phase": "seed",
+          "process_id": 19772,
+          "saved": {
+            "dark_mode": false,
+            "day": 1,
+            "money": 5,
+            "seed_process_id": 19772,
+            "slot_sha256": "c628a6380e9cd1e45f38f00d030bdb16600194469492d7f34c26a46252621d76"
+          },
+          "startup": {
+            "completed_stages": [
+              "select_and_prove_roots",
+              "construct_and_inject_mutation_gate",
+              "construct_identity_issuer_and_contact_commands",
+              "initialize_saves",
+              "initialize_profile",
+              "initialize_localization",
+              "initialize_input",
+              "initialize_accessibility",
+              "initialize_audio",
+              "initialize_window_mode",
+              "initialize_dialogic_bridge",
+              "configure_restore_participants",
+              "configure_day_resolution",
+              "configure_minesweeper_rounds",
+              "publish_application_ready"
+            ],
+            "fatal_result": {},
+            "gate_injection": {
+              "factory_invocation_count": 1,
+              "gate_instance_id": -9223371899348711486,
+              "target_instance_ids": [
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486
+              ],
+              "targets": [
+                "SaveManager",
+                "GameState",
+                "ProfileManager",
+                "LocalizationManager",
+                "AudioManager",
+                "WindowModeManager",
+                "SceneRouter",
+                "DialogicBridge",
+                "InputManager"
+              ]
+            },
+            "mode": "final",
+            "planned_blockers": [],
+            "ready": true,
+            "started": true
+          },
+          "user_root": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/new-run-pair-title-6ldcf9pb/appdata/Godot/app_userdata/DWM"
+        },
+        "failures": []
+      },
+      {
+        "checks": 71,
+        "facts": {
+          "load_result": {
+            "code": "ok",
+            "ok": true,
+            "value": {
+              "action": "load",
+              "checkpoint_id": "run_id.c194cd63220dcf855f5b55b5f0b6092f5fd593e3f4aed727cb9b806956df8326:2",
+              "locator": "slot:1",
+              "route_id": "main"
+            }
+          },
+          "phase": "resume",
+          "process_id": 4880,
+          "restore_notifications": 1,
+          "restored": {
+            "day": 1,
+            "money": 5,
+            "scene": "res://scenes/main/MainGameScene.tscn"
+          },
+          "startup": {
+            "completed_stages": [
+              "select_and_prove_roots",
+              "construct_and_inject_mutation_gate",
+              "construct_identity_issuer_and_contact_commands",
+              "initialize_saves",
+              "initialize_profile",
+              "initialize_localization",
+              "initialize_input",
+              "initialize_accessibility",
+              "initialize_audio",
+              "initialize_window_mode",
+              "initialize_dialogic_bridge",
+              "configure_restore_participants",
+              "configure_day_resolution",
+              "configure_minesweeper_rounds",
+              "publish_application_ready"
+            ],
+            "fatal_result": {},
+            "gate_injection": {
+              "factory_invocation_count": 1,
+              "gate_instance_id": -9223371899348711486,
+              "target_instance_ids": [
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486
+              ],
+              "targets": [
+                "SaveManager",
+                "GameState",
+                "ProfileManager",
+                "LocalizationManager",
+                "AudioManager",
+                "WindowModeManager",
+                "SceneRouter",
+                "DialogicBridge",
+                "InputManager"
+              ]
+            },
+            "mode": "final",
+            "planned_blockers": [],
+            "ready": true,
+            "started": true
+          },
+          "user_root": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/new-run-pair-title-6ldcf9pb/appdata/Godot/app_userdata/DWM"
+        },
+        "failures": []
+      }
+    ],
+    "executions": [
+      {
+        "phase": "import",
+        "command": [
+          "C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64_console.exe",
+          "--headless",
+          "--rendering-method",
+          "gl_compatibility",
+          "--path",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-ui-build\\.godot\\new-run-pair-title-6ldcf9pb\\project",
+          "--editor",
+          "--import",
+          "--quit",
+          "--",
+          "--phase2r-bootstrap-mode=final"
+        ],
+        "returncode": 0,
+        "passed": true,
+        "project_sha256_after": "f8c92d8f46436463656cc338ca68d1aab0df904bcfdf7d110b934b7b7dff7158",
+        "inherited_shutdown": null
+      },
+      {
+        "phase": "seed",
+        "command": [
+          "C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64_console.exe",
+          "--headless",
+          "--rendering-method",
+          "gl_compatibility",
+          "--path",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-ui-build\\.godot\\new-run-pair-title-6ldcf9pb\\project",
+          "--verbose",
+          "--",
+          "--phase2r-bootstrap-mode=final"
+        ],
+        "returncode": 0,
+        "passed": true,
+        "project_sha256_after": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+        "inherited_shutdown": {
+          "baseline_log": "tools/save_load_loop/evidence/baseline/verification.log",
+          "baseline_log_sha256": "f5c328bda9a6d88b0618d9d1897c73c58514bf4fda134269c009d6d5592e4624",
+          "resource_paths": [
+            "res://addons/dialogic/Core/Dialogic_Subsystem.gd (GDScript)",
+            "res://addons/dialogic/Modules/Audio/subsystem_audio.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.tscn (PackedScene)",
+            "res://addons/dialogic/Modules/Background/dialogic_background.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/subsystem_backgrounds.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/default_portrait.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/default_portrait.tscn (PackedScene)",
+            "res://addons/dialogic/Modules/Character/dialogic_portrait.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/subsystem_containers.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/subsystem_portraits.gd (GDScript)",
+            "res://addons/dialogic/Modules/Choice/subsystem_choices.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_animation.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_expression.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_input.gd (GDScript)",
+            "res://addons/dialogic/Modules/Glossary/subsystem_glossary.gd (GDScript)",
+            "res://addons/dialogic/Modules/History/subsystem_history.gd (GDScript)",
+            "res://addons/dialogic/Modules/Jump/subsystem_jump.gd (GDScript)",
+            "res://addons/dialogic/Modules/Save/subsystem_save.gd (GDScript)",
+            "res://addons/dialogic/Modules/Settings/subsystem_settings.gd (GDScript)",
+            "res://addons/dialogic/Modules/Style/subsystem_styles.gd (GDScript)",
+            "res://addons/dialogic/Modules/Text/subsystem_text.gd (GDScript)",
+            "res://addons/dialogic/Modules/TextInput/subsystem_text_input.gd (GDScript)",
+            "res://addons/dialogic/Modules/Variable/subsystem_variables.gd (GDScript)",
+            "res://addons/dialogic/Modules/Voice/subsystem_voice.gd (GDScript)",
+            "res://addons/dialogic/Resources/event.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopCausalSequencePort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConditionPolicyPort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConsequenceCoordinator.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConsequenceSourcePort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd (GDScript)",
+            "res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd (GDScript)",
+            "res://scripts/application/minesweeper/DesktopBoardFatePort.gd (GDScript)",
+            "res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd (GDScript)",
+            "res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd (GDScript)",
+            "res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd (GDScript)",
+            "res://scripts/application/run/DayResolutionStartPort.gd (GDScript)",
+            "res://scripts/application/run/GameStateDayResolutionPort.gd (GDScript)",
+            "res://scripts/application/run/SaveManagerCheckpointPort.gd (GDScript)",
+            "res://scripts/application/schedule/ScheduleDepartureViewPort.gd (GDScript)",
+            "res://scripts/application/shop/GameStateMinesweeperShopPort.gd (GDScript)",
+            "res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd (GDScript)",
+            "res://scripts/application/transaction/ApplicationMutationGate.gd (GDScript)",
+            "res://scripts/domain/desktop/DesktopAppHostState.gd (GDScript)",
+            "res://scripts/domain/desktop/DesktopConsequenceState.gd (GDScript)",
+            "res://scripts/domain/minesweeper/DesktopBoardState.gd (GDScript)",
+            "res://scripts/domain/schedule/Day7ScheduleProvenance.gd (GDScript)",
+            "res://scripts/domain/schedule/ScheduleActionRegistry.gd (GDScript)",
+            "res://scripts/domain/shop/MinesweeperShopRegistry.gd (GDScript)",
+            "res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd (GDScript)",
+            "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd (GDScript)",
+            "res://scripts/infrastructure/save/DesktopPublicationLedger.gd (GDScript)",
+            "res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd (GDScript)",
+            "res://scripts/infrastructure/storage/FileOps.gd (GDScript)",
+            "res://scripts/infrastructure/storage/JsonFileStorage.gd (GDScript)",
+            "res://scripts/infrastructure/storage/StorageAdapter.gd (GDScript)"
+          ],
+          "leaked_instance_classes": {
+            "GDScriptNativeClass": 3,
+            "GDScript": 54,
+            "Node": 20,
+            "Timer": 3,
+            "PackedScene": 2,
+            "SceneState": 2,
+            "RegEx": 5,
+            "AudioStreamPlayer": 1,
+            "AudioStreamPlayerInternal": 1,
+            "RefCounted": 27
+          },
+          "exact_shutdown_tail": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2663)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: 56 resources still in use at exit.\n   at: clear (core/io/resource.cpp:805)\n",
+          "limitation": "Only the identical observer-free baseline shutdown tail and resource/class counts are allowed; this does not prove leak-free shutdown."
+        }
+      },
+      {
+        "phase": "resume",
+        "command": [
+          "C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64_console.exe",
+          "--headless",
+          "--rendering-method",
+          "gl_compatibility",
+          "--path",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-ui-build\\.godot\\new-run-pair-title-6ldcf9pb\\project",
+          "--verbose",
+          "--",
+          "--phase2r-bootstrap-mode=final"
+        ],
+        "returncode": 0,
+        "passed": true,
+        "project_sha256_after": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+        "inherited_shutdown": {
+          "baseline_log": "tools/save_load_loop/evidence/baseline/verification.log",
+          "baseline_log_sha256": "f5c328bda9a6d88b0618d9d1897c73c58514bf4fda134269c009d6d5592e4624",
+          "resource_paths": [
+            "res://addons/dialogic/Core/Dialogic_Subsystem.gd (GDScript)",
+            "res://addons/dialogic/Modules/Audio/subsystem_audio.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.tscn (PackedScene)",
+            "res://addons/dialogic/Modules/Background/dialogic_background.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/subsystem_backgrounds.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/default_portrait.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/default_portrait.tscn (PackedScene)",
+            "res://addons/dialogic/Modules/Character/dialogic_portrait.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/subsystem_containers.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/subsystem_portraits.gd (GDScript)",
+            "res://addons/dialogic/Modules/Choice/subsystem_choices.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_animation.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_expression.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_input.gd (GDScript)",
+            "res://addons/dialogic/Modules/Glossary/subsystem_glossary.gd (GDScript)",
+            "res://addons/dialogic/Modules/History/subsystem_history.gd (GDScript)",
+            "res://addons/dialogic/Modules/Jump/subsystem_jump.gd (GDScript)",
+            "res://addons/dialogic/Modules/Save/subsystem_save.gd (GDScript)",
+            "res://addons/dialogic/Modules/Settings/subsystem_settings.gd (GDScript)",
+            "res://addons/dialogic/Modules/Style/subsystem_styles.gd (GDScript)",
+            "res://addons/dialogic/Modules/Text/subsystem_text.gd (GDScript)",
+            "res://addons/dialogic/Modules/TextInput/subsystem_text_input.gd (GDScript)",
+            "res://addons/dialogic/Modules/Variable/subsystem_variables.gd (GDScript)",
+            "res://addons/dialogic/Modules/Voice/subsystem_voice.gd (GDScript)",
+            "res://addons/dialogic/Resources/event.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopCausalSequencePort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConditionPolicyPort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConsequenceCoordinator.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConsequenceSourcePort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd (GDScript)",
+            "res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd (GDScript)",
+            "res://scripts/application/minesweeper/DesktopBoardFatePort.gd (GDScript)",
+            "res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd (GDScript)",
+            "res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd (GDScript)",
+            "res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd (GDScript)",
+            "res://scripts/application/run/DayResolutionStartPort.gd (GDScript)",
+            "res://scripts/application/run/GameStateDayResolutionPort.gd (GDScript)",
+            "res://scripts/application/run/SaveManagerCheckpointPort.gd (GDScript)",
+            "res://scripts/application/schedule/ScheduleDepartureViewPort.gd (GDScript)",
+            "res://scripts/application/shop/GameStateMinesweeperShopPort.gd (GDScript)",
+            "res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd (GDScript)",
+            "res://scripts/application/transaction/ApplicationMutationGate.gd (GDScript)",
+            "res://scripts/domain/desktop/DesktopAppHostState.gd (GDScript)",
+            "res://scripts/domain/desktop/DesktopConsequenceState.gd (GDScript)",
+            "res://scripts/domain/minesweeper/DesktopBoardState.gd (GDScript)",
+            "res://scripts/domain/schedule/Day7ScheduleProvenance.gd (GDScript)",
+            "res://scripts/domain/schedule/ScheduleActionRegistry.gd (GDScript)",
+            "res://scripts/domain/shop/MinesweeperShopRegistry.gd (GDScript)",
+            "res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd (GDScript)",
+            "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd (GDScript)",
+            "res://scripts/infrastructure/save/DesktopPublicationLedger.gd (GDScript)",
+            "res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd (GDScript)",
+            "res://scripts/infrastructure/storage/FileOps.gd (GDScript)",
+            "res://scripts/infrastructure/storage/JsonFileStorage.gd (GDScript)",
+            "res://scripts/infrastructure/storage/StorageAdapter.gd (GDScript)"
+          ],
+          "leaked_instance_classes": {
+            "GDScriptNativeClass": 3,
+            "GDScript": 54,
+            "Node": 20,
+            "Timer": 3,
+            "PackedScene": 2,
+            "SceneState": 2,
+            "RegEx": 5,
+            "AudioStreamPlayer": 1,
+            "AudioStreamPlayerInternal": 1,
+            "RefCounted": 27
+          },
+          "exact_shutdown_tail": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2663)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: 56 resources still in use at exit.\n   at: clear (core/io/resource.cpp:805)\n",
+          "limitation": "Only the identical observer-free baseline shutdown tail and resource/class counts are allowed; this does not prove leak-free shutdown."
+        }
+      }
+    ]
+  },
+  "standalone_backup": "PASS",
+  "project_paths": {
+    "autoload/ApplicationBootstrap.gd": "M",
+    "autoload/ProfileManager.gd": "M",
+    "autoload/SaveManager.gd": "M",
+    "docs/design/current-ui/new-acc-lifecycle.md": "M",
+    "scripts/application/restore/ProfileRestoreParticipant.gd": "M",
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "M",
+    "tests/backup_operations/test_backup_operations.gd": "M",
+    "tests/integration/test_application_bootstrap.gd": "M",
+    "tests/integration/test_desktop_board_persistence.gd": "M",
+    "tests/integration/test_desktop_continuation_resume.gd": "M",
+    "tests/integration/test_desktop_crash_recovery.gd": "M",
+    "tests/integration/test_minesweeper_first_reveal_transaction.gd": "M",
+    "tests/integration/test_new_run_transaction.gd": "M",
+    "tests/integration/test_restore_production_adapters.gd": "M",
+    "tests/unit/test_canonical_preference_consumers.gd": "M",
+    "tests/unit/test_desktop_continuation_operation_journal.gd": "M",
+    "tests/unit/test_restore_participants.gd": "M",
+    "scripts/infrastructure/save/NewRunMaterials.gd": "A",
+    "tests/integration/test_new_run_pair_durability.gd": "A",
+    "tests/integration/test_restore_preserves_current_profile.gd": "A",
+    "tests/unit/test_new_run_durability_journal.gd": "A",
+    "tests/unit/test_new_run_materials.gd": "A",
+    "tests/unit/test_profile_new_run_consumption.gd": "A"
+  },
+  "source_sha256": {
+    "autoload/ApplicationBootstrap.gd": "7b123787ce60d2e7e99a9381a7cfbe9f7ad5ace1d027aa2c6582060d47d4493f",
+    "autoload/ProfileManager.gd": "2841b48c194150736539e9338ba44192697d10b231e1649a8b41af4c077ee088",
+    "autoload/SaveManager.gd": "2dd45921574d571adb56325f82f12b0dc55c8635234acaf0a02260700a9cbb7c",
+    "docs/design/current-ui/new-acc-lifecycle.md": "a2307702637ef2cd9da8a01380d85fced1324a6e35db151f90c1b722836a5076",
+    "scripts/application/restore/ProfileRestoreParticipant.gd": "fd711adbd6d4f91a3dde6ae95f3e41465adb157ebcccc2e3804074d5e5000433",
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "90b19bf524cbfc16a60d5bc42e44917906ab66ecd2ab484cc0e34141a35674c5",
+    "tests/backup_operations/test_backup_operations.gd": "0c03ed9b951eee67cc0e13efef5eb8a2ccf0ec9771ea41fc1f2682df55dde578",
+    "tests/integration/test_application_bootstrap.gd": "3c36ae99bf74e4e1ae8410b26174a6f66c9b4d2f8e73636711e35668827cdd0e",
+    "tests/integration/test_desktop_board_persistence.gd": "986a14982804861e6da9039aa082ed3d0cf5fabbc0dc3a1ad5b132e62ecba7b9",
+    "tests/integration/test_desktop_continuation_resume.gd": "72dcdcda3161c858d9bd40105edbf7e7d0767f8dd2300899b9b4dc8683ad2fae",
+    "tests/integration/test_desktop_crash_recovery.gd": "df7a93c92ed72e86c71c2f413ea46c10747ed7d7fcc929d6b6023fb842660bf8",
+    "tests/integration/test_minesweeper_first_reveal_transaction.gd": "f6666a24a0ba5b9bc4529e48557314d44b542528272105811496d51f58745933",
+    "tests/integration/test_new_run_transaction.gd": "f0f0a49034acacd996107178b12a2a163b14ef48f13be2012c6b69da0cd7457d",
+    "tests/integration/test_restore_production_adapters.gd": "c04de1919782c64ef8f25610acf357e76b6c9c0c7258c26c8310e83aff72664d",
+    "tests/unit/test_canonical_preference_consumers.gd": "f0bdb930599864a1c2c5ed00bc74fb35098d6985d0b9e24341fb40a4a73766e7",
+    "tests/unit/test_desktop_continuation_operation_journal.gd": "caa20201043a52b16d87d0a2cc1321fc90991f33a4260cb32ba5cd0ee3787cef",
+    "tests/unit/test_restore_participants.gd": "34c1346b05ba87d1b76fc64a1073a74445a5641705e775e9c8f3bea270c4618e",
+    "scripts/infrastructure/save/NewRunMaterials.gd": "505f0d81ac5e6174f1192e65214b102b262f0b1463401292954262c7221be469",
+    "tests/integration/test_new_run_pair_durability.gd": "d5929e9a02e34baac663ab8662c658abb173209105475f50a6eb49d5cf11af11",
+    "tests/integration/test_restore_preserves_current_profile.gd": "a3ac3c3d1eaedb89eea751586aceba0bf0c637c195049c175fc59aae128f70c7",
+    "tests/unit/test_new_run_durability_journal.gd": "73acd0fb3c820ed26b4281031dc06165b00a457889507ba6f4e1c23e15dbea59",
+    "tests/unit/test_new_run_materials.gd": "9512b3319a88efd2fbb15eda2b0f4e1e252e155658537d8d61d6c8a6bbd4b9a3",
+    "tests/unit/test_profile_new_run_consumption.gd": "cf800e11ae50a54ce90a107f5f78e7a622370268124d368856e2977c43c1eb7b"
+  },
+  "source_git_blobs": {
+    "autoload/ApplicationBootstrap.gd": "07e3bc42ac114c5de41379220377cdc076e786c6",
+    "autoload/ProfileManager.gd": "99cf82b37fbf1f9c31a430119000e709eb519768",
+    "autoload/SaveManager.gd": "e2681a4607de722341b7203ab9a1f48462913efd",
+    "docs/design/current-ui/new-acc-lifecycle.md": "0d97a9ddd59ec62272a40b16ddc77d00756b029c",
+    "scripts/application/restore/ProfileRestoreParticipant.gd": "afb64ea16984c7ed14939d2a8fd37e69456def19",
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "696f2b1295a4ba5a9d9b971e3ac798c057537d14",
+    "tests/backup_operations/test_backup_operations.gd": "a3503e0d53a4870ae718189e33714489e1a24426",
+    "tests/integration/test_application_bootstrap.gd": "bc93973d05ba9812fa302b61b5ccbaeff031d801",
+    "tests/integration/test_desktop_board_persistence.gd": "0fb6c58df80a1064a536cfa098a0ba6961dca18a",
+    "tests/integration/test_desktop_continuation_resume.gd": "57f86e3d6b1a2381eefce068d29e855952e04184",
+    "tests/integration/test_desktop_crash_recovery.gd": "d502bb27555b9a663aade646e2d7fbb46a3fdb2a",
+    "tests/integration/test_minesweeper_first_reveal_transaction.gd": "4f7c25b5edb41acc601720bd096aeda0f40ca920",
+    "tests/integration/test_new_run_transaction.gd": "e5e746216587db896763508bcac8f689db0c4704",
+    "tests/integration/test_restore_production_adapters.gd": "9fec4fcb1f0dc97f6b69e5726637a6ad88a73f66",
+    "tests/unit/test_canonical_preference_consumers.gd": "c46cc6690cc6ca389f2f893121bcd045bb5c4806",
+    "tests/unit/test_desktop_continuation_operation_journal.gd": "05608786735dc47bd5bf46141e1d146ae0ccd93a",
+    "tests/unit/test_restore_participants.gd": "5a1e7d26dac6a207f77d2d87dc106c662bc39174",
+    "scripts/infrastructure/save/NewRunMaterials.gd": "34acec5642a405f07fbcbc457f57cd5c96c7a39d",
+    "tests/integration/test_new_run_pair_durability.gd": "d598c15103506c1a8d0438663308c9ef2b1643f6",
+    "tests/integration/test_restore_preserves_current_profile.gd": "6d344957003c068c3fefe4f99e7c6bb7392186d5",
+    "tests/unit/test_new_run_durability_journal.gd": "59b5e1ad93908a9a77676b45eb2258ed7711b56f",
+    "tests/unit/test_new_run_materials.gd": "c6e530e73b2abcf8d627f0317272c74d8dced4c4",
+    "tests/unit/test_profile_new_run_consumption.gd": "528df8dd47a81e7f11f4a26fd6110c8f64de8b27"
+  },
+  "raw_log_sha256": {
+    ".godot/phase2r_logs/new-run-profile-20260907a.log": "dc186f599f53eb2801f3f380a445c77ec770bdd74e8c13afe9ed2d549fc480b4",
+    ".godot/phase2r_logs/new-run-profile-20260907b.log": "87ce2ca0866c3d9490eabc917b16a4d5d726e039eeab7a6fd731a102796b0b8f",
+    ".godot/phase2r_logs/new-run-pair-focus-20260907a.log": "959668ad7facf0abd33192f9b909e3ec029bb5ce4142a28b54875ed07d5af479",
+    ".godot/phase2r_logs/new-run-pair-memory-20260907a.log": "2a705d8f4bbb28444df0f0d28f30d892d2e9c17ac03197bf228be500543a1b81",
+    ".godot/phase2r_logs/new-run-pair-memory-20260907b.log": "2861ac254343654040b5f5c2ab21d2ffa3288708e0fce82bd69e2bf748b6eddb",
+    ".godot/phase2r_logs/new-run-pair-regression-20260907a.log": "4500b0967d1434765036ddbe0bd8c8a2bb2bda11884b0deaa69f6db815ed9840",
+    ".godot/phase2r_logs/new-run-pair-backup-20260907a.log": "3adace941bbef99408ef8a8fcf3235a3319b443b85a248df30037b9d0eef9223",
+    ".godot/phase2r_logs/new-run-pair-title/result.json": "652144d5f43b9abd537f5d6ace0bb1e97fc457e1d3ea9d9e8705d4c29a341e19",
+    ".godot/phase2r_logs/new-run-pair-title/verification.log": "9cb14b4dea42c268cf807fc14bb95595890f2d1baf426744f2ffdcb514c0217a",
+    ".godot/phase2r_logs/new-run-pair-title/project.original.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    ".godot/phase2r_logs/new-run-pair-title/project.executed.godot": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c"
+  },
+  "canonical_new_acc_complete": false,
+  "all_ui_complete": false,
+  "merged": false,
+  "pushed": false,
+  "player_data_used": false,
+  "preserved_generated_files": 582,
+  "remaining": [
+    "Prepared Start and truthful live-session/replacement consent",
+    "Mounted same-operation Retry/recovery UI",
+    "Remaining ten-family UI owner/content/accessibility acceptance",
+    "Semantic integration with independently advanced Schedule/Hospital branch"
+  ],
+  "external_frontier": {
+    "head": "101fe2b9815af4682d1318d0a7cc2d93442b6e2d",
+    "compatibility": "Unmerged. Its snapshot/document v5 fields differ from this branch; its journal v2 differs from this checkpoint v3. No conversion or compatibility claim."
+  },
+  "known_diagnostics": [
+    "Inherited Unicode NUL parser diagnostics and Dialogic GUT orphans retained; no leak-free claim.",
+    "Production probe accepts only its exact pre-existing 56-resource shutdown baseline; full logs retained.",
+    "Initial parser, fixture and retry failures retained. Latest per-file passing results supersede failed attempts without erasing them."
+  ],
+  "review": [
+    "Independent Profile/material review: receipt type crash and unavailable Dark admission fixed.",
+    "Independent SaveManager/Bootstrap review: competing operation and pre-I/O custody admission fixed; no remaining blocker in this durability checkpoint scope."
+  ]
+}

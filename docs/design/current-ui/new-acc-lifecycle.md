@@ -67,8 +67,8 @@ No merge/push or changes to other worktrees are part of this checkpoint.
 
 ## Durable handshake implementation direction
 
-Reuse DesktopContinuationOperationJournal and JsonFileStorage. The current journal
-has closed v1 operation/context keys and a fixed eight-participant order; its
+Reuse DesktopContinuationOperationJournal and JsonFileStorage. At the initial audit the journal
+had closed v1 operation/context keys and a fixed eight-participant order; its
 post-apply receipt dictionaries cannot retain a pre-mutation prepared operation.
 A validated New Run materials extension must retain the frozen source revisions,
 run/Autosave/Profile candidates and hashes, a durable decision, and target proofs.
@@ -188,3 +188,38 @@ pass, save capture passes 136 checks, the production save/load loop passes 39,
 and two fresh production processes pass 56 seed plus 71 cold-resume checks,
 including saved Dark equality. [All evidence and attempts](../../../evidence/run_dark_cutover/summary.json)
 remain recorded with current source hashes and known diagnostic limitations.
+
+
+## Joint durability checkpoint
+
+This implementation extends the continuation journal to v3. A New Run intent
+retains the complete allocation candidate, exact initial Autosave bytes, and exact
+Profile before/consumed documents. Profile source revisions bind the original raw
+bytes, including valid noncanonical formatting; outgoing Profile bytes are canonical.
+The consumed document differs only by setting the pending Dark selector to Off.
+
+The committed intent is the durable decision. Allocation, Autosave, and Profile
+proofs must be recorded in that order before live participant application. Recovery
+accepts only the retained source or outgoing file revisions; an unrelated pending
+write or foreign file is refused without reconciliation or overwrite. After the
+pair is durable, live failure retains the same operation and mutation lease for
+forward recovery. The generic selected-Load rollback contract remains separate.
+
+Profile now exposes pure preparation, quiet conditional persistence, and read-only
+proof of consumed bytes. Empty restore patches preserve current validated Profile
+preferences instead of invoking the first-process legacy import path. Bootstrap
+settles retained New Run storage before initializing Profile or preference consumers;
+the later continuation phase remains responsible for installing live owners.
+
+Verification: 159 distinct tests across 18 GUT suites pass, including the full
+journal transition matrix, real Profile preservation, both target write failures,
+same-operation retries, foreign-byte refusal, and real-file restart/Load regression.
+The standalone Backup operations probe passes. The actual production title and
+second-process resume pass 56 seed and 71 resume checks. All player files are
+isolated; existing Unicode parser and exact baseline Dialogic shutdown diagnostics
+remain visible. Full evidence and source bindings are in
+[evidence/new_run_pair/summary.json](../../../evidence/new_run_pair/summary.json).
+
+This checkpoint completes the retained-pair prerequisite. Prepared Start, truthful
+replacement consent, live-session presence, and mounted Retry/recovery remain open.
+The all-ten-family UI goal remains active; no merge or push is included.

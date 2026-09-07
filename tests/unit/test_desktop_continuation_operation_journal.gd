@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+# Current v3 contract adaptation retains all historical negative families below.
+# Restore retains pre-allocation abort; committed complete New Run material is forward-only.
 # Behavioral RED contract tests for the durable continuation-operation journal
 # (Plan 02 Task 1, dwm-p2r.16).
 #
@@ -57,6 +59,7 @@ extends "res://addons/gut/test.gd"
 # GLOBAL CLASS NAMES ARE NOT AVAILABLE for the 20 new Task-1 scripts (DECISION 9.18): they have
 # never been through an editor import pass, so they are absent from the global script class cache.
 # Preloading by path is this repo's established answer.
+const MATERIAL_FIXTURE := preload("res://tests/unit/test_new_run_materials.gd")
 const JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
 const FAKE_STORAGE := preload("res://tests/support/FakeDesktopContinuationJournalStorage.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
@@ -88,6 +91,8 @@ const OPERATION_KEYS: Array[String] = [
 	"initial_context",
 	"initial_context_sha256",
 	"kind",
+	"new_run_materials",
+	"new_run_targets",
 	"next_participant_index",
 	"participant_receipts",
 	"request_fingerprint",
@@ -103,6 +108,7 @@ const PREPARE_INTENT_KEYS: Array[String] = [
 	"initial_context",
 	"initial_context_sha256",
 	"kind",
+	"new_run_materials",
 	"request_fingerprint",
 	"source_locator",
 	"transaction_id",
@@ -164,6 +170,7 @@ var _identity_root_store: ROOT_STORE
 var _identity_file_ops: FakeFileOps
 var _identity_issuer: ISSUER
 var _transaction_receipts: Dictionary = {}
+var _intent_requests: Dictionary = {}
 
 
 ## The DECISION 9.5 source-loader contract, whole: exactly one method, which only re-reads. Every
@@ -238,6 +245,7 @@ func before_each() -> void:
 	_identity_file_ops = null
 	_identity_issuer = null
 	_transaction_receipts = {}
+	_intent_requests = {}
 
 
 # ---------------------------------------------------------------------------------------------
@@ -252,12 +260,13 @@ func test_continuation_journal_skeletons_load() -> void:
 			"%s must parse and load: %s" % [label, str(probe.get("message", ""))])
 
 
-func test_journal_public_surface_is_exactly_the_frozen_seven_methods() -> void:
+func test_journal_public_surface_adds_only_explicit_new_run_target_proof() -> void:
 	var expected: Array[String] = [
 		"configure",
 		"prepare_intent",
 		"commit_intent",
 		"advance",
+		"record_new_run_target",
 		"get_operation",
 		"list_incomplete",
 		"reconcile_startup",
@@ -272,7 +281,7 @@ func test_journal_public_surface_is_exactly_the_frozen_seven_methods() -> void:
 		if not method_name.begins_with("_"):
 			actual.append(method_name)
 	assert_eq(actual, expected,
-		"plan lines 713-720 freeze exactly seven column-zero non-private journal methods")
+		"v3 adds explicit target proof to the retained journal API")
 
 
 # ---------------------------------------------------------------------------------------------
@@ -299,7 +308,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 	document_keys.sort()
 	assert_eq(document_keys, DOCUMENT_KEYS,
 		"plan line 555: the document is exactly {schema_version, operations}")
-	assert_eq(document.get("schema_version"), 2, "schema_version is exactly 2")
+	assert_eq(document.get("schema_version"), 3, "schema_version is exactly 3")
 
 	var base_document: Dictionary = (document as Dictionary).duplicate(true)
 	var operations: Variant = base_document.get("operations", {}) as Dictionary
@@ -317,9 +326,12 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 		var record_keys: Variant = record.keys()
 		record_keys.sort()
 		assert_eq(record_keys, OPERATION_KEYS,
-			"plan lines 558-588 freeze exactly these thirteen members for " + id)
+			"plan lines 558-588 retain exactly these fifteen members for " + id)
 		assert_eq(str(record.get("transaction_id", "")), id,
 			"the operation's transaction_id is exactly its document key for " + id)
+		if record.kind == "restore":
+			assert_null(record.new_run_materials, "Restore has no New Run material")
+			assert_null(record.new_run_targets, "Restore has no New Run target proofs")
 
 	# Each envelope member is exact-key checked; the remaining rows name wrong-type and meaningful
 	# same-type value mutations rather than merely repeating the happy-path shape assertion.
@@ -329,7 +341,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 		{"label": "extra envelope member", "mode": "extra"},
 		{"label": "schema_version wrong type", "mode": "replace", "member": "schema_version", "value": "1"},
 		{"label": "operations wrong type", "mode": "replace", "member": "operations", "value": []},
-		{"label": "schema_version unsupported value", "mode": "replace", "member": "schema_version", "value": 3},
+		{"label": "historical v2 remains unsupported", "mode": "replace", "member": "schema_version", "value": 2},
 	]
 	for profile: Dictionary in document_profiles:
 		var malformed_document: Dictionary = base_document.duplicate(true)
@@ -615,9 +627,9 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 	]
 	for profile: Dictionary in relationship_profiles:
 		var relationship_operation: Dictionary = _schema_operation_at_stage(
-			new_run_operation, str(profile["stage"]), int(profile["count"]))
+			restore_operation, str(profile["stage"]), int(profile["count"]))
 		relationship_operation[str(profile["member"])] = profile["value"]
-		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(),
+		_assert_rejects_operation_mutation(base_document, _restore_transaction_id(),
 			relationship_operation, "stage relationship: %s" % profile["label"])
 
 	var receipt_relationship_profiles: Array[Dictionary] = [
@@ -638,12 +650,12 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 	]
 	for profile: Dictionary in receipt_relationship_profiles:
 		var relationship_operation: Dictionary = _schema_operation_at_stage(
-			new_run_operation, str(profile["stage"]), int(profile["count"]))
+			restore_operation, str(profile["stage"]), int(profile["count"]))
 		var relationship_receipts: Dictionary = (
 			relationship_operation["participant_receipts"] as Dictionary).duplicate(true)
 		relationship_receipts[str(profile["participant"])] = profile["value"]
 		relationship_operation["participant_receipts"] = relationship_receipts
-		_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(),
+		_assert_rejects_operation_mutation(base_document, _restore_transaction_id(),
 			relationship_operation, "stage relationship: %s" % profile["label"])
 
 
@@ -694,7 +706,7 @@ func test_every_legal_and_illegal_stage_transition_is_enforced() -> void:
 				scenario, txid, str(profile.get("from_stage", "")),
 				bool(profile.get("from_full_participants", false)),
 				bool(profile.get("with_diagnostic", false)),
-				int(profile.get("seeded_participant_count", 0))):
+				int(profile.get("seeded_participant_count", 0)), "restore"):
 			return
 		var request: Dictionary = _advance_request_for_stage_transition(txid, profile)
 		var writes_before: int = _storage.write_count
@@ -736,7 +748,7 @@ func test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges() -> v
 					"configure %s evidence cross for %s" % [evidence_kind, transition.get("label", "")]):
 				return
 			if not _journal_with_stage(
-					scenario, txid, str(transition["from_stage"]), false, false, 0):
+					scenario, txid, str(transition["from_stage"]), false, false, 0, "restore"):
 				return
 			var request: Dictionary = _advance_request_for_stage_transition(txid, transition)
 			if evidence_kind == "allocation":
@@ -837,7 +849,7 @@ func test_the_intent_must_be_committed_before_any_allocation_is_recorded() -> vo
 	var writes_before: Variant = _storage.write_count
 	var premature: Variant = _advance_request(
 		_new_run_transaction_id(), STAGE_INTENT, STAGE_ALLOCATED, 0)
-	premature["allocation_receipt"] = _allocation_receipt()
+	premature["allocation_receipt"] = _valid_allocation_receipt(_new_run_transaction_id())
 	_assert_rejected(journal.advance(premature),
 		"plan line 591: an allocation cannot precede its committed intent")
 	assert_eq(_storage.write_count, writes_before,
@@ -1116,7 +1128,7 @@ func test_identical_replays_return_the_retained_operation_at_every_stage() -> vo
 	# Plan line 780: "Duplicate identical advancement returns the retained operation."
 	var advance: Variant = _advance_request(
 		_new_run_transaction_id(), STAGE_INTENT, STAGE_ALLOCATED, 0)
-	advance["allocation_receipt"] = _allocation_receipt()
+	advance["allocation_receipt"] = _valid_allocation_receipt(_new_run_transaction_id())
 	var advanced: Variant = journal.advance(advance.duplicate(true))
 	if not _require_ok(advanced, "advance to identity_allocation_committed"):
 		return
@@ -1283,7 +1295,7 @@ func test_startup_reconciliation_is_no_op_for_terminal_operations() -> void:
 	if aborted == null:
 		return
 	var aborted_txid: String = "transaction-startup-aborted"
-	var aborted_request: Dictionary = _new_run_intent_request_for(aborted_txid)
+	var aborted_request: Dictionary = _restore_intent_request_for(aborted_txid)
 	var prepared: Dictionary = aborted.prepare_intent(aborted_request)
 	if not _require_ok(prepared, "prepare_intent for aborted startup"):
 		return
@@ -1803,22 +1815,24 @@ func test_diagnostic_clear_write_failure_retains_and_retries_both_kinds_at_every
 # Clause 44 -- pre-allocation abort (breadth)
 # ---------------------------------------------------------------------------------------------
 
-func test_a_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutation() -> void:
+func test_a_restore_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutation() -> void:
 	var journal: Variant = _configured_journal()
 	if journal == null:
 		return
-	if not _commit_new_run_intent(journal):
+	var prepared: Dictionary = journal.prepare_intent(_restore_intent_request())
+	if not _require_ok(prepared, "prepare Restore abort fixture"): return
+	if not _require_ok(journal.commit_intent(_intent_candidate(prepared)), "commit Restore abort fixture"):
 		return
 
-	# Plan line 593: "Before allocation, a proven missing/hash-changed restore source or mismatched
-	# New-Run context records `aborted` with typed failure and no live mutation."
+	# Plan line 593: "Before allocation, a proven missing/hash-changed restore source or unavailable
+	# Restore context records `aborted` with typed failure and no live mutation."
 	var abort: Variant = _advance_request(
-		_new_run_transaction_id(), STAGE_INTENT, STAGE_ABORTED, 0)
+		_restore_transaction_id(), STAGE_INTENT, STAGE_ABORTED, 0)
 	abort["failure"] = _failure("source_proof_failed", "the retained context no longer matches")
 	if not _require_ok(journal.advance(abort), "pre-allocation abort"):
 		return
 
-	var record: Variant = _operation_record()
+	var record: Variant = _operation_record_for(_restore_transaction_id())
 	if record.is_empty():
 		return
 	assert_eq(record.get("stage"), STAGE_ABORTED, "a pre-allocation abort reaches `aborted`")
@@ -1837,7 +1851,7 @@ func test_a_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutat
 	# Plan line 780: a nonnull failure "either accompanies pre-allocation `aborted`" -- so an abort
 	# without one is not a legal edge.
 	var untyped: Variant = _advance_request(
-		_new_run_transaction_id(), STAGE_INTENT, STAGE_ABORTED, 0)
+		_restore_transaction_id(), STAGE_INTENT, STAGE_ABORTED, 0)
 	_assert_rejected(journal.advance(untyped),
 		"plan line 780: `aborted` requires a typed failure")
 
@@ -2064,9 +2078,10 @@ func _allocated_journal() -> Object:
 		return null
 	var advance: Variant = _advance_request(
 		_new_run_transaction_id(), STAGE_INTENT, STAGE_ALLOCATED, 0)
-	advance["allocation_receipt"] = _allocation_receipt()
+	advance["allocation_receipt"] = _valid_allocation_receipt(_new_run_transaction_id())
 	if not _require_ok(journal.advance(advance), "advance to identity_allocation_committed"):
 		return null
+	if not _prove_new_run_targets(journal, _new_run_transaction_id()): return null
 	return journal
 
 
@@ -2118,15 +2133,23 @@ func _schema_operation_at_stage(base: Dictionary, stage: String, participant_cou
 	operation["participant_receipts"] = receipts
 	operation["next_participant_index"] = participant_count
 	operation["allocation_receipt"] = (
-		null if stage in [STAGE_INTENT, STAGE_ABORTED] else _allocation_receipt("schema-stage"))
+		null if stage in [STAGE_INTENT, STAGE_ABORTED] else (
+			base["new_run_materials"]["allocation_candidate"].duplicate(true)
+			if base.kind == "new_run" else _allocation_receipt("schema-stage")))
 	operation["failure"] = (
 		_failure("source_proof_failed", "schema aborted fixture") if stage == STAGE_ABORTED else null)
+	if base.kind == "new_run" and stage in [STAGE_APPLYING, STAGE_APPLIED, STAGE_COMPLETED]:
+		operation["new_run_targets"] = {"identity": base.allocation_candidate_fingerprint,
+			"autosave": base.new_run_materials.autosave.outgoing_hash,
+			"profile": base.new_run_materials.profile.outgoing_hash}
 	return operation
 
 
 func _journal_with_stage(journal: Object, txid: String, stage: String, full_participants: bool = false,
-	with_diagnostic: bool = false, seeded_participant_count: int = 0) -> bool:
-	var prepared: Variant = journal.prepare_intent(_new_run_intent_request_for(txid))
+	with_diagnostic: bool = false, seeded_participant_count: int = 0, kind: String = "new_run") -> bool:
+	if stage == STAGE_ABORTED: kind = "restore"
+	var intent_request := _restore_intent_request_for(txid) if kind == "restore" else _new_run_intent_request_for(txid)
+	var prepared: Variant = journal.prepare_intent(intent_request)
 	if not _require_ok(prepared, "prepare_intent %s" % txid):
 		return false
 	if not _require_ok(journal.commit_intent(_intent_candidate(prepared)), "commit_intent %s" % txid):
@@ -2143,9 +2166,10 @@ func _journal_with_stage(journal: Object, txid: String, stage: String, full_part
 				"advance %s -> %s" % [txid, STAGE_ABORTED])
 
 	var into_allocated: Variant = _advance_request_for_transaction(txid, STAGE_INTENT, STAGE_ALLOCATED, 0)
-	into_allocated["allocation_receipt"] = _allocation_receipt("allocated-%s" % txid)
+	into_allocated["allocation_receipt"] = _valid_allocation_receipt(txid)
 	if not _require_ok(journal.advance(into_allocated), "advance %s -> %s" % [txid, STAGE_ALLOCATED]):
 		return false
+	if not _prove_new_run_targets(journal, txid): return false
 	if stage == STAGE_ALLOCATED:
 		if with_diagnostic:
 			var diagnostic: Dictionary = _advance_request_for_transaction(txid, STAGE_ALLOCATED, STAGE_ALLOCATED, 0)
@@ -2354,7 +2378,7 @@ func _advance_request_for_stage_transition(transaction_id: String, transition: D
 		int(transition.get("expected_next_participant_index", 0))
 	)
 	if transition.has("allocation"):
-		request["allocation_receipt"] = _allocation_receipt("matrix-%s" % transaction_id)
+		request["allocation_receipt"] = _valid_allocation_receipt(transaction_id)
 	if transition.has("participant_name"):
 		var participant: String = str(transition["participant_name"])
 		request["participant_name"] = participant
@@ -2406,16 +2430,19 @@ func _restore_transaction_id() -> String:
 ## The frozen prepare_intent() request, plan line 780, in its New-Run shape (plan line 591).
 func _new_run_intent_request_for(transaction_id: String) -> Dictionary:
 	var issuer_receipt: Dictionary = _transaction_receipt(transaction_id)
-	return {
-		"transaction_id": str(issuer_receipt.get("token", "")),
+	var resolved: String = issuer_receipt.token
+	if _intent_requests.has(resolved): return _intent_requests[resolved].duplicate(true)
+	var allocation: Dictionary = _ensure_real_issuer().prepare_continuation_allocation({
+		"existing_run_id": null, "kind": "new_run", "remap_source_transaction_ids": [],
+		"source_desktop_timeline_generation": null, "transaction_id": resolved,
 		"transaction_issuer_receipt": issuer_receipt,
-		"kind": "new_run",
-		"request_fingerprint": "1".repeat(64),
-		"source_locator": null,
-		"initial_context": NEW_RUN_INITIAL_CONTEXT.duplicate(true),
-		"initial_context_sha256": _canonical_sha256(NEW_RUN_INITIAL_CONTEXT),
-		"allocation_candidate_fingerprint": "2".repeat(64),
-	}
+	})
+	if not _require_ok(allocation, "prepare real issuer allocation candidate"): return {}
+	var fixture: Dictionary = MATERIAL_FIXTURE.make_valid_fixture(allocation.value, false)
+	if not _require_ok(fixture, "build complete real New Run material"): return {}
+	var request: Dictionary = MATERIAL_FIXTURE.make_intent_request(fixture.value)
+	_intent_requests[resolved] = request.duplicate(true)
+	return request
 
 
 func _new_run_intent_request() -> Dictionary:
@@ -2425,17 +2452,20 @@ func _new_run_intent_request() -> Dictionary:
 ## The same frozen request in its restore shape: locator present, both context fields null.
 func _restore_intent_request_for(transaction_id: String) -> Dictionary:
 	var issuer_receipt: Dictionary = _transaction_receipt(transaction_id)
-	return {
+	var request := {
 		"transaction_id": str(issuer_receipt.get("token", "")),
 		"transaction_issuer_receipt": issuer_receipt,
 		"kind": "restore",
 		"request_fingerprint": "3".repeat(64),
 		"source_locator": _restore_locator(),
 		"initial_context": null,
+		"new_run_materials": null,
 		"initial_context_sha256": null,
 		"allocation_candidate_fingerprint": "4".repeat(64),
 	}
 
+	_intent_requests[request.transaction_id] = request.duplicate(true)
+	return request
 
 func _restore_intent_request() -> Dictionary:
 	return _restore_intent_request_for(_restore_transaction_id())
@@ -2496,9 +2526,10 @@ func _failure(code: String, message: String) -> Dictionary:
 ## each test sets only the ones its law requires nonnull.
 func _advance_request(transaction_id: String, expected_stage: String, next_stage: String,
 		expected_next_participant_index: int) -> Dictionary:
-	var request_fingerprint := "1".repeat(64)
-	if transaction_id == _restore_transaction_id():
-		request_fingerprint = "3".repeat(64)
+	var resolved := _resolved_transaction_id(transaction_id)
+	var intent: Dictionary = _intent_requests.get(resolved, {})
+	if intent.is_empty(): intent = _restore_intent_request_for(transaction_id) if transaction_id == _restore_transaction_id() else _new_run_intent_request_for(transaction_id)
+	var request_fingerprint: String = intent.request_fingerprint
 	return {
 		"transaction_id": _resolved_transaction_id(transaction_id),
 		"request_fingerprint": request_fingerprint,
@@ -2527,3 +2558,55 @@ func _canonical_sha256(value: Dictionary) -> String:
 		assert_true(false, "the frozen New-Run context must be canonicalizable: %s" % canonical)
 		return ""
 	return FAKE_STORAGE.sha256_hex(str(canonical.get("value", "")))
+
+
+## New Run allocation is the exact retained candidate; Restore keeps its shaped receipt fixture.
+func _valid_allocation_receipt(transaction_id: String) -> Dictionary:
+	var resolved := _resolved_transaction_id(transaction_id)
+	var intent: Dictionary = _intent_requests.get(resolved, {})
+	if intent.is_empty(): intent = _new_run_intent_request_for(transaction_id)
+	return intent.new_run_materials.allocation_candidate.duplicate(true) if intent.kind == "new_run" else _allocation_receipt("restore-allocation")
+
+
+func _prove_new_run_targets(journal: Object, transaction_id: String) -> bool:
+	var resolved := _resolved_transaction_id(transaction_id)
+	var intent: Dictionary = _intent_requests[resolved]
+	if intent.kind != "new_run": return true
+	var proofs := {"identity": intent.allocation_candidate_fingerprint,
+		"autosave": intent.new_run_materials.autosave.outgoing_hash,
+		"profile": intent.new_run_materials.profile.outgoing_hash}
+	for target: String in ["identity", "autosave", "profile"]:
+		if not _require_ok(journal.record_new_run_target(resolved, intent.request_fingerprint,
+				StringName(target), proofs[target]), "record exact " + target + " target proof"):
+			return false
+	return true
+
+
+func test_committed_new_run_is_forward_only_and_requires_ordered_target_proofs() -> void:
+	var journal: Object = _configured_journal()
+	if journal == null or not _commit_new_run_intent(journal): return
+	var txid := _new_run_transaction_id()
+	var intent := _new_run_intent_request()
+	var before := _stored_document()
+	var writes: int = _storage.write_count
+	var abort := _advance_request(txid, STAGE_INTENT, STAGE_ABORTED, 0)
+	abort.failure = _failure("source_unprovable", "a complete committed decision cannot abort")
+	_assert_rejected(journal.advance(abort), "New Run cannot discard a committed decision")
+	assert_eq(_stored_document(), before)
+	assert_eq(_storage.write_count, writes)
+	var allocate := _advance_request(txid, STAGE_INTENT, STAGE_ALLOCATED, 0)
+	allocate.allocation_receipt = _valid_allocation_receipt(txid)
+	if not _require_ok(journal.advance(allocate), "record frozen allocation"): return
+	var enter := _advance_request(txid, STAGE_ALLOCATED, STAGE_APPLYING, 0)
+	_assert_rejected(journal.advance(enter), "Live participants wait for all three durable targets")
+	_assert_rejected(journal.record_new_run_target(intent.transaction_id, intent.request_fingerprint,
+		&"profile", intent.new_run_materials.profile.outgoing_hash), "Profile proof cannot bypass identity and Autosave")
+	_assert_rejected(journal.record_new_run_target(intent.transaction_id, intent.request_fingerprint,
+		&"identity", "f".repeat(64)), "Wrong identity proof is rejected")
+	if not _prove_new_run_targets(journal, txid): return
+	var proven := _stored_document()
+	writes = _storage.write_count
+	if not _prove_new_run_targets(journal, txid): return
+	assert_eq(_stored_document(), proven)
+	assert_eq(_storage.write_count, writes, "Identical target proof replays do not write")
+	assert_true(journal.advance(enter).get("ok", false))

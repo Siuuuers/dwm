@@ -40,9 +40,15 @@ class Owner extends RefCounted:
 	## test_desktop_board_persistence.gd for that).
 	func apply_continuation_remap_silent(_restore_transaction_id: String, _identity_allocation_bundle: Dictionary) -> Dictionary:
 		return {"ok": true, "code": &"ok"}
+	func get_profile_snapshot() -> Dictionary:
+		return preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
+	func prepare_profile_document(candidate: Dictionary) -> Dictionary:
+		var guarded := _g("prepare_profile_document")
+		if not guarded.is_empty(): return guarded
+		return preload("res://scripts/profile/ProfileSchema.gd").validate(candidate)
 	func prepare_legacy_profile_patch(_l: Dictionary, _m: Dictionary = {}) -> Dictionary:
 		var g := _g("prepare_legacy_profile_patch")
-		return g if not g.is_empty() else {"ok": true, "value": {"preferences": {"language": {"primary_locale_id": "en"}}}}
+		return g if not g.is_empty() else {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
 	func prepare_locale(locale_id: String) -> Dictionary:
 		return {"ok": true, "value": {"canonical_locale_id": locale_id}}
 	func prepare_semantic_restore(ctx: Dictionary, _p: Dictionary) -> Dictionary:
@@ -215,7 +221,7 @@ func test_late_narrative_incompatibility_selects_earlier_bundle() -> void:
 
 func test_profile_prepare_failure_is_structural_not_content() -> void:
 	var owner := Owner.new()
-	owner.fail = &"prepare_legacy_profile_patch"
+	owner.fail = &"prepare_profile_document"
 	var m := _manager(owner)
 	m._journal.reset("run-c")
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-c", 1), &"day_start")["value"]["candidate"])

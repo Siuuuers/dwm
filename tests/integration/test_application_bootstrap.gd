@@ -51,8 +51,8 @@ const EXPECTED_STAGE_ORDER: Array[StringName] = [
 	&"select_and_prove_roots",
 	&"construct_and_inject_mutation_gate",
 	&"construct_identity_issuer_and_contact_commands",
-	&"initialize_profile",
 	&"initialize_saves",
+	&"initialize_profile",
 	&"initialize_localization",
 	&"initialize_input",
 	&"initialize_accessibility",
@@ -328,3 +328,73 @@ func test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readines
 		assert_false(&"publish_application_ready" in (state["completed_stages"] as Array))
 		assert_null(bootstrap.get("_retained_minesweeper_coordinator"),
 			"%s leaves no partially configured round graph" % stage_id)
+
+
+class RecoveryProfile extends Node:
+	var trace: Array = []
+	var bound_storage: RefCounted
+	func configure_new_run_storage(storage: RefCounted) -> Dictionary:
+		bound_storage = storage
+		trace.append("bind_profile")
+		return {"ok": true}
+	func initialize(storage: RefCounted) -> Dictionary:
+		trace.append("initialize_profile")
+		return {"ok": storage == bound_storage}
+
+
+class RecoverySaves extends Node:
+	var trace: Array = []
+	var fail_settlement := false
+	var profile: Object
+	func initialize(_storage: RefCounted) -> Dictionary:
+		trace.append("initialize_saves")
+		return {"ok": true}
+	func configure_new_run_profile_owner(owner: Object) -> Dictionary:
+		profile = owner
+		trace.append("bind_recovery")
+		return {"ok": true}
+	func reconcile_new_run_storage() -> Dictionary:
+		trace.append("settle_pair")
+		return {"ok": not fail_settlement, "code": &"NEW_RUN_RECOVERY_PENDING"}
+
+
+class RecoveryBootstrap extends InjectableBootstrap:
+	var trace: Array = []
+	func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
+		# Exercise real save/profile stages inside the real start() sequencing loop;
+		# unrelated graph construction is outside this storage-order regression.
+		if stage_id in [&"initialize_saves", &"initialize_profile"]:
+			return super._run_stage(stage_id, mode)
+		if stage_id == &"initialize_localization": trace.append("first_consumer")
+		return {"ok": true}
+
+
+func test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers() -> void:
+	for fail_settlement: bool in [false, true]:
+		var trace: Array = []
+		var profile: Node = autofree(RecoveryProfile.new())
+		var saves: Node = autofree(RecoverySaves.new())
+		var bootstrap: Node = autofree(RecoveryBootstrap.new())
+		profile.trace = trace
+		saves.trace = trace
+		saves.fail_settlement = fail_settlement
+		bootstrap.trace = trace
+		bootstrap.injected_targets = {&"ProfileManager": profile, &"SaveManager": saves}
+		var root: String = _isolated_root("new-acc-storage-order")
+		var storage: RefCounted = JSON_STORAGE.new(root)
+		bootstrap.set("_selected_root", root)
+		bootstrap.set("_profile_storage", storage)
+		watch_signals(bootstrap)
+		var result: Dictionary = bootstrap.start()
+		assert_eq(result.get("ok", false), not fail_settlement)
+		assert_same(profile.bound_storage, storage)
+		assert_same(saves.profile, profile)
+		var expected: Array = ["initialize_saves", "bind_profile", "bind_recovery", "settle_pair"]
+		if not fail_settlement:
+			expected.append_array(["initialize_profile", "first_consumer"])
+			assert_signal_emitted(bootstrap, "application_ready")
+		else:
+			assert_eq(result.get("code"), &"NEW_RUN_RECOVERY_PENDING")
+			assert_signal_not_emitted(bootstrap, "application_ready")
+		assert_eq(trace, expected)
+		assert_eq(bootstrap.get_startup_state().ready, not fail_settlement)

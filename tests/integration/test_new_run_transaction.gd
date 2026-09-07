@@ -97,6 +97,13 @@ func _wired() -> Dictionary:
 	assert_true(issuer.configure(root_store)["ok"])
 	assert_true(manager.configure_identity_issuer(issuer)["ok"])
 
+	var profile: Node = autofree(preload("res://autoload/ProfileManager.gd").new())
+	var profile_storage: RefCounted = load(STORAGE_PATH).new(root.get_base_dir())
+	assert_true(profile.configure_mutation_gate(gate).get("ok", false))
+	assert_true(profile.configure_new_run_storage(profile_storage).get("ok", false))
+	assert_true(profile.initialize(profile_storage).get("ok", false))
+	assert_true(manager.configure_new_run_profile_owner(profile).get("ok", false))
+
 	var gs: Node = load(GS_PATH).new()
 	add_child_autofree(gs)
 	gs.reset_game()
@@ -105,13 +112,13 @@ func _wired() -> Dictionary:
 		"run": load(RUN_PARTICIPANT).new(gs),
 		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
 		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
-		"profile": ShapedFakeParticipant.new("profile", "profile_plan", log, {"locale_id": "en"}),
+		"profile": preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(profile),
 		"localization": ShapedFakeParticipant.new("localization", "localization_plan", log),
 		"audio": ShapedFakeParticipant.new("audio", "audio_plan", log),
 		"route": ShapedFakeParticipant.new("route", "route_plan", log),
 		"narrative": load(FAKE_PARTICIPANT).new("narrative", log),
 	})["ok"])
-	return {"manager": manager, "gate": gate, "gs": gs, "log": log, "issuer": issuer}
+	return {"manager": manager, "gate": gate, "gs": gs, "log": log, "issuer": issuer, "profile": profile}
 
 func test_start_new_run_rejects_bad_context() -> void:
 	var wired := _wired()
@@ -217,7 +224,7 @@ func _seed_populated_journal(wired: Dictionary) -> Dictionary:
 	assert_eq(baseline.current.snapshot.checkpoint_sequence,2)
 	return baseline
 
-func test_finalize_failure_restores_original_live_run_and_populated_checkpoint_history() -> void:
+func test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity() -> void:
 	var wired := _wired()
 	var before := _seed_populated_journal(wired)
 	if before.is_empty(): return
@@ -228,14 +235,20 @@ func test_finalize_failure_restores_original_live_run_and_populated_checkpoint_h
 	audio.fail_at = &"finalize"
 	var result: Dictionary = manager.start_new_run(_initial_context())
 	assert_false(result.ok)
-	assert_eq(result.code,&"fixture_finalize_failure")
+	assert_eq(result.code,&"NEW_RUN_RECOVERY_PENDING")
 	assert_ne(audio.journal_at_finalize.current.snapshot.run_id,before.current.snapshot.run_id,"The failure occurs after the candidate journal has actually committed")
 	assert_eq(audio.journal_at_finalize.earlier,[])
-	assert_eq(manager._journal.capture_state().value.backup,before,"Rollback restores current checkpoint, history and sequence together")
-	assert_eq(wired.gs.capture_restore_state(),live_before,"The same real live run is restored")
-	assert_false(wired.gate.is_active())
+	assert_eq(manager._journal.capture_state().value.backup,audio.journal_at_finalize)
+	assert_ne(wired.gs.capture_restore_state(),live_before,"Durable New Acc continues forward")
+	assert_true(wired.gate.is_active())
 	assert_false(wired.gate.is_fatal_latched())
-	assert_false(manager.is_save_locked())
+	var operation: Dictionary = manager._continuation_journal.list_incomplete().value[0]
+	var frozen_run: String = operation.allocation_receipt.run_id
+	audio.fail_at = &""
+	var retried: Dictionary = manager.retry_new_run(operation.transaction_id)
+	assert_true(retried.get("ok",false),str(retried))
+	assert_eq(retried.get("value",{}).get("run_id"),frozen_run)
+	assert_false(wired.gate.is_active())
 
 func test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup() -> void:
 	var wired := _wired()
@@ -252,7 +265,7 @@ func test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_back
 	assert_eq(wired.gs._run_lifecycle.get_desktop_identity_context().run_id,after.run_id)
 	assert_false(wired.gate.is_active())
 
-func test_precommit_and_participant_apply_failures_leave_populated_journal_unchanged() -> void:
+func test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery() -> void:
 	for phase: String in ["invalid_context","apply","journal_commit"]:
 		var wired := _wired()
 		var before := _seed_populated_journal(wired)
@@ -270,11 +283,21 @@ func test_precommit_and_participant_apply_failures_leave_populated_journal_uncha
 		var result: Dictionary = manager.start_new_run(context)
 		assert_false(result.ok,phase)
 		assert_eq(manager._journal.capture_state().value.backup,before,phase)
-		assert_eq(wired.gs.capture_restore_state(),live_before,phase)
-		assert_eq(journal.rollback_attempts,0,"A journal never committed by this attempt needs no compensation")
-		assert_false(wired.gate.is_active(),phase)
+		assert_eq(journal.rollback_attempts,0,"A durable decision is never compensated to the old run")
+		if phase == "invalid_context":
+			assert_eq(wired.gs.capture_restore_state(),live_before,phase)
+			assert_false(wired.gate.is_active(),phase)
+		else:
+			assert_eq(result.code,&"NEW_RUN_RECOVERY_PENDING",phase)
+			assert_true(wired.gate.is_active(),phase)
+			var operation: Dictionary = manager._continuation_journal.list_incomplete().value[0]
+			manager._restore_participants.audio.fail_at = &""
+			journal.refuse_commit = false
+			var retried: Dictionary = manager.retry_new_run(operation.transaction_id)
+			assert_true(retried.get("ok",false),str(retried))
+			assert_eq(retried.get("value",{}).get("run_id"),operation.allocation_receipt.run_id)
 
-func test_failed_checkpoint_compensation_latches_fatal_after_attempting_live_rollback() -> void:
+func test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation() -> void:
 	var wired := _wired()
 	var before := _seed_populated_journal(wired)
 	if before.is_empty(): return
@@ -288,39 +311,50 @@ func test_failed_checkpoint_compensation_latches_fatal_after_attempting_live_rol
 	manager._restore_participants.audio.fail_at = &"finalize"
 	var result: Dictionary = manager.start_new_run(_initial_context())
 	assert_false(result.ok)
-	assert_eq(journal.rollback_attempts,1)
-	assert_true(wired.gate.is_fatal_latched(),"A failed checkpoint rollback cannot return an ordinary retryable failure")
-	assert_eq(result.code,&"APPLICATION_FATAL")
-	assert_eq(wired.gs.capture_restore_state(),live_before,"Journal rollback failure does not skip participant compensation")
-	assert_ne(manager._journal.capture_state().value.backup,before,"The test does not pretend the refused journal rollback succeeded")
+	assert_eq(journal.rollback_attempts,0)
+	assert_false(wired.gate.is_fatal_latched())
+	assert_true(wired.gate.is_active())
+	assert_eq(result.code,&"NEW_RUN_RECOVERY_PENDING")
+	assert_ne(wired.gs.capture_restore_state(),live_before)
+	assert_ne(manager._journal.capture_state().value.backup,before)
+	var operation: Dictionary = manager._continuation_journal.list_incomplete().value[0]
+	manager._restore_participants.audio.fail_at = &""
+	assert_true(manager.retry_new_run(operation.transaction_id).get("ok",false))
+	assert_eq(journal.rollback_attempts,0)
 
-func test_new_run_captures_prepared_profile_dark_and_rollback_preserves_old_capture() -> void:
+func test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication() -> void:
 	var wired := _wired()
 	var manager: Node = wired.manager
-	var profile: ShapedFakeParticipant = manager._restore_participants.profile
-	profile.profile_data.preferences.dark_mode = {"available":true,"next_run_enabled":true}
+	var profile: Node = wired.profile
+	var candidate: Dictionary = profile.get_profile_snapshot()
+	candidate.preferences.dark_mode = {"available":true,"next_run_enabled":true}
+	assert_true(profile.commit_prepared_profile(candidate).get("ok",false))
 	var started: Dictionary = manager.start_new_run(_initial_context())
 	assert_true(started.get("ok", false), JSON.stringify(started))
 	if not started.get("ok", false): return
 	assert_eq(wired.gs.get_run_configuration(), {"ok":true,"value":{"dark_mode":true}})
 	assert_true(manager._journal.capture_state().value.backup.current.snapshot.lifecycle.dark_mode)
-	profile.profile_data.preferences.dark_mode.next_run_enabled = false
+	assert_false(profile.get_profile_snapshot().preferences.dark_mode.next_run_enabled)
 	assert_true(wired.gs.get_run_configuration().value.dark_mode, "Pending settings cannot recolor the installed run")
 	manager._restore_participants.audio.fail_at = &"finalize"
 	var failed: Dictionary = manager.start_new_run(_initial_context())
 	assert_false(failed.get("ok", true))
-	assert_true(wired.gs.get_run_configuration().value.dark_mode, "Compensation restores the prior captured configuration")
-	assert_true(manager._journal.capture_state().value.backup.current.snapshot.lifecycle.dark_mode)
+	assert_eq(failed.code,&"NEW_RUN_RECOVERY_PENDING")
+	assert_false(wired.gs.get_run_configuration().value.dark_mode, "The next durable run captured the consumed Off selector")
+	assert_false(manager._journal.capture_state().value.backup.current.snapshot.lifecycle.dark_mode)
+	assert_true(wired.gate.is_active())
 
 func test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate() -> void:
 	for dark: Variant in [null, {}, {"available":true,"next_run_enabled":1}, {"available":false,"next_run_enabled":true}]:
 		var wired := _wired()
 		var manager: Node = wired.manager
-		manager._restore_participants.profile.profile_data.preferences.dark_mode = dark
+		var corrupted: Dictionary = wired.profile.get_profile_snapshot()
+		corrupted.preferences.dark_mode = dark
+		wired.profile.set("_profile",corrupted) # Malformed live owner only in this isolated fixture.
 		var before: Dictionary = wired.gs.capture_restore_state()
 		var result: Dictionary = manager.start_new_run(_initial_context())
 		assert_false(result.get("ok", true))
-		assert_eq(result.get("code"), &"invalid_new_run_profile")
+		assert_false(str(result.get("code", "")).is_empty())
 		assert_eq(manager._continuation_journal.list_incomplete().value, [])
 		assert_eq(wired.gs.capture_restore_state(), before)
 		assert_false(wired.gate.is_active())

@@ -1,0 +1,231 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/51be8735-cdab-46d7-8ece-d941079e9c0a/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/integration/test_new_run_pair_durability.gd
+* test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed
+* test_predecision_failure_preserves_both_targets_and_has_no_live_effects
+* test_profile_write_failure_retains_decision_and_startup_settles_without_live_launch
+* test_partial_live_replay_uses_same_snapshot_with_fresh_route_token
+* test_foreign_autosave_bytes_and_pending_marker_refuse_without_reconciliation
+* test_completed_retry_does_not_restore_old_targets_after_subsequent_changes
+* test_decision_and_autosave_write_cuts_retry_exact_same_retained_materials
+* test_busy_unrelated_gate_refuses_before_unloaded_journal_can_reconcile
+8/8 passed.
+
+
+tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+* test_start_new_run_builds_day1_run_b
+* test_start_new_run_requires_identity_issuer
+* test_start_new_run_allocates_a_fresh_identity_per_call
+* test_start_new_run_requires_participants
+* test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity
+* test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+* test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery
+* test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation
+* test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication
+* test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate
+* test_caller_cannot_override_captured_dark_intent
+12/12 passed.
+
+
+tests/integration/test_desktop_continuation_resume.gd
+* test_a_busy_gate_rejects_new_run_before_any_identity_is_minted_or_intent_is_written
+* test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is_written
+* test_crash_after_intent_committed_resumes_forward_to_completion
+* test_crash_after_allocation_resumes_forward_to_completion
+* test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot
+* test_crash_after_participants_applied_resumes_to_completion
+* test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_failure
+* test_restart_uses_frozen_dark_material_without_resampling_profile
+* test_restart_refuses_foreign_profile_bytes_without_overwriting_them
+9/9 passed.
+
+
+tests/integration/test_desktop_crash_recovery.gd
+* test_start_new_run_completes_against_the_real_profile_and_localization_pair
+    18 Orphans
+        * [MainGameScene:<Control#1602442234566>(MainGameScene.gd)] + 17
+* test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
+    52 Orphans
+        * [MainGameScene:<Control#1745199565859>(MainGameScene.gd)] + 17
+* test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing
+    52 Orphans
+        * [MainGameScene:<Control#1836417289253>(MainGameScene.gd)] + 17
+* test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run
+    70 Orphans
+        * [MainGameScene:<Control#1965064981637>(MainGameScene.gd)] + 17
+        * [MainGameScene:<Control#2058631515390>(MainGameScene.gd)] + 17
+* test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time
+* test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload
+6/6 passed.
+
+
+tests/integration/test_application_bootstrap.gd
+* test_project_autoload_order_is_the_exact_final_literal_sequence
+* test_master_stage_order_is_frozen
+* test_exactly_nine_targets_retain_one_shared_gate_identity
+* test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+* test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+* test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+* test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+* test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+* test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+* test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+10/10 passed.
+
+
+tests/unit/test_save_manager.gd
+* test_invalid_save_references_do_not_touch_storage
+* test_save_family_writes_closed_relative_names
+* test_logout_without_checkpoint_reports_unwritten
+* test_metadata_family_present_absent_corrupt_and_ordering
+* test_restore_preparation_and_delete_families
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_deprecated_wrappers_delegate
+7/7 passed.
+
+
+tests/integration/test_restore_transaction.gd
+* test_configure_restore_participants_validates_eight_keys
+* test_restore_success_applies_and_finalizes_in_order
+* test_apply_failure_rolls_back_in_reverse_and_emits_nothing
+* test_rollback_failure_latches_shared_gate
+* test_narrative_content_incompatibility_is_typed_for_bundle_fallback
+* test_empty_playhead_stays_compatible_across_bundles
+* test_malformed_narrative_input_is_fail_closed_not_incompatible
+* test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock
+8/8 passed.
+
+
+tests/integration/test_restore_mutation_gate.gd
+* test_one_gate_identity_across_owners
+* test_scene_router_common_gate_matrix
+* test_fatal_latch_fences_guarded_operations
+3/3 passed.
+
+
+tests/unit/test_restore_participants.gd
+* test_all_participant_scripts_exist
+* test_run_participant_prepare_and_delegation
+* test_profile_participant_prepares_legacy_patch_and_derives_locale
+* test_localization_and_audio_participants
+* test_route_participant_returns_ready_token
+* test_narrative_participant_unavailable_for_nonempty_playhead
+* test_participant_owner_failures_propagate
+7/7 passed.
+
+
+tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+* test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge
+* test_semantic_narrative_participant_reports_manifest_drift_as_recoverable
+13/13 passed.
+
+
+tests/integration/test_desktop_board_persistence.gd
+* test_restore_remaps_board_identity_and_command_receipt_keys
+* test_restore_remaps_consequence_causal_day_pair
+* test_restore_rejects_a_corrupted_board_before_touching_live_state
+* test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation
+* test_a_completed_restore_leaves_no_incomplete_continuation
+5/5 passed.
+
+
+tests/integration/test_minesweeper_first_reveal_transaction.gd
+* test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state
+* test_first_reveal_charges_exactly_once_across_a_retried_request
+* test_adapter_rejects_a_desktop_less_post_commit_snapshot_input
+* test_adapter_rejects_a_board_only_desktop_value
+* test_adapter_rejects_an_extra_desktop_key
+* test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal
+* test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured
+7/7 passed.
+
+
+tests/unit/test_canonical_preference_consumers.gd
+* test_reading_enums_map_exactly_without_mutating_profile
+* test_invalid_reading_has_no_partial_plan
+* test_instant_and_skip_plan_survive_native_cache_capture_and_rollback
+* test_localization_reads_and_publishes_only_canonical_primary_locale
+* test_restore_checks_committed_canonical_primary_before_applying
+* test_restore_participant_preserves_legacy_input_and_extracts_canonical_primary
+6/6 passed.
+
+
+tests/integration/test_restore_preserves_current_profile.gd
+* test_empty_patch_preserves_first_process_current_document_without_import_or_publication
+* test_empty_patch_apply_and_finalize_preserve_all_current_fields_and_receipts
+* test_frozen_candidate_is_validated_detached_and_uses_the_same_locale_window_plan
+* test_explicit_nonempty_legacy_patch_still_uses_real_import_preparation
+4/4 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/integration/test_new_run_pair_durability.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts              14
+Tests               105
+Passing Tests       105
+Asserts            1899
+Orphans              24
+Time              213.863s
+
+
+---- All tests passed! ----

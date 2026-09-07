@@ -1,10 +1,10 @@
-﻿class_name DesktopContinuationOperationJournal
+class_name DesktopContinuationOperationJournal
 extends RefCounted
 
 ## Durable New Run / selected Load continuation-operation journal (Plan 02 Task 1, dwm-p2r.16).
 ## External to every selectable snapshot: this uses its injected atomic storage and source-loader.
 const JOURNAL_PATH := "desktop-continuation-operations.json"
-const SCHEMA_VERSION := 2
+const SCHEMA_VERSION := 3
 const STAGE_INTENT := "intent_committed"
 const STAGE_ALLOCATED := "identity_allocation_committed"
 const STAGE_APPLYING := "participants_applying"
@@ -19,6 +19,8 @@ const OPERATION_KEYS: Array[String] = [
 	"initial_context",
 	"initial_context_sha256",
 	"kind",
+	"new_run_materials",
+	"new_run_targets",
 	"next_participant_index",
 	"participant_receipts",
 	"request_fingerprint",
@@ -58,6 +60,7 @@ const PREPARE_INTENT_KEYS: Array[String] = [
 	"initial_context",
 	"initial_context_sha256",
 	"kind",
+	"new_run_materials",
 	"request_fingerprint",
 	"source_locator",
 	"transaction_id",
@@ -86,6 +89,7 @@ const PARTICIPANT_ORDER: Array[String] = [
 	"route",
 	"narrative",
 ]
+const NEW_RUN_TARGET_ORDER: Array[String] = ["identity", "autosave", "profile"]
 
 const STAGE_UNION: Array[String] = [
 	STAGE_INTENT,
@@ -101,6 +105,7 @@ const DOCUMENT_KEYS: Array[String] = ["operations", "schema_version"]
 
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const _CANONICAL_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const _NEW_RUN_MATERIALS := preload("res://scripts/infrastructure/save/NewRunMaterials.gd")
 
 var _storage: Object = null
 var _source_loader: Object = null
@@ -241,6 +246,56 @@ func advance(request: Dictionary) -> Dictionary:
 	return {"ok": true, "value": progressed.duplicate(true)}
 
 
+## Records readback proof for one frozen New Run durability target. Target order is strict and an
+## identical replay is idempotent; changed proof at an occupied target is a conflict.
+func record_new_run_target(transaction_id: String, request_fingerprint: String,
+		target: StringName, revision: String) -> Dictionary:
+	var ready := _require_configured("record_new_run_target")
+	if not ready.get("ok", false):
+		return ready
+	var loaded := _load()
+	if not loaded.get("ok", false):
+		return loaded
+	var operations: Dictionary = _document.get("operations", {})
+	if not operations.has(transaction_id):
+		return _failed(&"continuation_transaction_not_found", transaction_id)
+	var operation: Dictionary = operations[transaction_id]
+	if request_fingerprint != str(operation.get("request_fingerprint", "")):
+		return _failed(&"continuation_request_conflict", transaction_id)
+	if operation.get("kind") != "new_run" or operation.get("stage") != STAGE_ALLOCATED:
+		return _failed(&"new_run_target_stage_invalid", str(operation.get("stage", "")))
+	var target_name := String(target)
+	if target_name not in NEW_RUN_TARGET_ORDER or not _is_sha256(revision):
+		return _failed(&"new_run_target_invalid", target_name)
+	var targets: Dictionary = (operation["new_run_targets"] as Dictionary).duplicate(true)
+	var index := NEW_RUN_TARGET_ORDER.find(target_name)
+	var expected := _expected_new_run_target_revision(operation, target_name)
+	if expected != revision:
+		return _failed(&"new_run_target_proof_mismatch", target_name)
+	if targets.get(target_name) != null:
+		if targets[target_name] == revision:
+			return {"ok": true, "value": operation.duplicate(true)}
+		return _failed(&"new_run_target_proof_conflict", target_name)
+	for prior_index: int in range(index):
+		if targets.get(NEW_RUN_TARGET_ORDER[prior_index]) == null:
+			return _failed(&"new_run_target_out_of_order", target_name)
+	for later_index: int in range(index + 1, NEW_RUN_TARGET_ORDER.size()):
+		if targets.get(NEW_RUN_TARGET_ORDER[later_index]) != null:
+			return _failed(&"new_run_target_out_of_order", target_name)
+	targets[target_name] = revision
+	var next := operation.duplicate(true)
+	next["new_run_targets"] = targets
+	var valid := _validate_operation(next)
+	if not valid.get("ok", false):
+		return valid
+	var next_document := _document.duplicate(true)
+	next_document["operations"][transaction_id] = next
+	var written := _write(next_document)
+	if not written.get("ok", false):
+		return written
+	_document = next_document
+	return {"ok": true, "value": next.duplicate(true)}
+
 func get_operation(transaction_id: String) -> Dictionary:
 	var ready := _require_configured("get_operation")
 	if not ready.get("ok", false):
@@ -359,6 +414,9 @@ func _write(document: Dictionary) -> Dictionary:
 		&"write_atomic", JOURNAL_PATH, str(emitted["value"]), Callable(self, "_parse_document"), true
 	)
 	if not write_result.get("ok", false):
+		# An atomic adapter may report failure after the destination promotion became durable.
+		# Drop the process-local cache so the next operation reconciles physical bytes before retry.
+		_loaded = false
 		return _storage_failure(write_result)
 	return {"ok": true}
 
@@ -488,6 +546,10 @@ func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
 	if kind == "restore":
 		if operation.get("initial_context") != null or operation.get("initial_context_sha256") != null:
 			return _failed(_schema_error, "restore requires null initial context fields")
+		if operation.get("new_run_materials") != null:
+			return _failed(_schema_error, "restore requires null new_run_materials")
+		if operation.has("new_run_targets") and operation.get("new_run_targets") != null:
+			return _failed(_schema_error, "restore requires null new_run_targets")
 		return _validate_source_locator(operation.get("source_locator"))
 	if operation.get("source_locator") != null:
 		return _failed(_schema_error, "new_run requires null source_locator")
@@ -518,8 +580,76 @@ func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
 	var computed := _canonical_sha256(context)
 	if computed.is_empty() or computed != str(operation["initial_context_sha256"]):
 		return _failed(_schema_error, "new_run initial context hash does not match its bytes")
+	var materials_ok: Dictionary = _NEW_RUN_MATERIALS.validate(operation.get("new_run_materials"),
+		context, str(operation.get("transaction_id", "")),
+		str(operation.get("allocation_candidate_fingerprint", "")))
+	if not materials_ok.get("ok", false):
+		return _failed(_schema_error, str(materials_ok.get("message", "new_run_materials are invalid")))
+	var allocation: Dictionary = operation["new_run_materials"]["allocation_candidate"]
+	if (allocation["request"] as Dictionary).get("transaction_issuer_receipt") \
+			!= operation.get("transaction_issuer_receipt"):
+		return _failed(_schema_error, "new_run allocation uses another transaction receipt")
+	var expected_request_fingerprint := _canonical_sha256({
+		"kind": "new_run", "transaction_id": operation["transaction_id"],
+		"initial_context": context, "new_run_materials": operation["new_run_materials"],
+	})
+	if expected_request_fingerprint.is_empty() \
+			or expected_request_fingerprint != str(operation.get("request_fingerprint", "")):
+		return _failed(_schema_error, "new_run request fingerprint does not bind retained materials")
+	if operation.has("new_run_targets"):
+		return _validate_new_run_targets(operation["new_run_targets"], operation)
 	return {"ok": true}
 
+
+func _validate_new_run_targets(value: Variant, operation: Dictionary) -> Dictionary:
+	if typeof(value) != TYPE_DICTIONARY or not _exact_target_keys(value):
+		return _failed(_schema_error, "new_run_targets have unexpected members")
+	var targets: Dictionary = value
+	var missing_seen := false
+	for target_name: String in NEW_RUN_TARGET_ORDER:
+		var proof: Variant = targets[target_name]
+		if proof == null:
+			missing_seen = true
+			continue
+		if missing_seen or not _is_sha256(proof):
+			return _failed(_schema_error, "new_run target proofs must be an ordered hash prefix")
+		if str(proof) != _expected_new_run_target_revision(operation, target_name):
+			return _failed(_schema_error, "new_run target proof does not match frozen material")
+	return {"ok": true}
+
+
+func _expected_new_run_target_revision(operation: Dictionary, target_name: String) -> String:
+	var materials: Dictionary = operation.get("new_run_materials", {})
+	match target_name:
+		"identity":
+			return str(operation.get("allocation_candidate_fingerprint", ""))
+		"autosave":
+			return str((materials.get("autosave", {}) as Dictionary).get("outgoing_hash", ""))
+		"profile":
+			return str((materials.get("profile", {}) as Dictionary).get("outgoing_hash", ""))
+	return ""
+
+
+func _all_new_run_targets_proven(operation: Dictionary) -> bool:
+	if operation.get("kind") != "new_run":
+		return true
+	var targets: Variant = operation.get("new_run_targets")
+	if typeof(targets) != TYPE_DICTIONARY or not _exact_target_keys(targets):
+		return false
+	for target_name: String in NEW_RUN_TARGET_ORDER:
+		if str((targets as Dictionary).get(target_name, "")) \
+				!= _expected_new_run_target_revision(operation, target_name):
+			return false
+	return true
+
+
+func _exact_target_keys(value: Variant) -> bool:
+	if typeof(value) != TYPE_DICTIONARY or (value as Dictionary).size() != NEW_RUN_TARGET_ORDER.size():
+		return false
+	for target_name: String in NEW_RUN_TARGET_ORDER:
+		if not (value as Dictionary).has(target_name):
+			return false
+	return true
 
 func _validate_source_locator(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
@@ -549,29 +679,44 @@ func _validate_stage_relationship(operation: Dictionary, stage: String, index: i
 		receipts: Dictionary) -> Dictionary:
 	var allocation_present := operation.get("allocation_receipt") != null
 	var failure_present := operation.get("failure") != null
+	var targets_empty: bool = operation.get("kind") != "new_run" or _new_run_target_count(operation) == 0
+	var targets_complete: bool = _all_new_run_targets_proven(operation)
 	match stage:
 		STAGE_INTENT:
-			if allocation_present or failure_present or index != 0 or not _receipts_match_index(receipts, 0):
+			if allocation_present or (failure_present and operation.get("kind") != "new_run") \
+					or index != 0 or not targets_empty or not _receipts_match_index(receipts, 0):
 				return _failed(_schema_error, "intent_committed fields do not match their stage")
 		STAGE_ALLOCATED:
 			if not allocation_present or index != 0 or not _receipts_match_index(receipts, 0):
 				return _failed(_schema_error, "identity_allocation_committed fields do not match their stage")
 		STAGE_APPLYING:
-			if not allocation_present or not _receipts_match_index(receipts, index):
+			if not allocation_present or not targets_complete \
+					or not _receipts_match_index(receipts, index):
 				return _failed(_schema_error, "participants_applying fields do not match their stage")
 		STAGE_APPLIED:
-			if not allocation_present or index != PARTICIPANT_ORDER.size() \
+			if not allocation_present or not targets_complete or index != PARTICIPANT_ORDER.size() \
 					or not _receipts_match_index(receipts, PARTICIPANT_ORDER.size()):
 				return _failed(_schema_error, "participants_applied fields do not match their stage")
 		STAGE_COMPLETED:
-			if not allocation_present or failure_present or index != PARTICIPANT_ORDER.size() \
+			if not allocation_present or failure_present or not targets_complete \
+					or index != PARTICIPANT_ORDER.size() \
 					or not _receipts_match_index(receipts, PARTICIPANT_ORDER.size()):
 				return _failed(_schema_error, "completed fields do not match their stage")
 		STAGE_ABORTED:
-			if allocation_present or not failure_present or index != 0 or not _receipts_match_index(receipts, 0):
+			if operation.get("kind") == "new_run" or allocation_present or not failure_present \
+					or index != 0 or not targets_empty or not _receipts_match_index(receipts, 0):
 				return _failed(_schema_error, "aborted fields do not match their stage")
 	return {"ok": true}
 
+
+func _new_run_target_count(operation: Dictionary) -> int:
+	if operation.get("kind") != "new_run" or typeof(operation.get("new_run_targets")) != TYPE_DICTIONARY:
+		return 0
+	var count := 0
+	for target_name: String in NEW_RUN_TARGET_ORDER:
+		if (operation["new_run_targets"] as Dictionary).get(target_name) != null:
+			count += 1
+	return count
 
 func _receipts_match_index(receipts: Dictionary, index: int) -> bool:
 	for participant_index: int in range(PARTICIPANT_ORDER.size()):
@@ -683,7 +828,8 @@ func _advance_one_step(operation: Dictionary, request: Dictionary) -> Dictionary
 	var request_receipt: Variant = request.get("participant_receipt")
 	var operation_stage := str(operation.get("stage", ""))
 
-	if failure != null and expected in [STAGE_ALLOCATED, STAGE_APPLYING, STAGE_APPLIED] \
+	if failure != null and (expected in [STAGE_ALLOCATED, STAGE_APPLYING, STAGE_APPLIED] \
+			or (expected == STAGE_INTENT and operation.get("kind") == "new_run")) \
 			and next_stage == expected and \
 			request_alloc_receipt == null and request_name == null and request_receipt == null:
 		return _apply_recovery_diagnostic(operation, request)
@@ -729,6 +875,11 @@ func _advance_intent_to_allocated(operation: Dictionary, allocation_receipt: Var
 		return _failed(&"advance_request_invalid", "intent commit requires index 0")
 	if typeof(allocation_receipt) != TYPE_DICTIONARY:
 		return _failed(&"advance_request_invalid", "allocation_receipt must be a receipt")
+	if operation.get("kind") == "new_run":
+		var frozen_candidate: Dictionary = operation["new_run_materials"]["allocation_candidate"]
+		if allocation_receipt != frozen_candidate \
+				or _canonical_sha256(allocation_receipt) != str(operation["allocation_candidate_fingerprint"]):
+			return _failed(&"advance_request_invalid", "allocation receipt changed from frozen New Run identity")
 	if operation.get("allocation_receipt") != null:
 		return _failed(&"advance_request_invalid", "allocation already present")
 	var next := operation.duplicate(true)
@@ -743,6 +894,8 @@ func _advance_intent_to_abort(operation: Dictionary, failure: Variant, allocatio
 		participant_receipt: Variant, index: int) -> Dictionary:
 	if str(operation.get("stage", "")) != STAGE_INTENT:
 		return _failed(&"illegal_stage", "expected intent stage")
+	if operation.get("kind") == "new_run":
+		return _failed(&"advance_request_invalid", "a durable New Run decision cannot abort")
 	if failure == null:
 		return _failed(&"advance_request_invalid", "pre-allocation diagnostic requires typed failure")
 	if index != 0:
@@ -773,6 +926,8 @@ func _advance_allocated_to_applying(operation: Dictionary, allocation_receipt: V
 		return _failed(&"advance_request_invalid", "expected_next_participant_index must be 0")
 	if failure != null:
 		return _failed(&"advance_request_invalid", "allocation transition cannot carry failure")
+	if not _all_new_run_targets_proven(operation):
+		return _failed(&"new_run_targets_unproven", "all New Run durability targets require readback proof")
 	var next := operation.duplicate(true)
 	next["stage"] = STAGE_APPLYING
 	next["next_participant_index"] = 0
@@ -854,8 +1009,9 @@ func _advance_to_completed(operation: Dictionary, allocation_receipt: Variant, p
 func _apply_recovery_diagnostic(operation: Dictionary, request: Dictionary) -> Dictionary:
 	var expected := str(request["expected_stage"])
 	var next_stage := str(request["next_stage"])
-	if expected not in [STAGE_ALLOCATED, STAGE_APPLYING, STAGE_APPLIED]:
-		return _failed(&"advance_request_invalid", "diagnostic requires a nonterminal post-allocation stage")
+	if expected not in [STAGE_ALLOCATED, STAGE_APPLYING, STAGE_APPLIED] \
+			and not (expected == STAGE_INTENT and operation.get("kind") == "new_run"):
+		return _failed(&"advance_request_invalid", "diagnostic requires a recoverable nonterminal stage")
 	if expected != next_stage:
 		return _failed(&"advance_request_invalid", "diagnostic must hold expected_stage")
 	var request_index := int(request["expected_next_participant_index"])
@@ -1022,6 +1178,8 @@ func _intent_candidate_from_operation(operation: Dictionary) -> Dictionary:
 		"initial_context": _duplicate_or_null(operation.get("initial_context")),
 		"initial_context_sha256": operation.get("initial_context_sha256"),
 		"kind": operation.get("kind"),
+		"new_run_materials": _duplicate_or_null(operation.get("new_run_materials")),
+		"new_run_targets": _duplicate_or_null(operation.get("new_run_targets")),
 		"next_participant_index": operation.get("next_participant_index"),
 		"participant_receipts": (operation.get("participant_receipts", {}).duplicate(true)),
 		"request_fingerprint": operation.get("request_fingerprint"),
@@ -1040,6 +1198,9 @@ func _base_operation(request: Dictionary) -> Dictionary:
 		"initial_context": _duplicate_or_null(request.get("initial_context")),
 		"initial_context_sha256": request.get("initial_context_sha256"),
 		"kind": str(request["kind"]),
+		"new_run_materials": _duplicate_or_null(request.get("new_run_materials")),
+		"new_run_targets": {"identity": null, "autosave": null, "profile": null} \
+			if str(request["kind"]) == "new_run" else null,
 		"next_participant_index": 0,
 		"participant_receipts": {},
 		"request_fingerprint": str(request["request_fingerprint"]),

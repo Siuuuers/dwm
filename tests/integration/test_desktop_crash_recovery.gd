@@ -1,44 +1,10 @@
 extends "res://addons/gut/test.gd"
-# dwm-p2r.32 Plan 02 Task 9. Crash-recovery proof through the REAL production graph.
-#
-# HONEST SCOPE. Both honest gaps (no production generation_port/checkpoint_port adapter for
-# MinesweeperRoundCoordinator; the boot-time placeholder identity context blocking Shop
-# prepare_purchase()) mean NO action-source transaction can ever reach `sequence_committed`
-# through the real graph today -- confirmed directly in test_desktop_action_matrix.gd. There is
-# therefore nothing pending of that kind to crash-recover here, and this file does not pretend
-# otherwise.
-#
-# A FOURTH GAP WAS DISCOVERED HERE AND IS NOW FIXED (dwm-p2r.33): driving SaveManager.
-# start_new_run() through a REAL ProfileManager for the first time (every prior test of
-# start_new_run(), in test_new_run_transaction.gd and test_save_manager.gd, wires FAKE participants
-# for every key) proved it could never succeed -- it hardcoded `plans["profile"] = {"profile": {}}`
-# and `plans["localization"] = {}`, two caller-independent literals that bypassed their
-# participants' prepare() and could never satisfy the real validators. The dwm-p2r.33 product
-# decision (recorded in that bead's DESIGN field, 2026-08-24): a New Run PRESERVES the complete
-# global profile by routing the live profile through the real participant seam with an EMPTY legacy
-# patch -- ProfileRestoreParticipant.prepare({"legacy_profile_patch_input": {}}), where
-# prepare_legacy_profile_patch({}, {}) returns the live profile unchanged once migration_receipts.
-# legacy_game_state_profile_v1 is true and a defaults-merged validated candidate otherwise, so a
-# fresh install starts from ProfileSchema defaults (language "en") -- and the locale is CHAINED
-# from the prepared profile candidate's preferences.language.primary_locale_id as the restore path
-# chains it in _prepare_bundle_with_all_participants(). Completing that fix surfaced a THIRD
-# literal of the same class: plans["audio"] passed the caller's audio_context through verbatim,
-# and the frozen `audio_context must be {}` contract made it permanently invalid against
-# AudioManager._validate_snapshot()'s exact-4-key shape. Per the dwm-p2r.33 addendum (user
-# decision, 2026-08-24), start_new_run() now translates the frozen {} into AudioManager's own
-# canonical empty snapshot (no music, no ambience), builds the persisted RunSnapshot from the
-# translated shape so a new-run save stays restorable, and routes plans["audio"] through the real
-# audio participant. This file now proves the working path end to end against the real
-# ProfileManager/LocalizationManager pair (fresh install and preserved-profile both), and keeps
-# the crash-recovery proofs alive through a post-intent localization failure. Canonical Profile
-# v4 rejects unregistered locale IDs before commit. A failure-injectable presentation root now
-# makes the real LocalizationManager.prepare_locale() fail AFTER the continuation intent was
-# durably committed, without placing an invalid locale in the profile.
-#
-# What Task 9's own wiring genuinely adds and IS crash-recoverable, independent of the remaining
-# gaps, is the desktop publication ledger's own durability across a fresh reload, plus the
-# production graph's own boot-time reconciliation call surviving both an empty journal and a
-# journal left with a genuinely stuck entry by the presentation-root failure above.
+# Restart coverage through real Profile, localization, save, identity and Bootstrap owners.
+# New Acc preflights view plans before its durable decision. A registered view can
+# then refuse live application, leaving the exact durable pair under recovery custody.
+# A fresh graph settles stored files before Profile initialization and installs the
+# same captured run. All filesystem roots are provided by the isolated test runner.
+# This does not claim the still-missing production board-generation or purchase adapters.
 
 const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
@@ -66,13 +32,13 @@ class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 class FailingPresentationRoot extends Node:
 	# Inject only a view preparation failure through Localization's public root seam.
 	# The real Profile, localization transaction, continuation and storage stay intact.
-	var fail_prepare := false
+	var fail_apply := false
 	func prepare_presentation(_profile: Dictionary) -> Dictionary:
-		return {"ok": false, "code": &"root_prepare_failed"} if fail_prepare else {"ok": true, "value": {}}
+		return {"ok": true, "value": {}}
 	func capture_presentation_state() -> Dictionary:
 		return {"ok": true, "value": {}}
 	func apply_presentation_silent(_plan: Dictionary) -> Dictionary:
-		return {"ok": true}
+		return {"ok": false, "code": &"root_apply_failed"} if fail_apply else {"ok": true}
 	func rollback_presentation_silent(_backup: Dictionary) -> Dictionary:
 		return {"ok": true}
 	func finalize_presentation() -> Dictionary:
@@ -123,6 +89,21 @@ func _boot_process(storage_root: String) -> Dictionary:
 
 	var profile: Node = load("res://autoload/ProfileManager.gd").new()
 	add_child_autofree(profile)
+	var gate: RefCounted = APPLICATION_MUTATION_GATE.new()
+	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
+	add_child_autofree(save_manager)
+	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(storage_root.path_join("saves"))).get("ok", false))
+	assert_true(save_manager.call(&"configure_identity_issuer", issuer).get("ok", false))
+	var allocation_participant: RefCounted = DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT.new(issuer, save_manager)
+	assert_true(save_manager.call(&"configure_identity_allocation_participant", allocation_participant).get("ok", false))
+	bootstrap.set("_desktop_identity_allocation_participant", allocation_participant)
+	assert_true(save_manager.call(&"configure_mutation_gate", gate).get("ok", false))
+
+	assert_true(profile.configure_mutation_gate(gate).get("ok", false))
+	assert_true(profile.configure_new_run_storage(storage).get("ok", false))
+	assert_true(save_manager.configure_new_run_profile_owner(profile).get("ok", false))
+	assert_true(save_manager.reconcile_new_run_storage().get("ok", false))
+
 	assert_true(profile.call(&"initialize", storage).get("ok", false),
 		"ProfileManager must be initialized the same way the real initialize_profile stage does it")
 	var localization: Node = load("res://autoload/LocalizationManager.gd").new()
@@ -141,14 +122,6 @@ func _boot_process(storage_root: String) -> Dictionary:
 	add_child_autofree(bridge)
 	var router: Node = load("res://autoload/SceneRouter.gd").new()
 	add_child_autofree(router)
-	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
-	add_child_autofree(save_manager)
-	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(storage_root.path_join("saves"))).get("ok", false))
-	assert_true(save_manager.call(&"configure_identity_issuer", issuer).get("ok", false))
-	var allocation_participant: RefCounted = DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT.new(issuer, save_manager)
-	assert_true(save_manager.call(&"configure_identity_allocation_participant", allocation_participant).get("ok", false))
-	bootstrap.set("_desktop_identity_allocation_participant", allocation_participant)
-	assert_true(save_manager.call(&"configure_mutation_gate", APPLICATION_MUTATION_GATE.new()).get("ok", false))
 
 	bootstrap.set("targets", {
 		"ProfileManager": profile, "LocalizationManager": localization, "AudioManager": audio,
@@ -157,7 +130,6 @@ func _boot_process(storage_root: String) -> Dictionary:
 		"SaveManager": save_manager,
 	})
 
-	var gate: RefCounted = APPLICATION_MUTATION_GATE.new()
 	bootstrap.set("_application_gate", gate)
 	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false))
@@ -177,12 +149,12 @@ func _initial_context() -> Dictionary:
 	return {"active_app_id": null, "audio_context": {}, "content_version": 1,
 		"dialogic_checkpoint": {}, "route_id": "main"}
 
-func _fail_future_localization_prepares(localization: Node) -> void:
+func _fail_future_localization_applies(localization: Node) -> void:
 	var root := FailingPresentationRoot.new()
 	add_child_autofree(root)
 	assert_true(localization.register_presentation_root(root).get("ok", false),
 		"the real localization owner first admits a working presentation root")
-	root.fail_prepare = true
+	root.fail_apply = true
 
 
 # -------------------------------------------------------------------------------------------------
@@ -226,32 +198,31 @@ func test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
 
 
 ## A successful run seeds the journal first. A subsequently failing registered presentation root
-## then refuses localization preparation after the next durable intent. In-process reconciliation
+## then refuses localization application after the next durable intent. In-process reconciliation
 ## must tolerate the still-failing root and retain its diagnostic; a fresh process without that
 ## transient view failure must complete the same interrupted operation (the next test).
 func test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing() -> void:
 	var process := _boot_process(_shared_root)
 	var save_manager: Node = process["save_manager"]
 	assert_true(save_manager.call(&"start_new_run", _initial_context()).get("ok", false),
-		"the seeding New Run itself must complete (receipt flips true; the journal entry completes)")
+		"the seeding New Run itself must complete and retain current Profile receipts")
 	var profile: Node = process["profile"]
 	var before: Dictionary = profile.get_profile_snapshot()
 	var prepared: Dictionary = profile.call(&"prepare_locale_preference", "ja")
 	assert_false(prepared.get("ok", true), "canonical Profile refuses an unregistered locale before commit")
 	assert_eq(profile.get_profile_snapshot(), before)
-	_fail_future_localization_prepares(process["localization"])
+	_fail_future_localization_applies(process["localization"])
 	var started: Dictionary = save_manager.call(&"start_new_run", _initial_context())
-	assert_false(started.get("ok", true), "the registered presentation root refuses the real localization plan")
-	assert_eq(str(started.get("code", "")), "root_prepare_failed")
+	assert_false(started.get("ok", true), "the registered presentation root refuses real localization application")
+	assert_eq(str(started.get("code", "")), "NEW_RUN_RECOVERY_PENDING")
 	assert_eq(profile.get_profile_snapshot(), before, "post-intent failure leaves the canonical profile intact")
 	var reconciled: Dictionary = save_manager.call(&"reconcile_incomplete_continuations")
-	assert_true(reconciled.get("ok", false), JSON.stringify(reconciled))
-	var results: Array = (reconciled["value"] as Dictionary)["reconciled"]
-	assert_eq(results.size(), 1, "the failed attempt's own operation is exactly the one left incomplete")
-	if results.size() == 1:
-		var entry: Dictionary = results[0]
-		assert_true((entry["result"] as Dictionary).get("ok", false),
-			"reconciling a stuck localization-preparation entry must not itself fail")
+	assert_false(reconciled.get("ok", true), JSON.stringify(reconciled))
+	assert_eq(reconciled.get("code"), &"NEW_RUN_RECOVERY_PENDING")
+	assert_eq(reconciled.get("transaction_id"), started.get("transaction_id"))
+	assert_eq(reconciled.get("details", {}).get("cause", {}).get("code"), &"root_apply_failed")
+	assert_true(save_manager._mutation_gate.is_internal_owner_active(&"new_run"),
+		"A still-failing live owner keeps the same recovery operation under custody")
 
 
 ## Process A's second New Run leaves an incomplete continuation after its registered presentation
@@ -261,10 +232,10 @@ func test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new
 	var process_a := _boot_process(_shared_root)
 	var save_manager_a: Node = process_a["save_manager"]
 	assert_true(save_manager_a.call(&"start_new_run", _initial_context()).get("ok", false))
-	_fail_future_localization_prepares(process_a["localization"])
+	_fail_future_localization_applies(process_a["localization"])
 	var failed: Dictionary = save_manager_a.call(&"start_new_run", _initial_context())
 	assert_false(failed.get("ok", true))
-	assert_eq(failed.get("code"), &"root_prepare_failed")
+	assert_eq(failed.get("code"), &"NEW_RUN_RECOVERY_PENDING")
 
 	var process_b := _boot_process(_shared_root)
 	var reconciled: Dictionary = (process_b["save_manager"] as Node).call(&"reconcile_incomplete_continuations")

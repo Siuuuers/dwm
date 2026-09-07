@@ -180,8 +180,12 @@ class _CrashBeforeRollbackPort extends RefCounted:
 ## Minimal failure-injectable Owner for the five ordinary (non-desktop, non-run) restore
 ## participants, mirroring test_desktop_board_persistence.gd's own established fake.
 class _RestoreOwner extends RefCounted:
+	func get_profile_snapshot() -> Dictionary:
+		return preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
+	func prepare_profile_document(candidate: Dictionary) -> Dictionary:
+		return preload("res://scripts/profile/ProfileSchema.gd").validate(candidate)
 	func prepare_legacy_profile_patch(_l: Dictionary, _m: Dictionary = {}) -> Dictionary:
-		return {"ok": true, "value": {"preferences": {"language": {"primary_locale_id": "en"}}}}
+		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
 	func prepare_locale(locale_id: String) -> Dictionary:
 		return {"ok": true, "value": {"canonical_locale_id": locale_id}}
 	func prepare_semantic_restore(ctx: Dictionary, _p: Dictionary) -> Dictionary:

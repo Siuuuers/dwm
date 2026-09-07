@@ -27,6 +27,10 @@ const DESKTOP_HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.
 
 class ExternalOwners extends RefCounted:
 	var route_applies := 0
+	func get_profile_snapshot() -> Dictionary:
+		return preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
+	func prepare_profile_document(candidate: Dictionary) -> Dictionary:
+		return preload("res://scripts/profile/ProfileSchema.gd").validate(candidate)
 	func prepare_legacy_profile_patch(_input: Dictionary, _metadata: Dictionary = {}) -> Dictionary:
 		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
 	func prepare_locale(locale: String) -> Dictionary:

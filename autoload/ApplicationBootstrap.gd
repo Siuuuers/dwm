@@ -97,8 +97,8 @@ const STAGE_ORDER: Array[StringName] = [
 	&"select_and_prove_roots",
 	&"construct_and_inject_mutation_gate",
 	&"construct_identity_issuer_and_contact_commands",
-	&"initialize_profile",
 	&"initialize_saves",
+	&"initialize_profile",
 	&"initialize_localization",
 	&"initialize_input",
 	&"initialize_accessibility",
@@ -342,7 +342,18 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 						_desktop_identity_allocation_participant)
 					if not save_allocation.get("ok", false):
 						return save_allocation
-			return save_initialized
+			# Settle a retained New Acc pair before Profile or any preference consumer
+			# reads it. The later continuation pass still installs every live owner.
+			var profile := _target(&"ProfileManager")
+			if profile == null or not profile.has_method("configure_new_run_storage") \
+					or not save_manager.has_method("configure_new_run_profile_owner") \
+					or not save_manager.has_method("reconcile_new_run_storage"):
+				return _failure(&"missing_stage_adapter", "New Acc startup recovery is unavailable")
+			var profile_bound: Dictionary = profile.call(&"configure_new_run_storage", _profile_storage)
+			if not profile_bound.get("ok", false): return profile_bound
+			var recovery_bound: Dictionary = save_manager.call(&"configure_new_run_profile_owner", profile)
+			if not recovery_bound.get("ok", false): return recovery_bound
+			return save_manager.call(&"reconcile_new_run_storage")
 		&"initialize_dialogic_bridge":
 			var bridge := _target(&"DialogicBridge")
 			var profile := _target(&"ProfileManager")

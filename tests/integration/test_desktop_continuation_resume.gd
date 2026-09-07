@@ -14,6 +14,8 @@ const STORAGE_PATH := "res://scripts/infrastructure/storage/JsonFileStorage.gd"
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
 const GS_PATH := "res://autoload/GameState.gd"
 const RUN_PARTICIPANT := "res://scripts/application/restore/RunRestoreParticipant.gd"
+const PROFILE_MANAGER := preload("res://autoload/ProfileManager.gd")
+const PROFILE_PARTICIPANT := preload("res://scripts/application/restore/ProfileRestoreParticipant.gd")
 const CALL_LOG := "res://tests/support/RestoreCallLog.gd"
 const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd"
 const ISSUER_PATH := "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd"
@@ -22,9 +24,9 @@ const DESKTOP_CONSEQUENCE_STATE := "res://scripts/domain/desktop/DesktopConseque
 const DESKTOP_BOARD_STATE := "res://scripts/domain/minesweeper/DesktopBoardState.gd"
 const DESKTOP_CONSEQUENCE_PARTICIPANT := "res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd"
 const DESKTOP_BOARD_PARTICIPANT := "res://scripts/application/restore/DesktopBoardRestoreParticipant.gd"
-const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const CONTINUATION_JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
+const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
 const PARTICIPANT_APPLY_ORDER: Array[String] = [
 	"run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative",
@@ -84,6 +86,44 @@ class ShapedFakeParticipant extends RefCounted:
 		_log.record(_id, "finalize")
 		return {"ok": true, "code": &"ok"}
 
+class LoggedProfileParticipant extends RefCounted:
+	var _inner: RefCounted
+	var _log: RefCounted
+	var _fail_once: bool
+
+	func _init(owner: Node, log: RefCounted, fail_once: bool) -> void:
+		_inner = PROFILE_PARTICIPANT.new(owner)
+		_log = log
+		_fail_once = fail_once
+
+	func prepare(input: Dictionary) -> Dictionary:
+		_log.record("profile", "prepare")
+		return _inner.prepare(input)
+
+	func prepare_frozen_profile(candidate: Dictionary) -> Dictionary:
+		_log.record("profile", "prepare_frozen_profile")
+		return _inner.prepare_frozen_profile(candidate)
+
+	func capture() -> Dictionary:
+		_log.record("profile", "capture")
+		return _inner.capture()
+
+	func apply_silent(plan: Dictionary) -> Dictionary:
+		_log.record("profile", "apply_silent")
+		if _fail_once:
+			_fail_once = false
+			return {"ok": false, "code": &"forced_apply_failure", "message": "", "details": {}}
+		return _inner.apply_silent(plan)
+
+	func rollback_silent(backup: Dictionary) -> Dictionary:
+		_log.record("profile", "rollback_silent")
+		return _inner.rollback_silent(backup)
+
+	func finalize() -> Dictionary:
+		_log.record("profile", "finalize")
+		return _inner.finalize()
+
+
 func _initial_context() -> Dictionary:
 	return {"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
 		"audio_context": {}, "content_version": 1}
@@ -93,13 +133,15 @@ func _initial_context() -> Dictionary:
 ## mirroring tests/integration/test_new_run_transaction.gd's own established wiring) over the given
 ## storage roots. Calling this twice with the SAME roots models a fresh process reopening the same
 ## on-disk state after a crash, exactly like test_desktop_crash_recovery.gd's _boot_process().
-func _wired(save_root: String, issuer_root: String, fail_profile_once: bool) -> Dictionary:
+func _wired(save_root: String, issuer_root: String, fail_profile_once: bool,
+		allow_storage_recovery_failure: bool = false) -> Dictionary:
 	DirAccess.make_dir_recursive_absolute(save_root)
+	var storage: RefCounted = load(STORAGE_PATH).new(save_root)
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
-	manager.initialize(load(STORAGE_PATH).new(save_root))
+	assert_true(manager.initialize(storage).get("ok", false))
 	var gate: RefCounted = load(GATE_PATH).new()
-	manager.configure_mutation_gate(gate)
+	assert_true(manager.configure_mutation_gate(gate).get("ok", false))
 	assert_true(manager._journal.reset("run-a")["ok"])
 
 	DirAccess.make_dir_recursive_absolute(issuer_root)
@@ -111,25 +153,41 @@ func _wired(save_root: String, issuer_root: String, fail_profile_once: bool) -> 
 	assert_true(issuer.configure(root_store)["ok"])
 	assert_true(manager.configure_identity_issuer(issuer)["ok"])
 
+	# Match ApplicationBootstrap's storage-only recovery boundary: Profile is bound, but has not
+	# adopted bytes or published state, while a decided New Run pair is settled and proved.
+	var profile_owner: Node = PROFILE_MANAGER.new()
+	add_child_autofree(profile_owner)
+	assert_true(profile_owner.configure_new_run_storage(storage).get("ok", false))
+	assert_true(profile_owner.configure_mutation_gate(gate).get("ok", false))
+	assert_true(manager.configure_new_run_profile_owner(profile_owner).get("ok", false))
+	var storage_recovery: Dictionary = manager.reconcile_new_run_storage()
+	if not storage_recovery.get("ok", false) and allow_storage_recovery_failure:
+		return {"manager": manager, "gate": gate, "issuer": issuer, "profile": profile_owner,
+			"storage": storage, "storage_recovery": storage_recovery}
+	assert_true(storage_recovery.get("ok", false),
+		"storage-only New Run recovery: " + JSON.stringify(storage_recovery))
+	if not storage_recovery.get("ok", false):
+		return {}
+	assert_true(profile_owner.initialize(storage).get("ok", false))
+
 	var gs: Node = load(GS_PATH).new()
 	add_child_autofree(gs)
 	gs.reset_game()
 	var log: RefCounted = load(CALL_LOG).new()
-	var profile_fake: RefCounted = ShapedFakeParticipant.new("profile", "profile_plan", log, {"locale_id": "en"})
-	if fail_profile_once:
-		profile_fake.set_failure(&"apply_silent")
+	var profile_participant: RefCounted = LoggedProfileParticipant.new(profile_owner, log, fail_profile_once)
 	assert_true(manager.configure_restore_participants({
 		"run": load(RUN_PARTICIPANT).new(gs),
 		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
 		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
-		"profile": profile_fake,
+		"profile": profile_participant,
 		"localization": ShapedFakeParticipant.new("localization", "localization_plan", log),
 		"audio": ShapedFakeParticipant.new("audio", "audio_plan", log),
 		"route": ShapedFakeParticipant.new("route", "route_plan", log),
 		"narrative": ShapedFakeParticipant.new("narrative", "narrative_plan", log),
 	})["ok"])
-	return {"manager": manager, "gate": gate, "gs": gs, "log": log, "issuer": issuer, "profile_fake": profile_fake}
-
+	return {"manager": manager, "gate": gate, "gs": gs, "log": log, "issuer": issuer,
+		"profile": profile_owner, "profile_participant": profile_participant, "storage": storage,
+		"storage_recovery": storage_recovery}
 func _wired_single() -> Dictionary:
 	var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("continuation_resume").path_join(str(randi())).path_join("saves")
 	var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("continuation_resume_issuer").path_join(str(randi()))
@@ -145,41 +203,24 @@ static func _canonical_sha256(value: Variant) -> String:
 ## stopping deliberately BEFORE the identity mint -- the one interruption point production code
 ## never pauses at synchronously, so the "after intent_committed" crash boundary can only be
 ## constructed by hand.
-func _manual_new_run_intent(manager: Node, issuer: RefCounted, initial_context: Dictionary) -> Dictionary:
-	# Explicitly authored frozen context for this journal fixture, not player data.
-	if not initial_context.has("dark_mode"): initial_context["dark_mode"] = false
-	var issued: Dictionary = issuer.call(&"issue", &"transaction_id")
-	assert_true(issued.get("ok", false), "issue transaction_id")
-	var transaction_id := str(issued["value"]["token"])
-	var transaction_issuer_receipt: Dictionary = issued["value"]["issuer_receipt"]
-	var request := {
-		"existing_run_id": null, "kind": "new_run", "remap_source_transaction_ids": [],
-		"source_desktop_timeline_generation": null, "transaction_id": transaction_id,
-		"transaction_issuer_receipt": transaction_issuer_receipt,
-	}
-	var prepared_alloc: Dictionary = issuer.call(&"prepare_continuation_allocation", request)
-	assert_true(prepared_alloc.get("ok", false), "prepare_continuation_allocation")
-	var raw_candidate: Dictionary = prepared_alloc["value"]
-	var allocation_fingerprint := _canonical_sha256(raw_candidate)
-	var initial_context_hash := _canonical_sha256(initial_context)
-	var request_fingerprint := _canonical_sha256({
-		"kind": "new_run", "transaction_id": transaction_id, "initial_context": initial_context,
-	})
-	var intent_prepared: Dictionary = manager._continuation_journal.prepare_intent({
-		"allocation_candidate_fingerprint": allocation_fingerprint, "initial_context": initial_context,
-		"initial_context_sha256": initial_context_hash, "kind": "new_run",
-		"request_fingerprint": request_fingerprint, "source_locator": null,
-		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt,
-	})
-	assert_true(intent_prepared.get("ok", false), "prepare_intent: " + JSON.stringify(intent_prepared))
-	var committed: Dictionary = manager._continuation_journal.commit_intent(intent_prepared["value"])
+func _manual_new_run_intent(manager: Node, _issuer: RefCounted,
+		initial_context: Dictionary) -> Dictionary:
+	var prepared: Dictionary = manager._prepare_new_run_decision(initial_context)
+	assert_true(prepared.get("ok", false), "prepare complete New Run decision: " + JSON.stringify(prepared))
+	if not prepared.get("ok", false):
+		return {}
+	var candidate: Dictionary = prepared["value"]
+	var committed: Dictionary = manager._continuation_journal.commit_intent(candidate)
 	assert_true(committed.get("ok", false), "commit_intent: " + JSON.stringify(committed))
 	return {
-		"transaction_id": transaction_id, "request_fingerprint": request_fingerprint,
-		"allocation_candidate_fingerprint": allocation_fingerprint, "raw_candidate": raw_candidate,
-		"transaction_issuer_receipt": transaction_issuer_receipt,
+		"transaction_id": candidate["transaction_id"],
+		"request_fingerprint": candidate["request_fingerprint"],
+		"allocation_candidate_fingerprint": candidate["allocation_candidate_fingerprint"],
+		"raw_candidate": candidate["new_run_materials"]["allocation_candidate"].duplicate(true),
+		"new_run_materials": candidate["new_run_materials"].duplicate(true),
+		"initial_context": candidate["initial_context"].duplicate(true),
+		"transaction_issuer_receipt": candidate["transaction_issuer_receipt"].duplicate(true),
 	}
-
 ## Extends the intent above through the real, durable identity mint and the STAGE_ALLOCATED
 ## advance -- mirrors `_begin_new_run_continuation()`'s second half, stopping deliberately BEFORE
 ## the STAGE_APPLYING advance (production code never pauses there either).
@@ -200,52 +241,44 @@ func _manual_allocated(manager: Node, issuer: RefCounted, intent: Dictionary) ->
 ## same calls `SaveManager._run_participant_transaction()`'s own loop makes -- to construct the
 ## "mid-participants"/"after participants_applied" crash boundaries at an exact, chosen index
 ## without depending on which real participant happens to fail first.
-func _manual_applying(manager: Node, initial_context: Dictionary, intent: Dictionary, allocated: Dictionary,
-		apply_count: int, advance_to_applied: bool) -> void:
+func _manual_applying(manager: Node, _initial_context: Dictionary, intent: Dictionary,
+		_allocated: Dictionary, apply_count: int, advance_to_applied: bool) -> void:
+	var custody: Dictionary = manager._take_new_run_custody(intent["transaction_id"])
+	assert_true(custody.get("ok", false), "take New Run custody before persisting frozen targets")
+	if not custody.get("ok", false):
+		return
+	var current: Dictionary = manager._continuation_journal.get_operation(intent["transaction_id"])
+	assert_true(current.get("ok", false), "read allocated operation")
+	if not current.get("ok", false):
+		return
+	var settled: Dictionary = manager._settle_new_run_pair(current["value"])
+	assert_true(settled.get("ok", false), "settle frozen identity/Autosave/Profile: " + JSON.stringify(settled))
+	if not settled.get("ok", false):
+		return
 	var advanced_to_applying: Dictionary = manager._continuation_journal.advance({
 		"transaction_id": intent["transaction_id"], "request_fingerprint": intent["request_fingerprint"],
-		"expected_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
+		"expected_stage": CONTINUATION_JOURNAL.STAGE_ALLOCATED,
+		"next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
 		"expected_next_participant_index": 0, "allocation_receipt": null,
 		"participant_name": null, "participant_receipt": null, "failure": null,
 	})
-	assert_true(advanced_to_applying.get("ok", false), "advance to applying: " + JSON.stringify(advanced_to_applying))
-	if apply_count == 0:
+	assert_true(advanced_to_applying.get("ok", false),
+		"advance to applying after all three target proofs: " + JSON.stringify(advanced_to_applying))
+	if not advanced_to_applying.get("ok", false) or apply_count == 0:
 		return
 
-	var identity := {
-		"run_id": str(allocated["run_id"]), "branch_id": str(allocated["branch_id"]),
-		"desktop_timeline_generation": int(allocated["desktop_timeline_generation"]),
-		"causal_day_instance": str(allocated["causal_day_instance"]),
-		"causal_day_instance_issuer_receipt": (allocated["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true),
-	}
-	var new_run: Dictionary = manager._restore_participants["run"].prepare_new_run(
-		identity["run_id"], identity["branch_id"], identity["desktop_timeline_generation"],
-		identity["causal_day_instance"], identity["causal_day_instance_issuer_receipt"], initial_context["dark_mode"])
-	assert_true(new_run.get("ok", false), "prepare_new_run")
-	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
-	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
-		snapshot_input, initial_context["dialogic_checkpoint"], str(initial_context["route_id"]),
-		initial_context["active_app_id"], initial_context["audio_context"],
-		int(initial_context["content_version"]), 1)
-	assert_true(built.get("ok", false), "RUN_SNAPSHOT_SCHEMA.build")
-	var snapshot: Dictionary = built["value"]["snapshot"]
-	var consequence_prep: Dictionary = manager._restore_participants["desktop_consequence"].prepare(
-		{"state": snapshot["desktop"]["consequence"]})
-	assert_true(consequence_prep.get("ok", false))
-	var board_prep: Dictionary = manager._restore_participants["desktop_board"].prepare(
-		{"state": snapshot["desktop"]["board"]})
-	assert_true(board_prep.get("ok", false))
-	var plans := {
-		"run": {"snapshot": snapshot},
-		"desktop_consequence": (consequence_prep["value"] as Dictionary)["consequence_plan"],
-		"desktop_board": (board_prep["value"] as Dictionary)["board_plan"],
-		"profile": {"profile": {}},
-		"localization": {},
-		"audio": {"snapshot": initial_context["audio_context"]},
-		"route": {"route_id": str(initial_context["route_id"]), "route_context": {}},
-		"narrative": {"narrative_checkpoint": initial_context["dialogic_checkpoint"]},
-	}
-
+	var parsed: Dictionary = STRICT_JSON.parse_object(
+		str(intent["new_run_materials"]["autosave"]["outgoing_text"]))
+	assert_true(parsed.get("ok", false), "parse frozen Autosave")
+	if not parsed.get("ok", false):
+		return
+	var snapshot: Dictionary = parsed["value"]["current_snapshot"]["snapshot"]
+	var prepared: Dictionary = manager._prepare_new_run_plans(
+		snapshot, intent["new_run_materials"]["profile"]["candidate"])
+	assert_true(prepared.get("ok", false), "rebuild plans from frozen material: " + JSON.stringify(prepared))
+	if not prepared.get("ok", false):
+		return
+	var plans: Dictionary = prepared["value"]
 	var route_ready_token: Variant = null
 	for index: int in range(apply_count):
 		var key: String = PARTICIPANT_APPLY_ORDER[index]
@@ -254,26 +287,33 @@ func _manual_applying(manager: Node, initial_context: Dictionary, intent: Dictio
 			plan["route_ready_token"] = route_ready_token
 		var result: Dictionary = manager._restore_participants[key].apply_silent(plan)
 		assert_true(result.get("ok", false), "apply_silent " + key + ": " + JSON.stringify(result))
+		if not result.get("ok", false):
+			return
 		if key == "route":
 			route_ready_token = (result.get("value", {}) as Dictionary).get("route_ready_token")
 		var receipt_value: Variant = result.get("value", {})
 		var participant_receipt: Dictionary = receipt_value if typeof(receipt_value) == TYPE_DICTIONARY else {}
 		var advanced: Dictionary = manager._continuation_journal.advance({
 			"transaction_id": intent["transaction_id"], "request_fingerprint": intent["request_fingerprint"],
-			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLYING, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
+			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
+			"next_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
 			"expected_next_participant_index": index, "allocation_receipt": null,
 			"participant_name": key, "participant_receipt": participant_receipt, "failure": null,
 		})
 		assert_true(advanced.get("ok", false), "advance participant " + key + ": " + JSON.stringify(advanced))
+		if not advanced.get("ok", false):
+			return
 
 	if advance_to_applied:
 		var advanced_to_applied: Dictionary = manager._continuation_journal.advance({
 			"transaction_id": intent["transaction_id"], "request_fingerprint": intent["request_fingerprint"],
-			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLYING, "next_stage": CONTINUATION_JOURNAL.STAGE_APPLIED,
+			"expected_stage": CONTINUATION_JOURNAL.STAGE_APPLYING,
+			"next_stage": CONTINUATION_JOURNAL.STAGE_APPLIED,
 			"expected_next_participant_index": PARTICIPANT_APPLY_ORDER.size(), "allocation_receipt": null,
 			"participant_name": null, "participant_receipt": null, "failure": null,
 		})
-		assert_true(advanced_to_applied.get("ok", false), "advance to applied: " + JSON.stringify(advanced_to_applied))
+		assert_true(advanced_to_applied.get("ok", false),
+			"advance to applied: " + JSON.stringify(advanced_to_applied))
 
 func _assert_resumed_to_completion(manager: Node, gs: Node, gate: RefCounted, transaction_id: String) -> void:
 	var reconciled: Dictionary = manager.reconcile_incomplete_continuations()
@@ -473,8 +513,9 @@ func test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_fail
 	})
 	var intent_prepared: Dictionary = manager._continuation_journal.prepare_intent({
 		"allocation_candidate_fingerprint": allocation_fingerprint, "initial_context": null,
-		"initial_context_sha256": null, "kind": "restore", "request_fingerprint": request_fingerprint,
-		"source_locator": source_locator, "transaction_id": transaction_id,
+		"initial_context_sha256": null, "kind": "restore", "new_run_materials": null,
+		"request_fingerprint": request_fingerprint, "source_locator": source_locator,
+		"transaction_id": transaction_id,
 		"transaction_issuer_receipt": transaction_issuer_receipt,
 	})
 	assert_true(intent_prepared.get("ok", false))
@@ -514,23 +555,70 @@ func test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_fail
 		assert_ne(str(entry.get("transaction_id", "")), transaction_id,
 			"the aborted transaction must no longer appear in list_incomplete()")
 
-func test_restart_uses_frozen_dark_intent_despite_changed_pending_profile() -> void:
+func test_restart_uses_frozen_dark_material_without_resampling_profile() -> void:
 	for captured_dark: bool in [false, true]:
 		var suffix := str(randi())
 		var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("frozen_dark_" + suffix).path_join("saves")
 		var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("frozen_dark_issuer_" + suffix)
-		var process_a := _wired(save_root, issuer_root, true)
-		process_a.profile_fake.profile_data.preferences.dark_mode = {"available":true,"next_run_enabled":captured_dark}
-		var failed: Dictionary = process_a.manager.start_new_run(_initial_context())
-		assert_false(failed.get("ok", true))
-		var listed: Dictionary = process_a.manager._continuation_journal.list_incomplete()
-		assert_true(listed.get("ok", false))
-		assert_eq(listed.value.size(), 1)
-		if listed.value.size() != 1: continue
-		var operation: Dictionary = listed.value[0]
-		assert_eq(operation.initial_context.dark_mode, captured_dark)
-		var process_b := _wired(save_root, issuer_root, false)
-		process_b.profile_fake.profile_data.preferences.dark_mode = {"available":true,"next_run_enabled":not captured_dark}
-		_assert_resumed_to_completion(process_b.manager, process_b.gs, process_b.gate, operation.transaction_id)
-		assert_eq(process_b.gs.get_run_configuration(), {"ok":true,"value":{"dark_mode":captured_dark}})
-		assert_eq(process_b.manager._journal.capture_state().value.backup.current.snapshot.lifecycle.dark_mode, captured_dark)
+		var process_a: Dictionary = _wired(save_root, issuer_root, false)
+		var profile_candidate: Dictionary = process_a["profile"].get_profile_snapshot()
+		profile_candidate["preferences"]["dark_mode"] = {
+			"available": true, "next_run_enabled": captured_dark}
+		assert_true(process_a["profile"].commit_prepared_profile(profile_candidate).get("ok", false))
+		var intent: Dictionary = _manual_new_run_intent(
+			process_a["manager"], process_a["issuer"], _initial_context())
+		assert_false(intent.is_empty())
+		if intent.is_empty():
+			continue
+		var operation: Dictionary = process_a["manager"]._continuation_journal.get_operation(
+			intent["transaction_id"])["value"]
+		assert_eq(operation["initial_context"]["dark_mode"], captured_dark)
+		assert_eq(operation["new_run_materials"]["profile"]["captured_dark"], captured_dark)
+		assert_eq(operation["new_run_materials"]["profile"]["before"], profile_candidate)
+
+		var process_b: Dictionary = _wired(save_root, issuer_root, false)
+		_assert_resumed_to_completion(process_b["manager"], process_b["gs"], process_b["gate"],
+			intent["transaction_id"])
+		assert_eq(process_b["gs"].get_run_configuration(),
+			{"ok": true, "value": {"dark_mode": captured_dark}})
+		assert_eq(process_b["manager"]._journal.capture_state()["value"]["backup"]["current"]
+			["snapshot"]["lifecycle"]["dark_mode"], captured_dark)
+		assert_false(process_b["profile"].get_profile_snapshot()["preferences"]
+			["dark_mode"]["next_run_enabled"], "the exact frozen selector consumption is durable")
+
+
+func test_restart_refuses_foreign_profile_bytes_without_overwriting_them() -> void:
+	var suffix := str(randi())
+	var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("foreign_profile_" + suffix).path_join("saves")
+	var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("foreign_profile_issuer_" + suffix)
+	var process_a: Dictionary = _wired(save_root, issuer_root, false)
+	var profile_candidate: Dictionary = process_a["profile"].get_profile_snapshot()
+	profile_candidate["preferences"]["dark_mode"] = {"available": true, "next_run_enabled": true}
+	assert_true(process_a["profile"].commit_prepared_profile(profile_candidate).get("ok", false))
+	var intent: Dictionary = _manual_new_run_intent(
+		process_a["manager"], process_a["issuer"], _initial_context())
+	assert_false(intent.is_empty())
+	if intent.is_empty():
+		return
+	assert_true(process_a["profile"].set_preference(
+		&"preferences.reading.reveal_speed", "slow").get("ok", false))
+	var foreign_before: Dictionary = process_a["storage"].inspect_revision("profile.json")
+	assert_true(foreign_before.get("ok", false), str(foreign_before))
+
+	var process_b: Dictionary = _wired(save_root, issuer_root, false, true)
+	assert_false(process_b["storage_recovery"].get("ok", true),
+		"storage-only recovery refuses a Profile source revision changed after the decision")
+	assert_eq(process_b["storage_recovery"].get("code"), &"NEW_RUN_RECOVERY_PENDING")
+	var foreign_after: Dictionary = process_b["storage"].inspect_revision("profile.json")
+	assert_true(foreign_after.get("ok", false), str(foreign_after))
+	assert_eq(foreign_after.get("value"), foreign_before.get("value"),
+		"recovery never overwrites foreign Profile bytes")
+	var retained: Dictionary = process_b["manager"]._continuation_journal.get_operation(
+		intent["transaction_id"])
+	assert_true(retained.get("ok", false), str(retained))
+	assert_eq(retained["value"]["stage"], CONTINUATION_JOURNAL.STAGE_ALLOCATED)
+	assert_eq(retained["value"]["new_run_targets"]["identity"],
+		intent["allocation_candidate_fingerprint"])
+	assert_eq(retained["value"]["new_run_targets"]["autosave"],
+		intent["new_run_materials"]["autosave"]["outgoing_hash"])
+	assert_null(retained["value"]["new_run_targets"]["profile"])

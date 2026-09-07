@@ -1,0 +1,177 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/6650f28c-f229-4a53-b071-3fba83ce3968/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_new_run_materials.gd
+* test_complete_material_accepts_raw_profile_source_revision_and_round_trips_detached
+* test_profile_material_allows_only_pending_dark_consumption_and_exact_canonical_output
+* test_autosave_is_exact_initial_day_one_and_binds_context_and_allocated_identity
+* test_material_and_allocation_shapes_are_closed_and_fingerprint_bound
+4/4 passed.
+
+
+tests/unit/test_new_run_durability_journal.gd
+* test_complete_intent_is_the_durable_decision_and_survives_restart_byte_exact
+* test_target_readback_proofs_are_strictly_ordered_exact_and_gate_participant_apply
+* test_failed_target_persistence_returns_no_proof_and_exact_retry_advances_same_operation
+* test_post_promotion_failure_invalidates_cache_and_retry_observes_durable_target
+* test_new_run_intent_cannot_abort_and_startup_reconciliation_retains_the_decision
+* test_schema_v2_journal_is_refused_without_conversion
+6/6 passed.
+
+
+tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+* test_start_new_run_builds_day1_run_b
+* test_start_new_run_requires_identity_issuer
+    [Failed]:  [STRING_NAME(new_run_not_configured)] expected to equal [STRING_NAME(identity_issuer_not_configured)]:
+      at line 174
+* test_start_new_run_allocates_a_fresh_identity_per_call
+* test_start_new_run_requires_participants
+    [Failed]:  [STRING_NAME(new_run_not_configured)] expected to equal [STRING_NAME(TRANSACTION_PARTICIPANTS_NOT_CONFIGURED)]:
+      at line 194
+* test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity
+    [Failed]:  { "ok": false, "code": &"NEW_RUN_RECOVERY_PENDING", "recovery_required": true, "transaction_id": "transaction_id.75baed608e172f7534fa2df871b9c9abe001feaf1eccb4015fd22711dafc7087", "details": { "cause": { "ok": false, "code": &"duplicate_commit", "message": "run_id.0b3d0da6cfffd4a1cb932943069eee26e17f3a7892b00bef83f42f513f8f1cd1" } } }
+      at line 249
+    [Failed]:  [<null>] expected to equal ["run_id.0b3d0da6cfffd4a1cb932943069eee26e17f3a7892b00bef83f42f513f8f1cd1"]:
+      at line 250
+    [Failed]
+      at line 251
+* test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+* test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery
+* test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation
+    [Failed]
+      at line 322
+* test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication
+* test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate
+* test_caller_cannot_override_captured_dark_intent
+8/12 passed.
+
+
+tests/integration/test_desktop_crash_recovery.gd
+* test_start_new_run_completes_against_the_real_profile_and_localization_pair
+    18 Orphans
+        * [MainGameScene:<Control#1012924418585>(MainGameScene.gd)] + 17
+* test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
+    52 Orphans
+        * [MainGameScene:<Control#1155614641012>(MainGameScene.gd)] + 17
+* test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing
+    [Failed]:  {"code":"NEW_RUN_RECOVERY_PENDING","details":{"cause":{"code":"root_apply_failed","ok":false}},"ok":false,"recovery_required":true,"transaction_id":"transaction_id.5279cd0372cfd18106b0635aa5952ed057c31cd0cfbf9248ef3a87dd7b2bdb22"}
+      at line 254
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing (res://tests/integration/test_desktop_crash_recovery.gd:255)
+   GDScript backtrace (most recent call first):
+       [0] test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing (res://tests/integration/test_desktop_crash_recovery.gd:255)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+    52 Orphans
+        * [MainGameScene:<Control#1246765255542>(MainGameScene.gd)] + 17
+* test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run
+    70 Orphans
+        * [MainGameScene:<Control#1375362616286>(MainGameScene.gd)] + 17
+        * [MainGameScene:<Control#1468794932311>(MainGameScene.gd)] + 17
+* test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time
+* test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload
+5/6 passed.
+
+
+tests/integration/test_application_bootstrap.gd
+* test_project_autoload_order_is_the_exact_final_literal_sequence
+* test_master_stage_order_is_frozen
+* test_exactly_nine_targets_retain_one_shared_gate_identity
+* test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+* test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+* test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+* test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+* test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+* test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+* test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+10/10 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_new_run_materials.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/integration/test_new_run_transaction.gd
+- test_start_new_run_requires_identity_issuer
+    [Failed]:  [STRING_NAME(new_run_not_configured)] expected to equal [STRING_NAME(identity_issuer_not_configured)]:
+          at line 174
+- test_start_new_run_requires_participants
+    [Failed]:  [STRING_NAME(new_run_not_configured)] expected to equal [STRING_NAME(TRANSACTION_PARTICIPANTS_NOT_CONFIGURED)]:
+          at line 194
+- test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity
+    [Failed]:  { "ok": false, "code": &"NEW_RUN_RECOVERY_PENDING", "recovery_required": true, "transaction_id": "transaction_id.75baed608e172f7534fa2df871b9c9abe001feaf1eccb4015fd22711dafc7087", "details": { "cause": { "ok": false, "code": &"duplicate_commit", "message": "run_id.0b3d0da6cfffd4a1cb932943069eee26e17f3a7892b00bef83f42f513f8f1cd1" } } }
+          at line 249
+    [Failed]:  [<null>] expected to equal ["run_id.0b3d0da6cfffd4a1cb932943069eee26e17f3a7892b00bef83f42f513f8f1cd1"]:
+          at line 250
+    [Failed]:
+          at line 251
+- test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation
+    [Failed]:
+          at line 322
+
+tests/integration/test_desktop_crash_recovery.gd
+- test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing
+    [Failed]:  {"code":"NEW_RUN_RECOVERY_PENDING","details":{"cause":{"code":"root_apply_failed","ok":false}},"ok":false,"recovery_required":true,"transaction_id":"transaction_id.5279cd0372cfd18106b0635aa5952ed057c31cd0cfbf9248ef3a87dd7b2bdb22"}
+          at line 254
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+
+Totals
+------
+Scripts               5
+Tests                38
+Passing Tests        33
+Failing Tests         5
+Asserts           776/784
+Orphans              24
+Time              149.944s
+
+
+---- 5 failing tests ----

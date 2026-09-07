@@ -26,11 +26,15 @@ class CanonicalProfile:
 
 class RestoreOwner:
 	extends RefCounted
-	var candidate := {"preferences": {"language": {
-		"primary_locale_id": "zh_CN", "secondary_locale_id": "en", "dual_enabled": true,
-	}}}
+	var candidate: Dictionary = preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
+	func _init() -> void:
+		candidate.preferences.language = {"primary_locale_id": "zh_CN", "secondary_locale_id": "en", "dual_enabled": true}
 	var received: Array = []
 
+	func get_profile_snapshot() -> Dictionary:
+		return candidate.duplicate(true)
+	func prepare_profile_document(document: Dictionary) -> Dictionary:
+		return preload("res://scripts/profile/ProfileSchema.gd").validate(document)
 	func prepare_legacy_profile_patch(run: Dictionary, mappings: Dictionary) -> Dictionary:
 		received = [run.duplicate(true), mappings.duplicate(true)]
 		return {"ok": true, "value": candidate.duplicate(true)}
