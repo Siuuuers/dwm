@@ -31,8 +31,8 @@ func _isolated_manager(suite_id: String) -> Dictionary:
 	assert_true(manager.initialize(storage)["ok"])
 	return {"manager": manager, "storage": storage, "root": root}
 
-## Plan 02 Task 6 (dwm-p2r.32): the v4 lifecycle/desktop identity fields this suite's hand-built
-## snapshot_input now requires.
+## Test-authored current snapshot inputs explicitly choose Dark=false.
+## Historical payload reuse is not a production migration.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
@@ -50,7 +50,10 @@ func _empty_desktop() -> Dictionary:
 
 func _checkpoint_inputs(run_id: String, day: int = 3) -> Dictionary:
 	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
+	fixture["gameplay"].erase("opening_seen")
+	fixture["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = fixture["lifecycle"]
+	lifecycle["dark_mode"] = false
 	lifecycle["run_id"] = run_id
 	lifecycle["day"] = day
 	lifecycle["branch_id"] = "branch-1"

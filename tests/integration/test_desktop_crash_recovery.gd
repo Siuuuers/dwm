@@ -175,7 +175,7 @@ func _boot_process(storage_root: String) -> Dictionary:
 
 func _initial_context() -> Dictionary:
 	return {"active_app_id": null, "audio_context": {}, "content_version": 1,
-		"dialogic_checkpoint": {}, "route_id": "opening"}
+		"dialogic_checkpoint": {}, "route_id": "main"}
 
 func _fail_future_localization_prepares(localization: Node) -> void:
 	var root := FailingPresentationRoot.new()

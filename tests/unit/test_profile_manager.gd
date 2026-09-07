@@ -55,7 +55,7 @@ func _v1_profile() -> Dictionary:
 				"captions_enabled": true, "subtitle_speaker_names": true,
 				"subtitle_background_opacity": 0.85, "text_box_opacity": 0.9,
 				"visual_audio_cues": true, "flashing_effects_enabled": false,
-				"tutorial_replay_available": true, "pause_on_focus_loss": true},
+				"pause_on_focus_loss": true},
 		},
 		"input_mappings": {},
 		"migration_receipts": {"legacy_game_state_profile_v1": false,
@@ -245,11 +245,11 @@ func test_profile_document_remaps_retired_true_gallery_unlocks() -> void:
 
 func test_visited_history_is_global_and_idempotent() -> void:
 	var manager: Node = _new_manager()["manager"]
-	assert_false(manager.call(&"is_line_visited", "opening.day1.line.1"), "unread by default")
-	var first: Dictionary = manager.call(&"mark_line_visited", "opening.day1.line.1")
+	assert_false(manager.call(&"is_line_visited", "line.contact.ordinary.lavinia.day1.reply.a"), "unread by default")
+	var first: Dictionary = manager.call(&"mark_line_visited", "line.contact.ordinary.lavinia.day1.reply.a")
 	assert_true(first.get("ok", false), str(first))
-	assert_true(manager.call(&"is_line_visited", "opening.day1.line.1"), "now visited")
-	var again: Dictionary = manager.call(&"mark_line_visited", "opening.day1.line.1")
+	assert_true(manager.call(&"is_line_visited", "line.contact.ordinary.lavinia.day1.reply.a"), "now visited")
+	var again: Dictionary = manager.call(&"mark_line_visited", "line.contact.ordinary.lavinia.day1.reply.a")
 	assert_true(again.get("ok", false), "re-marking is safe")
 	assert_true(again.get("unchanged", false), "and reports no change")
 
@@ -271,7 +271,7 @@ func test_visited_reset_leaves_other_profile_state_intact() -> void:
 	var manager: Node = _new_manager()["manager"]
 	manager.call(&"prepare_preferences", {&"preferences.audio.music_volume": 0.42})
 	var volume_before: Variant = manager.call(&"get_preference", &"preferences.audio.music_volume")
-	manager.call(&"mark_line_visited", "opening.day1.line.9")
+	manager.call(&"mark_line_visited", "line.contact.ordinary.lavinia.day1.reply.b")
 	manager.call(&"reset_visited_history")
 	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), volume_before,
 		"resetting visited history touches nothing else")

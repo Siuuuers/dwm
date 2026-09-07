@@ -20,11 +20,13 @@ func prepare(input: Dictionary) -> Dictionary:
 ## receipt` (Plan 02 Task 6, dwm-p2r.32) arrive already durably allocated through SaveManager's
 ## Task-1 issuer/journal seams; this thin adapter invents none of them, it only forwards.
 func prepare_new_run(run_id: String, branch_id: String, desktop_timeline_generation: int,
-		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
+		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: Variant) -> Dictionary:
+	if typeof(dark_mode) != TYPE_BOOL:
+		return _fail(&"invalid_run_configuration", "dark_mode must be a Boolean")
 	if run_id.is_empty():
 		return _fail(&"invalid_run_id", "run_id must be nonempty")
 	var prepared: Dictionary = _owner.prepare_new_run_snapshot_input(run_id, branch_id,
-		desktop_timeline_generation, causal_day_instance, causal_day_instance_issuer_receipt)
+		desktop_timeline_generation, causal_day_instance, causal_day_instance_issuer_receipt, dark_mode)
 	if not prepared.get("ok", false):
 		return prepared
 	var snapshot_input: Dictionary = prepared["value"]["snapshot_input"]

@@ -33,12 +33,12 @@
       }
     },
     "entry_count": {
-      "const": 139,
+      "const": 137,
       "description": "Pinned here AND cross-checked against the real record count by DialogicEntryManifest.validate_document as ENTRY_MANIFEST_ENTRY_COUNT_MISMATCH. Both halves stay live because the code law is reachable without changing this value: appending a record leaves entry_count schema-valid while making it disagree with reality. day_entry_count and ending_entry_count are deliberately NOT pinned, because their cross-checks run after the partition law and the only mutation that reaches them is the declared value itself, so a const there would make the code half unreachable. Measured, not assumed."
     },
     "day_entry_count": {
       "type": "integer",
-      "description": "Declared number of records that own a day master, which is 121 across the seven day files. Cross-checked against the real tally by DialogicEntryManifest.validate_document as ENTRY_MANIFEST_ENTRY_COUNT_MISMATCH."
+      "description": "Declared number of records that own a day master, which is 119 across the seven day files. Cross-checked against the real tally by DialogicEntryManifest.validate_document as ENTRY_MANIFEST_ENTRY_COUNT_MISMATCH."
     },
     "ending_entry_count": {
       "type": "integer",
@@ -46,7 +46,7 @@
     },
     "entries": {
       "type": "array",
-      "minItems": 139,
+      "minItems": 137,
       "description": "minItems is the schema half of a defence-in-depth pair with the ENTRY_MANIFEST_ENTRY_COUNT_MISMATCH cross-check in DialogicEntryManifest.validate_document. Sub-commit 2A mutation site S08 deleted it and the whole suite still passed, so test_the_published_schema_declares_exactly_the_closed_vocabularies now asserts it directly; do not remove either half. uniqueItems is deliberately absent, because it could only catch byte-identical records, which is strictly weaker than the two laws that matter - a duplicate entry_id and a duplicate {path,label} locator pair - and both of those are named code laws.",
       "items": {
         "type": "object",
@@ -84,8 +84,6 @@
               "solo_ending_step",
               "pair_ending_step",
               "alone_step",
-              "opening",
-              "tutorial",
               "echo_fallback",
               "ending_invitation_offer"
             ]

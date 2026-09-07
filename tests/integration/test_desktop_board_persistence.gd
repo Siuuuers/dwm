@@ -6,7 +6,7 @@ extends "res://addons/gut/test.gd"
 ## identity through the real issuer, corruption fails closed before any live mutation, and a
 ## completed restore leaves the external continuation journal reconcilable at startup.
 ##
-## Base fixture: tests/fixtures/saves/v4_desktop_prepared.json (Phase B), a complete, schema-valid
+## Base fixture: tests/fixtures/saves/v5_desktop_prepared.json (Phase B), a complete, schema-valid
 ## v4 RunSnapshot with a PREPARED_UNSTARTED board (real identity + two command receipts) and an
 ## empty-pending consequence -- reused here rather than hand-built, since it already round-trips
 ## through RunSnapshotSchema.validate() (proven by test_run_snapshot_schema.gd).
@@ -33,7 +33,7 @@ const ISSUER_PATH := "res://scripts/application/desktop/DesktopIdentityNonceIssu
 const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd"
 const FAKE_NAMESPACE_SOURCE_PATH := "res://tests/support/FakeDesktopNamespaceSource.gd"
 
-const FIXTURE_PATH := "res://tests/fixtures/saves/v4_desktop_prepared.json"
+const FIXTURE_PATH := "res://tests/fixtures/saves/v5_desktop_prepared.json"
 
 
 ## A failure-injectable Owner mirroring test_restore_production_adapters.gd's own, for the five

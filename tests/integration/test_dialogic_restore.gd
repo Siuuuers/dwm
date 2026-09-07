@@ -21,7 +21,7 @@ class _FakeCatalog extends RefCounted:
 			return {"ok": false, "code": &"unknown_timeline_id", "message": timeline_id}
 		return {"ok": true, "value": record.duplicate(true)}
 	func get_timeline_path(_timeline_id: String, _locale: String = "en") -> String:
-		return "res://dialogic/timelines/en/core/opening_day1.dtl"
+		return "res://dialogic/timelines/en/contacts/lavinia_day1.dtl"
 
 
 class _FakeAdapter extends RefCounted:

@@ -64,7 +64,7 @@ static func prepare_legacy_patch(legacy_run_state: Dictionary,
 			"colorblind_mode", "show_focus_ring", "controller_cursor_enabled",
 			"subtitles_enabled", "captions_enabled", "subtitle_speaker_names",
 			"subtitle_background_opacity", "text_box_opacity", "visual_audio_cues",
-			"flashing_effects_enabled", "tutorial_replay_available", "pause_on_focus_loss"]:
+			"flashing_effects_enabled", "pause_on_focus_loss"]:
 		setting_map[key] = ["accessibility", key]
 	for key_value: Variant in settings:
 		if typeof(key_value) != TYPE_STRING:
@@ -228,7 +228,7 @@ static func _legacy_preference_defaults() -> Dictionary:
 			"captions_enabled": true, "subtitle_speaker_names": true,
 			"subtitle_background_opacity": 0.85, "text_box_opacity": 0.9,
 			"visual_audio_cues": true, "flashing_effects_enabled": false,
-			"tutorial_replay_available": true, "pause_on_focus_loss": true},
+			"pause_on_focus_loss": true},
 	}.duplicate(true)
 
 

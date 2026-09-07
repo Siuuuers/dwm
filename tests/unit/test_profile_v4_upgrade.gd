@@ -40,7 +40,7 @@ func _v1() -> Dictionary:
 				"captions_enabled": true, "subtitle_speaker_names": true,
 				"subtitle_background_opacity": 0.85, "text_box_opacity": 0.9,
 				"visual_audio_cues": true, "flashing_effects_enabled": false,
-				"tutorial_replay_available": true, "pause_on_focus_loss": true},
+				"pause_on_focus_loss": true},
 		},
 		"input_mappings": {},
 		"migration_receipts": {"legacy_game_state_profile_v1": false,
@@ -119,7 +119,7 @@ func test_invalid_v1_skip_is_the_only_repair_and_the_repaired_archive_is_valid()
 	assert_eq(repaired.value.legacy_preferences_v1.dialogue.skip_mode, "read_only")
 	assert_true(repaired.value.migration_receipts.invalid_persisted_skip_mode_v1)
 	var malformed := source.duplicate(true)
-	malformed.preferences.audio.extra = true
+	malformed.preferences.accessibility.tutorial_replay_available = true
 	assert_false(MIGRATION.prepare_document(malformed).get("ok", true))
 
 

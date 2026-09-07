@@ -49,6 +49,34 @@ var _locale := "en"
 var _clock_available := false
 var _foreground_eligible := true
 var _restoration_failed := false
+var _run_configuration_owner: Object
+var _run_palette: StringName = &"after_hours"
+var _run_configuration_required := false
+var _run_configuration_ready := false
+var _run_configuration_masked := false
+var _show_after_run_configuration := false
+
+func configure_run_configuration(owner: Object) -> Dictionary:
+	if not is_instance_valid(owner) or not owner.has_method("get_run_configuration") or Callable(owner,"get_run_configuration").get_argument_count() != 0:
+		return {"ok":false,"code":&"invalid_run_configuration_owner"}
+	if _run_configuration_owner != null and _run_configuration_owner != owner:
+		return {"ok":false,"code":&"run_configuration_already_configured"}
+	var result: Variant = owner.get_run_configuration()
+	if typeof(result) != TYPE_DICTIONARY or typeof(result.get("ok")) != TYPE_BOOL or not result.ok or typeof(result.get("value")) != TYPE_DICTIONARY:
+		return {"ok":false,"code":&"run_configuration_unavailable"}
+	if result.value.size() != 1 or typeof(result.value.get("dark_mode")) != TYPE_BOOL:
+		return {"ok":false,"code":&"invalid_run_configuration"}
+	var palette: StringName = &"midnight" if result.value.dark_mode else &"after_hours"
+	if _run_configuration_ready and palette != _run_palette:
+		return {"ok":false,"code":&"run_configuration_changed"}
+	if not _run_configuration_ready and not _cached_app_windows.is_empty():
+		return {"ok":false,"code":&"run_configuration_bound_too_late"}
+	_run_configuration_owner = owner
+	_run_palette = palette
+	_run_configuration_ready = true
+	if is_instance_valid(home_button): _refresh_launcher()
+	return {"ok":true,"code":&"ok"}
+
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(800, 720)
@@ -64,8 +92,9 @@ func _ready() -> void:
 	if _bootstrap != null:
 		if not _bootstrap.application_ready.is_connected(_configure_from_bootstrap):
 			_bootstrap.application_ready.connect(_configure_from_bootstrap)
-		if _bootstrap.get_startup_state().get("ready", false):
-			_configure_from_bootstrap()
+		# The production method masks an early mount; isolated overrides retain
+		# their explicit fixture configuration without opting into global owners.
+		_configure_from_bootstrap()
 	var state := get_node_or_null("/root/GameState")
 	if state != null and not state.daily_state_reset.is_connected(_on_daily_state_reset):
 		state.daily_state_reset.connect(_on_daily_state_reset)
@@ -361,6 +390,8 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	return {"ok": true, "value": {"confirmation": _confirmation}}
 
 func open_app(app_id: StringName) -> Dictionary:
+	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
+		return _route_failure(&"run_configuration_unavailable")
 	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	var foreground: Node = _cached_app_windows.get(_active_id)
 	if is_instance_valid(foreground) and foreground.has_method("can_return_home") and not foreground.can_return_home():
@@ -398,14 +429,14 @@ func open_app(app_id: StringName) -> Dictionary:
 		if app_id == &"contacts":
 			configured = app.configure_presentation(_presentation_port, _localization, _profile)
 		elif app_id == &"minesweeper":
-			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input)
+			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette)
 		elif app_id == &"shop":
 			app.configure_desktop_home(home_button)
-			configured = app.configure_catalog(_shop_port, _localization, _profile)
+			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette)
 		elif app_id == &"schedule":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_presentation(_schedule_port, _locale, int(theme.default_font_size * 100 / 24),
-				false, _schedule_done, &"after_hours", _schedule_warning_port, _schedule_warning_commands)
+				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands)
 			if configured.get("ok",false): configured = app.configure_shared_preferences(_localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
@@ -505,7 +536,33 @@ func dispatch_desktop_eviction(command: Dictionary) -> Dictionary:
 	_on_daily_state_reset()
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
+func _mask_run_configuration(code: StringName) -> void:
+	if not _run_configuration_masked:
+		_show_after_run_configuration = visible
+	_run_configuration_masked = true
+	_restoration_failed = true
+	hide()
+	icon_grid.hide()
+	_refresh_launcher()
+	_route_failure(code)
+
 func _configure_from_bootstrap() -> void:
+	_run_configuration_required = true
+	if _bootstrap == null or not _bootstrap.get_startup_state().get("ready",false):
+		_mask_run_configuration(&"run_configuration_unavailable")
+		return
+	var owner: Object = _run_configuration_owner if _run_configuration_owner != null else get_node_or_null("/root/GameState")
+	var configured := configure_run_configuration(owner)
+	if not configured.get("ok",false):
+		_mask_run_configuration(configured.code)
+		return
+	var reveal_after_configuration := _run_configuration_masked and _show_after_run_configuration
+	if _run_configuration_masked:
+		_run_configuration_masked = false
+		_restoration_failed = false
+		if _active_id == &"": icon_grid.show()
+		status_label.hide()
+		_refresh_launcher()
 	if _backup_port == null:
 		var save_manager := get_node_or_null("/root/SaveManager")
 		if save_manager != null:
@@ -516,6 +573,11 @@ func _configure_from_bootstrap() -> void:
 		_bootstrap.configure_contacts_desktop(self)
 	if _quick_commands == null and _backup_port != null:
 		configure_quick_commands(_backup_port, get_node_or_null("/root/InputManager"))
+	if reveal_after_configuration and not _run_configuration_masked:
+		show()
+		# The first deferred request may have run while readiness kept us hidden.
+		# The helper leaves restored app focus in its owning view.
+		_focus_initial_launcher.call_deferred()
 
 func _refresh_launcher() -> void:
 	if _localization != null and _localization.has_method("get_locale"):
@@ -523,7 +585,7 @@ func _refresh_launcher() -> void:
 		if LABELS.has(requested):
 			_locale = requested
 	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
-	theme = DESKTOP_THEME.build(_locale, percent)
+	theme = DESKTOP_THEME.build(_locale, percent, _run_palette)
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
 	for index in ids.size():
 		var button: Button = launcher_buttons[ids[index]]

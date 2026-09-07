@@ -4,11 +4,12 @@ const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.t
 const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
 const TRADITIONAL := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
 
-static func build(locale: String, percent: int) -> Theme:
+static func build(locale: String, percent: int, palette: StringName = &"after_hours") -> Theme:
+	if palette not in [&"after_hours", &"midnight"]: return null
 	var result := Theme.new()
 	result.default_font = {"en": ENGLISH, "zh-CN": SIMPLIFIED, "zh-HK": TRADITIONAL}.get(locale, ENGLISH)
 	result.default_font_size = int(24 * percent / 100.0)
-	var roles := {"habitat": Color("0b0d13"), "face": Color("151b25"),
+	var roles := {"habitat": Color("0d1514") if palette == &"midnight" else Color("0b0d13"), "face": Color("14201d") if palette == &"midnight" else Color("151b25"),
 		"ink": Color("d8cfb7"), "structure": Color("657d89"),
 		"focus": Color("a9935f"), "current": Color("789083")}
 	for role in roles:

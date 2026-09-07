@@ -16,8 +16,8 @@ const VALID_DISCRIMINATORS := [
 func _schema_exists() -> bool:
 	return ResourceLoader.exists(SCHEMA_PATH, "Script")
 
-## The on-disk fixture is shared with several other suites and is never edited (Plan 02 Task 6,
-## dwm-p2r.32): it is upgraded to v4 in memory, once, right where it is read from disk.
+## Test-authored current cases reuse historical fixture payloads without changing those files.
+## Explicit Dark=false and removed retired fields are fixture authoring, never a save migration.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
@@ -33,10 +33,13 @@ func _empty_desktop() -> Dictionary:
 				"supportz_last_purchase_causal_day_instance": "", "base_completion_receipts": []}},
 	}
 
-func _v4ify(snapshot: Dictionary) -> Dictionary:
+func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	var upgraded := snapshot.duplicate(true)
-	upgraded["schema_version"] = 4
+	upgraded["schema_version"] = 5
+	upgraded["gameplay"].erase("opening_seen")
+	upgraded["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = (upgraded["lifecycle"] as Dictionary).duplicate(true)
+	lifecycle["dark_mode"] = false
 	if not lifecycle.has("branch_id"):
 		lifecycle["branch_id"] = "branch-1"
 		lifecycle["desktop_timeline_generation"] = 0
@@ -49,7 +52,7 @@ func _v4ify(snapshot: Dictionary) -> Dictionary:
 	return upgraded
 
 func _fixture_snapshot() -> Dictionary:
-	return _v4ify(JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE)))
+	return _current_fixture(JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE)))
 
 func _bundle() -> Dictionary:
 	return {
@@ -124,25 +127,25 @@ func test_validate_rejects_malformed_documents() -> void:
 	bad_journal["recovery_journal"] = [{"entry": &"stringname"}]
 	assert_false(schema.validate(bad_journal).get("ok", true), "non-primitive journal entry rejects")
 
-	# v4 is the CURRENT document version at the dwm-p2r.32 Task-6 boundary; the probe moves to 5.
+	# v5 is current; the unsupported-future probe must remain newer.
 	var future: Dictionary = document.duplicate(true)
-	future["schema_version"] = 5
+	future["schema_version"] = 6
 	assert_false(schema.validate(future).get("ok", true), "unsupported future document version rejects")
 
 ## dwm-p2r.32 Task 6: DOCUMENT_VERSION and the embedded RunSnapshot's schema_version are pinned to
-## the same integer (4) and independently enforced, so the two can never disagree and both pass.
-func test_document_version_is_four_and_embedded_snapshot_version_must_agree() -> void:
+## the same integer (5) and independently enforced, so the two can never disagree and both pass.
+func test_document_version_is_five_and_embedded_snapshot_version_must_agree() -> void:
 	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	assert_eq(int(schema.DOCUMENT_VERSION), 4)
+	assert_eq(int(schema.DOCUMENT_VERSION), 5)
 	var built: Dictionary = schema.build(&"slot", 1, &"manual", _bundle(), [])
 	assert_true(built["ok"], JSON.stringify(built))
 	var document: Dictionary = built["value"]
-	assert_eq(int(document["schema_version"]), 4)
-	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 4)
-	# A document at v4 whose embedded snapshot is stamped v3 disagrees and rejects.
+	assert_eq(int(document["schema_version"]), 5)
+	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 5)
+	# A document at v5 whose embedded snapshot is stamped v3 disagrees and rejects.
 	var skewed: Dictionary = document.duplicate(true)
 	(skewed["current_snapshot"]["snapshot"] as Dictionary)["schema_version"] = 3
 	assert_false(schema.validate(skewed).get("ok", true),

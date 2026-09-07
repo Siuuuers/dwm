@@ -2,17 +2,17 @@ extends "res://addons/gut/test.gd"
 ## Closed entry vocabulary on the timeline catalog (Seven-Day Flow Plan 01 Task 4, dwm-oyo.2).
 ##
 ## WHAT THIS SUITE BINDS. scripts/data/DialogicTimelineCatalog.gd answers TWO vocabularies, and
-## this suite owns exactly one of them: the closed 139-entry vocabulary of
+## this suite owns exactly one of them: the closed 137-entry vocabulary of
 ## data/manifests/dialogic_entries.json, reached through the five methods Task 4 adds - get_entry,
 ## has_entry_id, get_required_entry_ids, get_required_master_paths and build_validation_report.
-## tests/unit/test_timeline_manifest.gd keeps owning the legacy 61-id timeline vocabulary and is
+## tests/unit/test_timeline_manifest.gd keeps owning the legacy 59-id timeline vocabulary and is
 ## left byte-untouched (DEVIATION-8 Ruling X). There is no third file to consult: what is not
 ## asserted here is asserted there.
 ##
 ## WHY TASK 4 ADDS AND NEVER RE-POINTS (DEVIATION-8 Ruling U). The two vocabularies share only 34
 ## ids. hospital.faint is a timeline id with NO entry counterpart, and
 ## scripts/application/run/GameStateDayResolutionPort.gd returns it only while
-## has_timeline_id answers for timelines.json; re-pointing that method at the 139-entry manifest
+## has_timeline_id answers for timelines.json; re-pointing that method at the 137-entry manifest
 ## makes the port return the empty string and moves the frozen schedule gate. A union lookup is
 ## equally forbidden, because specification 12.2 orders an absent id to fail closed. The
 ## separateness is therefore a LAW here, not an accident, and
@@ -36,8 +36,8 @@ extends "res://addons/gut/test.gd"
 ## data/manifests/timelines.json and data/manifests/dialogic_ids.json off disk. A manifest defect
 ## cannot vouch for itself by moving both sides at once.
 ##
-## FIXTURE-DRIVEN LAWS (DEVIATION-8 controller ruling (a)). All 139 shipped records carry a
-## non-empty English label and there are 139 distinct labels, so the missing-label and
+## FIXTURE-DRIVEN LAWS (DEVIATION-8 controller ruling (a)). All 137 shipped records carry a
+## non-empty English label and there are 137 distinct labels, so the missing-label and
 ## duplicated-label laws of specification 14.1 cannot be driven by the shipped manifest at all.
 ## They are driven instead through DialogicEntryManifest.resolve_entry, which takes its document
 ## as a parameter, against a deep copy of the shipped document with exactly one field mutated.
@@ -69,10 +69,10 @@ const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
 const ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 
-const EXPECTED_ENTRY_COUNT := 139
+const EXPECTED_ENTRY_COUNT := 137
 const EXPECTED_MASTER_COUNT := 8
-const EXPECTED_TIMELINE_COUNT := 61
-const EXPECTED_SHARED_ID_COUNT := 34
+const EXPECTED_TIMELINE_COUNT := 59
+const EXPECTED_SHARED_ID_COUNT := 32
 
 const DEFAULT_LOCALE := "en"
 const FOREIGN_LOCALE := "zh_CN"
@@ -105,11 +105,11 @@ const DEPRECATION_MARKER := "## DEPRECATED (Plan 01 Task 4)"
 ## shipped manifest, so no behavioural test can reach it.
 const VALIDATION_CALL := "DialogicEntryManifest.validate_document(loaded[\"value\"])"
 
-const SAMPLE_ENTRY_ID := "opening.day1"
+const SAMPLE_ENTRY_ID := "contact.ordinary.lavinia.day1"
 const SAMPLE_ENTRY_PATH := "res://dialogic/timelines/en/day_1.dtl"
 const FIRST_SORTED_ENTRY_ID := "contact.hospital_care.sylvia.day2"
-const LAST_SORTED_ENTRY_ID := "tutorial.desktop_day1"
-const ARBITRARY_SUFFIX_ID := "opening.day1.extra"
+const LAST_SORTED_ENTRY_ID := "hospital.faint.day7"
+const ARBITRARY_SUFFIX_ID := "contact.ordinary.lavinia.day1.extra"
 
 const RETIRED_LABEL_IDS := ["ending.lavinia.true", "ending.priscilla.true", "ending.sylvia.true"]
 
@@ -276,7 +276,7 @@ func test_the_catalog_declares_the_five_entry_methods_the_plan_orders() -> void:
 			"the plan's compatibility surface is declared verbatim: " + signature)
 
 
-func test_the_sixty_one_id_timeline_surface_survives_task_four() -> void:
+func test_the_fifty_nine_id_timeline_surface_survives_task_four() -> void:
 	var source := _catalog_source()
 	assert_false(source.is_empty(), "expected RED: missing " + CATALOG_SOURCE)
 	for signature: String in PRESERVED_TIMELINE_SIGNATURES:
@@ -308,7 +308,7 @@ func test_every_declared_failure_code_exists_in_the_production_source() -> void:
 
 
 # --------------------------------------------------------------------------------------------
-# Exact resolution through the closed 139-entry manifest.
+# Exact resolution through the closed 137-entry manifest.
 # --------------------------------------------------------------------------------------------
 
 func test_get_entry_resolves_the_exact_registered_english_locator() -> void:
@@ -417,7 +417,7 @@ func test_the_master_path_set_is_identical_for_every_locale() -> void:
 # Enumeration. The manifest exposes none, so the catalog owns these outright.
 # --------------------------------------------------------------------------------------------
 
-func test_get_required_entry_ids_lists_all_one_hundred_thirty_nine_sorted() -> void:
+func test_get_required_entry_ids_lists_all_one_hundred_thirty_seven_sorted() -> void:
 	if not _guard():
 		return
 	var ids: Array = _call(&"get_required_entry_ids", [])
@@ -441,7 +441,7 @@ func test_get_required_master_paths_lists_the_eight_masters_sorted() -> void:
 		return
 	var paths: Array = _call(&"get_required_master_paths", [DEFAULT_LOCALE])
 	assert_eq(paths, EXPECTED_MASTER_PATHS,
-		"the 139 entries are deduplicated to the eight masters, in sorted order")
+		"the 137 entries are deduplicated to the eight masters, in sorted order")
 	assert_eq(paths.size(), EXPECTED_MASTER_COUNT, "eight masters and no more")
 	var derived := {}
 	for record: Variant in _entries_document().get("entries", []):
@@ -485,28 +485,28 @@ func test_build_validation_report_echoes_the_requested_locale() -> void:
 # DEVIATION-8 Ruling U. The two vocabularies coexist; neither is re-pointed at the other.
 # --------------------------------------------------------------------------------------------
 
-func test_the_two_vocabularies_share_exactly_thirty_four_ids() -> void:
+func test_the_two_vocabularies_share_exactly_thirty_two_ids() -> void:
 	if not _guard():
 		return
 	var entry_ids := _document_entry_ids()
 	var timeline_ids := _timeline_ids()
-	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "139 entry ids")
-	assert_eq(timeline_ids.size(), EXPECTED_TIMELINE_COUNT, "61 timeline ids")
+	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "137 entry ids")
+	assert_eq(timeline_ids.size(), EXPECTED_TIMELINE_COUNT, "59 timeline ids")
 	var shared: Array = []
 	for entry_id: Variant in entry_ids:
 		if str(entry_id) in timeline_ids:
 			shared.append(str(entry_id))
 	assert_eq(shared.size(), EXPECTED_SHARED_ID_COUNT,
-		"the vocabularies overlap in 34 ids, so neither can stand in for the other")
+		"the vocabularies overlap in 32 ids, so neither can stand in for the other")
 
 
 func test_the_entry_and_timeline_vocabularies_stay_separate() -> void:
 	if not _guard():
 		return
 	assert_eq(CATALOG.get_required_timeline_ids().size(), EXPECTED_TIMELINE_COUNT,
-		"the timeline vocabulary is untouched at 61")
+		"the timeline vocabulary is current at 59")
 	var entry_ids: Array = _call(&"get_required_entry_ids", [])
-	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "the entry vocabulary is added at 139")
+	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "the entry vocabulary is current at 137")
 	for timeline_id: String in TIMELINE_ONLY_IDS:
 		assert_true(CATALOG.has_timeline_id(timeline_id),
 			"%s: still resolves as a timeline id" % timeline_id)

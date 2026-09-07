@@ -92,7 +92,10 @@ def main(config=None):
         if original.count('[autoload]\n') != 1 or 'SaveLoadLoopObserver=' in original:
             raise RuntimeError('Expected one unmodified production autoload section.')
         modified = original if baseline else original.replace('[autoload]\n', '[autoload]\n\n' + insertion, 1)
-        (project / 'project.godot').write_text(modified, encoding='utf-8', newline='\n')
+        # GUT's editor plugin performs a remote GitHub update check. It is not
+        # needed for resource import; runtime below restores all original plugins.
+        import_settings = modified.replace(', \"res://addons/gut/plugin.cfg\"', '')
+        (project / 'project.godot').write_text(import_settings, encoding='utf-8', newline='\n')
         env = os.environ.copy()
         for key in ['APPDATA', 'LOCALAPPDATA', 'TEMP', 'TMP']:
             location = scratch / key.lower()
@@ -182,6 +185,7 @@ def main(config=None):
             raise RuntimeError('Disposable-project containment check failed; refusing cleanup.')
         shutil.rmtree(resolved_project)
     report['copied_project_removed_after_run'] = True
+    report['import_only_disabled_editor_plugin'] = 'res://addons/gut/plugin.cfg'
     (scratch / 'result.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     evidence = ROOT / config['evidence_dir'] if config.get('evidence_dir') else ROOT / 'tools/save_load_loop/evidence' / env['DWM_SAVE_LOAD_PHASE']
     evidence.mkdir(parents=True, exist_ok=True)

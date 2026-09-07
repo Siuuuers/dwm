@@ -1,0 +1,110 @@
+{
+  "active_app_id": null,
+  "applied_effect_transaction_ids": [],
+  "applied_variable_transaction_ids": [],
+  "audio_context": {},
+  "checkpoint_id": "fixture-run-1:1",
+  "checkpoint_sequence": 1,
+  "command_receipts": {},
+  "committed_schedule": {
+    "commit_receipt": null,
+    "day": 1,
+    "entries": [],
+    "registry_fingerprint": null,
+    "schema_version": 1
+  },
+  "contacts": {
+    "group_action": {
+      "action_id": null,
+      "day": null,
+      "history_generated": false,
+      "inviter_id": null,
+      "opened_ids": [],
+      "participant_ids": [
+        "priscilla",
+        "lavinia"
+      ],
+      "replied_ids": [],
+      "state": "INACTIVE",
+      "transaction_id": null
+    },
+    "messages": {
+      "lavinia": [],
+      "priscilla": [],
+      "sylvia": []
+    },
+    "next_sequence": 1,
+    "read_watermarks": {
+      "lavinia": 0,
+      "priscilla": 0,
+      "sylvia": 0
+    },
+    "schedule_source_receipts": {},
+    "solo_actions": {},
+    "sylvia_hospital_witness_receipts": {},
+    "transaction_receipts": {}
+  },
+  "content_version": 1,
+  "dating": {},
+  "desktop": {
+    "board": {
+      "board": null,
+      "candidate": null,
+      "command_receipts": {},
+      "identity": null,
+      "phase": "NONE",
+      "revision": 0,
+      "schema_version": 1,
+      "settlement": null,
+      "terminal_receipts": {}
+    },
+    "consequence": {
+      "causal_day_instance": "fixture-causal-day-1",
+      "causal_day_instance_issuer_receipt": {
+        "counter": 1,
+        "namespace": "fixturenamespace",
+        "numeric_value": null,
+        "purpose": "causal_day_instance",
+        "receipt_id": "issuer_receipt.fixture-fixture-causal-day-1",
+        "token": "fixture-causal-day-1"
+      },
+      "causal_sequence": 0,
+      "outbox": {},
+      "pending": null,
+      "run_revision": 0,
+      "schema_version": 1,
+      "shop_ledger": {
+        "base_completion_receipts": [],
+        "supportz_branch_purchase_count": 0,
+        "supportz_last_purchase_causal_day_instance": ""
+      }
+    }
+  },
+  "gameplay": {
+    "narrative_variables": {}
+  },
+  "lifecycle": {
+    "active_resolution_plan": null,
+    "branch_id": "fixture-branch-1",
+    "causal_day_instance": "fixture-causal-day-1",
+    "causal_day_instance_issuer_receipt": {
+      "counter": 1,
+      "namespace": "fixturenamespace",
+      "numeric_value": null,
+      "purpose": "causal_day_instance",
+      "receipt_id": "issuer_receipt.fixture-fixture-causal-day-1",
+      "token": "fixture-causal-day-1"
+    },
+    "day": 1,
+    "desktop_timeline_generation": 0,
+    "ending_plan": null,
+    "restore_provenance": null,
+    "run_id": "fixture-run-1",
+    "state": "PLAYING",
+    "dark_mode": false
+  },
+  "narrative_checkpoint": {},
+  "route_id": "main",
+  "run_id": "fixture-run-1",
+  "schema_version": 5
+}

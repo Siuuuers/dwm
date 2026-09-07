@@ -30,7 +30,7 @@ const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const VALIDATOR := preload("res://tools/dialogic/DtlStructureValidator.gd")
 
 const EXPECTED_MASTER_COUNT := 8
-const EXPECTED_ENTRY_COUNT := 139
+const EXPECTED_ENTRY_COUNT := 137
 
 
 func _init() -> void:

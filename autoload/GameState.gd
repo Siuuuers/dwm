@@ -90,7 +90,7 @@ const _SAVE_WHITELIST := [
 	"pending_hospital", "condition_resolved_day", "pending_date_friend_id",
 	"pending_date_entries", "pending_date_entry_index",
 	"pending_group_date_friend_ids", "pending_group_date_inviter_id",
-	"pending_date_advance_day_after_finish", "opening_seen", "tutorial_seen", "story_flags",
+	"pending_date_advance_day_after_finish", "story_flags",
 	"route_context",
 	"hospital_skipped_sylvia_solo_count",
 ]
@@ -141,6 +141,8 @@ const _DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingR
 const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
+# Transient installation evidence, never part of a player snapshot.
+var _run_configuration_installed := false
 var _mutation_gate: Object = null
 var _identity_issuer: Object = null
 ## v4 desktop aggregate (Plan 02 Task 6, dwm-p2r.32): `{board,consequence}`, held as plain detached
@@ -219,8 +221,6 @@ var pending_group_date_inviter_id: String
 var pending_date_advance_day_after_finish: bool
 var hospital_skipped_sylvia_solo_count: int = 0
 
-var opening_seen: bool
-var tutorial_seen: bool
 var story_flags: Dictionary
 var route_context: Dictionary
 func _ready() -> void:
@@ -229,6 +229,7 @@ func _ready() -> void:
 
 # ---- Lifecycle / stats / money / coins ----
 func reset_game() -> void:
+	_run_configuration_installed = false
 	# Fixed, self-consistent placeholder desktop identity (Plan 02 Task 6, dwm-p2r.32) -- mirrors
 	# the pre-existing "run-local" placeholder run_id immediately below: this is a generic reset for
 	# tests/template computation, never the real production New-Run path (that allocates through
@@ -243,7 +244,7 @@ func reset_game() -> void:
 		},
 	}
 	_run_lifecycle.reset("run-local", "branch-local", 0, placeholder_causal_day_instance,
-		placeholder_identity_allocation_receipt)
+		placeholder_identity_allocation_receipt, false)
 	_desktop_snapshot = _empty_desktop_snapshot(placeholder_causal_day_instance,
 		placeholder_identity_allocation_receipt["causal_day_instance_issuer_receipt"])
 	# A new run starts with an empty effect/variable ledger (dwm-p2r.8, Plan-05 Task 3): receipts
@@ -312,8 +313,6 @@ func reset_game() -> void:
 	pending_date_advance_day_after_finish = true
 	hospital_skipped_sylvia_solo_count = 0
 
-	opening_seen = false
-	tutorial_seen = false
 	story_flags = {}
 	route_context = {}
 	emit_signal("save_relevant_state_changed")
@@ -1491,16 +1490,6 @@ func clear_pending_date_state() -> void:
 
 
 # ---- Flags / save ----
-func mark_opening_seen() -> void:
-	opening_seen = true
-	emit_signal("save_relevant_state_changed")
-
-
-func mark_tutorial_seen() -> void:
-	tutorial_seen = true
-	emit_signal("save_relevant_state_changed")
-
-
 func set_story_flag(key: String, value: Variant) -> void:
 	story_flags[key] = value
 	emit_signal("save_relevant_state_changed")
@@ -1569,8 +1558,6 @@ func get_save_summary() -> Dictionary:
 		"money": money,
 		"coins": coins,
 		"ending_id": route_context.get("ending_id", ""),
-		"opening_seen": opening_seen,
-		"tutorial_seen": tutorial_seen,
 	}
 
 
@@ -1671,7 +1658,9 @@ func _empty_desktop_snapshot(causal_day_instance: String, causal_day_instance_is
 ## allocation -- this method never mints or guesses any of them; a New Run constructs v4 directly
 ## from that durably committed allocation, never through the migration chain.
 func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,
-		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
+		causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: Variant) -> Dictionary:
+	if typeof(dark_mode) != TYPE_BOOL:
+		return {"ok": false, "code": &"invalid_run_configuration", "message": "dark_mode must be a Boolean"}
 	if run_id.is_empty():
 		return {"ok": false, "code": &"invalid_run_id", "message": "run_id must be nonempty"}
 	if str(_run_lifecycle.to_dict()["run_id"]) == run_id:
@@ -1691,6 +1680,7 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 	return {"ok": true, "code": &"ok", "value": {"snapshot_input": {
 		"lifecycle": {
 			"run_id": run_id,
+			"dark_mode": dark_mode,
 			"day": 1,
 			"state": "PLAYING",
 			"active_resolution_plan": null,
@@ -1831,6 +1821,7 @@ func _lifecycle_set_playing_day(target_day: int) -> void:
 	var snapshot: Dictionary = _run_lifecycle.to_dict()
 	var restored: Dictionary = _run_lifecycle.prepare_restore({
 		"run_id": str(snapshot["run_id"]),
+		"dark_mode": snapshot["dark_mode"],
 		"day": clampi(target_day, 1, 7),
 		"state": "PLAYING",
 		"active_resolution_plan": null,
@@ -1985,6 +1976,7 @@ func capture_restore_state() -> Dictionary:
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
 		"lifecycle": _run_lifecycle.to_dict(),
+		"run_configuration_installed": _run_configuration_installed,
 		"contacts": contacts.duplicate(true),
 		# v3 (Plan 01 Task 5): the canonical aggregate is part of the restore transaction, so a
 		# later participant failure rolls it back with everything else.
@@ -2134,9 +2126,16 @@ func restore_live_run_state(backup: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
+## Public run configuration exists only after validated snapshot installation.
+## Reset/local fixture state and detached New Run preparation grant no live-run evidence.
+func get_run_configuration() -> Dictionary:
+	if not _run_configuration_installed:
+		return {"ok": false, "code": &"run_configuration_unavailable"}
+	return {"ok": true, "value": {"dark_mode": _run_lifecycle.to_dict()["dark_mode"]}}
+
+
 ## Pure read seam for the shared narrative checkpoint adapter (dwm-p2r.8, Plan-05 Task 2).
-## Returns the complete detached CURRENT RunSnapshot input; performs no mutation, checkpoint,
-## signal, or disk access. Task 3 extends this same capture with its live transaction fields.
+## Returns the complete detached CURRENT RunSnapshot input without mutation or publication.
 func capture_run_snapshot_input() -> Dictionary:
 	var current: Dictionary = to_save_dict()
 	var gameplay := {"narrative_variables": _narrative_variables.duplicate(true)}
@@ -2185,6 +2184,8 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	if typeof(source) != TYPE_DICTIONARY or typeof((source as Dictionary).get("gameplay")) != TYPE_DICTIONARY \
 			or typeof((source as Dictionary).get("lifecycle")) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_run_backup", "message": "run backup requires gameplay and lifecycle"}
+	if typeof(source.get("run_configuration_installed")) != TYPE_BOOL:
+		return {"ok": false, "code": &"invalid_run_backup", "message": "run installation evidence is required"}
 	var bookkeeping := _prepare_restore_bookkeeping(source, true)
 	if not bookkeeping.get("ok", false):
 		return bookkeeping
@@ -2211,6 +2212,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		_committed_schedule = (validated_backup["value"] as Dictionary)["committed_schedule"]
 	if typeof(desktop_backup) == TYPE_DICTIONARY:
 		_desktop_snapshot = (desktop_backup as Dictionary).duplicate(true)
+	_run_configuration_installed = source["run_configuration_installed"]
 	return {"ok": true, "code": &"ok"}
 
 
@@ -2270,6 +2272,7 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 		_committed_schedule = (validated_committed["value"] as Dictionary)["committed_schedule"]
 	if typeof(desktop) == TYPE_DICTIONARY:
 		_desktop_snapshot = (desktop as Dictionary).duplicate(true)
+	_run_configuration_installed = true
 	return {"ok": true, "code": &"ok"}
 
 

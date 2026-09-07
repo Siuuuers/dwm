@@ -78,14 +78,14 @@ func _on_new_acc_pressed() -> void:
 	if not _can_leave_login():
 		return
 	# New Game runs as one atomic transaction; the prepared route participant is the
-	# only opening transition (no separate SceneRouter.start_game_from_menu call).
+	# only scene transition (no separate SceneRouter.start_game_from_menu call).
 	if not has_node("/root/SaveManager"):
 		return
 	var save_manager := get_node("/root/SaveManager")
 	if not save_manager.has_method("start_new_run"):
 		return
 	var initial_context := {
-		"route_id": "opening",
+		"route_id": "main",
 		"dialogic_checkpoint": {},
 		"active_app_id": null,
 		"audio_context": {},

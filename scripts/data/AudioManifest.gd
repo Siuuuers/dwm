@@ -7,7 +7,7 @@ const UI_DIR := "res://audio/ui/"
 const EXT := ".ogg"
 
 const BGM_IDS := [
-	"menu_theme", "opening_forget_me_not", "tutorial_soft_screen",
+	"menu_theme",
 	"desktop_alone_day", "desktop_alone_pressure", "desktop_alone_low_health",
 	"desktop_night_uncertain", "minesweeper_focus", "contacts_soft", "shop_idle",
 	"schedule_planning", "backup_safe", "settings_calm",
@@ -46,7 +46,7 @@ const CUE_IDS := {
 	"jealous_mine_stinger": "stinger", "desire_mine_stinger": "stinger",
 }
 const SIMPLE_CONTEXTS := {
-	"menu": "menu_theme", "opening": "opening_forget_me_not", "tutorial": "tutorial_soft_screen",
+	"menu": "menu_theme",
 	"minesweeper": "minesweeper_focus", "contacts": "contacts_soft", "shop": "shop_idle",
 	"schedule": "schedule_planning", "backup": "backup_safe", "settings": "settings_calm",
 	"dating_challenge": "date_challenge_normal", "dating_dark_path": "date_challenge_dark",

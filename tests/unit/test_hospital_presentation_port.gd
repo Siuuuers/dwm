@@ -337,7 +337,7 @@ func test_every_projected_field_binds_the_completion_child() -> void:
 		{"resolution_id": "resolution.other"},
 		{"stage_id": "resolution.day3:some_other_stage"},
 		{"substage_id": "presentation.intent.other"},
-		{"timeline_id": "opening.day1"},
+		{"timeline_id": "contact.lavinia.day1"},
 	]:
 		var begun: Dictionary = _port.begin(_request(mutation))
 		assert_false(begun.get("ok", true), str(mutation))
@@ -532,7 +532,7 @@ func test_a_tampered_command_is_a_conflict_not_a_completion() -> void:
 	var command: Dictionary = begun["value"]["presentation_command"]
 	await _end_runtime_timeline()
 	var tampered: Dictionary = command.duplicate(true)
-	tampered["timeline_id"] = "opening.day1"
+	tampered["timeline_id"] = "contact.ordinary.lavinia.day1"
 	var result: Dictionary = _port.complete({
 		"presentation_command": tampered,
 		"physical_completion_receipt": _emitted_owner_receipt(request),

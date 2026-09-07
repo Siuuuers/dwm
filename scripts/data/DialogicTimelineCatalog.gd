@@ -5,9 +5,9 @@ extends RefCounted
 # filename inference. Do NOT execute timeline data; do NOT trust save data to choose paths.
 #
 # TWO VOCABULARIES LIVE HERE (Seven-Day Flow Plan 01 Task 4, dwm-oyo.2 DEVIATION-8 Ruling U).
-# The legacy 61-id TIMELINE vocabulary above still resolves through data/manifests/timelines.json
+# The legacy 59-id TIMELINE vocabulary above still resolves through data/manifests/timelines.json
 # and is what has_timeline_id, get_record, get_path_for_id and get_timeline_path answer for. The
-# closed 139-id ENTRY vocabulary of data/manifests/dialogic_entries.json is answered by get_entry,
+# closed 137-id ENTRY vocabulary of data/manifests/dialogic_entries.json is answered by get_entry,
 # has_entry_id, get_required_entry_ids, get_required_master_paths and build_validation_report.
 # The two share only 34 ids. Do NOT merge them and do NOT re-point the timeline surface at the
 # entry manifest: hospital.faint is a timeline id with no entry counterpart, so
@@ -185,11 +185,11 @@ static func build_missing_timeline_report(locale: String = "en") -> Dictionary:
 
 
 # --------------------------------------------------------------------------------------------
-# Closed entry vocabulary (Plan 01 Task 4). data/manifests/dialogic_entries.json, 139 entries.
+# Closed entry vocabulary (Plan 01 Task 4). data/manifests/dialogic_entries.json, 137 entries.
 # --------------------------------------------------------------------------------------------
 
-## The validated entry document, cached the way _records is, so a caller that resolves all 139
-## entries does not re-run the published schema 139 times. Nothing is cached until it validates.
+## The validated entry document, cached the way _records is, so a caller that resolves all 137
+## entries does not re-run the published schema 137 times. Nothing is cached until it validates.
 static func _ensure_entries() -> Dictionary:
 	if _entries_initialized:
 		return {"ok": true, "value": _entry_document}

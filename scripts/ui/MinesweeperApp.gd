@@ -19,6 +19,7 @@ var _port: Object
 var _localization: Object
 var _profile: Object
 var _input_owner: Object
+var _palette: StringName = &"after_hours"
 var _home: Button
 var _busy := false
 var _show_prepared := false
@@ -48,7 +49,8 @@ func _ready() -> void:
 	_on_visibility_changed()
 
 func configure_presentation(port: Object, localization: Object = null, profile: Object = null,
-		input_owner: Object = null) -> Dictionary:
+		input_owner: Object = null, palette: StringName = &"after_hours") -> Dictionary:
+	if palette not in [&"after_hours",&"midnight"]: return {"ok":false,"code":&"invalid_minesweeper_palette"}
 	if not is_node_ready() or not is_instance_valid(port): return _fail(&"minesweeper_unconfigured")
 	for method: String in ["pull","dispatch","set_foreground"]:
 		if not port.has_method(method): return _fail(&"invalid_minesweeper_presentation")
@@ -56,7 +58,7 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 	if profile != null and not profile.has_method("get_preference"): return _fail(&"invalid_minesweeper_preferences")
 	var candidate_input: Object = input_owner if input_owner != null else get_node_or_null("/root/InputManager")
 	if candidate_input != null and not GRID.accepts_input_owner(candidate_input): return _fail(&"invalid_minesweeper_input")
-	if _port != null and (_port != port or _localization != localization or _profile != profile or _input_owner != candidate_input):
+	if _port != null and (_port != port or _localization != localization or _profile != profile or _input_owner != candidate_input or _palette != palette):
 		return {"ok":false,"code":&"minesweeper_already_configured"}
 	if not panel.bind(port): return _fail(&"invalid_minesweeper_presentation")
 	if candidate_input != null and not panel.worksheet.grid.configure_input(candidate_input): return _fail(&"invalid_minesweeper_input")
@@ -64,6 +66,7 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 	_localization = localization
 	_profile = profile
 	_input_owner = candidate_input
+	_palette = palette
 	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed",_on_locale_changed):
 		localization.connect("locale_changed",_on_locale_changed)
 	if profile != null and profile.has_signal("preference_changed") and not profile.is_connected("preference_changed",_on_preference_changed):
@@ -203,9 +206,8 @@ func _apply_preferences() -> bool:
 		if typeof(legacy) != TYPE_STRING or not LEGACY_COLOUR_PRESETS.has(legacy): return false
 		colour = LEGACY_COLOUR_PRESETS[legacy]
 	if typeof(high_contrast) != TYPE_BOOL or typeof(colour) != TYPE_STRING: return false
-	# No captured Dark palette owner exists on this run lineage yet.
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
-	if not panel.configure(locale,percent,large,&"after_hours",high_contrast,colour): return false
+	if not panel.configure(locale,percent,large,_palette,high_contrast,colour): return false
 	if panel.worksheet.get_scroll() != retained_scroll: panel.worksheet.set_scroll(retained_scroll)
 	return true
 

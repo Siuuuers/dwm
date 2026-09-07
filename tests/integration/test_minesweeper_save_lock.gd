@@ -51,9 +51,9 @@ func _isolated_manager(suite_id: String) -> Node:
 	return manager
 
 
-## Plan 02 Task 6 (dwm-p2r.32): the v4 lifecycle/desktop identity fields this suite's hand-built
-## snapshot_input now requires. This retained .9-era lock stack still checkpoints through the same
-## SaveManagerCheckpointPort / RunSnapshotSchema production code, so it must supply a v4-valid
+## Test-authored current snapshot inputs explicitly choose Dark=false.
+## Historical payload reuse is not a production migration. This retained .9-era lock stack still checkpoints through the same
+## SaveManagerCheckpointPort / RunSnapshotSchema production code, so it must supply a v5-valid
 ## bundle even though the desktop board itself is never driven here.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
@@ -72,7 +72,10 @@ func _empty_desktop() -> Dictionary:
 
 func _bundle(run_id: String) -> Dictionary:
 	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
+	fixture["gameplay"].erase("opening_seen")
+	fixture["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = fixture["lifecycle"]
+	lifecycle["dark_mode"] = false
 	lifecycle["run_id"] = run_id
 	lifecycle["branch_id"] = "branch-1"
 	lifecycle["desktop_timeline_generation"] = 0

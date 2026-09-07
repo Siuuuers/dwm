@@ -126,3 +126,65 @@ run-owned palette dependency. That must be connected before canonical Midnight e
 can be accepted. Complete transaction/route/palette prerequisites, prove real main
 entry, then remove resources/closed-schema fields and registry/audio/Profile remnants
 with focused absence and behavior checks. No retirement is claimed in this checkpoint.
+
+
+## Captured configuration and retirement cutover (2026-09-07)
+
+This local checkpoint is verified. RunSnapshot and SaveDocument now use
+v5 and require an explicit Boolean `lifecycle.dark_mode`. RunLifecycle owns this
+fact; GameState publishes it only after a validated run installation. A reset
+placeholder does not count as an installed run, and full rollback restores both
+configuration and availability. Old unshipped save versions are unsupported:
+SaveMigrations admits validated current records without stripping unknown fields,
+inventing a Dark value, relabeling slots, or consulting current Profile settings.
+Profile itself remains v4.
+
+New Run samples validated prepared Profile Dark intent under its mutation gate,
+before durable identity intent. The v2 continuation journal binds that Boolean in
+its exact context and hash. Restart recovery uses this captured value even when
+pending Profile intent has changed. The caller cannot supply a Dark override.
+Both initial and resumed New Run prepare the real main route with Day 1 and no
+active app, so the retained desktop host participates in apply and rollback.
+
+ComputerDesktop binds the installed run before app restoration. It masks early
+production mounting until Bootstrap and captured configuration are available,
+applies the palette before reveal, and then restores guarded Minesweeper launcher
+focus. Schedule, Minesweeper and Shop receive the same captured palette; changing
+pending next-run Dark, locale or text size cannot recolor the existing run.
+Native proof uses actual lifecycle/schema installation and real app hosts, with
+explicit test catalog/art/names and board generation/checkpoint fixtures.
+
+Opening/tutorial production scenes, scripts, timelines, callbacks, route entries,
+audio identifiers and retired Profile/gameplay fields are removed. Historical
+sealed evidence remains byte-for-byte history. The current handoff guard verifies
+live versions against the current schema owners while retaining the historical
+v4 seal and its structural/identity/publication invariants.
+
+This cutover does not complete New Acc. Initial Autosave plus Profile selector
+consumption still need a joint durable decision/recovery path. Truthful replacement
+consent, live-session presence and frozen same-operation Retry remain open. The
+all-family goal and dwm-eei.20 remain in progress. No merge or push is included.
+
+
+### Concurrent integration frontier
+
+During validation, the independently owned destination advanced to clean commit
+`101fe2b9815af4682d1318d0a7cc2d93442b6e2d` (code parent `914bc4f3`). Its
+Schedule/Hospital changes also use snapshot/document v5 and continuation journal v2,
+but with different exact fields and nine participants including ScheduleView.
+Those formats are incompatible with this isolated captured-Dark checkpoint despite
+the matching numbers. A later semantic integration must combine both owner shapes,
+preserve saved-time/manual-save behavior, and assign unambiguous schema and journal
+admission. It must not infer Dark or replay an Opening context. No external changes
+were merged, and dwm-oyo.3 remains in progress with its next task still open.
+
+Old Profile records containing the retired tutorial preference, including an
+archived legacy preference object, are refused strictly rather than rewritten.
+
+
+Verification: 993 tests across 52 distinct GUT suites have passing latest results;
+24 final native captures pass 130 checks. Real Backup and retained-scene probes
+pass, save capture passes 136 checks, the production save/load loop passes 39,
+and two fresh production processes pass 56 seed plus 71 cold-resume checks,
+including saved Dark equality. [All evidence and attempts](../../../evidence/run_dark_cutover/summary.json)
+remain recorded with current source hashes and known diagnostic limitations.

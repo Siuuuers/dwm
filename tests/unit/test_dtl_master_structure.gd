@@ -7,7 +7,7 @@ extends "res://addons/gut/test.gd"
 ## the plan's own `-gtest=` invocation cannot run it; and it carries live coverage the replacement
 ## would silently drop - the fixture contract (3/1/1/1/1 counts, completion, restore) and an
 ## unconditional-pass audit over all of res://tests. Under Ruling O the legacy timeline manifest
-## stays at 61 records, so that smoke stays green and keeps its coverage. The structural
+## now holds 59 records, so that smoke stays green and keeps its coverage. The structural
 ## assertions the plan asks for land here instead, and the smoke is left byte-untouched.
 ##
 ## TWO INDEPENDENT DERIVATIONS, NEVER ONE. Every count below is re-derived from
@@ -42,12 +42,12 @@ const MASTER_DIR := "res://dialogic/timelines/en/"
 const LEGACY_ROOT := "res://dialogic/timelines/en"
 
 const EXPECTED_MASTER_COUNT := 8
-const EXPECTED_ENTRY_COUNT := 139
-const EXPECTED_LEGACY_FILE_COUNT := 61
+const EXPECTED_ENTRY_COUNT := 137
+const EXPECTED_LEGACY_FILE_COUNT := 59
 
 ## The Phase 01 Verification Gate figure, in the manifest's own master order.
 const EXPECTED_MASTER_LABEL_COUNTS := {
-	"res://dialogic/timelines/en/day_1.dtl": 10,
+	"res://dialogic/timelines/en/day_1.dtl": 8,
 	"res://dialogic/timelines/en/day_2.dtl": 24,
 	"res://dialogic/timelines/en/day_3.dtl": 20,
 	"res://dialogic/timelines/en/day_4.dtl": 13,
@@ -86,7 +86,7 @@ func before_all() -> void:
 
 func test_the_manifest_partitions_into_exactly_eight_masters() -> void:
 	assert_eq(_partition.size(), EXPECTED_MASTER_COUNT,
-		"the 139 registered entries partition onto exactly 8 owning masters")
+		"the 137 registered entries partition onto exactly 8 owning masters")
 
 
 func test_the_partition_holds_every_registered_entry_exactly_once() -> void:
@@ -429,14 +429,14 @@ func test_every_path_the_legacy_builder_collects_lives_in_a_subdirectory() -> vo
 
 func _one_entry() -> Array:
 	return [{
-		"label": "opening.day1",
-		"role": "opening",
+		"label": "hospital.faint.day1",
+		"role": "hospital",
 		"allowed_signals": ["history.line.witness"],
 	}]
 
 
 func _good_text() -> String:
-	return "%s\n%s\n\n%sopening.day1\n%sopening\n%s\n%s\n%shistory.line.witness\n%s\n" % [
+	return "%s\n%s\n\n%shospital.faint.day1\n%shospital\n%s\n%s\n%shistory.line.witness\n%s\n" % [
 		VALIDATOR.HEADER_COMMENT, VALIDATOR.TERMINATOR, VALIDATOR.LABEL_PREFIX,
 		VALIDATOR.PURPOSE_PREFIX, VALIDATOR.CAUSAL_LINE, VALIDATOR.VARIATION_LINE,
 		VALIDATOR.SIGNALS_PREFIX, VALIDATOR.TERMINATOR,
@@ -502,7 +502,7 @@ func test_the_validator_rejects_a_missing_header() -> void:
 
 
 func test_the_validator_rejects_a_missing_leading_return() -> void:
-	var text := "%s\n\n%sopening.day1\n%sopening\n%s\n%s\n%shistory.line.witness\n%s\n" % [
+	var text := "%s\n\n%shospital.faint.day1\n%shospital\n%s\n%s\n%shistory.line.witness\n%s\n" % [
 		VALIDATOR.HEADER_COMMENT, VALIDATOR.LABEL_PREFIX, VALIDATOR.PURPOSE_PREFIX,
 		VALIDATOR.CAUSAL_LINE, VALIDATOR.VARIATION_LINE, VALIDATOR.SIGNALS_PREFIX,
 		VALIDATOR.TERMINATOR,
@@ -515,7 +515,7 @@ func test_the_validator_rejects_a_missing_leading_return() -> void:
 
 
 func test_the_validator_rejects_a_duplicate_label() -> void:
-	var text := _good_text() + "\n%sopening.day1\n%sopening\n%s\n%s\n%shistory.line.witness\n%s\n" % [
+	var text := _good_text() + "\n%shospital.faint.day1\n%shospital\n%s\n%s\n%shistory.line.witness\n%s\n" % [
 		VALIDATOR.LABEL_PREFIX, VALIDATOR.PURPOSE_PREFIX, VALIDATOR.CAUSAL_LINE,
 		VALIDATOR.VARIATION_LINE, VALIDATOR.SIGNALS_PREFIX, VALIDATOR.TERMINATOR,
 	]
@@ -528,11 +528,11 @@ func test_the_validator_rejects_a_duplicate_label() -> void:
 func test_the_validator_rejects_a_label_that_falls_into_its_neighbour() -> void:
 	var expected: Array = _one_entry()
 	expected.append({
-		"label": "tutorial.desktop_day1",
-		"role": "tutorial",
+		"label": "dating.solo.priscilla.day1.pre_challenge",
+		"role": "solo_pre_challenge",
 		"allowed_signals": ["history.line.witness"],
 	})
-	var text := "%s\n%s\n\n%sopening.day1\n%sopening\n%s\n%s\n%shistory.line.witness\n\n%stutorial.desktop_day1\n%stutorial\n%s\n%s\n%shistory.line.witness\n%s\n" % [
+	var text := "%s\n%s\n\n%shospital.faint.day1\n%shospital\n%s\n%s\n%shistory.line.witness\n\n%sdating.solo.priscilla.day1.pre_challenge\n%ssolo_pre_challenge\n%s\n%s\n%shistory.line.witness\n%s\n" % [
 		VALIDATOR.HEADER_COMMENT, VALIDATOR.TERMINATOR, VALIDATOR.LABEL_PREFIX,
 		VALIDATOR.PURPOSE_PREFIX, VALIDATOR.CAUSAL_LINE, VALIDATOR.VARIATION_LINE,
 		VALIDATOR.SIGNALS_PREFIX, VALIDATOR.LABEL_PREFIX, VALIDATOR.PURPOSE_PREFIX,
@@ -555,7 +555,7 @@ func test_the_validator_rejects_a_final_label_that_never_returns() -> void:
 
 
 func test_the_validator_rejects_an_unregistered_label() -> void:
-	var text := _good_text().replace("opening.day1", "invented.entry")
+	var text := _good_text().replace("hospital.faint.day1", "invented.entry")
 	var result: Dictionary = VALIDATOR.validate_text("fixture.dtl", text, _one_entry())
 	assert_has(_codes(result), "DTL_UNREGISTERED_LABEL", "an invented label is refused")
 	assert_string_contains(_messages(result), "is not registered for this master",
@@ -565,8 +565,8 @@ func test_the_validator_rejects_an_unregistered_label() -> void:
 func test_the_validator_rejects_a_registered_label_with_no_block() -> void:
 	var expected: Array = _one_entry()
 	expected.append({
-		"label": "tutorial.desktop_day1",
-		"role": "tutorial",
+		"label": "dating.solo.priscilla.day1.pre_challenge",
+		"role": "solo_pre_challenge",
 		"allowed_signals": ["history.line.witness"],
 	})
 	var result: Dictionary = VALIDATOR.validate_text("fixture.dtl", _good_text(), expected)
@@ -582,8 +582,8 @@ func test_the_validator_rejects_a_registered_label_with_no_block() -> void:
 
 
 func test_the_validator_rejects_a_purpose_that_is_not_the_registered_role() -> void:
-	var text := _good_text().replace(VALIDATOR.PURPOSE_PREFIX + "opening",
-		VALIDATOR.PURPOSE_PREFIX + "tutorial")
+	var text := _good_text().replace(VALIDATOR.PURPOSE_PREFIX + "hospital",
+		VALIDATOR.PURPOSE_PREFIX + "solo_pre_challenge")
 	var result: Dictionary = VALIDATOR.validate_text("fixture.dtl", text, _one_entry())
 	assert_has(_codes(result), "DTL_PURPOSE_MISMATCH", "a wrong role annotation is refused")
 	assert_string_contains(_messages(result), "but is registered as",
@@ -620,7 +620,7 @@ func test_the_validator_rejects_an_unregistered_signal() -> void:
 
 
 func test_the_validator_rejects_a_block_with_no_annotations() -> void:
-	var text := "%s\n%s\n\n%sopening.day1\n%s\n" % [
+	var text := "%s\n%s\n\n%shospital.faint.day1\n%s\n" % [
 		VALIDATOR.HEADER_COMMENT, VALIDATOR.TERMINATOR, VALIDATOR.LABEL_PREFIX,
 		VALIDATOR.TERMINATOR,
 	]
@@ -673,7 +673,7 @@ func test_the_validator_rejects_an_unregistered_annotation() -> void:
 
 
 func test_the_validator_rejects_a_terminator_outside_any_block() -> void:
-	var text := "%s\n%s\n\n%s\n\n%sopening.day1\n%sopening\n%s\n%s\n%shistory.line.witness\n%s\n" % [
+	var text := "%s\n%s\n\n%s\n\n%shospital.faint.day1\n%shospital\n%s\n%s\n%shistory.line.witness\n%s\n" % [
 		VALIDATOR.HEADER_COMMENT, VALIDATOR.TERMINATOR, VALIDATOR.TERMINATOR,
 		VALIDATOR.LABEL_PREFIX, VALIDATOR.PURPOSE_PREFIX, VALIDATOR.CAUSAL_LINE,
 		VALIDATOR.VARIATION_LINE, VALIDATOR.SIGNALS_PREFIX, VALIDATOR.TERMINATOR,
@@ -693,7 +693,7 @@ func test_the_validator_reports_a_missing_file_rather_than_passing_it() -> void:
 
 func test_the_validator_collects_every_failure_rather_than_stopping_at_the_first() -> void:
 	var text := _good_text().replace(VALIDATOR.HEADER_COMMENT, "# wrong").replace(
-		VALIDATOR.PURPOSE_PREFIX + "opening", VALIDATOR.PURPOSE_PREFIX + "tutorial")
+		VALIDATOR.PURPOSE_PREFIX + "hospital", VALIDATOR.PURPOSE_PREFIX + "solo_pre_challenge")
 	var result: Dictionary = VALIDATOR.validate_text("fixture.dtl", text, _one_entry())
 	assert_true(_codes(result).size() >= 2,
 		"independent defects are reported together, not one run at a time: %s" % str(_codes(result)))
@@ -739,11 +739,11 @@ func test_the_generator_and_the_cli_are_the_ruling_n_files() -> void:
 func test_the_validator_rejects_a_label_order_that_is_not_the_manifest_order() -> void:
 	var expected: Array = _one_entry()
 	expected.append({
-		"label": "tutorial.desktop_day1",
-		"role": "tutorial",
+		"label": "dating.solo.priscilla.day1.pre_challenge",
+		"role": "solo_pre_challenge",
 		"allowed_signals": ["history.line.witness"],
 	})
-	var text := "%s\n%s\n\n%stutorial.desktop_day1\n%stutorial\n%s\n%s\n%shistory.line.witness\n%s\n\n%sopening.day1\n%sopening\n%s\n%s\n%shistory.line.witness\n%s\n" % [
+	var text := "%s\n%s\n\n%sdating.solo.priscilla.day1.pre_challenge\n%ssolo_pre_challenge\n%s\n%s\n%shistory.line.witness\n%s\n\n%shospital.faint.day1\n%shospital\n%s\n%s\n%shistory.line.witness\n%s\n" % [
 		VALIDATOR.HEADER_COMMENT, VALIDATOR.TERMINATOR,
 		VALIDATOR.LABEL_PREFIX, VALIDATOR.PURPOSE_PREFIX, VALIDATOR.CAUSAL_LINE,
 		VALIDATOR.VARIATION_LINE, VALIDATOR.SIGNALS_PREFIX, VALIDATOR.TERMINATOR,
@@ -797,8 +797,8 @@ func test_the_generator_emits_a_signal_array_in_stored_order_not_sorted() -> voi
 	if generator == null:
 		return
 	var records: Array = [{
-		"label": "opening.day1",
-		"role": "opening",
+		"label": "hospital.faint.day1",
+		"role": "hospital",
 		"allowed_signals": ["message.reply.commit", "history.line.witness"],
 	}]
 	var built: String = generator.call(&"_build", records)

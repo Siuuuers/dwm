@@ -28,7 +28,7 @@ func _desktop_fields(causal_day_instance: String = "causal-day-1") -> Dictionary
 func _lifecycle_dict(run_id: String, day: int, state: String, active_resolution_plan: Variant = null,
 		ending_plan: Variant = null) -> Dictionary:
 	var merged := {
-		"run_id": run_id, "day": day, "state": state,
+		"run_id": run_id, "dark_mode": false, "day": day, "state": state,
 		"active_resolution_plan": active_resolution_plan, "ending_plan": ending_plan,
 	}
 	for key in _desktop_fields():
@@ -37,7 +37,7 @@ func _lifecycle_dict(run_id: String, day: int, state: String, active_resolution_
 
 func _fresh(run_id: String, day: int) -> RefCounted:
 	var lifecycle: RefCounted = load(LIFECYCLE_PATH).new()
-	lifecycle.reset(run_id, "branch-1", 0, "causal-day-1", _identity_allocation_receipt())
+	lifecycle.reset(run_id, "branch-1", 0, "causal-day-1", _identity_allocation_receipt(), false)
 	var restored: Dictionary = lifecycle.prepare_restore(_lifecycle_dict(run_id, day, "PLAYING"))
 	assert_true(restored.get("ok", false), JSON.stringify(restored))
 	assert_true(lifecycle.commit_restore(restored["value"]["candidate"])["ok"])
@@ -65,7 +65,7 @@ func test_day7_enters_ending_without_day8_or_rollover_stage() -> void:
 	var lifecycle_script: Script = load(LIFECYCLE_PATH)
 	var receipts_script: Script = load(RECEIPTS_PATH)
 	var lifecycle: RefCounted = lifecycle_script.new()
-	lifecycle.reset("run-day7", "branch-1", 0, "causal-day-1", _identity_allocation_receipt())
+	lifecycle.reset("run-day7", "branch-1", 0, "causal-day-1", _identity_allocation_receipt(), false)
 	var restored: Dictionary = lifecycle.prepare_restore(_lifecycle_dict("run-day7", 7, "PLAYING"))
 	assert_true(restored["ok"], JSON.stringify(restored))
 	assert_true(lifecycle.commit_restore(restored["value"]["candidate"])["ok"])
@@ -130,7 +130,7 @@ func test_restore_rejects_invalid_shapes() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle: RefCounted = load(LIFECYCLE_PATH).new()
-	lifecycle.reset("run-restore", "branch-1", 0, "causal-day-1", _identity_allocation_receipt())
+	lifecycle.reset("run-restore", "branch-1", 0, "causal-day-1", _identity_allocation_receipt(), false)
 	for day: int in [0, 8, 9]:
 		var rejected: Dictionary = lifecycle.prepare_restore(_lifecycle_dict("run-restore", day, "PLAYING"))
 		assert_false(rejected.get("ok", true), "day %d rejects" % day)
@@ -214,7 +214,7 @@ func test_to_dict_shape_is_exact() -> void:
 	var keys := snapshot.keys()
 	keys.sort()
 	assert_eq(keys, ["active_resolution_plan", "branch_id", "causal_day_instance",
-		"causal_day_instance_issuer_receipt", "day", "desktop_timeline_generation", "ending_plan",
+		"causal_day_instance_issuer_receipt", "dark_mode", "day", "desktop_timeline_generation", "ending_plan",
 		"restore_provenance", "run_id", "state"])
 	assert_eq(snapshot["run_id"], "run-shape")
 	assert_eq(snapshot["day"], 3)
@@ -234,7 +234,7 @@ func test_reset_rejects_id_only_or_mismatched_provenance_downstream() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle: RefCounted = load(LIFECYCLE_PATH).new()
-	lifecycle.reset("run-x", "branch-1", 0, "causal-day-1", {"causal_day_instance_issuer_receipt": _issuer_receipt("wrong-token")})
+	lifecycle.reset("run-x", "branch-1", 0, "causal-day-1", {"causal_day_instance_issuer_receipt": _issuer_receipt("wrong-token")}, false)
 	var snapshot: Dictionary = lifecycle.to_dict()
 	assert_false(lifecycle.prepare_restore(snapshot).get("ok", true),
 		"a token-mismatched receipt installed via reset() fails downstream at prepare_restore")

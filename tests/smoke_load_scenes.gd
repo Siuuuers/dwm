@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 ## Required by prompt_docs/requirements/verification.md.
 ## Loads and instantiates every required scene. No input, no auto-routing.
 ## Exit 0 if all required scenes load and instantiate; exit 1 if any fail.
@@ -7,7 +7,6 @@ const REQUIRED_SCENE_PATHS := [
 	"res://scenes/menu/MenuScene.tscn",
 	"res://scenes/menu/GalleryScene.tscn",
 	"res://scenes/menu/Setting.tscn",
-	"res://scenes/opening/OpeningScene.tscn",
 	"res://scenes/main/MainGameScene.tscn",
 	"res://scenes/desktop/ComputerDesktop.tscn",
 	"res://scenes/apps/MinesweeperApp.tscn",
@@ -17,7 +16,6 @@ const REQUIRED_SCENE_PATHS := [
 	"res://scenes/apps/SettingsApp.tscn",
 	"res://scenes/apps/LogOutApp.tscn",
 	"res://scenes/apps/BackupApp.tscn",
-	"res://scenes/overlay/TutorialOverlay.tscn",
 	"res://scenes/ending/EndingScene.tscn",
 	"res://scenes/hospital/HospitalScene.tscn",
 	"res://scenes/dating/DatingScene.tscn",

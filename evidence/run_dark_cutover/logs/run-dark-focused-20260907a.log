@@ -1,0 +1,235 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/61a3bf95-c291-477b-981d-2bb50ef716f3/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_run_dark_configuration.gd
+* test_lifecycle_dark_is_required_boolean_and_failed_restore_is_atomic
+* test_new_run_preparation_is_strict_detached_and_does_not_install_configuration
+* test_v5_document_round_trip_and_retired_fields_are_rejected
+* test_installed_availability_and_dark_are_restored_with_full_rollback
+* test_invalid_install_and_missing_rollback_evidence_leave_configuration_unchanged
+* test_day_changes_and_identity_remap_preserve_captured_dark
+* test_raw_gameplay_load_does_not_create_a_captured_configuration
+7/7 passed.
+
+
+tests/unit/test_run_snapshot_schema.gd
+* test_run_snapshot_schema_exists
+* test_build_produces_exact_valid_shape
+* test_validate_accepts_fixture_and_rejects_day8_and_shapes
+* test_validate_rejection_matrix
+* test_validate_enforces_ending_id_is_a_canonical_primary
+* test_validate_primitive_tree_rejects_engine_types
+* test_prepare_candidate_is_detached
+* test_is_compatible_bundle_checks_versions
+* test_derive_route_restore_context_exact_shape
+* test_schema_version_is_five
+* test_top_level_committed_schedule_replaces_legacy_schedule
+* test_gameplay_schedule_entries_is_retired
+* test_committed_schedule_validation_delegates_to_schedule_state_schema
+* test_committed_schedule_day_must_equal_lifecycle_day
+* test_committed_schedule_is_recursively_detached
+* test_v3_build_round_trips_the_aggregate_unchanged
+* test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_null
+* test_desktop_is_a_v4_top_level_member
+* test_desktop_lifecycle_identity_fields_are_exact_and_bound
+* test_desktop_board_and_consequence_delegate_to_their_own_owners
+* test_v3_pre_desktop_fixture_lacks_the_v4_member
+21/21 passed.
+
+
+tests/unit/test_run_lifecycle.gd
+* test_day7_enters_ending_without_day8_or_rollover_stage
+* test_day3_full_resolution_increments_exactly_once
+* test_repeated_done_reuses_plan_and_conflict_rejects
+* test_restore_rejects_invalid_shapes
+* test_rollover_receipt_must_target_next_day
+* test_ending_playback_edges_and_terminal_completed
+* test_to_dict_shape_is_exact
+* test_reset_rejects_id_only_or_mismatched_provenance_downstream
+* test_get_desktop_identity_context_shape
+* test_continuation_remap_installs_the_new_identity_and_provenance
+* test_continuation_remap_rejects_a_bundle_for_a_different_run
+* test_continuation_remap_rejects_a_blank_restore_transaction_id
+* test_continuation_remap_rejects_an_incomplete_bundle
+13/13 passed.
+
+
+tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_five_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+6/6 passed.
+
+
+tests/unit/test_save_migrations.gd
+* test_current_documents_are_admitted_for_their_exact_locator_and_dark_value
+* test_current_result_is_detached_from_source_and_preserves_checkpoint_history
+* test_saved_time_is_retained_exactly_and_absence_is_not_synthesized
+    [Failed]:  { "ok": false, "code": &"invalid_document_shape", "message": "unexpected document keys: [\"current_snapshot\", \"kind\", \"recovery_journal\", \"save_reason\", \"schema_version\", \"slot_id\", &\"saved_time\"]" }
+      at line 66
+    [Failed]:  [STRING_NAME(invalid_document_shape)] expected to equal [STRING_NAME(invalid_saved_time)]:
+      at line 70
+* test_v0_through_v4_are_unsupported_without_creating_captured_dark
+* test_future_fractional_missing_and_wrong_type_versions_are_refused
+* test_json_integral_numbers_are_accepted_without_coercing_dark
+* test_expected_locator_shape_is_strict_and_does_not_relabel_a_document
+* test_current_legacy_members_are_rejected_instead_of_stripped
+* test_current_document_does_not_repair_missing_dark_or_old_embedded_snapshot
+8/9 passed.
+
+
+tests/unit/test_desktop_continuation_operation_journal.gd
+* test_continuation_journal_skeletons_load
+* test_journal_public_surface_is_exactly_the_frozen_seven_methods
+* test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_sets
+* test_every_legal_and_illegal_stage_transition_is_enforced
+* test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges
+* test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields
+* test_new_run_requires_exactly_empty_dialogic_and_audio_subcontexts
+* test_the_intent_must_be_committed_before_any_allocation_is_recorded
+* test_the_eight_participants_apply_in_exactly_the_frozen_order
+* test_each_participant_receipt_has_identical_replay_and_changed_receipt_conflict
+* test_applying_index_eight_rejects_safely_before_participant_array_access
+* test_a_skipped_participant_index_is_refused
+* test_an_illegal_backward_stage_edge_is_refused
+* test_a_restore_source_that_no_longer_hashes_the_same_is_refused
+* test_a_new_run_context_is_rehashed_without_consulting_the_loader
+* test_identical_replays_return_the_retained_operation_at_every_stage
+* test_every_changed_advancement_family_conflicts_before_storage_mutation
+* test_list_incomplete_returns_only_nonterminal_operations
+* test_startup_reconciles_a_clean_restart_forward
+* test_startup_reconciliation_is_no_op_for_terminal_operations
+* test_startup_rejects_malformed_issued_transaction_receipts
+* test_startup_proves_the_original_restore_source_before_clearing_an_identical_diagnostic
+* test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_stage
+* test_terminal_stages_refuse_recovery_diagnostics_without_mutation
+* test_restore_diagnostics_clear_at_applying_and_applied_through_real_json_storage
+* test_proof_failure_retains_both_kinds_at_every_nonterminal_post_allocation_stage
+* test_diagnostic_clear_write_failure_retains_and_retries_both_kinds_at_every_stage
+* test_a_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutation
+* test_an_allocated_operation_retains_its_receipt_and_can_never_be_aborted
+* test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_input
+* test_a_retained_diagnostic_blocks_every_forward_advance_until_reconciled
+31/31 passed.
+
+
+tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+* test_start_new_run_builds_day1_run_b
+* test_start_new_run_requires_identity_issuer
+* test_start_new_run_allocates_a_fresh_identity_per_call
+* test_start_new_run_requires_participants
+* test_finalize_failure_restores_original_live_run_and_populated_checkpoint_history
+* test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+* test_precommit_and_participant_apply_failures_leave_populated_journal_unchanged
+* test_failed_checkpoint_compensation_latches_fatal_after_attempting_live_rollback
+* test_new_run_captures_prepared_profile_dark_and_rollback_preserves_old_capture
+* test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate
+* test_caller_cannot_override_captured_dark_intent
+12/12 passed.
+
+
+tests/integration/test_desktop_continuation_resume.gd
+* test_a_busy_gate_rejects_new_run_before_any_identity_is_minted_or_intent_is_written
+* test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is_written
+* test_crash_after_intent_committed_resumes_forward_to_completion
+* test_crash_after_allocation_resumes_forward_to_completion
+* test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot
+* test_crash_after_participants_applied_resumes_to_completion
+* test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_failure
+* test_restart_uses_frozen_dark_intent_despite_changed_pending_profile
+8/8 passed.
+
+
+tests/integration/test_run_palette_host.gd
+* test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale_and_size_changes
+    [Failed]:  {"code":"causal_day_advance_allocation_required","message":"DesktopIdentityNonceIssuer: a causal day instance is allocated, never issued directly","ok":false}
+      at line 123
+    [Failed]:  {"code":"causal_day_advance_allocation_required","message":"DesktopIdentityNonceIssuer: a causal day instance is allocated, never issued directly","ok":false}
+      at line 123
+* test_malformed_unavailable_replacement_and_changed_capture_are_refused_atomically
+* test_early_production_bootstrap_path_stays_hidden_until_captured_palette_is_admitted
+    [Failed]:  { "ok": false, "code": &"causal_day_advance_allocation_required", "message": "DesktopIdentityNonceIssuer: a causal day instance is allocated, never issued directly" }
+      at line 198
+1/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_run_dark_configuration.gd
+    - Outside Tests
+        * [<Node#99891545835>(subsystem_animation.gd)]
+        * [<Node#99908323052>(subsystem_audio.gd)]
+        * [<Node#99925100269>]
+        * [<Node#99941877486>]
+        * [<Node#99958654703>(subsystem_backgrounds.gd)]
+        * [<Node#100495525616>(subsystem_choices.gd)]
+        * [<Timer#100512302833>]
+        * [<Node#100529080050>(subsystem_expression.gd)]
+        * [<Node#100562634487>(subsystem_glossary.gd)]
+        * [<Node#100579411704>(subsystem_history.gd)]
+        * [<Node#100596188921>(subsystem_input.gd)]
+        * [<Timer#100612966138>]
+        * [<Node#100629743355>(subsystem_jump.gd)]
+        * [<Node#100646520572>(subsystem_containers.gd)]
+        * [<Node#100663297789>(subsystem_portraits.gd)]
+        * [<Node#101200168702>(subsystem_save.gd)]
+        * [<Timer#101216945919>]
+        * [<Node#101233723136>(subsystem_settings.gd)]
+        * [<Node#101250500356>(subsystem_styles.gd)]
+        * [<Node#101267277573>(subsystem_text.gd)]
+        * [<Node#101351163658>(subsystem_text_input.gd)]
+        * [<Node#101367940875>(subsystem_variables.gd)]
+        * [<Node#101384718092>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101401495309>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/unit/test_save_migrations.gd
+- test_saved_time_is_retained_exactly_and_absence_is_not_synthesized
+    [Failed]:  { "ok": false, "code": &"invalid_document_shape", "message": "unexpected document keys: [\"current_snapshot\", \"kind\", \"recovery_journal\", \"save_reason\", \"schema_version\", \"slot_id\", &\"saved_time\"]" }
+          at line 66
+    [Failed]:  [STRING_NAME(invalid_document_shape)] expected to equal [STRING_NAME(invalid_saved_time)]:
+          at line 70
+
+tests/integration/test_run_palette_host.gd
+- test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale_and_size_changes
+    [Failed]:  {"code":"causal_day_advance_allocation_required","message":"DesktopIdentityNonceIssuer: a causal day instance is allocated, never issued directly","ok":false}
+          at line 123
+    [Failed]:  {"code":"causal_day_advance_allocation_required","message":"DesktopIdentityNonceIssuer: a causal day instance is allocated, never issued directly","ok":false}
+          at line 123
+- test_early_production_bootstrap_path_stays_hidden_until_captured_palette_is_admitted
+    [Failed]:  { "ok": false, "code": &"causal_day_advance_allocation_required", "message": "DesktopIdentityNonceIssuer: a causal day instance is allocated, never issued directly" }
+          at line 198
+
+Totals
+------
+Scripts               9
+Tests               110
+Passing Tests       107
+Failing Tests         3
+Asserts           4144/4149
+Orphans              24
+Time              169.264s
+
+
+---- 3 failing tests ----

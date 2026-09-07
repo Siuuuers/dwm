@@ -31,7 +31,7 @@ func before_each() -> void:
 	add_child(_manager)
 	assert_true(_manager.initialize(_storage).ok)
 	assert_true(_manager.configure_mutation_gate(GATE.new()).ok)
-	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/saves/v4_desktop_prepared.json"))
+	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/saves/v5_desktop_prepared.json"))
 	snapshot["gameplay"]["money"] = 0
 	_manager._journal.reset(snapshot.run_id)
 	var prepared: Dictionary = _manager._journal.prepare_record(snapshot,&"day_start")

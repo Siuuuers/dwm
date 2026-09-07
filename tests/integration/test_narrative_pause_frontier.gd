@@ -335,7 +335,7 @@ func test_retained_physical_owner_publishes_same_source_without_a_completion() -
 	assert_eq(source.value.timeline_id, TIMELINE_ID)
 	assert_eq(source.value.route_id, "hospital")
 	assert_eq(source.value.completion_transaction_id, command.completion_transaction_id)
-	assert_false(_bridge.capture_pause_frontier("opening.day1").ok)
+	assert_false(_bridge.capture_pause_frontier("contact.ordinary.lavinia.day1").ok)
 	var before := _reading_state()
 	assert_true(_bridge.begin_suspend(HANDLE).ok)
 	assert_eq(_owner.capture_pause_source(), source)

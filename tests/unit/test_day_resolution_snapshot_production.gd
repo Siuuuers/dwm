@@ -14,7 +14,7 @@ class _Providers extends RefCounted:
 	var calls: Array = []
 	func narrative_checkpoint() -> Dictionary:
 		calls.append("narrative")
-		return {"timeline_id": "opening.day1"}
+		return {"timeline_id": "contact.ordinary.lavinia.day1"}
 	func route_id() -> String:
 		calls.append("route")
 		return "main"
@@ -124,7 +124,7 @@ func test_configured_providers_supply_the_five_non_game_state_fields() -> void:
 	var port: Object = _port()
 	assert_true(port.configure_checkpoint_providers(providers.callables()).get("ok", false), "providers configured")
 	var bundle := _bundle(port)
-	assert_eq(bundle["dialogic_checkpoint"], {"timeline_id": "opening.day1"}, "narrative checkpoint from the bridge")
+	assert_eq(bundle["dialogic_checkpoint"], {"timeline_id": "contact.ordinary.lavinia.day1"}, "narrative checkpoint from the bridge")
 	assert_eq(str(bundle["route_id"]), "main")
 	assert_eq(bundle["active_app_id"], null)
 	assert_eq(bundle["audio_context"], {"music_context_id": "main_desktop"})

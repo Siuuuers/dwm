@@ -4,7 +4,7 @@ extends RefCounted
 ## Durable New Run / selected Load continuation-operation journal (Plan 02 Task 1, dwm-p2r.16).
 ## External to every selectable snapshot: this uses its injected atomic storage and source-loader.
 const JOURNAL_PATH := "desktop-continuation-operations.json"
-const SCHEMA_VERSION := 1
+const SCHEMA_VERSION := 2
 const STAGE_INTENT := "intent_committed"
 const STAGE_ALLOCATED := "identity_allocation_committed"
 const STAGE_APPLYING := "participants_applying"
@@ -49,6 +49,7 @@ const INITIAL_CONTEXT_KEYS: Array[String] = [
 	"audio_context",
 	"content_version",
 	"dialogic_checkpoint",
+	"dark_mode",
 	"route_id",
 ]
 
@@ -497,8 +498,10 @@ func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
 	var context_shape := _exact_keys(context, INITIAL_CONTEXT_KEYS)
 	if not context_shape.get("ok", false):
 		return _failed(_schema_error, "new_run initial_context has unexpected members")
-	if typeof(context.get("route_id")) != TYPE_STRING or str(context["route_id"]) != "opening":
-		return _failed(_schema_error, "new_run route_id must be opening")
+	if typeof(context.get("route_id")) != TYPE_STRING or str(context["route_id"]) != "main":
+		return _failed(_schema_error, "new_run route_id must be main")
+	if typeof(context.get("dark_mode")) != TYPE_BOOL:
+		return _failed(_schema_error, "new_run captured dark_mode must be Boolean")
 	if context.get("active_app_id") != null:
 		return _failed(_schema_error, "new_run active_app_id must be null")
 	if typeof(context.get("dialogic_checkpoint")) != TYPE_DICTIONARY \

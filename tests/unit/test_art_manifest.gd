@@ -10,7 +10,7 @@ extends "res://addons/gut/test.gd"
 ## does, exactly as observer.evidence.commit denial is knowingly uncovered.
 ##
 ## THE REQUIRED HOME CONFLICT, AND HOW IT IS RESOLVED. The plan's record shape carries a required
-## key; specification 12.2 and all 139 shipped entries make requiredness a property of the
+## key; specification 12.2 and all 137 shipped entries make requiredness a property of the
 ## (entry, visual) EDGE via visual_ids.required. Ruling C settles it for the specification, so the
 ## record's key is given a narrower subordinate meaning: it is a CONSENT flag declaring whether
 ## this visual is ELIGIBLE to be required. It never causes a visual to be required. The edge is

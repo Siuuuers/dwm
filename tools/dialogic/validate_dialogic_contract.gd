@@ -10,7 +10,7 @@ extends SceneTree
 ## every .dtl under en/ and REWRITES timelines.json, endings.json, effects.json, routes.json and
 ## narrative_variables.json plus two evidence files. Running it is a mutation, not a check, and
 ## running it after Task 3 would take timelines.json from 61 records to 69, break
-## WriteDialogicGateSummary's 61/24/37 production floor inside the FROZEN tooling gate, and stale
+## WriteDialogicGateSummary's 59/24/35 production floor inside the FROZEN tooling gate, and stale
 ## the sealed manifest_hashes in evidence/phase_2r/dialogic/gate_summary.json. It also exits 1 on
 ## the masters regardless, because its parser demands a `# timeline_id:` header the masters do not
 ## carry. So this task's CLI lands under a new name and the legacy generator stays byte-untouched.
@@ -35,7 +35,7 @@ const VALIDATOR := preload("res://tools/dialogic/DtlStructureValidator.gd")
 
 const MASTER_DIR := "res://dialogic/timelines/en/"
 const EXPECTED_MASTER_COUNT := 8
-const EXPECTED_ENTRY_COUNT := 139
+const EXPECTED_ENTRY_COUNT := 137
 const MAX_REPORTED := 10
 
 

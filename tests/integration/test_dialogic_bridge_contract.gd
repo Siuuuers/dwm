@@ -26,7 +26,7 @@ func test_fixture_manifest_is_strict_and_separate_from_production() -> void:
 		return
 	assert_eq(str(manifest.get("timeline_id", "")), "fixture.phase2r.contract", "the fixture owns its own timeline id")
 	assert_eq(int(manifest.get("schema_version", 0)), 1, "fixture manifest schema_version")
-	# It must NOT be one of the 61 production records.
+	# It must NOT be one of the 59 production records.
 	var production := STRICT_JSON.parse_object(FileAccess.get_file_as_string("res://data/manifests/timelines.json"))
 	if production.get("ok", false):
 		for record in (production["value"] as Dictionary).get("records", []):
@@ -250,5 +250,5 @@ func test_an_unregistered_timeline_marker_is_ignored_and_a_safe_marker_passes() 
 	bridge.timeline_marker_received.connect(func(marker_id: String, _payload: Dictionary) -> void: markers.append(marker_id))
 	bridge.timeline_marker("not.a.registered.marker")
 	assert_true(markers.is_empty(), "an unregistered marker emits nothing (fails closed)")
-	bridge.timeline_marker("opening_done")
-	assert_eq(markers, ["opening_done"], "a whitelisted marker still passes")
+	bridge.timeline_marker("hospital_recovered")
+	assert_eq(markers, ["hospital_recovered"], "a whitelisted marker still passes")

@@ -55,19 +55,28 @@ func _settings_navigation(menu: Node) -> void:
 	if not _check(is_instance_valid(panel) and panel.is_visible_in_tree(), "Real title Setting opens its existing panel"):
 		return
 	_check(menu._clock_label.is_visible_in_tree() and menu._title_home.visible and menu._title_label.visible and menu._title_label.text == "Setting", "Setting hosts Return and its own heading beside the persistent clock")
+	var content: Node = panel.get("settings_content")
+	var language_category := content.find_child("LanguageCategory", true, false) as Control
+	var language_control := content.call(&"control_for", &"preferences.language.primary_locale_id") as Control
+	if not _check(is_instance_valid(language_category) and is_instance_valid(language_control), "Current Settings publishes its language rail and registered primary-locale control"):
+		return
 	settings_button.grab_focus()
 	await _press_key(KEY_RIGHT)
 	_check(menu._title_home.has_focus(), "Right from the Setting ledger command reaches hosted Return")
 	await _press_key(KEY_TAB)
-	_check(panel.get_node("%LanguageOption").has_focus(), "Return Tab enters visible Settings instead of cached Backup")
+	_check(language_category.has_focus(), "Return Tab enters the visible Settings language rail instead of cached Backup")
+	await _press_key(KEY_RIGHT)
+	_check(language_control.has_focus(), "Language rail Right enters the registered primary-locale control")
 	menu._title_home.grab_focus()
 	await _press_key(KEY_DOWN)
-	_check(panel.get_node("%LanguageOption").has_focus(), "Return Down enters the current Settings language control")
+	_check(language_category.has_focus(), "Return Down enters the current Settings language rail")
+	await _press_key(KEY_RIGHT)
+	_check(language_control.has_focus(), "The language rail consistently restores its registered primary-locale control")
 	var panel_id := panel.get_instance_id()
-	panel.get_node("%CloseButton").pressed.emit()
+	menu._title_home.pressed.emit()
 	await _settle()
-	_check(not menu._setting_host.visible and settings_button.has_focus(), "Setting Close hides its host and restores Setting command focus")
-	_check(not menu._title_home.visible and menu._title_home.focus_mode == Control.FOCUS_NONE and not menu._title_label.visible and menu._clock_label.is_visible_in_tree(), "Closing Setting returns to the unhosted title strip")
+	_check(not menu._setting_host.visible and settings_button.has_focus(), "Shared Return hides Setting and restores its title command focus")
+	_check(not menu._title_home.visible and menu._title_home.focus_mode == Control.FOCUS_NONE and not menu._title_label.visible and menu._clock_label.is_visible_in_tree(), "Returning from Setting restores the unhosted title strip")
 	settings_button.pressed.emit()
 	await _settle()
 	_check(menu._setting_instance.get_instance_id() == panel_id and panel.is_visible_in_tree(), "Reopening Setting shows its cached panel")
@@ -115,12 +124,6 @@ func _seed(menu: Node, bootstrap: Node) -> void:
 	_check(not app.is_visible_in_tree() and menu.get_node("%LogInButton").has_focus(), "Title Home returns focus to Log in")
 	_check(state.capture_run_snapshot_input() == before, "Empty title navigation does not create or mutate a run")
 	menu.get_node("%NewAccButton").pressed.emit()
-	if not await _await_scene("res://scenes/opening/OpeningScene.tscn"):
-		return
-	var opening: Node = get_tree().current_scene
-	if not _check(not opening.get("_dialogic_blocked"), "Registered production opening starts"):
-		return
-	opening.get_node("%ContinueButton").pressed.emit()
 	if not await _await_scene("res://scenes/main/MainGameScene.tscn"):
 		return
 	var graph: Dictionary = bootstrap.get_desktop_contract_state()
@@ -151,7 +154,7 @@ func _seed(menu: Node, bootstrap: Node) -> void:
 		return
 	var snapshot: Dictionary = validated.value.candidate.current_snapshot.snapshot
 	_check(snapshot.gameplay.money == 5 and snapshot.route_id == "main" and snapshot.active_app_id == "backup", "Disk snapshot holds changed money and the saved desktop route")
-	var expected := {"money": state.money, "day": state.day, "opening_seen": state.opening_seen,
+	var expected := {"money": state.money, "day": state.day, "dark_mode": snapshot.lifecycle.dark_mode,
 		"seed_process_id": OS.get_process_id(), "slot_sha256": FileAccess.get_sha256(slot_path)}
 	var file := FileAccess.open(str(_facts.user_root).path_join("title_resume_expected.json"), FileAccess.WRITE)
 	if not _check(file != null, "Expectation is written only in the proven isolated user root"):
@@ -250,7 +253,11 @@ func _resume(menu: Node) -> void:
 		return
 	await _settle()
 	_check(_facts.restore_notifications == 1, "Cold Load publishes one completed restore")
-	_check(state.money == int(expected.money) and state.day == int(expected.day) and state.opening_seen == expected.opening_seen, "Cold Load restores saved money, day and opening progress")
+	_check(state.money == int(expected.money) and state.day == int(expected.day), "Cold Load restores saved money and day")
+	var run_configuration: Dictionary = state.get_run_configuration()
+	_check(run_configuration.get("ok", false) and typeof(run_configuration.get("value")) == TYPE_DICTIONARY
+		and bool((run_configuration["value"] as Dictionary).get("dark_mode")) == bool(expected.dark_mode),
+		"Cold Load restores the exact captured lifecycle Dark value")
 	await _check_public_hud()
 	var desktop: Node = get_tree().current_scene._computer_desktop_instance
 	if not _check(is_instance_valid(desktop) and desktop._active_id == &"backup", "Restored real desktop opens the saved Backup app"):

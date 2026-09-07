@@ -83,15 +83,15 @@ func test_prepare_new_run_snapshot_input_is_pure() -> void:
 	game_state.money = 55
 	var live_before: Dictionary = game_state.to_save_dict()
 	var receipt := _new_run_receipt("causal-day-b")
-	assert_false(game_state.prepare_new_run_snapshot_input("", "branch-b", 0, "causal-day-b", receipt).get("ok", true),
+	assert_false(game_state.prepare_new_run_snapshot_input("", "branch-b", 0, "causal-day-b", receipt, false).get("ok", true),
 		"empty run id rejects")
-	assert_false(game_state.prepare_new_run_snapshot_input("run-local", "branch-b", 0, "causal-day-b", receipt).get("ok", true),
+	assert_false(game_state.prepare_new_run_snapshot_input("run-local", "branch-b", 0, "causal-day-b", receipt, false).get("ok", true),
 		"reused run id rejects")
-	var prepared: Dictionary = game_state.prepare_new_run_snapshot_input("run-b", "branch-b", 0, "causal-day-b", receipt)
+	var prepared: Dictionary = game_state.prepare_new_run_snapshot_input("run-b", "branch-b", 0, "causal-day-b", receipt, false)
 	assert_true(prepared["ok"], JSON.stringify(prepared))
 	var snapshot_input: Dictionary = prepared["value"]["snapshot_input"]
 	assert_eq(snapshot_input["lifecycle"], {
-		"run_id": "run-b", "day": 1, "state": "PLAYING",
+		"run_id": "run-b", "dark_mode": false, "day": 1, "state": "PLAYING",
 		"active_resolution_plan": null, "ending_plan": null,
 		"branch_id": "branch-b", "desktop_timeline_generation": 0,
 		"causal_day_instance": "causal-day-b", "causal_day_instance_issuer_receipt": receipt,

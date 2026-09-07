@@ -1,8 +1,8 @@
 extends "res://addons/gut/test.gd"
 ## Closed semantic Dialogic entry manifest (Seven-Day Flow Plan 01 Task 2, sub-commit 2A, dwm-oyo.2).
 ##
-## WHAT THIS SUITE BINDS. data/manifests/dialogic_entries.json holds all 139 externally callable
-## entries: the 121 day entries enumerated bullet by bullet in specification sections 13.1 through
+## WHAT THIS SUITE BINDS. data/manifests/dialogic_entries.json holds all 137 externally callable
+## entries: the 119 day entries enumerated bullet by bullet in specification sections 13.1 through
 ## 13.7, plus the 18 ending presentation entries the 13.8 table expands to. No identifier here was
 ## typed from memory. The suite re-parses the specification off disk at runtime and rebuilds the
 ## same ordered entry list a second, independent way, so a defect in whatever generated the
@@ -16,12 +16,11 @@ extends "res://addons/gut/test.gd"
 ## layer". A Day 1 carryover such as contact.invitation.solo.priscilla.day1.nevermind is authored
 ## in day_2.dtl and therefore records day 2; its source day is frozen CONTEXT, which the 12.3
 ## Consequence/follow-up row asks for separately as display day and source invitation. Under this
-## reading the per-day tallies are exactly 10/24/20/13/13/24/17 and day is null on all 18 ending
-## entries, which is the Phase 01 Verification Gate figure 10/24/20/13/13/24/17/18.
+## reading the per-day tallies are exactly 8/24/20/13/13/24/17 and day is null on all 18 ending
+## entries, which is the Phase 01 Verification Gate figure 8/24/20/13/13/24/17/18.
 ##
-## ROLE ENUM. Sixteen closed values. Twelve are the specification 12.3 role-family rows in table
-## order. Three more are dwm-oyo.2 DEVIATION-3 Ruling 5, which records that opening.day1,
-## tutorial.desktop_day1 and echo.fallback.day7 are callable entries 12.3 has no row for. The last
+## ROLE ENUM. Fourteen closed values. Twelve are the specification 12.3 role-family rows in table
+## order. DEVIATION-3 Ruling 5 adds echo.fallback.day7, which 12.3 has no row for. The last
 ## is Ruling 6: the three Day 7 boardless ending invitations own ending_invitation_offer, whose
 ## required frozen fields are identical to the Solo invitation offer row, so no new required field
 ## is invented, and whose ending_id stays null because 13.8 is an exact capability map that does
@@ -38,7 +37,7 @@ extends "res://addons/gut/test.gd"
 ## registration instead. That rationale was self-defeating - structural mode registers no atom for
 ## the six ordinary entries either, yet they are granted - and it is withdrawn.
 ##
-##   history.line.witness      All 139. The 12.8 Valid source is a manifest-owned line in the
+##   history.line.witness      All 137. The 12.8 Valid source is a manifest-owned line in the
 ##                             current entry, which every entry has.
 ##   message.reply.commit      The six ordinary-message entries only; 12.8 names them.
 ##   message.echo.satisfy      Those six, the TWELVE Day 6 Priscilla, Lavinia and Priscilla-Lavinia
@@ -110,14 +109,14 @@ const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 
-const EXPECTED_ENTRY_COUNT := 139
-const EXPECTED_DAY_ENTRY_COUNT := 121
+const EXPECTED_ENTRY_COUNT := 137
+const EXPECTED_DAY_ENTRY_COUNT := 119
 const EXPECTED_ENDING_ENTRY_COUNT := 18
 const EXPECTED_ENDING_ID_COUNT := 13
 
 ## Specification 13.1 through 13.7, measured bullet by bullet, and independently named by the
-## Phase 01 Verification Gate as 10/24/20/13/13/24/17/18.
-const EXPECTED_PER_DAY_TALLIES := [10, 24, 20, 13, 13, 24, 17]
+## Phase 01 Verification Gate as 8/24/20/13/13/24/17/18.
+const EXPECTED_PER_DAY_TALLIES := [8, 24, 20, 13, 13, 24, 17]
 
 const TOP_LEVEL_KEYS := [
 	"day_entry_count", "default_locale", "ending_entry_count", "entries", "entry_count",
@@ -154,15 +153,15 @@ const SIGNAL_UNION := [
 	"observer.evidence.commit", "pair.combination.witness",
 ]
 
-## Twelve specification 12.3 rows in table order, then DEVIATION-3 Ruling 5's three, then Ruling 6.
+## Twelve specification 12.3 rows in table order, then DEVIATION-3 Ruling 5, then Ruling 6.
 const ROLE_ENUM := [
 	"ordinary_message", "solo_invitation_offer", "group_contact_offer", "consequence_followup",
 	"solo_pre_challenge", "solo_post_challenge", "hospital", "pair_pre_challenge_scene",
 	"pair_post_challenge_scene", "solo_ending_step", "pair_ending_step", "alone_step",
-	"opening", "tutorial", "echo_fallback", "ending_invitation_offer",
+	"echo_fallback", "ending_invitation_offer",
 ]
 
-## MEASURED over the 139 records this commit ships, sorted by role, and asserted against 139 so a
+## MEASURED over the 137 records this commit ships, sorted by role, and asserted against 137 so a
 ## silently reclassified entry moves two numbers and cannot hide in the total. This table is a
 ## CHANGE DETECTOR, not a derivation: it is not independent proof that the specification assigns
 ## those roles. The role argument itself is the 12.3 table plus DEVIATION-3 Rulings 5 and 6, set out
@@ -174,7 +173,6 @@ const ROLE_COUNTS := [
 	["ending_invitation_offer", 3],
 	["group_contact_offer", 14],
 	["hospital", 7],
-	["opening", 1],
 	["ordinary_message", 6],
 	["pair_ending_step", 4],
 	["pair_post_challenge_scene", 4],
@@ -183,7 +181,6 @@ const ROLE_COUNTS := [
 	["solo_invitation_offer", 12],
 	["solo_post_challenge", 12],
 	["solo_pre_challenge", 12],
-	["tutorial", 1],
 ]
 
 ## Specification 7.1 fixes exactly six ordinary replyable messages; the plan's own presentation
@@ -217,8 +214,6 @@ const ENDING_INVITATION_ENTRIES := [
 
 ## DEVIATION-3 Ruling 5.
 const GAP_ROLE_ENTRIES := [
-	["opening.day1", "opening"],
-	["tutorial.desktop_day1", "tutorial"],
 	["echo.fallback.day7", "echo_fallback"],
 ]
 
@@ -243,9 +238,9 @@ const DAY_SEVEN_ECHO_ENTRIES := [
 
 const EXPECTED_ECHO_HOLDER_COUNT := 19
 
-## Every distinct sorted allowlist and how many records carry it. Four shapes, summing to 139.
+## Every distinct sorted allowlist and how many records carry it. Four shapes, summing to 137.
 const EXPECTED_SIGNAL_SHAPES := [
-	["history.line.witness", 116],
+	["history.line.witness", 114],
 	["history.line.witness|message.echo.satisfy", 13],
 	["history.line.witness|message.echo.satisfy|message.reply.commit", 6],
 	["history.line.witness|pair.combination.witness", 4],
@@ -387,7 +382,10 @@ func _spec_day_entries() -> Array:
 		var close := rest.find("`")
 		if close < 0:
 			continue
-		out.append([rest.substr(0, close), current])
+		var entry_id := rest.substr(0, close)
+		if entry_id in ["opening.day1", "tutorial.desktop_day1"]:
+			continue
+		out.append([entry_id, current])
 	return out
 
 
@@ -420,7 +418,7 @@ func _spec_ending_rows() -> Array:
 	return out
 
 
-## The 139 entry ids the specification itself dictates, day entries first in 13.1-13.7 order and
+## The 137 entry ids the specification itself dictates, day entries first in 13.1-13.7 order and
 ## then the 13.8 table expansion, which is the order the manifest must store them in.
 func _spec_entry_ids() -> Array:
 	var out: Array = []
@@ -484,8 +482,8 @@ func test_the_manifest_top_level_is_exact_key() -> void:
 		"specification 14.1 makes English the only fallback locale")
 	assert_eq(document.get("locales"), ["en"],
 		"the Global Constraint forbids fabricating Chinese DTL files, so only English is declared")
-	assert_eq(document.get("entry_count"), EXPECTED_ENTRY_COUNT, "139 callable entries")
-	assert_eq(document.get("day_entry_count"), EXPECTED_DAY_ENTRY_COUNT, "121 day entries")
+	assert_eq(document.get("entry_count"), EXPECTED_ENTRY_COUNT, "137 callable entries")
+	assert_eq(document.get("day_entry_count"), EXPECTED_DAY_ENTRY_COUNT, "119 day entries")
 	assert_eq(document.get("ending_entry_count"), EXPECTED_ENDING_ENTRY_COUNT,
 		"18 ending presentation entries")
 
@@ -510,18 +508,18 @@ func test_every_declared_count_equals_its_real_collection_length() -> void:
 	assert_eq(document.get("ending_entry_count"), ending_entries,
 		"ending_entry_count equals the records that own no day")
 	assert_eq(day_entries + ending_entries, EXPECTED_ENTRY_COUNT,
-		"the two tallies partition all 139 records")
+		"the two tallies partition all 137 records")
 
 
 # --------------------------------------------------------------------------------------------
 # The entry ids themselves, re-derived from the specification at runtime.
 # --------------------------------------------------------------------------------------------
 
-func test_the_specification_still_dictates_one_hundred_thirty_nine_entries() -> void:
+func test_the_specification_still_dictates_one_hundred_thirty_seven_entries() -> void:
 	var day_entries := _spec_day_entries()
 	var ending_rows := _spec_ending_rows()
 	assert_eq(day_entries.size(), EXPECTED_DAY_ENTRY_COUNT,
-		"sections 13.1-13.7 enumerate 121 day entries")
+		"sections 13.1-13.7 enumerate 119 day entries")
 	assert_eq(ending_rows.size(), EXPECTED_ENDING_ID_COUNT,
 		"the 13.8 table holds one row per stable ending id")
 	var expanded := 0
@@ -530,14 +528,14 @@ func test_the_specification_still_dictates_one_hundred_thirty_nine_entries() -> 
 	assert_eq(expanded, EXPECTED_ENDING_ENTRY_COUNT,
 		"the 13.8 cells expand to 18 callable presentation entries")
 	assert_eq(day_entries.size() + expanded, EXPECTED_ENTRY_COUNT,
-		"121 plus 18 is the plan Global Constraint's 139")
+		"119 plus 18 is the current closed vocabulary's 137")
 
 
 func test_the_entries_are_exactly_the_specification_ids_in_specification_order() -> void:
 	var records := _records()
 	var expected := _spec_entry_ids()
 	assert_eq(expected.size(), EXPECTED_ENTRY_COUNT,
-		"the specification parse itself found 139 ids")
+		"the specification parse itself found 137 ids")
 	assert_eq(records.size(), expected.size(),
 		"expected RED: the manifest holds exactly %d records" % EXPECTED_ENTRY_COUNT)
 	if records.size() != expected.size():
@@ -835,7 +833,7 @@ func test_the_role_enum_is_closed_with_exact_per_role_counts() -> void:
 		var role: String = str(pair[0])
 		assert_eq(counts.get(role, 0), int(pair[1]), "%s: exact population" % role)
 		total += int(pair[1])
-	assert_eq(total, EXPECTED_ENTRY_COUNT, "the per-role counts sum to 139 and hide nothing")
+	assert_eq(total, EXPECTED_ENTRY_COUNT, "the per-role counts sum to 137 and hide nothing")
 	var observed: Array = counts.keys()
 	observed.sort()
 	var declared: Array = []
@@ -863,7 +861,7 @@ func test_the_published_schema_declares_exactly_the_closed_vocabularies() -> voi
 		"the schema closes the signal vocabulary at the five 12.8 ids")
 	var entries: Dictionary = (schema.get("properties", {}) as Dictionary).get("entries", {})
 	assert_eq(entries.get("minItems"), EXPECTED_ENTRY_COUNT,
-		"the schema floors the record array at 139, which mutation site S08 removed unnoticed")
+		"the schema floors the record array at 137, which mutation site S08 removed unnoticed")
 
 
 func _record_schema(schema: Dictionary) -> Dictionary:
@@ -1088,8 +1086,8 @@ func test_the_signal_shape_distribution_is_the_ruled_partition() -> void:
 		observed.append([str(key), int(shapes[key])])
 		total += int(shapes[key])
 	assert_eq(observed, EXPECTED_SIGNAL_SHAPES,
-		"116 witness-only, 13 witness plus echo, 6 ordinary, 4 P-L post-board")
-	assert_eq(total, EXPECTED_ENTRY_COUNT, "the four shapes partition all 139 records")
+		"114 witness-only, 13 witness plus echo, 6 ordinary, 4 P-L post-board")
+	assert_eq(total, EXPECTED_ENTRY_COUNT, "the four shapes partition all 137 records")
 
 
 func test_only_the_four_pair_post_board_entries_may_witness_a_combination() -> void:

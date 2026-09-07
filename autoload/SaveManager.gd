@@ -419,6 +419,18 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 		gate_token = str(acquired["value"]["token"])
 		gate_acquired = true
 
+	# Capture the semantic run configuration under the same gate as identity intent.
+	# The durable context retains this Boolean; continuation recovery never resamples it.
+	var profile_prep: Dictionary = _restore_participants["profile"].prepare(
+		{"legacy_profile_patch_input": {}})
+	if not profile_prep.get("ok", false):
+		_release_transaction(&"new_run", gate_token, false)
+		return profile_prep
+	var captured_context := _capture_new_run_context(initial_context, profile_prep)
+	if not captured_context.get("ok", false):
+		_release_transaction(&"new_run", gate_token, false)
+		return captured_context
+	initial_context = captured_context["value"]
 	var begun := _begin_new_run_continuation(initial_context)
 	if not begun.get("ok", false):
 		if gate_acquired:
@@ -431,7 +443,7 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 	# durably allocated identity.
 	var new_run: Dictionary = _restore_participants["run"].prepare_new_run(
 		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
-		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"])
+		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"], initial_context["dark_mode"])
 	if not new_run.get("ok", false):
 		if gate_acquired:
 			_mutation_gate.release(&"new_run", gate_token)
@@ -470,16 +482,6 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 			_mutation_gate.release(&"new_run", gate_token)
 		return board_prep
 
-	# dwm-p2r.33: the empty legacy patch, routed through the REAL profile participant, preserves the
-	# complete global profile for a new game -- prepare_legacy_profile_patch({}, {}) returns the live
-	# profile unchanged once migration_receipts.legacy_game_state_profile_v1 is true, and a
-	# defaults-merged validated candidate otherwise (fresh install: ProfileSchema defaults).
-	var profile_prep: Dictionary = _restore_participants["profile"].prepare(
-		{"legacy_profile_patch_input": {}})
-	if not profile_prep.get("ok", false):
-		if gate_acquired:
-			_mutation_gate.release(&"new_run", gate_token)
-		return profile_prep
 	# The locale chains from the prepared profile candidate's preferences.language, exactly as
 	# _prepare_bundle_with_all_participants() chains it on the restore path.
 	var loc_prep: Dictionary = _restore_participants["localization"].prepare(
@@ -499,6 +501,11 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 		if gate_acquired:
 			_mutation_gate.release(&"new_run", gate_token)
 		return audio_prep
+	var route_prep: Dictionary = _restore_participants["route"].prepare({
+		"route_id":initial_context["route_id"],"route_context":{},"active_app_id":null,"day":1})
+	if not route_prep.get("ok", false):
+		_release_transaction(&"new_run", gate_token, false)
+		return route_prep
 	var plans := {
 		"run": {"snapshot": snapshot},
 		"desktop_consequence": (consequence_prep["value"] as Dictionary)["consequence_plan"],
@@ -506,7 +513,7 @@ func start_new_run(initial_context: Dictionary) -> Dictionary:
 		"profile": (profile_prep["value"] as Dictionary)["profile_plan"],
 		"localization": (loc_prep["value"] as Dictionary)["localization_plan"],
 		"audio": (audio_prep["value"] as Dictionary)["audio_plan"],
-		"route": {"route_id": str(initial_context["route_id"]), "route_context": {}},
+		"route": route_prep["value"]["route_plan"],
 		"narrative": {"narrative_checkpoint": initial_context["dialogic_checkpoint"]},
 	}
 	# Prepare the Run-B journal as a full reset with the Day-1 bundle current.
@@ -736,13 +743,30 @@ func _run_participant_transaction(
 		run_restored.emit(checkpoint_id, route_id)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "route_id": route_id}}
 
+
+func _capture_new_run_context(initial_context: Dictionary, profile_preparation: Dictionary) -> Dictionary:
+	var value: Variant = profile_preparation.get("value")
+	if typeof(value) != TYPE_DICTIONARY or typeof(value.get("profile_plan")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_new_run_profile", "Prepared Profile plan is required")
+	var profile: Variant = value.profile_plan.get("profile")
+	if typeof(profile) != TYPE_DICTIONARY or typeof(profile.get("preferences")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_new_run_profile", "Prepared Profile preferences are required")
+	var dark: Variant = profile.preferences.get("dark_mode")
+	if typeof(dark) != TYPE_DICTIONARY or typeof(dark.get("available")) != TYPE_BOOL or typeof(dark.get("next_run_enabled")) != TYPE_BOOL:
+		return _fail(&"invalid_new_run_profile", "Prepared Dark intent must contain Boolean facts")
+	if dark.next_run_enabled and not dark.available:
+		return _fail(&"invalid_new_run_profile", "Unavailable Dark intent cannot be captured")
+	var context := initial_context.duplicate(true)
+	context["dark_mode"] = dark.next_run_enabled
+	return {"ok":true,"value":context}
+
 func _validate_new_run_context(initial_context: Dictionary) -> String:
 	var keys: Array = initial_context.keys()
 	keys.sort()
 	if keys != ["active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id"]:
 		return "unexpected initial_context keys: " + str(keys)
-	if str(initial_context["route_id"]) != "opening":
-		return "route_id must be \"opening\""
+	if typeof(initial_context["route_id"]) != TYPE_STRING or initial_context["route_id"] != "main":
+		return "route_id must be \"main\""
 	if typeof(initial_context["dialogic_checkpoint"]) != TYPE_DICTIONARY or not (initial_context["dialogic_checkpoint"] as Dictionary).is_empty():
 		return "dialogic_checkpoint must be {}"
 	if initial_context["active_app_id"] != null:
@@ -1759,7 +1783,7 @@ func _resume_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
 	}
 	var new_run: Dictionary = _restore_participants["run"].prepare_new_run(
 		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
-		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"])
+		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"], initial_context["dark_mode"])
 	if not new_run.get("ok", false):
 		return _latch_recovery_diagnostic(operation, &"new_run", new_run)
 	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
@@ -1802,6 +1826,10 @@ func _resume_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
 	if not audio_prep.get("ok", false):
 		return _latch_recovery_diagnostic(operation, &"new_run", audio_prep)
 
+	var route_prep: Dictionary = _restore_participants["route"].prepare({
+		"route_id":initial_context["route_id"],"route_context":{},"active_app_id":null,"day":1})
+	if not route_prep.get("ok", false):
+		return _latch_recovery_diagnostic(operation, &"new_run", route_prep)
 	var plans := {
 		"run": {"snapshot": snapshot},
 		"desktop_consequence": (consequence_prep["value"] as Dictionary)["consequence_plan"],
@@ -1809,7 +1837,7 @@ func _resume_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
 		"profile": (profile_prep["value"] as Dictionary)["profile_plan"],
 		"localization": (loc_prep["value"] as Dictionary)["localization_plan"],
 		"audio": (audio_prep["value"] as Dictionary)["audio_plan"],
-		"route": {"route_id": str(initial_context["route_id"]), "route_context": {}},
+		"route": route_prep["value"]["route_plan"],
 		"narrative": {"narrative_checkpoint": initial_context["dialogic_checkpoint"]},
 	}
 	var reset: Dictionary = _journal.prepare_reset_with_initial(snapshot, &"day_start")

@@ -1938,7 +1938,7 @@ func test_validate_signal_refuses_observer_evidence_from_every_registered_entry(
 		assert_false(result.get("ok", true), "%s may not commit Observer evidence" % entry_id)
 		assert_eq(result.get("code"), CODE_SIGNAL_NOT_GRANTED, "%s: by name" % entry_id)
 		refused += 1
-	assert_eq(refused, 139, "all one hundred and thirty-nine entries were asked and refused")
+	assert_eq(refused, 137, "all one hundred and thirty-seven entries were asked and refused")
 
 
 func test_validate_signal_refuses_a_payload_that_names_another_entry() -> void:

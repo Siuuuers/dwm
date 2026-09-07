@@ -17,7 +17,7 @@ const BRIDGE_PATH := "res://autoload/DialogicBridge.gd"
 const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 
 const TIMELINE_ID := "hospital.faint"
-const OTHER_TIMELINE_ID := "opening.day1"
+const OTHER_TIMELINE_ID := "contact.ordinary.lavinia.day1"
 
 var _bridge: Node
 var _adapter: RefCounted

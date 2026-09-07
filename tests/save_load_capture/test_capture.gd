@@ -5,7 +5,7 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
-const FIXTURE := "res://tests/fixtures/saves/v4_desktop_prepared.json"
+const FIXTURE := "res://tests/fixtures/saves/v5_desktop_prepared.json"
 
 class CaptureSource extends Node:
 	var inputs: Dictionary = {}
@@ -25,11 +25,11 @@ func _run() -> void:
 	_check(manager.initialize(storage).get("ok", false), "initialize")
 	_check(manager.configure_mutation_gate(GATE.new()).get("ok", false), "gate")
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
-	snapshot["route_id"] = "opening"
-	snapshot["gameplay"]["opening_seen"] = false
+	snapshot["route_id"] = "main"
+	snapshot["gameplay"]["money"] = 100
 	manager._journal.reset(snapshot["run_id"])
 	var seeded: Dictionary = manager._journal.prepare_record(snapshot, &"day_start")
-	_check(seeded.get("ok", false), "opening snapshot accepted")
+	_check(seeded.get("ok", false), "initial main snapshot accepted")
 	if not seeded.get("ok", false):
 		manager.free()
 		quit(1)
@@ -39,7 +39,7 @@ func _run() -> void:
 	var raw_input := {}
 	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
 		raw_input[key] = snapshot[key].duplicate(true) if snapshot[key] is Dictionary or snapshot[key] is Array else snapshot[key]
-	raw_input["gameplay"]["opening_seen"] = true
+	raw_input["gameplay"]["money"] = 200
 	source.inputs = {"snapshot_input": raw_input, "route_id": "main", "active_app_id": &"backup", "dialogic_checkpoint": {}, "audio_context": {}, "content_version": 1}
 	_check(manager.configure_backup_capture_provider(source.capture).get("ok", false), "configure capture")
 	_check(manager.configure_backup_capture_provider(source.capture).get("ok", false), "idempotent capture binding")
@@ -66,8 +66,8 @@ func _run() -> void:
 		prepared = manager.prepare_backup_action("save", "slot:1")
 		_check(prepared.get("ok", false), "prepare drift " + field)
 		match field:
-			"gameplay": source.inputs["snapshot_input"]["gameplay"]["opening_seen"] = false
-			"route": source.inputs["route_id"] = "opening"
+			"gameplay": source.inputs["snapshot_input"]["gameplay"]["money"] = 100
+			"route": source.inputs["route_id"] = "hospital"
 			"app": source.inputs["active_app_id"] = "contacts"
 			"audio": source.inputs["audio_context"] = {"changed": true}
 			"narrative": source.inputs["dialogic_checkpoint"] = {"changed": true}
@@ -96,7 +96,7 @@ func _run() -> void:
 	document = validated["value"]["candidate"]
 	var current: Dictionary = document["current_snapshot"]
 	_check(current["checkpoint_kind"] == "manual_save", "honest manual save kind")
-	_check(current["snapshot"]["route_id"] == "main" and current["snapshot"]["active_app_id"] == "backup" and current["snapshot"]["gameplay"]["opening_seen"], "save captures current main route and gameplay and foreground app")
+	_check(current["snapshot"]["route_id"] == "main" and current["snapshot"]["active_app_id"] == "backup" and current["snapshot"]["gameplay"]["money"] == 200, "save captures current main route and gameplay and foreground app")
 	_check(manager._canonical_sha256(manager.get_latest_stable_checkpoint()["value"]["bundle"]) == manager._canonical_sha256(current), "journal publishes exact durable current bundle")
 	prepared = manager.prepare_backup_action("save", "slot:1")
 	before = manager._journal.capture_state()

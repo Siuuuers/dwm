@@ -1,5 +1,5 @@
 extends "res://addons/gut/test.gd"
-## Frozen 61-to-8 Dialogic timeline migration inventory (Seven-Day Flow Plan 01 Task 1, dwm-oyo.2).
+## Current 59-source to 8-master Dialogic timeline migration inventory (Seven-Day Flow Plan 01 Task 1, dwm-oyo.2).
 ##
 ## Every number here was measured against the committed tree named by SOURCE_COMMIT, never copied
 ## from plan prose. The plan text names an earlier inventory commit and a label total of 91; both
@@ -34,21 +34,21 @@ const RETIRING_COMMIT := "9114351031ffd874b7079e6df12da915c4d27808"
 
 const ALLOWED_DISPOSITIONS := ["retained", "split", "retired"]
 
-const EXPECTED_LEGACY_FILE_COUNT := 61
-const EXPECTED_UID_COUNT := 61
-const EXPECTED_TRACKED_TARGET_COUNT := 122
+const EXPECTED_LEGACY_FILE_COUNT := 59
+const EXPECTED_UID_COUNT := 59
+const EXPECTED_TRACKED_TARGET_COUNT := 118
 
 ## RULING P (Seven-Day Flow Plan 01 Task 3, dwm-oyo.2 DEVIATION-7). Task 3 adds the eight
 ## plot-neutral masters and their import-generated sidecars directly under the locale root, so the
-## tree walk below now holds 138 targets rather than 122. EXPECTED_TRACKED_TARGET_COUNT is
+## tree walk below now holds 134 targets rather than 118. EXPECTED_TRACKED_TARGET_COUNT is
 ## deliberately NOT changed: it also pins the frozen migration manifest's own
-## tracked_target_count field, which describes the 61 legacy pairs and stays 122 forever.
+## tracked_target_count field, which describes the 59 retained source pairs and stays 118.
 const EXPECTED_MASTER_FILE_COUNT := 8
 const EXPECTED_MASTER_UID_COUNT := 8
-const EXPECTED_TREE_TARGET_COUNT := 138
+const EXPECTED_TREE_TARGET_COUNT := 134
 const EXPECTED_LABEL_COUNT := 89
 const EXPECTED_SPLIT_COUNT := 27
-const EXPECTED_RETAINED_COUNT := 34
+const EXPECTED_RETAINED_COUNT := 32
 
 ## Status tallies over every label-mapping row in the manifest. mapped plus unmapped is exactly
 ## the tree label total; a rejected row stands outside it because its label is not in the tree.
@@ -367,8 +367,6 @@ const FROZEN_INVENTORY := [
 	["res://dialogic/timelines/en/contacts/sylvia_day6.dtl", "contact.sylvia.day6", "split", ["daily_message", "nevermind", "missed_question"]],
 	["res://dialogic/timelines/en/contacts/sylvia_day7.dtl", "contact.sylvia.day7", "split", ["daily_message"]],
 	["res://dialogic/timelines/en/core/hospital_faint.dtl", "hospital.faint", "split", []],
-	["res://dialogic/timelines/en/core/opening_day1.dtl", "opening.day1", "retained", []],
-	["res://dialogic/timelines/en/core/tutorial_desktop_day1.dtl", "tutorial.desktop_day1", "retained", []],
 	["res://dialogic/timelines/en/dating/group/priscilla_lavinia_day2_post_challenge.dtl", "dating.group.priscilla_lavinia.day2.post_challenge", "retained", []],
 	["res://dialogic/timelines/en/dating/group/priscilla_lavinia_day2_pre_challenge.dtl", "dating.group.priscilla_lavinia.day2.pre_challenge", "retained", []],
 	["res://dialogic/timelines/en/dating/group/priscilla_lavinia_day6_post_challenge.dtl", "dating.group.priscilla_lavinia.day6.post_challenge", "retained", []],
@@ -541,7 +539,7 @@ func test_every_legacy_timeline_has_one_checked_disposition() -> void:
 			assert_eq(FileAccess.get_sha256(path), str(record.get("sha256", "")),
 				"%s: on-disk SHA-256 equals the recorded digest" % path)
 		else:
-			# Unreachable while the Global Constraint pins the 61 legacy files in place through
+			# Unreachable while the Global Constraint pins the retained legacy files in place through
 			# Plan 05. Kept deliberately: Plan 06 flips cutover_status and arms this branch.
 			assert_false(FileAccess.file_exists(path), "%s: legacy file is retired" % path)
 
@@ -581,7 +579,7 @@ func test_the_manifest_top_level_is_exact_key_and_names_its_true_source() -> voi
 	assert_eq(manifest.get("cutover_status"), "legacy_present",
 		"the legacy files are retained until Plan 06")
 	assert_eq(manifest.get("tracked_target_count"), EXPECTED_TRACKED_TARGET_COUNT,
-		"61 DTL plus 61 adjacent UID files were verified byte-equal to their source blobs")
+		"59 DTL plus 59 adjacent UID files were verified byte-equal to their source blobs")
 	assert_eq(typeof(manifest.get("tracked_target_count")), TYPE_INT,
 		"tracked_target_count is an int")
 	assert_eq(manifest.get("legacy_label_count"), EXPECTED_LABEL_COUNT,
@@ -602,10 +600,10 @@ func test_the_eight_masters_are_declared_exactly() -> void:
 
 
 # --------------------------------------------------------------------------------------------
-# The 61 legacy records, field by field, against a second on-disk derivation.
+# The 59 retained legacy records, field by field, against a second on-disk derivation.
 # --------------------------------------------------------------------------------------------
 
-func test_the_inventory_holds_exactly_the_frozen_sixty_one_records() -> void:
+func test_the_inventory_holds_exactly_the_retained_fifty_nine_records() -> void:
 	var legacy_files := _legacy_files()
 	assert_eq(legacy_files.size(), FROZEN_INVENTORY.size(),
 		"expected RED: the frozen inventory has exactly %d records" % FROZEN_INVENTORY.size())
@@ -716,9 +714,9 @@ func test_no_retired_ending_label_survives_in_the_tree_inventory() -> void:
 
 
 ## Asserts BOTH sides of the Ruling O partition exactly, which is strictly stronger than the
-## single 122-target claim this test made before Task 3: 61 legacy pairs in SUBDIRECTORIES, 8
-## master pairs at the ROOT, 138 targets in total, and nothing else anywhere.
-func test_the_legacy_tree_on_disk_is_exactly_sixty_one_pairs() -> void:
+## single 118-target claim this test made before Task 3: 59 legacy pairs in SUBDIRECTORIES, 8
+## master pairs at the ROOT, 134 targets in total, and nothing else anywhere.
+func test_the_legacy_tree_on_disk_is_exactly_fifty_nine_pairs() -> void:
 	var found: Array = []
 	_walk(LEGACY_ROOT, found)
 	var dtl: Array = []
@@ -742,9 +740,9 @@ func test_the_legacy_tree_on_disk_is_exactly_sixty_one_pairs() -> void:
 		"the tree under the legacy root holds exactly the %d targets and nothing else" %
 		EXPECTED_TREE_TARGET_COUNT)
 	assert_eq(dtl.size(), EXPECTED_LEGACY_FILE_COUNT,
-		"the tree still holds 61 legacy .dtl files in subdirectories")
+		"the tree holds 59 retained legacy .dtl files in subdirectories")
 	assert_eq(uid.size(), EXPECTED_UID_COUNT,
-		"the tree still holds 61 adjacent .dtl.uid files in subdirectories")
+		"the tree holds 59 retained adjacent .dtl.uid files in subdirectories")
 	assert_eq(master_dtl.size(), EXPECTED_MASTER_FILE_COUNT,
 		"the tree holds exactly 8 master .dtl files at the locale root")
 	assert_eq(master_uid.size(), EXPECTED_MASTER_UID_COUNT,
@@ -755,7 +753,7 @@ func test_the_legacy_tree_on_disk_is_exactly_sixty_one_pairs() -> void:
 		assert_true(master_uid.has(str(path) + ".uid"), "%s: has an adjacent UID file" % str(path))
 
 
-func test_dispositions_split_twenty_seven_and_retain_thirty_four() -> void:
+func test_dispositions_split_twenty_seven_and_retain_thirty_two() -> void:
 	var legacy_files := _legacy_files()
 	assert_eq(legacy_files.size(), EXPECTED_LEGACY_FILE_COUNT, "expected RED: no records to count")
 	if legacy_files.size() != EXPECTED_LEGACY_FILE_COUNT:

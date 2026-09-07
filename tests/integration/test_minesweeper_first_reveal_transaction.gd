@@ -39,7 +39,7 @@ const AUDIO_PARTICIPANT_PATH := "res://scripts/application/restore/AudioRestoreP
 const ROUTE_PARTICIPANT_PATH := "res://scripts/application/restore/RouteRestoreParticipant.gd"
 const NARRATIVE_PARTICIPANT_PATH := "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
 const RUN_SNAPSHOT_SCHEMA_PATH := "res://scripts/domain/run/RunSnapshotSchema.gd"
-const RECOVERY_FIXTURE_PATH := "res://tests/fixtures/saves/v4_desktop_prepared.json"
+const RECOVERY_FIXTURE_PATH := "res://tests/fixtures/saves/v5_desktop_prepared.json"
 
 const RUN_ID := "run-local"
 const IDENTITY_CONTEXT := {

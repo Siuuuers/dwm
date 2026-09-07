@@ -213,7 +213,7 @@
     "signals": {
       "type": "array",
       "minItems": 5,
-      "description": "The five 12.8 command kinds, each with the exact payload field list that table row prints and the source stages DEVIATION-4 Ruling D assigns it. observer.evidence.commit is registered here but granted by NO entry in the 2A manifest, because the plan holds production Observer evidence capabilities absent until an approved content card supplies an exact source entry and atom; validate_signal therefore refuses it from every one of the 139 entries as SIGNAL_NOT_GRANTED.",
+      "description": "The five 12.8 command kinds, each with the exact payload field list that table row prints and the source stages DEVIATION-4 Ruling D assigns it. observer.evidence.commit is registered here but granted by NO entry in the 2A manifest, because the plan holds production Observer evidence capabilities absent until an approved content card supplies an exact source entry and atom; validate_signal therefore refuses it from every one of the 137 entries as SIGNAL_NOT_GRANTED.",
       "items": {
         "type": "object",
         "additionalProperties": false,

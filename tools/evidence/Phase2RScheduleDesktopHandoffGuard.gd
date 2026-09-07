@@ -29,6 +29,8 @@ extends RefCounted
 ## failure for the owning Plan-01/02 issue to answer, never patched around here.
 
 const _GIT := preload("res://tools/evidence/DesktopAmendmentEvidenceGit.gd")
+const _RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const _SAVE_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
 ## The canonical tracked path of each seal, for the document-integrity seam below.
@@ -799,10 +801,14 @@ static func _validate_snapshot(snapshot: Dictionary, state: Dictionary, gate: Di
 	var sealed_version: int = int((sealed_v4 as Dictionary).get("schema_version", 0))
 	var live_snapshot_version: int = int(state.get("run_snapshot_schema_version", 0))
 	var live_document_version: int = int(state.get("save_document_schema_version", 0))
-	if live_snapshot_version != sealed_version:
+	# The immutable desktop seal describes v4. The current v5 cutover preserves its
+	# desktop structure and adds captured configuration in lifecycle. Validate the
+	# live version against its actual owners; never relabel or regenerate the seal.
+	if sealed_version != 4 or live_snapshot_version != _RUN_SCHEMA.SCHEMA_VERSION \
+			or live_document_version != _SAVE_SCHEMA.DOCUMENT_VERSION:
 		return _fail(&"snapshot_schema_version_drift",
-			"the live run-snapshot schema version is not the sealed desktop version",
-			{"live": live_snapshot_version, "sealed": sealed_version})
+			"the historical desktop version or current schema owner facts disagree",
+			{"live": live_snapshot_version, "document": live_document_version, "sealed": sealed_version})
 
 	## gate.json froze version 3 for BOTH before Plan 02 raised them to 4. A historical seal is
 	## never regenerated, so the law here is monotonic: live may exceed the gate, never regress

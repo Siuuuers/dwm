@@ -21,14 +21,14 @@ const LOCALE := preload("res://scripts/application/restore/LocalizationRestorePa
 const AUDIO := preload("res://scripts/application/restore/AudioRestoreParticipant.gd")
 const ROUTE := preload("res://scripts/application/restore/RouteRestoreParticipant.gd")
 const NARRATIVE := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd")
-const FIXTURE := "res://tests/fixtures/saves/v4_desktop_prepared.json"
+const FIXTURE := "res://tests/fixtures/saves/v5_desktop_prepared.json"
 const SCENE_ROUTER := preload("res://autoload/SceneRouter.gd")
 const DESKTOP_HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
 
 class ExternalOwners extends RefCounted:
 	var route_applies := 0
 	func prepare_legacy_profile_patch(_input: Dictionary, _metadata: Dictionary = {}) -> Dictionary:
-		return {"ok": true, "value": {"preferences": {"language": "en"}}}
+		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
 	func prepare_locale(locale: String) -> Dictionary:
 		return {"ok": true, "value": {"canonical_locale_id": locale}}
 	func prepare_semantic_restore(context: Dictionary, _preferences: Dictionary) -> Dictionary:

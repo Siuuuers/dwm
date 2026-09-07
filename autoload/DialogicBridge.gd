@@ -36,7 +36,7 @@ const _RESUME_CHECKPOINT_KEYS := ["content_version", "entry_id", "frozen_context
 
 # Whitelisted safe marker ids (DTL may only call DialogicBridge.timeline_marker("<id>")).
 const _SAFE_MARKERS := [
-	"opening_done", "tutorial_done", "hospital_recovered",
+	"hospital_recovered",
 	"contact_history_shown", "invitation_offered", "challenge_ready",
 	"dating_pre_done", "dating_post_done", "ending_shown",
 ]

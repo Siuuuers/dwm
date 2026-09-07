@@ -730,10 +730,10 @@ func test_committed_entry_key_law_and_state_schema_agree() -> void:
 	var aggregate_keys: Array = ((aggregate["value"] as Dictionary)["values"] as Array).duplicate()
 	aggregate_keys.sort()
 	assert_eq(aggregate_keys, _generator.COMMITTED_AGGREGATE_KEYS, "the five aggregate keys")
-	# dwm-p2r.32 Task 6 delivers exactly the v4 this assertion previously documented as undelivered;
-	# the probe now proves the opposite fact for the same reason it existed before.
-	assert_eq(int((_generator.parse_int_constant(FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd"), "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 4,
-		"the subject carries RunSnapshotSchema v4; Plan 02 Task 6 delivered the desktop-durability boundary")
+	# The immutable historical seal remains v4; this reads the current production
+	# owner, whose v5 cutover retains desktop durability and adds captured Dark.
+	assert_eq(int((_generator.parse_int_constant(FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd"), "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 5,
+		"the live owner carries RunSnapshotSchema v5 with the retained desktop aggregate")
 
 
 func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> void:

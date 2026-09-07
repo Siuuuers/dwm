@@ -35,6 +35,7 @@ class ShapedFakeParticipant extends RefCounted:
 	var _plan_key: String
 	var _log: RefCounted
 	var _extra_value: Dictionary
+	var profile_data: Dictionary = preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
 	var fail_at: StringName = &""
 	var observed_journal: RefCounted
 	var journal_at_finalize: Dictionary = {}
@@ -48,6 +49,7 @@ class ShapedFakeParticipant extends RefCounted:
 	func prepare(input: Dictionary) -> Dictionary:
 		_log.record(_id, "prepare")
 		var value: Dictionary = {_plan_key: {"id": _id, "input": input.duplicate(true)}}
+		if _id == "profile": value[_plan_key]["profile"] = profile_data.duplicate(true)
 		for key: String in _extra_value:
 			value[key] = _extra_value[key]
 		return {"ok": true, "code": &"ok", "value": value}
@@ -72,7 +74,7 @@ class ShapedFakeParticipant extends RefCounted:
 		return {"ok": true, "code": &"ok"}
 
 func _initial_context() -> Dictionary:
-	return {"route_id": "opening", "dialogic_checkpoint": {}, "active_app_id": null,
+	return {"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
 		"audio_context": {}, "content_version": 1}
 
 func _wired() -> Dictionary:
@@ -106,7 +108,7 @@ func _wired() -> Dictionary:
 		"profile": ShapedFakeParticipant.new("profile", "profile_plan", log, {"locale_id": "en"}),
 		"localization": ShapedFakeParticipant.new("localization", "localization_plan", log),
 		"audio": ShapedFakeParticipant.new("audio", "audio_plan", log),
-		"route": load(FAKE_PARTICIPANT).new("route", log),
+		"route": ShapedFakeParticipant.new("route", "route_plan", log),
 		"narrative": load(FAKE_PARTICIPANT).new("narrative", log),
 	})["ok"])
 	return {"manager": manager, "gate": gate, "gs": gs, "log": log, "issuer": issuer}
@@ -130,7 +132,7 @@ func test_start_new_run_builds_day1_run_b() -> void:
 	assert_ne(allocated_run_id, "", "the issuer allocates a real, nonblank run_id")
 	assert_ne(allocated_run_id, "run-b", "the caller-supplied run_id is never adopted directly")
 	assert_eq(result["value"]["checkpoint_id"], "%s:1" % allocated_run_id, "Run-B starts at sequence 1")
-	assert_eq(result["value"]["route_id"], "opening")
+	assert_eq(result["value"]["route_id"], "main")
 	assert_eq(int(manager._journal.peek_next_sequence(allocated_run_id)["value"]["checkpoint_sequence"]), 2)
 	assert_eq(manager._journal.get_bundles_for_disk(), [], "a fresh run has no earlier bundles")
 	assert_eq(wired["gs"].day, 1, "live GameState is now Day 1 of the new run")
@@ -156,7 +158,7 @@ func test_start_new_run_requires_identity_issuer() -> void:
 		"profile": load(FAKE_PARTICIPANT).new("profile", log),
 		"localization": load(FAKE_PARTICIPANT).new("localization", log),
 		"audio": load(FAKE_PARTICIPANT).new("audio", log),
-		"route": load(FAKE_PARTICIPANT).new("route", log),
+		"route": ShapedFakeParticipant.new("route", "route_plan", log),
 		"narrative": load(FAKE_PARTICIPANT).new("narrative", log),
 	})
 	# The identity-issuer guard runs before any participant is ever consulted, so fakes suffice here.
@@ -262,7 +264,7 @@ func test_precommit_and_participant_apply_failures_leave_populated_journal_uncha
 		assert_true(journal.restore_state(before).ok)
 		journal.rollback_attempts = 0
 		manager._journal = journal
-		if phase == "invalid_context": context.route_id = "main"
+		if phase == "invalid_context": context.route_id = "retired"
 		elif phase == "apply": manager._restore_participants.audio.fail_at = &"apply_silent"
 		else: journal.refuse_commit = true
 		var result: Dictionary = manager.start_new_run(context)
@@ -291,3 +293,40 @@ func test_failed_checkpoint_compensation_latches_fatal_after_attempting_live_rol
 	assert_eq(result.code,&"APPLICATION_FATAL")
 	assert_eq(wired.gs.capture_restore_state(),live_before,"Journal rollback failure does not skip participant compensation")
 	assert_ne(manager._journal.capture_state().value.backup,before,"The test does not pretend the refused journal rollback succeeded")
+
+func test_new_run_captures_prepared_profile_dark_and_rollback_preserves_old_capture() -> void:
+	var wired := _wired()
+	var manager: Node = wired.manager
+	var profile: ShapedFakeParticipant = manager._restore_participants.profile
+	profile.profile_data.preferences.dark_mode = {"available":true,"next_run_enabled":true}
+	var started: Dictionary = manager.start_new_run(_initial_context())
+	assert_true(started.get("ok", false), JSON.stringify(started))
+	if not started.get("ok", false): return
+	assert_eq(wired.gs.get_run_configuration(), {"ok":true,"value":{"dark_mode":true}})
+	assert_true(manager._journal.capture_state().value.backup.current.snapshot.lifecycle.dark_mode)
+	profile.profile_data.preferences.dark_mode.next_run_enabled = false
+	assert_true(wired.gs.get_run_configuration().value.dark_mode, "Pending settings cannot recolor the installed run")
+	manager._restore_participants.audio.fail_at = &"finalize"
+	var failed: Dictionary = manager.start_new_run(_initial_context())
+	assert_false(failed.get("ok", true))
+	assert_true(wired.gs.get_run_configuration().value.dark_mode, "Compensation restores the prior captured configuration")
+	assert_true(manager._journal.capture_state().value.backup.current.snapshot.lifecycle.dark_mode)
+
+func test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate() -> void:
+	for dark: Variant in [null, {}, {"available":true,"next_run_enabled":1}, {"available":false,"next_run_enabled":true}]:
+		var wired := _wired()
+		var manager: Node = wired.manager
+		manager._restore_participants.profile.profile_data.preferences.dark_mode = dark
+		var before: Dictionary = wired.gs.capture_restore_state()
+		var result: Dictionary = manager.start_new_run(_initial_context())
+		assert_false(result.get("ok", true))
+		assert_eq(result.get("code"), &"invalid_new_run_profile")
+		assert_eq(manager._continuation_journal.list_incomplete().value, [])
+		assert_eq(wired.gs.capture_restore_state(), before)
+		assert_false(wired.gate.is_active())
+
+func test_caller_cannot_override_captured_dark_intent() -> void:
+	var wired := _wired()
+	var context := _initial_context()
+	context.dark_mode = true
+	assert_eq(wired.manager.start_new_run(context).get("code"), &"invalid_initial_context")

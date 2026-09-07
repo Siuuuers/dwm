@@ -705,8 +705,8 @@ func test_an_active_semantic_entry_blocks_an_ending_start() -> void:
 
 
 func test_an_active_semantic_entry_blocks_a_legacy_timeline_start() -> void:
-	# Reviewer I-1, second half: the legacy id surface has live production callers (OpeningScene,
-	# TutorialOverlay, the presentation owner adapter), so it must refuse too - in its own
+	# Reviewer I-1, second half: the legacy id surface remains on the presentation owner adapter,
+	# so it must refuse too - in its own
 	# legacy failure shape - rather than physically replacing the semantic playback.
 	var rig := _rig()
 	var bridge: Node = rig["bridge"]

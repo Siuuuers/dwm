@@ -91,7 +91,8 @@ func _view_is_current() -> bool:
 		ancestor = ancestor.get_parent()
 	return true
 
-func configure_catalog(provider: Object, localization: Object = null, profile: Object = null) -> Dictionary:
+func configure_catalog(provider: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours") -> Dictionary:
+	if SHOP_THEME.resolve(palette).is_empty(): return {"ok":false,"code":"invalid_shop_palette"}
 	if not is_instance_valid(provider) or not provider.has_method("get_catalog") or Callable(provider,"get_catalog").get_argument_count() != 1 or not provider.has_signal("catalog_changed"):
 		return {"ok":false,"code":"invalid_shop_catalog_provider"}
 	for signal_info: Dictionary in provider.get_signal_list():
@@ -101,13 +102,15 @@ func configure_catalog(provider: Object, localization: Object = null, profile: O
 		return {"ok":false,"code":"invalid_shop_preferences"}
 	if profile != null and (not is_instance_valid(profile) or not profile.has_method("get_preference") or not profile.has_signal("preference_changed")):
 		return {"ok":false,"code":"invalid_shop_preferences"}
-	if (_provider != null and _provider != provider) or (_localization != null and localization != null and _localization != localization) or (_profile != null and profile != null and _profile != profile):
+	if (_provider != null and (_provider != provider or _palette != palette)) or (_localization != null and localization != null and _localization != localization) or (_profile != null and profile != null and _profile != profile):
 		return {"ok":false,"code":"shop_catalog_already_configured"}
 	var next_localization: Object = localization if localization != null else _localization
 	var next_profile: Object = profile if profile != null else _profile
 	var preferences := _read_preferences(next_localization,next_profile)
 	if not preferences.ok: return preferences
 	if _provider == null:
+		_palette = palette
+		_roles = SHOP_THEME.resolve(palette)
 		_source_pending = true
 		_provider = provider
 		_provider.connect("catalog_changed",_on_catalog_changed)

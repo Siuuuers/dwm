@@ -45,7 +45,7 @@ func _customize(profile: Node) -> void:
 	candidate.preferences.dark_mode.next_run_enabled = true
 	candidate.gallery_unlocks = ["ending.alone"]
 	candidate.gallery_transaction_receipts = {"ending-retained": {"ending_id": "ending.alone", "unlocked": true}}
-	candidate.visited_line_ids = ["opening.controls.retained"]
+	candidate.visited_line_ids = ["line.contact.ordinary.lavinia.day1.reply.a"]
 	assert_true(profile.commit_prepared_profile(candidate).get("ok", false))
 
 func _live_map() -> Dictionary:
@@ -100,7 +100,7 @@ func test_stale_reset_changes_neither_disk_profile_nor_live_input() -> void:
 	var f := _fixture()
 	_customize(f.profile)
 	var revision: int = f.profile.get_profile_revision()
-	assert_true(f.profile.mark_line_visited("opening.controls.newer").get("ok", false))
+	assert_true(f.profile.mark_line_visited("line.contact.ordinary.lavinia.day1.reply.b").get("ok", false))
 	var before: Dictionary = f.profile.get_profile_snapshot()
 	var live := _live_map()
 	var disk: Dictionary = f.ops.snapshot_persisted()

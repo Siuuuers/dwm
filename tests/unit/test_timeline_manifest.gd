@@ -33,9 +33,9 @@ func test_exact_timeline_manifest_is_required() -> void:
 	assert_eq(str(manifest.get("locale")), "en", "locale")
 
 
-func test_exactly_61_records_one_per_physical_file() -> void:
+func test_exactly_59_records_one_per_physical_file() -> void:
 	var records: Array = _load(MANIFEST_PATH).get("records", [])
-	assert_eq(records.size(), 61, "expected 61 timeline records")
+	assert_eq(records.size(), 59, "expected 59 timeline records")
 	var ids := {}
 	var paths := {}
 	for record in records:
@@ -50,7 +50,7 @@ func test_exactly_61_records_one_per_physical_file() -> void:
 		assert_eq("sha256:" + FileAccess.get_sha256(res_path), str(record["content_fingerprint"]), "fingerprint drift for " + path)
 
 
-func test_status_counts_are_24_placeholder_37_draft() -> void:
+func test_status_counts_are_24_placeholder_35_draft() -> void:
 	var records: Array = _load(MANIFEST_PATH).get("records", [])
 	var placeholder := 0
 	var draft := 0
@@ -59,7 +59,7 @@ func test_status_counts_are_24_placeholder_37_draft() -> void:
 			"placeholder": placeholder += 1
 			"draft": draft += 1
 	assert_eq(placeholder, 24, "placeholder count")
-	assert_eq(draft, 37, "draft count")
+	assert_eq(draft, 35, "draft count")
 
 
 func test_no_broad_pattern_lookup_remains_in_catalog() -> void:

@@ -23,12 +23,12 @@ class FakeOwner extends RefCounted:
 			return {"ok": false, "code": &"forced_owner_failure", "message": method}
 		return {}
 	func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,
-			causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
+			causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: bool) -> Dictionary:
 		_r("prepare_new_run_snapshot_input")
 		var g := _guard("prepare_new_run_snapshot_input")
 		if not g.is_empty(): return g
 		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {
-			"run_id": run_id, "day": 1, "branch_id": branch_id,
+			"run_id": run_id, "dark_mode": dark_mode, "day": 1, "branch_id": branch_id,
 			"desktop_timeline_generation": desktop_timeline_generation,
 			"causal_day_instance": causal_day_instance,
 			"causal_day_instance_issuer_receipt": causal_day_instance_issuer_receipt,
@@ -37,7 +37,7 @@ class FakeOwner extends RefCounted:
 		_r("prepare_legacy_profile_patch")
 		var g := _guard("prepare_legacy_profile_patch")
 		if not g.is_empty(): return g
-		return {"ok": true, "value": {"preferences": {"language": "en"}}}
+		return {"ok": true, "value": {"preferences": {"language": {"primary_locale_id": "en"}}}}
 	func prepare_locale(locale_id: String) -> Dictionary:
 		_r("prepare_locale")
 		var g := _guard("prepare_locale")
@@ -96,9 +96,10 @@ func test_run_participant_prepare_and_delegation() -> void:
 	assert_false(participant.prepare({}).get("ok", true), "missing snapshot rejects")
 	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-b", "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-b", "numeric_value": null}
-	var new_run: Dictionary = participant.prepare_new_run("run-b", "branch-b", 0, "causal-day-b", receipt)
+	var new_run: Dictionary = participant.prepare_new_run("run-b", "branch-b", 0, "causal-day-b", receipt, true)
 	assert_true(new_run["ok"], JSON.stringify(new_run))
 	assert_eq(new_run["value"]["snapshot_input"]["lifecycle"]["run_id"], "run-b")
+	assert_eq(new_run["value"]["snapshot_input"]["lifecycle"]["dark_mode"], true)
 	assert_true(participant.capture()["ok"])
 	assert_true(participant.apply_silent({})["ok"])
 	assert_true(participant.rollback_silent({})["ok"])

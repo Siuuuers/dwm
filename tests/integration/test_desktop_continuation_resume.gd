@@ -44,6 +44,7 @@ class ShapedFakeParticipant extends RefCounted:
 	var _plan_key: String
 	var _log: RefCounted
 	var _extra_value: Dictionary
+	var profile_data: Dictionary = preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
 	var _fail_at: StringName = &""
 
 	func _init(participant_id: String, plan_key: String, call_log: RefCounted, extra_value: Dictionary = {}) -> void:
@@ -60,6 +61,7 @@ class ShapedFakeParticipant extends RefCounted:
 		if _fail_at == &"prepare":
 			return {"ok": false, "code": &"forced_prepare_failure", "message": "", "details": {}}
 		var value: Dictionary = {_plan_key: {"id": _id, "input": input.duplicate(true)}}
+		if _id == "profile": value[_plan_key]["profile"] = profile_data.duplicate(true)
 		for key: String in _extra_value:
 			value[key] = _extra_value[key]
 		return {"ok": true, "code": &"ok", "value": value}
@@ -83,7 +85,7 @@ class ShapedFakeParticipant extends RefCounted:
 		return {"ok": true, "code": &"ok"}
 
 func _initial_context() -> Dictionary:
-	return {"route_id": "opening", "dialogic_checkpoint": {}, "active_app_id": null,
+	return {"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
 		"audio_context": {}, "content_version": 1}
 
 ## Builds one full "process" (SaveManager + GameState + real issuer + real gate + real desktop
@@ -144,6 +146,8 @@ static func _canonical_sha256(value: Variant) -> String:
 ## never pauses at synchronously, so the "after intent_committed" crash boundary can only be
 ## constructed by hand.
 func _manual_new_run_intent(manager: Node, issuer: RefCounted, initial_context: Dictionary) -> Dictionary:
+	# Explicitly authored frozen context for this journal fixture, not player data.
+	if not initial_context.has("dark_mode"): initial_context["dark_mode"] = false
 	var issued: Dictionary = issuer.call(&"issue", &"transaction_id")
 	assert_true(issued.get("ok", false), "issue transaction_id")
 	var transaction_id := str(issued["value"]["token"])
@@ -216,7 +220,7 @@ func _manual_applying(manager: Node, initial_context: Dictionary, intent: Dictio
 	}
 	var new_run: Dictionary = manager._restore_participants["run"].prepare_new_run(
 		identity["run_id"], identity["branch_id"], identity["desktop_timeline_generation"],
-		identity["causal_day_instance"], identity["causal_day_instance_issuer_receipt"])
+		identity["causal_day_instance"], identity["causal_day_instance_issuer_receipt"], initial_context["dark_mode"])
 	assert_true(new_run.get("ok", false), "prepare_new_run")
 	var snapshot_input: Dictionary = new_run["value"]["snapshot_input"]
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
@@ -509,3 +513,24 @@ func test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_fail
 	for entry: Dictionary in (still_incomplete["value"] as Array):
 		assert_ne(str(entry.get("transaction_id", "")), transaction_id,
 			"the aborted transaction must no longer appear in list_incomplete()")
+
+func test_restart_uses_frozen_dark_intent_despite_changed_pending_profile() -> void:
+	for captured_dark: bool in [false, true]:
+		var suffix := str(randi())
+		var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("frozen_dark_" + suffix).path_join("saves")
+		var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("frozen_dark_issuer_" + suffix)
+		var process_a := _wired(save_root, issuer_root, true)
+		process_a.profile_fake.profile_data.preferences.dark_mode = {"available":true,"next_run_enabled":captured_dark}
+		var failed: Dictionary = process_a.manager.start_new_run(_initial_context())
+		assert_false(failed.get("ok", true))
+		var listed: Dictionary = process_a.manager._continuation_journal.list_incomplete()
+		assert_true(listed.get("ok", false))
+		assert_eq(listed.value.size(), 1)
+		if listed.value.size() != 1: continue
+		var operation: Dictionary = listed.value[0]
+		assert_eq(operation.initial_context.dark_mode, captured_dark)
+		var process_b := _wired(save_root, issuer_root, false)
+		process_b.profile_fake.profile_data.preferences.dark_mode = {"available":true,"next_run_enabled":not captured_dark}
+		_assert_resumed_to_completion(process_b.manager, process_b.gs, process_b.gate, operation.transaction_id)
+		assert_eq(process_b.gs.get_run_configuration(), {"ok":true,"value":{"dark_mode":captured_dark}})
+		assert_eq(process_b.manager._journal.capture_state().value.backup.current.snapshot.lifecycle.dark_mode, captured_dark)

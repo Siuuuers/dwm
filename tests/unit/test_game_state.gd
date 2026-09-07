@@ -110,14 +110,6 @@ func test_coin_spending_blocks_when_insufficient() -> void:
 	assert_false(GameState.try_spend_coins(5), "cannot overspend coins")
 
 
-func test_opening_and_tutorial_flags() -> void:
-	assert_false(GameState.opening_seen)
-	GameState.mark_opening_seen()
-	assert_true(GameState.opening_seen)
-	assert_false(GameState.tutorial_seen)
-	GameState.mark_tutorial_seen()
-	assert_true(GameState.tutorial_seen)
-
 
 func test_advance_day_resets_and_ends() -> void:
 	GameState.change_stat("motivation", -3)
@@ -504,7 +496,7 @@ func test_new_run_snapshot_input_carries_contacts_defaults() -> void:
 	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-f2", "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-f2", "numeric_value": null}
 	var prepared: Dictionary = GameState.prepare_new_run_snapshot_input(
-		"run-facade-f2", "branch-f2", 0, "causal-day-f2", receipt)
+		"run-facade-f2", "branch-f2", 0, "causal-day-f2", receipt, false)
 	assert_true(prepared.get("ok", false), "valid run id prepares")
 	var section: Dictionary = prepared["value"]["snapshot_input"]["contacts"]
 	assert_eq(int(section["next_sequence"]), 1, "new-run contacts is a valid stateless defaults bag, not {}")
@@ -819,7 +811,7 @@ func test_gallery_record_recovers_forward_after_a_partial_profile_failure() -> v
 	var recovery_receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-recovery", "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-recovery", "numeric_value": null}
 	GameState._run_lifecycle.reset("recovery-run", "branch-recovery", 0, "causal-day-recovery",
-		{"causal_day_instance_issuer_receipt": recovery_receipt})
+		{"causal_day_instance_issuer_receipt": recovery_receipt}, false)
 	GameState._lifecycle_set_playing_day(7)
 	GameState.hospital_skipped_sylvia_solo_count = 2
 	GameState.missed_group_date_counts = {"priscilla_lavinia": 2}

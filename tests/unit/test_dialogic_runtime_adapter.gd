@@ -85,11 +85,11 @@ func test_start_timeline_orders_clear_reapply_then_start() -> void:
 	adapter.bind_runtime(fake)
 	var snapshots: Array = []
 	adapter.preference_reapply_requested.connect(func() -> void: snapshots.append(fake.calls.duplicate()))
-	var result: Dictionary = adapter.start_timeline("res://dialogic/timelines/en/core/opening_day1.dtl", 0)
+	var result: Dictionary = adapter.start_timeline("res://dialogic/timelines/en/contacts/lavinia_day1.dtl", 0)
 	assert_true(result.get("ok", false), str(result))
 	assert_eq(snapshots.size(), 1, "reapply fires exactly once")
 	assert_eq(snapshots[0], ["clear:1"], "reapply fires after clear and before start")
-	assert_eq(fake.calls, ["clear:1", "start:res://dialogic/timelines/en/core/opening_day1.dtl:0"], "clear then start")
+	assert_eq(fake.calls, ["clear:1", "start:res://dialogic/timelines/en/contacts/lavinia_day1.dtl:0"], "clear then start")
 
 
 func test_capture_checkpoint_never_serializes_full_state() -> void:

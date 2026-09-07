@@ -51,7 +51,7 @@ const _SEMANTIC_CONTENT_CODES := [
 ]
 
 ## The shipped entry document's contract fingerprint, derived once per process. Neither
-## load_default nor the canonical writer caches, and the document is 85 KB across 139 records, so a
+## load_default nor the canonical writer caches, and the document is 85 KB across 137 records, so a
 ## per-prepare derivation would re-read and re-serialize all of it on every restore attempt. This
 ## mirrors DialogicBridge's own static entry-document cache and its stated reason.
 static var _document_fingerprint := ""

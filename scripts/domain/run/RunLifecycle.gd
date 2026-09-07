@@ -14,7 +14,7 @@ const COMPLETED := &"COMPLETED"
 const STATE_NAMES: Array[String] = ["PLAYING", "ENDING", "COMPLETED"]
 const LIFECYCLE_KEYS: Array[String] = [
 	"active_resolution_plan", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
-	"day", "desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
+	"dark_mode", "day", "desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
 ]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
 const ENDING_PLAN_KEYS: Array[String] = ["ending_id", "epilogue_ending_id", "source_day", "playback_stage", "playback_receipts"]
@@ -31,6 +31,8 @@ const RESTORE_PROVENANCE_KEYS: Array[String] = [
 ]
 
 var _run_id := ""
+# Immutable between New Run/validated full restore boundaries.
+var _dark_mode := false
 var _day := 1
 var _state: StringName = PLAYING
 var _plan: RefCounted = null
@@ -49,8 +51,9 @@ var _restore_provenance: Variant = null
 ## enforcement point for a malformed/mismatched bundle is RunSnapshotSchema, run against this
 ## object's own `to_dict()` output before any checkpoint or save.
 func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
-		causal_day_instance: String, identity_allocation_receipt: Dictionary) -> void:
+		causal_day_instance: String, identity_allocation_receipt: Dictionary, dark_mode: bool) -> void:
 	_run_id = run_id
+	_dark_mode = dark_mode
 	_day = 1
 	_state = PLAYING
 	_plan = null
@@ -364,6 +367,7 @@ func complete_ending() -> Dictionary:
 func to_dict() -> Dictionary:
 	return {
 		"run_id": _run_id,
+		"dark_mode": _dark_mode,
 		"day": _day,
 		"state": String(_state),
 		"active_resolution_plan": _plan.to_dict() if _plan != null else null,
@@ -403,6 +407,7 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 			return restored
 		plan = restored["value"]["plan"]
 	_run_id = str(candidate["run_id"])
+	_dark_mode = candidate["dark_mode"]
 	_day = int(candidate["day"])
 	_state = StringName(str(candidate["state"]))
 	_plan = plan
@@ -422,6 +427,8 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 	expected.sort()
 	if keys != expected:
 		return "unexpected lifecycle keys: " + str(keys)
+	if typeof(data["dark_mode"]) != TYPE_BOOL:
+		return "dark_mode must be a Boolean"
 	if str(data["run_id"]).is_empty():
 		return "run_id must be nonempty"
 	if typeof(data["day"]) != TYPE_INT or int(data["day"]) < 1 or int(data["day"]) > 7:

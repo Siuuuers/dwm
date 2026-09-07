@@ -2,7 +2,7 @@ class_name DialogicEntryManifest
 extends RefCounted
 ## Closed semantic entry contract (Seven-Day Flow Plan 01 Task 2, sub-commit 2A, dwm-oyo.2).
 ##
-## data/manifests/dialogic_entries.json registers all 139 externally callable entries: the 121 day
+## data/manifests/dialogic_entries.json registers all 137 externally callable entries: the 119 day
 ## entries of specification sections 13.1 through 13.7 and the 18 ending presentation entries the
 ## 13.8 table expands to. The manifest is closed. An unknown suffix never resolves through
 ## permissive pattern parsing, and resolve_entry fails by name rather than guessing a neighbour.

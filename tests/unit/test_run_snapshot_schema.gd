@@ -10,10 +10,8 @@ const V3_COMMITTED_FIXTURE := "res://tests/fixtures/snapshots/v3_committed_sched
 func _schema_exists() -> bool:
 	return ResourceLoader.exists(SCHEMA_PATH, "Script")
 
-## The on-disk fixtures are shared with several OTHER suites (test_minesweeper_save_lock.gd,
-## test_checkpoint_journal.gd, etc.) that must stay on their own historical v3-adjacent shape, so
-## they are never edited. Plan 02 Task 6 (dwm-p2r.32) instead upgrades them to v4 IN MEMORY, once,
-## right where they are read from disk.
+## Test-authored current cases reuse historical fixture payloads without changing those files.
+## Explicit Dark=false and removed retired fields are fixture authoring, never a save migration.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
@@ -29,10 +27,13 @@ func _empty_desktop() -> Dictionary:
 				"supportz_last_purchase_causal_day_instance": "", "base_completion_receipts": []}},
 	}
 
-func _v4ify(snapshot: Dictionary) -> Dictionary:
+func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	var upgraded := snapshot.duplicate(true)
-	upgraded["schema_version"] = 4
+	upgraded["schema_version"] = 5
+	upgraded["gameplay"].erase("opening_seen")
+	upgraded["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = (upgraded["lifecycle"] as Dictionary).duplicate(true)
+	lifecycle["dark_mode"] = false
 	if not lifecycle.has("branch_id"):
 		lifecycle["branch_id"] = "branch-1"
 		lifecycle["desktop_timeline_generation"] = 0
@@ -45,7 +46,7 @@ func _v4ify(snapshot: Dictionary) -> Dictionary:
 	return upgraded
 
 func _fixture(path: String) -> Dictionary:
-	return _v4ify(JSON.parse_string(FileAccess.get_file_as_string(path)))
+	return _current_fixture(JSON.parse_string(FileAccess.get_file_as_string(path)))
 
 func _snapshot_input_from(snapshot: Dictionary) -> Dictionary:
 	return {
@@ -73,7 +74,7 @@ func test_build_produces_exact_valid_shape() -> void:
 	assert_true(built.get("ok", false), JSON.stringify(built))
 	var snapshot: Dictionary = built["value"]["snapshot"]
 	var normalized_fixture: Dictionary = schema.validate(fixture)["value"]["candidate"]
-	assert_eq(snapshot, normalized_fixture, "build output matches the frozen v2 fixture after normalization")
+	assert_eq(snapshot, normalized_fixture, "build output matches the explicitly authored current fixture after normalization")
 	assert_true(schema.validate(built["value"]["snapshot"])["ok"])
 
 func test_validate_accepts_fixture_and_rejects_day8_and_shapes() -> void:
@@ -92,9 +93,9 @@ func test_validate_rejection_matrix() -> void:
 	var schema: Script = load(SCHEMA_PATH)
 	var base := _fixture(VALID_FIXTURE)
 
-	# v4 is now the CURRENT version (dwm-p2r.32 Task 6), so the unsupported-future probe moves to 5.
+	# v5 is current; the unsupported-future probe must remain newer.
 	var future := base.duplicate(true)
-	future["schema_version"] = 5
+	future["schema_version"] = 6
 	assert_false(schema.validate(future).get("ok", true), "unsupported future schema version rejects")
 
 	var non_integral := base.duplicate(true)
@@ -231,12 +232,12 @@ func test_derive_route_restore_context_exact_shape() -> void:
 # retires in the same boundary. Committed validation is DELEGATED to ScheduleStateSchema; this module
 # owns no second copy of the aggregate law.
 
-func test_schema_version_is_four() -> void:
+func test_schema_version_is_five() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	assert_eq(int(schema.SCHEMA_VERSION), 4, "the desktop-durability boundary is snapshot v4 (dwm-p2r.32)")
+	assert_eq(int(schema.SCHEMA_VERSION), 5, "captured run configuration requires snapshot v5")
 
 func test_top_level_committed_schedule_replaces_legacy_schedule() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
@@ -344,7 +345,7 @@ func test_v3_build_round_trips_the_aggregate_unchanged() -> void:
 		_snapshot_input_from(fixture), {}, "main", null, {}, 1, 42)
 	assert_true(built.get("ok", false), JSON.stringify(built))
 	var snapshot: Dictionary = built["value"]["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 4, "build stamps the current version")
+	assert_eq(int(snapshot["schema_version"]), 5, "build stamps the current version")
 	# JSON parsing yields floats for integral numbers, so the expectation is the schema's own
 	# normalized projection of the same fixture -- not the raw parse.
 	var normalized_fixture: Dictionary = schema.validate(fixture)["value"]["candidate"]

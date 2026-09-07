@@ -52,7 +52,6 @@ const LEGACY_PREFERENCE_DEFAULTS := {
 	"preferences.accessibility.text_box_opacity": 0.9,
 	"preferences.accessibility.visual_audio_cues": true,
 	"preferences.accessibility.flashing_effects_enabled": false,
-	"preferences.accessibility.tutorial_replay_available": true,
 	"preferences.accessibility.pause_on_focus_loss": true,
 }
 
@@ -235,7 +234,7 @@ static func _validate_v1_preferences(value: Variant) -> Dictionary:
 		"audio": ["music_volume", "music_muted", "ambience_volume", "ambience_muted", "sfx_volume", "sfx_muted", "voice_volume", "voice_muted", "mute_audio_on_focus_loss"],
 		"dialogue": ["text_speed", "auto_text_speed", "skip_mode", "auto_advance_dialogue"],
 		"display": ["fullscreen"],
-		"accessibility": ["font_scale", "high_contrast", "reduced_motion", "screen_shake_strength", "large_click_targets", "hold_to_confirm", "colorblind_mode", "show_focus_ring", "controller_cursor_enabled", "subtitles_enabled", "captions_enabled", "subtitle_speaker_names", "subtitle_background_opacity", "text_box_opacity", "visual_audio_cues", "flashing_effects_enabled", "tutorial_replay_available", "pause_on_focus_loss"],
+		"accessibility": ["font_scale", "high_contrast", "reduced_motion", "screen_shake_strength", "large_click_targets", "hold_to_confirm", "colorblind_mode", "show_focus_ring", "controller_cursor_enabled", "subtitles_enabled", "captions_enabled", "subtitle_speaker_names", "subtitle_background_opacity", "text_box_opacity", "visual_audio_cues", "flashing_effects_enabled", "pause_on_focus_loss"],
 	}
 	for group: String in groups:
 		if typeof(preferences[group]) != TYPE_DICTIONARY: return _invalid("preferences." + group, "preference group must be an object")

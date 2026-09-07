@@ -1,4 +1,4 @@
-﻿extends "res://addons/gut/test.gd"
+extends "res://addons/gut/test.gd"
 # Behavioral RED contract tests for the durable continuation-operation journal
 # (Plan 02 Task 1, dwm-p2r.16).
 #
@@ -144,7 +144,8 @@ const PARTICIPANT_ORDER: Array[String] = [
 
 # Plan line 591 freezes this exact detached New-Run context, with a matching canonical hash.
 const NEW_RUN_INITIAL_CONTEXT := {
-	"route_id": "opening",
+	"dark_mode": false,
+	"route_id": "main",
 	"dialogic_checkpoint": {},
 	"active_app_id": null,
 	"audio_context": {},
@@ -298,7 +299,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 	document_keys.sort()
 	assert_eq(document_keys, DOCUMENT_KEYS,
 		"plan line 555: the document is exactly {schema_version, operations}")
-	assert_eq(document.get("schema_version"), 1, "schema_version is exactly 1")
+	assert_eq(document.get("schema_version"), 2, "schema_version is exactly 2")
 
 	var base_document: Dictionary = (document as Dictionary).duplicate(true)
 	var operations: Variant = base_document.get("operations", {}) as Dictionary
@@ -328,7 +329,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 		{"label": "extra envelope member", "mode": "extra"},
 		{"label": "schema_version wrong type", "mode": "replace", "member": "schema_version", "value": "1"},
 		{"label": "operations wrong type", "mode": "replace", "member": "operations", "value": []},
-		{"label": "schema_version unsupported value", "mode": "replace", "member": "schema_version", "value": 2},
+		{"label": "schema_version unsupported value", "mode": "replace", "member": "schema_version", "value": 3},
 	]
 	for profile: Dictionary in document_profiles:
 		var malformed_document: Dictionary = base_document.duplicate(true)
@@ -491,7 +492,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 			"restore locator %s" % profile["label"])
 
 	var initial_context: Dictionary = (new_run_operation["initial_context"] as Dictionary).duplicate(true)
-	for member: String in ["active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id"]:
+	for member: String in ["active_app_id", "audio_context", "content_version", "dark_mode", "dialogic_checkpoint", "route_id"]:
 		var missing_context: Dictionary = initial_context.duplicate(true)
 		missing_context.erase(member)
 		var missing_context_operation: Dictionary = new_run_operation.duplicate(true)
@@ -505,13 +506,14 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 	_assert_rejects_operation_mutation(base_document, _new_run_transaction_id(), extra_context_operation,
 		"New-Run context has an extra member")
 	var context_profiles: Array[Dictionary] = [
+		{"label": "Dark must be Boolean", "member": "dark_mode", "value": 1},
 		{"label": "active app must be null", "member": "active_app_id", "value": "contacts"},
 		{"label": "audio context wrong type", "member": "audio_context", "value": []},
 		{"label": "content version wrong type", "member": "content_version", "value": "1"},
 		{"label": "Dialogic checkpoint wrong type", "member": "dialogic_checkpoint", "value": []},
 		{"label": "route wrong type", "member": "route_id", "value": 1},
 		{"label": "content version below one", "member": "content_version", "value": 0},
-		{"label": "route differs from opening", "member": "route_id", "value": "desktop"},
+		{"label": "route differs from main", "member": "route_id", "value": "desktop"},
 	]
 	for profile: Dictionary in context_profiles:
 		var mutated_context: Dictionary = initial_context.duplicate(true)

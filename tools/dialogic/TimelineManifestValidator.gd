@@ -10,9 +10,9 @@ const SCENE_ROUTER := preload("res://autoload/SceneRouter.gd")
 
 const TIMELINES_SCHEMA_PATH := "res://schemas/manifests/timelines.schema.json"
 const ID_REGISTRY_SCHEMA_PATH := "res://schemas/manifests/id-registry.schema.json"
-const EXPECTED_TIMELINE_COUNT := 61
+const EXPECTED_TIMELINE_COUNT := 59
 const EXPECTED_PLACEHOLDER := 24
-const EXPECTED_DRAFT := 37
+const EXPECTED_DRAFT := 35
 const RETIRED_ENDING_IDS := ["ending.priscilla.true", "ending.lavinia.true", "ending.sylvia.true"]
 
 

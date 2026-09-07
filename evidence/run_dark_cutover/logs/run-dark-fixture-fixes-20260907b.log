@@ -1,0 +1,88 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/012a67f0-23e5-472d-a09d-15b13e09938c/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_save_migrations.gd
+* test_current_documents_are_admitted_for_their_exact_locator_and_dark_value
+* test_current_result_is_detached_from_source_and_preserves_checkpoint_history
+* test_saved_time_is_retained_exactly_and_absence_is_not_synthesized
+* test_v0_through_v4_are_unsupported_without_creating_captured_dark
+* test_future_fractional_missing_and_wrong_type_versions_are_refused
+* test_json_integral_numbers_are_accepted_without_coercing_dark
+* test_expected_locator_shape_is_strict_and_does_not_relabel_a_document
+* test_current_legacy_members_are_rejected_instead_of_stripped
+* test_current_document_does_not_repair_missing_dark_or_old_embedded_snapshot
+9/9 passed.
+
+
+tests/integration/test_run_palette_host.gd
+* test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale_and_size_changes
+    7 Orphans
+        * [@Control@1272:<Control#704844401324>(/Unregistered-Inner-Class)]
+        * [@Button@1268:<Button#704341086117>(MinesweeperActionButton.gd)]
+        * [@Control@1270:<Control#704643076020>(/Unregistered-Inner-Class)]
+        * [@Control@1271:<Control#704743739317>(/Unregistered-Inner-Class)]
+        * [@Control@1273:<Control#704945065915>(/Unregistered-Inner-Class)]
+        * [@Button@1267:<Button#704190091198>(MinesweeperActionButton.gd)]
+        * [@Button@1269:<Button#704492081096>(MinesweeperActionButton.gd)]
+* test_malformed_unavailable_replacement_and_changed_capture_are_refused_atomically
+* test_early_production_bootstrap_path_stays_hidden_until_captured_palette_is_admitted
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_save_migrations.gd
+    - Outside Tests
+        * [<Node#99891545835>(subsystem_animation.gd)]
+        * [<Node#99908323052>(subsystem_audio.gd)]
+        * [<Node#99925100269>]
+        * [<Node#99941877486>]
+        * [<Node#99958654703>(subsystem_backgrounds.gd)]
+        * [<Node#100495525616>(subsystem_choices.gd)]
+        * [<Timer#100512302833>]
+        * [<Node#100529080050>(subsystem_expression.gd)]
+        * [<Node#100562634487>(subsystem_glossary.gd)]
+        * [<Node#100579411704>(subsystem_history.gd)]
+        * [<Node#100596188921>(subsystem_input.gd)]
+        * [<Timer#100612966138>]
+        * [<Node#100629743355>(subsystem_jump.gd)]
+        * [<Node#100646520572>(subsystem_containers.gd)]
+        * [<Node#100663297789>(subsystem_portraits.gd)]
+        * [<Node#101200168702>(subsystem_save.gd)]
+        * [<Timer#101216945919>]
+        * [<Node#101233723136>(subsystem_settings.gd)]
+        * [<Node#101250500356>(subsystem_styles.gd)]
+        * [<Node#101267277573>(subsystem_text.gd)]
+        * [<Node#101351163658>(subsystem_text_input.gd)]
+        * [<Node#101367940875>(subsystem_variables.gd)]
+        * [<Node#101384718092>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101401495309>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               2
+Tests                12
+Passing Tests        12
+Asserts             404
+Orphans              24
+Time              3.289s
+
+
+---- All tests passed! ----

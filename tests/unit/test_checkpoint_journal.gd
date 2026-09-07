@@ -14,7 +14,8 @@ const SEMANTIC_KINDS := [
 func _journal_exists() -> bool:
 	return ResourceLoader.exists(JOURNAL_PATH, "Script")
 
-## Plan 02 Task 6 (dwm-p2r.32): the v4 lifecycle/desktop identity fields this fixture now requires.
+## Test-authored v5 cases retain the source payload and explicitly choose Dark=false.
+## This fixture construction is not a player-save migration.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
@@ -32,7 +33,10 @@ func _empty_desktop() -> Dictionary:
 
 func _snapshot(run_id: String, sequence: int, day: int = 3) -> Dictionary:
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SNAPSHOT_FIXTURE))
-	snapshot["schema_version"] = 4
+	snapshot["schema_version"] = 5
+	snapshot["lifecycle"]["dark_mode"] = false
+	snapshot["gameplay"].erase("opening_seen")
+	snapshot["gameplay"].erase("tutorial_seen")
 	snapshot["run_id"] = run_id
 	snapshot["checkpoint_sequence"] = sequence
 	snapshot["checkpoint_id"] = "%s:%d" % [run_id, sequence]

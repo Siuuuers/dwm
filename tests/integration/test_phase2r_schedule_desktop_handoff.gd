@@ -72,6 +72,8 @@ const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleSt
 
 const GAME_STATE_PATH := "res://autoload/GameState.gd"
 const SAVE_MANAGER_PATH := "res://autoload/SaveManager.gd"
+const WINDOW_MODE_MANAGER := preload("res://autoload/WindowModeManager.gd")
+const FAKE_AUDIO_PORT := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 
 const GATE_PATH := "res://evidence/phase_2r/schedule/gate.json"
 const DESKTOP_PATH := "res://evidence/phase_2r/contracts/desktop_contract.json"
@@ -115,6 +117,23 @@ class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 
 	func _target(target_name: StringName) -> Node:
 		return targets.get(String(target_name), null)
+
+
+## Physical output is not part of this handoff proof. The real WindowModeManager
+## retains an explicitly unavailable output, as in test_application_bootstrap.gd;
+## no native window success is manufactured and no player window is changed.
+class UnavailableWindowOutput extends RefCounted:
+	func capture_output() -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
+
+	func apply_mode(_mode: String) -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
+
+	func output_matches(_mode: String) -> bool:
+		return false
+
+	func restore_output(_snapshot: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
 
 
 # Captured ONCE: composing the whole production graph per test would dominate the run, and every
@@ -208,18 +227,30 @@ func _compose_production_graph() -> void:
 	assert_true(save_manager.call(&"configure_identity_allocation_participant",
 		allocation_participant).get("ok", false))
 	bootstrap.set("_desktop_identity_allocation_participant", allocation_participant)
-	bootstrap.set("targets", {
+	var targets: Dictionary = {
 		"DialogicBridge": _adopt(load("res://autoload/DialogicBridge.gd").new()),
 		"SceneRouter": _adopt(load("res://autoload/SceneRouter.gd").new()),
 		"ProfileManager": _adopt(load("res://autoload/ProfileManager.gd").new()),
 		"LocalizationManager": _adopt(load("res://autoload/LocalizationManager.gd").new()),
-		"AudioManager": _adopt(load("res://autoload/AudioManager.gd").new()),
+		"AudioManager": _adopt(load("res://autoload/AudioManager.gd").new(FAKE_AUDIO_PORT.new())),
+		"WindowModeManager": _adopt(WINDOW_MODE_MANAGER.new(UnavailableWindowOutput.new())),
+		"InputManager": _adopt(load("res://autoload/InputManager.gd").new()),
 		"GameState": game_state,
 		"SaveManager": save_manager,
-	})
+	}
+	bootstrap.set("targets", targets)
 
-	var gate: RefCounted = APPLICATION_MUTATION_GATE.new()
-	bootstrap.set("_application_gate", gate)
+	var injected: Dictionary = bootstrap.call(&"_construct_and_inject_mutation_gate", &"final")
+	assert_true(injected.get("ok", false), str(injected))
+	var gate: RefCounted = bootstrap.get("_application_gate")
+	# Initialize the actual preference owners in production order. Only the physical
+	# audio backend is doubled; the shared Settings transaction owner is real.
+	for stage: StringName in [&"initialize_profile", &"initialize_audio", &"initialize_window_mode"]:
+		var initialized: Dictionary = bootstrap.call(&"_run_stage", stage, &"final")
+		assert_true(initialized.get("ok", false), str(stage) + ": " + str(initialized))
+	assert_same(targets["WindowModeManager"].call(&"get_settings_output_transactions"),
+		targets["AudioManager"].call(&"get_settings_output_transactions"),
+		"Window and Audio retain the exact shared Settings transaction owner")
 	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false))
 	bootstrap.set("_retained_checkpoint_port", checkpoint_port)
@@ -228,8 +259,8 @@ func _compose_production_graph() -> void:
 		.get("ok", false), "the shared advance-identity owner composes")
 	assert_true(bootstrap.call(&"_construct_schedule_foundation", game_state, state_port)
 		.get("ok", false), "the Plan-01 Schedule foundation composes")
-	assert_true(bootstrap.call(&"_configure_restore_participants").get("ok", false),
-		"the nine restore participants compose")
+	var participants: Dictionary = bootstrap.call(&"_configure_restore_participants")
+	assert_true(participants.get("ok", false), "the nine restore participants compose: " + str(participants))
 	assert_true(bootstrap.call(&"_construct_schedule_presentation", coordinator).get("ok", false),
 		"the presentation ports compose before the desktop graph, exactly as production orders them")
 	assert_true(bootstrap.call(&"_configure_desktop_production_graph").get("ok", false),
@@ -747,11 +778,11 @@ func test_a_regressed_schema_version_is_refused() -> void:
 		"a save-document version below its Plan-01 seal")
 
 
-func test_a_live_snapshot_version_that_leaves_the_desktop_seal_behind_is_refused() -> void:
+func test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused() -> void:
 	var state: Dictionary = _state_copy()
-	state["run_snapshot_schema_version"] = 5
+	state["run_snapshot_schema_version"] = 6
 	_reject(&"snapshot_schema_version_drift", _gate, _desktop, _minesweeper, state, _snapshot,
-		"a v5 snapshot the desktop seal never described")
+		"a v6 snapshot disagrees with the current owner")
 
 
 func test_a_readiness_fact_that_stopped_matching_its_seal_is_refused() -> void:
@@ -1341,27 +1372,28 @@ func test_the_nine_real_restore_participant_classes_share_one_interface() -> voi
 				"the real " + role + " participant declares " + method)
 
 
-## capture_run_snapshot_input() is the production INPUT shape, NOT a v4 snapshot: feeding it
+## capture_run_snapshot_input() is the production INPUT shape, NOT a v5 snapshot: feeding it
 ## straight to validate() fails invalid_snapshot_shape. The real round trip is the production one
 ## -- build() consumes the input and stamps the snapshot, then validate() re-accepts what build
 ## produced.
-func test_the_captured_snapshot_input_round_trips_through_the_real_v4_schema() -> void:
+func test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema() -> void:
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_snapshot.duplicate(true), {}, "main", null,
 		{}, 1, 1)
 	assert_true(built.get("ok", false),
-		"the REAL live snapshot input builds a real v4 snapshot: " + str(built))
+		"the REAL live snapshot input builds a real v5 snapshot: " + str(built))
 	if not built.get("ok", false):
 		return
 	var snapshot: Dictionary = (built["value"] as Dictionary)["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 4, "build stamps the current version")
+	assert_eq(int(snapshot["schema_version"]), 5, "build stamps the current version")
 	assert_true(RUN_SNAPSHOT_SCHEMA.validate(snapshot.duplicate(true)).get("ok", false),
 		"the produced snapshot revalidates, which is what makes this a round trip")
-	assert_eq(int(_state["run_snapshot_schema_version"]),
-		int((_desktop["run_snapshot_v4"] as Dictionary)["schema_version"]),
-		"the live schema version is the sealed desktop version")
+	assert_eq(int(_state["run_snapshot_schema_version"]), RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION,
+		"the live schema version matches the current owner")
+	assert_eq(int((_desktop["run_snapshot_v4"] as Dictionary)["schema_version"]), 4,
+		"the historical desktop seal remains v4")
 
 
-func test_the_real_v4_builder_refuses_a_snapshot_input_missing_a_declared_member() -> void:
+func test_the_real_v5_builder_refuses_a_snapshot_input_missing_a_declared_member() -> void:
 	var incomplete: Dictionary = _snapshot_copy()
 	incomplete.erase("desktop")
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(incomplete, {}, "main", null, {}, 1, 1)
@@ -1415,3 +1447,11 @@ func _expect(code: StringName, result: Dictionary, note: String) -> void:
 	assert_eq(result.get("code", &""), code,
 		note + " must fail exactly " + String(code) + ", observed "
 		+ String(result.get("code", &"")) + " " + str(result.get("message", "")))
+
+func test_pre_cutover_or_future_live_schema_claims_are_refused() -> void:
+	for key: String in ["run_snapshot_schema_version", "save_document_schema_version"]:
+		for version: int in [4, 6]:
+			var state := _state_copy()
+			state[key] = version
+			_reject(&"snapshot_schema_version_drift", _gate, _desktop, _minesweeper, state, _snapshot,
+				"live schema facts must match the current owner: %s=%d" % [key, version])

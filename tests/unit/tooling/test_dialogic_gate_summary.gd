@@ -36,9 +36,9 @@ func test_build_succeeds_on_complete_green_inputs() -> void:
 	var result: Dictionary = _writer.call(&"build", _inputs())
 	assert_true(result.get("ok", false), str(result))
 	var value: Dictionary = result["value"]
-	assert_eq(int((value["production_counts"] as Dictionary)["total"]), 61, "61 production records")
+	assert_eq(int((value["production_counts"] as Dictionary)["total"]), 59, "59 production records")
 	assert_eq(int((value["production_counts"] as Dictionary)["placeholder"]), 24)
-	assert_eq(int((value["production_counts"] as Dictionary)["draft"]), 37)
+	assert_eq(int((value["production_counts"] as Dictionary)["draft"]), 35)
 	assert_eq(value["fixture_counts"], _fixture_counts(), "exact fixture counts")
 	assert_true(value.has("manifest_hashes"), "records exact manifest hashes")
 

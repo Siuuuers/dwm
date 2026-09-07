@@ -57,12 +57,6 @@ func _exercise_loop(menu: Node, bootstrap: Node) -> void:
 	var rejected: Dictionary = router.prepare_route_restore("missing.integration.route", {})
 	_check(not rejected.get("ok", false) and router.capture_restore_state() == route_before, "Unknown restore route rejects without changing live route")
 	menu.get_node("%NewAccButton").pressed.emit()
-	if not await _await_scene("res://scenes/opening/OpeningScene.tscn"):
-		return
-	var opening: Node = get_tree().current_scene
-	if not _check(not opening.get("_dialogic_blocked"), "Production registered opening timeline starts"):
-		return
-	opening.get_node("%ContinueButton").pressed.emit()
 	if not await _await_scene("res://scenes/main/MainGameScene.tscn"):
 		return
 	var main: Node = get_tree().current_scene
@@ -95,7 +89,7 @@ func _exercise_loop(menu: Node, bootstrap: Node) -> void:
 	document = validated.value.candidate
 	var snapshot: Dictionary = document.current_snapshot.snapshot
 	_facts["saved"] = {"route": snapshot.route_id, "active_app": snapshot.active_app_id, "day": snapshot.lifecycle.day, "money": snapshot.gameplay.money, "kind": document.current_snapshot.checkpoint_kind}
-	if not _check(snapshot.route_id == "main" and snapshot.active_app_id == "backup" and snapshot.gameplay.opening_seen, "Saved checkpoint reflects current desktop and completed opening, not the initial opening checkpoint"):
+	if not _check(snapshot.route_id == "main" and snapshot.active_app_id == "backup" and typeof(snapshot.lifecycle.dark_mode) == TYPE_BOOL, "Saved checkpoint reflects current desktop and captured run configuration"):
 		return
 	_check(snapshot.gameplay.money == saved_money and snapshot.lifecycle.day == saved_day, "Saved durable facts match the live state at Save")
 	var graph: Dictionary = bootstrap.get_desktop_contract_state()
@@ -164,7 +158,7 @@ func _exercise_loop(menu: Node, bootstrap: Node) -> void:
 		return
 	await _settle()
 	_check(_facts.restore_notifications == 1, "Restore owner publishes exactly one completed restore")
-	_check(state.money == saved_money and state.day == saved_day and state.opening_seen, "Load restores saved money, day and opening progress")
+	_check(state.money == saved_money and state.day == saved_day and state.get_run_configuration().value.dark_mode == snapshot.lifecycle.dark_mode, "Load restores saved money, day and captured run configuration")
 	var restored_gameplay: Dictionary = state.capture_run_snapshot_input()["gameplay"]
 	for key in ["coins", "stats", "story_flags", "inventory", "friends"]:
 		_check(restored_gameplay[key] == saved_gameplay[key], "Load preserves saved gameplay field " + key)

@@ -2,7 +2,7 @@ extends SceneTree
 class_name WriteDialogicGateSummary
 ## Fail-closed narrative subsystem gate summary (dwm-p2r.8, Plan-05 Task 6).
 ##
-## It records only what was actually proven: exact manifest hashes, the 61/24/37 production counts,
+## It records only what was actually proven: exact manifest hashes, the 59/24/35 production counts,
 ## the fixture counts, and the requirement ids linked to dwm-p2r.8. It NEVER claims implementation
 ## authorization, and any missing file, non-GREEN result, count mismatch, or duplicate requirement
 ## id fails the build instead of emitting weaker evidence.
@@ -16,9 +16,9 @@ const EXPECTED_FIXTURE_COUNTS := {
 	"line": 3, "choice": 1, "marker": 1, "effect": 1,
 	"variable": 1, "completion": 1, "restore": 1, "failures": 0,
 }
-const EXPECTED_TOTAL := 61
+const EXPECTED_TOTAL := 59
 const EXPECTED_PLACEHOLDER := 24
-const EXPECTED_DRAFT := 37
+const EXPECTED_DRAFT := 35
 const DEFAULT_OUTPUT := "res://evidence/phase_2r/dialogic/gate_summary.json"
 
 

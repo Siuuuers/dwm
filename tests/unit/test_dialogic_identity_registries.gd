@@ -64,7 +64,7 @@ const SECOND_REGISTERED_LINE := "line.contact.ordinary.lavinia.day1.reply.b"
 
 ## A legacy literal that no registry registers. tests/unit/test_profile_manager.gd:219 marks it on
 ## the real manager today, which is exactly why the unconfigured seam must stay permissive.
-const LEGACY_LINE := "opening.day1.line.1"
+const LEGACY_LINE := "legacy.unregistered.line.1"
 
 ## The shipped reply_lines block holds exactly this many records.
 const SHIPPED_REPLY_LINE_COUNT := 18

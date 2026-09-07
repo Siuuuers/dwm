@@ -32,8 +32,8 @@ class Owner extends RefCounted:
 	func _g(m: String) -> Dictionary:
 		return {"ok": false, "code": &"forced_owner_failure", "message": m} if fail == StringName(m) else {}
 	func prepare_new_run_snapshot_input(run_id: String, _branch_id: String, _generation: int,
-			_causal_day_instance: String, _causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
-		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {"run_id": run_id, "day": 1}}}}
+			_causal_day_instance: String, _causal_day_instance_issuer_receipt: Dictionary, dark_mode: bool) -> Dictionary:
+		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {"run_id": run_id, "dark_mode": dark_mode, "day": 1}}}}
 	## Plan 02 Task 6 (dwm-p2r.32), Phase C2: RunRestoreParticipant.apply_continuation_remap()
 	## delegates here for a real restore's identity-remap step; this fake owner accepts it trivially
 	## (this file exercises the ORDINARY participant plumbing, not remap correctness itself -- see
@@ -56,7 +56,8 @@ class Owner extends RefCounted:
 	func rollback_restore_silent(_b: Dictionary) -> Dictionary: return {"ok": true}
 	func finalize_restore() -> Dictionary: return {"ok": true}
 
-## Plan 02 Task 6 (dwm-p2r.32): the v4 lifecycle/desktop identity fields this fixture now requires.
+## Test-authored v5 cases retain the source payload and explicitly choose Dark=false.
+## This fixture construction is not a player-save migration.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
@@ -74,7 +75,10 @@ func _empty_desktop() -> Dictionary:
 
 func _snapshot(run_id: String, seq: int, narrative: Dictionary = {}) -> Dictionary:
 	var s: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
-	s["schema_version"] = 4
+	s["schema_version"] = 5
+	s["lifecycle"]["dark_mode"] = false
+	s["gameplay"].erase("opening_seen")
+	s["gameplay"].erase("tutorial_seen")
 	s["run_id"] = run_id
 	s["checkpoint_sequence"] = seq
 	s["checkpoint_id"] = "%s:%d" % [run_id, seq]
@@ -235,7 +239,7 @@ class NarrativeCatalogStub extends RefCounted:
 			return {"ok": false, "code": &"unknown_timeline_id", "message": timeline_id}
 		return {"ok": true, "value": record.duplicate(true)}
 	func get_timeline_path(_timeline_id: String, _locale: String = "en") -> String:
-		return "res://dialogic/timelines/en/core/opening_day1.dtl"
+		return "res://dialogic/timelines/en/day_2.dtl"
 
 
 func _narrative_record() -> Dictionary:

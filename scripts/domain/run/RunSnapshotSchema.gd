@@ -14,7 +14,8 @@ extends RefCounted
 ## two owners of a lifecycle dict's shape (this schema, and the live RunLifecycle state machine)
 ## can never silently diverge.
 
-const SCHEMA_VERSION := 4
+## v5 requires captured run Dark; older snapshots cannot infer it from Profile.
+const SCHEMA_VERSION := 5
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
@@ -36,7 +37,7 @@ const TOP_KEYS: Array[String] = [
 const DESKTOP_KEYS: Array[String] = ["board", "consequence"]
 const LIFECYCLE_KEYS: Array[String] = [
 	"active_resolution_plan", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
-	"day", "desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
+	"dark_mode", "day", "desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
 ]
 const LIFECYCLE_STATES: Array[String] = ["PLAYING", "ENDING", "COMPLETED"]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
@@ -55,12 +56,12 @@ const GAMEPLAY_FIELDS: Array[String] = [
 	"inventory", "last_condition_day", "minesweeper_app_rounds_finished_today",
 	"minesweeper_money_earned_today", "minesweeper_rng_seed", "minesweeper_round_floor",
 	"minesweeper_rounds_left", "minesweeper_selected_difficulty", "minesweeper_task_rewards_claimed",
-	"missed_group_date_counts", "missed_invitations", "money", "opening_seen",
+	"missed_group_date_counts", "missed_invitations", "money",
 	"penalty_points_today", "penalty_points_total", "pending_date_advance_day_after_finish",
 	"pending_date_entries", "pending_date_entry_index", "pending_date_friend_id",
 	"pending_group_date_friend_ids", "pending_group_date_inviter_id", "pending_hospital",
 	"post_ending_queue", "route_context", "shop_purchase_counts",
-	"stats", "story_flags", "tutorial_seen",
+	"stats", "story_flags",
 ]
 
 static func build(
@@ -297,6 +298,8 @@ static func _validate_lifecycle(candidate: Dictionary) -> String:
 	expected.sort()
 	if keys != Array(expected):
 		return "unexpected lifecycle keys: " + str(keys)
+	if typeof(lifecycle["dark_mode"]) != TYPE_BOOL:
+		return "dark_mode must be a Boolean"
 	if str(lifecycle["run_id"]) != str(candidate["run_id"]):
 		return "lifecycle run_id must match the snapshot run_id"
 	if typeof(lifecycle["day"]) != TYPE_INT or int(lifecycle["day"]) < 1 or int(lifecycle["day"]) > 7:

@@ -5,7 +5,7 @@ const PORT := preload("res://scripts/application/backup/BackupPresentationPort.g
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
-const FIXTURE := "res://tests/fixtures/saves/v4_desktop_prepared.json"
+const FIXTURE := "res://tests/fixtures/saves/v5_desktop_prepared.json"
 
 # Only restore compatibility/execution is doubled. Journal, file revision, token
 # custody, Quick policy and atomic writes remain the production SaveManager.

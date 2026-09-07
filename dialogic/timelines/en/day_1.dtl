@@ -1,20 +1,6 @@
 # Master timeline: presentation only.
 return
 
-label opening.day1
-# PURPOSE: opening
-# CAUSAL INPUT: validated frozen context
-# VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness
-return
-
-label tutorial.desktop_day1
-# PURPOSE: tutorial
-# CAUSAL INPUT: validated frozen context
-# VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness
-return
-
 label contact.ordinary.lavinia.day1
 # PURPOSE: ordinary_message
 # CAUSAL INPUT: validated frozen context

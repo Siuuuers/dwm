@@ -42,7 +42,7 @@
       ]
     },
     "tracked_target_count": {
-      "const": 122
+      "const": 118
     },
     "legacy_label_count": {
       "const": 89
@@ -63,11 +63,11 @@
       }
     },
     "legacy_file_count": {
-      "const": 61
+      "const": 59
     },
     "legacy_files": {
       "type": "array",
-      "minItems": 61,
+      "minItems": 59,
       "items": {
         "type": "object",
         "additionalProperties": false,

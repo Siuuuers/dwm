@@ -6,7 +6,6 @@ extends Node
 const _SCENE_PATHS := {
 	"menu": "res://scenes/menu/MenuScene.tscn",
 	"gallery": "res://scenes/menu/GalleryScene.tscn",
-	"opening": "res://scenes/opening/OpeningScene.tscn",
 	"main": "res://scenes/main/MainGameScene.tscn",
 	"ending": "res://scenes/ending/EndingScene.tscn",
 	"hospital": "res://scenes/hospital/HospitalScene.tscn",
@@ -200,18 +199,11 @@ func start_game_from_menu() -> void:
 	var gs := _gs()
 	if gs != null and gs.has_method("reset_game"):
 		gs.reset_game()
-	if gs != null and gs.day == 1 and not gs.opening_seen:
-		goto_opening()
-	else:
-		goto_main()
+	goto_main()
 
 
 func goto_menu() -> void:
 	_change_to("menu")
-
-
-func goto_opening() -> void:
-	_change_to("opening")
 
 
 func goto_main() -> void:

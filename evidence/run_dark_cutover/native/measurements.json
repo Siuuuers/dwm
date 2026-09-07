@@ -1,0 +1,201 @@
+{
+	"captures": 24,
+	"checks": 130,
+	"failures": [],
+	"fixture": "Real captured lifecycle and hosts; isolated catalog/art/names and board checkpoint/generation. No purchase or player-save claim.",
+	"ok": true,
+	"samples": [
+		{
+			"captured_dark_mode": false,
+			"locale": "en",
+			"palette": "after_hours",
+			"path": "after_hours-en-100-launcher.png",
+			"percent": 100,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "en",
+			"palette": "after_hours",
+			"path": "after_hours-en-125-launcher.png",
+			"percent": 125,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "en",
+			"palette": "after_hours",
+			"path": "after_hours-en-150-launcher.png",
+			"percent": 150,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_CN",
+			"palette": "after_hours",
+			"path": "after_hours-zh_CN-100-launcher.png",
+			"percent": 100,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_CN",
+			"palette": "after_hours",
+			"path": "after_hours-zh_CN-125-launcher.png",
+			"percent": 125,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_CN",
+			"palette": "after_hours",
+			"path": "after_hours-zh_CN-150-launcher.png",
+			"percent": 150,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_HK",
+			"palette": "after_hours",
+			"path": "after_hours-zh_HK-100-launcher.png",
+			"percent": 100,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_HK",
+			"palette": "after_hours",
+			"path": "after_hours-zh_HK-125-launcher.png",
+			"percent": 125,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_HK",
+			"palette": "after_hours",
+			"path": "after_hours-zh_HK-150-launcher.png",
+			"percent": 150,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_HK",
+			"palette": "after_hours",
+			"path": "after_hours-zh_HK-150-schedule.png",
+			"percent": 150,
+			"surface": "schedule"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_HK",
+			"palette": "after_hours",
+			"path": "after_hours-zh_HK-150-shop.png",
+			"percent": 150,
+			"surface": "shop"
+		},
+		{
+			"captured_dark_mode": false,
+			"locale": "zh_HK",
+			"palette": "after_hours",
+			"path": "after_hours-zh_HK-150-minesweeper.png",
+			"percent": 150,
+			"surface": "minesweeper"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "en",
+			"palette": "midnight",
+			"path": "midnight-en-100-launcher.png",
+			"percent": 100,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "en",
+			"palette": "midnight",
+			"path": "midnight-en-125-launcher.png",
+			"percent": 125,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "en",
+			"palette": "midnight",
+			"path": "midnight-en-150-launcher.png",
+			"percent": 150,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_CN",
+			"palette": "midnight",
+			"path": "midnight-zh_CN-100-launcher.png",
+			"percent": 100,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_CN",
+			"palette": "midnight",
+			"path": "midnight-zh_CN-125-launcher.png",
+			"percent": 125,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_CN",
+			"palette": "midnight",
+			"path": "midnight-zh_CN-150-launcher.png",
+			"percent": 150,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_HK",
+			"palette": "midnight",
+			"path": "midnight-zh_HK-100-launcher.png",
+			"percent": 100,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_HK",
+			"palette": "midnight",
+			"path": "midnight-zh_HK-125-launcher.png",
+			"percent": 125,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_HK",
+			"palette": "midnight",
+			"path": "midnight-zh_HK-150-launcher.png",
+			"percent": 150,
+			"surface": "launcher"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_HK",
+			"palette": "midnight",
+			"path": "midnight-zh_HK-150-schedule.png",
+			"percent": 150,
+			"surface": "schedule"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_HK",
+			"palette": "midnight",
+			"path": "midnight-zh_HK-150-shop.png",
+			"percent": 150,
+			"surface": "shop"
+		},
+		{
+			"captured_dark_mode": true,
+			"locale": "zh_HK",
+			"palette": "midnight",
+			"path": "midnight-zh_HK-150-minesweeper.png",
+			"percent": 150,
+			"surface": "minesweeper"
+		}
+	]
+}
