@@ -1690,6 +1690,11 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 			"causal_day_instance": causal_day_instance,
 			"causal_day_instance_issuer_receipt": causal_day_instance_issuer_receipt.duplicate(true),
 			"restore_provenance": null,
+			# Amendment Plan 03 Task 4 (dwm-oyo.3): a new run starts with no condition-Hospital plan,
+			# an empty completed-plan history and no terminal-intent handoff.
+			"active_condition_hospital_plan": null,
+			"condition_hospital_history": {},
+			"terminal_intent_handoff": null,
 		},
 		"gameplay": gameplay,
 		"contacts": _CONTACT_INVITATION_STATE.make_defaults(),
@@ -1834,6 +1839,12 @@ func _lifecycle_set_playing_day(target_day: int) -> void:
 		"causal_day_instance": snapshot["causal_day_instance"],
 		"causal_day_instance_issuer_receipt": snapshot["causal_day_instance_issuer_receipt"],
 		"restore_provenance": snapshot["restore_provenance"],
+		# Amendment Plan 03 Task 4 (dwm-oyo.3, deviation D-7): the three v5 members are likewise
+		# carried byte-for-byte. An active condition-Hospital plan must survive its own stage-4 day
+		# advance, the history is append-only, and the handoff is null in PLAYING anyway.
+		"active_condition_hospital_plan": snapshot["active_condition_hospital_plan"],
+		"condition_hospital_history": snapshot["condition_hospital_history"],
+		"terminal_intent_handoff": snapshot["terminal_intent_handoff"],
 	})
 	if restored.get("ok", false):
 		_run_lifecycle.commit_restore(restored["value"]["candidate"])
@@ -2248,8 +2259,9 @@ func finalize_restore() -> Dictionary:
 ## the "run" participant's ordinary apply_silent() above has installed this restore's day/state/plan;
 ## swaps in the durably-allocated new branch/generation/causal-day identity via RunLifecycle's own
 ## already-tested prepare_continuation_remap()/commit_continuation_remap() pair. Silent: no signal.
-func apply_continuation_remap_silent(restore_transaction_id: String, identity_allocation_bundle: Dictionary) -> Dictionary:
-	var prepared: Dictionary = _run_lifecycle.prepare_continuation_remap(restore_transaction_id, identity_allocation_bundle)
+func apply_continuation_remap_silent(restore_transaction_id: String, identity_allocation_bundle: Dictionary,
+		source_identity: Dictionary) -> Dictionary:
+	var prepared: Dictionary = _run_lifecycle.prepare_continuation_remap(restore_transaction_id, identity_allocation_bundle, source_identity)
 	if not prepared.get("ok", false):
 		return prepared
 	return _run_lifecycle.commit_continuation_remap((prepared["value"] as Dictionary)["candidate"])

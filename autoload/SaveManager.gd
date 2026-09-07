@@ -88,17 +88,17 @@ func configure_backup_capture_provider(provider: Callable) -> Dictionary:
 	_backup_capture_configured = true
 	return {"ok": true}
 
-## The exact 8-item `DesktopContinuationOperationJournal.PARTICIPANT_ORDER` (Plan 02 Task 6,
+## The exact 9-item `DesktopContinuationOperationJournal.PARTICIPANT_ORDER` (Plan 02 Task 6,
 ## dwm-p2r.32, Phase C2): this array IS already the correct apply order, so a single constant now
 ## serves both the exact-key-set validation `configure_restore_participants()` performs and the
 ## apply/finalize order below (rollback runs the exact reverse). `identity_allocation` is NOT one of
-## these 8 -- it is applied once, before this loop even starts, only for a restore (see
+## these 9 -- it is applied once, before this loop even starts, only for a restore (see
 ## `_begin_restore_continuation()`), through its own separately-configured seam.
 const _PARTICIPANT_KEYS: Array[String] = [
-	"run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative",
+	"run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative",
 ]
 const _PARTICIPANT_APPLY_ORDER: Array[String] = [
-	"run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative",
+	"run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative",
 ]
 
 func initialize(storage: StorageAdapter = null) -> Dictionary:
@@ -133,9 +133,9 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 		"receipt": {}}
 
 ## Plan 02 Task 6 (dwm-p2r.32), Phase C2. Separate from `configure_restore_participants()` on
-## purpose: `identity_allocation` is not one of the 8 ordinary participants (it applies once, before
+## purpose: `identity_allocation` is not one of the 9 ordinary participants (it applies once, before
 ## their loop, only for a restore -- new_run never touches it), so it is not folded into that
-## exact-8-key validation. Duck-typed to the same prepare/capture/apply_silent/rollback_silent/
+## exact-9-key validation. Duck-typed to the same prepare/capture/apply_silent/rollback_silent/
 ## finalize shape as every other participant.
 func configure_identity_allocation_participant(participant: Object) -> Dictionary:
 	if participant == null:
@@ -226,7 +226,7 @@ func prepare_restore_autosave() -> Dictionary:
 ## Brief line 209: `commit_prepared_restore()` accepts only the opaque value returned by
 ## `prepare_restore_slot|quick|autosave` above. When that value carries a `source_locator` (every
 ## real `_prepare_restore()` result does, Phase C2 on), this drives the FULL identity-allocation +
-## remap + external-journal sequence before running the 8-participant transaction; a hand-built
+## remap + external-journal sequence before running the 9-participant transaction; a hand-built
 ## `prepared` with no `source_locator` (e.g. a fake-participant orchestration test) skips straight to
 ## the participant transaction with whatever "run"/"desktop_consequence"/"desktop_board" plans it
 ## already supplied, exactly as this method behaved before Task 6.
@@ -294,6 +294,14 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 				release_save_lock(&"restore")
 			return board_prep
 		plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
+		var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
+		if not view_prep.get("ok", false):
+			if gate_acquired:
+				_mutation_gate.release(&"restore", gate_token)
+			if lock_acquired:
+				release_save_lock(&"restore")
+			return view_prep
+		plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
 		continuation = (begun["value"] as Dictionary)["continuation"]
 
 	for key: String in _PARTICIPANT_KEYS:
@@ -402,7 +410,8 @@ func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
 		"continuation": {
 			"transaction_id": restore_transaction_id, "request_fingerprint": request_fingerprint,
 			"remap": {"restore_transaction_id": restore_transaction_id,
-				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"]},
+				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
+				"source_identity": _source_identity_from_lifecycle(prepared["bundle"]["snapshot"]["lifecycle"])},
 		},
 	}}
 
@@ -426,6 +435,8 @@ func _new_run_ready(live: bool) -> Dictionary:
 		return _fail(&"identity_issuer_not_configured", "")
 	if _storage == null or _mutation_gate == null or _new_run_profile_owner == null:
 		return _fail(&"new_run_not_configured", "")
+	if live and not _restore_participants["schedule_view"].has_method("prepare_new_run"):
+		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "schedule_view cannot prepare a new run")
 	if live and not _restore_participants["profile"].has_method("prepare_frozen_profile"):
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 	return {"ok": true}
@@ -738,8 +749,16 @@ func _prepare_new_run_decision_from_sources(initial_context: Dictionary,
 		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
 		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"], context["dark_mode"])
 	if not run.get("ok", false): return run
+	var snapshot_input: Dictionary = run["value"]["snapshot_input"]
+	var view: Dictionary = _restore_participants["schedule_view"].prepare_new_run({
+		"run_id": str(identity["run_id"]), "day": 1,
+		"causal_day_instance": str(identity["causal_day_instance"]),
+		"causal_day_instance_issuer_receipt": identity["causal_day_instance_issuer_receipt"],
+		"registry_fingerprint": snapshot_input["committed_schedule"]["registry_fingerprint"]})
+	if not view.get("ok", false): return view
+	snapshot_input["schedule_view"] = view["value"]["schedule_view_plan"]["candidate"]
 	var audio_context := {"ambience_context": {}, "ambience_context_id": "", "music_context": {}, "music_context_id": ""}
-	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(run["value"]["snapshot_input"], {}, "main", null,
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(snapshot_input, {}, "main", null,
 		audio_context, int(context["content_version"]), 1)
 	if not built.get("ok", false): return built
 	var snapshot: Dictionary = built["value"]["snapshot"]
@@ -769,11 +788,12 @@ func _prepare_new_run_plans(snapshot: Dictionary, profile_candidate: Dictionary)
 	var inputs := {"run": {"snapshot": snapshot},
 		"desktop_consequence": {"state": snapshot["desktop"]["consequence"]},
 		"desktop_board": {"state": snapshot["desktop"]["board"]},
+		"schedule_view": _schedule_view_input(snapshot),
 		"localization": {"locale_id": str(profile["value"]["locale_id"])},
 		"audio": {"preferences": profile_candidate["preferences"], "audio_context": snapshot["audio_context"]},
 		"route": {"route_id": "main", "route_context": {}, "active_app_id": null, "day": 1}}
 	var plan_keys := {"run": "run_plan", "desktop_consequence": "consequence_plan",
-		"desktop_board": "board_plan", "localization": "localization_plan", "audio": "audio_plan", "route": "route_plan"}
+		"desktop_board": "board_plan", "schedule_view": "schedule_view_plan", "localization": "localization_plan", "audio": "audio_plan", "route": "route_plan"}
 	var plans := {"profile": profile["value"]["profile_plan"], "narrative": {"narrative_checkpoint": {}}}
 	for key: String in inputs:
 		var prepared: Dictionary = _restore_participants[key].prepare(inputs[key])
@@ -943,7 +963,8 @@ func _run_participant_transaction(
 		if key == "run" and continuation.has("remap"):
 			var remap_info: Dictionary = continuation["remap"]
 			var remapped: Dictionary = _restore_participants["run"].apply_continuation_remap(
-				str(remap_info["restore_transaction_id"]), remap_info["identity_allocation_bundle"])
+				str(remap_info["restore_transaction_id"]), remap_info["identity_allocation_bundle"],
+				remap_info["source_identity"])
 			if not remapped.get("ok", false):
 				applied.append(key)
 				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, remapped)
@@ -1513,7 +1534,7 @@ func configure_restore_participants(participants: Dictionary) -> Dictionary:
 	var expected := _PARTICIPANT_KEYS.duplicate()
 	expected.sort()
 	if keys != expected:
-		return _fail(&"invalid_restore_participants", "exactly eight participants required: " + str(keys))
+		return _fail(&"invalid_restore_participants", "exactly nine participants required: " + str(keys))
 	for key: String in _PARTICIPANT_KEYS:
 		var participant: Variant = participants[key]
 		if typeof(participant) != TYPE_OBJECT or participant == null:
@@ -1721,6 +1742,10 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	if not board_prep.get("ok", false):
 		return board_prep
 	plans["desktop_board"] = board_prep["value"]["board_plan"]
+	var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(snapshot))
+	if not view_prep.get("ok", false):
+		return view_prep
+	plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
 
 	var profile_prep: Dictionary = _restore_participants["profile"].prepare(
 		{"legacy_profile_patch_input": migration_output["legacy_profile_patch_input"]})
@@ -2172,6 +2197,10 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 	if not board_prep.get("ok", false):
 		return board_prep
 	plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
+	var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
+	if not view_prep.get("ok", false):
+		return view_prep
+	plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
 
 	return {"ok": true, "code": &"ok", "value": {
 		"plans": plans,
@@ -2183,7 +2212,8 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 			"transaction_id": str(operation["transaction_id"]),
 			"request_fingerprint": str(operation["request_fingerprint"]),
 			"remap": {"restore_transaction_id": str(operation["transaction_id"]),
-				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"]},
+				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
+				"source_identity": _source_identity_from_lifecycle(prepared["bundle"]["snapshot"]["lifecycle"])},
 		},
 	}}
 
@@ -2273,3 +2303,15 @@ func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
+
+## Keep source identity explicit: live run state already contains the remapped destination.
+static func _source_identity_from_lifecycle(lifecycle: Dictionary) -> Dictionary:
+	var receipt: Variant = lifecycle.get("causal_day_instance_issuer_receipt")
+	return {"branch_id": lifecycle.get("branch_id"),
+		"desktop_timeline_generation": lifecycle.get("desktop_timeline_generation"),
+		"causal_day_instance": lifecycle.get("causal_day_instance"),
+		"causal_day_instance_issuer_receipt": receipt.duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else receipt}
+
+static func _schedule_view_input(snapshot: Dictionary) -> Dictionary:
+	return {"schedule_view": snapshot["schedule_view"],
+		"registry_fingerprint": snapshot["committed_schedule"]["registry_fingerprint"]}

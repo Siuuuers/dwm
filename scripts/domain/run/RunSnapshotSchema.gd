@@ -13,9 +13,18 @@ extends RefCounted
 ## validation is likewise delegated wholesale to `RunLifecycle._validate_desktop_identity()` so the
 ## two owners of a lifecycle dict's shape (this schema, and the live RunLifecycle state machine)
 ## can never silently diverge.
+##
+## v6 reconciles captured run Dark with Amendment Plan 03 Task 4 (dwm-oyo.3). It adds the
+## top-level `schedule_view` -- the bare seven-key `ScheduleViewState` view, with no wrapper or
+## embedded fingerprint -- plus three condition/terminal members inside `lifecycle`, while retaining
+## the captured `dark_mode` lifecycle field. View validation is delegated wholesale to
+## `ScheduleViewState.validate()` against the LIVE `ScheduleActionRegistry`, with the persisted
+## `committed_schedule.registry_fingerprint` passed VERBATIM (null included) as the expectation;
+## this schema owns no second copy of the view envelope, the draft-entry law, or the append-only
+## condition-departure ledger law. It owns only the in-document bindings a snapshot's single day
+## and causal-day identity impose, plus the date-latch coherence check below.
 
-## v5 requires captured run Dark; older snapshots cannot infer it from Profile.
-const SCHEMA_VERSION := 5
+const SCHEMA_VERSION := 6
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
@@ -26,20 +35,24 @@ const DESKTOP_APP_REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRe
 const RUN_LIFECYCLE := preload("res://scripts/domain/run/RunLifecycle.gd")
 const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+const SCHEDULE_VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
+const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 
 const TOP_KEYS: Array[String] = [
 	"active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
 	"audio_context", "checkpoint_id", "checkpoint_sequence", "command_receipts", "committed_schedule",
 	"contacts", "content_version", "desktop",
 	"dating", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id",
-	"schema_version",
+	"schedule_view", "schema_version",
 ]
 const DESKTOP_KEYS: Array[String] = ["board", "consequence"]
 const LIFECYCLE_KEYS: Array[String] = [
-	"active_resolution_plan", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
-	"dark_mode", "day", "desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
+	"active_condition_hospital_plan", "active_resolution_plan", "branch_id", "causal_day_instance",
+	"causal_day_instance_issuer_receipt", "condition_hospital_history", "dark_mode", "day",
+	"desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
+	"terminal_intent_handoff",
 ]
-const LIFECYCLE_STATES: Array[String] = ["PLAYING", "ENDING", "COMPLETED"]
+const LIFECYCLE_STATES: Array[String] = ["PLAYING", "ENDING", "COMPLETED", "TERMINAL_PENDING"]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
 const ENDING_PLAN_KEYS: Array[String] = [
 	"ending_id", "epilogue_ending_id", "playback_receipts", "playback_stage", "source_day",
@@ -74,7 +87,8 @@ static func build(
 		checkpoint_sequence: int
 ) -> Dictionary:
 	for member: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
-			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop"]:
+			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop",
+			"schedule_view"]:
 		if not snapshot_input.has(member):
 			return _fail(&"invalid_snapshot_input", "missing member: " + member)
 	if typeof(snapshot_input["lifecycle"]) != TYPE_DICTIONARY:
@@ -98,6 +112,7 @@ static func build(
 		"contacts": _detached(snapshot_input["contacts"]),
 		"committed_schedule": _detached(snapshot_input["committed_schedule"]),
 		"desktop": _detached(snapshot_input["desktop"]),
+		"schedule_view": _detached(snapshot_input["schedule_view"]),
 		"dating": _detached(snapshot_input["dating"]),
 		"applied_effect_transaction_ids": _sorted_ids(snapshot_input["applied_effect_transaction_ids"]),
 		"applied_variable_transaction_ids": _sorted_ids(snapshot_input["applied_variable_transaction_ids"]),
@@ -160,15 +175,59 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		candidate["committed_schedule"])
 	if not committed_check.get("ok", false):
 		return committed_check
+	# The saved ScheduleView law lives in exactly ONE module (Amendment Plan 03 Task 2). Delegate
+	# wholesale and surface the delegate's typed code AND details unchanged; this schema owns no
+	# second copy of the view envelope, the draft-entry law, or the condition-departure ledger law.
+	# The expected fingerprint is the persisted committed one, passed VERBATIM including null -- so
+	# this delegation must run AFTER the committed_schedule delegation, whose own code wins when the
+	# aggregate is malformed. ScheduleViewState.validate is typed `view: Dictionary`, so the local
+	# Dictionary guard turns what would be an engine type error into a typed refusal.
+	if typeof(candidate["schedule_view"]) != TYPE_DICTIONARY:
+		return _fail(&"invalid_snapshot_shape", "schedule_view must be an object")
+	var registry_loaded: Dictionary = SCHEDULE_ACTION_REGISTRY.load_current()
+	if not registry_loaded.get("ok", false):
+		return registry_loaded
+	var view_check: Dictionary = SCHEDULE_VIEW_STATE.validate(
+		candidate["schedule_view"],
+		(registry_loaded["value"] as Dictionary)["registry"],
+		(candidate["committed_schedule"] as Dictionary)["registry_fingerprint"])
+	if not view_check.get("ok", false):
+		return view_check
+	# ScheduleViewState never inspects the interior of pending_warning or the consumed-receipt
+	# map, so the primitive-purity sweep over the whole view is this schema's job. Kept separate
+	# from the member loop above because the member's own Dictionary guard already ran.
+	var view_primitive := validate_primitive_tree(candidate["schedule_view"], "$.schedule_view")
+	if not view_primitive.get("ok", false):
+		return view_primitive
 	var desktop_error := _validate_desktop(candidate["desktop"])
 	if desktop_error != "":
 		return _fail(&"invalid_desktop_aggregate", desktop_error)
-	# The single binding this module DOES own: a snapshot names one day, so the committed aggregate
-	# and the lifecycle cannot disagree about which day was committed.
+	# The bindings this module DOES own: a snapshot names one day and one causal-day instance, so
+	# neither the committed aggregate nor the saved view can disagree with the lifecycle about
+	# which day (and, for the view, which causal-day instance) it belongs to.
 	if int((candidate["committed_schedule"] as Dictionary)["day"]) \
 			!= int((candidate["lifecycle"] as Dictionary)["day"]):
 		return _fail(&"invalid_snapshot_shape",
 			"committed_schedule day must equal the lifecycle day")
+	if int((candidate["schedule_view"] as Dictionary)["day"]) \
+			!= int((candidate["lifecycle"] as Dictionary)["day"]):
+		return _fail(&"invalid_snapshot_shape",
+			"schedule_view day must equal the lifecycle day")
+	if str((candidate["schedule_view"] as Dictionary)["causal_day_instance"]) \
+			!= str((candidate["lifecycle"] as Dictionary)["causal_day_instance"]):
+		return _fail(&"invalid_snapshot_shape",
+			"schedule_view causal_day_instance must equal the lifecycle causal_day_instance")
+	var latch_error := _schedule_view_latch_error(candidate["schedule_view"])
+	if latch_error != "":
+		return _fail(&"invalid_snapshot_shape", latch_error)
+	# The null-fingerprint pairing, view half: a null committed registry_fingerprint is legal only
+	# beside an empty view. ScheduleViewState.validate answers the reachable case first with its own
+	# typed code, so this binding is defensive (deviation D-12's shape) and exists so that the
+	# document schema states the pairing it relies on rather than inheriting it silently.
+	if (candidate["committed_schedule"] as Dictionary)["registry_fingerprint"] == null \
+			and not ((candidate["schedule_view"] as Dictionary)["entries"] as Array).is_empty():
+		return _fail(&"invalid_snapshot_shape",
+			"a null committed_schedule registry_fingerprint requires an empty schedule_view")
 	var gameplay_error := _validate_gameplay(candidate["gameplay"])
 	if gameplay_error != "":
 		return _fail(&"invalid_gameplay", gameplay_error)
@@ -312,6 +371,11 @@ static func _validate_lifecycle(candidate: Dictionary) -> String:
 	var desktop_identity_error: String = RUN_LIFECYCLE._validate_desktop_identity(lifecycle)
 	if desktop_identity_error != "":
 		return desktop_identity_error
+	# Likewise for the three condition-Hospital / terminal-intent members v5 added (Amendment Plan
+	# 03 Task 4): one owner, reached through the same anti-divergence delegation.
+	var condition_error: String = RUN_LIFECYCLE._validate_condition_lifecycle(lifecycle)
+	if condition_error != "":
+		return condition_error
 	if lifecycle["active_resolution_plan"] != null:
 		if typeof(lifecycle["active_resolution_plan"]) != TYPE_DICTIONARY:
 			return "active_resolution_plan must be null or an object"
@@ -326,11 +390,13 @@ static func _validate_lifecycle(candidate: Dictionary) -> String:
 		if window_error != "":
 			return window_error
 	if lifecycle["ending_plan"] == null:
-		if state != "PLAYING":
+		if state != "PLAYING" and state != "TERMINAL_PENDING":
 			return state + " requires an ending plan"
 	else:
 		if state == "PLAYING":
 			return "PLAYING requires a null ending plan"
+		if state == "TERMINAL_PENDING":
+			return "TERMINAL_PENDING requires a null ending plan"
 		if int(lifecycle["day"]) != 7:
 			return "an ending plan requires day 7"
 		var ending_error := _validate_ending_plan(lifecycle["ending_plan"])
@@ -368,6 +434,21 @@ static func _validate_ending_plan(plan: Variant) -> String:
 	})
 	if not semantic.get("ok", false):
 		return str(semantic.get("message", semantic.get("code", "invalid ending plan")))
+	return ""
+
+## The date latch is monotone: the controller sets it on the first date entry and never clears it
+## (ScheduleViewController.prepare_remove). A persisted view carrying a date entry with the latch
+## still false is only reachable by tampering, and it would re-arm a warning queue the player
+## already cleared -- so the persisted document is where that incoherence is refused. It is
+## one-directional: a true latch beside zero date entries is the ordinary post-removal shape.
+static func _schedule_view_latch_error(view: Variant) -> String:
+	if bool((view as Dictionary)["date_entry_seen"]):
+		return ""
+	for raw: Variant in ((view as Dictionary)["entries"] as Array):
+		if typeof(raw) != TYPE_DICTIONARY:
+			continue  # ScheduleRules already refused this; do not double-report
+		if str((raw as Dictionary).get("action_kind", "ordinary")) != "ordinary":
+			return "date_entry_seen must be true while the view carries a date entry"
 	return ""
 
 ## Exact `{board,consequence}` (brief line 59). Both members are delegated wholesale to their own

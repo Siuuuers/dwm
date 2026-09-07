@@ -29,6 +29,7 @@ const FAKE_NAMESPACE_SOURCE_PATH := "res://tests/support/FakeDesktopNamespaceSou
 # Failure-injectable owner returning the exact shapes the real adapters expect.
 class Owner extends RefCounted:
 	var fail: StringName = &""
+	var remap_source: Dictionary = {}
 	func _g(m: String) -> Dictionary:
 		return {"ok": false, "code": &"forced_owner_failure", "message": m} if fail == StringName(m) else {}
 	func prepare_new_run_snapshot_input(run_id: String, _branch_id: String, _generation: int,
@@ -38,7 +39,8 @@ class Owner extends RefCounted:
 	## delegates here for a real restore's identity-remap step; this fake owner accepts it trivially
 	## (this file exercises the ORDINARY participant plumbing, not remap correctness itself -- see
 	## test_desktop_board_persistence.gd for that).
-	func apply_continuation_remap_silent(_restore_transaction_id: String, _identity_allocation_bundle: Dictionary) -> Dictionary:
+	func apply_continuation_remap_silent(_restore_transaction_id: String, _identity_allocation_bundle: Dictionary, source_identity: Dictionary) -> Dictionary:
+		remap_source = source_identity.duplicate(true)
 		return {"ok": true, "code": &"ok"}
 	func get_profile_snapshot() -> Dictionary:
 		return preload("res://scripts/profile/ProfileSchema.gd").make_defaults()
@@ -62,7 +64,7 @@ class Owner extends RefCounted:
 	func rollback_restore_silent(_b: Dictionary) -> Dictionary: return {"ok": true}
 	func finalize_restore() -> Dictionary: return {"ok": true}
 
-## Test-authored v5 cases retain the source payload and explicitly choose Dark=false.
+## Test-authored v6 cases retain the source payload and explicitly choose Dark=false.
 ## This fixture construction is not a player-save migration.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
@@ -81,7 +83,7 @@ func _empty_desktop() -> Dictionary:
 
 func _snapshot(run_id: String, seq: int, narrative: Dictionary = {}) -> Dictionary:
 	var s: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
-	s["schema_version"] = 5
+	s["schema_version"] = 6
 	s["lifecycle"]["dark_mode"] = false
 	s["gameplay"].erase("opening_seen")
 	s["gameplay"].erase("tutorial_seen")
@@ -94,6 +96,10 @@ func _snapshot(run_id: String, seq: int, narrative: Dictionary = {}) -> Dictiona
 	s["lifecycle"]["causal_day_instance"] = "causal-day-1"
 	s["lifecycle"]["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
 	s["lifecycle"]["restore_provenance"] = null
+	s["lifecycle"]["active_condition_hospital_plan"] = null
+	s["lifecycle"]["condition_hospital_history"] = {}
+	s["lifecycle"]["terminal_intent_handoff"] = null
+	s["schedule_view"] = preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(3, "causal-day-1").value.view
 	s["desktop"] = _empty_desktop()
 	s["narrative_checkpoint"] = narrative
 	var validated: Dictionary = load("res://scripts/domain/run/RunSnapshotSchema.gd").validate(s)
@@ -124,18 +130,24 @@ func _manager(owner: Owner) -> Node:
 	var issuer := _fresh_issuer(root)
 	m.configure_identity_issuer(issuer)
 	m.configure_identity_allocation_participant(load(IDENTITY_ALLOCATION_PARTICIPANT).new(issuer, m))
+	var registry: RefCounted = preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd").load_current().value.registry
+	var view: RefCounted = preload("res://scripts/application/schedule/ScheduleViewController.gd").new()
+	assert_true(view.configure(registry, preload("res://scripts/domain/schedule/ScheduleRules.gd"), registry.fingerprint()).ok)
 	m.configure_restore_participants({
 		"run": load(RUN_P).new(owner),
 		"desktop_consequence": load(DESKTOP_CONSEQUENCE_PARTICIPANT).new(load(DESKTOP_CONSEQUENCE_STATE).new()),
 		"desktop_board": load(DESKTOP_BOARD_PARTICIPANT).new(load(DESKTOP_BOARD_STATE).new()),
+		"schedule_view": preload("res://scripts/application/restore/ScheduleViewRestoreParticipant.gd").new(
+			view, registry, issuer, preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")),
 		"profile": load(PROFILE_P).new(owner),
 		"localization": load(LOC_P).new(owner), "audio": load(AUDIO_P).new(owner),
 		"route": load(ROUTE_P).new(owner), "narrative": load(NARR_P).new(owner),
 	})
 	return m
 
-func test_prepare_builds_eight_plans_and_commits() -> void:
-	var m := _manager(Owner.new())
+func test_prepare_builds_nine_plans_and_commits() -> void:
+	var owner := Owner.new()
+	var m := _manager(owner)
 	m._journal.reset("run-a")
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-a", 1), &"day_start")["value"]["candidate"])
 	assert_true(m.save_latest_to_slot(1)["ok"])
@@ -145,12 +157,14 @@ func test_prepare_builds_eight_plans_and_commits() -> void:
 	var prepared: Dictionary = m.prepare_restore_slot(1)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var value: Dictionary = prepared["value"]["prepared"]
-	for key: String in ["run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative"]:
+	for key: String in ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"]:
 		assert_true(value["participant_plans"].has(key), "plan built for " + key)
 	assert_true(value.has("source_locator"), "prepare embeds the identity-continuation source locator")
 	assert_eq(value["route_id"], "main", "route id derived from the one selected bundle")
 	var committed: Dictionary = m.commit_prepared_restore(value)
 	assert_true(committed.get("ok", false), "the prepared restore commits atomically: " + JSON.stringify(committed))
+	assert_eq(owner.remap_source.branch_id, "branch-1")
+	assert_eq(owner.remap_source.causal_day_instance, "causal-day-1")
 	assert_eq(str(m._journal.get_current_bundle()["value"]["bundle"]["snapshot"]["run_id"]), "run-a",
 		"the restored run replaced the live journal")
 

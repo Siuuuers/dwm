@@ -29,11 +29,14 @@ func _empty_desktop() -> Dictionary:
 
 func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	var upgraded := snapshot.duplicate(true)
-	upgraded["schema_version"] = 5
+	upgraded["schema_version"] = 6
 	upgraded["gameplay"].erase("opening_seen")
 	upgraded["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = (upgraded["lifecycle"] as Dictionary).duplicate(true)
 	lifecycle["dark_mode"] = false
+	lifecycle["active_condition_hospital_plan"] = null
+	lifecycle["condition_hospital_history"] = {}
+	lifecycle["terminal_intent_handoff"] = null
 	if not lifecycle.has("branch_id"):
 		lifecycle["branch_id"] = "branch-1"
 		lifecycle["desktop_timeline_generation"] = 0
@@ -43,6 +46,15 @@ func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	upgraded["lifecycle"] = lifecycle
 	if not upgraded.has("desktop"):
 		upgraded["desktop"] = _empty_desktop()
+	upgraded["schedule_view"] = {
+		"day": lifecycle["day"],
+		"causal_day_instance": lifecycle["causal_day_instance"],
+		"entries": [],
+		"date_entry_seen": false,
+		"pending_warning": null,
+		"consumed_warning_receipts": {},
+		"condition_departure_receipts": {},
+	}
 	return upgraded
 
 func _fixture(path: String) -> Dictionary:
@@ -55,6 +67,7 @@ func _snapshot_input_from(snapshot: Dictionary) -> Dictionary:
 		"contacts": snapshot["contacts"],
 		"committed_schedule": snapshot["committed_schedule"],
 		"desktop": snapshot["desktop"],
+		"schedule_view": snapshot["schedule_view"],
 		"dating": snapshot["dating"],
 		"applied_effect_transaction_ids": snapshot["applied_effect_transaction_ids"],
 		"applied_variable_transaction_ids": snapshot["applied_variable_transaction_ids"],
@@ -93,9 +106,9 @@ func test_validate_rejection_matrix() -> void:
 	var schema: Script = load(SCHEMA_PATH)
 	var base := _fixture(VALID_FIXTURE)
 
-	# v5 is current; the unsupported-future probe must remain newer.
+	# v6 is current; the unsupported-future probe must remain newer.
 	var future := base.duplicate(true)
-	future["schema_version"] = 6
+	future["schema_version"] = 7
 	assert_false(schema.validate(future).get("ok", true), "unsupported future schema version rejects")
 
 	var non_integral := base.duplicate(true)
@@ -136,6 +149,7 @@ func _ending_snapshot(ending_plan: Dictionary) -> Dictionary:
 	base["lifecycle"]["state"] = "ENDING"
 	base["lifecycle"]["ending_plan"] = ending_plan
 	(base["committed_schedule"] as Dictionary)["day"] = 7
+	(base["schedule_view"] as Dictionary)["day"] = 7
 	return base
 
 func test_validate_enforces_ending_id_is_a_canonical_primary() -> void:
@@ -232,12 +246,12 @@ func test_derive_route_restore_context_exact_shape() -> void:
 # retires in the same boundary. Committed validation is DELEGATED to ScheduleStateSchema; this module
 # owns no second copy of the aggregate law.
 
-func test_schema_version_is_five() -> void:
+func test_schema_version_is_six() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	assert_eq(int(schema.SCHEMA_VERSION), 5, "captured run configuration requires snapshot v5")
+	assert_eq(int(schema.SCHEMA_VERSION), 6, "the reconciled snapshot contract requires v6")
 
 func test_top_level_committed_schedule_replaces_legacy_schedule() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
@@ -345,7 +359,7 @@ func test_v3_build_round_trips_the_aggregate_unchanged() -> void:
 		_snapshot_input_from(fixture), {}, "main", null, {}, 1, 42)
 	assert_true(built.get("ok", false), JSON.stringify(built))
 	var snapshot: Dictionary = built["value"]["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 5, "build stamps the current version")
+	assert_eq(int(snapshot["schema_version"]), 6, "build stamps the current version")
 	# JSON parsing yields floats for integral numbers, so the expectation is the schema's own
 	# normalized projection of the same fixture -- not the raw parse.
 	var normalized_fixture: Dictionary = schema.validate(fixture)["value"]["candidate"]

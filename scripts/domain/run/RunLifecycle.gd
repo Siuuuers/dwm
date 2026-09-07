@@ -5,19 +5,43 @@ extends RefCounted
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 2).
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
+const CONDITION_HOSPITAL_PLAN := preload("res://scripts/domain/run/ConditionHospitalPlan.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const PLAYING := &"PLAYING"
 const ENDING := &"ENDING"
 const COMPLETED := &"COMPLETED"
+const TERMINAL_PENDING := &"TERMINAL_PENDING"
 
-const STATE_NAMES: Array[String] = ["PLAYING", "ENDING", "COMPLETED"]
+const STATE_NAMES: Array[String] = ["PLAYING", "ENDING", "COMPLETED", "TERMINAL_PENDING"]
 const LIFECYCLE_KEYS: Array[String] = [
-	"active_resolution_plan", "branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt",
-	"dark_mode", "day", "desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
+	"active_condition_hospital_plan", "active_resolution_plan", "branch_id", "causal_day_instance",
+	"causal_day_instance_issuer_receipt", "condition_hospital_history", "dark_mode", "day",
+	"desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
+	"terminal_intent_handoff",
 ]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
 const ENDING_PLAN_KEYS: Array[String] = ["ending_id", "epilogue_ending_id", "source_day", "playback_stage", "playback_receipts"]
+
+## The v5 terminal-intent handoff dwm-oyo.6 adopts (Amendment Plan 03 Task 4, ledger 1.3.5).
+## The saved value is exactly these seven sorted keys with two frozen literals, which is also
+## what makes it receipt-free: no checkpoint id, receipt or receipt-derived hash can ride
+## beside them.
+const TERMINAL_INTENT_HANDOFF_KEYS: Array[String] = [
+	"destination_outbox_record", "schema_version", "source_kind", "source_transaction_id",
+	"source_transaction_issuer_receipt", "status", "terminal_intent",
+]
+const TERMINAL_HANDOFF_SOURCE_KINDS: Array[String] = ["schedule_done", "condition_action"]
+const TERMINAL_HANDOFF_STATUS := "pending_oyo6"
+const TERMINAL_HANDOFF_SCHEMA_VERSION := 1
+## The closed six-key prepare_terminal_handoff request, discriminated on `source_kind`.
+const TERMINAL_HANDOFF_REQUEST_KEYS: Array[String] = [
+	"completed_resolution_plan", "destination_outbox_record", "source_kind",
+	"source_transaction_id", "source_transaction_issuer_receipt", "terminal_intent",
+]
+## Each condition_hospital_history value's exact member set; ConditionHospitalPlan owns the
+## interior of both members and is the single validator this file delegates each record to.
+const CONDITION_HOSPITAL_HISTORY_RECORD_KEYS: Array[String] = ["completed_plan", "retirement_receipt"]
 
 ## Desktop identity added in v4 (Plan 02 Task 6, dwm-p2r.32). `causal_day_instance` and its full
 ## `causal_day_instance_issuer_receipt` are bound as one inseparable pair everywhere they travel
@@ -31,7 +55,7 @@ const RESTORE_PROVENANCE_KEYS: Array[String] = [
 ]
 
 var _run_id := ""
-# Immutable between New Run/validated full restore boundaries.
+# Captured once at New Run and replaced only by a validated full restore.
 var _dark_mode := false
 var _day := 1
 var _state: StringName = PLAYING
@@ -43,6 +67,12 @@ var _desktop_timeline_generation := 0
 var _causal_day_instance := ""
 var _causal_day_instance_issuer_receipt: Dictionary = {}
 var _restore_provenance: Variant = null
+## The three v5 lifecycle members (Amendment Plan 03 Task 4, dwm-oyo.3): the pre-Done
+## condition-Hospital plan, its append-only completed-plan history, and the Day-7 terminal-intent
+## handoff dwm-oyo.6 adopts. Ordinary shape: null / {} / null.
+var _active_condition_hospital_plan: Variant = null
+var _condition_hospital_history: Dictionary = {}
+var _terminal_intent_handoff: Variant = null
 
 ## `identity_allocation_receipt` is the committed continuation allocation bundle (brief lines
 ## 259-283): this extracts the exact `causal_day_instance_issuer_receipt` from it and binds it
@@ -65,6 +95,9 @@ func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
 	var receipt: Variant = identity_allocation_receipt.get("causal_day_instance_issuer_receipt")
 	_causal_day_instance_issuer_receipt = (receipt as Dictionary).duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else {}
 	_restore_provenance = null
+	_active_condition_hospital_plan = null
+	_condition_hospital_history = {}
+	_terminal_intent_handoff = null
 
 ## Exactly `{run_id,branch_id,desktop_timeline_generation,causal_day_instance,causal_day_instance_
 ## issuer_receipt}` as detached primitives (brief line 200).
@@ -93,9 +126,13 @@ const _IDENTITY_ALLOCATION_BUNDLE_KEYS: Array[String] = [
 ## Builds this object's restore candidate from a durably-allocated, already-remapped identity
 ## bundle (Task 6 Phase C). Restore-only: `run_id` must equal this object's OWN live run_id (brief
 ## line 287, "for restore, run_id ... is validated source provenance rather than newly allocated"),
-## never a freshly minted one -- New Run installs identity through reset() instead. Pure: every
-## field this reads comes from the bundle or this object's own live state; nothing is mutated.
-func prepare_continuation_remap(restore_transaction_id: String, identity_allocation_bundle: Dictionary) -> Dictionary:
+## never a freshly minted one -- New Run installs identity through reset() instead. `source_identity`
+## is the SOURCE document's pre-restore identity, handed in explicitly by SaveManager (ruling T4-AF
+## item 23) -- never read off this object's own live members, which by the time this runs already
+## carry the destination identity. Pure: every field this reads comes from the bundle, the argument,
+## or this object's own live state; nothing is mutated.
+func prepare_continuation_remap(restore_transaction_id: String, identity_allocation_bundle: Dictionary,
+		source_identity: Dictionary) -> Dictionary:
 	if restore_transaction_id.strip_edges().is_empty():
 		return _fail(&"invalid_restore_transaction_id", "restore_transaction_id must be nonblank")
 	for key: String in _IDENTITY_ALLOCATION_BUNDLE_KEYS:
@@ -115,6 +152,18 @@ func prepare_continuation_remap(restore_transaction_id: String, identity_allocat
 	var remap_hash := _canonical_sha256(identity_allocation_bundle["transaction_remap"])
 	if remap_hash.is_empty():
 		return _fail(&"transaction_remap_not_canonicalizable", "transaction_remap is not canonically representable")
+	var source_identity_keys := source_identity.keys()
+	source_identity_keys.sort()
+	if source_identity_keys != ["branch_id", "causal_day_instance", "causal_day_instance_issuer_receipt", "desktop_timeline_generation"]:
+		return _fail(&"invalid_source_identity", "unexpected source_identity keys: " + str(source_identity_keys))
+	if typeof(source_identity["branch_id"]) != TYPE_STRING or str(source_identity["branch_id"]).strip_edges().is_empty():
+		return _fail(&"invalid_source_identity", "source_identity.branch_id must be a nonblank String")
+	if typeof(source_identity["desktop_timeline_generation"]) != TYPE_INT:
+		return _fail(&"invalid_source_identity", "source_identity.desktop_timeline_generation must be an int")
+	if typeof(source_identity["causal_day_instance"]) != TYPE_STRING or str(source_identity["causal_day_instance"]).strip_edges().is_empty():
+		return _fail(&"invalid_source_identity", "source_identity.causal_day_instance must be a nonblank String")
+	if typeof(source_identity["causal_day_instance_issuer_receipt"]) != TYPE_DICTIONARY:
+		return _fail(&"invalid_source_identity", "source_identity.causal_day_instance_issuer_receipt must be an object")
 	var receipt: Variant = identity_allocation_bundle["causal_day_instance_issuer_receipt"]
 	var candidate := to_dict()
 	candidate["branch_id"] = str(identity_allocation_bundle["branch_id"])
@@ -122,10 +171,10 @@ func prepare_continuation_remap(restore_transaction_id: String, identity_allocat
 	candidate["causal_day_instance"] = str(identity_allocation_bundle["causal_day_instance"])
 	candidate["causal_day_instance_issuer_receipt"] = (receipt as Dictionary).duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else {}
 	candidate["restore_provenance"] = {
-		"source_branch_id": _branch_id,
-		"source_desktop_timeline_generation": _desktop_timeline_generation,
-		"source_causal_day_instance": _causal_day_instance,
-		"source_issuer_observed_counter": int(_causal_day_instance_issuer_receipt.get("counter", 0)),
+		"source_branch_id": str(source_identity["branch_id"]),
+		"source_desktop_timeline_generation": int(source_identity["desktop_timeline_generation"]),
+		"source_causal_day_instance": str(source_identity["causal_day_instance"]),
+		"source_issuer_observed_counter": int((source_identity["causal_day_instance_issuer_receipt"] as Dictionary).get("counter", 0)),
 		"restore_transaction_id": restore_transaction_id,
 		"identity_allocation_receipt_id": str(identity_allocation_bundle["allocation_receipt_id"]),
 		"transaction_remap_sha256": remap_hash,
@@ -364,6 +413,83 @@ func complete_ending() -> Dictionary:
 	_state = COMPLETED
 	return {"ok": true, "code": &"ok"}
 
+## Produces the DETACHED Day-7 terminal lifecycle/outbox candidate dwm-oyo.6 adopts
+## (Amendment Plan 03 Task 4, dwm-oyo.3). Step 2 implements the closed six-key request, the
+## source_kind discrimination, and the non-self-referentiality law; adoption itself is a Task-7
+## GameState seam, never a method on this class. Unlike every other method here, SUCCESS returns
+## the master envelope {ok, code, value: {before_fingerprint, lifecycle_candidate}, receipt: {}}
+## because the plan freezes that shape (plan:898); failure keeps this file's own three-key _fail.
+func prepare_terminal_handoff(request: Dictionary) -> Dictionary:
+	var keys := request.keys()
+	keys.sort()
+	var expected := TERMINAL_HANDOFF_REQUEST_KEYS.duplicate()
+	expected.sort()
+	if keys != expected:
+		return _fail(&"invalid_terminal_handoff_request",
+			"unexpected terminal handoff request keys: " + str(keys))
+	if typeof(request["source_kind"]) != TYPE_STRING \
+			or str(request["source_kind"]) not in TERMINAL_HANDOFF_SOURCE_KINDS:
+		return _fail(&"invalid_terminal_handoff_request",
+			"source_kind must be schedule_done or condition_action")
+	var source_kind := str(request["source_kind"])
+	if _state == TERMINAL_PENDING or _terminal_intent_handoff != null:
+		return _fail(&"terminal_handoff_conflict", "a terminal intent handoff already exists")
+	if _state != PLAYING:
+		return _fail(&"invalid_state", "prepare_terminal_handoff requires PLAYING")
+	if _day != 7:
+		return _fail(&"invalid_state", "prepare_terminal_handoff requires Day 7")
+	if _active_condition_hospital_plan != null:
+		return _fail(&"invalid_terminal_handoff_request",
+			"prepare_terminal_handoff requires a null active_condition_hospital_plan")
+	var completed: Variant = request["completed_resolution_plan"]
+	if source_kind == "condition_action":
+		if completed != null:
+			return _fail(&"invalid_terminal_handoff_request",
+				"condition_action requires a null completed_resolution_plan")
+		if _plan != null:
+			return _fail(&"invalid_terminal_handoff_request",
+				"condition_action requires a null active_resolution_plan")
+	else:
+		# All five DAY_7_STAGES durably completed IS `is_complete()` on a source-day-7 plan;
+		# DayResolutionPlan owns which stages a Day-7 walk has, so nothing is re-listed here.
+		if _plan == null or not _plan.is_complete() or int(_plan.get_source_day()) != 7:
+			return _fail(&"invalid_terminal_handoff_request",
+				"schedule_done requires the completed Day-7 resolution plan")
+		if typeof(completed) != TYPE_DICTIONARY:
+			return _fail(&"invalid_terminal_handoff_request",
+				"schedule_done requires a completed_resolution_plan object")
+		var live_hash := _canonical_sha256(_plan.to_dict())
+		if live_hash.is_empty() or live_hash != _canonical_sha256(completed):
+			return _fail(&"invalid_terminal_handoff_request",
+				"completed_resolution_plan must be byte-equal to the active Day-7 resolution plan")
+	var handoff := {
+		"destination_outbox_record": request["destination_outbox_record"],
+		"schema_version": TERMINAL_HANDOFF_SCHEMA_VERSION,
+		"source_kind": source_kind,
+		"source_transaction_id": request["source_transaction_id"],
+		"source_transaction_issuer_receipt": request["source_transaction_issuer_receipt"],
+		"status": TERMINAL_HANDOFF_STATUS,
+		"terminal_intent": request["terminal_intent"],
+	}
+	var handoff_error := _validate_terminal_intent_handoff(handoff)
+	if handoff_error != "":
+		return _fail(&"invalid_terminal_handoff_request", handoff_error)
+	# to_dict() already deep-duplicates every member, so the candidate is detached and this
+	# method assigns to no field on any path.
+	var candidate := to_dict()
+	candidate["state"] = String(TERMINAL_PENDING)
+	candidate["terminal_intent_handoff"] = handoff.duplicate(true)
+	if source_kind == "schedule_done":
+		candidate["active_resolution_plan"] = null
+	# A candidate that could never be restored is never issued.
+	var candidate_error := _validate_lifecycle_dict(candidate)
+	if candidate_error != "":
+		return _fail(&"invalid_terminal_handoff_candidate", candidate_error)
+	return {"ok": true, "code": &"ok", "receipt": {}, "value": {
+		"before_fingerprint": _canonical_sha256(to_dict()),
+		"lifecycle_candidate": candidate,
+	}}
+
 func to_dict() -> Dictionary:
 	return {
 		"run_id": _run_id,
@@ -377,6 +503,9 @@ func to_dict() -> Dictionary:
 		"causal_day_instance": _causal_day_instance,
 		"causal_day_instance_issuer_receipt": _causal_day_instance_issuer_receipt.duplicate(true),
 		"restore_provenance": _dup_or_null(_restore_provenance),
+		"active_condition_hospital_plan": _dup_or_null(_active_condition_hospital_plan),
+		"condition_hospital_history": _condition_hospital_history.duplicate(true),
+		"terminal_intent_handoff": _dup_or_null(_terminal_intent_handoff),
 	}
 
 static func _canonical_sha256(value: Variant) -> String:
@@ -418,6 +547,9 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 	_causal_day_instance = str(candidate["causal_day_instance"])
 	_causal_day_instance_issuer_receipt = (candidate["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true)
 	_restore_provenance = _dup_or_null(candidate["restore_provenance"])
+	_active_condition_hospital_plan = _dup_or_null(candidate["active_condition_hospital_plan"])
+	_condition_hospital_history = (candidate["condition_hospital_history"] as Dictionary).duplicate(true)
+	_terminal_intent_handoff = _dup_or_null(candidate["terminal_intent_handoff"])
 	return {"ok": true, "code": &"ok"}
 
 func _validate_lifecycle_dict(data: Dictionary) -> String:
@@ -439,6 +571,9 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 	var desktop_identity_error := _validate_desktop_identity(data)
 	if desktop_identity_error != "":
 		return desktop_identity_error
+	var condition_error := _validate_condition_lifecycle(data)
+	if condition_error != "":
+		return condition_error
 	if data["active_resolution_plan"] != null:
 		if typeof(data["active_resolution_plan"]) != TYPE_DICTIONARY:
 			return "active_resolution_plan must be null or an object"
@@ -454,7 +589,7 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 		if window_error != "":
 			return window_error
 	if data["ending_plan"] == null:
-		if state != "PLAYING":
+		if state != "PLAYING" and state != "TERMINAL_PENDING":
 			return state + " requires an ending plan"
 	else:
 		if typeof(data["ending_plan"]) != TYPE_DICTIONARY:
@@ -464,10 +599,135 @@ func _validate_lifecycle_dict(data: Dictionary) -> String:
 			return ending_error
 		if state == "PLAYING":
 			return "PLAYING requires a null ending plan"
+		if state == "TERMINAL_PENDING":
+			return "TERMINAL_PENDING requires a null ending plan"
 		if int(data["day"]) != 7:
 			return "an ending plan requires day 7"
 		if state == "COMPLETED" and str((data["ending_plan"] as Dictionary)["playback_stage"]) != "GALLERY_RECORDED":
 			return "COMPLETED requires GALLERY_RECORDED playback"
+	return ""
+
+## The single owner of the three v5 lifecycle members' shape law (Amendment Plan 03 Task 4,
+## dwm-oyo.3), delegated to by RunSnapshotSchema exactly as _validate_desktop_identity is, so the
+## document schema and the live state machine cannot diverge. "" means pass. It owns the member
+## types, the TERMINAL_PENDING couplings, the two-plan mutual exclusion, the identity-split law
+## and the handoff shape; the plan value itself and each history record are delegated wholesale
+## to ConditionHospitalPlan. The TERMINAL_PENDING/ending_plan coupling is refused HERE, ahead of
+## the two ending-plan blocks; the mirrored return each of those blocks carries is defensive and
+## unreachable through them, kept so neither block states a law it does not enforce.
+static func _validate_condition_lifecycle(data: Dictionary) -> String:
+	if data["active_condition_hospital_plan"] != null \
+			and typeof(data["active_condition_hospital_plan"]) != TYPE_DICTIONARY:
+		return "active_condition_hospital_plan must be null or an object"
+	if typeof(data["condition_hospital_history"]) != TYPE_DICTIONARY:
+		return "condition_hospital_history must be an object"
+	if data["terminal_intent_handoff"] != null \
+			and typeof(data["terminal_intent_handoff"]) != TYPE_DICTIONARY:
+		return "terminal_intent_handoff must be null or an object"
+	var state := str(data["state"])
+	if state == "TERMINAL_PENDING":
+		if data["terminal_intent_handoff"] == null:
+			return "TERMINAL_PENDING requires a terminal_intent_handoff"
+		for member: String in ["active_resolution_plan", "active_condition_hospital_plan",
+				"ending_plan"]:
+			if data[member] != null:
+				return "TERMINAL_PENDING requires a null " + member
+		# An inference, not a plan-frozen law (ledger 1.3.5): there is no Day 8, and this is
+		# what makes a TERMINAL_PENDING save stamped with another day unloadable.
+		if int(data["day"]) != 7:
+			return "TERMINAL_PENDING requires day 7"
+	elif data["terminal_intent_handoff"] != null:
+		return "terminal_intent_handoff must be null outside TERMINAL_PENDING"
+	if data["active_condition_hospital_plan"] != null and state != "PLAYING":
+		return state + " requires a null active_condition_hospital_plan"
+	if data["active_resolution_plan"] != null and data["active_condition_hospital_plan"] != null:
+		return "active_resolution_plan and active_condition_hospital_plan are mutually exclusive"
+	if data["terminal_intent_handoff"] != null:
+		var handoff_error := _validate_terminal_intent_handoff(
+			data["terminal_intent_handoff"])
+		if handoff_error != "":
+			return handoff_error
+	if data["active_condition_hospital_plan"] != null:
+		var plan: Dictionary = data["active_condition_hospital_plan"]
+		var validated: Dictionary = CONDITION_HOSPITAL_PLAN.validate(plan)
+		if not validated.get("ok", false):
+			return "invalid active_condition_hospital_plan: " \
+					+ str(validated.get("message", validated.get("code", "")))
+		# Ledger 1.3.3: an ACTIVE advance_day, or a cursor past it, is the only legal
+		# source/target identity split; everywhere else the plan's source identity is the
+		# lifecycle's own. History is never compared to it (ledger 1.3.4).
+		var stages: Array = plan["stages"]
+		var advance_day: Dictionary = stages[CONDITION_HOSPITAL_PLAN.ADVANCE_DAY_STAGE_INDEX]
+		var advance_state := str(advance_day["state"])
+		if advance_state != "active" \
+				and int(plan["cursor"]) < CONDITION_HOSPITAL_PLAN.ADVANCE_DAY_STAGE_INDEX + 1:
+			for member: String in ["branch_id", "causal_day_instance", "run_id"]:
+				if str(plan[member]) != str(data[member]):
+					return "active_condition_hospital_plan " + member \
+							+ " must equal the lifecycle's own"
+			if int(plan["desktop_timeline_generation"]) \
+					!= int(data["desktop_timeline_generation"]):
+				return "active_condition_hospital_plan desktop_timeline_generation must equal the lifecycle's own"
+			var plan_receipt_hash := _canonical_sha256(plan["causal_day_instance_issuer_receipt"])
+			if plan_receipt_hash.is_empty() or plan_receipt_hash \
+					!= _canonical_sha256(data["causal_day_instance_issuer_receipt"]):
+				return "active_condition_hospital_plan causal_day_instance_issuer_receipt must equal the lifecycle's own"
+		var prepared: Variant = advance_day["prepared"]
+		if advance_state != "pending" and typeof(prepared) == TYPE_DICTIONARY \
+				and str((prepared as Dictionary).get("target_causal_day_instance", "")) \
+					== str(plan["causal_day_instance"]):
+			return "active_condition_hospital_plan: one allocation is never both source and target"
+	var history: Dictionary = data["condition_hospital_history"]
+	for key: Variant in history:
+		if typeof(key) != TYPE_STRING or str(key).strip_edges().is_empty():
+			return "condition_hospital_history keys must be nonblank Strings"
+		var record: Dictionary = CONDITION_HOSPITAL_PLAN.validate_history_record(
+			history[key], str(key))
+		if not record.get("ok", false):
+			return "condition_hospital_history[" + str(key) + "]: " \
+					+ str(record.get("message", record.get("code", "")))
+	return ""
+
+## The exact seven-key handoff value (ledger 1.3.5). Every message begins with the member name
+## so the delegating snapshot schema's rejection always names it. Unpublished-ness is the
+## outbox record's `status` literal, never a `published` boolean (deviation D-8), and the
+## payload/intent binding is the one canonical recipe rather than the record's own stored hash.
+static func _validate_terminal_intent_handoff(handoff: Dictionary) -> String:
+	var keys := handoff.keys()
+	keys.sort()
+	var expected := TERMINAL_INTENT_HANDOFF_KEYS.duplicate()
+	expected.sort()
+	if keys != expected:
+		return "terminal_intent_handoff has an unexpected member set"
+	if typeof(handoff["schema_version"]) != TYPE_INT \
+			or int(handoff["schema_version"]) != TERMINAL_HANDOFF_SCHEMA_VERSION:
+		return "terminal_intent_handoff schema_version must be " \
+				+ str(TERMINAL_HANDOFF_SCHEMA_VERSION)
+	if typeof(handoff["status"]) != TYPE_STRING \
+			or str(handoff["status"]) != TERMINAL_HANDOFF_STATUS:
+		return "terminal_intent_handoff status must be " + TERMINAL_HANDOFF_STATUS
+	if typeof(handoff["source_kind"]) != TYPE_STRING \
+			or str(handoff["source_kind"]) not in TERMINAL_HANDOFF_SOURCE_KINDS:
+		return "terminal_intent_handoff source_kind must be schedule_done or condition_action"
+	if typeof(handoff["source_transaction_id"]) != TYPE_STRING \
+			or str(handoff["source_transaction_id"]).strip_edges().is_empty():
+		return "terminal_intent_handoff source_transaction_id must be a nonblank String"
+	if typeof(handoff["source_transaction_issuer_receipt"]) != TYPE_DICTIONARY \
+			or (handoff["source_transaction_issuer_receipt"] as Dictionary).is_empty():
+		return "terminal_intent_handoff source_transaction_issuer_receipt must be a nonempty object"
+	if typeof(handoff["terminal_intent"]) != TYPE_DICTIONARY \
+			or (handoff["terminal_intent"] as Dictionary).is_empty():
+		return "terminal_intent_handoff terminal_intent must be a nonempty object"
+	if typeof(handoff["destination_outbox_record"]) != TYPE_DICTIONARY:
+		return "terminal_intent_handoff destination_outbox_record must be an object"
+	var record: Dictionary = handoff["destination_outbox_record"]
+	if str(record.get("status", "")) != "pending":
+		return "terminal_intent_handoff destination_outbox_record must be unpublished"
+	if typeof(record.get("payload")) != TYPE_DICTIONARY:
+		return "terminal_intent_handoff destination_outbox_record must carry a payload object"
+	var payload_hash := _canonical_sha256(record["payload"])
+	if payload_hash.is_empty() or payload_hash != _canonical_sha256(handoff["terminal_intent"]):
+		return "terminal_intent_handoff destination_outbox_record payload must be byte-equal to terminal_intent"
 	return ""
 
 ## Structural self-consistency only, mirroring DesktopConsequenceState's own issuer-provenance

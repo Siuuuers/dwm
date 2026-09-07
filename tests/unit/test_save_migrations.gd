@@ -7,10 +7,22 @@ const FIXTURES := "res://tests/fixtures/saves/"
 func _fixture(name: String) -> Dictionary:
 	return JSON.parse_string(FileAccess.get_file_as_string(FIXTURES + name))
 
-# These are authored v5 test documents, not upgrades of player records.
+# These are authored v6 test documents, not upgrades of player records.
 func _document(kind: StringName = &"slot", slot_id: Variant = 1, dark_mode: bool = false) -> Dictionary:
 	var snapshot := _fixture("v5_desktop_none.json")
-	snapshot.lifecycle.dark_mode = dark_mode
+	snapshot["schema_version"] = 6
+	snapshot["lifecycle"]["dark_mode"] = dark_mode
+	snapshot["lifecycle"]["active_condition_hospital_plan"] = null
+	snapshot["lifecycle"]["condition_hospital_history"] = {}
+	snapshot["lifecycle"]["terminal_intent_handoff"] = null
+	snapshot["gameplay"].erase("opening_seen")
+	snapshot["gameplay"].erase("tutorial_seen")
+	snapshot["schedule_view"] = {
+		"day": snapshot["lifecycle"]["day"],
+		"causal_day_instance": snapshot["lifecycle"]["causal_day_instance"],
+		"entries": [], "date_entry_seen": false, "pending_warning": null,
+		"consumed_warning_receipts": {}, "condition_departure_receipts": {},
+	}
 	var reason: StringName = &"manual" if kind == &"slot" else (&"quick" if kind == &"quick" else &"day_start")
 	var built: Dictionary = DOCUMENT.build(kind, slot_id, reason,
 		{"checkpoint_kind": "day_start", "snapshot": snapshot}, [])
@@ -84,11 +96,31 @@ func test_v0_through_v4_are_unsupported_without_creating_captured_dark() -> void
 		"current_snapshot": {"checkpoint_kind": "day_start", "snapshot": old_snapshot}, "recovery_journal": []}
 	_assert_refused_unchanged(historical, {"kind": "slot", "slot_id": 1}, &"unsupported_run_configuration_schema")
 
+func test_both_incompatible_v5_variants_are_refused_without_repair() -> void:
+	var ui_v5 := _document()
+	ui_v5.schema_version = 5
+	ui_v5.current_snapshot.snapshot.schema_version = 5
+	ui_v5.current_snapshot.snapshot.erase("schedule_view")
+	ui_v5.current_snapshot.snapshot.lifecycle.erase("active_condition_hospital_plan")
+	ui_v5.current_snapshot.snapshot.lifecycle.erase("condition_hospital_history")
+	ui_v5.current_snapshot.snapshot.lifecycle.erase("terminal_intent_handoff")
+	_assert_refused_unchanged(ui_v5, {"kind": "slot", "slot_id": 1},
+		&"unsupported_run_configuration_schema")
+
+	var gameplay_v5 := _document()
+	gameplay_v5.schema_version = 5
+	gameplay_v5.current_snapshot.snapshot.schema_version = 5
+	gameplay_v5.current_snapshot.snapshot.lifecycle.erase("dark_mode")
+	gameplay_v5["current_snapshot"]["snapshot"]["gameplay"]["opening_seen"] = false
+	gameplay_v5["current_snapshot"]["snapshot"]["gameplay"]["tutorial_seen"] = false
+	_assert_refused_unchanged(gameplay_v5, {"kind": "slot", "slot_id": 1},
+		&"unsupported_run_configuration_schema")
+
 func test_future_fractional_missing_and_wrong_type_versions_are_refused() -> void:
 	var future := _document()
-	future.schema_version = 6
+	future.schema_version = 7
 	_assert_refused_unchanged(future, {"kind": "slot", "slot_id": 1}, &"unsupported_future_schema")
-	for version: Variant in [5.5, "5", null, true, {}, [], INF]:
+	for version: Variant in [6.5, "6", null, true, {}, [], INF]:
 		var raw := _document()
 		raw.schema_version = version
 		_assert_refused_unchanged(raw, {"kind": "slot", "slot_id": 1}, &"invalid_schema_version")

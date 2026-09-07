@@ -88,17 +88,23 @@ func _fixture(seed: Dictionary = {}, initialize_profile: bool = true) -> Diction
 	var audio := Participant.new("audio", "audio_plan", calls)
 	var route := Participant.new("route", "route_plan", calls)
 	var narrative := Participant.new("narrative", "narrative_plan", calls)
+	var registry: RefCounted = preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd").load_current().value.registry
+	var view: RefCounted = preload("res://scripts/application/schedule/ScheduleViewController.gd").new()
+	assert_true(view.configure(registry, preload("res://scripts/domain/schedule/ScheduleRules.gd"), registry.fingerprint()).ok)
+	var view_participant: RefCounted = preload("res://scripts/application/restore/ScheduleViewRestoreParticipant.gd").new(
+		view, registry, issuer, preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd"))
 	assert_true(manager.configure_restore_participants({
 		"run": preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(gs),
 		"desktop_consequence": preload("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd").new(
 			preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()),
 		"desktop_board": preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd").new(
 			preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()),
+		"schedule_view": view_participant,
 		"profile": preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(profile),
 		"localization": localization, "audio": audio, "route": route, "narrative": narrative}).get("ok", false))
 	return {"ops": ops, "saves": saves, "profiles": profiles, "gate": gate, "profile": profile,
 		"manager": manager, "gs": gs, "calls": calls, "localization": localization,
-		"audio": audio, "route": route, "narrative": narrative}
+		"audio": audio, "route": route, "narrative": narrative, "schedule_view": view}
 
 func _operation(fixture: Dictionary, transaction_id: String) -> Dictionary:
 	var result: Dictionary = fixture.manager._continuation_journal.get_operation(transaction_id)
@@ -117,6 +123,10 @@ func test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed(
 		assert_true(disk.get("ok", false))
 		var save: Dictionary = READER.parse_object(disk.value.text).value
 		assert_true(save.current_snapshot.snapshot.lifecycle.dark_mode)
+		assert_eq(save.schema_version, 6)
+		assert_eq(save.current_snapshot.snapshot.schedule_view.day, 1)
+		assert_eq(f.schedule_view.capture().value.backup.causal_day_instance,
+			save.current_snapshot.snapshot.lifecycle.causal_day_instance)
 		var persisted: Dictionary = READER.parse_object(f.profiles.inspect_revision("profile.json").value.text).value
 		var expected := before.duplicate(true)
 		expected["preferences"]["dark_mode"]["next_run_enabled"] = false
@@ -180,7 +190,7 @@ func test_partial_live_replay_uses_same_snapshot_with_fresh_route_token() -> voi
 	if not failed.has("transaction_id"): return
 	var tx: String = failed.transaction_id
 	var retained := _operation(f, tx)
-	assert_eq(retained.next_participant_index, 7)
+	assert_eq(retained.next_participant_index, 8)
 	var files: Dictionary = f.ops.snapshot_persisted()
 	f.narrative.fail_apply = false
 	var recovered: Dictionary = f.manager.retry_new_run(tx)

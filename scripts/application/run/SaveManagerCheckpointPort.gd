@@ -11,6 +11,7 @@ const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosticProjector.gd")
 const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+const VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 
 ## Plan 02 Task 6 (dwm-p2r.32): the narrow, self-contained durable record backing
 ## `DesktopCausalSequencePort`'s admission checkpoint -- one small atomic JSON file at a fixed
@@ -136,6 +137,43 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	var active_app_id: Variant = checkpoint_inputs["active_app_id"]
 	if _desktop_context_provider != null:
 		active_app_id = _desktop_context_provider.capture_persistent_state().get("active_app_id", null)
+	# T4-AF.18 / T4-AJ.C item 49: the live ScheduleView is checkpointed from the one restore
+	# participant SaveManager already holds; absent participant, today's behaviour is unchanged;
+	# no open day fails closed. A day-advance checkpoint's lifecycle NAMES the next day before
+	# the live ScheduleViewController has opened it. GameStateDayResolutionPort._checkpoint_inputs
+	# already resolves this same shape for committed_schedule -- a day the owner has not entered
+	# gets its canonical empty aggregate -- so the RECORDED day, not the live day, is what gets
+	# checkpointed. Mirroring ScheduleViewController.open_day()'s day-boundary law, the +1 day
+	# derives a fresh empty view with the append-only condition_departure_receipts ledger carried
+	# over. ANY forward gap derives -- the live controller is adopted to the new day only by
+	# Task 5 / Task 7 work after each checkpoint, so in continuous play it can lag by several days
+	# (RULING T4-AK, review P C1) -- while a recorded day BEHIND the captured view is left to
+	# RunSnapshotSchema.build()'s own day binding to refuse.
+	if not (snapshot_input as Dictionary).has("schedule_view") and _restore_participants().has("schedule_view"):
+		var captured: Dictionary = _restore_participants()["schedule_view"].capture()
+		if not captured.get("ok", false):
+			return captured
+		var backup: Variant = (captured.get("value", {}) as Dictionary).get("backup")
+		if typeof(backup) != TYPE_DICTIONARY:
+			return _fail(&"invalid_checkpoint_inputs", "schedule_view: no open day to checkpoint")
+		var lifecycle: Dictionary = snapshot_input["lifecycle"]
+		var recorded_day: int = int(lifecycle.get("day", 0))
+		var backup_day: int = int((backup as Dictionary).get("day", 0))
+		var merged_view: Dictionary = (backup as Dictionary).duplicate(true)
+		if recorded_day > backup_day:
+			var made: Dictionary = VIEW_STATE.make_empty(
+				recorded_day, str(lifecycle.get("causal_day_instance", "")))
+			if not made.get("ok", false):
+				return made
+			var derived_view: Dictionary = (made["value"] as Dictionary)["view"]
+			var ledger: Variant = (backup as Dictionary).get("condition_departure_receipts")
+			if typeof(ledger) != TYPE_DICTIONARY:
+				return _fail(&"invalid_checkpoint_inputs",
+					"schedule_view: captured view carries no departure ledger")
+			derived_view["condition_departure_receipts"] = (ledger as Dictionary).duplicate(true)
+			merged_view = derived_view
+		snapshot_input = (snapshot_input as Dictionary).duplicate(true)
+		snapshot_input["schedule_view"] = merged_view
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
 		snapshot_input, checkpoint_inputs["dialogic_checkpoint"],
 		str(checkpoint_inputs["route_id"]), active_app_id,
@@ -574,6 +612,9 @@ func _journal() -> RefCounted:
 
 func _storage() -> RefCounted:
 	return _save_manager._storage if _save_manager != null else null
+
+func _restore_participants() -> Dictionary:
+	return _save_manager._restore_participants if _save_manager != null else {}
 
 static func _has_all_methods(target: Object) -> bool:
 	for method: String in GATE_METHODS:

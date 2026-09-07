@@ -21,7 +21,9 @@ extends RefCounted
 ## and commit_condition_departure_transition()'s single-owner append, whose semantics are:
 ## an existing byte-identical entry returns unchanged without applying any view, live-before
 ## applies exactly once, live-after may adopt the receipt, and changed bytes or any third
-## live state return a typed conflict without partial mutation.
+## live state return a typed conflict without partial mutation. install_restored_view() is the
+## single restore-only path that DOES replace the ledger, so that no-edit-path-mutates-it
+## guarantee holds for every edit path.
 
 const _VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -313,6 +315,37 @@ func commit(candidate: Dictionary) -> Dictionary:
 
 func rollback(backup: Dictionary) -> Dictionary:
 	return _install_checked(backup, &"invalid_view_backup", "backup")
+
+
+## The restore-only whole-view installer (Amendment Plan 03 Task 4, dwm-oyo.3). Unlike
+## commit()/rollback(), which install only _EDITABLE_KEYS onto an already-open SAME day, a restored
+## view carries its own day, its own causal identity, and its own append-only ledger, so this
+## replaces every one of ScheduleViewState.VIEW_KEYS. Requires configure(); does NOT require
+## open_day() -- a restore is what opens the day.
+func install_restored_view(view: Variant) -> Dictionary:
+	var guard := _configured_guard()
+	if not guard.is_empty():
+		return guard
+	# A null capture represents the state before the first day was opened.
+	if view == null:
+		_view = {}
+		return _ok({"view": null})
+	if typeof(view) != TYPE_DICTIONARY:
+		return _fail(&"invalid_view_backup", "a restored view is a Dictionary or null", {})
+	var validated: Dictionary = _VIEW_STATE.validate(view, _registry, _fingerprint)
+	if not validated.get("ok", false):
+		return validated
+	var installed: Dictionary = {}
+	for key: String in _VIEW_STATE.VIEW_KEYS:
+		var member: Variant = view[key]
+		if typeof(member) == TYPE_DICTIONARY:
+			installed[key] = (member as Dictionary).duplicate(true)
+		elif typeof(member) == TYPE_ARRAY:
+			installed[key] = (member as Array).duplicate(true)
+		else:
+			installed[key] = member
+	_view = installed
+	return _ok({"view": _view.duplicate(true)})
 
 
 # ---- the Task-3 warning surface (Amendment Plan 03 Task 3 Steps 5-6, dwm-oyo.3) ----

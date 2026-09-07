@@ -4,7 +4,7 @@ extends RefCounted
 ## Durable New Run / selected Load continuation-operation journal (Plan 02 Task 1, dwm-p2r.16).
 ## External to every selectable snapshot: this uses its injected atomic storage and source-loader.
 const JOURNAL_PATH := "desktop-continuation-operations.json"
-const SCHEMA_VERSION := 3
+const SCHEMA_VERSION := 4
 const STAGE_INTENT := "intent_committed"
 const STAGE_ALLOCATED := "identity_allocation_committed"
 const STAGE_APPLYING := "participants_applying"
@@ -83,6 +83,7 @@ const PARTICIPANT_ORDER: Array[String] = [
 	"run",
 	"desktop_consequence",
 	"desktop_board",
+	"schedule_view",
 	"profile",
 	"localization",
 	"audio",
@@ -976,7 +977,7 @@ func _advance_to_applied(operation: Dictionary, allocation_receipt: Variant, par
 	if failure != null:
 		return _failed(&"advance_request_invalid", "stage completion cannot carry failure")
 	if index != PARTICIPANT_ORDER.size():
-		return _failed(&"advance_request_invalid", "index must be 8 to reach participants_applied")
+		return _failed(&"advance_request_invalid", "index must equal participant count to reach participants_applied")
 	var current_index := int(operation.get("next_participant_index", 0))
 	if current_index != PARTICIPANT_ORDER.size():
 		return _failed(&"advance_request_invalid", "all participants must be applied before participants_applied")
@@ -1000,7 +1001,7 @@ func _advance_to_completed(operation: Dictionary, allocation_receipt: Variant, p
 	if failure != null:
 		return _failed(&"advance_request_invalid", "completion may not carry failure")
 	if index != PARTICIPANT_ORDER.size():
-		return _failed(&"advance_request_invalid", "completion index must be 8")
+		return _failed(&"advance_request_invalid", "completion index must equal participant count")
 	var next := operation.duplicate(true)
 	next["stage"] = STAGE_COMPLETED
 	return {"ok": true, "value": _normalize_after_advance(next)}
@@ -1080,7 +1081,7 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 			if next_stage != STAGE_APPLYING:
 				if next_stage == STAGE_APPLIED:
 					if int(request["expected_next_participant_index"]) != PARTICIPANT_ORDER.size():
-						return _failed(&"advance_request_invalid", "participants_applying replay index must be 8")
+						return _failed(&"advance_request_invalid", "participants_applying replay index must equal participant count")
 					if request.get("allocation_receipt") != null or request.get("participant_name") != null \
 							or request.get("participant_receipt") != null or request.get("failure") != null:
 						return _failed(&"advance_request_invalid", "replay carries evidence")
@@ -1120,7 +1121,7 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 			if request.get("failure") != null:
 				return _failed(&"advance_request_invalid", "replay cannot carry failure")
 			if int(request["expected_next_participant_index"]) != PARTICIPANT_ORDER.size():
-				return _failed(&"advance_request_invalid", "replay index must be 8")
+				return _failed(&"advance_request_invalid", "replay index must equal participant count")
 			if request.get("allocation_receipt") != null or request.get("participant_name") != null \
 					or request.get("participant_receipt") != null:
 				return _failed(&"advance_request_invalid", "replay carries evidence")

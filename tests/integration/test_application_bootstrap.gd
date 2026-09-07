@@ -103,8 +103,8 @@ func _isolated_root(label: String) -> String:
 	return root
 
 
-## Builds the nine gate targets plus the bootstrap, with the gate already injected into all of
-## them exactly as the production stage does. Profile, Audio, and WindowMode then run in their
+## Builds the nine gate targets plus the bootstrap, with the gate and retained identity issuer
+## injected exactly as the production stages do. Profile, Audio, and WindowMode then run in their
 ## production order so WindowMode retains Audio's exact shared Settings transaction owner.
 func _make_graph(label: String) -> Dictionary:
 	var root: String = _isolated_root(label)
@@ -127,6 +127,9 @@ func _make_graph(label: String) -> Dictionary:
 	bootstrap.set("_profile_storage", JSON_STORAGE.new(root))
 	var injected: Dictionary = bootstrap.call(&"_construct_and_inject_mutation_gate", &"final")
 	assert_true(injected.get("ok", false), str(injected))
+	var identity_constructed: Dictionary = bootstrap.call(
+		&"_construct_identity_issuer_and_contact_commands")
+	assert_true(identity_constructed.get("ok", false), str(identity_constructed))
 	var profile_initialized: Dictionary = bootstrap.call(&"_run_stage", &"initialize_profile", &"final")
 	assert_true(profile_initialized.get("ok", false), str(profile_initialized))
 	var audio_initialized: Dictionary = bootstrap.call(&"_run_stage", &"initialize_audio", &"final")

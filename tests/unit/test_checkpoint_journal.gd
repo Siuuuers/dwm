@@ -14,7 +14,7 @@ const SEMANTIC_KINDS := [
 func _journal_exists() -> bool:
 	return ResourceLoader.exists(JOURNAL_PATH, "Script")
 
-## Test-authored v5 cases retain the source payload and explicitly choose Dark=false.
+## Test-authored v6 cases retain the source payload and explicitly choose Dark=false.
 ## This fixture construction is not a player-save migration.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
@@ -33,7 +33,7 @@ func _empty_desktop() -> Dictionary:
 
 func _snapshot(run_id: String, sequence: int, day: int = 3) -> Dictionary:
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SNAPSHOT_FIXTURE))
-	snapshot["schema_version"] = 5
+	snapshot["schema_version"] = 6
 	snapshot["lifecycle"]["dark_mode"] = false
 	snapshot["gameplay"].erase("opening_seen")
 	snapshot["gameplay"].erase("tutorial_seen")
@@ -47,6 +47,10 @@ func _snapshot(run_id: String, sequence: int, day: int = 3) -> Dictionary:
 	snapshot["lifecycle"]["causal_day_instance"] = "causal-day-1"
 	snapshot["lifecycle"]["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
 	snapshot["lifecycle"]["restore_provenance"] = null
+	snapshot["lifecycle"]["active_condition_hospital_plan"] = null
+	snapshot["lifecycle"]["condition_hospital_history"] = {}
+	snapshot["lifecycle"]["terminal_intent_handoff"] = null
+	snapshot["schedule_view"] = preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(day, "causal-day-1").value.view
 	snapshot["desktop"] = _empty_desktop()
 	# v3 (dwm-p2r.13 Task 5): a snapshot names ONE day, so the committed aggregate moves with it.
 	(snapshot["committed_schedule"] as Dictionary)["day"] = day

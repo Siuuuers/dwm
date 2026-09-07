@@ -4,6 +4,7 @@ const MATERIALS := preload("res://scripts/infrastructure/save/NewRunMaterials.gd
 const PROFILE_SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 const GAME_STATE := preload("res://autoload/GameState.gd")
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const READER := preload("res://scripts/validation/StrictJson.gd")
@@ -55,8 +56,14 @@ static func make_valid_fixture(allocation_candidate: Dictionary = {}, captured_d
 	game_state.free()
 	if not prepared.get("ok", false):
 		return prepared
+	var snapshot_input: Dictionary = prepared["value"]["snapshot_input"]
+	var empty_view: Dictionary = VIEW_STATE.make_empty(1,
+		str(allocation.get("causal_day_instance", "")))
+	if not empty_view.get("ok", false):
+		return empty_view
+	snapshot_input["schedule_view"] = empty_view["value"]["view"]
 	var built_snapshot: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
-		prepared["value"]["snapshot_input"], initial_context["dialogic_checkpoint"],
+		snapshot_input, initial_context["dialogic_checkpoint"],
 		initial_context["route_id"], initial_context["active_app_id"], {
 			"ambience_context": {}, "ambience_context_id": "",
 			"music_context": {}, "music_context_id": "",

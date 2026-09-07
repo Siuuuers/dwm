@@ -5,12 +5,12 @@ extends RefCounted
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 4; v4 desktop durability,
 ## Plan 02 Task 6, dwm-p2r.32).
 ##
-## `DOCUMENT_VERSION` and `RunSnapshotSchema.SCHEMA_VERSION` are pinned to the same integer (5) and
+## `DOCUMENT_VERSION` and `RunSnapshotSchema.SCHEMA_VERSION` are pinned to the same current integer and
 ## independently enforced -- this document validator and its delegate `_validate_bundle()` ->
 ## `RunSnapshotSchema.validate()` -- so a document/embedded-snapshot version mismatch can never both
 ## pass: whichever one carries the wrong integer is rejected by its own owning check.
 
-const DOCUMENT_VERSION := 5
+const DOCUMENT_VERSION := 6
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 

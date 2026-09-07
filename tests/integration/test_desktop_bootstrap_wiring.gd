@@ -35,6 +35,7 @@ const GAME_STATE_PATH := "res://autoload/GameState.gd"
 ## above -- extending this file rather than creating a second one, since
 ## `ApplicationBootstrap.get_desktop_contract_state()` is the ONE probe both plans read.
 const SAVE_MANAGER_PATH := "res://autoload/SaveManager.gd"
+const WINDOW_MODE_MANAGER := preload("res://autoload/WindowModeManager.gd")
 const JSON_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const APPLICATION_MUTATION_GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
@@ -45,11 +46,11 @@ const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/D
 
 const EXPECTED_RESTORE_ORDER: Array[StringName] = [
 	&"identity_allocation", &"run", &"desktop_consequence", &"desktop_board",
-	&"profile", &"localization", &"audio", &"route", &"narrative",
+	&"schedule_view", &"profile", &"localization", &"audio", &"route", &"narrative",
 ]
 const EXPECTED_RESTORE_PARTICIPANT_KEYS: Array[String] = [
 	"identity_allocation", "run", "desktop_consequence", "desktop_board",
-	"profile", "localization", "audio", "route", "narrative",
+	"schedule_view", "profile", "localization", "audio", "route", "narrative",
 ]
 
 ## Every foundation identity Step 8.1 requires to survive presentation configuration unchanged.
@@ -84,6 +85,17 @@ class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 
 	func _target(target_name: StringName) -> Node:
 		return targets.get(String(target_name), null)
+
+
+class UnavailableWindowOutput extends RefCounted:
+	func capture_output() -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
+	func apply_mode(_mode: String) -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
+	func output_matches(_mode: String) -> bool:
+		return false
+	func restore_output(_snapshot: Dictionary) -> Dictionary:
+		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
 
 
 func before_each() -> void:
@@ -122,10 +134,16 @@ func _build_desktop_graph() -> Dictionary:
 	_build_foundation()
 	var profile: Node = load("res://autoload/ProfileManager.gd").new()
 	add_child_autofree(profile)
+	assert_true(profile.initialize(JSON_STORAGE.new(_isolated_root())).get("ok", false))
 	var localization: Node = load("res://autoload/LocalizationManager.gd").new()
 	add_child_autofree(localization)
+	assert_true(localization.initialize(profile).get("ok", false))
 	var audio: Node = load("res://autoload/AudioManager.gd").new()
 	add_child_autofree(audio)
+	assert_true(audio.initialize(profile).get("ok", false))
+	var window: Node = WINDOW_MODE_MANAGER.new(UnavailableWindowOutput.new())
+	add_child_autofree(window)
+	assert_true(window.initialize(profile, audio.get_settings_output_transactions()).get("ok", false))
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	add_child_autofree(save_manager)
 	var storage: RefCounted = JSON_STORAGE.new(_isolated_root())
@@ -143,6 +161,7 @@ func _build_desktop_graph() -> Dictionary:
 	targets["ProfileManager"] = profile
 	targets["LocalizationManager"] = localization
 	targets["AudioManager"] = audio
+	targets["WindowModeManager"] = window
 	targets["GameState"] = _game_state
 	targets["SaveManager"] = save_manager
 	_bootstrap.set("targets", targets)
@@ -432,7 +451,7 @@ func test_snapshot_provider_instance_id_equals_game_state() -> void:
 	assert_true(_game_state.has_method("capture_run_snapshot_input"))
 
 
-func test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys() -> void:
+func test_the_probe_names_identity_allocation_plus_the_nine_participant_keys() -> void:
 	_build_desktop_graph()
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	assert_eq(state["restore_order"], EXPECTED_RESTORE_ORDER)

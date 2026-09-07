@@ -35,11 +35,14 @@ func _empty_desktop() -> Dictionary:
 
 func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	var upgraded := snapshot.duplicate(true)
-	upgraded["schema_version"] = 5
+	upgraded["schema_version"] = 6
 	upgraded["gameplay"].erase("opening_seen")
 	upgraded["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = (upgraded["lifecycle"] as Dictionary).duplicate(true)
 	lifecycle["dark_mode"] = false
+	lifecycle["active_condition_hospital_plan"] = null
+	lifecycle["condition_hospital_history"] = {}
+	lifecycle["terminal_intent_handoff"] = null
 	if not lifecycle.has("branch_id"):
 		lifecycle["branch_id"] = "branch-1"
 		lifecycle["desktop_timeline_generation"] = 0
@@ -49,6 +52,11 @@ func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	upgraded["lifecycle"] = lifecycle
 	if not upgraded.has("desktop"):
 		upgraded["desktop"] = _empty_desktop()
+	upgraded["schedule_view"] = {
+		"day": lifecycle["day"], "causal_day_instance": lifecycle["causal_day_instance"],
+		"entries": [], "date_entry_seen": false, "pending_warning": null,
+		"consumed_warning_receipts": {}, "condition_departure_receipts": {},
+	}
 	return upgraded
 
 func _fixture_snapshot() -> Dictionary:
@@ -127,25 +135,23 @@ func test_validate_rejects_malformed_documents() -> void:
 	bad_journal["recovery_journal"] = [{"entry": &"stringname"}]
 	assert_false(schema.validate(bad_journal).get("ok", true), "non-primitive journal entry rejects")
 
-	# v5 is current; the unsupported-future probe must remain newer.
+	# v6 is current; the unsupported-future probe must remain newer.
 	var future: Dictionary = document.duplicate(true)
-	future["schema_version"] = 6
+	future["schema_version"] = 7
 	assert_false(schema.validate(future).get("ok", true), "unsupported future document version rejects")
 
-## dwm-p2r.32 Task 6: DOCUMENT_VERSION and the embedded RunSnapshot's schema_version are pinned to
-## the same integer (5) and independently enforced, so the two can never disagree and both pass.
-func test_document_version_is_five_and_embedded_snapshot_version_must_agree() -> void:
+func test_document_version_is_six_and_embedded_snapshot_version_must_agree() -> void:
 	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	assert_eq(int(schema.DOCUMENT_VERSION), 5)
+	assert_eq(int(schema.DOCUMENT_VERSION), 6)
 	var built: Dictionary = schema.build(&"slot", 1, &"manual", _bundle(), [])
 	assert_true(built["ok"], JSON.stringify(built))
 	var document: Dictionary = built["value"]
-	assert_eq(int(document["schema_version"]), 5)
-	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 5)
-	# A document at v5 whose embedded snapshot is stamped v3 disagrees and rejects.
+	assert_eq(int(document["schema_version"]), 6)
+	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 6)
+	# A current document whose embedded snapshot carries an older tag disagrees and rejects.
 	var skewed: Dictionary = document.duplicate(true)
 	(skewed["current_snapshot"]["snapshot"] as Dictionary)["schema_version"] = 3
 	assert_false(schema.validate(skewed).get("ok", true),

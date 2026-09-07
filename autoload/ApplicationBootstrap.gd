@@ -79,13 +79,20 @@ const DESKTOP_CONDITION_POLICY_PORT := preload("res://scripts/application/deskto
 const SCHEDULE_DEPARTURE_VIEW_PORT := preload("res://scripts/application/schedule/ScheduleDepartureViewPort.gd")
 const DESKTOP_CONSEQUENCE_SOURCE_PORT := preload("res://scripts/application/desktop/DesktopConsequenceSourcePort.gd")
 const SCHEDULE_DONE_DISPATCHER := preload("res://scripts/application/schedule/ScheduleDoneDispatcher.gd")
+## Amendment Plan 03 Task 4 (dwm-oyo.3): the saved-ScheduleView restore seam. The controller and
+## the participant are constructed exactly once by _configure_schedule_view_participant() below.
+const SCHEDULE_VIEW_CONTROLLER := preload("res://scripts/application/schedule/ScheduleViewController.gd")
+const SCHEDULE_RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
+const SCHEDULE_VIEW_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/ScheduleViewRestoreParticipant.gd")
+const CONTINUATION_REMAPPER := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
 const SAVE_DOCUMENT_SCHEMA_FOR_PROBE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const RUN_SNAPSHOT_SCHEMA_VERSION := RUN_SNAPSHOT_SCHEMA_FOR_PROBE.SCHEMA_VERSION
 const SAVE_DOCUMENT_SCHEMA_VERSION := SAVE_DOCUMENT_SCHEMA_FOR_PROBE.DOCUMENT_VERSION
-## Frozen live restore order (dwm-p2r.32 Plan 02 Task 9 brief): identity_allocation applies once,
-## before the ordinary 8-participant loop SaveManager itself drives.
+## Frozen live restore order (dwm-p2r.32 Plan 02 Task 9 brief; extended by Amendment Plan 03 Task 4,
+## dwm-oyo.3): identity_allocation applies once, before the ordinary NINE-participant loop
+## SaveManager itself drives.
 const _RESTORE_ORDER: Array[StringName] = [
-	&"identity_allocation", &"run", &"desktop_consequence", &"desktop_board",
+	&"identity_allocation", &"run", &"desktop_consequence", &"desktop_board", &"schedule_view",
 	&"profile", &"localization", &"audio", &"route", &"narrative",
 ]
 
@@ -231,6 +238,12 @@ var _retained_desktop_condition_policy_port: RefCounted = null
 var _retained_schedule_departure_view_port: RefCounted = null
 var _retained_desktop_consequence_source_port: RefCounted = null
 var _retained_schedule_done_dispatcher: RefCounted = null
+## Amendment Plan 03 Task 4 (dwm-oyo.3). Unlike every other restore participant, which is a fresh
+## .new() per _configure_restore_participants() call, the schedule_view slot hands over these
+## RETAINED objects: the controller behind the participant holds live day/view state that an
+## identical startup replay must not silently reset.
+var _retained_schedule_view_controller: RefCounted = null
+var _retained_schedule_view_restore_participant: RefCounted = null
 ## Placeholder desktop identity context (dwm-p2r.32 Plan 02 Task 9). `GameStateDesktopBoardPort`/
 ## `GameStateMinesweeperShopPort` accept only ONE fixed `{run_id,branch_id,
 ## desktop_timeline_generation,causal_day_instance}` at configure() time and refuse any later
@@ -974,8 +987,8 @@ func _desktop_amendment_probe_fields() -> Dictionary:
 	var restore_participant_ids := {
 		"identity_allocation": _instance_id(_desktop_identity_allocation_participant),
 	}
-	for key: String in ["run", "desktop_consequence", "desktop_board", "profile", "localization",
-			"audio", "route", "narrative"]:
+	for key: String in ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile",
+			"localization", "audio", "route", "narrative"]:
 		restore_participant_ids[key] = _instance_id(
 			_retained_restore_participants.get(key) if _retained_restore_participants.has(key) else null)
 	# TRUE once these six desktop-graph objects are retained (non-null) -- a CONSTRUCTION check
@@ -1050,10 +1063,57 @@ func _configure_causal_day_advance_identity(coordinator: RefCounted) -> Dictiona
 		_retained_causal_day_advance_identity_port)
 
 
-## Builds the six production restore participants, constructs the ONE Bootstrap-owned desktop
+## Amendment Plan 03 Task 4 (dwm-oyo.3), Step 6. Constructs EXACTLY ONE ScheduleViewController and
+## EXACTLY ONE ScheduleViewRestoreParticipant around it, over the retained Schedule registry, the
+## retained Plan-02 issuer, and the existing static DesktopContinuationRemapper. Each object is built
+## only while still null, so identical startup replay reuses these exact instances: the retained
+## controller holds live day/view state a second construction would silently reset (the same law
+## `_desktop_host_state` obeys; ScheduleViewController.configure() itself has no replacement guard).
+##
+## THE REGISTRY IS LOADED HERE, not in the later `configure_day_resolution` stage: SaveManager needs
+## all nine participants at once during `configure_restore_participants` (STAGE_ORDER index 10) and
+## `ScheduleViewController.configure()` refuses a blank fingerprint. `_construct_schedule_foundation()`
+## keeps its own `if _retained_schedule_registry == null` guard, so the later stage adopts this exact
+## registry object and `schedule_registry_instance_id` in the probe never changes.
+func _configure_schedule_view_participant() -> Dictionary:
+	if _desktop_identity_nonce_issuer == null:
+		return _failure(&"missing_identity_issuer",
+			"the ScheduleView participant requires the retained production issuer")
+	if _retained_schedule_registry == null:
+		var loaded: Dictionary = SCHEDULE_ACTION_REGISTRY.load_current()
+		if not loaded.get("ok", false):
+			return loaded
+		_retained_schedule_registry = (loaded.get("value", {}) as Dictionary).get("registry")
+	if _retained_schedule_view_controller == null:
+		var controller: RefCounted = SCHEDULE_VIEW_CONTROLLER.new()
+		var configured: Dictionary = controller.configure(_retained_schedule_registry, SCHEDULE_RULES,
+			str(_retained_schedule_registry.fingerprint()))
+		if not configured.get("ok", false):
+			return configured
+		var warning_identity: Dictionary = controller.configure_warning_identity(
+			_desktop_identity_nonce_issuer)
+		if not warning_identity.get("ok", false):
+			return warning_identity
+		_retained_schedule_view_controller = controller
+	if _retained_schedule_view_restore_participant == null:
+		_retained_schedule_view_restore_participant = SCHEDULE_VIEW_RESTORE_PARTICIPANT.new(
+			_retained_schedule_view_controller, _retained_schedule_registry,
+			_desktop_identity_nonce_issuer, CONTINUATION_REMAPPER)
+	return {"ok": true, "code": &"ok", "value": {
+		"controller_instance_id": _retained_schedule_view_controller.get_instance_id(),
+		"participant_instance_id": _retained_schedule_view_restore_participant.get_instance_id(),
+		"registry_fingerprint": str(_retained_schedule_registry.fingerprint()),
+	}, "receipt": {}}
+
+
+## Builds the nine production live restore participants, constructs the ONE Bootstrap-owned desktop
 ## host, wires it into the route participant, and hands the full set to SaveManager. Runs exactly
 ## once (each participant is built only while still null) so identical startup replay is safe
-## (dwm-p2r.9 Plan 02 Task 1).
+## (dwm-p2r.9 Plan 02 Task 1). Every slot but one is a fresh `.new()` per call, safe because
+## SaveManager only ever retains the newest dict; the `schedule_view` slot alone hands over the
+## RETAINED participant built by _configure_schedule_view_participant(), because the controller
+## behind it holds live day/view state that a replay must not silently reset (Amendment Plan 03
+## Task 4, dwm-oyo.3).
 func _configure_restore_participants() -> Dictionary:
 	var save_manager := _target(&"SaveManager")
 	var game_state := _target(&"GameState")
@@ -1090,10 +1150,14 @@ func _configure_restore_participants() -> Dictionary:
 		_desktop_consequence_state = DESKTOP_CONSEQUENCE_STATE.new()
 	if _desktop_board_state == null:
 		_desktop_board_state = DESKTOP_BOARD_STATE.new()
+	var view_configured: Dictionary = _configure_schedule_view_participant()
+	if not view_configured.get("ok", false):
+		return view_configured
 	var participants := {
 		"run": RUN_RESTORE_PARTICIPANT.new(game_state),
 		"desktop_consequence": DESKTOP_CONSEQUENCE_RESTORE_PARTICIPANT.new(_desktop_consequence_state),
 		"desktop_board": DESKTOP_BOARD_RESTORE_PARTICIPANT.new(_desktop_board_state),
+		"schedule_view": _retained_schedule_view_restore_participant,
 		"profile": PROFILE_RESTORE_PARTICIPANT.new(profile),
 		"localization": LOCALIZATION_RESTORE_PARTICIPANT.new(localization),
 		"audio": AUDIO_RESTORE_PARTICIPANT.new(audio),

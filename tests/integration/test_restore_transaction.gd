@@ -16,7 +16,7 @@ const CALL_LOG := "res://tests/support/RestoreCallLog.gd"
 ## key here; a hand-built `_prepared()` with no `source_locator` never drives real identity
 ## allocation (see SaveManager.commit_prepared_restore()'s own doc comment), so no real
 ## DesktopConsequenceState/DesktopBoardState wiring is needed for this file's purpose.
-const KEYS := ["run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative"]
+const KEYS := ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"]
 
 func _manager(log: RefCounted) -> Dictionary:
 	var root := OS.get_environment("DWM_TEST_ROOT").path_join("restore_txn").path_join(str(randi())).path_join("saves")
@@ -38,11 +38,11 @@ func _prepared() -> Dictionary:
 		plans[key] = {}
 	return {"participant_plans": plans, "checkpoint_id": "run-r:5", "route_id": "main"}
 
-func test_configure_restore_participants_validates_eight_keys() -> void:
+func test_configure_restore_participants_validates_nine_keys() -> void:
 	var log: RefCounted = load(CALL_LOG).new()
 	var manager: Node = _manager(log)["manager"]
 	assert_eq(manager.configure_restore_participants({"run": load(FAKE_PARTICIPANT).new("run", log)}).get("code"),
-		&"invalid_restore_participants", "fewer than eight rejects")
+		&"invalid_restore_participants", "fewer than nine rejects")
 	assert_eq(manager.commit_prepared_restore({}).get("code"), &"invalid_prepared_restore",
 		"a prepared with no participant_plans rejects")
 
@@ -61,7 +61,7 @@ func test_restore_success_applies_and_finalizes_in_order() -> void:
 		if entry.ends_with(".apply_silent"): applies.append(entry.trim_suffix(".apply_silent"))
 		if entry.ends_with(".finalize"): finals.append(entry.trim_suffix(".finalize"))
 	assert_eq(applies, KEYS, "apply runs run->desktop_consequence->desktop_board->profile->localization->audio->route->narrative")
-	assert_eq(finals, ["run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "narrative", "route"],
+	assert_eq(finals, ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "narrative", "route"],
 		"Only dispatch the irreversible scene change after every other participant finalizes")
 	assert_eq(emissions.size(), 1, "exactly one run_restored")
 	assert_false(manager.is_save_locked(), "restore lock released on success")
@@ -79,7 +79,7 @@ func test_apply_failure_rolls_back_in_reverse_and_emits_nothing() -> void:
 	var rollbacks: Array[String] = []
 	for entry: String in log.entries:
 		if entry.ends_with(".rollback_silent"): rollbacks.append(entry.trim_suffix(".rollback_silent"))
-	assert_eq(rollbacks, ["localization", "profile", "desktop_board", "desktop_consequence", "run"],
+	assert_eq(rollbacks, ["localization", "profile", "schedule_view", "desktop_board", "desktop_consequence", "run"],
 		"rollback runs in exact reverse order")
 	assert_eq(emissions.size(), 0, "no run_restored on failure")
 	assert_false(manager.is_save_locked(), "locks released after clean rollback")

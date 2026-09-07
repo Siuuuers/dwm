@@ -30,6 +30,8 @@ func _lifecycle_dict(run_id: String, day: int, state: String, active_resolution_
 	var merged := {
 		"run_id": run_id, "dark_mode": false, "day": day, "state": state,
 		"active_resolution_plan": active_resolution_plan, "ending_plan": ending_plan,
+		"active_condition_hospital_plan": null, "condition_hospital_history": {},
+		"terminal_intent_handoff": null,
 	}
 	for key in _desktop_fields():
 		merged[key] = _desktop_fields()[key]
@@ -213,9 +215,10 @@ func test_to_dict_shape_is_exact() -> void:
 	var snapshot: Dictionary = lifecycle.to_dict()
 	var keys := snapshot.keys()
 	keys.sort()
-	assert_eq(keys, ["active_resolution_plan", "branch_id", "causal_day_instance",
-		"causal_day_instance_issuer_receipt", "dark_mode", "day", "desktop_timeline_generation", "ending_plan",
-		"restore_provenance", "run_id", "state"])
+	assert_eq(keys, ["active_condition_hospital_plan", "active_resolution_plan", "branch_id", "causal_day_instance",
+		"causal_day_instance_issuer_receipt", "condition_hospital_history", "dark_mode", "day",
+		"desktop_timeline_generation", "ending_plan", "restore_provenance", "run_id", "state",
+		"terminal_intent_handoff"])
 	assert_eq(snapshot["run_id"], "run-shape")
 	assert_eq(snapshot["day"], 3)
 	assert_eq(snapshot["state"], "PLAYING")
@@ -225,6 +228,30 @@ func test_to_dict_shape_is_exact() -> void:
 	assert_eq(snapshot["desktop_timeline_generation"], 0)
 	assert_eq(snapshot["causal_day_instance"], "causal-day-1")
 	assert_eq(snapshot["restore_provenance"], null)
+	assert_eq(snapshot["active_condition_hospital_plan"], null)
+	assert_eq(snapshot["condition_hospital_history"], {})
+	assert_eq(snapshot["terminal_intent_handoff"], null)
+
+func test_dark_terminal_pending_lifecycle_round_trips() -> void:
+	var lifecycle: RefCounted = load(LIFECYCLE_PATH).new()
+	lifecycle.reset("run-terminal", "branch-1", 0, "causal-day-1", _identity_allocation_receipt(), true)
+	var terminal_intent := {"kind": "ending", "ending_id": "ending.sylvia.special"}
+	var candidate := _lifecycle_dict("run-terminal", 7, "TERMINAL_PENDING")
+	candidate["dark_mode"] = true
+	candidate["terminal_intent_handoff"] = {
+		"destination_outbox_record": {"status": "pending", "payload": terminal_intent.duplicate(true)},
+		"schema_version": 1,
+		"source_kind": "condition_action",
+		"source_transaction_id": "transaction.terminal-1",
+		"source_transaction_issuer_receipt": {"receipt_id": "issuer.terminal-1"},
+		"status": "pending_oyo6",
+		"terminal_intent": terminal_intent,
+	}
+	var prepared: Dictionary = lifecycle.prepare_restore(candidate)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	assert_true(lifecycle.commit_restore(prepared["value"]["candidate"]).get("ok", false))
+	assert_eq(lifecycle.to_dict(), candidate,
+		"captured Dark and the terminal handoff survive the same lifecycle round trip")
 
 func test_reset_rejects_id_only_or_mismatched_provenance_downstream() -> void:
 	# reset() itself is void (no envelope) and never validates -- the actual enforcement point is
@@ -253,6 +280,14 @@ func test_get_desktop_identity_context_shape() -> void:
 	assert_eq(context["branch_id"], "branch-1")
 	assert_eq(context["causal_day_instance"], "causal-day-1")
 
+func _source_identity(causal_day_instance: String = "causal-day-1") -> Dictionary:
+	return {
+		"branch_id": "branch-1",
+		"desktop_timeline_generation": 0,
+		"causal_day_instance": causal_day_instance,
+		"causal_day_instance_issuer_receipt": _issuer_receipt(causal_day_instance),
+	}
+
 ## Task 6 Phase C: a well-formed enriched identity_allocation_bundle, matching exactly what
 ## DesktopIdentityAllocationRestoreParticipant is documented to hand RunLifecycle -- the raw
 ## continuation-allocation identity plus the one continuation_operation remap receipt.
@@ -278,7 +313,7 @@ func test_continuation_remap_installs_the_new_identity_and_provenance() -> void:
 		return
 	var lifecycle := _fresh("run-remap", 3)
 	var bundle := _remap_bundle("run-remap")
-	var prepared: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-1", bundle)
+	var prepared: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-1", bundle, _source_identity())
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var candidate: Dictionary = prepared["value"]["candidate"]
 	assert_eq(candidate["run_id"], "run-remap", "restore never changes run_id")
@@ -313,7 +348,7 @@ func test_continuation_remap_rejects_a_bundle_for_a_different_run() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle := _fresh("run-remap-2", 3)
-	var rejected: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-2", _remap_bundle("some-other-run"))
+	var rejected: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-2", _remap_bundle("some-other-run"), _source_identity())
 	assert_false(rejected.get("ok", true), "a bundle for a different run_id must reject")
 	assert_eq(rejected["code"], &"identity_allocation_run_id_mismatch")
 	assert_eq(lifecycle.to_dict()["run_id"], "run-remap-2", "a rejected prepare never mutates")
@@ -323,7 +358,7 @@ func test_continuation_remap_rejects_a_blank_restore_transaction_id() -> void:
 	if not _lifecycle_exists():
 		return
 	var lifecycle := _fresh("run-remap-3", 3)
-	var rejected: Dictionary = lifecycle.prepare_continuation_remap("", _remap_bundle("run-remap-3"))
+	var rejected: Dictionary = lifecycle.prepare_continuation_remap("", _remap_bundle("run-remap-3"), _source_identity())
 	assert_false(rejected.get("ok", true))
 	assert_eq(rejected["code"], &"invalid_restore_transaction_id")
 
@@ -337,6 +372,6 @@ func test_continuation_remap_rejects_an_incomplete_bundle() -> void:
 			"remap_receipt_provenance", "run_id", "transaction_remap"]:
 		var incomplete := _remap_bundle("run-remap-4")
 		incomplete.erase(missing)
-		var rejected: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-4", incomplete)
+		var rejected: Dictionary = lifecycle.prepare_continuation_remap("restore-txn-4", incomplete, _source_identity())
 		assert_false(rejected.get("ok", true), "a bundle missing " + missing + " must reject")
 		assert_eq(rejected["code"], &"invalid_identity_allocation_bundle", missing)

@@ -1,5 +1,5 @@
 extends "res://addons/gut/test.gd"
-# Current v3 contract adaptation retains all historical negative families below.
+# Combined v4 contract retains all historical negative families below.
 # Restore retains pre-allocation abort; committed complete New Run material is forward-only.
 # Behavioral RED contract tests for the durable continuation-operation journal
 # (Plan 02 Task 1, dwm-p2r.16).
@@ -7,7 +7,7 @@ extends "res://addons/gut/test.gd"
 # OBLIGATION MAP (plan line 797; dwm-p2r.16 DECISION 9.13 puts the per-clause map beside the code).
 #   36 external-journal exact schema ........................ DEEP
 #   37 intent-before-allocation ............................. breadth
-#   38 every legal/illegal stage edge ....................... breadth + full 8-key participant
+#   38 every legal/illegal stage edge ....................... breadth + full 9-key participant
 #                                                             walk (DECISION 10.4); the complete
 #                                                             stage adjacency matrix -> 16.1
 #   39 source locator / hash mismatch ....................... breadth
@@ -27,7 +27,7 @@ extends "res://addons/gut/test.gd"
 # tested below is the retention law the JOURNAL actually owns (plan line 593).
 #
 # CLAUSE 38 (DECISION 10.4). The complete stage adjacency matrix and its evidence cross-product
-# are pinned below together with the exact eight-participant walk.
+# are pinned below together with the exact nine-participant walk.
 #
 # TWO SUBSTRATES IN ONE FILE -- deliberate, not an oversight.
 #   * The JOURNAL's own document uses FakeDesktopContinuationJournalStorage (DECISION 8.5). That
@@ -136,11 +136,12 @@ const STAGE_APPLIED := "participants_applied"
 const STAGE_COMPLETED := "completed"
 const STAGE_ABORTED := "aborted"
 
-# Plan line 591: "the exact live participant order is the eight keys above."
+# Plan line 591: "the exact live participant order is the nine keys above."
 const PARTICIPANT_ORDER: Array[String] = [
 	"run",
 	"desktop_consequence",
 	"desktop_board",
+	"schedule_view",
 	"profile",
 	"localization",
 	"audio",
@@ -281,7 +282,35 @@ func test_journal_public_surface_adds_only_explicit_new_run_target_proof() -> vo
 		if not method_name.begins_with("_"):
 			actual.append(method_name)
 	assert_eq(actual, expected,
-		"v3 adds explicit target proof to the retained journal API")
+		"v4 retains explicit target proof to the retained journal API")
+
+
+func test_v4_combines_durable_new_run_targets_with_the_schedule_view_participant() -> void:
+	var journal: Variant = _configured_journal()
+	if journal == null or not _commit_new_run_intent(journal):
+		return
+	var document := _stored_document()
+	var operation := _operation_record()
+	assert_eq(document.get("schema_version"), 4,
+		"the combined journal writes the new v4 contract")
+	assert_eq(JOURNAL.PARTICIPANT_ORDER, [
+		"run",
+		"desktop_consequence",
+		"desktop_board",
+		"schedule_view",
+		"profile",
+		"localization",
+		"audio",
+		"route",
+		"narrative",
+	], "schedule_view is restored before profile and the remaining live participants")
+	assert_true(typeof(operation.get("new_run_materials")) == TYPE_DICTIONARY,
+		"v4 retains the complete durable New Run material")
+	assert_eq(operation.get("new_run_targets"), {
+		"identity": null,
+		"autosave": null,
+		"profile": null,
+	}, "v4 retains the ordered durable target-proof state")
 
 
 # ---------------------------------------------------------------------------------------------
@@ -308,7 +337,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 	document_keys.sort()
 	assert_eq(document_keys, DOCUMENT_KEYS,
 		"plan line 555: the document is exactly {schema_version, operations}")
-	assert_eq(document.get("schema_version"), 3, "schema_version is exactly 3")
+	assert_eq(document.get("schema_version"), 4, "schema_version is exactly 4")
 
 	var base_document: Dictionary = (document as Dictionary).duplicate(true)
 	var operations: Variant = base_document.get("operations", {}) as Dictionary
@@ -341,7 +370,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 		{"label": "extra envelope member", "mode": "extra"},
 		{"label": "schema_version wrong type", "mode": "replace", "member": "schema_version", "value": "1"},
 		{"label": "operations wrong type", "mode": "replace", "member": "operations", "value": []},
-		{"label": "historical v2 remains unsupported", "mode": "replace", "member": "schema_version", "value": 2},
+		{"label": "prior unshipped v3 remains unsupported", "mode": "replace", "member": "schema_version", "value": 3},
 	]
 	for profile: Dictionary in document_profiles:
 		var malformed_document: Dictionary = base_document.duplicate(true)
@@ -395,7 +424,7 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 		{"label": "unknown operation kind", "member": "kind", "value": "alien-kind"},
 		{"label": "unknown operation stage", "member": "stage", "value": "not_a_stage"},
 		{"label": "negative participant index", "member": "next_participant_index", "value": -1},
-		{"label": "participant index beyond eight", "member": "next_participant_index", "value": 9},
+		{"label": "participant index beyond nine", "member": "next_participant_index", "value": 10},
 	]
 	for profile: Dictionary in operation_profiles:
 		var mutated_operation: Dictionary = (operations[first_txid] as Dictionary).duplicate(true)
@@ -610,14 +639,14 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 			"member": "allocation_receipt", "value": null},
 		{"label": "applying index must match receipt prefix", "stage": STAGE_APPLYING, "count": 3,
 			"member": "next_participant_index", "value": 2},
-		{"label": "applied requires allocation", "stage": STAGE_APPLIED, "count": 8,
+		{"label": "applied requires allocation", "stage": STAGE_APPLIED, "count": PARTICIPANT_ORDER.size(),
 			"member": "allocation_receipt", "value": null},
-		{"label": "applied index must be eight", "stage": STAGE_APPLIED, "count": 8,
-			"member": "next_participant_index", "value": 7},
-		{"label": "completed cannot retain failure", "stage": STAGE_COMPLETED, "count": 8,
+		{"label": "applied index must be nine", "stage": STAGE_APPLIED, "count": PARTICIPANT_ORDER.size(),
+			"member": "next_participant_index", "value": 8},
+		{"label": "completed cannot retain failure", "stage": STAGE_COMPLETED, "count": PARTICIPANT_ORDER.size(),
 			"member": "failure", "value": valid_failure},
-		{"label": "completed index must be eight", "stage": STAGE_COMPLETED, "count": 8,
-			"member": "next_participant_index", "value": 7},
+		{"label": "completed index must be nine", "stage": STAGE_COMPLETED, "count": PARTICIPANT_ORDER.size(),
+			"member": "next_participant_index", "value": 8},
 		{"label": "aborted cannot retain allocation", "stage": STAGE_ABORTED, "count": 0,
 			"member": "allocation_receipt", "value": _allocation_receipt("illegal-abort")},
 		{"label": "aborted index must be zero", "stage": STAGE_ABORTED, "count": 0,
@@ -641,10 +670,10 @@ func test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_
 			"participant": PARTICIPANT_ORDER[1], "value": null},
 		{"label": "applying current receipt must be null", "stage": STAGE_APPLYING, "count": 3,
 			"participant": PARTICIPANT_ORDER[3], "value": _participant_receipt(PARTICIPANT_ORDER[3])},
-		{"label": "applied receipt must be nonnull", "stage": STAGE_APPLIED, "count": 8,
-			"participant": PARTICIPANT_ORDER[7], "value": null},
-		{"label": "completed receipt must be nonnull", "stage": STAGE_COMPLETED, "count": 8,
-			"participant": PARTICIPANT_ORDER[7], "value": null},
+		{"label": "applied receipt must be nonnull", "stage": STAGE_APPLIED, "count": PARTICIPANT_ORDER.size(),
+			"participant": PARTICIPANT_ORDER[-1], "value": null},
+		{"label": "completed receipt must be nonnull", "stage": STAGE_COMPLETED, "count": PARTICIPANT_ORDER.size(),
+			"participant": PARTICIPANT_ORDER[-1], "value": null},
 		{"label": "aborted participant receipt must be null", "stage": STAGE_ABORTED, "count": 0,
 			"participant": PARTICIPANT_ORDER[0], "value": _participant_receipt(PARTICIPANT_ORDER[0])},
 	]
@@ -697,7 +726,8 @@ func test_every_legal_and_illegal_stage_transition_is_enforced() -> void:
 		seen_pairs[pair_key] = true
 		var txid := "tx-stage-matrix-%d" % txid_index
 		txid_index += 1
-		_storage.restart()
+		# Stage pairs are independent; isolate them from prior matrix cells.
+		_storage = FAKE_STORAGE.new()
 		var scenario: Object = JOURNAL.new()
 		if not _require_ok(scenario.configure(_storage, _loader),
 				"configure stage transition matrix journal for %s" % profile.get("label", "")):
@@ -742,7 +772,9 @@ func test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges() -> v
 		for transition: Dictionary in _stage_transition_matrix():
 			var txid := "tx-evidence-%s-%d" % [evidence_kind, scenario_index]
 			scenario_index += 1
-			_storage.restart()
+			# Every matrix cell is independent; a fresh store avoids repeatedly validating and
+			# canonicalizing operations retained by unrelated earlier cells.
+			_storage = FAKE_STORAGE.new()
 			var scenario: Object = JOURNAL.new()
 			if not _require_ok(scenario.configure(_storage, _loader),
 					"configure %s evidence cross for %s" % [evidence_kind, transition.get("label", "")]):
@@ -867,7 +899,7 @@ func test_the_intent_must_be_committed_before_any_allocation_is_recorded() -> vo
 # Clause 38 -- legal and illegal stage edges (breadth + the full participant walk, DECISION 10.4)
 # ---------------------------------------------------------------------------------------------
 
-func test_the_eight_participants_apply_in_exactly_the_frozen_order() -> void:
+func test_the_nine_participants_apply_in_exactly_the_frozen_order() -> void:
 	var journal: Variant = _allocated_journal()
 	if journal == null:
 		return
@@ -917,16 +949,16 @@ func test_the_eight_participants_apply_in_exactly_the_frozen_order() -> void:
 			assert_true(receipts.get(PARTICIPANT_ORDER[higher]) == null,
 				"%s stays null until its turn" % PARTICIPANT_ORDER[higher])
 
-	# Plan line 591: "participants_applied requires index 8 and every receipt nonnull."
+	# Plan line 591: "participants_applied requires the full participant count and every receipt nonnull."
 	if not _require_ok(journal.advance(_advance_request(
-			_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLIED, 8)),
+			_new_run_transaction_id(), STAGE_APPLYING, STAGE_APPLIED, PARTICIPANT_ORDER.size())),
 			"advance to participants_applied"):
 		return
 	var applied: Variant = _operation_record()
 	if applied.is_empty():
 		return
-	assert_eq(int(applied.get("next_participant_index", -1)), 8,
-		"plan line 591: participants_applied requires index 8")
+	assert_eq(int(applied.get("next_participant_index", -1)), PARTICIPANT_ORDER.size(),
+		"plan line 591: participants_applied requires the full participant count")
 	var applied_receipts: Variant = applied.get("participant_receipts", {}) as Dictionary
 	for participant: String in PARTICIPANT_ORDER:
 		assert_true(applied_receipts.get(participant) != null,
@@ -966,7 +998,7 @@ func test_each_participant_receipt_has_identical_replay_and_changed_receipt_conf
 			"the changed %s replay conflicts before storage mutation" % participant)
 
 
-func test_applying_index_eight_rejects_safely_before_participant_array_access() -> void:
+func test_applying_index_nine_rejects_safely_before_participant_array_access() -> void:
 	var journal: Variant = _applying_journal()
 	if journal == null:
 		return
@@ -985,11 +1017,11 @@ func test_applying_index_eight_rejects_safely_before_participant_array_access() 
 	var writes_before: int = _storage.write_count
 	var durable_before: String = _canonical_sha256(_stored_document())
 	_assert_rejected(journal.advance(unsafe),
-		"participant index 8 is terminal and cannot address a ninth participant")
+		"participant index 9 is terminal and cannot address a tenth participant")
 	assert_eq(_storage.write_count, writes_before,
-		"participant index 8 rejects before storage mutation")
+		"participant index 9 rejects before storage mutation")
 	assert_eq(_canonical_sha256(_stored_document()), durable_before,
-		"participant index 8 preserves durable bytes")
+		"participant index 9 preserves durable bytes")
 
 
 func test_a_skipped_participant_index_is_refused() -> void:
@@ -1222,7 +1254,7 @@ func test_list_incomplete_returns_only_nonterminal_operations() -> void:
 	if not _advance_allocated_through_applied(journal, _new_run_transaction_id()):
 		return
 	if not _require_ok(journal.advance(_advance_request(
-			_new_run_transaction_id(), STAGE_APPLIED, STAGE_COMPLETED, 8)),
+			_new_run_transaction_id(), STAGE_APPLIED, STAGE_COMPLETED, PARTICIPANT_ORDER.size())),
 			"advance to completed"):
 		return
 	var after: Variant = journal.list_incomplete()
@@ -1269,7 +1301,7 @@ func test_startup_reconciliation_is_no_op_for_terminal_operations() -> void:
 	if not _advance_allocated_through_applied(journal, _new_run_transaction_id()):
 		return
 	if not _require_ok(journal.advance(_advance_request(
-			_new_run_transaction_id(), STAGE_APPLIED, STAGE_COMPLETED, 8)),
+			_new_run_transaction_id(), STAGE_APPLIED, STAGE_COMPLETED, PARTICIPANT_ORDER.size())),
 			"advance applied to completed before terminal startup"):
 		return
 	var completed_snapshot_before: Dictionary = _stored_document()

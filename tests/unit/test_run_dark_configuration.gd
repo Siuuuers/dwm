@@ -29,6 +29,7 @@ func _snapshot(owner: Node, dark_mode: bool, run_id: String = "run-dark-test") -
 		"causal-dark-test", _receipt(), dark_mode)
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return {}
+	prepared.value.snapshot_input["schedule_view"] = preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(1, "causal-dark-test").value.view
 	var built: Dictionary = SNAPSHOT.build(prepared.value.snapshot_input, {}, "main", null,
 		{"ambience_context": {}, "ambience_context_id": "", "music_context": {}, "music_context_id": ""}, 1, 1)
 	assert_true(built.get("ok", false), str(built))
@@ -70,12 +71,12 @@ func test_new_run_preparation_is_strict_detached_and_does_not_install_configurat
 		assert_false(owner.get_run_configuration().ok)
 	assert_eq(owner.capture_restore_state(), before)
 
-func test_v5_document_round_trip_and_retired_fields_are_rejected() -> void:
+func test_v6_document_round_trip_and_retired_fields_are_rejected() -> void:
 	var owner := _game_state()
 	for dark: bool in [false, true]:
 		var snapshot := _snapshot(owner, dark)
 		if snapshot.is_empty(): continue
-		assert_eq(snapshot.schema_version, 5)
+		assert_eq(snapshot.schema_version, 6)
 		assert_eq(snapshot.lifecycle.dark_mode, dark)
 		assert_false(snapshot.gameplay.has("opening_seen"))
 		assert_false(snapshot.gameplay.has("tutorial_seen"))
@@ -83,7 +84,7 @@ func test_v5_document_round_trip_and_retired_fields_are_rejected() -> void:
 			{"checkpoint_kind": "day_start", "snapshot": snapshot}, [])
 		assert_true(document.ok, str(document))
 		if not document.ok: continue
-		assert_eq(document.value.schema_version, 5)
+		assert_eq(document.value.schema_version, 6)
 		var decoded: Dictionary = JSON.parse_string(JSON.stringify(document.value))
 		var validated: Dictionary = DOCUMENT.validate(decoded)
 		assert_true(validated.ok, str(validated))
@@ -157,7 +158,9 @@ func test_day_changes_and_identity_remap_preserve_captured_dark() -> void:
 			"run_id": "run-dark-test", "branch_id": "branch-restored", "desktop_timeline_generation": 1,
 			"causal_day_instance": "causal-restored", "causal_day_instance_issuer_receipt": _receipt("causal-restored"),
 			"allocation_receipt_id": "allocation-test", "remap_receipt_id": "remap-test",
-			"remap_receipt_provenance": {}, "transaction_remap": {}})
+			"remap_receipt_provenance": {}, "transaction_remap": {}}, {
+			"branch_id": "branch-dark-test", "desktop_timeline_generation": 0,
+			"causal_day_instance": "causal-dark-test", "causal_day_instance_issuer_receipt": _receipt()})
 		assert_true(remapped.ok, str(remapped))
 		if remapped.ok:
 			assert_true(lifecycle.commit_continuation_remap(remapped.value.candidate).ok)
