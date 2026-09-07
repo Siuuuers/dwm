@@ -15,6 +15,83 @@ const _SCENE_PATHS := {
 var _current_scene_id: String = ""
 var _mutation_gate: Object = null
 
+# Process-local startup barrier. A queued request is semantic intent, never a claim
+# that a scene or its layout has mounted. Only Bootstrap publishes the final request.
+var _startup_hold_token := ""
+var _startup_hold_active := false
+var _startup_publishing := false
+var _startup_request: Dictionary = {}
+var _startup_published_result: Dictionary = {}
+
+func begin_startup_route_hold() -> Dictionary:
+	if not _startup_published_result.is_empty(): return _startup_failure("startup_route_hold_completed")
+	if _startup_publishing: return _startup_failure("startup_route_publication_busy")
+	if not _startup_hold_active:
+		_startup_hold_token = "startup-route:%d" % get_instance_id()
+		_startup_hold_active = true
+	return {"ok": true, "value": {"token": _startup_hold_token}}
+
+func publish_startup_route_hold(token: String) -> Dictionary:
+	if token.is_empty() or token != _startup_hold_token: return _startup_failure("stale_startup_route_hold")
+	if _startup_publishing: return _startup_failure("startup_route_publication_busy")
+	if not _startup_published_result.is_empty(): return _startup_published_result.duplicate(true)
+	if not _startup_hold_active: return _startup_failure("stale_startup_route_hold")
+	_startup_publishing = true
+	var result: Dictionary = {"ok": true, "value": {"route_id": get_current_route_id()}}
+	if not _startup_request.is_empty():
+		if _startup_request.kind == "presentation":
+			var port: Object = _hospital_presentation_port if _startup_request.route_id == "hospital" else _dating_presentation_port
+			if not is_instance_valid(port) or port.get_instance_id() != _startup_request.port_instance_id:
+				result = _startup_failure("stale_startup_presentation_port")
+			else:
+				result = _route_presentation(_startup_request.route_id, _startup_request.command, true)
+		else:
+			result = _change_to(_startup_request.route_id, true)
+	_startup_publishing = false
+	if not result.get("ok", false): return result
+	_startup_hold_active = false
+	var value: Dictionary = result.get("value", {}).duplicate(true)
+	value["deferred"] = false
+	value["route_id"] = get_current_route_id()
+	result["value"] = value
+	_startup_published_result = result.duplicate(true)
+	return result
+
+func _hold_startup_request(request: Dictionary) -> Dictionary:
+	_startup_request = request.duplicate(true)
+	_current_scene_id = request.route_id
+	var value := {"route_id": request.route_id, "deferred": true}
+	if request.has("port_instance_id"): value["port_instance_id"] = request.port_instance_id
+	return {"ok": true, "code": &"ok", "value": value}
+
+static func _startup_failure(code: String) -> Dictionary:
+	return {"ok": false, "code": code, "message": ""}
+
+static func _plain_startup_value(value: Variant) -> bool:
+	match typeof(value):
+		TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_STRING: return true
+		TYPE_FLOAT: return is_finite(value)
+		TYPE_ARRAY:
+			for item: Variant in value:
+				if not _plain_startup_value(item): return false
+			return true
+		TYPE_DICTIONARY:
+			for key: Variant in value:
+				if not key is String or not _plain_startup_value(value[key]): return false
+			return true
+	return false
+
+func _valid_startup_request(request: Variant) -> bool:
+	if not request is Dictionary or not _plain_startup_value(request): return false
+	if request.is_empty(): return true
+	if not request.get("route_id") is String or not _SCENE_PATHS.has(request.route_id): return false
+	if request.get("kind") == "scene": return request.size() == 2
+	return (request.get("kind") == "presentation" and request.size() == 4
+		and request.route_id in ["hospital", "dating"] and request.get("command") is Dictionary
+		and not request.command.is_empty() and request.command.get("route_id") == request.route_id
+		and request.get("port_instance_id") is int and request.port_instance_id != 0)
+
+
 
 ## Common mutation-gate seam (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md
 ## Task 7). Matches the frozen contract the other seven final targets use.
@@ -109,6 +186,10 @@ func is_schedule_presentation_ports_configured() -> bool:
 ## day, or selects an ending, and Day-7 provenance can never reach this method because Plan 01 makes
 ## no Day-7 presentation intent at all.
 func route_presentation(route_id: String, presentation_command: Dictionary) -> Dictionary:
+	return _route_presentation(route_id, presentation_command)
+
+func _route_presentation(route_id: String, presentation_command: Dictionary, startup_publish: bool = false) -> Dictionary:
+	if _startup_publishing and not startup_publish: return _startup_failure("startup_route_publication_busy")
 	if not is_schedule_presentation_ports_configured():
 		return {"ok": false, "code": &"schedule_presentation_ports_unconfigured", "message": ""}
 	if not _SCENE_PATHS.has(route_id) or not ["hospital", "dating"].has(route_id):
@@ -119,13 +200,14 @@ func route_presentation(route_id: String, presentation_command: Dictionary) -> D
 		return {"ok": false, "code": &"invalid_presentation_route", "message": route_id}
 	var port: Object = _hospital_presentation_port if route_id == "hospital" \
 		else _dating_presentation_port
-	if not bool(port.call(&"is_ready")):
+	if not is_instance_valid(port) or not bool(port.call(&"is_ready")):
 		# Phase 2R always lands here for `dating`: dwm-oyo.4 owns that owner.
 		return {"ok": false, "code": &"presentation_port_not_ready", "message": route_id}
 	var path: String = _SCENE_PATHS[route_id]
 	if not ResourceLoader.exists(path):
 		return {"ok": false, "code": &"presentation_scene_missing", "message": path}
 	var packed: PackedScene = load(path)
+	if packed == null: return _startup_failure("presentation_scene_missing")
 	var scene: Node = packed.instantiate()
 	if not scene.has_method("configure_presentation"):
 		scene.queue_free()
@@ -140,6 +222,12 @@ func route_presentation(route_id: String, presentation_command: Dictionary) -> D
 	if tree == null:
 		scene.queue_free()
 		return {"ok": false, "code": &"presentation_tree_unavailable", "message": ""}
+	if _startup_hold_active and not startup_publish:
+		var request := {"kind": "presentation", "route_id": route_id,
+			"command": presentation_command.duplicate(true), "port_instance_id": port.get_instance_id()}
+		scene.free() # Validation was off-tree; no live presentation owner was begun.
+		if not _valid_startup_request(request): return _startup_failure("invalid_startup_presentation_request")
+		return _hold_startup_request(request)
 	var current := tree.current_scene
 	tree.root.add_child(scene)
 	tree.current_scene = scene
@@ -179,7 +267,8 @@ func _gs() -> Node:
 	return get_node_or_null("/root/GameState")
 
 
-func _change_to(scene_id: String) -> Dictionary:
+func _change_to(scene_id: String, startup_publish: bool = false) -> Dictionary:
+	if _startup_publishing and not startup_publish: return _startup_failure("startup_route_publication_busy")
 	if not _SCENE_PATHS.has(scene_id):
 		return {"ok": false, "code": &"unknown_scene_id", "message": scene_id}
 	var path: String = _SCENE_PATHS[scene_id]
@@ -188,6 +277,9 @@ func _change_to(scene_id: String) -> Dictionary:
 	var tree := get_tree()
 	if tree == null:
 		return {"ok": false, "code": &"scene_tree_unavailable", "message": scene_id}
+	if _startup_hold_active and not startup_publish:
+		if not ResourceLoader.load(path) is PackedScene: return _startup_failure("scene_missing")
+		return _hold_startup_request({"kind": "scene", "route_id": scene_id})
 	var changed := tree.change_scene_to_file(path)
 	if changed != OK:
 		return {"ok": false, "code": &"scene_change_failed", "message": str(changed)}
@@ -294,11 +386,15 @@ func prepare_route_restore(route_id: String, route_context: Dictionary) -> Dicti
 
 
 func capture_restore_state() -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"scene_id": _current_scene_id, "route_generation": _route_generation}}}
+	var backup := {"scene_id": _current_scene_id, "route_generation": _route_generation}
+	if _startup_hold_active:
+		backup["startup_route_hold"] = {"token": _startup_hold_token,
+			"request": _startup_request.duplicate(true), "pending_scene_id": _pending_restore_scene_id}
+	return {"ok": true, "code": &"ok", "value": {"backup": backup}}
 
 
 func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
+	if _startup_publishing: return _startup_failure("startup_route_publication_busy")
 	var route_id := str(plan.get("route_id", ""))
 	if route_id.is_empty() and typeof(plan.get("route_ready_token")) == TYPE_DICTIONARY:
 		route_id = str((plan["route_ready_token"] as Dictionary).get("route_id", ""))
@@ -324,7 +420,16 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var source: Variant = backup.get("backup", backup)
 	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("scene_id"):
 		return {"ok": false, "code": &"invalid_route_backup", "message": "route backup requires a scene_id"}
-	_pending_restore_scene_id = ""
+	if _startup_publishing: return _startup_failure("startup_route_publication_busy")
+	var held: Variant = source.get("startup_route_hold")
+	if _startup_hold_active or held != null:
+		if not _startup_hold_active or not held is Dictionary or held.size() != 3 \
+				or held.get("token") != _startup_hold_token or not _valid_startup_request(held.get("request")) \
+				or not held.get("pending_scene_id") is String \
+				or (held.pending_scene_id != "" and not _SCENE_PATHS.has(held.pending_scene_id)):
+			return _startup_failure("stale_startup_route_backup")
+		_startup_request = held.request.duplicate(true)
+	_pending_restore_scene_id = held.pending_scene_id if _startup_hold_active else ""
 	_current_scene_id = str((source as Dictionary)["scene_id"])
 	_route_generation = int(source.get("route_generation", _route_generation))
 	return {"ok": true, "code": &"ok"}
@@ -337,6 +442,8 @@ func finalize_restore() -> Dictionary:
 			return changed
 		_pending_restore_scene_id = ""
 	_route_restore_backup = {}
+	if _startup_hold_active:
+		return {"ok": true, "code": &"ok", "value": {"deferred": true, "route_id": get_current_route_id()}}
 	return {"ok": true, "code": &"ok"}
 
 

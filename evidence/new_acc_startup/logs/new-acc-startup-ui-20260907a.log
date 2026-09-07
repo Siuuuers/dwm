@@ -1,0 +1,85 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Parse Error: Identifier "startup_recovery_changed" not declared in the current scope.
+   at: GDScript::reload (res://autoload/ApplicationBootstrap.gd:369)
+SCRIPT ERROR: Parse Error: Identifier "startup_recovery_changed" not declared in the current scope.
+   at: GDScript::reload (res://autoload/ApplicationBootstrap.gd:381)
+ERROR: Failed to load script "res://autoload/ApplicationBootstrap.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+ERROR: Failed to instantiate an autoload, script 'res://autoload/ApplicationBootstrap.gd' does not inherit from 'Node'.
+   at: start (main/main.cpp:4440)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/487ec572-a516-44c1-96ca-dc35bca2c92e/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_title_startup_recovery.gd
+* test_retained_startup_autoopens_once_and_back_cannot_release_ledger
+* test_repeated_failure_retries_the_same_bootstrap_operation_then_success_releases_custody
+* test_failed_retry_without_recovery_capability_offers_only_safe_shutdown
+* test_foreign_recovery_after_failed_retry_cannot_replace_the_bound_operation
+* test_lost_bound_owner_never_falls_back_to_other_services
+* test_no_retained_operation_keeps_normal_title_and_initial_focus
+* test_retry_retiring_source_never_creates_outgoing_sheet_or_steals_destination_focus
+7/7 passed.
+
+
+res://tests/unit/test_new_acc_title_lifetime.gd
+* test_scene_replacement_during_settings_departure_cannot_prepare_from_still_live_title
+* test_queued_source_ancestor_during_departure_cannot_prepare_before_frame_end
+* test_synchronous_commit_retiring_title_cannot_mount_post_return_recovery
+* test_synchronous_commit_detaches_source_before_return_without_new_root_lookup
+4/4 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_title_startup_recovery.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               2
+Tests                11
+Passing Tests        11
+Asserts             136
+Orphans              24
+Time              1.119s
+
+
+---- All tests passed! ----
+

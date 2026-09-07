@@ -38,6 +38,12 @@ const NEW_ACC_COPY := {
 		"新帳號需要復原", "新帳號尚未完成啟動。請重試以完成同一次操作。", "重試"],
 }
 
+const STARTUP_UNAVAILABLE_COPY := {
+	"en": ["Unable to finish starting", "Startup could not finish. Close and reopen the game to try again."],
+	"zh-CN": ["无法完成启动", "启动未能完成。请关闭并重新打开游戏以重试。"],
+	"zh-HK": ["無法完成啟動", "啟動未能完成。請關閉並重新開啟遊戲以重試。"],
+}
+
 @onready var _new_acc_button: Button = %NewAccButton
 @onready var _log_in_button: Button = %LogInButton
 @onready var _gallery_button: Button = %GalleryButton
@@ -68,6 +74,9 @@ var _new_acc_token := ""
 var _new_acc_transaction := ""
 var _new_acc_source: WeakRef
 var _new_acc_source_captured := false
+var _startup_recovery_owner: Object
+var _startup_recovery_owner_bound := false
+var _startup_recovery_active := false
 
 func configure_settings_services(services: Dictionary) -> void:
 	_settings_services = services.duplicate()
@@ -98,6 +107,87 @@ func _ready() -> void:
 		button.gui_input.connect(_ledger_input.bind(button))
 	_update_title_destination()
 	_new_acc_button.call_deferred("grab_focus")
+	_bind_startup_recovery()
+
+func configure_startup_recovery_owner(owner: Object) -> void:
+	if is_instance_valid(_startup_recovery_owner) and _startup_recovery_owner.has_signal("startup_recovery_changed"):
+		if _startup_recovery_owner.startup_recovery_changed.is_connected(_queue_startup_recovery_check):
+			_startup_recovery_owner.startup_recovery_changed.disconnect(_queue_startup_recovery_check)
+	_startup_recovery_owner = owner
+	_startup_recovery_owner_bound = true
+	if is_node_ready(): _bind_startup_recovery()
+
+func _bind_startup_recovery() -> void:
+	if not _startup_recovery_owner_bound:
+		_startup_recovery_owner = get_node_or_null("/root/ApplicationBootstrap")
+		_startup_recovery_owner_bound = true
+	if not is_instance_valid(_startup_recovery_owner): return
+	if not _startup_recovery_owner.has_method("get_new_run_startup_recovery"): return
+	if _startup_recovery_owner.has_signal("startup_recovery_changed"):
+		if not _startup_recovery_owner.startup_recovery_changed.is_connected(_queue_startup_recovery_check):
+			_startup_recovery_owner.startup_recovery_changed.connect(_queue_startup_recovery_check)
+	_queue_startup_recovery_check()
+
+func _queue_startup_recovery_check() -> void:
+	# Bootstrap may signal while its Retry call still owns the current stack.
+	if _title_source_alive(): _check_startup_recovery.call_deferred()
+
+func _startup_recovery_fact() -> Dictionary:
+	if not is_instance_valid(_startup_recovery_owner): return {}
+	if not _startup_recovery_owner.has_method("get_new_run_startup_recovery"): return {}
+	var result: Dictionary = _startup_recovery_owner.get_new_run_startup_recovery()
+	if not result.get("ok", false) or not result.get("value") is Dictionary: return {}
+	var value: Dictionary = result.value
+	if typeof(value.get("available")) != TYPE_BOOL or typeof(value.get("transaction_id")) != TYPE_STRING: return {}
+	return value
+
+func _check_startup_recovery() -> void:
+	if not _title_source_alive() or _title_transition or is_instance_valid(_confirmation): return
+	if not _new_acc_transaction.is_empty() or not _new_acc_token.is_empty(): return
+	var recovery := _startup_recovery_fact()
+	var retryable: bool = recovery.get("available", false) and not str(recovery.get("transaction_id", "")).is_empty()
+	if not retryable:
+		if not is_instance_valid(_startup_recovery_owner) or not _startup_recovery_owner.has_method("get_startup_state"): return
+		var startup: Dictionary = _startup_recovery_owner.get_startup_state()
+		if startup.get("ready", false) or not startup.get("fatal_result") is Dictionary or startup.fatal_result.is_empty(): return
+	var scene := get_tree().current_scene
+	_new_acc_source = weakref(scene) if scene != null else null
+	_new_acc_source_captured = true
+	_startup_recovery_active = true
+	if retryable:
+		_new_acc_transaction = str(recovery.transaction_id)
+		_show_new_acc_recovery()
+	else:
+		# A generic startup failure cannot authorize fresh gameplay or invent a
+		# retryable NewRun transaction merely because SaveManager is initialized.
+		_show_startup_unavailable()
+
+func _retry_startup_new_acc() -> void:
+	_title_transition = true
+	_sync_title_navigation()
+	var result := {"ok": false}
+	if is_instance_valid(_startup_recovery_owner) and _startup_recovery_owner.has_method("retry_new_run_startup"):
+		result = _startup_recovery_owner.retry_new_run_startup(_new_acc_transaction)
+	if not _finish_new_acc_transition(): return
+	if result.get("ok", false):
+		_startup_recovery_active = false
+		_handle_new_acc_result(result)
+		_focus_new_acc()
+		return
+	var recovery := _startup_recovery_fact()
+	if recovery.get("available", false) and str(recovery.get("transaction_id", "")) == _new_acc_transaction:
+		_show_new_acc_recovery()
+	else:
+		_show_startup_unavailable()
+
+func _show_startup_unavailable() -> void:
+	var copy: Array = STARTUP_UNAVAILABLE_COPY[_locale]
+	present_confirmation({"title": copy[0], "body": copy[1], "confirm": SHUTDOWN_COPY[_locale][3],
+		"cancelable": false, "risk": "neutral", "warning": false,
+		"theme": BACKUP_THEME.build(_locale, _percent)}, _on_startup_shutdown, Callable())
+
+func _on_startup_shutdown() -> void:
+	if _new_acc_source_is_current(): _on_shut_down_confirmed()
 
 func configure_new_acc_owner(owner: Object) -> void:
 	# A presentation seam for the same SaveManager capability used in production.
@@ -215,6 +305,9 @@ func _show_new_acc_recovery() -> void:
 
 func _retry_new_acc() -> void:
 	if _new_acc_transaction.is_empty() or _title_transition or not _new_acc_source_is_current(): return
+	if _startup_recovery_active:
+		_retry_startup_new_acc()
+		return
 	_title_transition = true
 	_sync_title_navigation()
 	var result: Dictionary = _menu_new_acc_owner().retry_new_run(_new_acc_transaction)
@@ -438,6 +531,8 @@ func _build_login_shell() -> void:
 	_refresh_login_shell()
 
 func _refresh_login_shell(_value: String = "") -> void:
+	# application_ready may publish after route recovery detached this old title.
+	if not _title_source_alive(): return
 	var localization := _menu_localization()
 	var locale := str(localization.get_locale()).replace("_", "-") if localization != null else "en"
 	_locale = locale if SHUTDOWN_COPY.has(locale) else "en"
@@ -535,7 +630,7 @@ func _show_login_unavailable() -> void:
 	_title_home.grab_focus()
 
 func _can_leave_login() -> bool:
-	return not _title_transition and _new_acc_transaction.is_empty() and _source_departure_admitted()
+	return not _title_transition and not _startup_recovery_active and _new_acc_transaction.is_empty() and _source_departure_admitted()
 
 func _source_departure_admitted() -> bool:
 	return not is_instance_valid(_confirmation) \

@@ -266,3 +266,47 @@ this checkpoint does not claim a leak-free engine exit.
 It does not claim full New Acc acceptance: cold-start failure needs a Bootstrap
 retry/resume host, session abandonment needs production ownership, and broader
 palette/accessibility acceptance and the ten-family UI work remain open.
+
+## Cold-start recovery and physical route publication
+
+Bootstrap now preserves the complete typed New Run startup failure and its failed
+stage. Its read-only recovery fact exposes only availability and the retained
+transaction identity to the title. Retry resumes early pair settlement without
+reinitializing SaveManager or rebinding storage, then continues the uncompleted
+stages. A late New Run failure retries the final stage with its retained graph.
+Foreign transactions, reentrant attempts and a second completed Retry are refused.
+Readiness publishes once after the complete chain succeeds.
+
+A startup-only SceneRouter hold keeps physical scenes unmounted while continuation
+replay and remaining graph setup execute. Existing route tokens describe semantic
+PackedScene preparation, not rendered layout readiness. Held requests explicitly
+report deferral, retain the final validated route/presentation command, and preserve
+plain-data rollback boundaries. Publication revalidates the request and bound port;
+only Bootstrap releases the hold after graph recovery and Backup binding succeed.
+This also keeps Title alive if the final journal write fails after route finalization.
+Normal post-startup routing keeps its existing behavior. No persistent save or
+journal schema version changes in this slice.
+
+The title automatically shows neutral Retry for a recognized pending New Run. Back
+cannot dismiss it, other title commands are blocked, and retry targets Bootstrap's
+same operation. An initial or later generic startup failure instead offers factual
+shutdown/restart guidance without inventing a retryable New Run identity. Generic
+post-completion graph/publication failures remain fatal rather than claiming that
+an already completed New Run transaction is still pending.
+
+Validation: 42 tests across six GUT suites pass, including real Profile, GameState,
+issuer, SaveManager, journal and SceneRouter recovery over fresh owner instances.
+Faults cover early Autosave inspection before Profile adoption, the completion
+journal write after route finalization, and a later real consequence-checkpoint
+read. The focused Bootstrap driver bypasses unrelated graph construction; separate
+full-production title and cold resume pass 56 and 71 checks. Native title rendering
+and input pass 710 checks with 36 captures for consent, Retry and startup failure
+across three locales and three text sizes. All earlier failed attempts are retained
+in [evidence/new_acc_startup/summary.json](../../../evidence/new_acc_startup/summary.json).
+
+The hold controls physical scene mounting; it does not claim to pause every narrative
+or presentation effect during arbitrary Restore recovery. The familiar Unicode NUL
+and exact Dialogic shutdown baseline remain recorded. Complete palette/accessibility
+and OS assistive-technology acceptance, actual no-save Return/session abandonment,
+Pause/Logout production wiring, and the other UI families remain open. No merge or
+push is included in this local checkpoint.

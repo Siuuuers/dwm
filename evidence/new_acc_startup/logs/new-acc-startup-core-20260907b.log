@@ -1,0 +1,185 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/3838b88e-cde5-43eb-a65b-b1586b6914dd/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_title_startup_recovery.gd
+* test_retained_startup_autoopens_once_and_back_cannot_release_ledger
+* test_repeated_failure_retries_the_same_bootstrap_operation_then_success_releases_custody
+* test_failed_retry_without_recovery_capability_offers_only_safe_shutdown
+* test_foreign_recovery_after_failed_retry_cannot_replace_the_bound_operation
+* test_lost_bound_owner_never_falls_back_to_other_services
+* test_no_retained_operation_keeps_normal_title_and_initial_focus
+* test_retry_retiring_source_never_creates_outgoing_sheet_or_steals_destination_focus
+7/7 passed.
+
+
+res://tests/unit/test_new_acc_title_lifetime.gd
+* test_scene_replacement_during_settings_departure_cannot_prepare_from_still_live_title
+* test_queued_source_ancestor_during_departure_cannot_prepare_before_frame_end
+* test_synchronous_commit_retiring_title_cannot_mount_post_return_recovery
+* test_synchronous_commit_detaches_source_before_return_without_new_root_lookup
+4/4 passed.
+
+
+res://tests/unit/test_startup_route_publication.gd
+* test_hold_is_idempotent_and_foreign_publication_cannot_remove_title
+* test_repeated_finalize_publishes_only_final_target_once
+* test_restore_rollback_recovers_prior_held_target_and_rejects_foreign_backup
+    [Failed]:  DICTIONARY({ "backup": { "route_generation": 1.0, "scene_id": "hospital", "startup_route_h...83" } } }) != DICTIONARY({ "backup": { "scene_id": "hospital", "route_generation": 1, "startup_route_hol... "" } } }).
+    { "backup": { "route_generation": 1.0, "...883" } } } != { "backup": { "scene_id": "hospital", "r...: "" } } }  1 of 1 keys do not match.  Hold backup contains only plain data
+      at line 90
+* test_rollback_preserves_a_semantic_route_pending_before_finalize
+* test_presentation_route_cannot_bypass_hold_and_reentrant_requests_are_refused
+    [Failed] 
+      at line 124
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_presentation_route_cannot_bypass_hold_and_reentrant_requests_are_refused (res://tests/unit/test_startup_route_publication.gd:125)
+   GDScript backtrace (most recent call first):
+       [0] test_presentation_route_cannot_bypass_hold_and_reentrant_requests_are_refused (res://tests/unit/test_startup_route_publication.gd:125)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] after_each (res://tests/unit/test_startup_route_publication.gd:38)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_failed_presentation_publication_retains_request_and_same_hold_for_retry
+    [Failed] 
+      at line 156
+    [Failed] 
+      at line 159
+    [Failed]:  DICTIONARY({ "ok": true, "code": &"ok", "value": { "backup": { "scene_id": "", "route_gene...: 0 } } }) != DICTIONARY({ "ok": true, "code": &"ok", "value": { "backup": { "scene_id": "", "route_gene..." } } } }).
+    { "ok": true, "code": &"ok", "value": { ...": 0 } } } != { "ok": true, "code": &"ok", "value": { ..."" } } } }  1 of 3 keys do not match.  
+      at line 161
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_failed_presentation_publication_retains_request_and_same_hold_for_retry (res://tests/unit/test_startup_route_publication.gd:162)
+   GDScript backtrace (most recent call first):
+       [0] test_failed_presentation_publication_retains_request_and_same_hold_for_retry (res://tests/unit/test_startup_route_publication.gd:162)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] after_each (res://tests/unit/test_startup_route_publication.gd:38)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_ordinary_routing_and_backup_shape_remain_unchanged_without_hold
+* test_empty_hold_publication_keeps_title_and_invalid_route_does_not_replace_request
+5/8 passed.
+
+
+res://tests/integration/test_new_run_startup_retry.gd
+* test_getter_is_pure_and_generic_startup_failure_is_not_retryable
+* test_early_failure_retains_full_result_and_retries_without_reinitializing
+* test_early_retry_rejects_foreign_reentrant_and_repeated_requests
+* test_repeated_early_recovery_failure_stays_on_same_operation_and_stage
+* test_generic_stage_failure_after_early_settlement_closes_retry_capability
+* test_late_failure_retries_only_publish_and_retains_partial_graph_owner
+    [Failed]:  ARRAY([-9223371798517642816, -9223371798517642816]) != ARRAY([-9223371798517642816]).
+    [-9223371798517642816, -9223371798517642...517642816] != [-9223371798517642816]  1 of 2 indexes do not match.  
+      at line 249
+* test_route_publish_failure_keeps_title_hold_and_never_claims_readiness
+* test_late_retry_with_different_transaction_becomes_nonretryable_fatal
+7/8 passed.
+
+
+res://tests/integration/test_application_bootstrap.gd
+* test_project_autoload_order_is_the_exact_final_literal_sequence
+* test_master_stage_order_is_frozen
+* test_exactly_nine_targets_retain_one_shared_gate_identity
+* test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+* test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+* test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+* test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+* test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+* test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+* test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+10/10 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_title_startup_recovery.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_startup_route_publication.gd
+- test_restore_rollback_recovers_prior_held_target_and_rejects_foreign_backup
+    [Failed]:  DICTIONARY({ "backup": { "route_generation": 1.0, "scene_id": "hospital", "startup_route_h...83" } } }) != DICTIONARY({ "backup": { "scene_id": "hospital", "route_generation": 1, "startup_route_hol... "" } } }).
+    { "backup": { "route_generation": 1.0, "...883" } } } != { "backup": { "scene_id": "hospital", "r...: "" } } }  1 of 1 keys do not match.  Hold backup contains only plain data
+          at line 90
+- test_presentation_route_cannot_bypass_hold_and_reentrant_requests_are_refused
+    [Failed]:  
+          at line 124
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_failed_presentation_publication_retains_request_and_same_hold_for_retry
+    [Failed]:  
+          at line 156
+    [Failed]:  
+          at line 159
+    [Failed]:  DICTIONARY({ "ok": true, "code": &"ok", "value": { "backup": { "scene_id": "", "route_gene...: 0 } } }) != DICTIONARY({ "ok": true, "code": &"ok", "value": { "backup": { "scene_id": "", "route_gene..." } } } }).
+    { "ok": true, "code": &"ok", "value": { ...": 0 } } } != { "ok": true, "code": &"ok", "value": { ..."" } } } }  1 of 3 keys do not match.  
+          at line 161
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+
+res://tests/integration/test_new_run_startup_retry.gd
+- test_late_failure_retries_only_publish_and_retains_partial_graph_owner
+    [Failed]:  ARRAY([-9223371798517642816, -9223371798517642816]) != ARRAY([-9223371798517642816]).
+    [-9223371798517642816, -9223371798517642...517642816] != [-9223371798517642816]  1 of 2 indexes do not match.  
+          at line 249
+
+Totals
+------
+Scripts               5
+Tests                37
+Passing Tests        33
+Failing Tests         4
+Asserts           501/509
+Orphans              24
+Time              1.715s
+
+
+---- 4 failing tests ----
+

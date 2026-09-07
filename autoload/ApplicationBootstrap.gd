@@ -2,6 +2,7 @@ extends Node
 
 signal application_ready()
 signal development_subset_ready(subset_id: StringName)
+signal startup_recovery_changed()
 
 ## The cache disappears with its desktop scene; the host owner outlives both.
 class ContactsDesktopEvictionPort extends RefCounted:
@@ -128,6 +129,12 @@ const DEVELOPMENT_STAGE_SETS := {
 
 var _started := false
 var _start_begun := false
+var _startup_recovery_busy := false
+var _new_run_startup_recovery := {
+	"available": false, "transaction_id": "", "failed_stage": &"",
+}
+var _startup_route_owner: Object = null
+var _startup_route_hold_token := ""
 var _debug_gate_factory: Callable
 var _selected_root := ""
 var _profile_storage: RefCounted
@@ -236,7 +243,7 @@ var _retained_schedule_done_dispatcher: RefCounted = null
 var _desktop_board_identity_context: Dictionary = {}
 var _state := {
 	"started": false, "ready": false, "mode": &"",
-	"completed_stages": [], "planned_blockers": [], "fatal_result": {},
+	"completed_stages": [], "planned_blockers": [], "fatal_result": {}, "failed_stage": null,
 	"gate_injection": {"factory_invocation_count": 0, "gate_instance_id": 0, "targets": [], "target_instance_ids": []},
 }
 
@@ -271,10 +278,15 @@ func start(mode: StringName = MODE_FINAL) -> Dictionary:
 			_state["planned_blockers"].append({"stage": stage_id, "code": &"planned_blocker"})
 			continue
 		var stage_result := _run_stage(stage_id, mode)
-		if not stage_result.get("ok", false): return _latch_startup_fatal(stage_result.get("code", &"startup_stage_failed"), str(stage_result.get("message", stage_id)))
+		if not stage_result.get("ok", false):
+			return _record_startup_stage_failure(stage_id, stage_result)
 		_state["completed_stages"].append(stage_id)
 	_started = true
 	if mode == MODE_FINAL:
+		var published: Dictionary = _publish_startup_route_hold()
+		if not published.get("ok", false):
+			_state["completed_stages"].erase(&"publish_application_ready")
+			return _record_startup_stage_failure(&"publish_application_ready", published)
 		_state["ready"] = true
 		application_ready.emit()
 	else:
@@ -283,6 +295,105 @@ func start(mode: StringName = MODE_FINAL) -> Dictionary:
 
 func get_startup_state() -> Dictionary:
 	return _state.duplicate(true)
+
+func get_new_run_startup_recovery() -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": {
+		"available": bool(_new_run_startup_recovery["available"]),
+		"transaction_id": str(_new_run_startup_recovery["transaction_id"]),
+	}}
+
+
+func retry_new_run_startup(transaction_id: String) -> Dictionary:
+	if _startup_recovery_busy:
+		return _failure(&"new_run_startup_retry_busy", "Startup recovery is already running")
+	if not bool(_new_run_startup_recovery["available"]):
+		return _failure(&"new_run_startup_recovery_unavailable", "No retryable New Run startup failure is retained")
+	if transaction_id.is_empty() or transaction_id != str(_new_run_startup_recovery["transaction_id"]):
+		return _failure(&"invalid_new_run_startup_transaction", "The retained New Run transaction does not match")
+	_startup_recovery_busy = true
+	var result := _retry_new_run_startup(transaction_id)
+	_startup_recovery_busy = false
+	return result
+
+
+func _retry_new_run_startup(transaction_id: String) -> Dictionary:
+	var failed_stage: StringName = _new_run_startup_recovery["failed_stage"]
+	if failed_stage == &"initialize_saves":
+		var save_manager := _target(&"SaveManager")
+		if save_manager == null or not save_manager.has_method("reconcile_new_run_storage"):
+			return _record_startup_stage_failure(failed_stage,
+				_failure(&"missing_stage_adapter", "New Acc startup recovery is unavailable"))
+		var settled: Dictionary = save_manager.call(&"reconcile_new_run_storage")
+		if not settled.get("ok", false):
+			return _record_startup_retry_failure(failed_stage, transaction_id, settled)
+		if failed_stage not in _state["completed_stages"]:
+			_state["completed_stages"].append(failed_stage)
+	return _continue_startup_after_recovery(failed_stage, transaction_id)
+
+
+func _continue_startup_after_recovery(failed_stage: StringName, transaction_id: String) -> Dictionary:
+	var reached_failure := false
+	for stage_id: StringName in STAGE_ORDER:
+		if stage_id == failed_stage:
+			reached_failure = true
+		if not reached_failure or stage_id in _state["completed_stages"]:
+			continue
+		var stage_result: Dictionary = _run_stage(stage_id, _state["mode"])
+		if not stage_result.get("ok", false):
+			return _record_startup_retry_failure(stage_id, transaction_id, stage_result)
+		_state["completed_stages"].append(stage_id)
+	var published: Dictionary = _publish_startup_route_hold()
+	if not published.get("ok", false):
+		_state["completed_stages"].erase(&"publish_application_ready")
+		return _record_startup_retry_failure(&"publish_application_ready", transaction_id, published)
+	_clear_new_run_startup_recovery()
+	_state["fatal_result"] = {}
+	_state["failed_stage"] = null
+	_started = true
+	if not bool(_state["ready"]):
+		_state["ready"] = true
+		application_ready.emit()
+	return {"ok": true, "code": &"ok", "value": get_startup_state()}
+
+
+func _record_startup_retry_failure(stage_id: StringName, transaction_id: String,
+		result: Dictionary) -> Dictionary:
+	if result.get("code") == &"NEW_RUN_RECOVERY_PENDING" 			and str(result.get("transaction_id", "")) != transaction_id:
+		return _record_startup_stage_failure(stage_id,
+			_failure(&"new_run_startup_transaction_changed",
+				"Startup recovery returned a different transaction"))
+	return _record_startup_stage_failure(stage_id, result)
+
+
+func _record_startup_stage_failure(stage_id: StringName, result: Dictionary) -> Dictionary:
+	var retained := result.duplicate(true)
+	_state["fatal_result"] = retained
+	_state["failed_stage"] = stage_id
+	_started = true
+	var qualifies: bool = _state["mode"] == MODE_FINAL 		and stage_id in [&"initialize_saves", &"publish_application_ready"] 		and retained.get("code") == &"NEW_RUN_RECOVERY_PENDING" 		and typeof(retained.get("transaction_id")) == TYPE_STRING 		and not str(retained["transaction_id"]).is_empty()
+	if qualifies:
+		_new_run_startup_recovery = {
+			"available": true,
+			"transaction_id": str(retained["transaction_id"]),
+			"failed_stage": stage_id,
+		}
+		startup_recovery_changed.emit()
+	else:
+		var recovery_was_available: bool = bool(_new_run_startup_recovery["available"])
+		_clear_new_run_startup_recovery()
+		if not recovery_was_available:
+			startup_recovery_changed.emit()
+	return retained
+
+
+func _clear_new_run_startup_recovery() -> void:
+	var changed: bool = bool(_new_run_startup_recovery["available"])
+	_new_run_startup_recovery = {
+		"available": false, "transaction_id": "", "failed_stage": &"",
+	}
+	if changed:
+		startup_recovery_changed.emit()
+
 
 func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 	match stage_id:
@@ -437,7 +548,39 @@ func _construct_and_inject_mutation_gate(mode: StringName) -> Dictionary:
 		_state["gate_injection"]["target_instance_ids"].append(retained_id)
 		if retained_id != gate.get_instance_id(): return _failure(&"mutation_gate_identity_mismatch", "Target retained another gate")
 	_application_gate = gate
+	if mode == MODE_FINAL:
+		var route_owner := _target(&"SceneRouter")
+		if route_owner == null or not route_owner.has_method("begin_startup_route_hold") \
+				or not route_owner.has_method("publish_startup_route_hold"):
+			return _failure(&"missing_stage_adapter", "SceneRouter startup publication hold is unavailable")
+		if _startup_route_owner != null and _startup_route_owner != route_owner:
+			return _failure(&"startup_route_owner_mismatch", "SceneRouter startup publication owner changed")
+		_startup_route_owner = route_owner
+		if _startup_route_hold_token.is_empty():
+			var held: Dictionary = route_owner.call(&"begin_startup_route_hold")
+			if not held.get("ok", false) or typeof(held.get("value")) != TYPE_DICTIONARY \
+					or typeof(held["value"].get("token")) != TYPE_STRING \
+					or str(held["value"]["token"]).is_empty():
+				return held if not held.get("ok", false) else _failure(
+					&"invalid_startup_route_hold", "SceneRouter returned no startup hold token")
+			_startup_route_hold_token = str(held["value"]["token"])
 	return {"ok": true}
+
+
+func _publish_startup_route_hold() -> Dictionary:
+	if _startup_route_owner == null and _startup_route_hold_token.is_empty():
+		# Focused stage harnesses may replace FINAL gate construction entirely.
+		return {"ok": true, "code": &"ok", "value": {"published": false}}
+	if _startup_route_owner == null or not is_instance_valid(_startup_route_owner) \
+			or not _startup_route_owner.has_method("publish_startup_route_hold") \
+			or _startup_route_hold_token.is_empty():
+		return _failure(&"startup_route_hold_unavailable", "Retained SceneRouter startup hold is invalid")
+	var published: Dictionary = _startup_route_owner.call(
+		&"publish_startup_route_hold", _startup_route_hold_token)
+	if not published.get("ok", false):
+		return published
+	_startup_route_hold_token = ""
+	return published
 
 
 func _construct_identity_issuer_and_contact_commands() -> Dictionary:
