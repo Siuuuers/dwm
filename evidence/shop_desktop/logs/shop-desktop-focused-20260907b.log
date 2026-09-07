@@ -1,0 +1,170 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/0af1e9e2-5193-48ce-8ed1-a7739c24f2d2/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/integration/test_shop_desktop_host.gd
+* test_absent_provider_keeps_shop_unavailable_without_host_or_cache_mutation
+* test_invalid_owner_bundle_rejects_atomically_then_exact_owners_remain_immutable
+* test_real_provider_projects_fixed_order_seventeen_cards_and_supportz_blank
+* test_home_cache_retains_page_selection_quantity_and_focus_then_hidden_preferences_reflow
+* test_changed_owner_snapshot_resets_quantity_to_one_and_uses_new_legal_max
+* test_bad_projection_recovers_without_partial_cards_or_route_change
+* test_failed_initial_catalog_does_not_change_an_ordinary_host_route
+* test_pre_ready_restored_shop_route_mounts_or_masks_a_failed_projection
+* test_native_back_returns_to_launcher_and_keeps_the_cached_shop
+* test_shared_confirmation_owns_higher_routing_and_native_input_custody
+10/10 passed.
+
+
+tests/scene/test_shop_plate.gd
+* test_both_standard_palettes_publish_exact_roles_to_plate_and_all_cards
+* test_invalid_palette_preserves_the_mounted_snapshot_and_presentation
+* test_every_locale_and_size_keeps_full_catalog_inside_the_plate
+* test_selection_quantity_and_page_memory_are_presentation_only
+* test_keyboard_moves_focus_without_selection_and_returns_from_inspector
+* test_missing_projection_recovers_without_partial_cards_then_reopens
+* test_only_overflowing_information_enters_traversal
+* test_sold_out_and_unaffordable_products_keep_truthful_quantity_state
+* test_new_snapshot_resets_quantity_and_preserves_external_home_focus
+* test_failed_snapshot_returns_owned_focus_to_home
+* test_held_page_button_is_cancelled_by_a_new_snapshot
+* test_right_edge_without_an_inspector_action_is_a_deliberate_noop
+* test_bottom_right_on_middle_page_reaches_next_and_disabled_keys_leave_focus
+* test_exact_quantity_that_cannot_fit_recovers_instead_of_clipping_or_capping
+* test_rejected_direct_configuration_preserves_valid_projection_quantity_and_focus
+* test_catalog_owner_updates_preserve_selection_page_focus_and_reset_only_changed_snapshot_quantity
+* test_localized_shared_reflow_preserves_quantity_semantic_focus_and_information_offset
+* test_hidden_catalog_and_preferences_defer_without_changing_shared_home_navigation
+* test_modal_custody_defers_reconstruction_and_rejects_synthetic_lower_actions
+* test_owner_snapshot_cancels_held_native_page_contact_and_provider_failure_is_recoverable
+* test_native_back_keeps_hidden_return_admission_and_cached_semantic_focus
+* test_hidden_prepare_validates_fresh_owner_before_open_without_home_custody_writes
+    85 Orphans
+        * [@Button@1626:<Button#1120835474861>(ShopItemBox.gd)] + 4
+        * [@Button@1622:<Button#1119761733108>(ShopItemBox.gd)] + 4
+        * [@Button@1625:<Button#1120567039496>(ShopItemBox.gd)] + 4
+        * [@Button@1615:<Button#1117882685054>(ShopItemBox.gd)] + 4
+        * [@Button@1614:<Button#1117614249634>(ShopItemBox.gd)] + 4
+        * [@Button@1612:<Button#1117077378724>(ShopItemBox.gd)] + 4
+        * [@Button@1613:<Button#1117345814234>(ShopItemBox.gd)] + 4
+        * [ShopItemBox:<Button#1116808943329>(ShopItemBox.gd)] + 4
+        * [@Button@1621:<Button#1119493297903>(ShopItemBox.gd)] + 4
+        * [@Button@1624:<Button#1120298604381>(ShopItemBox.gd)] + 4
+        * [@Button@1619:<Button#1118956427203>(ShopItemBox.gd)] + 4
+        * [@Button@1620:<Button#1119224862702>(ShopItemBox.gd)] + 4
+        * [@Button@1623:<Button#1120030169117>(ShopItemBox.gd)] + 4
+        * [@Button@1627:<Button#1121103910948>(ShopItemBox.gd)] + 4
+        * [@Button@1616:<Button#1118151121010>(ShopItemBox.gd)] + 4
+        * [@Button@1618:<Button#1118687991953>(ShopItemBox.gd)] + 4
+        * [@Button@1617:<Button#1118419556588>(ShopItemBox.gd)] + 4
+* test_cached_validation_after_localized_hidden_change_preserves_quantity_without_catalog_event
+* test_hidden_external_focus_does_not_block_opening_or_current_catalog_refresh
+* test_shuffled_owner_rows_are_reordered_and_private_keys_are_removed
+* test_rejects_missing_duplicate_unknown_and_old_keepsake_ids
+* test_rejects_bad_price_art_and_field_types
+* test_sold_out_item_stays_in_its_fixed_slot
+* test_rejects_contradictory_maximum_but_accepts_unaffordable_available
+* test_maximum_cannot_overflow_exact_currency_total
+* test_supportz_blank_has_only_public_blank_fields_in_both_states
+* test_projected_records_are_detached_from_owner_record_mutation
+32/32 passed.
+
+
+tests/scene/test_shop_card.gd
+* test_card_has_only_public_copy_and_no_purchase_or_hidden_controls
+* test_unconfigured_card_is_not_a_phantom_blank_target
+* test_measured_card_never_clips_name_price_or_availability_at_supported_sizes
+Shop card fit: font=20 maximum logical height=200.0 legacy=176
+Shop card fit: font=25 maximum logical height=226.0 legacy=176
+Shop card fit: font=30 maximum logical height=290.0 legacy=176
+* test_pointer_release_selects_once_and_cancels_after_leave_or_hide
+* test_sold_out_stays_selectable_and_selection_does_not_follow_focus
+* test_native_keyboard_and_controller_activate_without_owning_selection
+* test_cjk_font_metrics_preserve_complete_public_labels_at_all_sizes
+* test_shuffled_owner_rows_are_reordered_and_private_keys_are_removed
+* test_rejects_missing_duplicate_unknown_and_old_keepsake_ids
+* test_rejects_bad_price_art_and_field_types
+* test_sold_out_item_stays_in_its_fixed_slot
+* test_rejects_contradictory_maximum_but_accepts_unaffordable_available
+* test_maximum_cannot_overflow_exact_currency_total
+* test_supportz_blank_has_only_public_blank_fields_in_both_states
+* test_projected_records_are_detached_from_owner_record_mutation
+15/15 passed.
+
+
+tests/unit/test_shop_catalog_projection.gd
+* test_shuffled_owner_rows_are_reordered_and_private_keys_are_removed
+* test_rejects_missing_duplicate_unknown_and_old_keepsake_ids
+* test_rejects_bad_price_art_and_field_types
+* test_sold_out_item_stays_in_its_fixed_slot
+* test_rejects_contradictory_maximum_but_accepts_unaffordable_available
+* test_maximum_cannot_overflow_exact_currency_total
+* test_supportz_blank_has_only_public_blank_fields_in_both_states
+* test_projected_records_are_detached_from_owner_record_mutation
+8/8 passed.
+
+
+tests/unit/test_shop_copy.gd
+* test_english_labels_and_generic_item_names_are_exact
+* test_all_seventeen_ordinary_names_exist_in_every_locale_and_aliases_work
+* test_blank_capacity_and_unknown_inputs_never_gain_fallback_copy
+* test_money_and_coin_prices_are_locale_exact
+4/4 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/integration/test_shop_desktop_host.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               5
+Tests                69
+Passing Tests        69
+Asserts            2028
+Orphans              24
+Time              8.533s
+
+
+---- All tests passed! ----
