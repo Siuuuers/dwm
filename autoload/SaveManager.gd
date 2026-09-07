@@ -857,6 +857,86 @@ func get_backup_save_capability() -> Dictionary:
 			return {"enabled": false, "reason": str(captured.get("code", "backup_capture_unavailable"))}
 	return {"enabled": true, "reason": ""}
 
+## Quick commands share Backup tokens but cannot silently overwrite an unproved target.
+## Conditions are opaque, detached evidence; they are never display copy or save data.
+func get_backup_quick_capability(action: String) -> Dictionary:
+	if action not in ["save", "load"]:
+		return {"ok": false, "code": &"invalid_backup_action", "status_key": "unavailable", "condition": {}}
+	var condition := _quick_condition(action)
+	var enabled := false
+	var status := _quick_guard_status(action)
+	if status == "":
+		var stable := get_latest_stable_checkpoint()
+		var inspected := _inspect_backup("quick")
+		if stable.get("ok", false) and inspected.get("ok", false):
+			var record: Dictionary = inspected["value"]
+			if action == "load":
+				enabled = record.get("loadable", false)
+			else:
+				enabled = get_backup_save_capability().get("enabled", false) and _quick_save_record_allowed(record)
+		if not enabled or not is_quick_condition_current(condition):
+			enabled = false
+			status = "unavailable"
+	return {"ok": true, "value": {"enabled": enabled, "status_key": status, "condition": condition}}
+
+func prepare_quick_backup_action(action: String) -> Dictionary:
+	var capability := get_backup_quick_capability(action)
+	if not capability.get("ok", false):
+		return capability
+	var value: Dictionary = capability["value"]
+	if not value["enabled"]:
+		return _quick_failure(action, value["status_key"])
+	var condition: Dictionary = value["condition"]
+	var prepared := prepare_backup_action(action, "quick")
+	if not prepared.get("ok", false):
+		return _quick_failure(action)
+	var token: String = prepared["value"]["token"]
+	if not is_quick_condition_current(condition) or (action == "save" and not _quick_save_record_allowed(prepared["value"]["record"])):
+		cancel_backup_action(token)
+		return _quick_failure(action)
+	_backup_actions[token]["quick_condition"] = condition.duplicate(true)
+	prepared["value"]["condition"] = condition.duplicate(true)
+	return prepared
+
+func is_quick_condition_current(condition: Dictionary) -> bool:
+	if condition.size() != 2 or typeof(condition.get("action")) != TYPE_STRING or condition.get("action") not in ["save", "load"] \
+			or typeof(condition.get("signature")) != TYPE_STRING or condition["signature"].is_empty():
+		return false
+	return condition == _quick_condition(condition["action"])
+
+func _quick_condition(action: String) -> Dictionary:
+	var stable := get_latest_stable_checkpoint()
+	var captured := _capture_backup_inputs() if _backup_capture_configured else {"ok": false, "code": &"not_configured"}
+	var target: Dictionary = {"ok": false, "code": &"not_initialized"}
+	if _storage != null:
+		target = _storage.inspect_revision(str(_backup_locator("quick")["relative_path"]))
+	var evidence := {
+		"owner": str(get_instance_id()), "action": action,
+		"stable": _canonical_sha256(stable["value"]["bundle"]) if stable.get("ok", false) else "",
+		"capture": _canonical_sha256(captured["value"]) if captured.get("ok", false) else str(captured.get("code", "unavailable")),
+		"target": target["value"]["revision"] if target.get("ok", false) else str(target.get("code", "unavailable")),
+		"lock": str(_lock_owner),
+		"gate_owner": str(_mutation_gate.get_active_owner()) if _mutation_gate != null else "",
+		"fatal": _mutation_gate.is_fatal_latched() if _mutation_gate != null else false,
+	}
+	return {"action": action, "signature": _canonical_sha256(evidence)}
+
+func _quick_guard_status(action: String) -> String:
+	if _storage == null or (_mutation_gate != null and _mutation_gate.is_fatal_latched()):
+		return "unavailable"
+	if is_save_locked() or (_mutation_gate != null and _mutation_gate.is_active()):
+		return "please_wait" if action == "load" else "unavailable"
+	return "" if _backup_guard().get("ok", false) else "unavailable"
+
+func _quick_failure(action: String, status: String = "") -> Dictionary:
+	if status == "":
+		status = _quick_guard_status(action)
+	return {"ok": false, "code": &"backup_action_unavailable",
+		"status_key": "unavailable" if status == "" else status, "condition": _quick_condition(action)}
+
+static func _quick_save_record_allowed(record: Dictionary) -> bool:
+	return record.get("state") in ["empty", "occupied"] and not record.get("fallback", false) and record.get("reason", "") == ""
+
 func _on_backup_gate_capability_changed(_capability: Dictionary) -> void:
 	save_capability_changed.emit(get_backup_save_capability())
 
@@ -977,6 +1057,8 @@ func commit_backup_action(token: String) -> Dictionary:
 	var guard := _backup_guard()
 	if not guard.get("ok", false):
 		return guard
+	if candidate.has("quick_condition") and not is_quick_condition_current(candidate["quick_condition"]):
+		return _fail(&"stale_backup_source", "")
 	var locator: Dictionary = candidate["locator"]
 	var path := str(locator["relative_path"])
 	var current: Dictionary = _storage.inspect_revision(path)

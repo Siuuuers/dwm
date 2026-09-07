@@ -6,6 +6,7 @@ const LAUNCHER_BUTTON := preload("res://scripts/ui/desktop/DesktopLauncherButton
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
+const QUICK_COMMANDS := preload("res://scripts/ui/desktop/DesktopQuickCommands.gd")
 const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const LABELS := {
@@ -32,6 +33,7 @@ var _backup_port: Object
 var _minesweeper_port: Object
 var _minesweeper_input: Object
 var _confirmation: Control
+var _quick_commands: Node
 var _localization: Object
 var _profile: Object
 var _host_state: Object
@@ -204,6 +206,40 @@ func configure_backup_port(port: Object) -> Dictionary:
 		return open_app(&"backup")
 	return {"ok": true}
 
+func configure_quick_commands(port: Object, input_owner: Object, source_admission: Callable = Callable()) -> Dictionary:
+	if not is_node_ready() or port != _backup_port: return {"ok": false, "code": &"quick_owner_mismatch"}
+	if _quick_commands != null: return {"ok": false, "code": &"quick_already_configured"}
+	var candidate := QUICK_COMMANDS.new()
+	var admission := source_admission if not source_admission.is_null() else _quick_production_admitted
+	if not candidate.configure(self, port, input_owner, admission):
+		candidate.free()
+		return {"ok": false, "code": &"quick_owners_unavailable"}
+	_quick_commands = candidate
+	add_child(candidate)
+	return {"ok": true}
+
+func _quick_production_admitted() -> bool:
+	var scene := get_tree().current_scene
+	var bridge := get_node_or_null("/root/DialogicBridge")
+	return scene != null and scene.scene_file_path == "res://scenes/main/MainGameScene.tscn" \
+		and scene.is_ancestor_of(self) and bridge != null and not bridge.has_active_playback() \
+		and bridge.get_current_timeline_id().is_empty()
+
+func _input(event: InputEvent) -> void:
+	if is_instance_valid(_quick_commands): _quick_commands.observe_input(event)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if is_instance_valid(_quick_commands) and _quick_commands.handle_input(event) and is_inside_tree():
+		get_viewport().set_input_as_handled()
+
+func quick_status_safe_rect() -> Rect2:
+	# Known blank regions only. Other apps wait for their own protected-region map.
+	for child: Node in notification_layer.get_children():
+		if child is Control and child.is_visible_in_tree(): return Rect2()
+	if _active_id == &"backup": return Rect2(480, 80, 304, 64)
+	if _active_id == &"": return Rect2(24, 640, 752, 64)
+	return Rect2()
+
 func present_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
 	if is_instance_valid(_confirmation):
 		return {"ok": false, "code": &"confirmation_already_active"}
@@ -217,6 +253,7 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	return {"ok": true, "value": {"confirmation": _confirmation}}
 
 func open_app(app_id: StringName) -> Dictionary:
+	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	var foreground: Node = _cached_app_windows.get(_active_id)
 	if is_instance_valid(foreground) and foreground.has_method("can_return_home") and not foreground.can_return_home():
 		return {"ok": false, "code": &"desktop_modal_active"}
@@ -286,6 +323,7 @@ func open_app(app_id: StringName) -> Dictionary:
 	return {"ok": true, "value": {"app": app}}
 
 func return_home() -> Dictionary:
+	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	if _active_id == &"":
 		return {"ok": true}
 	var app: Node = _cached_app_windows.get(_active_id)
@@ -350,6 +388,8 @@ func _configure_from_bootstrap() -> void:
 				configure_backup_port(port)
 	if _bootstrap.has_method("configure_contacts_desktop"):
 		_bootstrap.configure_contacts_desktop(self)
+	if _quick_commands == null and _backup_port != null:
+		configure_quick_commands(_backup_port, get_node_or_null("/root/InputManager"))
 
 func _refresh_launcher() -> void:
 	if _localization != null and _localization.has_method("get_locale"):

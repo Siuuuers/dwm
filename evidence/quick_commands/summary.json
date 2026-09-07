@@ -1,0 +1,102 @@
+{
+  "base_commit": "7c6156585f16ea1fc50856ea979cff1c378f70ad",
+  "task": "dwm-eei.5",
+  "suites": [
+    {
+      "suite_id": "quick-desktop-expanded-20260907c",
+      "Scripts": 7,
+      "Tests": 65,
+      "Passing Tests": 65,
+      "Asserts": 945,
+      "Orphans": 24
+    },
+    {
+      "suite_id": "quick-shared-regression-20260907a",
+      "Scripts": 5,
+      "Tests": 36,
+      "Passing Tests": 36,
+      "Asserts": 589,
+      "Orphans": 24
+    }
+  ],
+  "tests": 101,
+  "assertions": 1534,
+  "native_suite": "quick-status-native-20260907b",
+  "native_checks": 448,
+  "rendered_tuples": 36,
+  "native_captures": 10,
+  "sources": {
+    "autoload/SaveManager.gd": "cf692d0381e84a3e66a75cbe0c0b306d35786c1ff3616c7022f18cc232f1e31a",
+    "scripts/application/backup/BackupPresentationPort.gd": "34ba77f19f82a2d68b0bdca58133a0ab40958cb4e7dac5610f4a1dbe917dda6b",
+    "scripts/ui/ComputerDesktop.gd": "a796b1cc4c16ecf8f318506acaadf11f723a3d6da121286340aedb694403b450",
+    "scripts/ui/desktop/DesktopQuickCommands.gd": "c42ad7b5a14e9c8393ce8317de60b55c4e887a81949a6b588330a97fdaac3c09",
+    "scripts/ui/desktop/QuickStatusEdge.gd": "3a1685240917cd4d225c42954bc022d0924654c998c4b1eb7214f60079377353",
+    "tests/unit/test_backup_quick_actions.gd": "ac9461e4c3268687cc28e6f8c659150f8e0ff1744bfa1a02252d38625e721107",
+    "tests/unit/test_quick_status_edge.gd": "dab84f9dcce219fb5cdc2bfc5701a119b6e274601c3cbe945d615541fb7abd95",
+    "tests/integration/test_desktop_quick_commands.gd": "279fd91fbd992228983320f84dc1c7c16092a85b3e1e1e0421a236999ba3c38f",
+    "tests/manual/verify_quick_status_native.gd": "67833e1ea1845e1b3862495d4811762fc328a92d6ea39cfe8f943555fc14f910"
+  },
+  "source_git_blobs": {
+    "autoload/SaveManager.gd": "e0ea57d57390f79114d34d930da280af6179cec9",
+    "scripts/application/backup/BackupPresentationPort.gd": "cec3da0294bc13938b6c2e8352888b51610dfcd9",
+    "scripts/ui/ComputerDesktop.gd": "1ebcfb65dc54fac34eff0c5206fc8827e550fe4f",
+    "scripts/ui/desktop/DesktopQuickCommands.gd": "a48bf2740f429dec1dd2d3d09e4e8a92a9d4475d",
+    "scripts/ui/desktop/QuickStatusEdge.gd": "b395a338cd89031099b475645beb06a082fba783",
+    "tests/unit/test_backup_quick_actions.gd": "64afd1b694d77d3173350f27db9f3f10ccc914c6",
+    "tests/unit/test_quick_status_edge.gd": "4b2c2fc1fed264513e0bd9ac4e67a0aba811ddc1",
+    "tests/integration/test_desktop_quick_commands.gd": "10d4948c663dbd8a5c350aeba3a7f29a6320a1df",
+    "tests/manual/verify_quick_status_native.gd": "37742d781533c6b60fcbe611e995f2c9a19d20f5"
+  },
+  "raw_log_sha256": {
+    "quick-owner-focused-20260907a.log": "048ec27558d74f3a17dac48eb57f3bd546a19b44e2a7040e0c71994073c32b21",
+    "quick-owner-focused-20260907b.log": "13749414b777f4f0feb2e09bf61713ba173e2dd68a298d7b498cbbce1edaa77f",
+    "quick-desktop-focused-20260907a.log": "19043273e0816df585698830b7f1d7eb93cabe3ad36df0dbcb406e9ae25d5c8a",
+    "quick-desktop-focused-20260907b.log": "0c6057e1fcf7cbb0496e8bd765a41f870481b46374ffa6e76c982a4de731ba76",
+    "quick-status-native-20260907a.log": "d611aa2fc42bc6be629c7940c99988653e1a2c8c708fc623d4d03701e9732840",
+    "quick-desktop-expanded-20260907a.log": "f06ba153ed9d9169507aad0aed83a4f9eec3d8bba4b0d04960ba5dccf94700ff",
+    "quick-desktop-expanded-20260907b.log": "496a62f7e83ec1b113629fb0250ccab4eebd5e06f0f3ca7456c68541642803b1",
+    "quick-desktop-expanded-20260907c.log": "b776601521b55ebf25a8d64ea2aa0ca3b71fd3275d2a45cdfd2a920b012d7542",
+    "quick-shared-regression-20260907a.log": "e69e1d4de3036df1a958f63c1f6d7dfc28748acab6f9889b334e0f3183e1ec9f",
+    "quick-status-native-20260907b.log": "9f349553c77a156c3172b4e6a1fe02d48b834c9e5b6199bed0ee83d6bcdbc946"
+  },
+  "scope": "Desktop launcher and Backup dispatch; existing production saving capture remains Backup-only.",
+  "save_schema_changed": false,
+  "full_quick_acceptance": false,
+  "overall_ui_goal_complete": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false,
+  "protected_worktrees": [
+    {
+      "path": "C:/Users/glori/Documents/dwm",
+      "head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+      "tracked_dirty_paths": 20
+    },
+    {
+      "path": "C:/Users/glori/Documents/dwm-p2r13-resealed",
+      "head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+      "tracked_dirty_paths": 50
+    }
+  ],
+  "known_diagnostics": [
+    "Existing Unicode NUL diagnostics retained",
+    "24 Dialogic fixture orphans reported by each final GUT run; no leak-free acceptance claim"
+  ],
+  "visual_inspection": [
+    "en-150-unavailable.png",
+    "zh_HK-150-unavailable.png"
+  ],
+  "screen_reader_verified": false,
+  "independent_reviews": [
+    {
+      "reviewer": "sheet_owner_audit",
+      "scope": "Owner transactions, source/target consent, bounded controller integration",
+      "result": "No material blocker; read-only review"
+    },
+    {
+      "reviewer": "sheet_controls",
+      "scope": "Status, focus, contact and modal precedence",
+      "result": "No material blocker; read-only review"
+    }
+  ]
+}

@@ -1,0 +1,541 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/147b1939-6fd4-472e-b408-0980afdd1255/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Parse Error: Member "owner" redefined (original in native class 'Node')
+   at: GDScript::reload (res://tests/unit/test_backup_quick_actions.gd:44)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed to load script "res://tests/unit/test_backup_quick_actions.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+[WARNING]:  Ignoring script tests/unit/test_backup_quick_actions.gd because it does not extend GutTest
+SCRIPT ERROR: Parse Error: Function "get_parent_item()" not found in base self.
+   at: GDScript::reload (res://scripts/ui/desktop/QuickStatusEdge.gd:113)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "parent_item" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/ui/desktop/QuickStatusEdge.gd:113)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://tests/unit/test_quick_status_edge.gd:0)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed to load script "res://tests/unit/test_quick_status_edge.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_quick_status_edge.gd
+* test_saved_and_refusal_expire_on_exact_eligible_lifetime
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_saved_and_refusal_expire_on_exact_eligible_lifetime (res://tests/unit/test_quick_status_edge.gd:16)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+   at: test_saved_and_refusal_expire_on_exact_eligible_lifetime (res://tests/unit/test_quick_status_edge.gd:17)
+   GDScript backtrace (most recent call first):
+       [0] test_saved_and_refusal_expire_on_exact_eligible_lifetime (res://tests/unit/test_quick_status_edge.gd:17)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+      at line -1
+* test_suppression_preserves_time_and_does_not_repeat_announcement
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_suppression_preserves_time_and_does_not_repeat_announcement (res://tests/unit/test_quick_status_edge.gd:30)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+   at: test_suppression_preserves_time_and_does_not_repeat_announcement (res://tests/unit/test_quick_status_edge.gd:31)
+   GDScript backtrace (most recent call first):
+       [0] test_suppression_preserves_time_and_does_not_repeat_announcement (res://tests/unit/test_quick_status_edge.gd:31)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+      at line -1
+* test_delayed_publication_revalidates_and_stale_fact_never_announces
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_delayed_publication_revalidates_and_stale_fact_never_announces (res://tests/unit/test_quick_status_edge.gd:46)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'publish_status' in base 'Nil'.
+   at: test_delayed_publication_revalidates_and_stale_fact_never_announces (res://tests/unit/test_quick_status_edge.gd:48)
+   GDScript backtrace (most recent call first):
+       [0] test_delayed_publication_revalidates_and_stale_fact_never_announces (res://tests/unit/test_quick_status_edge.gd:48)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'publish_status' in base 'Nil'.
+      at line -1
+* test_duplicate_retains_timer_but_new_binding_announces_new_fact
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_duplicate_retains_timer_but_new_binding_announces_new_fact (res://tests/unit/test_quick_status_edge.gd:57)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+   at: test_duplicate_retains_timer_but_new_binding_announces_new_fact (res://tests/unit/test_quick_status_edge.gd:58)
+   GDScript backtrace (most recent call first):
+       [0] test_duplicate_retains_timer_but_new_binding_announces_new_fact (res://tests/unit/test_quick_status_edge.gd:58)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+      at line -1
+* test_validator_is_throttled_and_changed_condition_clears
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_validator_is_throttled_and_changed_condition_clears (res://tests/unit/test_quick_status_edge.gd:74)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+   at: test_validator_is_throttled_and_changed_condition_clears (res://tests/unit/test_quick_status_edge.gd:77)
+   GDScript backtrace (most recent call first):
+       [0] test_validator_is_throttled_and_changed_condition_clears (res://tests/unit/test_quick_status_edge.gd:77)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+      at line -1
+* test_saving_has_no_fake_minimum_or_expiry
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_saving_has_no_fake_minimum_or_expiry (res://tests/unit/test_quick_status_edge.gd:89)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+   at: test_saving_has_no_fake_minimum_or_expiry (res://tests/unit/test_quick_status_edge.gd:90)
+   GDScript backtrace (most recent call first):
+       [0] test_saving_has_no_fake_minimum_or_expiry (res://tests/unit/test_quick_status_edge.gd:90)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+      at line -1
+* test_full_localized_font_reflow_does_not_reannounce_or_reset
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_full_localized_font_reflow_does_not_reannounce_or_reset (res://tests/unit/test_quick_status_edge.gd:101)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+   at: test_full_localized_font_reflow_does_not_reannounce_or_reset (res://tests/unit/test_quick_status_edge.gd:102)
+   GDScript backtrace (most recent call first):
+       [0] test_full_localized_font_reflow_does_not_reannounce_or_reset (res://tests/unit/test_quick_status_edge.gd:102)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+      at line -1
+* test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus (res://tests/unit/test_quick_status_edge.gd:117)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Cannot call method 'get_viewport' on a null value.
+   at: test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus (res://tests/unit/test_quick_status_edge.gd:121)
+   GDScript backtrace (most recent call first):
+       [0] test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus (res://tests/unit/test_quick_status_edge.gd:121)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Cannot call method 'get_viewport' on a null value.
+      at line -1
+    1 Orphans
+        * [<Button#175573567942>]
+* test_validator_reentrancy_cannot_clear_a_replacement
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_validator_reentrancy_cannot_clear_a_replacement (res://tests/unit/test_quick_status_edge.gd:141)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'publish_status' in base 'Nil'.
+   at: test_validator_reentrancy_cannot_clear_a_replacement (res://tests/unit/test_quick_status_edge.gd:142)
+   GDScript backtrace (most recent call first):
+       [0] test_validator_reentrancy_cannot_clear_a_replacement (res://tests/unit/test_quick_status_edge.gd:142)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'publish_status' in base 'Nil'.
+      at line -1
+* test_hidden_parent_defers_announcement_and_time
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _edge (res://tests/unit/test_quick_status_edge.gd:8)
+   GDScript backtrace (most recent call first):
+       [0] _edge (res://tests/unit/test_quick_status_edge.gd:8)
+       [1] test_hidden_parent_defers_announcement_and_time (res://tests/unit/test_quick_status_edge.gd:151)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Cannot call method 'get_viewport' on a null value.
+   at: test_hidden_parent_defers_announcement_and_time (res://tests/unit/test_quick_status_edge.gd:153)
+   GDScript backtrace (most recent call first):
+       [0] test_hidden_parent_defers_announcement_and_time (res://tests/unit/test_quick_status_edge.gd:153)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Cannot call method 'get_viewport' on a null value.
+      at line -1
+    1 Orphans
+        * [<Control#176127216097>]
+2 orphans
+0/10 passed.
+
+
+tests/unit/test_backup_host_admission.gd
+* test_refused_projection_keeps_nine_records_and_masks_actions_without_owner_mutation
+* test_source_change_after_prepare_cancels_owner_plan_without_committing
+* test_consumed_consent_cannot_replay_after_guard_repairs_and_cancel_stays_available
+* test_default_context_behavior_and_immutable_configuration_remain_compatible
+* test_non_boolean_guard_results_fail_closed
+* test_configured_admission_target_freed_later_fails_closed
+6/6 passed.
+
+
+tests/unit/test_save_manager.gd
+* test_invalid_save_references_do_not_touch_storage
+* test_save_family_writes_closed_relative_names
+* test_logout_without_checkpoint_reports_unwritten
+* test_metadata_family_present_absent_corrupt_and_ordering
+* test_restore_preparation_and_delete_families
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_deprecated_wrappers_delegate
+7/7 passed.
+
+
+tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+* test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge
+* test_semantic_narrative_participant_reports_manifest_drift_as_recoverable
+13/13 passed.
+
+
+tests/integration/test_pause_backup_host.gd
+* test_preview_retains_real_nine_records_and_source_save_refusal_without_mutation
+* test_confirmation_cancel_then_backup_retreat_then_continue_each_need_their_own_back
+* test_confirmed_delete_uses_real_record_revision_without_resuming_or_changing_quick
+* test_changed_record_enters_recovery_and_back_does_not_escape_backup
+* test_confirmation_is_inert_during_parent_custody_and_close_cancels_its_token
+* test_source_change_after_confirmation_prevents_delete_and_consumes_consent
+* test_removing_backup_cancels_prepared_owner_token
+* test_parent_interaction_restores_exact_backup_focus_without_resetting_mode_or_record
+* test_parent_custody_change_retires_held_touch_consent_before_reactivation
+9/9 passed.
+
+
+
+
+==============================================
+= 26 Orphans
+==============================================
+tests/unit/test_quick_status_edge.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+test_quick_status_edge.gd
+    - test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus
+        * [<Button#175573567942>]
+    - test_hidden_parent_defers_announcement_and_time
+        * [<Control#176127216097>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/unit/test_quick_status_edge.gd
+- test_saved_and_refusal_expire_on_exact_eligible_lifetime
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+          at line -1
+- test_suppression_preserves_time_and_does_not_repeat_announcement
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+          at line -1
+- test_delayed_publication_revalidates_and_stale_fact_never_announces
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'publish_status' in base 'Nil'.
+          at line -1
+- test_duplicate_retains_timer_but_new_binding_announces_new_fact
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+          at line -1
+- test_validator_is_throttled_and_changed_condition_clears
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+          at line -1
+- test_saving_has_no_fake_minimum_or_expiry
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+          at line -1
+- test_full_localized_font_reflow_does_not_reannounce_or_reset
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_eligible' in base 'Nil'.
+          at line -1
+- test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Cannot call method 'get_viewport' on a null value.
+          at line -1
+- test_validator_reentrancy_cannot_clear_a_replacement
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'publish_status' in base 'Nil'.
+          at line -1
+- test_hidden_parent_defers_announcement_and_time
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Cannot call method 'get_viewport' on a null value.
+          at line -1
+
+Totals
+------
+Warnings              1
+
+Scripts               5
+Tests                45
+Passing Tests        35
+Failing Tests        10
+Asserts           492/502
+Orphans              26
+Time              6.606s
+
+
+---- 10 failing tests ----

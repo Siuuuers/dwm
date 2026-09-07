@@ -68,6 +68,55 @@ func get_projection() -> Dictionary:
 		records.append(record)
 	return {"ok": true, "value": {"records": records, "save_capability": capability}}
 
+## Quick never displaces an existing Backup confirmation.
+func get_quick_capability(action: String) -> Dictionary:
+	if not _quick_available(action):
+		return {"ok": true, "value": {"enabled": false, "status_key": "unavailable", "condition": {}}}
+	var result: Dictionary = _owner.get_backup_quick_capability(action)
+	if not _pending.is_empty():
+		return {"ok": true, "value": {"enabled": false, "status_key": "unavailable",
+			"condition": result.get("value", {}).get("condition", {}).duplicate(true)}}
+	return result.duplicate(true)
+
+func is_quick_condition_current(condition: Dictionary) -> bool:
+	return _quick_available(str(condition.get("action", ""))) and _owner.is_quick_condition_current(condition)
+
+func prepare_quick_action(action: String) -> Dictionary:
+	var capability := get_quick_capability(action)
+	if not capability.get("ok", false) or not capability.get("value", {}).get("enabled", false):
+		return _quick_refusal(capability)
+	var prepared: Dictionary = _owner.prepare_quick_backup_action(action)
+	if not prepared.get("ok", false):
+		return prepared.duplicate(true)
+	var value: Dictionary = prepared["value"]
+	var token: String = value["token"]
+	# Preparation can call owner code. Recheck admission before exposing its token.
+	if not _pending.is_empty() or not is_quick_condition_current(value["condition"]):
+		_owner.cancel_backup_action(token)
+		return _quick_refusal(get_quick_capability(action))
+	var record := _project_record(value["record"], _owner.get_backup_save_capability(), true)
+	var kind := "none"
+	if action == "load":
+		kind = "replace_progress_fallback" if record["fallback"] else "replace_progress"
+	_pending[token] = {"action": action, "locator": "quick", "quick": true}
+	return {"ok": true, "value": {"token": token, "record": record,
+		"confirmation_required": action == "load", "confirmation_kind": kind,
+		"condition": value["condition"].duplicate(true)}}
+
+func _quick_available(action: String) -> bool:
+	if action not in ["save", "load"] or _context != "in_run" or not is_instance_valid(_owner):
+		return false
+	for method: String in ["get_backup_quick_capability", "prepare_quick_backup_action", "is_quick_condition_current"]:
+		if not _owner.has_method(method):
+			return false
+	return _admission_result().get("ok", false)
+
+static func _quick_refusal(capability: Dictionary) -> Dictionary:
+	var value: Dictionary = capability.get("value", {})
+	return {"ok": false, "code": &"backup_action_unavailable",
+		"status_key": "please_wait" if value.get("status_key") == "please_wait" else "unavailable",
+		"condition": value.get("condition", {}).duplicate(true)}
+
 func prepare_action(action: String, locator: String) -> Dictionary:
 	if not is_instance_valid(_owner):
 		return _fail(&"backup_owner_unavailable")
@@ -114,8 +163,12 @@ func commit_action(token: String) -> Dictionary:
 	var admitted: Dictionary = _admission_result()
 	if not admitted.get("ok", false):
 		_owner.cancel_backup_action(token)
-		return admitted
+		return _quick_refusal({}) if pending.get("quick", false) else admitted
 	var result: Dictionary = _owner.commit_backup_action(token)
+	if pending.get("quick", false):
+		pending.erase("quick")
+		if not result.get("ok", false):
+			return _quick_refusal(get_quick_capability(pending["action"]))
 	if result.get("ok", false):
 		var value: Dictionary = result.get("value", {}).duplicate(true)
 		value.merge(pending, true)

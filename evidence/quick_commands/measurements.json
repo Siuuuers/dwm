@@ -1,0 +1,1135 @@
+{
+  "captures": 10,
+  "checks": 448,
+  "failures": [],
+  "fixture": "Nine synthetic occupied records, no player files. Real DesktopAppHostState, real locale catalogs, current font themes.",
+  "logical_size": [
+    800,
+    720
+  ],
+  "native_size": [
+    400,
+    360
+  ],
+  "ok": true,
+  "requested_tuples": 36,
+  "samples": [
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Saving…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "MinesweeperButton",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 32.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Saved",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "MinesweeperButton",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 32.0,
+      "path": "renders/en-100-saved.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Unavailable",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "MinesweeperButton",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 32.0,
+      "path": "renders/en-100-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Please wait",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "MinesweeperButton",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 32.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Saving…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 40.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Saved",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 40.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Unavailable",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 40.0,
+      "path": "renders/en-125-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Please wait",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 40.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Saving…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 48.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Saved",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 48.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Unavailable",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 48.0,
+      "path": "renders/en-150-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "Please wait",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "en",
+      "minimum_height": 48.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "正在保存…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 35.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "已保存",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 35.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "不可用",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 35.0,
+      "path": "renders/zh_CN-100-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "请稍候",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 35.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "正在保存…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 44.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "已保存",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 44.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "不可用",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 44.0,
+      "path": "renders/zh_CN-125-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "请稍候",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 44.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "正在保存…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 53.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "已保存",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 53.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "不可用",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 53.0,
+      "path": "renders/zh_CN-150-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "请稍候",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "zh_CN",
+      "minimum_height": 53.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "正在儲存…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 35.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "已儲存",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 35.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "不可用",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 35.0,
+      "path": "renders/zh_HK-100-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "請稍候",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 24,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 35.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 100
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "正在儲存…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 44.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "已儲存",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 44.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "不可用",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 44.0,
+      "path": "renders/zh_HK-125-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "請稍候",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 30,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 44.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 125
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "正在儲存…",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saving",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 53.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "已儲存",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "saved",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 53.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "不可用",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "unavailable",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 53.0,
+      "path": "renders/zh_HK-150-unavailable.png",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    },
+    {
+      "blank_strips_unchanged": true,
+      "copy": "請稍候",
+      "dock_rect": [
+        480.0,
+        592.0,
+        304.0,
+        112.0
+      ],
+      "focus_name": "Drawer4",
+      "font_size": 36,
+      "information_rect": [
+        480.0,
+        160.0,
+        304.0,
+        336.0
+      ],
+      "key": "please_wait",
+      "local_status": "",
+      "locale": "zh_HK",
+      "minimum_height": 53.0,
+      "path": "",
+      "safe_rect": [
+        480.0,
+        80.0,
+        304.0,
+        64.0
+      ],
+      "selected_locator": "slot:3",
+      "text_percent": 150
+    }
+  ],
+  "scope": "Native rendering of real Desktop/Backup/QuickStatusEdge with explicit mocked record facts; no command, durability, restore, collision arbitration or OS assistive-technology acceptance."
+}
