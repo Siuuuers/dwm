@@ -9,6 +9,7 @@ const PORT := preload("res://scripts/application/backup/BackupPresentationPort.g
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
 
 var _viewport: SubViewport
 var _surface: Control
@@ -31,11 +32,14 @@ func before_each() -> void:
 	add_child(_manager)
 	assert_true(_manager.initialize(_storage).ok)
 	assert_true(_manager.configure_mutation_gate(GATE.new()).ok)
-	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/saves/v5_desktop_prepared.json"))
-	snapshot["gameplay"]["money"] = 0
+	var fixture: Dictionary = SNAPSHOT_FIXTURE.make_snapshot()
+	assert_true(fixture.get("ok",false),str(fixture))
+	if not fixture.get("ok",false): return
+	var snapshot: Dictionary = fixture["value"]["candidate"]
 	_manager._journal.reset(snapshot.run_id)
 	var prepared: Dictionary = _manager._journal.prepare_record(snapshot,&"day_start")
 	assert_true(prepared.ok,str(prepared))
+	if not prepared.get("ok",false): return
 	assert_true(_manager._journal.commit_prepared(prepared.value.candidate).ok)
 	_port = PORT.new()
 	assert_true(_port.configure(_manager,"in_run",_source_admission).ok)
@@ -63,8 +67,8 @@ func before_each() -> void:
 func after_each() -> void:
 	get_tree().paused = false
 	if is_instance_valid(_surface): _surface.close_surface()
-	_viewport.free()
-	_manager.free()
+	if is_instance_valid(_viewport): _viewport.free()
+	if is_instance_valid(_manager): _manager.free()
 	await get_tree().process_frame
 	process_mode = _old_process_mode
 

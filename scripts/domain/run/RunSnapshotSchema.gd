@@ -27,6 +27,7 @@ extends RefCounted
 const SCHEMA_VERSION := 6
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
+const ORDINARY_CORRESPONDENCE := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
 const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
@@ -228,6 +229,9 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 			and not ((candidate["schedule_view"] as Dictionary)["entries"] as Array).is_empty():
 		return _fail(&"invalid_snapshot_shape",
 			"a null committed_schedule registry_fingerprint requires an empty schedule_view")
+	var ordinary_check: Dictionary = ORDINARY_CORRESPONDENCE.validate_state(candidate["contacts"])
+	if not ordinary_check.get("ok", false):
+		return _fail(&"invalid_ordinary_correspondence", str(ordinary_check.get("code", "")))
 	var gameplay_error := _validate_gameplay(candidate["gameplay"])
 	if gameplay_error != "":
 		return _fail(&"invalid_gameplay", gameplay_error)
@@ -407,34 +411,11 @@ static func _validate_lifecycle(candidate: Dictionary) -> String:
 static func _validate_ending_plan(plan: Variant) -> String:
 	if typeof(plan) != TYPE_DICTIONARY:
 		return "ending_plan must be null or an object"
-	var keys: Array = (plan as Dictionary).keys()
-	keys.sort()
-	var expected := ENDING_PLAN_KEYS.duplicate()
-	expected.sort()
-	if keys != Array(expected):
-		return "unexpected ending-plan keys: " + str(keys)
-	if str(plan["ending_id"]).is_empty():
-		return "ending_id must be nonempty"
-	if typeof(plan["epilogue_ending_id"]) != TYPE_STRING:
-		return "epilogue_ending_id must be a String"
-	if typeof(plan["source_day"]) != TYPE_INT or int(plan["source_day"]) != 7:
-		return "ending-plan source_day must be 7"
-	if str(plan["playback_stage"]) not in PLAYBACK_SEQUENCE:
-		return "unknown playback_stage: " + str(plan["playback_stage"])
-	if typeof(plan["playback_receipts"]) != TYPE_DICTIONARY:
-		return "playback_receipts must be a Dictionary"
-	# Semantic authority: a structurally valid plan must still name a canonical primary and a valid
-	# epilogue. Adapt the persisted shape (ending_id/epilogue_ending_id) to the DatingEndingRules
-	# plan shape (primary_id/epilogue_id) and defer -- a tampered save cannot resume otherwise.
-	var epilogue_raw := str((plan as Dictionary)["epilogue_ending_id"])
-	var semantic: Dictionary = DATING_ENDING_RULES.validate_ending_plan({
-		"primary_id": str((plan as Dictionary)["ending_id"]),
-		"epilogue_id": null if epilogue_raw.is_empty() else epilogue_raw,
-		"playback_stage": str((plan as Dictionary)["playback_stage"]),
-	})
-	if not semantic.get("ok", false):
-		return str(semantic.get("message", semantic.get("code", "invalid ending plan")))
-	return ""
+	# RunLifecycle is the single owner of both exact admitted shapes and their semantic laws.
+	# v6 remains strict: this delegates a closed legacy/ordered union rather than accepting
+	# optional or unknown members at the document boundary.
+	return RUN_LIFECYCLE._validate_ending_plan(plan as Dictionary)
+
 
 ## The date latch is monotone: the controller sets it on the first date entry and never clears it
 ## (ScheduleViewController.prepare_remove). A persisted view carrying a date entry with the latch

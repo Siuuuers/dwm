@@ -36,6 +36,52 @@ class ChangingOwner extends RefCounted:
 		return owner.set_flag(request)
 	func chord(request: Dictionary) -> Dictionary:
 		return owner.chord(request)
+	func complete_round(request: Dictionary) -> Dictionary:
+		return owner.complete_round(request)
+
+class TerminalClearingOwner extends RefCounted:
+	const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
+	var completion_calls: Array = []
+	var snapshot: Dictionary
+
+	func _init() -> void:
+		var revealed: Dictionary = REDUCER.first_reveal({
+			"schema_version":1,"width":3,"height":3,"mine_indices":[1],"mine_count":1,
+		},0)
+		snapshot = {
+			"schema_version":1,"phase":"ACTIVE_VISIBLE","revision":1,
+			"identity":{"run_id":"run-ui","branch_id":"branch-ui",
+				"desktop_timeline_generation":1,"causal_day_instance":"day-ui",
+				"app_round_ordinal":1},
+			"candidate":null,"board":{"board":revealed.value.board,
+				"paid_start_receipt":{"receipt_id":"paid-ui","difficulty_id":"beginner"}},
+			"settlement":null,"command_receipts":{},"terminal_receipts":{},
+		}
+
+	func get_state() -> Dictionary:
+		return {"ok":true,"code":&"ok","value":snapshot.duplicate(true),"receipt":{}}
+	func get_entry_context(difficulty: String) -> Dictionary:
+		return {"ok":true,"code":&"ok","value":{"identity":snapshot.identity,
+			"revision":snapshot.revision,"difficulty_id":difficulty,"eligible":false},"receipt":{}}
+	func reveal(request: Dictionary) -> Dictionary:
+		var reduced: Dictionary = REDUCER.reveal(snapshot.board.board,
+			int(request.cell_index),str(request.transaction_id))
+		if not reduced.ok: return reduced
+		snapshot.board.board = reduced.value.board
+		snapshot.revision += 1
+		return {"ok":true,"code":&"ok","value":{},"receipt":{}}
+	func set_flag(_request: Dictionary) -> Dictionary:
+		return {"ok":false,"code":&"unused"}
+	func chord(_request: Dictionary) -> Dictionary:
+		return {"ok":false,"code":&"unused"}
+	func complete_round(request: Dictionary) -> Dictionary:
+		completion_calls.append(request.duplicate(true))
+		if completion_calls.size() == 1:
+			return {"ok":false,"code":&"temporary_settlement_failure","details":{}}
+		snapshot = {"schema_version":1,"phase":"NONE","revision":snapshot.revision+1,
+			"identity":null,"candidate":null,"board":null,"settlement":null,
+			"command_receipts":{},"terminal_receipts":{}}
+		return {"ok":true,"code":&"ok","value":{},"receipt":{}}
 
 var state
 var coordinator
@@ -83,8 +129,9 @@ func test_pull_composes_only_detached_public_facts_without_spending_or_allocatin
 	var result: Dictionary = port.pull()
 	assert_true(result.ok)
 	assert_eq(result.keys(), ["ok", "value"])
-	assert_eq(result.value.keys(), ["board", "register", "assignments", "actions"])
+	assert_eq(result.value.keys(), ["board", "register", "assignments", "actions", "settled"])
 	assert_eq(result.value.actions, ACTIONS)
+	assert_false(result.value.settled)
 	assert_eq(result.value.assignments, [true, false, false, false, false, false, false, false, false])
 	assert_eq(result.value.register.rounds, 2)
 	assert_null(result.value.register.foresight)
@@ -128,21 +175,70 @@ func test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel() -> void:
 	assert_eq(unflagged.value.actions, ACTIONS)
 
 
-func test_terminal_custody_has_no_panel_actions_or_replacement_command() -> void:
+func test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears() -> void:
+	var owner := TerminalClearingOwner.new()
+	var isolated := PORT.new()
+	assert_true(isolated.configure(owner,issuer,state,catalog).ok)
+	var initial: Dictionary = isolated.pull()
+	assert_true(initial.ok,str(initial))
+	var first: Dictionary = isolated.dispatch("reveal",1,initial.value.board.revision)
+	assert_false(first.ok)
+	assert_true(first.value.board.terminal)
+	assert_true(first.value.board.custody)
+	assert_false(first.value.settled)
+	assert_eq(first.value.actions,[])
+	assert_eq(owner.completion_calls.size(),1)
+	var terminal_bytes: Dictionary = first.value.board.duplicate(true)
+	var settled: Dictionary = isolated.pull()
+	assert_true(settled.ok,str(settled))
+	assert_eq(settled.value.board,terminal_bytes)
+	assert_true(settled.value.settled)
+	assert_eq(settled.value.actions,["new_board","assignments","rules"])
+	assert_eq(owner.completion_calls.size(),2)
+	assert_eq(owner.snapshot.phase,"NONE","the completion double really clears its board owner")
+	assert_eq(isolated.pull(),settled,"ordinary refresh retains the settled terminal view")
+	assert_eq(owner.completion_calls.size(),2,"held refresh never repeats completion")
+	var counter_before: int = root_store.next_counter
+	var rounds_before: int = state.minesweeper_rounds_left
+	var released: Dictionary = isolated.dispatch("new_board",-1,settled.value.board.revision)
+	assert_true(released.ok,str(released))
+	assert_false(released.value.board.terminal)
+	assert_false(released.value.settled)
+	assert_eq(released.value.actions,ACTIONS)
+	assert_eq(root_store.next_counter,counter_before,"New Board allocates no gameplay identity")
+	assert_eq(state.minesweeper_rounds_left,rounds_before,"New Board spends no round")
+
+
+func test_failed_terminal_settlement_retains_exact_projection_without_next_action() -> void:
 	var initial: Dictionary = port.pull()
-	var active: Dictionary = port.dispatch("reveal", 0, initial.value.board.revision)
+	var active: Dictionary = port.dispatch("reveal",0,initial.value.board.revision)
 	assert_true(active.ok)
-	var terminal: Dictionary = port.dispatch("reveal", 1, active.value.board.revision)
-	assert_true(terminal.ok)
+	var terminal: Dictionary = port.dispatch("reveal",1,active.value.board.revision)
+	assert_false(terminal.ok)
 	assert_true(terminal.value.board.terminal)
 	assert_true(terminal.value.register.custody)
-	assert_eq(terminal.value.actions, [])
-	assert_eq(terminal.value.register.difficulty_enabled, [])
-	var counter_before: int = root_store.next_counter
-	var refused: Dictionary = port.dispatch("new_board", -1, terminal.value.board.revision)
+	assert_false(terminal.value.settled)
+	assert_eq(terminal.value.actions,[])
+	assert_eq(coordinator.get_state().value.phase,"ACTIVE_VISIBLE")
+	var refused: Dictionary = port.dispatch("new_board",-1,terminal.value.board.revision)
 	assert_false(refused.ok)
-	assert_eq(refused.value.actions, [])
-	assert_eq(root_store.next_counter, counter_before)
+	assert_eq(refused.value,terminal.value)
+
+
+func test_day_change_invalidates_a_held_terminal_view() -> void:
+	var owner := TerminalClearingOwner.new()
+	var isolated := PORT.new()
+	assert_true(isolated.configure(owner,issuer,state,catalog).ok)
+	var initial: Dictionary = isolated.pull()
+	assert_false(isolated.dispatch("reveal",1,initial.value.board.revision).ok)
+	var terminal: Dictionary = isolated.pull()
+	assert_true(terminal.ok)
+	assert_true(terminal.value.settled)
+	state.day_changed.emit(state.day+1)
+	var refreshed: Dictionary = isolated.pull()
+	assert_true(refreshed.ok,str(refreshed))
+	assert_false(refreshed.value.settled)
+	assert_false(refreshed.value.board.terminal)
 
 
 func test_stale_and_owner_refusal_return_only_safe_refreshed_composites() -> void:
@@ -331,3 +427,31 @@ func test_panel_foreground_refuses_changed_unpaid_tier_before_allocation() -> vo
 	assert_eq(refused.value.register.difficulty, "expert")
 	assert_eq(root_store.next_counter, counter_before)
 	assert_eq(coordinator.get_state().value.phase, "NONE")
+
+
+func test_terminal_foresight_includes_final_click_and_survives_settlement_clear_and_retry() -> void:
+	for fail_first: bool in [false, true]:
+		var owner := TerminalClearingOwner.new()
+		if not fail_first: owner.completion_calls.append({})
+		var isolated := PORT.new()
+		assert_true(isolated.configure(owner, issuer, state, catalog).ok)
+		var active: Dictionary = isolated.pull()
+		assert_true(active.ok, str(active))
+		assert_eq(active.value.register.foresight, 300, "three BV and the implicit first click")
+		var terminal: Dictionary = isolated.dispatch("reveal", 1, active.value.board.revision)
+		assert_eq(terminal.ok, not fail_first)
+		assert_eq(terminal.value.register.foresight, 150, "terminal Reveal is the second accepted click")
+		assert_true(terminal.value.board.terminal)
+		var public_board: Dictionary = terminal.value.board.duplicate(true)
+		var changed: Dictionary = public_board.duplicate(true)
+		changed.revision += 1
+		assert_false(isolated._board_port.get_terminal_foresight(changed).ok,
+			"a different projection cannot borrow the retained final metric")
+		var held: Dictionary = isolated.pull()
+		assert_true(held.ok, str(held))
+		assert_eq(owner.snapshot.phase, "NONE")
+		assert_eq(held.value.board, public_board)
+		assert_eq(held.value.register.foresight, 150)
+		assert_eq(isolated.pull(), held)
+		assert_true(isolated.dispatch("new_board", -1, held.value.board.revision).ok)
+		assert_null(isolated.pull().value.register.foresight, "the next untouched board has no metric")

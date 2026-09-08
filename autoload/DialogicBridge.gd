@@ -8,6 +8,8 @@ signal timeline_started(timeline_id: String, path: String)
 signal timeline_finished(timeline_id: String, result: Dictionary)
 signal timeline_failed(result: Dictionary)
 signal ordinary_playback_failed(timeline_id: String, result: Dictionary)
+## Exact session-abandonment cancellation; consumers release ephemeral ownership only.
+signal ordinary_playback_retired(timeline_id: String)
 signal entry_playback_failed(playback_token: String, entry_id: String, result: Dictionary)
 signal timeline_marker_received(marker_id: String, payload: Dictionary)
 signal preference_boundary_step(step_id: StringName)
@@ -17,6 +19,7 @@ signal narrative_checkpoint_committed(checkpoint: Dictionary)
 signal narrative_validation_failed(result: Dictionary)
 signal ending_playback_finished(playback_token: String, ending_id: String, receipt: Dictionary)
 signal ending_playback_failed(playback_token: String, ending_id: String, result: Dictionary)
+signal ending_playback_retired(playback_token: String, ending_id: String)
 
 const MISSING_DIALOGIC_MESSAGE := "Dialogic 2 addon file does not exist."
 const DIALOGIC_CLEAR_KEEP_VARIABLES := 1
@@ -49,6 +52,8 @@ var _start_in_progress := false
 var _pause_handle: Dictionary = {}
 var _pause_frontier: Dictionary = {}
 var _pause_changing := false
+var _retired_pause_handle: Dictionary = {}
+var _pause_restore: Dictionary = {}
 var _mutation_gate: Object
 var _profile: Node
 var _preference_adapter: RefCounted
@@ -326,6 +331,9 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 	if ordinary.has("runtime_before") and failure.get("code") != &"runtime_playback_replaced":
 		# Invalidate a canceled event coroutine before restoring a possibly unpaused state.
 		_runtime_adapter.restore_captured_state(ordinary.runtime_before)
+	if not _reached_replay.is_empty() and str(entry.get("token", "")) == str(_reached_replay.token):
+		_finish_reached_replay("failed", str(failure.get("code", "replay_failed")), failure.get("code") != &"runtime_playback_replaced")
+		return
 	if not ordinary_id.is_empty():
 		ordinary_playback_failed.emit(ordinary_id, failure.duplicate(true))
 	if not entry.is_empty():
@@ -460,6 +468,14 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 
 
 func rollback_restore_silent(backup: Dictionary) -> Dictionary:
+	if is_pause_restore_pending():
+		if _pause_restore.get("cancelled", false): return _pause_failure(&"pause_restore_committed")
+		# This restore only staged target bytes. The source runtime and its coroutine
+		# were never replaced, so rollback must not touch native reveal or pause state.
+		_pause_restore["plan"] = {}
+		_pause_restore["staged"] = false
+		_pause_restore["finalized"] = false
+		return _pause_success({"restored": true})
 	var source: Variant = backup.get("backup", backup)
 	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("timeline_id"):
 		return {"ok": false, "code": &"invalid_narrative_backup", "message": "narrative backup requires a timeline_id"}
@@ -538,9 +554,187 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 	return _start_playback(ending_id, role)
 
 
+## Canonical reached recording must name the label that physically played, including
+## Alone mode and exceptional full/residue variants; legacy callers keep their old API.
+func start_ending_presentation(ending_id: String, context: Dictionary, signature: Dictionary) -> Dictionary:
+	if not _initialized: return _command_failure(&"not_initialized")
+	if has_active_playback() or not _pause_handle.is_empty(): return _command_failure(&"narrative_playback_active")
+	if not _exact_context_keys(context): return _command_failure(&"invalid_playback_context")
+	var checked := _PRESENTATION_SIGNATURE.validate(signature)
+	if not checked.ok: return checked
+	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(signature.entry_id).value
+	var semantic_id := ending_id.trim_suffix(".full").trim_suffix(".residue").replace(".observation", ".observer")
+	if entry.ending_id != semantic_id or str(signature.fields.ending_role) != str(context.role):
+		return _command_failure(&"ending_presentation_mismatch")
+	var resolved := _resolve_entry_for_playback(signature.entry_id, -1)
+	if not resolved.ok: return resolved
+	if not _ending_records.has(ending_id): return _command_failure(&"unknown_ending_id")
+	var timeline_id := str(_ending_records[ending_id].timeline_id)
+	var locator: Dictionary = resolved.value
+	_playback_counter += 1
+	var token := "playback-%d" % _playback_counter
+	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+	_current_timeline_id = timeline_id
+	_active_playback = {"token":token, "ending_id":ending_id, "role":str(context.role),
+		"timeline_id":timeline_id, "label":str(locator.label), "cache_before":before,
+		"presentation_signature":signature.duplicate(true)}
+	_start_in_progress = true
+	var started := _start_through_runtime(str(locator.path), str(locator.label))
+	_start_in_progress = false
+	if not started.get("ok", false):
+		if str(_active_playback.get("token", "")) == token:
+			_active_playback.clear()
+			_current_timeline_id = before.id
+			_current_timeline_context = before.context
+		return started
+	return {"ok":true, "code":&"started", "receipt":{"playback_token":token, "ending_id":ending_id,
+		"timeline_id":timeline_id, "label":str(locator.label), "started":true}}
+
+
 func start_postscript_id(postscript_id: String) -> Dictionary:
 	# Bridge-only capability: it never touches an EndingPlan stage or the Gallery.
 	return _start_playback(postscript_id, "postscript")
+
+
+# Gallery has an independent physical completion channel and no canonical command owner.
+signal reached_replay_finished(result: Dictionary)
+const _PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
+var _replay_profile: Object
+var _reached_replay: Dictionary = {}
+const _REPLAY_CARD := preload("res://scripts/ui/Day7PreludeSurface.gd")
+const _DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
+var _replay_counter := 0
+
+func configure_reached_replay(profile: Object) -> Dictionary:
+	if profile == null or not profile.has_method("get_reached_presentations") \
+			or not profile.has_method("get_gallery_discovery_snapshot"):
+		return _command_failure(&"invalid_replay_profile")
+	if _replay_profile != null and _replay_profile != profile:
+		return _command_failure(&"replay_profile_already_configured")
+	_replay_profile = profile
+	return {"ok": true}
+
+func capture_rehearsal_variables() -> Dictionary:
+	if not _initialized: return _command_failure(&"replay_unconfigured")
+	if has_active_playback(): return _command_failure(&"narrative_playback_active")
+	if _mutation_gate != null:
+		var guarded: Dictionary = _mutation_gate.guard_external(&"gallery_replay")
+		if not guarded.get("ok", false): return guarded
+	var variables: Dictionary = {}
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic != null:
+		var current: Variant = dialogic.current_state_info.get("variables", {})
+		if not current is Dictionary: return _command_failure(&"invalid_rehearsal_variables")
+		variables = current.duplicate(true)
+	return {"ok": true, "value": {"variables": variables}}
+
+func replay_reached_signature(signature_id: String) -> Dictionary:
+	if not _initialized or _replay_profile == null: return _command_failure(&"replay_unconfigured")
+	if has_active_playback() or not _reached_replay.is_empty(): return _command_failure(&"narrative_playback_active")
+	if _mutation_gate != null:
+		var guarded: Dictionary = _mutation_gate.guard_external(&"gallery_replay")
+		if not guarded.get("ok", false): return guarded
+	var records: Dictionary = _replay_profile.get_reached_presentations()
+	if not records.get("ok", false): return records
+	var signature: Dictionary = {}
+	for record: Dictionary in records.value.records:
+		if str(record.signature_id) == signature_id: signature = record.signature.duplicate(true)
+	if signature.is_empty(): return _command_failure(&"presentation_not_reached")
+	var checked := _PRESENTATION_SIGNATURE.validate(signature)
+	if not checked.ok or checked.value.signature_id != signature_id: return _command_failure(&"invalid_presentation_signature")
+	var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(signature.entry_id).value
+	if entry.ending_id != null:
+		var discovered: Dictionary = _replay_profile.get_gallery_discovery_snapshot()
+		if not discovered.get("ok", false): return discovered
+		var has_discovery := false
+		for identity: String in discovered.value.ending_ids:
+			if _PRESENTATION_SIGNATURE.semantic_ending_id(identity) == str(entry.ending_id): has_discovery = true
+		if not has_discovery: return _command_failure(&"ending_not_discovered")
+	elif not _replay_profile.has_method("has_completed_ending") or not _replay_profile.has_completed_ending():
+		return _command_failure(&"reached_replay_locked")
+	if str(signature.entry_id).ends_with(".residue"):
+		return _command_failure(&"gallery_requires_full_presentation")
+	var variables: Dictionary = {}
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic != null:
+		variables = (dialogic.current_state_info.get("variables", {}) as Dictionary).duplicate(true)
+	_replay_counter += 1
+	_reached_replay = {"signature_id": signature_id, "signature": signature.duplicate(true),
+		"variables": variables, "token": "gallery-%d" % _replay_counter}
+	# Date scenes currently present a native phase card around their board. Replay the same
+	# frozen presentation without entering the challenge or treating an empty DTL return as it.
+	if entry.role in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]:
+		var card_started: Dictionary = _begin_reached_date_card(signature)
+		if not card_started.get("ok", false): _finish_reached_replay("failed", str(card_started.get("code", "replay_failed")))
+		return card_started
+	var context := {"expected_stage":"gallery_replay", "playback_id":"gallery-%d" % _replay_counter,
+		"role":"gallery", "transaction_id":"gallery-%d" % _replay_counter,
+		"presentation_signature":signature.duplicate(true)}
+	var started := _begin_entry_playback(signature.entry_id, context, &"rehearsal", "gallery")
+	if not started.get("ok", false):
+		_finish_reached_replay("failed", str(started.get("code", "replay_failed")))
+	return started
+
+func _begin_reached_date_card(signature: Dictionary) -> Dictionary:
+	var locale := "en"
+	var localization := get_node_or_null("/root/LocalizationManager")
+	if localization != null: locale = str(localization.get_locale())
+	var projected: Dictionary = _DATING_PRESENTATION.reached_presentation_copy(signature, locale)
+	if not projected.get("ok", false): return projected
+	if not is_inside_tree(): return _command_failure(&"replay_surface_unavailable")
+	var receipt := {"entry_id": signature.entry_id, "signature_id": _reached_replay.signature_id,
+		"view_token": _reached_replay.token}
+	var card := {"receipt": receipt, "title": projected.value.title, "body": projected.value.body}
+	var surface := _REPLAY_CARD.new()
+	var configured: Dictionary = surface.configure(card, _acknowledge_reached_date_card, locale)
+	if not configured.get("ok", false):
+		surface.free()
+		return configured
+	_reached_replay["surface"] = surface
+	_reached_replay["card"] = card.duplicate(true)
+	surface.card_acknowledged.connect(_on_reached_date_card_acknowledged)
+	add_child(surface)
+	return {"ok": true, "code": &"started", "value": {}, "receipt": {
+		"entry_id": signature.entry_id, "playback_token": _reached_replay.token}}
+
+func _acknowledge_reached_date_card(receipt: Dictionary) -> Dictionary:
+	if _reached_replay.is_empty() or not _reached_replay.has("surface") \
+			or receipt != _reached_replay.card.receipt:
+		return _command_failure(&"replay_identity_mismatch")
+	var surface: Node = _reached_replay.surface
+	if not is_instance_valid(surface) or not _reached_replay.card in surface.get_presentation_history():
+		return _command_failure(&"replay_presentation_not_drawn")
+	return {"ok": true}
+
+func _on_reached_date_card_acknowledged(receipt: Dictionary, _result: Dictionary) -> void:
+	if _reached_replay.is_empty() or not _reached_replay.has("card") \
+			or receipt != _reached_replay.card.receipt: return
+	_finish_reached_replay("completed")
+
+func cancel_reached_replay(signature_id: String) -> Dictionary:
+	if _reached_replay.is_empty(): return {"ok": true}
+	if str(_reached_replay.signature_id) != signature_id: return _command_failure(&"replay_identity_mismatch")
+	if _reached_replay.has("surface"):
+		_finish_reached_replay("cancelled")
+		return {"ok": true}
+	if str(_active_entry.get("token", "")) != str(_reached_replay.token):
+		return _command_failure(&"replay_identity_mismatch")
+	var cancelled := abort_current_entry(&"gallery_closed")
+	if not cancelled.get("ok", false): return cancelled
+	_finish_reached_replay("cancelled")
+	return {"ok": true}
+
+func _finish_reached_replay(outcome: String, code: String = "", restore_variables: bool = true) -> void:
+	if _reached_replay.is_empty(): return
+	var replay := _reached_replay.duplicate(true)
+	_reached_replay.clear()
+	if replay.has("surface") and is_instance_valid(replay.surface):
+		replay.surface.hide()
+		replay.surface.queue_free()
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic != null and restore_variables: dialogic.current_state_info["variables"] = replay.variables.duplicate(true)
+	reached_replay_finished.emit({"signature_id":replay.signature_id, "playback_token":replay.token,
+		"outcome":outcome, "code":code})
 
 
 # ---- Global read history and boundary-safe skip (dwm-p2r.8, Plan-05 Task 4) ----
@@ -569,6 +763,7 @@ func set_skip_mode(mode: StringName) -> Dictionary:
 ## One held-skip step, in the exact frozen order: read the PRE-reveal visited state, reveal, mark
 ## visited, classify the next event WITHOUT consuming it, evaluate, advance only when allowed.
 func request_skip_step() -> Dictionary:
+	if not _reached_replay.is_empty(): return _command_failure(&"rehearsal_commit_denied")
 	if not _pause_handle.is_empty():
 		return _command_failure(&"narrative_suspended")
 	if _skip_profile == null or _runtime_adapter == null:
@@ -800,16 +995,18 @@ func validate_resume_checkpoint(checkpoint: Dictionary,
 ## _begin_entry_playback asks the same question through this method, so the one-active-playback law
 ## has ONE copy rather than two that can drift apart.
 func has_active_playback() -> bool:
+	if _reached_replay.has("surface"): return true
 	return _start_in_progress or not (_ordinary_playback.is_empty() and _active_entry.is_empty() and _active_playback.is_empty()) \
 		or (_runtime_adapter != null and _runtime_adapter.has_method("has_active_playback") and _runtime_adapter.has_active_playback())
 
 
 func capture_pause_frontier(timeline_id: String = "") -> Dictionary:
-	if _ordinary_playback.is_empty() or _start_in_progress or not _active_transaction.is_empty() or _restore_playback_started \
+	if (int(not _ordinary_playback.is_empty()) + int(not _active_entry.is_empty()) + int(not _active_playback.is_empty())) != 1 or _start_in_progress or not _active_transaction.is_empty() or _restore_playback_started \
 		or not _pending_resume_token.is_empty() or _runtime_adapter == null \
 		or not _runtime_adapter.has_method("capture_pause_frontier"):
 		return _command_failure(&"pause_frontier_unavailable")
-	if not timeline_id.is_empty() and str(_ordinary_playback.get("timeline_id", "")) != timeline_id:
+	var owned_id: String = str(_ordinary_playback.get("timeline_id", _active_entry.get("entry_id", _active_playback.get("timeline_id", ""))))
+	if not timeline_id.is_empty() and owned_id != timeline_id:
 		return _command_failure(&"pause_source_mismatch")
 	if _mutation_gate != null:
 		var guarded: Dictionary = _mutation_gate.guard_external(&"narrative_pause")
@@ -879,6 +1076,128 @@ func get_state() -> Dictionary:
 	if not physical.get("ok", false) or not physical.value.get("paused", false):
 		return _pause_failure(&"narrative_runtime_indeterminate")
 	return _pause_success({"state": &"Suspended"})
+
+
+## Session abandonment cancels this exact suspended runtime. Clearing bridge ownership first
+## prevents native end signals from reporting a completed scene or advancing any ending cursor.
+func retire_suspended_source(handle: Dictionary) -> Dictionary:
+	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"session_abandonment"):
+		return _pause_failure(&"session_abandonment_custody_required")
+	return _retire_suspended_playback(handle)
+
+
+func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
+	if handle == _retired_pause_handle and _pause_handle.is_empty(): return _pause_success({"retired": true})
+	if _pause_handle.is_empty() or handle != _pause_handle or _pause_changing:
+		return _pause_failure(&"invalid_suspension_handle")
+	if handle != _retired_pause_handle:
+		var physical: Dictionary = _runtime_adapter.capture_pause_frontier()
+		var expected := _pause_frontier.duplicate(true)
+		expected["paused"] = true
+		if not physical.get("ok", false) or physical.value != expected:
+			return _pause_failure(&"pause_source_changed")
+		var ordinary := _ordinary_playback.duplicate(true)
+		var ending := _active_playback.duplicate(true)
+		_ordinary_playback.clear()
+		_active_entry.clear()
+		_active_playback.clear()
+		_current_timeline_id = ""
+		_current_timeline_context.clear()
+		_retired_pause_handle = handle.duplicate(true)
+		_runtime_adapter.halt_with_error({"code": &"session_abandoned"})
+		# Cancellation is separate from failure: a retired session must not run the
+		# scene/coordinator failure handlers or manufacture a physical completion.
+		if not ordinary.is_empty():
+			ordinary_playback_retired.emit(str(ordinary["timeline_id"]))
+		if not ending.is_empty():
+			ending_playback_retired.emit(str(ending["token"]), str(ending["ending_id"]))
+	# Native clear invalidates the event before its previous pause bit is released.
+	# No owned completion remains for the cancellation signal to consume.
+	var released: Dictionary = _runtime_adapter.set_paused(false)
+	if not released.get("ok", false): return released
+	_pause_handle.clear()
+	_pause_frontier.clear()
+	return _pause_success({"retired": true})
+
+## During a witnessed Load, the source stays physically suspended until the new
+## session activates. Restore participants stage the target; failure discards only that plan.
+func begin_pause_restore(handle: Dictionary) -> Dictionary:
+	if _mutation_gate == null or not _mutation_gate.guard_external(&"pause_restore").get("ok", false):
+		return _pause_failure(&"pause_restore_unavailable")
+	var state := get_state()
+	if handle.is_empty() or handle != _pause_handle or not state.get("ok", false) \
+			or state.value.state != &"Suspended":
+		return _pause_failure(&"pause_source_changed")
+	if not _pause_restore.is_empty() and not _pause_restore.get("applied", false):
+		return _pause_failure(&"pause_restore_busy")
+	_pause_restore = {"handle": handle.duplicate(true), "plan": {}, "semantic": false,
+		"staged": false, "finalized": false, "cancelled": false, "applied": false}
+	return _pause_success({"staged": true})
+
+
+func is_pause_restore_pending() -> bool:
+	return not _pause_restore.is_empty() and not _pause_restore.get("applied", false)
+
+
+func stage_pause_restore(plan: Dictionary, semantic: bool) -> Dictionary:
+	if not is_pause_restore_pending() or _pause_restore.cancelled \
+			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
+		return _pause_failure(&"pause_restore_unavailable")
+	# Restore already owns the gate, so the public get_state()/frontier reader is
+	# intentionally unavailable. Verify the identical native source under that custody.
+	if _pause_changing or _pause_handle != _pause_restore.handle:
+		return _pause_failure(&"pause_source_changed")
+	var physical: Dictionary = _runtime_adapter.capture_pause_frontier()
+	var expected := _pause_frontier.duplicate(true)
+	expected["paused"] = true
+	if not physical.get("ok", false) or physical.value != expected:
+		return _pause_failure(&"pause_source_changed")
+	_pause_restore.plan = plan.duplicate(true)
+	_pause_restore.semantic = semantic
+	_pause_restore.staged = true
+	return _pause_success({"staged": true})
+
+
+func finalize_pause_restore() -> Dictionary:
+	if not is_pause_restore_pending() or not _pause_restore.staged or _pause_restore.cancelled:
+		return _pause_failure(&"pause_restore_unavailable")
+	_pause_restore.finalized = true
+	return _pause_success({"deferred": true})
+
+
+func cancel_pause_restore(handle: Dictionary) -> Dictionary:
+	if not is_pause_restore_pending() or _pause_restore.handle != handle or _pause_restore.cancelled \
+			or handle != _pause_handle or not get_state().get("ok", false):
+		return _pause_failure(&"pause_source_changed")
+	_pause_restore.clear()
+	return _pause_success({"cancelled": true})
+
+
+func complete_pause_restore(handle: Dictionary) -> Dictionary:
+	if _pause_restore.get("handle") != handle or not _pause_restore.get("finalized", false) \
+			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
+		return _pause_failure(&"pause_restore_unavailable")
+	if _pause_restore.applied: return _pause_success({"restored": true})
+	if not _pause_restore.cancelled:
+		var retired := _retire_suspended_playback(handle)
+		# Native cancellation can precede a failed pause-bit release. From this point,
+		# retry is forward-only; the old text may never be reinstated or resumed.
+		_pause_restore.cancelled = handle == _retired_pause_handle
+		if not retired.get("ok", false): return retired
+	elif not _pause_handle.is_empty():
+		var released := _retire_suspended_playback(handle)
+		if not released.get("ok", false): return released
+	if _runtime_adapter.has_active_playback():
+		await get_tree().process_frame
+	if _runtime_adapter.has_active_playback(): return _pause_failure(&"pause_restore_runtime_busy")
+	var applied: Dictionary = resume_entry(_pause_restore.plan) if _pause_restore.semantic \
+		else apply_restore_silent(_pause_restore.plan)
+	if not applied.get("ok", false): return applied
+	if not _pause_restore.semantic:
+		applied = finalize_restore()
+		if not applied.get("ok", false): return applied
+	_pause_restore.applied = true
+	return _pause_success({"restored": true})
 
 
 func _pause_frontier_id() -> String:
@@ -998,7 +1317,9 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 	var frozen: Dictionary = (fingerprinted["value"] as Dictionary)["frozen"]
 	var fingerprint := str((fingerprinted["value"] as Dictionary)["fingerprint"])
 	var token := ""
-	if token_kind == "resume":
+	if token_kind == "gallery":
+		token = "gallery-%d" % _replay_counter
+	elif token_kind == "resume":
 		_resume_counter += 1
 		token = "resume-%d" % _resume_counter
 	else:
@@ -1058,6 +1379,8 @@ func _start_semantic_playback(path: String, label: String) -> Dictionary:
 
 
 func acknowledge_signal(signal_id: String, payload: Dictionary) -> Dictionary:
+	if not _reached_replay.is_empty():
+		return _playback_failure(&"rehearsal_commit_denied", "direct replay cannot commit commands")
 	if _active_entry.is_empty():
 		return _playback_failure(&"no_active_entry", "no semantic entry is active")
 	var token := str(payload.get("playback_token", ""))
@@ -1223,6 +1546,9 @@ func _on_runtime_timeline_ended() -> void:
 	if not _active_entry.is_empty():
 		var entry := _active_entry.duplicate(true)
 		_active_entry = {}
+		if not _reached_replay.is_empty() and entry.token == _reached_replay.token:
+			_finish_reached_replay("completed")
+			return
 		var intent := {
 			"entry_id": str(entry["entry_id"]),
 			"transaction_id": str(entry["transaction_id"]),
@@ -1254,6 +1580,9 @@ func _on_runtime_timeline_ended() -> void:
 
 
 func _on_runtime_signal_event(argument: Variant) -> void:
+	if not _reached_replay.is_empty():
+		# Direct Gallery playback can observe; it owns no Run or Profile command capability.
+		return
 	if typeof(argument) == TYPE_DICTIONARY and str((argument as Dictionary).get("kind", "")) in _RUNTIME_EVENT_KINDS:
 		var kind := str((argument as Dictionary)["kind"])
 		if kind == "effect_transaction" or kind == "variable_transaction":

@@ -124,11 +124,11 @@ func _require_port() -> bool:
 	return true
 
 
-func _install_lifecycle_identity(day: int) -> void:
+func _install_lifecycle_identity(day: int, dark_mode: bool = false) -> void:
 	var receipt: Dictionary = _root_store.mint(&"causal_day_instance").duplicate(true)
 	receipt["token"] = CAUSAL_DAY
 	_game_state._run_lifecycle.reset(RUN_ID, BRANCH_ID, GENERATION, CAUSAL_DAY,
-		{"causal_day_instance_issuer_receipt": receipt})
+		{"causal_day_instance_issuer_receipt": receipt}, dark_mode)
 	if day != 1:
 		var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 		lifecycle["day"] = day
@@ -160,6 +160,11 @@ func _action_receipt(day: int, txn: Dictionary) -> Dictionary:
 	assert_true(action_derived.get("ok", false), JSON.stringify(action_derived))
 	var action_id := str((action_derived["value"] as Dictionary)["child_id"])
 	var action_provenance: Dictionary = (action_derived["value"] as Dictionary)["provenance"]
+	# Existing predicate cases describe an action that leaves their configured condition intact.
+	# The adapter reads this frozen result before source commit, not GameState's current stats.
+	var condition := {"health": int(_game_state.get_stat("health")),
+		"pressure": int(_game_state.get_stat("pressure")),
+		"carried_sequela": _game_state.condition_effects_today.has("sequela")}
 	var receipt := {
 		"schema_version": 1, "action_kind": "shop_purchase", "run_id": RUN_ID,
 		"branch_id": BRANCH_ID, "desktop_timeline_generation": GENERATION,
@@ -168,8 +173,8 @@ func _action_receipt(day: int, txn: Dictionary) -> Dictionary:
 		"transaction_issuer_receipt": (txn["transaction_issuer_receipt"] as Dictionary).duplicate(true),
 		"source_commit_receipt_id": str((source_commit["value"] as Dictionary)["child_id"]),
 		"source_commit_receipt_provenance": (source_commit["value"] as Dictionary)["provenance"],
-		"condition_before": {"health": 6, "pressure": 3, "carried_sequela": false},
-		"condition_after": {"health": 6, "pressure": 3, "carried_sequela": false},
+		"condition_before": condition.duplicate(true),
+		"condition_after": condition.duplicate(true),
 		"unlock_receipt_ids": [],
 		"action_id": action_id, "action_id_provenance": action_provenance,
 		"commit_receipt_id": action_id,
@@ -363,10 +368,8 @@ func test_a_days_one_to_six_trigger_yields_hospital_day() -> void:
 func test_a_day7_trigger_with_dark_mode_yields_day7_dark_alone() -> void:
 	if not _require_port():
 		return
-	_install_lifecycle_identity(7)
+	_install_lifecycle_identity(7, true)
 	_set_condition(0, 3, true)
-	_game_state.dating_route_state["sylvia"] = {"date_count": 2, "dark_points": 2,
-		"true_path_count": 0, "previous_entered_true_path": false}
 	_install_source("solo:sylvia:day7", 7, ["sylvia"])
 	var result: Dictionary = _port.evaluate(_request(7))
 	assert_true(result.get("ok", false), JSON.stringify(result))
@@ -574,3 +577,50 @@ func test_a_derived_child_disagreeing_with_its_own_provenance_is_refused() -> vo
 func _last_action(result: Dictionary) -> Dictionary:
 	var condition: Dictionary = (result["value"] as Dictionary)["condition_receipt"]
 	return {"commit_receipt_id": str(condition["action_commit_receipt_id"])}
+
+func test_prepared_round_loss_crossing_pressure_ten_departs_before_source_commit() -> void:
+	if not _require_port():
+		return
+	_set_condition(6, 9, true)
+	var source := _install_source("solo:priscilla:day1", 1, ["priscilla"])
+	var request := _request()
+	request["action_receipt"]["action_kind"] = "minesweeper_round"
+	request["causal_sequence_receipt"]["source_kind"] = "minesweeper_round"
+	request["action_receipt"]["condition_after"]["pressure"] = 10
+	var before: Dictionary = _game_state.to_save_dict().duplicate(true)
+	var result: Dictionary = _port.evaluate(request)
+	assert_true(result.get("ok", false), str(result))
+	if not result.get("ok", false):
+		return
+	var condition: Dictionary = result["value"]["condition_receipt"]
+	assert_eq(condition["condition_after"], {"health": 6, "pressure": 10, "carried_sequela": true})
+	assert_true(condition["danger"])
+	assert_true(condition["trigger"])
+	assert_eq(condition["decision"], "hospital_day",
+		"the prepared loss triggers the existing threshold while live pressure is still 9")
+	assert_eq(condition["source_receipt_ids"], [source["receipt_id"]],
+		"preexisting Schedule sources still come from live Contacts")
+	assert_eq(result["value"]["notification_intent"], null)
+	assert_eq(_game_state.to_save_dict(), before, "condition evaluation cannot commit the action")
+
+
+func test_prepared_relief_below_pressure_ten_does_not_depart_while_live_state_is_dangerous() -> void:
+	if not _require_port():
+		return
+	_set_condition(6, 10, true)
+	var request := _request()
+	request["action_receipt"]["condition_after"]["pressure"] = 9
+	var before: Dictionary = _game_state.to_save_dict().duplicate(true)
+	var result: Dictionary = _port.evaluate(request)
+	assert_true(result.get("ok", false), str(result))
+	if not result.get("ok", false):
+		return
+	var condition: Dictionary = result["value"]["condition_receipt"]
+	assert_eq(condition["condition_after"], {"health": 6, "pressure": 9, "carried_sequela": true})
+	assert_false(condition["danger"])
+	assert_false(condition["trigger"])
+	assert_eq(condition["decision"], "no_departure",
+		"prepared relief leaves danger before the source changes live pressure")
+	assert_eq(result["value"]["destination_intent"], null)
+	assert_not_null(result["value"]["notification_intent"])
+	assert_eq(_game_state.to_save_dict(), before, "evaluation remains read-only at live pressure 10")

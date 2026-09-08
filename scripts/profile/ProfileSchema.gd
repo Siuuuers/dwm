@@ -5,11 +5,21 @@ const PREFERENCE_REGISTRY := preload("res://scripts/settings/SettingsPreferenceR
 const CONTROLS_RULES := preload("res://scripts/settings/ControlsBindingRules.gd")
 const CONTROLS_IMPORT := preload("res://scripts/settings/ControlsBindingImport.gd")
 
-const SCHEMA_VERSION := 4
+const DATING_ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
+
+const OBSERVER_EVIDENCE := preload("res://scripts/profile/ObserverEvidence.gd")
+const PAIR_DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
+const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
+
+const SCHEMA_VERSION := 8
 const V1_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "migration_receipts"]
 const V2_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings"]
 const V3_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending"]
-const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1"]
+const V4_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1"]
+const V5_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts"]
+const V7_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts"]
+const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]
+const PAIR_FORMS := ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]
 const MIGRATION_RECEIPT_KEYS := ["legacy_game_state_profile_v1", "legacy_input_bindings_v1", "invalid_persisted_skip_mode_v1"]
 const PREFERENCE_GROUPS := ["language", "reading", "audio", "display", "accessibility", "exceptional_replay", "dark_mode"]
 
@@ -17,7 +27,8 @@ const ENDING_IDS := [
 	"ending.alone", "ending.priscilla.sweet", "ending.priscilla.dark", "ending.priscilla.observation",
 	"ending.lavinia.sweet", "ending.lavinia.dark", "ending.lavinia.observation",
 	"ending.sylvia.sweet", "ending.sylvia.dark", "ending.sylvia.special",
-	"ending.priscilla_lavinia",
+	"ending.priscilla_lavinia", "ending.priscilla_lavinia.sweet",
+	"ending.priscilla_lavinia.dark", "ending.priscilla_lavinia.observer",
 ]
 
 const LEGACY_PREFERENCE_DEFAULTS := {
@@ -85,6 +96,9 @@ static func make_defaults() -> Dictionary:
 		"schema_version": SCHEMA_VERSION,
 		"gallery_unlocks": [],
 		"gallery_transaction_receipts": {},
+		"pair_form_witness_receipts": {},
+		"dating_attempts": {},
+		"observer_evidence": {}, "pair_deck_draws": {}, "reached_presentations": {},
 		"visited_line_ids": [],
 		"preferences": preferences,
 		"input_mappings": {},
@@ -104,6 +118,9 @@ static func validate(profile: Dictionary) -> Dictionary:
 
 static func validate_v2_source(profile: Dictionary) -> Dictionary:
 	return _validate_modern_document(profile, 2, V2_ROOT_KEYS, false)
+
+static func validate_v4_source(profile: Dictionary) -> Dictionary:
+	return _validate_modern_document(profile, 4, V4_ROOT_KEYS, true)
 
 static func validate_v3_source(profile: Dictionary) -> Dictionary:
 	return _validate_modern_document(profile, 3, V3_ROOT_KEYS, true)
@@ -141,6 +158,9 @@ static func prepare_v2_upgrade(raw: Dictionary) -> Dictionary:
 	candidate["controls_bindings"] = imported["bindings"]
 	candidate["controls_import_pending"] = imported["pending"]
 	_add_closed_legacy_fields(candidate)
+	candidate["pair_form_witness_receipts"] = {}
+	candidate["dating_attempts"] = {}
+	_add_v8_fields(candidate)
 	return validate(candidate)
 
 static func prepare_v3_upgrade(raw: Dictionary) -> Dictionary:
@@ -149,6 +169,54 @@ static func prepare_v3_upgrade(raw: Dictionary) -> Dictionary:
 	var candidate: Dictionary = checked["value"]
 	candidate["schema_version"] = SCHEMA_VERSION
 	_add_closed_legacy_fields(candidate)
+	candidate["pair_form_witness_receipts"] = {}
+	candidate["dating_attempts"] = {}
+	_add_v8_fields(candidate)
+	return validate(candidate)
+
+
+static func prepare_v7_upgrade(raw: Dictionary) -> Dictionary:
+	var checked := _validate_modern_document(raw, 7, V7_ROOT_KEYS, true)
+	if not checked.ok: return checked
+	var candidate: Dictionary = checked.value
+	candidate["schema_version"] = SCHEMA_VERSION
+	_add_v8_fields(candidate)
+	return validate(candidate)
+
+static func _add_v8_fields(candidate: Dictionary) -> void:
+	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]:
+		candidate[key] = {}
+
+static func prepare_v6_upgrade(raw: Dictionary) -> Dictionary:
+	var checked := _validate_modern_document(raw, 6, V7_ROOT_KEYS, true)
+	if not checked.get("ok", false): return checked
+	var upgraded := DATING_ATTEMPTS.upgrade_v6(checked.value.dating_attempts)
+	if not upgraded.ok: return upgraded
+	var candidate: Dictionary = checked.value
+	candidate["schema_version"] = SCHEMA_VERSION
+	candidate["dating_attempts"] = upgraded.value
+	_add_v8_fields(candidate)
+	return validate(candidate)
+
+
+static func prepare_v5_upgrade(raw: Dictionary) -> Dictionary:
+	var checked := _validate_modern_document(raw, 5, V5_ROOT_KEYS, true)
+	if not checked.get("ok", false): return checked
+	var candidate: Dictionary = checked.value
+	candidate["schema_version"] = SCHEMA_VERSION
+	candidate["dating_attempts"] = {}
+	_add_v8_fields(candidate)
+	return validate(candidate)
+
+
+static func prepare_v4_upgrade(raw: Dictionary) -> Dictionary:
+	var checked := validate_v4_source(raw)
+	if not checked.get("ok", false): return checked
+	var candidate: Dictionary = checked.value
+	candidate.schema_version = SCHEMA_VERSION
+	candidate["pair_form_witness_receipts"] = {}
+	candidate["dating_attempts"] = {}
+	_add_v8_fields(candidate)
 	return validate(candidate)
 
 
@@ -185,7 +253,7 @@ static func _validate_modern_document(profile: Dictionary, version: int, root_ke
 		var bindings := CONTROLS_RULES.validate(profile["controls_bindings"])
 		if not bindings.get("ok", false):
 			return _invalid("controls_bindings", "invalid Controls map: " + str(bindings.get("code")))
-	if version == SCHEMA_VERSION:
+	if version >= 4:
 		var migrations := _validate_migration_receipts(profile["migration_receipts"])
 		if not migrations.get("ok", false): return migrations
 		var archive: Variant = profile["legacy_preferences_v1"]
@@ -195,6 +263,28 @@ static func _validate_modern_document(profile: Dictionary, version: int, root_ke
 			var archived := _validate_v1_preferences(archive)
 			if not archived.get("ok", false):
 				return _invalid("legacy_preferences_v1", "legacy preferences archive is invalid")
+	if version >= 5:
+		var witnessed: Variant = profile["pair_form_witness_receipts"]
+		if not witnessed is Dictionary:
+			return _invalid("pair_form_witness_receipts", "witness receipts must be an object")
+		for receipt_id: Variant in witnessed:
+			if not receipt_id is String or receipt_id.strip_edges().is_empty() \
+					or not witnessed[receipt_id] is String or witnessed[receipt_id] not in PAIR_FORMS:
+				return _invalid("pair_form_witness_receipts", "each presentation receipt names a registered form")
+	if version >= 6:
+		var attempts: Dictionary = DATING_ATTEMPTS.validate_v6(profile["dating_attempts"]) if version == 6 else DATING_ATTEMPTS.validate(profile["dating_attempts"])
+		if not attempts.get("ok", false): return attempts
+	if version >= 8:
+		var observer := OBSERVER_EVIDENCE.validate(profile["observer_evidence"])
+		if not observer.ok: return observer
+		if not profile["reached_presentations"] is Dictionary: return _invalid("reached_presentations", "Reached presentations must be an object")
+		var reached := PRESENTATION_SIGNATURE.validate_ledger(profile["reached_presentations"])
+		if not reached.ok: return reached
+		if not profile["pair_deck_draws"] is Dictionary: return _invalid("pair_deck_draws", "Draws must be an object")
+		for run_id: Variant in profile["pair_deck_draws"]:
+			if not run_id is String or run_id.strip_edges().is_empty(): return _invalid("pair_deck_draws", "A run identity is required")
+			var draw := PAIR_DECK.validate(profile["pair_deck_draws"][run_id])
+			if not draw.ok: return draw
 	return {"ok": true, "code": &"ok", "value": profile.duplicate(true)}
 
 

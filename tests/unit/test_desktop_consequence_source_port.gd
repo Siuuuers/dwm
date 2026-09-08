@@ -8,8 +8,8 @@ extends "res://addons/gut/test.gd"
 ## publish) under a freshly minted command root, retaining the receipt per causal day so a replayed
 ## resolution binds the SAME board fate -- the law FakeDesktopConsequenceSource documented as "what
 ## the real ports will do". `resolve_condition_receipt({causal_day_instance, source_day})` returns
-## the day's latest coordinator-retained, policy-produced condition receipt, and FAILS CLOSED when
-## no action committed one -- never fabricating condition truth.
+## the current run's already-committed condition outcome under its durable resolution root; no
+## process-local board or Shop receipt is required.
 ##
 ## SUBSTRATE. Real DesktopBoardFatePort over a real, standalone DesktopBoardState (phase NONE), the
 ## real issuer over FakeDesktopIssuerRootStore, a spy publication ledger mirroring the coordinator
@@ -213,29 +213,103 @@ func test_resolve_condition_fails_closed_when_no_action_committed_one() -> void:
 	assert_eq(result.get("code"), &"condition_receipt_unavailable")
 
 
-func test_resolve_condition_returns_the_days_retained_receipt() -> void:
-	if not _require_port():
-		return
-	_coordinator_stub.retained[CAUSAL_DAY] = {
-		"receipt_id": "condition.retained.1", "receipt_provenance": {"child_kind": "condition"},
-		"day": 1, "causal_day_instance": CAUSAL_DAY, "decision": "hospital_day",
-	}
-	var result: Dictionary = _port.resolve_condition_receipt({
-		"causal_day_instance": CAUSAL_DAY, "source_day": 1})
-	assert_true(result.get("ok", false), JSON.stringify(result))
-	var value: Dictionary = result["value"]
-	assert_eq(value.keys(), ["condition_receipt"])
-	assert_eq(str((value["condition_receipt"] as Dictionary)["receipt_id"]), "condition.retained.1")
+func _condition_owner() -> Node:
+	var owner: Node = add_child_autofree(preload("res://autoload/GameState.gd").new())
+	owner.reset_game()
+	# Seed the already-persisted causal receipt; only allocators may issue this purpose.
+	var causal: Dictionary = _root_store.mint(&"causal_day_instance")
+	owner._run_lifecycle.reset("run-source", "branch-source", 0, causal["token"],
+		{"causal_day_instance_issuer_receipt": causal}, false)
+	var root: Dictionary = _issuer.issue(&"transaction_id")["value"]["issuer_receipt"]
+	var derived: Dictionary = _issuer.derive_child({"child_kind": "day_resolution_stage", "ordinal": 0,
+		"parent_receipt_id": root["receipt_id"], "source_ids": ["P(role,day_resolution.start)"]})
+	assert_true(derived.get("ok", false), str(derived))
+	var start := {"receipt_id": derived["value"]["child_id"],
+		"receipt_provenance": derived["value"]["provenance"], "resolution_id": root["token"],
+		"causal_day_instance": causal["token"], "source_day": 1, "board_fate_receipt_id": null,
+		"schedule_commit_receipt_id": null, "schedule_entry_ids": []}
+	var plan: Dictionary = preload("res://scripts/domain/run/DayResolutionPlan.gd").create(
+		root["token"], 1, owner.capture_run_snapshot_input()["committed_schedule"], [], null, null,
+		{"command_id": "done-condition-test", "resolution_issuer_receipt": root,
+			"day_resolution_start_receipt": start})
+	assert_true(plan.get("ok", false), str(plan))
+	var lifecycle: Dictionary = owner._run_lifecycle.to_dict()
+	lifecycle["active_resolution_plan"] = plan["value"]["plan"].to_dict()
+	var prepared: Dictionary = owner._run_lifecycle.prepare_restore(lifecycle)
+	assert_true(prepared.get("ok", false), str(prepared))
+	assert_true(owner._run_lifecycle.commit_restore(prepared["value"]["candidate"]).get("ok", false))
+	owner.set_stat(owner.STAT_PRESSURE, 10)
+	owner.set_stat(owner.STAT_HEALTH, 0)
+	assert_true(owner.resolve_pressure_health_condition_end_of_day().get("needs_hospital", false))
+	return owner
 
 
-func test_resolve_condition_refuses_a_receipt_from_another_day() -> void:
-	if not _require_port():
-		return
-	_coordinator_stub.retained[CAUSAL_DAY] = {
-		"receipt_id": "condition.retained.1", "receipt_provenance": {"child_kind": "condition"},
-		"day": 2, "causal_day_instance": CAUSAL_DAY, "decision": "hospital_day",
-	}
-	var result: Dictionary = _port.resolve_condition_receipt({
-		"causal_day_instance": CAUSAL_DAY, "source_day": 1})
-	assert_false(result.get("ok", true))
-	assert_eq(result.get("code"), &"condition_receipt_unavailable")
+func _condition_request(owner: Node) -> Dictionary:
+	return {"causal_day_instance": owner._run_lifecycle.to_dict()["causal_day_instance"], "source_day": 1}
+
+
+func _bind_condition_owner(owner: Node) -> Object:
+	var port: Object = _port_script.new()
+	assert_true(port.configure(_coordinator_stub, _board_fate_port, _issuer, _identity_context).get("ok", false))
+	assert_true(port.configure_current_condition_owner(owner).get("ok", false))
+	return port
+
+
+func test_condition_receipt_uses_committed_current_run_outcome_and_ignores_old_action_history() -> void:
+	var owner := _condition_owner()
+	var port := _bind_condition_owner(owner)
+	var request := _condition_request(owner)
+	_coordinator_stub.retained[request["causal_day_instance"]] = {
+		"receipt_id": "stale-action-condition", "day": 1, "decision": "no_departure"}
+	var before: Dictionary = owner.to_save_dict()
+	var result: Dictionary = port.resolve_condition_receipt(request)
+	assert_true(result.get("ok", false), str(result))
+	if not result.get("ok", false): return
+	var receipt: Dictionary = result["value"]["condition_receipt"]
+	assert_ne(receipt["receipt_id"], "stale-action-condition")
+	assert_true(receipt["required"])
+	assert_eq(receipt["hospital_resolution"], owner.route_context["provisional_hospital_resolution"])
+	assert_eq(receipt["condition_after"]["pressure"], 9, "records the already-applied result after clamping")
+	assert_eq(receipt["condition_after"]["health"], 1)
+	assert_true(_issuer.validate_child(receipt["receipt_provenance"], &"condition").get("ok", false))
+	assert_eq(owner.to_save_dict(), before, "receipt capture never reapplies penalties or recovery")
+
+
+func test_condition_receipt_reconstructs_from_restored_gameplay_and_resolution_with_empty_action_history() -> void:
+	var owner := _condition_owner()
+	var first: Dictionary = _bind_condition_owner(owner).resolve_condition_receipt(_condition_request(owner))
+	assert_true(first.get("ok", false), str(first))
+	var serialized: Dictionary = preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify({
+		"gameplay": owner.to_save_dict(), "lifecycle": owner._run_lifecycle.to_dict()})
+	assert_true(serialized.get("ok", false), str(serialized))
+	var saved: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(serialized["value"])["value"]
+	var restored: Node = add_child_autofree(preload("res://autoload/GameState.gd").new())
+	restored.reset_game()
+	assert_true(restored.apply_save_dict(saved["gameplay"]).get("ok", false))
+	var prepared: Dictionary = restored._run_lifecycle.prepare_restore(saved["lifecycle"])
+	assert_true(prepared.get("ok", false), str(prepared))
+	assert_true(restored._run_lifecycle.commit_restore(prepared["value"]["candidate"]).get("ok", false))
+	_coordinator_stub.retained.clear()
+	var before: Dictionary = restored.to_save_dict()
+	var reconstructed: Dictionary = _bind_condition_owner(restored).resolve_condition_receipt(_condition_request(restored))
+	assert_true(reconstructed.get("ok", false), str(reconstructed))
+	assert_eq(reconstructed.get("value"), first.get("value"), "the persisted issuer root reproduces exact condition ancestry")
+	assert_eq(restored.to_save_dict(), before)
+
+
+func test_condition_receipt_refuses_stale_continuation_and_an_unresolved_current_day() -> void:
+	var owner := _condition_owner()
+	var port := _bind_condition_owner(owner)
+	var stale := _condition_request(owner)
+	stale["causal_day_instance"] = "older-continuation"
+	assert_false(port.resolve_condition_receipt(stale).get("ok", true))
+	owner.condition_resolved_day = 0
+	assert_false(port.resolve_condition_receipt(_condition_request(owner)).get("ok", true),
+		"a current danger value cannot substitute for a committed condition decision")
+
+
+func test_current_condition_owner_binding_rejects_replacement() -> void:
+	var owner := _condition_owner()
+	var port := _bind_condition_owner(owner)
+	assert_true(port.configure_current_condition_owner(owner).get("ok", false))
+	assert_false(port.configure_current_condition_owner(_condition_owner()).get("ok", true))

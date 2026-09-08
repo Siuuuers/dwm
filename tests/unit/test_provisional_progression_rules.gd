@@ -53,6 +53,7 @@ func test_progression_runs_once_only_at_attended_unsuperseded_provisional_window
 	assert_eq(replay.value.state, "ambiguous")
 	assert_eq(replay.value.reason, "already_evaluated")
 
+	input.relational_momentum = 8
 	input.event_id = "date-event-6-p"
 	input.window_id = "dating.solo.priscilla.day6"
 	input.committed_event_ids = []
@@ -178,3 +179,39 @@ func test_day7_rejects_invalid_committed_destination_instead_of_silently_replaci
 
 	assert_false(result.get("ok", true))
 	assert_eq(result.get("code"), &"ineligible_committed_destination")
+
+func test_each_fixed_valve_requires_its_own_starting_tier_and_affection_threshold() -> void:
+	for friend: String in ["priscilla", "lavinia", "sylvia"]:
+		var days: Array = {"priscilla": [4, 6], "lavinia": [5, 6], "sylvia": [4, 5]}[friend]
+		var input := {"window_id": "dating.solo.%s.day%d" % [friend, days[0]], "event_id": "third:" + friend,
+			"friend_id": friend, "attended": true, "hospital_superseded": false, "current_state": "friend",
+			"relational_momentum": 3, "response_qualifies": true, "committed_event_ids": []}
+		assert_eq(rules.evaluate_progression(input).value.state, "friend")
+		input["relational_momentum"] = 4
+		assert_eq(rules.evaluate_progression(input).value.state, "ambiguous")
+		input["current_state"] = "ambiguous"
+		input["relational_momentum"] = 20
+		assert_eq(rules.evaluate_progression(input).value.state, "ambiguous", "an earlier Hospital promotion cannot move Love into the third valve")
+		input["window_id"] = "dating.solo.%s.day%d" % [friend, days[1]]
+		input["event_id"] = "fourth:" + friend
+		input["current_state"] = "friend"
+		assert_eq(rules.evaluate_progression(input).value.state, "friend", "the fourth valve cannot repair the third")
+		input["current_state"] = "ambiguous"
+		input["relational_momentum"] = 7
+		assert_eq(rules.evaluate_progression(input).value.state, "ambiguous")
+		input["relational_momentum"] = 8
+		assert_eq(rules.evaluate_progression(input).value.state, "love")
+		input["response_qualifies"] = false
+		assert_eq(rules.evaluate_progression(input).value.state, "ambiguous")
+
+func test_already_committed_valve_never_revises_its_historical_tier() -> void:
+	var input := {"window_id": "dating.solo.sylvia.day4", "event_id": "historical-valve",
+		"friend_id": "sylvia", "attended": true, "hospital_superseded": false, "current_state": "love",
+		"relational_momentum": 7, "response_qualifies": true, "committed_event_ids": ["historical-valve"]}
+	var before := input.duplicate(true)
+	var result: Dictionary = rules.evaluate_progression(input)
+	assert_true(result.ok)
+	assert_false(result.value.evaluated)
+	assert_eq(result.value.state, "love")
+	assert_eq(result.value.reason, "already_evaluated")
+	assert_eq(input, before)

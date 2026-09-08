@@ -68,6 +68,10 @@ var _percent := 100
 var _settings_services: Dictionary = {}
 var _gallery_host: Control
 var _gallery_instance: Control
+var _gallery_replay_profile: Object
+var _gallery_replay_bridge: Object
+var _gallery_rehearsal_game: Object
+var _gallery_rehearsal_input: Object
 var _title_transition := false
 var _new_acc_owner: Object
 var _new_acc_token := ""
@@ -366,6 +370,28 @@ func _on_log_in_pressed() -> void:
 	_backup_app_instance.show_window()
 	_end_title_transition()
 
+func configure_gallery_replay(profile: Object, bridge: Object) -> Dictionary:
+	if profile == null or bridge == null or not profile.has_method("get_reached_presentations") \
+			or not bridge.has_method("configure_reached_replay"):
+		return {"ok":false, "code":&"gallery_replay_unavailable"}
+	if _gallery_replay_profile != null and (_gallery_replay_profile != profile or _gallery_replay_bridge != bridge):
+		return {"ok":false, "code":&"gallery_replay_already_configured"}
+	_gallery_replay_profile = profile
+	_gallery_replay_bridge = bridge
+	return {"ok":true}
+
+func configure_gallery_rehearsal(game_state: Object, input_owner: Object) -> Dictionary:
+	if game_state == null or not game_state.has_method("capture_run_snapshot_input"):
+		return {"ok": false, "code": &"rehearsal_game_unavailable"}
+	if _gallery_rehearsal_game != null and [_gallery_rehearsal_game, _gallery_rehearsal_input] != [game_state, input_owner]:
+		return {"ok": false, "code": &"rehearsal_already_configured"}
+	_gallery_rehearsal_game = game_state
+	_gallery_rehearsal_input = input_owner
+	return {"ok": true}
+
+func _on_gallery_practice_visibility_changed(_active: bool) -> void:
+	_sync_title_navigation()
+
 func _on_gallery_pressed() -> void:
 	if not _begin_title_transition(): return
 	if not await _close_setting():
@@ -373,6 +399,10 @@ func _on_gallery_pressed() -> void:
 		return
 	_close_backup_app()
 	if not is_instance_valid(_gallery_instance):
+		if _gallery_replay_profile == null:
+			var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+			if bootstrap != null and bootstrap.has_method("configure_gallery_replay_services"):
+				bootstrap.configure_gallery_replay_services(self)
 		_gallery_instance = GALLERY_SCENE.instantiate()
 		var configured: Dictionary = _gallery_instance.configure_title_host(_title_home, _menu_localization(), _menu_profile())
 		if not configured.get("ok", false):
@@ -380,6 +410,11 @@ func _on_gallery_pressed() -> void:
 			_gallery_instance = null
 			_end_title_transition()
 			return
+		if _gallery_replay_profile != null:
+			_gallery_instance.configure_replay(_gallery_replay_bridge)
+		if _gallery_rehearsal_game != null:
+			_gallery_instance.configure_rehearsal(_gallery_rehearsal_game, _gallery_rehearsal_input)
+		_gallery_instance.practice_visibility_changed.connect(_on_gallery_practice_visibility_changed)
 		_gallery_host.add_child(_gallery_instance)
 	_gallery_host.show()
 	_gallery_instance.open_in_title_host()
@@ -633,7 +668,8 @@ func _can_leave_login() -> bool:
 	return not _title_transition and not _startup_recovery_active and _new_acc_transaction.is_empty() and _source_departure_admitted()
 
 func _source_departure_admitted() -> bool:
-	return not is_instance_valid(_confirmation) \
+	return not (is_instance_valid(_gallery_instance) and _gallery_instance.has_active_rehearsal()) \
+		and not is_instance_valid(_confirmation) \
 		and (not is_instance_valid(_backup_app_instance) or _backup_app_instance.can_return_home()) \
 		and (not is_instance_valid(_setting_instance) or _setting_instance.can_return_home())
 

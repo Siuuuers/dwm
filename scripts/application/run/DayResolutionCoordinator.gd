@@ -1,6 +1,8 @@
 class_name DayResolutionCoordinator
 extends RefCounted
 
+signal resolution_completed(result: Dictionary)
+
 ## Atomic day-resolution completion engine behind the GameState facade
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 3).
 
@@ -61,7 +63,10 @@ const STAGE_CONTRACTS := {
 	"invitation_rollover": {"owner_id": "contact_invitation_state", "kind": "invitation_rollover",
 		"value": {"target_day": "int", "message_transaction_ids": "array_string"}},
 	"increment_day": {"owner_id": "run_lifecycle", "kind": "day_increment",
-		"value": {"source_day": "int", "target_day": "int"}},
+		"value": {"source_day": "int", "target_day": "int",
+			"source_causal_day_instance": "string", "target_causal_day_instance": "string",
+			"target_causal_day_instance_issuer_receipt": "dictionary",
+			"day_advance_identity_receipt": "dictionary"}},
 	"reset_day_scope": {"owner_id": "game_state", "kind": "day_scope_reset",
 		"value": {"target_day": "int", "reset_ids": "array_string"}},
 	"new_day_autosave": {"owner_id": "save_manager", "kind": "disk_checkpoint_request",
@@ -128,6 +133,7 @@ var _presentation_router: Object = null
 ## live one underneath a timeline that keeps playing. A FAILED launch records nothing here, so a
 ## refused route still re-dispatches on the next `resume()`, which is what a retry is for.
 var _launched_transaction := ""
+var _launched_route_generation := -1
 var _last_presentation_completion: Dictionary = {}
 var _last_presentation_failure: Dictionary = {}
 var _run_id := ""
@@ -390,8 +396,10 @@ func resume() -> Dictionary:
 			var preview: Dictionary = _checkpoint_port.preview_checkpoint_id(_run_id)
 			if not preview.get("ok", false):
 				return preview
-			return {"ok": true, "code": &"plan_complete",
+			var completed := {"ok": true, "code": &"plan_complete",
 				"value": {"checkpoint_id": str(preview["value"]["checkpoint_id"])}}
+			resolution_completed.emit(completed.duplicate(true))
+			return completed
 		# A logical-day change may only happen through the ONE shared root-atomic identity port.
 		# Refuse at the boundary rather than at plan start, so every earlier stage stays completed
 		# and the run resumes forward once bootstrap has configured the port.
@@ -417,7 +425,12 @@ func resume() -> Dictionary:
 				return launched
 			return {"ok": true, "code": &"await_registered_command",
 				"value": {"stage": stage, "command": command}}
-		var completed := _commit_completion(stage, begun["value"]["receipt"])
+		var receipt: Dictionary = begun["value"]["receipt"]
+		if str(stage["stage_id"]) == "increment_day":
+			var advanced := _allocate_day_advance()
+			if not advanced.get("ok", false): return advanced
+			receipt = advanced.value.receipt
+		var completed := _commit_completion(stage, receipt)
 		if not completed.get("ok", false):
 			return completed
 	return {"ok": false, "code": &"unreachable", "message": ""}
@@ -459,7 +472,10 @@ func _launch_presentation(command: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"invalid_presentation_transaction",
 			"message": "a presentation command must carry the transaction it settles"}
 	if transaction_id == _launched_transaction:
-		return {}
+		if _presentation_route_generation() == _launched_route_generation: return {}
+		# Load replaced the scene. Its frozen command survives, but the old physical mount does not.
+		_launched_transaction = ""
+		_last_presentation_completion = {}
 	var route_id := str(command.get("route_id", ""))
 	if route_id != "hospital" and route_id != "dating":
 		return {"ok": false, "code": &"invalid_presentation_route", "message": route_id}
@@ -497,8 +513,14 @@ func _launch_presentation(command: Dictionary) -> Dictionary:
 	if not (routed as Dictionary).get("ok", false):
 		return routed
 	_launched_transaction = transaction_id
+	_launched_route_generation = _presentation_route_generation()
 	return routed
 
+
+func _presentation_route_generation() -> int:
+	if _presentation_router == null or not _presentation_router.has_method("capture_restore_state"): return -1
+	var captured: Dictionary = _presentation_router.capture_restore_state()
+	return int(captured.get("value", {}).get("backup", {}).get("route_generation", -1))
 
 func complete_route_stage(transaction_id: String, receipt: Dictionary) -> Dictionary:
 	var fatal := _fatal_guard()
@@ -569,6 +591,42 @@ func complete_route_stage(transaction_id: String, receipt: Dictionary) -> Dictio
 	_awaiting = {}
 	_launched_transaction = ""
 	return resume()
+
+## The external root owns this irreversible allocation. Checkpoint rollback never rewinds it:
+## the persisted start receipt makes a retry (including cold restore) resolve the same key.
+func _allocate_day_advance() -> Dictionary:
+	var captured: Dictionary = _state_port.capture()
+	if not captured.get("ok", false): return captured
+	var lifecycle: Dictionary = captured.value.backup.lifecycle
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if not plan is Dictionary or not plan.get("day_resolution_start_receipt") is Dictionary:
+		return {"ok": false, "code": &"day_advance_source_unavailable"}
+	if int(plan.source_day) != int(lifecycle.day) or int(lifecycle.day) > 6:
+		return {"ok": false, "code": &"day_advance_source_conflict"}
+	if not _state_port.has_method("prepare_day_advance_source"):
+		return {"ok": false, "code": &"day_advance_source_unavailable"}
+	var source: Dictionary = _state_port.prepare_day_advance_source(lifecycle)
+	if not source.get("ok", false): return source
+	# The full semantic start/scene commands remain unchanged after Load. The state port proves
+	# the original start and the durable restore before deriving a continuation allocator source.
+	var request := {"resolution_kind": "schedule_done",
+		"source_resolution_receipt": source.value.source_resolution_receipt,
+		"run_id": lifecycle.run_id, "branch_id": lifecycle.branch_id,
+		"desktop_timeline_generation": lifecycle.desktop_timeline_generation,
+		"source_day": lifecycle.day, "source_causal_day_instance": lifecycle.causal_day_instance,
+		"source_causal_day_instance_issuer_receipt": lifecycle.causal_day_instance_issuer_receipt}
+	var prepared: Dictionary = _day_advance_identity_port.prepare_advance(request)
+	if not prepared.get("ok", false): return prepared
+	var committed: Dictionary = _day_advance_identity_port.commit_advance(
+		prepared.value.day_advance_identity_candidate)
+	if not committed.get("ok", false): return committed
+	var allocation: Dictionary = committed.value.day_advance_identity_receipt
+	return {"ok": true, "value": {"receipt": {"owner_id": "run_lifecycle", "kind": "day_increment",
+		"value": {"source_day": allocation.source_day, "target_day": allocation.target_day,
+			"source_causal_day_instance": allocation.source_causal_day_instance,
+			"target_causal_day_instance": allocation.target_causal_day_instance,
+			"target_causal_day_instance_issuer_receipt": allocation.target_causal_day_instance_issuer_receipt.duplicate(true),
+			"day_advance_identity_receipt": allocation.duplicate(true)}}}}
 
 func _commit_completion(stage: Dictionary, receipt: Dictionary) -> Dictionary:
 	var stage_id := str(stage["stage_id"])
@@ -667,6 +725,8 @@ static func _raw_diagnostic(owner_id: String, operation: String, result: Diction
 
 static func _disk_write_for(stage_id: String) -> Dictionary:
 	match stage_id:
+		"commit_outcomes", "increment_day":
+			return {"kind": &"autosave", "reason": &"automatic"}
 		"new_day_autosave":
 			return {"kind": &"autosave", "reason": &"day_start"}
 		"ending_autosave":

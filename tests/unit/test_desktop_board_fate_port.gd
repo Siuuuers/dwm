@@ -640,3 +640,116 @@ func test_board_fate_receipt_provenance_validates_against_the_issuer() -> void:
 	var validated := _issuer.validate_child(receipt["receipt_provenance"], &"board_fate")
 	assert_true(validated.get("ok", false), JSON.stringify(validated))
 	assert_eq(receipt["receipt_id"], receipt["receipt_provenance"]["child_id"])
+
+# Cold replay must reconstruct the process-local preparation against a FRESH sole board owner.
+func _fresh_recovery_port(source_board: Dictionary) -> Dictionary:
+	var board := BOARD_STATE.new()
+	var source_restore: Dictionary = board.prepare_restore(source_board)
+	assert_true(source_restore.get("ok", false), str(source_restore))
+	assert_true(board.commit(source_restore["value"]["candidate"]).get("ok", false))
+	var issuer := ISSUER.new()
+	assert_true(issuer.configure(_root_store).get("ok", false))
+	var ledger := _real_publication_ledger()
+	var port := PORT.new()
+	assert_true(port.configure_publication_ledger(ledger).get("ok", false))
+	assert_true(port.configure(board, issuer).get("ok", false))
+	return {"board": board, "port": port, "ledger": ledger}
+
+
+func test_fresh_shop_departure_rebuilds_frozen_preparation_and_retries_after_commit() -> void:
+	var original := _wired()
+	assert_true(_reveal_first(_next_tx(), "beginner", 0).get("ok", false))
+	var source: Dictionary = _coordinator._board_state.capture()
+	var command_id := _next_tx()
+	var action := _source_action_receipt(command_id, "shop_purchase")
+	var prepared: Dictionary = original["port"].prepare_projected_causal_departure(
+		_projected_request(command_id, action, source, source))
+	assert_true(prepared.get("ok", false), str(prepared))
+	var frozen: Dictionary = prepared["value"]
+	assert_eq(frozen["board_fate_receipt"]["fate"], "forfeited_started")
+	var fresh := _fresh_recovery_port(source)
+	var restored: Dictionary = fresh["port"].prepare_recovery_departure(action, source,
+		frozen["board_candidate"], frozen["board_fate_receipt"])
+	assert_true(restored.get("ok", false), str(restored))
+	assert_eq(fresh["board"].capture(), source, "repreparation never mutates the source board")
+	assert_true(fresh["port"].commit(frozen["board_candidate"]).get("ok", false))
+	assert_true(fresh["port"].publish(frozen).get("ok", false))
+	var after: Dictionary = fresh["board"].capture()
+	assert_eq(after, frozen["board_candidate"])
+	var retried: Dictionary = fresh["port"].prepare_recovery_departure(action, after,
+		frozen["board_candidate"], frozen["board_fate_receipt"])
+	assert_true(retried.get("ok", false), str(retried))
+	assert_true(fresh["port"].commit(frozen["board_candidate"]).get("ok", false))
+	assert_true(fresh["port"].publish(frozen).get("ok", false))
+	assert_eq(fresh["board"].capture(), after, "retry does not advance the board again")
+	assert_eq(_ledger_records(fresh["ledger"]).size(), 1)
+
+
+func test_fresh_departure_refuses_changed_frozen_bytes_without_poisoning_valid_retry() -> void:
+	var original := _wired()
+	assert_true(_begin_debug(_next_tx(), "beginner").get("ok", false))
+	var source: Dictionary = _coordinator._board_state.capture()
+	var command_id := _next_tx()
+	var action := _source_action_receipt(command_id, "shop_purchase")
+	var prepared: Dictionary = original["port"].prepare_projected_causal_departure(
+		_projected_request(command_id, action, source, source))
+	assert_true(prepared.get("ok", false), str(prepared))
+	var frozen: Dictionary = prepared["value"]
+	var fresh := _fresh_recovery_port(source)
+	var altered_receipt: Dictionary = frozen["board_fate_receipt"].duplicate(true)
+	altered_receipt["fate"] = "forfeited_started"
+	var rejected: Dictionary = fresh["port"].prepare_recovery_departure(action, source,
+		frozen["board_candidate"], altered_receipt)
+	assert_false(rejected.get("ok", true))
+	assert_eq(rejected.get("code"), &"board_fate_recovery_mismatch")
+	var altered_board: Dictionary = frozen["board_candidate"].duplicate(true)
+	altered_board["revision"] = int(altered_board["revision"]) + 1
+	rejected = fresh["port"].prepare_recovery_departure(action, source,
+		altered_board, frozen["board_fate_receipt"])
+	assert_false(rejected.get("ok", true))
+	assert_eq(rejected.get("code"), &"board_fate_recovery_mismatch")
+	assert_eq(fresh["board"].capture(), source)
+	assert_false(fresh["port"].commit(frozen["board_candidate"]).get("ok", true),
+		"a rejected preparation does not admit a candidate")
+	var accepted: Dictionary = fresh["port"].prepare_recovery_departure(action, source,
+		frozen["board_candidate"], frozen["board_fate_receipt"])
+	assert_true(accepted.get("ok", false), str(accepted))
+	assert_true(fresh["port"].commit(frozen["board_candidate"]).get("ok", false))
+
+
+func test_fresh_round_departure_prepares_before_source_projection_then_commits_fate_none() -> void:
+	var original := _wired()
+	assert_true(_reveal_first(_next_tx(), "beginner", 0).get("ok", false))
+	var live: Dictionary = _coordinator._board_state.capture()
+	var reveal_id := _next_tx()
+	var exploded: Dictionary = _coordinator.reveal({
+		"transaction_id": reveal_id, "transaction_issuer_receipt": _issue_transaction_receipt_for(reveal_id),
+		"expected_identity": live["identity"], "expected_revision": live["revision"],
+		"cell_index": 1,
+	})
+	assert_true(exploded.get("ok", false), str(exploded))
+	var source: Dictionary = _coordinator._board_state.capture()
+	assert_true(source["board"]["board"]["terminal"])
+	var command_id := _next_tx()
+	var action := _source_action_receipt(command_id, "minesweeper_round")
+	var projection: Dictionary = _coordinator._project_completion_board(
+		source["identity"], source, "exploded", command_id)
+	var prepared: Dictionary = original["port"].prepare_projected_causal_departure(
+		_projected_request(command_id, action, projection, source))
+	assert_true(prepared.get("ok", false), str(prepared))
+	var frozen: Dictionary = prepared["value"]
+	var fresh := _fresh_recovery_port(source)
+	var restored: Dictionary = fresh["port"].prepare_recovery_departure(action, projection,
+		frozen["board_candidate"], frozen["board_fate_receipt"])
+	assert_true(restored.get("ok", false), str(restored))
+	assert_eq(fresh["board"].capture(), source)
+	assert_false(fresh["port"].commit(frozen["board_candidate"]).get("ok", true),
+		"the round source must commit its exact NONE projection first")
+	# Exercise the source's real board-owner adoption seam; reward replay is covered separately.
+	var source_commit: Dictionary = fresh["board"].prepare_restore(projection)
+	assert_true(source_commit.get("ok", false), str(source_commit))
+	assert_true(fresh["board"].commit(source_commit["value"]["candidate"]).get("ok", false))
+	assert_true(fresh["port"].commit(frozen["board_candidate"]).get("ok", false))
+	assert_true(fresh["port"].publish(frozen).get("ok", false))
+	assert_eq(fresh["board"].capture(), projection)
+	assert_eq(_ledger_records(fresh["ledger"]).size(), 1)

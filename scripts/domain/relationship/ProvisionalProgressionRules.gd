@@ -3,8 +3,8 @@ extends RefCounted
 
 ## Temporary mechanical policy approved for implementation on 2026-09-07.
 ##
-## This ruleset is deliberately NONCANONICAL. Its windows, thresholds, recovery
-## values, and ending predicates are replaceable tuning data. The confirmed
+## Remaining unspecified recovery and ending tuning is provisional. The fixed solo
+## promotion windows and affection thresholds follow design section 8.3. The confirmed
 ## boundaries are kept here: code owns the decisions, progression is explicit
 ## and once-only, Hospital requires both condition boundaries, and Day 7 freezes
 ## one ordered plan before presentation.
@@ -12,14 +12,31 @@ extends RefCounted
 const RULESET_ID := "provisional.relationship.2026-09-07.v1"
 const RULESET_STATUS := "provisional_noncanonical"
 
+# Provisional source copy and timing, pending authored scene detail. These finite atoms
+# belong to existing Day 2 scenes; capture/fresh-run comparison and deliberate withholding
+# are accepted laws. Only these source lines, copy and 15-second duration are provisional.
+const OBSERVER_WITHHOLDING_MS := 15000
+const OBSERVER_ATOMS := {
+	"priscilla": {"entry_id": "dating.solo.priscilla.day2.pre_challenge",
+		"presentation_atom_id": "atom.observer.priscilla.day2.verification",
+		"line_id": "line.observer.priscilla.day2.verification",
+		"comparison_key": "priscilla.day2.key_return",
+		"original_text": "Priscilla: I returned the key yesterday.",
+		"counterpart_text": "Priscilla: I have never returned that key."},
+	"lavinia": {"entry_id": "dating.solo.lavinia.day2.pre_challenge",
+		"presentation_atom_id": "atom.observer.lavinia.day2.restraint",
+		"line_id": "line.observer.lavinia.day2.restraint", "comparison_key": "",
+		"original_text": "Lavinia: Leave the cup. I can reach it."},
+}
+
 const FRIEND_IDS: Array[String] = ["priscilla", "lavinia", "sylvia"]
 const RELATIONSHIP_STATES: Array[String] = ["friend", "ambiguous", "love"]
 const PAIR_FORMS: Array[String] = [
 	"ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark",
 ]
 
-# Replaceable provisional plot windows. Keeping them explicit prevents every
-# attended date from silently becoming a progression event.
+# Fixed third/fourth invitation valves: seven-day design section 8.3, lines 535-546.
+# The fourth slot never repairs a missed third; frozen prior effect receipts are not reevaluated.
 const PROGRESSION_WINDOWS := {
 	"dating.solo.priscilla.day4": "priscilla",
 	"dating.solo.priscilla.day6": "priscilla",
@@ -29,31 +46,38 @@ const PROGRESSION_WINDOWS := {
 	"dating.solo.sylvia.day5": "sylvia",
 }
 
-# All numeric values below are provisional tuning, not narrative canon.
+const THIRD_VALVE_WINDOWS := ["dating.solo.priscilla.day4", "dating.solo.lavinia.day5", "dating.solo.sylvia.day4"]
+
+# Affection thresholds and Dating outcome deltas follow the accepted design. Other tuning is provisional.
 const AMBIGUOUS_MOMENTUM := 4
-const LOVE_MOMENTUM := 7
+const LOVE_MOMENTUM := 8
 const DARK_TONE_THRESHOLD := 2
 const HOSPITAL_PRESSURE_BOUNDARY := 10
 const HOSPITAL_HEALTH_BOUNDARY := 0
 const HOSPITAL_RECOVERY := {"pressure": 3, "health": 6}
 
 
-func resolve_scene_response(scene_id: String, outcome: String) -> Dictionary:
+func resolve_scene_response(scene_id: String, outcome: String, relationship_outcome: String,
+		perfect_reasons: Array) -> Dictionary:
 	if not scene_id.begins_with("dating."):
 		return _fail(&"invalid_dating_scene", scene_id)
-	var response := {}
-	match outcome:
-		"perfect":
-			response = {"momentum_delta": 2, "tone_delta": 0, "progression_qualifies": true}
-		"cleared":
-			response = {"momentum_delta": 1, "tone_delta": 0, "progression_qualifies": true}
-		"exploded":
-			response = {"momentum_delta": 0, "tone_delta": 1, "progression_qualifies": false}
-		_:
-			return _fail(&"invalid_dating_outcome", outcome)
-	response["scene_id"] = scene_id
-	response["outcome"] = outcome
-	return _ok(response)
+	var deltas := {
+		"hatred": [-1, 0, "hostile"], "upset": [0, 0, "upset"], "amused": [1, 0, "amused"],
+		"loved": [2, 0, "affectionate"], "foresight": [2, 0, "seen"], "dark": [2, 1, "fixated"],
+	}
+	var allowed := {"exploded": ["hatred", "upset", "amused"],
+		"cleared": ["loved", "dark"], "perfect": ["foresight", "dark"]}
+	if not allowed.has(outcome) or relationship_outcome not in allowed[outcome]:
+		return _fail(&"invalid_dating_outcome", relationship_outcome)
+	var reasons: Array = perfect_reasons.duplicate()
+	reasons.sort()
+	if reasons != perfect_reasons or reasons not in [[], ["efficiency_gt_100"], ["no_flag"], ["efficiency_gt_100", "no_flag"]] \
+			or (outcome == "perfect") != not reasons.is_empty():
+		return _fail(&"invalid_dating_perfect_reasons", str(perfect_reasons))
+	var values: Array = deltas[relationship_outcome]
+	return _ok({"scene_id": scene_id, "outcome": outcome, "relationship_outcome": relationship_outcome,
+		"perfect_reasons": reasons, "momentum_delta": values[0], "tone_delta": values[1],
+		"attitude": values[2], "progression_qualifies": outcome != "exploded"})
 
 
 func select_pair_form(witnessed_forms: Array[String], draw_index: int) -> Dictionary:
@@ -97,9 +121,9 @@ func evaluate_progression(input: Dictionary) -> Dictionary:
 	var next_state := state
 	if bool(input["response_qualifies"]):
 		var momentum := int(input["relational_momentum"])
-		if state == "friend" and momentum >= AMBIGUOUS_MOMENTUM:
+		if window_id in THIRD_VALVE_WINDOWS and state == "friend" and momentum >= AMBIGUOUS_MOMENTUM:
 			next_state = "ambiguous"
-		elif state == "ambiguous" and momentum >= LOVE_MOMENTUM:
+		elif window_id not in THIRD_VALVE_WINDOWS and state == "ambiguous" and momentum >= LOVE_MOMENTUM:
 			next_state = "love"
 	return _progression_result(true, state, next_state,
 		"advanced" if next_state != state else "held", event_id)
@@ -171,7 +195,8 @@ func freeze_day7_ending_plan(input: Dictionary) -> Dictionary:
 		if variant != "":
 			if variant not in ["full", "residue"]:
 				return _fail(&"invalid_observer_variant", variant)
-			var observer := _step("ending.%s.observer" % latest_observer_scope, "observer_coda")
+			var observer_id := "ending.priscilla_lavinia.observer" if latest_observer_scope == "priscilla_lavinia" else "ending.%s.observation" % latest_observer_scope
+			var observer := _step(observer_id, "observer_coda")
 			observer["presentation_variant"] = variant
 			steps.append(observer)
 

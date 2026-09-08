@@ -1,7 +1,7 @@
 extends Control
 class_name EndingScene
 
-## Ending scene: selects timeline by GameState.route_context["ending_id"] (prompt_docs/requirements/dating_endings.md).
+## Presents the exact saved ending command; only physical completion advances its cursor.
 
 # get_node_or_null keeps the scene instantiable bare (e.g. EndingScene.new() in tests) without
 # erroring on the unique-name lookups when the .tscn children are absent.
@@ -12,32 +12,54 @@ class_name EndingScene
 func _ready() -> void:
 	if is_instance_valid(_return_to_menu_button) and not _return_to_menu_button.pressed.is_connected(_on_return_pressed):
 		_return_to_menu_button.pressed.connect(_on_return_pressed)
-	_show_ending()
+	_set_playback_status(false)
+	# Routing must finish installing current_scene before a no-dialogue ending can return.
+	_show_ending.call_deferred()
+
 
 func _show_ending() -> void:
-	if not has_node("/root/GameState"):
+	if not _pending_ending_command.is_empty() or _finished: return
+	if is_instance_valid(_ending_title_label): _ending_title_label.text = "Ending"
+	if _ending_state_port == null or _ending_playback_port == null:
+		_set_playback_status(true)
 		return
-	var gs := get_node("/root/GameState")
-	var ending_id: String = String(gs.route_context.get("ending_id", ""))
-	if ending_id == "":
-		ending_id = "ending.alone"
-	if is_instance_valid(_ending_title_label):
-		_ending_title_label.text = ending_id
-	if has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").set_music_context("ending", {"ending_id": ending_id})
-	# dwm-p2r.8: ending playback is owned by the injected ports. Never start an ending by passing
-	# a semantic ending ID to start_timeline_id -- ids like ending.sylvia.special are NOT timeline
-	# ids, and the port/bridge resolve the exact timeline+label through endings.json.
-	if _ending_state_port != null and _ending_playback_port != null:
-		var resumed := resume_ending()
-		if not resumed.get("ok", false):
-			push_warning("EndingScene: ending playback did not start: %s" % str(resumed.get("code", "")))
-		return
-	push_warning("EndingScene: ending ports are not configured; playback is unavailable.")
+	var resumed := resume_ending()
+	if not resumed.get("ok", false): _set_playback_status(true)
+
 
 func _on_return_pressed() -> void:
-	if has_node("/root/SceneRouter"):
-		get_node("/root/SceneRouter").goto_menu()
+	if _finished:
+		_return_to_title()
+	elif _retry_available:
+		_retry_available = false
+		_set_playback_status(false)
+		if not _pending_completion.is_empty():
+			on_ending_playback_completed(_pending_completion.duplicate(true))
+		else:
+			var resumed := resume_ending()
+			if not resumed.get("ok", false): _set_playback_status(true)
+
+
+func configure_ending_navigation(router: Object) -> Dictionary:
+	if router == null or not router.has_method("goto_menu"):
+		return _ending_fail(&"invalid_ending_navigation", "router must expose goto_menu")
+	if _ending_navigation != null and _ending_navigation != router:
+		return _ending_fail(&"ending_navigation_already_configured", "")
+	_ending_navigation = router
+	return {"ok": true, "code": &"ok"}
+
+
+func _return_to_title() -> void:
+	if _ending_navigation != null: _ending_navigation.goto_menu()
+
+
+func _set_playback_status(retry: bool) -> void:
+	_retry_available = retry
+	if is_instance_valid(_return_to_menu_button):
+		_return_to_menu_button.disabled = not retry and not _finished
+		_return_to_menu_button.text = "Retry" if retry else "Return to title"
+	if is_instance_valid(_ending_body_label):
+		_ending_body_label.text = "The ending could not continue. Retry to resume this step." if retry else ""
 
 
 # ---- Resumable ending playback (dwm-p2r.7 Task 6, req.ending.playback) ----
@@ -52,6 +74,11 @@ var _ending_state_port: Object = null
 var _ending_playback_port: Object = null
 # A non-empty pending command means a start has fired and we await its matching completion.
 var _pending_ending_command: Dictionary = {}
+var _last_completed_transaction_id := ""
+var _pending_completion: Dictionary = {}
+var _ending_navigation: Object = null
+var _retry_available := false
+var _finished := false
 
 func configure_ending_ports(state_port: Object, playback_port: Object) -> Dictionary:
 	if not _pending_ending_command.is_empty():
@@ -76,25 +103,50 @@ func configure_ending_ports(state_port: Object, playback_port: Object) -> Dictio
 func resume_ending() -> Dictionary:
 	if _ending_state_port == null or _ending_playback_port == null:
 		return _ending_fail(&"ports_not_configured", "configure_ending_ports first")
-	var next: Dictionary = _ending_state_port.request_next_ending_command()
-	if not next.get("ok", false):
-		return next
-	var command: Dictionary = next["value"]
-	# Only a play_ending command starts a timeline; gallery/complete commands are applied by the
-	# state port itself and carry no playback to resume.
-	if str(command.get("kind", "")) != "play_ending":
-		return {"ok": true, "code": &"ok", "value": {"command": command.duplicate(true)}}
-	var started: Dictionary = _ending_playback_port.start_ending_id(str(command["ending_id"]), command["playback_context"])
-	if not started.get("ok", false):
-		return started
-	_pending_ending_command = command.duplicate(true)
-	return {"ok": true, "code": &"ok", "value": {"started": true}}
+	if not _pending_completion.is_empty():
+		return _ending_fail(&"ending_completion_retry_required", "retry the saved physical completion")
+	if not _pending_ending_command.is_empty():
+		return {"ok": true, "code": &"ok", "value": {"started": true}}
+	# Background commands have no physical playback. Drain the bounded gallery/completion tail;
+	# stop as soon as one timeline has started and await its matching callback.
+	for _guard in range(8):
+		var next: Dictionary = _ending_state_port.request_next_ending_command()
+		if not next.get("ok", false):
+			return next
+		var command: Dictionary = next["value"]
+		if str(command.get("kind", "")) == "play_ending":
+			var context: Dictionary = command["playback_context"]
+			if str(context["transaction_id"]) == _last_completed_transaction_id:
+				return _ending_fail(&"ending_stage_not_advanced",
+					"state port returned the presentation that just completed")
+			_pending_ending_command = command.duplicate(true)
+			var started: Dictionary = _ending_playback_port.start_ending_id(
+				str(command["ending_id"]), context)
+			if not started.get("ok", false):
+				_pending_ending_command = {}
+				_set_playback_status(true)
+				return started
+			return {"ok": true, "code": &"ok", "value": {"started": true}}
+		var expected := StringName(str(command.get("expected_stage", "")))
+		var applied: Dictionary = _ending_state_port.complete_ending_playback_stage("", expected, {})
+		if not applied.get("ok", false):
+			_set_playback_status(true)
+			return applied
+		if str((applied.get("value", {}) as Dictionary).get("route", "")) == "menu":
+			_finished = true
+			_set_playback_status(false)
+			_return_to_title()
+			return {"ok": true, "code": &"ok", "value": {"route": "menu"}}
+	return _ending_fail(&"ending_command_loop", "ending background commands did not terminate")
+
 
 func on_ending_playback_completed(completion: Dictionary) -> void:
 	# A completion that does not match the pending command (or an out-of-band one after the stage
 	# already advanced, which clears the pending command) is ignored.
 	if not _completion_matches_pending(completion):
 		return
+	if not _pending_completion.is_empty() and _pending_completion != completion: return
+	_pending_completion = completion.duplicate(true)
 	var context: Dictionary = _pending_ending_command["playback_context"]
 	var receipt := {
 		"timeline_completion_receipt_id": str(completion.get("timeline_completion_receipt_id", "")),
@@ -103,19 +155,34 @@ func on_ending_playback_completed(completion: Dictionary) -> void:
 	var result: Dictionary = _ending_state_port.complete_ending_playback_stage(
 		str(context["transaction_id"]), context["expected_stage"], receipt)
 	if result.get("ok", false):
-		# The command is consumed; a duplicate callback now finds no pending command and no-ops.
+		# Consume before resuming so a duplicate callback cannot advance the new command.
+		_last_completed_transaction_id = str(context["transaction_id"])
 		_pending_ending_command = {}
+		_pending_completion = {}
+		var resumed: Dictionary = resume_ending()
+		if not resumed.get("ok", false): _set_playback_status(true)
+	else:
+		# Keep the exact completion while the state owner rolls back its unsaved cursor.
+		_set_playback_status(true)
 
-func on_ending_playback_failed(_failure: Dictionary) -> void:
-	# A failure never advances the stage. A matching failure leaves the command pending for an
-	# explicit retry (resume_ending); the scene owner decides. Nothing to mutate here.
-	pass
+
+func on_ending_playback_failed(failure: Dictionary) -> void:
+	if _pending_ending_command.is_empty(): return
+	var context: Dictionary = _pending_ending_command.playback_context
+	if str(failure.get("playback_id", "")) != str(context.playback_id) \
+			or str(failure.get("transaction_id", "")) != str(context.transaction_id) \
+			or str(failure.get("ending_id", "")) != str(_pending_ending_command.ending_id): return
+	_pending_ending_command = {}
+	_pending_completion = {}
+	_set_playback_status(true)
+
 
 func _completion_matches_pending(completion: Dictionary) -> bool:
 	if _pending_ending_command.is_empty():
 		return false
 	var context: Dictionary = _pending_ending_command["playback_context"]
 	return str(completion.get("outcome", "")) == "completed" \
+		and not str(completion.get("timeline_completion_receipt_id", "")).is_empty() \
 		and str(completion.get("playback_id", "")) == str(context["playback_id"]) \
 		and str(completion.get("transaction_id", "")) == str(context["transaction_id"]) \
 		and str(completion.get("expected_stage", "")) == str(context["expected_stage"]) \

@@ -1,15 +1,56 @@
 extends PanelContainer
 class_name LogOutApp
-
-## Log-out confirmation panel (prompt_docs/requirements/desktop_minesweeper_handoff.md).
+## Confirmed Logout saves the current desktop before retiring its live session.
+signal window_hidden
 
 @onready var confirm_label: Label = %ConfirmLabel
 @onready var yes_button: Button = %YesButton
 @onready var no_button: Button = %NoButton
+var _exit: Object
+var _locale := "en"
+var _busy := false
+var _home: Button
 
 func _ready() -> void:
-	if is_instance_valid(no_button) and not no_button.pressed.is_connected(_on_no_pressed):
-		no_button.pressed.connect(_on_no_pressed)
+	yes_button.pressed.connect(_on_yes_pressed)
+	no_button.pressed.connect(hide_window)
 
-func _on_no_pressed() -> void:
+func configure_exit(owner: Object, locale: String) -> Dictionary:
+	if owner == null or not owner.has_method("return_to_title"):
+		return {"ok": false, "code": &"logout_unavailable"}
+	_exit = owner
+	_locale = locale if locale in ["en", "zh-CN", "zh-HK"] else "en"
+	confirm_label.text = {"en": "Save your progress and log out?", "zh-CN": "保存进度并登出？", "zh-HK": "儲存進度並登出？"}[_locale]
+	return {"ok": true}
+
+func configure_desktop_home(button: Button) -> void: _home = button
+func can_return_home() -> bool: return not _busy
+func show_window() -> void:
+	show()
+	no_button.grab_focus()
+func hide_window() -> void:
+	if _busy: return
 	hide()
+	window_hidden.emit()
+
+func _on_yes_pressed() -> void:
+	if _busy or _exit == null: return
+	_busy = true
+	yes_button.disabled = true
+	no_button.disabled = true
+	var result: Dictionary = _exit.return_to_title(true)
+	if result.get("ok", false): return
+	# A post-retirement route failure admits only retrying the same confirmed exit.
+	_busy = result.get("code") == &"exit_route_retry_required"
+	confirm_label.text = {"en": "Log out could not finish. Please try again.",
+		"zh-CN": "暂时无法登出。请重试。", "zh-HK": "暫時無法登出。請重試。"}[_locale]
+	yes_button.disabled = false
+	no_button.disabled = _busy
+	# Keep navigation blocked after retirement while allowing the same Yes command.
+	if _busy:
+		yes_button.pressed.disconnect(_on_yes_pressed)
+		yes_button.pressed.connect(_retry_exit)
+
+func _retry_exit() -> void:
+	var result: Dictionary = _exit.return_to_title(true)
+	if not result.get("ok", false): yes_button.grab_focus()

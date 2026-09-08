@@ -51,6 +51,8 @@ func configure(game_state: Object, identity_issuer: Object) -> Dictionary:
 
 
 ## Captures the exact 11-key condition context for ONE validated action/sequence receipt pair.
+## Evaluation precedes the source commit, so the action receipt owns the prepared condition_after.
+## Lifecycle, Schedule and preexisting Contacts sources still come from the live facade.
 ## Read-only: nothing on the facade is mutated and every returned member is detached.
 func snapshot_for(request: Dictionary) -> Dictionary:
 	if _game_state == null or _identity_issuer == null:
@@ -87,11 +89,7 @@ func snapshot_for(request: Dictionary) -> Dictionary:
 		"run_revision": int(sequence_receipt["run_revision"]),
 		"dark_mode": _dark_mode_active(),
 		"schedule_done_state": _schedule_done_state(),
-		"condition_after": {
-			"health": int(_game_state.call(&"get_stat", "health")),
-			"pressure": int(_game_state.call(&"get_stat", "pressure")),
-			"carried_sequela": (_game_state.get("condition_effects_today") as Array).has("sequela"),
-		},
+		"condition_after": (action_receipt["condition_after"] as Dictionary).duplicate(true),
 		"accepted_unfulfilled_sources": sources,
 		"sylvia_read_source_receipt": _sylvia_source(sources),
 	}}, "receipt": {}}
@@ -172,14 +170,8 @@ func _sylvia_source(sources: Array) -> Variant:
 
 
 func _dark_mode_active() -> bool:
-	var routes: Variant = _game_state.get("dating_route_state")
-	if typeof(routes) != TYPE_DICTIONARY:
-		return false
-	for friend_id: Variant in (routes as Dictionary):
-		var route: Variant = (routes as Dictionary)[friend_id]
-		if typeof(route) == TYPE_DICTIONARY and int((route as Dictionary).get("dark_points", 0)) >= 2:
-			return true
-	return false
+	# Dark Mode is captured at New Run; a friend's accumulated tone is a separate fact.
+	return bool(_game_state._run_lifecycle.to_dict().get("dark_mode", false))
 
 
 ## `open | committed | resolving` (Plan 03 line 854). Resolving means an ACTIVE, incomplete

@@ -169,3 +169,19 @@ func test_prepare_candidate_is_detached() -> void:
 	built["value"]["recovery_journal"].append({"mutated": true})
 	assert_eq((prepared["value"]["candidate"]["recovery_journal"] as Array).size(), 0,
 		"prepared candidate is recursively detached")
+
+
+func test_current_and_recovery_snapshots_normalize_engine_text_without_mutating_source() -> void:
+	var current := _bundle()
+	var earlier := _bundle()
+	current.snapshot.desktop.board.phase = &"NONE"
+	earlier.snapshot.desktop.board.phase = &"NONE"
+	var built: Dictionary = load(SCHEMA_PATH).build(&"autosave", null, &"automatic", current, [earlier])
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false): return
+	assert_eq(typeof(built.value.current_snapshot.snapshot.desktop.board.phase), TYPE_STRING)
+	assert_eq(typeof(built.value.recovery_journal[0].snapshot.desktop.board.phase), TYPE_STRING)
+	assert_eq(typeof(current.snapshot.desktop.board.phase), TYPE_STRING_NAME)
+	assert_eq(typeof(earlier.snapshot.desktop.board.phase), TYPE_STRING_NAME)
+	var round_trip: Dictionary = JSON.parse_string(JSON.stringify(built.value))
+	assert_true(load(SCHEMA_PATH).validate(round_trip).get("ok", false))

@@ -79,7 +79,7 @@ func test_none_reads_selected_tier_and_raw_signed_rounds_without_mutating_real_o
 	state.free()
 
 
-func test_active_and_prepared_use_frozen_difficulty_and_keep_missing_owners_unavailable() -> void:
+func test_active_derives_foresight_while_prepared_has_no_layout_and_difficulty_stays_frozen() -> void:
 	var state := StateFixture.new()
 	state.minesweeper_selected_difficulty = "expert"
 	for snapshot: Dictionary in [_snapshot(), _prepared(), _prepared(true)]:
@@ -88,7 +88,10 @@ func test_active_and_prepared_use_frozen_difficulty_and_keep_missing_owners_unav
 		assert_eq(result.value.difficulty, "intermediate")
 		assert_eq(result.value.custody, snapshot.phase == "PREPARING")
 		assert_eq(result.value.no_flag, "intact")
-		assert_null(result.value.foresight)
+		if snapshot.board == null:
+			assert_null(result.value.foresight)
+		else:
+			assert_eq(result.value.foresight, 300)
 		assert_eq(result.value.difficulty_enabled, [])
 		assert_false(JSON.stringify(result).contains("private"))
 

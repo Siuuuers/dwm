@@ -754,3 +754,36 @@ func test_supportz_eligibility_state_reflects_daily_purchase_done_after_a_record
 	var other_day: Dictionary = state.supportz_eligibility_state("causal-day-2")
 	assert_false(bool((other_day["value"] as Dictionary)["state"]["daily_purchase_done"]),
 		"a different causal day is not marked done")
+
+func test_terminal_cleanup_retains_a_self_contained_destination_record() -> void:
+	var state := _admitted()
+	var destination := {
+		"intent_id": "destination.1", "intent_id_provenance": {"child_kind": "destination_intent"},
+		"kind": "hospital_day", "day": 1, "causal_day_instance": "causal-day-1",
+		"source_condition_receipt_id": "condition.1",
+		"source_condition_receipt_provenance": {"child_kind": "condition"},
+		"accepted_unfulfilled_sources": [
+			{"action_id": "solo:lavinia:day1", "receipt_id": "source.1"},
+		],
+		"terminal_cause": null, "terminal_provenance": null, "prerequisite_receipt_ids": [],
+	}
+	var to_pending: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, destination, null,
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["action_source"],
+			"next_callback_index": 1, "callback_receipts": {"action_source": {}}})
+	assert_true(to_pending.get("ok", false), JSON.stringify(to_pending))
+	state.commit({"kind": &"recovery_advance", "state_after": to_pending["value"]["stage_candidate"]})
+	var cleanup: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"publication_pending", null, {}, null, null, null)
+	assert_true(cleanup.get("ok", false), JSON.stringify(cleanup))
+	var after: Dictionary = cleanup["value"]["stage_candidate"]
+	assert_eq(after["pending"], null)
+	var record: Dictionary = after["outbox"]["hospital"]
+	assert_eq(record["key"], "destination.1")
+	assert_eq(record["payload"], destination)
+	assert_eq(record["payload_hash"], _sha256(destination))
+	assert_eq(record["action_receipt"], {"result": "completed"})
+	assert_eq(record["condition_receipt"]["receipt_id"], "condition.1")
+	assert_eq(record["causal_sequence"], 1)
+	assert_eq(record["consumer"], "condition_hospital")
+	assert_eq(record["status"], "pending")

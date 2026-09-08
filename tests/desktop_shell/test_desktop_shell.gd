@@ -5,6 +5,67 @@ const SettingsFixtures := preload("res://tests/desktop_shell/test_settings_host.
 const APP_IDS := [&"minesweeper", &"contacts", &"schedule", &"shop", &"backup", &"settings", &"logout"]
 var failures: Array[String] = []
 
+const MAIN_SCENE := preload("res://scenes/main/MainGameScene.tscn")
+const DESKTOP_SCENE := preload("res://scenes/desktop/ComputerDesktop.tscn")
+
+# Same isolated owner boundary as test_run_palette_host; production layout/input stay intact.
+class IsolatedDesktop extends "res://scripts/ui/ComputerDesktop.gd":
+	func _configure_from_bootstrap() -> void: pass
+
+class RunConfigurationFixture extends RefCounted:
+	func get_run_configuration() -> Dictionary:
+		return {"ok": true, "value": {"dark_mode": false}}
+
+func fixture_main() -> Control:
+	var main: Control = MAIN_SCENE.instantiate()
+	var desktop: Control = DESKTOP_SCENE.instantiate()
+	desktop.set_script(IsolatedDesktop)
+	check(desktop.configure_run_configuration(RunConfigurationFixture.new()).get("ok", false),
+		"Isolated desktop binds an explicit captured run configuration before mount")
+	main._computer_desktop_instance = desktop
+	var panel: PanelContainer = main.get_node("%ComputerPanel")
+	panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	panel.add_child(desktop)
+	return main
+
+func opened(result: Dictionary, desktop: Control, description: String) -> bool:
+	var ok: bool = result.get("ok", false) and desktop.app_window_host.get_child_count() > 0
+	check(ok, description + ": " + str(result))
+	return ok
+
+func free_fixture(nodes: Array) -> void:
+	for node: Node in nodes:
+		if is_instance_valid(node): node.queue_free()
+	await settle()
+
+func finish_cross_app(main: Control, locale: Node, profile: Node, retained: Array) -> void:
+	await free_fixture([main])
+	await free_fixture([locale, profile])
+	for record: Dictionary in retained:
+		if is_instance_valid(record.node): record.node.name = record.name
+
+func verify_contacts_notice(desktop: Control, port: RefCounted, locale: Node) -> void:
+	var before_unread: Dictionary = port.unread.duplicate(true)
+	var before_opens: Array = port.opens.duplicate()
+	var before_replies: int = port.reply_count
+	var caption: Label = desktop.contacts_button.get_node("Caption")
+	check(caption.text == "Contacts \u2022" and desktop.contacts_button.accessibility_name == "Contacts, new message",
+		"Saved unread Contacts has both a visible indicator and an accessible notice")
+	locale.change("zh-CN")
+	check(caption.text == "\u8054\u7cfb\u4eba \u2022" and desktop.contacts_button.accessibility_name == "\u8054\u7cfb\u4eba\uff0c\u6709\u65b0\u6d88\u606f",
+		"Unread caption and accessible notice survive a locale change")
+	for friend_id: String in port.unread: port.unread[friend_id] = false
+	desktop._on_contacts_changed({})
+	check(caption.text == "\u8054\u7cfb\u4eba" and desktop.contacts_button.accessibility_name == "\u8054\u7cfb\u4eba",
+		"A committed all-read projection clears the visual and accessible notices")
+	locale.change("en")
+	check(caption.text == "Contacts" and desktop.contacts_button.accessibility_name == "Contacts",
+		"Cleared notice stays cleared after another locale change")
+	check(port.opens == before_opens and port.reply_count == before_replies,
+		"Notice and locale refresh never open a friend or submit a reply")
+	port.unread = before_unread
+	desktop._on_contacts_changed({})
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -57,6 +118,13 @@ func check_shell_geometry(main: Control, desktop: Control) -> void:
 		check(relative.x >= 0 and relative.x + control.size.x <= 800.1, "Shared chrome fits available width")
 
 func verify_cross_app_home() -> void:
+	# Named Settings owners are explicit memory fixtures, not similarly named autoload siblings.
+	var retained: Array = []
+	for owner_name: String in ["ProfileManager", "LocalizationManager", "AudioManager"]:
+		var original: Node = root.get_node_or_null(owner_name)
+		if original != null:
+			retained.append({"node": original, "name": original.name})
+			original.name = "DesktopShellOriginal" + owner_name
 	var gate := SettingsFixtures.GATE.new()
 	var profile: Node = SettingsFixtures.PROFILE.new()
 	profile.name = "ProfileManager"
@@ -68,22 +136,24 @@ func verify_cross_app_home() -> void:
 	root.add_child(locale)
 	check(locale.configure_mutation_gate(gate).get("ok", false), "Cross-app locale uses the shared mutation gate")
 	check(locale.initialize(profile).get("ok", false), "Cross-app localization initializes real catalog")
-	var main: Control = load("res://scenes/main/MainGameScene.tscn").instantiate()
+	var main: Control = fixture_main()
 	root.add_child(main)
 	await settle()
 	var desktop = main.find_child("ComputerDesktop", true, false)
 	var owner := Fixtures.FakeHost.new()
 	owner.reject_next = false
 	check(desktop.configure_contacts(Fixtures.FakePort.new(), locale, profile, owner).get("ok", false), "Cross-app desktop configures real Settings dependencies")
-	check(desktop.open_contacts().get("ok", false), "Cross-app first Contacts opening succeeds")
+	if not opened(desktop.open_contacts(), desktop, "Cross-app first Contacts opening succeeds"):
+		await finish_cross_app(main, locale, profile, retained)
+		return
 	await settle()
 	var contacts = desktop.app_window_host.get_child(0)
 	desktop.return_home()
 	await settle()
-	var opened: Dictionary = desktop.open_app(&"settings")
-	check(opened.get("ok", false), "Shared route opens real Settings with initialized production dependencies")
+	var settings_opened: Dictionary = desktop.open_app(&"settings")
+	check(settings_opened.get("ok", false), "Shared route opens real Settings with initialized production dependencies")
 	await settle()
-	if opened.get("ok", false):
+	if settings_opened.get("ok", false):
 		var settings = desktop.app_window_host.find_child("SettingsApp", false, false)
 		check(settings != null and settings.is_visible_in_tree(), "Actual Settings scene is mounted")
 		if settings != null:
@@ -95,17 +165,15 @@ func verify_cross_app_home() -> void:
 			check(not audio_control.editable, "desktop Settings does not invent an audio preview capability")
 			desktop.return_home()
 			await settle()
-			check(desktop.open_contacts().get("ok", false), "Contacts reopens after visiting Settings")
+			if not opened(desktop.open_contacts(), desktop, "Contacts reopens after visiting Settings"):
+				await finish_cross_app(main, locale, profile, retained)
+				return
 			await settle()
 			check(contacts.is_visible_in_tree(), "The original Contacts instance is reused across app visits")
 			desktop.home_button.grab_focus()
 			await press_key(KEY_DOWN)
 			check(contacts.is_ancestor_of(root.gui_get_focus_owner()), "Home Down is rebound to active cached Contacts after Settings")
-	main.queue_free()
-	await settle()
-	locale.queue_free()
-	profile.queue_free()
-	await settle()
+	await finish_cross_app(main, locale, profile, retained)
 
 func verify_foundation(main: Control, desktop: Control) -> void:
 	var port := Fixtures.FakePort.new()
@@ -115,6 +183,7 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 	var owner := Fixtures.FakeHost.new()
 	owner.reject_next = false
 	check(desktop.configure_contacts(port, locale, profile, owner).get("ok", false), "Existing Contacts dependency injection remains supported")
+	verify_contacts_notice(desktop, port, locale)
 	check(desktop.has_method("configure_clock") and desktop.has_method("refresh_clock"), "Clock accepts explicit read-only source")
 	if desktop.has_method("configure_clock"):
 		var initial_reads := [0]
@@ -213,7 +282,9 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 	check(not desktop.open_contacts().get("ok", false), "Contacts propagates owner rejection")
 	for child in desktop.app_window_host.get_children():
 		check(not child.is_visible_in_tree(), "Rejected app stays hidden")
-	check(desktop.open_app(&"contacts").get("ok", false), "Generic launcher route opens Contacts")
+	if not opened(desktop.open_app(&"contacts"), desktop, "Generic launcher route opens Contacts"):
+		await free_fixture([main, locale])
+		return
 	await settle()
 	var app: Control = desktop.app_window_host.get_child(0)
 	var panel = app.get_node("%ContactsPanel")
@@ -251,7 +322,9 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 	await settle()
 	check(not app.visible and desktop.icon_grid.visible and owner.active == null, "Shared Home hides app and closes existing owner")
 	check(desktop.launcher_buttons[&"contacts"].has_focus(), "Home returns focus to invoking launcher")
-	check(desktop.open_contacts().get("ok", false), "Existing Contacts opening API still reopens cache")
+	if not opened(desktop.open_contacts(), desktop, "Existing Contacts opening API still reopens cache"):
+		await free_fixture([main, locale])
+		return
 	await settle()
 	check(desktop.app_window_host.get_child(0) == app and panel.selected_friend == "priscilla", "Cache preserves Contacts instance and thread")
 	check(panel.transcript.has_focus(), "Reopen restores transcript focus remembered before Home took focus")
@@ -265,7 +338,9 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 		desktop.home_button.grab_focus()
 		desktop.home_button.pressed.emit()
 		await settle()
-		desktop.open_contacts()
+		if not opened(desktop.open_contacts(), desktop, "Contacts reopens to the remembered reply"):
+			await free_fixture([main, locale])
+			return
 		await settle()
 		reply = app.find_child("ReplyButton", true, false)
 		check(reply != null and reply.has_focus(), "Reopen restores reply focus remembered before Home took focus")
@@ -273,7 +348,9 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 	await press_key(KEY_ESCAPE)
 	await settle()
 	check(not app.visible and desktop.launcher_buttons[&"contacts"].has_focus(), "Back follows shared Home focus behavior")
-	desktop.open_contacts()
+	if not opened(desktop.open_contacts(), desktop, "Contacts opens for day eviction/rebuild"):
+		await free_fixture([main, locale])
+		return
 	await settle()
 	var old_id := app.get_instance_id()
 	check(desktop.dispatch_desktop_eviction({"kind": &"evict_cached_apps", "day": 2}).get("ok", false), "Day eviction uses existing host dispatch contract")
@@ -281,14 +358,16 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 	check(desktop.app_window_host.get_child_count() == 0 and desktop.icon_grid.visible, "Day eviction drops cached content and shows launcher")
 	check(first.has_focus(), "Day rebuild starts focus at first launcher")
 	owner.active = null
-	desktop.open_contacts()
+	if not opened(desktop.open_contacts(), desktop, "Contacts opens for day eviction/rebuild"):
+		await free_fixture([main, locale])
+		return
 	await settle()
 	app = desktop.app_window_host.get_child(0)
 	check(app.get_instance_id() != old_id and app.get_node("%ContactsPanel").selected_friend == "", "New day creates a fresh Contacts pane")
 	main.queue_free()
 	locale.queue_free()
 	await settle()
-	var restored: Control = load("res://scenes/main/MainGameScene.tscn").instantiate()
+	var restored: Control = fixture_main()
 	root.add_child(restored)
 	await settle()
 	var restored_desktop = restored.find_child("ComputerDesktop", true, false)
@@ -302,7 +381,7 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 		check(pane.selected_friend == "" and restored_port.opens.is_empty(), "Restore does not fabricate thread selection or read")
 	restored.queue_free()
 	await settle()
-	var unavailable_main: Control = load("res://scenes/main/MainGameScene.tscn").instantiate()
+	var unavailable_main: Control = fixture_main()
 	root.add_child(unavailable_main)
 	await settle()
 	var unavailable_desktop = unavailable_main.find_child("ComputerDesktop", true, false)
@@ -323,7 +402,7 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 
 func _run() -> void:
 	root.size = Vector2i(1280, 720)
-	var main: Control = load("res://scenes/main/MainGameScene.tscn").instantiate()
+	var main: Control = fixture_main()
 	root.add_child(main)
 	await settle()
 	var desktop = main.find_child("ComputerDesktop", true, false)

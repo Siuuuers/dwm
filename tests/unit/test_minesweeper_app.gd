@@ -71,7 +71,7 @@ func _view() -> Dictionary:
 	return {"board":board,"register":{"difficulty":"expert","rounds":1,"mine_estimate":99,
 		"foresight":null,"no_flag":"intact","custody":false,"difficulty_enabled":[]},
 		"assignments":[true,false,false,false,false,false,false,false,false],
-		"actions":["reveal","flag","drag","assignments","rules"]}
+		"actions":["reveal","flag","drag","assignments","rules"],"settled":false}
 
 func before_each() -> void:
 	_viewport = SubViewport.new()

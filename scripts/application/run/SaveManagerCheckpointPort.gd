@@ -54,12 +54,16 @@ const DISK_WRITES := [
 	# SaveDocumentSchema.AUTOSAVE_REASONS lists "pre_board" -- so only this enumeration was
 	# missing the pairing. Reusing "day_start" instead would mislabel the durable document.
 	{"kind": &"autosave", "reason": &"pre_board"},
+	{"kind": &"autosave", "reason": &"automatic"},
 ]
 const AUTOSAVE_RELATIVE_PATH := "autosave.json"
 
 var _gate: Object = null
 var _save_manager: Object = null
 var _desktop_context_provider: Object = null
+# Diagnostic counters only; never included in a candidate or persisted document.
+var _profile_text_validator_calls := 0
+var _profile_text_validator_us := 0
 
 
 func configure_desktop_context_provider(provider: Object) -> Dictionary:
@@ -113,6 +117,9 @@ func capture() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": captured["value"]["backup"]}}
 
 func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_write: Dictionary) -> Dictionary:
+	if OS.get_environment("DWM_CHECKPOINT_PROFILE") == "1":
+		_profile_text_validator_calls = 0
+		_profile_text_validator_us = 0
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
@@ -213,25 +220,67 @@ func commit(candidate: Dictionary) -> Dictionary:
 		return readiness
 	if typeof(candidate.get("journal_candidate")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_candidate", "candidate was not issued by this port")
+	var profile := {}
+	var tick := 0
+	if OS.get_environment("DWM_CHECKPOINT_PROFILE") == "1":
+		tick = Time.get_ticks_usec()
+		var history: Variant = candidate["journal_candidate"].get("earlier")
+		profile = {"scope": "save_checkpoint", "checkpoint_id": str(candidate.get("checkpoint_id", "")),
+			"autosave": candidate.get("autosave_document") != null,
+			"history_bundles": history.size() if history is Array else -1, "_started_us": tick}
 	if candidate.get("autosave_document") != null:
 		var canonical: Dictionary = CANONICAL_JSON.stringify(candidate["autosave_document"])
+		tick = _profile_phase(profile, "stringify_us", tick)
 		if not canonical.get("ok", false):
-			return _fail(&"canonical_serialization_failed", "")
+			return _profile_result(profile, _fail(&"canonical_serialization_failed", ""))
+		if not profile.is_empty():
+			profile["document_bytes"] = str(canonical["value"]).to_utf8_buffer().size() + 1
+			tick = Time.get_ticks_usec()
+		# Validation depends only on these exact bytes and the fixed resource registries
+		# during this synchronous commit. Never retain a result across commits or retries.
+		var validated_texts := {}
+		var validator := _cached_document_text_validator.bind(validated_texts)
+		var outgoing_text := str(canonical["value"]) + "\n"
 		var written: Dictionary = _storage().write_atomic(
-			AUTOSAVE_RELATIVE_PATH, str(canonical["value"]) + "\n", _document_text_validator)
+			AUTOSAVE_RELATIVE_PATH, outgoing_text, validator)
+		tick = _profile_phase(profile, "write_atomic_us", tick)
 		if not written.get("ok", false):
-			return written
+			return _profile_result(profile, written)
 		var re_read: Dictionary = _storage().read_text(AUTOSAVE_RELATIVE_PATH)
+		tick = _profile_phase(profile, "reread_us", tick)
 		if not re_read.get("ok", false):
-			return re_read
-		var parsed: Dictionary = STRICT_JSON.parse_object(str(re_read["value"]))
-		if not parsed.get("ok", false) or not SAVE_DOCUMENT_SCHEMA.validate(parsed["value"]).get("ok", false):
-			return _fail(&"reread_mismatch", AUTOSAVE_RELATIVE_PATH)
+			return _profile_result(profile, re_read)
+		var reread_text := str(re_read["value"])
+		var validated: Dictionary = validator.call(reread_text)
+		var valid: bool = reread_text == outgoing_text and validated.get("ok", false)
+		tick = _profile_phase(profile, "reread_validate_us", tick)
+		if not valid:
+			return _profile_result(profile, _fail(&"reread_mismatch", AUTOSAVE_RELATIVE_PATH))
 	var committed: Dictionary = _journal().commit_prepared(candidate["journal_candidate"])
+	_profile_phase(profile, "journal_us", tick)
 	if not committed.get("ok", false):
-		return committed
-	return {"ok": true, "code": &"ok",
-		"value": {"checkpoint_id": str(committed["value"]["checkpoint_id"])}}
+		return _profile_result(profile, committed)
+	return _profile_result(profile, {"ok": true, "code": &"ok",
+		"value": {"checkpoint_id": str(committed["value"]["checkpoint_id"])}})
+
+
+static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
+	if profile.is_empty(): return 0
+	var now := Time.get_ticks_usec()
+	profile[phase] = now - started_us
+	return now
+
+
+func _profile_result(profile: Dictionary, result: Dictionary) -> Dictionary:
+	if not profile.is_empty():
+		profile["elapsed_us"] = Time.get_ticks_usec() - int(profile["_started_us"])
+		profile.erase("_started_us")
+		profile["ok"] = bool(result.get("ok", false))
+		profile["text_validator_calls_since_prepare"] = _profile_text_validator_calls
+		profile["text_validator_us_since_prepare"] = _profile_text_validator_us
+		if not profile["ok"]: profile["code"] = str(result.get("code", ""))
+		print("DWM_CHECKPOINT_PROFILE " + JSON.stringify(profile))
+	return result
 
 func rollback(backup: Dictionary) -> Dictionary:
 	var readiness := _readiness()
@@ -251,7 +300,11 @@ func rollback(backup: Dictionary) -> Dictionary:
 			storage_result = _storage().write_atomic(
 				relative_path, str(descriptor.get("validated_text", "")), _document_text_validator)
 		else:
-			storage_result = _storage().remove(relative_path)
+			# A failed final reread may have invalidated the lease after a first save
+			# became durable. Validate that artifact before restoring prior absence.
+			storage_result = _storage().reconcile(relative_path, _document_text_validator)
+			if storage_result.get("ok", false):
+				storage_result = _storage().remove(relative_path)
 		attempts.append({"owner_id": "save_storage", "operation": "rollback", "result": storage_result})
 		storage_ok = storage_result.get("ok", false)
 	if journal_restored.get("ok", false) and storage_ok:
@@ -483,6 +536,21 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 			pending_transaction_ids.append(transaction_id)
 	if pending_transaction_ids.is_empty():
 		return {"ok": true, "code": &"ok", "value": {"found": false}}
+	var saved := _read_completed_snapshot()
+	if not saved.get("ok", false):
+		return saved
+	var completed_snapshot: Dictionary = saved["value"]["snapshot"]
+	for transaction_id: String in pending_transaction_ids.duplicate():
+		var record: Dictionary = latest_by_transaction[transaction_id]
+		if _completed_snapshot_supersedes(record, completed_snapshot):
+			# Repair the missing terminal write durably. Otherwise replacing Autosave on a later
+			# day/continuation would remove this proof and make the stale transaction reappear.
+			var repaired := _repair_completed_consequence_checkpoint(record, completed_snapshot)
+			if not repaired.get("ok", false):
+				return repaired
+			pending_transaction_ids.erase(transaction_id)
+	if pending_transaction_ids.is_empty():
+		return {"ok": true, "code": &"ok", "value": {"found": false}}
 	if pending_transaction_ids.size() > 1:
 		return _fail(&"consequence_checkpoint_multiple_pending_transactions",
 			"more than one transaction_id has an unresolved durable checkpoint: " + str(pending_transaction_ids))
@@ -492,6 +560,59 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 		"stage_candidate": ((latest_by_transaction[chosen] as Dictionary)["stage_candidate"] as Dictionary).duplicate(true),
 	}}
 
+## A crash may occur after the complete Autosave write but before terminal sidecar cleanup.
+## In that window the full snapshot is authoritative: replaying an older admitted payload would
+## rewind gameplay. Only the same exact run/branch/generation/day and an advanced completed causal
+## state establish supersession; unrelated or remapped identities are never guessed equivalent.
+func _read_completed_snapshot() -> Dictionary:
+	var reconciled: Dictionary = _storage().reconcile(AUTOSAVE_RELATIVE_PATH, _document_text_validator)
+	if not reconciled.get("ok", false):
+		return reconciled
+	if not reconciled.get("exists", false):
+		return {"ok": true, "value": {"snapshot": {}}}
+	var read: Dictionary = _storage().read_text(AUTOSAVE_RELATIVE_PATH)
+	if not read.get("ok", false):
+		return read
+	var validated := _document_text_validator(str(read["value"]))
+	if not validated.get("ok", false):
+		return validated
+	return {"ok": true, "value": {"snapshot": validated["value"]["current_snapshot"]["snapshot"]}}
+
+
+func _repair_completed_consequence_checkpoint(record: Dictionary, snapshot: Dictionary) -> Dictionary:
+	var transaction_id := str(record["header"]["transaction_id"])
+	var header := {"kind": &"consequence_cleanup", "transaction_id": transaction_id,
+		"stage": "publication_pending", "operation_ordinal": 12, "run_id": "", "source_ids": [transaction_id]}
+	var prepared := prepare_consequence_checkpoint(header, snapshot["desktop"]["consequence"])
+	if not prepared.get("ok", false):
+		return prepared
+	return commit_consequence_checkpoint(prepared["value"]["candidate"], prepared["value"]["checkpoint_receipt"])
+
+
+func _completed_snapshot_supersedes(record: Dictionary, snapshot: Dictionary) -> bool:
+	if snapshot.is_empty():
+		return false
+	var state: Dictionary = record["stage_candidate"]
+	var pending: Dictionary = state["pending"]
+	if str(pending.get("stage", "")) not in ["sequence_committed", "publication_pending"]:
+		return false
+	var payload: Dictionary = pending.get("recovery_payload", {})
+	var action: Dictionary = payload.get("action_receipt", {})
+	for recipe: Variant in payload.get("publication_plan", []):
+		if typeof(recipe) == TYPE_DICTIONARY and str(recipe.get("participant", "")) == "action_source":
+			action = recipe.get("publication", {}).get("action_receipt", {})
+			break
+	var lifecycle: Dictionary = snapshot.get("lifecycle", {})
+	for field: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		if not action.has(field) or action[field] != lifecycle.get(field):
+			return false
+	var completed: Dictionary = snapshot.get("desktop", {}).get("consequence", {})
+	return completed.get("pending") == null \
+		and str(completed.get("causal_day_instance", "")) == str(state.get("causal_day_instance", "")) \
+		and int(completed.get("causal_sequence", -1)) >= int(state.get("causal_sequence", 0)) \
+		and int(completed.get("run_revision", -1)) >= int(state.get("run_revision", 0))
+
+
 func _canonical_text(value: Variant) -> String:
 	var canonical: Dictionary = CANONICAL_JSON.stringify(value)
 	if not canonical.get("ok", false):
@@ -499,7 +620,11 @@ func _canonical_text(value: Variant) -> String:
 	return str(canonical["value"])
 
 func _load_consequence_checkpoint_document() -> Dictionary:
-	if not _storage().exists(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH):
+	var reconciled: Dictionary = _storage().reconcile(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH,
+		_consequence_checkpoint_text_validator)
+	if not reconciled.get("ok", false):
+		return reconciled
+	if not reconciled.get("exists", false):
 		return {"ok": true, "code": &"ok", "value": {"document": {"schema_version": 1, "records": {}, "abandoned": {}}}}
 	var read: Dictionary = _storage().read_text(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
 	if not read.get("ok", false):
@@ -580,6 +705,13 @@ func _capture_storage_backup(relative_path: String) -> Dictionary:
 	if existed:
 		var read: Dictionary = _storage().read_text(relative_path)
 		if not read.get("ok", false):
+			if str(read.get("code", "")) == "reconcile_required":
+				# A failed read invalidates the storage lease before any checkpoint is committed.
+				# Revalidate durable evidence so an explicit retry can read it again.
+				# This attempt still fails; corrupt or ambiguous artifacts remain refused.
+				var reconciled: Dictionary = _storage().reconcile(relative_path, _document_text_validator)
+				if not reconciled.get("ok", false):
+					return reconciled
 			return read
 		var text := str(read["value"])
 		var validation := _document_text_validator(text)
@@ -589,7 +721,25 @@ func _capture_storage_backup(relative_path: String) -> Dictionary:
 		descriptor["sha256"] = text.sha256_text()
 	return {"ok": true, "code": &"ok", "value": {"descriptor": descriptor}}
 
+func _cached_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
+	if cache.has(text):
+		return (cache[text] as Dictionary).duplicate(true)
+	var result := _document_text_validator(text)
+	if result.get("ok", false):
+		cache[text] = result.duplicate(true)
+	return result
+
 func _document_text_validator(text: String) -> Dictionary:
+	if OS.get_environment("DWM_CHECKPOINT_PROFILE") != "1":
+		return _validate_document_text(text)
+	var started_us := Time.get_ticks_usec()
+	var result := _validate_document_text(text)
+	_profile_text_validator_calls += 1
+	_profile_text_validator_us += Time.get_ticks_usec() - started_us
+	return result
+
+
+func _validate_document_text(text: String) -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(text)
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}

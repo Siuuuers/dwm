@@ -2,6 +2,7 @@ class_name MinesweeperPresentationPort
 extends RefCounted
 ## Narrow UI command boundary. Owner identities and issuer receipts never leave this object.
 
+const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
 const OWNER_METHODS := ["get_state", "get_entry_context", "reveal", "set_flag", "chord", "complete_round"]
 
@@ -12,6 +13,7 @@ var _phase := ""
 var _identity: Variant = null
 var _revision := -1
 var _projection: Dictionary = {}
+var _terminal_foresight: Variant = null
 var _pending_settlement_request: Dictionary = {}
 
 
@@ -33,6 +35,14 @@ func pull(difficulty: String) -> Dictionary:
 	if _owner == null or difficulty.strip_edges().is_empty():
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
+	# Source commit may already have cleared the board while the full save is pending.
+	# Retry the exact retained settlement before reading NONE and losing that request.
+	if not _pending_settlement_request.is_empty():
+		var retried: Dictionary = _owner.call(&"complete_round", _pending_settlement_request.duplicate(true))
+		if not retried.get("ok", false):
+			return _failure(&"minesweeper_settlement_refused", _projection)
+		_pending_settlement_request = {}
+		return _success(_projection.duplicate(true))
 	var refreshed := _read_owner(difficulty)
 	if not refreshed.ok:
 		_clear()
@@ -188,6 +198,14 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 	return _success(_projection.duplicate(true))
 
 
+## Read the derived metric bound to this exact final public projection. Settlement may
+## already have cleared the canonical board; retain no hidden layout or second history here.
+func get_terminal_foresight(projection: Dictionary) -> Dictionary:
+	if not _terminal_foresight is int or projection != _projection or not projection.get("terminal", false):
+		return {"ok": false}
+	return {"ok": true, "value": _terminal_foresight}
+
+
 func _read_owner(difficulty: String) -> Dictionary:
 	var state_result: Dictionary = _owner.call(&"get_state")
 	if not state_result.get("ok", false) or not state_result.get("value") is Dictionary:
@@ -215,10 +233,14 @@ func _read_owner(difficulty: String) -> Dictionary:
 		if eligible and not identity is Dictionary: return {"ok": false}
 	var projected: Dictionary = QUERY.desktop(snapshot, difficulty, eligible)
 	if not projected.get("ok", false): return {"ok": false}
+	var terminal_foresight: Variant = null
+	if projected.value.terminal:
+		terminal_foresight = mini(999, roundi(PERFORMANCE.foresight_percent(snapshot.board.board)))
 	return {"ok": true, "value": {
 		"difficulty": difficulty, "phase": str(snapshot.phase),
 		"identity": identity.duplicate(true) if identity is Dictionary else null,
 		"revision": int(snapshot.revision), "projection": projected.value.duplicate(true),
+		"terminal_foresight": terminal_foresight,
 	}}
 
 
@@ -228,6 +250,7 @@ func _adopt(value: Dictionary) -> void:
 	_identity = value.identity.duplicate(true) if value.identity is Dictionary else null
 	_revision = value.revision
 	_projection = value.projection.duplicate(true)
+	_terminal_foresight = value.terminal_foresight
 
 
 func _clear() -> void:
@@ -236,6 +259,7 @@ func _clear() -> void:
 	_identity = null
 	_revision = -1
 	_projection = {}
+	_terminal_foresight = null
 
 
 func _success(value: Dictionary) -> Dictionary:

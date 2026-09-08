@@ -33,9 +33,17 @@ const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
 const DEFAULT_ROUTE_ID := "main"
 const DEFAULT_CONTENT_VERSION := 1
 
+const DAY_VIEW := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
+const DAY_BOARD := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const DAY_CONSEQUENCE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+
+var _day_view: Object = null
+var _day_board: Object = null
+var _day_consequence: Object = null
 var _game_state: Object = null
 var _checkpoint_providers: Dictionary = {}
 var _provider_identity: Dictionary = {}
+var _pair_deck: Object = null
 
 ## The one configured Day-7 provenance service, injected by Bootstrap; never constructed here.
 var _day7_provenance: Object = null
@@ -70,6 +78,26 @@ const ROOT_PURPOSE := &"transaction_id"
 
 func _init(game_state: Object) -> void:
 	_game_state = game_state
+
+## Bind the same canonical owners used by desktop play and restore; this port retains no copy.
+func configure_day_advance_owners(view: Object, board: Object, consequence: Object) -> Dictionary:
+	if view == null or not view.has_method("install_restored_view") or not view.has_method("snapshot") 			or board == null or not board.has_method("prepare_restore") 			or consequence == null or not consequence.has_method("prepare_restore"):
+		return {"ok": false, "code": &"invalid_day_advance_owners"}
+	if _day_view != null and (_day_view != view or _day_board != board or _day_consequence != consequence):
+		return {"ok": false, "code": &"day_advance_owners_already_configured"}
+	_day_view = view
+	_day_board = board
+	_day_consequence = consequence
+	return {"ok": true}
+
+func configure_pair_deck(port: Object) -> Dictionary:
+	if port == null or not port.has_method("prepare_schedule"):
+		return {"ok": false, "code": &"pair_deck_unavailable"}
+	if _pair_deck != null and _pair_deck != port:
+		return {"ok": false, "code": &"pair_deck_already_configured"}
+	_pair_deck = port
+	return {"ok": true}
+
 
 func configure_checkpoint_providers(providers: Dictionary) -> Dictionary:
 	if typeof(providers) != TYPE_DICTIONARY or providers.size() != CHECKPOINT_PROVIDER_KEYS.size():
@@ -135,6 +163,14 @@ func _provided(key: String, fallback: Variant) -> Variant:
 func begin_or_resume(command_id: String) -> Dictionary:
 	if command_id.is_empty():
 		return {"ok": false, "code": &"invalid_command_id", "message": "", "details": {}}
+	# An exact prior-day continuation may finish arriving on Day 7. A saved Day 7
+	# plan still waits for the mandatory presentations before any further gameplay.
+	var existing := _active_plan()
+	var prior_day_resume := not existing.is_empty() and str(existing.get("command_id", "")) == command_id \
+		and int(existing.get("source_day", 7)) < 7
+	if not prior_day_resume and _game_state.has_method("require_day7_presentations_complete"):
+		var presentations: Dictionary = _game_state.require_day7_presentations_complete()
+		if not presentations.get("ok", false): return presentations
 	var lifecycle: RefCounted = _game_state._run_lifecycle
 	# Step 6.6 (dwm-p2r.13): the resolution begins from the owner's REAL canonical committed
 	# Schedule. This used to pass a synthetic empty array, which silently claimed "no entries" for
@@ -305,9 +341,18 @@ func begin_next_stage() -> Dictionary:
 	# or refused handoff leaves the stage pending and the run resumable rather than half-run.
 	var peeked: Dictionary = lifecycle.resume_resolution()
 	var presentation_request: Dictionary = {}
+	var contacts_receipt: Dictionary = {}
 	if peeked.get("ok", false) and bool(peeked["value"]["has_stage"]):
 		var pending: Dictionary = peeked["value"]["stage"]
 		var pending_id := str(pending.get("stage_id", ""))
+		if pending_id == "increment_day" and _identity_issuer != null and _day_view == null:
+			return {"ok": false, "code": &"day_advance_owners_unconfigured"}
+		if pending_id in ["invitation_rollover", "close_invitations_run_end"]:
+			var contacts_end := _prepare_contacts_day_end(str(pending["transaction_id"]))
+			if not contacts_end.get("ok", false): return contacts_end
+			contacts_receipt = _contacts_stage_envelope(pending_id, contacts_end["receipt"])
+		if pending_id == "resolve_ending_plan" and _default_ending_plan().is_empty():
+			return {"ok": false, "code": &"ending_plan_unavailable"}
 		if pending_id in DAY7_PROVENANCE_STAGES:
 			var handoff := _day7_handoff()
 			if not handoff.get("ok", false):
@@ -321,6 +366,8 @@ func begin_next_stage() -> Dictionary:
 			if not command.get("ok", false):
 				return command
 			presentation_request = (command["value"] as Dictionary)["presentation_request"]
+			var pair_ready := _prepare_pair_presentation(site)
+			if not pair_ready.get("ok", false): return pair_ready
 	var begun: Dictionary = lifecycle.begin_next_stage()
 	if not begun.get("ok", false):
 		return begun
@@ -350,7 +397,7 @@ func begin_next_stage() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"mode": &"complete_immediately",
 		"stage": stage.duplicate(true),
-		"receipt": _immediate_receipt(str(stage["stage_id"])),
+		"receipt": contacts_receipt if not contacts_receipt.is_empty() else _immediate_receipt(str(stage["stage_id"])),
 	}}
 
 
@@ -438,7 +485,7 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 				# DIFFERENT bytes fall through instead (dwm-p2r.25), so the domain's
 				# `_complete_record` stays the one conflict authority and `_completed_lifecycle`
 				# surfaces its `duplicate_transaction_conflict` here at prepare time.
-				if _plan_receipt_from_envelope(receipt) == stage["receipt"]:
+				if _plan_receipt_for_snapshot(receipt, snapshot) == stage["receipt"]:
 					return _prepared(transaction_id, receipt, snapshot, true, stage["receipt"])
 			for substage: Dictionary in stage["substages"]:
 				if str(substage["transaction_id"]) != transaction_id \
@@ -448,15 +495,108 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 				# different bytes fall through to the domain conflict.
 				if _plan_receipt_from_envelope(receipt) == substage["receipt"]:
 					return _prepared(transaction_id, receipt, snapshot, true, substage["receipt"])
+	var stage_id := _stage_id_for_transaction(snapshot, transaction_id)
+	var day_end: Dictionary = {}
+	if stage_id in ["invitation_rollover", "close_invitations_run_end"]:
+		day_end = _prepare_contacts_day_end(transaction_id)
+		if not day_end.get("ok", false): return day_end
+		if receipt != _contacts_stage_envelope(stage_id, day_end["receipt"]):
+			return {"ok": false, "code": &"contacts_rollover_receipt_conflict"}
+	if stage_id == "increment_day" and receipt.value.has("day_advance_identity_receipt"):
+		var allocation_check := _validate_day_advance(snapshot, receipt.value)
+		if not allocation_check.get("ok", false): return allocation_check
 	var produced := _completed_lifecycle(snapshot, transaction_id, receipt)
 	if not produced.get("ok", false):
 		return produced
 	var prepared := _prepared(transaction_id, receipt, produced["value"]["lifecycle"], false, null)
-	# The Hospital stage carries the Contacts half of its own transaction.
 	var contacts_candidate := _hospital_contacts_candidate(snapshot, transaction_id, receipt)
+	if not day_end.is_empty():
+		contacts_candidate = day_end["value"]["candidate"]
 	if not contacts_candidate.is_empty():
-		((prepared["value"] as Dictionary)["run_candidate"] as Dictionary)["contacts"] = 			contacts_candidate
+		prepared.value.run_candidate["contacts"] = contacts_candidate.duplicate(true)
+		prepared.value.snapshot_input.snapshot_input["contacts"] = contacts_candidate.duplicate(true)
+	if not day_end.is_empty() and _pair_window_counts(day_end.receipt.get("pl_window")):
+		if _pair_deck == null: return {"ok": false, "code": &"pair_deck_unconfigured"}
+		var drawn: Dictionary = _pair_deck.prepare_schedule()
+		if not drawn.get("ok", false): return drawn
+		var gameplay: Dictionary = _game_state.capture_run_snapshot_input()["gameplay"].duplicate(true)
+		gameplay.inter_friend_route_state["priscilla_lavinia"] = drawn.value.pair_state.duplicate(true)
+		prepared.value.run_candidate["gameplay"] = gameplay
+		prepared.value.snapshot_input.snapshot_input["gameplay"] = gameplay.duplicate(true)
+	if stage_id == "commit_outcomes":
+		var condition_gameplay := _prepare_schedule_condition_gameplay(
+			_game_state.capture_run_snapshot_input()["gameplay"], _active_source_day())
+		prepared.value.run_candidate["gameplay"] = condition_gameplay
+		prepared.value.snapshot_input.snapshot_input["gameplay"] = condition_gameplay.duplicate(true)
+	if stage_id == "hospital_if_triggered" and bool(receipt.value.get("required", false)) \
+			and receipt.value.get("presentation_completion_receipt") is Dictionary:
+		var recovery: Dictionary = preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd").HOSPITAL_RECOVERY
+		var gameplay: Dictionary = _game_state.capture_run_snapshot_input()["gameplay"].duplicate(true)
+		gameplay.stats["health"] = int(recovery["health"])
+		gameplay.stats["pressure"] = int(recovery["pressure"])
+		gameplay["pending_hospital"] = false
+		gameplay["condition_effects_today"] = []
+		gameplay["condition_streak_days"] = 0
+		gameplay["condition_resolved_day"] = 0
+		prepared.value.run_candidate["gameplay"] = gameplay
+		prepared.value.snapshot_input.snapshot_input["gameplay"] = gameplay.duplicate(true)
+	if stage_id == "increment_day" and receipt.value.has("day_advance_identity_receipt"):
+		var owners := _prepare_new_day_owners(receipt.value)
+		if not owners.get("ok", false): return owners
+		for key: String in owners.value:
+			prepared.value.run_candidate[key] = owners.value[key].duplicate(true)
+			prepared.value.snapshot_input.snapshot_input[key] = owners.value[key].duplicate(true)
+	if stage_id == "reset_day_scope":
+		var value: Dictionary = prepared["value"]
+		var gameplay: Dictionary = _game_state.capture_new_day_gameplay()
+		value.run_candidate["gameplay"] = gameplay
+		value.run_candidate["committed_schedule"] = {}
+		value.snapshot_input.snapshot_input["gameplay"] = gameplay.duplicate(true)
+		value.publication.signals.append("daily_state_reset")
+		value.publication.signals.append("schedule_changed")
 	return prepared
+
+
+## Attendance comes from completed date substages, including their recorded Hospital supersession.
+func _prepare_contacts_day_end(transaction_id: String) -> Dictionary:
+	var attendance := {"solo_attended_action_ids": [], "group_outcome": "not_scheduled"}
+	for stage: Dictionary in _active_plan().get("stages", []):
+		if str(stage.get("stage_id", "")) != "execute_schedule_dates": continue
+		for substage: Dictionary in stage.get("substages", []):
+			if str(substage.get("state", "")) != "completed": continue
+			var saved: Dictionary = substage.get("receipt", {})
+			var facts: Dictionary = saved.get("value", {})
+			var entry := _route_plan_entry(str(facts.get("entry_receipt_id", "")))
+			if entry.is_empty(): continue
+			var superseded := bool(facts.get("superseded", false))
+			if str(entry.get("action_kind", "")) == "solo" and not superseded:
+				attendance.solo_attended_action_ids.append(str(entry["action_id"]))
+			elif str(entry.get("action_kind", "")) == "group":
+				attendance.group_outcome = "prevented_by_fainting" if superseded else "attended"
+	attendance.solo_attended_action_ids.sort()
+	return CONTACT_STATE.prepare_resolve_day_end(_game_state.contacts, _active_source_day(),
+		attendance, transaction_id)
+
+
+func _contacts_stage_envelope(stage_id: String, receipt: Dictionary) -> Dictionary:
+	if stage_id == "close_invitations_run_end":
+		var resolved: Array[String] = []
+		for transition: Dictionary in receipt.get("state_transitions", []):
+			resolved.append(str(transition["action_id"]))
+		return _envelope("contact_invitation_state", "run_end_close", {"resolved_action_ids": resolved})
+	return _envelope("contact_invitation_state", "invitation_rollover", {
+		"target_day": _active_source_day() + 1,
+		"message_transaction_ids": receipt.get("child_transaction_ids", []).duplicate(),
+	})
+
+
+func _stage_id_for_transaction(snapshot: Dictionary, transaction_id: String) -> String:
+	var plan: Variant = snapshot.get("active_resolution_plan")
+	if not plan is Dictionary: return ""
+	for stage: Dictionary in plan.get("stages", []):
+		if str(stage.get("transaction_id", "")) == transaction_id:
+			return str(stage.get("stage_id", ""))
+	return ""
 
 
 ## The Contacts candidate a completing Hospital stage produces, or {} when it produces none.
@@ -513,7 +653,7 @@ func _completed_lifecycle(snapshot: Dictionary, transaction_id: String, receipt:
 		return restored
 	# The clone is also the validation seam: an illegal receipt fails here, before any checkpoint.
 	var completed: Dictionary = detached.complete_active_stage(
-		transaction_id, _plan_receipt_from_envelope(receipt))
+		transaction_id, _plan_receipt_for_snapshot(receipt, snapshot))
 	if not completed.get("ok", false):
 		return completed
 	return {"ok": true, "code": &"ok", "value": {"lifecycle": detached.to_dict()}}
@@ -523,6 +663,9 @@ func _prepared(
 		transaction_id: String, receipt: Dictionary, lifecycle: Dictionary,
 		duplicate: bool, stored_receipt: Variant
 ) -> Dictionary:
+	var signals: Array[String] = ["save_relevant_state_changed"]
+	if not duplicate and int(lifecycle.get("day", 0)) != int(_game_state.day):
+		signals.push_front("day_changed")
 	return {"ok": true, "code": &"ok", "value": {
 		"run_candidate": {
 			"transaction_id": transaction_id,
@@ -535,7 +678,7 @@ func _prepared(
 		"stage": {"transaction_id": transaction_id},
 		"publication": {
 			"transaction_id": transaction_id,
-			"signals": ["day_changed", "save_relevant_state_changed"],
+			"signals": signals,
 		},
 		"duplicate": duplicate,
 		"stored_receipt": stored_receipt,
@@ -545,10 +688,19 @@ func capture() -> Dictionary:
 	# Contacts joins the backup because the Hospital stage commits the Sylvia witness into the
 	# Contacts handoff index in the SAME transaction (Task 7 Step 7.3, dwm-p2r.14). Backing up only
 	# the lifecycle would leave a witness behind for a supersession that was rolled back.
-	return {"ok": true, "code": &"ok", "value": {"backup": {
+	var backup := {
 		"lifecycle": _game_state._run_lifecycle.to_dict(),
 		"contacts": (_game_state.contacts as Dictionary).duplicate(true),
-	}}}
+		"gameplay": _game_state.capture_run_snapshot_input()["gameplay"].duplicate(true),
+		"committed_schedule": _game_state._committed_schedule.duplicate(true),
+	}
+	if _day_view != null:
+		var view: Dictionary = _day_view.snapshot()
+		if not view.get("ok", false): return view
+		backup["schedule_view"] = view.value.view.duplicate(true)
+		backup["desktop"] = {"board": _day_board.capture(),
+			"consequence": _day_consequence.capture().value.state}
+	return {"ok": true, "code": &"ok", "value": {"backup": backup}}
 
 ## Installs the EXACT lifecycle the checkpoint recorded, rather than re-deriving the completion from
 ## live state. Re-deriving would let the durable record and the live run drift apart (dwm-7e6).
@@ -567,6 +719,12 @@ func commit(candidate: Dictionary) -> Dictionary:
 		if not validated.get("ok", false):
 			return validated
 		_game_state.contacts = (candidate["contacts"] as Dictionary).duplicate(true)
+	if candidate.has("gameplay"):
+		_game_state._apply_gameplay_silent(candidate["gameplay"])
+	if candidate.has("committed_schedule"):
+		_game_state._committed_schedule = candidate["committed_schedule"].duplicate(true)
+	var installed := _install_day_owners(candidate)
+	if not installed.get("ok", false): return installed
 	return committed
 
 func rollback(backup: Dictionary) -> Dictionary:
@@ -580,7 +738,86 @@ func rollback(backup: Dictionary) -> Dictionary:
 	# Restore BOTH owners, so a rolled-back Hospital leaves no witness behind.
 	if backup.has("contacts"):
 		_game_state.contacts = (backup["contacts"] as Dictionary).duplicate(true)
+	if backup.has("gameplay"):
+		_game_state._apply_gameplay_silent(backup["gameplay"])
+	if backup.has("committed_schedule"):
+		_game_state._committed_schedule = backup["committed_schedule"].duplicate(true)
+	var installed := _install_day_owners(backup)
+	if not installed.get("ok", false): return installed
 	return committed
+
+## The real issuer validates both the saved start and the deterministic continuation child.
+func prepare_day_advance_source(snapshot: Dictionary) -> Dictionary:
+	if _identity_issuer == null:
+		return {"ok": false, "code": &"day_advance_source_unavailable"}
+	var root: Dictionary = _identity_issuer.capture_root()
+	if not root.get("ok", false): return root
+	var source: Dictionary = preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd").schedule_day_advance_source(snapshot, root.value)
+	if not source.get("ok", false): return source
+	var start: Dictionary = snapshot.active_resolution_plan.day_resolution_start_receipt
+	var original: Dictionary = _identity_issuer.validate_child(start.receipt_provenance, &"day_resolution_stage")
+	if not original.get("ok", false): return original
+	if source.value.has("source_resolution_receipt"): return source
+	var derived: Dictionary = _identity_issuer.derive_child(source.value.derivation_request)
+	if not derived.get("ok", false): return derived
+	var checked: Dictionary = _identity_issuer.validate_child(derived.value.provenance, &"day_resolution_stage")
+	if not checked.get("ok", false): return checked
+	return {"ok": true, "value": {"source_resolution_receipt": {
+		"receipt_id": str(derived.value.child_id), "provenance": derived.value.provenance.duplicate(true)}}}
+
+func _validate_day_advance(snapshot: Dictionary, value: Dictionary) -> Dictionary:
+	if _identity_issuer == null or _day_view == null:
+		return {"ok": false, "code": &"day_advance_owners_unconfigured"}
+	var allocation: Dictionary = value.get("day_advance_identity_receipt", {})
+	var resolved := prepare_day_advance_source(snapshot)
+	if not resolved.get("ok", false): return resolved
+	var identity: Dictionary = resolved.value.source_resolution_receipt
+	if str(allocation.get("resolution_kind", "")) != "schedule_done" \
+			or allocation.get("source_resolution_receipt_id") != identity.receipt_id \
+			or allocation.get("source_resolution_receipt_provenance") != identity.provenance \
+			or allocation.get("source_resolution_receipt_sha256") != _sha256(identity):
+		return {"ok": false, "code": &"day_advance_allocation_conflict"}
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation"]:
+		if allocation.get(key) != snapshot.get(key):
+			return {"ok": false, "code": &"day_advance_allocation_conflict"}
+	if allocation.get("source_day") != snapshot.day or allocation.get("target_day") != int(snapshot.day) + 1 			or allocation.get("source_causal_day_instance") != snapshot.causal_day_instance 			or allocation.get("source_causal_day_instance_issuer_receipt") != snapshot.causal_day_instance_issuer_receipt:
+		return {"ok": false, "code": &"day_advance_allocation_conflict"}
+	for key: String in ["source_day", "target_day", "source_causal_day_instance", 			"target_causal_day_instance", "target_causal_day_instance_issuer_receipt"]:
+		if value.get(key) != allocation.get(key):
+			return {"ok": false, "code": &"day_advance_allocation_conflict"}
+	var root: Dictionary = _identity_issuer.capture_root()
+	if not root.get("ok", false): return root
+	if root.value.get("day_advance_allocation_receipts", {}).get(str(allocation.get("allocation_key", ""))) != allocation:
+		return {"ok": false, "code": &"day_advance_allocation_not_durable"}
+	return _identity_issuer.verify_issued(allocation.target_causal_day_instance_issuer_receipt, &"causal_day_instance")
+
+func _prepare_new_day_owners(value: Dictionary) -> Dictionary:
+	var view: Dictionary = DAY_VIEW.make_empty(int(value.target_day), str(value.target_causal_day_instance))
+	if not view.get("ok", false): return view
+	var live_view: Dictionary = _day_view.snapshot()
+	if not live_view.get("ok", false): return live_view
+	view.value.view.condition_departure_receipts = live_view.value.view.condition_departure_receipts.duplicate(true)
+	var consequence: Dictionary = DAY_CONSEQUENCE.make_empty({
+		"causal_day_instance": value.target_causal_day_instance,
+		"causal_day_instance_issuer_receipt": value.target_causal_day_instance_issuer_receipt})
+	if not consequence.get("ok", false): return consequence
+	return {"ok": true, "value": {"schedule_view": view.value.view,
+		"desktop": {"board": DAY_BOARD.new().capture(), "consequence": consequence.value.state},
+		"committed_schedule": {"schema_version": 1, "day": int(value.target_day),
+			"registry_fingerprint": null, "entries": [], "commit_receipt": null}}}
+
+func _install_day_owners(candidate: Dictionary) -> Dictionary:
+	if not candidate.has("desktop"): return {"ok": true}
+	if _day_view == null: return {"ok": false, "code": &"day_advance_owners_unconfigured"}
+	for pair: Array in [["board", _day_board], ["consequence", _day_consequence]]:
+		var prepared: Dictionary = pair[1].prepare_restore(candidate.desktop[pair[0]])
+		if not prepared.get("ok", false): return prepared
+		var installed: Dictionary = pair[1].commit(prepared.value.candidate)
+		if not installed.get("ok", false): return installed
+	var view: Dictionary = _day_view.install_restored_view(candidate.schedule_view)
+	if not view.get("ok", false): return view
+	_game_state._desktop_snapshot = candidate.desktop.duplicate(true)
+	return {"ok": true}
 
 func publish(publication: Dictionary) -> Dictionary:
 	if typeof(publication.get("signals")) != TYPE_ARRAY:
@@ -746,7 +983,8 @@ func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary
 		"increment_day":
 			return _envelope("run_lifecycle", "day_increment", {"source_day": day, "target_day": day + 1})
 		"reset_day_scope":
-			return _envelope("game_state", "day_scope_reset", {"target_day": day + 1, "reset_ids": []})
+			return _envelope("game_state", "day_scope_reset", {"target_day": day + 1, "reset_ids": ["motivation", "minesweeper_daily",
+					"condition_daily", "contacts_daily", "pending_dates", "committed_schedule"]})
 		"new_day_autosave":
 			return _envelope("save_manager", "disk_checkpoint_request",
 				{"save_kind": "autosave", "save_reason": "day_start"})
@@ -776,7 +1014,7 @@ func _immediate_receipt(stage_id: String, presented: bool = false) -> Dictionary
 			return _envelope("dating_ending_rules", "ending_resolution", {"ending_plan": _default_ending_plan()})
 		"enter_ending":
 			return _envelope("run_lifecycle", "enter_ending",
-				{"state": "ENDING", "primary_id": _resolved_primary_id(), "epilogue_id": null})
+				{"state": "ENDING", "primary_id": _resolved_primary_id(), "epilogue_id": _resolved_epilogue_id()})
 		"ending_autosave":
 			return _envelope("save_manager", "disk_checkpoint_request",
 				{"save_kind": "autosave", "save_reason": "ending"})
@@ -831,6 +1069,21 @@ const HOSPITAL_MISS_CHILD_KIND := &"hospital_miss"
 ##
 ## Returns {} for every stage that presents nothing, so the ordinary immediate-completion path is
 ## untouched for the great majority of stages.
+func _prepare_pair_presentation(site: Dictionary) -> Dictionary:
+	var pair_site: bool = site.get("kind") == "twofriends_if_deferred"
+	if site.get("kind") == "surviving_date":
+		pair_site = _route_plan_entry(str(site.get("schedule_entry_id", ""))).get("action_kind") == "group"
+	if not pair_site: return {"ok": true}
+	if _pair_deck == null: return {"ok": false, "code": &"pair_deck_unconfigured"}
+	# Dating freezes the portrayed form when it begins. Its checkpoint will carry this
+	# projection of the already-durable Profile receipt before any board can be played.
+	return _pair_deck.prepare_schedule(true)
+
+
+static func _pair_window_counts(window: Variant) -> bool:
+	return window is Dictionary and bool(window.get("counts", false))
+
+
 func _presentation_site(stage: Dictionary) -> Dictionary:
 	var stage_id := str(stage.get("stage_id", ""))
 	var substage_id := str(stage.get("substage_id", ""))
@@ -869,15 +1122,20 @@ func _surviving_date_site(substage_id: String) -> Dictionary:
 		"schedule_entry_id": entry_id}
 
 
-## The deferred P-L pair: the committed group entry HOSPITAL took away earlier in this same
-## resolution. Plan line 1057 -- Hospital "marks every committed date prevented_by_fainting ...
-## completes recovery, THEN permits deferred pair presentation".
+## Hospital-superseded committed groups retain their original source identity. Other visible
+## pair meetings are backed by Contacts operations, without pretending they were scheduled dates.
 func _deferred_pair_site() -> Dictionary:
-	var entry_id := _deferred_pair_entry_id()
-	if entry_id.is_empty():
-		return {}
+	var committed_id: String = _hospital_deferred_pair_entry_id()
+	if not committed_id.is_empty():
+		return {"kind": "twofriends_if_deferred", "stage_name": PAIR_STAGE,
+			"route_id": "dating", "schedule_entry_id": committed_id}
+	var preview: Dictionary = _deferred_pair_preview()
+	if preview.get("ok", false) and not bool(preview.value.get("required", false)): return {}
+	# Carry an invalid preview into admission too: missing source proof must refuse before the
+	# stage is activated, not silently turn a visible meeting into a no-op.
 	return {"kind": "twofriends_if_deferred", "stage_name": PAIR_STAGE,
-		"route_id": "dating", "schedule_entry_id": entry_id}
+		"route_id": "dating", "schedule_entry_id": str(preview.get("value", {}).get("action_id", "")),
+		"pair_preview": preview.duplicate(true)}
 
 
 ## The exact top-level `P01.day_resolution.stage` child id for `stage_id`, or "" when the plan
@@ -895,29 +1153,86 @@ static func _top_level_stage_transaction_id(plan: Dictionary, stage_id: String) 
 	return ""
 
 
-## The committed group entry this resolution's Hospital superseded, or "" when there is none.
-##
-## READ FROM THE SUPERSESSION HOSPITAL DURABLY COMMITTED, never from a live invitation field. This
-## previously read `contacts.group_action.deferred_twofriends`, a key that can never exist:
-## `group_action` is validated against an exact 9-member record shape, and the deferral marker lives
-## on the `resolve_day_end` receipt instead -- which `invitation_rollover`, a LATER stage than this
-## one, is what produces. So the pair site returned {} on every call and the variant never fired.
-##
-## Exactly symmetric with `_surviving_date_site`, which refuses a SUPERSEDED entry: this stage
-## presents precisely the group date the date stage could not, so the two variants stay mutually
-## exclusive by construction rather than by a second rule.
+## One source ID for the same visibility decision used by admission and the completion envelope.
 func _deferred_pair_entry_id() -> String:
-	var superseded := _superseded_entry_ids()
-	if superseded.is_empty():
-		return ""
+	var committed_id: String = _hospital_deferred_pair_entry_id()
+	if not committed_id.is_empty(): return committed_id
+	var preview: Dictionary = _deferred_pair_preview()
+	if not preview.get("ok", false) or not bool(preview.value.get("required", false)): return ""
+	return str(preview.value.action_id)
+
+func _hospital_deferred_pair_entry_id() -> String:
+	var superseded: Array = _superseded_entry_ids()
 	for entry_value: Variant in _active_committed_entries():
 		var entry: Dictionary = entry_value
-		if str(entry.get("action_kind", "")) != "group":
-			continue
-		var entry_id := str(entry.get("schedule_entry_id", ""))
-		if entry_id in superseded:
-			return entry_id
+		if str(entry.get("action_kind", "")) == "group" \
+				and str(entry.get("schedule_entry_id", "")) in superseded:
+			return str(entry.schedule_entry_id)
 	return ""
+
+## Pure preview only. Invitation rollover still owns the one closure receipt, count and message
+## batch. Its frozen transaction ID makes this preview byte-identical to that later preparation.
+func _deferred_pair_preview() -> Dictionary:
+	var plan: Dictionary = _active_plan()
+	var day: int = int(plan.get("source_day", 0))
+	if day not in [2, 6]: return {"ok": true, "value": {"required": false}}
+	var contacts: Dictionary = _game_state.contacts
+	var checked: Dictionary = CONTACT_STATE.validate_state(contacts)
+	if not checked.get("ok", false): return checked
+	var rollover_id: String = _top_level_stage_transaction_id(plan, "invitation_rollover")
+	if rollover_id.is_empty(): return {"ok": false, "code": &"pair_closure_source_unavailable"}
+	var prepared: Dictionary = _prepare_contacts_day_end(rollover_id)
+	if not prepared.get("ok", false): return prepared
+	var window: Variant = prepared.receipt.get("pl_window")
+	if not window is Dictionary or not bool(window.get("visible", false)) \
+			or str(window.get("outcome", "")) not in ["missed", "private_visible"]:
+		return {"ok": true, "value": {"required": false}}
+	var group: Dictionary = contacts.group_action
+	var action_id: String = str(group.get("action_id", ""))
+	var activation_id: String = str(group.get("transaction_id", ""))
+	var activation: Variant = contacts.transaction_receipts.get(activation_id)
+	if group.get("day") != day or not activation is Dictionary \
+			or activation.get("kind") != "activate_group" or activation.get("action_id") != action_id \
+			or activation.get("day") != day or activation.get("transaction_id") != activation_id:
+		return {"ok": false, "code": &"pair_activation_source_unavailable"}
+	var source_ids: Array = [action_id, activation_id]
+	# Activation has a persisted operation identity but its existing schema has no issuer receipt.
+	# Open/reply operations do carry receipts: verify those instead of claiming the missing proof.
+	for operation: Dictionary in contacts.transaction_receipts.values():
+		if operation.get("action_id") != action_id or operation.get("day") != day \
+				or operation.get("kind") not in ["open_group_first", "open_group_second", "reply_group"]: continue
+		if _identity_issuer == null: return {"ok": false, "code": &"pair_source_issuer_unavailable"}
+		var verified: Dictionary = _identity_issuer.verify_issued(operation.command_issuer_receipt,
+			ROOT_PURPOSE)
+		if not verified.get("ok", false): return verified
+		source_ids.append(str(operation.transaction_id))
+		if operation.has("source_receipt_id"):
+			var source: Dictionary = contacts.schedule_source_receipts[str(operation.source_receipt_id)]
+			var proven: Dictionary = _identity_issuer.validate_child(source.receipt_provenance, &"contact_source")
+			if not proven.get("ok", false): return proven
+			source_ids.append(str(operation.source_receipt_id))
+	# Bind actual attendance/supersession evidence as well as the invitation's operation history.
+	for stage: Dictionary in plan.get("stages", []):
+		if stage.get("stage_id") == "hospital_if_triggered" and stage.get("state") == "completed":
+			source_ids.append(str(stage.transaction_id))
+		if stage.get("stage_id") != "execute_schedule_dates": continue
+		for substage: Dictionary in stage.get("substages", []):
+			if substage.get("state") == "completed": source_ids.append(str(substage.transaction_id))
+	return {"ok": true, "value": {"required": true, "action_id": action_id,
+		"source_day": day, "resolution_id": str(plan.get("resolution_id", "")),
+		"input_receipt_ids": _id_list(source_ids), "closure_receipt": prepared.receipt.duplicate(true)}}
+
+## A presentation admission must use the detached preview it started with. A changed source
+## between site selection and identity derivation is refused, rather than authorizing new bytes.
+func _validated_pair_preview(site: Dictionary) -> Dictionary:
+	var preview: Variant = site.get("pair_preview")
+	if not preview is Dictionary or not preview.get("ok", false):
+		return preview if preview is Dictionary else {"ok": false, "code": &"pair_source_unavailable"}
+	var current: Dictionary = _deferred_pair_preview()
+	if current != preview or not bool(current.get("value", {}).get("required", false)) \
+			or str(site.get("schedule_entry_id", "")) != str(current.value.get("action_id", "")):
+		return {"ok": false, "code": &"pair_source_changed"}
+	return current
 
 
 ## Builds the exact port `begin()` request for one presentation site: the `P01.presentation.intent`
@@ -1050,6 +1365,11 @@ func _presentation_context(site: Dictionary, plan: Dictionary,
 		var miss_ids := _id_list(hospital_rows["hospital_miss_receipt_ids"] as Array)
 		return {"kind": "hospital", "day": day, "source_entry_ids": source_entry_ids,
 			"miss_receipt_ids": miss_ids}
+	if site.has("pair_preview"):
+		var preview: Dictionary = _validated_pair_preview(site)
+		if not preview.get("ok", false): return {}
+		return {"kind": "twofriends_if_deferred", "day": day,
+			"schedule_entry_id": str(preview.value.action_id), "participants": PAIR_PARTICIPANTS.duplicate()}
 	var entry := _committed_entry(str(site["schedule_entry_id"]))
 	if entry.is_empty():
 		return {}
@@ -1095,6 +1415,11 @@ func _presentation_inputs(site: Dictionary, hospital_rows: Dictionary) -> Dictio
 		var ids: Array = [str(hospital_rows["condition_receipt_id"])]
 		ids.append_array(hospital_rows["hospital_miss_receipt_ids"] as Array)
 		return {"ok": true, "code": &"ok", "value": {"input_receipt_ids": _id_list(ids)}}
+	if site.has("pair_preview"):
+		var preview: Dictionary = _validated_pair_preview(site)
+		if not preview.get("ok", false): return preview
+		return {"ok": true, "code": &"ok", "value": {
+			"input_receipt_ids": preview.value.input_receipt_ids.duplicate()}}
 	var entry := _committed_entry(str(site["schedule_entry_id"]))
 	if entry.is_empty():
 		return {"ok": false, "code": &"invalid_presentation_intent",
@@ -1510,18 +1835,71 @@ func _active_commit_receipt_id() -> Variant:
 	return (plan as Dictionary).get("schedule_commit_receipt_id")
 
 
+## Pure terminal admission source: every Day-7 stage must already be durable, and the
+## retained provenance owner reproduces the exact checkpointed receipt from persisted inputs.
+func prepare_terminal_ending_source() -> Dictionary:
+	var snapshot: Dictionary = _game_state._run_lifecycle.to_dict()
+	var plan: Variant = snapshot.get("active_resolution_plan")
+	if int(snapshot.get("day", 0)) != 7 or str(snapshot.get("state", "")) != "PLAYING" \
+			or not plan is Dictionary or int(plan.get("source_day", 0)) != 7:
+		return {"ok": false, "code": &"day7_terminal_source_unavailable"}
+	var stored: Dictionary = {}
+	for stage: Dictionary in plan.get("stages", []):
+		if str(stage.get("state", "")) != "completed":
+			return {"ok": false, "code": &"day7_resolution_incomplete"}
+		if str(stage.get("stage_id", "")) == "checkpoint_day7_provenance":
+			stored = stage.get("receipt", {}).get("value", {}).duplicate(true)
+	if stored.is_empty(): return {"ok": false, "code": &"day7_terminal_source_unavailable"}
+	var handoff := _day7_handoff()
+	if not handoff.get("ok", false): return handoff
+	var proof: Dictionary = handoff.value.terminal_provenance
+	var expected := {"cause": str(proof.cause), "schedule_commit_receipt_id": proof.schedule_commit_receipt_id,
+		"day7_provenance_receipt_id": str(proof.receipt_id),
+		"day7_provenance_receipt_provenance": proof.receipt_provenance.duplicate(true)}
+	if stored != expected:
+		return {"ok": false, "code": &"day7_terminal_source_conflict"}
+	return {"ok": true, "value": {"source_kind": "schedule_done", "terminal_provenance": proof.duplicate(true)}}
+
+
 func _resolved_primary_id() -> String:
-	var route_context: Dictionary = _game_state.route_context
-	return str(route_context.get("ending_id", "ending.alone"))
+	return str(_default_ending_plan().get("ending_id", ""))
+
+
+func _resolved_epilogue_id() -> Variant:
+	var ending_id := str(_default_ending_plan().get("epilogue_ending_id", ""))
+	return null if ending_id.is_empty() else ending_id
+
 
 func _default_ending_plan() -> Dictionary:
-	return {
-		"ending_id": _resolved_primary_id(),
-		"epilogue_ending_id": "",
-		"source_day": 7,
-		"playback_stage": "PRIMARY_PENDING",
-		"playback_receipts": {},
-	}
+	var resolved := _resolved_ending_plan_from_snapshot(_game_state._run_lifecycle.to_dict())
+	if not resolved.is_empty(): return resolved
+	return _game_state.get_frozen_ordered_ending_plan()
+
+
+static func _resolved_ending_plan_from_snapshot(snapshot: Dictionary) -> Dictionary:
+	var plan: Variant = snapshot.get("active_resolution_plan")
+	if not plan is Dictionary: return {}
+	for stage: Dictionary in plan.get("stages", []):
+		if str(stage.get("stage_id", "")) == "resolve_ending_plan" and str(stage.get("state", "")) == "completed":
+			return (stage.get("receipt", {}).get("value", {}).get("ending_plan", {}) as Dictionary).duplicate(true)
+	return {}
+
+
+static func _plan_receipt_for_snapshot(envelope: Dictionary, snapshot: Dictionary) -> Dictionary:
+	if str(envelope.get("kind", "")) != "enter_ending":
+		return _plan_receipt_from_envelope(envelope)
+	var frozen := _resolved_ending_plan_from_snapshot(snapshot)
+	if frozen.is_empty():
+		return {"value": {"ending_plan": {}}}
+	var value: Dictionary = envelope.value
+	var epilogue := str(value.epilogue_id) if value.get("epilogue_id") != null else ""
+	if str(value.get("primary_id", "")) != str(frozen.get("ending_id", "")) \
+			or epilogue != str(frozen.get("epilogue_ending_id", "")):
+		return {"value": {"ending_plan": {}}}
+	# The envelope stays closed. The already durable resolution receipt owns the complete
+	# ordered steps and cursor; reconstructing five legacy keys here discarded its branches.
+	return {"value": {"ending_plan": frozen}}
+
 
 static func _envelope(owner_id: String, kind: String, value: Dictionary) -> Dictionary:
 	return {"owner_id": owner_id, "kind": kind, "value": value}
@@ -1530,7 +1908,9 @@ static func _plan_receipt_from_envelope(envelope: Dictionary) -> Dictionary:
 	var value: Dictionary = envelope["value"]
 	match str(envelope["kind"]):
 		"day_increment":
-			return {"value": {"day": int(value["target_day"])}}
+			var projected := value.duplicate(true)
+			projected["day"] = int(value["target_day"])
+			return {"value": projected}
 		"enter_ending":
 			var epilogue: Variant = value.get("epilogue_id")
 			return {"value": {"ending_plan": {
@@ -1541,3 +1921,38 @@ static func _plan_receipt_from_envelope(envelope: Dictionary) -> Dictionary:
 				"playback_receipts": {},
 			}}}
 	return {"value": value.duplicate(true)}
+
+
+## A detached candidate joins the existing outcome-stage checkpoint. No condition signal or
+## gameplay field changes before that checkpoint commits; completed-stage replay skips it.
+static func _prepare_schedule_condition_gameplay(gameplay: Dictionary, day: int) -> Dictionary:
+	var candidate := gameplay.duplicate(true)
+	if day >= 7 or int(candidate.get("condition_resolved_day", 0)) == day: return candidate
+	var pressure := int(candidate.stats.pressure)
+	var health := int(candidate.stats.health)
+	var carried: bool = "sequela" in candidate.condition_effects_today
+	var danger: bool = pressure >= 10 or health <= 0
+	var triggered := carried and danger
+	var condition := "none"
+	var penalty := 0
+	if danger:
+		condition = "dizzy" if pressure >= 10 and health <= 0 else "nausea"
+		penalty = mini(maxi(0, pressure - 9) + maxi(0, 1 - health), 6)
+		candidate.penalty_points_today = penalty
+		candidate.penalty_points_total = mini(int(candidate.penalty_points_total) + penalty, 42)
+		candidate.stats.pressure = mini(pressure, 9)
+		candidate.stats.health = maxi(health, 1)
+		candidate.condition_streak_days = 1
+		candidate.condition_effects_today.append(condition)
+	if triggered: candidate.condition_effects_today.append("faint")
+	candidate.pending_hospital = triggered
+	candidate.condition_resolved_day = day
+	if triggered:
+		candidate.route_context["provisional_hospital_resolution"] = {
+			"required": true, "branch": "code_only",
+			"recovery": preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd").HOSPITAL_RECOVERY.duplicate(true),
+			"condition_input": {"day": day, "pressure": pressure, "health": health, "carried_sequela": carried},
+		}
+	else:
+		candidate.route_context.erase("provisional_hospital_resolution")
+	return candidate

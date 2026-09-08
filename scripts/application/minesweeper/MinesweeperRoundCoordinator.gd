@@ -1,5 +1,7 @@
 extends RefCounted
 
+const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
+
 ## Application-level desktop Minesweeper round coordinator (Plan 02 Task 5, dwm-p2r.32,
 ## req.minesweeper.round_contract). Deliberately WITHOUT class_name: the global name
 ## `MinesweeperRoundCoordinator` is owned by the frozen, retained
@@ -101,6 +103,8 @@ var _round_consequence_state_port: Object = null
 var _round_checkpoint_port: Object = null
 var _consequence_gate_token := ""
 var _round_completions: Dictionary = {}
+var _reward_port: Object = null
+var _source_checkpoint_capture := Callable()
 ## dwm-p2r.35.7 remediation (findings 1 and 2): the exact accept_prepared_action() request this same
 ## process retained when it first durably wrote ordinal 0 for a transaction -- mirrors
 ## MinesweeperShopPurchaseParticipant's own `participant_snapshot_ids` retention pattern, adapted to
@@ -110,7 +114,25 @@ var _round_completions: Dictionary = {}
 ## prepare_action_handoff() cannot run a second time) -- a genuinely fresh process has nothing here to
 ## replay, which is resume_pending()'s own separate job, not complete_round()'s.
 var _round_pending_admission_requests: Dictionary = {}
+var _round_request_fingerprints: Dictionary = {}
 var _round_recovery_committed: Dictionary = {}
+
+
+func configure_source_checkpoint_capture(capture_inputs: Callable) -> Dictionary:
+	if not capture_inputs.is_valid(): return _fail(&"invalid_source_checkpoint_capture", "", {})
+	if _source_checkpoint_capture.is_valid() and _source_checkpoint_capture != capture_inputs:
+		return _fail(&"source_checkpoint_capture_already_configured", "", {})
+	_source_checkpoint_capture = capture_inputs
+	return {"ok": true}
+
+
+func configure_reward_port(port: Object) -> Dictionary:
+	if port == null or not _has_all_methods(port, ["prepare_complete", "commit_desktop_completion", "publish_desktop_completion"]):
+		return _fail(&"invalid_reward_port", "", {})
+	if _reward_port != null and _reward_port != port:
+		return _fail(&"reward_port_already_configured", "", {})
+	_reward_port = port
+	return {"ok": true}
 
 
 func _init() -> void:
@@ -243,7 +265,13 @@ func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint
 ## `condition_after` mirror the Shop participant's own health/pressure/carried_sequela pattern via
 ## `GameStateDesktopBoardPort`'s matching Task-8 extension.
 func complete_round(request: Dictionary) -> Dictionary:
-	var guard := _guard(&"complete_round")
+	var retry_id := str(request.get("transaction_id", ""))
+	var own_retry := _consequence_gate_token != "" and _consequence_gate != null \
+		and _consequence_gate.is_internal_owner_active(_GATE_OWNER) \
+		and _round_pending_admission_requests.has(retry_id)
+	if own_retry and str(_round_request_fingerprints.get(retry_id, "")) != _fingerprint(request):
+		return _fail(&"transaction_conflict", "completion retry must retain its original request", {})
+	var guard := {} if own_retry else _guard(&"complete_round")
 	if not guard.is_empty():
 		return guard
 	if _consequence_coordinator == null or _consequence_gate == null:
@@ -320,10 +348,40 @@ func complete_round(request: Dictionary) -> Dictionary:
 		"transaction_id": transaction_id, "outcome": outcome, "identity": identity.duplicate(true),
 		"board_projection": board_projection,
 	}
+	if _reward_port != null:
+		var reasons: Array = PERFORMANCE.perfect_reasons(live_board)
+		var reward_outcome: String = "perfect" if not reasons.is_empty() else outcome
+		var reward: Dictionary = _reward_port.prepare_complete({
+			"context": "app", "difficulty": str(paid_start_receipt.get("difficulty_id", "")),
+			"round_id": str(paid_start_receipt.get("receipt_id", "")),
+		}, {"outcome": reward_outcome, "perfect_reasons": reasons}, transaction_id)
+		if not reward.get("ok", false):
+			if acquired_fresh: release_recovery_lease()
+			return reward
+		action_candidate["reward"] = reward.value.duplicate(true)
+	# Freeze the complete owning run before admission; the first-reveal save can be older
+	# than intervening Contacts, Shop, Schedule and terminal board actions.
+	if _source_checkpoint_capture.is_valid():
+		var source_inputs: Dictionary = _source_checkpoint_capture.call(live_consequence.duplicate(true))
+		if not source_inputs.get("ok", false):
+			if acquired_fresh: release_recovery_lease()
+			return source_inputs
+		var source_prepared: Dictionary = _round_checkpoint_port.prepare(source_inputs.value.checkpoint_inputs,
+			&"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+		if not source_prepared.get("ok", false):
+			if acquired_fresh: release_recovery_lease()
+			return source_prepared
+		var source_committed: Dictionary = _round_checkpoint_port.commit(source_prepared.value.candidate)
+		if not source_committed.get("ok", false):
+			if acquired_fresh: release_recovery_lease()
+			return source_committed
+		var source_snapshot: Dictionary = source_prepared.value.candidate.autosave_document.current_snapshot.snapshot
+		action_candidate["source_checkpoint"] = {"checkpoint_id": source_snapshot.checkpoint_id,
+			"snapshot_sha256": _canonical_sha256(source_snapshot)}
 	var action_candidate_sha256 := _canonical_sha256(action_candidate)
 
 	var built_receipt := _build_round_action_receipt(transaction_id, request["transaction_issuer_receipt"],
-		identity, paid_start_receipt, action_candidate_sha256)
+		identity, paid_start_receipt, action_candidate_sha256, action_candidate.get("reward", {}))
 	if not built_receipt.get("ok", false):
 		if acquired_fresh:
 			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
@@ -388,6 +446,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 	# accept_prepared_action() call without recomputing action_candidate/action_receipt/checkpoint
 	# receipt -- prepare_action_handoff() above can never run a second time for this transaction_id.
 	_round_pending_admission_requests[transaction_id] = accept_request.duplicate(true)
+	_round_request_fingerprints[transaction_id] = fingerprint
 	return _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
 
 
@@ -474,6 +533,11 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	if not _consequence_gate.is_internal_owner_active(_GATE_OWNER):
 		return _fail(&"causal_transaction_lease_required", "commit_recovery_action requires the active causal_transaction lease", {})
 
+	if action_candidate.has("reward"):
+		if _reward_port == null: return _fail(&"reward_port_not_configured", "", {})
+		var applied: Dictionary = _reward_port.commit_desktop_completion(action_candidate.reward.prepared_candidate)
+		if not applied.get("ok", false): return applied
+
 	var board_projection: Dictionary = action_candidate["board_projection"]
 	var prepared_restore: Dictionary = _board_state.prepare_restore(board_projection)
 	if not prepared_restore.get("ok", false):
@@ -536,6 +600,13 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	})
 	if not recorded.get("ok", false):
 		return recorded
+	if bool(recorded.get("value", {}).get("first_delivery", false)):
+		var committed: Dictionary = _round_recovery_committed.get(str(receipt.transaction_id), {})
+		var reward: Dictionary = committed.get("action_candidate", {}).get("reward", {})
+		if not reward.is_empty():
+			var published: Dictionary = _reward_port.publish_desktop_completion(
+				reward.prepared_domain_receipt, reward.domain_events)
+			if not published.get("ok", false): return published
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
 
 
@@ -990,7 +1061,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		"spec": spec, "request_fingerprint": fingerprint,
 	}
 	var board_prepared := _board_state.prepare_first_reveal(board_input, {"layout": layout, "board": board},
-		{"checkpoint_id": expected_checkpoint_id})
+		receipt)
 	if not board_prepared.get("ok", false):
 		return board_prepared
 	var board_candidate: Dictionary = (board_prepared["value"] as Dictionary)["candidate"]
@@ -1284,7 +1355,7 @@ func _project_completion_board(identity: Dictionary, captured: Dictionary, outco
 ## extension, falling back to zero/false only when a narrower test double omits them (see the class
 ## doc's SCOPE NOTE).
 func _build_round_action_receipt(transaction_id: String, transaction_issuer_receipt: Dictionary,
-		identity: Dictionary, paid_start_receipt: Dictionary, action_candidate_sha256: String) -> Dictionary:
+		identity: Dictionary, paid_start_receipt: Dictionary, action_candidate_sha256: String, reward: Dictionary = {}) -> Dictionary:
 	var facts: Dictionary = {}
 	var state_captured: Dictionary = _state_port.call(&"capture")
 	if state_captured.get("ok", false):
@@ -1293,6 +1364,16 @@ func _build_round_action_receipt(transaction_id: String, transaction_issuer_rece
 		"health": int(facts.get("health", 0)), "pressure": int(facts.get("pressure", 0)),
 		"carried_sequela": bool(facts.get("carried_sequela", false)),
 	}
+	var condition_after := condition.duplicate(true)
+	var unlock_receipt_ids: Array = []
+	if not reward.is_empty():
+		var stats: Dictionary = reward.prepared_candidate.gameplay.stats
+		condition_after.health = int(stats.health)
+		condition_after.pressure = int(stats.pressure)
+		unlock_receipt_ids = reward.prepared_domain_receipt.message_transaction_ids.duplicate()
+		var group_id: Variant = reward.prepared_domain_receipt.group_activation_transaction_id
+		if group_id != null: unlock_receipt_ids.append(str(group_id))
+		unlock_receipt_ids.sort()
 	# The Task-5 fake-checkpoint reveal() path (this coordinator's own _first_reveal(), used whenever
 	# configure_durable_checkpoint() is unconfigured) stores only {"checkpoint_id":...} as the board's
 	# retained paid_start_receipt, not the full board_start receipt _first_reveal_durable() carries;
@@ -1305,8 +1386,8 @@ func _build_round_action_receipt(transaction_id: String, transaction_issuer_rece
 		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
 		"source_commit_receipt_id": source_commit_receipt_id,
 		"source_commit_receipt_provenance": (paid_start_receipt.get("receipt_provenance", {}) as Dictionary).duplicate(true),
-		"condition_before": condition.duplicate(true), "condition_after": condition.duplicate(true),
-		"unlock_receipt_ids": [],
+		"condition_before": condition.duplicate(true), "condition_after": condition_after,
+		"unlock_receipt_ids": unlock_receipt_ids,
 	}
 	var derived: Dictionary = _identity_issuer.call(&"derive_child", {
 		"child_kind": "desktop_action", "ordinal": 0,

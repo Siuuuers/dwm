@@ -197,7 +197,7 @@ func test_initialization_canonicalizes_alias_and_removed_locale_to_durable_value
 		assert_eq(manager.get_locale(), case[1])
 		assert_eq(migrated_profile.get_preference(&"preferences.language.primary_locale_id"), case[1])
 		var snapshot: Dictionary = migrated_profile.get_profile_snapshot()
-		assert_eq(snapshot["schema_version"], 4)
+		assert_eq(snapshot["schema_version"], 5)
 		assert_eq(snapshot["legacy_preferences_v1"]["language"], case[0])
 		# The canonical result survives another real Profile load from the same storage.
 		var restarted: Node = autofree(_profile_script.new())

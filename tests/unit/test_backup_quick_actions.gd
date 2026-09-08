@@ -5,7 +5,7 @@ const PORT := preload("res://scripts/application/backup/BackupPresentationPort.g
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
-const FIXTURE := "res://tests/fixtures/saves/v5_desktop_prepared.json"
+const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
 
 # Only restore compatibility/execution is doubled. Journal, file revision, token
 # custody, Quick policy and atomic writes remain the production SaveManager.
@@ -36,6 +36,17 @@ class Capture extends RefCounted:
 	func capture() -> Dictionary:
 		return result.duplicate(true)
 
+class PausedDesktopAdmission extends RefCounted:
+	var expected: Dictionary = {}
+	var allowed: Variant = true
+	var calls: Array[Dictionary] = []
+	var mutate_argument := false
+	func admit(inputs: Dictionary) -> Variant:
+		calls.append(inputs.duplicate(true))
+		var exact: bool = inputs == expected
+		if mutate_argument: inputs["active_app_id"] = "backup"
+		return allowed if exact else false
+
 class Admission extends RefCounted:
 	var allowed := true
 	func guard() -> Dictionary:
@@ -62,11 +73,14 @@ func after_each() -> void:
 	_manager.free()
 
 func _seed() -> void:
-	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
-	snapshot["gameplay"]["money"] = 0
+	var fixture: Dictionary = SNAPSHOT_FIXTURE.make_snapshot()
+	assert_true(fixture.get("ok", false), str(fixture))
+	if not fixture.get("ok", false): return
+	var snapshot: Dictionary = fixture["value"]["candidate"]
 	_manager._journal.reset(snapshot["run_id"])
 	var prepared: Dictionary = _manager._journal.prepare_record(snapshot, &"day_start")
-	assert_true(prepared.get("ok", false))
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
 	assert_true(_manager._journal.commit_prepared(prepared["value"]["candidate"]).get("ok", false))
 
 func _save_quick() -> void:
@@ -216,3 +230,104 @@ func test_title_and_refused_source_cannot_prepare_or_commit_quick() -> void:
 	assert_eq(guarded.commit_action(prepared.value.token).status_key, "unavailable")
 	assert_true(_manager._backup_actions.is_empty())
 	assert_false(storage.exists("quicksave.json"))
+
+
+func _paused_desktop_capture() -> Capture:
+	var snapshot: Dictionary = SNAPSHOT_FIXTURE.make_snapshot().value.candidate
+	var snapshot_input := {}
+	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating",
+			"schedule_view", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
+		snapshot_input[key] = snapshot[key].duplicate(true)
+	var capture := Capture.new()
+	capture.result = {"ok": true, "value": {"snapshot_input": snapshot_input,
+		"route_id": "main", "active_app_id": "minesweeper", "dialogic_checkpoint": {},
+		"audio_context": {}, "content_version": 1}}
+	return capture
+
+func test_main_minesweeper_without_paused_admission_refuses_before_save_candidate_or_write() -> void:
+	var capture := _paused_desktop_capture()
+	assert_true(_manager.configure_backup_capture_provider(capture.capture).ok)
+	var persisted: Dictionary = files.snapshot_persisted()
+	var journal: Dictionary = _manager._journal.capture_state()
+	var sequence: int = _manager._backup_action_sequence
+	assert_eq(_manager.prepare_backup_action("save", "quick").code, &"backup_capture_unavailable")
+	assert_eq(_manager._backup_action_sequence, sequence)
+	assert_true(_manager._backup_actions.is_empty())
+	assert_eq(_manager._journal.capture_state(), journal)
+	assert_eq(files.snapshot_persisted(), persisted)
+	var late_guard := PausedDesktopAdmission.new()
+	late_guard.expected = capture.result.value.duplicate(true)
+	assert_eq(_manager.configure_backup_capture_provider(capture.capture, late_guard.admit).code,
+		&"backup_capture_already_configured", "binding without an exception cannot be upgraded later")
+
+func test_exact_paused_capture_admission_saves_real_app_and_callback_receives_only_detached_inputs() -> void:
+	var capture := _paused_desktop_capture()
+	var admission := PausedDesktopAdmission.new()
+	admission.expected = capture.result.value.duplicate(true)
+	admission.mutate_argument = true
+	assert_true(_manager.configure_backup_capture_provider(capture.capture, admission.admit).ok)
+	var persisted: Dictionary = files.snapshot_persisted()
+	var prepared: Dictionary = _manager.prepare_backup_action("save", "quick")
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_eq(files.snapshot_persisted(), persisted)
+	var saved_candidate: Dictionary = _manager._backup_actions[prepared.value.token].document.current_snapshot.snapshot
+	assert_eq(saved_candidate.route_id, "main")
+	assert_eq(saved_candidate.active_app_id, "minesweeper", "Pause never relabels the source as Backup")
+	assert_true(_manager.commit_backup_action(prepared.value.token).ok)
+	assert_gte(admission.calls.size(), 2, "owner rechecks exact capture at prepare and commit")
+	for inputs: Dictionary in admission.calls: assert_eq(inputs, admission.expected)
+	assert_eq(capture.result.value, admission.expected)
+	var current: Dictionary = _manager.get_latest_stable_checkpoint().value.bundle.snapshot
+	assert_eq(current.active_app_id, "minesweeper")
+	assert_true(storage.exists("quicksave.json"))
+
+func test_wrong_false_and_stale_paused_admission_refuse_without_candidate_or_durable_change() -> void:
+	var capture := _paused_desktop_capture()
+	var admission := PausedDesktopAdmission.new()
+	admission.expected = capture.result.value.duplicate(true)
+	assert_true(_manager.configure_backup_capture_provider(capture.capture, admission.admit).ok)
+	var persisted: Dictionary = files.snapshot_persisted()
+	var journal: Dictionary = _manager._journal.capture_state()
+	for refused: Variant in [false, {"ok": true}, 1, "true"]:
+		admission.allowed = refused
+		assert_eq(_manager.prepare_backup_action("save", "quick").code, &"backup_capture_unavailable")
+		assert_true(_manager._backup_actions.is_empty())
+		assert_eq(_manager._backup_action_sequence, 0)
+	admission.allowed = true
+	admission.expected["active_app_id"] = "contacts"
+	assert_eq(_manager.prepare_backup_action("save", "quick").code, &"backup_capture_unavailable")
+	admission.expected = capture.result.value.duplicate(true)
+	var prepared: Dictionary = _manager.prepare_backup_action("save", "quick")
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	# The callback represents retained Pause ownership, which may go stale after consent.
+	admission.allowed = false
+	assert_eq(_manager.commit_backup_action(prepared.value.token).code, &"backup_capture_unavailable")
+	assert_true(_manager._backup_actions.is_empty())
+	assert_eq(_manager._journal.capture_state(), journal)
+	assert_eq(files.snapshot_persisted(), persisted)
+	admission.allowed = true
+	prepared = _manager.prepare_backup_action("save", "quick")
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	capture.result["value"]["snapshot_input"]["gameplay"]["money"] += 1
+	assert_eq(_manager.commit_backup_action(prepared.value.token).code, &"backup_capture_unavailable")
+	assert_eq(_manager._journal.capture_state(), journal)
+	assert_eq(files.snapshot_persisted(), persisted)
+
+func test_paused_capture_provider_and_guard_are_immutable_and_guard_arity_is_checked() -> void:
+	var capture := _paused_desktop_capture()
+	var other := _paused_desktop_capture()
+	var admission := PausedDesktopAdmission.new()
+	admission.expected = capture.result.value.duplicate(true)
+	var replacement := PausedDesktopAdmission.new()
+	replacement.expected = admission.expected.duplicate(true)
+	assert_eq(_manager.configure_backup_capture_provider(capture.capture, capture.capture).code,
+		&"invalid_backup_capture_provider", "zero-argument capture is not an exact-input admission")
+	assert_true(_manager.configure_backup_capture_provider(capture.capture, admission.admit).ok)
+	assert_true(_manager.configure_backup_capture_provider(capture.capture, admission.admit).ok)
+	assert_eq(_manager.configure_backup_capture_provider(other.capture, admission.admit).code, &"backup_capture_already_configured")
+	assert_eq(_manager.configure_backup_capture_provider(capture.capture, replacement.admit).code, &"backup_capture_already_configured")
+	assert_eq(_manager.configure_backup_capture_provider(capture.capture).code, &"backup_capture_already_configured")
+	assert_true(_manager._capture_backup_inputs().ok, "refused replacement leaves the original binding usable")

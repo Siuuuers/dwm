@@ -176,4 +176,4 @@ func _public_fixture() -> Dictionary:
 	return {"board":projected.value,"register":{"difficulty":"expert","rounds":1,"mine_estimate":projected.value.mine_estimate,
 		"foresight":null,"no_flag":"lost","custody":false,"difficulty_enabled":[]},
 		"assignments":[false,false,false,false,false,false,false,false,false],
-		"actions":["reveal","flag","drag","assignments","rules"]}
+		"actions":["reveal","flag","drag","assignments","rules"],"settled":false}

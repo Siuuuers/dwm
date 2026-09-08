@@ -20,6 +20,7 @@ const DAY7_PROVENANCE := preload("res://scripts/domain/schedule/Day7ScheduleProv
 const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const SCHEDULE_COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
 const SCHEDULE_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
+const SCHEDULE_RESTORE_FIXTURE := preload("res://tests/support/ScheduleRestoreFixture.gd")
 
 var _root := ""
 var _manager: Node
@@ -32,29 +33,38 @@ func before_each() -> void:
 	_manager = SAVE_MANAGER.new()
 	add_child_autofree(_manager)
 	_manager.initialize(STORAGE.new(_root))
-	# Real six-participant wiring so a restore genuinely prepares plans rather than failing with
+	# Real nine-participant wiring so a restore genuinely prepares plans rather than failing with
 	# TRANSACTION_PARTICIPANTS_NOT_CONFIGURED (dwm-7e6 repair).
 	_manager.configure_mutation_gate(GATE.new())
 	# The real participants delegate to live autoloads, so those must be initialized too -- in
 	# ApplicationBootstrap's dependency order (profile -> localization -> input -> accessibility ->
 	# audio -> dialogic), because each later manager reads the profile the earlier ones established.
 	_initialize_live_autoloads()
-	_manager.configure_restore_participants({
+	var schedule_restore: Dictionary = SCHEDULE_RESTORE_FIXTURE.create(_identity_issuer())
+	assert_true(schedule_restore.get("ok", false), "schedule-view restore fixture configured")
+	var lifecycle: Dictionary = GameState._run_lifecycle.to_dict()
+	assert_true(schedule_restore["value"]["view"].open_day(
+		int(lifecycle["day"]), str(lifecycle["causal_day_instance"])).get("ok", false),
+		"schedule-view fixture opened on the live lifecycle day")
+	var restore_configured: Dictionary = _manager.configure_restore_participants({
 		"run": preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(GameState),
 		# Plan 02 Task 6 (dwm-p2r.32), Phase C2: forced ripple -- SaveManager.configure_restore_
-		# participants() now requires all 8 of DesktopContinuationOperationJournal.PARTICIPANT_ORDER.
+		# participants() requires all 9 of DesktopContinuationOperationJournal.PARTICIPANT_ORDER.
 		# This suite only calls prepare_restore_autosave() (never commit_prepared_restore()), so real,
 		# freshly-constructed DesktopConsequenceState/DesktopBoardState instances suffice here.
 		"desktop_consequence": preload("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd")
 			.new(preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()),
 		"desktop_board": preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd")
 			.new(preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()),
+		"schedule_view": schedule_restore["value"]["participant"],
 		"profile": preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(ProfileManager),
 		"localization": preload("res://scripts/application/restore/LocalizationRestoreParticipant.gd").new(LocalizationManager),
 		"audio": preload("res://scripts/application/restore/AudioRestoreParticipant.gd").new(AudioManager),
 		"route": preload("res://scripts/application/restore/RouteRestoreParticipant.gd").new(SceneRouter),
 		"narrative": preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd").new(DialogicBridge),
 	})
+	assert_true(restore_configured.get("ok", false),
+		"all nine restore participants configured: " + str(restore_configured))
 
 
 ## Brings the live autoloads the restore participants delegate to into a genuinely initialized
@@ -286,7 +296,7 @@ func test_persisted_snapshot_is_restorable_by_the_save_manager() -> void:
 	if not prepared.get("ok", false):
 		return
 	var plans := _participant_plans(prepared)
-	for participant in ["run", "profile", "localization", "audio", "route", "narrative"]:
+	for participant in ["run", "schedule_view", "profile", "localization", "audio", "route", "narrative"]:
 		assert_true(plans.has(participant), "every participant prepared a plan: " + participant)
 	var snapshot := _restored_snapshot(prepared)
 	assert_eq(str(snapshot.get("run_id", "")), str(GameState._run_lifecycle.to_dict()["run_id"]),

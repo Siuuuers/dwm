@@ -107,6 +107,8 @@ class FakeRoundSource:
 		}}, "receipt": {}}
 
 	func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+		if gate != null and not gate.is_internal_owner_active(&"causal_transaction"):
+			return {"ok": false, "code": &"causal_transaction_lease_required"}
 		if board_state != null and typeof(action_candidate.get("board_projection")) == TYPE_DICTIONARY:
 			var prepared_restore: Dictionary = board_state.call(&"prepare_restore", action_candidate["board_projection"])
 			if not prepared_restore.get("ok", false):
@@ -145,6 +147,16 @@ class FakeRoundSource:
 		return str(emitted["value"]).sha256_text()
 
 
+class AdmissionFailureCheckpointPort extends CHECKPOINT_PORT:
+	var fail_admission_once := false
+
+	func commit_consequence_checkpoint(candidate: Dictionary, receipt: Dictionary) -> Dictionary:
+		if fail_admission_once and int(receipt["header"]["operation_ordinal"]) == 2:
+			fail_admission_once = false
+			return {"ok": false, "code": &"injected_admission_write_failure"}
+		return super.commit_consequence_checkpoint(candidate, receipt)
+
+
 var _consequence_state: RefCounted
 var _root_store: FAKE_ROOT_STORE
 var _issuer: ISSUER
@@ -168,7 +180,7 @@ func before_each() -> void:
 	_issuer = ISSUER.new()
 	_issuer.configure(_root_store)
 	_gate = ApplicationMutationGate.new()
-	_checkpoint_port = CHECKPOINT_PORT.new()
+	_checkpoint_port = AdmissionFailureCheckpointPort.new()
 	_publication_ledger = FakePublicationLedger.new()
 
 	_bootstrap_consequence_state("causal-day-1")
@@ -866,6 +878,8 @@ func test_accept_prepared_action_departure_intent_lands_in_the_persisted_pending
 	assert_true(bool(resumed["value"]["resumed"]))
 	assert_null(_live_consequence()["pending"])
 	assert_eq(_round_source.published.size(), 1, "exactly one publish despite the first attempt's injected failure")
+	assert_true(_round_source.gate_active_at_publish, "recovery reacquires the real causal gate")
+	assert_false(_gate.is_active(), "reconstructed owner releases only after durable cleanup")
 
 	# FakeRoundSource (this suite's own hand-built minesweeper_round stand-in, unlike the real
 	# MinesweeperRoundCoordinator) never writes to the publication ledger itself -- only its own
@@ -958,6 +972,8 @@ func test_adopt_durable_checkpoint_if_live_is_behind_adopts_from_the_durable_che
 ## internally, this test (unlike a test that adopts explicitly first) would fail.
 func test_resume_pending_adopts_and_completes_a_pending_transaction_from_the_durable_checkpoint() -> void:
 	_admit_a_round_transaction_stuck_at_publication_pending()
+	assert_true(_round_source.release_recovery_lease().get("ok", false))
+	assert_false(_gate.is_active(), "a restarted process has no original source lease")
 	var fresh := _fresh_coordinator_sharing_the_checkpoint_port()
 	var coordinator: RefCounted = fresh["coordinator"]
 	var fresh_state: RefCounted = fresh["state"]
@@ -1027,3 +1043,131 @@ func test_a_second_action_on_the_same_day_replaces_the_retained_receipt() -> voi
 		"the premise needs two DISTINCT receipts or the overwrite would prove nothing")
 	assert_eq(after_second, (second["value"] as Dictionary)["condition_receipt"],
 		"the day's LATEST condition receipt replaces the earlier one, exactly as the seam documents")
+
+
+class CompletionCheckpointPort extends CHECKPOINT_PORT:
+	var full_inputs: Dictionary = {}
+	var full_commit_count := 0
+	var terminal_observed_full_commit := false
+	var fail_full_commit := false
+	var fail_terminal_once := false
+
+	func prepare(inputs: Dictionary, kind: StringName, disk_write: Dictionary) -> Dictionary:
+		if kind != &"post_result" or disk_write != {"kind": &"autosave", "reason": &"automatic"}:
+			return {"ok": false, "code": &"unexpected_completion_checkpoint"}
+		return {"ok": true, "value": {"candidate": inputs.duplicate(true)}}
+
+	func commit(candidate: Dictionary) -> Dictionary:
+		if fail_full_commit:
+			return {"ok": false, "code": &"injected_full_save_failure"}
+		full_commit_count += 1
+		full_inputs = candidate.duplicate(true)
+		return {"ok": true}
+
+	func commit_consequence_checkpoint(candidate: Dictionary, receipt: Dictionary) -> Dictionary:
+		if candidate["document"]["stage_candidate"].get("pending") == null:
+			terminal_observed_full_commit = full_commit_count > 0
+			if fail_terminal_once:
+				fail_terminal_once = false
+				return {"ok": false, "code": &"injected_terminal_failure"}
+		return super.commit_consequence_checkpoint(candidate, receipt)
+
+
+func _completion_capture(stage_candidate: Dictionary) -> Dictionary:
+	return {"ok": true, "value": {"checkpoint_inputs": {
+		"snapshot_input": {"desktop": {"consequence": stage_candidate}},
+	}}}
+
+
+func _coordinator_with_completion_capture(port: CompletionCheckpointPort) -> RefCounted:
+	var coordinator := COORDINATOR.new()
+	assert_true(coordinator.configure(_consequence_state, _causal_sequence_port, _board_fate_port,
+		port, _gate).get("ok", false))
+	assert_true(coordinator.configure_action_source_ports(_round_source, _shop_participant).get("ok", false))
+	assert_true(coordinator.configure_condition_departure_ports(_condition_policy_port, _schedule_view_port).get("ok", false))
+	assert_true(coordinator.configure_identity_issuer(_issuer).get("ok", false))
+	assert_true(coordinator.configure_completion_checkpoint_capture(Callable(self, "_completion_capture")).get("ok", false))
+	return coordinator
+
+
+func test_full_completion_save_precedes_terminal_cleanup_and_retry_keeps_one_checkpoint() -> void:
+	_admit_a_round_transaction_stuck_at_publication_pending()
+	var port := CompletionCheckpointPort.new()
+	port.fail_terminal_once = true
+	var coordinator := _coordinator_with_completion_capture(port)
+	var first: Dictionary = coordinator.resume_pending()
+	assert_false(first.get("ok", true))
+	assert_eq(first.get("code"), &"injected_terminal_failure")
+	assert_true(port.terminal_observed_full_commit)
+	assert_eq(port.full_commit_count, 1)
+	assert_null(port.full_inputs["snapshot_input"]["desktop"]["consequence"]["pending"])
+	assert_not_null(_live_consequence()["pending"], "live recovery obligation stays until the sidecar completes")
+	assert_true(_gate.is_active(), "failed cleanup retains transaction custody")
+	var retried: Dictionary = coordinator.resume_pending()
+	assert_true(retried.get("ok", false), JSON.stringify(retried))
+	assert_eq(port.full_commit_count, 1, "same-process cleanup retry reuses the completed full snapshot")
+	assert_null(_live_consequence()["pending"])
+	assert_false(_gate.is_active())
+
+
+func test_full_completion_save_failure_keeps_pending_and_does_not_write_terminal_sidecar() -> void:
+	_admit_a_round_transaction_stuck_at_publication_pending()
+	var port := CompletionCheckpointPort.new()
+	port.fail_full_commit = true
+	var coordinator := _coordinator_with_completion_capture(port)
+	var failed: Dictionary = coordinator.resume_pending()
+	assert_false(failed.get("ok", true))
+	assert_eq(failed.get("code"), &"injected_full_save_failure")
+	assert_not_null(_live_consequence()["pending"])
+	assert_true(_gate.is_active())
+	assert_false(port.terminal_observed_full_commit)
+	port.fail_full_commit = false
+	var retried: Dictionary = coordinator.resume_pending()
+	assert_true(retried.get("ok", false), JSON.stringify(retried))
+	assert_eq(port.full_commit_count, 1)
+	assert_null(_live_consequence()["pending"])
+
+
+func test_restart_resumes_frozen_ordinal_one_without_repeating_policy_or_source_effects() -> void:
+	_configure_departure_ports()
+	var prepared := _round_prepared("exploded")
+	(_checkpoint_port as AdmissionFailureCheckpointPort).fail_admission_once = true
+	var request := {"action_receipt": prepared["action_receipt"], "action_candidate": prepared["action_candidate"],
+		"prepared_checkpoint_receipt": prepared["prepared_checkpoint_receipt"], "expected_run_revision": 0,
+		"expected_board_identity": _board_state.capture()["identity"],
+		"expected_board_revision": int(_board_state.capture()["revision"])}
+	var interrupted: Dictionary = _coordinator.accept_prepared_action(request)
+	assert_false(interrupted.get("ok", true))
+	assert_eq(interrupted.get("code"), &"injected_admission_write_failure")
+	assert_eq(_live_consequence()["pending"]["stage"], "action_prepared")
+	assert_eq(_live_consequence()["pending"]["recovery_payload"]["payload_phase"], "admission_ready")
+	assert_eq(_condition_policy_port.evaluate_calls.size(), 1)
+	assert_eq(_round_source.committed.size(), 0)
+	assert_true(_round_source.release_recovery_lease().get("ok", false))
+	var fresh := COORDINATOR.new()
+	assert_true(fresh.configure(_consequence_state, _causal_sequence_port, _board_fate_port,
+		_checkpoint_port, _gate).get("ok", false))
+	assert_true(fresh.configure_action_source_ports(_round_source, _shop_participant).get("ok", false))
+	assert_true(fresh.configure_condition_departure_ports(_condition_policy_port, _schedule_view_port).get("ok", false))
+	assert_true(fresh.configure_identity_issuer(_issuer).get("ok", false))
+	var resumed: Dictionary = fresh.resume_pending()
+	assert_true(resumed.get("ok", false), JSON.stringify(resumed))
+	assert_true(resumed.get("value", {}).get("resumed", false))
+	assert_eq(_condition_policy_port.evaluate_calls.size(), 1, "the original policy decision remains frozen")
+	assert_eq(_round_source.committed.size(), 1)
+	assert_eq(_round_source.published.size(), 1)
+	assert_null(_live_consequence()["pending"])
+	assert_false(_gate.is_active())
+
+
+func test_restart_abandons_source_only_ordinal_zero_with_production_departure_ports_configured() -> void:
+	_configure_departure_ports()
+	var prepared := _round_prepared("exploded")
+	assert_true(_round_source.release_recovery_lease().get("ok", false))
+	var resumed: Dictionary = _coordinator.resume_pending()
+	assert_true(resumed.get("ok", false), JSON.stringify(resumed))
+	assert_true(resumed.get("value", {}).get("abandoned", false))
+	assert_null(_live_consequence()["pending"])
+	assert_eq(_round_source.committed.size(), 0)
+	assert_eq(_condition_policy_port.evaluate_calls.size(), 0)
+	assert_true(_checkpoint_port.abandoned.has(str(prepared["action_receipt"]["transaction_id"])))

@@ -3,22 +3,9 @@ extends RefCounted
 ## The Dating half of the frozen Schedule-Done presentation-port contract (Plan 01 Task 8,
 ## dwm-p2r.14).
 ##
-## IT IS DELIBERATELY UNCONFIGURED IN PRODUCTION. Phase 2R has no canonical relationship-board or
-## challenge owner: none was ever built, and inventing one here would be claiming a playable Dating
-## board that does not exist. `ApplicationBootstrap` therefore constructs and retains exactly one of
-## these ports and configures NO owner for it, so every Dating route fails closed with
-## `dating_physical_owner_unconfigured` until `dwm-oyo.4` configures it with its sole owner through
-## the composition root. That is the handoff, stated honestly, not a gap.
-##
-## WHY IT EXISTS NOW ANYWAY. The surface `dwm-oyo.4` must satisfy is frozen HERE, and proved here
-## against `FakeDatingPresentationOwner`. When the real challenge owner arrives it plugs into this
-## exact port without the port changing, and every ancestry law below already applies to it.
-##
-## HOW IT DIFFERS FROM THE HOSPITAL PORT. It routes `dating`, accepts the three dating context kinds,
-## and accepts any owner declaring `owner_kind="dating_challenge"` rather than the one narrative
-## adapter -- because the future owner is not written yet and must not be pinned to a class that does
-## not exist. The ancestry, command, and completion laws are identical by design: a date and a faint
-## must be equally impossible to forge.
+## Bootstrap retains and configures DatingPhysicalOwner. Unconfigured instances still fail
+## closed, and every command/receipt remains bound to the same admitted Schedule or Hospital
+## presentation identity. This port neither decides board outcomes nor applies relationship effects.
 ##
 ## THE PARTICIPANT ORDER IS SEMANTIC, NOT ALPHABETICAL. The P-L group/pair order is exactly
 ## `priscilla,lavinia` and is NOT sorted, because that order is owned by the pair's own invitation
@@ -85,8 +72,7 @@ var _settled: Dictionary = {}
 
 ## Retains the exact `.16` issuer and the ONE dating-challenge owner, and connects that exact
 ## owner's two physical-completion signals once. Identical replay is idempotent; a replacement in
-## either position is refused. In production this is never called with an owner: `dwm-oyo.4` is the
-## first caller that will have one.
+## either position is refused. Bootstrap supplies the one retained physical owner.
 func configure(identity_issuer: Object, physical_owner: Object) -> Dictionary:
 	if identity_issuer == null or not _has_methods(identity_issuer, _ISSUER_METHODS):
 		return _fail(&"invalid_identity_issuer", "the issuer contract is incomplete", {})
@@ -111,12 +97,11 @@ func configure(identity_issuer: Object, physical_owner: Object) -> Dictionary:
 
 ## Validates one committed-Schedule dating intent end to end, then starts the physical presentation.
 ##
-## In the Phase-2R production graph this ALWAYS returns `dating_physical_owner_unconfigured`, before
-## any routing or physical start. That refusal is the deliberate `dwm-oyo.4` handoff.
+## An unconfigured port refuses before any routing or physical start.
 func begin(request: Dictionary) -> Dictionary:
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"dating_physical_owner_unconfigured",
-			"Phase 2R composes no relationship-board owner; dwm-oyo.4 configures this port", {})
+			"The canonical Dating physical owner has not been configured", {})
 	var validated := _validate_request(request)
 	if not validated.get("ok", false):
 		return validated
@@ -133,6 +118,15 @@ func begin(request: Dictionary) -> Dictionary:
 		if str(existing["command_sha256"]) != command_sha256:
 			return _fail(&"presentation_command_conflict",
 				"this completion transaction already carries different command bytes", {})
+		# Loading an earlier active date can supersede the physical owner's last admitted date.
+		# Re-adopt the exact cached command; the owner restores its saved board and never rerolls it.
+		var resumed: Variant = _physical_owner.call(&"begin_physical", existing.duplicate(true))
+		if not resumed is Dictionary or not resumed.get("ok", false):
+			return resumed if resumed is Dictionary else _fail(
+				&"physical_presentation_unavailable", "the owner returned no result", {})
+		if not resumed.get("value") is Dictionary or str(resumed.value.get("physical_token", "")) != str(existing.physical_token) \
+				or str(resumed.value.get("command_sha256", "")) != command_sha256:
+			return _fail(&"physical_presentation_unavailable", "restored command binding changed", {})
 		return _ok({"presentation_command": existing.duplicate(true)})
 
 	var command := request.duplicate(true)
@@ -158,7 +152,7 @@ func begin(request: Dictionary) -> Dictionary:
 func complete(request: Dictionary) -> Dictionary:
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"dating_physical_owner_unconfigured",
-			"Phase 2R composes no relationship-board owner; dwm-oyo.4 configures this port", {})
+			"The canonical Dating physical owner has not been configured", {})
 	var shaped := _exact_keys(request, COMPLETE_KEYS, &"invalid_presentation_completion")
 	if not shaped.is_empty():
 		return shaped
@@ -226,6 +220,76 @@ func complete(request: Dictionary) -> Dictionary:
 ## fail-closed Dating route is visible rather than mistaken for a working board.
 func is_ready() -> bool:
 	return _identity_issuer != null and _physical_owner != null
+
+
+## UI facade over the sole configured owner. The scene supplies the exact command returned by
+## begin(); the port never accepts a token detached from its issuer-bound command bytes.
+func pull_physical(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.get("ok", false):
+		return trusted
+	if not _physical_owner.has_method("pull_physical"):
+		return _fail(&"physical_presentation_unavailable",
+			"the configured owner exposes no physical view", {})
+	var command: Dictionary = trusted["value"]
+	var result: Variant = _physical_owner.call(&"pull_physical", str(command["physical_token"]))
+	return result if result is Dictionary else _fail(&"physical_presentation_unavailable",
+		"the owner returned no physical view", {})
+
+
+func acknowledge_pre_challenge_render(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if not _physical_owner.has_method("acknowledge_pre_challenge_render"):
+		return _fail(&"presentation_history_unavailable", "No canonical rendered-presentation owner", {})
+	return _physical_owner.acknowledge_pre_challenge_render(str(trusted.value.physical_token))
+
+func acknowledge_post_challenge_render(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if not _physical_owner.has_method("acknowledge_post_challenge_render"):
+		return _fail(&"presentation_history_unavailable", "No canonical rendered-presentation owner", {})
+	return _physical_owner.acknowledge_post_challenge_render(str(trusted.value.physical_token))
+
+func pull_observer(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if not _physical_owner.has_method("pull_observer"): return _ok({})
+	return _physical_owner.pull_observer(str(trusted.value.physical_token))
+
+func dispatch_observer(presentation_command: Dictionary, atom_id: String, action: String,
+		elapsed_ms: int = 0) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if not _physical_owner.has_method("dispatch_observer"):
+		return _fail(&"observer_unavailable", "No admitted scene moment", {})
+	return _physical_owner.dispatch_observer(str(trusted.value.physical_token), atom_id, action, elapsed_ms)
+
+func dispatch_physical(presentation_command: Dictionary, action: String, cell_index: int,
+		expected_revision: int) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.get("ok", false):
+		return trusted
+	if not _physical_owner.has_method("dispatch_physical"):
+		return _fail(&"physical_presentation_unavailable",
+			"the configured owner exposes no physical commands", {})
+	var command: Dictionary = trusted["value"]
+	var result: Variant = _physical_owner.call(&"dispatch_physical",
+		str(command["physical_token"]), action, cell_index, expected_revision)
+	return result if result is Dictionary else _fail(&"physical_presentation_unavailable",
+		"the owner returned no physical command result", {})
+
+
+func _trusted_physical_command(candidate: Dictionary) -> Dictionary:
+	if _physical_owner == null:
+		return _fail(&"dating_physical_owner_unconfigured",
+			"the dating presentation has no physical owner", {})
+	var completion_id := str(candidate.get("completion_transaction_id", ""))
+	if completion_id.is_empty() or not _commands.has(completion_id) \
+			or candidate != (_commands[completion_id] as Dictionary):
+		return _fail(&"presentation_command_conflict",
+			"the UI command is not the exact command issued by this port", {})
+	return _ok(candidate.duplicate(true))
 
 
 # -------------------------------------------------------------------------------------------------

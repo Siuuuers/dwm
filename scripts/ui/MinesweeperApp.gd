@@ -130,7 +130,8 @@ func hide_window() -> void:
 func can_return_home() -> bool:
 	if _hide_prepared: return true
 	return not _busy and panel != null and panel.has_valid_presentation() \
-		and panel.worksheet.information_sheet == null and not panel.public_view.board.custody
+		and panel.worksheet.information_sheet == null \
+		and (panel.public_view.settled or not panel.public_view.board.custody)
 
 func configure_desktop_home(home: Button) -> void:
 	_home = home

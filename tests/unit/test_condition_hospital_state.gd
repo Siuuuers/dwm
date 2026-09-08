@@ -54,3 +54,48 @@ func test_configure_is_idempotent_for_same_owners_and_rejects_rebinding() -> voi
 	assert_true(hospital.configure(lifecycle, port).get("ok", false))
 	assert_true(hospital.configure(lifecycle, port).get("ok", false))
 	assert_false(hospital.configure(LIFECYCLE.new(), port).get("ok", true))
+
+
+class PriorResolutionLifecycle extends RefCounted:
+	var value: Dictionary
+	func get_state() -> String: return str(value.state)
+	func get_day() -> int: return int(value.day)
+	func to_dict() -> Dictionary: return value.duplicate(true)
+	func prepare_restore(candidate: Dictionary) -> Dictionary:
+		return preload("res://scripts/domain/run/RunLifecycle.gd").new().prepare_restore(candidate)
+	func commit_restore(candidate: Dictionary) -> Dictionary:
+		value = candidate.duplicate(true)
+		return {"ok": true}
+
+func _prior_resolution_owner(stage_state: String, substage_state: String) -> RefCounted:
+	var source := LIFECYCLE.new()
+	source.reset("run-1", "branch-1", 0, "causal-day-3",
+		{"causal_day_instance_issuer_receipt": _issuer("causal-day-3")}, false)
+	var owner := PriorResolutionLifecycle.new()
+	owner.value = source.to_dict()
+	# The facade supplies a retained plan projection; RunLifecycle validates the resulting
+	# detached candidate after the completed projection has been removed.
+	owner.value["active_resolution_plan"] = {"source_day": 1,
+		"stages": [{"state": stage_state, "substages": [{"state": substage_state}]}]}
+	return owner
+
+func test_completed_prior_done_plan_is_replaced_only_in_acceptance_candidate() -> void:
+	var owner := _prior_resolution_owner("completed", "completed")
+	var before: Dictionary = owner.to_dict()
+	var hospital := HOSPITAL.new()
+	assert_true(hospital.configure(owner, FakeIdentityPort.new()).get("ok", false))
+	var prepared: Dictionary = hospital.prepare_accept(_request())
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_eq(owner.to_dict(), before, "preparing Hospital never clears the live prior plan")
+	assert_null(prepared.value.condition_hospital_candidate.lifecycle_candidate.active_resolution_plan)
+	assert_not_null(prepared.value.condition_hospital_candidate.lifecycle_candidate.active_condition_hospital_plan)
+
+func test_incomplete_prior_stage_or_substage_still_blocks_hospital() -> void:
+	for states: Array in [["active", "completed"], ["completed", "active"], ["completed", "pending"]]:
+		var owner := _prior_resolution_owner(states[0], states[1])
+		var hospital := HOSPITAL.new()
+		assert_true(hospital.configure(owner, FakeIdentityPort.new()).get("ok", false))
+		var prepared: Dictionary = hospital.prepare_accept(_request())
+		assert_false(prepared.get("ok", true))
+		assert_eq(prepared.get("code"), &"resolution_conflict")

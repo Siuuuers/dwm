@@ -3,6 +3,7 @@ extends "res://addons/gut/test.gd"
 const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const OPS := preload("res://tests/support/FakeFileOps.gd")
+const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 
 class RecoveryProfile extends Node:
 	var bound_storage: RefCounted
@@ -60,7 +61,7 @@ class RecoverySaves extends Node:
 			return _pending()
 		return {"ok": true, "value": {"resumed": [transaction_id]}}
 
-	func configure_backup_capture_provider(_provider: Callable) -> Dictionary:
+	func configure_backup_capture_provider(_provider: Callable, _paused_desktop_admission: Callable = Callable()) -> Dictionary:
 		backup_bind_count += 1
 		return {"ok": true}
 
@@ -74,11 +75,27 @@ class RecoverySaves extends Node:
 		}
 
 
-class RouteHold extends RefCounted:
+class RouteHold extends Node:
+	signal restore_publication_released()
 	var bootstrap: Object
 	var publish_count := 0
 	var ready_during_publish := true
 	var fail_publish := false
+	var pause_services: Dictionary = {}
+	var pause_bind_count := 0
+
+	func configure_pause_services(services: Dictionary) -> Dictionary:
+		# Pause composition is an unrelated service boundary in these retry-order tests.
+		# Retain exactly what production publication supplies; do not replace recovery logic.
+		pause_bind_count += 1
+		if not services.has_all(["game_state", "saves", "bridge", "input", "audio", "gate",
+				"profile", "localization", "backup_capture", "dating_presentation"]) \
+				or not services.backup_capture is Callable or not services.backup_capture.is_valid():
+			return {"ok": false, "code": &"invalid_pause_fixture_contract"}
+		if not pause_services.is_empty() and pause_services != services:
+			return {"ok": false, "code": &"pause_fixture_services_replaced"}
+		pause_services = services.duplicate()
+		return {"ok": true}
 
 	func publish_startup_route_hold(token: String) -> Dictionary:
 		publish_count += 1
@@ -122,14 +139,19 @@ func _fixture(fail_stage: StringName) -> Dictionary:
 	saves.fail_storage = fail_stage == &"initialize_saves"
 	saves.fail_continuation = fail_stage == &"publish_application_ready"
 	var bootstrap: Node = autofree(RecoveryBootstrap.new())
-	bootstrap.targets = {&"ProfileManager": profile, &"SaveManager": saves}
+	var gate: RefCounted = GATE.new()
+	var route_hold: Node = autofree(RouteHold.new())
+	# Keep the real gate used by save-stage wake/fatal wiring; other composition is outside
+	# the original retry stage-order contract and stays behind the recording router boundary.
+	bootstrap.targets = {&"ProfileManager": profile, &"SaveManager": saves, &"SceneRouter": route_hold}
+	bootstrap.set("_application_gate", gate)
 	bootstrap.set("_selected_root", "startup-retry")
 	bootstrap.set("_profile_storage", STORAGE.new("startup-retry/profile", OPS.new()))
-	var route_hold := RouteHold.new()
 	route_hold.bootstrap = bootstrap
 	bootstrap.set("_startup_route_owner", route_hold)
 	bootstrap.set("_startup_route_hold_token", "startup-route-fixture")
-	return {"bootstrap": bootstrap, "profile": profile, "saves": saves, "route_hold": route_hold}
+	return {"bootstrap": bootstrap, "profile": profile, "saves": saves, "route_hold": route_hold,
+		"gate": gate}
 
 
 func test_getter_is_pure_and_generic_startup_failure_is_not_retryable() -> void:
@@ -171,6 +193,11 @@ func test_early_failure_retains_full_result_and_retries_without_reinitializing()
 	assert_eq(f.saves.get_instance_id(), save_identity)
 	assert_eq(f.saves.initialized_storage.get_instance_id(), storage_identity)
 	assert_same(f.bootstrap.get("_retained_checkpoint_port"), checkpoint)
+	assert_same(checkpoint.get("_gate"), f.gate, "retained checkpoint uses the real application gate")
+	assert_eq(f.route_hold.pause_bind_count, 1, "successful publication binds current Pause services once")
+	assert_same(f.route_hold.pause_services.gate, f.gate)
+	assert_same(f.route_hold.pause_services.saves, f.saves)
+	assert_same(f.route_hold.pause_services.profile, f.profile)
 	assert_eq(f.saves.initialize_count, 1)
 	assert_eq(f.saves.profile_bind_count, 1)
 	assert_eq(f.profile.configure_count, 1)

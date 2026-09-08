@@ -10,6 +10,10 @@ signal profile_reset(section: StringName)
 signal profile_write_failed(result: Dictionary)
 
 const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
+const DATING_ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
+const OBSERVER_EVIDENCE := preload("res://scripts/profile/ObserverEvidence.gd")
+const PAIR_DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
+const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const PREFERENCE_REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -89,13 +93,15 @@ func initialize(storage: RefCounted = null) -> Dictionary:
 		var validation: Dictionary = MIGRATION.prepare_document(parsed["value"])
 		if not validation.get("ok", false):
 			return validation
-		if validation.get("migrated", false):
-			var persisted := _persist_candidate(validation["value"], true)
+		var adoption: Dictionary = (validation["value"] as Dictionary).duplicate(true)
+		var discovery_repaired := _grant_discovered_dark_mode(adoption)
+		if validation.get("migrated", false) or discovery_repaired:
+			var persisted := _persist_candidate(adoption, true)
 			if not persisted.get("ok", false):
 				if persisted.get("fatal", false) or persisted.get("code") == &"indeterminate_commit":
 					_mutation_blocked = true
 				return persisted
-		_profile = (validation["value"] as Dictionary).duplicate(true)
+		_profile = adoption.duplicate(true)
 		_profile_revision += 1
 	var imported := _import_legacy_input_mappings()
 	if not imported.get("ok", false):
@@ -364,6 +370,10 @@ func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false,
 	var guarded := _guard(&"profile_commit")
 	if not guarded.get("ok", false):
 		return guarded
+	return _commit_profile_candidate(candidate, defer_signals, expected_revision)
+
+
+func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1, allow_dating_reset: bool = false, allow_gallery_reset: bool = false) -> Dictionary:
 	var revision_check := _check_profile_revision(expected_revision)
 	if not revision_check.get("ok", false):
 		return revision_check
@@ -375,6 +385,14 @@ func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false,
 	if not validation.get("ok", false):
 		return validation
 	var detached: Dictionary = validation["value"]
+	if not allow_dating_reset and not DATING_ATTEMPTS.preserves(_profile.dating_attempts, detached.dating_attempts):
+		return _failure(&"dating_history_rewind", "Only full Profile reset may remove Dating commitments")
+	if not allow_dating_reset:
+		for key: String in ["observer_evidence", "pair_deck_draws"]:
+			if not _preserves_receipts(_profile[key], detached[key]):
+				return _failure(&"profile_evidence_rewind", "Only full Profile reset may remove durable evidence")
+		if not allow_gallery_reset and not _preserves_receipts(_profile.reached_presentations, detached.reached_presentations):
+			return _failure(&"presentation_history_rewind", "Only Clear Gallery or full reset may remove reached presentations")
 	var old := _profile.duplicate(true)
 	var persisted := _persist_candidate(detached)
 	if not persisted.get("ok", false):
@@ -458,6 +476,211 @@ func mark_line_visited(line_id: String) -> Dictionary:
 	return commit_prepared_profile(candidate)
 
 
+## Only physical presentation owners call this after a counted event or ending.
+## A hidden New Run selection never writes a witness receipt.
+func record_pair_form_witness(form: String, transaction_id: String) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	if form not in SCHEMA.PAIR_FORMS or transaction_id.strip_edges().is_empty():
+		return _failure(&"invalid_pair_form_witness", "a registered form and presentation receipt are required")
+	var ledger: Dictionary = _profile["pair_form_witness_receipts"]
+	if ledger.has(transaction_id):
+		if ledger[transaction_id] != form:
+			return _failure(&"pair_form_witness_conflict", "the presentation already witnessed another form")
+		return {"ok": true, "value": {"form": form, "already_recorded": true}}
+	var candidate := _profile.duplicate(true)
+	candidate.pair_form_witness_receipts[transaction_id] = form
+	return commit_prepared_profile(candidate)
+
+
+## Detached first-attempt history; it survives older run saves and Clear Gallery.
+func get_dating_attempt(run_id: String, slot_id: String, attempt_id: String = "", branch_id: String = "") -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	return DATING_ATTEMPTS.read(_profile.dating_attempts, run_id, slot_id, attempt_id, branch_id)
+
+
+## Pure preview: Load does not persist anything. Use its selection on the first action.
+func prepare_dating_continuation(run_id: String, slot_id: String, attempt_id: String,
+		source_branch_id: String, branch_id: String, saved_record: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	if not has_completed_ending(): return _failure(&"dating_replacement_locked", "A completed ending is required")
+	return DATING_ATTEMPTS.prepare_continuation(_profile.dating_attempts, run_id, slot_id,
+		attempt_id, source_branch_id, branch_id, saved_record)
+
+
+func prepare_dating_attempt(run_id: String, slot_id: String, branch_id: String, record: Dictionary,
+		expected_revision: int, first_cell_index: int = -1, frozen_effect: Dictionary = {},
+		selection: Dictionary = {}) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	if not selection.is_empty() and not has_completed_ending():
+		return _failure(&"dating_replacement_locked", "Branch continuations require a completed ending")
+	var prepared: Dictionary = DATING_ATTEMPTS.prepare_update(_profile.dating_attempts,
+		run_id, slot_id, branch_id, record, expected_revision, first_cell_index, frozen_effect, selection)
+	if not prepared.get("ok", false): return prepared
+	return {"ok": true, "code": &"ok", "value": {
+		"profile_revision": _profile_revision, "attempt": prepared.value.attempt.duplicate(true),
+		"changed": prepared.value.changed, "request": {"run_id": run_id, "slot_id": slot_id,
+			"branch_id": branch_id, "record": record.duplicate(true), "expected_revision": expected_revision,
+			"first_cell_index": first_cell_index, "frozen_effect": frozen_effect.duplicate(true),
+			"selection": selection.duplicate(true)}}}
+
+
+## The Profile commit is durable before the caller writes Autosave. An Autosave failure
+## must retry/reconcile this committed attempt, never roll the Profile commitment back.
+func commit_dating_attempt(material: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
+		return _failure(&"dating_attempt_custody_required", "Dating persistence requires its causal lease")
+	var keys: Array = material.keys()
+	keys.sort()
+	if keys != ["attempt", "changed", "profile_revision", "request"] \
+			or typeof(material.profile_revision) != TYPE_INT or typeof(material.changed) != TYPE_BOOL \
+			or not material.request is Dictionary or not material.attempt is Dictionary:
+		return _failure(&"invalid_dating_preparation", "A detached Dating preparation is required")
+	var request: Dictionary = material.request
+	keys = request.keys()
+	keys.sort()
+	if keys != ["branch_id", "expected_revision", "first_cell_index", "frozen_effect", "record", "run_id", "selection", "slot_id"]:
+		return _failure(&"invalid_dating_preparation", "Unexpected Dating request fields")
+	for key: String in ["run_id", "slot_id", "branch_id"]:
+		if not request[key] is String: return _failure(&"invalid_dating_preparation", "Expected identity String")
+	if typeof(request.expected_revision) != TYPE_INT or typeof(request.first_cell_index) != TYPE_INT \
+			or not request.record is Dictionary or not request.frozen_effect is Dictionary or not request.selection is Dictionary:
+		return _failure(&"invalid_dating_preparation", "Unexpected Dating request types")
+	if not request.selection.is_empty() and not has_completed_ending():
+		return _failure(&"dating_replacement_locked", "Branch continuations require a completed ending")
+	var prepared: Dictionary = DATING_ATTEMPTS.prepare_update(_profile.dating_attempts,
+		request.run_id, request.slot_id, request.branch_id, request.record, request.expected_revision,
+		request.first_cell_index, request.frozen_effect, request.selection)
+	if not prepared.get("ok", false): return prepared
+	if prepared.value.attempt != material.attempt:
+		return _failure(&"dating_preparation_conflict", "The prepared commitment changed")
+	var attempt: Dictionary = prepared.value.attempt
+	var witness_id := ""
+	var requires_witness := false
+	if attempt.record.host == "canonical_pair" and attempt.completion_receipt != null \
+			and attempt.record.outcome in ["perfect", "cleared"]:
+		witness_id = str(attempt.attempt_id) + ":complete"
+		var witnesses: Dictionary = _profile.pair_form_witness_receipts
+		if witnesses.has(witness_id) and witnesses[witness_id] != attempt.record.pair_form:
+			return _failure(&"pair_form_witness_conflict", "The completed attempt already witnessed another form")
+		requires_witness = not witnesses.has(witness_id)
+	if not prepared.value.changed and not requires_witness:
+		return {"ok": true, "code": &"ok", "value": {"attempt": attempt.duplicate(true), "already_recorded": true}}
+	var candidate := _profile.duplicate(true)
+	candidate["dating_attempts"] = prepared.value.ledger.duplicate(true)
+	# Physical completion and the presented pair form share one durable Profile write.
+	# The ordinary witness API intentionally remains closed while this causal lease is held.
+	if requires_witness:
+		candidate["pair_form_witness_receipts"][witness_id] = attempt.record.pair_form
+	var committed := _commit_profile_candidate(candidate, false, material.profile_revision)
+	if not committed.get("ok", false): return committed
+	return {"ok": true, "code": &"ok", "value": {"attempt": prepared.value.attempt.duplicate(true), "already_recorded": false}}
+
+
+## Finite Observer presentation evidence is Profile-wide and independent of board mastery.
+func get_observer_evidence() -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	return {"ok": true, "value": {"by_scope": OBSERVER_EVIDENCE.evidence(_profile.observer_evidence),
+		"receipts": _profile.observer_evidence.duplicate(true)}}
+
+func record_observer_evidence(receipt: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	var custody := _evidence_custody()
+	if not custody.ok: return custody
+	var prepared := OBSERVER_EVIDENCE.prepare(_profile.observer_evidence, receipt)
+	if not prepared.ok: return prepared
+	if prepared.already_recorded: return {"ok": true, "value": {"already_recorded": true}}
+	var candidate := _profile.duplicate(true)
+	candidate["observer_evidence"] = prepared.value
+	var committed := _commit_profile_candidate(candidate)
+	return {"ok": true, "value": {"already_recorded": false}} if committed.ok else committed
+
+func get_pair_deck_draw(run_id: String) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	if run_id.strip_edges().is_empty(): return _failure(&"invalid_pair_draw", "A run identity is required")
+	var receipt: Variant = _profile.pair_deck_draws.get(run_id)
+	return {"ok": true, "value": receipt.duplicate(true) if receipt is Dictionary else null}
+
+func prepare_pair_deck_draw(run_id: String, receipt: Dictionary) -> Dictionary:
+	var existing := get_pair_deck_draw(run_id)
+	if not existing.ok: return existing
+	var checked := PAIR_DECK.validate(receipt)
+	if not checked.ok: return checked
+	if existing.value != null and existing.value != receipt:
+		return _failure(&"pair_deck_draw_conflict", "The run already committed another draw")
+	return {"ok": true, "value": {"run_id": run_id, "receipt": receipt.duplicate(true),
+		"profile_revision": _profile_revision}}
+
+func commit_pair_deck_draw(material: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	var custody := _evidence_custody()
+	if not custody.ok: return custody
+	var keys: Array = material.keys()
+	keys.sort()
+	if keys != ["profile_revision", "receipt", "run_id"] or not material.run_id is String \
+			or not material.receipt is Dictionary or typeof(material.profile_revision) != TYPE_INT:
+		return _failure(&"invalid_pair_draw_preparation", "An exact draw preparation is required")
+	var prepared := prepare_pair_deck_draw(material.run_id, material.receipt)
+	if not prepared.ok: return prepared
+	if _profile.pair_deck_draws.has(material.run_id):
+		return {"ok": true, "value": material.receipt.duplicate(true), "already_recorded": true}
+	var revision := _check_profile_revision(material.profile_revision)
+	if not revision.ok: return revision
+	var candidate := _profile.duplicate(true)
+	candidate["pair_deck_draws"][material.run_id] = material.receipt.duplicate(true)
+	var committed := _commit_profile_candidate(candidate)
+	return {"ok": true, "value": material.receipt.duplicate(true), "already_recorded": false} if committed.ok else committed
+
+func record_reached_presentation(signature: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	var checked := PRESENTATION_SIGNATURE.validate(signature)
+	if not checked.ok: return checked
+	var id: String = checked.value.signature_id
+	if _profile.reached_presentations.has(id):
+		if _profile.reached_presentations[id] != signature:
+			return _failure(&"presentation_signature_conflict", "A signature digest has conflicting fields")
+		return {"ok": true, "value": {"signature_id": id, "already_reached": true}}
+	var candidate := _profile.duplicate(true)
+	candidate["reached_presentations"][id] = signature.duplicate(true)
+	# Canonical physical completion may retain its causal lease; standalone canonical owners
+	# use the ordinary Profile admission gate. Rehearsal owns neither path.
+	var committed: Dictionary
+	if _mutation_gate != null and _mutation_gate.is_internal_owner_active(&"causal_transaction"):
+		committed = _commit_profile_candidate(candidate)
+	else:
+		committed = commit_prepared_profile(candidate)
+	return {"ok": true, "value": {"signature_id": id, "already_reached": false}} if committed.ok else committed
+
+func get_reached_presentations(entry_id: String = "") -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	var ids: Array = _profile.reached_presentations.keys()
+	ids.sort()
+	var records: Array = []
+	for id: String in ids:
+		var signature: Dictionary = _profile.reached_presentations[id]
+		if entry_id.is_empty() or signature.entry_id == entry_id:
+			records.append({"signature_id": id, "signature": signature.duplicate(true)})
+	return {"ok": true, "value": {"records": records}}
+
+func _evidence_custody() -> Dictionary:
+	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
+		return _failure(&"evidence_custody_required", "Canonical evidence requires its causal lease")
+	return {"ok": true}
+
+static func _preserves_receipts(before: Dictionary, after: Dictionary) -> bool:
+	for key: Variant in before:
+		if not after.has(key) or after[key] != before[key]: return false
+	return true
+
+func get_pair_form_witnesses() -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	var forms: Array[String] = []
+	for form: String in _profile.pair_form_witness_receipts.values():
+		if form not in forms: forms.append(form)
+	forms.sort()
+	return {"ok": true, "value": forms}
+
+
 func has_gallery_unlock(ending_id: String) -> bool:
 	return ending_id in _profile.get("gallery_unlocks", [])
 
@@ -498,6 +721,81 @@ func unlock_ending(ending_id: String, transaction_id: String) -> Dictionary:
 		if not committed.get("ok", false):
 			return committed
 	return {"ok": true, "code": &"ok", "value": (value["gallery_receipt"] as Dictionary).duplicate(true)}
+
+
+## Called by the ending owner after its exact physical completion, under the shared causal
+## lease. The ordinary Profile mutation guard remains closed to UI and preference callers.
+func record_ending_completion(ending_id: String, transaction_id: String, pair_form: String = "") -> Dictionary:
+	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
+		return _failure(&"ending_completion_custody_required", "Ending completion requires its causal lease")
+	if not transaction_id.begins_with("ending:") or not transaction_id.ends_with(":gallery:" + ending_id) \
+			or transaction_id.trim_prefix("ending:").trim_suffix(":gallery:" + ending_id).is_empty():
+		return _failure(&"invalid_ending_completion_transaction", "A run-scoped ending completion is required")
+	if ending_id in ["ending.priscilla_lavinia.sweet", "ending.priscilla_lavinia.dark"] and pair_form.is_empty():
+		return _failure(&"invalid_pair_form_witness", "A pair ending requires its witnessed frozen form")
+	if not pair_form.is_empty() and (pair_form not in SCHEMA.PAIR_FORMS \
+			or ending_id != "ending.priscilla_lavinia." + ("dark" if pair_form.ends_with("_dark") else "sweet")):
+		return _failure(&"invalid_pair_form_witness", "The completed pair ending must match its frozen form")
+	var prepared := prepare_ending_unlock(ending_id, transaction_id)
+	if not prepared.get("ok", false): return prepared
+	var candidate: Dictionary = prepared.value.candidate
+	var requires_commit: bool = prepared.value.requires_commit
+	if not pair_form.is_empty():
+		var witness_id := transaction_id.trim_suffix(":gallery:" + ending_id) + ":pair-form:" + pair_form
+		var ledger: Dictionary = candidate.pair_form_witness_receipts
+		var witness_prefix := transaction_id.trim_suffix(":gallery:" + ending_id) + ":pair-form:"
+		for previous_id: String in ledger:
+			if previous_id.begins_with(witness_prefix) and str(ledger[previous_id]) != pair_form:
+				return _failure(&"pair_form_witness_conflict", "The run already completed another pair form")
+		if ledger.has(witness_id) and str(ledger[witness_id]) != pair_form:
+			return _failure(&"pair_form_witness_conflict", "The completion already recorded another form")
+		if not ledger.has(witness_id):
+			ledger[witness_id] = pair_form
+			requires_commit = true
+	if _grant_discovered_dark_mode(candidate):
+		requires_commit = true
+	if requires_commit:
+		var committed := _commit_profile_candidate(candidate)
+		if not committed.get("ok", false): return committed
+	return {"ok": true, "code": &"ok", "value": prepared.value.gallery_receipt.duplicate(true)}
+
+
+## Pure candidate update shared by real completion and compatibility adoption.
+## Receipt history survives Clear Gallery; neither a getter nor Gallery replay writes it.
+static func _grant_discovered_dark_mode(candidate: Dictionary) -> bool:
+	if candidate.preferences.dark_mode.available: return false
+	var required: Array = ["ending.priscilla.dark", "ending.lavinia.dark", "ending.sylvia.dark", "ending.sylvia.special"]
+	for discovered: String in candidate.gallery_unlocks:
+		required.erase(discovered)
+	for receipt: Dictionary in candidate.gallery_transaction_receipts.values():
+		required.erase(str(receipt.ending_id))
+	if not required.is_empty(): return false
+	candidate.preferences.dark_mode.available = true
+	return true
+
+
+## The receipt ledger survives Clear Gallery and ordinary run restoration. A preview or
+## Gallery replay adds no receipt here, so neither can manufacture the first-ending milestone.
+func has_completed_ending() -> bool:
+	if not _initialized: return false
+	return _has_ending_completion_evidence(_profile) or not (_profile.gallery_unlocks as Array).is_empty()
+
+
+static func _has_ending_completion_evidence(profile: Dictionary) -> bool:
+	for transaction_id: String in profile.gallery_transaction_receipts:
+		var receipt: Dictionary = profile.gallery_transaction_receipts[transaction_id]
+		if transaction_id == "profile:legacy-ending-milestone": return true
+		if transaction_id.begins_with("ending:") and transaction_id.ends_with(":gallery:" + str(receipt.ending_id)):
+			return true
+	return false
+
+
+func _preserve_legacy_ending_milestone(candidate: Dictionary) -> void:
+	if _has_ending_completion_evidence(_profile) or (_profile.gallery_unlocks as Array).is_empty(): return
+	# A migrated Gallery-only profile already proves an ending was achieved. Retain that
+	# historical evidence before a reset removes its visible discovery list.
+	candidate.gallery_transaction_receipts["profile:legacy-ending-milestone"] = {
+		"ending_id": str(_profile.gallery_unlocks[0]), "unlocked": false}
 
 
 func get_eligible_audio_memory_ids(surface_id: StringName) -> Array:
@@ -720,7 +1018,9 @@ func reset_gallery(expected_revision: int = -1) -> Dictionary:
 	var checked := _check_profile_revision(expected_revision)
 	if not checked.get("ok", false): return checked
 	var candidate := _profile.duplicate(true)
+	_preserve_legacy_ending_milestone(candidate)
 	candidate["gallery_unlocks"] = []
+	candidate["reached_presentations"] = {}
 	candidate["preferences"]["exceptional_replay"]["available"] = false
 	candidate["preferences"]["exceptional_replay"]["replay_full"] = false
 	return _commit_reset(candidate, &"gallery", expected_revision)
@@ -739,6 +1039,13 @@ func _prepare_entire_profile_reset() -> Dictionary:
 	var candidate := SCHEMA.make_defaults()
 	candidate["gallery_transaction_receipts"] = _profile["gallery_transaction_receipts"].duplicate(true)
 	candidate["migration_receipts"] = _profile["migration_receipts"].duplicate(true)
+	# The accepted full-reset exception removes completion/milestone evidence, while unrelated
+	# transaction receipts retain the existing reset contract. Clear Gallery keeps these IDs.
+	for transaction_id: String in candidate.gallery_transaction_receipts.keys():
+		var receipt: Dictionary = candidate.gallery_transaction_receipts[transaction_id]
+		if transaction_id == "profile:legacy-ending-milestone" or (transaction_id.begins_with("ending:")
+				and transaction_id.ends_with(":gallery:" + str(receipt.ending_id))):
+			candidate.gallery_transaction_receipts.erase(transaction_id)
 	return SCHEMA.validate(candidate)
 
 
@@ -753,6 +1060,11 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var validation := SCHEMA.validate(candidate)
 	if not validation.get("ok", false):
 		return validation
+	if not DATING_ATTEMPTS.preserves(_profile.dating_attempts, validation.value.dating_attempts):
+		return _failure(&"dating_history_rewind", "Run restoration cannot rewind Profile Dating commitments")
+	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]:
+		if not _preserves_receipts(_profile[key], validation.value[key]):
+			return _failure(&"profile_evidence_rewind", "Run restoration cannot rewind durable Profile evidence")
 	_restore_backup = _profile.duplicate(true)
 	_profile = (validation["value"] as Dictionary).duplicate(true)
 	_profile_revision += 1
@@ -793,7 +1105,9 @@ func _commit_reset(candidate: Dictionary, section: StringName, expected_revision
 
 
 func _commit_prepared_reset(candidate: Dictionary, section: StringName, expected_revision: int = -1) -> Dictionary:
-	var result := commit_prepared_profile(candidate, true, expected_revision)
+	var guarded := _guard(&"profile_commit")
+	if not guarded.get("ok", false): return guarded
+	var result := _commit_profile_candidate(candidate, true, expected_revision, section == &"entire_profile", section == &"gallery")
 	if not result.get("ok", false):
 		return result
 	var publication_id: String = result["value"]["publication_id"]

@@ -38,6 +38,9 @@ static func build(
 	var discriminator_error := _validate_discriminators(String(kind), slot_id, String(save_reason))
 	if discriminator_error != "":
 		return _fail(&"invalid_discriminator", discriminator_error)
+	# Only the internal builder converts immutable engine text; external validation stays strict.
+	current_bundle = _normalize_engine_text(current_bundle)
+	journal = _normalize_engine_text(journal)
 	var bundle_error := _validate_bundle(current_bundle)
 	if not bundle_error.get("ok", false):
 		return bundle_error
@@ -165,3 +168,18 @@ static func _validate_journal(journal: Array) -> String:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+
+
+static func _normalize_engine_text(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_STRING_NAME: return String(value)
+		TYPE_ARRAY:
+			var array: Array = []
+			for element: Variant in value: array.append(_normalize_engine_text(element))
+			return array
+		TYPE_DICTIONARY:
+			var dictionary := {}
+			for key: Variant in value:
+				dictionary[String(key) if typeof(key) == TYPE_STRING_NAME else key] = _normalize_engine_text(value[key])
+			return dictionary
+	return value

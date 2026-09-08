@@ -307,7 +307,12 @@ func test_prepare_purchase_lucky_charm_produces_the_frozen_action_shape_and_is_p
 		"the public result is PENDING, never audience success")
 	var value: Dictionary = result["value"]
 	assert_true(value.has("action_receipt"))
-	assert_true(value.has("candidate"))
+	assert_eq(value.keys(), ["action_receipt", "candidate", "action_candidate", "prepared_checkpoint_receipt"],
+		"the pending source returns exactly the material the existing consequence coordinator admits")
+	assert_eq(value["action_candidate"]["transaction_id"], txn["transaction_id"])
+	assert_eq(value["action_candidate"]["item_id"], "lucky_charm")
+	assert_eq(value["prepared_checkpoint_receipt"],
+		_checkpoint_port.documents[txn["transaction_id"]]["document"]["checkpoint_receipt"])
 	var receipt: Dictionary = value["action_receipt"]
 	var validated: Dictionary = load(_ACTION_RECEIPT_PATH).validate(receipt)
 	assert_true(validated.get("ok", false), "the produced value is a valid DesktopActionReceipt")

@@ -115,6 +115,11 @@ var _minesweeper_round_source_port: Object = null
 var _shop_purchase_source_port: Object = null
 var _condition_policy_port: Object = null
 var _schedule_view_port: Object = null
+var _notification_consumer := Callable()
+var _notification_publisher := Callable()
+var _completion_checkpoint_capture := Callable()
+var _completion_checkpoints: Dictionary = {}
+var _recovery_gate_token := ""
 
 ## Same-process idempotency ledger for `accept_prepared_action()`, keyed by `action_receipt
 ## .transaction_id`: `{"request_fingerprint":String,"result":Dictionary}`. Cross-restart resumption
@@ -168,9 +173,31 @@ func configure(state_port: Object, causal_sequence_port: Object, board_fate_port
 	return {"ok": true, "code": &"ok", "value": {"already_configured": false}, "receipt": {}}
 
 
+## Notification acceptance projects existing saved Contacts; it never repeats gameplay effects.
+func configure_notification_consumer(consumer: Callable, publisher: Callable) -> Dictionary:
+	if not consumer.is_valid() or not publisher.is_valid(): return _fail(&"invalid_notification_consumer", "", {})
+	if _notification_consumer.is_valid() and (_notification_consumer != consumer or _notification_publisher != publisher):
+		return _fail(&"notification_consumer_already_configured", "", {})
+	_notification_consumer = consumer
+	_notification_publisher = publisher
+	return {"ok": true}
+
+
+## The composition captures current gameplay and substitutes the supplied cleaned consequence
+## candidate. The full Autosave commits before the sidecar is allowed to forget this transaction.
+func configure_completion_checkpoint_capture(capture_inputs: Callable) -> Dictionary:
+	if not capture_inputs.is_valid() or _checkpoint_port == null \
+			or not _has_all_methods(_checkpoint_port, ["prepare", "commit"]):
+		return _fail(&"invalid_completion_checkpoint_capture", "a full checkpoint capture and port are required", {})
+	if _completion_checkpoint_capture.is_valid() and _completion_checkpoint_capture != capture_inputs:
+		return _fail(&"completion_checkpoint_capture_already_configured", "the retained capture cannot be replaced", {})
+	_completion_checkpoint_capture = capture_inputs
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
 ## Mandatory before either condition/departure configure seam or `resume_pending()`. Retains exactly
 ## the existing production `MinesweeperRoundCoordinator` for `minesweeper_round` and
-## `MinesweeperShopPurchaseParticipant` for `shop_purchase`; validates all three recovery methods on
+## `MinesweeperShopPurchaseParticipant` for `shop_purchase`; validates all four recovery methods on
 ## both, and rejects one object claiming both roles.
 func configure_action_source_ports(minesweeper_round_source_port: Object,
 		shop_purchase_source_port: Object) -> Dictionary:
@@ -599,6 +626,16 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	var destination_intent: Variant = recovery_payload.get("destination_intent")
 	var notification_intent: Variant = recovery_payload.get("notification_intent")
 
+	# A fresh process must re-prepare frozen board fate against the exact restored source
+	# before committing the source's NONE projection. No condition policy is rerun.
+	if is_departure and _board_fate_port.has_method("prepare_recovery_departure"):
+		var projected: Dictionary = _build_projected_board_candidate(source_kind, action_receipt, action_candidate)
+		if not projected.get("ok", false): return projected
+		var recovered_fate: Dictionary = _board_fate_port.prepare_recovery_departure(action_receipt,
+			projected.value.board_candidate, recovery_payload.board_candidate,
+			_board_fate_receipt_from_payload(recovery_payload))
+		if not recovered_fate.get("ok", false): return recovered_fate
+
 	# 1. Commit the action source (its sole live commit).
 	var source_committed: Dictionary = source_port.call(&"commit_recovery_action", action_candidate, action_receipt)
 	if not source_committed.get("ok", false):
@@ -657,15 +694,15 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 	if not cleaned.get("ok", false):
 		return cleaned
 
-	# dwm-p2r.35.7 remediation (finding 3): release causal_transaction HERE -- after terminal cleanup,
-	# not inside the action_source publish callback (index 1 of up to 3) -- so board-fate publish and
-	# terminal cleanup itself both run under the still-active lease, matching DesktopBoardFatePort's
-	# own class-doc invariant that the coordinator holds this lease across one departure's whole
-	# prepare-to-publish span. The source port is the actual token holder (this coordinator never
-	# acquires the lease itself, only checks is_internal_owner_active); release_recovery_lease() is
-	# idempotent when no token is held (e.g. a resume_pending()-driven forward recovery in a fresh
-	# process, which never acquired one in the first place).
-	source_port.call(&"release_recovery_lease")
+	# The live source owns the original lease; a reconstructed coordinator owns its recovery
+	# lease. Both are released only after the completed snapshot and terminal sidecar are durable.
+	var source_released: Dictionary = source_port.call(&"release_recovery_lease")
+	if not source_released.get("ok", false):
+		return source_released
+	var recovery_released := _release_recovery_gate()
+	if not recovery_released.get("ok", false):
+		return recovery_released
+	if _notification_publisher.is_valid(): _notification_publisher.call()
 
 	# CRITICAL 1 (Review-fix pass): return the frozen accept_prepared_action() success shape exactly,
 	# never the fabricated {action_receipt,source_kind,departure} shape this returned before. Every
@@ -809,10 +846,88 @@ func _terminal_cleanup(transaction_id: String) -> Dictionary:
 	if not advanced.get("ok", false):
 		return advanced
 	var advance_value: Dictionary = advanced["value"]
+	var notification := _accept_completion_notification(advance_value["stage_candidate"])
+	if not notification.get("ok", false): return notification
+	advance_value["stage_candidate"] = notification["value"]["state"]
+	var completed := _checkpoint_completion(transaction_id, advance_value["stage_candidate"])
+	if not completed.get("ok", false):
+		return completed
 	var checkpointed := _checkpoint_and_adopt(advance_value["checkpoint_header"], advance_value["stage_candidate"])
 	if not checkpointed.get("ok", false):
 		return checkpointed
+	_completion_checkpoints.erase(transaction_id)
 	return {"ok": true}
+
+
+func _accept_completion_notification(completed: Dictionary) -> Dictionary:
+	var entry: Variant = completed.get("outbox", {}).get("notification")
+	if not _notification_consumer.is_valid() or not entry is Dictionary \
+			or entry.get("status") != "pending":
+		return {"ok": true, "value": {"state": completed}}
+	var accepted: Dictionary = _notification_consumer.call(entry.duplicate(true))
+	if not accepted.get("ok", false): return accepted
+	# Use the existing domain publication operation on the detached cleanup candidate.
+	var detached := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()
+	var restored: Dictionary = detached.prepare_restore(completed)
+	if not restored.get("ok", false): return restored
+	detached.commit(restored.value.candidate)
+	var published: Dictionary = detached.prepare_outbox_publication({
+		"kind": "notification", "key": entry.key, "payload_hash": entry.payload_hash,
+		"provenance": entry.provenance.duplicate(true), "consumer": "desktop_notification",
+	})
+	if not published.get("ok", false): return published
+	return {"ok": true, "value": {"state": published.value.candidate.state_after}}
+
+
+func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary) -> Dictionary:
+	# Older domain-only compositions can omit the capture. Production Bootstrap always binds it.
+	if not _completion_checkpoint_capture.is_valid():
+		return {"ok": true}
+	if not _mutation_gate.is_internal_owner_active(_GATE_OWNER):
+		return _fail(&"causal_transaction_lease_required", "completion checkpoint requires the causal lease", {})
+	if not _completion_checkpoints.has(transaction_id):
+		var captured: Dictionary = _completion_checkpoint_capture.call(stage_candidate.duplicate(true))
+		if not captured.get("ok", false):
+			return captured
+		var inputs: Variant = (captured.get("value", {}) as Dictionary).get("checkpoint_inputs")
+		if typeof(inputs) != TYPE_DICTIONARY:
+			return _fail(&"invalid_completion_checkpoint_capture", "capture must supply checkpoint_inputs", {})
+		var projected: Variant = (inputs as Dictionary).get("snapshot_input", {}).get("desktop", {}).get("consequence")
+		if projected != stage_candidate:
+			return _fail(&"completion_checkpoint_candidate_mismatch", "capture must retain the exact completed consequence", {})
+		var prepared: Dictionary = _checkpoint_port.call(&"prepare", inputs, &"post_result",
+			{"kind": &"autosave", "reason": &"automatic"})
+		if not prepared.get("ok", false):
+			return prepared
+		_completion_checkpoints[transaction_id] = {
+			"candidate": prepared["value"]["candidate"], "committed": false,
+		}
+	var retained: Dictionary = _completion_checkpoints[transaction_id]
+	if not bool(retained["committed"]):
+		var committed: Dictionary = _checkpoint_port.call(&"commit", retained["candidate"])
+		if not committed.get("ok", false):
+			return committed
+		retained["committed"] = true
+	return {"ok": true}
+
+
+func _acquire_recovery_gate() -> Dictionary:
+	if _mutation_gate.is_internal_owner_active(_GATE_OWNER):
+		return {"ok": true}
+	var acquired := _mutation_gate.acquire(_GATE_OWNER)
+	if not acquired.get("ok", false):
+		return acquired
+	_recovery_gate_token = str(acquired["value"]["token"])
+	return {"ok": true}
+
+
+func _release_recovery_gate() -> Dictionary:
+	if _recovery_gate_token.is_empty():
+		return {"ok": true}
+	var released := _mutation_gate.release(_GATE_OWNER, _recovery_gate_token)
+	if released.get("ok", false):
+		_recovery_gate_token = ""
+	return released
 
 
 func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
@@ -925,26 +1040,21 @@ func resume_pending() -> Dictionary:
 	var source_kind := str(pending_dict["source_kind"])
 	if source_kind not in _ACTION_SOURCE_KINDS:
 		return {"ok": true, "code": &"ok", "value": {"resumed": false}, "receipt": {}}
-	# dwm-p2r.35.7 remediation (finding 1): a restored pre-admission pending (stage="action_prepared")
-	# previously hard-FAILED resume_pending() here -- and since ApplicationBootstrap propagates that
-	# failure straight out of _configure_desktop_production_graph() (autoload/ApplicationBootstrap.gd,
-	# _configure_desktop_production_graph()'s own `if not resumed.get("ok", false): return resumed`),
-	# a run restored with a minesweeper_round/shop_purchase pending at action_prepared could never
-	# even finish booting, let alone start a fresh transaction afterward (prepare_action_handoff()
-	# refuses while ANY pending exists). This coordinator's own bootstrap never configures the
-	# condition-departure ports (plan02-frozen-contracts.md line 2271: "construct but leave both
-	# production condition-departure slots fail-closed" -- Plan 03's own job), so a pre-admission
-	# pending found here can only ever be abandoned, never genuinely re-admitted without the original
-	# caller's request bytes (which this restart has no route back to). Abandonment gives it that
-	# legitimate path forward instead of deadlocking bootstrap.
 	if str(pending_dict["stage"]) == "action_prepared":
-		if _condition_policy_port != null and _schedule_view_port != null:
-			# Not reachable in this plan's own production bootstrap (see above), but stays honest
-			# rather than silently discarding a transaction that could, in principle, still be
-			# re-admitted by whichever caller originally drove it -- that re-admission needs the
-			# original request bytes this coordinator was never given.
-			return _fail(&"consequence_resume_pre_admission_requires_original_request",
-				"resume_pending cannot re-run policy evaluation for a pre-admission pending without the original request", {})
+		var retained_payload: Dictionary = pending_dict["recovery_payload"]
+		if str(retained_payload.get("payload_phase", "")) == "admission_ready":
+			# Ordinal 1 froze policy and all source candidates before the admission write. Resume
+			# those bytes under a fresh lease, without rerunning policy or requiring the old UI call.
+			var admission_lease := _acquire_recovery_gate()
+			if not admission_lease.get("ok", false):
+				return admission_lease
+			var admitted := _resume_and_admit(_action_receipt_from_payload(retained_payload),
+				source_kind, str(pending_dict["transaction_id"]), pending_dict)
+			if not admitted.get("ok", false):
+				return admitted
+			return {"ok": true, "code": &"ok", "value": {"resumed": true, "source_kind": source_kind}, "receipt": {}}
+		# Ordinal 0 has no admitted action or policy obligation. Its original request was not
+		# durable, so abandon that unpromoted checkpoint and let the player act again.
 		var abandoned := _abandon_pre_admission(str(pending_dict["transaction_id"]), source_kind)
 		if not abandoned.get("ok", false):
 			return abandoned
@@ -964,6 +1074,9 @@ func resume_pending() -> Dictionary:
 	# publication_plan; mirrors _board_fate_receipt_from_payload()'s identical recovery pattern).
 	var action_receipt: Dictionary = _action_receipt_from_payload(recovery_payload)
 	var transaction_id := str(pending_dict["transaction_id"])
+	var leased := _acquire_recovery_gate()
+	if not leased.get("ok", false):
+		return leased
 	var result := _resume_forward(action_receipt, source_kind, transaction_id, live_state, pending_dict)
 	if not result.get("ok", false):
 		return result

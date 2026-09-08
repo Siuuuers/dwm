@@ -12,6 +12,7 @@ extends RefCounted
 
 ## The pure Hospital owner supplies the frozen witness facts, so this module validates against
 ## the SAME constants rather than keeping a second copy of the law (Task 7 Step 7.3).
+const ORDINARY_REPLIES := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
 
 ## THE canonical friend roster (dwm-pm4): DataCatalog and GameState alias this declaration, so
@@ -168,6 +169,17 @@ static func validate_state(state: Dictionary) -> Dictionary:
 			state, str(transaction_id), state["transaction_receipts"][transaction_id])
 		if not operation_linkage.get("ok", false):
 			return operation_linkage
+	for message: Dictionary in state.messages.sylvia:
+		if message.type != "hospital_care": continue
+		var owners := 0
+		for operation: Dictionary in state.transaction_receipts.values():
+			var care: Dictionary = operation.get("hospital_care", {})
+			for index: int in range(care.get("witness_ids", []).size()):
+				if message.transaction_id == "%s:care:%d" % [operation.transaction_id, index] \
+						and message.message_id == care.message_ids[index] and message.sequence == care.message_sequences[index]:
+					owners += 1
+		if owners != 1:
+			return _fail(&"invalid_state", "caring history requires one exact consumption owner")
 	for receipt_id: Variant in state["schedule_source_receipts"]:
 		if typeof(receipt_id) != TYPE_STRING or str(receipt_id).strip_edges().is_empty():
 			return _fail(&"invalid_state", "source receipt ids must be nonblank strings")
@@ -180,6 +192,8 @@ static func validate_state(state: Dictionary) -> Dictionary:
 		if not linkage_check.get("ok", false):
 			return _fail(&"invalid_state", "schedule source receipt linkage is invalid",
 				{"cause": linkage_check.get("code", &"")})
+	var ordinary_check := ORDINARY_REPLIES.validate_state(state)
+	if not ordinary_check.ok: return ordinary_check
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 ## The exact Schedule-Done Sylvia witness record (Task 7 Step 7.3, dwm-p2r.14).
@@ -198,6 +212,8 @@ const SYLVIA_WITNESS_KEYS: Array[String] = [
 static func _validate_sylvia_witness_shape(record: Variant) -> Dictionary:
 	if typeof(record) != TYPE_DICTIONARY:
 		return _fail(&"invalid_sylvia_witness", "the witness record must be an object")
+	if str((record as Dictionary).get("resolution_kind", "")) == "condition_hospital":
+		return _validate_condition_hospital_witness(record)
 	if not _has_exact_keys(record as Dictionary, SYLVIA_WITNESS_KEYS):
 		return _fail(&"invalid_sylvia_witness", "the witness record is exact-key")
 	var witness := record as Dictionary
@@ -296,7 +312,62 @@ static func prepare_offer_solo(state: Dictionary, friend_id: String, day: int, m
 	detached["transaction_receipts"][transaction_id] = receipt
 	return _ok(detached, [record], receipt)
 
+## Care and a currently visible invitation share this one preflight/commit candidate. The
+## original invitation source receipt remains unchanged for Schedule subscribers.
 static func prepare_open_contact(state: Dictionary, friend_id: String, day: int,
+		transaction_id: String, command_issuer_receipt: Dictionary,
+		identity_issuer: Object, action_record: Dictionary) -> Dictionary:
+	if friend_id != "sylvia":
+		return _prepare_invitation_open(state, friend_id, day, transaction_id,
+			command_issuer_receipt, identity_issuer, action_record)
+	var verified := _verify_command(identity_issuer, transaction_id, command_issuer_receipt)
+	if not verified.get("ok", false): return verified
+	var old: Dictionary = state.transaction_receipts.get(transaction_id, {})
+	if old.get("kind") == "open_sylvia_care":
+		if old.day != day or old.command_issuer_receipt != command_issuer_receipt:
+			return _fail(&"care_command_conflict", transaction_id)
+		var checked := validate_state(state)
+		return _ok(state.duplicate(true), [], old.duplicate(true)) if checked.ok else checked
+	var opened := _prepare_invitation_open(state, friend_id, day, transaction_id,
+		command_issuer_receipt, identity_issuer, action_record)
+	if not old.is_empty(): return opened
+	var pending: Array = get_pending_sylvia_care(state, day)
+	if pending.is_empty(): return opened
+	if not opened.get("ok", false):
+		if str(opened.get("code", "")) not in ["no_offer", "invalid_transition"]: return opened
+		var detached := state.duplicate(true)
+		var receipt := {"kind": "open_sylvia_care", "transaction_id": transaction_id,
+			"friend_id": "sylvia", "day": day, "command_issuer_receipt": command_issuer_receipt.duplicate(true)}
+		detached.transaction_receipts[transaction_id] = receipt
+		opened = _ok(detached, [], receipt)
+	var candidate: Dictionary = opened.value.candidate
+	var claim := {"witness_ids": [], "witnesses": {}, "message_ids": [], "message_sequences": []}
+	for projected: Dictionary in pending:
+		var witness_id: String = projected.parameters.witness_id
+		var witness: Dictionary = state.sylvia_hospital_witness_receipts[witness_id]
+		var source: Dictionary = state.schedule_source_receipts[witness.source_receipt_id]
+		var proof: Dictionary = identity_issuer.validate_child(source.receipt_provenance, &"contact_source")
+		if not proof.get("ok", false): return proof
+		if witness.resolution_kind == "condition_hospital":
+			proof = identity_issuer.validate_child(witness.receipt_provenance, &"sylvia_hospital_witness")
+			if not proof.get("ok", false): return proof
+		var message := projected.duplicate(true)
+		message.sequence = candidate.next_sequence
+		message.transaction_id = "%s:care:%d" % [transaction_id, claim.witness_ids.size()]
+		candidate.messages.sylvia.append(message)
+		candidate.next_sequence += 1
+		claim.witness_ids.append(witness_id)
+		claim.witnesses[witness_id] = witness.duplicate(true)
+		claim.message_ids.append(message.message_id)
+		claim.message_sequences.append(message.sequence)
+		opened.value.message_batch.append(message.duplicate(true))
+	candidate.transaction_receipts[transaction_id]["hospital_care"] = claim
+	if str(opened.receipt.get("kind", "")) == "open_sylvia_care":
+		opened.receipt = candidate.transaction_receipts[transaction_id].duplicate(true)
+	var validated := validate_state(candidate)
+	return opened if validated.ok else validated
+
+static func _prepare_invitation_open(state: Dictionary, friend_id: String, day: int,
 		transaction_id: String, command_issuer_receipt: Dictionary,
 		identity_issuer: Object, action_record: Dictionary) -> Dictionary:
 	var detached: Dictionary = state.duplicate(true)
@@ -581,8 +652,9 @@ static func prepare_activate_group_after_round(state: Dictionary, day: int, roun
 
 static func get_unread_count(state: Dictionary, friend_id: String, day: int) -> int:
 	var watermark := int(state["read_watermarks"].get(friend_id, 0))
-	var count := 0
+	var count := get_pending_sylvia_care(state, day).size() if friend_id == "sylvia" else 0
 	for record: Dictionary in state["messages"].get(friend_id, []):
+		if record.get("type") == "hospital_care": continue
 		if str(record["visibility"]) != "visible":
 			continue
 		if int(record["target_day"]) > day:
@@ -611,6 +683,7 @@ static func get_contact_view(state: Dictionary, friend_id: String, day: int) -> 
 		if int(record["target_day"]) > day:
 			continue
 		visible.append(record)
+	if friend_id == "sylvia": visible.append_array(get_pending_sylvia_care(state, day))
 	return {"messages": visible}
 
 static func get_schedule_source_receipt(state: Dictionary, receipt_id: String) -> Dictionary:
@@ -981,7 +1054,8 @@ static func _validate_message_record(value: Variant) -> Dictionary:
 			or str(record["transaction_id"]).strip_edges().is_empty() \
 			or typeof(record["type"]) != TYPE_STRING \
 			or str(record["type"]) not in [
-				"solo_offer", "group_offer", "nevermind", "missed_question", "busy", "judge"] \
+				"solo_offer", "group_offer", "nevermind", "missed_question", "busy", "judge", "hospital_care",
+				"ordinary_incoming", "ordinary_reply", "ordinary_response"] \
 			or typeof(record["variant"]) != TYPE_STRING \
 			or typeof(record["visibility"]) != TYPE_STRING \
 			or str(record["visibility"]) not in ["visible", "superseded_hidden"] \
@@ -995,6 +1069,14 @@ static func _validate_message_record(value: Variant) -> Dictionary:
 				or typeof(record["parameters"]["inviter_id"]) != TYPE_STRING \
 				or str(record["parameters"]["inviter_id"]) not in GROUP_PAIR:
 			return _fail(&"invalid_state", "group-offer message parameters are invalid")
+	elif record["type"] in ORDINARY_REPLIES.MESSAGE_KINDS:
+		if record.variant != "default" or not _has_exact_keys(record.parameters, ["reply_transaction_id"]) \
+				or not record.parameters.reply_transaction_id is String or record.parameters.reply_transaction_id.is_empty():
+			return _fail(&"invalid_state", "ordinary history requires its reply owner")
+	elif record["type"] == "hospital_care":
+		if record.variant != "default" or not _has_exact_keys(record.parameters, ["witness_id"]) \
+				or not record.parameters.witness_id is String or record.parameters.witness_id.is_empty():
+			return _fail(&"invalid_state", "Hospital care requires its exact witness identity")
 	elif record["variant"] != "default" or not (record["parameters"] as Dictionary).is_empty():
 		return _fail(&"invalid_state", "ordinary contact messages use default/empty parameters")
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
@@ -1084,7 +1166,16 @@ static func _validate_transaction_receipt(transaction_key: Variant, value: Varia
 			or receipt.get("transaction_id") != transaction_key \
 			or typeof(receipt.get("kind")) != TYPE_STRING:
 		return _fail(&"invalid_state", "transaction receipt identity is invalid")
+	if receipt.has("hospital_care"):
+		var care_shape := _validate_care_claim(receipt)
+		if not care_shape.ok: return care_shape
 	match receipt["kind"]:
+		"ordinary_reply", "ordinary_echo_presented":
+			return ORDINARY_REPLIES.validate_receipt(receipt)
+		"open_sylvia_care":
+			if not _has_exact_keys(receipt, ["kind", "transaction_id", "friend_id", "day", "command_issuer_receipt", "hospital_care"]):
+				return _fail(&"invalid_state", "care-only operation has exact keys")
+			return _validate_command_receipt(receipt.command_issuer_receipt, receipt.transaction_id)
 		"offer_solo":
 			return _validate_offer_operation(receipt)
 		"open_solo_acceptance":
@@ -1115,7 +1206,7 @@ static func _validate_offer_operation(receipt: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 static func _validate_open_solo_operation(receipt: Dictionary) -> Dictionary:
-	if not _has_exact_keys(receipt, _OPEN_SOLO_RECEIPT_KEYS) \
+	if not _has_exact_keys(receipt, _OPEN_SOLO_RECEIPT_KEYS + (["hospital_care"] if receipt.has("hospital_care") else [])) \
 			or typeof(receipt["friend_id"]) != TYPE_STRING or receipt["friend_id"] not in FRIEND_IDS \
 			or typeof(receipt["day"]) != TYPE_INT or int(receipt["day"]) < 1 or int(receipt["day"]) > 7 \
 			or typeof(receipt["action_id"]) != TYPE_STRING \
@@ -1247,7 +1338,13 @@ static func _validate_operation_linkage(state: Dictionary, transaction_id: Strin
 	if not shape.get("ok", false):
 		return shape
 	var receipt: Dictionary = value
+	if receipt.has("hospital_care"):
+		var care_link := _validate_care_linkage(state, receipt)
+		if not care_link.ok or receipt.kind == "open_sylvia_care": return care_link
 	match receipt["kind"]:
+		"ordinary_reply", "ordinary_echo_presented":
+			# Cross-row ownership is checked once by validate_state below.
+			return {"ok": true}
 		"offer_solo":
 			return _validate_offer_linkage(state, receipt)
 		"open_solo_acceptance":
@@ -2055,3 +2152,136 @@ static func _ok(candidate: Dictionary, message_batch: Array, receipt: Dictionary
 
 static func _fail(code: StringName, message: String, details: Dictionary = {}) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details.duplicate(true)}
+
+
+## Additive pre-Done witness variant: it binds the source invitation and Hospital miss,
+## never a fabricated committed Schedule entry. Schedule-Done keeps its original exact shape.
+static func _validate_condition_hospital_witness(record: Dictionary) -> Dictionary:
+	var keys := ["action_id", "affection_delta", "attitude", "care_followup_day",
+		"care_followup_entry_id", "dark_delta", "hospital_miss_receipt_id", "kind",
+		"receipt_id", "receipt_provenance", "resolution_kind", "resolution_receipt_id",
+		"source_receipt_id", "tier_transition"]
+	if not _has_exact_keys(record, keys): return _fail(&"invalid_sylvia_witness", "condition Hospital witness is exact-key")
+	if record.kind != "sylvia_hospital_witness" or record.resolution_kind != "condition_hospital" \
+			or record.attitude != HOSPITAL_RULES.WITNESS_ATTITUDE \
+			or record.tier_transition != HOSPITAL_RULES.WITNESS_TIER_TRANSITION:
+		return _fail(&"invalid_sylvia_witness", "condition Hospital witness has changed fixed facts")
+	for key: String in ["affection_delta", "dark_delta", "care_followup_day"]:
+		if typeof(record[key]) != TYPE_INT: return _fail(&"invalid_sylvia_witness", "strict integers required")
+	if record.affection_delta != 2 or record.dark_delta != 1 or record.care_followup_day < 2 or record.care_followup_day > 7:
+		return _fail(&"invalid_sylvia_witness", "condition Hospital witness has changed fixed amounts")
+	for key: String in ["receipt_id", "resolution_receipt_id", "source_receipt_id", "hospital_miss_receipt_id", "action_id", "care_followup_entry_id"]:
+		if typeof(record[key]) != TYPE_STRING or str(record[key]).is_empty():
+			return _fail(&"invalid_sylvia_witness", "condition Hospital witness identity is missing")
+	var provenance: Variant = record.receipt_provenance
+	var sources: Array = [record.resolution_receipt_id, record.source_receipt_id, record.hospital_miss_receipt_id]
+	sources.sort()
+	if not provenance is Dictionary or provenance.get("child_id") != record.receipt_id \
+			or provenance.get("child_kind") != "sylvia_hospital_witness" \
+			or typeof(provenance.get("parent_receipt_id")) != TYPE_STRING \
+			or str(provenance.get("parent_receipt_id", "")).is_empty() \
+			or provenance.get("source_ids") != sources:
+		return _fail(&"invalid_sylvia_witness", "condition Hospital witness ancestry differs")
+	return {"ok": true, "code": &"ok"}
+
+## Read-only prospective care. It becomes history only in prepare_open_contact's accepted
+## candidate; the caller persists that candidate with the frozen relationship consequence.
+static func get_pending_sylvia_care(state: Dictionary, day: int) -> Array:
+	var entries: Array = []
+	if day < 2 or day > 7: return entries
+	var ids: Array = state.get("sylvia_hospital_witness_receipts", {}).keys()
+	ids.sort()
+	for witness_id: String in ids:
+		var checked := _validate_care_witness(state, witness_id)
+		if not checked.ok: continue
+		var witness: Dictionary = state.sylvia_hospital_witness_receipts[witness_id]
+		if int(witness.care_followup_day) > day or _care_consumed(state, witness_id): continue
+		entries.append({"message_id": witness.care_followup_entry_id, "sequence": int(state.next_sequence) + entries.size(),
+			"type": "hospital_care", "variant": "default", "target_day": witness.care_followup_day,
+			"parameters": {"witness_id": witness_id}, "visibility": "visible", "transaction_id": witness_id})
+	return entries
+
+static func _care_consumed(state: Dictionary, witness_id: String) -> bool:
+	for receipt: Dictionary in state.transaction_receipts.values():
+		if witness_id in receipt.get("hospital_care", {}).get("witness_ids", []): return true
+	return false
+
+static func _validate_care_witness(state: Dictionary, witness_id: String) -> Dictionary:
+	var raw: Variant = state.get("sylvia_hospital_witness_receipts", {}).get(witness_id)
+	var checked := _validate_sylvia_witness_shape(raw)
+	if not checked.ok: return checked
+	var witness: Dictionary = raw
+	for other_id: String in state.sylvia_hospital_witness_receipts:
+		if other_id != witness_id and state.sylvia_hospital_witness_receipts[other_id].get("action_id") == witness.action_id:
+			return _fail(&"invalid_care_witness_source", "one invitation cannot issue two care handoffs")
+	var source: Dictionary = state.get("schedule_source_receipts", {}).get(witness.source_receipt_id, {})
+	var action: Dictionary = state.get("solo_actions", {}).get(witness.action_id, {})
+	if source.get("kind") != "solo_read_acceptance" or source.get("participants") != ["sylvia"] \
+			or source.get("action_id") != witness.action_id or source.get("receipt_id") != witness.source_receipt_id \
+			or action.get("friend_id") != "sylvia" or action.get("state") != "RESOLVED_MISSED" \
+			or action.get("day") != source.get("day") or int(source.get("day", 0)) not in [1, 3, 4, 5] \
+			or witness.care_followup_day != int(source.day) + 1 \
+			or witness.care_followup_entry_id != "care.sylvia.day%d" % witness.care_followup_day:
+		return _fail(&"invalid_care_witness_source", witness_id)
+	if witness.resolution_kind == "condition_hospital":
+		if witness.receipt_id != witness_id: return _fail(&"invalid_care_witness_source", witness_id)
+	elif not witness_id.ends_with(":hospital_if_triggered"):
+		return _fail(&"invalid_care_witness_source", witness_id)
+	var transition := {"action_id": witness.action_id, "from_state": "ACCEPTED", "to_state": "RESOLVED_MISSED"}
+	for closure: Dictionary in state.transaction_receipts.values():
+		if closure.get("kind") == "resolve_day_end" and closure.get("day") == source.day \
+				and transition in closure.get("state_transitions", []):
+			if witness.resolution_kind == "condition_hospital" and closure.transaction_id != witness.resolution_receipt_id:
+				continue
+			return {"ok": true}
+	return _fail(&"invalid_care_witness_source", witness_id)
+
+static func _validate_care_claim(receipt: Dictionary) -> Dictionary:
+	var claim: Variant = receipt.get("hospital_care")
+	if receipt.get("kind") not in ["open_solo_acceptance", "open_sylvia_care"] \
+			or receipt.get("friend_id") != "sylvia" or typeof(receipt.get("day")) != TYPE_INT \
+			or int(receipt.day) < 2 or int(receipt.day) > 7 or not claim is Dictionary \
+			or not _has_exact_keys(claim, ["witness_ids", "witnesses", "message_ids", "message_sequences"]) \
+			or not _is_sorted_unique_string_array(claim.witness_ids) or claim.witness_ids.is_empty() \
+			or not claim.witnesses is Dictionary or not _has_exact_keys(claim.witnesses, claim.witness_ids) \
+			or not _is_string_array(claim.message_ids) or not _is_int_array(claim.message_sequences) \
+			or claim.message_ids.size() != claim.witness_ids.size() or claim.message_sequences.size() != claim.witness_ids.size():
+		return _fail(&"invalid_state", "Hospital care claim is malformed")
+	return {"ok": true}
+
+static func _validate_care_linkage(state: Dictionary, receipt: Dictionary) -> Dictionary:
+	var claim: Dictionary = receipt.hospital_care
+	for index: int in range(claim.witness_ids.size()):
+		var witness_id: String = claim.witness_ids[index]
+		var checked := _validate_care_witness(state, witness_id)
+		if not checked.ok: return checked
+		var witness: Dictionary = state.sylvia_hospital_witness_receipts[witness_id]
+		if witness != claim.witnesses[witness_id] or witness.care_followup_day > receipt.day \
+				or witness.care_followup_entry_id != claim.message_ids[index]:
+			return _fail(&"invalid_state", "Hospital care changed its frozen witness")
+		var message := _find_exact_message(state, "sylvia", claim.message_ids[index],
+			"%s:care:%d" % [receipt.transaction_id, index], claim.message_sequences[index])
+		if message.get("type") != "hospital_care" or message.get("target_day") != witness.care_followup_day \
+				or message.get("parameters") != {"witness_id": witness_id} or message.get("visibility") != "visible":
+			return _fail(&"invalid_state", "Hospital care history is not owned by its consumption")
+		for other: Dictionary in state.transaction_receipts.values():
+			if other.transaction_id != receipt.transaction_id and witness_id in other.get("hospital_care", {}).get("witness_ids", []):
+				return _fail(&"invalid_state", "Hospital care witness was consumed twice")
+	return {"ok": true}
+
+
+static func prepare_reply_ordinary(state: Dictionary, day: int, reply_id: String, locale: String,
+		command_id: String, issuer_receipt: Dictionary, rendered_line: Dictionary, identity_issuer: Object) -> Dictionary:
+	var checked := validate_state(state)
+	if not checked.ok: return checked
+	var verified := _verify_command(identity_issuer, command_id, issuer_receipt)
+	if not verified.ok: return verified
+	return ORDINARY_REPLIES.prepare_reply(state, day, reply_id, locale, command_id, issuer_receipt, rendered_line)
+
+static func prepare_satisfy_ordinary_echo(state: Dictionary, echo_id: String, atom_id: String,
+		command_id: String, issuer_receipt: Dictionary, presented: Dictionary, identity_issuer: Object) -> Dictionary:
+	var checked := validate_state(state)
+	if not checked.ok: return checked
+	var verified := _verify_command(identity_issuer, command_id, issuer_receipt)
+	if not verified.ok: return verified
+	return ORDINARY_REPLIES.prepare_echo_presented(state, echo_id, atom_id, command_id, issuer_receipt, presented)

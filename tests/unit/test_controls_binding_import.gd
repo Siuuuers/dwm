@@ -16,11 +16,16 @@ func _pad(button: int, device: int = -1) -> Dictionary:
 
 func _v2() -> Dictionary:
 	var profile := SCHEMA.make_defaults()
+	profile.erase("pair_form_witness_receipts")
+	profile.erase("dating_attempts")
 	profile.erase("controls_bindings")
 	profile.erase("controls_import_pending")
 	profile.erase("migration_receipts")
 	profile.erase("legacy_preferences_v1")
 	profile.schema_version = 2
+	profile.erase("observer_evidence")
+	profile.erase("pair_deck_draws")
+	profile.erase("reached_presentations")
 	profile.input_mappings = SCHEMA._default_input_mappings()
 	profile.preferences.audio.music_volume = 0.37
 	profile.gallery_unlocks = ["ending.alone"]
@@ -29,10 +34,10 @@ func _v2() -> Dictionary:
 	return profile
 
 
-func test_fresh_profile_is_v4_without_manufactured_legacy_provenance() -> void:
+func test_fresh_profile_is_v6_without_manufactured_legacy_provenance() -> void:
 	var profile := SCHEMA.make_defaults()
-	assert_eq(profile.schema_version, 4)
-	assert_eq(profile.keys().size(), 10)
+	assert_eq(profile.schema_version, 8)
+	assert_eq(profile.keys().size(), 12)
 	assert_eq(profile.input_mappings, {})
 	assert_false(profile.controls_import_pending)
 	assert_eq(profile.controls_bindings, RULES.defaults())
@@ -48,7 +53,12 @@ func test_default_v2_keeps_n_and_every_original_field() -> void:
 	if not result.ok:
 		return
 	var expected := before.duplicate(true)
-	expected.schema_version = 4
+	expected.schema_version = 8
+	expected["observer_evidence"] = {}
+	expected["pair_deck_draws"] = {}
+	expected["reached_presentations"] = {}
+	expected.pair_form_witness_receipts = {}
+	expected["dating_attempts"] = {}
 	expected.migration_receipts = {"legacy_game_state_profile_v1":true,
 		"legacy_input_bindings_v1":true,"invalid_persisted_skip_mode_v1":false}
 	expected.legacy_preferences_v1 = {}
@@ -58,7 +68,7 @@ func test_default_v2_keeps_n_and_every_original_field() -> void:
 	assert_eq(result.value, expected)
 	assert_eq(source, before)
 	assert_true(SCHEMA.validate(result.value).ok)
-	assert_false(SCHEMA.validate(source).ok, "Strict v4 validation never silently upgrades")
+	assert_false(SCHEMA.validate(source).ok, "Strict v5 validation never silently upgrades")
 	result.value.input_mappings.game_hint[0].physical_keycode = KEY_J
 	result.value.preferences.audio.music_volume = 0.2
 	assert_eq(source, before, "Prepared migration is fully detached from the source")
@@ -220,7 +230,7 @@ func test_v4_requires_closed_roots_valid_controls_and_boolean_pending() -> void:
 	assert_true(SCHEMA.validate(pending).ok, "Pending retains a legal inactive draft and complete provenance")
 
 
-func test_machine_schema_closes_v4_slots_and_accepts_both_provenance_forms() -> void:
+func test_machine_schema_closes_v5_slots_and_accepts_both_provenance_forms() -> void:
 	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string("res://schemas/profile.schema.json"))
 	assert_true(parsed.ok)
 	if not parsed.ok:
@@ -237,7 +247,7 @@ func test_machine_schema_closes_v4_slots_and_accepts_both_provenance_forms() -> 
 		assert_false(JSON_RULES.validate(invalid, machine).ok)
 	var partial := SCHEMA.make_defaults()
 	partial.input_mappings = {"game_quick_save": [_key(KEY_F5)]}
-	assert_true(JSON_RULES.validate(partial, machine).ok, "v4 retains validated sparse v1 provenance")
+	assert_true(JSON_RULES.validate(partial, machine).ok, "v5 retains validated sparse v1 provenance")
 	var malformed_record := partial.duplicate(true)
 	malformed_record.input_mappings.game_quick_save = [{"kind":"key","physical_keycode":KEY_F5}]
 	assert_false(JSON_RULES.validate(malformed_record, machine).ok, "sparse provenance still validates every stored record")

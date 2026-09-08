@@ -232,15 +232,21 @@ flag set before deriving Lost, so Unflag cannot restore Intact and malformed
 history cannot silently claim it. The query does not mutate gameplay or expose
 identities, hidden layouts, raw metric operands or history.
 
-Current owner gaps remain concrete: first Reveal is absent from the retained
-action ledger, no versioned 3BV/Foresight owner exists, and there is no persistent
-unpaid-tier or free paid-envelope replacement command. The query therefore
-publishes an unavailable Foresight value and no enabled difficulty actions.
-The UI formats supplied lawful percentages but does not fabricate them for the
-current owner. New Board dispatch, reactive register updates, shared host focus
-order, register/dock inertness during sheets, and production app composition must
-be connected in the next host layer. Individual component proof is not runtime
-cutover or completed Minesweeper screen acceptance.
+At this historical component checkpoint, Foresight and the connected host layer
+were unavailable. The 2026-09-08 integration supersedes the Foresight gap:
+`BoardPerformance` derives 3BV and total accepted clicks from the saved board,
+counting the implicit first Reveal plus `actions.size()`. The live register shows
+the rounded percentage capped at 999; NONE/prepared boards remain unavailable.
+Completion uses the exact integer comparison `3BV > clicks`, with No Flag as an
+independent Perfect reason. The desktop reward port awards each qualifying task
+once without adding metric fields or changing durable receipt shapes. Dating
+uses the same helper. The seven performance, eight register-query and sixteen
+reward tests pass (31 total); this does not replace the separate UI acceptance.
+
+Difficulty actions remain disabled (`difficulty_enabled` is empty). New Board
+now dismisses an already settled terminal presentation and exposes the next
+board through the existing owner; it refuses active-board replacement. It is
+not a free replacement of a paid board or a new difficulty-selection command.
 
 Verification: **134 tests / 4,790 assertions pass** across seventeen suites,
 including prior cells, gestures, information sheets and durable board transaction
@@ -248,8 +254,9 @@ tests. Six final OpenGL composition fixtures cover both Standard palettes, all
 three locales, three text scales, ordinary/Large targets and both host widths.
 Pixel checks verify the continuous register separator, visibly blocked New Board
 edge, and empty canonical capacity. The rendered 125-percent Foresight values and
-enabled difficulty examples are explicitly supplied formatting fixtures; the real
-query's unavailable output is independently tested.
+enabled difficulty examples are explicitly supplied formatting fixtures. At that
+checkpoint the real query's unavailable output was independently tested; the
+2026-09-08 derived-metric regressions above supersede that Foresight expectation.
 
 The first run caught an off-tree `release_focus` call during disabled-state
 publication; it is now tree-guarded. Independent drawing review found metric
@@ -298,11 +305,11 @@ one probe rather than allocating a duplicate grid, and panel refresh avoids
 reconfiguring the worksheet when its measured band is unchanged. This preserves
 the touch long-press release latch during synchronous Flag publication.
 
-New Board, difficulty changes and Foresight still have no complete owner contract
-and remain unavailable. Terminal inspection/settlement, canonical challenge
-owners, production host/save integration, further input and accessibility proof,
-and largest-English-label usability remain open. This checkpoint does not close
-Minesweeper or the full ten-family UI goal.
+This historical panel checkpoint preceded terminal settlement, canonical challenge
+and production host/save integration. Its unavailable New Board/Foresight status
+is superseded by the 2026-09-08 behavior described above; difficulty changes remain
+disabled. These component results do not by themselves close further input and
+accessibility proof, largest-English-label usability, or the full ten-family UI goal.
 
 Verification: **165 tests / 5,757 assertions pass** across nineteen suites,
 including real coordinator/issuer/GameState integration, existing durable first

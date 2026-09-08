@@ -254,3 +254,132 @@ func test_the_receipt_is_deterministic_across_independent_instances() -> void:
 	assert_true(retried.get("ok", false), JSON.stringify(retried))
 	assert_eq(retried["receipt"], first["receipt"],
 		"the receipt derives from candidate bytes alone, so crash-retry reproduces it")
+
+# Production uses the same saved controller for drafting, restore, and condition departure.
+func _saved_controller(saved: Variant = null) -> Object:
+	var loaded: Dictionary = preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd").load_current()
+	assert_true(loaded.get("ok", false), str(loaded))
+	var controller: Object = preload("res://scripts/application/schedule/ScheduleViewController.gd").new()
+	assert_true(controller.configure(loaded["value"]["registry"],
+		preload("res://scripts/domain/schedule/ScheduleRules.gd"),
+		str(loaded["value"]["registry"].fingerprint())).get("ok", false))
+	if saved == null:
+		assert_true(controller.open_day(1, "causal-day-view-1").get("ok", false))
+	else:
+		assert_true(controller.install_restored_view(saved).get("ok", false))
+	return controller
+
+
+func _owner_port(controller: Object) -> Object:
+	var port: Object = _port_script.new()
+	assert_true(port.configure(_gate).get("ok", false))
+	assert_true(port.configure_view_controller(controller).get("ok", false))
+	return port
+
+
+func _owner_candidate(port: Object, controller: Object, marker: String) -> Dictionary:
+	var view: Dictionary = controller.snapshot()["value"]["view"]
+	var condition := _condition_receipt(marker)
+	condition["day"] = view["day"]
+	condition["causal_day_instance"] = view["causal_day_instance"]
+	condition["causal_sequence_receipt_id"] = "sequence.receipt." + marker
+	var sequence := _sequence_receipt(marker)
+	sequence["causal_day_instance"] = view["causal_day_instance"]
+	var prepared: Dictionary = port.prepare_condition_departure({
+		"condition_receipt": condition, "causal_sequence_receipt": sequence,
+	})
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return {}
+	return {"condition_receipt": condition,
+		"schedule_view_before": prepared["value"]["schedule_view_before"],
+		"schedule_view_before_sha256": _sha(prepared["value"]["schedule_view_before"]),
+		"schedule_view_after": prepared["value"]["schedule_view_after"],
+		"schedule_view_after_sha256": _sha(prepared["value"]["schedule_view_after"])}
+
+
+func _add_docket_entry(controller: Object, action_id: String, slot: int, draft_id: String) -> void:
+	var added: Dictionary = controller.prepare_add(action_id, null, slot, draft_id)
+	assert_true(added.get("ok", false), str(added))
+	if added.get("ok", false):
+		assert_true(controller.commit(added["value"]["candidate"]).get("ok", false))
+
+
+func test_bound_departure_uses_the_saved_docket_and_appends_its_receipt_to_that_owner() -> void:
+	if not _require_port(): return
+	var controller := _saved_controller()
+	var port := _owner_port(controller)
+	assert_true(port.configure_view_controller(controller).get("ok", false))
+	assert_false(port.configure_view_controller(_saved_controller()).get("ok", true),
+		"the production owner cannot be replaced")
+	_add_docket_entry(controller, "rest", 0, "draft-rest")
+	var source: Dictionary = controller.snapshot()["value"]["view"]
+	var candidate := _owner_candidate(port, controller, "saved-a")
+	assert_eq(controller.snapshot()["value"]["view"], source, "preparation is read-only")
+	assert_eq(candidate["schedule_view_before"], source)
+	assert_eq(candidate["schedule_view_after"]["entries"], [])
+	assert_eq(candidate["schedule_view_after"]["condition_departure_receipts"],
+		source["condition_departure_receipts"], "frozen views share the exact predecessor ledger")
+	_acquire_lease()
+	var committed: Dictionary = port.commit_condition_departure(candidate)
+	assert_true(committed.get("ok", false), str(committed))
+	var after: Dictionary = controller.snapshot()["value"]["view"]
+	assert_eq(after["entries"], [])
+	assert_eq(after["condition_departure_receipts"]["condition.receipt.saved-a"], committed["receipt"])
+	assert_eq(port._retained, {}, "production keeps no duplicate receipt ledger")
+	assert_eq(port._live_view, {"schema_version": 1, "state": "empty"},
+		"the legacy private view is never involved")
+
+
+func test_second_departure_recovers_with_fresh_controller_and_retries_after_a_later_day() -> void:
+	if not _require_port(): return
+	var controller := _saved_controller()
+	var port := _owner_port(controller)
+	_acquire_lease()
+	assert_true(port.commit_condition_departure(_owner_candidate(port, controller, "first")).get("ok", false))
+	assert_true(controller.open_day(2, "causal-day-view-2").get("ok", false))
+	_add_docket_entry(controller, "rest", 0, "day-two-rest")
+	var source: Dictionary = controller.capture()["value"]["backup"]
+	var second := _owner_candidate(port, controller, "second")
+	var recovered_controller := _saved_controller(source)
+	var recovered_port := _owner_port(recovered_controller)
+	var recovered: Dictionary = recovered_port.commit_condition_departure(second)
+	assert_true(recovered.get("ok", false), str(recovered))
+	var completed: Dictionary = recovered_controller.capture()["value"]["backup"]
+	assert_eq(completed["condition_departure_receipts"].size(), 2,
+		"the same saved owner keeps both the prior and recovered departure")
+	assert_eq(completed["entries"], [])
+	var after_restart := _saved_controller(completed)
+	var after_port := _owner_port(after_restart)
+	assert_true(after_restart.open_day(3, "causal-day-view-3").get("ok", false))
+	_add_docket_entry(after_restart, "rest", 0, "day-three-rest")
+	var later_day: Dictionary = after_restart.capture()["value"]["backup"]
+	var retry: Dictionary = after_port.commit_condition_departure(second)
+	assert_true(retry.get("ok", false), str(retry))
+	assert_eq(retry["receipt"], recovered["receipt"])
+	assert_eq(after_restart.capture()["value"]["backup"], later_day,
+		"the saved receipt proves replay without rewinding or clearing a later day's docket")
+
+
+func test_bound_departure_refuses_a_third_view_or_conflicting_saved_receipt_without_mutation() -> void:
+	if not _require_port(): return
+	var controller := _saved_controller()
+	var port := _owner_port(controller)
+	_add_docket_entry(controller, "rest", 0, "draft-rest")
+	var candidate := _owner_candidate(port, controller, "conflict")
+	_add_docket_entry(controller, "training", 1, "draft-training")
+	var third: Dictionary = controller.capture()["value"]["backup"]
+	_acquire_lease()
+	var refused: Dictionary = port.commit_condition_departure(candidate)
+	assert_false(refused.get("ok", true))
+	assert_eq(refused.get("code"), &"schedule_view_state_conflict")
+	assert_eq(controller.capture()["value"]["backup"], third)
+	assert_true(controller.install_restored_view(candidate["schedule_view_before"]).get("ok", false))
+	assert_true(port.commit_condition_departure(candidate).get("ok", false))
+	var after: Dictionary = controller.capture()["value"]["backup"]
+	var changed := candidate.duplicate(true)
+	changed["schedule_view_after"]["date_entry_seen"] = true
+	changed["schedule_view_after_sha256"] = _sha(changed["schedule_view_after"])
+	refused = port.commit_condition_departure(changed)
+	assert_false(refused.get("ok", true))
+	assert_eq(refused.get("code"), &"schedule_view_conflict")
+	assert_eq(controller.capture()["value"]["backup"], after)

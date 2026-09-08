@@ -104,6 +104,9 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 	# Rejects a missing route-ready token and therefore cannot run early.
 	if typeof(plan.get("route_ready_token")) != TYPE_DICTIONARY:
 		return _fail(&"missing_route_ready_token", "narrative apply requires the route-ready token")
+	if _owner.has_method("is_pause_restore_pending") and _owner.is_pause_restore_pending():
+		return _owner.stage_pause_restore(_projected(plan) if plan.has("entry_id") else plan,
+			plan.has("entry_id"))
 	if plan.has("entry_id"):
 		# Ruling 15-B. A standing playback is the ONE precondition prepare deliberately does not test,
 		# because activity is a transient runtime state rather than a property of the save. It is
@@ -130,6 +133,8 @@ func rollback_silent(backup: Dictionary) -> Dictionary:
 	return _owner.rollback_restore_silent(backup)
 
 func finalize() -> Dictionary:
+	if _owner.has_method("is_pause_restore_pending") and _owner.is_pause_restore_pending():
+		return _owner.finalize_pause_restore()
 	if _pending_semantic_plan.is_empty():
 		return _owner.finalize_restore()
 	# One shot: the staged resume is consumed here, so a second finalize can never replay it. The

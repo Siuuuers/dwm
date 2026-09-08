@@ -23,6 +23,12 @@ var last_result: Dictionary = {}
 var _desktop_home: Button
 var _cached_focus_kind := ""
 var _cached_row_index := 0
+var _ordinary_choices: Array[Button] = []
+var _ordinary_pending: Dictionary = {}
+var _ordinary_drawn := false
+var _ordinary_busy := false
+var _ordinary_generation := 0
+var _ordinary_retry: Button
 
 
 func _ready() -> void:
@@ -55,8 +61,10 @@ func _ready() -> void:
 	_status_label.add_theme_stylebox_override("normal", notice_style)
 	add_child(_status_label)
 	contacts_panel.open_requested.connect(_on_open_requested)
+	contacts_panel.pending_reply_drawn.connect(_on_pending_ordinary_drawn)
 	contacts_panel.back_requested.connect(hide_window)
 	get_viewport().gui_focus_changed.connect(_remember_control)
+	visibility_changed.connect(_on_ordinary_visibility_changed)
 	_apply_typography()
 	if _presentation_port != null:
 		refresh_view()
@@ -172,6 +180,7 @@ func _present(result: Dictionary) -> Dictionary:
 		reply_margin.add_child(_reply_button)
 		contacts_panel.transcript.focus_neighbor_bottom = contacts_panel.transcript.get_path_to(_reply_button)
 		_reply_button.focus_neighbor_top = _reply_button.get_path_to(contacts_panel.transcript)
+	_present_ordinary_controls(value)
 	if restore_reply_focus:
 		if _reply_button != null:
 			_reply_button.grab_focus()
@@ -181,14 +190,151 @@ func _present(result: Dictionary) -> Dictionary:
 
 
 func _on_open_requested(friend_id: String) -> void:
+	if friend_id == contacts_panel.selected_friend and not _ordinary_pending.is_empty(): return
+	if not _cancel_ordinary_pending(): return
 	if _presentation_port != null:
 		_present(_presentation_port.open_friend(friend_id, _primary, _secondary))
 
 
 func _on_reply_requested() -> void:
+	if not _ordinary_pending.is_empty() or _ordinary_busy: return
 	if _presentation_port != null:
 		_present(_presentation_port.reply_to_group(contacts_panel.selected_friend, _primary, _secondary))
 
+
+func _ordinary_available() -> bool:
+	if _presentation_port == null: return false
+	for method: String in ["prepare_ordinary_reply", "acknowledge_ordinary_reply", "get_pending_ordinary_reply", "cancel_pending_ordinary_reply"]:
+		if not _presentation_port.has_method(method): return false
+	return true
+
+func _present_ordinary_controls(value: Dictionary) -> void:
+	_ordinary_generation += 1
+	_ordinary_choices.clear()
+	_ordinary_pending = {}
+	_ordinary_drawn = false
+	_ordinary_retry = null
+	for row: Button in contacts_panel.rows: row.disabled = false
+	if not _ordinary_available(): return
+	var pending: Dictionary = _presentation_port.get_pending_ordinary_reply()
+	if not pending.get("ok", false):
+		_show_ordinary_failure()
+		return
+	var command: Variant = pending.get("value", {}).get("command", {})
+	if command is Dictionary and not command.is_empty():
+		_ordinary_pending = command.duplicate(true)
+		if is_instance_valid(_reply_button): _reply_button.disabled = true
+		if command.get("friend_id") != value.friend_id: return
+		if not command.get("rendered_line") is Dictionary or not contacts_panel.present_pending_reply(command.rendered_line, str(command.get("locale", _primary))):
+			_show_ordinary_failure()
+			return
+		_ordinary_retry = Button.new()
+		_ordinary_retry.name = "RetryOrdinaryReply"
+		_ordinary_retry.text = _ordinary_retry_copy()
+		_ordinary_retry.custom_minimum_size.y = 48
+		_ordinary_retry.disabled = true
+		_ordinary_retry.pressed.connect(_on_ordinary_retry)
+		contacts_panel.messages.add_child(_ordinary_retry)
+		return
+	var choices: Variant = value.get("ordinary_choices", [])
+	if not choices is Array or choices.is_empty() or contacts_panel.messages == null: return
+	for choice: Variant in choices:
+		if not choice is Dictionary or not choice.get("reply_id") is String or not choice.get("text") is String: continue
+		var button := Button.new()
+		button.name = "OrdinaryReply" + str(choice.reply_id).right(1).to_upper()
+		button.custom_minimum_size.y = 56
+		button.accessibility_name = str(choice.reply_id).right(1).to_upper() + ": " + choice.text
+		button.pressed.connect(_on_ordinary_choice.bind(str(choice.reply_id)))
+		var margin := MarginContainer.new()
+		margin.set_meta("entry_id", "ui:ordinary-choice:" + str(choice.reply_id))
+		for edge: String in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_" + edge, 4)
+		contacts_panel.messages.add_child(margin)
+		margin.add_child(button)
+		var caption := Label.new()
+		caption.text = button.accessibility_name
+		caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		caption.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
+		caption.add_theme_color_override("font_color", Color("d8cfb7"))
+		button.add_child(caption)
+		caption.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		caption.offset_left = 16
+		caption.offset_right = -16
+		caption.offset_top = 12
+		caption.offset_bottom = -12
+		caption.resized.connect(func():
+			if is_instance_valid(button): button.custom_minimum_size.y = maxf(56, ceilf(caption.get_minimum_size().y) + 24))
+		_ordinary_choices.append(button)
+	for index: int in range(_ordinary_choices.size()):
+		var button: Button = _ordinary_choices[index]
+		button.focus_previous = _ordinary_choices[index - 1].get_path() if index > 0 else contacts_panel.transcript.get_path()
+		button.focus_next = _ordinary_choices[index + 1].get_path() if index + 1 < _ordinary_choices.size() else contacts_panel.transcript.get_path()
+	if not _ordinary_choices.is_empty():
+		contacts_panel.transcript.focus_next = _ordinary_choices[0].get_path()
+		contacts_panel.transcript.focus_neighbor_bottom = _ordinary_choices[0].get_path()
+
+func _on_ordinary_choice(reply_id: String) -> void:
+	if _ordinary_busy or not _ordinary_pending.is_empty() or not _ordinary_available(): return
+	for button: Button in _ordinary_choices: button.disabled = true
+	var prepared: Dictionary = _presentation_port.prepare_ordinary_reply(contacts_panel.selected_friend, reply_id, _primary)
+	refresh_view() # The retained port is the sole authority for a pending choice.
+	if not prepared.get("ok", false): _show_ordinary_failure()
+
+func _on_pending_ordinary_drawn(rendered_line: Dictionary) -> void:
+	if _ordinary_pending.is_empty() or rendered_line != _ordinary_pending.get("rendered_line") \
+		or not is_visible_in_tree(): return
+	_ordinary_drawn = true
+	_acknowledge_ordinary.call_deferred(str(_ordinary_pending.command_id), _ordinary_generation)
+
+func _on_ordinary_retry() -> void:
+	if _ordinary_pending.is_empty() or not _ordinary_drawn: return
+	_acknowledge_ordinary(str(_ordinary_pending.command_id), _ordinary_generation)
+
+func _acknowledge_ordinary(command_id: String, generation: int) -> void:
+	if _ordinary_busy or not _ordinary_drawn or _ordinary_pending.get("command_id") != command_id \
+		or generation != _ordinary_generation or not is_inside_tree() or not is_visible_in_tree() or is_queued_for_deletion(): return
+	_ordinary_busy = true
+	if is_instance_valid(_ordinary_retry): _ordinary_retry.disabled = true
+	var command := _ordinary_pending.duplicate(true)
+	var result: Variant = await _presentation_port.acknowledge_ordinary_reply(command, command.rendered_line.duplicate(true), _primary, _secondary)
+	if not is_inside_tree() or is_queued_for_deletion(): return
+	_ordinary_busy = false
+	if _ordinary_pending.get("command_id") != command_id: return
+	if result is Dictionary and result.get("ok", false):
+		refresh_view()
+		return
+	_show_ordinary_failure()
+	if is_instance_valid(_ordinary_retry):
+		_ordinary_retry.disabled = false
+		if is_visible_in_tree(): _ordinary_retry.grab_focus()
+
+func _cancel_ordinary_pending() -> bool:
+	if _ordinary_busy: return false
+	if _ordinary_pending.is_empty(): return true
+	if not _ordinary_available(): return false
+	var command := _ordinary_pending.duplicate(true)
+	var result: Dictionary = _presentation_port.cancel_pending_ordinary_reply(command)
+	if not result.get("ok", false): return false
+	_ordinary_generation += 1
+	_ordinary_pending = {}
+	_ordinary_drawn = false
+	return true
+
+func _on_ordinary_visibility_changed() -> void:
+	if not is_visible_in_tree(): _cancel_ordinary_pending()
+
+func _exit_tree() -> void:
+	if not _ordinary_pending.is_empty() and is_instance_valid(_presentation_port) \
+		and _presentation_port.has_method("cancel_pending_ordinary_reply"):
+		_presentation_port.cancel_pending_ordinary_reply(_ordinary_pending.duplicate(true))
+
+func _ordinary_retry_copy() -> String:
+	return {"en": "Retry", "zh-CN": "\u91cd\u8bd5", "zh-HK": "\u91cd\u8a66"}[_primary]
+
+func _show_ordinary_failure() -> void:
+	_status_label.text = {"en": "Your reply could not be saved. Please try again.",
+		"zh-CN": "\u6682\u65f6\u65e0\u6cd5\u4fdd\u5b58\u56de\u590d\uff0c\u8bf7\u91cd\u8bd5\u3002", "zh-HK": "\u66ab\u6642\u7121\u6cd5\u5132\u5b58\u56de\u8986\uff0c\u8acb\u91cd\u8a66\u3002"}[_primary]
+	_status_label.show()
 
 func _on_presentation_locale_changed(_locale_id: String) -> void:
 	refresh_view()
@@ -219,6 +365,7 @@ func show_window() -> void:
 
 
 func hide_window() -> void:
+	if not _cancel_ordinary_pending(): return
 	remember_focus()
 	super.hide_window()
 

@@ -181,7 +181,8 @@
           "kind": {
             "enum": [
               "echo_fallback",
-              "pair_full_observation"
+              "pair_full_observation",
+              "observer_presentation"
             ]
           },
           "owning_entry_id": {

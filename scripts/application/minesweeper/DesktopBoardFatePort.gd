@@ -240,6 +240,62 @@ func prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 	return _finish_prepare(request, command_id, projected_board_candidate, fate, source_action_receipt)
 
 
+## Rebuilds only the process-local preparation cache from an admitted, frozen departure.
+## Call before the action source commits, after installing its exact source checkpoint on cold
+## startup. No condition policy is evaluated and no owner is mutated. A temporary preparation
+## keeps mismatched frozen bytes from poisoning this port's retained command or candidate indexes.
+func prepare_recovery_departure(action_receipt: Dictionary, projected_board: Dictionary,
+		board_candidate: Dictionary, board_fate_receipt: Dictionary) -> Dictionary:
+	var ready := _require_configured()
+	if not ready.get("ok", false):
+		return ready
+	var valid_action := _ACTION_RECEIPT.validate(action_receipt)
+	if not valid_action.get("ok", false):
+		return valid_action
+	var action: Dictionary = valid_action["value"]["receipt"]
+	var command_id := str(action["transaction_id"])
+	var candidate_hash := _canonical_sha256(board_candidate)
+	var receipt_hash := _canonical_sha256(board_fate_receipt)
+	if candidate_hash.is_empty() or receipt_hash.is_empty():
+		return _fail(&"board_fate_recovery_mismatch", "frozen departure must canonicalize", {})
+	if _prepared.has(command_id):
+		var retained: Dictionary = _prepared[command_id]
+		var value: Dictionary = retained["result"]["value"]
+		if _canonical_sha256(retained["request"].get("source_action_receipt", {})) != _canonical_sha256(action) \
+				or _canonical_sha256(value["board_candidate"]) != candidate_hash \
+				or _canonical_sha256(value["board_fate_receipt"]) != receipt_hash:
+			return _fail(&"board_fate_recovery_mismatch", "frozen departure differs from retained preparation", {})
+		# Warm retries can arrive after the source or fate already changed the board. Keep the
+		# original pre-state rather than re-preparing against that advanced owner.
+		return (retained["result"] as Dictionary).duplicate(true)
+	var live: Dictionary = _board_state.call(&"capture")
+	var request := {
+		"command_id": command_id, "command_issuer_receipt": action["transaction_issuer_receipt"],
+		"run_id": action["run_id"], "branch_id": action["branch_id"],
+		"causal_day_instance": action["causal_day_instance"], "reason": "condition_departure",
+		"expected_board_identity": live["identity"], "expected_board_revision": int(live["revision"]),
+		"source_action_receipt": action, "projected_board_candidate": projected_board,
+		"projected_board_candidate_sha256": _canonical_sha256(projected_board),
+	}
+	var verifier: RefCounted = get_script().new()
+	var ledger_ready: Dictionary = verifier.configure_publication_ledger(_publication_ledger)
+	if not ledger_ready.get("ok", false):
+		return ledger_ready
+	var configured: Dictionary = verifier.configure(_board_state, _identity_issuer)
+	if not configured.get("ok", false):
+		return configured
+	var regenerated: Dictionary = verifier.prepare_projected_causal_departure(request)
+	if not regenerated.get("ok", false):
+		return regenerated
+	var regenerated_value: Dictionary = regenerated["value"]
+	if _canonical_sha256(regenerated_value["board_candidate"]) != candidate_hash \
+			or _canonical_sha256(regenerated_value["board_fate_receipt"]) != receipt_hash:
+		return _fail(&"board_fate_recovery_mismatch", "frozen departure does not match the exact source board", {})
+	_prepared[command_id] = (verifier._prepared[command_id] as Dictionary).duplicate(true)
+	_prepared_by_candidate_hash[candidate_hash] = command_id
+	return regenerated.duplicate(true)
+
+
 # -------------------------------------------------------------------------------------------------
 # capture() / commit() / rollback() / publish() -- the shared reversible-participant contract.
 # -------------------------------------------------------------------------------------------------

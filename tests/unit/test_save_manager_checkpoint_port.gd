@@ -374,3 +374,103 @@ func test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_
 	assert_false(rejected.get("ok", true))
 	assert_eq(rejected["code"], &"consequence_checkpoint_ordinal_stage_invalid")
 	assert_false(FileAccess.file_exists(str(wired["root"]).path_join("desktop-consequence-checkpoint.json")))
+
+
+func _completion_snapshot() -> Dictionary:
+	var raw: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string("res://tests/fixtures/saves/v6_desktop_prepared.json"))["value"]
+	return preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(raw)["value"]["candidate"]
+
+
+func _checkpoint_inputs(snapshot: Dictionary) -> Dictionary:
+	var snapshot_input := {}
+	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
+			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop", "schedule_view",
+			"command_receipts"]:
+		snapshot_input[key] = snapshot[key]
+	return {"snapshot_input": snapshot_input, "dialogic_checkpoint": {}, "route_id": "main",
+		"active_app_id": snapshot["active_app_id"], "audio_context": snapshot["audio_context"],
+		"content_version": snapshot["content_version"]}
+
+
+func _write_pending_for_snapshot(port: RefCounted, snapshot: Dictionary) -> void:
+	var state := _admitted_state_candidate("completed-round")
+	state["causal_day_instance"] = snapshot["lifecycle"]["causal_day_instance"]
+	state["causal_day_instance_issuer_receipt"] = snapshot["lifecycle"]["causal_day_instance_issuer_receipt"]
+	state["pending"]["recovery_payload"]["action_receipt"] = snapshot["lifecycle"].duplicate(true)
+	var canonical: Dictionary = preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(
+		state["pending"]["recovery_payload"])
+	state["pending"]["recovery_payload_sha256"] = str(canonical["value"]).sha256_text()
+	var header := _header("completed-round")
+	header["run_id"] = snapshot["run_id"]
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(header, state)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	if prepared.get("ok", false):
+		assert_true(port.commit_consequence_checkpoint(prepared["value"]["candidate"],
+			prepared["value"]["checkpoint_receipt"]).get("ok", false))
+
+
+func _write_full_result(wired: Dictionary, snapshot: Dictionary) -> void:
+	assert_true(wired["manager"]._journal.reset(snapshot["run_id"]).get("ok", false))
+	var lease: Dictionary = wired["gate"].acquire(&"causal_transaction")
+	assert_true(lease.get("ok", false))
+	var prepared: Dictionary = wired["port"].prepare(_checkpoint_inputs(snapshot), &"post_result",
+		{"kind": &"autosave", "reason": &"automatic"})
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	if prepared.get("ok", false):
+		assert_true(wired["port"].commit(prepared["value"]["candidate"]).get("ok", false))
+	assert_true(wired["gate"].release(&"causal_transaction", lease["value"]["token"]).get("ok", false))
+
+
+func test_full_post_result_snapshot_survives_restart_and_supersedes_unfinished_sidecar_cleanup() -> void:
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	_write_pending_for_snapshot(wired["port"], snapshot)
+	snapshot["desktop"]["consequence"]["causal_sequence"] = 1
+	snapshot["desktop"]["consequence"]["run_revision"] = 1
+	snapshot["gameplay"]["money"] = 777
+	snapshot["gameplay"]["minesweeper_app_rounds_finished_today"] = 1
+	_write_full_result(wired, snapshot)
+	# No terminal sidecar write: this is the crash window immediately after full Autosave commit.
+	var fresh_manager: Node = load(SAVE_MANAGER_PATH).new()
+	autofree(fresh_manager)
+	assert_true(fresh_manager.initialize(load(STORAGE_PATH).new(wired["root"])).get("ok", false))
+	var fresh_port: RefCounted = load(CHECKPOINT_PORT_PATH).new(fresh_manager)
+	assert_true(fresh_port.configure_fatal_latch(load(GATE_PATH).new()).get("ok", false))
+	var pending: Dictionary = fresh_port.read_pending_consequence_checkpoint()
+	assert_true(pending.get("ok", false), JSON.stringify(pending))
+	assert_false(pending.get("value", {}).get("found", true), "completed gameplay must not replay an older payout")
+	var document: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string(str(wired["root"]).path_join("autosave.json")))["value"]
+	assert_eq(document["current_snapshot"]["checkpoint_kind"], "post_result")
+	assert_eq(document["current_snapshot"]["snapshot"]["gameplay"]["money"], 777)
+	assert_eq(document["current_snapshot"]["snapshot"]["gameplay"]["minesweeper_app_rounds_finished_today"], 1)
+	# The reader repairs ordinal 12, so a subsequent Autosave replacement cannot resurrect it.
+	assert_true(fresh_manager._storage.remove("autosave.json").get("ok", false))
+	var after_replacement: Dictionary = fresh_port.read_pending_consequence_checkpoint()
+	assert_true(after_replacement.get("ok", false), JSON.stringify(after_replacement))
+	assert_false(after_replacement.get("value", {}).get("found", true))
+
+
+func test_earlier_full_snapshot_does_not_suppress_admitted_recovery() -> void:
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	_write_pending_for_snapshot(wired["port"], snapshot)
+	_write_full_result(wired, snapshot)
+	var pending: Dictionary = wired["port"].read_pending_consequence_checkpoint()
+	assert_true(pending.get("ok", false), JSON.stringify(pending))
+	assert_true(pending.get("value", {}).get("found", false), "pre-result causal counters cannot prove completion")
+
+
+func test_completion_supersession_requires_the_exact_saved_desktop_generation() -> void:
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	_write_pending_for_snapshot(wired["port"], snapshot)
+	snapshot["desktop"]["consequence"]["causal_sequence"] = 1
+	snapshot["desktop"]["consequence"]["run_revision"] = 1
+	# Evaluate the binding directly: a continuation remap must not be mistaken for the original.
+	var pending: Dictionary = wired["port"].read_pending_consequence_checkpoint()
+	var record := {"stage_candidate": pending["value"]["stage_candidate"]}
+	assert_true(wired["port"]._completed_snapshot_supersedes(record, snapshot))
+	snapshot["lifecycle"]["desktop_timeline_generation"] += 1
+	assert_false(wired["port"]._completed_snapshot_supersedes(record, snapshot))

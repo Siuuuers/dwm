@@ -58,6 +58,8 @@ const CHILD_KINDS: Array[String] = [
 	"empty_schedule_done",
 	"contact_source",
 	"hospital_resolution",
+	"condition_hospital_stage",
+	"condition_hospital_retirement",
 	"hospital_miss",
 	"sylvia_hospital_witness",
 	"day_resolution_stage",

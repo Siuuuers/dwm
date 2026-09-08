@@ -8,6 +8,7 @@ extends "res://addons/gut/test.gd"
 
 const PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const REAL_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
+const SCHEDULE_RESTORE_FIXTURE := preload("res://tests/support/ScheduleRestoreFixture.gd")
 
 
 class _Providers extends RefCounted:
@@ -61,6 +62,18 @@ func _prepared_first_stage(port: Object) -> Dictionary:
 
 func _bundle(port: Object) -> Dictionary:
 	return _prepared_first_stage(port)["snapshot_input"]
+
+
+func _schedule_restore_fixture() -> Dictionary:
+	var fixture: Dictionary = SCHEDULE_RESTORE_FIXTURE.create()
+	assert_true(fixture.get("ok", false), "schedule-view restore fixture configured")
+	if not fixture.get("ok", false):
+		return {}
+	var lifecycle: Dictionary = GameState._run_lifecycle.to_dict()
+	var opened: Dictionary = fixture["value"]["view"].open_day(
+		int(lifecycle["day"]), str(lifecycle["causal_day_instance"]))
+	assert_true(opened.get("ok", false), "schedule-view fixture opened on the live lifecycle day")
+	return fixture
 
 
 ## Walks the real plan to target_stage_id, committing every earlier stage live exactly as the
@@ -169,6 +182,10 @@ func _real_checkpoint_port() -> Object:
 	var manager: Node = SAVE_MANAGER.new()
 	add_child_autofree(manager)
 	manager.initialize(STORAGE.new(root))
+	var schedule_restore: Dictionary = _schedule_restore_fixture()
+	manager._restore_participants = {
+		"schedule_view": schedule_restore["value"]["participant"],
+	}
 	var port: Object = REAL_CHECKPOINT_PORT.new(manager)
 	var gate: Object = GATE.new()
 	port.configure_fatal_latch(gate)
@@ -257,6 +274,10 @@ func _snapshot_with_active_plan() -> Dictionary:
 	var port: Object = _port()
 	assert_true(port.begin_or_resume("done:%s:day-1" % str(GameState._run_lifecycle.to_dict()["run_id"])).get("ok", false), "resolution begun")
 	var bundle := _bundle(port)
+	var schedule_restore: Dictionary = _schedule_restore_fixture()
+	var schedule_view: Dictionary = schedule_restore["value"]["view"].snapshot()
+	assert_true(schedule_view.get("ok", false), "the schema fixture carries a real saved Schedule view")
+	bundle["snapshot_input"]["schedule_view"] = schedule_view["value"]["view"]
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
 		bundle["snapshot_input"], bundle["dialogic_checkpoint"], str(bundle["route_id"]),
 		bundle["active_app_id"], bundle["audio_context"], int(bundle["content_version"]), 1)
@@ -345,3 +366,77 @@ func test_both_validators_reject_a_two_day_gap() -> void:
 	assert_false(RUN_SNAPSHOT_SCHEMA.validate(candidate).get("ok", false), "the schema rejects it")
 	var lifecycle: RefCounted = RUN_LIFECYCLE.new()
 	assert_false(lifecycle.prepare_restore(candidate["lifecycle"]).get("ok", false), "and so does RunLifecycle")
+
+
+func test_daily_reset_is_detached_checkpointed_and_reversible() -> void:
+	GameState.minesweeper_rounds_left = 0
+	GameState.minesweeper_app_rounds_finished_today = 2
+	GameState.set_stat("motivation", 1)
+	GameState.condition_streak_days = 1
+	var port: Object = _port()
+	var value := _prepared_at_stage(port, "reset_day_scope")
+	assert_false(value.is_empty())
+	if value.is_empty(): return
+	var gameplay: Dictionary = value.snapshot_input.snapshot_input.gameplay
+	assert_eq(GameState.minesweeper_rounds_left, 0, "prepare does not mutate live resources")
+	assert_eq(gameplay.minesweeper_rounds_left, 2, "checkpoint records reset resources")
+	assert_eq(gameplay.minesweeper_app_rounds_finished_today, 0)
+	assert_eq(gameplay.stats.motivation, 7)
+	assert_eq(gameplay.condition_effects_today, ["sequela"], "uncleared condition carries once")
+	assert_eq(gameplay.condition_streak_days, 0)
+	var backup: Dictionary = port.capture().value.backup
+	assert_true(port.commit(value.run_candidate).get("ok", false))
+	assert_eq(GameState.capture_run_snapshot_input().gameplay, gameplay, "live commit matches saved projection")
+	assert_true(port.rollback(backup).get("ok", false))
+	assert_eq(GameState.minesweeper_rounds_left, 0)
+	assert_eq(GameState.get_stat("motivation"), 1)
+	assert_eq(GameState.condition_streak_days, 1)
+
+
+func test_daily_reset_without_carried_condition_clears_today_effects() -> void:
+	GameState.condition_effects_today = ["sequela"]
+	GameState.condition_streak_days = 0
+	var projected: Dictionary = GameState.capture_new_day_gameplay()
+	assert_eq(projected.condition_effects_today, [])
+	assert_eq(GameState.condition_effects_today, ["sequela"], "pure projection")
+
+
+func test_schedule_condition_is_detached_checkpointed_and_rolls_back_with_the_stage() -> void:
+	GameState.set_stat("pressure", 10)
+	GameState.set_stat("health", 5)
+	GameState.condition_effects_today.assign(["sequela"])
+	var port := _port()
+	var prepared := _prepared_at_stage(port, "commit_outcomes")
+	assert_false(prepared.is_empty())
+	if prepared.is_empty(): return
+	var backup: Dictionary = port.capture().value.backup
+	assert_false(GameState.pending_hospital, "preparation does not trigger Hospital live")
+	assert_eq(GameState.get_stat("pressure"), 10)
+	var candidate: Dictionary = prepared.run_candidate.gameplay
+	assert_true(candidate.pending_hospital, "either danger boundary with carried sequela triggers")
+	assert_eq(candidate.stats.pressure, 9)
+	assert_eq(candidate.condition_resolved_day, 1)
+	assert_eq(prepared.snapshot_input.snapshot_input.gameplay, candidate, "disk candidate includes the exact condition result")
+	assert_true(port.commit(prepared.run_candidate).get("ok", false))
+	assert_true(GameState.pending_hospital)
+	var once: Dictionary = GameState.capture_run_snapshot_input().gameplay
+	assert_true(port.commit(prepared.run_candidate).get("ok", false))
+	assert_eq(GameState.capture_run_snapshot_input().gameplay, once, "absolute retry cannot charge penalty twice")
+	assert_true(port.rollback(backup).get("ok", false))
+	assert_false(GameState.pending_hospital)
+	assert_eq(GameState.get_stat("pressure"), 10)
+
+
+func test_schedule_condition_requires_carried_sequela_and_day7_bypasses_it() -> void:
+	GameState.set_stat("pressure", 10)
+	GameState.set_stat("health", 0)
+	var source: Dictionary = GameState.capture_run_snapshot_input().gameplay
+	var first: Dictionary = PORT._prepare_schedule_condition_gameplay(source, 1)
+	assert_false(first.pending_hospital, "new danger alone cannot invent hospitalization")
+	assert_eq(first.condition_streak_days, 1)
+	assert_eq(source.stats.pressure, 10, "preparation is detached")
+	var carried := source.duplicate(true)
+	carried.condition_effects_today.assign(["sequela"])
+	assert_eq(PORT._prepare_schedule_condition_gameplay(carried, 7), carried, "Day7 Done never evaluates a new condition")
+	carried.condition_resolved_day = 1
+	assert_eq(PORT._prepare_schedule_condition_gameplay(carried, 1), carried, "already resolved day is not reevaluated")

@@ -548,6 +548,9 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 					% [str(record.get("atom_id", "")), str(site)])
 
 	var registered_lines: Dictionary = {}
+	for entry_id: String in known:
+		for observer: Dictionary in known[entry_id].get("observer_atoms", []):
+			registered_lines[str(observer.line_id)] = entry_id
 	for record: Dictionary in _registry_block(ids_document, "reply_lines"):
 		registered_lines[str(record.get("line_id", ""))] = str(record.get("owning_entry_id", ""))
 
@@ -663,6 +666,11 @@ static func validate_line_id(document: Dictionary, entry_id: String, line_id: St
 			return _fail(&"LINE_ID_NOT_OWNED",
 				"%s: the line is registered, but its declared home is %s" % [line_id, owner])
 		return {"ok": true, "value": {"line_id": line_id, "owning_entry_id": owner}}
+	for owner: String in _entry_index(document):
+		for observer: Dictionary in _entry_index(document)[owner].get("observer_atoms", []):
+			if str(observer.line_id) != line_id: continue
+			if owner != entry_id: return _fail(&"LINE_ID_NOT_OWNED", line_id)
+			return {"ok": true, "value": {"line_id": line_id, "owning_entry_id": owner}}
 	return _fail(&"LINE_ID_UNREGISTERED", "%s is not a registered line id" % line_id)
 
 

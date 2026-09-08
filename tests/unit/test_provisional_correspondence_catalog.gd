@@ -28,7 +28,7 @@ func test_catalog_covers_every_reachable_fixed_message_identity() -> void:
 	actual.sort()
 	var expected := _expected_ids()
 	assert_eq(actual,expected)
-	assert_eq(actual.size(),51)
+	assert_eq(actual.size(),55)
 
 
 func test_every_entry_is_localized_plain_incoming_copy_without_identity_leakage() -> void:
@@ -38,7 +38,7 @@ func test_every_entry_is_localized_plain_incoming_copy_without_identity_leakage(
 		var row: Dictionary = catalog[message_id]
 		var keys: Array = row.keys()
 		keys.sort()
-		assert_eq(keys,["outgoing","texts"],message_id)
+		assert_eq(keys, ["hospital_followup", "outgoing", "texts"] if row.has("hospital_followup") else ["outgoing", "texts"], message_id)
 		assert_false(row.outgoing,message_id)
 		var locales: Array = row.texts.keys()
 		locales.sort()
@@ -73,6 +73,31 @@ func _expected_ids() -> Array:
 			unique["busy:%s:day%d" % [friend,day+1]] = true
 			unique["nevermind:%s:day%d" % [friend,day+1]] = true
 			unique["judge:%s:day%d" % [friend,day+1]] = true
+	for care_day: int in [2, 4, 5, 6]:
+		unique["care.sylvia.day%d" % care_day] = true
 	var ids: Array = unique.keys()
 	ids.sort()
 	return ids
+func test_hospital_reaction_inserts_are_finite_localized_and_detached() -> void:
+	if not _require_catalog(): return
+	var catalog: Dictionary = _script.build()
+	var expected := []
+	for friend: String in ["priscilla", "lavinia"]:
+		for day: int in FRIEND_DAYS[friend]:
+			if day < 7: expected.append("missed_question:%s:day%d" % [friend, day + 1])
+	for id: String in catalog:
+		assert_eq(catalog[id].has("hospital_followup"), id in expected, id)
+		if id not in expected: continue
+		var inserts: Dictionary = catalog[id].hospital_followup
+		assert_eq(inserts.size(), 2)
+		assert_true(inserts.explanation.outgoing)
+		assert_false(inserts.reaction.outgoing)
+		for role: String in ["explanation", "reaction"]:
+			var keys: Array = inserts[role].keys()
+			keys.sort()
+			assert_eq(keys, ["outgoing", "texts"])
+			for locale: String in ["en", "zh-CN", "zh-HK"]:
+				assert_false(str(inserts[role].texts[locale]).is_empty())
+				assert_false(str(inserts[role].texts[locale]).contains("???"))
+	for locale: String in ["zh-CN", "zh-HK"]:
+		assert_false(str(catalog["care.sylvia.day2"].texts[locale]).contains("???"))

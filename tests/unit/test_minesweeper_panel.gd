@@ -28,12 +28,26 @@ func _view(difficulty: String = "beginner") -> Dictionary:
 	return {"board":board,"register":{"difficulty":difficulty,"rounds":2,"mine_estimate":null,
 		"foresight":null,"no_flag":"intact","custody":false,"difficulty_enabled":[]},
 		"assignments":[true,false,false,false,false,false,false,false,false],
-		"actions":["reveal","flag","drag","assignments","rules"]}
+		"actions":["reveal","flag","drag","assignments","rules"],"settled":false}
 
 func _port(difficulty: String = "beginner") -> PublicPort:
 	var port := PublicPort.new()
 	port.view = _view(difficulty)
 	return port
+
+func _settled_view() -> Dictionary:
+	var value := _view()
+	value.board.terminal = true
+	value.board.custody = true
+	for cell: Dictionary in value.board.cells:
+		cell.bracketed = false
+		cell.inspectable = false
+		cell.pressable = false
+		cell.actions = []
+	value.register.custody = true
+	value.actions = ["new_board","assignments","rules"]
+	value.settled = true
+	return value
 
 func _panel(port: PublicPort) -> Control:
 	var viewport := SubViewport.new()
@@ -198,6 +212,20 @@ func test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are
 	assert_false(panel.present(bad),"A mode subset cannot leave F able to choose an unpublished action.")
 	assert_eq(panel.public_view,port.view)
 	assert_true(port.calls.is_empty())
+
+func test_settled_terminal_enables_real_new_board_and_returns_to_unpaid_view() -> void:
+	var port := _port()
+	var panel := _panel(port)
+	assert_true(panel.present(_settled_view()))
+	assert_false(panel.dock.buttons.new_board.disabled)
+	assert_eq(panel.worksheet.grid.focus_mode,Control.FOCUS_NONE)
+	port.next_view = _view()
+	panel.dock.buttons.new_board.pressed.emit()
+	assert_eq(port.calls,[{"action":"new_board","index":-1,"revision":0}])
+	assert_false(panel.public_view.settled)
+	assert_false(panel.public_view.board.terminal)
+	assert_true(panel.dock.buttons.new_board.disabled)
+
 
 func test_binding_is_idempotent_and_cannot_redirect_to_a_replacement_port() -> void:
 	var first := _port()

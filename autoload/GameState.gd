@@ -32,7 +32,7 @@ const CONDITION_NAUSEA := "nausea"
 const CONDITION_DIZZY := "dizzy"
 const CONDITION_SEQUELA := "sequela"
 const CONDITION_FAINT := "faint"
-const AFFECTION_MIN := -7
+const AFFECTION_MIN := -4
 const AFFECTION_MAX := 10
 
 # Embedded static data (mirror of DataCatalog; see file header note).
@@ -137,6 +137,8 @@ const _RUN_SNAPSHOT_SCHEMA_DESKTOP := preload("res://scripts/domain/run/RunSnaps
 const _DAY_RESOLUTION_COORDINATOR_SCRIPT := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
 const _DAY_RESOLUTION_PORT_SCRIPT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const _ORDINARY_CORRESPONDENCE := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
+const _DAY7_FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
 const _DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
 const _PROVISIONAL_RELATIONSHIP_RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
 const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
@@ -677,36 +679,243 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 ## Uses the same pure preparation as commit so UI content can be checked before any read or
 ## acceptance mutation. The authentic issuer proof is required even for this detached candidate.
 func preview_open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
+	var day7_admitted := require_day7_presentations_complete()
+	if not day7_admitted.get("ok", false): return day7_admitted
 	var verified := _verify_contact_command(command_id, command_issuer_receipt)
 	if not verified.get("ok", false):
 		return verified
 	var action_id := _contact_action_id(friend_id)
 	var record := _schedule_action_record(action_id)
-	if record.is_empty():
+	var care_ready: bool = friend_id == "sylvia" and (not _CONTACT_INVITATION_STATE.get_pending_sylvia_care(contacts, day).is_empty()
+		or (contacts.transaction_receipts.get(command_id, {}) as Dictionary).get("kind") == "open_sylvia_care")
+	if record.is_empty() and not care_ready:
 		return _transaction_failure(&"contact_offer_absent", action_id)
 	return _CONTACT_INVITATION_STATE.prepare_open_contact(
 		contacts, friend_id, day, command_id, command_issuer_receipt,
 		_identity_issuer, record)
 
 
+## Ordinary correspondence uses the existing Contacts bag and full Run checkpoint.
+func preview_ordinary_reply(friend_id: String, reply_id: String, locale: String,
+		command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
+	var session: Dictionary = capture_live_session()
+	var admitted: Dictionary = validate_live_session(session.value)
+	if not admitted.get("ok", false): return admitted
+	if _run_lifecycle.get_state() != &"PLAYING" or day >= 7:
+		return _transaction_failure(&"ordinary_reply_unavailable", "")
+	var verified := _verify_contact_command(command_id, command_issuer_receipt)
+	if not verified.get("ok", false): return verified
+	var definition: Dictionary = _ORDINARY_CORRESPONDENCE.reply_definition(reply_id, locale)
+	if not definition.get("ok", false): return definition
+	if definition.value.friend_id != friend_id or int(definition.value.day) != day:
+		return _transaction_failure(&"ordinary_reply_source_mismatch", "")
+	var line := {"view_token": command_id, "line_id": definition.value.line_id, "text": definition.value.text}
+	var prepared: Dictionary = _ORDINARY_CORRESPONDENCE.prepare_reply(contacts, day, reply_id,
+		locale, command_id, command_issuer_receipt, line)
+	if not prepared.get("ok", false): return prepared
+	var hashed: Dictionary = _CANONICAL_JSON.stringify(contacts)
+	if not hashed.get("ok", false): return hashed
+	prepared.value["command"] = {"command_id": command_id,
+		"command_issuer_receipt": command_issuer_receipt.duplicate(true),
+		"live_session": session.value.duplicate(true), "source_contacts_sha256": str(hashed.value).sha256_text(),
+		"source_day": day, "friend_id": friend_id, "reply_id": reply_id, "locale": locale,
+		"rendered_line": line.duplicate(true)}
+	return prepared
+
+func commit_ordinary_reply(command: Dictionary, rendered_line: Dictionary) -> Dictionary:
+	if not _ordinary_command_has_keys(command, ["command_id", "command_issuer_receipt", "live_session",
+		"source_contacts_sha256", "source_day", "friend_id", "reply_id", "locale", "rendered_line"]) \
+			or typeof(command.source_day) != TYPE_INT or not command.rendered_line is Dictionary \
+			or not command.friend_id is String or not command.reply_id is String or not command.locale is String:
+		return _transaction_failure(&"invalid_ordinary_command", "")
+	var admitted := _admit_ordinary_command(command)
+	if not admitted.get("ok", false): return admitted
+	if day != command.source_day or day >= 7 or rendered_line != command.rendered_line:
+		return _transaction_failure(&"ordinary_reply_source_mismatch", "")
+	var definition: Dictionary = _ORDINARY_CORRESPONDENCE.reply_definition(command.reply_id, command.locale)
+	if not definition.get("ok", false): return definition
+	if definition.value.friend_id != command.friend_id:
+		return _transaction_failure(&"ordinary_reply_source_mismatch", "")
+	var prepared: Dictionary = _ORDINARY_CORRESPONDENCE.prepare_reply(contacts, day, command.reply_id,
+		command.locale, command.command_id, command.command_issuer_receipt, rendered_line)
+	if not prepared.get("ok", false): return prepared
+	return _commit_ordinary_candidate(prepared, command.friend_id, command.command_id)
+
+func get_pending_ordinary_echoes() -> Array[Dictionary]:
+	return _ORDINARY_CORRESPONDENCE.pending_echoes_oldest_first(contacts)
+
+func commit_ordinary_echo(command: Dictionary, presentation_receipt: Dictionary) -> Dictionary:
+	if not _ordinary_command_has_keys(command, ["command_id", "command_issuer_receipt", "live_session",
+		"source_contacts_sha256", "echo_id", "presentation_atom_id"]) \
+			or not command.echo_id is String or not command.presentation_atom_id is String:
+		return _transaction_failure(&"invalid_ordinary_command", "")
+	var admitted := _admit_ordinary_command(command)
+	if not admitted.get("ok", false): return admitted
+	if day != 7: return _transaction_failure(&"ordinary_echo_day_unavailable", "")
+	if not get_pending_day7_followups().is_empty():
+		return _transaction_failure(&"day7_followups_pending", "")
+	var prepared: Dictionary = _ORDINARY_CORRESPONDENCE.prepare_echo_presented(contacts, command.echo_id,
+		command.presentation_atom_id, command.command_id, command.command_issuer_receipt, presentation_receipt)
+	if not prepared.get("ok", false): return prepared
+	return _commit_ordinary_candidate(prepared, "", command.command_id)
+
+func _admit_ordinary_command(command: Dictionary) -> Dictionary:
+	if not command.command_id is String or not command.command_issuer_receipt is Dictionary \
+			or not command.live_session is Dictionary or not command.source_contacts_sha256 is String:
+		return _transaction_failure(&"invalid_ordinary_command", "")
+	var admitted: Dictionary = validate_live_session(command.live_session)
+	if not admitted.get("ok", false): return admitted
+	if _run_lifecycle.get_state() != &"PLAYING":
+		return _transaction_failure(&"ordinary_correspondence_unavailable", "")
+	var verified := _verify_contact_command(command.command_id, command.command_issuer_receipt)
+	if not verified.get("ok", false): return verified
+	if not contacts.get("transaction_receipts", {}).has(command.command_id):
+		var hashed: Dictionary = _CANONICAL_JSON.stringify(contacts)
+		if not hashed.get("ok", false): return hashed
+		if str(hashed.value).sha256_text() != command.source_contacts_sha256:
+			return _transaction_failure(&"ordinary_correspondence_stale", "")
+	return {"ok": true}
+
+func _commit_ordinary_candidate(prepared: Dictionary, friend_id: String, command_id: String) -> Dictionary:
+	if contacts.get("transaction_receipts", {}).has(command_id): return prepared
+	if not _contact_checkpoint_writer.is_valid():
+		return _transaction_failure(&"contact_checkpoint_writer_unconfigured", "")
+	var lease: Dictionary = _mutation_gate.acquire(&"causal_transaction")
+	if not lease.get("ok", false): return lease
+	var captured: Dictionary = capture_restore_state()
+	if not captured.get("ok", false):
+		_mutation_gate.release(&"causal_transaction", str(lease.value.token))
+		return captured
+	contacts = prepared.value.candidate.duplicate(true)
+	var saved: Dictionary = _contact_checkpoint_writer.call()
+	if not saved.get("ok", false):
+		var rolled: Dictionary = rollback_restore_silent(captured.value.backup)
+		if not rolled.get("ok", false):
+			_mutation_gate.latch_fatal({"source": "ordinary_correspondence", "phase": "rollback",
+				"code": "ORDINARY_ROLLBACK_FAILED", "details": {"cause": str(rolled.get("code", ""))}})
+			return rolled
+		var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+		return saved if released.get("ok", false) else released
+	var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+	if not released.get("ok", false): return released
+	if not friend_id.is_empty(): chat_changed.emit(friend_id)
+	save_relevant_state_changed.emit()
+	return prepared
+
+static func _ordinary_command_has_keys(command: Dictionary, keys: Array) -> bool:
+	if command.size() != keys.size(): return false
+	for key: String in keys:
+		if not command.has(key): return false
+	return true
+
+
+func get_pending_day7_followups() -> Array[Dictionary]:
+	return _DAY7_FOLLOWUPS.pending_day7_followups(contacts)
+
+func require_day7_presentations_complete() -> Dictionary:
+	if day == 7 and _run_lifecycle.get_state() == &"PLAYING" \
+			and (not get_pending_day7_followups().is_empty() or not get_pending_ordinary_echoes().is_empty()):
+		return _transaction_failure(&"day7_presentations_pending", "")
+	return {"ok": true}
+
+func commit_day7_followup(command: Dictionary, presentation_receipt: Dictionary) -> Dictionary:
+	if not _ordinary_command_has_keys(command, ["command_id", "command_issuer_receipt", "live_session",
+		"source_contacts_sha256", "friend_id", "message_id", "sequence"]) \
+			or not command.friend_id is String or not command.message_id is String or typeof(command.sequence) != TYPE_INT:
+		return _transaction_failure(&"invalid_day7_followup_command", "")
+	if contacts.get("transaction_receipts", {}).has(command.command_id):
+		return _transaction_failure(&"day7_followup_command_reused", "")
+	var admitted := _admit_ordinary_command(command)
+	if not admitted.get("ok", false): return admitted
+	var pending: Array[Dictionary] = get_pending_day7_followups()
+	if day != 7 or pending.is_empty(): return _transaction_failure(&"day7_followup_unavailable", "")
+	var first: Dictionary = pending[0]
+	var entry_id: String = _DAY7_FOLLOWUPS.entry_id_for(contacts, first)
+	if entry_id.is_empty(): return _transaction_failure(&"day7_followup_source_mismatch", "")
+	var expected := {"entry_id": entry_id,
+		"kind": "day7_followup", "view_token": command.command_id,
+		"friend_id": first.friend_id, "message_id": first.message.message_id, "sequence": first.message.sequence}
+	if command.friend_id != first.friend_id or command.message_id != first.message.message_id \
+			or command.sequence != first.message.sequence or presentation_receipt != expected:
+		return _transaction_failure(&"day7_followup_source_mismatch", "")
+	var candidate := contacts.duplicate(true)
+	candidate.read_watermarks[command.friend_id] = command.sequence
+	var checked: Dictionary = _CONTACT_INVITATION_STATE.validate_state(candidate)
+	if not checked.get("ok", false): return checked
+	# This is the existing history read watermark, not invitation acceptance.
+	return _commit_ordinary_candidate({"ok": true, "value": {"candidate": candidate},
+		"receipt": expected}, command.friend_id, command.command_id)
+
+
+var _contact_checkpoint_writer: Callable
+
+func configure_contact_checkpoint_writer(writer: Callable) -> Dictionary:
+	if not writer.is_valid() or writer.get_argument_count() != 0:
+		return _transaction_failure(&"invalid_contact_checkpoint_writer", "a no-argument writer is required")
+	if _contact_checkpoint_writer.is_valid() and _contact_checkpoint_writer != writer:
+		return _transaction_failure(&"contact_checkpoint_writer_already_configured", "replacement refused")
+	_contact_checkpoint_writer = writer
+	return {"ok": true}
+
 func open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
 	var replayed: bool = (contacts.get("transaction_receipts", {}) as Dictionary).has(command_id)
 	var opened := preview_open_contact(friend_id, command_id, command_issuer_receipt)
-	if not opened.get("ok", false):
-		return opened
-	contacts = opened["value"]["candidate"]
+	if not opened.get("ok", false): return opened
+	var operation: Dictionary = opened.value.candidate.transaction_receipts[command_id]
+	var has_care: bool = not replayed and operation.has("hospital_care")
+	var lease := {}
+	var backup := {}
+	var care_route: Dictionary = dating_route_state.get("sylvia", {}).duplicate(true)
+	var care_affection := int(affection.get("sylvia", 0))
+	if has_care:
+		if _run_lifecycle.get_state() != &"PLAYING" or _mutation_gate == null:
+			return _transaction_failure(&"care_read_unavailable", "care requires a playable day and mutation gate")
+		if not _contact_checkpoint_writer.is_valid():
+			return _transaction_failure(&"contact_checkpoint_writer_unconfigured", "care must be saved before publication")
+		var tier: String = str(care_route.get("relationship_state", "friend"))
+		if tier not in ["friend", "ambiguous", "love"]:
+			return _transaction_failure(&"invalid_care_relationship_state", tier)
+		for witness_id: String in operation.hospital_care.witness_ids:
+			var witness: Dictionary = operation.hospital_care.witnesses[witness_id]
+			care_affection = clampi(care_affection + int(witness.affection_delta), AFFECTION_MIN, AFFECTION_MAX)
+			care_route["dark_points"] = clampi(int(care_route.get("dark_points", 0)) + int(witness.dark_delta), 0, 4)
+			tier = "ambiguous" if tier == "friend" else "love"
+		care_route["relationship_state"] = tier
+		lease = _mutation_gate.acquire(&"causal_transaction")
+		if not lease.get("ok", false): return lease
+		var captured: Dictionary = capture_restore_state()
+		if not captured.get("ok", false):
+			_mutation_gate.release(&"causal_transaction", str(lease.value.token))
+			return captured
+		backup = captured.value.backup
+	contacts = opened.value.candidate
 	if not replayed:
-		daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
+		# Reading care cannot manufacture a Day-7 invitation acceptance or a date witness.
+		if operation.kind != "open_sylvia_care":
+			daily_opened_contacts["day:%d:friend:%s" % [day, friend_id]] = true
+		if has_care:
+			affection["sylvia"] = care_affection
+			dating_route_state["sylvia"] = care_route
+			friend_attitude["sylvia"] = "fixated"
+			var saved: Dictionary = _contact_checkpoint_writer.call()
+			if not saved.get("ok", false):
+				var rolled: Dictionary = rollback_restore_silent(backup)
+				var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+				if not rolled.get("ok", false): return rolled
+				return saved if released.get("ok", false) else released
+			var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+			if not released.get("ok", false): return released
 		var committed := {"ok": true, "code": &"ok", "value": {
-			"receipt": opened["receipt"].duplicate(true), "replayed": false,
-		}, "receipt": opened["receipt"].duplicate(true)}
-		contact_open_committed.emit(committed.duplicate(true))
+			"receipt": opened.receipt.duplicate(true), "replayed": false,
+		}, "receipt": opened.receipt.duplicate(true)}
+		if operation.kind != "open_sylvia_care": contact_open_committed.emit(committed.duplicate(true))
+		if has_care: friends_changed.emit()
 		emit_signal("chat_changed", friend_id)
 		emit_signal("save_relevant_state_changed")
 		return committed
 	return {"ok": true, "code": &"ok", "value": {
-		"receipt": opened["receipt"].duplicate(true), "replayed": true,
-	}, "receipt": opened["receipt"].duplicate(true)}
+		"receipt": opened.receipt.duplicate(true), "replayed": true,
+	}, "receipt": opened.receipt.duplicate(true)}
 
 
 func get_daily_message_friend_for_finished_round(round_number: int, target_day: int = -1) -> String:
@@ -738,8 +947,8 @@ func unlock_contact_message_after_minesweeper_finished(result: Dictionary) -> Di
 		return {}
 	if _group_is_active():
 		return {}
-	# Day-7 invitation messages require at least Ambiguous affection (CONTRACTS §2).
-	if day == 7 and get_affection_tier(friend) not in ["ambiguous", "love"]:
+	# Day 7 uses the durable tier; raw affection cannot grant or remove an invitation.
+	if day == 7 and not _has_day7_relationship_tier(friend):
 		return {}
 	var key: String = "day:%d:friend:%s" % [day, friend]
 	contact_message_unlocks[key] = true
@@ -754,6 +963,11 @@ func unlock_contact_message_after_minesweeper_finished(result: Dictionary) -> Di
 	return {"friend_id": friend, "day": day}
 
 
+func _has_day7_relationship_tier(friend_id: String) -> bool:
+	var state: Dictionary = dating_route_state.get(friend_id, {})
+	return str(state.get("relationship_state", "friend")) in ["ambiguous", "love"]
+
+
 func is_contact_message_unlocked(friend_id: String, target_day: int = -1) -> bool:
 	var d: int = target_day if target_day >= 0 else day
 	return bool(contact_message_unlocks.get("day:%d:friend:%s" % [d, friend_id], false))
@@ -765,7 +979,9 @@ func is_contact_choice_selected(friend_id: String, target_day: int = -1) -> bool
 
 
 func get_contact_choices(friend_id: String, target_day: int = -1) -> Array:
-	return []
+	var selected_day: int = day if target_day < 0 else target_day
+	var available: Dictionary = _ORDINARY_CORRESPONDENCE.available(contacts, selected_day, friend_id)
+	return available.value.get("choices", []).duplicate(true) if available.get("ok", false) else []
 
 
 func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
@@ -808,6 +1024,8 @@ func _bridge_maybe_activate_group() -> void:
 
 
 func reply_invitation(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
+	var day7_admitted := require_day7_presentations_complete()
+	if not day7_admitted.get("ok", false): return day7_admitted
 	var verified := _verify_contact_command(command_id, command_issuer_receipt)
 	if not verified.get("ok", false):
 		return verified
@@ -890,7 +1108,7 @@ func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> 
 func is_date_unlocked(friend_id: String, target_day: int = -1) -> bool:
 	var d: int = target_day if target_day >= 0 else day
 	if d == 7:
-		return is_contact_message_unlocked(friend_id, 7) and get_affection_tier(friend_id) in ["ambiguous", "love"]
+		return is_contact_message_unlocked(friend_id, 7) and _has_day7_relationship_tier(friend_id)
 	# dwm-p2r.6: a solo date is addable once its module offer reaches ACCEPTED (reply).
 	return _CONTACT_INVITATION_STATE.is_date_addable(contacts, "solo:%s:day%d" % [friend_id, d])
 
@@ -933,7 +1151,7 @@ func get_day7_ending_candidates_from_schedule() -> Array[String]:
 	for fid in FRIEND_IDS:
 		if not is_contact_message_unlocked(fid, 7):
 			continue
-		if get_affection_tier(fid) not in ["ambiguous", "love"]:
+		if not _has_day7_relationship_tier(fid):
 			continue
 		var has_entry: bool = false
 		for entry in _committed_entries():
@@ -948,15 +1166,19 @@ func get_day7_ending_candidates_from_schedule() -> Array[String]:
 	return candidates
 
 
-func capture_provisional_day7_ending_plan() -> Dictionary:
+func prepare_provisional_day7_ending_plan() -> Dictionary:
 	if day != 7:
 		return _transaction_failure(&"not_day7", "ending eligibility is captured only on Day 7")
 	var existing: Variant = route_context.get("provisional_ending_plan")
 	if typeof(existing) == TYPE_DICTIONARY and not (existing as Dictionary).is_empty():
 		return {"ok": true, "code": &"ok", "value": (existing as Dictionary).duplicate(true)}
 
+	return _prepare_day7_ending_plan({})
+
+
+func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Callable = Callable(), profile_reader: Callable = Callable()) -> Dictionary:
 	var destination := ""
-	for entry: Dictionary in _committed_entries():
+	for entry: Dictionary in ([] if not condition_source.is_empty() else _committed_entries()):
 		if str(entry.get("action_kind", "")) != "solo":
 			continue
 		var participants: Array = entry.get("participants", [])
@@ -973,7 +1195,70 @@ func capture_provisional_day7_ending_plan() -> Dictionary:
 		invitations[friend_id] = bool(
 			daily_opened_contacts.get("day:7:friend:%s" % friend_id, false))
 	var pair: Dictionary = inter_friend_route_state.get("priscilla_lavinia", {})
-	var observer_variants: Dictionary = route_context.get("observer_variant_by_scope", {})
+	const MASTERY := preload("res://scripts/domain/ending/CanonicalDatingMastery.gd")
+	var run_id := str(_run_lifecycle.to_dict().get("run_id", ""))
+	var raw_heads: Variant = route_context.get("dating_canonical_heads", {})
+	var heads: Dictionary = raw_heads if raw_heads is Dictionary else {}
+	var selected_attempts := {}
+	if not attempt_reader.is_valid() and is_inside_tree():
+		var profile: Node = get_node_or_null("/root/ProfileManager")
+		if profile != null and profile.has_method("get_dating_attempt"):
+			attempt_reader = profile.get_dating_attempt
+	if attempt_reader.is_valid():
+		for slot: String in MASTERY.required_slots():
+			var head: Variant = heads.get(slot)
+			if not head is Dictionary: continue
+			if not head.get("attempt_id") is String or not head.get("branch_id") is String: continue
+			if head.attempt_id.is_empty() or head.branch_id.is_empty(): continue
+			# Never use the two-argument first-lock history lookup for canonical mastery.
+			var found: Variant = attempt_reader.call(run_id, slot, head.attempt_id, head.branch_id)
+			if found is Dictionary and found.get("ok", false) and found.get("value") is Dictionary:
+				selected_attempts[slot] = found.value
+	var mastery: Dictionary = MASTERY.evaluate(run_id, heads, selected_attempts)
+	# Profile behavior evidence and actual prior postscript completion are separate from
+	# current canonical board mastery. Caller-supplied variant flags carry no authority.
+	var evidence_profile: Dictionary = {}
+	if not profile_reader.is_valid() and is_inside_tree():
+		var profile_owner: Node = get_node_or_null("/root/ProfileManager")
+		if profile_owner != null and profile_owner.has_method("get_profile_snapshot"):
+			profile_reader = profile_owner.get_profile_snapshot
+	if profile_reader.is_valid():
+		var read_profile: Variant = profile_reader.call()
+		if read_profile is Dictionary: evidence_profile = read_profile.duplicate(true)
+	const OBSERVER := preload("res://scripts/profile/ObserverEvidence.gd")
+	var proof: Variant = evidence_profile.get("observer_evidence", {})
+	var valid_proof: Dictionary = OBSERVER.validate(proof)
+	var behavior: Dictionary = OBSERVER.evidence(valid_proof.value) if valid_proof.ok else {"priscilla": false, "lavinia": false}
+	var completed_posts := {}
+	var gallery_receipts: Variant = evidence_profile.get("gallery_transaction_receipts", {})
+	if gallery_receipts is Dictionary:
+		for receipt_id: Variant in gallery_receipts:
+			var receipt: Variant = gallery_receipts[receipt_id]
+			if receipt_id is String and receipt is Dictionary and receipt.get("ending_id") is String \
+					and receipt_id.begins_with("ending:") and receipt_id.ends_with(":gallery:" + receipt.ending_id):
+				completed_posts[receipt.ending_id] = true
+	var observer_variants := {}
+	for friend_id: String in ["priscilla", "lavinia"]:
+		if mastery[friend_id] and behavior[friend_id] \
+				and int((dating_route_state.get(friend_id, {}) as Dictionary).get("dark_points", 0)) \
+				< _PROVISIONAL_RELATIONSHIP_RULES.DARK_TONE_THRESHOLD:
+			observer_variants[friend_id] = "residue" if completed_posts.has("ending.%s.observation" % friend_id) else "full"
+	var witnessed_forms: Array = []
+	var witnesses: Variant = evidence_profile.get("pair_form_witness_receipts", {})
+	if witnesses is Dictionary:
+		for form: Variant in witnesses.values():
+			if form is String and form in _PROVISIONAL_RELATIONSHIP_RULES.PAIR_FORMS and form not in witnessed_forms:
+				witnessed_forms.append(form)
+	var pair_observer_precondition := {}
+	var pair_form: String = str(pair.get("frozen_form", ""))
+	if mastery.priscilla_lavinia and pair_form.ends_with("_sweet") and should_route_priscilla_lavinia_post_ending():
+		var persistence: bool = witnessed_forms.size() == 4
+		if not persistence and witnessed_forms.size() == 3 and pair_form not in witnessed_forms:
+			persistence = true
+			pair_observer_precondition = {"required_forms": _PROVISIONAL_RELATIONSHIP_RULES.PAIR_FORMS.duplicate(),
+				"supplied_by_ending": "ending.priscilla_lavinia.sweet", "form": pair_form}
+		if persistence:
+			observer_variants["priscilla_lavinia"] = "residue" if completed_posts.has("ending.priscilla_lavinia.observer") else "full"
 	var rules_input := {
 		"day": 7,
 		"committed_destination": destination,
@@ -982,21 +1267,120 @@ func capture_provisional_day7_ending_plan() -> Dictionary:
 		"tone_points": int((dating_route_state.get(destination, {}) as Dictionary).get(
 			"dark_points", 0)) if not destination.is_empty() else 0,
 		"hospital_required": pending_hospital,
-		"pair_ending_eligible": bool(pair.get("ending_eligible", false)),
+		"pair_ending_eligible": should_route_priscilla_lavinia_post_ending(),
 		"pair_form": str(pair.get("frozen_form", "")),
 		"observer_variant_by_scope": observer_variants.duplicate(true),
+		"board_mastery_by_scope": mastery.duplicate(true),
+		"pair_observer_witness_precondition": pair_observer_precondition.duplicate(true),
+		"presentation_by_scope": _capture_ending_presentation_inputs(),
 	}
+	if not condition_source.is_empty():
+		# Use the persisted pre-action decision, never invitations read later or a draft bar.
+		var cause := str(condition_source.terminal_cause)
+		rules_input.invitation_read = {"sylvia": cause == "sylvia_special"}
+		rules_input.hospital_required = cause != "dark_mode_alone"
 	var frozen: Dictionary = _PROVISIONAL_RELATIONSHIP_RULES.new().freeze_day7_ending_plan(
 		rules_input)
 	if not frozen.get("ok", false):
 		return frozen
-	route_context["provisional_ending_plan"] = frozen["value"].duplicate(true)
-	emit_signal("save_relevant_state_changed")
 	return {"ok": true, "code": &"ok", "value": frozen["value"].duplicate(true)}
+
+
+## Detached presentation facts are frozen with the existing ending eligibility snapshot.
+## Current provisional scenes have no authored echo mutations, so their echo set is empty.
+func _capture_ending_presentation_inputs() -> Dictionary:
+	var result := {}
+	for friend_id: String in FRIEND_IDS:
+		var state: Dictionary = dating_route_state.get(friend_id, {})
+		var missed: Array[String] = []
+		for message: Dictionary in contacts.get("messages", {}).get(friend_id, []):
+			var kind := str(message.get("type", ""))
+			if kind in ["nevermind", "missed_question", "busy", "judge"] and kind not in missed:
+				missed.append(kind)
+		missed.sort()
+		result[friend_id] = {"tier": str(state.get("relationship_state", "friend")),
+			"tone": "dark" if int(state.get("dark_points", 0)) >= _PROVISIONAL_RELATIONSHIP_RULES.DARK_TONE_THRESHOLD else "sweet",
+			"attitude": str(friend_attitude.get(friend_id, "")), "echo_ids": [], "miss_reasons": missed}
+	result["dark_mode"] = bool(_run_lifecycle.to_dict().get("dark_mode", false))
+	result["pair_form"] = str(inter_friend_route_state.get("priscilla_lavinia", {}).get("frozen_form", ""))
+	result["special_variant"] = "full"
+	if is_inside_tree():
+		var profile: Node = get_node_or_null("/root/ProfileManager")
+		if profile != null:
+			var completed := false
+			for receipt: Dictionary in profile.get_profile_snapshot().get("gallery_transaction_receipts", {}).values():
+				if str(receipt.get("ending_id", "")) == "ending.sylvia.special": completed = true
+			if completed and not bool(profile.get_preference("preferences.exceptional_replay.replay_full", false)):
+				result["special_variant"] = "residue"
+	return result
+
+
+## Accept only the command at this saved cursor. The returned signature names the exact
+## registered entry the ending adapter must physically play, including exceptional forms.
+func capture_ending_presentation_signature(ending_id: String, context: Dictionary) -> Dictionary:
+	var command: Dictionary = request_next_ending_command()
+	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
+			or command.value.get("ending_id") != ending_id or command.value.get("playback_context") != context:
+		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
+	var frozen: Dictionary = route_context.get("provisional_ending_plan", {}).get("eligibility_snapshot", {})
+	# A compatible older save has no captured presentation map. Its current saved facts are
+	# captured at this first actual start; this does not invent an earlier reached variant.
+	var inputs: Dictionary = frozen.get("presentation_by_scope", _capture_ending_presentation_inputs())
+	var role := str(context.role)
+	var entry_id := ending_id
+	var form := ""
+	var fields := {}
+	if ending_id == "ending.alone":
+		entry_id += ".dark_mode" if bool(inputs.get("dark_mode", false)) else ".normal"
+		form = "alone_dark_mode" if bool(inputs.get("dark_mode", false)) else "alone_normal"
+		fields = {"ending_role": role, "ending_form": form}
+	else:
+		if ending_id == "ending.sylvia.special":
+			entry_id += "." + str(inputs.get("special_variant", "full"))
+			form = "special_" + str(inputs.get("special_variant", "full"))
+		elif ".observer." in ending_id:
+			form = "observer_" + ending_id.get_slice(".", 3)
+		elif ending_id.ends_with(".observation"):
+			entry_id = ending_id.trim_suffix(".observation") + ".observer.full"
+			form = "observer_full"
+		elif ending_id.begins_with("ending.priscilla_lavinia"):
+			var pair_form := str(inputs.get("pair_form", ""))
+			if pair_form not in _PROVISIONAL_RELATIONSHIP_RULES.PAIR_FORMS:
+				return _transaction_failure(&"ending_presentation_pair_form_missing", ending_id)
+			form = "deck_dark" if pair_form.ends_with("_dark") else "deck_sweet"
+			if ending_id == "ending.priscilla_lavinia": entry_id += ".dark" if pair_form.ends_with("_dark") else ".sweet"
+		else:
+			form = "derived_dark" if ending_id.ends_with(".dark") else "derived_sweet"
+			var steps: Array = _run_lifecycle.to_dict().get("ending_plan", {}).get("steps", [])
+			if ending_id == "ending.sylvia.dark" and not steps.is_empty() and steps[0].get("role") == "special_prefix":
+				form = "special_forced_dark"
+		if ending_id.begins_with("ending.priscilla_lavinia"):
+			fields = {"pair_form": str(inputs.get("pair_form", "")), "ending_role": role,
+				"ending_form": form, "residue": form.ends_with("_residue")}
+		else:
+			var scope := ending_id.get_slice(".", 1)
+			if not inputs.get(scope) is Dictionary: return _transaction_failure(&"ending_presentation_scope_missing", scope)
+			fields = (inputs[scope] as Dictionary).duplicate(true)
+			fields.merge({"ending_role": role, "ending_form": form, "residue": form.ends_with("_residue")})
+	var signature := {"entry_id": entry_id, "schema_version": 1, "fields": fields}
+	var checked: Dictionary = preload("res://scripts/domain/narrative/PresentationSignature.gd").validate(signature)
+	if not checked.get("ok", false): return checked
+	return {"ok": true, "code": &"ok", "value": signature}
+
+
+func capture_provisional_day7_ending_plan() -> Dictionary:
+	var prepared: Dictionary = prepare_provisional_day7_ending_plan()
+	if not prepared.get("ok", false): return prepared
+	if route_context.get("provisional_ending_plan") != prepared.value:
+		route_context["provisional_ending_plan"] = prepared.value.duplicate(true)
+		emit_signal("save_relevant_state_changed")
+	return prepared
+
 
 func resolve_day7_ending() -> Dictionary:
 	if day != 7:
 		return {"ok": false, "candidate_friend_id": "", "ending_id": "", "epilogue_ending_id": "", "route_context_set": false, "reason": "not_day7"}
+	capture_provisional_day7_ending_plan()
 	var candidates: Array[String] = get_day7_ending_candidates_from_schedule()
 	var candidate_friend_id: String = candidates[0] if candidates.size() > 0 else ""
 	var ending_id: String = ""
@@ -1037,9 +1421,22 @@ func resolve_day7_ending() -> Dictionary:
 	}
 
 
+func get_counted_pair_window_count() -> int:
+	var counted_days := {}
+	for raw: Variant in contacts.get("transaction_receipts", {}).values():
+		if not raw is Dictionary or raw.get("kind") != "resolve_day_end": continue
+		var window: Variant = raw.get("pl_window")
+		var source_day := int(raw.get("day", 0))
+		if source_day in [2, 6] and window is Dictionary and bool(window.get("counts", false)):
+			counted_days[source_day] = true
+	return counted_days.size()
+
+
 func should_route_priscilla_lavinia_post_ending() -> bool:
-	return bool((inter_friend_route_state.get("priscilla_lavinia", {}) as Dictionary).get(
-		"ending_eligible", false))
+	# Canonical Contacts receipts count each window once, including offscreen encounters.
+	# Retain already-earned eligibility from older saved progression state.
+	return get_counted_pair_window_count() >= 2 or bool((inter_friend_route_state.get(
+		"priscilla_lavinia", {}) as Dictionary).get("ending_eligible", false))
 
 
 func should_route_sylvia_special_ending() -> bool:
@@ -1421,6 +1818,9 @@ func apply_hospital_recovery_and_advance_day() -> bool:
 	return true
 
 func advance_day_or_end() -> bool:
+	if day >= 7:
+		# Freeze eligibility while the committed Schedule and invitation-read facts still exist.
+		capture_provisional_day7_ending_plan()
 	# 1. Record accepted-but-unscheduled invitations before clearing. Solo miss -> one record;
 	# missed group -> one source:"group" record per participant (drives next-day group guilt message,
 	# CONTRACTS §2 follow-up rule). day = ending day D; guilt appears on D+1.
@@ -1463,23 +1863,27 @@ func advance_day_or_end() -> bool:
 	return true
 
 
+## Pure projection shared by legacy advancement and durable day-resolution checkpoints.
+func capture_new_day_gameplay() -> Dictionary:
+	var gameplay: Dictionary = capture_run_snapshot_input()["gameplay"].duplicate(true)
+	gameplay.merge({
+		"minesweeper_rounds_left": 2,
+		"minesweeper_app_rounds_finished_today": 0,
+		"minesweeper_money_earned_today": 0, "penalty_points_today": 0,
+		"condition_effects_today": [CONDITION_SEQUELA] if condition_streak_days > 0 else [],
+		"condition_streak_days": 0, "condition_resolved_day": 0,
+		"daily_opened_contacts": {}, "daily_group_invitation_generated": false,
+		"daily_group_invitation_pair": [], "pending_date_entries": [],
+		"pending_date_entry_index": 0, "pending_date_friend_id": "",
+	}, true)
+	gameplay["stats"][STAT_MOTIVATION] = 7
+	return gameplay
+
+
 func _begin_new_day() -> void:
-	set_stat(STAT_MOTIVATION, 7)
-	minesweeper_rounds_left = 2
+	_apply_gameplay_silent(capture_new_day_gameplay())
 	unfinished_minesweeper_result = {}
-	minesweeper_app_rounds_finished_today = 0
-	minesweeper_money_earned_today = 0
-	penalty_points_today = 0
-	condition_effects_today = []
-	daily_opened_contacts = {}
-	daily_group_invitation_generated = false
-	daily_group_invitation_pair = []
-
-	# Sequela: previous day had a danger condition not cleared by hospital.
-	if condition_streak_days > 0:
-		condition_effects_today.append(CONDITION_SEQUELA)
-		condition_streak_days = 0
-
+	emit_signal("stat_changed", STAT_MOTIVATION, get_stat(STAT_MOTIVATION), _stat_min(STAT_MOTIVATION), _stat_max(STAT_MOTIVATION))
 	emit_signal("daily_state_reset")
 
 
@@ -1512,12 +1916,101 @@ func get_current_pending_date_entry() -> Dictionary:
 	return {}
 
 
-func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary) -> Dictionary:
+func _validate_dating_terminal_fact(terminal_fact: Dictionary) -> Dictionary:
 	var fact_keys: Array = terminal_fact.keys()
 	fact_keys.sort()
-	if fact_keys != ["outcome", "transaction_id"] 			or typeof(terminal_fact.get("transaction_id")) != TYPE_STRING 			or str(terminal_fact["transaction_id"]).strip_edges().is_empty() 			or typeof(terminal_fact.get("outcome")) not in [TYPE_STRING, TYPE_STRING_NAME]:
+	if fact_keys != ["outcome", "perfect_reasons", "relationship_outcome", "transaction_id"] \
+			or typeof(terminal_fact.get("transaction_id")) != TYPE_STRING \
+			or str(terminal_fact["transaction_id"]).strip_edges().is_empty() \
+			or typeof(terminal_fact.get("outcome")) != TYPE_STRING \
+			or typeof(terminal_fact.get("relationship_outcome")) != TYPE_STRING \
+			or not terminal_fact.get("perfect_reasons") is Array:
 		return _transaction_failure(&"invalid_dating_terminal_fact",
-			"only a trusted transaction_id and board outcome are accepted")
+			"a trusted board outcome, relationship outcome and qualification reasons are required")
+	return {"ok": true}
+
+
+## Freeze the actual response and promotion decision before Profile makes it irreversible.
+func prepare_dating_challenge_effect(entry: Dictionary, terminal_fact: Dictionary) -> Dictionary:
+	var valid := _validate_dating_terminal_fact(terminal_fact)
+	if not valid.get("ok", false): return valid
+	var scene_id := _provisional_dating_scene_id(entry)
+	if str(entry.get("type", "")) != "solo" or scene_id.is_empty():
+		return _transaction_failure(&"invalid_dating_entry", "canonical solo effect required")
+	var friend_id := str(entry.friend_id)
+	var state: Dictionary = dating_route_state.get(friend_id, {})
+	var prior: Variant = state.get("provisional_receipts", {}).get(str(terminal_fact.transaction_id))
+	if prior is Dictionary:
+		if prior.get("terminal_fact") != terminal_fact:
+			return _transaction_failure(&"dating_terminal_receipt_conflict", "terminal outcome cannot change")
+		return {"ok": true, "value": {"receipt": prior.duplicate(true)}}
+	var rules: RefCounted = _PROVISIONAL_RELATIONSHIP_RULES.new()
+	var response: Dictionary = rules.resolve_scene_response(scene_id, str(terminal_fact.outcome),
+		str(terminal_fact.relationship_outcome), terminal_fact.perfect_reasons)
+	if not response.get("ok", false): return response
+	var current_state := str(state.get("relationship_state", "friend"))
+	var progression: Dictionary = rules.evaluate_progression({
+		"window_id": scene_id, "event_id": str(terminal_fact.transaction_id), "friend_id": friend_id,
+		"attended": true, "hospital_superseded": false, "current_state": current_state,
+		"relational_momentum": clampi(int(affection.get(friend_id, 0)) + int(response.value.momentum_delta), AFFECTION_MIN, AFFECTION_MAX),
+		"response_qualifies": response.value.progression_qualifies,
+		"committed_event_ids": state.get("progression_event_ids", []).duplicate(),
+	})
+	if not progression.get("ok", false): return progression
+	var receipt := _provisional_dating_receipt(response.value, progression.value, terminal_fact)
+	receipt["promotion_applied"] = str(progression.value.state) != current_state
+	return {"ok": true, "value": {"receipt": receipt}}
+
+
+## Replay committed operations, not a relationship snapshot or a fresh threshold evaluation.
+func apply_dating_challenge_effect_receipt(entry: Dictionary, receipt: Dictionary, emit_changes: bool = true) -> Dictionary:
+	var scene_id := _provisional_dating_scene_id(entry)
+	if str(entry.get("type", "")) != "solo" or scene_id.is_empty() or receipt.get("scene_id") != scene_id:
+		return _transaction_failure(&"invalid_dating_entry", "effect belongs to another slot")
+	if not receipt.get("terminal_fact") is Dictionary:
+		return _transaction_failure(&"invalid_dating_effect", "terminal fact required")
+	var valid := _validate_dating_terminal_fact(receipt.terminal_fact)
+	if not valid.get("ok", false): return valid
+	for key: String in ["momentum_delta", "tone_delta"]:
+		if typeof(receipt.get(key)) != TYPE_INT: return _transaction_failure(&"invalid_dating_effect", key)
+	for key: String in ["progression_evaluated", "promotion_applied"]:
+		if typeof(receipt.get(key)) != TYPE_BOOL: return _transaction_failure(&"invalid_dating_effect", key)
+	if not receipt.get("attitude") is String or str(receipt.attitude).is_empty() 			or str(receipt.get("relationship_state", "")) not in ["friend", "ambiguous", "love"]:
+		return _transaction_failure(&"invalid_dating_effect", "frozen attitude and tier required")
+	for key: String in ["outcome", "relationship_outcome", "perfect_reasons"]:
+		if receipt.get(key) != receipt.terminal_fact.get(key): return _transaction_failure(&"invalid_dating_effect", key)
+	var friend_id := str(entry.friend_id)
+	var event_id := str(receipt.terminal_fact.transaction_id)
+	var state: Dictionary = dating_route_state.get(friend_id, {}).duplicate(true)
+	var receipts: Dictionary = state.get("provisional_receipts", {}).duplicate(true)
+	if receipts.has(event_id):
+		if receipts[event_id] != receipt:
+			return _transaction_failure(&"dating_terminal_receipt_conflict", "committed effect cannot change")
+		return {"ok": true, "value": {"replayed": true, "receipt": receipt.duplicate(true)}}
+	state["date_count"] = int(state.get("date_count", 0)) + 1
+	state["dark_points"] = mini(4, int(state.get("dark_points", 0)) + int(receipt.tone_delta))
+	var current_state := str(state.get("relationship_state", "friend"))
+	state["relationship_state"] = current_state
+	# A frozen promotion grants its earned tier; it never lowers a later branch's tier.
+	if receipt.promotion_applied and ["friend", "ambiguous", "love"].find(str(receipt.relationship_state)) > ["friend", "ambiguous", "love"].find(current_state):
+		state["relationship_state"] = str(receipt.relationship_state)
+	var events: Array = state.get("progression_event_ids", []).duplicate()
+	if receipt.progression_evaluated and event_id not in events: events.append(event_id)
+	state["progression_event_ids"] = events
+	receipts[event_id] = receipt.duplicate(true)
+	state["provisional_receipts"] = receipts
+	affection[friend_id] = clampi(int(affection.get(friend_id, 0)) + int(receipt.momentum_delta), AFFECTION_MIN, AFFECTION_MAX)
+	friend_attitude[friend_id] = str(receipt.attitude)
+	dating_route_state[friend_id] = state
+	if emit_changes:
+		emit_signal("friends_changed")
+		emit_signal("save_relevant_state_changed")
+	return {"ok": true, "value": {"replayed": false, "receipt": receipt.duplicate(true)}}
+
+
+func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary) -> Dictionary:
+	var valid := _validate_dating_terminal_fact(terminal_fact)
+	if not valid.get("ok", false): return valid
 	var entry_type := str(entry.get("type", ""))
 	var event_id := str(terminal_fact["transaction_id"])
 	var outcome := str(terminal_fact["outcome"])
@@ -1525,7 +2018,8 @@ func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary)
 	if scene_id.is_empty():
 		return _transaction_failure(&"invalid_dating_entry", "a supported dated entry is required")
 	var rules: RefCounted = _PROVISIONAL_RELATIONSHIP_RULES.new()
-	var resolved: Dictionary = rules.resolve_scene_response(scene_id, outcome)
+	var resolved: Dictionary = rules.resolve_scene_response(scene_id, outcome,
+		str(terminal_fact.relationship_outcome), terminal_fact.perfect_reasons)
 	if not resolved.get("ok", false):
 		return resolved
 	var response: Dictionary = resolved["value"]
@@ -1545,13 +2039,15 @@ func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary)
 	var receipt_owner: Dictionary = pair_state if entry_type == "twofriends" else 		(dating_route_state.get(str(participants[0]), {}) if not participants.is_empty() else pair_state)
 	var prior_receipts: Dictionary = receipt_owner.get("provisional_receipts", {})
 	if prior_receipts.has(event_id):
+		if prior_receipts[event_id].get("terminal_fact", {}) != terminal_fact:
+			return _transaction_failure(&"dating_terminal_receipt_conflict", "the recorded terminal outcome cannot change")
 		return {"ok": true, "code": &"ok", "value": {
 			"replayed": true, "receipt": prior_receipts[event_id].duplicate(true)}}
 
 	for participant: String in participants:
 		var state: Dictionary = dating_route_state.get(participant, {}).duplicate(true)
 		state["date_count"] = int(state.get("date_count", 0)) + 1
-		state["dark_points"] = int(state.get("dark_points", 0)) + int(response["tone_delta"])
+		state["dark_points"] = mini(4, int(state.get("dark_points", 0)) + int(response["tone_delta"]))
 		state["relationship_state"] = str(state.get("relationship_state", "friend"))
 		state["progression_event_ids"] = (state.get("progression_event_ids", []) as Array).duplicate()
 		state["provisional_receipts"] = (state.get("provisional_receipts", {}) as Dictionary).duplicate(true)
@@ -1571,7 +2067,8 @@ func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary)
 		if progression["value"]["evaluated"]:
 			(state["progression_event_ids"] as Array).append(event_id)
 		state["provisional_receipts"][event_id] = _provisional_dating_receipt(
-			response, progression["value"])
+			response, progression["value"], terminal_fact)
+		friend_attitude[participant] = str(response["attitude"])
 		dating_route_state[participant] = state
 
 	if entry_type in ["group", "twofriends"]:
@@ -1579,7 +2076,7 @@ func apply_dating_challenge_result(entry: Dictionary, terminal_fact: Dictionary)
 		pair_state["dark_points"] = int(pair_state.get("dark_points", 0)) + int(response["tone_delta"])
 		pair_state["ending_eligible"] = int(pair_state["date_count"]) >= 2
 		pair_state["provisional_receipts"] = (pair_state.get("provisional_receipts", {}) as Dictionary).duplicate(true)
-		pair_state["provisional_receipts"][event_id] = _provisional_dating_receipt(response, {})
+		pair_state["provisional_receipts"][event_id] = _provisional_dating_receipt(response, {}, terminal_fact)
 		inter_friend_route_state["priscilla_lavinia"] = pair_state
 		if entry_type == "twofriends":
 			inter_friend_affection["lavinia_priscilla"] = int(
@@ -1611,8 +2108,12 @@ func _provisional_dating_scene_id(entry: Dictionary) -> String:
 	return ""
 
 
-func _provisional_dating_receipt(response: Dictionary, progression: Dictionary) -> Dictionary:
+func _provisional_dating_receipt(response: Dictionary, progression: Dictionary, terminal_fact: Dictionary) -> Dictionary:
 	return {
+		"terminal_fact": terminal_fact.duplicate(true),
+		"relationship_outcome": response["relationship_outcome"],
+		"perfect_reasons": response["perfect_reasons"].duplicate(),
+		"attitude": response["attitude"],
 		"outcome": response["outcome"],
 		"scene_id": response["scene_id"],
 		"momentum_delta": response["momentum_delta"],
@@ -1622,6 +2123,24 @@ func _provisional_dating_receipt(response: Dictionary, progression: Dictionary) 
 		"ruleset_id": response["ruleset_id"],
 		"ruleset_status": response["ruleset_status"],
 	}
+
+func capture_dating_challenge_state() -> Dictionary:
+	var stored: Variant = route_context.get("active_dating_challenge", {})
+	if not stored is Dictionary:
+		return _transaction_failure(&"invalid_dating_challenge_state",
+			"the retained dating challenge must be a dictionary")
+	return {"ok": true, "code": &"ok", "value": (stored as Dictionary).duplicate(true),
+		"receipt": {}}
+
+
+func store_dating_challenge_state(candidate: Dictionary, emit_changes: bool = true) -> Dictionary:
+	if candidate.is_empty():
+		return _transaction_failure(&"invalid_dating_challenge_state",
+			"an active dating challenge record is required")
+	route_context["active_dating_challenge"] = candidate.duplicate(true)
+	if emit_changes: emit_signal("save_relevant_state_changed")
+	return {"ok": true, "code": &"ok", "value": {"stored": true}, "receipt": {}}
+
 
 func advance_date_queue_or_day() -> bool:
 	if pending_date_entry_index < pending_date_entries.size() - 1:
@@ -1829,31 +2348,17 @@ func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_t
 	template.reset_game()
 	var defaults: Dictionary = template.to_save_dict()
 	template.free()
-	var witnessed: Array[String] = []
-	var selection_source := "profile_witness_unavailable"
+	# Pair selection belongs to the first counted encounter, with a Profile-owned receipt.
+	# Preserve the optional old caller argument only as a validated compatibility input.
 	if pair_witnessed_forms != null:
-		if typeof(pair_witnessed_forms) != TYPE_ARRAY:
-			return {"ok": false, "code": &"invalid_pair_witness_pool", "message": "expected an Array"}
-		selection_source = "supplied_profile_witness_pool"
+		if not pair_witnessed_forms is Array:
+			return {"ok": false, "code": &"invalid_pair_witness_pool"}
 		for form: Variant in pair_witnessed_forms:
-			if typeof(form) != TYPE_STRING:
-				return {"ok": false, "code": &"invalid_pair_witness_pool", "message": "forms must be Strings"}
-			witnessed.append(str(form))
-	var rules: RefCounted = _PROVISIONAL_RELATIONSHIP_RULES.new()
-	var pair_selection: Dictionary = rules.select_pair_form(
-		witnessed, posmod(run_id.hash(), 2147483647))
-	if not pair_selection.get("ok", false):
-		return pair_selection
+			if not form is String or form not in _PROVISIONAL_RELATIONSHIP_RULES.PAIR_FORMS:
+				return {"ok": false, "code": &"invalid_pair_witness_pool"}
 	defaults["inter_friend_route_state"] = {
-		"priscilla_lavinia": {
-			"frozen_form": pair_selection["value"]["form"],
-			"form_ruleset_id": pair_selection["value"]["ruleset_id"],
-			"form_selection_source": selection_source,
-			"date_count": 0,
-			"dark_points": 0,
-			"ending_eligible": false,
-			"provisional_receipts": {},
-		},
+		"priscilla_lavinia": {"date_count": 0, "dark_points": 0,
+			"ending_eligible": false, "provisional_receipts": {}},
 	}
 	# Shape the detached Day-1 input to match RunSnapshotSchema.build: gameplay bag
 	# (whitelisted fields minus day/contacts/committed_schedule/dating), plus their own fields.
@@ -2037,14 +2542,15 @@ func _lifecycle_set_playing_day(target_day: int) -> void:
 
 
 func request_next_ending_command() -> Dictionary:
-	# Facade read (dwm-p2r.7 Task 6): the single next ending command. Reads the live EndingPlan,
-	# asks the pure stage machine, and derives the playback ids from run id + role. Start-only:
-	# EndingScene advances the stage from its validated completion, never from this query.
+	if _run_lifecycle.get_state() == &"COMPLETED":
+		return {"ok": true, "value": {"kind": "return_completed", "expected_stage": &"COMPLETED"}}
 	if _run_lifecycle.get_state() != &"ENDING":
 		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
 	var snapshot: Dictionary = _run_lifecycle.to_dict()
 	var lifecycle_plan: Dictionary = snapshot["ending_plan"]
-	# Adapt the lifecycle plan shape to the DatingEndingRules plan shape.
+	if lifecycle_plan.has("steps"):
+		return _ordered_ending_command(snapshot, lifecycle_plan)
+	# Compatibility playback for the previously admitted five-key plan.
 	var epilogue: String = str(lifecycle_plan.get("epilogue_ending_id", ""))
 	var command_result: Dictionary = _DATING_ENDING_RULES.next_playback_command({
 		"primary_id": str(lifecycle_plan["ending_id"]),
@@ -2070,16 +2576,292 @@ func request_next_ending_command() -> Dictionary:
 	}}
 
 
-## The role that plays out of each play_ending stage.
+func _ordered_ending_command(snapshot: Dictionary, plan: Dictionary) -> Dictionary:
+	var stage := str(plan["playback_stage"])
+	if stage == "EPILOGUE_PLAYED":
+		return {"ok": true, "code": &"ok", "value": {
+			"kind": &"record_gallery", "expected_stage": &"EPILOGUE_PLAYED"}}
+	if stage == "GALLERY_RECORDED":
+		return {"ok": true, "code": &"ok", "value": {
+			"kind": &"complete_run", "expected_stage": &"GALLERY_RECORDED"}}
+	var index := int(plan["next_step_index"])
+	var steps: Array = plan["steps"]
+	if stage != "PRIMARY_PENDING" or index < 0 or index >= steps.size():
+		return {"ok": false, "code": &"invalid_ending_plan", "message": "ordered cursor has no presentation"}
+	var step: Dictionary = steps[index]
+	var playback_ending_id := str(step["ending_id"])
+	if str(step.get("role", "")) == "observer_coda" and playback_ending_id == "ending.priscilla_lavinia.observer":
+		var admitted: Dictionary = _validate_pair_observer_admission(snapshot, plan)
+		if not admitted.get("ok", false): return admitted
+	if str(step["role"]) == "observer_coda":
+		if playback_ending_id.ends_with(".observation"):
+			playback_ending_id = playback_ending_id.trim_suffix(".observation") + ".observer"
+		playback_ending_id += "." + str(step["presentation_variant"])
+	var run_id := str(snapshot["run_id"])
+	return {"ok": true, "code": &"ok", "value": {
+		"kind": &"play_ending",
+		"ending_id": playback_ending_id,
+		"playback_context": {
+			"playback_id": "%s:ending:%d" % [run_id, index],
+			"transaction_id": "%s:ending:%d:complete" % [run_id, index],
+			"expected_stage": &"PRIMARY_PENDING",
+			"role": StringName(str(step["role"])),
+		},
+	}}
+
+
+## The planned fourth combination is only a prediction. Physical Sweet completion and
+## its durable Profile witness must exist before the pair postscript can start.
+func _validate_pair_observer_admission(snapshot: Dictionary, plan: Dictionary, profile: Object = null) -> Dictionary:
+	if profile == null and is_inside_tree(): profile = get_node_or_null("/root/ProfileManager")
+	if profile == null or not profile.has_method("get_pair_form_witnesses"):
+		return _transaction_failure(&"pair_observer_persistence_pending", "Profile evidence is unavailable")
+	var witnessed: Dictionary = profile.get_pair_form_witnesses()
+	if not witnessed.get("ok", false): return witnessed
+	for form: String in _PROVISIONAL_RELATIONSHIP_RULES.PAIR_FORMS:
+		if form not in witnessed.value:
+			return _transaction_failure(&"pair_observer_persistence_pending", form)
+	var index := int(plan.get("next_step_index", 0))
+	var steps: Array = plan.get("steps", [])
+	var physical := false
+	for previous: int in range(mini(index, steps.size())):
+		if steps[previous].get("ending_id") != "ending.priscilla_lavinia.sweet" or steps[previous].get("role") != "pair_coda": continue
+		var receipt: Dictionary = plan.get("playback_receipts", {}).get("step:%d" % previous, {}).get("value", {})
+		physical = receipt.get("outcome") == "completed" and not str(receipt.get("timeline_completion_receipt_id", "")).is_empty()
+	if not physical:
+		return _transaction_failure(&"pair_observer_sweet_completion_pending", "The preceding Sweet scene has not physically completed")
+	var transaction_id := "ending:%s:gallery:ending.priscilla_lavinia.sweet" % str(snapshot.get("run_id", ""))
+	var saved: Dictionary = profile.get_profile_snapshot().get("gallery_transaction_receipts", {}).get(transaction_id, {})
+	if saved.get("ending_id") != "ending.priscilla_lavinia.sweet":
+		return _transaction_failure(&"pair_observer_sweet_completion_pending", "The preceding Sweet completion is not durable")
+	return {"ok": true, "code": &"ok"}
+
+
+## The role that plays out of each legacy play_ending stage.
 const _ENDING_STAGE_ROLE := {"PRIMARY_PENDING": "primary", "PRIMARY_PLAYED": "epilogue"}
 
+var _ending_checkpoint_writer: Callable
+var _ending_source_reader: Callable
+var _ending_condition_source: Object = null
+const _DAY7_CONDITION_ENDING_SOURCE := preload("res://scripts/application/ending/Day7ConditionEndingSource.gd")
+
+func configure_ending_checkpoint_writer(writer: Callable) -> Dictionary:
+	if not writer.is_valid() or writer.get_argument_count() != 0:
+		return {"ok": false, "code": &"invalid_ending_checkpoint_writer"}
+	if _ending_checkpoint_writer.is_valid() and _ending_checkpoint_writer != writer:
+		return {"ok": false, "code": &"ending_checkpoint_writer_already_configured"}
+	_ending_checkpoint_writer = writer
+	return {"ok": true, "code": &"ok"}
+
+func configure_ending_source_reader(reader: Callable) -> Dictionary:
+	if not reader.is_valid() or reader.get_argument_count() != 0:
+		return {"ok": false, "code": &"invalid_ending_source_reader"}
+	if _ending_source_reader.is_valid() and _ending_source_reader != reader:
+		return {"ok": false, "code": &"ending_source_reader_already_configured"}
+	_ending_source_reader = reader
+	return {"ok": true, "code": &"ok"}
+
+
+func configure_ending_condition_source(consequence_state: Object) -> Dictionary:
+	for method: String in ["capture", "prepare_outbox_publication", "commit", "rollback"]:
+		if consequence_state == null or not consequence_state.has_method(method):
+			return {"ok": false, "code": &"invalid_ending_condition_source"}
+	if _ending_condition_source != null and _ending_condition_source != consequence_state:
+		return {"ok": false, "code": &"ending_condition_source_already_configured"}
+	_ending_condition_source = consequence_state
+	return {"ok": true, "code": &"ok"}
+
+
+func resume_terminal_ending() -> Dictionary:
+	if _run_lifecycle.get_state() == &"ENDING":
+		return {"ok": true, "code": &"ok", "value": {"route": "ending"}}
+	if not _ending_checkpoint_writer.is_valid():
+		return {"ok": false, "code": &"ending_checkpoint_writer_unconfigured"}
+	var lease: Dictionary = _acquire_ending_lease()
+	if not lease.get("ok", false): return lease
+	var result: Dictionary = _admit_terminal_ending()
+	var released: Dictionary = _release_ending_lease(lease)
+	if not released.get("ok", false): return released
+	if result.get("ok", false): emit_signal("save_relevant_state_changed")
+	return result
+
+
+func _admit_terminal_ending() -> Dictionary:
+	var snapshot: Dictionary = _run_lifecycle.to_dict()
+	if int(snapshot.day) != 7 or snapshot.ending_plan != null:
+		return {"ok": false, "code": &"day7_terminal_source_unavailable"}
+	var condition_source: Dictionary = {}
+	var consequence_backup: Dictionary = {}
+	if str(snapshot.state) == "PLAYING":
+		if _ending_condition_source != null:
+			var captured: Dictionary = _ending_condition_source.capture()
+			if not captured.get("ok", false): return captured
+			var desktop: Dictionary = captured.value.state
+			var destination: Variant = desktop.get("outbox", {}).get("hospital")
+			if destination is Dictionary and destination.get("consumer") == "day7_terminal":
+				var validated: Dictionary = _DAY7_CONDITION_ENDING_SOURCE.validate(desktop, snapshot,
+					_canonical_committed_schedule(), contacts, _identity_issuer)
+				if not validated.get("ok", false): return validated
+				condition_source = validated.value
+				consequence_backup = captured.value
+		if condition_source.is_empty():
+			if not _ending_source_reader.is_valid(): return {"ok": false, "code": &"ending_source_reader_unconfigured"}
+			var source: Dictionary = _ending_source_reader.call()
+			if not source.get("ok", false): return source
+	elif str(snapshot.state) == "TERMINAL_PENDING":
+		var handoff: Dictionary = snapshot.terminal_intent_handoff
+		if _identity_issuer == null: return {"ok": false, "code": &"identity_issuer_unconfigured"}
+		var proof: Dictionary = _identity_issuer.verify_issued(handoff.source_transaction_issuer_receipt, &"transaction_id")
+		if not proof.get("ok", false): return proof
+		if str(handoff.source_transaction_issuer_receipt.get("token", "")) != str(handoff.source_transaction_id):
+			return {"ok": false, "code": &"terminal_source_identity_mismatch"}
+		# The composed condition path consumes its existing outbox directly. Unknown legacy
+		# TERMINAL_PENDING packets still have no semantic owner and cannot be reinterpreted.
+		return {"ok": false, "code": &"terminal_intent_semantics_unavailable"}
+	else:
+		return {"ok": false, "code": &"day7_terminal_source_unavailable"}
+	var provisional: Dictionary = prepare_provisional_day7_ending_plan() if condition_source.is_empty() else _prepare_day7_ending_plan(condition_source)
+	if not provisional.get("ok", false): return provisional
+	var plan: Dictionary = _ordered_plan_from_provisional(provisional.value)
+	if plan.is_empty(): return {"ok": false, "code": &"ending_plan_unavailable"}
+	var publication: Dictionary = {}
+	var closure: Dictionary = {}
+	var closure_identity: Dictionary = {}
+	if not condition_source.is_empty():
+		publication = _ending_condition_source.prepare_outbox_publication(condition_source.publication_request)
+		if not publication.get("ok", false): return publication
+		var sources: Array = [
+			_DAY7_CONDITION_ENDING_SOURCE._projection("role", "day7_condition.close_invitations"),
+			_DAY7_CONDITION_ENDING_SOURCE._projection("destination_intent_id", condition_source.publication_request.key)]
+		sources.sort()
+		var derived: Dictionary = _identity_issuer.derive_child({"child_kind": "terminal_intent", "ordinal": 0,
+			"parent_receipt_id": str(condition_source.transaction_issuer_receipt.receipt_id), "source_ids": sources})
+		if not derived.get("ok", false): return derived
+		closure_identity = derived.value
+		var verified: Dictionary = _identity_issuer.validate_child(closure_identity.provenance, &"terminal_intent")
+		if not verified.get("ok", false): return verified
+		closure = _CONTACT_INVITATION_STATE.prepare_resolve_day_end(contacts, 7, {}, str(closure_identity.child_id))
+		if not closure.get("ok", false): return closure
+	var captured: Dictionary = capture_restore_state()
+	if not captured.get("ok", false): return captured
+	var backup: Dictionary = captured.value.backup
+	var admitted: Dictionary = _run_lifecycle.enter_ending(plan)
+	if not admitted.get("ok", false): return admitted
+	route_context["provisional_ending_plan"] = provisional.value.duplicate(true)
+	route_context["ending_id"] = str(plan.ending_id)
+	route_context["epilogue_ending_id"] = str(plan.epilogue_ending_id)
+	if not condition_source.is_empty():
+		contacts = closure.value.candidate.duplicate(true)
+		var cause := str(condition_source.terminal_cause)
+		route_context["day7_condition_ending"] = {
+			"terminal_cause": cause, "destination_intent_id": condition_source.publication_request.key,
+			"payload_hash": condition_source.publication_request.payload_hash,
+			"sylvia_read_receipt_id": condition_source.sylvia_read_receipt_id,
+			"closure_receipt_id": closure_identity.child_id,
+			"closure_receipt_provenance": closure_identity.provenance.duplicate(true),
+			"stored_tone": "dark" if int((dating_route_state.get("sylvia", {}) as Dictionary).get("dark_points", 0)) >= _PROVISIONAL_RELATIONSHIP_RULES.DARK_TONE_THRESHOLD else "sweet",
+			"ending_form": "special_forced_dark" if cause == "sylvia_special" else ("dark_mode" if cause == "dark_mode_alone" else "normal")}
+		var published: Dictionary = _ending_condition_source.commit(publication.value.candidate)
+		if not published.get("ok", false): return _rollback_ending_admission(backup, consequence_backup, published)
+	var saved: Dictionary = _ending_checkpoint_writer.call()
+	if not saved.get("ok", false): return _rollback_ending_admission(backup, consequence_backup, saved)
+	return {"ok": true, "code": &"ok", "value": {"route": "ending"}}
+
+
+func _rollback_ending_admission(backup: Dictionary, consequence_backup: Dictionary, failure: Dictionary) -> Dictionary:
+	var rolled: Dictionary = rollback_restore_silent(backup)
+	if not consequence_backup.is_empty():
+		var restored: Dictionary = _ending_condition_source.rollback(consequence_backup)
+		if not restored.get("ok", false): return restored
+	return failure if rolled.get("ok", false) else rolled
+
+
+func _acquire_ending_lease() -> Dictionary:
+	if _mutation_gate == null: return {"ok": true, "value": {"token": ""}}
+	return _mutation_gate.acquire(&"causal_transaction")
+
+
+func _release_ending_lease(lease: Dictionary) -> Dictionary:
+	if _mutation_gate == null: return {"ok": true}
+	return _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+
+
 func complete_ending_playback_stage(transaction_id: String, expected_stage: StringName, receipt: Dictionary) -> Dictionary:
-	# Unified facade completion (dwm-p2r.7 Task 6): the live EndingPlan's current command decides
-	# what a completion does -- advance a played timeline, record the gallery, or complete the run
-	# (complete_run is the next increment). Every transition advances the frozen playback sequence.
+	if _run_lifecycle.get_state() == &"COMPLETED" and expected_stage == &"COMPLETED":
+		if not transaction_id.is_empty() or not receipt.is_empty():
+			return _transaction_failure(&"invalid_completed_ending_return", "no new playback receipt belongs to a completed run")
+		var completed_lease := _acquire_ending_lease()
+		if not completed_lease.get("ok", false): return completed_lease
+		_retire_completed_ending_session()
+		var completed_release := _release_ending_lease(completed_lease)
+		return {"ok": true, "value": {"route": "menu"}} if completed_release.get("ok", false) else completed_release
+	var replay: Dictionary = _completed_ordered_ending_replay(transaction_id, expected_stage, receipt)
+	if not replay.is_empty(): return replay
+	var lease: Dictionary = _acquire_ending_lease()
+	if not lease.get("ok", false): return lease
+	var result: Dictionary = _commit_ending_playback_completion(transaction_id, expected_stage, receipt)
+	var released: Dictionary = _release_ending_lease(lease)
+	if not released.get("ok", false): return released
+	if result.get("ok", false): emit_signal("save_relevant_state_changed")
+	return result
+
+
+func _commit_ending_playback_completion(transaction_id: String, expected_stage: StringName, receipt: Dictionary) -> Dictionary:
+	var captured: Dictionary = capture_restore_state()
+	if not captured.get("ok", false): return captured
+	var completed: Dictionary = _complete_ending_playback_stage(transaction_id, expected_stage, receipt)
+	if not completed.get("ok", false): return completed
+	if _ending_checkpoint_writer.is_valid():
+		var saved: Dictionary = _ending_checkpoint_writer.call()
+		if not saved.get("ok", false):
+			var restored: Dictionary = rollback_restore_silent(captured.value.backup)
+			return saved if restored.get("ok", false) else restored
+	_retire_completed_ending_session()
+	return completed
+
+func _retire_completed_ending_session() -> void:
+	if _run_lifecycle.get_state() != &"COMPLETED" or not _live_session_active: return
+	# The terminal snapshot is already durable, including when it has just been loaded.
+	var handle: Dictionary = _live_session_fact()
+	_invalidate_live_session()
+	_run_configuration_installed = false
+	_retired_live_session_handle = handle
+	_retired_live_session_generation = _live_session_generation
+
+func _completed_ordered_ending_replay(transaction_id: String, stage: StringName, receipt: Dictionary) -> Dictionary:
+	var snapshot: Dictionary = _run_lifecycle.to_dict()
+	var plan: Variant = snapshot.get("ending_plan")
+	if not plan is Dictionary or not plan.has("steps"): return {}
+	for index in int(plan.next_step_index):
+		if transaction_id != "%s:ending:%d:complete" % [str(snapshot.run_id), index]: continue
+		var previous: Dictionary = plan.playback_receipts.get("step:%d" % index, {})
+		if stage != &"PRIMARY_PENDING" or previous != {"value": receipt}:
+			return {"ok": false, "code": &"duplicate_transaction_conflict"}
+		return {"ok": true, "code": &"ok", "value": previous.value.duplicate(true)}
+	return {}
+
+
+func _complete_ending_playback_stage(transaction_id: String, expected_stage: StringName, receipt: Dictionary) -> Dictionary:
 	if _run_lifecycle.get_state() != &"ENDING":
 		return {"ok": false, "code": &"not_in_ending", "message": "run is not in the ENDING state"}
 	var lifecycle_plan: Dictionary = _run_lifecycle.to_dict()["ending_plan"]
+	if lifecycle_plan.has("steps"):
+		var ordered_command: Dictionary = _ordered_ending_command(_run_lifecycle.to_dict(), lifecycle_plan)
+		if not ordered_command.get("ok", false):
+			return ordered_command
+		var ordered_value: Dictionary = ordered_command["value"]
+		var actual_stage: String = str(ordered_value.playback_context.expected_stage) \
+			if str(ordered_value.kind) == "play_ending" else str(ordered_value.get("expected_stage", ""))
+		if actual_stage != String(expected_stage):
+			return {"ok": false, "code": &"playback_stage_mismatch", "message": String(expected_stage)}
+		match str(ordered_value["kind"]):
+			"play_ending":
+				return _complete_play_ending(String(expected_stage), transaction_id, receipt)
+			"record_gallery":
+				return _complete_record_gallery(String(expected_stage), lifecycle_plan)
+			"complete_run":
+				return _complete_run()
+		return {"ok": false, "code": &"invalid_ending_command", "message": str(ordered_value["kind"])}
 	var epilogue: String = str(lifecycle_plan.get("epilogue_ending_id", ""))
 	var command_result: Dictionary = _DATING_ENDING_RULES.next_playback_command({
 		"primary_id": str(lifecycle_plan["ending_id"]),
@@ -2106,44 +2888,88 @@ func _complete_run() -> Dictionary:
 	var result: Dictionary = _run_lifecycle.complete_ending()
 	if not result.get("ok", false):
 		return result
-	emit_signal("save_relevant_state_changed")
 	return {"ok": true, "code": &"ok", "value": {"route": "menu"}}
 
 func _complete_play_ending(stage: String, transaction_id: String, receipt: Dictionary) -> Dictionary:
-	# EndingScene passes the run-scoped transaction id (run_id:role:complete) and a flat receipt;
-	# RunLifecycle keys the stage by ending:<stage> and wants a {value: Dictionary} envelope.
-	var run_id: String = str(_run_lifecycle.to_dict()["run_id"])
-	if transaction_id != "%s:%s:complete" % [run_id, str(_ENDING_STAGE_ROLE[stage])]:
-		return {"ok": false, "code": &"transaction_mismatch", "message": transaction_id}
-	var result: Dictionary = _run_lifecycle.complete_ending_playback_stage("ending:" + stage, StringName(stage), {"value": receipt.duplicate(true)})
-	if result.get("ok", false):
-		emit_signal("save_relevant_state_changed")
+	var snapshot: Dictionary = _run_lifecycle.to_dict()
+	var plan: Dictionary = snapshot["ending_plan"]
+	var run_id := str(snapshot["run_id"])
+	var lifecycle_transaction := ""
+	if plan.has("steps"):
+		var index := int(plan["next_step_index"])
+		if stage != "PRIMARY_PENDING" \
+				or transaction_id != "%s:ending:%d:complete" % [run_id, index]:
+			return {"ok": false, "code": &"transaction_mismatch", "message": transaction_id}
+		if receipt.size() != 2 or str(receipt.get("outcome", "")) != "completed" \
+				or typeof(receipt.get("timeline_completion_receipt_id")) != TYPE_STRING \
+				or str(receipt.get("timeline_completion_receipt_id", "")).strip_edges().is_empty():
+			return {"ok": false, "code": &"invalid_ending_completion_receipt"}
+		var unlocked: Dictionary = _record_completed_ending_step(plan.steps[index], run_id)
+		if not unlocked.get("ok", false): return unlocked
+		lifecycle_transaction = "ending:step:%d" % index
+	else:
+		if transaction_id != "%s:%s:complete" % [run_id, str(_ENDING_STAGE_ROLE[stage])]:
+			return {"ok": false, "code": &"transaction_mismatch", "message": transaction_id}
+		lifecycle_transaction = "ending:" + stage
+	var result: Dictionary = _run_lifecycle.complete_ending_playback_stage(
+		lifecycle_transaction, StringName(stage), {"value": receipt.duplicate(true)})
 	return result
 
 func _complete_record_gallery(stage: String, lifecycle_plan: Dictionary) -> Dictionary:
-	# Record the primary then optional epilogue as independent, idempotent ProfileManager
-	# transactions (the frozen sequence passes through EPILOGUE_PLAYED even without an epilogue,
-	# so a repeat is a no-op via the gallery transaction ledger), then advance the stage.
 	var profile: Node = get_node_or_null("/root/ProfileManager")
-	if profile == null:
-		return {"ok": false, "code": &"profile_unavailable", "message": "ProfileManager autoload is required"}
-	var run_id: String = str(_run_lifecycle.to_dict()["run_id"])
+	if profile == null: return {"ok": false, "code": &"profile_unavailable"}
+	var run_id: String = str(_run_lifecycle.to_dict().run_id)
 	var gallery_receipts: Dictionary = {}
-	var primary_id: String = str(lifecycle_plan["ending_id"])
-	var primary: Dictionary = profile.unlock_ending(primary_id, "ending:%s:gallery:%s" % [run_id, primary_id])
-	if not primary.get("ok", false):
-		return {"ok": false, "code": &"profile_ahead_profile_batch_failed", "message": "primary gallery unlock failed", "details": primary}
-	gallery_receipts["primary"] = primary["value"]
-	var epilogue: String = str(lifecycle_plan.get("epilogue_ending_id", ""))
-	if not epilogue.is_empty():
-		var epilogue_unlock: Dictionary = profile.unlock_ending(epilogue, "ending:%s:gallery:%s" % [run_id, epilogue])
-		if not epilogue_unlock.get("ok", false):
-			return {"ok": false, "code": &"profile_ahead_profile_batch_failed", "message": "epilogue gallery unlock failed", "details": epilogue_unlock}
-		gallery_receipts["epilogue"] = epilogue_unlock["value"]
-	var result: Dictionary = _run_lifecycle.complete_ending_playback_stage("ending:" + stage, StringName(stage), {"value": gallery_receipts})
-	if result.get("ok", false):
-		emit_signal("save_relevant_state_changed")
-	return result
+	if lifecycle_plan.has("steps"):
+		for index in range((lifecycle_plan.steps as Array).size()):
+			var unlocked: Dictionary = _record_completed_ending_step(lifecycle_plan.steps[index], run_id)
+			if not unlocked.get("ok", false): return unlocked
+			gallery_receipts["step:%d" % index] = unlocked.value
+	else:
+		# Existing admitted five-key plans remain resumable. Their two physical stages have
+		# completed before this compatibility Gallery tail can be reached.
+		for role: String in ["primary", "epilogue"]:
+			var ending_id: String = str(lifecycle_plan.ending_id if role == "primary" else lifecycle_plan.epilogue_ending_id)
+			if ending_id.is_empty(): continue
+			var unlocked: Dictionary = profile.record_ending_completion(ending_id,
+				"ending:%s:gallery:%s" % [run_id, ending_id])
+			if not unlocked.get("ok", false): return unlocked
+			gallery_receipts[role] = unlocked.value
+	return _run_lifecycle.complete_ending_playback_stage(
+		"ending:" + stage, StringName(stage), {"value": gallery_receipts})
+
+
+func _record_completed_ending_step(step: Dictionary, run_id: String) -> Dictionary:
+	var profile: Node = get_node_or_null("/root/ProfileManager")
+	if profile == null: return {"ok": false, "code": &"profile_unavailable"}
+	var ending_id: String = str(step.ending_id)
+	var pair_form: String = str(step.get("pair_form", "")) if str(step.role) == "pair_coda" else ""
+	return profile.record_ending_completion(ending_id, "ending:%s:gallery:%s" % [run_id, ending_id], pair_form)
+
+
+func get_frozen_ordered_ending_plan() -> Dictionary:
+	var prepared: Dictionary = prepare_provisional_day7_ending_plan()
+	if not prepared.get("ok", false): return {}
+	return _ordered_plan_from_provisional(prepared.value)
+
+
+func _ordered_plan_from_provisional(provisional: Dictionary) -> Dictionary:
+	var steps: Array = ((provisional as Dictionary).get("steps", []) as Array).duplicate(true)
+	if steps.is_empty():
+		return {}
+	var pair_present := false
+	for raw: Variant in steps:
+		if typeof(raw) == TYPE_DICTIONARY and str((raw as Dictionary).get("role", "")) == "pair_coda":
+			pair_present = true
+	return {
+		"ending_id": str((steps[0] as Dictionary).get("ending_id", "")),
+		"epilogue_ending_id": "ending.priscilla_lavinia" if pair_present else "",
+		"source_day": 7,
+		"playback_stage": "PRIMARY_PENDING",
+		"playback_receipts": {},
+		"steps": steps,
+		"next_step_index": 0,
+	}
 
 
 func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> void:
@@ -2151,6 +2977,15 @@ func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> 
 		return
 	if _run_lifecycle.get_day() != 7:
 		_lifecycle_set_playing_day(7)
+	var ordered: Dictionary = get_frozen_ordered_ending_plan()
+	if not ordered.is_empty():
+		var admitted: Dictionary = _run_lifecycle.enter_ending(ordered)
+		if admitted.get("ok", false):
+			route_context["ending_id"] = ordered["ending_id"]
+			route_context["epilogue_ending_id"] = ordered["epilogue_ending_id"]
+			return
+		push_error("GameState: frozen ordered ending plan was refused: %s" % str(admitted))
+		return
 	_run_lifecycle.enter_ending({
 		"ending_id": ending_id if not ending_id.is_empty() else "ending.alone",
 		"epilogue_ending_id": epilogue_ending_id,
@@ -2165,10 +3000,16 @@ func _lifecycle_ensure_ending(ending_id: String, epilogue_ending_id: String) -> 
 # are silent: apply/rollback emit no domain signals; only finalize publishes.
 
 func capture_restore_state() -> Dictionary:
+	var dating_backup: Variant = null
+	if _dating_restore_owner != null:
+		var captured: Dictionary = _dating_restore_owner.capture_reconciliation_state()
+		if not captured.get("ok", false): return captured
+		dating_backup = captured.value.duplicate(true)
 	var gameplay := to_save_dict()
 	gameplay["narrative_variables"] = _narrative_variables.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"gameplay": gameplay,
+		"dating_reconciliation": dating_backup,
 		"command_receipts": _command_receipts.duplicate(true),
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
@@ -2489,11 +3330,29 @@ func configure_narrative_checkpoint_port(port: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"port_instance_id": port.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 
+var _dating_restore_reconciler: Callable
+var _dating_restore_owner: Object
+
+func configure_dating_restore_reconciler(reconciler: Callable) -> Dictionary:
+	if not reconciler.is_valid(): return _transaction_failure(&"invalid_dating_restore_reconciler", "")
+	if _dating_restore_reconciler.is_valid() and _dating_restore_reconciler != reconciler:
+		return _transaction_failure(&"dating_restore_reconciler_conflict", "")
+	var physical_owner: Object = reconciler.get_object()
+	if not is_instance_valid(physical_owner) or not physical_owner.has_method("capture_reconciliation_state") \
+			or not physical_owner.has_method("rollback_reconciliation_silent"):
+		return _transaction_failure(&"invalid_dating_restore_reconciler", "local rollback owner required")
+	_dating_restore_reconciler = reconciler
+	_dating_restore_owner = physical_owner
+	return {"ok": true, "value": {}}
+
 func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var snapshot: Variant = plan.get("snapshot")
 	if typeof(snapshot) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_run_plan", "message": "run plan requires a snapshot"}
-	return _apply_run_snapshot_silent(snapshot as Dictionary)
+	var applied := _apply_run_snapshot_silent(snapshot as Dictionary)
+	if not applied.get("ok", false): return applied
+	if _dating_restore_reconciler.is_valid(): return _dating_restore_reconciler.call(snapshot as Dictionary)
+	return applied
 
 
 func rollback_restore_silent(backup: Dictionary) -> Dictionary:
@@ -2524,6 +3383,17 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		var desktop_error := _RUN_SNAPSHOT_SCHEMA_DESKTOP._validate_desktop(desktop_backup)
 		if desktop_error != "":
 			return {"ok": false, "code": &"invalid_run_backup", "message": desktop_error}
+	# All GameState backup validation is complete. Restore the retained Dating owner's
+	# local state before the synchronous, silent assignments below; stale sessions were
+	# rejected above, and no Profile history is copied backward.
+	var dating_backup: Variant = source.get("dating_reconciliation")
+	if _dating_restore_owner != null:
+		if not dating_backup is Dictionary:
+			return _transaction_failure(&"invalid_dating_reconciliation_backup", "local owner backup required")
+		var dating_restored: Dictionary = _dating_restore_owner.rollback_reconciliation_silent(dating_backup)
+		if not dating_restored.get("ok", false): return dating_restored
+	elif dating_backup != null:
+		return _transaction_failure(&"invalid_dating_reconciliation_backup", "local owner is not configured")
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	_apply_gameplay_silent((source as Dictionary)["gameplay"])
 	_apply_restore_bookkeeping(bookkeeping["value"])
@@ -2800,6 +3670,8 @@ func prepare_schedule_commit_candidate(committed: Dictionary, motivation_charged
 
 ## Silent: installs exactly motivation and committed_schedule, and emits nothing.
 func commit_schedule_commit_candidate(candidate: Dictionary) -> Dictionary:
+	var day7_admitted := require_day7_presentations_complete()
+	if not day7_admitted.get("ok", false): return day7_admitted
 	var shape := _schedule_member_error(candidate, _SCHEDULE_COMMIT_CANDIDATE_KEYS,
 		&"invalid_schedule_candidate")
 	if not shape.is_empty():

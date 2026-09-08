@@ -1,7 +1,7 @@
 extends AppWindowBase
 class_name ShopApp
-## Read-only public Shop presentation. No gameplay catalog, spend or effect writes.
-## The host supplies a fresh public snapshot; purchase custody is a later binding.
+## Public Shop presentation. The host supplies a fresh catalog snapshot and owns purchases through
+## the configured semantic provider; this node never reads or writes gameplay state directly.
 
 signal recovery_requested(code: String)
 
@@ -22,7 +22,10 @@ var page_label: Label
 var info_scroll: ScrollContainer
 var quantity_buttons: Dictionary = {}
 var status_label: Label
+var _buy_button: Button
+var _supportz_button: Button
 var last_result := {"ok": false, "code": "shop_unconfigured"}
+var _purchase_result := {"ok": false, "code": "shop_purchase_unconfigured"}
 var _records: Array = []
 var _body: Control
 var _catalog: Control
@@ -95,6 +98,10 @@ func configure_catalog(provider: Object, localization: Object = null, profile: O
 	if SHOP_THEME.resolve(palette).is_empty(): return {"ok":false,"code":"invalid_shop_palette"}
 	if not is_instance_valid(provider) or not provider.has_method("get_catalog") or Callable(provider,"get_catalog").get_argument_count() != 1 or not provider.has_signal("catalog_changed"):
 		return {"ok":false,"code":"invalid_shop_catalog_provider"}
+	if provider.has_method("purchase") and Callable(provider,"purchase").get_argument_count() != 2:
+		return {"ok":false,"code":"invalid_shop_purchase_provider"}
+	if provider.has_method("can_purchase") and Callable(provider,"can_purchase").get_argument_count() != 2:
+		return {"ok":false,"code":"invalid_shop_purchase_provider"}
 	for signal_info: Dictionary in provider.get_signal_list():
 		if signal_info.name == "catalog_changed" and not signal_info.args.is_empty():
 			return {"ok":false,"code":"invalid_shop_catalog_provider"}
@@ -116,10 +123,12 @@ func configure_catalog(provider: Object, localization: Object = null, profile: O
 		_provider.connect("catalog_changed",_on_catalog_changed)
 	if _localization == null and next_localization != null:
 		_localization = next_localization
-		_localization.connect("locale_changed",_on_locale_changed)
+		if not _localization.is_connected("locale_changed", _on_locale_changed):
+			_localization.connect("locale_changed",_on_locale_changed)
 	if _profile == null and next_profile != null:
 		_profile = next_profile
-		_profile.connect("preference_changed",_on_preference_changed)
+		if not _profile.is_connected("preference_changed", _on_preference_changed):
+			_profile.connect("preference_changed",_on_preference_changed)
 	return refresh_view()
 
 func _read_preferences(localization: Object, profile: Object) -> Dictionary:
@@ -232,7 +241,7 @@ func can_return_home() -> bool:
 	if not _has_host_custody(false): return false
 	for card in cards.values():
 		if card._held or card.is_pressed(): return false
-	for button in quantity_buttons.values() + [previous_button,next_button]:
+	for button in quantity_buttons.values() + [previous_button,next_button,_buy_button,_supportz_button]:
 		if is_instance_valid(button) and button.is_pressed(): return false
 	return true
 
@@ -365,7 +374,15 @@ func _ready() -> void:
 	for key in ["minimum", "minus", "plus", "maximum"]:
 		quantity_buttons[key] = _button(key, Vector2.ZERO, Vector2(48, 48), _quantity_action.bind(key))
 	_total_label = _label(_body, Vector2(496, 512), Vector2(272, 64), false)
-	status_label = _label(_body, Vector2(496, 576), Vector2(272, 64), false)
+	status_label = _label(_body, Vector2(496, 576), Vector2(136, 64), false)
+	_buy_button = _button("buy", Vector2(640, 576), Vector2(128, 64), _purchase_selected)
+	_supportz_button = Button.new()
+	_supportz_button.name = "SecretSupportz"
+	_supportz_button.flat = true
+	_supportz_button.text = ""
+	_supportz_button.accessibility_name = _supportz_accessible_name()
+	_supportz_button.pressed.connect(_purchase_supportz)
+	_catalog.add_child(_supportz_button)
 	_rebuild_catalog()
 	visibility_changed.connect(func():
 		if not is_visible_in_tree(): _cancel_contacts())
@@ -376,6 +393,7 @@ func _rebuild_catalog() -> void:
 	_catalog_layout_pending = true
 	_cancel_contacts()
 	for child in _catalog.get_children():
+		if child == _supportz_button: continue
 		_catalog.remove_child(child)
 		child.queue_free()
 	cards.clear()
@@ -389,6 +407,10 @@ func _rebuild_catalog() -> void:
 			label.add_theme_color_override("font_color", _role(StringName(label.get_meta("shop_color_role"))))
 	previous_button.text = _t("previous")
 	next_button.text = _t("next")
+	_buy_button.text = _t("buy")
+	_buy_button.accessibility_name = _t("buy")
+	_supportz_button.accessibility_name = _supportz_accessible_name()
+	_supportz_button.hide()
 	info_scroll.accessibility_name = _t("information")
 	for key in quantity_buttons:
 		quantity_buttons[key].text = {"minus": "−", "plus": "+"}.get(key, _t(key))
@@ -434,13 +456,23 @@ func _show_page(focus_selection: bool = true) -> void:
 	_cancel_contacts()
 	for control in [previous_button, next_button, page_label, _total_label]: control.show()
 	for card in cards.values(): card.hide()
+	_supportz_button.hide()
 	var start := page_index * page_capacity
 	var end := mini(start + page_capacity, _records.size())
 	for index in range(start, end):
 		var record: Dictionary = _records[index]
-		if record.blank: continue
-		var card: Button = cards[record.id]
 		var slot := index - start
+		if record.blank:
+			if record.id == "supportz" and _provider != null and _provider.has_method("purchase"):
+				var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
+				_supportz_button.position = Vector2((slot % 3) * 152, (slot / 3) * (card_height + 8))
+				_supportz_button.size = Vector2(144, card_height)
+				var supportz_admitted := _provider_can_purchase("supportz", 1)
+				_supportz_button.disabled = not supportz_admitted.get("ok", false)
+				_supportz_button.focus_mode = Control.FOCUS_NONE if _supportz_button.disabled else Control.FOCUS_ALL
+				_supportz_button.show()
+			continue
+		var card: Button = cards[record.id]
 		card.position = Vector2((slot % 3) * 152, (slot / 3) * (card.size.y + 8))
 		card.show()
 	if not cards.has(selected_id) or not cards[selected_id].visible:
@@ -505,10 +537,20 @@ func _render_selection() -> void:
 	_quantity_label.visible = record.batchable and record.available
 	_quantity_label.text = str(quantity)
 	_total_label.text = _price(record.unit_price * quantity, record.currency)
-	# Stock availability is an owner fact; it does not imply a purchase API exists.
 	status_label.position = Vector2(496, 576)
-	status_label.size = Vector2(272, 64)
-	status_label.text = _t("unavailable") if record.available else ""
+	status_label.size = Vector2(136, 64)
+	var has_purchase := _provider != null and _provider.has_method("purchase")
+	_buy_button.visible = has_purchase
+	_buy_button.disabled = true
+	_buy_button.focus_mode = Control.FOCUS_NONE
+	status_label.text = ""
+	if has_purchase:
+		var admitted := _provider_can_purchase(selected_id, quantity)
+		_buy_button.disabled = not admitted.get("ok", false)
+		_buy_button.focus_mode = Control.FOCUS_NONE if _buy_button.disabled else Control.FOCUS_ALL
+		if _buy_button.disabled: status_label.text = _t("unavailable")
+	elif record.available:
+		status_label.text = _t("unavailable")
 	_measure_information.call_deferred()
 	_verify_dock_fit.call_deferred()
 	_wire_focus()
@@ -556,6 +598,43 @@ func _quantity_action(key: String) -> void:
 	var focused := get_viewport().gui_get_focus_owner()
 	if focused == null or (focused is BaseButton and focused.disabled):
 		_focus_first_action()
+
+func _provider_can_purchase(item_id: String, requested_quantity: int) -> Dictionary:
+	if _provider == null or not _provider.has_method("can_purchase"):
+		return {"ok": _provider != null and _provider.has_method("purchase"), "code": &"ok"}
+	var result: Variant = _provider.call(&"can_purchase", item_id, requested_quantity)
+	return (result as Dictionary).duplicate(true) if typeof(result) == TYPE_DICTIONARY \
+		else {"ok": false, "code": &"shop_purchase_result_malformed"}
+
+func _purchase_selected() -> void:
+	if not _has_host_custody() or not is_instance_valid(_buy_button) or _buy_button.disabled:
+		return
+	_dispatch_purchase(selected_id, quantity)
+
+func _purchase_supportz() -> void:
+	if not _has_host_custody() or not is_instance_valid(_supportz_button) or _supportz_button.disabled:
+		return
+	_dispatch_purchase("supportz", 1)
+
+func _dispatch_purchase(item_id: String, requested_quantity: int) -> void:
+	if _provider == null or not _provider.has_method("purchase"):
+		return
+	var result: Variant = _provider.call(&"purchase", item_id, requested_quantity)
+	_purchase_result = (result as Dictionary).duplicate(true) if typeof(result) == TYPE_DICTIONARY \
+		else {"ok": false, "code": &"shop_purchase_result_malformed"}
+	if _purchase_result.get("ok", false):
+		quantity = 1
+		status_label.text = ""
+		refresh_view(true, true)
+	else:
+		status_label.text = _t("unavailable")
+	_render_selection()
+
+func _supportz_accessible_name() -> String:
+	if _localization != null and _localization.has_method("t"):
+		return str(_localization.call(&"t", "shop.secret_supportz.accessible_name"))
+	return "Secret Supportz buy area"
+
 
 func _change_page(delta: int) -> void:
 	if not _has_host_custody(): return
@@ -611,11 +690,15 @@ func _wire_focus() -> void:
 	var chain: Array[Control] = []
 	if is_instance_valid(_home) and _has_host_custody(): chain.append(_home)
 	for record: Dictionary in _records:
-		if not record.blank and cards.has(record.id) and cards[record.id].visible: chain.append(cards[record.id])
+		if record.blank and record.id == "supportz" and _supportz_button.visible and not _supportz_button.disabled:
+			chain.append(_supportz_button)
+		elif not record.blank and cards.has(record.id) and cards[record.id].visible:
+			chain.append(cards[record.id])
 	if info_scroll.visible and info_scroll.focus_mode == Control.FOCUS_ALL: chain.append(info_scroll)
 	for key in ["minimum", "minus", "plus", "maximum"]:
 		var button: Button = quantity_buttons[key]
 		if button.visible and not button.disabled: chain.append(button)
+	if _buy_button.visible and not _buy_button.disabled: chain.append(_buy_button)
 	for button: Button in [previous_button, next_button]:
 		if button.visible and not button.disabled: chain.append(button)
 	for index in chain.size():
@@ -646,7 +729,7 @@ func _cancel_contacts() -> void:
 func _show_recovery() -> void:
 	_catalog_layout_pending = false
 	for card in cards.values(): card.hide()
-	for control in [info_scroll, _information_overlay, _meta_price, _meta_state, previous_button, next_button, page_label, _quantity_label, _total_label] + quantity_buttons.values(): control.hide()
+	for control in [info_scroll, _information_overlay, _meta_price, _meta_state, previous_button, next_button, page_label, _quantity_label, _total_label, _buy_button, _supportz_button] + quantity_buttons.values(): control.hide()
 	status_label.position = Vector2(32, 32)
 	status_label.size = Vector2(736, 576)
 	status_label.text = _t("unavailable")

@@ -73,6 +73,10 @@ func prepare_commit(request: Dictionary) -> Dictionary:
 	var ready := _require_dependencies()
 	if not ready.is_empty():
 		return ready
+	# Check before cached preparation or identity derivation; UI custody is not admission.
+	if _game_state.has_method("require_day7_presentations_complete"):
+		var presentations: Dictionary = _game_state.require_day7_presentations_complete()
+		if not presentations.get("ok", false): return presentations
 	if typeof(request) != TYPE_DICTIONARY:
 		return _fail(&"invalid_schedule_commit_request", "the request must be a dictionary", {})
 	var shape := _exact_keys(request, REQUEST_KEYS, &"invalid_schedule_commit_request")

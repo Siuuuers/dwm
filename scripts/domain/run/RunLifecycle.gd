@@ -6,6 +6,7 @@ extends RefCounted
 
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
 const CONDITION_HOSPITAL_PLAN := preload("res://scripts/domain/run/ConditionHospitalPlan.gd")
+const DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const PLAYING := &"PLAYING"
@@ -22,6 +23,22 @@ const LIFECYCLE_KEYS: Array[String] = [
 ]
 const PLAYBACK_SEQUENCE: Array[String] = ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
 const ENDING_PLAN_KEYS: Array[String] = ["ending_id", "epilogue_ending_id", "source_day", "playback_stage", "playback_receipts"]
+const ORDERED_ENDING_PLAN_KEYS: Array[String] = [
+	"ending_id", "epilogue_ending_id", "next_step_index", "playback_receipts",
+	"playback_stage", "source_day", "steps",
+]
+const ORDERED_PLAYBACK_STAGES: Array[String] = ["PRIMARY_PENDING", "EPILOGUE_PLAYED", "GALLERY_RECORDED"]
+const ORDERED_STEP_ROLES: Array[String] = ["special_prefix", "core", "pair_coda", "observer_coda"]
+const PROVISIONAL_PAIR_ENDING_IDS: Array[String] = [
+	"ending.priscilla_lavinia.sweet", "ending.priscilla_lavinia.dark",
+]
+const PROVISIONAL_OBSERVER_ENDING_IDS: Array[String] = [
+	"ending.priscilla.observation", "ending.lavinia.observation",
+	"ending.priscilla_lavinia.observer",
+]
+const PROVISIONAL_PAIR_FORMS: Array[String] = [
+	"ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark",
+]
 
 ## The v5 terminal-intent handoff dwm-oyo.6 adopts (Amendment Plan 03 Task 4, ledger 1.3.5).
 ## The saved value is exactly these seven sorted keys with two frozen literals, which is also
@@ -366,6 +383,9 @@ func complete_active_stage(transaction_id: String, receipt: Dictionary) -> Dicti
 	match str(record["stage_id"]):
 		"increment_day":
 			_day += 1
+			if receipt.value.has("day_advance_identity_receipt"):
+				_causal_day_instance = str(receipt.value.target_causal_day_instance)
+				_causal_day_instance_issuer_receipt = receipt.value.target_causal_day_instance_issuer_receipt.duplicate(true)
 		"enter_ending":
 			_state = ENDING
 			_ending_plan = (receipt["value"]["ending_plan"] as Dictionary).duplicate(true)
@@ -389,6 +409,11 @@ func complete_ending_playback_stage(transaction_id: String, expected_stage: Stri
 	if _state != ENDING:
 		return _fail(&"invalid_state", "playback requires ENDING")
 	var expected := String(expected_stage)
+	var receipt_keys := receipt.keys()
+	if receipt_keys != ["value"] or typeof(receipt["value"]) != TYPE_DICTIONARY:
+		return _fail(&"invalid_receipt", "receipt must be {\"value\": Dictionary}")
+	if _ending_plan.has("steps"):
+		return _complete_ordered_ending_stage(transaction_id, expected, receipt)
 	if expected not in PLAYBACK_SEQUENCE:
 		return _fail(&"invalid_playback_stage", expected)
 	if str(_ending_plan["playback_stage"]) != expected:
@@ -397,13 +422,40 @@ func complete_ending_playback_stage(transaction_id: String, expected_stage: Stri
 		return _fail(&"invalid_playback_stage", "no edge beyond GALLERY_RECORDED")
 	if transaction_id != "ending:" + expected:
 		return _fail(&"transaction_mismatch", transaction_id)
-	var receipt_keys := receipt.keys()
-	if receipt_keys != ["value"] or typeof(receipt["value"]) != TYPE_DICTIONARY:
-		return _fail(&"invalid_receipt", "receipt must be {\"value\": Dictionary}")
 	var next := PLAYBACK_SEQUENCE[PLAYBACK_SEQUENCE.find(expected) + 1]
 	_ending_plan["playback_stage"] = next
 	(_ending_plan["playback_receipts"] as Dictionary)[expected] = receipt.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"playback_stage": next}}
+
+
+func _complete_ordered_ending_stage(transaction_id: String, expected: String,
+		receipt: Dictionary) -> Dictionary:
+	if expected not in ORDERED_PLAYBACK_STAGES:
+		return _fail(&"invalid_playback_stage", expected)
+	if str(_ending_plan["playback_stage"]) != expected:
+		return _fail(&"playback_stage_mismatch", "expected %s, current %s" % [expected, str(_ending_plan["playback_stage"])])
+	if expected == "GALLERY_RECORDED":
+		return _fail(&"invalid_playback_stage", "no edge beyond GALLERY_RECORDED")
+	if expected == "EPILOGUE_PLAYED":
+		if transaction_id != "ending:EPILOGUE_PLAYED":
+			return _fail(&"transaction_mismatch", transaction_id)
+		_ending_plan["playback_stage"] = "GALLERY_RECORDED"
+		(_ending_plan["playback_receipts"] as Dictionary)["gallery"] = receipt.duplicate(true)
+		return {"ok": true, "code": &"ok", "value": {
+			"playback_stage": "GALLERY_RECORDED", "next_step_index": int(_ending_plan["next_step_index"])}}
+	var index := int(_ending_plan["next_step_index"])
+	if index >= (_ending_plan["steps"] as Array).size():
+		return _fail(&"playback_stage_mismatch", "all ordered presentations are already complete")
+	if transaction_id != "ending:step:%d" % index:
+		return _fail(&"transaction_mismatch", transaction_id)
+	(_ending_plan["playback_receipts"] as Dictionary)["step:%d" % index] = receipt.duplicate(true)
+	index += 1
+	_ending_plan["next_step_index"] = index
+	if index == (_ending_plan["steps"] as Array).size():
+		_ending_plan["playback_stage"] = "EPILOGUE_PLAYED"
+	return {"ok": true, "code": &"ok", "value": {
+		"playback_stage": str(_ending_plan["playback_stage"]), "next_step_index": index}}
+
 
 func complete_ending() -> Dictionary:
 	if _state != ENDING:
@@ -770,21 +822,115 @@ static func _validate_desktop_identity(data: Dictionary) -> String:
 static func _validate_ending_plan(plan: Dictionary) -> String:
 	var keys := plan.keys()
 	keys.sort()
-	var expected := ENDING_PLAN_KEYS.duplicate()
-	expected.sort()
-	if keys != expected:
+	var legacy_keys := ENDING_PLAN_KEYS.duplicate()
+	legacy_keys.sort()
+	var ordered_keys := ORDERED_ENDING_PLAN_KEYS.duplicate()
+	ordered_keys.sort()
+	var ordered := keys == ordered_keys
+	if not ordered and keys != legacy_keys:
 		return "unexpected ending-plan keys: " + str(keys)
-	if str(plan["ending_id"]).is_empty():
-		return "ending_id must be nonempty"
+	if typeof(plan["ending_id"]) != TYPE_STRING or str(plan["ending_id"]).is_empty():
+		return "ending_id must be a nonempty String"
 	if typeof(plan["epilogue_ending_id"]) != TYPE_STRING:
 		return "epilogue_ending_id must be a String"
 	if typeof(plan["source_day"]) != TYPE_INT or int(plan["source_day"]) != 7:
 		return "ending-plan source_day must be 7"
-	if str(plan["playback_stage"]) not in PLAYBACK_SEQUENCE:
-		return "unknown playback_stage: " + str(plan["playback_stage"])
 	if typeof(plan["playback_receipts"]) != TYPE_DICTIONARY:
 		return "playback_receipts must be a Dictionary"
+	if ordered:
+		return _validate_ordered_ending_plan(plan)
+	if str(plan["playback_stage"]) not in PLAYBACK_SEQUENCE:
+		return "unknown playback_stage: " + str(plan["playback_stage"])
+	var epilogue_raw := str(plan["epilogue_ending_id"])
+	var semantic: Dictionary = DATING_ENDING_RULES.validate_ending_plan({
+		"primary_id": str(plan["ending_id"]),
+		"epilogue_id": null if epilogue_raw.is_empty() else epilogue_raw,
+		"playback_stage": str(plan["playback_stage"]),
+	})
+	return "" if semantic.get("ok", false) else str(semantic.get("message", "invalid ending plan"))
+
+
+static func _validate_ordered_ending_plan(plan: Dictionary) -> String:
+	if typeof(plan["steps"]) != TYPE_ARRAY or (plan["steps"] as Array).is_empty():
+		return "ordered ending steps must be a nonempty Array"
+	if (plan["steps"] as Array).size() > 4:
+		return "ordered ending plan permits at most four presentations"
+	if typeof(plan["next_step_index"]) != TYPE_INT:
+		return "next_step_index must be an integer"
+	var index := int(plan["next_step_index"])
+	var steps: Array = plan["steps"]
+	if index < 0 or index > steps.size():
+		return "next_step_index is outside the frozen steps"
+	var stage := str(plan["playback_stage"])
+	if stage not in ORDERED_PLAYBACK_STAGES:
+		return "unknown ordered playback_stage: " + stage
+	if stage == "PRIMARY_PENDING" and index >= steps.size():
+		return "PRIMARY_PENDING requires a remaining ordered step"
+	if stage != "PRIMARY_PENDING" and index != steps.size():
+		return "post-presentation stage requires every ordered step complete"
+	var roles: Array[String] = []
+	var pair_seen := false
+	var core_id := ""
+	for raw: Variant in steps:
+		if typeof(raw) != TYPE_DICTIONARY:
+			return "each ordered ending step must be an object"
+		var step: Dictionary = raw
+		var role := str(step.get("role", ""))
+		if role not in ORDERED_STEP_ROLES:
+			return "unknown ordered ending role: " + role
+		var expected_keys := ["ending_id", "role"]
+		if role == "pair_coda":
+			expected_keys.append("pair_form")
+		elif role == "observer_coda":
+			expected_keys.append("presentation_variant")
+		var step_keys := step.keys()
+		step_keys.sort()
+		expected_keys.sort()
+		if step_keys != expected_keys:
+			return role + " has an unexpected member set"
+		var ending_id := str(step["ending_id"])
+		match role:
+			"special_prefix":
+				if not roles.is_empty() or ending_id != "ending.sylvia.special":
+					return "Sylvia Special is the optional first prefix"
+			"core":
+				if roles.count("core") > 0 or ending_id not in DATING_ENDING_RULES.VALID_PRIMARY_IDS \
+						or ending_id == "ending.sylvia.special":
+					return "ordered plan requires one ordinary core ending"
+				if roles == ["special_prefix"] and ending_id != "ending.sylvia.dark":
+					return "Sylvia Special must be followed by Sylvia Dark"
+				if not roles.is_empty() and roles != ["special_prefix"]:
+					return "core ending is out of order"
+				core_id = ending_id
+			"pair_coda":
+				if roles.count("core") != 1 or roles.back() != "core" \
+						or ending_id not in PROVISIONAL_PAIR_ENDING_IDS:
+					return "pair coda must follow the core ending"
+				var pair_form := str(step["pair_form"])
+				if pair_form not in PROVISIONAL_PAIR_FORMS \
+						or ending_id.ends_with(".dark") != pair_form.ends_with("_dark"):
+					return "pair ending id and frozen form disagree"
+				pair_seen = true
+			"observer_coda":
+				if roles.count("core") != 1 or role in roles \
+						or str(step["presentation_variant"]) not in ["full", "residue"] \
+						or ending_id not in PROVISIONAL_OBSERVER_ENDING_IDS:
+					return "Observer coda is invalid"
+				if ending_id == "ending.priscilla_lavinia.observer" and not pair_seen:
+					return "pair Observer requires the pair coda"
+				if ending_id != "ending.priscilla_lavinia.observer" \
+						and not core_id.begins_with(ending_id.trim_suffix(".observation")):
+					return "personal Observer must match the core friend"
+		roles.append(role)
+	if roles.count("core") != 1:
+		return "ordered plan requires exactly one core ending"
+	if str(plan["ending_id"]) != str((steps[0] as Dictionary)["ending_id"]):
+		return "ending_id must project the first ordered step"
+	var expected_epilogue := "ending.priscilla_lavinia" if pair_seen else ""
+	if str(plan["epilogue_ending_id"]) != expected_epilogue:
+		return "epilogue_ending_id must project pair-coda presence"
 	return ""
+
 
 func _validate_owner_receipt(stage_id: String, receipt: Dictionary) -> Dictionary:
 	var receipt_keys := receipt.keys()
@@ -800,6 +946,21 @@ func _validate_owner_receipt(stage_id: String, receipt: Dictionary) -> Dictionar
 				return _fail(&"invalid_receipt", "increment_day permitted only from days 1..6")
 			if typeof(value.get("day")) != TYPE_INT or int(value["day"]) != _day + 1:
 				return _fail(&"invalid_receipt", "increment_day receipt must carry day = source + 1")
+			if _plan.get_day_resolution_start_receipt() != null and not value.has("day_advance_identity_receipt"):
+				return _fail(&"invalid_receipt", "minted Schedule resolution requires its durable day allocation")
+			if value.has("day_advance_identity_receipt"):
+				var allocation: Dictionary = value.get("day_advance_identity_receipt", {})
+				if allocation.get("source_day") != _day or allocation.get("target_day") != _day + 1 \
+						or allocation.get("source_causal_day_instance") != _causal_day_instance \
+						or allocation.get("source_causal_day_instance_issuer_receipt") != _causal_day_instance_issuer_receipt \
+						or allocation.get("target_causal_day_instance") != value.get("target_causal_day_instance") \
+						or allocation.get("target_causal_day_instance_issuer_receipt") != value.get("target_causal_day_instance_issuer_receipt"):
+					return _fail(&"invalid_receipt", "increment_day allocation identity conflict")
+				var target := to_dict()
+				target["causal_day_instance"] = value.target_causal_day_instance
+				target["causal_day_instance_issuer_receipt"] = value.target_causal_day_instance_issuer_receipt
+				var identity_error := _validate_desktop_identity(target)
+				if identity_error != "": return _fail(&"invalid_receipt", identity_error)
 		"resolve_ending_plan", "enter_ending":
 			if typeof(value.get("ending_plan")) != TYPE_DICTIONARY:
 				return _fail(&"invalid_receipt", stage_id + " receipt requires an ending_plan")

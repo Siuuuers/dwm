@@ -5,20 +5,9 @@ extends RefCounted
 ## frozen at plan02-frozen-contracts.md lines 369-381, created under the dwm-oyo.3 slice authority
 ## recorded 2026-08-24 on dwm-p2r.21 / dwm-oyo.3.
 ##
-## WHAT THE VIEW IS TODAY, stated honestly. Plan 03 Tasks 1-5 own the full saved ScheduleView (v5
-## drafting, warnings, per-day editable state); none of that exists in production yet, so the
-## canonical live view this port owns is the CANONICAL EMPTY VIEW -- there is genuinely nothing a
-## player could have drafted. A condition departure replaces it with the canonical departed view
-## naming its source condition receipt. When Tasks 1-5 land the real ScheduleView owner, this port's
-## frozen surface stays and the view bytes become that owner's projection.
-##
-## DURABILITY GAP, recorded rather than papered over. The frozen contract's receipt ledger ("the
-## Plan-03 ScheduleView owner -- not DesktopConsequenceState -- durably retains the exact receipt")
-## is retained per process here, because the durable v5 ScheduleView document that would carry it is
-## Tasks 1-5 work. The receipt itself carries NO minted nonce -- it is a pure function of the frozen
-## candidate bytes -- so a crash-retry of the same candidate reproduces byte-identical receipt bytes
-## even in a fresh process, and a cross-restart retry against the reset empty view fails closed as
-## `schedule_view_state_conflict` instead of double-applying. Recorded on dwm-oyo.3.
+## Production binds the existing saved ScheduleViewController. It owns both the view and its
+## append-only departure receipts, so restore and forward replay never depend on a second view.
+## The small unbound representation remains for legacy domain-only compositions.
 ##
 ## THE LEASE LAW. Commit verifies bytes only while the shared `causal_transaction` owner is active
 ## (the coordinator holds it across the whole departure span); prepare is pure and holds nothing.
@@ -33,11 +22,11 @@ const _COMMIT_KEYS: Array[String] = [
 ]
 
 var _mutation_gate: Object = null
-## The canonical live view. Empty until a departure installs the departed projection; the next
-## day's real editable view is Tasks 1-5 work.
+var _view_controller: Object = null
+## Legacy unbound composition only; production reads and commits the configured controller.
 var _live_view: Dictionary = {"schema_version": 1, "state": "empty"}
 ## source_condition_receipt_id -> {"before":Dictionary,"after":Dictionary,"receipt":Dictionary}.
-## Process-local retention of the append-only condition-departure receipt ledger (see class doc).
+## Legacy unbound composition only; production receipts live inside the saved controller view.
 var _retained: Dictionary = {}
 
 
@@ -56,6 +45,20 @@ func configure(mutation_gate: Object) -> Dictionary:
 		"value": {"configured": true, "already_configured": false}, "receipt": {}}
 
 
+func configure_view_controller(controller: Object) -> Dictionary:
+	if controller == null:
+		return _failure(&"invalid_schedule_view_controller", "the saved view owner is required")
+	for method: String in ["snapshot", "lookup_condition_departure_receipt", "commit_condition_departure_transition"]:
+		if not controller.has_method(method):
+			return _failure(&"invalid_schedule_view_controller", "missing method: " + method)
+	if _view_controller != null and _view_controller != controller:
+		return _failure(&"schedule_view_port_conflict", "a configured port never adopts a replacement view owner")
+	if _view_controller == null and not _retained.is_empty():
+		return _failure(&"schedule_view_port_conflict", "bind the saved owner before legacy departures")
+	_view_controller = controller
+	return {"ok": true, "code": &"ok"}
+
+
 ## Pure projection: the exact current live view, and its canonical departed replacement naming the
 ## departing condition receipt. No mutation on any path.
 func prepare_condition_departure(request: Dictionary) -> Dictionary:
@@ -71,6 +74,20 @@ func prepare_condition_departure(request: Dictionary) -> Dictionary:
 	if not condition_check.get("ok", false):
 		return condition_check
 	var condition_receipt: Dictionary = request["condition_receipt"]
+	if _view_controller != null:
+		var captured: Dictionary = _view_controller.snapshot()
+		if not captured.get("ok", false): return captured
+		var before: Dictionary = captured["value"]["view"]
+		var sequence: Variant = request["causal_sequence_receipt"]
+		if not sequence is Dictionary or condition_receipt.get("day") != before["day"] \
+				or condition_receipt.get("causal_day_instance") != before["causal_day_instance"] \
+				or sequence.get("causal_day_instance") != before["causal_day_instance"] \
+				or condition_receipt.get("causal_sequence_receipt_id") != sequence.get("receipt_id"):
+			return _failure(&"schedule_view_state_conflict", "the condition must name this exact source-day view and sequence")
+		return {"ok": true, "code": &"ok", "value": {
+			"schedule_view_before": before.duplicate(true),
+			"schedule_view_after": _departed_projection(before),
+		}, "receipt": {}}
 	var schedule_view_after := {
 		"schema_version": 1, "state": "condition_departed",
 		"source_condition_receipt_id": str(condition_receipt["receipt_id"]),
@@ -111,6 +128,20 @@ func commit_condition_departure(candidate: Dictionary) -> Dictionary:
 	var condition_receipt: Dictionary = candidate["condition_receipt"]
 	var source_condition_receipt_id := str(condition_receipt["receipt_id"])
 
+	# NO MINTED IDENTITY: every member is a projection of the candidate, so a crash-retry of the
+	# same frozen bytes reproduces this exact receipt (the contract's idempotent-retry law).
+	var receipt := {
+		"source_condition_receipt_id": source_condition_receipt_id,
+		"source_condition_receipt_provenance":
+			(condition_receipt["receipt_provenance"] as Dictionary).duplicate(true),
+		"schedule_view_before_sha256": str(candidate["schedule_view_before_sha256"]),
+		"schedule_view_after_sha256": str(candidate["schedule_view_after_sha256"]),
+		"disposition": "condition_departure_view_committed",
+	}
+	if _view_controller != null:
+		return _commit_controller_transition(candidate, receipt)
+
+
 	if _retained.has(source_condition_receipt_id):
 		var retained: Dictionary = _retained[source_condition_receipt_id]
 		if retained["before"] == before and retained["after"] == after:
@@ -126,16 +157,6 @@ func commit_condition_departure(candidate: Dictionary) -> Dictionary:
 			"message": "the live view is neither the frozen before nor the frozen after bytes",
 			"details": {}}
 
-	# NO MINTED IDENTITY: every member is a projection of the candidate, so a crash-retry of the
-	# same frozen bytes reproduces this exact receipt (the contract's idempotent-retry law).
-	var receipt := {
-		"source_condition_receipt_id": source_condition_receipt_id,
-		"source_condition_receipt_provenance":
-			(condition_receipt["receipt_provenance"] as Dictionary).duplicate(true),
-		"schedule_view_before_sha256": str(candidate["schedule_view_before_sha256"]),
-		"schedule_view_after_sha256": str(candidate["schedule_view_after_sha256"]),
-		"disposition": "condition_departure_view_committed",
-	}
 	_retained[source_condition_receipt_id] = {
 		"before": before.duplicate(true), "after": after.duplicate(true),
 		"receipt": receipt.duplicate(true),
@@ -159,3 +180,40 @@ func _canonical_sha256(value: Variant) -> String:
 	if not emitted.get("ok", false):
 		return ""
 	return str(emitted["value"]).sha256_text()
+
+## A departure drops the uncommitted docket and closes its pending warning. Same-day
+## date evidence, consumed warnings and every older departure receipt remain unchanged.
+func _departed_projection(before: Dictionary) -> Dictionary:
+	var after := before.duplicate(true)
+	after["entries"] = []
+	after["pending_warning"] = null
+	return after
+
+
+func _commit_controller_transition(candidate: Dictionary, receipt: Dictionary) -> Dictionary:
+	var source_id := str(receipt["source_condition_receipt_id"])
+	var retained: Dictionary = _view_controller.lookup_condition_departure_receipt(source_id)
+	if retained.get("ok", false):
+		if _canonical_sha256(retained["value"]["receipt"]) != _canonical_sha256(receipt):
+			return _failure(&"schedule_view_conflict", "this source condition already departed with different bytes")
+		return {"ok": true, "code": &"ok", "value": {"committed": true},
+			"receipt": (retained["value"]["receipt"] as Dictionary).duplicate(true)}
+	if retained.get("code") != &"condition_departure_receipt_not_found": return retained
+	if _canonical_sha256(_departed_projection(candidate["schedule_view_before"])) \
+			!= str(candidate["schedule_view_after_sha256"]):
+		return _failure(&"schedule_view_conflict", "the frozen after-view must be the canonical departure projection")
+	var committed: Dictionary = _view_controller.commit_condition_departure_transition({
+		"schedule_view_before": candidate["schedule_view_before"].duplicate(true),
+		"schedule_view_after": candidate["schedule_view_after"].duplicate(true),
+		"schedule_view_commit_receipt": receipt.duplicate(true),
+	})
+	if not committed.get("ok", false):
+		if committed.get("code") == &"condition_departure_receipt_conflict":
+			return _failure(&"schedule_view_state_conflict", "the live view matches neither frozen view")
+		return committed
+	return {"ok": true, "code": &"ok", "value": {"committed": true},
+		"receipt": (committed["value"]["receipt"] as Dictionary).duplicate(true)}
+
+
+static func _failure(code: StringName, message: String) -> Dictionary:
+	return {"ok": false, "code": code, "message": message, "details": {}}

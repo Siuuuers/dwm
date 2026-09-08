@@ -24,6 +24,7 @@ var _calls: Array[String] = []
 var _routes: Array[Dictionary] = []
 var _failure_code := &""
 var _ports_configured := true
+var _route_generation := 0
 
 
 func _init(calls: Array[String] = []) -> void:
@@ -42,6 +43,12 @@ func set_ports_configured(configured: bool) -> void:
 func is_schedule_presentation_ports_configured() -> bool:
 	return _ports_configured
 
+
+func capture_restore_state() -> Dictionary:
+	return {"ok": true, "value": {"backup": {"route_generation": _route_generation}}}
+
+func replace_route_mount() -> void:
+	_route_generation += 1
 
 func route_presentation(route_id: String, presentation_command: Dictionary) -> Dictionary:
 	_calls.append("router.route_presentation")

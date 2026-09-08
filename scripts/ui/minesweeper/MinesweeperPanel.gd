@@ -9,7 +9,9 @@ const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd
 const DOCK := preload("res://scripts/ui/minesweeper/MinesweeperDock.gd")
 const SHEET := preload("res://scripts/ui/minesweeper/MinesweeperInformationSheet.gd")
 const LAYOUT := preload("res://scripts/ui/minesweeper/MinesweeperWorksheetLayout.gd")
-const ACTIONS := ["reveal","flag","drag","assignments","rules"]
+const PLAY_ACTIONS := ["reveal","flag","drag","assignments","rules"]
+const SETTLED_ACTIONS := ["new_board","assignments","rules"]
+const ACTIONS := PLAY_ACTIONS+SETTLED_ACTIONS
 
 var register: Control
 var worksheet: Control
@@ -110,10 +112,12 @@ func present(value: Dictionary) -> bool:
 	return true
 
 func _valid(value: Dictionary) -> bool:
-	if value.size() != 4: return false
-	for key in ["board","register","assignments","actions"]:
+	if value.size() != 5: return false
+	for key in ["board","register","assignments","actions","settled"]:
 		if not value.has(key): return false
-	if not value.board is Dictionary or not value.register is Dictionary or not value.assignments is Array or not value.actions is Array: return false
+	if not value.board is Dictionary or not value.register is Dictionary \
+			or not value.assignments is Array or not value.actions is Array \
+			or typeof(value.settled) != TYPE_BOOL: return false
 	if not worksheet.grid.can_present(value.board): return false
 	if value.register.get("custody") != value.board.custody or value.register.get("mine_estimate") != value.board.mine_estimate: return false
 	if value.assignments.size() != 9: return false
@@ -123,9 +127,14 @@ func _valid(value: Dictionary) -> bool:
 	for action: Variant in value.actions:
 		if typeof(action) != TYPE_STRING or action not in ACTIONS or action in seen: return false
 		seen.append(action)
-	# Replacement and tier selection require application owners that do not yet exist.
+	# Tier selection still has no application command owner. A settled terminal retains board
+	# custody while exposing only the dock-level release and read-only information actions.
 	if value.register.get("difficulty_enabled") != []: return false
-	return value.actions.is_empty() if value.board.custody else seen.size() == ACTIONS.size()
+	if value.settled:
+		return value.board.terminal and value.board.custody and seen == SETTLED_ACTIONS
+	if value.board.custody:
+		return value.actions.is_empty()
+	return not value.board.terminal and seen == PLAY_ACTIONS
 
 func _measure(value: Dictionary, locale: String, percent: int, large: bool, palette: StringName,
 		high_contrast: bool = false, colour_preset: String = "standard") -> Dictionary:
@@ -156,8 +165,10 @@ func _place(register_height: float) -> void:
 	dock.position = Vector2(0,register_height+_band.y*2)
 
 func _apply_availability() -> void:
-	var blocked: bool = _failed or worksheet.information_sheet != null or public_view.get("board",{}).get("custody",true)
-	worksheet.set_interaction_blocked(_failed)
+	var settled: bool = bool(public_view.get("settled",false))
+	var blocked: bool = _failed or worksheet.information_sheet != null \
+		or (public_view.get("board",{}).get("custody",true) and not settled)
+	worksheet.set_interaction_blocked(_failed or settled)
 	for key: String in register.difficulties:
 		register.difficulties[key].present_state(false,key == register.public_view.difficulty)
 	dock.present(worksheet.grid.mode,public_view.get("actions",[]),blocked)
@@ -183,6 +194,9 @@ func _action(action: StringName) -> void:
 	if _failed or worksheet.information_sheet != null or action not in public_view.get("actions",[]): return
 	if action in [&"reveal",&"flag",&"drag"]:
 		worksheet.set_mode(action)
+		return
+	if action == &"new_board":
+		_receive(_port.call("dispatch","new_board",-1,int(public_view.board.revision)))
 		return
 	var opened := false
 	if action == &"rules": opened = worksheet.open_rules(dock.buttons.rules)

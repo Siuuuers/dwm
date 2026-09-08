@@ -4,6 +4,7 @@ extends Control
 
 signal open_requested(friend_id: String)
 signal back_requested
+signal pending_reply_drawn(rendered_line: Dictionary)
 
 const Row = preload("res://scripts/ui/contacts/ContactsRow.gd")
 const FRIENDS := ["priscilla", "lavinia", "sylvia"]
@@ -23,6 +24,9 @@ var _secondary := ""
 var _header: Label
 var _continuation: Control
 var _revision := 0
+var _pending_reply: Dictionary = {}
+var _pending_label: Label
+var _pending_emitted := false
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(800, 656)
@@ -149,6 +153,9 @@ func _update_rows() -> void:
 		rows[i].queue_redraw()
 
 func _clear_thread() -> void:
+	_pending_reply = {}
+	_pending_label = null
+	_pending_emitted = false
 	for node in [_header, transcript, _continuation]:
 		if is_instance_valid(node):
 			remove_child(node)
@@ -184,58 +191,7 @@ func _build_thread() -> void:
 	messages.add_theme_constant_override("separation", 0)
 	transcript.add_child(messages)
 	for entry in _entries:
-		var margin := MarginContainer.new()
-		margin.set_meta("entry_id", entry.id)
-		margin.add_theme_constant_override("margin_left", 56 if entry.outgoing else 24)
-		margin.add_theme_constant_override("margin_right", 24)
-		margin.add_theme_constant_override("margin_top", 24)
-		margin.add_theme_constant_override("margin_bottom", 4)
-		messages.add_child(margin)
-		var block := VBoxContainer.new()
-		block.add_theme_constant_override("separation", 8)
-		margin.add_child(block)
-		var surface := PanelContainer.new()
-		var style := StyleBoxFlat.new()
-		style.bg_color = theme.get_color("plum" if entry.outgoing else "paper", "Contacts")
-		style.border_color = theme.get_color("ink", "Contacts")
-		style.border_width_left = 0 if entry.outgoing else 2
-		style.content_margin_left = 16
-		style.content_margin_right = 20
-		style.content_margin_top = 12
-		style.content_margin_bottom = 12
-		surface.add_theme_stylebox_override("panel", style)
-		block.add_child(surface)
-		var text_stack := VBoxContainer.new()
-		text_stack.add_theme_constant_override("separation", 12)
-		surface.add_child(text_stack)
-		for locale in [_primary, _secondary]:
-			if locale == "":
-				continue
-			var label := Label.new()
-			label.text = entry.texts[locale]
-			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			label.set_meta("locale", locale)
-			label.set_meta("outgoing", entry.outgoing)
-			_style_label(label, locale, entry.outgoing)
-			text_stack.add_child(label)
-		if entry.has("timestamp"):
-			var time := Label.new()
-			time.text = entry.timestamp
-			_style_label(time, "en", false)
-			block.add_child(time)
-		if entry.outgoing:
-			var notch := ColorRect.new()
-			notch.color = theme.get_color("paper", "Contacts")
-			notch.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			notch.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-			notch.offset_left = -8
-			notch.offset_right = 0
-			notch.offset_top = 12
-			notch.offset_bottom = 20
-			# Internal drawing child is excluded from PanelContainer layout.
-			surface.add_child(notch, false, Node.INTERNAL_MODE_BACK)
+		_append_entry(entry, [_primary, _secondary])
 	_continuation = Control.new()
 	_continuation.position = Vector2(248, 96)
 	_continuation.size = Vector2(552, 560)
@@ -243,6 +199,84 @@ func _build_thread() -> void:
 	_continuation.z_index = 1
 	_continuation.draw.connect(_draw_continuation)
 	add_child(_continuation)
+
+func _append_entry(entry: Dictionary, locales: Array) -> Label:
+	var first_label: Label
+	var margin := MarginContainer.new()
+	margin.set_meta("entry_id", entry.id)
+	margin.add_theme_constant_override("margin_left", 56 if entry.outgoing else 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_bottom", 4)
+	messages.add_child(margin)
+	var block := VBoxContainer.new()
+	block.add_theme_constant_override("separation", 8)
+	margin.add_child(block)
+	var surface := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = theme.get_color("plum" if entry.outgoing else "paper", "Contacts")
+	style.border_color = theme.get_color("ink", "Contacts")
+	style.border_width_left = 0 if entry.outgoing else 2
+	style.content_margin_left = 16
+	style.content_margin_right = 20
+	style.content_margin_top = 12
+	style.content_margin_bottom = 12
+	surface.add_theme_stylebox_override("panel", style)
+	block.add_child(surface)
+	var text_stack := VBoxContainer.new()
+	text_stack.add_theme_constant_override("separation", 12)
+	surface.add_child(text_stack)
+	for locale in locales:
+		if locale == "":
+			continue
+		var label := Label.new()
+		label.text = entry.texts[locale]
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.set_meta("locale", locale)
+		label.set_meta("outgoing", entry.outgoing)
+		_style_label(label, locale, entry.outgoing)
+		text_stack.add_child(label)
+		if first_label == null: first_label = label
+	if entry.has("timestamp"):
+		var time := Label.new()
+		time.text = entry.timestamp
+		_style_label(time, "en", false)
+		block.add_child(time)
+	if entry.outgoing:
+		# Decoration draws on the panel itself; internal Controls are still container children.
+		surface.draw.connect(_draw_outgoing_notch.bind(surface))
+	return first_label
+
+func _draw_outgoing_notch(surface: Control) -> void:
+	surface.draw_rect(Rect2(surface.size.x - 8, 12, 8, 8), theme.get_color("paper", "Contacts"))
+
+func present_pending_reply(rendered_line: Dictionary, locale: String) -> bool:
+	if messages == null or transcript == null or locale not in LOCALES or rendered_line.size() != 3:
+		return false
+	for key: String in ["view_token", "line_id", "text"]:
+		if not rendered_line.get(key) is String or rendered_line[key].is_empty(): return false
+	if not _pending_reply.is_empty(): return _pending_reply == rendered_line
+	_pending_reply = rendered_line.duplicate(true)
+	_pending_emitted = false
+	_pending_label = _append_entry({"id": "ui:ordinary:" + rendered_line.view_token,
+		"outgoing": true, "texts": {locale: rendered_line.text}}, [locale])
+	_pending_label.name = "PendingOrdinaryReply"
+	_pending_label.draw.connect(_on_pending_reply_drawn.bind(_pending_label, rendered_line.duplicate(true)))
+	_reveal_pending_reply.call_deferred(str(rendered_line.view_token))
+	return true
+
+func _reveal_pending_reply(token: String) -> void:
+	if not is_inside_tree() or is_queued_for_deletion() or _pending_reply.get("view_token") != token \
+		or not is_instance_valid(transcript) or not is_instance_valid(_pending_label): return
+	transcript.ensure_control_visible(_pending_label)
+
+func _on_pending_reply_drawn(label: Label, rendered_line: Dictionary) -> void:
+	if _pending_emitted or label != _pending_label or rendered_line != _pending_reply \
+		or not is_instance_valid(label) or not label.is_visible_in_tree() or is_queued_for_deletion(): return
+	_pending_emitted = true
+	pending_reply_drawn.emit(rendered_line.duplicate(true))
 
 func _style_label(label: Label, locale: String, outgoing: bool) -> void:
 	label.add_theme_font_override("font", _fonts[locale])
@@ -259,11 +293,15 @@ func _scroll_anchor() -> Dictionary:
 			return {"id": block.get_meta("entry_id"), "offset": transcript.scroll_vertical - block.position.y}
 	return {}
 
-func _restore_scroll(anchor: Dictionary, revision: int) -> void:
-	for frame in range(3):
-		await get_tree().process_frame
-	if revision != _revision or transcript == null:
+func _restore_scroll(anchor: Dictionary, revision: int, frames_left: int = 3) -> void:
+	if not is_inside_tree() or is_queued_for_deletion() or revision != _revision: return
+	if frames_left > 0:
+		# A Node-bound one-shot disconnects on destruction; an awaiting instance cannot.
+		var next := _restore_scroll.bind(anchor.duplicate(true), revision, frames_left - 1)
+		if not get_tree().process_frame.is_connected(next):
+			get_tree().process_frame.connect(next, CONNECT_ONE_SHOT)
 		return
+	if not is_instance_valid(transcript) or not is_instance_valid(messages): return
 	for block in messages.get_children():
 		if block.get_meta("entry_id") == anchor.get("id", ""):
 			transcript.scroll_vertical = int(block.position.y + anchor.offset)

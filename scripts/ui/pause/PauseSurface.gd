@@ -27,6 +27,7 @@ var _hosts: Dictionary = {}
 var _host_confirmation: Control
 var _suspended_inputs: Dictionary = {}
 var _opened := false
+var _return_retry := false
 var _interactive := true
 var _suspended_focus: WeakRef
 var _pointer_contact := false
@@ -194,6 +195,8 @@ func _mount_host(id: StringName) -> void:
 func open_surface() -> void:
 	if not is_node_ready() or _opened: return
 	_opened = true
+	_return_retry = false
+	cancel_button.disabled = false
 	selected_action = &"continue"
 	entered_action = &""
 	show()
@@ -203,9 +206,22 @@ func open_surface() -> void:
 func close_surface() -> void:
 	if is_instance_valid(_host_confirmation): _host_confirmation._finish(false)
 	_opened = false
+	_return_retry = false
+	cancel_button.disabled = false
 	entered_action = &""
 	_sync_custody()
 	hide()
+
+## Once the session is retired, only the same confirmed Return may finish. Back/Cancel
+## cannot expose a discarded scene or turn a publication failure into a fresh command.
+func retain_return_retry() -> void:
+	_return_retry = true
+	selected_action = &"return"
+	entered_action = &"return"
+	cancel_button.disabled = true
+	_suspended_focus = weakref(return_button)
+	_sync_custody()
+	if _interactive: return_button.grab_focus()
 
 func set_interactive(value: bool) -> void:
 	if value == _interactive: return
@@ -297,7 +313,7 @@ func _row_input(event: InputEvent, id: StringName) -> void:
 
 func handle_back() -> bool:
 	if not _opened: return false
-	if not _interactive: return true
+	if not _interactive or _return_retry: return true
 	if is_instance_valid(_host_confirmation):
 		_host_confirmation._finish(false)
 		return true
@@ -310,7 +326,7 @@ func handle_back() -> bool:
 	return true
 
 func leave_host() -> void:
-	if entered_action == &"": return
+	if _return_retry or entered_action == &"": return
 	if is_instance_valid(_host_confirmation):
 		_host_confirmation._finish(false)
 		return

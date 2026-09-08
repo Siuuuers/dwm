@@ -168,7 +168,21 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 	var context := str(active_round.get("context", ""))
 	var difficulty := str(active_round.get("difficulty", ""))
 	var outcome := str(result.get("outcome", ""))
+	# Optional derived reasons are an input only: durable receipts retain their closed schema.
+	# Legacy callers without this field keep their existing outcome/task mapping.
+	var reasons: Array = []
+	if result.has("perfect_reasons"):
+		if not result.perfect_reasons is Array:
+			return _fail(&"invalid_perfect_reasons", "reasons must be an array")
+		for reason: Variant in result.perfect_reasons:
+			if not reason is String or reason not in ["efficiency_gt_100", "no_flag"] or reasons.has(reason):
+				return _fail(&"invalid_perfect_reasons", "reasons must be distinct known qualifiers")
+			reasons.append(reason)
+		if (outcome == "perfect") != (not reasons.is_empty()):
+			return _fail(&"invalid_perfect_reasons", "derived qualifiers must agree with Perfect outcome")
 	var task_ids := _task_ids_for(outcome, difficulty)
+	if reasons.has("no_flag"): task_ids.append("no_flag_finish")
+	if reasons.has("efficiency_gt_100"): task_ids.append("foresight_finish")
 	var clone: Object = _detached_clone()
 	if clone == null:
 		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")
@@ -318,6 +332,68 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if typeof(contacts) == TYPE_DICTIONARY:
 		_game_state.set("contacts", (contacts as Dictionary).duplicate(true))
 	return applied
+
+
+## Desktop settlement already owns the causal lease and durable recovery candidate.
+## Apply absolute prepared values silently; restore APIs would reset the lifecycle.
+func commit_desktop_completion(candidate: Dictionary) -> Dictionary:
+	if _gate == null or not _gate.is_internal_owner_active(&"causal_transaction"):
+		return _fail(&"causal_transaction_lease_required", "")
+	if not candidate.get("gameplay") is Dictionary or not candidate.get("contacts") is Dictionary:
+		return _fail(&"invalid_candidate", "completion requires gameplay and contacts")
+	if int(candidate.gameplay.get("day", -1)) != int(_game_state.day):
+		return _fail(&"completion_day_mismatch", "")
+	_game_state.call(&"_apply_gameplay_silent", candidate.gameplay.duplicate(true))
+	_game_state.set("contacts", candidate.contacts.duplicate(true))
+	_game_state.call(&"clear_unfinished_minesweeper_round")
+	return {"ok": true}
+
+
+var _accepted_notifications: Dictionary = {}
+var _published_notifications: Dictionary = {}
+
+
+func publish_desktop_completion(receipt: Dictionary, events: Array) -> Dictionary:
+	var published := publish(receipt, events)
+	if not published.get("ok", false): return published
+	_game_state.emit_signal("money_changed", int(_game_state.money))
+	_game_state.emit_signal("coins_changed", int(_game_state.coins))
+	for stat_id in ["health", "pressure", "motivation"]:
+		_game_state.emit_signal("stat_changed", stat_id, int(_game_state.get_stat(stat_id)),
+			int(_game_state.call(&"_stat_min", stat_id)), int(_game_state.call(&"_stat_max", stat_id)))
+	return published
+
+
+## The view is a refresh of persisted unread Contacts, so accepting it twice never adds messages.
+func accept_desktop_notification(record: Dictionary) -> Dictionary:
+	var action: Dictionary = record.get("action_receipt", {})
+	var condition: Dictionary = record.get("condition_receipt", {})
+	var intent: Dictionary = record.get("payload", {})
+	var key := str(record.get("key", ""))
+	if _game_state == null or key.is_empty() or record.get("consumer") != "desktop_notification" \
+			or condition.get("decision") != "no_departure" or intent.get("intent_id") != key \
+			or intent.get("action_commit_receipt_id") != action.get("commit_receipt_id") \
+			or int(action.get("day", -1)) != int(_game_state.day):
+		return _fail(&"invalid_desktop_notification", "")
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	for field in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		if action.get(field) != lifecycle.get(field): return _fail(&"stale_desktop_notification", "")
+	if _accepted_notifications.has(key):
+		return {"ok": true} if _accepted_notifications[key] == record \
+			else _fail(&"desktop_notification_conflict", "")
+	_accepted_notifications[key] = record.duplicate(true)
+	return {"ok": true}
+
+
+## Emission waits until the full checkpoint is durable and command custody has been released.
+func publish_desktop_notifications() -> void:
+	for key: String in _accepted_notifications:
+		if _published_notifications.has(key): continue
+		var record: Dictionary = _accepted_notifications[key]
+		_published_notifications[key] = true
+		if not record.action_receipt.get("unlock_receipt_ids", []).is_empty():
+			_game_state.emit_signal("contact_message_unlocked", {"day": int(_game_state.day),
+				"notification_id": key})
 
 
 func rollback(backup: Dictionary) -> Dictionary:

@@ -1,29 +1,10 @@
 class_name GameStateMinesweeperShopPort
 extends RefCounted
 
-## Production GameState-facing Shop purchase state port (Plan 02 Task 7, dwm-p2r.32.7,
-## req.shop.capabilities). Mirrors GameStateDesktopBoardPort's established shape: injected GameState
-## reference, prepare/commit/rollback/publish over detached candidates, no direct SaveManager,
-## storage, or EffectResolver dependency. Untested directly (no dedicated unit-test suite is in
-## Task 7's Create set), matching GameStateDesktopBoardPort's own precedent: proven exclusively
-## through the participant's contract fake in unit tests, and through this real port in the
-## integration suite.
-##
-## Interprets exactly the closed 3-item MinesweeperShopRegistry union itself rather than a generic
-## effect-string execution path -- the frozen contract's own words: "no generic effect-string
-## execution path". `lucky_charm`/`debug_key` grant their capability by permanent inventory
-## ownership (their registry cap is "once per saved branch" with no per-causal-day component, so
-## ownership IS the branch-scoped cap, checked here before any candidate is built). `supportz`
-## spends money and decrements `minesweeper_round_floor` by exactly one via the SAME
-## `change_minesweeper_round_floor(-1)` method the retained EffectResolver already uses for this
-## effect id -- this port neither computes nor persists the per-branch Supportz purchase count
-## itself (that ledger is `DesktopConsequenceState.shop_ledger`, per the Task-7 controller ruling);
-## the participant cross-validates the two stay in lockstep (floor sequence 0,-1,-2,-3) before ever
-## reaching this port.
-##
-## `desktop_identity_context` (run_id/branch_id/desktop_timeline_generation/causal_day_instance) is
-## supplied at configure() time exactly like GameStateDesktopBoardPort, for the identical documented
-## reason: neither is a GameState field yet, and this port may not edit GameState.gd to add one.
+## GameState source for durable Shop purchases. The three Minesweeper capability items keep
+## their closed registry operations; ordinary items prepare authored effects on a detached state.
+## Preparation never changes live balances. The participant owns admission, save/retry, and
+## publication; this port only captures, applies, restores, and publishes the source values.
 
 const _STAT_HEALTH := "health"
 const _STAT_PRESSURE := "pressure"
@@ -114,13 +95,17 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	# New admission only: the participant recognizes exact pending recovery before this seam.
+	if _game_state.has_method("require_day7_presentations_complete"):
+		var presentations: Dictionary = _game_state.require_day7_presentations_complete()
+		if not presentations.get("ok", false): return presentations
 	if typeof(transaction_issuer_receipt) != TYPE_DICTIONARY or transaction_issuer_receipt.is_empty():
 		return _fail(&"invalid_transaction_issuer_receipt", "the transaction issuer receipt is required", {})
 	if transaction_id.strip_edges().is_empty():
 		return _fail(&"invalid_transaction_id", "transaction_id must be nonblank", {})
 	var item_id := str(item.get("item_id", ""))
 	if item_id not in _CAPABILITY_ITEM_IDS and item_id != _SUPPORTZ_ITEM_ID:
-		return _fail(&"unregistered_shop_item", "the item is not a known shop item", {"item_id": item_id})
+		return _prepare_ordinary(item, quote, transaction_id)
 	if str(quote.get("item_id", "")) != item_id:
 		return _fail(&"quote_item_mismatch", "quote.item_id must match item.item_id", {})
 	var currency := str(item.get("currency", ""))
@@ -159,6 +144,13 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	if candidate.get("ordinary_gameplay") is Dictionary:
+		var gameplay: Dictionary = candidate.ordinary_gameplay
+		if int(gameplay.get("day", -1)) != int(_game_state.day) or not candidate.get("ordinary_contacts") is Dictionary:
+			return _fail(&"invalid_ordinary_shop_candidate", "", {})
+		_game_state.call(&"_apply_gameplay_silent", gameplay.duplicate(true))
+		_game_state.contacts = candidate.ordinary_contacts.duplicate(true)
+		return {"ok": true}
 	var currency := str(candidate.get("currency", ""))
 	var price := int(candidate.get("price", 0))
 	match currency:
@@ -178,10 +170,58 @@ func commit(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
 
 
+## Ordinary items use the authored resolver only on a detached GameState. The resulting complete
+## gameplay values enter the same durable purchase flow as the three capability items.
+func _prepare_ordinary(item: Dictionary, quote: Dictionary, transaction_id: String) -> Dictionary:
+	var item_id := str(item.get("item_id", ""))
+	var currency := str(item.get("currency", ""))
+	var price := int(item.get("price", -1))
+	var quantity := int(item.get("quantity", 0))
+	if str(quote.get("item_id", "")) != item_id or str(quote.get("currency", "")) != currency \
+			or int(quote.get("price", -2)) != price or quantity < 1 or not item.get("effect_ids") is Array:
+		return _fail(&"invalid_ordinary_shop_quote", "", {})
+	if not _can_afford(currency, price): return _fail(&"insufficient_funds", "", {})
+	var effects: Array[String] = []
+	for count: int in quantity:
+		for effect: Variant in item.effect_ids:
+			var effect_id := str(effect)
+			if int(item.get("max_purchases", 0)) == 1 and effect_id.begins_with("inventory:add:") \
+					and _owns(_game_state.inventory, effect_id.trim_prefix("inventory:add:")):
+				return _fail(&"shop_item_already_owned", "", {})
+			effects.append(effect_id)
+	var resolver: Object = _game_state.get_node_or_null("/root/EffectResolver")
+	if resolver == null: return _fail(&"effect_resolver_unavailable", "", {})
+	var resolved: Dictionary = resolver.resolve_effects(effects)
+	if not resolved.get("ok", false): return resolved
+	var clone: Node = _game_state.get_script().new()
+	clone.reset_game()
+	clone.apply_save_dict(_game_state.to_save_dict())
+	clone.contacts = _game_state.contacts.duplicate(true)
+	var spent: bool = clone.try_spend_money(price) if currency == "money" else clone.try_spend_coins(price)
+	if not spent:
+		clone.free()
+		return _fail(&"insufficient_funds", "", {})
+	var applied: Dictionary = resolver.apply_resolved_descriptors(clone, resolved.value.descriptors)
+	if not applied.get("ok", false):
+		clone.free()
+		return applied
+	var candidate := {"transaction_id": transaction_id, "item_id": item_id, "currency": currency,
+		"price": price, "ordinary_gameplay": clone.to_save_dict(), "ordinary_contacts": clone.contacts.duplicate(true)}
+	var condition := {"health": int(clone.get_stat("health")), "pressure": int(clone.get_stat("pressure")),
+		"carried_sequela": (_game_state.condition_effects_today as Array).has("sequela")}
+	clone.free()
+	return {"ok": true, "value": {"candidate": candidate, "condition_after": condition,
+		"backup": {"gameplay": _game_state.to_save_dict(), "contacts": _game_state.contacts.duplicate(true)}}}
+
+
 func rollback(backup: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	if backup.get("gameplay") is Dictionary:
+		_game_state.call(&"_apply_gameplay_silent", backup.gameplay.duplicate(true))
+		_game_state.contacts = backup.contacts.duplicate(true)
+		return {"ok": true}
 	_game_state.money = int(backup["money"])
 	_game_state.coins = int(backup["coins"])
 	_game_state.inventory = (backup["inventory"] as Dictionary).duplicate(true)
@@ -193,6 +233,12 @@ func publish(_publication: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	_game_state.emit_signal("money_changed", int(_game_state.money))
+	_game_state.emit_signal("coins_changed", int(_game_state.coins))
+	_game_state.emit_signal("inventory_changed")
+	for stat_id: String in ["health", "pressure", "motivation"]:
+		_game_state.emit_signal("stat_changed", stat_id, int(_game_state.get_stat(stat_id)),
+			int(_game_state.call(&"_stat_min", stat_id)), int(_game_state.call(&"_stat_max", stat_id)))
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": {}}
 
 

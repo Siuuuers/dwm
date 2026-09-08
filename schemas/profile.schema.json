@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "DWM profile schema v4",
-  "description": "Profile v4: ten exact roots, canonical Settings and Controls, preserved migration receipts and historical version-one preferences. ProfileSchema.gd additionally validates archive contents, key identities, protected bindings and context conflicts.",
+  "title": "DWM profile schema v8",
+  "description": "Profile v8: fifteen exact roots; retained Dating branch progress, immutable Observer evidence and run-stable pair deck draws, reached presentation signatures, and existing settings/history. GDScript validators enforce finite source ownership and cross-receipt proofs.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,12 +14,39 @@
     "controls_bindings",
     "controls_import_pending",
     "migration_receipts",
-    "legacy_preferences_v1"
+    "legacy_preferences_v1",
+    "pair_form_witness_receipts",
+    "dating_attempts",
+    "observer_evidence",
+    "pair_deck_draws",
+    "reached_presentations"
   ],
   "properties": {
+    "dating_attempts": {
+      "type": "object",
+      "description": "Run IDs map semantic slots to retained attempts and branch-specific latest progress; saved runs own canonical head pointers. DatingAttemptLedger.gd additionally validates board truth, exact receipt payloads, identities and monotonic transitions.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/dating_slot"
+        }
+      }
+    },
+    "pair_form_witness_receipts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "ambiguous_sweet",
+          "ambiguous_dark",
+          "love_sweet",
+          "love_dark"
+        ]
+      }
+    },
     "schema_version": {
       "type": "integer",
-      "const": 4
+      "const": 8
     },
     "gallery_unlocks": {
       "type": "array",
@@ -372,6 +399,24 @@
     "legacy_preferences_v1": {
       "type": "object",
       "description": "Empty or the complete validated version-one preference tree, retained as historical data. Exact archive contents are validated by ProfileSchema.gd."
+    },
+    "observer_evidence": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "pair_deck_draws": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "reached_presentations": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
     }
   },
   "$defs": {
@@ -509,6 +554,109 @@
         },
         "controller": {
           "$ref": "#/$defs/controls_controller"
+        }
+      }
+    },
+    "dating_progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revision",
+        "record",
+        "materialization_receipt",
+        "clear_receipt",
+        "terminal_receipt",
+        "effect_receipt",
+        "completion_receipt"
+      ],
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "record": {
+          "type": "object"
+        },
+        "materialization_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "clear_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "terminal_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "effect_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "completion_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    },
+    "dating_attempt_history": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generation",
+        "origin_branch_id",
+        "entry_receipt",
+        "progress_by_branch"
+      ],
+      "properties": {
+        "generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "origin_branch_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entry_receipt": {
+          "type": "object"
+        },
+        "progress_by_branch": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/dating_progress"
+          }
+        }
+      }
+    },
+    "dating_slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "first_attempt_id",
+        "attempts"
+      ],
+      "properties": {
+        "first_attempt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attempts": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/dating_attempt_history"
+          }
         }
       }
     }

@@ -16,6 +16,7 @@ var _failure: StringName = &""
 var _registered_stage := ""
 ## Committed entries the seeded plan is built from; `[]` means a plan with no substages at all.
 var _entries: Array = []
+var _identity_issuer: Object = null
 
 func _init(calls: Array[String]) -> void:
 	_calls = calls
@@ -39,21 +40,79 @@ func seed_playing_day(run_id: String, day: int, entries: Array) -> void:
 	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-%s" % run_id, "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-%s" % run_id, "numeric_value": null}
 	_lifecycle.reset(run_id, "branch-%s" % run_id, 0, "causal-day-%s" % run_id,
-		{"causal_day_instance_issuer_receipt": receipt})
+		{"causal_day_instance_issuer_receipt": receipt}, false)
 	var restored: Dictionary = _lifecycle.prepare_restore({
 		"run_id": run_id,
+		"dark_mode": false,
 		"day": day,
 		"state": "PLAYING",
+		"active_condition_hospital_plan": null,
 		"active_resolution_plan": null,
+		"condition_hospital_history": {},
 		"ending_plan": null,
 		"branch_id": "branch-%s" % run_id,
 		"desktop_timeline_generation": 0,
 		"causal_day_instance": "causal-day-%s" % run_id,
 		"causal_day_instance_issuer_receipt": receipt,
 		"restore_provenance": null,
+		"terminal_intent_handoff": null,
 	})
 	assert(restored["ok"])
 	assert(_lifecycle.commit_restore(restored["value"]["candidate"])["ok"])
+
+## Coordinator fixtures now exercise a real keyed allocation instead of only checking that
+## an unconfigured allocator object was supplied. Domain-only fixtures can stay unconfigured.
+func configure_identity(issuer: Object, source_receipt: Dictionary) -> Dictionary:
+	var verified: Dictionary = issuer.verify_issued(source_receipt, &"causal_day_instance")
+	if not verified.get("ok", false): return verified
+	_identity_issuer = issuer
+	var snapshot: Dictionary = _lifecycle.to_dict()
+	snapshot["causal_day_instance"] = source_receipt.token
+	snapshot["causal_day_instance_issuer_receipt"] = source_receipt.duplicate(true)
+	var prepared: Dictionary = _lifecycle.prepare_restore(snapshot)
+	if not prepared.get("ok", false): return prepared
+	return _lifecycle.commit_restore(prepared.value.candidate)
+
+func prepare_day_advance_source(snapshot: Dictionary) -> Dictionary:
+	var source: Dictionary = preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd").schedule_day_advance_source(
+		snapshot, _identity_issuer.capture_root().value)
+	if not source.get("ok", false) or source.value.has("source_resolution_receipt"): return source
+	var child: Dictionary = _identity_issuer.derive_child(source.value.derivation_request)
+	if not child.get("ok", false): return child
+	return {"ok": true, "value": {"source_resolution_receipt": {
+		"receipt_id": child.value.child_id, "provenance": child.value.provenance}}}
+
+static func _start_sources(resolution_id: String, day: int, causal: String) -> Array:
+	var facts := {"role": "day_resolution.start", "resolution_id": resolution_id,
+		"source_day": day, "causal_day_instance": causal, "schedule_commit_receipt_id": null,
+		"board_fate_receipt_id": null, "schedule_entry_ids": []}
+	var sources: Array = []
+	for key: String in facts:
+		sources.append(key + "=" + str(preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(facts[key]).value))
+	sources.sort()
+	return sources
+
+func _minted_start(command_id: String) -> Dictionary:
+	var current: Dictionary = _lifecycle.to_dict()
+	var plan: Variant = current.active_resolution_plan
+	if plan is Dictionary and str(plan.command_id) == command_id:
+		return {"ok": true, "value": {"command_id": command_id,
+			"resolution_issuer_receipt": plan.resolution_issuer_receipt,
+			"day_resolution_start_receipt": plan.day_resolution_start_receipt}}
+	var root: Dictionary = _identity_issuer.issue(&"transaction_id")
+	if not root.get("ok", false): return root
+	var child: Dictionary = _identity_issuer.derive_child({
+		"parent_receipt_id": root.value.issuer_receipt.receipt_id,
+		"child_kind": "day_resolution_stage", "ordinal": 0,
+		"source_ids": _start_sources(str(root.value.token), int(current.day), str(current.causal_day_instance))})
+	if not child.get("ok", false): return child
+	return {"ok": true, "value": {"command_id": command_id,
+		"resolution_issuer_receipt": root.value.issuer_receipt,
+		"day_resolution_start_receipt": {"receipt_id": child.value.child_id,
+			"receipt_provenance": child.value.provenance, "resolution_id": root.value.token,
+			"source_day": current.day, "causal_day_instance": current.causal_day_instance,
+			"schedule_commit_receipt_id": null, "board_fate_receipt_id": null,
+			"schedule_entry_ids": []}}}
 
 ## Nonempty only while the registered stage is a presentation site.
 var _registered_completion_transaction_id := ""
@@ -107,7 +166,15 @@ func begin_or_resume(command_id: String) -> Dictionary:
 		return {"ok": false, "code": &"begin_failed", "message": "forced", "details": {}}
 	# Step 6.6 (dwm-p2r.13): the fake models the same transport as production -- a committed
 	# Schedule aggregate, never a bare array -- so it cannot pass a shape production would refuse.
-	var begun: Dictionary = _lifecycle.begin_day_resolution(command_id, {"entries": _entries.duplicate(true)})
+	var start := {}
+	var resolution_id := command_id
+	if _identity_issuer != null:
+		var minted := _minted_start(command_id)
+		if not minted.get("ok", false): return minted
+		start = minted.value
+		resolution_id = str(start.resolution_issuer_receipt.token)
+	var begun: Dictionary = _lifecycle.begin_day_resolution(resolution_id,
+		{"entries": _entries.duplicate(true)}, [], null, null, start)
 	if not begun.get("ok", false):
 		return begun
 	return {"ok": true, "code": &"ok", "value": {"run_id": _run_id}}
@@ -372,7 +439,9 @@ static func _plan_receipt_from_envelope(envelope: Dictionary) -> Dictionary:
 	var value: Dictionary = envelope["value"]
 	match str(envelope["kind"]):
 		"day_increment":
-			return {"value": {"day": int(value["target_day"])}}
+			var projected := value.duplicate(true)
+			projected["day"] = int(value["target_day"])
+			return {"value": projected}
 		"enter_ending":
 			var epilogue: Variant = value.get("epilogue_id")
 			return {"value": {"ending_plan": {

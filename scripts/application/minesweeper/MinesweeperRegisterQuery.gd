@@ -2,6 +2,7 @@ class_name MinesweeperRegisterQuery
 extends RefCounted
 ## Partial register projection of retained owner facts. No new metric or command authority.
 
+const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 const BOARD_QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
 const IDENTITY := preload("res://scripts/domain/desktop/DesktopIdentity.gd")
 const DIFFICULTIES := ["beginner", "intermediate", "expert"]
@@ -29,8 +30,10 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 	var projected: Dictionary = BOARD_QUERY.desktop(snapshot, difficulty)
 	if not projected.get("ok", false): return _unavailable()
 	var no_flag := "intact"
+	var foresight: Variant = null
 	if snapshot.board != null:
 		var board: Dictionary = snapshot.board.board
+		foresight = mini(999, roundi(PERFORMANCE.foresight_percent(board)))
 		var flags := {}
 		for action: Dictionary in board.actions:
 			if StringName(action.kind) != &"set_flag": continue
@@ -43,11 +46,11 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 		if flags.size() != board.flagged_indices.size(): return _unavailable()
 		for index: int in board.flagged_indices:
 			if not flags.has(index): return _unavailable()
-	# NONE/prepared owners cannot retain Flags yet. The existing ledger also excludes first
-	# Reveal; no versioned 3BV exists. Do not invent Foresight or enable absent tier/replacement APIs.
+	# NONE/prepared boards have no layout to measure. The display alone is rounded and capped;
+	# completion uses the exact integer inequality and the retained action history.
 	return {"ok": true, "value": {
 		"difficulty": difficulty, "rounds": rounds, "mine_estimate": projected.value.mine_estimate,
-		"foresight": null, "no_flag": no_flag, "custody": projected.value.custody,
+		"foresight": foresight, "no_flag": no_flag, "custody": projected.value.custody,
 		"difficulty_enabled": [],
 	}}
 

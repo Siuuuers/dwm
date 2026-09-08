@@ -64,11 +64,11 @@ func _require_port() -> bool:
 
 ## Installs a real, receipt-backed lifecycle identity so DesktopActionReceipt validation and the
 ## port's live-identity cross-checks have honest live bytes to check against.
-func _install_lifecycle_identity(day: int) -> void:
+func _install_lifecycle_identity(day: int, dark_mode: bool = false) -> void:
 	var receipt: Dictionary = _root_store.mint(&"causal_day_instance").duplicate(true)
 	receipt["token"] = CAUSAL_DAY
 	_game_state._run_lifecycle.reset(RUN_ID, BRANCH_ID, GENERATION, CAUSAL_DAY,
-		{"causal_day_instance_issuer_receipt": receipt})
+		{"causal_day_instance_issuer_receipt": receipt}, dark_mode)
 	if day != 1:
 		var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
 		lifecycle["day"] = day
@@ -281,27 +281,39 @@ func test_snapshot_returns_the_exact_context_member_set() -> void:
 	assert_eq(context["accepted_unfulfilled_sources"], [])
 
 
-func test_snapshot_reads_the_live_condition() -> void:
+func test_snapshot_reads_the_detached_prepared_condition_without_mutating_live_state() -> void:
 	if not _require_port():
 		return
 	_game_state.stats[_game_state.STAT_PRESSURE] = 11
 	_game_state.stats[_game_state.STAT_HEALTH] = 2
 	_game_state.condition_effects_today.append("sequela")
-	var result: Dictionary = _port.snapshot_for(_request())
+	var request := _request()
+	var before: Dictionary = _game_state.to_save_dict().duplicate(true)
+	var result: Dictionary = _port.snapshot_for(request)
 	assert_true(result.get("ok", false), JSON.stringify(result))
-	var condition: Dictionary = ((result["value"] as Dictionary)["context"] as Dictionary)["condition_after"]
-	assert_eq(condition, {"health": 2, "pressure": 11, "carried_sequela": true})
+	var condition: Dictionary = result["value"]["context"]["condition_after"]
+	assert_eq(condition, {"health": 6, "pressure": 3, "carried_sequela": false},
+		"the prepared action result can differ from every live condition field")
+	assert_eq(_game_state.to_save_dict(), before)
+	condition["pressure"] = 99
+	assert_eq(request["action_receipt"]["condition_after"]["pressure"], 3,
+		"the returned context cannot mutate the admitted action's receipt")
+	var again: Dictionary = _port.snapshot_for(request)
+	assert_eq(again["value"]["context"]["condition_after"]["pressure"], 3)
 
 
-func test_snapshot_reports_dark_mode_when_any_route_has_two_dark_points() -> void:
+func test_snapshot_reports_captured_dark_mode_independently_of_friend_tone() -> void:
 	if not _require_port():
 		return
 	var plain: Dictionary = _port.snapshot_for(_request())
 	assert_false(bool(((plain["value"] as Dictionary)["context"] as Dictionary)["dark_mode"]))
 	_game_state.dating_route_state["sylvia"] = {"date_count": 2, "dark_points": 2,
 		"true_path_count": 0, "previous_entered_true_path": false}
+	var toned: Dictionary = _port.snapshot_for(_request())
+	assert_false(bool(toned.value.context.dark_mode), "friend tone cannot enable the captured run mode")
+	_install_lifecycle_identity(1, true)
 	var dark: Dictionary = _port.snapshot_for(_request())
-	assert_true(bool(((dark["value"] as Dictionary)["context"] as Dictionary)["dark_mode"]))
+	assert_true(bool(dark.value.context.dark_mode))
 
 
 func test_snapshot_collects_current_day_sources_sorted_by_action_then_receipt() -> void:

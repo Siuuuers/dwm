@@ -463,3 +463,153 @@ func test_combined_native_source_mismatch_refuses_before_any_suspension() -> voi
 	assert_false(_runtime.paused)
 	assert_true(_caption.canvas.is_visible_in_tree())
 	assert_eq(_reading_state(), before)
+
+
+func test_production_pause_view_adapter_covers_actual_caption_layer_node_and_restores_its_anchor() -> void:
+	if not await _start_combined_pause_fixture(): return
+	var controller: Node = preload("res://scripts/application/lifecycle/ProductionPauseController.gd").new()
+	add_child_autofree(controller)
+	var source: Dictionary = _owner.capture_pause_source()
+	controller._scene = _pause_scene
+	controller._captured_source = source.value.duplicate(true)
+	var captured: Dictionary = controller.capture_pause_view(source.value)
+	assert_true(captured.get("ok", false), str(captured))
+	if not captured.get("ok", false): return
+	assert_eq(controller._caption, _caption, "Discovery follows the native layer's public canvas; the layer itself is a Node")
+	var before := _reading_state()
+	assert_true(_bridge.begin_suspend(HANDLE).ok)
+	assert_true(controller.cover_pause_view(captured.value))
+	assert_false(_pause_scene.visible)
+	assert_false(_caption.canvas.is_visible_in_tree())
+	await get_tree().create_timer(0.12).timeout
+	assert_eq(_reading_state(), before)
+	assert_true(controller.restore_pause_view(captured.value))
+	assert_true(_pause_scene.visible)
+	assert_true(_caption.canvas.is_visible_in_tree())
+	assert_true(_bridge.resume(HANDLE).ok)
+	assert_eq(_reading_state(), before, "View restoration retains the exact native text, reveal, history and completion boundary")
+	assert_eq(_receipts, [])
+
+
+func test_witnessed_restore_failure_keeps_exact_native_reveal_and_original_pause_handle() -> void:
+	if not await _start("Synthetic unchanged reading source during failed Load. ".repeat(24)): return
+	_caption.caption_text.active_speed = 10.0
+	var gate := preload("res://scripts/application/transaction/ApplicationMutationGate.gd").new()
+	assert_true(_bridge.configure_mutation_gate(gate).ok)
+	assert_true(_bridge.begin_suspend(HANDLE).ok)
+	var before := _reading_state()
+	var frontier: Dictionary = _bridge.capture_pause_frontier(TIMELINE_ID)
+	assert_true(_bridge.begin_pause_restore(HANDLE).ok)
+	var participant := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd").new(_bridge)
+	var backup: Dictionary = participant.capture()
+	var prepared: Dictionary = participant.prepare({"narrative_checkpoint": {}, "content_version": 1})
+	assert_true(prepared.ok)
+	var plan: Dictionary = prepared.value.narrative_plan
+	plan["route_ready_token"] = {"route_id": "main", "layout_id": "main_layout", "generation": 1}
+	var lease: Dictionary = gate.acquire(&"restore")
+	assert_true(lease.ok)
+	var staged: Dictionary = participant.apply_silent(plan)
+	assert_true(staged.get("ok", false), str(staged))
+	var finalized: Dictionary = participant.finalize()
+	assert_true(finalized.get("ok", false), str(finalized))
+	await get_tree().create_timer(0.1).timeout
+	assert_eq(_reading_state(), before, "even finalization has not replaced or revealed the source")
+	assert_true(participant.rollback_silent(backup.value).ok, "a later participant failure only discards the staged target")
+	assert_true(gate.release(&"restore", lease.value.token).ok)
+	assert_true(_bridge.cancel_pause_restore(HANDLE).ok)
+	assert_eq(_bridge.capture_pause_frontier(TIMELINE_ID), frontier)
+	assert_eq(_reading_state(), before)
+	assert_true(_runtime.paused)
+	assert_true(_bridge.resume(HANDLE).ok, "the original handle resumes the original native coroutine")
+	assert_eq(_reading_state(), before)
+	assert_eq(_receipts, [])
+
+
+class RestoreSource extends RefCounted:
+	var physical: Object
+	var session := {"run_id": "native-load-run", "generation": 1, "active": true}
+	func capture_pause_source() -> Dictionary:
+		var source: Dictionary = physical.capture_pause_source()
+		if source.get("ok", false): source.value["session"] = session.duplicate(true)
+		return source
+	func capture_restore_destination_session() -> Dictionary:
+		return {"ok": true, "value": session.duplicate(true)}
+
+
+class RestoreRoute extends "res://autoload/SceneRouter.gd":
+	var target: Control
+	var publications := 0
+	func _gs() -> Node: return null
+	func _change_to(scene_id: String, _startup_publish: bool = false) -> Dictionary:
+		publications += 1
+		target = Control.new()
+		target.name = "RestoredNativeLoadTarget"
+		get_tree().root.add_child(target)
+		get_tree().current_scene = target
+		_current_scene_id = scene_id
+		return {"ok": true}
+
+
+func test_witnessed_load_publishes_only_after_new_session_and_never_completes_old_prose() -> void:
+	if not await _start_combined_pause_fixture(): return
+	_coordinator.free()
+	var gate := preload("res://scripts/application/transaction/ApplicationMutationGate.gd").new()
+	assert_true(_bridge.configure_mutation_gate(gate).ok)
+	var source_owner := RestoreSource.new()
+	source_owner.physical = _owner
+	var route := RestoreRoute.new()
+	add_child(route)
+	route._current_scene_id = "hospital"
+	var narrative := preload("res://scripts/application/lifecycle/ProductionPauseController.gd").NarrativeSuspension.new()
+	narrative.bridge = _bridge
+	_coordinator = COORDINATOR.new()
+	add_child(_coordinator)
+	assert_true(_coordinator.configure(source_owner, narrative, _input_owner, _pause_audio, gate, route).ok)
+	assert_true(_coordinator.bind_source(_pause_scene, _caption).ok)
+	var paused: Dictionary = await _coordinator.request_pause(&"native_load_fixture")
+	assert_true(paused.get("ok", false), str(paused))
+	if not paused.get("ok", false):
+		route.free()
+		return
+	var handle: Dictionary = paused.value
+	var before := _reading_state()
+	assert_true(_coordinator.begin_restore_handoff(handle).ok)
+	assert_true(route.is_restore_publication_held())
+	assert_true(get_tree().paused)
+	assert_eq(_input_owner.get_state().value.state, &"Suspended")
+	var participant := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd").new(_bridge)
+	var target_plan: Dictionary = participant.prepare({"narrative_checkpoint": {}, "content_version": 1}).value.narrative_plan
+	var route_plan: Dictionary = route.prepare_route_restore("main", {}).value
+	var lease: Dictionary = gate.acquire(&"restore")
+	assert_true(lease.ok)
+	var applied_route: Dictionary = route.apply_route_restore_silent(route_plan)
+	assert_true(applied_route.ok)
+	target_plan["route_ready_token"] = applied_route.value.route_ready_token
+	var staged: Dictionary = participant.apply_silent(target_plan)
+	assert_true(staged.get("ok", false), str(staged))
+	var finalized: Dictionary = participant.finalize()
+	assert_true(finalized.get("ok", false), str(finalized))
+	assert_true(route.finalize_restore().ok)
+	assert_true(gate.release(&"restore", lease.value.token).ok)
+	assert_eq(route.publications, 0, "the old source remains in the tree during reversible finalization")
+	assert_eq(_reading_state(), before)
+	assert_eq((await _coordinator.complete_restore_handoff(handle)).get("code"), &"pause_restore_not_activated")
+	assert_eq(_reading_state(), before, "a reported restore without activation cannot discard the source")
+	source_owner.session.generation = 2
+	watch_signals(route)
+	var completed: Dictionary = await _coordinator.complete_restore_handoff(handle)
+	assert_true(completed.get("ok", false), str(completed))
+	assert_eq(route.publications, 1)
+	assert_false(route.is_restore_publication_held())
+	assert_signal_emit_count(route, "restore_publication_released", 1)
+	assert_eq(get_tree().current_scene, route.target)
+	assert_false(get_tree().paused)
+	assert_eq(_input_owner.get_state().value.state, &"Active")
+	assert_eq(_receipts, [], "cancelling the old caption is never a Hospital completion")
+	assert_true(_owner._in_flight.is_empty(), "retirement releases the old physical binding")
+	assert_true(_bridge.get_current_narrative_checkpoint().is_empty())
+	assert_false(_bridge.has_active_playback())
+	assert_false((await _coordinator.request_resume(handle)).ok, "old session custody cannot resume after activation")
+	get_tree().current_scene = _pause_scene
+	if is_instance_valid(route.target): route.target.free()
+	route.free()

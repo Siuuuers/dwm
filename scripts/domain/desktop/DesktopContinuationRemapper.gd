@@ -23,7 +23,8 @@ extends RefCounted
 ##    which is outside a pure in-memory snapshot remap.
 ##  - destination_intent/notification_intent/outbox provenance-consumer members have no frozen
 ##    internal shape anywhere in this codebase today, so this remapper does not guess at their
-##    contents; it leaves them exactly as captured.
+##    contents; it leaves them exactly as captured, except the now-composed pending
+##    day7_terminal record below. Published records remain historical evidence.
 ##
 ## AMENDMENT PLAN 03 TASK 4 (dwm-oyo.3) STEP 4. The twelve v5 rows at the end of _REMAP_TABLE are
 ## all implemented. What is remapped: `snapshot.schedule_view` (its causal_day_instance, the pending
@@ -62,6 +63,8 @@ extends RefCounted
 ## carries. Every remap here is therefore a deterministic function of its two inputs.
 
 const _IDENTITY := preload("res://scripts/domain/desktop/DesktopIdentity.gd")
+const _CONSEQUENCE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+const _ACTION_RECEIPT := preload("res://scripts/domain/desktop/DesktopActionReceipt.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const CHILD_SCHEMA_VERSION := 1
@@ -75,7 +78,8 @@ const _PROVENANCE_KEYS: Array[String] = ["child_id", "child_kind", "ordinal", "p
 ## list against its own CHILD_KINDS member-for-member, in order.
 const _CHILD_KINDS: Array[String] = [
 	"schedule_entry", "schedule_commit", "day7_schedule_provenance", "empty_schedule_done",
-	"contact_source", "hospital_resolution", "hospital_miss", "sylvia_hospital_witness",
+	"contact_source", "hospital_resolution", "condition_hospital_stage", "condition_hospital_retirement",
+	"hospital_miss", "sylvia_hospital_witness",
 	"day_resolution_stage", "board_command", "board_start", "shop_quote", "desktop_action",
 	"causal_sequence", "condition", "board_fate", "destination_intent", "notification_intent",
 	"continuation_operation", "warning", "navigation", "terminal_intent", "action_consequence",
@@ -126,6 +130,113 @@ const _REMAP_TABLE: Array[Dictionary] = [
 ]
 
 
+## A selected Load replaces the live causal pair, but an in-flight Schedule scene retains its
+## frozen plan/start/command ancestry. Derive only the future allocator source from the persisted
+## restore proof. This pure helper returns an issuer REQUEST; it never invents an accepted receipt.
+## The application caller supplies an authoritative captured root and uses the retained real issuer.
+static func schedule_day_advance_source(lifecycle: Dictionary, root_document: Dictionary) -> Dictionary:
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if not plan is Dictionary or not plan.get("day_resolution_start_receipt") is Dictionary:
+		return _fail(&"day_advance_source_unavailable", "a persisted Schedule start is required", {})
+	var validated: Dictionary = preload("res://scripts/domain/run/DayResolutionPlan.gd").from_dict(plan)
+	if not validated.get("ok", false): return validated
+	var day := int(lifecycle.get("day", 0))
+	var start: Dictionary = plan.day_resolution_start_receipt
+	if day < 1 or day > 6 or int(plan.source_day) != day or int(start.get("source_day", 0)) != day:
+		return _fail(&"day_advance_source_conflict", "the pending increment owns the current source day", {})
+	var receipts: Dictionary = root_document.get("receipts", {})
+	var original_root: Dictionary = plan.resolution_issuer_receipt
+	if receipts.get(str(original_root.get("receipt_id", ""))) != original_root:
+		return _fail(&"day_advance_source_unverified", "the original resolution root is not durable", {})
+	var start_provenance: Dictionary = start.receipt_provenance
+	var original_child := _verified_schedule_start_child(original_root, start_provenance)
+	if not original_child.get("ok", false): return original_child
+	if str(start.get("receipt_id", "")) != str(start_provenance.child_id):
+		return _fail(&"day_advance_source_unverified", "the original start identity disagrees", {})
+	var bound_fields := {"role": "day_resolution.start", "resolution_id": str(plan.resolution_id),
+		"source_day": int(plan.source_day), "causal_day_instance": str(start.causal_day_instance),
+		"schedule_commit_receipt_id": start.get("schedule_commit_receipt_id"),
+		"board_fate_receipt_id": start.get("board_fate_receipt_id"),
+		"schedule_entry_ids": start.get("schedule_entry_ids")}
+	for key: String in bound_fields:
+		var encoded: Dictionary = _CANONICAL_JSON.stringify(bound_fields[key])
+		if not encoded.get("ok", false) or not (key + "=" + str(encoded.value)) in start_provenance.source_ids:
+			return _fail(&"day_advance_source_unverified", "the original start does not bind " + key, {})
+	var current_receipt: Dictionary = lifecycle.get("causal_day_instance_issuer_receipt", {})
+	if receipts.get(str(current_receipt.get("receipt_id", ""))) != current_receipt \
+			or str(current_receipt.get("token", "")) != str(lifecycle.get("causal_day_instance", "")) \
+			or str(current_receipt.get("purpose", "")) != "causal_day_instance":
+		return _fail(&"day_advance_source_unverified", "the current causal pair is not durable", {})
+	if str(start.causal_day_instance) == str(lifecycle.causal_day_instance):
+		return {"ok": true, "value": {"source_resolution_receipt": {
+			"receipt_id": str(start.receipt_id), "provenance": start_provenance.duplicate(true)}}}
+	var proof: Variant = lifecycle.get("restore_provenance")
+	if not proof is Dictionary:
+		return _fail(&"day_advance_source_conflict", "changed causal identity requires its restore proof", {})
+	var allocation: Variant = root_document.get("allocation_receipts", {}).get(str(proof.get("restore_transaction_id", "")))
+	if not allocation is Dictionary or str(allocation.get("kind", "")) != "restore":
+		return _fail(&"day_advance_restore_unverified", "the restore allocation is not durable", {})
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", \
+			"causal_day_instance", "causal_day_instance_issuer_receipt"]:
+		if allocation.get(key) != lifecycle.get(key):
+			return _fail(&"day_advance_restore_unverified", "the restore allocation does not own " + key, {})
+	var restore_request: Dictionary = allocation.request
+	var restore_root: Dictionary = restore_request.transaction_issuer_receipt
+	if receipts.get(str(restore_root.get("receipt_id", ""))) != restore_root \
+			or str(restore_root.get("token", "")) != str(proof.get("restore_transaction_id", "")) \
+			or str(proof.get("identity_allocation_receipt_id", "")) != str(restore_root.get("receipt_id", "")) \
+			or restore_request.get("source_desktop_timeline_generation") != proof.get("source_desktop_timeline_generation") \
+			or str(proof.get("transaction_remap_sha256", "")) != _canonical_sha256(allocation.transaction_remap):
+		return _fail(&"day_advance_restore_unverified", "restore provenance is not the committed allocation", {})
+	var source_found := false
+	for receipt: Dictionary in receipts.values():
+		if str(receipt.get("purpose", "")) == "causal_day_instance" \
+				and str(receipt.get("token", "")) == str(proof.get("source_causal_day_instance", "")) \
+				and int(receipt.get("counter", -1)) == int(proof.get("source_issuer_observed_counter", -2)):
+			source_found = true
+			break
+	if not source_found:
+		return _fail(&"day_advance_restore_unverified", "restore source causal receipt is not durable", {})
+	var remap_sources: Array = allocation.transaction_remap.keys()
+	remap_sources.sort()
+	var remap_child := _child_id(restore_root, "continuation_operation", 0, remap_sources)
+	if not remap_child.get("ok", false): return remap_child
+	var expected_proof := {"schema_version": CHILD_SCHEMA_VERSION,
+		"parent_receipt_id": str(restore_root.receipt_id), "child_kind": "continuation_operation",
+		"ordinal": 0, "source_ids": remap_sources, "child_id": str(remap_child.value)}
+	if proof.get("remap_receipt_provenance") != expected_proof \
+			or str(proof.get("remap_receipt_id", "")) != str(remap_child.value):
+		return _fail(&"day_advance_restore_unverified", "restore remap child is not reproducible", {})
+	var source := {}
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "day", \
+			"causal_day_instance", "causal_day_instance_issuer_receipt"]:
+		source[key] = lifecycle[key]
+	var source_ids: Array = ["role=day_resolution.advance_continuation",
+		"original_start_sha256=" + _canonical_sha256(start),
+		"restore_provenance_sha256=" + _canonical_sha256(proof),
+		"source_identity_sha256=" + _canonical_sha256(source)]
+	source_ids.sort()
+	return {"ok": true, "value": {"derivation_request": {
+		"parent_receipt_id": str(original_root.receipt_id), "child_kind": "day_resolution_stage",
+		"ordinal": 0, "source_ids": source_ids}}}
+
+static func _verified_schedule_start_child(parent: Dictionary, provenance: Dictionary) -> Dictionary:
+	var keys: Array = provenance.keys()
+	keys.sort()
+	var expected: Array = _PROVENANCE_KEYS.duplicate()
+	expected.sort()
+	if keys != expected or int(provenance.get("schema_version", 0)) != CHILD_SCHEMA_VERSION \
+			or str(provenance.get("child_kind", "")) != "day_resolution_stage" \
+			or str(provenance.get("parent_receipt_id", "")) != str(parent.get("receipt_id", "")):
+		return _fail(&"day_advance_source_unverified", "original start provenance shape", {})
+	var sources: Dictionary = _validate_sorted_unique_nonblank(provenance.source_ids)
+	if not sources.get("ok", false): return sources
+	var child := _child_id(parent, "day_resolution_stage", int(provenance.ordinal), provenance.source_ids)
+	if not child.get("ok", false): return child
+	if str(child.value) != str(provenance.child_id):
+		return _fail(&"day_advance_source_unverified", "original start child is not reproducible", {})
+	return {"ok": true}
+
 ## Every root transaction id this snapshot's rewindable (board command/terminal ledger, the one live
 ## consequence pending transaction, and the v5 ScheduleView/lifecycle roots C1-C5) structures
 ## currently reference. Sorted, unique.
@@ -147,6 +258,9 @@ static func collect_rewindable_transaction_ids(snapshot: Dictionary) -> Dictiona
 		var transaction_id: Variant = (pending as Dictionary).get("transaction_id")
 		if typeof(transaction_id) == TYPE_STRING and not str(transaction_id).strip_edges().is_empty():
 			ids[str(transaction_id)] = true
+	var day7: Dictionary = _pending_day7_terminal(consequence)
+	if not day7.get("ok", false): return day7
+	if not day7.value.is_empty(): ids[str(day7.value.action_receipt.transaction_id)] = true
 	var view: Variant = snapshot.get("schedule_view")
 	if typeof(view) == TYPE_DICTIONARY:
 		var view_census := _collect_view_roots(view as Dictionary, ids)
@@ -197,6 +311,13 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 		transaction_remap, owners)
 	if not consequence_result.get("ok", false):
 		return consequence_result
+	var day7: Dictionary = _pending_day7_terminal(desktop["consequence"])
+	if not day7.get("ok", false): return day7
+	if not day7.value.is_empty():
+		var terminal: Dictionary = _remap_day7_terminal(day7.value, desktop["consequence"],
+			snapshot.get("lifecycle", {}), identity_allocation_bundle, transaction_remap)
+		if not terminal.get("ok", false): return terminal
+		consequence_result.value["outbox"]["hospital"] = terminal.value
 
 	var remapped_snapshot: Dictionary = snapshot.duplicate(true)
 	var remapped_desktop: Dictionary = desktop.duplicate(true)
@@ -271,8 +392,15 @@ static func validate_remap(source: Dictionary, candidate: Dictionary) -> Diction
 		return derived
 	var transaction_remap: Dictionary = derived["value"]
 
-	var source_identity: Dictionary = (source_desktop["board"] as Dictionary).get("identity", {})
-	var candidate_identity: Dictionary = (candidate_desktop["board"] as Dictionary).get("identity", {})
+	var source_identity: Variant = (source_desktop["board"] as Dictionary).get("identity", {})
+	var candidate_identity: Variant = (candidate_desktop["board"] as Dictionary).get("identity", {})
+	var pending_day7: Dictionary = _pending_day7_terminal(source_desktop["consequence"])
+	if not pending_day7.get("ok", false): return pending_day7
+	if not pending_day7.value.is_empty():
+		if not source_identity is Dictionary or source_identity.is_empty():
+			source_identity = source.get("lifecycle", {})
+		if not candidate_identity is Dictionary or candidate_identity.is_empty():
+			candidate_identity = candidate.get("lifecycle", {})
 	if typeof(source_identity) != TYPE_DICTIONARY or typeof(candidate_identity) != TYPE_DICTIONARY:
 		return _fail(&"remap_identity_missing", "both source and candidate must carry a board identity to validate a remap", {})
 
@@ -311,6 +439,130 @@ static func validate_remap(source: Dictionary, candidate: Dictionary) -> Diction
 	if (reproduced["value"] as Dictionary)["snapshot"] != candidate:
 		return _fail(&"remap_not_reproducible", "the candidate is not a lawful remap of the source", {})
 	return {"ok": true, "code": &"ok", "value": {"transaction_remap": transaction_remap}, "receipt": {}}
+
+
+## A cleaned, pending Day 7 result is still live work. Published ending evidence is historical.
+## Only this exact consumer joins the existing transaction census and pure remap proof.
+static func _pending_day7_terminal(consequence: Dictionary) -> Dictionary:
+	var outbox: Variant = consequence.get("outbox", {})
+	if not outbox is Dictionary: return _fail(&"remap_day7_source_invalid", "outbox is malformed", {})
+	var raw: Variant = outbox.get("hospital")
+	if not raw is Dictionary or raw.get("consumer") != "day7_terminal" or raw.get("status") != "pending":
+		return {"ok": true, "value": {}}
+	var valid: Dictionary = _CONSEQUENCE.validate(consequence)
+	if not valid.get("ok", false): return valid
+	if consequence.get("pending") != null or raw.size() != 9:
+		return _fail(&"remap_day7_source_invalid", "terminal source must be a complete cleaned outbox record", {})
+	valid = _ACTION_RECEIPT.validate(raw.action_receipt)
+	if not valid.get("ok", false): return valid
+	return {"ok": true, "value": raw.duplicate(true)}
+
+
+static func _remap_day7_terminal(record: Dictionary, consequence: Dictionary, lifecycle: Dictionary,
+		bundle: Dictionary, transaction_remap: Dictionary) -> Dictionary:
+	var action: Dictionary = record.action_receipt
+	if lifecycle.get("state") != "PLAYING" or lifecycle.get("day") != 7:
+		return _fail(&"remap_day7_source_invalid", "a pending Day 7 source requires PLAYING Day 7", {})
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "day"]:
+		if action[key] != lifecycle.get(key):
+			return _fail(&"remap_day7_source_invalid", "the terminal action names another " + key, {})
+	if consequence.causal_day_instance != action.causal_day_instance or record.causal_sequence != consequence.causal_sequence:
+		return _fail(&"remap_day7_source_invalid", "terminal action is not the completed causal sequence", {})
+	var condition_keys: Array = record.condition_receipt.keys()
+	condition_keys.sort()
+	var destination_keys: Array = record.payload.keys()
+	destination_keys.sort()
+	if condition_keys != ["action_commit_receipt_id", "action_commit_receipt_provenance", "causal_day_instance",
+		"causal_sequence", "causal_sequence_receipt_id", "causal_sequence_receipt_provenance", "condition_after",
+		"danger", "day", "decision", "receipt_id", "receipt_provenance", "source_receipt_ids", "sylvia_read_receipt_id", "trigger"] \
+			or destination_keys != ["accepted_unfulfilled_sources", "causal_day_instance", "day", "intent_id",
+			"intent_id_provenance", "kind", "prerequisite_receipt_ids", "source_condition_receipt_id",
+			"source_condition_receipt_provenance", "terminal_cause", "terminal_provenance"]:
+		return _fail(&"remap_day7_source_invalid", "condition or destination has an unknown shape", {})
+	if action.transaction_issuer_receipt.get("token") != action.transaction_id \
+			or record.condition_receipt.condition_after != action.condition_after \
+			or record.condition_receipt.danger != true or record.condition_receipt.trigger != true \
+			or not action.condition_after.carried_sequela \
+			or (action.condition_after.pressure < 10 and action.condition_after.health > 0) \
+			or record.payload.kind != "day7_terminal" or record.payload.terminal_provenance != null \
+			or record.payload.accepted_unfulfilled_sources != []:
+		return _fail(&"remap_day7_source_invalid", "condition terminal facts differ from the source action", {})
+	var decision := "day7_dark_alone" if bool(lifecycle.get("dark_mode", false)) else (
+		"day7_sylvia_special" if record.condition_receipt.sylvia_read_receipt_id != null else "day7_hospital_alone")
+	var causes := {"day7_dark_alone": "dark_mode_alone", "day7_sylvia_special": "sylvia_special", "day7_hospital_alone": "hospital_alone"}
+	if record.condition_receipt.decision != decision or record.payload.terminal_cause != causes[decision]:
+		return _fail(&"remap_day7_source_invalid", "terminal decision contradicts captured mode or receipted Sylvia read", {})
+	var original: Dictionary = _rebuild_day7_terminal_record(record, action.transaction_issuer_receipt, lifecycle, consequence)
+	if not original.get("ok", false): return original
+	if original.value != record:
+		return _fail(&"remap_day7_source_invalid", "source identities or prerequisite projections do not reproduce", {})
+	var mapping: Variant = transaction_remap.get(action.transaction_id)
+	if not mapping is Dictionary:
+		return _fail(&"remap_dangling_transaction", action.transaction_id, {})
+	return _rebuild_day7_terminal_record(record, mapping.new_transaction_issuer_receipt, bundle, consequence)
+
+
+static func _rebuild_day7_terminal_record(record: Dictionary, root: Dictionary, identity: Dictionary,
+		consequence: Dictionary) -> Dictionary:
+	var mapped: Dictionary = record.duplicate(true)
+	var action: Dictionary = mapped.action_receipt
+	var action_sources: Variant = action.action_id_provenance.get("source_ids")
+	if not action_sources is Array or action_sources.size() != 3 \
+			or not action_sources.has(action.action_kind) or not action_sources.has(action.source_commit_receipt_id):
+		return _fail(&"remap_day7_source_invalid", "the action's historical source ancestry is incomplete", {})
+	var source_check: Dictionary = _validate_sorted_unique_nonblank(action_sources)
+	if not source_check.get("ok", false): return source_check
+	action.transaction_id = str(root.get("token", ""))
+	action.transaction_issuer_receipt = root.duplicate(true)
+	for key: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		action[key] = identity[key]
+	var child: Dictionary = _mint_child(root, "desktop_action", 0, action_sources)
+	if not child.get("ok", false): return child
+	action.action_id = child.value.child_id
+	action.action_id_provenance = child.value.provenance
+	action.commit_receipt_id = child.value.child_id
+	action.commit_receipt_provenance = child.value.provenance.duplicate(true)
+	# The paid board/quote source is already committed history; it is not re-executed on Load.
+	# The terminal action's opaque candidate digest is retained, exactly as other Tier A children.
+	var sequence := {"transaction_id": action.transaction_id, "transaction_issuer_receipt": action.transaction_issuer_receipt,
+		"run_id": action.run_id, "branch_id": action.branch_id, "desktop_timeline_generation": action.desktop_timeline_generation,
+		"causal_day_instance": action.causal_day_instance, "source_kind": action.action_kind,
+		"source_commit_receipt_id": action.commit_receipt_id, "source_commit_receipt_provenance": action.commit_receipt_provenance,
+		"causal_sequence": consequence.causal_sequence, "run_revision": consequence.run_revision}
+	var condition: Dictionary = mapped.condition_receipt
+	condition.action_commit_receipt_id = action.commit_receipt_id
+	condition.action_commit_receipt_provenance = action.commit_receipt_provenance.duplicate(true)
+	condition.causal_day_instance = action.causal_day_instance
+	condition.day = 7
+	condition.causal_sequence = consequence.causal_sequence
+	condition.causal_sequence_receipt_id = "causal_sequence_receipt." + _canonical_sha256(sequence)
+	condition.causal_sequence_receipt_provenance = {"kind": "causal_sequence", "transaction_id": action.transaction_id,
+		"causal_sequence": consequence.causal_sequence, "run_revision": consequence.run_revision}
+	var sources: Array = [_p("action_commit_receipt_id", action.commit_receipt_id),
+		_p("causal_sequence_receipt_id", condition.causal_sequence_receipt_id)]
+	sources.sort()
+	child = _mint_child(root, "condition", 0, sources)
+	if not child.get("ok", false): return child
+	condition.receipt_id = child.value.child_id
+	condition.receipt_provenance = child.value.provenance
+	var destination: Dictionary = mapped.payload
+	destination.day = 7
+	destination.causal_day_instance = action.causal_day_instance
+	destination.source_condition_receipt_id = condition.receipt_id
+	destination.source_condition_receipt_provenance = condition.receipt_provenance.duplicate(true)
+	var prerequisites: Array = [action.commit_receipt_id, condition.receipt_id]
+	prerequisites.sort()
+	destination.prerequisite_receipt_ids = prerequisites
+	sources = [_p("condition_receipt_id", condition.receipt_id), _p("action_commit_receipt_id", action.commit_receipt_id)]
+	sources.sort()
+	child = _mint_child(root, "destination_intent", 0, sources)
+	if not child.get("ok", false): return child
+	destination.intent_id = child.value.child_id
+	destination.intent_id_provenance = child.value.provenance
+	mapped.key = destination.intent_id
+	mapped.provenance = destination.intent_id_provenance.duplicate(true)
+	mapped.payload_hash = _canonical_sha256(destination)
+	return {"ok": true, "value": mapped}
 
 
 # -------------------------------------------------------------------------------------------------
@@ -1564,6 +1816,18 @@ static func _derive_transaction_map(source: Dictionary, candidate: Dictionary,
 				(candidate_pending as Dictionary).get("transaction_issuer_receipt"))
 			if not paired_pending.get("ok", false):
 				return paired_pending
+	var source_day7: Dictionary = _pending_day7_terminal(source_desktop["consequence"])
+	var candidate_day7: Dictionary = _pending_day7_terminal(candidate_desktop["consequence"])
+	if not source_day7.get("ok", false): return source_day7
+	if not candidate_day7.get("ok", false): return candidate_day7
+	if source_day7.value.is_empty() != candidate_day7.value.is_empty():
+		return _fail(&"remap_unverifiable", "pending Day 7 source cardinality differs", {})
+	if not source_day7.value.is_empty():
+		var old_action: Dictionary = source_day7.value.action_receipt
+		var new_action: Dictionary = candidate_day7.value.action_receipt
+		var paired_day7: Dictionary = _pair_transaction(map, receipts, str(old_action.transaction_id),
+			str(new_action.transaction_id), new_action.transaction_issuer_receipt)
+		if not paired_day7.get("ok", false): return paired_day7
 	var v5_pairs := _pair_v5_roots(source, candidate, map, receipts)
 	if not v5_pairs.get("ok", false):
 		return v5_pairs

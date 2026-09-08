@@ -183,3 +183,18 @@ func _count_class_declarations(root: String, needle: String) -> int:
 			name = directory.get_next()
 		directory.list_dir_end()
 	return count
+
+
+func test_release_event_observes_unlocked_state_and_does_not_reuse_fatal_signal() -> void:
+	var gate := _fresh_gate()
+	var observed: Array = []
+	gate.transaction_released.connect(func() -> void:
+		observed.append({"active": gate.is_active(), "owner": gate.get_active_owner(),
+			"can_resume": gate.guard_external(&"hospital_resume").get("ok", false)}))
+	var acquired: Dictionary = gate.acquire(&"causal_transaction")
+	assert_true(acquired.get("ok", false))
+	assert_false(gate.release(&"causal_transaction", "wrong").get("ok", false))
+	assert_eq(observed.size(), 0, "a failed release cannot wake another transaction")
+	assert_true(gate.release(&"causal_transaction", str(acquired.value.token)).get("ok", false))
+	assert_eq(observed, [{"active": false, "owner": &"", "can_resume": true}])
+	assert_eq(_signals.size(), 0, "capability_changed retains its fatal-only contract")

@@ -12,6 +12,7 @@ signal load_failed(result: Dictionary)
 signal slot_metadata_changed()
 signal run_restored(checkpoint_id: String, route_id: String)
 signal save_capability_changed(capability: Dictionary)
+signal live_session_ready()
 
 const MIN_SLOT := 1
 const MAX_SLOT := 7
@@ -77,16 +78,20 @@ var _restore_participants: Dictionary = {}
 var _backup_actions: Dictionary = {}
 var _backup_action_sequence := 0
 var _backup_capture_provider: Callable
+var _paused_desktop_admission: Callable
 var _backup_capture_configured := false
 
 ## Bootstrap owns the live desktop source. Fixtures without this provider retain
 ## their explicit latest-stable contract; production never silently falls back.
-func configure_backup_capture_provider(provider: Callable) -> Dictionary:
+func configure_backup_capture_provider(provider: Callable, paused_desktop_admission: Callable = Callable()) -> Dictionary:
 	if not provider.is_valid() or provider.get_argument_count() != 0 or provider.get_object_id() == 0:
 		return _fail(&"invalid_backup_capture_provider", "A bound zero-argument provider is required")
-	if _backup_capture_configured and _backup_capture_provider != provider:
+	if paused_desktop_admission.is_valid() and paused_desktop_admission.get_argument_count() != 1:
+		return _fail(&"invalid_backup_capture_provider", "Paused desktop admission takes exact capture inputs")
+	if _backup_capture_configured and (_backup_capture_provider != provider or _paused_desktop_admission != paused_desktop_admission):
 		return _fail(&"backup_capture_already_configured", "")
 	_backup_capture_provider = provider
+	_paused_desktop_admission = paused_desktop_admission
 	_backup_capture_configured = true
 	return {"ok": true}
 
@@ -215,6 +220,19 @@ func save_for_logout() -> Dictionary:
 	if not _journal.get_current_bundle().get("ok", false):
 		return {"ok": true, "code": &"ok", "value": {"written": false, "save_reason": "logout"}}
 	return _write_latest(_resolve_locator(&"autosave", -1), "logout")
+
+## Only the confirmed session-exit owner may write under abandonment custody.
+func save_session_exit_checkpoint(inputs: Dictionary, handle: Dictionary) -> Dictionary:
+	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"session_abandonment"):
+		return _fail(&"session_abandonment_required", "")
+	if not _restore_participants.has("run") \
+			or _restore_participants.run.capture_live_session().get("value") != handle \
+			or not handle.get("active", false):
+		return _fail(&"stale_live_session", "")
+	var recorded := record_stable_checkpoint(inputs, &"scene_transition")
+	if not recorded.get("ok", false): return recorded
+	return _write_latest(_resolve_locator(&"autosave", -1), "logout", true)
+
 
 func prepare_restore_slot(slot_id: int) -> Dictionary:
 	return _prepare_restore(_resolve_locator(&"slot", slot_id))
@@ -747,9 +765,13 @@ func _prepare_new_run_decision_from_sources(initial_context: Dictionary,
 	var identity: Dictionary = allocation["value"]
 	var context := initial_context.duplicate(true)
 	context["dark_mode"] = profile_material["captured_dark"]
+	var witnessed_forms: Array[String] = []
+	for form: String in profile_material["before"]["pair_form_witness_receipts"].values():
+		if form not in witnessed_forms: witnessed_forms.append(form)
+	witnessed_forms.sort()
 	var run: Dictionary = _restore_participants["run"].prepare_new_run(
 		str(identity["run_id"]), str(identity["branch_id"]), int(identity["desktop_timeline_generation"]),
-		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"], context["dark_mode"])
+		str(identity["causal_day_instance"]), identity["causal_day_instance_issuer_receipt"], context["dark_mode"], witnessed_forms)
 	if not run.get("ok", false): return run
 	var snapshot_input: Dictionary = run["value"]["snapshot_input"]
 	var view: Dictionary = _restore_participants["schedule_view"].prepare_new_run({
@@ -1047,6 +1069,7 @@ func _run_participant_transaction(
 			_session_activation_tickets.erase(operation_id)
 	else:
 		_session_activation_tickets.erase(operation_id)
+	if not activation_ticket.is_empty(): live_session_ready.emit()
 	if emit_restored:
 		run_restored.emit(checkpoint_id, route_id)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "route_id": route_id}}
@@ -1460,13 +1483,24 @@ func _capture_backup_inputs() -> Dictionary:
 		return _fail(&"invalid_backup_capture", shape_error)
 	if not inputs["dialogic_checkpoint"] is Dictionary or not inputs["audio_context"] is Dictionary \
 			or typeof(inputs["route_id"]) not in [TYPE_STRING, TYPE_STRING_NAME] \
-			or typeof(inputs["active_app_id"]) not in [TYPE_STRING, TYPE_STRING_NAME] \
+			or typeof(inputs["active_app_id"]) not in [TYPE_NIL, TYPE_STRING, TYPE_STRING_NAME] \
 			or not inputs["content_version"] is int:
 		return _fail(&"invalid_backup_capture", "Capture context types are invalid")
 	inputs["route_id"] = str(inputs["route_id"])
-	inputs["active_app_id"] = str(inputs["active_app_id"])
-	if inputs["route_id"] != "main" or inputs["active_app_id"] != "backup" or not inputs["dialogic_checkpoint"].is_empty() or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
-		return _fail(&"backup_capture_unavailable", "A stable in-run Backup desktop is required")
+	if inputs["active_app_id"] != null:
+		inputs["active_app_id"] = str(inputs["active_app_id"])
+	var desktop: bool = inputs["route_id"] == "main" and inputs["active_app_id"] == "backup"
+	if inputs["route_id"] == "main" and not desktop and _paused_desktop_admission.is_valid():
+		# The retained Pause owner rechecks this exact suspended source. Never relabel its app.
+		var paused_admission: Variant = _paused_desktop_admission.call(inputs.duplicate(true))
+		desktop = typeof(paused_admission) == TYPE_BOOL and paused_admission
+	var gameplay: Variant = inputs["snapshot_input"].get("gameplay")
+	var route_context: Variant = gameplay.get("route_context") if gameplay is Dictionary else null
+	var dating_record: Variant = route_context.get("active_dating_challenge") if route_context is Dictionary else null
+	var dating: bool = inputs["route_id"] == "dating" and dating_record is Dictionary \
+		and not dating_record.is_empty() and dating_record.get("phase") in ["pre_challenge", "challenge", "cleared_awaiting_terminal_choice", "post_challenge"]
+	if not (desktop or dating) or not inputs["dialogic_checkpoint"].is_empty() or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
+		return _fail(&"backup_capture_unavailable", "A qualified desktop or paused Dating capture is required")
 	return {"ok": true, "value": inputs}
 
 func _backup_journal_hash() -> String:
@@ -1627,8 +1661,10 @@ func _resolve_locator(kind: StringName, public_slot_id: int) -> Dictionary:
 			return {"kind": "autosave", "slot_id": null, "relative_path": "autosave.json"}
 	return {}
 
-func _write_latest(locator: Dictionary, save_reason: String) -> Dictionary:
-	if _mutation_gate != null:
+func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool = false) -> Dictionary:
+	if session_exit and (_mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"session_abandonment")):
+		return _fail(&"session_abandonment_required", "")
+	if _mutation_gate != null and not session_exit:
 		var admitted: Dictionary = _mutation_gate.guard_external(&"save_write")
 		if not admitted.get("ok", false): return admitted
 	if locator.is_empty():
@@ -2109,6 +2145,7 @@ func _resume_new_run(operation: Dictionary, _gate_token: String) -> Dictionary:
 	_session_activation_tickets.erase(str(operation["transaction_id"]))
 	var released := _release_new_run_custody()
 	if not released.get("ok", false): return released
+	live_session_ready.emit()
 	return {"ok": true, "code": &"ok", "value": {"transaction_id": operation["transaction_id"],
 		"outcome": "completed", "run_id": snapshot["run_id"], "checkpoint_id": snapshot["checkpoint_id"], "route_id": "main"}}
 

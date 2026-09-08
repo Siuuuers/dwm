@@ -5,6 +5,7 @@ extends RefCounted
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 3).
 
 signal capability_changed(capability: Dictionary)
+signal transaction_released
 
 const VALID_OWNERS: Array[StringName] = [&"restore", &"new_run", &"causal_transaction", &"session_abandonment"]
 const FAILURE_KEYS: Array[String] = ["code", "details", "phase", "source"]
@@ -35,6 +36,7 @@ func release(owner_id: StringName, token: String) -> Dictionary:
 		return {"ok": false, "code": &"RELEASE_MISMATCH", "message": String(owner_id)}
 	_active_owner = &""
 	_active_token = ""
+	transaction_released.emit()
 	return {"ok": true, "code": &"ok", "value": {"released": true}}
 
 func guard_external(_operation_id: StringName) -> Dictionary:
@@ -54,6 +56,12 @@ func is_internal_owner_active(owner_id: StringName) -> bool:
 	if _fatal_latched:
 		return false
 	return _active_owner != &"" and owner_id == _active_owner
+
+## Read-only proof for a retained internal capability; owner kind alone is insufficient.
+func is_lease_active(owner_id: StringName, token: String) -> bool:
+	return not _fatal_latched and not token.is_empty() \
+		and owner_id == _active_owner and token == _active_token
+
 
 func latch_fatal(failure: Dictionary) -> Dictionary:
 	var normalized := _normalize_failure(failure)

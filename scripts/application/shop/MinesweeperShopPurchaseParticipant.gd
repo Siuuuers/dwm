@@ -73,6 +73,8 @@ var _committed_transactions: Dictionary = {}
 ## commit_recovery_action(), so it never collides with commit()'s own pre-Task-8 transaction identity.
 var _recovery_committed: Dictionary = {}
 var _gate_token := ""
+var _catalog: Object
+var _source_checkpoint_capture: Callable
 
 
 # -------------------------------------------------------------------------------------------------
@@ -132,14 +134,41 @@ func configure(state_port: Object, consequence_state_port: Object, checkpoint_po
 ## conflicts (brief line 51's "a second item under the same transaction conflicts" applies at
 ## `prepare_purchase()` too, but is caught here first since quote() is where the retained record is
 ## first written).
-func quote(item_id: String, transaction_id: String, transaction_issuer_receipt: Dictionary) -> Dictionary:
+func configure_catalog(catalog: Object, capture_inputs: Callable) -> Dictionary:
+	if catalog == null or not catalog.has_method("get_shop_item") or not capture_inputs.is_valid():
+		return _fail(&"invalid_shop_catalog_capture", "", {})
+	if _catalog != null and (_catalog != catalog or _source_checkpoint_capture != capture_inputs):
+		return _fail(&"shop_catalog_already_configured", "", {})
+	_catalog = catalog
+	_source_checkpoint_capture = capture_inputs
+	return {"ok": true}
+
+
+func _get_item_record(item_id: String, quantity: int) -> Dictionary:
+	if item_id in _CAPABILITY_ITEM_IDS or item_id == _SUPPORTZ_ITEM_ID:
+		if quantity != 1: return _fail(&"shop_quantity_exceeds_batch_cap", "", {})
+		return _registry.call(&"get_record", item_id)
+	if _catalog == null: return _fail(&"unregistered_shop_item", "", {})
+	var item: Dictionary = _catalog.get_shop_item(item_id)
+	if item.is_empty(): return _fail(&"unregistered_shop_item", "", {})
+	var maximum := maxi(1, int(item.get("max_purchases", 0)))
+	if quantity < 1 or quantity > maximum:
+		return _fail(&"shop_quantity_exceeds_batch_cap", "", {})
+	return {"ok": true, "value": {"record": {
+		"item_id": item_id, "currency": str(item.currency), "price": int(item.price) * quantity,
+		"effect_ids": item.effect_ids.duplicate(true), "quantity": quantity,
+		"max_purchases": int(item.get("max_purchases", 0)),
+	}}}
+
+
+func quote(item_id: String, transaction_id: String, transaction_issuer_receipt: Dictionary, quantity: int = 1) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
 	var verified := _verify_transaction(transaction_id, transaction_issuer_receipt)
 	if not verified.get("ok", false):
 		return verified
-	var fetched: Dictionary = _registry.call(&"get_record", item_id)
+	var fetched: Dictionary = _get_item_record(item_id, quantity)
 	if not fetched.get("ok", false):
 		return fetched
 	var record: Dictionary = (fetched["value"] as Dictionary)["record"]
@@ -156,6 +185,8 @@ func quote(item_id: String, transaction_id: String, transaction_issuer_receipt: 
 			return _fail(&"shop_quote_second_item_conflict",
 				"a different item was already quoted under this transaction", {})
 		if recorded.has("quote"):
+			if str(recorded.quote.request_fingerprint) != request_fingerprint:
+				return _fail(&"shop_quote_quantity_conflict", "", {})
 			return {"ok": true, "code": &"ok", "value": (recorded["quote"] as Dictionary).duplicate(true),
 				"receipt": (recorded["quote"] as Dictionary).duplicate(true)}
 
@@ -175,6 +206,7 @@ func quote(item_id: String, transaction_id: String, transaction_issuer_receipt: 
 		"registry_version": registry_version, "request_fingerprint": request_fingerprint,
 	}
 	var entry: Dictionary = _transactions.get(transaction_id, {}) as Dictionary
+	if quantity != 1: quote_record["quantity"] = quantity
 	entry["quote"] = quote_record.duplicate(true)
 	_transactions[transaction_id] = entry
 	return {"ok": true, "code": &"ok", "value": quote_record.duplicate(true), "receipt": quote_record.duplicate(true)}
@@ -225,7 +257,7 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 		return verified
 
 	var item_id := str(request["item_id"])
-	var fetched: Dictionary = _registry.call(&"get_record", item_id)
+	var fetched: Dictionary = _get_item_record(item_id, int(entry.get("quote", {}).get("quantity", 1)))
 	if not fetched.get("ok", false):
 		return fetched
 	var item: Dictionary = (fetched["value"] as Dictionary)["record"]
@@ -265,11 +297,38 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 	var economy_candidate: Dictionary = economy_value["candidate"]
 
 	var built_receipt := _build_action_receipt(transaction_id, request["transaction_issuer_receipt"],
-		quote_record, facts)
+		quote_record, facts, economy_value.get("condition_after", {}))
 	if not built_receipt.get("ok", false):
 		return built_receipt
 	var receipt: Dictionary = (built_receipt["value"] as Dictionary)["receipt"]
 	var action_candidate_sha256: String = (built_receipt["value"] as Dictionary)["action_candidate_sha256"]
+
+	var acquired_fresh := false
+	if not _mutation_gate.is_internal_owner_active(_GATE_OWNER):
+		var acquired: Dictionary = _mutation_gate.acquire(_GATE_OWNER)
+		if not acquired.get("ok", false):
+			return _fail(&"causal_transaction_lease_unavailable",
+				"the shared causal_transaction lease is held by another transaction", {})
+		_gate_token = str((acquired["value"] as Dictionary)["token"])
+		acquired_fresh = true
+
+	if _source_checkpoint_capture.is_valid():
+		var inputs: Dictionary = _source_checkpoint_capture.call(live_state.duplicate(true))
+		if not inputs.get("ok", false):
+			if acquired_fresh: release_recovery_lease()
+			return inputs
+		var prepared_source: Dictionary = _checkpoint_port.prepare(inputs.value.checkpoint_inputs,
+			&"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+		if not prepared_source.get("ok", false):
+			if acquired_fresh: release_recovery_lease()
+			return prepared_source
+		var saved_source: Dictionary = _checkpoint_port.commit(prepared_source.value.candidate)
+		if not saved_source.get("ok", false):
+			if acquired_fresh: release_recovery_lease()
+			return saved_source
+		var source_snapshot: Dictionary = prepared_source.value.candidate.autosave_document.current_snapshot.snapshot
+		economy_candidate["source_checkpoint"] = {"checkpoint_id": source_snapshot.checkpoint_id,
+			"snapshot_sha256": _canonical_sha256(source_snapshot)}
 
 	# `participant_snapshot_ids` is a free-form Dictionary (no exact-key law on it) -- reused here to
 	# carry exactly what a restarted participant needs to recognize and resume this purchase from
@@ -280,6 +339,7 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 		"participant_snapshot_ids": {
 			"request_fingerprint": request_fingerprint, "item_id": item_id,
 			"currency": str(quote_record["currency"]), "price": int(quote_record["price"]),
+			"economy_candidate": economy_candidate.duplicate(true),
 		},
 	}
 	var action_receipt_for_handoff := receipt.duplicate(true)
@@ -287,17 +347,10 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 	var handoff_prepared: Dictionary = _consequence_state_port.call(&"prepare_action_handoff",
 		action_receipt_for_handoff, int(live_state["run_revision"]), recovery_payload)
 	if not handoff_prepared.get("ok", false):
+		if acquired_fresh: release_recovery_lease()
 		return handoff_prepared
 	var handoff_candidate: Dictionary = (handoff_prepared["value"] as Dictionary)["candidate"]
 
-	var acquired_fresh := false
-	if not _mutation_gate.is_internal_owner_active(_GATE_OWNER):
-		var acquired: Dictionary = _mutation_gate.acquire(_GATE_OWNER)
-		if not acquired.get("ok", false):
-			return _fail(&"causal_transaction_lease_unavailable",
-				"the shared causal_transaction lease is held by another transaction", {})
-		_gate_token = str((acquired["value"] as Dictionary)["token"])
-		acquired_fresh = true
 
 	# `kind` is a free-form descriptive operation label -- this codebase's own established
 	# convention (DesktopConsequenceState.prepare_recovery_advance()'s own headers use
@@ -335,6 +388,8 @@ func prepare_purchase(request: Dictionary) -> Dictionary:
 
 	var result := {"ok": true, "code": &"shop_purchase_action_checkpointed", "value": {
 		"action_receipt": receipt.duplicate(true), "candidate": {"transaction_id": transaction_id},
+		"action_candidate": economy_candidate.duplicate(true),
+		"prepared_checkpoint_receipt": (checkpoint_value["checkpoint_receipt"] as Dictionary).duplicate(true),
 	}, "receipt": {}}
 	entry["prepare_request_fingerprint"] = request_fingerprint
 	entry["prepare_result"] = result.duplicate(true)
@@ -483,12 +538,10 @@ func publish(publication: Dictionary) -> Dictionary:
 # Task 8 (dwm-p2r.32) additions: the frozen three-method action-source recovery surface consumed by
 # DesktopConsequenceCoordinator. `action_candidate` here is the SELF-SUFFICIENT economy candidate
 # `GameStateMinesweeperShopPort.prepare_purchase()` already builds (`{transaction_id,item_id,
-# currency,price,grant_inventory_item_id}`) -- not the trivial `{transaction_id}` pointer
-# `prepare_purchase()`'s own PENDING result carries, which this task deliberately leaves unchanged
-# (a behavioral change to that already-committed Task-7 return shape is out of this task's surgical
-# scope). Whoever threads `action_candidate` into `DesktopConsequenceCoordinator.accept_prepared_
-# action()` (Plan 03's eventual Shop command facade) is expected to carry this richer shape forward
-# instead, exactly like `MinesweeperRoundCoordinator.complete_round()`'s own action_candidate does.
+# currency,price,grant_inventory_item_id}`). `prepare_purchase()` returns that exact detached value
+# together with its ordinal-0 checkpoint receipt so the production presentation facade can hand the
+# already-prepared transaction to `DesktopConsequenceCoordinator.accept_prepared_action()` without
+# reconstructing either value, exactly like `MinesweeperRoundCoordinator.complete_round()` does.
 # A genuinely reconstructed participant (empty `_transactions`) needs no recognition step here: the
 # pair (action_candidate, action_receipt) is already everything `commit_recovery_action()` needs,
 # independent of any process-local ledger.
@@ -595,6 +648,12 @@ func publish_recovery_action(publication: Dictionary) -> Dictionary:
 	})
 	if not recorded.get("ok", false):
 		return recorded
+	if bool(recorded.get("value", {}).get("first_delivery", false)):
+		var candidate: Dictionary = _recovery_committed.get(str(receipt.transaction_id), {}).get("action_candidate", {})
+		if candidate.has("ordinary_gameplay"):
+			var published: Dictionary = _state_port.publish(ledger_publication)
+			if not published.get("ok", false): return published
+
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": receipt.duplicate(true)}
 
 
@@ -640,9 +699,15 @@ func _recognize_live_pending(pending: Dictionary, request_fingerprint: String, t
 		"price": int(snapshot_ids.get("price", 0)),
 		"grant_inventory_item_id": item_id if item_id in _CAPABILITY_ITEM_IDS else "",
 	}
+	if snapshot_ids.get("economy_candidate") is Dictionary:
+		economy_candidate = snapshot_ids.economy_candidate.duplicate(true)
 	var result := {"ok": true, "code": &"shop_purchase_action_checkpointed", "value": {
 		"action_receipt": (recovered_receipt as Dictionary).duplicate(true),
 		"candidate": {"transaction_id": transaction_id},
+		"action_candidate": economy_candidate.duplicate(true),
+		# A fresh-process source-checkpoint recovery is owned by DesktopConsequenceCoordinator.resume_pending;
+		# it has no in-memory handle to the checkpoint-port receipt used by live admission.
+		"prepared_checkpoint_receipt": {},
 	}, "receipt": {}}
 	var entry: Dictionary = _transactions.get(transaction_id, {}) as Dictionary
 	entry["prepare_request_fingerprint"] = request_fingerprint
@@ -691,7 +756,7 @@ func _validate_supportz_eligibility(causal_day_instance: String, transaction_id:
 ## has no distinct row for a second commit-identity, and inventing one would be exactly the
 ## "unlisted semantic convention" that table's own law forbids).
 func _build_action_receipt(transaction_id: String, transaction_issuer_receipt: Dictionary,
-		quote_record: Dictionary, facts: Dictionary) -> Dictionary:
+		quote_record: Dictionary, facts: Dictionary, condition_after: Dictionary = {}) -> Dictionary:
 	var condition := {
 		"health": int(facts["health"]), "pressure": int(facts["pressure"]),
 		"carried_sequela": bool(facts["carried_sequela"]),
@@ -703,7 +768,8 @@ func _build_action_receipt(transaction_id: String, transaction_issuer_receipt: D
 		"transaction_id": transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt.duplicate(true),
 		"source_commit_receipt_id": str(quote_record["quote_id"]),
 		"source_commit_receipt_provenance": (quote_record["quote_id_provenance"] as Dictionary).duplicate(true),
-		"condition_before": condition.duplicate(true), "condition_after": condition.duplicate(true),
+		"condition_before": condition.duplicate(true),
+		"condition_after": condition.duplicate(true) if condition_after.is_empty() else condition_after.duplicate(true),
 		"unlock_receipt_ids": [],
 	}
 	var action_candidate_sha256 := _canonical_sha256(action_candidate)

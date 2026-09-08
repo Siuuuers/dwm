@@ -66,7 +66,7 @@ func test_defaults_are_schema_valid_and_exact() -> void:
 	var profile: Dictionary = _schema.call(&"make_defaults")
 	var result: Dictionary = _schema.call(&"validate", profile)
 	assert_true(result.get("ok", false), str(result))
-	assert_eq(profile["schema_version"], 4)
+	assert_eq(profile["schema_version"], 8)
 	assert_eq(profile["preferences"]["reading"]["skip_mode"], "read_only")
 	assert_eq(profile["gallery_transaction_receipts"], {})
 	assert_eq(profile["migration_receipts"].size(), 3)

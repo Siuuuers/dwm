@@ -393,7 +393,7 @@ func _commit_pending() -> void:
 	_in_operation = true
 	var token: Variant = _pending_token
 	_pending_token = null
-	var result: Dictionary = _port.commit_action(token)
+	var result: Dictionary = await _port.commit_action(token)
 	_in_operation = false
 	last_result = result.duplicate(true)
 	if not result.get("ok", false):

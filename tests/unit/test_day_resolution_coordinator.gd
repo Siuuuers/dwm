@@ -28,7 +28,18 @@ func _wired(day: int, configure_day_advance: bool = true, entries: Array = []) -
 	assert_true(coordinator.configure(state, checkpoint, gate)["ok"])
 	var day_advance_port: Variant = null
 	if configure_day_advance and ResourceLoader.exists(DAY_ADVANCE_PATH, "Script"):
+		var root := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd").new()
+		assert_true(root.configure(JsonFileStorage.new("coordinator-identity", FakeFileOps.new()),
+			preload("res://tests/support/FakeDesktopNamespaceSource.gd").new("55".repeat(32))).get("ok", false))
+		assert_true(root.load_or_create().get("ok", false))
+		var issuer := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
+		assert_true(issuer.configure(root).get("ok", false))
+		var source: Dictionary = root.issue(&"causal_day_instance")
+		assert_true(source.get("ok", false), str(source))
+		var installed: Dictionary = state.configure_identity(issuer, source.value.issuer_receipt)
+		assert_true(installed.get("ok", false), str(installed))
 		day_advance_port = load(DAY_ADVANCE_PATH).new()
+		assert_true(day_advance_port.configure(issuer).get("ok", false))
 		assert_true(coordinator.configure_day_advance_identity_port(day_advance_port)["ok"])
 	return {"coordinator": coordinator, "state": state, "checkpoint": checkpoint, "gate": gate,
 		"calls": calls, "day_advance_port": day_advance_port}
@@ -1305,3 +1316,21 @@ func test_day7_resume_never_needs_the_identity_port() -> void:
 	var result: Dictionary = wired["coordinator"].request_schedule_done("done:run-1:day-7")
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result["code"], &"plan_complete", "Day 7 completes without any day advance")
+
+func test_same_frozen_presentation_relaunches_once_after_route_generation_changes() -> void:
+	var wired := _wired_presentation(3)
+	assert_true(wired.paused.get("ok", false), str(wired.paused))
+	var first_command: Dictionary = wired.router.get_routes()[0].command
+	assert_eq(wired.router.get_routes().size(), 1)
+	wired.coordinator._last_presentation_completion = {"old_mount": true}
+	wired.router.replace_route_mount()
+	var resumed: Dictionary = wired.coordinator.resume()
+	assert_true(resumed.get("ok", false), str(resumed))
+	assert_eq(resumed.get("code"), &"await_registered_command")
+	assert_eq(wired.router.get_routes().size(), 2, "a restored scene needs its exact presentation mounted")
+	assert_eq(wired.router.get_routes()[1].command, first_command, "Load preserves the frozen command")
+	assert_eq(wired.coordinator._last_presentation_completion, {}, "old mount completion cannot settle the restored mount")
+	assert_eq(wired.hospital_port.get_requests().size(), 2)
+	assert_true(wired.coordinator.resume().get("ok", false))
+	assert_eq(wired.router.get_routes().size(), 2, "the new mount is idempotent within its own generation")
+	assert_eq(_stage_state(wired.state, "hospital_if_triggered"), "active")

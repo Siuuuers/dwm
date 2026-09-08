@@ -1,4 +1,4 @@
-class_name DesktopConsequenceState
+﻿class_name DesktopConsequenceState
 extends RefCounted
 
 ## Canonical desktop consequence state machine (Plan 02 Task 6, dwm-p2r.32, req.desktop
@@ -69,7 +69,11 @@ const _PENDING_KEYS: Array[String] = [
 	"admission_checkpoint_receipt", "checkpoint_receipt", "expected_run_revision",
 ]
 
-const _OUTBOX_ENTRY_KEYS: Array[String] = ["key", "payload_hash", "provenance", "consumer", "status"]
+const _OUTBOX_ENTRY_KEYS_LEGACY: Array[String] = ["consumer", "key", "payload_hash", "provenance", "status"]
+const _OUTBOX_ENTRY_KEYS: Array[String] = [
+	"action_receipt", "causal_sequence", "condition_receipt", "consumer", "key", "payload",
+	"payload_hash", "provenance", "status",
+]
 const _OUTBOX_STATUSES: Array[String] = ["pending", "published"]
 
 const _RECOVERY_PAYLOAD_KEYS_ACTION: Array[String] = [
@@ -512,6 +516,10 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 			return _fail(&"consequence_publication_cursor_incomplete",
 				"terminal cleanup requires a complete publication cursor", {})
 		var state_after := _live_state()
+		var retained := _retain_pending_intents(pending, state_after)
+		if not retained.get("ok", false):
+			return retained
+		state_after = retained["value"]["state"]
 		state_after["pending"] = null
 		return {"ok": true, "code": &"ok", "value": {
 			"checkpoint_header": {
@@ -667,6 +675,77 @@ func prepare_outbox_publication(request: Dictionary) -> Dictionary:
 		"kind": &"outbox_publication", "outbox_kind": kind, "state_after": state_after,
 	}}, "receipt": {}}
 
+
+## Moves each admitted intent into the durable outbox in the same terminal-cleanup candidate that
+## clears pending. The record is self-contained after the pending transaction disappears.
+func _retain_pending_intents(pending: Dictionary, state_after: Dictionary) -> Dictionary:
+	var outbox: Dictionary = (state_after["outbox"] as Dictionary).duplicate(true)
+	var pairs := [
+		{"slot": "hospital", "intent": pending.get("destination_intent")},
+		{"slot": "notification", "intent": pending.get("notification_intent")},
+	]
+	for pair: Dictionary in pairs:
+		var raw: Variant = pair["intent"]
+		if raw == null:
+			continue
+		if typeof(raw) != TYPE_DICTIONARY:
+			return _fail(&"outbox_intent_invalid", str(pair["slot"]), {})
+		var built := _durable_outbox_record(str(pair["slot"]), raw as Dictionary, pending)
+		if not built.get("ok", false):
+			return built
+		var record: Dictionary = built["value"]["record"]
+		var occupied: Variant = outbox.get(str(pair["slot"]))
+		if typeof(occupied) == TYPE_DICTIONARY and occupied != record \
+				and str(occupied.get("status", "")) != "published":
+			return _fail(&"outbox_slot_occupied", str(pair["slot"]), {})
+		outbox[str(pair["slot"])] = record
+	var detached := state_after.duplicate(true)
+	detached["outbox"] = outbox
+	return {"ok": true, "code": &"ok", "value": {"state": detached}, "receipt": {}}
+
+
+func _durable_outbox_record(slot: String, intent: Dictionary, pending: Dictionary) -> Dictionary:
+	var intent_id := str(intent.get("intent_id", ""))
+	var provenance: Variant = intent.get("intent_id_provenance")
+	if intent_id.strip_edges().is_empty() or typeof(provenance) != TYPE_DICTIONARY:
+		return _fail(&"outbox_intent_invalid", slot, {})
+	var recovery: Dictionary = pending.get("recovery_payload", {})
+	var action_receipt: Variant = recovery.get("action_receipt")
+	if typeof(action_receipt) != TYPE_DICTIONARY:
+		for raw_recipe: Variant in (recovery.get("publication_plan", []) as Array):
+			if typeof(raw_recipe) != TYPE_DICTIONARY:
+				continue
+			var recipe: Dictionary = raw_recipe
+			if str(recipe.get("participant", "")) == "action_source" \
+					and typeof(recipe.get("publication")) == TYPE_DICTIONARY:
+				action_receipt = (recipe["publication"] as Dictionary).get("action_receipt")
+				break
+	if typeof(action_receipt) != TYPE_DICTIONARY:
+		return _fail(&"outbox_action_receipt_missing", intent_id, {})
+	var condition_receipt: Variant = recovery.get("condition_candidate")
+	if typeof(condition_receipt) != TYPE_DICTIONARY:
+		condition_receipt = {
+			"receipt_id": str(intent.get("source_condition_receipt_id", "")),
+			"receipt_provenance": (intent.get("source_condition_receipt_provenance", {}) as Dictionary).duplicate(true),
+		}
+	if str((condition_receipt as Dictionary).get("receipt_id", "")).strip_edges().is_empty():
+		return _fail(&"outbox_condition_receipt_missing", intent_id, {})
+	var consumer := "desktop_notification"
+	if slot == "hospital":
+		consumer = "condition_hospital" if str(intent.get("kind", "")) == "hospital_day" \
+			else "day7_terminal"
+	var record := {
+		"action_receipt": (action_receipt as Dictionary).duplicate(true),
+		"causal_sequence": _causal_sequence,
+		"condition_receipt": (condition_receipt as Dictionary).duplicate(true),
+		"consumer": consumer,
+		"key": intent_id,
+		"payload": intent.duplicate(true),
+		"payload_hash": _canonical_sha256(intent),
+		"provenance": (provenance as Dictionary).duplicate(true),
+		"status": "pending",
+	}
+	return {"ok": true, "code": &"ok", "value": {"record": record}, "receipt": {}}
 
 # -------------------------------------------------------------------------------------------------
 # Task 7 (dwm-p2r.32.7) shop ledger -- Supportz branch/day purchase record and current-causal-day
@@ -983,11 +1062,20 @@ static func _validate_outbox(outbox: Variant) -> Dictionary:
 		if typeof(value[key]) != TYPE_DICTIONARY:
 			return _fail(&"outbox_entry_invalid", str(key), {})
 		var entry: Dictionary = value[key]
-		var shape := _exact_keys(entry, _OUTBOX_ENTRY_KEYS, &"outbox_entry_member_set_invalid")
-		if not shape.get("ok", false):
-			return shape
+		var keys: Array = entry.keys()
+		keys.sort()
+		if keys != _OUTBOX_ENTRY_KEYS_LEGACY and keys != _OUTBOX_ENTRY_KEYS:
+			return _fail(&"outbox_entry_member_set_invalid", "unexpected outbox entry members", {})
 		if str(entry["status"]) not in _OUTBOX_STATUSES:
 			return _fail(&"outbox_status_invalid", str(entry["status"]), {})
+		if keys == _OUTBOX_ENTRY_KEYS:
+			if typeof(entry["payload"]) != TYPE_DICTIONARY \
+					or typeof(entry["action_receipt"]) != TYPE_DICTIONARY \
+					or typeof(entry["condition_receipt"]) != TYPE_DICTIONARY \
+					or typeof(entry["causal_sequence"]) != TYPE_INT:
+				return _fail(&"outbox_entry_invalid", "a durable outbox record retains its causal payload and receipts", {})
+			if str(entry["payload_hash"]) != _canonical_sha256(entry["payload"]):
+				return _fail(&"outbox_payload_hash_mismatch", str(entry["key"]), {})
 	return {"ok": true}
 
 

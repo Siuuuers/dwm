@@ -19,6 +19,8 @@ var _suspended: Array[Object] = []
 var _generation := 0
 var _phase := &"Active"
 var _owns_tree_pause := false
+var _restore_destination: Dictionary = {}
+var _restore_input_released := false
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -42,7 +44,8 @@ func configure(source_owner: Object, dialogic: Object, input: Object, audio: Obj
 
 func bind_source(scene: Control, view: Node) -> Dictionary:
 	if _phase != &"Active": return _failure(&"pause_busy")
-	if scene == null or not scene.has_method("get_presentation_projection") or view == null:
+	if scene == null or view == null or (not scene.has_method("get_presentation_projection") \
+		and not _source_owner.has_method("capture_scene_projection")):
 		return _failure(&"invalid_pause_source")
 	for method: String in ["capture_pause_view", "cover_pause_view", "restore_pause_view"]:
 		if not view.has_method(method): return _failure(&"invalid_pause_source")
@@ -118,6 +121,110 @@ func request_resume(handle: Dictionary) -> Dictionary:
 	pause_closed.emit()
 	return _success({"resumed": true})
 
+## Called only after the session owner retires the exact source. Never resume discarded prose.
+func retire_suspended_source(handle: Dictionary) -> Dictionary:
+	if _phase == &"Retired" and handle == _handle: return _success({"retired": true})
+	if _phase not in [&"Suspended", &"Retiring"] or handle != _handle \
+		or not _gate.has_method("is_internal_owner_active") \
+		or not _gate.is_internal_owner_active(&"session_abandonment"):
+		return _failure(&"invalid_suspension_retirement")
+	var scene: Object = _source_scene.get_ref() if _source_scene != null else null
+	if not is_instance_valid(scene) or get_tree().current_scene != scene:
+		return _failure(&"pause_source_changed")
+	_phase = &"Retiring"
+	while not _suspended.is_empty():
+		var port: Object = _suspended.back()
+		var result: Dictionary = port.retire_suspended_source(handle) if port.has_method("retire_suspended_source") else port.resume(handle)
+		if not result.get("ok", false): return result
+		_suspended.pop_back()
+	_phase = &"Retired"
+	return _success({"retired": true})
+
+## Title is physically published before the old tree pause can be released.
+func finish_retirement(handle: Dictionary) -> Dictionary:
+	if _phase != &"Retired" or handle != _handle: return _failure(&"invalid_suspension_retirement")
+	if _owns_tree_pause: get_tree().paused = false
+	_owns_tree_pause = false
+	_reset_pause()
+	pause_closed.emit()
+	return _success({"retired": true})
+
+## A witnessed Load releases only audio so its existing restore participant can run.
+## Input, the caption, SceneTree pause and the native text coroutine remain held.
+func begin_restore_handoff(handle: Dictionary) -> Dictionary:
+	if _phase != &"Suspended" or handle != _handle: return _failure(&"invalid_suspension_handle")
+	var current := _capture_source()
+	if not current.get("ok", false) or current.value != _source: return _failure(&"pause_source_changed")
+	var narrative: Object = _ports[1]
+	for method: String in ["begin_restore", "cancel_restore", "complete_restore"]:
+		if not narrative.has_method(method): return _failure(&"pause_load_unavailable")
+	var held: Dictionary = _router.begin_restore_publication_hold(handle)
+	if not held.get("ok", false): return held
+	var staged: Dictionary = narrative.begin_restore(handle)
+	if not staged.get("ok", false):
+		_router.cancel_restore_publication_hold(handle)
+		return staged
+	var audio: Object = _ports[2]
+	var released: Dictionary = audio.resume(handle)
+	if not released.get("ok", false):
+		narrative.cancel_restore(handle)
+		_router.cancel_restore_publication_hold(handle)
+		return _recover(released)
+	_suspended.erase(audio)
+	_restore_destination.clear()
+	_restore_input_released = false
+	_phase = &"Restoring"
+	return _success({"staged": true})
+
+
+func cancel_restore_handoff(handle: Dictionary) -> Dictionary:
+	if _phase != &"Restoring" or handle != _handle: return _failure(&"invalid_suspension_handle")
+	var current := _capture_source()
+	if not current.get("ok", false) or current.value != _source: return _failure(&"pause_source_changed")
+	var cancelled: Dictionary = _ports[1].cancel_restore(handle)
+	if not cancelled.get("ok", false): return cancelled
+	cancelled = _router.cancel_restore_publication_hold(handle)
+	if not cancelled.get("ok", false): return _recover(cancelled)
+	var audio: Object = _ports[2]
+	var suspended: Dictionary = audio.begin_suspend(handle)
+	if not suspended.get("ok", false): return _recover(suspended)
+	_suspended.append(audio)
+	_phase = &"Suspended"
+	return _success({"cancelled": true})
+
+
+func complete_restore_handoff(handle: Dictionary) -> Dictionary:
+	if _phase not in [&"Restoring", &"RestoreCommitted"] or handle != _handle:
+		return _failure(&"invalid_suspension_handle")
+	var destination: Dictionary = _source_owner.capture_restore_destination_session()
+	if not destination.get("ok", false) or destination.value == _source.get("session"):
+		return _failure(&"pause_restore_not_activated")
+	if not _restore_destination.is_empty() and destination.value != _restore_destination:
+		return _failure(&"pause_source_changed")
+	_restore_destination = destination.value.duplicate(true)
+	_phase = &"RestoreCommitted"
+	var acquired: Dictionary = _gate.acquire(&"restore")
+	if not acquired.get("ok", false): return acquired
+	var restored: Dictionary = await _ports[1].complete_restore(handle)
+	if restored.get("ok", false):
+		destination = _source_owner.capture_restore_destination_session()
+		if not destination.get("ok", false) or destination.value != _restore_destination:
+			restored = _failure(&"pause_source_changed")
+	if restored.get("ok", false): restored = _router.publish_restore_publication_hold(handle)
+	if restored.get("ok", false) and not _restore_input_released:
+		restored = _ports[0].resume(handle)
+		_restore_input_released = restored.get("ok", false)
+	if restored.get("ok", false): restored = _router.release_restore_publication_hold(handle)
+	_gate.release(&"restore", acquired.value.token)
+	if not restored.get("ok", false): return restored
+	_suspended.clear()
+	if _owns_tree_pause: get_tree().paused = false
+	_owns_tree_pause = false
+	_reset_pause()
+	pause_closed.emit()
+	return _success({"restored": true})
+
+
 func request_lifecycle_command(command_id: StringName) -> Dictionary:
 	if _phase != &"Suspended": return _failure(&"pause_busy")
 	if command_id not in [&"pause.resume", &"pause.backup", &"pause.settings", &"pause.return"]:
@@ -145,7 +252,7 @@ func _capture_source() -> Dictionary:
 	if not guarded.get("ok", false): return guarded
 	var source: Dictionary = _source_owner.capture_pause_source()
 	if not source.get("ok", false): return source
-	var command: Dictionary = scene.get_presentation_projection()
+	var command: Dictionary = _source_owner.capture_scene_projection(scene) if _source_owner.has_method("capture_scene_projection") else scene.get_presentation_projection()
 	for key: String in ["route_id", "timeline_id", "physical_token", "command_sha256", "completion_transaction_id"]:
 		if command.get(key) != source.value.get(key): return _failure(&"pause_source_mismatch")
 	if _router.get_current_route_id() != source.value.route_id:

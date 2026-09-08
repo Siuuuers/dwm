@@ -85,6 +85,8 @@ func configure(bridge: Object) -> Dictionary:
 		bridge.connect("timeline_finished", _on_timeline_finished)
 	if bridge.has_signal("ordinary_playback_failed") and not bridge.is_connected("ordinary_playback_failed", _on_playback_failed):
 		bridge.connect("ordinary_playback_failed", _on_playback_failed)
+	if bridge.has_signal("ordinary_playback_retired"):
+		bridge.connect("ordinary_playback_retired", _on_playback_retired)
 	return _ok({"configured": true, "already_configured": false,
 		"bridge_instance_id": bridge.get_instance_id()})
 
@@ -158,6 +160,14 @@ func capture_pause_source() -> Dictionary:
 	source["completion_transaction_id"] = completion_id
 	source["frontier"] = frontier.value.duplicate(true)
 	return _ok(source)
+
+
+## The Bridge has already cancelled this exact runtime under session-abandonment custody.
+## Release only the ephemeral pending map; no completion/failure reaches the retired coordinator.
+func _on_playback_retired(timeline_id: String) -> void:
+	for completion_id: Variant in _in_flight.keys():
+		if str((_in_flight[completion_id] as Dictionary).timeline_id) == timeline_id:
+			_in_flight.erase(completion_id)
 
 
 func _on_playback_failed(timeline_id: String, result: Dictionary) -> void:

@@ -113,7 +113,12 @@ func guard_external(_operation_id: StringName) -> Dictionary:
 	if not ready.get("ok", false):
 		return ready
 	if _desktop_identity_context is Callable:
-		return _game_state.validate_live_session(_game_state.capture_live_session().value)
+		var session: Dictionary = _game_state.validate_live_session(_game_state.capture_live_session().value)
+		if not session.get("ok", false): return session
+	# Visibility-only restore/navigation remains usable; all canonical play still waits.
+	if _operation_id not in [&"resume", &"suspend"] and _game_state.has_method("require_day7_presentations_complete"):
+		var presentations: Dictionary = _game_state.require_day7_presentations_complete()
+		if not presentations.get("ok", false): return presentations
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 

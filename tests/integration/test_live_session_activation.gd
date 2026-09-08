@@ -402,3 +402,21 @@ func test_desktop_ports_read_the_activated_run_identity_and_refresh_after_load()
 	var reconstructed := preload("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd").new()
 	assert_true(reconstructed.configure(f.game_state, f.issuer, provider).ok)
 	assert_eq(reconstructed.capture().value.next_app_round_ordinal, 2)
+
+
+func test_new_run_freezes_only_unwitnessed_pair_form_from_the_exact_profile_source() -> void:
+	var f := _fixture()
+	for form: String in ["ambiguous_sweet", "ambiguous_dark", "love_sweet"]:
+		assert_true(f.profile.record_pair_form_witness(form, "presentation-" + form).ok)
+	var before: Dictionary = f.profile.get_profile_snapshot()
+	var ready_facts: Array = []
+	f.manager.live_session_ready.connect(func() -> void:
+		ready_facts.append({"active": f.game_state.capture_live_session().value.active,
+			"admitted": f.gate.guard_external(&"desktop_mount").ok}))
+	var started: Dictionary = f.manager.start_new_run(_context())
+	assert_true(started.get("ok", false), str(started))
+	if not started.get("ok", false): return
+	assert_eq(ready_facts, [{"active": true, "admitted": true}], "mount readiness follows activation and gate release")
+	assert_eq(f.game_state.inter_friend_route_state.priscilla_lavinia.frozen_form, "love_dark")
+	assert_eq(f.profile.get_profile_snapshot().pair_form_witness_receipts,
+		before.pair_form_witness_receipts, "hidden selection must not award witness credit")

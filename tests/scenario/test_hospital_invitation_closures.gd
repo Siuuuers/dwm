@@ -194,3 +194,154 @@ func _command(label: String) -> Dictionary:
 			"receipt": ((issued.get("value", {}) as Dictionary).get("issuer_receipt", {}) as Dictionary).duplicate(true),
 		}
 	return (_commands[label] as Dictionary).duplicate(true)
+
+
+func _condition_plan(state: Dictionary, source_day: int = FAINT_DAY) -> Dictionary:
+	var sources: Array = []
+	for receipt_id: String in state.schedule_source_receipts:
+		var source: Dictionary = state.schedule_source_receipts[receipt_id]
+		if int(source.day) == source_day:
+			sources.append({"action_id": source.action_id, "receipt_id": receipt_id})
+	sources.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+		return str(left.action_id) < str(right.action_id))
+	var root := _command("condition.hospital")
+	var derived: Dictionary = _issuer.derive_child({"child_kind": "hospital_resolution",
+		"parent_receipt_id": root.receipt.receipt_id, "ordinal": 0, "source_ids": ["condition.fixture"]})
+	assert_true(derived.get("ok", false), str(derived))
+	return {"source_day": source_day, "accepted_sources": sources,
+		"resolution_receipt": {"receipt_id": derived.value.child_id,
+			"receipt_provenance": derived.value.provenance}}
+
+func test_condition_hospital_closes_exact_sources_and_retains_distinct_sylvia_witness() -> void:
+	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
+	state = _accepted_solo(state, "lavinia", FAINT_DAY)
+	var before := state.duplicate(true)
+	var plan := _condition_plan(state)
+	var helper := preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd")
+	var result: Dictionary = helper.prepare(state, plan, _issuer)
+	assert_true(result.get("ok", false), str(result))
+	if not result.get("ok", false): return
+	assert_eq(state, before, "preparing Hospital closure never mutates Contacts")
+	assert_eq(result.value.misses.size(), 2, "each accepted source has one separate Hospital miss")
+	for miss: Dictionary in result.value.misses:
+		assert_true(_issuer.validate_child(miss.receipt_provenance, &"hospital_miss").get("ok", false))
+		assert_true(miss.receipt_provenance.source_ids.has(plan.resolution_receipt.receipt_id))
+	var candidate: Dictionary = result.value.contacts
+	assert_eq(candidate.solo_actions["solo:sylvia:day3"].state, "RESOLVED_MISSED")
+	assert_eq(candidate.solo_actions["solo:lavinia:day3"].state, "RESOLVED_MISSED")
+	assert_true(CONTACT_STATE.validate_state(candidate).get("ok", false))
+	var witness: Dictionary = result.value.output.sylvia_witness
+	assert_eq(witness.resolution_kind, "condition_hospital")
+	assert_true(_issuer.validate_child(witness.receipt_provenance, &"sylvia_hospital_witness").get("ok", false))
+	assert_true(witness.receipt_provenance.source_ids.has(plan.resolution_receipt.receipt_id))
+	assert_false(witness.has("schedule_entry_id"), "pre-Done never fabricates a committed Schedule entry")
+	assert_eq(witness.affection_delta, 2, "the record freezes future care; it applies no relationship fields")
+	assert_false(candidate.messages.sylvia.any(func(row: Dictionary) -> bool: return row.type == "missed_question"))
+	assert_true(candidate.messages.lavinia.any(func(row: Dictionary) -> bool: return row.type == "missed_question"))
+	var replay: Dictionary = helper.prepare(state, plan, _issuer)
+	assert_eq(preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(replay.value).value,
+		preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(result.value).value)
+
+func test_condition_hospital_refuses_changed_source_before_closure() -> void:
+	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
+	var before := state.duplicate(true)
+	var plan := _condition_plan(state)
+	plan.accepted_sources[0]["action_id"] = "solo:lavinia:day3"
+	var result: Dictionary = preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(state, plan, _issuer)
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"condition_hospital_source_mismatch")
+	assert_eq(state, before)
+
+func test_condition_hospital_preserves_offscreen_pair_window_without_a_fake_date() -> void:
+	var state := CONTACT_STATE.make_defaults()
+	var result: Dictionary = preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(
+		state, _condition_plan(state, 2), _issuer)
+	assert_true(result.get("ok", false), str(result))
+	if not result.get("ok", false): return
+	assert_eq(result.value.output.pl_window, {"outcome": "private_offscreen", "counts": true, "visible": false})
+	assert_eq(result.value.misses, [])
+	assert_eq(result.value.output.closure_receipt.counter_deltas, {"pl_window_counts.priscilla_lavinia": 1})
+
+func test_condition_witness_cannot_be_retagged_as_schedule_done() -> void:
+	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
+	var result: Dictionary = preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(
+		state, _condition_plan(state), _issuer)
+	assert_true(result.get("ok", false), str(result))
+	if not result.get("ok", false): return
+	var witness: Dictionary = result.value.output.sylvia_witness.duplicate(true)
+	witness["resolution_kind"] = "schedule_done"
+	assert_false(CONTACT_STATE._validate_sylvia_witness_shape(witness).get("ok", true))
+
+func test_condition_hospital_stage_presentation_and_retirement_use_real_root_ancestry() -> void:
+	var lifecycle := preload("res://scripts/domain/run/RunLifecycle.gd").new()
+	var causal := {"receipt_id": "issuer.causal.source", "purpose": "causal_day_instance",
+		"namespace": "fixture", "counter": 1, "numeric_value": null, "token": "causal.source"}
+	lifecycle.reset("run", "branch", 0, "causal.source", {"causal_day_instance_issuer_receipt": causal}, false)
+	var hospital := preload("res://scripts/domain/run/ConditionHospitalState.gd").new()
+	assert_true(hospital.configure(lifecycle, _issuer).get("ok", false))
+	var root := _command("condition.stages")
+	var accepted: Dictionary = hospital.prepare_accept({
+		"action_receipt": {"receipt_id": "action.fixture", "transaction_id": root.id,
+			"transaction_issuer_receipt": root.receipt},
+		"condition_receipt": {"receipt_id": "condition.fixture"},
+		"destination_record": {"key": "destination.fixture", "status": "pending",
+			"payload": {"kind": "hospital_day", "accepted_unfulfilled_sources": []}}})
+	assert_true(accepted.get("ok", false), str(accepted))
+	if not accepted.get("ok", false): return
+	assert_true(hospital.commit(accepted.value.condition_hospital_candidate).get("ok", false))
+	var plan: Dictionary = lifecycle.to_dict().active_condition_hospital_plan
+	var resolution_id := str(plan.resolution_receipt.receipt_id)
+	var adapter := preload("res://scripts/application/run/GameStateConditionHospitalPort.gd").new()
+	adapter._issuer = _issuer
+	var presentation: Dictionary = adapter._presentation_request(plan, "present_hospital",
+		{"kind": "hospital", "day": 1, "source_entry_ids": [], "miss_receipt_ids": []},
+		"hospital.faint", preload("res://scripts/application/run/HospitalPresentationPort.gd").new())
+	assert_true(presentation.get("ok", false), str(presentation))
+	if not presentation.get("ok", false): return
+	assert_true(_issuer.validate_child(presentation.value.request.completion_transaction_provenance,
+		&"day_resolution_stage").get("ok", false))
+	for index: int in range(plan.stages.size()):
+		var stage_id := str(plan.stages[index].stage_id)
+		var derived: Dictionary = hospital.prepare_stage_identity({"resolution_receipt_id": resolution_id,
+			"stage_id": stage_id, "input_receipt_ids": []})
+		assert_true(derived.get("ok", false), str(derived))
+		if not derived.get("ok", false): return
+		var identity: Dictionary = derived.value.stage_identity
+		assert_true(_issuer.validate_child(identity.provenance, &"condition_hospital_stage").get("ok", false))
+		assert_eq(identity.provenance.parent_receipt_id, root.receipt.receipt_id)
+		assert_true(identity.provenance.source_ids.has(resolution_id))
+		var prepared := {"kind": stage_id}
+		var output := {}
+		if stage_id == "advance_day":
+			var target := causal.duplicate(true)
+			target.receipt_id = "issuer.causal.target"
+			target.token = "causal.target"
+			target.counter = 2
+			output = {"target_day": 2, "target_causal_day_instance": "causal.target",
+				"target_causal_day_instance_issuer_receipt": target}
+			prepared.merge(output, true)
+		elif stage_id == "autosave_new_day":
+			output = {"checkpoint_id": "run:42", "day": 2, "target_causal_day_instance": "causal.target"}
+		var active: Dictionary = hospital.prepare_stage({"resolution_receipt_id": resolution_id,
+			"stage_id": stage_id, "stage_identity": identity, "prepared": prepared})
+		assert_true(active.get("ok", false), str(active))
+		if not active.get("ok", false): return
+		assert_true(hospital.commit_stage(active.value).get("ok", false))
+		var receipt := {"input_receipt_ids": identity.input_receipt_ids.duplicate(true),
+			"output": output, "receipt_id": identity.child_id, "receipt_provenance": identity.provenance,
+			"resolution_kind": "condition_hospital", "resolution_receipt_id": resolution_id,
+			"stage_id": stage_id, "stage_index": index}
+		var completed: Dictionary = hospital.complete_stage({"resolution_receipt_id": resolution_id,
+			"stage_id": stage_id, "stage_identity": identity, "prepared": prepared, "stage_receipt": receipt})
+		assert_true(completed.get("ok", false), str(completed))
+		if not completed.get("ok", false): return
+		assert_true(hospital.commit_stage(completed.value).get("ok", false))
+	plan = lifecycle.to_dict().active_condition_hospital_plan
+	var retired: Dictionary = hospital.prepare_retirement({"completed_plan": plan,
+		"autosave_stage_receipt": plan.stages[5].receipt})
+	assert_true(retired.get("ok", false), str(retired))
+	if not retired.get("ok", false): return
+	var provenance: Dictionary = retired.value.retirement_receipt.receipt_provenance
+	assert_true(_issuer.validate_child(provenance, &"condition_hospital_retirement").get("ok", false))
+	assert_eq(provenance.parent_receipt_id, root.receipt.receipt_id)
+	assert_true(provenance.source_ids.has(resolution_id))

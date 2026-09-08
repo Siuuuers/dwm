@@ -131,7 +131,7 @@ func _enter(primary: String, epilogue: String, run_id: String) -> void:
 	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-%s" % run_id, "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-%s" % run_id, "numeric_value": null}
 	GameState._run_lifecycle.reset(run_id, "branch-%s" % run_id, 0, "causal-day-%s" % run_id,
-		{"causal_day_instance_issuer_receipt": receipt})
+		{"causal_day_instance_issuer_receipt": receipt}, false)
 	GameState._lifecycle_set_playing_day(7)
 	var entered: Dictionary = GameState._run_lifecycle.enter_ending({
 		"ending_id": primary, "epilogue_ending_id": epilogue,

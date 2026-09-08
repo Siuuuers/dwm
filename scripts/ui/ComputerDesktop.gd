@@ -37,6 +37,7 @@ var _backup_port: Object
 var _minesweeper_port: Object
 var _minesweeper_input: Object
 var _shop_port: Object
+var _session_exit: Object
 var _schedule_port: Object
 var _schedule_done := Callable()
 var _schedule_warning_port: Object
@@ -101,6 +102,10 @@ func _ready() -> void:
 		# The production method masks an early mount; isolated overrides retain
 		# their explicit fixture configuration without opting into global owners.
 		_configure_from_bootstrap()
+	var saves := get_node_or_null("/root/SaveManager")
+	if saves != null and saves.has_signal("live_session_ready") \
+			and not saves.is_connected("live_session_ready", _configure_from_bootstrap):
+		saves.connect("live_session_ready", _configure_from_bootstrap)
 	var state := get_node_or_null("/root/GameState")
 	if state != null and not state.daily_state_reset.is_connected(_on_daily_state_reset):
 		state.daily_state_reset.connect(_on_daily_state_reset)
@@ -248,6 +253,12 @@ func configure_minesweeper(port: Object, localization: Object = null, profile: O
 		_refresh_launcher()
 		if _host_state.get_state().get("active_app_id") == &"minesweeper": return open_app(&"minesweeper")
 	return {"ok":true}
+
+func configure_session_exit(owner: Object) -> Dictionary:
+	if owner == null or not owner.has_method("return_to_title"): return {"ok": false, "code": &"invalid_session_exit"}
+	if _session_exit != null and _session_exit != owner: return {"ok": false, "code": &"session_exit_already_configured"}
+	_session_exit = owner
+	return {"ok": true}
 
 func configure_shop(provider: Object, localization: Object = null, profile: Object = null,
 		host_state: Object = null, day: int = 1) -> Dictionary:
@@ -404,7 +415,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		return {"ok": false, "code": &"desktop_modal_active"}
 	if not APP_REGISTRY.new().has_app(app_id):
 		return _route_failure(&"unknown_app_id")
-	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper", &"schedule", &"shop"] or (app_id == &"minesweeper" and _minesweeper_port == null):
+	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper", &"schedule", &"shop", &"logout"] or (app_id == &"minesweeper" and _minesweeper_port == null):
 		return _route_failure(&"desktop_app_unavailable")
 	if _active_id != &"" and _active_id != app_id:
 		return _route_failure(&"desktop_app_transition_unavailable")
@@ -414,6 +425,8 @@ func open_app(app_id: StringName) -> Dictionary:
 			return _route_failure(&"desktop_app_transition_unavailable")
 	if app_id == &"contacts" and _presentation_port == null:
 		return _route_failure(&"contacts_unavailable")
+	if app_id == &"logout" and _session_exit == null:
+		return _route_failure(&"logout_unavailable")
 	if app_id == &"shop" and _shop_port == null:
 		return _route_failure(&"shop_unavailable")
 	if app_id == &"schedule" and _schedule_port == null:
@@ -436,6 +449,8 @@ func open_app(app_id: StringName) -> Dictionary:
 			configured = app.configure_presentation(_presentation_port, _localization, _profile)
 		elif app_id == &"minesweeper":
 			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette)
+		elif app_id == &"logout":
+			configured = app.configure_exit(_session_exit, _locale)
 		elif app_id == &"shop":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette)
@@ -683,6 +698,8 @@ func _configure_from_bootstrap() -> void:
 		_bootstrap.configure_contacts_desktop(self)
 	if _bootstrap.has_method("configure_gameplay_desktop"):
 		_bootstrap.configure_gameplay_desktop(self)
+	if _bootstrap.has_method("configure_session_exit_desktop"):
+		_bootstrap.configure_session_exit_desktop(self)
 	if _quick_commands == null and _backup_port != null:
 		configure_quick_commands(_backup_port, get_node_or_null("/root/InputManager"))
 	if reveal_after_configuration and not _run_configuration_masked:
@@ -715,6 +732,7 @@ func _refresh_launcher() -> void:
 	clock_label.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
 	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間"}[_locale]
 	_refresh_clock_description()
+	_refresh_contact_notice()
 	if status_label.visible:
 		_set_failure_copy()
 	queue_redraw()
@@ -735,9 +753,22 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 		_refresh_launcher()
 
 func _on_contacts_changed(_result: Dictionary) -> void:
+	_refresh_contact_notice()
 	var app: Node = _cached_app_windows.get(&"contacts")
 	if is_instance_valid(app):
 		app.call_deferred("refresh_view")
+
+## One unread indicator is rebuilt from saved Contacts on mount and after accepted notifications.
+func _refresh_contact_notice() -> void:
+	if not is_node_ready() or _presentation_port == null: return
+	var view: Dictionary = _presentation_port.get_projection("", _locale)
+	if not view.get("ok", false): return
+	var unread: bool = view.value.unread.values().has(true)
+	var caption: String = LABELS[_locale][1]
+	contacts_button.set_caption(caption + (" •" if unread else ""))
+	contacts_button.accessibility_name = caption + ({"en": ", new message",
+		"zh-CN": "，有新消息", "zh-HK": "，有新訊息"}[_locale] if unread else "")
+
 
 func configure_clock(reader: Callable) -> void:
 	_clock_reader = reader

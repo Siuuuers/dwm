@@ -1,0 +1,529 @@
+extends GutTest
+## Real Pause/Settings/Backup/Input/Audio/Profile controls and owners. The current scene,
+## run-session and router doubles isolate source custody; no player storage or engine startup.
+const CONTROLLER := preload("res://scripts/application/lifecycle/ProductionPauseController.gd")
+const PROFILE := preload("res://autoload/ProfileManager.gd")
+const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
+const INPUT := preload("res://autoload/InputManager.gd")
+const AUDIO := preload("res://autoload/AudioManager.gd")
+const AUDIO_FIXTURE := preload("res://tests/unit/test_audio_pause_suspension.gd")
+const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const FILES := preload("res://tests/support/FakeFileOps.gd")
+const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+
+class RunOwner extends RefCounted:
+	var dating_state: Object
+	func capture_dating_challenge_state() -> Dictionary:
+		return dating_state.capture_dating_challenge_state()
+	var gate: Object
+	var handle := {"active": true, "generation": 1, "run_id": "pause-run", "owner_id": 42}
+	func capture_live_session() -> Dictionary: return {"ok": true, "value": handle.duplicate(true)}
+	func validate_live_session(expected: Dictionary) -> Dictionary:
+		return {"ok": expected == handle and handle.active and gate.guard_external(&"pause_fixture").ok}
+	func get_run_configuration() -> Dictionary: return {"ok": true, "value": {"dark_mode": false}}
+	func retire_live_session(expected: Dictionary) -> Dictionary:
+		if not gate.is_internal_owner_active(&"session_abandonment") or expected != handle: return {"ok": false}
+		handle.active = false
+		handle.generation += 1
+		return {"ok": true}
+
+class SourceScene extends Control:
+	var command: Dictionary = {}
+	func get_presentation_projection() -> Dictionary: return command.duplicate(true)
+
+class Router extends RefCounted:
+	var tree: SceneTree
+	var gate: Object
+	var route := "main"
+	var source: Control
+	var title: Control
+	var fail_publication_once := false
+	var publications := 0
+	func get_current_route_id() -> String: return route
+	func prepare_return_to_title() -> Dictionary:
+		return {"ok": tree.current_scene == source, "value": {"token": "prepared-pause-title"}}
+	func validate_prepared_return_to_title(token: String) -> Dictionary:
+		return {"ok": token == "prepared-pause-title" and tree.current_scene == source and gate.is_internal_owner_active(&"session_abandonment")}
+	func cancel_prepared_return_to_title(_token: String) -> Dictionary: return {"ok": true}
+	func publish_prepared_return_to_title(token: String) -> Dictionary:
+		publications += 1
+		if fail_publication_once:
+			fail_publication_once = false
+			return {"ok": false, "code": &"fixture_route_failed"}
+		if not validate_prepared_return_to_title(token).ok: return {"ok": false}
+		title = Control.new()
+		tree.root.add_child(title)
+		tree.current_scene = title
+		route = "menu"
+		return {"ok": true}
+
+class Saves extends RefCounted:
+	var writes := 0
+	var inspections := 0
+	var populated := false
+	var pending: Dictionary = {}
+	var on_load := Callable()
+	var fail_load := false
+	var loaded := 0
+	func get_backup_save_capability() -> Dictionary: return {"enabled": false, "reason": "fixture_capture_unavailable"}
+	func inspect_backup(locator: String) -> Dictionary:
+		inspections += 1
+		if not populated: return {"ok": false}
+		return {"ok": true, "value": {"locator": locator, "revision": "fixture-record", "state": "occupied",
+			"day": 1, "saved_time": "12:30", "fallback": false, "load_day": 1, "load_saved_time": "12:30",
+			"reason": "", "loadable": true, "operation_allowed": true}}
+	func prepare_backup_action(action: String, locator: String) -> Dictionary:
+		var record: Dictionary = inspect_backup(locator)
+		if not record.ok: return record
+		pending["prepared-" + action] = action
+		return {"ok": true, "value": {"token": "prepared-" + action, "record": record.value}}
+	func commit_backup_action(token: String) -> Dictionary:
+		if not pending.has(token): return {"ok": false}
+		var action: String = pending[token]
+		pending.erase(token)
+		if action == "load":
+			loaded += 1
+			if on_load.is_valid(): on_load.call()
+			return {"ok": not fail_load, "code": &"fixture_load_failed" if fail_load else &"ok"}
+		writes += 1
+		return {"ok": true}
+	func cancel_backup_action(token: String) -> void: pending.erase(token)
+	func save_session_exit_checkpoint(_inputs: Dictionary, _handle: Dictionary) -> Dictionary:
+		writes += 1
+		return {"ok": true}
+
+class IdleBridge extends RefCounted:
+	var foreign_live := false
+	func has_active_playback() -> bool: return foreign_live
+	func capture_pause_frontier(_timeline_id: String = "") -> Dictionary: return {"ok": false, "code": &"pause_frontier_unavailable"}
+
+var controller: Node
+var profile: Node
+var localization: Node
+var input_owner: Node
+var audio_owner: Node
+var run_owner: RunOwner
+var router: Router
+var saves: Saves
+var bridge: IdleBridge
+var gate: RefCounted
+var source: SourceScene
+var focus: Button
+var original: Node
+var input_backup: Dictionary = {}
+
+func before_each() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	original = get_tree().current_scene
+	for action: StringName in InputMap.get_actions():
+		input_backup[action] = {"deadzone": InputMap.action_get_deadzone(action), "events": InputMap.action_get_events(action).duplicate(true)}
+	gate = GATE.new()
+	profile = PROFILE.new()
+	localization = LOCALIZATION.new()
+	input_owner = INPUT.new()
+	audio_owner = AUDIO.new(AUDIO_FIXTURE.FaultPort.new())
+	for port: Node in [profile, localization, input_owner, audio_owner]: add_child(port)
+	assert_true(profile.initialize(STORAGE.new("pause-controller.memory", FILES.new())).ok)
+	assert_true(localization.initialize(profile).ok)
+	assert_true(input_owner.initialize(profile).ok)
+	assert_true(audio_owner.initialize(profile).ok)
+	assert_true(input_owner.configure_mutation_gate(gate).ok)
+	run_owner = RunOwner.new()
+	run_owner.gate = gate
+	saves = Saves.new()
+	bridge = IdleBridge.new()
+	source = SourceScene.new()
+	source.scene_file_path = "res://scenes/main/MainGameScene.tscn"
+	source.size = Vector2(1280, 720)
+	get_tree().root.add_child(source)
+	get_tree().current_scene = source
+	focus = Button.new()
+	focus.text = "Fixture action"
+	source.add_child(focus)
+	focus.grab_focus()
+	router = Router.new()
+	router.tree = get_tree()
+	router.gate = gate
+	router.source = source
+	controller = CONTROLLER.new()
+	add_child(controller)
+	assert_true(controller.configure({"game_state": run_owner, "saves": saves, "bridge": bridge,
+		"input": input_owner, "audio": audio_owner, "gate": gate, "profile": profile,
+		"localization": localization, "settings_services": {"tts": null, "window": null,
+			"profile_reset_admission": func() -> bool: return false}}, router).ok)
+
+func after_each() -> void:
+	get_tree().paused = false
+	get_tree().current_scene = original
+	if is_instance_valid(controller): controller.free()
+	if is_instance_valid(source): source.free()
+	if is_instance_valid(router.title): router.title.free()
+	for port: Node in [audio_owner, input_owner, localization, profile]:
+		if is_instance_valid(port): port.free()
+	for action: StringName in InputMap.get_actions():
+		if not input_backup.has(action): InputMap.erase_action(action)
+	for action: StringName in input_backup:
+		if not InputMap.has_action(action): InputMap.add_action(action)
+		InputMap.action_set_deadzone(action, input_backup[action].deadzone)
+		InputMap.action_erase_events(action)
+		for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
+	input_backup.clear()
+
+func _open_pause() -> bool:
+	var result: Dictionary = await controller.request_pause()
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	return result.get("ok", false)
+
+func test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody() -> void:
+	if not await _open_pause(): return
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_true(controller.surface.rows[&"continue"].has_focus())
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	assert_true((await controller.request_continue()).ok)
+	assert_false(get_tree().paused)
+	assert_true(source.visible)
+	assert_true(focus.has_focus())
+	assert_eq(input_owner.get_state().value.state, &"Active")
+	assert_eq(saves.writes, 0)
+
+func test_physical_dating_source_resumes_exact_command_and_changed_command_refuses() -> void:
+	router.route = "dating"
+	source.scene_file_path = "res://scenes/dating/DatingScene.tscn"
+	source.command = {"route_id": "dating", "physical_token": "date-1", "command_sha256": "exact",
+		"completion_transaction_id": "complete-date-1", "timeline_id": "dating.priscilla.day1.pre_challenge"}
+	if not await _open_pause(): return
+	source.command.physical_token = "foreign-date"
+	assert_false((await controller.request_continue()).ok)
+	assert_true(get_tree().paused)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	source.command.physical_token = "date-1"
+	assert_true((await controller.request_continue()).ok)
+	assert_eq(saves.writes, 0)
+
+func test_return_route_failure_retains_paused_retry_and_never_saves_or_resumes_discarded_source() -> void:
+	if not await _open_pause(): return
+	router.fail_publication_once = true
+	assert_eq(controller.request_return().get("code"), &"exit_route_retry_required")
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_false(run_owner.handle.active)
+	assert_eq(controller.coordinator.get_state().value.state, &"Retired")
+	assert_true(controller.surface.cancel_button.disabled)
+	assert_true(controller.surface.handle_back())
+	assert_eq(controller.surface.entered_action, &"return")
+	assert_false((await controller.request_continue()).ok)
+	assert_true(controller.request_return().ok)
+	assert_false(get_tree().paused)
+	assert_eq(get_tree().current_scene, router.title)
+	assert_eq(saves.writes, 0)
+	assert_eq(router.publications, 2)
+	assert_eq(input_owner.get_state().value.state, &"Active")
+
+func test_foreign_runtime_and_title_cannot_be_admitted_as_idle_playback() -> void:
+	bridge.foreign_live = true
+	assert_eq((await controller.request_pause()).get("code"), &"pause_frontier_unavailable")
+	assert_false(get_tree().paused)
+	bridge.foreign_live = false
+	router.route = "menu"
+	assert_false((await controller.request_pause()).ok)
+	assert_eq(input_owner.get_state().value.state, &"Active")
+
+func test_pause_backup_inspects_nine_records_and_does_not_claim_unsupported_operations() -> void:
+	if not await _open_pause(): return
+	controller.surface.rows[&"backup"].pressed.emit()
+	assert_eq(controller.surface.entered_action, &"backup")
+	assert_gte(saves.inspections, 9)
+	var projection: Dictionary = controller._backup_port.get_projection()
+	assert_eq(projection.value.records.size(), 9)
+	for record: Dictionary in projection.value.records:
+		assert_eq(record.actions, {"save": false, "load": false, "delete": false})
+	assert_true((await controller.request_continue()).ok)
+
+func test_global_back_does_not_steal_a_text_field_event() -> void:
+	var edit := LineEdit.new()
+	source.add_child(edit)
+	edit.grab_focus()
+	var event := InputEventKey.new()
+	event.keycode = KEY_ESCAPE
+	event.pressed = true
+	controller._unhandled_input(event)
+	assert_false(get_tree().paused)
+	assert_false(controller.surface.visible)
+
+
+func test_pause_delete_keeps_exact_suspension_and_never_saves_the_source() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	var held: Dictionary = controller._handle.duplicate(true)
+	var before: Dictionary = controller.capture_pause_source()
+	var prepared: Dictionary = controller._backup_port.prepare_action("delete", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_true(prepared.value.confirmation_required)
+	assert_true((await controller._backup_port.commit_action(prepared.value.token)).ok)
+	assert_true(get_tree().paused)
+	assert_eq(controller._handle, held)
+	assert_eq(controller.capture_pause_source(), before)
+	assert_eq(saves.writes, 1, "Only the explicitly confirmed Delete reaches storage")
+	assert_eq(saves.loaded, 0)
+	assert_true((await controller.request_continue()).ok)
+
+func test_idle_pause_load_failure_reacquires_exact_source_then_retry_follows_new_session() -> void:
+	saves.populated = true
+	saves.fail_load = true
+	if not await _open_pause(): return
+	var before: Dictionary = controller.capture_pause_source()
+	var old_handle: Dictionary = controller._handle.duplicate(true)
+	var prepared: Dictionary = controller._backup_port.prepare_action("load", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_true(prepared.value.confirmation_required)
+	var failed: Dictionary = await controller._backup_port.commit_action(prepared.value.token)
+	assert_eq(failed.get("code"), &"fixture_load_failed")
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_eq(controller.capture_pause_source(), before)
+	assert_ne(controller._handle, old_handle, "Reversible rollback acquires a fresh suspension of the same exact source")
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	saves.fail_load = false
+	saves.on_load = func() -> void:
+		run_owner.handle.generation += 1
+		router.title = Control.new()
+		router.title.scene_file_path = "res://scenes/main/MainGameScene.tscn"
+		get_tree().root.add_child(router.title)
+		get_tree().current_scene = router.title
+		source.hide()
+	prepared = controller._backup_port.prepare_action("load", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_true((await controller._backup_port.commit_action(prepared.value.token)).ok)
+	assert_false(get_tree().paused)
+	assert_false(controller.surface.visible)
+	assert_true(controller._handle.is_empty())
+	assert_eq(input_owner.get_state().value.state, &"Active")
+	assert_eq(saves.writes, 0)
+	assert_eq(saves.loaded, 2)
+
+func test_failed_load_with_changed_session_cannot_resume_either_source() -> void:
+	saves.populated = true
+	saves.fail_load = true
+	saves.on_load = func() -> void: run_owner.handle.generation += 1
+	if not await _open_pause(): return
+	var prepared: Dictionary = controller._backup_port.prepare_action("load", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	var failed: Dictionary = await controller._backup_port.commit_action(prepared.value.token)
+	assert_eq(failed.get("code"), &"pause_load_recovery_required")
+	assert_true(failed.recovery_required)
+	assert_true(get_tree().paused)
+	assert_false((await controller.request_continue()).ok)
+	assert_false(controller.request_return().ok)
+	assert_eq(saves.writes, 0)
+
+
+class DatingCapture extends RefCounted:
+	var snapshot: Dictionary
+	var state: Object
+	func capture() -> Dictionary:
+		var current := snapshot.duplicate(true)
+		current.gameplay["route_context"] = {"active_dating_challenge": state.saved.duplicate(true)}
+		return {"ok": true, "value": {"snapshot_input": current, "route_id": "dating",
+			"active_app_id": null, "dialogic_checkpoint": {}, "audio_context": {}, "content_version": 1}}
+
+
+func _dating_save_fixture() -> Dictionary:
+	var fixture_script := preload("res://tests/unit/test_dating_physical_owner.gd")
+	var dating_state: RefCounted = fixture_script.State.new()
+	var dating_profile: RefCounted = fixture_script.Profile.new()
+	var issuer := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
+	assert_true(issuer.configure(preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("91".repeat(32), 1)).ok)
+	var generation := preload("res://tests/support/FakeMinesweeperGenerationPort.gd").new()
+	var mines: Array = []
+	for index in 36: mines.append(index)
+	generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
+		"mine_indices": mines, "mine_count": 36})
+	var physical := preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
+	assert_true(physical.configure(issuer, dating_state, dating_profile, generation).ok)
+	var presentation := preload("res://scripts/application/run/DatingPresentationPort.gd").new()
+	assert_true(presentation.configure(issuer, physical).ok)
+	var context := {"day": 1, "kind": "solo", "participants": ["priscilla"], "schedule_entry_id": "pause-date"}
+	var root_receipt: Dictionary = issuer.issue(&"transaction_id").value.issuer_receipt
+	var request := {"resolution_id": "pause-date-resolution", "resolution_issuer_receipt": root_receipt,
+		"stage_id": "execute_dates", "substage_id": "pause-date", "route_id": "dating",
+		"timeline_id": "dating.solo.priscilla.day1.pre_challenge", "context": context,
+		"completion_transaction_id": "", "completion_transaction_provenance": {}}
+	var canonical := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+	var sources: Array = []
+	for key: String in ["resolution_id", "stage_id", "substage_id", "route_id", "timeline_id"]:
+		sources.append(key + "=" + str(canonical.canonical_json(request[key]).value.text))
+	sources.append("role=" + str(canonical.canonical_json("presentation.completion").value.text))
+	sources.append("context_sha256=" + str(canonical.canonical_json(canonical.canonical_sha256(context).value.sha256).value.text))
+	sources.sort()
+	var child: Dictionary = issuer.derive_child({"parent_receipt_id": root_receipt.receipt_id,
+		"child_kind": presentation.COMPLETION_CHILD_KIND, "ordinal": 0, "source_ids": sources})
+	assert_true(child.ok)
+	request.completion_transaction_id = child.value.child_id
+	request.completion_transaction_provenance = child.value.provenance
+	var begun: Dictionary = presentation.begin(request)
+	assert_true(begun.get("ok", false), str(begun))
+	if not begun.get("ok", false): return {}
+	source.command = begun.value.presentation_command
+	source.scene_file_path = "res://scenes/dating/DatingScene.tscn"
+	router.route = "dating"
+	var snapshot_result: Dictionary = preload("res://tests/support/BackupSnapshotFixture.gd").make_snapshot()
+	assert_true(snapshot_result.get("ok", false), str(snapshot_result))
+	if not snapshot_result.get("ok", false): return {}
+	var snapshot: Dictionary = snapshot_result.value.candidate
+	run_owner.handle.run_id = snapshot.run_id
+	run_owner.dating_state = dating_state
+	var files := FILES.new()
+	var storage := STORAGE.new("pause-dating-save", files)
+	var manager: Node = autofree(preload("res://autoload/SaveManager.gd").new())
+	assert_true(manager.initialize(storage).ok)
+	assert_true(manager.configure_mutation_gate(gate).ok)
+	manager._journal.reset(snapshot.run_id)
+	var seeded: Dictionary = manager._journal.prepare_record(snapshot, &"day_start")
+	assert_true(seeded.get("ok", false), str(seeded))
+	if not seeded.get("ok", false): return {}
+	assert_true(manager._journal.commit_prepared(seeded.value.candidate).ok)
+	var capture := DatingCapture.new()
+	capture.state = dating_state
+	capture.snapshot = {}
+	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating",
+			"schedule_view", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
+		capture.snapshot[key] = snapshot[key].duplicate(true)
+	controller.free()
+	controller = CONTROLLER.new()
+	add_child(controller)
+	assert_true(controller.configure({"game_state": run_owner, "saves": manager, "bridge": bridge,
+		"input": input_owner, "audio": audio_owner, "gate": gate, "profile": profile,
+		"localization": localization, "backup_capture": capture.capture, "dating_presentation": presentation,
+		"settings_services": {"tts": null, "window": null, "profile_reset_admission": func() -> bool: return false}}, router).ok)
+	assert_true(manager.configure_backup_capture_provider(controller.capture_backup_checkpoint_inputs).ok)
+	return {"state": dating_state, "profile": dating_profile, "issuer": issuer, "generation": generation,
+		"physical": physical, "presentation": presentation, "manager": manager, "files": files, "storage": storage,
+		"capture": capture}
+
+
+func test_paused_dating_manual_and_quick_save_restore_exact_board_and_command() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty() or not await _open_pause(): return
+	var held: Dictionary = controller._handle.duplicate(true)
+	var first: Dictionary = controller._backup_port.prepare_action("save", "slot:1")
+	assert_true(first.get("ok", false), str(first))
+	if not first.get("ok", false): return
+	assert_true((await controller._backup_port.commit_action(first.value.token)).ok)
+	assert_eq(controller._handle, held)
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_true((await controller.request_continue()).ok)
+	assert_true(fixture.presentation.dispatch_physical(source.command, "continue", -1, 0).ok)
+	assert_true(fixture.presentation.dispatch_physical(source.command, "reveal", 36, 0).ok)
+	assert_true(fixture.presentation.dispatch_physical(source.command, "flag", 18, 0).ok)
+	var exact_record: Dictionary = fixture.state.saved.duplicate(true)
+	if not await _open_pause(): return
+	held = controller._handle.duplicate(true)
+	var quick: Dictionary = controller._backup_port.prepare_quick_action("save")
+	assert_true(quick.get("ok", false), str(quick))
+	if not quick.get("ok", false): return
+	assert_false(quick.value.confirmation_required)
+	assert_true((await controller._backup_port.commit_action(quick.value.token)).ok)
+	assert_eq(controller._handle, held, "saving never releases or replaces Pause custody")
+	assert_true(get_tree().paused)
+	assert_eq(fixture.state.saved, exact_record)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	var loaded_text: Dictionary = fixture.storage.read_text("quicksave.json")
+	assert_true(loaded_text.get("ok", false), str(loaded_text))
+	if not loaded_text.get("ok", false): return
+	var document: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(JSON.parse_string(loaded_text.value))
+	assert_true(document.get("ok", false), str(document))
+	if not document.get("ok", false): return
+	var saved: Dictionary = document.value.candidate.current_snapshot.snapshot
+	assert_eq(saved.route_id, "dating")
+	assert_null(saved.active_app_id, "there is no substitute main/Backup foreground app")
+	assert_eq(saved.narrative_checkpoint, {})
+	assert_eq(saved.gameplay.route_context.active_dating_challenge, exact_record)
+	var restored: Node = add_child_autofree(preload("res://autoload/GameState.gd").new())
+	restored.reset_game()
+	var participant := preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(restored)
+	var prepared: Dictionary = participant.prepare({"snapshot": saved})
+	assert_true(prepared.ok)
+	var applied: Dictionary = participant.apply_silent(prepared.value.run_plan)
+	assert_true(applied.get("ok", false), str(applied))
+	if not applied.get("ok", false): return
+	var fresh := preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
+	assert_true(fresh.configure(fixture.issuer, restored, fixture.profile, fixture.generation).ok)
+	assert_true(fresh.begin_physical(source.command).ok)
+	assert_eq(restored.capture_dating_challenge_state().value, exact_record)
+	assert_eq(fresh.pull_physical(source.command.physical_token).value.board,
+		fixture.presentation.pull_physical(source.command).value.board)
+	assert_eq(fixture.generation.call_log.size(), 1, "restore never rerolls the saved board")
+	assert_true((await controller.request_continue()).ok)
+
+
+func test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty(): return
+	assert_true(fixture.presentation.dispatch_physical(source.command, "continue", -1, 0).ok)
+	assert_true(fixture.presentation.dispatch_physical(source.command, "reveal", 36, 0).ok)
+	if not await _open_pause(): return
+	var held: Dictionary = controller._handle.duplicate(true)
+	var disk: Dictionary = fixture.files.snapshot_persisted()
+	var journal: Dictionary = fixture.manager._journal.capture_state()
+	var prepared: Dictionary = controller._backup_port.prepare_action("save", "slot:2")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	controller._backup_port.cancel_action(prepared.value.token)
+	assert_eq(fixture.files.snapshot_persisted(), disk)
+	assert_eq(fixture.manager._journal.capture_state(), journal)
+	prepared = controller._backup_port.prepare_action("save", "slot:2")
+	assert_true(prepared.ok)
+	# Simulate a concurrent owner change through the public reducer command door.
+	assert_true(fixture.presentation.dispatch_physical(source.command, "flag", 18, 0).ok)
+	var refused: Dictionary = await controller._backup_port.commit_action(prepared.value.token)
+	assert_eq(refused.get("code"), &"stale_backup_source")
+	assert_eq(fixture.files.snapshot_persisted(), disk)
+	assert_eq(fixture.manager._journal.capture_state(), journal)
+	assert_eq(controller._handle, held)
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	assert_true((await controller.request_continue()).ok)
+
+
+func test_desktop_pause_capture_preserves_the_covered_app_and_suspension() -> void:
+	var inputs := {"snapshot_input": {"lifecycle": {"run_id": run_owner.handle.run_id},
+		"desktop": {"board": {"fixture_identity": "same-board"}}},
+		"route_id": "main", "active_app_id": "minesweeper", "dialogic_checkpoint": {}}
+	controller._services["backup_capture"] = func() -> Dictionary: return {"ok": true, "value": inputs}
+	assert_false(controller.can_save_backup(), "a provider cannot create Pause custody")
+	if not await _open_pause(): return
+	var handle: Dictionary = controller._handle.duplicate(true)
+	var captured: Dictionary = controller.capture_backup_checkpoint_inputs()
+	assert_true(captured.ok, str(captured))
+	if not captured.ok: return
+	assert_eq(captured.value, inputs)
+	captured.value.snapshot_input.desktop.board.fixture_identity = "changed-copy"
+	assert_eq(inputs.snapshot_input.desktop.board.fixture_identity, "same-board")
+	assert_eq(controller._handle, handle)
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_eq(saves.writes, 0, "capturing never writes or resumes")
+
+func test_desktop_pause_capture_refuses_route_session_and_narrative_drift() -> void:
+	var inputs := {"snapshot_input": {"lifecycle": {"run_id": run_owner.handle.run_id}},
+		"route_id": "main", "active_app_id": "contacts", "dialogic_checkpoint": {}}
+	controller._services["backup_capture"] = func() -> Dictionary: return {"ok": true, "value": inputs}
+	if not await _open_pause(): return
+	for field: String in ["route", "run", "narrative"]:
+		var prior: Dictionary = inputs.duplicate(true)
+		if field == "route": inputs.route_id = "dating"
+		elif field == "run": inputs.snapshot_input.lifecycle.run_id = "another-run"
+		else: inputs.dialogic_checkpoint = {"timeline": "unowned"}
+		var refused: Dictionary = controller.capture_backup_checkpoint_inputs()
+		assert_eq(refused.code, &"pause_source_changed", field)
+		inputs.clear()
+		inputs.merge(prior)
+	assert_true(get_tree().paused)
+	assert_eq(saves.writes, 0)

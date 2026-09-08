@@ -8,6 +8,7 @@ const DISK_WRITES := [
 	{"kind": &"none", "reason": &"stage"},
 	{"kind": &"autosave", "reason": &"day_start"},
 	{"kind": &"autosave", "reason": &"ending"},
+	{"kind": &"autosave", "reason": &"automatic"},
 ]
 
 var _calls: Array[String]

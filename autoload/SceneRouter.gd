@@ -23,6 +23,83 @@ var _return_title_prepared: Dictionary = {}
 var _return_title_published: Dictionary = {}
 var _return_title_publishing := false
 
+signal restore_publication_released()
+var _restore_publication_handle: Dictionary = {}
+var _restore_publication_scene_id := ""
+var _restore_publication_source_id := 0
+var _restore_publication_publishing := false
+var _restore_publication_published := false
+var _production_pause: Node
+
+## Bootstrap retains the existing owners; Pause keeps no saved state or alternate route.
+func configure_pause_services(services: Dictionary) -> Dictionary:
+	if is_instance_valid(_production_pause): return {"ok": true, "value": {"already_configured": true}}
+	var host := preload("res://scripts/application/lifecycle/ProductionPauseController.gd").new()
+	add_child(host)
+	var configured: Dictionary = host.configure(services, self)
+	if not configured.get("ok", false):
+		host.queue_free()
+		return configured
+	_production_pause = host
+	return {"ok": true}
+
+func capture_pause_backup_checkpoint_inputs() -> Dictionary:
+	if not is_instance_valid(_production_pause):
+		return {"ok": false, "code": &"pause_backup_unavailable"}
+	return _production_pause.capture_backup_checkpoint_inputs()
+
+
+func is_restore_publication_held() -> bool:
+	return not _restore_publication_handle.is_empty()
+
+
+func begin_restore_publication_hold(handle: Dictionary) -> Dictionary:
+	if is_restore_publication_held() or _startup_hold_active or _return_title_publishing \
+			or get_tree().current_scene == null or handle.is_empty():
+		return _startup_failure("restore_publication_busy")
+	_restore_publication_handle = handle.duplicate(true)
+	_restore_publication_source_id = get_tree().current_scene.get_instance_id()
+	_restore_publication_published = false
+	_restore_publication_scene_id = ""
+	return {"ok": true}
+
+
+func cancel_restore_publication_hold(handle: Dictionary) -> Dictionary:
+	if handle != _restore_publication_handle or _restore_publication_publishing or _restore_publication_published \
+			or get_tree().current_scene == null \
+			or get_tree().current_scene.get_instance_id() != _restore_publication_source_id:
+		return _startup_failure("stale_restore_publication_hold")
+	_restore_publication_handle.clear()
+	_restore_publication_scene_id = ""
+	_restore_publication_source_id = 0
+	return {"ok": true}
+
+
+func publish_restore_publication_hold(handle: Dictionary) -> Dictionary:
+	if handle != _restore_publication_handle or _restore_publication_scene_id.is_empty() \
+			or _restore_publication_publishing:
+		return _startup_failure("stale_restore_publication_hold")
+	if _restore_publication_published: return {"ok": true, "value": {"already_published": true}}
+	_restore_publication_publishing = true
+	var published := _change_to(_restore_publication_scene_id)
+	_restore_publication_publishing = false
+	if not published.get("ok", false): return published
+	_restore_publication_published = true
+	return published
+
+
+func release_restore_publication_hold(handle: Dictionary) -> Dictionary:
+	if handle != _restore_publication_handle or not _restore_publication_published:
+		return _startup_failure("stale_restore_publication_hold")
+	_restore_publication_handle.clear()
+	_restore_publication_scene_id = ""
+	_restore_publication_source_id = 0
+	_restore_publication_published = false
+	_pending_restore_scene_id = ""
+	restore_publication_released.emit()
+	return {"ok": true}
+
+
 func prepare_return_to_title() -> Dictionary:
 	var admitted := _return_title_admission(false)
 	if not admitted.get("ok", false): return admitted
@@ -329,6 +406,8 @@ func route_presentation(route_id: String, presentation_command: Dictionary) -> D
 	return _route_presentation(route_id, presentation_command)
 
 func _route_presentation(route_id: String, presentation_command: Dictionary, startup_publish: bool = false) -> Dictionary:
+	if is_restore_publication_held() and not _restore_publication_publishing:
+		return _startup_failure("restore_publication_held")
 	if _return_title_publishing: return _startup_failure("return_title_publication_busy")
 	if _startup_publishing and not startup_publish: return _startup_failure("startup_route_publication_busy")
 	if not is_schedule_presentation_ports_configured():
@@ -359,6 +438,15 @@ func _route_presentation(route_id: String, presentation_command: Dictionary, sta
 	if not configured.get("ok", false):
 		scene.queue_free()
 		return configured
+	if route_id == "dating":
+		var bootstrap: Node = get_node_or_null("/root/ApplicationBootstrap")
+		if bootstrap == null or not bootstrap.has_method("configure_dating_scene_services"):
+			scene.queue_free()
+			return {"ok": false, "code": &"dating_presentation_services_unavailable"}
+		var services: Dictionary = bootstrap.configure_dating_scene_services(scene)
+		if not services.get("ok", false):
+			scene.queue_free()
+			return services
 	var tree := get_tree()
 	if tree == null:
 		scene.queue_free()
@@ -410,6 +498,8 @@ func _gs() -> Node:
 
 
 func _change_to(scene_id: String, startup_publish: bool = false) -> Dictionary:
+	if is_restore_publication_held() and not _restore_publication_publishing:
+		return _startup_failure("restore_publication_held")
 	if _return_title_publishing: return _startup_failure("return_title_publication_busy")
 	if _startup_publishing and not startup_publish: return _startup_failure("startup_route_publication_busy")
 	if not _SCENE_PATHS.has(scene_id):
@@ -423,6 +513,8 @@ func _change_to(scene_id: String, startup_publish: bool = false) -> Dictionary:
 	if _startup_hold_active and not startup_publish:
 		if not ResourceLoader.load(path) is PackedScene: return _startup_failure("scene_missing")
 		return _hold_startup_request({"kind": "scene", "route_id": scene_id})
+	if scene_id == "ending":
+		return _change_to_ending(path)
 	var changed := tree.change_scene_to_file(path)
 	if changed != OK:
 		return {"ok": false, "code": &"scene_change_failed", "message": str(changed)}
@@ -448,8 +540,30 @@ func goto_main() -> void:
 
 
 func goto_ending() -> void:
-	# Reads GameState.route_context["ending_id"]; EndingScene falls back to "alone" if empty/unknown.
-	_change_to("ending")
+	var result := _change_to("ending")
+	if not result.get("ok", false):
+		push_warning("SceneRouter: ending route refused: %s" % str(result))
+
+
+func _change_to_ending(path: String) -> Dictionary:
+	if not is_ending_ports_configured():
+		return {"ok": false, "code": &"ending_ports_not_configured"}
+	var packed: PackedScene = load(path) as PackedScene
+	if packed == null: return {"ok": false, "code": &"scene_missing"}
+	var scene: Node = packed.instantiate()
+	var configured: Dictionary = scene.configure_ending_ports(_ending_state_port, _ending_playback_port)
+	if configured.get("ok", false): configured = scene.configure_ending_navigation(self)
+	if not configured.get("ok", false):
+		scene.free()
+		return configured
+	var tree := get_tree()
+	var previous: Node = tree.current_scene
+	_route_custody_revision += 1
+	_current_scene_id = "ending"
+	tree.root.add_child(scene)
+	tree.current_scene = scene
+	if is_instance_valid(previous): previous.queue_free()
+	return {"ok": true, "code": &"ok"}
 
 
 func goto_hospital() -> void:
@@ -563,7 +677,11 @@ func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
 	_pending_restore_scene_id = route_id
 	var gs := _gs()
 	if gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY:
-		gs.route_context = (plan["route_context"] as Dictionary).duplicate(true)
+		# The run participant already restored gameplay-owned challenge/ending context.
+		# This participant adds safe routing metadata; replacing the map discards that state.
+		var combined: Dictionary = gs.route_context.duplicate(true)
+		combined.merge((plan["route_context"] as Dictionary).duplicate(true), true)
+		gs.route_context = combined
 	return {"ok": true, "code": &"ok", "value": {"route_ready_token": token}}
 
 
@@ -589,6 +707,10 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 
 
 func finalize_restore() -> Dictionary:
+	if is_restore_publication_held():
+		if _pending_restore_scene_id.is_empty(): return _startup_failure("restore_route_unavailable")
+		_restore_publication_scene_id = _pending_restore_scene_id
+		return {"ok": true, "value": {"deferred": true}}
 	if _return_title_publishing: return _startup_failure("return_title_publication_busy")
 	if _pending_restore_scene_id != "":
 		var changed := _change_to(_pending_restore_scene_id)

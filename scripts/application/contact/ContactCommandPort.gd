@@ -96,3 +96,80 @@ func _issue_and_delegate(method: StringName, friend_id: String, before_commit: C
 
 static func _fail(code: StringName, message: String, details: Dictionary = {}) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details.duplicate(true)}
+
+
+# Only one selected reply may wait for its actual transcript draw/save acknowledgment.
+# This cache is local presentation custody, not another saved Contacts owner.
+var _ordinary_pending: Dictionary = {}
+var _ordinary_completed: Dictionary = {}
+
+func prepare_ordinary_reply(friend_id: String, reply_id: String, locale: String = "en") -> Dictionary:
+	if _game_state == null or not _game_state.has_method("preview_ordinary_reply") \
+			or not _game_state.has_method("commit_ordinary_reply"):
+		return _fail(&"ordinary_reply_unconfigured", "")
+	_discard_stale_ordinary_pending()
+	if not _ordinary_pending.is_empty():
+		var command: Dictionary = _ordinary_pending.command
+		if command.friend_id == friend_id and command.reply_id == reply_id and command.locale == locale:
+			return {"ok": true, "value": _ordinary_pending.duplicate(true)}
+		return _fail(&"ordinary_reply_still_pending", "")
+	var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+	if not issued.get("ok", false): return issued
+	var value: Variant = issued.get("value")
+	if not value is Dictionary or not value.get("issuer_receipt") is Dictionary \
+			or not value.get("token") is String or issued.get("receipt") != value.issuer_receipt:
+		return _fail(&"ordinary_command_issue_malformed", "")
+	var verified: Dictionary = _identity_issuer.verify_issued(value.issuer_receipt, &"transaction_id")
+	if not verified.get("ok", false): return verified
+	var preview: Dictionary = _game_state.preview_ordinary_reply(friend_id, reply_id, locale,
+		value.token, value.issuer_receipt.duplicate(true))
+	if not preview.get("ok", false): return preview
+	var material: Variant = preview.get("value")
+	if not material is Dictionary or not material.get("command") is Dictionary \
+			or material.command.get("command_id") != value.token \
+			or material.command.get("command_issuer_receipt") != value.issuer_receipt \
+			or material.command.get("friend_id") != friend_id or material.command.get("reply_id") != reply_id \
+			or material.command.get("locale") != locale or not material.command.get("rendered_line") is Dictionary:
+		return _fail(&"ordinary_preview_malformed", "")
+	_ordinary_pending = material.duplicate(true)
+	_ordinary_completed = {}
+	return preview.duplicate(true)
+
+func acknowledge_ordinary_reply(command: Dictionary, rendered_line: Dictionary) -> Dictionary:
+	if _game_state == null: return _fail(&"ordinary_reply_unconfigured", "")
+	_discard_stale_ordinary_pending()
+	if not _ordinary_completed.is_empty() and _ordinary_completed.command == command \
+			and rendered_line == command.get("rendered_line"):
+		var admitted: Dictionary = _game_state.validate_live_session(command.live_session)
+		return _ordinary_completed.result.duplicate(true) if admitted.get("ok", false) else admitted
+	if _ordinary_pending.is_empty() or command != _ordinary_pending.command \
+			or rendered_line != command.get("rendered_line"):
+		return _fail(&"ordinary_render_identity_mismatch", "")
+	var committed: Dictionary = _game_state.commit_ordinary_reply(command.duplicate(true), rendered_line.duplicate(true))
+	if committed.get("ok", false):
+		_ordinary_completed = {"command": command.duplicate(true), "result": committed.duplicate(true)}
+		_ordinary_pending = {}
+	return committed
+
+func get_pending_ordinary_reply() -> Dictionary:
+	_discard_stale_ordinary_pending()
+	return {"ok": true, "value": _ordinary_pending.duplicate(true)}
+
+## Leaving a thread abandons only its exact unsaved preview. An old view cannot cancel a replacement.
+func cancel_pending_ordinary_reply(command: Dictionary) -> Dictionary:
+	if command.is_empty() or not command.get("command_id") is String:
+		return _fail(&"ordinary_render_identity_mismatch", "")
+	if _ordinary_pending.is_empty():
+		return {"ok": true, "value": {"cancelled": false}}
+	if command != _ordinary_pending.command:
+		return _fail(&"ordinary_render_identity_mismatch", "")
+	_ordinary_pending = {}
+	return {"ok": true, "value": {"cancelled": true}}
+
+func _discard_stale_ordinary_pending() -> void:
+	if _ordinary_pending.is_empty() or _game_state == null: return
+	var command: Dictionary = _ordinary_pending.command
+	var admitted: Dictionary = _game_state.validate_live_session(command.live_session)
+	if not admitted.get("ok", false) or int(_game_state.day) != int(command.source_day):
+		_ordinary_pending = {}
+		_ordinary_completed = {}

@@ -87,6 +87,16 @@ class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 		return targets.get(String(target_name), null)
 
 
+class CompletionFailureCheckpoint extends SAVE_CHECKPOINT_PORT:
+	var fail_completion_once := false
+	func commit(candidate: Dictionary) -> Dictionary:
+		if fail_completion_once and candidate.get("autosave_document") is Dictionary \
+				and candidate.autosave_document.current_snapshot.get("checkpoint_kind") == "post_result":
+			fail_completion_once = false
+			return {"ok": false, "code": &"injected_completion_write_failure"}
+		return super.commit(candidate)
+
+
 class UnavailableWindowOutput extends RefCounted:
 	func capture_output() -> Dictionary:
 		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
@@ -130,7 +140,7 @@ func before_each() -> void:
 ## drives both stages in the exact production order. Kept as a separate builder (never folded into
 ## `before_each()`) so the Plan-01 Task-8 tests above stay exercising the narrower foundation they
 ## were written against.
-func _build_desktop_graph() -> Dictionary:
+func _build_desktop_graph(saved_root: String = "") -> Dictionary:
 	_build_foundation()
 	var profile: Node = load("res://autoload/ProfileManager.gd").new()
 	add_child_autofree(profile)
@@ -146,7 +156,7 @@ func _build_desktop_graph() -> Dictionary:
 	assert_true(window.initialize(profile, audio.get_settings_output_transactions()).get("ok", false))
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	add_child_autofree(save_manager)
-	var storage: RefCounted = JSON_STORAGE.new(_isolated_root())
+	var storage: RefCounted = JSON_STORAGE.new(_isolated_root() if saved_root.is_empty() else saved_root)
 	assert_true(save_manager.call(&"initialize", storage).get("ok", false))
 	# Mirrors the initialize_saves stage's own new Task-9 wiring (never exercised here since this
 	# helper builds SaveManager directly rather than driving _run_stage(&"initialize_saves", ...)).
@@ -168,7 +178,8 @@ func _build_desktop_graph() -> Dictionary:
 
 	var gate: RefCounted = APPLICATION_MUTATION_GATE.new()
 	_bootstrap.set("_application_gate", gate)
-	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
+	assert_true(save_manager.configure_mutation_gate(gate).get("ok", false))
+	var checkpoint_port: RefCounted = CompletionFailureCheckpoint.new(save_manager)
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false))
 	_bootstrap.set("_retained_checkpoint_port", checkpoint_port)
 
@@ -536,6 +547,10 @@ class GameplayDesktop extends Node:
 	var panel: Object
 	var schedule: Object
 	var done: Callable
+	var shop: Object
+	func configure_shop(port: Object, _locale: Object, _profile: Object, _host: Object, _day: int) -> Dictionary:
+		shop = port
+		return {"ok": true}
 	func configure_minesweeper(port: Object, _locale: Object, _profile: Object,
 			_host: Object, _day: int, _input: Object) -> Dictionary:
 		panel = port
@@ -553,17 +568,133 @@ class GameplayDesktop extends Node:
 
 func test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge() -> void:
 	var graph := _build_desktop_graph()
+	var mounted := _activate_gameplay_fixture(graph)
+	if mounted.is_empty(): return
+	var desktop: GameplayDesktop = mounted.desktop
+	var gate: Object = graph.gate
+	var money_before: int = _game_state.money
+	var motivation_before: int = _game_state.get_stat("motivation")
+	var purchased: Dictionary = desktop.shop.purchase("coffee", 1)
+	assert_true(purchased.get("ok", false), str(purchased))
+	assert_eq(_game_state.money, money_before - 20)
+	assert_eq(_game_state.get_stat("motivation"), mini(motivation_before + 1, _game_state.get_stat_max("motivation")))
+	var projected: Dictionary = desktop.panel.pull()
+	assert_true(projected.get("ok", false), str(projected))
+	if not projected.get("ok", false): return
+	var before_rounds: int = _game_state.minesweeper_rounds_left
+	var before_motivation: int = _game_state.get_stat("motivation")
+	var revealed: Dictionary = desktop.panel.dispatch("reveal", 0, int(projected.value.board.revision))
+	assert_true(revealed.get("ok", false), str(revealed))
+	assert_eq(_game_state.minesweeper_rounds_left, before_rounds - 1)
+	assert_eq(_game_state.get_stat("motivation"), before_motivation - 1)
+	assert_true(graph.save_manager.save_exists(&"autosave"))
+	assert_eq(_game_state.capture_run_snapshot_input().desktop.board,
+		_bootstrap.get("_desktop_board_state").capture(), "snapshots must read live board state after the first action")
+	assert_true(desktop.shop.get_catalog("en").get("ok", false))
+	assert_eq(desktop.shop.get("_purchase_participant"), _bootstrap.get("_retained_minesweeper_shop_purchase_participant"))
+	# The test may inspect hidden state to choose an actual mine; the player command still
+	# goes through the same public Reveal action and the real reducer decides the result.
+	var board: Dictionary = _bootstrap.get("_desktop_board_state").capture().board.board
+	var paid_receipt: Dictionary = _bootstrap.get("_desktop_board_state").capture().board.paid_start_receipt
+	assert_eq(paid_receipt.get("difficulty_id"), "beginner", "the durable board retains its reward difficulty")
+	assert_false(str(paid_receipt.get("receipt_id", "")).is_empty(), "completion uses the real paid-start identity")
+	watch_signals(_game_state)
+	var money_before_result: int = _game_state.money
+	var pressure_before_result: int = _game_state.get_stat("pressure")
+	var expected_reward: Dictionary = _game_state.calculate_minesweeper_money_reward({"difficulty": "beginner", "outcome": "exploded"})
+	var finished_before: int = _game_state.minesweeper_app_rounds_finished_today
+	graph.checkpoint_port.fail_completion_once = true
+	var terminal: Dictionary = desktop.panel.dispatch("reveal", int(board.mine_indices[0]), int(revealed.value.board.revision))
+	assert_false(terminal.get("ok", true), "the injected full-save failure retains terminal custody")
+	assert_signal_emit_count(_game_state, "contact_message_unlocked", 0, "notification waits for durable result")
+	assert_eq(_bootstrap.get("_desktop_board_state").capture().phase, "NONE", "source completion already committed")
+	assert_true(gate.is_internal_owner_active(&"causal_transaction"))
+	terminal = desktop.panel.pull()
+	assert_false(gate.is_internal_owner_active(&"causal_transaction"), "the public panel retries and releases custody")
+
+	assert_true(terminal.get("ok", false), str(terminal.get("code")))
+	if not terminal.get("ok", false): return
+	assert_true(terminal.value.board.terminal)
+	assert_true(terminal.value.settled)
+	assert_eq(_game_state.minesweeper_app_rounds_finished_today, finished_before + 1)
+	assert_eq(_game_state.money, money_before_result + int(expected_reward.money))
+	assert_eq(_game_state.get_stat("pressure"), clampi(pressure_before_result + int(expected_reward.pressure),
+		_game_state.get_stat_min("pressure"), _game_state.get_stat_max("pressure")))
+	var unlocked_friend: String = _game_state.get_daily_message_friend_for_finished_round(finished_before + 1, _game_state.day)
+	assert_true(_game_state.is_contact_message_unlocked(unlocked_friend))
+	var disk: Dictionary = graph.checkpoint_port.call(&"_read_completed_snapshot")
+	assert_true(disk.get("ok", false), str(disk))
+	if disk.get("ok", false):
+		assert_eq(disk.value.snapshot.gameplay.money, _game_state.money)
+		assert_eq(disk.value.snapshot.gameplay.minesweeper_app_rounds_finished_today, finished_before + 1)
+		assert_eq(disk.value.snapshot.contacts, _game_state.contacts)
+		assert_eq(disk.value.snapshot.desktop.board.phase, "NONE")
+		assert_null(disk.value.snapshot.desktop.consequence.pending)
+		assert_eq(disk.value.snapshot.desktop.consequence.outbox.notification.status, "published")
+	assert_signal_emit_count(_game_state, "contact_message_unlocked", 1)
+
+	assert_eq(_bootstrap.get("_desktop_board_state").capture().phase, "NONE")
+	var paid_rounds: int = _game_state.minesweeper_rounds_left
+	var fresh: Dictionary = desktop.panel.dispatch("new_board", -1, terminal.value.board.revision)
+	assert_true(fresh.get("ok", false), str(fresh.get("code")))
+	assert_eq(_game_state.minesweeper_rounds_left, paid_rounds, "New Board releases presentation without another charge")
+	# Complete the next real generated board without any flags. Test-only hidden-state
+	# inspection chooses safe cells; every action still passes through the player's port.
+	var winning: Dictionary = desktop.panel.dispatch("reveal", 0, int(fresh.value.board.revision))
+	assert_true(winning.get("ok", false), str(winning.get("code")))
+	if not winning.get("ok", false): return
+	var winning_board: Dictionary = _bootstrap.get("_desktop_board_state").capture().board.board
+	var money_before_win: int = _game_state.money
+	var win_reward: Dictionary = _game_state.calculate_minesweeper_money_reward({"difficulty": "beginner", "outcome": "no_flag"})
+	for index in range(int(winning_board.width) * int(winning_board.height)):
+		if bool(winning.value.get("settled", false)): break
+		var live: Dictionary = _bootstrap.get("_desktop_board_state").capture().board.board
+		if live.mine_indices.has(index) or live.revealed_indices.has(index): continue
+		winning = desktop.panel.dispatch("reveal", index, int(winning.value.board.revision))
+		assert_true(winning.get("ok", false), str(winning.get("code")))
+		if not winning.get("ok", false): return
+	assert_true(winning.value.settled)
+	assert_signal_emit_count(_game_state, "contact_message_unlocked", 2)
+	assert_eq(_game_state.money, money_before_win + int(win_reward.money))
+	assert_eq(_game_state.minesweeper_app_rounds_finished_today, finished_before + 2)
+	assert_true(_game_state.minesweeper_task_rewards_claimed.has("complete_beginner"))
+	assert_true(_game_state.minesweeper_task_rewards_claimed.has("no_flag_finish"))
+	var settled_owner: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
+	var admissions: Dictionary = settled_owner.get("_round_pending_admission_requests")
+	var last_id: String = admissions.keys().back()
+	var admission: Dictionary = admissions[last_id]
+	var repeated: Dictionary = settled_owner.complete_round({"transaction_id": last_id,
+		"transaction_issuer_receipt": admission.action_receipt.transaction_issuer_receipt,
+		"expected_identity": admission.expected_board_identity, "expected_revision": admission.expected_board_revision})
+	assert_true(repeated.get("ok", false), str(repeated.get("code")))
+	assert_eq(_game_state.money, money_before_win + int(win_reward.money), "replayed completion never pays twice")
+	assert_eq(_game_state.minesweeper_app_rounds_finished_today, finished_before + 2)
+	var won_disk: Dictionary = graph.checkpoint_port.call(&"_read_completed_snapshot")
+	assert_true(won_disk.get("ok", false), str(won_disk))
+	if won_disk.get("ok", false):
+		assert_eq(won_disk.value.snapshot.gameplay.money, _game_state.money)
+		assert_true(won_disk.value.snapshot.gameplay.minesweeper_task_rewards_claimed.has("no_flag_finish"))
+
+
+
+func _activate_gameplay_fixture(graph: Dictionary, day: int = 1) -> Dictionary:
+	_bootstrap.get("targets")["SceneRouter"].set("_current_scene_id", "main")
+	assert_true(_bootstrap.call(&"_configure_day_resolution_providers", _state_port).get("ok", false))
+	add_child(_game_state)
 	if not _bootstrap.has_method("configure_gameplay_desktop"):
 		fail_test("Bootstrap must mount the real gameplay ports")
-		return
+		return {}
 	var gate: Object = graph.gate
 	assert_true(_game_state.configure_mutation_gate(gate).ok)
 	assert_true(graph.save_manager.configure_mutation_gate(gate).ok)
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
 		"res://tests/fixtures/saves/v6_desktop_prepared.json"))
+	snapshot.lifecycle.day = day
+	snapshot.committed_schedule.day = day
+	snapshot.schedule_view.day = day
 	var validated: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(snapshot)
 	assert_true(validated.get("ok", false), str(validated))
-	if not validated.get("ok", false): return
+	if not validated.get("ok", false): return {}
 	snapshot = validated.value.candidate
 	assert_true(graph.save_manager.get("_journal").reset(snapshot.run_id).ok)
 	var acquired: Dictionary = gate.acquire(&"new_run")
@@ -586,18 +717,166 @@ func test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge() 
 	autofree(desktop)
 	var mounted: Dictionary = _bootstrap.call(&"configure_gameplay_desktop", desktop)
 	assert_true(mounted.get("ok", false), str(mounted))
-	if not mounted.get("ok", false): return
+	if not mounted.get("ok", false): return {}
 	assert_eq(desktop.schedule.get("_view_controller"), view)
 	assert_eq(desktop.done.get_argument_count(), 0)
-	var projected: Dictionary = desktop.panel.pull()
-	assert_true(projected.get("ok", false), str(projected))
-	if not projected.get("ok", false): return
-	var before_rounds: int = _game_state.minesweeper_rounds_left
-	var before_motivation: int = _game_state.get_stat("motivation")
-	var revealed: Dictionary = desktop.panel.dispatch("reveal", 0, int(projected.value.board.revision))
-	assert_true(revealed.get("ok", false), str(revealed))
-	assert_eq(_game_state.minesweeper_rounds_left, before_rounds - 1)
-	assert_eq(_game_state.get_stat("motivation"), before_motivation - 1)
-	assert_true(graph.save_manager.save_exists(&"autosave"))
-	assert_eq(_game_state.capture_run_snapshot_input().desktop.board,
-		_bootstrap.get("_desktop_board_state").capture(), "snapshots must read live board state after the first action")
+	return {"desktop": desktop, "view": view, "gate": gate}
+
+
+func test_fresh_boot_recovers_day_two_completion_from_its_exact_source_autosave() -> void:
+	_assert_fresh_day_two_recovery(false)
+
+
+func test_fresh_boot_recovers_condition_departure_from_post_action_state() -> void:
+	_assert_fresh_day_two_recovery(true)
+
+
+func _assert_fresh_day_two_recovery(departure: bool, shop_item: String = "") -> void:
+	var graph := _build_desktop_graph()
+	var mounted := _activate_gameplay_fixture(graph, 2)
+	if mounted.is_empty(): return
+	var desktop: GameplayDesktop = mounted.desktop
+	if departure:
+		_game_state.minesweeper_selected_difficulty = "intermediate"
+		_game_state.stats["pressure"] = 9
+		_game_state.condition_effects_today.assign(["sequela"])
+	if shop_item.is_empty():
+		var initial: Dictionary = desktop.panel.pull()
+		assert_true(initial.get("ok", false), str(initial))
+		if not initial.get("ok", false): return
+		var reveal: Dictionary = desktop.panel.dispatch("reveal", 0, initial.value.board.revision)
+		assert_true(reveal.get("ok", false), str(reveal))
+		if not reveal.get("ok", false): return
+		var board: Dictionary = _bootstrap.get("_desktop_board_state").capture().board.board
+		graph.checkpoint_port.fail_completion_once = true
+		var interrupted: Dictionary = desktop.panel.dispatch("reveal", int(board.mine_indices[0]), reveal.value.board.revision)
+		assert_false(interrupted.get("ok", true))
+		assert_true(graph.gate.is_active())
+	else:
+		_game_state.money = 200
+		_game_state.coins = 4
+		if departure: _game_state.stats["health"] = 1
+		graph.checkpoint_port.fail_completion_once = true
+		var interrupted: Dictionary = desktop.shop.purchase(shop_item, 1)
+		assert_false(interrupted.get("ok", true))
+		assert_true(graph.gate.is_active(), str(interrupted))
+		if not graph.gate.is_active(): return
+	var expected_money: int = _game_state.money
+	var expected_rounds: int = _game_state.minesweeper_app_rounds_finished_today
+	var expected_contacts: Dictionary = _game_state.contacts.duplicate(true)
+	var expected_inventory: Dictionary = _game_state.inventory.duplicate(true)
+	var expected_coins: int = _game_state.coins
+	var saved_root: String = graph.save_manager.get("_storage").describe_root()
+	var issuer_root: String = _storage.describe_root()
+	var old_game_id: int = _game_state.get_instance_id()
+	var old_round_id: int = _bootstrap.get("_retained_minesweeper_round_coordinator_app").get_instance_id()
+	# Fresh owners share only disk: no live source/coordinator/state objects or callback caches.
+	_storage = JSON_STORAGE.new(issuer_root)
+	var roots: RefCounted = ROOT_STORE.new()
+	assert_true(roots.configure(_storage, NAMESPACE_SOURCE.new()).get("ok", false))
+	assert_true(roots.load_or_create().get("ok", false))
+	_issuer = ISSUER.new()
+	assert_true(_issuer.configure(roots).get("ok", false))
+	_game_state = load(GAME_STATE_PATH).new()
+	add_child_autofree(_game_state)
+	_game_state.reset_game()
+	_state_port = STATE_PORT.new(_game_state)
+	_coordinator = COORDINATOR.new()
+	_bootstrap = HarnessBootstrap.new()
+	autofree(_bootstrap)
+	_bootstrap.set("_profile_storage", _storage)
+	_bootstrap.set("_desktop_issuer_root_store", roots)
+	_bootstrap.set("_desktop_identity_nonce_issuer", _issuer)
+	_bootstrap.set("_retained_day_resolution_state_port", _state_port)
+	_bootstrap.set("_retained_day_resolution_coordinator", _coordinator)
+	_bootstrap.set("targets", {"DialogicBridge": _bridge(), "SceneRouter": _router()})
+	var fresh := _build_desktop_graph(saved_root)
+	if not fresh.graph_result.get("ok", false): return
+	assert_ne(_game_state.get_instance_id(), old_game_id)
+	assert_ne(_bootstrap.get("_retained_minesweeper_round_coordinator_app").get_instance_id(), old_round_id)
+	assert_eq(_game_state.day, 2)
+	assert_eq(_game_state.money, expected_money)
+	assert_eq(_game_state.minesweeper_app_rounds_finished_today, expected_rounds)
+	assert_eq(_game_state.contacts, expected_contacts)
+	assert_eq(_game_state.inventory, expected_inventory)
+	assert_eq(_game_state.coins, expected_coins)
+	assert_eq(_bootstrap.get("_desktop_board_state").capture().phase, "NONE")
+	assert_false(_game_state.capture_live_session().value.active, "recovery does not enter play or mint a new session")
+	assert_false(fresh.gate.is_active())
+	var saved: Dictionary = fresh.checkpoint_port.call(&"_read_completed_snapshot")
+	assert_true(saved.get("ok", false), str(saved))
+	if saved.get("ok", false):
+		assert_eq(saved.value.snapshot.gameplay.money, expected_money)
+		assert_eq(saved.value.snapshot.lifecycle.day, 2)
+		assert_eq(saved.value.snapshot.desktop.board.phase, "NONE")
+		assert_null(saved.value.snapshot.desktop.consequence.pending)
+		if departure:
+			assert_true(saved.value.snapshot.desktop.consequence.outbox.has("hospital"), str(saved.value.snapshot.desktop.consequence.outbox))
+			if not saved.value.snapshot.desktop.consequence.outbox.has("hospital"): return
+			assert_eq(saved.value.snapshot.desktop.consequence.outbox.hospital.consumer, "condition_hospital")
+			assert_eq(saved.value.snapshot.desktop.consequence.outbox.hospital.status, "pending")
+			assert_false(saved.value.snapshot.desktop.consequence.outbox.has("notification"))
+
+
+func test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge() -> void:
+	var graph := _build_desktop_graph()
+	var mounted := _activate_gameplay_fixture(graph, 2)
+	if mounted.is_empty(): return
+	var shop: Object = mounted.desktop.shop
+	_game_state.money = 200
+	_game_state.stats["health"] = 1
+	_game_state.condition_effects_today.assign(["sequela"])
+	_game_state.stats["pressure"] = 5
+	graph.checkpoint_port.fail_completion_once = true
+	var bought: Dictionary = shop.purchase("wine", 1)
+	assert_false(bought.get("ok", true), "result-save failure retains the purchase")
+	assert_eq(_game_state.money, 145)
+	assert_eq(_game_state.get_stat("health"), 0)
+	assert_true(graph.gate.is_active())
+	assert_false(shop.purchase("coffee", 1).get("ok", true), "another item cannot replace the pending purchase")
+	var retried: Dictionary = shop.purchase("wine", 1)
+	assert_true(retried.get("ok", false), str(retried))
+	if not retried.get("ok", false): return
+	assert_eq(_game_state.money, 145, "retry does not spend again")
+	assert_false(graph.gate.is_active())
+	var saved: Dictionary = graph.checkpoint_port.call(&"_read_completed_snapshot")
+	assert_true(saved.get("ok", false), str(saved))
+	if not saved.get("ok", false): return
+	assert_eq(saved.value.snapshot.gameplay.money, 145)
+	assert_null(saved.value.snapshot.desktop.consequence.pending)
+	assert_true(saved.value.snapshot.desktop.consequence.outbox.has("hospital"), "post-purchase health triggers Hospital")
+
+
+func test_fresh_boot_recovers_ordinary_shop_purchase_from_exact_source_autosave() -> void:
+	_assert_fresh_day_two_recovery(true, "wine")
+
+
+func test_fresh_boot_recovers_special_shop_purchase_from_exact_source_autosave() -> void:
+	_assert_fresh_day_two_recovery(false, "lucky_charm")
+
+
+func test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory() -> void:
+	var graph := _build_desktop_graph()
+	var mounted := _activate_gameplay_fixture(graph, 2)
+	if mounted.is_empty(): return
+	_game_state.money = 200
+	_game_state.coins = 4
+	_game_state.stats["motivation"] = 4
+	var shop: Object = mounted.desktop.shop
+	var batch: Dictionary = shop.purchase("coffee", 3)
+	assert_true(batch.get("ok", false), str(batch))
+	if not batch.get("ok", false): return
+	assert_eq(_game_state.money, 140)
+	assert_eq(_game_state.get_stat("motivation"), 7)
+	var gift: Dictionary = shop.purchase("bookend_keepsake", 1)
+	assert_true(gift.get("ok", false), str(gift))
+	if not gift.get("ok", false): return
+	assert_eq(_game_state.coins, 1)
+	assert_eq(int(_game_state.inventory.get("priscilla_gift", 0)), 1)
+	assert_false(shop.purchase("bookend_keepsake", 1).get("ok", true))
+	var saved: Dictionary = graph.checkpoint_port.call(&"_read_completed_snapshot")
+	assert_true(saved.get("ok", false), str(saved))
+	if not saved.get("ok", false): return
+	assert_eq(saved.value.snapshot.gameplay.money, 140)
+	assert_eq(saved.value.snapshot.gameplay.coins, 1)
+	assert_eq(int(saved.value.snapshot.gameplay.inventory.get("priscilla_gift", 0)), 1)

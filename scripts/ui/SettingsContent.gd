@@ -20,7 +20,7 @@ const CATEGORY_FIELDS: Dictionary = {
 	"display": ["display.window_mode"],
 	"controls": [],
 	"accessibility": ["accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
-	"records": ["exceptional_replay.available", "exceptional_replay.replay_full"],
+	"records": ["exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled"],
 }
 const RESET_METHODS: Dictionary = {
 	"controls": "reset_controls",
@@ -436,7 +436,17 @@ func refresh_binding_labels() -> void:
 		_controls_sheet.refresh()
 
 
+func _refresh_discovered_dark_mode() -> void:
+	var path := &"preferences.dark_mode.next_run_enabled"
+	if not rows.has(path): return
+	var profile: Object = _services.get("profile")
+	var available: Variant = profile.get_preference(&"preferences.dark_mode.available", false) if profile != null else false
+	var discovered: bool = typeof(available) == TYPE_BOOL and available
+	rows[path].visible = discovered
+	controls[path].disabled = controls[path].disabled or not discovered
+
 func apply_text_size(percent: int, large_targets: bool) -> void:
+	_refresh_discovered_dark_mode()
 	var locale := current_locale().replace("_", "-")
 	var palette_id := get_palette_id()
 	var presentation_profile: Variant = _services.get("profile")

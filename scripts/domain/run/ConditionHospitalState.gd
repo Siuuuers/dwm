@@ -61,6 +61,7 @@ const _STAGE_CANDIDATE_RECEIPT_KEYS: Array[String] = [
 const _RETIREMENT_REQUEST_KEYS: Array[String] = ["autosave_stage_receipt", "completed_plan"]
 
 const _ACCEPTANCE_KIND := "condition_hospital_resolution"
+const _RESOLUTION_CHILD_KIND := "hospital_resolution"
 const _STAGE_CHILD_KIND := "condition_hospital_stage"
 const _RETIREMENT_CHILD_KIND := "condition_hospital_retirement"
 const _RETIREMENT_DISPOSITION := "condition_hospital_plan_retired"
@@ -112,9 +113,9 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 		return _fail(&"invalid_day",
 			"day 7 has no next day for a condition-Hospital resolution to advance into", {})
 	var live := _live()
-	if live["active_resolution_plan"] != null:
+	if live["active_resolution_plan"] != null and not _completed_prior_resolution(live["active_resolution_plan"]):
 		return _fail(&"resolution_conflict",
-			"a Plan-01 day resolution is already active on this run", {})
+			"a Plan-01 day resolution is still incomplete on this run", {})
 	var shape := _accept_request_error(request)
 	if not shape.is_empty():
 		return shape
@@ -137,7 +138,7 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 	if payload_sha256.is_empty():
 		return _fail(&"noncanonical_payload", "the destination payload does not canonicalize", {})
 	var derived: Dictionary = _identity_port.call(&"derive_child", {
-		"child_kind": _ACCEPTANCE_KIND,
+		"child_kind": _RESOLUTION_CHILD_KIND,
 		"parent_receipt_id": str(issuer.get("receipt_id", "")),
 		"ordinal": 0,
 		"source_ids": source_receipt_ids.duplicate(true),
@@ -167,6 +168,9 @@ func prepare_accept(request: Dictionary) -> Dictionary:
 		return _fail(&"invalid_plan",
 			"the accepted plan is not a valid condition-Hospital plan: " + _reason(validated), {})
 	var lifecycle_candidate: Dictionary = live.duplicate(true)
+	# A completed prior Done plan is retained until another resolution succeeds it.
+	# Drop only that retired projection in this detached acceptance candidate.
+	lifecycle_candidate["active_resolution_plan"] = null
 	lifecycle_candidate["active_condition_hospital_plan"] = plan
 	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", lifecycle_candidate)
 	if not restorable.get("ok", false):
@@ -299,11 +303,16 @@ func prepare_stage_identity(request: Dictionary) -> Dictionary:
 			"before_fingerprint": _fingerprint(live),
 			"stage_identity": replay.duplicate(true),
 		}, {})
+	var plan: Dictionary = located["plan"]
+	var sources := inputs.duplicate(true)
+	if not sources.has(str(located["receipt_id"])):
+		sources.append(str(located["receipt_id"]))
+	sources.sort()
 	var derived: Dictionary = _identity_port.call(&"derive_child", {
 		"child_kind": _STAGE_CHILD_KIND,
-		"parent_receipt_id": str(located["receipt_id"]),
+		"parent_receipt_id": str(plan["transaction_issuer_receipt"]["receipt_id"]),
 		"ordinal": index,
-		"source_ids": inputs.duplicate(true),
+		"source_ids": sources,
 	})
 	if not derived.get("ok", false):
 		return _fail(&"identity_derivation_failed",
@@ -435,6 +444,21 @@ func complete_stage(request: Dictionary) -> Dictionary:
 	candidate_record["receipt"] = stage_receipt.duplicate(true)
 	var candidate_plan: Dictionary = lifecycle_candidate["active_condition_hospital_plan"]
 	candidate_plan["cursor"] = index + 1
+	if stage_id == "advance_day":
+		var advance: Dictionary = record["prepared"]
+		var target: Variant = advance.get("target_causal_day_instance_issuer_receipt")
+		if typeof(advance.get("target_day")) != TYPE_INT \
+				or int(advance["target_day"]) != int(plan["source_day"]) + 1 \
+				or not target is Dictionary or target.get("purpose") != "causal_day_instance" \
+				or target.get("token") != advance.get("target_causal_day_instance") \
+				or target.get("token") == plan["causal_day_instance"]:
+			return _fail(&"advance_stage_output_invalid", "the persisted target must be the next allocated causal day", {})
+		for key: String in ["target_day", "target_causal_day_instance", "target_causal_day_instance_issuer_receipt"]:
+			if stage_receipt["output"].get(key) != advance.get(key):
+				return _fail(&"advance_stage_output_invalid", "advance output differs from the persisted allocation", {})
+		lifecycle_candidate["day"] = int(advance["target_day"])
+		lifecycle_candidate["causal_day_instance"] = str(advance["target_causal_day_instance"])
+		lifecycle_candidate["causal_day_instance_issuer_receipt"] = target.duplicate(true)
 	var restorable: Dictionary = _run_lifecycle.call(&"prepare_restore", lifecycle_candidate)
 	if not restorable.get("ok", false):
 		return _fail(&"invalid_lifecycle_candidate",
@@ -572,17 +596,75 @@ func commit_retirement(candidate: Dictionary) -> Dictionary:
 	return _ok({"committed": true}, {})
 
 
-## NOT Task 4. Ships as a typed not_implemented past this task's GREEN; no Task-4 test asserts
-## behaviour for it.
+## Attests the one persisted active cursor record without exposing either retained owner.
 func capture_active_stage() -> Dictionary:
-	return _not_implemented("capture_active_stage")
+	var guard := _unconfigured("capture_active_stage")
+	if not guard.is_empty():
+		return guard
+	var live := _live()
+	var raw: Variant = live.get("active_condition_hospital_plan")
+	if typeof(raw) != TYPE_DICTIONARY:
+		return _fail(&"no_active_plan", "no condition-Hospital plan is active on this run", {})
+	var plan: Dictionary = raw
+	var cursor: int = int(plan.get("cursor", -1))
+	if cursor < 0 or cursor >= CONDITION_HOSPITAL_PLAN.STAGE_COUNT:
+		return _fail(&"no_active_stage", "the condition-Hospital plan has no active cursor stage", {})
+	var record: Dictionary = (plan["stages"] as Array)[cursor]
+	if str(record.get("state", "")) != "active" \
+			or typeof(record.get("stage_identity")) != TYPE_DICTIONARY \
+			or typeof(record.get("prepared")) != TYPE_DICTIONARY:
+		return _fail(&"no_active_stage", "the condition-Hospital cursor stage is not active", {})
+	var prepared_sha256 := _fingerprint(record["prepared"])
+	if prepared_sha256.is_empty():
+		return _fail(&"noncanonical_prepared", "the active prepared value does not canonicalize", {})
+	return _ok({"active_stage_attestation": {
+		"resolution_receipt_id": str((plan["resolution_receipt"] as Dictionary)["receipt_id"]),
+		"stage_id": str(record["stage_id"]),
+		"stage_identity": (record["stage_identity"] as Dictionary).duplicate(true),
+		"prepared_sha256": prepared_sha256,
+	}}, {})
 
 
-## NOT Task 4. Ships as a typed not_implemented past this task's GREEN; no Task-4 test asserts
-## behaviour for it.
-@warning_ignore("unused_parameter")
+## Projects the day-start Autosave receipt exclusively from the completed advance-day stage.
 func prepare_autosave_stage_output(request: Dictionary) -> Dictionary:
-	return _not_implemented("prepare_autosave_stage_output")
+	var guard := _unconfigured("prepare_autosave_stage_output")
+	if not guard.is_empty():
+		return guard
+	if _sorted_keys(request) != ["checkpoint_id", "resolution_receipt_id", "stage_identity"]:
+		return _fail(&"invalid_request", "an autosave output request carries exactly checkpoint_id, resolution_receipt_id, and stage_identity", {})
+	if typeof(request["checkpoint_id"]) != TYPE_STRING \
+			or str(request["checkpoint_id"]).strip_edges().is_empty() \
+			or typeof(request["stage_identity"]) != TYPE_DICTIONARY:
+		return _fail(&"invalid_request", "checkpoint_id and stage_identity are required", {})
+	var live := _live()
+	var located := _locate_stage(live, {
+		"resolution_receipt_id": request["resolution_receipt_id"],
+		"stage_id": "autosave_new_day",
+	})
+	if located.has("error"):
+		return located["error"] as Dictionary
+	var plan: Dictionary = located["plan"]
+	var record: Dictionary = (plan["stages"] as Array)[int(located["index"])]
+	if str(record.get("state", "")) != "active" \
+			or record.get("stage_identity") != request["stage_identity"]:
+		return _fail(&"stage_conflict", "autosave output requires the exact active autosave stage", {})
+	var advance: Dictionary = (plan["stages"] as Array)[CONDITION_HOSPITAL_PLAN.ADVANCE_DAY_STAGE_INDEX]
+	if str(advance.get("state", "")) != "completed" \
+			or typeof(advance.get("receipt")) != TYPE_DICTIONARY:
+		return _fail(&"advance_stage_incomplete", "autosave output requires completed advance_day", {})
+	var output: Variant = (advance["receipt"] as Dictionary).get("output")
+	if typeof(output) != TYPE_DICTIONARY:
+		return _fail(&"advance_stage_output_invalid", "advance_day output is a Dictionary", {})
+	var target_day: Variant = (output as Dictionary).get("target_day")
+	var target_causal: Variant = (output as Dictionary).get("target_causal_day_instance")
+	if typeof(target_day) != TYPE_INT or int(target_day) != int(plan["source_day"]) + 1 \
+			or typeof(target_causal) != TYPE_STRING or str(target_causal).strip_edges().is_empty():
+		return _fail(&"advance_stage_output_invalid", "advance_day output carries the next day and causal identity", {})
+	return _ok({"stage_output": {
+		"checkpoint_id": str(request["checkpoint_id"]),
+		"day": int(target_day),
+		"target_causal_day_instance": str(target_causal),
+	}}, {})
 
 
 # ---- acceptance helpers ----
@@ -832,11 +914,13 @@ func _mint_retirement_receipt(plan: Dictionary, receipt_id: String,
 		var advance_prepared: Dictionary = advance["prepared"]
 		target_causal_day_instance = str(
 			advance_prepared.get("target_causal_day_instance", ""))
+	var sources: Array = [receipt_id, autosave_receipt_id]
+	sources.sort()
 	var derived: Dictionary = _identity_port.call(&"derive_child", {
 		"child_kind": _RETIREMENT_CHILD_KIND,
-		"parent_receipt_id": receipt_id,
+		"parent_receipt_id": str(plan["transaction_issuer_receipt"]["receipt_id"]),
 		"ordinal": CONDITION_HOSPITAL_PLAN.STAGE_COUNT,
-		"source_ids": [autosave_receipt_id],
+		"source_ids": sources,
 	})
 	if not derived.get("ok", false):
 		return {"error": _fail(&"identity_derivation_failed",
@@ -1014,3 +1098,12 @@ func _not_implemented(method: String) -> Dictionary:
 
 func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+static func _completed_prior_resolution(plan: Variant) -> bool:
+	if not plan is Dictionary or not plan.get("stages") is Array or plan.stages.is_empty(): return false
+	for stage: Variant in plan.stages:
+		if not stage is Dictionary or stage.get("state") != "completed": return false
+		for substage: Variant in stage.get("substages", []):
+			if not substage is Dictionary or substage.get("state") != "completed": return false
+	return true

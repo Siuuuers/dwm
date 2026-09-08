@@ -20,16 +20,11 @@ extends RefCounted
 ## root, which the `command_id`-keyed idempotency cannot dedupe. It is the same window the
 ## resolution root already carries, and Plan-03 Tasks 1-5 own closing it.
 ##
-## CONDITION TRUTH IS NEVER FABRICATED. `resolve_condition_receipt` returns only the day's latest
-## policy-produced condition receipt retained by the one shared `DesktopConsequenceCoordinator`
-## after a fully committed action transaction; when no action committed one, it fails closed as
-## `condition_receipt_unavailable` and the Hospital site stays honestly unreachable -- exactly the
-## DEVIATION-5 fail-closed law, now scoped to the one record that genuinely has no producer yet.
-##
-## `identity_context` is the bootstrap-retained issuer-backed run/branch context -- the same
-## recorded placeholder posture the desktop board and shop ports already run under (dwm-p2r.32.8's
-## honest-gap note); a resolved per-run identity arrives with the full New-Run allocation work.
+## Schedule Done consumes the condition outcome already committed by its current run. Its child
+## receipt derives under the persisted day-resolution root, so a new process reconstructs the same
+## ancestry without depending on earlier board/Shop actions or applying condition penalties again.
 
+const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _COORDINATOR_METHODS: Array[String] = ["committed_condition_receipt"]
 const _BOARD_FATE_METHODS: Array[String] = [
 	"prepare_causal_departure", "commit", "publish", "capture",
@@ -44,6 +39,7 @@ var _consequence_coordinator: Object = null
 var _board_fate_port: Object = null
 var _identity_issuer: Object = null
 var _identity_context: Variant = {}
+var _current_condition_owner: Object = null
 ## causal_day_instance -> the settled board-fate receipt, so one causal day departs exactly once.
 var _board_fates: Dictionary = {}
 
@@ -76,6 +72,16 @@ func configure(consequence_coordinator: Object, board_fate_port: Object,
 	_identity_context = identity_context.duplicate(true) if identity_context is Dictionary else identity_context
 	return {"ok": true, "code": &"ok",
 		"value": {"configured": true, "already_configured": false}, "receipt": {}}
+
+
+func configure_current_condition_owner(game_state: Object) -> Dictionary:
+	if game_state == null or not _has_methods(game_state, ["capture_run_snapshot_input", "should_route_hospital"]) \
+			or _identity_issuer == null or not _has_methods(_identity_issuer, ["derive_child", "validate_child", "verify_issued"]):
+		return {"ok": false, "code": &"invalid_current_condition_owner"}
+	if _current_condition_owner != null and _current_condition_owner != game_state:
+		return {"ok": false, "code": &"current_condition_owner_conflict"}
+	_current_condition_owner = game_state
+	return {"ok": true, "code": &"ok"}
 
 
 func resolve_board_fate_receipt(request: Dictionary) -> Dictionary:
@@ -152,17 +158,75 @@ func resolve_condition_receipt(request: Dictionary) -> Dictionary:
 	var shaped := _validate_request(request)
 	if not shaped.get("ok", false):
 		return shaped
-	var causal_day_instance := str(request["causal_day_instance"])
-	var retained: Variant = _consequence_coordinator.call(
-		&"committed_condition_receipt", causal_day_instance)
-	if typeof(retained) != TYPE_DICTIONARY or (retained as Dictionary).is_empty() \
-			or int((retained as Dictionary).get("day", -1)) != int(request["source_day"]):
-		return {"ok": false, "code": &"condition_receipt_unavailable",
-			"message": "no committed action has produced this day's condition receipt",
-			"details": {}}
-	return {"ok": true, "code": &"ok", "value": {
-		"condition_receipt": (retained as Dictionary).duplicate(true),
-	}, "receipt": {}}
+	if _current_condition_owner == null:
+		return _condition_unavailable("the current run condition owner is not configured")
+	var snapshot: Dictionary = _current_condition_owner.call(&"capture_run_snapshot_input")
+	var lifecycle: Dictionary = snapshot.get("lifecycle", {})
+	var gameplay: Dictionary = snapshot.get("gameplay", {})
+	var day := int(request["source_day"])
+	var causal_day := str(request["causal_day_instance"])
+	if int(lifecycle.get("day", -1)) != day or str(lifecycle.get("causal_day_instance", "")) != causal_day:
+		return _condition_unavailable("the request names another live day or continuation")
+	var plan: Dictionary = lifecycle.get("active_resolution_plan", {}) \
+		if lifecycle.get("active_resolution_plan") is Dictionary else {}
+	var root: Dictionary = plan.get("resolution_issuer_receipt", {}) \
+		if plan.get("resolution_issuer_receipt") is Dictionary else {}
+	var start: Dictionary = plan.get("day_resolution_start_receipt", {}) \
+		if plan.get("day_resolution_start_receipt") is Dictionary else {}
+	if int(plan.get("source_day", -1)) != day or str(start.get("causal_day_instance", "")) != causal_day \
+			or str(plan.get("resolution_id", "")).is_empty() \
+			or str(root.get("token", "")) != str(plan.get("resolution_id", "")) \
+			or str(start.get("resolution_id", "")) != str(plan.get("resolution_id", "")):
+		return _condition_unavailable("the current day has no matching persisted resolution root")
+	var root_valid: Dictionary = _identity_issuer.call(&"verify_issued", root, &"transaction_id")
+	if not root_valid.get("ok", false):
+		return root_valid
+	var provenance: Dictionary = start.get("receipt_provenance", {})
+	var start_valid: Dictionary = _identity_issuer.call(&"validate_child", provenance, &"day_resolution_stage")
+	if not start_valid.get("ok", false) or str(provenance.get("parent_receipt_id", "")) != str(root["receipt_id"]) \
+			or str(provenance.get("child_id", "")) != str(start.get("receipt_id", "")):
+		return _condition_unavailable("the resolution start is not a child of its persisted root")
+	var outcome: Dictionary = gameplay.get("route_context", {}).get("provisional_hospital_resolution", {})
+	if int(gameplay.get("condition_resolved_day", -1)) != day \
+			or not bool(gameplay.get("pending_hospital", false)) \
+			or not bool(_current_condition_owner.call(&"should_route_hospital")) \
+			or outcome.get("required") != true:
+		return _condition_unavailable("the current resolution has no committed Hospital condition outcome")
+	var stats: Dictionary = gameplay.get("stats", {})
+	if typeof(stats.get("health")) != TYPE_INT or typeof(stats.get("pressure")) != TYPE_INT \
+			or not gameplay.get("condition_effects_today") is Array:
+		return _condition_unavailable("the committed condition facts are incomplete")
+	var condition := {
+		"day": day, "causal_day_instance": causal_day, "resolution_id": str(plan["resolution_id"]),
+		"day_resolution_start_receipt_id": str(start["receipt_id"]), "required": true,
+		"condition_after": {"health": stats["health"], "pressure": stats["pressure"],
+			"effects": gameplay["condition_effects_today"].duplicate(true)},
+		"hospital_resolution": outcome.duplicate(true),
+	}
+	var serialized: Dictionary = _CANONICAL_JSON.stringify(condition)
+	if not serialized.get("ok", false):
+		return serialized
+	var source_ids: Array = [
+		"P(role,schedule_done.condition)", "P(resolution_id,%s)" % str(plan["resolution_id"]),
+		"P(day_resolution_start_receipt_id,%s)" % str(start["receipt_id"]),
+		"P(condition_result_sha256,%s)" % str(serialized["value"]).sha256_text(),
+	]
+	source_ids.sort()
+	var derived: Dictionary = _identity_issuer.call(&"derive_child", {"child_kind": "condition", "ordinal": 0,
+		"parent_receipt_id": str(root["receipt_id"]), "source_ids": source_ids})
+	if not derived.get("ok", false):
+		return derived
+	var child: Dictionary = derived["value"]
+	var verified: Dictionary = _identity_issuer.call(&"validate_child", child["provenance"], &"condition")
+	if not verified.get("ok", false):
+		return verified
+	condition["receipt_id"] = str(child["child_id"])
+	condition["receipt_provenance"] = child["provenance"].duplicate(true)
+	return {"ok": true, "code": &"ok", "value": {"condition_receipt": condition}, "receipt": {}}
+
+
+static func _condition_unavailable(message: String) -> Dictionary:
+	return {"ok": false, "code": &"condition_receipt_unavailable", "message": message, "details": {}}
 
 
 func _validate_request(request: Dictionary) -> Dictionary:

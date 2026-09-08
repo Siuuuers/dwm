@@ -25,6 +25,15 @@ class RuntimeDouble extends RefCounted:
 	var fail_next_set := false
 	var mutate_before_set_failure := false
 	var set_calls: Array[bool] = []
+	var start_calls := 0
+
+	func start_timeline(_path: String, _label: String) -> Dictionary:
+		start_calls += 1
+		active = true
+		frontier.generation += 1
+		frontier.event_index = 0
+		frontier.request_id = "runtime-double:%d" % int(frontier.generation)
+		return {"ok": true}
 
 	func capture_pause_frontier() -> Dictionary:
 		if not active:
@@ -43,6 +52,13 @@ class RuntimeDouble extends RefCounted:
 
 	func has_active_playback() -> bool:
 		return active
+
+	var halts := 0
+	func halt_with_error(_result: Dictionary) -> Dictionary:
+		halts += 1
+		active = false
+		timeline_ended_signal.emit()
+		return {"ok": false, "code": &"runtime_halted"}
 
 	func _failure(code: StringName) -> Dictionary:
 		return {"ok": false, "code": code, "message": "fixture failure", "details": {}}
@@ -155,3 +171,125 @@ func test_unowned_runtime_frontier_cannot_open_pause() -> void:
 	assert_eq(_runtime.set_calls, [],
 		"an unowned runtime is never physically paused")
 	assert_eq(_bridge.get_state().value.state, &"Active")
+
+
+func test_semantic_and_ending_pause_require_the_owned_runtime_frontier() -> void:
+	for member: String in ["_active_entry", "_active_playback"]:
+		_bridge.set(member, {"entry_id": "hospital.faint", "timeline_id": "ending.alone", "token": "owned-pause"})
+		assert_true(_bridge.capture_pause_frontier().ok)
+		assert_true(_bridge.begin_suspend(HANDLE).ok)
+		assert_true(_runtime.frontier.paused)
+		assert_true(_bridge.resume(HANDLE).ok)
+		_bridge.set(member, {})
+	assert_false(_bridge.capture_pause_frontier().ok, "A runtime frontier with no owning playback stays refused")
+
+func test_retirement_cancels_native_ending_without_emitting_completion_and_can_retry_release() -> void:
+	var gate := preload("res://scripts/application/transaction/ApplicationMutationGate.gd").new()
+	assert_true(_bridge.configure_mutation_gate(gate).ok)
+	_bridge.set("_active_playback", {"ending_id": "ending.alone", "timeline_id": "ending.alone", "token": "ending-pause"})
+	_bridge.set("_current_timeline_id", "ending.alone")
+	watch_signals(_bridge)
+	assert_true(_bridge.begin_suspend(HANDLE).ok)
+	assert_false(_bridge.retire_suspended_source(HANDLE).ok, "Return needs real session-abandonment custody")
+	var acquired: Dictionary = gate.acquire(&"session_abandonment")
+	assert_true(acquired.ok)
+	_runtime.fail_next_set = true
+	assert_false(_bridge.retire_suspended_source(HANDLE).ok)
+	assert_eq(_runtime.halts, 1)
+	assert_true(_bridge.retire_suspended_source(HANDLE).ok)
+	assert_true(_bridge.retire_suspended_source(HANDLE).ok)
+	assert_eq(_runtime.halts, 1, "Retry never cancels a new runtime or repeats native end")
+	assert_eq(_bridge.get_current_narrative_checkpoint(), {})
+	assert_signal_not_emitted(_bridge, "ending_playback_finished")
+	assert_signal_not_emitted(_bridge, "timeline_finished")
+	assert_false(_runtime.frontier.paused)
+	assert_true(gate.release(&"session_abandonment", acquired.value.token).ok)
+
+
+func test_retired_ending_releases_retained_adapter_without_completion_and_can_start_next_run() -> void:
+	var gate := preload("res://scripts/application/transaction/ApplicationMutationGate.gd").new()
+	assert_true(_bridge.configure_mutation_gate(gate).ok)
+	var playback := preload("res://scripts/application/ending/DialogicEndingPlaybackPort.gd").new()
+	assert_true(playback.initialize(_bridge).ok)
+	watch_signals(_bridge)
+	watch_signals(playback)
+	_runtime.active = false
+	var context := {"expected_stage": &"PRIMARY_PENDING", "role": "primary",
+		"playback_id": "run-one:ending", "transaction_id": "run-one:ending:complete"}
+	var first: Dictionary = playback.start_ending_id("ending.alone", context)
+	assert_true(first.get("ok", false), str(first))
+	if not first.get("ok", false): return
+	var first_token := str(first.receipt.playback_token)
+	# A foreign cancellation cannot release this binding.
+	_bridge.ending_playback_retired.emit(first_token, "ending.sylvia.dark")
+	assert_true(playback.start_ending_id("ending.alone", context).ok)
+	assert_eq(_runtime.start_calls, 1)
+	assert_true(_bridge.begin_suspend(HANDLE).ok)
+	var acquired: Dictionary = gate.acquire(&"session_abandonment")
+	assert_true(acquired.ok)
+	_runtime.fail_next_set = true
+	assert_false(_bridge.retire_suspended_source(HANDLE).ok)
+	assert_true(playback._active.is_empty(), "physical cancellation already released the outer owner")
+	assert_true(_bridge.retire_suspended_source(HANDLE).ok)
+	assert_true(_bridge.retire_suspended_source(HANDLE).ok)
+	assert_eq(_runtime.halts, 1)
+	assert_signal_emit_count(_bridge, "ending_playback_retired", 2,
+		"one foreign signal plus exactly one real retirement; release retries never re-notify")
+	assert_signal_not_emitted(playback, "playback_completed")
+	assert_signal_not_emitted(playback, "playback_failed")
+	assert_signal_not_emitted(_bridge, "ending_playback_finished")
+	assert_true(playback._completed.is_empty(), "Return records no completion receipt")
+	assert_true(gate.release(&"session_abandonment", acquired.value.token).ok)
+	context.playback_id = "run-two:ending"
+	context.transaction_id = "run-two:ending:complete"
+	var second: Dictionary = playback.start_ending_id("ending.alone", context)
+	assert_true(second.get("ok", false), str(second))
+	if not second.get("ok", false): return
+	assert_ne(str(second.receipt.playback_token), first_token)
+	assert_eq(_runtime.start_calls, 2, "the same retained adapter starts the next run")
+	_bridge.ending_playback_finished.emit(first_token, "ending.alone", {"receipt_id": "late-old-completion"})
+	assert_signal_not_emitted(playback, "playback_completed", "a stale old token cannot advance the new run")
+	_runtime.active = false
+	_runtime.timeline_ended_signal.emit()
+	assert_signal_emit_count(playback, "playback_completed", 1, "only the second playback naturally completes")
+	assert_signal_not_emitted(playback, "playback_failed")
+
+
+class OrdinaryBridgeDouble extends RefCounted:
+	signal timeline_finished(timeline_id: String, result: Dictionary)
+	signal ordinary_playback_retired(timeline_id: String)
+	var starts := 0
+	func is_dialogic_available() -> bool: return true
+	func start_timeline_id(_timeline_id: String, _context: Dictionary) -> Dictionary:
+		starts += 1
+		return {"ok": true}
+
+
+func test_ordinary_retirement_releases_only_matching_pending_owner_without_failure() -> void:
+	var bridge := OrdinaryBridgeDouble.new()
+	var narrative := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd").new()
+	assert_true(narrative.configure(bridge).ok)
+	watch_signals(narrative)
+	var command := {"resolution_id": "resolution.day3", "resolution_issuer_receipt": {},
+		"stage_id": "stage.hospital", "substage_id": "intent.hospital", "route_id": "hospital",
+		"timeline_id": TIMELINE_ID, "context": {"day": 3},
+		"completion_transaction_id": "completion.hospital.day3", "completion_transaction_provenance": {},
+		"command_sha256": "c".repeat(64)}
+	var first: Dictionary = narrative.begin_physical(command)
+	assert_true(first.ok)
+	bridge.ordinary_playback_retired.emit("unrelated.timeline")
+	assert_true(narrative.begin_physical(command).ok)
+	assert_eq(bridge.starts, 1, "an unrelated retirement cannot discard the binding")
+	bridge.ordinary_playback_retired.emit(TIMELINE_ID)
+	bridge.ordinary_playback_retired.emit(TIMELINE_ID)
+	assert_true(narrative._in_flight.is_empty())
+	assert_true(narrative._completed.is_empty())
+	assert_signal_not_emitted(narrative, "physical_completion_ready")
+	assert_signal_not_emitted(narrative, "physical_completion_failed")
+	var restarted: Dictionary = narrative.begin_physical(command)
+	assert_true(restarted.ok)
+	assert_eq(bridge.starts, 2, "Load may reconstruct the same unfinished command after Return")
+	assert_eq(restarted.value.physical_token, first.value.physical_token)
+	bridge.timeline_finished.emit(TIMELINE_ID, {"outcome": "completed"})
+	assert_signal_emit_count(narrative, "physical_completion_ready", 1)
+	assert_signal_not_emitted(narrative, "physical_completion_failed")

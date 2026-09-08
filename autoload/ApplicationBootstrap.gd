@@ -66,6 +66,7 @@ const DESKTOP_BOARD_FATE_PORT := preload("res://scripts/application/minesweeper/
 const MINESWEEPER_GENERATION_PORT := preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd")
 const MINESWEEPER_PANEL_PORT := preload("res://scripts/application/minesweeper/MinesweeperPanelPort.gd")
 const PROVISIONAL_CORRESPONDENCE := preload("res://scripts/application/contact/ProvisionalCorrespondenceCatalog.gd")
+const DAY7_PRELUDE_OWNER := preload("res://scripts/application/contact/Day7PreludeOwner.gd")
 const GAMEPLAY_DATA_CATALOG := preload("res://scripts/data/DataCatalog.gd")
 const SCHEDULE_PRESENTATION := preload("res://scripts/application/schedule/SchedulePresentationPort.gd")
 const SCHEDULE_COMMANDS := preload("res://scripts/application/schedule/ScheduleCommandPort.gd")
@@ -173,19 +174,30 @@ var _retained_schedule_commit_port: RefCounted = null
 var _retained_day_resolution_start_port: RefCounted = null
 var _retained_day7_provenance: RefCounted = null
 ## The Task-8 presentation composition (Plan 01, dwm-p2r.14). Exactly one narrative owner, one
-## Hospital port configured with it, and one Dating port left DELIBERATELY unconfigured until
+## Hospital port configured with it, and one Dating port configured later when
 ## dwm-oyo.4 supplies the relationship-board owner.
 var _retained_presentation_owner_adapter: RefCounted = null
 var _retained_hospital_presentation_port: RefCounted = null
 var _retained_dating_presentation_port: RefCounted = null
+var _retained_dating_physical_owner: RefCounted = null
+var _retained_condition_hospital_state: RefCounted = null
+var _retained_condition_hospital_adapter: RefCounted = null
+var _retained_condition_hospital_coordinator: RefCounted = null
+var _pending_live_continuation: Dictionary = {}
+var _live_continuation_queued := false
+var _condition_hospital_pump_queued := false
+var _condition_hospital_pump_running := false
+var _last_condition_hospital_result: Dictionary = {}
 var _contact_command_port: RefCounted = null
 var _contacts_presentation_port: RefCounted = null
+var _day7_prelude_owner: Node = null
 var _contacts_desktop_eviction_port: RefCounted = null
 ## The ONE real checkpoint port, constructed in initialize_saves and reused by the narrative
 ## adapter and the later configure_day_resolution stage. A second construction is a wiring bug.
 var _retained_checkpoint_port: RefCounted = null
 var _narrative_checkpoint_adapter: Object = null
 var _ending_playback_port: Object = null
+var _pair_deck_draw_port: RefCounted = null
 ## The ONE Bootstrap-owned desktop host for the process lifetime (dwm-p2r.9 Plan 02 Task 1).
 ## The stable active-app Callable reads this; it is null until the configure_restore_participants
 ## stage constructs and assigns it.
@@ -220,6 +232,8 @@ var _desktop_identity_allocation_participant: RefCounted = null
 var _retained_desktop_publication_ledger: RefCounted = null
 var _retained_desktop_causal_sequence_port: RefCounted = null
 var _retained_desktop_board_fate_port: RefCounted = null
+var _desktop_cold_recovery: RefCounted = null
+var _desktop_cold_recovery_checked := false
 var _retained_desktop_consequence_coordinator: RefCounted = null
 ## The Plan-02 application-level round coordinator (no class_name; preload by path). Its base
 ## The real generator and durable checkpoint path share the restored board owner.
@@ -434,6 +448,10 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var save_initialized: Dictionary = save_manager.call(&"initialize", JSON_STORAGE.new(_selected_root.path_join("saves")))
 			if not save_initialized.get("ok", false):
 				return save_initialized
+			if save_manager.has_signal("live_session_ready") and not save_manager.is_connected("live_session_ready", _on_live_session_ready):
+				save_manager.connect("live_session_ready", _on_live_session_ready)
+			if _application_gate.has_signal("transaction_released") and not _application_gate.is_connected("transaction_released", _queue_live_continuation):
+				_application_gate.connect("transaction_released", _queue_live_continuation)
 			# Construct and retain the ONE real checkpoint port here; the narrative adapter and
 			# the later configure_day_resolution stage reuse this exact instance.
 			if _retained_checkpoint_port == null:
@@ -487,7 +505,18 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var graph := _configure_desktop_production_graph()
 			if not graph.get("ok", false):
 				return graph
-			return _target(&"SaveManager").configure_backup_capture_provider(_capture_backup_checkpoint_inputs)
+			var capture_bound: Dictionary = _target(&"SaveManager").configure_backup_capture_provider(_capture_backup_checkpoint_inputs, _admit_paused_desktop_backup)
+			if not capture_bound.get("ok", false): return capture_bound
+			var pause_router := _target(&"SceneRouter")
+			if pause_router.has_signal("restore_publication_released") and not pause_router.is_connected("restore_publication_released", _queue_live_continuation):
+				pause_router.connect("restore_publication_released", _queue_live_continuation)
+			return pause_router.configure_pause_services({
+				"game_state": _target(&"GameState"), "saves": _target(&"SaveManager"),
+				"bridge": _target(&"DialogicBridge"), "input": _target(&"InputManager"),
+				"audio": _target(&"AudioManager"), "gate": _application_gate,
+				"profile": _target(&"ProfileManager"), "localization": _target(&"LocalizationManager"),
+				"backup_capture": Callable(self, "_capture_paused_checkpoint_inputs"),
+				"dating_presentation": _retained_dating_presentation_port})
 		&"configure_restore_participants":
 			return _configure_restore_participants()
 		&"configure_day_resolution":
@@ -687,6 +716,13 @@ func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
 		var ending_initialized: Dictionary = _ending_playback_port.initialize(bridge)
 		if not ending_initialized.get("ok", false):
 			return ending_initialized
+	var reached_bound: Dictionary = _ending_playback_port.configure_reached_presentations(
+		_target(&"ProfileManager"), game_state.capture_ending_presentation_signature)
+	if not reached_bound.get("ok", false): return reached_bound
+	var ending_writer: Dictionary = game_state.call(&"configure_ending_checkpoint_writer",
+		Callable(self, "_commit_ending_checkpoint"))
+	if not ending_writer.get("ok", false):
+		return ending_writer
 	var routed: Dictionary = router.call(&"configure_ending_ports", game_state, _ending_playback_port)
 	if not routed.get("ok", false):
 		return routed
@@ -747,6 +783,9 @@ func _capture_backup_checkpoint_inputs() -> Dictionary:
 	var guarded: Dictionary = _application_gate.guard_external(&"backup_capture")
 	if not guarded.get("ok", false):
 		return guarded
+	var router := _target(&"SceneRouter")
+	if router != null and (get_tree().paused or router.get_current_route_id() == "dating"):
+		return router.capture_pause_backup_checkpoint_inputs()
 	var scene := get_tree().current_scene
 	var desktop: Object = _contacts_desktop_eviction_port.view.get_ref() if _contacts_desktop_eviction_port != null and _contacts_desktop_eviction_port.view != null else null
 	if scene == null or scene.scene_file_path != "res://scenes/main/MainGameScene.tscn" or desktop == null or not scene.is_ancestor_of(desktop) or not desktop.is_visible_in_tree():
@@ -761,13 +800,46 @@ func _capture_backup_checkpoint_inputs() -> Dictionary:
 	if not consequence.get("ok", false):
 		return consequence
 	var snapshot_input: Dictionary = game_state.capture_run_snapshot_input()
-	# GameState's desktop mirror is a restore cache; the retained owners are live.
+	# Keep the shared presentation draft alongside the live game state.
 	snapshot_input["desktop"] = {"board": _desktop_board_state.capture(), "consequence": consequence["value"]["state"]}
+	var schedule_view: Dictionary = _retained_schedule_view_controller.snapshot()
+	if not schedule_view.get("ok", false): return schedule_view
+	snapshot_input["schedule_view"] = schedule_view.value.view
 	var inputs := {"snapshot_input": snapshot_input}
 	for key in _checkpoint_provider_bundle:
 		inputs[key] = (_checkpoint_provider_bundle[key] as Callable).call()
 	if inputs["route_id"] != "main" or inputs["active_app_id"] != "backup" or not inputs["dialogic_checkpoint"].is_empty():
 		return _failure(&"backup_capture_unavailable", "Backup is not the stable active desktop app")
+	return {"ok": true, "value": inputs}
+
+
+## SaveManager rechecks the actual retained Pause source rather than trusting a route flag.
+func _admit_paused_desktop_backup(inputs: Dictionary) -> bool:
+	var router := _target(&"SceneRouter")
+	if router == null or inputs.get("route_id") != "main" or not get_tree().paused: return false
+	var paused: Dictionary = router.capture_pause_backup_checkpoint_inputs()
+	return paused.get("ok", false) and paused.value == inputs
+
+
+## Called only after the retained Pause owner validates its exact paused source.
+func _capture_paused_checkpoint_inputs() -> Dictionary:
+	var bridge := _target(&"DialogicBridge")
+	var game := _target(&"GameState")
+	var router := _target(&"SceneRouter")
+	if _retained_day_resolution_state_port == null or _retained_schedule_view_controller == null \
+			or game == null or bridge == null or router == null:
+		return _failure(&"backup_capture_unavailable", "Paused gameplay owners are unavailable")
+	var route: String = router.get_current_route_id()
+	if route not in ["main", "dating"] or bridge.has_active_playback() \
+			or not bridge.get_current_timeline_id().is_empty():
+		return _failure(&"backup_capture_unavailable", "The paused source is not at an idle gameplay boundary")
+	var inputs: Dictionary = _retained_day_resolution_state_port._checkpoint_inputs(game._run_lifecycle.to_dict())
+	var view: Dictionary = _retained_schedule_view_controller.snapshot()
+	if not view.get("ok", false): return view
+	if inputs.get("route_id") != route:
+		return _failure(&"backup_capture_unavailable", "Paused route changed during capture")
+	inputs.snapshot_input["schedule_view"] = view.value.view
+	inputs["dialogic_checkpoint"] = {}
 	return {"ok": true, "value": inputs}
 
 
@@ -803,7 +875,7 @@ func configure_gameplay_desktop(desktop: Node) -> Dictionary:
 	if not _state.get("ready", false) or _retained_minesweeper_round_coordinator_app == null \
 			or _retained_schedule_done_dispatcher == null:
 		return _failure(&"gameplay_owners_not_ready", "gameplay owners are not ready")
-	if desktop == null or not desktop.has_method("configure_minesweeper") or not desktop.has_method("configure_schedule"):
+	if desktop == null or not desktop.has_method("configure_minesweeper") or not desktop.has_method("configure_schedule") or not desktop.has_method("configure_shop"):
 		return _failure(&"invalid_gameplay_desktop", "desktop gameplay seams required")
 	if desktop.has_meta("gameplay_ports"): return {"ok": true}
 	var game_state := _target(&"GameState")
@@ -840,8 +912,15 @@ func configure_gameplay_desktop(desktop: Node) -> Dictionary:
 	configured = desktop.configure_schedule(schedule, locale, profile, _desktop_host_state, int(game_state.day),
 		Callable(commands, "dispatch_done"), warning, warning_commands)
 	if not configured.get("ok", false): return configured
+	var shop: RefCounted = preload("res://scripts/application/shop/ShopPresentationPort.gd").new()
+	configured = shop.configure(game_state, GAMEPLAY_DATA_CATALOG.new(),
+		_retained_minesweeper_shop_purchase_participant, _retained_desktop_consequence_coordinator,
+		_retained_minesweeper_round_coordinator_app, _desktop_identity_nonce_issuer, _application_gate)
+	if not configured.get("ok", false): return configured
+	configured = desktop.configure_shop(shop, locale, profile, _desktop_host_state, int(game_state.day))
+	if not configured.get("ok", false): return configured
 	desktop.set_meta("gameplay_ports", {"panel": panel, "schedule": schedule, "commands": commands,
-		"warning": warning, "warning_commands": warning_commands})
+		"warning": warning, "warning_commands": warning_commands, "shop": shop})
 	return {"ok": true}
 
 
@@ -877,6 +956,8 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 		_retained_day_resolution_coordinator = DAY_RESOLUTION_COORDINATOR.new()
 	var state_port: RefCounted = _retained_day_resolution_state_port
 	var coordinator: RefCounted = _retained_day_resolution_coordinator
+	if not coordinator.resolution_completed.is_connected(_on_day_resolution_completed):
+		coordinator.resolution_completed.connect(_on_day_resolution_completed)
 	var configured: Dictionary = coordinator.configure(state_port, checkpoint_port,
 		_application_gate)
 	if not configured.get("ok", false):
@@ -896,6 +977,9 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 	var provided := _configure_day_resolution_providers(state_port)
 	if not provided.get("ok", false):
 		return provided
+	var ending_source: Dictionary = game_state.configure_ending_source_reader(
+		Callable(state_port, "prepare_terminal_ending_source"))
+	if not ending_source.get("ok", false): return ending_source
 	var foundation := _construct_schedule_foundation(game_state, state_port)
 	if not foundation.get("ok", false):
 		return foundation
@@ -914,11 +998,9 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 ## existing `DialogicBridge` and the retained production issuer, one Hospital port is configured with
 ## it, and the coordinator connects that exact port's completion signals once.
 ##
-## DATING IS DELIBERATELY NOT READY. Exactly one Dating port is constructed and retained with NO
-## owner, because Phase 2R has no relationship-board or challenge owner to give it. Every Dating
-## route therefore fails closed with `dating_physical_owner_unconfigured` until `dwm-oyo.4` modifies
-## this composition root to configure the retained port with its sole owner. Pretending otherwise
-## here would claim a playable Dating board that does not exist.
+## Dating retains one port here. The late desktop graph binds its physical board owner after
+## the shared generation port is available. Before that binding, Dating admission remains closed.
+## Historical Phase-2R setup deferred this owner; the whole-game integration now supplies it.
 ##
 ## Identical startup replay reuses these exact instances rather than building a second of any of
 ## them, so the ports' own replacement guards are never tripped by a legitimate re-run.
@@ -948,7 +1030,7 @@ func _construct_schedule_presentation(coordinator: RefCounted) -> Dictionary:
 				"the Hospital port retained another owner")
 		_retained_hospital_presentation_port = hospital
 	if _retained_dating_presentation_port == null:
-		# NO configure() call. The absence is the handoff.
+		# The late graph supplies the shared physical generation owner.
 		_retained_dating_presentation_port = DATING_PRESENTATION_PORT.new()
 	var injected: Dictionary = coordinator.configure_presentation_ports(
 		_retained_hospital_presentation_port, _retained_dating_presentation_port)
@@ -1229,6 +1311,13 @@ func _configure_desktop_production_graph() -> Dictionary:
 	if game_state == null:
 		return _failure(&"missing_stage_adapter", "the desktop production graph requires GameState")
 
+	var reward_gate: Dictionary = game_state.configure_mutation_gate(_application_gate)
+	if not reward_gate.get("ok", false): return reward_gate
+	if _retained_minesweeper_state_port == null:
+		_retained_minesweeper_state_port = MINESWEEPER_STATE_PORT.new(game_state)
+	var reward_configured: Dictionary = _retained_minesweeper_state_port.configure(_application_gate)
+	if not reward_configured.get("ok", false): return reward_configured
+
 	var snapshot_bound: Dictionary = game_state.configure_desktop_snapshot_provider(Callable(self, "_capture_live_desktop_snapshot"))
 	if not snapshot_bound.get("ok", false): return snapshot_bound
 
@@ -1267,6 +1356,8 @@ func _configure_desktop_production_graph() -> Dictionary:
 		if not board_port_configured.get("ok", false):
 			return board_port_configured
 		_retained_game_state_desktop_board_port = board_port
+	var board_consequence: Dictionary = _retained_game_state_desktop_board_port.configure_consequence_state_port(_desktop_consequence_state)
+	if not board_consequence.get("ok", false): return board_consequence
 	if _retained_game_state_minesweeper_shop_port == null:
 		var shop_port: RefCounted = GAME_STATE_MINESWEEPER_SHOP_PORT.new()
 		var shop_port_configured: Dictionary = shop_port.configure(
@@ -1320,6 +1411,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 			_application_gate)
 		if not shop_configured.get("ok", false):
 			return shop_configured
+		var catalog_configured: Dictionary = shop_participant.configure_catalog(GAMEPLAY_DATA_CATALOG.new(),
+			Callable(self, "_capture_completed_consequence_checkpoint_inputs"))
+		if not catalog_configured.get("ok", false): return catalog_configured
 		_retained_minesweeper_shop_purchase_participant = shop_participant
 
 	# The board-fate port, over the EXACT same shared board state.
@@ -1380,6 +1474,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 	if not round_consequence_checkpoint.get("ok", false):
 		return round_consequence_checkpoint
 
+	var round_rewards: Dictionary = _retained_minesweeper_round_coordinator_app.configure_reward_port(_retained_minesweeper_state_port)
+	if not round_rewards.get("ok", false): return round_rewards
+
 	# The Plan-03 condition-policy/ScheduleView pair, configured TOGETHER on the one shared
 	# consequence coordinator (dwm-oyo.3 slice, 2026-08-24, authorized on dwm-p2r.21 / dwm-oyo.3).
 	# Both halves are the real production ports: the policy reads only through the GameState context
@@ -1406,16 +1503,47 @@ func _configure_desktop_production_graph() -> Dictionary:
 		if not view_configured.get("ok", false):
 			return view_configured
 		_retained_schedule_departure_view_port = view_port
+	var canonical_view: Dictionary = _retained_schedule_departure_view_port.configure_view_controller(
+		_retained_schedule_view_controller)
+	if not canonical_view.get("ok", false): return canonical_view
 	var pair_configured: Dictionary = _retained_desktop_consequence_coordinator.configure_condition_departure_ports(
 		_retained_desktop_condition_policy_port, _retained_schedule_departure_view_port)
 	if not pair_configured.get("ok", false):
 		return pair_configured
 
-	# Under disabled input (no stage before this one enables it), resume any restored v4 pending
-	# action-source transaction exactly once. A no-op when there is none.
-	var resumed: Dictionary = _retained_desktop_consequence_coordinator.resume_pending()
-	if not resumed.get("ok", false):
-		return resumed
+	var notifications: Dictionary = _retained_desktop_consequence_coordinator.configure_notification_consumer(
+		Callable(_retained_minesweeper_state_port, "accept_desktop_notification"),
+		Callable(_retained_minesweeper_state_port, "publish_desktop_notifications"))
+	if not notifications.get("ok", false): return notifications
+
+	var source_capture: Dictionary = _retained_minesweeper_round_coordinator_app.configure_source_checkpoint_capture(
+		Callable(self, "_capture_completed_consequence_checkpoint_inputs"))
+	if not source_capture.get("ok", false): return source_capture
+
+	var completion_capture: Dictionary = _retained_desktop_consequence_coordinator.configure_completion_checkpoint_capture(
+		Callable(self, "_capture_completed_consequence_checkpoint_inputs"))
+	if not completion_capture.get("ok", false): return completion_capture
+
+	# Replay only against the exact CURRENT Autosave that preceded admission, before
+	# Title becomes ready. This does not load a historical slot or activate a session.
+	var resumed: Dictionary = {"ok": true, "value": {"resumed": false}}
+	if not _desktop_cold_recovery_checked:
+		if _desktop_cold_recovery == null:
+			_desktop_cold_recovery = preload("res://scripts/application/desktop/DesktopColdRecoveryPreparation.gd").new()
+			var cold_configured: Dictionary = _desktop_cold_recovery.configure(
+				_target(&"SaveManager"), _retained_checkpoint_port, game_state, _desktop_host_state)
+			if not cold_configured.get("ok", false): return cold_configured
+		var recovery_source: Dictionary = _desktop_cold_recovery.prepare_current_autosave()
+		if not recovery_source.get("ok", false): return recovery_source
+		if recovery_source.value.kind == "install_source":
+			var installed: Dictionary = _desktop_cold_recovery.install_prepared()
+			if not installed.get("ok", false): return installed
+		if recovery_source.value.kind != "none":
+			resumed = _retained_desktop_consequence_coordinator.resume_pending()
+			if not resumed.get("ok", false): return resumed
+		var finished: Dictionary = _desktop_cold_recovery.finish_recovery()
+		if not finished.get("ok", false): return finished
+		_desktop_cold_recovery_checked = true
 
 	# The Schedule-Done consequence source, finishing DEVIATION-5: the ONE object carrying both
 	# resolve methods, composed from the retained coordinator (condition truth) and board-fate port
@@ -1437,11 +1565,45 @@ func _configure_desktop_production_graph() -> Dictionary:
 			if not source_configured.get("ok", false):
 				return source_configured
 			_retained_desktop_consequence_source_port = source_port
+		var condition_owner: Dictionary = _retained_desktop_consequence_source_port.configure_current_condition_owner(game_state)
+		if not condition_owner.get("ok", false): return condition_owner
 		var source_installed: Dictionary = _retained_day_resolution_state_port.call(
 			&"configure_desktop_consequence_source", _retained_desktop_consequence_source_port)
 		if not source_installed.get("ok", false):
 			return source_installed
+		var advance_owners: Dictionary = _retained_day_resolution_state_port.configure_day_advance_owners(
+			_retained_schedule_view_controller, _desktop_board_state, _desktop_consequence_state)
+		if not advance_owners.get("ok", false): return advance_owners
 		producer_composed = true
+
+	# The real challenge owner shares the retained generation and GameState owners. The port was
+	# injected earlier; configure it here once the desktop generation dependency exists.
+	if _retained_dating_presentation_port != null:
+		if _retained_dating_physical_owner == null:
+			var dating_owner: RefCounted = preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
+			var dating_configured: Dictionary = dating_owner.configure(_desktop_identity_nonce_issuer,
+				game_state, _target(&"ProfileManager"), _retained_minesweeper_generation_port)
+			if not dating_configured.get("ok", false): return dating_configured
+			_retained_dating_physical_owner = dating_owner
+		var history_bound: Dictionary = _retained_dating_physical_owner.configure_attempt_history(_application_gate)
+		if not history_bound.get("ok", false): return history_bound
+		var restore_bound: Dictionary = game_state.configure_dating_restore_reconciler(
+			Callable(_retained_dating_physical_owner, "reconcile_restore_silent"))
+		if not restore_bound.get("ok", false): return restore_bound
+		var writer_bound: Dictionary = _retained_dating_physical_owner.configure_checkpoint_writer(
+			Callable(self, "_commit_dating_checkpoint"))
+		if not writer_bound.get("ok", false): return writer_bound
+		var dating_bound: Dictionary = _retained_dating_presentation_port.configure(
+			_desktop_identity_nonce_issuer, _retained_dating_physical_owner)
+		if not dating_bound.get("ok", false): return dating_bound
+
+	var care_writer: Dictionary = game_state.configure_contact_checkpoint_writer(
+		Callable(self, "_commit_presentation_checkpoint").bind("main"))
+	if not care_writer.get("ok", false): return care_writer
+
+	if _retained_hospital_presentation_port != null and _retained_dating_presentation_port != null:
+		var hospital_configured := _configure_condition_hospital(game_state)
+		if not hospital_configured.get("ok", false): return hospital_configured
 
 	# The Done dispatch surface (dwm-p2r.21's recorded resolution: Plan 03 owns it, and the
 	# GameState facade option is rejected). Configured AFTER configure_presentation_ports connected
@@ -1749,3 +1911,317 @@ func _capture_live_desktop_snapshot() -> Dictionary:
 	var consequence: Dictionary = _desktop_consequence_state.capture()
 	if not consequence.get("ok", false): return {}
 	return {"board": _desktop_board_state.capture(), "consequence": consequence.value.state}
+
+
+func _capture_exit_checkpoint_inputs() -> Dictionary:
+	if _application_gate == null or not _application_gate.is_internal_owner_active(&"session_abandonment"):
+		return _failure(&"session_abandonment_required", "")
+	if _checkpoint_provider_bundle.is_empty(): return _failure(&"exit_capture_unavailable", "")
+	var game_state := _target(&"GameState")
+	var view: Dictionary = _retained_schedule_view_controller.snapshot()
+	if not view.get("ok", false): return view
+	var inputs := {"snapshot_input": game_state.capture_run_snapshot_input()}
+	inputs.snapshot_input["schedule_view"] = view.value.view
+	for key in _checkpoint_provider_bundle:
+		inputs[key] = (_checkpoint_provider_bundle[key] as Callable).call()
+	# The Logout confirmation itself is not a resumable app. The saved board keeps its
+	# suspended state and can be reopened normally from the launcher.
+	if inputs.route_id != "main" or not inputs.dialogic_checkpoint.is_empty():
+		return _failure(&"exit_capture_unavailable", "Logout requires the stable desktop")
+	inputs.active_app_id = null
+	return {"ok": true, "value": inputs}
+
+
+func configure_session_exit_desktop(desktop: Node) -> Dictionary:
+	if desktop == null or not desktop.has_method("configure_session_exit"):
+		return _failure(&"invalid_exit_desktop", "")
+	if desktop.has_meta("session_exit"): return {"ok": true}
+	var exit: RefCounted = preload("res://scripts/application/desktop/SessionExitCoordinator.gd").new()
+	var configured: Dictionary = exit.configure(_target(&"GameState"), _target(&"SaveManager"),
+		_target(&"SceneRouter"), _application_gate, Callable(self, "_capture_exit_checkpoint_inputs"))
+	if not configured.get("ok", false): return configured
+	configured = desktop.configure_session_exit(exit)
+	if configured.get("ok", false): desktop.set_meta("session_exit", exit)
+	return configured
+
+
+func _capture_completed_consequence_checkpoint_inputs(completed: Dictionary) -> Dictionary:
+	if _desktop_cold_recovery != null and _desktop_cold_recovery.is_installed():
+		return _desktop_cold_recovery.capture_completed_checkpoint_inputs(completed)
+	if _application_gate == null or not _application_gate.is_internal_owner_active(&"causal_transaction"):
+		return _failure(&"causal_transaction_lease_required", "")
+	if _checkpoint_provider_bundle.is_empty():
+		return _failure(&"completion_checkpoint_capture_unavailable", "")
+	var game_state := _target(&"GameState")
+	var view: Dictionary = _retained_schedule_view_controller.snapshot()
+	if not view.get("ok", false): return view
+	var inputs := {"snapshot_input": game_state.capture_run_snapshot_input()}
+	inputs.snapshot_input["schedule_view"] = view.value.view
+	inputs.snapshot_input.desktop.consequence = completed.duplicate(true)
+	for key in _checkpoint_provider_bundle:
+		inputs[key] = (_checkpoint_provider_bundle[key] as Callable).call()
+	return {"ok": true, "value": {"checkpoint_inputs": inputs}}
+
+
+## Save physical progress before its owner publishes the next playable state.
+func _commit_dating_checkpoint(_physical_record: Dictionary) -> Dictionary:
+	return _commit_presentation_checkpoint("dating")
+
+
+func _commit_ending_checkpoint() -> Dictionary:
+	return _commit_presentation_checkpoint("ending")
+
+
+func _commit_presentation_checkpoint(route_id: String) -> Dictionary:
+	if _retained_checkpoint_port == null or _retained_day_resolution_state_port == null:
+		return _failure(&"presentation_checkpoint_unavailable", "")
+	var game_state := _target(&"GameState")
+	var inputs: Dictionary = _retained_day_resolution_state_port._checkpoint_inputs(
+		game_state._run_lifecycle.to_dict())
+	inputs["route_id"] = route_id
+	# Dating's physical record and Ending's cursor own these resume boundaries. A
+	# completed Dialogic command from the preceding scene must not be replayed.
+	inputs["dialogic_checkpoint"] = {}
+	var backup: Dictionary = _retained_checkpoint_port.capture()
+	if not backup.get("ok", false): return backup
+	var prepared: Dictionary = _retained_checkpoint_port.prepare(inputs, &"safe_marker",
+		{"kind": &"autosave", "reason": &"automatic"})
+	if not prepared.get("ok", false): return prepared
+	var committed: Dictionary = _retained_checkpoint_port.commit(prepared.value.candidate)
+	if not committed.get("ok", false):
+		var rolled: Dictionary = _retained_checkpoint_port.rollback({
+			"journal_backup": backup.value.backup,
+			"storage_backup": prepared.value.candidate.storage_backup})
+		if not rolled.get("ok", false): return rolled
+	return committed
+
+
+func configure_gallery_replay_services(scene: Node) -> Dictionary:
+	if not _state.get("ready", false) or not is_inside_tree() or get_tree().current_scene != scene:
+		return _failure(&"gallery_replay_services_unavailable", "The current title is not ready")
+	if scene == null or not scene.has_method("configure_gallery_replay"):
+		return _failure(&"gallery_replay_services_unavailable", "The title cannot accept replay services")
+	var replay: Dictionary = scene.configure_gallery_replay(_target(&"ProfileManager"), _target(&"DialogicBridge"))
+	if not replay.get("ok", false): return replay
+	if not scene.has_method("configure_gallery_rehearsal"):
+		return _failure(&"gallery_rehearsal_services_unavailable", "The title cannot accept practice services")
+	return scene.configure_gallery_rehearsal(_target(&"GameState"), _target(&"InputManager"))
+
+
+func configure_dating_scene_services(scene: Node) -> Dictionary:
+	var profile := _target(&"ProfileManager")
+	var locale := _target(&"LocalizationManager")
+	var input_owner := _target(&"InputManager")
+	if profile == null or locale == null or input_owner == null:
+		return _failure(&"dating_presentation_services_unavailable", "")
+	var percent: Variant = profile.get_preference("preferences.accessibility.text_size", null)
+	if percent == null:
+		var scale_value: float = float(profile.get_preference("preferences.accessibility.font_scale", 1.0))
+		percent = 150 if scale_value >= 1.5 else (125 if scale_value >= 1.25 else 100)
+	var large: Variant = profile.get_preference("preferences.accessibility.large_targets", null)
+	if large == null: large = profile.get_preference("preferences.accessibility.large_click_targets", false)
+	var colour: Variant = profile.get_preference("preferences.accessibility.colour_differentiation", null)
+	if colour == null:
+		var legacy: String = str(profile.get_preference("preferences.accessibility.colorblind_mode", "none"))
+		colour = preload("res://scripts/ui/MinesweeperApp.gd").LEGACY_COLOUR_PRESETS.get(legacy, "standard")
+	return scene.configure_presentation_services(input_owner, str(locale.get_locale()), int(percent),
+		bool(large), &"after_hours", bool(profile.get_preference("preferences.accessibility.high_contrast", false)), str(colour))
+
+
+func _configure_condition_hospital(game_state: Object) -> Dictionary:
+	var ending_source: Dictionary = game_state.configure_ending_condition_source(_desktop_consequence_state)
+	if not ending_source.get("ok", false): return ending_source
+	if _retained_condition_hospital_coordinator != null: return {"ok": true}
+	var state: RefCounted = preload("res://scripts/domain/run/ConditionHospitalState.gd").new()
+	var configured: Dictionary = state.configure(game_state._run_lifecycle, _desktop_identity_nonce_issuer)
+	if not configured.get("ok", false): return configured
+	var adapter: RefCounted = preload("res://scripts/application/run/GameStateConditionHospitalPort.gd").new()
+	configured = adapter.configure(game_state, _desktop_identity_nonce_issuer,
+		_retained_causal_day_advance_identity_port, _retained_schedule_view_controller,
+		_desktop_board_state, _desktop_consequence_state,
+		Callable(_retained_day_resolution_state_port, "_checkpoint_inputs"))
+	if not configured.get("ok", false): return configured
+	configured = adapter.configure_presentation(_retained_hospital_presentation_port,
+		Callable(_target(&"SceneRouter"), "route_presentation"), _retained_dating_presentation_port)
+	if not configured.get("ok", false): return configured
+	var coordinator: RefCounted = preload("res://scripts/application/run/ConditionHospitalCoordinator.gd").new()
+	configured = coordinator.configure(state, _desktop_consequence_state, adapter,
+		_retained_checkpoint_port, _application_gate)
+	if not configured.get("ok", false): return configured
+	if _pair_deck_draw_port == null:
+		_pair_deck_draw_port = preload("res://scripts/application/run/PairDeckDrawPort.gd").new()
+	configured = _pair_deck_draw_port.configure(game_state, _target(&"ProfileManager"), _application_gate, coordinator)
+	if not configured.get("ok", false): return configured
+	configured = _retained_day_resolution_state_port.configure_pair_deck(_pair_deck_draw_port)
+	if not configured.get("ok", false): return configured
+	configured = adapter.configure_pair_deck(_pair_deck_draw_port)
+	if not configured.get("ok", false): return configured
+	_retained_condition_hospital_state = state
+	_retained_condition_hospital_adapter = adapter
+	_retained_condition_hospital_coordinator = coordinator
+	adapter.progress_ready.connect(_queue_condition_hospital_progress)
+	if _application_gate.has_signal("transaction_released") and not _application_gate.is_connected("transaction_released", _queue_condition_hospital_progress):
+		_application_gate.connect("transaction_released", _queue_condition_hospital_progress)
+	return {"ok": true}
+
+
+func _queue_condition_hospital_progress() -> void:
+	if _condition_hospital_pump_queued or _condition_hospital_pump_running: return
+	_condition_hospital_pump_queued = true
+	_pump_condition_hospital.call_deferred()
+
+
+## A pump follows the original action's lease release; it never borrows another transaction's lease.
+func _pump_condition_hospital() -> void:
+	_condition_hospital_pump_queued = false
+	if _condition_hospital_pump_running or _retained_condition_hospital_coordinator == null: return
+	var game_state := _target(&"GameState")
+	if not bool(game_state.capture_live_session().value.active): return
+	if _application_gate.is_fatal_latched(): return
+	if _application_gate.is_active() and str(_retained_condition_hospital_coordinator.get("_gate_token")).is_empty(): return
+	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
+	var consequence: Dictionary = _desktop_consequence_state.capture().value.state
+	var outbox: Dictionary = consequence.get("outbox", {})
+	var destination: Dictionary = outbox.get("hospital", {}) if outbox.get("hospital") is Dictionary else {}
+	if not lifecycle.get("active_condition_hospital_plan") is Dictionary and str(destination.get("status", "")) != "pending": return
+	if str(destination.get("consumer", "")) == "day7_terminal":
+		_condition_hospital_pump_running = true
+		_last_condition_hospital_result = _finish_day_resolution_route()
+		_condition_hospital_pump_running = false
+		return
+	_condition_hospital_pump_running = true
+	for boundary: int in 16:
+		_last_condition_hospital_result = _retained_condition_hospital_coordinator.resume()
+		if not _last_condition_hospital_result.get("ok", false): break
+		var value: Dictionary = _last_condition_hospital_result.get("value", {})
+		if value.get("idle", false) or str(value.get("boundary", "")) == "awaiting_presentation": break
+		if str(value.get("boundary", "")) == "plan_retired":
+			_target(&"SceneRouter").goto_main()
+			break
+	_condition_hospital_pump_running = false
+
+
+## Navigation follows the completed owner's durable boundary, after its caller unwinds.
+func _on_day_resolution_completed(_result: Dictionary) -> void:
+	_on_live_session_ready()
+
+
+func _on_live_session_ready() -> void:
+	var game_state := _target(&"GameState")
+	if game_state == null: return
+	var session: Dictionary = game_state.capture_live_session()
+	if session.get("ok", false) and session.value.active:
+		_pending_live_continuation = session.value.duplicate(true)
+		_queue_live_continuation()
+
+
+func _queue_live_continuation() -> void:
+	if _pending_live_continuation.is_empty() or _live_continuation_queued: return
+	_live_continuation_queued = true
+	_resume_live_continuation.call_deferred()
+
+
+func _resume_live_continuation() -> void:
+	# Route finalization may have queued change_scene_to_file for the end of this frame.
+	# Let that mount finish before publishing the exact physical continuation into it.
+	await get_tree().process_frame
+	_live_continuation_queued = false
+	var game_state := _target(&"GameState")
+	var session: Dictionary = game_state.capture_live_session()
+	if not session.get("ok", false) or session.value != _pending_live_continuation or not session.value.active:
+		_pending_live_continuation = {}
+		return
+	if _application_gate.is_active() or _application_gate.is_fatal_latched(): return
+	var router := _target(&"SceneRouter")
+	if router.has_method("is_restore_publication_held") and router.is_restore_publication_held(): return
+	if _present_pending_day7_prelude(game_state, router): return
+	_pending_live_continuation = {}
+	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
+	if str(lifecycle.state) == "COMPLETED":
+		# A compatible completed save may name main/menu instead of the ending scene. Retire
+		# through the same validated owner seam after restore activation and lease release.
+		var retired: Dictionary = game_state.complete_ending_playback_stage("", &"COMPLETED", {})
+		if not retired.get("ok", false):
+			push_error("Completed run could not return to title: " + str(retired.get("code", "")))
+			return
+		router.goto_menu()
+		return
+	var consequence: Dictionary = _desktop_consequence_state.capture().value.state
+	var destination: Variant = consequence.get("outbox", {}).get("hospital")
+	if lifecycle.active_condition_hospital_plan != null or (
+		destination is Dictionary and str(destination.get("status", "")) == "pending"):
+		_queue_condition_hospital_progress()
+		return
+	if str(lifecycle.state) == "ENDING":
+		if str(router.get_current_route_id()) != "ending": router.goto_ending()
+		return
+	if str(lifecycle.state) == "TERMINAL_PENDING":
+		_finish_day_resolution_route()
+		return
+	var plan: Variant = lifecycle.active_resolution_plan
+	if str(lifecycle.state) != "PLAYING" or not plan is Dictionary: return
+	var completed := true
+	for stage: Dictionary in plan.stages:
+		if str(stage.state) != "completed": completed = false
+	if completed:
+		# Arriving on Day 7 completes Day 6's plan; only a Day 7 source is terminal.
+		if int(plan.source_day) == 7:
+			_finish_day_resolution_route()
+		elif str(router.get_current_route_id()) in ["dating", "hospital"]:
+			router.goto_main()
+	elif _retained_schedule_done_dispatcher != null:
+		# Replaying the saved command rehydrates the retained coordinator without
+		# issuing another root or committing another Schedule.
+		var resumed: Dictionary = _retained_schedule_done_dispatcher.dispatch_done(str(plan.command_id))
+		if not resumed.get("ok", false): push_error("Day resolution could not resume: " + str(resumed.get("code", "")))
+
+
+func _present_pending_day7_prelude(game_state: Object, router: Object) -> bool:
+	if game_state.require_day7_presentations_complete().get("ok", false): return false
+	var plan: Variant = game_state._run_lifecycle.to_dict().active_resolution_plan
+	if plan is Dictionary and int(plan.source_day) < 7:
+		for stage: Dictionary in plan.stages:
+			if str(stage.state) != "completed": return false
+	# Cold Load may still be mounting main; its saved app can restore behind the guarded surface.
+	if str(router.get_current_route_id()) != "main" or get_tree().current_scene == null \
+			or get_tree().current_scene.find_child("ComputerDesktop", true, false) == null:
+		router.goto_main()
+		_on_live_session_ready()
+		return true
+	_pending_live_continuation = {}
+	if is_instance_valid(_day7_prelude_owner): return true
+	if _contacts_presentation_port == null:
+		push_error("Day 7 Contacts presentation is unavailable")
+		return true
+	var owner := DAY7_PRELUDE_OWNER.new()
+	var locale: String = str(_target(&"LocalizationManager").get_locale())
+	var profile: Object = _target(&"ProfileManager")
+	var percent: Variant = profile.get_preference("preferences.accessibility.text_size", null)
+	if percent == null: percent = int(float(profile.get_preference("preferences.accessibility.font_scale", 1.0)) * 100)
+	var presentation_theme: Theme = preload("res://scripts/ui/gallery/GalleryTheme.gd").build(locale, int(percent), &"after_hours")
+	var configured: Dictionary = owner.configure(game_state, _contacts_presentation_port,
+		_desktop_identity_nonce_issuer, locale, presentation_theme)
+	if not configured.get("ok", false):
+		owner.free()
+		push_error("Day 7 presentation could not configure: " + str(configured.get("code", "")))
+		return true
+	_day7_prelude_owner = owner
+	owner.finished.connect(_on_day7_prelude_finished)
+	add_child(owner)
+	owner.begin() # Recoverable preparation failures expose Retry on the same surface.
+	return true
+
+func _on_day7_prelude_finished() -> void:
+	_day7_prelude_owner = null
+	_on_live_session_ready()
+
+
+func _finish_day_resolution_route() -> Dictionary:
+	var game_state := _target(&"GameState")
+	var resumed: Dictionary = game_state.resume_terminal_ending()
+	if not resumed.get("ok", false):
+		push_error("Day 7 ending could not resume: " + str(resumed.get("code", "")))
+		return resumed
+	var router := _target(&"SceneRouter")
+	if str(router.get_current_route_id()) != "ending": router.goto_ending()
+	return resumed
