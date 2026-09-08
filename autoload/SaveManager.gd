@@ -1498,7 +1498,7 @@ func _capture_backup_inputs() -> Dictionary:
 	var route_context: Variant = gameplay.get("route_context") if gameplay is Dictionary else null
 	var dating_record: Variant = route_context.get("active_dating_challenge") if route_context is Dictionary else null
 	var dating: bool = inputs["route_id"] == "dating" and dating_record is Dictionary \
-		and not dating_record.is_empty() and dating_record.get("phase") in ["pre_challenge", "challenge", "cleared_awaiting_terminal_choice", "post_challenge"]
+		and not dating_record.is_empty() and dating_record.get("phase") in ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "post_challenge"]
 	if not (desktop or dating) or not inputs["dialogic_checkpoint"].is_empty() or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
 		return _fail(&"backup_capture_unavailable", "A qualified desktop or paused Dating capture is required")
 	return {"ok": true, "value": inputs}

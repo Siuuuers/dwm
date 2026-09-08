@@ -19,7 +19,9 @@ extends RefCounted
 ## builds a new snapshot at all: the board is already NONE (a `minesweeper_round` projection is
 ## ALWAYS exactly the source participant's own post-completion `NONE` candidate; a live
 ## `schedule_done` board or a `shop_purchase` projection may simply already be NONE), so the
-## candidate is that unchanged snapshot.
+## candidate is that unchanged snapshot. This is the historical empty-board case.
+## Bound settled inspections also have fate none: round/Shop preserve them, while Schedule
+## clears inspection for the new day without a second forfeit or terminal result.
 ##
 ## OWNERSHIP WIRING (own design choice, matching this codebase's established precedent -- see
 ## Task 6's own C2/D handoff note on reconnecting `MinesweeperRoundCoordinator._board_state` after
@@ -150,7 +152,7 @@ func prepare_causal_departure(request: Dictionary) -> Dictionary:
 	if not pre_state_check.get("ok", false):
 		return pre_state_check
 
-	var fate := _fate_for_phase(str(live["phase"]))
+	var fate := _fate_for_snapshot(live)
 	if fate == &"":
 		return _fail(&"board_fate_settling_not_resumable",
 			"SETTLING may not derive causal departure fate outside a resumed transaction", {})
@@ -218,9 +220,9 @@ func prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 	var action_kind := str(source_action_receipt["action_kind"])
 	var live: Dictionary = (_board_state.call(&"capture") as Dictionary).duplicate(true)
 	if action_kind == "minesweeper_round":
-		if str(projected_board_candidate["phase"]) != "NONE":
+		if str(projected_board_candidate["phase"]) != "NONE" and not _BOARD_STATE_SCRIPT.is_settled_inspection(projected_board_candidate):
 			return _fail(&"board_fate_projection_invalid",
-				"a minesweeper_round projection must already be phase NONE", {})
+				"a minesweeper_round projection must be historical NONE or bound settled inspection", {})
 	elif action_kind == "shop_purchase":
 		if projected_board_candidate != live:
 			return _fail(&"board_fate_projection_invalid",
@@ -232,7 +234,7 @@ func prepare_projected_causal_departure(request: Dictionary) -> Dictionary:
 	if not pre_state_check.get("ok", false):
 		return pre_state_check
 
-	var fate := _fate_for_phase(str(projected_board_candidate["phase"]))
+	var fate := _fate_for_snapshot(projected_board_candidate)
 	if fate == &"":
 		return _fail(&"board_fate_settling_not_resumable",
 			"SETTLING may not derive causal departure fate outside a resumed transaction", {})
@@ -417,9 +419,9 @@ static func _fate_for_phase(phase: String) -> StringName:
 	match phase:
 		"NONE":
 			return &"none"
-		"PREPARING", "PREPARED_UNSTARTED":
+		"UNPAID_UNSTARTED", "PREPARING", "PREPARED_UNSTARTED":
 			return &"discarded_unstarted"
-		"ACTIVE_VISIBLE", "ACTIVE_SUSPENDED":
+		"PAID_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED":
 			return &"forfeited_started"
 		_:
 			return &""
@@ -450,7 +452,7 @@ func _check_pre_state(request: Dictionary, live: Dictionary) -> Dictionary:
 ## `DesktopConsequenceCoordinator` before the round's own forward-recovery commit runs. Forward
 ## recovery then always commits the action source FIRST (`MinesweeperRoundCoordinator
 ## .commit_recovery_action()` adopts `action_candidate.board_projection` -- this exact `candidate`,
-## since a minesweeper_round projection is always phase NONE and therefore always `fate=none`, i.e.
+## since a completed-round projection (historical NONE or bound inspection) has `fate=none`, i.e.
 ## `board_candidate == base_snapshot` -- into the shared `DesktopBoardState`) and board fate SECOND,
 ## post-admission with no rollback available. Re-checking the ORIGINAL pre-completion identity/
 ## revision here would therefore always reject a transaction the round coordinator has already
@@ -516,7 +518,8 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 
 	var board_candidate: Dictionary
 	if fate == &"none":
-		board_candidate = base_snapshot.duplicate(true)
+		# Round/Shop retain inspection; Schedule closes the day without another forfeit.
+		board_candidate = _BOARD_STATE_SCRIPT.dismissed_inspection_snapshot(base_snapshot) if str(request.get("reason", "")) == "schedule_done" and _BOARD_STATE_SCRIPT.is_settled_inspection(base_snapshot) else base_snapshot.duplicate(true)
 	else:
 		board_candidate = _build_departed_snapshot(base_snapshot, str(board_fate_receipt["receipt_id"]))
 
@@ -617,3 +620,10 @@ func _canonical_sha256(value: Variant) -> String:
 
 func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+static func _fate_for_snapshot(snapshot: Dictionary) -> StringName:
+	if _BOARD_STATE_SCRIPT.is_settled_inspection(snapshot): return &"none"
+	if snapshot.get("candidate") is Dictionary and snapshot.candidate.has("paid_start_receipt"):
+		return &"forfeited_started"
+	return _fate_for_phase(str(snapshot.phase))

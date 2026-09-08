@@ -131,6 +131,7 @@ func _reveal_first(transaction_id: String, difficulty_id: String, cell_index: in
 
 
 func _begin_debug(transaction_id: String, difficulty_id: String) -> Dictionary:
+	_coordinator._state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	var identity: Dictionary = _coordinator.get_entry_context(difficulty_id)["value"]["identity"]
 	return _coordinator.begin_debug_preparation({
 		"transaction_id": transaction_id, "transaction_issuer_receipt": _issue_transaction_receipt_for(transaction_id),

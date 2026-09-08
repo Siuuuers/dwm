@@ -10,6 +10,10 @@ const GENERATION := preload("res://tests/support/FakeMinesweeperGenerationPort.g
 const CANONICAL := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 
 class State extends RefCounted:
+	var inventory: Dictionary = {}
+	var penalty_points_today := 0
+	var pressure := 0
+	func get_stat(_id: String) -> int: return pressure
 	var saved: Dictionary = {}
 	var route_context: Dictionary = {}
 	var dating_route_state: Dictionary = {"sylvia": {"relationship_state": "friend", "dark_points": 0}}
@@ -94,10 +98,12 @@ func test_solo_public_actions_clear_then_saved_choice_pays_exactly_once() -> voi
 	assert_true(pre.board.custody)
 	assert_false(_dispatch("reveal", 323).ok)
 	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("flag", 0).ok)
+	assert_true(_dispatch("unflag", 0).ok)
 	assert_true(_dispatch("reveal", 323).ok)
 	assert_eq(state.saved.phase, "cleared_awaiting_terminal_choice")
 	assert_eq(state.saved.spec.requested_mine_count, 36)
-	assert_eq(state.saved.perfect_reasons, ["no_flag"])
+	assert_eq(state.saved.perfect_reasons, [])
 	assert_eq(state.applications, 0, "clearing cannot apply a relationship outcome")
 	assert_true(CANONICAL.canonical_json(state.saved).ok, "saved reducer enums are JSON safe")
 	var frozen: Dictionary = state.saved.duplicate(true)
@@ -106,12 +112,12 @@ func test_solo_public_actions_clear_then_saved_choice_pays_exactly_once() -> voi
 	assert_true(physical_owner.begin_physical(command).ok)
 	assert_eq(state.saved, frozen)
 	assert_eq(generation.call_log.size(), 1, "fresh physical_owner never regenerates an active board")
-	assert_true(physical_owner.dispatch_physical(command.physical_token, "special_mine", -1, 0).ok)
+	assert_true(physical_owner.dispatch_physical(command.physical_token, "activate", int(state.saved.envelope.special_cell), int(state.saved.board.revision)).ok)
 	assert_eq(state.applications, 1)
 	assert_eq(state.facts[command.completion_transaction_id].relationship_outcome, "dark")
-	assert_eq(state.saved.outcome, "perfect", "Dark retains earned board truth")
-	assert_false(physical_owner.dispatch_physical(command.physical_token, "special_mine", -1, 0).ok)
-	assert_true(physical_owner.dispatch_physical(command.physical_token, "continue", -1, 0).ok)
+	assert_eq(state.saved.outcome, "cleared", "Dark is available only after a non-Perfect clear")
+	assert_false(physical_owner.dispatch_physical(command.physical_token, "activate", int(state.saved.envelope.special_cell), int(state.saved.board.revision)).ok)
+	assert_true(physical_owner.dispatch_physical(command.physical_token, "continue", -1, int(state.saved.board.revision)).ok)
 	assert_eq(state.applications, 1)
 
 func test_explosion_uses_frozen_disposition_and_retry_keeps_same_fact() -> void:
@@ -190,7 +196,7 @@ func test_three_bv_counts_zero_openings_and_remaining_numbers() -> void:
 	for index in [0, 1, 3, 5]:
 		if not board.terminal: board = REDUCER.chord(board, index, "chord.%d" % index).value.board
 	assert_true(board.terminal)
-	assert_eq(RULES.perfect_reasons(board), ["efficiency_gt_100"])
+	assert_eq(RULES.perfect_reasons(board), ["efficiency_gte_100"])
 
 func test_checkpoint_failure_rolls_back_terminal_stats_and_selection_before_retry() -> void:
 	var stored: Array = []
@@ -203,16 +209,18 @@ func test_checkpoint_failure_rolls_back_terminal_stats_and_selection_before_retr
 	assert_true(physical_owner.configure_checkpoint_writer(writer).ok)
 	_begin("solo")
 	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("flag", 0).ok)
+	assert_true(_dispatch("unflag", 0).ok)
 	assert_true(_dispatch("reveal", 323).ok)
 	assert_eq(stored.back().phase, "cleared_awaiting_terminal_choice")
 	var before_choice: Dictionary = state.saved.duplicate(true)
 	refuse[0] = true
-	assert_false(_dispatch("special_mine").ok)
+	assert_false(_dispatch("activate", int(state.saved.envelope.special_cell)).ok)
 	assert_eq(state.saved, before_choice)
 	assert_eq(state.applications, 0)
 	assert_eq(completion_results.size(), 0)
 	refuse[0] = false
-	assert_true(_dispatch("special_mine").ok)
+	assert_true(_dispatch("activate", int(state.saved.envelope.special_cell)).ok)
 	assert_eq(state.applications, 1)
 	refuse[0] = true
 	assert_false(_dispatch("continue").ok)

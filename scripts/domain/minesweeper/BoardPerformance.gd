@@ -1,6 +1,7 @@
 extends RefCounted
 ## Derived from a validated saved board; no metric or parallel action history is persisted.
-## Recovered CONTENT: Foresight is raw 3BV / total accepted clicks, strictly greater than 100%.
+## Current August-13 rules use >=100% and floor for display. Version 1 preserves
+## the earlier >100% classification/rounded display when validating historical attempts.
 
 static func click_count(board: Dictionary) -> int:
 	return board.actions.size() + 1
@@ -8,12 +9,19 @@ static func click_count(board: Dictionary) -> int:
 static func foresight_percent(board: Dictionary) -> float:
 	return float(three_bv(board)) / float(click_count(board)) * 100.0
 
-static func perfect_reasons(board: Dictionary) -> Array:
+static func display_percent(board: Dictionary, rule_version: int = 2) -> int:
+	var percentage := foresight_percent(board)
+	return roundi(percentage) if rule_version == 1 else floori(percentage)
+
+static func perfect_reasons(board: Dictionary, rule_version: int = 2) -> Array:
 	if not bool(board.terminal) or str(board.outcome) != "cleared": return []
 	var reasons: Array = []
 	# The first reveal is implicit in reducer revision zero; subsequent accepted cell commands
 	# are the action ledger. Count flags too (the recovered contract says total clicks).
-	if three_bv(board) > click_count(board): reasons.append("efficiency_gt_100")
+	if rule_version == 1:
+		if three_bv(board) > click_count(board): reasons.append("efficiency_gt_100")
+	elif three_bv(board) >= click_count(board):
+		reasons.append("efficiency_gte_100")
 	var flagged: bool = false
 	for action: Dictionary in board.actions:
 		if str(action.kind) == "set_flag" and bool(action.get("flagged", false)): flagged = true

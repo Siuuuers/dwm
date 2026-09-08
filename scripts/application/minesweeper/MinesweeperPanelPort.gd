@@ -17,6 +17,7 @@ var _board_port: Object = null
 var _presented := false
 var _presented_difficulty := ""
 var _presented_view: Dictionary = {}
+var _presented_session: Dictionary = {}
 var _held_terminal: Dictionary = {}
 var _held_session: Dictionary = {}
 
@@ -54,7 +55,11 @@ func pull() -> Dictionary:
 		return _unavailable()
 	_discard_stale_terminal()
 	if not _held_terminal.is_empty():
-		return _present_success(_held_terminal)
+		if not _owner.has_method("get_configuration_context"):
+			return _present_success(_held_terminal)
+		# Production retains the board and completion receipt in the canonical owner.
+		# Refresh from that owner; this cache is never authority for a completed result.
+		_clear_held_terminal()
 	var initial: Variant = _owner.call(&"get_state")
 	if not initial is Dictionary or not initial.get("ok", false) \
 			or not initial.get("value") is Dictionary:
@@ -86,8 +91,13 @@ func pull() -> Dictionary:
 	if REGISTER.desktop(snapshot, _game_state) != register \
 			or ASSIGNMENTS.from_sources(_game_state, _catalog) != assignments:
 		return _unavailable()
+	var configuration: Dictionary = _board_port.get_configuration(board.value)
+	if not configuration.get("ok", false): return _unavailable()
 	var actions: Array[String] = []
-	if not register.value.custody: actions.assign(PLAY_ACTIONS)
+	if not register.value.custody:
+		actions.assign(PLAY_ACTIONS)
+		if configuration.value.new_board_enabled: actions.append("new_board")
+		register.value.difficulty_enabled = configuration.value.difficulty_enabled.duplicate()
 	return _present_success({
 		"board": board.value.duplicate(true), "register": register.value.duplicate(true),
 		"assignments": assignments.value.duplicate(), "actions": actions, "settled": false,
@@ -100,12 +110,18 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 		if action != "new_board" or revision != int(_held_terminal.board.revision):
 			return {"ok": false, "code": &"minesweeper_panel_command_refused",
 				"value": _held_terminal.duplicate(true)}
+		if _owner.has_method("get_configuration_context"):
+			if not _has_fresh_difficulty(): return _refused()
+			var dismissed: Dictionary = _board_port.replace_board(revision)
+			if not dismissed.get("ok", false): return _refused()
 		_clear_held_terminal()
 		return pull()
-	if action == "new_board":
-		return _refused_without_refresh()
 	if not _has_fresh_difficulty(): return _refused()
-	var result: Dictionary = _board_port.call(&"dispatch", action, index, revision)
+	var result: Dictionary
+	if action == "new_board":
+		result = _board_port.replace_board(revision)
+	else:
+		result = _board_port.call(&"dispatch", action, index, revision)
 	if result.get("value") is Dictionary and bool(result.value.get("terminal", false)):
 		var assignments: Dictionary = ASSIGNMENTS.from_sources(_game_state, _catalog)
 		if not assignments.get("ok", false) or _presented_view.is_empty(): return _unavailable()
@@ -121,12 +137,45 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 	return pull()
 
 
+func advance_preparation(expected_revision: int) -> Dictionary:
+	_discard_stale_terminal()
+	if not _held_terminal.is_empty(): return {"ok": true, "advanced": false}
+	if not _presented or _presented_session.is_empty() or _session_marker() != _presented_session:
+		return _refused()
+	var result: Dictionary = _board_port.advance_preparation(expected_revision)
+	if not result.get("ok", false): return _refused()
+	if not result.get("advanced", false): return {"ok": true, "advanced": false}
+	var refreshed := pull()
+	if refreshed.get("ok", false): refreshed["advanced"] = true
+	return refreshed
+
+
+func select_difficulty(difficulty: String, expected_revision: int) -> Dictionary:
+	_discard_stale_terminal()
+	if not _held_terminal.is_empty(): return _refused_without_refresh()
+	if not _has_fresh_difficulty(): return _refused()
+	var result: Dictionary = _board_port.select_difficulty(difficulty, expected_revision)
+	if not result.get("ok", false): return _refused()
+	return pull()
+
+
+func can_park_preparation(expected_revision: int) -> bool:
+	if _board_port == null or not _held_terminal.is_empty() or not _presented \
+			or _presented_session.is_empty() or _session_marker() != _presented_session:
+		return false
+	return _board_port.can_park_preparation(expected_revision)
+
+
 func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 	_discard_stale_terminal()
 	if not _held_terminal.is_empty():
 		if expected_revision != int(_held_terminal.board.revision):
 			return {"ok": false, "code": &"minesweeper_panel_command_refused",
 				"value": _held_terminal.duplicate(true)}
+		if _owner.has_method("get_configuration_context"):
+			var retained: Dictionary = _board_port.set_foreground(foreground, expected_revision)
+			if not retained.get("ok", false): return _refused()
+			return pull()
 		return _present_success(_held_terminal)
 	if not _has_fresh_difficulty(): return _refused()
 	var result: Dictionary = _board_port.call(&"set_foreground", foreground, expected_revision)
@@ -147,6 +196,7 @@ func _terminal_view(board: Dictionary, prior_register: Dictionary, assignments: 
 	register["rounds"] = rounds
 	register["mine_estimate"] = board.get("mine_estimate")
 	register["custody"] = true
+	register["difficulty_enabled"] = []
 	return {
 		"board": board.duplicate(true), "register": register,
 		"assignments": assignments.duplicate(),
@@ -167,6 +217,7 @@ func _present_success(value: Dictionary) -> Dictionary:
 	_presented = true
 	_presented_difficulty = str(value.register.difficulty)
 	_presented_view = value.duplicate(true)
+	_presented_session = _session_marker()
 	return {"ok": true, "value": value.duplicate(true)}
 
 
@@ -174,6 +225,7 @@ func _present_failure(value: Dictionary) -> void:
 	_presented = true
 	_presented_difficulty = str(value.register.difficulty)
 	_presented_view = value.duplicate(true)
+	_presented_session = _session_marker()
 
 
 func _session_marker() -> Dictionary:
@@ -205,7 +257,8 @@ func _on_game_state_day_changed(_day: int = -1) -> void:
 
 
 func _has_fresh_difficulty() -> bool:
-	if not _presented or not is_instance_valid(_owner) or not is_instance_valid(_issuer):
+	if not _presented or not is_instance_valid(_owner) or not is_instance_valid(_issuer) \
+			or _presented_session.is_empty() or _session_marker() != _presented_session:
 		return false
 	# The unpaid tier can change without a board revision. Read it without adopting a new
 	# board-port identity: that port must still reject commands from a stale presentation.

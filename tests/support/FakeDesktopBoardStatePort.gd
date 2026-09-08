@@ -24,6 +24,7 @@ var causal_day_instance := "day-fake"
 var motivation := 7
 var rounds_left := 2
 var round_floor := 0
+var generation_capabilities: Array = ["first_cell_safe"]
 var next_ordinal := 1
 
 ## Mirrors the exact API GameStateDesktopBoardPort consumes: the receipt's identity is an
@@ -68,6 +69,10 @@ func capture() -> Dictionary:
 		"eligible": eligible, "motivation": motivation, "rounds_left": rounds_left,
 		"backup": {"motivation": motivation, "rounds_left": rounds_left, "next_ordinal": next_ordinal},
 	}, "receipt": {}}
+
+
+func get_generation_capabilities() -> Dictionary:
+	return {"ok": true, "value": {"capability_ids": generation_capabilities.duplicate()}}
 
 
 func prepare_spec(difficulty_id: String, transaction_id: String,
@@ -200,7 +205,7 @@ func _fake_spec_for(difficulty_id: String, transaction_id: String) -> Dictionary
 		"schema_version": 1, "board_kind": "desktop", "board_token": "board-token.%s" % transaction_id,
 		"board_token_receipt_id": "receipt-board.%s" % transaction_id, "difficulty_id": difficulty_id,
 		"width": 3, "height": 3, "base_mine_count": 1, "pressure": 3, "penalty_points_today": 0,
-		"raw_extra_mines": 1, "requested_mine_count": 1, "capability_ids": ["first_cell_safe"],
+		"raw_extra_mines": 1, "requested_mine_count": 1, "capability_ids": generation_capabilities.duplicate(),
 		"placement_stream_id": "minesweeper_placement_v1", "placement_nonce": "placement.%s" % transaction_id,
 		"placement_nonce_receipt_id": "receipt-placement.%s" % transaction_id,
 		"debug_stream_id": "minesweeper_debug_v1", "debug_nonce": "debug.%s" % transaction_id,

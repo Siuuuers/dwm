@@ -81,11 +81,12 @@ static func _dating_signature(record: Dictionary, fields: Dictionary, post: bool
 			return _fail("invalid_dating_presentation_result")
 		var ordered: Array = reasons.duplicate()
 		ordered.sort()
-		if ordered != reasons or (outcome == "perfect") != (not reasons.is_empty()):
+		if ordered != reasons or (outcome == "perfect") != (not reasons.is_empty()) \
+				or (reasons.has("efficiency_gt_100") and reasons.has("efficiency_gte_100")):
 			return _fail("invalid_dating_presentation_result")
 		var previous := ""
 		for reason: Variant in reasons:
-			if reason not in ["efficiency_gt_100", "no_flag"] or reason == previous:
+			if reason not in ["efficiency_gt_100", "efficiency_gte_100", "no_flag"] or reason == previous:
 				return _fail("invalid_dating_presentation_result")
 			previous = reason
 		projected["board_result"] = outcome
@@ -98,9 +99,11 @@ static func _dating_signature(record: Dictionary, fields: Dictionary, post: bool
 				return _fail("invalid_dating_presentation_result")
 			if outcome != "exploded" and relationship not in ["dark", "foresight" if outcome == "perfect" else "loved"]:
 				return _fail("invalid_dating_presentation_result")
+			if record.get("schema_version") == 3 and outcome == "perfect" and relationship != "foresight":
+				return _fail("invalid_dating_presentation_result")
 			projected["relationship_outcome"] = relationship
 			# The retained terminal choice proves whether the post-clear mine was used.
-			projected["special_mine_phase"] = "not_reached" if outcome == "exploded" else ("detonated" if relationship == "dark" else "declined")
+			projected["special_mine_phase"] = "not_reached" if outcome == "exploded" or (record.get("schema_version") == 3 and outcome == "perfect") else ("detonated" if relationship == "dark" else "declined")
 			projected["promotion_result"] = fields.get("promotion_result", "none")
 			if projected.promotion_result not in ["none", "friend", "ambiguous", "love"]:
 				return _fail("invalid_presentation_fields")

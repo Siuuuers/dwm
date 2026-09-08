@@ -42,7 +42,9 @@ func _init() -> void:
 	dock.name = "Dock"
 	add_child(dock)
 	dock.action_requested.connect(_action)
+	register.difficulty_requested.connect(_select_difficulty)
 	worksheet.cell_action_requested.connect(_dispatch)
+	worksheet.new_board_requested.connect(func(): _action(&"new_board"))
 	worksheet.grid.mode_changed.connect(func(_mode: StringName): _apply_availability())
 	worksheet.information_closing.connect(_apply_availability)
 	worksheet.information_closed.connect(_information_closed)
@@ -127,14 +129,19 @@ func _valid(value: Dictionary) -> bool:
 	for action: Variant in value.actions:
 		if typeof(action) != TYPE_STRING or action not in ACTIONS or action in seen: return false
 		seen.append(action)
-	# Tier selection still has no application command owner. A settled terminal retains board
-	# custody while exposing only the dock-level release and read-only information actions.
-	if value.register.get("difficulty_enabled") != []: return false
 	if value.settled:
-		return value.board.terminal and value.board.custody and seen == SETTLED_ACTIONS
+		return value.board.terminal and value.board.custody and seen == SETTLED_ACTIONS \
+			and value.register.get("difficulty_enabled") == []
 	if value.board.custody:
-		return value.actions.is_empty()
-	return not value.board.terminal and seen == PLAY_ACTIONS
+		return value.actions.is_empty() and value.register.get("difficulty_enabled") == []
+	var expected: Array = PLAY_ACTIONS.duplicate()
+	if "new_board" in seen:
+		var touched := false
+		for cell: Dictionary in value.board.cells:
+			if cell.face == "revealed": touched = true
+		if not touched: return false
+		expected.append("new_board")
+	return not value.board.terminal and seen == expected
 
 func _measure(value: Dictionary, locale: String, percent: int, large: bool, palette: StringName,
 		high_contrast: bool = false, colour_preset: String = "standard") -> Dictionary:
@@ -170,13 +177,16 @@ func _apply_availability() -> void:
 		or (public_view.get("board",{}).get("custody",true) and not settled)
 	worksheet.set_interaction_blocked(_failed or settled)
 	for key: String in register.difficulties:
-		register.difficulties[key].present_state(false,key == register.public_view.difficulty)
+		register.difficulties[key].present_state(not blocked and not settled \
+			and key in register.public_view.difficulty_enabled,key == register.public_view.difficulty)
 	dock.present(worksheet.grid.mode,public_view.get("actions",[]),blocked)
 	_wire_focus()
 
 func _wire_focus() -> void:
 	if not is_inside_tree(): return
 	var controls: Array[Control] = []
+	for control: Control in register.difficulties.values():
+		if control.focus_mode != Control.FOCUS_NONE: controls.append(control)
 	for control: Control in [worksheet.grid,worksheet.vertical_rail,worksheet.horizontal_rail]:
 		if control != null and control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
 	for control: Control in dock.buttons.values():
@@ -196,7 +206,8 @@ func _action(action: StringName) -> void:
 		worksheet.set_mode(action)
 		return
 	if action == &"new_board":
-		_receive(_port.call("dispatch","new_board",-1,int(public_view.board.revision)))
+		if _receive(_port.call("dispatch","new_board",-1,int(public_view.board.revision))):
+			worksheet.set_mode(&"reveal")
 		return
 	var opened := false
 	if action == &"rules": opened = worksheet.open_rules(dock.buttons.rules)
@@ -214,6 +225,14 @@ func _information_closed() -> void:
 func _dispatch(action: StringName, index: int, revision: int) -> void:
 	if _failed or worksheet.information_sheet != null or not is_instance_valid(_port): return
 	_receive(_port.call("dispatch",String(action),index,revision))
+
+func _select_difficulty(difficulty: StringName) -> void:
+	if _failed or worksheet.information_sheet != null or not is_instance_valid(_port) \
+			or not _port.has_method("select_difficulty") or public_view.get("settled",false) \
+			or public_view.board.custody or String(difficulty) == public_view.register.difficulty \
+			or String(difficulty) not in public_view.register.difficulty_enabled: return
+	if _receive(_port.call("select_difficulty",String(difficulty),int(public_view.board.revision))):
+		worksheet.set_mode(&"reveal")
 
 func _receive(result: Variant) -> bool:
 	if result is Dictionary and result.get("value") is Dictionary:

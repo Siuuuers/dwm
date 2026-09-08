@@ -19,6 +19,7 @@ func _signature(kind: String = "solo") -> Dictionary:
 func _fixture(kind: String = "solo", milestone: bool = true) -> Dictionary:
 	var game: Node = autofree(GAME.new())
 	game.reset_game()
+	game.set_stat("pressure", 3) # Practice copies this current input: one extra mine.
 	game.route_context.canonical_marker = {"nested": [1, 2]}
 	game.affection.priscilla = 3
 	var profile: Node = autofree(PROFILE.new())
@@ -51,7 +52,10 @@ func _clear(f: Dictionary, use_flag: bool = false) -> void:
 	var record := _board(f)
 	assert_eq(record.board.width, 18)
 	assert_eq(record.board.height, 18)
-	assert_eq(record.board.mine_count, 36)
+	assert_eq(record.spec.pressure, 3)
+	assert_eq(record.spec.base_mine_count, 36)
+	assert_eq(record.spec.requested_mine_count, 37)
+	assert_eq(record.board.mine_count, 37, "the detached board retains the current pressure extra")
 	assert_false(record.board.mine_indices.has(0), "the actual production generator protects first Reveal")
 	if use_flag and not record.board.terminal:
 		var mine: int = record.board.mine_indices[0]
@@ -83,7 +87,7 @@ func test_exact_reached_pre_challenge_and_first_ending_are_both_required() -> vo
 	assert_eq(ADMISSION.prepare(post, [post], true).code, &"rehearsal_requires_pre_challenge")
 	assert_true(f.owner.close().ok)
 
-func test_real_perfect_then_dark_mutates_only_private_state_and_no_progression_capability_escapes() -> void:
+func test_real_perfect_settles_automatically_in_private_state_and_no_progression_capability_escapes() -> void:
 	var f := _fixture()
 	var before: Dictionary = f.game.capture_run_snapshot_input().duplicate(true)
 	var profile_before: Dictionary = f.profile.get_profile_snapshot()
@@ -99,17 +103,18 @@ func test_real_perfect_then_dark_mutates_only_private_state_and_no_progression_c
 		assert_eq(f.owner.execute_command(command).code, &"rehearsal_capability_denied")
 	assert_eq(f.owner._physical.pull_observer(f.command.physical_token).value, {})
 	_clear(f)
-	assert_eq(_board(f).phase, "cleared_awaiting_terminal_choice")
+	assert_eq(_board(f).phase, "post_challenge")
 	assert_eq(_board(f).outcome, "perfect")
-	assert_true(_action(f, "special_mine").ok)
-	assert_eq(_board(f).relationship_outcome, "dark")
+	assert_false(_action(f, "activate", int(_board(f).envelope.special_cell)).ok)
+	assert_eq(_board(f).relationship_outcome, "foresight")
 	assert_eq(_board(f).outcome, "perfect")
-	assert_eq(f.owner._sandbox.dating_route_state.priscilla.dark_points, 1)
+	assert_eq(f.owner._sandbox.dating_route_state.priscilla.dark_points, 0)
 	var post: Dictionary = f.owner.capture_presentation(f.command)
 	assert_true(post.ok, str(post))
 	if post.ok:
 		assert_eq(post.value.signature.fields.board_result, "perfect")
-		assert_eq(post.value.signature.fields.relationship_outcome, "dark")
+		assert_eq(post.value.signature.fields.relationship_outcome, "foresight")
+		assert_eq(post.value.signature.fields.special_mine_phase, "not_reached")
 	assert_true(_action(f, "continue").ok)
 	assert_eq(f.game.capture_run_snapshot_input(), before)
 	assert_eq(f.profile.get_profile_snapshot(), profile_before)

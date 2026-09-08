@@ -74,6 +74,8 @@ func _wired() -> Dictionary:
 	var checkpoint_port: Object = load(CHECKPOINT_PORT_PATH).new(save_manager)
 	assert_true(checkpoint_port.configure_fatal_latch(load(GATE_PATH).new()).get("ok", false))
 	var durable_port: Object = load(DESKTOP_BOARD_SAVE_PORT_PATH).new(checkpoint_port)
+	var semantic_audio: Node = autofree(load("res://autoload/AudioManager.gd").new())
+	assert_true(durable_port.configure_audio_context_capture(Callable(semantic_audio, &"get_semantic_audio_context")).get("ok", false))
 
 	var gs: Node = load(GS_PATH).new()
 	assert_true(gs.configure_mutation_gate(gate).get("ok", false))
@@ -223,6 +225,8 @@ func _wired_for_recovery() -> Dictionary:
 	var checkpoint_port: Object = load(CHECKPOINT_PORT_PATH).new(save_manager)
 	assert_true(checkpoint_port.configure_fatal_latch(load(GATE_PATH).new()).get("ok", false))
 	var real_durable_port: Object = load(DESKTOP_BOARD_SAVE_PORT_PATH).new(checkpoint_port)
+	var semantic_audio: Node = autofree(load("res://autoload/AudioManager.gd").new())
+	assert_true(real_durable_port.configure_audio_context_capture(Callable(semantic_audio, &"get_semantic_audio_context")).get("ok", false))
 	var crash_durable_port := _CrashBeforeRollbackPort.new(real_durable_port)
 
 	var gs: Node = load(GS_PATH).new()

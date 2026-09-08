@@ -24,6 +24,7 @@ const _VERIFIER := preload("res://scripts/domain/minesweeper/MinesweeperNoGuessV
 const _TOOLING_LIMITS := preload("res://tools/minesweeper/MinesweeperGeneratorToolingLimits.gd")
 const _CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const _BOARD_CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 
 const DIFFICULTY_MANIFEST_PATH := "res://data/manifests/minesweeper_difficulties.v1.json"
 const ARTIFACT_PATH := "res://data/manifests/minesweeper_certified_fallbacks.v1.json"
@@ -36,7 +37,7 @@ const _ADVANCE_CHUNK := 200_000
 const _DIFFICULTY_ORDER := ["beginner", "intermediate", "expert"]
 const _ZERO_ORDER := [false, true]
 
-const _MODE_FLAGS := {"write": ["path"], "check": ["path"]}
+const _MODE_FLAGS := {"write": ["path"], "check": ["path"], "extend-dating": ["path"]}
 ## Soft internal deadline for one process invocation, well under the ~50-minute host process
 ## lifetime observed empirically for this tool (see task-4-report.md) so a checkpoint always lands
 ## before an external kill.
@@ -176,7 +177,7 @@ static func _self_check(difficulty_id: String, width: int, height: int, base_min
 						return {"ok": false, "code": &"lucky_forced_cell_not_zero",
 							"message": "a first_cell_zero record's forced cell must have zero mine neighbors",
 							"details": {"difficulty_id": difficulty_id, "forced_cell": forced_cell}}
-	return {"ok": true}
+	return {"ok": true, "value": {"operation_count": int(reverified.value.operation_count)}}
 
 
 static func canonical_bytes(artifact: Dictionary) -> Dictionary:
@@ -189,7 +190,7 @@ static func canonical_bytes(artifact: Dictionary) -> Dictionary:
 static func parse_arguments(args: PackedStringArray) -> Dictionary:
 	if args.size() != 1:
 		return _fail(&"generator_argument_count_invalid",
-			"exactly one of --write=<path> or --check=<path> is required", {})
+			"exactly one of --write=<path>, --check=<path>, or --extend-dating=<path> is required", {})
 	var argument: String = String(args[0])
 	for mode: String in _MODE_FLAGS.keys():
 		var prefix: String = "--%s=" % mode
@@ -199,7 +200,7 @@ static func parse_arguments(args: PackedStringArray) -> Dictionary:
 				return _fail(&"generator_argument_blank", "a flag value is never blank", {"mode": mode})
 			return {"ok": true, "value": {"mode": mode, "path": path}}
 	return _fail(&"generator_argument_unknown",
-		"only --write=<res://path> or --check=<res://path> are legal (no bare mode, no --verify alias)",
+		"only --write=<res://path>, --check=<res://path>, or --extend-dating=<res://path> are legal",
 		{"argument": argument})
 
 
@@ -296,7 +297,7 @@ static func build_all_records(ceiling: int) -> Dictionary:
 		"records": records,
 	}
 	_delete_checkpoint()
-	return {"ok": true, "value": {"complete": true, "artifact": artifact}}
+	return extend_dating_artifact(artifact)
 
 
 static func _checkpoint_path() -> String:
@@ -358,6 +359,9 @@ func _init() -> void:
 	var arguments: Dictionary = parsed["value"] as Dictionary
 	var mode: String = String(arguments["mode"])
 	var path: String = String(arguments["path"])
+	if mode == "extend-dating":
+		_run_dating_extension(path)
+		return
 
 	var built: Dictionary = build_all_records(_TOOLING_LIMITS.TOOLING_SAFETY_OPERATION_CEILING)
 	if not built.get("ok", false):
@@ -429,3 +433,114 @@ func _reject(stage: String, envelope: Dictionary) -> void:
 		stage, str(envelope.get("code", &"")), str(envelope.get("message", "")),
 	])
 	quit(1)
+
+
+## Fixed-host extension reuses prior desktop rows without rerunning their historical search.
+## The edge-band recipe is tool-only; every output is independently certified before writing.
+static func build_canonical_record(host: String, forced_cell: int, first_cell_zero: bool) -> Dictionary:
+	var dimensions: Dictionary = _BOARD_CATALOG.lookup(host)
+	if not dimensions.get("ok", false): return dimensions
+	var width: int = int(dimensions.value.width)
+	var height: int = int(dimensions.value.height)
+	var base: int = int(dimensions.value.base_mine_count)
+	if width != 18 or height != 18 or base != 36:
+		return _fail(&"canonical_dimensions_changed", "the edge-band recipe requires the registered 18x18/36 host", {})
+	if forced_cell < 0 or forced_cell >= width * height:
+		return _fail(&"cell_index_out_of_range", "forced cell is outside the registered host", {})
+	# Place two complete rows on the distant edge. The forced cell is zero even in safe mode.
+	var start: int = (height - 2) * width if forced_cell / width < 3 else 0
+	var mines: Array = []
+	for index in range(start, start + base): mines.append(index)
+	var checked: Dictionary = _self_check(host, width, height, base, forced_cell, first_cell_zero, mines)
+	if not checked.get("ok", false): return checked
+	return {"ok": true, "value": {"record": {"difficulty_id": host, "forced_cell": forced_cell,
+		"first_cell_zero": first_cell_zero, "mine_indices": mines, "mine_count": base},
+		"operation_count": checked.value.operation_count}}
+
+static func extend_dating_artifact(source: Dictionary) -> Dictionary:
+	var source_keys: Array = source.keys(); source_keys.sort()
+	if source_keys != ["generator_version", "kind", "records", "registry_version", "schema_version", "verifier_version"] \
+			or source.get("schema_version") != 1 or source.get("kind") != "minesweeper_certified_fallbacks" \
+			or source.get("registry_version") != "minesweeper_certified_fallbacks_v1" \
+			or source.get("generator_version") != "dwm_generator_v1" or source.get("verifier_version") != "visible_deduction_v1" \
+			or not source.get("records") is Array:
+		return _fail(&"fallback_source_invalid", "a complete existing fallback artifact is required", {})
+	var difficulty_result: Dictionary = read_difficulty_manifest()
+	if not difficulty_result.get("ok", false): return difficulty_result
+	var desktop_count := 0
+	for row: Dictionary in difficulty_result.value.records: desktop_count += 2 * int(row.width) * int(row.height)
+	var canonical_count := 2 * 2 * 18 * 18
+	if source.records.size() not in [desktop_count, desktop_count + canonical_count]:
+		return _fail(&"fallback_source_coverage_invalid", "source must contain exact desktop coverage and optional complete canonical coverage", {})
+	var ordinal := 0
+	var max_operations := 0
+	for row: Dictionary in difficulty_result.value.records:
+		for zero: bool in _ZERO_ORDER:
+			for cell in range(int(row.width) * int(row.height)):
+				var record: Variant = source.records[ordinal]
+				var checked: Dictionary = _validate_extension_record(record, str(row.difficulty_id), cell, zero,
+					int(row.width), int(row.height), int(row.base_mine_count))
+				if not checked.get("ok", false): return checked
+				max_operations = maxi(max_operations, int(checked.value.operation_count))
+				ordinal += 1
+	var records: Array = source.records.slice(0, desktop_count).duplicate(true)
+	for host: String in ["canonical_solo", "canonical_pair"]:
+		for zero: bool in _ZERO_ORDER:
+			for cell in range(18 * 18):
+				var built: Dictionary = build_canonical_record(host, cell, zero)
+				if not built.get("ok", false): return built
+				var record: Dictionary = built.value.record
+				if source.records.size() > desktop_count and source.records[records.size()] != record:
+					return _fail(&"canonical_fallback_conflict", "existing canonical fallback differs from the fixed recipe", {})
+				records.append(record)
+				max_operations = maxi(max_operations, int(built.value.operation_count))
+	var artifact := source.duplicate(true)
+	artifact.records = records
+	return {"ok": true, "value": {"complete": true, "artifact": artifact,
+		"max_verifier_operations": max_operations, "canonical_records": canonical_count}}
+
+static func _validate_extension_record(record: Variant, host: String, cell: int, zero: bool,
+		width: int, height: int, base: int) -> Dictionary:
+	if not record is Dictionary: return _fail(&"fallback_source_invalid", "every existing row must be a record", {})
+	var keys: Array = record.keys(); keys.sort()
+	if keys != ["difficulty_id", "first_cell_zero", "forced_cell", "mine_count", "mine_indices"] \
+			or record.get("difficulty_id") != host or record.get("forced_cell") != cell \
+			or record.get("first_cell_zero") != zero or record.get("mine_count") != base \
+			or not record.get("mine_indices") is Array:
+		return _fail(&"fallback_source_coverage_invalid", "source rows must retain exact registered order and base count", {})
+	if record.mine_indices.size() != base:
+		return _fail(&"fallback_source_coverage_invalid", "source base mine count changed", {})
+	var previous := -1
+	for mine: Variant in record.mine_indices:
+		if typeof(mine) != TYPE_INT or int(mine) <= previous or int(mine) >= width * height or int(mine) == cell:
+			return _fail(&"fallback_source_invalid", "existing mines must remain sorted unique valid cells", {})
+		previous = int(mine)
+	# CLI admission binds the entire source to its previously certified artifact hash.
+	# A normal full build has just independently certified these same desktop rows.
+	return {"ok": true, "value": {"operation_count": 0}}
+
+func _run_dating_extension(path: String) -> void:
+	var started := Time.get_ticks_msec()
+	if not FileAccess.file_exists(path):
+		_reject("EXTEND", _fail(&"target_missing", "existing desktop fallback artifact is required", {})); return
+	var budget: Dictionary = _STRICT_JSON.parse_object(FileAccess.get_file_as_string("res://data/manifests/minesweeper_generator_budget.v1.json"))
+	if not budget.get("ok", false) or typeof(budget.value.get("reserved_fallback_operation_budget")) != TYPE_INT \
+			or not budget.value.get("source_sha256") is Dictionary:
+		_reject("EXTEND", _fail(&"fallback_budget_unavailable", "the existing reserved operation budget and source hash are required", {})); return
+	var source_bytes: PackedByteArray = FileAccess.get_file_as_bytes(path)
+	var hash_context := HashingContext.new()
+	hash_context.start(HashingContext.HASH_SHA256)
+	hash_context.update(source_bytes)
+	if hash_context.finish().hex_encode() != budget.value.source_sha256.get("fallback_manifest"):
+		_reject("EXTEND", _fail(&"fallback_source_changed", "source differs from the previously certified artifact; refuse to reuse its desktop prefix", {})); return
+	var parsed: Dictionary = _STRICT_JSON.parse_object(source_bytes.get_string_from_utf8())
+	if not parsed.get("ok", false): _reject("EXTEND", parsed); return
+	var extended: Dictionary = extend_dating_artifact(parsed.value)
+	if not extended.get("ok", false): _reject("EXTEND", extended); return
+	if int(extended.value.max_verifier_operations) > int(budget.value.reserved_fallback_operation_budget):
+		_reject("EXTEND", _fail(&"fallback_budget_exceeded", "certification exceeds the existing reserved operation budget", {})); return
+	var bytes: Dictionary = canonical_bytes(extended.value.artifact)
+	if not bytes.get("ok", false): _reject("EXTEND", bytes); return
+	print("DATING_FALLBACK_CERTIFIED rows=%d max_verifier_operations=%d elapsed_ms=%d" % [
+		extended.value.canonical_records, extended.value.max_verifier_operations, Time.get_ticks_msec() - started])
+	_run_write(path, bytes.value.bytes)

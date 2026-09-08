@@ -8,12 +8,14 @@ const SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema
 const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 const CANONICAL := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const PROFILE_SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
+const ENVELOPE := preload("res://scripts/application/run/DatingChallengeEnvelope.gd")
+const CAPABILITIES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 const RULES := preload("res://scripts/application/run/DatingChallengeRules.gd")
 const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const OBSERVER_RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
 const OWNER_KIND := "dating_challenge"
-const PHASES := ["pre_challenge", "challenge", "cleared_awaiting_terminal_choice", "settlement_retry", "post_challenge", "completed"]
+const PHASES := ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "settlement_retry", "post_challenge", "completed"]
 const RECORD_KEYS := ["applied_result", "board", "command_sha256", "completion_transaction_id",
 	"context", "host", "mine_dispositions", "outcome", "pair_form", "perfect_reasons", "phase",
 	"physical_token", "relationship_outcome", "schema_version", "spec"]
@@ -108,7 +110,7 @@ func _begin_physical(command: Dictionary) -> Dictionary:
 		_record = _rebind_record(stored, command)
 		if not _valid_record(_record, command): return _fail(&"invalid_restored_dating_challenge")
 		_pending_checkpoint = {}
-		if _attempt_gate != null and _record.phase != "pre_challenge":
+		if _attempt_gate != null and _record.phase not in ["pre_challenge", "preparing"]:
 			var resumed: Dictionary = _restore_attempt(command)
 			if not resumed.get("ok", false): return resumed
 		var frozen: Dictionary = _freeze_pre_challenge_presentation()
@@ -130,7 +132,7 @@ func _begin_physical(command: Dictionary) -> Dictionary:
 		if pair_form not in PROFILE_SCHEMA.PAIR_FORMS: return _fail(&"invalid_dating_pair_form")
 	_clear_history_state()
 	if _attempt_gate != null: _game_state.route_context.erase("dating_active_attempt_ref")
-	_record={"schema_version":2,"completion_transaction_id":completion_id,"command_sha256":command_hash,
+	_record={"schema_version":3,"envelope":ENVELOPE.make(),"completion_transaction_id":completion_id,"command_sha256":command_hash,
 		"physical_token":token,"context":context.duplicate(true),"host":host,"spec":spec.value,
 		"board":null,"phase":"pre_challenge","outcome":null,"applied_result":{},"pair_form":pair_form,
 		"mine_dispositions":[],"relationship_outcome":null,"perfect_reasons":[]}
@@ -174,7 +176,7 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 		return _fail(&"observer_checkpoint_retry_required")
 	# A later restore participant can roll GameState back without touching this retained
 	# owner's local preview. Rebuild that preview from the live branch before accepting input.
-	if _post_ending_history() and _record.phase != "pre_challenge" and (
+	if _post_ending_history() and _record.phase not in ["pre_challenge", "preparing"] and (
 			_history_target_branch != str(_attempt_identity().branch_id)
 			or _history_reference.get("attempt_id") != _record.spec.board_token):
 		var rebound: Dictionary = _restore_attempt(_record, true)
@@ -193,15 +195,34 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 				_record.spec = fresh.value
 				_clear_history_state()
 				_history_selection = {"mode": "fresh"}
-			_record.phase="challenge"
-			if _attempt_gate != null and not _post_ending_history():
+			if _record.schema_version == 3:
+				_record.envelope = ENVELOPE.make()
+				if _record.spec.capability_ids.has("forced_no_guess"):
+					if not _generation.has_method("begin_search") or not _generation.has_method("run_search_slice"):
+						return _fail(&"dating_preparation_unavailable")
+					var begun: Dictionary = _generation.begin_search(_record.spec)
+					if not begun.get("ok", false): return begun
+					var plain: Dictionary = ENVELOPE.plain_frontier(begun.value.frontier)
+					if not plain.get("ok", false): return plain
+					_record.envelope.preparation = plain.value
+					_record.phase = "preparing"
+				else: _record.phase = "challenge"
+			else: _record.phase = "challenge"
+			if _record.phase == "challenge" and _attempt_gate != null and not _post_ending_history():
 				var resumed: Dictionary = _restore_attempt(_admitted_command)
 				if not resumed.get("ok", false): return resumed
+		"preparing":
+			var prepared: Dictionary = _advance_preparation()
+			if not prepared.get("ok", false): return prepared
 		"challenge":
 			var changed := _board_action(action,cell_index)
 			if not changed.get("ok",false): return changed
 		"cleared_awaiting_terminal_choice":
-			_record.relationship_outcome = "dark" if action == "special_mine" else (
+			if _record.schema_version == 3:
+				if action == "activate" and cell_index != int(_record.envelope.special_cell):
+					return _fail(&"dating_special_cell_mismatch")
+				if action == "continue" and cell_index != -1: return _fail(&"dating_challenge_command_refused")
+			_record.relationship_outcome = "dark" if action in ["special_mine", "activate"] else (
 				"foresight" if _record.outcome == "perfect" else "loved")
 			var chosen: Dictionary = _settle_terminal()
 			if not chosen.get("ok", false): return chosen
@@ -246,7 +267,7 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 			_restore_history_state(prior_history)
 			return result
 		if changed:
-			if commit_history and _attempt_gate != null and _record.get("phase") != "pre_challenge":
+			if commit_history and _attempt_gate != null and _record.get("phase") not in ["pre_challenge", "preparing"]:
 				var committed: Dictionary = _commit_attempt()
 				if not committed.get("ok", false):
 					_game_state.rollback_restore_silent(backup)
@@ -261,7 +282,7 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 					return reconciled
 			var saved: Dictionary = _checkpoint_writer.call(_record.duplicate(true))
 			if not saved.get("ok", false):
-				if _attempt_gate != null and _record.get("phase") != "pre_challenge":
+				if _attempt_gate != null and _record.get("phase") not in ["pre_challenge", "preparing"]:
 					_pending_checkpoint = _record.duplicate(true)
 				var rollback: Dictionary = _rollback_run_preserving_retry(backup) if not _pending_checkpoint.is_empty() else _game_state.rollback_restore_silent(backup)
 				_record = prior
@@ -323,7 +344,7 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	var stored: Dictionary = route_context.get("active_dating_challenge", {})
 	_pending_checkpoint = {}
 	_clear_history_state()
-	if stored.is_empty() or stored.get("phase") == "pre_challenge" \
+	if stored.is_empty() or stored.get("phase") in ["pre_challenge", "preparing"] \
 			or int(stored.get("context", {}).get("day", 0)) != int(snapshot.lifecycle.day) \
 			or str(restored_snapshot.get("route_id", "")) != "dating": return _ok({})
 	if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
@@ -371,7 +392,7 @@ func _select_committed_attempt(attempt: Dictionary) -> void:
 	_history_target_branch = str(_attempt_identity().branch_id)
 	_history_selection = {"mode": "branch"} if _post_ending_history() else {}
 
-func _restore_attempt(command: Dictionary, silent: bool = false) -> Dictionary:
+func _restore_attempt(command: Dictionary, silent: bool = false, certified_entry: bool = false) -> Dictionary:
 	var identity := _attempt_identity()
 	var run_id := str(identity.run_id)
 	var slot := ATTEMPTS.semantic_slot(_record.context)
@@ -408,7 +429,17 @@ func _restore_attempt(command: Dictionary, silent: bool = false) -> Dictionary:
 		source = _profile.get_dating_attempt(run_id, slot, attempt_id, reference.branch_id)
 		if source.get("ok", false) and source.value.generation != reference.generation:
 			return _fail(&"invalid_dating_attempt_reference")
-	if not source.get("ok", false): return source
+	if not source.get("ok", false):
+		# A saved search has not entered Profile history yet. Certification after Load
+		# admits this exact frozen spec; any existing branch history above still wins.
+		if certified_entry and reference.is_empty() and str(current.get("code", "")) == "dating_attempt_missing" \
+				and str(source.get("code", "")) == "dating_attempt_missing" \
+				and _record.schema_version == 3 and _record.phase == "challenge" \
+				and _record.board == null and _record.envelope.prepared_layout != null:
+			_clear_history_state()
+			_history_selection = {"mode": "fresh"}
+			return _ok({})
+		return source
 	var selected_record := _record.duplicate(true)
 	selected_record["context"] = source.value.record.context.duplicate(true)
 	var preview: Dictionary = _profile.prepare_dating_continuation(run_id, slot, attempt_id,
@@ -506,13 +537,42 @@ func validate_physical_completion(request: Dictionary) -> Dictionary:
 	if not _valid_record(_record, command) or receipt != _completion_receipt(): return _fail(&"physical_completion_untrusted")
 	return _ok({"validated":true,"owner_kind":OWNER_KIND})
 
+func _advance_preparation() -> Dictionary:
+	var advanced: Dictionary = _generation.run_search_slice(_record.envelope.preparation)
+	if not advanced.get("ok", false): return advanced
+	if not bool(advanced.value.done):
+		var plain: Dictionary = ENVELOPE.plain_frontier(advanced.value.frontier)
+		if not plain.get("ok", false): return plain
+		_record.envelope.preparation = plain.value
+		return _ok({})
+	_record.envelope.prepared_layout = advanced.value.layout.duplicate(true)
+	_record.envelope.forced_cell = int(advanced.value.forced_cell)
+	_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, advanced.value.layout)
+	_record.envelope.preparation = null
+	_record.phase = "challenge"
+	if not ENVELOPE.validate(_record): return _fail(&"invalid_dating_prepared_candidate")
+	if _attempt_gate != null: return _restore_attempt(_admitted_command, false, true)
+	return _ok({})
+
 func _board_action(action: String, index: int) -> Dictionary:
 	var projected: Dictionary = _project_board()
 	if index < 0 or index >= projected.cells.size() or action not in projected.cells[index].actions:
 		return _fail(&"dating_challenge_action_unavailable")
 	var reduced: Dictionary
 	if _record.board == null:
-		var generated: Dictionary = _generation.materialize(_record.spec, index)
+		if _record.schema_version == 3 and action in ["flag", "unflag"]:
+			var issued: Dictionary = _issuer.issue(&"transaction_id")
+			if not issued.get("ok", false): return issued
+			var marked: Dictionary = REDUCER.set_shell_flag(_record.envelope.shell, int(_record.spec.width),
+				int(_record.spec.height), index, action == "flag", str(issued.value.token))
+			if not marked.get("ok", false): return marked
+			_record.envelope.shell = marked.value.shell.duplicate(true)
+			return _ok({})
+		var generated: Dictionary
+		if _record.schema_version == 3 and _record.envelope.prepared_layout != null:
+			if index != int(_record.envelope.forced_cell): return _fail(&"dating_forced_cell_mismatch")
+			generated = _ok({"layout": _record.envelope.prepared_layout})
+		else: generated = _generation.materialize(_record.spec, index)
 		if not generated.get("ok", false): return generated
 		if not generated.get("value") is Dictionary or not generated.value.get("layout") is Dictionary:
 			return _fail(&"invalid_dating_layout")
@@ -523,7 +583,10 @@ func _board_action(action: String, index: int) -> Dictionary:
 		_record.mine_dispositions = RULES.dispositions(_record.spec, layout.mine_indices.size()) \
 			if _record.host == "canonical_solo" else []
 		_first_cell_index = index
-		reduced = REDUCER.first_reveal(layout, index)
+		if _record.schema_version == 3:
+			_record.envelope.special_cell = ENVELOPE.special_cell(_record.spec, layout)
+			reduced = REDUCER.first_reveal(layout, index, _record.envelope.shell)
+		else: reduced = REDUCER.first_reveal(layout, index)
 	else:
 		var issued: Dictionary = _issuer.issue(&"transaction_id")
 		if not issued.get("ok", false): return issued
@@ -538,7 +601,7 @@ func _board_action(action: String, index: int) -> Dictionary:
 	_record.board.outcome = str(_record.board.outcome)
 	for entry: Dictionary in _record.board.actions: entry.kind = str(entry.kind)
 	if not bool(_record.board.terminal): return _ok({})
-	_record.perfect_reasons = RULES.perfect_reasons(_record.board)
+	_record.perfect_reasons = RULES.perfect_reasons(_record.board, int(_record.schema_version))
 	_record.outcome = "exploded" if str(_record.board.outcome) == "exploded" else (
 		"cleared" if _record.perfect_reasons.is_empty() else "perfect")
 	if _record.host == "canonical_pair":
@@ -546,6 +609,9 @@ func _board_action(action: String, index: int) -> Dictionary:
 		_record.applied_result = {"board_only": true}
 		_record.phase = "post_challenge"
 		return _ok({})
+	if _record.schema_version == 3 and _record.outcome == "perfect":
+		_record.relationship_outcome = "foresight"
+		return _settle_terminal()
 	if _record.outcome != "exploded":
 		_record.phase = "cleared_awaiting_terminal_choice"
 		return _ok({})
@@ -876,6 +942,11 @@ func _observer_receipt(source: Dictionary, kind: String) -> Dictionary:
 func _make_spec(host: String) -> Dictionary:
 	var dimensions: Dictionary=CATALOG.lookup(host)
 	if not dimensions.get("ok",false): return dimensions
+	var owned: Dictionary = CAPABILITIES.resolve_owned(_game_state.inventory)
+	if not owned.get("ok", false): return owned
+	var inputs: Dictionary = CAPABILITIES.build_spec_inputs(owned.value,
+		int(_game_state.get_stat("pressure")), int(_game_state.penalty_points_today))
+	if not inputs.get("ok", false): return inputs
 	var values: Dictionary={}
 	for pair: Array in [[&"board_id","board"],[&"placement_nonce","placement"],
 			[&"debug_nonce","debug"],[&"explosion_nonce","explosion"]]:
@@ -886,9 +957,9 @@ func _make_spec(host: String) -> Dictionary:
 	var spec={"schema_version":1,"board_kind":kind,"board_token":values.board.token,
 		"board_token_receipt_id":values.board.receipt_id,"difficulty_id":host,
 		"width":dimensions.value.width,"height":dimensions.value.height,
-		"base_mine_count":dimensions.value.base_mine_count,"pressure":0,"penalty_points_today":0,
-		"raw_extra_mines":0,"requested_mine_count":dimensions.value.base_mine_count,
-		"capability_ids":["first_cell_safe"],"placement_stream_id":"minesweeper_placement_v1",
+		"base_mine_count":dimensions.value.base_mine_count,"pressure":inputs.value.pressure,"penalty_points_today":inputs.value.penalty_points_today,
+		"raw_extra_mines":inputs.value.raw_extra_mines,"requested_mine_count":dimensions.value.base_mine_count + inputs.value.effective_extra_mines,
+		"capability_ids":inputs.value.capability_ids,"placement_stream_id":"minesweeper_placement_v1",
 		"placement_nonce":values.placement.token,"placement_nonce_receipt_id":values.placement.receipt_id,
 		"debug_stream_id":"minesweeper_debug_v1","debug_nonce":values.debug.token,
 		"debug_nonce_receipt_id":values.debug.receipt_id,"explosion_stream_id":"minesweeper_explosion_v1",
@@ -901,33 +972,47 @@ func _view() -> Dictionary:
 	if not _pending_checkpoint.is_empty():
 		return {"phase": "checkpoint_retry", "host": _record.host, "board": _project_board(),
 			"outcome": _record.outcome, "actions": ["retry"], "no_flag": _no_flag_status(),
-			"special_mine_visible": _record.host == "canonical_solo", "special_mine_enabled": false}
+			"special_mine_visible": _record.schema_version == 2 and _record.host == "canonical_solo", "special_mine_enabled": false}
 	var actions: Array=[]
 	match _record.phase:
 		"pre_challenge","post_challenge": actions=["continue"]
 		"settlement_retry": actions=["retry"]
 		"completed": actions=["resume_completion"]
+		"preparing": actions=["prepare"]
 		"challenge": actions=["reveal","flag","unflag","chord"]
-		"cleared_awaiting_terminal_choice": actions=["continue","special_mine"]
+		"cleared_awaiting_terminal_choice": actions=["continue","activate"] if _record.schema_version == 3 else ["continue","special_mine"]
 	return {"phase":_record.phase,"host":_record.host,"board":_project_board(),
 		"outcome":_record.outcome,"actions":actions,"no_flag":_no_flag_status(),
-		"special_mine_visible":_record.host == "canonical_solo",
+		"special_mine_visible":_record.schema_version == 2 and _record.host == "canonical_solo",
 		"special_mine_enabled":_record.phase == "cleared_awaiting_terminal_choice"}
 
 func _project_board() -> Variant:
 	if _record.board == null:
-		var cells: Array=[]
-		for index in int(_record.spec.width)*int(_record.spec.height):
-			cells.append({"index":index,"face":"covered","mark":"none","number":0,"bracketed":false,
-				"inspectable":_record.phase == "challenge","pressable":_record.phase == "challenge",
-				"actions":["reveal"] if _record.phase == "challenge" else []})
-		return {"width":_record.spec.width,"height":_record.spec.height,"revision":0,
-			"mine_estimate":null,"terminal":false,"custody":_record.phase != "challenge","cells":cells}
+		var shell: Dictionary = _record.envelope.shell if _record.schema_version == 3 else {"flagged_indices": [], "actions": []}
+		var forced: int = int(_record.envelope.forced_cell) if _record.schema_version == 3 else -1
+		var cells: Array = []
+		for index in int(_record.spec.width) * int(_record.spec.height):
+			var legal: bool = _record.phase == "challenge"
+			var flagged: bool = shell.flagged_indices.has(index)
+			var actions: Array = []
+			if legal:
+				if flagged: actions = ["unflag"]
+				elif forced < 0 or index == forced:
+					actions = ["reveal", "flag"] if _record.schema_version == 3 else ["reveal"]
+				elif _record.schema_version == 3: actions = ["flag"]
+			cells.append({"index": index, "face": "covered", "mark": "flag" if flagged else "none", "number": 0,
+				"bracketed": index == forced, "inspectable": legal, "pressable": not actions.is_empty(), "actions": actions})
+		var estimate: Variant = null
+		if _record.schema_version == 3 and _record.envelope.prepared_layout != null:
+			estimate = int(_record.envelope.prepared_layout.mine_count) - shell.flagged_indices.size()
+		return {"width": _record.spec.width, "height": _record.spec.height, "revision": _revision(),
+			"mine_estimate": estimate, "terminal": false, "custody": _record.phase != "challenge", "cells": cells}
 	var checked: Dictionary=SCHEMA.validate_board(_record.board)
 	if not checked.get("ok",false): return null
 	var board: Dictionary=checked.value.board
 	var cells: Array=[]
 	var inspectable: bool = not bool(board.terminal)
+	var choice: bool = _record.schema_version == 3 and _record.phase == "cleared_awaiting_terminal_choice"
 	for index in int(board.width)*int(board.height):
 		var revealed: bool=board.revealed_indices.has(index)
 		var flagged: bool=board.flagged_indices.has(index)
@@ -942,20 +1027,27 @@ func _project_board() -> Variant:
 			else:
 				cell.actions = ["reveal", "flag"]
 		if board.terminal and board.mine_indices.has(index):
-			cell.face="revealed"; cell.number=0; cell.mark="exploded" if index==board.exploded_index else ("correct_flag" if flagged else "mine")
+			cell.face="covered" if flagged else "revealed"; cell.number=0; cell.mark="exploded" if index==board.exploded_index else ("correct_flag" if flagged else "mine")
 		elif board.terminal and flagged:
 			cell.mark = "correct_flag" if board.mine_indices.has(index) else "incorrect_flag"
+		if choice and index == int(_record.envelope.special_cell):
+			cell.mark = "marked_flag" if flagged else "marked_mine"
+			cell.inspectable = true
+			cell.actions = ["activate"]
 		cell.pressable=not cell.actions.is_empty()
 		cells.append(cell)
 	return {"width":board.width,"height":board.height,"revision":board.revision,
 		"mine_estimate":board.mine_count-board.flagged_indices.size(),"terminal":board.terminal,
-		"custody":board.terminal,"cells":cells}
+		"custody":board.terminal and not choice,"cells":cells}
 
 func _revision() -> int:
-	return int(_record.board.revision) if _record.get("board") is Dictionary else 0
+	return int(_record.board.revision) if _record.get("board") is Dictionary else (_record.envelope.shell.actions.size() if _record.get("schema_version") == 3 else 0)
 
 func _no_flag_status() -> String:
 	if not _record.get("board") is Dictionary:
+		if _record.get("schema_version") == 3:
+			for action: Dictionary in _record.envelope.shell.actions:
+				if bool(action.get("flagged", false)): return "lost"
 		return "intact"
 	for entry: Variant in (_record.board as Dictionary).get("actions", []):
 		if entry is Dictionary and str((entry as Dictionary).get("kind", "")) == "set_flag" \
@@ -976,7 +1068,9 @@ func _adopt(token: String) -> bool:
 
 func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 	var keys: Array = value.keys(); keys.sort()
-	if keys != RECORD_KEYS or value.schema_version != 2 or value.phase not in PHASES: return false
+	var expected_keys: Array = RECORD_KEYS.duplicate()
+	if value.get("schema_version") == 3: expected_keys.append("envelope"); expected_keys.sort()
+	if keys != expected_keys or value.schema_version not in [2, 3] or value.phase not in PHASES: return false
 	if not value.context is Dictionary or not value.spec is Dictionary or not value.applied_result is Dictionary \
 			or not value.mine_dispositions is Array or not value.perfect_reasons is Array: return false
 	if typeof(value.completion_transaction_id) != TYPE_STRING or typeof(value.command_sha256) != TYPE_STRING \
@@ -998,33 +1092,37 @@ func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 	if value.host != expected_host or not SCHEMA.validate_spec(value.spec).get("ok", false) \
 			or value.spec.board_kind != expected_kind or value.spec.difficulty_id != expected_host \
 			or value.spec.width != dimensions.value.width or value.spec.height != dimensions.value.height \
-			or value.spec.base_mine_count != dimensions.value.base_mine_count \
-			or value.spec.requested_mine_count != dimensions.value.base_mine_count \
-			or value.spec.pressure != 0 or value.spec.penalty_points_today != 0: return false
+			or value.spec.base_mine_count != dimensions.value.base_mine_count: return false
+	if value.schema_version == 2 and (value.spec.requested_mine_count != dimensions.value.base_mine_count \
+			or value.spec.pressure != 0 or value.spec.penalty_points_today != 0): return false
+	if value.board != null and not value.board is Dictionary: return false
+	if value.schema_version == 3 and not ENVELOPE.validate(value): return false
 	if value.board == null:
-		return value.phase in ["pre_challenge", "challenge"] and value.outcome == null \
+		return value.phase in ["pre_challenge", "preparing", "challenge"] and value.outcome == null \
 			and value.relationship_outcome == null and value.mine_dispositions.is_empty() \
 			and value.perfect_reasons.is_empty() and value.applied_result.is_empty()
 	if not value.board is Dictionary or not SCHEMA.validate_board(value.board).get("ok", false): return false
 	var board: Dictionary = value.board
 	if board.width != value.spec.width or board.height != value.spec.height \
-			or board.mine_count != value.spec.requested_mine_count: return false
+			or board.mine_count < value.spec.base_mine_count or board.mine_count > value.spec.requested_mine_count: return false
 	var dispositions: Array = RULES.dispositions(value.spec, board.mine_count) if expected_host == "canonical_solo" else []
 	if value.mine_dispositions != dispositions: return false
 	if not board.terminal:
 		return value.phase == "challenge" and value.outcome == null and value.relationship_outcome == null \
 			and value.perfect_reasons.is_empty() and value.applied_result.is_empty()
-	var reasons: Array = RULES.perfect_reasons(board)
+	var reasons: Array = RULES.perfect_reasons(board, int(value.schema_version))
 	var outcome: String = "exploded" if str(board.outcome) == "exploded" else ("cleared" if reasons.is_empty() else "perfect")
 	if value.outcome != outcome or value.perfect_reasons != reasons: return false
 	if expected_host == "canonical_pair":
 		return value.phase in ["post_challenge", "completed"] and value.relationship_outcome == null \
 			and value.applied_result == {"board_only": true}
 	if value.phase == "cleared_awaiting_terminal_choice":
-		return outcome != "exploded" and value.relationship_outcome == null and value.applied_result.is_empty()
+		return (outcome == "cleared" if value.schema_version == 3 else outcome != "exploded") and value.relationship_outcome == null and value.applied_result.is_empty()
 	var relationship: String = str(value.relationship_outcome)
 	if outcome == "exploded":
 		if relationship != dispositions[board.mine_indices.find(board.exploded_index)]: return false
+	elif value.schema_version == 3 and outcome == "perfect":
+		if relationship != "foresight": return false
 	elif relationship not in ["dark", "foresight" if outcome == "perfect" else "loved"]: return false
 	if value.phase == "settlement_retry": return value.applied_result.is_empty()
 	return value.phase in ["post_challenge", "completed"] and not value.applied_result.is_empty()

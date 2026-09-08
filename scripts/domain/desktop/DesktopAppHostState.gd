@@ -196,8 +196,8 @@ func _open_app_commands(previous_app_id: StringName, app_id: StringName, board_p
 ## started board (ACTIVE_VISIBLE/ACTIVE_SUSPENDED) is forfeited with its paid costs retained.
 ## NONE and SETTLING have no live candidate or board to react to.
 func _change_day_commands(board_phase: StringName) -> Array[Dictionary]:
-	if board_phase == _PREPARING or board_phase == _PREPARED_UNSTARTED:
+	if board_phase in [&"UNPAID_UNSTARTED", _PREPARING, _PREPARED_UNSTARTED]:
 		return [{"kind": "discard_candidate"}]
-	if board_phase == _ACTIVE_VISIBLE or board_phase == _ACTIVE_SUSPENDED:
+	if board_phase in [&"PAID_UNSTARTED", _ACTIVE_VISIBLE, _ACTIVE_SUSPENDED]:
 		return [{"kind": "forfeit_board"}]
 	return []

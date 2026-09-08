@@ -1,6 +1,8 @@
 class_name GameStateScheduleWarningContextPort
 extends RefCounted
 
+const _INSPECTION_BOARD := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+
 ## The read-only Schedule-warning context assembler (Amendment Plan 03 Task 3 Step 4,
 ## dwm-oyo.3, plan line 364). configure(game_state, board_state) accepts exactly the
 ## retained GameState facade and the retained DesktopBoardState owner; snapshot_for(view)
@@ -14,7 +16,7 @@ const _VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd
 
 ## The phases in which a base board counts as unfinished (amendment 10.5; plan line 364).
 const UNFINISHED_PHASES: Array = [
-	"PREPARING", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED",
+	"PAID_UNSTARTED", "PREPARING", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED",
 ]
 
 var _configured := false
@@ -120,8 +122,8 @@ func _view_shape_error(view: Dictionary) -> Dictionary:
 func _project_board(state: Dictionary, board: Dictionary) -> Dictionary:
 	var phase := str(board.get("phase", ""))
 	var identity: Variant = board.get("identity")
-	if identity == null or phase == "NONE":
-		if identity != null or phase != "NONE":
+	if identity == null or phase in ["NONE", "UNPAID_UNSTARTED"]:
+		if identity != null or phase not in ["NONE", "UNPAID_UNSTARTED"]:
 			return _fail(&"invalid_schedule_warning_board_state",
 				"a NONE board carries no identity and an identity carries a phase",
 				{"phase": phase})
@@ -143,7 +145,7 @@ func _project_board(state: Dictionary, board: Dictionary) -> Dictionary:
 			"the board identity must match the run, branch, generation and causal-day",
 			{"field": "desktop_timeline_generation"})
 	var ordinal := int(identity_map.get("app_round_ordinal", 0))
-	var unfinished := ordinal >= 1 and ordinal <= 2 and phase in UNFINISHED_PHASES
+	var unfinished := ordinal >= 1 and ordinal <= 2 and phase in UNFINISHED_PHASES and not _INSPECTION_BOARD.is_settled_inspection(board)
 	return {"ok": true, "value": {
 		"board_identity": identity_map.duplicate(true),
 		"board_phase": phase,

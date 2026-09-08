@@ -109,7 +109,8 @@ func can_present(value: Dictionary) -> bool:
 		if not value.has(key): return false
 	if typeof(value.width) != TYPE_INT or value.width <= 0 or typeof(value.height) != TYPE_INT or value.height <= 0: return false
 	if typeof(value.revision) != TYPE_INT or value.revision < 0 or (value.mine_estimate != null and typeof(value.mine_estimate) != TYPE_INT): return false
-	if typeof(value.terminal) != TYPE_BOOL or typeof(value.custody) != TYPE_BOOL or (value.terminal and not value.custody): return false
+	if typeof(value.terminal) != TYPE_BOOL or typeof(value.custody) != TYPE_BOOL: return false
+	var terminal_choices := 0
 	if typeof(value.cells) != TYPE_ARRAY or value.cells.size() != value.width*value.height: return false
 	var probe: Control = CELL.new()
 	for index in value.cells.size():
@@ -120,14 +121,18 @@ func can_present(value: Dictionary) -> bool:
 		if value.custody and (public_cell.inspectable or not public_cell.actions.is_empty()):
 			probe.free()
 			return false
-		if value.terminal and (public_cell.bracketed or public_cell.pressable or not public_cell.actions.is_empty()):
-			probe.free()
-			return false
+		if value.terminal:
+			var marked_choice: bool = not value.custody and public_cell.mark in ["marked_mine", "marked_flag"] \
+				and public_cell.inspectable and public_cell.pressable and public_cell.actions == ["activate"] and not public_cell.bracketed
+			if marked_choice: terminal_choices += 1
+			elif public_cell.bracketed or public_cell.inspectable or public_cell.pressable or not public_cell.actions.is_empty():
+				probe.free()
+				return false
 		if not value.terminal and public_cell.mark in ["mine","exploded","correct_flag","incorrect_flag"]:
 			probe.free()
 			return false
 	probe.free()
-	return true
+	return terminal_choices == 1 if value.terminal and not value.custody else terminal_choices == 0
 
 func present(value: Dictionary) -> bool:
 	if not can_present(value): return false
@@ -421,8 +426,10 @@ func _pointer_action(index: int, button: int) -> StringName:
 	return _mode_action(index)
 
 func _mode_action(index: int) -> StringName:
-	if index < 0 or mode == &"drag": return &""
+	if index < 0 or projection.is_empty() or index >= projection.get("cells", []).size(): return &""
 	var actions: Array = projection.cells[index].actions
+	if "activate" in actions: return &"activate"
+	if mode == &"drag": return &""
 	if mode == &"reveal":
 		if "reveal" in actions: return &"reveal"
 		if "chord" in actions: return &"chord"

@@ -82,3 +82,88 @@ func test_schema_files_are_strict_json_and_validate_closed_objects() -> void:
 	assert_true(_schema_validator.call(&"validate", valid, parsed["value"]).get("ok", false))
 	valid["unknown"] = true
 	assert_false(_schema_validator.call(&"validate", valid, parsed["value"]).get("ok", true))
+
+
+func test_ascii_span_accepts_every_safe_printable_character_in_keys_and_values() -> void:
+	var safe := ""
+	for codepoint in range(0x20, 0x7F):
+		if codepoint != 0x22 and codepoint != 0x5C:
+			safe += String.chr(codepoint)
+	var result: Dictionary = _strict.call(&"parse_object", "{\"" + safe + "\":\"" + safe.repeat(8) + "\"}")
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(result.get("value"), {safe: safe.repeat(8)})
+
+func test_ascii_spans_resume_after_unicode_and_every_escape() -> void:
+	var unicode := String.chr(0x4E2D) + String.chr(0x1F63D)
+	var encoded := "prefix" + unicode + "suffix\\\"\\\\\\/\\b\\f\\n\\r\\t\\u4E2D\\uD83D\\uDE3Dend"
+	var expected := "prefix" + unicode + "suffix\"\\/\b\f\n\r\t" + unicode + "end"
+	var result: Dictionary = _strict.call(&"parse_object", "{\"x\":\"" + encoded + "\"}")
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(result.get("value"), {"x": expected})
+
+func test_ascii_span_errors_preserve_exact_line_and_column() -> void:
+	var cases := [
+		{"text": "{\n  \"x\":\"abc" + String.chr(1) + "\"}", "code": &"invalid_string_character", "line": 2, "column": 11},
+		{"text": "{\n  \"x\":\"abc\\q\"}", "code": &"invalid_escape", "line": 2, "column": 13},
+		{"text": "{\n\"same\":1,\n\"same\":2}", "code": &"duplicate_key", "line": 3, "column": 7},
+		{"text": "{\"x\":\"abc", "code": &"unexpected_eof", "line": 1, "column": 10},
+		{"text": "{\"x\":\"abc\\uD800\"}", "code": &"invalid_surrogate", "line": 1, "column": 16},
+		{"text": "{\"x\":\"abc\ndef\"}", "code": &"invalid_string_character", "line": 1, "column": 10},
+	]
+	for item: Dictionary in cases:
+		var result: Dictionary = _strict.call(&"parse_object", item["text"])
+		assert_false(result.get("ok", true), str(item))
+		assert_eq(result.get("code"), item["code"], str(item))
+		assert_eq(result.get("line"), item["line"], str(item))
+		assert_eq(result.get("column"), item["column"], str(item))
+
+func test_ascii_span_keeps_integer_and_float_types_and_boundaries() -> void:
+	var result: Dictionary = _strict.call(&"parse_object", "{\"label\":\"ordinary_ascii\",\"min\":-9223372036854775808,\"max\":9223372036854775807,\"float\":1.0,\"exponent\":-2.5e1}")
+	assert_true(result.get("ok", false), str(result))
+	var value: Dictionary = result.get("value", {})
+	assert_eq(typeof(value.get("min")), TYPE_INT)
+	assert_eq(typeof(value.get("max")), TYPE_INT)
+	assert_eq(typeof(value.get("float")), TYPE_FLOAT)
+	assert_eq(typeof(value.get("exponent")), TYPE_FLOAT)
+	assert_eq(value.get("min"), -9223372036854775807 - 1)
+	assert_eq(value.get("max"), 9223372036854775807)
+	assert_eq(value.get("float"), 1.0)
+	assert_eq(value.get("exponent"), -25.0)
+
+
+func test_ascii_key_rejects_equivalent_escaped_duplicate_spelling() -> void:
+	var result: Dictionary = _strict.call(&"parse_object", "{\"same\":1,\"\\u0073ame\":2}")
+	assert_false(result.get("ok", true), str(result))
+	assert_eq(result.get("code"), &"duplicate_key")
+	assert_eq(result.get("line"), 1)
+	assert_eq(result.get("column"), 22)
+
+func test_canonical_string_fast_return_preserves_entire_safe_ascii_and_empty() -> void:
+	var safe := ""
+	for codepoint in range(0x20, 0x7F):
+		if codepoint != 0x22 and codepoint != 0x5C:
+			safe += String.chr(codepoint)
+	for value: String in ["", safe, safe.repeat(8)]:
+		var emitted: Dictionary = _writer.call(&"_emit_string", value)
+		assert_eq(emitted, {"ok": true, "value": '"' + value + '"'})
+		var document: Dictionary = _writer.call(&"stringify", {value: value})
+		assert_true(document.get("ok", false), str(document))
+		assert_eq(document.get("value"), '{"' + value + '":"' + value + '"}')
+
+func test_canonical_string_fast_return_exclusions_keep_exact_original_escaping() -> void:
+	var unicode := String.chr(0x4E2D) + String.chr(0x1F63D)
+	var cases := [
+		{"input": "safe\"suffix", "expected": "\"safe\\\"suffix\""},
+		{"input": "safe\\suffix", "expected": "\"safe\\\\suffix\""},
+		{"input": "safe\n", "expected": "\"safe\\n\""},
+		{"input": "safe\r\t\b\f", "expected": "\"safe\\r\\t\\b\\f\""},
+		{"input": "safe" + String.chr(1), "expected": "\"safe\\u0001\""},
+		{"input": "safe" + String.chr(0x7F), "expected": '"safe' + String.chr(0x7F) + '"'},
+		{"input": "safe" + unicode + "suffix", "expected": '"safe' + unicode + 'suffix"'},
+	]
+	for item: Dictionary in cases:
+		var emitted: Dictionary = _writer.call(&"_emit_string", item["input"])
+		assert_eq(emitted, {"ok": true, "value": item["expected"]}, str(item))
+		var document: Dictionary = _writer.call(&"stringify", {"x": item["input"]})
+		assert_true(document.get("ok", false), str(document))
+		assert_eq(document.get("value"), '{"x":' + item["expected"] + '}', str(item))

@@ -315,7 +315,7 @@ func capture_backup_checkpoint_inputs() -> Dictionary:
 	var command: Dictionary = _captured_source.command
 	var physical: Dictionary = _services.dating_presentation.pull_physical(command)
 	if not physical.get("ok", false): return physical
-	if physical.value.get("phase") not in ["pre_challenge", "challenge",
+	if physical.value.get("phase") not in ["pre_challenge", "preparing", "challenge",
 			"cleared_awaiting_terminal_choice", "post_challenge"]:
 		return _failure(&"pause_save_unavailable")
 	var prior: Dictionary = _services.game_state.capture_dating_challenge_state()

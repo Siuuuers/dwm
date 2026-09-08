@@ -9,6 +9,8 @@ const _GENERATOR := preload("res://scripts/domain/minesweeper/MinesweeperBoardGe
 
 
 func materialize(spec: Dictionary, forced_cell: int) -> Dictionary:
+	if (spec.get("capability_ids", []) as Array).has("forced_no_guess"):
+		return _fail(&"debug_preparation_required", "Debug requires a certified preparation", {})
 	var generated: Dictionary = _GENERATOR.materialize_first_reveal(spec, forced_cell)
 	if not generated.get("ok", false):
 		return generated

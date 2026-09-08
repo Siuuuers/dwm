@@ -13,6 +13,7 @@ const CANONICAL := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd
 const PHASES := ["challenge", "cleared_awaiting_terminal_choice", "settlement_retry", "post_challenge", "completed"]
 const ATTEMPT_KEYS := ["attempt_id", "branch_id", "clear_receipt", "completion_receipt", "effect_receipt",
 	"entry_receipt", "materialization_receipt", "record", "revision", "run_id", "slot_id", "terminal_receipt"]
+const ENVELOPE := preload("res://scripts/application/run/DatingChallengeEnvelope.gd")
 const RECORD_KEYS := ["applied_result", "board", "command_sha256", "completion_transaction_id", "context",
 	"host", "mine_dispositions", "outcome", "pair_form", "perfect_reasons", "phase", "physical_token",
 	"relationship_outcome", "schema_version", "spec"]
@@ -241,12 +242,13 @@ static func _prepare_flat(ledger: Dictionary, run_id: String, slot_id: String, b
 		attempt.record = record.duplicate(true)
 		if attempt.entry_receipt != _entry(record): return _fail(&"dating_entry_conflict")
 		if PHASES.find(record.phase) < PHASES.find(previous.record.phase): return _fail(&"dating_attempt_rewind")
-		if not _board_advances(previous.record.board, record.board): return _fail(&"dating_attempt_rewind")
+		if not ENVELOPE.advances(previous.record, record) or not _board_advances(previous.record.board, record.board): return _fail(&"dating_attempt_rewind")
 	if record.board != null:
 		if attempt.materialization_receipt == null:
 			if first_cell_index < 0: return _fail(&"dating_first_cell_required")
 			attempt.materialization_receipt = {"first_cell_index": first_cell_index,
 				"layout": _layout(record.board), "mine_dispositions": record.mine_dispositions.duplicate()}
+			if record.schema_version == 3: attempt.materialization_receipt["shell"] = record.envelope.shell.duplicate(true)
 		elif first_cell_index != -1 and first_cell_index != attempt.materialization_receipt.first_cell_index:
 			return _fail(&"dating_materialization_conflict")
 	elif first_cell_index != -1:
@@ -298,6 +300,7 @@ static func _preserves_flat(previous: Dictionary, candidate: Dictionary) -> bool
 			if after.revision <= before.revision or after.attempt_id != before.attempt_id \
 					or after.branch_id != before.branch_id or after.entry_receipt != before.entry_receipt \
 					or PHASES.find(after.record.phase) < PHASES.find(before.record.phase) \
+					or not ENVELOPE.advances(before.record, after.record) \
 					or not _board_advances(before.record.board, after.record.board): return false
 			for key: String in RECEIPTS:
 				if before[key] != null and after[key] != before[key]: return false
@@ -318,14 +321,17 @@ static func validate_attempt(attempt: Dictionary) -> Dictionary:
 	if record.board == null:
 		if material != null: return _fail(&"invalid_dating_materialization")
 	else:
-		if not material is Dictionary or not _keys(material, ["first_cell_index", "layout", "mine_dispositions"]) \
+		var material_keys: Array = ["first_cell_index", "layout", "mine_dispositions"]
+		if record.schema_version == 3: material_keys.append("shell")
+		if not material is Dictionary or not _keys(material, material_keys) \
 				or typeof(material.first_cell_index) != TYPE_INT or material.layout != _layout(record.board) \
 				or material.mine_dispositions != record.mine_dispositions: return _fail(&"invalid_dating_materialization")
-		var initial: Dictionary = REDUCER.first_reveal(material.layout, material.first_cell_index)
+		if record.schema_version == 3 and material.shell != record.envelope.shell: return _fail(&"invalid_dating_materialization")
+		var initial: Dictionary = REDUCER.first_reveal(material.layout, material.first_cell_index, material.get("shell", {}))
 		if not initial.ok: return _fail(&"invalid_dating_materialization")
 		for cell: int in initial.value.board.revealed_indices:
 			if not record.board.revealed_indices.has(cell): return _fail(&"invalid_dating_materialization")
-		if record.board.actions.is_empty():
+		if record.board.actions.size() == (material.shell.actions.size() if record.schema_version == 3 else 0):
 			var initial_board: Dictionary = initial.value.board.duplicate(true)
 			initial_board.outcome = str(initial_board.outcome)
 			if initial_board != record.board: return _fail(&"invalid_dating_materialization")
@@ -381,8 +387,13 @@ static func semantic_slot(context: Dictionary) -> String:
 	return ""
 
 static func _entry(record: Dictionary) -> Dictionary:
-	return {"spec": record.spec.duplicate(true), "context": record.context.duplicate(true),
+	var entry := {"spec": record.spec.duplicate(true), "context": record.context.duplicate(true),
 		"host": record.host, "pair_form": record.pair_form}
+	if record.schema_version == 3:
+		entry["record_version"] = 3
+		entry["prepared_layout"] = record.envelope.prepared_layout.duplicate(true) if record.envelope.prepared_layout != null else null
+		entry["forced_cell"] = record.envelope.forced_cell
+	return entry
 
 static func _layout(board: Dictionary) -> Dictionary:
 	return {"schema_version": 1, "width": board.width, "height": board.height,
@@ -400,8 +411,10 @@ static func _board_advances(before: Variant, after: Variant) -> bool:
 	return true
 
 static func _valid_record(record: Dictionary) -> bool:
-	if not _keys(record, RECORD_KEYS) or typeof(record.schema_version) != TYPE_INT \
-			or record.schema_version != 2 or record.phase not in PHASES \
+	var expected_keys: Array = RECORD_KEYS.duplicate()
+	if record.get("schema_version") == 3: expected_keys.append("envelope")
+	if not _keys(record, expected_keys) or typeof(record.schema_version) != TYPE_INT \
+			or record.schema_version not in [2, 3] or record.phase not in PHASES \
 			or not record.context is Dictionary or semantic_slot(record.context).is_empty() \
 			or not record.spec is Dictionary or not BOARD.validate_spec(record.spec).ok \
 			or not record.applied_result is Dictionary or not record.mine_dispositions is Array \
@@ -415,9 +428,11 @@ static func _valid_record(record: Dictionary) -> bool:
 			or record.spec.board_kind != ("solo_challenge" if host == "canonical_solo" else "pair_challenge"): return false
 	var dimensions: Dictionary = CATALOG.lookup(host).value
 	if record.spec.width != dimensions.width or record.spec.height != dimensions.height \
-			or record.spec.requested_mine_count != dimensions.base_mine_count \
-			or record.spec.base_mine_count != dimensions.base_mine_count or record.spec.pressure != 0 \
-			or record.spec.penalty_points_today != 0: return false
+			or record.spec.base_mine_count != dimensions.base_mine_count: return false
+	if record.schema_version == 2 and (record.spec.requested_mine_count != dimensions.base_mine_count \
+			or record.spec.pressure != 0 or record.spec.penalty_points_today != 0): return false
+	if record.board != null and not record.board is Dictionary: return false
+	if record.schema_version == 3 and not ENVELOPE.validate(record): return false
 	if host == "canonical_solo" and record.pair_form != "": return false
 	if host == "canonical_pair" and record.pair_form not in ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]: return false
 	if record.board == null:
@@ -426,22 +441,24 @@ static func _valid_record(record: Dictionary) -> bool:
 	if not record.board is Dictionary or not BOARD.validate_board(record.board).ok: return false
 	var board: Dictionary = record.board
 	if board.width != record.spec.width or board.height != record.spec.height \
-			or board.mine_count != record.spec.requested_mine_count: return false
+			or board.mine_count < record.spec.base_mine_count or board.mine_count > record.spec.requested_mine_count: return false
 	var dispositions: Array = RULES.dispositions(record.spec, board.mine_count) if host == "canonical_solo" else []
 	if record.mine_dispositions != dispositions: return false
 	if not board.terminal:
 		return record.phase == "challenge" and record.outcome == null and record.relationship_outcome == null \
 			and record.perfect_reasons.is_empty() and record.applied_result.is_empty()
-	var reasons: Array = RULES.perfect_reasons(board)
+	var reasons: Array = RULES.perfect_reasons(board, int(record.schema_version))
 	var outcome: String = "exploded" if str(board.outcome) == "exploded" else ("cleared" if reasons.is_empty() else "perfect")
 	if record.outcome != outcome or record.perfect_reasons != reasons: return false
 	if host == "canonical_pair":
 		return record.phase in ["post_challenge", "completed"] and record.relationship_outcome == null \
 			and record.applied_result == {"board_only": true}
 	if record.phase == "cleared_awaiting_terminal_choice":
-		return outcome != "exploded" and record.relationship_outcome == null and record.applied_result.is_empty()
+		return (outcome == "cleared" if record.schema_version == 3 else outcome != "exploded") and record.relationship_outcome == null and record.applied_result.is_empty()
 	if outcome == "exploded":
 		if record.relationship_outcome != dispositions[board.mine_indices.find(board.exploded_index)]: return false
+	elif record.schema_version == 3 and outcome == "perfect":
+		if record.relationship_outcome != "foresight": return false
 	elif record.relationship_outcome not in ["dark", "foresight" if outcome == "perfect" else "loved"]: return false
 	if record.phase == "settlement_retry": return record.applied_result.is_empty()
 	return record.phase in ["post_challenge", "completed"] and not record.applied_result.is_empty()

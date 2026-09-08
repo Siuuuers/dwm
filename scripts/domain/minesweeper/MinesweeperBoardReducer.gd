@@ -8,12 +8,14 @@ extends RefCounted
 ## action is a no-op that returns the unchanged board; reusing a transaction_id for a different
 ## action, or acting on a terminal board, always rejects.
 
+const _SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
+
 const _ACTIVE := &"active"
 const _EXPLODED := &"exploded"
 const _CLEARED := &"cleared"
 
 
-static func first_reveal(layout: Dictionary, cell_index: int) -> Dictionary:
+static func first_reveal(layout: Dictionary, cell_index: int, shell: Dictionary = {}) -> Dictionary:
 	var parsed := _parse_layout(layout)
 	if not parsed.get("ok", false):
 		return parsed
@@ -29,13 +31,22 @@ static func first_reveal(layout: Dictionary, cell_index: int) -> Dictionary:
 		return _fail(&"forced_cell_is_mine", "the forced first-reveal cell must never be a mine",
 			{"cell_index": cell_index})
 
+	var checked_shell: Dictionary = validate_shell(shell if not shell.is_empty() else {"flagged_indices": [], "actions": []}, width, height)
+	if not checked_shell.ok: return checked_shell
+	var retained_shell: Dictionary = checked_shell.value.shell
+	if retained_shell.flagged_indices.has(cell_index):
+		return _fail(&"cell_is_flagged", "Unflag before the first Reveal", {})
+	var blocked: Dictionary = {}
+	var flagged: Array[int] = []
+	flagged.assign(retained_shell.flagged_indices)
+	for index: int in flagged: blocked[index] = true
 	var adjacency := _recompute_adjacency(mine_set, width, height)
-	var revealed_set := _flood_reveal([cell_index], {}, mine_set, adjacency, width, height)
+	var revealed_set := _flood_reveal([cell_index], {}, mine_set, adjacency, width, height, blocked)
 	var revealed: Array[int] = []
 	revealed.assign(revealed_set.keys())
 	revealed.sort()
 
-	var board := _build_board(width, height, mine_indices, revealed, [], adjacency, -1, [])
+	var board := _build_board(width, height, mine_indices, revealed, flagged, adjacency, -1, retained_shell.actions)
 	return {"ok": true, "code": &"ok", "value": {"board": board}, "receipt": {}}
 
 
@@ -75,7 +86,7 @@ static func reveal(board: Dictionary, cell_index: int, transaction_id: String) -
 		new_revealed_set[cell_index] = true
 		exploded_index = cell_index
 	else:
-		new_revealed_set = _flood_reveal([cell_index], revealed_set, mine_set, adjacency, width, height)
+		new_revealed_set = _flood_reveal([cell_index], revealed_set, mine_set, adjacency, width, height, flagged_set)
 
 	var revealed: Array[int] = []
 	revealed.assign(new_revealed_set.keys())
@@ -202,7 +213,7 @@ static func chord(board: Dictionary, cell_index: int, transaction_id: String) ->
 		for m: int in hidden_unflagged:
 			new_revealed_set[m] = true
 	elif not safe_seeds.is_empty():
-		new_revealed_set = _flood_reveal(safe_seeds, revealed_set, mine_set, adjacency, width, height)
+		new_revealed_set = _flood_reveal(safe_seeds, revealed_set, mine_set, adjacency, width, height, flagged_set)
 	else:
 		new_revealed_set = revealed_set.duplicate()
 
@@ -359,12 +370,12 @@ static func _build_board(width: int, height: int, mine_indices: Array[int], reve
 
 
 static func _flood_reveal(seeds: Array[int], already_revealed: Dictionary, mine_set: Dictionary,
-		adjacency: Array[int], width: int, height: int) -> Dictionary:
+		adjacency: Array[int], width: int, height: int, blocked: Dictionary = {}) -> Dictionary:
 	var revealed: Dictionary = already_revealed.duplicate()
 	var queue: Array[int] = seeds.duplicate()
 	while not queue.is_empty():
 		var idx: int = queue.pop_front()
-		if revealed.has(idx) or mine_set.has(idx):
+		if revealed.has(idx) or mine_set.has(idx) or blocked.has(idx):
 			continue
 		revealed[idx] = true
 		if adjacency[idx] == 0:
@@ -424,3 +435,27 @@ static func _neighbors(index: int, width: int, height: int) -> Array[int]:
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+static func validate_shell(shell: Dictionary, width: int, height: int) -> Dictionary:
+	return _SCHEMA.validate_shell(shell, width, height)
+
+static func set_shell_flag(shell: Dictionary, width: int, height: int, cell_index: int,
+		flagged: bool, transaction_id: String) -> Dictionary:
+	var checked: Dictionary = validate_shell(shell, width, height)
+	if not checked.ok: return checked
+	if cell_index < 0 or cell_index >= width * height or transaction_id.strip_edges().is_empty():
+		return _fail(&"invalid_shell_command", "invalid shell command", {})
+	var candidate: Dictionary = checked.value.shell
+	for action: Dictionary in candidate.actions:
+		if action.transaction_id == transaction_id:
+			if action.cell_index == cell_index and action.flagged == flagged:
+				return {"ok": true, "value": {"shell": candidate}}
+			return _fail(&"transaction_conflict", "shell command changed", {})
+	var flags: Array = candidate.flagged_indices
+	if flagged and not flags.has(cell_index): flags.append(cell_index)
+	elif not flagged: flags.erase(cell_index)
+	flags.sort()
+	candidate.actions.append({"transaction_id": transaction_id, "kind": "set_flag", "cell_index": cell_index,
+		"flagged": flagged, "revision": candidate.actions.size() + 1})
+	return {"ok": true, "value": {"shell": candidate}}

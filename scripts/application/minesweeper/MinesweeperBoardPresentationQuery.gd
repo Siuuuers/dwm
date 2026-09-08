@@ -15,13 +15,21 @@ static func desktop(snapshot: Dictionary, difficulty: String, entry_eligible: bo
 		var catalog := CATALOG.lookup("desktop_app", difficulty)
 		if not catalog.ok: return _fail()
 		var dimensions: Dictionary = catalog.value
-		return _covered(dimensions.width, dimensions.height, snapshot.revision, entry_eligible, -1, null, false)
+		return _shell(dimensions.width, dimensions.height, snapshot.revision, [], entry_eligible)
+	if phase == "UNPAID_UNSTARTED":
+		var candidate: Dictionary = snapshot.candidate
+		return _shell(candidate.width, candidate.height, snapshot.revision, candidate.flagged_indices, entry_eligible)
+	if phase == "PAID_UNSTARTED":
+		var candidate: Dictionary = snapshot.candidate
+		return _shell(candidate.spec.width, candidate.spec.height, snapshot.revision, candidate.flagged_indices, true)
 	if phase in ["PREPARING", "PREPARED_UNSTARTED"]:
 		return _candidate(snapshot)
 	var wrapper: Dictionary = snapshot.board
-	if not _keys(wrapper, ["board", "paid_start_receipt"]) or not wrapper.board is Dictionary or not wrapper.paid_start_receipt is Dictionary:
+	if not (_keys(wrapper, ["board", "paid_start_receipt"]) or _keys(wrapper, ["board", "paid_start_receipt", "spec"])) or not wrapper.board is Dictionary or not wrapper.paid_start_receipt is Dictionary:
 		return _fail()
 	if wrapper.paid_start_receipt.is_empty(): return _fail()
+	if wrapper.has("spec"):
+		if not wrapper.spec is Dictionary or not SCHEMA.validate_spec(wrapper.spec).get("ok", false): return _fail()
 	var validated := SCHEMA.validate_board(wrapper.board)
 	if not validated.get("ok", false): return _fail()
 	var board: Dictionary = validated.value.board
@@ -58,6 +66,8 @@ static func _candidate(snapshot: Dictionary) -> Dictionary:
 	var candidate: Dictionary = snapshot.candidate
 	var prepared: bool = snapshot.phase == "PREPARED_UNSTARTED"
 	var keys: Array = ["spec", "layout", "forced_cell", "proof_sha256"] if prepared else ["spec", "frontier"]
+	for extra: String in ["flagged_indices", "actions", "paid_start_receipt"]:
+		if candidate.has(extra): keys.append(extra)
 	if not _keys(candidate, keys) or not candidate.spec is Dictionary: return _fail()
 	var validated_spec := SCHEMA.validate_spec(candidate.spec)
 	if not validated_spec.get("ok", false): return _fail()
@@ -73,7 +83,16 @@ static func _candidate(snapshot: Dictionary) -> Dictionary:
 	if typeof(candidate.forced_cell) != TYPE_INT or candidate.forced_cell < 0 or candidate.forced_cell >= spec.width * spec.height: return _fail()
 	if layout.mine_indices.has(candidate.forced_cell): return _fail()
 	if candidate.proof_sha256 != null and typeof(candidate.proof_sha256) != TYPE_STRING: return _fail()
-	return _covered(spec.width, spec.height, snapshot.revision, true, candidate.forced_cell, int(layout.mine_count), false)
+	var shell := {"flagged_indices": candidate.get("flagged_indices", []), "actions": candidate.get("actions", [])}
+	var shell_valid := SCHEMA.validate_shell(shell, int(spec.width), int(spec.height))
+	if not shell_valid.ok: return _fail()
+	var result := _shell(spec.width, spec.height, snapshot.revision, shell_valid.value.shell.flagged_indices, true)
+	result.value.mine_estimate = int(layout.mine_count) - shell_valid.value.shell.flagged_indices.size()
+	for cell: Dictionary in result.value.cells:
+		cell.bracketed = cell.index == candidate.forced_cell
+		if cell.index != candidate.forced_cell: cell.actions.erase("reveal")
+	return result
+
 
 static func _covered(width: int, height: int, revision: int, actionable: bool, forced: int, estimate: Variant, custody: bool) -> Dictionary:
 	var cells: Array[Dictionary] = []
@@ -112,3 +131,15 @@ static func _ok(value: Dictionary) -> Dictionary:
 static func _fail() -> Dictionary:
 	# Do not echo an invalid source's values, paths, identities or schema diagnostic details.
 	return {"ok": false, "code": &"invalid_minesweeper_presentation_source"}
+
+
+static func _shell(width: int, height: int, revision: int, flags: Array, reveal_eligible: bool) -> Dictionary:
+	var result := _covered(width, height, revision, true, -1, null, false)
+	for cell: Dictionary in result.value.cells:
+		if flags.has(cell.index):
+			cell.mark = "flag"
+			cell.actions = ["unflag"]
+		else:
+			cell.actions = ["reveal", "flag"] if reveal_eligible else ["flag"]
+		cell.pressable = true
+	return result

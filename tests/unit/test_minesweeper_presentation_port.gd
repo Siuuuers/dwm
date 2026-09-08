@@ -70,6 +70,29 @@ class TerminalSettlementOwner:
 		}
 		return {"ok": true, "code": &"action_consequence_accepted", "value": {}, "receipt": {}}
 
+class PreparationOwner extends TerminalSettlementOwner:
+	var preparation_action := "begin"
+	var preparation_calls: Array[Dictionary] = []
+	var fail_preparation := true
+	var entry_identity := {"run_id":"run-preparation","branch_id":"branch-preparation",
+		"desktop_timeline_generation":1,"causal_day_instance":"day-preparation","app_round_ordinal":1}
+	func _init() -> void:
+		_snapshot = {"schema_version":1,"phase":"NONE","revision":0,"identity":null,
+			"candidate":null,"board":null,"settlement":null,"command_receipts":{},"terminal_receipts":{}}
+	func get_entry_context(difficulty: String) -> Dictionary:
+		return {"ok":true,"value":{"identity":entry_identity.duplicate(true),"revision":_snapshot.revision,
+			"difficulty_id":difficulty,"eligible":true}}
+	func get_preparation_context() -> Dictionary:
+		return {"ok":true,"value":{"action":preparation_action,"difficulty_id":"beginner",
+			"identity":entry_identity.duplicate(true),"revision":_snapshot.revision}}
+	func begin_debug_preparation(request: Dictionary) -> Dictionary:
+		preparation_calls.append(request.duplicate(true))
+		if fail_preparation: return {"ok":false,"code":&"injected_preparation_failure"}
+		preparation_action = "none"
+		return {"ok":true}
+	func run_debug_preparation_slice(request: Dictionary) -> Dictionary:
+		return begin_debug_preparation(request)
+
 var coordinator
 var issuer
 var root_store
@@ -94,14 +117,14 @@ func before_each() -> void:
 	assert_true(port.configure(coordinator, issuer).ok)
 
 
-func test_pull_exposes_only_public_projection_and_pre_reveal_has_no_flag_action() -> void:
+func test_pull_exposes_only_public_projection_and_pre_reveal_flag_action() -> void:
 	var pulled: Dictionary = port.pull("beginner")
 	assert_true(pulled.ok)
 	assert_eq(pulled.keys(), ["ok", "code", "value"])
 	assert_eq(pulled.value.keys(), ["width", "height", "revision", "mine_estimate", "terminal", "custody", "cells"])
-	assert_eq(pulled.value.cells[0].actions, ["reveal"])
+	assert_eq(pulled.value.cells[0].actions, ["reveal", "flag"])
 	assert_false(pulled.value.has("identity"))
-	assert_false((pulled.value.cells[0].actions as Array).has("flag"))
+	assert_true((pulled.value.cells[0].actions as Array).has("flag"))
 
 
 func test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer() -> void:
@@ -295,7 +318,7 @@ func test_unconfigured_invalid_and_stale_actions_allocate_nothing() -> void:
 	assert_eq(unconfigured.dispatch("reveal", 0, 0).code, &"minesweeper_presentation_unavailable")
 	var pulled: Dictionary = port.pull("beginner")
 	var before: int = root_store.next_counter
-	assert_eq(port.dispatch("flag", 0, pulled.value.revision).code, &"minesweeper_action_not_available")
+	assert_eq(port.dispatch("chord", 0, pulled.value.revision).code, &"minesweeper_action_not_available")
 	assert_eq(port.dispatch("reveal", -1, pulled.value.revision).code, &"minesweeper_action_not_available")
 	assert_eq(port.dispatch("reveal", 0, pulled.value.revision + 1).code, &"stale_minesweeper_presentation")
 	assert_eq(root_store.next_counter, before)
@@ -331,10 +354,11 @@ func test_live_entry_eligibility_is_rechecked_before_allocation() -> void:
 	assert_eq(refused.code, &"minesweeper_action_not_available")
 	assert_eq(root_store.next_counter, before)
 	assert_true(refused.has("value"))
-	assert_eq(refused.value.cells[0].actions, [])
+	assert_eq(refused.value.cells[0].actions, ["flag"])
 
 
 func test_prepared_round_refuses_a_stale_caller_difficulty() -> void:
+	state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	var context: Dictionary = coordinator.get_entry_context("beginner").value
 	var begin_tx := _issue_transaction()
 	assert_true(coordinator.begin_debug_preparation({
@@ -443,7 +467,8 @@ func test_foreground_suspends_and_resumes_real_board_without_spending_or_regener
 	assert_eq(root_store.next_counter, counter_before)
 
 
-func test_foreground_noops_unpaid_and_prepared_but_refuses_preparation_custody() -> void:
+func test_foreground_noops_unpaid_and_cold_preparation_parks_exact_frontier() -> void:
+	state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	var unpaid: Dictionary = port.pull("beginner")
 	var counter_before: int = root_store.next_counter
 	assert_true(port.set_foreground(false, unpaid.value.revision).ok)
@@ -455,10 +480,21 @@ func test_foreground_noops_unpaid_and_prepared_but_refuses_preparation_custody()
 		"transaction_id": begin_tx.id, "transaction_issuer_receipt": begin_tx.receipt,
 		"expected_identity": context.identity, "expected_revision": context.revision, "difficulty_id": "beginner",
 	}).ok)
+	# A fresh presentation owner models cold Main mounting the already saved frontier.
+	port = PORT.new()
+	assert_true(port.configure(coordinator, issuer).ok)
 	var preparing: Dictionary = port.pull("beginner")
+	assert_true(preparing.ok, str(preparing))
+	var frontier_before: Dictionary = coordinator.get_state().value
+	var calls_before: Array = generation.call_log.duplicate(true)
 	counter_before = root_store.next_counter
-	assert_false(port.set_foreground(false, preparing.value.revision).ok)
-	assert_false(port.set_foreground(true, preparing.value.revision).ok)
+	assert_true(port.set_foreground(true, preparing.value.revision).ok)
+	assert_true(port.can_park_preparation(preparing.value.revision))
+	assert_true(port.set_foreground(false, preparing.value.revision).ok)
+	assert_false(port.can_park_preparation(preparing.value.revision + 1))
+	assert_false(port.set_foreground(false, preparing.value.revision + 1).ok)
+	assert_eq(coordinator.get_state().value, frontier_before)
+	assert_eq(generation.call_log, calls_before, "Show and Home never start or advance search.")
 	assert_eq(root_store.next_counter, counter_before)
 	var slices: Array[Dictionary] = [{"done": true, "layout": {"schema_version": 1, "width": 3, "height": 3,
 		"mine_indices": [1], "mine_count": 1}, "forced_cell": 0, "proof_sha256": null}]
@@ -509,3 +545,59 @@ func test_foreground_cannot_hide_or_resume_an_unsettled_terminal() -> void:
 func after_each() -> void:
 	_input_fixture.restore_map()
 	_input_fixture = null
+
+
+func test_preparation_is_explicit_and_retry_reuses_exact_issued_request() -> void:
+	var owner := PreparationOwner.new()
+	var presentation := PORT.new()
+	assert_true(presentation.configure(owner,issuer).ok)
+	var counter: int = root_store.next_counter
+	var initial: Dictionary = presentation.pull("beginner")
+	assert_true(initial.ok,str(initial))
+	assert_true(owner.preparation_calls.is_empty(),"Pure pull performs no preparation work.")
+	assert_eq(root_store.next_counter,counter)
+	var failed: Dictionary = presentation.advance_preparation(initial.value.revision)
+	assert_false(failed.ok)
+	assert_eq(owner.preparation_calls.size(),1)
+	counter = root_store.next_counter
+	owner.fail_preparation = false
+	var retry: Dictionary = presentation.advance_preparation(initial.value.revision)
+	assert_true(retry.ok,str(retry))
+	assert_true(retry.advanced)
+	assert_eq(owner.preparation_calls.size(),2)
+	assert_eq(owner.preparation_calls[0],owner.preparation_calls[1])
+	assert_eq(root_store.next_counter,counter)
+	var idle: Dictionary = presentation.advance_preparation(initial.value.revision)
+	assert_eq(idle,{"ok":true,"advanced":false})
+	assert_eq(root_store.next_counter,counter)
+	assert_eq(owner.preparation_calls.size(),2)
+
+
+func test_preparation_rejects_stale_identity_or_revision_without_issuance() -> void:
+	var owner := PreparationOwner.new()
+	var presentation := PORT.new()
+	assert_true(presentation.configure(owner,issuer).ok)
+	var initial: Dictionary = presentation.pull("beginner")
+	var counter: int = root_store.next_counter
+	assert_false(presentation.advance_preparation(initial.value.revision+1).ok)
+	owner.entry_identity.branch_id = "restored-other-branch"
+	assert_false(presentation.advance_preparation(initial.value.revision).ok)
+	assert_true(owner.preparation_calls.is_empty())
+	assert_eq(root_store.next_counter,counter)
+
+
+func test_preparation_parking_refuses_owner_recovery_without_allocation() -> void:
+	state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
+	var initial: Dictionary = port.pull("beginner")
+	var started: Dictionary = port.advance_preparation(initial.value.revision)
+	assert_true(started.ok, str(started))
+	if not started.ok: return
+	var before: Dictionary = coordinator.get_state().value
+	var calls: Array = generation.call_log.duplicate(true)
+	var counter: int = root_store.next_counter
+	state_port.latch_fatal_for_test({"code": &"injected_recovery"})
+	assert_false(port.can_park_preparation(started.value.revision))
+	assert_false(port.set_foreground(false, started.value.revision).ok)
+	assert_eq(coordinator._board_state.capture(), before)
+	assert_eq(generation.call_log, calls)
+	assert_eq(root_store.next_counter, counter)

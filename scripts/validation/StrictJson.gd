@@ -25,6 +25,7 @@ class _Parser:
 	var _index := 0
 	var _line := 1
 	var _column := 1
+	var _ordinary_ascii := RegEx.create_from_string("\\G[\\x20-\\x21\\x23-\\x5B\\x5D-\\x7E]+")
 
 	func _init(text: String) -> void:
 		_text = text
@@ -120,6 +121,16 @@ class _Parser:
 		var output := ""
 		while not _is_eof():
 			var codepoint := _peek()
+			# Only ordinary printable ASCII can skip the character-wise path. These
+			# spans contain no quotes, escapes, controls, Unicode, or line breaks.
+			if codepoint >= 0x20 and codepoint <= 0x7E and codepoint != 0x22 and codepoint != 0x5C:
+				var span := _ordinary_ascii.search(_text, _index)
+				if span != null and span.get_start() == _index:
+					var length := span.get_end() - _index
+					output += span.get_string()
+					_index += length
+					_column += length
+					continue
 			if codepoint == 0x22:
 				_advance()
 				return {"ok": true, "value": output}

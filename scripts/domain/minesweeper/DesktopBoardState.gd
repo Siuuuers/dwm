@@ -20,8 +20,13 @@ extends RefCounted
 ## itself, because MinesweeperBoardSchema.validate_board() rejects any board with extra members.
 
 const _IDENTITY := preload("res://scripts/domain/desktop/DesktopIdentity.gd")
+const _INSPECTION_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _BOARD_SCHEMA := preload("res://scripts/domain/minesweeper/MinesweeperBoardSchema.gd")
 
+const _CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
+const _REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
+const _PHASE_UNPAID := "UNPAID_UNSTARTED"
+const _PHASE_PAID := "PAID_UNSTARTED"
 const _PHASE_NONE := "NONE"
 const _PHASE_PREPARING := "PREPARING"
 const _PHASE_PREPARED_UNSTARTED := "PREPARED_UNSTARTED"
@@ -30,13 +35,15 @@ const _PHASE_ACTIVE_SUSPENDED := "ACTIVE_SUSPENDED"
 const _PHASE_SETTLING := "SETTLING"
 
 const _PHASES: Array[String] = [
-	_PHASE_NONE, _PHASE_PREPARING, _PHASE_PREPARED_UNSTARTED,
+	_PHASE_NONE, _PHASE_UNPAID, _PHASE_PAID, _PHASE_PREPARING, _PHASE_PREPARED_UNSTARTED,
 	_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED, _PHASE_SETTLING,
 ]
 
 ## Which of {identity, candidate, board, settlement} must be non-null per phase, per the frozen
 ## Canonical desktop state phase-invariant table.
 const _PHASE_INVARIANTS := {
+	_PHASE_UNPAID: {"identity": false, "candidate": true, "board": false, "settlement": false},
+	_PHASE_PAID: {"identity": true, "candidate": true, "board": false, "settlement": false},
 	_PHASE_NONE: {"identity": false, "candidate": false, "board": false, "settlement": false},
 	_PHASE_PREPARING: {"identity": true, "candidate": true, "board": false, "settlement": false},
 	_PHASE_PREPARED_UNSTARTED: {"identity": true, "candidate": true, "board": false, "settlement": false},
@@ -58,6 +65,8 @@ var _board: Variant = null
 var _settlement: Variant = null
 var _command_receipts: Dictionary = {}
 var _terminal_receipts: Dictionary = {}
+# Recomputed at mutation/restore boundaries; idle reads do not hash the board.
+var _settled_inspection := false
 
 
 func _init() -> void:
@@ -73,6 +82,12 @@ func reset() -> void:
 	_settlement = null
 	_command_receipts = {}
 	_terminal_receipts = {}
+	_settled_inspection = false
+
+
+## Cheap foreground-pump readiness; full commands still use detached capture().
+func preparation_header() -> Dictionary:
+	return {"phase": _phase, "revision": _revision}
 
 
 func capture() -> Dictionary:
@@ -105,6 +120,9 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 		snapshot["candidate"], snapshot["board"], snapshot["settlement"])
 	if not invariant_check.get("ok", false):
 		return invariant_check
+	if String(phase) in [_PHASE_UNPAID, _PHASE_PAID]:
+		var shell_check := _validate_candidate_shell(snapshot["candidate"], String(phase))
+		if not shell_check.get("ok", false): return shell_check
 	if snapshot["identity"] != null:
 		var identity_valid := _IDENTITY.validate(snapshot["identity"])
 		if not identity_valid.get("ok", false):
@@ -122,7 +140,7 @@ func prepare_debug_candidate(input: Dictionary, generation: Dictionary) -> Dicti
 	var basics := _validate_common(input)
 	if not basics.get("ok", false):
 		return basics
-	if _phase != _PHASE_NONE:
+	if _phase not in [_PHASE_NONE, _PHASE_UNPAID, _PHASE_PAID]:
 		return _fail(&"debug_candidate_requires_none_phase",
 			"a Debug candidate may only begin while the board is NONE", {"phase": _phase})
 	var revision_check := _check_revision(input)
@@ -145,6 +163,11 @@ func prepare_debug_candidate(input: Dictionary, generation: Dictionary) -> Dicti
 
 	var candidate_after := {"spec": (spec_valid["value"] as Dictionary)["spec"],
 		"frontier": (generation["frontier"] as Dictionary).duplicate(true)}
+	if _phase == _PHASE_PAID:
+		if input.identity != _identity or input.spec != _candidate.spec: return _fail(&"identity_mismatch", "", {})
+		candidate_after["paid_start_receipt"] = _candidate.paid_start_receipt.duplicate(true)
+	if _phase in [_PHASE_UNPAID, _PHASE_PAID]:
+		candidate_after.merge(shell_state())
 	return _envelope(input, &"debug_begin", _PHASE_PREPARING, identity, candidate_after, null, null)
 
 
@@ -173,6 +196,7 @@ func prepare_debug_slice(input: Dictionary, generation: Dictionary) -> Dictionar
 		if typeof(generation["frontier"]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_generation_progress", "generation.frontier must be a dictionary", {})
 		var candidate_after := {"spec": spec.duplicate(true), "frontier": (generation["frontier"] as Dictionary).duplicate(true)}
+		_copy_preparation_shell(candidate_after)
 		return _envelope(input, &"debug_slice_progress", _PHASE_PREPARING, _identity, candidate_after, null, null)
 
 	var certified_shape := _exact_keys(generation, ["done", "layout", "forced_cell", "proof_sha256"],
@@ -199,6 +223,7 @@ func prepare_debug_slice(input: Dictionary, generation: Dictionary) -> Dictionar
 		"spec": spec.duplicate(true), "layout": layout, "forced_cell": int(forced_cell),
 		"proof_sha256": proof_sha256,
 	}
+	_copy_preparation_shell(certified_candidate)
 	return _envelope(input, &"debug_slice_certified", _PHASE_PREPARED_UNSTARTED, _identity,
 		certified_candidate, null, null)
 
@@ -208,7 +233,7 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 	var basics := _validate_common(input)
 	if not basics.get("ok", false):
 		return basics
-	if _phase != _PHASE_NONE and _phase != _PHASE_PREPARED_UNSTARTED:
+	if _phase not in [_PHASE_NONE, _PHASE_UNPAID, _PHASE_PAID, _PHASE_PREPARED_UNSTARTED]:
 		return _fail(&"first_reveal_requires_none_or_prepared_phase",
 			"first Reveal may only run from NONE or PREPARED_UNSTARTED", {"phase": _phase})
 	var revision_check := _check_revision(input)
@@ -224,7 +249,9 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 	var spec: Dictionary = (spec_valid["value"] as Dictionary)["spec"]
 
 	var identity: Dictionary
-	if _phase == _PHASE_NONE:
+	if _phase in [_PHASE_NONE, _PHASE_UNPAID]:
+		if _phase == _PHASE_UNPAID and str(_candidate.difficulty_id) != str(spec.difficulty_id):
+			return _fail(&"difficulty_mismatch", "", {})
 		if not input.has("identity") or typeof(input["identity"]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_first_reveal_input", "input.identity is required", {})
 		var identity_valid := _IDENTITY.validate(input["identity"])
@@ -239,7 +266,7 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 		var live_candidate: Dictionary = _candidate
 		if spec != live_candidate["spec"]:
 			return _fail(&"spec_mismatch", "the adopted spec must match the certified candidate", {})
-		if int(input["cell_index"]) != int(live_candidate["forced_cell"]):
+		if _phase == _PHASE_PREPARED_UNSTARTED and int(input["cell_index"]) != int(live_candidate["forced_cell"]):
 			return _fail(&"forced_cell_mismatch",
 				"cell_index must equal the certified candidate's forced cell", {})
 
@@ -256,17 +283,21 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 	if not board_valid.get("ok", false):
 		return board_valid
 	var board: Dictionary = (board_valid["value"] as Dictionary)["board"]
-	# MinesweeperBoardReducer.first_reveal() is the pure forced-cell materializer: it never appends
-	# an action-ledger entry (that starts with the first ROUTINE command), so a freshly materialized
-	# first-Reveal board always carries revision 0 and an empty action ledger.
-	if int(board["revision"]) != 0 or not (board["actions"] as Array).is_empty():
-		return _fail(&"invalid_materialized_input", "a first-Reveal board must carry no action-ledger entries", {})
+	# First Reveal remains one implicit action; accepted pre-Reveal Flag/Unflag actions
+	# are retained verbatim, including flags that were later removed.
+	var shell := shell_state()
+	if int(board["revision"]) != shell.actions.size() or board.actions != shell.actions or board.flagged_indices != shell.flagged_indices:
+		return _fail(&"invalid_materialized_input", "first Reveal must retain the saved shell history", {})
 	if not (board["revealed_indices"] as Array).has(int(input["cell_index"])):
 		return _fail(&"invalid_materialized_input", "the forced cell must be revealed", {})
 	if typeof(paid_start_receipt) != TYPE_DICTIONARY or paid_start_receipt.is_empty():
 		return _fail(&"invalid_paid_start_receipt", "paid_start_receipt must be a nonempty dictionary", {})
 
+	if _candidate is Dictionary and _candidate.has("paid_start_receipt") and paid_start_receipt != _candidate.paid_start_receipt:
+		return _fail(&"paid_start_receipt_mismatch", "", {})
 	var board_after := {"board": board, "paid_start_receipt": paid_start_receipt.duplicate(true)}
+	if _phase == _PHASE_PAID or (_candidate is Dictionary and _candidate.has("paid_start_receipt")):
+		board_after["spec"] = spec.duplicate(true)
 	return _envelope(input, &"first_reveal", _PHASE_ACTIVE_VISIBLE, identity, null, board_after, null)
 
 
@@ -292,6 +323,7 @@ func prepare_board_command(input: Dictionary, reduced_board: Dictionary) -> Dict
 	var board: Dictionary = (board_valid["value"] as Dictionary)["board"]
 	var live_board: Dictionary = _board
 	var board_after := {"board": board, "paid_start_receipt": (live_board["paid_start_receipt"] as Dictionary).duplicate(true)}
+	if live_board.has("spec"): board_after["spec"] = live_board.spec.duplicate(true)
 	return _envelope(input, &"board_command", _PHASE_ACTIVE_VISIBLE, _identity, null, board_after, null)
 
 
@@ -358,6 +390,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		_settlement = _dup_or_null(snapshot["settlement"])
 		_command_receipts = (snapshot["command_receipts"] as Dictionary).duplicate(true)
 		_terminal_receipts = (snapshot["terminal_receipts"] as Dictionary).duplicate(true)
+		_settled_inspection = is_settled_inspection(snapshot)
 		return _state_view()
 
 	var transaction_id := str(candidate.get("transaction_id", ""))
@@ -383,6 +416,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_board = _dup_or_null(candidate.get("board_after"))
 	_settlement = _dup_or_null(candidate.get("settlement_after"))
 	_revision += 1
+	_settled_inspection = is_settled_inspection(capture())
 
 	var result: Dictionary = _state_view()
 	if candidate.has("result_override"):
@@ -491,3 +525,167 @@ func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictio
 
 func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+## An unpaid shell contains no allocation or hidden layout. A paid replacement keeps
+## the original payment receipt and ordinal while freezing only the new layout spec.
+func shell_state() -> Dictionary:
+	if _candidate is Dictionary:
+		return {"flagged_indices": _candidate.get("flagged_indices", []).duplicate(true),
+			"actions": _candidate.get("actions", []).duplicate(true)}
+	return {"flagged_indices": [], "actions": []}
+
+
+func prepare_unpaid_shell(input: Dictionary, difficulty: String, shell: Dictionary) -> Dictionary:
+	var checked := _validate_shell_input(input)
+	if not checked.ok: return checked
+	if _phase not in [_PHASE_NONE, _PHASE_UNPAID, _PHASE_PREPARED_UNSTARTED] or (_candidate is Dictionary and _candidate.has("paid_start_receipt")): return _fail(&"unpaid_shell_requires_unpaid_phase", "", {})
+	var dimensions := _CATALOG.lookup("desktop_app", difficulty)
+	if not dimensions.ok: return dimensions
+	var valid := _BOARD_SCHEMA.validate_shell(shell, dimensions.value.width, dimensions.value.height)
+	if not valid.ok: return valid
+	var candidate: Dictionary = valid.value.shell.duplicate(true)
+	candidate["difficulty_id"] = difficulty
+	candidate["width"] = int(dimensions.value.width)
+	candidate["height"] = int(dimensions.value.height)
+	return _envelope(input, &"shell", _PHASE_UNPAID, null, candidate, null, null)
+
+
+func prepare_paid_replacement(input: Dictionary, spec: Dictionary) -> Dictionary:
+	var checked := _validate_shell_input(input)
+	if not checked.ok: return checked
+	if _phase not in [_PHASE_PAID, _PHASE_ACTIVE_VISIBLE, _PHASE_PREPARED_UNSTARTED]: return _fail(&"replacement_requires_paid_phase", "", {})
+	if _phase == _PHASE_PREPARED_UNSTARTED and not _candidate.has("paid_start_receipt"): return _fail(&"replacement_requires_paid_phase", "", {})
+	if _phase == _PHASE_ACTIVE_VISIBLE and bool(_board.board.terminal): return _fail(&"terminal_board_cannot_replace", "", {})
+	var valid := _BOARD_SCHEMA.validate_spec(spec)
+	if not valid.ok: return valid
+	if valid.value.spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
+	var receipt: Dictionary = _board.paid_start_receipt if _phase == _PHASE_ACTIVE_VISIBLE else _candidate.paid_start_receipt
+	var candidate := {"spec": valid.value.spec, "paid_start_receipt": receipt.duplicate(true), "flagged_indices": [], "actions": []}
+	return _envelope(input, &"replace_board", _PHASE_PAID, _identity, candidate, null, null)
+
+
+func prepare_shell_flag(input: Dictionary, shell: Dictionary) -> Dictionary:
+	var checked := _validate_shell_input(input)
+	if not checked.ok: return checked
+	if _phase == _PHASE_UNPAID: return prepare_unpaid_shell(input, str(_candidate.difficulty_id), shell)
+	if _phase not in [_PHASE_PAID, _PHASE_PREPARED_UNSTARTED]: return _fail(&"shell_flag_requires_unstarted_phase", "", {})
+	var valid := _BOARD_SCHEMA.validate_shell(shell, int(_candidate.spec.width), int(_candidate.spec.height))
+	if not valid.ok: return valid
+	var candidate: Dictionary = _candidate.duplicate(true)
+	candidate["flagged_indices"] = valid.value.shell.flagged_indices
+	candidate["actions"] = valid.value.shell.actions
+	return _envelope(input, &"shell", _phase, _identity, candidate, null, null)
+
+
+func _validate_shell_input(input: Dictionary) -> Dictionary:
+	# Only the unpaid shell permits a null identity; active command validation stays strict.
+	var copy := input.duplicate(true)
+	if copy.get("identity") == null: copy["identity"] = {}
+	var checked := _validate_common(copy)
+	if not checked.ok: return checked
+	checked = _check_revision(input)
+	if not checked.ok: return checked
+	return _check_identity_matches_live(input)
+
+
+func _validate_candidate_shell(candidate: Dictionary, phase: String) -> Dictionary:
+	var width: int
+	var height: int
+	if phase == _PHASE_UNPAID:
+		var shape := _exact_keys(candidate, ["difficulty_id", "width", "height", "flagged_indices", "actions"], &"invalid_unpaid_shell")
+		if not shape.ok: return shape
+		if not candidate.difficulty_id is String: return _fail(&"invalid_unpaid_shell", "", {})
+		var dimensions := _CATALOG.lookup("desktop_app", candidate.difficulty_id)
+		if not dimensions.ok: return dimensions
+		width = int(dimensions.value.width)
+		height = int(dimensions.value.height)
+		if typeof(candidate.width) != TYPE_INT or typeof(candidate.height) != TYPE_INT or candidate.width != width or candidate.height != height:
+			return _fail(&"invalid_unpaid_shell", "", {})
+	else:
+		var shape := _exact_keys(candidate, ["spec", "paid_start_receipt", "flagged_indices", "actions"], &"invalid_paid_shell")
+		if not shape.ok: return shape
+		if not candidate.spec is Dictionary or not candidate.paid_start_receipt is Dictionary or candidate.paid_start_receipt.is_empty():
+			return _fail(&"invalid_paid_shell", "", {})
+		var valid := _BOARD_SCHEMA.validate_spec(candidate.spec)
+		if not valid.ok: return valid
+		if valid.value.spec.board_kind != "desktop": return _fail(&"invalid_board_kind", "", {})
+		width = int(valid.value.spec.width)
+		height = int(valid.value.spec.height)
+	return _BOARD_SCHEMA.validate_shell({"flagged_indices": candidate.flagged_indices, "actions": candidate.actions}, width, height)
+
+
+func _copy_preparation_shell(target: Dictionary) -> void:
+	for key: String in ["flagged_indices", "actions", "paid_start_receipt"]:
+		if _candidate.has(key): target[key] = _candidate[key].duplicate(true)
+
+
+## Existing active phases retain read-only inspection; the receipt binds the exact
+## wrapper including payment/current spec, independent of branch/visibility revision.
+func has_settled_inspection() -> bool:
+	return _settled_inspection
+
+
+static func inspection_board_sha256(wrapper: Dictionary) -> String:
+	if not wrapper.get("board") is Dictionary or not wrapper.get("paid_start_receipt") is Dictionary: return ""
+	var normalized: Dictionary = _inspection_normalize(wrapper)
+	var checked := _BOARD_SCHEMA.validate_board(normalized.board)
+	if not checked.get("ok", false) or not bool(checked.value.board.terminal): return ""
+	var emitted := _INSPECTION_JSON.stringify(normalized)
+	return str(emitted.value).sha256_text() if emitted.get("ok", false) else ""
+
+
+static func is_settled_inspection(snapshot: Dictionary) -> bool:
+	if str(snapshot.get("phase", "")) not in [_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED]: return false
+	if not snapshot.get("identity") is Dictionary or not snapshot.get("board") is Dictionary: return false
+	if not snapshot.get("terminal_receipts") is Dictionary: return false
+	var wrapper: Dictionary = snapshot.board
+	if not wrapper.get("board") is Dictionary or not bool(wrapper.board.get("terminal", false)): return false
+	var expected := ""
+	for record: Variant in snapshot.terminal_receipts.values():
+		if not record is Dictionary or str(record.get("kind", "")) != "complete": continue
+		if int(record.get("app_round_ordinal", -1)) != int(snapshot.identity.get("app_round_ordinal", -2)): continue
+		if str(record.get("outcome", "")) != str(wrapper.board.get("outcome", "")): continue
+		var binding := str(record.get("board_sha256", ""))
+		if binding.length() != 64: continue
+		if expected.is_empty(): expected = inspection_board_sha256(wrapper)
+		if not expected.is_empty() and binding == expected: return true
+	return false
+
+
+static func dismissed_inspection_snapshot(snapshot: Dictionary) -> Dictionary:
+	var cleared := snapshot.duplicate(true)
+	cleared["phase"] = _PHASE_NONE
+	cleared["revision"] = int(snapshot.revision) + 1
+	for key: String in ["identity", "candidate", "board", "settlement"]: cleared[key] = null
+	return cleared
+
+
+func prepare_dismiss_inspection(input: Dictionary) -> Dictionary:
+	var common := _validate_common(input)
+	if not common.ok: return common
+	var revision := _check_revision(input)
+	if not revision.ok: return revision
+	var identity := _check_identity_matches_live(input)
+	if not identity.ok: return identity
+	if not _settled_inspection: return _fail(&"settled_inspection_required", "", {})
+	return _envelope(input, &"dismiss_inspection", _PHASE_NONE, null, null, null, null)
+
+
+## Match saved integral-number normalization before strict canonical serialization.
+## The writer also canonicalizes StringName keys/values and ordinary/typed arrays.
+static func _inspection_normalize(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_STRING_NAME:
+			return str(value)
+		TYPE_FLOAT:
+			if is_finite(value) and value == floorf(value): return int(value)
+		TYPE_ARRAY:
+			var items: Array = []
+			for item: Variant in value: items.append(_inspection_normalize(item))
+			return items
+		TYPE_DICTIONARY:
+			var fields: Dictionary = {}
+			for key: Variant in value: fields[key] = _inspection_normalize(value[key])
+			return fields
+	return value

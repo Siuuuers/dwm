@@ -21,7 +21,7 @@
 					"difficulty_id", "forced_cell", "first_cell_zero", "mine_indices", "mine_count"
 				],
 				"properties": {
-					"difficulty_id": {"enum": ["beginner", "intermediate", "expert"]},
+					"difficulty_id": {"enum": ["beginner", "intermediate", "expert", "canonical_solo", "canonical_pair"]},
 					"forced_cell": {"type": "integer", "minimum": 0},
 					"first_cell_zero": {"type": "boolean"},
 					"mine_indices": {

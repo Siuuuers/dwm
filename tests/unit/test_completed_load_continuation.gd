@@ -28,6 +28,15 @@ class Writer extends RefCounted:
 		calls += 1
 		return {"ok": true}
 
+var _prior_scene: Node
+
+func before_each() -> void:
+	_prior_scene = get_tree().current_scene
+	get_tree().current_scene = null
+
+func after_each() -> void:
+	get_tree().current_scene = _prior_scene if is_instance_valid(_prior_scene) else null
+
 func test_completed_main_and_menu_load_retire_after_restore_lease_without_replaying_ending() -> void:
 	var fixture: Node = add_child_autofree(FIXTURE.new())
 	fixture.gut = gut
@@ -72,6 +81,12 @@ func test_completed_main_and_menu_load_retire_after_restore_lease_without_replay
 		assert_eq(game.capture_live_session().value, handle)
 		assert_true(gate.release(&"restore", lease.value.token).get("ok", false))
 		await bootstrap._resume_live_continuation()
+		assert_eq(router.returns, 0, "the native target must mount before continuation")
+		assert_eq(bootstrap._pending_live_continuation, handle, "waiting retains the exact session")
+		var mounted := Node.new()
+		get_tree().root.add_child(mounted)
+		get_tree().current_scene = mounted
+		await bootstrap._resume_live_continuation()
 		assert_eq(router.returns, 1)
 		assert_true(router.returned_after_retirement)
 		assert_false(game.capture_live_session().value.active)
@@ -82,3 +97,5 @@ func test_completed_main_and_menu_load_retire_after_restore_lease_without_replay
 		bootstrap._pending_live_continuation = handle.duplicate(true)
 		await bootstrap._resume_live_continuation()
 		assert_eq(router.returns, 1, "the stale pre-retirement handle cannot repeat navigation")
+		get_tree().current_scene = null
+		mounted.free()

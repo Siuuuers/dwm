@@ -27,17 +27,19 @@ func _chord_clear(extra_flag_pair: bool = false) -> Dictionary:
 	assert_eq(str(board.outcome), "cleared")
 	return board
 
-func test_real_chords_exceed_one_hundred_but_exact_one_hundred_does_not_qualify() -> void:
+func test_current_exact_one_hundred_qualifies_and_legacy_threshold_remains_strict() -> void:
 	var board := _chord_clear()
 	assert_eq(PERFORMANCE.three_bv(board), 8)
 	assert_eq(PERFORMANCE.click_count(board), 6)
 	assert_almost_eq(PERFORMANCE.foresight_percent(board), 133.333333, 0.0001)
-	assert_eq(PERFORMANCE.perfect_reasons(board), ["efficiency_gt_100"])
+	assert_eq(PERFORMANCE.perfect_reasons(board), ["efficiency_gte_100"])
+	assert_eq(PERFORMANCE.perfect_reasons(board, 1), ["efficiency_gt_100"])
 	assert_eq(DATING.perfect_reasons(board), PERFORMANCE.perfect_reasons(board))
 	var exact := _chord_clear(true)
 	assert_eq(PERFORMANCE.click_count(exact), 8)
 	assert_eq(PERFORMANCE.foresight_percent(exact), 100.0)
-	assert_eq(PERFORMANCE.perfect_reasons(exact), [])
+	assert_eq(PERFORMANCE.perfect_reasons(exact), ["efficiency_gte_100"])
+	assert_eq(PERFORMANCE.perfect_reasons(exact, 1), [])
 
 func test_flag_then_unflag_cannot_recover_no_flag_and_individual_reveals_count_first_click() -> void:
 	for used_flag: bool in [false, true]:
@@ -48,7 +50,7 @@ func test_flag_then_unflag_cannot_recover_no_flag_and_individual_reveals_count_f
 		for cell: int in [1, 2, 3, 5, 6, 7, 8]:
 			board = REDUCER.reveal(board, cell, "reveal-%d" % cell).value.board
 		assert_eq(PERFORMANCE.click_count(board), 10 if used_flag else 8)
-		assert_eq(PERFORMANCE.perfect_reasons(board), [] if used_flag else ["no_flag"])
+		assert_eq(PERFORMANCE.perfect_reasons(board), [] if used_flag else ["efficiency_gte_100", "no_flag"])
 
 func test_exploded_board_has_no_qualifiers_even_with_high_ratio_and_no_flags() -> void:
 	var board: Dictionary = REDUCER.reveal(_first(), 4, "explode").value.board
@@ -60,7 +62,7 @@ func test_both_qualifiers_award_each_task_once_without_expanding_durable_receipt
 	state.reset_game()
 	var port: RefCounted = REWARD.new(state)
 	# The port accepts the two independently derived reasons, without squeezing them into one outcome.
-	var result := {"outcome": "perfect", "perfect_reasons": ["efficiency_gt_100", "no_flag"]}
+	var result := {"outcome": "perfect", "perfect_reasons": ["efficiency_gte_100", "no_flag"]}
 	var before: Dictionary = state.to_save_dict().duplicate(true)
 	var prepared: Dictionary = port.prepare_complete(ACTIVE, result, "both-1")
 	assert_true(prepared.ok, str(prepared))
@@ -89,6 +91,7 @@ func test_optional_qualifiers_reject_unknown_duplicate_and_outcome_mismatch_befo
 	for result: Dictionary in [
 		{"outcome": "perfect", "perfect_reasons": "no_flag"},
 		{"outcome": "perfect", "perfect_reasons": ["unknown"]},
+		{"outcome": "perfect", "perfect_reasons": ["efficiency_gt_100", "efficiency_gte_100"]},
 		{"outcome": "perfect", "perfect_reasons": ["no_flag", "no_flag"]},
 		{"outcome": "perfect", "perfect_reasons": []},
 		{"outcome": "exploded", "perfect_reasons": ["no_flag"]},
@@ -157,3 +160,11 @@ func test_retained_and_restored_board_derive_same_register_without_adding_saved_
 	assert_false(snapshot.board.board.has("three_bv"))
 	assert_false(snapshot.board.board.has("click_count"))
 	assert_false(snapshot.board.board.has("foresight"))
+
+func test_current_display_floors_without_changing_raw_ratio_or_legacy_rounding() -> void:
+	var board: Dictionary = REDUCER.set_flag(_first(), 4, true, "flag-display").value.board
+	board = REDUCER.chord(board, 0, "chord-display").value.board
+	assert_eq(PERFORMANCE.click_count(board), 3)
+	assert_almost_eq(PERFORMANCE.foresight_percent(board), 266.666666, 0.0001)
+	assert_eq(PERFORMANCE.display_percent(board), 266)
+	assert_eq(PERFORMANCE.display_percent(board, 1), 267)

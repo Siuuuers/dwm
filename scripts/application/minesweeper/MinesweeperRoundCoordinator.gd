@@ -1,5 +1,7 @@
 extends RefCounted
 
+const _REGISTER_QUERY := preload("res://scripts/application/minesweeper/MinesweeperRegisterQuery.gd")
+const _CATALOG := preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd")
 const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 
 ## Application-level desktop Minesweeper round coordinator (Plan 02 Task 5, dwm-p2r.32,
@@ -66,6 +68,8 @@ const _FLAG_REQUEST_KEYS: Array[String] = [
 	"cell_index", "flagged",
 ]
 
+var _configuration_pending: Dictionary = {}
+var _paid_reveal_pending: Dictionary = {}
 var _board_state: _BOARD_STATE
 var _state_port: Object = null
 var _checkpoint_port: Object = null
@@ -250,7 +254,7 @@ func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint
 ## `causal_transaction` before reading/preparing the terminal action, prepares and durably checkpoints
 ## the completion candidate (ordinal 0, `stage=action_prepared`, Ruling A) WITHOUT changing live
 ## board truth, then delegates to `accept_prepared_action()` under the still-active lease. The actual
-## board transition to phase NONE happens later, as this action source's own
+## board transition to settled inspection happens later, as this action source's own
 ## `commit_recovery_action()` -- the coordinator's forward-recovery "commit action candidate" step --
 ## exactly mirroring how the Shop participant's own economy delta is applied only at that boundary.
 ##
@@ -312,12 +316,14 @@ func complete_round(request: Dictionary) -> Dictionary:
 		return _recognize_live_round_pending(transaction_id, fingerprint)
 
 	var captured: Dictionary = _board_state.capture()
-	if captured["phase"] != "ACTIVE_VISIBLE":
+	if captured["phase"] != "ACTIVE_VISIBLE" and not _board_state.has_settled_inspection():
 		return _fail(&"complete_round_requires_active_visible_phase", "", {"phase": captured["phase"]})
 	if int(request["expected_revision"]) != int(captured["revision"]):
 		return _fail(&"stale_revision", "", {})
 	if request["expected_identity"] != captured["identity"]:
 		return _fail(&"identity_mismatch", "", {})
+	if _board_state.has_settled_inspection():
+		return {"ok": true, "code": &"round_already_settled", "value": {"already_settled": true}}
 	var identity: Dictionary = captured["identity"]
 	var live_board_wrapper: Dictionary = captured["board"]
 	var live_board: Dictionary = live_board_wrapper["board"]
@@ -344,6 +350,9 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var live_consequence: Dictionary = (consequence_captured["value"] as Dictionary)["state"]
 
 	var board_projection := _project_completion_board(identity, captured, outcome, transaction_id)
+	if not _board_state.is_settled_inspection(board_projection):
+		if acquired_fresh: release_recovery_lease()
+		return _fail(&"invalid_terminal_inspection", "", {})
 	var action_candidate := {
 		"transaction_id": transaction_id, "outcome": outcome, "identity": identity.duplicate(true),
 		"board_projection": board_projection,
@@ -352,7 +361,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 		var reasons: Array = PERFORMANCE.perfect_reasons(live_board)
 		var reward_outcome: String = "perfect" if not reasons.is_empty() else outcome
 		var reward: Dictionary = _reward_port.prepare_complete({
-			"context": "app", "difficulty": str(paid_start_receipt.get("difficulty_id", "")),
+			"context": "app", "difficulty": str((captured.board.get("spec", {}) as Dictionary).get("difficulty_id", paid_start_receipt.get("difficulty_id", ""))),
 			"round_id": str(paid_start_receipt.get("receipt_id", "")),
 		}, {"outcome": reward_outcome, "perfect_reasons": reasons}, transaction_id)
 		if not reward.get("ok", false):
@@ -509,7 +518,7 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 
 
 ## The source's sole live commit for this recovery boundary: adopts `action_candidate.board_projection`
-## into the live board (the completed round's own phase-NONE transition -- board_fate is never the
+## into the live board (the completed round's retained inspection -- board_fate is never the
 ## owner of this transition; it owns only a LATER condition-driven departure of an unrelated board)
 ## and, for a qualifying ordinal (1 or 2), records the base-completion receipt Task 7 reserved this
 ## seam for.
@@ -631,7 +640,7 @@ func get_entry_context(difficulty_id: String) -> Dictionary:
 		return _fail(&"invalid_difficulty_id", "difficulty_id must be nonblank", {})
 	var state_captured: Dictionary = _board_state.capture()
 	var revision: int = state_captured["revision"]
-	if state_captured["phase"] != "NONE":
+	if state_captured["phase"] not in ["NONE", "UNPAID_UNSTARTED"]:
 		return {"ok": true, "code": &"ok", "value": {
 			"identity": null, "revision": revision, "difficulty_id": difficulty_id, "eligible": false,
 		}, "receipt": {}}
@@ -653,96 +662,142 @@ func get_entry_context(difficulty_id: String) -> Dictionary:
 	}, "receipt": {}}
 
 
+var _debug_pending: Dictionary = {}
+
+
+## Pure preparation readiness. A failed write retains the exact already-generated
+## candidate; the foreground pump explicitly advances at most one slice per frame.
+func get_preparation_context() -> Dictionary:
+	var ready := _ensure_ready()
+	if not ready.is_empty(): return ready
+	var header := _board_state.preparation_header()
+	if header.phase not in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARING"]:
+		return {"ok": true, "value": {"action": "none", "difficulty_id": _selected_difficulty(),
+			"identity": null, "revision": int(header.revision)}}
+	var state := _board_state.capture()
+	var difficulty := _selected_difficulty()
+	if state.candidate is Dictionary:
+		difficulty = str(state.candidate.spec.difficulty_id) if state.candidate.has("spec") else str(state.candidate.difficulty_id)
+	var context := {"action": "none", "difficulty_id": difficulty, "identity": state.identity, "revision": int(state.revision)}
+	if not _guard(&"prepare_board").is_empty(): return {"ok": true, "value": context}
+	if _consequence_gate != null and not _consequence_gate.guard_external(&"prepare_board").get("ok", false):
+		return {"ok": true, "value": context}
+	if not _debug_pending.is_empty() and _debug_pending.source == _debug_source():
+		if state != _debug_pending.before: return _fail(&"debug_retry_source_changed", "", {})
+		context.action = _debug_pending.action
+		context.identity = _debug_pending.request.expected_identity
+		context.difficulty_id = _debug_pending.get("difficulty_id", difficulty)
+		return {"ok": true, "value": context}
+	if state.phase == "PREPARING":
+		context.action = "slice"
+	elif state.phase == "PAID_UNSTARTED":
+		if state.candidate.spec.capability_ids.has("forced_no_guess"): context.action = "begin"
+	elif state.phase in ["NONE", "UNPAID_UNSTARTED"] and _state_port.has_method("get_generation_capabilities"):
+		var capabilities: Dictionary = _state_port.call(&"get_generation_capabilities")
+		if not capabilities.get("ok", false): return capabilities
+		if capabilities.value.capability_ids.has("forced_no_guess"):
+			var entry := get_entry_context(difficulty)
+			if not entry.ok: return entry
+			if entry.value.eligible:
+				context.action = "begin"
+				context.identity = entry.value.identity
+	return {"ok": true, "value": context}
+
+
 func begin_debug_preparation(request: Dictionary) -> Dictionary:
 	var guard := _guard(&"begin_debug_preparation")
-	if not guard.is_empty():
-		return guard
+	if not guard.is_empty(): return guard
 	var shape := _exact_keys(request, _DEBUG_BEGIN_REQUEST_KEYS, &"invalid_request")
-	if not shape.get("ok", false):
-		return shape
-	var transaction_id := str(request["transaction_id"])
+	if not shape.ok: return shape
+	var transaction_id := str(request.transaction_id)
 	var ledger_hit := _ledger_lookup(request, transaction_id)
-	if ledger_hit.has("result"):
-		return ledger_hit["result"]
-	var fingerprint: String = ledger_hit["fingerprint"]
-
-	var verify := _verify_transaction(transaction_id, request["transaction_issuer_receipt"])
-	if not verify.get("ok", false):
-		return verify
-	var captured: Dictionary = _board_state.capture()
-	if captured["phase"] != "NONE":
-		return _fail(&"debug_candidate_requires_none_phase", "", {"phase": captured["phase"]})
-	if int(request["expected_revision"]) != int(captured["revision"]):
-		return _fail(&"stale_revision", "", {})
-	var entry_context := get_entry_context(str(request["difficulty_id"]))
-	if not entry_context.get("ok", false):
-		return entry_context
-	var context_value: Dictionary = entry_context["value"]
-	if not bool(context_value["eligible"]) or context_value["identity"] == null:
-		return _fail(&"not_eligible", "no eligible ordinal remains for a new Debug candidate", {})
-	if request["expected_identity"] != context_value["identity"]:
-		return _fail(&"identity_mismatch", "", {})
-	var identity: Dictionary = context_value["identity"]
-
-	var spec_prepared: Dictionary = _state_port.call(&"prepare_spec", str(request["difficulty_id"]), transaction_id,
-		request["transaction_issuer_receipt"])
-	if not spec_prepared.get("ok", false):
-		return spec_prepared
-	var spec: Dictionary = (spec_prepared["value"] as Dictionary)["spec"]
-
-	var search_begun: Dictionary = _generation_port.call(&"begin_search", spec)
-	if not search_begun.get("ok", false):
-		return search_begun
-	var frontier: Dictionary = (search_begun["value"] as Dictionary)["frontier"]
-
-	var board_input := {
-		"transaction_id": transaction_id, "identity": identity,
-		"expected_revision": int(request["expected_revision"]), "spec": spec,
-		"request_fingerprint": fingerprint,
-	}
-	var prepared := _board_state.prepare_debug_candidate(board_input, {"frontier": frontier})
-	if not prepared.get("ok", false):
-		return prepared
-	return _board_state.commit((prepared["value"] as Dictionary)["candidate"])
+	if ledger_hit.has("result"): return ledger_hit.result
+	var retry := _retry_debug_preparation(request)
+	if not retry.is_empty(): return retry
+	var verify := _verify_transaction(transaction_id, request.transaction_issuer_receipt)
+	if not verify.ok: return verify
+	var captured := _board_state.capture()
+	if captured.phase not in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED"]:
+		return _fail(&"debug_candidate_requires_none_phase", "", {"phase": captured.phase})
+	if int(request.expected_revision) != int(captured.revision): return _fail(&"stale_revision", "", {})
+	var identity: Dictionary
+	var spec: Dictionary
+	if captured.phase == "PAID_UNSTARTED":
+		identity = captured.identity
+		spec = captured.candidate.spec.duplicate(true)
+		if str(request.difficulty_id) != str(spec.difficulty_id): return _fail(&"difficulty_mismatch", "", {})
+	else:
+		var entry := get_entry_context(str(request.difficulty_id))
+		if not entry.ok: return entry
+		if not entry.value.eligible or entry.value.identity == null: return _fail(&"not_eligible", "", {})
+		identity = entry.value.identity
+		if request.expected_identity != identity: return _fail(&"identity_mismatch", "", {})
+		var prepared_spec: Dictionary = _state_port.call(&"prepare_spec", str(request.difficulty_id), transaction_id, request.transaction_issuer_receipt)
+		if not prepared_spec.ok: return prepared_spec
+		spec = prepared_spec.value.spec
+	if request.expected_identity != identity: return _fail(&"identity_mismatch", "", {})
+	if not spec.capability_ids.has("forced_no_guess"): return _fail(&"debug_capability_required", "", {})
+	var begun: Dictionary = _generation_port.call(&"begin_search", spec)
+	if not begun.ok: return begun
+	var prepared := _board_state.prepare_debug_candidate({"transaction_id": transaction_id,
+		"identity": identity, "expected_revision": int(request.expected_revision), "spec": spec,
+		"request_fingerprint": ledger_hit.fingerprint}, {"frontier": begun.value.frontier})
+	if not prepared.ok: return prepared
+	return _commit_debug_preparation(request, "begin", str(request.difficulty_id), captured, prepared.value.candidate)
 
 
 func run_debug_preparation_slice(request: Dictionary) -> Dictionary:
 	var guard := _guard(&"run_debug_preparation_slice")
-	if not guard.is_empty():
-		return guard
+	if not guard.is_empty(): return guard
 	var shape := _exact_keys(request, _GENERIC_REQUEST_KEYS, &"invalid_request")
-	if not shape.get("ok", false):
-		return shape
-	var transaction_id := str(request["transaction_id"])
+	if not shape.ok: return shape
+	var transaction_id := str(request.transaction_id)
 	var ledger_hit := _ledger_lookup(request, transaction_id)
-	if ledger_hit.has("result"):
-		return ledger_hit["result"]
-	var fingerprint: String = ledger_hit["fingerprint"]
+	if ledger_hit.has("result"): return ledger_hit.result
+	var retry := _retry_debug_preparation(request)
+	if not retry.is_empty(): return retry
+	var verify := _verify_transaction(transaction_id, request.transaction_issuer_receipt)
+	if not verify.ok: return verify
+	var captured := _board_state.capture()
+	if captured.phase != "PREPARING": return _fail(&"debug_slice_requires_preparing_phase", "", {"phase": captured.phase})
+	if int(request.expected_revision) != int(captured.revision): return _fail(&"stale_revision", "", {})
+	if request.expected_identity != captured.identity: return _fail(&"identity_mismatch", "", {})
+	var advanced: Dictionary = _generation_port.call(&"run_search_slice", captured.candidate.frontier)
+	if not advanced.ok: return advanced
+	var prepared := _board_state.prepare_debug_slice({"transaction_id": transaction_id,
+		"identity": captured.identity, "expected_revision": int(request.expected_revision),
+		"request_fingerprint": ledger_hit.fingerprint}, advanced.value)
+	if not prepared.ok: return prepared
+	return _commit_debug_preparation(request, "slice", str(captured.candidate.spec.difficulty_id), captured, prepared.value.candidate)
 
-	var verify := _verify_transaction(transaction_id, request["transaction_issuer_receipt"])
-	if not verify.get("ok", false):
-		return verify
-	var captured: Dictionary = _board_state.capture()
-	if captured["phase"] != "PREPARING":
-		return _fail(&"debug_slice_requires_preparing_phase", "", {"phase": captured["phase"]})
-	if int(request["expected_revision"]) != int(captured["revision"]):
-		return _fail(&"stale_revision", "", {})
-	if request["expected_identity"] != captured["identity"]:
-		return _fail(&"identity_mismatch", "", {})
 
-	var frontier: Dictionary = (captured["candidate"] as Dictionary)["frontier"]
-	var slice_result: Dictionary = _generation_port.call(&"run_search_slice", frontier)
-	if not slice_result.get("ok", false):
-		return slice_result
+func _debug_source() -> Dictionary:
+	var captured: Dictionary = _state_port.call(&"capture")
+	if not captured.get("ok", false): return {}
+	var source: Dictionary = {}
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		source[key] = captured.value.get(key)
+	return source
 
-	var board_input := {
-		"transaction_id": transaction_id, "identity": captured["identity"],
-		"expected_revision": int(request["expected_revision"]), "request_fingerprint": fingerprint,
-	}
-	var prepared := _board_state.prepare_debug_slice(board_input, slice_result["value"])
-	if not prepared.get("ok", false):
-		return prepared
-	return _board_state.commit((prepared["value"] as Dictionary)["candidate"])
+
+func _retry_debug_preparation(request: Dictionary) -> Dictionary:
+	if _debug_pending.is_empty(): return {}
+	if _debug_pending.source != _debug_source():
+		_debug_pending.clear()
+		return {}
+	if request != _debug_pending.request or _board_state.capture() != _debug_pending.before:
+		return _fail(&"debug_retry_required", "The exact prepared write must be retried", {})
+	var result := _commit_cost_free_candidate(_debug_pending.candidate)
+	if result.get("ok", false): _debug_pending.clear()
+	return result
+
+
+func _commit_debug_preparation(request: Dictionary, action: String, difficulty: String,
+		before: Dictionary, candidate: Dictionary) -> Dictionary:
+	_debug_pending = {"request": request.duplicate(true), "action": action,
+		"difficulty_id": difficulty, "before": before.duplicate(true),
+		"source": _debug_source(), "candidate": candidate.duplicate(true)}
+	return _retry_debug_preparation(request)
 
 
 func reveal(request: Dictionary) -> Dictionary:
@@ -750,6 +805,9 @@ func reveal(request: Dictionary) -> Dictionary:
 	if not guard.is_empty():
 		return guard
 	if request.has("difficulty_id"):
+		var state := _board_state.capture()
+		if state.phase == "PAID_UNSTARTED" or (state.phase == "PREPARED_UNSTARTED" and state.candidate.has("paid_start_receipt")):
+			return _paid_shell_reveal(request)
 		if _durable_checkpoint_port != null:
 			return _first_reveal_durable(request)
 		return _first_reveal(request)
@@ -760,6 +818,8 @@ func set_flag(request: Dictionary) -> Dictionary:
 	var guard := _guard(&"set_flag")
 	if not guard.is_empty():
 		return guard
+	if _board_state.capture().phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]:
+		return _shell_flag(request)
 	return _routine_command(request, &"set_flag")
 
 
@@ -808,6 +868,7 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 		if str(entry["request_fingerprint"]) != fingerprint:
 			return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
 		var stored: Dictionary = entry["result"]
+		if str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
 		var stored_value: Dictionary = stored.get("value", {})
 		return _republish_first_reveal(stored_value)
 
@@ -817,13 +878,20 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 
 	var captured: Dictionary = _board_state.capture()
 	var phase: String = captured["phase"]
-	if phase != "NONE" and phase != "PREPARED_UNSTARTED":
+	if phase not in ["NONE", "UNPAID_UNSTARTED", "PREPARED_UNSTARTED"]:
 		return _fail(&"first_reveal_requires_none_or_prepared_phase", "", {"phase": phase})
 	if int(request["expected_revision"]) != int(captured["revision"]):
 		return _fail(&"stale_revision", "", {})
 
+	if phase in ["NONE", "UNPAID_UNSTARTED"] and _state_port.has_method("get_generation_capabilities"):
+		var capabilities: Dictionary = _state_port.call(&"get_generation_capabilities")
+		if not capabilities.get("ok", false): return capabilities
+		if capabilities.value.capability_ids.has("forced_no_guess"):
+			return _fail(&"debug_preparation_required", "", {})
+	if _board_state.shell_state().flagged_indices.has(int(request["cell_index"])):
+		return _fail(&"cell_is_flagged", "", {})
 	var identity: Dictionary
-	if phase == "NONE":
+	if phase in ["NONE", "UNPAID_UNSTARTED"]:
 		var entry_context := get_entry_context(str(request["difficulty_id"]))
 		if not entry_context.get("ok", false):
 			return entry_context
@@ -839,7 +907,7 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	var spec: Dictionary
 	var layout: Dictionary
 	var proof_sha256: Variant = null
-	if phase == "NONE":
+	if phase in ["NONE", "UNPAID_UNSTARTED"]:
 		# The spec (board_token + all three nonces) is minted fresh, scoped to THIS transaction --
 		# it cannot be re-derived under a different transaction_id, so this call happens only here.
 		var spec_prepared: Dictionary = _state_port.call(&"prepare_spec", str(request["difficulty_id"]),
@@ -864,7 +932,7 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 		layout = live_candidate["layout"]
 		proof_sha256 = live_candidate.get("proof_sha256")
 
-	var reveal_result := _REDUCER.first_reveal(layout, int(request["cell_index"]))
+	var reveal_result := _REDUCER.first_reveal(layout, int(request["cell_index"]), _board_state.shell_state())
 	if not reveal_result.get("ok", false):
 		return reveal_result
 	var board: Dictionary = (reveal_result["value"] as Dictionary)["board"]
@@ -979,6 +1047,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		if str(entry["request_fingerprint"]) != fingerprint:
 			return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
 		var stored: Dictionary = entry["result"]
+		if str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
 		var stored_value: Dictionary = stored.get("value", {})
 		return _republish_first_reveal(stored_value)
 
@@ -988,13 +1057,20 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 
 	var captured: Dictionary = _board_state.capture()
 	var phase: String = captured["phase"]
-	if phase != "NONE" and phase != "PREPARED_UNSTARTED":
+	if phase not in ["NONE", "UNPAID_UNSTARTED", "PREPARED_UNSTARTED"]:
 		return _fail(&"first_reveal_requires_none_or_prepared_phase", "", {"phase": phase})
 	if int(request["expected_revision"]) != int(captured["revision"]):
 		return _fail(&"stale_revision", "", {})
 
+	if phase in ["NONE", "UNPAID_UNSTARTED"] and _state_port.has_method("get_generation_capabilities"):
+		var capabilities: Dictionary = _state_port.call(&"get_generation_capabilities")
+		if not capabilities.get("ok", false): return capabilities
+		if capabilities.value.capability_ids.has("forced_no_guess"):
+			return _fail(&"debug_preparation_required", "", {})
+	if _board_state.shell_state().flagged_indices.has(int(request["cell_index"])):
+		return _fail(&"cell_is_flagged", "", {})
 	var identity: Dictionary
-	if phase == "NONE":
+	if phase in ["NONE", "UNPAID_UNSTARTED"]:
 		var entry_context := get_entry_context(str(request["difficulty_id"]))
 		if not entry_context.get("ok", false):
 			return entry_context
@@ -1010,7 +1086,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	var spec: Dictionary
 	var layout: Dictionary
 	var proof_sha256: Variant = null
-	if phase == "NONE":
+	if phase in ["NONE", "UNPAID_UNSTARTED"]:
 		var spec_prepared: Dictionary = _state_port.call(&"prepare_spec", str(request["difficulty_id"]),
 			transaction_id, request["transaction_issuer_receipt"])
 		if not spec_prepared.get("ok", false):
@@ -1030,7 +1106,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		layout = live_candidate["layout"]
 		proof_sha256 = live_candidate.get("proof_sha256")
 
-	var reveal_result := _REDUCER.first_reveal(layout, int(request["cell_index"]))
+	var reveal_result := _REDUCER.first_reveal(layout, int(request["cell_index"]), _board_state.shell_state())
 	if not reveal_result.get("ok", false):
 		return reveal_result
 	var board: Dictionary = (reveal_result["value"] as Dictionary)["board"]
@@ -1337,10 +1413,11 @@ func _project_completion_board(identity: Dictionary, captured: Dictionary, outco
 	var terminal_receipts: Dictionary = (captured["terminal_receipts"] as Dictionary).duplicate(true)
 	terminal_receipts[terminal_receipt_id] = {
 		"kind": "complete", "outcome": outcome, "app_round_ordinal": int(identity["app_round_ordinal"]),
+		"board_sha256": _board_state.inspection_board_sha256(captured["board"]),
 	}
 	return {
-		"schema_version": 1, "phase": "NONE", "revision": int(captured["revision"]) + 1,
-		"identity": null, "candidate": null, "board": null, "settlement": null,
+		"schema_version": 1, "phase": "ACTIVE_VISIBLE", "revision": int(captured["revision"]) + 1,
+		"identity": identity.duplicate(true), "candidate": null, "board": captured["board"].duplicate(true), "settlement": null,
 		"command_receipts": (captured["command_receipts"] as Dictionary).duplicate(true),
 		"terminal_receipts": terminal_receipts,
 	}
@@ -1445,3 +1522,229 @@ static func _has_all_methods(target: Object, methods: Array[String]) -> bool:
 
 func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+## Private configuration context: presentation compares this exact snapshot before issuing.
+## Unpaid marking never needs a paid ordinal; only first Reveal asks get_entry_context().
+func get_configuration_context() -> Dictionary:
+	var ready := _ensure_ready()
+	if not ready.is_empty(): return ready
+	var state := _board_state.capture()
+	var difficulty := _selected_difficulty()
+	if state.candidate is Dictionary:
+		difficulty = str(state.candidate.spec.difficulty_id) if state.candidate.has("spec") else str(state.candidate.difficulty_id)
+	elif state.board is Dictionary:
+		if state.board.has("spec"):
+			difficulty = str(state.board.spec.difficulty_id)
+		elif state.board.paid_start_receipt.has("difficulty_id"):
+			difficulty = str(state.board.paid_start_receipt.difficulty_id)
+		else:
+			var retained: Variant = _REGISTER_QUERY._journal_difficulty(state, state.board)
+			if retained == null: return _fail(&"paid_difficulty_unavailable", "", {})
+			difficulty = str(retained)
+	var available := _guard(&"configure_board").is_empty()
+	if _consequence_gate != null and not _consequence_gate.guard_external(&"configure_board").get("ok", false): available = false
+	var phase: String = state.phase
+	var settled := _board_state.has_settled_inspection()
+	available = available and phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE"]
+	if phase == "ACTIVE_VISIBLE" and bool(state.board.board.terminal) and not settled: available = false
+	return {"ok": true, "value": {"phase": phase, "identity": state.identity,
+		"revision": int(state.revision), "difficulty_id": difficulty,
+		"difficulty_enabled": ["beginner", "intermediate", "expert"] if available and not settled else [],
+		"new_board_enabled": available and phase == "ACTIVE_VISIBLE",
+		"settled_inspection": settled}}
+
+
+func select_difficulty(request: Dictionary) -> Dictionary:
+	return _configure_board(request, false)
+
+
+func replace_board(request: Dictionary) -> Dictionary:
+	return _configure_board(request, true)
+
+
+func _selected_difficulty() -> String:
+	return str(_state_port.call(&"get_selected_difficulty")) if _state_port.has_method("get_selected_difficulty") else "beginner"
+
+
+func _configure_board(request: Dictionary, replace: bool) -> Dictionary:
+	var guard := _guard(&"configure_board")
+	if not guard.is_empty(): return guard
+	var shape := _exact_keys(request, _DEBUG_BEGIN_REQUEST_KEYS, &"invalid_request")
+	if not shape.ok: return shape
+	var prior := _ledger_lookup(request, str(request.transaction_id))
+	if prior.has("result"): return prior.result
+	var context := get_configuration_context()
+	if not context.ok: return context
+	var facts: Dictionary = context.value
+	if int(request.expected_revision) != int(facts.revision): return _fail(&"stale_revision", "", {})
+	if request.expected_identity != facts.identity: return _fail(&"identity_mismatch", "", {})
+	if facts.settled_inspection:
+		if not replace or not facts.new_board_enabled: return _fail(&"board_configuration_unavailable", "", {})
+	elif not facts.difficulty_enabled.has(str(request.difficulty_id)): return _fail(&"board_configuration_unavailable", "", {})
+	if replace and str(request.difficulty_id) != str(facts.difficulty_id): return _fail(&"difficulty_mismatch", "", {})
+	# No-op precedes issuer verification/allocation, candidate creation and storage.
+	if (replace and facts.phase != "ACTIVE_VISIBLE") or (not replace and str(request.difficulty_id) == str(facts.difficulty_id)):
+		return {"ok": true, "code": &"board_configuration_unchanged", "value": {"unchanged": true, "revision": facts.revision}}
+	var verified := _verify_transaction(str(request.transaction_id), request.transaction_issuer_receipt)
+	if not verified.ok: return verified
+	var before := _board_state.capture()
+	var captured: Dictionary = _state_port.call(&"capture")
+	if not captured.ok: return captured
+	var scope: Dictionary = {}
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		scope[key] = captured.value.get(key)
+	var binding := _fingerprint({"board": before, "scope": scope})
+	var fingerprint := _fingerprint(request)
+	if not _configuration_pending.is_empty() and str(_configuration_pending.binding) != binding:
+		_configuration_pending.clear()
+	var candidate: Dictionary
+	if not _configuration_pending.is_empty():
+		if str(_configuration_pending.fingerprint) != fingerprint: return _fail(&"configuration_retry_required", "Retry the same board replacement", {})
+		candidate = _configuration_pending.candidate.duplicate(true)
+	else:
+		var input := {"transaction_id": str(request.transaction_id), "identity": before.identity,
+			"expected_revision": int(request.expected_revision), "request_fingerprint": fingerprint}
+		var prepared: Dictionary
+		if facts.settled_inspection:
+			prepared = _board_state.prepare_dismiss_inspection(input)
+		elif facts.phase in ["NONE", "UNPAID_UNSTARTED"] or (facts.phase == "PREPARED_UNSTARTED" and not before.candidate.has("paid_start_receipt")):
+			prepared = _board_state.prepare_unpaid_shell(input, str(request.difficulty_id), {"flagged_indices": [], "actions": []})
+		else:
+			var spec: Dictionary = _state_port.call(&"prepare_spec", str(request.difficulty_id), str(request.transaction_id), request.transaction_issuer_receipt)
+			if not spec.ok: return spec
+			prepared = _board_state.prepare_paid_replacement(input, spec.value.spec)
+		if not prepared.ok: return prepared
+		candidate = prepared.value.candidate
+		candidate["result_override"] = {"ok": true, "code": &"board_configuration_committed", "value": {"revision": int(before.revision) + 1}}
+		_configuration_pending = {"binding": binding, "fingerprint": fingerprint, "candidate": candidate.duplicate(true)}
+	var committed := _commit_cost_free_candidate(candidate, str(request.difficulty_id))
+	if committed.ok: _configuration_pending.clear()
+	return committed
+
+
+func _shell_flag(request: Dictionary) -> Dictionary:
+	var shape := _exact_keys(request, _FLAG_REQUEST_KEYS, &"invalid_request")
+	if not shape.ok: return shape
+	var prior := _ledger_lookup(request, str(request.transaction_id))
+	if prior.has("result"): return prior.result
+	var verified := _verify_transaction(str(request.transaction_id), request.transaction_issuer_receipt)
+	if not verified.ok: return verified
+	var state := _board_state.capture()
+	if int(request.expected_revision) != int(state.revision): return _fail(&"stale_revision", "", {})
+	if request.expected_identity != state.identity: return _fail(&"identity_mismatch", "", {})
+	if typeof(request.cell_index) != TYPE_INT or typeof(request.flagged) != TYPE_BOOL: return _fail(&"invalid_request", "", {})
+	var context := get_configuration_context()
+	if not context.ok: return context
+	if context.value.difficulty_enabled.is_empty(): return _fail(&"board_configuration_unavailable", "", {})
+	var dimensions := _CATALOG.lookup("desktop_app", str(context.value.difficulty_id))
+	if not dimensions.ok: return dimensions
+	var width: int = int(state.candidate.spec.width) if state.candidate is Dictionary and state.candidate.has("spec") else int(dimensions.value.width)
+	var height: int = int(state.candidate.spec.height) if state.candidate is Dictionary and state.candidate.has("spec") else int(dimensions.value.height)
+	var reduced := _REDUCER.set_shell_flag(_board_state.shell_state(), width, height, int(request.cell_index), bool(request.flagged), str(request.transaction_id))
+	if not reduced.ok: return reduced
+	var input := {"transaction_id": str(request.transaction_id), "identity": state.identity,
+		"expected_revision": int(request.expected_revision), "request_fingerprint": str(prior.fingerprint)}
+	var prepared: Dictionary = _board_state.prepare_unpaid_shell(input, str(context.value.difficulty_id), reduced.value.shell) if state.phase == "NONE" else _board_state.prepare_shell_flag(input, reduced.value.shell)
+	if not prepared.ok: return prepared
+	prepared.value.candidate["result_override"] = {"ok": true, "code": &"shell_flag_committed", "value": {"revision": int(state.revision) + 1}}
+	return _commit_cost_free_candidate(prepared.value.candidate)
+
+
+func _paid_shell_reveal(request: Dictionary) -> Dictionary:
+	var shape := _exact_keys(request, _FIRST_REVEAL_REQUEST_KEYS, &"invalid_request")
+	if not shape.ok: return shape
+	var prior := _ledger_lookup(request, str(request.transaction_id))
+	if prior.has("result"): return prior.result
+	var verified := _verify_transaction(str(request.transaction_id), request.transaction_issuer_receipt)
+	if not verified.ok: return verified
+	var state := _board_state.capture()
+	if int(request.expected_revision) != int(state.revision): return _fail(&"stale_revision", "", {})
+	if request.expected_identity != state.identity: return _fail(&"identity_mismatch", "", {})
+	var fingerprint: String = str(prior.fingerprint)
+	if not _paid_reveal_pending.is_empty() and _paid_reveal_pending.before != state: _paid_reveal_pending.clear()
+	if not _paid_reveal_pending.is_empty():
+		if str(_paid_reveal_pending.fingerprint) != fingerprint: return _fail(&"paid_reveal_retry_required", "Retry the same Reveal", {})
+		var retried := _commit_cost_free_candidate(_paid_reveal_pending.candidate)
+		if retried.ok: _paid_reveal_pending.clear()
+		return retried
+	var candidate: Dictionary = state.candidate
+	if state.phase == "PAID_UNSTARTED" and candidate.spec.capability_ids.has("forced_no_guess"):
+		return _fail(&"debug_preparation_required", "", {})
+	if str(request.difficulty_id) != str(candidate.spec.difficulty_id): return _fail(&"difficulty_mismatch", "", {})
+	if _board_state.shell_state().flagged_indices.has(int(request.cell_index)): return _fail(&"cell_is_flagged", "", {})
+	var layout: Dictionary
+	if state.phase == "PREPARED_UNSTARTED":
+		layout = candidate.layout
+	else:
+		var generated: Dictionary = _generation_port.call(&"materialize", candidate.spec, int(request.cell_index))
+		if not generated.ok: return generated
+		layout = generated.value.layout
+	var reduced := _REDUCER.first_reveal(layout, int(request.cell_index), _board_state.shell_state())
+	if not reduced.ok: return reduced
+	var input := {"transaction_id": str(request.transaction_id), "identity": state.identity,
+		"expected_revision": int(request.expected_revision), "request_fingerprint": str(prior.fingerprint),
+		"cell_index": int(request.cell_index), "spec": candidate.spec}
+	var prepared := _board_state.prepare_first_reveal(input, {"layout": layout, "board": reduced.value.board}, candidate.paid_start_receipt)
+	if not prepared.ok: return prepared
+	prepared.value.candidate["result_override"] = {"ok": true, "code": &"paid_reveal_committed", "value": {"revision": int(state.revision) + 1}}
+	_paid_reveal_pending = {"before": state.duplicate(true), "fingerprint": fingerprint, "candidate": prepared.value.candidate.duplicate(true)}
+	var committed := _commit_cost_free_candidate(prepared.value.candidate)
+	if committed.ok: _paid_reveal_pending.clear()
+	return committed
+
+
+## Existing Autosave participant is the sole durable writer. No payment, completion or
+## consequence candidate is made here. Its physical backup restores disk on failed adoption.
+func _commit_cost_free_candidate(candidate: Dictionary, selected_difficulty: String = "") -> Dictionary:
+	var token := ""
+	if _consequence_gate != null:
+		var acquired := _consequence_gate.acquire(_GATE_OWNER)
+		if not acquired.ok: return acquired
+		token = str(acquired.value.token)
+	var result := _commit_cost_free_under_lease(candidate, selected_difficulty)
+	if _consequence_gate != null:
+		if str(result.get("code", "")) == "APPLICATION_FATAL": _consequence_gate.latch_fatal(result.details.failure)
+		_consequence_gate.release(_GATE_OWNER, token)
+	return result
+
+
+func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: String) -> Dictionary:
+	var before := _board_state.capture()
+	var projected := _BOARD_STATE.new()
+	var restore := projected.prepare_restore(before)
+	if not restore.ok: return restore
+	projected.commit(restore.value.candidate)
+	var projection := projected.commit(candidate)
+	if not projection.ok: return projection
+	var disk_backup: Dictionary = {}
+	if _durable_checkpoint_port != null:
+		var base: Dictionary = _state_port.call(&"capture_base_snapshot_input")
+		if not base.ok: return base
+		var inputs: Dictionary = base.value.snapshot_input.duplicate(true)
+		inputs["desktop"]["board"] = projected.capture()
+		if not selected_difficulty.is_empty(): inputs["gameplay"]["minesweeper_selected_difficulty"] = selected_difficulty
+		var backup: Dictionary = _durable_checkpoint_port.call(&"capture")
+		if not backup.ok: return backup
+		disk_backup = backup.value.backup
+		var prepared: Dictionary = _durable_checkpoint_port.call(&"prepare_checkpoint", inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+		if not prepared.ok: return prepared
+		var disk_candidate: Dictionary = prepared.value.candidate
+		if disk_candidate.has("storage_backup"):
+			# capture() owns the journal preimage; prepare() owns only the physical descriptor.
+			disk_backup = {"journal_backup": disk_backup, "storage_backup": disk_candidate.storage_backup}
+		var written: Dictionary = _durable_checkpoint_port.call(&"commit_checkpoint", disk_candidate)
+		if not written.ok:
+			return _rollback_participants("cost_free_checkpoint", str(candidate.transaction_id), [["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", disk_backup)]], written)
+	var committed := _board_state.commit(candidate)
+	if not committed.ok:
+		if _durable_checkpoint_port != null:
+			return _rollback_participants("cost_free_board", str(candidate.transaction_id), [["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", disk_backup)]], committed)
+		return committed
+	if not selected_difficulty.is_empty():
+		var selected: Dictionary = _state_port.call(&"commit", {"board_only": true, "selected_difficulty": selected_difficulty})
+		if not selected.ok:
+			var rollbacks: Array = [["board", func(): return _restore_board_state(before)]]
+			if _durable_checkpoint_port != null: rollbacks.append(["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", disk_backup)])
+			return _rollback_participants("cost_free_selection", str(candidate.transaction_id), rollbacks, selected)
+	return committed

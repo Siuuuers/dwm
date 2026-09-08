@@ -16,6 +16,12 @@ class PublicPort extends RefCounted:
 	func pull() -> Dictionary:
 		pull_count += 1
 		return {"ok":true,"value":view.duplicate(true)}
+	func select_difficulty(difficulty: String, revision: int) -> Dictionary:
+		calls.append({"difficulty":difficulty,"revision":revision})
+		if not next_view.is_empty():
+			view = next_view.duplicate(true)
+			next_view = {}
+		return {"ok":true,"value":view.duplicate(true)}
 	func dispatch(action: String, index: int, revision: int) -> Dictionary:
 		calls.append({"action":action,"index":index,"revision":revision})
 		if not next_view.is_empty():
@@ -205,7 +211,7 @@ func test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are
 	bad.actions.append("new_board")
 	assert_false(panel.present(bad))
 	bad = port.view.duplicate(true)
-	bad.register.difficulty_enabled = ["expert"]
+	bad.register.difficulty_enabled = ["unknown-tier"]
 	assert_false(panel.present(bad))
 	bad = port.view.duplicate(true)
 	bad.actions = ["reveal","drag","assignments","rules"]
@@ -356,3 +362,50 @@ func before_each() -> void:
 func after_each() -> void:
 	_input_fixture.restore_map()
 	_input_fixture = null
+
+
+func test_real_difficulty_buttons_dispatch_frozen_revision_and_reset_mode_only_on_success() -> void:
+	var port := _port()
+	port.view.register.difficulty_enabled = ["beginner","intermediate","expert"]
+	var panel := _panel(port)
+	assert_false(panel.register.difficulties.expert.disabled)
+	assert_eq(panel.register.difficulties.expert.focus_mode,Control.FOCUS_ALL)
+	panel.dock.buttons.flag.pressed.emit()
+	panel.register.difficulties.beginner.pressed.emit()
+	assert_true(port.calls.is_empty(),"Same-tier selection is a no-op.")
+	assert_eq(panel.worksheet.grid.mode,&"flag")
+	port.next_view = _view("expert")
+	port.next_view.register.difficulty_enabled = ["beginner","intermediate","expert"]
+	panel.register.difficulties.expert.pressed.emit()
+	assert_eq(port.calls,[{"difficulty":"expert","revision":0}])
+	assert_eq(panel.public_view.register.difficulty,"expert")
+	assert_eq(panel.public_view.board.width,22)
+	assert_eq(panel.worksheet.grid.mode,&"reveal")
+	panel.dock.buttons.rules.pressed.emit()
+	assert_true(panel.register.difficulties.beginner.disabled)
+	panel.register.difficulties.beginner.pressed.emit()
+	assert_eq(port.calls.size(),1,"A sheet cannot dispatch a tier change.")
+
+
+func test_touched_space_and_new_board_share_dispatch_while_untouched_space_is_inert() -> void:
+	var port := _port()
+	var panel := _panel(port)
+	panel.worksheet.grid.grab_focus()
+	_key(panel,KEY_SPACE)
+	_key(panel,KEY_SPACE,false)
+	assert_true(port.calls.is_empty())
+	var active := _view()
+	active.board.cells[0].face = "revealed"
+	active.board.cells[0].actions = []
+	active.board.cells[0].pressable = false
+	active.actions.append("new_board")
+	assert_true(panel.present(active))
+	panel.dock.buttons.flag.pressed.emit()
+	assert_false(panel.dock.buttons.new_board.disabled)
+	panel.worksheet.grid.grab_focus()
+	port.next_view = _view()
+	_key(panel,KEY_SPACE)
+	_key(panel,KEY_SPACE,false)
+	assert_eq(port.calls,[{"action":"new_board","index":-1,"revision":0}])
+	assert_true(panel.dock.buttons.new_board.disabled)
+	assert_eq(panel.worksheet.grid.mode,&"reveal")

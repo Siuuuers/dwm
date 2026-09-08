@@ -45,12 +45,12 @@ const BOARD_IDENTITY_KEYS: Array = [
 ]
 ## The closed board phase set.
 const BOARD_PHASES: Array = [
-	"NONE", "PREPARING", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED",
+	"NONE", "PAID_UNSTARTED", "PREPARING", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED",
 	"SETTLING",
 ]
 ## The phases in which a base board counts as unfinished (amendment 10.5; plan line 364).
 const UNFINISHED_PHASES: Array = [
-	"PREPARING", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED",
+	"PAID_UNSTARTED", "PREPARING", "PREPARED_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED",
 ]
 ## Exact top-level view keys (sorted), Task 2's frozen shape.
 const VIEW_KEYS: Array = [

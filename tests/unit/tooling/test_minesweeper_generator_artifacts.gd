@@ -165,14 +165,15 @@ func test_both_generated_manifests_exist_and_pass_their_own_schema_validators() 
 	var fallback: Dictionary = fallback_parsed["value"]
 	var fallback_check: Dictionary = generator.validate_fallback_schema(fallback)
 	assert_true(fallback_check.get("ok", false), JSON.stringify(fallback_check))
-	assert_eq((fallback["records"] as Array).size(), 1608)
+	assert_eq((fallback["records"] as Array).size(), 1608 + 1296)
 	var budget_parsed: Dictionary = strict_json.parse_object(
 		FileAccess.get_file_as_bytes("res://data/manifests/minesweeper_generator_budget.v1.json").get_string_from_utf8())
 	assert_true(budget_parsed.get("ok", false), JSON.stringify(budget_parsed))
 	var budget: Dictionary = budget_parsed["value"]
 	var budget_check: Dictionary = generator.validate_budget_schema(budget)
 	assert_true(budget_check.get("ok", false), JSON.stringify(budget_check))
-	assert_eq((budget["rows"] as Array).size(), 4680)
+	assert_true((budget["rows"] as Array).size() in [4680, 4680 + 1296],
+		"the original measured desktop corpus or its complete canonical fallback extension")
 
 
 # ---- BenchmarkMinesweeperGenerator: nonce derivation and case IDs ----

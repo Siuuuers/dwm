@@ -310,6 +310,10 @@ static func run_full_corpus(ceiling: int) -> Dictionary:
 	var by_id: Dictionary = {}
 	for entry: Variant in difficulty_rows:
 		by_id[String((entry as Dictionary)["difficulty_id"])] = entry
+	for host: String in ["canonical_solo", "canonical_pair"]:
+		var fixed: Dictionary = preload("res://scripts/domain/minesweeper/MinesweeperBoardCatalog.gd").lookup(host)
+		if not fixed.get("ok", false): return fixed
+		by_id[host] = fixed.value
 
 	if not FileAccess.file_exists(_FALLBACK_BUILDER.ARTIFACT_PATH):
 		return _fail(&"fallback_manifest_missing",

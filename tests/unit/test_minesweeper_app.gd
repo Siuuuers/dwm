@@ -56,6 +56,23 @@ class PublicPort extends RefCounted:
 				cell.actions = []
 		return pull()
 
+class PreparationPort extends PublicPort:
+	var advances: Array[int] = []
+	var next_result := {"ok":true,"advanced":false}
+	func advance_preparation(revision: int) -> Dictionary:
+		advances.append(revision)
+		var result := next_result.duplicate(true)
+		if not result.ok or result.get("advanced",false): result["value"] = view.duplicate(true)
+		return result
+
+class ParkedPreparationPort extends PreparationPort:
+	var parkable := true
+	func can_park_preparation(revision: int) -> bool:
+		return parkable and revision == int(view.board.revision)
+	func set_foreground(foreground: bool, revision: int) -> Dictionary:
+		lifecycle.append({"foreground":foreground,"revision":revision,"visible":app.visible})
+		return pull()
+
 var _app: Control
 var _viewport: SubViewport
 var _home: Button
@@ -429,3 +446,127 @@ func test_focus_loss_clears_held_keyboard_confirmation_and_pending_touch() -> vo
 	touch.pressed = false
 	_viewport.push_input(touch,true)
 	assert_eq(_port.commands.size(),2,"A touch canceled by focus loss cannot flag later or activate on release.")
+
+
+func test_preparation_pump_is_foreground_one_step_and_stops_for_sheet_pause_or_failure() -> void:
+	var app: Control = APP.instantiate()
+	_viewport.add_child(app)
+	app.set_process(false)
+	app._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN) # Explicit native focus in a headless fixture.
+	app.hide()
+	var port := PreparationPort.new()
+	port.app = app
+	port.view = _view()
+	port.live_view = port.view.duplicate(true)
+	assert_true(app.configure_presentation(port,_locale,_profile).ok)
+	app._process(0.0)
+	assert_true(port.advances.is_empty(),"Hidden cached apps do no preparation work.")
+	app.show_window()
+	watch_signals(app.panel)
+	app._process(0.0)
+	assert_eq(port.advances.size(),1)
+	assert_signal_not_emitted(app.panel,"presentation_changed","Idle preparation does not republish a view.")
+	app.panel.dock.buttons.rules.pressed.emit()
+	app._process(0.0)
+	assert_eq(port.advances.size(),1)
+	app.panel.worksheet.close_information()
+	get_tree().paused = true
+	app._process(0.0)
+	get_tree().paused = false
+	assert_eq(port.advances.size(),1)
+	port.next_result = {"ok":false,"code":&"minesweeper_preparation_refused"}
+	app._process(0.0)
+	assert_eq(port.advances.size(),2)
+	assert_false(app.last_result.ok)
+	assert_true(app._preparation_retry.visible)
+	app._process(0.0)
+	assert_eq(port.advances.size(),2,"Failure waits for explicit recovery instead of retrying I/O every frame.")
+	port.next_result = {"ok":true,"advanced":true}
+	app._preparation_retry.pressed.emit()
+	assert_eq(port.advances.size(),3)
+	assert_true(app.last_result.ok)
+	assert_false(app._preparation_retry.visible)
+	app.queue_free()
+
+
+func test_preparation_home_parks_only_published_stable_frontier_and_hidden_app_does_no_work() -> void:
+	var app: Control = APP.instantiate()
+	_viewport.add_child(app)
+	app.set_process(false)
+	app._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN) # Explicit native focus in a headless fixture.
+	app.hide()
+	var port := ParkedPreparationPort.new()
+	port.app = app
+	port.view = _view()
+	port.view.board.custody = true
+	port.view.register.custody = true
+	port.view.actions = []
+	for cell: Dictionary in port.view.board.cells:
+		cell.inspectable = false
+		cell.pressable = false
+		cell.actions = []
+	assert_true(app.configure_presentation(port,_locale,_profile).ok)
+	app.show_window()
+	assert_true(app.visible)
+	assert_true(app.can_return_home())
+	port.parkable = false
+	assert_false(app.can_return_home(), "Other custody does not inherit preparation parking.")
+	port.parkable = true
+	app._busy = true
+	assert_false(app.can_return_home(), "An in-flight slice cannot be parked.")
+	app._busy = false
+	app.last_result = {"ok":false}
+	assert_false(app.can_return_home(), "A failed slice stays at explicit Retry.")
+	app.last_result = {"ok":true}
+	var before: Dictionary = port.view.duplicate(true)
+	assert_true(app.prepare_return_home().ok)
+	app.hide_window()
+	assert_false(app.visible)
+	app._process(0.0)
+	assert_true(port.advances.is_empty())
+	assert_eq(port.view, before)
+	app.show_window()
+	assert_true(app.visible)
+	app._process(0.0)
+	assert_eq(port.advances, [int(before.board.revision)])
+	assert_true(port.commands.is_empty())
+	app.queue_free()
+
+
+func test_unfocused_window_parks_preparation_and_retains_explicit_retry() -> void:
+	var app: Control = APP.instantiate()
+	_viewport.add_child(app)
+	app.set_process(false)
+	app.hide()
+	var port := PreparationPort.new()
+	port.app = app
+	port.view = _view()
+	port.live_view = port.view.duplicate(true)
+	assert_true(app.configure_presentation(port,_locale,_profile).ok)
+	app.show_window()
+	app._notification(Node.NOTIFICATION_WM_WINDOW_FOCUS_OUT)
+	var before: Dictionary = port.view.duplicate(true)
+	app._process(0.0)
+	assert_true(port.advances.is_empty(),"A visible unfocused game does not advance preparation.")
+	assert_eq(port.view,before)
+	app._notification(Node.NOTIFICATION_WM_WINDOW_FOCUS_IN)
+	app._process(0.0)
+	assert_eq(port.advances.size(),1)
+	port.next_result = {"ok":false,"code":&"minesweeper_preparation_refused"}
+	app._process(0.0)
+	assert_eq(port.advances.size(),2)
+	assert_true(app._preparation_retry.visible)
+	app._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	port.next_result = {"ok":true,"advanced":true}
+	app._preparation_retry.pressed.emit()
+	app._process(0.0)
+	assert_eq(port.advances.size(),2,"Unfocused Retry cannot start work or discard its pending retry.")
+	assert_true(app._preparation_retry_needed)
+	assert_false(app.last_result.ok)
+	app._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	app._preparation_retry.pressed.emit()
+	assert_eq(port.advances.size(),3)
+	assert_true(app.last_result.ok)
+	assert_false(app._preparation_retry_needed)
+	assert_true(port.commands.is_empty())
+	app.queue_free()

@@ -70,7 +70,8 @@ func _valid_content(cell: Dictionary) -> bool:
 	if cell.face == "covered":
 		if cell.number != 0 or cell.mark in ["mine","exploded","marked_mine"]: return false
 		if cell.bracketed and cell.mark not in ["none","flag"]: return false
-		if cell.mark == "none": legal_sets = [[],["reveal"]] if cell.bracketed else [[],["reveal"],["reveal","flag"]]
+		# Covered pre-Reveal cells may be marked freely; certification only restricts Reveal.
+		if cell.mark == "none": legal_sets = [[],["reveal"],["flag"],["reveal","flag"]]
 		elif cell.mark == "flag": legal_sets = [[],["unflag"]]
 		elif cell.mark == "marked_flag": legal_sets = [[],["activate"]]
 		else: legal_sets = [[]]

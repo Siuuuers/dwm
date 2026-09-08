@@ -2,6 +2,7 @@ class_name CanonicalJsonWriter
 extends RefCounted
 
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+static var _ordinary_ascii := RegEx.create_from_string("\\A[\\x20-\\x21\\x23-\\x5B\\x5D-\\x7E]*\\z")
 
 static func stringify(value: Variant) -> Dictionary:
 	var emitted := _emit(value)
@@ -64,6 +65,9 @@ static func _emit_float(value: float) -> Dictionary:
 	return _ok(number)
 
 static func _emit_string(value: String) -> Dictionary:
+	# Exact whole-string match: all excluded characters retain the original emitter.
+	if _ordinary_ascii.search(value) != null:
+		return _ok('"' + value + '"')
 	var output := "\""
 	for index in range(value.length()):
 		var codepoint := value.unicode_at(index)

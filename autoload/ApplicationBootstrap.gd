@@ -510,6 +510,9 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var pause_router := _target(&"SceneRouter")
 			if pause_router.has_signal("restore_publication_released") and not pause_router.is_connected("restore_publication_released", _queue_live_continuation):
 				pause_router.connect("restore_publication_released", _queue_live_continuation)
+			var scene_tree := get_tree()
+			if scene_tree != null and not scene_tree.scene_changed.is_connected(_queue_live_continuation):
+				scene_tree.scene_changed.connect(_queue_live_continuation)
 			return pause_router.configure_pause_services({
 				"game_state": _target(&"GameState"), "saves": _target(&"SaveManager"),
 				"bridge": _target(&"DialogicBridge"), "input": _target(&"InputManager"),
@@ -1384,6 +1387,9 @@ func _configure_desktop_production_graph() -> Dictionary:
 		var save_board_configured: Dictionary = save_board_port.configure(_retained_checkpoint_port)
 		if not save_board_configured.get("ok", false):
 			return save_board_configured
+		var save_audio: Dictionary = save_board_port.configure_audio_context_capture(
+			Callable(_target(&"AudioManager"), &"get_semantic_audio_context"))
+		if not save_audio.get("ok", false): return save_audio
 		_retained_save_manager_desktop_board_port = save_board_port
 		var durable: Dictionary = round_coordinator.configure_durable_checkpoint(
 			save_board_port, DESKTOP_FIRST_REVEAL_SNAPSHOT_COMPOSER, _desktop_consequence_state)
@@ -2134,6 +2140,9 @@ func _resume_live_continuation() -> void:
 	if _application_gate.is_active() or _application_gate.is_fatal_latched(): return
 	var router := _target(&"SceneRouter")
 	if router.has_method("is_restore_publication_held") and router.is_restore_publication_held(): return
+	# Native scene changes mount at frame end. Keep the exact pending session until
+	# scene_changed wakes us; publishing now would be overwritten by that mount.
+	if get_tree().current_scene == null: return
 	if _present_pending_day7_prelude(game_state, router): return
 	_pending_live_continuation = {}
 	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()

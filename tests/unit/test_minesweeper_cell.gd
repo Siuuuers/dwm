@@ -32,7 +32,7 @@ func test_exact_public_shape_and_contradictions_refuse_atomically() -> void:
 	assert_true(cell.present(_public({"mark":"flag","bracketed":true,"actions":["unflag"]})))
 	var retained: Dictionary = cell.public_cell
 	for invalid: Dictionary in [
-		_public({"private_mine":true}), _public({"face":"covered","number":2}), _public({"actions":["flag"]}),
+		_public({"private_mine":true}), _public({"face":"covered","number":2}), _public({"actions":["unflag"]}),
 		_public({"face":"revealed","mark":"flag"}), _public({"face":"revealed","number":0,"pressable":true}),
 		_public({"inspectable":false,"pressable":true}), _public({"mark":"mine","pressable":true}),
 	]:
@@ -42,7 +42,8 @@ func test_exact_public_shape_and_contradictions_refuse_atomically() -> void:
 func test_closed_visible_alphabet_accepts_lawful_forms() -> void:
 	var cell := _cell()
 	for public: Dictionary in [
-		_public(), _public({"mark":"flag","actions":["unflag"]}), _public({"bracketed":true,"actions":["reveal"]}), _public({"mark":"flag","bracketed":true,"actions":["unflag"]}),
+		_public(), _public({"actions":["flag"]}), _public({"bracketed":true,"actions":["reveal","flag"]}),
+		_public({"bracketed":true,"actions":["flag"]}), _public({"mark":"flag","actions":["unflag"]}), _public({"bracketed":true,"actions":["reveal"]}), _public({"mark":"flag","bracketed":true,"actions":["unflag"]}),
 		_public({"face":"revealed","pressable":false,"actions":[]}), _public({"face":"revealed","number":8,"actions":["chord"]}),
 		_public({"face":"revealed","mark":"mine","pressable":false,"actions":[]}), _public({"face":"revealed","mark":"exploded","pressable":false,"actions":[]}),
 		_public({"mark":"correct_flag","pressable":false,"actions":[]}), _public({"mark":"incorrect_flag","pressable":false,"actions":[]}),

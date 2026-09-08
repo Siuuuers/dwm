@@ -71,10 +71,11 @@ func _wired(reuse: bool = true, changed_reread: bool = false) -> Dictionary:
 	manager._storage = storage
 	var port := CountingPort.new(manager)
 	port.reuse = reuse
-	assert_true(port.configure_fatal_latch(GATE.new()).get("ok", false))
+	var gate := GATE.new()
+	assert_true(port.configure_fatal_latch(gate).get("ok", false))
 	var snapshot := _snapshot()
 	assert_true(manager._journal.reset(str(snapshot.run_id)).get("ok", false))
-	return {"files": files, "storage": storage, "manager": manager, "port": port, "snapshot": snapshot}
+	return {"files": files, "storage": storage, "manager": manager, "port": port, "snapshot": snapshot, "gate": gate}
 
 func _prepare(wired: Dictionary, money: int) -> Dictionary:
 	var snapshot: Dictionary = wired.snapshot.duplicate(true)
@@ -98,10 +99,10 @@ func test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_comm
 	var cached := _wired()
 	var uncached := _wired(false)
 	for money: int in [101, 102, 103]:
-		var candidate := _prepare(cached, money)
-		var reference := _prepare(uncached, money)
 		cached.port.validations.clear()
 		uncached.port.validations.clear()
+		var candidate := _prepare(cached, money)
+		var reference := _prepare(uncached, money)
 		var committed: Dictionary = cached.port.commit(candidate)
 		var original: Dictionary = uncached.port.commit(reference)
 		assert_true(committed.get("ok", false), str(committed))
@@ -112,7 +113,7 @@ func test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_comm
 		assert_lt(_validation_count(cached.port), _validation_count(uncached.port))
 		for count: int in cached.port.validations.values(): assert_eq(count, 1)
 		assert_eq(cached.port.validations.size(), money - 100,
-			"a later commit validates its current, previous and older backup afresh")
+			"each prepare/commit validates each distinct current, previous and older backup once")
 
 func test_cache_is_exact_text_success_only_and_detaches_nested_results() -> void:
 	var wired := _wired()
@@ -182,3 +183,74 @@ func test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once() ->
 	assert_true(result.get("ok", false), str(result))
 	assert_eq(_validation_count(wired.port), 1, "retry must validate exact text again")
 	assert_eq(wired.manager._journal.peek_next_sequence(wired.snapshot.run_id).value.checkpoint_sequence, 2)
+
+func test_prepared_validation_is_not_reused_after_a_process_frame() -> void:
+	var wired := _wired()
+	assert_true(wired.port.commit(_prepare(wired, 600)).get("ok", false))
+	var old_text: String = wired.storage.read_text("autosave.json").value
+	var candidate := _prepare(wired, 601)
+	wired.port.validations.clear()
+	await get_tree().process_frame
+	var committed: Dictionary = wired.port.commit(candidate)
+	assert_true(committed.get("ok", false), str(committed))
+	assert_eq(wired.port.validations.get(old_text, 0), 1,
+		"a yielded prepare cannot carry semantic validation into a later frame")
+
+func test_new_prepare_and_released_custody_discard_prepared_validation() -> void:
+	for interruption: String in ["failed_prepare", "released_lease", "reconfigure", "rollback"]:
+		var wired := _wired()
+		assert_true(wired.port.commit(_prepare(wired, 700)).get("ok", false))
+		var old_text: String = wired.storage.read_text("autosave.json").value
+		var backup: Dictionary = wired.port.capture().value.backup
+		var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
+		assert_true(lease.get("ok", false), str(lease))
+		var candidate := _prepare(wired, 701)
+		match interruption:
+			"failed_prepare":
+				var failed: Dictionary = wired.port.prepare({}, &"post_result", {"kind": &"none"})
+				assert_false(failed.get("ok", true))
+			"released_lease":
+				assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
+				lease = wired.gate.acquire(&"causal_transaction")
+				assert_true(lease.get("ok", false), str(lease))
+			"reconfigure":
+				assert_true(wired.port.configure_fatal_latch(wired.gate).get("ok", false))
+			"rollback":
+				assert_true(wired.port.rollback(backup).get("ok", false))
+		wired.port.validations.clear()
+		var committed: Dictionary = wired.port.commit(candidate)
+		assert_true(committed.get("ok", false), str(committed))
+		assert_eq(wired.port.validations.get(old_text, 0), 1, interruption)
+		assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
+
+func test_mutated_outgoing_document_fails_and_retry_revalidates_preimage() -> void:
+	var baseline_code: StringName = &""
+	for reuse: bool in [false, true]:
+		var wired := _wired(reuse)
+		assert_true(wired.port.commit(_prepare(wired, 800)).get("ok", false))
+		var old_text: String = wired.storage.read_text("autosave.json").value
+		var candidate := _prepare(wired, 801)
+		var invalid: Dictionary = candidate.duplicate(true)
+		# This field is explicitly required to be an object by the save contract.
+		# Money is only checked as a primitive here, so changing its type was not invalid.
+		invalid["autosave_document"]["current_snapshot"]["snapshot"]["gameplay"]["narrative_variables"] = "invalid"
+		var before: Dictionary = wired.manager._journal.capture_state()
+		var rejected: Dictionary = wired.port.commit(invalid)
+		assert_false(rejected.get("ok", true), "schema-invalid outgoing data must fail; reuse=%s" % reuse)
+		if rejected.get("ok", false): return
+		if not reuse: baseline_code = StringName(str(rejected.get("code", "")))
+		assert_eq(StringName(str(rejected.get("code", ""))), baseline_code,
+			"cached path must retain the uncached rejection")
+		assert_true(wired.manager._journal.capture_state() == before,
+			"invalid outgoing data cannot commit the prepared journal")
+		# Rejected write_atomic consumes its read lease. Inspect durable fixture bytes;
+		# the same-candidate commit below performs the real fresh reconciliation.
+		var retained: Dictionary = wired.files.snapshot_persisted()
+		assert_true(retained.get(FINAL, PackedByteArray()) == old_text.to_utf8_buffer(),
+			"invalid outgoing data leaves every preimage byte unchanged")
+		wired.port.validations.clear()
+		var committed: Dictionary = wired.port.commit(candidate)
+		assert_true(committed.get("ok", false), str(committed.get("code", "")))
+		if reuse:
+			assert_eq(wired.port.validations.get(old_text, 0), 1,
+				"a failed commit consumes the prepared proof before retry")

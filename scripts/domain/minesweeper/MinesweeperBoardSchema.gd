@@ -133,9 +133,9 @@ static func validate_layout(layout: Dictionary, spec: Dictionary) -> Dictionary:
 			{"field": "mine_indices"})
 	var mine_indices: Array[int] = indices["value"]
 	var actual_mine_count: int = mine_indices.size()
-	if actual_mine_count != int(spec["requested_mine_count"]):
+	if actual_mine_count < int(spec["base_mine_count"]) or actual_mine_count > int(spec["requested_mine_count"]):
 		return _fail(&"layout_mine_count_mismatch",
-			"the actual mine count does not match the spec's requested_mine_count",
+			"only requested extras may be reduced; the base mine count is retained",
 			{"expected": spec["requested_mine_count"], "actual": actual_mine_count})
 
 	var claimed_mine_count: Variant = layout["mine_count"]
@@ -354,3 +354,39 @@ static func _nonblank_string(value: Variant, field: String) -> Dictionary:
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+## A saveable pre-Reveal shell owns only marks and accepted Flag/Unflag history.
+## It never contains mines, a generation recipe, or a speculative first-Reveal action.
+static func validate_shell(shell: Dictionary, width: int, height: int) -> Dictionary:
+	if width <= 0 or height <= 0 or shell.size() != 2 or not shell.get("actions") is Array \
+			or not shell.get("flagged_indices") is Array:
+		return _fail(&"invalid_board_shell", "shell requires flags and actions", {})
+	var flags: Dictionary = {}
+	var transactions: Dictionary = {}
+	var actions: Array = []
+	for raw: Variant in shell.actions:
+		if not raw is Dictionary or raw.size() != 5 or str(raw.get("kind", "")) != "set_flag" \
+				or not raw.get("transaction_id") is String or raw.transaction_id.strip_edges().is_empty() \
+				or transactions.has(raw.transaction_id) or not _is_int_like(raw.get("cell_index")) \
+				or not _is_int_like(raw.get("revision")) or int(raw.revision) != actions.size() + 1 \
+				or not raw.get("flagged") is bool:
+			return _fail(&"invalid_board_shell", "invalid shell action", {})
+		var index: int = int(raw.cell_index)
+		if index < 0 or index >= width * height:
+			return _fail(&"invalid_board_shell", "shell cell out of range", {})
+		transactions[raw.transaction_id] = true
+		if raw.flagged: flags[index] = true
+		else: flags.erase(index)
+		actions.append({"transaction_id": str(raw.transaction_id), "kind": "set_flag",
+			"cell_index": index, "flagged": bool(raw.flagged), "revision": actions.size() + 1})
+	var expected: Array = flags.keys()
+	expected.sort()
+	var supplied: Array = []
+	for raw: Variant in shell.flagged_indices:
+		if not _is_int_like(raw) or supplied.has(int(raw)):
+			return _fail(&"invalid_board_shell", "invalid shell flags", {})
+		supplied.append(int(raw))
+	if supplied != expected:
+		return _fail(&"invalid_board_shell", "shell flags disagree with history", {})
+	return {"ok": true, "value": {"shell": {"flagged_indices": expected, "actions": actions}}}

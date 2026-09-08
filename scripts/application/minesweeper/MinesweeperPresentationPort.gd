@@ -13,8 +13,12 @@ var _phase := ""
 var _identity: Variant = null
 var _revision := -1
 var _projection: Dictionary = {}
+var _configuration: Dictionary = {}
+var _pending_configuration: Dictionary = {}
 var _terminal_foresight: Variant = null
 var _pending_settlement_request: Dictionary = {}
+var _pending_preparation_request: Dictionary = {}
+var _pending_preparation_context: Dictionary = {}
 
 
 func configure(owner: Object, issuer: Object) -> Dictionary:
@@ -42,6 +46,8 @@ func pull(difficulty: String) -> Dictionary:
 		if not retried.get("ok", false):
 			return _failure(&"minesweeper_settlement_refused", _projection)
 		_pending_settlement_request = {}
+		if not _adopt_after_settlement().get("ok", false):
+			return _failure(&"minesweeper_presentation_unavailable")
 		return _success(_projection.duplicate(true))
 	var refreshed := _read_owner(difficulty)
 	if not refreshed.ok:
@@ -91,16 +97,18 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	var request := {
 		"transaction_id": str(issued_value.token),
 		"transaction_issuer_receipt": (issued_value.issuer_receipt as Dictionary).duplicate(true),
-		"expected_identity": (_identity as Dictionary).duplicate(true),
+		"expected_identity": _identity.duplicate(true) if _identity is Dictionary else null,
 		"expected_revision": _revision,
 		"cell_index": cell_index,
 	}
 	var result: Dictionary
 	match action:
 		"reveal":
-			if _phase in ["NONE", "PREPARED_UNSTARTED"]: request["difficulty_id"] = _difficulty
+			if _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]:
+				request["difficulty_id"] = _difficulty
 			result = _owner.call(&"reveal", request)
 		"flag", "unflag":
+			if _phase in ["NONE", "UNPAID_UNSTARTED"]: request["expected_identity"] = null
 			request["flagged"] = action == "flag"
 			result = _owner.call(&"set_flag", request)
 		"chord": result = _owner.call(&"chord", request)
@@ -121,10 +129,169 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	return _success(_projection.duplicate(true))
 
 
+## Explicit foreground work step. Pure pull never starts or advances a generator.
+func advance_preparation(expected_revision: int) -> Dictionary:
+	if _owner == null or _projection.is_empty(): return _failure(&"minesweeper_presentation_unavailable")
+	if _phase not in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARING"]:
+		return {"ok": true, "advanced": false}
+	if not _owner.has_method("get_preparation_context"):
+		return {"ok": true, "advanced": false}
+	var prepared := _read_preparation_context()
+	if not prepared.get("ok", false): return _failure(&"minesweeper_preparation_refused", _projection)
+	var context: Dictionary = prepared.value
+	if expected_revision != _revision or context.revision != _revision:
+		return _failure(&"stale_minesweeper_presentation", _projection)
+	if context.action == "none": return {"ok": true, "advanced": false}
+	var current := _read_owner(_difficulty)
+	var checked := _read_preparation_context()
+	if not current.ok or not checked.get("ok", false) or checked.value != context \
+			or context.identity != _identity or context.difficulty_id != _difficulty \
+			or current.value.revision != _revision or current.value.identity != _identity \
+			or current.value.phase != _phase or current.value.projection != _projection:
+		if current.ok: _adopt(current.value)
+		return _failure(&"stale_minesweeper_presentation", _projection)
+	var method: StringName = &"begin_debug_preparation" if context.action == "begin" else &"run_debug_preparation_slice"
+	if not _owner.has_method(method): return _failure(&"minesweeper_preparation_refused", _projection)
+	if _pending_preparation_context != context:
+		_pending_preparation_request = {}
+		_pending_preparation_context = {}
+	if _pending_preparation_request.is_empty():
+		var issued: Dictionary = _issuer.call(&"issue", &"transaction_id")
+		if not issued.get("ok", false): return _failure(&"minesweeper_preparation_refused", _projection)
+		var value: Dictionary = issued.get("value", {})
+		if not value.has("token") or not value.get("issuer_receipt") is Dictionary:
+			return _failure(&"minesweeper_preparation_refused", _projection)
+		_pending_preparation_request = {
+			"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt.duplicate(true),
+			"expected_identity": context.identity.duplicate(true) if context.identity is Dictionary else null,
+			"expected_revision": _revision,
+		}
+		if context.action == "begin": _pending_preparation_request["difficulty_id"] = _difficulty
+		_pending_preparation_context = context.duplicate(true)
+	var result: Dictionary = _owner.call(method, _pending_preparation_request.duplicate(true))
+	if not result.get("ok", false): return _failure(&"minesweeper_preparation_refused", _projection)
+	_pending_preparation_request = {}
+	_pending_preparation_context = {}
+	var after := _read_owner(_difficulty)
+	if not after.ok:
+		_clear()
+		return _failure(&"minesweeper_presentation_unavailable")
+	_adopt(after.value)
+	return {"ok": true, "advanced": true, "value": _projection.duplicate(true)}
+
+
+func _read_preparation_context() -> Dictionary:
+	var result: Dictionary = _owner.call(&"get_preparation_context")
+	if not result.get("ok", false) or not result.get("value") is Dictionary: return {"ok": false}
+	var value: Dictionary = result.value
+	if value.size() != 4: return {"ok": false}
+	for key: String in ["action", "difficulty_id", "identity", "revision"]:
+		if not value.has(key): return {"ok": false}
+	if value.action not in ["none", "begin", "slice"] or not value.difficulty_id is String \
+			or not value.revision is int or (value.identity != null and not value.identity is Dictionary):
+		return {"ok": false}
+	return _success(value.duplicate(true))
+
+
+## Capability projection contains no owner identity. Legacy minimal owners expose no controls.
+func get_configuration(projection: Dictionary) -> Dictionary:
+	if _projection.is_empty() or projection != _projection:
+		return _failure(&"stale_minesweeper_presentation")
+	return _success({
+		"difficulty_enabled": _configuration.get("difficulty_enabled", []).duplicate(),
+		"new_board_enabled": bool(_configuration.get("new_board_enabled", false)),
+	})
+
+
+func select_difficulty(difficulty: String, expected_revision: int) -> Dictionary:
+	return _configure_board(&"select_difficulty", difficulty, expected_revision)
+
+
+func replace_board(expected_revision: int) -> Dictionary:
+	return _configure_board(&"replace_board", _difficulty, expected_revision)
+
+
+func _configure_board(method: StringName, difficulty: String, expected_revision: int) -> Dictionary:
+	if _owner == null or _projection.is_empty() or _configuration.is_empty() \
+			or not _owner.has_method(method):
+		return _failure(&"minesweeper_action_not_available", _projection)
+	var current := _read_owner(_difficulty)
+	if not current.ok or expected_revision != _revision \
+			or current.value.revision != _revision or current.value.identity != _identity \
+			or current.value.phase != _phase or current.value.projection != _projection \
+			or current.value.configuration != _configuration:
+		if current.ok: _adopt(current.value)
+		else: _clear()
+		return _failure(&"stale_minesweeper_presentation", _projection)
+	# These are view-level no-ops: no command, nonce, checkpoint, or new board is admitted.
+	if method == &"select_difficulty" and difficulty == _difficulty:
+		return _success(_projection.duplicate(true))
+	if method == &"replace_board" and _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]:
+		return _success(_projection.duplicate(true))
+	if (method == &"select_difficulty" and difficulty not in _configuration.difficulty_enabled) \
+			or (method == &"replace_board" and not _configuration.new_board_enabled):
+		return _failure(&"minesweeper_action_not_available", _projection)
+	if not _pending_configuration.is_empty():
+		var source: Dictionary = _pending_configuration.context
+		if source.phase != _configuration.phase or source.identity != _configuration.identity \
+				or source.revision != _configuration.revision or source.difficulty_id != _configuration.difficulty_id:
+			_pending_configuration = {}
+		elif _pending_configuration.method != method or _pending_configuration.difficulty != difficulty:
+			return _failure(&"minesweeper_command_refused", _projection)
+	if _pending_configuration.is_empty():
+		var issued: Dictionary = _issuer.call(&"issue", &"transaction_id")
+		if not issued.get("ok", false): return _failure(&"minesweeper_command_refused", _projection)
+		var value: Dictionary = issued.get("value", {})
+		if not value.has("token") or not value.get("issuer_receipt") is Dictionary:
+			return _failure(&"minesweeper_command_refused", _projection)
+		_pending_configuration = {"method": method, "difficulty": difficulty,
+			"context": _configuration.duplicate(true), "request": {
+				"transaction_id": str(value.token), "transaction_issuer_receipt": value.issuer_receipt.duplicate(true),
+				"expected_identity": _configuration.identity.duplicate(true) if _configuration.identity is Dictionary else null,
+				"expected_revision": _revision, "difficulty_id": difficulty,
+			}}
+	var result: Dictionary = _owner.call(method, _pending_configuration.request.duplicate(true))
+	if result.get("ok", false): _pending_configuration = {}
+	var after := _read_owner(difficulty if result.get("ok", false) else _difficulty)
+	if not after.ok:
+		_clear()
+		return _failure(&"minesweeper_presentation_unavailable")
+	_adopt(after.value)
+	if not result.get("ok", false): return _failure(&"minesweeper_command_refused", _projection)
+	return _success(_projection.duplicate(true))
+
+
+func _read_configuration(snapshot: Dictionary, difficulty: String) -> Dictionary:
+	if not _owner.has_method("get_configuration_context"):
+		return _success({})
+	var result: Dictionary = _owner.call(&"get_configuration_context")
+	if not result.get("ok", false) or not result.get("value") is Dictionary:
+		return {"ok": false}
+	var value: Dictionary = result.value
+	var keys := ["phase", "identity", "revision", "difficulty_id", "difficulty_enabled", "new_board_enabled", "settled_inspection"]
+	if value.size() != keys.size(): return {"ok": false}
+	for key: String in keys:
+		if not value.has(key): return {"ok": false}
+	if value.phase != snapshot.phase or value.identity != snapshot.identity \
+			or value.revision != snapshot.revision or value.difficulty_id != difficulty \
+			or not value.difficulty_enabled is Array or not value.new_board_enabled is bool \
+			or not value.settled_inspection is bool:
+		return {"ok": false}
+	var seen: Array[String] = []
+	for tier: Variant in value.difficulty_enabled:
+		if not tier is String or tier not in ["beginner", "intermediate", "expert"] or tier in seen:
+			return {"ok": false}
+		seen.append(tier)
+	return _success(value.duplicate(true))
+
+
 ## A terminal board is already committed and safe to render before settlement starts. Retain the
 ## exact completion request across transient failures so retry cannot allocate a second reward.
 func _settle_terminal(owner_view: Dictionary) -> Dictionary:
 	var projection: Dictionary = owner_view["projection"]
+	# The canonical completion receipt already paid this terminal result. Cold inspection
+	# must never issue a second completion command or repeat its consequences.
+	if owner_view.configuration.get("settled_inspection", false): return {"ok": true}
 	if not bool(projection["terminal"]) or str(owner_view["phase"]) != "ACTIVE_VISIBLE":
 		if not bool(projection["terminal"]):
 			_pending_settlement_request = {}
@@ -156,7 +323,35 @@ func _settle_terminal(owner_view: Dictionary) -> Dictionary:
 	if not completed.get("ok", false):
 		return completed
 	_pending_settlement_request = {}
-	return completed
+	var refreshed := _adopt_after_settlement()
+	return completed if refreshed.get("ok", false) else refreshed
+
+
+func _adopt_after_settlement() -> Dictionary:
+	# Minimal legacy owners predate retained inspection and clear the board on completion.
+	if not _owner.has_method("get_configuration_context"): return {"ok": true}
+	var refreshed := _read_owner(_difficulty)
+	if not refreshed.get("ok", false): return {"ok": false}
+	_adopt(refreshed.value)
+	return {"ok": true}
+
+
+## Queried only for custody-bound Home admission, not by the per-frame idle pump.
+func can_park_preparation(expected_revision: int) -> bool:
+	if not is_instance_valid(_owner) or _phase != "PREPARING" or expected_revision != _revision:
+		return false
+	var current := _read_owner(_difficulty)
+	return current.get("ok", false) and current.value.revision == _revision \
+		and current.value.identity == _identity and current.value.phase == _phase \
+		and current.value.projection == _projection and _preparation_frontier_available()
+
+
+func _preparation_frontier_available() -> bool:
+	if not _owner.has_method("get_preparation_context"): return false
+	var checked := _read_preparation_context()
+	return checked.get("ok", false) and checked.value.action == "slice" \
+		and checked.value.revision == _revision and checked.value.identity == _identity \
+		and checked.value.difficulty_id == _difficulty
 
 
 func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
@@ -172,9 +367,19 @@ func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
 		_adopt(current.value)
 		return _failure(&"stale_minesweeper_presentation", _projection)
 	# An unsettled terminal is still under owner custody. Visibility cannot settle or bypass it.
-	if _projection.terminal or _phase in ["PREPARING", "SETTLING"]:
+	if _projection.terminal:
+		if _configuration.get("settled_inspection", false):
+			return _success(_projection.duplicate(true))
 		return _failure(&"minesweeper_action_not_available", _projection)
-	if _phase in ["NONE", "PREPARED_UNSTARTED"] \
+	if _phase == "SETTLING":
+		return _failure(&"minesweeper_action_not_available", _projection)
+	# Between explicit slices the saved frontier is stable. Showing or parking it changes
+	# visibility only; this boundary never issues a command or advances the search.
+	if _phase == "PREPARING":
+		if not _preparation_frontier_available():
+			return _failure(&"minesweeper_action_not_available", _projection)
+		return _success(_projection.duplicate(true))
+	if _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"] \
 			or foreground and _phase == "ACTIVE_VISIBLE" \
 			or not foreground and _phase == "ACTIVE_SUSPENDED":
 		return _success(_projection.duplicate(true))
@@ -211,7 +416,7 @@ func _read_owner(difficulty: String) -> Dictionary:
 	if not state_result.get("ok", false) or not state_result.get("value") is Dictionary:
 		return {"ok": false}
 	var snapshot: Dictionary = state_result.value
-	if snapshot.get("phase") == "PREPARED_UNSTARTED":
+	if snapshot.get("phase") in ["PREPARED_UNSTARTED", "PAID_UNSTARTED"]:
 		var candidate_value: Variant = snapshot.get("candidate")
 		if not candidate_value is Dictionary:
 			return {"ok": false}
@@ -221,7 +426,7 @@ func _read_owner(difficulty: String) -> Dictionary:
 			return {"ok": false}
 	var eligible := false
 	var identity: Variant = snapshot.get("identity")
-	if snapshot.get("phase") == "NONE":
+	if snapshot.get("phase") in ["NONE", "UNPAID_UNSTARTED"]:
 		var entry: Dictionary = _owner.call(&"get_entry_context", difficulty)
 		if not entry.get("ok", false) or not entry.get("value") is Dictionary:
 			return {"ok": false}
@@ -233,14 +438,16 @@ func _read_owner(difficulty: String) -> Dictionary:
 		if eligible and not identity is Dictionary: return {"ok": false}
 	var projected: Dictionary = QUERY.desktop(snapshot, difficulty, eligible)
 	if not projected.get("ok", false): return {"ok": false}
+	var configuration := _read_configuration(snapshot, difficulty)
+	if not configuration.get("ok", false): return {"ok": false}
 	var terminal_foresight: Variant = null
 	if projected.value.terminal:
-		terminal_foresight = mini(999, roundi(PERFORMANCE.foresight_percent(snapshot.board.board)))
+		terminal_foresight = PERFORMANCE.display_percent(snapshot.board.board)
 	return {"ok": true, "value": {
 		"difficulty": difficulty, "phase": str(snapshot.phase),
 		"identity": identity.duplicate(true) if identity is Dictionary else null,
 		"revision": int(snapshot.revision), "projection": projected.value.duplicate(true),
-		"terminal_foresight": terminal_foresight,
+		"terminal_foresight": terminal_foresight, "configuration": configuration.value,
 	}}
 
 
@@ -250,6 +457,7 @@ func _adopt(value: Dictionary) -> void:
 	_identity = value.identity.duplicate(true) if value.identity is Dictionary else null
 	_revision = value.revision
 	_projection = value.projection.duplicate(true)
+	_configuration = value.configuration.duplicate(true)
 	_terminal_foresight = value.terminal_foresight
 
 
@@ -259,6 +467,7 @@ func _clear() -> void:
 	_identity = null
 	_revision = -1
 	_projection = {}
+	_configuration = {}
 	_terminal_foresight = null
 
 

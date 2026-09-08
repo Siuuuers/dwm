@@ -7,6 +7,7 @@ signal foreground_availability_changed()
 
 const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
+const RETRY_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const PREFERENCE_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets",
 	"preferences.accessibility.font_scale","preferences.accessibility.large_click_targets",
 	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation",
@@ -29,9 +30,14 @@ var _cell := 0
 var _scroll := Vector2i.ZERO
 var _restoring_focus := false
 var _has_cached_navigation := false
+var _preparation_retry: Button
+var _preparation_retry_needed := false
+var _preparation_foreground := false
 
 func _ready() -> void:
 	super._ready()
+	var window := get_window()
+	_preparation_foreground = window != null and window.has_focus()
 	custom_minimum_size = Vector2(800,656)
 	add_theme_stylebox_override("panel",StyleBoxEmpty.new())
 	$VBoxContainer/TopBar.hide()
@@ -40,6 +46,11 @@ func _ready() -> void:
 	panel = PANEL.new()
 	panel.name = "MinesweeperPanel"
 	_content_host.add_child(panel)
+	_preparation_retry = RETRY_BUTTON.new()
+	_preparation_retry.name = "PreparationRetry"
+	_preparation_retry.hide()
+	_content_host.add_child(_preparation_retry)
+	_preparation_retry.pressed.connect(_retry_preparation)
 	panel.presentation_failed.connect(_on_failure)
 	panel.presentation_changed.connect(_on_presented)
 	panel.dock.action_requested.connect(func(_action: StringName): _update_home())
@@ -47,6 +58,46 @@ func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(func(_control: Control): remember_focus())
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
+
+func _process(_delta: float) -> void:
+	if _busy or not _preparation_foreground or not is_visible_in_tree() or get_tree().paused or _port == null \
+			or not _port.has_method("advance_preparation") or panel == null \
+			or not last_result.get("ok",false) or not panel.has_valid_presentation() \
+			or panel.worksheet.information_sheet != null or panel.worksheet.grid.has_held_touch(): return
+	var grid: Control = panel.worksheet.grid
+	if int(grid.get("_held_index")) >= 0 or bool(grid.get("_mouse_dragging")) or bool(grid.get("_confirm_held")): return
+	_busy = true
+	var result: Dictionary = _port.call("advance_preparation",int(panel.public_view.board.revision))
+	_busy = false
+	if not result.get("ok",false):
+		panel._receive(result)
+		_preparation_retry_needed = true
+		_refresh_preparation_retry()
+		_preparation_retry.grab_focus()
+	elif result.get("advanced",false):
+		panel._receive(result)
+
+func _retry_preparation() -> void:
+	if not _preparation_retry_needed or _busy or not _preparation_foreground or not is_visible_in_tree() or get_tree().paused: return
+	_preparation_retry_needed = false
+	_refresh_preparation_retry()
+	if not refresh_view().get("ok",false):
+		_preparation_retry_needed = true
+		_refresh_preparation_retry()
+		return
+	_process(0.0)
+
+func _refresh_preparation_retry() -> void:
+	if _preparation_retry == null: return
+	if not _preparation_retry_needed:
+		_preparation_retry.hide()
+		return
+	var locale := str(_localization.get_locale()).replace("_","-") if _localization != null else "en"
+	var copy: String = {"en":"Retry","zh-CN":"\u91cd\u8bd5","zh-HK":"\u91cd\u8a66"}.get(locale,"Retry")
+	if not _preparation_retry.configure(copy,panel.register.theme,bool(panel.get("_large")),160): return
+	_preparation_retry.present_state(true,false)
+	_preparation_retry.position = Vector2(320,300)
+	_preparation_retry.show()
 
 func configure_presentation(port: Object, localization: Object = null, profile: Object = null,
 		input_owner: Object = null, palette: StringName = &"after_hours") -> Dictionary:
@@ -129,9 +180,12 @@ func hide_window() -> void:
 
 func can_return_home() -> bool:
 	if _hide_prepared: return true
-	return not _busy and panel != null and panel.has_valid_presentation() \
-		and panel.worksheet.information_sheet == null \
-		and (panel.public_view.settled or not panel.public_view.board.custody)
+	if _busy or panel == null or not panel.has_valid_presentation() \
+			or panel.worksheet.information_sheet != null: return false
+	if panel.public_view.settled or not panel.public_view.board.custody: return true
+	return last_result.get("ok",false) and _port != null \
+		and _port.has_method("can_park_preparation") \
+		and _port.call("can_park_preparation",int(panel.public_view.board.revision))
 
 func configure_desktop_home(home: Button) -> void:
 	_home = home
@@ -143,7 +197,12 @@ func _update_home() -> void:
 	_home.disabled = not enabled
 	_home.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 	panel.connect_host_focus(_home,_home)
-	_home.focus_next = _home.get_path_to(panel.worksheet.grid)
+	var first: Control = panel.worksheet.grid
+	for button: Control in panel.register.difficulties.values():
+		if button.focus_mode != Control.FOCUS_NONE:
+			first = button
+			break
+	_home.focus_next = _home.get_path_to(first)
 	_home.focus_neighbor_bottom = _home.focus_next
 	_home.focus_previous = _home.get_path_to(panel.dock.buttons.rules) if panel.dock.buttons.has("rules") else NodePath()
 	foreground_availability_changed.emit()
@@ -157,11 +216,14 @@ func remember_focus() -> void:
 	else:
 		for key: String in panel.dock.buttons:
 			if focused == panel.dock.buttons[key]: _focus_key = key
+		for key: String in panel.register.difficulties:
+			if focused == panel.register.difficulties[key]: _focus_key = "difficulty:"+key
 
 func _restore_focus() -> void:
 	_restoring_focus = true
 	var restore_scroll := _has_cached_navigation
 	var target: Control = panel.dock.buttons.get(_focus_key)
+	if _focus_key.begins_with("difficulty:"): target = panel.register.difficulties.get(_focus_key.trim_prefix("difficulty:"))
 	if _focus_key == "vertical": target = panel.worksheet.vertical_rail
 	elif _focus_key == "horizontal": target = panel.worksheet.horizontal_rail
 	if _focus_key == "grid" or target == null or target.focus_mode == Control.FOCUS_NONE:
@@ -188,7 +250,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _notification(what: int) -> void:
-	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT,NOTIFICATION_APPLICATION_FOCUS_OUT] and is_instance_valid(panel): panel.worksheet.grid.cancel_input()
+	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT,NOTIFICATION_APPLICATION_FOCUS_OUT]:
+		_preparation_foreground = false
+		if is_instance_valid(panel): panel.worksheet.grid.cancel_input()
+	elif what in [NOTIFICATION_WM_WINDOW_FOCUS_IN,NOTIFICATION_APPLICATION_FOCUS_IN]:
+		_preparation_foreground = true
 
 func _apply_preferences() -> bool:
 	var locale := str(_localization.get_locale()).replace("_","-") if _localization != null else "en"
@@ -214,12 +280,15 @@ func _apply_preferences() -> bool:
 
 func _on_locale_changed(_locale: String) -> void:
 	if not _apply_preferences(): _fail(&"invalid_minesweeper_preferences")
+	_refresh_preparation_retry()
 	_update_home()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if String(path) in PREFERENCE_KEYS: _on_locale_changed("")
 
 func _on_presented() -> void:
+	_preparation_retry_needed = false
+	_refresh_preparation_retry()
 	last_result = {"ok":true}
 	_update_home()
 

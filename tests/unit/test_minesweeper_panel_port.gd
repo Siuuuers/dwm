@@ -13,6 +13,24 @@ const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
 const UNAVAILABLE := {"ok": false, "code": &"minesweeper_panel_unavailable"}
 const ACTIONS := ["reveal", "flag", "drag", "assignments", "rules"]
 
+class ReplacementCheckpoint extends RefCounted:
+	var fail_prepare := true
+	var disk: Dictionary = {}
+	func capture() -> Dictionary: return {"ok":true,"value":{"backup":disk.duplicate(true)}}
+	func preview_checkpoint_id(_run: String) -> Dictionary:
+		return {"ok":true,"value":{"checkpoint_id":"replacement-checkpoint"}}
+	func prepare_checkpoint(inputs: Dictionary, _kind: StringName, _intent: Dictionary) -> Dictionary:
+		if fail_prepare:
+			fail_prepare = false
+			return {"ok":false,"code":&"injected_replacement_failure"}
+		return {"ok":true,"value":{"candidate":{"snapshot":inputs.duplicate(true)}}}
+	func commit_checkpoint(candidate: Dictionary) -> Dictionary:
+		disk = candidate.snapshot.duplicate(true)
+		return {"ok":true}
+	func rollback(backup: Dictionary) -> Dictionary:
+		disk = backup.duplicate(true)
+		return {"ok":true}
+
 class CatalogFixture extends RefCounted:
 	var tasks: Variant = []
 	func get_minesweeper_tasks() -> Variant:
@@ -83,6 +101,37 @@ class TerminalClearingOwner extends RefCounted:
 			"command_receipts":{},"terminal_receipts":{}}
 		return {"ok":true,"code":&"ok","value":{},"receipt":{}}
 
+class RetainedTerminalOwner extends TerminalClearingOwner:
+	var settled := false
+	var refuse_completion := true
+	var refuse_dismissal := true
+	var dismissal_calls: Array[Dictionary] = []
+	func get_configuration_context() -> Dictionary:
+		return {"ok":true,"value":{"phase":snapshot.phase,"identity":snapshot.identity,
+			"revision":snapshot.revision,"difficulty_id":"beginner","difficulty_enabled":[],
+			"new_board_enabled":settled,"settled_inspection":settled}}
+	func complete_round(request: Dictionary) -> Dictionary:
+		completion_calls.append(request.duplicate(true))
+		if refuse_completion:
+			refuse_completion = false
+			return {"ok":false,"code":&"injected_completion_checkpoint"}
+		settled = true
+		snapshot.revision += 1
+		return {"ok":true}
+	func replace_board(request: Dictionary) -> Dictionary:
+		dismissal_calls.append(request.duplicate(true))
+		if request.expected_identity != snapshot.identity or request.expected_revision != snapshot.revision \
+				or request.difficulty_id != "beginner" or not settled:
+			return {"ok":false,"code":&"stale_dismissal"}
+		if refuse_dismissal:
+			refuse_dismissal = false
+			return {"ok":false,"code":&"injected_dismissal_checkpoint"}
+		settled = false
+		snapshot = {"schema_version":1,"phase":"NONE","revision":snapshot.revision+1,
+			"identity":null,"candidate":null,"board":null,"settlement":null,
+			"command_receipts":{},"terminal_receipts":{}}
+		return {"ok":true}
+
 var state
 var coordinator
 var state_port
@@ -135,7 +184,7 @@ func test_pull_composes_only_detached_public_facts_without_spending_or_allocatin
 	assert_eq(result.value.assignments, [true, false, false, false, false, false, false, false, false])
 	assert_eq(result.value.register.rounds, 2)
 	assert_null(result.value.register.foresight)
-	assert_eq(result.value.register.difficulty_enabled, [])
+	assert_eq(result.value.register.difficulty_enabled, ["beginner", "intermediate", "expert"])
 	assert_eq(result.value.board.cells.size(), 64)
 	assert_false(JSON.stringify(result).contains("private"))
 	assert_false(JSON.stringify(result).contains("mine_indices"))
@@ -172,7 +221,7 @@ func test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel() -> void:
 	assert_eq(unflagged.value.register.mine_estimate, 10)
 	assert_eq(unflagged.value.board.mine_estimate, unflagged.value.register.mine_estimate)
 	assert_eq(unflagged.value.board.custody, unflagged.value.register.custody)
-	assert_eq(unflagged.value.actions, ACTIONS)
+	assert_eq(unflagged.value.actions, ACTIONS + ["new_board"])
 
 
 func test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears() -> void:
@@ -408,7 +457,7 @@ func test_panel_foreground_preserves_frozen_register_and_history_without_spendin
 	var resumed: Dictionary = port.set_foreground(true, suspended.value.board.revision)
 	assert_true(resumed.ok)
 	assert_false(resumed.value.register.custody)
-	assert_eq(resumed.value.actions, ACTIONS)
+	assert_eq(resumed.value.actions, ACTIONS + ["new_board"])
 	assert_eq(resumed.value.register, flagged.value.register)
 	assert_eq(coordinator.get_state().value.board, board_before)
 	assert_eq(state.to_save_dict(), state_before)
@@ -455,3 +504,268 @@ func test_terminal_foresight_includes_final_click_and_survives_settlement_clear_
 		assert_eq(isolated.pull(), held)
 		assert_true(isolated.dispatch("new_board", -1, held.value.board.revision).ok)
 		assert_null(isolated.pull().value.register.foresight, "the next untouched board has no metric")
+
+
+func test_unpaid_tier_change_and_untouched_new_board_never_generate_or_spend() -> void:
+	var initial: Dictionary = port.pull()
+	var rounds: int = state.minesweeper_rounds_left
+	var motivation: int = state.get_stat("motivation")
+	var calls: Array = generation.call_log.duplicate(true)
+	var selected: Dictionary = port.select_difficulty("expert",initial.value.board.revision)
+	assert_true(selected.ok,str(selected))
+	if not selected.ok: return
+	assert_eq(selected.value.register.difficulty,"expert")
+	assert_eq(selected.value.board.width,22)
+	assert_eq(coordinator.get_state().value.phase,"UNPAID_UNSTARTED")
+	assert_eq(state.minesweeper_rounds_left,rounds)
+	assert_eq(state.get_stat("motivation"),motivation)
+	assert_eq(generation.call_log,calls)
+	assert_false("new_board" in selected.value.actions)
+	var before: Dictionary = coordinator.get_state().value
+	var counter: int = root_store.next_counter
+	assert_true(port.select_difficulty("expert",selected.value.board.revision).ok)
+	assert_true(port.dispatch("new_board",-1,selected.value.board.revision).ok)
+	assert_eq(root_store.next_counter,counter)
+	assert_eq(coordinator.get_state().value,before)
+
+
+func test_unpaid_flags_without_capacity_preserve_no_flag_and_untouched_new_board_is_noop() -> void:
+	state.set_stat("motivation",0)
+	var initial: Dictionary = port.pull()
+	assert_true(initial.ok,str(initial))
+	assert_eq(initial.value.board.cells[2].actions,["flag"])
+	var flagged: Dictionary = port.dispatch("flag",2,initial.value.board.revision)
+	assert_true(flagged.ok,str(flagged))
+	if not flagged.ok: return
+	assert_eq(flagged.value.register.no_flag,"lost")
+	assert_null(flagged.value.register.foresight)
+	assert_false("new_board" in flagged.value.actions)
+	var before: Dictionary = coordinator.get_state().value
+	var counter: int = root_store.next_counter
+	assert_true(port.dispatch("new_board",-1,flagged.value.board.revision).ok)
+	assert_eq(coordinator.get_state().value,before)
+	assert_eq(root_store.next_counter,counter)
+	var unflagged: Dictionary = port.dispatch("unflag",2,flagged.value.board.revision)
+	assert_true(unflagged.ok,str(unflagged))
+	assert_eq(unflagged.value.register.no_flag,"lost")
+	assert_eq(state.minesweeper_rounds_left,2)
+	assert_eq(state.get_stat("motivation"),0)
+	assert_true(generation.call_log.is_empty())
+
+
+func test_paid_replacement_and_paid_tier_change_keep_one_cost_and_accept_exact_retry() -> void:
+	var initial: Dictionary = port.pull()
+	var active: Dictionary = port.dispatch("reveal",0,initial.value.board.revision)
+	assert_true(active.ok,str(active))
+	if not active.ok: return
+	assert_true("new_board" in active.value.actions)
+	var identity: Dictionary = coordinator.get_state().value.identity.duplicate(true)
+	var rounds: int = state.minesweeper_rounds_left
+	var motivation: int = state.get_stat("motivation")
+	# Replacement uses the full-snapshot seam, not the legacy first-Reveal fake.
+	var durable := ReplacementCheckpoint.new()
+	assert_true(coordinator.configure_durable_checkpoint(durable,
+		preload("res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd"),
+		preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()).ok)
+	var failed: Dictionary = port.dispatch("new_board",-1,active.value.board.revision)
+	assert_false(failed.ok)
+	var counter: int = root_store.next_counter
+	var retried: Dictionary = port.dispatch("new_board",-1,active.value.board.revision)
+	assert_true(retried.ok,str(retried))
+	if not retried.ok: return
+	assert_eq(root_store.next_counter,counter,"Replacement retry reuses its admitted command and frozen candidate.")
+	assert_eq(coordinator.get_state().value.phase,"PAID_UNSTARTED")
+	assert_eq(durable.disk.desktop.board,coordinator.get_state().value)
+	assert_eq(coordinator.get_state().value.identity,identity)
+	assert_false("new_board" in retried.value.actions)
+	assert_eq(retried.value.register.no_flag,"intact")
+	assert_null(retried.value.register.foresight)
+	assert_eq(state.minesweeper_rounds_left,rounds)
+	assert_eq(state.get_stat("motivation"),motivation)
+	var changed: Dictionary = port.select_difficulty("expert",retried.value.board.revision)
+	assert_true(changed.ok,str(changed))
+	assert_eq(changed.value.register.difficulty,"expert")
+	assert_eq(changed.value.board.width,22)
+	assert_eq(state.minesweeper_rounds_left,rounds)
+	assert_eq(state.get_stat("motivation"),motivation)
+
+
+func test_stale_configuration_revision_or_live_session_is_refused_before_allocation() -> void:
+	var initial: Dictionary = port.pull()
+	var counter: int = root_store.next_counter
+	assert_false(port.select_difficulty("expert",initial.value.board.revision+1).ok)
+	assert_eq(root_store.next_counter,counter)
+	# The session marker is local admission evidence, not a manufactured live Run identity.
+	port._presented_session = {"day":state.day,"session":{"stale":true}}
+	assert_false(port.select_difficulty("expert",initial.value.board.revision).ok)
+	assert_eq(root_store.next_counter,counter)
+	assert_eq(coordinator.get_state().value.phase,"NONE")
+
+
+func test_first_paid_reveal_resolves_exact_journal_after_saved_shell_flag_prefix() -> void:
+	var initial: Dictionary = port.pull()
+	var marked: Dictionary = port.dispatch("flag",2,initial.value.board.revision)
+	assert_true(marked.ok,str(marked))
+	if not marked.ok: return
+	var active: Dictionary = port.dispatch("reveal",0,marked.value.board.revision)
+	assert_true(active.ok,str(active))
+	if not active.ok: return
+	assert_eq(active.value.register.no_flag,"lost")
+	assert_eq(active.value.register.difficulty,"beginner")
+	assert_eq(active.value.board.cells[2].mark,"flag")
+	var snapshot: Dictionary = coordinator.get_state().value
+	var receipts := 0
+	for entry: Dictionary in snapshot.command_receipts.values():
+		if entry.command_kind != "first_reveal": continue
+		receipts += 1
+		assert_eq(entry.result.value.receipt.board_revision,1)
+	assert_eq(receipts,1)
+	state.minesweeper_selected_difficulty = "expert"
+	var reloaded_projection: Dictionary = port.pull()
+	assert_true(reloaded_projection.ok,str(reloaded_projection))
+	assert_eq(reloaded_projection.value.register.difficulty,"beginner",
+		"The paid receipt and its exact accepted shell prefix preserve the frozen difficulty.")
+	assert_eq(state.minesweeper_rounds_left,1)
+
+
+func _retained_terminal_owner() -> RetainedTerminalOwner:
+	var owner := RetainedTerminalOwner.new()
+	assert_true(owner.reveal({"cell_index":1,"transaction_id":"fixture-terminal"}).ok)
+	owner.settled = true
+	owner.snapshot.revision += 1
+	return owner
+
+
+func test_cold_retained_terminal_inspection_never_reissues_completion_and_survives_navigation() -> void:
+	var owner := _retained_terminal_owner()
+	var isolated := PORT.new()
+	assert_true(isolated.configure(owner,issuer,state,catalog).ok)
+	var before: Dictionary = owner.snapshot.duplicate(true)
+	var counter: int = root_store.next_counter
+	var terminal: Dictionary = isolated.pull()
+	assert_true(terminal.ok,str(terminal))
+	if not terminal.ok: return
+	assert_true(terminal.value.settled)
+	assert_eq(terminal.value.actions,["new_board","assignments","rules"])
+	assert_eq(terminal.value.register.difficulty_enabled,[])
+	assert_eq(terminal.value.board.revision,owner.snapshot.revision)
+	assert_true(isolated.set_foreground(false,terminal.value.board.revision).ok)
+	assert_true(isolated.set_foreground(true,terminal.value.board.revision).ok)
+	var cold := PORT.new()
+	assert_true(cold.configure(owner,issuer,state,catalog).ok)
+	assert_eq(cold.pull(),terminal)
+	assert_eq(owner.snapshot,before)
+	assert_eq(root_store.next_counter,counter)
+	assert_true(owner.completion_calls.is_empty())
+	assert_true(owner.dismissal_calls.is_empty())
+
+
+func test_settlement_retry_adopts_retained_owner_revision_before_dismissal_admission() -> void:
+	var owner := RetainedTerminalOwner.new()
+	var isolated := PORT.new()
+	assert_true(isolated.configure(owner,issuer,state,catalog).ok)
+	var initial: Dictionary = isolated.pull()
+	assert_true(initial.ok,str(initial))
+	var failed: Dictionary = isolated.dispatch("reveal",1,initial.value.board.revision)
+	assert_false(failed.ok)
+	assert_false(failed.value.settled)
+	var counter: int = root_store.next_counter
+	var retried: Dictionary = isolated.pull()
+	assert_true(retried.ok,str(retried))
+	if not retried.ok: return
+	assert_true(retried.value.settled)
+	assert_eq(retried.value.board.revision,owner.snapshot.revision)
+	assert_eq(retried.value.board.revision,failed.value.board.revision+1)
+	assert_eq(retried.value.board.cells,failed.value.board.cells)
+	assert_eq(owner.completion_calls.size(),2)
+	assert_eq(owner.completion_calls[0],owner.completion_calls[1])
+	assert_eq(root_store.next_counter,counter)
+	assert_eq(isolated.pull(),retried)
+	assert_eq(owner.completion_calls.size(),2)
+
+
+func test_retained_terminal_new_board_commits_owner_dismissal_and_keeps_exact_failed_request() -> void:
+	var owner := _retained_terminal_owner()
+	var isolated := PORT.new()
+	assert_true(isolated.configure(owner,issuer,state,catalog).ok)
+	var terminal: Dictionary = isolated.pull()
+	assert_true(terminal.ok,str(terminal))
+	if not terminal.ok: return
+	var before: Dictionary = owner.snapshot.duplicate(true)
+	var failed: Dictionary = isolated.dispatch("new_board",-1,terminal.value.board.revision)
+	assert_false(failed.ok)
+	assert_eq(failed.value,terminal.value)
+	assert_eq(owner.snapshot,before,"Failed durable dismissal preserves the inspectable owner.")
+	assert_eq(owner.dismissal_calls.size(),1)
+	var counter: int = root_store.next_counter
+	var cold := PORT.new()
+	assert_true(cold.configure(owner,issuer,state,catalog).ok)
+	assert_eq(cold.pull(),terminal,"An unsaved dismissal never hides the terminal on reload.")
+	var retried: Dictionary = isolated.dispatch("new_board",-1,terminal.value.board.revision)
+	assert_true(retried.ok,str(retried))
+	if not retried.ok: return
+	assert_false(retried.value.settled)
+	assert_false(retried.value.board.terminal)
+	assert_eq(owner.snapshot.phase,"NONE")
+	assert_eq(owner.dismissal_calls.size(),2)
+	assert_eq(owner.dismissal_calls[0],owner.dismissal_calls[1])
+	assert_eq(root_store.next_counter,counter)
+	assert_true(owner.completion_calls.is_empty())
+	assert_false(cold.pull().value.board.terminal,"A cached view follows canonical dismissal.")
+
+
+func test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reveal() -> void:
+	state.inventory = {"debug_key":1}
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(1024,720)
+	add_child_autofree(viewport)
+	var panel: Control = PANEL.new()
+	viewport.add_child(panel)
+	assert_true(panel.configure())
+	assert_true(panel.bind(port))
+	assert_true(panel.refresh())
+	var rounds: int = state.minesweeper_rounds_left
+	var motivation: int = state.get_stat("motivation")
+	var begun: Dictionary = port.advance_preparation(panel.public_view.board.revision)
+	assert_true(begun.ok,str(begun))
+	if not begun.ok: return
+	assert_true(panel.present(begun.value))
+	assert_true(panel.public_view.board.custody)
+	var slices: Array[Dictionary] = [{"done":true,"layout":{"schema_version":1,
+		"width":8,"height":8,"mine_indices":[1,2,3,4,5,6,7,8,9,10],"mine_count":10},
+		"forced_cell":0,"proof_sha256":null}]
+	generation.arm_search_slices(slices)
+	var certified: Dictionary = port.advance_preparation(panel.public_view.board.revision)
+	assert_true(certified.ok,str(certified))
+	if not certified.ok: return
+	assert_true(panel.present(certified.value),"The actual certified composite must pass Grid/Cell validation.")
+	assert_false(panel.public_view.board.custody)
+	assert_eq(panel.public_view.board.cells[0].actions,["reveal","flag"])
+	assert_true(panel.public_view.board.cells[0].bracketed)
+	for index in range(1,64):
+		assert_eq(panel.public_view.board.cells[index].actions,["flag"])
+		assert_false(panel.public_view.board.cells[index].bracketed)
+	var frozen: Dictionary = coordinator.get_state().value.candidate.layout.duplicate(true)
+	for index: int in [0,12]:
+		var flagged: Dictionary = port.dispatch("flag",index,panel.public_view.board.revision)
+		assert_true(flagged.ok,str(flagged))
+		if not flagged.ok: return
+		assert_true(panel.present(flagged.value))
+		assert_eq(panel.public_view.board.cells[index].actions,["unflag"])
+	for index: int in [0,12]:
+		var unflagged: Dictionary = port.dispatch("unflag",index,panel.public_view.board.revision)
+		assert_true(unflagged.ok,str(unflagged))
+		if not unflagged.ok: return
+		assert_true(panel.present(unflagged.value))
+	assert_eq(coordinator.get_state().value.candidate.layout,frozen)
+	assert_eq(panel.public_view.register.no_flag,"lost")
+	assert_null(panel.public_view.register.foresight)
+	assert_false("new_board" in panel.public_view.actions)
+	assert_eq(state.minesweeper_rounds_left,rounds)
+	assert_eq(state.get_stat("motivation"),motivation)
+	var revealed: Dictionary = port.dispatch("reveal",0,panel.public_view.board.revision)
+	assert_true(revealed.ok,str(revealed))
+	if not revealed.ok: return
+	assert_true(panel.present(revealed.value))
+	assert_eq(state.minesweeper_rounds_left,rounds-1)
+	assert_eq(state.get_stat("motivation"),motivation-1)

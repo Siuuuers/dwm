@@ -21,8 +21,11 @@ extends RefCounted
 
 const CHECKPOINT_METHODS: Array[String] = ["preview_checkpoint_id", "capture", "prepare", "commit", "rollback"]
 const _DESKTOP_KEYS: Array[String] = ["board", "consequence"]
+const _AUDIO_KEYS := ["ambience_context", "ambience_context_id", "music_context", "music_context_id"]
+const _JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 var _checkpoint_port: Object = null
+var _audio_context_capture := Callable()
 
 
 func _init(checkpoint_port: Object = null) -> void:
@@ -39,6 +42,17 @@ func configure(checkpoint_port: Object) -> Dictionary:
 		return _fail(&"desktop_board_save_port_already_configured", "another checkpoint port is configured")
 	_checkpoint_port = checkpoint_port
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_port_instance_id": _checkpoint_port.get_instance_id()}, "receipt": {}}
+
+
+## Bootstrap binds the same live AudioManager getter used by other checkpoints.
+## Capture after Load reads the newly applied semantic state, never an earlier journal.
+func configure_audio_context_capture(capture_context: Callable) -> Dictionary:
+	if not capture_context.is_valid(): return _fail(&"invalid_audio_context_capture", "")
+	if _audio_context_capture.is_valid() and _audio_context_capture != capture_context:
+		return _fail(&"audio_context_capture_already_configured", "")
+	var already := _audio_context_capture.is_valid()
+	_audio_context_capture = capture_context
+	return {"ok": true, "value": {"already_configured": already}}
 
 
 func capture() -> Dictionary:
@@ -61,12 +75,9 @@ func preview_checkpoint_id(run_id: String) -> Dictionary:
 ## returns, which carries no `active_app_id`/`audio_context`/`content_version`/`dialogic_checkpoint`/
 ## `route_id` (those are orthogonal to Minesweeper state, owned by SceneRouter/AudioManager/
 ## DialogicBridge, and supplied by the DAY-RESOLUTION checkpoint path's own injected providers --
-## see GameStateDayResolutionPort.configure_checkpoint_providers()). DESIGN CHOICE, not literally
-## frozen by the brief (documented per this task's own established precedent): this narrow
-## "pre_board" checkpoint's sole job is proving MINESWEEPER state is durable before a round is
-## consumed, so it stamps safe, neutral defaults for those five orthogonal fields rather than
-## threading a whole second provider-injection seam through MinesweeperRoundCoordinator for them;
-## the next real autosave (day resolution, logout, ...) always carries their genuine values.
+## see GameStateDayResolutionPort.configure_checkpoint_providers()). Audio is captured from
+## its retained live owner: an empty object is not a valid semantic restore snapshot. The
+## desktop route remains main; no Dialogic command is manufactured for a board checkpoint.
 func prepare_checkpoint(post_commit_snapshot_input: Dictionary, checkpoint_kind: StringName,
 		disk_write: Dictionary) -> Dictionary:
 	var ready := _readiness()
@@ -75,8 +86,21 @@ func prepare_checkpoint(post_commit_snapshot_input: Dictionary, checkpoint_kind:
 	var desktop_error := _validate_desktop_shape(post_commit_snapshot_input)
 	if not desktop_error.is_empty():
 		return _fail(&"invalid_post_commit_snapshot_input", desktop_error)
+	if not _audio_context_capture.is_valid(): return _fail(&"audio_context_capture_unavailable", "")
+	var captured: Variant = _audio_context_capture.call()
+	if not captured is Dictionary: return _fail(&"invalid_audio_snapshot", "")
+	var context: Dictionary = captured.duplicate(true)
+	var keys: Array = context.keys()
+	keys.sort()
+	if keys != _AUDIO_KEYS: return _fail(&"invalid_audio_snapshot", "")
+	for channel: String in ["music", "ambience"]:
+		if not context[channel + "_context_id"] is String or not context[channel + "_context"] is Dictionary:
+			return _fail(&"invalid_audio_snapshot", "")
+		if context[channel + "_context_id"].is_empty() and not context[channel + "_context"].is_empty():
+			return _fail(&"invalid_audio_snapshot", "")
+	if not _JSON.stringify(context).get("ok", false): return _fail(&"invalid_audio_snapshot", "")
 	var checkpoint_inputs := {
-		"active_app_id": null, "audio_context": {}, "content_version": 1,
+		"active_app_id": null, "audio_context": context, "content_version": 1,
 		"dialogic_checkpoint": {}, "route_id": "main",
 		"snapshot_input": post_commit_snapshot_input,
 	}

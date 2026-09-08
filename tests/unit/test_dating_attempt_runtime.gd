@@ -7,7 +7,6 @@ const LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
-const GENERATION := preload("res://tests/support/FakeMinesweeperGenerationPort.gd")
 const OPS := preload("res://tests/support/FakeFileOps.gd")
 
 class ProfileStorage extends "res://scripts/infrastructure/storage/JsonFileStorage.gd":
@@ -17,6 +16,22 @@ class ProfileStorage extends "res://scripts/infrastructure/storage/JsonFileStora
 	func write_atomic(relative_path: String, text: String, validator: Callable, keep_backup: bool = true) -> Dictionary:
 		if reject_write: return {"ok": false, "code": &"fixture_profile_write_failure"}
 		return super.write_atomic(relative_path, text, validator, keep_backup)
+
+# Real initial frontier; deterministic certification isolates history from search cost.
+# The production certifier has separate capability-envelope and kernel coverage.
+class PreparationGeneration extends "res://tests/support/FakeMinesweeperGenerationPort.gd":
+	func begin_search(spec: Dictionary) -> Dictionary:
+		_log(&"begin_search", {"spec": spec})
+		return preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search(spec)
+	func run_search_slice(frontier: Dictionary) -> Dictionary:
+		_log(&"run_search_slice", {"frontier": frontier})
+		var spec: Dictionary = frontier.spec
+		var mines: Array = []
+		for index in int(spec.width) * int(spec.height):
+			if index != int(frontier.forced_cell) and mines.size() < int(spec.requested_mine_count): mines.append(index)
+		return {"ok": true, "value": {"done": true, "forced_cell": int(frontier.forced_cell),
+			"layout": {"schema_version": 1, "width": int(spec.width), "height": int(spec.height),
+				"mine_indices": mines, "mine_count": mines.size()}}}
 
 class PostRenderPort extends RefCounted:
 	var physical: RefCounted
@@ -51,7 +66,7 @@ func before_each() -> void:
 	assert_true(profile.configure_mutation_gate(gate).ok)
 	issuer = ISSUER.new()
 	assert_true(issuer.configure(ROOT_STORE.new("87".repeat(32), 1)).ok)
-	generation = GENERATION.new()
+	generation = PreparationGeneration.new()
 	var mines: Array = []
 	for index in 36: mines.append(index)
 	generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
@@ -82,7 +97,7 @@ func _begin(label: String = "initial", kind: String = "solo", day_number: int = 
 
 func _dispatch(action: String, index: int = -1) -> Dictionary:
 	var record := _record()
-	var revision: int = int(record.board.revision) if record.get("board") is Dictionary else 0
+	var revision: int = int(record.board.revision) if record.get("board") is Dictionary else (record.envelope.shell.actions.size() if record.schema_version == 3 else 0)
 	return physical_owner.dispatch_physical(command.physical_token, action, index, revision)
 
 func _record() -> Dictionary:
@@ -100,10 +115,17 @@ func _restore(backup: Dictionary) -> void:
 	var restored: Dictionary = state.rollback_restore_silent(backup)
 	assert_true(restored.ok, str(restored))
 
+func _clear_nonperfect_fixture() -> void:
+	# These regressions exercise a saved unresolved Loved/Dark decision, not Perfect.
+	if _record().host == "canonical_solo":
+		assert_true(_dispatch("flag", 0).ok)
+		assert_true(_dispatch("unflag", 0).ok)
+	assert_true(_dispatch("reveal", 323).ok)
+
 func _finish_solo() -> void:
 	assert_true(_dispatch("continue").ok)
-	assert_true(_dispatch("reveal", 323).ok)
-	assert_true(_dispatch("special_mine").ok)
+	_clear_nonperfect_fixture()
+	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_eq(_record().phase, "post_challenge")
 
 func test_continue_freezes_existing_spec_and_first_reveal_freezes_exact_layout() -> void:
@@ -167,10 +189,10 @@ func test_profile_ahead_after_board_autosave_failure_only_retries_same_committed
 func test_terminal_profile_ahead_replays_frozen_effect_once_after_checkpoint_retry() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	assert_true(_dispatch("reveal", 323).ok)
+	_clear_nonperfect_fixture()
 	var before: Dictionary = state.to_save_dict()
 	reject_checkpoint = true
-	assert_eq(_dispatch("special_mine").code, &"fixture_checkpoint_failure")
+	assert_eq(_dispatch("activate", int(_record().envelope.special_cell)).code, &"fixture_checkpoint_failure")
 	assert_eq(state.to_save_dict(), before)
 	var durable := _attempt()
 	var effect_id: String = durable.effect_receipt.receipt_id
@@ -255,7 +277,7 @@ func _begin_pair() -> void:
 	state.inter_friend_route_state["priscilla_lavinia"] = {"frozen_form": "love_dark"}
 	assert_true(_begin("pair-group", "group", 2).ok)
 	assert_true(_dispatch("continue").ok)
-	assert_true(_dispatch("reveal", 323).ok)
+	_clear_nonperfect_fixture()
 	assert_eq(_record().phase, "post_challenge")
 
 func test_group_to_deferred_rebind_keeps_one_pair_slot_and_atomic_completion_witness() -> void:
@@ -396,8 +418,8 @@ func test_post_ending_pre_entry_load_gets_fresh_attempt_only_at_continue() -> vo
 	assert_eq(entered.branch_id, "fresh-loaded-branch")
 	assert_eq(_attempt(), first)
 	assert_eq(generation.call_log.size(), 1, "Continue allocates a fresh spec but waits for first-click generation")
-	assert_true(_dispatch("reveal", 323).ok)
-	assert_true(_dispatch("special_mine").ok)
+	_clear_nonperfect_fixture()
+	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_true(_dispatch("continue").ok)
 	var slot := LEDGER.semantic_slot(command.context)
 	assert_eq(state.route_context.dating_canonical_heads[slot],
@@ -453,7 +475,7 @@ func test_post_ending_entered_unmaterialized_save_keeps_spec_and_chooses_its_own
 	assert_true(_begin("unmaterialized").ok)
 	assert_null(_record().board)
 	assert_eq(_record().spec, spec)
-	assert_true(_dispatch("reveal", 323).ok)
+	_clear_nonperfect_fixture()
 	assert_eq(_selected_attempt().materialization_receipt.first_cell_index, 323)
 	assert_eq(_selected_attempt().attempt_id, parent.attempt_id)
 	assert_eq(_attempt().materialization_receipt.first_cell_index, 36)
@@ -462,9 +484,9 @@ func test_post_ending_entered_unmaterialized_save_keeps_spec_and_chooses_its_own
 func test_post_ending_saved_clear_can_choose_independent_frozen_effect_and_head() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	assert_true(_dispatch("reveal", 323).ok)
+	_clear_nonperfect_fixture()
 	var cleared := _backup()
-	assert_true(_dispatch("special_mine").ok)
+	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_true(_dispatch("continue").ok)
 	var parent := _attempt()
 	_milestone()
@@ -474,7 +496,7 @@ func test_post_ending_saved_clear_can_choose_independent_frozen_effect_and_head(
 	assert_eq(state.dating_route_state.priscilla.get("date_count", 0), 0)
 	assert_true(_dispatch("continue").ok)
 	var branch := _selected_attempt()
-	assert_eq(branch.record.relationship_outcome, "foresight")
+	assert_eq(branch.record.relationship_outcome, "loved")
 	assert_eq(parent.record.relationship_outcome, "dark")
 	assert_eq(branch.effect_receipt.receipt_id, parent.effect_receipt.receipt_id)
 	assert_ne(branch.effect_receipt.value, parent.effect_receipt.value)
@@ -769,9 +791,9 @@ func test_post_challenge_profile_failure_restores_exact_fields_and_rehearsal_has
 func test_failed_terminal_checkpoint_cannot_record_post_until_exact_retry_is_saved() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	assert_true(_dispatch("reveal", 323).ok)
+	_clear_nonperfect_fixture()
 	reject_checkpoint = true
-	assert_false(_dispatch("special_mine").ok)
+	assert_false(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_false(physical_owner.acknowledge_post_challenge_render(command.physical_token).ok)
 	assert_eq(profile.get_reached_presentations().value.records, [])
 	reject_checkpoint = false
@@ -803,3 +825,88 @@ func test_actual_post_status_draw_gates_continue_and_failed_record_stays_retryab
 	scene._continue_button.pressed.emit()
 	assert_eq(_record().phase, "completed")
 	assert_eq(profile.get_reached_presentations().value.records.size(), 1)
+
+
+func _begin_post_ending_preparation(label: String) -> Dictionary:
+	_milestone()
+	state.inventory["debug_key"] = 1
+	var begun: Dictionary = _begin(label)
+	assert_true(begun.ok, str(begun))
+	if not begun.ok: return {}
+	var entered: Dictionary = _dispatch("continue")
+	assert_true(entered.ok, str(entered))
+	if not entered.ok: return {}
+	assert_eq(_record().phase, "preparing")
+	assert_eq(_attempt(), {}, "searching has not entered Profile history")
+	return _backup()
+
+func test_post_ending_preparing_load_enters_exact_saved_spec_without_reroll() -> void:
+	var saved: Dictionary = _begin_post_ending_preparation("preparing-load")
+	if saved.is_empty(): return
+	var preparing: Dictionary = _record().duplicate(true)
+	var issued_before: Dictionary = issuer.capture_root().value.duplicate(true)
+	_load_branch(saved, "preparing-loaded-branch")
+	assert_true(_begin("preparing-loaded-command").ok)
+	assert_eq(_record().spec, preparing.spec)
+	assert_eq(_record().envelope, preparing.envelope)
+	assert_eq(_attempt(), {})
+	var advanced: Dictionary = _dispatch("prepare")
+	assert_true(advanced.ok, str(advanced))
+	if not advanced.ok: return
+	var entered: Dictionary = _selected_attempt()
+	assert_eq(entered.branch_id, "preparing-loaded-branch")
+	assert_eq(entered.attempt_id, preparing.spec.board_token)
+	assert_eq(entered.entry_receipt.spec, preparing.spec)
+	assert_eq(entered.record.phase, "challenge")
+	assert_null(entered.materialization_receipt)
+	assert_eq(issuer.capture_root().value, issued_before, "Load and certification allocate no new nonce")
+	assert_eq(generation.call_log.size(), 2, "one begin and one resumed slice")
+
+func test_post_ending_preparing_cold_recovery_reuses_profile_ahead_entry() -> void:
+	var saved: Dictionary = _begin_post_ending_preparation("preparing-profile-ahead")
+	if saved.is_empty(): return
+	var preparing: Dictionary = _record().duplicate(true)
+	reject_checkpoint = true
+	var failed: Dictionary = _dispatch("prepare")
+	assert_eq(failed.get("code"), &"fixture_checkpoint_failure", str(failed))
+	assert_eq(_record(), preparing, "failed Run checkpoint restores its searching preimage")
+	var durable: Dictionary = _attempt().duplicate(true)
+	assert_eq(durable.record.phase, "challenge")
+	var profile_revision: int = profile.get_profile_revision()
+	var issued_before: Dictionary = issuer.capture_root().value.duplicate(true)
+	# Cold reconciliation discards transient retry and retains the saved searching record.
+	assert_true(physical_owner.reconcile_restore_silent({"route_id": "dating"}).ok)
+	reject_checkpoint = false
+	assert_true(_begin("preparing-profile-ahead").ok)
+	assert_eq(_record().envelope, preparing.envelope)
+	var advanced: Dictionary = _dispatch("prepare")
+	assert_true(advanced.ok, str(advanced))
+	if not advanced.ok: return
+	assert_eq(_selected_attempt(), durable)
+	assert_eq(profile.get_profile_revision(), profile_revision, "Profile-ahead entry is not appended twice")
+	assert_eq(_record().spec, preparing.spec)
+	assert_eq(issuer.capture_root().value, issued_before)
+	assert_false(gate.is_active())
+
+func test_post_ending_preparing_older_load_uses_existing_attempt_continuation() -> void:
+	var saved: Dictionary = _begin_post_ending_preparation("preparing-parent")
+	if saved.is_empty(): return
+	var completed: Dictionary = _dispatch("prepare")
+	assert_true(completed.ok, str(completed))
+	if not completed.ok: return
+	var parent: Dictionary = _selected_attempt().duplicate(true)
+	var issued_before: Dictionary = issuer.capture_root().value.duplicate(true)
+	_load_branch(saved, "preparing-child-branch")
+	assert_true(_begin("preparing-child-command").ok)
+	var advanced: Dictionary = _dispatch("prepare")
+	assert_true(advanced.ok, str(advanced))
+	if not advanced.ok: return
+	var child: Dictionary = _selected_attempt()
+	assert_eq(child.attempt_id, parent.attempt_id)
+	assert_eq(child.generation, parent.generation)
+	assert_eq(child.entry_receipt, parent.entry_receipt)
+	assert_eq(child.branch_id, "preparing-child-branch")
+	assert_eq(child.record.phase, "challenge")
+	assert_null(child.materialization_receipt)
+	assert_eq(profile.get_dating_attempt(parent.run_id, parent.slot_id, parent.attempt_id, parent.branch_id).value, parent)
+	assert_eq(issuer.capture_root().value, issued_before)

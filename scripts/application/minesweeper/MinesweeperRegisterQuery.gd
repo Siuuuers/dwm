@@ -15,27 +15,39 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 	var difficulty: Variant = null
 	match snapshot.get("phase"):
 		"NONE": difficulty = game_state.get("minesweeper_selected_difficulty")
-		"PREPARING", "PREPARED_UNSTARTED":
+		"UNPAID_UNSTARTED":
+			var candidate: Variant = snapshot.get("candidate")
+			if not candidate is Dictionary: return _unavailable()
+			difficulty = candidate.get("difficulty_id")
+		"PREPARING", "PREPARED_UNSTARTED", "PAID_UNSTARTED":
 			var candidate: Variant = snapshot.get("candidate")
 			if not candidate is Dictionary or not candidate.get("spec") is Dictionary: return _unavailable()
 			difficulty = candidate.spec.get("difficulty_id")
 		"ACTIVE_VISIBLE", "ACTIVE_SUSPENDED", "SETTLING":
 			var wrapper: Variant = snapshot.get("board")
 			if not wrapper is Dictionary or not wrapper.get("paid_start_receipt") is Dictionary: return _unavailable()
-			difficulty = wrapper.paid_start_receipt.get("difficulty_id")
-			if not wrapper.paid_start_receipt.has("difficulty_id"):
-				difficulty = _journal_difficulty(snapshot, wrapper)
+			if wrapper.has("spec"):
+				if not wrapper.spec is Dictionary: return _unavailable()
+				difficulty = wrapper.spec.get("difficulty_id")
+			else:
+				difficulty = wrapper.paid_start_receipt.get("difficulty_id")
+				if not wrapper.paid_start_receipt.has("difficulty_id"):
+					difficulty = _journal_difficulty(snapshot, wrapper)
 		_: return _unavailable()
 	if not difficulty is String or not DIFFICULTIES.has(difficulty): return _unavailable()
 	var projected: Dictionary = BOARD_QUERY.desktop(snapshot, difficulty)
 	if not projected.get("ok", false): return _unavailable()
 	var no_flag := "intact"
 	var foresight: Variant = null
+	var history: Dictionary = {}
 	if snapshot.board != null:
-		var board: Dictionary = snapshot.board.board
-		foresight = mini(999, roundi(PERFORMANCE.foresight_percent(board)))
+		history = snapshot.board.board
+		foresight = PERFORMANCE.display_percent(history)
+	elif snapshot.candidate is Dictionary and snapshot.candidate.has("actions"):
+		history = snapshot.candidate
+	if not history.is_empty():
 		var flags := {}
-		for action: Dictionary in board.actions:
+		for action: Dictionary in history.actions:
 			if StringName(action.kind) != &"set_flag": continue
 			if not action.get("flagged") is bool: return _unavailable()
 			if action.flagged:
@@ -43,11 +55,11 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 				no_flag = "lost"
 			else:
 				flags.erase(int(action.cell_index))
-		if flags.size() != board.flagged_indices.size(): return _unavailable()
-		for index: int in board.flagged_indices:
+		if flags.size() != history.flagged_indices.size(): return _unavailable()
+		for index: int in history.flagged_indices:
 			if not flags.has(index): return _unavailable()
-	# NONE/prepared boards have no layout to measure. The display alone is rounded and capped;
-	# completion uses the exact integer inequality and the retained action history.
+	# Unmaterialized shells have no Foresight. Display uses the same versioned performance
+	# rule as completion, with no arbitrary upper cap.
 	return {"ok": true, "value": {
 		"difficulty": difficulty, "rounds": rounds, "mine_estimate": projected.value.mine_estimate,
 		"foresight": foresight, "no_flag": no_flag, "custody": projected.value.custody,
@@ -84,9 +96,16 @@ static func _journal_difficulty(snapshot: Dictionary, wrapper: Dictionary) -> Va
 		if not entry.get("pre_revision") is int or not entry.get("post_revision") is int \
 				or entry.pre_revision < 0 or entry.post_revision != entry.pre_revision + 1 \
 				or entry.post_revision > snapshot.revision: return null
-		if not receipt.get("board_revision") is int or receipt.board_revision != 0 \
+		if not receipt.get("board_revision") is int or receipt.board_revision < 0 \
+				or receipt.board_revision > int(board.revision) \
 				or not receipt.get("first_cell") is int or not board.revealed_indices.has(receipt.first_cell) \
 				or board.mine_indices.has(receipt.first_cell): return null
+		# First Reveal retains the already accepted shell marks. Only that exact Flag/Unflag
+		# prefix may precede the paid-start receipt; later Reveal/Chord history cannot stand in.
+		for index in range(receipt.board_revision):
+			var action: Dictionary = board.actions[index]
+			if str(action.get("kind", "")) != "set_flag" or int(action.get("revision", -1)) != index + 1:
+				return null
 		difficulty = receipt.get("difficulty_id")
 		if not difficulty is String or not DIFFICULTIES.has(difficulty): return null
 	return difficulty

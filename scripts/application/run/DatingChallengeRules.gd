@@ -13,8 +13,8 @@ static func dispositions(spec: Dictionary, mine_count: int) -> Array:
 		result.append(DISPOSITIONS[int(sampled.value.result)])
 	return result
 
-static func perfect_reasons(board: Dictionary) -> Array:
-	return PERFORMANCE.perfect_reasons(board)
+static func perfect_reasons(board: Dictionary, record_version: int = 3) -> Array:
+	return PERFORMANCE.perfect_reasons(board, 1 if record_version == 2 else 2)
 
 static func three_bv(board: Dictionary) -> int:
 	return PERFORMANCE.three_bv(board)

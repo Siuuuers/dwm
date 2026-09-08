@@ -57,6 +57,10 @@ var _palette: StringName = &"after_hours"
 var _high_contrast: bool = false
 var _colour_preset: String = "standard"
 var _dispatching: bool = false
+var _terminal_choice_key := ""
+var _terminal_contacts: Dictionary = {}
+var _choice_released := false
+var _preparation_failed := false
 var _pre_challenge_drawn := false
 var _pre_challenge_ack_attempted := false
 var _pre_challenge_reached := false
@@ -185,6 +189,8 @@ func _refresh_challenge() -> void:
 	if not is_instance_valid(worksheet) or _physical_view.is_empty(): return
 	worksheet.present(_physical_view.board)
 	var phase: String = str(_physical_view.phase)
+	worksheet.visible = phase in ["challenge", "cleared_awaiting_terminal_choice", "preparing"]
+	_status_label.visible = phase != "preparing" or _preparation_failed
 	var copy: Dictionary = presentation_copy(_presentation_command.context,
 		"post_challenge" if _physical_view.phase in ["post_challenge", "completed"] else "pre_challenge", _locale)
 	var title: Label = _status_label.get_parent().get_node("ChallengeTitle")
@@ -196,22 +202,70 @@ func _refresh_challenge() -> void:
 	for button: Button in _mode_buttons:
 		var mode: String = str(button.get_meta("mode"))
 		button.text = str(CHROME_COPY.get_copy(_locale).get(mode, mode.capitalize()))
+		button.visible = phase == "challenge"
 		button.disabled = phase != "challenge"
 		button.set_pressed_no_signal(str(worksheet.grid.mode) == mode)
 	_rules_button.text = str(CHROME_COPY.get_copy(_locale).get("rules", "Rules"))
+	_rules_button.visible = phase == "challenge"
 	_rules_button.disabled = phase != "challenge"
 	_special_mine_button.visible = bool(_physical_view.special_mine_visible)
 	_special_mine_button.disabled = not bool(_physical_view.special_mine_enabled)
-	_continue_button.visible = phase != "challenge"
-	_continue_button.text = "Retry" if phase in ["settlement_retry", "checkpoint_retry"] else "Continue"
+	_continue_button.visible = phase not in ["challenge", "preparing"] or _preparation_failed
+	_continue_button.text = "Retry" if phase in ["settlement_retry", "checkpoint_retry", "preparing"] else "Continue"
 	match phase:
 		"pre_challenge": _status_label.text = str(copy.value.body)
 		"challenge": _status_label.text = "Reveal, flag, or drag to explore the board."
-		"cleared_awaiting_terminal_choice": _status_label.text = "Board cleared. Continue or activate the special mine."
+		"cleared_awaiting_terminal_choice": _status_label.text = "Board cleared."
+		"preparing": _status_label.text = "Try again." if _preparation_failed else ""
 		"checkpoint_retry": _status_label.text = "The attempt is saved. Retry to finish saving this point."
 		"settlement_retry": _status_label.text = "Retry to finish processing the result."
 		_: _status_label.text = str(copy.value.body)
+	_refresh_terminal_choice()
 	_refresh_observer()
+
+func _refresh_terminal_choice() -> void:
+	if _physical_view.get("phase") != "cleared_awaiting_terminal_choice":
+		_terminal_choice_key = ""
+		_terminal_contacts.clear()
+		_choice_released = false
+		_continue_button.disabled = false
+		worksheet.grid.set_interaction_blocked(false)
+		return
+	var key := str(_presentation_command.physical_token) + ":" + str(_physical_view.board.revision)
+	if key != _terminal_choice_key:
+		_terminal_choice_key = key
+		_terminal_contacts = _input_owner.get_physical_contacts() if is_instance_valid(_input_owner) else {}
+		_choice_released = false
+	_continue_button.focus_next = _continue_button.get_path_to(worksheet.grid)
+	_continue_button.focus_previous = _continue_button.get_path_to(worksheet.grid)
+	worksheet.grid.focus_next = worksheet.grid.get_path_to(_continue_button)
+	worksheet.grid.focus_previous = worksheet.grid.get_path_to(_continue_button)
+	_poll_terminal_release()
+
+func _poll_terminal_release() -> void:
+	if _physical_view.get("phase") != "cleared_awaiting_terminal_choice": return
+	var contacts: Dictionary = _input_owner.get_physical_contacts() if is_instance_valid(_input_owner) else {}
+	for contact: String in _terminal_contacts.keys():
+		if contacts.get(contact) != _terminal_contacts[contact]: _terminal_contacts.erase(contact)
+	var entered: bool = not _choice_released and _terminal_contacts.is_empty()
+	if entered: _choice_released = true
+	_continue_button.disabled = not _choice_released
+	worksheet.grid.set_interaction_blocked(not _choice_released)
+	if entered: _continue_button.grab_focus()
+
+func _input(event: InputEvent) -> void:
+	if _physical_view.get("phase") != "cleared_awaiting_terminal_choice" or not _choice_released \
+			or not is_visible_in_tree() or not event.is_pressed() or get_tree().paused: return
+	if not (event is InputEventKey or event is InputEventJoypadButton): return
+	var directional := false
+	for action: StringName in [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]:
+		directional = directional or event.is_action_pressed(action)
+	if not directional: return
+	var focused := get_viewport().gui_get_focus_owner()
+	if focused == _continue_button: worksheet.grid.grab_focus()
+	elif focused == worksheet.grid: _continue_button.grab_focus()
+	else: return
+	get_viewport().set_input_as_handled()
 
 func _acknowledge_pre_challenge_draw() -> bool:
 	if not _presentation_port.has_method("acknowledge_pre_challenge_render"):
@@ -311,6 +365,11 @@ func _hide_capture_if_unfocused(line: Control) -> void:
 	_observer_action.hide()
 
 func _process(delta: float) -> void:
+	_poll_terminal_release()
+	if _physical_view.get("phase") == "preparing":
+		if not _preparation_failed and not get_tree().paused and get_window().has_focus():
+			_dispatch_action("prepare", -1)
+		return
 	if _post_challenge_drawn and not _post_challenge_ack_attempted and _physical_view.get("phase") == "post_challenge":
 		_acknowledge_post_challenge_draw()
 	if _pre_challenge_drawn and not _pre_challenge_ack_attempted and _physical_view.get("phase") == "pre_challenge":
@@ -399,10 +458,16 @@ func _select_mode(mode: String) -> void:
 	if worksheet.set_mode(StringName(mode)): _refresh_challenge()
 
 func _on_cell_action(action: StringName, index: int, revision: int) -> void:
+	if _physical_view.get("phase") == "cleared_awaiting_terminal_choice" and not _choice_released: return
 	_dispatch_action(str(action), index, revision)
 
 func _on_continue() -> void:
 	var phase: String = str(_physical_view.get("phase", ""))
+	if phase == "cleared_awaiting_terminal_choice" and not _choice_released: return
+	if phase == "preparing":
+		_preparation_failed = false
+		_dispatch_action("prepare", -1)
+		return
 	if phase == "pre_challenge" and not _pre_challenge_reached and not _acknowledge_pre_challenge_draw(): return
 	if phase == "post_challenge" and not _post_challenge_reached and not _acknowledge_post_challenge_draw(): return
 	_dispatch_action("retry" if phase in ["settlement_retry", "checkpoint_retry"] else (
@@ -421,7 +486,10 @@ func _dispatch_action(action: String, index: int, revision: int = -1) -> void:
 		_physical_view = pulled.value.duplicate(true)
 		_refresh_challenge()
 	if not result.get("ok", false):
-		_status_label.text = "Action unavailable. " + str(result.get("code", ""))
+		if action == "prepare":
+			_preparation_failed = true
+			_refresh_challenge()
+		else: _status_label.text = "Action unavailable. " + str(result.get("code", ""))
 
 
 ## The ONE injection seam. Called by `SceneRouter` before `add_child()`. Identical replay is

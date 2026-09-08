@@ -64,9 +64,15 @@ var _desktop_context_provider: Object = null
 # Diagnostic counters only; never included in a candidate or persisted document.
 var _profile_text_validator_calls := 0
 var _profile_text_validator_us := 0
+# One synchronous prepare/commit may reuse validation of its physically read preimage.
+# Neither caller candidates nor later actions can seed this private exact-text proof.
+var _prepared_text_validations: Dictionary = {}
+var _prepared_validation_checkpoint := ""
+var _prepared_validation_frame := -1
 
 
 func configure_desktop_context_provider(provider: Object) -> Dictionary:
+	_clear_prepared_text_validation()
 	# One Bootstrap-owned DesktopAppHostState supplies the persisted active_app_id. A second
 	# direct configuration with the same object is idempotent; a different object is rejected.
 	if provider == null or not provider.has_method("capture_persistent_state"):
@@ -83,6 +89,7 @@ func _init(save_manager: Object = null) -> void:
 	_save_manager = save_manager
 
 func configure_fatal_latch(gate: Object) -> Dictionary:
+	_clear_prepared_text_validation()
 	if gate == null or not gate.has_signal("capability_changed") or not _has_all_methods(gate):
 		return {"ok": false, "code": &"invalid_mutation_gate", "message": "gate contract incomplete"}
 	if _gate != null:
@@ -92,6 +99,9 @@ func configure_fatal_latch(gate: Object) -> Dictionary:
 				"receipt": {}}
 		return {"ok": false, "code": &"mutation_gate_already_configured", "message": ""}
 	_gate = gate
+	if _gate.has_signal("transaction_released"):
+		_gate.connect("transaction_released", _clear_prepared_text_validation)
+	_gate.connect("capability_changed", _on_validation_capability_changed)
 	return {"ok": true, "code": &"ok",
 		"value": {"gate_instance_id": _gate.get_instance_id(), "already_configured": false},
 		"receipt": {}}
@@ -117,6 +127,7 @@ func capture() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": captured["value"]["backup"]}}
 
 func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_write: Dictionary) -> Dictionary:
+	_clear_prepared_text_validation()
 	if OS.get_environment("DWM_CHECKPOINT_PROFILE") == "1":
 		_profile_text_validator_calls = 0
 		_profile_text_validator_us = 0
@@ -199,6 +210,7 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 		"autosave_document": null,
 		"storage_backup": null,
 	}
+	var validated_texts := {}
 	if str(disk_write["kind"]) == "autosave":
 		var reason := str(disk_write["reason"])
 		var projected_earlier: Array = journal_candidate["earlier"]
@@ -207,14 +219,18 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 		if not document.get("ok", false):
 			return document
 		candidate["autosave_document"] = document["value"]
-		var backup := _capture_storage_backup(AUTOSAVE_RELATIVE_PATH)
+		var backup := _capture_storage_backup(AUTOSAVE_RELATIVE_PATH, validated_texts)
 		if not backup.get("ok", false):
 			return backup
 		candidate["storage_backup"] = backup["value"]["descriptor"]
+	_prepared_text_validations = validated_texts
+	_prepared_validation_checkpoint = checkpoint_id
+	_prepared_validation_frame = Engine.get_process_frames()
 	return {"ok": true, "code": &"ok",
 		"value": {"candidate": candidate, "checkpoint_id": checkpoint_id}}
 
 func commit(candidate: Dictionary) -> Dictionary:
+	var validated_texts := _take_prepared_text_validation(candidate)
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
@@ -236,9 +252,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 		if not profile.is_empty():
 			profile["document_bytes"] = str(canonical["value"]).to_utf8_buffer().size() + 1
 			tick = Time.get_ticks_usec()
-		# Validation depends only on these exact bytes and the fixed resource registries
-		# during this synchronous commit. Never retain a result across commits or retries.
-		var validated_texts := {}
+		# The registries stay fixed through this synchronous prepare/commit. The cache
+		# may contain its exact preimage read; new bytes still receive strict validation.
 		var validator := _cached_document_text_validator.bind(validated_texts)
 		var outgoing_text := str(canonical["value"]) + "\n"
 		var written: Dictionary = _storage().write_atomic(
@@ -283,6 +298,7 @@ func _profile_result(profile: Dictionary, result: Dictionary) -> Dictionary:
 	return result
 
 func rollback(backup: Dictionary) -> Dictionary:
+	_clear_prepared_text_validation()
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
@@ -694,7 +710,7 @@ func _fatal_rollback(phase: String, run_id: String, raw_diagnostics: Array) -> D
 		_gate.latch_fatal(candidate)
 	return _gate.guard_external(&"save_checkpoint_recovery")
 
-func _capture_storage_backup(relative_path: String) -> Dictionary:
+func _capture_storage_backup(relative_path: String, validated_texts: Dictionary) -> Dictionary:
 	var existed: bool = _storage().exists(relative_path)
 	var descriptor := {
 		"relative_path": relative_path,
@@ -714,12 +730,29 @@ func _capture_storage_backup(relative_path: String) -> Dictionary:
 					return reconciled
 			return read
 		var text := str(read["value"])
-		var validation := _document_text_validator(text)
+		var validation := _cached_document_text_validator(text, validated_texts)
 		if not validation.get("ok", false):
 			return validation
 		descriptor["validated_text"] = text
 		descriptor["sha256"] = text.sha256_text()
 	return {"ok": true, "code": &"ok", "value": {"descriptor": descriptor}}
+
+func _clear_prepared_text_validation() -> void:
+	_prepared_text_validations = {}
+	_prepared_validation_checkpoint = ""
+	_prepared_validation_frame = -1
+
+func _on_validation_capability_changed(_capability: Dictionary) -> void:
+	_clear_prepared_text_validation()
+
+func _take_prepared_text_validation(candidate: Dictionary) -> Dictionary:
+	var cache := {}
+	if _prepared_validation_frame == Engine.get_process_frames() \
+			and str(candidate.get("checkpoint_id", "")) == _prepared_validation_checkpoint:
+		cache = _prepared_text_validations
+	# Consume before any failure, external callback or I/O; retries always start fresh.
+	_clear_prepared_text_validation()
+	return cache
 
 func _cached_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
 	if cache.has(text):

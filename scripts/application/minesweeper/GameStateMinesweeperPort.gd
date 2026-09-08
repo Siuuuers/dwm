@@ -175,14 +175,16 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 		if not result.perfect_reasons is Array:
 			return _fail(&"invalid_perfect_reasons", "reasons must be an array")
 		for reason: Variant in result.perfect_reasons:
-			if not reason is String or reason not in ["efficiency_gt_100", "no_flag"] or reasons.has(reason):
+			if not reason is String or reason not in ["efficiency_gt_100", "efficiency_gte_100", "no_flag"] or reasons.has(reason):
 				return _fail(&"invalid_perfect_reasons", "reasons must be distinct known qualifiers")
 			reasons.append(reason)
+		if reasons.has("efficiency_gt_100") and reasons.has("efficiency_gte_100"):
+			return _fail(&"invalid_perfect_reasons", "one rule version supplies the efficiency qualifier")
 		if (outcome == "perfect") != (not reasons.is_empty()):
 			return _fail(&"invalid_perfect_reasons", "derived qualifiers must agree with Perfect outcome")
 	var task_ids := _task_ids_for(outcome, difficulty)
 	if reasons.has("no_flag"): task_ids.append("no_flag_finish")
-	if reasons.has("efficiency_gt_100"): task_ids.append("foresight_finish")
+	if reasons.has("efficiency_gt_100") or reasons.has("efficiency_gte_100"): task_ids.append("foresight_finish")
 	var clone: Object = _detached_clone()
 	if clone == null:
 		return _fail(&"invalid_minesweeper_state_port", "could not build a detached candidate")

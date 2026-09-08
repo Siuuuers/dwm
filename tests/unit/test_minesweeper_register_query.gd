@@ -209,3 +209,50 @@ func test_missing_ambiguous_or_mismatched_first_reveal_journal_fails_closed() ->
 				duplicate.result.value.receipt.transaction_id = "private-second-command"
 				snapshot.command_receipts["private-second-command"] = duplicate
 		assert_eq(QUERY.desktop(snapshot, state), UNAVAILABLE, corruption)
+
+
+func test_register_keeps_unmaterialized_shell_flag_history_and_has_no_foresight() -> void:
+	var state := StateFixture.new()
+	var snapshot: Dictionary = STATE.new().capture()
+	snapshot.phase = "UNPAID_UNSTARTED"
+	snapshot.revision = 2
+	snapshot.candidate = {"difficulty_id":"beginner","width":8,"height":8,
+		"flagged_indices":[],"actions":[
+			{"transaction_id":"flag-shell","kind":&"set_flag","cell_index":1,"flagged":true,"revision":1},
+			{"transaction_id":"unflag-shell","kind":&"set_flag","cell_index":1,"flagged":false,"revision":2}]}
+	var before := snapshot.duplicate(true)
+	var view: Dictionary = QUERY.desktop(snapshot,state)
+	assert_true(view.ok,str(view))
+	if not view.ok: return
+	assert_eq(view.value.difficulty,"beginner")
+	assert_eq(view.value.no_flag,"lost")
+	assert_null(view.value.foresight)
+	assert_eq(snapshot,before)
+
+
+func test_register_does_not_cap_displayed_foresight() -> void:
+	var snapshot := _snapshot()
+	var mines: Array[int] = []
+	for index in range(1,64,2): mines.append(index)
+	var board: Dictionary = REDUCER.first_reveal({"schema_version":1,"width":8,"height":8,
+		"mine_indices":mines,"mine_count":mines.size()},0)
+	assert_true(board.ok)
+	snapshot.board.board = board.value.board
+	var view: Dictionary = QUERY.desktop(snapshot,StateFixture.new())
+	assert_true(view.ok)
+	assert_eq(view.value.foresight,3200)
+
+
+func test_preparing_and_certified_shells_preserve_no_flag_history_without_foresight() -> void:
+	for preparing: bool in [true,false]:
+		var snapshot := _prepared(preparing)
+		snapshot.candidate.flagged_indices = [2]
+		snapshot.candidate.actions = [{"transaction_id":"prepared-flag","kind":"set_flag",
+			"cell_index":2,"flagged":true,"revision":1}]
+		var before := snapshot.duplicate(true)
+		var view: Dictionary = QUERY.desktop(snapshot,StateFixture.new())
+		assert_true(view.ok,str(view))
+		if not view.ok: continue
+		assert_eq(view.value.no_flag,"lost")
+		assert_null(view.value.foresight)
+		assert_eq(snapshot,before)

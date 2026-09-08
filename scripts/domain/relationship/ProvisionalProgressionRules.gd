@@ -71,7 +71,7 @@ func resolve_scene_response(scene_id: String, outcome: String, relationship_outc
 		return _fail(&"invalid_dating_outcome", relationship_outcome)
 	var reasons: Array = perfect_reasons.duplicate()
 	reasons.sort()
-	if reasons != perfect_reasons or reasons not in [[], ["efficiency_gt_100"], ["no_flag"], ["efficiency_gt_100", "no_flag"]] \
+	if reasons != perfect_reasons or reasons not in [[], ["efficiency_gt_100"], ["efficiency_gte_100"], ["no_flag"], ["efficiency_gt_100", "no_flag"], ["efficiency_gte_100", "no_flag"]] \
 			or (outcome == "perfect") != not reasons.is_empty():
 		return _fail(&"invalid_dating_perfect_reasons", str(perfect_reasons))
 	var values: Array = deltas[relationship_outcome]

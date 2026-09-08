@@ -153,6 +153,13 @@ func capture() -> Dictionary:
 	}, "receipt": {}}
 
 
+## Pure inventory projection; the preparation pump decides when to freeze a spec.
+func get_generation_capabilities() -> Dictionary:
+	var ready := _require_configured()
+	if not ready.ok: return ready
+	return _CAPABILITY_RULES.resolve_owned(_game_state.inventory)
+
+
 func prepare_spec(difficulty_id: String, transaction_id: String,
 		transaction_issuer_receipt: Dictionary) -> Dictionary:
 	var ready := _require_configured()
@@ -355,6 +362,10 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	if candidate.has("selected_difficulty"):
+		var selected := _BOARD_CATALOG.lookup("desktop_app", str(candidate.selected_difficulty))
+		if not selected.ok: return selected
+		_game_state.minesweeper_selected_difficulty = str(candidate.selected_difficulty)
 	if candidate.get("board_only", false):
 		return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
 	if candidate.has("motivation"):
@@ -420,3 +431,7 @@ func _capture_identity() -> Dictionary:
 	var shaped := _exact_keys(captured.value,
 		["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"], &"invalid_desktop_identity_context")
 	return captured if shaped.get("ok", false) else shaped
+
+
+func get_selected_difficulty() -> String:
+	return str(_game_state.minesweeper_selected_difficulty) if _game_state != null else "beginner"

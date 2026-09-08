@@ -14,6 +14,12 @@ const OPS := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SLOT := "dating.solo.priscilla.day1"
 
+# These records intentionally exercise persisted v2 history with its original fixed spec.
+class LegacySpecState extends RefCounted:
+	var inventory: Dictionary = {}
+	var penalty_points_today := 0
+	func get_stat(_id: String) -> int: return 0
+
 class RejectingStorage extends "res://scripts/infrastructure/storage/JsonFileStorage.gd":
 	var reject_write := false
 	func _init(root_dir: String, file_ops: RefCounted) -> void:
@@ -27,6 +33,7 @@ func _record() -> Dictionary:
 	assert_true(issuer.configure(ROOT_STORE.new("86".repeat(32), 1)).ok)
 	var owner := OWNER.new()
 	owner._issuer = issuer
+	owner._game_state = LegacySpecState.new()
 	var spec: Dictionary = owner._make_spec("canonical_solo").value
 	return {"schema_version": 2, "completion_transaction_id": "date-completion",
 		"command_sha256": "a".repeat(64), "physical_token": owner._token("date-completion", "a".repeat(64)),
@@ -45,7 +52,7 @@ func _materialize(record: Dictionary, index: int = 36) -> Dictionary:
 	next.board.outcome = str(next.board.outcome)
 	next.mine_dispositions = RULES.dispositions(next.spec, 36)
 	if next.board.terminal:
-		next.perfect_reasons = RULES.perfect_reasons(next.board)
+		next.perfect_reasons = RULES.perfect_reasons(next.board, 2)
 		next.outcome = "perfect" if not next.perfect_reasons.is_empty() else "cleared"
 		next.phase = "cleared_awaiting_terminal_choice"
 	return next

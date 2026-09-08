@@ -204,7 +204,8 @@ func test_complete_round_delegates_to_accept_prepared_action_with_a_valid_receip
 	assert_eq(str(call["action_receipt"]["commit_receipt_id"]), str(call["action_receipt"]["action_id"]),
 		"Ruling B: commit_receipt_id reuses action_id byte-for-byte")
 	assert_eq(str((call["action_candidate"] as Dictionary)["outcome"]), "exploded")
-	assert_eq(str(((call["action_candidate"] as Dictionary)["board_projection"] as Dictionary)["phase"]), "NONE")
+	assert_eq(str(((call["action_candidate"] as Dictionary)["board_projection"] as Dictionary)["phase"]), "ACTIVE_VISIBLE")
+	assert_true(_coordinator._board_state.is_settled_inspection(call.action_candidate.board_projection))
 	assert_true((call["prepared_checkpoint_receipt"] as Dictionary).size() > 0)
 
 
@@ -830,6 +831,7 @@ func _issue_transaction_receipt_for(transaction_id: String) -> Dictionary:
 
 func _debug_request(transaction_id: String, identity: Dictionary, expected_revision: int,
 		difficulty_id: String) -> Dictionary:
+	_state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	return {
 		"transaction_id": transaction_id, "transaction_issuer_receipt": _issue_transaction_receipt_for(transaction_id),
 		"expected_identity": identity, "expected_revision": expected_revision, "difficulty_id": difficulty_id,

@@ -332,17 +332,19 @@ class DatingCapture extends RefCounted:
 			"active_app_id": null, "dialogic_checkpoint": {}, "audio_context": {}, "content_version": 1}}
 
 
-func _dating_save_fixture() -> Dictionary:
+func _dating_save_fixture(debug: bool = false) -> Dictionary:
 	var fixture_script := preload("res://tests/unit/test_dating_physical_owner.gd")
 	var dating_state: RefCounted = fixture_script.State.new()
+	if debug: dating_state.inventory = {"debug_key": 1, "lucky_charm": 1}
 	var dating_profile: RefCounted = fixture_script.Profile.new()
 	var issuer := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
 	assert_true(issuer.configure(preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("91".repeat(32), 1)).ok)
-	var generation := preload("res://tests/support/FakeMinesweeperGenerationPort.gd").new()
+	var generation: RefCounted = preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new() if debug else preload("res://tests/support/FakeMinesweeperGenerationPort.gd").new()
 	var mines: Array = []
 	for index in 36: mines.append(index)
-	generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
-		"mine_indices": mines, "mine_count": 36})
+	if not debug:
+		generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
+			"mine_indices": mines, "mine_count": 36})
 	var physical := preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
 	assert_true(physical.configure(issuer, dating_state, dating_profile, generation).ok)
 	var presentation := preload("res://scripts/application/run/DatingPresentationPort.gd").new()
@@ -527,3 +529,36 @@ func test_desktop_pause_capture_refuses_route_session_and_narrative_drift() -> v
 		inputs.merge(prior)
 	assert_true(get_tree().paused)
 	assert_eq(saves.writes, 0)
+
+
+func test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt() -> void:
+	var fixture := _dating_save_fixture(true)
+	if fixture.is_empty(): return
+	var entered: Dictionary = fixture.presentation.dispatch_physical(source.command, "continue", -1, 0)
+	assert_true(entered.get("ok", false), str(entered))
+	if not entered.get("ok", false): return
+	assert_eq(fixture.state.saved.phase, "preparing")
+	assert_true(preload("res://scripts/application/run/DatingChallengeEnvelope.gd").validate(fixture.state.saved))
+	var exact: Dictionary = fixture.state.saved.duplicate(true)
+	var history: Dictionary = fixture.physical._history_state()
+	assert_true(fixture.physical._pending_checkpoint.is_empty())
+	if not await _open_pause(): return
+	var prepared: Dictionary = controller._backup_port.prepare_quick_action("save")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	var committed: Dictionary = await controller._backup_port.commit_action(prepared.value.token)
+	assert_true(committed.get("ok", false), str(committed))
+	if not committed.get("ok", false): return
+	var stored: Dictionary = fixture.storage.read_text("quicksave.json")
+	assert_true(stored.get("ok", false), str(stored))
+	if not stored.get("ok", false): return
+	var document: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(JSON.parse_string(stored.value))
+	assert_true(document.get("ok", false), str(document))
+	if not document.get("ok", false): return
+	assert_eq(document.value.candidate.current_snapshot.snapshot.gameplay.route_context.active_dating_challenge, exact)
+	assert_eq(fixture.state.saved, exact)
+	assert_eq(fixture.physical._history_state(), history, "saving preparation does not enter an irreversible Profile attempt")
+	assert_true(fixture.physical._pending_checkpoint.is_empty())
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_true((await controller.request_continue()).ok)

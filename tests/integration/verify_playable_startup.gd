@@ -53,19 +53,30 @@ func _run() -> void:
 	var desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
 	if not _check(desktop != null and desktop.is_visible_in_tree(), "new desktop is visible"): return
 	await _capture_screen("02-desktop")
+	if "--probe-desktop-debug" in OS.get_cmdline_user_args():
+		# Explicit inventory fixture; all generation and persistence use production paths.
+		game.inventory = {"debug_key": 1, "lucky_charm": 1}
+		current_scene.get_window().grab_focus()
+		await _frames()
 	var opened: Dictionary = desktop.open_app(&"minesweeper")
 	if not _check(opened.get("ok", false), "Minesweeper opens: " + JSON.stringify(opened)): return
+	if "--probe-desktop-debug" in OS.get_cmdline_user_args():
+		await _desktop_debug_journey(game, desktop, desktop.get("_cached_app_windows")[&"minesweeper"])
+		return
 	await _frames()
 	var app: Node = desktop.get("_cached_app_windows")[&"minesweeper"]
 	var panel: Control = app.panel
 	if not _check(panel.has_valid_presentation(), "board presentation ready"): return
+	if "--probe-board-controls" in OS.get_cmdline_user_args():
+		await _board_controls_journey(game, desktop, app)
+		return
 	var before: int = game.minesweeper_rounds_left
 	panel.worksheet.cell_action_requested.emit(&"reveal", 0, int(panel.public_view.board.revision))
 	if not _check(app.last_result.get("ok", false), "first Reveal: " + JSON.stringify(app.last_result)): return
 	if not _check(game.minesweeper_rounds_left == before - 1, "first Reveal charges one round"): return
 	await _capture_screen("03-minesweeper")
 	print("PLAYABLE_STARTUP_PASS: actual startup -> New Account -> visible desktop -> Minesweeper -> first Reveal")
-	if "--probe-pause-save" in OS.get_cmdline_user_args() and "--probe-dating" not in OS.get_cmdline_user_args():
+	if "--probe-pause-save" in OS.get_cmdline_user_args() and "--probe-dating" not in OS.get_cmdline_user_args() and "--probe-terminal-save" not in OS.get_cmdline_user_args():
 		await _pause_journey(game)
 		return
 	# Only the fixture inspects hidden state to select a real mine; production Reveal determines loss.
@@ -74,6 +85,9 @@ func _run() -> void:
 	var physical: Dictionary = day_one_owner.board.board
 	panel.worksheet.cell_action_requested.emit(&"reveal", int(physical.mine_indices[0]), int(panel.public_view.board.revision))
 	if not _check(app.last_result.get("ok", false) and bool(panel.public_view.settled), "round result: " + JSON.stringify(app.last_result)): return
+	if "--probe-terminal-save" in OS.get_cmdline_user_args():
+		await _terminal_inspection_journey(game, desktop, app)
+		return
 	var home: Dictionary = desktop.return_home()
 	if not _check(home.get("ok", false), "Home after round: " + JSON.stringify(home)): return
 	if "--probe-ordinary-echo" in OS.get_cmdline_user_args() or "--probe-ordinary-reply" in OS.get_cmdline_user_args():
@@ -82,7 +96,7 @@ func _run() -> void:
 	if "--probe-schedule-hospital" in OS.get_cmdline_user_args():
 		await _schedule_hospital_journey(game, desktop)
 		return
-	if "--probe-dating" in OS.get_cmdline_user_args():
+	if "--probe-dating" in OS.get_cmdline_user_args() or "--probe-dating-debug" in OS.get_cmdline_user_args() or "--probe-dating-marked" in OS.get_cmdline_user_args():
 		await _dating_journey(game, desktop)
 		return
 	if "--probe-pause" in OS.get_cmdline_user_args():
@@ -265,6 +279,9 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	schedule.panel.source_requested.emit(invitation_id)
 	if not _check(schedule.last_result.get("ok", false) and schedule.get("_projection").entries.size() == 1,
 		"invitation added to Schedule: " + JSON.stringify(schedule.last_result)): return
+	if "--probe-dating-debug" in OS.get_cmdline_user_args():
+		# Explicit capability fixture before the real Date owner freezes its inputs.
+		game.inventory = {"debug_key": 1, "lucky_charm": 1}
 	var ports: Dictionary = desktop.get_meta("gameplay_ports")
 	for attempt: int in 5:
 		var done: Dictionary = ports.commands.dispatch_done()
@@ -280,6 +297,9 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	await _capture_screen("04-dating-entry")
 	if "--probe-observer-priscilla" in OS.get_cmdline_user_args() or "--probe-observer-lavinia" in OS.get_cmdline_user_args():
 		if not await _observer_scene_journey(game, dating, friend_id): return
+	if "--probe-dating-debug" in OS.get_cmdline_user_args() or "--probe-dating-marked" in OS.get_cmdline_user_args():
+		await preload("res://tests/integration/PlayableDatingCapabilityProbe.gd").new().run(self, game, dating, "--probe-dating-debug" in OS.get_cmdline_user_args())
+		return
 	dating.get("_continue_button").pressed.emit()
 	if not _check(dating.get("_physical_view").phase == "challenge", "Continue starts challenge"): return
 	dating.worksheet.cell_action_requested.emit(&"reveal", 0, int(dating.get("_physical_view").board.revision))
@@ -741,10 +761,13 @@ func _completed_load_journey(game: Node) -> void:
 func _pause_save_board(game: Node, route: String) -> Dictionary:
 	if route == "dating": return game.capture_dating_challenge_state().value.duplicate(true)
 	var owner: Dictionary = root.get_node("ApplicationBootstrap").get("_desktop_board_state").capture()
+	if owner.get("candidate") is Dictionary:
+		return {"phase": owner.phase, "candidate": owner.candidate.duplicate(true)}
 	if not owner.get("board") is Dictionary: return {}
-	var board: Dictionary = owner.board.board
-	return {"board": board.duplicate(true), "spec": {"difficulty": owner.board.paid_start_receipt.difficulty_id},
-		"phase": "terminal" if board.terminal else "active"}
+	return {"board": owner.board.board.duplicate(true),
+		"spec": owner.board.get("spec", {"difficulty": owner.board.paid_start_receipt.difficulty_id}).duplicate(true),
+		"phase": "terminal" if owner.board.board.terminal else "active"}
+
 
 func _pause_save_load_journey(game: Node, controller: Node) -> void:
 	var route: String = root.get_node("SceneRouter").get_current_route_id()
@@ -791,7 +814,7 @@ func _pause_save_load_journey(game: Node, controller: Node) -> void:
 		"manual Load creates a fresh session without changing Profile history"): return
 	await _capture_screen("08-restored-" + route + "-board")
 	print("PLAYABLE_PAUSE_SAVE_LOAD_PASS: actual Back -> Backup -> manual Save -> confirmed Load -> exact playable board")
-	quit(0)
+	if not OS.get_cmdline_user_args().has("--probe-board-controls") and not OS.get_cmdline_user_args().has("--probe-desktop-debug") and not OS.get_cmdline_user_args().has("--probe-terminal-save"): quit(0)
 
 
 ## Optional GPU-only correspondence journey. No synthetic line draw or canonical reply/echo seed.
@@ -980,3 +1003,165 @@ func _ordinary_satisfied_count(contacts: Dictionary) -> int:
 	for receipt: Dictionary in contacts.transaction_receipts.values():
 		if receipt.get("kind") == "ordinary_echo_presented": count += 1
 	return count
+
+
+## Real controls, persisted shell, and a paid replacement across a full session change.
+func _board_controls_journey(game: Node, desktop: Node, app: Node) -> void:
+	var panel: Control = app.panel
+	var board_owner: RefCounted = root.get_node("ApplicationBootstrap").get("_desktop_board_state")
+	var rounds: int = game.minesweeper_rounds_left
+	var motivation: int = game.get_stat("motivation")
+	panel.register.difficulty_requested.emit(&"intermediate")
+	if not _check(app.last_result.get("ok", false) and panel.public_view.board.width == 16,
+		"actual difficulty control selects an unpaid intermediate shell"): return
+	for action: StringName in [&"flag", &"unflag"]:
+		panel.worksheet.cell_action_requested.emit(action, 1, int(panel.public_view.board.revision))
+		if not _check(app.last_result.get("ok", false), "unpaid shell action " + str(action)): return
+	var shell: Dictionary = board_owner.capture()
+	if not _check(shell.phase == "UNPAID_UNSTARTED" and shell.candidate.actions.size() == 2
+		and shell.candidate.flagged_indices.is_empty() and shell.identity == null,
+		"unpaid Flag/Unflag records history without a layout or paid identity"): return
+	if not _check(game.minesweeper_rounds_left == rounds and game.get_stat("motivation") == motivation,
+		"unpaid configuration and flags are free"): return
+	panel.worksheet.cell_action_requested.emit(&"reveal", 0, int(panel.public_view.board.revision))
+	if not _check(app.last_result.get("ok", false), "first Reveal accepts shell history"): return
+	var paid: Dictionary = board_owner.capture()
+	if not _check(paid.board is Dictionary and not paid.board.board.terminal
+		and paid.board.board.actions == shell.candidate.actions
+		and panel.public_view.register.no_flag == "lost", "first board preserves the No-flag latch"): return
+	if not _check(game.minesweeper_rounds_left == rounds - 1 and game.get_stat("motivation") == motivation - 1,
+		"first physical Reveal charges exactly once"): return
+	panel.register.difficulty_requested.emit(&"expert")
+	if not _check(app.last_result.get("ok", false) and panel.public_view.board.width == 22 and panel.public_view.board.height == 22,
+		"active difficulty control selects an expert replacement"): return
+	panel.worksheet.cell_action_requested.emit(&"flag", 1, int(panel.public_view.board.revision))
+	if not _check(app.last_result.get("ok", false), "paid replacement allows an unstarted flag"): return
+	var replacement: Dictionary = board_owner.capture()
+	if not _check(replacement.phase == "PAID_UNSTARTED" and replacement.identity == paid.identity
+		and replacement.candidate.paid_start_receipt == paid.board.paid_start_receipt
+		and replacement.candidate.spec.difficulty_id == "expert" and replacement.candidate.flagged_indices == [1],
+		"replacement retains original payment and freezes current expert spec"): return
+	await _capture_screen("03-paid-replacement-shell")
+	await _pause_journey(game)
+	if not _check(not paused and game.capture_live_session().value.active, "paid shell Load resumes live session"): return
+	desktop = current_scene.find_child("ComputerDesktop", true, false)
+	if not _check(desktop != null and desktop.open_app(&"minesweeper").get("ok", false),
+		"restored paid shell reopens through actual desktop icon"): return
+	await _frames()
+	app = desktop.get("_cached_app_windows")[&"minesweeper"]
+	panel = app.panel
+	panel.worksheet.cell_action_requested.emit(&"reveal", 0, int(panel.public_view.board.revision))
+	if not _check(app.last_result.get("ok", false), "restored paid replacement accepts first Reveal"): return
+	var resumed: Dictionary = board_owner.capture()
+	if not _check(resumed.board is Dictionary and resumed.board.board.width == 22 and resumed.board.board.height == 22
+		and resumed.board.board.flagged_indices == [1], "restored board preserves selected tier and flag"): return
+	if not _check(game.minesweeper_rounds_left == rounds - 1 and game.get_stat("motivation") == motivation - 1,
+		"revealing a paid replacement after Load never charges twice"): return
+	panel.dock.action_requested.emit(&"new_board")
+	if not _check(app.last_result.get("ok", false) and board_owner.capture().phase == "PAID_UNSTARTED",
+		"actual New Board replaces the current paid board"): return
+	if not _check(game.minesweeper_rounds_left == rounds - 1 and game.get_stat("motivation") == motivation - 1,
+		"New Board also retains exactly one paid start"): return
+	await _capture_screen("09-restored-replacement-new-board")
+	print("PLAYABLE_BOARD_CONTROLS_PASS: unpaid difficulty/flags -> first paid Reveal -> expert replacement -> flag -> Pause Save/Load -> free Reveal -> New Board")
+	quit(0)
+
+
+func _desktop_debug_journey(game: Node, desktop: Node, app: Node) -> void:
+	var board_owner: RefCounted = root.get_node("ApplicationBootstrap").get("_desktop_board_state")
+	var rounds: int = game.minesweeper_rounds_left
+	var motivation: int = game.get_stat("motivation")
+	app.get_window().grab_focus()
+	# The real foreground handler begins preparation; later frames run the search slices.
+	app._process(0.0)
+	var preparing: Dictionary = board_owner.capture()
+	if not _check(app.last_result.get("ok", false) and preparing.phase == "PREPARING"
+		and preparing.candidate.frontier is Dictionary, "real Debug pump begins saved preparation"): return
+	if not _check(desktop.return_home().get("ok", false), "Home parks real stable Debug frontier"): return
+	await _frames()
+	if not _check(board_owner.capture() == preparing, "hidden Debug board does not advance"): return
+	await _pause_journey(game)
+	if not _check(not paused and board_owner.capture().phase == "PREPARING", "manual Load restores Debug frontier"): return
+	current_scene.get_window().grab_focus()
+	await _frames()
+	desktop = current_scene.find_child("ComputerDesktop", true, false)
+	if not _check(desktop != null and desktop.open_app(&"minesweeper").get("ok", false),
+		"cold restored Debug opens through actual desktop icon"): return
+	app = desktop.get("_cached_app_windows")[&"minesweeper"]
+	app.get_window().grab_focus()
+	var started := Time.get_ticks_msec()
+	while board_owner.capture().phase == "PREPARING" and Time.get_ticks_msec() - started < 90000:
+		await process_frame
+		if not app.last_result.get("ok", false):
+			# Diagnostic exact retry is confined to this failing isolated probe; it never converts failure to a pass.
+			var presentation: RefCounted = app.get("_port").get("_board_port")
+			var coordinator: RefCounted = presentation.get("_owner")
+			var context: Dictionary = presentation.get("_pending_preparation_context")
+			var request: Dictionary = presentation.get("_pending_preparation_request")
+			var retry: Dictionary = {}
+			if not request.is_empty():
+				retry = coordinator.call("begin_debug_preparation" if context.get("action") == "begin" else "run_debug_preparation_slice", request.duplicate(true))
+			print("PLAYABLE_DEBUG_FAILURE_DETAIL: " + JSON.stringify({"ui": app.last_result, "pending_context": context,
+				"readiness": coordinator.get_preparation_context(), "retry_ok": retry.get("ok", false),
+				"retry_code": retry.get("code", ""), "retry_message": retry.get("message", ""), "retry_details": retry.get("details", {})}))
+			_check(false, "visible Debug pump remains healthy")
+			return
+	if not _check(board_owner.capture().phase == "PREPARED_UNSTARTED", "real Debug search reaches certification"): return
+	print("PLAYABLE_DESKTOP_DEBUG_PREPARED_MS: " + str(Time.get_ticks_msec() - started))
+	var panel: Control = app.panel
+	var revealable: Array[int] = []
+	for cell: Dictionary in panel.public_view.board.cells:
+		if "reveal" in cell.actions: revealable.append(int(cell.index))
+	if not _check(revealable.size() == 1 and panel.public_view.board.cells[revealable[0]].bracketed,
+		"certified shell exposes one bracketed first Reveal"): return
+	if not _check(game.minesweeper_rounds_left == rounds and game.get_stat("motivation") == motivation,
+		"preparation and Save/Load consume no round or motivation"): return
+	await _capture_screen("09-debug-certified-shell")
+	panel.worksheet.cell_action_requested.emit(&"reveal", revealable[0], int(panel.public_view.board.revision))
+	if not _check(app.last_result.get("ok", false), "real forced Debug Reveal succeeds"): return
+	if not _check(game.minesweeper_rounds_left == rounds - 1 and game.get_stat("motivation") == motivation - 1,
+		"certified first Reveal charges exactly once"): return
+	await _capture_screen("10-debug-first-reveal")
+	print("PLAYABLE_DESKTOP_DEBUG_PASS: prepare -> Home -> Pause Save/Load -> cold reopen -> certification -> forced Reveal")
+	quit(0)
+
+
+func _inspection_resources(game: Node) -> Dictionary:
+	return {"money": game.money, "motivation": game.get_stat("motivation"),
+		"pressure": game.get_stat("pressure"), "health": game.get_stat("health"),
+		"rounds": game.minesweeper_rounds_left, "finished": game.minesweeper_app_rounds_finished_today}
+
+func _terminal_inspection_journey(game: Node, desktop: Node, app: Node) -> void:
+	var register: Dictionary = app.panel.public_view.register.duplicate(true)
+	var resources: Dictionary = _inspection_resources(game)
+	await _capture_screen("03-settled-inspection")
+	await _pause_journey(game)
+	desktop = current_scene.find_child("ComputerDesktop", true, false)
+	if not _check(desktop != null and desktop.open_app(&"minesweeper").get("ok", false), "saved terminal inspection reopens"): return
+	await _frames()
+	app = desktop.get("_cached_app_windows")[&"minesweeper"]
+	if not _check(app.panel.public_view.settled and app.panel.public_view.board.terminal,
+		"cold Load preserves actual finished-board inspection"): return
+	if not _check(app.panel.public_view.register == register and _inspection_resources(game) == resources,
+		"cold inspection preserves metrics and never settles rewards twice"): return
+	await _capture_screen("09-restored-terminal-inspection")
+	app.panel.dock.action_requested.emit(&"new_board")
+	if not _check(app.last_result.get("ok", false) and not app.panel.public_view.settled,
+		"actual New Board dismisses inspection durably"): return
+	var session: Dictionary = game.capture_live_session().value
+	var saves: Node = root.get_node("SaveManager")
+	var prepared: Dictionary = saves.prepare_restore_autosave()
+	if not _check(prepared.get("ok", false), "dismissed inspection Autosave prepares: " + JSON.stringify(prepared)): return
+	var loaded: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
+	if not _check(loaded.get("ok", false), "dismissed inspection Autosave loads"): return
+	await _frames()
+	desktop = current_scene.find_child("ComputerDesktop", true, false)
+	if not _check(game.capture_live_session().value != session and desktop != null
+		and desktop.open_app(&"minesweeper").get("ok", false), "new-session desktop reopens after dismissal"): return
+	await _frames()
+	app = desktop.get("_cached_app_windows")[&"minesweeper"]
+	if not _check(not app.panel.public_view.settled and not app.panel.public_view.board.terminal
+		and _inspection_resources(game) == resources, "Load retains dismissal without payment or reward changes"): return
+	await _capture_screen("10-terminal-dismissal-restored")
+	print("PLAYABLE_TERMINAL_INSPECTION_PASS: finished board -> Pause Save/Load -> exact inspection/no second reward -> New Board -> Load preserves dismissal")
+	quit(0)

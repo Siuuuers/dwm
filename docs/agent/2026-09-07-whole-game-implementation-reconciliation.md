@@ -51,20 +51,139 @@ this section gives the current status without relabeling old evidence.
   Empty story resources do not manufacture a saveable narrative-reading frontier.
   Existing witnessed-reading Load admission and compensation remain preserved.
 
-**Remaining required work:** free desktop difficulty selection; repeated free
-replacement within an already-paid preterminal session; saved pre-Reveal flags;
-production Debug preparation and canonical capability/extras composition; and
-actual marked-cell solo terminal choice. The later accepted August-13 amendment
-changes the Perfect threshold to >=100 and makes Perfect/Dark mutually exclusive.
-A focused owner question remains open; absent steering, the orchestrator is using
-the later accepted amendment for the next increment. No whole-game completion or
-Bead closure is claimed while these mechanics remain. Detailed dialogue, final assets and release certification are deferred.
+**Committed baseline:** `537cd458c2eae922a3ddff2450e4e5a576ce69b4` connects the
+whole seven-day runtime described above. The subsequent Minesweeper increment
+has completed its focused checks, actual player journeys and independent review;
+the local checkpoint produced from this record contains its final source.
+
+The current increment implements free difficulty/replacement, saved pre-Reveal
+flags, production Debug preparation, canonical capabilities/extras, floor display,
+>=100 Perfect, and the actual marked-cell non-Perfect choice. It preserves v2
+historical outcomes under their old rule version. The owner question on older
+versus later threshold wording remains open; absent steering, the later accepted
+August-13 amendment governs new play. Finished-board inspection now survives Save/Load through the existing board
+owner; New Board dismissal is durable and does not settle or pay the round again.
+
+- `minesweeper-controls-cold-dating-current-0908.log`: 188 tests executed,
+  174 passed, 14 failed, 4,332/4,351 assertions. All 111 UI/scoring/capability/
+  Pause tests, all three canonical fallback tests, and physical Dating 9/9
+  passed. The failures identify two cold day-receipt fixtures and twelve old
+  Dating attempt/Profile fixtures. This remains the original failed batch;
+  later focused corrections and results are recorded below.
+- `desktop-checkpoint-terminal-corrected-0908.log`: paid replacement 21/21,
+  desktop Debug 4/4, board fate 34/34 and Panel 23/23 passed. The sole remaining
+  terminal assertion compared parsed JSON with native Dictionary types; it was
+  corrected to compare every field through the strict canonical writer.
+  `certified-cell-focus-terminal-final-0908.log` then passed 64/64 tests and
+  1,868 assertions, including the corrected terminal/focus boundary.
+- `render-board-controls-authored-size-0908.log` passes the actual rendered
+  difficulty/New Board and replacement Save/Load journey in 29.9023 seconds.
+  `render-desktop-debug-certified-view-0908.log` passes in 28.9455 seconds;
+  its actual Debug certification took 2,230 ms.
+- `render-terminal-inspection-audio-current-0908.log` passes in 45.7434 seconds:
+  actual completed-board inspection -> Pause manual Save/Load -> exact restored
+  board, Register and resources -> New Board -> Load of durable dismissal.
+  The earlier terminal probe exposed a real checkpoint defect: the desktop
+  adapter wrote an empty audio context, which AudioManager rejected during
+  restore. The adapter now captures the retained AudioManager's current semantic
+  context, including the context applied by Load. No neutral audio defaults or
+  new playback commands are invented. The new focused audio suite initially
+  failed to parse because its helper `_input` conflicted with Node's input method;
+  the helper is renamed `_snapshot_input`. The corrected
+  `desktop-audio-checkpoint-fixed-0908.log` passes 11/11 tests and 192 assertions
+  across the real first-Reveal transaction and semantic-audio boundary.
+- `dating-fallback-extension-0908.log`: tool exit 0, 1,296 genuinely certified
+  canonical solo/pair fallback records; observed maximum 95 deductions within
+  the unchanged reserved 512-operation budget. All 1,608 original desktop rows
+  match the committed prefix exactly. Certification took 648,370 ms; whole
+  isolated process 651.5242 seconds. This was the bounded canonical extension,
+  not a repeat of the historical desktop search build.
+- The budget manifest's fallback artifact, builder and benchmark-tool source
+  hashes were refreshed after that extension. Historical benchmark rows,
+  benchmark corpus/device declaration and all numeric budgets remain unchanged;
+  the historical benchmark was not rerun or relabeled as current timing evidence.
+  The new fallback artifact SHA-256 is
+  `64a0d7491ac66a5699697983cd73d1f101b60068f172c2dd05706212ef8ea642`.
+
+- `dating-preparing-history-fixed-0908.log` passes 40/40 tests and 1,601
+  assertions: saved post-ending preparation admits its exact existing recipe,
+  reuses an already-written attempt, or makes the validated saved-branch
+  continuation. No replacement recipe/nonces are generated during recovery.
+- `render-dating-debug-mount-fixed-0908.log` passes in 46.4312 seconds: real
+  Lucky/Debug entry -> bounded certification -> full Autosave Load -> the exact
+  restored shell/layout -> physical Enter on the forced zero cell. Its failing
+  predecessor traced a configured Dating scene being overwritten by the pending
+  native scene mount. Bootstrap now leaves the exact continuation pending while
+  current_scene is null and wakes its existing queue from scene_changed; the
+  fixed trace proves native mount precedes the configured replacement.
+
+- `bootstrap-continuation-mounted-fixture-0908.log` passes 13/13 tests and
+  156 assertions, including keeping the exact continuation pending until its
+  native target is mounted and then retiring a completed save once.
+- The marked-cell GPU probes exposed a runtime performance defect before reaching
+  the choice. The latest profiled run reached 36 accepted actions in 306,718 ms,
+  with a maximum synchronous dispatch of 14,392 ms; it failed its finite budget.
+  No marked-cell player-flow pass is claimed from these runs. A read-only 1.47 MB
+  retained-save benchmark measured strict parse 1,680,232 us, schema validation
+  116,800 us, canonical stringify (including self-check) 2,354,187 us, and emitted
+  strict parse 1,737,502 us. Save reads took milliseconds in the live profile;
+  repeated document parsing is the dominant measured target. History is retained.
+
+The scalar processing optimization now retains every existing strict rule while
+using native spans for ordinary ASCII strings. The identical 1,469,645-byte source
+now parses in 593,749 us and canonicalizes (with its complete self-check) in
+899,047 us; previous measurements were 1,680,232 and 2,354,187 us respectively.
+Its canonical output is byte-equal to the original except its known trailing LF,
+SHA-256 `96704512f195bd80aa42b7ee99db72d18f6a90b8f38db9e0f02e00e22e0b8f2a`.
+A one-prepare/commit exact-text cache additionally reuses the physically validated
+old save, with frame/lease/failure invalidation; actual profile calls fall from
+four to three. No recovery entry, physical read/write/flush, or validation rule is
+removed. The six-suite first run passed 67/68 tests (952/956 assertions); its sole
+new mutation fixture used schema-valid string money. The corrected fixture uses
+an explicitly invalid required object and compares uncached/cached rejection.
+
+- `checkpoint-validation-reuse-corrected-0909.log` passes all 8 cache tests and 214 assertions.
+  The intervening 7/8 run exposed a fixture read after the deliberate failure had
+  invalidated the storage lease; the final assertion checks the fake filesystem's
+  actual persisted bytes and retries through the production reconciliation seam.
+  No production refusal rule was changed to make that test pass.
+- `render-dating-marked-optimized-0909.log` passes in 232.9781 seconds: actual
+  saved shell flag -> legal full non-Perfect clear -> clearing-key release gate
+  -> actual marked mine activation -> durable Dark receipt -> drawn post scene
+  -> full Autosave Load preserving the exact canonical attempt -> next day.
+  Its marked choice capture was visually inspected. This completes the finite
+  desktop controls/Debug/terminal and Dating Debug/marked player-flow checks.
+
+**Mechanics verification is complete for this increment.** Remaining cumulative
+save latency is tracked in `dwm-634`: action 40 still took 5,658 ms synchronous
+work, and the next-day save reached 2,942,444 bytes with 68 retained earlier
+bundles. The scalar benchmark is a same-byte improvement, not a bounded whole-run
+save-size claim. Detailed dialogue, final assets, release certification and the
+separate exact-cue audio contract remain follow-up work. This is a mechanically
+playable foundation with documented limitations; Beads closure remains scoped to
+completed gameplay phases, preserving the separate audio dependency.
 Existing 24 Dialogic orphan and Unicode/NUL diagnostics remain visible in tests.
-The hash-verified pre-commit recovery copy is
+The earlier baseline recovery copy is
 `temp-artifacts/runtime-wip-checkpoint-20260908-121719Z` (1,169,458 tracked patch
-bytes plus 73 new files); it predates only this final evidence-note update.
+bytes plus 73 new files); it predates the final Minesweeper increment.
+
+The larger exact-cue/combined-save audio amendment remains a separate follow-up
+(`dwm-nqn`), following the orchestration recommendation while the optional scope
+question remains unanswered. This does not claim that amendment is implemented:
+current audio persists its existing four-field semantic context, not the richer
+frozen cue-selection contract. Its Beads dependencies remain visible; gameplay
+completion evidence must not silently close that outstanding contract.
 
 ## Preserved checkpoints and chosen baseline
+
+The final Minesweeper source recovery copy is `temp-artifacts/runtime-wip-checkpoint-20260908-161640Z` in integration; its manifest and tracked patch are refreshed before the scoped commit.
+
+On 2026-09-08 at 15:35:25 UTC, only `ui00r-authoring` and
+`ui00r-authority-candidate` were retired after fresh exact-HEAD/ancestry, full
+filesystem, clean tracked/index, exact artifact inventory and archive hash checks.
+Their commits remain reachable from integration and both artifacts remain in
+`temp-artifacts/worktree-audit-20260908/preserved/` in the root workspace. No merge
+or branch deletion occurred. Original stopped worktrees remain preserved.
 
 - Integration worktree: `temp-artifacts/worktrees/whole-game-integration`,
   branch `codex/whole-game-integration`, based on UI commit
