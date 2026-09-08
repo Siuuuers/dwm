@@ -5,13 +5,23 @@
 # day: 1
 # parts: history, daily_message, offer
 
+return
+
 label history
 # TODO: history / backstory messages for priscilla (Day 1 only)
+return
 
 label daily_message
 # TODO: daily contact message text for Day 1
+return
 
 label offer
 # TODO: Day 1 solo invitation offer text
+return
 
+label contact.invitation.solo.priscilla.day1.offer
+# PURPOSE: solo_invitation_offer
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

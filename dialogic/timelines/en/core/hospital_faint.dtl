@@ -5,3 +5,52 @@
 # shown: after fainting / danger day
 
 return
+
+label hospital.faint.day1
+# PURPOSE: hospital
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label hospital.faint.day2
+# PURPOSE: hospital
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label hospital.faint.day3
+# PURPOSE: hospital
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label hospital.faint.day4
+# PURPOSE: hospital
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label hospital.faint.day5
+# PURPOSE: hospital
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label hospital.faint.day6
+# PURPOSE: hospital
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label hospital.faint.day7
+# PURPOSE: hospital
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return

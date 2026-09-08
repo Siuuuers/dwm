@@ -33,9 +33,9 @@ func test_exact_timeline_manifest_is_required() -> void:
 	assert_eq(str(manifest.get("locale")), "en", "locale")
 
 
-func test_exactly_59_records_one_per_physical_file() -> void:
+func test_exactly_64_scene_records_one_per_physical_file() -> void:
 	var records: Array = _load(MANIFEST_PATH).get("records", [])
-	assert_eq(records.size(), 59, "expected 59 timeline records")
+	assert_eq(records.size(), 64, "expected 64 timeline records")
 	var ids := {}
 	var paths := {}
 	for record in records:
@@ -50,7 +50,7 @@ func test_exactly_59_records_one_per_physical_file() -> void:
 		assert_eq("sha256:" + FileAccess.get_sha256(res_path), str(record["content_fingerprint"]), "fingerprint drift for " + path)
 
 
-func test_status_counts_are_24_placeholder_35_draft() -> void:
+func test_status_counts_are_24_placeholder_40_draft() -> void:
 	var records: Array = _load(MANIFEST_PATH).get("records", [])
 	var placeholder := 0
 	var draft := 0
@@ -59,7 +59,7 @@ func test_status_counts_are_24_placeholder_35_draft() -> void:
 			"placeholder": placeholder += 1
 			"draft": draft += 1
 	assert_eq(placeholder, 24, "placeholder count")
-	assert_eq(draft, 35, "draft count")
+	assert_eq(draft, 40, "draft count")
 
 
 func test_no_broad_pattern_lookup_remains_in_catalog() -> void:
@@ -81,7 +81,7 @@ func test_catalog_resolves_ids_through_manifest() -> void:
 func test_endings_manifest_matches_canonical_rules() -> void:
 	var endings := _load(ENDINGS_PATH)
 	var records: Array = endings.get("records", [])
-	assert_eq(records.size(), 11, "expected 11 ending records")
+	assert_eq(records.size(), 19, "expected 19 ending records")
 	var by_id := {}
 	for record in _load(MANIFEST_PATH).get("records", []):
 		by_id[str(record["id"])] = record
@@ -103,5 +103,10 @@ func test_endings_manifest_matches_canonical_rules() -> void:
 			assert_true(str(record["label"]) in (by_id[timeline_id] as Dictionary).get("labels", []),
 				"ending label does not resolve: " + str(record["label"]))
 	assert_eq(_sorted(primary), _sorted(DATING_ENDING_RULES.VALID_PRIMARY_IDS), "primary set")
-	assert_eq(_sorted(postscript), _sorted(DATING_ENDING_RULES.POSTSCRIPT_IDS), "postscript set")
-	assert_eq(_sorted(epilogue), ["ending.priscilla_lavinia"], "epilogue set")
+	assert_eq(_sorted(postscript), _sorted(DATING_ENDING_RULES.POSTSCRIPT_IDS + [
+		"ending.priscilla.observer.full", "ending.priscilla.observer.residue",
+		"ending.lavinia.observer.full", "ending.lavinia.observer.residue",
+		"ending.priscilla_lavinia.observer.full", "ending.priscilla_lavinia.observer.residue",
+	]), "postscript set")
+	assert_eq(_sorted(epilogue), _sorted(["ending.priscilla_lavinia",
+		"ending.priscilla_lavinia.sweet", "ending.priscilla_lavinia.dark"]), "epilogue set")

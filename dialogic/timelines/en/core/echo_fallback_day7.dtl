@@ -1,0 +1,12 @@
+# timeline_id: echo.fallback.day7
+# locale: en
+# type: core
+
+return
+
+label echo.fallback.day7
+# PURPOSE: echo_fallback
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
+return

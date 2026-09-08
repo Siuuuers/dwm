@@ -5,10 +5,19 @@
 # day: 5
 # parts: daily_message, offer
 
+return
+
 label daily_message
 # TODO: daily contact message text for Day 5
+return
 
 label offer
 # TODO: Day 5 solo invitation offer text
+return
 
+label contact.invitation.solo.lavinia.day5.offer
+# PURPOSE: solo_invitation_offer
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

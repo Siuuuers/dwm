@@ -35,15 +35,12 @@ ApplicationBootstrap="*res://autoload/ApplicationBootstrap.gd"
 
 directories/dch_directory={}
 directories/dtl_directory={
+"opening_day1": "res://dialogic/timelines/en/core/opening_day1.dtl",
+"tutorial_desktop_day1": "res://dialogic/timelines/en/core/tutorial_desktop_day1.dtl",
+"priscilla_lavinia_day2": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+"priscilla_lavinia_day6": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+"echo_fallback_day7": "res://dialogic/timelines/en/core/echo_fallback_day7.dtl",
 "alone": "res://dialogic/timelines/en/ending/alone.dtl",
-"day_1": "res://dialogic/timelines/en/day_1.dtl",
-"day_2": "res://dialogic/timelines/en/day_2.dtl",
-"day_3": "res://dialogic/timelines/en/day_3.dtl",
-"day_4": "res://dialogic/timelines/en/day_4.dtl",
-"day_5": "res://dialogic/timelines/en/day_5.dtl",
-"day_6": "res://dialogic/timelines/en/day_6.dtl",
-"day_7": "res://dialogic/timelines/en/day_7.dtl",
-"endings": "res://dialogic/timelines/en/endings.dtl",
 "hospital_faint": "res://dialogic/timelines/en/core/hospital_faint.dtl",
 "lavinia": "res://dialogic/timelines/en/ending/lavinia.dtl",
 "lavinia_day1": "res://dialogic/timelines/en/contacts/lavinia_day1.dtl",

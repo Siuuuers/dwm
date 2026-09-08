@@ -1,32 +1,56 @@
-# Master timeline: presentation only.
+# timeline_id: contact.group.priscilla_lavinia.day6
+# locale: en
+# type: contact
+
 return
 
-label contact.invitation.solo.priscilla.day6.nevermind
-# PURPOSE: consequence_followup
+label contact.invitation.group.priscilla_lavinia.day6.first_open_priscilla
+# PURPOSE: group_contact_offer
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
+# ALLOWED SIGNALS: history.line.witness
 return
 
-label contact.invitation.solo.priscilla.day6.missed_question
-# PURPOSE: consequence_followup
+label contact.invitation.group.priscilla_lavinia.day6.first_open_lavinia
+# PURPOSE: group_contact_offer
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
+# ALLOWED SIGNALS: history.line.witness
 return
 
-label contact.invitation.solo.lavinia.day6.nevermind
-# PURPOSE: consequence_followup
+label contact.invitation.group.priscilla_lavinia.day6.second_open_priscilla
+# PURPOSE: group_contact_offer
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
+# ALLOWED SIGNALS: history.line.witness
 return
 
-label contact.invitation.solo.lavinia.day6.missed_question
-# PURPOSE: consequence_followup
+label contact.invitation.group.priscilla_lavinia.day6.second_open_lavinia
+# PURPOSE: group_contact_offer
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label contact.invitation.group.priscilla_lavinia.day6.need_reply_priscilla_first
+# PURPOSE: group_contact_offer
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label contact.invitation.group.priscilla_lavinia.day6.need_reply_lavinia_first
+# PURPOSE: group_contact_offer
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label contact.invitation.group.priscilla_lavinia.day6.offer
+# PURPOSE: group_contact_offer
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return
 
 label contact.invitation.group.priscilla_lavinia.day6.busy_priscilla
@@ -83,39 +107,4 @@ label contact.invitation.group.priscilla_lavinia.day6.missed_question_lavinia
 # CAUSAL INPUT: validated frozen context
 # VARIATION: registered layer order
 # ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
-return
-
-label contact.invitation.ending.priscilla.day7.offer
-# PURPOSE: ending_invitation_offer
-# CAUSAL INPUT: validated frozen context
-# VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness
-return
-
-label contact.invitation.ending.lavinia.day7.offer
-# PURPOSE: ending_invitation_offer
-# CAUSAL INPUT: validated frozen context
-# VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness
-return
-
-label contact.invitation.ending.sylvia.day7.offer
-# PURPOSE: ending_invitation_offer
-# CAUSAL INPUT: validated frozen context
-# VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness
-return
-
-label echo.fallback.day7
-# PURPOSE: echo_fallback
-# CAUSAL INPUT: validated frozen context
-# VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
-return
-
-label hospital.faint.day7
-# PURPOSE: hospital
-# CAUSAL INPUT: validated frozen context
-# VARIATION: registered layer order
-# ALLOWED SIGNALS: history.line.witness
 return

@@ -43,22 +43,8 @@ static func build_inventory(manifest: Dictionary) -> Dictionary:
 	}
 
 
-## Lists the LEGACY timelines only: those in SUBDIRECTORIES of the locale root.
-##
-## RULING O (Seven-Day Flow Plan 01 Task 3, dwm-oyo.2 DEVIATION-7). The eight plot-neutral master
-## timelines Task 3 generates live DIRECTLY in the locale root; every one of the 61 legacy
-## timelines lives in a subdirectory of it (contacts/, core/, dating/, ending/). That partition is
-## the invariant this function now enforces, and it is why timelines.json stays at 61 records even
-## if this Plan-05 generator is re-run after Task 3.
-##
-## THIS IS NOT COSMETIC. Collecting the masters here would take timelines.json from 61 records to
-## 69, which breaks WriteDialogicGateSummary's 61/24/37 production floor inside the FROZEN tooling
-## gate, breaks test_timeline_manifest.gd, and stales the sealed manifest_hashes in
-## evidence/phase_2r/dialogic/gate_summary.json. It would also fail outright, because _parse_file
-## demands a `# timeline_id:` header the masters deliberately do not carry.
-##
-## tests/unit/test_dtl_master_structure.gd is the only coverage this function has; before Task 3
-## nothing in the repository exercised it at all.
+## Scene files live in contacts/, core/, dating/, and ending/. The retired locale-root
+## day masters are intentionally excluded; the registry keeps one timeline ID per scene.
 static func _list_dtl_files(root: String) -> Array:
 	var out: Array = []
 	var dir := DirAccess.open(root)

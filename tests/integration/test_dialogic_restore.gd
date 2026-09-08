@@ -280,7 +280,7 @@ const ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.g
 const FAKE_COMPLETION_PORT := preload("res://tests/support/FakeDialogicPlaybackCompletionPort.gd")
 
 const LAVINIA_ENTRY := "contact.ordinary.lavinia.day1"
-const LAVINIA_MASTER := "res://dialogic/timelines/en/day_1.dtl"
+const LAVINIA_MASTER := "res://dialogic/timelines/en/contacts/lavinia_day1.dtl"
 const UNKNOWN_ENTRY := "contact.ordinary.nobody.day9"
 const RETIRED_ENTRY := "ending.lavinia.true"
 
@@ -314,7 +314,7 @@ class _GhostRecordCatalog:
 	static func get_entry(entry_id: String, _locale: String = "") -> Dictionary:
 		return {"ok": true, "value": {
 			"entry_id": entry_id, "locale": "en", "requested_locale": "en",
-			"path": "res://dialogic/timelines/en/day_1.dtl", "label": entry_id,
+			"path": "res://dialogic/timelines/en/contacts/lavinia_day1.dtl", "label": entry_id,
 			"used_fallback": false,
 		}}
 

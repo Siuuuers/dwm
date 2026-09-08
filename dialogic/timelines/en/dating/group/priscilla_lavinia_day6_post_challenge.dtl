@@ -6,3 +6,10 @@
 # phase: post_challenge
 
 return
+
+label dating.group.priscilla_lavinia.day6.post_challenge
+# PURPOSE: pair_post_challenge_scene
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness, pair.combination.witness
+return

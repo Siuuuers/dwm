@@ -249,9 +249,8 @@ const EXPECTED_SIGNAL_SHAPES := [
 ## I-2 fixture host. No Chinese .dtl file is fabricated anywhere; the Global Constraint forbids
 ## fabricating FILES, and an in-memory Dictionary locator is not one.
 const CHINESE_MASTER := "res://dialogic/timelines/zh/day_1.dtl"
-const ENGLISH_DAY_ONE_MASTER := "res://dialogic/timelines/en/day_1.dtl"
+const ENGLISH_DAY_ONE_MASTER := "res://dialogic/timelines/en/contacts/lavinia_day1.dtl"
 
-const ENDINGS_MASTER := "res://dialogic/timelines/en/endings.dtl"
 
 const CODE_DOCUMENT_SHAPE := &"ENTRY_MANIFEST_DOCUMENT_SHAPE"
 const CODE_SCHEMA_INVALID := &"ENTRY_MANIFEST_SCHEMA_INVALID"
@@ -720,11 +719,9 @@ func test_every_locator_declares_english_only_and_points_at_its_owning_master() 
 		keys.sort()
 		assert_eq(keys, LOCATOR_KEYS, "%s: exact locator keys" % entry_id)
 		var path: String = str((english as Dictionary).get("path", ""))
-		var expected_path: String = ENDINGS_MASTER
-		if record.get("day") != null:
-			expected_path = "res://dialogic/timelines/en/day_%d.dtl" % int(record.get("day"))
-		assert_eq(path, expected_path,
-			"%s: the locator names its owning master, as a declared string" % entry_id)
+		assert_true(path.begins_with("res://dialogic/timelines/en/"), entry_id)
+		assert_true(path.trim_prefix("res://dialogic/timelines/en/").contains("/"),
+			"%s: the locator names a scene, independently of its delivery day" % entry_id)
 
 
 func test_every_locator_label_equals_its_registered_entry_id() -> void:
@@ -1618,7 +1615,7 @@ func test_resolve_entry_returns_the_exact_english_locator() -> void:
 	assert_eq(value.get("locale"), "en", "the selected locale")
 	assert_eq(value.get("used_fallback"), false, "English is not a fallback of itself")
 	assert_eq(value.get("label"), entry_id, "the exact label")
-	assert_eq(value.get("path"), "res://dialogic/timelines/en/day_1.dtl", "the owning master")
+	assert_eq(value.get("path"), ENGLISH_DAY_ONE_MASTER, "the owning scene")
 
 
 func test_resolve_entry_falls_back_to_english_and_changes_only_language() -> void:

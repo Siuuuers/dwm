@@ -291,7 +291,7 @@ func _assert_before_event_restore_rollback(wait_until_live: bool, prior_paused :
 	var restore_checkpoint := {"timeline_id":"contact.ordinary.lavinia.day1","position":"before_event"}
 	var staged: Dictionary = bridge.apply_restore_silent({"route_ready_token":{"fixture":true},
 		"narrative_checkpoint":restore_checkpoint,"position":"before_event",
-		"timeline_path":"res://dialogic/timelines/en/day_1.dtl","resume_event_index":0})
+		"timeline_path":"res://dialogic/timelines/en/contacts/lavinia_day1.dtl","resume_event_index":0})
 	assert_true(staged.get("ok",false),str(staged))
 	assert_true(bridge.has_active_playback())
 	assert_true(runtime.paused)
@@ -349,7 +349,7 @@ func test_invalid_runtime_event_halts_live_paused_restore_before_restoring_unpau
 	runtime.event_handled.connect(func(event: Variant): handled_events.append(event))
 	var staged: Dictionary = bridge.apply_restore_silent({"route_ready_token":{"fixture":true},
 		"narrative_checkpoint":{"timeline_id":"contact.ordinary.lavinia.day1","position":"before_event"},
-		"position":"before_event","timeline_path":"res://dialogic/timelines/en/day_1.dtl",
+		"position":"before_event","timeline_path":"res://dialogic/timelines/en/contacts/lavinia_day1.dtl",
 		"resume_event_index":0})
 	assert_true(staged.get("ok",false),str(staged))
 	for frame in 20:
@@ -619,7 +619,7 @@ func test_failed_deferred_before_event_restore_preserves_cache_pause_and_cancels
 	for prior_paused: bool in [false,true]:
 		runtime.paused = prior_paused
 		var previous_failure_count := failures.size()
-		var path := "res://dialogic/timelines/en/day_1.dtl"
+		var path := "res://dialogic/timelines/en/contacts/lavinia_day1.dtl"
 		var staged: Dictionary = bridge.apply_restore_silent({"route_ready_token":{"fixture":true},
 			"narrative_checkpoint":{"timeline_id":"contact.ordinary.lavinia.day1","position":"before_event"},
 			"position":"before_event","timeline_path":path,"resume_event_index":0})

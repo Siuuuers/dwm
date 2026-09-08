@@ -4,13 +4,38 @@
 # friend: sylvia
 # contains: sweet, dark, special
 
+return
+
 label ending.sylvia.sweet
 # TODO: sylvia ending dialogue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
 
 label ending.sylvia.dark
 # TODO: sylvia ending dialogue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
 
 label ending.sylvia.special
 # TODO: sylvia ending dialogue
+return
 
+label ending.sylvia.special.full
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label ending.sylvia.special.residue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

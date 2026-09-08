@@ -34,7 +34,7 @@ scope: seven_day_flow_dialogic_structure
 
 This document records the conversationally approved design for the seven-day
 calendar, relationship and Minesweeper consequences, Hospital interruptions,
-Priscilla-Lavinia encounters, Day 7 endings, save/reload law, and consolidated
+Priscilla-Lavinia encounters, Day 7 endings, save/reload law, and scene-oriented
 Dialogic authoring structure.
 
 The user approved this written specification on 2026-08-07. It is now the
@@ -63,7 +63,7 @@ must not.
 - Rehearsal, Observer mastery evidence, postscript replay, and Gallery identity.
 - Exact semantic timeline identities, frozen contexts, safe signals, receipts,
   locale fallback, and recovery behavior.
-- Consolidation to seven day timelines plus one ending timeline per locale.
+- Retain the original scene-oriented DTL arrangement; no fixed physical file count.
 - Plot-neutral documentation and authoring templates.
 
 ### 2.2 Out of scope
@@ -107,33 +107,33 @@ worktree or commit.
 
 ## 4. Chosen architecture and alternatives
 
-### 4.1 Chosen: semantic entries inside eight master timelines
+### 4.1 Chosen: semantic entries in the original scene-oriented timelines
+
+Owner decision, 2026-09-08: retain the original DTL arrangement. Consolidating
+all English content into eight physical masters is no longer required.
 
 The game calls stable semantic presentation-entry IDs. A closed manifest resolves
-each `entry_id` to one exact `{path, label}` locator and contract. Dialogic starts
-that label inside one of eight master files. Physical file layout may change
-without changing save, Gallery, localization, audio, or visited-line identity.
+each `entry_id` to one exact `{path, label}` locator and contract in the retained
+scene files. File organization does not determine save, Gallery, localization,
+audio, or visited-line identity.
 
-Ending identity and presentation identity are deliberately separate. One stable
-`ending_id` owns discovery, save, and Gallery meaning; one of its allowlisted
-`entry_id` values selects Normal/Dark-mode, Full/Residue, or another presentation
-form. Each `entry_id` still resolves to exactly one locator. No runtime lookup is
-ambiguous or one-ID-to-many-locators.
+Ending identity and presentation identity remain separate. One stable
+`ending_id` owns discovery, save, and Gallery meaning; an allowlisted `entry_id`
+selects the presentation form. Each entry resolves to exactly one locator.
 
-This design keeps authoring navigable by day, removes the current file explosion,
-and prevents a save from depending on a filename or line number.
+### 4.2 Superseded: mandatory consolidation to eight files
 
-### 4.2 Rejected: retain one file for every contact/date fragment
-
-The current English skeleton contains 61 `.dtl` files and 61 UID sidecars.
-Keeping that layout preserves simple file-level starts, but makes cross-day
-causality difficult to inspect and multiplies localization and registry work.
+The original English skeleton contains 61 scene-oriented DTL files. Keep these
+as the authoring starting point and add or amend an individual scene file only
+when a promised scene requires it. Neither 61 nor eight is a required final count.
+Existing consolidated files may remain temporarily while callers are reconciled;
+their presence does not authorize deleting the original files.
 
 ### 4.3 Rejected: one timeline for the whole game
 
-A single monolithic file minimizes file count, but makes day ownership, merge
-conflicts, locale completion, and label auditing needlessly difficult. Eight
-files are the smallest structure that still communicates ownership.
+A single monolithic timeline does not help the current task. Use the existing
+scene boundaries and keep all promised branches mechanically playable while
+finished dialogue and prose remain deferred.
 
 ### 4.4 Rejected: let DTL own gameplay state
 
@@ -981,21 +981,21 @@ percentage, or spoiler count.
 
 ## 12. Dialogic runtime contract
 
-### 12.1 Eight physical masters
+### 12.1 Retain the original scene-oriented DTL arrangement
 
-English authoring consolidates to exactly:
+The owner cancelled the eight-master requirement on 2026-09-08. Preserve the
+original English scene files and UID identities as the authoring starting point.
+There is no requirement to consolidate into `day_1.dtl` through `day_7.dtl` and
+`endings.dtl`, or to delete the original scene files.
 
-- `dialogic/timelines/en/day_1.dtl`
-- `dialogic/timelines/en/day_2.dtl`
-- `dialogic/timelines/en/day_3.dtl`
-- `dialogic/timelines/en/day_4.dtl`
-- `dialogic/timelines/en/day_5.dtl`
-- `dialogic/timelines/en/day_6.dtl`
-- `dialogic/timelines/en/day_7.dtl`
-- `dialogic/timelines/en/endings.dtl`
+Register exact semantic entry locators for the retained scenes. Reconcile any
+existing consolidated caller with the intended scene before retiring its old
+locator. Validate entry coverage and executable scene boundaries, not a fixed
+file count. Detailed dialogue is deferred; scene transitions, choices, challenge
+handoffs, consequences, and all promised branches still need working owners.
 
-Future locale mirrors use the same label contract. Chinese DTL prose is not
-required in this structural phase; missing locale entries use exact-label
+Future locale entries retain the same semantic contract. Chinese DTL prose is
+not required in this structural phase; missing locale entries use exact-label
 English fallback.
 
 ### 12.2 Closed semantic manifest
@@ -1099,7 +1099,7 @@ entry at its registered continuation stage; it cannot continue presenting a
 consequence the state owner refused.
 
 A merged timeline is never legally started without a validated label. Every
-master begins with a bare `return`, and every callable label block ends with its
+multi-entry timeline begins with a bare `return`, and every callable label block ends with its
 own `return`; no label may fall through into its neighbor.
 
 ### 12.5 Mutation and commit points
@@ -1136,7 +1136,7 @@ or restarting prose cannot duplicate or erase a consequence.
 Every authored line that may enter history, skip-seen, echo, Observer Capture,
 Gallery collection, or save restoration owns a stable semantic line ID. IDs are
 not derived from file path, line number, translated text, or label position.
-Physical consolidation and prose edits therefore do not invalidate witnessed
+Physical file arrangement and prose edits therefore do not invalidate witnessed
 history.
 
 Every non-dialogue action, visual beat, or deliberate silence that may satisfy
@@ -1147,7 +1147,7 @@ resource path, animation position, elapsed time, or translated text.
 
 ### 12.7 DTL authoring envelope
 
-Every master begins safely, and every callable block follows this conceptual
+Every timeline begins safely, and every callable block follows this conceptual
 shape:
 
 ```text
@@ -1216,13 +1216,16 @@ contains all 18 complete strings. Final content line IDs are added alongside the
 lines they identify and must pass the same closed-manifest validation before
 that content can ship.
 
-## 13. Exact master-file ownership
+## 13. Semantic entry coverage by day and ending layer
+
+These groups specify scene coverage, not mandatory physical filenames. Resolve
+each entry through its registered locator in the original scene-oriented layout.
 
 Notation such as `{priscilla,lavinia}` below abbreviates a finite list for
 readability. The implemented manifest must expand every member explicitly; it
 must not accept patterns at runtime.
 
-### 13.1 `day_1.dtl`
+### 13.1 Day 1 entries
 
 - `opening.day1`
 - `tutorial.desktop_day1`
@@ -1235,7 +1238,7 @@ must not accept patterns at runtime.
 - `dating.solo.sylvia.day1.post_challenge`
 - `hospital.faint.day1`
 
-### 13.2 `day_2.dtl`
+### 13.2 Day 2 entries
 
 Day 1 solo carryovers:
 
@@ -1269,7 +1272,7 @@ Current-day entries:
 
 Private-offscreen has no DTL entry.
 
-### 13.3 `day_3.dtl`
+### 13.3 Day 3 entries
 
 - `contact.invitation.solo.priscilla.day2.nevermind`
 - `contact.invitation.solo.priscilla.day2.missed_question`
@@ -1292,7 +1295,7 @@ Private-offscreen has no DTL entry.
 - `dating.solo.sylvia.day3.post_challenge`
 - `hospital.faint.day3`
 
-### 13.4 `day_4.dtl`
+### 13.4 Day 4 entries
 
 - `contact.invitation.solo.lavinia.day3.nevermind`
 - `contact.invitation.solo.lavinia.day3.missed_question`
@@ -1311,7 +1314,7 @@ Private-offscreen has no DTL entry.
 Priscilla and Sylvia's post entries receive already-evaluated third-valve
 promotion context.
 
-### 13.5 `day_5.dtl`
+### 13.5 Day 5 entries
 
 - `contact.invitation.solo.priscilla.day4.nevermind`
 - `contact.invitation.solo.priscilla.day4.missed_question`
@@ -1329,7 +1332,7 @@ promotion context.
 
 Lavinia receives third-valve context; Sylvia receives fourth-valve context.
 
-### 13.6 `day_6.dtl`
+### 13.6 Day 6 entries
 
 - `contact.invitation.solo.lavinia.day5.nevermind`
 - `contact.invitation.solo.lavinia.day5.missed_question`
@@ -1358,7 +1361,7 @@ Lavinia receives third-valve context; Sylvia receives fourth-valve context.
 
 Priscilla and Lavinia's solo post entries receive fourth-valve context.
 
-### 13.7 `day_7.dtl`
+### 13.7 Day 7 entries
 
 - `contact.invitation.solo.priscilla.day6.nevermind`
 - `contact.invitation.solo.priscilla.day6.missed_question`
@@ -1382,7 +1385,7 @@ Day 7 has no ordinary message, solo/group date pre/post entry, challenge result,
 or Day 8 carryover. After Done or faint resolution, the engine starts the first
 step directly from `endings.dtl`.
 
-### 13.8 `endings.dtl`
+### 13.8 Ending entries
 
 The exact ending-identity-to-entry capability map is:
 
@@ -1418,7 +1421,7 @@ Playback is a transaction:
 
 - Missing selected-locale path or label falls back only to the exact same
   semantic label in English.
-- Missing/wrong-type English master path, or a missing/duplicated English label,
+- Missing/wrong-type English timeline path, or a missing/duplicated English label,
   starts nothing and preserves the pending event.
 - Fallback may change language only. It may not change day, route, friend,
   entry, ending, or consequence.
@@ -1625,13 +1628,13 @@ reversible checkpoints rather than one mixed change.
 
 ### 16.4 Timeline checkpoint
 
-- Create the eight executable, plot-neutral English master skeletons.
-- Update Dialogic's physical timeline directory and UID ownership.
-- Preserve every retained or explicitly migrated semantic entry and line
-  identity while relocating it; retired IDs follow the migration/rejection
-  table rather than surviving accidentally.
-- Retire the 61 old English skeleton files only after exact locator coverage and
-  headless label tests pass.
+- Retain and extend the original scene-oriented English DTL skeletons as needed
+  for complete scene mechanics; finished dialogue remains deferred.
+- Preserve original UID ownership and every retained semantic entry/line identity.
+- Reconcile manifests, callers, generators, registry checks, and tests that still
+  require eight masters or deletion of the original files.
+- Validate all registered locators, isolated scene completion, and full promised
+  branch coverage. Do not use a fixed DTL count as an acceptance gate.
 
 ### 16.5 Verification checkpoint
 

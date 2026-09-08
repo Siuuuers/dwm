@@ -5,28 +5,57 @@
 # day: 6
 # parts: daily_message, offer, nevermind, missed_question, first_open_priscilla, first_open_lavinia, second_open_priscilla, second_open_lavinia
 
+return
+
 label daily_message
 # TODO: daily contact message text for Day 6
+return
 
 label offer
 # TODO: Day 6 solo invitation offer text
+return
 
 label nevermind
 # TODO: nevermind text (invite from Day 5)
+return
 
 label missed_question
 # TODO: missed-date question text (invite from Day 5)
+return
 
 label first_open_priscilla
 # TODO: group invitation part for lavinia Day 6
+return
 
 label first_open_lavinia
 # TODO: group invitation part for lavinia Day 6
+return
 
 label second_open_priscilla
 # TODO: group invitation part for lavinia Day 6
+return
 
 label second_open_lavinia
 # TODO: group invitation part for lavinia Day 6
+return
 
+label contact.invitation.solo.lavinia.day5.nevermind
+# PURPOSE: consequence_followup
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label contact.invitation.solo.lavinia.day5.missed_question
+# PURPOSE: consequence_followup
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label contact.invitation.solo.lavinia.day6.offer
+# PURPOSE: solo_invitation_offer
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

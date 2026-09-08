@@ -3,6 +3,21 @@
 # type: ending
 # fallback ending
 
-label ending.alone
+return
 
+label ending.alone
+return
+
+label ending.alone.normal
+# PURPOSE: alone_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label ending.alone.dark_mode
+# PURPOSE: alone_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

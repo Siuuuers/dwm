@@ -6,3 +6,10 @@
 # phase: pre_challenge
 
 return
+
+label dating.twofriends.priscilla_lavinia.day2.pre_challenge
+# PURPOSE: pair_pre_challenge_scene
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return

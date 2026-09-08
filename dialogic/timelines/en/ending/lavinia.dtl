@@ -4,13 +4,38 @@
 # friend: lavinia
 # contains: sweet, dark, observation
 
+return
+
 label ending.lavinia.sweet
 # TODO: lavinia ending dialogue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
 
 label ending.lavinia.dark
 # TODO: lavinia ending dialogue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
 
 label ending.lavinia.observation
 # TODO: lavinia ending dialogue
+return
 
+label ending.lavinia.observer.full
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label ending.lavinia.observer.residue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

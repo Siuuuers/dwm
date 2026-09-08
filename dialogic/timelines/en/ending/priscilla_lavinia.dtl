@@ -4,6 +4,35 @@
 # friends: priscilla, lavinia
 # requires: 2 missed-group scenes
 
-label ending.priscilla_lavinia
+return
 
+label ending.priscilla_lavinia
+return
+
+label ending.priscilla_lavinia.sweet
+# PURPOSE: pair_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label ending.priscilla_lavinia.dark
+# PURPOSE: pair_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label ending.priscilla_lavinia.observer.full
+# PURPOSE: pair_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label ending.priscilla_lavinia.observer.residue
+# PURPOSE: pair_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

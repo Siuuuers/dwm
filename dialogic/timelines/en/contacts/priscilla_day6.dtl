@@ -5,22 +5,35 @@
 # day: 6
 # parts: daily_message, offer, first_open_priscilla, first_open_lavinia, second_open_priscilla, second_open_lavinia
 
+return
+
 label daily_message
 # TODO: daily contact message text for Day 6
+return
 
 label offer
 # TODO: Day 6 solo invitation offer text
+return
 
 label first_open_priscilla
 # TODO: group invitation part for priscilla Day 6
+return
 
 label first_open_lavinia
 # TODO: group invitation part for priscilla Day 6
+return
 
 label second_open_priscilla
 # TODO: group invitation part for priscilla Day 6
+return
 
 label second_open_lavinia
 # TODO: group invitation part for priscilla Day 6
+return
 
+label contact.invitation.solo.priscilla.day6.offer
+# PURPOSE: solo_invitation_offer
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

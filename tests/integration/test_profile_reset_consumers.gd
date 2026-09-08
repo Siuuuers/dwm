@@ -184,7 +184,7 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 		assert_true(typeof(started) == TYPE_DICTIONARY and (started as Dictionary).get("ok", false),
 			"%s: %s" % [boundary["boundary"], str(started)])
 		var start_receipt: Dictionary = (started as Dictionary).get("receipt", {}) if typeof(started) == TYPE_DICTIONARY else {}
-		assert_eq(str(start_receipt.get("path", "")), "res://dialogic/timelines/en/day_1.dtl",
+		assert_eq(str(start_receipt.get("path", "")), "res://dialogic/timelines/en/contacts/lavinia_day1.dtl",
 			"%s: the semantic start resolves the exact master path" % boundary["boundary"])
 		assert_eq(str(start_receipt.get("label", "")), "contact.ordinary.lavinia.day1",
 			"%s: the semantic start resolves the exact label" % boundary["boundary"])

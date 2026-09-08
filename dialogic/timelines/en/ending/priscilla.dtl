@@ -4,13 +4,38 @@
 # friend: priscilla
 # contains: sweet, dark, observation
 
+return
+
 label ending.priscilla.sweet
 # TODO: priscilla ending dialogue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
 
 label ending.priscilla.dark
 # TODO: priscilla ending dialogue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
 
 label ending.priscilla.observation
 # TODO: priscilla ending dialogue
+return
 
+label ending.priscilla.observer.full
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return
+
+label ending.priscilla.observer.residue
+# PURPOSE: solo_ending_step
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

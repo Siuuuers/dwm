@@ -6,3 +6,10 @@
 # phase: post_challenge
 
 return
+
+label dating.solo.sylvia.day4.post_challenge
+# PURPOSE: solo_post_challenge
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return

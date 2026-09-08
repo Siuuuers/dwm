@@ -70,9 +70,9 @@ const CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
 const ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 
 const EXPECTED_ENTRY_COUNT := 137
-const EXPECTED_MASTER_COUNT := 8
-const EXPECTED_TIMELINE_COUNT := 59
-const EXPECTED_SHARED_ID_COUNT := 32
+const EXPECTED_SCENE_COUNT := 62
+const EXPECTED_TIMELINE_COUNT := 64
+const EXPECTED_SHARED_ID_COUNT := 33
 
 const DEFAULT_LOCALE := "en"
 const FOREIGN_LOCALE := "zh_CN"
@@ -106,7 +106,7 @@ const DEPRECATION_MARKER := "## DEPRECATED (Plan 01 Task 4)"
 const VALIDATION_CALL := "DialogicEntryManifest.validate_document(loaded[\"value\"])"
 
 const SAMPLE_ENTRY_ID := "contact.ordinary.lavinia.day1"
-const SAMPLE_ENTRY_PATH := "res://dialogic/timelines/en/day_1.dtl"
+const SAMPLE_ENTRY_PATH := "res://dialogic/timelines/en/contacts/lavinia_day1.dtl"
 const FIRST_SORTED_ENTRY_ID := "contact.hospital_care.sylvia.day2"
 const LAST_SORTED_ENTRY_ID := "hospital.faint.day7"
 const ARBITRARY_SUFFIX_ID := "contact.ordinary.lavinia.day1.extra"
@@ -120,16 +120,6 @@ const ENTRY_ONLY_IDS := ["hospital.faint.day7", "ending.alone.normal", FIRST_SOR
 const HOSPITAL_TIMELINE_ID := "hospital.faint"
 const HOSPITAL_TIMELINE_PATH := "res://dialogic/timelines/en/core/hospital_faint.dtl"
 
-const EXPECTED_MASTER_PATHS := [
-	"res://dialogic/timelines/en/day_1.dtl",
-	"res://dialogic/timelines/en/day_2.dtl",
-	"res://dialogic/timelines/en/day_3.dtl",
-	"res://dialogic/timelines/en/day_4.dtl",
-	"res://dialogic/timelines/en/day_5.dtl",
-	"res://dialogic/timelines/en/day_6.dtl",
-	"res://dialogic/timelines/en/day_7.dtl",
-	"res://dialogic/timelines/en/endings.dtl",
-]
 
 const CODE_UNKNOWN_ENTRY := &"ENTRY_MANIFEST_UNKNOWN_ENTRY"
 const CODE_RETIRED_ENTRY := &"ENTRY_MANIFEST_RETIRED_ENTRY"
@@ -178,6 +168,15 @@ func _document_entry_ids() -> Array:
 	for record: Variant in _entries_document().get("entries", []):
 		if record is Dictionary:
 			out.append(str((record as Dictionary).get("entry_id", "")))
+	return out
+
+
+func _expected_scene_paths() -> Array:
+	var out: Array = []
+	for record: Dictionary in _parse(TIMELINES_MANIFEST_PATH).get("records", []):
+		if record["id"] in ["opening.day1", "tutorial.desktop_day1"]: continue
+		out.append("res://" + str(record["path"]))
+	out.sort()
 	return out
 
 
@@ -409,8 +408,8 @@ func test_the_master_path_set_is_identical_for_every_locale() -> void:
 		var foreign: Array = _call(&"get_required_master_paths", [locale])
 		assert_eq(foreign, english,
 			"%s: a fallback changes language only, so the master set cannot move" % locale)
-		assert_eq(foreign, EXPECTED_MASTER_PATHS,
-			"%s: and it is still exactly the eight English masters" % locale)
+		assert_eq(foreign, _expected_scene_paths(),
+			"%s: and it is still exactly the English scene files" % locale)
 
 
 # --------------------------------------------------------------------------------------------
@@ -436,19 +435,19 @@ func test_get_required_entry_ids_lists_all_one_hundred_thirty_seven_sorted() -> 
 		seen[str(entry_id)] = true
 
 
-func test_get_required_master_paths_lists_the_eight_masters_sorted() -> void:
+func test_get_required_master_paths_lists_scene_paths_sorted() -> void:
 	if not _guard():
 		return
 	var paths: Array = _call(&"get_required_master_paths", [DEFAULT_LOCALE])
-	assert_eq(paths, EXPECTED_MASTER_PATHS,
-		"the 137 entries are deduplicated to the eight masters, in sorted order")
-	assert_eq(paths.size(), EXPECTED_MASTER_COUNT, "eight masters and no more")
+	assert_eq(paths, _expected_scene_paths(),
+		"the 137 entries are deduplicated to the scene files, in sorted order")
+	assert_eq(paths.size(), EXPECTED_SCENE_COUNT, "scene files and no more")
 	var derived := {}
 	for record: Variant in _entries_document().get("entries", []):
 		var locator: Dictionary = ((record as Dictionary)["locators"] as Dictionary)[DEFAULT_LOCALE]
 		derived[str(locator.get("path", ""))] = true
-	assert_eq(derived.size(), EXPECTED_MASTER_COUNT,
-		"and the shipped document independently names exactly eight distinct masters")
+	assert_eq(derived.size(), EXPECTED_SCENE_COUNT,
+		"and the shipped document independently names exactly distinct scene paths")
 	for path: Variant in paths:
 		assert_true(derived.has(str(path)), "no master is invented: " + str(path))
 		assert_true(FileAccess.file_exists(str(path)), "and every one is on disk: " + str(path))
@@ -458,14 +457,14 @@ func test_get_required_master_paths_lists_the_eight_masters_sorted() -> void:
 # The validation report. validate_document proves document integrity; this proves disk presence.
 # --------------------------------------------------------------------------------------------
 
-func test_build_validation_report_finds_all_eight_masters_present() -> void:
+func test_build_validation_report_finds_all_scene_files_present() -> void:
 	if not _guard():
 		return
 	var report: Dictionary = _call(&"build_validation_report", [DEFAULT_LOCALE])
 	assert_eq(str(report.get("locale", "")), DEFAULT_LOCALE, "the report names its locale")
 	assert_eq(report.get("entry_count"), EXPECTED_ENTRY_COUNT, "and the entries it covers")
-	assert_eq(report.get("required_count"), EXPECTED_MASTER_COUNT, "and the masters they need")
-	assert_eq(report.get("existing_count"), EXPECTED_MASTER_COUNT, "all of which are on disk")
+	assert_eq(report.get("required_count"), EXPECTED_SCENE_COUNT, "and the masters they need")
+	assert_eq(report.get("existing_count"), EXPECTED_SCENE_COUNT, "all of which are on disk")
 	assert_eq(report.get("missing_count"), 0, "so none is missing")
 	assert_eq(report.get("missing"), [], "and the missing list is empty rather than absent")
 
@@ -476,7 +475,7 @@ func test_build_validation_report_echoes_the_requested_locale() -> void:
 	var report: Dictionary = _call(&"build_validation_report", [FOREIGN_LOCALE])
 	assert_eq(str(report.get("locale", "")), FOREIGN_LOCALE,
 		"the report echoes what was asked, so a caller can tell which locale it describes")
-	assert_eq(report.get("required_count"), EXPECTED_MASTER_COUNT,
+	assert_eq(report.get("required_count"), EXPECTED_SCENE_COUNT,
 		"while the master set itself is locale-independent")
 	assert_eq(report.get("missing_count"), 0, "and still complete")
 
@@ -485,26 +484,26 @@ func test_build_validation_report_echoes_the_requested_locale() -> void:
 # DEVIATION-8 Ruling U. The two vocabularies coexist; neither is re-pointed at the other.
 # --------------------------------------------------------------------------------------------
 
-func test_the_two_vocabularies_share_exactly_thirty_two_ids() -> void:
+func test_the_two_vocabularies_share_exactly_thirty_three_ids() -> void:
 	if not _guard():
 		return
 	var entry_ids := _document_entry_ids()
 	var timeline_ids := _timeline_ids()
 	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "137 entry ids")
-	assert_eq(timeline_ids.size(), EXPECTED_TIMELINE_COUNT, "59 timeline ids")
+	assert_eq(timeline_ids.size(), EXPECTED_TIMELINE_COUNT, "64 timeline ids")
 	var shared: Array = []
 	for entry_id: Variant in entry_ids:
 		if str(entry_id) in timeline_ids:
 			shared.append(str(entry_id))
 	assert_eq(shared.size(), EXPECTED_SHARED_ID_COUNT,
-		"the vocabularies overlap in 32 ids, so neither can stand in for the other")
+		"the vocabularies overlap in 33 ids, so neither can stand in for the other")
 
 
 func test_the_entry_and_timeline_vocabularies_stay_separate() -> void:
 	if not _guard():
 		return
 	assert_eq(CATALOG.get_required_timeline_ids().size(), EXPECTED_TIMELINE_COUNT,
-		"the timeline vocabulary is current at 59")
+		"the timeline vocabulary is current at 64")
 	var entry_ids: Array = _call(&"get_required_entry_ids", [])
 	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "the entry vocabulary is current at 137")
 	for timeline_id: String in TIMELINE_ONLY_IDS:

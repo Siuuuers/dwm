@@ -5,16 +5,41 @@
 # day: 7
 # parts: daily_message, offer, nevermind, missed_question
 
+return
+
 label daily_message
 # TODO: daily contact message text for Day 7
+return
 
 label offer
 # TODO: Day 7 solo invitation offer text
+return
 
 label nevermind
 # TODO: nevermind text (invite from Day 6)
+return
 
 label missed_question
 # TODO: missed-date question text (invite from Day 6)
+return
 
+label contact.invitation.solo.priscilla.day6.nevermind
+# PURPOSE: consequence_followup
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
+return
+
+label contact.invitation.solo.priscilla.day6.missed_question
+# PURPOSE: consequence_followup
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness, message.echo.satisfy
+return
+
+label contact.invitation.ending.priscilla.day7.offer
+# PURPOSE: ending_invitation_offer
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
 return

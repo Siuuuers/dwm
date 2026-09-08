@@ -6,3 +6,10 @@
 # phase: pre_challenge
 
 return
+
+label dating.solo.lavinia.day5.pre_challenge
+# PURPOSE: solo_pre_challenge
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return

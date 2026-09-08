@@ -23,7 +23,7 @@ const SIGNAL_PORT_PATH := "res://scripts/application/narrative/DialogicSignalCom
 const COMPLETION_PORT_PATH := "res://scripts/application/narrative/DialogicPlaybackCompletionPort.gd"
 
 const LAVINIA_ENTRY := "contact.ordinary.lavinia.day1"
-const LAVINIA_MASTER := "res://dialogic/timelines/en/day_1.dtl"
+const LAVINIA_MASTER := "res://dialogic/timelines/en/contacts/lavinia_day1.dtl"
 const LAVINIA_LINE_A := "line.contact.ordinary.lavinia.day1.reply.a"
 const LAVINIA_LINE_B := "line.contact.ordinary.lavinia.day1.reply.b"
 const PAIR_ENTRY := "dating.group.priscilla_lavinia.day2.post_challenge"
@@ -39,7 +39,7 @@ class FallbackLocatorCatalog:
 	static func get_entry(entry_id: String, _locale: String = "") -> Dictionary:
 		return {"ok": true, "value": {
 			"entry_id": entry_id, "locale": "en", "requested_locale": "zh_HK",
-			"path": "res://dialogic/timelines/en/day_1.dtl", "label": entry_id, "used_fallback": true,
+			"path": "res://dialogic/timelines/en/contacts/lavinia_day1.dtl", "label": entry_id, "used_fallback": true,
 		}}
 
 
@@ -59,7 +59,7 @@ class GhostRecordCatalog:
 	static func get_entry(entry_id: String, _locale: String = "") -> Dictionary:
 		return {"ok": true, "value": {
 			"entry_id": entry_id, "locale": "en", "requested_locale": "en",
-			"path": "res://dialogic/timelines/en/day_1.dtl", "label": entry_id, "used_fallback": false,
+			"path": "res://dialogic/timelines/en/contacts/lavinia_day1.dtl", "label": entry_id, "used_fallback": false,
 		}}
 
 

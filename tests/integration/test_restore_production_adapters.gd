@@ -257,7 +257,7 @@ class NarrativeCatalogStub extends RefCounted:
 			return {"ok": false, "code": &"unknown_timeline_id", "message": timeline_id}
 		return {"ok": true, "value": record.duplicate(true)}
 	func get_timeline_path(_timeline_id: String, _locale: String = "en") -> String:
-		return "res://dialogic/timelines/en/day_2.dtl"
+		return "res://dialogic/timelines/en/core/hospital_faint.dtl"
 
 
 func _narrative_record() -> Dictionary:
