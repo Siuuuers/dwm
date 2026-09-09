@@ -59,6 +59,27 @@ class FakeConsequencePort:
 ## dwm-p2r.35.7 remediation (finding 3): minimal fake for publish_recovery_action()'s own
 ## record_before_emit() call, mirroring test_minesweeper_shop_purchase_participant.gd's own
 ## established _FakePublicationLedger exactly.
+class SafeMarkerRecorder:
+	var captured_inputs: Dictionary = {}
+	var consequence := preload("res://tests/support/FakeDesktopConsequenceCheckpointPort.gd").new()
+
+	func prepare(inputs: Dictionary, _kind: StringName, _disk_write: Dictionary) -> Dictionary:
+		captured_inputs = inputs.duplicate(true)
+		return {"ok": true, "value": {"candidate": {"autosave_document": {"current_snapshot": {
+			"snapshot": {"checkpoint_id": "safe-marker.fake"}}}}}}
+
+	func commit(_candidate: Dictionary) -> Dictionary:
+		return {"ok": true, "value": {}}
+
+	func prepare_consequence_checkpoint(header: Dictionary, candidate: Dictionary) -> Dictionary:
+		return consequence.prepare_consequence_checkpoint(header, candidate)
+
+	func commit_consequence_checkpoint(candidate: Dictionary, receipt: Dictionary) -> Dictionary:
+		return consequence.commit_consequence_checkpoint(candidate, receipt)
+
+	func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionary:
+		return consequence.abandon_pending_consequence_checkpoint(transaction_id)
+
 class FakePublicationLedger:
 	var records: Dictionary = {}
 
@@ -94,6 +115,7 @@ var _consequence_state: RefCounted
 var _consequence_checkpoint_port: CONSEQUENCE_CHECKPOINT_PORT
 var _consequence_gate: ApplicationMutationGate
 var _consequence_port: FakeConsequencePort
+var _source_capture_calls := 0
 
 
 func before_each() -> void:
@@ -797,6 +819,84 @@ func test_duplicate_terminal_causing_reveal_replays_without_reaching_the_reducer
 	assert_true(replay.get("ok", false), JSON.stringify(replay))
 	assert_eq(replay, terminal_result, "the duplicate retry must replay the original result exactly")
 
+
+func test_terminal_mine_retains_the_exact_pre_input_completed_board() -> void:
+	_reveal_first(_next_tx(), "beginner", 0)
+	var identity: Dictionary = _entry_identity_after_first_reveal()
+	var progressed := _coordinator.reveal(_cell_request_with_real_transaction(identity, 1, 6))
+	assert_true(progressed.get("ok", false), JSON.stringify(progressed))
+	var before_terminal: Dictionary = _coordinator.get_state()["value"].duplicate(true)
+	var exploded := _coordinator.reveal(_cell_request_with_real_transaction(identity, 2, 1))
+	assert_true(exploded.get("ok", false), JSON.stringify(exploded))
+	var terminal: Dictionary = _coordinator.get_state()["value"]
+	var retained: Dictionary = _coordinator._matching_pre_terminal_board(terminal)
+	assert_eq(retained, before_terminal, "the replay point preserves every reveal before the mine")
+	assert_false(bool(((retained["board"] as Dictionary)["board"] as Dictionary)["terminal"]))
+
+
+func test_terminal_chord_retains_flags_and_reveals_from_before_the_chord() -> void:
+	_reveal_first(_next_tx(), "beginner", 0)
+	var identity: Dictionary = _entry_identity_after_first_reveal()
+	# Cell 0 shows one adjacent mine. A wrong flag on safe cell 3 satisfies the chord count,
+	# causing the chord to reveal the real mine at cell 1 and terminate as exploded.
+	var flag_request := {
+		"transaction_id": _next_tx(), "transaction_issuer_receipt": {},
+		"expected_identity": identity, "expected_revision": 1, "cell_index": 3, "flagged": true,
+	}
+	flag_request["transaction_issuer_receipt"] = _issue_transaction_receipt_for(flag_request["transaction_id"])
+	assert_true(_coordinator.set_flag(flag_request).get("ok", false))
+	var before_terminal: Dictionary = _coordinator.get_state()["value"].duplicate(true)
+	var chorded := _coordinator.chord(_cell_request_with_real_transaction(identity, 2, 0))
+	assert_true(chorded.get("ok", false), JSON.stringify(chorded))
+	var terminal: Dictionary = _coordinator.get_state()["value"]
+	assert_true(bool(((terminal["board"] as Dictionary)["board"] as Dictionary)["terminal"]), "fixture chord must finish the board")
+	var retained: Dictionary = _coordinator._matching_pre_terminal_board(terminal)
+	assert_eq(retained, before_terminal)
+	assert_true((((retained["board"] as Dictionary)["board"] as Dictionary)["flagged_indices"] as Array).has(3))
+
+
+func test_failed_or_stale_commands_do_not_replace_a_terminal_replay_point() -> void:
+	_reveal_first(_next_tx(), "beginner", 0)
+	var identity: Dictionary = _entry_identity_after_first_reveal()
+	var failed := _coordinator.reveal(_cell_request_with_real_transaction(identity, 99, 1))
+	assert_false(failed.get("ok", false))
+	assert_true(_coordinator._terminal_pre_input_board.is_empty())
+	var before_terminal: Dictionary = _coordinator.get_state()["value"].duplicate(true)
+	assert_true(_coordinator.reveal(_cell_request_with_real_transaction(identity, 1, 1)).get("ok", false))
+	var retained_before: Dictionary = _coordinator._terminal_pre_input_board.duplicate(true)
+	var replay_request := _cell_request_with_real_transaction(identity, 1, 1)
+	var refused := _coordinator.reveal(replay_request)
+	assert_false(refused.get("ok", false))
+	assert_eq(_coordinator._terminal_pre_input_board, retained_before)
+	assert_eq(_coordinator._matching_pre_terminal_board(_coordinator.get_state()["value"]), before_terminal)
+
+
+func test_complete_round_safe_marker_substitutes_the_matching_pre_terminal_board() -> void:
+	_reveal_first(_next_tx(), "beginner", 0)
+	var identity: Dictionary = _entry_identity_after_first_reveal()
+	var before_terminal: Dictionary = _coordinator.get_state()["value"].duplicate(true)
+	assert_true(_coordinator.reveal(_cell_request_with_real_transaction(identity, 1, 1)).get("ok", false))
+	var recorder := SafeMarkerRecorder.new()
+	_coordinator._round_checkpoint_port = recorder
+	assert_true(_coordinator.configure_source_checkpoint_capture(Callable(self, "_capture_source_inputs")).get("ok", false))
+	var result: Dictionary = _coordinator.complete_round(_complete_round_request(_next_tx()))
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(recorder.captured_inputs["snapshot_input"]["desktop"]["board"], before_terminal)
+	assert_false(bool(recorder.captured_inputs["snapshot_input"]["desktop"]["board"]["board"]["board"]["terminal"]))
+
+func test_complete_round_without_a_matching_pre_input_board_never_captures_an_unsettled_autosave() -> void:
+	_explode_a_fresh_round()
+	_coordinator._terminal_pre_input_board.clear()
+	_source_capture_calls = 0
+	assert_true(_coordinator.configure_source_checkpoint_capture(Callable(self, "_capture_source_inputs")).get("ok", false))
+	var result: Dictionary = _coordinator.complete_round(_complete_round_request(_next_tx()))
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	assert_eq(_source_capture_calls, 0, "without a proven pre-input board, leave the prior Autosave untouched")
+
+
+func _capture_source_inputs(_completed: Dictionary) -> Dictionary:
+	_source_capture_calls += 1
+	return {"ok": true, "value": {"checkpoint_inputs": {"snapshot_input": {"desktop": {"board": _coordinator.get_state()["value"]}}, "dialogic_checkpoint": {}}}}
 
 # ---- get_state() ----
 

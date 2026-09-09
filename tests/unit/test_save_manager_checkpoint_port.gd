@@ -14,8 +14,14 @@ const CHECKPOINT_PORT_PATH := "res://scripts/application/run/SaveManagerCheckpoi
 const CONSEQUENCE_STATE_PATH := "res://scripts/domain/desktop/DesktopConsequenceState.gd"
 
 const CONSEQUENCE_STATE := preload(CONSEQUENCE_STATE_PATH)
+const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 var _suite_counter := 0
+
+func _canonical_text(value: Variant) -> String:
+	var emitted: Dictionary = CANONICAL_JSON.stringify(value)
+	assert_true(emitted.get("ok", false), str(emitted))
+	return str(emitted.get("value", ""))
 
 func _isolated_wired() -> Dictionary:
 	_suite_counter += 1
@@ -138,28 +144,22 @@ func test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_c
 	assert_eq(stored_pending["admission_checkpoint_receipt"], receipt)
 
 
-func test_commit_consequence_checkpoint_writes_and_rereads() -> void:
+func test_commit_consequence_checkpoint_retains_and_rereads_in_same_process() -> void:
 	var wired := _isolated_wired()
 	var port: RefCounted = wired["port"]
-	var candidate_state := _admitted_state_candidate()
-	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var committed: Dictionary = port.commit_consequence_checkpoint(
 		prepared["value"]["candidate"], prepared["value"]["checkpoint_receipt"])
 	assert_true(committed.get("ok", false), JSON.stringify(committed))
 	assert_eq(committed["value"]["checkpoint_receipt"], prepared["value"]["checkpoint_receipt"])
-	var disk_path := str(wired["root"]).path_join("desktop-consequence-checkpoint.json")
-	assert_true(FileAccess.file_exists(disk_path))
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(disk_path))
-	assert_eq(typeof(parsed), TYPE_DICTIONARY)
-	var record: Dictionary = ((parsed as Dictionary)["records"] as Dictionary)[_record_key()]
-	# Plain JSON.parse_string() (unlike StrictJson) hands back String where the in-memory receipt
-	# carries a StringName (header.kind), so this compares the fields that matter rather than whole-
-	# dict identity across that boundary.
-	var disk_receipt: Dictionary = record["checkpoint_receipt"]
-	assert_eq(str(disk_receipt["receipt_id"]), str(prepared["value"]["checkpoint_receipt"]["receipt_id"]))
-	assert_eq(str(disk_receipt["content_sha256"]), str(prepared["value"]["checkpoint_receipt"]["content_sha256"]))
-
+	var read: Dictionary = port.read_pending_consequence_checkpoint()
+	assert_true(read.get("ok", false), JSON.stringify(read))
+	assert_true(read.value.found)
+	assert_eq(_canonical_text(read.value.stage_candidate),
+		_canonical_text(prepared.value.candidate.document.stage_candidate))
+	assert_false(FileAccess.file_exists(str(wired["root"]).path_join("desktop-consequence-checkpoint.json")),
+		"transient recovery never creates the legacy sidecar")
 
 func test_commit_consequence_checkpoint_rejects_a_receipt_mismatch() -> void:
 	var wired := _isolated_wired()
@@ -180,58 +180,57 @@ func test_commit_consequence_checkpoint_rejects_a_receipt_mismatch() -> void:
 ## at an occupied (transaction_id, operation_ordinal) slot replays as success with no duplicate
 ## record; a changed-bytes rewrite at the same slot returns the frozen consequence_checkpoint_conflict
 ## and leaves the durable record untouched.
+func test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
+	var missing_header: Dictionary = prepared.value.candidate.duplicate(true)
+	missing_header.document = (missing_header.document as Dictionary).duplicate(true)
+	missing_header.document.erase("header")
+	var rejected_shape: Dictionary = port.commit_consequence_checkpoint(
+		missing_header, prepared.value.checkpoint_receipt)
+	assert_false(rejected_shape.get("ok", true))
+	assert_eq(rejected_shape.get("code"), &"invalid_candidate")
+	var unsupported: Dictionary = prepared.value.candidate.duplicate(true)
+	unsupported.document = (unsupported.document as Dictionary).duplicate(true)
+	unsupported.document["unexpected"] = Vector2(1.0, 2.0)
+	var rejected_variant: Dictionary = port.commit_consequence_checkpoint(
+		unsupported, prepared.value.checkpoint_receipt)
+	assert_false(rejected_variant.get("ok", true))
+	assert_eq(rejected_variant.get("code"), &"invalid_candidate")
+	assert_true((port.get("_transient_consequence_document").records as Dictionary).is_empty(),
+		"invalid records never enter transient retry state")
+
 func test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot() -> void:
 	var wired := _isolated_wired()
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
-	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var first_commit: Dictionary = port.commit_consequence_checkpoint(
-		prepared["value"]["candidate"], prepared["value"]["checkpoint_receipt"])
+		prepared.value.candidate, prepared.value.checkpoint_receipt)
 	assert_true(first_commit.get("ok", false), JSON.stringify(first_commit))
-
-	# A second, byte-identical prepare/commit pass over the SAME candidate at the SAME (transaction_id,
-	# operation_ordinal) slot -- e.g. a retried commit after a crash right after the first write.
 	var prepared_again: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
-	assert_true(prepared_again.get("ok", false), JSON.stringify(prepared_again))
 	var replayed: Dictionary = port.commit_consequence_checkpoint(
-		prepared_again["value"]["candidate"], prepared_again["value"]["checkpoint_receipt"])
+		prepared_again.value.candidate, prepared_again.value.checkpoint_receipt)
 	assert_true(replayed.get("ok", false), JSON.stringify(replayed))
-	assert_eq(replayed["value"]["checkpoint_receipt"], first_commit["value"]["checkpoint_receipt"])
-
-	var disk_path := str(wired["root"]).path_join("desktop-consequence-checkpoint.json")
-	var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(disk_path))
-	assert_eq((parsed["records"] as Dictionary).size(), 1, "a byte-identical replay never grows a duplicate record")
-
+	assert_eq(replayed.value.checkpoint_receipt, first_commit.value.checkpoint_receipt)
+	assert_eq((port.get("_transient_consequence_document").records as Dictionary).size(), 1,
+		"an identical same-process retry never grows a duplicate record")
 
 func test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot() -> void:
 	var wired := _isolated_wired()
 	var port: RefCounted = wired["port"]
-	var candidate_state := _admitted_state_candidate("txn-1", 1)
-	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
-	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	var first_commit: Dictionary = port.commit_consequence_checkpoint(
-		prepared["value"]["candidate"], prepared["value"]["checkpoint_receipt"])
-	assert_true(first_commit.get("ok", false), JSON.stringify(first_commit))
-
-	# A structurally-valid but content-different candidate at the SAME transaction_id/ordinal slot.
-	var conflicting_state: Dictionary = _admitted_state_candidate("txn-1", 2)
-	var prepared_conflicting: Dictionary = port.prepare_consequence_checkpoint(_header(), conflicting_state)
-	assert_true(prepared_conflicting.get("ok", false), JSON.stringify(prepared_conflicting))
+	var first: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate("txn-1", 1))
+	assert_true(port.commit_consequence_checkpoint(first.value.candidate,
+		first.value.checkpoint_receipt).get("ok", false))
+	var conflicting: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate("txn-1", 2))
 	var rejected: Dictionary = port.commit_consequence_checkpoint(
-		prepared_conflicting["value"]["candidate"], prepared_conflicting["value"]["checkpoint_receipt"])
+		conflicting.value.candidate, conflicting.value.checkpoint_receipt)
 	assert_false(rejected.get("ok", true))
 	assert_eq(rejected["code"], &"consequence_checkpoint_conflict")
-
-	# The original durable record is untouched.
-	var disk_path := str(wired["root"]).path_join("desktop-consequence-checkpoint.json")
-	var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(disk_path))
-	var records: Dictionary = parsed["records"]
-	assert_eq(records.size(), 1)
-	var record: Dictionary = records[_record_key()]
-	assert_eq(str((record["checkpoint_receipt"] as Dictionary)["receipt_id"]),
-		str(first_commit["value"]["checkpoint_receipt"]["receipt_id"]))
-
+	var retained: Dictionary = port.get("_transient_consequence_document").records[_record_key()]
+	assert_eq(_canonical_text(retained.checkpoint_receipt), _canonical_text(first.value.checkpoint_receipt),
+		"a conflict leaves the original same-process record untouched")
 
 ## Acceptance: a durable admission checkpoint written at ordinal 2 can be read back and passes
 ## DesktopConsequenceState.validate() -- proving the stored shape is genuinely loadable, not merely
@@ -287,9 +286,9 @@ func test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoin
 	assert_true(replayed.get("ok", false), JSON.stringify(replayed))
 	assert_true(bool(replayed["value"]["already_abandoned"]))
 
-	var disk_path := str(wired["root"]).path_join("desktop-consequence-checkpoint.json")
-	var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(disk_path))
-	assert_eq((parsed["records"] as Dictionary).size(), 1, "abandonment never creates or promotes a checkpoint")
+	assert_eq((port.get("_transient_consequence_document").records as Dictionary).size(), 1,
+		"abandonment never creates or promotes a checkpoint")
+	assert_false(FileAccess.file_exists(str(wired.root).path_join("desktop-consequence-checkpoint.json")))
 
 
 func test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction() -> void:
@@ -321,6 +320,57 @@ func test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_e
 	var read: Dictionary = port.read_pending_consequence_checkpoint()
 	assert_true(read.get("ok", false), JSON.stringify(read))
 	assert_false(bool(read["value"]["found"]))
+
+
+func test_clear_transient_consequence_checkpoints_is_explicit_and_complete() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired.port
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
+	assert_true(port.commit_consequence_checkpoint(prepared.value.candidate,
+		prepared.value.checkpoint_receipt).get("ok", false))
+	var cleared: Dictionary = port.clear_transient_consequence_checkpoints()
+	assert_true(cleared.get("ok", false), JSON.stringify(cleared))
+	assert_eq(cleared.value.records_cleared, 1)
+	assert_eq(cleared.value.abandoned_cleared, 0)
+	assert_false(port.read_pending_consequence_checkpoint().value.found)
+	var repeated: Dictionary = port.clear_transient_consequence_checkpoints()
+	assert_eq(repeated.value.records_cleared, 0, "the explicit clear is idempotent")
+
+
+func test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness() -> void:
+	var port: RefCounted = load(CHECKPOINT_PORT_PATH).new()
+	port.set("_transient_consequence_document", {
+		"records": {"stale:0": {}}, "abandoned": {"stale": true}})
+	var cleared: Dictionary = port.clear_transient_consequence_checkpoints()
+	assert_true(cleared.get("ok", false), JSON.stringify(cleared))
+	assert_eq(cleared.value.records_cleared, 1)
+	assert_eq(cleared.value.abandoned_cleared, 1)
+	assert_true((port.get("_transient_consequence_document").records as Dictionary).is_empty())
+	assert_true((port.get("_transient_consequence_document").abandoned as Dictionary).is_empty())
+
+
+func test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact() -> void:
+	var wired := _isolated_wired()
+	var base := str(wired.root).path_join("desktop-consequence-checkpoint.json")
+	var artifacts := {
+		base: "malformed final bytes",
+		base + ".bak": "{\"old\":\"backup\"}",
+		base + ".next": "[\"unfinished\"]",
+		base + ".txn.json": "corrupt transaction marker",
+	}
+	for path: String in artifacts:
+		var file := FileAccess.open(path, FileAccess.WRITE)
+		assert_not_null(file)
+		file.store_string(artifacts[path])
+		file.close()
+	var fresh_port: RefCounted = load(CHECKPOINT_PORT_PATH).new(wired.manager)
+	assert_true(fresh_port.configure_fatal_latch(load(GATE_PATH).new()).get("ok", false))
+	var read: Dictionary = fresh_port.read_pending_consequence_checkpoint()
+	assert_true(read.get("ok", false), JSON.stringify(read))
+	assert_false(read.value.found, "a fresh process never resumes an unfinished legacy sidecar")
+	for path: String in artifacts:
+		assert_eq(FileAccess.get_file_as_string(path), artifacts[path],
+			"legacy recovery evidence is preserved byte-for-byte: " + path)
 
 
 func test_prepare_consequence_checkpoint_requires_configuration() -> void:
@@ -422,55 +472,35 @@ func _write_full_result(wired: Dictionary, snapshot: Dictionary) -> void:
 	assert_true(wired["gate"].release(&"causal_transaction", lease["value"]["token"]).get("ok", false))
 
 
-func test_full_post_result_snapshot_survives_restart_and_supersedes_unfinished_sidecar_cleanup() -> void:
+func test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave() -> void:
 	var wired := _isolated_wired()
 	var snapshot := _completion_snapshot()
-	_write_pending_for_snapshot(wired["port"], snapshot)
+	_write_pending_for_snapshot(wired.port, snapshot)
+	assert_true(wired.port.read_pending_consequence_checkpoint().value.found)
+
+	# A new process has no transient recovery state, so an interrupted action replays from the
+	# previous Autosave instead of adopting an intermediate consequence stage.
+	var fresh_before_save: RefCounted = load(CHECKPOINT_PORT_PATH).new(wired.manager)
+	assert_true(fresh_before_save.configure_fatal_latch(load(GATE_PATH).new()).get("ok", false))
+	assert_false(fresh_before_save.read_pending_consequence_checkpoint().value.found)
+
+	# Once the completed result is fully saved, ordinary restart retains its gameplay result while
+	# still carrying no intermediate consequence transaction.
 	snapshot["desktop"]["consequence"]["causal_sequence"] = 1
 	snapshot["desktop"]["consequence"]["run_revision"] = 1
+	snapshot["desktop"]["consequence"]["pending"] = null
 	snapshot["gameplay"]["money"] = 777
 	snapshot["gameplay"]["minesweeper_app_rounds_finished_today"] = 1
 	_write_full_result(wired, snapshot)
-	# No terminal sidecar write: this is the crash window immediately after full Autosave commit.
 	var fresh_manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(fresh_manager)
-	assert_true(fresh_manager.initialize(load(STORAGE_PATH).new(wired["root"])).get("ok", false))
-	var fresh_port: RefCounted = load(CHECKPOINT_PORT_PATH).new(fresh_manager)
-	assert_true(fresh_port.configure_fatal_latch(load(GATE_PATH).new()).get("ok", false))
-	var pending: Dictionary = fresh_port.read_pending_consequence_checkpoint()
-	assert_true(pending.get("ok", false), JSON.stringify(pending))
-	assert_false(pending.get("value", {}).get("found", true), "completed gameplay must not replay an older payout")
+	assert_true(fresh_manager.initialize(load(STORAGE_PATH).new(wired.root)).get("ok", false))
+	var fresh_after_save: RefCounted = load(CHECKPOINT_PORT_PATH).new(fresh_manager)
+	assert_true(fresh_after_save.configure_fatal_latch(load(GATE_PATH).new()).get("ok", false))
+	assert_false(fresh_after_save.read_pending_consequence_checkpoint().value.found)
 	var document: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
-		FileAccess.get_file_as_string(str(wired["root"]).path_join("autosave.json")))["value"]
-	assert_eq(document["current_snapshot"]["checkpoint_kind"], "post_result")
-	assert_eq(document["current_snapshot"]["snapshot"]["gameplay"]["money"], 777)
-	assert_eq(document["current_snapshot"]["snapshot"]["gameplay"]["minesweeper_app_rounds_finished_today"], 1)
-	# The reader repairs ordinal 12, so a subsequent Autosave replacement cannot resurrect it.
-	assert_true(fresh_manager._storage.remove("autosave.json").get("ok", false))
-	var after_replacement: Dictionary = fresh_port.read_pending_consequence_checkpoint()
-	assert_true(after_replacement.get("ok", false), JSON.stringify(after_replacement))
-	assert_false(after_replacement.get("value", {}).get("found", true))
-
-
-func test_earlier_full_snapshot_does_not_suppress_admitted_recovery() -> void:
-	var wired := _isolated_wired()
-	var snapshot := _completion_snapshot()
-	_write_pending_for_snapshot(wired["port"], snapshot)
-	_write_full_result(wired, snapshot)
-	var pending: Dictionary = wired["port"].read_pending_consequence_checkpoint()
-	assert_true(pending.get("ok", false), JSON.stringify(pending))
-	assert_true(pending.get("value", {}).get("found", false), "pre-result causal counters cannot prove completion")
-
-
-func test_completion_supersession_requires_the_exact_saved_desktop_generation() -> void:
-	var wired := _isolated_wired()
-	var snapshot := _completion_snapshot()
-	_write_pending_for_snapshot(wired["port"], snapshot)
-	snapshot["desktop"]["consequence"]["causal_sequence"] = 1
-	snapshot["desktop"]["consequence"]["run_revision"] = 1
-	# Evaluate the binding directly: a continuation remap must not be mistaken for the original.
-	var pending: Dictionary = wired["port"].read_pending_consequence_checkpoint()
-	var record := {"stage_candidate": pending["value"]["stage_candidate"]}
-	assert_true(wired["port"]._completed_snapshot_supersedes(record, snapshot))
-	snapshot["lifecycle"]["desktop_timeline_generation"] += 1
-	assert_false(wired["port"]._completed_snapshot_supersedes(record, snapshot))
+		FileAccess.get_file_as_string(str(wired.root).path_join("autosave.json")))["value"]
+	assert_eq(document.current_snapshot.checkpoint_kind, "post_result")
+	assert_eq(document.current_snapshot.snapshot.gameplay.money, 777)
+	assert_eq(document.current_snapshot.snapshot.gameplay.minesweeper_app_rounds_finished_today, 1)
+	assert_null(document.current_snapshot.snapshot.desktop.consequence.pending)

@@ -13,29 +13,9 @@ const PROJECTOR := preload("res://scripts/application/transaction/FatalDiagnosti
 const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 
-## Plan 02 Task 6 (dwm-p2r.32): the narrow, self-contained durable record backing
-## `DesktopCausalSequencePort`'s admission checkpoint -- one small atomic JSON file at a fixed
-## relative path through the same injected StorageAdapter the autosave document already uses,
-## deliberately NOT routed through CheckpointJournal/SaveDocumentSchema: those own the full
-## RunSnapshot lifecycle, while this owns only the narrow consequence-admission compare-and-swap
-## point (brief line 249's "final compare-and-swap/admission point shared by every source kind").
-const CONSEQUENCE_CHECKPOINT_RELATIVE_PATH := "desktop-consequence-checkpoint.json"
-## dwm-p2r.35.3 remediation (finding A-C3): the document is a keyed-records store, one record per
-## occupied `(transaction_id, operation_ordinal)` slot -- mirroring this codebase's own established
-## ledger precedent (`DesktopPublicationLedger`/`ScheduleFoundationPublicationLedger`'s
-## `{schema_version,records}` shape and read-before-write/atomic-replace discipline) -- rather than
-## the single fixed-shape document this file previously overwrote on every write, which could never be
-## addressed by transaction/ordinal and therefore could never support a reader, an occupied-slot
-## conflict law, or more than one durable checkpoint at a time.
-## dwm-p2r.35.7 remediation (finding 1): `abandoned` added -- a flat `{transaction_id:true}` set,
-## disjoint from `records`, written only by `abandon_pending_consequence_checkpoint()` below. See
-## that method's own doc comment for why abandonment is a distinct top-level document member rather
-## than another keyed record: the frozen law it implements explicitly forbids abandonment from
-## creating or promoting a consequence checkpoint, so it cannot reuse the `records` keyspace, which
-## exists only for genuine checkpoint operations.
-const CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS: Array[String] = ["abandoned", "records", "schema_version"]
-const CONSEQUENCE_CHECKPOINT_RECORD_KEYS: Array[String] = ["checkpoint_receipt", "header", "key", "stage_candidate"]
-
+## Consequence stage checkpoints are transient same-process retry state. Source-action and completed
+## post-result Autosaves remain the cross-process recovery boundaries; legacy sidecars are never read,
+## reconciled, rewritten, or removed.
 const GATE_METHODS: Array[String] = [
 	"acquire", "release", "guard_external", "is_active", "get_active_owner",
 	"is_internal_owner_active", "latch_fatal", "is_fatal_latched",
@@ -69,6 +49,10 @@ var _profile_text_validator_us := 0
 var _prepared_text_validations: Dictionary = {}
 var _prepared_validation_checkpoint := ""
 var _prepared_validation_frame := -1
+# Recovery checkpoints protect retries only while the current player action is executing. Source
+# and completed post-result Autosaves retain the last fully saved player action; after a crash, the
+# interrupted action may replay once.
+var _transient_consequence_document := {"records": {}, "abandoned": {}}
 
 
 func configure_desktop_context_provider(provider: Object) -> Dictionary:
@@ -327,33 +311,7 @@ func rollback(backup: Dictionary) -> Dictionary:
 		return {"ok": true, "code": &"ok"}
 	return _fatal_rollback("rollback", str((journal_backup as Dictionary).get("run_id", "")), attempts)
 
-## Task-6 addition (dwm-p2r.32): builds the narrow admission-checkpoint candidate for
-## `DesktopCausalSequencePort`. Mutation-free -- it computes the frozen preimage/receipt (the sole
-## legal builder is `DesktopConsequenceState.checkpoint_content_preimage()`) but writes nothing; only
-## `commit_consequence_checkpoint()` durably writes.
-##
-## dwm-p2r.35.3 remediation (finding A-C3, fix 1 of 2): every checkpoint write is cross-checked against
-## the frozen ordinal<->stage law (`DesktopConsequenceState.validate_checkpoint_ordinal_stage()`) here
-## -- the one place every checkpoint author's write already passes through -- so ordinal 0 and
-## ordinals 8-12 are guarded exactly as uniformly as `DesktopConsequenceCoordinator`'s own two
-## directly-authored ordinals (1, 2) already were.
-##
-## dwm-p2r.35.3 remediation (finding A-C3, fix 2 of 2): the frozen "sole producer order" (plan02-frozen-
-## contracts.md line 479) requires that, for admission, the newly minted receipt is attached to BOTH
-## `checkpoint_receipt` and `admission_checkpoint_receipt`, and for a later forward/progress operation
-## it is attached only as the new `checkpoint_receipt` (the admission field is preserved byte-for-
-## byte) -- BEFORE the candidate/receipt relation is durably persisted. Previously this method stored
-## the raw, receipt-free `stage_candidate` verbatim: at the admission ordinal (`sequence_committed`
-## with both receipt fields still null -- `DesktopConsequenceState._validate_pending()`'s own in-
-## flight-admission relaxation, legal ONLY inside the preimage this method itself computes) that raw
-## shape is exactly what `DesktopConsequenceState.validate()` rejects with
-## `pending_admission_receipt_required`, so the one durable admission record a reader could ever load
-## was itself unloadable. `DesktopCausalSequencePort.commit()` separately patches these same two
-## fields onto the LIVE object after this checkpoint already committed to disk; that live patch is
-## unchanged (still correct, still redundant-but-harmless) -- this fix makes the DISK record carry the
-## identical patched bytes, so what gets persisted and what gets adopted live are the same shape.
-## Pre-admission stages (`action_prepared`, `prepared_checkpointed`) are left untouched: `validate()`
-## requires BOTH receipt fields null there, which the unpatched input already satisfies.
+## Builds the canonical stage record and receipt without mutating transient or durable state.
 func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
@@ -397,15 +355,7 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 		"checkpoint_receipt": checkpoint_receipt,
 	}}
 
-## dwm-p2r.35.3 remediation (finding A-C3): real occupied-slot conflict law keyed on
-## `(transaction_id, operation_ordinal)`, read-before-write/atomic-replace over a keyed-records
-## document -- mirroring `DesktopPublicationLedger`/`ScheduleFoundationPublicationLedger`'s own
-## established precedent, rather than the single fixed-shape document this method previously
-## overwrote unconditionally on every write (which never tracked a slot, never read anything back
-## first, and could never return `consequence_checkpoint_conflict`). An identical-bytes rewrite at an
-## occupied slot replays the retained record's receipt as success; a changed-bytes rewrite at an
-## occupied slot returns the frozen `consequence_checkpoint_conflict` (plan02-frozen-contracts.md
-## line 481) without touching disk.
+## Retains one stage in memory. Identical occupied-slot retries replay; changed bytes conflict.
 func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_receipt: Dictionary) -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
@@ -415,69 +365,32 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 	var record: Dictionary = checkpoint_candidate["document"]
 	if record.get("checkpoint_receipt") != checkpoint_receipt:
 		return _fail(&"checkpoint_receipt_mismatch", "checkpoint_receipt does not match the prepared candidate")
-	var key := str(record.get("key", ""))
-	if key.is_empty():
-		return _fail(&"invalid_candidate", "candidate is missing its occupied-slot key")
-
-	var loaded := _load_consequence_checkpoint_document()
-	if not loaded.get("ok", false):
-		return loaded
-	var document: Dictionary = loaded["value"]["document"]
-	var records: Dictionary = document["records"]
+	var validated := _validate_transient_consequence_record(record)
+	if not validated.get("ok", false):
+		return validated
+	var normalized: Dictionary = validated["value"]
+	var key: String = normalized["key"]
+	var records: Dictionary = _transient_consequence_document["records"]
 	if records.has(key):
 		var existing: Dictionary = records[key]
-		# Compare by canonical serialization, not raw Dictionary `==`: `existing` came back through a
-		# JSON round-trip (StrictJson has no StringName type, so e.g. header.kind lands as a plain
-		# String), while `record` is the freshly built in-memory candidate this process never
-		# serialized (header.kind is still the caller's original StringName). The two are semantically
-		# byte-identical but would never compare `==` directly.
-		if _canonical_text(existing) == _canonical_text(record):
+		if str(validated["canonical_text"]) == _canonical_text(existing):
 			return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
 		return _fail(&"consequence_checkpoint_conflict",
-			"a different checkpoint is already durably recorded at " + key)
-
-	var next_document := document.duplicate(true)
-	(next_document["records"] as Dictionary)[key] = record.duplicate(true)
-	var canonical: Dictionary = CANONICAL_JSON.stringify(next_document)
-	if not canonical.get("ok", false):
-		return _fail(&"canonical_serialization_failed", "consequence checkpoint document is not canonicalizable")
-	var text := str(canonical["value"]) + "\n"
-	var written: Dictionary = _storage().write_atomic(
-		CONSEQUENCE_CHECKPOINT_RELATIVE_PATH, text, _consequence_checkpoint_text_validator)
-	if not written.get("ok", false):
-		return written
-	var re_read: Dictionary = _storage().read_text(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
-	if not re_read.get("ok", false):
-		return re_read
-	if str(re_read["value"]) != text:
-		return _fail(&"reread_mismatch", CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
+			"a different checkpoint is already retained at " + key)
+	records[key] = normalized
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
 
-## dwm-p2r.35.7 remediation (finding 1): plan02-frozen-contracts.md line 2271's "marks only the
-## already-durable unpromoted source checkpoint abandoned through the injected checkpoint port".
-## Requires an existing durable pre-admission (`action_prepared`/`prepared_checkpointed`) record for
-## `transaction_id` -- abandonment is not legal for an already-admitted transaction, matching the
-## frozen law's own "before causal admission" scoping. Records the transaction_id in a SEPARATE
-## `abandoned` set rather than writing another keyed `records` entry: the frozen law explicitly says
-## this "never creates or promotes a consequence checkpoint", and every `records` entry IS a
-## checkpoint by this document's own convention, so reusing that keyspace here would contradict the
-## very law this method implements. Idempotent: an already-abandoned transaction_id replays success
-## without rewriting.
+## Marks an unpromoted transient transaction abandoned without creating another stage record.
 func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
 	if transaction_id.strip_edges().is_empty():
 		return _fail(&"invalid_transaction_id", "transaction_id must be nonempty")
-	var loaded := _load_consequence_checkpoint_document()
-	if not loaded.get("ok", false):
-		return loaded
-	var document: Dictionary = loaded["value"]["document"]
-	var abandoned: Dictionary = document.get("abandoned", {})
+	var abandoned: Dictionary = _transient_consequence_document["abandoned"]
 	if bool(abandoned.get(transaction_id, false)):
 		return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": true}}
-
-	var records: Dictionary = document["records"]
+	var records: Dictionary = _transient_consequence_document["records"]
 	var latest_ordinal := -1
 	var latest_stage := ""
 	for record_key: String in records.keys():
@@ -490,50 +403,27 @@ func abandon_pending_consequence_checkpoint(transaction_id: String) -> Dictionar
 			latest_ordinal = ordinal
 			latest_stage = str(header["stage"])
 	if latest_ordinal < 0:
-		return _fail(&"consequence_checkpoint_not_found", "no durable checkpoint exists for " + transaction_id)
+		return _fail(&"consequence_checkpoint_not_found", "no retained checkpoint exists for " + transaction_id)
 	if latest_stage not in ["action_prepared", "prepared_checkpointed"]:
 		return _fail(&"consequence_checkpoint_not_pre_admission", "abandonment requires an unpromoted pre-admission checkpoint")
-
-	var next_document := document.duplicate(true)
-	var next_abandoned: Dictionary = (next_document.get("abandoned", {}) as Dictionary).duplicate(true)
-	next_abandoned[transaction_id] = true
-	next_document["abandoned"] = next_abandoned
-	var canonical: Dictionary = CANONICAL_JSON.stringify(next_document)
-	if not canonical.get("ok", false):
-		return _fail(&"canonical_serialization_failed", "consequence checkpoint document is not canonicalizable")
-	var text := str(canonical["value"]) + "\n"
-	var written: Dictionary = _storage().write_atomic(
-		CONSEQUENCE_CHECKPOINT_RELATIVE_PATH, text, _consequence_checkpoint_text_validator)
-	if not written.get("ok", false):
-		return written
-	var re_read: Dictionary = _storage().read_text(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
-	if not re_read.get("ok", false):
-		return re_read
-	if str(re_read["value"]) != text:
-		return _fail(&"reread_mismatch", CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
+	abandoned[transaction_id] = true
 	return {"ok": true, "code": &"ok", "value": {"abandoned": true, "already_abandoned": false}}
 
-## dwm-p2r.35.3 remediation (finding A-C3, "no reader"): the sole reader `desktop-consequence-
-## checkpoint.json` has ever had. For every transaction_id present in the durable records, keeps only
-## its highest-ordinal record (the most-advanced durable truth for that transaction); among those,
-## returns the one whose `stage_candidate.pending` is still nonnull -- a transaction whose most-
-## advanced record already shows `pending=null` reached terminal cleanup and has nothing left to
-## recover. The exclusive `causal_transaction` mutation-gate owner means at most one transaction_id
-## should ever satisfy this at a time; more than one is a genuine anomaly and fails loudly rather than
-## silently picking one.
+## Clears retry state only at an explicit successful session boundary.
+func clear_transient_consequence_checkpoints() -> Dictionary:
+	var records_cleared := (_transient_consequence_document["records"] as Dictionary).size()
+	var abandoned_cleared := (_transient_consequence_document["abandoned"] as Dictionary).size()
+	_transient_consequence_document = {"records": {}, "abandoned": {}}
+	return {"ok": true, "code": &"ok", "value": {
+		"records_cleared": records_cleared, "abandoned_cleared": abandoned_cleared}}
+
+
 func read_pending_consequence_checkpoint() -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
-	var loaded := _load_consequence_checkpoint_document()
-	if not loaded.get("ok", false):
-		return loaded
-	var document: Dictionary = (loaded["value"] as Dictionary)["document"]
-	var records: Dictionary = document["records"]
-	# dwm-p2r.35.7 remediation (finding 1): a transaction_id marked abandoned is never reported as
-	# still-pending -- otherwise adopt_durable_checkpoint_if_live_is_behind() would re-adopt the exact
-	# transaction accept_prepared_action() just abandoned on every subsequent boot.
-	var abandoned: Dictionary = document.get("abandoned", {})
+	var records: Dictionary = _transient_consequence_document["records"]
+	var abandoned: Dictionary = _transient_consequence_document["abandoned"]
 	var latest_by_transaction: Dictionary = {}
 	for record_key: String in records.keys():
 		var record: Dictionary = records[record_key]
@@ -543,7 +433,7 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 		if not latest_by_transaction.has(transaction_id) \
 				or ordinal > int((latest_by_transaction[transaction_id]["header"] as Dictionary)["operation_ordinal"]):
 			latest_by_transaction[transaction_id] = record
-	var pending_transaction_ids: Array = []
+	var pending_transaction_ids: Array[String] = []
 	for transaction_id: String in latest_by_transaction.keys():
 		if bool(abandoned.get(transaction_id, false)):
 			continue
@@ -552,82 +442,14 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 			pending_transaction_ids.append(transaction_id)
 	if pending_transaction_ids.is_empty():
 		return {"ok": true, "code": &"ok", "value": {"found": false}}
-	var saved := _read_completed_snapshot()
-	if not saved.get("ok", false):
-		return saved
-	var completed_snapshot: Dictionary = saved["value"]["snapshot"]
-	for transaction_id: String in pending_transaction_ids.duplicate():
-		var record: Dictionary = latest_by_transaction[transaction_id]
-		if _completed_snapshot_supersedes(record, completed_snapshot):
-			# Repair the missing terminal write durably. Otherwise replacing Autosave on a later
-			# day/continuation would remove this proof and make the stale transaction reappear.
-			var repaired := _repair_completed_consequence_checkpoint(record, completed_snapshot)
-			if not repaired.get("ok", false):
-				return repaired
-			pending_transaction_ids.erase(transaction_id)
-	if pending_transaction_ids.is_empty():
-		return {"ok": true, "code": &"ok", "value": {"found": false}}
 	if pending_transaction_ids.size() > 1:
 		return _fail(&"consequence_checkpoint_multiple_pending_transactions",
-			"more than one transaction_id has an unresolved durable checkpoint: " + str(pending_transaction_ids))
+			"more than one transaction_id has an unresolved transient checkpoint: " + str(pending_transaction_ids))
 	var chosen: String = pending_transaction_ids[0]
 	return {"ok": true, "code": &"ok", "value": {
 		"found": true,
 		"stage_candidate": ((latest_by_transaction[chosen] as Dictionary)["stage_candidate"] as Dictionary).duplicate(true),
 	}}
-
-## A crash may occur after the complete Autosave write but before terminal sidecar cleanup.
-## In that window the full snapshot is authoritative: replaying an older admitted payload would
-## rewind gameplay. Only the same exact run/branch/generation/day and an advanced completed causal
-## state establish supersession; unrelated or remapped identities are never guessed equivalent.
-func _read_completed_snapshot() -> Dictionary:
-	var reconciled: Dictionary = _storage().reconcile(AUTOSAVE_RELATIVE_PATH, _document_text_validator)
-	if not reconciled.get("ok", false):
-		return reconciled
-	if not reconciled.get("exists", false):
-		return {"ok": true, "value": {"snapshot": {}}}
-	var read: Dictionary = _storage().read_text(AUTOSAVE_RELATIVE_PATH)
-	if not read.get("ok", false):
-		return read
-	var validated := _document_text_validator(str(read["value"]))
-	if not validated.get("ok", false):
-		return validated
-	return {"ok": true, "value": {"snapshot": validated["value"]["current_snapshot"]["snapshot"]}}
-
-
-func _repair_completed_consequence_checkpoint(record: Dictionary, snapshot: Dictionary) -> Dictionary:
-	var transaction_id := str(record["header"]["transaction_id"])
-	var header := {"kind": &"consequence_cleanup", "transaction_id": transaction_id,
-		"stage": "publication_pending", "operation_ordinal": 12, "run_id": "", "source_ids": [transaction_id]}
-	var prepared := prepare_consequence_checkpoint(header, snapshot["desktop"]["consequence"])
-	if not prepared.get("ok", false):
-		return prepared
-	return commit_consequence_checkpoint(prepared["value"]["candidate"], prepared["value"]["checkpoint_receipt"])
-
-
-func _completed_snapshot_supersedes(record: Dictionary, snapshot: Dictionary) -> bool:
-	if snapshot.is_empty():
-		return false
-	var state: Dictionary = record["stage_candidate"]
-	var pending: Dictionary = state["pending"]
-	if str(pending.get("stage", "")) not in ["sequence_committed", "publication_pending"]:
-		return false
-	var payload: Dictionary = pending.get("recovery_payload", {})
-	var action: Dictionary = payload.get("action_receipt", {})
-	for recipe: Variant in payload.get("publication_plan", []):
-		if typeof(recipe) == TYPE_DICTIONARY and str(recipe.get("participant", "")) == "action_source":
-			action = recipe.get("publication", {}).get("action_receipt", {})
-			break
-	var lifecycle: Dictionary = snapshot.get("lifecycle", {})
-	for field: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
-		if not action.has(field) or action[field] != lifecycle.get(field):
-			return false
-	var completed: Dictionary = snapshot.get("desktop", {}).get("consequence", {})
-	return completed.get("pending") == null \
-		and str(completed.get("causal_day_instance", "")) == str(state.get("causal_day_instance", "")) \
-		and int(completed.get("causal_sequence", -1)) >= int(state.get("causal_sequence", 0)) \
-		and int(completed.get("run_revision", -1)) >= int(state.get("run_revision", 0))
-
 
 func _canonical_text(value: Variant) -> String:
 	var canonical: Dictionary = CANONICAL_JSON.stringify(value)
@@ -635,62 +457,29 @@ func _canonical_text(value: Variant) -> String:
 		return ""
 	return str(canonical["value"])
 
-func _load_consequence_checkpoint_document() -> Dictionary:
-	var reconciled: Dictionary = _storage().reconcile(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH,
-		_consequence_checkpoint_text_validator)
-	if not reconciled.get("ok", false):
-		return reconciled
-	if not reconciled.get("exists", false):
-		return {"ok": true, "code": &"ok", "value": {"document": {"schema_version": 1, "records": {}, "abandoned": {}}}}
-	var read: Dictionary = _storage().read_text(CONSEQUENCE_CHECKPOINT_RELATIVE_PATH)
-	if not read.get("ok", false):
-		return read
-	var validated := _consequence_checkpoint_text_validator(str(read["value"]))
-	if not validated.get("ok", false):
-		return validated
-	return {"ok": true, "code": &"ok", "value": {"document": validated["value"]}}
-
-func _consequence_checkpoint_text_validator(text: String) -> Dictionary:
-	var parsed: Dictionary = STRICT_JSON.parse_object(text)
-	if not parsed.get("ok", false):
-		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
-	var raw: Variant = parsed["value"]
-	if typeof(raw) != TYPE_DICTIONARY:
-		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "document must be an object"}
-	var document: Dictionary = raw
-	var keys: Array = document.keys()
+func _validate_transient_consequence_record(record: Dictionary) -> Dictionary:
+	var canonical: Dictionary = CANONICAL_JSON.stringify(record)
+	if not canonical.get("ok", false):
+		return _fail(&"invalid_candidate", "checkpoint record is not canonicalizable")
+	var parsed: Dictionary = STRICT_JSON.parse_object(str(canonical["value"]))
+	if not parsed.get("ok", false) or typeof(parsed.get("value")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_candidate", "checkpoint record failed canonical round-trip validation")
+	var normalized: Dictionary = parsed["value"]
+	var keys: Array = normalized.keys()
 	keys.sort()
-	var expected := CONSEQUENCE_CHECKPOINT_DOCUMENT_KEYS.duplicate()
-	expected.sort()
-	if keys != expected:
-		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "unexpected document keys"}
-	if typeof(document["schema_version"]) != TYPE_INT or int(document["schema_version"]) != 1:
-		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "schema_version must be exactly 1"}
-	if typeof(document["records"]) != TYPE_DICTIONARY:
-		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "records must be an object"}
-	if typeof(document["abandoned"]) != TYPE_DICTIONARY:
-		return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "abandoned must be an object"}
-	for abandoned_key: Variant in (document["abandoned"] as Dictionary):
-		if typeof(abandoned_key) != TYPE_STRING or str(abandoned_key).strip_edges().is_empty():
-			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "an abandoned key must be a nonblank string"}
-		if (document["abandoned"] as Dictionary)[abandoned_key] != true:
-			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "an abandoned value must be exactly true"}
-	var records: Dictionary = document["records"]
-	for record_key: Variant in records:
-		if typeof(record_key) != TYPE_STRING or str(record_key).strip_edges().is_empty():
-			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "a record key must be a nonblank string"}
-		if typeof(records[record_key]) != TYPE_DICTIONARY:
-			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "a record must be an object"}
-		var record: Dictionary = records[record_key]
-		var record_keys: Array = record.keys()
-		record_keys.sort()
-		var expected_record_keys := CONSEQUENCE_CHECKPOINT_RECORD_KEYS.duplicate()
-		expected_record_keys.sort()
-		if record_keys != expected_record_keys:
-			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "unexpected record keys"}
-		if str(record["key"]) != str(record_key):
-			return {"ok": false, "code": &"invalid_consequence_checkpoint", "message": "a record's key must equal its index"}
-	return {"ok": true, "code": &"ok", "value": document}
+	if keys != ["checkpoint_receipt", "header", "key", "stage_candidate"]:
+		return _fail(&"invalid_candidate", "checkpoint record has unexpected keys")
+	if typeof(normalized["key"]) != TYPE_STRING or str(normalized["key"]).strip_edges().is_empty():
+		return _fail(&"invalid_candidate", "checkpoint record key must be a nonblank string")
+	if typeof(normalized["header"]) != TYPE_DICTIONARY \
+			or typeof(normalized["stage_candidate"]) != TYPE_DICTIONARY \
+			or typeof(normalized["checkpoint_receipt"]) != TYPE_DICTIONARY:
+		return _fail(&"invalid_candidate", "checkpoint record fields have invalid types")
+	var header: Dictionary = normalized["header"]
+	if str(normalized["key"]) != str(header.get("transaction_id", "")) + ":" + str(header.get("operation_ordinal", "")):
+		return _fail(&"invalid_candidate", "checkpoint record key does not match its header")
+	return {"ok": true, "code": &"ok", "value": normalized,
+		"canonical_text": str(canonical["value"])}
 
 func _fatal_rollback(phase: String, run_id: String, raw_diagnostics: Array) -> Dictionary:
 	var already_retained := false

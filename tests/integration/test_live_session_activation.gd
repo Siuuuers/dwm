@@ -404,7 +404,7 @@ func test_desktop_ports_read_the_activated_run_identity_and_refresh_after_load()
 	assert_eq(reconstructed.capture().value.next_app_round_ordinal, 2)
 
 
-func test_new_run_freezes_only_unwitnessed_pair_form_from_the_exact_profile_source() -> void:
+func test_new_run_defers_unwitnessed_pair_form_without_changing_profile_witnesses() -> void:
 	var f := _fixture()
 	for form: String in ["ambiguous_sweet", "ambiguous_dark", "love_sweet"]:
 		assert_true(f.profile.record_pair_form_witness(form, "presentation-" + form).ok)
@@ -417,6 +417,7 @@ func test_new_run_freezes_only_unwitnessed_pair_form_from_the_exact_profile_sour
 	assert_true(started.get("ok", false), str(started))
 	if not started.get("ok", false): return
 	assert_eq(ready_facts, [{"active": true, "admitted": true}], "mount readiness follows activation and gate release")
-	assert_eq(f.game_state.inter_friend_route_state.priscilla_lavinia.frozen_form, "love_dark")
+	assert_false(f.game_state.inter_friend_route_state.priscilla_lavinia.has("frozen_form"),
+		"the first counted pair encounter owns the Profile-backed draw")
 	assert_eq(f.profile.get_profile_snapshot().pair_form_witness_receipts,
 		before.pair_form_witness_receipts, "hidden selection must not award witness credit")

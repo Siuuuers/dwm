@@ -449,8 +449,8 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var save_initialized: Dictionary = save_manager.call(&"initialize", JSON_STORAGE.new(_selected_root.path_join("saves")))
 			if not save_initialized.get("ok", false):
 				return save_initialized
-			if save_manager.has_signal("live_session_ready") and not save_manager.is_connected("live_session_ready", _on_live_session_ready):
-				save_manager.connect("live_session_ready", _on_live_session_ready)
+			if save_manager.has_signal("live_session_ready") and not save_manager.is_connected("live_session_ready", _on_saved_session_activated):
+				save_manager.connect("live_session_ready", _on_saved_session_activated)
 			if _application_gate.has_signal("transaction_released") and not _application_gate.is_connected("transaction_released", _queue_live_continuation):
 				_application_gate.connect("transaction_released", _queue_live_continuation)
 			# Construct and retain the ONE real checkpoint port here; the narrative adapter and
@@ -2110,6 +2110,14 @@ func _pump_condition_hospital() -> void:
 
 ## Navigation follows the completed owner's durable boundary, after its caller unwinds.
 func _on_day_resolution_completed(_result: Dictionary) -> void:
+	_on_live_session_ready()
+
+
+## Load/New Account publishes this signal only after successful activation. Intermediate
+## action receipts belong to the old session; routine day/navigation callbacks do not reset them.
+func _on_saved_session_activated() -> void:
+	if _retained_checkpoint_port != null:
+		_retained_checkpoint_port.clear_transient_consequence_checkpoints()
 	_on_live_session_ready()
 
 

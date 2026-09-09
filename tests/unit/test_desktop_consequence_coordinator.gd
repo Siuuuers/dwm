@@ -192,6 +192,9 @@ func before_each() -> void:
 	# Board owned by a real MinesweeperRoundCoordinator; the fate port reconnects to the SAME
 	# privately owned instance (established test precedent -- see DesktopBoardFatePort's own suite).
 	var round_state_port := SHOP_STATE_PORT.new()
+	# These departure tests deliberately place the real board in PREPARING. Debug preparation now
+	# requires the explicit forced-no-guess capability, so advertise the capability in the fake spec.
+	round_state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	round_state_port.identity_issuer = _issuer
 	var round_checkpoint_port := preload("res://tests/support/FakeMinesweeperCheckpointPort.gd").new()
 	var round_generation_port := CHECKPOINT_GENERATION_PORT.new()

@@ -109,6 +109,10 @@ var _consequence_gate_token := ""
 var _round_completions: Dictionary = {}
 var _reward_port: Object = null
 var _source_checkpoint_capture := Callable()
+## A terminal command commits the board before complete_round() acquires the causal lease. Retain
+## the immediately preceding, fully completed board so the leased full-save capture can write a
+## coherent replay point rather than the terminal board whose reward is not admitted yet.
+var _terminal_pre_input_board: Dictionary = {}
 ## dwm-p2r.35.7 remediation (findings 1 and 2): the exact accept_prepared_action() request this same
 ## process retained when it first durably wrote ordinal 0 for a transaction -- mirrors
 ## MinesweeperShopPurchaseParticipant's own `participant_snapshot_ids` retention pattern, adapted to
@@ -368,14 +372,24 @@ func complete_round(request: Dictionary) -> Dictionary:
 			if acquired_fresh: release_recovery_lease()
 			return reward
 		action_candidate["reward"] = reward.value.duplicate(true)
-	# Freeze the complete owning run before admission; the first-reveal save can be older
-	# than intervening Contacts, Shop, Schedule and terminal board actions.
-	if _source_checkpoint_capture.is_valid():
+	# Compose under the causal lease, then substitute the matching pre-command board. The
+	# unfinished terminal input may replay after a crash without restoring a half-settled round.
+	var pre_terminal_board := _matching_pre_terminal_board(captured)
+	if _source_checkpoint_capture.is_valid() and not pre_terminal_board.is_empty():
 		var source_inputs: Dictionary = _source_checkpoint_capture.call(live_consequence.duplicate(true))
 		if not source_inputs.get("ok", false):
 			if acquired_fresh: release_recovery_lease()
 			return source_inputs
-		var source_prepared: Dictionary = _round_checkpoint_port.prepare(source_inputs.value.checkpoint_inputs,
+		var checkpoint_inputs: Variant = (source_inputs.get("value", {}) as Dictionary).get("checkpoint_inputs")
+		var snapshot_input: Variant = (checkpoint_inputs as Dictionary).get("snapshot_input") \
+			if typeof(checkpoint_inputs) == TYPE_DICTIONARY else null
+		if typeof(snapshot_input) != TYPE_DICTIONARY \
+				or typeof((snapshot_input as Dictionary).get("desktop")) != TYPE_DICTIONARY:
+			if acquired_fresh: release_recovery_lease()
+			return _fail(&"invalid_source_checkpoint_inputs", "snapshot_input.desktop is required", {})
+		var completed_inputs: Dictionary = (checkpoint_inputs as Dictionary).duplicate(true)
+		((completed_inputs["snapshot_input"] as Dictionary)["desktop"] as Dictionary)["board"] = pre_terminal_board
+		var source_prepared: Dictionary = _round_checkpoint_port.prepare(completed_inputs,
 			&"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
 		if not source_prepared.get("ok", false):
 			if acquired_fresh: release_recovery_lease()
@@ -1306,7 +1320,36 @@ func _routine_command(request: Dictionary, kind: StringName) -> Dictionary:
 	var prepared := _board_state.prepare_board_command(board_input, reduced_board)
 	if not prepared.get("ok", false):
 		return prepared
-	return _board_state.commit((prepared["value"] as Dictionary)["candidate"])
+	var committed: Dictionary = _board_state.commit((prepared["value"] as Dictionary)["candidate"])
+	if not committed.get("ok", false):
+		return committed
+	if bool(reduced_board.get("terminal", false)):
+		_terminal_pre_input_board = {
+			"identity": (captured["identity"] as Dictionary).duplicate(true),
+			"pre_revision": int(captured["revision"]),
+			"terminal_revision": int((committed["value"] as Dictionary)["revision"]),
+			"board": captured.duplicate(true),
+		}
+	else:
+		_terminal_pre_input_board.clear()
+	return committed
+
+
+func _matching_pre_terminal_board(terminal_capture: Dictionary) -> Dictionary:
+	if _terminal_pre_input_board.is_empty():
+		return {}
+	if _terminal_pre_input_board.get("identity") != terminal_capture.get("identity") \
+			or int(_terminal_pre_input_board.get("terminal_revision", -1)) != int(terminal_capture.get("revision", -2)) \
+			or int(_terminal_pre_input_board.get("pre_revision", -1)) + 1 != int(terminal_capture.get("revision", -2)):
+		return {}
+	var board: Variant = _terminal_pre_input_board.get("board")
+	if typeof(board) != TYPE_DICTIONARY:
+		return {}
+	var wrapper: Variant = (board as Dictionary).get("board")
+	if typeof(wrapper) != TYPE_DICTIONARY or typeof((wrapper as Dictionary).get("board")) != TYPE_DICTIONARY \
+			or bool(((wrapper as Dictionary)["board"] as Dictionary).get("terminal", true)):
+		return {}
+	return (board as Dictionary).duplicate(true)
 
 
 func _visibility_command(request: Dictionary, visible: bool) -> Dictionary:
