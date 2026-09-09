@@ -2,7 +2,7 @@
 
 **Status:** CURRENT NONCANONICAL CAUSAL AUDITION — not an approved event,
 finished scene, final dialogue pass, or Bible amendment.  
-**Created:** 2026-09-06. **Revised:** 2026-09-08.  
+**Created:** 2026-09-06. **Revised:** 2026-09-09.
 **Scope:** One proposed Day 2 bar-return situation expressed through the
 run-frozen `Ambiguous/Love × Sweet/Dark` form, its immediate aftermath, and
 the minimum handoff needed to resume Day 6 plotting.  
@@ -13,6 +13,16 @@ the revision improves the plot.
 **Current causal proposal:** in this scene only, `Ambiguous/Love` tests
 unclaimed present company against one direct, refusable request for that
 company. This is not yet an owner-approved form design.  
+**Owner-approved Sweet–Ambiguous continuation — 2026-09-09:** Within this
+still-noncanonical event, Lavinia stops her threatened hand after `Why?` / `You
+weren't supposed to come back.` Priscilla then passes through a genuine exit
+opportunity by choosing a farther chair; `That one is worse.` / `I know.`
+opens the ordinary remainder at altered distance. The separately approved
+continuation below now carries the Sweet–Ambiguous causal remainder through
+a reciprocal farewell and staggered separation. Exact mundane DTL, board
+allocation, anchor-bound rendering, location blocking, and canon remain open.
+These approvals are local to Sweet–Ambiguous and transfer neither wording nor
+action to another form.
 **Owner-retained Dark refinement — 2026-09-07:** Priscilla's involuntary hurt
 precedes any strategy. She then chooses to leave one bodily sign of that hurt
 visible while completing a finite departure procedure and ultimately leaves.
@@ -95,13 +105,30 @@ owner approval and an `APPROVED` Causal Matrix row before production.
 
 ## 3. Revision of the inherited temporal exchange
 
-Retain these two inherited candidates for the next read-aloud pass. Their
-earlier status is preserved in the [working record, Section 4](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md#4-day-2-bar-return-candidate)
+Preserve these two inherited candidates as provenance. Their earlier status is
+recorded in the [working record, Section 4](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md#4-day-2-bar-return-candidate)
 and [working decision ledger, Section 7.8](../design/2026-09-02-narrative-constitution-working-decision-ledger.md#78-core-ending-closure-and-interpretive-openness):
 
 > **Priscilla:** Why?
 >
 > **Lavinia:** You should have left me alone.
+
+**Later Sweet–Ambiguous refinement — 2026-09-09:** Within
+Sweet–Ambiguous only, the owner-approved leading noncanonical wording now
+replaces Lavinia's inherited line with:
+
+> **Priscilla:** Why?
+>
+> **Lavinia:** You weren't supposed to come back.
+
+`Come back` remains deliberately unresolved in its backward referent: it may
+gather the repeated early returns, the renewed contact, and the present return
+to a familiar bar without assigning one complete interpretation. It does not
+establish a same-evening leave-and-return cycle. The
+line condemns an origin or recurrence under a private rule Lavinia never
+announced; it is not a present command that Priscilla leave. The older `You
+should have left me alone.` remains provenance and is not silently removed
+from the still-open cross-form comparison.
 
 `Why?` has a concrete referent: the threatened or completed strike. Priscilla
 is not innocent of the preceding conflict; she genuinely does not know which
@@ -109,9 +136,10 @@ of several grievances Lavinia has converted into that act.
 
 The exact exchange `Then or now?` / `Then.` is no longer the active
 recommendation. Preserve it in the working-event record as provenance, but do
-not carry it automatically into the new scene. `Should have left` already
-points backward, and the balanced answer risks explaining the contradiction
-more elegantly than either woman would speak while distressed.
+not carry it automatically into the new scene. Both the inherited `Should have
+left` and the Sweet–Ambiguous `weren't supposed to come back` point backward;
+the balanced answer risks explaining the contradiction more elegantly than
+either woman would speak while distressed.
 
 The revised causal method shows the same distinction:
 
@@ -369,8 +397,9 @@ The Dark assignment is not supplied by injury alone:
 
 1. Lavinia begins crying; the movement of one hand makes threatened contact
    perceptible.
-2. Priscilla questions the threatened contact before it occurs. `Why?` remains
-   candidate wording rather than a fixed line.
+2. Priscilla questions the threatened contact before it occurs. `Why?` is
+   selected only inside the owner-approved Sweet–Ambiguous audition below; it
+   remains open in the other forms.
 3. Lavinia carries the impulse into speech and gives the origin-facing
    grievance. Her hand lowers without touching Priscilla.
 4. Lavinia makes no direct request that Priscilla remain and supplies no
@@ -378,12 +407,125 @@ The Dark assignment is not supplied by injury alone:
 5. Priscilla has a usable exit but independently chooses a bounded
    continuation because she still wants Lavinia's company.
 
+**Owner-approved leading noncanonical dialogue and staging audition —
+2026-09-09**
+
+> Lavinia's hand begins to rise.
+>
+> **Priscilla:** Why?
+>
+> **Lavinia:** You weren't supposed to come back.
+>
+> Lavinia stops her own hand and lowers it. After a real silence, Priscilla
+> stands with an unobstructed route away. Without soliciting Lavinia's reaction,
+> she sits in an already-visible vacant chair outside easy touching distance,
+> one Lavinia can locally appraise as worse. The shared glass remains at its
+> former place and does not re-enter the foreground.
+>
+> **Lavinia:** That one is worse.
+>
+> **Priscilla:** I know.
+
+The movement, rather than a decorative non sequitur, produces the ordinary
+exchange. Lavinia has already stopped herself before Priscilla moves.
+Priscilla's standing supplies a genuine exit; taking the other chair is her
+independent, taskless choice of altered company. Lavinia comments only after
+that choice, so her line is not a disguised request that prevents departure.
+`I know.` makes Priscilla's acknowledged awareness of the chair's disadvantage
+legible and establishes nothing about her complete motive.
+
+This chair allocation is Sweet–Ambiguous only. It is neither shared common
+material nor a reusable baseline for Sweet–Love or either Dark form.
+
+The exact chair, disadvantage, layout, and final DTL remain open for bar-art
+continuity. The vacant chair must exist casually before the threat and support
+continued conversation at the increased distance. Do not give it a revealing
+close-up, emphatic scrape, later recurrence, clue function, or fixed symbolic
+meaning. If the eventual environment cannot make `worse` locally intelligible,
+retain the spatial choice and re-audition or omit the two chair lines.
+
+**Owner-approved leading noncanonical ordinary remainder and separate
+departure — 2026-09-09**
+
+> After `I know.`, no further chair comment or new plot event follows. Ordinary
+> fictional time passes. This ellipsis contains no board, terminal result,
+> surface change, or anchor handoff.
+>
+> When audience access lawfully includes the continuation, the same anchored
+> passage resumes inside a trivial disagreement whose beginning is not shown.
+> Its immediate ordinary content is nevertheless self-contained. Priscilla
+> makes a mundane statement rather than asking a question. Lavinia is free not
+> to answer and chooses to do so. Priscilla adds one dry qualification; Lavinia
+> contests it. Their familiar rhythm continues for a short, unmeasured interval
+> from the increased distance.
+>
+> One mundane subject reaches its natural end, and neither woman replaces it.
+> Lavinia stands first without an external deadline or service interruption.
+>
+> **Lavinia:** Good night.
+>
+> **Priscilla:** Good night.
+>
+> Lavinia leaves without waiting for Priscilla to rise. Priscilla does not rise
+> with her. After an ordinary interval, Priscilla leaves separately.
+
+The chair displacement remains the last new event; the ensuing speech is its
+aftermath. The four conversational moves are a local functional audition, not
+a reusable dialogue template or proof of freedom through grammar alone. The
+blocking must leave Lavinia able to let the ordinary subject die; she instead
+sustains it. Their recovered rhythm makes willing fluency legible and permits
+ordinary pleasure to be inferred without laughter, touch, renewed proximity,
+or a meaning-bearing look. Priscilla's dry qualification prevents the worse
+chair from reading as meek penance. Do not write another absurd burst merely
+to decorate this interval.
+
+The exact mundane subject and lines remain open until adjacent DTL and bar art
+make a locally intelligible carrier available. Do not use the chair, shared
+glass, bill, nap, umbrella, injury, food, transport, departure time, new minor
+speaker, another peculiar bar object, voice imitation, a performed refusal, or
+a disagreement about how either woman sounds. Those last functions remain
+available to the Day 6 imagined-refusal audition rather than being consumed
+here. The missing beginning is ordinary elapsed life, not a clue, withheld
+revelation, hidden refusal, or board-created time.
+
+`Good night.` / `Good night.` remains the selected exact farewell only if the
+completed Day 2 calendar supports nighttime. Otherwise preserve its reciprocal,
+unadorned courtesy function and re-audition the literal words.
+
+The fictional departure order is retained. The Angela-absent visible
+blueprint's stable anchor and exact rendering remain unselected. The separately
+authorized Group pair-only tail, if used, is Priscilla-bound after its clear
+boundary from Angela and remains so across forms and board results.
+Private-offscreen occurrence has no presentation anchor. A Priscilla-bound
+passage may render both departures directly; a Lavinia-bound passage cannot
+directly render Priscilla's later conduct after Lavinia loses perceptual access.
+Location art, exact blocking, board placement, and result mapping remain open.
+
+For as long as this departure audition remains retained, an occurring
+Sweet–Ambiguous instance carries Lavinia-first/Priscilla-later separation as an
+occurrence invariant, not a clear-result reward. If a later Angela-absent board
+boundary precedes that invariant beat, `Exploded` withholds its rendering but
+does not cancel it; the response plan must explicitly persist the departure
+order and each participant's lawfully held memory, or this audition must be
+expressly reopened. No board may be hidden inside the ordinary ellipsis. An
+attended Group pair-bound tail follows its own authorized result law and does
+not inherit the Angela-absent cutoff merely because Angela has departed.
+
+Lavinia does not thereby know when or how Priscilla later leaves. That departure
+remains production truth and Priscilla-held experience unless a lawful later
+carrier supplies it.
+
 **Exit and residue**
 
-They eventually leave separately through an ordinary, still-unwritten ending.
-No apology, strike, mark, injury-care reach, forgiveness, promise, or standing
-invitation is created. Both know that Lavinia stopped and Priscilla stayed;
-neither receives an authenticated interpretation of why Priscilla stayed.
+The increased distance persists through the ordinary remainder. Lavinia ends
+the present company first; after the reciprocal courtesy she leaves without
+Priscilla rising with her, and Priscilla leaves separately after an ordinary
+interval. Exact mundane DTL, anchor-bound rendering, and location blocking
+remain open. No apology, strike, mark, injury-care reach, forgiveness, promise,
+or standing invitation is created. Both know that Lavinia stopped, Priscilla
+stayed, and the reciprocal farewells ended that instance of company. Lavinia
+does not automatically know Priscilla's later departure; neither receives an
+authenticated interpretation of why Priscilla stayed.
 
 **Day 6 handoff**
 
@@ -396,8 +538,9 @@ Day 2 did not guarantee that Priscilla would accept a later invitation.
 
 **Decisive sequence**
 
-1. The threatened action, Priscilla's question, spoken grievance, and lowered
-   hand follow the Sweet sequence above.
+1. The threat stops before contact; Priscilla questions it; Lavinia gives an
+   origin-facing grievance and lowers her hand. The Sweet–Ambiguous wording,
+   silence, chair displacement, and chair lines do not carry into this form.
 2. Lavinia makes one direct, time-bounded request for Priscilla's present
    company. She neither disguises it as safety nor claims a right to an answer.
 3. Priscilla understands the request and chooses to accept it.
@@ -531,7 +674,7 @@ authenticate the motive for either the Day 2 remainder or the Day 6 return.
 
 | Form | Occurring action | Mutually known afterward | Conditional physical carryover | Day 6 constraint |
 |---|---|---|---|---|
-| Sweet–Ambiguous | Threat stops; no direct request; Priscilla stays | The threat stopped before touch and Priscilla remained; the stay's meaning is unconfirmed | None from contact | Fresh invitation; no guaranteed acceptance |
+| Sweet–Ambiguous | Lavinia self-stops before touch; no direct request follows; Priscilla stands with an unobstructed route, independently takes the farther chair Lavinia calls worse, and continues ordinary company; Lavinia answers, later ends the company first, and leaves; Priscilla leaves separately after an ordinary interval | Both know that Lavinia stopped before contact; Priscilla stood with the route unobstructed, then took the farther chair while expressly aware it was worse; Lavinia continued the exchange; and their reciprocal farewells ended that instance of company. Priscilla's complete reason and Lavinia's interpretation remain unauthenticated | No contact injury; increased distance persists through the remainder | Fresh invitation; no guaranteed acceptance |
 | Sweet–Love | Threat stops; bounded request is accepted; Priscilla stays | Request and acceptance are mutually known; no complete motive or relationship label is established | None from contact | Fresh invitation; do not replay the same directness as proof |
 | Dark–Ambiguous | One slap; Priscilla turns from Lavinia's reach, chooses to expose a genuine one-hand tremor, initiates departure; Lavinia says `I did not tell you to go.`, Priscilla answers `No.`, no stay is agreed, and Priscilla leaves | Both know the slap, turned-away reach, factual statement, confirmation without agreement, and departure occurred; Priscilla knows the exposure was chosen; its meaning remains unconfirmed | Only a later-selected and explicitly authored mark or symptom | Fresh invitation; a non-demanding safety check may be freely answered or ignored |
 | Dark–Love | One slap; Priscilla turns from the reach and chooses the same bodily exposure; Lavinia asks `Will you stay?`, Priscilla answers `Until the bill comes.`, the finite stay occurs, and Priscilla leaves after bill arrival | The request, genuine bounded acceptance, shared interval, selected endpoint, and later departure are mutually known; no permission, pardon, or shared interpretation follows | Only a later-selected and explicitly authored mark or symptom | Later acceptance is new; the earlier finite agreement grants no standing access |
@@ -657,10 +800,12 @@ escalating the violence.
 
 1. Audit the revised 2×2 architecture and bodily-exposure sequence for axis
    leakage, consent, physical continuity, knowledge, and Day 6 usefulness.
-2. Write the common bar approach and Sweet–Ambiguous continuation through its
-   ordinary separation.
-3. Run three contrast auditions against that baseline rather than rewriting
-   the common material three times.
+2. Read aloud and audit the now-assembled Sweet–Ambiguous causal continuation;
+   retain its ordinary-topic and anchor-bound DTL slots without filling them
+   merely for completeness.
+3. Run three contrast auditions against that causal baseline rather than
+   rewriting the common material three times; compare functions without
+   importing the form-specific chair action or lines.
 4. Write one handoff card per form for the fresh Day 6 invitation.
 5. Return to the Day 6 Sweet–Ambiguous and Sweet–Love auditions and decide
    which, if any, Day 2 echo improves each taskless tea.
