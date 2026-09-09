@@ -218,7 +218,7 @@ func _present_ordinary_controls(value: Dictionary) -> void:
 	if not _ordinary_available(): return
 	var pending: Dictionary = _presentation_port.get_pending_ordinary_reply()
 	if not pending.get("ok", false):
-		_show_ordinary_failure()
+		_show_ordinary_failure(pending, &"pending")
 		return
 	var command: Variant = pending.get("value", {}).get("command", {})
 	if command is Dictionary and not command.is_empty():
@@ -226,7 +226,7 @@ func _present_ordinary_controls(value: Dictionary) -> void:
 		if is_instance_valid(_reply_button): _reply_button.disabled = true
 		if command.get("friend_id") != value.friend_id: return
 		if not command.get("rendered_line") is Dictionary or not contacts_panel.present_pending_reply(command.rendered_line, str(command.get("locale", _primary))):
-			_show_ordinary_failure()
+			_show_ordinary_failure(_failure(&"ordinary_pending_view_unavailable", "Pending reply could not be presented"), &"presentation")
 			return
 		_ordinary_retry = Button.new()
 		_ordinary_retry.name = "RetryOrdinaryReply"
@@ -278,7 +278,7 @@ func _on_ordinary_choice(reply_id: String) -> void:
 	for button: Button in _ordinary_choices: button.disabled = true
 	var prepared: Dictionary = _presentation_port.prepare_ordinary_reply(contacts_panel.selected_friend, reply_id, _primary)
 	refresh_view() # The retained port is the sole authority for a pending choice.
-	if not prepared.get("ok", false): _show_ordinary_failure()
+	if not prepared.get("ok", false): _show_ordinary_failure(prepared, &"prepare")
 
 func _on_pending_ordinary_drawn(rendered_line: Dictionary) -> void:
 	if _ordinary_pending.is_empty() or rendered_line != _ordinary_pending.get("rendered_line") \
@@ -303,7 +303,7 @@ func _acknowledge_ordinary(command_id: String, generation: int) -> void:
 	if result is Dictionary and result.get("ok", false):
 		refresh_view()
 		return
-	_show_ordinary_failure()
+	_show_ordinary_failure(result if result is Dictionary else _failure(&"ordinary_acknowledgment_malformed", "Reply acknowledgment returned no result"), &"commit")
 	if is_instance_valid(_ordinary_retry):
 		_ordinary_retry.disabled = false
 		if is_visible_in_tree(): _ordinary_retry.grab_focus()
@@ -331,7 +331,11 @@ func _exit_tree() -> void:
 func _ordinary_retry_copy() -> String:
 	return {"en": "Retry", "zh-CN": "\u91cd\u8bd5", "zh-HK": "\u91cd\u8a66"}[_primary]
 
-func _show_ordinary_failure() -> void:
+func _show_ordinary_failure(result: Dictionary, phase: StringName) -> void:
+	# Keep player logs useful without recording correspondence, identity tokens, or file paths.
+	print("ORDINARY_REPLY_FAILURE: " + JSON.stringify({"phase": str(phase), "code": str(result.get("code", "unknown"))}))
+	last_result = result.duplicate(true)
+	presentation_failed.emit(last_result.duplicate(true))
 	_status_label.text = {"en": "Your reply could not be saved. Please try again.",
 		"zh-CN": "\u6682\u65f6\u65e0\u6cd5\u4fdd\u5b58\u56de\u590d\uff0c\u8bf7\u91cd\u8bd5\u3002", "zh-HK": "\u66ab\u6642\u7121\u6cd5\u5132\u5b58\u56de\u8986\uff0c\u8acb\u91cd\u8a66\u3002"}[_primary]
 	_status_label.show()

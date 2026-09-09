@@ -8,6 +8,7 @@ class Presentation extends RefCounted:
 	var cancelled: Array[Dictionary] = []
 	var committed := false
 	var fail_save := false
+	var fail_prepare := false
 	var sequence := 0
 	func get_projection(friend_id: String, primary: String = "en", _secondary: String = "") -> Dictionary:
 		var entries: Array = []
@@ -29,6 +30,7 @@ class Presentation extends RefCounted:
 	func get_pending_ordinary_reply() -> Dictionary:
 		return {"ok": true, "value": {} if pending.is_empty() else {"command": pending.duplicate(true), "candidate": {}, "message_batch": []}}
 	func prepare_ordinary_reply(friend_id: String, reply_id: String, locale: String = "en") -> Dictionary:
+		if fail_prepare: return {"ok": false, "code": &"ordinary_registry_unavailable", "details": {"phase": "prepare"}}
 		if not pending.is_empty(): return {"ok": false, "code": &"pending_reply_exists"}
 		prepared.append(reply_id)
 		sequence += 1
@@ -79,6 +81,7 @@ func test_selected_outgoing_draw_commits_once_and_save_failure_keeps_exact_choic
 	await get_tree().process_frame
 	assert_eq(f.port.acknowledged.size(), 1)
 	assert_false(f.app._ordinary_retry.disabled)
+	assert_eq(f.app.last_result.get("code"), &"write_failed", "failed acknowledgment retains its real cause")
 	var exact: Dictionary = f.port.pending.duplicate(true)
 	assert_eq(f.port.acknowledged[0], {"command": exact, "line": exact.rendered_line})
 	f.port.fail_save = false
@@ -150,3 +153,19 @@ func test_outgoing_text_is_not_covered_by_a_container_stretched_decoration() -> 
 			if child is ColorRect and child.color.a > 0.0:
 				assert_false(child.get_global_rect().intersects(label.get_global_rect()), "decorative fill cannot cover outgoing glyphs")
 	assert_eq(checked, 1, "the committed outgoing reply was checked")
+
+
+func test_prepare_failure_remains_diagnosable_after_successful_thread_refresh() -> void:
+	var f := _fixture()
+	f.port.fail_prepare = true
+	var failures: Array[Dictionary] = []
+	f.app.presentation_failed.connect(func(result: Dictionary) -> void: failures.append(result))
+	f.app._ordinary_choices[0].pressed.emit()
+	var expected := {"ok": false, "code": &"ordinary_registry_unavailable", "details": {"phase": "prepare"}}
+	assert_eq(f.app.last_result, expected)
+	assert_eq(failures, [expected])
+	assert_true(f.app._status_label.visible)
+	assert_true(f.port.pending.is_empty())
+	assert_eq(f.app._ordinary_choices.size(), 3, "failed preparation still allows a real retry")
+	failures[0].details.phase = "observer mutation"
+	assert_eq(f.app.last_result, expected, "observers cannot rewrite retained failure diagnostics")
