@@ -1322,7 +1322,10 @@ func _inspect_backup(locator_id: String) -> Dictionary:
 	var valid := SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
 	if not valid.get("ok", false):
 		var version: Variant = parsed["value"].get("schema_version")
-		record["reason"] = "newer_version" if typeof(version) in [TYPE_INT, TYPE_FLOAT] and version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION else "unreadable"
+		record["reason"] = "unreadable"
+		if typeof(version) == TYPE_INT and version > 0:
+			if version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "newer_version"
+			elif version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "older_version"
 		return {"ok": true, "value": record}
 	var document: Dictionary = valid["value"]["candidate"]
 	var migrated := SAVE_MIGRATIONS.migrate_document(parsed["value"],

@@ -147,3 +147,16 @@ func test_silent_setter_failure_cannot_claim_apply_or_restoration_success() -> v
 	platform.ignore_mode = false
 	assert_true(port.restore_output(snapshot).ok)
 	assert_eq(port.capture_output().value, snapshot)
+
+
+class EmbeddedEngine extends RefCounted:
+	func is_embedded_in_editor() -> bool: return true
+
+func test_editor_embedding_never_attempts_to_control_the_host_window() -> void:
+	var platform := Platform.new()
+	var port := PORT.new(platform, EmbeddedEngine.new())
+	assert_eq(port.capture_output().code, &"window_output_unavailable")
+	assert_eq(port.apply_mode("windowed").code, &"window_output_unavailable")
+	assert_eq(port.apply_mode("borderless").code, &"window_output_unavailable")
+	assert_false(port.output_matches("windowed"))
+	assert_true(platform.operations.is_empty(), "the editor owns embedded-window geometry")

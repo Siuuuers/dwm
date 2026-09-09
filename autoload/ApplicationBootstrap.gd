@@ -385,6 +385,7 @@ func _record_startup_retry_failure(stage_id: StringName, transaction_id: String,
 
 
 func _record_startup_stage_failure(stage_id: StringName, result: Dictionary) -> Dictionary:
+	print("STARTUP_FAILED stage=%s code=%s" % [stage_id, str(result.get("code", "unknown"))])
 	var retained := result.duplicate(true)
 	_state["fatal_result"] = retained
 	_state["failed_stage"] = stage_id

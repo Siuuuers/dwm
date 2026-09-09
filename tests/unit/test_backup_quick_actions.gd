@@ -331,3 +331,22 @@ func test_paused_capture_provider_and_guard_are_immutable_and_guard_arity_is_che
 	assert_eq(_manager.configure_backup_capture_provider(capture.capture, replacement.admit).code, &"backup_capture_already_configured")
 	assert_eq(_manager.configure_backup_capture_provider(capture.capture).code, &"backup_capture_already_configured")
 	assert_true(_manager._capture_backup_inputs().ok, "refused replacement leaves the original binding usable")
+
+
+func test_legacy_slot_is_replaceable_only_after_explicit_overwrite_confirmation() -> void:
+	var legacy := '{"schema_version":1,"kind":"slot","slot_id":1,"game_state":{}}'.to_utf8_buffer()
+	files._persisted["memory/quick-actions/slot_1.json"] = legacy
+	var records: Array = port.get_projection().value.records
+	var record: Dictionary = records[2]
+	assert_eq(record.reason, "older_version")
+	assert_false(record.actions.load)
+	assert_true(record.actions.save)
+	var prepared: Dictionary = port.prepare_action("save", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_true(prepared.value.confirmation_required)
+	assert_eq(prepared.value.confirmation_kind, "overwrite")
+	assert_eq(files.snapshot_persisted()["memory/quick-actions/slot_1.json"], legacy)
+	var committed: Dictionary = port.commit_action(prepared.value.token)
+	assert_true(committed.get("ok", false), str(committed))
+	assert_eq(port.get_projection().value.records[2].state, "occupied")

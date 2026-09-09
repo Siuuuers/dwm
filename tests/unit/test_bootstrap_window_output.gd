@@ -8,7 +8,7 @@ const AUDIO_PORT := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const WINDOW_TESTS := preload("res://tests/unit/test_window_mode_manager.gd")
-const PARTICIPANT_KEYS := ["audio", "desktop_board", "desktop_consequence", "localization", "narrative", "profile", "route", "run"]
+const PARTICIPANT_KEYS := ["audio", "desktop_board", "desktop_consequence", "localization", "narrative", "profile", "route", "run", "schedule_view"]
 
 class InjectableBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 	var injected_targets: Dictionary = {}
@@ -42,6 +42,8 @@ func _fixture(available: bool = true, mode: String = "windowed") -> Dictionary:
 	autofree(save)
 	var bootstrap := InjectableBootstrap.new()
 	autofree(bootstrap)
+	# This composition test does not allocate IDs; retain the real issuer interface for Schedule.
+	bootstrap._desktop_identity_nonce_issuer = preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
 	bootstrap.injected_targets = {
 		&"ProfileManager": profile, &"AudioManager": audio, &"WindowModeManager": window,
 		&"SaveManager": save, &"GameState": autofree(DayState.new()),
@@ -138,6 +140,12 @@ class GateTarget extends Node:
 		retained_gate = gate
 		return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": false}}
 
+class RouteGateTarget extends GateTarget:
+	func begin_startup_route_hold() -> Dictionary:
+		return {"ok": true, "value": {"token": "window-fixture-startup"}}
+	func publish_startup_route_hold(_token: String) -> Dictionary:
+		return {"ok": true}
+
 func test_actual_final_gate_injection_retains_one_identity_in_real_window_and_every_target() -> void:
 	var bootstrap := InjectableBootstrap.new()
 	autofree(bootstrap)
@@ -145,7 +153,7 @@ func test_actual_final_gate_injection_retains_one_identity_in_real_window_and_ev
 	var window := WINDOW.new(physical)
 	autofree(window)
 	for target_name: StringName in bootstrap.FINAL_GATE_TARGETS:
-		bootstrap.injected_targets[target_name] = window if target_name == &"WindowModeManager" else autofree(GateTarget.new())
+		bootstrap.injected_targets[target_name] = window if target_name == &"WindowModeManager" else autofree(RouteGateTarget.new()) if target_name == &"SceneRouter" else autofree(GateTarget.new())
 	var injected: Dictionary = bootstrap._construct_and_inject_mutation_gate(&"final")
 	assert_true(injected.ok, "the actual final stage must accept WindowManager's retained gate identity")
 	if not injected.ok: return

@@ -16,9 +16,11 @@ const METHODS := [
 	&"window_set_flag", &"window_set_current_screen", &"window_set_position", &"window_set_size",
 ]
 var _platform: Object
+var _engine: Object
 
-func _init(platform: Object = null) -> void:
+func _init(platform: Object = null, engine: Object = null) -> void:
 	_platform = DisplayServer if platform == null else platform
+	_engine = Engine if engine == null else engine
 
 func capture_output() -> Dictionary:
 	if not _available(): return _failure(&"window_output_unavailable")
@@ -75,6 +77,8 @@ func _write(target: Dictionary) -> void:
 	if target.mode != WINDOWED: _platform.window_set_mode(target.mode, MAIN)
 
 func _available() -> bool:
+	# Godot owns the embedded window; native setters are ignored and cannot be proved.
+	if _engine.is_embedded_in_editor(): return false
 	if not is_instance_valid(_platform): return false
 	for method: StringName in METHODS:
 		if not _platform.has_method(method): return false
