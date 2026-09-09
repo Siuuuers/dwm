@@ -150,7 +150,8 @@ Structure design. That design retains authority for:
 - the Priscilla-Lavinia group, missed, private-visible, private-offscreen,
   counted-window, stable-deck, and observation laws;
 - the thirteen ending identities and ordered ending plan;
-- semantic entry IDs, eight master timelines, frozen presentation context,
+- semantic entry IDs, the original scene-oriented timelines (owner decision
+  2026-09-08), frozen presentation context,
   stable line and presentation-atom IDs, token-bound playback, acknowledged
   signals, idempotent receipts, and exact recovery;
 - profile witnessed-line and evidence boundaries; and
@@ -221,7 +222,8 @@ At the time of writing:
 - `MinesweeperChallengeOverlay` is a debug result picker with retired result
   language rather than a production board;
 - the project retains dozens of path-based placeholder timelines instead of the
-  accepted eight semantic masters;
+  then-proposed eight semantic masters (physical consolidation cancelled
+  by the owner on 2026-09-08);
 - current timeline manifest records contain no production line or event
   inventory sufficient for exact semantic resume;
 - current playback adapters mix legacy direct starts with the newer token-bound
@@ -1718,9 +1720,10 @@ reconciliation before runtime work:
 7. Make `dwm-oyo.5` consume the same host in explicit archive capability modes
    without save/load or canonical mutation. Keep `dwm-oyo.6` ending ownership
    separate; this amendment does not silently design endings.
-8. Replace the path-fragment runtime with the accepted eight-master semantic
+8. Resolve the original scene-oriented timelines through the exact semantic
    manifest and stable presentation identities before relying on Next or exact
-   resume.
+   resume. The 2026-09-08 owner decision cancels physical consolidation; it
+   preserves these playback and recovery contracts.
 9. Define and validate closed schemas for shot, physical participant, portrait
    layout, tableau blocking, expression, object/CG, boundary, accessibility,
    and host capability records.

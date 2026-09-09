@@ -1,12 +1,12 @@
 # Seven-Day Scene Beatbook
 
-This is a private, spoiler-complete, writer-facing record of approved scene development. It preserves close causal work, reference dialogue, variant design, and rejected interpretations that would make the Seven-Day Production Map unreadable if repeated there.
+This is a private, spoiler-complete, writer-facing record of scene development at its explicitly stated current status. It preserves close causal work, reference dialogue, variant design, and rejected interpretations that would make the Seven-Day Production Map unreadable if repeated there. The former Day 1 constellation is reopened reference under the selective reset; Room 2.17 retains its separately stated approved-core, placement-unselected boundary.
 
 ## Authority and Use
 
 Authority remains upstream:
 
-1. the [August 7 design](../docs/design/2026-08-07-seven-day-dialogic-flow-design.md) owns intended calendar, contact, promotion, Hospital, pair, Day 7, ending, and presentation mechanics;
+1. the [August 7 design](../docs/design/2026-08-07-seven-day-dialogic-flow-design.md) owns baseline intended calendar, contact, Hospital, pair, Day 7, ending, and presentation mechanics as amended by later explicit approvals; exact forward progression windows and response-family maps remain reopened;
 2. the [Core Story Bible](./01-core-story-bible.md) owns narrative canon and audience-facing meaning;
 3. the [Character & Relationship Handbook](./02-character-relationship-handbook.md) owns derived character and relationship performance guidance;
 4. an `APPROVED` row in the [Seven-Day Causal Matrix](./07-seven-day-causal-matrix.md) normally owns an encounter's placement and compact causal facts;
@@ -17,7 +17,15 @@ Authority remains upstream:
 
 The Beatbook may expand only explicitly approved causal facts and may not silently revise an upstream fact, create an encounter window, level a relationship, settle an unresolved cause, assign a relationship label, or infer placement from an eligible set. If an entry conflicts with an upstream authority, follow the upstream authority and correct the entry.
 
+Across every Day 1–6 solo entry, the Contacts amendment's run-scoped rare-erasure target is a narrow override to an ordinary unread closure. If the selected invitation reaches midnight unread and unsuperseded, its player-facing offer disappears and exactly its `nevermind` is absent; no alternative line, gap, trace, missed state, or story consequence replaces it. Opening, accepting, or successful pair supersession prevents that erasure. This global exception need not be repeated inside each scene's absence table.
+
 Under the current Dialogue-Led Perceptual Writing Contract, reference prose may be tested as audience-visible anchor-bound perception while remaining a `REACTION TEST`, not final DTL. Every prose passage and short illustrative exchange remains labeled `REACTION TEST` and is not final DTL unless a later approval explicitly gives it that status. Unless an approved Matrix record fixes them, exact weekdays and clock times remain provisional pending the applicable August-authorized placement, calendar validation, and explicit premise approval.
+
+Inherited Hatred/Upset/Amused/Loved/Foresight/Dark grids are historical
+reaction tests, not a required six-family template. A replacement scene must
+author only the response families it needs, map every reachable board terminal
+fact, and may converge results only when conduct and all reusable consequences
+genuinely match.
 
 ## Entry Shape
 
@@ -35,11 +43,12 @@ Each developed encounter records only the fields it has earned:
 
 Do not manufacture detail merely to fill every field. An undeveloped variation remains unapproved rather than being guessed here.
 
-## Day 1 — Approved Opening Constellation
+## Day 1 — Reopened Opening-Constellation Reference
 
-**Status:** APPROVED — owner-approved on 2026-08-29.
+**Status:** REOPENED — approved on 2026-08-29, then returned to reference
+material by the owner-confirmed selective reset on 2026-09-02.
 
-The compact causal records are in the [Causal Matrix](./07-seven-day-causal-matrix.md#approved-placed-premises). Approval fixes the premises, evidence, outcome-specific material changes, absence behavior, and residue recorded below. Every quoted passage remains a writer-facing `REACTION TEST`, not final DTL. Exact line IDs, final wording, interface timing and copy, artwork, accessibility description, and implementation remain separate production work.
+The historical causal records are in the [Causal Matrix](./07-seven-day-causal-matrix.md#reopened-day-1-placed-premise-reference). The material below preserves former premises, evidence, outcome branches, absence behavior, and residue for audition; it fixes none of them for the forward plot. Every quoted passage remains a writer-facing `REACTION TEST`, not final DTL. Exact replacement premises, family maps, line IDs, wording, interface timing and copy, artwork, accessibility description, and implementation remain separate work.
 
 ### Whole-Day Boundary
 
@@ -50,9 +59,9 @@ The compact causal records are in the [Causal Matrix](./07-seven-day-causal-matr
 - In constellation order, the material progression is remote photograph, shared institutional proof and language, then physical preparation. Either audience-chosen attended order must remain coherent. Do not announce the progression, make a character connect it, or frame it as an authored triptych.
 - Keep the three material grammars distinct. Do not make the photograph denial resemble proof UI, repeat a two-column visual design across photograph and proof, emphasize Lavinia's missing author metadata, or emphasize the bottle offset outside Foresight.
 - The roster survives every Day 1 path and becomes temporally current upon Lavinia's ordinary Day 2 return without gaining an explanation. A selected Bright Point echo also survives Hospital. Sylvia carries no roster fact or residue.
-- Day 1 has no ordinary promotion. Only Sylvia's upstream Hospital-witness exception may advance a tier.
+- Day 1 currently owns no approved progression window. A Hospital-set Sylvia variant cannot grant momentum, tone, attitude, or progression merely because Hospital occurred; exact scene-local consequences and any inherited window remain open.
 
-### The Bright Point — Approved Ordinary Message
+### The Bright Point — Reopened Ordinary-Message Reference
 
 The story-world attachment is a real sky photograph Lavinia sends from England after taking it through glass. Angela sees that photograph only on the opened path. For the audience, the attachment briefly shows a plain permission denial and then yields once to Angela-bound authored perception. The denial is not widget-generated alt text, a diegetic error, or a card either woman can see. Its exact copy and timing remain later interface authorship.
 
@@ -104,7 +113,7 @@ If ignored through midnight, the message creates no reply history, Angela knowle
 
 Angela attends as the astronomy verifier and likely demonstration operator; Priscilla remains editor and issuer of the whole internal proof. The encounter ends when a new shared version goes forward. The scientific sentence is identical across outcomes. Only the authorship and verification state differ: Hostile remains `PENDING`; every other attended branch records Angela's own verification.
 
-No branch produces a relationship promotion. The ordinary task, not romance or the roster mystery, gives both women a reason to meet.
+No branch produces relationship progression. The ordinary task, not romance or the roster mystery, gives both women a reason to meet.
 
 #### Visible Evidence and Entry Conditions
 
@@ -577,7 +586,7 @@ The Love insert can accompany either tone. Sweet or Totally Dark determines whet
 - Do not let Priscilla know Lavinia’s private motive. She can infer anger and recognize an engagement pattern from evidence; she cannot read Lavinia’s mind.
 - Do not make Lavinia’s initial `will` correction a planned psychological test. The irritation begins spontaneously and only then becomes knowingly sustained contact.
 - Do not make Priscilla agree that `will` is inferior. Her care matters because she supports Lavinia’s defensible choice while disagreeing with it.
-- Do not present the Sweet version as healing or the Totally Dark version as villainy. Sweet contains one costly interruption; Totally Dark contains conscious reinforcement, genuine satisfaction, and continuing danger.
+- Do not present the Sweet version as healing or the Totally Dark version as villainy. Sweet foregrounds a tender, playful, ordinary, or less-dangerous character facet without deleting darker capacities; Totally Dark makes a character-specific darker facet govern visible conduct as desired attachment makes one identifiable protected interest expendable. Either form may contain interruption, complicity, satisfaction, or danger when the exact scene earns it, but none of those is the universal tone test. `Stop at nothing` is emotional shorthand, not a literal escalation quota.
 - Do not add reconciliation, forgiveness, a relationship level, a confirmed label, a new encounter window, or a standalone Sylvia scene.
 
 ### Non-Canon Craft Reference

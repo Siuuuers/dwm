@@ -362,7 +362,7 @@ These are thirteen authored catalogue identities, not thirteen mutually exclusiv
 12. **Priscilla–Lavinia Observer — Persistence postscript:** After all four state/tone combinations have actually been witnessed, Priscilla returns a familiar key Lavinia says was already returned. An identical key is visible. Lavinia gives one back; neither decides which is real.
 13. **Alone — Complete the Final Observation:** Angela deliberately chooses no Day 7 date and completes her work. It is neither punishment nor failed route. A qualified Priscilla–Lavinia ending may still follow.
 
-No ending confirms death. Sweet honors one concrete boundary without curing anyone. Totally Dark makes dangerous mutual reinforcement knowing and real; attachment never makes harm harmless.
+No ending confirms death. Sweet foregrounds tender, playful, ordinary, or less-dangerous facets without deleting darker capacities. Totally Dark makes a character-specific darker facet observable through chosen conduct and concrete consequence as desired attachment makes one identifiable protected interest expendable; it does not require mutual reinforcement. Neither is a moral rank, `stop at nothing` is not a literal escalation quota, and attachment never makes harm harmless.
 
 ## Layered Ending Order
 

@@ -12,6 +12,7 @@ implementation_plan_sha256: "288c73f7eeca6bc80fe8775cd77f25aba8bc68e0945dd244592
 implementation_plan_created_on: 2026-08-07
 created_on: 2026-08-07
 written_spec_approved_on: 2026-08-07
+last_amended_on: 2026-09-08
 engine_line: godot_4_6
 verification_engine: "4.6.3-stable-mono"
 dialogic_version: "2.0-Alpha-19 (Godot 4.4+)"
@@ -25,7 +26,7 @@ scope: seven_day_flow_dialogic_structure
 
 This document records the conversationally approved design for the seven-day
 calendar, relationship and Minesweeper consequences, Hospital interruptions,
-Priscilla-Lavinia encounters, Day 7 endings, save/reload law, and consolidated
+Priscilla-Lavinia encounters, Day 7 endings, save/reload law, and scene-oriented
 Dialogic authoring structure.
 
 The user approved this written specification on 2026-08-07. It is now the
@@ -48,13 +49,13 @@ must not.
 - Twelve solo invitation windows and twelve possible solo challenges.
 - The original Day 2 and Day 6 Priscilla-Lavinia group-date mechanism.
 - Hospital interruption, including Sylvia's special hospital behavior.
-- Relationship statistics, durable tiers, tone, attitude, and promotion gates.
+- Relationship statistics, durable tiers, tone, attitude, and code-owned progression windows.
 - Minesweeper-to-relationship outcome classification.
 - Board permanence before and after the first completed ending.
 - Rehearsal, Observer mastery evidence, postscript replay, and Gallery identity.
 - Exact semantic timeline identities, frozen contexts, safe signals, receipts,
   locale fallback, and recovery behavior.
-- Consolidation to seven day timelines plus one ending timeline per locale.
+- Retain the original scene-oriented DTL arrangement; no fixed physical file count.
 - Plot-neutral documentation and authoring templates.
 
 ### 2.2 Out of scope
@@ -98,33 +99,33 @@ worktree or commit.
 
 ## 4. Chosen architecture and alternatives
 
-### 4.1 Chosen: semantic entries inside eight master timelines
+### 4.1 Chosen: semantic entries in the original scene-oriented timelines
+
+Owner decision, 2026-09-08: retain the original DTL arrangement. Consolidating
+all English content into eight physical masters is no longer required.
 
 The game calls stable semantic presentation-entry IDs. A closed manifest resolves
-each `entry_id` to one exact `{path, label}` locator and contract. Dialogic starts
-that label inside one of eight master files. Physical file layout may change
-without changing save, Gallery, localization, audio, or visited-line identity.
+each `entry_id` to one exact `{path, label}` locator and contract in the retained
+scene files. File organization does not determine save, Gallery, localization,
+audio, or visited-line identity.
 
-Ending identity and presentation identity are deliberately separate. One stable
-`ending_id` owns discovery, save, and Gallery meaning; one of its allowlisted
-`entry_id` values selects Normal/Dark-mode, Full/Residue, or another presentation
-form. Each `entry_id` still resolves to exactly one locator. No runtime lookup is
-ambiguous or one-ID-to-many-locators.
+Ending identity and presentation identity remain separate. One stable
+`ending_id` owns discovery, save, and Gallery meaning; an allowlisted `entry_id`
+selects the presentation form. Each entry resolves to exactly one locator.
 
-This design keeps authoring navigable by day, removes the current file explosion,
-and prevents a save from depending on a filename or line number.
+### 4.2 Superseded: mandatory consolidation to eight files
 
-### 4.2 Rejected: retain one file for every contact/date fragment
-
-The current English skeleton contains 61 `.dtl` files and 61 UID sidecars.
-Keeping that layout preserves simple file-level starts, but makes cross-day
-causality difficult to inspect and multiplies localization and registry work.
+The original English skeleton contains 61 scene-oriented DTL files. Keep these
+as the authoring starting point and add or amend an individual scene file only
+when a promised scene requires it. Neither 61 nor eight is a required final count.
+Existing consolidated files may remain temporarily while callers are reconciled;
+their presence does not authorize deleting the original files.
 
 ### 4.3 Rejected: one timeline for the whole game
 
-A single monolithic file minimizes file count, but makes day ownership, merge
-conflicts, locale completion, and label auditing needlessly difficult. Eight
-files are the smallest structure that still communicates ownership.
+A single monolithic timeline does not help the current task. Use the existing
+scene boundaries and keep all promised branches mechanically playable while
+finished dialogue and prose remain deferred.
 
 ### 4.4 Rejected: let DTL own gameplay state
 
@@ -428,6 +429,38 @@ The original Day 2 and Day 6 protocol is normative here:
    participant. Hospital selects the Hospital-reason versions and creates no
    generic missed duplicates.
 
+The following player-facing epistemic boundary was owner-approved on 2026-08-31.
+Successful activation projects the ordinary binary Unread fact on both linked
+rows, but before the first participating contact is opened it materializes no
+paired group-offer prose or history record. Unread therefore proves only that
+contact activity exists; it reveals no inviter, invitation identity, wording,
+or superseded solo source. First same-day open materializes the applicable
+paired offer. If the action instead resolves untouched, the latent availability
+closes and the two next-day `busy` records are the only prose that opportunity
+can ever present.
+
+No witnessed record is rewritten. In the untouched branch, Contacts exposes no
+preview, latent invitation body, edit marker, timestamp comparison,
+missing-history scar, receipt, or other surface by which Angela or the audience
+could infer unsent wording. In the opened branch, the actual paired offer
+remains ordinary history; it proves only that this run materialized that offer,
+not that either sender received Angela's read/open status or that another
+message was replaced. A changed or parallel message is a writer-facing
+description of counterfactual branches, not a physical fact established inside
+the active run.
+
+The `busy` and `nevermind` records remain distinct causal identities even when
+their rendered copy intentionally coincides. For each participant and window,
+both use the corresponding owner-approved audition completed-process update.
+In the untouched branch, that update is the opportunity's only prose. In the
+opened-but-unanswered branch, the materialized paired offer remains in its
+thread and the identical update appends beneath it after the response controls
+close. Record ID, type, sequence, receipt, and retained history—not body-text
+inequality—distinguish the branches. No state owner, reader, manifest,
+localization layer, or history projection may alias or deduplicate the two
+records because their visible strings match. This shared-surface law does not
+approve final DTL or promote the premises on which an audition line depends.
+
 After group contact state closes, each window obeys one prior question: did
 Angela actually attend a solo date with Priscilla or Lavinia in that window?
 
@@ -470,11 +503,30 @@ receipt.
 For avoidance of doubt, opened-but-unanswered is not a fifth pair outcome. The
 preserved executable group protocol classifies it as Private-visible with the
 `nevermind` contact flavor; both-unread is the neutral/`busy` subvariant of that
-same outcome.
+same outcome. Hospital changes neither distinction: an unaccepted generated
+action retains its applicable internal flavor and history shape, while the two
+flavors render the same sender/day audition update.
 
 ## 8. Challenge, attitude, and promotion law
 
-### 8.1 Outcome classification
+> **FORWARD-PLOT SUPERSESSION — 2026-09-06:** Sections 8.1 and 8.2 below
+> preserve the original mechanical contract and test vocabulary as legacy
+> provenance; they no longer constrain forward narrative design. A dating board
+> still supplies a frozen terminal fact, but each approved scene authors its own
+> small optional response-family map, and multiple results may converge when
+> conduct and every reusable consequence genuinely match. No scene must display
+> all six inherited families, and the table's fixed relationship deltas are not
+> trusted forward story inputs. Relationship progression remains a code-owned
+> event at a small explicit list of scene-authored windows, but the exact window
+> list and predicates—including the former Day 4/5/6 third/fourth schedule—are
+> reopened until the approved seven-day plot earns them. Unavailable windows do
+> not silently relocate, and Hospital access alone grants no progression. The
+> current boundary is owned by the
+> [working decision ledger](2026-09-02-narrative-constitution-working-decision-ledger.md#77-optional-scene-authored-response-families)
+> and
+> [runtime behavior record](2026-09-02-relationship-progression-runtime-behavior-record.md#2-confirmed-future-behavior).
+
+### 8.1 Legacy outcome classification (forward response law superseded)
 
 The date never presents a six-option relationship menu. Actual Minesweeper play
 produces the result.
@@ -515,7 +567,7 @@ and Dark can never both pay out.
 Every attended challenge overwrites the friend's current attitude. Outcomes and
 statistics remain hidden from the audience.
 
-### 8.2 Fixed promotion valves
+### 8.2 Legacy fixed promotion valves (forward schedule reopened)
 
 Affection is fuel; fixed challenge windows are the valves.
 
@@ -633,7 +685,7 @@ irrevocable within that run:
   the ledger's existing board/result rather than a reroll;
 - every consequential receipt is applied against the branch at its registered
   causal boundary, once, so an old snapshot cannot duplicate or delete the
-  outcome, attitude change, or promotion it actually reaches.
+  outcome, attitude change, or durable progression event it actually reaches.
 
 Starting a genuinely new playthrough creates a new `run_id` and an empty run
 ledger. The profile milestone remains, but the prior week's slots do not leak
@@ -651,7 +703,8 @@ The completed replacement attempt becomes the canonical slot head only for that
 branch. A saved branch persists its `branch_id` and per-slot canonical attempt
 pointers. Loading two old saves may therefore create two independent branches;
 neither overwrites the other's results or mastery. The active loaded branch is
-the only source for current-run statistics, promotion, and Perfect mastery.
+the only source for current-run statistics, durable progression state, and
+Perfect mastery.
 
 The profile milestone overrides a pre-milestone slot lock only at a fresh
 pre-challenge entry boundary; it never deletes that history and never regenerates
@@ -689,7 +742,7 @@ After the first ending milestone, every callable entry declares a
 `presentation_signature_schema`: the complete set of frozen fields that can
 change its presented lines or actions. It includes entry identity plus only the
 applicable tier, tone, attitude, echo, miss reason, board truth, relationship
-outcome, Perfect reason, special-mine phase, promotion result, pair mode/deck,
+  outcome, Perfect reason, special-mine phase, progression result, pair mode/deck,
 ending role/form, and residue fields declared by that entry's exact role schema.
 P-L and Alone signatures never acquire dummy solo fields.
 Direct entry replay is allowed only for an exact signature already reached.
@@ -968,21 +1021,21 @@ percentage, or spoiler count.
 
 ## 12. Dialogic runtime contract
 
-### 12.1 Eight physical masters
+### 12.1 Retain the original scene-oriented DTL arrangement
 
-English authoring consolidates to exactly:
+The owner cancelled the eight-master requirement on 2026-09-08. Preserve the
+original English scene files and UID identities as the authoring starting point.
+There is no requirement to consolidate into `day_1.dtl` through `day_7.dtl` and
+`endings.dtl`, or to delete the original scene files.
 
-- `dialogic/timelines/en/day_1.dtl`
-- `dialogic/timelines/en/day_2.dtl`
-- `dialogic/timelines/en/day_3.dtl`
-- `dialogic/timelines/en/day_4.dtl`
-- `dialogic/timelines/en/day_5.dtl`
-- `dialogic/timelines/en/day_6.dtl`
-- `dialogic/timelines/en/day_7.dtl`
-- `dialogic/timelines/en/endings.dtl`
+Register exact semantic entry locators for the retained scenes. Reconcile any
+existing consolidated caller with the intended scene before retiring its old
+locator. Validate entry coverage and executable scene boundaries, not a fixed
+file count. Detailed dialogue is deferred; scene transitions, choices, challenge
+handoffs, consequences, and all promised branches still need working owners.
 
-Future locale mirrors use the same label contract. Chinese DTL prose is not
-required in this structural phase; missing locale entries use exact-label
+Future locale entries retain the same semantic contract. Chinese DTL prose is
+not required in this structural phase; missing locale entries use exact-label
 English fallback.
 
 ### 12.2 Closed semantic manifest
@@ -1018,7 +1071,7 @@ Applicable fields include:
 - due echo IDs and their registered presentation-atom IDs;
 - invitation/miss reason and presentation phase;
 - board result, Perfect reason, and relationship outcome;
-- promotion receipt/result;
+- progression-window receipt/result when applicable;
 - pair encounter presentation and stable deck state;
 - run, branch, attempt, and transaction identity when relevant;
 - exact group action state, inviter, target participant, canonical opened/replied
@@ -1043,7 +1096,7 @@ Role-family required fields are:
 | Group contact/offer | entry, source day, pair, group action state, inviter, target participant, canonical opened/replied participant IDs, contact variation |
 | Consequence/follow-up | entry, display day, source invitation, friend/pair, closure state, miss reason, witnessed-Hospital flag |
 | Solo pre-challenge | entry, day, friend, challenge slot, tier, tone, attitude, due echoes, attempt residue ID |
-| Solo post-challenge | all pre fields plus board result, Perfect reason set, relationship outcome, effect receipt, promotion result |
+| Solo post-challenge | all pre fields plus board result, Perfect reason set, relationship outcome, effect receipt, and progression-window result when that exact scene owns an approved window |
 | Hospital | entry, day, qualifying cause, exact accepted/unfulfilled records, Sylvia witness result when applicable |
 | Pair pre-challenge scene | entry, day/window, encounter presentation, group action/inviter/participant variation when generated, pair count receipt, stable deck state, attempt residue ID |
 | Pair post-challenge scene | all pair pre fields plus board result, Perfect reason set when Perfect, full/truncated observation form, combination-witness capability |
@@ -1086,7 +1139,7 @@ entry at its registered continuation stage; it cannot continue presenting a
 consequence the state owner refused.
 
 A merged timeline is never legally started without a validated label. Every
-master begins with a bare `return`, and every callable label block ends with its
+multi-entry timeline begins with a bare `return`, and every callable label block ends with its
 own `return`; no label may fall through into its neighbor.
 
 ### 12.5 Mutation and commit points
@@ -1099,7 +1152,8 @@ State commits at the causative action, not at arbitrary prose completion:
 - solo board instance at challenge entry; board truth at clear/explosion; one
   relationship outcome only when the post-clear opportunity closes or an
   explosion terminates the board;
-- fixed promotion immediately after result commit;
+- an approved progression-window evaluation, when the current plot assigns one,
+  immediately after result commit;
 - Sylvia Hospital witness effects in the Hospital-resolution receipt;
 - invitation closures, miss reasons, pair mode/count, and first stable-deck draw
   in one day-resolution receipt;
@@ -1121,7 +1175,7 @@ or restarting prose cannot duplicate or erase a consequence.
 Every authored line that may enter history, skip-seen, echo, Observer Capture,
 Gallery collection, or save restoration owns a stable semantic line ID. IDs are
 not derived from file path, line number, translated text, or label position.
-Physical consolidation and prose edits therefore do not invalidate witnessed
+Physical file arrangement and prose edits therefore do not invalidate witnessed
 history.
 
 Every non-dialogue action, visual beat, or deliberate silence that may satisfy
@@ -1132,7 +1186,7 @@ resource path, animation position, elapsed time, or translated text.
 
 ### 12.7 DTL authoring envelope
 
-Every master begins safely, and every callable block follows this conceptual
+Every timeline begins safely, and every callable block follows this conceptual
 shape:
 
 ```text
@@ -1176,7 +1230,7 @@ echo commands only into its disposable sandbox state and may persist only
 Observer-evidence and pair-combination-witness capabilities even when replaying
 a label that owns them canonically.
 
-Invitation acceptance, board resolution, promotion, day resolution, Hospital,
+Invitation acceptance, board resolution, progression evaluation, day resolution, Hospital,
 pair counting, Day 7 selection, and ending completion are engine-owned commands,
 not DTL signals. Dialogic's physical end notification is accepted only through
 the bridge's matching playback token.
@@ -1201,13 +1255,16 @@ contains all 18 complete strings. Final content line IDs are added alongside the
 lines they identify and must pass the same closed-manifest validation before
 that content can ship.
 
-## 13. Exact master-file ownership
+## 13. Semantic entry coverage by day and ending layer
+
+These groups specify scene coverage, not mandatory physical filenames. Resolve
+each entry through its registered locator in the original scene-oriented layout.
 
 Notation such as `{priscilla,lavinia}` below abbreviates a finite list for
 readability. The implemented manifest must expand every member explicitly; it
 must not accept patterns at runtime.
 
-### 13.1 `day_1.dtl`
+### 13.1 Day 1 entries
 
 - `opening.day1`
 - `tutorial.desktop_day1`
@@ -1220,7 +1277,7 @@ must not accept patterns at runtime.
 - `dating.solo.sylvia.day1.post_challenge`
 - `hospital.faint.day1`
 
-### 13.2 `day_2.dtl`
+### 13.2 Day 2 entries
 
 Day 1 solo carryovers:
 
@@ -1254,7 +1311,7 @@ Current-day entries:
 
 Private-offscreen has no DTL entry.
 
-### 13.3 `day_3.dtl`
+### 13.3 Day 3 entries
 
 - `contact.invitation.solo.priscilla.day2.nevermind`
 - `contact.invitation.solo.priscilla.day2.missed_question`
@@ -1277,7 +1334,7 @@ Private-offscreen has no DTL entry.
 - `dating.solo.sylvia.day3.post_challenge`
 - `hospital.faint.day3`
 
-### 13.4 `day_4.dtl`
+### 13.4 Day 4 entries
 
 - `contact.invitation.solo.lavinia.day3.nevermind`
 - `contact.invitation.solo.lavinia.day3.missed_question`
@@ -1293,10 +1350,11 @@ Private-offscreen has no DTL entry.
 - `dating.solo.sylvia.day4.post_challenge`
 - `hospital.faint.day4`
 
-Priscilla and Sylvia's post entries receive already-evaluated third-valve
-promotion context.
+These post entries accept an already-evaluated progression result only when the
+approved plot assigns that exact scene a window; neither Day 4 solo owns one by
+default.
 
-### 13.5 `day_5.dtl`
+### 13.5 Day 5 entries
 
 - `contact.invitation.solo.priscilla.day4.nevermind`
 - `contact.invitation.solo.priscilla.day4.missed_question`
@@ -1312,9 +1370,11 @@ promotion context.
 - `dating.solo.sylvia.day5.post_challenge`
 - `hospital.faint.day5`
 
-Lavinia receives third-valve context; Sylvia receives fourth-valve context.
+These post entries accept an already-evaluated progression result only when the
+approved plot assigns that exact scene a window; neither Day 5 solo owns one by
+default.
 
-### 13.6 `day_6.dtl`
+### 13.6 Day 6 entries
 
 - `contact.invitation.solo.lavinia.day5.nevermind`
 - `contact.invitation.solo.lavinia.day5.missed_question`
@@ -1341,9 +1401,11 @@ Lavinia receives third-valve context; Sylvia receives fourth-valve context.
 - `dating.twofriends.priscilla_lavinia.day6.post_challenge`
 - `hospital.faint.day6`
 
-Priscilla and Lavinia's solo post entries receive fourth-valve context.
+These solo post entries accept an already-evaluated progression result only
+when the approved plot assigns that exact scene a window; neither Day 6 solo
+owns one by default.
 
-### 13.7 `day_7.dtl`
+### 13.7 Day 7 entries
 
 - `contact.invitation.solo.priscilla.day6.nevermind`
 - `contact.invitation.solo.priscilla.day6.missed_question`
@@ -1367,7 +1429,7 @@ Day 7 has no ordinary message, solo/group date pre/post entry, challenge result,
 or Day 8 carryover. After Done or faint resolution, the engine starts the first
 step directly from `endings.dtl`.
 
-### 13.8 `endings.dtl`
+### 13.8 Ending entries
 
 The exact ending-identity-to-entry capability map is:
 
@@ -1403,7 +1465,7 @@ Playback is a transaction:
 
 - Missing selected-locale path or label falls back only to the exact same
   semantic label in English.
-- Missing/wrong-type English master path, or a missing/duplicated English label,
+- Missing/wrong-type English timeline path, or a missing/duplicated English label,
   starts nothing and preserves the pending event.
 - Fallback may change language only. It may not change day, route, friend,
   entry, ending, or consequence.
@@ -1496,8 +1558,8 @@ not Dialogic internals or pixel-perfect prose presentation.
 | Manifest | Every presentation `entry_id` has exactly one valid locator/role; every ending ID/form maps only to its finite allowed entries; labels exist, return, and never fall through; retired/unknown IDs fail |
 | Seven-day model | Seeded generated action sequences preserve day bounds, invitation closure, schedule legality, stat ownership, monotonic tiers, and one valid terminal plan |
 | Save equivalence | Save/restore/continue equals uninterrupted canonical execution except the explicit post-first-ending pre-challenge regeneration boundary; older saves merge the monotonic run ledger and every causally reached effect |
-| Exactly once | Repeating generation, reply, result, Hospital, pair count, promotion, ending, or Gallery receipts never duplicates effects; conflicting reuse fails |
-| Promotion | Every friend/window/attendance/Hospital combination at affection 3/4 and 7/8 proves fixed valves, one-step maximum, and no relocation |
+| Exactly once | Repeating generation, reply, result, Hospital, pair count, progression, ending, or Gallery receipts never duplicates effects; conflicting reuse fails |
+| Progression | Every approved friend/window/predicate/attendance/Hospital combination proves code ownership, one-step maximum, idempotence, and no relocation; the inherited affection 3/4 and 7/8 fixed-valve cases remain migration fixtures only until replaced or retired |
 | P-L truth table | Exhaust both windows across solo P/L and group-offer states; each window counts zero or exactly one according to law |
 | Ending order | Exhaust legal one-to-four-step plans and every resume cursor; only matching completion advances, P-L remains last, and mutually impossible solo-Observer/P-L evidence never coexists |
 | Faint/echo terminal order | Exhaust sequela/danger/action/Done states; Day 7 drains every pending echo atom before any faint-capable action or ending transition |
@@ -1515,7 +1577,8 @@ Tests cover:
 - all six solo relationship outcomes and their independent board evidence;
 - equal preassigned explosion classes without friend/state bias;
 - Perfect criteria, Perfect-then-Dark, and accessibility neutrality;
-- all fixed promotion gates and Sylvia's Hospital exception;
+- every plot-approved progression window and predicate, plus the rule that
+  Hospital access alone cannot progress a relationship;
 - both P-L windows, visible/offscreen modes, board legibility, stable deck, and
   counted-meeting law, including the visible ending supplying a fourth witnessed
   combination before a preconditioned Observer step;
@@ -1568,7 +1631,7 @@ non-mouse input/assistance without invalidating classification.
 
 The highest-risk permanent regression tests cover duplicate post-load effects,
 label fallthrough, older-save ledger reconciliation, Hospital during every P-L
-mode, Hospital dates counting as attended, promotion gates moving, post-clear
+mode, Hospital dates counting as attended, progression windows relocating, post-clear
 double payout, cross-store crash recovery, Rehearsal evidence leakage, and
 completed ending steps replaying.
 
@@ -1601,7 +1664,7 @@ reversible checkpoints rather than one mixed change.
 
 ### 16.3 Domain and persistence checkpoint
 
-- Reconcile calendar, relationship, promotion, Hospital, pair, board-journal,
+- Reconcile calendar, relationship, progression, Hospital, pair, board-journal,
   replay privilege, rehearsal, ending-plan, Gallery, and migration schemas.
 - Migrate old primary/optional-epilogue ending plans into ordered steps.
 - Retire standalone True identities and any conflicting computed/regressing tier,
@@ -1610,13 +1673,13 @@ reversible checkpoints rather than one mixed change.
 
 ### 16.4 Timeline checkpoint
 
-- Create the eight executable, plot-neutral English master skeletons.
-- Update Dialogic's physical timeline directory and UID ownership.
-- Preserve every retained or explicitly migrated semantic entry and line
-  identity while relocating it; retired IDs follow the migration/rejection
-  table rather than surviving accidentally.
-- Retire the 61 old English skeleton files only after exact locator coverage and
-  headless label tests pass.
+- Retain and extend the original scene-oriented English DTL skeletons as needed
+  for complete scene mechanics; finished dialogue remains deferred.
+- Preserve original UID ownership and every retained semantic entry/line identity.
+- Reconcile manifests, callers, generators, registry checks, and tests that still
+  require eight masters or deletion of the original files.
+- Validate all registered locators, isolated scene completion, and full promised
+  branch coverage. Do not use a fixed DTL count as an acceptance gate.
 
 ### 16.5 Verification checkpoint
 
@@ -1655,8 +1718,9 @@ The following older rules are explicitly retired for this domain:
   throughout Days 1-7.
 - ignored ordinary messages remaining in player-facing append-only history;
   only an invisible generation tombstone survives expiry.
-- appearance/incident-card or attended-ordinal promotion gates; the only normal
-  valves are the fixed calendar challenge slots in section 8.2.
+- implicit appearance/incident-card or attended-ordinal progression. Only an
+  explicitly plot-approved code-owned scene window may evaluate; the fixed
+  calendar slots in legacy section 8.2 are not forward authority.
 - Day 7 accepted invitations producing Day 8-style missed evidence; terminal
   faint resolution is the explicit exception in section 11.1.
 

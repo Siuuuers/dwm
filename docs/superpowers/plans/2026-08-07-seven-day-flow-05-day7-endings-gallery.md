@@ -1,5 +1,14 @@
 # Seven-Day Flow Phase 05: Day 7, Endings, Gallery, and Production Wiring Implementation Plan
 
+> **Owner decision, 2026-09-08:** Eight-master consolidation is cancelled. Retain
+> the original scene-oriented DTL arrangement and implement all promised scene
+> mechanics with dialogue deferred. References below to 61-to-8 migration,
+> eight-only path/count gates, and deleting the original DTL/UID files are
+> superseded and must not be executed. Semantic IDs, exact entry resolution,
+> safe scene completion, save/load, and promised branches remain required.
+> Existing consolidated files are temporary implementation state, not layout
+> authority. See the updated base design sections 4.1, 12.1, and 16.4.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implement Day 7's boardless destination flow, mandatory echo drain, exact faint/Dark-mode precedence, thirteen ending identities, ordered resumable ending steps, full/residue policy, Gallery replay, and one production wiring path from UI through validated owners and Dialogic.

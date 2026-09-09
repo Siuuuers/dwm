@@ -604,7 +604,7 @@ audition material. Completion of Day 2 alone cannot delete that unresolved Day
 | Chair/folder/`will` rhythm | **PROTECTED REACTION TEST; NOT FINAL DTL** |
 | Day 2 preference | **OWNER-APPROVED AUDITION DIRECTION** |
 | Day 2 versus Day 6 placement | **UNSELECTED** |
-| Angela-present Group adaptation | **PARTIALLY SPECIFIED — COMMON RUN-SHEET HINGE, DESKTOP SOURCE PASS, AND VIEWER-ACTION DEPENDENCY OWNER-APPROVED; THREE-PERSON STAGING AND BRANCHES OPEN** |
+| Angela-present Group adaptation | **PARTIALLY SPECIFIED — COMMON RUN-SHEET HINGE, DESKTOP SOURCE PASS, VIEWER-ACTION DEPENDENCY, AND THREE-PERSON STAGING OWNER-APPROVED; BOARD-RESULT AND MODE BRANCHES OPEN** |
 | Day 1 public-truth / Group operability distinction | **OWNER-APPROVED AUDITION DIRECTION** |
 | Missed/Hospital adaptation | **OPEN** |
 | Board-result action mappings | **OPEN** |
@@ -614,8 +614,8 @@ audition material. Completion of Day 2 alone cannot delete that unresolved Day
 | Final DTL and implementation | **NOT AUTHORIZED** |
 
 The next creative task is not to reopen why Angela is present, what physical
-artifact she tests, or why Lavinia owns the marked viewer action. It is to stage
-the approved one-sheet, one-laptop source pass among all three women. Only then
-should the audition discover the distinct Perfect, Solved, and Exploded acts
-without changing pair truth or mechanically copying the private
-chair/folder/`will` rhythm.
+artifact she tests, why Lavinia owns the marked viewer action, or the approved
+asymmetric three-person geometry. It is to discover the distinct Perfect,
+Solved, and Exploded acts plus the ordinary/Hospital Missed adaptations without
+changing pair truth or mechanically copying the private chair/folder/`will`
+rhythm.

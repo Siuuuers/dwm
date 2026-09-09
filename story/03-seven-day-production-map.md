@@ -29,7 +29,7 @@ without supplying a story premise.
 | `Approved matrix record` | Links only to the explicitly `APPROVED` matrix record authorized to supply a premise. |
 | `Mechanical reference` | Points to the controlling mechanical authority and its applicable obligation. |
 | `Relationship function` | Records the approved record's relationship function plus bounded state and tone rendering inputs. |
-| `Promotion obligation` | Records any upstream promotion obligation that the approved record must respect. |
+| `Progression-window status` | Records any upstream progression window and predicate that the approved record must respect; `REOPENED` creates no replacement role. |
 | `Incoming causality` | Records the approved record's required incoming cause and lawful knowledge boundary. |
 | `Delivery obligation` | Records the required delivery work, lawful visibility, evidence, and contextual echo input the approved record must carry. |
 | `Guaranteed fallback` | Records the approved record's required fallback carrier when its primary rendering or evidence is unavailable. |

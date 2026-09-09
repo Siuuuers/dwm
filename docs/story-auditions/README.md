@@ -2,9 +2,12 @@
 
 > **Workspace status: ACTIVE NONCANONICAL AUDITION MATERIAL.**
 >
-> Files here preserve owner-approved candidates for later constellation
-> reconciliation. They are not narrative canon, current mechanical or design
-> authority, implementation authorization, final DTL, or approved placement.
+> Files here preserve coherent candidates and owner-review packets for later
+> constellation reconciliation. Some candidates have already earned explicit
+> owner approval as audition designs; others remain clearly labeled
+> recommendations awaiting review. Inclusion here is never approval, narrative
+> canon, current mechanical or design authority, implementation authorization,
+> final DTL, or approved placement.
 
 This directory is the durable workplace for substantial story explorations that
 have become coherent enough to preserve but whose complete day or constellation
@@ -15,6 +18,9 @@ routing contract, not an additional source of narrative authority.
 
 - `OWNER-APPROVED AUDITION DESIGN` means that a candidate should be preserved
   and reconsidered. It does not mean that the candidate is canon or selected.
+- `SELECTED FOR OWNER REVIEW` means that a coherent recommendation has passed
+  internal comparison strongly enough to present. It records no owner decision
+  and cannot be promoted until the owner explicitly approves it.
 - Every audition must name its candidate window or bounded premise, state its
   authority status prominently, and cite the current documents that constrain it.
 - Reaction tests remain illustrative writer-facing material until final DTL
@@ -67,8 +73,13 @@ disposed. This future cleanup does not authorize deletion before reconciliation.
 
 | Audition | Candidate | Preserved status | Canon placement |
 |---|---|---|---|
+| [P–L Day 2 / Day 6 Event Record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md) | Connected early-contact, bar-return, intervening recognition and Day 6 candidates | Temporary source consolidation; alternatives and raw-conversation gaps explicit; complete event audit pending | Days 2/6 and intervening carriers are candidates; `UNSELECTED` |
+| [P–L Day 2 Four-Form Causal Spine](2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md) | One shared bar-return situation with four consequence cards and Day 6 handoffs | Current noncanonical causal proposal; owner-retained Dark bodily-exposure and bounded-departure direction; raw-history, physical, placement and whole-event reviews remain open | Proposed Day 2; `UNSELECTED`; cannot displace Room 2.17 without explicit disposition |
+| [P–L Sweet: The Imagined Refusal](2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md) | Taskless late tea with an owner-retained shared-song prelude and possible brief imagined-refusal burst | Owner-retained noncanonical Section 11 core; Section 13 holds the current proposal plus approved local clear convergence and pure `Exploded` cutoff; further expansion follows Day 2 causal review | Proposed Day 6 after occurring Sweet Day 2; `UNSELECTED` |
+| [P–L Sweet–Love: The Interrupted Hearing](2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md) | Taskless late tea in which Lavinia prefers the hearing interrupted by Priscilla's ordinary speech | Owner-approved audition design retained as the leading noncanonical Sweet–Love candidate; enrichment functions retained, exact carriers and DTL open | Proposed Day 6 after occurring Sweet Day 2; `UNSELECTED` |
 | [Angela–Lavinia Day 2 Focus](2026-08-30-angela-lavinia-day-2-focus-audition-design.md) | `solo.lavinia.day_2` | Owner-approved audition design | Day 2 `UNSELECTED` |
 | [Room 2.17 Group Adaptation](2026-08-30-room-217-group-adaptation-audition-record.md) | `pair.priscilla_lavinia.day_2` or `pair.priscilla_lavinia.day_6` | Owner-approved audition design; Group adaptation open | Placement `UNSELECTED` |
+| [Seven-Day Owner-Review Constellation](2026-08-31-seven-day-owner-review-constellation-audition.md) | Complete Day 1–7 recommendation and reconciliation packet | Selected for owner review; Days 2–7 remain noncanonical | Day 1 approved; later rows `UNSELECTED` |
 
 The [Two-Pass Constellation specification](../superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md)
 continues to own the selection workflow.

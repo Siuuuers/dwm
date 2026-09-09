@@ -1,5 +1,14 @@
 # Seven-Day Flow Implementation Roadmap
 
+> **Owner decision, 2026-09-08:** Eight-master consolidation is cancelled. Retain
+> the original scene-oriented DTL arrangement and implement all promised scene
+> mechanics with dialogue deferred. References below to 61-to-8 migration,
+> eight-only path/count gates, and deleting the original DTL/UID files are
+> superseded and must not be executed. Semantic IDs, exact entry resolution,
+> safe scene completion, save/load, and promised branches remain required.
+> Existing consolidated files are temporary implementation state, not layout
+> authority. See the updated base design sections 4.1, 12.1, and 16.4.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Reconcile the current Godot project with the approved seven-day flow specification through seven reviewable, test-first implementation plans, without inventing final narrative prose.

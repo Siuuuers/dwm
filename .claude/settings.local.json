@@ -19,7 +19,17 @@
       "Bash(git add *)",
       "PowerShell(& .\\\\tools\\\\testing\\\\Invoke-IsolatedGodot.ps1 -SuiteId 'game_state_surface_red' -LogName 'phase2r-red-game-state-surface.log' -GodotArgs @\\('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/tooling/test_public_surface_inventory.gd','-gexit'\\); Get-Content .godot\\\\phase2r_logs\\\\phase2r-red-game-state-surface.log | Select-String \"must exist|Passing|Failing|Risky|ERROR|SCRIPT\" | Select-Object -First 12)",
       "PowerShell(& .\\\\tools\\\\testing\\\\Invoke-IsolatedGodot.ps1 -SuiteId 'game_state_surface_tool' -LogName 'phase2r-game-state-surface-tool.log' -GodotArgs @\\('-s','res://addons/gut/gut_cmdln.gd','-gtest=res://tests/unit/tooling/test_public_surface_inventory.gd','-gexit'\\); Get-Content .godot\\\\phase2r_logs\\\\phase2r-game-state-surface-tool.log | Select-String \"Failed|Passing|passed|failed|ERROR|Tests\" | Select-Object -First 15)",
-      "Bash(bd update *)"
+      "Bash(bd update *)",
+      "PowerShell(& './tools/git/Invoke-ExactPathCommit.ps1'*)",
+      "Bash(git -C \"C:/Users/glori/Documents/dwm/.godot/worktrees/dwm-p2r13-resealed\" rev-parse --show-toplevel)",
+      "Bash(git -C \"C:/Users/glori/Documents/dwm/.godot/worktrees/dwm-p2r13-resealed\" rev-parse --abbrev-ref HEAD)",
+      "Bash(git -C \"C:/Users/glori/Documents/dwm/.godot/worktrees/dwm-p2r13-resealed\" status --short)",
+      "Bash(grep -v '\\\\.uid$')",
+      "Bash(git -C \"C:/Users/glori/Documents/dwm/.godot/worktrees/dwm-p2r13-resealed\" rev-parse --git-dir)",
+      "Bash(git -C \"C:/Users/glori/Documents/dwm\" worktree list)",
+      "Bash(git -C \"C:/Users/glori/Documents/dwm\" rev-parse codex/dwm-p2r13-resealed)",
+      "Bash(bd show *)",
+      "Bash(/c/Python314/python -c ' *)"
     ]
   },
   "enabledMcpjsonServers": [

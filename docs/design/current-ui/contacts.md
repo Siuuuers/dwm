@@ -10,6 +10,7 @@ self_review_status: passed
 self_reviewed_on: "2026-08-25"
 authority_effect: nonbinding_until_accepted_repointed_and_machine_discoverable
 created_on: "2026-08-24"
+last_amended_on: "2026-08-31"
 implementation_requested: false
 implementation_authorized: false
 implementation_authorized_by_this_dossier: false
@@ -455,6 +456,34 @@ other participant's projection may add only registered authored variation and
 cannot accept or schedule twice. Pair autonomy, counted-window law, and expiry
 branches remain externally owned.
 
+Before the first linked open, successful activation publishes only that binary
+Unread delivery fact on both rows. It creates no paired-offer transcript body,
+preview, inviter identity, or witnessed prose. First same-day open materializes
+the applicable paired offer. If the action instead resolves untouched, that
+offer never materializes: the latent availability closes and the next-day
+lower-case `busy` records arrive as ordinary incoming correspondence. The same
+binary Unread morphology may therefore continue across the day boundary without
+revealing that its underlying branch has resolved.
+
+Contacts provides no edited marker, revision history, duplicate invitation,
+missing-message scar, timestamp comparison, or other branch-comparison surface.
+In the untouched branch there is no earlier offer body; in the opened branch
+the actual paired offer remains ordinary History. The audience may distinguish
+those active-run histories, but cannot prove that witnessed text was replaced
+or that either sender knows Angela's read/open status. The internal `busy`
+closure class is unrelated to the forbidden player-facing Busy application
+status.
+
+Opened-but-unanswered retains the already materialized paired offer in each
+participant's independent transcript after its response controls close. Its
+next-day lower-case `nevermind` record renders the same owner-approved audition
+completed-process copy as the corresponding `busy` record. Equal copy never
+collapses causal identity: entry ID, type, sequence, receipt, and transcript
+history remain distinct, and Contacts never merges, aliases, or deduplicates
+entries by localized body text. The retained offer—not an added explanation or
+read-receipt claim—makes the opened branch visibly different. This surface law
+does not promote audition copy into final DTL.
+
 The first committed linked response updates both thread projections. Merely
 opening the second participant creates no reply, judgment variation,
 acceptance, or Schedule mutation; that participant's response remains
@@ -656,30 +685,13 @@ plan bytes and their recorded hashes remain untouched by this draft.
 
 ## 12. Day-2 and Sylvia UI/canon projections
 
-Day 2 contains exactly two ordinary slips in this order and one authored minute:
-
-1. Priscilla: `I know`;
-2. Angela: `Lavinia is back`.
-
-The pair first appears during the externally authored Returned Seat beat, then
-projects as the same immutable pair into Priscilla's Contacts history already
-read and witnessed. It generates no toast, Unread, unrelated watermark, group
-card, connector, anomaly styling, sound, or causal label. The apartment can
-explain possible knowledge but never explains the record order. A run that did
-not experience the pair exposes neither line.
-
-Four exact semantic stages—`before pair`, `Priscilla visible`, `Angela visible`,
-and `complete`—resume by appending only a missing stage. Reduced motion uses hard
-state changes without altering order; an already committed line is never
-duplicated or reannounced. Animation, caret, and scene-tree state are not save
-facts. Visual, accessibility-tree, and live-announcement order remain
-identical. Lavinia's reaction may use only Angela's observable pause or
-behavior; this dossier establishes no screen-sharing shot or private-message
-knowledge.
-
-The pair owns its own presentation receipts. It is not randomized Observer
-evidence, a technical error, a clock-bleed target, or one of the six ordinary
-A/B/C entries.
+Day 2 contains no dedicated return-message pair. The retired Priscilla `I know`
+and Angela `Lavinia is back` lines create no Contacts entry, authored minute,
+presentation stage, receipt, toast, Unread state, History projection,
+accessibility announcement, anomaly target, or replacement clue. Lavinia's
+ordinary return may become known only through an independently authorized scene
+or lawful later residue. The absence of a dedicated pair is not itself an
+erasure, gap, interface error, or mystery evidence.
 
 Sylvia Special contains no unsent Contacts draft, unknown typist, draft text,
 message record, tombstone, gap, History entry, accessibility residue, or
@@ -796,6 +808,12 @@ Known runtime and packet drift is evidence, not authority:
 - the current requirement/runtime path still models separate solo reply-based
   acceptance, while accepted Contacts law makes open/read the acceptance;
 - current UI uses a forbidden friend/day-only open command identity;
+- current domain state late-binds linked prose correctly and preserves distinct
+  `busy`/`nevermind` identities plus opened-offer records, but its canonical
+  unread query projects no linked Unread before first open; current UI and
+  day-resolution scaffolds do not yet render or roll the untouched branch,
+  retain an expired opened offer without response controls, or bind both
+  closure identities to their approved shared audition copy;
 - current scene scaffolds still contain portrait consumers and 3:7 geometry;
   and
 - current chat scaffolding can interpret BBCode-like text contrary to the
