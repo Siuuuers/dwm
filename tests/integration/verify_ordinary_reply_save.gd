@@ -1,12 +1,21 @@
 extends "res://tests/integration/verify_playable_startup.gd"
 ## Isolated public UI probe. The explicit locale fixture reproduces the reported setting.
+## --reply-choice=A|B|C selects one registered first-day reply; A is the default.
+var _reply_choice := "A"
 
 func _initialize() -> void:
 	var destination := ProjectSettings.globalize_path("user://").replace("\\", "/").simplify_path()
 	var isolated := OS.get_environment("DWM_TEST_ROOT").replace("\\", "/").simplify_path()
 	var isolated_appdata := isolated.get_base_dir().path_join("appdata").to_lower()
 	if not _check(not isolated.is_empty() and isolated.get_file() == "dwm_test_root" and destination.to_lower().begins_with(isolated_appdata + "/"), "reply probe requires isolated user directory"): return
+	var choice_seen := false
 	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--reply-choice="):
+			var requested := argument.trim_prefix("--reply-choice=")
+			if not _check(not choice_seen and requested in ["A", "B", "C"], "reply choice must be one explicit A, B or C"): return
+			_reply_choice = requested
+			choice_seen = true
+			continue
 		if not argument.begins_with("--reply-seed-root="): continue
 		var source := ProjectSettings.globalize_path(argument.trim_prefix("--reply-seed-root="))
 		if not _copy_reply_seed(source, destination): return
@@ -73,21 +82,22 @@ func _run() -> void:
 	var app: Node = desktop._cached_app_windows[&"contacts"]
 	app.contacts_panel.open_requested.emit("lavinia")
 	await _frames()
-	var choice: Button = app.find_child("OrdinaryReplyA", true, false)
-	if not _check(choice != null and choice.is_visible_in_tree() and not choice.disabled, "reply actual A visible " + str(app.last_result.get("code"))): return
+	var choice: Button = app.find_child("OrdinaryReply" + _reply_choice, true, false)
+	if not _check(choice != null and choice.is_visible_in_tree() and not choice.disabled, "reply actual " + _reply_choice + " visible " + str(app.last_result.get("code"))): return
 	await _capture_screen("reply-01-lavinia-before-click")
 	if not await _click_reply(choice): return
 	for frame: int in 180:
 		await process_frame
 		if game.get_pending_ordinary_echoes().size() == 1 or not app.last_result.get("ok", false): break
-	var diagnostic := {"code": str(app.last_result.get("code", "")), "message": str(app.last_result.get("message", "")),
+	var diagnostic := {"choice": _reply_choice, "code": str(app.last_result.get("code", "")), "message": str(app.last_result.get("message", "")),
 		"path": str(app.last_result.get("path", "")), "phase": "commit" if not app._ordinary_pending.is_empty() else "prepare",
 		"drawn": app._ordinary_drawn, "busy": app._ordinary_busy, "locale": app._primary,
 		"gate": str(bootstrap._application_gate.get_active_owner()), "echo_count": game.get_pending_ordinary_echoes().size()}
 	await _capture_screen("reply-02-lavinia-after-click")
 	print("ORDINARY_REPLY_DIAGNOSTIC: " + JSON.stringify(diagnostic))
 	if not _check(game.get_pending_ordinary_echoes().size() == 1, "reply did not persist " + JSON.stringify(diagnostic)): return
-	print("ORDINARY_REPLY_SAVE_PASS: real title entry -> Chinese ordinary reply -> actual draw -> durable echo")
+	if not _check(game.get_pending_ordinary_echoes()[0].reply_id == "reply.ordinary.lavinia.day1." + _reply_choice.to_lower(), "reply persisted the exact clicked choice"): return
+	print("ORDINARY_REPLY_SAVE_PASS: real title entry -> Chinese ordinary reply " + _reply_choice + " -> actual draw -> durable echo")
 	quit(0)
 
 func _click_reply(button: Button) -> bool:
