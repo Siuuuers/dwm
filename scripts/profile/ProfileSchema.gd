@@ -328,6 +328,11 @@ static func _validate_v1_preferences(value: Variant) -> Dictionary:
 	}
 	for group: String in groups:
 		if typeof(preferences[group]) != TYPE_DICTIONARY: return _invalid("preferences." + group, "preference group must be an object")
+		# Older v1 writers persisted this retired capability. Keep it only in the archive.
+		if group == "accessibility" and preferences[group].has("tutorial_replay_available"):
+			if typeof(preferences[group]["tutorial_replay_available"]) != TYPE_BOOL:
+				return _invalid("preferences.accessibility.tutorial_replay_available", "legacy tutorial capability must be a Boolean")
+			groups[group].append("tutorial_replay_available")
 		exact = _require_keys(preferences[group], groups[group], "preferences." + group)
 		if not exact.get("ok", false): return exact
 	for path_value: String in LEGACY_PREFERENCE_DEFAULTS:

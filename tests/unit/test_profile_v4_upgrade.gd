@@ -125,7 +125,7 @@ func test_invalid_v1_skip_is_the_only_repair_and_the_repaired_archive_is_valid()
 	assert_eq(repaired.value.legacy_preferences_v1.dialogue.skip_mode, "read_only")
 	assert_true(repaired.value.migration_receipts.invalid_persisted_skip_mode_v1)
 	var malformed := source.duplicate(true)
-	malformed.preferences.accessibility.tutorial_replay_available = true
+	malformed.preferences.accessibility.unknown_legacy_preference = true
 	assert_false(MIGRATION.prepare_document(malformed).get("ok", true))
 
 
@@ -217,3 +217,65 @@ func test_deferred_raw_mapping_publication_survives_as_inert_compatibility_signa
 	assert_true(manager.publish_deferred_profile_signals(committed.value.publication_id).get("ok", false))
 	assert_eq(input_events, [&"game_open_log"])
 	assert_eq(controls_events, [], "unchanged canonical Controls do not publish a false change")
+
+
+func test_historical_tutorial_boolean_survives_v1_current_backup_migration_and_restart() -> void:
+	for available: bool in [true, false]:
+		var source := _v1()
+		source.preferences.accessibility.tutorial_replay_available = available
+		source.preferences.language = "zh_CN"
+		var original := source.duplicate(true)
+		var backup := source.duplicate(true)
+		backup.preferences.language = "en"
+		var source_text := JSON.stringify(source)
+		var ops := FILES.new({ROOT + "/profile.json": source_text.to_utf8_buffer(),
+			ROOT + "/profile.json.bak": JSON.stringify(backup).to_utf8_buffer()})
+		var manager: Node = autofree(MANAGER.new())
+		var published: Array[Dictionary] = []
+		manager.profile_restored.connect(func(profile: Dictionary) -> void: published.append(profile))
+		var initialized: Dictionary = manager.initialize(STORAGE.new(ROOT, ops))
+		assert_true(initialized.get("ok", false), str(initialized))
+		if not initialized.get("ok", false): continue
+		var current: Dictionary = manager.get_profile_snapshot()
+		assert_eq(current.schema_version, SCHEMA.SCHEMA_VERSION)
+		assert_eq(current.legacy_preferences_v1, original.preferences)
+		assert_eq(current.legacy_preferences_v1.accessibility.tutorial_replay_available, available)
+		assert_false(current.preferences.accessibility.has("tutorial_replay_available"), "retired capability is archive-only")
+		assert_eq(current.preferences.language.primary_locale_id, "zh_CN", "valid current document wins over backup")
+		assert_eq(source, original, "migration never changes caller-owned legacy facts")
+		assert_eq(published, [current])
+		assert_true(SCHEMA.validate(current).get("ok", false))
+		var persisted: Dictionary = ops.snapshot_persisted()
+		assert_eq(persisted[ROOT + "/profile.json.bak"], source_text.to_utf8_buffer(), "original v1 bytes remain the migration backup")
+		var parsed := STRICT_JSON.parse_object(persisted[ROOT + "/profile.json"].get_string_from_utf8())
+		assert_true(parsed.get("ok", false), str(parsed))
+		assert_eq(parsed.value, current)
+		assert_true(MIGRATION.prepare_document(parsed.value).get("ok", false), "current archive is still admitted")
+		var restarted: Node = autofree(MANAGER.new())
+		var restarted_ops := FILES.new(persisted)
+		var restored: Dictionary = restarted.initialize(STORAGE.new(ROOT, restarted_ops))
+		assert_true(restored.get("ok", false), str(restored))
+		assert_eq(restarted.get_profile_snapshot(), current)
+		assert_eq(restarted_ops.snapshot_persisted(), persisted, "current-schema restart does not rewrite the archive")
+
+
+func test_optional_tutorial_compatibility_rejects_non_boolean_unknown_and_runtime_fields() -> void:
+	for invalid: Variant in [null, 0, 1, "true", [], {}]:
+		var source := _v1()
+		source.preferences.accessibility.tutorial_replay_available = invalid
+		var original := source.duplicate(true)
+		assert_false(MIGRATION.prepare_document(source).get("ok", true), "legacy optional leaf must remain Boolean")
+		assert_eq(source, original)
+		var current := SCHEMA.make_defaults()
+		current.legacy_preferences_v1 = source.preferences.duplicate(true)
+		assert_false(SCHEMA.validate(current).get("ok", true), "archived optional leaf has the same strict type")
+	var unknown := _v1()
+	unknown.preferences.accessibility.tutorial_replay_available = true
+	unknown.preferences.accessibility.unknown_legacy_preference = false
+	assert_false(MIGRATION.prepare_document(unknown).get("ok", true), "the known retired field does not authorize unknown siblings")
+	var archived := SCHEMA.make_defaults()
+	archived.legacy_preferences_v1 = unknown.preferences.duplicate(true)
+	assert_false(SCHEMA.validate(archived).get("ok", true))
+	var runtime := SCHEMA.make_defaults()
+	runtime.preferences.accessibility.tutorial_replay_available = true
+	assert_false(SCHEMA.validate(runtime).get("ok", true), "runtime preference schema remains unchanged")

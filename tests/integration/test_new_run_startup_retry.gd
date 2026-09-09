@@ -114,6 +114,10 @@ class RecoveryBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 	var retained_graph_owner: RefCounted
 	var graph_owner_ids: Array[int] = []
 
+	func _ready() -> void:
+		# Each case explicitly starts after wiring; suppress the autoload's deferred start.
+		pass
+
 	func _target(target_name: StringName) -> Node:
 		return targets.get(target_name)
 
@@ -138,7 +142,7 @@ func _fixture(fail_stage: StringName) -> Dictionary:
 	var saves: Node = autofree(RecoverySaves.new())
 	saves.fail_storage = fail_stage == &"initialize_saves"
 	saves.fail_continuation = fail_stage == &"publish_application_ready"
-	var bootstrap: Node = autofree(RecoveryBootstrap.new())
+	var bootstrap: Node = RecoveryBootstrap.new()
 	var gate: RefCounted = GATE.new()
 	var route_hold: Node = autofree(RouteHold.new())
 	# Keep the real gate used by save-stage wake/fatal wiring; other composition is outside
@@ -150,6 +154,8 @@ func _fixture(fail_stage: StringName) -> Dictionary:
 	route_hold.bootstrap = bootstrap
 	bootstrap.set("_startup_route_owner", route_hold)
 	bootstrap.set("_startup_route_hold_token", "startup-route-fixture")
+	# Real startup publication binds SceneTree.scene_changed; retain that production boundary.
+	add_child_autofree(bootstrap)
 	return {"bootstrap": bootstrap, "profile": profile, "saves": saves, "route_hold": route_hold,
 		"gate": gate}
 
