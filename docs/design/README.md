@@ -1,59 +1,96 @@
-# Design authority and reference
+# Documentation authority map
 
-> **Owner decision, 2026-09-08:** Eight-master consolidation is cancelled. Retain
-> the original scene-oriented DTL arrangement and implement all promised scene
-> mechanics with dialogue deferred. References below to 61-to-8 migration,
-> eight-only path/count gates, and deleting the original DTL/UID files are
-> superseded and must not be executed. Semantic IDs, exact entry resolution,
-> safe scene completion, save/load, and promised branches remain required.
-> Existing consolidated files are temporary implementation state, not layout
-> authority. See the updated base design sections 4.1, 12.1, and 16.4.
+Use this index to navigate the active authority for DWM's seven-day work. Resolve
+conflicts by the ownership stated in the linked document; do not treat recovered
+material or historical amendments as current mechanics.
 
-This directory contains both registered design authority and historical or
-exploratory reference. A Markdown file does not become authority merely by
-being placed here.
+The owner's latest explicit decisions take precedence over older document,
+manifest, plan, and implementation wording within their stated scope. The
+machine registry at `prompt_docs/metadata/design_authority_registry.v1.json`
+records registered sources; it does not override a later owner decision.
 
-The closed machine registry is
-`prompt_docs/metadata/design_authority_registry.v1.json`. The registered
-game-design authorities are:
+## Active working authority
 
-1. `2026-08-07-seven-day-dialogic-flow-design.md` — the approved bounded base
-   specification for the seven-day flow and Dialogic structure.
-2. `2026-08-11-phase-2r-foundation-repair-current-authority.md` — the approved
-   current reconciliation for the Phase-2R logical specification ID; it is
-   explicitly not a reconstruction of missing July source bytes.
-3. `2026-08-11-desktop-minesweeper-shop-schedule-amendment.md` — the accepted
-   bounded amendment for desktop-board lifecycle, Shop capabilities, Schedule
-   warnings, and the explicitly recorded Schedule decisions.
+The owner decision of 2026-09-08 cancels eight-master DTL consolidation and
+retains the original scene-oriented files. The base design sections 4.1, 12.1,
+and 16.4 record this bounded change; contradictory old cutover/count gates are
+superseded. All promised branches remain in scope with detailed dialogue deferred.
 
-Within the amendment's scope it takes precedence over conflicting base-plan,
-requirement, recovered-document, test, or skeleton-code wording. Outside that
-scope the August base specification remains authoritative.
+- [August 7 seven-day Dialogic-flow design](2026-08-07-seven-day-dialogic-flow-design.md)
+  owns baseline intended mechanics and Dialogic flow except where a later
+  design amendment with `written_spec_status: approved` declares bounded
+  precedence.
+- [August 11 Desktop Minesweeper Lifecycle, Shop Capabilities, and Schedule-Warning Amendment](2026-08-11-desktop-minesweeper-shop-schedule-amendment.md)
+  owns baseline Supportz purchase, capacity, and receipt law.
+- [August 30 Supportz Audience Priority and Three-Truth Mechanism Amendment](2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md)
+  owns the Day-2 Supportz purchase floor, the three-truth receipt separation,
+  selected-snapshot activation remap, and double-R3 Priscilla/Lavinia Day-7
+  invitation silence.
+- [Core Story Bible](../../story/01-core-story-bible.md) is the sole narrative
+  authority for character, relationship, atmosphere, hidden history, and intended
+  audience-facing meaning.
+- [Character & Relationship Handbook](../../story/02-character-relationship-handbook.md)
+  is derived performance guidance.
+- [Narrative Style Manual](../../story/08-narrative-style-manual.md) is the
+  reconciled writer-facing reference that centralizes approved cross-scene
+  presentation and drafting law without creating plot canon or implementation
+  behavior.
+- [Seven-Day Narrative Constitution Working Decision Ledger](2026-09-02-narrative-constitution-working-decision-ledger.md)
+  records later owner-confirmed, reopened, superseded, and still-open decisions;
+  its explicit status labels govern over earlier incompatible proposals.
+- [Relationship Progression and Ending Evaluation Runtime Behavior Record](2026-09-02-relationship-progression-runtime-behavior-record.md)
+  owns the approved future behavior boundary between authored consequence and
+  code without authorizing implementation.
+- [approved Two-Pass Constellation specification](../superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md)
+  owns the selection workflow.
+- [Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md) owns fixed
+  obligations and approved placements.
+- [Seven-Day Production Map](../../story/03-seven-day-production-map.md) is the
+  plot-neutral production rendering.
+- [Seven-Day Scene Beatbook](../../story/06-seven-day-scene-beatbook.md) expands
+  approved load-bearing scenes for execution.
 
-Within this bounded domain, interpretive authority follows this ladder,
-highest first:
+## Noncanonical working material
 
-1. The approved seven-day specification, with the accepted amendment's
-   precedence inside its own scope as above.
-2. The nonconflicting story canon in `story/01-core-story-bible.md` and
-   `story/02-character-relationship-handbook.md`.
-3. The derived plot-neutral production map
-   `story/03-seven-day-production-map.md`.
-4. The noncanonical idea library
-   `story/library/03-seven-day-plot-material-library.md`.
-5. The recovered historical reference under `docs/design/recovered/` and the
-   other preserved historical documents.
+- [Story Auditions](../story-auditions/README.md) preserve owner-approved active
+  candidates for later whole-constellation review. Their folder location and
+  owner-approved status grant no canon, placement, mechanical, or implementation
+  authority.
 
-Approved requirement and decision packets under `prompt_docs/` translate this
-design into atomic executable contracts. Beads owns mutable work status and
-dependencies. Reviewed hash-bound plans own procedure. Runtime and evidence
-describe physical implementation and verification. None of those statuses
-implies another, and all registered game-design documents retain
-`implementation_authorized: false` until a separate explicit authorization.
+## Provenance and implementation evidence
 
-Other contents are not registered design authority:
+- [Narrative Style Manual Sections 12–13 Audit](2026-09-06-narrative-style-manual-sections-12-13-audit.md)
+  records the final bounded same-context gate and its independent-review
+  limitation.
+- [Post-Manual Canon Reconciliation](2026-09-06-post-manual-canon-reconciliation.md)
+  records the exact scope of the 2026-09-06 cross-document repair and the
+  migrations deliberately left open.
+- [Angela-Absent Pair Explosion Visibility Reconciliation](2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md)
+  records the owner-confirmed visibility cutoff, its separation from fictional
+  conduct, and the bounded Day 6 challenge-placement repair; executable code
+  was not inspected.
+- [Plot Material Library](../../story/library/03-seven-day-plot-material-library.md)
+  preserves noncanonical named history only.
+- [July canon amendments](../../story/05-canon-amendments-2026-07-19.md) are
+  historical amendments, not current mechanics.
+- [recovered CONTENT evidence](recovered/CONTENT.md) and [recovered Dialogic
+  evidence](recovered/DIALOGIC.md) are evidence only.
+- [runtime day-resolution implementation](../../scripts/application/run/DayResolutionCoordinator.gd)
+  is physical implementation. It may expose drift from intended mechanics, but it
+  never silently becomes narrative authority.
 
-- `session-addendum-2026-07-18.md` is exploratory session material.
-- `recovered/` preserves the deleted design brain as historical reference.
-- Noncanonical idea libraries and derived production templates remain subject
-  to the authority notices in their owning files.
+## Current playable integration
+
+The owner authorized the simplified whole-game implementation with provisional
+rules while final plot and dialogue are being revised. The
+[playable-build guide](../agent/playable-build.md) and
+[implementation reconciliation](../agent/2026-09-07-whole-game-implementation-reconciliation.md)
+record current controls, evidence and remaining work. Verified runtime behavior
+does not promote provisional plot rules into canon, and historical process gates
+do not cancel that authorization.
+
+The 2026-09-09 initial art scope is one fixed portrait per solo scene and two
+fixed portraits per group/twofriends scene, without expression variants. See
+the bounded owner notes in the
+[art guide](2026-08-13-visual-art-placement-and-asset-production-guide.md) and
+[narrative-host amendment](2026-08-13-narrative-scene-host-dating-hospital-challenge-ui-ux-amendment.md).

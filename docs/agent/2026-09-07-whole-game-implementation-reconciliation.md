@@ -1,5 +1,45 @@
 # Whole-game implementation reconciliation — 2026-09-07
 
+## Main checkout consolidation - 2026-09-09
+
+The owner authorized committing the main-folder work, reconciling it with the
+playable checkpoint, making `master` the everyday branch, and pushing GitHub.
+Preservation commit `b5bbf1479` retains the original source/design/story work;
+`64f567164` retains the verified playable runtime. `master` was already an
+ancestor of the preserved design branch, so no separate content merge is needed.
+
+The reconciliation keeps the playable runtime, scene-based DTLs, exact locators,
+and current title/witnessed-caption owners. Superseded title/caption scaffolds
+and generated save fixtures remain in Git history rather than being reintroduced.
+Newer story/canon decisions remain forward authority; unsettled mechanics remain
+provisional. Initial portraits are fixed: one in solo scenes, two in group or
+twofriends scenes, with expression variations deferred. Art bindings are still
+future work, as described in the art guide.
+
+`temp-artifacts/.gdignore` prevents nested worktrees and recovery copies from
+polluting the main Godot/Dialogic index. Machine-specific tool preferences are
+preserved in the original checkpoint and local recovery copy, but their changes
+are excluded from the shared consolidation. Existing Markdown hard breaks and
+inherited skill-source formatting are preserved.
+
+Fresh isolated verification of the combined candidate:
+- Eight focused GUT suites: **86/86 tests, 4,564 assertions**, exit 0;
+  `master-consolidation-postfix-batch-20260910.log`.
+- Scene smoke: **26/26**, exit 0;
+  `master-consolidation-scene-smoke-20260910.log`.
+- Real startup -> New Account -> desktop -> Minesweeper -> Schedule -> Day 2:
+  exit 0, `master-consolidation-playable-startup-final-20260910.log`.
+  This harness requires `-- --phase2r-bootstrap-mode=final` after its script.
+
+The initial startup invocation selected intentional test-manual mode. The first
+GUT batch also exposed a v5 save-lock fixture missing v6 fields; only that fixture
+was repaired, with production validation and assertions unchanged. Its isolated
+rerun passed 5/5 tests and 77 assertions before the complete focused batch above.
+Log suffixes retain their original names; the checks ran on September 9 UTC.
+Known Dialogic orphan/NUL diagnostics and the previously recorded save-latency
+and richer-audio follow-ups remain; this integration is not a release-certification
+claim. Launch the main checkout using [the playtest guide](playable-build.md).
+
 ## Owner's clarified outcome
 
 Make the whole game's foundation, structure, and promised mechanics playable

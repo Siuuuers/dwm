@@ -1,9 +1,25 @@
 # Seven-Day Plot Material Library
 
-> Status: noncanonical idea library. Preserved verbatim from the production map
-> on 2026-08-07. Nothing in this file defines calendar, route, state, or ending
-> mechanics. Material becomes canonical only through a later explicit approval.
+> **Authority status: NONCANONICAL AUDITION HISTORY.** Nothing in the archived
+> snapshot below defines active mechanics, calendar placement, narrative canon,
+> production instructions, or shipped dialogue. Consult the August mechanical
+> design and the approved Two-Pass Constellation specification for current
+> authority.
 
+- **Captured source:** [`../03-seven-day-production-map.md`](../03-seven-day-production-map.md)
+- **Capture date:** 2026-08-28
+- **Source commit:** b3b01f3b210b997b179b89d540e9c8a8e4297355
+- **Source blob:** 27735a78c7e984cdbb28adbd8e5ac4db05fe5c8d
+- **Source UTF-8 SHA-256:** 7448db36f724d7acfe50f2479884c03209648c5adc2a1cb6cb641b0af152b4ff
+- **Capture scope:** Complete then-current source, including the owner-approved
+  collaborative additions, preserved without correction.
+- **Use rule:** Material may return only through Pass Two audition and explicit
+  owner approval.
+- **Room 2.17 distinction:** Archived Event 13 is noncanonical as a Production Map
+  card. Its separately approved causal core survives only through the
+  Two-Pass specification and Scene Beatbook, with placement still unselected.
+
+<!-- BEGIN VERBATIM SOURCE SNAPSHOT: story/03-seven-day-production-map.md -->
 # Seven-Day Production Map
 
 This Map is a derived production view; the Core Story Bible is the sole narrative authority and wins any narrative conflict, while existing code retains its owned boundaries.
@@ -33,6 +49,12 @@ The fixed narrative boundary is:
 - A personal Day 7 action appears only at ambiguous or love. An ineligible action is completely absent: no lock, silhouette, disabled label, question mark, or substitute hint.
 - Alone requires Angela to select no Day 7 date and instead complete the final observation. It is an intentional action, not a failed route.
 
+## Audience-Visible Scene Boundary
+
+Before endings and postscripts, show plot only through Angela-attended solo dates or scheduled actions, Angela-attended group dates, and the authorized Priscilla–Lavinia private counterparts. Do not create standalone friend-without-Angela scenes for Priscilla, Lavinia, or Sylvia. The Day 2 umbrella pickup is the sole separately authorized micro-scene; it may be visible only under its fixed trigger.
+
+Off-screen autonomy remains real but enters visible material only as residue inside an authorized scene. Private causality needs no camera, dialogue, or staging directions. Retain a hidden action only when it changes visible behavior, supplies necessary causality, or prevents a contradiction.
+
 ## Playthrough Pacing Budget
 
 - Target approximately two hours for a first clear and approximately five hours for full completion: roughly three additional replay hours after the first clear.
@@ -56,6 +78,12 @@ Every `Event` card contains exactly these seven production fields:
 7. **Mystery clue, fragment eligibility, and later echo** — route facet, optional fragment trigger, and explicit experienced/not-experienced residue.
 
 Fragments never assign or advance state, select tone, or gate an ending. A leveling opportunity can advance only one tier. Intimate leveling is unavailable from hate; a non-intimate qualifying variation may advance hate to friend. Friend receives a restrained variation, ambiguous a fuller mutual variation, and love a deeper variation without another tier.
+
+## Sisterhood Production Boundary
+
+Priscilla and Sylvia are sisters, and Angela has known both since childhood while remaining only a long-standing occasional acquaintance of Sylvia. Establish the family relation incidentally rather than as a late twist. Family context can explain Sylvia's early awareness of Angela's name and limited old habits; it cannot explain Sylvia's exact present timing, reveal Angela's current preferences, private messages, or medical information, grant Sylvia access to private records or rooms, or supply Angela's consent.
+
+Across family video calls during Lavinia's England attachment, Sylvia recognizes Priscilla constructing evidence of domestic continuity and correctly infers a rupture with Lavinia. She does not learn its cause, the disclosure-form conflict, either woman's private interpretation, or a relationship label, and she does not tell their parents. Whether Priscilla knows that Sylvia made this inference remains unresolved. The sisters' separately motivated actions may converge in one record or arrangement without giving them a shared hidden motive; never presume that Priscilla knows or shares Sylvia's fixed harmful intent toward Angela.
 
 ## Day 1
 
@@ -160,10 +188,10 @@ Fragments never assign or advance state, select tone, or gate an ending. A level
 
 ### Event 5: The Returned Seat
 
-1. **Ordinary activity and setting:** Lavinia resumes her former place during an evening astronomy activity using credible urban targets or the indoor/weather-safe demonstration fallback.
+1. **Ordinary activity and setting:** Lavinia resumes her former place during an evening astronomy activity using credible urban targets or the indoor/weather-safe demonstration fallback. Angela and Lavinia first became university friends through astronomy class, so the returned seat resumes ordinary shared history rather than manufacturing a first bond.
 2. **Characters present and absence version:** Angela and Lavinia are present; other astronomy participants keep the setting public. If Angela does not attend, Lavinia still returns to the activity and her occupied seat or equipment setting leaves residue.
 3. **Fixed dialogue/action spine:** The reunion remains practical until Angela types but does not send `Lavinia is back` and Priscilla replies `I know`. Lavinia’s return is certain; the timing’s cause is not.
-4. **Relationship pressure:** Lavinia tests whether returning to a familiar place can provoke the intensity that months of deniable contact did not secure.
+4. **Relationship pressure:** Lavinia tests whether returning to a familiar place can provoke the intensity that months of deniable contact did not secure. Do not turn the England interval into proof that she spent four months pining for one particular person; she reconsidered whether she had been entirely right without becoming repentant or forgiving Priscilla’s overreach.
 5. **State-dependent insert:** Hate permits formal acknowledgment only; friend revives a shared technical joke; ambiguous allows Lavinia to ask what Angela noticed first; love lets Angela answer without performance. No tier advances.
 6. **Tone-dependent visible action:** Sweet—Lavinia asks before reclaiming a familiar shared setup and accepts Angela’s answer. Totally Dark—Angela knowingly rewards Lavinia’s staged interruption with the exclusive attention Lavinia sought.
 7. **Mystery clue, fragment eligibility, and later echo:** Day 2’s concealed-knowledge anchor appears without using the apartment to solve the timing; a travel message or object can make **Four Months Away** eligible. **Experienced:** Angela retains the unsent draft, reply sequence, and Lavinia’s reaction. **Not experienced:** a notification timestamp, changed seat setting, or later remark confirms the return while the timing contradiction remains indirect.
@@ -204,7 +232,7 @@ Fragments never assign or advance state, select tone, or gate an ending. A level
 
 1. **Ordinary activity and setting:** Sylvia arrives during an Open Week equipment, hydration, route, or paperwork problem with precisely the ordinary item or information Angela needs. If code records an earlier faint, use the hospital-arrival variant instead.
 2. **Characters present and absence version:** Angela and Sylvia are present; relevant staff remain responsible for their domains. In the hospital variant, qualified clinicians own assessment and ongoing care. If Angela does not attend, Sylvia still delivers or logs the item through normal workflow.
-3. **Fixed dialogue/action spine:** Sylvia explains her timing through public schedules, observation, or preparation, while one detail remains too exact. In the hospital variant she may arrive as an acquaintance, but she neither diagnoses, accesses private records, directs treatment, nor conducts an examination.
+3. **Fixed dialogue/action spine:** Sylvia explains her timing through public schedules, observation, preparation, or limited old familiarity, while one detail remains too exact. In the hospital variant, Angela regains awareness with Sylvia already in front of her. Angela did not summon her, and the scene supplies no settled source for the timing. Being Priscilla's sister and knowing Angela since childhood do not themselves grant Sylvia admission: her presence must follow ordinary policy and any consent Angela is able to give. Sylvia neither diagnoses, accesses private records, directs treatment, nor conducts an examination; qualified clinicians own assessment and ongoing care.
 4. **Relationship pressure:** Sylvia turns anticipation into indebtedness; Angela must separate welcome help from permission to manage what follows.
 5. **State-dependent insert:** Hate receives only official handoff; friend accepts one bounded convenience; ambiguous asks how Sylvia knew; love allows gratitude without granting general authority. Health and variant selection remain code-owned; no tier advances.
 6. **Tone-dependent visible action:** Sweet—Sylvia hands over the needed item and accepts Angela’s stated limit. Totally Dark—Angela knowingly lets Sylvia convert one solved problem into permission to manage the next several decisions.
@@ -214,7 +242,7 @@ Fragments never assign or advance state, select tone, or gate an ending. A level
 
 1. **Ordinary activity and setting:** Angela and Sylvia take a short meal or drink break at a campus table between assigned work.
 2. **Characters present and absence version:** Angela and Sylvia are present in a public venue. If Angela does not attend, Sylvia’s prepared choice remains hers; Angela encounters only an unused reservation, receipt, or later comment.
-3. **Fixed dialogue/action spine:** Before Angela decides, Sylvia predicts her likely order, route, and next obligation. Angela distinguishes reasonable observation from familiarity their acquaintance does not justify.
+3. **Fixed dialogue/action spine:** Before Angela decides, Sylvia predicts her likely order, route, and next obligation. Angela distinguishes reasonable observation and limited family-context familiarity from present precision that their actual acquaintance does not justify.
 4. **Relationship pressure:** Sylvia offers relief from decision-making in a form Angela genuinely enjoys, making surveillance easy to mistake for care.
 5. **State-dependent insert:** Hate rejects the prediction and orders independently; friend accepts one guess as convenience; ambiguous asks Sylvia to expose her reasoning; love delegates one bounded choice while retaining the right to inspect it. No tier advances.
 6. **Tone-dependent visible action:** Sweet—Sylvia removes an unasked-for item and waits for Angela’s actual choice. Totally Dark—Angela knowingly follows the prearranged order and route so Sylvia can continue treating prediction as consent.
@@ -246,27 +274,29 @@ For both cards, the per-playthrough state/tone draw is already complete and stab
 
 ### Event 13: Three Versions of the Sky
 
-1. **Ordinary activity and setting:** Programme language, urban-observation material, and conservatory performance presentation must be reconciled for a public Open Week run-through.
-2. **Characters present and absence version:** **Group version:** Angela attends while Priscilla and Lavinia collaborate. **Private version:** the audience observes Priscilla and Lavinia without making Angela playable or present. **Prevented version:** if Angela separately occupies either woman during this code-owned window, Priscilla and Lavinia do not meet.
-3. **Fixed dialogue/action spine:** Priscilla offers exact programme wording, Lavinia challenges what it makes the audience expect, and they produce a usable presentation without settling who knows the other’s intentions better. Increment the pair counter exactly once only if the group or private counted encounter actually occurs; the prevented version increments nothing.
-4. **Relationship pressure:** Public collaboration reveals how quickly old domestic fluency becomes authority, irritation, and chosen dependence without declaring a relationship label.
-5. **State-dependent insert:** **Ambiguous + Sweet:** their corrections remain tactical and one refusal is accepted. **Ambiguous + Dark:** each turns insider knowledge into a controlled test. **Love + Sweet:** mutual familiarity is unmistakable, but each names one boundary and honors it. **Love + Dark:** each knowingly uses private knowledge as proof that the other is still claimable.
-6. **Tone-dependent visible action:** Sweet—Priscilla asks before revising Lavinia’s spoken section, and Lavinia supplies the final wording herself. Totally Dark—Lavinia deliberately misstates a private preference so Priscilla will correct her in public, and both accept the exposure as proof of irreplaceability.
-7. **Mystery clue, fragment eligibility, and later echo:** Conflicting programme versions can carry Day 1 roster residue or make **Before the Introduction** eligible through recognition order. Mark the stable combination seen only when this counted group/private encounter is actually witnessed. **Experienced:** later material may recall the exact third version they jointly made, and the pair counter retains one completion. **Not experienced/prevented:** incompatible copies or another student’s comment show that preparation continued, but the pair counter does not advance and the combination is not marked seen.
+Detailed writer-facing development for the approved private counterpart lives in [`06-seven-day-scene-beatbook.md`](./06-seven-day-scene-beatbook.md). The beatbook does not create a new encounter window or released narration, and it does not author the existing Angela-attended variation.
+
+1. **Ordinary activity and setting:** In Room 2.17, an ordinary bookable multipurpose preparation room, programme language, urban-observation material, and conservatory performance presentation must be reconciled for a public Open Week run-through.
+2. **Characters present and absence version:** **Group:** Angela attends while Priscilla and Lavinia collaborate. **Missed:** Angela accepted but is absent; the audience observes the pair with the code-owned guilt or Hospital flavor. **Private-visible:** the audience observes Priscilla and Lavinia without making Angela playable or present. **Private-offscreen:** the pair still meets and counts, but no scene or board is shown. **Prevented:** if Angela separately occupies either woman during this code-owned window, Priscilla and Lavinia do not meet.
+3. **Fixed dialogue/action spine:** The Open Week task, not a personal invitation or agreement to reconcile, places Priscilla and Lavinia together. Priscilla has prepared a stable chair for Lavinia; Lavinia accepts it but changes what it faces, and Priscilla moves the working folder into Lavinia’s chosen line of sight without restoring the chair. A minor dispute over Priscilla’s natural use of `will` lets Lavinia’s anger enter legitimate editorial work. Priscilla disagrees with the correction but identifies the other occurrences so Lavinia’s chosen edit can remain consistent. They produce a usable third version without settling who knows the other’s intentions better. Increment the pair counter exactly once whenever any counted meeting actually occurs, including Private-offscreen; the Prevented version increments nothing.
+4. **Relationship pressure:** Required collaboration becomes an unspoken working truce. Lavinia accepts useful attention without forgiving the disclosure-form violation; Priscilla supports a choice she considers inferior without receiving pardon. The encounter never levels their relationship or applies a label.
+5. **State-dependent insert:** **Ambiguous:** the working truce remains bounded to the assigned encounter; neither woman personally arranges another meeting. **Love:** Lavinia directly chooses a future return to Room 2.17 and supplies its practical boundary when Priscilla asks rather than presumes. Exact calendar availability and final wording remain code-owned.
+6. **Tone-dependent visible action:** The same real but non-urgent second folder is present in both tones. **Sweet:** once the required version is usable, Priscilla distinguishes preparedness from present necessity and leaves the second folder closed, accepting the end of the meeting. **Totally Dark:** Priscilla offers the second folder as a continuation; Lavinia states that it is not due today, receives Priscilla’s confirmation, and knowingly asks to see it, rewarding manufactured necessity with more time together.
+7. **Mystery clue, fragment eligibility, and later echo:** Conflicting programme versions can carry Day 1 roster residue or make **Before the Introduction** eligible through recognition order. The later-used third version is physical proof of the working truce, not reconciliation. A later return to Room 2.17 may confirm a Love-state arrangement only inside an already authorized window; it never creates another scene. A visible form marks the stable combination seen only when the code-owned board and witnessing rules permit it. **Visible and witnessed:** later material may recall the exact third version they jointly made, and the pair counter retains one completion. **Private-offscreen:** ordinary residue may show that they collaborated and the pair counter advances once, but there is no scene, board, seen marker, or private knowledge for Angela. **Prevented:** incompatible copies or another student’s comment may show that preparation continued separately, but the pair counter does not advance and the combination is not marked seen.
 
 ### Event 14: After the Run-Through
 
 1. **Ordinary activity and setting:** After a rehearsal run-through, transport planning, symptom-based lower-limb pain, and an apparently familiar key converge in an ordinary campus or conservatory exit.
 2. **Characters present and absence version:** **Group version:** Angela attends with Priscilla and Lavinia. **Private version:** the audience observes the two women without Angela. **Prevented version:** if Angela separately occupies either woman during this code-owned window, they do not meet and each arranges her own next step.
 3. **Fixed dialogue/action spine:** Lavinia’s condition affects the trip; Priscilla has already considered transport; a familiar key becomes visible without confirming the apartment. Increment the pair counter exactly once only when the group or private counted encounter actually occurs; a merely offered or prevented window increments nothing.
-4. **Relationship pressure:** Practical concern and remembered cohabitation make manipulation look like the shortest language they share, while neither woman grants the audience an official identity for them.
+4. **Relationship pressure:** Practical concern and remembered cohabitation make manipulation look like the shortest language they share. The old disclosure conflict carries two motives at once: Priscilla genuinely feared lasting injury and also welcomed a consequence that might delay Lavinia's departure. Lavinia can recognize both without proving their proportion, and neither woman grants the audience an official identity for them.
 5. **State-dependent insert:** **Ambiguous + Sweet:** transport is accepted for this trip with no claim beyond it. **Ambiguous + Dark:** Lavinia withholds how much help she needs while Priscilla reveals preparation in stages. **Love + Sweet:** they directly acknowledge need and permission without naming the relationship. **Love + Dark:** both disclose that they prolonged the negotiation because provoked intervention feels like proof.
 6. **Tone-dependent visible action:** Sweet—Priscilla offers the arrangement, Lavinia states what she needs, and Priscilla waits for a direct request before joining her. Totally Dark—Lavinia knowingly extends distress to summon control, and Priscilla reveals that control was already arranged; both accept the exchange as irreplaceability.
 7. **Mystery clue, fragment eligibility, and later echo:** The key, domestic familiarity, or amended form can make **Someone Else’s Kitchen** or **The Revised Form** eligible without confirming apartment or diagnosis. Mark the stable combination seen only when the counted encounter is actually witnessed. **Experienced:** later material can retain the exact transport admission, key position, and pair-counter completion. **Not experienced/prevented:** a car record, changed route, or key sound shows independent action, but the pair counter does not advance and the combination remains unseen.
 
 ### Day 2 Micro-Scene: The Umbrella Pickup
 
-When Angela is occupied elsewhere during the relevant Day 2 arrival window, show this fixed cutaway directly. Still estranged after the disclosure-form fight, Lavinia asks Priscilla to bring the long umbrella to arrivals despite being indoors. Credible terminal, baggage, waiting, rail, and onward-transit time must elapse; Priscilla does not appear immediately after being called. Priscilla arrives, takes the heavier bag without permission, and receives the umbrella request as an indirect demand for presence.
+When Angela is occupied elsewhere during the relevant Day 2 arrival window, show this fixed cutaway directly. Still estranged after the disclosure-form fight, Lavinia asks Priscilla to bring the long umbrella to arrivals despite being indoors. This is Lavinia's first move across the post-fight distance, and both women should feel its embarrassment: she names an umbrella when what she needs is Priscilla's presence. Credible terminal, baggage, waiting, rail, and onward-transit time must elapse; Priscilla does not appear immediately after being called. Priscilla arrives, takes the heavier bag without permission, and answers the unspoken request by over-helping, so genuine care and control resume in the same gesture.
 
 Otherwise, do not show the cutaway; carry the pickup through later object and dialogue residue instead. This micro-scene is not an event. Whether shown directly or carried as residue, the pickup never increments the Priscilla–Lavinia pair counter, never marks their state/tone combination seen, never levels a relationship, and never gates an ending. The long umbrella, shifted baggage, or a restrained disagreement can carry the off-screen fact without replaying the scene.
 
@@ -276,8 +306,8 @@ At most one fragment may appear in a playthrough, and a playthrough may contain 
 
 1. **The Project Folder** — A marked folder, overwritten file, recovery record, or annotation dispute can expose the childhood Angela–Priscilla evidence incident: Priscilla’s conclusion was right, her fabricated recovery record and later procedure were wrong. Do not turn the fragment into proof that all current evidence is fabricated.
 2. **Before the Introduction** — A recognition order, name tag, bar detail, or repeated introduction can show that Priscilla recognized Lavinia before they were formally introduced and used precise sarcasm to remove a persistent pursuer. Do not establish why Priscilla knew her first.
-3. **Someone Else’s Kitchen** — A long umbrella, familiar key, paired domestic object, or practiced kitchen action can show ordinary cohabitation without naming the apartment, its residents, or a relationship label.
-4. **The Revised Form** — A correction trail, amended form, modified rehearsal note, or familiar phrasing can expose the conflict over Priscilla expanding Lavinia’s authorized wording. Preserve symptom-based load-related lower-limb pain, assessment, and modified participation without fixing diagnosis.
+3. **Someone Else’s Kitchen** — A long umbrella, familiar key, second cup, retained coat, reused photograph, casual “we” purchase, paired domestic object, or practiced kitchen action can show ordinary cohabitation without naming the apartment, its residents, or a relationship label. Evidence that the space beneath a drawer was recently dusted may imply that someone entered a supposedly untouched room, but never settles whether the purpose was cleaning, inspection, memory, or search.
+4. **The Revised Form** — A correction trail, amended form, modified rehearsal note, or familiar phrasing can expose the conflict over Priscilla expanding Lavinia’s authorized wording. Preserve symptom-based load-related lower-limb pain, assessment, and modified participation without fixing diagnosis. Evidence may support both genuine fear of lasting injury and satisfaction at a possible delay; it never settles which motive dominated.
 5. **Four Months Away** — A travel object, England message, voice-note trace, or phrase repeated after return can show an emotionally deniable Angela–Lavinia exchange during the sponsored company attachment. It does not decide what either woman wanted.
 
 ## Four Mystery Anchors by Route Facet
@@ -332,7 +362,7 @@ These are thirteen authored catalogue identities, not thirteen mutually exclusiv
 12. **Priscilla–Lavinia Observer — Persistence postscript:** After all four state/tone combinations have actually been witnessed, Priscilla returns a familiar key Lavinia says was already returned. An identical key is visible. Lavinia gives one back; neither decides which is real.
 13. **Alone — Complete the Final Observation:** Angela deliberately chooses no Day 7 date and completes her work. It is neither punishment nor failed route. A qualified Priscilla–Lavinia ending may still follow.
 
-No ending confirms death. Sweet honors one concrete boundary without curing anyone. Totally Dark makes dangerous mutual reinforcement knowing and real; attachment never makes harm harmless.
+No ending confirms death. Sweet foregrounds tender, playful, ordinary, or less-dangerous facets without deleting darker capacities. Totally Dark makes a character-specific darker facet observable through chosen conduct and concrete consequence as desired attachment makes one identifiable protected interest expendable; it does not require mutual reinforcement. Neither is a moral rank, `stop at nothing` is not a literal escalation quota, and attachment never makes harm harmless.
 
 ## Layered Ending Order
 
@@ -349,10 +379,14 @@ Do not reorder postscripts to make them look like destinations, and do not suppr
 
 The three Observer languages are separate grammars. They may accrue from the first playthrough, but they do not merge and they do not imply one confirmed entity.
 
+Only Verification and Restraint may receive diegetic discovery hints from Angela, because only those Observer languages directly involve her. Place these hints inside the relevant Angela–Priscilla or Angela–Lavinia dating scene only. Use natural audible self-talk rather than instructions: independent replication, competing measurements, or reproducibility may hint at Verification; response inhibition, restraint, or the ethics of intervening may hint at Restraint. Angela never names `CAPTURE`, `COMPARE`, the cursor, the audience, or Observer Pressure. Persistence receives no Angela tutorial or equivalent hint hierarchy.
+
 - **Verification — Angela–Priscilla:** `CAPTURE` appears only while hovering a designated history line. A counterpart from a fresh playthrough creates an unnatural blank; `COMPARE` overlays stored and current text. Reloading the same scene does not satisfy fresh-run verification. Success proves incompatible lines, not their author or cause.
 - **Restraint — Angela–Lavinia:** Lavinia’s words and body disagree. The audience has enough time to withhold a physically plausible intervention; success is never a reflex-timing test and leaves the decision to Lavinia. Lavinia never knows about the cursor or Observer Pressure.
 - **Persistence — Priscilla–Lavinia:** Observer behavior accrues without a tutorial hierarchy. The unseen-first stable draw requires multiple playthroughs in practice. All four complete combinations—ambiguous + sweet, ambiguous + dark, love + sweet, love + dark—must have been actually witnessed in a counted event or pair ending before the postscript qualifies.
 - **Special — Angela–Sylvia:** This is not an Observer language or route. It requires selection of an eligible Sylvia destination, completion of its visible Sweet or Totally Dark ending, and the code-owned health-neglect condition. Health neglect alone is insufficient. The preparation shown earlier is concealed, non-actionable continuity and never exposes a reproducible method.
+
+> **Private production note — Sylvia only:** The phrase `practical check` may immediately precede the existing flash in which Angela withdraws from unnecessary touch. The phrase is Sylvia's rationalization, not a legitimate clinical purpose. Cut before any mechanism, examination, or medically useful procedure can be inferred; it never permits sexualized or intimate contact after Angela loses consciousness.
 
 > **Private production note — Angela–Lavinia only:** The silent in-game false cursor drifts toward one physically plausible environmental intervention. Give the audience enough time to refuse it; do not use reflex timing. Successful restraint prevents the environment from supplying Angela with an excuse to return, so Lavinia must call and ask. Never explain this opportunity in ordinary route text, reuse the cursor for the Day 6 check-in prompt, or let Lavinia perceive it.
 
@@ -368,3 +402,17 @@ Observer Pressure may amplify plausible collisions, attraction, timing failures,
 - **Ending gallery:** internal labels Sweet, Totally Dark, Observer, and Special do not appear as undiscovered public categories. An unseen ending is completely invisible—no silhouette, question mark, lock, or completion percentage. After discovery, audience-facing entries use evocative titles rather than internal category labels.
 - **Full postscripts:** each full Observer or Special postscript plays once per global profile. Later matching endings restore the normal conclusion with small randomized residue; the full postscript remains replayable through history. All further gallery and replay presentation remains code-owned.
 - **Ordinary continuity:** preserve active-term study, rehearsal, shifts, modified participation, appropriate clinical handoff, visitor logistics, Hong Kong transit time, humid late-autumn conditions, and weather-safe urban astronomy. Residue should make autonomy visible, not turn absence into punishment.
+
+## Provisional Private Causal Seeds
+
+These seeds are not events, fixed facts, guaranteed clues, or instructions to add scenes. Retain one only if a later authorized scene earns its consequence; otherwise remove it.
+
+- **Room 2.17 occupancy mark:** During unrelated off-screen logistical work, Sylvia correctly records Room 2.17 as occupied. The act receives no standalone scene. It may later supply one true component of a false account encountered inside an authorized scene; Sylvia neither falsifies the mark nor understands its later use. If no visible action, decision, or necessary contradiction depends on that account, remove the seed.
+<!-- END VERBATIM SOURCE SNAPSHOT: story/03-seven-day-production-map.md -->
+
+## Later candidate archive records
+
+Append later `MUTATE`, `REJECT`, superseded `APPROVED`, and `REOPENED` records
+below this heading. Each record must preserve its former status, source window,
+decision date, and reason. Nothing in this section is active merely because it is
+retained.

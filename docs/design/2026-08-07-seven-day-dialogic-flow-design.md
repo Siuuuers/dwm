@@ -21,6 +21,7 @@ implementation_commit_authorized: true
 implementation_commit_approved_by: project_owner
 created_on: 2026-08-07
 written_spec_approved_on: 2026-08-07
+last_amended_on: 2026-09-08
 engine_line: godot_4_6
 verification_engine: "4.6.3-stable-mono"
 dialogic_version: "2.0-Alpha-19 (Godot 4.4+)"
@@ -57,7 +58,7 @@ must not.
 - Twelve solo invitation windows and twelve possible solo challenges.
 - The original Day 2 and Day 6 Priscilla-Lavinia group-date mechanism.
 - Hospital interruption, including Sylvia's special hospital behavior.
-- Relationship statistics, durable tiers, tone, attitude, and promotion gates.
+- Relationship statistics, durable tiers, tone, attitude, and code-owned progression windows.
 - Minesweeper-to-relationship outcome classification.
 - Board permanence before and after the first completed ending.
 - Rehearsal, Observer mastery evidence, postscript replay, and Gallery identity.
@@ -147,8 +148,9 @@ idempotent commands.
 These rules govern later content; they do not require prose in this structural
 phase.
 
-- Only character dialogue and executable character action presentation may tell
-  the story. Do not add an explanatory narrator.
+- Dialogue and executable character action remain the primary story carriers.
+  Sparse character-bound perceptual prose may support them under the Core Story
+  Bible's anchor and epistemic law. Do not add an explanatory narrator.
 - The surface may be dreamlike, surreal, psychedelic, absurd, ridiculous,
   unrealistic, and chilling. Causality underneath must remain exact.
 - Normalize abnormal events. Do not announce their meaning.
@@ -183,8 +185,9 @@ The named craft references remain lenses, not formulas or imitation targets.
 McKee, Truby, USC Eight Reels, Syd Field, Rossio, and Martell may test causal
 turns and sequence pressure; Robbe-Grillet, Barthes, Mark Fisher, and Masaaki
 Yuasa may test perception, estrangement, normalized abnormality, and elastic
-rhythm. None may override character autonomy, physical plausibility, dialogue-only
-story delivery, or the prohibition on deliberate symbolic decoding.
+rhythm. None may override character autonomy, physical plausibility, dialogue-led
+story delivery with sparse, character-bound perceptual prose, or the prohibition
+on deliberate symbolic decoding.
 
 ## 6. Domain terminology and ownership
 
@@ -441,6 +444,38 @@ The original Day 2 and Day 6 protocol is normative here:
    participant. Hospital selects the Hospital-reason versions and creates no
    generic missed duplicates.
 
+The following player-facing epistemic boundary was owner-approved on 2026-08-31.
+Successful activation projects the ordinary binary Unread fact on both linked
+rows, but before the first participating contact is opened it materializes no
+paired group-offer prose or history record. Unread therefore proves only that
+contact activity exists; it reveals no inviter, invitation identity, wording,
+or superseded solo source. First same-day open materializes the applicable
+paired offer. If the action instead resolves untouched, the latent availability
+closes and the two next-day `busy` records are the only prose that opportunity
+can ever present.
+
+No witnessed record is rewritten. In the untouched branch, Contacts exposes no
+preview, latent invitation body, edit marker, timestamp comparison,
+missing-history scar, receipt, or other surface by which Angela or the audience
+could infer unsent wording. In the opened branch, the actual paired offer
+remains ordinary history; it proves only that this run materialized that offer,
+not that either sender received Angela's read/open status or that another
+message was replaced. A changed or parallel message is a writer-facing
+description of counterfactual branches, not a physical fact established inside
+the active run.
+
+The `busy` and `nevermind` records remain distinct causal identities even when
+their rendered copy intentionally coincides. For each participant and window,
+both use the corresponding owner-approved audition completed-process update.
+In the untouched branch, that update is the opportunity's only prose. In the
+opened-but-unanswered branch, the materialized paired offer remains in its
+thread and the identical update appends beneath it after the response controls
+close. Record ID, type, sequence, receipt, and retained history—not body-text
+inequality—distinguish the branches. No state owner, reader, manifest,
+localization layer, or history projection may alias or deduplicate the two
+records because their visible strings match. This shared-surface law does not
+approve final DTL or promote the premises on which an audition line depends.
+
 After group contact state closes, each window obeys one prior question: did
 Angela actually attend a solo date with Priscilla or Lavinia in that window?
 
@@ -483,11 +518,37 @@ receipt.
 For avoidance of doubt, opened-but-unanswered is not a fifth pair outcome. The
 preserved executable group protocol classifies it as Private-visible with the
 `nevermind` contact flavor; both-unread is the neutral/`busy` subvariant of that
-same outcome.
+same outcome. Hospital changes neither distinction: an unaccepted generated
+action retains its applicable internal flavor and history shape, while the two
+flavors render the same sender/day audition update.
 
 ## 8. Challenge, attitude, and promotion law
 
-### 8.1 Outcome classification
+> **FORWARD-PLOT SUPERSESSION — 2026-09-06:** Sections 8.1 and 8.2 below
+> preserve the original mechanical contract and test vocabulary as legacy
+> provenance; they no longer constrain forward narrative design. A dating board
+> still supplies a frozen terminal fact, but each approved scene authors its own
+> small optional response-family map, and multiple results may converge when
+> conduct and every reusable consequence genuinely match. No scene must display
+> all six inherited families, and the table's fixed relationship deltas are not
+> trusted forward story inputs. Relationship progression remains a code-owned
+> event at a small explicit list of scene-authored windows, but the exact window
+> list and predicates—including the former Day 4/5/6 third/fourth schedule—are
+> reopened until the approved seven-day plot earns them. Unavailable windows do
+> not silently relocate, and Hospital access alone grants no progression. The
+> current boundary is owned by the
+> [working decision ledger](2026-09-02-narrative-constitution-working-decision-ledger.md#77-optional-scene-authored-response-families)
+> and
+> [runtime behavior record](2026-09-02-relationship-progression-runtime-behavior-record.md#2-confirmed-future-behavior).
+
+**Playable implementation boundary, 2026-09-09:** The owner authorized
+provisional rules to keep all promised branches mechanically playable while
+these scene-authored maps and predicates remain open. The current implementation
+and tests preserve executable outcomes and durability; they do not reinstate
+the legacy tables as forward plot canon. See the
+[implementation reconciliation](../agent/2026-09-07-whole-game-implementation-reconciliation.md).
+
+### 8.1 Legacy outcome classification (forward response law superseded)
 
 The date never presents a six-option relationship menu. Actual Minesweeper play
 produces the result.
@@ -528,7 +589,7 @@ and Dark can never both pay out.
 Every attended challenge overwrites the friend's current attitude. Outcomes and
 statistics remain hidden from the audience.
 
-### 8.2 Fixed promotion valves
+### 8.2 Legacy fixed promotion valves (forward schedule reopened)
 
 Affection is fuel; fixed challenge windows are the valves.
 
@@ -646,7 +707,7 @@ irrevocable within that run:
   the ledger's existing board/result rather than a reroll;
 - every consequential receipt is applied against the branch at its registered
   causal boundary, once, so an old snapshot cannot duplicate or delete the
-  outcome, attitude change, or promotion it actually reaches.
+  outcome, attitude change, or durable progression event it actually reaches.
 
 Starting a genuinely new playthrough creates a new `run_id` and an empty run
 ledger. The profile milestone remains, but the prior week's slots do not leak
@@ -664,7 +725,8 @@ The completed replacement attempt becomes the canonical slot head only for that
 branch. A saved branch persists its `branch_id` and per-slot canonical attempt
 pointers. Loading two old saves may therefore create two independent branches;
 neither overwrites the other's results or mastery. The active loaded branch is
-the only source for current-run statistics, promotion, and Perfect mastery.
+the only source for current-run statistics, durable progression state, and
+Perfect mastery.
 
 The profile milestone overrides a pre-milestone slot lock only at a fresh
 pre-challenge entry boundary; it never deletes that history and never regenerates
@@ -702,7 +764,7 @@ After the first ending milestone, every callable entry declares a
 `presentation_signature_schema`: the complete set of frozen fields that can
 change its presented lines or actions. It includes entry identity plus only the
 applicable tier, tone, attitude, echo, miss reason, board truth, relationship
-outcome, Perfect reason, special-mine phase, promotion result, pair mode/deck,
+  outcome, Perfect reason, special-mine phase, progression result, pair mode/deck,
 ending role/form, and residue fields declared by that entry's exact role schema.
 P-L and Alone signatures never acquire dummy solo fields.
 Direct entry replay is allowed only for an exact signature already reached.
@@ -1031,7 +1093,7 @@ Applicable fields include:
 - due echo IDs and their registered presentation-atom IDs;
 - invitation/miss reason and presentation phase;
 - board result, Perfect reason, and relationship outcome;
-- promotion receipt/result;
+- progression-window receipt/result when applicable;
 - pair encounter presentation and stable deck state;
 - run, branch, attempt, and transaction identity when relevant;
 - exact group action state, inviter, target participant, canonical opened/replied
@@ -1056,7 +1118,7 @@ Role-family required fields are:
 | Group contact/offer | entry, source day, pair, group action state, inviter, target participant, canonical opened/replied participant IDs, contact variation |
 | Consequence/follow-up | entry, display day, source invitation, friend/pair, closure state, miss reason, witnessed-Hospital flag |
 | Solo pre-challenge | entry, day, friend, challenge slot, tier, tone, attitude, due echoes, attempt residue ID |
-| Solo post-challenge | all pre fields plus board result, Perfect reason set, relationship outcome, effect receipt, promotion result |
+| Solo post-challenge | all pre fields plus board result, Perfect reason set, relationship outcome, effect receipt, and progression-window result when that exact scene owns an approved window |
 | Hospital | entry, day, qualifying cause, exact accepted/unfulfilled records, Sylvia witness result when applicable |
 | Pair pre-challenge scene | entry, day/window, encounter presentation, group action/inviter/participant variation when generated, pair count receipt, stable deck state, attempt residue ID |
 | Pair post-challenge scene | all pair pre fields plus board result, Perfect reason set when Perfect, full/truncated observation form, combination-witness capability |
@@ -1112,10 +1174,11 @@ State commits at the causative action, not at arbitrary prose completion:
 - solo board instance at challenge entry; board truth at clear/explosion; one
   relationship outcome only when the post-clear opportunity closes or an
   explosion terminates the board;
-- fixed promotion immediately after result commit;
-- Sylvia Hospital witness derivation in the Hospital-resolution receipt, with
-  its fixed relationship and caring-history effects committed only when
-  `dwm-oyo.4` consumes that receipt;
+- an approved progression-window evaluation, when the current plot assigns one,
+  immediately after result commit;
+- Sylvia Hospital witness derivation in the Hospital-resolution receipt;
+  relationship and caring-history consequences remain receipt-bound and apply
+  once through their runtime owner;
 - invitation closures, miss reasons, pair mode/count, and first stable-deck draw
   in one day-resolution receipt;
 - pair-board result at that visible board's terminal resolution;
@@ -1191,7 +1254,7 @@ echo commands only into its disposable sandbox state and may persist only
 Observer-evidence and pair-combination-witness capabilities even when replaying
 a label that owns them canonically.
 
-Invitation acceptance, board resolution, promotion, day resolution, Hospital,
+Invitation acceptance, board resolution, progression evaluation, day resolution, Hospital,
 pair counting, Day 7 selection, and ending completion are engine-owned commands,
 not DTL signals. Dialogic's physical end notification is accepted only through
 the bridge's matching playback token.
@@ -1311,8 +1374,9 @@ Private-offscreen has no DTL entry.
 - `dating.solo.sylvia.day4.post_challenge`
 - `hospital.faint.day4`
 
-Priscilla and Sylvia's post entries receive already-evaluated third-valve
-promotion context.
+These post entries accept an already-evaluated progression result only when the
+approved plot assigns that exact scene a window; neither Day 4 solo owns one by
+default.
 
 ### 13.5 Day 5 entries
 
@@ -1330,7 +1394,9 @@ promotion context.
 - `dating.solo.sylvia.day5.post_challenge`
 - `hospital.faint.day5`
 
-Lavinia receives third-valve context; Sylvia receives fourth-valve context.
+These post entries accept an already-evaluated progression result only when the
+approved plot assigns that exact scene a window; neither Day 5 solo owns one by
+default.
 
 ### 13.6 Day 6 entries
 
@@ -1359,7 +1425,9 @@ Lavinia receives third-valve context; Sylvia receives fourth-valve context.
 - `dating.twofriends.priscilla_lavinia.day6.post_challenge`
 - `hospital.faint.day6`
 
-Priscilla and Lavinia's solo post entries receive fourth-valve context.
+These solo post entries accept an already-evaluated progression result only
+when the approved plot assigns that exact scene a window; neither Day 6 solo
+owns one by default.
 
 ### 13.7 Day 7 entries
 
@@ -1514,8 +1582,8 @@ not Dialogic internals or pixel-perfect prose presentation.
 | Manifest | Every presentation `entry_id` has exactly one valid locator/role; every ending ID/form maps only to its finite allowed entries; labels exist, return, and never fall through; retired/unknown IDs fail |
 | Seven-day model | Seeded generated action sequences preserve day bounds, invitation closure, schedule legality, stat ownership, monotonic tiers, and one valid terminal plan |
 | Save equivalence | Save/restore/continue equals uninterrupted canonical execution except the explicit post-first-ending pre-challenge regeneration boundary; older saves merge the monotonic run ledger and every causally reached effect |
-| Exactly once | Repeating generation, reply, result, Hospital, pair count, promotion, ending, or Gallery receipts never duplicates effects; conflicting reuse fails |
-| Promotion | Every friend/window/attendance/Hospital combination at affection 3/4 and 7/8 proves fixed valves, one-step maximum, and no relocation |
+| Exactly once | Repeating generation, reply, result, Hospital, pair count, progression, ending, or Gallery receipts never duplicates effects; conflicting reuse fails |
+| Progression | Every approved friend/window/predicate/attendance/Hospital combination proves code ownership, one-step maximum, idempotence, and no relocation; the inherited affection 3/4 and 7/8 fixed-valve cases remain migration fixtures only until replaced or retired |
 | P-L truth table | Exhaust both windows across solo P/L and group-offer states; each window counts zero or exactly one according to law |
 | Ending order | Exhaust legal one-to-four-step plans and every resume cursor; only matching completion advances, P-L remains last, and mutually impossible solo-Observer/P-L evidence never coexists |
 | Faint/echo terminal order | Exhaust sequela/danger/action/Done states; Day 7 drains every pending echo atom before any faint-capable action or ending transition |
@@ -1533,7 +1601,8 @@ Tests cover:
 - all six solo relationship outcomes and their independent board evidence;
 - equal preassigned explosion classes without friend/state bias;
 - Perfect criteria, Perfect-then-Dark, and accessibility neutrality;
-- all fixed promotion gates and Sylvia's Hospital exception;
+- every plot-approved progression window and predicate, plus the rule that
+  Hospital access alone cannot progress a relationship;
 - both P-L windows, visible/offscreen modes, board legibility, stable deck, and
   counted-meeting law, including the visible ending supplying a fourth witnessed
   combination before a preconditioned Observer step;
@@ -1586,7 +1655,7 @@ non-mouse input/assistance without invalidating classification.
 
 The highest-risk permanent regression tests cover duplicate post-load effects,
 label fallthrough, older-save ledger reconciliation, Hospital during every P-L
-mode, Hospital dates counting as attended, promotion gates moving, post-clear
+mode, Hospital dates counting as attended, progression windows relocating, post-clear
 double payout, cross-store crash recovery, Rehearsal evidence leakage, and
 completed ending steps replaying.
 
@@ -1619,7 +1688,7 @@ reversible checkpoints rather than one mixed change.
 
 ### 16.3 Domain and persistence checkpoint
 
-- Reconcile calendar, relationship, promotion, Hospital, pair, board-journal,
+- Reconcile calendar, relationship, progression, Hospital, pair, board-journal,
   replay privilege, rehearsal, ending-plan, Gallery, and migration schemas.
 - Migrate old primary/optional-epilogue ending plans into ordered steps.
 - Retire standalone True identities and any conflicting computed/regressing tier,
@@ -1673,8 +1742,9 @@ The following older rules are explicitly retired for this domain:
   throughout Days 1-7.
 - ignored ordinary messages remaining in player-facing append-only history;
   only an invisible generation tombstone survives expiry.
-- appearance/incident-card or attended-ordinal promotion gates; the only normal
-  valves are the fixed calendar challenge slots in section 8.2.
+- implicit appearance/incident-card or attended-ordinal progression. Only an
+  explicitly plot-approved code-owned scene window may evaluate; the fixed
+  calendar slots in legacy section 8.2 are not forward authority.
 - Day 7 accepted invitations producing Day 8-style missed evidence; terminal
   faint resolution is the explicit exception in section 11.1.
 

@@ -12,6 +12,7 @@ const SAVE_PORT := preload("res://scripts/application/minesweeper/SaveManagerMin
 const COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
 const FAKE_STATE := preload("res://tests/support/FakeMinesweeperStatePort.gd")
 const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
+const SCHEDULE_VIEW := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
 
 ## FakeMinesweeperStatePort reports this run and ordinal, so the journal, the previewed
@@ -53,7 +54,7 @@ func _isolated_manager(suite_id: String) -> Node:
 
 ## Test-authored current snapshot inputs explicitly choose Dark=false.
 ## Historical payload reuse is not a production migration. This retained .9-era lock stack still checkpoints through the same
-## SaveManagerCheckpointPort / RunSnapshotSchema production code, so it must supply a v5-valid
+## SaveManagerCheckpointPort / RunSnapshotSchema production code, so it must supply a v6-valid
 ## bundle even though the desktop board itself is never driven here.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
@@ -82,6 +83,11 @@ func _bundle(run_id: String) -> Dictionary:
 	lifecycle["causal_day_instance"] = "causal-day-1"
 	lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
 	lifecycle["restore_provenance"] = null
+	lifecycle["active_condition_hospital_plan"] = null
+	lifecycle["condition_hospital_history"] = {}
+	lifecycle["terminal_intent_handoff"] = null
+	var schedule_view: Dictionary = SCHEDULE_VIEW.make_empty(
+		int(lifecycle["day"]), str(lifecycle["causal_day_instance"]))["value"]["view"]
 	return {
 		"snapshot_input": {
 			"lifecycle": lifecycle, "gameplay": fixture["gameplay"], "contacts": fixture["contacts"],
@@ -90,6 +96,7 @@ func _bundle(run_id: String) -> Dictionary:
 				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
 			},
 			"desktop": _empty_desktop(),
+			"schedule_view": schedule_view,
 			"dating": fixture["dating"],
 			"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
 		},

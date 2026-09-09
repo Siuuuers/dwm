@@ -7,3 +7,10 @@
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Disposable visual-brainstorming prototypes
+.superpowers/
+
+# Sandbox-account scratch: Go build caches and upstream source clones
+temp-artifacts/
+agent-artifacts/

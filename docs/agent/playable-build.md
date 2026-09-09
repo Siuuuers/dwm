@@ -1,11 +1,11 @@
 # Integration playtest build
 
-Open `temp-artifacts/worktrees/whole-game-integration/project.godot` in Godot 4.6 and run the project (F6 runs only the current scene; use F5 for the game). Choose **New Account** on the title screen. This checkout is the active integrated build; the original stopped checkouts are preserved separately.
+Open the main checkout's `project.godot` (`C:/Users/glori/Documents/dwm/project.godot`) in Godot 4.6 and run the project (F6 runs only the current scene; use F5 for the game). Choose **New Account** on the title screen. The main checkout on `master` is the everyday development and playtest build after the September 9 consolidation; the original stopped checkouts and playable checkpoint `64f567164` remain preserved.
 
 If the default renderer does not work on this machine, use the installed compatibility renderer from PowerShell:
 
 ```powershell
-& 'C:/Program Files/Godot_v4.6.3-stable_mono_win64/Godot_v4.6.3-stable_mono_win64_console.exe' --path 'C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/whole-game-integration' --rendering-method gl_compatibility
+& 'C:/Program Files/Godot_v4.6.3-stable_mono_win64/Godot_v4.6.3-stable_mono_win64_console.exe' --path 'C:/Users/glori/Documents/dwm' --rendering-method gl_compatibility
 ```
 
 Start with **Minesweeper**, then return Home and inspect **Contacts**. Accept an available invitation and use **Schedule** to commit the day. Schedule warnings let you return to unfinished work or deliberately skip it. A date has a real board and a result; continue after the result to finish the scene. **Shop** purchases affect your resources and conditions. Advance through all seven days to reach the ending and return to the title.
@@ -17,3 +17,5 @@ Detailed dialogue and final narrative copy are deferred. Some scene cards, Obser
 Minesweeper now supports free difficulty selection and replacement, saved flags before the first Reveal, Lucky/Debug preparation, and finished-board inspection across Save/Load. Debug marks the required first Reveal cell. New Board durably dismisses a finished board. New canonical Dating uses the later accepted Perfect rule (at least 100%); a non-Perfect clear offers Continue or the actual marked-cell choice. Existing historical outcomes retain their original rules.
 
 Save processing is faster, but long board sessions can still pause for several seconds as retained recovery history grows. That remaining performance work is tracked as `dwm-634`; history has not been pruned. The richer exact-cue audio/combined-save amendment remains the separate `dwm-nqn` follow-up. See [the verified journeys and remaining work](2026-09-07-whole-game-implementation-reconciliation.md).
+
+Initial art scope uses one fixed portrait per solo scene and two per group/twofriends scene, without expression variations. See [the art placement guide](../design/2026-08-13-visual-art-placement-and-asset-production-guide.md). Most art slots still need runtime bindings; copying images into a folder does not yet display them.

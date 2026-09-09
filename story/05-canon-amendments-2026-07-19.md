@@ -1,5 +1,12 @@
 # Approved Canon Amendments — 2026-07-19
 
+HISTORICAL AMENDMENT EVIDENCE — NOT CURRENT MECHANICAL AUTHORITY
+
+The July `Status: **approved canon**` statement below is retained as historical
+status and decision provenance. The August 7 design supersedes conflicting
+mechanics; this document remains useful as evidence of the decisions that led
+to them.
+
 Status: **approved canon**, per the Core Story Bible's authority rule that later
 explicit approvals supersede earlier proposals. These rulings resolve every known
 conflict between the Core Story Bible (`01-core-story-bible.md`), the recovered
@@ -18,6 +25,10 @@ below is preserved unchanged as amendment evidence.
 ---
 
 ## 1. True and Observer fuse — the "true (observation) end"
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> Current Observer, board, and gate law is in the August 7 design sections 10.4
+> and 11.2–11.7.
 
 The standalone true-path ending identities, the consecutive-perfect chain rule
 (`previous_entered_true_path` and its exemption tables), and true-path audio as a
@@ -35,6 +46,10 @@ postscript, now gated **conjunctively**:
 Neither half alone qualifies. Sylvia remains Special-only, no Observer end.
 
 ## 2. Scope of the fused gate
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> Current Observer, board, and gate law is in the August 7 design sections 10.4
+> and 11.2–11.7.
 
 The gate applies to **all pairings, including the Priscilla–Lavinia encounters**
 (group, missed, and private versions). In Angela-absent pair scenes the audience
@@ -43,6 +58,10 @@ plays the challenge board; this is canonically **Observer Pressure made playable
 collisions; it may never author the pair's desire, state, tone, or consent (§10).
 
 ## 3. Board half of the gate — definition
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> Current Observer, board, and gate law is in the August 7 design sections 10.4
+> and 11.2–11.7.
 
 Per pairing, per playthrough: **every attended dating challenge with that pairing
 is a perfect (no-flag / foresight) clear, and none exploded.** One predicate per
@@ -51,6 +70,10 @@ cross-day chain bookkeeping. For Priscilla–Lavinia: perfect on both counted
 encounters' boards.
 
 ## 4. Leveling — two tier-gated events per friend; fuel + valve
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> All three friends begin at Friend and use only the fixed third/fourth invitation
+> valves in the August 7 design sections 8.2 and 7.2.
 
 Each of Priscilla, Lavinia, Sylvia has **two** leveling incidents (the
 Priscilla–Lavinia pair excluded; they use the deck):
@@ -68,6 +91,10 @@ one tier) only if the accumulated pool has crossed the code-owned threshold AND 
 scene's Bible condition holds. The audience never sees a number.
 
 ## 5. Tone selection
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> The August 7 design sections 6.1 and 11.3 use stored dark `0–1` for Sweet and
+> `2–4` for Totally Dark; Day 7 never asks for another board.
 
 **The decisive board decides.** On the Day-7 date's challenge: deliberately
 clicking the pairing's colored dark mine → **Totally Dark**; finishing any other
@@ -83,6 +110,10 @@ Contacts, Schedule, Shop, Settings, Backup, Log Out), money/motivation economy �
 check-in anchors are diegetic desktop events, not Observer mechanics.
 
 ## 7. Priscilla–Lavinia counted-window model
+> **Current status: PARTIALLY SUPERSEDED MECHANICS.**
+>
+> The August 7 design section 7.5 is normative: opened-but-unanswered is a
+> Private-visible presentation subvariant, not a sixth outcome.
 
 REFINED 2026-07-21 (dwm-p2r.6 grilling). A counted window (Events 13, 14) turns on
 one rule: **did Angela solo-date either woman that window?**
@@ -113,6 +144,10 @@ counter to reach **2** — Angela solo-dated neither woman on **both** Day 2 and
 Day 6, so the pair met (in some flavor) both windows.
 
 ## 8. Sylvia Special — trigger and content
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> Sylvia's current pre-Done trigger and ordered consequence follow the August 7
+> design sections 11.5 and 11.8; Event 9 is audition history.
 
 **Trigger (old mechanics, precise sequencing):** On Day 7, the Sylvia date is
 **schedulable** (invitation unlocked, destination eligible at ambiguous/love) but
@@ -133,6 +168,9 @@ Mid-week neglect-faints route to hospital as Event 9's hospital-arrival variant
 an **Alone hospital variant**, never Special.
 
 ## 9. Dark-mode Angela — approved amendment
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> Dark-mode scope and faint precedence follow the August 7 design section 11.8.
 
 Canon. Unlock: witnessing **all three Totally Dark endings plus the Special**
 (global-profile marker; survives new games). A **dark mode toggle** appears on the
@@ -171,6 +209,10 @@ invisible — no UI trace until witnessed. The Day-2 umbrella cutaway must be
 written state/tone-neutral.
 
 ## 12. Phase 2R protection
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> This Phase 2R wording is a historical tracking snapshot, not current authority;
+> the August 7 design governs current mechanics.
 
 A P0 reconciliation issue updates `prompt_docs/requirements/dating_endings.md`,
 `contacts_invitations.md`, and `dialogic_skip.md` (plus the generated index) to
@@ -181,6 +223,10 @@ counting, "Special Sylvia first" as previously worded, `ending_*_true` /
 `date_challenge_true` as ending-tier audio.
 
 ## 13. Contacts & invitations — dwm-p2r.6 refinements (2026-07-21 grilling)
+> **Current status: SUPERSEDED MECHANICS.**
+>
+> Under the August 7 design section 7.2, opening a solo invitation is acceptance;
+> the old reply-required model is superseded.
 
 Two refinements from the dwm-p2r.6 grilling, to be reconciled into
 `prompt_docs/requirements/contacts_invitations.md`:

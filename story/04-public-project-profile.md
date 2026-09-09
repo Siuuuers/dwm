@@ -1,8 +1,8 @@
-# *Before You Ask*
+# Game Details
 
 ## Project Profile
 
-*Before You Ask* is an adult psychological-horror visual novel and relationship mystery set at East Harbour University, a fictional hillside campus near Kowloon, Hong Kong. Across a seven-day Open Week of classes, rehearsals, preparations, and public events, four adult women move through a romance story in which attention is intimate, absence has consequences, and certainty is never the same as control. Angela is the protagonist; Priscilla, Lavinia, and Sylvia are full romanceable characters. All characters are adults.
+This game is an adult psychological-horror visual novel and relationship mystery set at East Harbour University, a fictional hillside campus near Kowloon, Hong Kong. Across a seven-day Open Week of classes, rehearsals, preparations, and public events, four adult women move through a week in which attention is intimate, absence has consequences, and certainty is never the same as control. Angela is the protagonist; the other women retain private histories and desires that do not reorganize themselves around her. All characters are adults.
 
 ## Logline
 
@@ -14,7 +14,7 @@ East Harbour's Open Week culminates in a major Saturday Information Day, but ord
 
 Angela can decide whom to seek out and how directly to respond, but she cannot choose another person's desire or consent. Characters form private relationships and make choices outside Angela's presence. A missed meeting is not an empty branch: it leaves someone else with time, privacy, and reasons of her own.
 
-The resulting mystery is emotional as much as evidentiary. Schedules, messages, memories, objects, and ordinary sounds can disagree without yielding one final explanation. Dreamlike abnormality is treated as normal campus inconvenience, allowing romantic danger to gather quietly around care, interpretation, and the wish to be necessary.
+The resulting mystery is emotional as much as evidentiary. Schedules, messages, memories, objects, and ordinary sounds can disagree without yielding one final explanation. Dreamlike abnormality is treated as normal campus inconvenience, allowing intimate danger to gather quietly around care, interpretation, and the wish to be necessary.
 
 ## What the Audience Does
 
@@ -38,14 +38,14 @@ A Romanian conservatory ballet student from Bucharest, disciplined in rehearsal 
 
 ### Sylvia — 21
 
-A third-year statistics or decision-science student serving as an Open Week peer-welfare and safety volunteer. Practical, attentive, and quietly reciprocal, Sylvia is a full romanceable character—not a side route or support function. Her unsettling trait is timing: she arrives with exactly what Angela needs a moment before anyone can explain how she knew.
+A third-year statistics or decision-science student serving as an Open Week peer-welfare and safety volunteer. Practical, attentive, and quietly reciprocal, Sylvia's role in Angela's week is not incidental. Her unsettling trait is timing: she arrives with exactly what Angela needs a moment before anyone can explain how she knew.
 
 ## Features
 
 - Autonomous character lives: people form private relationships, make consequential choices, and continue moving when Angela is absent.
 - A responsive interface that remembers how the audience observes, hesitates, revisits, and persists, turning attention itself into part of the relationship mystery.
-- Dialogue-only storytelling through spoken words, messages, visible action, objects, body language, sound, and interface behavior—without a narrator explaining what to believe.
-- Romantic choices with genuine local consequences, bounded by personalities, desires, and consent that the audience cannot author.
+- Dialogue-led storytelling through speech, messages, visible action, objects, body language, sound, interface behavior, and rare character-bound perception, without an explanatory narrator telling the audience what to believe.
+- Choices about attention, company, and response have genuine local consequences, bounded by personalities, desires, and consent that the audience cannot author.
 - Replay built around changing context and accumulating uncertainty rather than exposed statistics, completion chores, or a promised master solution.
 
 ## Presentation
@@ -58,6 +58,6 @@ Meaningful diegetic Cantonese and Romanian reflect the characters' everyday and 
 
 ## Tone, Scope, and Duration
 
-The tone combines normalized dream logic, restrained psychological horror, and romantic danger grounded in recognizable acts of care, interpretation, avoidance, and control. Its mysteries reward replay without requiring a public list of outcomes, and its intimate scope stays focused on four women across one consequential week.
+The tone combines normalized dream logic, restrained psychological horror, and relational danger grounded in recognizable acts of care, interpretation, avoidance, and control. Its mysteries reward replay without requiring a public list of outcomes, and its intimate scope stays focused on four women across one consequential week.
 
-A first clear is approximately two hours. Full completion is approximately five hours. The project and this profile are platform-neutral; no release platform is implied.
+Final runtime is not yet fixed. The project and this profile are platform-neutral; no release platform is implied.

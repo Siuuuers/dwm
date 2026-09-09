@@ -10,7 +10,7 @@ self_review_status: scoped_consistency_review
 self_reviewed_on: "2026-09-05"
 authority_effect: isolated_design_working_copy
 created_on: "2026-08-24"
-last_amended_on: "2026-09-05"
+last_amended_on: "2026-09-09"
 derived_from_root_sha256: "3acb1d404733fe892d46328cb897294d7580a9a60df479ebee02880bdd563cc8"
 implementation_requested: false
 implementation_authorized: false
@@ -34,6 +34,14 @@ scope: ["contacts_character_and_scope","contacts_domain_vocabulary","contacts_ho
 > registration, or runtime integration. Historical workflow and source maps
 > below remain reference material; the current task is useful design
 > consolidation, not execution of their old recovery or implementation grants.
+
+> **2026-09-09 reconciliation:** Retain this working copy's row/font guidance
+> and the retired Day-2 message-pair boundary together with the root's later
+> linked-offer Unread and distinct `busy`/`nevermind` history law. The playable
+> integration now supplies Contacts owners and verified player paths; see the
+> [implementation reconciliation](../../agent/2026-09-07-whole-game-implementation-reconciliation.md).
+> That evidence is separate from exact acceptance of this dossier's design
+> bytes. Historical runtime-gap inventories below describe their dated source.
 
 For traceability, this dossier uses two source aliases:
 
