@@ -77,6 +77,8 @@ func test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_le
 		assert_true(controls.has(StringName(path)), path)
 	for forbidden in [
 		&"preferences.language",
+		&"preferences.language.dual_enabled",
+		&"preferences.language.secondary_locale_id",
 		&"preferences.dialogue.skip_mode",
 		&"preferences.audio.voice_volume",
 		&"preferences.display.fullscreen",
@@ -135,7 +137,7 @@ func _assert_reset_requires_confirmation(instance: Node, prefix: String, still_p
 
 func _accepted_settings_paths() -> Array:
 	var suffixes: Array = [
-		"language.primary_locale_id", "language.secondary_locale_id", "language.dual_enabled",
+		"language.primary_locale_id",
 		"reading.reveal_speed", "reading.auto_enabled", "reading.auto_delay", "reading.skip_mode",
 		"reading.read_aloud_enabled", "reading.read_aloud_rate", "reading.lower_background_during_narration",
 		"audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted",
@@ -143,7 +145,7 @@ func _accepted_settings_paths() -> Array:
 		"audio.mute_when_inactive", "audio.output_mode", "display.window_mode",
 		"accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast",
 		"accessibility.reduced_motion", "accessibility.screen_shake", "accessibility.colour_differentiation",
-		"accessibility.sound_detail_text", "exceptional_replay.available", "exceptional_replay.replay_full",
+		"accessibility.sound_detail_text", "exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled",
 	]
 	return suffixes.map(func(suffix: String) -> String: return "preferences." + suffix)
 

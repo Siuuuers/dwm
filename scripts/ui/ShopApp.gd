@@ -12,8 +12,8 @@ const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
 
 var cards: Dictionary = {}
 var page_index := 0
-var page_capacity := 6
-var page_count := 3
+var page_capacity := 9
+var page_count := 2
 var selected_id := "coffee"
 var quantity := 1
 var previous_button: Button
@@ -433,21 +433,12 @@ func _rebuild_catalog() -> void:
 func _measure_catalog(revision: int) -> void:
 	if not _view_is_current(): return
 	if revision != _measurement_revision or not last_result.ok: return
-	var height := 176.0
 	for card in cards.values():
 		card.refresh_layout()
-		height = maxf(height, card.get_combined_minimum_size().y)
-	if height > 544:
-		last_result = {"ok": false, "code": "shop_card_does_not_fit"}
-		_show_recovery()
-		return
-	var old_capacity := page_capacity
-	page_capacity = 3 * maxi(1, int(floor(552.0 / (height + 8))))
-	page_count = int(ceil(float(_records.size()) / page_capacity))
-	if old_capacity != page_capacity:
-		_page_selection.clear()
+	page_capacity = 9
+	page_count = 2
 	page_index = int(_index_of(selected_id) / page_capacity) if cards.has(selected_id) else 0
-	for card in cards.values(): card.size = Vector2(144, height)
+	for card in cards.values(): card.size = Vector2(144, 176)
 	_show_page(_focus_after_layout)
 	_catalog_layout_pending = false
 	if not _host_anchor.is_empty(): _restore_host_view.call_deferred(revision)

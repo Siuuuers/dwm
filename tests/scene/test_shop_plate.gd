@@ -95,6 +95,8 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 			assert_eq(shop.size, Vector2(800, 656))
 			assert_eq(shop.get_node("VBoxContainer/TopBar").visible, false)
 			assert_eq(shop.cards.size(), 17)
+			assert_eq(shop.page_capacity, 9)
+			assert_eq(shop.page_count, 2)
 			assert_true(shop.cards.coffee.has_focus())
 			var seen: Array[String] = []
 			for page in shop.page_count:
@@ -131,15 +133,15 @@ func test_selection_quantity_and_page_memory_are_presentation_only() -> void:
 	assert_eq(shop.quantity, 1)
 	shop.next_button.pressed.emit()
 	await _settle()
-	shop.cards.spa_coupon.pressed.emit()
-	assert_eq(shop.selected_id, "spa_coupon")
+	shop.cards.lucky_charm.pressed.emit()
+	assert_eq(shop.selected_id, "lucky_charm")
 	for button in shop.quantity_buttons.values(): assert_false(button.visible)
 	shop.previous_button.pressed.emit()
 	await _settle()
 	assert_eq(shop.selected_id, "wine")
 	shop.next_button.pressed.emit()
 	await _settle()
-	assert_eq(shop.selected_id, "spa_coupon")
+	assert_eq(shop.selected_id, "lucky_charm")
 	assert_eq(shop.quantity, 1)
 
 func test_keyboard_moves_focus_without_selection_and_returns_from_inspector() -> void:
@@ -270,14 +272,14 @@ func test_right_edge_without_an_inspector_action_is_a_deliberate_noop() -> void:
 	await _key(KEY_RIGHT)
 	assert_true(f.shop.cards.pineapple_bun.has_focus(), "Accepted spatial law consumes Right when no inspector action exists.")
 
-func test_bottom_right_on_middle_page_reaches_next_and_disabled_keys_leave_focus() -> void:
+func test_bottom_right_on_last_page_reaches_previous_and_disabled_keys_leave_focus() -> void:
 	var f := _fixture()
 	await _settle()
 	f.shop.next_button.pressed.emit()
 	await _settle()
-	f.shop.cards.pep_note.grab_focus()
+	f.shop.cards.pocket_calculator_keepsake.grab_focus()
 	await _key(KEY_DOWN)
-	assert_true(f.shop.next_button.has_focus())
+	assert_true(f.shop.previous_button.has_focus())
 	f.shop.previous_button.pressed.emit()
 	await _settle()
 	f.shop.quantity_buttons.maximum.grab_focus()

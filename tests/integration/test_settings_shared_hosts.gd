@@ -129,7 +129,7 @@ func test_pause_preview_is_inert_and_native_back_retreats_one_level_each() -> vo
 	assert_true(pause.rows[&"settings"].has_focus())
 	var before: Dictionary = _profile.get_profile_snapshot()
 	var operations: int = _files.operation_count()
-	await _click(content.control_for(&"preferences.language.dual_enabled"))
+	await _click(content.control_for(&"preferences.language.primary_locale_id"))
 	assert_eq(_profile.get_profile_snapshot(), before)
 	assert_eq(_files.operation_count(), operations)
 	assert_eq(pause.entered_action, &"")

@@ -57,24 +57,22 @@ func test_unconfigured_card_is_not_a_phantom_blank_target() -> void:
 	assert_eq(card.focus_mode, Control.FOCUS_NONE)
 	assert_eq(card.accessibility_name, "")
 
-func test_measured_card_never_clips_name_price_or_availability_at_supported_sizes() -> void:
+func test_fixed_card_bands_keep_name_price_and_availability_inside_two_page_geometry() -> void:
 	var rows: Array = CATALOG_PROJECTION.project(_valid_rows()).value
 	for font_size in [20, 25, 30]:
-		var max_height := 0.0
 		for row: Dictionary in rows:
 			if row.blank: continue
 			var card := _card(row, font_size)
 			await _settle()
-			max_height = maxf(max_height, card.size.y)
-			var previous_bottom := 66.0
+			assert_eq(card.size.y, 176.0)
+			var previous_bottom: float = card.get("_art_rect").end.y + 4.0
 			for label: Label in [card.name_label, card.price_label, card.availability_label]:
 				assert_gte(label.position.y, previous_bottom)
 				assert_lte(label.position.y + label.size.y, card.size.y - 8)
 				assert_eq(label.text_overrun_behavior, TextServer.OVERRUN_NO_TRIMMING)
-				assert_false(label.clip_text)
+				assert_true(label.clip_text)
 				previous_bottom = label.position.y + label.size.y
 			card.hide()
-		print("Shop card fit: font=", font_size, " maximum logical height=", max_height, " legacy=176")
 
 func test_pointer_release_selects_once_and_cancels_after_leave_or_hide() -> void:
 	var card := _card(CATALOG_PROJECTION.project(_valid_rows()).value[0])
@@ -164,10 +162,10 @@ func test_cjk_font_metrics_preserve_complete_public_labels_at_all_sizes() -> voi
 			card.refresh_layout()
 			await _settle()
 			assert_eq(card.name_label.text, row.name)
-			var previous_bottom := 66.0
+			var previous_bottom: float = card.get("_art_rect").end.y + 4.0
 			for label: Label in [card.name_label, card.price_label, card.availability_label]:
 				assert_gte(label.position.y, previous_bottom)
 				assert_lte(label.position.y + label.size.y, card.size.y - 8)
-				assert_false(label.clip_text)
+				assert_true(label.clip_text)
 				previous_bottom = label.position.y + label.size.y
 			card.hide()

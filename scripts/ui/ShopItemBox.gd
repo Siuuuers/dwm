@@ -1,7 +1,7 @@
 extends Button
 class_name ShopItemBox
 ## Ordinary public product card. Selection belongs to Shop; this target only activates.
-## The host must respect minimum height at larger fonts rather than clip public copy.
+## The fixed 3-by-3 catalog measures adaptive text bands at every supported size.
 ## Host custody transitions use set_admitted(), not direct writes to disabled.
 
 const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
@@ -15,6 +15,7 @@ var name_label: Label
 var price_label: Label
 var availability_label: Label
 var _art: Texture2D
+var _art_rect := Rect2(44, 8, 56, 56)
 var _available := false
 var _copy: Array[String] = []
 var _pointer: Control
@@ -58,6 +59,7 @@ func _ready() -> void:
 		label.name = ["NameLabel", "PriceLabel", "AvailabilityLabel"][index]
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.clip_text = true
 		label.add_theme_constant_override("line_spacing", 0)
 		label.add_theme_color_override("font_color", _roles.primary_ink)
 		add_child(label)
@@ -83,16 +85,28 @@ func _ready() -> void:
 
 func refresh_layout() -> void:
 	if not is_instance_valid(name_label): return
-	var y := 70.0
+	var host_font_size := get_theme_font_size("font_size")
+	var card_font_size := 24 if host_font_size >= 30 else (20 if host_font_size >= 25 else 16)
+	var line_height := ceilf(get_theme_font("font").get_height(card_font_size))
+	var name_height := line_height * 2
+	var band_gap := 2.0
+	var copy_height := name_height + line_height * 2 + band_gap * 2
+	var copy_top := 168.0 - copy_height
+	var art_size := clampf(floorf(copy_top - 12.0), 12.0, 56.0)
+	_art_rect = Rect2(floorf((144.0 - art_size) / 2.0), 8, art_size, art_size)
+	var bands: Array[Rect2] = [
+		Rect2(8, copy_top, 128, name_height),
+		Rect2(8, copy_top + name_height + band_gap, 128, line_height),
+		Rect2(8, copy_top + name_height + line_height + band_gap * 2, 120, line_height),
+	]
 	var labels := [name_label, price_label, availability_label]
 	for index in labels.size():
 		var label: Label = labels[index]
+		label.add_theme_font_size_override("font_size", card_font_size)
 		label.text = _copy[index] if _copy.size() == 3 else ""
-		label.position = Vector2(8, y)
-		label.size = Vector2(128, 0)
-		label.size.y = ceilf(label.get_minimum_size().y / 2.0) * 2
-		y += label.size.y + 4
-	custom_minimum_size = Vector2(144, maxf(176, y + 8))
+		label.position = bands[index].position
+		label.size = bands[index].size
+	custom_minimum_size = Vector2(144, 176)
 	queue_redraw()
 
 func cancel_contact() -> void:
@@ -137,11 +151,10 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), _roles.selected_plane if selected else _roles.controlled_face)
 	draw_rect(Rect2(4, 4, size.x - 8, size.y - 8), _roles.laminate)
 	if _art != null:
-		draw_rect(Rect2(42, 6, 60, 60), _roles.paper)
-		draw_rect(Rect2(42, 6, 60, 60), _roles.structure, false, 2)
-		# All coordinates use the project's fixed native-to-logical 2:1 mapping.
-		# The 28-native-pixel export stays 56 logical pixels at every font size.
-		draw_texture_rect(_art, Rect2(44, 8, 56, 56), false)
+		var aperture := _art_rect.grow(2)
+		draw_rect(aperture, _roles.paper)
+		draw_rect(aperture, _roles.structure, false, 2)
+		draw_texture_rect(_art, _art_rect, false)
 	draw_rect(Rect2(8, size.y - 8, 128, 2), _roles.structure)
 	if not _available: draw_rect(Rect2(134, size.y - 16, 2, 10), _roles.structure)
 	if selected: draw_rect(Rect2(0, size.y - 4, size.x, 4), _roles.selected_ink)
