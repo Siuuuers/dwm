@@ -1,5 +1,6 @@
 class_name ShopPresentationPort
 extends RefCounted
+const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 
 ## Production Shop query/command boundary. The UI receives only presentation rows and item/quantity
 ## commands. Every purchase uses the retained durable participant: one debit and its authored
@@ -351,6 +352,11 @@ func _texture(item_id: String, size: int) -> Texture2D:
 	var key := "%s:%d" % [item_id, size]
 	if _art.has(key):
 		return _art[key]
+	var role := "card" if size == 28 else "inspector"
+	var placed := ART_MANIFEST.get_texture("shop.%s.%s" % [item_id, role], Vector2i(size, size))
+	if placed != null:
+		_art[key] = placed
+		return placed
 	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
 	var hue := float(abs(item_id.hash()) % 360) / 360.0
 	image.fill(Color.from_hsv(hue, 0.28, 0.78, 1.0))

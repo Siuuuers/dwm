@@ -12,6 +12,7 @@ const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const ROUTINE_CLOCK := preload("res://scripts/ui/desktop/RoutineClock.gd")
+const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const SHUTDOWN_COPY := {
 	"en": ["Shut down?", "Close the game.", "Cancel", "Shut down"],
 	"zh-CN": ["关闭游戏？", "退出游戏。", "取消", "关闭游戏"],
@@ -96,6 +97,7 @@ func _menu_localization() -> Node:
 	return _settings_services.get("localization", get_node_or_null("/root/LocalizationManager"))
 
 func _ready() -> void:
+	_mount_title_art()
 	_build_login_shell()
 	if is_instance_valid(_new_acc_button) and not _new_acc_button.pressed.is_connected(_on_new_acc_pressed):
 		_new_acc_button.pressed.connect(_on_new_acc_pressed)
@@ -112,6 +114,20 @@ func _ready() -> void:
 	_update_title_destination()
 	_new_acc_button.call_deferred("grab_focus")
 	_bind_startup_recovery()
+
+func _mount_title_art() -> void:
+	var texture := ART_MANIFEST.get_texture("ui.title")
+	if texture == null: return
+	var art := TextureRect.new()
+	art.name = "TitleArtwork"
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.texture = texture
+	art.position = Vector2(320, 64)
+	art.size = Vector2(960, 656)
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(art)
+	move_child(art, 0)
 
 func configure_startup_recovery_owner(owner: Object) -> void:
 	if is_instance_valid(_startup_recovery_owner) and _startup_recovery_owner.has_signal("startup_recovery_changed"):

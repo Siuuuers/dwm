@@ -34,7 +34,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="AngelaImage" type="TextureRect" parent="RootHBox/AngelaPanel/AngelaVBox"]
+[node name="AngelaImage" type="Control" parent="RootHBox/AngelaPanel/AngelaVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3

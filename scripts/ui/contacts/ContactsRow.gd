@@ -5,6 +5,7 @@ var identity_index := 0
 var selected := false
 var unread := false
 var display_name := ""
+var portrait_texture: Texture2D
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_ALL
@@ -33,7 +34,9 @@ func _draw() -> void:
 		draw_rect(Rect2(40, 8, 176, 80), filed)
 		draw_rect(Rect2(40, 8, 2, 80), ink)
 	var identity := get_theme_color("identity_%d" % identity_index, "Contacts")
-	if identity_index == 2:
+	if portrait_texture != null:
+		draw_texture_rect(portrait_texture, Rect2(8, 16, 32, 64), false)
+	elif identity_index == 2:
 		draw_rect(Rect2(16, 16, 6, 64), identity)
 		draw_rect(Rect2(26, 16, 6, 64), identity)
 	else:

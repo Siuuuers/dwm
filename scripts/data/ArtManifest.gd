@@ -1,18 +1,114 @@
 class_name ArtManifest
 extends RefCounted
-# Stub skeleton. Required API + authoritative art paths: prompt_docs/INDEX.md.
-# Provides expected art paths / sizes; never crashes on missing art.
+## Optional artwork is explicit presentation data; it never changes gameplay or saved facts.
+const PLACEMENTS_PATH := "res://data/manifests/art_placements.json"
+const IMAGE_EXTENSIONS := ["png", "svg", "webp", "jpg", "jpeg"]
+static var _placements: Dictionary = {}
+static var _placements_loaded := false
+static var _overlay_records: Dictionary = {}
 
-static func get_expected_art_paths() -> Dictionary: return {}
-static func get_path(category: String, id: String) -> String: return ""
-static func get_expected_size(path: String) -> Vector2i: return Vector2i.ZERO
-static func get_daily_main_scene_paths(day: int) -> Dictionary: return {}
-static func get_missing_art_report() -> Dictionary: return {}
-static func set_overlay_info(category: String, asset_id: String, path: String, expected_size: Vector2i, status: String) -> void: pass
+static func reload_placements(path: String = PLACEMENTS_PATH) -> bool:
+	_placements = {}
+	_placements_loaded = true
+	_overlay_records.clear()
+	if not FileAccess.file_exists(path):
+		return false
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not parsed is Dictionary or parsed.get("schema_version") != 1:
+		return false
+	if not parsed.get("assets") is Dictionary or not parsed.get("scenes") is Dictionary:
+		return false
+	_placements = parsed
+	return true
+
+static func _catalog() -> Dictionary:
+	if not _placements_loaded:
+		reload_placements()
+	return _placements
+
+static func _asset(asset_id: String) -> Dictionary:
+	var catalog := _catalog()
+	var value: Variant = _overlay_records.get(asset_id, catalog.get("assets", {}).get(asset_id, {}))
+	return value if value is Dictionary else {}
+
+static func _key(category: String, asset_id: String) -> String:
+	return asset_id if category.is_empty() else category + "." + asset_id
+
+static func get_asset_path(asset_id: String) -> String:
+	return str(_asset(asset_id).get("path", ""))
+
+# Compatibility for the older instance API; preloaded scripts also have Resource.get_path().
+static func get_path(category: String, asset_id: String) -> String:
+	return get_asset_path(_key(category, asset_id))
+
+static func get_texture(asset_id: String, expected_size: Vector2i = Vector2i.ZERO) -> Texture2D:
+	var path := str(_asset(asset_id).get("path", ""))
+	if not path.begins_with("res://") or not IMAGE_EXTENSIONS.has(path.get_extension().to_lower()):
+		return null
+	if not ResourceLoader.exists(path, "Texture2D"):
+		return null
+	var texture := load(path) as Texture2D
+	if texture == null or (expected_size != Vector2i.ZERO and texture.get_size() != Vector2(expected_size)):
+		return null
+	return texture
+
+static func get_scene_art(entry_id: String) -> Dictionary:
+	var value: Variant = _catalog().get("scenes", {}).get(entry_id, {})
+	if not value is Dictionary:
+		return {"background": "", "portraits": [], "cg": ""}
+	var portraits: Array[String] = []
+	var raw: Variant = value.get("portraits", [])
+	if raw is Array:
+		for portrait: Variant in raw:
+			if portrait is String and portraits.size() < 2:
+				portraits.append(portrait)
+	return {"background": str(value.get("background", "")), "portraits": portraits,
+		"cg": str(value.get("cg", ""))}
+
+static func get_expected_art_paths() -> Dictionary:
+	var result: Dictionary = {}
+	var assets: Dictionary = _catalog().get("assets", {}).duplicate(true)
+	assets.merge(_overlay_records, true)
+	for asset_id: String in assets:
+		result[asset_id] = str(_asset(asset_id).get("path", ""))
+	return result
+
+static func get_expected_size(path: String) -> Vector2i:
+	for asset_id: String in get_expected_art_paths():
+		var record := _asset(asset_id)
+		if str(record.get("path", "")) != path:
+			continue
+		var dimensions: Variant = record.get("size", [])
+		if dimensions is Array and dimensions.size() == 2:
+			return Vector2i(int(dimensions[0]), int(dimensions[1]))
+	return Vector2i.ZERO
+
+static func get_daily_main_scene_paths(day: int) -> Dictionary:
+	var result: Dictionary = {}
+	var scenes: Dictionary = _catalog().get("scenes", {})
+	for entry_id: String in scenes:
+		var record: Variant = scenes[entry_id]
+		if record is Dictionary and record.get("day") == day:
+			result[entry_id] = get_asset_path(str(record.get("background", "")))
+	return result
+
+static func get_missing_art_report() -> Dictionary:
+	var result: Dictionary = {}
+	for asset_id: String in get_expected_art_paths():
+		if get_texture(asset_id) == null:
+			result[asset_id] = get_asset_path(asset_id)
+	return result
+
+## Temporary presentation overrides support art previews without writing the catalog or saves.
+static func set_overlay_info(category: String, asset_id: String, path: String,
+		expected_size: Vector2i, status: String) -> void:
+	_catalog()
+	_overlay_records[_key(category, asset_id)] = {"path": path,
+		"size": [expected_size.x, expected_size.y], "status": status}
 
 # ---- Semantic visual identity (Phase 01 Task 6, DEVIATION-11 Ruling C) ----
-# The six statics above are kept byte-identical and JOINED, not replaced: the plan names the
-# RECORDS, not the API, and CLAUDE.md forbids removing pre-existing dead code that is not in scope.
+# Required narrative visual records retain their original validation contract.
+# Optional placements above are separate from required playback dependencies.
 
 ## The record's EXACT closed field set, sorted. Plan Task 6 fixes these five and no others.
 const VISUAL_RECORD_FIELDS := ["fallback_visual_id", "required", "resource_path", "resource_type", "visual_id"]
@@ -21,10 +117,7 @@ const VISUAL_RECORD_FIELDS := ["fallback_visual_id", "required", "resource_path"
 ## when a verified asset of that type exists.
 const VISUAL_RESOURCE_TYPES := ["Texture2D"]
 
-## The shipped registry, EMPTY by law. The plan forbids populating invented art paths and the
-## repository owns exactly one non-addon image file, so no neutral fallback record can be declared
-## in this phase. Every law below is therefore proven against fabricated records, in the REFUSAL
-## direction; the affirmative resolution path over a real asset stays knowingly unexercised.
+## No art is a required playback dependency in the initial optional-art build.
 const VISUAL_RECORDS: Array = []
 
 const ART_MANIFEST_RECORD_SHAPE := &"ART_MANIFEST_RECORD_SHAPE"

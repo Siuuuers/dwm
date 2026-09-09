@@ -416,19 +416,15 @@ func test_the_art_manifest_code_vocabulary_is_exactly_the_thirteen_this_suite_pi
 	assert_eq(declared, pinned,
 		"the source declares no ART_MANIFEST code this suite does not pin behaviourally")
 
-func test_the_six_legacy_statics_are_untouched_and_still_return_empty() -> void:
+func test_legacy_path_apis_now_describe_optional_placements_without_inventing_paths() -> void:
 	if not _guard():
 		return
-	var names: Array = []
-	for method: Dictionary in _script.get_script_method_list():
-		names.append(str(method.get("name", "")))
-	for legacy: String in LEGACY_STATIC_NAMES:
-		assert_true(names.has(legacy), "%s survives: Task 6 joins, it does not replace" % legacy)
-	assert_eq(_script.call(&"get_expected_art_paths"), {}, "the stub still reports no art paths")
-	assert_eq(_script.call(&"get_path", "backgrounds", "example"), "",
-		"the stub still composes no path")
-	assert_eq(_script.call(&"get_expected_size", "res://art/fabricated/primary.png"),
-		Vector2i.ZERO, "the stub still reports no expected size")
-	assert_eq(_script.call(&"get_daily_main_scene_paths", 0), {},
-		"the stub still reports no scene paths")
-	assert_eq(_script.call(&"get_missing_art_report"), {}, "the stub still reports nothing missing")
+	_script.call(&"reload_placements")
+	var paths: Dictionary = _script.call(&"get_expected_art_paths")
+	assert_true(paths.has("ui.title"))
+	assert_eq(_script.call(&"get_path", "ui", "title"), "res://art/ui/title/background.png")
+	assert_eq(_script.call(&"get_path", "backgrounds", "example"), "")
+	assert_eq(_script.call(&"get_expected_size", "res://art/ui/title/background.png"), Vector2i(960, 656))
+	assert_eq(_script.call(&"get_expected_size", "res://art/fabricated/primary.png"), Vector2i.ZERO)
+	assert_eq(_script.call(&"get_daily_main_scene_paths", 0), {})
+	assert_false((_script.call(&"get_daily_main_scene_paths", 1) as Dictionary).is_empty())

@@ -9,6 +9,8 @@ const RECORD := preload("res://scripts/ui/gallery/GalleryRecordButton.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const PRACTICE_HOST := preload("res://scripts/ui/gallery/GalleryRehearsalHost.gd")
 const DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
+const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 signal practice_visibility_changed(active: bool)
 const RECORD_CATALOG := preload("res://scripts/ui/gallery/GalleryRecordCatalog.gd")
 const STATUS_FALLBACK := {
@@ -44,6 +46,7 @@ var _practice_game: Object
 var _practice_input: Object
 var _practice_button: Button
 var _practice_host: CanvasLayer
+var _art_preview: TextureRect
 
 func configure_title_host(home: Button, localization: Node, profile: Object) -> Dictionary:
 	if is_node_ready() or _host_return != null or not is_instance_valid(home) \
@@ -146,6 +149,40 @@ func _ensure_version_selector() -> void:
 	_version_selector.item_selected.connect(_on_version_selected)
 	_canvas.add_child(_version_selector)
 	_version_selector.hide()
+
+func _ensure_art_preview() -> void:
+	if _art_preview != null: return
+	_art_preview = TextureRect.new()
+	_art_preview.name = "GalleryArtworkPreview"
+	_art_preview.position = Vector2(392, 32)
+	_art_preview.size = Vector2(520, 512)
+	_art_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_art_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_art_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_art_preview.focus_mode = Control.FOCUS_NONE
+	_canvas.add_child(_art_preview)
+	_canvas.move_child(_art_preview, 0)
+
+func _refresh_art_preview() -> void:
+	_ensure_art_preview()
+	_art_preview.texture = null
+	_art_preview.hide()
+	if _selected_version < 0 or _selected_version >= _versions.size(): return
+	var signature: Variant = _versions[_selected_version].get("signature")
+	if not signature is Dictionary: return
+	var entry_id := str(signature.get("entry_id", ""))
+	var entry: Dictionary = PRESENTATION_SIGNATURE.entry_record(entry_id)
+	if not entry.get("ok", false): return
+	var scene_art: Variant = ART_MANIFEST.get_scene_art(entry_id)
+	if not scene_art is Dictionary: return
+	var role := str(entry.value.get("role", ""))
+	var asset_id := str(scene_art.get("cg", "")) if role in ["solo_ending_step", "pair_ending_step", "alone_step"] \
+		else str(scene_art.get("background", "")) if entry.value.get("ending_id") == null else ""
+	if asset_id.is_empty(): return
+	var texture: Variant = ART_MANIFEST.get_texture(asset_id)
+	if not texture is Texture2D: return
+	_art_preview.texture = texture
+	_art_preview.show()
 
 func open_in_title_host() -> void:
 	show()
@@ -303,6 +340,7 @@ func _refresh_replay_selection() -> void:
 		if str(_versions[index].signature_id) == previous: _selected_version = index
 	if not _versions.is_empty(): _version_selector.select(_selected_version)
 	_version_selector.visible = _versions.size() > 1
+	_refresh_art_preview()
 	_sync_replay_controls()
 	_set_replay_status("" if not _versions.is_empty() else ("gallery.replay.unreached" if _replay_owner != null else "gallery.record.unavailable"))
 
@@ -312,6 +350,7 @@ func _clear_replay_versions() -> void:
 	_ensure_version_selector()
 	_version_selector.clear()
 	_version_selector.hide()
+	_refresh_art_preview()
 	_sync_replay_controls()
 
 func _sync_replay_controls() -> void:
@@ -332,6 +371,7 @@ func _sync_replay_controls() -> void:
 
 func _on_version_selected(index: int) -> void:
 	_selected_version = index
+	_refresh_art_preview()
 
 func _on_replay_pressed() -> void:
 	if _replay_owner == null or _selected_version < 0 or _selected_version >= _versions.size(): return

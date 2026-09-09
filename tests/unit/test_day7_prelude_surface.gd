@@ -1,5 +1,6 @@
 extends GutTest
 const SURFACE := preload("res://scripts/ui/Day7PreludeSurface.gd")
+const ART := preload("res://scripts/data/ArtManifest.gd")
 
 class Acknowledgment extends RefCounted:
 	signal released
@@ -166,3 +167,53 @@ func test_free_during_acknowledgment_releases_callback_without_resuming_a_destro
 	acknowledgment.released.emit()
 	await get_tree().process_frame
 	assert_false(is_instance_valid(surface))
+
+
+func test_optional_scene_art_uses_exact_card_entry_and_keeps_acknowledgment_and_missing_art_layout() -> void:
+	var date_entry := "dating.solo.priscilla.day1.pre_challenge"
+	var catalog := {"schema_version": 1,
+		"assets": {"fixture.portrait": {"path": "res://icon.svg", "size": [128, 128]}},
+		"scenes": {
+			date_entry: {"background": "", "portraits": ["fixture.portrait"], "cg": ""},
+			"echo.fallback.day7": {"background": "fixture.portrait", "portraits": [], "cg": ""}}}
+	var file := FileAccess.open("user://prelude-art-binding.json", FileAccess.WRITE)
+	file.store_string(JSON.stringify(catalog))
+	file.close()
+	assert_true(ART.reload_placements("user://prelude-art-binding.json"))
+	var acknowledgment := Acknowledgment.new()
+	var date_card := _card("date-replay")
+	date_card.receipt = {"entry_id": date_entry, "view_token": "date-replay", "signature_id": "reached-version"}
+	var presentation_theme := Theme.new()
+	presentation_theme.default_font_size = 24
+	var surface := SURFACE.new()
+	assert_true(surface.configure(date_card, acknowledgment.accept, "en", presentation_theme).ok)
+	add_child_autofree(surface)
+	await get_tree().process_frame
+	assert_true(surface._scene_art.visible)
+	assert_eq(surface._scene_art._entry_id, date_entry)
+	assert_not_null(surface._scene_art._portraits[0].texture)
+	assert_eq(surface._scene_art.size, Vector2(1280, 448))
+	assert_eq(surface._scene_art.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_lt(surface._scene_art.get_index(), surface._reading_margin.get_index())
+	assert_gte(surface._current_body.get_global_rect().position.y, surface._scene_art.get_global_rect().end.y)
+	assert_lte(surface._next.get_global_rect().end.y, surface._root.size.y)
+	surface._current_body.draw.emit()
+	surface._next.pressed.emit()
+	assert_eq(acknowledgment.calls, [date_card.receipt], "art adds no second acknowledgment")
+	var echo_card := _card("echo-next")
+	presentation_theme.default_font_size = 36
+	assert_true(surface.present_card(echo_card).ok)
+	assert_eq(surface._scene_art._entry_id, "echo.fallback.day7")
+	assert_not_null(surface._scene_art._background.texture)
+	assert_null(surface._scene_art._portraits[0].texture, "a new card clears the prior portrait")
+	assert_eq(surface._scene_art.size.y, 328.0)
+	surface._current_body.draw.emit()
+	surface._next.pressed.emit()
+	var missing := _card("missing-art")
+	missing.receipt.entry_id = "fixture.without.art"
+	assert_true(surface.present_card(missing).ok)
+	assert_false(surface._scene_art.visible)
+	assert_eq(surface._reading_margin.get_theme_constant("margin_top"), 48)
+	assert_eq(surface._current_body.text, missing.body)
+	assert_eq(surface.get_presentation_history(), [date_card, echo_card])
+	ART.reload_placements()

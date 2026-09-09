@@ -19,6 +19,41 @@ class_name HospitalScene
 ## failure than inventing a recovery.
 
 const _PORT_METHODS: Array[String] = ["begin", "complete"]
+const _CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+
+## Pure projection of already validated Run receipts. A different day/source never supplies art.
+static func art_participants(contacts: Dictionary, context: Dictionary, committed_schedule: Dictionary = {}) -> Array[String]:
+	if context.get("kind") != "hospital" or not context.get("source_entry_ids") is Array \
+			or not context.get("miss_receipt_ids") is Array or context.get("day") not in range(1, 8):
+		return []
+	var witnesses: Variant = contacts.get("sylvia_hospital_witness_receipts", {})
+	if not witnesses is Dictionary: return []
+	for value: Variant in witnesses.values():
+		if not value is Dictionary: continue
+		var witness: Dictionary = value
+		if witness.get("kind") != "sylvia_hospital_witness" \
+				or int(witness.get("care_followup_day", -1)) != int(context.day) + 1:
+			continue
+		if witness.get("resolution_kind") == "condition_hospital":
+			if str(witness.get("source_receipt_id", "")) in context.source_entry_ids \
+					and str(witness.get("hospital_miss_receipt_id", "")) in context.miss_receipt_ids:
+				return ["sylvia"]
+		elif witness.get("resolution_kind") == "schedule_done" \
+				and str(witness.get("schedule_entry_id", "")) in context.source_entry_ids:
+			return ["sylvia"]
+	# Schedule-Done writes the witness after physical presentation. Its current committed
+	# entry plus the accepted Contacts receipt already prove attendance before that write.
+	if committed_schedule.get("day") == context.day:
+		for entry: Dictionary in committed_schedule.get("entries", []):
+			if entry.get("action_kind") != "solo" or entry.get("participants") != ["sylvia"] \
+					or str(entry.get("schedule_entry_id", "")) not in context.source_entry_ids: continue
+			var found: Dictionary = _CONTACTS.get_schedule_source_receipt(contacts, str(entry.get("source_receipt_id", "")))
+			if not found.get("ok", false): continue
+			var receipt: Dictionary = found.value.receipt
+			if receipt.get("action_id") == entry.get("action_id") and receipt.get("day") == context.day \
+					and receipt.get("participants") == ["sylvia"]:
+				return ["sylvia"]
+	return []
 
 var _presentation_port: Object = null
 var _presentation_command: Dictionary = {}

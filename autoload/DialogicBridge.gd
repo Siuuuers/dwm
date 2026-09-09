@@ -20,9 +20,15 @@ signal narrative_validation_failed(result: Dictionary)
 signal ending_playback_finished(playback_token: String, ending_id: String, receipt: Dictionary)
 signal ending_playback_failed(playback_token: String, ending_id: String, result: Dictionary)
 signal ending_playback_retired(playback_token: String, ending_id: String)
+signal scene_art_changed
 
 const MISSING_DIALOGIC_MESSAGE := "Dialogic 2 addon file does not exist."
 const DIALOGIC_CLEAR_KEEP_VARIABLES := 1
+const _SCENE_ART := preload("res://scripts/data/ArtManifest.gd")
+const _HOSPITAL_ART := preload("res://scripts/ui/HospitalScene.gd")
+const _ART_HOLD_VIEW := preload("res://scripts/ui/witnessed/SceneArtHoldSurface.gd")
+var _art_hold: Dictionary = {}
+var _art_hold_generation := 0
 
 const _ENDINGS_MANIFEST_PATH := "res://data/manifests/endings.json"
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -243,6 +249,137 @@ func start_timeline_path(path: String, context: Dictionary = {}) -> Dictionary:
 ## Task 5 (R-BB): the label reaches Dialogic's two-argument start after validation. The legacy
 ## timeline vocabulary passes the empty label, which is Dialogic's own default and starts at the
 ## top exactly as the old one-argument call did.
+## Presentation-only projection. It never changes the retained command or save checkpoint.
+func get_current_scene_art() -> Dictionary:
+	var entry_id := ""
+	var context: Dictionary = {}
+	if not _active_entry.is_empty():
+		entry_id = str(_active_entry.get("entry_id", ""))
+		context = _active_entry.get("frozen_context", {})
+	elif not _active_playback.is_empty():
+		entry_id = str(_active_playback.get("presentation_signature", {}).get("entry_id", ""))
+	elif not _ordinary_playback.is_empty():
+		context = _ordinary_playback.get("context", {})
+		entry_id = str(context.get("entry_id", _ordinary_playback.get("timeline_id", "")))
+	var show_portraits := not entry_id.is_empty()
+	if entry_id == "hospital.faint" and context.get("day") in range(1, 8):
+		entry_id += ".day%d" % int(context.day)
+	if entry_id == "hospital.faint" or entry_id.begins_with("hospital.faint."):
+		show_portraits = false
+		var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
+		if game != null:
+			var contacts: Variant = game.get("contacts")
+			if contacts is Dictionary:
+				var schedule: Dictionary = game._canonical_committed_schedule() if game.has_method("_canonical_committed_schedule") else {}
+				show_portraits = _HOSPITAL_ART.art_participants(contacts, context, schedule) == ["sylvia"]
+	return {"entry_id": entry_id, "show_portraits": show_portraits}
+
+## Conservative source proof for an art-only pause before native execution.
+static func is_return_only_entry(path: String, label_or_index: Variant) -> bool:
+	if not FileAccess.file_exists(path): return false
+	if label_or_index is int and label_or_index != 0: return false
+	var label := str(label_or_index) if label_or_index is String or label_or_index is StringName else ""
+	var selected := label.is_empty()
+	for raw_line: String in FileAccess.get_file_as_string(path).split("\n"):
+		var line := raw_line.strip_edges()
+		if not selected:
+			if line == "label " + label: selected = true
+			continue
+		if line.is_empty() or line.begins_with("#"): continue
+		return line == "return"
+	return selected
+
+func get_art_hold_view() -> Node:
+	var view: Variant = _art_hold.get("view")
+	return view if is_instance_valid(view) else null
+
+func _start_with_scene_art(path: String, label_or_index: Variant) -> Dictionary:
+	if _try_begin_art_hold(path, label_or_index): return {"ok": true, "code": &"ok"}
+	_prepare_scene_art()
+	return _runtime_adapter.start_timeline(path, label_or_index)
+
+func _try_begin_art_hold(path: String, label_or_index: Variant) -> bool:
+	if not is_inside_tree() or not _art_hold.is_empty() or not is_return_only_entry(path, label_or_index): return false
+	var runtime := get_node_or_null("/root/Dialogic")
+	if runtime == null or not _runtime_adapter.has_method("is_bound_to_runtime") \
+			or not _runtime_adapter.is_bound_to_runtime(runtime): return false
+	var source := get_current_scene_art()
+	if str(source.entry_id).is_empty(): return false
+	_art_hold_generation += 1
+	var token := "art-%d-%d" % [get_instance_id(), _art_hold_generation]
+	var percent := 100
+	var profile := get_node_or_null("/root/ProfileManager")
+	if profile != null and profile.has_method("get_preference"):
+		percent = int(profile.get_preference(&"preferences.accessibility.text_size", 100))
+	var view := _ART_HOLD_VIEW.new()
+	if not view.configure(source.entry_id, token, percent, _current_locale(), source.show_portraits):
+		view.free()
+		return false
+	var layer := CanvasLayer.new()
+	layer.layer = 20
+	layer.name = "SceneArtHold"
+	_art_hold = {"token": token, "generation": _art_hold_generation, "path": path,
+		"label": label_or_index, "paused": false, "view": view, "layer": layer}
+	view.continue_requested.connect(_continue_art_hold)
+	layer.add_child(view)
+	add_child(layer)
+	return true
+
+func _continue_art_hold(token: String) -> void:
+	if _art_hold.is_empty() or str(_art_hold.token) != token or _art_hold.paused \
+			or not _pause_handle.is_empty() or not _art_hold.view.has_drawn_art(): return
+	var retained := _art_hold.duplicate()
+	_close_art_hold()
+	_start_in_progress = true
+	_prepare_scene_art()
+	var started: Dictionary = _runtime_adapter.start_timeline(retained.path, retained.label)
+	_start_in_progress = false
+	if not started.get("ok", false): _on_playback_start_failed(started)
+
+func _close_art_hold() -> void:
+	if _art_hold.is_empty(): return
+	var retained := _art_hold.duplicate()
+	_art_hold.clear()
+	if is_instance_valid(retained.view): retained.view.retire()
+	if is_instance_valid(retained.layer):
+		if retained.layer.get_parent() != null: retained.layer.get_parent().remove_child(retained.layer)
+		retained.layer.queue_free()
+
+func _capture_presentation_frontier() -> Dictionary:
+	if not _art_hold.is_empty():
+		var view := get_art_hold_view()
+		if view == null or not view.is_inside_tree() or not view.has_drawn_art():
+			return _pause_failure(&"pause_frontier_unavailable")
+		return _pause_success({"generation": int(_art_hold.generation), "event_index": -1,
+			"request_id": str(_art_hold.token), "paused": bool(_art_hold.paused)})
+	return _runtime_adapter.capture_pause_frontier()
+
+func _set_presentation_paused(value: bool) -> Dictionary:
+	if not _art_hold.is_empty():
+		_art_hold.paused = value
+		_art_hold.view.set_presentation_paused(value)
+		return _pause_success({"paused": value})
+	return _runtime_adapter.set_paused(value)
+
+
+func _prepare_scene_art() -> void:
+	scene_art_changed.emit()
+	var source := get_current_scene_art()
+	var art: Dictionary = _SCENE_ART.get_scene_art(source.entry_id)
+	# Hospital owns this caption style even without optional images or a scene-art day.
+	var hospital := str(source.entry_id) == "hospital.faint" or str(source.entry_id).begins_with("hospital.faint.")
+	if not hospital and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
+		and art.get("portraits", []).is_empty() and str(art.get("cg", "")).is_empty())): return
+	var runtime := get_node_or_null("/root/Dialogic") if is_inside_tree() else null
+	# Isolated adapters never borrow the autoload's physical layout.
+	if runtime == null or _runtime_adapter == null \
+			or not _runtime_adapter.has_method("is_bound_to_runtime") \
+			or not _runtime_adapter.is_bound_to_runtime(runtime): return
+	var styles: Object = runtime.get_subsystem("Styles")
+	if styles != null and styles.has_method("load_style"):
+		styles.load_style("res://dialogic/styles/witnessed_caption_style.tres", null, true, false)
+
+
 func _start_at_path(timeline_id: String, path: String, context: Dictionary, label: String = "") -> Dictionary:
 	var dialogic := get_node_or_null("/root/Dialogic")
 	if dialogic == null or not dialogic.has_method("start"):
@@ -270,17 +407,13 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 	_current_timeline_id = timeline_id
 	_current_timeline_context = context.duplicate(true)
 	_ordinary_playback = {"timeline_id": timeline_id, "context": context.duplicate(true), "cache_before": before}
-	if caption_styles != null:
-		# The configured physical owner starts Hospital before its host scene is mounted.
-		# Select presentation here without changing timeline/history/completion ownership.
-		# The project's default end_behaviour=0 removes this layout at natural end.
-		caption_styles.load_style(
-			"res://dialogic/styles/witnessed_caption_style.tres", null, true, false)
+	scene_art_changed.emit()
 	preference_boundary_step.emit(&"clear")
-	var started: Dictionary = _runtime_adapter.start_timeline(path, label)
+	var started: Dictionary = _start_with_scene_art(path, label)
 	_start_in_progress = false
 	if not started.get("ok", false):
 		_ordinary_playback = {}
+		scene_art_changed.emit()
 		_current_timeline_id = before.id
 		_current_timeline_context = before.context
 		var failed := {"ok": false, "reason": "runtime_start_failed", "timeline_id": timeline_id, "cause": started}
@@ -312,6 +445,7 @@ func _connect_runtime_adapter(adapter: RefCounted) -> void:
 
 
 func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) -> void:
+	_close_art_hold()
 	var ordinary := _ordinary_playback.duplicate(true)
 	var ordinary_id := str(_ordinary_playback.get("timeline_id", ""))
 	var ending := _active_playback.duplicate(true)
@@ -320,6 +454,7 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 	_ordinary_playback = {}
 	_active_entry = {}
 	_active_playback = {}
+	scene_art_changed.emit()
 	if not before.is_empty():
 		_current_timeline_id = str(before.id)
 		_current_timeline_context = before.context.duplicate(true)
@@ -446,6 +581,7 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 				_restore_playback_started = true
 				if position == "before_event": _runtime_adapter.set_paused(true)
 				_start_in_progress = true
+				_prepare_scene_art()
 				var started: Dictionary = _runtime_adapter.start_timeline(path, index)
 				_start_in_progress = false
 				if not started.get("ok", false):
@@ -584,6 +720,7 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 	if not started.get("ok", false):
 		if str(_active_playback.get("token", "")) == token:
 			_active_playback.clear()
+			scene_art_changed.emit()
 			_current_timeline_id = before.id
 			_current_timeline_context = before.context
 		return started
@@ -1011,7 +1148,7 @@ func capture_pause_frontier(timeline_id: String = "") -> Dictionary:
 	if _mutation_gate != null:
 		var guarded: Dictionary = _mutation_gate.guard_external(&"narrative_pause")
 		if not guarded.get("ok", false): return guarded
-	var captured: Dictionary = _runtime_adapter.capture_pause_frontier()
+	var captured: Dictionary = _capture_presentation_frontier()
 	if not captured.get("ok", false): return captured
 	var frontier: Dictionary = captured.value.duplicate(true)
 	frontier.erase("paused")
@@ -1033,12 +1170,12 @@ func begin_suspend(handle: Dictionary) -> Dictionary:
 		return _pause_success({"frontier_id": _pause_frontier_id()})
 	var captured := capture_pause_frontier()
 	if not captured.get("ok", false): return _pause_failure(captured.get("code", &"pause_frontier_unavailable"))
-	var runtime_before: Dictionary = _runtime_adapter.capture_pause_frontier()
+	var runtime_before: Dictionary = _capture_presentation_frontier()
 	if not runtime_before.get("ok", false): return _pause_failure(&"pause_frontier_unavailable")
 	_pause_handle = handle.duplicate(true)
 	_pause_frontier = runtime_before.value.duplicate(true)
 	_pause_changing = true
-	var paused: Dictionary = _runtime_adapter.set_paused(true)
+	var paused: Dictionary = _set_presentation_paused(true)
 	var after := capture_pause_frontier()
 	_pause_changing = false
 	if not paused.get("ok", false) or not after.get("ok", false) or after.value != captured.value:
@@ -1056,7 +1193,7 @@ func resume(handle: Dictionary) -> Dictionary:
 	if not current.get("ok", false) or current.value != expected:
 		return _pause_failure(&"pause_source_changed")
 	_pause_changing = true
-	var restored: Dictionary = _runtime_adapter.set_paused(bool(_pause_frontier.paused))
+	var restored: Dictionary = _set_presentation_paused(bool(_pause_frontier.paused))
 	_pause_changing = false
 	if not restored.get("ok", false): return _pause_failure(&"pause_resume_failed")
 	_pause_handle = {}
@@ -1072,7 +1209,7 @@ func get_state() -> Dictionary:
 	expected.erase("paused")
 	if not current.get("ok", false) or current.value != expected:
 		return _pause_failure(&"narrative_runtime_indeterminate")
-	var physical: Dictionary = _runtime_adapter.capture_pause_frontier()
+	var physical: Dictionary = _capture_presentation_frontier()
 	if not physical.get("ok", false) or not physical.value.get("paused", false):
 		return _pause_failure(&"narrative_runtime_indeterminate")
 	return _pause_success({"state": &"Suspended"})
@@ -1091,7 +1228,7 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 	if _pause_handle.is_empty() or handle != _pause_handle or _pause_changing:
 		return _pause_failure(&"invalid_suspension_handle")
 	if handle != _retired_pause_handle:
-		var physical: Dictionary = _runtime_adapter.capture_pause_frontier()
+		var physical: Dictionary = _capture_presentation_frontier()
 		var expected := _pause_frontier.duplicate(true)
 		expected["paused"] = true
 		if not physical.get("ok", false) or physical.value != expected:
@@ -1101,9 +1238,11 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 		_ordinary_playback.clear()
 		_active_entry.clear()
 		_active_playback.clear()
+		scene_art_changed.emit()
 		_current_timeline_id = ""
 		_current_timeline_context.clear()
 		_retired_pause_handle = handle.duplicate(true)
+		_close_art_hold()
 		_runtime_adapter.halt_with_error({"code": &"session_abandoned"})
 		# Cancellation is separate from failure: a retired session must not run the
 		# scene/coordinator failure handlers or manufacture a physical completion.
@@ -1113,7 +1252,7 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 			ending_playback_retired.emit(str(ending["token"]), str(ending["ending_id"]))
 	# Native clear invalidates the event before its previous pause bit is released.
 	# No owned completion remains for the cancellation signal to consume.
-	var released: Dictionary = _runtime_adapter.set_paused(false)
+	var released: Dictionary = _set_presentation_paused(false)
 	if not released.get("ok", false): return released
 	_pause_handle.clear()
 	_pause_frontier.clear()
@@ -1147,7 +1286,7 @@ func stage_pause_restore(plan: Dictionary, semantic: bool) -> Dictionary:
 	# intentionally unavailable. Verify the identical native source under that custody.
 	if _pause_changing or _pause_handle != _pause_restore.handle:
 		return _pause_failure(&"pause_source_changed")
-	var physical: Dictionary = _runtime_adapter.capture_pause_frontier()
+	var physical: Dictionary = _capture_presentation_frontier()
 	var expected := _pause_frontier.duplicate(true)
 	expected["paused"] = true
 	if not physical.get("ok", false) or physical.value != expected:
@@ -1344,6 +1483,7 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 	if not started.get("ok", false):
 		if str(_active_entry.get("token", "")) == token:
 			_active_entry = {}
+			scene_art_changed.emit()
 		return started
 	return {"ok": true, "code": &"started", "value": {}, "receipt": {
 		"entry_id": entry_id,
@@ -1363,7 +1503,7 @@ func _start_semantic_playback(path: String, label: String) -> Dictionary:
 		# The adapter performs the physical clear inside start_timeline, so the boundary step is
 		# announced first; the reapply itself arrives via the runtime's own timeline_started.
 		preference_boundary_step.emit(&"clear")
-		var result: Variant = _runtime_adapter.start_timeline(path, label)
+		var result: Variant = _start_with_scene_art(path, label)
 		if typeof(result) != TYPE_DICTIONARY or not (result as Dictionary).get("ok", false):
 			return _playback_failure(&"runtime_start_failed", label)
 		return {"ok": true}
@@ -1447,6 +1587,8 @@ func abort_current_entry(code: StringName) -> Dictionary:
 	# Clear BEFORE halting: the physical end signal the halt provokes must find no active entry,
 	# so an aborted playback can never reach the completion port (the stale-completion law).
 	_active_entry = {}
+	_close_art_hold()
+	scene_art_changed.emit()
 	if _runtime_adapter != null and _runtime_adapter.has_method("halt_with_error"):
 		_runtime_adapter.halt_with_error({"ok": false, "code": &"entry_aborted",
 			"message": String(code), "details": {}})
@@ -1505,7 +1647,7 @@ func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
 
 func _start_through_runtime(path: String, label: String) -> Dictionary:
 	if _runtime_adapter != null:
-		var result: Variant = _runtime_adapter.start_timeline(path, label)
+		var result: Variant = _start_with_scene_art(path, label)
 		if typeof(result) != TYPE_DICTIONARY or not (result as Dictionary).get("ok", false):
 			return _playback_failure(&"runtime_start_failed", label)
 		return {"ok": true}
@@ -1529,6 +1671,7 @@ func _on_runtime_timeline_ended() -> void:
 	if not _active_playback.is_empty():
 		var playback := _active_playback.duplicate(true)
 		_active_playback = {}
+		scene_art_changed.emit()
 		# Reviewer I-2: _start_playback retained this timeline id; consuming the completion must
 		# clear it, or a later semantic abort's halt replays it as a phantom generic completion.
 		# Conditional on the exact id so a retained id this branch does NOT own is untouched.
@@ -1546,6 +1689,7 @@ func _on_runtime_timeline_ended() -> void:
 	if not _active_entry.is_empty():
 		var entry := _active_entry.duplicate(true)
 		_active_entry = {}
+		scene_art_changed.emit()
 		if not _reached_replay.is_empty() and entry.token == _reached_replay.token:
 			_finish_reached_replay("completed")
 			return
@@ -1574,6 +1718,7 @@ func _on_runtime_timeline_ended() -> void:
 	var finished_id := str(_ordinary_playback.timeline_id)
 	var context: Dictionary = _ordinary_playback.context.duplicate(true)
 	_ordinary_playback = {}
+	scene_art_changed.emit()
 	_current_timeline_id = ""
 	_current_timeline_context = {}
 	timeline_finished.emit(finished_id, {"timeline_id": finished_id, "context": context})

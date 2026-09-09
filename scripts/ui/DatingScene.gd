@@ -8,6 +8,17 @@ const _PORT_METHODS: Array[String] = ["begin", "complete"]
 const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
 const CHROME_COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
+const SCENE_ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
+
+## Art follows the admitted scene, never a result, relationship tier, or expression variant.
+static func scene_art_entry(context: Dictionary) -> String:
+	if not presentation_copy(context, "pre_challenge").get("ok", false): return ""
+	var kind := str(context.kind)
+	if kind == "solo":
+		return "dating.solo.%s.day%d.pre_challenge" % [context.participants[0], int(context.day)]
+	if int(context.day) not in [2, 6]: return ""
+	return "dating.%s.priscilla_lavinia.day%d.pre_challenge" % [
+		"twofriends" if kind == "twofriends_if_deferred" else "group", int(context.day)]
 
 ## Shared provisional physical copy: readonly entry replay uses the same visible words.
 static func presentation_copy(context: Dictionary, phase: String, locale: String = "en") -> Dictionary:
@@ -43,6 +54,8 @@ static func reached_presentation_copy(signature: Dictionary, locale: String = "e
 	return presentation_copy(context, parts[4], locale)
 
 var worksheet: Control
+var _scene_art: SCENE_ART_VIEW
+var _challenge_content: CenterContainer
 var _status_label: Label
 var _continue_button: Button
 var _special_mine_button: Button
@@ -129,7 +142,11 @@ func _build_challenge() -> void:
 	backdrop.color = Color("151920") if _palette == &"after_hours" else Color("d5d4ce")
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	challenge_overlay_host.add_child(backdrop)
+	_scene_art = SCENE_ART_VIEW.new()
+	_scene_art.name = "SceneArt"
+	challenge_overlay_host.add_child(_scene_art)
 	var center := CenterContainer.new()
+	_challenge_content = center
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	challenge_overlay_host.add_child(center)
 	var panel := VBoxContainer.new()
@@ -189,7 +206,10 @@ func _refresh_challenge() -> void:
 	if not is_instance_valid(worksheet) or _physical_view.is_empty(): return
 	worksheet.present(_physical_view.board)
 	var phase: String = str(_physical_view.phase)
+	_scene_art.configure_entry(scene_art_entry(_presentation_command.context), _percent,
+		phase in ["challenge", "cleared_awaiting_terminal_choice", "preparing"])
 	worksheet.visible = phase in ["challenge", "cleared_awaiting_terminal_choice", "preparing"]
+	_challenge_content.offset_top = _scene_art.size.y if _scene_art.visible and not worksheet.visible else 0.0
 	_status_label.visible = phase != "preparing" or _preparation_failed
 	var copy: Dictionary = presentation_copy(_presentation_command.context,
 		"post_challenge" if _physical_view.phase in ["post_challenge", "completed"] else "pre_challenge", _locale)

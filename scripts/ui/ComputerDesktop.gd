@@ -3,6 +3,7 @@ class_name ComputerDesktop
 
 const APP_REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRegistry.gd")
 const LAUNCHER_BUTTON := preload("res://scripts/ui/desktop/DesktopLauncherButton.gd")
+const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
@@ -23,6 +24,7 @@ const LABELS := {
 @onready var app_window_host: Control = %AppWindowHost
 @onready var notification_layer: Control = %NotificationLayer
 @onready var contacts_button: Button = %ContactsButton
+@onready var background_image: TextureRect = $BackgroundImage
 
 var launcher_buttons: Dictionary = {}
 var home_button: Button
@@ -87,6 +89,13 @@ func configure_run_configuration(owner: Object) -> Dictionary:
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(800, 720)
+	var desktop_art := ART_MANIFEST.get_texture("ui.desktop")
+	if desktop_art != null:
+		background_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		background_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		background_image.texture = desktop_art
+		background_image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		background_image.offset_top = 64
 	app_window_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	notification_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build_shell()
@@ -166,6 +175,7 @@ func _build_shell() -> void:
 			icon_grid.add_child(button)
 		icon_grid.move_child(button, index)
 		launcher_buttons[id] = button
+		button.set_icon_texture(ART_MANIFEST.get_texture("launcher.%s" % String(id), Vector2i(48, 48)))
 		button.pressed.connect(open_app.bind(id))
 	for index in ids.size():
 		var button: Button = launcher_buttons[ids[index]]

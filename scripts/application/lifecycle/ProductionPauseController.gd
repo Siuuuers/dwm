@@ -185,8 +185,8 @@ func _retire_pause() -> Dictionary:
 func _unused_save_capture() -> Dictionary:
 	return _failure(&"pause_save_unavailable")
 
-## The bridge proves a native Text frontier; the current scene and full live-session handle
-## prove its run custody. Empty DTLs finish naturally and are not fake reading frontiers.
+## The bridge proves a native Text or transient artwork frontier; the current scene and
+## full live-session handle prove its run custody. Artwork never fabricates a text witness.
 func capture_pause_source() -> Dictionary:
 	if _services.is_empty() or not is_inside_tree(): return _failure(&"pause_source_unavailable")
 	var scene := get_tree().current_scene as Control
@@ -233,7 +233,9 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 	_caption = null
 	_caption_anchor.clear()
 	if not source.frontier.is_empty():
-		_caption = _find_caption(get_tree().root)
+		var bridge: Object = _services.get("bridge")
+		_caption = bridge.get_art_hold_view() if bridge != null and bridge.has_method("get_art_hold_view") else null
+		if _caption == null: _caption = _find_caption(get_tree().root)
 		if _caption == null: return _failure(&"pause_view_unavailable")
 		var captured: Dictionary = _caption.capture_pause_view(source)
 		if not captured.get("ok", false): return captured

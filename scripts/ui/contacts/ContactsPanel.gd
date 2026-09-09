@@ -7,6 +7,7 @@ signal back_requested
 signal pending_reply_drawn(rendered_line: Dictionary)
 
 const Row = preload("res://scripts/ui/contacts/ContactsRow.gd")
+const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const FRIENDS := ["priscilla", "lavinia", "sylvia"]
 const NAMES := ["Priscilla", "Lavinia", "Sylvia"]
 const LOCALES := ["en", "zh-CN", "zh-HK"]
@@ -37,6 +38,7 @@ func _ready() -> void:
 		row.position = Vector2(0, 8 + 96 * i)
 		row.size = Vector2(248, 96)
 		row.identity_index = i
+		row.portrait_texture = ART_MANIFEST.get_texture("contact.%s.row" % FRIENDS[i], Vector2i(32, 64))
 		row.display_name = NAMES[i]
 		row.accessibility_name = NAMES[i]
 		row.pressed.connect(func(): open_requested.emit(FRIENDS[i]))
@@ -370,8 +372,11 @@ func _draw() -> void:
 		return
 	draw_rect(Rect2(248, 0, 552, 96), theme.get_color("instrument", "Contacts"))
 	draw_rect(Rect2(256, 16, 32, 64), theme.get_color("void", "Contacts"))
+	var header_art := ART_MANIFEST.get_texture("contact.%s.header" % selected_friend, Vector2i(32, 64))
 	var identity := theme.get_color("identity_%d" % FRIENDS.find(selected_friend), "Contacts")
-	if selected_friend == "sylvia":
+	if header_art != null:
+		draw_texture_rect(header_art, Rect2(256, 16, 32, 64), false)
+	elif selected_friend == "sylvia":
 		draw_rect(Rect2(264, 16, 6, 64), identity)
 		draw_rect(Rect2(274, 16, 6, 64), identity)
 	else:

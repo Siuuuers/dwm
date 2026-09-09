@@ -8,7 +8,7 @@ written_spec_status: approved
 self_review_status: passed
 self_reviewed_on: "2026-08-13"
 written_spec_approved_on: "2026-08-13"
-implementation_authorized: false
+implementation_authorized: true
 created_on: "2026-08-13"
 engine_line: godot_4_6
 verification_engine: 4.6.3-stable-mono
@@ -17,6 +17,15 @@ scope: [visual_source_files, runtime_art_exports, semantic_art_manifests, charac
 ---
 
 # Visual-Art Placement and Asset-Production Guide
+
+> **Implemented placement scope, 2026-09-09:** The current drop-in paths and
+> dimensions are in [art/README.md](../../art/README.md), with the complete
+> [scene map](../../art/scene-map.csv) and [asset list](../../art/asset-paths.csv).
+> Optional art bindings now use the existing screens and scene-based DTL files.
+> The former no-op/scaffold statements and larger production roster below are
+> historical design context, superseded for this implementation. Missing art
+> remains usable. Minesweeper cells, flags, and mines remain code-drawn by the
+> owner's explicit request; no bitmap replacement is required.
 
 > **Owner decision, 2026-09-09: initial portrait scope:** Use one fixed portrait
 > per solo scene and two fixed portraits per group or twofriends scene. Keep

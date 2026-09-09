@@ -1,0 +1,2417 @@
+{
+  "schema_version": 1,
+  "assets": {
+    "ui.title": {
+      "path": "res://art/ui/title/background.png",
+      "size": [
+        960,
+        656
+      ]
+    },
+    "ui.desktop": {
+      "path": "res://art/ui/desktop/background.png",
+      "size": [
+        800,
+        656
+      ]
+    },
+    "shell.background": {
+      "path": "res://art/shell/background.png",
+      "size": [
+        480,
+        504
+      ]
+    },
+    "shell.character.angela": {
+      "path": "res://art/shell/angela.png",
+      "size": [
+        480,
+        504
+      ]
+    },
+    "shell.keepsakes": {
+      "path": "res://art/shell/keepsakes.png",
+      "size": [
+        480,
+        504
+      ]
+    },
+    "launcher.minesweeper": {
+      "path": "res://art/ui/launcher/minesweeper.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    "launcher.contacts": {
+      "path": "res://art/ui/launcher/contacts.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    "launcher.schedule": {
+      "path": "res://art/ui/launcher/schedule.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    "launcher.shop": {
+      "path": "res://art/ui/launcher/shop.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    "launcher.backup": {
+      "path": "res://art/ui/launcher/backup.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    "launcher.settings": {
+      "path": "res://art/ui/launcher/settings.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    "launcher.logout": {
+      "path": "res://art/ui/launcher/logout.png",
+      "size": [
+        48,
+        48
+      ]
+    },
+    "contact.priscilla.row": {
+      "path": "res://art/characters/priscilla/contact.png",
+      "size": [
+        32,
+        64
+      ]
+    },
+    "contact.priscilla.header": {
+      "path": "res://art/characters/priscilla/contact.png",
+      "size": [
+        32,
+        64
+      ]
+    },
+    "character.priscilla": {
+      "path": "res://art/characters/priscilla/scene.png",
+      "size": [
+        320,
+        448
+      ]
+    },
+    "contact.lavinia.row": {
+      "path": "res://art/characters/lavinia/contact.png",
+      "size": [
+        32,
+        64
+      ]
+    },
+    "contact.lavinia.header": {
+      "path": "res://art/characters/lavinia/contact.png",
+      "size": [
+        32,
+        64
+      ]
+    },
+    "character.lavinia": {
+      "path": "res://art/characters/lavinia/scene.png",
+      "size": [
+        320,
+        448
+      ]
+    },
+    "contact.sylvia.row": {
+      "path": "res://art/characters/sylvia/contact.png",
+      "size": [
+        32,
+        64
+      ]
+    },
+    "contact.sylvia.header": {
+      "path": "res://art/characters/sylvia/contact.png",
+      "size": [
+        32,
+        64
+      ]
+    },
+    "character.sylvia": {
+      "path": "res://art/characters/sylvia/scene.png",
+      "size": [
+        320,
+        448
+      ]
+    },
+    "shop.coffee.card": {
+      "path": "res://art/shop/items/coffee-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.coffee.inspector": {
+      "path": "res://art/shop/items/coffee-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.wine.card": {
+      "path": "res://art/shop/items/wine-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.wine.inspector": {
+      "path": "res://art/shop/items/wine-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.pineapple_bun.card": {
+      "path": "res://art/shop/items/pineapple_bun-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.pineapple_bun.inspector": {
+      "path": "res://art/shop/items/pineapple_bun-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.bandage_pack.card": {
+      "path": "res://art/shop/items/bandage_pack-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.bandage_pack.inspector": {
+      "path": "res://art/shop/items/bandage_pack-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.quiet_tea.card": {
+      "path": "res://art/shop/items/quiet_tea-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.quiet_tea.inspector": {
+      "path": "res://art/shop/items/quiet_tea-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.soft_blanket.card": {
+      "path": "res://art/shop/items/soft_blanket-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.soft_blanket.inspector": {
+      "path": "res://art/shop/items/soft_blanket-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.weighted_plush.card": {
+      "path": "res://art/shop/items/weighted_plush-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.weighted_plush.inspector": {
+      "path": "res://art/shop/items/weighted_plush-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.spa_coupon.card": {
+      "path": "res://art/shop/items/spa_coupon-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.spa_coupon.inspector": {
+      "path": "res://art/shop/items/spa_coupon-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.healthy_meal.card": {
+      "path": "res://art/shop/items/healthy_meal-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.healthy_meal.inspector": {
+      "path": "res://art/shop/items/healthy_meal-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.protein_box.card": {
+      "path": "res://art/shop/items/protein_box-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.protein_box.inspector": {
+      "path": "res://art/shop/items/protein_box-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.pep_note.card": {
+      "path": "res://art/shop/items/pep_note-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.pep_note.inspector": {
+      "path": "res://art/shop/items/pep_note-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.premium_care.card": {
+      "path": "res://art/shop/items/premium_care-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.premium_care.inspector": {
+      "path": "res://art/shop/items/premium_care-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.lucky_charm.card": {
+      "path": "res://art/shop/items/lucky_charm-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.lucky_charm.inspector": {
+      "path": "res://art/shop/items/lucky_charm-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.debug_key.card": {
+      "path": "res://art/shop/items/debug_key-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.debug_key.inspector": {
+      "path": "res://art/shop/items/debug_key-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.bookend_keepsake.card": {
+      "path": "res://art/shop/items/bookend_keepsake-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.bookend_keepsake.inspector": {
+      "path": "res://art/shop/items/bookend_keepsake-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.metronome_keepsake.card": {
+      "path": "res://art/shop/items/metronome_keepsake-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.metronome_keepsake.inspector": {
+      "path": "res://art/shop/items/metronome_keepsake-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "shop.pocket_calculator_keepsake.card": {
+      "path": "res://art/shop/items/pocket_calculator_keepsake-card.png",
+      "size": [
+        28,
+        28
+      ]
+    },
+    "shop.pocket_calculator_keepsake.inspector": {
+      "path": "res://art/shop/items/pocket_calculator_keepsake-inspector.png",
+      "size": [
+        56,
+        56
+      ]
+    },
+    "schedule.group:priscilla_lavinia:day2.compact": {
+      "path": "res://art/schedule/folios/priscilla_lavinia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.group:priscilla_lavinia:day2.folio": {
+      "path": "res://art/schedule/folios/priscilla_lavinia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.group:priscilla_lavinia:day6.compact": {
+      "path": "res://art/schedule/folios/priscilla_lavinia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.group:priscilla_lavinia:day6.folio": {
+      "path": "res://art/schedule/folios/priscilla_lavinia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.rest.compact": {
+      "path": "res://art/schedule/folios/rest-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.rest.folio": {
+      "path": "res://art/schedule/folios/rest-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:lavinia:day2.compact": {
+      "path": "res://art/schedule/folios/lavinia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:lavinia:day2.folio": {
+      "path": "res://art/schedule/folios/lavinia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:lavinia:day3.compact": {
+      "path": "res://art/schedule/folios/lavinia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:lavinia:day3.folio": {
+      "path": "res://art/schedule/folios/lavinia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:lavinia:day5.compact": {
+      "path": "res://art/schedule/folios/lavinia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:lavinia:day5.folio": {
+      "path": "res://art/schedule/folios/lavinia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:lavinia:day6.compact": {
+      "path": "res://art/schedule/folios/lavinia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:lavinia:day6.folio": {
+      "path": "res://art/schedule/folios/lavinia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:lavinia:day7.compact": {
+      "path": "res://art/schedule/folios/lavinia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:lavinia:day7.folio": {
+      "path": "res://art/schedule/folios/lavinia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:priscilla:day1.compact": {
+      "path": "res://art/schedule/folios/priscilla-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:priscilla:day1.folio": {
+      "path": "res://art/schedule/folios/priscilla-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:priscilla:day2.compact": {
+      "path": "res://art/schedule/folios/priscilla-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:priscilla:day2.folio": {
+      "path": "res://art/schedule/folios/priscilla-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:priscilla:day4.compact": {
+      "path": "res://art/schedule/folios/priscilla-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:priscilla:day4.folio": {
+      "path": "res://art/schedule/folios/priscilla-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:priscilla:day6.compact": {
+      "path": "res://art/schedule/folios/priscilla-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:priscilla:day6.folio": {
+      "path": "res://art/schedule/folios/priscilla-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:priscilla:day7.compact": {
+      "path": "res://art/schedule/folios/priscilla-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:priscilla:day7.folio": {
+      "path": "res://art/schedule/folios/priscilla-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:sylvia:day1.compact": {
+      "path": "res://art/schedule/folios/sylvia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:sylvia:day1.folio": {
+      "path": "res://art/schedule/folios/sylvia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:sylvia:day3.compact": {
+      "path": "res://art/schedule/folios/sylvia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:sylvia:day3.folio": {
+      "path": "res://art/schedule/folios/sylvia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:sylvia:day4.compact": {
+      "path": "res://art/schedule/folios/sylvia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:sylvia:day4.folio": {
+      "path": "res://art/schedule/folios/sylvia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:sylvia:day5.compact": {
+      "path": "res://art/schedule/folios/sylvia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:sylvia:day5.folio": {
+      "path": "res://art/schedule/folios/sylvia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.solo:sylvia:day7.compact": {
+      "path": "res://art/schedule/folios/sylvia-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.solo:sylvia:day7.folio": {
+      "path": "res://art/schedule/folios/sylvia-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.training.compact": {
+      "path": "res://art/schedule/folios/training-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.training.folio": {
+      "path": "res://art/schedule/folios/training-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "schedule.working.compact": {
+      "path": "res://art/schedule/folios/working-compact.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    "schedule.working.folio": {
+      "path": "res://art/schedule/folios/working-folio.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    "background.contacts.lavinia_day1": {
+      "path": "res://art/environments/contacts/lavinia_day1.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.priscilla_day1": {
+      "path": "res://art/environments/contacts/priscilla_day1.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.sylvia_day1": {
+      "path": "res://art/environments/contacts/sylvia_day1.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.priscilla_day1": {
+      "path": "res://art/environments/dating/solo/priscilla_day1.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.sylvia_day1": {
+      "path": "res://art/environments/dating/solo/sylvia_day1.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.core.hospital_faint": {
+      "path": "res://art/environments/core/hospital_faint.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.priscilla_day2": {
+      "path": "res://art/environments/contacts/priscilla_day2.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.sylvia_day2": {
+      "path": "res://art/environments/contacts/sylvia_day2.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.lavinia_day2": {
+      "path": "res://art/environments/contacts/lavinia_day2.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.group.priscilla_lavinia_day2": {
+      "path": "res://art/environments/contacts/group/priscilla_lavinia_day2.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.priscilla_day2": {
+      "path": "res://art/environments/dating/solo/priscilla_day2.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.lavinia_day2": {
+      "path": "res://art/environments/dating/solo/lavinia_day2.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.group.priscilla_lavinia_day2": {
+      "path": "res://art/environments/dating/group/priscilla_lavinia_day2.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.twofriends.priscilla_lavinia_day2": {
+      "path": "res://art/environments/dating/twofriends/priscilla_lavinia_day2.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.priscilla_day3": {
+      "path": "res://art/environments/contacts/priscilla_day3.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.lavinia_day3": {
+      "path": "res://art/environments/contacts/lavinia_day3.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.sylvia_day3": {
+      "path": "res://art/environments/contacts/sylvia_day3.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.lavinia_day3": {
+      "path": "res://art/environments/dating/solo/lavinia_day3.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.sylvia_day3": {
+      "path": "res://art/environments/dating/solo/sylvia_day3.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.lavinia_day4": {
+      "path": "res://art/environments/contacts/lavinia_day4.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.sylvia_day4": {
+      "path": "res://art/environments/contacts/sylvia_day4.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.priscilla_day4": {
+      "path": "res://art/environments/contacts/priscilla_day4.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.priscilla_day4": {
+      "path": "res://art/environments/dating/solo/priscilla_day4.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.sylvia_day4": {
+      "path": "res://art/environments/dating/solo/sylvia_day4.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.priscilla_day5": {
+      "path": "res://art/environments/contacts/priscilla_day5.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.sylvia_day5": {
+      "path": "res://art/environments/contacts/sylvia_day5.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.lavinia_day5": {
+      "path": "res://art/environments/contacts/lavinia_day5.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.lavinia_day5": {
+      "path": "res://art/environments/dating/solo/lavinia_day5.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.sylvia_day5": {
+      "path": "res://art/environments/dating/solo/sylvia_day5.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.lavinia_day6": {
+      "path": "res://art/environments/contacts/lavinia_day6.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.sylvia_day6": {
+      "path": "res://art/environments/contacts/sylvia_day6.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.priscilla_day6": {
+      "path": "res://art/environments/contacts/priscilla_day6.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.group.priscilla_lavinia_day6": {
+      "path": "res://art/environments/contacts/group/priscilla_lavinia_day6.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.priscilla_day6": {
+      "path": "res://art/environments/dating/solo/priscilla_day6.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.solo.lavinia_day6": {
+      "path": "res://art/environments/dating/solo/lavinia_day6.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.group.priscilla_lavinia_day6": {
+      "path": "res://art/environments/dating/group/priscilla_lavinia_day6.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.dating.twofriends.priscilla_lavinia_day6": {
+      "path": "res://art/environments/dating/twofriends/priscilla_lavinia_day6.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.priscilla_day7": {
+      "path": "res://art/environments/contacts/priscilla_day7.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.lavinia_day7": {
+      "path": "res://art/environments/contacts/lavinia_day7.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.contacts.sylvia_day7": {
+      "path": "res://art/environments/contacts/sylvia_day7.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.core.echo_fallback_day7": {
+      "path": "res://art/environments/core/echo_fallback_day7.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.ending.priscilla": {
+      "path": "res://art/environments/ending/priscilla.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.priscilla.sweet": {
+      "path": "res://art/narrative/cgs/ending.priscilla.sweet.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.priscilla.dark": {
+      "path": "res://art/narrative/cgs/ending.priscilla.dark.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.priscilla.observer.full": {
+      "path": "res://art/narrative/cgs/ending.priscilla.observer.full.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.priscilla.observer.residue": {
+      "path": "res://art/narrative/cgs/ending.priscilla.observer.residue.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.ending.lavinia": {
+      "path": "res://art/environments/ending/lavinia.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.lavinia.sweet": {
+      "path": "res://art/narrative/cgs/ending.lavinia.sweet.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.lavinia.dark": {
+      "path": "res://art/narrative/cgs/ending.lavinia.dark.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.lavinia.observer.full": {
+      "path": "res://art/narrative/cgs/ending.lavinia.observer.full.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.lavinia.observer.residue": {
+      "path": "res://art/narrative/cgs/ending.lavinia.observer.residue.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.ending.sylvia": {
+      "path": "res://art/environments/ending/sylvia.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.sylvia.sweet": {
+      "path": "res://art/narrative/cgs/ending.sylvia.sweet.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.sylvia.dark": {
+      "path": "res://art/narrative/cgs/ending.sylvia.dark.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.sylvia.special.full": {
+      "path": "res://art/narrative/cgs/ending.sylvia.special.full.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.sylvia.special.residue": {
+      "path": "res://art/narrative/cgs/ending.sylvia.special.residue.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.ending.priscilla_lavinia": {
+      "path": "res://art/environments/ending/priscilla_lavinia.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.priscilla_lavinia.sweet": {
+      "path": "res://art/narrative/cgs/ending.priscilla_lavinia.sweet.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.priscilla_lavinia.dark": {
+      "path": "res://art/narrative/cgs/ending.priscilla_lavinia.dark.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.priscilla_lavinia.observer.full": {
+      "path": "res://art/narrative/cgs/ending.priscilla_lavinia.observer.full.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.priscilla_lavinia.observer.residue": {
+      "path": "res://art/narrative/cgs/ending.priscilla_lavinia.observer.residue.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.ending.alone": {
+      "path": "res://art/environments/ending/alone.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.alone.normal": {
+      "path": "res://art/narrative/cgs/ending.alone.normal.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "cg.ending.alone.dark_mode": {
+      "path": "res://art/narrative/cgs/ending.alone.dark_mode.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.core.opening_day1": {
+      "path": "res://art/environments/core/opening_day1.png",
+      "size": [
+        1280,
+        448
+      ]
+    },
+    "background.core.tutorial_desktop_day1": {
+      "path": "res://art/environments/core/tutorial_desktop_day1.png",
+      "size": [
+        1280,
+        448
+      ]
+    }
+  },
+  "scenes": {
+    "contact.ordinary.lavinia.day1": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day1.dtl",
+      "day": 1,
+      "background": "background.contacts.lavinia_day1",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day1.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day1.dtl",
+      "day": 1,
+      "background": "background.contacts.priscilla_day1",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day1.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day1.dtl",
+      "day": 1,
+      "background": "background.contacts.sylvia_day1",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.priscilla.day1.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/priscilla_day1_pre_challenge.dtl",
+      "day": 1,
+      "background": "background.dating.solo.priscilla_day1",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "dating.solo.priscilla.day1.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/priscilla_day1_post_challenge.dtl",
+      "day": 1,
+      "background": "background.dating.solo.priscilla_day1",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "dating.solo.sylvia.day1.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/sylvia_day1_pre_challenge.dtl",
+      "day": 1,
+      "background": "background.dating.solo.sylvia_day1",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.sylvia.day1.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/sylvia_day1_post_challenge.dtl",
+      "day": 1,
+      "background": "background.dating.solo.sylvia_day1",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "hospital.faint.day1": {
+      "timeline": "res://dialogic/timelines/en/core/hospital_faint.dtl",
+      "day": 1,
+      "background": "background.core.hospital_faint",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day1.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.priscilla_day2",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day1.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.priscilla_day2",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day1.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.sylvia_day2",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day1.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.sylvia_day2",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.hospital_care.sylvia.day2": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.sylvia_day2",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.ordinary.sylvia.day2": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.sylvia_day2",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day2.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.priscilla_day2",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day2.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.lavinia_day2",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.first_open_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.first_open_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.second_open_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.second_open_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.need_reply_priscilla_first": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.need_reply_lavinia_first": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 2,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.priscilla.day2.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/priscilla_day2_pre_challenge.dtl",
+      "day": 2,
+      "background": "background.dating.solo.priscilla_day2",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "dating.solo.priscilla.day2.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/priscilla_day2_post_challenge.dtl",
+      "day": 2,
+      "background": "background.dating.solo.priscilla_day2",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "dating.solo.lavinia.day2.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/lavinia_day2_pre_challenge.dtl",
+      "day": 2,
+      "background": "background.dating.solo.lavinia_day2",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.lavinia.day2.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/lavinia_day2_post_challenge.dtl",
+      "day": 2,
+      "background": "background.dating.solo.lavinia_day2",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.group.priscilla_lavinia.day2.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/group/priscilla_lavinia_day2_pre_challenge.dtl",
+      "day": 2,
+      "background": "background.dating.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.group.priscilla_lavinia.day2.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/group/priscilla_lavinia_day2_post_challenge.dtl",
+      "day": 2,
+      "background": "background.dating.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.twofriends.priscilla_lavinia.day2.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/twofriends/priscilla_lavinia_day2_pre_challenge.dtl",
+      "day": 2,
+      "background": "background.dating.twofriends.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.twofriends.priscilla_lavinia.day2.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/twofriends/priscilla_lavinia_day2_post_challenge.dtl",
+      "day": 2,
+      "background": "background.dating.twofriends.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "hospital.faint.day2": {
+      "timeline": "res://dialogic/timelines/en/core/hospital_faint.dtl",
+      "day": 2,
+      "background": "background.core.hospital_faint",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day2.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day3.dtl",
+      "day": 3,
+      "background": "background.contacts.priscilla_day3",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day2.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day3.dtl",
+      "day": 3,
+      "background": "background.contacts.priscilla_day3",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day2.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day3.dtl",
+      "day": 3,
+      "background": "background.contacts.lavinia_day3",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day2.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day3.dtl",
+      "day": 3,
+      "background": "background.contacts.lavinia_day3",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.busy_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 3,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.busy_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 3,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.nevermind_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 3,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.nevermind_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 3,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.judge_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 3,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.judge_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 3,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.missed_question_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 3,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day2.missed_question_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day2.dtl",
+      "day": 3,
+      "background": "background.contacts.group.priscilla_lavinia_day2",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.ordinary.priscilla.day3": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day3.dtl",
+      "day": 3,
+      "background": "background.contacts.priscilla_day3",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day3.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day3.dtl",
+      "day": 3,
+      "background": "background.contacts.lavinia_day3",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day3.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day3.dtl",
+      "day": 3,
+      "background": "background.contacts.sylvia_day3",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.lavinia.day3.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/lavinia_day3_pre_challenge.dtl",
+      "day": 3,
+      "background": "background.dating.solo.lavinia_day3",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.lavinia.day3.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/lavinia_day3_post_challenge.dtl",
+      "day": 3,
+      "background": "background.dating.solo.lavinia_day3",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.sylvia.day3.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/sylvia_day3_pre_challenge.dtl",
+      "day": 3,
+      "background": "background.dating.solo.sylvia_day3",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.sylvia.day3.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/sylvia_day3_post_challenge.dtl",
+      "day": 3,
+      "background": "background.dating.solo.sylvia_day3",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "hospital.faint.day3": {
+      "timeline": "res://dialogic/timelines/en/core/hospital_faint.dtl",
+      "day": 3,
+      "background": "background.core.hospital_faint",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day3.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day4.dtl",
+      "day": 4,
+      "background": "background.contacts.lavinia_day4",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day3.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day4.dtl",
+      "day": 4,
+      "background": "background.contacts.lavinia_day4",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day3.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day4.dtl",
+      "day": 4,
+      "background": "background.contacts.sylvia_day4",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day3.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day4.dtl",
+      "day": 4,
+      "background": "background.contacts.sylvia_day4",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.hospital_care.sylvia.day4": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day4.dtl",
+      "day": 4,
+      "background": "background.contacts.sylvia_day4",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.ordinary.lavinia.day4": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day4.dtl",
+      "day": 4,
+      "background": "background.contacts.lavinia_day4",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day4.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day4.dtl",
+      "day": 4,
+      "background": "background.contacts.priscilla_day4",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day4.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day4.dtl",
+      "day": 4,
+      "background": "background.contacts.sylvia_day4",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.priscilla.day4.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/priscilla_day4_pre_challenge.dtl",
+      "day": 4,
+      "background": "background.dating.solo.priscilla_day4",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "dating.solo.priscilla.day4.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/priscilla_day4_post_challenge.dtl",
+      "day": 4,
+      "background": "background.dating.solo.priscilla_day4",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "dating.solo.sylvia.day4.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/sylvia_day4_pre_challenge.dtl",
+      "day": 4,
+      "background": "background.dating.solo.sylvia_day4",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.sylvia.day4.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/sylvia_day4_post_challenge.dtl",
+      "day": 4,
+      "background": "background.dating.solo.sylvia_day4",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "hospital.faint.day4": {
+      "timeline": "res://dialogic/timelines/en/core/hospital_faint.dtl",
+      "day": 4,
+      "background": "background.core.hospital_faint",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day4.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day5.dtl",
+      "day": 5,
+      "background": "background.contacts.priscilla_day5",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day4.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day5.dtl",
+      "day": 5,
+      "background": "background.contacts.priscilla_day5",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day4.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day5.dtl",
+      "day": 5,
+      "background": "background.contacts.sylvia_day5",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day4.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day5.dtl",
+      "day": 5,
+      "background": "background.contacts.sylvia_day5",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.hospital_care.sylvia.day5": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day5.dtl",
+      "day": 5,
+      "background": "background.contacts.sylvia_day5",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.ordinary.priscilla.day5": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day5.dtl",
+      "day": 5,
+      "background": "background.contacts.priscilla_day5",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day5.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day5.dtl",
+      "day": 5,
+      "background": "background.contacts.lavinia_day5",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day5.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day5.dtl",
+      "day": 5,
+      "background": "background.contacts.sylvia_day5",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.lavinia.day5.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/lavinia_day5_pre_challenge.dtl",
+      "day": 5,
+      "background": "background.dating.solo.lavinia_day5",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.lavinia.day5.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/lavinia_day5_post_challenge.dtl",
+      "day": 5,
+      "background": "background.dating.solo.lavinia_day5",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.sylvia.day5.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/sylvia_day5_pre_challenge.dtl",
+      "day": 5,
+      "background": "background.dating.solo.sylvia_day5",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.sylvia.day5.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/sylvia_day5_post_challenge.dtl",
+      "day": 5,
+      "background": "background.dating.solo.sylvia_day5",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "hospital.faint.day5": {
+      "timeline": "res://dialogic/timelines/en/core/hospital_faint.dtl",
+      "day": 5,
+      "background": "background.core.hospital_faint",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day5.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.lavinia_day6",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day5.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.lavinia_day6",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day5.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.sylvia_day6",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.sylvia.day5.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.sylvia_day6",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.hospital_care.sylvia.day6": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.sylvia_day6",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.ordinary.sylvia.day6": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.sylvia_day6",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day6.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.priscilla_day6",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day6.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.lavinia_day6",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.first_open_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.first_open_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.second_open_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.second_open_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.need_reply_priscilla_first": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.need_reply_lavinia_first": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 6,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.priscilla.day6.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/priscilla_day6_pre_challenge.dtl",
+      "day": 6,
+      "background": "background.dating.solo.priscilla_day6",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "dating.solo.priscilla.day6.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/priscilla_day6_post_challenge.dtl",
+      "day": 6,
+      "background": "background.dating.solo.priscilla_day6",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "dating.solo.lavinia.day6.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/lavinia_day6_pre_challenge.dtl",
+      "day": 6,
+      "background": "background.dating.solo.lavinia_day6",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.solo.lavinia.day6.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/solo/lavinia_day6_post_challenge.dtl",
+      "day": 6,
+      "background": "background.dating.solo.lavinia_day6",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.group.priscilla_lavinia.day6.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/group/priscilla_lavinia_day6_pre_challenge.dtl",
+      "day": 6,
+      "background": "background.dating.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.group.priscilla_lavinia.day6.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/group/priscilla_lavinia_day6_post_challenge.dtl",
+      "day": 6,
+      "background": "background.dating.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.twofriends.priscilla_lavinia.day6.pre_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/twofriends/priscilla_lavinia_day6_pre_challenge.dtl",
+      "day": 6,
+      "background": "background.dating.twofriends.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "dating.twofriends.priscilla_lavinia.day6.post_challenge": {
+      "timeline": "res://dialogic/timelines/en/dating/twofriends/priscilla_lavinia_day6_post_challenge.dtl",
+      "day": 6,
+      "background": "background.dating.twofriends.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "hospital.faint.day6": {
+      "timeline": "res://dialogic/timelines/en/core/hospital_faint.dtl",
+      "day": 6,
+      "background": "background.core.hospital_faint",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day6.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day7.dtl",
+      "day": 7,
+      "background": "background.contacts.priscilla_day7",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.priscilla.day6.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day7.dtl",
+      "day": 7,
+      "background": "background.contacts.priscilla_day7",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day6.nevermind": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day7.dtl",
+      "day": 7,
+      "background": "background.contacts.lavinia_day7",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.solo.lavinia.day6.missed_question": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day7.dtl",
+      "day": 7,
+      "background": "background.contacts.lavinia_day7",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.busy_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 7,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.busy_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 7,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.nevermind_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 7,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.nevermind_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 7,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.judge_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 7,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.judge_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 7,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.missed_question_priscilla": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 7,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.group.priscilla_lavinia.day6.missed_question_lavinia": {
+      "timeline": "res://dialogic/timelines/en/contacts/group/priscilla_lavinia_day6.dtl",
+      "day": 7,
+      "background": "background.contacts.group.priscilla_lavinia_day6",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.ending.priscilla.day7.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/priscilla_day7.dtl",
+      "day": 7,
+      "background": "background.contacts.priscilla_day7",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.ending.lavinia.day7.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/lavinia_day7.dtl",
+      "day": 7,
+      "background": "background.contacts.lavinia_day7",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": ""
+    },
+    "contact.invitation.ending.sylvia.day7.offer": {
+      "timeline": "res://dialogic/timelines/en/contacts/sylvia_day7.dtl",
+      "day": 7,
+      "background": "background.contacts.sylvia_day7",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "echo.fallback.day7": {
+      "timeline": "res://dialogic/timelines/en/core/echo_fallback_day7.dtl",
+      "day": 7,
+      "background": "background.core.echo_fallback_day7",
+      "portraits": [],
+      "cg": ""
+    },
+    "hospital.faint.day7": {
+      "timeline": "res://dialogic/timelines/en/core/hospital_faint.dtl",
+      "day": 7,
+      "background": "background.core.hospital_faint",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": ""
+    },
+    "ending.priscilla.sweet": {
+      "timeline": "res://dialogic/timelines/en/ending/priscilla.dtl",
+      "day": null,
+      "background": "background.ending.priscilla",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": "cg.ending.priscilla.sweet"
+    },
+    "ending.priscilla.dark": {
+      "timeline": "res://dialogic/timelines/en/ending/priscilla.dtl",
+      "day": null,
+      "background": "background.ending.priscilla",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": "cg.ending.priscilla.dark"
+    },
+    "ending.priscilla.observer.full": {
+      "timeline": "res://dialogic/timelines/en/ending/priscilla.dtl",
+      "day": null,
+      "background": "background.ending.priscilla",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": "cg.ending.priscilla.observer.full"
+    },
+    "ending.priscilla.observer.residue": {
+      "timeline": "res://dialogic/timelines/en/ending/priscilla.dtl",
+      "day": null,
+      "background": "background.ending.priscilla",
+      "portraits": [
+        "character.priscilla"
+      ],
+      "cg": "cg.ending.priscilla.observer.residue"
+    },
+    "ending.lavinia.sweet": {
+      "timeline": "res://dialogic/timelines/en/ending/lavinia.dtl",
+      "day": null,
+      "background": "background.ending.lavinia",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": "cg.ending.lavinia.sweet"
+    },
+    "ending.lavinia.dark": {
+      "timeline": "res://dialogic/timelines/en/ending/lavinia.dtl",
+      "day": null,
+      "background": "background.ending.lavinia",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": "cg.ending.lavinia.dark"
+    },
+    "ending.lavinia.observer.full": {
+      "timeline": "res://dialogic/timelines/en/ending/lavinia.dtl",
+      "day": null,
+      "background": "background.ending.lavinia",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": "cg.ending.lavinia.observer.full"
+    },
+    "ending.lavinia.observer.residue": {
+      "timeline": "res://dialogic/timelines/en/ending/lavinia.dtl",
+      "day": null,
+      "background": "background.ending.lavinia",
+      "portraits": [
+        "character.lavinia"
+      ],
+      "cg": "cg.ending.lavinia.observer.residue"
+    },
+    "ending.sylvia.sweet": {
+      "timeline": "res://dialogic/timelines/en/ending/sylvia.dtl",
+      "day": null,
+      "background": "background.ending.sylvia",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": "cg.ending.sylvia.sweet"
+    },
+    "ending.sylvia.dark": {
+      "timeline": "res://dialogic/timelines/en/ending/sylvia.dtl",
+      "day": null,
+      "background": "background.ending.sylvia",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": "cg.ending.sylvia.dark"
+    },
+    "ending.sylvia.special.full": {
+      "timeline": "res://dialogic/timelines/en/ending/sylvia.dtl",
+      "day": null,
+      "background": "background.ending.sylvia",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": "cg.ending.sylvia.special.full"
+    },
+    "ending.sylvia.special.residue": {
+      "timeline": "res://dialogic/timelines/en/ending/sylvia.dtl",
+      "day": null,
+      "background": "background.ending.sylvia",
+      "portraits": [
+        "character.sylvia"
+      ],
+      "cg": "cg.ending.sylvia.special.residue"
+    },
+    "ending.priscilla_lavinia.sweet": {
+      "timeline": "res://dialogic/timelines/en/ending/priscilla_lavinia.dtl",
+      "day": null,
+      "background": "background.ending.priscilla_lavinia",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": "cg.ending.priscilla_lavinia.sweet"
+    },
+    "ending.priscilla_lavinia.dark": {
+      "timeline": "res://dialogic/timelines/en/ending/priscilla_lavinia.dtl",
+      "day": null,
+      "background": "background.ending.priscilla_lavinia",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": "cg.ending.priscilla_lavinia.dark"
+    },
+    "ending.priscilla_lavinia.observer.full": {
+      "timeline": "res://dialogic/timelines/en/ending/priscilla_lavinia.dtl",
+      "day": null,
+      "background": "background.ending.priscilla_lavinia",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": "cg.ending.priscilla_lavinia.observer.full"
+    },
+    "ending.priscilla_lavinia.observer.residue": {
+      "timeline": "res://dialogic/timelines/en/ending/priscilla_lavinia.dtl",
+      "day": null,
+      "background": "background.ending.priscilla_lavinia",
+      "portraits": [
+        "character.priscilla",
+        "character.lavinia"
+      ],
+      "cg": "cg.ending.priscilla_lavinia.observer.residue"
+    },
+    "ending.alone.normal": {
+      "timeline": "res://dialogic/timelines/en/ending/alone.dtl",
+      "day": null,
+      "background": "background.ending.alone",
+      "portraits": [],
+      "cg": "cg.ending.alone.normal"
+    },
+    "ending.alone.dark_mode": {
+      "timeline": "res://dialogic/timelines/en/ending/alone.dtl",
+      "day": null,
+      "background": "background.ending.alone",
+      "portraits": [],
+      "cg": "cg.ending.alone.dark_mode"
+    },
+    "opening.day1": {
+      "timeline": "res://dialogic/timelines/en/core/opening_day1.dtl",
+      "day": 1,
+      "background": "background.core.opening_day1",
+      "portraits": [],
+      "cg": ""
+    },
+    "tutorial.desktop_day1": {
+      "timeline": "res://dialogic/timelines/en/core/tutorial_desktop_day1.dtl",
+      "day": 1,
+      "background": "background.core.tutorial_desktop_day1",
+      "portraits": [],
+      "cg": ""
+    }
+  }
+}

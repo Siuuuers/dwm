@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## A witnessed staging card. Ordering, provenance and persistence belong to its caller.
 signal card_acknowledged(receipt: Dictionary, result: Dictionary)
+const SCENE_ART := preload("res://scripts/ui/art/SceneArtView.gd")
 const COPY := {
 	"en": ["Next", "Retry", "This moment could not be saved. Please try again.", "Unable to continue. Please try again."],
 	"zh-CN": ["\u4e0b\u4e00\u9879", "\u91cd\u8bd5", "\u6682\u65f6\u65e0\u6cd5\u4fdd\u5b58\u8fd9\u4e00\u523b\uff0c\u8bf7\u91cd\u8bd5\u3002", "\u6682\u65f6\u65e0\u6cd5\u7ee7\u7eed\uff0c\u8bf7\u91cd\u8bd5\u3002"],
@@ -17,6 +18,8 @@ var _accepted := false
 var _busy := false
 var _history: Array[Dictionary] = []
 var _root: Control
+var _scene_art: SCENE_ART
+var _reading_margin: MarginContainer
 var _history_list: VBoxContainer
 var _scroll: ScrollContainer
 var _current_body: Label
@@ -86,7 +89,12 @@ func _ready() -> void:
 	backdrop.color = Color("202631")
 	_root.add_child(backdrop)
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_scene_art = SCENE_ART.new()
+	_scene_art.name = "SceneArt"
+	_root.add_child(_scene_art)
+	_scene_art.hide()
 	var margin := MarginContainer.new()
+	_reading_margin = margin
 	_root.add_child(margin)
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for edge: String in ["left", "right"]: margin.add_theme_constant_override("margin_" + edge, 96)
@@ -129,6 +137,7 @@ func _ready() -> void:
 	else: _append_card()
 
 func _append_card() -> void:
+	_refresh_scene_art()
 	_status.text = ""
 	_next.text = _copy(0)
 	_next.disabled = true
@@ -145,6 +154,15 @@ func _append_card() -> void:
 	_current_body.draw.connect(_on_body_drawn.bind(_card.receipt.duplicate(true)))
 	_history_list.add_child(_current_body)
 	_reveal_current_card.call_deferred(str(_card.receipt.view_token))
+
+func _refresh_scene_art() -> void:
+	# GalleryTheme uses 24/30/36 px at the three supported reading sizes.
+	var font_size := _root.get_theme_default_font_size()
+	var percent := 150 if font_size >= 36 else (125 if font_size >= 30 else 100)
+	_scene_art.configure_entry(str(_card.receipt.entry_id), percent)
+	# Keep the existing opaque reading panel below art; absent images preserve its layout.
+	_reading_margin.add_theme_constant_override("margin_top",
+		int(_scene_art.size.y) if _scene_art.visible else 48)
 
 func _on_body_drawn(receipt: Dictionary) -> void:
 	if receipt != _card.receipt or _drawn or not is_instance_valid(_current_body) \
