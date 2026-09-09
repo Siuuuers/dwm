@@ -36,6 +36,11 @@ GUT batch also exposed a v5 save-lock fixture missing v6 fields; only that fixtu
 was repaired, with production validation and assertions unchanged. Its isolated
 rerun passed 5/5 tests and 77 assertions before the complete focused batch above.
 Log suffixes retain their original names; the checks ran on September 9 UTC.
+After moving the main checkout to merge `68667aae8`, its imports were refreshed
+and its own 26-scene smoke and real startup-to-Day-2 journey also passed
+(`master-main-scene-smoke-20260909.log` and
+`master-main-playable-startup-20260909.log`). Initial first-import font-cache
+diagnostics did not recur in those post-import checks.
 Known Dialogic orphan/NUL diagnostics and the previously recorded save-latency
 and richer-audio follow-ups remain; this integration is not a release-certification
 claim. Launch the main checkout using [the playtest guide](playable-build.md).
