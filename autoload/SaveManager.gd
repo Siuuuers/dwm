@@ -187,7 +187,7 @@ func record_stable_checkpoint(checkpoint_inputs: Dictionary, checkpoint_kind: St
 	if not peeked.get("ok", false):
 		return peeked
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
-		checkpoint_inputs["snapshot_input"], checkpoint_inputs["dialogic_checkpoint"],
+		_compose_live_checkpoint_input(checkpoint_inputs["snapshot_input"]), checkpoint_inputs["dialogic_checkpoint"],
 		str(checkpoint_inputs["route_id"]), checkpoint_inputs["active_app_id"],
 		checkpoint_inputs["audio_context"], int(checkpoint_inputs["content_version"]),
 		int(peeked["value"]["checkpoint_sequence"]))
@@ -1543,6 +1543,12 @@ func _capture_backup_inputs() -> Dictionary:
 		return _fail(&"backup_capture_unavailable", "A qualified desktop or paused Dating capture is required")
 	return {"ok": true, "value": inputs}
 
+func _compose_live_checkpoint_input(snapshot_input: Dictionary) -> Dictionary:
+	var view: Object = _restore_participants.get("schedule_view")
+	if is_instance_valid(view) and view.has_method("compose_live_checkpoint_input"):
+		return view.compose_live_checkpoint_input(snapshot_input)
+	return snapshot_input
+
 func _backup_journal_hash() -> String:
 	return _canonical_sha256(_journal.capture_state()["value"]["backup"])
 
@@ -1556,7 +1562,7 @@ func _prepare_backup_capture() -> Dictionary:
 	var sequence: Dictionary = _journal.peek_next_sequence(run_id)
 	if not sequence.get("ok", false):
 		return sequence
-	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(inputs["snapshot_input"], inputs["dialogic_checkpoint"],
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_compose_live_checkpoint_input(inputs["snapshot_input"]), inputs["dialogic_checkpoint"],
 		inputs["route_id"], inputs["active_app_id"], inputs["audio_context"], inputs["content_version"], sequence["value"]["checkpoint_sequence"])
 	if not built.get("ok", false):
 		return built

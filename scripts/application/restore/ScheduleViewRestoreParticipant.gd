@@ -60,6 +60,23 @@ func _init(controller: Object, registry: Object, issuer: Object, remapper: Objec
 	_remapper = remapper
 
 
+## Live capture only: pair an uncommitted draft with the registry already held by its owner.
+## Disk validation/restore never calls this; historical empty/null and any nonnull fingerprint
+## retain their meaning. Capturing a draft neither commits Schedule nor spends motivation.
+func compose_live_checkpoint_input(snapshot_input: Dictionary) -> Dictionary:
+	var view: Variant = snapshot_input.get("schedule_view")
+	var committed: Variant = snapshot_input.get("committed_schedule")
+	if view is Dictionary and view.get("entries") is Array and not view.entries.is_empty() \
+			and committed is Dictionary and committed.has_all(["registry_fingerprint", "entries", "commit_receipt"]) \
+			and committed.registry_fingerprint == null and committed.get("entries") is Array \
+			and committed.entries.is_empty() and committed.commit_receipt == null:
+		var candidate := snapshot_input.duplicate(true)
+		candidate.committed_schedule.registry_fingerprint = str(_registry.fingerprint())
+		return candidate
+	# Every caller immediately builds the detached schema candidate; no clone is needed here.
+	return snapshot_input
+
+
 ## Pure. Never touches the live controller. The value is exactly
 ## {schedule_view_plan: {candidate: <detached view>}}.
 func prepare(input: Dictionary) -> Dictionary:

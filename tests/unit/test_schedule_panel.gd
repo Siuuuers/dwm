@@ -260,3 +260,26 @@ func test_real_chinese_action_copy_fits_without_placeholders_and_keeps_character
 		assert_true(panel.set_projection(_projection([], false, sources)),
 			"all real Chinese action names fit at maximum text size")
 		panel.hide()
+
+func test_motivation_refusal_is_localized_fits_and_retains_semantics_after_reflow() -> void:
+	var expected := {"en":"Not enough Motivation.","zh-CN":"动力不足。","zh-HK":"動力不足。"}
+	for locale: String in expected:
+		for percent: int in [100,125,150]:
+			for large: bool in [false,true]:
+				var panel := _panel(locale,percent,large)
+				var projection := _projection([_entry("a","Rest")])
+				assert_true(panel.set_projection(projection,"a"))
+				watch_signals(panel)
+				panel.set_refusal_status("affordability-1",&"insufficient_motivation")
+				await get_tree().process_frame
+				var status: Label = panel.get_node("DockStatus")
+				assert_eq(status.text,expected[locale])
+				assert_lte(status.get_minimum_size().y,status.size.y)
+				assert_lte(status.get_rect().end.x,panel.done_button.position.x)
+				assert_true(panel.set_projection(projection,"a"))
+				assert_eq(panel.get_node("DockStatus").text,expected[locale])
+				assert_signal_emit_count(panel,"status_announced",1)
+				assert_true(panel.configure("en",percent,large))
+				assert_eq(panel.get_node("DockStatus").text,expected.en)
+				assert_signal_emit_count(panel,"status_announced",1)
+				panel.hide()

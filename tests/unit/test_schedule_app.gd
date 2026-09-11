@@ -835,3 +835,27 @@ func _assert_done_route_retirement(queue_source: bool) -> void:
 	if not queue_source: source.queue_free()
 	destination.queue_free()
 	await tree.process_frame
+
+func _unaffordable_done() -> Dictionary:
+	return {"ok":false,"code":&"insufficient_motivation","details":{"required":7,"available":5}}
+
+func test_unaffordable_done_keeps_docket_editable_and_restores_done_focus() -> void:
+	assert_true(_app.configure_presentation(_port,"en",100,false,_unaffordable_done).ok)
+	_app.panel.source_buttons.rest.pressed.emit()
+	await get_tree().process_frame
+	var retained: Dictionary = _view.snapshot().value.view
+	var selected: String = _app.panel.selected_id
+	_app.panel.done_button.grab_focus()
+	_app.panel.done_button.pressed.emit()
+	await get_tree().process_frame
+	assert_true(_app.last_result.ok)
+	assert_true(_app.panel.visible)
+	assert_eq(_view.snapshot().value.view,retained)
+	assert_eq(_app.panel.selected_id,selected)
+	assert_true(_app.panel.done_button.has_focus())
+	var status: Label = _app.panel.get_node_or_null("DockStatus")
+	assert_not_null(status)
+	if status != null: assert_true(status.text.contains("Motivation"))
+	_app.panel.commands.remove.pressed.emit()
+	assert_true(_view.snapshot().value.view.entries.is_empty())
+	assert_null(_app.panel.get_node_or_null("DockStatus"))

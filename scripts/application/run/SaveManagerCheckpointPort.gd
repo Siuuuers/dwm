@@ -181,6 +181,11 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 			merged_view = derived_view
 		snapshot_input = (snapshot_input as Dictionary).duplicate(true)
 		snapshot_input["schedule_view"] = merged_view
+	# The final captured view may be an uncommitted draft. Bind its retained live registry
+	# on the detached checkpoint only; strict saved-document validation remains unchanged.
+	var view_participant: Object = _restore_participants().get("schedule_view")
+	if is_instance_valid(view_participant) and view_participant.has_method("compose_live_checkpoint_input"):
+		snapshot_input = view_participant.compose_live_checkpoint_input(snapshot_input)
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
 		snapshot_input, checkpoint_inputs["dialogic_checkpoint"],
 		str(checkpoint_inputs["route_id"]), active_app_id,

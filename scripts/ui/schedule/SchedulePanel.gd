@@ -23,6 +23,11 @@ const COPY := {
 	"zh-CN": ["可选", "提前", "延后", "移除", "完成", "不可用"],
 	"zh-HK": ["可選", "提前", "延後", "移除", "完成", "不可用"],
 }
+const MOTIVATION_REFUSAL := {
+	"en": "Not enough Motivation.",
+	"zh-CN": "动力不足。",
+	"zh-HK": "動力不足。",
+}
 const BREAKS := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 
 var source_buttons: Dictionary = {}
@@ -44,6 +49,7 @@ var _done_enabled := false
 var _drag_entry_id := ""
 var _projection_revision := 0
 var _refusal_id := ""
+var _refusal_code: StringName = &""
 var _status_nodes: Array[Node] = []
 var _last_announced_refusal_id := ""
 var _source_rows: Array[Dictionary] = []
@@ -104,9 +110,10 @@ func set_done_enabled(enabled: bool) -> void:
 		done_button.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 		_wire_focus()
 
-func set_refusal_status(refusal_id: String) -> void:
+func set_refusal_status(refusal_id: String, code: StringName = &"") -> void:
 	if refusal_id.is_empty() or refusal_id == _refusal_id: return
 	_refusal_id = refusal_id
+	_refusal_code = code
 	_rebuild_status(refusal_id != _last_announced_refusal_id)
 	if refusal_id != _last_announced_refusal_id:
 		_last_announced_refusal_id = refusal_id
@@ -114,6 +121,7 @@ func set_refusal_status(refusal_id: String) -> void:
 
 func clear_status() -> void:
 	_refusal_id = ""
+	_refusal_code = &""
 	_clear_status_nodes()
 
 func set_projection(value: Dictionary, inspection: String = "", focus_key: String = "", preserve_scroll: bool = false) -> bool:
@@ -370,7 +378,8 @@ func _build_status(announce: bool = false) -> void:
 	var text_rect: Rect2 = Rect2(40,576,600,64) if _large else Rect2(40,584,600,48)
 	var before: int = get_child_count()
 	_paper(self,rule_rect,"structure")
-	var status: Label = _label(self,COPY[_locale][5],text_rect,"ink")
+	var copy: String = MOTIVATION_REFUSAL[_locale] if _refusal_code == &"insufficient_motivation" else COPY[_locale][5]
+	var status: Label = _label(self,copy,text_rect,"ink")
 	status.name = "DockStatus"
 	# Reconstructing the same fact for layout must not request live speech again.
 	status.accessibility_live = DisplayServer.LIVE_POLITE if announce else DisplayServer.LIVE_OFF

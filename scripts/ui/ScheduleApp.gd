@@ -396,6 +396,10 @@ func _publish(result: Dictionary, selected: String = "", focus_key: String = "",
 	return last_result
 
 func _refused(result: Dictionary) -> void:
+	if str(result.get("code","")) == "insufficient_motivation":
+		panel.set_refusal_status(str(_command_sequence),&"insufficient_motivation")
+		panel.focus_target("done")
+		return
 	if str(result.get("code","")) in ["stale_view_fingerprint","schedule_source_unavailable"]:
 		var focus_key := _focused_key()
 		var refreshed := _publish(_port.project(_locale),panel.selected_id,focus_key,true)

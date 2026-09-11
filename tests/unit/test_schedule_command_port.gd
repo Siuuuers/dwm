@@ -45,6 +45,7 @@ class Issuer extends RefCounted:
 
 class CommitPort extends RefCounted:
 	var prepare_calls: Array = []
+	var prepare_results: Array = []
 	var capture_calls := 0
 	var commit_calls := 0
 	var rollback_calls: Array = []
@@ -53,6 +54,7 @@ class CommitPort extends RefCounted:
 
 	func prepare_commit(request: Dictionary) -> Dictionary:
 		prepare_calls.append(request.duplicate(true))
+		if not prepare_results.is_empty(): return prepare_results.pop_front()
 		return {"ok": true, "code": &"ok", "value": {
 			"game_state_candidate": {"candidate": "prepared"},
 			"committed_schedule": {"day": int(request["day"]), "transaction_id": str(request["transaction_id"])},
@@ -196,3 +198,24 @@ func test_failed_publication_rolls_back_unpublished_state_and_retries_the_same_t
 	assert_eq(_commit.publish_calls.size(), 2)
 	assert_eq(_commit.rollback_calls.size(), 1)
 	assert_eq(_dispatcher.command_ids, ["done-tx-1:resolution"])
+
+func test_unaffordable_draft_refusal_releases_preparation_for_an_amended_docket() -> void:
+	if not _require_port(): return
+	_view.view.entries.clear()
+	for index in 7:
+		_view.view.entries.append({"draft_entry_id":"draft-%d" % index,"slot_index":index,"action_id":"training"})
+	_commit.prepare_results = [{"ok":false,"code":&"insufficient_motivation","details":{"required":7,"available":5}}]
+	var original: Dictionary = _view.view.duplicate(true)
+	var failed: Dictionary = _port.dispatch_done()
+	assert_eq(failed.code,&"insufficient_motivation")
+	assert_eq(_view.view,original)
+	assert_eq(_commit.commit_calls,0)
+	assert_eq(_commit.publish_calls,[])
+	assert_eq(_dispatcher.command_ids,[])
+	_view.view.entries.resize(5)
+	var retried: Dictionary = _port.dispatch_done()
+	assert_true(retried.ok,str(retried))
+	assert_eq(_commit.prepare_calls[1].draft_entries,_view.view.entries)
+	assert_eq(_commit.prepare_calls[1].draft_entries.size(),5)
+	assert_ne(_commit.prepare_calls[0].transaction_id,_commit.prepare_calls[1].transaction_id)
+	assert_eq(_commit.commit_calls,1)

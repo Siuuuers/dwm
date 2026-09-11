@@ -140,7 +140,12 @@ func _resume_command() -> Dictionary:
 			"registry_fingerprint": _registry_fingerprint,
 		})
 		if not _is_success_with_dictionary(prepared, "game_state_candidate"):
-			return _typed_result(prepared, &"invalid_schedule_commit_preparation")
+			var refusal := _typed_result(prepared, &"invalid_schedule_commit_preparation")
+			# Affordability refuses before creating a candidate or charging Motivation.
+			# The player may amend the docket; their next Done must capture that draft.
+			if not refusal.get("ok", false) and refusal.get("code") == &"insufficient_motivation":
+				_inflight = {}
+			return refusal
 		var prepared_value := (prepared as Dictionary)["value"] as Dictionary
 		if typeof(prepared_value.get("game_state_candidate")) != TYPE_DICTIONARY \
 				or typeof(prepared_value.get("committed_schedule")) != TYPE_DICTIONARY \
