@@ -32,11 +32,17 @@ Shop and Schedule filenames are listed in [asset-paths.csv](asset-paths.csv); th
 
 [scene-map.csv](scene-map.csv) lists all 137 registered semantic entries plus Opening and Tutorial, with the original `.dtl` path, day, background, up to two fixed portraits, and optional ending CG. The game still uses the existing scene-based DTL organization. No eight-master conversion is needed.
 
-For example, the Priscilla Day 1 date uses `art/environments/dating/solo/priscilla_day1.png` and `art/characters/priscilla/scene.png`. Check the CSV for the exact background path before exporting. Its pre- and post-challenge entries share the same pictures. A pair scene uses the same two character files throughout, without expression or result variants. Solitude scenes have no companion portrait. Hospital only shows Sylvia when the current route proves her attendance; merely adding her portrait never creates attendance.
+For example, the Priscilla Day 1 date uses `art/environments/dating/solo/priscilla_day1.png` and `art/characters/priscilla/scene.png`. Check the CSV for the exact background path before exporting. Its pre- and post-challenge entries share the same pictures. A pair scene uses the same two character files throughout, without expression or result variants. Solitude scenes have no companion portrait. Only a Hospital visit with proven Sylvia attendance uses the Hospital DTL, background, and portrait. Ordinary fainting shows a short "You fainted." notice with Continue; it needs no artwork or dialogue, and its recovery effects are unchanged. Merely adding Sylvia's portrait never creates attendance.
 
 When a return-only or empty DTL entry has a loaded background, portrait, or CG, it stays visible until you press Continue. Text-bearing scenes keep their normal dialogue flow. Art-only scenes also honor Pause and live text-size/language changes. Opening and Tutorial have registered placements for their existing timeline IDs; this change does not add a new intro route to the current direct-to-desktop New Account flow.
 
 The catalog is [data/manifests/art_placements.json](../data/manifests/art_placements.json). Its `assets` section maps IDs to paths, and `scenes` assigns those IDs to exact entries. You can reuse any image by pointing several asset records at one path, or assign a different fixed portrait to one scene. No GDScript change is needed. Only imported PNG, SVG, WebP, JPG, and JPEG images are accepted; if you use another supported extension, update the catalog path too.
+
+## Preview Dating scenes before writing dialogue
+
+Open [DialogicPreview.tscn](../tests/manual/dialogic_preview/DialogicPreview.tscn) and press **F6**. The separate preview folder contains editable placeholder DTLs for all 32 Dating entries and seven Sylvia-present Hospital day variants. It reads the same art placements, with optional Inspector texture overrides and test silhouettes for missing pictures. See its [short guide](../tests/manual/dialogic_preview/README.md). Run it directly as a scene; it does not advance your game.
+
+The title now places **DWM**, **Welcome! :)**, and account-startup status over the right-side illustration slot. Keep that text area legible when painting `art/ui/title/background.png`.
 
 ## Composition and Gallery
 
