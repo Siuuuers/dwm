@@ -58,6 +58,14 @@ func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(func(_control: Control): remember_focus())
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
+	if get_parent() is Control: get_parent().resized.connect(_fit_host)
+	_fit_host()
+
+func _fit_host() -> void:
+	var host := get_parent() as Control
+	if host == null or host.size.x <= 0 or host.size.y <= 0: return
+	var factor := minf(1.0,minf(host.size.x/800.0,host.size.y/656.0))
+	scale = Vector2.ONE * factor
 
 func _process(_delta: float) -> void:
 	if _busy or not _preparation_foreground or not is_visible_in_tree() or get_tree().paused or _port == null \

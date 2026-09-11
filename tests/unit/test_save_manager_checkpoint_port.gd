@@ -119,7 +119,17 @@ func test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt() -> voi
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	var receipt: Dictionary = prepared["value"]["checkpoint_receipt"]
 	assert_true(str(receipt["receipt_id"]).begins_with("consequence_checkpoint."))
-	assert_eq(receipt["header"], _header())
+	var expected_header := _header()
+	expected_header["kind"] = String(expected_header["kind"])
+	assert_eq(receipt["header"], expected_header)
+	assert_eq(typeof(receipt["header"]["kind"]), TYPE_STRING)
+	assert_eq(typeof(receipt["header"]["operation_ordinal"]), TYPE_INT,
+		"canonical StringName normalization must not turn receipt ordinals into floats")
+	var numeric_probe: Dictionary = port._normalize_json_string_types(
+		{"integer": 7, "fraction": 1.25, "name": &"probe"})
+	assert_eq(typeof(numeric_probe["integer"]), TYPE_INT)
+	assert_eq(typeof(numeric_probe["fraction"]), TYPE_FLOAT)
+	assert_eq(typeof(numeric_probe["name"]), TYPE_STRING)
 	# Mutation-free: nothing is written to disk yet.
 	assert_false(FileAccess.file_exists(str(wired["root"]).path_join("desktop-consequence-checkpoint.json")))
 
@@ -160,6 +170,21 @@ func test_commit_consequence_checkpoint_retains_and_rereads_in_same_process() ->
 		_canonical_text(prepared.value.candidate.document.stage_candidate))
 	assert_false(FileAccess.file_exists(str(wired["root"]).path_join("desktop-consequence-checkpoint.json")),
 		"transient recovery never creates the legacy sidecar")
+
+func test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	for index: int in 10:
+		var transaction_id := "cache-txn-" + str(index)
+		var prepared: Dictionary = port.prepare_consequence_checkpoint(
+			_header(transaction_id), _admitted_state_candidate(transaction_id))
+		assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	assert_eq((port.get("_issued_transient_records") as Dictionary).size(), 8)
+	assert_eq((port.get("_issued_transient_order") as Array).size(), 8)
+	port.clear_transient_consequence_checkpoints()
+	assert_true((port.get("_issued_transient_records") as Dictionary).is_empty())
+	assert_true((port.get("_issued_transient_order") as Array).is_empty())
+
 
 func test_commit_consequence_checkpoint_rejects_a_receipt_mismatch() -> void:
 	var wired := _isolated_wired()

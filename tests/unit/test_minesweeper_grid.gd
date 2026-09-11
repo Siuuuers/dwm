@@ -97,7 +97,7 @@ func test_modes_and_explicit_actions_never_infer_illegal_commands() -> void:
 	assert_eq(grid._pointer_action(0,MOUSE_BUTTON_RIGHT),&"","NONE projection does not invent pre-Reveal Flag.")
 	assert_eq(grid._mode_action(1),&"","Reveal mode does not Reveal a Flag.")
 	assert_true(grid.set_mode(&"flag"))
-	assert_eq(grid._mode_action(2),&"","Flag mode does not Flag a revealed number.")
+	assert_eq(grid._mode_action(2),&"chord","Flag mode still admits the published Chord action.")
 	assert_eq(grid._mode_action(1),&"unflag")
 	assert_true(grid.set_mode(&"drag"))
 	assert_eq(grid._mode_action(0),&"")

@@ -152,10 +152,12 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 
 func select_difficulty(difficulty: String, expected_revision: int) -> Dictionary:
 	_discard_stale_terminal()
-	if not _held_terminal.is_empty(): return _refused_without_refresh()
+	if not _held_terminal.is_empty() and (expected_revision != int(_held_terminal.board.revision) \
+			or difficulty not in _held_terminal.register.difficulty_enabled): return _refused_without_refresh()
 	if not _has_fresh_difficulty(): return _refused()
 	var result: Dictionary = _board_port.select_difficulty(difficulty, expected_revision)
 	if not result.get("ok", false): return _refused()
+	_clear_held_terminal()
 	return pull()
 
 
@@ -197,6 +199,10 @@ func _terminal_view(board: Dictionary, prior_register: Dictionary, assignments: 
 	register["mine_estimate"] = board.get("mine_estimate")
 	register["custody"] = true
 	register["difficulty_enabled"] = []
+	if settled:
+		var configuration: Dictionary = _board_port.get_configuration(board)
+		if not configuration.get("ok",false): return {}
+		register["difficulty_enabled"] = configuration.value.difficulty_enabled.duplicate()
 	return {
 		"board": board.duplicate(true), "register": register,
 		"assignments": assignments.duplicate(),

@@ -130,8 +130,7 @@ func _valid(value: Dictionary) -> bool:
 		if typeof(action) != TYPE_STRING or action not in ACTIONS or action in seen: return false
 		seen.append(action)
 	if value.settled:
-		return value.board.terminal and value.board.custody and seen == SETTLED_ACTIONS \
-			and value.register.get("difficulty_enabled") == []
+		return value.board.terminal and value.board.custody and seen == SETTLED_ACTIONS
 	if value.board.custody:
 		return value.actions.is_empty() and value.register.get("difficulty_enabled") == []
 	var expected: Array = PLAY_ACTIONS.duplicate()
@@ -177,7 +176,7 @@ func _apply_availability() -> void:
 		or (public_view.get("board",{}).get("custody",true) and not settled)
 	worksheet.set_interaction_blocked(_failed or settled)
 	for key: String in register.difficulties:
-		register.difficulties[key].present_state(not blocked and not settled \
+		register.difficulties[key].present_state(not blocked \
 			and key in register.public_view.difficulty_enabled,key == register.public_view.difficulty)
 	dock.present(worksheet.grid.mode,public_view.get("actions",[]),blocked)
 	_wire_focus()
@@ -228,8 +227,8 @@ func _dispatch(action: StringName, index: int, revision: int) -> void:
 
 func _select_difficulty(difficulty: StringName) -> void:
 	if _failed or worksheet.information_sheet != null or not is_instance_valid(_port) \
-			or not _port.has_method("select_difficulty") or public_view.get("settled",false) \
-			or public_view.board.custody or String(difficulty) == public_view.register.difficulty \
+			or not _port.has_method("select_difficulty") \
+			or (public_view.board.custody and not public_view.settled) or String(difficulty) == public_view.register.difficulty \
 			or String(difficulty) not in public_view.register.difficulty_enabled: return
 	if _receive(_port.call("select_difficulty",String(difficulty),int(public_view.board.revision))):
 		worksheet.set_mode(&"reveal")
@@ -247,3 +246,17 @@ func _fail(code: StringName) -> bool:
 	_apply_availability()
 	presentation_failed.emit(code)
 	return false
+
+func _input(event: InputEvent) -> void:
+	# A settled board has no cell focus. Space uses its published New Board action.
+	if not event is InputEventKey or not event.pressed or event.echo or event.keycode != KEY_SPACE: return
+	if not is_visible_in_tree() or not can_process() or _failed or public_view.is_empty() \
+			or not public_view.settled or worksheet.information_sheet != null: return
+	var grid: Control = worksheet.grid
+	var input_owner: Object = grid.get("_input_owner")
+	if not bool(grid.get("_foreground_input")) or input_owner == null \
+			or not input_owner.is_source_input_admitted(): return
+	if grid.has_held_touch() or int(grid.get("_held_index")) >= 0 \
+			or bool(grid.get("_mouse_dragging")) or bool(grid.get("_confirm_held")): return
+	get_viewport().set_input_as_handled()
+	_action(&"new_board")

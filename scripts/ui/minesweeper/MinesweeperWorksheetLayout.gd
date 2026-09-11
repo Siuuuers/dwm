@@ -42,3 +42,18 @@ static func _rail(rect: Rect2i, viewport: int, mount: int, scroll: int, target: 
 	var thumb := Rect2i(rect.position + (Vector2i(0, leading) if vertical else Vector2i(leading, 0)),
 		Vector2i(target, length) if vertical else Vector2i(length, target))
 	return {"rect": rect, "thumb": thumb}
+
+## Fit the complete rendered board; text preferences do not change this geometry.
+## Keep the grid's local cell coordinates so pointer/touch hit testing is unchanged.
+static func fit_board(columns: int, rows: int, band: Vector2i, large: bool = false) -> Dictionary:
+	var target := 32 if large else 24
+	if columns < 1 or rows < 1 or band.x < 2 or band.y < 2:
+		return {"ok":false,"code":&"invalid_worksheet_geometry"}
+	var source := Vector2(columns * target + 2, rows * target + 2)
+	var factor := minf(1.0,minf((band.x - 1.0)/source.x,(band.y - 1.0)/source.y))
+	var extent := source * factor
+	var origin := (Vector2(band) - extent) / 2.0
+	return {"ok":true,"value":{"target":target,"scale":factor,
+		"well":Rect2(Vector2.ZERO,Vector2(band)),"mount":Rect2(origin,extent),
+		"scroll":Vector2i.ZERO,"maximum_scroll":Vector2i.ZERO,
+		"horizontal":null,"vertical":null,"corner":Rect2i()}}

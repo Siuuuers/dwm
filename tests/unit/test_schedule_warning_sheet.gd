@@ -163,3 +163,16 @@ func test_retired_or_custody_disabled_deferred_focus_requests_do_not_claim_focus
 	foreground.grab_focus()
 	await get_tree().process_frame
 	assert_true(foreground.has_focus(),"A queued request cannot bypass newer modal custody")
+
+func test_real_chinese_warning_catalog_fits_at_maximum_text_size() -> void:
+	var catalog: Dictionary = preload("res://scripts/ui/schedule/ScheduleCopy.gd").warning_catalog()
+	for locale: String in ["zh-CN", "zh-HK"]:
+		for kind: String in catalog:
+			var copy: Dictionary = catalog[kind][locale]
+			for field: String in copy:
+				assert_false("?" in copy[field], "production Chinese warning text must not be corrupted")
+				assert_true(copy[field].unicode_at(0) >= 0x3400, "Chinese copy must not fall back to English")
+			var sheet: Control = _sheet(true)
+			assert_true(sheet.configure(locale, 150, true))
+			assert_true(sheet.present(kind, copy, copy.failed_go), locale + " " + kind + " uses complete real warning text")
+			sheet.hide()

@@ -26,6 +26,41 @@ func test_reuses_unchanged_history_and_matches_canonical_utf8_order() -> void:
 	assert_eq(journal._serialize_document(document), WRITER.stringify(document))
 	assert_eq(journal.encodes, 3, "a changed operation alone is encoded")
 
+func test_single_operation_hint_matches_whole_canonical_for_change_new_entry_and_cache_miss() -> void:
+	var journal := CountingJournal.new()
+	var document := _document()
+	assert_true(journal._serialize_document(document).ok)
+	document.operations.new.receipt.amount = 3
+	var changed: Dictionary = journal._serialize_document(document, "new")
+	assert_eq(changed, WRITER.stringify(document))
+	assert_eq(journal.encodes, 3, "the hinted operation alone is encoded")
+	document.operations["later"] = {"receipt": {"amount": 4}, "text": "new cache miss"}
+	var appended: Dictionary = journal._serialize_document(document, "later")
+	assert_eq(appended, WRITER.stringify(document))
+	assert_eq(journal.encodes, 4, "a hinted cache miss encodes the new operation exactly once")
+
+
+func test_generic_path_detects_unhinted_history_mutation_and_numeric_subtype() -> void:
+	var journal := CountingJournal.new()
+	var document := _document()
+	assert_true(journal._serialize_document(document).ok)
+	document.operations["\u65e7\u8bb0\u5f55"].receipt.amount = 1.0
+	var changed: Dictionary = journal._serialize_document(document)
+	assert_eq(changed, WRITER.stringify(document), "generic callers scan every detached operation")
+	assert_eq(journal.encodes, 3, "integer to integral-float provenance invalidates generic reuse")
+
+
+func test_hinted_encoding_failure_keeps_prior_proof_and_exact_retry_succeeds() -> void:
+	var journal := CountingJournal.new()
+	var document := _document()
+	var original: Dictionary = journal._serialize_document(document)
+	document.operations.new.receipt.amount = NAN
+	assert_false(journal._serialize_document(document, "new").ok)
+	document.operations.new.receipt.amount = 2
+	assert_eq(journal._serialize_document(document, "new"), original)
+	assert_eq(journal.encodes, 4, "failed hinted encoding never replaces the prior detached proof")
+
+
 func test_nested_mutation_and_equal_numeric_values_cannot_reuse_stale_bytes() -> void:
 	var journal := CountingJournal.new()
 	var document := _document()

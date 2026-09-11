@@ -57,6 +57,8 @@ func initialize(profile: Node, manifest_path: String = "res://localization/manif
 		_readiness = &"failed"
 		return loaded
 	var catalog_store: Dictionary = (loaded["value"] as Dictionary).duplicate(true)
+	# Validated read-only catalog is available to roots preparing during initialization.
+	_catalog_store = catalog_store
 	var source_locale: String = catalog_store["manifest"]["source_locale"]
 	var stored_locale := str(profile.get_preference(&"preferences.language.primary_locale_id", source_locale))
 	var canonical_locale := _resolve_locale_in_bundle(catalog_store, stored_locale)
@@ -87,7 +89,6 @@ func initialize(profile: Node, manifest_path: String = "res://localization/manif
 			return committed
 		publication_id = committed["value"]["publication_id"]
 
-	_catalog_store = catalog_store
 	_bundle = next_bundle
 	_locale_id = canonical_locale
 	_presentation_profile = next_presentation
@@ -122,6 +123,25 @@ func get_selectable_locales() -> Array[Dictionary]:
 		if record["selectable"]:
 			output.append((record as Dictionary).duplicate(true))
 	return output
+
+
+## Presentation roots use the catalog already validated at initialization. Preparing
+## a Backup preview or Load must not reread every translation just to select a font.
+func get_font_paths(profile_id: String) -> Dictionary:
+	if _readiness not in [&"initializing", &"ready"]:
+		return _fail(&"localization_not_ready")
+	var profiles := {}
+	for record: Dictionary in _catalog_store["manifest"]["font_profiles"]:
+		profiles[record["id"]] = record
+	if not profiles.has(profile_id):
+		return _fail(&"unknown_font_profile")
+	var paths: Array[String] = []
+	var cursor: Variant = profile_id
+	while cursor != null:
+		for path: String in profiles[cursor]["font_files"]:
+			paths.append(path)
+		cursor = profiles[cursor]["fallback_profile"]
+	return _success(paths)
 
 
 func prepare_locale(locale_input: String) -> Dictionary:

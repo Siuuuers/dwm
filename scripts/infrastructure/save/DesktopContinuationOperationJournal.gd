@@ -247,7 +247,7 @@ func advance(request: Dictionary) -> Dictionary:
 		return {"ok": true, "value": operation.duplicate(true)}
 	var next_document := _document.duplicate(true)
 	next_document["operations"][txid] = progressed
-	var written := _write(next_document)
+	var written := _write(next_document, txid)
 	if not written.get("ok", false):
 		return written
 	_document["operations"][txid] = progressed
@@ -298,7 +298,7 @@ func record_new_run_target(transaction_id: String, request_fingerprint: String,
 		return valid
 	var next_document := _document.duplicate(true)
 	next_document["operations"][transaction_id] = next
-	var written := _write(next_document)
+	var written := _write(next_document, transaction_id)
 	if not written.get("ok", false):
 		return written
 	_document = next_document
@@ -378,7 +378,7 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 	cleared_operation["failure"] = null
 	var next_document := _document.duplicate(true)
 	next_document["operations"][transaction_id] = cleared_operation
-	var written := _write(next_document)
+	var written := _write(next_document, transaction_id)
 	if not written.get("ok", false):
 		return written
 	_document = next_document
@@ -414,13 +414,13 @@ func _load() -> Dictionary:
 	return {"ok": true}
 
 
-func _write(document: Dictionary) -> Dictionary:
+func _write(document: Dictionary, changed_transaction: String = "") -> Dictionary:
 	# Every caller uses a validated entry path: commit/target call _validate_operation, advance
 	# constructs an exhaustive legal transition, and diagnostic clearing only nulls an
 	# already-validated failure. _document itself was validated on load. Avoid rescanning all
 	# historical completed operations on every forward step. Reuse their exact canonical bytes;
 	# changed operations still pass through the canonical writer.
-	var emitted := _serialize_document(document)
+	var emitted := _serialize_document(document, changed_transaction)
 	if not emitted.get("ok", false):
 		return _failed(&"journal_serialization_failed", str(emitted.get("message", "cannot serialize journal")))
 	_remember_validated_text(str(emitted["value"]), document)
@@ -434,10 +434,11 @@ func _write(document: Dictionary) -> Dictionary:
 		return _storage_failure(write_result)
 	return {"ok": true}
 
-## The surrounding schema is fixed and was validated on load/construction. Reusing a detached
-## operation requires type-preserving equality, not Dictionary == (which equates 1 and 1.0).
-## This avoids encoding every historical receipt at each durable participant boundary.
-func _serialize_document(document: Dictionary) -> Dictionary:
+## The surrounding schema is fixed and was validated on load/construction. Only internal writers
+## that clone _document and replace exactly one operation may name changed_transaction; every other
+## operation then reuses its detached canonical proof. Generic callers omit the hint and retain the
+## type-preserving comparison (Dictionary == would equate 1 and 1.0).
+func _serialize_document(document: Dictionary, changed_transaction: String = "") -> Dictionary:
 	var operations: Dictionary = document["operations"]
 	for transaction_id: String in _operation_text_cache.keys():
 		if not operations.has(transaction_id): _operation_text_cache.erase(transaction_id)
@@ -447,7 +448,8 @@ func _serialize_document(document: Dictionary) -> Dictionary:
 	for transaction_id: String in keys:
 		var operation: Dictionary = operations[transaction_id]
 		var cached: Dictionary = _operation_text_cache.get(transaction_id, {})
-		if cached.is_empty() or not _CANONICAL_WRITER._deep_same(operation, cached["operation"]):
+		if cached.is_empty() or transaction_id == changed_transaction \
+				or (changed_transaction.is_empty() and not _CANONICAL_WRITER._deep_same(operation, cached["operation"])):
 			var emitted := _serialize_operation(operation)
 			if not emitted.get("ok", false): return emitted
 			cached = {"operation": operation.duplicate(true), "text": str(emitted["value"])}

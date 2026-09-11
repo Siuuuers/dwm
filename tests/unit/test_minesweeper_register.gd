@@ -42,6 +42,7 @@ func test_difficulty_commitment_is_owner_controlled_and_same_tier_is_inert() -> 
 	var view := _view()
 	view.difficulty = "expert"
 	view.custody = true
+	view.difficulty_enabled = []
 	assert_true(register.present(view))
 	assert_true(register.difficulties.expert.selected)
 	for button: Button in register.difficulties.values():

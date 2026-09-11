@@ -220,7 +220,7 @@ func test_reopening_retains_mode_semantic_cell_manual_pan_and_focus() -> void:
 	_show()
 	assert_eq(_app.panel.worksheet.grid.mode,&"flag")
 	assert_eq(_app.panel.worksheet.grid.focused_index,200)
-	assert_eq(_app.panel.worksheet.get_scroll(),Vector2i(80,140))
+	assert_eq(_app.panel.worksheet.get_scroll(),Vector2i.ZERO)
 	assert_true(_app.panel.worksheet.grid.has_focus())
 	assert_true(_app.panel.dock.buttons.flag.selected)
 	assert_true(_port.commands.is_empty())
@@ -267,7 +267,7 @@ func test_locale_and_profile_signals_apply_real_font_preferences_without_resetti
 	assert_eq(_app.panel.worksheet.grid.cell_nodes[0].size,Vector2(64,64),"Canonical targets win over the legacy preference.")
 	assert_eq(_app.panel.worksheet.grid.mode,&"flag")
 	assert_eq(_app.panel.worksheet.grid.focused_index,200)
-	assert_eq(_app.panel.worksheet.get_scroll(),Vector2i(80,140))
+	assert_eq(_app.panel.worksheet.get_scroll(),Vector2i.ZERO)
 	assert_true(_app.panel.dock.buttons.rules.has_focus())
 	assert_eq(_app.panel.public_view,before)
 	assert_eq(_port.lifecycle.size(),lifecycle_before)
@@ -299,7 +299,7 @@ func test_accessibility_preferences_retheme_without_owner_commands_or_navigation
 	assert_eq(_app.panel.dock.buttons.flag.get_theme_color("selected_plane","Minesweeper"),Color("c4aba2"))
 	assert_eq(_app.panel.worksheet.grid.mode,&"flag")
 	assert_eq(_app.panel.worksheet.grid.focused_index,200)
-	assert_eq(_app.panel.worksheet.get_scroll(),Vector2i(80,140))
+	assert_eq(_app.panel.worksheet.get_scroll(),Vector2i.ZERO)
 	assert_true(_app.panel.dock.buttons.rules.has_focus())
 	assert_eq(_app.panel.public_view,before)
 	assert_eq(_port.lifecycle.size(),lifecycle_before)
@@ -394,8 +394,8 @@ func test_first_open_focuses_and_reveals_the_only_legal_prepared_cell() -> void:
 	assert_eq(grid.focused_index,400)
 	assert_true(grid.has_focus())
 	var cell: Control = grid.cell_nodes[400]
-	assert_true(Rect2(Vector2.ZERO,well.size).encloses(Rect2(grid.position+cell.position,cell.size)))
-	assert_gt(_app.panel.worksheet.get_scroll().y,0)
+	assert_true(Rect2(Vector2.ZERO,well.size).encloses(Rect2(grid.position+cell.position*grid.scale,cell.size*grid.scale)))
+	assert_eq(_app.panel.worksheet.get_scroll(),Vector2i.ZERO)
 	assert_false(grid.focus_cell(0),"An uninspectable cell cannot replace the repaired legal target.")
 	assert_false(grid.focus_cell(-1))
 	assert_false(grid.focus_cell(grid.cell_nodes.size()))
@@ -418,7 +418,7 @@ func test_reopen_discards_illegal_cached_cell_and_pan_for_current_prepared_targe
 	assert_true(grid.has_focus())
 	var cell: Control = grid.cell_nodes[10]
 	var well: Control = _app.panel.worksheet.well
-	assert_true(Rect2(Vector2.ZERO,well.size).encloses(Rect2(grid.position+cell.position,cell.size)))
+	assert_true(Rect2(Vector2.ZERO,well.size).encloses(Rect2(grid.position+cell.position*grid.scale,cell.size*grid.scale)))
 	assert_ne(_app.panel.worksheet.get_scroll(),Vector2i(80,250),"The old manual pan is retired; the complete legal cell visibility above is the requirement.")
 	assert_true(_port.commands.is_empty())
 
@@ -570,3 +570,13 @@ func test_unfocused_window_parks_preparation_and_retains_explicit_retry() -> voi
 	assert_false(app._preparation_retry_needed)
 	assert_true(port.commands.is_empty())
 	app.queue_free()
+
+func test_host_resize_keeps_complete_app_inside_available_display_area() -> void:
+	var host := Control.new()
+	_viewport.add_child(host)
+	_app.reparent(host)
+	for available: Vector2 in [Vector2(1280,656),Vector2(640,480),Vector2(320,240),Vector2(1920,1080)]:
+		host.size = available
+		_app._fit_host()
+		assert_true(Rect2(Vector2.ZERO,available).encloses(Rect2(_app.position,_app.size*_app.scale)))
+		assert_true(_app.panel.has_valid_presentation())

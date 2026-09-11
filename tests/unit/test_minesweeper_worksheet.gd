@@ -17,44 +17,44 @@ func _worksheet(difficulty: String = "beginner", large: bool = false) -> Control
 	assert_true(worksheet.present(_projection(difficulty)))
 	return worksheet
 
-func test_fit_axes_have_no_rail_nodes_or_targets_and_large_keeps_only_vertical() -> void:
-	var ordinary := _worksheet()
-	assert_eq(ordinary.well.size,Vector2(752,444))
-	assert_eq(ordinary.grid.position,Vector2(182,28))
-	assert_null(ordinary.horizontal_rail)
-	assert_null(ordinary.vertical_rail)
-	assert_true(ordinary.well.clip_contents)
-	var large := _worksheet("beginner",true)
-	assert_eq(large.well.size,Vector2(736,400))
-	assert_eq(large.grid.position,Vector2(110,0))
-	assert_null(large.horizontal_rail)
-	assert_not_null(large.vertical_rail)
-	assert_eq(large.vertical_rail.position,Vector2(736,0))
-	assert_eq(large.vertical_rail.size,Vector2(64,400))
+func test_every_host_tier_text_and_target_size_fits_the_complete_board() -> void:
+	var worksheet := _worksheet()
+	for host: String in ["desktop_app","canonical_solo","canonical_pair"]:
+		for tier: String in ["beginner","intermediate","expert"]:
+			for large: bool in [false,true]:
+				for percent: int in [100,125,150]:
+					for band: Vector2i in [Vector2i(400,246),Vector2i(480,232),Vector2i(120,80)]:
+						assert_true(worksheet.configure(host,"en",percent,large,&"after_hours",band))
+						assert_true(worksheet.present(_projection(tier)))
+						var rendered := Rect2(worksheet.grid.position,worksheet.grid.size*worksheet.grid.scale)
+						assert_true(Rect2(Vector2.ZERO,worksheet.well.size).encloses(rendered),str([host,tier,large,percent,band,rendered]))
+						assert_null(worksheet.horizontal_rail)
+						assert_null(worksheet.vertical_rail)
+						assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 
 func test_rules_replace_only_worksheet_and_return_restores_mode_cell_scroll_and_source() -> void:
 	var worksheet := _worksheet("expert")
 	assert_true(worksheet.set_mode(&"flag"))
 	worksheet.grid._set_focused(200)
 	worksheet.set_scroll(Vector2i(80,140))
-	worksheet.vertical_rail.grab_focus()
-	var source: Control = worksheet.vertical_rail
+	worksheet.grid.grab_focus()
+	var source: Control = worksheet.grid
 	var before: Dictionary = worksheet.grid.projection.duplicate(true)
 	assert_true(worksheet.open_rules())
 	assert_false(worksheet.well.visible)
-	assert_false(source.visible)
+	assert_false(source.is_visible_in_tree())
 	assert_eq(worksheet.grid.process_mode,Node.PROCESS_MODE_DISABLED)
 	assert_true(worksheet.information_sheet.rows[0].has_focus())
 	assert_false(worksheet.set_mode(&"drag"))
 	worksheet.set_scroll(Vector2i.ZERO)
-	assert_eq(worksheet.get_scroll(),Vector2i(80,140))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 	worksheet.information_sheet.return_button.pressed.emit()
 	assert_null(worksheet.information_sheet)
 	assert_true(worksheet.well.visible)
 	assert_true(source.has_focus())
 	assert_eq(worksheet.grid.mode,&"flag")
 	assert_eq(worksheet.grid.focused_index,200)
-	assert_eq(worksheet.get_scroll(),Vector2i(80,140))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 	assert_eq(worksheet.grid.projection,before)
 
 func test_sheet_tab_traps_focus_and_escape_restores_grid_without_command() -> void:
@@ -95,7 +95,7 @@ func test_missing_assignment_truth_does_not_open_or_disturb_grid() -> void:
 	assert_true(worksheet.open_assignments([false,false,false,false,false,false,false,false,true]))
 	assert_eq(worksheet.information_sheet.rows[8].accessibility_name,"Complete all three tiers — Claimed")
 
-func test_sheet_return_preserves_manual_pan_even_when_source_grid_cell_is_offscreen() -> void:
+func test_sheet_return_preserves_fitted_board_and_semantic_focus() -> void:
 	var worksheet := _worksheet("expert")
 	worksheet.grid.grab_focus()
 	worksheet.set_scroll(Vector2i(100,200))
@@ -103,20 +103,19 @@ func test_sheet_return_preserves_manual_pan_even_when_source_grid_cell_is_offscr
 	assert_true(worksheet.open_rules())
 	worksheet.close_information()
 	assert_true(worksheet.grid.has_focus())
-	assert_eq(worksheet.get_scroll(),Vector2i(100,200),"Sheet Return restores the exact retained pan before any new navigation.")
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO,"Sheet Return retains full board visibility.")
 	worksheet.grid._move_focus(Vector2i.RIGHT)
-	assert_eq(worksheet.get_scroll(),Vector2i(25,1),"A later navigation still reveals its complete target.")
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO,"Navigation retains full board visibility.")
 
-func test_scroll_clamps_integer_geometry_and_never_changes_public_board() -> void:
+func test_pan_and_scroll_cannot_hide_any_part_of_the_fitted_board() -> void:
 	var worksheet := _worksheet("expert")
 	var original: Dictionary = worksheet.grid.projection.duplicate(true)
+	var position: Vector2 = worksheet.grid.position
 	worksheet.set_scroll(Vector2i(9999,9999))
-	assert_eq(worksheet.get_scroll(),Vector2i(154,308))
-	assert_eq(worksheet.grid.position,Vector2(-308,-616))
+	worksheet._pan(Vector2(-9999,-9999))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
+	assert_eq(worksheet.grid.position,position)
 	assert_eq(worksheet.grid.projection,original)
-	assert_eq(worksheet.horizontal_rail.value,154)
-	assert_eq(worksheet.vertical_rail.value,308)
-	assert_eq(worksheet.vertical_rail.rail.thumb.end.y,worksheet.geometry.well.end.y)
 
 func test_focus_navigation_and_return_reveal_the_complete_semantic_cell() -> void:
 	var worksheet := _worksheet("expert")
@@ -125,14 +124,14 @@ func test_focus_navigation_and_return_reveal_the_complete_semantic_cell() -> voi
 	for move in 21: worksheet.grid._move_focus(Vector2i.RIGHT)
 	assert_eq(worksheet.grid.focused_index,483)
 	var focused: Control = worksheet.grid.cell_nodes[483]
-	assert_true(Rect2(Vector2.ZERO,worksheet.well.size).encloses(Rect2(worksheet.grid.position+focused.position,focused.size)))
-	worksheet.vertical_rail.grab_focus()
+	assert_true(Rect2(Vector2.ZERO,worksheet.well.size).encloses(Rect2(worksheet.grid.position+focused.position*worksheet.grid.scale,focused.size*worksheet.grid.scale)))
+	worksheet.grid.grab_focus()
 	worksheet.set_scroll(Vector2i.ZERO)
 	worksheet.grid.grab_focus()
 	assert_eq(worksheet.grid.focused_index,483)
-	assert_true(Rect2(Vector2.ZERO,worksheet.well.size).encloses(Rect2(worksheet.grid.position+focused.position,focused.size)),"Returning from another control restores the retained cell in view.")
+	assert_true(Rect2(Vector2.ZERO,worksheet.well.size).encloses(Rect2(worksheet.grid.position+focused.position*worksheet.grid.scale,focused.size*worksheet.grid.scale)),"Returning from another control restores the retained cell in view.")
 
-func test_real_wheel_route_scrolls_once_through_child_and_parent() -> void:
+func test_real_wheel_route_keeps_the_complete_board_in_view() -> void:
 	var worksheet := _worksheet("expert")
 	var viewport: SubViewport = worksheet.get_viewport()
 	var wheel := InputEventMouseButton.new()
@@ -141,22 +140,22 @@ func test_real_wheel_route_scrolls_once_through_child_and_parent() -> void:
 	wheel.pressed = true
 	viewport.push_input(wheel,true)
 	await get_tree().process_frame
-	assert_eq(worksheet.get_scroll(),Vector2i(0,24),"Child scroll handling must not bubble into a second parent step.")
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO,"Child scroll handling must not bubble into a second parent step.")
 	assert_eq(worksheet.grid.projection.revision,0)
 
-func test_fractional_pointer_motion_accumulates_without_fractional_board_placement() -> void:
+func test_fractional_pointer_motion_cannot_shift_the_fitted_board() -> void:
 	var worksheet := _worksheet("expert")
 	worksheet._pan(Vector2(0,-1))
 	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 	worksheet._pan(Vector2(0,-1))
-	assert_eq(worksheet.get_scroll(),Vector2i(0,1))
-	assert_eq(worksheet.grid.position,Vector2(0,-2))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
+	assert_true(Rect2(Vector2.ZERO,worksheet.well.size).encloses(Rect2(worksheet.grid.position,worksheet.grid.size*worksheet.grid.scale)))
 	worksheet._set_panning(true)
 	assert_true(worksheet._seam.visible)
 	worksheet._set_panning(false)
 	assert_false(worksheet._seam.visible)
 
-func test_actual_drag_route_moves_viewport_without_issuing_a_cell_command() -> void:
+func test_actual_drag_route_keeps_full_fit_without_issuing_a_cell_command() -> void:
 	var worksheet := _worksheet("expert")
 	assert_true(worksheet.set_mode(&"drag"))
 	watch_signals(worksheet)
@@ -172,7 +171,7 @@ func test_actual_drag_route_moves_viewport_without_issuing_a_cell_command() -> v
 	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
 	viewport.push_input(motion,true)
 	await get_tree().process_frame
-	assert_eq(worksheet.get_scroll(),Vector2i(0,6))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 	assert_true(worksheet._seam.visible)
 	down.position = motion.position
 	down.pressed = false
@@ -196,7 +195,7 @@ func test_touch_drag_uses_real_gui_routing_and_never_activates_on_release() -> v
 	drag.position = Vector2(200,138)
 	drag.relative = Vector2(0,-12)
 	viewport.push_input(drag,true)
-	assert_eq(worksheet.get_scroll(),Vector2i(0,6))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 	assert_true(worksheet._seam.visible)
 	touch.position = drag.position
 	touch.pressed = false
@@ -205,33 +204,21 @@ func test_touch_drag_uses_real_gui_routing_and_never_activates_on_release() -> v
 	assert_signal_emit_count(worksheet,"cell_action_requested",0)
 	assert_eq(worksheet.grid.projection.revision,0)
 
-func test_real_thumb_drag_preserves_its_origin_through_synchronous_viewport_updates() -> void:
+func test_fitted_pointer_release_uses_original_cell_coordinates() -> void:
 	var worksheet := _worksheet("expert")
-	var viewport: SubViewport = worksheet.get_viewport()
-	var rail: Control = worksheet.vertical_rail
-	var thumb: Rect2 = rail._local_thumb()
-	var start: Vector2 = rail.position+thumb.get_center()
-	var down := InputEventMouseButton.new()
-	down.button_index = MOUSE_BUTTON_LEFT
-	down.position = start
-	down.pressed = true
-	viewport.push_input(down,true)
-	assert_true(rail._dragging)
-	var motion := InputEventMouseMotion.new()
-	motion.position = start+Vector2(0,120)
-	motion.relative = Vector2(0,120)
-	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
-	viewport.push_input(motion,true)
-	assert_eq(worksheet.get_scroll().y,roundi(60.0*308/130))
-	assert_true(rail._dragging,"Presentation refresh must retain the physical drag.")
-	motion.position = start+Vector2(0,200)
-	motion.relative = Vector2(0,80)
-	viewport.push_input(motion,true)
-	assert_eq(worksheet.get_scroll().y,roundi(100.0*308/130),"The second motion still maps from the original thumb/value.")
-	down.position = motion.position
-	down.pressed = false
-	viewport.push_input(down,true)
-	assert_false(rail._dragging)
+	var board := _projection("expert")
+	for cell: Dictionary in board.cells: cell.actions = ["reveal","flag"]
+	assert_true(worksheet.present(board))
+	watch_signals(worksheet)
+	var last: Control = worksheet.grid.cell_nodes[483]
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = worksheet.grid.position + (last.position+last.size/2.0)*worksheet.grid.scale
+	click.pressed = true
+	worksheet.get_viewport().push_input(click,true)
+	click.pressed = false
+	worksheet.get_viewport().push_input(click,true)
+	assert_signal_emitted_with_parameters(worksheet,"cell_action_requested",[&"reveal",483,0])
 
 func test_custody_keeps_truth_and_scroll_but_removes_all_input() -> void:
 	var worksheet := _worksheet("expert")
@@ -243,14 +230,14 @@ func test_custody_keeps_truth_and_scroll_but_removes_all_input() -> void:
 		cell.pressable = false
 		cell.actions = []
 	assert_true(worksheet.present(inert))
-	assert_eq(worksheet.get_scroll(),Vector2i(4,9))
-	assert_false(worksheet.vertical_rail.interactive)
-	assert_eq(worksheet.vertical_rail.focus_mode,Control.FOCUS_NONE)
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
+	assert_null(worksheet.vertical_rail)
+	assert_null(worksheet.horizontal_rail)
 	assert_eq(worksheet.grid.focus_mode,Control.FOCUS_NONE)
 	assert_true(worksheet._seam.visible)
 	worksheet.set_scroll(Vector2i(50,50))
 	worksheet._pan(Vector2(10,10))
-	assert_eq(worksheet.get_scroll(),Vector2i(4,9))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 	assert_eq(worksheet.grid.projection,inert)
 
 func test_configuration_and_invalid_projection_preserve_the_current_view_atomically() -> void:
@@ -261,17 +248,15 @@ func test_configuration_and_invalid_projection_preserve_the_current_view_atomica
 	assert_false(worksheet.configure("desktop_app","en",100,false,&"after_hours",Vector2i(25,25)))
 	assert_false(worksheet.present({"private_board":true}))
 	assert_eq(worksheet.geometry,retained)
-	assert_eq(worksheet.get_scroll(),Vector2i(4,9))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 
-func test_reconfiguring_to_a_fit_board_removes_existing_axis_nodes() -> void:
+func test_changing_difficulty_refits_without_stale_pan_or_rails() -> void:
 	var worksheet := _worksheet("expert")
-	var prior_vertical: Control = worksheet.vertical_rail
-	var prior_horizontal: Control = worksheet.horizontal_rail
+	var expert_scale: Vector2 = worksheet.grid.scale
 	assert_true(worksheet.present(_projection()))
+	assert_gt(worksheet.grid.scale.x,expert_scale.x)
 	assert_null(worksheet.vertical_rail)
 	assert_null(worksheet.horizontal_rail)
-	assert_null(prior_vertical.get_parent())
-	assert_null(prior_horizontal.get_parent())
 	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 
 func test_configure_and_present_before_tree_mount_keep_focus_and_geometry() -> void:
@@ -280,7 +265,7 @@ func test_configure_and_present_before_tree_mount_keep_focus_and_geometry() -> v
 	assert_true(worksheet.present(_projection()))
 	add_child_autofree(worksheet)
 	assert_eq(worksheet.grid.focus_mode,Control.FOCUS_ALL)
-	assert_eq(worksheet.grid.position,Vector2(182,28))
+	assert_eq(worksheet.grid.position,Vector2(206,52))
 
 func test_information_closing_reenables_external_source_before_exact_focus_restoration() -> void:
 	var worksheet := _worksheet("expert")
@@ -315,7 +300,7 @@ func test_information_closing_reenables_external_source_before_exact_focus_resto
 	assert_signal_emit_count(worksheet,"information_closing",1)
 	assert_signal_emit_count(worksheet,"information_closed",1)
 	assert_true(source.has_focus())
-	assert_eq(worksheet.get_scroll(),Vector2i(100,200))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 
 func test_interaction_block_preserves_public_facts_scroll_and_open_sheet_return() -> void:
 	var worksheet := _worksheet("expert")
@@ -329,8 +314,8 @@ func test_interaction_block_preserves_public_facts_scroll_and_open_sheet_return(
 	worksheet.set_interaction_blocked(true)
 	assert_same(worksheet.information_sheet,sheet)
 	assert_true(sheet.rows[0].has_focus())
-	assert_false(worksheet.vertical_rail.interactive)
-	assert_false(worksheet.horizontal_rail.interactive)
+	assert_null(worksheet.vertical_rail)
+	assert_null(worksheet.horizontal_rail)
 	assert_eq(worksheet.grid.focus_mode,Control.FOCUS_NONE)
 	sheet.return_button.pressed.emit()
 	assert_null(worksheet.information_sheet)
@@ -342,11 +327,11 @@ func test_interaction_block_preserves_public_facts_scroll_and_open_sheet_return(
 	worksheet._pan(Vector2(0,-20))
 	assert_eq(worksheet.get_scroll(),retained_scroll)
 	assert_true(worksheet.present(retained))
-	assert_false(worksheet.vertical_rail.interactive)
+	assert_null(worksheet.vertical_rail)
 	assert_eq(worksheet.grid.focus_mode,Control.FOCUS_NONE)
 	worksheet.set_interaction_blocked(false)
-	assert_true(worksheet.vertical_rail.interactive)
-	assert_true(worksheet.horizontal_rail.interactive)
+	assert_null(worksheet.vertical_rail)
+	assert_null(worksheet.horizontal_rail)
 	assert_eq(worksheet.grid.focus_mode,Control.FOCUS_ALL)
 	assert_eq(worksheet.grid.mode,&"flag")
 	assert_eq(worksheet.grid.projection,retained)

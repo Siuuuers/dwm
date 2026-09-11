@@ -210,3 +210,24 @@ func test_configured_admission_target_freed_later_fails_closed() -> void:
 	assert_eq(port.prepare_action("save", "slot:1").get("code"),
 		&"backup_action_unavailable")
 	assert_eq(owner.prepares, [])
+
+
+func test_preparation_uses_one_authoritative_owner_inspection() -> void:
+	var owner := BackupOwner.new()
+	var port := PORT.new()
+	assert_true(port.configure(owner).get("ok", false))
+	var prepared: Dictionary = port.prepare_action("load", "slot:1")
+	assert_true(prepared.get("ok", false))
+	assert_eq(owner.prepares.size(), 1)
+	assert_eq(owner.inspections.size(), 0, "owner preparation already inspects the selected file")
+	assert_eq(prepared.value.record.day, 3)
+
+
+func test_authoritative_preparation_cannot_bypass_projected_action_policy() -> void:
+	var owner := BackupOwner.new()
+	var port := PORT.new()
+	assert_true(port.configure(owner).get("ok", false))
+	assert_false(port.prepare_action("save", "autosave").get("ok", false))
+	assert_eq(owner.commits, [])
+	assert_eq(port._pending, {})
+	assert_eq(owner.cancels.size(), owner.prepares.size(), "any refused owner candidate is discarded")

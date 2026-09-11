@@ -10,7 +10,7 @@ func _view(difficulty: String = "expert") -> Dictionary:
 		"register":{"difficulty":difficulty,"rounds":2,"mine_estimate":null,"foresight":null,
 			"no_flag":"intact","custody":false,"difficulty_enabled":[]},
 		"assignments":[false,false,false,false,false,false,false,false,false],
-		"actions":["reveal","flag","drag","assignments","rules"]}
+		"actions":["reveal","flag","drag","assignments","rules"],"settled":false}
 
 func _panel() -> Control:
 	var viewport := SubViewport.new()
@@ -33,7 +33,7 @@ func test_accessibility_tuple_reaches_existing_new_and_ephemeral_components() ->
 			var expected: Theme = MS_THEME.build("en",100,&"midnight",high_contrast,preset)
 			assert_true(panel.configure("en",100,false,&"midnight",high_contrast,preset))
 			for control: Control in [panel.register,panel.register.metrics.rounds,panel.register.difficulties.beginner,
-				panel.dock,panel.dock.buttons.flag,panel.worksheet,panel.worksheet.grid,panel.worksheet.grid.cell_nodes[0],panel.worksheet.vertical_rail]:
+				panel.dock,panel.dock.buttons.flag,panel.worksheet,panel.worksheet.grid,panel.worksheet.grid.cell_nodes[0]]:
 				_assert_roles(control,expected)
 			assert_true(panel.worksheet.open_assignments(panel.public_view.assignments))
 			var sheet: Control = panel.worksheet.information_sheet
@@ -62,7 +62,7 @@ func test_palette_only_change_preserves_grid_contact_and_manual_pan() -> void:
 	assert_true(panel.configure("en",100,false,&"after_hours",true,"deutan"))
 	assert_true(grid.has_held_touch())
 	assert_true(grid.has_focus())
-	assert_eq(worksheet.get_scroll(),Vector2i(100,200))
+	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 	assert_eq(grid.projection,before)
 	touch.pressed = false
 	touch.canceled = true

@@ -197,7 +197,7 @@ func test_initialization_canonicalizes_alias_and_removed_locale_to_durable_value
 		assert_eq(manager.get_locale(), case[1])
 		assert_eq(migrated_profile.get_preference(&"preferences.language.primary_locale_id"), case[1])
 		var snapshot: Dictionary = migrated_profile.get_profile_snapshot()
-		assert_eq(snapshot["schema_version"], 5)
+		assert_eq(snapshot["schema_version"], PROFILE_SCHEMA.SCHEMA_VERSION)
 		assert_eq(snapshot["legacy_preferences_v1"]["language"], case[0])
 		# The canonical result survives another real Profile load from the same storage.
 		var restarted: Node = autofree(_profile_script.new())
@@ -261,3 +261,15 @@ func test_restore_apply_and_rollback_are_silent_and_detached() -> void:
 	assert_eq(root.applied_profile["locale_id"], "en")
 	assert_true(_manager.finalize_restore().get("ok", false))
 	assert_eq(signals, [])
+
+func test_both_chinese_catalogs_translate_all_real_title_buttons_without_english_fallback() -> void:
+	assert_true(_initialize().get("ok", false))
+	var expected := {
+		"zh_CN": ["新建账号", "登录", "画廊", "设定", "关闭游戏"],
+		"zh_HK": ["建立帳號", "登入", "圖鑑", "設定", "關閉遊戲"],
+	}
+	var keys := ["menu.new_account", "menu.login", "menu.gallery", "menu.setting", "menu.shutdown"]
+	for locale: String in expected:
+		assert_true(_manager.set_locale(locale).get("ok", false))
+		for index: int in keys.size():
+			assert_eq(_manager.t(keys[index]), expected[locale][index], locale + " " + keys[index])

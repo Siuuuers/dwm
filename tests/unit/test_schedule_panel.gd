@@ -239,3 +239,24 @@ func test_cache_clear_cancels_pending_semantic_restore() -> void:
 	assert_true(panel.set_projection(_projection(),"","",true))
 	await get_tree().process_frame
 	assert_eq(panel.docket_scroll.scroll_vertical,0)
+
+func test_real_chinese_action_copy_fits_without_placeholders_and_keeps_character_names() -> void:
+	var loaded := REGISTRY.load_current()
+	var records: Dictionary = loaded.value.registry.snapshot(loaded.value.registry_fingerprint).value.records
+	var names: Dictionary = preload("res://scripts/ui/schedule/ScheduleCopy.gd").action_names(records)
+	for locale: String in ["zh-CN", "zh-HK"]:
+		var panel := _panel(locale, 150, true)
+		var sources: Array = []
+		for action_id: String in records:
+			var caption: String = names[action_id][locale]
+			assert_false("?" in caption, "production copy must not contain corrupted question marks")
+			assert_true(caption.unicode_at(0) >= 0x3400, "real Chinese action names must not use English fallback")
+			if records[action_id].action_kind != "ordinary":
+				assert_true(caption.begins_with("约会" if locale == "zh-CN" else "約會"),
+					"dated sources retain translated labels")
+			for person: String in records[action_id].participants:
+				assert_true(person.capitalize() in caption, "authored character names remain intact")
+			sources.append(_source(action_id, caption))
+		assert_true(panel.set_projection(_projection([], false, sources)),
+			"all real Chinese action names fit at maximum text size")
+		panel.hide()

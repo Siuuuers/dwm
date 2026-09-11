@@ -243,7 +243,8 @@ once without adding metric fields or changing durable receipt shapes. Dating
 uses the same helper. The seven performance, eight register-query and sixteen
 reward tests pass (31 total); this does not replace the separate UI acceptance.
 
-Difficulty actions remain disabled (`difficulty_enabled` is empty). New Board
+At this historical checkpoint, difficulty actions remained disabled
+(`difficulty_enabled` was empty). The 2026-09-11 amendment supersedes that restriction. New Board
 now dismisses an already settled terminal presentation and exposes the next
 board through the existing owner; it refuses active-board replacement. It is
 not a free replacement of a paid board or a new difficulty-selection command.
@@ -484,3 +485,45 @@ services are private, Minesweeper base configuration is absent and its board por
 retains a boot identity. No dirty owner work was copied or integrated.
 The next independent family task is `dwm-eei.10`, a live witnessed-scene caption
 field on actual Dialogic/Hospital playback. The full ten-family goal stays active.
+
+## 2026-09-11 -- Full-board fitting and completed-round controls
+
+The user's confirmed requirement to show the whole board supersedes the fixed-size,
+scrolling-only presentation rule in the August 13 amendment sections 8.1-8.2. Desktop and
+canonical worksheets now uniformly scale the rendered grid down as needed to fit
+the available well, center it, and expose no board scrollbars. Saved dimensions,
+cell indices, mine placement, and grid-local hit targets are unchanged. Godot's
+Control transform maps pointer and touch positions back to those local targets.
+Text-size preferences remain separate from board geometry; the desktop body also
+scales to fit a smaller host. Cell borders remain inside their own cell and at
+least one rendered pixel wide, including window stretch, so fitted rules do not
+disappear or get overpainted by adjacent faces. Information-sheet scrolling is unchanged.
+
+Flag mode accepts a cell's published Chord action, as Reveal mode does. It continues
+to flag or unflag covered cells and never invents Chord permission from appearance.
+Drag remains a gesture-only mode and cannot command a cell.
+
+After durable settlement, a different difficulty can dismiss the retained result
+and expose the next legal board at that tier. The existing configuration transaction
+commits the dismissal and selected tier together, preserves completion receipts,
+and retains the exact failed request for retry. Selecting a tier does not pay for
+the next first Reveal; ordinary entry eligibility and payment still apply. Unsettled
+results, stale revisions, pending configuration retries and shared custody gates
+remain authoritative. Space invokes the published New Board action even though a
+settled board intentionally has no cell focus. Untouched boards still reject New
+Board when the owner has not published that capability.
+
+Regression coverage includes flag-mode Chord, terminal Space without grid focus,
+connected terminal tier selection, failed checkpoint retry, and full containment
+across desktop/canonical hosts, tiers, text presets, target sizes and smaller wells.
+Native acceptance uses `tests/manual/verify_minesweeper_ui_controls.gd` with isolated
+copied player data and actual pointer/key routing. All 176 focused tests passed
+across the UI, port, transaction and cell suites, including the affected fixture
+reruns. The final native run passed every internal grid-rule pixel check for all
+three tiers at 150% text, actual 960x540 and 640x360 window resizes, flag-mode Chord,
+terminal difficulty selection, Space and ordinary round payment. The Expert grid,
+small-window grid and active numbers/flags captures were visually inspected.
+
+Evidence: `.godot/phase2r_logs/ms-ui-full.log`, `ms-ui-recheck.log`,
+`ms-port-recheck.log`, `ms-cell-final.log` and `ms-ui-pixels.log`. Final images are
+in `.godot/phase2r_tests/8c017f68-1fd1-423f-846b-5f48ba1031b5/appdata/Godot/app_userdata/DWM/evidence/playable/`.

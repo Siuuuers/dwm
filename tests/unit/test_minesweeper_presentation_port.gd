@@ -232,7 +232,7 @@ func test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end() 
 	)
 	var counter_before_touch: int = root_store.next_counter
 	var revision_before_touch: int = coordinator.get_state().value.revision
-	var cell_two_center: Vector2 = worksheet.grid.position+Vector2(122,26)
+	var cell_two_center: Vector2 = worksheet.grid.position+Vector2(122,26)*worksheet.grid.scale
 	# This native ScreenTouch route does not establish pen or platform event-synthesis behavior.
 	var touch_down: InputEventScreenTouch = InputEventScreenTouch.new()
 	touch_down.index = 4

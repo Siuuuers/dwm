@@ -19,6 +19,8 @@ var _locale := "en"
 var _large := false
 
 func _ready() -> void:
+	set_notify_transform(true)
+	get_viewport().size_changed.connect(queue_redraw)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	focus_mode = Control.FOCUS_NONE
 	_resize()
@@ -100,7 +102,12 @@ func _draw() -> void:
 	var face: Color = _role(&"controlled_face") if covered else _role(&"paper")
 	var structure: Color = _role(&"dark_registration") if covered else _role(&"paper_structure")
 	draw_rect(Rect2(Vector2.ZERO,size),face)
-	draw_rect(Rect2(Vector2.ZERO,size),structure,false,2)
+	# Keep the complete rule inside its own cell: adjacent faces must not paint
+	# over a subpixel half-stroke when the whole board is fitted down.
+	var rendered_transform := get_viewport().get_stretch_transform()*get_global_transform_with_canvas()
+	var rendered_scale := rendered_transform.get_scale().abs()
+	var stroke := maxf(2.0,1.0/maxf(0.001,minf(rendered_scale.x,rendered_scale.y)))
+	draw_rect(Rect2(Vector2.ONE*stroke/2.0,size-Vector2.ONE*stroke),structure,false,stroke)
 	if covered: draw_rect(Rect2(2,size.y-4,size.x-4,2),_role(&"habitat"))
 	_draw_public_mark(covered)
 	if public_cell.bracketed: _draw_brackets(_aperture(),_role(&"dark_mark"))
@@ -191,3 +198,6 @@ func _native_rect(aperture: Rect2, native: Rect2) -> Rect2:
 
 func _role(role: StringName) -> Color:
 	return get_theme_color(role,&"Minesweeper")
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED: queue_redraw()

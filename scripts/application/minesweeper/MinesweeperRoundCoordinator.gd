@@ -1593,7 +1593,7 @@ func get_configuration_context() -> Dictionary:
 	if phase == "ACTIVE_VISIBLE" and bool(state.board.board.terminal) and not settled: available = false
 	return {"ok": true, "value": {"phase": phase, "identity": state.identity,
 		"revision": int(state.revision), "difficulty_id": difficulty,
-		"difficulty_enabled": ["beginner", "intermediate", "expert"] if available and not settled else [],
+		"difficulty_enabled": ["beginner", "intermediate", "expert"] if available else [],
 		"new_board_enabled": available and phase == "ACTIVE_VISIBLE",
 		"settled_inspection": settled}}
 
@@ -1623,7 +1623,8 @@ func _configure_board(request: Dictionary, replace: bool) -> Dictionary:
 	if int(request.expected_revision) != int(facts.revision): return _fail(&"stale_revision", "", {})
 	if request.expected_identity != facts.identity: return _fail(&"identity_mismatch", "", {})
 	if facts.settled_inspection:
-		if not replace or not facts.new_board_enabled: return _fail(&"board_configuration_unavailable", "", {})
+		if not facts.new_board_enabled or str(request.difficulty_id) not in facts.difficulty_enabled:
+			return _fail(&"board_configuration_unavailable", "", {})
 	elif not facts.difficulty_enabled.has(str(request.difficulty_id)): return _fail(&"board_configuration_unavailable", "", {})
 	if replace and str(request.difficulty_id) != str(facts.difficulty_id): return _fail(&"difficulty_mismatch", "", {})
 	# No-op precedes issuer verification/allocation, candidate creation and storage.

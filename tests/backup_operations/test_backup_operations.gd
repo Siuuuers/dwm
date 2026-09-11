@@ -21,7 +21,12 @@ const LOCALE := preload("res://scripts/application/restore/LocalizationRestorePa
 const AUDIO := preload("res://scripts/application/restore/AudioRestoreParticipant.gd")
 const ROUTE := preload("res://scripts/application/restore/RouteRestoreParticipant.gd")
 const NARRATIVE := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd")
-const FIXTURE := "res://tests/fixtures/saves/v5_desktop_prepared.json"
+const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
+const VIEW_PARTICIPANT := preload("res://scripts/application/restore/ScheduleViewRestoreParticipant.gd")
+const VIEW_CONTROLLER := preload("res://scripts/application/schedule/ScheduleViewController.gd")
+const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
+const RULES := preload("res://scripts/domain/schedule/ScheduleRules.gd")
+const REMAPPER := preload("res://scripts/domain/desktop/DesktopContinuationRemapper.gd")
 const SCENE_ROUTER := preload("res://autoload/SceneRouter.gd")
 const DESKTOP_HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
 
@@ -101,7 +106,7 @@ func _run() -> void:
 		_check(not record["actions"]["save"] and not record["actions"]["load"] and not record["actions"]["delete"], "no stable save or empty actions")
 	_seed(manager)
 	var initial := port.prepare_action("save", "slot:1")
-	_check(initial.get("ok", false), "prepare first save")
+	_check(initial.get("ok", false), "prepare first save: " + JSON.stringify(initial))
 	if not initial.get("ok", false):
 		_finish(manager)
 		return
@@ -164,21 +169,36 @@ func _run() -> void:
 	await process_frame
 	_finish(manager)
 
+func _snapshot() -> Dictionary:
+	var fixture: Dictionary = SNAPSHOT_FIXTURE.make_snapshot()
+	_check(fixture.get("ok", false), "current canonical fixture validates: " + JSON.stringify(fixture))
+	return fixture.get("value", {}).get("candidate", {})
+
+func _schedule_view_participant(issuer: RefCounted) -> RefCounted:
+	var loaded: Dictionary = REGISTRY.load_current()
+	_check(loaded.get("ok", false), "current schedule registry: " + JSON.stringify(loaded))
+	var registry: RefCounted = loaded["value"]["registry"]
+	var controller := VIEW_CONTROLLER.new()
+	var configured: Dictionary = controller.configure(registry, RULES, registry.fingerprint())
+	_check(configured.get("ok", false), "real schedule controller: " + JSON.stringify(configured))
+	return VIEW_PARTICIPANT.new(controller, registry, issuer, REMAPPER)
+
 func _seed(manager: Node) -> void:
-	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
-	snapshot["gameplay"]["money"] = 0
+	var snapshot := _snapshot()
+	if snapshot.is_empty(): return
 	manager._journal.reset(snapshot["run_id"])
 	var prepared: Dictionary = manager._journal.prepare_record(snapshot, &"day_start")
-	_check(prepared.get("ok", false), "real canonical fixture accepted")
+	_check(prepared.get("ok", false), "real canonical fixture accepted: " + JSON.stringify(prepared))
 	if prepared.get("ok", false):
 		_check(manager._journal.commit_prepared(prepared["value"]["candidate"]).get("ok", false), "stable journal fixture")
 
 func _test_run_bookkeeping_restore() -> void:
 	var state: Node = GS.new()
 	state.reset_game()
-	var empty: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
-	empty["gameplay"]["money"] = 0
-	empty = SCHEMA.RUN_SNAPSHOT_SCHEMA.validate(empty)["value"]["candidate"]
+	var empty := _snapshot()
+	if empty.is_empty():
+		state.free()
+		return
 	var saved := empty.duplicate(true)
 	saved["gameplay"]["money"] = 12
 	for pair: Array in [["z-effect", "effect_transaction"], ["z-variable", "variable_transaction"]]:
@@ -224,7 +244,12 @@ func _test_run_bookkeeping_restore() -> void:
 	for invalid: Dictionary in invalid_cases:
 		_check(not state.apply_restore_silent({"snapshot": invalid}).get("ok", true), "invalid snapshot bookkeeping rejects")
 		_check(state.capture_run_snapshot_input() == before, "invalid snapshot cannot partially mutate")
-		_check(not state.rollback_restore_silent(invalid).get("ok", true), "invalid rollback bookkeeping rejects")
+		# Rollback requires a captured session lifetime, then validates the same bad bookkeeping.
+		var invalid_backup: Dictionary = state.capture_restore_state()["value"]["backup"]
+		for key: String in ["gameplay", "command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+			invalid_backup[key] = invalid[key]
+		var rejected: Dictionary = state.rollback_restore_silent(invalid_backup)
+		_check(not rejected.get("ok", true) and rejected.get("code") != &"stale_run_backup", "invalid rollback bookkeeping rejects within the current session: " + JSON.stringify(rejected))
 		_check(state.capture_run_snapshot_input() == before, "invalid rollback cannot partially mutate")
 	var legacy := {"lifecycle": before["lifecycle"], "gameplay": {"money": state.money}}
 	_check(state.apply_restore_silent({"snapshot": legacy}).get("ok", false), "legacy partial direct-owner plan stays accepted")
@@ -237,12 +262,13 @@ func _test_finalization_failure_never_routes() -> void:
 	var calls: Array = []
 	var participants := {}
 	var plans := {}
-	for name: String in ["run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative"]:
+	for name: String in ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"]:
 		participants[name] = FinalizeParticipant.new(name, calls)
 		plans[name] = {}
-	_check(manager.configure_restore_participants(participants).get("ok", false), "finalization fixture uses actual owner transaction")
+	var configured: Dictionary = manager.configure_restore_participants(participants)
+	_check(configured.get("ok", false), "finalization fixture uses actual owner transaction: " + JSON.stringify(configured))
 	var result: Dictionary = manager.commit_prepared_restore({"participant_plans": plans, "route_id": "main", "checkpoint_id": "fixture:1"})
-	_check(not result.get("ok", false), "narrative finalization failure reaches caller")
+	_check(not result.get("ok", false) and result.get("code") == &"fixture_narrative_finalize_failed", "narrative finalization failure reaches caller: " + JSON.stringify(result))
 	_check(calls.has("finalize:narrative") and not calls.has("finalize:route"), "failed narrative never dispatches physical route finalization")
 	_check(calls.has("rollback:route") and not manager.is_save_locked(), "failed finalization rolls back and releases save custody")
 	manager.free()
@@ -313,6 +339,7 @@ func _test_unavailable(manager: Node, port: RefCounted, files: RefCounted) -> vo
 func _test_restore(manager: Node, port: RefCounted) -> void:
 	var state: Node = GS.new()
 	state.reset_game()
+	_check(state.configure_mutation_gate(manager._mutation_gate).get("ok", false), "restore GameState shares transaction custody")
 	var external := ExternalOwners.new()
 	var issuer := ISSUER.new()
 	var issuer_root := ISSUER_ROOT.new()
@@ -327,10 +354,14 @@ func _test_restore(manager: Node, port: RefCounted) -> void:
 	var route_participant := ROUTE.new(external)
 	_check(route_participant.configure_desktop_host(desktop_host).get("ok", false), "real SaveManager route participant host configured")
 	_check(manager.configure_restore_participants({"run": RUN.new(state), "desktop_consequence": CONSEQUENCE.new(CONSEQUENCE_STATE.new()),
-		"desktop_board": BOARD.new(BOARD_STATE.new()), "profile": PROFILE.new(external), "localization": LOCALE.new(external),
+		"desktop_board": BOARD.new(BOARD_STATE.new()), "schedule_view": _schedule_view_participant(issuer),
+		"profile": PROFILE.new(external), "localization": LOCALE.new(external),
 		"audio": AUDIO.new(external), "route": route_participant, "narrative": NARRATIVE.new(external)}).get("ok", false), "actual restore participant stack")
 	manager._journal.reset("different-live-run")
-	var earlier: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
+	var earlier := _snapshot()
+	if earlier.is_empty():
+		state.free()
+		return
 	earlier["active_app_id"] = "contacts"
 	var newer := earlier.duplicate(true)
 	newer["checkpoint_sequence"] = 2
@@ -385,6 +416,7 @@ func _test_title_cold_load(storage: RefCounted) -> void:
 	manager.configure_mutation_gate(GATE.new())
 	var state: Node = GS.new()
 	state.reset_game()
+	_check(state.configure_mutation_gate(manager._mutation_gate).get("ok", false), "cold GameState shares transaction custody")
 	var external := ExternalOwners.new()
 	var issuer := ISSUER.new()
 	var issuer_root := ISSUER_ROOT.new()
@@ -396,7 +428,8 @@ func _test_title_cold_load(storage: RefCounted) -> void:
 	var route := ROUTE.new(external)
 	route.configure_desktop_host(DESKTOP_HOST.new())
 	_check(manager.configure_restore_participants({"run": RUN.new(state), "desktop_consequence": CONSEQUENCE.new(CONSEQUENCE_STATE.new()),
-		"desktop_board": BOARD.new(BOARD_STATE.new()), "profile": PROFILE.new(external), "localization": LOCALE.new(external),
+		"desktop_board": BOARD.new(BOARD_STATE.new()), "schedule_view": _schedule_view_participant(issuer),
+		"profile": PROFILE.new(external), "localization": LOCALE.new(external),
 		"audio": AUDIO.new(external), "route": route, "narrative": NARRATIVE.new(external)}).get("ok", false), "cold owner restore stack configured")
 	var port := PORT.new()
 	_check(not port.configure(manager, "unknown").get("ok", true), "unrecognized Backup context rejects")

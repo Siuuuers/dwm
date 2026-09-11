@@ -295,6 +295,11 @@ func test_a_failed_durable_advance_returns_no_token_and_burns_no_counter() -> vo
 	assert_eq(after.get("next_counter"), before.get("next_counter"),
 		"a failed write leaves the persisted counter exactly where it was")
 	assert_eq(after.get("receipts"), before.get("receipts"), "a failed write adds no receipt")
+	var retried := _store.issue(&"debug_nonce")
+	assert_true(retried.get("ok", false), "the same process can retry after the one-shot storage failure: " + str(retried))
+	if retried.get("ok", false):
+		assert_eq(int(_issuer_receipt(retried)["counter"]), int(before["next_counter"]),
+			"retry mints the unburned counter exactly once")
 
 
 # ---------------------------------------------------------------------------------------------
@@ -307,6 +312,10 @@ func test_atomic_write_witnesses_are_exact_bounded_and_do_not_skip_cold_parsing(
 		if not _require_ok(_store.issue(&"transaction_id"), "issue for bounded witness"): return
 	assert_eq(_store._validated_write_texts.size(), 3)
 	var text: String = _store._validated_write_texts.back()
+	var canonical: Dictionary = CanonicalJsonWriter.stringify(_captured_document())
+	assert_true(canonical.get("ok", false), str(canonical))
+	assert_eq(text, str(canonical.get("value", "")),
+		"the issue-only assembly remains byte-identical to the canonical whole document")
 	assert_true(_store._parse_known_write_document(text).ok)
 	assert_false(_store._parse_known_write_document(text + "!").ok, "changed bytes must strict-parse")
 	var parsed: Dictionary = _store._parse_document(text)

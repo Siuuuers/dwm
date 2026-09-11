@@ -430,9 +430,9 @@ func _mode_action(index: int) -> StringName:
 	var actions: Array = projection.cells[index].actions
 	if "activate" in actions: return &"activate"
 	if mode == &"drag": return &""
+	if "chord" in actions: return &"chord"
 	if mode == &"reveal":
 		if "reveal" in actions: return &"reveal"
-		if "chord" in actions: return &"chord"
 	elif mode == &"flag":
 		if "unflag" in actions: return &"unflag"
 		if "flag" in actions: return &"flag"

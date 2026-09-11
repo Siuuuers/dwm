@@ -769,3 +769,40 @@ func test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reve
 	assert_true(panel.present(revealed.value))
 	assert_eq(state.minesweeper_rounds_left,rounds-1)
 	assert_eq(state.get_stat("motivation"),motivation-1)
+
+func test_real_retained_terminal_difficulty_publishes_next_legal_board_without_payment() -> void:
+	var initial: Dictionary = port.pull()
+	var active: Dictionary = port.dispatch("reveal",0,initial.value.board.revision)
+	assert_true(active.ok,str(active))
+	port.dispatch("reveal",1,active.value.board.revision)
+	var terminal: Dictionary = coordinator.get_state().value
+	assert_true(terminal.board.board.terminal)
+	# This legacy checkpoint fake retains only a marker; use its accepted receipt
+	# to model the full production terminal inspection snapshot.
+	for entry: Dictionary in terminal.command_receipts.values():
+		if str(entry.command_kind)=="first_reveal":
+			terminal.board.paid_start_receipt=entry.result.value.receipt.duplicate(true)
+	var transaction: Dictionary = issuer.issue(&"transaction_id")
+	var settled: Dictionary = coordinator._project_completion_board(terminal.identity,terminal,"exploded",transaction.value.token)
+	var restored: Dictionary = coordinator._board_state.prepare_restore(settled)
+	assert_true(restored.ok,str(restored))
+	assert_true(coordinator._board_state.commit(restored.value.candidate).ok)
+	# Observe this cold-restored fixture with a fresh port, without its deliberately
+	# failed pre-restore completion request.
+	port = PORT.new()
+	assert_true(port.configure(coordinator,issuer,state,catalog).ok)
+	var shown: Dictionary = port.pull()
+	assert_true(shown.ok,str(shown))
+	if not shown.ok: return
+	assert_true(shown.value.settled)
+	assert_eq(shown.value.register.difficulty_enabled,["beginner","intermediate","expert"])
+	var rounds: int = state.minesweeper_rounds_left
+	var motivation: int = state.get_stat("motivation")
+	var selected: Dictionary = port.select_difficulty("expert",shown.value.board.revision)
+	assert_true(selected.ok,str(selected))
+	if not selected.ok: return
+	assert_false(selected.value.settled)
+	assert_eq(selected.value.board.width,22)
+	assert_eq(selected.value.register.difficulty,"expert")
+	assert_eq(state.minesweeper_rounds_left,rounds)
+	assert_eq(state.get_stat("motivation"),motivation)

@@ -33,10 +33,15 @@ func prepare_presentation(profile: Dictionary) -> Dictionary:
 	var direction: String = profile["layout_direction"]
 	if direction not in ["ltr", "rtl"]:
 		return _fail(&"invalid_layout_direction")
-	var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
-	if not loaded.get("ok", false):
-		return loaded
-	var font_paths := _font_paths_for_profile(loaded["value"]["manifest"], str(profile["font_profile"]))
+	var font_paths: Dictionary
+	if _localization != null and _localization.has_method("get_font_paths"):
+		font_paths = _localization.get_font_paths(str(profile["font_profile"]))
+	else:
+		# Standalone preview roots can still resolve without a configured owner.
+		var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
+		if not loaded.get("ok", false):
+			return loaded
+		font_paths = _font_paths_for_profile(loaded["value"]["manifest"], str(profile["font_profile"]))
 	if not font_paths.get("ok", false):
 		return font_paths
 	var theme := _target.theme.duplicate(true) as Theme if _target.theme != null else Theme.new()

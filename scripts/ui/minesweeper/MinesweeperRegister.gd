@@ -125,7 +125,7 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 				_free_candidates(candidate_buttons,candidate_metrics)
 				return {}
 			button.position.x = index*96
-			button.present_state(not view.custody and key in view.difficulty_enabled,key == view.difficulty)
+			button.present_state(key in view.difficulty_enabled,key == view.difficulty)
 			button.accessibility_description = copy.selected if key == view.difficulty else ""
 			candidate_buttons[key] = button
 			height = maxi(height,int(button.custom_minimum_size.y)+44)
@@ -176,7 +176,7 @@ func _install(measured: Dictionary) -> void:
 	queue_redraw()
 
 func _request(tier: String) -> void:
-	if not public_view.custody and tier in public_view.difficulty_enabled and tier != public_view.difficulty:
+	if tier in public_view.difficulty_enabled and tier != public_view.difficulty:
 		difficulty_requested.emit(StringName(tier))
 
 func _draw() -> void:

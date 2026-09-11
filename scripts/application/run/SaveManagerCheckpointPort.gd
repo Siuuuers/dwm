@@ -53,6 +53,11 @@ var _prepared_validation_frame := -1
 # and completed post-result Autosaves retain the last fully saved player action; after a crash, the
 # interrupted action may replay once.
 var _transient_consequence_document := {"records": {}, "abandoned": {}}
+# Exact transient records issued by prepare_consequence_checkpoint(). The cache is an optimization
+# only: changed or evicted candidates still take the complete canonical round-trip validator.
+var _issued_transient_records: Dictionary = {}
+var _issued_transient_order: Array[String] = []
+
 
 
 func configure_desktop_context_provider(provider: Object) -> Dictionary:
@@ -328,13 +333,17 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 	var canonical: Dictionary = CANONICAL_JSON.stringify(preimage_value)
 	if not canonical.get("ok", false):
 		return _fail(&"canonical_serialization_failed", "consequence checkpoint preimage is not canonicalizable")
+	# The writer just proved this fully validated state is JSON-representable. Normalize only the
+	# StringName subtype that JSON does not preserve; keep integer/float provenance exact.
+	var normalized_preimage: Variant = _normalize_json_string_types(preimage_value)
+	normalized_header = (normalized_preimage as Dictionary)["header"]
 	var content_sha256 := str(canonical["value"]).sha256_text()
 	var checkpoint_receipt := {
 		"receipt_id": "consequence_checkpoint." + content_sha256,
 		"header": normalized_header.duplicate(true),
 		"content_sha256": content_sha256,
 	}
-	var receipt_attached_candidate: Dictionary = stage_candidate.duplicate(true)
+	var receipt_attached_candidate: Dictionary = (normalized_preimage as Dictionary)["stage_candidate"]
 	var pending: Variant = receipt_attached_candidate.get("pending")
 	if typeof(pending) == TYPE_DICTIONARY:
 		var pending_dict: Dictionary = (pending as Dictionary).duplicate(true)
@@ -346,10 +355,11 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 	var key := str(checkpoint_header.get("transaction_id", "")) + ":" + str(normalized_header["operation_ordinal"])
 	var record := {
 		"key": key,
-		"header": normalized_header.duplicate(true),
+		"header": (normalized_preimage as Dictionary)["header"],
 		"stage_candidate": receipt_attached_candidate,
 		"checkpoint_receipt": checkpoint_receipt,
 	}
+	_remember_issued_transient_record(str(checkpoint_receipt["receipt_id"]), record)
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": {"document": record},
 		"checkpoint_receipt": checkpoint_receipt,
@@ -365,15 +375,25 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 	var record: Dictionary = checkpoint_candidate["document"]
 	if record.get("checkpoint_receipt") != checkpoint_receipt:
 		return _fail(&"checkpoint_receipt_mismatch", "checkpoint_receipt does not match the prepared candidate")
-	var validated := _validate_transient_consequence_record(record)
-	if not validated.get("ok", false):
-		return validated
+	var receipt_id := str(checkpoint_receipt.get("receipt_id", ""))
+	var validated: Dictionary
+	if (_issued_transient_records.has(receipt_id)
+			and record == (_issued_transient_records[receipt_id] as Dictionary)):
+		validated = {"ok": true, "code": &"ok", "value": record.duplicate(true), "canonical_text": ""}
+		_touch_issued_transient_record(receipt_id)
+	else:
+		validated = _validate_transient_consequence_record(record)
+		if not validated.get("ok", false):
+			return validated
 	var normalized: Dictionary = validated["value"]
 	var key: String = normalized["key"]
 	var records: Dictionary = _transient_consequence_document["records"]
 	if records.has(key):
 		var existing: Dictionary = records[key]
-		if str(validated["canonical_text"]) == _canonical_text(existing):
+		var candidate_text := str(validated["canonical_text"])
+		if candidate_text.is_empty():
+			candidate_text = _canonical_text(normalized)
+		if candidate_text == _canonical_text(existing):
 			return {"ok": true, "code": &"ok", "value": {"checkpoint_receipt": checkpoint_receipt}}
 		return _fail(&"consequence_checkpoint_conflict",
 			"a different checkpoint is already retained at " + key)
@@ -414,6 +434,8 @@ func clear_transient_consequence_checkpoints() -> Dictionary:
 	var records_cleared := (_transient_consequence_document["records"] as Dictionary).size()
 	var abandoned_cleared := (_transient_consequence_document["abandoned"] as Dictionary).size()
 	_transient_consequence_document = {"records": {}, "abandoned": {}}
+	_issued_transient_records = {}
+	_issued_transient_order = []
 	return {"ok": true, "code": &"ok", "value": {
 		"records_cleared": records_cleared, "abandoned_cleared": abandoned_cleared}}
 
@@ -450,6 +472,37 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 		"found": true,
 		"stage_candidate": ((latest_by_transaction[chosen] as Dictionary)["stage_candidate"] as Dictionary).duplicate(true),
 	}}
+
+static func _normalize_json_string_types(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_STRING_NAME:
+			return String(value)
+		TYPE_ARRAY:
+			var normalized_array: Array = []
+			for item: Variant in value as Array:
+				normalized_array.append(_normalize_json_string_types(item))
+			return normalized_array
+		TYPE_DICTIONARY:
+			var normalized_dictionary: Dictionary = {}
+			for raw_key: Variant in value as Dictionary:
+				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
+				normalized_dictionary[key] = _normalize_json_string_types((value as Dictionary)[raw_key])
+			return normalized_dictionary
+		_:
+			return value
+
+
+func _remember_issued_transient_record(receipt_id: String, record: Dictionary) -> void:
+	_issued_transient_records[receipt_id] = record.duplicate(true)
+	_touch_issued_transient_record(receipt_id)
+	while _issued_transient_order.size() > 8:
+		_issued_transient_records.erase(_issued_transient_order.pop_front())
+
+
+func _touch_issued_transient_record(receipt_id: String) -> void:
+	_issued_transient_order.erase(receipt_id)
+	_issued_transient_order.append(receipt_id)
+
 
 func _canonical_text(value: Variant) -> String:
 	var canonical: Dictionary = CANONICAL_JSON.stringify(value)

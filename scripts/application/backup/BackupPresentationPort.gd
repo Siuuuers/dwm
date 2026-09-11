@@ -129,17 +129,17 @@ func prepare_action(action: String, locator: String) -> Dictionary:
 		return admitted
 	for pending_token: String in _pending.keys():
 		cancel_action(pending_token)
-	var inspected: Dictionary = _owner.inspect_backup(locator)
-	if not inspected.get("ok", false):
-		return inspected
-	var record := _project_record(inspected["value"], _owner.get_backup_save_capability(), true)
-	if not record["actions"][action]:
-		return _fail(&"backup_action_unavailable")
+	# Preparation already inspects and freezes the selected file. A preliminary full
+	# inspection repeated every restore participant without adding custody evidence.
 	var prepared: Dictionary = _owner.prepare_backup_action(action, locator)
 	if not prepared.get("ok", false):
 		return prepared
-	# Owner's final preparation is authoritative if bytes changed since inspection.
-	record = _project_record(prepared["value"]["record"], _owner.get_backup_save_capability(), true)
+	var token := str(prepared["value"]["token"])
+	admitted = _admission_result()
+	var record := _project_record(prepared["value"]["record"], _owner.get_backup_save_capability(), admitted.get("ok", false))
+	if not record["actions"][action]:
+		_owner.cancel_backup_action(token)
+		return _fail(&"backup_action_unavailable") if admitted.get("ok", false) else admitted
 	var confirmation_kind := "none"
 	if action == "load":
 		if _context == "title":
@@ -150,7 +150,6 @@ func prepare_action(action: String, locator: String) -> Dictionary:
 		confirmation_kind = "delete"
 	elif record["state"] != "empty" and (locator != "quick" or record["state"] == "unavailable" or record["fallback"]):
 		confirmation_kind = "overwrite"
-	var token := str(prepared["value"]["token"])
 	_pending[token] = {"action": action, "locator": locator}
 	return {"ok": true, "value": {"confirmation_required": confirmation_kind != "none",
 		"confirmation_kind": confirmation_kind, "token": token, "record": record}}

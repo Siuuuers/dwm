@@ -167,6 +167,10 @@ var _loaded := false
 # Atomic writes repeatedly validate the same exact UTF-8 document. Keep only the three
 # most recent texts proven by the strict parser or canonical writer; cold or changed bytes still parse.
 var _validated_write_texts: Array[String] = []
+# Canonical fragments for the issue-only append path. A generic write or validated load rebuilds
+# them; issuing one receipt then serializes only that receipt and the changed counter.
+var _canonical_field_values: Dictionary = {}
+var _canonical_receipt_entries: Dictionary = {}
 
 
 # -------------------------------------------------------------------------------------------------
@@ -197,6 +201,7 @@ func load_or_create() -> Dictionary:
 		if not lawful.get("ok", false):
 			return lawful
 		_document = existing.duplicate(true)
+		_rebuild_issue_canonical_cache(_document)
 		_loaded = true
 		return {"ok": true, "value": _document.duplicate(true)}
 	var generated: Dictionary = _namespace_source.call(&"generate_namespace")
@@ -229,7 +234,7 @@ func issue(purpose: StringName) -> Dictionary:
 	if not PURPOSE_UNION.has(String(purpose)):
 		return _failed(&"unknown_purpose", String(purpose))
 	var minted := _minted_document([{"purpose": String(purpose), "numeric_value": null}])
-	var written := _write_document(minted["document"])
+	var written := _write_issued_document(minted["document"], (minted["receipts"] as Array)[0])
 	if not written.get("ok", false):
 		return written
 	var receipt: Dictionary = (minted["receipts"] as Array)[0]
@@ -372,7 +377,85 @@ func _write_document(document: Dictionary) -> Dictionary:
 	if not written.get("ok", false):
 		return _storage_failure(written, &"root_write_failed")
 	_document = document.duplicate(true)
+	_rebuild_issue_canonical_cache(_document)
 	return {"ok": true}
+
+
+func _write_issued_document(document: Dictionary, receipt: Dictionary) -> Dictionary:
+	if _canonical_field_values.is_empty():
+		return _write_document(document)
+	var receipt_id := str(receipt["receipt_id"])
+	var encoded_id: Dictionary = _CANONICAL_WRITER.stringify(receipt_id)
+	var encoded_receipt: Dictionary = _CANONICAL_WRITER.stringify(receipt)
+	if not encoded_id.get("ok", false) or not encoded_receipt.get("ok", false):
+		return _failed(&"root_serialization_failed", "canonical receipt write refused")
+	var receipt_entries := _canonical_receipt_entries.duplicate()
+	receipt_entries[receipt_id] = str(encoded_id["value"]) + ":" + str(encoded_receipt["value"])
+	var text := _compose_issue_document(document, receipt_entries)
+	if text.is_empty():
+		return _write_document(document)
+	_remember_write_text(text)
+	var written: Dictionary = _storage.call(
+		&"write_atomic", ROOT_DOCUMENT_PATH, text, Callable(self, "_parse_known_write_document"), true
+	)
+	if not written.get("ok", false):
+		return _storage_failure(written, &"root_write_failed")
+	_document = document.duplicate(true)
+	_canonical_receipt_entries = receipt_entries
+	_canonical_field_values["next_counter"] = str(int(document["next_counter"]))
+	return {"ok": true}
+
+
+func _compose_issue_document(document: Dictionary, receipt_entries: Dictionary) -> String:
+	var receipt_ids: Array = receipt_entries.keys()
+	receipt_ids.sort()
+	var encoded_receipts := PackedStringArray()
+	for receipt_id: Variant in receipt_ids:
+		encoded_receipts.append(str(receipt_entries[receipt_id]))
+	var keys: Array = document.keys()
+	keys.sort()
+	var fields := PackedStringArray()
+	for key: Variant in keys:
+		var name := str(key)
+		var encoded_key: Dictionary = _CANONICAL_WRITER.stringify(name)
+		if not encoded_key.get("ok", false):
+			return ""
+		var encoded_value: String
+		if name == "receipts":
+			encoded_value = "{" + ",".join(encoded_receipts) + "}"
+		elif name == "next_counter":
+			encoded_value = str(int(document[name]))
+		elif _canonical_field_values.has(name):
+			encoded_value = str(_canonical_field_values[name])
+		else:
+			return ""
+		fields.append(str(encoded_key["value"]) + ":" + encoded_value)
+	return "{" + ",".join(fields) + "}"
+
+
+func _rebuild_issue_canonical_cache(document: Dictionary) -> void:
+	var fields := {}
+	var receipts := {}
+	for key: Variant in document:
+		var name := str(key)
+		if name == "receipts":
+			for receipt_id: Variant in (document[name] as Dictionary):
+				var encoded_id: Dictionary = _CANONICAL_WRITER.stringify(str(receipt_id))
+				var encoded_receipt: Dictionary = _CANONICAL_WRITER.stringify(document[name][receipt_id])
+				if not encoded_id.get("ok", false) or not encoded_receipt.get("ok", false):
+					_canonical_field_values = {}
+					_canonical_receipt_entries = {}
+					return
+				receipts[str(receipt_id)] = str(encoded_id["value"]) + ":" + str(encoded_receipt["value"])
+			continue
+		var encoded: Dictionary = _CANONICAL_WRITER.stringify(document[name])
+		if not encoded.get("ok", false):
+			_canonical_field_values = {}
+			_canonical_receipt_entries = {}
+			return
+		fields[name] = str(encoded["value"])
+	_canonical_field_values = fields
+	_canonical_receipt_entries = receipts
 
 
 func _parse_known_write_document(text: String) -> Dictionary:

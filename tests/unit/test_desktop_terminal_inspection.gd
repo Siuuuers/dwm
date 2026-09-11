@@ -96,7 +96,7 @@ func test_cold_remapped_terminal_keeps_exact_inspection_and_rejects_old_action_w
 	if not configuration.ok: return
 	assert_true(configuration.value.settled_inspection)
 	assert_true(fixture.coordinator.get_configuration_context().value.new_board_enabled)
-	assert_eq(fixture.coordinator.get_configuration_context().value.difficulty_enabled, [])
+	assert_eq(fixture.coordinator.get_configuration_context().value.difficulty_enabled, ["beginner", "intermediate", "expert"])
 	assert_false(fixture.coordinator.reveal(old_action).ok)
 	assert_true(fixture.coordinator.suspend(fixture._request()).ok)
 	assert_true(fixture.coordinator._board_state.has_settled_inspection())
@@ -241,3 +241,40 @@ func _canonical(value: Variant) -> String:
 	var emitted := CANONICAL.stringify(STATE._inspection_normalize(value))
 	assert_true(emitted.ok, str(emitted))
 	return str(emitted.get("value", ""))
+
+func test_settled_difficulty_dismisses_inspection_atomically_without_paying_next_reveal() -> void:
+	var setup := _paid()
+	var fixture: Node = setup.fixture
+	var saved := _settled(fixture)
+	var request: Dictionary = fixture._request("expert")
+	var result: Dictionary = fixture.coordinator.select_difficulty(request)
+	assert_true(result.ok, str(result))
+	var next: Dictionary = fixture.coordinator.get_state().value
+	assert_eq(next.phase,"NONE")
+	assert_null(next.board)
+	assert_eq(next.terminal_receipts,saved.terminal_receipts)
+	assert_eq(fixture.coordinator.get_configuration_context().value.difficulty_id,"expert")
+	assert_eq(fixture.port.motivation,6)
+	assert_eq(fixture.port.rounds_left,1)
+	assert_eq(fixture.generator.calls.size(),1)
+	assert_true(fixture.coordinator.select_difficulty(request).ok)
+	assert_eq(fixture.coordinator.get_state().value,next)
+
+func test_settled_difficulty_failed_commit_keeps_result_and_exact_retry() -> void:
+	var setup := _paid()
+	var fixture: Node = setup.fixture
+	var saved := _settled(fixture)
+	fixture._durable()
+	fixture.durable.disk = {"desktop":{"board":saved.duplicate(true)}}
+	var request: Dictionary = fixture._request("expert")
+	fixture.durable.fail_write = true
+	assert_false(fixture.coordinator.select_difficulty(request).ok)
+	assert_eq(fixture.coordinator.get_state().value,saved)
+	assert_eq(fixture.coordinator.get_configuration_context().value.difficulty_id,"beginner")
+	var other: Dictionary = fixture.coordinator.select_difficulty(fixture._request("intermediate"))
+	assert_eq(other.code,&"configuration_retry_required")
+	assert_true(fixture.coordinator.select_difficulty(request).ok)
+	assert_eq(fixture.coordinator.get_state().value.phase,"NONE")
+	assert_eq(fixture.coordinator.get_configuration_context().value.difficulty_id,"expert")
+	assert_eq(fixture.port.motivation,6)
+	assert_eq(fixture.port.rounds_left,1)

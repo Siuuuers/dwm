@@ -179,13 +179,14 @@ func _apply_geometry() -> void:
 	custom_minimum_size = Vector2(_band * 2)
 	size = custom_minimum_size
 	if grid.projection.is_empty(): return
-	var result := LAYOUT.measure(grid.projection.width, grid.projection.height, _band, _large, _scroll)
+	var result := LAYOUT.fit_board(grid.projection.width, grid.projection.height, _band, _large)
 	if not result.ok: return
 	geometry = result.value
 	_scroll = geometry.scroll
 	well.position = Vector2.ZERO
 	well.size = Vector2(geometry.well.size * 2)
 	grid.position = Vector2(geometry.mount.position * 2)
+	grid.scale = Vector2.ONE * float(geometry.scale)
 	_seam.size = well.size
 	var interactive: bool = not _interaction_blocked and not grid.projection.custody
 	vertical_rail = _update_rail(vertical_rail, geometry.vertical, true, interactive)
@@ -219,7 +220,7 @@ func _scroll_axis(value: int, vertical: bool) -> void:
 
 func _reveal_focus(index: int) -> void:
 	if _interaction_blocked or information_sheet != null or _applying or grid.projection.is_empty() or grid.projection.custody or index < 0: return
-	var result := LAYOUT.reveal_cell(grid.projection.width, grid.projection.height, index, _band, _large, _scroll)
+	var result := LAYOUT.fit_board(grid.projection.width, grid.projection.height, _band, _large)
 	if result.ok:
 		_scroll = result.value.scroll
 		_apply_geometry()
