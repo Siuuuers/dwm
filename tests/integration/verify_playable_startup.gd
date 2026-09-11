@@ -4,6 +4,21 @@ extends SceneTree
 var _first_day_board_identity: Dictionary = {}
 var _ordinary_reply_receipt: Dictionary = {}
 
+
+# Test-only failure wrapper; all other prepare/commit work stays on the real checkpoint port.
+class FailOneHospitalCheckpoint extends RefCounted:
+	var target: Object
+	var failures := 0
+	func _init(port: Object) -> void: target = port
+	func preview_checkpoint_id(run_id: String) -> Dictionary: return target.preview_checkpoint_id(run_id)
+	func prepare(inputs: Dictionary, kind: StringName, write: Dictionary) -> Dictionary:
+		return target.prepare(inputs, kind, write)
+	func commit(candidate: Dictionary) -> Dictionary:
+		if failures == 0:
+			failures += 1
+			return {"ok": false, "code": &"injected_hospital_completion_write_failure"}
+		return target.commit(candidate)
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -46,8 +61,15 @@ func _run() -> void:
 	var new_acc: Button = current_scene.get_node("%NewAccButton")
 	if not _check(not new_acc.disabled, "New Account enabled"): return
 	new_acc.pressed.emit()
-	await _frames()
 	var game: Node = root.get_node("GameState")
+	var startup_deadline := Time.get_ticks_msec() + 30000
+	while Time.get_ticks_msec() < startup_deadline:
+		if not bool(root.get_node("SaveManager").get("_new_run_busy")) \
+				and game.capture_live_session().value.active and current_scene != null \
+				and current_scene.find_child("ComputerDesktop", true, false) != null: break
+		await process_frame
+	await _frames()
+	if not _check(not bool(root.get_node("SaveManager").get("_new_run_busy")), "New Account completed its transaction before gameplay"): return
 	var session: Dictionary = game.capture_live_session()
 	if not _check(bool(session.value.active), "New Account activated a live session: " + JSON.stringify(session)): return
 	var desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
@@ -85,6 +107,9 @@ func _run() -> void:
 	var physical: Dictionary = day_one_owner.board.board
 	panel.worksheet.cell_action_requested.emit(&"reveal", int(physical.mine_indices[0]), int(panel.public_view.board.revision))
 	if not _check(app.last_result.get("ok", false) and bool(panel.public_view.settled), "round result: " + JSON.stringify(app.last_result)): return
+	if "--probe-message-popup" in OS.get_cmdline_user_args():
+		await _message_popup_journey(game, desktop)
+		return
 	if "--probe-terminal-save" in OS.get_cmdline_user_args():
 		await _terminal_inspection_journey(game, desktop, app)
 		return
@@ -158,6 +183,30 @@ func _hospital_journey(bootstrap: Node, game: Node) -> void:
 	if not _check(not buy.disabled, "wine purchase enabled"): return
 	buy.pressed.emit()
 	if not _check(shop.get("_purchase_result").get("ok", false), "Shop purchase: " + JSON.stringify(shop.get("_purchase_result"))): return
+	await _frames()
+	if not _check(current_scene != null and current_scene.has_node("%FaintNotice"), "ordinary Hospital notice mounted"): return
+	var hospital: Node = current_scene
+	var notice_port: Object = hospital.get("_presentation_port")
+	var notice_command: Dictionary = hospital.get_presentation_projection()
+	if not _check(hospital.get_node("%FaintNotice").visible, "ordinary Hospital uses the short notice"): return
+	if not _check(not root.get_node("DialogicBridge").has_active_playback(), "ordinary Hospital starts no DTL or art"): return
+	await _capture_screen("ordinary-hospital-notice")
+	var coordinator: Object = bootstrap.get("_retained_condition_hospital_coordinator")
+	var original: Object = coordinator.get("_checkpoint")
+	var injected := FailOneHospitalCheckpoint.new(original)
+	var retry_probe := "--probe-hospital-notice-retry" in OS.get_cmdline_user_args()
+	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	if retry_probe: coordinator.set("_checkpoint", injected)
+	hospital.get_node("%ContinueButton").pressed.emit()
+	await _frames()
+	if retry_probe:
+		if not _check(injected.failures == 1, "actual Hospital completion encountered one injected save failure"): return
+		if not _check(current_scene == hospital and game.day == 2, "failed completion stays on the notice and source day"): return
+		if not _check(game.capture_run_snapshot_input() == before, "failed completion applies no gameplay effects"): return
+		if not _check(not hospital.get_node("%ContinueButton").disabled, "the visible Continue button becomes retryable"): return
+		hospital.get_node("%ContinueButton").pressed.emit()
+		await _frames()
+		coordinator.set("_checkpoint", original)
 	for frame: int in 100:
 		await process_frame
 		if game.day == 3 and game._run_lifecycle.to_dict().get("active_condition_hospital_plan") == null: break
@@ -171,6 +220,12 @@ func _hospital_journey(bootstrap: Node, game: Node) -> void:
 	if not _check(game.minesweeper_rounds_left == 2, "Hospital new day resets daily rounds"): return
 	await _frames()
 	if not _check(current_scene.find_child("ComputerDesktop", true, false) != null, "Hospital returns to desktop"): return
+	if retry_probe:
+		var settled: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+		if not _check(notice_port.acknowledge_notice(notice_command).get("ok", false), "exact repeated acknowledgment remains harmless"): return
+		await _frames()
+		if not _check(game.capture_run_snapshot_input() == settled, "repeated completion applies no second recovery, charge, or day advance"): return
+		print("PLAYABLE_HOSPITAL_NOTICE_RETRY_PASS: actual Continue -> failed durable completion -> same notice retry -> one recovery/day advance")
 	print("PLAYABLE_HOSPITAL_PASS: actual wine purchase -> Hospital presentation -> recovered Day 3 desktop")
 	quit(0)
 
@@ -1164,4 +1219,24 @@ func _terminal_inspection_journey(game: Node, desktop: Node, app: Node) -> void:
 		and _inspection_resources(game) == resources, "Load retains dismissal without payment or reward changes"): return
 	await _capture_screen("10-terminal-dismissal-restored")
 	print("PLAYABLE_TERMINAL_INSPECTION_PASS: finished board -> Pause Save/Load -> exact inspection/no second reward -> New Board -> Load preserves dismissal")
+	quit(0)
+
+
+func _message_popup_journey(game: Node, desktop: Node) -> void:
+	await _frames()
+	var popup: Control = desktop.message_notification
+	var friend_id := str(popup.get_meta("friend_id", ""))
+	var notification_id := str(popup.get_meta("notification_id", ""))
+	if not _check(popup.visible and not friend_id.is_empty() and not notification_id.is_empty(), "real result shows a corner message notice"): return
+	if not _check(game.is_contact_message_unlocked(friend_id), "notice names the actually unlocked message"): return
+	if not _check(desktop.get("_active_id") == &"minesweeper", "notice appears over finished Minesweeper"): return
+	desktop._on_contact_message_unlocked({"notification_id": notification_id, "friend_id": friend_id})
+	if not _check(desktop.get("_message_notification_queue").is_empty(), "same publication cannot queue twice"): return
+	await _capture_screen("message-notification")
+	desktop.notification_go.pressed.emit()
+	await _frames()
+	if not _check(desktop.get("_active_id") == &"contacts", "Go leaves finished Minesweeper and opens Contacts"): return
+	if not _check(not popup.visible, "successful Go dismisses the notice"): return
+	await _capture_screen("message-notification-contacts")
+	print("PLAYABLE_MESSAGE_POPUP_PASS: saved result -> real corner notice -> duplicate suppressed -> Go opens Contacts")
 	quit(0)

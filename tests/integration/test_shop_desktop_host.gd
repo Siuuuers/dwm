@@ -36,8 +36,8 @@ class IsolatedDesktop extends "res://scripts/ui/ComputerDesktop.gd":
 
 
 class ContactsPort extends RefCounted:
-	func get_projection(_day: int = 1) -> Dictionary:
-		return {"ok":true,"value":{"friends":[],"group":{}}}
+	func get_projection(_friend_id: String, _primary: String = "en", _secondary: String = "") -> Dictionary:
+		return {"ok":true,"value":{"friends":[],"group":{},"unread":{}}}
 	func open_friend(_friend_id: String) -> Dictionary:
 		return {"ok":false,"code":&"fixture_command_unavailable"}
 	func reply_to_group(_choice_id: String) -> Dictionary:

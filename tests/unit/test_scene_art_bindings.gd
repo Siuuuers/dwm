@@ -7,8 +7,12 @@ const HOSPITAL := preload("res://scripts/ui/HospitalScene.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 
 class PhysicalPort extends RefCounted:
+	var notice_acks := 0
 	func begin(_request: Dictionary) -> Dictionary: return {"ok": true}
 	func complete(_request: Dictionary) -> Dictionary: return {"ok": true}
+	func acknowledge_notice(_command: Dictionary) -> Dictionary:
+		notice_acks += 1
+		return {"ok": true}
 	func pull_physical(_command: Dictionary) -> Dictionary:
 		var cells: Array = []
 		for index: int in range(324):
@@ -105,6 +109,21 @@ func test_actual_dating_host_mounts_art_in_the_visible_overlay_behind_unchanged_
 	scene._refresh_challenge()
 	assert_false(art.visible)
 	assert_eq(scene._challenge_content.offset_top, 0.0, "no-art flow retains its original layout")
+
+func test_ordinary_hospital_scene_shows_readable_notice_and_acknowledges_once() -> void:
+	var port := PhysicalPort.new()
+	var scene: Control = load("res://scenes/hospital/HospitalScene.tscn").instantiate()
+	var command := {"context": {"kind": "hospital", "day": 2, "source_entry_ids": [], "miss_receipt_ids": []}}
+	assert_true(scene.configure_presentation(port, command).ok)
+	add_child_autofree(scene)
+	await get_tree().process_frame
+	assert_true(scene._notice_panel.visible)
+	assert_false(scene._message_label.text.strip_edges().is_empty())
+	assert_gte(scene._continue_button.custom_minimum_size.y, 48.0)
+	scene._continue_button.pressed.emit()
+	assert_eq(port.notice_acks, 1)
+	assert_true(scene._continue_button.disabled)
+
 
 func test_hospital_requires_this_days_exact_saved_witness_sources() -> void:
 	var context := {"kind": "hospital", "day": 2, "source_entry_ids": ["accepted.2"], "miss_receipt_ids": ["miss.2"]}

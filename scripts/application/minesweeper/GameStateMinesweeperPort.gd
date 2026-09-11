@@ -394,8 +394,10 @@ func publish_desktop_notifications() -> void:
 		var record: Dictionary = _accepted_notifications[key]
 		_published_notifications[key] = true
 		if not record.action_receipt.get("unlock_receipt_ids", []).is_empty():
+			var friend_id := str(_game_state.call(&"get_daily_message_friend_for_finished_round",
+				int(_game_state.minesweeper_app_rounds_finished_today), int(_game_state.day)))
 			_game_state.emit_signal("contact_message_unlocked", {"day": int(_game_state.day),
-				"notification_id": key})
+				"notification_id": key, "friend_id": friend_id})
 
 
 func rollback(backup: Dictionary) -> Dictionary:

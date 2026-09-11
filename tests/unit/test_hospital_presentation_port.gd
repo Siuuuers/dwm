@@ -30,6 +30,7 @@ const TIMELINE_ID := "hospital.faint"
 const STAGE_ID := "resolution.day3:hospital_if_triggered"
 const SUBSTAGE_ID := "presentation.intent.hospital.day3"
 
+var _saved_global_contacts: Dictionary = {}
 var _owner_receipts: Array[Dictionary] = []
 var _runtime: DialogicGameHandler
 var _runtime_adapter: RefCounted
@@ -112,6 +113,11 @@ func before_each() -> void:
 	_bridge.name = "TestDialogicBridge"
 	add_child(_bridge)
 	assert_true(_bridge.initialize(null, _runtime_adapter).get("ok", false))
+	_saved_global_contacts = GameState.contacts.duplicate(true)
+	# Physical playback fixture uses the real attendance projection, not an owner subclass.
+	GameState.contacts.sylvia_hospital_witness_receipts = {"fixture": {
+		"kind": "sylvia_hospital_witness", "resolution_kind": "condition_hospital",
+		"care_followup_day": 4, "source_receipt_id": "entry.a", "hospital_miss_receipt_id": "miss.a"}}
 	_owner = OWNER.new()
 	assert_true(_owner.configure(_bridge).get("ok", false))
 	_owner.physical_completion_ready.connect(func(receipt: Dictionary): _owner_receipts.append(receipt.duplicate(true)))
@@ -125,6 +131,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	GameState.contacts = _saved_global_contacts.duplicate(true)
 	# Every admitted return-only presentation drains through its real native end
 	# before its bridge, owner, layout, or runtime can be destroyed.
 	if is_instance_valid(_bridge) and _bridge.has_active_playback():

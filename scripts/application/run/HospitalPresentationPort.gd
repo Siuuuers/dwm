@@ -224,6 +224,17 @@ func is_ready() -> bool:
 	return _identity_issuer != null and _physical_owner != null
 
 
+## Acknowledges the short ordinary-faint notice through the retained physical owner.
+func acknowledge_notice(presentation_command: Dictionary) -> Dictionary:
+	if _physical_owner == null or not _physical_owner.has_method("complete_notice"):
+		return _fail(&"physical_presentation_unavailable", "the notice owner is unavailable", {})
+	var completion_id := str(presentation_command.get("completion_transaction_id", ""))
+	if not _commands.has(completion_id) or presentation_command != (_commands[completion_id] as Dictionary):
+		return _fail(&"presentation_command_conflict", "the notice command was not issued by this port", {})
+	var completed: Variant = _physical_owner.call(&"complete_notice", presentation_command.duplicate(true))
+	return completed if completed is Dictionary else _fail(&"physical_presentation_unavailable", "the notice owner returned no result", {})
+
+
 # -------------------------------------------------------------------------------------------------
 # validation
 # -------------------------------------------------------------------------------------------------
@@ -376,7 +387,9 @@ func _on_physical_completion_ready(receipt: Dictionary) -> void:
 		completion_failed.emit(result)
 		return
 	if already_settled:
-		# An exact duplicate owner emission returns the stored receipt WITHOUT a second publication.
+		# Explicit notice acknowledgment may retry the existing durable settle; generic owner
+		# duplicates remain suppressed.
+		if receipt.get("result", {}).get("notice_acknowledged", false): completion_ready.emit(result)
 		return
 	completion_ready.emit(result)
 

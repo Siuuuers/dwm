@@ -19,12 +19,18 @@ const LABELS := {
 	"zh-CN": ["扫雷", "联系人", "日程", "商店", "备份", "设置", "退出登录"],
 	"zh-HK": ["踩地雷", "聯絡人", "日程", "商店", "備份", "設定", "登出"],
 }
+const CONTACT_NAMES := {"priscilla": "Priscilla", "lavinia": "Lavinia", "sylvia": "Sylvia"}
 
 @onready var icon_grid: GridContainer = %IconGrid
 @onready var app_window_host: Control = %AppWindowHost
 @onready var notification_layer: Control = %NotificationLayer
 @onready var contacts_button: Button = %ContactsButton
 @onready var background_image: TextureRect = $BackgroundImage
+@onready var message_notification: PanelContainer = %MinesweeperMessageNotification
+@onready var notification_title: Label = %NotificationTitle
+@onready var notification_body: Label = %NotificationBody
+@onready var notification_close: Button = %CloseButton
+@onready var notification_go: Button = %GoButton
 
 var launcher_buttons: Dictionary = {}
 var home_button: Button
@@ -64,6 +70,8 @@ var _run_configuration_masked := false
 var _show_after_run_configuration := false
 var _warning_navigation_serial := 0
 var _prepared_warning_navigation: Dictionary = {}
+var _message_notification_queue: Array[Dictionary] = []
+var _seen_message_notifications: Dictionary = {}
 
 func configure_run_configuration(owner: Object) -> Dictionary:
 	if not is_instance_valid(owner) or not owner.has_method("get_run_configuration") or Callable(owner,"get_run_configuration").get_argument_count() != 0:
@@ -98,6 +106,9 @@ func _ready() -> void:
 		background_image.offset_top = 64
 	app_window_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	notification_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	message_notification.mouse_filter = Control.MOUSE_FILTER_STOP
+	notification_close.pressed.connect(_dismiss_message_notification)
+	notification_go.pressed.connect(_open_contacts_from_notification)
 	_build_shell()
 	_refresh_launcher()
 	_foreground_eligible = get_window().has_focus()
@@ -119,7 +130,9 @@ func _ready() -> void:
 	if state != null and not state.daily_state_reset.is_connected(_on_daily_state_reset):
 		state.daily_state_reset.connect(_on_daily_state_reset)
 	if state != null:
-		for event in ["contact_message_unlocked", "contact_open_committed", "contact_choice_selected", "invitation_reply_committed"]:
+		if state.has_signal("contact_message_unlocked") and not state.is_connected("contact_message_unlocked", _on_contact_message_unlocked):
+			state.connect("contact_message_unlocked", _on_contact_message_unlocked)
+		for event in ["contact_open_committed", "contact_choice_selected", "invitation_reply_committed"]:
 			if state.has_signal(event) and not state.is_connected(event, _on_contacts_changed):
 				state.connect(event, _on_contacts_changed)
 	if _schedule_port != null and _host_state != null and _host_state.get_state().get("active_app_id") == &"schedule":
@@ -725,6 +738,14 @@ func _refresh_launcher() -> void:
 			_locale = requested
 	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
 	theme = DESKTOP_THEME.build(_locale, percent, _run_palette)
+	var notice_style := StyleBoxFlat.new()
+	notice_style.bg_color = theme.get_color("face", "Desktop")
+	notice_style.border_color = theme.get_color("structure", "Desktop")
+	notice_style.set_border_width_all(2)
+	for edge: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+		notice_style.set_content_margin(edge, 16)
+	message_notification.add_theme_stylebox_override("panel", notice_style)
+	_refresh_message_notification_copy()
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
 	for index in ids.size():
 		var button: Button = launcher_buttons[ids[index]]
@@ -757,6 +778,52 @@ func _set_failure_copy() -> void:
 
 func _on_launcher_locale_changed(_locale_id: String) -> void:
 	_refresh_launcher()
+
+func _on_contact_message_unlocked(result: Dictionary) -> void:
+	_on_contacts_changed(result)
+	var notification_id := str(result.get("notification_id", ""))
+	var friend_id := str(result.get("friend_id", ""))
+	if notification_id.is_empty() or friend_id not in CONTACT_NAMES or _seen_message_notifications.has(notification_id): return
+	_seen_message_notifications[notification_id] = true
+	_message_notification_queue.append({"notification_id": notification_id, "friend_id": friend_id})
+	_present_next_message_notification()
+
+
+func _present_next_message_notification() -> void:
+	if message_notification.visible or _message_notification_queue.is_empty(): return
+	var entry: Dictionary = _message_notification_queue.pop_front()
+	message_notification.set_meta("notification_id", entry.notification_id)
+	message_notification.set_meta("friend_id", entry.friend_id)
+	_refresh_message_notification_copy()
+	message_notification.show()
+
+
+func _refresh_message_notification_copy() -> void:
+	if not message_notification.has_meta("notification_id"): return
+	var friend_name := str(CONTACT_NAMES.get(str(message_notification.get_meta("friend_id", "")), ""))
+	if _localization != null and _localization.has_method("t"):
+		notification_title.text = _localization.t("desktop.notification.new_message_title")
+		notification_body.text = _localization.t("desktop.notification.new_message_from_friend", {"friend_name": friend_name})
+	else:
+		notification_title.text = "New message"
+		notification_body.text = "Angela received a new message from %s." % friend_name
+	message_notification.accessibility_name = notification_title.text
+	message_notification.accessibility_description = notification_body.text
+
+
+func _dismiss_message_notification() -> void:
+	message_notification.hide()
+	message_notification.remove_meta("notification_id")
+	message_notification.remove_meta("friend_id")
+	_present_next_message_notification()
+
+
+func _open_contacts_from_notification() -> void:
+	var home: Dictionary = return_home()
+	if not home.get("ok", false): return
+	var opened: Dictionary = open_app(&"contacts")
+	if opened.get("ok", false):
+		_dismiss_message_notification()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path == &"preferences.accessibility.text_size":

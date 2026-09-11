@@ -133,16 +133,17 @@ func test_an_unconfigured_scene_reaching_the_tree_does_nothing_at_all() -> void:
 # ownership: input
 # -------------------------------------------------------------------------------------------------
 
-func test_host_exposes_no_substitute_caption_or_completion_button() -> void:
+func test_ordinary_host_exposes_only_the_notice_acknowledgment() -> void:
 	var scene := _instantiate()
 	assert_true(scene.configure_presentation(_port, _command()).get("ok", false))
 	add_child_autofree(scene)
 	var before := _owner_snapshot()
 
-	assert_eq(scene.find_children("*", "Button", true, false).size(), 0,
-		"only the live dialogue apparatus may expose playback controls")
-	assert_eq(scene.find_children("*", "Label", true, false).size(), 0,
-		"no generic hospital body replaces authored captions")
+	assert_eq(scene.find_children("*", "Button", true, false).size(), 1,
+		"ordinary fainting offers one Continue acknowledgment")
+	assert_eq(scene.find_children("*", "Label", true, false).size(), 1)
+	assert_true(scene.get_node("%FaintNotice").visible)
+	assert_false(scene.has_method("start_timeline"), "the host cannot start authored playback")
 
 	assert_eq(_owner_snapshot(), before,
 		"the host advances no day, applies no recovery, and selects no ending")
