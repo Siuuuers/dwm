@@ -13,8 +13,9 @@ and current title/witnessed-caption owners. Superseded title/caption scaffolds
 and generated save fixtures remain in Git history rather than being reintroduced.
 Newer story/canon decisions remain forward authority; unsettled mechanics remain
 provisional. Initial portraits are fixed: one in solo scenes, two in group or
-twofriends scenes, with expression variations deferred. Art bindings are still
-future work, as described in the art guide.
+twofriends scenes, with expression variations deferred. Optional art bindings
+were subsequently implemented on September 9; use [the drop-in art guide](../../art/README.md)
+for the current paths and dimensions. Final artwork remains content work.
 
 `temp-artifacts/.gdignore` prevents nested worktrees and recovery copies from
 polluting the main Godot/Dialogic index. Machine-specific tool preferences are
