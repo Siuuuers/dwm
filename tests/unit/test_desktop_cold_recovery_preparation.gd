@@ -201,3 +201,66 @@ func test_snapshot_hash_match_cannot_override_a_conflicting_action_identity() ->
 		"pending": pending, "causal_day_instance": snapshot.lifecycle.causal_day_instance})
 	assert_false(checked.get("ok", true))
 	assert_eq(checked.get("code"), &"cold_recovery_source_identity_mismatch")
+
+func _activate_session(wired: Dictionary, snapshot: Dictionary) -> void:
+	var before: Dictionary = wired.game.capture_live_session().value
+	var lease: Dictionary = wired.gate.acquire(&"new_run")
+	assert_true(lease.get("ok", false), str(lease))
+	assert_true(wired.game.apply_restore_silent({"snapshot": snapshot}).get("ok", false))
+	var activated: Dictionary = wired.game.activate_live_session({
+		"operation_id": "recovered-new-run", "expected_generation": before.generation,
+		"owner_id": before.owner_id, "run_id": snapshot.lifecycle.run_id})
+	assert_true(activated.get("ok", false), str(activated))
+	assert_true(wired.gate.release(&"new_run", lease.value.token).get("ok", false))
+
+func test_active_session_with_no_pending_action_requires_no_cold_recovery() -> void:
+	var wired := _wired()
+	var snapshot := _snapshot()
+	_write_source(wired.storage, snapshot)
+	_activate_session(wired, snapshot)
+	var before: Dictionary = wired.game.capture_live_session()
+	wired.game.money = 888
+	var prepared: Dictionary = wired.helper.prepare_current_autosave()
+	assert_true(prepared.get("ok", false), str(prepared))
+	assert_eq(prepared.get("value", {}).get("kind"), "none")
+	assert_true(wired.helper.finish_recovery().get("ok", false))
+	assert_eq(wired.game.capture_live_session(), before)
+	assert_eq(wired.game.money, 888, "no source is installed over the already recovered live run")
+	assert_false(wired.helper.is_installed())
+	assert_false(wired.gate.is_active())
+
+func test_active_session_still_refuses_a_pending_desktop_action() -> void:
+	var wired := _wired()
+	var snapshot := _snapshot()
+	_write_source(wired.storage, snapshot)
+	_write_pending(wired.port, snapshot)
+	_activate_session(wired, snapshot)
+	var before: Dictionary = wired.game.capture_live_session()
+	wired.game.money = 888
+	var prepared: Dictionary = wired.helper.prepare_current_autosave()
+	assert_false(prepared.get("ok", true))
+	assert_eq(prepared.get("code"), &"cold_recovery_requires_inactive_session")
+	assert_eq(wired.game.capture_live_session(), before)
+	assert_eq(wired.game.money, 888)
+	assert_false(wired.helper.is_installed())
+	assert_false(wired.gate.is_active())
+
+func test_active_session_still_refuses_a_retained_prepared_source() -> void:
+	var wired := _wired()
+	var snapshot := _snapshot()
+	_write_source(wired.storage, snapshot)
+	_write_pending(wired.port, snapshot)
+	assert_true(wired.helper.prepare_current_autosave().get("ok", false))
+	var retained: Dictionary = wired.helper._prepared.duplicate(true)
+	_activate_session(wired, snapshot)
+	wired.game.money = 888
+	var prepared: Dictionary = wired.helper.prepare_current_autosave()
+	assert_false(prepared.get("ok", true))
+	assert_eq(prepared.get("code"), &"cold_recovery_requires_inactive_session")
+	var installed: Dictionary = wired.helper.install_prepared()
+	assert_false(installed.get("ok", true))
+	assert_eq(installed.get("code"), &"cold_recovery_requires_inactive_session")
+	assert_eq(wired.helper._prepared, retained, "refusal retains the exact source for recovery")
+	assert_eq(wired.game.money, 888)
+	assert_false(wired.helper.is_installed())
+	assert_false(wired.gate.is_active())

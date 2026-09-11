@@ -38,13 +38,18 @@ func configure(manager: Object, checkpoint: Object, game_state: Object, host: Ob
 ## can never be selected by this helper, even when it shares the same original branch.
 func prepare_current_autosave() -> Dictionary:
 	if _manager == null: return _fail(&"cold_recovery_not_configured")
-	if _game_state.capture_live_session().value.active:
-		return _fail(&"cold_recovery_requires_inactive_session")
-	if not _prepared.is_empty(): return {"ok": true, "value": {"kind": "install_source"}}
+	if not _prepared.is_empty():
+		if _game_state.capture_live_session().value.active:
+			return _fail(&"cold_recovery_requires_inactive_session")
+		return {"ok": true, "value": {"kind": "install_source"}}
 	var pending_read: Dictionary = _checkpoint.read_pending_consequence_checkpoint()
 	if not pending_read.get("ok", false): return pending_read
 	if not pending_read.value.get("found", false):
+		# Earlier continuation recovery may already have activated a New Run or Load.
+		# With no pending desktop action, there is no cold source to install or replay.
 		return {"ok": true, "value": {"kind": "none"}}
+	if _game_state.capture_live_session().value.active:
+		return _fail(&"cold_recovery_requires_inactive_session")
 	var pending_state: Dictionary = pending_read.value.stage_candidate
 	var pending: Dictionary = pending_state.pending
 	if str(pending.stage) == "action_prepared" \
