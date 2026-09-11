@@ -356,6 +356,29 @@ func test_load_fails_closed_on_malformed_on_disk_json() -> void:
 	assert_false(loaded.get("ok", true), "malformed on-disk bytes must fail closed, not parse as an empty/valid document")
 
 
+func test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed() -> void:
+	if not _require_ledger():
+		return
+	var ledger := _loaded()
+	for index: int in 4:
+		var recorded: Dictionary = ledger.record_before_emit(_action_request("cache-" + str(index)))
+		assert_true(recorded.get("ok", false), str(recorded))
+	assert_eq(ledger._validated_text_documents.size(), 3)
+	assert_eq(ledger._validated_text_order.size(), 3)
+	var current_text := FileAccess.get_file_as_string(_root.path_join(FIXED_PATH))
+	assert_true(ledger._parse_known_document(current_text).get("ok", false))
+	var changed := current_text.trim_suffix(String.chr(10)) + " trailing"
+	assert_false(ledger._parse_known_document(changed).get("ok", true),
+		"changed bytes must take the strict parser and fail closed")
+	var schema_invalid := '{"records":[],"schema_version":1}'
+	assert_true(ledger._parse_known_storage_text(schema_invalid).get("ok", false),
+		"storage validation may retain a strictly parsed document")
+	var rejected_schema: Dictionary = ledger._parse_known_document(schema_invalid)
+	assert_false(rejected_schema.get("ok", true),
+		"a strict-only cache entry must still receive full document validation")
+	assert_eq(rejected_schema.get("code"), &"publication_ledger_schema_invalid")
+
+
 func test_disjoint_from_plan01_schedule_foundation_ledger() -> void:
 	if not _require_ledger():
 		return

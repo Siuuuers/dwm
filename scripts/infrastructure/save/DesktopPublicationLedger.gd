@@ -104,6 +104,10 @@ const _SCHEMA_CHECK := preload("res://scripts/validation/JsonSchemaValidator.gd"
 var _storage: Object = null
 var _cached_document: Dictionary = {}
 var _has_cached_document := false
+# Exact canonical documents constructed and fully validated in this process. Storage callbacks may
+# reuse them only while the text is byte-identical; cold or changed bytes always take the full parser.
+var _validated_text_documents: Dictionary = {}
+var _validated_text_order: Array[String] = []
 
 
 func configure(storage: Object) -> Dictionary:
@@ -122,6 +126,8 @@ func configure(storage: Object) -> Dictionary:
 	_storage = storage
 	_has_cached_document = false
 	_cached_document = {}
+	_validated_text_documents = {}
+	_validated_text_order = []
 	return _accepted({"already_configured": false})
 
 
@@ -196,16 +202,26 @@ func _check_request(request: Dictionary) -> Dictionary:
 
 
 func _commit_new_entry(entry: Dictionary) -> Dictionary:
+	# Normalize the one new record through its canonical bytes. This preserves the historical
+	# StringName-to-String behavior without reparsing the whole append-only document.
+	var entry_text := _digest_source(entry)
+	var normalized_entry_result: Dictionary = _JSON.parse_object(entry_text)
+	if not normalized_entry_result.get("ok", false):
+		return _rejected(&"publication_ledger_serialization_failed", "the new record is not canonicalizable")
+	var normalized_entry: Dictionary = normalized_entry_result["value"]
 	var candidate_document := _cached_document.duplicate(true)
-	(candidate_document["records"] as Dictionary)[entry["key"]] = entry.duplicate(true)
-	var shape_error := _document_shape_error(candidate_document)
-	if not shape_error.is_empty():
-		return _rejected(&"publication_ledger_schema_invalid", shape_error)
+	(candidate_document["records"] as Dictionary)[normalized_entry["key"]] = normalized_entry
+	# The cached document was fully validated by refresh; check only the newly appended record.
+	var entry_error := _record_shape_error(normalized_entry, str(normalized_entry["key"]))
+	if not entry_error.is_empty():
+		return _rejected(&"publication_ledger_schema_invalid", entry_error)
 	var body := _digest_source(candidate_document)
 	if body.is_empty():
 		return _rejected(&"publication_ledger_serialization_failed", "candidate document is not canonicalizable")
 	var payload := body + "\n"
-	var write_result: Dictionary = _storage.call(&"write_atomic", FIXED_PATH, payload, Callable(self, "_parse"), true)
+	_remember_validated_text(payload, candidate_document)
+	var write_result: Dictionary = _storage.call(
+		&"write_atomic", FIXED_PATH, payload, Callable(self, "_parse_known_storage_text"), true)
 	if not write_result.get("ok", false):
 		return _from_storage_failure(write_result)
 	var confirmed := _confirm_written_entry(payload, entry)
@@ -220,23 +236,13 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dict
 	var reread: Dictionary = _storage.call(&"read_text", FIXED_PATH)
 	if not reread.get("ok", false):
 		return _from_storage_failure(reread)
+	# Exact reread equality proves the validated candidate bytes survived unchanged.
 	if str(reread.get("value", "")) != expected_payload:
 		return _rejected(&"publication_record_unverified", "the re-read bytes are not the exact candidate")
-	var reparsed: Dictionary = _JSON.parse_object(expected_payload)
-	if not reparsed.get("ok", false):
-		return _rejected(&"publication_ledger_malformed", "the re-read document did not strict-parse")
-	var reshaped := _document_shape_error(reparsed["value"])
-	if not reshaped.is_empty():
-		return _rejected(&"publication_ledger_schema_invalid", reshaped)
-	var reparsed_entry: Variant = (reparsed["value"] as Dictionary)["records"].get(entry["key"])
-	# FIX: compare canonical representations, not raw Variant equality. A production receipt
-	# routinely embeds StringName literals (e.g. a checkpoint header's `kind: &"consequence_admission"`
-	# -- see DesktopConsequenceCoordinator.gd); canonical JSON round-tripping normalizes those to plain
-	# String on the way back through disk, so `reparsed_entry` and the in-memory `entry` can be
-	# semantically byte-identical while still failing a raw `!=` Dictionary comparison. This durability
-	# check exists to prove "the same bytes survived," which canonical-string equality proves directly
-	# (and more precisely) without being sensitive to a Variant subtype the JSON wire format never
-	# distinguished in the first place.
+	var known: Dictionary = _parse_known_document(expected_payload)
+	if not known.get("ok", false):
+		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
+	var reparsed_entry: Variant = (known["value"] as Dictionary)["records"].get(entry["key"])
 	if _digest_source(reparsed_entry) != _digest_source(entry):
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
 	return {"ok": true}
@@ -247,7 +253,7 @@ func _refresh_from_disk() -> Dictionary:
 		var seed_error := _seed_empty_document()
 		if not seed_error.is_empty():
 			return seed_error
-	var reconciled: Dictionary = _storage.call(&"reconcile", FIXED_PATH, Callable(self, "_parse"))
+	var reconciled: Dictionary = _storage.call(&"reconcile", FIXED_PATH, Callable(self, "_parse_known_storage_text"))
 	if not reconciled.get("ok", false):
 		return _from_storage_failure(reconciled)
 	if not reconciled.get("exists", false):
@@ -255,12 +261,9 @@ func _refresh_from_disk() -> Dictionary:
 	var read_result: Dictionary = _storage.call(&"read_text", FIXED_PATH)
 	if not read_result.get("ok", false):
 		return _from_storage_failure(read_result)
-	var parsed: Dictionary = _JSON.parse_object(str(read_result.get("value", "")))
+	var parsed: Dictionary = _parse_known_document(str(read_result.get("value", "")))
 	if not parsed.get("ok", false):
-		return _rejected(&"publication_ledger_malformed", "the durable document is not strict JSON")
-	var shape_error := _document_shape_error(parsed["value"])
-	if not shape_error.is_empty():
-		return _rejected(&"publication_ledger_schema_invalid", shape_error)
+		return parsed
 	_cached_document = (parsed["value"] as Dictionary).duplicate(true)
 	_has_cached_document = true
 	return {"ok": true}
@@ -270,14 +273,55 @@ func _seed_empty_document() -> Dictionary:
 	var body := _digest_source(_empty_document())
 	if body.is_empty():
 		return _rejected(&"publication_ledger_serialization_failed", "the empty document is not canonicalizable")
-	var seeded: Dictionary = _storage.call(&"write_atomic", FIXED_PATH, body + "\n", Callable(self, "_parse"), true)
+	var seeded: Dictionary = _storage.call(&"write_atomic", FIXED_PATH, body + "\n", Callable(self, "_parse_known_storage_text"), true)
 	if not seeded.get("ok", false):
 		return _from_storage_failure(seeded)
 	return {}
 
 
-func _parse(text: String) -> Dictionary:
-	return _JSON.parse_object(text)
+func _parse_known_storage_text(text: String) -> Dictionary:
+	if _validated_text_documents.has(text):
+		_touch_validated_text(text)
+		var known: Dictionary = _validated_text_documents[text]
+		return {"ok": true, "code": &"ok", "value": (known["document"] as Dictionary).duplicate(true)}
+	var parsed: Dictionary = _JSON.parse_object(text)
+	if parsed.get("ok", false):
+		_remember_validated_text(text, parsed["value"], false)
+	return parsed
+
+
+func _parse_known_document(text: String) -> Dictionary:
+	var document: Dictionary
+	if _validated_text_documents.has(text):
+		_touch_validated_text(text)
+		var known: Dictionary = _validated_text_documents[text]
+		document = known["document"]
+		if bool(known["schema_validated"]):
+			return {"ok": true, "code": &"ok", "value": document.duplicate(true)}
+	else:
+		var parsed: Dictionary = _JSON.parse_object(text)
+		if not parsed.get("ok", false):
+			return _rejected(&"publication_ledger_malformed", "the durable document is not strict JSON")
+		document = parsed["value"]
+	var shape_error := _document_shape_error(document)
+	if not shape_error.is_empty():
+		return _rejected(&"publication_ledger_schema_invalid", shape_error)
+	_remember_validated_text(text, document, true)
+	return {"ok": true, "code": &"ok", "value": document.duplicate(true)}
+
+
+func _remember_validated_text(text: String, document: Dictionary, schema_validated: bool = true) -> void:
+	_validated_text_documents[text] = {
+		"document": document.duplicate(true), "schema_validated": schema_validated,
+	}
+	_touch_validated_text(text)
+	while _validated_text_order.size() > 3:
+		_validated_text_documents.erase(_validated_text_order.pop_front())
+
+
+func _touch_validated_text(text: String) -> void:
+	_validated_text_order.erase(text)
+	_validated_text_order.append(text)
 
 
 func _document_shape_error(document: Variant) -> String:
