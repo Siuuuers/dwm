@@ -4,7 +4,7 @@ The playtest batch preserves the existing scene-based DTL layout, board dimensio
 
 ## Measured responsiveness
 
-Matched local probes on Godot 4.6.3/Windows used a copied player-data snapshot and the same board actions. These are local measurements, not timing guarantees.
+Matched local probes on Godot 4.6.3/Windows used a copied player-data snapshot and the same board actions. These are local measurements, not timing guarantees. The larger September 11 history and subsequent startup-frame fixes are covered in the [current-history follow-up](2026-09-11-current-history-latency.md); the table below records the earlier batch.
 
 | Player action | Before | After |
 | --- | ---: | ---: |
@@ -39,4 +39,4 @@ Local evidence is in `.godot/phase2r_logs/`: `board-latency-final-profile.log`, 
 
 Long dialogue/manual-history stress and the remaining roughly 1-2 second outcome-save pauses remain performance follow-up (`dwm-634`). The previously reported intermittent ordinary-reply save failure remains tracked separately (`dwm-hsi`); this batch does not claim a new reproduction or fix. Dual-language simultaneous rendering remains deferred. Final story content, final art, and export/package verification are not completed by these playtest fixes.
 
-Local commits are authorized. Remote upload remains pending the previously requested explicit destination/payload approval after automatic approval review rejected the push because repository ownership/privacy was not proven.
+The initial batch through `fab24be49` was pushed to the authorized `origin/master` destination. The earlier automatic approval block was resolved by the user's destination/payload approval.
