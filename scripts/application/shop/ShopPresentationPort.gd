@@ -175,6 +175,11 @@ func can_purchase(item_id: String, quantity: int = 1) -> Dictionary:
 	return _ok({"eligible": true, "total": total})
 
 
+## A prepared purchase retains custody until its consequence/save finishes.
+func has_pending_purchase() -> bool:
+	return not _pending_purchase.is_empty()
+
+
 func purchase(item_id: String, quantity: int) -> Dictionary:
 	if not _pending_purchase.is_empty():
 		if item_id != str(_pending_purchase.get("item_id", "")) or quantity != int(_pending_purchase.get("quantity", 1)):

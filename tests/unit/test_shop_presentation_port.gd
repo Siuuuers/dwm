@@ -69,6 +69,11 @@ class Issuer extends RefCounted:
 
 
 class PurchaseParticipant extends RefCounted:
+	var shop_ledger := {
+		"supportz_branch_purchase_count": 0,
+		"supportz_last_purchase_causal_day_instance": "",
+		"base_completion_receipts": [],
+	}
 	var quote_requests: Array[Dictionary] = []
 	var prepare_requests: Array[Dictionary] = []
 
@@ -76,11 +81,7 @@ class PurchaseParticipant extends RefCounted:
 		return {"ok": true, "code": &"ok", "value": {"backup": {"state_backup": {}, "consequence_state": {
 			"run_revision": 9,
 			"causal_day_instance": "causal-day-3",
-			"shop_ledger": {
-				"supportz_branch_purchase_count": 0,
-				"supportz_last_purchase_causal_day_instance": "",
-				"base_completion_receipts": [],
-			},
+			"shop_ledger": shop_ledger.duplicate(true),
 		}}}}
 
 	func quote(item_id: String, transaction_id: String, receipt: Dictionary, quantity: int = 1) -> Dictionary:
@@ -101,9 +102,13 @@ class PurchaseParticipant extends RefCounted:
 
 class ConsequenceCoordinator extends RefCounted:
 	var requests: Array[Dictionary] = []
+	var fail_next := false
 
 	func accept_prepared_action(request: Dictionary) -> Dictionary:
 		requests.append(request.duplicate(true))
+		if fail_next:
+			fail_next = false
+			return {"ok": false, "code": &"save_write_failed"}
 		return {"ok": true, "code": &"action_consequence_accepted", "value": {}, "receipt": {}}
 
 
@@ -210,3 +215,41 @@ func test_retained_shop_from_previous_session_cannot_spend_in_a_loaded_run() -> 
 	_game_state.session.generation += 1
 	assert_false(_port.purchase("coffee", 1).ok)
 	assert_eq(_game_state.effect_requests.size(), 0)
+
+
+func test_supportz_real_admission_requires_both_current_day_ordinals_and_honors_all_caps() -> void:
+	assert_eq(_port.can_purchase("supportz").code, &"supportz_not_eligible")
+	var first := {"kind": "complete", "app_round_ordinal": 1, "causal_day_instance": "causal-day-3"}
+	var second := {"kind": "complete", "app_round_ordinal": 2, "causal_day_instance": "causal-day-3"}
+	_participant.shop_ledger.base_completion_receipts = [first]
+	assert_eq(_port.can_purchase("supportz").code, &"supportz_not_eligible")
+	_participant.shop_ledger.base_completion_receipts = [first, first.duplicate(true)]
+	assert_eq(_port.can_purchase("supportz").code, &"supportz_not_eligible", "two copies of ordinal one do not qualify")
+	_participant.shop_ledger.base_completion_receipts = [first, second]
+	var admitted: Dictionary = _port.can_purchase("supportz")
+	assert_true(admitted.ok)
+	assert_eq(admitted.value.total, 45)
+	_participant.shop_ledger.supportz_last_purchase_causal_day_instance = "causal-day-3"
+	assert_eq(_port.can_purchase("supportz").code, &"supportz_not_eligible")
+	_participant.shop_ledger.supportz_last_purchase_causal_day_instance = "causal-day-2"
+	_participant.shop_ledger.supportz_branch_purchase_count = 2
+	assert_true(_port.can_purchase("supportz").ok)
+	_participant.shop_ledger.supportz_branch_purchase_count = 3
+	assert_eq(_port.can_purchase("supportz").code, &"supportz_not_eligible")
+	_participant.shop_ledger.supportz_branch_purchase_count = 0
+	_game_state.money = 0
+	assert_eq(_port.can_purchase("supportz").code, &"insufficient_funds")
+	_game_state.money = 200
+	second.causal_day_instance = "causal-day-2"
+	assert_eq(_port.can_purchase("supportz").code, &"supportz_not_eligible", "yesterday's second round does not qualify")
+	assert_eq(_issuer.next, 0, "eligibility queries never issue purchase identities")
+
+
+func test_pending_purchase_reports_real_retained_recovery_until_retry_finishes() -> void:
+	assert_false(_port.has_pending_purchase())
+	_consequence.fail_next = true
+	assert_false(_port.purchase("coffee", 1).ok)
+	assert_true(_port.has_pending_purchase())
+	assert_true(_port.purchase("coffee", 1).ok)
+	assert_false(_port.has_pending_purchase())
+	assert_eq(_participant.prepare_requests.size(), 1, "retry resumes the original purchase")

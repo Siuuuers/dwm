@@ -9,6 +9,8 @@ const PROJECTION := preload("res://scripts/ui/shop/ShopCatalogProjection.gd")
 const COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
 const CARD := preload("res://scenes/shared/ShopItemBox.tscn")
 const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
+const SUPPORTZ_CONFIRMATION := preload("res://scripts/ui/shop/SupportzConfirmation.gd")
+const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 
 var cards: Dictionary = {}
 var page_index := 0
@@ -24,6 +26,7 @@ var quantity_buttons: Dictionary = {}
 var status_label: Label
 var _buy_button: Button
 var _supportz_button: Button
+var _supportz_confirmation: Control
 var last_result := {"ok": false, "code": "shop_unconfigured"}
 var _purchase_result := {"ok": false, "code": "shop_purchase_unconfigured"}
 var _records: Array = []
@@ -180,6 +183,10 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 	var changed: bool = rows != _catalog_rows
 	var source_changed: bool = (changed and _source_pending) or (not _catalog_rows.is_empty() and _catalog_facts(projected.value) != _catalog_facts(_records))
 	if not changed and last_result.ok and preferences.value == [_locale,_percent,_large_targets]:
+		# Eligibility changes after rounds/day transitions even when all ordinary rows are identical.
+		if is_node_ready():
+			_refresh_supportz()
+			_wire_focus()
 		_refresh_pending = false
 		_source_pending = false
 		return {"ok":true,"code":"unchanged"}
@@ -223,6 +230,7 @@ func configure_desktop_home(home: Button) -> void:
 	configure_host(home)
 
 func _has_host_custody(require_visible: bool = true) -> bool:
+	if is_instance_valid(_supportz_confirmation): return false
 	if not _view_is_current(): return false
 	if (require_visible and not is_visible_in_tree()) or not can_process(): return false
 	var current: Control = self
@@ -382,6 +390,12 @@ func _ready() -> void:
 	_supportz_button.text = ""
 	_supportz_button.accessibility_name = _supportz_accessible_name()
 	_supportz_button.pressed.connect(_purchase_supportz)
+	_supportz_button.gui_input.connect(_card_input.bind("supportz"))
+	_supportz_button.draw.connect(_draw_supportz_contact)
+	for event: Signal in [_supportz_button.mouse_entered, _supportz_button.mouse_exited,
+			_supportz_button.focus_entered, _supportz_button.focus_exited,
+			_supportz_button.button_down, _supportz_button.button_up]:
+		event.connect(_supportz_button.queue_redraw)
 	_catalog.add_child(_supportz_button)
 	_rebuild_catalog()
 	visibility_changed.connect(func():
@@ -454,14 +468,7 @@ func _show_page(focus_selection: bool = true) -> void:
 		var record: Dictionary = _records[index]
 		var slot := index - start
 		if record.blank:
-			if record.id == "supportz" and _provider != null and _provider.has_method("purchase"):
-				var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
-				_supportz_button.position = Vector2((slot % 3) * 152, (slot / 3) * (card_height + 8))
-				_supportz_button.size = Vector2(144, card_height)
-				var supportz_admitted := _provider_can_purchase("supportz", 1)
-				_supportz_button.disabled = not supportz_admitted.get("ok", false)
-				_supportz_button.focus_mode = Control.FOCUS_NONE if _supportz_button.disabled else Control.FOCUS_ALL
-				_supportz_button.show()
+			_refresh_supportz()
 			continue
 		var card: Button = cards[record.id]
 		card.position = Vector2((slot % 3) * 152, (slot / 3) * (card.size.y + 8))
@@ -602,10 +609,72 @@ func _purchase_selected() -> void:
 		return
 	_dispatch_purchase(selected_id, quantity)
 
+func _refresh_supportz() -> void:
+	if not is_instance_valid(_supportz_button): return
+	var admitted: bool = page_index == 0 and _provider != null and _provider.has_method("purchase") \
+		and _provider_can_purchase("supportz", 1).get("ok", false)
+	var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
+	_supportz_button.position = Vector2(304, 2 * (card_height + 8))
+	_supportz_button.size = Vector2(144, card_height)
+	_supportz_button.disabled = not admitted
+	_supportz_button.focus_mode = Control.FOCUS_ALL if admitted else Control.FOCUS_NONE
+	_supportz_button.mouse_filter = Control.MOUSE_FILTER_STOP if admitted else Control.MOUSE_FILTER_IGNORE
+	_supportz_button.accessibility_name = _supportz_accessible_name() if admitted else ""
+	_supportz_button.visible = admitted
+	_supportz_button.queue_redraw()
+
+func _draw_supportz_contact() -> void:
+	if _supportz_button.disabled or not _has_host_custody(): return
+	var height := _supportz_button.size.y
+	if _supportz_button.is_pressed():
+		_supportz_button.draw_rect(Rect2(138, 4, 2, height - 8), _role("structure"))
+	elif _supportz_button.is_hovered():
+		_supportz_button.draw_rect(Rect2(4, 4, 2, height - 8), _role("structure"))
+	if _supportz_button.has_focus():
+		_supportz_button.draw_rect(Rect2(-7, -7, 158, height + 14), _role("dark_focus_outer"), false, 2)
+		_supportz_button.draw_rect(Rect2(-3, -3, 150, height + 6), _role("dark_focus_inner"), false, 2)
+
 func _purchase_supportz() -> void:
-	if not _has_host_custody() or not is_instance_valid(_supportz_button) or _supportz_button.disabled:
-		return
-	_dispatch_purchase("supportz", 1)
+	if not _has_host_custody() or not is_instance_valid(_supportz_button): return
+	_refresh_supportz()
+	if _supportz_button.disabled: return
+	_cancel_contacts()
+	_supportz_confirmation = SUPPORTZ_CONFIRMATION.new()
+	_supportz_confirmation.name = "ShopConfirmation"
+	_supportz_confirmation.theme = CONFIRMATION_THEME.build(_locale, _percent)
+	_supportz_confirmation.request = {"title": _price(45, "money"), "body": "", "warning": false,
+		"cancel": _t("no"), "confirm": _t("yes"), "risk": "neutral", "dialog_name": _t("confirmation")}
+	_supportz_confirmation.attempt_purchase = _attempt_supportz_purchase
+	_supportz_confirmation.failure_text = _t("unavailable")
+	_supportz_confirmation.retry_text = _t("retry_purchase")
+	_supportz_confirmation.finished.connect(_finish_supportz_confirmation)
+	add_child(_supportz_confirmation)
+	_supportz_button.queue_redraw()
+
+func _attempt_supportz_purchase() -> Dictionary:
+	if not _view_is_current() or not is_visible_in_tree():
+		return {"ok": false, "code": &"shop_view_detached"}
+	# The owner revalidates on Yes and can resume its retained transaction after a save failure.
+	# A fresh can_purchase query would reject that retry while its mutation lease is retained.
+	var result: Variant = _provider.call(&"purchase", "supportz", 1)
+	var outcome: Dictionary = result.duplicate(true) if result is Dictionary \
+		else {"ok": false, "code": &"shop_purchase_result_malformed"}
+	outcome["retained_purchase"] = _provider.has_method("has_pending_purchase") \
+		and bool(_provider.call(&"has_pending_purchase"))
+	return outcome
+
+func _finish_supportz_confirmation(_accepted: bool) -> void:
+	_supportz_confirmation = null
+	if not _view_is_current(): return
+	refresh_view(true, true)
+	_restore_supportz_focus.call_deferred()
+
+func _restore_supportz_focus() -> void:
+	if not _has_host_custody(): return
+	_refresh_supportz()
+	_wire_focus()
+	var target: Control = _supportz_button if _supportz_button.visible else cards.get("spa_coupon")
+	if is_instance_valid(target) and target.is_visible_in_tree(): target.grab_focus()
 
 func _dispatch_purchase(item_id: String, requested_quantity: int) -> void:
 	if _provider == null or not _provider.has_method("purchase"):
@@ -622,9 +691,7 @@ func _dispatch_purchase(item_id: String, requested_quantity: int) -> void:
 	_render_selection()
 
 func _supportz_accessible_name() -> String:
-	if _localization != null and _localization.has_method("t"):
-		return str(_localization.call(&"t", "shop.secret_supportz.accessible_name"))
-	return "Secret Supportz buy area"
+	return _t("blank_card")
 
 
 func _change_page(delta: int) -> void:
@@ -636,6 +703,7 @@ func _change_page(delta: int) -> void:
 	_show_page()
 
 func _card_input(event: InputEvent, item_id: String) -> void:
+	if not _has_host_custody(): return
 	var index := _index_of(item_id)
 	var slot := index % page_capacity
 	var target := -1
@@ -655,6 +723,7 @@ func _card_input(event: InputEvent, item_id: String) -> void:
 	else: return
 	if target >= page_index * page_capacity and target < mini((page_index + 1) * page_capacity, _records.size()) and target >= 0:
 		if not _records[target].blank: cards[_records[target].id].grab_focus()
+		elif _supportz_button.visible and not _supportz_button.disabled: _supportz_button.grab_focus()
 	get_viewport().set_input_as_handled()
 
 func _information_input(event: InputEvent) -> void:
@@ -711,7 +780,7 @@ func _focus_selected() -> void:
 
 func _cancel_contacts() -> void:
 	for card in cards.values(): card.cancel_contact()
-	for button in quantity_buttons.values() + [previous_button, next_button]:
+	for button in quantity_buttons.values() + [previous_button, next_button, _supportz_button]:
 		if not is_instance_valid(button): continue
 		var was_disabled: bool = button.disabled
 		button.disabled = true

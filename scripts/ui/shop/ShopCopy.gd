@@ -18,6 +18,8 @@ const _TEXT := {
 		"minus": "Minus", "plus": "Plus", "quantity": "Quantity", "buy": "Buy",
 		"unavailable": "Unavailable", "information": "Item information",
 		"blank_card": "Blank shop card", "no": "No", "yes": "Yes",
+		"confirmation": "Purchase confirmation",
+		"retry_purchase": "Unable to finish saving. Try again.",
 	},
 	"zh_CN": {
 		"previous": "上一页", "next": "下一页", "available": "有货",
@@ -25,6 +27,8 @@ const _TEXT := {
 		"minus": "减少", "plus": "增加", "quantity": "数量", "buy": "购买",
 		"unavailable": "不可购买", "information": "商品信息",
 		"blank_card": "空白商店卡片", "no": "否", "yes": "是",
+		"confirmation": "确认购买",
+		"retry_purchase": "无法完成保存。请重试。",
 	},
 	"zh_HK": {
 		"previous": "上一頁", "next": "下一頁", "available": "有貨",
@@ -32,6 +36,8 @@ const _TEXT := {
 		"minus": "減少", "plus": "增加", "quantity": "數量", "buy": "購買",
 		"unavailable": "不可購買", "information": "商品資訊",
 		"blank_card": "空白商店卡片", "no": "否", "yes": "是",
+		"confirmation": "確認購買",
+		"retry_purchase": "無法完成儲存。請重試。",
 	},
 }
 
