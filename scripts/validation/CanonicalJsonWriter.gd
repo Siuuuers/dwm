@@ -4,15 +4,19 @@ extends RefCounted
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 static var _ordinary_ascii := RegEx.create_from_string("\\A[\\x20-\\x21\\x23-\\x5B\\x5D-\\x7E]*\\z")
 
+# Native escaping is byte-identical on printable ASCII, including quotes and backslashes.
+static var _printable_ascii := RegEx.create_from_string("\\A[\\x20-\\x7E]*\\z")
+
 static func stringify(value: Variant) -> Dictionary:
 	var emitted := _emit(value)
 	if not emitted.get("ok", false):
 		return emitted
-	var text: String = emitted["value"]
-	var reparsed: Dictionary = STRICT_JSON._parse_value_document(text)
-	if not reparsed.get("ok", false) or not _deep_same(value, reparsed.get("value")):
+	# Containers compose already checked scalar encodings. Avoid reparsing the entire
+	# document for every internal receipt hash; cold/external reads still use StrictJson.
+	# Defer lossy-scalar failure until emission ends to preserve structural-error precedence.
+	if emitted.get("round_trip_failed", false):
 		return {"ok": false, "code": &"self_check_failed", "message": "Canonical JSON did not round-trip exactly"}
-	return {"ok": true, "value": text}
+	return _ok(emitted["value"])
 
 static func _emit(value: Variant) -> Dictionary:
 	match typeof(value):
@@ -62,17 +66,26 @@ static func _emit_float(value: float) -> Dictionary:
 			number += ".0"
 		else:
 			number = mantissa + ".0" + number.substr(exponent_position)
-	return _ok(number)
+	var parsed := STRICT_JSON._parse_value_document(number)
+	var exact: bool = parsed.get("ok", false) and typeof(parsed.get("value")) == TYPE_FLOAT and parsed["value"] == value
+	return _ok(number, not exact)
 
 static func _emit_string(value: String) -> Dictionary:
 	# Exact whole-string match: all excluded characters retain the original emitter.
 	if _ordinary_ascii.search(value) != null:
 		return _ok('"' + value + '"')
+	# String.json_escape also emits non-JSON \v for vertical tabs, so constrain this
+	# native path to printable ASCII. Controls and Unicode retain the checked emitter.
+	if _printable_ascii.search(value) != null:
+		return _ok('"' + value.json_escape() + '"')
 	var output := "\""
+	var round_trip_failed := false
 	for index in range(value.length()):
 		var codepoint := value.unicode_at(index)
 		if codepoint >= 0xD800 and codepoint <= 0xDFFF:
 			return {"ok": false, "code": &"invalid_surrogate", "message": "String contains a lone surrogate code point"}
+		# Godot replaces these malformed internal codepoints during String.chr.
+		round_trip_failed = round_trip_failed or codepoint == 0 or codepoint > 0x10FFFF
 		match codepoint:
 			0x22: output += "\\\""
 			0x5C: output += "\\\\"
@@ -87,16 +100,18 @@ static func _emit_string(value: String) -> Dictionary:
 				else:
 					output += String.chr(codepoint)
 	output += "\""
-	return _ok(output)
+	return _ok(output, round_trip_failed)
 
 static func _emit_array(value: Array) -> Dictionary:
 	var parts: Array[String] = []
+	var round_trip_failed := false
 	for item in value:
 		var emitted := _emit(item)
 		if not emitted.get("ok", false):
 			return emitted
 		parts.append(emitted["value"])
-	return _ok("[" + ",".join(parts) + "]")
+		round_trip_failed = round_trip_failed or emitted.get("round_trip_failed", false)
+	return _ok("[" + ",".join(parts) + "]", round_trip_failed)
 
 static func _emit_dictionary(value: Dictionary) -> Dictionary:
 	var normalized := {}
@@ -110,6 +125,7 @@ static func _emit_dictionary(value: Dictionary) -> Dictionary:
 	var keys: Array = normalized.keys()
 	keys.sort_custom(_utf8_less)
 	var parts: Array[String] = []
+	var round_trip_failed := false
 	for key: String in keys:
 		var emitted_key := _emit_string(key)
 		if not emitted_key.get("ok", false):
@@ -118,7 +134,8 @@ static func _emit_dictionary(value: Dictionary) -> Dictionary:
 		if not emitted_value.get("ok", false):
 			return emitted_value
 		parts.append(emitted_key["value"] + ":" + emitted_value["value"])
-	return _ok("{" + ",".join(parts) + "}")
+		round_trip_failed = round_trip_failed or emitted_key.get("round_trip_failed", false) or emitted_value.get("round_trip_failed", false)
+	return _ok("{" + ",".join(parts) + "}", round_trip_failed)
 
 static func _utf8_less(left: String, right: String) -> bool:
 	var left_bytes := left.to_utf8_buffer()
@@ -156,5 +173,8 @@ static func _deep_same(left: Variant, right: Variant) -> bool:
 		_:
 			return left == right
 
-static func _ok(value: String) -> Dictionary:
-	return {"ok": true, "value": value}
+static func _ok(value: String, round_trip_failed := false) -> Dictionary:
+	var result := {"ok": true, "value": value}
+	if round_trip_failed:
+		result["round_trip_failed"] = true
+	return result
