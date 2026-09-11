@@ -185,3 +185,38 @@ func test_current_and_recovery_snapshots_normalize_engine_text_without_mutating_
 	assert_eq(typeof(earlier.snapshot.desktop.board.phase), TYPE_STRING_NAME)
 	var round_trip: Dictionary = JSON.parse_string(JSON.stringify(built.value))
 	assert_true(load(SCHEMA_PATH).validate(round_trip).get("ok", false))
+
+
+func test_build_keeps_numeric_normalization_and_detaches_current_history_and_time() -> void:
+	var schema: Script = load(SCHEMA_PATH)
+	var current := _bundle()
+	current.snapshot.schema_version = 6.0
+	var history := [{"count": 4.0, "nested": [&"hint", 2.25]}]
+	var saved_time := {"unix_seconds": 0.0, "utc_offset_minutes": 0.0, "hhmm": "00:00"}
+	var built: Dictionary = schema.build(&"autosave", null, &"automatic", current, history, saved_time)
+	assert_true(built.ok, str(built))
+	assert_eq(typeof(built.value.current_snapshot.snapshot.schema_version), TYPE_INT)
+	assert_eq(typeof(built.value.recovery_journal[0].count), TYPE_INT)
+	assert_eq(built.value.recovery_journal[0].nested, ["hint", 2.25])
+	assert_eq(typeof(built.value.saved_time.unix_seconds), TYPE_INT)
+	assert_eq(schema.validate(built.value).value.candidate, built.value, "external validation agrees with built document")
+	built.value.recovery_journal[0].nested.append("changed")
+	built.value.saved_time.hhmm = "01:00"
+	assert_eq(history[0].nested.size(), 2)
+	assert_eq(typeof(history[0].count), TYPE_FLOAT)
+	assert_eq(typeof(current.snapshot.schema_version), TYPE_FLOAT)
+	assert_eq(saved_time.hhmm, "00:00")
+
+
+func test_build_keeps_invalid_bundle_journal_and_metadata_rejection_order() -> void:
+	var schema: Script = load(SCHEMA_PATH)
+	var invalid_time := {"broken": true}
+	assert_eq(schema.build(&"autosave", null, &"automatic", {"unknown": true},
+		[{"unsupported": Vector2.ZERO}], invalid_time).code, &"invalid_bundle_shape")
+	assert_eq(schema.build(&"autosave", null, &"automatic", _bundle(),
+		[{"unsupported": Vector2.ZERO}], invalid_time).code, &"invalid_recovery_journal")
+	assert_eq(schema.build(&"autosave", null, &"automatic", _bundle(), [], invalid_time).code,
+		&"invalid_saved_time")
+	var corrupt := _bundle()
+	corrupt.snapshot.lifecycle.day = 8
+	assert_false(schema.build(&"autosave", null, &"automatic", corrupt, []).ok)

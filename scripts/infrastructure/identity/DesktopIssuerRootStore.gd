@@ -164,6 +164,9 @@ var _storage: Object = null
 var _namespace_source: Object = null
 var _document: Dictionary = {}
 var _loaded := false
+# Atomic writes repeatedly validate the same exact UTF-8 document. Keep only the three
+# most recent texts already proven by the canonical writer; cold or changed bytes still parse.
+var _validated_write_texts: Array[String] = []
 
 
 # -------------------------------------------------------------------------------------------------
@@ -359,13 +362,25 @@ func _write_document(document: Dictionary) -> Dictionary:
 	var emitted: Dictionary = _CANONICAL_WRITER.stringify(document)
 	if not emitted.get("ok", false):
 		return _failed(&"root_serialization_failed", str(emitted.get("message", "canonical write refused")))
+	var text := str(emitted["value"])
+	_validated_write_texts.erase(text)
+	_validated_write_texts.append(text)
+	while _validated_write_texts.size() > 3:
+		_validated_write_texts.pop_front()
 	var written: Dictionary = _storage.call(
-		&"write_atomic", ROOT_DOCUMENT_PATH, str(emitted["value"]), Callable(self, "_parse_document"), true
+		&"write_atomic", ROOT_DOCUMENT_PATH, text, Callable(self, "_parse_known_write_document"), true
 	)
 	if not written.get("ok", false):
 		return _storage_failure(written, &"root_write_failed")
 	_document = document.duplicate(true)
 	return {"ok": true}
+
+
+func _parse_known_write_document(text: String) -> Dictionary:
+	# Storage needs a validity witness, while this owner retains its detached document.
+	# Read/restart paths always use _parse_document and apply the complete ledger laws.
+	if _validated_write_texts.has(text): return {"ok": true, "value": {}}
+	return _parse_document(text)
 
 
 func _storage_failure(result: Dictionary, fallback: StringName) -> Dictionary:

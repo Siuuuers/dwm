@@ -2642,3 +2642,21 @@ func test_committed_new_run_is_forward_only_and_requires_ordered_target_proofs()
 	assert_eq(_stored_document(), proven)
 	assert_eq(_storage.write_count, writes, "Identical target proof replays do not write")
 	assert_true(journal.advance(enter).get("ok", false))
+
+
+func test_exact_text_validation_window_is_bounded_detached_and_never_admits_other_bytes() -> void:
+	var journal: Object = JOURNAL.new()
+	var text := "{\"value\":{\"nested\":[]}}"
+	journal._remember_validated_text(text, {"value": {"nested": []}})
+	var first: Dictionary = journal._parse_document(text)
+	assert_true(first.get("ok", false), str(first))
+	(first.value.value.nested as Array).append("mutated")
+	assert_eq(journal._parse_document(text).value, {"value": {"nested": []}},
+		"a caller cannot mutate the retained exact-text proof")
+	assert_false(journal._parse_known_document(text + " garbage").get("ok", false),
+		"a nearby but distinct byte string still receives strict parsing")
+	for index: int in 3:
+		journal._remember_validated_text("{\"entry\":%d}" % index, {"entry": index})
+	assert_eq((journal.get("_validated_text_order") as Array).size(), 3)
+	assert_false((journal.get("_validated_text_documents") as Dictionary).has(text),
+		"the proof window evicts its oldest exact text")

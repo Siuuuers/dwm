@@ -791,6 +791,35 @@ func test_set_flag_flags_a_hidden_cell() -> void:
 	assert_true((board["flagged_indices"] as Array).has(1))
 
 
+func test_older_board_and_visibility_retries_acknowledge_without_reapplying() -> void:
+	var first_tx := _next_tx()
+	assert_true(_reveal_first(first_tx, "beginner", 0).ok)
+	var identity := _entry_identity_after_first_reveal()
+	var first_receipt: Dictionary = _coordinator.get_state().value.command_receipts[first_tx].duplicate(true)
+	var flagged := _cell_request_with_real_transaction(identity, 1, 1)
+	flagged["flagged"] = true
+	assert_true(_coordinator.set_flag(flagged).ok)
+	var suspended := _generic_request(_next_tx(), identity, 2)
+	assert_true(_coordinator.suspend(suspended).ok)
+	var resumed := _generic_request(_next_tx(), identity, 3)
+	var latest := _coordinator.resume(resumed)
+	assert_true(latest.ok)
+	var before: Dictionary = _coordinator.get_state().value
+	var state_calls := _state_port.call_log.size()
+	var checkpoint_calls := _checkpoint_port.call_log.size()
+	assert_eq(_coordinator.set_flag(flagged).code, &"board_command_already_applied")
+	assert_eq(_coordinator.suspend(suspended).code, &"board_command_already_applied")
+	assert_eq(_coordinator.resume(resumed), latest, "latest same-ID response stays exact")
+	assert_eq(_coordinator.get_state().value, before, "old retries cannot hide or edit the current board")
+	assert_eq(_state_port.call_log.size(), state_calls + 3, "only external guards run on retry")
+	assert_eq(_checkpoint_port.call_log.size(), checkpoint_calls, "retry never writes a checkpoint")
+	assert_eq(before.command_receipts[first_tx], first_receipt, "first-Reveal proof stays exact")
+	var changed := flagged.duplicate(true)
+	changed.flagged = false
+	assert_eq(_coordinator.set_flag(changed).code, &"transaction_conflict")
+	assert_eq(_coordinator.get_state().value, before)
+
+
 # ---- KNOWN UPSTREAM EDGE: duplicate terminal-causing reveal must not reach the reducer ----
 
 func test_duplicate_terminal_causing_reveal_replays_without_reaching_the_reducer() -> void:

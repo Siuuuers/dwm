@@ -60,10 +60,13 @@ static func build(
 	}
 	if not saved_time.is_empty():
 		document["saved_time"] = saved_time.duplicate(true)
-	var validated := validate(document)
-	if not validated.get("ok", false):
-		return validated
-	return {"ok": true, "code": &"ok", "value": validated["value"]["candidate"]}
+	# The builder already proved its discriminators, current bundle and journal above.
+	# Its fixed envelope cannot gain unknown members; only optional metadata remains to check.
+	# Preserve validate()'s numeric normalization without rescanning every saved board twice.
+	document = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document)
+	if document.has("saved_time") and not validate_saved_time(document["saved_time"]):
+		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
+	return {"ok": true, "code": &"ok", "value": document}
 
 static func validate(document: Dictionary) -> Dictionary:
 	var candidate := RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document.duplicate(true)) as Dictionary

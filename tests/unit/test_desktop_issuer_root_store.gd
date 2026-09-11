@@ -301,6 +301,22 @@ func test_a_failed_durable_advance_returns_no_token_and_burns_no_counter() -> vo
 # Clause 16 -- no API lowers the counter
 # ---------------------------------------------------------------------------------------------
 
+func test_atomic_write_witnesses_are_exact_bounded_and_do_not_skip_cold_parsing() -> void:
+	if _opened_document().is_empty(): return
+	for index in 5:
+		if not _require_ok(_store.issue(&"transaction_id"), "issue for bounded witness"): return
+	assert_eq(_store._validated_write_texts.size(), 3)
+	var text: String = _store._validated_write_texts.back()
+	assert_true(_store._parse_known_write_document(text).ok)
+	assert_false(_store._parse_known_write_document(text + "!").ok, "changed bytes must strict-parse")
+	var parsed: Dictionary = _store._parse_document(text)
+	assert_true(parsed.ok)
+	assert_eq(parsed.value, _captured_document(), "ordinary parsing returns complete document")
+	parsed.value.receipts.clear()
+	assert_eq(_store._parse_document(text).value.receipts.size(), 5, "returned parse is detached")
+	assert_eq(_reloaded_document(), _captured_document(), "cold load still verifies durable receipts")
+
+
 func test_no_api_lowers_the_counter() -> void:
 	if _opened_document().is_empty():
 		return

@@ -8,6 +8,9 @@ const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema
 
 const LINE_RETENTION := 32
 const MANUAL_SAVE_RETENTION := 32
+# The current full snapshot plus two recent semantic fallbacks implement completed-action recovery.
+# Older snapshots duplicate the complete run; durable story/receipt history lives inside current.
+const SEMANTIC_RETENTION := 2
 const SEMANTIC_KINDS: Array[String] = [
 	"day_start", "timeline_start", "timeline_complete", "choice", "variable_transaction",
 	"effect_transaction", "safe_marker", "scene_transition", "pre_board", "post_result",
@@ -243,6 +246,8 @@ static func _retained(earlier: Array[Dictionary]) -> Array[Dictionary]:
 		lines = lines.slice(lines.size() - LINE_RETENTION)
 	if manual_saves.size() > MANUAL_SAVE_RETENTION:
 		manual_saves = manual_saves.slice(manual_saves.size() - MANUAL_SAVE_RETENTION)
+	if anchors.size() > SEMANTIC_RETENTION:
+		anchors = anchors.slice(anchors.size() - SEMANTIC_RETENTION)
 	var retained: Array[Dictionary] = anchors + lines + manual_saves
 	retained.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a["snapshot"]["checkpoint_sequence"]) < int(b["snapshot"]["checkpoint_sequence"]))

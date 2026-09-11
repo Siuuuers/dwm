@@ -725,7 +725,7 @@ static func _raw_diagnostic(owner_id: String, operation: String, result: Diction
 
 static func _disk_write_for(stage_id: String) -> Dictionary:
 	match stage_id:
-		"commit_outcomes", "increment_day":
+		"commit_outcomes":
 			return {"kind": &"autosave", "reason": &"automatic"}
 		"new_day_autosave":
 			return {"kind": &"autosave", "reason": &"day_start"}

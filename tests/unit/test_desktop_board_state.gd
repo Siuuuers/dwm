@@ -355,6 +355,33 @@ func test_commit_duplicate_transaction_id_same_payload_replays_result() -> void:
 	assert_eq(_state.capture()["revision"], 1, "a duplicate commit must not advance revision again")
 
 
+func test_routine_receipts_keep_latest_retry_but_compact_older_boards_after_acceptance() -> void:
+	_first_reveal_from_none(_state, "start", IDENTITY_A, _spec_a(), 0)
+	var first_receipt: Dictionary = _state.capture().command_receipts.start.duplicate(true)
+	var suspended := _suspend(_state, "older", IDENTITY_A, 1)
+	var older_candidate := _last_candidate.duplicate(true)
+	var legacy := _state.capture()
+	assert_eq(legacy.command_receipts.older.result, suspended)
+	var fresh := STATE.new()
+	assert_true(fresh.commit(fresh.prepare_restore(legacy).value.candidate).ok)
+	assert_eq(fresh.capture(), legacy, "loading an older full receipt does not rewrite it")
+	var resumed := _resume(fresh, "latest", IDENTITY_A, 2)
+	var latest_candidate := _last_candidate.duplicate(true)
+	var captured := fresh.capture()
+	assert_eq(captured.command_receipts.start, first_receipt, "paid first-Reveal evidence stays exact")
+	assert_eq(captured.command_receipts.latest.result, resumed, "latest action retains exact retry")
+	assert_false(captured.command_receipts.older.result.value.has("board"), "old board copy is retired")
+	assert_eq(fresh.commit(latest_candidate), resumed)
+	var old_retry := fresh.commit(older_candidate)
+	assert_true(old_retry.ok)
+	assert_eq(old_retry.code, &"board_command_already_applied")
+	assert_eq(old_retry.value.revision, 2)
+	assert_eq(fresh.capture(), captured, "old retry neither rolls back nor reapplies the board")
+	older_candidate.request_fingerprint = "changed-old-input"
+	assert_eq(fresh.commit(older_candidate).code, &"transaction_conflict")
+	assert_eq(fresh.capture(), captured)
+
+
 func test_commit_duplicate_transaction_id_changed_payload_conflicts() -> void:
 	_begin_debug(_state, "tx-dup2", IDENTITY_A, _spec_a())
 	# To specifically prove commit()'s own conflict law (independent of the higher-level phase

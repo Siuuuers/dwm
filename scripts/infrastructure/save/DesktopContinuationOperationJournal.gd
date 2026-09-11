@@ -112,6 +112,10 @@ var _storage: Object = null
 var _source_loader: Object = null
 var _document: Dictionary = {}
 var _loaded := false
+# Exact canonical texts validated by this journal. Atomic storage rechecks the same outgoing/current/backup
+# bytes several times; retain only this tiny proof window and always return detached values.
+var _validated_text_documents: Dictionary = {}
+var _validated_text_order: Array[String] = []
 var _schema_error: StringName = &"journal_schema_invalid"
 
 
@@ -399,20 +403,26 @@ func _load() -> Dictionary:
 		var validated := _validate_document(document)
 		if not validated.get("ok", false):
 			return validated
+		var canonical := _CANONICAL_WRITER.stringify(document)
+		if canonical.get("ok", false) and str(canonical["value"]).sha256_text() == str(reconciled.get("hash", "")):
+			_remember_validated_text(str(canonical["value"]), document)
 	_document = document.duplicate(true)
 	_loaded = true
 	return {"ok": true}
 
 
 func _write(document: Dictionary) -> Dictionary:
+	# Every caller uses a validated entry path: commit/target call _validate_operation, advance
+	# constructs an exhaustive legal transition, and diagnostic clearing only nulls an
+	# already-validated failure. _document itself was validated on load. Avoid rescanning all
+	# historical completed operations on every forward step; the canonical writer still proves
+	# strict round-trip.
 	var emitted := _CANONICAL_WRITER.stringify(document)
 	if not emitted.get("ok", false):
 		return _failed(&"journal_serialization_failed", str(emitted.get("message", "cannot serialize journal")))
-	var parsed := _validate_document(document)
-	if not parsed.get("ok", false):
-		return parsed
+	_remember_validated_text(str(emitted["value"]), document)
 	var write_result: Dictionary = _storage.call(
-		&"write_atomic", JOURNAL_PATH, str(emitted["value"]), Callable(self, "_parse_document"), true
+		&"write_atomic", JOURNAL_PATH, str(emitted["value"]), Callable(self, "_parse_known_document"), true
 	)
 	if not write_result.get("ok", false):
 		# An atomic adapter may report failure after the destination promotion became durable.
@@ -421,9 +431,27 @@ func _write(document: Dictionary) -> Dictionary:
 		return _storage_failure(write_result)
 	return {"ok": true}
 
+func _parse_known_document(text: String) -> Dictionary:
+	if _validated_text_documents.has(text):
+		# JsonFileStorage uses this value only as a validation witness during an atomic write.
+		# The journal retains its separately validated document and reloads through _parse_document.
+		return {"ok": true, "code": &"ok", "value": {}}
+	return _parse_document(text)
 
 func _parse_document(text: String) -> Dictionary:
+	if _validated_text_documents.has(text):
+		return {"ok": true, "code": &"ok",
+			"value": (_validated_text_documents[text] as Dictionary).duplicate(true)}
 	return _STRICT_JSON.parse_object(text)
+
+
+func _remember_validated_text(text: String, document: Dictionary) -> void:
+	if _validated_text_documents.has(text):
+		_validated_text_order.erase(text)
+	_validated_text_documents[text] = document.duplicate(true)
+	_validated_text_order.append(text)
+	while _validated_text_order.size() > 3:
+		_validated_text_documents.erase(_validated_text_order.pop_front())
 
 
 func _validate_document(document: Variant) -> Dictionary:

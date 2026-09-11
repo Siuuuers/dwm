@@ -242,3 +242,18 @@ func test_seed_replaces_same_counter_contents_and_history_and_can_repeat() -> vo
 	invalid["next_sequence"] = 99
 	assert_false(journal.commit_prepared(invalid).get("ok", true), "invalid seed still rejects")
 	assert_eq(journal.capture_state()["value"]["backup"], seeded, "invalid seed cannot mutate")
+
+
+func test_semantic_recovery_history_is_bounded_without_changing_current_snapshot() -> void:
+	var journal := _fresh("bounded-run")
+	for sequence: int in range(1, 13):
+		var prepared: Dictionary = journal.prepare_record(_snapshot("bounded-run", sequence), &"post_result")
+		assert_true(prepared.ok, str(prepared))
+		assert_true(journal.commit_prepared(prepared.value.candidate).ok)
+	var current: Dictionary = journal.get_current_bundle().value.bundle
+	assert_eq(current.snapshot.checkpoint_sequence, 12)
+	var earlier: Array = journal.get_bundles_for_disk()
+	assert_eq(earlier.size(), 2, "old full-run copies must not grow with every action")
+	assert_eq(earlier[0].snapshot.checkpoint_sequence, 10)
+	assert_eq(earlier[1].snapshot.checkpoint_sequence, 11)
+	assert_eq(current.snapshot, preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(_snapshot("bounded-run", 12)).value.candidate, "current gameplay and complete causal history stay intact")

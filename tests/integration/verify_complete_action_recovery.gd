@@ -1,6 +1,6 @@
 extends "res://tests/integration/verify_playable_startup.gd"
 ## Two processes: write, then read with --recovery-seed-root=<retained isolated user dir>.
-## --recovery-case=completed|interrupted|day2|legacy; --recovery-phase=write|read.
+## --recovery-case=completed|interrupted|day2|interrupted_day2|legacy; --recovery-phase=write|read.
 ## Only interrupted installs a FileOps fault. All actions use the real production app.
 const CANON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
@@ -21,6 +21,16 @@ class RejectCompletionWrite extends "res://scripts/infrastructure/storage/FileOp
 				return {"ok": false, "code": &"injected_completion_write_failure"}
 		return super.write_bytes(path, bytes)
 
+class RejectDay2Write extends "res://scripts/infrastructure/storage/FileOps.gd":
+	var rejected := 0
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if path.get_file() == "autosave.json.next":
+			var parsed: Dictionary = STRICT.parse_object(bytes.get_string_from_utf8())
+			if parsed.get("ok", false) and parsed.value.get("current_snapshot", {}).get("checkpoint_kind") == "day_start" and int(parsed.value.current_snapshot.snapshot.lifecycle.day) == 2:
+				rejected += 1
+				return {"ok": false, "code": &"injected_day2_write_failure"}
+		return super.write_bytes(path, bytes)
+
 func _initialize() -> void:
 	var destination := ProjectSettings.globalize_path("user://").replace("\\", "/").simplify_path()
 	var isolated := OS.get_environment("DWM_TEST_ROOT").replace("\\", "/").simplify_path()
@@ -37,7 +47,7 @@ func _initialize() -> void:
 				"phase": _recovery_phase = value
 				"case": _recovery_case = value
 				"seed-root": _seed_root = ProjectSettings.globalize_path(value).replace("\\", "/").simplify_path()
-	if not _check(_recovery_phase in ["write", "read"] and _recovery_case in ["completed", "interrupted", "day2", "legacy"], "valid recovery phase and case"): return
+	if not _check(_recovery_phase in ["write", "read"] and _recovery_case in ["completed", "interrupted", "day2", "interrupted_day2", "legacy"], "valid recovery phase and case"): return
 	if not _seed_root.is_empty():
 		var allowed := ProjectSettings.globalize_path("res://.godot/phase2r_tests").replace("\\", "/").to_lower() + "/"
 		var legacy_source := ProjectSettings.globalize_path("res://temp-artifacts/player-bugs-20260909/user-data-snapshot").replace("\\", "/").simplify_path().to_lower()
@@ -118,6 +128,11 @@ func _run() -> void:
 	else:
 		if not _check(app.last_result.get("ok", false) and bool(panel.public_view.settled) and game.minesweeper_app_rounds_finished_today == 1, "mine reached fully settled result " + JSON.stringify(app.last_result)): return
 		if _recovery_case == "day2" and not await _advance_day(desktop, game): return
+	if _recovery_case == "interrupted_day2":
+		var day_fault := RejectDay2Write.new()
+		root.get_node("SaveManager")._storage._file_ops = day_fault
+		if not await _advance_day(desktop, game, true): return
+		if not _check(day_fault.rejected > 0 and int(_snapshot(_autosave_text()).lifecycle.day) == 1, "failed Day2 save retains the Day1 presentation boundary"): return
 	var saved_text := _autosave_text()
 	var expected := _snapshot(saved_text)
 	if expected.is_empty(): return
@@ -136,17 +151,19 @@ func _run() -> void:
 	print("COMPLETE_ACTION_WRITE_PASS: " + _recovery_case + " restart seed=" + ProjectSettings.globalize_path("user://"))
 	quit(0)
 
-func _advance_day(desktop: Node, game: Node) -> bool:
+func _advance_day(desktop: Node, game: Node, expect_failure: bool = false) -> bool:
 	if not _check(desktop.return_home().get("ok", false) and desktop.open_app(&"schedule").get("ok", false), "recovery Schedule opens"): return false
 	await _frames()
 	var ports: Dictionary = desktop.get_meta("gameplay_ports")
 	for attempt: int in 5:
 		var done: Dictionary = ports.commands.dispatch_done()
+		if expect_failure and not done.get("ok", false): return true
 		if not _check(done.get("ok", false), "recovery Done " + JSON.stringify(done)): return false
 		var warning: Variant = done.get("value", {}).get("warning")
 		if warning == null: break
 		if not _check(ports.warning_commands.resolve_warning(str(warning.activation_id), &"dismiss").get("ok", false), "recovery warning dismissal"): return false
 	await _frames()
+	if expect_failure: return _check(false, "Day2 write fault must interrupt Done")
 	return _check(game.day == 2 and game.minesweeper_rounds_left == 2 and game.minesweeper_app_rounds_finished_today == 0, "recovery saved Day2 reset")
 
 func _autosave_text() -> String:
@@ -179,6 +196,17 @@ func _read_phase(bootstrap: Node) -> void:
 	await _frames()
 	var game: Node = root.get_node("GameState")
 	if not _check(current_scene.find_child("ComputerDesktop", true, false) != null and game.capture_live_session().value.active, "recovery fresh session mounted"): return
+	if _recovery_case == "interrupted_day2":
+		# Login resumes the saved Schedule command after mounting; no second Done click.
+		if not _check(game.day == 2 and game.minesweeper_rounds_left == 2 and game.minesweeper_app_rounds_finished_today == 0, "interrupted Done resumes to fully reset Day2"): return
+		var lifecycle: Dictionary = game._run_lifecycle.to_dict()
+		for stage: Dictionary in lifecycle.active_resolution_plan.stages:
+			if not _check(str(stage.state) == "completed", "resumed day stage finishes: " + str(stage.stage_id)): return
+		if not _check(game.money == expected.gameplay.money and int(_snapshot(_autosave_text()).lifecycle.day) == 2, "resumed Done saves Day2 without repeating money effects"): return
+		if not _verify_sidecars(): return
+		print("COMPLETE_ACTION_RECOVERY_PASS: fresh process -> real Login -> interrupted_day2 automatically resumes once")
+		quit(0)
+		return
 	var restored: Dictionary = game.capture_run_snapshot_input()
 	var expected_gameplay: Dictionary = expected.gameplay.duplicate(true)
 	var routing: Dictionary = SNAPSHOT.derive_route_restore_context(expected)

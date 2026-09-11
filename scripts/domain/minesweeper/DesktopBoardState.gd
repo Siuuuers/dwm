@@ -422,6 +422,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if candidate.has("result_override"):
 		result = (candidate["result_override"] as Dictionary).duplicate(true)
 
+	_compact_prior_command_results()
 	if transaction_id != "":
 		_command_receipts[transaction_id] = {
 			"request_fingerprint": request_fingerprint,
@@ -430,6 +431,20 @@ func commit(candidate: Dictionary) -> Dictionary:
 			"command_kind": String(kind), "result": result.duplicate(true),
 		}
 	return result.duplicate(true)
+
+
+func _compact_prior_command_results() -> void:
+	# Only the latest accepted command needs its exact retry response. Retain older receipt
+	# fingerprints and revisions so repeats acknowledge completion and changed requests conflict,
+	# without copying every historical board into each capture/save. First-Reveal receipts keep
+	# their paid-start/publication proof. Legacy full results compact only on a new accepted input.
+	for entry: Variant in _command_receipts.values():
+		if not entry is Dictionary or str(entry.get("command_kind", "")) not in ["board_command", "visibility"]: continue
+		if not entry.get("result") is Dictionary or not entry.get("post_revision") is int: continue
+		var prior: Dictionary = entry.result
+		if str(prior.get("code", "")) == "board_command_already_applied": continue
+		entry["result"] = {"ok": true, "code": &"board_command_already_applied",
+			"value": {"already_applied": true, "revision": int(entry["post_revision"])}, "receipt": {}}
 
 
 # ---------------------------------------------------------------------------------------------
