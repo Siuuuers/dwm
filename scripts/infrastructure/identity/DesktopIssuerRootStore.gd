@@ -165,7 +165,7 @@ var _namespace_source: Object = null
 var _document: Dictionary = {}
 var _loaded := false
 # Atomic writes repeatedly validate the same exact UTF-8 document. Keep only the three
-# most recent texts already proven by the canonical writer; cold or changed bytes still parse.
+# most recent texts proven by the strict parser or canonical writer; cold or changed bytes still parse.
 var _validated_write_texts: Array[String] = []
 
 
@@ -355,7 +355,9 @@ func capture() -> Dictionary:
 
 ## The whole validator, per DECISION 13.2. Storage proves atomicity; this class proves domain law.
 func _parse_document(text: String) -> Dictionary:
-	return _STRICT_JSON.parse_object(text)
+	var parsed: Dictionary = _STRICT_JSON.parse_object(text)
+	if parsed.get("ok", false): _remember_write_text(text)
+	return parsed
 
 
 func _write_document(document: Dictionary) -> Dictionary:
@@ -363,10 +365,7 @@ func _write_document(document: Dictionary) -> Dictionary:
 	if not emitted.get("ok", false):
 		return _failed(&"root_serialization_failed", str(emitted.get("message", "canonical write refused")))
 	var text := str(emitted["value"])
-	_validated_write_texts.erase(text)
-	_validated_write_texts.append(text)
-	while _validated_write_texts.size() > 3:
-		_validated_write_texts.pop_front()
+	_remember_write_text(text)
 	var written: Dictionary = _storage.call(
 		&"write_atomic", ROOT_DOCUMENT_PATH, text, Callable(self, "_parse_known_write_document"), true
 	)
@@ -379,8 +378,17 @@ func _write_document(document: Dictionary) -> Dictionary:
 func _parse_known_write_document(text: String) -> Dictionary:
 	# Storage needs a validity witness, while this owner retains its detached document.
 	# Read/restart paths always use _parse_document and apply the complete ledger laws.
-	if _validated_write_texts.has(text): return {"ok": true, "value": {}}
+	if _validated_write_texts.has(text):
+		_remember_write_text(text)
+		return {"ok": true, "value": {}}
 	return _parse_document(text)
+
+
+func _remember_write_text(text: String) -> void:
+	_validated_write_texts.erase(text)
+	_validated_write_texts.append(text)
+	while _validated_write_texts.size() > 3:
+		_validated_write_texts.pop_front()
 
 
 func _storage_failure(result: Dictionary, fallback: StringName) -> Dictionary:

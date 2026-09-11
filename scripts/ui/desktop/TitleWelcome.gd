@@ -12,7 +12,7 @@ var welcome: Label
 var status: Label
 var _locale := "en"
 var _stage := ""
-var _dot_elapsed := 0.0
+var _dot_started_us := 0
 var _dot_count := 1
 
 func _ready() -> void:
@@ -50,17 +50,18 @@ func set_presentation(locale: String, percent: int) -> void:
 
 func set_busy(stage: String) -> void:
 	if _stage != stage:
-		_dot_elapsed = 0.0
+		_dot_started_us = Time.get_ticks_usec()
 		_dot_count = 1
 	_stage = stage
 	set_process(not stage.is_empty())
 	_refresh_status()
 
-func _process(delta: float) -> void:
-	_dot_elapsed += delta
-	if _dot_elapsed >= 0.35:
-		_dot_elapsed = fmod(_dot_elapsed, 0.35)
-		_dot_count = _dot_count % 3 + 1
+func _process(_delta: float) -> void:
+	# Engine delta is clamped after a slow frame. Keep feedback on wall-clock cadence
+	# so save work cannot leave the first dot advancing in slow motion afterwards.
+	var count := 1 + int((Time.get_ticks_usec() - _dot_started_us) / 350000.0) % 3
+	if count != _dot_count:
+		_dot_count = count
 		_refresh_status()
 
 func _refresh_status() -> void:

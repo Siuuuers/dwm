@@ -1410,3 +1410,22 @@ func _assert_distinct_receipts(receipts: Array[Dictionary], label: String) -> vo
 	assert_eq(receipt_ids.size(), receipts.size(), "%s receipt IDs are unique" % label)
 	assert_eq(tokens.size(), receipts.size(), "%s tokens are unique" % label)
 	assert_eq(counters.size(), receipts.size(), "%s counters are unique" % label)
+
+func test_cold_strict_parse_proves_atomic_write_bytes_without_authorizing_schema() -> void:
+	var store := ROOT_STORE.new()
+	var text := '{"schema_version":999}'
+	assert_true(store._parse_document(text).ok)
+	assert_true(store._parse_known_write_document(text).value.is_empty(), "atomic syntax proof reuses cold parsed bytes")
+	assert_false(store._validate_document(store._parse_document(text).value).ok, "root ledger laws still reject the foreign schema")
+	assert_false(store._parse_document('{"duplicate":1,"duplicate":2}').ok)
+	assert_false(store._validated_write_texts.has('{"duplicate":1,"duplicate":2}'))
+
+func test_atomic_write_proof_keeps_only_three_recently_used_texts() -> void:
+	var store := ROOT_STORE.new()
+	for text: String in ['{"a":1}', '{"b":2}', '{"c":3}']:
+		assert_true(store._parse_document(text).ok)
+	store._parse_known_write_document('{"a":1}')
+	store._parse_document('{"d":4}')
+	assert_eq(store._validated_write_texts.size(), 3)
+	assert_has(store._validated_write_texts, '{"a":1}')
+	assert_does_not_have(store._validated_write_texts, '{"b":2}')

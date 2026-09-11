@@ -112,10 +112,13 @@ var _storage: Object = null
 var _source_loader: Object = null
 var _document: Dictionary = {}
 var _loaded := false
-# Exact canonical texts validated by this journal. Atomic storage rechecks the same outgoing/current/backup
-# bytes several times; retain only this tiny proof window and always return detached values.
+# Exact texts accepted by the strict parser or canonical writer. Atomic storage rechecks
+# outgoing/current/backup bytes; retain this bounded proof window and return detached values.
+# Loading still validates the full journal schema, including on a cached parse.
 var _validated_text_documents: Dictionary = {}
 var _validated_text_order: Array[String] = []
+# One detached canonical proof per current operation; historical receipts never change on a forward step.
+var _operation_text_cache: Dictionary = {}
 var _schema_error: StringName = &"journal_schema_invalid"
 
 
@@ -403,7 +406,7 @@ func _load() -> Dictionary:
 		var validated := _validate_document(document)
 		if not validated.get("ok", false):
 			return validated
-		var canonical := _CANONICAL_WRITER.stringify(document)
+		var canonical := _serialize_document(document)
 		if canonical.get("ok", false) and str(canonical["value"]).sha256_text() == str(reconciled.get("hash", "")):
 			_remember_validated_text(str(canonical["value"]), document)
 	_document = document.duplicate(true)
@@ -415,9 +418,9 @@ func _write(document: Dictionary) -> Dictionary:
 	# Every caller uses a validated entry path: commit/target call _validate_operation, advance
 	# constructs an exhaustive legal transition, and diagnostic clearing only nulls an
 	# already-validated failure. _document itself was validated on load. Avoid rescanning all
-	# historical completed operations on every forward step; the canonical writer still proves
-	# strict round-trip.
-	var emitted := _CANONICAL_WRITER.stringify(document)
+	# historical completed operations on every forward step. Reuse their exact canonical bytes;
+	# changed operations still pass through the canonical writer.
+	var emitted := _serialize_document(document)
 	if not emitted.get("ok", false):
 		return _failed(&"journal_serialization_failed", str(emitted.get("message", "cannot serialize journal")))
 	_remember_validated_text(str(emitted["value"]), document)
@@ -431,8 +434,36 @@ func _write(document: Dictionary) -> Dictionary:
 		return _storage_failure(write_result)
 	return {"ok": true}
 
+## The surrounding schema is fixed and was validated on load/construction. Reusing a detached
+## operation requires type-preserving equality, not Dictionary == (which equates 1 and 1.0).
+## This avoids encoding every historical receipt at each durable participant boundary.
+func _serialize_document(document: Dictionary) -> Dictionary:
+	var operations: Dictionary = document["operations"]
+	for transaction_id: String in _operation_text_cache.keys():
+		if not operations.has(transaction_id): _operation_text_cache.erase(transaction_id)
+	var keys: Array = operations.keys()
+	keys.sort_custom(_CANONICAL_WRITER._utf8_less)
+	var members: Array[String] = []
+	for transaction_id: String in keys:
+		var operation: Dictionary = operations[transaction_id]
+		var cached: Dictionary = _operation_text_cache.get(transaction_id, {})
+		if cached.is_empty() or not _CANONICAL_WRITER._deep_same(operation, cached["operation"]):
+			var emitted := _serialize_operation(operation)
+			if not emitted.get("ok", false): return emitted
+			cached = {"operation": operation.duplicate(true), "text": str(emitted["value"])}
+			_operation_text_cache[transaction_id] = cached
+		var key_text: Dictionary = _CANONICAL_WRITER.stringify(transaction_id)
+		if not key_text.get("ok", false): return key_text
+		members.append(str(key_text["value"]) + ":" + str(cached["text"]))
+	return {"ok": true, "value": '{"operations":{' + ",".join(members) + '},"schema_version":' + str(SCHEMA_VERSION) + '}'}
+
+func _serialize_operation(operation: Dictionary) -> Dictionary:
+	return _CANONICAL_WRITER.stringify(operation)
+
+
 func _parse_known_document(text: String) -> Dictionary:
 	if _validated_text_documents.has(text):
+		_touch_validated_text(text)
 		# JsonFileStorage uses this value only as a validation witness during an atomic write.
 		# The journal retains its separately validated document and reloads through _parse_document.
 		return {"ok": true, "code": &"ok", "value": {}}
@@ -440,9 +471,17 @@ func _parse_known_document(text: String) -> Dictionary:
 
 func _parse_document(text: String) -> Dictionary:
 	if _validated_text_documents.has(text):
+		_touch_validated_text(text)
 		return {"ok": true, "code": &"ok",
 			"value": (_validated_text_documents[text] as Dictionary).duplicate(true)}
-	return _STRICT_JSON.parse_object(text)
+	var parsed: Dictionary = _STRICT_JSON.parse_object(text)
+	if parsed.get("ok", false): _remember_validated_text(text, parsed["value"])
+	return parsed
+
+
+func _touch_validated_text(text: String) -> void:
+	_validated_text_order.erase(text)
+	_validated_text_order.append(text)
 
 
 func _remember_validated_text(text: String, document: Dictionary) -> void:

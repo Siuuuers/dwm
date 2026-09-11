@@ -64,6 +64,7 @@ var _mutation_gate: Object = null
 var _identity_issuer: Object = null
 var _new_run_profile_owner: Object = null
 var _new_run_busy := false
+var _new_run_slice_started_us := 0
 var _new_run_gate_token := ""
 # Process-local tickets survive same-operation retries; never saved in player data.
 var _session_activation_tickets: Dictionary = {}
@@ -568,6 +569,7 @@ func commit_prepared_new_run_responsive(token: String) -> Dictionary:
 		_prepared_new_run.clear()
 		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
 	_new_run_busy = true
+	_new_run_slice_started_us = Time.get_ticks_usec()
 	var result: Dictionary = await _commit_prepared_new_run(true)
 	_new_run_busy = false
 	return result
@@ -685,6 +687,8 @@ func _start_new_run_decision(initial_context: Dictionary) -> Dictionary:
 func _commit_new_run_intent(prepared: Dictionary, responsive: bool = false) -> Dictionary:
 	_new_run_intent = prepared["value"].duplicate(true)
 	_new_run_transaction_id = str(_new_run_intent["transaction_id"])
+	# The complete decision is retained for Retry before yielding; it is never resampled.
+	if responsive: await _render_new_run_frame()
 	# Even an uncertain journal write keeps the exact candidate for an explicit retry.
 	var committed: Dictionary = _continuation_journal.commit_intent(_new_run_intent)
 	if not committed.get("ok", false): return _new_run_failure(committed)
@@ -708,6 +712,7 @@ func retry_new_run_responsive(transaction_id: String) -> Dictionary:
 	if not ready.get("ok", false): return ready
 	if transaction_id.is_empty(): return _fail(&"invalid_new_run_transaction", "")
 	_new_run_busy = true
+	_new_run_slice_started_us = Time.get_ticks_usec()
 	var result: Dictionary = await _retry_new_run(transaction_id, true)
 	_new_run_busy = false
 	return result
@@ -881,16 +886,19 @@ func _settle_new_run_pair(operation: Dictionary, responsive: bool = false) -> Di
 	if not committed.get("ok", false): return committed
 	if _canonical_sha256(committed["value"]) != str(operation["allocation_candidate_fingerprint"]):
 		return _fail(&"allocation_candidate_fingerprint_mismatch", "")
+	if responsive: await _render_new_run_frame()
 	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_INTENT:
 		var allocated := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_ALLOCATED, committed["value"])
 		if not allocated.get("ok", false): return allocated
 		operation = allocated["value"]
+	if responsive: await _render_new_run_frame()
 	var identity := _record_new_run_target(operation, &"identity", str(operation["allocation_candidate_fingerprint"]))
 	if not identity.get("ok", false): return identity
 	operation = identity["value"]
 	if responsive: await _render_new_run_frame()
 	var autosave := _persist_new_run_autosave(materials["autosave"])
 	if not autosave.get("ok", false): return autosave
+	if responsive: await _render_new_run_frame()
 	var saved := _record_new_run_target(operation, &"autosave", str(materials["autosave"]["outgoing_hash"]))
 	if not saved.get("ok", false): return saved
 	operation = saved["value"]
@@ -905,6 +913,7 @@ func _settle_new_run_pair(operation: Dictionary, responsive: bool = false) -> Di
 	if not profile.get("ok", false): return profile
 	autosave = _prove_new_run_autosave(materials["autosave"])
 	if not autosave.get("ok", false): return autosave
+	if responsive: await _render_new_run_frame()
 	return _record_new_run_target(operation, &"profile", str(materials["profile"]["outgoing_hash"]))
 
 func _prove_new_run_autosave(material: Dictionary) -> Dictionary:
@@ -2104,9 +2113,12 @@ func _resume_operation(operation: Dictionary) -> Dictionary:
 ## SaveManager owns this coroutine so retiring the title cannot abandon a durable decision.
 ## Yield between completed operations, never inside an atomic storage write.
 func _render_new_run_frame() -> void:
-	if is_inside_tree():
-		await get_tree().process_frame
-		await get_tree().process_frame
+	if not is_inside_tree() or Time.get_ticks_usec() - _new_run_slice_started_us < 8000: return
+	# Menu already painted the initial status. One subsequent process boundary lets
+	# the work frame render, including when a slow renderer would make two waits costly.
+	# Unlike frame_post_draw, this also progresses while minimized or headless.
+	await get_tree().process_frame
+	_new_run_slice_started_us = Time.get_ticks_usec()
 
 func _resume_new_run(operation: Dictionary, _gate_token: String, responsive: bool = false) -> Dictionary:
 	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_COMPLETED:
@@ -2117,10 +2129,12 @@ func _resume_new_run(operation: Dictionary, _gate_token: String, responsive: boo
 	var settled: Dictionary = await _settle_new_run_pair(operation, responsive)
 	if not settled.get("ok", false): return _new_run_failure(settled)
 	operation = settled["value"]
+	if responsive: await _render_new_run_frame()
 	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
 		var advanced := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_APPLYING)
 		if not advanced.get("ok", false): return _new_run_failure(advanced)
 		operation = advanced["value"]
+	if responsive: await _render_new_run_frame()
 	var materials: Dictionary = operation["new_run_materials"]
 	var parsed: Dictionary = STRICT_JSON.parse_object(str(materials["autosave"]["outgoing_text"]))
 	if not parsed.get("ok", false): return _new_run_failure(parsed)
@@ -2154,6 +2168,7 @@ func _resume_new_run(operation: Dictionary, _gate_token: String, responsive: boo
 				"participant_receipt": receipt if typeof(receipt) == TYPE_DICTIONARY else {}, "failure": null})
 			if not advanced.get("ok", false): return _new_run_failure(advanced)
 			operation = advanced["value"]
+	if responsive: await _render_new_run_frame()
 	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_APPLYING:
 		var advanced := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_APPLIED)
 		if not advanced.get("ok", false): return _new_run_failure(advanced)
@@ -2166,6 +2181,7 @@ func _resume_new_run(operation: Dictionary, _gate_token: String, responsive: boo
 	if _canonical_sha256(captured_checkpoint["value"]["backup"]) != _canonical_sha256(expected_checkpoint):
 		var checkpoint: Dictionary = _journal.commit_prepared(checkpoint_candidate)
 		if not checkpoint.get("ok", false): return _new_run_failure(checkpoint)
+	if responsive: await _render_new_run_frame()
 	var finalize_order := _PARTICIPANT_APPLY_ORDER.duplicate()
 	finalize_order.erase("route")
 	finalize_order.append("route")
