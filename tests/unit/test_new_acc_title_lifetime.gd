@@ -132,7 +132,7 @@ func test_queued_source_ancestor_during_departure_cannot_prepare_before_frame_en
 	assert_eq(get_tree().root.gui_get_focus_owner(), destination_button)
 
 func test_synchronous_commit_retiring_title_cannot_mount_post_return_recovery() -> void:
-	menu._new_acc_button.pressed.emit()
+	await menu._on_new_acc_pressed()
 	assert_eq(save_owner.prepares, 1)
 	assert_true(is_instance_valid(menu._confirmation))
 	save_owner.on_commit = func():
@@ -140,23 +140,49 @@ func test_synchronous_commit_retiring_title_cannot_mount_post_return_recovery() 
 		source.queue_free()
 	var sheet: Control = menu._confirmation
 	sheet.confirm_button.pressed.emit()
+	for frame in 3: await get_tree().process_frame
 	assert_eq(save_owner.commits, 1)
-	assert_false(is_instance_valid(menu._confirmation), "No recovery sheet may appear on retired title")
+	assert_true(not is_instance_valid(menu) or not is_instance_valid(menu._confirmation), "No recovery sheet may appear on retired title")
 	assert_eq(get_tree().root.gui_get_focus_owner(), destination_button)
 	await get_tree().process_frame
 	assert_false(is_instance_valid(source))
 	assert_eq(get_tree().root.gui_get_focus_owner(), destination_button)
 
 func test_synchronous_commit_detaches_source_before_return_without_new_root_lookup() -> void:
-	menu._new_acc_button.pressed.emit()
+	await menu._on_new_acc_pressed()
 	assert_eq(save_owner.prepares, 1)
 	save_owner.on_commit = func():
 		_show_destination(true)
 		source.get_parent().remove_child(source)
 	var sheet: Control = menu._confirmation
 	sheet.confirm_button.pressed.emit()
+	for frame in 3: await get_tree().process_frame
 	assert_eq(save_owner.commits, 1)
 	assert_false(source.is_inside_tree())
 	assert_false(is_instance_valid(menu._confirmation), "Detached Menu cannot mount recovery")
 	assert_eq(get_tree().root.gui_get_focus_owner(), destination_button)
 	assert_false(save_owner.cancels.is_empty(), "Retained owner receives transient cleanup")
+
+
+func test_busy_preparation_is_visible_before_save_and_duplicate_press_is_ignored() -> void:
+	menu._new_acc_button.pressed.emit()
+	assert_eq(save_owner.prepares, 0, "status gets a render opportunity before save preparation")
+	assert_true(menu._title_welcome.status.visible)
+	assert_eq(menu._title_welcome.status.text, "Preparing your account.")
+	assert_true(menu._title_transition)
+	menu._new_acc_button.pressed.emit()
+	for frame in 3: await get_tree().process_frame
+	assert_eq(save_owner.prepares, 1)
+	assert_false(menu._title_welcome.status.visible, "consent replaces busy feedback")
+
+
+func test_scene_change_during_busy_commit_cancels_preparation_without_starting() -> void:
+	await menu._on_new_acc_pressed()
+	menu._confirmation.confirm_button.pressed.emit()
+	assert_eq(save_owner.commits, 0)
+	assert_eq(menu._title_welcome.status.text, "Starting your desktop.")
+	_show_destination(true)
+	for frame in 3: await get_tree().process_frame
+	assert_eq(save_owner.commits, 0, "retired title cannot commit after the rendered busy frame")
+	assert_has(save_owner.cancels, "prepared-lifetime")
+	assert_eq(get_tree().root.gui_get_focus_owner(), destination_button)

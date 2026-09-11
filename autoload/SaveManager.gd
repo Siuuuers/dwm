@@ -553,11 +553,26 @@ func commit_prepared_new_run(token: String) -> Dictionary:
 		_prepared_new_run.clear()
 		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
 	_new_run_busy = true
-	var result := _commit_prepared_new_run()
+	var result: Dictionary = call("_commit_prepared_new_run", false)
 	_new_run_busy = false
 	return result
 
-func _commit_prepared_new_run() -> Dictionary:
+## UI-only cooperative path; the existing mutation lease remains held across frame yields.
+func commit_prepared_new_run_responsive(token: String) -> Dictionary:
+	if _new_run_busy: return _fail(&"new_run_busy", "")
+	if token.is_empty() or _prepared_new_run.is_empty() or token != str(_prepared_new_run.get("token", "")):
+		return _fail(&"invalid_new_run_preparation", "")
+	var ready := _new_run_ready(true)
+	if not ready.get("ok", false): return ready
+	if not _new_run_transaction_id.is_empty() or not _new_run_intent.is_empty():
+		_prepared_new_run.clear()
+		return _new_run_failure(_fail(&"new_run_recovery_required", ""))
+	_new_run_busy = true
+	var result: Dictionary = await _commit_prepared_new_run(true)
+	_new_run_busy = false
+	return result
+
+func _commit_prepared_new_run(responsive: bool = false) -> Dictionary:
 	var acquired := _take_new_run_custody()
 	if not acquired.get("ok", false): return acquired
 	var retained := _prepared_new_run.duplicate(true)
@@ -596,7 +611,7 @@ func _commit_prepared_new_run() -> Dictionary:
 	# The next write establishes (or ambiguously may establish) the durable decision.
 	# From this point recovery is by transaction id, never by replaying the UI token.
 	_prepared_new_run.clear()
-	return _commit_new_run_intent(prepared)
+	return await _commit_new_run_intent(prepared, responsive)
 
 func _release_prepared_new_run_after_refusal(failure: Dictionary, consume: bool) -> Dictionary:
 	if consume: _prepared_new_run.clear()
@@ -665,16 +680,16 @@ func _start_new_run_decision(initial_context: Dictionary) -> Dictionary:
 	if not prepared.get("ok", false):
 		var released := _release_new_run_custody()
 		return prepared if released.get("ok", false) else released
-	return _commit_new_run_intent(prepared)
+	return call("_commit_new_run_intent", prepared, false)
 
-func _commit_new_run_intent(prepared: Dictionary) -> Dictionary:
+func _commit_new_run_intent(prepared: Dictionary, responsive: bool = false) -> Dictionary:
 	_new_run_intent = prepared["value"].duplicate(true)
 	_new_run_transaction_id = str(_new_run_intent["transaction_id"])
 	# Even an uncertain journal write keeps the exact candidate for an explicit retry.
 	var committed: Dictionary = _continuation_journal.commit_intent(_new_run_intent)
 	if not committed.get("ok", false): return _new_run_failure(committed)
 	_new_run_intent.clear()
-	return _resume_new_run(committed["value"], _new_run_gate_token)
+	return await _resume_new_run(committed["value"], _new_run_gate_token, responsive)
 
 func retry_new_run(transaction_id: String) -> Dictionary:
 	if _new_run_busy: return _fail(&"new_run_busy", "")
@@ -682,11 +697,22 @@ func retry_new_run(transaction_id: String) -> Dictionary:
 	if not ready.get("ok", false): return ready
 	if transaction_id.is_empty(): return _fail(&"invalid_new_run_transaction", "")
 	_new_run_busy = true
-	var result := _retry_new_run(transaction_id)
+	var result: Dictionary = call("_retry_new_run", transaction_id, false)
 	_new_run_busy = false
 	return result
 
-func _retry_new_run(transaction_id: String) -> Dictionary:
+## UI-only cooperative path; the existing mutation lease remains held across frame yields.
+func retry_new_run_responsive(transaction_id: String) -> Dictionary:
+	if _new_run_busy: return _fail(&"new_run_busy", "")
+	var ready := _new_run_ready(true)
+	if not ready.get("ok", false): return ready
+	if transaction_id.is_empty(): return _fail(&"invalid_new_run_transaction", "")
+	_new_run_busy = true
+	var result: Dictionary = await _retry_new_run(transaction_id, true)
+	_new_run_busy = false
+	return result
+
+func _retry_new_run(transaction_id: String, responsive: bool = false) -> Dictionary:
 	if not _new_run_transaction_id.is_empty() and transaction_id != _new_run_transaction_id:
 		return _fail(&"new_run_recovery_conflict", "")
 	var admitted := _admit_new_run_journal_io()
@@ -707,7 +733,7 @@ func _retry_new_run(transaction_id: String) -> Dictionary:
 		if not committed.get("ok", false): return _new_run_failure(committed)
 		_new_run_intent.clear()
 		found = committed
-	return _resume_new_run(found["value"], _new_run_gate_token)
+	return await _resume_new_run(found["value"], _new_run_gate_token, responsive)
 
 ## Bootstrap invokes this before Profile.initialize: no live participant is touched.
 func reconcile_new_run_storage() -> Dictionary:
@@ -734,7 +760,7 @@ func _reconcile_new_run_storage() -> Dictionary:
 		if operation["kind"] != "new_run": continue
 		var acquired := _take_new_run_custody(str(operation["transaction_id"]))
 		if not acquired.get("ok", false): return acquired
-		var result := _settle_new_run_pair(operation)
+		var result: Dictionary = call("_settle_new_run_pair", operation, false)
 		if not result.get("ok", false): return _new_run_failure(result)
 		settled.append(str(operation["transaction_id"]))
 		var released := _release_new_run_custody()
@@ -837,7 +863,7 @@ func _record_new_run_target(operation: Dictionary, target: StringName, revision:
 	return _continuation_journal.record_new_run_target(str(operation["transaction_id"]),
 		str(operation["request_fingerprint"]), target, revision)
 
-func _settle_new_run_pair(operation: Dictionary) -> Dictionary:
+func _settle_new_run_pair(operation: Dictionary, responsive: bool = false) -> Dictionary:
 	if not _identity_issuer.has_method("verify_issued"):
 		return _fail(&"invalid_identity_issuer", "verify_issued is required for recovery")
 	var verified: Dictionary = _continuation_journal.reconcile_startup(str(operation["transaction_id"]), _identity_issuer)
@@ -862,11 +888,13 @@ func _settle_new_run_pair(operation: Dictionary) -> Dictionary:
 	var identity := _record_new_run_target(operation, &"identity", str(operation["allocation_candidate_fingerprint"]))
 	if not identity.get("ok", false): return identity
 	operation = identity["value"]
+	if responsive: await _render_new_run_frame()
 	var autosave := _persist_new_run_autosave(materials["autosave"])
 	if not autosave.get("ok", false): return autosave
 	var saved := _record_new_run_target(operation, &"autosave", str(materials["autosave"]["outgoing_hash"]))
 	if not saved.get("ok", false): return saved
 	operation = saved["value"]
+	if responsive: await _render_new_run_frame()
 	# A fresh process may already have initialized Profile from the consumed target.
 	# Proof is independent of the former live revision; persistence still requires it.
 	var profile: Dictionary = _new_run_profile_owner.prove_new_run_consumption(materials["profile"])
@@ -2073,12 +2101,20 @@ func _resume_operation(operation: Dictionary) -> Dictionary:
 
 ## The retained SaveDocument and Profile candidate drive every live retry. Disk
 ## targets are reproved first; recorded participant prefixes are not process-local state.
-func _resume_new_run(operation: Dictionary, _gate_token: String) -> Dictionary:
+## SaveManager owns this coroutine so retiring the title cannot abandon a durable decision.
+## Yield between completed operations, never inside an atomic storage write.
+func _render_new_run_frame() -> void:
+	if is_inside_tree():
+		await get_tree().process_frame
+		await get_tree().process_frame
+
+func _resume_new_run(operation: Dictionary, _gate_token: String, responsive: bool = false) -> Dictionary:
 	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_COMPLETED:
 		var released := _release_new_run_custody()
 		if not released.get("ok", false): return released
 		return {"ok": true, "code": &"ok", "value": {"transaction_id": operation["transaction_id"], "outcome": "already_terminal"}}
-	var settled := _settle_new_run_pair(operation)
+	if responsive: await _render_new_run_frame()
+	var settled: Dictionary = await _settle_new_run_pair(operation, responsive)
 	if not settled.get("ok", false): return _new_run_failure(settled)
 	operation = settled["value"]
 	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
@@ -2101,6 +2137,7 @@ func _resume_new_run(operation: Dictionary, _gate_token: String) -> Dictionary:
 	# the route-ready token is process-local and must never be compared to an old receipt.
 	var route_ready_token: Variant = null
 	for index: int in range(_PARTICIPANT_APPLY_ORDER.size()):
+		if responsive: await _render_new_run_frame()
 		var key: String = _PARTICIPANT_APPLY_ORDER[index]
 		var plan: Dictionary = plans[key].duplicate(true)
 		if key == "narrative" and route_ready_token != null:

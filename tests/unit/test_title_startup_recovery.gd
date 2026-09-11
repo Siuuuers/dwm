@@ -192,10 +192,11 @@ func test_retry_retiring_source_never_creates_outgoing_sheet_or_steals_destinati
 		get_tree().current_scene = destination
 		destination_button.grab_focus()
 		source.queue_free()
-	# Emit the real shared action to keep assertions before queued source deletion.
+	# The real shared action paints busy feedback before retrying and retiring the source.
 	menu._confirmation.confirm_button.pressed.emit()
+	await _settle()
 	assert_eq(startup.retries, ["startup-operation"])
-	assert_false(is_instance_valid(menu._confirmation))
+	assert_true(not is_instance_valid(menu) or not is_instance_valid(menu._confirmation))
 	assert_eq(get_tree().root.gui_get_focus_owner(), destination_button)
 	await _settle()
 	assert_false(is_instance_valid(source))

@@ -78,13 +78,19 @@ func _run() -> void:
 		return
 	var menu: Node = current_scene
 	menu.get_node("%NewAccButton").pressed.emit()
-	await _frames()
+	var new_run_deadline := Time.get_ticks_msec() + 30000
+	while is_instance_valid(menu) and menu._title_transition and Time.get_ticks_msec() < new_run_deadline:
+		await process_frame
 	if is_instance_valid(menu) and is_instance_valid(menu._confirmation):
 		if not _check(not str(menu._new_acc_token).is_empty(), "New Account replacement prepared"): return
 		menu._confirmation.confirm_button.pressed.emit()
-		await _frames()
 	var game: Node = root.get_node("GameState")
-	var desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
+	var manager: Node = root.get_node("SaveManager")
+	var desktop: Node = null
+	while Time.get_ticks_msec() < new_run_deadline:
+		desktop = current_scene.find_child("ComputerDesktop", true, false) if current_scene != null else null
+		if desktop != null and not manager._new_run_busy and game.capture_live_session().value.active: break
+		await process_frame
 	if not _check(desktop != null and game.capture_live_session().value.active, "recovery live desktop"): return
 	if not _check(desktop.open_app(&"minesweeper").get("ok", false), "recovery open Minesweeper"): return
 	await _frames()

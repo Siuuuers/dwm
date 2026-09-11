@@ -13,6 +13,7 @@ const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const ROUTINE_CLOCK := preload("res://scripts/ui/desktop/RoutineClock.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const TITLE_WELCOME := preload("res://scripts/ui/desktop/TitleWelcome.gd")
 const SHUTDOWN_COPY := {
 	"en": ["Shut down?", "Close the game.", "Cancel", "Shut down"],
 	"zh-CN": ["关闭游戏？", "退出游戏。", "取消", "关闭游戏"],
@@ -58,6 +59,7 @@ var _setting_instance: Node = null
 var _title_home: Button
 var _title_label: Label
 var _title_status: Label
+var _title_welcome: Control
 var _title_port: Object
 var _confirmation: Control
 var _login_result: Dictionary = {}
@@ -185,6 +187,9 @@ func _check_startup_recovery() -> void:
 func _retry_startup_new_acc() -> void:
 	_title_transition = true
 	_sync_title_navigation()
+	if not await _present_new_acc_busy("retrying"):
+		_finish_new_acc_transition()
+		return
 	var result := {"ok": false}
 	if is_instance_valid(_startup_recovery_owner) and _startup_recovery_owner.has_method("retry_new_run_startup"):
 		result = _startup_recovery_owner.retry_new_run_startup(_new_acc_transaction)
@@ -231,6 +236,16 @@ func _new_acc_source_is_current() -> bool:
 	var source: Node = _new_acc_source.get_ref() as Node
 	return is_instance_valid(source) and not source.is_queued_for_deletion() and get_tree().current_scene == source
 
+## Two frame boundaries let the status reach the renderer before synchronous save work.
+## The existing title mask holds input; a route change while yielding cannot start an account.
+func _present_new_acc_busy(stage: String) -> bool:
+	_title_welcome.set_busy(stage)
+	await get_tree().process_frame
+	if not _new_acc_source_is_current(): return false
+	await get_tree().process_frame
+	return _new_acc_source_is_current()
+
+
 func _finish_new_acc_transition() -> bool:
 	_title_transition = false
 	if not _new_acc_source_is_current(): return false
@@ -261,6 +276,13 @@ func _on_new_acc_pressed() -> void:
 	# Route finalization can detach Menu before commit returns. Retain this exact
 	# capability for transient cleanup and Retry instead of looking up a new owner.
 	_new_acc_owner = owner
+	if not await _present_new_acc_busy("preparing"):
+		_finish_new_acc_transition()
+		return
+	if not is_instance_valid(owner):
+		_finish_new_acc_transition()
+		_show_new_acc_unavailable(false)
+		return
 	var prepared: Dictionary = owner.prepare_new_run_action({
 		"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
 		"audio_context": {}, "content_version": 1})
@@ -281,8 +303,8 @@ func _on_new_acc_pressed() -> void:
 		"theme": BACKUP_THEME.build(_locale, _percent)}, _commit_new_acc, _cancel_new_acc)
 
 func _cancel_new_acc() -> void:
-	var owner := _menu_new_acc_owner()
-	if not _new_acc_token.is_empty() and owner != null:
+	var owner := _new_acc_owner
+	if not _new_acc_token.is_empty() and is_instance_valid(owner):
 		owner.cancel_prepared_new_run(_new_acc_token)
 	_new_acc_token = ""
 	_focus_new_acc()
@@ -292,9 +314,19 @@ func _commit_new_acc() -> void:
 	if not _new_acc_source_is_current():
 		_cancel_new_acc()
 		return
+	var owner := _menu_new_acc_owner()
 	_title_transition = true
 	_sync_title_navigation()
-	var result: Dictionary = _menu_new_acc_owner().commit_prepared_new_run(_new_acc_token)
+	if not await _present_new_acc_busy("starting"):
+		_cancel_new_acc()
+		_finish_new_acc_transition()
+		return
+	var result := {"ok": false}
+	if is_instance_valid(owner):
+		if owner.has_method("commit_prepared_new_run_responsive"):
+			result = await owner.commit_prepared_new_run_responsive(_new_acc_token)
+		else:
+			result = owner.commit_prepared_new_run(_new_acc_token)
 	# Release only the transient preparation. A durable decision belongs to Retry.
 	_cancel_new_acc()
 	if _finish_new_acc_transition(): _handle_new_acc_result(result)
@@ -328,9 +360,18 @@ func _retry_new_acc() -> void:
 	if _startup_recovery_active:
 		_retry_startup_new_acc()
 		return
+	var owner := _menu_new_acc_owner()
 	_title_transition = true
 	_sync_title_navigation()
-	var result: Dictionary = _menu_new_acc_owner().retry_new_run(_new_acc_transaction)
+	if not await _present_new_acc_busy("retrying"):
+		_finish_new_acc_transition()
+		return
+	var result := {"ok": false}
+	if is_instance_valid(owner):
+		if owner.has_method("retry_new_run_responsive"):
+			result = await owner.retry_new_run_responsive(_new_acc_transaction)
+		else:
+			result = owner.retry_new_run(_new_acc_transaction)
 	if not _finish_new_acc_transition(): return
 	if result.get("ok", false):
 		_handle_new_acc_result(result)
@@ -345,7 +386,7 @@ func _focus_new_acc() -> void:
 func _exit_tree() -> void:
 	# Menu teardown can cancel preparation only, never a retained durable operation.
 	if not _new_acc_token.is_empty():
-		var owner := _menu_new_acc_owner()
+		var owner := _new_acc_owner
 		if is_instance_valid(owner): owner.cancel_prepared_new_run(_new_acc_token)
 		_new_acc_token = ""
 
@@ -502,6 +543,7 @@ func _begin_title_transition() -> bool:
 func _end_title_transition() -> void:
 	_title_transition = false
 	if not is_inside_tree(): return
+	if is_instance_valid(_title_welcome): _title_welcome.set_busy("")
 	_sync_title_navigation()
 	_update_title_destination()
 
@@ -570,6 +612,11 @@ func _build_login_shell() -> void:
 	_title_status.size = Vector2(800, 96)
 	_title_status.hide()
 	_backup_app_host.add_child(_title_status)
+	_title_welcome = TITLE_WELCOME.new()
+	_title_welcome.name = "TitleWelcome"
+	_title_welcome.position = Vector2(320, 64)
+	_title_welcome.size = Vector2(960, 656)
+	add_child(_title_welcome)
 	var locale := _menu_localization()
 	var profile := _menu_profile()
 	if locale != null:
@@ -596,6 +643,7 @@ func _refresh_login_shell(_value: String = "") -> void:
 		button.custom_minimum_size.y = 64
 	_title_status.text = {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用"}.get(locale, "Unavailable")
 	_clock_label.set_presentation(_locale, _percent)
+	_title_welcome.set_presentation(_locale, _percent)
 	_title_strip.queue_redraw()
 	_update_title_destination()
 	queue_redraw()
@@ -604,6 +652,7 @@ func _update_title_destination() -> void:
 	if not is_instance_valid(_title_home):
 		return
 	var hosted := _backup_app_host.visible or _setting_host.visible or _gallery_host.visible
+	_title_welcome.visible = not hosted
 	_title_home.visible = hosted
 	_title_home.focus_mode = Control.FOCUS_ALL if hosted and _can_leave_login() else Control.FOCUS_NONE
 	_title_label.visible = hosted

@@ -148,24 +148,25 @@ func test_real_completion_journal_failure_keeps_title_then_same_startup_retry_pu
 	assert_false(f.bootstrap.retry_new_run_startup(f.transaction).get("ok",true))
 	assert_eq(ready_count,1)
 
-func test_real_late_consequence_read_failure_keeps_title_after_completed_new_run() -> void:
+func test_completed_new_run_ignores_unreadable_retired_consequence_sidecar() -> void:
 	var f := _cold_fixture()
 	if f.is_empty(): return
-	assert_true(f.ops.write_bytes("pair/saves/desktop-consequence-checkpoint.json",
-		'{"schema_version":1,"records":{},"abandoned":{}}'.to_utf8_buffer()).get("ok",false))
-	assert_true(f.ops.flush_path("pair/saves/desktop-consequence-checkpoint.json").get("ok",false))
+	var sidecar := "pair/saves/desktop-consequence-checkpoint.json"
+	var original_bytes := '{"schema_version":1,"records":{},"abandoned":{}}'.to_utf8_buffer()
+	assert_true(f.ops.write_bytes(sidecar, original_bytes).get("ok",false))
+	assert_true(f.ops.flush_path(sidecar).get("ok",false))
 	f.storage.fail_late_read = true
-	var failed: Dictionary = f.bootstrap.start()
-	assert_eq(failed.get("code"),&"fixture_consequence_read_failure",str(failed))
-	assert_eq(f.storage.late_read_faults,1,"Real checkpoint port performs post-replay read")
+	var started: Dictionary = f.bootstrap.start()
+	assert_true(started.get("ok",false),str(started))
+	assert_eq(f.storage.late_read_faults,0,"Retired intermediate recovery files are never read")
 	assert_eq(f.manager._continuation_journal.get_operation(f.transaction).value.stage,"completed")
 	assert_false(f.gate.is_active())
-	assert_false(f.bootstrap.get_startup_state().ready)
-	assert_false(f.bootstrap.get_new_run_startup_recovery().value.available,"Generic failure must not fabricate unfinished New Run")
-	assert_eq(ready_count,0)
+	assert_true(f.bootstrap.get_startup_state().ready)
+	assert_false(f.bootstrap.get_new_run_startup_recovery().value.available,"Completed New Run needs no retry")
+	assert_eq(ready_count,1)
 	await _frames()
-	assert_eq(get_tree().current_scene,title,"Later setup failure cannot expose Main after a completed journal")
-	assert_true(title.is_inside_tree())
+	assert_eq(get_tree().current_scene.scene_file_path,"res://scenes/main/MainGameScene.tscn")
+	assert_eq(f.ops.read_bytes(sidecar).value,original_bytes,"Retired sidecar bytes remain untouched")
 
 func test_real_early_pair_failure_retries_before_profile_initialization_with_same_owners() -> void:
 	var f := _cold_fixture()
