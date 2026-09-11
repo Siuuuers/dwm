@@ -936,7 +936,7 @@ func get_daily_message_friend_for_finished_round(round_number: int, target_day: 
 	if idx < 0 or idx >= order.size():
 		return ""
 	# Group invitation for the day suppresses individual solo messages.
-	if _group_is_active():
+	if _group_is_active(d):
 		return ""
 	return order[idx]
 
@@ -990,9 +990,11 @@ func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
 	return _CONTACT_INVITATION_STATE.get_contact_view(contacts, friend_id, d).duplicate(true)
 
 
-func _group_is_active() -> bool:
+func _group_is_active(target_day: int = -1) -> bool:
 	# dwm-p2r.6: today's group offer exists once activated (round 3) — the module is the source.
-	return str(contacts["group_action"]["state"]) != "INACTIVE"
+	var selected_day := day if target_day < 0 else target_day
+	return contacts["group_action"]["day"] == selected_day \
+		and str(contacts["group_action"]["state"]) != "INACTIVE"
 
 
 func _group_inviter() -> String:

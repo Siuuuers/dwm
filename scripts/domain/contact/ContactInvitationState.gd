@@ -591,13 +591,23 @@ static func prepare_activate_group_after_round(state: Dictionary, day: int, roun
 	if transaction_id.is_empty():
 		return _fail(&"invalid_transaction", "transaction_id is required")
 	if detached["transaction_receipts"].has(transaction_id):
+		var recorded: Variant = detached["transaction_receipts"][transaction_id]
+		if not recorded is Dictionary or recorded.get("kind") != "activate_group" \
+				or recorded.get("day") != day or rounds_before != GROUP_ACTIVATION_ROUND - 1 \
+				or rounds_after != GROUP_ACTIVATION_ROUND:
+			return _fail(&"group_activation_replay_mismatch", transaction_id)
 		return _replay(detached, transaction_id)
 	if day not in GROUP_WINDOW_DAYS:
 		return _fail(&"not_group_window", str(day))
 	if rounds_before != GROUP_ACTIVATION_ROUND - 1 or rounds_after != GROUP_ACTIVATION_ROUND:
 		return _fail(&"not_activation_round", "%d->%d" % [rounds_before, rounds_after])
-	if str(detached["group_action"]["state"]) != "INACTIVE":
-		return _fail(&"group_not_inactive", str(detached["group_action"]["state"]))
+	var previous: Dictionary = detached["group_action"]
+	if str(previous["state"]) != "INACTIVE":
+		if previous["state"] not in ["RESOLVED_UNANSWERED", "RESOLVED_ATTENDED", "RESOLVED_MISSED"] \
+				or typeof(previous["day"]) != TYPE_INT or int(previous["day"]) >= day:
+			return _fail(&"group_not_inactive", str(previous["state"]))
+		var valid := validate_state(state)
+		if not valid.ok: return valid
 	# Predicate: both solos must be unread, AVAILABLE, unreplied (a failure changes nothing).
 	var superseded_action_ids: Array = []
 	for participant: String in GROUP_PAIR:
@@ -646,6 +656,9 @@ static func prepare_activate_group_after_round(state: Dictionary, day: int, roun
 		"message_sequences": [],
 	}
 	detached["transaction_receipts"][transaction_id] = receipt
+	if previous["state"] != "INACTIVE":
+		var valid := validate_state(detached)
+		if not valid.ok: return valid
 	return _ok(detached, [], receipt)
 
 # ---- pure queries ----
@@ -1391,6 +1404,12 @@ static func _validate_offer_linkage(state: Dictionary, receipt: Dictionary) -> D
 				or (watermarks as Dictionary)[receipt["friend_id"]] >= message["sequence"]:
 			return _fail(&"invalid_state", "available solo offer is already covered by its watermark")
 	if action_state == "SUPERSEDED":
+		var group := _group_for_day(state, int(action["day"]))
+		var activation: Variant = state.get("transaction_receipts", {}).get(group.get("transaction_id"))
+		if group.get("action_id") != "group:%s:day%d" % [GROUP_PAIR_KEY, action["day"]] \
+				or not activation is Dictionary or activation.get("kind") != "activate_group" \
+				or receipt["action_id"] not in activation.get("superseded_action_ids", []):
+			return _fail(&"invalid_state", "superseded solo action has no owning group activation")
 		var source_index: Variant = state.get("schedule_source_receipts")
 		if typeof(source_index) != TYPE_DICTIONARY:
 			return _fail(&"invalid_state", "superseded solo source index is absent")
@@ -1463,7 +1482,7 @@ static func _validate_open_solo_linkage(state: Dictionary, receipt: Dictionary) 
 
 
 static func _validate_activate_group_linkage(state: Dictionary, receipt: Dictionary) -> Dictionary:
-	var group_value: Variant = state.get("group_action")
+	var group_value: Variant = _group_for_day(state, receipt["day"])
 	if typeof(group_value) != TYPE_DICTIONARY:
 		return _fail(&"invalid_state", "group activation has no retained action")
 	var group: Dictionary = group_value
@@ -1499,9 +1518,64 @@ static func _validate_activate_group_linkage(state: Dictionary, receipt: Diction
 	return _validate_group_history_linkage(state, receipt["action_id"], receipt["day"])
 
 
+## The current slot is a view; earlier window facts remain in the original operation receipts.
+## Reconstruct only a completed older window, then use the same history/source validators.
+static func _group_for_day(state: Dictionary, day: int) -> Dictionary:
+	var current: Variant = state.get("group_action")
+	if not current is Dictionary: return {}
+	if current.get("day") == null or day >= int(current.get("day", 0)):
+		return current
+	var operations: Variant = state.get("transaction_receipts")
+	if not operations is Dictionary: return {}
+	var action_id := "group:%s:day%d" % [GROUP_PAIR_KEY, day]
+	var activation: Dictionary = {}
+	var first: Dictionary = {}
+	var reply: Dictionary = {}
+	var opened: Array = []
+	var resolution: Dictionary = {}
+	for key: Variant in operations:
+		var operation: Variant = operations[key]
+		if not operation is Dictionary: return {}
+		if operation.get("action_id") == action_id:
+			if not _validate_transaction_receipt(key, operation).ok or operation.get("day") != day:
+				return {}
+			match operation.get("kind"):
+				"activate_group":
+					if not activation.is_empty(): return {}
+					activation = operation
+				"open_group_first":
+					if not first.is_empty(): return {}
+					first = operation
+					if operation.friend_id not in opened: opened.append(operation.friend_id)
+				"open_group_second":
+					if operation.friend_id not in opened: opened.append(operation.friend_id)
+				"reply_group":
+					if not reply.is_empty(): return {}
+					reply = operation
+		if operation.get("kind") == "resolve_day_end":
+			if not _validate_transaction_receipt(key, operation).ok: return {}
+			for transition: Dictionary in operation.state_transitions:
+				if transition.action_id != action_id: continue
+				if not resolution.is_empty() or operation.day != day: return {}
+				resolution = transition
+	if activation.is_empty():
+		return make_defaults().group_action if first.is_empty() and opened.is_empty() \
+			and reply.is_empty() and resolution.is_empty() else {}
+	if resolution.is_empty(): return {}
+	var group: Dictionary = make_defaults().group_action
+	group.merge({"action_id": action_id, "day": day, "transaction_id": activation.transaction_id,
+		"inviter_id": first.get("friend_id"), "opened_ids": _canonical_participants(opened),
+		"replied_ids": [] if reply.is_empty() else [reply.friend_id], "history_generated": not first.is_empty()}, true)
+	var before := _group_pre_resolution_state(group)
+	if resolution.from_state != before \
+			or not _is_valid_group_resolution_transition(group, before, resolution.to_state, day): return {}
+	group.state = resolution.to_state
+	return group if _validate_group_action(state, group).ok else {}
+
+
 static func _validate_group_history_linkage(state: Dictionary, action_id: String,
 		day: int) -> Dictionary:
-	var group_value: Variant = state.get("group_action")
+	var group_value: Variant = _group_for_day(state, day)
 	var operations: Variant = state.get("transaction_receipts")
 	if typeof(group_value) != TYPE_DICTIONARY or typeof(operations) != TYPE_DICTIONARY:
 		return _fail(&"invalid_state", "group history indexes are absent")
@@ -1649,7 +1723,7 @@ static func _derive_expected_resolution_envelope(state: Dictionary,
 		elif to_state == "RESOLVED_MISSED" and not _has_hospital_witness(state, action_id):
 			message_specs.append({"friend_id": action["friend_id"], "type": "missed_question"})
 
-	var group_value: Variant = state.get("group_action")
+	var group_value: Variant = _group_for_day(state, day)
 	if typeof(group_value) != TYPE_DICTIONARY:
 		return _fail(&"invalid_state", "day-end group action is absent")
 	var group: Dictionary = group_value
@@ -1958,7 +2032,7 @@ static func _validate_source_receipt_linkage(state: Dictionary, receipt_id: Stri
 				or prior["day"] != receipt["day"] or op["friend_id"] not in GROUP_PAIR \
 				or typeof(state.get("group_action")) != TYPE_DICTIONARY:
 			return _fail(&"schedule_source_predecessor_mismatch", predecessor_id)
-		var group: Dictionary = state["group_action"]
+		var group: Dictionary = _group_for_day(state, receipt["day"])
 		if group.get("transaction_id") != predecessor_id \
 				or group.get("action_id") != receipt["action_id"] \
 				or op["friend_id"] not in group.get("replied_ids", []):

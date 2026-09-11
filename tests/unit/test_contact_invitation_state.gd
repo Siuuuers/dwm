@@ -300,6 +300,92 @@ func _activated_group_day2(s: Script) -> Dictionary:
 func _att(outcome: String, scheduled: Variant, route: Variant) -> Dictionary:
 	return {"solo_attended_action_ids": [], "scheduled_group_action_id": scheduled, "group_route_receipt_id": route, "group_outcome": outcome}
 
+func test_one_continued_game_keeps_later_solos_and_both_group_windows() -> void:
+	var game: Node = autofree(preload("res://autoload/GameState.gd").new())
+	add_child(game)
+	game.reset_game()
+	game._lifecycle_set_playing_day(2)
+	game.change_minesweeper_round_floor(-1)
+	for index: int in 3:
+		game.finish_minesweeper_app_round({"context": "app"})
+	assert_eq(game.contacts.group_action.state, "AVAILABLE_UNOPENED")
+	assert_eq(game.get_daily_message_friend_for_finished_round(1, 3), "lavinia")
+	var closed: Dictionary = CONTACT_STATE.prepare_resolve_day_end(game.contacts, 2, {}, "continuity:close:2")
+	assert_true(closed.ok, str(closed))
+	if not closed.ok: return
+	game.contacts = closed.value.candidate
+	var day2: Dictionary = game.contacts.duplicate(true)
+	for current_day: int in range(3, 7):
+		assert_true(game.advance_day_or_end())
+		assert_eq(game.day, current_day)
+		game.finish_minesweeper_app_round({"context": "app"})
+		var first: String = "lavinia" if current_day in [3, 5] else "priscilla"
+		assert_true(game.contacts.solo_actions.has("solo:%s:day%d" % [first, current_day]),
+			"the completed Day-2 group cannot suppress later solo invitations")
+		game.finish_minesweeper_app_round({"context": "app"})
+		if current_day == 6: break
+		closed = CONTACT_STATE.prepare_resolve_day_end(game.contacts, current_day, {}, "continuity:close:%d" % current_day)
+		assert_true(closed.ok, str(closed))
+		if not closed.ok: return
+		game.contacts = closed.value.candidate
+	game.change_minesweeper_round_floor(-1)
+	game.finish_minesweeper_app_round({"context": "app"})
+	assert_eq(game.contacts.group_action.action_id, "group:priscilla_lavinia:day6")
+	assert_eq(game.contacts.group_action.state, "AVAILABLE_UNOPENED")
+	for receipt_id: String in day2.transaction_receipts:
+		assert_eq(game.contacts.transaction_receipts[receipt_id], day2.transaction_receipts[receipt_id])
+	for friend: String in CONTACT_STATE.FRIEND_IDS:
+		assert_eq(game.contacts.messages[friend].slice(0, day2.messages[friend].size()), day2.messages[friend])
+	assert_true(CONTACT_STATE.validate_state(game.contacts).ok, "both windows retain valid saved history")
+	var erased_history: Dictionary = game.contacts.duplicate(true)
+	erased_history.transaction_receipts.erase("gactivate:day2")
+	erased_history.transaction_receipts.erase("continuity:close:2")
+	assert_false(CONTACT_STATE.validate_state(erased_history).ok,
+		"retained superseded Day-2 solos still require their activation and completion")
+	closed = CONTACT_STATE.prepare_resolve_day_end(game.contacts, 6, {}, "continuity:close:6")
+	assert_true(closed.ok, str(closed))
+	if closed.ok:
+		assert_true(CONTACT_STATE.validate_state(closed.value.candidate).ok)
+		assert_eq(closed.receipt.pl_window.outcome, "private_visible")
+
+func test_group_window_replacement_keeps_accepted_history_and_refuses_live_or_same_day() -> void:
+	var state: Dictionary = _activated_group_day2(CONTACT_STATE)
+	var pristine := state.duplicate(true)
+	assert_eq(CONTACT_STATE.prepare_activate_group_after_round(state, 2, 2, 3, "other:2").code, &"group_not_inactive")
+	assert_eq(CONTACT_STATE.prepare_activate_group_after_round(state, 6, 2, 3, "other:6").code, &"group_not_inactive")
+	assert_eq(state, pristine)
+	assert_false(CONTACT_STATE.prepare_activate_group_after_round(state, 6, 2, 3,
+		str(state.group_action.transaction_id)).ok, "a Day-2 command cannot replay as Day 6")
+	state = _open(CONTACT_STATE, state, "priscilla", 2, "continuity:open").value.candidate
+	state = _reply(CONTACT_STATE, state, "priscilla", 2, "continuity:reply").value.candidate
+	var closed: Dictionary = CONTACT_STATE.prepare_resolve_day_end(state, 2,
+		_att("attended", "group:priscilla_lavinia:day2", "route.group.day2:completed"), "history:close:2")
+	assert_true(closed.ok, str(closed))
+	if not closed.ok: return
+	state = closed.value.candidate
+	assert_eq(CONTACT_STATE.prepare_activate_group_after_round(state, 2, 2, 3, "same:resolved").code, &"group_not_inactive")
+	var prior := state.duplicate(true)
+	for friend: String in CONTACT_STATE.GROUP_PAIR:
+		state = CONTACT_STATE.prepare_offer_solo(state, friend, 6, "solo:%s:day6" % friend, "offer:6:" + friend).value.candidate
+	var activated: Dictionary = CONTACT_STATE.prepare_activate_group_after_round(state, 6, 2, 3, "history:activate:6")
+	assert_true(activated.ok, str(activated))
+	if not activated.ok: return
+	state = activated.value.candidate
+	assert_true(CONTACT_STATE.validate_state(state).ok, "Day-2 accepted source and outcome remain valid with a Day-6 current group")
+	var schema: Script = preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+	var restored: Dictionary = schema._normalize_integral_floats(JSON.parse_string(JSON.stringify(state)))
+	assert_eq(restored, state)
+	assert_true(CONTACT_STATE.validate_state(restored).ok, "the saved two-window history survives JSON admission")
+	assert_eq(state.schedule_source_receipts, prior.schedule_source_receipts)
+	for receipt_id: String in prior.transaction_receipts:
+		assert_eq(state.transaction_receipts[receipt_id], prior.transaction_receipts[receipt_id])
+	var tampered := state.duplicate(true)
+	tampered.transaction_receipts["history:close:2"].state_transitions[-1].from_state = "AVAILABLE_UNOPENED"
+	assert_false(CONTACT_STATE.validate_state(tampered).ok, "history must derive its prior state from actual opens/reply")
+	tampered = state.duplicate(true)
+	tampered.transaction_receipts.erase("history:close:2")
+	assert_false(CONTACT_STATE.validate_state(tampered).ok, "historical replacement requires its completed day-end receipt")
+
 func test_group_untouched_resolves_unanswered_with_busy() -> void:
 	var s: Script = _script()
 	if s == null:
