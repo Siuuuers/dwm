@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "retrieved_on": "2026-09-12",
+  "works": {
+    "cma_1950.89": {
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1950.89",
+      "artist": "Berthe Morisot (French, 1841-1895)",
+      "title": "Reading",
+      "date": "1873",
+      "medium": "oil on canvas",
+      "credit": "The Cleveland Museum of Art, Gift of the Hanna Fund 1950.89",
+      "license": "CC0 1.0 (museum API: share_license_status CC0)",
+      "page": "https://www.clevelandart.org/art/1950.89",
+      "image": "https://openaccess-cdn.clevelandart.org/1950.89/1950.89_print.jpg",
+      "role": "Priscilla; field background",
+      "source_sha256": "cae6909523bd8ec01a2aa34cfa9a12c0577314d20c59a4079e8919b1371dfe0d",
+      "stored_file": "art_source/found_paintings/cma_1950.89_print.jpg",
+      "stored_sha256": "cae6909523bd8ec01a2aa34cfa9a12c0577314d20c59a4079e8919b1371dfe0d",
+      "stored_size": [
+        3400,
+        2174
+      ],
+      "stored_note": "museum print-size export, unmodified"
+    },
+    "cma_1946.83": {
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1946.83",
+      "artist": "Edgar Degas (French, 1834-1917)",
+      "title": "Frieze of Dancers",
+      "date": "c. 1895",
+      "medium": "oil on fabric",
+      "credit": "The Cleveland Museum of Art, Gift of the Hanna Fund 1946.83",
+      "license": "CC0 1.0 (museum API: share_license_status CC0)",
+      "page": "https://www.clevelandart.org/art/1946.83",
+      "image": "https://openaccess-cdn.clevelandart.org/1946.83/1946.83_print.jpg",
+      "role": "Lavinia; rehearsal background",
+      "source_sha256": "3bfc2912bc6a6da0faf7262fd510dd8344c510a8c9565e4972d0eeda80d04f79",
+      "stored_file": "art_source/found_paintings/cma_1946.83_print.jpg",
+      "stored_sha256": "3bfc2912bc6a6da0faf7262fd510dd8344c510a8c9565e4972d0eeda80d04f79",
+      "stored_size": [
+        3400,
+        1187
+      ],
+      "stored_note": "museum print-size export, unmodified"
+    },
+    "cma_1920.379": {
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1920.379",
+      "artist": "Mary Cassatt (American, 1844-1926)",
+      "title": "After the Bath",
+      "date": "1901",
+      "medium": "pastel on paper",
+      "credit": "The Cleveland Museum of Art, Gift of J. H. Wade 1920.379",
+      "license": "CC0 1.0 (museum API: share_license_status CC0)",
+      "page": "https://www.clevelandart.org/art/1920.379",
+      "image": "https://openaccess-cdn.clevelandart.org/1920.379/1920.379_print.jpg",
+      "role": "Sylvia",
+      "source_sha256": "84ec1670e7bd1375f439c36e0b430bea09e8ad7673bf0c81ee6fb6878947cb93",
+      "stored_file": "art_source/found_paintings/cma_1920.379_print.jpg",
+      "stored_sha256": "84ec1670e7bd1375f439c36e0b430bea09e8ad7673bf0c81ee6fb6878947cb93",
+      "stored_size": [
+        3400,
+        2297
+      ],
+      "stored_note": "museum print-size export, unmodified"
+    },
+    "cma_1958.57": {
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1958.57",
+      "artist": "Edouard Vuillard (French, 1868-1940)",
+      "title": "At the Cafe",
+      "date": "c. 1897-99",
+      "medium": "oil on board",
+      "credit": "The Cleveland Museum of Art, Bequest of Leonard C. Hanna Jr. 1958.57",
+      "license": "CC0 1.0 (museum API: share_license_status CC0)",
+      "page": "https://www.clevelandart.org/art/1958.57",
+      "image": "https://openaccess-cdn.clevelandart.org/1958.57/1958.57_print.jpg",
+      "role": "cafe background (group and twofriends scenes)",
+      "source_sha256": "c87dd7bf30b748f72dcec44f473da433f3a8d4c141f720065cdbecf4e7f4952c",
+      "stored_file": "art_source/found_paintings/cma_1958.57_print.jpg",
+      "stored_sha256": "c87dd7bf30b748f72dcec44f473da433f3a8d4c141f720065cdbecf4e7f4952c",
+      "stored_size": [
+        3237,
+        3400
+      ],
+      "stored_note": "museum print-size export, unmodified"
+    },
+    "cma_1958.39": {
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1958.39",
+      "artist": "Claude Monet (French, 1840-1926)",
+      "title": "The Red Kerchief",
+      "date": "c. 1868-73",
+      "medium": "oil on canvas",
+      "credit": "The Cleveland Museum of Art, Bequest of Leonard C. Hanna Jr. 1958.39",
+      "license": "CC0 1.0 (museum API: share_license_status CC0)",
+      "page": "https://www.clevelandart.org/art/1958.39",
+      "image": "https://openaccess-cdn.clevelandart.org/1958.39/1958.39_print.jpg",
+      "role": "window background (Contacts scenes)",
+      "source_sha256": "aa613d8993142ae625367099f56b9173d75c45a6b17eb48fceca9673d3909756",
+      "stored_file": "art_source/found_paintings/cma_1958.39_print.jpg",
+      "stored_sha256": "aa613d8993142ae625367099f56b9173d75c45a6b17eb48fceca9673d3909756",
+      "stored_size": [
+        2732,
+        3400
+      ],
+      "stored_note": "museum print-size export, unmodified"
+    },
+    "cma_1982.6": {
+      "museum": "The Cleveland Museum of Art",
+      "accession": "1982.6",
+      "artist": "Gwen John (British, 1876-1939)",
+      "title": "Interior",
+      "date": "1915",
+      "medium": "oil on canvas",
+      "credit": "The Cleveland Museum of Art, Mr. and Mrs. William H. Marlatt Fund 1982.6",
+      "license": "CC0 1.0 (museum API: share_license_status CC0)",
+      "page": "https://www.clevelandart.org/art/1982.6",
+      "image": "https://openaccess-cdn.clevelandart.org/1982.6/1982.6_print.jpg",
+      "role": "plain room background (Sylvia scenes, Hospital)",
+      "source_sha256": "3e2372169b5f7331e384e2b1f4e232c76b1580b50507230bcd65618a3e05044d",
+      "stored_file": "art_source/found_paintings/cma_1982.6_print.jpg",
+      "stored_sha256": "3e2372169b5f7331e384e2b1f4e232c76b1580b50507230bcd65618a3e05044d",
+      "stored_size": [
+        2497,
+        3400
+      ],
+      "stored_note": "museum print-size export, unmodified"
+    },
+    "getty_2018.59": {
+      "museum": "The J. Paul Getty Museum, Los Angeles",
+      "accession": "2018.59",
+      "artist": "Vilhelm Hammershoi (Danish, 1864-1916)",
+      "title": "Interior with an Easel, Bredgade 25",
+      "date": "1912",
+      "medium": "oil on canvas",
+      "credit": "The J. Paul Getty Museum, Los Angeles, 2018.59. Digital image courtesy of Getty's Open Content Program",
+      "license": "CC0 1.0 (work page structured data: license creativecommons.org/publicdomain/zero/1.0/)",
+      "page": "https://www.getty.edu/art/collection/object/109PF5",
+      "image": "https://media.getty.edu/iiif/image/d0713199-e902-4acb-9965-a67675ad56e1/full/max/0/default.jpg",
+      "role": "Angela's room (shell background); corridor background (opening, tutorial, endings)",
+      "source_sha256": "c20f4ab050ea53a0ecf10c2cd3ad552399ec922c9ae805e59fad1cf7e1438451",
+      "stored_file": "art_source/found_paintings/getty_2018.59_3400.jpg",
+      "stored_sha256": "50e7b0fcfe3a698028d91d7c4269ab420dc3f81955bf29b902d6defc15f8e674",
+      "stored_size": [
+        3042,
+        3400
+      ],
+      "stored_note": "downscaled from the museum IIIF max export (7478x8357) to 3400 long edge"
+    }
+  },
+  "placed": {
+    "art/characters/priscilla/scene.png": {
+      "size": [
+        640,
+        896
+      ],
+      "sha256": "518f61c90c488b3fea72c44ec369472894c892df01fb6c825ddc0ef302239ab4",
+      "bytes": 825235
+    },
+    "art/characters/lavinia/scene.png": {
+      "size": [
+        640,
+        896
+      ],
+      "sha256": "e3a8dc288fafaac1594127923157086a433eef7f03731d9278adedf8569acfda",
+      "bytes": 741144
+    },
+    "art/characters/sylvia/scene.png": {
+      "size": [
+        640,
+        896
+      ],
+      "sha256": "cbba14488f0d0f20f7bf5807eb45fefe2bcef8fb421b4f4491bf7ad4dfa38693",
+      "bytes": 971541
+    },
+    "art/characters/priscilla/contact.png": {
+      "size": [
+        32,
+        64
+      ],
+      "sha256": "bfdbecf26156daa13cfca6016bcb23816c2d070829fad415d41cd1f6c0335b1a",
+      "bytes": 6991
+    },
+    "art/characters/lavinia/contact.png": {
+      "size": [
+        32,
+        64
+      ],
+      "sha256": "1946f29a3f5f7e5ca07fe4df90d6cd730d02e742fb75286b7ed2a68255ad45f2",
+      "bytes": 6726
+    },
+    "art/characters/sylvia/contact.png": {
+      "size": [
+        32,
+        64
+      ],
+      "sha256": "4921bedb41e603e1db4bdebe11fa8a9cc750bb5ef5663aa4ba9296509d2e40d7",
+      "bytes": 7129
+    },
+    "art/shell/background.png": {
+      "size": [
+        960,
+        1008
+      ],
+      "sha256": "e7340157d9110e1973ab9bcc8574ea1814e350fb6fe2086cf8752b13876dcfae",
+      "bytes": 784261
+    },
+    "art/environments/paintings/morisot_reading_field.jpg": {
+      "size": [
+        1920,
+        672
+      ],
+      "sha256": "04b4606630f0043660e4751120b3d9c22394e21670a2f3e5c50806c3a5f6bedb",
+      "bytes": 369671
+    },
+    "art/environments/paintings/degas_frieze_rehearsal.jpg": {
+      "size": [
+        1920,
+        672
+      ],
+      "sha256": "0ab4f5ee6d21949af409fe2257fc0e1f87d4a34987a293df96bc6cd8d5c8488a",
+      "bytes": 318377
+    },
+    "art/environments/paintings/vuillard_at_the_cafe.jpg": {
+      "size": [
+        1920,
+        672
+      ],
+      "sha256": "9d72afa5d218e70ee1e5a0daae46784358d71e6a406823cf1672581fae91c48d",
+      "bytes": 324508
+    },
+    "art/environments/paintings/monet_red_kerchief_window.jpg": {
+      "size": [
+        1920,
+        672
+      ],
+      "sha256": "95d859be25f02e0ca2ad467b73950d4ec1405de7310fabba4b04356d5f2c78c0",
+      "bytes": 457606
+    },
+    "art/environments/paintings/gwen_john_interior.jpg": {
+      "size": [
+        1920,
+        672
+      ],
+      "sha256": "1d15d7bd7215d22c72f8b384784a02cc28cee8fee175a4084211254a591d1a36",
+      "bytes": 447509
+    },
+    "art/environments/paintings/hammershoi_interior_easel.jpg": {
+      "size": [
+        1920,
+        672
+      ],
+      "sha256": "ab735a8a6e165a0ceb209ba60877ba0548ea67394bd89da6c813f5b89a320041",
+      "bytes": 207726
+    }
+  },
+  "crop_recipe": "scratchpad make_crops.py boxes (view-px fractions); Sylvia re-cut with bottom 590 to trim the mount"
+}

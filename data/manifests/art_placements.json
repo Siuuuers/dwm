@@ -18,8 +18,8 @@
     "shell.background": {
       "path": "res://art/shell/background.png",
       "size": [
-        480,
-        504
+        960,
+        1008
       ]
     },
     "shell.character.angela": {
@@ -102,8 +102,8 @@
     "character.priscilla": {
       "path": "res://art/characters/priscilla/scene.png",
       "size": [
-        320,
-        448
+        640,
+        896
       ]
     },
     "contact.lavinia.row": {
@@ -123,8 +123,8 @@
     "character.lavinia": {
       "path": "res://art/characters/lavinia/scene.png",
       "size": [
-        320,
-        448
+        640,
+        896
       ]
     },
     "contact.sylvia.row": {
@@ -144,8 +144,8 @@
     "character.sylvia": {
       "path": "res://art/characters/sylvia/scene.png",
       "size": [
-        320,
-        448
+        640,
+        896
       ]
     },
     "shop.coffee.card": {
@@ -667,297 +667,297 @@
       ]
     },
     "background.contacts.lavinia_day1": {
-      "path": "res://art/environments/contacts/lavinia_day1.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.priscilla_day1": {
-      "path": "res://art/environments/contacts/priscilla_day1.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.sylvia_day1": {
-      "path": "res://art/environments/contacts/sylvia_day1.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.priscilla_day1": {
-      "path": "res://art/environments/dating/solo/priscilla_day1.png",
+      "path": "res://art/environments/paintings/morisot_reading_field.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.sylvia_day1": {
-      "path": "res://art/environments/dating/solo/sylvia_day1.png",
+      "path": "res://art/environments/paintings/gwen_john_interior.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.core.hospital_faint": {
-      "path": "res://art/environments/core/hospital_faint.png",
+      "path": "res://art/environments/paintings/gwen_john_interior.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.priscilla_day2": {
-      "path": "res://art/environments/contacts/priscilla_day2.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.sylvia_day2": {
-      "path": "res://art/environments/contacts/sylvia_day2.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.lavinia_day2": {
-      "path": "res://art/environments/contacts/lavinia_day2.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.group.priscilla_lavinia_day2": {
-      "path": "res://art/environments/contacts/group/priscilla_lavinia_day2.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.priscilla_day2": {
-      "path": "res://art/environments/dating/solo/priscilla_day2.png",
+      "path": "res://art/environments/paintings/morisot_reading_field.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.lavinia_day2": {
-      "path": "res://art/environments/dating/solo/lavinia_day2.png",
+      "path": "res://art/environments/paintings/degas_frieze_rehearsal.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.group.priscilla_lavinia_day2": {
-      "path": "res://art/environments/dating/group/priscilla_lavinia_day2.png",
+      "path": "res://art/environments/paintings/vuillard_at_the_cafe.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.twofriends.priscilla_lavinia_day2": {
-      "path": "res://art/environments/dating/twofriends/priscilla_lavinia_day2.png",
+      "path": "res://art/environments/paintings/vuillard_at_the_cafe.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.priscilla_day3": {
-      "path": "res://art/environments/contacts/priscilla_day3.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.lavinia_day3": {
-      "path": "res://art/environments/contacts/lavinia_day3.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.sylvia_day3": {
-      "path": "res://art/environments/contacts/sylvia_day3.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.lavinia_day3": {
-      "path": "res://art/environments/dating/solo/lavinia_day3.png",
+      "path": "res://art/environments/paintings/degas_frieze_rehearsal.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.sylvia_day3": {
-      "path": "res://art/environments/dating/solo/sylvia_day3.png",
+      "path": "res://art/environments/paintings/gwen_john_interior.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.lavinia_day4": {
-      "path": "res://art/environments/contacts/lavinia_day4.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.sylvia_day4": {
-      "path": "res://art/environments/contacts/sylvia_day4.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.priscilla_day4": {
-      "path": "res://art/environments/contacts/priscilla_day4.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.priscilla_day4": {
-      "path": "res://art/environments/dating/solo/priscilla_day4.png",
+      "path": "res://art/environments/paintings/morisot_reading_field.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.sylvia_day4": {
-      "path": "res://art/environments/dating/solo/sylvia_day4.png",
+      "path": "res://art/environments/paintings/gwen_john_interior.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.priscilla_day5": {
-      "path": "res://art/environments/contacts/priscilla_day5.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.sylvia_day5": {
-      "path": "res://art/environments/contacts/sylvia_day5.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.lavinia_day5": {
-      "path": "res://art/environments/contacts/lavinia_day5.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.lavinia_day5": {
-      "path": "res://art/environments/dating/solo/lavinia_day5.png",
+      "path": "res://art/environments/paintings/degas_frieze_rehearsal.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.sylvia_day5": {
-      "path": "res://art/environments/dating/solo/sylvia_day5.png",
+      "path": "res://art/environments/paintings/gwen_john_interior.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.lavinia_day6": {
-      "path": "res://art/environments/contacts/lavinia_day6.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.sylvia_day6": {
-      "path": "res://art/environments/contacts/sylvia_day6.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.priscilla_day6": {
-      "path": "res://art/environments/contacts/priscilla_day6.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.group.priscilla_lavinia_day6": {
-      "path": "res://art/environments/contacts/group/priscilla_lavinia_day6.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.priscilla_day6": {
-      "path": "res://art/environments/dating/solo/priscilla_day6.png",
+      "path": "res://art/environments/paintings/morisot_reading_field.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.solo.lavinia_day6": {
-      "path": "res://art/environments/dating/solo/lavinia_day6.png",
+      "path": "res://art/environments/paintings/degas_frieze_rehearsal.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.group.priscilla_lavinia_day6": {
-      "path": "res://art/environments/dating/group/priscilla_lavinia_day6.png",
+      "path": "res://art/environments/paintings/vuillard_at_the_cafe.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.dating.twofriends.priscilla_lavinia_day6": {
-      "path": "res://art/environments/dating/twofriends/priscilla_lavinia_day6.png",
+      "path": "res://art/environments/paintings/vuillard_at_the_cafe.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.priscilla_day7": {
-      "path": "res://art/environments/contacts/priscilla_day7.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.lavinia_day7": {
-      "path": "res://art/environments/contacts/lavinia_day7.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.contacts.sylvia_day7": {
-      "path": "res://art/environments/contacts/sylvia_day7.png",
+      "path": "res://art/environments/paintings/monet_red_kerchief_window.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.core.echo_fallback_day7": {
-      "path": "res://art/environments/core/echo_fallback_day7.png",
+      "path": "res://art/environments/paintings/hammershoi_interior_easel.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.ending.priscilla": {
-      "path": "res://art/environments/ending/priscilla.png",
+      "path": "res://art/environments/paintings/morisot_reading_field.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "cg.ending.priscilla.sweet": {
@@ -989,10 +989,10 @@
       ]
     },
     "background.ending.lavinia": {
-      "path": "res://art/environments/ending/lavinia.png",
+      "path": "res://art/environments/paintings/degas_frieze_rehearsal.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "cg.ending.lavinia.sweet": {
@@ -1024,10 +1024,10 @@
       ]
     },
     "background.ending.sylvia": {
-      "path": "res://art/environments/ending/sylvia.png",
+      "path": "res://art/environments/paintings/gwen_john_interior.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "cg.ending.sylvia.sweet": {
@@ -1059,10 +1059,10 @@
       ]
     },
     "background.ending.priscilla_lavinia": {
-      "path": "res://art/environments/ending/priscilla_lavinia.png",
+      "path": "res://art/environments/paintings/vuillard_at_the_cafe.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "cg.ending.priscilla_lavinia.sweet": {
@@ -1094,10 +1094,10 @@
       ]
     },
     "background.ending.alone": {
-      "path": "res://art/environments/ending/alone.png",
+      "path": "res://art/environments/paintings/hammershoi_interior_easel.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "cg.ending.alone.normal": {
@@ -1115,17 +1115,17 @@
       ]
     },
     "background.core.opening_day1": {
-      "path": "res://art/environments/core/opening_day1.png",
+      "path": "res://art/environments/paintings/hammershoi_interior_easel.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     },
     "background.core.tutorial_desktop_day1": {
-      "path": "res://art/environments/core/tutorial_desktop_day1.png",
+      "path": "res://art/environments/paintings/hammershoi_interior_easel.jpg",
       "size": [
-        1280,
-        448
+        1920,
+        672
       ]
     }
   },

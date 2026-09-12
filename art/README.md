@@ -61,3 +61,33 @@ Use lossless import for small UI artwork; keep text and functional hover/focus/s
 The two artist CSV maps use Godot's Keep File import mode so they are not interpreted as translation tables. Keep their `.import` sidecars beside them. See [Godot's import process](https://docs.godotengine.org/en/stable/tutorials/assets_pipeline/import_process.html).
 
 Test-only geometric images in `tests/fixtures/art/` are verification fixtures, not your final assets.
+
+## Found paintings currently installed (2026-09-12)
+
+The portraits, the shell room and the shared scene backgrounds are crops of
+public-domain museum paintings, installed for vibe and testing under the
+owner's 2026-09-12 ruling (see the design amendment of that date, Section 9).
+They are not final art. Originals, museum credit lines, licence statements,
+source URLs, checksums and the crop recipe live in
+`art_source/found_paintings/sources.json`; the research trail is
+`docs/research/art/2026-09-12-found-paintings-candidate-ledger.md`.
+
+| Slot | Painting | Museum credit |
+|---|---|---|
+| Priscilla scene and contact | Berthe Morisot, *Reading*, 1873 | The Cleveland Museum of Art, Gift of the Hanna Fund 1950.89 (CC0) |
+| Lavinia scene and contact | Edgar Degas, *Frieze of Dancers*, c. 1895 | The Cleveland Museum of Art, Gift of the Hanna Fund 1946.83 (CC0) |
+| Sylvia scene and contact | Mary Cassatt, *After the Bath*, 1901 | The Cleveland Museum of Art, Gift of J. H. Wade 1920.379 (CC0) |
+| Shell room (`art/shell/background.png`) | Vilhelm Hammershoi, *Interior with an Easel, Bredgade 25*, 1912 | The J. Paul Getty Museum, 2018.59, Getty Open Content Program (CC0) |
+| Contacts scene backgrounds | Claude Monet, *The Red Kerchief*, c. 1868-73 | The Cleveland Museum of Art, Bequest of Leonard C. Hanna Jr. 1958.39 (CC0) |
+| Priscilla dating and ending backgrounds | Morisot, *Reading* (field band) | as above |
+| Lavinia dating and ending backgrounds | Degas, *Frieze of Dancers* (full frieze) | as above |
+| Sylvia dating, Hospital and ending backgrounds | Gwen John, *Interior*, 1915 | The Cleveland Museum of Art, Mr. and Mrs. William H. Marlatt Fund 1982.6 (CC0) |
+| Group and twofriends backgrounds | Edouard Vuillard, *At the Cafe*, c. 1897-99 | The Cleveland Museum of Art, Bequest of Leonard C. Hanna Jr. 1958.57 (CC0) |
+| Opening, tutorial, echo and Alone-ending backgrounds | Hammershoi, *Interior with an Easel* (floor band) | as above |
+
+The shared backgrounds live in `art/environments/paintings/` and the catalog
+records point at them; the per-scene PNG paths listed earlier in this file
+remain valid drop-in slots if you later paint a scene-specific picture and
+repoint its record. The desktop wallpaper and the title illustration are
+deliberately left empty: the 2026-09-12 amendment keeps wallpaper code-drawn
+and leaves the title presenter for a later ruling.
