@@ -13,6 +13,7 @@ class FakeOwner extends RefCounted:
 	var log: RefCounted
 	var id: String
 	var fail_at: StringName = &""
+	var received_pair_witnessed_forms: Variant = null
 	func _init(owner_id: String, call_log: RefCounted) -> void:
 		id = owner_id
 		log = call_log
@@ -26,6 +27,7 @@ class FakeOwner extends RefCounted:
 			causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: bool,
 			pair_witnessed_forms: Variant = null) -> Dictionary:
 		_r("prepare_new_run_snapshot_input")
+		received_pair_witnessed_forms = pair_witnessed_forms
 		var g := _guard("prepare_new_run_snapshot_input")
 		if not g.is_empty(): return g
 		return {"ok": true, "value": {"snapshot_input": {"lifecycle": {
@@ -108,12 +110,17 @@ func test_run_participant_prepare_and_delegation() -> void:
 	assert_true(new_run["ok"], JSON.stringify(new_run))
 	assert_eq(new_run["value"]["snapshot_input"]["lifecycle"]["run_id"], "run-b")
 	assert_eq(new_run["value"]["snapshot_input"]["lifecycle"]["dark_mode"], true)
+	assert_eq(owner.received_pair_witnessed_forms, [], "Omitted public argument forwards the participant default.")
+	var witnessed_forms := ["ambiguous_dark", "love_sweet"]
+	var witnessed_run: Dictionary = participant.prepare_new_run("run-c", "branch-c", 0, "causal-day-b", receipt, true, witnessed_forms)
+	assert_true(witnessed_run["ok"], JSON.stringify(witnessed_run))
+	assert_eq(owner.received_pair_witnessed_forms, witnessed_forms, "Previously witnessed pair forms reach the new-run owner unchanged.")
 	assert_true(participant.capture()["ok"])
 	assert_true(participant.apply_silent({})["ok"])
 	assert_true(participant.rollback_silent({})["ok"])
 	assert_true(participant.finalize()["ok"])
 	assert_eq(log.for_participant("run"), [
-		"prepare_new_run_snapshot_input", "capture_restore_state",
+		"prepare_new_run_snapshot_input", "prepare_new_run_snapshot_input", "capture_restore_state",
 		"apply_restore_silent", "rollback_restore_silent", "finalize_restore",
 	])
 
