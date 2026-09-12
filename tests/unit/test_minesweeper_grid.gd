@@ -365,7 +365,7 @@ func test_canceled_touch_and_double_tap_never_activate() -> void:
 	grid._gui_input(touch)
 	assert_signal_emit_count(grid,"cell_action_requested",0)
 
-func test_second_touch_does_not_steal_and_public_cancel_ends_pan_without_releasing_confirm() -> void:
+func test_second_touch_cancels_pending_tap_and_public_cancel_does_not_release_confirm() -> void:
 	var grid: Control = _grid()
 	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
 	watch_signals(grid)
@@ -377,7 +377,8 @@ func test_second_touch_does_not_steal_and_public_cancel_ends_pan_without_releasi
 	var second: InputEventScreenTouch = first.duplicate()
 	second.index = 2
 	grid._gui_input(second)
-	assert_eq(grid._touch_id,1)
+	assert_eq(grid._touch_id,-1,"Second touch cancels the pending tap even at zero pinch distance.")
+	assert_true(grid.has_held_touch())
 	var mouse: InputEventMouseButton = InputEventMouseButton.new()
 	mouse.device = 0
 	mouse.button_index = MOUSE_BUTTON_LEFT

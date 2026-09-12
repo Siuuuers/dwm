@@ -9,6 +9,11 @@ const COPY := {
 	"zh-HK": ["\u7df4\u7fd2", "\u7df4\u7fd2\u7684\u7d50\u679c\u662f\u5047\u8a2d\u6027\u7684\uff0c\u4e0d\u6703\u6539\u8b8a\u76ee\u524d\u904a\u6232\u9032\u5ea6\u3002", "\u958b\u59cb", "\u8fd4\u56de", "\u9084\u6c92\u6709\u53ef\u7df4\u7fd2\u7684\u7d04\u6703\u8a18\u9304\u3002", "\u66ab\u6642\u7121\u6cd5\u958b\u59cb\u7df4\u7fd2\uff0c\u8acb\u91cd\u8a66\u3002", "\u7df4\u7fd2\u5b8c\u6210\u3002", "\u7b2c %d \u5929", "\u7248\u672c %d", "\u7df4\u7fd2 / \u5047\u8a2d\u6027\u7d50\u679c"],
 	"en": ["Practice", "Practice uses hypothetical outcomes. Your current run is unchanged.", "Start", "Return", "No reached dates are available yet.", "Practice could not start. Please try again.", "Practice complete.", "Day %d", "Version %d", "Practice / hypothetical outcomes"],
 	"zh": ["\u7ec3\u4e60", "\u7ec3\u4e60\u7684\u7ed3\u679c\u662f\u5047\u8bbe\u6027\u7684\uff0c\u4e0d\u4f1a\u6539\u53d8\u5f53\u524d\u6e38\u620f\u8fdb\u5ea6\u3002", "\u5f00\u59cb", "\u8fd4\u56de", "\u8fd8\u6ca1\u6709\u53ef\u7ec3\u4e60\u7684\u7ea6\u4f1a\u8bb0\u5f55\u3002", "\u6682\u65f6\u65e0\u6cd5\u5f00\u59cb\u7ec3\u4e60\uff0c\u8bf7\u91cd\u8bd5\u3002", "\u7ec3\u4e60\u5b8c\u6210\u3002", "\u7b2c %d \u5929", "\u7248\u672c %d", "\u7ec3\u4e60 / \u5047\u8bbe\u6027\u7ed3\u679c"]}
+const VIEW_SAVE_COPY := {
+	"en": "Could not save the board view. Please try again.",
+	"zh": "\u65e0\u6cd5\u4fdd\u5b58\u68cb\u76d8\u89c6\u56fe\uff0c\u8bf7\u91cd\u8bd5\u3002",
+	"zh-HK": "\u7121\u6cd5\u5132\u5b58\u68cb\u76e4\u6aa2\u8996\uff0c\u8acb\u91cd\u8a66\u3002",
+}
 var _profile: Object
 var _game: Object
 var _bridge: Object
@@ -168,7 +173,7 @@ func _on_start() -> void:
 		var legacy: String = str(_profile.get_preference("preferences.accessibility.colorblind_mode", "none"))
 		colour = {"none": "standard", "protanopia": "protan", "deuteranopia": "deutan", "tritanopia": "tritan"}.get(legacy, "standard")
 	var services: Dictionary = _dating.configure_presentation_services(_input, _locale, _percent,
-		bool(large), &"after_hours", bool(_profile.get_preference("preferences.accessibility.high_contrast", false)), str(colour))
+		bool(large), &"after_hours", bool(_profile.get_preference("preferences.accessibility.high_contrast", false)), str(colour), _profile)
 	var bound: Dictionary = _dating.configure_presentation(_sandbox, _command) if services.get("ok", false) else services
 	if not bound.get("ok", false):
 		_dating.free()
@@ -201,6 +206,9 @@ func _finish_current(token: String) -> void:
 
 func _return_to_selection(completed: bool) -> void:
 	if not is_inside_tree() or not is_instance_valid(_dating): return
+	if not _dating.worksheet.flush_view_preferences():
+		_status.text = VIEW_SAVE_COPY["zh-HK" if _locale.replace("_", "-") == "zh-HK" else ("zh" if _locale.begins_with("zh") else "en")]
+		return
 	_root.remove_child(_dating)
 	_dating.queue_free()
 	_dating = null

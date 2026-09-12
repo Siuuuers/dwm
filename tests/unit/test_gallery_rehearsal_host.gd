@@ -10,6 +10,14 @@ class Variables extends RefCounted:
 	func capture_rehearsal_variables() -> Dictionary:
 		return {"ok": false, "code": &"narrative_playback_active"} if refused else {"ok": true, "value": {"variables": values.duplicate(true)}}
 
+class RefusingViewProfile extends RefCounted:
+	var writes := 0
+	func get_preference(_path: StringName, default_value: Variant = null) -> Variant:
+		return default_value
+	func set_preferences(_changes: Dictionary) -> Dictionary:
+		writes += 1
+		return {"ok": false, "code": &"injected_view_write_failure"}
+
 func _fixture(milestone: bool = true) -> Dictionary:
 	var profile: Node = autofree(PROFILE.new())
 	assert_true(profile.initialize(preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
@@ -74,7 +82,8 @@ func test_public_start_continue_and_return_keep_selected_presentation_board_and_
 	assert_true(view.ok, str(view))
 	assert_eq(view.value.board.width, 18)
 	assert_eq(view.value.board.height, 18)
-	assert_eq(f.host._sandbox._sandbox.capture_dating_challenge_state().value.spec.requested_mine_count, 36)
+	# Practice copies current hidden inputs: starting Pressure 3 adds one to the 36 base mines.
+	assert_eq(f.host._sandbox._sandbox.capture_dating_challenge_state().value.spec.requested_mine_count, 37)
 	assert_eq(f.game.capture_run_snapshot_input(), before)
 	assert_eq(f.profile.get_profile_snapshot(), profile_before)
 	assert_eq(f.variables.values.presentation.value, 77)
@@ -112,3 +121,27 @@ func test_old_deferred_finish_cannot_close_replacement_practice_and_variable_ref
 	assert_not_null(f.host._dating)
 	assert_eq(f.host._command.physical_token, current_token)
 	f.host._return_button.pressed.emit()
+
+
+func test_practice_return_keeps_dating_visible_when_view_preference_write_fails() -> void:
+	var f := _fixture()
+	assert_true(f.configured.ok, str(f.configured))
+	add_child_autofree(f.host)
+	await get_tree().process_frame
+	f.host._start.pressed.emit()
+	var dating: Control = f.host._dating
+	assert_not_null(dating)
+	if dating == null: return
+	var view_profile := RefusingViewProfile.new()
+	assert_true(dating.worksheet.bind_view_preferences(view_profile, "challenge"))
+	dating.worksheet.cell_size = 38
+	dating.worksheet._view_dirty = true
+	f.host.request_return()
+	assert_eq(view_profile.writes, 1)
+	assert_same(f.host._dating, dating, "failed write must leave the view and error visible")
+	assert_true(dating.worksheet.view_save_failed)
+	assert_string_contains(dating.worksheet.view_label.text, "Cell: 36 px")
+	assert_string_contains(dating.worksheet.view_label.text, "Could not save view")
+	assert_false(f.host._selection.visible)
+	assert_not_null(f.host._sandbox._sandbox)
+	assert_eq(f.host._status.text, HOST.VIEW_SAVE_COPY.en)

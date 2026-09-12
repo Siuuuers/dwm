@@ -48,6 +48,7 @@ func _init() -> void:
 	worksheet.grid.mode_changed.connect(func(_mode: StringName): _apply_availability())
 	worksheet.information_closing.connect(_apply_availability)
 	worksheet.information_closed.connect(_information_closed)
+	worksheet.view_controls_changed.connect(_wire_focus)
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false,
 		palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard") -> bool:
@@ -103,6 +104,7 @@ func present(value: Dictionary) -> bool:
 	if dock.theme == null: dock.configure("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
 	var assignments_changed: bool = public_view.get("assignments") != value.assignments
 	register.present(value.register)
+	if not worksheet.set_view_scope("app_" + str(value.register.difficulty)): return _fail(&"minesweeper_view_preferences_unavailable")
 	worksheet.present(value.board)
 	public_view = value.duplicate(true)
 	_failed = false
@@ -154,9 +156,10 @@ func _measure(value: Dictionary, locale: String, percent: int, large: bool, pale
 	if valid: valid = probe_dock.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset)
 	var result: Dictionary = {}
 	if valid:
-		var band := Vector2i(400,328-int(probe_register.size.y/2)-int(probe_dock.size.y/2))
+		var sheet_band := Vector2i(400,328-int(probe_register.size.y/2)-int(probe_dock.size.y/2))
+		var band := sheet_band - Vector2i(0, WORKSHEET.view_controls_height(locale, probe_dock.theme, large) / 2)
 		valid = LAYOUT.measure(1,1,band,large).ok
-		if valid: valid = probe_sheet.configure("desktop_app",locale,percent,large,palette,band,high_contrast,colour_preset)
+		if valid: valid = probe_sheet.configure("desktop_app",locale,percent,large,palette,sheet_band,high_contrast,colour_preset)
 		if valid: valid = probe_sheet.present_assignments(value.get("assignments",[false,false,false,false,false,false,false,false,false]))
 		if valid: result = {"band":band,"register_height":probe_register.size.y}
 	probe_register.free()
@@ -168,7 +171,7 @@ func _place(register_height: float) -> void:
 	custom_minimum_size = Vector2(800,656)
 	size = custom_minimum_size
 	worksheet.position = Vector2(0,register_height)
-	dock.position = Vector2(0,register_height+_band.y*2)
+	dock.position = Vector2(0,register_height+worksheet.size.y)
 
 func _apply_availability() -> void:
 	var settled: bool = bool(public_view.get("settled",false))
@@ -188,6 +191,8 @@ func _wire_focus() -> void:
 		if control.focus_mode != Control.FOCUS_NONE: controls.append(control)
 	for control: Control in [worksheet.grid,worksheet.vertical_rail,worksheet.horizontal_rail]:
 		if control != null and control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
+	for control: Control in worksheet.zoom_controls:
+		if control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
 	for control: Control in dock.buttons.values():
 		if control.focus_mode != Control.FOCUS_NONE: controls.append(control)
 	for index in controls.size():
@@ -207,6 +212,7 @@ func _action(action: StringName) -> void:
 	if action == &"new_board":
 		if _receive(_port.call("dispatch","new_board",-1,int(public_view.board.revision))):
 			worksheet.set_mode(&"reveal")
+			worksheet.reveal_focus(worksheet.grid.focused_index)
 		return
 	var opened := false
 	if action == &"rules": opened = worksheet.open_rules(dock.buttons.rules)
@@ -230,8 +236,10 @@ func _select_difficulty(difficulty: StringName) -> void:
 			or not _port.has_method("select_difficulty") \
 			or (public_view.board.custody and not public_view.settled) or String(difficulty) == public_view.register.difficulty \
 			or String(difficulty) not in public_view.register.difficulty_enabled: return
+	if not worksheet.flush_view_preferences(): return
 	if _receive(_port.call("select_difficulty",String(difficulty),int(public_view.board.revision))):
 		worksheet.set_mode(&"reveal")
+		worksheet.reveal_focus(worksheet.grid.focused_index)
 
 func _receive(result: Variant) -> bool:
 	if result is Dictionary and result.get("value") is Dictionary:

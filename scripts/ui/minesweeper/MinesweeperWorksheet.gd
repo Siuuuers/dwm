@@ -5,12 +5,20 @@ signal cell_action_requested(action: StringName, index: int, revision: int)
 signal new_board_requested()
 signal information_closed()
 signal information_closing()
+signal view_controls_changed()
 
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const RAIL := preload("res://scripts/ui/minesweeper/MinesweeperScrollRail.gd")
 const LAYOUT := preload("res://scripts/ui/minesweeper/MinesweeperWorksheetLayout.gd")
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const SHEET := preload("res://scripts/ui/minesweeper/MinesweeperInformationSheet.gd")
+const VIEW_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
+const VIEW_SCOPES := ["app_beginner", "app_intermediate", "app_expert", "challenge"]
+const VIEW_COPY := {
+	"en": ["Fit entire board", "Cell: %s px", "Fit: %s px", "Could not save view", "Zoom out", "Zoom in", "Zoom: Ctrl + wheel, pinch, or LT / RT. Pan: wheel, Drag mode, or right stick."],
+	"zh-CN": ["完整显示棋盘", "格子：%s 像素", "适应：%s 像素", "无法保存视图", "缩小格子", "放大格子", "缩放：Ctrl + 滚轮、双指捏合或 LT / RT。平移：滚轮、拖动模式或右摇杆。"],
+	"zh-HK": ["完整顯示棋盤", "格子：%s 像素", "適應：%s 像素", "無法儲存檢視", "縮小格子", "放大格子", "縮放：Ctrl + 滾輪、雙指捏合或 LT / RT。平移：滾輪、拖曳模式或右搖桿。"],
+}
 
 class ContactSeam extends Control:
 	func _draw() -> void:
@@ -38,6 +46,19 @@ var _pan_remainder := Vector2.ZERO
 var _panning := false
 var _applying := false
 var _interaction_blocked := false
+var cell_size := 36
+var always_fit := false
+var view_save_failed := false
+var zoom_controls: Array[Control] = []
+var view_label: Label
+var _view_profile: Object
+var _view_scope := "app_beginner"
+var _view_dirty := false
+var _writing_view := false
+var _saved_view := Vector2i(36, 0)
+var _view_flush: Timer
+var _pinch_base := -1.0
+var _view_height := 48
 
 func _init() -> void:
 	clip_contents = true
@@ -56,9 +77,34 @@ func _init() -> void:
 	add_child(_seam)
 	grid.cell_action_requested.connect(func(action: StringName, index: int, revision: int): cell_action_requested.emit(action, index, revision))
 	grid.new_board_requested.connect(func(): new_board_requested.emit())
-	grid.focused_cell_changed.connect(_reveal_focus)
+	grid.focused_cell_changed.connect(reveal_focus)
 	grid.pan_requested.connect(_pan)
 	grid.panning_changed.connect(_set_panning)
+	grid.zoom_step_requested.connect(_grid_zoom_step)
+	grid.pinch_zoom_requested.connect(_pinch_zoom)
+	grid.pinch_zoom_finished.connect(_finish_pinch)
+	grid.view_input_changed.connect(_refresh_view_controls)
+	for copy: String in ["−", "+", "Fit entire board"]:
+		var button: Control = VIEW_BUTTON.new()
+		button.name = ["ZoomOut", "ZoomIn", "FitBoard"][zoom_controls.size()]
+		zoom_controls.append(button)
+		add_child(button)
+	zoom_controls[0].pressed.connect(func(): step_zoom(-1))
+	zoom_controls[1].pressed.connect(func(): step_zoom(1))
+	zoom_controls[2].pressed.connect(func(): set_always_fit(not always_fit))
+	view_label = Label.new()
+	view_label.name = "CellSize"
+	view_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	view_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	view_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(view_label)
+	_view_flush = Timer.new()
+	_view_flush.one_shot = true
+	_view_flush.wait_time = 0.25
+	_view_flush.timeout.connect(flush_view_preferences)
+	add_child(_view_flush)
+	visibility_changed.connect(func():
+		if not is_visible_in_tree(): flush_view_preferences())
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -74,7 +120,8 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	var candidate_band := native_band
 	if candidate_band == Vector2i.ZERO: candidate_band = Vector2i(400 if host == "desktop_app" else 480, 232 if large else 246)
 	if candidate_theme == null or not LAYOUT.measure(1, 1, candidate_band, large).ok: return false
-	if information_sheet != null and not information_sheet.configure(host,locale,percent,large,palette,candidate_band,high_contrast,colour_preset): return false
+	var sheet_band := candidate_band + Vector2i(0, view_controls_height(locale, candidate_theme, large) / 2)
+	if information_sheet != null and not information_sheet.configure(host,locale,percent,large,palette,sheet_band,high_contrast,colour_preset): return false
 	var geometry_changed: bool = candidate_band != _band or large != _large
 	if geometry_changed: grid.cancel_pointer_gesture()
 	if not grid.configure(locale, percent, large, palette, high_contrast, colour_preset): return false
@@ -87,19 +134,22 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	_large = large
 	_band = candidate_band
 	theme = candidate_theme
+	_configure_view_controls()
 	if geometry_changed: _pan_remainder = Vector2.ZERO
 	_apply_geometry()
-	if geometry_changed: _reveal_focus(grid.focused_index)
+	if geometry_changed: reveal_focus(grid.focused_index)
 	return true
 
 func present(projection: Dictionary) -> bool:
+	var prior_focus: int = grid.focused_index
 	_applying = true
 	var accepted: bool = grid.present(projection)
 	_applying = false
 	if not accepted: return false
 	_pan_remainder = Vector2.ZERO
 	_apply_geometry()
-	if grid.has_focus(): _reveal_focus(grid.focused_index)
+	var initial_cell: bool = grid.focused_index >= 0 and bool(grid.projection.cells[grid.focused_index].bracketed)
+	if grid.has_focus() or grid.focused_index != prior_focus or initial_cell: reveal_focus(grid.focused_index)
 	return true
 
 func set_mode(mode: StringName) -> bool:
@@ -121,10 +171,11 @@ func open_assignments(claimed: Array, source: Control = null) -> bool:
 
 func _open_information(kind: String, claimed: Array, source: Control) -> bool:
 	if _interaction_blocked or information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return false
+	if not flush_view_preferences(): return false
 	var sheet: Control = SHEET.new()
 	sheet.hide()
 	add_child(sheet)
-	var accepted: bool = sheet.configure(_host,_locale,_percent,_large,_palette,_band,_high_contrast,_colour_preset)
+	var accepted: bool = sheet.configure(_host,_locale,_percent,_large,_palette,_band + Vector2i(0, _view_height / 2),_high_contrast,_colour_preset)
 	if accepted: accepted = sheet.present_rules() if kind == "rules" else sheet.present_assignments(claimed)
 	if not accepted:
 		remove_child(sheet)
@@ -137,6 +188,8 @@ func _open_information(kind: String, claimed: Array, source: Control) -> bool:
 	_grid_process_mode = grid.process_mode
 	grid.process_mode = Node.PROCESS_MODE_DISABLED
 	well.hide()
+	for control: Control in zoom_controls: control.hide()
+	view_label.hide()
 	if vertical_rail != null: vertical_rail.hide()
 	if horizontal_rail != null: horizontal_rail.hide()
 	sheet.return_requested.connect(close_information)
@@ -152,6 +205,8 @@ func close_information() -> void:
 	sheet.queue_free()
 	grid.process_mode = _grid_process_mode
 	well.show()
+	for control: Control in zoom_controls: control.show()
+	view_label.show()
 	if vertical_rail != null: vertical_rail.show()
 	if horizontal_rail != null: horizontal_rail.show()
 	var source: Control = _source_focus.get_ref() if _source_focus != null else null
@@ -176,10 +231,11 @@ func get_scroll() -> Vector2i:
 	return _scroll
 
 func _apply_geometry() -> void:
-	custom_minimum_size = Vector2(_band * 2)
+	custom_minimum_size = Vector2(_band * 2) + Vector2(0, _view_height)
 	size = custom_minimum_size
+	_place_view_controls()
 	if grid.projection.is_empty(): return
-	var result := LAYOUT.fit_board(grid.projection.width, grid.projection.height, _band, _large)
+	var result := LAYOUT.measure_view(grid.projection.width, grid.projection.height, _band, _large, cell_size, always_fit, _scroll)
 	if not result.ok: return
 	geometry = result.value
 	_scroll = geometry.scroll
@@ -194,6 +250,7 @@ func _apply_geometry() -> void:
 	if vertical_rail != null: vertical_rail.visible = information_sheet == null
 	if horizontal_rail != null: horizontal_rail.visible = information_sheet == null
 	_update_seam()
+	_refresh_view_controls()
 	queue_redraw()
 
 func _update_rail(existing: Control, public_rail: Variant, vertical: bool, interactive: bool) -> Control:
@@ -218,16 +275,16 @@ func _scroll_axis(value: int, vertical: bool) -> void:
 	next[1 if vertical else 0] = value
 	set_scroll(next)
 
-func _reveal_focus(index: int) -> void:
+func reveal_focus(index: int) -> void:
 	if _interaction_blocked or information_sheet != null or _applying or grid.projection.is_empty() or grid.projection.custody or index < 0: return
-	var result := LAYOUT.fit_board(grid.projection.width, grid.projection.height, _band, _large)
+	var result := LAYOUT.reveal_view(grid.projection.width, grid.projection.height, index, _band, _large, cell_size, always_fit, _scroll)
 	if result.ok:
 		_scroll = result.value.scroll
 		_apply_geometry()
 
 func _pan(delta: Vector2) -> void:
 	if _interaction_blocked or information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return
-	_pan_remainder -= delta / 2.0
+	_pan_remainder -= delta * grid.scale / 2.0
 	var whole := Vector2i(int(_pan_remainder.x), int(_pan_remainder.y))
 	_pan_remainder -= Vector2(whole)
 	_scroll += whole
@@ -244,8 +301,22 @@ func _update_seam() -> void:
 
 func _gui_input(event: InputEvent) -> void:
 	if _interaction_blocked: return
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		# The board can be smaller than the well. A second finger in that blank
+		# space still belongs to the same gesture and must cancel the pending tap.
+		if Rect2(Vector2.ZERO, well.size).has_point(event.position) or grid.has_held_touch():
+			var forwarded: InputEvent = event.duplicate()
+			forwarded.position = (event.position - grid.position) / grid.scale
+			if forwarded is InputEventScreenDrag: forwarded.relative /= grid.scale
+			grid._gui_input(forwarded)
+			accept_event()
+		return
 	if not event is InputEventMouseButton or not event.pressed or geometry.is_empty(): return
 	if not Rect2(Vector2.ZERO, well.size).has_point(event.position): return
+	if event.ctrl_pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		step_zoom(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1, event.position / 2.0, true)
+		accept_event()
+		return
 	var direction := Vector2i.ZERO
 	match event.button_index:
 		MOUSE_BUTTON_WHEEL_UP: direction = Vector2i.UP
@@ -258,3 +329,160 @@ func _gui_input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color(&"habitat", &"Minesweeper"))
+
+static func view_controls_height(locale: String, next_theme: Theme, large: bool) -> int:
+	var measured: Dictionary = VIEW_BUTTON.ROW.measure_copy(VIEW_COPY[locale.replace("_", "-")][0], next_theme, 160 - (16 if large else 12) - 8)
+	return 2 * ceili(maxf(64 if large else 48, float(measured.height) + (16 if large else 12) + 4) / 2.0)
+
+func _configure_view_controls() -> void:
+	zoom_controls[0].configure("−", theme, _large, 80)
+	zoom_controls[1].configure("+", theme, _large, 80)
+	zoom_controls[2].configure(VIEW_COPY[_locale][0], theme, _large, 160)
+	zoom_controls[0].accessibility_name = VIEW_COPY[_locale][4]
+	zoom_controls[1].accessibility_name = VIEW_COPY[_locale][5]
+	for control: Control in zoom_controls: control.tooltip_text = VIEW_COPY[_locale][6]
+	_view_height = view_controls_height(_locale, theme, _large)
+	view_label.add_theme_color_override("font_color", theme.get_color(&"primary_dark_copy", &"Minesweeper"))
+	_place_view_controls()
+	_refresh_view_controls()
+
+func _place_view_controls() -> void:
+	zoom_controls[0].position = Vector2(0, _band.y * 2)
+	zoom_controls[1].position = Vector2(_band.x * 2 - 240, _band.y * 2)
+	zoom_controls[2].position = Vector2(_band.x * 2 - 160, _band.y * 2)
+	for control: Control in zoom_controls:
+		control.position.y += floorf((_view_height - control.size.y) / 4.0) * 2.0
+	view_label.position = Vector2(80, _band.y * 2)
+	view_label.size = Vector2(maxi(0, _band.x * 2 - 320), _view_height)
+	if not is_inside_tree(): return
+	for index in zoom_controls.size():
+		var control: Control = zoom_controls[index]
+		control.focus_neighbor_left = control.get_path_to(zoom_controls[maxi(0, index - 1)])
+		control.focus_neighbor_right = control.get_path_to(zoom_controls[mini(2, index + 1)])
+		control.focus_neighbor_top = control.get_path_to(grid)
+	grid.focus_neighbor_bottom = grid.get_path_to(zoom_controls[0])
+
+func _refresh_view_controls() -> void:
+	var enabled: bool = _view_allowed()
+	zoom_controls[0].present_state(enabled and (always_fit or cell_size > 10), false)
+	zoom_controls[1].present_state(enabled and (always_fit or cell_size < 60), false)
+	zoom_controls[2].present_state(enabled, always_fit)
+	var displayed: String = ("%.1f" % (float(geometry.get("target", cell_size / 2.0)) * 2.0)) if always_fit else str(cell_size)
+	view_label.text = VIEW_COPY[_locale][2 if always_fit else 1] % displayed
+	if view_save_failed: view_label.text += "\n" + VIEW_COPY[_locale][3]
+	for control: Control in zoom_controls: control.accessibility_description = view_label.text
+
+func bind_view_preferences(profile: Object, scope: String) -> bool:
+	if scope not in VIEW_SCOPES or (profile != null and not profile.has_method("get_preference")): return false
+	if _view_profile == profile: return set_view_scope(scope)
+	if not flush_view_preferences(): return false
+	if is_instance_valid(_view_profile) and _view_profile.has_signal("preference_changed") and _view_profile.is_connected("preference_changed", _view_preference_changed):
+		_view_profile.disconnect("preference_changed", _view_preference_changed)
+	_view_profile = profile
+	_view_scope = scope
+	if profile != null and profile.has_signal("preference_changed"):
+		profile.connect("preference_changed", _view_preference_changed)
+	_load_view_preferences()
+	return true
+
+func set_view_scope(scope: String) -> bool:
+	if scope not in VIEW_SCOPES: return false
+	if scope == _view_scope: return true
+	if not flush_view_preferences(): return false
+	_view_scope = scope
+	_load_view_preferences()
+	return true
+
+func _view_path(suffix: String) -> StringName:
+	return StringName("preferences.display.minesweeper_%s_%s" % [_view_scope, suffix])
+
+func _load_view_preferences() -> void:
+	cell_size = int(_view_profile.get_preference(_view_path("cell_size"), 36)) if is_instance_valid(_view_profile) else 36
+	always_fit = bool(_view_profile.get_preference(_view_path("always_fit"), false)) if is_instance_valid(_view_profile) else false
+	_saved_view = Vector2i(cell_size, int(always_fit))
+	_scroll = Vector2i.ZERO
+	view_save_failed = false
+	_apply_geometry()
+	view_controls_changed.emit()
+
+func _view_preference_changed(path: StringName, _value: Variant) -> void:
+	if not _writing_view and path in [_view_path("cell_size"), _view_path("always_fit")]: _load_view_preferences()
+
+func _view_allowed(pinch: bool = false) -> bool:
+	return not _interaction_blocked and information_sheet == null and not grid.projection.is_empty() \
+		and grid.is_view_input_admitted() and (pinch or not grid.has_held_action())
+
+func _view_anchor() -> Vector2:
+	if grid.focused_index >= 0 and grid.focused_index < grid.cell_nodes.size():
+		var cell: Control = grid.cell_nodes[grid.focused_index]
+		var point: Vector2 = (grid.position + (cell.position + cell.size / 2.0) * grid.scale) / 2.0
+		if Rect2(Vector2.ZERO, well.size / 2.0).has_point(point): return point
+	return well.size / 4.0
+
+func set_always_fit(enabled: bool) -> bool:
+	if not _view_allowed(): return false
+	if enabled == always_fit: return true
+	return _change_view(cell_size, enabled, _view_anchor(), false)
+
+func step_zoom(steps: int, anchor_native: Vector2 = Vector2(-1, -1), coalesce: bool = false) -> bool:
+	if not _view_allowed(): return false
+	var current: int = roundi(float(geometry.target)) * 2 if always_fit else cell_size
+	var next := clampi(current + steps * 2, 10, 60)
+	return _change_view(next, false, _view_anchor() if anchor_native.x < 0 else anchor_native, coalesce)
+
+func _change_view(next: int, fit: bool, anchor: Vector2, coalesce: bool) -> bool:
+	if next == cell_size and fit == always_fit: return true
+	var old: Dictionary = geometry
+	cell_size = next
+	always_fit = fit
+	view_save_failed = false
+	_apply_geometry()
+	if not old.is_empty():
+		_scroll = LAYOUT.anchored_scroll(old, geometry, anchor)
+		_apply_geometry()
+	_view_dirty = true
+	view_controls_changed.emit()
+	if coalesce:
+		_view_flush.start()
+		return true
+	return flush_view_preferences()
+
+func _grid_zoom_step(steps: int, local_anchor: Vector2, source: StringName) -> void:
+	var anchor := _view_anchor() if source == &"controller" else (grid.position + local_anchor * grid.scale) / 2.0
+	step_zoom(steps, anchor, source == &"wheel")
+
+func _pinch_zoom(ratio: float, local_anchor: Vector2) -> void:
+	if not _view_allowed(true): return
+	if _pinch_base < 0:
+		_pinch_base = float(geometry.target) * 2.0
+		return
+	var next := clampi(roundi(_pinch_base * ratio / 2.0) * 2, 10, 60)
+	_change_view(next, false, (grid.position + local_anchor * grid.scale) / 2.0, true)
+	# A pinch is one transaction, regardless of how long fingers pause mid-gesture.
+	_view_flush.stop()
+
+func _finish_pinch() -> void:
+	_pinch_base = -1.0
+	flush_view_preferences()
+
+func flush_view_preferences() -> bool:
+	_view_flush.stop()
+	if not _view_dirty: return true
+	_writing_view = true
+	var ok := true
+	if is_instance_valid(_view_profile):
+		ok = _view_profile.has_method("set_preferences") and _view_profile.set_preferences({
+			_view_path("cell_size"): cell_size, _view_path("always_fit"): always_fit}).get("ok", false)
+	_writing_view = false
+	_view_dirty = false
+	view_save_failed = not ok
+	if ok: _saved_view = Vector2i(cell_size, int(always_fit))
+	else:
+		cell_size = _saved_view.x
+		always_fit = bool(_saved_view.y)
+		_apply_geometry()
+	_refresh_view_controls()
+	return ok
+
+func _exit_tree() -> void:
+	flush_view_preferences()

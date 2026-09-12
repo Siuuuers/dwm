@@ -94,6 +94,7 @@ var _observer_close_failed := false
 
 var _presentation_port: Object = null
 var _presentation_command: Dictionary = {}
+var _view_profile: Object
 
 @onready var dating_background: TextureRect = %DatingBackground
 @onready var character_zone_left: Control = %CharacterZoneLeft
@@ -115,10 +116,11 @@ func _ready() -> void:
 ## Input/accessibility settings are composition-owned. This scene never looks up autoloads.
 func configure_presentation_services(input_owner: Object, locale: String = "en", percent: int = 100,
 		large_cells: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false,
-		colour_preset: String = "standard") -> Dictionary:
+		colour_preset: String = "standard", view_profile: Object = null) -> Dictionary:
 	if _input_owner != null and _input_owner != input_owner:
 		return _fail(&"presentation_services_already_configured", "input owner replacement refused")
 	_input_owner = input_owner
+	_view_profile = view_profile
 	_locale = locale.replace("_", "-")
 	_percent = percent
 	_large_cells = large_cells
@@ -126,6 +128,8 @@ func configure_presentation_services(input_owner: Object, locale: String = "en",
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
 	if is_instance_valid(worksheet):
+		if not worksheet.bind_view_preferences(_view_profile, "challenge"):
+			return _fail(&"invalid_challenge_presentation", "view preferences unavailable")
 		if not worksheet.configure(str(_physical_view.host), _locale, _percent, _large_cells,
 				_palette, Vector2i.ZERO, _high_contrast, _colour_preset):
 			return _fail(&"invalid_challenge_presentation", "unsupported presentation settings")
@@ -160,6 +164,7 @@ func _build_challenge() -> void:
 	title.draw.connect(func(): _pre_challenge_drawn = true)
 	worksheet = WORKSHEET.new()
 	worksheet.name = "DatingWorksheet"
+	worksheet.bind_view_preferences(_view_profile, "challenge")
 	worksheet.configure(str(_physical_view.host), _locale, _percent, _large_cells,
 		_palette, Vector2i.ZERO, _high_contrast, _colour_preset)
 	if _input_owner != null: worksheet.grid.configure_input(_input_owner)

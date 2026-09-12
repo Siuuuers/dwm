@@ -2032,7 +2032,7 @@ func configure_dating_scene_services(scene: Node) -> Dictionary:
 		var legacy: String = str(profile.get_preference("preferences.accessibility.colorblind_mode", "none"))
 		colour = preload("res://scripts/ui/MinesweeperApp.gd").LEGACY_COLOUR_PRESETS.get(legacy, "standard")
 	return scene.configure_presentation_services(input_owner, str(locale.get_locale()), int(percent),
-		bool(large), &"after_hours", bool(profile.get_preference("preferences.accessibility.high_contrast", false)), str(colour))
+		bool(large), &"after_hours", bool(profile.get_preference("preferences.accessibility.high_contrast", false)), str(colour), profile)
 
 
 func _configure_condition_hospital(game_state: Object) -> Dictionary:

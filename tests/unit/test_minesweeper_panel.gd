@@ -16,6 +16,7 @@ class PublicPort extends RefCounted:
 	func pull() -> Dictionary:
 		pull_count += 1
 		return {"ok":true,"value":view.duplicate(true)}
+
 	func select_difficulty(difficulty: String, revision: int) -> Dictionary:
 		calls.append({"difficulty":difficulty,"revision":revision})
 		if not next_view.is_empty():
@@ -28,6 +29,16 @@ class PublicPort extends RefCounted:
 			view = next_view.duplicate(true)
 			next_view = {}
 		return {"ok":true,"value":view.duplicate(true)}
+
+class ViewProfile extends RefCounted:
+	signal preference_changed(path: StringName, value: Variant)
+	var refuse := true
+	var writes := 0
+	func get_preference(_path: StringName, default_value: Variant = null) -> Variant:
+		return default_value
+	func set_preferences(_changes: Dictionary) -> Dictionary:
+		writes += 1
+		return {"ok": false, "code": &"injected_view_write_failure"} if refuse else {"ok": true}
 
 func _view(difficulty: String = "beginner") -> Dictionary:
 	var board: Dictionary = BOARD_QUERY.desktop(STATE.new().capture(),difficulty,true).value
@@ -104,6 +115,7 @@ func test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert() ->
 	panel.worksheet.grid._set_focused(200)
 	panel.worksheet.set_scroll(Vector2i(80,140))
 	var before: Dictionary = panel.public_view.duplicate(true)
+	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
 	for action: String in ["rules","assignments"]:
 		var source: Button = panel.dock.buttons[action]
 		source.grab_focus()
@@ -129,7 +141,7 @@ func test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert() ->
 		assert_true(source.has_focus())
 		assert_false(source.disabled)
 		assert_eq(panel.worksheet.grid.focused_index,200)
-		assert_eq(panel.worksheet.get_scroll(),Vector2i.ZERO)
+		assert_eq(panel.worksheet.get_scroll(),retained_scroll)
 		assert_eq(panel.public_view,before)
 
 func test_invalid_composite_preserves_facts_blocks_input_and_refresh_recovers() -> void:
@@ -247,7 +259,7 @@ func test_binding_is_idempotent_and_cannot_redirect_to_a_replacement_port() -> v
 	assert_eq(replacement.pull_count,0)
 	assert_eq(panel.public_view.register.difficulty,"beginner")
 
-func test_real_tab_visits_fitted_grid_then_dock_and_exits_to_the_host() -> void:
+func test_real_tab_visits_manual_grid_rails_zoom_and_dock_then_exits_to_the_host() -> void:
 	var panel := _panel(_port("expert"))
 	var after := Button.new()
 	after.text = "Host action after Minesweeper"
@@ -259,10 +271,12 @@ func test_real_tab_visits_fitted_grid_then_dock_and_exits_to_the_host() -> void:
 	assert_true(panel.connect_host_focus(before,after))
 	assert_false(panel.connect_host_focus(panel.worksheet.grid,after))
 	assert_true(panel.refresh(),"A publication preserves the host boundary connections.")
-	assert_null(panel.worksheet.vertical_rail)
-	assert_null(panel.worksheet.horizontal_rail)
+	assert_not_null(panel.worksheet.vertical_rail)
+	assert_not_null(panel.worksheet.horizontal_rail)
 	panel.worksheet.grid.grab_focus()
-	var order: Array[Control] = [panel.dock.buttons.reveal,panel.dock.buttons.flag,panel.dock.buttons.drag,
+	var order: Array[Control] = [panel.worksheet.vertical_rail,panel.worksheet.horizontal_rail,
+		panel.worksheet.zoom_controls[0],panel.worksheet.zoom_controls[1],panel.worksheet.zoom_controls[2],
+		panel.dock.buttons.reveal,panel.dock.buttons.flag,panel.dock.buttons.drag,
 		panel.dock.buttons.assignments,panel.dock.buttons.rules,after]
 	for target: Control in order:
 		_key(panel,KEY_TAB)
@@ -320,19 +334,20 @@ func test_locale_configuration_during_sheet_restores_rebuilt_semantic_source_and
 	panel.worksheet.grid._set_focused(200)
 	panel.worksheet.set_scroll(Vector2i(80,140))
 	var old_source: Button = panel.dock.buttons.rules
+	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
 	old_source.grab_focus()
 	old_source.pressed.emit()
 	assert_not_null(panel.worksheet.information_sheet)
 	assert_true(panel.configure("zh-HK",150,true,&"midnight"))
 	assert_true(panel.worksheet.information_sheet.rows[0].has_focus())
 	assert_null(old_source.get_parent(),"The configured dock has new localized controls.")
-	assert_eq(panel.worksheet.get_scroll(),Vector2i.ZERO)
+	assert_eq(panel.worksheet.get_scroll(),retained_scroll)
 	panel.worksheet.information_sheet.return_button.pressed.emit()
 	assert_null(panel.worksheet.information_sheet)
 	assert_true(panel.dock.buttons.rules.has_focus(),"Return resolves the source by semantic action after locale rebuilding.")
 	assert_eq(panel.worksheet.grid.mode,&"flag")
 	assert_eq(panel.worksheet.grid.focused_index,200)
-	assert_eq(panel.worksheet.get_scroll(),Vector2i.ZERO)
+	assert_eq(panel.worksheet.get_scroll(),retained_scroll)
 
 func test_unchanged_assignment_refresh_preserves_scrolled_rail_identity_and_focus() -> void:
 	var port := _port()
@@ -384,6 +399,26 @@ func test_real_difficulty_buttons_dispatch_frozen_revision_and_reset_mode_only_o
 	assert_true(panel.register.difficulties.beginner.disabled)
 	panel.register.difficulties.beginner.pressed.emit()
 	assert_eq(port.calls.size(),1,"A sheet cannot dispatch a tier change.")
+
+
+func test_difficulty_change_waits_for_pending_view_preference_write() -> void:
+	var port := _port()
+	port.view.register.difficulty_enabled = ["beginner", "intermediate", "expert"]
+	var panel := _panel(port)
+	var profile := ViewProfile.new()
+	assert_true(panel.worksheet.bind_view_preferences(profile, "app_beginner"))
+	panel.worksheet.cell_size = 38
+	panel.worksheet._view_dirty = true
+	port.next_view = _view("expert")
+	port.next_view.register.difficulty_enabled = port.view.register.difficulty_enabled.duplicate()
+	panel.register.difficulties.expert.pressed.emit()
+	assert_eq(profile.writes, 1)
+	assert_true(port.calls.is_empty(), "a failed view write must not dispatch a difficulty change")
+	assert_eq(panel.public_view.register.difficulty, "beginner")
+	profile.refuse = false
+	panel.register.difficulties.expert.pressed.emit()
+	assert_eq(port.calls, [{"difficulty": "expert", "revision": 0}])
+	assert_eq(panel.public_view.register.difficulty, "expert")
 
 
 func test_touched_space_and_new_board_share_dispatch_while_untouched_space_is_inert() -> void:

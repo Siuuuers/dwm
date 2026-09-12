@@ -124,6 +124,8 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 	_port = port
 	_localization = localization
 	_profile = profile
+	if not panel.worksheet.bind_view_preferences(profile, "app_" + str(panel.public_view.get("register", {}).get("difficulty", "beginner"))):
+		return _fail(&"invalid_minesweeper_preferences")
 	_input_owner = candidate_input
 	_palette = palette
 	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed",_on_locale_changed):
@@ -148,6 +150,7 @@ func prepare_show_window() -> Dictionary:
 func prepare_return_home() -> Dictionary:
 	if _hide_prepared: return {"ok":true}
 	if not can_return_home(): return {"ok":false,"code":&"desktop_modal_active"}
+	if not panel.worksheet.flush_view_preferences(): return {"ok":false,"code":&"minesweeper_view_preferences_unavailable"}
 	remember_focus()
 	_cell = maxi(0,panel.worksheet.grid.focused_index)
 	_scroll = panel.worksheet.get_scroll()

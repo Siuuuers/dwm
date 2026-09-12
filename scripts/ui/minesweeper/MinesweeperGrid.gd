@@ -4,6 +4,10 @@ extends Control
 signal cell_action_requested(action: StringName, index: int, revision: int)
 signal new_board_requested()
 signal pan_requested(delta: Vector2)
+signal zoom_step_requested(steps: int, anchor_local: Vector2, source: StringName)
+signal pinch_zoom_requested(ratio: float, anchor_local: Vector2)
+signal pinch_zoom_finished()
+signal view_input_changed()
 signal panning_changed(active: bool)
 signal focused_cell_changed(index: int)
 signal mode_changed(mode: StringName)
@@ -45,6 +49,13 @@ var _interaction_blocked := false
 var _input_owner: Object
 var _toggle_contacts: Dictionary = {}
 var _foreground_input := true
+var _touch_points: Dictionary = {}
+var _pinch_start_distance := 0.0
+var _pinch_active := false
+var _touch_suppressed := false
+# Each device must supply its own neutral observation; the button ledger has no axes.
+var _trigger_states: Dictionary = {}
+var _last_view_input_state := Vector2i(-1,-1)
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -52,7 +63,7 @@ func _ready() -> void:
 	focus_entered.connect(_on_focus_entered)
 	focus_exited.connect(_on_focus_exited)
 	mouse_exited.connect(_cancel_contacts)
-	visibility_changed.connect(_retain_toggle_contacts)
+	visibility_changed.connect(_on_view_visibility_changed)
 
 static func accepts_input_owner(input_owner: Object) -> bool:
 	if not is_instance_valid(input_owner): return false
@@ -67,8 +78,9 @@ func configure_input(input_owner: Object) -> bool:
 	if _input_owner != null: return _input_owner == input_owner
 	_input_owner = input_owner
 	_input_owner.connect("input_bindings_changed",_retain_toggle_contacts)
-	_input_owner.connect("source_input_custody_changed",_retain_toggle_contacts)
+	_input_owner.connect("source_input_custody_changed",cancel_input)
 	_retain_toggle_contacts()
+	_refresh_view_input_state()
 	return true
 
 func _retain_toggle_contacts() -> void:
@@ -80,7 +92,12 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN: _foreground_input = true
 	if what in [NOTIFICATION_DISABLED,NOTIFICATION_ENABLED,NOTIFICATION_PAUSED,NOTIFICATION_UNPAUSED,
 			NOTIFICATION_APPLICATION_FOCUS_OUT,NOTIFICATION_APPLICATION_FOCUS_IN]:
-		_retain_toggle_contacts()
+		cancel_input()
+
+func _on_view_visibility_changed() -> void:
+	_retain_toggle_contacts()
+	if not is_visible_in_tree(): cancel_input()
+	else: _refresh_view_input_state()
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
 		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
@@ -140,6 +157,7 @@ func present(value: Dictionary) -> bool:
 	projection = value.duplicate(true)
 	_rebuild()
 	if projection.custody:
+		_disarm_trigger_zoom()
 		_retain_toggle_contacts()
 		_confirm_held = false
 		cancel_pointer_gesture()
@@ -157,11 +175,13 @@ func cancel_pointer_gesture() -> void:
 	_cancel_gestures()
 
 func cancel_input() -> void:
+	_disarm_trigger_zoom()
 	_retain_toggle_contacts()
 	_cancel_gestures()
 	_confirm_held = false
 	_joy_direction = &""
 	_right_stick_direction = &""
+	_refresh_view_input_state()
 
 func focus_cell(index: int) -> bool:
 	if _interaction_blocked or projection.is_empty() or projection.custody or index < 0 or index >= cell_nodes.size(): return false
@@ -173,6 +193,7 @@ func focus_cell(index: int) -> bool:
 func set_interaction_blocked(blocked: bool) -> void:
 	if _interaction_blocked == blocked: return
 	_interaction_blocked = blocked
+	_disarm_trigger_zoom()
 	_retain_toggle_contacts()
 	_cancel_gestures()
 	_confirm_held = false
@@ -186,9 +207,13 @@ func _update_focus_mode() -> void:
 	focus_mode = Control.FOCUS_ALL if not _interaction_blocked and not projection.is_empty() and not projection.custody and focused_index >= 0 else Control.FOCUS_NONE
 
 func has_held_touch() -> bool:
-	return _touch_id >= 0
+	return _touch_id >= 0 or not _touch_points.is_empty()
+
+func has_held_action() -> bool:
+	return _held_index >= 0 or _mouse_dragging or has_held_touch() or _confirm_held
 
 func _process(delta: float) -> void:
+	_process_trigger_zoom()
 	if _interaction_blocked or _touch_id < 0 or _panning or _touch_long_pressed or _touch_displacement.length() > 8.0: return
 	_touch_elapsed += delta
 	if _touch_elapsed < 0.5 or _touch_revision != projection.get("revision",-1): return
@@ -253,12 +278,13 @@ func _gui_input(event: InputEvent) -> void:
 		if event.device == -1: return
 		var index: int = _index_at(event.position)
 		if event.pressed:
-			if _touch_id >= 0: return
+			if has_held_touch(): return
 			_clear_hold()
 			if event.double_click or _confirm_held: return
 			if mode == &"drag" and event.button_index == MOUSE_BUTTON_LEFT:
 				_mouse_dragging = true
 				_mouse_drag_displacement = Vector2.ZERO
+				_refresh_view_input_state()
 				return
 			if index >= 0 and projection.cells[index].inspectable:
 				_set_focused(index)
@@ -276,6 +302,7 @@ func _gui_input(event: InputEvent) -> void:
 				_mouse_dragging = false
 				_mouse_drag_displacement = Vector2.ZERO
 				_set_panning(false)
+				_refresh_view_input_state()
 				return
 			var action: StringName = _held_action
 			var admitted: bool = index == _held_index and _held_revision == projection.revision and event.button_index == _held_button and action != &""
@@ -287,6 +314,12 @@ func _gui_input(event: InputEvent) -> void:
 				cell_action_requested.emit(action,admitted_index,projection.revision)
 	elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN,MOUSE_BUTTON_WHEEL_LEFT,MOUSE_BUTTON_WHEEL_RIGHT]:
 		if event.device == -1: return
+		if event.ctrl_pressed:
+			if event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN] \
+					and is_view_input_admitted() and not has_held_action():
+				zoom_step_requested.emit(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1,event.position,&"wheel")
+			accept_event()
+			return
 		if has_held_touch():
 			accept_event()
 			return
@@ -302,32 +335,38 @@ func _gui_input(event: InputEvent) -> void:
 		_handle_navigation(event)
 
 func _handle_navigation(event: InputEvent) -> void:
+	if event is InputEventJoypadMotion and event.axis in [JOY_AXIS_TRIGGER_LEFT,JOY_AXIS_TRIGGER_RIGHT]:
+		_observe_trigger_axis(event.device,event.axis,event.axis_value)
+		accept_event()
+		return
 	if event is InputEventKey and event.pressed and event.echo: return
 	if _handle_toggle(event): return
 	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
-		if _held_index >= 0 or _mouse_dragging or _touch_id >= 0 or _confirm_held: return
+		if _held_index >= 0 or _mouse_dragging or has_held_touch() or _confirm_held: return
 		new_board_requested.emit()
 		accept_event()
 		return
 	var confirm_event: bool = (event is InputEventJoypadButton and event.is_action("ui_accept")) or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_KP_ENTER])
 	if not event.is_pressed():
-		if confirm_event: _confirm_held = false
+		if confirm_event:
+			_confirm_held = false
+			_refresh_view_input_state()
 		_joy_direction = &""
 		_right_stick_direction = &""
 		return
 	if event is InputEventJoypadMotion and event.axis in [JOY_AXIS_RIGHT_X,JOY_AXIS_RIGHT_Y]:
-		if _held_index >= 0 or _mouse_dragging or _touch_id >= 0 or _confirm_held: return
+		if _held_index >= 0 or _mouse_dragging or has_held_touch() or _confirm_held: return
 		var stick_direction: StringName = &"right" if event.axis == JOY_AXIS_RIGHT_X and event.axis_value > 0.5 else (&"left" if event.axis == JOY_AXIS_RIGHT_X and event.axis_value < -0.5 else (&"down" if event.axis_value > 0.5 else (&"up" if event.axis_value < -0.5 else &"")))
 		if stick_direction == &"" or stick_direction == _right_stick_direction: return
 		_right_stick_direction = stick_direction
 		var target: float = 64.0 if _large else 48.0
 		match stick_direction:
-			&"right": pan_requested.emit(Vector2(target,0))
-			&"left": pan_requested.emit(Vector2(-target,0))
-			&"down": pan_requested.emit(Vector2(0,target))
-			&"up": pan_requested.emit(Vector2(0,-target))
+			&"right": pan_requested.emit(Vector2(-target,0))
+			&"left": pan_requested.emit(Vector2(target,0))
+			&"down": pan_requested.emit(Vector2(0,-target))
+			&"up": pan_requested.emit(Vector2(0,target))
 		return
-	if _held_index >= 0 or _mouse_dragging or _touch_id >= 0: return
+	if _held_index >= 0 or _mouse_dragging or has_held_touch(): return
 	var direction: StringName = &""
 	for candidate: StringName in [&"ui_left",&"ui_right",&"ui_up",&"ui_down"]:
 		if event.is_action_pressed(candidate): direction = candidate
@@ -350,6 +389,7 @@ func _handle_navigation(event: InputEvent) -> void:
 	if confirm:
 		if _confirm_held: return
 		_confirm_held = true
+		_refresh_view_input_state()
 		var action: StringName = _mode_action(focused_index)
 		if action != &"": cell_action_requested.emit(action,focused_index,projection.revision)
 		accept_event()
@@ -370,7 +410,7 @@ func _handle_toggle(event: InputEvent) -> bool:
 	accept_event()
 	if held_before or not _foreground_input or not has_focus() or not is_visible_in_tree() or not can_process() \
 			or not _input_owner.is_source_input_admitted(): return true
-	if _held_index >= 0 or _mouse_dragging or _touch_id >= 0 or _confirm_held: return true
+	if _held_index >= 0 or _mouse_dragging or has_held_touch() or _confirm_held: return true
 	set_mode(&"flag" if mode in [&"drag",&"reveal"] else &"reveal")
 	return true
 
@@ -378,7 +418,13 @@ func _move_focus(delta: Vector2i) -> void:
 	if focused_index < 0: return
 	var at: Vector2i = Vector2i(focused_index%projection.width,focused_index/projection.width)
 	var target: Vector2i = at+delta
-	if target.x < 0 or target.x >= projection.width or target.y < 0 or target.y >= projection.height: return
+	if target.x < 0 or target.x >= projection.width or target.y < 0 or target.y >= projection.height:
+		var neighbor_path := focus_neighbor_top if target.y < 0 else focus_neighbor_bottom
+		if delta.x == 0 and not neighbor_path.is_empty():
+			var neighbor := get_node_or_null(neighbor_path) as Control
+			if neighbor != null and neighbor.is_visible_in_tree() and neighbor.focus_mode != Control.FOCUS_NONE:
+				neighbor.grab_focus()
+		return
 	var index: int = target.y*projection.width+target.x
 	if not projection.cells[index].inspectable: return
 	_set_focused(index)
@@ -388,7 +434,24 @@ func _move_focus(delta: Vector2i) -> void:
 func _handle_touch(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed:
-			if event.double_tap or _touch_id >= 0 or _held_index >= 0 or _mouse_dragging or _confirm_held: return
+			if event.double_tap or _held_index >= 0 or _mouse_dragging or _confirm_held: return
+			_touch_points[event.index] = get_global_transform_with_canvas()*event.position
+			if _touch_suppressed: return
+			if _touch_points.size() >= 2:
+				_cancel_touch()
+				if _touch_points.size() > 2:
+					_finish_pinch()
+					_touch_suppressed = true
+					return
+				if not is_view_input_admitted():
+					_touch_suppressed = true
+					return
+				var points: Array = _touch_points.values()
+				_pinch_start_distance = (points[0] as Vector2).distance_to(points[1])
+				_pinch_active = _pinch_start_distance > 0.0
+				if _pinch_active: _emit_pinch()
+				else: _touch_suppressed = true
+				return
 			_touch_id = event.index
 			_touch_index = _index_at(event.position)
 			_touch_revision = projection.revision
@@ -399,22 +462,97 @@ func _handle_touch(event: InputEvent) -> void:
 				_set_focused(_touch_index)
 				grab_focus()
 			_refresh_contacts()
-		elif event.index == _touch_id and event.canceled:
-			_cancel_touch()
-			return
-		elif event.index == _touch_id:
-			var admitted: bool = not _panning and not _touch_long_pressed and _touch_displacement.length() <= 8.0 and _touch_revision == projection.revision and _index_at(event.position) == _touch_index
+		else:
+			if not _touch_points.has(event.index): return
+			_touch_points.erase(event.index)
+			if _pinch_active or _touch_suppressed:
+				_finish_pinch()
+				_touch_suppressed = not _touch_points.is_empty()
+				_refresh_view_input_state()
+				return
+			if event.index != _touch_id: return
+			var admitted: bool = not event.canceled and not _panning and not _touch_long_pressed and _touch_displacement.length() <= 8.0 and _touch_revision == projection.revision and _index_at(event.position) == _touch_index
 			var action: StringName = _mode_action(_touch_index) if admitted else &""
 			var index: int = _touch_index
 			var revision: int = _touch_revision
 			_cancel_touch()
 			if action != &"": cell_action_requested.emit(action,index,revision)
-	elif event is InputEventScreenDrag and event.index == _touch_id:
+	elif event is InputEventScreenDrag:
+		if not _touch_points.has(event.index): return
+		_touch_points[event.index] = get_global_transform_with_canvas()*event.position
+		if _pinch_active:
+			_emit_pinch()
+			return
+		if _touch_suppressed or event.index != _touch_id: return
 		_touch_displacement += event.relative
 		if _panning or _touch_displacement.length() > 8.0:
 			_set_panning(true)
 			pan_requested.emit(event.relative)
 		_refresh_contacts()
+
+func _emit_pinch() -> void:
+	var points: Array = _touch_points.values()
+	var midpoint: Vector2 = (points[0]+points[1])*0.5
+	var distance: float = (points[0] as Vector2).distance_to(points[1])
+	pinch_zoom_requested.emit(distance/_pinch_start_distance,get_global_transform_with_canvas().affine_inverse()*midpoint)
+
+func _finish_pinch() -> void:
+	if not _pinch_active: return
+	_pinch_active = false
+	_pinch_start_distance = 0.0
+	pinch_zoom_finished.emit()
+
+func is_view_input_admitted() -> bool:
+	return _foreground_input and not _interaction_blocked and not projection.is_empty() and not projection.custody \
+		and is_visible_in_tree() and can_process() \
+		and (not is_instance_valid(_input_owner) or _input_owner.is_source_input_admitted())
+
+func _refresh_view_input_state() -> void:
+	var state := Vector2i(int(has_held_action()),int(is_view_input_admitted()))
+	if state == _last_view_input_state: return
+	_last_view_input_state = state
+	view_input_changed.emit()
+
+func _disarm_trigger_zoom() -> void:
+	for device: int in _trigger_states:
+		_trigger_states[device].neutral = Vector2i.ZERO
+		_trigger_states[device].pressed = Vector2i.ONE
+		_trigger_states[device].pending = 0
+
+func _observe_trigger_axis(device: int, axis: int, value: float) -> void:
+	if not _trigger_states.has(device):
+		_trigger_states[device] = {"values":Vector2.ZERO,"neutral":Vector2i.ZERO,"pressed":Vector2i.ONE,"pending":0}
+	var state: Dictionary = _trigger_states[device]
+	var side := 0 if axis == JOY_AXIS_TRIGGER_LEFT else 1
+	state.values[side] = value
+	# Native axis events store float32; the nominal 0.2 boundary may round upward.
+	if value <= 0.2 or is_equal_approx(value,0.2):
+		state.neutral[side] = 1
+		state.pressed[side] = 0
+	elif value >= 0.5:
+		if state.pressed[side] == 0 and state.neutral == Vector2i.ONE:
+			state.pending |= 1 << side
+		state.pressed[side] = 1
+
+func _poll_trigger_axes() -> void:
+	for device: int in Input.get_connected_joypads():
+		_observe_trigger_axis(device,JOY_AXIS_TRIGGER_LEFT,Input.get_joy_axis(device,JOY_AXIS_TRIGGER_LEFT))
+		_observe_trigger_axis(device,JOY_AXIS_TRIGGER_RIGHT,Input.get_joy_axis(device,JOY_AXIS_TRIGGER_RIGHT))
+
+func _process_trigger_zoom() -> void:
+	if not is_view_input_admitted() or not has_focus():
+		_disarm_trigger_zoom()
+		return
+	_poll_trigger_axes()
+	# Observe both axis events before deciding; one Input event cannot know whether its
+	# companion trigger crosses in the same frame. A suppressed press is still consumed.
+	for device: int in _trigger_states:
+		var state: Dictionary = _trigger_states[device]
+		var pending: int = state.pending
+		state.pending = 0
+		if has_held_action() or pending == 0 or pending == 3: continue
+		if state.values.x >= 0.5 and state.values.y >= 0.5: continue
+		zoom_step_requested.emit(-1 if pending == 1 else 1,Vector2(-1,-1),&"controller")
 
 func _pointer_action(index: int, button: int) -> StringName:
 	if index < 0: return &""
@@ -469,6 +607,9 @@ func _cancel_touch() -> void:
 	_refresh_contacts()
 
 func _cancel_gestures() -> void:
+	_finish_pinch()
+	_touch_points.clear()
+	_touch_suppressed = false
 	_cancel_contacts()
 	_mouse_dragging = false
 	_mouse_drag_displacement = Vector2.ZERO
@@ -495,21 +636,26 @@ func _set_focused(index: int) -> void:
 	focused_cell_changed.emit(index)
 
 func _on_focus_entered() -> void:
+	_disarm_trigger_zoom()
 	_retain_toggle_contacts()
 	_refresh_contacts()
 	if focused_index >= 0: focused_cell_changed.emit(focused_index)
 
 func _on_focus_exited() -> void:
+	_disarm_trigger_zoom()
 	_retain_toggle_contacts()
 	_cancel_gestures()
 	_confirm_held = false
 	_joy_direction = &""
+	_right_stick_direction = &""
+	_refresh_view_input_state()
 
 func _refresh_contacts() -> void:
 	for index in cell_nodes.size():
 		var touch_pressed: bool = index == _touch_index and _touch_revision == projection.get("revision",-1) and not _panning and not _touch_long_pressed and _touch_displacement.length() <= 8.0 and _mode_action(index) != &""
 		cell_nodes[index].set_contact(has_focus() and index == focused_index,index == _hovered_index,index == _held_index or touch_pressed)
 	_refresh_accessibility()
+	_refresh_view_input_state()
 
 func _refresh_accessibility() -> void:
 	if projection.is_empty() or focused_index < 0:

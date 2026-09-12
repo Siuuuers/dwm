@@ -15,6 +15,7 @@ func _worksheet(difficulty: String = "beginner", large: bool = false) -> Control
 	viewport.add_child(worksheet)
 	assert_true(worksheet.configure("desktop_app","en",100,large))
 	assert_true(worksheet.present(_projection(difficulty)))
+	assert_true(worksheet.set_always_fit(true))
 	return worksheet
 
 func test_every_host_tier_text_and_target_size_fits_the_complete_board() -> void:
@@ -265,7 +266,7 @@ func test_configure_and_present_before_tree_mount_keep_focus_and_geometry() -> v
 	assert_true(worksheet.present(_projection()))
 	add_child_autofree(worksheet)
 	assert_eq(worksheet.grid.focus_mode,Control.FOCUS_ALL)
-	assert_eq(worksheet.grid.position,Vector2(206,52))
+	assert_eq(worksheet.grid.position,Vector2(230.5,76.5))
 
 func test_information_closing_reenables_external_source_before_exact_focus_restoration() -> void:
 	var worksheet := _worksheet("expert")
