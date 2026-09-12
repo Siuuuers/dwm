@@ -23,29 +23,29 @@ const RECORD_KEYS: Array[String] = [
 var _ledger_script: Script = null
 var _root := ""
 var _storage: RefCounted = null
-var _root_counter := 0
 
 
 func before_each() -> void:
+	_root = ""
+	_storage = null
 	var loaded: Dictionary = PROBE.load_script(LEDGER_PATH)
 	_ledger_script = loaded["value"] if loaded.get("ok", false) else null
 	_root = _isolated_root("desktop-ledger")
+	if _root.is_empty():
+		return
 	_storage = JsonFileStorage.new(_root)
 
 
 func _isolated_root(label: String) -> String:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
-	_root_counter += 1
-	var root: String = wrapper.path_join("desktop-publication-%s-%d" % [label, _root_counter])
-	var production := ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var created: Dictionary = TemporaryStorage.create("desktop-publication-" + label)
+	assert_true(created.get("ok", false), str(created))
+	return str(created.get("value", "")) if created.get("ok", false) else ""
 
 
 func _require_ledger() -> bool:
+	if _root.is_empty() or _storage == null:
+		assert_true(false, "desktop ledger temporary storage is unavailable")
+		return false
 	if _ledger_script == null:
 		assert_true(false, "DesktopPublicationLedger is absent: " + LEDGER_PATH)
 		return false
@@ -327,7 +327,10 @@ func test_configure_requires_the_root_scoped_capability_and_refuses_replacement(
 	var replay: Dictionary = ledger.configure(_storage)
 	assert_true(replay.get("ok", false))
 	assert_true(replay["value"]["already_configured"])
-	var other_root := JsonFileStorage.new(_isolated_root("desktop-ledger-other"))
+	var other_path := _isolated_root("desktop-ledger-other")
+	if other_path.is_empty():
+		return
+	var other_root := JsonFileStorage.new(other_path)
 	var rejected: Dictionary = ledger.configure(other_root)
 	assert_false(rejected.get("ok", true))
 	assert_eq(rejected["code"], &"publication_ledger_already_configured")

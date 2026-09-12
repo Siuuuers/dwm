@@ -52,7 +52,11 @@ func test_nonempty_links_must_resolve() -> void:
 	assert_true(_has_code(validator.validate_pair(VALID_PROMPT, linked, StubResolver.new(false)), "AGENT_WORKFLOW_LINK_UNRESOLVED"))
 
 func test_validate_files_rejects_physically_missing_guide() -> void:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("agent-workflow-missing")
+	var created: Dictionary = TemporaryStorage.create("agent-workflow-missing")
+	assert_true(created.get("ok", false), str(created))
+	if not created.get("ok", false):
+		return
+	var root: String = created["value"]
 	_write(root.path_join("Prompt.md"), VALID_PROMPT)
 	var empty_snapshot: Array[Dictionary] = []
 	var result: Dictionary = load(VALIDATOR_PATH).new().validate_files(root.path_join("Prompt.md"), empty_snapshot)

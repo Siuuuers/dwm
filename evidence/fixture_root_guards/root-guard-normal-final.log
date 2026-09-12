@@ -1,0 +1,145 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/fixture-root-disposable-20260913/.godot/phase2r_tests/dfd43535-fc01-4391-9c15-44f856f5cd49/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+* test_document_and_record_union_is_exact_after_one_publication
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+* test_board_fate_key_derives_from_ordinary_receipt_id
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+* test_load_fails_closed_on_malformed_on_disk_json
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+* test_disjoint_from_plan01_schedule_foundation_ledger
+15/15 passed.
+
+
+res://tests/unit/test_schedule_foundation_publication_ledger.gd
+* test_fixed_path_and_published_schema_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_document_and_record_union_is_exact_after_one_publication
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_member_hash_and_receipt_binding_are_enforced_before_any_write
+* test_load_rejects_every_extra_missing_or_type_changed_document_member
+* test_records_and_documents_are_strictly_detached_primitives
+* test_write_read_and_schema_failures_return_failure_without_recording
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+10/10 passed.
+
+
+res://tests/unit/tooling/test_agent_workflow_validator.gd
+* test_validator_rejects_every_frozen_drift
+* test_nonempty_links_must_resolve
+* test_validate_files_rejects_physically_missing_guide
+* test_repository_selector_is_hash_bound_and_rejects_rank_or_blocker_drift
+* test_repository_authority_pointers_are_registered_and_hash_bound
+* test_repository_agent_workflow_files_validate
+6/6 passed.
+
+
+res://tests/unit/tooling/test_doc_validator.gd
+* test_validator_error_matrix
+* test_accepted_decision_contract_and_index
+* test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text
+3/3 passed.
+
+
+res://tests/unit/tooling/test_public_surface_inventory.gd
+* test_public_surface_inventory_exists
+* test_build_produces_complete_sorted_records
+* test_validation_failure_matrix
+* test_reserved_symbol_rules
+* test_write_canonical_json_round_trip
+* test_game_state_required_surface_reservations
+* test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply
+    [Failed]:  ["SURFACE_UNCLASSIFIED: activate_live_session","SURFACE_UNCLASSIFIED: apply_dating_challenge_effect_receipt","SURFACE_UNCLASSIFIED: capture_dating_challenge_state","SURFACE_UNCLASSIFIED: capture_desktop_identity_context","SURFACE_UNCLASSIFIED: capture_ending_presentation_signature","SURFACE_UNCLASSIFIED: capture_live_run_snapshot_input","SURFACE_UNCLASSIFIED: capture_live_session","SURFACE_UNCLASSIFIED: capture_new_day_gameplay","SURFACE_UNCLASSIFIED: capture_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: commit_day7_followup","SURFACE_UNCLASSIFIED: commit_ordinary_echo","SURFACE_UNCLASSIFIED: commit_ordinary_reply","SURFACE_UNCLASSIFIED: configure_contact_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_dating_restore_reconciler","SURFACE_UNCLASSIFIED: configure_desktop_snapshot_provider","SURFACE_UNCLASSIFIED: configure_ending_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_ending_condition_source","SURFACE_UNCLASSIFIED: configure_ending_source_reader","SURFACE_UNCLASSIFIED: get_counted_pair_window_count","SURFACE_UNCLASSIFIED: get_frozen_ordered_ending_plan","SURFACE_UNCLASSIFIED: get_new_run_replacement_baseline","SURFACE_UNCLASSIFIED: get_pending_day7_followups","SURFACE_UNCLASSIFIED: get_pending_ordinary_echoes","SURFACE_UNCLASSIFIED: get_run_configuration","SURFACE_UNCLASSIFIED: prepare_dating_challenge_effect","SURFACE_UNCLASSIFIED: prepare_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: preview_open_contact","SURFACE_UNCLASSIFIED: preview_ordinary_reply","SURFACE_UNCLASSIFIED: require_day7_presentations_complete","SURFACE_UNCLASSIFIED: resume_terminal_ending","SURFACE_UNCLASSIFIED: retire_live_session","SURFACE_UNCLASSIFIED: store_dating_challenge_state","SURFACE_UNCLASSIFIED: validate_live_session","SURFACE_UNCLASSIFIED: validate_live_session_activation","SURFACE_REQUIRED_MISSING: opening_seen","SURFACE_REQUIRED_MISSING: tutorial_seen","SURFACE_REQUIRED_MISSING: mark_opening_seen","SURFACE_REQUIRED_MISSING: mark_tutorial_seen"]
+      at line 314
+* test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures
+    [Failed]:  ["SURFACE_UNCLASSIFIED: activate_live_session","SURFACE_UNCLASSIFIED: apply_dating_challenge_effect_receipt","SURFACE_UNCLASSIFIED: capture_dating_challenge_state","SURFACE_UNCLASSIFIED: capture_desktop_identity_context","SURFACE_UNCLASSIFIED: capture_ending_presentation_signature","SURFACE_UNCLASSIFIED: capture_live_run_snapshot_input","SURFACE_UNCLASSIFIED: capture_live_session","SURFACE_UNCLASSIFIED: capture_new_day_gameplay","SURFACE_UNCLASSIFIED: capture_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: commit_day7_followup","SURFACE_UNCLASSIFIED: commit_ordinary_echo","SURFACE_UNCLASSIFIED: commit_ordinary_reply","SURFACE_UNCLASSIFIED: configure_contact_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_dating_restore_reconciler","SURFACE_UNCLASSIFIED: configure_desktop_snapshot_provider","SURFACE_UNCLASSIFIED: configure_ending_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_ending_condition_source","SURFACE_UNCLASSIFIED: configure_ending_source_reader","SURFACE_UNCLASSIFIED: get_counted_pair_window_count","SURFACE_UNCLASSIFIED: get_frozen_ordered_ending_plan","SURFACE_UNCLASSIFIED: get_new_run_replacement_baseline","SURFACE_UNCLASSIFIED: get_pending_day7_followups","SURFACE_UNCLASSIFIED: get_pending_ordinary_echoes","SURFACE_UNCLASSIFIED: get_run_configuration","SURFACE_UNCLASSIFIED: prepare_dating_challenge_effect","SURFACE_UNCLASSIFIED: prepare_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: preview_open_contact","SURFACE_UNCLASSIFIED: preview_ordinary_reply","SURFACE_UNCLASSIFIED: require_day7_presentations_complete","SURFACE_UNCLASSIFIED: resume_terminal_ending","SURFACE_UNCLASSIFIED: retire_live_session","SURFACE_UNCLASSIFIED: store_dating_challenge_state","SURFACE_UNCLASSIFIED: validate_live_session","SURFACE_UNCLASSIFIED: validate_live_session_activation","SURFACE_REQUIRED_MISSING: opening_seen","SURFACE_REQUIRED_MISSING: tutorial_seen","SURFACE_REQUIRED_MISSING: mark_opening_seen","SURFACE_REQUIRED_MISSING: mark_tutorial_seen"]
+      at line 337
+* test_save_manager_required_surface_freezes_realized_facade
+7/9 passed.
+
+
+res://tests/unit/tooling/test_repository_tooling.gd
+* test_repository_codegraph_directory_is_absent
+* test_stop_helper_rejects_hash_drift_and_handles_absent_lock
+ROOT_GUARD_EXEC_ATTEMPT
+ROOT_GUARD_EXEC_ATTEMPT
+2/2 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_publication_ledger.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/tooling/test_public_surface_inventory.gd
+- test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply
+    [Failed]:  ["SURFACE_UNCLASSIFIED: activate_live_session","SURFACE_UNCLASSIFIED: apply_dating_challenge_effect_receipt","SURFACE_UNCLASSIFIED: capture_dating_challenge_state","SURFACE_UNCLASSIFIED: capture_desktop_identity_context","SURFACE_UNCLASSIFIED: capture_ending_presentation_signature","SURFACE_UNCLASSIFIED: capture_live_run_snapshot_input","SURFACE_UNCLASSIFIED: capture_live_session","SURFACE_UNCLASSIFIED: capture_new_day_gameplay","SURFACE_UNCLASSIFIED: capture_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: commit_day7_followup","SURFACE_UNCLASSIFIED: commit_ordinary_echo","SURFACE_UNCLASSIFIED: commit_ordinary_reply","SURFACE_UNCLASSIFIED: configure_contact_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_dating_restore_reconciler","SURFACE_UNCLASSIFIED: configure_desktop_snapshot_provider","SURFACE_UNCLASSIFIED: configure_ending_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_ending_condition_source","SURFACE_UNCLASSIFIED: configure_ending_source_reader","SURFACE_UNCLASSIFIED: get_counted_pair_window_count","SURFACE_UNCLASSIFIED: get_frozen_ordered_ending_plan","SURFACE_UNCLASSIFIED: get_new_run_replacement_baseline","SURFACE_UNCLASSIFIED: get_pending_day7_followups","SURFACE_UNCLASSIFIED: get_pending_ordinary_echoes","SURFACE_UNCLASSIFIED: get_run_configuration","SURFACE_UNCLASSIFIED: prepare_dating_challenge_effect","SURFACE_UNCLASSIFIED: prepare_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: preview_open_contact","SURFACE_UNCLASSIFIED: preview_ordinary_reply","SURFACE_UNCLASSIFIED: require_day7_presentations_complete","SURFACE_UNCLASSIFIED: resume_terminal_ending","SURFACE_UNCLASSIFIED: retire_live_session","SURFACE_UNCLASSIFIED: store_dating_challenge_state","SURFACE_UNCLASSIFIED: validate_live_session","SURFACE_UNCLASSIFIED: validate_live_session_activation","SURFACE_REQUIRED_MISSING: opening_seen","SURFACE_REQUIRED_MISSING: tutorial_seen","SURFACE_REQUIRED_MISSING: mark_opening_seen","SURFACE_REQUIRED_MISSING: mark_tutorial_seen"]
+          at line 314
+- test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures
+    [Failed]:  ["SURFACE_UNCLASSIFIED: activate_live_session","SURFACE_UNCLASSIFIED: apply_dating_challenge_effect_receipt","SURFACE_UNCLASSIFIED: capture_dating_challenge_state","SURFACE_UNCLASSIFIED: capture_desktop_identity_context","SURFACE_UNCLASSIFIED: capture_ending_presentation_signature","SURFACE_UNCLASSIFIED: capture_live_run_snapshot_input","SURFACE_UNCLASSIFIED: capture_live_session","SURFACE_UNCLASSIFIED: capture_new_day_gameplay","SURFACE_UNCLASSIFIED: capture_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: commit_day7_followup","SURFACE_UNCLASSIFIED: commit_ordinary_echo","SURFACE_UNCLASSIFIED: commit_ordinary_reply","SURFACE_UNCLASSIFIED: configure_contact_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_dating_restore_reconciler","SURFACE_UNCLASSIFIED: configure_desktop_snapshot_provider","SURFACE_UNCLASSIFIED: configure_ending_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_ending_condition_source","SURFACE_UNCLASSIFIED: configure_ending_source_reader","SURFACE_UNCLASSIFIED: get_counted_pair_window_count","SURFACE_UNCLASSIFIED: get_frozen_ordered_ending_plan","SURFACE_UNCLASSIFIED: get_new_run_replacement_baseline","SURFACE_UNCLASSIFIED: get_pending_day7_followups","SURFACE_UNCLASSIFIED: get_pending_ordinary_echoes","SURFACE_UNCLASSIFIED: get_run_configuration","SURFACE_UNCLASSIFIED: prepare_dating_challenge_effect","SURFACE_UNCLASSIFIED: prepare_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: preview_open_contact","SURFACE_UNCLASSIFIED: preview_ordinary_reply","SURFACE_UNCLASSIFIED: require_day7_presentations_complete","SURFACE_UNCLASSIFIED: resume_terminal_ending","SURFACE_UNCLASSIFIED: retire_live_session","SURFACE_UNCLASSIFIED: store_dating_challenge_state","SURFACE_UNCLASSIFIED: validate_live_session","SURFACE_UNCLASSIFIED: validate_live_session_activation","SURFACE_REQUIRED_MISSING: opening_seen","SURFACE_REQUIRED_MISSING: tutorial_seen","SURFACE_REQUIRED_MISSING: mark_opening_seen","SURFACE_REQUIRED_MISSING: mark_tutorial_seen"]
+          at line 337
+
+Totals
+------
+Scripts               6
+Tests                45
+Passing Tests        43
+Failing Tests         2
+Asserts           748/750
+Orphans              24
+Time              67.503s
+
+
+---- 2 failing tests ----

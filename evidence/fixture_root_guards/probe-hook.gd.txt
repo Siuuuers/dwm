@@ -1,0 +1,101 @@
+extends "res://addons/gut/hook_script.gd"
+
+var _mode := ""
+var _original_root := ""
+var _run_snapshot: Dictionary = {}
+var _script_snapshot: Dictionary = {}
+var _cleared_in_script := false
+var _script_count := 0
+
+
+func run() -> void:
+	_mode = OS.get_environment("ROOT_GUARD_MODE")
+	_original_root = OS.get_environment("DWM_TEST_ROOT")
+	if _mode == "empty" or _mode == "whitespace":
+		_run_snapshot = _snapshot(_original_root)
+		_print_marker("run", {"root": _original_root, "snapshot": _run_snapshot})
+		OS.set_environment("DWM_TEST_ROOT", "" if _mode == "empty" else " \t ")
+	else:
+		_print_marker("run", {"root": _original_root})
+	if _mode != "empty" and _mode != "whitespace" and _mode != "stale" and _mode != "valid":
+		_print_marker("configuration", {"ok": false, "reason": "unknown ROOT_GUARD_MODE"})
+	gut.start_script.connect(_on_start_script)
+	gut.end_test.connect(_on_end_test)
+	gut.end_script.connect(_on_end_script)
+	gut.end_run.connect(_on_end_run)
+
+
+func _on_start_script(_test_script_obj: Object) -> void:
+	if _mode != "stale":
+		return
+	_script_count += 1
+	_script_snapshot = {}
+	_cleared_in_script = false
+	OS.set_environment("DWM_TEST_ROOT", _original_root)
+	_print_marker("start_script", {"script": _script_count, "root_restored": true})
+
+
+func _on_end_test() -> void:
+	if _mode != "stale" or _cleared_in_script:
+		return
+	_script_snapshot = _snapshot(_original_root)
+	_cleared_in_script = true
+	OS.set_environment("DWM_TEST_ROOT", "")
+	_print_marker("first_end_test", {"script": _script_count, "snapshot": _script_snapshot, "root_cleared": true})
+
+
+func _on_end_script() -> void:
+	if _mode != "stale":
+		return
+	if not _cleared_in_script:
+		_print_marker("end_script", {"script": _script_count, "ok": false, "reason": "no end_test signal"})
+		return
+	var after := _snapshot(_original_root)
+	_print_marker("end_script", {"script": _script_count, "ok": after == _script_snapshot, "before": _script_snapshot, "after": after})
+
+
+func _on_end_run() -> void:
+	if _mode == "empty" or _mode == "whitespace":
+		var after := _snapshot(_original_root)
+		_print_marker("end_run", {"ok": after == _run_snapshot, "before": _run_snapshot, "after": after})
+	else:
+		_print_marker("end_run", {"mode": _mode, "scripts": _script_count})
+	OS.set_environment("DWM_TEST_ROOT", _original_root)
+	_print_marker("restored", {"ok": OS.get_environment("DWM_TEST_ROOT") == _original_root})
+
+
+func _snapshot(root: String) -> Dictionary:
+	if root.strip_edges().is_empty() or not DirAccess.dir_exists_absolute(root):
+		return {"exists": false}
+	var directories: Array[String] = []
+	var files: Dictionary = {}
+	var errors: Array[String] = []
+	_collect(root, "", directories, files, errors)
+	directories.sort()
+	return {"exists": true, "directories": directories, "files": files, "errors": errors}
+
+
+func _collect(root: String, relative: String, directories: Array[String], files: Dictionary, errors: Array[String]) -> void:
+	var path := root if relative.is_empty() else root.path_join(relative)
+	var directory := DirAccess.open(path)
+	if directory == null:
+		errors.append(relative)
+		return
+	directories.append("." if relative.is_empty() else relative)
+	directory.list_dir_begin()
+	var name := directory.get_next()
+	while not name.is_empty():
+		if name != "." and name != "..":
+			var child := name if relative.is_empty() else relative.path_join(name)
+			if directory.current_is_dir():
+				_collect(root, child, directories, files, errors)
+			else:
+				files[child] = FileAccess.get_sha256(root.path_join(child))
+		name = directory.get_next()
+	directory.list_dir_end()
+
+
+func _print_marker(phase: String, details: Dictionary) -> void:
+	var marker := {"phase": phase, "mode": _mode}
+	marker.merge(details, true)
+	print("ROOT_GUARD_PROBE ", JSON.stringify(marker))

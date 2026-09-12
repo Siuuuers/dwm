@@ -30,7 +30,10 @@ func _node_path() -> String:
 func test_stop_helper_rejects_hash_drift_and_handles_absent_lock() -> void:
 	assert_true(FileAccess.file_exists(STOP_HELPER), "stop helper must exist")
 	if not FileAccess.file_exists(STOP_HELPER): return
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("codegraph-helper")
+	var created: Dictionary = TemporaryStorage.create("codegraph-helper")
+	assert_true(created.get("ok", false), str(created))
+	if not created.get("ok", false): return
+	var root: String = created["value"]
 	var module := root.path_join("package/daemon-registry.js")
 	var repository := root.path_join("repository")
 	_write(module, "module.exports.stopDaemonAt = async () => ({root:'x',pid:null,outcome:'no-daemon'});\n")

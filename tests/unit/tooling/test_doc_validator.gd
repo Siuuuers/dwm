@@ -2,14 +2,16 @@ extends "res://addons/gut/test.gd"
 
 const VALIDATOR_PATH := "res://tools/docs/DocValidator.gd"
 const FIXTURES := "res://tests/fixtures/docs"
-var _counter := 0
 
 func _snapshot(requirement_ids: Array[String]) -> Array[Dictionary]:
 	return [{"id": "dwm-p2r.4", "metadata": {"phase2r": {"requirement_ids": requirement_ids}}}]
 
 func _validate_fixture(names: Array[String], snapshot: Array[Dictionary] = []) -> Dictionary:
-	_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("docs-fixture-%d" % _counter)
+	var created: Dictionary = TemporaryStorage.create("docs-fixture")
+	assert_true(created.get("ok", false), str(created))
+	if not created.get("ok", false):
+		return {"ok": false, "errors": ["TEST_ROOT_UNAVAILABLE: " + str(created)]}
+	var root: String = created["value"]
 	var requirements := root.path_join("requirements")
 	assert_eq(DirAccess.make_dir_recursive_absolute(requirements), OK)
 	for name: String in names:
@@ -40,6 +42,8 @@ func test_validator_error_matrix() -> void:
 	if validator == null: return
 	var valid := _validate_fixture(["valid_packet.md"], _snapshot(["req.run.day_range"]))
 	assert_true(valid.ok, JSON.stringify(valid.errors))
+	if not valid.ok:
+		return
 	assert_true(_has_code(_validate_fixture(["missing_section.md"]), "DOC_REQUIREMENT_SECTION_MISSING"))
 	var duplicate := _validate_fixture(["duplicate_section.md"])
 	assert_true(_has_code(duplicate, "DOC_REQUIREMENT_SECTION_DUPLICATE"), JSON.stringify(duplicate.errors))
@@ -53,8 +57,11 @@ func test_validator_error_matrix() -> void:
 	assert_true(_has_code(_validate_fixture(["valid_packet.md"], ambiguous), "DOC_BEAD_METADATA_NAMESPACE_AMBIGUOUS"))
 
 func _write_decision_fixture(specification_status: String, decision_status: String, blocking_ids: Array[String] = []) -> Dictionary:
-	_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("decision-fixture-%d" % _counter)
+	var created: Dictionary = TemporaryStorage.create("decision-fixture")
+	assert_true(created.get("ok", false), str(created))
+	if not created.get("ok", false):
+		return {"ok": false, "errors": ["TEST_ROOT_UNAVAILABLE: " + str(created)]}
+	var root: String = created["value"]
 	var requirements_path := root.path_join("requirements/sample.md")
 	var decisions_path := root.path_join("decisions/sample.md")
 	assert_eq(DirAccess.make_dir_recursive_absolute(requirements_path.get_base_dir()), OK)
@@ -77,6 +84,8 @@ func _write_decision_fixture(specification_status: String, decision_status: Stri
 func test_accepted_decision_contract_and_index() -> void:
 	var accepted := _write_decision_fixture("approved", "accepted")
 	assert_true(accepted.ok, JSON.stringify(accepted.errors))
+	if not accepted.ok:
+		return
 	var index := preload("res://tools/docs/DocIndexGenerator.gd").new().render(accepted)
 	assert_eq(index.count("| `decision.sample` |"), 1)
 	assert_false(_write_decision_fixture("draft", "accepted").ok)
@@ -85,8 +94,11 @@ func test_accepted_decision_contract_and_index() -> void:
 	assert_false(_write_decision_fixture("approved", "accepted", ["req.sample"]).ok)
 
 func test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text() -> void:
-	_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("index-bytes-%d/prompt_docs" % _counter)
+	var created: Dictionary = TemporaryStorage.create("index-bytes")
+	assert_true(created.get("ok", false), str(created))
+	if not created.get("ok", false):
+		return
+	var root: String = str(created["value"]).path_join("prompt_docs")
 	var packet_path := root.path_join("requirements/replacement.md")
 	assert_eq(DirAccess.make_dir_recursive_absolute(packet_path.get_base_dir()), OK)
 	var packet := FileAccess.open(packet_path, FileAccess.WRITE)

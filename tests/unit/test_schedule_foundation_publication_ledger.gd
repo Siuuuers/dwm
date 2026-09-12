@@ -22,31 +22,30 @@ const RECORD_KEYS: Array[String] = [
 var _ledger_script: Script = null
 var _root := ""
 var _storage: RefCounted = null
-var _root_counter := 0
 
 
 func before_each() -> void:
+	_root = ""
+	_storage = null
 	var loaded: Dictionary = PROBE.load_script(LEDGER_PATH)
 	_ledger_script = loaded["value"] if loaded.get("ok", false) else null
 	_root = _isolated_root("ledger")
+	if _root.is_empty():
+		return
 	_storage = JsonFileStorage.new(_root)
 
 
-## The wrapper's GUID-isolated `DWM_TEST_ROOT` is the only storage root any suite may use; the
-## production `user://` directory is asserted to be a different tree before anything is written.
+## The wrapper's GUID-isolated `DWM_TEST_ROOT` is the only storage root any suite may use.
 func _isolated_root(label: String) -> String:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
-	_root_counter += 1
-	var root: String = wrapper.path_join("schedule-publication-%s-%d" % [label, _root_counter])
-	var production := ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var created: Dictionary = TemporaryStorage.create("schedule-publication-" + label)
+	assert_true(created.get("ok", false), str(created))
+	return str(created.get("value", "")) if created.get("ok", false) else ""
 
 
 func _require_ledger() -> bool:
+	if _root.is_empty() or _storage == null:
+		assert_true(false, "schedule ledger temporary storage is unavailable")
+		return false
 	if _ledger_script == null:
 		assert_true(false, "ScheduleFoundationPublicationLedger is absent: " + LEDGER_PATH)
 		return false
@@ -461,6 +460,8 @@ func _loaded_document_accepted(document: Dictionary) -> bool:
 
 func _loaded_text_accepted(text: String) -> bool:
 	var root := _isolated_root("document")
+	if root.is_empty():
+		return false
 	var path := root.path_join(FIXED_PATH)
 	assert_eq(DirAccess.make_dir_recursive_absolute(path.get_base_dir()), OK)
 	var file := FileAccess.open(path, FileAccess.WRITE)
@@ -517,7 +518,10 @@ func test_write_read_and_schema_failures_return_failure_without_recording() -> v
 
 	# A re-read that disagrees with the exact candidate is a failure, on its own isolated root so
 	# the polluted document cannot be mistaken for the successful record above.
-	var corrupting := FailingStorage.new(JsonFileStorage.new(_isolated_root("reread")))
+	var reread_root := _isolated_root("reread")
+	if reread_root.is_empty():
+		return
+	var corrupting := FailingStorage.new(JsonFileStorage.new(reread_root))
 	var corrupt_ledger := _configured(corrupting)
 	assert_true(corrupt_ledger.load().get("ok", false))
 	corrupting.corrupt_read = true
@@ -525,7 +529,10 @@ func test_write_read_and_schema_failures_return_failure_without_recording() -> v
 	assert_false(reread_failed.get("ok", true),
 		"the ledger must byte-compare its re-read before reporting success")
 
-	var unreadable := FailingStorage.new(JsonFileStorage.new(_isolated_root("unreadable")))
+	var unreadable_root := _isolated_root("unreadable")
+	if unreadable_root.is_empty():
+		return
+	var unreadable := FailingStorage.new(JsonFileStorage.new(unreadable_root))
 	unreadable.fail_read = true
 	var read_failed: Dictionary = _configured(unreadable).load()
 	assert_false(read_failed.get("ok", true), "an unreadable document fails startup")
