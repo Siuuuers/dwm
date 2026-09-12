@@ -39,6 +39,51 @@ class InjectableBootstrap:
 		target_requests.append(target_name)
 		return injected_targets.get(target_name)
 
+class RecordingProfile:
+	extends Node
+	var calls: Array[String] = []
+	var registry: Dictionary = {}
+	var refuse_registry := false
+
+	func configure_line_registry(value: Dictionary) -> Dictionary:
+		calls.append("configure")
+		registry = value.duplicate(true)
+		if refuse_registry:
+			return {"ok": false, "code": &"line_registry_refused", "details": {}, "receipt": {}}
+		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+	func initialize(_storage: RefCounted) -> Dictionary:
+		calls.append("initialize")
+		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+func test_profile_stage_validates_and_binds_shipped_visited_registry_before_initialize() -> void:
+	var bootstrap: Node = autofree(InjectableBootstrap.new())
+	var profile: Node = autofree(RecordingProfile.new())
+	bootstrap.injected_targets = {&"ProfileManager": profile}
+	var result: Dictionary = bootstrap.call(&"_run_stage", &"initialize_profile", &"final")
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(profile.calls, ["configure", "initialize"],
+		"registry binding precedes initialize, which emits profile_restored")
+	var replies: Array = profile.registry.get("reply_lines", [])
+	assert_eq(replies.size(), 18, "the shipped reply block is passed")
+	var observer_lines: Array[String] = []
+	for atom: Variant in profile.registry.get("atoms", []):
+		if atom is Dictionary and (atom as Dictionary).get("kind") == "observer_presentation":
+			observer_lines.append(str((atom as Dictionary).get("associated_line_id", "")))
+	observer_lines.sort()
+	assert_eq(observer_lines, ["line.observer.lavinia.day2.restraint",
+		"line.observer.priscilla.day2.verification"], "both shipped observer lines are available")
+
+func test_profile_stage_stops_before_initialize_when_registry_binding_fails() -> void:
+	var bootstrap: Node = autofree(InjectableBootstrap.new())
+	var profile: Node = autofree(RecordingProfile.new())
+	profile.refuse_registry = true
+	bootstrap.injected_targets = {&"ProfileManager": profile}
+	var result: Dictionary = bootstrap.call(&"_run_stage", &"initialize_profile", &"final")
+	assert_false(result.get("ok", true), str(result))
+	assert_eq(result.get("code"), &"line_registry_refused")
+	assert_eq(profile.calls, ["configure"], "no profile_restored emission follows a failed bind")
+
 func test_application_bootstrap_contract_exists() -> void:
 	var result: Dictionary = PROBE.load_script("res://autoload/ApplicationBootstrap.gd")
 	assert_true(result.get("ok", false), "expected implementation; RED=%s" % JSON.stringify(result))

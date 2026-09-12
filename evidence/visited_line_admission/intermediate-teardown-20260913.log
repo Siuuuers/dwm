@@ -1,0 +1,130 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c770908a-632e-4cb0-a20b-335ba8142a8b/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_profile_reset_consumers.gd
+* test_profile_reset_consumer_contracts_are_present
+* test_preference_reset_updates_every_plan02_consumer_in_same_frame
+* test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event
+[Dialogic Comment] #PURPOSE: ordinary_message
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness, message.echo.satisfy, message.reply.commit
+[Dialogic Comment] #PURPOSE: ordinary_message
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness, message.echo.satisfy, message.reply.commit
+[Dialogic Comment] #PURPOSE: ordinary_message
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness, message.echo.satisfy, message.reply.commit
+ERROR: Object is locked and can't be freed.
+   at: callp (core/object/object.cpp:912)
+   GDScript backtrace (most recent call first):
+       [0] free_all (res://addons/gut/autofree.gd:70)
+       [1] _run_test (res://addons/gut/gut.gd:642)
+       [2] test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event (res://tests/integration/test_profile_reset_consumers.gd:275)
+       [3] <anonymous lambda> (res://tests/integration/test_profile_reset_consumers.gd:140)
+       [4] complete_entry (res://tests/integration/test_profile_reset_consumers.gd:22)
+       [5] _on_runtime_timeline_ended (res://autoload/DialogicBridge.gd:1711)
+       [6] _on_timeline_ended (res://scripts/narrative/DialogicRuntimeAdapter.gd:289)
+       [7] _on_qualified_timeline_ended (res://scripts/narrative/DialogicRuntimeAdapter.gd:315)
+       [8] end_timeline (res://addons/dialogic/Core/DialogicGameHandler.gd:298)
+       [9] clear (res://addons/dialogic/Core/DialogicGameHandler.gd:383)
+       [10] clean (res://addons/dialogic/Resources/timeline.gd:200)
+SCRIPT ERROR: Attempted to free a locked object (calling or emitting).
+   at: free_all (res://addons/gut/autofree.gd:70)
+   GDScript backtrace (most recent call first):
+       [0] free_all (res://addons/gut/autofree.gd:70)
+       [1] _run_test (res://addons/gut/gut.gd:642)
+       [2] test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event (res://tests/integration/test_profile_reset_consumers.gd:275)
+       [3] <anonymous lambda> (res://tests/integration/test_profile_reset_consumers.gd:140)
+       [4] complete_entry (res://tests/integration/test_profile_reset_consumers.gd:22)
+       [5] _on_runtime_timeline_ended (res://autoload/DialogicBridge.gd:1711)
+       [6] _on_timeline_ended (res://scripts/narrative/DialogicRuntimeAdapter.gd:289)
+       [7] _on_qualified_timeline_ended (res://scripts/narrative/DialogicRuntimeAdapter.gd:315)
+       [8] end_timeline (res://addons/dialogic/Core/DialogicGameHandler.gd:298)
+       [9] clear (res://addons/dialogic/Core/DialogicGameHandler.gd:383)
+       [10] clean (res://addons/dialogic/Resources/timeline.gd:200)
+    72 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#744707066407>(default_layout_base.gd)] + 60
+72 orphans
+[WARNING]:  Test script has 2 unfreed children.  Increase log level for more details.
+3/3 passed.
+
+
+res://tests/integration/test_application_bootstrap.gd
+* test_project_autoload_order_is_the_exact_final_literal_sequence
+* test_master_stage_order_is_frozen
+* test_exactly_nine_targets_retain_one_shared_gate_identity
+* test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+* test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+* test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+* test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+* test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+* test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+* test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+STARTUP_FAILED stage=initialize_saves code=NEW_RUN_RECOVERY_PENDING
+10/10 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_profile_reset_consumers.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Warnings              1
+
+Scripts               2
+Tests                13
+Passing Tests        13
+Asserts             373
+Orphans              24
+Time              3.286s
+
+
+---- All tests passed! ----
+

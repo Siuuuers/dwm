@@ -225,6 +225,7 @@ func test_stale_or_failed_apply_never_activates_the_review() -> void:
 		if failure == "storage":
 			f.ops.fail_after(f.ops.operation_count() + 1)
 		else:
+			assert_true(f.profile.configure_line_registry({"reply_lines": [{"line_id": "newer.review.revision"}]}).ok)
 			assert_true(f.profile.mark_line_visited("newer.review.revision").ok)
 		var before: Dictionary = f.profile.get_profile_snapshot()
 		var disk: Dictionary = f.ops.snapshot_persisted()

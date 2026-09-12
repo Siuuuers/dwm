@@ -336,13 +336,18 @@ func test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readines
 class RecoveryProfile extends Node:
 	var trace: Array = []
 	var bound_storage: RefCounted
+	var registry_bound := false
 	func configure_new_run_storage(storage: RefCounted) -> Dictionary:
 		bound_storage = storage
 		trace.append("bind_profile")
 		return {"ok": true}
+	func configure_line_registry(registry: Dictionary) -> Dictionary:
+		trace.append("bind_line_registry")
+		registry_bound = registry.get("reply_lines") is Array and registry.get("atoms") is Array
+		return {"ok": registry_bound}
 	func initialize(storage: RefCounted) -> Dictionary:
 		trace.append("initialize_profile")
-		return {"ok": storage == bound_storage}
+		return {"ok": storage == bound_storage and registry_bound}
 
 
 class RecoverySaves extends Node:
@@ -387,6 +392,7 @@ func test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
 		var storage: RefCounted = JSON_STORAGE.new(root)
 		bootstrap.set("_selected_root", root)
 		bootstrap.set("_profile_storage", storage)
+		bootstrap.set("_application_gate", FAKE_GATE.new())
 		watch_signals(bootstrap)
 		var result: Dictionary = bootstrap.start()
 		assert_eq(result.get("ok", false), not fail_settlement)
@@ -394,7 +400,7 @@ func test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
 		assert_same(saves.profile, profile)
 		var expected: Array = ["initialize_saves", "bind_profile", "bind_recovery", "settle_pair"]
 		if not fail_settlement:
-			expected.append_array(["initialize_profile", "first_consumer"])
+			expected.append_array(["bind_line_registry", "initialize_profile", "first_consumer"])
 			assert_signal_emitted(bootstrap, "application_ready")
 		else:
 			assert_eq(result.get("code"), &"NEW_RUN_RECOVERY_PENDING")

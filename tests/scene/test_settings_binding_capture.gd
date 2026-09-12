@@ -229,6 +229,7 @@ func test_stale_and_failed_swap_preserve_committed_bindings() -> void:
 		if fail_storage:
 			f.ops.fail_after(f.ops.operation_count() + 1)
 		else:
+			assert_true(f.profile.configure_line_registry({"reply_lines": [{"line_id": "newer.confirmation"}]}).ok)
 			assert_true(f.profile.mark_line_visited("newer.confirmation").ok)
 		var before: Dictionary = f.profile.get_profile_snapshot()
 		var revision: int = f.profile.get_profile_revision()

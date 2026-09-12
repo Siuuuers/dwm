@@ -38,6 +38,7 @@ const NARRATIVE_CHECKPOINT_PORT := preload("res://scripts/application/narrative/
 const ENDING_PLAYBACK_PORT := preload("res://scripts/application/ending/DialogicEndingPlaybackPort.gd")
 const DIALOGIC_RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const DIALOGIC_TIMELINE_CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
+const DIALOGIC_ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 ## Narrative manifest content version supplied to every narrative checkpoint input.
 const NARRATIVE_CONTENT_VERSION := 1
 ## dwm-p2r.9 Plan 02 Task 1: one Bootstrap-owned desktop host + its restore participant seam.
@@ -428,6 +429,18 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 		&"initialize_profile":
 			var manager := _target(&"ProfileManager")
 			if manager == null or not manager.has_method("initialize"): return _failure(&"missing_profile_manager", "ProfileManager initializer is unavailable")
+			var entries: Dictionary = DIALOGIC_ENTRY_MANIFEST.load_default()
+			if not entries.get("ok", false): return entries
+			var checked_entries: Dictionary = DIALOGIC_ENTRY_MANIFEST.validate_document(entries["value"])
+			if not checked_entries.get("ok", false): return checked_entries
+			var ids: Dictionary = DIALOGIC_ENTRY_MANIFEST.load_ids_default()
+			if not ids.get("ok", false): return ids
+			var checked_ids: Dictionary = DIALOGIC_ENTRY_MANIFEST.validate_ids_document(ids["value"])
+			if not checked_ids.get("ok", false): return checked_ids
+			if not manager.has_method("configure_line_registry"):
+				return _failure(&"missing_line_registry_seam", "ProfileManager line registry is unavailable")
+			var configured: Dictionary = manager.call(&"configure_line_registry", ids["value"])
+			if not configured.get("ok", false): return configured
 			return manager.call(&"initialize", _profile_storage)
 		&"initialize_localization", &"initialize_input", &"initialize_accessibility", &"initialize_audio":
 			var target_name := _stage_target(stage_id)

@@ -3,11 +3,9 @@ extends "res://addons/gut/test.gd"
 ##
 ## WHAT THIS SUITE BINDS. DEVIATION-11 Ruling A gives the visited-line identity law a CONFIGURED
 ## SEAM on autoload/ProfileManager.gd. configure_line_registry(registry) takes the PARSED ids
-## document explicitly, derives a membership index from its reply_lines block once, and makes
-## mark_line_visited strict only while a registry is configured. Unconfigured it admits
-## everything, which is _guard's own shape one call level below in the same file, and which is
-## what keeps the five legacy line literals green - tests/integration/test_profile_reset_consumers
-## .gd:81 among them, inside a frozen baseline this task may not move.
+## document explicitly, derives a membership index from reply_lines and observer-presentation
+## associated lines, and makes mark_line_visited fail closed before configuration. Historical
+## visited arrays remain readable and resettable without a registry.
 ##
 ## WHY THE REGISTRY IS INJECTED AND NEVER READ FROM DISK. A predicate that loads its own registry
 ## cannot be driven by a fixture without writing a mutated manifest, so its law survives mutation.
@@ -62,12 +60,14 @@ const REGISTERED_LINE := "line.contact.ordinary.lavinia.day1.reply.a"
 const REGISTERED_OWNER := "contact.ordinary.lavinia.day1"
 const SECOND_REGISTERED_LINE := "line.contact.ordinary.lavinia.day1.reply.b"
 
-## A legacy literal that no registry registers. tests/unit/test_profile_manager.gd:219 marks it on
-## the real manager today, which is exactly why the unconfigured seam must stay permissive.
+## A historical literal that no registry registers.
 const LEGACY_LINE := "legacy.unregistered.line.1"
+const OBSERVER_PRISCILLA_LINE := "line.observer.priscilla.day2.verification"
+const OBSERVER_LAVINIA_LINE := "line.observer.lavinia.day2.restraint"
 
 ## The shipped reply_lines block holds exactly this many records.
 const SHIPPED_REPLY_LINE_COUNT := 18
+const SHIPPED_VISITED_LINE_COUNT := 20
 
 var _manager_script: Script
 var _storage_script: Script
@@ -138,19 +138,38 @@ func _configure_fresh(registry: Dictionary) -> Dictionary:
 func _visited(manager: Node) -> Array:
 	return (manager.call(&"get_profile_snapshot") as Dictionary)["visited_line_ids"]
 
+func _seed_historical_visit(manager: Node) -> void:
+	var candidate: Dictionary = manager.call(&"get_profile_snapshot")
+	candidate["visited_line_ids"] = [LEGACY_LINE]
+	var seeded: Dictionary = manager.call(&"commit_prepared_profile", candidate)
+	assert_true(seeded.get("ok", false), "historical profile fixture is committed: " + str(seeded))
+
 # --------------------------------------------------------------------------------------------
 # The unconfigured half of Ruling A.
 # --------------------------------------------------------------------------------------------
 
-func test_mark_line_visited_stays_permissive_until_a_registry_is_configured() -> void:
+func test_mark_line_visited_fails_closed_until_a_registry_is_configured() -> void:
 	if not _guard():
 		return
 	var manager := _new_manager()
+	watch_signals(manager)
 	var marked: Dictionary = manager.call(&"mark_line_visited", LEGACY_LINE)
-	assert_true(marked.get("ok", false),
-		"an unconfigured seam admits every id: " + str(marked))
-	assert_true(manager.call(&"is_line_visited", LEGACY_LINE),
-		"and the legacy id really lands in visited history")
+	assert_false(marked.get("ok", true), "an unconfigured writer refuses every id: " + str(marked))
+	assert_eq(marked.get("code"), &"line_registry_not_configured")
+	assert_eq(_visited(manager), [], "refusal does not change historical state")
+	assert_signal_emit_count(manager, "profile_write_failed", 0, "no write was attempted")
+	assert_false(manager.call(&"_line_registry_admits", LEGACY_LINE),
+		"the admission predicate itself must fail closed")
+
+func test_configured_but_uninitialized_writer_refuses_before_accessing_history() -> void:
+	if not _guard():
+		return
+	var manager := _bare_manager()
+	assert_true((manager.call(&"configure_line_registry", _registry([REGISTERED_LINE])) as Dictionary)
+		.get("ok", false))
+	var marked: Dictionary = manager.call(&"mark_line_visited", REGISTERED_LINE)
+	assert_false(marked.get("ok", true), str(marked))
+	assert_eq(marked.get("code"), &"not_initialized")
 
 # --------------------------------------------------------------------------------------------
 # configure_line_registry: the command envelope and the closure of the block it reads.
@@ -287,6 +306,39 @@ func test_a_registry_differing_only_outside_reply_lines_is_the_same_registry() -
 	assert_eq(_fingerprint(second), _fingerprint(first),
 		"the widened document reports the identical fingerprint, not merely an accepted one")
 
+func test_observer_presentation_associated_lines_are_registered_without_other_atoms() -> void:
+	if not _guard():
+		return
+	var manager := _new_manager()
+	var registry: Dictionary = _registry([REGISTERED_LINE])
+	registry["atoms"] = [
+		{"kind": "observer_presentation", "associated_line_id": OBSERVER_PRISCILLA_LINE},
+		{"kind": "observer_presentation", "associated_line_id": OBSERVER_LAVINIA_LINE},
+		{"kind": "evidence_commit", "associated_line_id": LEGACY_LINE},
+	]
+	var configured: Dictionary = manager.call(&"configure_line_registry", registry)
+	assert_true(configured.get("ok", false), str(configured))
+	if not configured.get("ok", false):
+		return
+	assert_eq((configured.get("value", {}) as Dictionary).get("line_count"), 3)
+	for observer_line: String in [OBSERVER_PRISCILLA_LINE, OBSERVER_LAVINIA_LINE]:
+		assert_true((manager.call(&"mark_line_visited", observer_line) as Dictionary).get("ok", false),
+			"observer presentation line is admitted: " + observer_line)
+	assert_false((manager.call(&"mark_line_visited", LEGACY_LINE) as Dictionary).get("ok", true),
+		"an unrelated atom's associated field cannot enlarge the visited-line registry")
+
+func test_invalid_observer_line_refuses_configuration_without_rebinding() -> void:
+	if not _guard():
+		return
+	var manager := _new_manager()
+	var registry: Dictionary = _registry([REGISTERED_LINE])
+	registry["atoms"] = [{"kind": "observer_presentation", "associated_line_id": ""}]
+	var refused: Dictionary = manager.call(&"configure_line_registry", registry)
+	assert_false(refused.get("ok", true), str(refused))
+	assert_eq(refused.get("code"), &"invalid_observer_line_id")
+	assert_false(manager.call(&"_line_registry_admits", REGISTERED_LINE),
+		"a failed bind leaves even reply lines unconfigured")
+
 func test_a_registry_whose_records_are_reordered_is_the_same_registry() -> void:
 	if not _guard():
 		return
@@ -350,8 +402,7 @@ func test_the_registry_check_precedes_the_already_visited_short_circuit() -> voi
 	if not _guard():
 		return
 	var manager := _new_manager()
-	assert_true((manager.call(&"mark_line_visited", LEGACY_LINE) as Dictionary).get("ok", false),
-		"the legacy id is planted while the seam is still permissive")
+	_seed_historical_visit(manager)
 	assert_true(manager.call(&"is_line_visited", LEGACY_LINE), "it is genuinely in the profile")
 	assert_true((manager.call(&"configure_line_registry",
 		_registry([REGISTERED_LINE])) as Dictionary).get("ok", false), "the registry binds")
@@ -396,8 +447,7 @@ func test_is_line_visited_stays_a_permissive_read_under_a_configured_registry() 
 	if not _guard():
 		return
 	var manager := _new_manager()
-	assert_true((manager.call(&"mark_line_visited", LEGACY_LINE) as Dictionary).get("ok", false),
-		"the legacy id is planted while the seam is still permissive")
+	_seed_historical_visit(manager)
 	assert_true((manager.call(&"configure_line_registry",
 		_registry([REGISTERED_LINE])) as Dictionary).get("ok", false), "the registry binds")
 	assert_true(manager.call(&"is_line_visited", LEGACY_LINE),
@@ -408,8 +458,7 @@ func test_reset_visited_history_needs_no_registry_and_clears_a_planted_legacy_id
 	if not _guard():
 		return
 	var manager := _new_manager()
-	assert_true((manager.call(&"mark_line_visited", LEGACY_LINE) as Dictionary).get("ok", false),
-		"the legacy id is planted while the seam is still permissive")
+	_seed_historical_visit(manager)
 	assert_true((manager.call(&"configure_line_registry",
 		_registry([REGISTERED_LINE])) as Dictionary).get("ok", false), "the registry binds")
 	var reset: Dictionary = manager.call(&"reset_visited_history")
@@ -421,7 +470,7 @@ func test_reset_visited_history_needs_no_registry_and_clears_a_planted_legacy_id
 # The second derivation: the shipped document, through the same entry point.
 # --------------------------------------------------------------------------------------------
 
-func test_the_shipped_ids_document_configures_the_seam_with_its_eighteen_reply_lines() -> void:
+func test_the_shipped_ids_document_configures_all_twenty_visited_lines() -> void:
 	if not _guard():
 		return
 	if _manifest_script == null:
@@ -436,8 +485,11 @@ func test_the_shipped_ids_document_configures_the_seam_with_its_eighteen_reply_l
 	assert_true(configured.get("ok", false),
 		"the seam accepts the real document, not only fixtures: " + str(configured))
 	assert_eq((configured.get("value", {}) as Dictionary).get("line_count"),
-		SHIPPED_REPLY_LINE_COUNT, "and indexes every shipped reply line")
+		SHIPPED_VISITED_LINE_COUNT, "and indexes every shipped reply and observer line")
 	assert_true((manager.call(&"mark_line_visited", REGISTERED_LINE) as Dictionary).get("ok", false),
 		"a genuinely registered id is admitted under the shipped registry")
+	for observer_line: String in [OBSERVER_PRISCILLA_LINE, OBSERVER_LAVINIA_LINE]:
+		assert_true((manager.call(&"mark_line_visited", observer_line) as Dictionary).get("ok", false),
+			"a shipped observer line is admitted: " + observer_line)
 	assert_false((manager.call(&"mark_line_visited", LEGACY_LINE) as Dictionary).get("ok", true),
 		"and a legacy literal is refused under it")

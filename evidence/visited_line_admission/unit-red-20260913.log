@@ -1,0 +1,227 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/5a53daaa-dfe8-4745-b538-0319dd665823/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_dialogic_identity_registries.gd
+* test_mark_line_visited_fails_closed_until_a_registry_is_configured
+    [Failed]:  an unconfigured writer refuses every id: { "ok": true, "code": &"ok", "value": { "schema_version": 8, "gallery_unlocks": [], "gallery_transaction_receipts": {  }, "pair_form_witness_receipts": {  }, "dating_attempts": {  }, "observer_evidence": {  }, "pair_deck_draws": {  }, "reached_presentations": {  }, "visited_line_ids": ["legacy.unregistered.line.1"], "preferences": { "language": { "primary_locale_id": "en", "secondary_locale_id": "zh_CN", "dual_enabled": false }, "reading": { "reveal_speed": "normal", "auto_enabled": false, "auto_delay": "normal", "skip_mode": "read_only", "read_aloud_enabled": false, "read_aloud_rate": "normal", "lower_background_during_narration": true }, "audio": { "master_volume": 1.0, "master_muted": false, "music_volume": 0.8, "music_muted": false, "ambience_volume": 0.65, "ambience_muted": false, "sfx_volume": 0.8, "sfx_muted": false, "mute_when_inactive": true, "output_mode": "stereo" }, "display": { "window_mode": "windowed", "minesweeper_app_beginner_cell_size": 36, "minesweeper_app_beginner_always_fit": false, "minesweeper_app_intermediate_cell_size": 36, "minesweeper_app_intermediate_always_fit": false, "minesweeper_app_expert_cell_size": 36, "minesweeper_app_expert_always_fit": false, "minesweeper_challenge_cell_size": 36, "minesweeper_challenge_always_fit": false }, "accessibility": { "text_size": 100, "large_targets": false, "high_contrast": false, "reduced_motion": false, "screen_shake": "low", "colour_differentiation": "standard", "sound_detail_text": "story_relevant" }, "exceptional_replay": { "available": false, "replay_full": false }, "dark_mode": { "available": false, "next_run_enabled": false } }, "input_mappings": {  }, "controls_bindings": { "game_quick_save": { "keyboard": { "kind": "key", "physical_keycode": 4194336, "keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false }, "controller": { "kind": "joypad_button", "button_index": 7, "device": -1 } }, "game_quick_load": { "keyboard": { "kind": "key", "physical_keycode": 4194340, "keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false }, "controller": { "kind": "joypad_button", "button_index": 8, "device": -1 } }, "game_toggle_board_mode": { "keyboard": { "kind": "key", "physical_keycode": 70, "keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false }, "controller": { "kind": "joypad_button", "button_index": 2, "device": -1 } }, "game_new_board": { "keyboard": { "kind": "key", "physical_keycode": 32, "keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false }, "controller": { "kind": "joypad_button", "button_index": 3, "device": -1 } } }, "controls_import_pending": false, "migration_receipts": { "legacy_game_state_profile_v1": false, "legacy_input_bindings_v1": false, "invalid_persisted_skip_mode_v1": false }, "legacy_preferences_v1": {  } } }
+      at line 157
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(line_registry_not_configured)]:  
+      at line 158
+    [Failed]:  ARRAY(["legacy.unregistered.line.1"]) != ARRAY([]).
+    ["legacy.unregistered.line.1"] != []  1 of 1 indexes do not match.  refusal does not change historical state
+      at line 159
+    [Failed]:  the admission predicate itself must fail closed
+      at line 161
+* test_configured_but_uninitialized_writer_refuses_before_accessing_history
+SCRIPT ERROR: Invalid access to property or key 'visited_line_ids' on a base object of type 'Dictionary'.
+   at: mark_line_visited (res://autoload/ProfileManager.gd:475)
+   GDScript backtrace (most recent call first):
+       [0] mark_line_visited (res://autoload/ProfileManager.gd:475)
+       [1] test_configured_but_uninitialized_writer_refuses_before_accessing_history (res://tests/unit/test_dialogic_identity_registries.gd:170)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  {  }
+      at line 171
+    [Failed]:  [<null>] expected to equal [STRING_NAME(not_initialized)]:  
+      at line 172
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'visited_line_ids' on a base object of type 'Dictionary'.
+      at line -1
+* test_configure_line_registry_binds_a_reply_lines_block
+* test_configure_line_registry_returns_the_command_failure_shape
+* test_configure_line_registry_refuses_a_missing_reply_lines_block
+* test_configure_line_registry_refuses_a_reply_lines_block_that_is_not_an_array
+* test_configure_line_registry_refuses_a_record_that_is_not_an_object
+* test_configure_line_registry_refuses_a_record_whose_line_id_is_absent_or_not_a_string
+* test_configure_line_registry_refuses_a_record_whose_line_id_is_empty
+* test_the_same_registry_configures_twice_and_reports_already_configured
+* test_a_different_registry_is_refused_as_already_configured
+* test_a_registry_differing_only_outside_reply_lines_is_the_same_registry
+* test_observer_presentation_associated_lines_are_registered_without_other_atoms
+    [Failed]:  [1] expected to equal [3]:  
+      at line 323
+    [Failed]:  observer presentation line is admitted: line.observer.priscilla.day2.verification
+      at line 325
+    [Failed]:  observer presentation line is admitted: line.observer.lavinia.day2.restraint
+      at line 325
+* test_invalid_observer_line_refuses_configuration_without_rebinding
+    [Failed]:  { "ok": true, "code": &"ok", "value": { "line_count": 1, "registry_fingerprint": "e77186a57c01a785f0ab4cbb31f514fa3cfaa35ad18ced866d0f0b46d4985c40", "already_configured": false }, "receipt": {  } }
+      at line 337
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_observer_line_id)]:  
+      at line 338
+    [Failed]:  a failed bind leaves even reply lines unconfigured
+      at line 339
+* test_a_registry_whose_records_are_reordered_is_the_same_registry
+* test_mark_line_visited_refuses_an_unregistered_line_once_a_registry_is_configured
+* test_mark_line_visited_accepts_a_registered_line_once_a_registry_is_configured
+* test_a_refused_line_mutates_nothing_and_emits_no_write_failure
+* test_the_registry_check_precedes_the_already_visited_short_circuit
+* test_an_empty_line_id_keeps_its_own_code_under_a_configured_registry
+* test_an_empty_configured_registry_refuses_every_line
+* test_is_line_visited_stays_a_permissive_read_under_a_configured_registry
+* test_reset_visited_history_needs_no_registry_and_clears_a_planted_legacy_id
+* test_the_shipped_ids_document_configures_all_twenty_visited_lines
+    [Failed]:  [18] expected to equal [20]:  and indexes every shipped reply and observer line
+      at line 487
+    [Failed]:  a shipped observer line is admitted: line.observer.priscilla.day2.verification
+      at line 492
+    [Failed]:  a shipped observer line is admitted: line.observer.lavinia.day2.restraint
+      at line 492
+19/24 passed.
+
+
+res://tests/unit/test_application_bootstrap_profile_stage.gd
+* test_profile_stage_validates_and_binds_shipped_visited_registry_before_initialize
+    [Failed]:  ARRAY(["initialize"]) != ARRAY(["configure", "initialize"]).
+    ["initialize"] != ["configure", "initialize"]  2 of 2 indexes do not match.  registry binding precedes initialize, which emits profile_restored
+      at line 65
+    [Failed]:  [0] expected to equal [18]:  the shipped reply block is passed
+      at line 68
+    [Failed]:  ARRAY([]) != ARRAY(["line.observer.lavinia.day2.restraint", "line.observer.priscilla.day2.verification"...ication"]).
+    [] != ["line.observer.lavinia.day2.restraint",...fication"]  2 of 2 indexes do not match.  both shipped observer lines are available
+      at line 74
+* test_profile_stage_stops_before_initialize_when_registry_binding_fails
+    [Failed]:  { "ok": true, "code": &"ok", "value": {  }, "receipt": {  } }
+      at line 83
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(line_registry_refused)]:  
+      at line 84
+    [Failed]:  ARRAY(["initialize"]) != ARRAY(["configure"]).
+    ["initialize"] != ["configure"]  1 of 1 indexes do not match.  no profile_restored emission follows a failed bind
+      at line 85
+* test_application_bootstrap_contract_exists
+* test_final_contact_stage_reuses_profile_storage_and_retains_one_identity_graph
+* test_manual_mode_executes_no_stage_and_is_not_readiness
+* test_final_mode_constructs_production_gate_and_injects_before_profile
+STARTUP_FAILED stage=construct_and_inject_mutation_gate code=invalid_gate_target
+* test_ready_callbacks_are_side_effect_free_or_deferred_only
+* test_task2_owned_managers_expose_common_gate_contract
+* test_dialogic_bridge_exposes_common_gate_contract
+* test_real_plan02_target_order_is_exactly_six_managers
+* test_real_six_target_gate_failure_stops_at_each_ordinal_before_initialization
+9/11 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_dialogic_identity_registries.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_dialogic_identity_registries.gd
+- test_mark_line_visited_fails_closed_until_a_registry_is_configured
+    [Failed]:  an unconfigured writer refuses every id: { "ok": true, "code": &"ok", "value": { "schema_version": 8, "gallery_unlocks": [], "gallery_transaction_receipts": {  }, "pair_form_witness_receipts": {  }, "dating_attempts": {  }, "observer_evidence": {  }, "pair_deck_draws": {  }, "reached_presentations": {  }, "visited_line_ids": ["legacy.unregistered.line.1"], "preferences": { "language": { "primary_locale_id": "en", "secondary_locale_id": "zh_CN", "dual_enabled": false }, "reading": { "reveal_speed": "normal", "auto_enabled": false, "auto_delay": "normal", "skip_mode": "read_only", "read_aloud_enabled": false, "read_aloud_rate": "normal", "lower_background_during_narration": true }, "audio": { "master_volume": 1.0, "master_muted": false, "music_volume": 0.8, "music_muted": false, "ambience_volume": 0.65, "ambience_muted": false, "sfx_volume": 0.8, "sfx_muted": false, "mute_when_inactive": true, "output_mode": "stereo" }, "display": { "window_mode": "windowed", "minesweeper_app_beginner_cell_size": 36, "minesweeper_app_beginner_always_fit": false, "minesweeper_app_intermediate_cell_size": 36, "minesweeper_app_intermediate_always_fit": false, "minesweeper_app_expert_cell_size": 36, "minesweeper_app_expert_always_fit": false, "minesweeper_challenge_cell_size": 36, "minesweeper_challenge_always_fit": false }, "accessibility": { "text_size": 100, "large_targets": false, "high_contrast": false, "reduced_motion": false, "screen_shake": "low", "colour_differentiation": "standard", "sound_detail_text": "story_relevant" }, "exceptional_replay": { "available": false, "replay_full": false }, "dark_mode": { "available": false, "next_run_enabled": false } }, "input_mappings": {  }, "controls_bindings": { "game_quick_save": { "keyboard": { "kind": "key", "physical_keycode": 4194336, "keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false }, "controller": { "kind": "joypad_button", "button_index": 7, "device": -1 } }, "game_quick_load": { "keyboard": { "kind": "key", "physical_keycode": 4194340, "keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false }, "controller": { "kind": "joypad_button", "button_index": 8, "device": -1 } }, "game_toggle_board_mode": { "keyboard": { "kind": "key", "physical_keycode": 70, "keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false }, "controller": { "kind": "joypad_button", "button_index": 2, "device": -1 } }, "game_new_board": { "keyboard": { "kind": "key", "physical_keycode": 32, "keycode": 0, "shift": false, "alt": false, "ctrl": false, "meta": false }, "controller": { "kind": "joypad_button", "button_index": 3, "device": -1 } } }, "controls_import_pending": false, "migration_receipts": { "legacy_game_state_profile_v1": false, "legacy_input_bindings_v1": false, "invalid_persisted_skip_mode_v1": false }, "legacy_preferences_v1": {  } } }
+          at line 157
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(line_registry_not_configured)]:  
+          at line 158
+    [Failed]:  ARRAY(["legacy.unregistered.line.1"]) != ARRAY([]).
+    ["legacy.unregistered.line.1"] != []  1 of 1 indexes do not match.  refusal does not change historical state
+          at line 159
+    [Failed]:  the admission predicate itself must fail closed
+          at line 161
+- test_configured_but_uninitialized_writer_refuses_before_accessing_history
+    [Failed]:  {  }
+          at line 171
+    [Failed]:  [<null>] expected to equal [STRING_NAME(not_initialized)]:  
+          at line 172
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'visited_line_ids' on a base object of type 'Dictionary'.
+          at line -1
+- test_observer_presentation_associated_lines_are_registered_without_other_atoms
+    [Failed]:  [1] expected to equal [3]:  
+          at line 323
+    [Failed]:  observer presentation line is admitted: line.observer.priscilla.day2.verification
+          at line 325
+    [Failed]:  observer presentation line is admitted: line.observer.lavinia.day2.restraint
+          at line 325
+- test_invalid_observer_line_refuses_configuration_without_rebinding
+    [Failed]:  { "ok": true, "code": &"ok", "value": { "line_count": 1, "registry_fingerprint": "e77186a57c01a785f0ab4cbb31f514fa3cfaa35ad18ced866d0f0b46d4985c40", "already_configured": false }, "receipt": {  } }
+          at line 337
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_observer_line_id)]:  
+          at line 338
+    [Failed]:  a failed bind leaves even reply lines unconfigured
+          at line 339
+- test_the_shipped_ids_document_configures_all_twenty_visited_lines
+    [Failed]:  [18] expected to equal [20]:  and indexes every shipped reply and observer line
+          at line 487
+    [Failed]:  a shipped observer line is admitted: line.observer.priscilla.day2.verification
+          at line 492
+    [Failed]:  a shipped observer line is admitted: line.observer.lavinia.day2.restraint
+          at line 492
+
+res://tests/unit/test_application_bootstrap_profile_stage.gd
+- test_profile_stage_validates_and_binds_shipped_visited_registry_before_initialize
+    [Failed]:  ARRAY(["initialize"]) != ARRAY(["configure", "initialize"]).
+    ["initialize"] != ["configure", "initialize"]  2 of 2 indexes do not match.  registry binding precedes initialize, which emits profile_restored
+          at line 65
+    [Failed]:  [0] expected to equal [18]:  the shipped reply block is passed
+          at line 68
+    [Failed]:  ARRAY([]) != ARRAY(["line.observer.lavinia.day2.restraint", "line.observer.priscilla.day2.verification"...ication"]).
+    [] != ["line.observer.lavinia.day2.restraint",...fication"]  2 of 2 indexes do not match.  both shipped observer lines are available
+          at line 74
+- test_profile_stage_stops_before_initialize_when_registry_binding_fails
+    [Failed]:  { "ok": true, "code": &"ok", "value": {  }, "receipt": {  } }
+          at line 83
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(line_registry_refused)]:  
+          at line 84
+    [Failed]:  ARRAY(["initialize"]) != ARRAY(["configure"]).
+    ["initialize"] != ["configure"]  1 of 1 indexes do not match.  no profile_restored emission follows a failed bind
+          at line 85
+
+Totals
+------
+Scripts               2
+Tests                35
+Passing Tests        28
+Failing Tests         7
+Asserts           291/313
+Orphans              24
+Time              0.636s
+
+
+---- 7 failing tests ----
+

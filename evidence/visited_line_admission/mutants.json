@@ -1,0 +1,26 @@
+﻿[
+    {
+        "exit_code":  1,
+        "name":  "writer-admission-removed",
+        "source":  "autoload/ProfileManager.gd",
+        "killed":  true,
+        "valid":  true,
+        "log":  "visited-line-mutant-writer-admission-removed-20260913.log"
+    },
+    {
+        "exit_code":  1,
+        "name":  "bootstrap-binding-removed",
+        "source":  "autoload/ApplicationBootstrap.gd",
+        "killed":  true,
+        "valid":  true,
+        "log":  "visited-line-mutant-bootstrap-binding-removed-20260913.log"
+    },
+    {
+        "exit_code":  1,
+        "name":  "observer-index-removed",
+        "source":  "autoload/ProfileManager.gd",
+        "killed":  true,
+        "valid":  true,
+        "log":  "visited-line-mutant-observer-index-removed-20260913.log"
+    }
+]
