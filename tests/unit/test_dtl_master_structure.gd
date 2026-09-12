@@ -103,3 +103,54 @@ func test_scene_builder_preserves_the_current_manifest_and_master_generator_cann
 	assert_true(generator.contains("Master generation is retired"))
 	for stem: String in ["day_1", "day_2", "day_3", "day_4", "day_5", "day_6", "day_7", "endings"]:
 		assert_false(FileAccess.file_exists(ROOT + stem + ".dtl"), "superseded master: " + stem)
+
+
+func test_trailing_fallthrough_reports_unterminated_label_line() -> void:
+	var text := _scene().trim_suffix("return\n") + "\n\n"
+	var result := VALIDATOR.validate_text("fixture", text, _entry(), ["history"])
+	assert_false(result["ok"])
+	assert_eq(result["failures"].size(), 1)
+	var failure: Dictionary = result["failures"][0]
+	assert_eq(failure["code"], VALIDATOR.DTL_TRAILING_FALLTHROUGH)
+	assert_eq(failure["line"], 10, "name the unterminated label, not trailing blank lines")
+
+
+func _assert_executable_code(event: String, expected_code: StringName) -> void:
+	var result := VALIDATOR.validate_text("fixture", _scene() + event + "\n", _entry(), ["history"])
+	assert_false(result["ok"], event)
+	assert_eq(result["failures"].size(), 1, event)
+	assert_eq(result["failures"][0]["code"], expected_code, event)
+
+
+func test_resource_path_event_is_classified_without_other_hazard_terms() -> void:
+	_assert_executable_code("res://asset", VALIDATOR.DTL_DYNAMIC_RESOURCE_PATH)
+
+
+func test_user_path_event_is_classified_without_other_hazard_terms() -> void:
+	_assert_executable_code("user://asset", VALIDATOR.DTL_DYNAMIC_RESOURCE_PATH)
+
+
+func test_load_event_is_classified_without_a_resource_path() -> void:
+	_assert_executable_code("load(asset)", VALIDATOR.DTL_DYNAMIC_RESOURCE_PATH)
+
+
+func test_direct_domain_call_is_classified_without_a_resource_path() -> void:
+	_assert_executable_code("GameState.change()", VALIDATOR.DTL_DIRECT_DOMAIN_CALL)
+
+
+func test_direct_call_classifier_requires_open_parenthesis() -> void:
+	_assert_executable_code("name.value)", VALIDATOR.DTL_DIALOGUE_LINE)
+
+
+func test_direct_call_classifier_requires_close_parenthesis() -> void:
+	_assert_executable_code("name.value(", VALIDATOR.DTL_DIALOGUE_LINE)
+
+
+func test_direct_call_classifier_requires_member_separator() -> void:
+	_assert_executable_code("invoke()", VALIDATOR.DTL_DIALOGUE_LINE)
+
+
+func test_comments_with_hazard_text_remain_inert() -> void:
+	var comments := "# res://asset\n# user://asset\n# load(asset)\n# GameState.change()\n"
+	var result := VALIDATOR.validate_text("fixture", comments + _scene() + comments, _entry(), ["history"])
+	assert_true(result["ok"], str(result["failures"]))

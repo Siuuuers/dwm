@@ -1,0 +1,274 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/4082768e-4b77-4e8b-8a70-33a89783dcef/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_dialogic_entry_manifest.gd
+* test_the_manifest_file_exists_and_parses_as_strict_json
+* test_the_manifest_top_level_is_exact_key
+* test_every_declared_count_equals_its_real_collection_length
+* test_the_specification_still_dictates_one_hundred_thirty_seven_entries
+* test_the_entries_are_exactly_the_specification_ids_in_specification_order
+* test_every_entry_id_appears_verbatim_in_the_design_specification
+* test_every_entry_id_is_unique
+* test_no_entry_id_uses_a_wildcard_or_shorthand_family
+* test_the_per_day_tallies_are_the_verification_gate_figures
+* test_the_manifest_day_agrees_with_the_specification_section_that_owns_the_entry
+* test_ending_id_is_non_null_on_exactly_the_eighteen_ending_entries
+* test_the_three_day_seven_ending_invitations_offer_but_never_present_an_ending
+* test_the_three_entries_with_no_twelve_three_row_carry_their_named_gap_roles
+* test_every_record_is_exact_key
+* test_every_locator_declares_english_only_and_points_at_its_owning_master
+* test_every_locator_label_equals_its_registered_entry_id
+* test_no_two_entries_share_a_locator_pair
+* test_line_and_atom_namespaces_are_derived_from_the_entry_id
+* test_context_schema_ids_follow_the_declared_convention_and_are_unique
+* test_visual_ids_are_empty_in_structural_mode
+* test_the_role_enum_is_closed_with_exact_per_role_counts
+* test_the_published_schema_declares_exactly_the_closed_vocabularies
+* test_allowed_ending_forms_are_empty_on_day_entries_and_exact_on_ending_entries
+* test_the_sylvia_dark_entry_carries_both_forms_thirteen_eight_allows
+* test_the_ending_forms_match_the_thirteen_eight_table_read_at_runtime
+* test_allowed_signals_are_closed_by_default
+* test_every_entry_may_witness_a_line
+* test_only_the_six_ordinary_entries_may_commit_a_reply
+* test_only_the_ruled_entry_families_may_satisfy_an_echo
+* test_the_twelve_day_seven_follow_ups_are_the_ones_eleven_one_names
+* test_the_signal_shape_distribution_is_the_ruled_partition
+* test_only_the_four_pair_post_board_entries_may_witness_a_combination
+* test_no_entry_may_commit_observer_evidence_in_this_phase
+* test_the_manifest_is_stored_byte_canonically
+* test_the_published_schema_accepts_the_manifest
+* test_the_schema_closes_every_object_except_typed_signature_fields
+* test_the_schema_uses_only_keywords_the_validator_implements
+* test_the_schema_rejects_an_unknown_record_property
+* test_the_schema_rejects_an_unknown_role
+* test_the_schema_rejects_an_unknown_ending_form_and_an_unknown_signal
+* test_the_schema_owns_duplicate_detection_inside_a_record_list
+* test_the_schema_owns_locale_closure
+* test_the_schema_alone_catches_none_of_the_four_code_laws
+* test_the_manifest_script_exists_and_declares_its_expected_method_surface
+* test_load_default_returns_the_shipped_document
+* test_validate_document_accepts_the_shipped_manifest
+* test_validate_document_rejects_a_non_document
+* test_validate_document_rejects_a_duplicate_entry_id
+* test_validate_document_rejects_a_duplicate_locator_pair
+* test_validate_document_rejects_an_absolute_os_path
+* test_validate_document_rejects_a_non_res_path
+* test_validate_document_rejects_a_label_that_is_not_its_entry_id
+* test_validate_document_rejects_a_broken_ending_partition
+* test_validate_document_rejects_wrong_ending_forms
+* test_validate_document_rejects_a_derived_namespace_mismatch
+* test_validate_document_rejects_a_context_schema_id_that_breaks_the_convention
+* test_validate_document_rejects_a_duplicate_context_schema_id
+* test_validate_document_rejects_a_signal_list_that_drops_the_witness
+* test_validate_document_rejects_a_count_that_disagrees_with_the_records
+* test_validate_document_rejects_a_document_the_schema_refuses
+* test_resolve_entry_returns_the_exact_english_locator
+* test_resolve_entry_falls_back_to_english_and_changes_only_language
+* test_resolve_entry_fails_closed_on_an_unknown_entry_id
+* test_resolve_entry_uses_an_explicit_retired_registry_without_default_disk_lookup
+* test_resolve_entry_fails_on_a_missing_english_label
+* test_resolve_entry_fails_on_a_duplicated_english_label
+* test_resolve_entry_never_falls_back_to_the_top_of_a_master
+* test_fingerprint_is_deterministic_and_content_sensitive
+* test_fingerprint_matches_the_canonical_bytes_on_disk
+* test_the_published_schema_pins_its_own_literals
+* test_the_schema_rejects_every_empty_identifier
+* test_every_declared_failure_code_exists_in_the_production_source
+* test_resolve_entry_returns_a_selected_locale_locator_that_validates
+* test_resolve_entry_refuses_a_selected_locale_locator_that_does_not_validate
+* test_resolve_entry_refuses_a_malformed_english_locator
+75/75 passed.
+
+
+res://tests/unit/test_dialogic_ids_manifest.gd
+* test_the_ids_manifest_exists_and_parses_as_strict_json
+* test_the_ids_manifest_top_level_is_exact_key
+* test_every_declared_count_equals_its_real_collection_length
+* test_the_ids_manifest_is_stored_byte_canonically
+* test_the_thirteen_ending_ids_are_the_specification_table_read_at_runtime
+* test_the_thirteen_ending_ids_are_the_distinct_ending_ids_of_the_entries_manifest
+* test_the_ending_form_union_is_the_twelve_three_closed_union_read_at_runtime
+* test_the_shipped_reply_ids_are_the_spec_spelling_not_the_plan_table_spelling
+* test_the_eighteen_reply_line_ids_are_the_plan_table_column_read_at_runtime
+* test_the_eighteen_fallback_atom_ids_are_the_plan_table_column_read_at_runtime
+* test_the_four_pair_atoms_are_the_four_the_plan_bullet_names
+* test_the_two_observer_presentation_atoms_are_pinned
+* test_every_fallback_atom_is_presented_only_in_the_day_seven_fallback_entry
+* test_the_echo_id_is_the_ruled_derivation_of_its_atom_id
+* test_the_five_signal_records_are_the_twelve_eight_rows_read_at_runtime
+* test_every_signal_declares_its_ruled_source_stage
+* test_the_stage_vocabulary_is_the_four_ruled_values
+* test_the_three_retired_ids_carry_task_ones_reject_on_restore
+* test_every_declared_owning_and_presentation_entry_resolves_in_the_entries_manifest
+* test_the_six_ordinary_entries_own_three_replies_three_lines_and_three_atoms_apiece
+* test_pair_combination_witness_is_granted_exactly_where_a_pair_atom_is_owned
+* test_every_reply_line_id_begins_with_its_owners_line_namespace
+* test_no_registered_atom_id_carries_its_owners_atom_namespace_as_a_prefix
+* test_no_registered_id_uses_a_wildcard_or_shorthand_family
+* test_the_published_ids_schema_accepts_the_manifest
+* test_the_ids_schema_closes_every_object_level
+* test_the_ids_schema_uses_only_keywords_the_validator_implements
+* test_the_published_ids_schema_pins_its_own_literals
+* test_the_ids_schema_rejects_every_empty_identifier
+* test_the_ids_schema_rejects_every_unknown_vocabulary_value
+* test_the_schema_alone_catches_none_of_the_code_only_ids_laws
+* test_the_manifest_script_declares_the_sub_commit_2b_methods
+* test_load_ids_default_returns_the_shipped_registry
+* test_validate_ids_document_accepts_the_shipped_registry
+* test_validate_ids_document_rejects_a_non_document
+* test_validate_ids_document_rejects_a_block_that_is_not_an_array
+* test_validate_ids_document_rejects_a_document_the_schema_refuses
+* test_validate_ids_document_rejects_a_count_that_disagrees_with_its_block
+* test_validate_ids_document_rejects_a_duplicate_registered_id
+* test_validate_ids_document_rejects_an_unknown_owning_entry
+* test_validate_ids_document_rejects_an_unknown_presentation_entry
+* test_validate_ids_document_rejects_a_broken_atom_partition
+* test_validate_ids_document_rejects_an_echo_id_that_is_not_the_ruled_derivation
+* test_validate_ids_document_rejects_an_unregistered_associated_line
+* test_validate_ids_document_rejects_a_payload_missing_its_envelope
+* test_validate_ids_document_rejects_an_unsorted_payload_list
+* test_validate_ids_document_rejects_a_stage_outside_the_declared_vocabulary
+* test_validate_ids_document_rejects_a_retired_id_that_does_not_reject_on_restore
+* test_validate_ids_document_rejects_a_broken_pair_witness_iff
+* test_validate_ids_document_rejects_a_broken_ordinary_triple
+* test_validate_ids_document_rejects_a_pair_atom_that_binds_an_echo_id
+* test_validate_ids_document_rejects_a_retired_label_that_is_also_a_callable_entry
+* test_validate_ids_document_rejects_a_pair_atom_owned_without_the_witness_grant
+* test_validate_ids_document_rejects_a_reply_owned_without_the_reply_grant
+* test_validate_ids_document_rejects_a_record_that_is_not_an_object
+* test_validate_line_id_accepts_a_registered_line_for_its_declared_owner
+* test_validate_line_id_refuses_an_unregistered_line_id
+* test_validate_line_id_refuses_a_well_shaped_but_unregistered_line_id
+* test_validate_line_id_refuses_a_registered_line_asked_for_another_entry
+* test_validate_line_id_refuses_an_unknown_entry
+* test_validate_atom_id_accepts_every_registered_atom_for_its_declared_owner
+* test_validate_atom_id_accepts_a_fallback_atom_at_its_presentation_site
+* test_validate_atom_id_refuses_an_entry_that_neither_owns_nor_presents_it
+* test_validate_atom_id_refuses_an_unregistered_atom_id
+* test_validate_atom_id_refuses_an_unknown_entry
+* test_validate_signal_accepts_every_signal_a_production_entry_really_grants
+* test_validate_signal_refuses_observer_evidence_from_every_registered_entry
+* test_validate_signal_refuses_a_payload_that_names_another_entry
+* test_validate_signal_refuses_an_unknown_signal_id
+* test_validate_signal_refuses_an_unknown_entry
+* test_validate_signal_refuses_a_signal_the_entry_does_not_grant
+* test_validate_signal_refuses_a_stage_the_signal_does_not_allow
+* test_validate_signal_refuses_a_stage_outside_the_declared_vocabulary
+* test_validate_signal_refuses_a_missing_payload_field
+* test_validate_signal_refuses_an_extra_payload_field
+* test_validate_signal_refuses_a_reply_id_owned_by_another_entry
+* test_validate_signal_refuses_an_unregistered_reply_id
+* test_validate_signal_refuses_an_echo_id_that_is_not_the_registered_partner
+* test_validate_signal_delegates_a_bad_line_id_to_validate_line_id
+* test_validate_signal_delegates_a_bad_witnessed_line_id_to_validate_line_id
+* test_validate_signal_delegates_a_bad_atom_id_to_validate_atom_id
+* test_validate_signal_refuses_an_empty_opaque_payload_field
+* test_resolve_entry_refuses_each_retired_label_by_its_own_name
+* test_resolve_entry_still_refuses_an_unregistered_entry_generically
+* test_no_retired_label_is_also_a_registered_entry
+* test_every_declared_ids_failure_code_exists_in_the_production_source
+86/86 passed.
+
+
+res://tests/unit/test_dtl_master_structure.gd
+* test_all_137_semantic_entries_resolve_to_scene_files_with_isolated_hooks
+* test_followup_uses_delivery_day_and_shared_scenes_keep_distinct_entries
+* test_original_opening_and_tutorial_are_registered_dialogue_free_files
+* test_scene_metadata_and_registered_legacy_labels_are_allowed
+* test_missing_duplicate_unregistered_and_fallthrough_labels_are_refused
+* test_unlabeled_execution_dialogue_and_changed_hook_contracts_are_refused
+* test_scene_builder_preserves_the_current_manifest_and_master_generator_cannot_overwrite
+* test_trailing_fallthrough_reports_unterminated_label_line
+* test_resource_path_event_is_classified_without_other_hazard_terms
+* test_user_path_event_is_classified_without_other_hazard_terms
+* test_load_event_is_classified_without_a_resource_path
+* test_direct_domain_call_is_classified_without_a_resource_path
+* test_direct_call_classifier_requires_open_parenthesis
+* test_direct_call_classifier_requires_close_parenthesis
+* test_direct_call_classifier_requires_member_separator
+* test_comments_with_hazard_text_remain_inert
+16/16 passed.
+
+
+res://tests/unit/tooling/test_dialogic_contract_cli.gd
+* test_valid_scenes_forward_exact_semantic_hooks_and_legacy_labels_once
+DIALOGIC_CONTRACT: PASS scenes=2 entries=2
+* test_failed_scene_returns_nonzero_and_does_not_skip_remaining_scenes
+DIALOGIC_CONTRACT: FAIL res://dialogic/timelines/en/contacts/bad.dtl:2 DTL_DIALOGUE_LINE
+* test_path_outside_english_scene_root_is_refused_before_file_validation
+DIALOGIC_CONTRACT: FAIL scene path res://outside/contacts/scene.dtl
+* test_flat_master_style_path_is_refused_before_file_validation
+DIALOGIC_CONTRACT: FAIL scene path res://dialogic/timelines/en/day_1.dtl
+4/4 passed.
+
+
+res://tests/unit/test_dialogic_migration_inventory.gd
+* test_historical_migration_retains_its_source_provenance_and_original_schema
+* test_semantic_targets_survive_the_superseded_physical_migration
+* test_retired_true_ending_labels_are_still_refused
+3/3 passed.
+
+
+res://tests/unit/tooling/test_dialogic_gate_summary.gd
+* test_historical_gate_reports_supersession_and_directs_current_validation
+* test_retired_manifest_and_evidence_commands_have_no_write_path
+2/2 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_dialogic_entry_manifest.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               6
+Tests               186
+Passing Tests       186
+Asserts            8071
+Orphans              24
+Time              26.086s
+
+
+---- All tests passed! ----
+

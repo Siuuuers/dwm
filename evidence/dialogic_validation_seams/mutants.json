@@ -1,0 +1,150 @@
+﻿[
+    {
+        "value":  [
+                      {
+                          "name":  "C04_current_skip_scene_validation",
+                          "source":  "tools/dialogic/validate_dialogic_contract.gd",
+                          "test":  "test_failed_scene_returns_nonzero_and_does_not_skip_remaining_scenes",
+                          "needle":  "var result: Dictionary = validate_scene.call(path, partition[path], legacy.get(path, []))",
+                          "replacement":  "var result: Dictionary = {\"ok\": true, \"failures\": []}",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-C04_current_skip_scene_validation-20260913.log"
+                      },
+                      {
+                          "name":  "C05_current_ignore_failed_scene",
+                          "source":  "tools/dialogic/validate_dialogic_contract.gd",
+                          "test":  "test_failed_scene_returns_nonzero_and_does_not_skip_remaining_scenes",
+                          "needle":  "if failed \u003e 0: return 1",
+                          "replacement":  "if failed \u003e 99: return 1",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-C05_current_ignore_failed_scene-20260913.log"
+                      },
+                      {
+                          "name":  "scene_root_guard_removed",
+                          "source":  "tools/dialogic/validate_dialogic_contract.gd",
+                          "test":  "test_path_outside_english_scene_root_is_refused_before_file_validation",
+                          "needle":  "not path.begins_with(SCENE_ROOT) or ",
+                          "replacement":  "",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-scene_root_guard_removed-20260913.log"
+                      },
+                      {
+                          "name":  "nested_scene_guard_removed",
+                          "source":  "tools/dialogic/validate_dialogic_contract.gd",
+                          "test":  "test_flat_master_style_path_is_refused_before_file_validation",
+                          "needle":  " or not path.trim_prefix(SCENE_ROOT).contains(\"/\")",
+                          "replacement":  "",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-nested_scene_guard_removed-20260913.log"
+                      },
+                      {
+                          "name":  "trailing_reports_eof",
+                          "source":  "tools/dialogic/DtlStructureValidator.gd",
+                          "test":  "test_trailing_fallthrough_reports_unterminated_label_line",
+                          "needle":  "_failure(DTL_TRAILING_FALLTHROUGH, blocks[current][\"line\"], path + \": \" + current)",
+                          "replacement":  "_failure(DTL_TRAILING_FALLTHROUGH, line_number, path + \": \" + current)",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-trailing_reports_eof-20260913.log"
+                      },
+                      {
+                          "name":  "resource_res_term_removed",
+                          "source":  "tools/dialogic/DtlStructureValidator.gd",
+                          "test":  "test_resource_path_event_is_classified_without_other_hazard_terms",
+                          "needle":  "line.contains(\"res://\") or ",
+                          "replacement":  "",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-resource_res_term_removed-20260913.log"
+                      },
+                      {
+                          "name":  "resource_user_term_removed",
+                          "source":  "tools/dialogic/DtlStructureValidator.gd",
+                          "test":  "test_user_path_event_is_classified_without_other_hazard_terms",
+                          "needle":  " or line.contains(\"user://\")",
+                          "replacement":  "",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-resource_user_term_removed-20260913.log"
+                      },
+                      {
+                          "name":  "resource_load_term_removed",
+                          "source":  "tools/dialogic/DtlStructureValidator.gd",
+                          "test":  "test_load_event_is_classified_without_a_resource_path",
+                          "needle":  " or line.contains(\"load(\")",
+                          "replacement":  "",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-resource_load_term_removed-20260913.log"
+                      },
+                      {
+                          "name":  "direct_open_term_removed",
+                          "source":  "tools/dialogic/DtlStructureValidator.gd",
+                          "test":  "test_direct_call_classifier_requires_open_parenthesis",
+                          "needle":  "line.contains(\"(\") and ",
+                          "replacement":  "",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-direct_open_term_removed-20260913.log"
+                      },
+                      {
+                          "name":  "direct_close_term_removed",
+                          "source":  "tools/dialogic/DtlStructureValidator.gd",
+                          "test":  "test_direct_call_classifier_requires_close_parenthesis",
+                          "needle":  " and line.contains(\")\")",
+                          "replacement":  "",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-direct_close_term_removed-20260913.log"
+                      },
+                      {
+                          "name":  "direct_member_term_removed",
+                          "source":  "tools/dialogic/DtlStructureValidator.gd",
+                          "test":  "test_direct_call_classifier_requires_member_separator",
+                          "needle":  " and line.contains(\".\")",
+                          "replacement":  "",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-direct_member_term_removed-20260913.log"
+                      },
+                      {
+                          "name":  "comments_no_longer_inert",
+                          "source":  "tools/dialogic/DtlStructureValidator.gd",
+                          "test":  "test_comments_with_hazard_text_remain_inert",
+                          "needle":  "if line.begins_with(\"#\"):",
+                          "replacement":  "if false:",
+                          "killed":  true,
+                          "invalid":  false,
+                          "exit_code":  1,
+                          "log":  "dialogic-mutant-comments_no_longer_inert-20260913.log"
+                      }
+                  ],
+        "Count":  12
+    },
+    {
+        "name":  "C40_current_ignore_reject_on_restore",
+        "source":  "scripts/narrative/DialogicEntryManifest.gd",
+        "test":  "test_resolve_entry_uses_an_explicit_retired_registry_without_default_disk_lookup",
+        "needle":  "return record.get(\"reject_on_restore\") == true",
+        "replacement":  "return true",
+        "killed":  true,
+        "invalid":  false,
+        "exit_code":  1,
+        "log":  "dialogic-mutant-C40_current_ignore_reject_on_restore-20260913.log"
+    }
+]

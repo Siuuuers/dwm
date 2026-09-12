@@ -22,7 +22,7 @@ extends "res://addons/gut/test.gd"
 ## ids nest under neither owning entry: atom.echo.lavinia.day1.reply.a.fallback.day7 belongs to
 ## contact.ordinary.lavinia.day1, whose atom_namespace is atom.contact.ordinary.lavinia.day1, and
 ## atom.pair.day2.group.full belongs to dating.group.priscilla_lavinia.day2.post_challenge. Every
-## one of the 22 registered atom ids therefore FAILS a prefix test against its owner's declared
+## one of the 24 registered atom ids therefore FAILS a prefix test against its owner's declared
 ## atom_namespace, which test_no_registered_atom_id_carries_its_owners_atom_namespace_as_a_prefix
 ## measures directly. validate_atom_id must resolve ownership from the declared owning entry.
 ##
@@ -130,9 +130,9 @@ extends "res://addons/gut/test.gd"
 ## THE FOUR ARE NOT ACCEPTED BECAUSE NOTHING READS THEM - line 523 str()-coerces every record id
 ## for the duplicate check and line 552 reads every line_id into the registered-lines index. They
 ## are accepted because no later law REJECTS the coerced value, which is a weaker and more fragile
-## thing. For line_id it is outright contingent: all 22 shipped atoms carry associated_line_id
-## null, so line 571 never fires; one atom binding a numeric line would make it
-## IDS_MANIFEST_ASSOCIATED_LINE_INVALID instead. All nine are pinned either way, because a
+## thing. For associated_line_id, the 22 echo/pair atoms carry null while the two Observer atoms
+## bind registered line IDs; a numeric line would make it IDS_MANIFEST_ASSOCIATED_LINE_INVALID.
+## All nine are pinned either way, because a
 ## published schema literal is a law in its own right and a type error reported as an unknown
 ## owner is still a defence that silently changed shape. A census assertion beside the list fails
 ## if a tenth string-typed field is ever added without being pinned.
@@ -197,9 +197,11 @@ const EXPECTED_ENDING_ID_COUNT := 13
 const EXPECTED_ENDING_FORM_COUNT := 11
 const EXPECTED_REPLY_ID_COUNT := 18
 const EXPECTED_REPLY_LINE_COUNT := 18
-const EXPECTED_ATOM_COUNT := 22
+const EXPECTED_ATOM_COUNT := 24
+const EXPECTED_ATOM_SCHEMA_FLOOR := 22
 const EXPECTED_ECHO_ATOM_COUNT := 18
 const EXPECTED_PAIR_ATOM_COUNT := 4
+const EXPECTED_OBSERVER_ATOM_COUNT := 2
 const EXPECTED_SIGNAL_COUNT := 5
 const EXPECTED_RETIRED_ID_COUNT := 3
 const EXPECTED_SOURCE_STAGE_COUNT := 4
@@ -270,7 +272,11 @@ const PAYLOAD_FIELD_VOCABULARY := [
 ## command an idempotent receipt, so no registered payload may drop one.
 const PAYLOAD_ENVELOPE := ["entry_id", "playback_token", "receipt_id"]
 
-const ATOM_KINDS := ["echo_fallback", "pair_full_observation"]
+const ATOM_KINDS := ["echo_fallback", "pair_full_observation", "observer_presentation"]
+const OBSERVER_ATOM_IDS := [
+	"atom.observer.priscilla.day2.verification",
+	"atom.observer.lavinia.day2.restraint",
+]
 
 ## Specification 7.1 fixes exactly six ordinary replyable messages; the plan's presentation table
 ## names these six rows, in this order.
@@ -854,6 +860,15 @@ func test_the_four_pair_atoms_are_the_four_the_plan_bullet_names() -> void:
 			"Ruling C: a pair atom is presented in the same entry that owns it")
 
 
+func test_the_two_observer_presentation_atoms_are_pinned() -> void:
+	var shipped_ids: Array = []
+	for record: Variant in _block("atoms"):
+		if _field(record, "kind") == "observer_presentation":
+			shipped_ids.append(_field(record, "atom_id"))
+	assert_eq(shipped_ids.size(), EXPECTED_OBSERVER_ATOM_COUNT)
+	assert_eq(shipped_ids, OBSERVER_ATOM_IDS)
+
+
 func test_every_fallback_atom_is_presented_only_in_the_day_seven_fallback_entry() -> void:
 	var seen := 0
 	for record: Variant in _block("atoms"):
@@ -872,8 +887,8 @@ func test_the_echo_id_is_the_ruled_derivation_of_its_atom_id() -> void:
 		var atom_id := _field(record, "atom_id")
 		var kind := _field(record, "kind")
 		var echo_id: Variant = (record as Dictionary).get("echo_id") if record is Dictionary else null
-		if kind == "pair_full_observation":
-			assert_eq(echo_id, null, "%s: Ruling G gives a pair atom no echo id" % atom_id)
+		if kind != "echo_fallback":
+			assert_eq(echo_id, null, "%s: only a fallback atom binds an echo id" % atom_id)
 			continue
 		assert_true(atom_id.begins_with(ATOM_ID_PREFIX),
 			"%s: a fallback atom id opens with the atom. prefix" % atom_id)
@@ -978,8 +993,8 @@ func test_every_declared_owning_and_presentation_entry_resolves_in_the_entries_m
 				"%s: the presentation site %s resolves in the 2A manifest"
 				% [_field(record, "atom_id"), str(site)])
 			checked += 1
-	assert_eq(checked, 80,
-		"eighteen replies, eighteen lines, twenty-two owners and twenty-two sites were resolved")
+	assert_eq(checked, 84,
+		"eighteen replies, eighteen lines, twenty-four owners and twenty-four sites were resolved")
 
 
 func test_the_six_ordinary_entries_own_three_replies_three_lines_and_three_atoms_apiece() -> void:
@@ -1039,7 +1054,7 @@ func test_every_reply_line_id_begins_with_its_owners_line_namespace() -> void:
 
 
 ## RULING B REGRESSION. Every registered atom id fails a prefix test against its owner's declared
-## atom_namespace, so any implementation that required one would reject all twenty-two.
+## atom_namespace, so any implementation that required one would reject all twenty-four.
 func test_no_registered_atom_id_carries_its_owners_atom_namespace_as_a_prefix() -> void:
 	var checked := 0
 	for record: Variant in _block("atoms"):
@@ -1049,7 +1064,7 @@ func test_no_registered_atom_id_carries_its_owners_atom_namespace_as_a_prefix() 
 		assert_false(_field(record, "atom_id").begins_with(namespace_field),
 			"%s deliberately nests outside %s" % [_field(record, "atom_id"), namespace_field])
 		checked += 1
-	assert_eq(checked, EXPECTED_ATOM_COUNT, "all twenty-two were measured")
+	assert_eq(checked, EXPECTED_ATOM_COUNT, "all twenty-four were measured")
 
 
 func test_no_registered_id_uses_a_wildcard_or_shorthand_family() -> void:
@@ -1067,7 +1082,7 @@ func test_no_registered_id_uses_a_wildcard_or_shorthand_family() -> void:
 				assert_false(text.contains(illegal),
 					"%s: %s must not appear in a closed id" % [text, illegal])
 			checked += 1
-	assert_eq(checked, 94, "the eight blocks hold ninety-four registered strings between them")
+	assert_eq(checked, 96, "the eight blocks hold ninety-six registered strings between them")
 
 
 # --------------------------------------------------------------------------------------------
@@ -1201,7 +1216,7 @@ func test_the_published_ids_schema_pins_its_own_literals() -> void:
 	var record_rows: Array = [
 		["reply_ids", REPLY_ID_KEYS, EXPECTED_REPLY_ID_COUNT],
 		["reply_lines", REPLY_LINE_KEYS, EXPECTED_REPLY_LINE_COUNT],
-		["atoms", ATOM_KEYS, EXPECTED_ATOM_COUNT],
+		["atoms", ATOM_KEYS, EXPECTED_ATOM_SCHEMA_FLOOR],
 		["signals", SIGNAL_KEYS, EXPECTED_SIGNAL_COUNT],
 		["retired_ids", RETIRED_KEYS, EXPECTED_RETIRED_ID_COUNT],
 	]
@@ -1220,7 +1235,7 @@ func test_the_published_ids_schema_pins_its_own_literals() -> void:
 
 	var atom_items := _schema_property(["properties", "atoms", "items", "properties"])
 	assert_eq((atom_items.get("kind", {}) as Dictionary).get("enum"), ATOM_KINDS,
-		"the atom kind vocabulary is closed at two values")
+		"the atom kind vocabulary is closed at three values")
 	var sites: Dictionary = atom_items.get("presented_in_entry_ids", {})
 	assert_eq(sites.get("minItems"), 1, "an atom declares at least one presentation site")
 	assert_eq(sites.get("uniqueItems"), true, "the presentation site list is a set")
@@ -1798,7 +1813,7 @@ func test_validate_atom_id_accepts_every_registered_atom_for_its_declared_owner(
 		assert_eq((result["value"] as Dictionary).get("kind"), _field(record, "kind"),
 			"%s: and carries the registered kind" % atom_id)
 		checked += 1
-	assert_eq(checked, EXPECTED_ATOM_COUNT, "all twenty-two resolved through their declared home")
+	assert_eq(checked, EXPECTED_ATOM_COUNT, "all twenty-four resolved through their declared home")
 
 
 func test_validate_atom_id_accepts_a_fallback_atom_at_its_presentation_site() -> void:

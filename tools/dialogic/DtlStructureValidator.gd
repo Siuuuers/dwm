@@ -65,7 +65,7 @@ static func validate_text(path: String, text: String, expected: Array,
 	if first_event != TERMINATOR:
 		failures.append(_failure(DTL_LEADING_RETURN_MISSING, 0, path + ": unlabeled playback must remain a no-op"))
 	if current != "" and not blocks[current]["closed"]:
-		failures.append(_failure(DTL_TRAILING_FALLTHROUGH, line_number, path + ": " + current))
+		failures.append(_failure(DTL_TRAILING_FALLTHROUGH, blocks[current]["line"], path + ": " + current))
 	var registered := {}
 	for entry: Dictionary in expected:
 		var label := str(entry["label"])

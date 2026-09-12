@@ -126,7 +126,11 @@ const TOP_LEVEL_KEYS := [
 const RECORD_KEYS := [
 	"allowed_ending_forms", "allowed_signals", "atom_namespace", "content_version",
 	"context_schema_id", "day", "ending_id", "entry_id", "line_namespace", "locators",
-	"role", "visual_ids",
+	"presentation_signature_schema", "role", "visual_ids",
+]
+const OBSERVER_ENTRY_IDS := [
+	"dating.solo.priscilla.day2.pre_challenge",
+	"dating.solo.lavinia.day2.pre_challenge",
 ]
 
 const LOCATOR_KEYS := ["label", "path"]
@@ -267,6 +271,7 @@ const CODE_NAMESPACE_MISMATCH := &"ENTRY_MANIFEST_NAMESPACE_MISMATCH"
 const CODE_CONTEXT_SCHEMA_ID_MISMATCH := &"ENTRY_MANIFEST_CONTEXT_SCHEMA_ID_MISMATCH"
 const CODE_SIGNAL_LIST_INVALID := &"ENTRY_MANIFEST_SIGNAL_LIST_INVALID"
 const CODE_UNKNOWN_ENTRY := &"ENTRY_MANIFEST_UNKNOWN_ENTRY"
+const CODE_RETIRED_ENTRY := &"ENTRY_MANIFEST_RETIRED_ENTRY"
 const CODE_ENGLISH_LOCATOR_MISSING := &"ENTRY_MANIFEST_ENGLISH_LOCATOR_MISSING"
 const CODE_ENGLISH_LOCATOR_AMBIGUOUS := &"ENTRY_MANIFEST_ENGLISH_LOCATOR_AMBIGUOUS"
 
@@ -282,7 +287,7 @@ const ALL_FAILURE_CODES := [
 	CODE_DUPLICATE_CONTEXT_SCHEMA_ID, CODE_ABSOLUTE_OS_PATH, CODE_NON_RES_PATH,
 	CODE_LABEL_ENTRY_MISMATCH, CODE_DUPLICATE_LOCATOR_PAIR, CODE_ENDING_PARTITION_INVALID,
 	CODE_ENDING_FORMS_INVALID, CODE_NAMESPACE_MISMATCH, CODE_CONTEXT_SCHEMA_ID_MISMATCH,
-	CODE_SIGNAL_LIST_INVALID, CODE_UNKNOWN_ENTRY, CODE_ENGLISH_LOCATOR_MISSING,
+	CODE_SIGNAL_LIST_INVALID, CODE_UNKNOWN_ENTRY, CODE_RETIRED_ENTRY, CODE_ENGLISH_LOCATOR_MISSING,
 	CODE_ENGLISH_LOCATOR_AMBIGUOUS, CODE_FILE_MISSING, CODE_PARSE_FAILED, CODE_SCHEMA_MISSING,
 ]
 
@@ -691,7 +696,11 @@ func test_every_record_is_exact_key() -> void:
 		var entry_id: String = str(record.get("entry_id", ""))
 		var keys: Array = record.keys()
 		keys.sort()
-		assert_eq(keys, RECORD_KEYS, "%s: exact record keys" % entry_id)
+		var expected_keys: Array = RECORD_KEYS.duplicate()
+		if entry_id in OBSERVER_ENTRY_IDS:
+			expected_keys.append("observer_atoms")
+			expected_keys.sort()
+		assert_eq(keys, expected_keys, "%s: exact record keys" % entry_id)
 		assert_eq(record.get("content_version"), 1, "%s: content_version is 1" % entry_id)
 		assert_eq(typeof(record.get("content_version")), TYPE_INT,
 			"%s: content_version is an int" % entry_id)
@@ -1150,7 +1159,7 @@ func test_the_published_schema_accepts_the_manifest() -> void:
 		"the published schema accepts the shipped manifest: " + str(result.get("message", "")))
 
 
-func test_the_schema_closes_every_object_level() -> void:
+func test_the_schema_closes_every_object_except_typed_signature_fields() -> void:
 	var schema := _parse(SCHEMA_PATH)
 	assert_false(schema.is_empty(), "expected RED: schema absent or unparseable")
 	if schema.is_empty():
@@ -1159,7 +1168,7 @@ func test_the_schema_closes_every_object_level() -> void:
 		"draft 2020-12, as every other manifest schema in this repo")
 	var open_objects: Array = []
 	_collect_open_objects(schema, "$", open_objects)
-	assert_eq(open_objects, [], "every object level sets additionalProperties false")
+	assert_eq(open_objects, [], "only signature fields use a closed value-type vocabulary")
 
 
 func _collect_open_objects(node: Variant, path: String, found: Array) -> void:
@@ -1171,8 +1180,17 @@ func _collect_open_objects(node: Variant, path: String, found: Array) -> void:
 	if not (node is Dictionary):
 		return
 	var object: Dictionary = node
-	if str(object.get("type", "")) == "object" and object.get("additionalProperties", true) != false:
-		found.append(path)
+	if str(object.get("type", "")) == "object":
+		var additional: Variant = object.get("additionalProperties", true)
+		if path == "$.properties.entries.items.properties.presentation_signature_schema.properties.fields":
+			if not (additional is Dictionary):
+				found.append(path)
+			else:
+				var restriction: Dictionary = additional
+				if restriction.keys() != ["enum"] or restriction.get("enum") != ["string", "strings", "bool"]:
+					found.append(path)
+		elif typeof(additional) != TYPE_BOOL or additional != false:
+			found.append(path)
 	for key: Variant in object:
 		_collect_open_objects(object[key], "%s.%s" % [path, str(key)], found)
 
@@ -1663,6 +1681,31 @@ func test_resolve_entry_fails_closed_on_an_unknown_entry_id() -> void:
 		assert_eq(result.get("code"), CODE_UNKNOWN_ENTRY, "%s: fails closed by name" % unknown)
 
 
+func test_resolve_entry_uses_an_explicit_retired_registry_without_default_disk_lookup() -> void:
+	if not _guard():
+		return
+	var script := _manifest_script()
+	var document := _document()
+	var retired_id := "ending.lavinia.true"
+	var cases: Array[Dictionary] = [
+		{"registry": {"retired_ids": [{"label_id": retired_id, "reject_on_restore": true}]},
+			"expected": CODE_RETIRED_ENTRY},
+		{"registry": {"retired_ids": [{"label_id": retired_id, "reject_on_restore": false}]},
+			"expected": CODE_UNKNOWN_ENTRY},
+		{"registry": {"retired_ids": [{"label_id": "another.retired.id", "reject_on_restore": true}]},
+			"expected": CODE_UNKNOWN_ENTRY},
+		{"registry": {}, "expected": CODE_UNKNOWN_ENTRY},
+	]
+	for case: Dictionary in cases:
+		var result: Dictionary = script.call(&"resolve_entry", document, retired_id, "en", case["registry"])
+		assert_false(result.get("ok", true), str(case))
+		assert_eq(result.get("code"), case["expected"], str(case))
+	var default_result: Dictionary = script.call(&"resolve_entry", document, retired_id, "en")
+	assert_false(default_result.get("ok", true), "The existing three-argument path still refuses retired IDs")
+	assert_eq(default_result.get("code"), CODE_RETIRED_ENTRY,
+		"The default path still reads the shipped retired registry")
+
+
 func test_resolve_entry_fails_on_a_missing_english_label() -> void:
 	if not _guard():
 		return
@@ -1783,8 +1826,15 @@ func test_the_published_schema_pins_its_own_literals() -> void:
 	var items: Dictionary = entries.get("items", {})
 	var record_required: Array = items.get("required", [])
 	record_required.sort()
-	assert_eq(record_required, RECORD_KEYS, "the schema requires exactly the twelve record keys")
+	assert_eq(record_required, RECORD_KEYS, "the schema requires exactly the thirteen base record keys")
 	assert_eq(items.get("additionalProperties"), false, "the record level is closed")
+	var record_properties: Array = record.keys()
+	record_properties.sort()
+	var expected_properties: Array = RECORD_KEYS.duplicate()
+	expected_properties.append("observer_atoms")
+	expected_properties.sort()
+	assert_eq(record_properties, expected_properties,
+		"the schema admits only the base keys and the optional observer atoms")
 	assert_eq((record.get("content_version", {}) as Dictionary).get("const"), 1,
 		"content_version is pinned")
 	assert_eq((record.get("allowed_signals", {}) as Dictionary).get("uniqueItems"), true,

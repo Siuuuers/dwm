@@ -22,9 +22,15 @@ func _run() -> int:
 	var timelines: Dictionary = STRICT_JSON.parse_object(
 		FileAccess.get_file_as_string("res://data/manifests/timelines.json"))
 	if not timelines.get("ok", false): return _fail("load timelines", timelines)
+	return validate_scenes(document, timelines["value"], VALIDATOR.validate_file)
+
+
+## Callable decision body; the CLI supplies the real file validator after loading its manifests.
+static func validate_scenes(document: Dictionary, timelines: Dictionary,
+		validate_scene: Callable) -> int:
 	var partition: Dictionary = VALIDATOR.partition_by_master(document)
 	var legacy := {}
-	for record: Dictionary in timelines["value"].get("records", []):
+	for record: Dictionary in timelines.get("records", []):
 		var path := "res://" + str(record["path"])
 		legacy[path] = record["labels"]
 		if not partition.has(path): partition[path] = []
@@ -34,7 +40,7 @@ func _run() -> int:
 			print("DIALOGIC_CONTRACT: FAIL scene path " + path)
 			failed += 1
 			continue
-		var result: Dictionary = VALIDATOR.validate_file(path, partition[path], legacy.get(path, []))
+		var result: Dictionary = validate_scene.call(path, partition[path], legacy.get(path, []))
 		if result.get("ok", false): continue
 		failed += 1
 		for failure: Dictionary in (result["failures"] as Array).slice(0, MAX_REPORTED):

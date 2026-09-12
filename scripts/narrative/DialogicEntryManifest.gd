@@ -163,10 +163,10 @@ const WITNESS_SIGNAL := "history.line.witness"
 ## KNOWN UNTESTED PATHS ADDED BY THIS SUB-COMMIT, recorded rather than hidden.
 ## IDS_MANIFEST_FILE_MISSING, IDS_MANIFEST_PARSE_FAILED, IDS_MANIFEST_SCHEMA_MISSING and
 ## IDS_MANIFEST_ENTRIES_UNAVAILABLE all need a file to be absent or corrupt on disk, which the suite
-## does not do; the false branch of _is_retired_label's reject_on_restore guard needs a registry
-## validate_ids_document already forbids; and the evidence_id half of the opaque-field guard cannot
-## be reached at all while no entry grants observer.evidence.commit. All are KNOWINGLY UNCOVERED and
-## their spellings are pinned by the suite reading this file as text.
+## does not do; the evidence_id half of the opaque-field guard cannot be reached at all while no
+## entry grants observer.evidence.commit. All are KNOWINGLY UNCOVERED and their spellings are pinned
+## by the suite reading this file as text. resolve_entry's explicit registry seam covers the otherwise
+## unreachable reject_on_restore=false diagnostic branch without accepting that invalid registry.
 
 const IDS_MANIFEST_PATH := "res://data/manifests/dialogic_ids.json"
 const IDS_SCHEMA_PATH := "res://schemas/manifests/dialogic-ids.schema.json"
@@ -343,7 +343,8 @@ static func validate_document(document: Dictionary) -> Dictionary:
 	return {"ok": true, "value": document}
 
 
-static func resolve_entry(document: Dictionary, entry_id: String, locale: String) -> Dictionary:
+static func resolve_entry(document: Dictionary, entry_id: String, locale: String,
+		retired_registry: Variant = null) -> Dictionary:
 	var entries: Variant = document.get("entries")
 	if not (entries is Array):
 		return _fail(&"ENTRY_MANIFEST_DOCUMENT_SHAPE", "the document declares no entries array")
@@ -355,9 +356,9 @@ static func resolve_entry(document: Dictionary, entry_id: String, locale: String
 			record = candidate as Dictionary
 			break
 	if record.is_empty():
-		if _is_retired_label(entry_id):
+		if _is_retired_label(entry_id, retired_registry):
 			return _fail(&"ENTRY_MANIFEST_RETIRED_ENTRY",
-				"%s was retired by the 61-to-8 migration, so a save that still carries it is refused"
+				"%s is a retired semantic ID, so a save that still carries it is refused"
 				% entry_id)
 		return _fail(&"ENTRY_MANIFEST_UNKNOWN_ENTRY",
 			"%s is not a registered semantic entry" % entry_id)
@@ -827,14 +828,21 @@ static func _atom_resolved(record: Dictionary, match_kind: String) -> Dictionary
 	}
 
 
-## True only for a label the registry both lists as retired AND marks reject_on_restore. A registry
-## that cannot be read at all returns false, so resolve_entry degrades to its old generic code
-## rather than resolving something it should not.
-static func _is_retired_label(entry_id: String) -> bool:
-	var registry := load_ids_default()
-	if not registry.get("ok", false):
+## True only for a label the registry both lists as retired AND marks reject_on_restore. Omission
+## loads the shipped registry; an explicit empty registry never reads disk. If the shipped registry
+## cannot be read, resolve_entry degrades to its old generic code without resolving the entry.
+static func _is_retired_label(entry_id: String, retired_registry: Variant = null) -> bool:
+	var registry: Dictionary = {}
+	if retired_registry == null:
+		var loaded := load_ids_default()
+		if not loaded.get("ok", false):
+			return false
+		registry = loaded["value"]
+	elif retired_registry is Dictionary:
+		registry = retired_registry
+	else:
 		return false
-	for record: Dictionary in _registry_block(registry["value"], "retired_ids"):
+	for record: Dictionary in _registry_block(registry, "retired_ids"):
 		if str(record.get("label_id", "")) == entry_id:
 			return record.get("reject_on_restore") == true
 	return false
