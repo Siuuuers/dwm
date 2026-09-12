@@ -251,6 +251,7 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 	var visited := _validate_unique_strings(profile["visited_line_ids"], "visited_line_ids")
 	if not visited.get("ok", false): return visited
 	var admitted_view_defaults := _admit_legacy_minesweeper_view_defaults(profile)
+	var admitted_steady_default := _admit_legacy_steady_interface_default(profile)
 	var preferences := _validate_preferences(profile["preferences"])
 	if not preferences.get("ok", false): return preferences
 	var mappings := _validate_input_mappings(profile["input_mappings"], version == 2)
@@ -294,7 +295,7 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 			var draw := PAIR_DECK.validate(profile["pair_deck_draws"][run_id])
 			if not draw.ok: return draw
 	var result := {"ok": true, "code": &"ok", "value": profile}
-	if admitted_view_defaults:
+	if admitted_view_defaults or admitted_steady_default:
 		result["migrated"] = true
 	return result
 
@@ -311,6 +312,17 @@ static func _admit_legacy_minesweeper_view_defaults(profile: Dictionary) -> bool
 			return false
 	for leaf: String in _MINESWEEPER_VIEW_LEAVES:
 		display[leaf] = PREFERENCE_REGISTRY.default_value(StringName("preferences.display." + leaf))
+	return true
+
+
+static func _admit_legacy_steady_interface_default(profile: Dictionary) -> bool:
+	var preferences: Variant = profile.get("preferences")
+	if typeof(preferences) != TYPE_DICTIONARY:
+		return false
+	var accessibility: Variant = preferences.get("accessibility")
+	if typeof(accessibility) != TYPE_DICTIONARY or accessibility.has("steady_interface"):
+		return false
+	accessibility["steady_interface"] = false
 	return true
 
 

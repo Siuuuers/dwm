@@ -153,7 +153,7 @@ func _accepted_settings_paths() -> Array:
 		"audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted",
 		"audio.mute_when_inactive", "audio.output_mode", "display.window_mode",
 		"accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast",
-		"accessibility.reduced_motion", "accessibility.screen_shake", "accessibility.colour_differentiation",
+		"accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation",
 		"accessibility.sound_detail_text", "exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled",
 	]
 	return suffixes.map(func(suffix: String) -> String: return "preferences." + suffix)

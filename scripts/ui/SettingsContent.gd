@@ -19,7 +19,7 @@ const CATEGORY_FIELDS: Dictionary = {
 	"audio": ["audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted", "audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted", "audio.mute_when_inactive", "audio.output_mode"],
 	"display": ["display.window_mode"],
 	"controls": [],
-	"accessibility": ["accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
+	"accessibility": ["accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
 	"records": ["exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled"],
 }
 const RESET_METHODS: Dictionary = {
@@ -262,6 +262,10 @@ func _add_preference(sheet: VBoxContainer, record: Dictionary) -> void:
 	control.custom_minimum_size.y = 48
 	PRESENTATION.attach_state(control)
 	row.add_child(control)
+	if path == &"preferences.accessibility.steady_interface":
+		var description := _label("settings.accessibility_steady_interface_description")
+		description.name = "SteadyInterfaceDescription"
+		row.add_child(description)
 	var status := _label("")
 	status.name = "LanguageStatus" if path == &"preferences.language.primary_locale_id" else row.name + "Status"
 	row.add_child(status)
@@ -408,6 +412,10 @@ func _clear_focus_perimeter(scroll: ScrollContainer, control: Control) -> void:
 		return
 	var target := control.get_global_rect().grow(8)
 	var viewport := scroll.get_global_rect()
+	if control == controls.get(&"preferences.accessibility.steady_interface"):
+		var reading_row: Rect2 = rows[&"preferences.accessibility.steady_interface"].get_global_rect().grow(8)
+		if reading_row.size.y <= viewport.size.y:
+			target = reading_row
 	if target.position.y < viewport.position.y:
 		scroll.scroll_vertical -= ceili(viewport.position.y - target.position.y)
 	elif target.end.y > viewport.end.y:
@@ -423,6 +431,8 @@ func refresh_labels() -> void:
 	for path: StringName in controls:
 		var control: Control = controls[path]
 		control.accessibility_name = text("settings." + String(path).trim_prefix("preferences.").replace(".", "_"))
+		if path == &"preferences.accessibility.steady_interface":
+			control.accessibility_description = text("settings.accessibility_steady_interface_description")
 		if control is OptionButton:
 			var option := control as OptionButton
 			option.clear()
