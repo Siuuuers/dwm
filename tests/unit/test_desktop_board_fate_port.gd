@@ -143,6 +143,8 @@ func _begin_debug(transaction_id: String, difficulty_id: String) -> Dictionary:
 ## established test precedent for this exact wiring gap (see the class doc's OWNERSHIP WIRING note).
 func _wired(ledger: CountingPublicationLedger = null) -> Dictionary:
 	var live_ledger: CountingPublicationLedger = ledger if ledger != null else _real_publication_ledger()
+	if live_ledger == null:
+		return {}
 	var port := PORT.new()
 	var configured_ledger: Dictionary = port.configure_publication_ledger(live_ledger)
 	assert_true(configured_ledger.get("ok", false), JSON.stringify(configured_ledger))
@@ -651,6 +653,8 @@ func _fresh_recovery_port(source_board: Dictionary) -> Dictionary:
 	var issuer := ISSUER.new()
 	assert_true(issuer.configure(_root_store).get("ok", false))
 	var ledger := _real_publication_ledger()
+	if ledger == null:
+		return {}
 	var port := PORT.new()
 	assert_true(port.configure_publication_ledger(ledger).get("ok", false))
 	assert_true(port.configure(board, issuer).get("ok", false))

@@ -5,7 +5,7 @@ static var _counter := 0
 
 static func create(suite_id: String) -> Dictionary:
 	var wrapper_root := OS.get_environment("DWM_TEST_ROOT")
-	if wrapper_root.is_empty():
+	if wrapper_root.strip_edges().is_empty():
 		return {"ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required"}
 	_counter += 1
 	var root := wrapper_root.path_join(str(OS.get_process_id())).path_join(str(_counter)).path_join(suite_id)

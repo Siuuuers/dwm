@@ -129,6 +129,8 @@ func _wired() -> Dictionary:
 
 func test_cold_day_two_installs_exact_owners_and_journal_without_activating_or_routing() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var snapshot := _snapshot()
 	_write_source(wired.storage, snapshot)
 	var pending := _write_pending(wired.port, snapshot)
@@ -169,6 +171,8 @@ func test_cold_day_two_installs_exact_owners_and_journal_without_activating_or_r
 
 func test_a_different_current_autosave_never_receives_an_older_sidecar() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var snapshot := _snapshot()
 	_write_source(wired.storage, snapshot)
 	_write_pending(wired.port, snapshot)
@@ -182,6 +186,8 @@ func test_a_different_current_autosave_never_receives_an_older_sidecar() -> void
 
 func test_source_changes_after_preparation_refuse_before_any_owner_apply() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var snapshot := _snapshot()
 	_write_source(wired.storage, snapshot)
 	_write_pending(wired.port, snapshot)
@@ -218,6 +224,8 @@ func _activate_session(wired: Dictionary, snapshot: Dictionary) -> void:
 
 func test_active_session_with_no_pending_action_requires_no_cold_recovery() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var snapshot := _snapshot()
 	_write_source(wired.storage, snapshot)
 	_activate_session(wired, snapshot)
@@ -234,6 +242,8 @@ func test_active_session_with_no_pending_action_requires_no_cold_recovery() -> v
 
 func test_active_session_still_refuses_a_pending_desktop_action() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var snapshot := _snapshot()
 	_write_source(wired.storage, snapshot)
 	_write_pending(wired.port, snapshot)
@@ -250,6 +260,8 @@ func test_active_session_still_refuses_a_pending_desktop_action() -> void:
 
 func test_active_session_still_refuses_a_retained_prepared_source() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var snapshot := _snapshot()
 	_write_source(wired.storage, snapshot)
 	_write_pending(wired.port, snapshot)

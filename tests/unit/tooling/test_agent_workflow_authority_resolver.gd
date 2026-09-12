@@ -73,7 +73,10 @@ func test_resolves_every_frozen_link_kind() -> void:
 	if loaded == null:
 		return
 	var beads_snapshot: Array[Dictionary] = [{"id":"dwm-sample"}]
-	var resolver: RefCounted = loaded.new(_fixture_root(), beads_snapshot)
+	var root := _fixture_root()
+	if root.is_empty():
+		return
+	var resolver: RefCounted = loaded.new(root, beads_snapshot)
 	for link in [
 		{"kind":"beads_issue", "target":"dwm-sample"},
 		{"kind":"requirement_id", "target":"req.sample"},

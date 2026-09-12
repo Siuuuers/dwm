@@ -54,7 +54,10 @@ func _has_code(result: Dictionary, code: String) -> bool:
 	return result.get("errors", []).any(func(error: Variant) -> bool: return str(error).begins_with(code))
 
 func test_closed_registry_accepts_a_registered_base_and_amendment() -> void:
-	var result := _validate(_valid_fixture())
+	var fixture := _valid_fixture()
+	if fixture.is_empty():
+		return
+	var result := _validate(fixture)
 	assert_true(result.get("ok", false), JSON.stringify(result.get("errors", [])))
 	assert_eq(result.get("records", []).map(func(record: Dictionary) -> Variant: return record.id), ["spec.amendment", "spec.base"])
 
@@ -65,6 +68,8 @@ func test_registry_rejects_duplicate_ids_paths_and_unsorted_records() -> void:
 		func(records: Array) -> void: records.reverse(),
 	]:
 		var fixture := _valid_fixture()
+		if fixture.is_empty():
+			return
 		var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(fixture.manifest))
 		mutation.call(parsed.records)
 		_write(fixture.manifest, JSON.stringify(parsed, "  ") + "\n")
@@ -76,6 +81,8 @@ func test_registry_enforces_the_manifest_id_and_exact_source_path_grammar() -> v
 		["path", "docs/design/nested/base.md"],
 	]:
 		var fixture := _valid_fixture()
+		if fixture.is_empty():
+			return
 		var parsed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(fixture.manifest))
 		parsed.records[0][field_and_value[0]] = field_and_value[1]
 		_write(fixture.manifest, JSON.stringify(parsed, "  ") + "\n")
@@ -88,6 +95,8 @@ func test_amendment_requires_accepted_status_and_exact_registered_lineage() -> v
 		"amends_path: \"docs/design/other.md\"",
 	]:
 		var fixture := _valid_fixture()
+		if fixture.is_empty():
+			return
 		var path: String = fixture.root.path_join("docs/design/amendment.md")
 		var text := FileAccess.get_file_as_string(path)
 		if replacement.begins_with("decision_status"):
@@ -101,6 +110,8 @@ func test_amendment_requires_accepted_status_and_exact_registered_lineage() -> v
 
 func test_optional_plan_binding_is_all_or_none_and_hash_checked() -> void:
 	var fixture := _valid_fixture()
+	if fixture.is_empty():
+		return
 	var path: String = fixture.root.path_join("docs/design/base.md")
 	var text := FileAccess.get_file_as_string(path)
 	_write(path, text.replace("implementation_authorized: false\n", "implementation_authorized: false\nimplementation_plan_path: \"docs/superpowers/plans/base.md\"\n"))
@@ -115,6 +126,8 @@ func test_optional_plan_binding_is_all_or_none_and_hash_checked() -> void:
 
 func test_optional_plan_suite_binding_is_closed_and_projects_every_exact_plan() -> void:
 	var fixture := _valid_fixture()
+	if fixture.is_empty():
+		return
 	var source_path: String = fixture.root.path_join("docs/design/base.md")
 	var source := FileAccess.get_file_as_string(source_path)
 	_write(source_path, source.replace("implementation_authorized: false\n", "implementation_authorized: false\nimplementation_plan_suite_path: \"prompt_docs/metadata/sample_plan_suite.v1.json\"\n"))
@@ -144,6 +157,8 @@ func test_optional_plan_suite_binding_is_closed_and_projects_every_exact_plan() 
 
 func test_approved_plan_suite_binding_drift_preserves_specification_authority() -> void:
 	var fixture := _valid_fixture()
+	if fixture.is_empty():
+		return
 	var roadmap_path := "docs/superpowers/plans/roadmap.md"
 	var child_path := "docs/superpowers/plans/child.md"
 	var suite_path := "prompt_docs/metadata/sample_plan_suite.v1.json"
@@ -170,6 +185,8 @@ func test_approved_plan_suite_binding_drift_preserves_specification_authority() 
 
 func test_runtime_authorization_requires_an_approved_verified_binding() -> void:
 	var fixture := _valid_fixture()
+	if fixture.is_empty():
+		return
 	var source_path: String = fixture.root.path_join("docs/design/base.md")
 	var source := FileAccess.get_file_as_string(source_path)
 	_write(source_path, source.replace("implementation_authorized: false", "implementation_authorized: true"))
