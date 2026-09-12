@@ -151,12 +151,18 @@ func test_corrupt_next_final_and_backup_keep_existing_recovery_results_and_disk_
 		uncached.files.corrupt_suffix = suffix
 		var committed: Dictionary = cached.port.commit(candidate)
 		var original: Dictionary = uncached.port.commit(reference)
-		assert_true(cached.files.corrupted, suffix)
+		# dwm-634.1: the write reads back only the promoted final. Candidate and backup bytes are
+		# proven by the next reconcile, so their read-time corruption hooks never fire here.
+		assert_eq(cached.files.corrupted, suffix == "final", suffix)
 		assert_eq(committed, original, suffix)
 		assert_eq(cached.files.snapshot_persisted(), uncached.files.snapshot_persisted(), suffix)
 		assert_eq(cached.files.operation_trace(), uncached.files.operation_trace(), suffix)
 		assert_eq(cached.manager._journal.capture_state(), uncached.manager._journal.capture_state(), suffix)
-		assert_gt(int(cached.port.validations.get("{broken", 0)), 0, "changed text is strictly validated")
+		if suffix == "final":
+			assert_gt(int(cached.port.validations.get("{broken", 0)), 0, "changed text is strictly validated")
+		else:
+			assert_true(committed.get("ok", false), suffix)
+			assert_eq(int(cached.port.validations.get("{broken", 0)), 0, "%s is not read back at write time" % suffix)
 
 func test_schema_valid_changed_reread_is_rejected_before_journal_commit() -> void:
 	var wired := _wired(true, true)
