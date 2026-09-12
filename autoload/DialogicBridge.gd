@@ -293,8 +293,8 @@ func get_art_hold_view() -> Node:
 	var view: Variant = _art_hold.get("view")
 	return view if is_instance_valid(view) else null
 
-func _start_with_scene_art(path: String, label_or_index: Variant) -> Dictionary:
-	if _try_begin_art_hold(path, label_or_index): return {"ok": true, "code": &"ok"}
+func _start_with_scene_art(path: String, label_or_index: Variant, allow_art_hold: bool = true) -> Dictionary:
+	if allow_art_hold and _try_begin_art_hold(path, label_or_index): return {"ok": true, "code": &"ok"}
 	_prepare_scene_art()
 	return _runtime_adapter.start_timeline(path, label_or_index)
 
@@ -387,7 +387,10 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 		emit_signal("timeline_failed", fail)
 		return fail
 	var caption_styles: Object = null
-	if timeline_id == "hospital.faint":
+	# The witnessed Hospital presentation is the physical-presentation owner's only start, and its
+	# completion proof is the runtime's own natural end, so it plays the authored timeline itself.
+	var witnessed_hospital := timeline_id == "hospital.faint"
+	if witnessed_hospital:
 		if dialogic.has_method("get_subsystem"):
 			caption_styles = dialogic.get_subsystem("Styles")
 		if caption_styles == null or not caption_styles.has_method("load_style"):
@@ -409,7 +412,9 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 	_ordinary_playback = {"timeline_id": timeline_id, "context": context.duplicate(true), "cache_before": before}
 	scene_art_changed.emit()
 	preference_boundary_step.emit(&"clear")
-	var started: Dictionary = _start_with_scene_art(path, label)
+	# An art hold would substitute a canned card for that start and wait on a Continue press, so
+	# only a start no owner is waiting on may defer behind one.
+	var started: Dictionary = _start_with_scene_art(path, label, not witnessed_hospital)
 	_start_in_progress = false
 	if not started.get("ok", false):
 		_ordinary_playback = {}

@@ -168,3 +168,22 @@ func test_only_proven_empty_blocks_hold_and_no_art_preserves_native_auto_complet
 	assert_true(_bridge.start_timeline_id("opening.day1", {}).ok)
 	assert_null(_bridge.get_art_hold_view())
 	await _await_end()
+
+func test_witnessed_hospital_start_runs_its_dtl_instead_of_holding_on_its_art() -> void:
+	# The shipped Hospital timeline is a return-only stub exactly like opening.day1, so with its
+	# optional artwork present the art card would otherwise stand in for the start. Its one caller
+	# is DialogicPresentationOwnerAdapter.begin_physical, whose completion proof is the runtime own
+	# natural end, so this start must reach Dialogic instead of waiting on a Continue press.
+	assert_true(BRIDGE.is_return_only_entry("res://dialogic/timelines/en/core/hospital_faint.dtl", ""))
+	var catalog := {"schema_version": 1,
+		"assets": {"fixture.portrait": {"path": "res://icon.svg", "size": [128, 128]}},
+		"scenes": {"hospital.faint.day3": {"background": "fixture.portrait", "portraits": [], "cg": ""}}}
+	var file := FileAccess.open("user://art-hold-fixture.json", FileAccess.WRITE)
+	file.store_string(JSON.stringify(catalog))
+	file.close()
+	assert_true(ART.reload_placements("user://art-hold-fixture.json"))
+	assert_not_null(ART.get_texture("fixture.portrait"))
+	assert_true(_bridge.start_timeline_id("hospital.faint", {"kind": "hospital", "day": 3}).ok)
+	assert_null(_bridge.get_art_hold_view(), "the witnessed Hospital start never defers behind the art card")
+	assert_eq(_adapter._start_generation, 1, "the authored Hospital timeline physically started")
+	await _await_end()
