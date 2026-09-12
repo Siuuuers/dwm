@@ -21,6 +21,9 @@ const PANEL_PORT := preload("res://scripts/application/minesweeper/MinesweeperPa
 const CHECKPOINT := preload("res://tests/support/FakeMinesweeperCheckpointPort.gd")
 const GENERATION := preload("res://tests/support/FakeMinesweeperGenerationPort.gd")
 const CATALOG := preload("res://scripts/data/DataCatalog.gd")
+const SETTINGS_THEME := preload("res://scripts/ui/SettingsTheme.gd")
+const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
+const BACKUP_FIXTURE := preload("res://tests/unit/test_backup_presentation.gd")
 
 class IsolatedDesktop extends ComputerDesktop:
 	func _configure_from_bootstrap() -> void: pass
@@ -139,6 +142,60 @@ func _fixture(dark: bool) -> Dictionary:
 
 func _settle() -> void:
 	for frame in 6: await get_tree().process_frame
+
+func test_restored_and_advanced_desktop_days_open_settings_and_backup_with_captured_palette() -> void:
+	var f := _fixture(true)
+	if f.is_empty(): return
+	f.desktop.app_window_host.child_entered_tree.connect(func(app: Node) -> void:
+		if not app.has_node("SettingsContent"): return
+		app.get_node("SettingsContent").configure_services({
+			"profile": f.profile, "localization": f.locale,
+			"input": null, "audio": null, "volume": null, "tts": null,
+			"profile_reset_admission": func() -> bool: return true,
+		})
+		app.get_node("LocalePresentationRoot").set("_localization", f.locale)
+	)
+	var port := BACKUP_FIXTURE.FakePort.new()
+	assert_true(f.desktop.configure_backup_port(port).ok)
+	var restored: Dictionary = f.host.prepare_restore(null, 6)
+	assert_true(restored.get("ok", false), str(restored))
+	if not restored.get("ok", false): return
+	assert_true(f.host.commit_restore(restored.value.candidate_state).ok)
+	f.state._lifecycle_set_playing_day(6)
+	assert_eq(f.state.day, 6)
+	assert_true(f.desktop.dispatch_desktop_eviction({"kind": &"evict_cached_apps", "day": 6}).ok)
+	for day: int in [6, 7]:
+		var opened: Dictionary = f.desktop.open_app(&"settings")
+		assert_true(opened.get("ok", false), str(opened))
+		if not opened.get("ok", false): return
+		await _settle()
+		var settings: Control = opened.value.app.settings_content
+		var settings_profile: Object = settings.get("_services").get("profile")
+		var high_contrast := bool(settings_profile.get_preference(&"preferences.accessibility.high_contrast", false))
+		var colour_preset := str(settings_profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard"))
+		var settings_expected: Theme = SETTINGS_THEME.build("en", 100, &"midnight", high_contrast, colour_preset, day)
+		assert_eq(settings.get_palette_id(), &"midnight")
+		assert_eq(settings.get("_run_day"), day)
+		assert_eq(settings.theme.get_color("face", "Settings"), settings_expected.get_color("face", "Settings"))
+		assert_true(f.desktop.return_home().ok)
+		opened = f.desktop.open_app(&"backup")
+		assert_true(opened.get("ok", false), str(opened))
+		if not opened.get("ok", false): return
+		await _settle()
+		var backup: Control = opened.value.app
+		var backup_expected: Theme = BACKUP_THEME.build("en", 100, &"midnight", day)
+		assert_eq(backup.get("_run_palette"), &"midnight")
+		assert_eq(backup.get("_day"), day)
+		assert_eq(backup.theme.get_color("face", "Backup"), backup_expected.get_color("face", "Backup"))
+		assert_true(f.desktop.return_home().ok)
+		if day == 6:
+			var advanced: Dictionary = f.host.change_day(7)
+			assert_true(advanced.get("ok", false), str(advanced))
+			if not advanced.get("ok", false): return
+			f.state._lifecycle_set_playing_day(7)
+			assert_true(f.desktop.dispatch_desktop_eviction(advanced.value.eviction_command).ok)
+			assert_false(f.desktop._cached_app_windows.has(&"settings"))
+			assert_false(f.desktop._cached_app_windows.has(&"backup"))
 
 func test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale_and_size_changes() -> void:
 	for dark: bool in [false,true]:

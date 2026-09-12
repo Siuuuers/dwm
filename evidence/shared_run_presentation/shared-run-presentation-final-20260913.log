@@ -1,0 +1,189 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/998383c7-e291-4f71-b38a-304f8d89560d/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_backup_presentation.gd
+* test_all_authored_tuples_and_days_keep_contrast_and_protected_roles
+* test_live_preferences_and_day_change_keep_prepared_confirmation
+    2 Orphans
+        * [SaveAction:<Button#338446781278>(BackupKey.gd)] + 1
+2 orphans
+2/2 passed.
+
+
+res://tests/unit/test_shared_week_tint.gd
+* test_all_sixteen_tuples_share_seven_day_room_projection_and_keep_required_contrast
+* test_week_curve_is_monotone_and_shipped_day_one_is_exact_zero
+2/2 passed.
+
+
+res://tests/scene/test_settings_palettes.gd
+* test_both_standard_palettes_preserve_geometry_and_native_bindings_in_nine_presentations
+* test_simultaneous_palettes_do_not_recolour_other_instances_or_their_native_resources
+* test_title_pending_dark_changes_existing_native_popup_without_extra_profile_writes
+* test_desktop_and_pause_never_project_pending_title_intent_as_captured_run_dark
+* test_run_hosts_follow_captured_palette_and_day_while_pending_title_dark_changes
+* test_rejected_run_context_leaves_visible_settings_presentation_atomic
+* test_title_preview_keeps_day_one_even_if_a_run_day_is_supplied
+7/7 passed.
+
+
+res://tests/integration/test_settings_shared_hosts.gd
+* test_pause_preview_is_inert_and_native_back_retreats_one_level_each
+* test_actual_pause_host_recolours_for_captured_day_and_keeps_focus_through_accessibility_refresh
+* test_desktop_canonical_commit_updates_fonts_without_resetting_controls
+* test_pause_enter_restores_native_paging_on_overflowing_settings_sheet
+* test_pause_controls_capture_blocks_parent_leave_and_back_only_cancels_capture
+* test_paused_settings_mouse_release_after_custody_cycle_cannot_commit
+* test_actual_audio_output_capability_does_not_invent_sample_assets
+* test_title_caches_settings_and_shared_return_preserves_capture_then_restores_row
+8/8 passed.
+
+
+res://tests/unit/test_production_pause_controller.gd
+* test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody
+* test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action
+    8 Orphans
+        * [SaveAction:<Button#8007362547905>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#7917939986812>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#8020130009661>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#7982196724759>(BackupKey.gd)] + 1
+* test_physical_dating_source_resumes_exact_command_and_changed_command_refuses
+* test_return_route_failure_retains_paused_retry_and_never_saves_or_resumes_discarded_source
+* test_foreign_runtime_and_title_cannot_be_admitted_as_idle_playback
+* test_pause_backup_inspects_nine_records_and_does_not_claim_unsupported_operations
+    2 Orphans
+        * [SaveAction:<Button#8604178451350>(BackupKey.gd)] + 1
+* test_global_back_does_not_steal_a_text_field_event
+* test_pause_delete_keeps_exact_suspension_and_never_saves_the_source
+* test_idle_pause_load_failure_reacquires_exact_source_then_retry_follows_new_session
+* test_failed_load_with_changed_session_cannot_resume_either_source
+* test_paused_dating_manual_and_quick_save_restore_exact_board_and_command
+* test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk
+* test_desktop_pause_capture_preserves_the_covered_app_and_suspension
+* test_desktop_pause_capture_refuses_route_session_and_narrative_drift
+* test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt
+15/15 passed.
+
+
+res://tests/unit/test_pause_surface.gd
+* test_all_locales_scales_and_target_modes_keep_full_copy_and_exact_geometry
+* test_invalid_copy_and_presentation_leave_previous_tuple_focus_and_copy_unchanged
+* test_native_navigation_previews_without_entering_and_never_wraps
+* test_injected_host_enters_on_right_and_back_performs_one_retreat
+* test_released_pointer_enters_once_and_return_cancel_restores_exact_row
+* test_controller_accept_and_return_confirmation_only_emit_intents
+* test_inert_custody_and_close_prevent_commands_without_claiming_disabled_rows
+7/7 passed.
+
+
+res://tests/integration/test_pause_backup_host.gd
+* test_preview_retains_real_nine_records_and_source_save_refusal_without_mutation
+* test_confirmation_cancel_then_backup_retreat_then_continue_each_need_their_own_back
+* test_confirmed_delete_uses_real_record_revision_without_resuming_or_changing_quick
+* test_changed_record_enters_recovery_and_back_does_not_escape_backup
+* test_confirmation_is_inert_during_parent_custody_and_close_cancels_its_token
+* test_source_change_after_confirmation_prevents_delete_and_consumes_consent
+* test_removing_backup_cancels_prepared_owner_token
+* test_parent_interaction_restores_exact_backup_focus_without_resetting_mode_or_record
+* test_parent_custody_change_retires_held_touch_consent_before_reactivation
+9/9 passed.
+
+
+res://tests/integration/test_settings_dark_mode.gd
+* test_dark_toggle_is_absent_until_actual_unlock_and_failed_write_keeps_old_value
+* test_public_dark_toggle_persists_next_run_only_and_full_reset_hides_it_again
+* test_final_discovery_and_availability_commit_together_and_survive_clear_gallery
+* test_initialize_repairs_compatible_discovery_durably_and_exact_ending_retry_stays_idempotent
+* test_failed_compatibility_grant_persistence_does_not_adopt_or_publish_profile
+5/5 passed.
+
+
+res://tests/integration/test_run_palette_host.gd
+* test_restored_and_advanced_desktop_days_open_settings_and_backup_with_captured_palette
+    [Failed]:  { "ok": false, "code": &"settings_dependencies_not_ready" }
+      at line 160
+    453 Orphans
+        * [SettingsApp:<Control#15364087878173>(SettingsApp.gd)] + 242
+* test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale_and_size_changes
+    7 Orphans
+        * [@Button@14670:<Button#15862304083449>(MinesweeperActionButton.gd)]
+        * [@Button@14671:<Button#15862455078673>(MinesweeperActionButton.gd)]
+        * [@Control@14673:<Control#15862706737900>(/Unregistered-Inner-Class)]
+        * [@Control@14675:<Control#15862908064767>(/Unregistered-Inner-Class)]
+        * [@Button@14669:<Button#15862153090075>(MinesweeperActionButton.gd)]
+        * [@Control@14672:<Control#15862606074956>(/Unregistered-Inner-Class)]
+        * [@Control@14674:<Control#15862807401825>(/Unregistered-Inner-Class)]
+* test_malformed_unavailable_replacement_and_changed_capture_are_refused_atomically
+* test_early_production_bootstrap_path_stays_hidden_until_captured_palette_is_admitted
+3/4 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_backup_presentation.gd
+    - Outside Tests
+        * [<Node#129167787796>(subsystem_animation.gd)]
+        * [<Node#129184565028>(subsystem_audio.gd)]
+        * [<Node#129201342254>]
+        * [<Node#129218119475>]
+        * [<Node#129234896694>(subsystem_backgrounds.gd)]
+        * [<Node#129771767609>(subsystem_choices.gd)]
+        * [<Timer#129788544827>]
+        * [<Node#129805322044>(subsystem_expression.gd)]
+        * [<Node#129838876482>(subsystem_glossary.gd)]
+        * [<Node#129855653699>(subsystem_history.gd)]
+        * [<Node#129872430916>(subsystem_input.gd)]
+        * [<Timer#129889208133>]
+        * [<Node#129905985350>(subsystem_jump.gd)]
+        * [<Node#129922762567>(subsystem_containers.gd)]
+        * [<Node#129939539784>(subsystem_portraits.gd)]
+        * [<Node#130476410697>(subsystem_save.gd)]
+        * [<Timer#130493187914>]
+        * [<Node#130509965131>(subsystem_settings.gd)]
+        * [<Node#130526742351>(subsystem_styles.gd)]
+        * [<Node#130543519568>(subsystem_text.gd)]
+        * [<Node#130627405653>(subsystem_text_input.gd)]
+        * [<Node#130644182870>(subsystem_variables.gd)]
+        * [<Node#130660960087>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130677737304>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_run_palette_host.gd
+- test_restored_and_advanced_desktop_days_open_settings_and_backup_with_captured_palette
+    [Failed]:  { "ok": false, "code": &"settings_dependencies_not_ready" }
+          at line 160
+
+Totals
+------
+Scripts               9
+Tests                59
+Passing Tests        58
+Failing Tests         1
+Asserts           11744/11745
+Orphans              24
+Time              26.329s
+
+
+---- 1 failing tests ----
+

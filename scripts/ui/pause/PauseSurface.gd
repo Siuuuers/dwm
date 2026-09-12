@@ -37,6 +37,7 @@ var _locale := "en"
 var _percent := 100
 var _palette := "AfterHours"
 var _colour_preset := "standard"
+var _day := 1
 var _copy := {"continue":"Continue","backup":"Backup","settings":"Settings","return":"Return to Title",
 	"title":"Pause","question":"Return to title?","warning":"No new save will be made. Unsaved progress will be left behind.","cancel":"Cancel"}
 
@@ -129,8 +130,8 @@ func _build_confirmation() -> void:
 	return_button.focus_neighbor_left = return_button.get_path()
 	return_button.focus_neighbor_right = return_button.get_path_to(cancel_button)
 
-func configure_presentation(locale: String, percent: int, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false) -> bool:
-	var candidate := PRESENTATION.build(locale,percent,palette,high_contrast,colour_preset)
+func configure_presentation(locale: String, percent: int, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
+	var candidate := PRESENTATION.build(locale,percent,palette,high_contrast,colour_preset,day)
 	if candidate == null or not _can_measure(_copy,candidate): return false
 	_locale = locale
 	_percent = percent
@@ -138,7 +139,10 @@ func configure_presentation(locale: String, percent: int, palette: String = "Aft
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
 	_large_targets = large_targets
+	_day = day
 	theme = candidate
+	for host: Control in _hosts.values():
+		_apply_host_presentation(host)
 	if is_node_ready(): _apply_copy()
 	queue_redraw()
 	return true
@@ -187,10 +191,15 @@ func _mount_host(id: StringName) -> void:
 	host.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
 	host.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED
 	workfield.add_child(host)
+	_apply_host_presentation(host)
 	if id == &"backup" and host.has_method("set_confirmation_host"):
 		host.set_confirmation_host(self)
 	for close_signal: StringName in [&"close_requested",&"window_hidden"]:
 		if host.has_signal(close_signal): host.connect(close_signal,_host_closed.bind(id))
+
+func _apply_host_presentation(host: Control) -> void:
+	if host.has_method("configure_run_presentation"):
+		host.configure_run_presentation(&"midnight" if _palette == "Midnight" else &"after_hours", _day)
 
 func open_surface() -> void:
 	if not is_node_ready() or _opened: return

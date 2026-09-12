@@ -1,0 +1,10 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Attempt to call function 'set_script' in base 'null instance' on a null instance.
+   at: _run (res://tests/backup_ui/test_backup_ui.gd:508)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/backup_ui/test_backup_ui.gd:508)
+       [1] settle (res://tests/backup_ui/test_backup_ui.gd:104)

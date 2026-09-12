@@ -10,9 +10,12 @@ const AUDIO_FIXTURE := preload("res://tests/unit/test_audio_pause_suspension.gd"
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+const SETTINGS_THEME := preload("res://scripts/ui/SettingsTheme.gd")
 
 class RunOwner extends RefCounted:
 	var dating_state: Object
+	var day := 1
+	var dark_mode := false
 	func capture_dating_challenge_state() -> Dictionary:
 		return dating_state.capture_dating_challenge_state()
 	var gate: Object
@@ -20,7 +23,7 @@ class RunOwner extends RefCounted:
 	func capture_live_session() -> Dictionary: return {"ok": true, "value": handle.duplicate(true)}
 	func validate_live_session(expected: Dictionary) -> Dictionary:
 		return {"ok": expected == handle and handle.active and gate.guard_external(&"pause_fixture").ok}
-	func get_run_configuration() -> Dictionary: return {"ok": true, "value": {"dark_mode": false}}
+	func get_run_configuration() -> Dictionary: return {"ok": true, "value": {"dark_mode": dark_mode}}
 	func retire_live_session(expected: Dictionary) -> Dictionary:
 		if not gate.is_internal_owner_active(&"session_abandonment") or expected != handle: return {"ok": false}
 		handle.active = false
@@ -186,6 +189,44 @@ func test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody() 
 	assert_true(focus.has_focus())
 	assert_eq(input_owner.get_state().value.state, &"Active")
 	assert_eq(saves.writes, 0)
+
+
+func test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action() -> void:
+	run_owner.day = 6
+	run_owner.dark_mode = true
+	saves.populated = true
+	if not await _open_pause(): return
+	var settings: Control = controller.surface.get("_hosts")[&"settings"]
+	var content: Control = settings.settings_content
+	var identity: int = settings.get_instance_id()
+	var expected: Theme = SETTINGS_THEME.build("en", 100, &"midnight", false, "standard", 6)
+	assert_eq(content.get_palette_id(), &"midnight")
+	assert_eq(content.theme.get_color("paper", "Settings"), expected.get_color("paper", "Settings"))
+	assert_eq(controller.surface.get("_day"), 6)
+	var prepared: Dictionary = controller._backup_port.prepare_action("delete", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	var pending: Dictionary = saves.pending.duplicate(true)
+	var inspections: int = saves.inspections
+	assert_true(profile.set_preference(&"preferences.accessibility.high_contrast", true).get("ok", false))
+	run_owner.day = 7
+	controller._refresh_presentation()
+	var high: Theme = SETTINGS_THEME.build("en", 100, &"midnight", true, "standard", 7)
+	assert_eq(content.theme.get_color("paper", "Settings"), high.get_color("paper", "Settings"))
+	assert_eq(content.get("_run_day"), 7)
+	assert_eq(controller.surface.get("_day"), 7)
+	assert_eq(saves.inspections, inspections, "appearance refresh does not re-inspect Backup records")
+	assert_eq(saves.pending, pending, "appearance refresh retains the prepared action")
+	assert_eq(saves.writes, 0, "appearance refresh cannot commit an action")
+	controller._backup_port.cancel_action(prepared.value.token)
+	assert_true((await controller.request_continue()).ok)
+	assert_true(focus.has_focus(), "source focus returns after appearance refresh")
+	run_owner.day = 3
+	if not await _open_pause(): return
+	assert_eq(controller.surface.get("_hosts")[&"settings"].get_instance_id(), identity)
+	assert_eq(content.get("_run_day"), 3, "cached Settings host receives the new day on reopen")
+	assert_eq(controller.surface.get("_day"), 3)
+	assert_true((await controller.request_continue()).ok)
 
 func test_physical_dating_source_resumes_exact_command_and_changed_command_refuses() -> void:
 	router.route = "dating"

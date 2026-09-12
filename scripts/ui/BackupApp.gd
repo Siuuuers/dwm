@@ -35,6 +35,9 @@ var _confirmation_host: Object
 var _records: Dictionary = {}
 var _locale := "en"
 var _percent := 100
+var _run_palette: StringName = &"after_hours"
+var _day := 1
+var _pending_presentation := false
 var _ready_result := {"ok": false, "code": &"backup_unconfigured"}
 var _pending_token: Variant
 var _source_action := ""
@@ -66,7 +69,7 @@ func _ready() -> void:
 	$VBoxContainer.add_theme_constant_override("separation", 0)
 	_content_host.custom_minimum_size = Vector2(800, 656)
 	auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	theme = BACKUP_THEME.build(_locale, _percent)
+	theme = BACKUP_THEME.build(_locale, _percent, _run_palette, _day)
 	_body = Control.new()
 	_body.name = "BackupBody"
 	_body.size = Vector2(800, 656)
@@ -142,10 +145,15 @@ func _ready() -> void:
 	if _port != null:
 		refresh_view()
 
-func configure_backup(port: Object, localization: Object = null, profile: Object = null) -> Dictionary:
+func configure_backup(port: Object, localization: Object = null, profile: Object = null,
+		palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
 	for method in ["get_projection", "prepare_action", "commit_action", "cancel_action"]:
 		if port == null or not port.has_method(method):
 			return {"ok": false, "code": &"invalid_backup_port"}
+	if _presentation_candidate(palette, day, localization, profile).is_empty():
+		return {"ok": false, "code": &"invalid_backup_presentation"}
+	_run_palette = palette
+	_day = day
 	_port = port
 	_localization = localization
 	_profile = profile
@@ -157,6 +165,20 @@ func configure_backup(port: Object, localization: Object = null, profile: Object
 		port.connect("projection_changed", refresh_view)
 	_ready_result = refresh_view() if is_node_ready() else {"ok": true}
 	return _ready_result
+
+func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
+	if palette == _run_palette and day == _day:
+		return {"ok": true}
+	var candidate: Dictionary = _presentation_candidate(palette, day, _localization, _profile)
+	if candidate.is_empty():
+		return {"ok": false, "code": &"invalid_backup_presentation"}
+	_run_palette = palette
+	_day = day
+	if _pending_token != null or is_instance_valid(confirmation) or _in_operation:
+		_pending_presentation = true
+	elif is_node_ready():
+		_apply_presentation(candidate)
+	return {"ok": true}
 
 func get_desktop_ready_result() -> Dictionary:
 	return _ready_result.duplicate(true)
@@ -208,19 +230,48 @@ func _projection_failure() -> void:
 	_refresh_presentation()
 	status_label.text = _t("unavailable")
 
-func _apply_typography() -> void:
-	if _localization != null:
-		var requested := str(_localization.get_locale()).replace("_", "-")
+func _presentation_candidate(palette: StringName, day: int, localization: Object,
+		profile: Object) -> Dictionary:
+	var locale := _locale
+	if localization != null:
+		var requested := str(localization.get_locale()).replace("_", "-")
 		if COPY.has(requested):
-			_locale = requested
-	_percent = int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null else 100
-	theme = BACKUP_THEME.build(_locale, _percent)
+			locale = requested
+	var percent := int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
+	var high_contrast := bool(profile.get_preference("preferences.accessibility.high_contrast", false)) if profile != null else false
+	var colour_preset := str(profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if profile != null else "standard"
+	var candidate: Theme = BACKUP_THEME.build(locale, percent, palette, day, high_contrast, colour_preset)
+	if candidate == null:
+		return {}
+	return {"locale": locale, "percent": percent, "theme": candidate}
+
+func _apply_typography(refresh_content: bool = false) -> void:
+	var candidate: Dictionary = _presentation_candidate(_run_palette, _day, _localization, _profile)
+	if not candidate.is_empty():
+		_apply_presentation(candidate, refresh_content)
+
+func _apply_presentation(candidate: Dictionary, refresh_content: bool = true) -> void:
+	_locale = candidate.locale
+	_percent = candidate.percent
+	theme = candidate.theme
+	_pending_presentation = false
 	for drawer in drawer_buttons.values():
 		drawer.theme = theme
 		for label in [drawer.identity_label, drawer.state_label]:
 			label.add_theme_font_size_override("font_size", int(20 * _percent / 100.0))
 	_info_text.add_theme_color_override("font_color", theme.get_color("paper_ink", "Backup"))
 	status_label.add_theme_color_override("font_color", theme.get_color("paper_ink", "Backup"))
+	_body.queue_redraw()
+	_info_overlay.queue_redraw()
+	if refresh_content and not _records.is_empty():
+		_refresh_presentation()
+
+func _refresh_appearance() -> void:
+	if _pending_token != null or is_instance_valid(confirmation) or _in_operation:
+		_pending_presentation = true
+		return
+	if is_node_ready():
+		_apply_typography(true)
 
 func _refresh_presentation() -> void:
 	if _records.is_empty():
@@ -384,6 +435,8 @@ func _on_cancelled() -> void:
 	if _pending_token != null:
 		_port.cancel_action(_pending_token)
 	_pending_token = null
+	if _pending_presentation:
+		_refresh_appearance()
 	_measure_revision += 1
 	_measure_information.call_deferred(_measure_revision)
 	_restore_source_focus()
@@ -399,6 +452,8 @@ func _commit_pending() -> void:
 	_in_operation = false
 	last_result = result.duplicate(true)
 	if not result.get("ok", false):
+		if _pending_presentation and is_inside_tree():
+			_refresh_appearance()
 		_operation_failed(result)
 		return
 	_recovering = false
@@ -407,6 +462,8 @@ func _commit_pending() -> void:
 	if is_queued_for_deletion() or not is_inside_tree():
 		return
 	refresh_view()
+	if _pending_presentation:
+		_refresh_appearance()
 	_restore_source_focus()
 
 func _operation_failed(result: Dictionary) -> void:
@@ -573,13 +630,12 @@ func hide_window() -> void:
 		super.hide_window()
 
 func _on_locale_changed(_value: String) -> void:
-	if is_instance_valid(confirmation):
-		confirmation._finish(false)
-	refresh_view()
+	_refresh_appearance()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.text_size":
-		_on_locale_changed("")
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast",
+			&"preferences.accessibility.colour_differentiation"]:
+		_refresh_appearance()
 
 func _t(key: String, replacements: Dictionary = {}) -> String:
 	return str(COPY[_locale].get(key, key)).format(replacements)

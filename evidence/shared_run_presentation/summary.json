@@ -1,0 +1,189 @@
+{
+	"captures": 6,
+	"checks": 78,
+	"failures": [],
+	"ok": true,
+	"samples": [
+		{
+			"backup_cancelled": 0,
+			"backup_committed": 0,
+			"backup_prepared": 0,
+			"day": 1,
+			"face": "151b25",
+			"file": "settings-day1.png",
+			"focus": "/root/@SubViewport@6/SettingsApp/SettingsContent/RailScroll/Rail/AccessibilityCategory",
+			"high_contrast": false,
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "AfterHours",
+			"paper": "c3baa3",
+			"pause_face": "",
+			"state": "settings-day1",
+			"text_percent": 100,
+			"workfield": [
+				480,
+				64,
+				800,
+				656
+			]
+		},
+		{
+			"backup_cancelled": 0,
+			"backup_committed": 0,
+			"backup_prepared": 0,
+			"day": 7,
+			"face": "0a1210",
+			"file": "settings-day7.png",
+			"focus": "/root/@SubViewport@6/SettingsApp/SettingsContent/RailScroll/Rail/AccessibilityCategory",
+			"high_contrast": false,
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Midnight",
+			"paper": "b5ac97",
+			"pause_face": "",
+			"state": "settings-day7",
+			"text_percent": 100,
+			"workfield": [
+				480,
+				64,
+				800,
+				656
+			]
+		},
+		{
+			"backup_cancelled": 0,
+			"backup_committed": 0,
+			"backup_prepared": 0,
+			"day": 7,
+			"face": "0a1210",
+			"file": "pause-settings-day7.png",
+			"focus": "/root/@SubViewport@6/PauseSurface/Workfield/SettingsApp/SettingsContent/RailScroll/Rail/LanguageCategory",
+			"high_contrast": false,
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Midnight",
+			"paper": "b5ac97",
+			"pause_face": "0a1210",
+			"state": "pause-settings-day7",
+			"text_percent": 100,
+			"workfield": [
+				480,
+				64,
+				800,
+				656
+			]
+		},
+		{
+			"backup_cancelled": 0,
+			"backup_committed": 0,
+			"backup_prepared": 0,
+			"day": 1,
+			"face": "151b25",
+			"file": "pause-backup-day1.png",
+			"focus": "/root/@SubViewport@6/PauseSurface/Workfield/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/DeleteAction",
+			"high_contrast": false,
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "AfterHours",
+			"paper": "c3baa3",
+			"pause_face": "151b25",
+			"state": "pause-backup-day1",
+			"text_percent": 100,
+			"workfield": [
+				480,
+				64,
+				800,
+				656
+			]
+		},
+		{
+			"backup_cancelled": 0,
+			"backup_committed": 0,
+			"backup_prepared": 1,
+			"day": 1,
+			"face": "151b25",
+			"file": "pause-backup-confirmation-queued.png",
+			"focus": "/root/@SubViewport@6/PauseSurface/Workfield/@Control@483/ConfirmationSheet/@VBoxContainer@484/ConfirmationActions/CancelButton",
+			"high_contrast": false,
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "AfterHours",
+			"paper": "c3baa3",
+			"pause_face": "0c1811",
+			"state": "pause-backup-confirmation-queued",
+			"text_percent": 100,
+			"workfield": [
+				480,
+				64,
+				800,
+				656
+			]
+		},
+		{
+			"backup_cancelled": 1,
+			"backup_committed": 0,
+			"backup_prepared": 1,
+			"day": 7,
+			"face": "0c1811",
+			"file": "pause-backup-after-cancel-day7-high.png",
+			"focus": "/root/@SubViewport@6/PauseSurface/Workfield/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/DeleteAction",
+			"high_contrast": true,
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Midnight",
+			"paper": "e9e2d0",
+			"pause_face": "0c1811",
+			"state": "pause-backup-after-cancel-day7-high",
+			"text_percent": 100,
+			"workfield": [
+				480,
+				64,
+				800,
+				656
+			]
+		}
+	],
+	"scope": "Six English 100% native captures of real SettingsApp, PauseSurface, BackupApp and shared confirmation. Real Profile/Localization/Input with FakeFileOps and FakeBackupPort. Representative Day 1/Day 7 and one High Contrast handoff; all tuples are covered by GUT, not this probe. No player files, actual save/load, production lifecycle, assistive-technology or perceptual acceptance."
+}

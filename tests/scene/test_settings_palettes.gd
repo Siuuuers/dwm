@@ -4,6 +4,7 @@ extends "res://addons/gut/test.gd"
 const OWNERS := preload("res://tests/unit/test_settings_controls_reset.gd")
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const CONTENT := preload("res://scenes/shared/SettingsContent.tscn")
+const THEME := preload("res://scripts/ui/SettingsTheme.gd")
 const EXPECTED := {
 	&"after_hours": {"habitat": Color("0b0d13"), "face": Color("151b25"), "paper_ink": Color("151b25")},
 	&"midnight": {"habitat": Color("0d1514"), "face": Color("14201d"), "paper_ink": Color("14201d")},
@@ -102,7 +103,7 @@ func test_both_standard_palettes_preserve_geometry_and_native_bindings_in_nine_p
 				assert_eq(content.theme.default_font_size, int(24 * percent / 100.0), context)
 				_assert_roles(content, palette)
 				_assert_component_roles(content, palette)
-				_assert_no_dark_controls(content)
+				_assert_next_run_control_without_palette_selector(content)
 				assert_eq(fixture.profile.get_profile_snapshot(), fixture.before, context + ": projection preserves profile")
 				assert_eq(fixture.profile.get_profile_revision(), fixture.revision, context + ": no presentation commit")
 				assert_eq(fixture.ops.snapshot_persisted(), fixture.disk, context + ": no disk rewrite")
@@ -135,7 +136,7 @@ func test_simultaneous_palettes_do_not_recolour_other_instances_or_their_native_
 	_assert_component_roles(dark, &"after_hours")
 
 
-func test_title_pending_dark_changes_existing_native_popup_without_extra_profile_writes_or_dark_ui() -> void:
+func test_title_pending_dark_changes_existing_native_popup_without_extra_profile_writes() -> void:
 	var fixture := _fixture()
 	var content: Control = fixture.content
 	await _settle()
@@ -150,7 +151,7 @@ func test_title_pending_dark_changes_existing_native_popup_without_extra_profile
 	await _settle()
 	assert_eq(content.get_palette_id(), &"midnight")
 	_assert_component_roles(content, &"midnight")
-	_assert_no_dark_controls(content)
+	_assert_next_run_control_without_palette_selector(content)
 	assert_eq(fixture.profile.get_profile_snapshot(), expected)
 	assert_eq(fixture.profile.get_profile_revision(), revision, "Only the explicit title intent write occurred")
 	assert_eq(fixture.ops.snapshot_persisted(), disk, "Palette refresh has no persistence side effect")
@@ -163,15 +164,67 @@ func test_desktop_and_pause_never_project_pending_title_intent_as_captured_run_d
 		var fixture := _fixture(&"midnight", "zh_CN", 125, host)
 		var content: Control = fixture.content
 		await _settle()
-		assert_eq(content.get_palette_id(), &"after_hours", host + ": no captured-run palette source exists in this v3 lane")
-		assert_eq(fixture.profile.dark_reads, [], host + ": presentation never reads pending title Dark facts")
+		_assert_captured_palette_lookup(fixture, &"after_hours")
 		_assert_roles(content, &"after_hours")
-		_assert_no_dark_controls(content)
+		_assert_next_run_control_without_palette_selector(content)
 		assert_true(fixture.profile.set_preference(&"preferences.dark_mode.next_run_enabled", false).get("ok", false))
 		await _settle()
-		assert_eq(content.get_palette_id(), &"after_hours")
-		assert_eq(fixture.profile.dark_reads, [], host + ": unrelated pending publication still cannot drive run presentation")
+		_assert_captured_palette_lookup(fixture, &"after_hours")
+		_assert_roles(content, &"after_hours")
 		content.free()
+
+
+func test_run_hosts_follow_captured_palette_and_day_while_pending_title_dark_changes() -> void:
+	for host: String in ["desktop", "pause"]:
+		var fixture := _fixture(&"after_hours", "en", 100, host)
+		var content: Control = fixture.content
+		assert_true(content.configure_run_presentation(&"midnight", 6).get("ok", false))
+		await _settle()
+		var expected: Theme = THEME.build("en", 100, &"midnight", false, "standard", 6)
+		assert_eq(content.get_palette_id(), &"midnight", host)
+		assert_eq(content.theme.get_color("paper", "Settings"), expected.get_color("paper", "Settings"), host)
+		assert_eq(content.theme.get_color("face", "Settings"), expected.get_color("face", "Settings"), host)
+		_assert_captured_palette_lookup(fixture, &"midnight")
+		assert_true(fixture.profile.set_preference(&"preferences.dark_mode.next_run_enabled", true).get("ok", false))
+		await _settle()
+		assert_eq(content.get_palette_id(), &"midnight", host + ": pending title intent cannot replace captured palette")
+		assert_eq(content.theme.get_color("paper", "Settings"), expected.get_color("paper", "Settings"))
+		_assert_captured_palette_lookup(fixture, &"midnight")
+		content.free()
+
+
+func test_rejected_run_context_leaves_visible_settings_presentation_atomic() -> void:
+	var fixture := _fixture(&"after_hours", "en", 100, "desktop")
+	var content: Control = fixture.content
+	assert_true(content.configure_run_presentation(&"midnight", 7).get("ok", false))
+	await _settle()
+	var theme: Theme = content.theme
+	var profile: Dictionary = fixture.profile.get_profile_snapshot()
+	var revision: int = fixture.profile.get_profile_revision()
+	var disk: Dictionary = fixture.ops.snapshot_persisted()
+	for request: Array in [[&"unregistered", 7], [&"after_hours", 0]]:
+		assert_false(content.configure_run_presentation(request[0], request[1]).get("ok", false))
+		assert_eq(content.theme, theme)
+		assert_eq(content.get_palette_id(), &"midnight")
+		assert_eq(content.get("_run_day"), 7)
+	assert_eq(fixture.profile.get_profile_snapshot(), profile)
+	assert_eq(fixture.profile.get_profile_revision(), revision)
+	assert_eq(fixture.ops.snapshot_persisted(), disk)
+
+
+func test_title_preview_keeps_day_one_even_if_a_run_day_is_supplied() -> void:
+	var fixture := _fixture(&"after_hours", "en", 100, "title")
+	var content: Control = fixture.content
+	assert_true(content.configure_run_presentation(&"midnight", 7).get("ok", false))
+	await _settle()
+	var expected: Theme = THEME.build("en", 100, &"after_hours", false, "standard", 1)
+	assert_eq(content.get_palette_id(), &"after_hours")
+	assert_eq(content.theme.get_color("paper", "Settings"), expected.get_color("paper", "Settings"))
+	assert_true(fixture.profile.set_preference(&"preferences.dark_mode.next_run_enabled", true).get("ok", false))
+	await _settle()
+	expected = THEME.build("en", 100, &"midnight", false, "standard", 1)
+	assert_eq(content.get_palette_id(), &"midnight")
+	assert_eq(content.theme.get_color("paper", "Settings"), expected.get_color("paper", "Settings"))
 
 
 func _assert_roles(content: Control, palette: StringName) -> void:
@@ -220,8 +273,20 @@ func _assert_component_roles(content: Control, palette: StringName) -> void:
 			assert_eq(button.get_theme_color("font_color"), SHARED.ink)
 
 
-func _assert_no_dark_controls(content: Control) -> void:
+func _assert_captured_palette_lookup(fixture: Dictionary, palette: StringName) -> void:
+	# The discovered next-run row legitimately reads Profile during a refresh.
+	# Resolving the current run's palette must not consult that pending intent.
+	fixture.profile.dark_reads.clear()
+	assert_eq(fixture.content.get_palette_id(), palette)
+	assert_eq(fixture.profile.dark_reads, [], "captured palette lookup is independent of pending next-run intent")
+
+
+func _assert_next_run_control_without_palette_selector(content: Control) -> void:
+	# The September 12 amendment retains the discovery-controlled next-run row.
+	# It selects a future run mode, never the base palette of an installed run.
 	assert_false(content.controls.has(&"preferences.dark_mode.available"))
-	assert_false(content.controls.has(&"preferences.dark_mode.next_run_enabled"))
+	assert_true(content.controls.has(&"preferences.dark_mode.next_run_enabled"))
+	assert_true(content.rows[&"preferences.dark_mode.next_run_enabled"].visible, "fixture has discovered Dark mode")
 	assert_false(content.get_category_ids().has("dark_mode"))
-	assert_eq(content.find_children("*Dark*", "", true, false).size(), 0, "No hidden or visible Settings-local Dark UI")
+	for path: StringName in content.controls:
+		assert_false(String(path).contains("palette"), "no independent base-palette selector")

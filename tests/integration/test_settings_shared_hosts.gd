@@ -12,6 +12,8 @@ const FILES := preload("res://tests/support/FakeFileOps.gd")
 const SETTINGS := preload("res://scenes/apps/SettingsApp.tscn")
 const PAUSE := preload("res://scenes/overlay/PauseSurface.tscn")
 const TITLE := preload("res://scenes/menu/MenuScene.tscn")
+const SETTINGS_THEME := preload("res://scripts/ui/SettingsTheme.gd")
+const PAUSE_THEME := preload("res://scripts/ui/pause/PauseTheme.gd")
 
 var _surface: SubViewport
 var _profile: Node
@@ -151,6 +153,46 @@ func test_pause_preview_is_inert_and_native_back_retreats_one_level_each() -> vo
 	await _tap(KEY_ESCAPE)
 	assert_signal_emit_count(pause, "continue_requested", 1)
 	assert_signal_emit_count(pause, "enter_requested", 1)
+
+
+func test_actual_pause_host_recolours_for_captured_day_and_keeps_focus_through_accessibility_refresh() -> void:
+	var fixture := _pause()
+	var pause: Control = fixture.pause
+	var content: Control = fixture.content
+	assert_true(pause.configure_presentation("en", 100, "Midnight", false, "standard", false, 6))
+	await _settle()
+	var expected: Theme = SETTINGS_THEME.build("en", 100, &"midnight", false, "standard", 6)
+	assert_eq(content.get_palette_id(), &"midnight")
+	assert_eq(content.theme.get_color("paper", "Settings"), expected.get_color("paper", "Settings"))
+	assert_eq(pause.theme.get_color("paper", "Pause"), expected.get_color("paper", "Settings"))
+	await _enter_settings(fixture)
+	content.select_category("accessibility")
+	content.focus_rail()
+	await _settle()
+	var focused: Control = content.find_child("AccessibilityCategory", true, false)
+	assert_true(focused.has_focus())
+	assert_true(_profile.set_preference(&"preferences.dark_mode.next_run_enabled", true).get("ok", false))
+	assert_true(_profile.set_preference(&"preferences.accessibility.high_contrast", true).get("ok", false))
+	assert_true(_profile.set_preference(&"preferences.accessibility.colour_differentiation", "protan").get("ok", false))
+	var revision: int = _profile.get_profile_revision()
+	assert_true(pause.configure_presentation("en", 100, "Midnight", true, "protan", false, 7))
+	await _settle()
+	expected = SETTINGS_THEME.build("en", 100, &"midnight", true, "protan", 7)
+	var expected_pause: Theme = PAUSE_THEME.build("en", 100, "Midnight", true, "protan", 7)
+	assert_eq(content.get_palette_id(), &"midnight", "pending title Dark cannot replace captured run context")
+	assert_eq(content.theme.get_color("paper", "Settings"), expected.get_color("paper", "Settings"))
+	assert_eq(pause.theme.get_color("paper", "Pause"), expected_pause.get_color("paper", "Pause"))
+	assert_true(focused.has_focus(), "appearance refresh preserves entered Settings focus")
+	assert_eq(pause.entered_action, &"settings")
+	assert_eq(_profile.get_profile_revision(), revision, "presentation has no profile publication")
+	pause.close_surface()
+	assert_true(pause.configure_presentation("en", 100, "Midnight", true, "protan", false, 4))
+	pause.open_surface()
+	await _settle()
+	assert_eq(fixture.app, pause.get("_hosts")[&"settings"], "reopen uses the cached host")
+	assert_eq(content.get("_run_day"), 4)
+	assert_eq(pause.get("_day"), 4)
+	assert_true(pause.rows[&"continue"].has_focus())
 
 func test_desktop_canonical_commit_updates_fonts_without_resetting_controls() -> void:
 	var binding := {"kind": "key", "physical_keycode": KEY_F6, "keycode": 0,

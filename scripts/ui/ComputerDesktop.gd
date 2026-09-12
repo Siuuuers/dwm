@@ -466,6 +466,11 @@ func open_app(app_id: StringName) -> Dictionary:
 		if scene == null:
 			return _route_failure(&"desktop_scene_unavailable")
 		app = scene.instantiate()
+		if app_id == &"settings":
+			var presentation: Dictionary = app.configure_run_presentation(_run_palette, _day)
+			if not presentation.get("ok", false):
+				app.free()
+				return _route_failure(&"settings_presentation_unavailable")
 		app.hide()
 		app_window_host.add_child(app)
 		var configured: Dictionary
@@ -485,7 +490,7 @@ func open_app(app_id: StringName) -> Dictionary:
 			if configured.get("ok",false): configured = app.configure_shared_preferences(_localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
-			configured = app.configure_backup(_backup_port, _localization, _profile)
+			configured = app.configure_backup(_backup_port, _localization, _profile, _run_palette, _day)
 		else:
 			configured = app.get_desktop_ready_result()
 		if not configured.get("ok", false):

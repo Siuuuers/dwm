@@ -749,8 +749,13 @@ bounded Beads work beyond the review. Board-view controls (`dwm-vky.5`) and
 installed run-palette/accessibility binding (`dwm-vky.6`) are complete. Schedule
 and its warning sheet now use the installed day's week tint (`dwm-vky.7`),
 including live High Contrast/CVD preferences and retained modal focus. See
-`evidence/schedule_week_tint/README.md` for verification and its limits. Other
-palette owners and the Drift Deck remain unfinished; the five deferred extra
+`evidence/schedule_week_tint/README.md` for verification and its limits.
+Settings, Backup and Pause also receive the installed day and captured palette
+(`dwm-vky.8`). Backup appearance updates use retained record projections and
+defer changes while a confirmation or operation holds custody; they do not
+inspect saves or resolve a prepared action. Title Settings keeps its Day 1
+pending-mode preview. See `evidence/shared_run_presentation/README.md`.
+Other palette owners and the Drift Deck remain unfinished; the five deferred extra
 proposals in this amendment remain deferred. The dated review closeout below
 records the earlier review-only state.
 

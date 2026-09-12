@@ -54,6 +54,9 @@ var _presentation_percent: int = 0
 var _presentation_palette: StringName = &""
 var _presentation_high_contrast: bool = false
 var _presentation_colour_preset: String = ""
+var _presentation_day := 0
+var _run_palette: StringName = &"after_hours"
+var _run_day := 1
 var _selected_extension: Control
 var _reset_consent: Dictionary = {}
 var _confirmation_generation: int = 0
@@ -63,6 +66,18 @@ var _reset_busy := false
 func configure_services(services: Dictionary) -> void:
 	if not is_node_ready():
 		_services = services.duplicate()
+
+
+func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
+	if palette not in [&"after_hours", &"midnight"] or day < 1 or day > 7:
+		return {"ok": false, "code": &"invalid_settings_run_presentation"}
+	if palette == _run_palette and day == _run_day:
+		return {"ok": true}
+	_run_palette = palette
+	_run_day = day
+	if _controller != null:
+		_controller.refresh()
+	return {"ok": true}
 
 
 func set_interaction_enabled(enabled: bool) -> void:
@@ -449,6 +464,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	_refresh_discovered_dark_mode()
 	var locale := current_locale().replace("_", "-")
 	var palette_id := get_palette_id()
+	var day := 1 if host_context == "title" else _run_day
 	var presentation_profile: Variant = _services.get("profile")
 	var contrast_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.high_contrast", false) if presentation_profile != null else false
 	var colour_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard") if presentation_profile != null else "standard"
@@ -458,8 +474,8 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	var colour_preset: String = colour_value
 	var font_size := roundi(24.0 * float(percent) / 100.0)
 	if locale != _presentation_locale or percent != _presentation_percent or palette_id != _presentation_palette \
-			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset:
-		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset)
+			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset or day != _presentation_day:
+		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset, day)
 		if candidate == null:
 			return
 		_presentation_locale = locale
@@ -467,6 +483,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 		_presentation_palette = palette_id
 		_presentation_high_contrast = high_contrast
 		_presentation_colour_preset = colour_preset
+		_presentation_day = day
 		theme = candidate
 		PRESENTATION.apply_scroll(rail_scroll, false)
 		PRESENTATION.apply_scroll(sheet_scroll, true)
@@ -545,9 +562,8 @@ func current_locale() -> String:
 
 func get_palette_id() -> StringName:
 	# Pending title intent is never a substitute for a captured in-run palette.
-	# This run lineage has no captured Dark owner yet.
 	if host_context != "title":
-		return &"after_hours"
+		return _run_palette
 	var profile: Variant = _services.get("profile")
 	if not is_instance_valid(profile) or not profile.has_method("get_preference"):
 		return &"after_hours"

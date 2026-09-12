@@ -1,15 +1,23 @@
 extends RefCounted
 
 const DESKTOP := preload("res://scripts/ui/desktop/DesktopTheme.gd")
+const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
+const ROLES := ["habitat", "face", "paper", "paper_ink", "ink", "structure",
+	"filed", "focus", "paper_focus", "danger", "destructive"]
 
-static func build(locale: String, percent: int) -> Theme:
-	var result := DESKTOP.build(locale, percent)
-	var roles := {"habitat": Color("0b0d13"), "face": Color("151b25"),
-		"paper": Color("c3baa3"), "paper_ink": Color("151b25"),
-		"ink": Color("d8cfb7"), "structure": Color("657d89"),
-		"filed": Color("789083"), "focus": Color("a9935f"),
-		"paper_focus": Color("644000"), "danger": Color("c9846e"),
-		"destructive": Color("dd7a7f")}
-	for role in roles:
+static func build(locale: String, percent: int, palette: StringName = &"after_hours", day: int = 1,
+		high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
+	if day < 1 or day > 7:
+		return null
+	var authored: Dictionary = PALETTES.resolve(palette, high_contrast, colour_preset)
+	if authored.is_empty():
+		return null
+	var tint: float = WEEK_TINT.tint_for_day(day)
+	var result: Theme = DESKTOP.build(locale, percent, palette, tint, high_contrast, colour_preset)
+	if result == null:
+		return null
+	var roles: Dictionary = WEEK_TINT.apply(authored, tint, high_contrast, colour_preset)
+	for role: String in ROLES:
 		result.set_color(role, "Backup", roles[role])
 	return result
