@@ -5,6 +5,7 @@ const APP_REGISTRY := preload("res://scripts/domain/desktop/DesktopAppRegistry.g
 const LAUNCHER_BUTTON := preload("res://scripts/ui/desktop/DesktopLauncherButton.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const QUICK_COMMANDS := preload("res://scripts/ui/desktop/DesktopQuickCommands.gd")
@@ -737,7 +738,7 @@ func _refresh_launcher() -> void:
 		if LABELS.has(requested):
 			_locale = requested
 	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
-	theme = DESKTOP_THEME.build(_locale, percent, _run_palette)
+	theme = DESKTOP_THEME.build(_locale, percent, _run_palette, WEEK_TINT.tint_for_day(_day))
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = theme.get_color("face", "Desktop")
 	notice_style.border_color = theme.get_color("structure", "Desktop")
