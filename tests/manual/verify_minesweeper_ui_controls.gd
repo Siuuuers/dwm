@@ -55,6 +55,7 @@ func _run() -> void:
 	if not _check(mine>=0,"fixture has an unflagged mine"): return
 	panel.dock.buttons.reveal.pressed.emit()
 	_click_cell(panel.worksheet.grid,mine)
+	await _frames()  # dwm-634.1: the terminal board paints first; settlement runs on the next frames
 	if not _check(panel.public_view.settled,"real loss settles"): return
 	var paid_rounds: int = game.minesweeper_rounds_left
 	panel.register.difficulties.intermediate.pressed.emit()
@@ -64,6 +65,7 @@ func _run() -> void:
 	if not _check(game.minesweeper_rounds_left==paid_rounds-1,"next board pays normal first Reveal"): return
 	physical = bootstrap._desktop_board_state.capture().board.board
 	_click_cell(panel.worksheet.grid,int(physical.mine_indices[0]))
+	await _frames()
 	if not _check(panel.public_view.settled,"second real result settles"): return
 	var space := InputEventKey.new()
 	space.keycode=KEY_SPACE

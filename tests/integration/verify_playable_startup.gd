@@ -317,6 +317,7 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 			if not _check(unlock_app.last_result.get("ok", false) and unlocked_owner.board is Dictionary, "actual first Reveal starts next invitation round"): return
 			var unlock_board: Dictionary = unlocked_owner.board.board
 			unlock_panel.worksheet.cell_action_requested.emit(&"reveal", int(unlock_board.mine_indices[0]), int(unlock_panel.public_view.board.revision))
+			await _frames()  # dwm-634.1: the terminal board paints first; settlement runs on the next frames
 			if not _check(unlock_app.last_result.get("ok", false) and unlock_panel.public_view.settled, "actual current-day round unlocks contact invitation"): return
 			if not _check(desktop.return_home().get("ok", false), "Home after invitation round"): return
 	var opened: Dictionary = desktop.open_app(&"contacts")

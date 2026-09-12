@@ -68,12 +68,16 @@ func _fit_host() -> void:
 	scale = Vector2.ONE * factor
 
 func _process(_delta: float) -> void:
-	if _busy or not _preparation_foreground or not is_visible_in_tree() or get_tree().paused or _port == null \
-			or not _port.has_method("advance_preparation") or panel == null \
-			or not last_result.get("ok",false) or not panel.has_valid_presentation() \
-			or panel.worksheet.information_sheet != null or panel.worksheet.grid.has_held_touch(): return
-	var grid: Control = panel.worksheet.grid
-	if int(grid.get("_held_index")) >= 0 or bool(grid.get("_mouse_dragging")) or bool(grid.get("_confirm_held")): return
+	if _busy or _port == null or not _port.has_method("advance_preparation") or panel == null \
+			or not last_result.get("ok",false) or not panel.has_valid_presentation(): return
+	# dwm-634.1: a terminal click paints first; its settlement runs here on the next frame and
+	# waits for nothing (not focus, not a held contact), because it is a durable save.
+	var settling: bool = _port.has_method("has_pending_settlement") and _port.has_pending_settlement()
+	if not settling:
+		if not _preparation_foreground or not is_visible_in_tree() or get_tree().paused \
+				or panel.worksheet.information_sheet != null or panel.worksheet.grid.has_held_touch(): return
+		var grid: Control = panel.worksheet.grid
+		if int(grid.get("_held_index")) >= 0 or bool(grid.get("_mouse_dragging")) or bool(grid.get("_confirm_held")): return
 	_busy = true
 	var result: Dictionary = _port.call("advance_preparation",int(panel.public_view.board.revision))
 	_busy = false
