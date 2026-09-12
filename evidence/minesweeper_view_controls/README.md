@@ -14,8 +14,9 @@ the concurrent clicking-lag changes through `c8aedfe78` (merge `0aea36565`).
 - `latency-20260913.log`: observation only, not a latency acceptance gate.
   App routine medians were 31.6 ms and 37.7 ms. The winning click's immediate
   handler took 34.3 ms, but processing across two frames took 1.78 s. Dating
-  first Reveal/loss remained about 0.92/0.97 s. The separate `dwm-634.1` work
-  remains open; view controls do not establish that clicking lag is solved.
+  first Reveal/loss remained about 0.92/0.97 s. The parallel chat completed
+  `dwm-634.1`; remaining latency belongs to its open parent `dwm-634`.
+  View controls do not establish that clicking lag is solved.
 - `runs.jsonl`: isolated runner commands, timestamps, exit codes, and evidence roots.
 
 The screenshots show Expert manual 36, Traditional Chinese 150% with Large Targets,

@@ -571,4 +571,4 @@ suites passed. The final native run also passed explicit Fit, all tiers/text siz
 small-window grid pixels, flag-mode Chord, terminal tier changes, Space and costs.
 Durable logs, invocation records and selected captures are in
 `evidence/minesweeper_view_controls`. The latency benchmark still shows slow result
-processing; `dwm-634.1` remains a separate open performance task.
+processing; completed increment `dwm-634.1` leaves further work under `dwm-634`.

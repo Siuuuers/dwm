@@ -4,16 +4,19 @@ const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.t
 const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
 const TRADITIONAL := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
+const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 
-static func build(locale: String, percent: int, palette: StringName = &"after_hours", week_tint: float = 0.0) -> Theme:
+static func build(locale: String, percent: int, palette: StringName = &"after_hours", week_tint: float = 0.0,
+		high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
 	if palette not in [&"after_hours", &"midnight"]: return null
+	var tuple: Dictionary = PALETTES.resolve(palette, high_contrast, colour_preset)
+	if tuple.is_empty(): return null
 	var result := Theme.new()
 	result.default_font = {"en": ENGLISH, "zh-CN": SIMPLIFIED, "zh-HK": TRADITIONAL}.get(locale, ENGLISH)
 	result.default_font_size = int(24 * percent / 100.0)
-	var roles := {"habitat": Color("0d1514") if palette == &"midnight" else Color("0b0d13"), "face": Color("14201d") if palette == &"midnight" else Color("151b25"),
-		"ink": Color("d8cfb7"), "structure": Color("657d89"),
-		"focus": Color("a9935f"), "current": Color("789083")}
-	roles = WEEK_TINT.apply(roles, week_tint)
+	var roles := {"habitat": tuple.habitat, "face": tuple.face, "ink": tuple.ink,
+		"structure": tuple.structure, "focus": tuple.focus, "current": tuple.filed}
+	roles = WEEK_TINT.apply(roles, week_tint, high_contrast, colour_preset)
 	for role in roles:
 		result.set_color(role, "Desktop", roles[role])
 	result.set_color("font_color", "Label", roles.ink)

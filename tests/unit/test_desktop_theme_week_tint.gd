@@ -2,6 +2,7 @@ extends "res://addons/gut/test.gd"
 
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
+const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 
 
 func test_default_tint_keeps_shipped_day_one_colours() -> void:
@@ -39,3 +40,30 @@ func test_button_styleboxes_follow_the_tinted_face() -> void:
 
 func test_unknown_palette_still_returns_null() -> void:
 	assert_null(DESKTOP_THEME.build("en", 100, &"unknown", 1.0))
+	assert_null(DESKTOP_THEME.build("en", 100, &"midnight", 1.0, false, "unknown"))
+
+
+func test_authored_accessibility_tuples_keep_identity_and_contrast_through_the_week() -> void:
+	for palette: StringName in [&"after_hours", &"midnight"]:
+		for high: bool in [false, true]:
+			for preset: String in ["standard", "protan", "deutan", "tritan"]:
+				var base: Dictionary = PALETTES.resolve(palette, high, preset)
+				for day: int in range(1, 8):
+					var built: Theme = DESKTOP_THEME.build("en", 100, palette, WEEK_TINT.tint_for_day(day), high, preset)
+					assert_not_null(built)
+					if built == null: continue
+					var face: Color = built.get_color("face", "Desktop")
+					for role: String in ["face", "habitat", "structure"]:
+						var color: Color = built.get_color(role, "Desktop")
+						if high or day == 1:
+							assert_eq(color, base[role], "%s %s %s day %d" % [palette, high, preset, day])
+						elif preset != "standard":
+							assert_almost_eq(color.ok_hsl_s, base[role].ok_hsl_s, 0.01)
+							assert_almost_eq(color.ok_hsl_h, base[role].ok_hsl_h, 0.02)
+							if role == "structure": assert_eq(color, base[role])
+					for role: String in ["ink", "focus"]:
+						assert_eq(built.get_color(role, "Desktop"), base[role])
+					assert_eq(built.get_color("current", "Desktop"), base.filed)
+					var ink_l: float = base.ink.srgb_to_linear().get_luminance()
+					var face_l: float = face.srgb_to_linear().get_luminance()
+					assert_gt((ink_l + 0.05) / (face_l + 0.05), 4.5)

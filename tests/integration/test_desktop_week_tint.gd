@@ -4,9 +4,10 @@ const HOST_TEST := preload("res://tests/integration/test_run_palette_host.gd")
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
+const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 
 
-func _fixture() -> Dictionary:
+func _fixture(with_preferences: bool = false) -> Dictionary:
 	var run: Dictionary = HOST_TEST.make_captured_run(true)
 	assert_true(run.get("ok", false), JSON.stringify(run))
 	if not run.get("ok", false):
@@ -19,7 +20,19 @@ func _fixture() -> Dictionary:
 	desktop.set_script(HOST_TEST.IsolatedDesktop)
 	assert_true(desktop.configure_run_configuration(run.value.state).ok)
 	viewport.add_child(desktop)
-	return {"desktop": desktop, "state": run.value.state}
+	var result := {"desktop": desktop, "state": run.value.state}
+	if with_preferences:
+		var profile := HOST_TEST.PROFILE.new()
+		add_child_autofree(profile)
+		assert_true(profile.initialize(HOST_TEST.STORAGE.new("desktop-week-memory", HOST_TEST.FILES.new())).ok)
+		var locale := HOST_TEST.LOCALIZATION.new()
+		add_child_autofree(locale)
+		assert_true(locale.initialize(profile).ok)
+		var host := HOST_TEST.HOST.new()
+		host.reset(1)
+		assert_true(HOST_TEST.bind_apps(desktop, run.value.state, run.value.issuer, locale, profile, host).ok)
+		result.profile = profile
+	return result
 
 
 func _settle() -> void:
@@ -62,3 +75,24 @@ func test_ordinary_refresh_reuses_the_same_day_tint() -> void:
 	await _settle()
 	assert_eq(f.desktop.theme.get_color("face", "Desktop"), day_three, "an ordinary refresh reuses the same day, so the tint is unchanged")
 	assert_eq(day_three, DESKTOP_THEME.build("en", 100, &"midnight", WEEK_TINT.tint_for_day(3)).get_color("face", "Desktop"))
+
+
+func test_live_accessibility_preferences_reach_installed_dark_desktop_without_mutating_run() -> void:
+	var f := _fixture(true)
+	if f.is_empty(): return
+	await _settle()
+	var before: Dictionary = f.state.capture_run_snapshot_input()
+	assert_true(f.desktop.dispatch_desktop_eviction({"kind": &"evict_cached_apps", "day": 7}).ok)
+	assert_true(f.profile.set_preference(&"preferences.accessibility.high_contrast", true).ok)
+	await _settle()
+	var high: Dictionary = PALETTES.resolve(&"midnight", true, "standard")
+	assert_eq(f.desktop.theme.get_color("face", "Desktop"), high.face)
+	assert_true(f.profile.set_preference(&"preferences.accessibility.colour_differentiation", "deutan").ok)
+	await _settle()
+	assert_eq(f.desktop.theme.get_color("focus", "Desktop"), PALETTES.resolve(&"midnight", true, "deutan").focus)
+	assert_true(f.profile.set_preference(&"preferences.accessibility.high_contrast", false).ok)
+	await _settle()
+	var cvd: Dictionary = PALETTES.resolve(&"midnight", false, "deutan")
+	assert_lt(f.desktop.theme.get_color("face", "Desktop").ok_hsl_l, cvd.face.ok_hsl_l)
+	assert_eq(f.desktop.theme.get_color("structure", "Desktop"), cvd.structure)
+	assert_eq(f.state.capture_run_snapshot_input(), before, "theme refresh cannot rewrite gameplay state")

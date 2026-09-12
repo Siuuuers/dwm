@@ -50,6 +50,8 @@ func _bind_sources() -> void:
 		_connect_source(_owner, signal_name)
 	_connect_source(_localization, &"locale_changed")
 	_connect_source(_profile, &"preference_changed")
+	_connect_source(get_node_or_null("/root/ApplicationBootstrap"), &"application_ready")
+	_connect_source(get_node_or_null("/root/SaveManager"), &"live_session_ready")
 
 
 func _connect_source(source: Object, signal_name: StringName) -> void:
@@ -115,13 +117,23 @@ func _refresh_presentation() -> void:
 	if not COPY.has(_locale):
 		_locale = "en"
 	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if is_instance_valid(_profile) and _profile.has_method("get_preference") else 100
+	var high_contrast := bool(_profile.get_preference("preferences.accessibility.high_contrast", false)) if is_instance_valid(_profile) and _profile.has_method("get_preference") else false
+	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if is_instance_valid(_profile) and _profile.has_method("get_preference") else "standard"
+	var palette: StringName = &"after_hours"
+	if is_instance_valid(_owner) and _owner.has_method("get_run_configuration"):
+		var configuration: Variant = _owner.get_run_configuration()
+		if configuration is Dictionary and configuration.get("ok", false) and configuration.get("value") is Dictionary \
+				and typeof(configuration.value.get("dark_mode")) == TYPE_BOOL:
+			palette = &"midnight" if configuration.value.dark_mode else &"after_hours"
 	var day: Variant = _owner.get("day") if is_instance_valid(_owner) else null
 	var tint: float = WEEK_TINT.tint_for_day(int(day)) if typeof(day) == TYPE_INT else 0.0
-	var presentation_key := "%s:%d:%.2f" % [_locale, percent, tint]
+	var presentation_key := "%s:%d:%s:%s:%s:%.2f" % [_locale, percent, palette, high_contrast, colour_preset, tint]
 	if presentation_key == _presentation_key:
 		return
+	var next_theme: Theme = DESKTOP_THEME.build(_locale, percent, palette, tint, high_contrast, colour_preset)
+	if next_theme == null: return
 	_presentation_key = presentation_key
-	theme = DESKTOP_THEME.build(_locale, percent, &"after_hours", tint)
+	theme = next_theme
 	var font := FontVariation.new()
 	font.base_font = theme.default_font
 	font.opentype_features = {"tnum": 1}

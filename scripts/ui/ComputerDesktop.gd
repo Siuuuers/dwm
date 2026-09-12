@@ -738,7 +738,9 @@ func _refresh_launcher() -> void:
 		if LABELS.has(requested):
 			_locale = requested
 	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
-	theme = DESKTOP_THEME.build(_locale, percent, _run_palette, WEEK_TINT.tint_for_day(_day))
+	var high_contrast := bool(_profile.get_preference("preferences.accessibility.high_contrast", false)) if _profile != null and _profile.has_method("get_preference") else false
+	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if _profile != null and _profile.has_method("get_preference") else "standard"
+	theme = DESKTOP_THEME.build(_locale, percent, _run_palette, WEEK_TINT.tint_for_day(_day), high_contrast, colour_preset)
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = theme.get_color("face", "Desktop")
 	notice_style.border_color = theme.get_color("structure", "Desktop")
@@ -827,7 +829,8 @@ func _open_contacts_from_notification() -> void:
 		_dismiss_message_notification()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.text_size":
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast",
+			&"preferences.accessibility.colour_differentiation"]:
 		_refresh_launcher()
 
 func _on_contacts_changed(_result: Dictionary) -> void:
