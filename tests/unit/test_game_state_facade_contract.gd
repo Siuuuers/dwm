@@ -9,11 +9,15 @@ const IDENTITY_ISSUER := preload("res://scripts/application/desktop/DesktopIdent
 const ISSUER_ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const CRYPTO_NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const SCHEDULE_RESTORE_FIXTURE := preload("res://tests/support/ScheduleRestoreFixture.gd")
+const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
+const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 
 ## One real issuer over this suite's sandbox root, built the way ApplicationBootstrap builds the
 ## production one. DWM_TEST_ROOT is supplied by tools/testing/Invoke-IsolatedGodot.ps1.
-func _sandbox_identity_issuer() -> RefCounted:
+func _sandbox_identity_issuer() -> Dictionary:
 	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
 	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	var root: String = wrapper.path_join("facade-contract-identity")
@@ -24,7 +28,7 @@ func _sandbox_identity_issuer() -> RefCounted:
 	assert_true(root_store.load_or_create().get("ok", false), "root store initialized")
 	var issuer: RefCounted = IDENTITY_ISSUER.new()
 	assert_true(issuer.configure(root_store).get("ok", false), "issuer configured")
-	return issuer
+	return {"issuer": issuer, "root_store": root_store}
 
 func _fresh_game_state() -> Node:
 	var game_state: Node = load(GAME_STATE_PATH).new()
@@ -77,6 +81,19 @@ func _new_run_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": token, "numeric_value": null}
 
+func _day_resolution_start_sources(resolution_id: String, causal_day_instance: String) -> Array[String]:
+	var facts := {"role": "day_resolution.start", "resolution_id": resolution_id,
+		"source_day": 1, "causal_day_instance": causal_day_instance,
+		"schedule_commit_receipt_id": null, "board_fate_receipt_id": null,
+		"schedule_entry_ids": []}
+	var sources: Array[String] = []
+	for key: String in facts:
+		var encoded: Dictionary = CANONICAL_JSON.stringify(facts[key])
+		assert_true(encoded.get("ok", false), str(encoded))
+		sources.append(key + "=" + str(encoded.get("value", "")))
+	sources.sort()
+	return sources
+
 func test_prepare_new_run_snapshot_input_is_pure() -> void:
 	var game_state := _fresh_game_state()
 	game_state._lifecycle_set_playing_day(4)
@@ -96,6 +113,8 @@ func test_prepare_new_run_snapshot_input_is_pure() -> void:
 		"branch_id": "branch-b", "desktop_timeline_generation": 0,
 		"causal_day_instance": "causal-day-b", "causal_day_instance_issuer_receipt": receipt,
 		"restore_provenance": null,
+		"active_condition_hospital_plan": null, "condition_hospital_history": {},
+		"terminal_intent_handoff": null,
 	})
 	assert_eq(snapshot_input["desktop"]["board"]["phase"], "NONE", "a fresh run has no board yet")
 	assert_eq(snapshot_input["desktop"]["consequence"]["pending"], null, "a fresh run has no pending consequence")
@@ -122,6 +141,35 @@ func test_request_schedule_done_delegates_through_production_port() -> void:
 		&"day_resolution_unconfigured", "unconfigured facade rejects")
 	var gate: RefCounted = load(GATE_PATH).new()
 	assert_true(game_state.configure_mutation_gate(gate)["ok"])
+	var identity: Dictionary = _sandbox_identity_issuer()
+	var issuer: RefCounted = identity["issuer"]
+	var root_store: RefCounted = identity["root_store"]
+	var issued_source: Dictionary = root_store.issue(&"causal_day_instance")
+	var issued_transaction: Dictionary = root_store.issue(&"transaction_id")
+	assert_true(issued_source.get("ok", false), str(issued_source))
+	assert_true(issued_transaction.get("ok", false), str(issued_transaction))
+	var source_receipt: Dictionary = issued_source["value"]["issuer_receipt"]
+	var transaction_receipt: Dictionary = issued_transaction["value"]["issuer_receipt"]
+	var causal_day_instance := str(issued_source["value"]["token"])
+	var resolution_id := str(issued_transaction["value"]["token"])
+	game_state._run_lifecycle.reset("run-local", "branch-local", 0, causal_day_instance,
+		{"causal_day_instance_issuer_receipt": source_receipt}, false)
+	var derived_start: Dictionary = issuer.derive_child({
+		"parent_receipt_id": transaction_receipt["receipt_id"],
+		"child_kind": "day_resolution_stage", "ordinal": 0,
+		"source_ids": _day_resolution_start_sources(resolution_id, causal_day_instance),
+	})
+	assert_true(derived_start.get("ok", false), str(derived_start))
+	var start_receipt := {"receipt_id": derived_start["value"]["child_id"],
+		"receipt_provenance": derived_start["value"]["provenance"],
+		"resolution_id": resolution_id, "source_day": 1,
+		"causal_day_instance": causal_day_instance, "schedule_commit_receipt_id": null,
+		"board_fate_receipt_id": null, "schedule_entry_ids": []}
+	var started: Dictionary = game_state._run_lifecycle.begin_day_resolution(resolution_id,
+		game_state._canonical_committed_schedule(), [], null, null,
+		{"command_id": "done:day-1", "resolution_issuer_receipt": transaction_receipt,
+			"day_resolution_start_receipt": start_receipt})
+	assert_true(started.get("ok", false), str(started))
 	var calls: Array[String] = []
 	var checkpoint: RefCounted = load(CHECKPOINT_PATH).new(calls)
 	checkpoint.seed_empty("run-local")
@@ -129,6 +177,25 @@ func test_request_schedule_done_delegates_through_production_port() -> void:
 	# dwm-p2r.13). The facade no longer builds its own coordinator or state port, so this test wires
 	# them the way ApplicationBootstrap does and hands them in as direct arguments.
 	var state_port: RefCounted = load("res://scripts/application/run/GameStateDayResolutionPort.gd").new(game_state)
+	state_port._identity_issuer = issuer
+	var view_fixture: Dictionary = SCHEDULE_RESTORE_FIXTURE.create(issuer)
+	assert_true(view_fixture.get("ok", false), str(view_fixture))
+	var view: RefCounted = view_fixture["value"]["view"]
+	assert_true(view.open_day(1, causal_day_instance).get("ok", false))
+	var board: RefCounted = DESKTOP_BOARD_STATE.new()
+	var consequence: RefCounted = DESKTOP_CONSEQUENCE_STATE.new()
+	var empty_consequence: Dictionary = consequence.make_empty({
+		"causal_day_instance": causal_day_instance,
+		"causal_day_instance_issuer_receipt": source_receipt,
+	})
+	assert_true(empty_consequence.get("ok", false), str(empty_consequence))
+	var prepared_consequence: Dictionary = consequence.prepare_restore(empty_consequence["value"]["state"])
+	assert_true(prepared_consequence.get("ok", false), str(prepared_consequence))
+	assert_true(consequence.commit(prepared_consequence["value"]["candidate"]).get("ok", false))
+	game_state._desktop_snapshot = {"board": board.capture(),
+		"consequence": consequence.capture()["value"]["state"]}
+	assert_true(state_port.configure_day_advance_owners(view, board, consequence).get("ok", false),
+		"the production day-advance owners are configured")
 	var coordinator: RefCounted = load("res://scripts/application/run/DayResolutionCoordinator.gd").new()
 	assert_true(coordinator.configure(state_port, checkpoint, gate)["ok"])
 	# The separate Task-7 seam (Plan 01 Step 7.3a, dwm-p2r.14): since d5a0f3e9 a Days 1-6 walk
@@ -136,7 +203,7 @@ func test_request_schedule_done_delegates_through_production_port() -> void:
 	# this contract wires it exactly as ApplicationBootstrap._configure_causal_day_advance_identity
 	# does -- a real issuer over a GUID-isolated sandbox root, never user://.
 	var day_advance_port: RefCounted = DAY_ADVANCE_IDENTITY_PORT.new()
-	assert_true(day_advance_port.configure(_sandbox_identity_issuer()).get("ok", false),
+	assert_true(day_advance_port.configure(issuer).get("ok", false),
 		"advance identity port bound to a real issuer")
 	assert_true(coordinator.configure_day_advance_identity_port(day_advance_port).get("ok", false),
 		"advance identity port injected through the separate seam")
@@ -145,14 +212,24 @@ func test_request_schedule_done_delegates_through_production_port() -> void:
 		"the install seam returns only the exact primitive envelope")
 	var day_signals: Array[int] = []
 	game_state.day_changed.connect(func(new_day: int) -> void: day_signals.append(new_day))
+	var root_before_request: Dictionary = root_store.capture()
+	var rejected: Dictionary = game_state.request_schedule_done("done:another-command")
+	assert_false(rejected.get("ok", false), "a different command cannot resume this plan")
+	assert_eq(rejected.get("code"), &"resolution_conflict")
+	assert_eq(game_state.day, 1, "request admission rejects before advancing the day")
+	assert_eq(day_signals, [], "rejected requests do not publish")
+	assert_eq(root_store.capture(), root_before_request, "rejected requests do not allocate identity")
 	var result: Dictionary = game_state.request_schedule_done("done:day-1")
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result["code"], &"plan_complete")
 	assert_eq(game_state.day, 2, "the production Schedule Done path advanced the day once")
-	assert_true(day_signals.size() > 0, "publications emit committed state through declared signals")
+	assert_eq(day_signals, [2], "publication emits the committed day exactly once")
+	var root_after_completion: Dictionary = root_store.capture()
 	var resumed: Dictionary = game_state.resume_day_resolution()
 	assert_true(resumed.get("ok", false), "resume exposes coordinator results")
 	assert_eq(resumed["code"], &"plan_complete")
+	assert_eq(root_store.capture(), root_after_completion, "completed replay cannot allocate another identity")
+	assert_eq(day_signals, [2], "completed replay cannot publish the day again")
 
 const TASK4_SCHEDULE_SEAMS: Array[String] = [
 	"capture_schedule_commit_state", "prepare_schedule_commit_candidate",

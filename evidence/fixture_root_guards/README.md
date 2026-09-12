@@ -30,3 +30,9 @@ For stale setup, the hook restores the valid root at each ledger suite start, sn
 The first empty-root attempt exposed a missed caller that indexed `call_sites[0]` after failed fixture creation. Its log is retained as `root-probe-empty.log`; the final source adds the early return and the corrected empty/whitespace probes have no runtime errors.
 
 Committed log copies normalize trailing whitespace only; original runner logs remain in the ignored worktree evidence directory.
+
+## 2026-09-13 inventory follow-up
+
+`dwm-sf7` now reconciles the current public inventories and adds a full byte-reproduction check. All six suites pass: **47/47 tests**, comprising the original 45 and two new inventory checks, within the final eight-suite 89/89 run. This satisfies the previously outstanding normal-run requirement for `dwm-ryl.1`; the results above remain the original historical measurements.
+
+The new fixture-writing test also received isolated empty/whitespace probes: both explicitly refuse before writes, with no engine errors, and leave all 8,437 file hashes plus 521 descendant directories unchanged (522 when counting the root). The new source-reading test creates no fixture. See [current inventory verification](../public_surface_reproducibility/README.md) for final and supplemental logs. The parent `dwm-ryl` still owns the other audited fixture files.

@@ -42,7 +42,9 @@ const EVIDENCE_SUBJECT := "test(schedule): seal the Phase-2R committed Schedule 
 const VECTOR_MARKER := "P2R15_OBSERVED_VECTOR:"
 const PUBLICATION_MARKER := "P2R15_OBSERVED_PUBLICATION:"
 const LOG_DIRECTORY := "res://evidence/phase_2r/logs"
-const SURFACE_PATH := "res://evidence/phase_2r/runtime/game_state_surface.json"
+# This commit last updated the historical record and sibling surface together.
+# Today's inventory is checked independently by test_public_surface_inventory.gd.
+const SURFACE_SEAL_COMMIT := "f7e601d54a6c25a6ed69b1651e48bbbd20e261b3"
 
 const COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
 const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
@@ -628,7 +630,40 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd"))
 	assert_true(context_seam_code.find("_identity_issuer.call(&\"derive_child\"") >= 0,
 		"the context seam delegates every derivation to the retained issuer, never minting itself")
-	assert_eq(value["dynamic"], [], "no dynamic derive_child site exists")
+	# The historical classifier calls direct `issuer.derive_child(...)` syntax "dynamic" because
+	# Plan 01 only admitted literal `.call(&"derive_child", ...)` producers. These six newer
+	# calls are statically named on retained issuer objects; pin every one, including its role.
+	var direct_calls: Array[Dictionary] = [
+		{"path": "autoload/GameState.gd", "call": "_identity_issuer.derive_child({\"child_kind\": \"terminal_intent\"", "kind": "terminal_intent"},
+		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"hospital_miss\"", "kind": "hospital_miss"},
+		{"path": "scripts/application/run/ConditionHospitalContactsAdapter.gd", "call": "issuer.derive_child({\"child_kind\": \"sylvia_hospital_witness\"", "kind": "sylvia_hospital_witness"},
+		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
+		{"path": "scripts/application/run/GameStateConditionHospitalPort.gd", "call": "_issuer.derive_child({\"child_kind\": \"day_resolution_stage\"", "kind": "day_resolution_stage"},
+		{"path": "scripts/application/run/GameStateDayResolutionPort.gd", "call": "_identity_issuer.derive_child(source.value.derivation_request)", "kind": "day_resolution_stage"},
+	]
+	assert_eq((value["dynamic"] as Array).size(), direct_calls.size(),
+		"only the six identified, statically named issuer calls remain outside the Plan-01 classifier")
+	for index: int in range(mini((value["dynamic"] as Array).size(), direct_calls.size())):
+		var site: Dictionary = value["dynamic"][index]
+		var expected: Dictionary = direct_calls[index]
+		assert_eq(str(site["path"]), str(expected["path"]), "direct issuer call path %d" % index)
+		var lines: PackedStringArray = FileAccess.get_file_as_string("res://" + str(site["path"])).split("\n")
+		var line_index: int = int(site["line"]) - 1
+		assert_true(line_index >= 0 and line_index < lines.size(), "direct issuer call line exists")
+		if line_index >= 0 and line_index < lines.size():
+			assert_true(lines[line_index].contains(str(expected["call"])),
+				"the classified site is the exact named issuer call for " + str(expected["kind"]))
+		assert_true(ISSUER.CHILD_KINDS.has(str(expected["kind"])),
+			"the current issuer registers " + str(expected["kind"]))
+	var remapper: String = _generator.strip_comments(FileAccess.get_file_as_string(
+		"res://scripts/domain/desktop/DesktopContinuationRemapper.gd"))
+	assert_true(remapper.contains("\"derivation_request\": {")
+		and remapper.contains("\"child_kind\": \"day_resolution_stage\""),
+		"the source request of the sixth direct call fixes its registered role")
+	assert_true(_generator.strip_comments(FileAccess.get_file_as_string(
+		"res://scripts/application/run/GameStateDayResolutionPort.gd")).contains(
+		"_identity_issuer.validate_child(derived.value.provenance, &\"day_resolution_stage\")"),
+		"the day-advance continuation child is validated after derivation")
 	var call_paths: Array[String] = []
 	for site: Dictionary in (value["call_sites"] as Array):
 		if not call_paths.has(str(site["path"])):
@@ -664,6 +699,7 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 	assert_eq(call_paths, [
 		"scripts/application/desktop/DesktopConditionPolicyPort.gd",
 		"scripts/application/desktop/DesktopConsequenceCoordinator.gd",
+		"scripts/application/desktop/DesktopConsequenceSourcePort.gd",
 		"scripts/application/desktop/GameStateDesktopConditionContextPort.gd",
 		"scripts/application/minesweeper/DesktopBoardFatePort.gd",
 		"scripts/application/minesweeper/GameStateDesktopBoardPort.gd",
@@ -674,8 +710,26 @@ func test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_pro
 		"scripts/application/schedule/ScheduleViewController.gd",
 		"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd",
 		"scripts/domain/contact/ContactInvitationState.gd",
+		"scripts/domain/run/ConditionHospitalState.gd",
 		"scripts/domain/schedule/Day7ScheduleProvenance.gd",
-	], "exactly the thirteen attributed producers call derive_child")
+	], "the fifteen named producers include current condition and Hospital receipt owners")
+	var consequence_source: String = _generator.strip_comments(FileAccess.get_file_as_string(
+		"res://scripts/application/desktop/DesktopConsequenceSourcePort.gd"))
+	assert_true(consequence_source.contains("_identity_issuer.call(&\"derive_child\", {\"child_kind\": \"condition\""),
+		"the condition receipt delegates to the issuer with a registered role")
+	var hospital_state: String = _generator.strip_comments(FileAccess.get_file_as_string(
+		"res://scripts/domain/run/ConditionHospitalState.gd"))
+	for kind: String in ["hospital_resolution", "condition_hospital_stage", "condition_hospital_retirement"]:
+		assert_true(ISSUER.CHILD_KINDS.has(kind), "the issuer registers the Hospital role " + kind)
+	assert_true(hospital_state.contains("_identity_port.call(&\"derive_child\", {")
+		and hospital_state.contains("\"child_kind\": _RESOLUTION_CHILD_KIND")
+		and hospital_state.contains("\"child_kind\": _STAGE_CHILD_KIND")
+		and hospital_state.contains("\"child_kind\": _RETIREMENT_CHILD_KIND"),
+		"the Hospital owner delegates its three typed child roles")
+	assert_true(_generator.strip_comments(FileAccess.get_file_as_string(
+		"res://autoload/ApplicationBootstrap.gd")).contains(
+		"state.configure(game_state._run_lifecycle, _desktop_identity_nonce_issuer)"),
+		"production injects the retained issuer into the Hospital state owner")
 
 
 func test_bootstrap_probe_key_set_and_owner_bindings_are_exact() -> void:
@@ -730,10 +784,18 @@ func test_committed_entry_key_law_and_state_schema_agree() -> void:
 	var aggregate_keys: Array = ((aggregate["value"] as Dictionary)["values"] as Array).duplicate()
 	aggregate_keys.sort()
 	assert_eq(aggregate_keys, _generator.COMMITTED_AGGREGATE_KEYS, "the five aggregate keys")
-	# The immutable historical seal remains v4; this reads the current production
-	# owner, whose v5 cutover retains desktop durability and adds captured Dark.
-	assert_eq(int((_generator.parse_int_constant(FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd"), "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 5,
-		"the live owner carries RunSnapshotSchema v5 with the retained desktop aggregate")
+	# The sealed Plan-01 subject had v3; the live contract now carries v6's Schedule view,
+	# condition lifecycle, and captured Dark while retaining the committed aggregate.
+	var subject_schema: String = _git_blob(str(_record["subject_commit"]),
+		"scripts/domain/run/RunSnapshotSchema.gd").get_string_from_utf8()
+	assert_eq(int((_generator.parse_int_constant(subject_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 3,
+		"the committed Plan-01 subject still owns the historical v3 boundary")
+	var live_schema: String = FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd")
+	assert_eq(int((_generator.parse_int_constant(live_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 6,
+		"the current RunSnapshotSchema carries the reconciled v6 contract")
+	assert_true(live_schema.contains("\"committed_schedule\"") and live_schema.contains("\"schedule_view\"")
+		and live_schema.contains("\"dark_mode\""),
+		"v6 retains committed Schedule and captured Dark beside the saved Schedule view")
 
 
 func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> void:
@@ -748,12 +810,17 @@ func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> voi
 	assert_eq(_generator.DAY_7_STAGES, DAY_7_STAGES, "generator and test agree on D7")
 	for retired: String in _generator.RETIRED_ENDING_STAGES:
 		assert_false(DAY_1_6_STAGES.has(retired) or DAY_7_STAGES.has(retired), retired + " is reachable from no stage array")
-	# The residue is real and is sealed as dead, not denied.
+	# The retired stages remain unreachable. Their former fallback is historical only:
+	# the live state port now reads the resolved plan or the frozen GameState plan.
 	var coordinator: String = _generator.strip_comments(FileAccess.get_file_as_string("res://scripts/application/run/DayResolutionCoordinator.gd"))
 	var state_port: String = _generator.strip_comments(FileAccess.get_file_as_string("res://scripts/application/run/GameStateDayResolutionPort.gd"))
 	assert_true(coordinator.find("\"resolve_ending_plan\"") >= 0, "the coordinator still declares the retired stage contract")
-	assert_true(state_port.find("_default_ending_plan") >= 0 and state_port.find("\"ending.alone\"") >= 0,
-		"the state port still carries the dead default-ending fallback")
+	assert_true(state_port.contains("func _default_ending_plan() -> Dictionary:")
+		and state_port.contains("_resolved_ending_plan_from_snapshot(_game_state._run_lifecycle.to_dict())")
+		and state_port.contains("return _game_state.get_frozen_ordered_ending_plan()"),
+		"the remaining compatibility seam uses a resolved or frozen plan")
+	assert_false(state_port.contains("\"ending.alone\""),
+		"the live state port cannot invent a default Alone ending")
 	assert_eq(DAY_RESOLUTION_PLAN.stage_allowlist(7), DAY_7_STAGES, "the live allowlist for Day 7 is the frozen five")
 	assert_eq(DAY_RESOLUTION_PLAN.stage_allowlist(3), DAY_1_6_STAGES, "the live allowlist for Days 1-6 is the frozen twelve")
 
@@ -1222,8 +1289,11 @@ func test_record_is_absent_before_generation_or_valid_canonical_and_source_bound
 	for fixture: Dictionary in (_record["fixtures"] as Array):
 		assert_eq(_sha256_bytes(_git_blob(subject, str(fixture["path"]))), str(fixture["sha256"]), str(fixture["path"]) + " digest")
 	var surface_record: Dictionary = _record["generated_surface"]
-	assert_true(FileAccess.file_exists(SURFACE_PATH), "the co-generated surface exists")
-	assert_eq(_sha256_bytes(FileAccess.get_file_as_bytes(SURFACE_PATH)), str(surface_record["sha256"]), "the co-generated surface is cross-bound")
+	assert_eq(_git_blob(SURFACE_SEAL_COMMIT, RECORD_RELATIVE), _record_bytes, "the unchanged historical record and sibling artifact share one revision")
+	assert_true(_git_ok(PackedStringArray(["merge-base", "--is-ancestor", SURFACE_SEAL_COMMIT, "HEAD"])), "the historical co-generation revision is retained")
+	var sealed_surface := _git_blob(SURFACE_SEAL_COMMIT, str(surface_record["path"]))
+	assert_false(sealed_surface.is_empty(), "the historical co-generated surface exists")
+	assert_eq(_sha256_bytes(sealed_surface), str(surface_record["sha256"]), "the historical co-generated surface is cross-bound")
 	assert_eq((_record["observed_vectors"] as Array).size(), 11, "eleven realized rows carry an observed vector")
 	assert_eq((_record["observed_publications"] as Array).size(), 4, "four publication vectors")
 	var live_registry: Dictionary = REGISTRY.load_current()
