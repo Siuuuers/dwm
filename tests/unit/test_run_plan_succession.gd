@@ -28,7 +28,7 @@ func _lifecycle() -> RefCounted:
 	var receipt := {"receipt_id": "issuer_receipt.fixture-causal-day-succession", "purpose": "causal_day_instance",
 		"namespace": "fixturenamespace", "counter": 1, "token": "causal-day-succession", "numeric_value": null}
 	lifecycle.reset("run-succession", "branch-succession", 0, "causal-day-succession",
-		{"causal_day_instance_issuer_receipt": receipt})
+		{"causal_day_instance_issuer_receipt": receipt}, false)
 	return lifecycle
 
 

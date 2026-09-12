@@ -23,7 +23,8 @@ class FakeOwner extends RefCounted:
 			return {"ok": false, "code": &"forced_owner_failure", "message": method}
 		return {}
 	func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,
-			causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: bool) -> Dictionary:
+			causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, dark_mode: bool,
+			pair_witnessed_forms: Variant = null) -> Dictionary:
 		_r("prepare_new_run_snapshot_input")
 		var g := _guard("prepare_new_run_snapshot_input")
 		if not g.is_empty(): return g
