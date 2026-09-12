@@ -22,6 +22,12 @@ const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_re
 const PAIR_FORMS := ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]
 const MIGRATION_RECEIPT_KEYS := ["legacy_game_state_profile_v1", "legacy_input_bindings_v1", "invalid_persisted_skip_mode_v1"]
 const PREFERENCE_GROUPS := ["language", "reading", "audio", "display", "accessibility", "exceptional_replay", "dark_mode"]
+const _MINESWEEPER_VIEW_LEAVES := [
+	"minesweeper_app_beginner_cell_size", "minesweeper_app_beginner_always_fit",
+	"minesweeper_app_intermediate_cell_size", "minesweeper_app_intermediate_always_fit",
+	"minesweeper_app_expert_cell_size", "minesweeper_app_expert_always_fit",
+	"minesweeper_challenge_cell_size", "minesweeper_challenge_always_fit",
+]
 
 const ENDING_IDS := [
 	"ending.alone", "ending.priscilla.sweet", "ending.priscilla.dark", "ending.priscilla.observation",
@@ -229,8 +235,9 @@ static func _add_closed_legacy_fields(candidate: Dictionary) -> void:
 	candidate["legacy_preferences_v1"] = {}
 
 
-static func _validate_modern_document(profile: Dictionary, version: int, root_keys: Array,
+static func _validate_modern_document(source: Dictionary, version: int, root_keys: Array,
 		has_controls: bool) -> Dictionary:
+	var profile := source.duplicate(true)
 	if not profile.has("schema_version") or typeof(profile["schema_version"]) != TYPE_INT:
 		return _invalid("schema_version", "schema_version must be an integer")
 	if profile["schema_version"] != version:
@@ -243,6 +250,7 @@ static func _validate_modern_document(profile: Dictionary, version: int, root_ke
 	if not receipts.get("ok", false): return receipts
 	var visited := _validate_unique_strings(profile["visited_line_ids"], "visited_line_ids")
 	if not visited.get("ok", false): return visited
+	var admitted_view_defaults := _admit_legacy_minesweeper_view_defaults(profile)
 	var preferences := _validate_preferences(profile["preferences"])
 	if not preferences.get("ok", false): return preferences
 	var mappings := _validate_input_mappings(profile["input_mappings"], version == 2)
@@ -285,7 +293,25 @@ static func _validate_modern_document(profile: Dictionary, version: int, root_ke
 			if not run_id is String or run_id.strip_edges().is_empty(): return _invalid("pair_deck_draws", "A run identity is required")
 			var draw := PAIR_DECK.validate(profile["pair_deck_draws"][run_id])
 			if not draw.ok: return draw
-	return {"ok": true, "code": &"ok", "value": profile.duplicate(true)}
+	var result := {"ok": true, "code": &"ok", "value": profile}
+	if admitted_view_defaults:
+		result["migrated"] = true
+	return result
+
+
+static func _admit_legacy_minesweeper_view_defaults(profile: Dictionary) -> bool:
+	var preferences: Variant = profile.get("preferences")
+	if typeof(preferences) != TYPE_DICTIONARY:
+		return false
+	var display: Variant = preferences.get("display")
+	if typeof(display) != TYPE_DICTIONARY:
+		return false
+	for leaf: String in _MINESWEEPER_VIEW_LEAVES:
+		if display.has(leaf):
+			return false
+	for leaf: String in _MINESWEEPER_VIEW_LEAVES:
+		display[leaf] = PREFERENCE_REGISTRY.default_value(StringName("preferences.display." + leaf))
+	return true
 
 
 static func validate_preference(path: StringName, value: Variant) -> Dictionary:

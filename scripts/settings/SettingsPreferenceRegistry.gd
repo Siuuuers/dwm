@@ -2,6 +2,7 @@ class_name SettingsPreferenceRegistry
 extends RefCounted
 
 const _LOCALE_IDS := ["en", "zh_CN", "zh_HK"]
+const _MINESWEEPER_CELL_SIZES := [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60]
 
 const _RECORDS := [
 	{"path": &"preferences.language.primary_locale_id", "type": &"locale_id", "default_value": "en", "section_id": &"language", "renderer": &"locale_option", "player_writable": true, "visible": true, "allowed_values": _LOCALE_IDS, "step": 0.0, "label": "Primary language"},
@@ -25,6 +26,14 @@ const _RECORDS := [
 	{"path": &"preferences.audio.mute_when_inactive", "type": &"bool", "default_value": true, "section_id": &"audio", "renderer": &"toggle", "player_writable": true, "visible": true, "allowed_values": [], "step": 0.0, "label": "Mute when inactive"},
 	{"path": &"preferences.audio.output_mode", "type": &"enum_string", "default_value": "stereo", "section_id": &"audio", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": ["stereo", "mono"], "step": 0.0, "label": "Output mode"},
 	{"path": &"preferences.display.window_mode", "type": &"enum_string", "default_value": "windowed", "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": ["windowed", "borderless"], "step": 0.0, "label": "Window mode"},
+	{"path": &"preferences.display.minesweeper_app_beginner_cell_size", "type": &"enum_int", "default_value": 36, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _MINESWEEPER_CELL_SIZES, "step": 2.0, "label": "Beginner cell size"},
+	{"path": &"preferences.display.minesweeper_app_beginner_always_fit", "type": &"bool", "default_value": false, "section_id": &"display", "renderer": &"toggle", "player_writable": true, "visible": false, "allowed_values": [], "step": 0.0, "label": "Fit beginner board"},
+	{"path": &"preferences.display.minesweeper_app_intermediate_cell_size", "type": &"enum_int", "default_value": 36, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _MINESWEEPER_CELL_SIZES, "step": 2.0, "label": "Intermediate cell size"},
+	{"path": &"preferences.display.minesweeper_app_intermediate_always_fit", "type": &"bool", "default_value": false, "section_id": &"display", "renderer": &"toggle", "player_writable": true, "visible": false, "allowed_values": [], "step": 0.0, "label": "Fit intermediate board"},
+	{"path": &"preferences.display.minesweeper_app_expert_cell_size", "type": &"enum_int", "default_value": 36, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _MINESWEEPER_CELL_SIZES, "step": 2.0, "label": "Expert cell size"},
+	{"path": &"preferences.display.minesweeper_app_expert_always_fit", "type": &"bool", "default_value": false, "section_id": &"display", "renderer": &"toggle", "player_writable": true, "visible": false, "allowed_values": [], "step": 0.0, "label": "Fit expert board"},
+	{"path": &"preferences.display.minesweeper_challenge_cell_size", "type": &"enum_int", "default_value": 36, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _MINESWEEPER_CELL_SIZES, "step": 2.0, "label": "Challenge cell size"},
+	{"path": &"preferences.display.minesweeper_challenge_always_fit", "type": &"bool", "default_value": false, "section_id": &"display", "renderer": &"toggle", "player_writable": true, "visible": false, "allowed_values": [], "step": 0.0, "label": "Fit challenge board"},
 	{"path": &"preferences.accessibility.text_size", "type": &"enum_int", "default_value": 100, "section_id": &"accessibility", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": [100, 125, 150], "step": 0.0, "label": "Text size"},
 	{"path": &"preferences.accessibility.large_targets", "type": &"bool", "default_value": false, "section_id": &"accessibility", "renderer": &"toggle", "player_writable": true, "visible": true, "allowed_values": [], "step": 0.0, "label": "Large targets"},
 	{"path": &"preferences.accessibility.high_contrast", "type": &"bool", "default_value": false, "section_id": &"accessibility", "renderer": &"toggle", "player_writable": true, "visible": true, "allowed_values": [], "step": 0.0, "label": "High contrast"},
