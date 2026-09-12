@@ -249,6 +249,11 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 	var backup: Dictionary = {}
 	var prior: Dictionary = _record.duplicate(true)
 	var prior_history := _history_state()
+	# A routine cell action starts and ends inside an already-materialized challenge board. Its
+	# effect lives in memory until the next boundary (terminal result, suspend, save), so it
+	# writes no checkpoint of its own (dwm-634.1). Entering, materializing and finishing the
+	# board remain boundaries.
+	var routine_start: bool = _record.get("board") != null and str(_record.get("phase", "")) == "challenge"
 	if _checkpoint_writer.is_valid():
 		var captured: Dictionary = _game_state.capture_restore_state()
 		if not captured.get("ok", false): return captured
@@ -265,6 +270,17 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 			_game_state.rollback_restore_silent(backup)
 			_record = prior
 			_restore_history_state(prior_history)
+			return result
+		if changed and routine_start and str(_record.get("phase", "")) == "challenge" and not bool(_record.get("board", {}).get("terminal", false)):
+			if commit_history and _attempt_gate != null:
+				var routine_committed: Dictionary = _commit_attempt()
+				if not routine_committed.get("ok", false):
+					_game_state.rollback_restore_silent(backup)
+					_record = prior
+					_restore_history_state(prior_history)
+					return routine_committed
+				var routine_published: Dictionary = _publish_history_reference()
+				if not routine_published.get("ok", false): return routine_published
 			return result
 		if changed:
 			if commit_history and _attempt_gate != null and _record.get("phase") not in ["pre_challenge", "preparing"]:
@@ -561,7 +577,7 @@ func _board_action(action: String, index: int) -> Dictionary:
 	var reduced: Dictionary
 	if _record.board == null:
 		if _record.schema_version == 3 and action in ["flag", "unflag"]:
-			var issued: Dictionary = _issuer.issue(&"transaction_id")
+			var issued: Dictionary = _issue_board_transaction()
 			if not issued.get("ok", false): return issued
 			var marked: Dictionary = REDUCER.set_shell_flag(_record.envelope.shell, int(_record.spec.width),
 				int(_record.spec.height), index, action == "flag", str(issued.value.token))
@@ -588,7 +604,7 @@ func _board_action(action: String, index: int) -> Dictionary:
 			reduced = REDUCER.first_reveal(layout, index, _record.envelope.shell)
 		else: reduced = REDUCER.first_reveal(layout, index)
 	else:
-		var issued: Dictionary = _issuer.issue(&"transaction_id")
+		var issued: Dictionary = _issue_board_transaction()
 		if not issued.get("ok", false): return issued
 		var transaction_id: String = str(issued.value.token)
 		match action:
@@ -618,6 +634,13 @@ func _board_action(action: String, index: int) -> Dictionary:
 	var mine_ordinal: int = _record.board.mine_indices.find(_record.board.exploded_index)
 	_record.relationship_outcome = _record.mine_dispositions[mine_ordinal]
 	return _settle_terminal()
+
+## Routine cell actions keep the board in memory until a checkpoint boundary, so their receipts
+## stay in memory too (dwm-634.1); the run-save storage flushes them before any save.
+func _issue_board_transaction() -> Dictionary:
+	if _issuer.has_method("issue_deferred"):
+		return _issuer.call(&"issue_deferred", &"transaction_id")
+	return _issuer.call(&"issue", &"transaction_id")
 
 func _settle_terminal() -> Dictionary:
 	# Persist the selected terminal fact before applying effects, so retries never offer a second

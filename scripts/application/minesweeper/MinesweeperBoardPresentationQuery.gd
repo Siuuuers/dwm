@@ -37,22 +37,26 @@ static func desktop(snapshot: Dictionary, difficulty: String, entry_eligible: bo
 	# Retained dimensions remain literal, including older valid boards. Never reshape a save.
 	var cells: Array[Dictionary] = []
 	var inspectable: bool = phase == "ACTIVE_VISIBLE" and not board.terminal
+	# dwm-634.1: one pass builds the index sets so each cell is a dictionary probe, not a scan.
+	var revealed_set := _index_set(board.revealed_indices)
+	var flagged_set := _index_set(board.flagged_indices)
+	var mine_set := _index_set(board.mine_indices)
 	for index in int(board.width) * int(board.height):
-		var revealed: bool = board.revealed_indices.has(index)
-		var flagged: bool = board.flagged_indices.has(index)
+		var revealed: bool = revealed_set.has(index)
+		var flagged: bool = flagged_set.has(index)
 		var cell := _cell(index, inspectable)
 		if inspectable: cell.actions = ["reveal", "flag"]
 		if revealed:
 			cell.face = "revealed"
 			cell.number = int(board.adjacency_counts[index])
-			cell.actions = ["chord"] if inspectable and cell.number > 0 and _adjacent_flags(index, board) == cell.number else []
+			cell.actions = ["chord"] if inspectable and cell.number > 0 and _adjacent_flags(index, board, flagged_set) == cell.number else []
 		elif flagged:
 			cell.mark = "flag"
 			cell.actions = ["unflag"] if inspectable else []
 		if board.terminal:
 			if flagged:
-				cell.mark = "correct_flag" if board.mine_indices.has(index) else "incorrect_flag"
-			elif board.mine_indices.has(index):
+				cell.mark = "correct_flag" if mine_set.has(index) else "incorrect_flag"
+			elif mine_set.has(index):
 				cell.face = "revealed"
 				cell.number = 0
 				cell.mark = "exploded" if index == board.exploded_index else "mine"
@@ -109,15 +113,21 @@ static func _cell(index: int, inspectable: bool) -> Dictionary:
 	return {"index": index, "face": "covered", "mark": "none", "number": 0,
 		"bracketed": false, "inspectable": inspectable, "pressable": false, "actions": []}
 
-static func _adjacent_flags(index: int, board: Dictionary) -> int:
+static func _adjacent_flags(index: int, board: Dictionary, flagged_set: Dictionary) -> int:
 	var width: int = int(board.width)
 	var column: int = index % width
 	var row: int = index / width
 	var count := 0
 	for y in range(maxi(0, row - 1), mini(int(board.height), row + 2)):
 		for x in range(maxi(0, column - 1), mini(width, column + 2)):
-			if (x != column or y != row) and board.flagged_indices.has(y * width + x): count += 1
+			if (x != column or y != row) and flagged_set.has(y * width + x): count += 1
 	return count
+
+static func _index_set(indices: Variant) -> Dictionary:
+	var members := {}
+	if indices is Array:
+		for index: Variant in indices: members[int(index)] = true
+	return members
 
 static func _keys(value: Dictionary, expected: Array) -> bool:
 	if value.size() != expected.size(): return false

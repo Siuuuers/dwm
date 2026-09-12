@@ -12,6 +12,8 @@ extends RefCounted
 ##     configure(storage,namespace_source)
 ##     load_or_create()
 ##     issue(purpose)
+##     issue_deferred(purpose)
+##     flush()
 ##     verify_receipt(receipt,expected_purpose)
 ##     prepare_allocation(request)
 ##     commit_allocation(candidate)
@@ -167,6 +169,8 @@ var _loaded := false
 # Atomic writes repeatedly validate the same exact UTF-8 document. Keep only the three
 # most recent texts proven by the strict parser or canonical writer; cold or changed bytes still parse.
 var _validated_write_texts: Array[String] = []
+## dwm-634.1: true while issue_deferred() receipts exist only in _document.
+var _pending_flush := false
 # Canonical fragments for the issue-only append path. A generic write or validated load rebuilds
 # them; issuing one receipt then serializes only that receipt and the changed counter.
 var _canonical_field_values: Dictionary = {}
@@ -243,6 +247,40 @@ func issue(purpose: StringName) -> Dictionary:
 		"value": {"token": str(receipt["token"]), "issuer_receipt": receipt.duplicate(true)},
 		"receipt": receipt.duplicate(true),
 	}
+
+
+## dwm-634.1: mints in memory only. The receipt verifies at once and the live counter advances,
+## but nothing reaches storage until flush() or the next durable write. Callers use this for
+## commands whose own effects are not yet durable: a crash loses receipt and effect together,
+## and a restart resumes at the last durable counter without reusing one, because every run
+## save flushes this ledger first.
+func issue_deferred(purpose: StringName) -> Dictionary:
+	var ready := _require_loaded("issue_deferred")
+	if not ready.get("ok", false):
+		return ready
+	if not PURPOSE_UNION.has(String(purpose)):
+		return _failed(&"unknown_purpose", String(purpose))
+	var minted := _minted_document([{"purpose": String(purpose), "numeric_value": null}])
+	var receipt: Dictionary = (minted["receipts"] as Array)[0]
+	_adopt_deferred(minted["document"], receipt)
+	return {
+		"ok": true,
+		"value": {"token": str(receipt["token"]), "issuer_receipt": receipt.duplicate(true)},
+		"receipt": receipt.duplicate(true),
+	}
+
+
+## dwm-634.1: writes every receipt minted by issue_deferred() since the last durable write.
+func flush() -> Dictionary:
+	var ready := _require_loaded("flush")
+	if not ready.get("ok", false):
+		return ready
+	if not _pending_flush:
+		return {"ok": true, "value": {"written": false}}
+	var written := _write_pending_document()
+	if not written.get("ok", false):
+		return written
+	return {"ok": true, "value": {"written": true}}
 
 
 func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictionary:
@@ -378,6 +416,7 @@ func _write_document(document: Dictionary) -> Dictionary:
 		return _storage_failure(written, &"root_write_failed")
 	_document = document.duplicate(true)
 	_rebuild_issue_canonical_cache(_document)
+	_pending_flush = false
 	return {"ok": true}
 
 
@@ -403,6 +442,41 @@ func _write_issued_document(document: Dictionary, receipt: Dictionary) -> Dictio
 	_document = document.duplicate(true)
 	_canonical_receipt_entries = receipt_entries
 	_canonical_field_values["next_counter"] = str(int(document["next_counter"]))
+	_pending_flush = false
+	return {"ok": true}
+
+
+## Adopts a deferred mint into the live document and the incremental canonical cache.
+func _adopt_deferred(document: Dictionary, receipt: Dictionary) -> void:
+	_document = document
+	_pending_flush = true
+	if _canonical_field_values.is_empty():
+		return
+	var receipt_id := str(receipt["receipt_id"])
+	var encoded_id: Dictionary = _CANONICAL_WRITER.stringify(receipt_id)
+	var encoded_receipt: Dictionary = _CANONICAL_WRITER.stringify(receipt)
+	if not encoded_id.get("ok", false) or not encoded_receipt.get("ok", false):
+		_canonical_field_values = {}
+		_canonical_receipt_entries = {}
+		return
+	_canonical_receipt_entries[receipt_id] = str(encoded_id["value"]) + ":" + str(encoded_receipt["value"])
+	_canonical_field_values["next_counter"] = str(int(document["next_counter"]))
+
+
+## Writes the live document, which already carries every deferred receipt.
+func _write_pending_document() -> Dictionary:
+	if _canonical_field_values.is_empty():
+		return _write_document(_document)
+	var text := _compose_issue_document(_document, _canonical_receipt_entries)
+	if text.is_empty():
+		return _write_document(_document)
+	_remember_write_text(text)
+	var written: Dictionary = _storage.call(
+		&"write_atomic", ROOT_DOCUMENT_PATH, text, Callable(self, "_parse_known_write_document"), true
+	)
+	if not written.get("ok", false):
+		return _storage_failure(written, &"root_write_failed")
+	_pending_flush = false
 	return {"ok": true}
 
 

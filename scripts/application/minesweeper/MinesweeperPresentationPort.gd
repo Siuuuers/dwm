@@ -17,6 +17,9 @@ var _configuration: Dictionary = {}
 var _pending_configuration: Dictionary = {}
 var _terminal_foresight: Variant = null
 var _pending_settlement_request: Dictionary = {}
+## dwm-634.1: the owner view of a terminal command whose settlement was deferred so the board
+## could paint first. Consumed by settle_pending() or by the next entry into this port.
+var _pending_settlement_view: Dictionary = {}
 var _pending_preparation_request: Dictionary = {}
 var _pending_preparation_context: Dictionary = {}
 
@@ -39,6 +42,10 @@ func pull(difficulty: String) -> Dictionary:
 	if _owner == null or difficulty.strip_edges().is_empty():
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
+	if not _pending_settlement_view.is_empty():
+		var deferred := settle_pending()
+		if not deferred.get("ok", false): return deferred
+		return _success(_projection.duplicate(true))
 	# Source commit may already have cleared the board while the full save is pending.
 	# Retry the exact retained settlement before reading NONE and losing that request.
 	if not _pending_settlement_request.is_empty():
@@ -63,6 +70,8 @@ func pull(difficulty: String) -> Dictionary:
 func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictionary:
 	if _owner == null or _projection.is_empty():
 		return _failure(&"minesweeper_presentation_unavailable")
+	var deferred := _settle_if_pending()
+	if not deferred.get("ok", false): return deferred
 	if action not in ["reveal", "flag", "unflag", "chord"]:
 		return _failure(&"minesweeper_action_not_available")
 	if expected_revision != _revision:
@@ -88,7 +97,8 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	if current_projection != _projection:
 		_adopt(current.value)
 		return _failure(&"stale_minesweeper_presentation", _projection)
-	var issued: Dictionary = _issuer.call(&"issue", &"transaction_id")
+	var durable_first_reveal := action == "reveal" and _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]
+	var issued: Dictionary = _mint_transaction(durable_first_reveal)
 	if not issued.get("ok", false):
 		return _failure(&"minesweeper_command_refused")
 	var issued_value: Dictionary = issued.get("value", {})
@@ -123,15 +133,52 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
 	_adopt(after_commit.value)
+	if _defers_settlement(after_commit.value):
+		# dwm-634.1: the terminal board is already committed and under custody. Publish it now so
+		# the click paints, and run settlement from settle_pending() or the next entry into this port.
+		_pending_settlement_view = after_commit.value
+		return {"ok": true, "code": &"minesweeper_settlement_pending", "value": _projection.duplicate(true)}
 	var settled := _settle_terminal(after_commit.value)
 	if not settled.get("ok", false):
 		return _failure(&"minesweeper_settlement_refused", _projection)
 	return _success(_projection.duplicate(true))
 
 
+func has_pending_settlement() -> bool:
+	return not _pending_settlement_view.is_empty()
+
+
+## Runs the settlement a terminal command deferred. A refusal keeps the exact completion request
+## (never the deferral), so pull() retries it exactly as it always has.
+func settle_pending() -> Dictionary:
+	if _owner == null: return _failure(&"minesweeper_presentation_unavailable")
+	if _pending_settlement_view.is_empty(): return _success(_projection.duplicate(true))
+	var view := _pending_settlement_view
+	_pending_settlement_view = {}
+	var settled := _settle_terminal(view)
+	if not settled.get("ok", false):
+		return _failure(&"minesweeper_settlement_refused", _projection)
+	return _success(_projection.duplicate(true))
+
+
+func _settle_if_pending() -> Dictionary:
+	if _pending_settlement_view.is_empty(): return {"ok": true}
+	return settle_pending()
+
+
+## Mirrors _settle_terminal()'s own gate: only a live, unsettled terminal board is deferred.
+func _defers_settlement(owner_view: Dictionary) -> bool:
+	var projection: Dictionary = owner_view["projection"]
+	if not bool(projection.get("terminal", false)) or str(owner_view.get("phase", "")) != "ACTIVE_VISIBLE": return false
+	if owner_view.configuration.get("settled_inspection", false): return false
+	return typeof(owner_view["identity"]) == TYPE_DICTIONARY
+
+
 ## Explicit foreground work step. Pure pull never starts or advances a generator.
 func advance_preparation(expected_revision: int) -> Dictionary:
 	if _owner == null or _projection.is_empty(): return _failure(&"minesweeper_presentation_unavailable")
+	var deferred := _settle_if_pending()
+	if not deferred.get("ok", false): return deferred
 	if _phase not in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARING"]:
 		return {"ok": true, "advanced": false}
 	if not _owner.has_method("get_preparation_context"):
@@ -409,6 +456,15 @@ func get_terminal_foresight(projection: Dictionary) -> Dictionary:
 	if not _terminal_foresight is int or projection != _projection or not projection.get("terminal", false):
 		return {"ok": false}
 	return {"ok": true, "value": _terminal_foresight}
+
+
+## Routine board commands leave the board in memory, so their receipts stay in memory too
+## (dwm-634.1); the ledger is written whenever the board is. First Reveal consumes a round and
+## commits a durable checkpoint, so its receipt is durable before the command runs.
+func _mint_transaction(durable: bool) -> Dictionary:
+	if durable or not _issuer.has_method("issue_deferred"):
+		return _issuer.call(&"issue", &"transaction_id")
+	return _issuer.call(&"issue_deferred", &"transaction_id")
 
 
 func _read_owner(difficulty: String) -> Dictionary:

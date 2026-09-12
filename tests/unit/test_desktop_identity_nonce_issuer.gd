@@ -110,6 +110,12 @@ class CandidateFaithfulRootAdapter extends RefCounted:
 	func issue(purpose: StringName) -> Dictionary:
 		return root.call(&"issue", purpose)
 
+	func issue_deferred(purpose: StringName) -> Dictionary:
+		return root.call(&"issue_deferred", purpose)
+
+	func flush() -> Dictionary:
+		return root.call(&"flush")
+
 	func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictionary:
 		return root.call(&"verify_receipt", receipt, expected_purpose)
 
@@ -711,3 +717,44 @@ func _restore_request(transaction_receipt: Dictionary) -> Dictionary:
 		"source_desktop_timeline_generation": 0,
 		"remap_source_transaction_ids": ["transaction_id.a", "transaction_id.b"],
 	}
+
+
+# ---------------------------------------------------------------------------------------------
+# Deferred issuance (dwm-634.1): the issuer offers the root's in-memory mint and flush under the
+# same allocator-purpose refusals as issue().
+# ---------------------------------------------------------------------------------------------
+
+func test_issue_deferred_delegates_once_and_refuses_the_two_allocator_purposes() -> void:
+	var issuer := _issuer_with_namespace(NAMESPACE, 1)
+	var issued: Dictionary = issuer.issue_deferred(&"transaction_id")
+	if not _require_ok(issued, "issue_deferred(transaction_id)"):
+		return
+	assert_eq(_issuer_root.calls_to(&"issue_deferred").size(), 1,
+		"the issuer delegates ONE in-memory mint to the root store")
+	assert_eq(_issuer_root.calls_to(&"issue").size(), 0, "a deferred issue never takes the durable path")
+	var value: Dictionary = issued.get("value", {})
+	var keys := value.keys()
+	keys.sort()
+	assert_eq(keys, ["issuer_receipt", "token"] as Array, "issue_deferred returns exactly value={token,issuer_receipt}")
+	assert_eq(value.get("token"), FAKE_ROOT_STORE.token_for(NAMESPACE, 1, &"transaction_id"))
+	assert_eq(issued.get("receipt"), value.get("issuer_receipt"))
+	for purpose: StringName in [&"desktop_timeline_generation", &"causal_day_instance"]:
+		var refused: Dictionary = issuer.issue_deferred(purpose)
+		assert_false(refused.get("ok", true), "%s is allocated, never issued directly" % String(purpose))
+	assert_eq(_issuer_root.calls_to(&"issue_deferred").size(), 1,
+		"allocator purposes are refused before the root is reached")
+
+
+func test_flush_delegates_to_the_root_store() -> void:
+	var issuer := _issuer_with_namespace(NAMESPACE, 1)
+	if not _require_ok(issuer.issue_deferred(&"transaction_id"), "issue_deferred"):
+		return
+	var flushed: Dictionary = issuer.flush()
+	if not _require_ok(flushed, "flush"):
+		return
+	assert_eq(_issuer_root.calls_to(&"flush").size(), 1)
+	assert_true(bool(flushed.get("value", {}).get("written", false)), "a pending receipt is written")
+	var idle: Dictionary = issuer.flush()
+	if not _require_ok(idle, "idle flush"):
+		return
+	assert_false(bool(idle.get("value", {}).get("written", true)))

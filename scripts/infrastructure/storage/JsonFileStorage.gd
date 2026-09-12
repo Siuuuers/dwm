@@ -9,10 +9,30 @@ const HASH_PATTERN := "^[0-9a-f]{64}$"
 var _root_dir: String
 var _file_ops: RefCounted
 var _leases: Dictionary = {}
+## Optional pre-write gate (dwm-634.1). The owner of this root may run one Callable before any
+## durable mutation, so a save can first persist state that the saved bytes will reference. A
+## refusal fails the write closed before any marker or candidate byte is written.
+var _before_write: Callable = Callable()
 
 func _init(root_dir: String, file_ops: RefCounted = null) -> void:
 	_root_dir = root_dir.trim_suffix("/").trim_suffix("\\")
 	_file_ops = file_ops if file_ops != null else FILE_OPS.new()
+
+func configure_before_write(hook: Callable) -> Dictionary:
+	if not hook.is_valid():
+		return _failure(&"invalid_before_write_hook", "A valid Callable is required")
+	if _before_write.is_valid() and _before_write != hook:
+		return _failure(&"before_write_hook_already_configured", "One pre-write hook per storage root")
+	_before_write = hook
+	return {"ok": true}
+
+func _run_before_write() -> Dictionary:
+	if not _before_write.is_valid():
+		return {"ok": true}
+	var gate: Variant = _before_write.call()
+	if gate is Dictionary and not (gate as Dictionary).get("ok", false):
+		return _failure(&"before_write_refused", str((gate as Dictionary).get("code", "pre-write hook refused")))
+	return {"ok": true}
 
 func describe_root() -> String:
 	return _root_dir
@@ -52,6 +72,9 @@ func write_atomic_if_revision(relative_path: String, text: String, validator: Ca
 	var bytes := text.to_utf8_buffer()
 	if bytes.get_string_from_utf8() != text:
 		return _failure(&"invalid_utf8", "Outgoing text is not stable UTF-8")
+	var gate := _run_before_write()
+	if not gate.get("ok", false):
+		return gate
 	var admitted := _admit_revision(relative_path, revision)
 	if not admitted.get("ok", false):
 		return admitted
@@ -64,7 +87,36 @@ func write_atomic_if_revision(relative_path: String, text: String, validator: Ca
 	step = _write_and_flush(_next_path(relative_path), bytes)
 	if not step.get("ok", false):
 		return _recover_revision_start(relative_path, validator, marker)
-	return _reconcile_revision(relative_path, validator, marker)
+	return _promote_fresh_revision(relative_path, validator, marker, bytes)
+
+## dwm-634.1: the writer just validated, wrote and flushed this candidate under the marker's
+## outgoing hash, so the happy path promotes it with renames and removals plus one read-back of
+## the promoted final, which is the artifact every later start will read. The artifacts
+## and their order are exactly those v2 reconciliation expects, so any refused step falls back to
+## _reconcile_revision over the same family instead of guessing.
+func _promote_fresh_revision(relative_path: String, validator: Callable, marker: Dictionary,
+		bytes: PackedByteArray) -> Dictionary:
+	if marker["previous_hash"] != null:
+		if not _file_ops.call(&"exists", _path(relative_path)) or _file_ops.call(&"exists", _revision_prior_path(relative_path)):
+			return _reconcile_revision(relative_path, validator, marker)
+		var preserved: Dictionary = _file_ops.call(&"rename_path", _path(relative_path), _revision_prior_path(relative_path))
+		if not preserved.get("ok", false):
+			return _reconcile_revision(relative_path, validator, marker)
+	var promoted: Dictionary = _file_ops.call(&"rename_path", _next_path(relative_path), _path(relative_path))
+	if not promoted.get("ok", false):
+		return _reconcile_revision(relative_path, validator, marker)
+	var final := _classify_document(_path(relative_path), validator)
+	if final["state"] != &"valid" or final["hash"] != str(marker["outgoing_hash"]) or final["bytes"] != bytes:
+		return _reconcile_revision(relative_path, validator, marker)
+	for stale_path in [_revision_prior_path(relative_path), _backup_path(relative_path)]:
+		var removed: Dictionary = _file_ops.call(&"remove_path", stale_path)
+		if not removed.get("ok", false):
+			return _reconcile_revision(relative_path, validator, marker)
+	var cleaned: Dictionary = _file_ops.call(&"remove_path", _marker_path(relative_path))
+	if not cleaned.get("ok", false):
+		return _reconcile_revision(relative_path, validator, marker)
+	_set_lease(relative_path, final)
+	return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": str(marker["outgoing_hash"])}
 
 func remove_if_revision(relative_path: String, revision: String) -> Dictionary:
 	var admitted := _admit_revision(relative_path, revision)
@@ -316,6 +368,9 @@ func write_atomic(relative_path: String, text: String, validator: Callable, keep
 	var outgoing_bytes := text.to_utf8_buffer()
 	if outgoing_bytes.get_string_from_utf8() != text:
 		return _failure(&"invalid_utf8", "Outgoing text is not stable UTF-8")
+	var gate := _run_before_write()
+	if not gate.get("ok", false):
+		return gate
 	var outgoing_hash: String = _file_ops.call(&"sha256", outgoing_bytes)
 	var existing := reconcile(relative_path, validator)
 	if not existing.get("ok", false):
@@ -333,9 +388,8 @@ func write_atomic(relative_path: String, text: String, validator: Callable, keep
 	step = _write_and_flush(_next_path(relative_path), outgoing_bytes)
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
-	var verified_next := _classify_document(_next_path(relative_path), validator)
-	if verified_next["state"] != &"valid" or verified_next["hash"] != outgoing_hash or verified_next["bytes"] != outgoing_bytes:
-		return _recover_known_write(intent, validator)
+	# dwm-634.1: the candidate was validated before it was written and flushed under the hash the
+	# marker carries; recovery re-reads it on any interruption, so the happy path does not.
 	marker = _make_write_marker(relative_path, "next_validated", outgoing_hash, previous_hash, outgoing_hash, null, keep_backup)
 	step = _write_marker(relative_path, marker)
 	if not step.get("ok", false):
@@ -349,9 +403,6 @@ func write_atomic(relative_path: String, text: String, validator: Callable, keep
 		step = _file_ops.call(&"rename_path", _path(relative_path), _backup_path(relative_path))
 		if not step.get("ok", false):
 			return _recover_known_write(intent, validator)
-		var verified_backup := _classify_document(_backup_path(relative_path), validator)
-		if verified_backup["state"] != &"valid" or verified_backup["hash"] != previous_hash:
-			return _recover_known_write(intent, validator)
 		backup_hash = previous_hash
 	marker = _make_write_marker(relative_path, "backup_preserved", outgoing_hash, previous_hash, outgoing_hash, backup_hash, keep_backup)
 	step = _write_marker(relative_path, marker)
@@ -360,6 +411,8 @@ func write_atomic(relative_path: String, text: String, validator: Callable, keep
 	step = _file_ops.call(&"rename_path", _next_path(relative_path), _path(relative_path))
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
+	# The one read-back that stays: the promoted final is what every later start will read, so
+	# it must re-read to the outgoing hash and validate before the transaction is declared won.
 	var verified_final := _classify_document(_path(relative_path), validator)
 	if verified_final["state"] != &"valid" or verified_final["hash"] != outgoing_hash or verified_final["bytes"] != outgoing_bytes:
 		return _recover_known_write(intent, validator)
@@ -604,13 +657,9 @@ func _write_marker(relative_path: String, marker: Dictionary) -> Dictionary:
 	var emitted: Dictionary = CANONICAL_WRITER.stringify(marker)
 	if not emitted.get("ok", false):
 		return emitted
-	var result := _write_and_flush(_marker_path(relative_path), (emitted["value"] as String).to_utf8_buffer())
-	if not result.get("ok", false):
-		return result
-	var verified := _classify_marker(_marker_path(relative_path), relative_path)
-	if verified["state"] != &"valid" or verified["value"] != marker:
-		return _failure(&"marker_verification_failed", "Transaction marker did not re-read exactly")
-	return {"ok": true}
+	# dwm-634.1: a flushed marker is trusted as written; every recovery path re-reads and
+	# validates the marker it finds, so a corrupt marker still fails closed on the next reconcile.
+	return _write_and_flush(_marker_path(relative_path), (emitted["value"] as String).to_utf8_buffer())
 
 func _write_and_flush(path: String, bytes: PackedByteArray) -> Dictionary:
 	var write_result: Dictionary = _file_ops.call(&"write_bytes", path, bytes)

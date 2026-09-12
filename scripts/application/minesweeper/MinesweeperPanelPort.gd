@@ -88,9 +88,9 @@ func pull() -> Dictionary:
 	if not final_state is Dictionary or not final_state.get("ok", false) \
 			or final_state.get("value") != snapshot:
 		return _unavailable()
-	if REGISTER.desktop(snapshot, _game_state) != register \
-			or ASSIGNMENTS.from_sources(_game_state, _catalog) != assignments:
-		return _unavailable()
+	# dwm-634.1: the register and assignments are pure functions of that unchanged snapshot and
+	# of GameState, which nothing mutates inside this synchronous read; recomputing them proved
+	# only what the snapshot comparison already proves.
 	var configuration: Dictionary = _board_port.get_configuration(board.value)
 	if not configuration.get("ok", false): return _unavailable()
 	var actions: Array[String] = []
@@ -125,8 +125,10 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 	if result.get("value") is Dictionary and bool(result.value.get("terminal", false)):
 		var assignments: Dictionary = ASSIGNMENTS.from_sources(_game_state, _catalog)
 		if not assignments.get("ok", false) or _presented_view.is_empty(): return _unavailable()
+		# dwm-634.1: a pending settlement publishes the terminal board unsettled; the pump settles it.
+		var settled_now: bool = result.get("ok", false) and result.get("code") != &"minesweeper_settlement_pending"
 		var terminal := _terminal_view(result.value, _presented_view.register,
-			assignments.value, result.get("ok", false))
+			assignments.value, settled_now)
 		if terminal.is_empty(): return _unavailable()
 		if result.get("ok", false):
 			return _hold_terminal(terminal)
@@ -139,7 +141,22 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 
 func advance_preparation(expected_revision: int) -> Dictionary:
 	_discard_stale_terminal()
-	if not _held_terminal.is_empty(): return {"ok": true, "advanced": false}
+	if not _held_terminal.is_empty():
+		if has_pending_settlement():
+			var unsettled: Dictionary = _held_terminal.duplicate(true)
+			var settled: Dictionary = _board_port.settle_pending()
+			var assignments: Dictionary = ASSIGNMENTS.from_sources(_game_state, _catalog)
+			if not assignments.get("ok", false): return _unavailable()
+			if not settled.get("ok", false) or not settled.get("value") is Dictionary:
+				_clear_held_terminal()
+				_present_failure(unsettled)
+				return {"ok": false, "code": &"minesweeper_panel_command_refused", "value": unsettled}
+			var terminal := _terminal_view(settled.value, unsettled.register, assignments.value, true)
+			if terminal.is_empty(): return _unavailable()
+			var published := _hold_terminal(terminal)
+			if published.get("ok", false): published["advanced"] = true
+			return published
+		return {"ok": true, "advanced": false}
 	if not _presented or _presented_session.is_empty() or _session_marker() != _presented_session:
 		return _refused()
 	var result: Dictionary = _board_port.advance_preparation(expected_revision)
@@ -148,6 +165,13 @@ func advance_preparation(expected_revision: int) -> Dictionary:
 	var refreshed := pull()
 	if refreshed.get("ok", false): refreshed["advanced"] = true
 	return refreshed
+
+
+## dwm-634.1: true while a terminal click's settlement still has to run on a later frame.
+func has_pending_settlement() -> bool:
+	return not _held_terminal.is_empty() and not bool(_held_terminal.get("settled", true)) \
+			and _board_port != null and _board_port.has_method("has_pending_settlement") \
+			and _board_port.has_pending_settlement()
 
 
 func select_difficulty(difficulty: String, expected_revision: int) -> Dictionary:
@@ -272,8 +296,8 @@ func _has_fresh_difficulty() -> bool:
 	if not current is Dictionary or not current.get("ok", false) \
 			or not current.get("value") is Dictionary:
 		return false
-	var register: Dictionary = REGISTER.desktop(current.value, _game_state)
-	return register.get("ok", false) and register.value.difficulty == _presented_difficulty
+	var difficulty: Variant = REGISTER.difficulty_of(current.value, _game_state)
+	return difficulty is String and difficulty == _presented_difficulty
 
 
 func _refused() -> Dictionary:

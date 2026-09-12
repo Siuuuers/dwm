@@ -1438,3 +1438,90 @@ func test_atomic_write_proof_keeps_only_three_recently_used_texts() -> void:
 	assert_eq(store._validated_write_texts.size(), 3)
 	assert_has(store._validated_write_texts, '{"a":1}')
 	assert_does_not_have(store._validated_write_texts, '{"b":2}')
+
+
+# ---------------------------------------------------------------------------------------------
+# Deferred issuance (dwm-634.1). Routine board commands mint in memory; the ledger is written
+# when the board itself is saved, so a click never pays for a root write.
+# ---------------------------------------------------------------------------------------------
+
+func test_issue_deferred_mints_in_memory_and_flush_persists_every_pending_receipt() -> void:
+	if _opened_document().is_empty():
+		return
+	var durable_before := _document_from_bytes(_file_ops.snapshot_persisted())
+	var first: Dictionary = _store.issue_deferred(&"transaction_id")
+	var second: Dictionary = _store.issue_deferred(&"transaction_id")
+	if not _require_ok(first, "issue_deferred #1") or not _require_ok(second, "issue_deferred #2"):
+		return
+	assert_eq(_issuer_receipt(first).get("counter"), 1)
+	assert_eq(_issuer_receipt(second).get("counter"), 2)
+	assert_eq(first.get("receipt"), _issuer_receipt(first), "the outer receipt is byte-equal to the issuer_receipt")
+	assert_eq(_captured_document().get("next_counter"), 3, "the live document advances in memory")
+	assert_true(_store.verify_receipt(_issuer_receipt(second), &"transaction_id").get("ok", false),
+		"a deferred receipt verifies before it is durable")
+	assert_eq(_document_from_bytes(_file_ops.snapshot_persisted()), durable_before,
+		"issue_deferred writes nothing to storage")
+	var flushed: Dictionary = _store.flush()
+	if not _require_ok(flushed, "flush"):
+		return
+	assert_true(bool(flushed.get("value", {}).get("written", false)), "a pending ledger is written")
+	var durable := _document_from_bytes(_file_ops.snapshot_persisted())
+	assert_eq(durable.get("next_counter"), 3)
+	assert_eq((durable.get("receipts", {}) as Dictionary).size(), 2)
+	assert_eq(_reloaded_document(), _captured_document(), "the flushed root reloads byte for byte")
+	var idle: Dictionary = _store.flush()
+	if not _require_ok(idle, "idle flush"):
+		return
+	assert_false(bool(idle.get("value", {}).get("written", true)), "nothing pending means nothing written")
+
+
+func test_a_durable_issue_persists_earlier_deferred_receipts_in_the_same_write() -> void:
+	if _opened_document().is_empty():
+		return
+	if not _require_ok(_store.issue_deferred(&"transaction_id"), "issue_deferred"):
+		return
+	var writes_before := _root_candidate_writes()
+	if not _require_ok(_store.issue(&"debug_nonce"), "issue"):
+		return
+	assert_eq(_root_candidate_writes(), writes_before + 1, "one durable write carries both receipts")
+	var durable := _document_from_bytes(_file_ops.snapshot_persisted())
+	assert_eq(durable.get("next_counter"), 3)
+	assert_eq((durable.get("receipts", {}) as Dictionary).size(), 2)
+	var idle: Dictionary = _store.flush()
+	if not _require_ok(idle, "flush after durable issue"):
+		return
+	assert_false(bool(idle.get("value", {}).get("written", true)), "the durable issue already flushed")
+
+
+func test_unflushed_deferred_receipts_do_not_survive_a_restart_and_burn_no_durable_counter() -> void:
+	if _opened_document().is_empty():
+		return
+	if not _require_ok(_store.issue(&"debug_nonce"), "issue"):
+		return
+	if not _require_ok(_store.issue_deferred(&"transaction_id"), "issue_deferred"):
+		return
+	var reloaded := _reloaded_document()
+	if reloaded.is_empty():
+		return
+	assert_eq(reloaded.get("next_counter"), 2, "a restart resumes at the last durable counter")
+	assert_eq((reloaded.get("receipts", {}) as Dictionary).size(), 1)
+
+
+func test_issue_deferred_refuses_unknown_purposes_and_an_unloaded_root() -> void:
+	_assert_rejected(_store.issue_deferred(&"transaction_id"), "issue_deferred before load")
+	if _opened_document().is_empty():
+		return
+	_assert_rejected(_store.issue_deferred(&"not_a_purpose"), "issue_deferred(not_a_purpose)")
+	assert_eq(_captured_document().get("next_counter"), 1, "a refusal mints nothing")
+	var idle: Dictionary = _store.flush()
+	if not _require_ok(idle, "flush with nothing pending"):
+		return
+	assert_false(bool(idle.get("value", {}).get("written", true)))
+
+
+func _root_candidate_writes() -> int:
+	var count := 0
+	for entry: Dictionary in _file_ops.operation_trace():
+		if entry.get("operation") == &"write_bytes" and str(entry.get("path")) == ROOT_FINAL_PATH + ".next":
+			count += 1
+	return count

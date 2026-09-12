@@ -155,6 +155,8 @@ var _startup_route_hold_token := ""
 var _debug_gate_factory: Callable
 var _selected_root := ""
 var _profile_storage: RefCounted
+## The run-save storage root; retained so the identity ledger can flush before every save.
+var _saves_storage: RefCounted = null
 var _application_gate: Object = null
 var _desktop_issuer_root_store: RefCounted = null
 var _desktop_identity_nonce_issuer: RefCounted = null
@@ -446,7 +448,8 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var save_manager := _target(&"SaveManager")
 			if save_manager == null or not save_manager.has_method("initialize"):
 				return _failure(&"missing_stage_adapter", "SaveManager initializer is unavailable")
-			var save_initialized: Dictionary = save_manager.call(&"initialize", JSON_STORAGE.new(_selected_root.path_join("saves")))
+			_saves_storage = JSON_STORAGE.new(_selected_root.path_join("saves"))
+			var save_initialized: Dictionary = save_manager.call(&"initialize", _saves_storage)
 			if not save_initialized.get("ok", false):
 				return save_initialized
 			if save_manager.has_signal("live_session_ready") and not save_manager.is_connected("live_session_ready", _on_saved_session_activated):
@@ -644,6 +647,13 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 			_desktop_issuer_root_store)
 		if not issuer_configured.get("ok", false):
 			return issuer_configured
+	# dwm-634.1: routine board receipts live in memory until the board itself is saved. Every run
+	# save goes through this storage root, so it persists the ledger first and fails closed.
+	if _saves_storage != null and _saves_storage.has_method("configure_before_write"):
+		var gated: Dictionary = _saves_storage.call(&"configure_before_write",
+			Callable(_desktop_identity_nonce_issuer, "flush"))
+		if not gated.get("ok", false):
+			return gated
 	var injected: Dictionary = game_state.call(
 		&"configure_identity_issuer", _desktop_identity_nonce_issuer)
 	if not injected.get("ok", false):

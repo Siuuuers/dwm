@@ -189,8 +189,8 @@ func test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordin
 	right_down.pressed = true
 	viewport.push_input(right_down,true)
 	await get_tree().process_frame
-	assert_eq(grid.get("_held_index"), 2)
-	assert_eq(grid.get("_held_button"), MOUSE_BUTTON_RIGHT)
+	assert_eq(dispatched.size(), 2, "dwm-634.1: the press itself dispatches the Flag")
+	assert_eq(grid.get("_held_index"), -1, "the publication that follows a press cancels the contact")
 	var right_up: InputEventMouseButton = InputEventMouseButton.new()
 	right_up.button_index = MOUSE_BUTTON_RIGHT
 	right_up.position = cell_two_center
@@ -400,10 +400,19 @@ func test_terminal_action_settles_once_and_pull_retries_the_same_request_without
 	var active: Dictionary = settlement_port.pull("beginner")
 	var counter_before := int(root_store.next_counter)
 
-	var first_attempt: Dictionary = settlement_port.dispatch("reveal", 1, active["value"]["revision"])
+	var terminal_command: Dictionary = settlement_port.dispatch("reveal", 1, active["value"]["revision"])
+	assert_true(terminal_command.get("ok", false), JSON.stringify(terminal_command))
+	assert_eq(terminal_command.get("code"), &"minesweeper_settlement_pending",
+		"dwm-634.1: the terminal board is published before settlement runs")
+	assert_true(bool(terminal_command["value"]["terminal"]))
+	assert_true(bool(terminal_command["value"]["custody"]), "an unsettled terminal board stays under custody")
+	assert_eq(settlement_owner.completion_calls.size(), 0, "nothing settles inside the click")
+	assert_true(settlement_port.has_pending_settlement())
+	var first_attempt: Dictionary = settlement_port.settle_pending()
 	assert_false(first_attempt.get("ok", true))
 	assert_eq(first_attempt.get("code"), &"minesweeper_settlement_refused")
 	assert_true(bool(first_attempt["value"]["terminal"]))
+	assert_false(settlement_port.has_pending_settlement(), "a refused settlement keeps its request, not the deferral")
 	assert_eq(settlement_owner.completion_calls.size(), 1)
 	assert_eq(settlement_owner.completion_calls[0].keys(),
 		["transaction_id", "transaction_issuer_receipt", "expected_identity", "expected_revision"])
@@ -601,3 +610,35 @@ func test_preparation_parking_refuses_owner_recovery_without_allocation() -> voi
 	assert_eq(coordinator._board_state.capture(), before)
 	assert_eq(generation.call_log, calls)
 	assert_eq(root_store.next_counter, counter)
+
+
+func test_routine_commands_issue_deferred_while_first_reveal_issues_durably() -> void:
+	var first: Dictionary = port.pull("beginner")
+	var after_reveal: Dictionary = port.dispatch("reveal", 0, first.value.revision)
+	assert_true(after_reveal.ok, JSON.stringify(after_reveal))
+	assert_eq(root_store.calls_to(&"issue").size(), 1, "first Reveal takes the durable issue")
+	assert_eq(root_store.calls_to(&"issue_deferred").size(), 0)
+	var after_flag: Dictionary = port.dispatch("flag", 2, after_reveal.value.revision)
+	assert_true(after_flag.ok, JSON.stringify(after_flag))
+	var after_unflag: Dictionary = port.dispatch("unflag", 2, after_flag.value.revision)
+	assert_true(after_unflag.ok, JSON.stringify(after_unflag))
+	assert_eq(root_store.calls_to(&"issue_deferred").size(), 2, "routine flag and unflag defer their receipts")
+	assert_eq(root_store.calls_to(&"issue").size(), 1, "no routine command takes the durable issue")
+	assert_eq(after_unflag.value.revision, 3, "deferred receipts still verify through the real coordinator")
+
+
+func test_pull_and_other_entries_settle_a_deferred_terminal_before_proceeding() -> void:
+	var settlement_owner := TerminalSettlementOwner.new()
+	settlement_owner.completion_calls.append({})
+	var settlement_port := PORT.new()
+	assert_true(settlement_port.configure(settlement_owner, issuer).get("ok", false))
+	var active: Dictionary = settlement_port.pull("beginner")
+	var terminal_command: Dictionary = settlement_port.dispatch("reveal", 1, active["value"]["revision"])
+	assert_eq(terminal_command.get("code"), &"minesweeper_settlement_pending")
+	assert_eq(settlement_owner.completion_calls.size(), 1, "the seeded call is the only one so far")
+	var pulled: Dictionary = settlement_port.pull("beginner")
+	assert_true(pulled.get("ok", false), JSON.stringify(pulled))
+	assert_eq(settlement_owner.completion_calls.size(), 2, "pull settles the deferred terminal first")
+	assert_false(settlement_port.has_pending_settlement())
+	assert_true(settlement_port.settle_pending().get("ok", false), "settling with nothing pending is a no-op")
+	assert_eq(settlement_owner.completion_calls.size(), 2)

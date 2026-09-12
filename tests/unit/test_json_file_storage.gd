@@ -164,3 +164,76 @@ func test_path_escapes_and_unbound_validators_reject_before_mutation() -> void:
 		assert_eq(storage.call(&"reconcile", unsafe, _generation_validator).get("code"), &"invalid_relative_path", unsafe)
 	assert_eq(storage.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, Callable()).get("code"), &"invalid_validator")
 	assert_eq(fake.call(&"snapshot_persisted"), {})
+
+
+func test_before_write_hook_runs_before_any_mutation_and_a_refusal_writes_nothing() -> void:
+	var ops: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: OLD_TEXT}))
+	var storage: RefCounted = _storage_script.new(ROOT, ops)
+	var observed: Array = []
+	var refuse: Array = [false]
+	var hook: Callable = func() -> Dictionary:
+		observed.append(ops.call(&"snapshot_persisted"))
+		if refuse[0]: return {"ok": false, "code": &"fixture_hook_refused"}
+		return {"ok": true}
+	assert_true(storage.call(&"configure_before_write", hook).get("ok", false))
+	assert_true(storage.call(&"configure_before_write", hook).get("ok", false), "an identical replay is idempotent")
+	var other: Callable = func() -> Dictionary: return {"ok": true}
+	assert_false(storage.call(&"configure_before_write", other).get("ok", false), "a second, different hook is refused")
+	refuse[0] = true
+	var refused: Dictionary = storage.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, _generation_validator)
+	assert_false(refused.get("ok", false))
+	assert_eq(refused.get("code"), &"before_write_refused")
+	assert_eq(observed.size(), 1)
+	assert_eq(ops.call(&"snapshot_persisted"), _seed({FINAL_PATH: OLD_TEXT}), "a refused hook leaves every byte untouched")
+	refuse[0] = false
+	var written: Dictionary = storage.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, _generation_validator)
+	assert_true(written.get("ok", false), str(written))
+	assert_eq(observed.size(), 2)
+	assert_eq(observed[1], _seed({FINAL_PATH: OLD_TEXT}), "the hook ran before the new bytes reached storage")
+	assert_eq(_restart_and_reconcile(ops.call(&"snapshot_persisted")).get("hash"), _hash(NEW_TEXT))
+	var revision: Dictionary = storage.call(&"inspect_revision", RELATIVE_PATH)
+	assert_true(revision.get("ok", false), str(revision))
+	var revised: Dictionary = storage.call(&"write_atomic_if_revision", RELATIVE_PATH, OLD_TEXT, _generation_validator, str(revision.value.revision))
+	assert_true(revised.get("ok", false), str(revised))
+	assert_eq(observed.size(), 3, "the revision writer runs the same hook before it mutates")
+
+
+func test_successful_writes_read_back_only_the_promoted_final() -> void:
+	# dwm-634.1: the staged marker protocol is unchanged, but a write that succeeds trusts its own
+	# flushed markers, candidate and backup. The only read after writing starts is the promoted
+	# final, which every later start will read and which must re-read to the outgoing hash.
+	var ops: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: OLD_TEXT}))
+	var storage: RefCounted = _storage_script.new(ROOT, ops)
+	var written: Dictionary = storage.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, _generation_validator)
+	assert_true(written.get("ok", false), str(written))
+	assert_eq(written.get("hash"), _hash(NEW_TEXT))
+	assert_eq(written.get("value"), {"generation": 2})
+	_assert_only_final_read_after_first_write(ops.call(&"operation_trace"), "write_atomic")
+	var persisted: Dictionary = ops.call(&"snapshot_persisted")
+	assert_eq((persisted[FINAL_PATH] as PackedByteArray).get_string_from_utf8(), NEW_TEXT)
+	assert_eq((persisted[BACKUP_PATH] as PackedByteArray).get_string_from_utf8(), OLD_TEXT)
+	assert_false(persisted.has(NEXT_PATH))
+	assert_false(persisted.has(MARKER_PATH))
+	assert_eq(storage.call(&"read_text", RELATIVE_PATH).get("value"), NEW_TEXT, "the new bytes hold the lease")
+	var revision_ops: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: OLD_TEXT}))
+	var revision_storage: RefCounted = _storage_script.new(ROOT, revision_ops)
+	var revised: Dictionary = revision_storage.call(&"write_atomic_if_revision", RELATIVE_PATH, NEW_TEXT, _generation_validator, _hash(OLD_TEXT))
+	assert_true(revised.get("ok", false), str(revised))
+	assert_eq(revised.get("hash"), _hash(NEW_TEXT))
+	_assert_only_final_read_after_first_write(revision_ops.call(&"operation_trace"), "write_atomic_if_revision")
+	assert_eq(revision_ops.call(&"snapshot_persisted"), _seed({FINAL_PATH: NEW_TEXT}), "the revision writer leaves exactly the new final")
+	assert_eq(revision_storage.call(&"read_text", RELATIVE_PATH).get("value"), NEW_TEXT)
+	assert_eq(_restart_and_reconcile(revision_ops.call(&"snapshot_persisted")).get("hash"), _hash(NEW_TEXT))
+
+
+func _assert_only_final_read_after_first_write(trace: Array, label: String) -> void:
+	var first_write := -1
+	var late_reads: Array = []
+	for entry: Dictionary in trace:
+		var operation: StringName = entry.get("operation", &"")
+		if first_write < 0 and operation == &"write_bytes":
+			first_write = int(entry.get("ordinal", 0))
+		elif first_write >= 0 and operation == &"read_bytes":
+			late_reads.append(entry.get("path"))
+	assert_gt(first_write, 0, "%s must write" % label)
+	assert_eq(late_reads, [FINAL_PATH], "%s reads back exactly the promoted final and nothing else" % label)
