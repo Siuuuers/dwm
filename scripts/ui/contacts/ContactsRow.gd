@@ -44,7 +44,7 @@ func _draw() -> void:
 		if identity_index == 1:
 			draw_rect(Rect2(24, 44, 8, 8), void_color)
 	if unread:
-		draw_rect(Rect2(224, 44, 8, 8), get_theme_color("paper", "Contacts"))
+		draw_rect(Rect2(224, 44, 8, 8), get_theme_color("paper_mark", "Contacts"))
 	if is_pressed():
 		draw_rect(Rect2(44, 14, 166, 2), ink if selected else bone)
 		draw_rect(Rect2(44, 14, 2, 68), ink if selected else bone)

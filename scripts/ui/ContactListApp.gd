@@ -6,6 +6,7 @@ class_name ContactListApp
 const ENGLISH_FONT := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
 const SIMPLIFIED_FONT := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
 const TRADITIONAL_FONT := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
+const CONTACTS_THEME := preload("res://scripts/ui/contacts/ContactsTheme.gd")
 
 signal presentation_failed(result: Dictionary)
 
@@ -15,6 +16,8 @@ var _command_port: Object = null
 var _presentation_port: Object = null
 var _localization: Object = null
 var _profile: Object = null
+var _palette: StringName = &"after_hours"
+var _day := 1
 var _primary := "en"
 var _secondary := ""
 var _reply_button: Button
@@ -70,7 +73,10 @@ func _ready() -> void:
 		refresh_view()
 
 
-func configure_presentation(port: Object, localization: Object = null, profile: Object = null) -> Dictionary:
+func configure_presentation(port: Object, localization: Object = null, profile: Object = null,
+		palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
+	if CONTACTS_THEME.resolve(palette, day).is_empty():
+		return _failure(&"invalid_contacts_presentation", "invalid palette or day")
 	if port == null:
 		return _failure(&"invalid_contacts_presentation_port", "presentation port required")
 	for method in ["get_projection", "open_friend", "reply_to_group"]:
@@ -78,7 +84,11 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 			return _failure(&"invalid_contacts_presentation_port", "missing " + method)
 	if _presentation_port != null and _presentation_port != port:
 		return _failure(&"contacts_presentation_already_configured", "replacement refused")
+	if _presentation_port != null and (_palette != palette or _day != day):
+		return _failure(&"contacts_presentation_already_configured", "installed context is retained")
 	_presentation_port = port
+	_palette = palette
+	_day = day
 	_localization = localization
 	_profile = profile
 	if _localization != null and _localization.has_signal("locale_changed"):
@@ -116,34 +126,63 @@ func _apply_typography() -> void:
 	var percent := 100
 	if _profile != null and _profile.has_method("get_preference"):
 		percent = int(_profile.get_preference("preferences.accessibility.text_size", 100))
-	contacts_panel.configure(ENGLISH_FONT, SIMPLIFIED_FONT, TRADITIONAL_FONT, percent)
+	var appearance := _read_appearance()
+	if appearance.is_empty(): return
+	if not contacts_panel.configure(ENGLISH_FONT, SIMPLIFIED_FONT, TRADITIONAL_FONT, percent,
+			_palette == &"midnight", _day, appearance.high_contrast, appearance.colour_preset): return
+	_apply_app_colours()
+	_title_label.text = {"en": "Contacts", "zh-CN": "联系人", "zh-HK": "聯絡人"}[_primary]
+	_title_label.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
+	_hide_button.accessibility_name = {"en": "Back to desktop", "zh-CN": "返回桌面", "zh-HK": "返回桌面"}[_primary]
+	_hide_button.custom_minimum_size = Vector2(64, 48)
+	_status_label.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
+
+
+func _read_appearance() -> Dictionary:
+	var high_contrast: Variant = false
+	var colour_preset: Variant = "standard"
+	if _profile != null and _profile.has_method("get_preference"):
+		high_contrast = _profile.get_preference("preferences.accessibility.high_contrast", false)
+		colour_preset = _profile.get_preference("preferences.accessibility.colour_differentiation", "standard")
+	if not high_contrast is bool or not colour_preset is String \
+			or CONTACTS_THEME.resolve(_palette, _day, high_contrast, colour_preset).is_empty(): return {}
+	return {"high_contrast": high_contrast, "colour_preset": colour_preset}
+
+
+func _apply_app_colours() -> void:
 	theme = contacts_panel.theme
+	var instrument := theme.get_color("instrument", "Contacts")
+	var bone := theme.get_color("bone", "Contacts")
+	var gold := theme.get_color("gold", "Contacts")
 	for state in ["normal", "hover", "pressed", "disabled"]:
 		var style := StyleBoxFlat.new()
-		style.bg_color = Color("151b25")
-		style.border_color = Color("a9935f") if state == "hover" else Color("d8cfb7")
+		style.bg_color = instrument
+		style.border_color = gold if state == "hover" else bone
 		style.set_border_width_all(2)
 		style.content_margin_left = 12
 		style.content_margin_right = 12
 		theme.set_stylebox(state, "Button", style)
 	var button_focus := StyleBoxFlat.new()
 	button_focus.bg_color = Color.TRANSPARENT
-	button_focus.border_color = Color("a9935f")
+	# This expanded ring sits on the transcript's paper, outside the dark button.
+	button_focus.border_color = theme.get_color("ink", "Contacts")
 	button_focus.set_border_width_all(2)
 	button_focus.expand_margin_left = 4
 	button_focus.expand_margin_right = 4
 	button_focus.expand_margin_top = 4
 	button_focus.expand_margin_bottom = 4
 	theme.set_stylebox("focus", "Button", button_focus)
-	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		theme.set_color(state, "Button", Color("d8cfb7"))
-	_title_label.add_theme_color_override("font_color", Color("d8cfb7"))
-	_title_label.text = {"en": "Contacts", "zh-CN": "联系人", "zh-HK": "聯絡人"}[_primary]
-	_title_label.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
-	_hide_button.accessibility_name = {"en": "Back to desktop", "zh-CN": "返回桌面", "zh-HK": "返回桌面"}[_primary]
-	_hide_button.custom_minimum_size = Vector2(64, 48)
-	_status_label.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
-	_status_label.add_theme_color_override("font_color", Color("d8cfb7"))
+	var bar_focus := button_focus.duplicate() as StyleBoxFlat
+	bar_focus.border_color = gold
+	_hide_button.add_theme_stylebox_override("focus", bar_focus)
+	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color"]:
+		theme.set_color(state, "Button", bone)
+	_title_label.add_theme_color_override("font_color", bone)
+	_status_label.add_theme_color_override("font_color", bone)
+	var bar_style := $VBoxContainer/TopBar.get_theme_stylebox("panel") as StyleBoxFlat
+	bar_style.bg_color = instrument
+	var notice_style := _status_label.get_theme_stylebox("normal") as StyleBoxFlat
+	notice_style.bg_color = instrument
 
 
 func _present(result: Dictionary) -> Dictionary:
@@ -255,7 +294,9 @@ func _present_ordinary_controls(value: Dictionary) -> void:
 		caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		caption.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
-		caption.add_theme_color_override("font_color", Color("d8cfb7"))
+		caption.set_meta("contacts_color_role", "bone")
+		caption.set_meta("locale", _primary)
+		caption.add_theme_color_override("font_color", theme.get_color("bone", "Contacts"))
 		button.add_child(caption)
 		caption.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		caption.offset_left = 16
@@ -347,6 +388,11 @@ func _on_presentation_locale_changed(_locale_id: String) -> void:
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path == &"preferences.accessibility.text_size":
 		refresh_view()
+	elif is_node_ready() and path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation"]:
+		var appearance := _read_appearance()
+		if not appearance.is_empty() and contacts_panel.apply_presentation(_palette, _day,
+				appearance.high_contrast, appearance.colour_preset):
+			_apply_app_colours()
 
 
 func show_window() -> void:

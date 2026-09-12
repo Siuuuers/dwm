@@ -8,6 +8,7 @@ signal pending_reply_drawn(rendered_line: Dictionary)
 
 const Row = preload("res://scripts/ui/contacts/ContactsRow.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const CONTACTS_THEME := preload("res://scripts/ui/contacts/ContactsTheme.gd")
 const FRIENDS := ["priscilla", "lavinia", "sylvia"]
 const NAMES := ["Priscilla", "Lavinia", "Sylvia"]
 const LOCALES := ["en", "zh-CN", "zh-HK"]
@@ -28,6 +29,7 @@ var _revision := 0
 var _pending_reply: Dictionary = {}
 var _pending_label: Label
 var _pending_emitted := false
+var _presentation: Array = []
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(800, 656)
@@ -50,23 +52,49 @@ func _ready() -> void:
 		rows[i].focus_neighbor_bottom = rows[i].get_path_to(rows[mini(2, i + 1)])
 	rows[0].grab_focus()
 
-func configure(english: Font, simplified: Font, traditional: Font, text_percent: int = 100, midnight: bool = false) -> bool:
+func configure(english: Font, simplified: Font, traditional: Font, text_percent: int = 100,
+		midnight: bool = false, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	if english == null or simplified == null or traditional == null or text_percent not in [100, 125, 150]:
 		return false
+	var palette: StringName = &"midnight" if midnight else &"after_hours"
+	var candidate := CONTACTS_THEME.build(english, 24 * text_percent / 100, palette, day, high_contrast, colour_preset)
+	if candidate == null: return false
 	var anchor := _scroll_anchor()
 	_fonts = {"en": english, "zh-CN": simplified, "zh-HK": traditional}
 	font_size = 24 * text_percent / 100
-	theme = _make_theme(midnight)
+	theme = candidate
+	_presentation = [palette, day, high_contrast, colour_preset]
 	for label in find_children("*", "Label", true, false):
 		_style_label(label, label.get_meta("locale", "en"), label.get_meta("outgoing", false))
-	for surface in find_children("*", "PanelContainer", true, false):
-		var style: StyleBoxFlat = surface.get_theme_stylebox("panel")
-		style.border_color = theme.get_color("ink", "Contacts")
-	_update_rows()
+	_apply_materials()
 	_revision += 1
 	_restore_scroll.call_deferred(anchor, _revision)
-	queue_redraw()
 	return true
+
+func apply_presentation(palette: StringName, day: int, high_contrast: bool, colour_preset: String) -> bool:
+	if _fonts.is_empty(): return false
+	if _presentation == [palette, day, high_contrast, colour_preset]: return true
+	var candidate := CONTACTS_THEME.build(_fonts.en, font_size, palette, day, high_contrast, colour_preset)
+	if candidate == null: return false
+	theme = candidate
+	_presentation = [palette, day, high_contrast, colour_preset]
+	# Retain geometry and the exact pending draw receipt; only materials change.
+	_apply_materials()
+	return true
+
+func _apply_materials() -> void:
+	for label: Label in find_children("*", "Label", true, false):
+		var role: String = label.get_meta("contacts_color_role", "ink")
+		label.add_theme_color_override("font_color", theme.get_color(role, "Contacts"))
+	for surface: PanelContainer in find_children("*", "PanelContainer", true, false):
+		if not surface.has_meta("contacts_background_role"): continue
+		var style := surface.get_theme_stylebox("panel") as StyleBoxFlat
+		style.bg_color = theme.get_color(surface.get_meta("contacts_background_role"), "Contacts")
+		style.border_color = theme.get_color("ink", "Contacts")
+		surface.queue_redraw()
+	for row: Button in rows: row.queue_redraw()
+	_queue_continuation()
+	queue_redraw()
 
 func set_projection(friend_id: String, entries: Array, unread: Dictionary, primary_locale: String = "en", secondary_locale: String = "") -> bool:
 	if _fonts.is_empty() or not _valid_projection(friend_id, entries, unread, primary_locale, secondary_locale):
@@ -125,22 +153,6 @@ func _valid_projection(friend_id: String, entries: Array, unread: Dictionary, pr
 				return false
 	return true
 
-func _make_theme(midnight: bool) -> Theme:
-	var result := Theme.new()
-	result.default_font = _fonts.en
-	result.default_font_size = font_size
-	var colors := {"ink": "14201d" if midnight else "151b25", "instrument": "14201d" if midnight else "151b25", "bone": "d8cfb7", "paper": "c3baa3", "plum": "2f2936", "filed": "789083", "void": "0b0d13", "gold": "a9935f", "identity_0": "756477", "identity_1": "657d89", "identity_2": "4f665c"}
-	for key in colors:
-		result.set_color(key, "Contacts", Color(colors[key]))
-	result.set_font("font", "Label", _fonts.en)
-	result.set_font_size("font_size", "Label", font_size)
-	var focus := StyleBoxFlat.new()
-	focus.bg_color = Color.TRANSPARENT
-	focus.border_color = Color(colors.ink)
-	focus.set_border_width_all(2)
-	result.set_stylebox("focus", "ScrollContainer", focus)
-	return result
-
 func _update_rows() -> void:
 	for i in range(rows.size()):
 		rows[i].selected = selected_friend == FRIENDS[i]
@@ -173,6 +185,7 @@ func _build_thread() -> void:
 	_header.position = Vector2(304, 16)
 	_header.size = Vector2(480, 64)
 	_header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_header.set_meta("contacts_color_role", "bone")
 	_header.add_theme_color_override("font_color", theme.get_color("bone", "Contacts"))
 	_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_header)
@@ -215,6 +228,7 @@ func _append_entry(entry: Dictionary, locales: Array) -> Label:
 	block.add_theme_constant_override("separation", 8)
 	margin.add_child(block)
 	var surface := PanelContainer.new()
+	surface.set_meta("contacts_background_role", "plum" if entry.outgoing else "paper")
 	var style := StyleBoxFlat.new()
 	style.bg_color = theme.get_color("plum" if entry.outgoing else "paper", "Contacts")
 	style.border_color = theme.get_color("ink", "Contacts")
@@ -252,7 +266,7 @@ func _append_entry(entry: Dictionary, locales: Array) -> Label:
 	return first_label
 
 func _draw_outgoing_notch(surface: Control) -> void:
-	surface.draw_rect(Rect2(surface.size.x - 8, 12, 8, 8), theme.get_color("paper", "Contacts"))
+	surface.draw_rect(Rect2(surface.size.x - 8, 12, 8, 8), theme.get_color("paper_mark", "Contacts"))
 
 func present_pending_reply(rendered_line: Dictionary, locale: String) -> bool:
 	if messages == null or transcript == null or locale not in LOCALES or rendered_line.size() != 3:
@@ -284,7 +298,9 @@ func _style_label(label: Label, locale: String, outgoing: bool) -> void:
 	label.add_theme_font_override("font", _fonts[locale])
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_constant_override("line_spacing", maxi(0, int(font_size * 1.55 - _fonts[locale].get_height(font_size))))
-	label.add_theme_color_override("font_color", theme.get_color("bone" if outgoing or label == _header else "ink", "Contacts"))
+	var role: String = label.get_meta("contacts_color_role", "bone" if outgoing or label == _header else "ink")
+	label.set_meta("contacts_color_role", role)
+	label.add_theme_color_override("font_color", theme.get_color(role, "Contacts"))
 	label.language = locale
 
 func _scroll_anchor() -> Dictionary:
