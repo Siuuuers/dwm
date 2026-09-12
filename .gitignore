@@ -14,3 +14,11 @@
 # Sandbox-account scratch: Go build caches and upstream source clones
 temp-artifacts/
 agent-artifacts/
+
+# Local recovery dumps, scratch logs and beads repair backups
+.beads-recovery/
+.beads/*.bak-*
+.beads/dolt-backup.json
+.beads/*.log
+debug.log
+/dwm-p2r13-show-full.txt
