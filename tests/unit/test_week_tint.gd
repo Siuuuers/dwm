@@ -83,6 +83,18 @@ func test_text_contrast_holds_at_the_cold_endpoint() -> void:
 		assert_gt(_contrast(tinted["ink"], tinted["face"]), 4.5, str(palette) + " face")
 
 
+func test_room_role_lightness_never_increases_across_the_week() -> void:
+	for palette: StringName in [&"after_hours", &"midnight"]:
+		var roles: Dictionary = REGISTRY.resolve(palette, false, "standard")
+		for role: String in WEEK_TINT.ROOM_ROLES:
+			var previous: float = roles[role].ok_hsl_l + 0.0001
+			for day: int in range(1, 8):
+				var tinted: Dictionary = WEEK_TINT.apply(roles, WEEK_TINT.tint_for_day(day))
+				var lightness: float = tinted[role].ok_hsl_l
+				assert_lte(lightness, previous, "%s %s day %d" % [palette, role, day])
+				previous = lightness + 0.0001
+
+
 func _contrast(a: Color, b: Color) -> float:
 	var la := _luminance(a)
 	var lb := _luminance(b)

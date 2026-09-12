@@ -50,7 +50,7 @@ func test_day_advance_eviction_rebuilds_the_theme_with_the_day_seven_tint() -> v
 	assert_eq(f.desktop.theme.get_color("ink", "Desktop"), Color("d8cfb7"), "ink never tints")
 
 
-func test_tint_only_changes_at_the_boundary_not_on_ordinary_refresh() -> void:
+func test_ordinary_refresh_reuses_the_same_day_tint() -> void:
 	var f := _fixture()
 	if f.is_empty():
 		return
