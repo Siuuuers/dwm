@@ -88,9 +88,9 @@ func pull() -> Dictionary:
 	if not final_state is Dictionary or not final_state.get("ok", false) \
 			or final_state.get("value") != snapshot:
 		return _unavailable()
-	if REGISTER.desktop(snapshot, _game_state) != register \
-			or ASSIGNMENTS.from_sources(_game_state, _catalog) != assignments:
-		return _unavailable()
+	# dwm-634.1: the register and assignments are pure functions of that unchanged snapshot and
+	# of GameState, which nothing mutates inside this synchronous read; recomputing them proved
+	# only what the snapshot comparison already proves.
 	var configuration: Dictionary = _board_port.get_configuration(board.value)
 	if not configuration.get("ok", false): return _unavailable()
 	var actions: Array[String] = []
@@ -296,8 +296,8 @@ func _has_fresh_difficulty() -> bool:
 	if not current is Dictionary or not current.get("ok", false) \
 			or not current.get("value") is Dictionary:
 		return false
-	var register: Dictionary = REGISTER.desktop(current.value, _game_state)
-	return register.get("ok", false) and register.value.difficulty == _presented_difficulty
+	var difficulty: Variant = REGISTER.difficulty_of(current.value, _game_state)
+	return difficulty is String and difficulty == _presented_difficulty
 
 
 func _refused() -> Dictionary:

@@ -256,3 +256,18 @@ func test_preparing_and_certified_shells_preserve_no_flag_history_without_foresi
 		assert_eq(view.value.no_flag,"lost")
 		assert_null(view.value.foresight)
 		assert_eq(snapshot,before)
+
+
+func test_difficulty_of_resolves_exactly_what_desktop_reports_without_projecting() -> void:
+	# dwm-634.1: freshness checks resolve the difficulty alone instead of paying for a whole projection.
+	var state := StateFixture.new()
+	state.minesweeper_selected_difficulty = "expert"
+	for snapshot: Dictionary in [_snapshot(), _snapshot([1], true), _prepared(), _prepared(true)]:
+		assert_eq(QUERY.difficulty_of(snapshot, state), QUERY.desktop(snapshot, state).value.difficulty)
+	var shell := STATE.new().capture()
+	assert_eq(QUERY.difficulty_of(shell, state), "expert")
+	assert_eq(QUERY.difficulty_of(shell, state), QUERY.desktop(shell, state).value.difficulty)
+	state.minesweeper_selected_difficulty = "not_a_tier"
+	assert_null(QUERY.difficulty_of(shell, state), "an illegal tier resolves to nothing")
+	assert_eq(QUERY.desktop(shell, state), UNAVAILABLE)
+	assert_null(QUERY.difficulty_of(shell, null))

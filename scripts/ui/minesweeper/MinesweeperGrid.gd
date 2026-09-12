@@ -17,6 +17,8 @@ var cell_nodes: Array[Control] = []
 var focused_index := -1
 var mode: StringName = &"reveal"
 var projection: Dictionary = {}
+## The exact projection instance can_present() last accepted; present() skips re-validating it.
+var _last_validated_projection: Dictionary = {}
 var _locale := "en"
 var _percent := 100
 var _large := false
@@ -113,6 +115,7 @@ func can_present(value: Dictionary) -> bool:
 	var terminal_choices := 0
 	if typeof(value.cells) != TYPE_ARRAY or value.cells.size() != value.width*value.height: return false
 	var probe: Control = CELL.new()
+	_last_validated_projection = {}
 	for index in value.cells.size():
 		if typeof(value.cells[index]) != TYPE_DICTIONARY or value.cells[index].get("index") != index or not probe.present(value.cells[index]):
 			probe.free()
@@ -132,10 +135,15 @@ func can_present(value: Dictionary) -> bool:
 			probe.free()
 			return false
 	probe.free()
-	return terminal_choices == 1 if value.terminal and not value.custody else terminal_choices == 0
+	var valid: bool = terminal_choices == 1 if value.terminal and not value.custody else terminal_choices == 0
+	if valid: _last_validated_projection = value
+	return valid
 
 func present(value: Dictionary) -> bool:
-	if not can_present(value): return false
+	# dwm-634.1: the panel validates this same instance before presenting it; validating the
+	# 484 cells of an expert board a second time cost a full probe pass per click.
+	if not is_same(value, _last_validated_projection) and not can_present(value): return false
+	_last_validated_projection = {}
 	_cancel_for_projection()
 	projection = value.duplicate(true)
 	_rebuild()

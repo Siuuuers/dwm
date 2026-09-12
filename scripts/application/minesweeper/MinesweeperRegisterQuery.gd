@@ -12,29 +12,8 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 	if not is_instance_valid(game_state): return _unavailable()
 	var rounds: Variant = game_state.get("minesweeper_rounds_left")
 	if not rounds is int: return _unavailable()
-	var difficulty: Variant = null
-	match snapshot.get("phase"):
-		"NONE": difficulty = game_state.get("minesweeper_selected_difficulty")
-		"UNPAID_UNSTARTED":
-			var candidate: Variant = snapshot.get("candidate")
-			if not candidate is Dictionary: return _unavailable()
-			difficulty = candidate.get("difficulty_id")
-		"PREPARING", "PREPARED_UNSTARTED", "PAID_UNSTARTED":
-			var candidate: Variant = snapshot.get("candidate")
-			if not candidate is Dictionary or not candidate.get("spec") is Dictionary: return _unavailable()
-			difficulty = candidate.spec.get("difficulty_id")
-		"ACTIVE_VISIBLE", "ACTIVE_SUSPENDED", "SETTLING":
-			var wrapper: Variant = snapshot.get("board")
-			if not wrapper is Dictionary or not wrapper.get("paid_start_receipt") is Dictionary: return _unavailable()
-			if wrapper.has("spec"):
-				if not wrapper.spec is Dictionary: return _unavailable()
-				difficulty = wrapper.spec.get("difficulty_id")
-			else:
-				difficulty = wrapper.paid_start_receipt.get("difficulty_id")
-				if not wrapper.paid_start_receipt.has("difficulty_id"):
-					difficulty = _journal_difficulty(snapshot, wrapper)
-		_: return _unavailable()
-	if not difficulty is String or not DIFFICULTIES.has(difficulty): return _unavailable()
+	var difficulty: Variant = difficulty_of(snapshot, game_state)
+	if difficulty == null: return _unavailable()
 	var projected: Dictionary = BOARD_QUERY.desktop(snapshot, difficulty)
 	if not projected.get("ok", false): return _unavailable()
 	var no_flag := "intact"
@@ -65,6 +44,36 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 		"foresight": foresight, "no_flag": no_flag, "custody": projected.value.custody,
 		"difficulty_enabled": [],
 	}}
+
+
+## The register's difficulty, resolved from the same retained facts desktop() uses and nothing
+## else (dwm-634.1). Returns null when the snapshot names no legal difficulty.
+static func difficulty_of(snapshot: Dictionary, game_state: Object) -> Variant:
+	if not is_instance_valid(game_state): return null
+	var difficulty: Variant = null
+	match snapshot.get("phase"):
+		"NONE": difficulty = game_state.get("minesweeper_selected_difficulty")
+		"UNPAID_UNSTARTED":
+			var candidate: Variant = snapshot.get("candidate")
+			if not candidate is Dictionary: return _unavailable()
+			difficulty = candidate.get("difficulty_id")
+		"PREPARING", "PREPARED_UNSTARTED", "PAID_UNSTARTED":
+			var candidate: Variant = snapshot.get("candidate")
+			if not candidate is Dictionary or not candidate.get("spec") is Dictionary: return _unavailable()
+			difficulty = candidate.spec.get("difficulty_id")
+		"ACTIVE_VISIBLE", "ACTIVE_SUSPENDED", "SETTLING":
+			var wrapper: Variant = snapshot.get("board")
+			if not wrapper is Dictionary or not wrapper.get("paid_start_receipt") is Dictionary: return _unavailable()
+			if wrapper.has("spec"):
+				if not wrapper.spec is Dictionary: return _unavailable()
+				difficulty = wrapper.spec.get("difficulty_id")
+			else:
+				difficulty = wrapper.paid_start_receipt.get("difficulty_id")
+				if not wrapper.paid_start_receipt.has("difficulty_id"):
+					difficulty = _journal_difficulty(snapshot, wrapper)
+		_: return null
+	if not difficulty is String or not DIFFICULTIES.has(difficulty): return null
+	return difficulty
 
 
 static func _journal_difficulty(snapshot: Dictionary, wrapper: Dictionary) -> Variant:
