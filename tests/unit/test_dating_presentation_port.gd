@@ -41,9 +41,11 @@ func before_each() -> void:
 	_ready_results = []
 	_failures = []
 	_root_counter += 1
-	var root: String = OS.get_environment("DWM_TEST_ROOT").path_join(
-		"dating-port-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var result: Dictionary = TemporaryStorage.create("dating-port-%d" % _root_counter)
+	assert_true(result.ok, result.get("message", ""))
+	if not result.ok:
+		return
+	var root: String = result.value
 	var store: RefCounted = ROOT_STORE.new()
 	assert_true(store.configure(JsonFileStorage.new(root), NAMESPACE_SOURCE.new()).get("ok", false))
 	assert_true(store.load_or_create().get("ok", false))

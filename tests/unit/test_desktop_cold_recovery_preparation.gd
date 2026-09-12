@@ -88,8 +88,11 @@ func _write_pending(port: Object, snapshot: Dictionary) -> Dictionary:
 
 func _wired() -> Dictionary:
 	_counter += 1
-	var root: String = OS.get_environment("DWM_TEST_ROOT").path_join("desktop-cold-recovery").path_join(str(_counter))
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var result: Dictionary = TemporaryStorage.create("desktop-cold-recovery".path_join(str(_counter)))
+	assert_true(result.ok, result.get("message", ""))
+	if not result.ok:
+		return {}
+	var root: String = result.value
 	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(root)
 	var manager: Node = preload("res://autoload/SaveManager.gd").new()
 	var game: Node = preload("res://autoload/GameState.gd").new()

@@ -53,6 +53,8 @@ var _commands: Dictionary = {}
 func before_each() -> void:
 	_commands = {}
 	_root = _isolated_root()
+	if _root.is_empty():
+		return
 	_storage = JsonFileStorage.new(_root)
 	_root_store = ROOT_STORE.new()
 	assert_true(_root_store.configure(_storage, NAMESPACE_SOURCE.new()).get("ok", false))
@@ -83,12 +85,12 @@ func before_each() -> void:
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("day7-provenance-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var result: Dictionary = TemporaryStorage.create("day7-provenance-%d" % _root_counter)
+	assert_true(result.ok, result.get("message", ""))
+	if not result.ok:
+		return ""
+	return result.value
 
 
 # -------------------------------------------------------------------------------------------------

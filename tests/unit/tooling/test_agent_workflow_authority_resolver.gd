@@ -50,7 +50,11 @@ func _has_source_error(result: Dictionary, expected: String) -> bool:
 
 func _fixture_root() -> String:
 	_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("agent-authority-%d" % _counter)
+	var result: Dictionary = TemporaryStorage.create("agent-authority-%d" % _counter)
+	assert_true(result.ok, result.get("message", ""))
+	if not result.ok:
+		return ""
+	var root: String = result.value
 	var plan_path := root.path_join("docs/superpowers/plans/sample.md")
 	_write(plan_path, "# Sample plan\n\nOne reviewed procedure.\n")
 	_write(root.path_join("prompt_docs/requirements/sample.md"), "---\nid: req_packet.sample\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.sample\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Sample\n\n## Rule req.sample\n\nSample authority.\n")
@@ -84,6 +88,8 @@ func test_resolves_every_frozen_link_kind() -> void:
 
 func test_registered_design_amendment_resolves_without_an_approved_plan() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("docs/design/amendment.md"), "---\nid: spec.amendment\nkind: design_amendment\nschema_version: 1\ndecision_status: accepted\nconversational_design_status: approved\nwritten_spec_status: approved\nimplementation_authorized: false\namends: spec.sample\namends_path: \"docs/superpowers/specs/sample.md\"\n---\n\n# Amendment\n")
 	_write(root.path_join("prompt_docs/metadata/design_authority_registry.v1.json"), JSON.stringify({"schema_version":1, "records":[
 		{"id":"spec.amendment", "kind":"design_amendment", "path":"docs/design/amendment.md"},
@@ -96,6 +102,8 @@ func test_registered_design_amendment_resolves_without_an_approved_plan() -> voi
 
 func test_plan_link_is_invalidated_when_approved_canonical_text_changes() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("docs/superpowers/plans/sample.md"), "# Sample plan\n\nChanged after approval.\n")
 	var beads_snapshot: Array[Dictionary] = [{"id":"dwm-sample"}]
 	var resolver: RefCounted = load(RESOLVER_PATH).new(root, beads_snapshot)
@@ -103,6 +111,8 @@ func test_plan_link_is_invalidated_when_approved_canonical_text_changes() -> voi
 
 func test_plan_suite_resolves_roadmap_and_children_only_when_every_digest_binding_is_approved() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	var roadmap_path := "docs/superpowers/plans/suite-roadmap.md"
 	var child_path := "docs/superpowers/plans/suite-child.md"
 	var suite_path := "prompt_docs/metadata/sample_plan_suite.v1.json"
@@ -144,6 +154,8 @@ func test_repository_approved_suite_resolves_roadmap_and_all_four_children() -> 
 
 func test_packet_links_require_the_current_generated_index() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/INDEX.md"), "stale\n")
 	var beads_snapshot: Array[Dictionary] = [{"id":"dwm-sample"}]
 	var resolver: RefCounted = load(RESOLVER_PATH).new(root, beads_snapshot)
@@ -152,6 +164,8 @@ func test_packet_links_require_the_current_generated_index() -> void:
 
 func test_specification_projection_rejects_unquoted_paths_duplicate_keys_and_indented_keys() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	var spec_path := root.path_join("docs/superpowers/specs/sample.md")
 	_write(spec_path, "---\nid: spec.sample\nconversational_design_status: approved\nwritten_spec_status: approved\nimplementation_plan_path: docs/superpowers/plans/sample.md\nimplementation_plan_status: approved\nimplementation_plan_sha256: digest\n---\n")
 	var beads_snapshot: Array[Dictionary] = []
@@ -166,6 +180,8 @@ func test_specification_projection_rejects_unquoted_paths_duplicate_keys_and_ind
 
 func test_unterminated_specification_preserves_a_matching_id_projection() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("docs/superpowers/specs/sample.md"), "---\nid: spec.unterminated\nconversational_design_status: approved\n")
 	var beads_snapshot: Array[Dictionary] = []
 	var resolver: RefCounted = load(RESOLVER_PATH).new(root, beads_snapshot)
@@ -173,6 +189,8 @@ func test_unterminated_specification_preserves_a_matching_id_projection() -> voi
 
 func test_unterminated_specification_preserves_a_matching_plan_projection() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("docs/superpowers/specs/sample.md"), "---\nid: spec.unterminated\nimplementation_plan_path: \"docs/superpowers/plans/sample.md\"\n")
 	var beads_snapshot: Array[Dictionary] = []
 	var resolver: RefCounted = load(RESOLVER_PATH).new(root, beads_snapshot)
@@ -180,6 +198,8 @@ func test_unterminated_specification_preserves_a_matching_plan_projection() -> v
 
 func test_requirement_and_decision_duplicates_win_over_unrelated_validation_errors() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/requirements/duplicate.md"), "---\nid: req_packet.duplicate\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.sample\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Duplicate\n\n## Rule req.sample\n\nDuplicate authority.\n")
 	_write(root.path_join("prompt_docs/decisions/duplicate.md"), "---\nid: decision.sample\nkind: decision_packet\nschema_version: 1\nspecification_status: approved\ndecision_status: accepted\nbeads: []\nrequirements: []\ndepends_on: []\nevidence: [\"accepted by user\"]\nscope: [\"sample\"]\naffected_requirement_ids: [\"req.sample\"]\nblocking_requirement_ids: []\nrecommended_investigation: [\"Re-open only if the recorded scope changes.\"]\n---\n\n# Duplicate decision\n")
 	_refresh_index(root)
@@ -190,6 +210,8 @@ func test_requirement_and_decision_duplicates_win_over_unrelated_validation_erro
 
 func test_packet_links_classify_unknown_unapproved_and_malformed_matches() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	var beads_snapshot: Array[Dictionary] = []
 	var resolver: RefCounted = load(RESOLVER_PATH).new(root, beads_snapshot)
 	assert_eq(resolver.resolve({"kind":"requirement_id", "target":"req.missing"}).get("code"), &"AUTHORITY_LINK_UNKNOWN")
@@ -209,6 +231,8 @@ func test_packet_links_classify_unknown_unapproved_and_malformed_matches() -> vo
 
 func test_approved_requirement_with_missing_dependency_has_an_invalid_source() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/requirements/sample.md"), "---\nid: req_packet.sample\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.sample\",\"depends_on\":[\"req.missing\"],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Sample\n\n## Rule req.sample\n\nSample authority.\n")
 	_refresh_index(root)
 	var beads_snapshot: Array[Dictionary] = []
@@ -217,6 +241,8 @@ func test_approved_requirement_with_missing_dependency_has_an_invalid_source() -
 
 func test_accepted_decision_with_missing_requirement_target_has_an_invalid_source() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/decisions/sample.md"), "---\nid: decision.sample\nkind: decision_packet\nschema_version: 1\nspecification_status: approved\ndecision_status: accepted\nbeads: []\nrequirements: []\ndepends_on: []\nevidence: [\"accepted by user\"]\nscope: [\"sample\"]\naffected_requirement_ids: [\"req.missing\"]\nblocking_requirement_ids: []\nrecommended_investigation: [\"Re-open only if the recorded scope changes.\"]\n---\n\n# Accepted decision\n")
 	_refresh_index(root)
 	var beads_snapshot: Array[Dictionary] = []
@@ -225,6 +251,8 @@ func test_accepted_decision_with_missing_requirement_target_has_an_invalid_sourc
 
 func test_malformed_beads_binding_and_snapshot_invalidate_their_matching_requirement() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/requirements/sample.md"), "---\nid: req_packet.sample\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: [\"dwm-sample\"]\nrequirements:\n  - {\"id\":\"req.sample\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Sample\n\n## Rule req.sample\n\nSample authority.\n")
 	_refresh_index(root)
 	var malformed_binding: Array[Dictionary] = [{"id":"dwm-sample", "metadata":{"phase2r":{"requirement_ids":[]}}}]
@@ -236,6 +264,8 @@ func test_malformed_beads_binding_and_snapshot_invalidate_their_matching_require
 
 func test_unrelated_packet_path_prefix_diagnostic_does_not_invalidate_a_matching_requirement() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/requirements/sample.md-extra.md"), "---\nid: req_packet.unrelated\nkind: invalid_kind\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements: []\n---\n\n# Unrelated\n")
 	_refresh_index(root)
 	var beads_snapshot: Array[Dictionary] = []
@@ -244,6 +274,8 @@ func test_unrelated_packet_path_prefix_diagnostic_does_not_invalidate_a_matching
 
 func test_first_packet_with_a_duplicate_id_invalidates_its_unique_requirement() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/requirements/first.md"), "---\nid: req_packet.duplicate\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.first\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# First duplicate\n\n## Rule req.first\n\nFirst duplicate authority.\n")
 	_write(root.path_join("prompt_docs/requirements/second.md"), "---\nid: req_packet.duplicate\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.second\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Second duplicate\n\n## Rule req.second\n\nSecond duplicate authority.\n")
 	_refresh_index(root)
@@ -256,6 +288,8 @@ func test_first_packet_with_a_duplicate_id_invalidates_its_unique_requirement() 
 func test_malformed_decision_requirement_lists_are_invalid_without_runtime_errors() -> void:
 	for malformed_value: String in ["\"req.sample\"", "{\"id\":\"req.sample\"}"]:
 		var root := _fixture_root()
+		if root.is_empty():
+			return
 		_write(root.path_join("prompt_docs/decisions/sample.md"), "---\nid: decision.sample\nkind: decision_packet\nschema_version: 1\nspecification_status: approved\ndecision_status: accepted\nbeads: []\nrequirements: []\ndepends_on: []\nevidence: [\"accepted by user\"]\nscope: [\"sample\"]\naffected_requirement_ids: %s\nblocking_requirement_ids: %s\nrecommended_investigation: [\"Re-open only if the recorded scope changes.\"]\n---\n\n# Accepted decision\n" % [malformed_value, malformed_value])
 		_refresh_index(root)
 		var validation: Dictionary = preload("res://tools/docs/DocValidator.gd").new().validate_tree(root.path_join("prompt_docs"), [])
@@ -269,6 +303,8 @@ func test_malformed_decision_requirement_lists_are_invalid_without_runtime_error
 func test_non_dictionary_beads_metadata_is_invalid_without_runtime_errors() -> void:
 	for metadata: Variant in ["metadata", ["metadata"]]:
 		var root := _fixture_root()
+		if root.is_empty():
+			return
 		_write(root.path_join("prompt_docs/requirements/sample.md"), "---\nid: req_packet.sample\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: [\"dwm-sample\"]\nrequirements:\n  - {\"id\":\"req.sample\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Sample\n\n## Rule req.sample\n\nSample authority.\n")
 		_refresh_index(root)
 		var snapshot: Array[Dictionary] = [{"id":"dwm-sample", "metadata":metadata}]
@@ -282,6 +318,8 @@ func test_non_dictionary_beads_metadata_is_invalid_without_runtime_errors() -> v
 func test_deferred_decision_null_or_scalar_blocking_ids_is_total_and_source_invalid() -> void:
 	for malformed_value: String in ["null", "\"req.sample\""]:
 		var root := _fixture_root()
+		if root.is_empty():
+			return
 		_write(root.path_join("prompt_docs/decisions/sample.md"), "---\nid: decision.sample\nkind: decision_packet\nschema_version: 1\nspecification_status: deferred\ndecision_status: decision_required\nbeads: []\nrequirements: []\ndepends_on: []\nevidence: [\"pending user decision\"]\nscope: [\"sample\"]\naffected_requirement_ids: [\"req.sample\"]\nblocking_requirement_ids: %s\nrecommended_investigation: [\"Obtain a decision.\"]\n---\n\n# Deferred decision\n" % malformed_value)
 		_refresh_index(root)
 		var validation: Dictionary = preload("res://tools/docs/DocValidator.gd").new().validate_tree(root.path_join("prompt_docs"), [])
@@ -292,6 +330,8 @@ func test_deferred_decision_null_or_scalar_blocking_ids_is_total_and_source_inva
 
 func test_missing_decision_status_survives_index_render_as_an_identifiable_invalid_record() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/decisions/sample.md"), "---\nid: decision.sample\nkind: decision_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements: []\ndepends_on: []\nevidence: [\"accepted by user\"]\nscope: [\"sample\"]\naffected_requirement_ids: [\"req.sample\"]\nblocking_requirement_ids: []\nrecommended_investigation: [\"Re-open only if scope changes.\"]\n---\n\n# Missing decision status\n")
 	_refresh_index(root)
 	var empty_snapshot: Array[Dictionary] = []
@@ -307,6 +347,8 @@ func test_malformed_requirement_shapes_are_total_and_source_invalid() -> void:
 	]
 	for requirement_json: String in malformed_requirements:
 		var root := _fixture_root()
+		if root.is_empty():
+			return
 		_write(root.path_join("prompt_docs/requirements/sample.md"), "---\nid: req_packet.sample\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - %s\n---\n\n# Sample\n\n## Rule req.sample\n\nSample authority.\n" % requirement_json)
 		_refresh_index(root)
 		var validation: Dictionary = preload("res://tools/docs/DocValidator.gd").new().validate_tree(root.path_join("prompt_docs"), [])
@@ -322,6 +364,8 @@ func test_malformed_requirement_shapes_are_total_and_source_invalid() -> void:
 func test_scalar_packet_requirements_or_beads_is_identifiable_and_source_invalid() -> void:
 	for malformed_line: String in ["requirements: null", "beads: \"dwm-sample\""]:
 		var root := _fixture_root()
+		if root.is_empty():
+			return
 		var text := "---\nid: req_packet.sample\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.sample\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Sample\n\n## Rule req.sample\n\nSample authority.\n"
 		if malformed_line.begins_with("requirements"):
 			text = text.replace("requirements:\n  - {\"id\":\"req.sample\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}", malformed_line)
@@ -340,6 +384,8 @@ func test_scalar_packet_requirements_or_beads_is_identifiable_and_source_invalid
 
 func test_duplicate_requirement_ids_invalidate_every_owning_packet_but_remain_duplicate_targets() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	_write(root.path_join("prompt_docs/requirements/first.md"), "---\nid: req_packet.first\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.duplicate\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n  - {\"id\":\"req.first_unique\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# First owner\n\n## Rule req.duplicate\n\nDuplicate authority.\n\n## Rule req.first_unique\n\nUnique first-owner authority.\n")
 	_write(root.path_join("prompt_docs/requirements/second.md"), "---\nid: req_packet.second\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.duplicate\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Second owner\n\n## Rule req.duplicate\n\nDuplicate authority.\n")
 	_refresh_index(root)
@@ -352,6 +398,8 @@ func test_duplicate_requirement_ids_invalidate_every_owning_packet_but_remain_du
 
 func test_symlinked_markdown_file_is_rejected_as_a_global_packet_source_error() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	var target := root.path_join("outside/injected.md")
 	_write(target, "---\nid: req_packet.injected\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.injected\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Injected\n\n## Rule req.injected\n\nInjected authority.\n")
 	var link := root.path_join("prompt_docs/requirements/injected-link.md")
@@ -371,6 +419,8 @@ func test_symlinked_markdown_file_is_rejected_as_a_global_packet_source_error() 
 
 func test_symlinked_markdown_directory_is_rejected_as_a_global_packet_source_error() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	var target := root.path_join("outside/injected-directory")
 	_write(target.path_join("injected.md"), "---\nid: req_packet.injected\nkind: requirement_packet\nschema_version: 1\nspecification_status: approved\nbeads: []\nrequirements:\n  - {\"id\":\"req.injected\",\"depends_on\":[],\"implementation_evidence\":[],\"verification_evidence\":[]}\n---\n\n# Injected\n\n## Rule req.injected\n\nInjected authority.\n")
 	var link := root.path_join("prompt_docs/requirements/injected-directory")
@@ -390,8 +440,14 @@ func test_symlinked_markdown_directory_is_rejected_as_a_global_packet_source_err
 
 func test_prompt_docs_junction_is_rejected_even_when_external_index_matches() -> void:
 	var external_authority_root := _fixture_root()
+	if external_authority_root.is_empty():
+		return
 	_counter += 1
-	var repository_root := OS.get_environment("DWM_TEST_ROOT").path_join("agent-authority-root-link-%d" % _counter)
+	var repository_result: Dictionary = TemporaryStorage.create("agent-authority-root-link-%d" % _counter)
+	assert_true(repository_result.ok, repository_result.get("message", ""))
+	if not repository_result.ok:
+		return
+	var repository_root: String = repository_result.value
 	var link := repository_root.path_join("prompt_docs")
 	if not _create_link(link, external_authority_root.path_join("prompt_docs"), true):
 		pending("directory symlink/junction creation unavailable on this platform")
@@ -412,6 +468,8 @@ func test_prompt_docs_junction_is_rejected_even_when_external_index_matches() ->
 
 func test_ambiguous_or_non_descendant_authority_roots_are_source_invalid() -> void:
 	var root := _fixture_root()
+	if root.is_empty():
+		return
 	var empty_snapshot: Array[Dictionary] = []
 	var dotted_root_resolver: RefCounted = load(RESOLVER_PATH).new(root + "/.", empty_snapshot)
 	for link_target in [
@@ -422,11 +480,17 @@ func test_ambiguous_or_non_descendant_authority_roots_are_source_invalid() -> vo
 		assert_false(dotted_result.get("ok", true), JSON.stringify(dotted_result))
 		assert_eq(dotted_result.get("code"), &"AUTHORITY_LINK_SOURCE_INVALID")
 	var external_root := _fixture_root()
+	if external_root.is_empty():
+		return
 	var outside_validation: Dictionary = preload("res://tools/docs/DocValidator.gd").new().validate_tree(external_root.path_join("prompt_docs"), empty_snapshot, root)
 	assert_false(outside_validation.get("packet_source_valid", true), JSON.stringify(outside_validation))
 	assert_true(_has_source_error(outside_validation, "DOC_PACKET_SOURCE_INVALID: root boundary"), JSON.stringify(outside_validation.get("source_errors", [])))
 	_counter += 1
-	var redirect_repository_root := OS.get_environment("DWM_TEST_ROOT").path_join("agent-authority-redirect-%d" % _counter)
+	var redirect_result: Dictionary = TemporaryStorage.create("agent-authority-redirect-%d" % _counter)
+	assert_true(redirect_result.ok, redirect_result.get("message", ""))
+	if not redirect_result.ok:
+		return
+	var redirect_repository_root: String = redirect_result.value
 	var redirect_target := external_root.path_join("safe-child")
 	assert_eq(DirAccess.make_dir_recursive_absolute(redirect_target), OK)
 	var redirect := redirect_repository_root.path_join("redirect")

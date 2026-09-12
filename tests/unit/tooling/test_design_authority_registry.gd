@@ -14,7 +14,11 @@ func _write(path: String, text: String) -> void:
 
 func _root() -> String:
 	_counter += 1
-	return OS.get_environment("DWM_TEST_ROOT").path_join("design-authority-%d" % _counter)
+	var result: Dictionary = TemporaryStorage.create("design-authority-%d" % _counter)
+	assert_true(result.ok, result.get("message", ""))
+	if not result.ok:
+		return ""
+	return result.value
 
 func _design(id: String, kind: String, extra: String = "", plan: String = "") -> String:
 	return "---\nid: %s\nkind: %s\nschema_version: 1\nconversational_design_status: approved\nwritten_spec_status: approved\nimplementation_authorized: false\n%s%s---\n\n# Authority\n" % [id, kind, extra, plan]
@@ -24,6 +28,8 @@ func _manifest(records: Array[Dictionary]) -> String:
 
 func _valid_fixture() -> Dictionary:
 	var root := _root()
+	if root.is_empty():
+		return {}
 	var base_path := "docs/design/base.md"
 	var amendment_path := "docs/design/amendment.md"
 	_write(root.path_join(base_path), _design("spec.base", "design_specification"))

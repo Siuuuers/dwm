@@ -55,7 +55,11 @@ func test_final_contact_stage_reuses_profile_storage_and_retains_one_identity_gr
 	var game_state: Node = autofree(GAME_STATE.new())
 	game_state.set("_identity_issuer", null)
 	bootstrap.injected_targets = {&"GameState": game_state}
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("contact-bootstrap")
+	var storage_result: Dictionary = TemporaryStorage.create("contact-bootstrap")
+	assert_true(storage_result.ok, storage_result.get("message", ""))
+	if not storage_result.ok:
+		return
+	var root: String = storage_result.value
 	var storage: RefCounted = JSON_STORAGE.new(root)
 	bootstrap.set("_selected_root", root)
 	bootstrap.set("_profile_storage", storage)

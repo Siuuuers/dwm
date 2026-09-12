@@ -18,13 +18,17 @@ func _artifacts_exist() -> bool:
 
 func _isolated_root(suite_id: String) -> String:
 	_suite_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("save_manager") \
-		.path_join("%s_%d" % [suite_id, _suite_counter]).path_join("saves")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var relative := "save_manager".path_join("%s_%d" % [suite_id, _suite_counter]).path_join("saves")
+	var result: Dictionary = TemporaryStorage.create(relative)
+	assert_true(result.ok, result.get("message", ""))
+	if not result.ok:
+		return ""
+	return result.value
 
 func _isolated_manager(suite_id: String) -> Dictionary:
 	var root := _isolated_root(suite_id)
+	if root.is_empty():
+		return {}
 	var storage: RefCounted = load(STORAGE_PATH).new(root)
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)

@@ -76,20 +76,20 @@ func before_each() -> void:
 ## DWM_TEST_ROOT, never the production user:// directory -- with a FRESH root per ledger so each
 ## test starts against an empty durable ledger, the way the deleted in-memory double did.
 func _isolated_publication_root() -> String:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_publication_root_counter += 1
-	var root: String = wrapper.path_join("board-fate-publications-%d" % _publication_root_counter)
-	var production := ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var result: Dictionary = TemporaryStorage.create("board-fate-publications-%d" % _publication_root_counter)
+	assert_true(result.ok, result.get("message", ""))
+	if not result.ok:
+		return ""
+	return result.value
 
 
 func _real_publication_ledger() -> CountingPublicationLedger:
+	var root := _isolated_publication_root()
+	if root.is_empty():
+		return null
 	var ledger: Object = PUBLICATION_LEDGER.new()
-	var configured: Dictionary = ledger.configure(JsonFileStorage.new(_isolated_publication_root()))
+	var configured: Dictionary = ledger.configure(JsonFileStorage.new(root))
 	assert_true(configured.get("ok", false), JSON.stringify(configured))
 	var loaded: Dictionary = ledger.load()
 	assert_true(loaded.get("ok", false), JSON.stringify(loaded))

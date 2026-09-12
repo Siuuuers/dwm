@@ -88,6 +88,8 @@ func before_each() -> void:
 	_ledger_script = ledger_loaded["value"] if ledger_loaded.get("ok", false) else null
 
 	_root = _isolated_root()
+	if _root.is_empty():
+		return
 	_storage = JsonFileStorage.new(_root)
 
 	_root_store = ROOT_STORE.new()
@@ -117,15 +119,12 @@ func before_each() -> void:
 
 ## The wrapper's GUID-isolated DWM_TEST_ROOT is the only storage root this suite may use.
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("day7-provenance-%d" % _root_counter)
-	var production: String = ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var result: Dictionary = TemporaryStorage.create("day7-provenance-%d" % _root_counter)
+	assert_true(result.ok, result.get("message", ""))
+	if not result.ok:
+		return ""
+	return result.value
 
 
 func _require_service() -> bool:
