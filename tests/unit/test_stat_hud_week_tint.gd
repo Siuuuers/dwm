@@ -21,10 +21,10 @@ class OwnerFixture extends Node:
 
 func _fixture() -> Dictionary:
 	var owner := OwnerFixture.new()
-	add_child_autofree(owner)
 	var hud: Control = HUD.instantiate()
 	hud.configure(owner)
 	add_child_autofree(hud)
+	add_child_autofree(owner)
 	return {"hud": hud, "owner": owner}
 
 
