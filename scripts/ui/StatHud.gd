@@ -3,6 +3,7 @@ class_name StatHud
 ## Read-only public facts. Hidden stat ranges and mechanical causes stay with GameState.
 
 const DESKTOP_THEME := preload("res://scripts/ui/desktop/DesktopTheme.gd")
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 const COPY := {
 	"en": {"day": "Day", "pressure": "Pressure", "health": "Health", "motivation": "Motivation", "money": "Money", "coins": "Coins", "condition": "Condition", "penalty": "Daily penalty", "unavailable": "Status unavailable", "condition_unavailable": "Condition unavailable", "nausea": "Nausea", "dizzy": "Dizziness", "sequela": "Aftereffects", "faint": "Fainting"},
 	"zh-CN": {"day": "天数", "pressure": "压力", "health": "健康", "motivation": "动力", "money": "金钱", "coins": "硬币", "condition": "状态", "penalty": "当日惩罚", "unavailable": "状态信息不可用", "condition_unavailable": "状态不可用", "nausea": "恶心", "dizzy": "头晕", "sequela": "后遗症", "faint": "昏厥"},
@@ -114,11 +115,13 @@ func _refresh_presentation() -> void:
 	if not COPY.has(_locale):
 		_locale = "en"
 	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if is_instance_valid(_profile) and _profile.has_method("get_preference") else 100
-	var presentation_key := "%s:%d" % [_locale, percent]
+	var day: Variant = _owner.get("day") if is_instance_valid(_owner) else null
+	var tint: float = WEEK_TINT.tint_for_day(int(day)) if typeof(day) == TYPE_INT else 0.0
+	var presentation_key := "%s:%d:%.2f" % [_locale, percent, tint]
 	if presentation_key == _presentation_key:
 		return
 	_presentation_key = presentation_key
-	theme = DESKTOP_THEME.build(_locale, percent)
+	theme = DESKTOP_THEME.build(_locale, percent, &"after_hours", tint)
 	var font := FontVariation.new()
 	font.base_font = theme.default_font
 	font.opentype_features = {"tnum": 1}
