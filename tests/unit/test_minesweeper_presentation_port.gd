@@ -601,3 +601,18 @@ func test_preparation_parking_refuses_owner_recovery_without_allocation() -> voi
 	assert_eq(coordinator._board_state.capture(), before)
 	assert_eq(generation.call_log, calls)
 	assert_eq(root_store.next_counter, counter)
+
+
+func test_routine_commands_issue_deferred_while_first_reveal_issues_durably() -> void:
+	var first: Dictionary = port.pull("beginner")
+	var after_reveal: Dictionary = port.dispatch("reveal", 0, first.value.revision)
+	assert_true(after_reveal.ok, JSON.stringify(after_reveal))
+	assert_eq(root_store.calls_to(&"issue").size(), 1, "first Reveal takes the durable issue")
+	assert_eq(root_store.calls_to(&"issue_deferred").size(), 0)
+	var after_flag: Dictionary = port.dispatch("flag", 2, after_reveal.value.revision)
+	assert_true(after_flag.ok, JSON.stringify(after_flag))
+	var after_unflag: Dictionary = port.dispatch("unflag", 2, after_flag.value.revision)
+	assert_true(after_unflag.ok, JSON.stringify(after_unflag))
+	assert_eq(root_store.calls_to(&"issue_deferred").size(), 2, "routine flag and unflag defer their receipts")
+	assert_eq(root_store.calls_to(&"issue").size(), 1, "no routine command takes the durable issue")
+	assert_eq(after_unflag.value.revision, 3, "deferred receipts still verify through the real coordinator")

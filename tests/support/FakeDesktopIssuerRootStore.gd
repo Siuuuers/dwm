@@ -102,6 +102,7 @@ var call_log: Array[Dictionary] = []
 var _configured := false
 var _armed_results: Dictionary = {}
 var _armed_issue_failure: StringName = &""
+var _pending_flush := false
 
 
 func _init(seed_namespace_hex: String = "", seed_next_counter: int = 0) -> void:
@@ -140,7 +141,24 @@ func issue(purpose: StringName) -> Dictionary:
 	if not PURPOSE_UNION.has(purpose):
 		return _failed(&"fake_unknown_purpose", String(purpose))
 	var receipt := mint(purpose)
+	_pending_flush = false
 	return {"ok": true, "value": {"token": receipt["token"], "issuer_receipt": receipt}, "receipt": receipt}
+
+
+func issue_deferred(purpose: StringName) -> Dictionary:
+	_log(&"issue_deferred", purpose)
+	if not PURPOSE_UNION.has(purpose):
+		return _failed(&"fake_unknown_purpose", String(purpose))
+	var receipt := mint(purpose)
+	_pending_flush = true
+	return {"ok": true, "value": {"token": receipt["token"], "issuer_receipt": receipt}, "receipt": receipt}
+
+
+func flush() -> Dictionary:
+	_log(&"flush", {})
+	var written := _pending_flush
+	_pending_flush = false
+	return {"ok": true, "value": {"written": written}}
 
 
 func verify_receipt(receipt: Dictionary, expected_purpose: StringName) -> Dictionary:

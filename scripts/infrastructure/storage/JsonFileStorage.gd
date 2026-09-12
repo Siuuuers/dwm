@@ -9,10 +9,30 @@ const HASH_PATTERN := "^[0-9a-f]{64}$"
 var _root_dir: String
 var _file_ops: RefCounted
 var _leases: Dictionary = {}
+## Optional pre-write gate (dwm-634.1). The owner of this root may run one Callable before any
+## durable mutation, so a save can first persist state that the saved bytes will reference. A
+## refusal fails the write closed before any marker or candidate byte is written.
+var _before_write: Callable = Callable()
 
 func _init(root_dir: String, file_ops: RefCounted = null) -> void:
 	_root_dir = root_dir.trim_suffix("/").trim_suffix("\\")
 	_file_ops = file_ops if file_ops != null else FILE_OPS.new()
+
+func configure_before_write(hook: Callable) -> Dictionary:
+	if not hook.is_valid():
+		return _failure(&"invalid_before_write_hook", "A valid Callable is required")
+	if _before_write.is_valid() and _before_write != hook:
+		return _failure(&"before_write_hook_already_configured", "One pre-write hook per storage root")
+	_before_write = hook
+	return {"ok": true}
+
+func _run_before_write() -> Dictionary:
+	if not _before_write.is_valid():
+		return {"ok": true}
+	var gate: Variant = _before_write.call()
+	if gate is Dictionary and not (gate as Dictionary).get("ok", false):
+		return _failure(&"before_write_refused", str((gate as Dictionary).get("code", "pre-write hook refused")))
+	return {"ok": true}
 
 func describe_root() -> String:
 	return _root_dir
@@ -52,6 +72,9 @@ func write_atomic_if_revision(relative_path: String, text: String, validator: Ca
 	var bytes := text.to_utf8_buffer()
 	if bytes.get_string_from_utf8() != text:
 		return _failure(&"invalid_utf8", "Outgoing text is not stable UTF-8")
+	var gate := _run_before_write()
+	if not gate.get("ok", false):
+		return gate
 	var admitted := _admit_revision(relative_path, revision)
 	if not admitted.get("ok", false):
 		return admitted
@@ -316,6 +339,9 @@ func write_atomic(relative_path: String, text: String, validator: Callable, keep
 	var outgoing_bytes := text.to_utf8_buffer()
 	if outgoing_bytes.get_string_from_utf8() != text:
 		return _failure(&"invalid_utf8", "Outgoing text is not stable UTF-8")
+	var gate := _run_before_write()
+	if not gate.get("ok", false):
+		return gate
 	var outgoing_hash: String = _file_ops.call(&"sha256", outgoing_bytes)
 	var existing := reconcile(relative_path, validator)
 	if not existing.get("ok", false):

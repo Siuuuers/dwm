@@ -57,7 +57,9 @@ const JSON_PATHS := {
 }
 
 # ---- the three frozen public surfaces (plan line 851) ----
-# The preimage strings are copied verbatim from plan line 851. The digests are their independently
+# The preimage strings were copied verbatim from plan line 851 and extended by dwm-634.1
+# (2026-09-13) with issue_deferred(purpose) and flush() on the issuer and the root store; the
+# immutable v1 record keeps its historical digests (see the dwm-p2r.34 retirement pin below). The digests are their independently
 # computed lowercase SHA-256 (DECISION 11.4): pinning BOTH is double-entry, because the preimage
 # catches a wrong surface while the digest catches a wrong hashing convention -- uppercase output,
 # a stray newline, or the wrong encoding.
@@ -66,12 +68,12 @@ const ISSUER_PATH := "res://scripts/application/desktop/DesktopIdentityNonceIssu
 const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd"
 const PORT_PATH := "res://scripts/application/run/CausalDayAdvanceIdentityPort.gd"
 
-const ISSUER_PREIMAGE := "configure(root_store)\nissue(purpose)\nverify_issued(receipt,expected_purpose)\nderive_child(request)\nvalidate_child(provenance,expected_kind)\nprepare_continuation_allocation(request)\ncommit_continuation_allocation(candidate)\nprepare_causal_day_advance(request)\ncommit_causal_day_advance(candidate)\ncapture_root()\n"
-const ROOT_STORE_PREIMAGE := "configure(storage,namespace_source)\nload_or_create()\nissue(purpose)\nverify_receipt(receipt,expected_purpose)\nprepare_allocation(request)\ncommit_allocation(candidate)\nprepare_causal_day_advance(request)\ncommit_causal_day_advance(candidate)\ncapture()\n"
+const ISSUER_PREIMAGE := "configure(root_store)\nissue(purpose)\nissue_deferred(purpose)\nflush()\nverify_issued(receipt,expected_purpose)\nderive_child(request)\nvalidate_child(provenance,expected_kind)\nprepare_continuation_allocation(request)\ncommit_continuation_allocation(candidate)\nprepare_causal_day_advance(request)\ncommit_causal_day_advance(candidate)\ncapture_root()\n"
+const ROOT_STORE_PREIMAGE := "configure(storage,namespace_source)\nload_or_create()\nissue(purpose)\nissue_deferred(purpose)\nflush()\nverify_receipt(receipt,expected_purpose)\nprepare_allocation(request)\ncommit_allocation(candidate)\nprepare_causal_day_advance(request)\ncommit_causal_day_advance(candidate)\ncapture()\n"
 const PORT_PREIMAGE := "configure(identity_issuer)\nprepare_advance(request)\ncommit_advance(candidate)\n"
 
-const ISSUER_SURFACE_SHA256 := "bea08bbff6a60719a37619d20b625f298dce27f8bba402afd5dd385018964d49"
-const ROOT_STORE_SURFACE_SHA256 := "2134c00e0c9a7c752c83d2dc3dc3633b97da37824b68ffbe465d5c0799b38c2d"
+const ISSUER_SURFACE_SHA256 := "9458e0160c7bab05e4d2f0916d51b8441d5fec522a83e45bb2c85c27f67bb69a"
+const ROOT_STORE_SURFACE_SHA256 := "487b1384b266635ffc4d8f8bcbf0d082a3918cf1639dacdc279779d3c99d749b"
 const PORT_SURFACE_SHA256 := "c1208b4304842ef05998656f8d62de20307b5ae66cd79a9eef9fbef293ffc214"
 
 const SURFACE_EXPECTATIONS := [

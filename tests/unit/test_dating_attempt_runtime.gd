@@ -445,12 +445,19 @@ func test_post_ending_copied_action_profile_and_checkpoint_failures_preserve_ret
 	assert_eq(state.to_save_dict(), before)
 	assert_false(profile.get_dating_attempt(str(identity.run_id), slot, str(parent.attempt_id), "copied-failure-branch").ok)
 	storage.reject_write = false
+	# dwm-634.1: a routine flag commits the attempt to Profile but writes no run checkpoint of its
+	# own; the next checkpoint boundary is the terminal reveal, so the failure is injected there.
+	var checkpoints_before_routine := checkpoint_calls
+	assert_true(_dispatch("flag", 1).ok)
+	assert_eq(checkpoint_calls, checkpoints_before_routine, "a routine flag writes no run checkpoint")
+	before = state.to_save_dict()
 	reject_checkpoint = true
-	assert_eq(_dispatch("flag", 1).code, &"fixture_checkpoint_failure")
+	assert_eq(_dispatch("reveal", 323).code, &"fixture_checkpoint_failure")
 	assert_eq(state.to_save_dict(), before)
 	var durable: Dictionary = profile.get_dating_attempt(str(identity.run_id), slot,
 		str(parent.attempt_id), "copied-failure-branch").value
 	assert_eq(durable.record.board.flagged_indices, [1])
+	assert_true(bool(durable.record.board.terminal), "the boundary reveal reached Profile before the run checkpoint failed")
 	assert_eq(physical_owner.pull_physical(command.physical_token).value.phase, "checkpoint_retry")
 	assert_eq(_dispatch("flag", 2).code, &"dating_checkpoint_retry_required")
 	var revision: int = profile.get_profile_revision()

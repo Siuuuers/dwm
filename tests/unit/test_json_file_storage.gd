@@ -164,3 +164,35 @@ func test_path_escapes_and_unbound_validators_reject_before_mutation() -> void:
 		assert_eq(storage.call(&"reconcile", unsafe, _generation_validator).get("code"), &"invalid_relative_path", unsafe)
 	assert_eq(storage.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, Callable()).get("code"), &"invalid_validator")
 	assert_eq(fake.call(&"snapshot_persisted"), {})
+
+
+func test_before_write_hook_runs_before_any_mutation_and_a_refusal_writes_nothing() -> void:
+	var ops: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: OLD_TEXT}))
+	var storage: RefCounted = _storage_script.new(ROOT, ops)
+	var observed: Array = []
+	var refuse: Array = [false]
+	var hook: Callable = func() -> Dictionary:
+		observed.append(ops.call(&"snapshot_persisted"))
+		if refuse[0]: return {"ok": false, "code": &"fixture_hook_refused"}
+		return {"ok": true}
+	assert_true(storage.call(&"configure_before_write", hook).get("ok", false))
+	assert_true(storage.call(&"configure_before_write", hook).get("ok", false), "an identical replay is idempotent")
+	var other: Callable = func() -> Dictionary: return {"ok": true}
+	assert_false(storage.call(&"configure_before_write", other).get("ok", false), "a second, different hook is refused")
+	refuse[0] = true
+	var refused: Dictionary = storage.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, _generation_validator)
+	assert_false(refused.get("ok", false))
+	assert_eq(refused.get("code"), &"before_write_refused")
+	assert_eq(observed.size(), 1)
+	assert_eq(ops.call(&"snapshot_persisted"), _seed({FINAL_PATH: OLD_TEXT}), "a refused hook leaves every byte untouched")
+	refuse[0] = false
+	var written: Dictionary = storage.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, _generation_validator)
+	assert_true(written.get("ok", false), str(written))
+	assert_eq(observed.size(), 2)
+	assert_eq(observed[1], _seed({FINAL_PATH: OLD_TEXT}), "the hook ran before the new bytes reached storage")
+	assert_eq(_restart_and_reconcile(ops.call(&"snapshot_persisted")).get("hash"), _hash(NEW_TEXT))
+	var revision: Dictionary = storage.call(&"inspect_revision", RELATIVE_PATH)
+	assert_true(revision.get("ok", false), str(revision))
+	var revised: Dictionary = storage.call(&"write_atomic_if_revision", RELATIVE_PATH, OLD_TEXT, _generation_validator, str(revision.value.revision))
+	assert_true(revised.get("ok", false), str(revised))
+	assert_eq(observed.size(), 3, "the revision writer runs the same hook before it mutates")

@@ -88,7 +88,8 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	if current_projection != _projection:
 		_adopt(current.value)
 		return _failure(&"stale_minesweeper_presentation", _projection)
-	var issued: Dictionary = _issuer.call(&"issue", &"transaction_id")
+	var durable_first_reveal := action == "reveal" and _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]
+	var issued: Dictionary = _mint_transaction(durable_first_reveal)
 	if not issued.get("ok", false):
 		return _failure(&"minesweeper_command_refused")
 	var issued_value: Dictionary = issued.get("value", {})
@@ -409,6 +410,15 @@ func get_terminal_foresight(projection: Dictionary) -> Dictionary:
 	if not _terminal_foresight is int or projection != _projection or not projection.get("terminal", false):
 		return {"ok": false}
 	return {"ok": true, "value": _terminal_foresight}
+
+
+## Routine board commands leave the board in memory, so their receipts stay in memory too
+## (dwm-634.1); the ledger is written whenever the board is. First Reveal consumes a round and
+## commits a durable checkpoint, so its receipt is durable before the command runs.
+func _mint_transaction(durable: bool) -> Dictionary:
+	if durable or not _issuer.has_method("issue_deferred"):
+		return _issuer.call(&"issue", &"transaction_id")
+	return _issuer.call(&"issue_deferred", &"transaction_id")
 
 
 func _read_owner(difficulty: String) -> Dictionary:

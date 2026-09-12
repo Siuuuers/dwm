@@ -22,6 +22,8 @@ extends RefCounted
 ##
 ##     configure(root_store)
 ##     issue(purpose)
+##     issue_deferred(purpose)
+##     flush()
 ##     verify_issued(receipt,expected_purpose)
 ##     derive_child(request)
 ##     validate_child(provenance,expected_kind)
@@ -134,6 +136,32 @@ func issue(purpose: StringName) -> Dictionary:
 			"a causal day instance is allocated, never issued directly")
 	var issued: Dictionary = _root.call(&"issue", purpose)
 	return issued
+
+
+## dwm-634.1: the root's in-memory mint under the same allocator refusals as issue(). Routine
+## board commands use it because their own effects are not durable until the board is saved.
+func issue_deferred(purpose: StringName) -> Dictionary:
+	var ready := _require_configured("issue_deferred")
+	if not ready.get("ok", false):
+		return ready
+	if purpose == GENERATION_PURPOSE:
+		return _failed(&"generation_allocation_required",
+			"a desktop timeline generation is allocated, never issued directly")
+	if purpose == CAUSAL_DAY_PURPOSE:
+		return _failed(&"causal_day_advance_allocation_required",
+			"a causal day instance is allocated, never issued directly")
+	var issued: Dictionary = _root.call(&"issue_deferred", purpose)
+	return issued
+
+
+## dwm-634.1: persists every deferred receipt. The run-save storage root runs this before any
+## durable save, so no saved document can reference a receipt that a crash would lose.
+func flush() -> Dictionary:
+	var ready := _require_configured("flush")
+	if not ready.get("ok", false):
+		return ready
+	var flushed: Dictionary = _root.call(&"flush")
+	return flushed
 
 
 ## Plan line 535: an ID-only, absent, wrong-purpose, or byte-changed receipt never proves provenance.

@@ -349,3 +349,45 @@ func _dispatch(action: String, index: int = -1) -> Dictionary:
 	var view: Dictionary = port.pull_physical(command)
 	if not view.ok: return view
 	return port.dispatch_physical(command, action, index, int(view.value.board.revision))
+
+
+func test_routine_board_actions_defer_receipts_and_write_no_checkpoint() -> void:
+	# Rows 0-1 hold 33 mines and three more wall off the bottom-left corner (306), so the flood
+	# from 323 leaves exactly one safe cell covered: the board stays in play after the first reveal.
+	var mines: Array = []
+	for index in 33: mines.append(index)
+	mines.append_array([288, 289, 307])
+	generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
+		"mine_indices": mines, "mine_count": 36})
+	var fake_root: RefCounted = STORE.new("85".repeat(32), 1)
+	issuer = ISSUER.new()
+	assert_true(issuer.configure(fake_root).ok)
+	physical_owner = OWNER.new()
+	assert_true(physical_owner.configure(issuer, state, profile, generation).ok)
+	port = PORT.new()
+	assert_true(port.configure(issuer, physical_owner).ok)
+	var stored: Array = []
+	var writer: Callable = func(record: Dictionary) -> Dictionary:
+		stored.append(record.duplicate(true))
+		return {"ok": true, "value": {}}
+	assert_true(physical_owner.configure_checkpoint_writer(writer).ok)
+	_begin("solo")
+	assert_true(_dispatch("continue").ok)
+	var boundary_checkpoints := stored.size()
+	assert_gt(boundary_checkpoints, 0, "entering the challenge is a checkpoint boundary")
+	assert_true(_dispatch("reveal", 323).ok)
+	assert_eq(state.saved.phase, "challenge")
+	assert_false(bool(state.saved.board.terminal), "the walled corner keeps the board in play")
+	assert_eq(stored.size(), boundary_checkpoints + 1, "materializing the board is a checkpoint boundary")
+	var durable_issues: int = fake_root.calls_to(&"issue").size()
+	var deferred_issues: int = fake_root.calls_to(&"issue_deferred").size()
+	assert_true(_dispatch("flag", 306).ok)
+	assert_eq(state.saved.board.flagged_indices, [306], "the in-memory record still follows every action")
+	assert_true(_dispatch("unflag", 306).ok)
+	assert_eq(state.saved.board.flagged_indices, [])
+	assert_eq(stored.size(), boundary_checkpoints + 1, "routine flag and unflag write no checkpoint")
+	assert_eq(fake_root.calls_to(&"issue_deferred").size(), deferred_issues + 2, "routine actions defer their receipts")
+	assert_eq(fake_root.calls_to(&"issue").size(), durable_issues, "routine actions never take the durable issue")
+	assert_true(_dispatch("reveal", 306).ok)
+	assert_eq(state.saved.phase, "cleared_awaiting_terminal_choice")
+	assert_eq(stored.size(), boundary_checkpoints + 2, "the terminal reveal is a checkpoint boundary")
