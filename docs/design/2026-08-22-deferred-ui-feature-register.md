@@ -169,6 +169,15 @@ not presented as locked content or a technical failure.
   replay, failure, accessibility boundaries, and abnormality budgets.
 - **No current scaffold:** No RNG call, seed, weight, variant-deck field,
   anomaly tag, save branch, icon, status copy, or fallback is added now.
+- **Cross-reference (2026-09-12):** The operating-system shell now has a
+  separately owner-approved drift family, the Drift Deck in
+  `spec.instrumentarium_drift_deck_all_input_and_week_tint_amendment`. That
+  amendment neither promotes nor retires this entry: it governs the desktop
+  shell and its apps only, and this entry continues to preserve the
+  scene-aperture anomaly generator as `deferred`. Section 3's no-scaffold
+  clause continues to bind the aperture; for the shell drift family it is
+  superseded only once that amendment's implementation is separately
+  authorized.
 
 ### 4.4 `future_ui.non_narrative_avatar_photo_frame`
 

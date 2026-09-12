@@ -9,7 +9,7 @@ implementation_requested: false
 implementation_authorized: false
 audience: private_spoiler_complete
 created_on: "2026-09-02"
-last_confirmed_on: "2026-09-07"
+last_confirmed_on: "2026-09-11"
 engine_line: godot_4_6
 verification_engine: "4.6.3-stable-mono"
 scope: ["narrative_authority","seven_day_plot_reset","observable_surfaces","romantic_geometry","love_signal_grammar","observer_pressure","hospitalization","hospital_date_variant","weird_eerie_style","ending_contract","ending_family_form","ending_agency","umbrella_history","incidental_cast","documentation_workflow"]
@@ -1318,6 +1318,57 @@ attachment; the occasions are deliberate even while their accumulating
 personal purpose remains misclassified. This must not become a retrospective
 master plan in which Priscilla knew the final bond she intended to produce.
 
+**Later owner-approved noncanonical carrier — 2026-09-10:** The leading Day 2
+audition now selects one post-recognition, pre-England example without
+settling the larger history: Lavinia's performer biography is six words over
+a conservatory-programme limit; Priscilla has a legitimate language reason,
+could use a message, and chooses to approach Lavinia in person. The exact line
+is `Your biography was six words over the limit.` The overage explains one
+occasion but not the repeated contact-bearing choices. This dated audition
+does not amend the Bible, settle the Angela recognition carrier, identify the
+programme or removed words, or lift the raw chronological-audit hold.
+Priscilla may identify the excess and offer language options, but no reduction
+proceeds without Lavinia's final approval; who physically submits the approved
+wording is immaterial. That bounded permission grants no authority over the
+later symptom disclosure.
+
+**Owner-approved noncanonical Day 2 withholding transition — 2026-09-11:**
+Priscilla's early self-understanding as curiosity remains true and is not
+retroactively converted into a master plan. By the Day 2 pressure conversation,
+however, she knows that a sincere personal answer exists beyond usefulness:
+she chose Lavinia, not merely the tasks that permitted contact. After Lavinia
+says `I did not say it was false.`, Priscilla consciously withholds that answer
+and says nothing. Fear of self-revelation is one selected local reason;
+preserving authorship over disclosure is her defensive strategy. Her exact
+words, relationship label, recognition date, and complete motive mixture
+remain open.
+
+The six-word reply carries a dry comic surface without any smile, laugh,
+comic-pause, `dryly`, or explanatory-glance cue. The earlier consensual
+biography correction remains benign and keeps Lavinia's final authorship; its
+language obliquely implies the later terrible shared memory of Priscilla's
+unauthorized substantive amendment to Lavinia's institutional symptom
+disclosure. The harmless precedent is retrospectively contaminated rather than
+reclassified as a violation. `It was true.` / `I did not say it was false.`
+lets factual defensibility fail to answer either singular choice or authority,
+without certifying how completely either woman consciously follows the echo.
+Priscilla uses the deflection to hide, not to punish, test, or solicit harm.
+
+Lavinia can know only that the factual answer was insufficient and that no
+further answer came; she cannot know the withheld content or complete motive.
+She leaves her tears unwiped and her hand begins to rise. Priscilla knows
+beforehand that the silence is legible
+as a personal refusal and accepts that it may wound Lavinia; after the tears
+become perceptible to her, she continues withholding. This is a sustained
+choice, not inability, indecision, or failure to notice. She neither intends nor
+predicts the rising hand or slap. The unanswered part hurts Lavinia deeply and
+supplies real pressure, but it does not cause, compel, authorize, or excuse her
+threatened or completed contact. The silence is not bait or permission, remains
+unspoken in every form, and cannot be purchased by any contact. Priscilla's
+later `Why?` remains a sincere response to an action she did not foresee. This
+is a leading audition only; it amends no Bible or Manual and does not lift the
+raw chronological-audit hold.
+
 The strongest pretexts are materially true, bounded, and refusable but
 insufficient to explain why Priscilla repeatedly chooses the contact-bearing
 version of an ordinary task. Later she may begin preserving usefulness because
@@ -1373,6 +1424,21 @@ advertising a polysemous line. Dark may not multiply the blow, aestheticize
 injury, remove ordinary aftermath, or convert Priscilla's question into pardon.
 The exact bar placement, lead-in, Lavinia reply, witnessed consequence, and
 post-question action remain open.
+
+**Owner-approved noncanonical shared Dark verbal joint — 2026-09-11:** In
+both Dark forms, Lavinia completes one deliberate open-handed slap to
+Priscilla's cheek. With no cinematic flinch, head turn, breath caption, or
+other reaction beat inserted between contact and speech, Priscilla asks
+`Why?`; Lavinia answers `You should have left me alone.` The question is
+sincere and the reply is origin-facing. Neither the prior dry joke nor the
+reply causes, authorizes, or excuses the slap. Do not name or explain the
+biography/report connection again in this joint. Repetition with Sweet–Love is
+intentional: the stopped or completed hand changes the words' consequence.
+The shared Dark answer later enters two distinct contradictions:
+Dark–Ambiguous's `I did not tell you to go.` and Dark–Love's `Will you
+stay?` This approval supersedes only the exact-question-and-reply openings
+above; the event remains noncanonical and under the raw chronological-audit
+hold.
 
 **OWNER-CONFIRMED SUPERSESSION — 2026-09-07; bounded forward-use guard.** The
 entries below preserve the chronological discussion, but the current

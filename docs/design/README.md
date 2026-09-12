@@ -41,6 +41,17 @@ superseded. All promised branches remain in scope with detailed dialogue deferre
 - [Relationship Progression and Ending Evaluation Runtime Behavior Record](2026-09-02-relationship-progression-runtime-behavior-record.md)
   owns the approved future behavior boundary between authored consequence and
   code without authorizing implementation.
+- [Instrumentarium Drift Deck, All-Input Layout, and Week Tint Amendment](2026-09-12-instrumentarium-drift-deck-all-input-and-week-tint-amendment.md)
+  records the owner's UI rulings of 2026-09-12 (story-bible resonance, smooth
+  1280 x 720 typography, graded shell drift from an authored per-run deck,
+  all-input landscape layout, warm-to-cold week tint, Midnight bound to Dark
+  runs, diegetic sound cue roles, Steady Interface preference). It amends the
+  Haunted Instrumentarium foundation. Implementation was separately authorized
+  under `dwm-vky`; week tint increment 1 is merged and the epic is paused.
+  `dwm-gb6` records the completed design review, including optional board Fit
+  and permanent cell-size preferences; implementation remains in `dwm-vky`.
+  Painting acquisition under
+  `dwm-oqw` has its own provenance and does not authorize audio acquisition.
 - [approved Two-Pass Constellation specification](../superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md)
   owns the selection workflow.
 - [Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md) owns fixed
