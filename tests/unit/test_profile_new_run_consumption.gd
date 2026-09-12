@@ -267,7 +267,7 @@ func test_pending_preparation_is_pure_and_foreign_marker_is_never_reconciled() -
 	_quiet(fixture.profile, material.before, material.profile_revision)
 
 
-func test_restart_recovers_failures_before_promotion_and_after_committed_write_without_adoption() -> void:
+func test_inline_or_restart_recovers_failures_before_promotion_and_after_committed_write_without_adoption() -> void:
 	var fixture: Dictionary = _fixture()
 	var material: Dictionary = _material(fixture)
 	var seed: Dictionary = fixture.ops.snapshot_persisted()
@@ -287,7 +287,16 @@ func test_restart_recovers_failures_before_promotion_and_after_committed_write_w
 		var fault: Dictionary = _startup(seed)
 		fault.ops.fail_after(ordinal)
 		var attempted: Dictionary = fault.profile.persist_new_run_consumption(material)
-		assert_false(attempted.get("ok", true), "Fault ordinal %d must be observed: %s" % [ordinal, attempted])
+		assert_true(fault.ops._failure_consumed, "Fault ordinal %d must be observed: %s" % [ordinal, attempted])
+		if attempted.get("ok", false):
+			var inline: Dictionary = fault.storage.inspect_revision("profile.json")
+			assert_true(inline.get("ok", false), "Fault ordinal %d must leave a readable Profile: %s" % [ordinal, inline])
+			if inline.get("ok", false):
+				assert_eq(inline.value.revision, material.outgoing_hash)
+				assert_eq(inline.value.text, material.outgoing_text)
+			var artifacts: Dictionary = fault.ops.snapshot_persisted()
+			for suffix: String in [".txn.json", ".next", ".revision-prior", ".bak"]:
+				assert_false(artifacts.has(PATH + suffix), "Inline recovery must clear " + suffix)
 		_quiet(fault.profile, {}, 0)
 		var restart: Dictionary = _startup(fault.ops.snapshot_persisted())
 		var recovered: Dictionary = restart.profile.persist_new_run_consumption(material)

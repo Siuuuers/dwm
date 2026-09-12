@@ -27,6 +27,9 @@ func _run() -> void:
 	var panel: Control = app.panel
 	for tier: String in ["beginner","intermediate","expert"]:
 		panel.register.difficulties[tier].pressed.emit()
+		if not _check(panel.worksheet.cell_size == 36 and not panel.worksheet.always_fit, "fresh tier defaults to manual 36"): return
+		panel.worksheet.zoom_controls[2].pressed.emit()
+		if not _check(panel.worksheet.always_fit, "explicit Fit toggle is remembered for " + tier): return
 		for percent: int in [100,125,150]:
 			if not _check(panel.configure("en",percent,false),"UI text preference accepted"): return
 			if not _check(_complete_board_visible(panel),"complete "+tier+" at "+str(percent)): return

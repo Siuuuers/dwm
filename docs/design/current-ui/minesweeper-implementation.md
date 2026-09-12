@@ -527,3 +527,48 @@ small-window grid and active numbers/flags captures were visually inspected.
 Evidence: `.godot/phase2r_logs/ms-ui-full.log`, `ms-ui-recheck.log`,
 `ms-port-recheck.log`, `ms-cell-final.log` and `ms-ui-pixels.log`. Final images are
 in `.godot/phase2r_tests/8c017f68-1fd1-423f-846b-5f48ba1031b5/appdata/Godot/app_userdata/DWM/evidence/playable/`.
+
+## 2026-09-13: permanent board view controls (`dwm-vky.5`)
+
+The September 12 amendment, Section 4.1, replaces unconditional fitting with a
+36-logical-pixel manual default. The shared worksheet offers **− / size / +** and
+**Fit entire board**. Manual sizes are 10–60 in steps of 2; Fit may use smaller,
+fractional cells and restores the remembered manual size when switched off.
+Text size and Large Targets change surrounding controls independently of cell size.
+
+| Input | View action |
+| --- | --- |
+| Ctrl + wheel over the board or empty well | One size step per wheel event |
+| Two-finger pinch | Quantized zoom around the midpoint; neither release plays a cell |
+| LT / RT with board focus | One size step per fresh trigger press; both held do nothing |
+| Wheel, Drag mode, touch drag, right stick, rails | Pan the manual board |
+| Board navigation | Bring the focused cell into view; vertical edge can enter the zoom controls |
+
+Beginner, Intermediate and Expert have independent preferences. All canonical
+challenges and Gallery Practice share the fourth preference pair. Debug uses its
+current app difficulty. These eight values belong to ProfileManager, survive
+New Account and save restoration, and are absent from gameplay snapshots.
+Old profiles receive the defaults only when all eight fields are absent; partial
+or invalid new shapes remain invalid.
+
+Wheel changes coalesce and a pinch commits once when finished. View changes use
+the existing atomic preference transaction, never a gameplay checkpoint. A failed
+write restores the saved view and displays its size and error; difficulty changes
+and Practice exit flush before changing their host. Held gestures, Pause and input
+custody suppress zoom. Triggers must be observed neutral after returning.
+
+Automated coverage is in `test_minesweeper_view_preferences.gd`,
+`test_minesweeper_worksheet_view_layout.gd`, `test_minesweeper_view_controls.gd`,
+`test_minesweeper_zoom_input.gd` and the real SubViewport routing suite
+`tests/scene/test_minesweeper_view_gestures.gd`. The render fixture
+`tests/ui/render_minesweeper_view_controls.gd` covers manual Expert, Fit Expert,
+150% Traditional Chinese with Large Targets, and Beginner at 60 pixels.
+Physical touchscreen/gamepad hardware remains a manual device check; synthetic
+events exercise Godot's actual GUI routing and focus paths.
+
+After merging clicking-lag changes through `c8aedfe78`, all 446 tests in 31 focused
+suites passed. The final native run also passed explicit Fit, all tiers/text sizes,
+small-window grid pixels, flag-mode Chord, terminal tier changes, Space and costs.
+Durable logs, invocation records and selected captures are in
+`evidence/minesweeper_view_controls`. The latency benchmark still shows slow result
+processing; `dwm-634.1` remains a separate open performance task.

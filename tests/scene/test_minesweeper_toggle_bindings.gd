@@ -122,7 +122,7 @@ func test_default_keyboard_and_controller_toggle_preserve_projection_focus_cells
 	stick = stick.duplicate()
 	stick.axis_value = 0.0
 	_surface.push_input(stick, true)
-	assert_eq(pans, [Vector2(48, 0)], "native right-stick pan establishes retained placement")
+	assert_eq(pans, [Vector2(-48, 0)], "panning right moves the rendered board left")
 	var position: Vector2 = _grid.position
 	_tap(KEY_F)
 	assert_eq(_grid.mode, &"flag")
