@@ -1,103 +1,94 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://dwqxwkk55jhjf"]
 
-[ext_resource type="Script" path="res://scripts/ui/MenuScene.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="99_presentation"]
-[ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="98_binding"]
+[ext_resource type="Script" uid="uid://c8kar6tybf0bn" path="res://scripts/ui/MenuScene.gd" id="1"]
+[ext_resource type="Script" uid="uid://cj37vemhllwrb" path="res://scripts/ui/LocalizedBinding.gd" id="98_binding"]
+[ext_resource type="Script" uid="uid://bqtxye8w7t6gh" path="res://scripts/ui/LocalePresentationRoot.gd" id="99_presentation"]
 
-[node name="MenuScene" type="Control"]
+[node name="MenuScene" type="Control" unique_id=665663831]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1")
 
-[node name="LocalePresentationRoot" type="Node" parent="."]
+[node name="LocalePresentationRoot" type="Node" parent="." unique_id=1166419717]
 script = ExtResource("99_presentation")
 
-[node name="L10nNewAccount" type="Node" parent="."]
+[node name="L10nNewAccount" type="Node" parent="." unique_id=250449925]
 script = ExtResource("98_binding")
 target_path = NodePath("../MenuPanel/ButtonList/NewAccButton")
 key = "menu.new_account"
 
-[node name="L10nLogin" type="Node" parent="."]
+[node name="L10nLogin" type="Node" parent="." unique_id=963584693]
 script = ExtResource("98_binding")
 target_path = NodePath("../MenuPanel/ButtonList/LogInButton")
 key = "menu.login"
 
-[node name="L10nGallery" type="Node" parent="."]
+[node name="L10nGallery" type="Node" parent="." unique_id=1005797427]
 script = ExtResource("98_binding")
 target_path = NodePath("../MenuPanel/ButtonList/GalleryButton")
 key = "menu.gallery"
 
-[node name="L10nSetting" type="Node" parent="."]
+[node name="L10nSetting" type="Node" parent="." unique_id=622494915]
 script = ExtResource("98_binding")
 target_path = NodePath("../MenuPanel/ButtonList/SettingButton")
 key = "menu.setting"
 
-[node name="L10nShutdown" type="Node" parent="."]
+[node name="L10nShutdown" type="Node" parent="." unique_id=1650402819]
 script = ExtResource("98_binding")
 target_path = NodePath("../MenuPanel/ButtonList/ShutDownButton")
 key = "menu.shutdown"
 
-[node name="MenuPanel" type="PanelContainer" parent="."]
+[node name="MenuPanel" type="PanelContainer" parent="." unique_id=288105642]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.0
-anchor_top = 0.0
 offset_right = 320.0
 offset_bottom = 720.0
 
-[node name="ButtonList" type="VBoxContainer" parent="MenuPanel"]
+[node name="ButtonList" type="VBoxContainer" parent="MenuPanel" unique_id=1423220951]
 layout_mode = 2
 
-[node name="NewAccButton" type="Button" parent="MenuPanel/ButtonList"]
+[node name="NewAccButton" type="Button" parent="MenuPanel/ButtonList" unique_id=623191703]
 unique_name_in_owner = true
 layout_mode = 2
-focus_mode = 2
 text = "New Acc"
 
-[node name="LogInButton" type="Button" parent="MenuPanel/ButtonList"]
+[node name="LogInButton" type="Button" parent="MenuPanel/ButtonList" unique_id=1375291941]
 unique_name_in_owner = true
 layout_mode = 2
-focus_mode = 2
 text = "Log in"
 
-[node name="GalleryButton" type="Button" parent="MenuPanel/ButtonList"]
+[node name="GalleryButton" type="Button" parent="MenuPanel/ButtonList" unique_id=1875260599]
 unique_name_in_owner = true
 layout_mode = 2
-focus_mode = 2
 text = "Gallery"
 
-[node name="SettingButton" type="Button" parent="MenuPanel/ButtonList"]
+[node name="SettingButton" type="Button" parent="MenuPanel/ButtonList" unique_id=2033078626]
 unique_name_in_owner = true
 layout_mode = 2
-focus_mode = 2
 text = "Setting"
 
-[node name="ShutDownButton" type="Button" parent="MenuPanel/ButtonList"]
+[node name="ShutDownButton" type="Button" parent="MenuPanel/ButtonList" unique_id=1306146310]
 unique_name_in_owner = true
 layout_mode = 2
-focus_mode = 2
 text = "Shut down"
 
-[node name="BackupAppHost" type="Control" parent="."]
+[node name="BackupAppHost" type="Control" parent="." unique_id=1615147142]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.0
-anchor_top = 0.0
+anchors_preset = 0
 offset_left = 320.0
 offset_right = 1280.0
 offset_bottom = 720.0
 
-[node name="SettingHost" type="Control" parent="."]
+[node name="SettingHost" type="Control" parent="." unique_id=743269089]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.0
-anchor_top = 0.0
+anchors_preset = 0
 offset_left = 320.0
 offset_top = 64.0
 offset_right = 1280.0
