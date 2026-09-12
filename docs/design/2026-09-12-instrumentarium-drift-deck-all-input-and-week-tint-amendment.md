@@ -14,7 +14,7 @@ implementation_requested: true
 implementation_authorized: true
 implementation_authorized_on: "2026-09-12"
 implementation_order: "section_13_with_week_tint_first"
-implementation_status: paused_after_week_tint_increment_1
+implementation_status: in_progress
 beads: dwm-gb6
 created_on: "2026-09-12"
 engine_line: godot_4_6
@@ -744,21 +744,31 @@ preferences supersede older presentation geometry only within that scope.
 Implementation was separately authorized and then paused by the owner.
 `dwm-vky` owns it; completing this design review does not resume it.
 
+**2026-09-13 continuation:** the owner's subsequent implementation goal resumes
+bounded Beads work beyond the review. Board-view controls (`dwm-vky.5`) and
+installed run-palette/accessibility binding (`dwm-vky.6`) are complete. Schedule
+and its warning sheet now use the installed day's week tint (`dwm-vky.7`),
+including live High Contrast/CVD preferences and retained modal focus. See
+`evidence/schedule_week_tint/README.md` for verification and its limits. Other
+palette owners and the Drift Deck remain unfinished; the five deferred extra
+proposals in this amendment remain deferred. The dated review closeout below
+records the earlier review-only state.
+
 **Already landed:** week tint increment 1 (helper, desktop shell and StatHud)
 at `96b04bb88`, followed by the separate test/Hospital corrections and the
 measured generator-budget regeneration through `b8fcc49a6`. Do not repeat
 these increments or reopen `dwm-nsr` on the earlier stale-hash evidence.
 
-**Remaining order when implementation resumes:**
+**Implementation order (completed increments marked):**
 
 1. Finish week tint across the remaining palette owners and surfaces. Resolve
-   StatHud's run-palette/accessibility binding and propagate High Contrast/CVD
+   each remaining owner's run-palette/accessibility binding and propagate High Contrast/CVD
    selection; a registry helper alone cannot cover independent theme owners.
    Keep Day 1 exact and paintings unfiltered. Validate all required contrast
    pairs for all sixteen tuples at all seven day values.
-2. Implement the owner-requested board-view controls in Section 4.1 as a
-   bounded presentation/preferences increment, with profile compatibility and
-   input tests. It does not depend on the Drift Deck or a run-schema change.
+2. **Complete (`dwm-vky.5`):** the owner-requested board-view controls in
+   Section 4.1, including profile compatibility and input tests. This increment
+   does not depend on the Drift Deck or a run-schema change.
 3. Add the Steady Interface row and its three-locale labels.
 4. Specify compatibility for existing saves before adding the compact
    `ui.drift.deck` plan/receipt. Current snapshot admission is strict and does

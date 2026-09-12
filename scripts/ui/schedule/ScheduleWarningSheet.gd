@@ -42,11 +42,13 @@ func _ready() -> void:
 			_restore_focus.call_deferred(_focus_generation)
 		else: _cancel_contacts())
 
-func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours") -> bool:
+func configure(locale: String = "en", percent: int = 100, large: bool = false,
+		palette: StringName = &"after_hours", day: int = 1,
+		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	locale = locale.replace("_","-")
-	var key: Array = [locale,percent,large,palette]
+	var key: Array = [locale,percent,large,palette,day,high_contrast,colour_preset]
 	if _configured and key == _config_key: return true
-	var next_theme: Theme = SCHEDULE_THEME.build(palette)
+	var next_theme: Theme = SCHEDULE_THEME.build(palette,day,high_contrast,colour_preset)
 	if locale not in FONTS or percent not in [100,125,150] or next_theme == null: return false
 	_locale = locale
 	_font_size = 20*percent/100
@@ -68,7 +70,9 @@ func present(next_activation_id: String, copy: Dictionary, error_text: String = 
 	if key == _presentation_key: return true
 	var new_activation: bool = next_activation_id != activation_id
 	var new_error: bool = not error_text.is_empty() and (new_activation or _presentation_key.is_empty() or _presentation_key[5] != error_text)
-	var prior_focus: String = ""
+	# A second presentation can arrive before the first deferred focus restore.
+	# Keep the semantic target across that gap for the same activation.
+	var prior_focus: String = _focus_target if next_activation_id == activation_id else ""
 	if is_instance_valid(close_button) and close_button.has_focus(): prior_focus = "close"
 	elif is_instance_valid(go_button) and go_button.has_focus(): prior_focus = "go"
 	var prior_scroll: int = body_scroll.scroll_vertical if is_instance_valid(body_scroll) else 0

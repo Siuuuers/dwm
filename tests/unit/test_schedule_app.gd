@@ -8,6 +8,7 @@ const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.g
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const WARNING_PORT := preload("res://scripts/application/schedule/ScheduleWarningPresentationPort.gd")
+const SCHEDULE_THEME := preload("res://scripts/ui/schedule/ScheduleTheme.gd")
 
 class Owner extends RefCounted:
 	var contacts := CONTACTS.make_defaults()
@@ -617,14 +618,46 @@ class SharedPreferences extends RefCounted:
 	var locale := "en"
 	var percent: Variant = 100
 	var large := false
+	var high_contrast := false
+	var colour_preset := "standard"
 	func get_locale() -> String: return locale
 	func get_preference(path: String, fallback: Variant = null) -> Variant:
 		if path == "preferences.accessibility.text_size": return percent
 		if path == "preferences.accessibility.large_targets": return large
+		if path == "preferences.accessibility.high_contrast": return high_contrast
+		if path == "preferences.accessibility.colour_differentiation": return colour_preset
 		return fallback
 	func publish_size(value: Variant) -> void:
 		percent = value
 		preference_changed.emit(&"preferences.accessibility.text_size",value)
+	func publish_colour(value: String) -> void:
+		colour_preset = value
+		preference_changed.emit(&"preferences.accessibility.colour_differentiation",value)
+	func publish_contrast(value: bool) -> void:
+		high_contrast = value
+		preference_changed.emit(&"preferences.accessibility.high_contrast",value)
+
+func test_installed_day_and_live_accessibility_retheme_without_changing_schedule_evidence() -> void:
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_presentation(_port,"en",100,false,Callable(),&"midnight",null,null,6).ok)
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	var before: Dictionary = _view.snapshot().value.view
+	var button: Button = _app.panel.source_buttons.rest
+	button.grab_focus()
+	assert_eq(_app.panel.theme.get_color(&"paper",&"Schedule"),
+		SCHEDULE_THEME.build(&"midnight",6).get_color(&"paper",&"Schedule"))
+	preferences.publish_colour("protan")
+	preferences.publish_contrast(true)
+	await get_tree().process_frame
+	assert_eq(_app.panel.theme.get_color(&"paper",&"Schedule"),
+		SCHEDULE_THEME.build(&"midnight",6,true,"protan").get_color(&"paper",&"Schedule"))
+	assert_eq(_app.panel.theme.get_color(&"filed",&"Schedule"),
+		SCHEDULE_THEME.build(&"midnight",6,true,"protan").get_color(&"filed",&"Schedule"))
+	assert_true(_app.panel.source_buttons.rest.has_focus())
+	assert_eq(_view.snapshot().value.view,before)
+	preferences.publish_colour("unsupported")
+	assert_eq(_app._colour_preset,"protan")
+	assert_eq(_view.snapshot().value.view,before)
 
 func test_shared_preferences_reflow_preserves_occurrences_selection_focus_and_semantic_anchor() -> void:
 	var preferences := SharedPreferences.new()
@@ -741,6 +774,31 @@ func test_warning_shared_reflow_uses_retained_owner_copy_and_preserves_modal_foc
 	assert_eq(_view.snapshot().value.view,before)
 	_app.panel.source_buttons.rest.pressed.emit()
 	assert_eq(_view.snapshot().value.view,before)
+
+func test_live_accessibility_rethemes_installed_day_warning_and_panel_together() -> void:
+	assert_true(_app.configure_presentation(_port,"en",100,false,Callable(),&"midnight",null,null,3).ok)
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	var commands: Object = _mount_warning()
+	await get_tree().process_frame
+	var activation: String = _app.warning_sheet.activation_id
+	var before: Dictionary = _view.snapshot().value.view
+	_app.warning_sheet.go_button.grab_focus()
+	preferences.publish_colour("deutan")
+	preferences.publish_contrast(true)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var expected: Theme = SCHEDULE_THEME.build(&"midnight",3,true,"deutan")
+	for role: StringName in SCHEDULE_THEME.ROLES:
+		assert_eq(_app.panel.theme.get_color(role,&"Schedule"),expected.get_color(role,&"Schedule"),role)
+		assert_eq(_app.warning_sheet.theme.get_color(role,&"Schedule"),expected.get_color(role,&"Schedule"),role)
+	assert_eq((_app.warning_sheet._sheet.get_child(0) as ColorRect).color,
+		expected.get_color(&"paper",&"Schedule"),"The mounted paper is repainted, not only its Theme resource")
+	assert_true(_app.warning_sheet.go_button.has_focus())
+	assert_eq(_app.warning_sheet.activation_id,activation)
+	assert_eq(_app._warning_data,_app._warning_port.project("en").value.warning)
+	assert_eq(_view.snapshot().value.view,before)
+	assert_eq(commands.calls.size(),0)
 
 func test_initial_pending_warning_pair_is_bound_before_hidden_projection_and_cannot_be_replaced() -> void:
 	var commands := _mount_warning()

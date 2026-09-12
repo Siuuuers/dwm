@@ -481,7 +481,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		elif app_id == &"schedule":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_presentation(_schedule_port, _locale, int(theme.default_font_size * 100 / 24),
-				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands)
+				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands, _day)
 			if configured.get("ok",false): configured = app.configure_shared_preferences(_localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)

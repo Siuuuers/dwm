@@ -26,11 +26,15 @@ var _warning_prior_process := Node.PROCESS_MODE_INHERIT
 var _percent := 100
 var _large := false
 var _palette := &"after_hours"
+var _day := 1
+var _high_contrast := false
+var _colour_preset := "standard"
 var _command_sequence := 0
 var _localization: Object
 var _profile: Object
 var _preferences_pending := false
-const SHARED_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets"]
+const SHARED_KEYS := ["preferences.accessibility.text_size", "preferences.accessibility.large_targets",
+	"preferences.accessibility.high_contrast", "preferences.accessibility.colour_differentiation"]
 
 func _ready() -> void:
 	super._ready()
@@ -56,7 +60,8 @@ func _ready() -> void:
 
 func configure_presentation(port: Object, locale: String = "en", percent: int = 100,
 		large: bool = false, done_handler: Callable = Callable(), palette: StringName = &"after_hours",
-		warning_presentation: Object = null, warning_commands: Object = null) -> Dictionary:
+		warning_presentation: Object = null, warning_commands: Object = null,
+		day: int = 1) -> Dictionary:
 	if warning_presentation != null or warning_commands != null:
 		var warning_validation := _validate_warning_pair(warning_presentation,warning_commands)
 		if not warning_validation.ok: return warning_validation
@@ -64,11 +69,13 @@ func configure_presentation(port: Object, locale: String = "en", percent: int = 
 	for method in ["project","append","move","remove"]:
 		if not port.has_method(method): return _fail(&"invalid_schedule_presentation")
 	var next_locale := locale.replace("_","-")
-	if not panel.configure(next_locale,percent,large,palette): return _fail(&"invalid_schedule_configuration")
+	if not panel.configure(next_locale,percent,large,palette,day,_high_contrast,_colour_preset):
+		return _fail(&"invalid_schedule_configuration")
 	_locale = next_locale
 	_percent = percent
 	_large = large
 	_palette = palette
+	_day = day
 	_port = port
 	if warning_presentation != null:
 		_warning_port = warning_presentation
@@ -123,9 +130,11 @@ func _read_shared_preferences(localization: Object, profile: Object) -> Dictiona
 	var locale: Variant = localization.get_locale() if localization != null else _locale
 	var percent: Variant = profile.get_preference(SHARED_KEYS[0],null) if profile != null else _percent
 	var large: Variant = profile.get_preference(SHARED_KEYS[1],null) if profile != null else _large
-	if typeof(locale) != TYPE_STRING or locale.replace("_","-") not in ["en","zh-CN","zh-HK"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL:
+	var high_contrast: Variant = profile.get_preference(SHARED_KEYS[2],false) if profile != null else _high_contrast
+	var colour_preset: Variant = profile.get_preference(SHARED_KEYS[3],"standard") if profile != null else _colour_preset
+	if typeof(locale) != TYPE_STRING or locale.replace("_","-") not in ["en","zh-CN","zh-HK"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL or typeof(high_contrast) != TYPE_BOOL or typeof(colour_preset) != TYPE_STRING or colour_preset not in ["standard","protan","deutan","tritan"]:
 		return {"ok":false,"code":&"invalid_schedule_preferences"}
-	return {"ok":true,"code":&"ok","value":[locale.replace("_","-"),percent,large]}
+	return {"ok":true,"code":&"ok","value":[locale.replace("_","-"),percent,large,high_contrast,colour_preset]}
 
 func _on_shared_locale_changed(_locale_id: String) -> void:
 	_preferences_pending = true
@@ -140,7 +149,7 @@ func _apply_shared_preferences(on_open: bool = false) -> Dictionary:
 	if not _preferences_pending: return {"ok":true,"code":&"unchanged"}
 	var tuple := _read_shared_preferences(_localization,_profile)
 	if not tuple.ok: return tuple
-	if tuple.value == [_locale,_percent,_large]:
+	if tuple.value == [_locale,_percent,_large,_high_contrast,_colour_preset]:
 		_preferences_pending = false
 		return {"ok":true,"code":&"unchanged"}
 	var focused := get_viewport().gui_get_focus_owner()
@@ -153,11 +162,14 @@ func _apply_shared_preferences(on_open: bool = false) -> Dictionary:
 	remember_focus()
 	panel.cancel_contacts()
 	panel.cancel_drag()
-	if not panel.configure(tuple.value[0],tuple.value[1],tuple.value[2],_palette):
+	if not panel.configure(tuple.value[0],tuple.value[1],tuple.value[2],_palette,_day,
+			tuple.value[3],tuple.value[4]):
 		return {"ok":false,"code":&"invalid_schedule_preferences"}
 	_locale = tuple.value[0]
 	_percent = tuple.value[1]
 	_large = tuple.value[2]
+	_high_contrast = tuple.value[3]
+	_colour_preset = tuple.value[4]
 	_preferences_pending = false
 	return refresh_view(true)
 
@@ -349,7 +361,7 @@ func _show_warning(data: Dictionary) -> Dictionary:
 		warning_sheet.close_requested.connect(func(): _resolve_warning(&"dismiss"))
 		warning_sheet.go_requested.connect(func(): _resolve_warning(_warning_data.go_intent))
 		warning_foreground_changed.emit(true)
-	if not warning_sheet.configure(_locale,_percent,_large,_palette) or not warning_sheet.present(data.activation_id,data.copy,data.error):
+	if not warning_sheet.configure(_locale,_percent,_large,_palette,_day,_high_contrast,_colour_preset) or not warning_sheet.present(data.activation_id,data.copy,data.error):
 		return _fail(&"invalid_warning_copy_layout")
 	_warning_data = data.duplicate(true)
 	return last_result

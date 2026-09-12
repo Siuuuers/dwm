@@ -1,15 +1,18 @@
 extends RefCounted
 
 const TYPE := &"Schedule"
-const SHARED := {&"paper":Color("c3baa3"),&"secondary_ink":Color("2f2936"),&"ink":Color("d8cfb7"),&"structure":Color("657d89"),&"filed":Color("789083"),&"focus":Color("a9935f"),&"paper_focus":Color("644000")}
-const PALETTES := {
-	&"after_hours":{&"habitat":Color("0b0d13"),&"face":Color("151b25"),&"paper_ink":Color("151b25")},
-	&"midnight":{&"habitat":Color("0d1514"),&"face":Color("14201d"),&"paper_ink":Color("14201d")},
-}
+const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
+const ROLES: Array[StringName] = [&"habitat", &"face", &"paper", &"paper_ink",
+	&"secondary_ink", &"ink", &"structure", &"filed", &"focus", &"paper_focus"]
 
-static func build(palette: StringName) -> Theme:
-	if not PALETTES.has(palette): return null
+static func build(palette: StringName, day: int = 1, high_contrast: bool = false,
+		colour_preset: String = "standard") -> Theme:
+	var authored: Dictionary = PALETTES.resolve(palette, high_contrast, colour_preset)
+	if authored.is_empty() or day < 1: return null
+	var tinted: Dictionary = WEEK_TINT.apply(authored, WEEK_TINT.tint_for_day(day),
+		high_contrast, colour_preset)
 	var result := Theme.new()
-	for role: StringName in SHARED: result.set_color(role,TYPE,SHARED[role])
-	for role: StringName in PALETTES[palette]: result.set_color(role,TYPE,PALETTES[palette][role])
+	for role: StringName in ROLES:
+		result.set_color(role,TYPE,tinted[String(role)])
 	return result
