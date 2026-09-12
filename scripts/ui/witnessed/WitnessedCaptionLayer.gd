@@ -2,6 +2,7 @@ extends DialogicLayoutLayer
 ## Transient public caption copies, not canonical History, receipts, or restore ownership.
 
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
+const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
 const FIELD_TOP := {100: 448, 125: 392, 150: 328}
 const FIELD_BOTTOM := 656
 const PROFILE_COLOUR_PRESETS := {
@@ -11,6 +12,8 @@ const PROFILE_COLOUR_PRESETS := {
 var _locale := "en"
 var _text_percent := 100
 var _palette := "AfterHours"
+var _day := 1
+var _run_owner: Object
 var _high_contrast := false
 var _colour_preset := "standard"
 var _large_targets := false
@@ -57,13 +60,15 @@ func _ready() -> void:
 	canvas.draw.connect(_draw_canvas)
 	overlay.draw.connect(_draw_seam)
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
-	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets)
+	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
 	if _profile != null and _profile.has_signal("preference_changed"):
 		_profile.connect("preference_changed", _on_preference_changed)
 	if _localization != null and _localization.has_signal("locale_changed"):
 		_localization.connect("locale_changed", _on_locale_changed)
+	var run_owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
+	configure_run_presentation(run_owner)
 	_apply_preferences()
 	var runtime := get_node_or_null("/root/Dialogic")
 	accept_input.bind(caption_text, scroll, runtime)
@@ -73,7 +78,21 @@ func _ready() -> void:
 			text_owner.connect("about_to_show_text", _on_about_to_show_text)
 			text_owner.connect("text_started", _on_text_started)
 		if runtime.has_signal("timeline_started"):
-			runtime.connect("timeline_started", reset_caption_stack)
+			runtime.connect("timeline_started", _on_timeline_started)
+
+func configure_run_presentation(owner: Object) -> bool:
+	var context := RUN_PRESENTATION.read(owner)
+	if context.is_empty(): return false
+	if not configure_presentation(_locale, _text_percent, context.palette,
+			_high_contrast, _colour_preset, _large_targets, context.day): return false
+	_run_owner = owner
+	return true
+
+func _on_timeline_started() -> void:
+	# A reused layout observes the installed run at this boundary, never during reveal.
+	var owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
+	configure_run_presentation(owner)
+	reset_caption_stack()
 
 ## Transient navigation anchor only. Canonical source admission belongs to the coordinator.
 func capture_pause_view(source: Dictionary) -> Dictionary:
@@ -137,14 +156,15 @@ func _pause_runtime_identity() -> Dictionary:
 		"generation":int(runtime.call("get_timeline_generation")) if runtime.has_method("get_timeline_generation") else 0,
 		"event_index":runtime.get("current_event_idx")}
 
-func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false) -> bool:
-	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets)
+func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
+	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day)
 	if next_theme == null:
 		return false
 	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets
 	_locale = locale.replace("_", "-")
 	_text_percent = text_percent
 	_palette = palette
+	_day = day
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
 	_large_targets = large_targets
@@ -206,7 +226,7 @@ func get_caption_projection() -> Dictionary:
 				visible_leaves.append(visible_rect)
 	var current_rect := _leaf_rect(caption_text) if mounted else Rect2()
 	return {
-		"locale": _locale, "text_percent": _text_percent, "palette": _palette,
+		"locale": _locale, "text_percent": _text_percent, "palette": _palette, "day": _day,
 		"high_contrast": _high_contrast, "colour_preset": _colour_preset,
 		"large_targets": _large_targets,
 		"font_size": int(20 * _text_percent / 100.0),
@@ -287,7 +307,7 @@ func _apply_preferences() -> void:
 		colour_preset = PROFILE_COLOUR_PRESETS[colour_mode]
 	if typeof(high_contrast) != TYPE_BOOL or typeof(large_targets) != TYPE_BOOL:
 		return
-	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets)
+	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets, _day)
 
 func _on_locale_changed(_locale_id: String) -> void:
 	_apply_preferences()

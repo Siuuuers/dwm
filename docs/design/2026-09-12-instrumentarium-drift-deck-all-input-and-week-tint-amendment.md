@@ -761,6 +761,12 @@ its materials, preserves Day 1 Standard literals and unfiltered artwork, and
 recolours retained controls without catalog queries. Confirmation custody defers
 appearance changes; completion still revalidates current catalog facts. See
 `evidence/shop_week_tint/README.md` for colour, interaction and native checks.
+Contacts now retains installed run presentation and live correspondence custody
+(`dwm-vky.10`); see `evidence/contacts_week_tint/README.md`. Witnessed captions and
+art-only scenes bind the installed palette/day at scene boundaries and use the
+existing sixteen caption tuples (`dwm-vky.11`). Live colour changes retain native
+text, artwork and pending input; see `evidence/witnessed_week_tint/README.md` for
+the exact Day 1 scope, real Pause checks and baseline test limitations.
 Other palette owners and the Drift Deck remain unfinished; the five deferred extra
 proposals in this amendment remain deferred. The dated review closeout below
 records the earlier review-only state.

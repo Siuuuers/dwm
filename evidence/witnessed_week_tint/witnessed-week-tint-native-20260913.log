@@ -1,0 +1,7 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+SCRIPT ERROR: Parse Error: Cannot infer the type of "filename" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://tests/manual/witnessed_week_tint_capture.gd:170)
+ERROR: Failed to load script "res://tests/manual/witnessed_week_tint_capture.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
