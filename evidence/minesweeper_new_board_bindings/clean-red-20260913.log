@@ -1,0 +1,186 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/3ddf3f64-6387-409f-8b6f-ae69f4f69adc/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/scene/test_minesweeper_new_board_bindings.gd
+* test_default_and_saved_bindings_dispatch_only_published_active_new_board
+    [Failed]:  [2] expected to equal [1]:  Old binding and extra modifier are inert.
+      at line 158
+    [Failed]:  [2] expected to equal [3]:  
+      at line 165
+    28 Orphans
+        * [@Button@183:<Button#244863469708>(MinesweeperActionButton.gd)]
+        * [@Button@84:<Button#237179505131>(MinesweeperActionButton.gd)]
+        * [@Control@90:<Control#237934479965>(/Unregistered-Inner-Class)]
+        * [@Button@86:<Button#237481495141>(MinesweeperActionButton.gd)]
+        * [@Control@87:<Control#237632490097>(/Unregistered-Inner-Class)]
+        * [@Control@88:<Control#237733153394>(/Unregistered-Inner-Class)]
+        * [@Control@89:<Control#237833816697>(/Unregistered-Inner-Class)]
+        * [@Button@85:<Button#237330500226>(MinesweeperActionButton.gd)]
+        * [@Button@218:<Button#249225546533>(MinesweeperActionButton.gd)]
+        * [@Control@189:<Control#245618445097>(/Unregistered-Inner-Class)]
+        * [@Button@185:<Button#245165460273>(MinesweeperActionButton.gd)]
+        * [@Control@186:<Control#245316455229>(/Unregistered-Inner-Class)]
+        * [@Control@187:<Control#245417118526>(/Unregistered-Inner-Class)]
+        * [@Control@188:<Control#245517781829>(/Unregistered-Inner-Class)]
+        * [@Button@184:<Button#245014465358>(MinesweeperActionButton.gd)]
+        * [@Control@224:<Control#249980521299>(/Unregistered-Inner-Class)]
+        * [@Button@220:<Button#249527536475>(MinesweeperActionButton.gd)]
+        * [@Control@221:<Control#249678531431>(/Unregistered-Inner-Class)]
+        * [@Control@222:<Control#249779194728>(/Unregistered-Inner-Class)]
+        * [@Control@223:<Control#249879858031>(/Unregistered-Inner-Class)]
+        * [@Button@219:<Button#249376541560>(MinesweeperActionButton.gd)]
+        * [@Button@253:<Button#276824066940>(MinesweeperActionButton.gd)]
+        * [@Control@259:<Control#277579041663>(/Unregistered-Inner-Class)]
+        * [@Button@255:<Button#277126056839>(MinesweeperActionButton.gd)]
+        * [@Control@256:<Control#277277051795>(/Unregistered-Inner-Class)]
+        * [@Control@257:<Control#277377715092>(/Unregistered-Inner-Class)]
+        * [@Control@258:<Control#277478378395>(/Unregistered-Inner-Class)]
+        * [@Button@254:<Button#276975061924>(MinesweeperActionButton.gd)]
+* test_settled_board_accepts_keyboard_and_controller_without_grid_focus
+    [Failed]:  [2] expected to equal [1]:  
+      at line 177
+    [Failed]:  [2] expected to equal [3]:  
+      at line 183
+    28 Orphans
+        * [@Button@533:<Button#338799102063>(MinesweeperActionButton.gd)]
+        * [@Button@531:<Button#338497112176>(MinesweeperActionButton.gd)]
+        * [@Control@537:<Control#339252086904>(/Unregistered-Inner-Class)]
+        * [@Button@497:<Button#311049586823>(MinesweeperActionButton.gd)]
+        * [@Control@501:<Control#311552903306>(/Unregistered-Inner-Class)]
+        * [@Button@364:<Button#299573971350>(MinesweeperActionButton.gd)]
+        * [@Control@366:<Control#299825629595>(/Unregistered-Inner-Class)]
+        * [@Control@365:<Control#299724966305>(/Unregistered-Inner-Class)]
+        * [@Control@367:<Control#299926292904>(/Unregistered-Inner-Class)]
+        * [@Button@363:<Button#299422976431>(MinesweeperActionButton.gd)]
+        * [@Button@362:<Button#299271981558>(MinesweeperActionButton.gd)]
+        * [@Control@464:<Control#307157273179>(/Unregistered-Inner-Class)]
+        * [@Control@465:<Control#307257936479>(/Unregistered-Inner-Class)]
+        * [@Button@498:<Button#311200582250>(MinesweeperActionButton.gd)]
+        * [@Button@462:<Button#306855283309>(MinesweeperActionButton.gd)]
+        * [@Control@502:<Control#311653567088>(/Unregistered-Inner-Class)]
+        * [@Control@466:<Control#307358599802>(/Unregistered-Inner-Class)]
+        * [@Control@368:<Control#300026956500>(/Unregistered-Inner-Class)]
+        * [@Control@499:<Control#311351577306>(/Unregistered-Inner-Class)]
+        * [@Control@500:<Control#311452240603>(/Unregistered-Inner-Class)]
+        * [@Control@536:<Control#339151424236>(/Unregistered-Inner-Class)]
+        * [@Button@532:<Button#338648107772>(MinesweeperActionButton.gd)]
+        * [@Control@534:<Control#338950097702>(/Unregistered-Inner-Class)]
+        * [@Button@463:<Button#307006278448>(MinesweeperActionButton.gd)]
+        * [@Button@496:<Button#310898592563>(MinesweeperActionButton.gd)]
+        * [@Control@467:<Control#307459263310>(/Unregistered-Inner-Class)]
+        * [@Control@535:<Control#339050761041>(/Unregistered-Inner-Class)]
+        * [@Button@461:<Button#306704288667>(MinesweeperActionButton.gd)]
+* test_held_key_cannot_become_new_board_after_rebind_focus_sheet_or_pause
+    [Failed]:  [0] expected to equal [1]:  
+      at line 194
+    [Failed]:  [0] expected to equal [2]:  The held key cannot dispatch again after focus return.
+      at line 201
+    [Failed]:  [0] expected to equal [2]:  A key begun inside the sheet stays quarantined.
+      at line 207
+    [Failed]:  [0] expected to equal [2]:  Resume does not reinterpret the held key.
+      at line 216
+    [Failed]:  [0] expected to equal [3]:  
+      at line 220
+* test_settled_board_does_not_replay_held_key_across_focus_or_pause
+    [Failed]:  [0] expected to equal [1]:  
+      at line 229
+    [Failed]:  [0] expected to equal [1]:  
+      at line 233
+    [Failed]:  [0] expected to equal [1]:  
+      at line 242
+    [Failed]:  [0] expected to equal [2]:  
+      at line 246
+0/4 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/scene/test_minesweeper_new_board_bindings.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/scene/test_minesweeper_new_board_bindings.gd
+- test_default_and_saved_bindings_dispatch_only_published_active_new_board
+    [Failed]:  [2] expected to equal [1]:  Old binding and extra modifier are inert.
+          at line 158
+    [Failed]:  [2] expected to equal [3]:  
+          at line 165
+- test_settled_board_accepts_keyboard_and_controller_without_grid_focus
+    [Failed]:  [2] expected to equal [1]:  
+          at line 177
+    [Failed]:  [2] expected to equal [3]:  
+          at line 183
+- test_held_key_cannot_become_new_board_after_rebind_focus_sheet_or_pause
+    [Failed]:  [0] expected to equal [1]:  
+          at line 194
+    [Failed]:  [0] expected to equal [2]:  The held key cannot dispatch again after focus return.
+          at line 201
+    [Failed]:  [0] expected to equal [2]:  A key begun inside the sheet stays quarantined.
+          at line 207
+    [Failed]:  [0] expected to equal [2]:  Resume does not reinterpret the held key.
+          at line 216
+    [Failed]:  [0] expected to equal [3]:  
+          at line 220
+- test_settled_board_does_not_replay_held_key_across_focus_or_pause
+    [Failed]:  [0] expected to equal [1]:  
+          at line 229
+    [Failed]:  [0] expected to equal [1]:  
+          at line 233
+    [Failed]:  [0] expected to equal [1]:  
+          at line 242
+    [Failed]:  [0] expected to equal [2]:  
+          at line 246
+
+Totals
+------
+Scripts               1
+Tests                 4
+Passing Tests      none
+Failing Tests         4
+Asserts           58/71
+Orphans              24
+Time              0.708s
+
+
+---- 4 failing tests ----
+

@@ -70,19 +70,34 @@ func _run() -> void:
 	_click_cell(panel.worksheet.grid,int(physical.mine_indices[0]))
 	await _frames()
 	if not _check(panel.public_view.settled,"second real result settles"): return
+	var verify_rebinding := OS.get_cmdline_user_args().has("--verify-new-board-rebinding")
+	var new_board_key: Key = KEY_SPACE
+	if verify_rebinding:
+		var events: Array[Dictionary] = [{"kind": "key", "physical_keycode": KEY_G, "keycode": 0,
+			"shift": false, "alt": false, "ctrl": false, "meta": false}]
+		if not _check(root.get_node("ProfileManager").set_input_mapping(&"game_new_board",events).ok,"New Board binding saved"): return
+		var old_binding := InputEventKey.new()
+		old_binding.keycode=KEY_SPACE
+		old_binding.physical_keycode=KEY_SPACE
+		old_binding.pressed=true
+		root.push_input(old_binding,true)
+		old_binding.pressed=false
+		root.push_input(old_binding,true)
+		if not _check(panel.public_view.settled,"old Space binding is inert after rebind"): return
+		new_board_key=KEY_G
 	var space := InputEventKey.new()
-	space.keycode=KEY_SPACE
-	space.physical_keycode=KEY_SPACE
+	space.keycode=new_board_key
+	space.physical_keycode=new_board_key
 	space.pressed=true
 	root.push_input(space,true)
 	space.pressed=false
 	root.push_input(space,true)
-	if not _check(not panel.public_view.settled and not panel.public_view.board.terminal,"Space shows next board without grid focus"): return
-	if not _check(game.minesweeper_rounds_left==paid_rounds-1,"Space does not spend beyond normal entry"): return
+	if not _check(not panel.public_view.settled and not panel.public_view.board.terminal,"New Board shortcut works without grid focus"): return
+	if not _check(game.minesweeper_rounds_left==paid_rounds-1,"New Board shortcut does not spend beyond normal entry"): return
 	if not _check(_complete_board_visible(panel),"final next board fits"): return
 	if desktop.message_notification.visible: desktop.notification_close.pressed.emit()
 	await _capture_screen("fit-next-board-space")
-	print("MINESWEEPER_UI_PASS: all tiers/text sizes fit; real flag-mode chord; terminal tier transition; Space; normal costs")
+	print("MINESWEEPER_UI_PASS: all tiers/text sizes fit; real flag-mode chord; terminal tier transition; New Board key=%s; normal costs" % OS.get_keycode_string(new_board_key))
 	quit(0)
 
 func _complete_board_visible(panel: Control) -> bool:

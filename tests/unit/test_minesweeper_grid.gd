@@ -215,7 +215,9 @@ func test_joy_axis_navigation_is_edge_latched_until_neutral() -> void:
 
 func test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release() -> void:
 	var grid: Control = _grid()
+	assert_true(_input_fixture.bind_grid(grid,grid))
 	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	grid.grab_focus()
 	watch_signals(grid)
 	var enter: InputEventKey = InputEventKey.new()
 	enter.keycode = KEY_ENTER
@@ -234,10 +236,18 @@ func test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release()
 	space.keycode = KEY_SPACE
 	space.physical_keycode = KEY_SPACE
 	space.pressed = true
+	grid._input_owner._input(space)
 	grid._gui_input(space)
 	assert_signal_emit_count(grid,"new_board_requested",0)
 	enter.pressed = false
 	grid._gui_input(enter)
+	grid._gui_input(space)
+	assert_signal_emit_count(grid,"new_board_requested",0,"the Space contact held through Confirm release is not fresh")
+	space.pressed = false
+	grid._input_owner._input(space)
+	grid._gui_input(space)
+	space.pressed = true
+	grid._input_owner._input(space)
 	grid._gui_input(space)
 	assert_signal_emit_count(grid,"new_board_requested",1)
 

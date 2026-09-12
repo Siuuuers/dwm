@@ -16,6 +16,7 @@ const CELL := preload("res://scripts/ui/minesweeper/MinesweeperCell.gd")
 const TOP_KEYS := ["width","height","revision","mine_estimate","terminal","custody","cells"]
 const MODES := [&"reveal",&"flag",&"drag"]
 const TOGGLE_ACTION := &"game_toggle_board_mode"
+const NEW_BOARD_ACTION := &"game_new_board"
 
 var cell_nodes: Array[Control] = []
 var focused_index := -1
@@ -50,6 +51,7 @@ var _longpress_callback_active := false
 var _interaction_blocked := false
 var _input_owner: Object
 var _toggle_contacts: Dictionary = {}
+var _new_board_contacts: Dictionary = {}
 var _foreground_input := true
 var _touch_points: Dictionary = {}
 var _pinch_start_distance := 0.0
@@ -79,15 +81,17 @@ func configure_input(input_owner: Object) -> bool:
 	if not accepts_input_owner(input_owner): return false
 	if _input_owner != null: return _input_owner == input_owner
 	_input_owner = input_owner
-	_input_owner.connect("input_bindings_changed",_retain_toggle_contacts)
+	_input_owner.connect("input_bindings_changed",_retain_action_contacts)
 	_input_owner.connect("source_input_custody_changed",cancel_input)
-	_retain_toggle_contacts()
+	_retain_action_contacts()
 	_refresh_view_input_state()
 	return true
 
-func _retain_toggle_contacts() -> void:
+func _retain_action_contacts() -> void:
 	if is_instance_valid(_input_owner):
-		_toggle_contacts = _input_owner.get_physical_contacts()
+		var contacts: Dictionary = _input_owner.get_physical_contacts()
+		_toggle_contacts = contacts.duplicate()
+		_new_board_contacts = contacts
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT: _foreground_input = false
@@ -97,7 +101,7 @@ func _notification(what: int) -> void:
 		cancel_input()
 
 func _on_view_visibility_changed() -> void:
-	_retain_toggle_contacts()
+	_retain_action_contacts()
 	if not is_visible_in_tree(): cancel_input()
 	else: _refresh_view_input_state()
 
@@ -166,7 +170,7 @@ func present(value: Dictionary) -> bool:
 	_rebuild()
 	if projection.custody:
 		_disarm_trigger_zoom()
-		_retain_toggle_contacts()
+		_retain_action_contacts()
 		_confirm_held = false
 		cancel_pointer_gesture()
 	return true
@@ -184,7 +188,7 @@ func cancel_pointer_gesture() -> void:
 
 func cancel_input() -> void:
 	_disarm_trigger_zoom()
-	_retain_toggle_contacts()
+	_retain_action_contacts()
 	_cancel_gestures()
 	_confirm_held = false
 	_joy_direction = &""
@@ -202,7 +206,7 @@ func set_interaction_blocked(blocked: bool) -> void:
 	if _interaction_blocked == blocked: return
 	_interaction_blocked = blocked
 	_disarm_trigger_zoom()
-	_retain_toggle_contacts()
+	_retain_action_contacts()
 	_cancel_gestures()
 	_confirm_held = false
 	_joy_direction = &""
@@ -345,8 +349,7 @@ func _handle_navigation(event: InputEvent) -> void:
 		return
 	if event is InputEventKey and event.pressed and event.echo: return
 	if _handle_toggle(event): return
-	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
-		if _held_index >= 0 or _mouse_dragging or has_held_touch() or _confirm_held: return
+	if consume_new_board_input(event):
 		new_board_requested.emit()
 		accept_event()
 		return
@@ -416,6 +419,33 @@ func _handle_toggle(event: InputEvent) -> bool:
 			or not _input_owner.is_source_input_admitted(): return true
 	if _held_index >= 0 or _mouse_dragging or has_held_touch() or _confirm_held: return true
 	set_mode(&"flag" if mode in [&"drag",&"reveal"] else &"reveal")
+	return true
+
+## The Panel uses the same physical-contact gate while a settled board has no grid focus.
+## It alone verifies that the published settled view offers New Board.
+func consume_new_board_input(event: InputEvent, settled: bool = false) -> bool:
+	if not (event is InputEventKey or event is InputEventJoypadButton) \
+			or not InputMap.has_action(NEW_BOARD_ACTION) or not event.is_action_pressed(NEW_BOARD_ACTION,false,true): return false
+	if event is InputEventKey and event.echo: return false
+	if not is_instance_valid(_input_owner): return false
+	# Panel._input may run before the ALWAYS owner in the same viewport. Observation
+	# is idempotent, so the focused Grid route can make the same call safely.
+	if _input_owner.has_method("observe_physical_contact"):
+		_input_owner.observe_physical_contact(event)
+	var contacts: Dictionary = _input_owner.get_physical_contacts()
+	for held: String in _new_board_contacts.keys():
+		if contacts.get(held) != _new_board_contacts[held]: _new_board_contacts.erase(held)
+	var contact: String = _input_owner.get_physical_contact_id(event)
+	if contact.is_empty() or not contacts.has(contact): return false
+	var held_before := not _new_board_contacts.is_empty()
+	_new_board_contacts[contact] = contacts[contact]
+	if held_before or not _foreground_input or not is_visible_in_tree() or not can_process() \
+			or not _input_owner.is_source_input_admitted(): return false
+	if settled:
+		if projection.is_empty() or not projection.terminal or not projection.custody: return false
+	elif not has_focus() or _interaction_blocked or projection.is_empty() or projection.custody:
+		return false
+	if _held_index >= 0 or _mouse_dragging or has_held_touch() or _confirm_held: return false
 	return true
 
 func _move_focus(delta: Vector2i) -> void:
@@ -641,13 +671,13 @@ func _set_focused(index: int) -> void:
 
 func _on_focus_entered() -> void:
 	_disarm_trigger_zoom()
-	_retain_toggle_contacts()
+	_retain_action_contacts()
 	_refresh_contacts()
 	if focused_index >= 0: focused_cell_changed.emit(focused_index)
 
 func _on_focus_exited() -> void:
 	_disarm_trigger_zoom()
-	_retain_toggle_contacts()
+	_retain_action_contacts()
 	_cancel_gestures()
 	_confirm_held = false
 	_joy_direction = &""

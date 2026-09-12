@@ -256,15 +256,11 @@ func _fail(code: StringName) -> bool:
 	return false
 
 func _input(event: InputEvent) -> void:
-	# A settled board has no cell focus. Space uses its published New Board action.
-	if not event is InputEventKey or not event.pressed or event.echo or event.keycode != KEY_SPACE: return
+	# A settled board has no cell focus. The Grid still owns physical contact custody.
 	if not is_visible_in_tree() or not can_process() or _failed or public_view.is_empty() \
-			or not public_view.settled or worksheet.information_sheet != null: return
+			or not public_view.settled or "new_board" not in public_view.actions \
+			or worksheet.information_sheet != null: return
 	var grid: Control = worksheet.grid
-	var input_owner: Object = grid.get("_input_owner")
-	if not bool(grid.get("_foreground_input")) or input_owner == null \
-			or not input_owner.is_source_input_admitted(): return
-	if grid.has_held_touch() or int(grid.get("_held_index")) >= 0 \
-			or bool(grid.get("_mouse_dragging")) or bool(grid.get("_confirm_held")): return
+	if not grid.consume_new_board_input(event, true): return
 	get_viewport().set_input_as_handled()
 	_action(&"new_board")
