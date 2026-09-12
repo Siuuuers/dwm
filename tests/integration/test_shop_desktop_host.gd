@@ -9,6 +9,8 @@ const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
+const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
+const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 
 const ORDER := [
 	"coffee","wine","pineapple_bun","bandage_pack","quiet_tea","soft_blanket",
@@ -49,6 +51,8 @@ class CatalogProvider extends RefCounted:
 	var rows: Array = []
 	var failure_code := ""
 	var calls: Array[String] = []
+	var supportz_available := false
+	var purchase_calls: Array[Dictionary] = []
 
 	func get_catalog(locale: String) -> Dictionary:
 		calls.append(locale)
@@ -59,6 +63,13 @@ class CatalogProvider extends RefCounted:
 		for row: Dictionary in value:
 			row.name = COPY.item_name(copy_locale,row.id)
 		return {"ok":true,"code":&"ok","value":value}
+
+	func can_purchase(item_id: String, quantity: int) -> Dictionary:
+		return {"ok":supportz_available and item_id == "supportz" and quantity == 1}
+
+	func purchase(item_id: String, quantity: int) -> Dictionary:
+		purchase_calls.append({"id":item_id,"quantity":quantity})
+		return {"ok":false,"code":&"fixture_purchase_not_authorized"}
 
 class InvalidSignalProvider extends RefCounted:
 	signal catalog_changed(_payload: Dictionary)
@@ -433,3 +444,153 @@ func test_shared_confirmation_owns_higher_routing_and_native_input_custody() -> 
 	assert_eq(_cancelled,1)
 	assert_eq(_host.get_state().active_app_id,&"shop")
 	assert_eq({"page":app.page_index,"selected":app.selected_id,"quantity":app.quantity},before)
+
+
+func test_live_accessibility_colours_repaint_cached_shop_without_catalog_or_selection_mutation() -> void:
+	var desktop := await _desktop_on_tree()
+	var meal: Dictionary = _record("healthy_meal")
+	meal.description = "Public fixture description. ".repeat(80)
+	assert_true(_configure_shop(desktop).ok)
+	var app := _open_shop(desktop)
+	if app == null: return
+	await _settle()
+	app.next_button.pressed.emit()
+	await _settle()
+	app.cards.healthy_meal.pressed.emit()
+	app.quantity_buttons.maximum.pressed.emit()
+	app.info_scroll.grab_focus()
+	app.info_scroll.scroll_vertical = 30
+	var card: Button = app.cards.healthy_meal
+	var art: Texture2D = card.get("_art")
+	var inspector_art: Texture2D = app._art.texture
+	var calls_before: int = _provider.calls.size()
+	var records_before: Array = app._records.duplicate(true)
+	var warm: Dictionary = SHOP_THEME.resolve(&"after_hours",3,false,"standard")
+	assert_eq(app.theme.get_color("habitat","Shop"),warm.habitat)
+	assert_true(_profile.set_preferences({
+		&"preferences.accessibility.high_contrast":true,
+		&"preferences.accessibility.colour_differentiation":"protan",
+	}).ok)
+	await _settle()
+	var high: Dictionary = SHOP_THEME.resolve(&"after_hours",3,true,"protan")
+	assert_eq(app.theme.get_color("habitat","Shop"),high.habitat)
+	assert_eq(card.get("_roles"),high)
+	assert_eq(_provider.calls.size(),calls_before,"Appearance-only preference signals do not query the catalog.")
+	assert_true(_provider.purchase_calls.is_empty())
+	assert_eq(app._records,records_before)
+	assert_eq(app.selected_id,"healthy_meal")
+	assert_eq(app.quantity,4)
+	assert_eq(app.page_index,1)
+	assert_eq(app.info_scroll.scroll_vertical,30)
+	assert_true(app.info_scroll.has_focus())
+	assert_same(app.cards.healthy_meal,card)
+	assert_same(card.get("_art"),art)
+	assert_same(app._art.texture,inspector_art)
+	assert_eq(app._art.modulate,Color.WHITE)
+	assert_eq(card.modulate,Color.WHITE)
+	assert_true(desktop.return_home().ok)
+	assert_true(_profile.set_preferences({
+		&"preferences.accessibility.high_contrast":false,
+		&"preferences.accessibility.colour_differentiation":"tritan",
+	}).ok)
+	assert_true(desktop.open_app(&"shop").ok)
+	await _settle()
+	assert_same(desktop._cached_app_windows[&"shop"],app)
+	assert_same(app.cards.healthy_meal,card)
+	assert_eq(app.theme.get_color("habitat","Shop"),SHOP_THEME.resolve(&"after_hours",3,false,"tritan").habitat)
+	assert_eq(app.selected_id,"healthy_meal")
+	assert_eq(app.quantity,4)
+	assert_eq(app.page_index,1)
+	assert_eq(app.info_scroll.scroll_vertical,30)
+	assert_true(app.info_scroll.has_focus())
+	assert_true(_provider.purchase_calls.is_empty())
+
+
+func test_shop_uses_new_installed_day_after_desktop_eviction() -> void:
+	var desktop := await _desktop_on_tree()
+	assert_true(_configure_shop(desktop).ok)
+	var day_three := _open_shop(desktop)
+	if day_three == null: return
+	await _settle()
+	assert_eq(day_three.theme.get_color("habitat","Shop"),
+		SHOP_THEME.resolve(&"after_hours",3,false,"standard").habitat)
+	assert_true(desktop.return_home().ok)
+	_host.reset(7)
+	assert_true(desktop.dispatch_desktop_eviction({"kind":&"evict_cached_apps","day":7}).ok)
+	await _settle()
+	assert_false(desktop._cached_app_windows.has(&"shop"))
+	assert_false(is_instance_valid(day_three))
+	var opened: Dictionary = desktop.open_app(&"shop")
+	assert_true(opened.ok)
+	if not opened.ok: return
+	var day_seven: Control = opened.value.app as Control
+	await _settle()
+	assert_not_null(day_seven)
+	assert_eq(day_seven.theme.get_color("habitat","Shop"),
+		SHOP_THEME.resolve(&"after_hours",7,false,"standard").habitat)
+	assert_eq(day_seven.cards.size(),17)
+	assert_eq(day_seven.page_count,2)
+	assert_true(day_seven._records[8].blank)
+	assert_true(_provider.purchase_calls.is_empty())
+
+
+func test_supportz_confirmation_holds_old_colours_until_modal_finishes() -> void:
+	_provider.supportz_available = true
+	var desktop := await _desktop_on_tree()
+	assert_true(_configure_shop(desktop).ok)
+	var app := _open_shop(desktop)
+	if app == null: return
+	await _settle()
+	assert_true(app._supportz_button.visible)
+	app._supportz_button.pressed.emit()
+	await _settle()
+	var modal: Control = app._supportz_confirmation
+	assert_not_null(modal)
+	if modal == null: return
+	var old_shop: Color = app.theme.get_color("habitat","Shop")
+	var old_confirmation: Color = BACKUP_THEME.build("en",100,&"after_hours",3,false,"standard").get_color("paper","Backup")
+	assert_eq(modal.theme.get_color("paper","Backup"),old_confirmation)
+	var calls_before: int = _provider.calls.size()
+	# The owner may have fresher ordinary facts without an event while this modal
+	# owns input. Cancel must revalidate them as it publishes pending colours.
+	var coffee: Dictionary = _record("coffee")
+	coffee.legal_max = 2
+	var wine: Dictionary = _record("wine")
+	wine.available = false
+	wine.legal_max = 0
+	assert_true(_profile.set_preferences({
+		&"preferences.accessibility.high_contrast":true,
+		&"preferences.accessibility.colour_differentiation":"deutan",
+	}).ok)
+	await _settle()
+	assert_same(app._supportz_confirmation,modal)
+	assert_eq(app.theme.get_color("habitat","Shop"),old_shop)
+	assert_eq(modal.theme.get_color("paper","Backup"),old_confirmation)
+	assert_eq(_provider.calls.size(),calls_before)
+	assert_eq(app._records[0].legal_max,4)
+	assert_true(app._records[0].available)
+	assert_true(app._records[1].available)
+	assert_true(_provider.purchase_calls.is_empty())
+	assert_false(app.can_return_home())
+	modal.cancel_button.pressed.emit()
+	await _settle()
+	assert_null(app._supportz_confirmation)
+	assert_eq(app.theme.get_color("habitat","Shop"),
+		SHOP_THEME.resolve(&"after_hours",3,true,"deutan").habitat)
+	assert_gt(_provider.calls.size(),calls_before,"Cancel revalidates an unsignaled owner snapshot.")
+	assert_eq(app._records[0].legal_max,2)
+	assert_false(app._records[1].available)
+	assert_eq(app._records[1].legal_max,0)
+	assert_eq(app.cards.wine.availability_label.text,"Sold out")
+	assert_true(_provider.purchase_calls.is_empty())
+	assert_eq(_host.get_state().active_app_id,&"shop")
+	app._supportz_button.pressed.emit()
+	await _settle()
+	var current_modal: Control = app._supportz_confirmation
+	assert_not_null(current_modal)
+	if current_modal == null: return
+	assert_eq(current_modal.theme.get_color("paper","Backup"),
+		BACKUP_THEME.build("en",100,&"after_hours",3,true,"deutan").get_color("paper","Backup"))
+	current_modal.cancel_button.pressed.emit()
+	await _settle()
+	assert_true(_provider.purchase_calls.is_empty())

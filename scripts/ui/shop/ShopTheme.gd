@@ -1,66 +1,74 @@
 extends RefCounted
-## The two accepted Shop Standard palettes, exposed through Shop semantic roles.
+## Shop roles project shared authored accessibility tuples onto Shop materials.
+## Room materials and structure age; copy, selection and focus stay authored.
 
 const FONTS := preload("res://scripts/ui/desktop/DesktopTheme.gd")
-
-const SHARED := {
-	"laminate": Color("9ea8a2"),
-	"paper": Color("c3baa3"),
-	"primary_dark_copy": Color("d8cfb7"),
-	"secondary_dark_copy": Color("9ea8a2"),
-	"dark_registration": Color("657d89"),
-	"secondary_ink": Color("2f2936"),
-	"selected_plane": Color("789083"),
-	"dark_focus_outer": Color("d8cfb7"),
-	"dark_focus_inner": Color("a9935f"),
-	"paper_focus_inner": Color("644000"),
-}
-const PALETTES := {
-	&"after_hours": {
-		"habitat": Color("0b0d13"),
-		"controlled_face": Color("151b25"),
-		"primary_ink": Color("151b25"),
-	},
-	&"midnight": {
-		"habitat": Color("0d1514"),
-		"controlled_face": Color("14201d"),
-		"primary_ink": Color("14201d"),
-	},
-}
+const PALETTES := preload("res://scripts/ui/minesweeper/MinesweeperPaletteRegistry.gd")
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 
 
-static func resolve(palette: StringName) -> Dictionary:
-	if not PALETTES.has(palette):
+static func resolve(palette: StringName, day: int = 1, high_contrast: bool = false,
+		colour_preset: String = "standard") -> Dictionary:
+	if day < 1 or day > 7:
 		return {}
-	var roles: Dictionary = SHARED.duplicate()
-	roles.merge(PALETTES[palette], true)
-	# These distinct semantic names currently share accepted primitives.
-	roles["structure"] = roles.primary_ink
-	roles["scroll_track"] = roles.primary_ink
-	roles["scroll_thumb"] = roles.primary_dark_copy
-	roles["selected_ink"] = roles.primary_ink
-	roles["laminate_focus_outer"] = roles.habitat
-	roles["laminate_focus_inner"] = roles.controlled_face
-	roles["paper_focus_outer"] = roles.habitat
-	return roles
+	var authored: Dictionary = PALETTES.resolve(palette, high_contrast, colour_preset)
+	if authored.is_empty():
+		return {}
+	var tint: float = WEEK_TINT.tint_for_day(day)
+	var room: Dictionary = WEEK_TINT.apply({
+		"habitat": authored.habitat,
+		"face": authored.controlled_face,
+		"paper": authored.paper,
+		"structure": authored.paper_structure,
+	}, tint, high_contrast, colour_preset)
+	# Laminate is a second paper-like room material. Its Day-1 primitive stays
+	# separate from document paper while taking the same cold-week delta.
+	var laminate: Dictionary = WEEK_TINT.apply({"paper": authored.secondary_dark_copy},
+		tint, high_contrast, colour_preset)
+	return {
+		"habitat": room.habitat,
+		"controlled_face": room.face,
+		"paper": room.paper,
+		"laminate": laminate.paper,
+		"structure": room.structure,
+		"scroll_track": room.structure,
+		"primary_ink": authored.primary_paper_copy,
+		"secondary_ink": authored.secondary_paper_copy,
+		"primary_dark_copy": authored.primary_dark_copy,
+		"secondary_dark_copy": authored.secondary_dark_copy,
+		"dark_registration": authored.dark_registration,
+		"scroll_thumb": authored.dark_scroll_thumb,
+		"selected_plane": authored.selected_plane,
+		"selected_ink": authored.selected_ink,
+		"dark_focus_outer": authored.dark_focus_outer,
+		"dark_focus_inner": authored.dark_focus_inner,
+		"laminate_focus_outer": authored.filed_focus_outer,
+		"laminate_focus_inner": authored.filed_focus_inner,
+		"paper_focus_outer": authored.paper_focus_outer,
+		"paper_focus_inner": authored.paper_focus_inner,
+	}
 
 
-static func build(locale: String, percent: int, palette: StringName) -> Theme:
-	var roles := resolve(palette)
-	if roles.is_empty():
+static func build(locale: String, percent: int, palette: StringName, day: int = 1,
+		high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
+	var roles: Dictionary = resolve(palette, day, high_contrast, colour_preset)
+	if roles.is_empty() or locale.replace("-", "_") not in ["en", "zh_CN", "zh_HK"] \
+			or percent not in [100, 125, 150]:
 		return null
 	var result := Theme.new()
-	var primary: Font = {"en":FONTS.ENGLISH,"zh_CN":FONTS.SIMPLIFIED,"zh_HK":FONTS.TRADITIONAL}.get(locale.replace("-","_"),FONTS.ENGLISH)
+	var primary: Font = {"en": FONTS.ENGLISH, "zh_CN": FONTS.SIMPLIFIED,
+		"zh_HK": FONTS.TRADITIONAL}[locale.replace("-", "_")]
 	var font := FontVariation.new()
 	font.base_font = primary
 	var fallbacks: Array[Font] = []
-	for companion: Font in [FONTS.ENGLISH,FONTS.SIMPLIFIED,FONTS.TRADITIONAL]:
-		if companion != primary: fallbacks.append(companion)
+	for companion: Font in [FONTS.ENGLISH, FONTS.SIMPLIFIED, FONTS.TRADITIONAL]:
+		if companion != primary:
+			fallbacks.append(companion)
 	font.fallbacks = fallbacks
 	result.default_font = font
 	result.default_font_size = int(20 * percent / 100.0)
-	for state: String in ["normal","hover","pressed","disabled","focus"]:
-		result.set_stylebox(state,"Button",StyleBoxEmpty.new())
+	for state: String in ["normal", "hover", "pressed", "disabled", "focus"]:
+		result.set_stylebox(state, "Button", StyleBoxEmpty.new())
 	for role: String in roles:
 		result.set_color(role, "Shop", roles[role])
 	result.set_color("font_color", "Label", roles.primary_ink)

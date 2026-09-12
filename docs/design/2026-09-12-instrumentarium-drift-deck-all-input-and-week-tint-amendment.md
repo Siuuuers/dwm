@@ -755,6 +755,12 @@ Settings, Backup and Pause also receive the installed day and captured palette
 defer changes while a confirmation or operation holds custody; they do not
 inspect saves or resolve a prepared action. Title Settings keeps its Day 1
 pending-mode preview. See `evidence/shared_run_presentation/README.md`.
+Shop and its Supportz confirmation now receive the installed day and captured
+palette (`dwm-vky.9`). Shop maps the existing sixteen accessibility tuples onto
+its materials, preserves Day 1 Standard literals and unfiltered artwork, and
+recolours retained controls without catalog queries. Confirmation custody defers
+appearance changes; completion still revalidates current catalog facts. See
+`evidence/shop_week_tint/README.md` for colour, interaction and native checks.
 Other palette owners and the Drift Deck remain unfinished; the five deferred extra
 proposals in this amendment remain deferred. The dated review closeout below
 records the earlier review-only state.

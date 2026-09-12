@@ -482,7 +482,7 @@ func open_app(app_id: StringName) -> Dictionary:
 			configured = app.configure_exit(_session_exit, _locale)
 		elif app_id == &"shop":
 			app.configure_desktop_home(home_button)
-			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette)
+			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"schedule":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_presentation(_schedule_port, _locale, int(theme.default_font_size * 100 / 24),
