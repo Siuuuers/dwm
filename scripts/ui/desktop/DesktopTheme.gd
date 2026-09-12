@@ -3,8 +3,9 @@ extends RefCounted
 const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
 const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
 const TRADITIONAL := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 
-static func build(locale: String, percent: int, palette: StringName = &"after_hours") -> Theme:
+static func build(locale: String, percent: int, palette: StringName = &"after_hours", week_tint: float = 0.0) -> Theme:
 	if palette not in [&"after_hours", &"midnight"]: return null
 	var result := Theme.new()
 	result.default_font = {"en": ENGLISH, "zh-CN": SIMPLIFIED, "zh-HK": TRADITIONAL}.get(locale, ENGLISH)
@@ -12,6 +13,7 @@ static func build(locale: String, percent: int, palette: StringName = &"after_ho
 	var roles := {"habitat": Color("0d1514") if palette == &"midnight" else Color("0b0d13"), "face": Color("14201d") if palette == &"midnight" else Color("151b25"),
 		"ink": Color("d8cfb7"), "structure": Color("657d89"),
 		"focus": Color("a9935f"), "current": Color("789083")}
+	roles = WEEK_TINT.apply(roles, week_tint)
 	for role in roles:
 		result.set_color(role, "Desktop", roles[role])
 	result.set_color("font_color", "Label", roles.ink)
