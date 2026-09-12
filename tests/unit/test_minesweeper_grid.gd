@@ -119,7 +119,7 @@ func test_paired_pointer_release_and_keyboard_emit_once_with_revision() -> void:
 	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"reveal",0,7])
 	assert_signal_emit_count(grid,"cell_action_requested",1)
 
-func test_pointer_focuses_read_only_cell_and_button_pair_must_match() -> void:
+func test_pointer_focuses_read_only_cell_and_press_submits_before_any_release() -> void:
 	var grid: Control = _grid()
 	var cells: Array = [_cell(0),_cell(1,{"face":"revealed","number":0,"actions":[],"pressable":false})]
 	assert_true(grid.present(_projection(cells)))
@@ -138,7 +138,9 @@ func test_pointer_focuses_read_only_cell_and_button_pair_must_match() -> void:
 	wrong_up.button_index = MOUSE_BUTTON_RIGHT
 	wrong_up.pressed = false
 	grid._gui_input(wrong_up)
-	assert_signal_emit_count(grid,"cell_action_requested",0)
+	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"reveal",0,7])
+	assert_signal_emit_count(grid,"cell_action_requested",1,"dwm-634.1: the press submits; a mismatched release adds nothing")
+	assert_eq(grid._held_index,-1,"any release clears the held contact")
 
 func test_accessibility_exposes_one_based_coordinate_and_visible_fact_only() -> void:
 	var grid: Control = _grid()
@@ -605,3 +607,32 @@ func before_each() -> void:
 func after_each() -> void:
 	_input_fixture.restore_map()
 	_input_fixture = null
+
+
+func test_mouse_press_submits_once_and_release_or_drag_off_submits_nothing_more() -> void:
+	var grid: Control = _grid()
+	assert_true(grid.present(_projection([_cell(0),_cell(1)])))
+	watch_signals(grid)
+	var down: InputEventMouseButton = InputEventMouseButton.new()
+	down.button_index = MOUSE_BUTTON_LEFT
+	down.device = 0
+	down.position = Vector2(10,10)
+	down.pressed = true
+	grid._gui_input(down)
+	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"reveal",0,7])
+	assert_signal_emit_count(grid,"cell_action_requested",1,"dwm-634.1: the press itself submits")
+	assert_eq(grid._held_index,0,"the contact stays held until the button lifts")
+	var elsewhere: InputEventMouseButton = down.duplicate()
+	elsewhere.pressed = false
+	elsewhere.position = Vector2(60,10)
+	grid._gui_input(elsewhere)
+	assert_signal_emit_count(grid,"cell_action_requested",1,"releasing on another cell submits nothing")
+	assert_eq(grid._held_index,-1)
+	var right: InputEventMouseButton = down.duplicate()
+	right.button_index = MOUSE_BUTTON_RIGHT
+	grid._gui_input(right)
+	assert_signal_emitted_with_parameters(grid,"cell_action_requested",[&"flag",0,7])
+	assert_signal_emit_count(grid,"cell_action_requested",2)
+	right.pressed = false
+	grid._gui_input(right)
+	assert_signal_emit_count(grid,"cell_action_requested",2)

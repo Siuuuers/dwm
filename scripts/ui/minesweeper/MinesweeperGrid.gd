@@ -271,20 +271,16 @@ func _gui_input(event: InputEvent) -> void:
 			_held_action = action
 			_held_button = event.button_index
 			_refresh_contacts()
+			# dwm-634.1 (owner ruling 2026-09-12): mouse actions fire on press. The publication that
+			# follows cancels this contact; the release below then has nothing left to submit.
+			cell_action_requested.emit(action,index,projection.revision)
 		else:
 			if _mouse_dragging and event.button_index == MOUSE_BUTTON_LEFT:
 				_mouse_dragging = false
 				_mouse_drag_displacement = Vector2.ZERO
 				_set_panning(false)
 				return
-			var action: StringName = _held_action
-			var admitted: bool = index == _held_index and _held_revision == projection.revision and event.button_index == _held_button and action != &""
-			var admitted_index: int = _held_index
 			_clear_hold()
-			if admitted:
-				_set_focused(admitted_index)
-				grab_focus()
-				cell_action_requested.emit(action,admitted_index,projection.revision)
 	elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN,MOUSE_BUTTON_WHEEL_LEFT,MOUSE_BUTTON_WHEEL_RIGHT]:
 		if event.device == -1: return
 		if has_held_touch():

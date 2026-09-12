@@ -189,8 +189,8 @@ func test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordin
 	right_down.pressed = true
 	viewport.push_input(right_down,true)
 	await get_tree().process_frame
-	assert_eq(grid.get("_held_index"), 2)
-	assert_eq(grid.get("_held_button"), MOUSE_BUTTON_RIGHT)
+	assert_eq(dispatched.size(), 2, "dwm-634.1: the press itself dispatches the Flag")
+	assert_eq(grid.get("_held_index"), -1, "the publication that follows a press cancels the contact")
 	var right_up: InputEventMouseButton = InputEventMouseButton.new()
 	right_up.button_index = MOUSE_BUTTON_RIGHT
 	right_up.position = cell_two_center
