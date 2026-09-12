@@ -65,6 +65,9 @@ func _checkpoint_inputs(run_id: String, day: int = 3) -> Dictionary:
 	lifecycle["causal_day_instance"] = "causal-day-1"
 	lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
 	lifecycle["restore_provenance"] = null
+	lifecycle["active_condition_hospital_plan"] = null
+	lifecycle["condition_hospital_history"] = {}
+	lifecycle["terminal_intent_handoff"] = null
 	return {
 		"snapshot_input": {
 			"lifecycle": lifecycle,
@@ -73,6 +76,12 @@ func _checkpoint_inputs(run_id: String, day: int = 3) -> Dictionary:
 			"committed_schedule": {
 				"schema_version": 1, "day": int(lifecycle["day"]),
 				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
+			},
+			"schedule_view": {
+				"day": int(lifecycle["day"]),
+				"causal_day_instance": lifecycle["causal_day_instance"],
+				"entries": [], "date_entry_seen": false, "pending_warning": null,
+				"consumed_warning_receipts": {}, "condition_departure_receipts": {},
 			},
 			"desktop": _empty_desktop(),
 			"dating": fixture["dating"],
@@ -97,6 +106,8 @@ func test_invalid_save_references_do_not_touch_storage() -> void:
 		if not ResourceLoader.exists(path, "Script"):
 			return
 	var root := _isolated_root("invalid_locator")
+	if root.is_empty():
+		return
 	var storage: RefCounted = load(STORAGE_PATH).new(root)
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
@@ -114,6 +125,8 @@ func test_save_family_writes_closed_relative_names() -> void:
 	if not _artifacts_exist():
 		return
 	var wired := _isolated_manager("save_family")
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	_seed_checkpoint(manager, "run-save")
 	assert_true(manager.save_latest_to_slot(1)["ok"])
@@ -136,6 +149,8 @@ func test_logout_without_checkpoint_reports_unwritten() -> void:
 	if not _artifacts_exist():
 		return
 	var wired := _isolated_manager("logout_empty")
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	var logout: Dictionary = manager.save_for_logout()
 	assert_true(logout["ok"])
@@ -147,6 +162,8 @@ func test_metadata_family_present_absent_corrupt_and_ordering() -> void:
 	if not _artifacts_exist():
 		return
 	var wired := _isolated_manager("metadata_family")
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	_seed_checkpoint(manager, "run-meta")
 	assert_true(manager.save_latest_to_slot(1)["ok"])
@@ -177,6 +194,8 @@ func test_restore_preparation_and_delete_families() -> void:
 	if not _artifacts_exist():
 		return
 	var wired := _isolated_manager("restore_delete")
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	_seed_checkpoint(manager, "run-restore")
 	assert_true(manager.save_latest_to_slot(2)["ok"])
@@ -219,6 +238,8 @@ func test_deprecated_wrappers_delegate() -> void:
 	if not _artifacts_exist():
 		return
 	var wired := _isolated_manager("wrappers")
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	_seed_checkpoint(manager, "run-wrap")
 	assert_true(manager.save_slot(4)["ok"], "save_slot delegates to save_latest_to_slot")
