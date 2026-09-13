@@ -1,0 +1,188 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/1f182093-024d-4de7-93a3-a17a3131d345/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit
+* test_supplied_checkpoint_receipt_rejects_equal_float_ordinal
+* test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization
+* test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation
+* test_evicted_checkpoints_accept_each_legitimate_recovery_stage
+* test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion
+    [Failed]:  payload_numeric_type
+      at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  payload_numeric_type
+      at line 380
+    [Failed]:  payload_numeric_type must be refused before insertion
+      at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+      at line 383
+    [Failed]:  payload_value
+      at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  payload_value
+      at line 380
+    [Failed]:  payload_value must be refused before insertion
+      at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+      at line 383
+    [Failed]:  header_receipt
+      at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  header_receipt
+      at line 380
+    [Failed]:  header_receipt must be refused before insertion
+      at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+      at line 383
+    [Failed]:  receipt_digest
+      at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  receipt_digest
+      at line 380
+    [Failed]:  receipt_digest must be refused before insertion
+      at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+      at line 383
+    [Failed]:  receipt_content_hash
+      at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  receipt_content_hash
+      at line 380
+    [Failed]:  receipt_content_hash must be refused before insertion
+      at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+      at line 383
+    [Failed]:  ordinal_stage
+      at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  ordinal_stage
+      at line 380
+    [Failed]:  ordinal_stage must be refused before insertion
+      at line 381
+* test_evicted_reprepared_admission_preserves_its_older_admission_receipt
+* test_evicted_preadmission_checkpoints_preserve_receipt_free_state
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+28/29 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_save_manager_checkpoint_port.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+- test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion
+    [Failed]:  payload_numeric_type
+          at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  payload_numeric_type
+          at line 380
+    [Failed]:  payload_numeric_type must be refused before insertion
+          at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+          at line 383
+    [Failed]:  payload_value
+          at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  payload_value
+          at line 380
+    [Failed]:  payload_value must be refused before insertion
+          at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+          at line 383
+    [Failed]:  header_receipt
+          at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  header_receipt
+          at line 380
+    [Failed]:  header_receipt must be refused before insertion
+          at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+          at line 383
+    [Failed]:  receipt_digest
+          at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  receipt_digest
+          at line 380
+    [Failed]:  receipt_digest must be refused before insertion
+          at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+          at line 383
+    [Failed]:  receipt_content_hash
+          at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  receipt_content_hash
+          at line 380
+    [Failed]:  receipt_content_hash must be refused before insertion
+          at line 381
+    [Failed]:  refused mutations do not poison the valid cold record
+          at line 383
+    [Failed]:  ordinal_stage
+          at line 379
+    [Failed]:  [STRING_NAME(ok)] expected to equal [STRING_NAME(invalid_candidate)]:  ordinal_stage
+          at line 380
+    [Failed]:  ordinal_stage must be refused before insertion
+          at line 381
+
+Totals
+------
+Scripts               1
+Tests                29
+Passing Tests        28
+Failing Tests         1
+Asserts           727/750
+Orphans              24
+Time              0.657s
+
+
+---- 1 failing tests ----

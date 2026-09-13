@@ -81,7 +81,7 @@ func _admitted_state_candidate(transaction_id: String = "txn-1", run_revision_ma
 ## dwm-p2r.35.7 remediation (finding 1): a pre-admission (action_prepared) candidate -- the shape the
 ## source participant's own ordinal-0 checkpoint carries, mirroring _admitted_state_candidate()'s own
 ## pattern but stopping before prepare_sequence_reservation() (i.e. before admission).
-func _pre_admission_state_candidate(transaction_id: String = "txn-1") -> Dictionary:
+func _pre_admission_state_candidate(transaction_id: String = "txn-1", admission_ready: bool = false) -> Dictionary:
 	var state := CONSEQUENCE_STATE.new()
 	var made: Dictionary = CONSEQUENCE_STATE.make_empty({
 		"causal_day_instance": "causal-day-1", "causal_day_instance_issuer_receipt": _issuer_receipt("causal-day-1"),
@@ -95,6 +95,14 @@ func _pre_admission_state_candidate(transaction_id: String = "txn-1") -> Diction
 		"transaction_issuer_receipt": _issuer_receipt(transaction_id),
 		"source_commit_receipt_id": "commit-receipt-1", "source_commit_receipt_provenance": {"child_kind": "board_fate"},
 	}
+	if admission_ready:
+		# Reuse the production builder, as test_desktop_cold_recovery_preparation does,
+		# so ordinal 1 carries its real payload shape and computed nested hashes.
+		var builder: RefCounted = preload("res://scripts/application/desktop/DesktopConsequenceCoordinator.gd").new()
+		var frozen: Dictionary = builder._build_admission_ready_payload("minesweeper_round",
+			action_receipt, {"result": "completed"}, {}, null, null, null, null, null, null,
+			false, {}, {}, null, null)
+		payload = frozen["recovery_payload"]
 	var handoff: Dictionary = state.prepare_action_handoff(action_receipt, 0, payload)
 	assert_true(handoff.get("ok", false), JSON.stringify(handoff))
 	return handoff["value"]["candidate"]["state_after"]
@@ -109,6 +117,13 @@ func _header(transaction_id: String = "txn-1", operation_ordinal: int = 2, stage
 
 func _record_key(transaction_id: String = "txn-1", operation_ordinal: int = 2) -> String:
 	return transaction_id + ":" + str(operation_ordinal)
+
+
+func _evict_issued_checkpoints(port: RefCounted) -> void:
+	for index: int in 8:
+		var transaction_id := "evict-txn-" + str(index)
+		assert_true(port.prepare_consequence_checkpoint(_header(transaction_id),
+			_admitted_state_candidate(transaction_id)).get("ok", false))
 
 
 func test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt() -> void:
@@ -265,10 +280,7 @@ func test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validatio
 	var port: RefCounted = wired["port"]
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	for index: int in 8:
-		var transaction_id := "evict-txn-" + str(index)
-		assert_true(port.prepare_consequence_checkpoint(_header(transaction_id),
-			_admitted_state_candidate(transaction_id)).get("ok", false))
+	_evict_issued_checkpoints(port)
 	assert_false((port.get("_issued_transient_records") as Dictionary).has(prepared.value.checkpoint_receipt.receipt_id),
 		"the fixture reaches the legitimate cold path")
 	var committed: Dictionary = port.commit_consequence_checkpoint(prepared.value.candidate,
@@ -277,6 +289,170 @@ func test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validatio
 	var retained: Dictionary = port.read_pending_consequence_checkpoint().value.stage_candidate
 	assert_eq(_canonical_text(retained), _canonical_text(prepared.value.candidate.document.stage_candidate))
 	assert_true(CONSEQUENCE_STATE.validate(retained).get("ok", false))
+
+
+func test_evicted_checkpoints_accept_each_legitimate_recovery_stage() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	# Different payload content is valid when freshly prepared with its matching receipt;
+	# cold validation proves self-consistency, not the historical origin of those bytes.
+	var admission: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate("txn-1", 2))
+	assert_true(admission.get("ok", false), JSON.stringify(admission))
+	if not admission.get("ok", false):
+		return
+	var checkpoints: Array[Dictionary] = [admission]
+	var state := CONSEQUENCE_STATE.new()
+	var progress := {"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source", "board_fate"],
+		"next_callback_index": 0, "callback_receipts": {}}
+	for cursor: int in 5:
+		var mounted: Dictionary = state.prepare_restore(checkpoints.back().value.candidate.document.stage_candidate)
+		assert_true(mounted.get("ok", false), JSON.stringify(mounted))
+		if not mounted.get("ok", false):
+			return
+		assert_true(state.commit(mounted.value.candidate).get("ok", false))
+		if cursor == 1:
+			progress.next_callback_index = 1
+			progress.callback_receipts = {"causal_sequence": {"receipt_id": "callback-1"}}
+		elif cursor == 2:
+			progress.next_callback_index = 2
+			progress.callback_receipts.action_source = {"receipt_id": "callback-2"}
+		elif cursor == 3:
+			progress.next_callback_index = 3
+			progress.callback_receipts.board_fate = {"receipt_id": "callback-3"}
+		var advanced: Dictionary = state.prepare_recovery_advance("txn-1",
+			&"sequence_committed" if cursor == 0 else &"publication_pending",
+			null if cursor == 4 else &"publication_pending", {}, null, null,
+			null if cursor == 4 else progress)
+		assert_true(advanced.get("ok", false), JSON.stringify(advanced))
+		if not advanced.get("ok", false):
+			return
+		advanced.value.checkpoint_header.run_id = "run-1"
+		var prepared: Dictionary = port.prepare_consequence_checkpoint(
+			advanced.value.checkpoint_header, advanced.value.stage_candidate)
+		assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+		if not prepared.get("ok", false):
+			return
+		checkpoints.append(prepared)
+	_evict_issued_checkpoints(port)
+	var expected_ordinals := [2, 8, 9, 10, 11, 12]
+	for index: int in checkpoints.size():
+		var prepared: Dictionary = checkpoints[index]
+		assert_eq(prepared.value.checkpoint_receipt.header.operation_ordinal, expected_ordinals[index])
+		assert_false((port.get("_issued_transient_records") as Dictionary).has(prepared.value.checkpoint_receipt.receipt_id))
+		var committed: Dictionary = port.commit_consequence_checkpoint(prepared.value.candidate,
+			prepared.value.checkpoint_receipt)
+		assert_true(committed.get("ok", false), "cold ordinal %d: %s" % [expected_ordinals[index], JSON.stringify(committed)])
+		if not committed.get("ok", false):
+			continue
+		var retained: Dictionary = port.get("_transient_consequence_document").records[prepared.value.candidate.document.key]
+		assert_eq(_canonical_text(retained), _canonical_text(prepared.value.candidate.document))
+		assert_true(CONSEQUENCE_STATE.validate(retained.stage_candidate).get("ok", false))
+		assert_eq(port.read_pending_consequence_checkpoint().value.found, expected_ordinals[index] != 12,
+			"terminal cleanup retires the same transaction only after its exact cold record commits")
+
+
+func test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion() -> void:
+	for fault: String in ["payload_numeric_type", "payload_value", "header_receipt", "receipt_digest",
+			"receipt_content_hash", "ordinal_stage"]:
+		var wired := _isolated_wired()
+		var port: RefCounted = wired["port"]
+		var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
+		assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+		if not prepared.get("ok", false):
+			continue
+		_evict_issued_checkpoints(port)
+		assert_false((port.get("_issued_transient_records") as Dictionary).has(prepared.value.checkpoint_receipt.receipt_id))
+		var candidate: Dictionary = prepared.value.candidate.duplicate(true)
+		var record: Dictionary = candidate.document
+		match fault:
+			"payload_numeric_type":
+				record.stage_candidate.pending.recovery_payload.participant_snapshot_ids.marker = 1.0
+			"payload_value":
+				record.stage_candidate.pending.recovery_payload.participant_snapshot_ids.marker = 2
+			"header_receipt":
+				record.header.run_id = "different-run"
+			"receipt_digest":
+				record.checkpoint_receipt.content_sha256 = "0".repeat(64)
+			"receipt_content_hash":
+				record.checkpoint_receipt.content_sha256 = "0".repeat(64)
+				record.checkpoint_receipt.receipt_id = "consequence_checkpoint." + "0".repeat(64)
+				record.stage_candidate.pending.checkpoint_receipt = record.checkpoint_receipt.duplicate(true)
+				record.stage_candidate.pending.admission_checkpoint_receipt = record.checkpoint_receipt.duplicate(true)
+			"ordinal_stage":
+				record.header.operation_ordinal = 9
+				record.key = _record_key("txn-1", 9)
+				record.checkpoint_receipt.header = record.header.duplicate(true)
+				record.stage_candidate.pending.checkpoint_receipt = record.checkpoint_receipt.duplicate(true)
+				record.stage_candidate.pending.admission_checkpoint_receipt = record.checkpoint_receipt.duplicate(true)
+		# Pass the candidate's own receipt: each case must reach cold validation rather
+		# than failing the already-covered supplied-receipt argument mismatch guard.
+		var rejected: Dictionary = port.commit_consequence_checkpoint(candidate, record.checkpoint_receipt)
+		assert_false(rejected.get("ok", true), fault)
+		assert_eq(rejected.get("code"), &"invalid_candidate", fault)
+		assert_true((port.get("_transient_consequence_document").records as Dictionary).is_empty(),
+			fault + " must be refused before insertion")
+		assert_true(port.commit_consequence_checkpoint(prepared.value.candidate,
+			prepared.value.checkpoint_receipt).get("ok", false), "refused mutations do not poison the valid cold record")
+
+
+func test_evicted_reprepared_admission_preserves_its_older_admission_receipt() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var admission: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
+	assert_true(admission.get("ok", false), JSON.stringify(admission))
+	if not admission.get("ok", false):
+		return
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(),
+		admission.value.candidate.document.stage_candidate)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	if not prepared.get("ok", false):
+		return
+	assert_ne(_canonical_text(prepared.value.checkpoint_receipt), _canonical_text(admission.value.checkpoint_receipt),
+		"re-preparation binds the existing admission receipt into a new checkpoint")
+	_evict_issued_checkpoints(port)
+	assert_false((port.get("_issued_transient_records") as Dictionary).has(prepared.value.checkpoint_receipt.receipt_id))
+	var committed: Dictionary = port.commit_consequence_checkpoint(prepared.value.candidate,
+		prepared.value.checkpoint_receipt)
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	if not committed.get("ok", false):
+		return
+	var retained: Dictionary = port.read_pending_consequence_checkpoint().value.stage_candidate
+	assert_eq(_canonical_text(retained.pending.admission_checkpoint_receipt), _canonical_text(admission.value.checkpoint_receipt))
+	assert_eq(_canonical_text(retained.pending.checkpoint_receipt), _canonical_text(prepared.value.checkpoint_receipt))
+	assert_true(CONSEQUENCE_STATE.validate(retained).get("ok", false))
+
+
+func test_evicted_preadmission_checkpoints_preserve_receipt_free_state() -> void:
+	# Both pre-admission stages remain receipt-free; ordinal 1 already freezes the
+	# coordinator's admission-ready payload before its sequence reservation is adopted.
+	for ordinal: int in [0, 1]:
+		var wired := _isolated_wired()
+		var port: RefCounted = wired["port"]
+		var header := _pre_admission_header()
+		header.operation_ordinal = ordinal
+		if ordinal == 1:
+			header.kind = &"consequence_admission_ready"
+		var prepared: Dictionary = port.prepare_consequence_checkpoint(header,
+			_pre_admission_state_candidate("txn-1", ordinal == 1))
+		assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+		if not prepared.get("ok", false):
+			continue
+		_evict_issued_checkpoints(port)
+		assert_false((port.get("_issued_transient_records") as Dictionary).has(prepared.value.checkpoint_receipt.receipt_id))
+		var committed: Dictionary = port.commit_consequence_checkpoint(prepared.value.candidate,
+			prepared.value.checkpoint_receipt)
+		assert_true(committed.get("ok", false), JSON.stringify(committed))
+		if not committed.get("ok", false):
+			continue
+		var retained: Dictionary = port.read_pending_consequence_checkpoint().value.stage_candidate
+		assert_null(retained.pending.checkpoint_receipt)
+		assert_null(retained.pending.admission_checkpoint_receipt)
+		assert_eq(_canonical_text(retained), _canonical_text(prepared.value.candidate.document.stage_candidate))
+		assert_true(CONSEQUENCE_STATE.validate(retained).get("ok", false))
+		if ordinal == 1:
+			var payload: Dictionary = retained.pending.recovery_payload
+			assert_eq(payload.payload_phase, "admission_ready")
+			assert_eq(payload.publication_plan_sha256, _canonical_text(payload.publication_plan).sha256_text())
 
 
 ## dwm-p2r.35.3 remediation (finding A-C3): real occupied-slot conflict law. An identical-bytes rewrite
@@ -327,6 +503,8 @@ func test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupi
 	assert_true(port.commit_consequence_checkpoint(first.value.candidate,
 		first.value.checkpoint_receipt).get("ok", false))
 	var conflicting: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate("txn-1", 2))
+	_evict_issued_checkpoints(port)
+	assert_false((port.get("_issued_transient_records") as Dictionary).has(conflicting.value.checkpoint_receipt.receipt_id))
 	var rejected: Dictionary = port.commit_consequence_checkpoint(
 		conflicting.value.candidate, conflicting.value.checkpoint_receipt)
 	assert_false(rejected.get("ok", true))

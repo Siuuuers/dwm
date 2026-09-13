@@ -60,8 +60,8 @@ var _proven_document_order: Array[String] = []
 # and completed post-result Autosaves retain the last fully saved player action; after a crash, the
 # interrupted action may replay once.
 var _transient_consequence_document := {"records": {}, "abandoned": {}}
-# Detached transient records issued by prepare_consequence_checkpoint(). Changed known records
-# must normalize back to the same value; evicted records use the existing round-trip/shape check.
+# Detached transient records issued by prepare_consequence_checkpoint(). Unchanged records reuse
+# this proof; cold records must reproduce exactly through the same side-effect-free builder.
 var _issued_transient_records: Dictionary = {}
 var _issued_transient_order: Array[String] = []
 
@@ -345,6 +345,16 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
+	var prepared := _build_consequence_checkpoint(checkpoint_header, stage_candidate)
+	if not prepared.get("ok", false):
+		return prepared
+	var value: Dictionary = prepared["value"]
+	_remember_issued_transient_record(str(value["checkpoint_receipt"]["receipt_id"]), value["candidate"]["document"])
+	return prepared
+
+
+## One pure construction path for new checkpoints and cold-record self-consistency checks.
+static func _build_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
 	var preimage: Dictionary = DESKTOP_CONSEQUENCE_STATE.checkpoint_content_preimage(checkpoint_header, stage_candidate)
 	if not preimage.get("ok", false):
 		return preimage
@@ -383,7 +393,6 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 		"stage_candidate": receipt_attached_candidate,
 		"checkpoint_receipt": checkpoint_receipt,
 	}
-	_remember_issued_transient_record(str(checkpoint_receipt["receipt_id"]), record)
 	return {"ok": true, "code": &"ok", "value": {
 		"candidate": {"document": record},
 		"checkpoint_receipt": checkpoint_receipt,
@@ -410,7 +419,7 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		if not validated.get("ok", false):
 			return validated
 		# Normalization permits StringName aliases, but cannot authorize changed bytes
-		# against a record we still own. The cold validator checks shape, not receipt hashes.
+		# against a record we still own, even after its independent reconstruction succeeds.
 		if (_issued_transient_records.has(receipt_id)
 				and not CANONICAL_JSON._deep_same(_issued_transient_records[receipt_id], validated["value"])):
 			return _fail(&"invalid_candidate", "checkpoint record differs from the issued candidate")
@@ -560,6 +569,21 @@ func _validate_transient_consequence_record(record: Dictionary) -> Dictionary:
 	var header: Dictionary = normalized["header"]
 	if str(normalized["key"]) != str(header.get("transaction_id", "")) + ":" + str(header.get("operation_ordinal", "")):
 		return _fail(&"invalid_candidate", "checkpoint record key does not match its header")
+	var state_check: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(normalized["stage_candidate"])
+	if not state_check.get("ok", false):
+		return _fail(&"invalid_candidate", "checkpoint record contains an invalid consequence state")
+	# Validation already detached this tree. Undo only the initial admission attachment;
+	# repeated admission preparation and later stages retain their older admission receipt.
+	var rebuild_state: Dictionary = state_check["value"]["state"]
+	var pending: Variant = rebuild_state["pending"]
+	if typeof(pending) == TYPE_DICTIONARY and str(pending["stage"]) == "sequence_committed" \
+			and pending["admission_checkpoint_receipt"] == normalized["checkpoint_receipt"]:
+		pending["admission_checkpoint_receipt"] = null
+		pending["checkpoint_receipt"] = null
+	var rebuilt := _build_consequence_checkpoint(header, rebuild_state)
+	if not rebuilt.get("ok", false) or not CANONICAL_JSON._deep_same(
+			rebuilt["value"]["candidate"]["document"], normalized):
+		return _fail(&"invalid_candidate", "checkpoint record does not reproduce its prepared content")
 	return {"ok": true, "code": &"ok", "value": normalized,
 		"canonical_text": str(canonical["value"])}
 
