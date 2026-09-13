@@ -2,6 +2,7 @@ extends "res://addons/gut/test.gd"
 
 const SCHEMA_PATH := "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
 const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
+const RUN_SNAPSHOT_SCHEMA_PATH := "res://scripts/domain/run/RunSnapshotSchema.gd"
 
 const VALID_DISCRIMINATORS := [
 	{"kind": &"slot", "slot_id": 1, "save_reason": &"manual"},
@@ -220,3 +221,255 @@ func test_build_keeps_invalid_bundle_journal_and_metadata_rejection_order() -> v
 	var corrupt := _bundle()
 	corrupt.snapshot.lifecycle.day = 8
 	assert_false(schema.build(&"autosave", null, &"automatic", corrupt, []).ok)
+
+
+func test_validate_normalizes_the_document_without_a_prior_deep_copy() -> void:
+	# A1: validate() deep-copies the whole document and then hands the copy to
+	# _normalize_integral_floats, which already allocates a fresh Dictionary or Array at EVERY
+	# container node. The copy is pure waste. Removing it is allocation-only -- the normalizer's
+	# output is the same tree either way -- so the source text is the observable, in the idiom of
+	# test_contact_scene_authors_no_identity_or_global_state_fallback.
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	var source := FileAccess.get_file_as_string(SCHEMA_PATH)
+	assert_false(source.is_empty(), "the schema source must be readable")
+	assert_false(source.contains("_normalize_integral_floats(document.duplicate(true))"),
+		"validate() must not deep-copy the document before a walk that rebuilds every container")
+
+	# The invariant that makes the copy removable, asserted against the owning module.
+	var run_schema: Script = load(RUN_SNAPSHOT_SCHEMA_PATH)
+	var tree := {"envelope": {"nested": [1.0, {"leaf": 2.0}]}}
+	var normalized: Variant = run_schema._normalize_integral_floats(tree)
+	assert_false(is_same(normalized, tree), "the normalizer allocates a fresh root")
+	assert_false(is_same(normalized["envelope"], tree["envelope"]),
+		"the normalizer allocates a fresh Dictionary at every node")
+	assert_false(is_same(normalized["envelope"]["nested"], tree["envelope"]["nested"]),
+		"the normalizer allocates a fresh Array at every node")
+	assert_eq(typeof(normalized["envelope"]["nested"][0]), TYPE_INT, "integral floats still normalize")
+	assert_eq(typeof(tree["envelope"]["nested"][0]), TYPE_FLOAT, "the normalizer never mutates its source")
+
+	# Detachment survives the removal: the document handed back shares no container with its source.
+	var schema: Script = load(SCHEMA_PATH)
+	var built: Dictionary = schema.build(&"autosave", null, &"day_start", _bundle(), [{"kept": [1, 2]}])
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false):
+		return
+	var document: Dictionary = built["value"]
+	var validated: Dictionary = schema.validate(document)
+	assert_true(validated.get("ok", false), str(validated))
+	if not validated.get("ok", false):
+		return
+	var candidate: Dictionary = validated["value"]["candidate"]
+	assert_false(is_same(candidate, document), "the candidate is not the caller's document")
+	assert_false(is_same(candidate["recovery_journal"], document["recovery_journal"]),
+		"a depth-1 member is not shared")
+	assert_false(is_same(candidate["recovery_journal"][0], document["recovery_journal"][0]),
+		"a depth-2 member is not shared")
+	assert_false(is_same(candidate["recovery_journal"][0]["kept"], document["recovery_journal"][0]["kept"]),
+		"a depth-3 member is not shared")
+	assert_false((candidate["recovery_journal"] as Array).is_typed(),
+		"the normalized journal stays an untyped Array")
+	(document["recovery_journal"][0]["kept"] as Array).append("late")
+	assert_eq((candidate["recovery_journal"][0]["kept"] as Array).size(), 2,
+		"mutating the source cannot reach a candidate already handed out")
+	(candidate["recovery_journal"][0]["kept"] as Array).append("injected")
+	assert_eq((document["recovery_journal"][0]["kept"] as Array).size(), 3,
+		"mutating the candidate cannot reach the source")
+
+func test_validate_composes_the_current_bundle_instead_of_renormalizing_it() -> void:
+	# A2: validate()'s whole-document normalization walk rebuilds current_snapshot.snapshot and then
+	# throws the rebuild away -- _validate_bundle's own candidate overwrites it one line later. The
+	# fix normalizes per envelope member and composes the current bundle from its two already-proven
+	# parts; the composition is observable as a fixed member order on the returned candidate, which
+	# no whole-document walk can produce because that walk preserves the caller's insertion order.
+	# Member order is not a disk observable: CanonicalJsonWriter sorts every object's keys.
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var built: Dictionary = schema.build(&"autosave", null, &"automatic", _bundle(), [{"count": 1}],
+		{"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"})
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false):
+		return
+	var document: Dictionary = (built["value"] as Dictionary).duplicate(true)
+	document["schema_version"] = 6.0
+	(document["saved_time"] as Dictionary)["unix_seconds"] = 0.0
+	(document["recovery_journal"][0] as Dictionary)["count"] = 4.0
+	(document["current_snapshot"]["snapshot"]["lifecycle"] as Dictionary)["day"] = 3.0
+	var bundle: Dictionary = document["current_snapshot"]
+	# Authored snapshot-first: a bundle carried through the whole-document walk keeps this order,
+	# a composed one cannot.
+	document["current_snapshot"] = {
+		"snapshot": bundle["snapshot"], "checkpoint_kind": bundle["checkpoint_kind"],
+	}
+	var validated: Dictionary = schema.validate(document)
+	assert_true(validated.get("ok", false), str(validated))
+	if not validated.get("ok", false):
+		return
+	var candidate: Dictionary = validated["value"]["candidate"]
+	var bundle_keys: Array = (candidate["current_snapshot"] as Dictionary).keys()
+	assert_eq(bundle_keys.size(), 2, "the current bundle has exactly two members")
+	assert_eq(str(bundle_keys[0]), "checkpoint_kind",
+		"validate composes the current bundle from its two proven parts")
+	assert_eq(str(bundle_keys[1]), "snapshot",
+		"validate composes the current bundle from its two proven parts")
+
+	# Every member that is NOT the current bundle must still be normalized by validate itself.
+	assert_eq(typeof(candidate["schema_version"]), TYPE_INT, "the envelope still normalizes")
+	assert_eq(typeof((candidate["saved_time"] as Dictionary)["unix_seconds"]), TYPE_INT,
+		"optional metadata still normalizes")
+	assert_eq(typeof((candidate["recovery_journal"][0] as Dictionary)["count"]), TYPE_INT,
+		"the recovery journal still normalizes")
+	assert_false((candidate["recovery_journal"] as Array).is_typed(),
+		"the normalized journal stays an untyped Array")
+	# ...and the embedded snapshot must still be normalized, by its own owner.
+	assert_eq(typeof(candidate["current_snapshot"]["snapshot"]["lifecycle"]["day"]), TYPE_INT,
+		"the embedded snapshot is normalized by RunSnapshotSchema.validate")
+	assert_eq(int(candidate["current_snapshot"]["snapshot"]["lifecycle"]["day"]), 3,
+		"normalization preserves the value")
+	assert_eq(str(candidate["current_snapshot"]["checkpoint_kind"]), "day_start",
+		"the composed bundle carries the proven checkpoint_kind")
+	assert_eq(typeof(document["schema_version"]), TYPE_FLOAT, "the caller's document is never mutated")
+
+	# Detachment is unchanged by the composition, in both directions.
+	assert_false(is_same(candidate["current_snapshot"], document["current_snapshot"]),
+		"the composed bundle is not the caller's container")
+	assert_false(is_same(candidate["current_snapshot"]["snapshot"], document["current_snapshot"]["snapshot"]),
+		"the embedded snapshot is the validated candidate, not the caller's")
+	(document["current_snapshot"]["snapshot"]["gameplay"]["narrative_variables"] as Dictionary)["late"] = true
+	assert_eq((candidate["current_snapshot"]["snapshot"]["gameplay"]["narrative_variables"] as Dictionary).size(),
+		0, "mutating the caller's bundle cannot reach the candidate")
+	(candidate["recovery_journal"][0] as Dictionary)["count"] = 99
+	assert_eq(typeof((document["recovery_journal"][0] as Dictionary)["count"]), TYPE_FLOAT,
+		"mutating the candidate cannot reach the caller's journal")
+
+func test_validate_refusal_order_survives_multiple_simultaneous_defects() -> void:
+	# A2 guard: the restructure moves where normalization happens, so pin the one thing it must not
+	# move -- the order validate() answers in: keys, saved_time, schema_version, discriminators,
+	# current bundle, recovery journal. Each row below carries EVERY later defect as well, so a
+	# reordering cannot pass by accident.
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var base_built: Dictionary = schema.build(&"slot", 1, &"manual", _bundle(), [])
+	assert_true(base_built.get("ok", false), str(base_built))
+	if not base_built.get("ok", false):
+		return
+	var base: Dictionary = base_built["value"]
+
+	var journal_only: Dictionary = base.duplicate(true)
+	journal_only["recovery_journal"] = [{"broken": Vector2.ZERO}]
+	assert_eq(schema.validate(journal_only).get("code", &""), &"invalid_recovery_journal",
+		"a journal defect alone is answered by the journal")
+
+	var bundle_and_journal: Dictionary = journal_only.duplicate(true)
+	bundle_and_journal["current_snapshot"] = {"unknown": true}
+	assert_eq(schema.validate(bundle_and_journal).get("code", &""), &"invalid_bundle_shape",
+		"the current bundle is answered before the journal")
+
+	var discriminator_too: Dictionary = bundle_and_journal.duplicate(true)
+	discriminator_too["slot_id"] = 0
+	assert_eq(schema.validate(discriminator_too).get("code", &""), &"invalid_discriminator",
+		"the discriminators are answered before the current bundle")
+
+	var stale_version_too: Dictionary = discriminator_too.duplicate(true)
+	stale_version_too["schema_version"] = 5
+	assert_eq(schema.validate(stale_version_too).get("code", &""), &"invalid_document_shape",
+		"a wrong document version is answered before the discriminators")
+
+	var future_version_too: Dictionary = discriminator_too.duplicate(true)
+	future_version_too["schema_version"] = 7
+	assert_eq(schema.validate(future_version_too).get("code", &""), &"unsupported_schema_version",
+		"a future document version keeps its own code, ahead of the discriminators")
+
+	var saved_time_too: Dictionary = future_version_too.duplicate(true)
+	saved_time_too["saved_time"] = {"broken": true}
+	assert_eq(schema.validate(saved_time_too).get("code", &""), &"invalid_saved_time",
+		"optional metadata is answered before the schema version")
+
+	var unknown_key_too: Dictionary = saved_time_too.duplicate(true)
+	unknown_key_too["extra"] = 1
+	assert_eq(schema.validate(unknown_key_too).get("code", &""), &"invalid_document_shape",
+		"the key set is answered before everything else")
+
+func test_normalize_engine_text_returns_stringname_free_subtrees_by_identity() -> void:
+	# A3: _normalize_engine_text rebuilds the whole current bundle AND the whole recovery journal on
+	# every build, even though a StringName is rare and the rebuild is the identity in that case.
+	# Making it identity-preserving is observable exactly where it pays: an unchanged subtree comes
+	# back as the same container, and a tree that does contain a StringName rebuilds only the path
+	# to it while its untouched siblings are returned by identity.
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+
+	var clean := {"outer": {"inner": [1, "two", 3.5, null, true]}, "empty": []}
+	var clean_result: Variant = schema._normalize_engine_text(clean)
+	assert_true(is_same(clean_result, clean), "a StringName-free tree is returned by identity")
+	assert_true(is_same(clean_result["outer"], clean["outer"]), "...and so is every nested Dictionary")
+	assert_true(is_same(clean_result["outer"]["inner"], clean["outer"]["inner"]),
+		"...and every nested Array, at depth")
+
+	var mixed := {"dirty": {"phase": &"NONE"}, "clean": {"kept": [1, 2]}}
+	var mixed_result: Variant = schema._normalize_engine_text(mixed)
+	assert_false(is_same(mixed_result, mixed), "a tree that contains a StringName is rebuilt")
+	assert_false(is_same(mixed_result["dirty"], mixed["dirty"]), "the path to the StringName is rebuilt")
+	assert_true(is_same(mixed_result["clean"], mixed["clean"]),
+		"an untouched sibling container is returned by identity")
+	assert_eq(typeof(mixed_result["dirty"]["phase"]), TYPE_STRING, "the StringName became a String")
+	assert_eq(str(mixed_result["dirty"]["phase"]), "NONE", "with its text preserved")
+	assert_eq(typeof(mixed["dirty"]["phase"]), TYPE_STRING_NAME, "the source is never mutated")
+
+	# Conversion itself is unchanged: StringName keys, Array elements and bare values all convert.
+	var keyed := {&"key": [&"element", {&"deep": &"value"}]}
+	var keyed_result: Variant = schema._normalize_engine_text(keyed)
+	var keyed_keys: Array = (keyed_result as Dictionary).keys()
+	assert_eq(keyed_keys.size(), 1, "the key set is preserved")
+	assert_eq(typeof(keyed_keys[0]), TYPE_STRING, "a StringName key becomes a String key")
+	assert_eq(str(keyed_keys[0]), "key", "with its text preserved")
+	assert_eq(typeof(keyed_result["key"][0]), TYPE_STRING, "an Array element converts")
+	assert_eq(str(keyed_result["key"][0]), "element", "with its text preserved")
+	assert_eq(typeof(keyed_result["key"][1]["deep"]), TYPE_STRING, "a nested value converts")
+	var bare: Variant = schema._normalize_engine_text(&"bare")
+	assert_eq(typeof(bare), TYPE_STRING, "a bare StringName converts")
+	assert_eq(str(bare), "bare", "with its text preserved")
+	var number: Variant = schema._normalize_engine_text(2.5)
+	assert_eq(typeof(number), TYPE_FLOAT, "non-text leaves are untouched")
+	assert_eq(number, 2.5, "and keep their value")
+
+func test_build_detaches_the_persisted_document_from_identity_preserved_inputs() -> void:
+	# A3 guard: once _normalize_engine_text can hand a StringName-free input straight back, build()
+	# no longer gets a private copy of the caller's bundle or journal for free. Detachment then rests
+	# on the journal deep copy at the compose step and on the validated bundle candidate. Pin both.
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var current := _bundle()
+	var journal: Array = [{"nested": [1, 2], "label": "kept"}]
+	var built: Dictionary = schema.build(&"autosave", null, &"automatic", current, journal)
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false):
+		return
+	var document: Dictionary = built["value"]
+	assert_false(is_same(document["recovery_journal"], journal),
+		"the persisted journal is not the caller's Array")
+	assert_false(is_same(document["recovery_journal"][0], journal[0]), "...nor any of its entries")
+	assert_false(is_same(document["recovery_journal"][0]["nested"], journal[0]["nested"]), "...at depth")
+	assert_false(is_same(document["current_snapshot"]["snapshot"], current["snapshot"]),
+		"the persisted bundle is the validated candidate, not the caller's snapshot")
+	assert_false(is_same(document["current_snapshot"], current),
+		"and the persisted bundle envelope is composed, not carried")
+
+	(document["recovery_journal"][0]["nested"] as Array).append("from_document")
+	assert_eq((journal[0]["nested"] as Array).size(), 2,
+		"mutating the document cannot reach the input journal")
+	(journal[0]["nested"] as Array).append("from_input")
+	assert_eq((document["recovery_journal"][0]["nested"] as Array).size(), 3,
+		"mutating the input journal cannot reach the document")
+	(current["snapshot"]["gameplay"]["narrative_variables"] as Dictionary)["late"] = true
+	assert_eq((document["current_snapshot"]["snapshot"]["gameplay"]["narrative_variables"] as Dictionary).size(),
+		0, "mutating the input bundle cannot reach the document")

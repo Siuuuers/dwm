@@ -128,7 +128,14 @@ static func build(
 	return {"ok": true, "code": &"ok", "value": {"snapshot": validated["value"]["candidate"]}}
 
 static func validate(snapshot: Dictionary) -> Dictionary:
-	var normalized: Variant = _normalize_integral_floats(snapshot.duplicate(true))
+	# `_normalize_integral_floats()` allocates a FRESH Dictionary/Array at every container node,
+	# so the candidate never aliases the caller and a `duplicate(true)` ahead of it only rebuilt
+	# the same tree a second time. Proof obligation for the leaves the normalizer passes through
+	# by reference instead of copying (Packed arrays, Objects): neither can ever reach a saved
+	# document, so the removed copy protected nothing. `validate_primitive_tree()` below refuses
+	# both with `invalid_primitive`, and `CanonicalJsonWriter._emit()` refuses both with
+	# `unsupported_type`, so a document containing one cannot be written either.
+	var normalized: Variant = _normalize_integral_floats(snapshot)
 	var candidate := normalized as Dictionary
 	var keys: Array = candidate.keys()
 	keys.sort()

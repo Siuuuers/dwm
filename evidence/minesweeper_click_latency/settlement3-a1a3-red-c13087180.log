@@ -1,0 +1,149 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/b2a1610e-de90-4b4d-a525-ca5987f782b8/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_run_snapshot_schema.gd
+* test_run_snapshot_schema_exists
+* test_build_produces_exact_valid_shape
+* test_validate_accepts_fixture_and_rejects_day8_and_shapes
+* test_validate_rejection_matrix
+* test_validate_enforces_ending_id_is_a_canonical_primary
+* test_validate_primitive_tree_rejects_engine_types
+* test_prepare_candidate_is_detached
+* test_is_compatible_bundle_checks_versions
+* test_derive_route_restore_context_exact_shape
+* test_schema_version_is_six
+* test_top_level_committed_schedule_replaces_legacy_schedule
+* test_gameplay_schedule_entries_is_retired
+* test_committed_schedule_validation_delegates_to_schedule_state_schema
+* test_committed_schedule_day_must_equal_lifecycle_day
+* test_committed_schedule_is_recursively_detached
+* test_v3_build_round_trips_the_aggregate_unchanged
+* test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_null
+* test_desktop_is_a_v4_top_level_member
+* test_desktop_lifecycle_identity_fields_are_exact_and_bound
+* test_desktop_board_and_consequence_delegate_to_their_own_owners
+* test_v3_pre_desktop_fixture_lacks_the_v4_member
+* test_validate_normalizes_the_snapshot_without_a_prior_deep_copy
+    [Failed]:  validate() must not deep-copy the snapshot before a walk that rebuilds every container
+      at line 473
+    [Failed]:  validate() normalizes the caller's snapshot once, in place of the discarded copy
+      at line 475
+* test_validate_neither_aliases_nor_mutates_the_caller_snapshot
+22/23 passed.
+
+
+res://tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_six_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+* test_current_and_recovery_snapshots_normalize_engine_text_without_mutating_source
+* test_build_keeps_numeric_normalization_and_detaches_current_history_and_time
+* test_build_keeps_invalid_bundle_journal_and_metadata_rejection_order
+* test_validate_normalizes_the_document_without_a_prior_deep_copy
+    [Failed]:  validate() must not deep-copy the document before a walk that rebuilds every container
+      at line 237
+* test_validate_composes_the_current_bundle_instead_of_renormalizing_it
+    [Failed]:  ["snapshot"] expected to equal ["checkpoint_kind"]:  validate composes the current bundle from its two proven parts
+      at line 314
+    [Failed]:  ["checkpoint_kind"] expected to equal ["snapshot"]:  validate composes the current bundle from its two proven parts
+      at line 316
+* test_validate_refusal_order_survives_multiple_simultaneous_defects
+* test_normalize_engine_text_returns_stringname_free_subtrees_by_identity
+    [Failed]:  a StringName-free tree is returned by identity
+      at line 411
+    [Failed]:  ...and so is every nested Dictionary
+      at line 412
+    [Failed]:  ...and every nested Array, at depth
+      at line 413
+    [Failed]:  an untouched sibling container is returned by identity
+      at line 420
+* test_build_detaches_the_persisted_document_from_identity_preserved_inputs
+11/14 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_run_snapshot_schema.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_run_snapshot_schema.gd
+- test_validate_normalizes_the_snapshot_without_a_prior_deep_copy
+    [Failed]:  validate() must not deep-copy the snapshot before a walk that rebuilds every container
+          at line 473
+    [Failed]:  validate() normalizes the caller's snapshot once, in place of the discarded copy
+          at line 475
+
+res://tests/unit/test_save_document_schema.gd
+- test_validate_normalizes_the_document_without_a_prior_deep_copy
+    [Failed]:  validate() must not deep-copy the document before a walk that rebuilds every container
+          at line 237
+- test_validate_composes_the_current_bundle_instead_of_renormalizing_it
+    [Failed]:  ["snapshot"] expected to equal ["checkpoint_kind"]:  validate composes the current bundle from its two proven parts
+          at line 314
+    [Failed]:  ["checkpoint_kind"] expected to equal ["snapshot"]:  validate composes the current bundle from its two proven parts
+          at line 316
+- test_normalize_engine_text_returns_stringname_free_subtrees_by_identity
+    [Failed]:  a StringName-free tree is returned by identity
+          at line 411
+    [Failed]:  ...and so is every nested Dictionary
+          at line 412
+    [Failed]:  ...and every nested Array, at depth
+          at line 413
+    [Failed]:  an untouched sibling container is returned by identity
+          at line 420
+
+Totals
+------
+Scripts               2
+Tests                37
+Passing Tests        33
+Failing Tests         4
+Asserts           261/270
+Orphans              24
+Time              0.443s
+
+
+---- 4 failing tests ----

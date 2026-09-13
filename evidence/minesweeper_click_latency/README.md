@@ -88,3 +88,18 @@ The markers cost one boolean per phase while the variables are unset.
 - settlement3-a4a6-profile-win-9ce127e52.log and -loss-: source_prepare 43-49 -> 24-44 ms,
   completion_save prepare 52-57 -> 44-49 ms, accept_prepared_action 410-433 ms; App win settled
   666-716 ms, loss 677-763 ms; dating 403-464 ms.
+
+### Steps A1-A3: drop the pre-normalization deep copies, compose the current bundle once, identity-preserving engine-text normalization (commit after c13087180)
+
+- settlement3-a1a3-red-c13087180.log: test_run_snapshot_schema and test_save_document_schema RED,
+  33 passing / 4 failing on rows 1, 3, 4 and 6 (source-string pins for the removed copies, composed
+  bundle member order, identity of StringName-free subtrees); rows 2, 5 and 7 are green guards
+  (detachment in both directions, refusal order under seven simultaneous defects, build detachment).
+- settlement3-a1a3-green-c13087180.log: 26 unit suites that reference either schema, 472 passing /
+  1 failing; the one failing row is A7's mutation test written RED ahead of its step (the storage
+  lease reporting a value the bytes never had), not a regression.
+- settlement3-a1a3-profile-win-c13087180.log and -loss-: outgoing_schema per big save 26-48 ms
+  against 30-58 ms in the previous step; source_prepare, completion_save prepare and the settled
+  times (App win 722 ms, loss 726-761 ms) are within run-to-run noise. The removed copies are
+  real (one 450 KB and one 150 KB duplicate per validation, five validations per save) but the
+  write_atomic phase (34-76 ms) dominates each save, so no latency claim is attached to this step.

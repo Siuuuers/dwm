@@ -6,6 +6,7 @@ const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
 const DAY8_FIXTURE := "res://tests/fixtures/snapshots/invalid_day8.json"
 const SHAPES_FIXTURE := "res://tests/fixtures/snapshots/invalid_object_shapes.json"
 const V3_COMMITTED_FIXTURE := "res://tests/fixtures/snapshots/v3_committed_schedule.json"
+const CANONICAL_JSON_PATH := "res://scripts/validation/CanonicalJsonWriter.gd"
 
 func _schema_exists() -> bool:
 	return ResourceLoader.exists(SCHEMA_PATH, "Script")
@@ -454,3 +455,99 @@ func test_v3_pre_desktop_fixture_lacks_the_v4_member() -> void:
 	assert_false(snapshot.has("desktop"), "the pre-desktop fixture carries no desktop member")
 	assert_false((snapshot["lifecycle"] as Dictionary).has("branch_id"),
 		"the pre-desktop fixture's lifecycle carries no v4 identity members")
+
+
+func test_validate_normalizes_the_snapshot_without_a_prior_deep_copy() -> void:
+	# A1: validate() deep-copies the caller's snapshot and then hands the copy to
+	# _normalize_integral_floats, which already allocates a fresh Dictionary or Array at EVERY
+	# container node. The copy is therefore pure waste on every one of the five validate() calls a
+	# save makes. Removing it is allocation-only -- it has no value observable, because the
+	# normalizer's output is byte-for-byte the same tree either way -- so the source text is the
+	# observable, in the idiom of test_contact_scene_authors_no_identity_or_global_state_fallback.
+	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var source := FileAccess.get_file_as_string(SCHEMA_PATH)
+	assert_false(source.is_empty(), "the schema source must be readable")
+	assert_false(source.contains("_normalize_integral_floats(snapshot.duplicate(true))"),
+		"validate() must not deep-copy the snapshot before a walk that rebuilds every container")
+	assert_true(source.contains("_normalize_integral_floats(snapshot)"),
+		"validate() normalizes the caller's snapshot once, in place of the discarded copy")
+
+	# The invariant that makes the copy removable: a fresh container at every node, source untouched.
+	var tree := {"envelope": {"nested": [1.0, {"leaf": 2.0}]}}
+	var normalized: Variant = schema._normalize_integral_floats(tree)
+	assert_false(is_same(normalized, tree), "the normalizer allocates a fresh root")
+	assert_false(is_same(normalized["envelope"], tree["envelope"]),
+		"the normalizer allocates a fresh Dictionary at every node")
+	assert_false(is_same(normalized["envelope"]["nested"], tree["envelope"]["nested"]),
+		"the normalizer allocates a fresh Array at every node")
+	assert_false(is_same(normalized["envelope"]["nested"][1], tree["envelope"]["nested"][1]),
+		"the normalizer allocates a fresh container inside an Array too")
+	assert_eq(typeof(normalized["envelope"]["nested"][0]), TYPE_INT, "integral floats still normalize")
+	assert_eq(typeof(tree["envelope"]["nested"][0]), TYPE_FLOAT, "the normalizer never mutates its source")
+
+	# Proof obligation for the leaf types the normalizer passes through by reference rather than
+	# copying (Packed arrays, Objects): none of them can ever reach a saved document, so the
+	# removed copy protected nothing. Two independent owners refuse them.
+	assert_eq(schema.validate_primitive_tree({"probe": PackedInt32Array([1])}).get("code", &""),
+		&"invalid_primitive", "a Packed leaf is refused by the primitive sweep")
+	assert_eq(schema.validate_primitive_tree({"probe": RefCounted.new()}).get("code", &""),
+		&"invalid_primitive", "an Object leaf is refused by the primitive sweep")
+	var packed_snapshot := _fixture(VALID_FIXTURE)
+	packed_snapshot["narrative_checkpoint"] = {"probe": PackedInt32Array([1])}
+	assert_eq(schema.validate(packed_snapshot).get("code", &""), &"invalid_primitive",
+		"a Packed leaf inside a snapshot member is refused by validate")
+	var writer: Script = load(CANONICAL_JSON_PATH)
+	assert_eq(writer.stringify({"probe": PackedByteArray([1])}).get("code", &""), &"unsupported_type",
+		"CanonicalJsonWriter refuses a Packed leaf, so one can never be written to disk")
+	assert_eq(writer.stringify({"probe": PackedStringArray(["x"])}).get("code", &""), &"unsupported_type",
+		"every Packed variant is refused, not just bytes")
+
+func test_validate_neither_aliases_nor_mutates_the_caller_snapshot() -> void:
+	# A1 guard: with the defensive deep copy gone, detachment rests entirely on the normalizer
+	# rebuilding every container. Pin both directions at four independent depths so a future
+	# "optimization" that shares a subtree reddens here rather than in a save file.
+	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
+	if not _schema_exists():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var source := _fixture(VALID_FIXTURE)
+	var validated: Dictionary = schema.validate(source)
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	if not validated.get("ok", false):
+		return
+	var candidate: Dictionary = validated["value"]["candidate"]
+	assert_false(is_same(candidate, source), "the candidate is not the caller's snapshot")
+	assert_false(is_same(candidate["narrative_checkpoint"], source["narrative_checkpoint"]),
+		"a depth-1 member is not shared")
+	assert_false(is_same(candidate["gameplay"]["narrative_variables"],
+		source["gameplay"]["narrative_variables"]), "a depth-2 member is not shared")
+	assert_false(is_same(candidate["desktop"]["board"]["command_receipts"],
+		source["desktop"]["board"]["command_receipts"]), "a depth-3 member is not shared")
+	assert_false(is_same(candidate["applied_effect_transaction_ids"],
+		source["applied_effect_transaction_ids"]), "an Array member is not shared")
+
+	# Mutating the candidate cannot reach the caller.
+	(candidate["narrative_checkpoint"] as Dictionary)["injected"] = true
+	(candidate["gameplay"]["narrative_variables"] as Dictionary)["injected"] = true
+	(candidate["desktop"]["board"]["command_receipts"] as Dictionary)["injected"] = true
+	(candidate["applied_effect_transaction_ids"] as Array).append("injected")
+	assert_eq((source["narrative_checkpoint"] as Dictionary).size(), 0, "depth 1 stayed clean")
+	assert_eq((source["gameplay"]["narrative_variables"] as Dictionary).size(), 0, "depth 2 stayed clean")
+	assert_eq((source["desktop"]["board"]["command_receipts"] as Dictionary).size(), 0, "depth 3 stayed clean")
+	assert_eq((source["applied_effect_transaction_ids"] as Array).size(), 0, "the Array member stayed clean")
+
+	# Mutating the caller cannot reach a candidate that was already handed out.
+	(source["narrative_checkpoint"] as Dictionary)["late"] = true
+	(source["gameplay"]["narrative_variables"] as Dictionary)["late"] = true
+	(source["desktop"]["board"]["command_receipts"] as Dictionary)["late"] = true
+	(source["applied_effect_transaction_ids"] as Array).append("late")
+	assert_false((candidate["narrative_checkpoint"] as Dictionary).has("late"), "depth 1 stayed detached")
+	assert_false((candidate["gameplay"]["narrative_variables"] as Dictionary).has("late"),
+		"depth 2 stayed detached")
+	assert_false((candidate["desktop"]["board"]["command_receipts"] as Dictionary).has("late"),
+		"depth 3 stayed detached")
+	assert_eq((candidate["applied_effect_transaction_ids"] as Array).size(), 1,
+		"the Array member stayed detached")

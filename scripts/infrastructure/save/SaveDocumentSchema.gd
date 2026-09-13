@@ -69,7 +69,22 @@ static func build(
 	return {"ok": true, "code": &"ok", "value": document}
 
 static func validate(document: Dictionary) -> Dictionary:
-	var candidate := RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document.duplicate(true)) as Dictionary
+	# Normalize each envelope member, and NEVER the current bundle: its `snapshot` is rebuilt by
+	# `_validate_bundle()` -> `RunSnapshotSchema.validate()`, which normalizes it itself, and that
+	# candidate overwrites whatever a whole-document walk would have produced here. The caller's
+	# document is not deep-copied first either: `_normalize_integral_floats()` allocates a FRESH
+	# Dictionary/Array at every container node, so a prior `duplicate(true)` rebuilt the same tree
+	# twice. The leaves the normalizer passes through by reference rather than copying (Packed
+	# arrays, Objects) can never reach a saved document: `RunSnapshotSchema.validate_primitive_tree()`
+	# refuses them with `invalid_primitive` and `CanonicalJsonWriter._emit()` with `unsupported_type`.
+	# Member order and refusal order are unchanged: this loop preserves the document's own key
+	# order, and every check below still runs where it ran before.
+	var candidate := {}
+	for key: Variant in document:
+		if key == "current_snapshot":
+			candidate[key] = document[key]
+		else:
+			candidate[key] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document[key])
 	var keys: Array = candidate.keys()
 	keys.sort()
 	var expected := DOCUMENT_KEYS.duplicate()
@@ -92,10 +107,19 @@ static func validate(document: Dictionary) -> Dictionary:
 		return _fail(&"invalid_discriminator", discriminator_error)
 	if typeof(candidate["current_snapshot"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_document_shape", "current_snapshot must be an object")
-	var bundle_result := _validate_bundle(candidate["current_snapshot"])
+	var current_bundle: Dictionary = candidate["current_snapshot"]
+	var bundle_result := _validate_bundle(current_bundle)
 	if not bundle_result.get("ok", false):
 		return bundle_result
-	(candidate["current_snapshot"] as Dictionary)["snapshot"] = bundle_result["value"]["candidate"]
+	# `_validate_bundle()` proved this bundle holds exactly `checkpoint_kind` and `snapshot`, so
+	# compose the candidate's bundle from those two proven parts rather than mutating the caller's
+	# container. `checkpoint_kind` is a scalar and still goes through the normalizer, so its value
+	# and type are exactly what the whole-document walk produced.
+	candidate["current_snapshot"] = {
+		"checkpoint_kind": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
+			current_bundle["checkpoint_kind"]),
+		"snapshot": bundle_result["value"]["candidate"],
+	}
 	if typeof(candidate["recovery_journal"]) != TYPE_ARRAY:
 		return _fail(&"invalid_document_shape", "recovery_journal must be an array")
 	var journal_error := _validate_journal(candidate["recovery_journal"])
@@ -173,16 +197,36 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
 
 
+## Identity-preserving: a subtree that holds no StringName is returned AS IS, so the common
+## StringName-free build allocates nothing here. Exact mirror of
+## `SaveManagerCheckpointPort._normalize_json_string_types()`. Detachment is unaffected --
+## `build()` replaces the bundle with `_validate_bundle()`'s own candidate and still deep-copies
+## the journal when it composes the document -- so the persisted document never aliases an input.
 static func _normalize_engine_text(value: Variant) -> Variant:
 	match typeof(value):
 		TYPE_STRING_NAME: return String(value)
 		TYPE_ARRAY:
+			var source_array: Array = value
 			var array: Array = []
-			for element: Variant in value: array.append(_normalize_engine_text(element))
-			return array
+			var array_converted := false
+			for element: Variant in source_array:
+				var normalized_element: Variant = _normalize_engine_text(element)
+				if not is_same(normalized_element, element):
+					array_converted = true
+				array.append(normalized_element)
+			return array if array_converted else source_array
 		TYPE_DICTIONARY:
+			var source_dictionary: Dictionary = value
 			var dictionary := {}
-			for key: Variant in value:
-				dictionary[String(key) if typeof(key) == TYPE_STRING_NAME else key] = _normalize_engine_text(value[key])
-			return dictionary
+			var dictionary_converted := false
+			for raw_key: Variant in source_dictionary:
+				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
+				if not is_same(key, raw_key):
+					dictionary_converted = true
+				var member: Variant = source_dictionary[raw_key]
+				var normalized_member: Variant = _normalize_engine_text(member)
+				if not is_same(normalized_member, member):
+					dictionary_converted = true
+				dictionary[key] = normalized_member
+			return dictionary if dictionary_converted else source_dictionary
 	return value
