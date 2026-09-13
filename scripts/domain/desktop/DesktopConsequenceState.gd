@@ -915,11 +915,23 @@ func _adopt_state(state: Dictionary, proven_recovery_payload_sha256: String = ""
 	_pending = _dup_or_null(state["pending"])
 	_outbox = (state["outbox"] as Dictionary).duplicate(true)
 	_shop_ledger = (state["shop_ledger"] as Dictionary).duplicate(true)
-	# A pending adopted as null has no recovery payload left for any later seam to prove.
+	# Retention rule. A pending adopted as null has no recovery payload left for any seam to prove.
+	# A candidate carrying its own proof replaces whatever was retained. A candidate carrying none --
+	# every shop-ledger record committed at `sequence_committed`, and every plain `prepare_restore()`
+	# of a captured state -- keeps the retained proof only while the adopted pending declares the SAME
+	# `recovery_payload_sha256` string. That proof was derived over the bytes which declare that
+	# string, and no code path mutates `recovery_payload` in place (every later tree is a
+	# duplicate(true) of the one the transaction minted once), so the declared-hash equality is exactly
+	# the trust the restore seam already relies on. It admits nothing either: `_validate_pending()`
+	# compares the token against the declared hash before skipping, so a stale or wrong token can only
+	# ever cost one full derivation.
 	if _pending == null:
 		_proven_pending_payload_sha256 = ""
-	else:
+	elif not proven_recovery_payload_sha256.is_empty():
 		_proven_pending_payload_sha256 = proven_recovery_payload_sha256
+	elif str((_pending as Dictionary).get("recovery_payload_sha256", "")) != _proven_pending_payload_sha256:
+		# Different declared bytes: the retained proof was made over the old ones.
+		_proven_pending_payload_sha256 = ""
 
 
 # -------------------------------------------------------------------------------------------------

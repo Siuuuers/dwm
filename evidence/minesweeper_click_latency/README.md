@@ -55,3 +55,18 @@ The markers cost one boolean per phase while the variables are unset.
   771-790 ms, loss 746-825 ms. The three forward ordinals (8, 9, 10: prepare 30-36 ms,
   live_restore 13-16 ms) did not move because token-less adopts between them (outbox
   publications, the detached notification restore) reset the retained proof; that is the next step.
+
+### Step 1b: keep the proven hash across token-less adopts, and Step 2: identity-preserving normalization (commits after d590f5513)
+
+- settlement3-step1b-step2-red-d590f5513.log: consequence state and checkpoint port suites, 76 passing /
+  2 failing: the three keep rows of test_token_less_adopt_keeps_the_token... and the three identity
+  rows of test_normalized_preimage_is_deep_equal_and_never_aliases... fail for their own reasons.
+- settlement3-step1b-step2-green-d590f5513.log: ten suites GREEN, 257 passing / 0 failing (the nine of
+  Step 1 plus test_desktop_consequence_restore_participant).
+- settlement3-step1b-step2-profile-win-d590f5513.log and -loss-: inside accept_prepared_action the
+  forward ordinals now carry the proof: ordinal_8/9/10 prepare 30-36 -> 20-22 ms, their live
+  restores 13-16 -> 0.7-1.2 ms, progress_causal_sequence and progress_action_source 48-54 -> 26-28 ms;
+  prepare_and_forward_inclusive 437-493 ms against 546 in the marker run. App win settled 716-793 ms,
+  loss 742-758 ms; dating settled 433-517 ms; first reveals unchanged within noise. The
+  identity-preserving normalizer (Step 2) is not separable in these numbers from run noise; its
+  expected 4 ms per checkpoint sits inside the 20 ms prepare figures above.

@@ -998,3 +998,104 @@ func test_prepare_recovery_advance_carries_the_proven_hash_on_every_edge() -> vo
 		"the cleanup edge is the pending-null edge")
 	assert_eq(str((cleanup["value"] as Dictionary).get("proven_recovery_payload_sha256", "<missing>")),
 		proven, "the cleanup edge carries the same proof for the payload it just finished publishing")
+
+
+# -------------------------------------------------------------------------------------------------
+# Step 1b: `_adopt_state()`'s retention rule. Step 1 threaded the proof through the restore seam, but
+# every OTHER candidate committed while a transaction is live carries no proof of its own -- the shop
+# ledger recorders run at `sequence_committed` on purpose (see their own doc comment), and a plain
+# `prepare_restore()` of a captured state carries none either -- so an overwrite-always rule drops the
+# proof before the forward edges ever see it. A token-less adopt whose pending declares the SAME
+# `recovery_payload_sha256` string keeps it: the proof was made over the bytes that declare that
+# string, and no path mutates `recovery_payload` in place. A different declared hash, or a pending
+# adopted as null, discards it; a candidate carrying its own proof replaces it.
+# -------------------------------------------------------------------------------------------------
+
+## The ordinary-edge proof token, read through the public advance return rather than the retained
+## field. Prepares only -- nothing is committed, so a row may call this as often as it likes.
+func _ordinary_advance_token(state: RefCounted) -> String:
+	var advanced: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["notify"],
+			"next_callback_index": 1, "callback_receipts": {"notify": {}}})
+	assert_true(advanced.get("ok", false), JSON.stringify(advanced))
+	return str((advanced["value"] as Dictionary).get("proven_recovery_payload_sha256", "<missing>"))
+
+
+func test_token_less_adopt_keeps_the_token_when_the_adopted_pending_declares_the_same_hash() -> void:
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	var proven := str((captured["pending"] as Dictionary)["recovery_payload_sha256"])
+	var adopted: Dictionary = state.prepare_restore(captured, proven)
+	assert_true(adopted.get("ok", false), JSON.stringify(adopted))
+	assert_true(state.commit(adopted["value"]["candidate"]).get("ok", false))
+	assert_eq(_ordinary_advance_token(state), proven, "baseline: the restore seam retained the proof")
+
+	# A Supportz purchase is a real token-less candidate committed while this very pending is still
+	# live at sequence_committed (prepare_record_supportz_purchase's own documented boundary).
+	var purchase: Dictionary = state.prepare_record_supportz_purchase("txn-supportz-1", "causal-day-1")
+	assert_true(purchase.get("ok", false), JSON.stringify(purchase))
+	var purchase_candidate: Dictionary = purchase["value"]["candidate"]
+	assert_false(purchase_candidate.has("proven_recovery_payload_sha256"),
+		"a shop-ledger candidate carries no proof of its own")
+	assert_true(state.commit(purchase_candidate).get("ok", false))
+	assert_eq(str((state.capture()["value"]["state"]["pending"] as Dictionary)["recovery_payload_sha256"]),
+		proven, "the adopted pending still declares the same payload hash")
+	assert_eq(_ordinary_advance_token(state), proven,
+		"a token-less adopt of a pending that declares the same hash keeps the proof")
+
+	# The same for a base-completion record, the other shop-ledger recorder.
+	var completion: Dictionary = state.prepare_record_base_completion(_completion(1, "causal-day-1"))
+	assert_true(completion.get("ok", false), JSON.stringify(completion))
+	assert_true(state.commit(completion["value"]["candidate"]).get("ok", false))
+	assert_eq(_ordinary_advance_token(state), proven,
+		"a base-completion record between two edges does not cost the next edge its proof")
+
+	# And for a plain token-less restore of the state as captured.
+	var recaptured: Dictionary = state.capture()["value"]["state"]
+	var token_less: Dictionary = state.prepare_restore(recaptured)
+	assert_true(token_less.get("ok", false), JSON.stringify(token_less))
+	assert_eq(str((token_less["value"]["candidate"] as Dictionary).get("proven_recovery_payload_sha256", "<missing>")),
+		"", "the candidate itself still carries no proof")
+	assert_true(state.commit(token_less["value"]["candidate"]).get("ok", false))
+	assert_eq(_ordinary_advance_token(state), proven,
+		"restoring the same declared bytes without a proof keeps the one already made over them")
+
+
+func test_adopt_discards_the_token_on_a_different_hash_or_a_null_pending_and_replaces_a_carried_one() -> void:
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	var proven := str((captured["pending"] as Dictionary)["recovery_payload_sha256"])
+	assert_true(state.commit(state.prepare_restore(captured, proven)["value"]["candidate"]).get("ok", false))
+	assert_eq(_ordinary_advance_token(state), proven, "baseline: the proof is retained")
+
+	# Different payload bytes, honestly re-declared: the retained proof is about the OLD bytes, so it
+	# must not survive -- the declared-hash equality is the whole basis for keeping it.
+	var rebound: Dictionary = state.capture()["value"]["state"]
+	var rebound_pending: Dictionary = rebound["pending"]
+	var other_payload: Dictionary = (rebound_pending["recovery_payload"] as Dictionary).duplicate(true)
+	other_payload["run_revision_before"] = 3
+	var other_hash := _sha256(other_payload)
+	assert_true(other_hash != proven, "the rebound payload really does hash differently")
+	rebound_pending["recovery_payload"] = other_payload
+	rebound_pending["recovery_payload_sha256"] = other_hash
+	var rebound_restore: Dictionary = state.prepare_restore(rebound)
+	assert_true(rebound_restore.get("ok", false), JSON.stringify(rebound_restore))
+	assert_true(state.commit(rebound_restore["value"]["candidate"]).get("ok", false))
+	assert_eq(_ordinary_advance_token(state), "",
+		"a pending declaring a different hash discards the old proof instead of carrying it forward")
+
+	# A candidate carrying its own proof replaces whatever was retained.
+	var replaced: Dictionary = state.prepare_restore(rebound, other_hash)
+	assert_true(replaced.get("ok", false), JSON.stringify(replaced))
+	assert_true(state.commit(replaced["value"]["candidate"]).get("ok", false))
+	assert_eq(_ordinary_advance_token(state), other_hash,
+		"a candidate carrying a proof replaces the retained token")
+
+	# A pending adopted as null has no payload left to prove, even when the candidate carried a proof.
+	var empty_state: Dictionary = _STATE_SCRIPT.make_empty(_provenance())["value"]["state"]
+	var cleared: Dictionary = state.prepare_restore(empty_state, other_hash)
+	assert_true(cleared.get("ok", false), JSON.stringify(cleared))
+	assert_true(state.commit(cleared["value"]["candidate"]).get("ok", false))
+	assert_eq(str(state.get("_proven_pending_payload_sha256")), "",
+		"adopting a null pending clears the retained token")
