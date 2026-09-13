@@ -1,0 +1,81 @@
+--- a/tests/unit/test_checkpoint_preparation_retry.gd
++++ b/tests/unit/test_checkpoint_preparation_retry.gd
+@@ -58,0 +59,30 @@
++
++func test_successful_prepare_detaches_candidate_from_nested_checkpoint_input() -> void:
++	var wired: Dictionary = fixture._wired()
++	var input: Dictionary = _inputs(wired, 301)
++	var expected: Dictionary = input.duplicate(true)
++	var prepared: Dictionary = wired.port.prepare(input, &"post_result",
++		{"kind": &"autosave", "reason": &"automatic"})
++	assert_true(prepared.get("ok", false), str(prepared))
++	assert_eq(input, expected, "successful preparation is read-only over its source input")
++	if not prepared.get("ok", false): return
++	var candidate: Dictionary = prepared.value.candidate
++	var snapshot: Dictionary = candidate.autosave_document.current_snapshot.snapshot
++	snapshot.gameplay.money = 999
++	snapshot.applied_effect_transaction_ids.append("effect.alias.probe")
++	snapshot.contacts["alias_probe"] = {"nested": ["candidate-only"]}
++	assert_eq(input, expected,
++		"mutating nested prepared output cannot reach gameplay, arrays, or Contacts in the input")
++
++
++func test_prepare_read_refusal_leaves_nested_checkpoint_input_unchanged() -> void:
++	var wired: Dictionary = _saved()
++	var input: Dictionary = _inputs(wired, 302)
++	var expected: Dictionary = input.duplicate(true)
++	wired.files.fail_after(wired.files.operation_count() + 1)
++	var refused: Dictionary = wired.port.prepare(input, &"post_result",
++		{"kind": &"autosave", "reason": &"automatic"})
++	assert_false(refused.get("ok", true))
++	assert_eq(refused.get("code"), &"reconcile_required", str(refused))
++	assert_eq(input, expected, "a real storage refusal cannot mutate any checkpoint-input branch")
++
+--- a/tests/unit/test_minesweeper_round_coordinator.gd
++++ b/tests/unit/test_minesweeper_round_coordinator.gd
+@@ -63,0 +64 @@
++	var fail_prepare := false
+@@ -67,0 +69,2 @@
++		if fail_prepare:
++			return {"ok": false, "code": &"injected_source_prepare_failure", "message": ""}
+@@ -118,0 +122,2 @@
++var _source_capture_bundle: Dictionary = {}
++var _source_capture_expected: Dictionary = {}
+@@ -137,0 +143,2 @@
++	_source_capture_bundle = {}
++	_source_capture_expected = {}
+@@ -914,0 +922,22 @@
++	assert_eq(_source_capture_bundle, _source_capture_expected,
++		"board substitution and checkpoint preparation leave the callback-owned bundle unchanged")
++	assert_true(bool(_source_capture_bundle.snapshot_input.desktop.board.board.board.terminal),
++		"the callback retains its original terminal board while the safe marker receives the replay point")
++
++
++func test_complete_round_source_prepare_refusal_does_not_mutate_callback_bundle() -> void:
++	_reveal_first(_next_tx(), "beginner", 0)
++	var identity: Dictionary = _entry_identity_after_first_reveal()
++	var before_terminal: Dictionary = _coordinator.get_state()["value"].duplicate(true)
++	assert_true(_coordinator.reveal(_cell_request_with_real_transaction(identity, 1, 1)).get("ok", false))
++	var recorder := SafeMarkerRecorder.new()
++	recorder.fail_prepare = true
++	_coordinator._round_checkpoint_port = recorder
++	assert_true(_coordinator.configure_source_checkpoint_capture(Callable(self, "_capture_source_inputs")).get("ok", false))
++	var result: Dictionary = _coordinator.complete_round(_complete_round_request(_next_tx()))
++	assert_false(result.get("ok", true))
++	assert_eq(result.get("code"), &"injected_source_prepare_failure")
++	assert_eq(recorder.captured_inputs.snapshot_input.desktop.board, before_terminal,
++		"the refused safe marker still receives only the proven pre-terminal board")
++	assert_eq(_source_capture_bundle, _source_capture_expected,
++		"a downstream prepare refusal cannot mutate the callback-owned tree")
+@@ -928 +957,10 @@
+-	return {"ok": true, "value": {"checkpoint_inputs": {"snapshot_input": {"desktop": {"board": _coordinator.get_state()["value"]}}, "dialogic_checkpoint": {}}}}
++	_source_capture_bundle = {
++		"snapshot_input": {
++			"desktop": {"board": _coordinator.get_state()["value"]},
++			"gameplay": {"nested": {"values": [1, {"retained": true}]}},
++			"contacts": {"nested": {"message_ids": ["source-message"]}},
++		},
++		"dialogic_checkpoint": {"nested": {"event_ids": ["source-event"]}},
++	}
++	_source_capture_expected = _source_capture_bundle.duplicate(true)
++	return {"ok": true, "value": {"checkpoint_inputs": _source_capture_bundle}}
