@@ -291,3 +291,113 @@ func test_unregistered_id_refuses_without_history_write() -> void:
 
 func test_registered_cross_owner_id_refuses_without_history_write() -> void:
 	await _assert_refused_id("cross_owner", "line.contact.ordinary.priscilla.day3.reply.a")
+
+
+func test_skip_availability_reads_without_revealing_or_writing() -> void:
+	assert_false(_bridge.can_skip_current_line())
+	if not await _start(): return
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var frontier: Dictionary = _adapter.capture_pause_frontier()
+	assert_true(_bridge.can_skip_current_line())
+	assert_false(_bridge.is_rehearsal_playback())
+	assert_true(_bridge.can_skip_current_line())
+	assert_eq(_profile.get_profile_snapshot(), before, "availability cannot witness a line")
+	assert_eq(_adapter.capture_pause_frontier(), frontier, "availability cannot advance or reveal")
+
+
+func test_rehearsal_has_no_skip_history_mutation() -> void:
+	if not _ready_fixture: return
+	FixtureCatalog.fixture_label = ENTRY
+	var started: Dictionary = _bridge.start_entry(ENTRY, {
+		"expected_stage": "current_entry", "playback_id": "skip-rehearsal-fixture",
+		"role": "primary", "transaction_id": "skip-rehearsal-transaction"}, &"rehearsal")
+	assert_true(started.get("ok", false), str(started))
+	if not started.get("ok", false): return
+	for frame: int in 4: await get_tree().process_frame
+	var before: Dictionary = _profile.get_profile_snapshot()
+	assert_true(_bridge.is_rehearsal_playback())
+	assert_false(_bridge.can_skip_current_line())
+	assert_eq(_bridge.request_skip_step().get("code"), &"rehearsal_commit_denied")
+	assert_eq(_profile.get_profile_snapshot(), before)
+
+
+func test_mounted_rail_uses_real_skip_and_keeps_unimplemented_owners_disabled() -> void:
+	if not await _start(): return
+	var layout: Node = _runtime.Styles.get_layout_node()
+	var layer: Node
+	for candidate: Node in layout.get_layers():
+		if candidate.get_script().resource_path == "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd":
+			layer = candidate
+	assert_not_null(layer, "native production style mounts the caption rail")
+	if layer == null: return
+	assert_true(layer.configure_reading_transport(_profile, _bridge))
+	var rail: Control = layer.transport_rail
+	assert_true(rail.visible)
+	assert_eq(rail.get_child_count(), 6)
+	var skip: Button = rail.get_node("Skip")
+	assert_false(skip.disabled)
+	assert_eq(layer.caption_text.get_node(layer.caption_text.focus_next), skip)
+	assert_eq(skip.get_node(skip.focus_next), layer.caption_text)
+	for command: String in ["History", "Auto", "Save", "Load", "Next"]:
+		var button: Button = rail.get_node(command)
+		assert_true(button.disabled, command + " has no completed owner yet")
+		assert_eq(button.focus_mode, Control.FOCUS_NONE)
+	var index: int = _runtime.current_event_idx
+	await get_tree().process_frame
+	skip.grab_focus()
+	for pressed: bool in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_ENTER
+		key.physical_keycode = KEY_ENTER
+		key.pressed = pressed
+		Input.parse_input_event(key)
+	Input.flush_buffered_events()
+	assert_true(layer.skip_controller.is_skip_active(), "the actual focused rail button starts Skip")
+	for frame: int in 4: await get_tree().process_frame
+	assert_false(layer.skip_controller.is_skip_active(), "read-only stops at unseen prose")
+	assert_true(_profile.is_line_visited(LINE_A), "the existing bridge durably marks the revealed line")
+	assert_eq(_runtime.current_event_idx, index, "first unseen line is revealed, never crossed")
+	for candidate: Node in layout.get_layers():
+		if candidate.has_method("get_show_history_button"):
+			assert_false(candidate.get_show_history_button().visible, "no seventh addon History control")
+	assert_true(_profile.set_preference(&"preferences.reading.skip_mode", "all_text").get("ok", false))
+	var button_generation: int = skip._generation
+	assert_true(layer.skip_controller.toggle_skip().get("ok", false))
+	for frame: int in 6: await get_tree().process_frame
+	assert_true(_profile.is_line_visited(LINE_B), "the pump continues across ordinary prose")
+	assert_false(layer.skip_controller.is_skip_active(), "the pump stops before native Return")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B)
+	assert_gt(skip._generation, button_generation, "a new beat retires pending rail activation")
+
+
+func test_native_normal_accept_stops_skip_before_the_dialogic_command() -> void:
+	if not await _start(): return
+	var layer: Node
+	for candidate: Node in _runtime.Styles.get_layout_node().get_layers():
+		if candidate.get_script().resource_path == "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd":
+			layer = candidate
+	assert_not_null(layer)
+	if layer == null: return
+	assert_true(layer.configure_reading_transport(_profile, _bridge))
+	_runtime.Text.skip_text_reveal()
+	_runtime.Inputs.input_block_timer.stop()
+	layer.caption_text.grab_focus()
+	var before_index: int = _runtime.current_event_idx
+	var observed: Array[Dictionary] = []
+	layer.accept_input.normal_accept_requested.connect(func():
+		observed.append({"skip_active": layer.skip_controller.is_skip_active(), "index": _runtime.current_event_idx}))
+	assert_true(layer.skip_controller.toggle_skip().get("ok", false))
+	assert_true(layer.skip_controller.is_skip_active())
+	for pressed: bool in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_ENTER
+		key.physical_keycode = KEY_ENTER
+		key.pressed = pressed
+		Input.parse_input_event(key)
+	Input.flush_buffered_events()
+	for frame: int in 3: await get_tree().process_frame
+	assert_eq(observed, [{"skip_active": false, "index": before_index}],
+		"the mounted policy retires Skip before calling the real Inputs owner")
+	assert_false(layer.skip_controller.is_skip_active())
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B, "normal Accept advances exactly once")
+	assert_false(_profile.is_line_visited(LINE_B), "no queued Skip step consumes the new line")

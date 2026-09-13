@@ -1,14 +1,19 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedCaptionLayer.gd" id="1_layer"]
 [ext_resource type="Script" path="res://addons/dialogic/Modules/Text/node_dialog_text.gd" id="2_text"]
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAcceptInput.gd" id="3_input"]
+[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedSkipController.gd" id="4_skip"]
+[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedTransportRail.gd" id="5_rail"]
 
 [node name="WitnessedCaptionLayer" type="Node"]
 script = ExtResource("1_layer")
 
 [node name="AcceptInput" type="Node" parent="."]
 script = ExtResource("3_input")
+
+[node name="SkipController" type="Node" parent="."]
+script = ExtResource("4_skip")
 
 [node name="Canvas" type="Control" parent="."]
 layout_mode = 0
@@ -71,3 +76,11 @@ layout_mode = 0
 offset_right = 1280.0
 offset_bottom = 720.0
 mouse_filter = 2
+
+[node name="TransportRail" type="Control" parent="Canvas"]
+layout_mode = 0
+offset_top = 656.0
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+script = ExtResource("5_rail")

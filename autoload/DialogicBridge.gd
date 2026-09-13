@@ -926,6 +926,20 @@ func set_skip_mode(mode: StringName) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"mode": mode}, "receipt": {}}
 
 
+## Read-only UI admission; never reveals, witnesses, or advances an event.
+func can_skip_current_line() -> bool:
+	if is_rehearsal_playback() or _active_entry.is_empty() or not _pause_handle.is_empty() \
+			or not is_instance_valid(_skip_profile) or _runtime_adapter == null:
+		return false
+	var line_id: String = str(_runtime_adapter.current_line_id())
+	return _skip_line_owners.has(line_id) \
+		and _skip_line_owners[line_id] == _active_entry.get("entry_id")
+
+
+func is_rehearsal_playback() -> bool:
+	return not _reached_replay.is_empty() or _active_entry.get("execution_mode", &"canonical") == &"rehearsal"
+
+
 ## One held-skip step, in the exact frozen order: read the PRE-reveal visited state, reveal, mark
 ## visited, classify the next event WITHOUT consuming it, evaluate, advance only when allowed.
 func request_skip_step() -> Dictionary:
@@ -938,7 +952,7 @@ func request_skip_step() -> Dictionary:
 
 
 func _perform_skip_step() -> Dictionary:
-	if not _reached_replay.is_empty(): return _command_failure(&"rehearsal_commit_denied")
+	if is_rehearsal_playback(): return _command_failure(&"rehearsal_commit_denied")
 	if not _pause_handle.is_empty():
 		return _command_failure(&"narrative_suspended")
 	if _skip_profile == null or _runtime_adapter == null:

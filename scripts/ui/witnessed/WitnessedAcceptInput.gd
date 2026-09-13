@@ -1,6 +1,8 @@
 extends Node
 ## Mounted policy for the current caption. Dialogic Inputs remains the command owner.
 
+signal normal_accept_requested
+
 const ACTION_SETTING := "dialogic/text/input_action"
 const TAP_LIMIT_MSEC := 500
 
@@ -75,6 +77,10 @@ func _admissible() -> bool:
 	return _source_has_custody() and not get_tree().paused and _foreground and is_instance_valid(_runtime) and not bool(_runtime.get("paused")) \
 		and is_instance_valid(_caption) and _caption.is_visible_in_tree() \
 		and not _caption.get_parsed_text().is_empty()
+
+
+func is_source_admitted() -> bool:
+	return _admissible()
 
 func _process(_delta: float) -> void:
 	if not _candidate.is_empty() and (not _admissible() \
@@ -229,6 +235,7 @@ func _submit(pointer: bool) -> void:
 	var inputs: Object = _runtime.call("get_subsystem", "Inputs")
 	if inputs != null:
 		inputs.set("input_was_mouse_input", pointer)
+		normal_accept_requested.emit()
 		inputs.call("handle_input")
 		if is_instance_valid(inputs):
 			inputs.set("input_was_mouse_input", false)

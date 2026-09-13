@@ -35,6 +35,10 @@ var _pause_capture_id := 0
 var _pause_anchor: Dictionary = {}
 var _pause_view: Dictionary = {}
 var _pause_covered := false
+var _transport_bridge: Object
+var _transport_configured := false
+var _transport_input_bound := false
+var _rail_focus_enabled := false
 
 @onready var canvas: Control = $Canvas
 @onready var scroll: ScrollContainer = $Canvas/Scroll
@@ -44,6 +48,8 @@ var _pause_covered := false
 @onready var previous: RichTextLabel = $Canvas/Scroll/Stack/Previous
 @onready var overlay: Control = $Canvas/Overlay
 @onready var accept_input: Node = $AcceptInput
+@onready var skip_controller: Node = $SkipController
+@onready var transport_rail: Control = $Canvas/TransportRail
 
 func _ready() -> void:
 	super._ready()
@@ -72,6 +78,14 @@ func _ready() -> void:
 	_apply_preferences()
 	var runtime := get_node_or_null("/root/Dialogic")
 	accept_input.bind(caption_text, scroll, runtime)
+	accept_input.normal_accept_requested.connect(_retire_transport)
+	transport_rail.skip_requested.connect(_on_skip_requested)
+	skip_controller.state_changed.connect(_sync_transport)
+	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
+	var input_owner := get_node_or_null("/root/InputManager")
+	_transport_input_bound = transport_rail.bind_admission(_transport_admitted, input_owner)
+	if input_owner != null and input_owner.has_signal("source_input_custody_changed"):
+		input_owner.connect("source_input_custody_changed", _retire_transport)
 	if runtime != null and runtime.has_method("get_subsystem"):
 		var text_owner: Object = runtime.call("get_subsystem", "Text")
 		if text_owner != null:
@@ -79,6 +93,57 @@ func _ready() -> void:
 			text_owner.connect("text_started", _on_text_started)
 		if runtime.has_signal("timeline_started"):
 			runtime.connect("timeline_started", _on_timeline_started)
+		runtime.connect("timeline_ended", _retire_transport)
+		runtime.connect("dialogic_paused", _retire_transport)
+	_sync_transport()
+
+func configure_reading_transport(profile: Object, bridge: Object) -> bool:
+	if not is_node_ready() or not is_instance_valid(bridge) \
+			or not bridge.has_method("can_skip_current_line"):
+		return false
+	if not skip_controller.configure(profile, bridge, _transport_admitted): return false
+	_transport_bridge = bridge
+	_transport_configured = true
+	_sync_transport()
+	return _transport_configured
+
+func _transport_admitted() -> bool:
+	return _transport_configured and _transport_input_bound and not _pause_covered and is_instance_valid(transport_rail) \
+		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
+		and is_instance_valid(_transport_bridge) \
+		and bool(_transport_bridge.call("can_skip_current_line"))
+
+func _sync_transport() -> void:
+	if not is_instance_valid(transport_rail): return
+	var rehearsal := is_instance_valid(_transport_bridge) \
+		and _transport_bridge.has_method("is_rehearsal_playback") \
+		and bool(_transport_bridge.call("is_rehearsal_playback"))
+	transport_rail.visible = not rehearsal
+	transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(), skip_controller.is_auto_enabled())
+	var skip: Control = transport_rail.get_node_or_null("Skip")
+	var enabled := skip != null and skip.focus_mode != Control.FOCUS_NONE
+	if enabled == _rail_focus_enabled: return
+	_rail_focus_enabled = enabled
+	if enabled:
+		caption_text.focus_next = caption_text.get_path_to(skip)
+		caption_text.focus_previous = caption_text.get_path_to(skip)
+		skip.focus_next = skip.get_path_to(caption_text)
+		skip.focus_previous = skip.get_path_to(caption_text)
+	else:
+		caption_text.focus_next = NodePath()
+		caption_text.focus_previous = NodePath()
+
+func _on_skip_requested() -> void:
+	skip_controller.toggle_skip()
+	_sync_transport()
+
+func _retire_transport() -> void:
+	if is_instance_valid(skip_controller): skip_controller.stop_skip()
+	if is_instance_valid(transport_rail): transport_rail.retire_input()
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT]:
+		_retire_transport()
 
 func configure_run_presentation(owner: Object) -> bool:
 	var context := RUN_PRESENTATION.read(owner)
@@ -89,6 +154,7 @@ func configure_run_presentation(owner: Object) -> bool:
 	return true
 
 func _on_timeline_started() -> void:
+	_retire_transport()
 	# A reused layout observes the installed run at this boundary, never during reveal.
 	var owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	configure_run_presentation(owner)
@@ -112,6 +178,7 @@ func cover_pause_view(anchor: Dictionary) -> bool:
 	if not _valid_pause_anchor(anchor): return false
 	if _pause_covered: return true
 	_pause_covered = true
+	_retire_transport()
 	accept_input.cancel_pending_accept()
 	# Ancestor visibility hides the complete source from pointer and assistive traversal,
 	# without assigning empty text or changing the native node's own visibility flag.
@@ -179,8 +246,10 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 				bar.hide()
 				bar.show()
 		canvas.theme = next_theme
+		transport_rail.configure_presentation(next_theme, _locale)
 		# Colour-only updates preserve native reveal, scroll and pending contacts.
 		if metrics_changed or first_mount:
+			_retire_transport()
 			accept_input.cancel_pending_accept()
 			_layout_stack()
 		canvas.queue_redraw()
@@ -244,6 +313,9 @@ func get_caption_projection() -> Dictionary:
 	}
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
+	# A press or queued assistive action belongs to its presented beat. The Skip
+	# session itself may continue across ordinary text through the bridge policy.
+	if is_instance_valid(transport_rail): transport_rail.retire_input()
 	# Runs before replacement, catching a clear even when its native node was already hidden.
 	if caption_text.get_parsed_text().is_empty():
 		reset_caption_stack()
@@ -260,6 +332,7 @@ func _on_text_started(info: Dictionary) -> void:
 	_layout_stack(true)
 
 func _on_caption_visibility_changed() -> void:
+	if is_instance_valid(transport_rail): transport_rail.retire_input()
 	_sync_native_processing()
 	if caption_text.get_parsed_text().is_empty():
 		_retained.clear()
@@ -317,6 +390,7 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 		_apply_preferences()
 
 func _process(_delta: float) -> void:
+	_sync_transport()
 	if _caption_theme == null:
 		return
 	_sync_native_processing()

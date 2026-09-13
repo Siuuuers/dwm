@@ -683,6 +683,12 @@ func test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal() -> vo
 	assert_eq(_history(),history_before)
 	assert_eq(runtime.current_event_idx,0,"the actual timeline remains valid during the clear hold")
 	assert_eq(_ended,0)
+	assert_true(caption.transport_rail.is_visible_in_tree(), "a silent hold keeps the stationary rail")
+	assert_eq(caption.transport_rail.position, Vector2(0,656))
+	for button: Button in caption.transport_rail.get_children():
+		assert_true(button.disabled, "no narrative command is admitted without current prose")
+		assert_eq(button.focus_mode, Control.FOCUS_NONE)
+		assert_false(button.has_focus())
 
 func test_hiding_and_showing_incomplete_caption_pauses_without_cancelling_its_reveal() -> void:
 	if not _mount(): return
