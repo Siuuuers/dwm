@@ -971,3 +971,130 @@ func test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_nat
 	assert_false(CANONICAL_JSON._can_use_native_encoder(document),
 		"the whole document is not native-eligible (float in an earlier bundle)")
 	_assert_autosave_matches_full_writer(wired, third, "third autosave vs the whole-document writer")
+
+
+# -------------------------------------------------------------------------------------------------
+# Identity-preserving `_normalize_json_string_types` (click-latency Step 2). The normalizer allocates
+# a fresh Dictionary/Array for every node of every preimage even though the recovery_payload subtree
+# contains no StringName at all. Returning the ORIGINAL container when no descendant was converted
+# must change nothing a caller can observe: the result stays deep-equal (int and float provenance
+# included) to its input with every StringName turned into a String, the record the port stores must
+# still be fully detached from the caller's stage_candidate, and the port's own receipt attachment
+# must still be confined to the private tree `_validate_for_preimage()` already detached.
+# -------------------------------------------------------------------------------------------------
+
+## Independent, always-copying StringName -> String conversion. The row below compares the port's
+## normalization against THIS, so an identity-preserving implementation cannot supply its own oracle.
+func _as_json_string_types(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_STRING_NAME:
+			return String(value)
+		TYPE_ARRAY:
+			var converted_array: Array = []
+			for item: Variant in value as Array:
+				converted_array.append(_as_json_string_types(item))
+			return converted_array
+		TYPE_DICTIONARY:
+			var converted_dictionary: Dictionary = {}
+			for raw_key: Variant in value as Dictionary:
+				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
+				converted_dictionary[key] = _as_json_string_types((value as Dictionary)[raw_key])
+			return converted_dictionary
+		_:
+			return value
+
+
+func test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_candidate() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+
+	# 1. Identity preservation, observed directly on the normalizer.
+	var no_names := {"integer": 7, "fraction": 1.25, "text": "plain", "list": [1, 2.5, "x"],
+		"nested": {"deep": [true, null]}}
+	var untouched: Variant = port._normalize_json_string_types(no_names)
+	assert_true(is_same(untouched, no_names),
+		"a subtree with no StringName anywhere is returned as the SAME container, not a fresh copy")
+	assert_eq(typeof((untouched as Dictionary)["integer"]), TYPE_INT)
+	assert_eq(typeof((untouched as Dictionary)["fraction"]), TYPE_FLOAT,
+		"int and float provenance stays exact through normalization")
+
+	var sibling := {"keep": [3, 4], "deeper": {"still": "here"}}
+	var with_name := {"named": &"probe", "sibling": sibling}
+	var converted: Variant = port._normalize_json_string_types(with_name)
+	assert_false(is_same(converted, with_name), "a converted descendant forces a new container")
+	assert_eq(typeof((converted as Dictionary)["named"]), TYPE_STRING)
+	assert_eq(str((converted as Dictionary)["named"]), "probe")
+	assert_true(is_same((converted as Dictionary)["sibling"], sibling),
+		"a sibling container with nothing to convert keeps its identity inside the rebuilt parent")
+	assert_eq(typeof(with_name["named"]), TYPE_STRING_NAME,
+		"the caller's own StringName is never converted in place")
+
+	var deep_sibling := {"keep": [5, 6]}
+	var deep := {"inner": {"named": &"deep-probe"}, "sibling": deep_sibling}
+	var deep_converted: Dictionary = port._normalize_json_string_types(deep)
+	assert_false(is_same(deep_converted, deep), "the rebuild propagates up the path that converted")
+	assert_false(is_same(deep_converted["inner"], deep["inner"]), "the converting node itself is rebuilt")
+	assert_true(is_same(deep_converted["sibling"], deep_sibling),
+		"the rebuild is confined to the path containing the conversion")
+	assert_eq(typeof((deep_converted["inner"] as Dictionary)["named"]), TYPE_STRING)
+
+	# 2. Deep equality on a REAL consequence preimage, against the independent oracle above.
+	var candidate_state := _admitted_state_candidate()
+	var preimage: Dictionary = CONSEQUENCE_STATE.checkpoint_content_preimage(_header(), candidate_state)
+	assert_true(preimage.get("ok", false), JSON.stringify(preimage))
+	var preimage_value: Dictionary = (preimage["value"] as Dictionary)["preimage"]
+	var expected_hash := _canonical_text(preimage_value).sha256_text()
+	var normalized_preimage: Dictionary = port._normalize_json_string_types(preimage_value)
+	assert_eq(normalized_preimage, _as_json_string_types(preimage_value),
+		"the normalized preimage is deep-equal to its input with every StringName turned into a String")
+	assert_eq(typeof((preimage_value["stage_candidate"] as Dictionary)["pending"]["stage"]), TYPE_STRING_NAME,
+		"normalizing the preimage does not convert the caller's own values in place")
+	assert_eq(typeof((normalized_preimage["stage_candidate"] as Dictionary)["pending"]["stage"]), TYPE_STRING)
+	assert_eq(typeof((normalized_preimage["stage_candidate"] as Dictionary)["pending"]
+		["recovery_payload"]["participant_snapshot_ids"]["marker"]), TYPE_INT,
+		"an integer deep inside the recovery payload is never widened to a float")
+
+	# 3. The prepared record is deep-equal to that same expectation, apart from the receipt the port
+	# attaches to its OWN detached candidate.
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var document: Dictionary = (prepared["value"] as Dictionary)["candidate"]["document"]
+	var receipt: Dictionary = (prepared["value"] as Dictionary)["checkpoint_receipt"]
+	assert_eq(str(receipt["content_sha256"]), expected_hash)
+	assert_eq(document["header"], _as_json_string_types(preimage_value["header"]))
+
+	var actual_candidate: Dictionary = (document["stage_candidate"] as Dictionary).duplicate(true)
+	var actual_pending: Dictionary = actual_candidate["pending"]
+	assert_eq(actual_pending["checkpoint_receipt"], receipt, "the port attaches its just-minted receipt")
+	assert_eq(actual_pending["admission_checkpoint_receipt"], receipt,
+		"at the admission ordinal the same receipt fills the still-null admission slot")
+	actual_pending.erase("checkpoint_receipt")
+	actual_pending.erase("admission_checkpoint_receipt")
+	var expected_candidate: Dictionary = _as_json_string_types(preimage_value["stage_candidate"])
+	var expected_pending: Dictionary = expected_candidate["pending"]
+	expected_pending.erase("checkpoint_receipt")
+	expected_pending.erase("admission_checkpoint_receipt")
+	assert_eq(actual_candidate, expected_candidate,
+		"everything the receipt attachment does not touch is the normalized preimage, unchanged")
+
+	# 4. The stored record never aliases the caller's stage_candidate.
+	assert_false(is_same(document["stage_candidate"], candidate_state),
+		"the stored stage_candidate is not the caller's own Dictionary")
+	assert_false(is_same((document["stage_candidate"] as Dictionary)["pending"], candidate_state["pending"]),
+		"nor is any nested container of it")
+	assert_null(candidate_state["pending"]["checkpoint_receipt"],
+		"the receipt attachment never reaches the caller's tree")
+	assert_null(candidate_state["pending"]["admission_checkpoint_receipt"],
+		"the caller still owns its receipt-free input")
+
+	var document_before := _canonical_text(document)
+	var receipt_before: Dictionary = receipt.duplicate(true)
+	# The caller keeps mutating its own tree after preparing; the prepared record cannot move.
+	candidate_state["run_revision"] = 77
+	candidate_state["pending"]["stage"] = &"publication_pending"
+	candidate_state["pending"]["recovery_payload"]["participant_snapshot_ids"]["marker"] = 999
+	assert_eq(_canonical_text(document), document_before,
+		"mutating the caller's stage_candidate after prepare cannot change the stored record")
+	assert_eq((prepared["value"] as Dictionary)["checkpoint_receipt"], receipt_before)
+	assert_eq(str(((prepared["value"] as Dictionary)["checkpoint_receipt"] as Dictionary)["content_sha256"]),
+		expected_hash, "the content hash still proves the bytes that were prepared")

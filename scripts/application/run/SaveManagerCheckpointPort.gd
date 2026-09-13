@@ -470,6 +470,12 @@ static func _build_consequence_checkpoint(checkpoint_header: Dictionary, stage_c
 		"header": normalized_header.duplicate(true),
 		"content_sha256": content_sha256,
 	}
+	# CONFINEMENT: with the normalizer preserving identity this may now BE
+	# `preimage_value["stage_candidate"]`, which `checkpoint_content_preimage()` obtained from
+	# `_validate_for_preimage()` -- i.e. the `state.duplicate(true)` that validation already detached
+	# from the caller's tree, held by nothing else once this function returns. `canonical` above was
+	# taken before this line, so `content_sha256` still proves the unattached bytes. The mutation
+	# therefore stays inside this port's own private tree, exactly as when a fresh copy was allocated.
 	var receipt_attached_candidate: Dictionary = (normalized_preimage as Dictionary)["stage_candidate"]
 	var pending: Variant = receipt_attached_candidate.get("pending")
 	if typeof(pending) == TYPE_DICTIONARY:
@@ -604,21 +610,39 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 		"stage_candidate": ((latest_by_transaction[chosen] as Dictionary)["stage_candidate"] as Dictionary).duplicate(true),
 	}}
 
+## Converts every StringName (key or value) to String and returns everything else untouched. A
+## container with no converted descendant is returned AS IS rather than rebuilt: only the path that
+## actually contains a conversion is allocated anew. A consequence preimage carries StringNames only
+## in its header and pending stage, so the whole recovery_payload subtree -- the expensive part --
+## is now passed through by reference.
 static func _normalize_json_string_types(value: Variant) -> Variant:
 	match typeof(value):
 		TYPE_STRING_NAME:
 			return String(value)
 		TYPE_ARRAY:
+			var source_array: Array = value
 			var normalized_array: Array = []
-			for item: Variant in value as Array:
-				normalized_array.append(_normalize_json_string_types(item))
-			return normalized_array
+			var array_converted := false
+			for item: Variant in source_array:
+				var normalized_item: Variant = _normalize_json_string_types(item)
+				if not is_same(normalized_item, item):
+					array_converted = true
+				normalized_array.append(normalized_item)
+			return normalized_array if array_converted else source_array
 		TYPE_DICTIONARY:
+			var source_dictionary: Dictionary = value
 			var normalized_dictionary: Dictionary = {}
-			for raw_key: Variant in value as Dictionary:
+			var dictionary_converted := false
+			for raw_key: Variant in source_dictionary:
 				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
-				normalized_dictionary[key] = _normalize_json_string_types((value as Dictionary)[raw_key])
-			return normalized_dictionary
+				if not is_same(key, raw_key):
+					dictionary_converted = true
+				var member: Variant = source_dictionary[raw_key]
+				var normalized_member: Variant = _normalize_json_string_types(member)
+				if not is_same(normalized_member, member):
+					dictionary_converted = true
+				normalized_dictionary[key] = normalized_member
+			return normalized_dictionary if dictionary_converted else source_dictionary
 		_:
 			return value
 
