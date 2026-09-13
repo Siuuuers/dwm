@@ -137,3 +137,12 @@ The markers cost one boolean per phase while the variables are unset.
 Session trend (fresh account, headless, same machine): App win settlement 845/822 ms at the baseline
 to 685-703 ms, App loss 827/776 to 729-746 ms, dating win 467-481 to 453 ms, accept_prepared_action
 546 to about 400-430 ms, routine reveal unchanged at 17-23 ms.
+
+### Post-merge re-seal and re-verification (merge commit 88b92f77f, master f8c16c1ee)
+
+- settlement3-reseal-desktop-88b92f77f.log and settlement3-reseal-minesweeper-88b92f77f.log: the two
+  handoff contracts regenerated through the isolated runner.
+- settlement3-post-merge-green-88b92f77f.log: 31 unit suites including test_desktop_contract_evidence
+  and test_minesweeper_contract_evidence, 560 passing / 0 failing.
+- settlement3-post-merge-bench-88b92f77f.log: App win settled 728 ms, loss 620 ms, dating win 431 ms
+  on the merged tree.
