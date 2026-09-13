@@ -473,3 +473,88 @@ func test_build_detaches_the_persisted_document_from_identity_preserved_inputs()
 	(current["snapshot"]["gameplay"]["narrative_variables"] as Dictionary)["late"] = true
 	assert_eq((document["current_snapshot"]["snapshot"]["gameplay"]["narrative_variables"] as Dictionary).size(),
 		0, "mutating the input bundle cannot reach the document")
+
+
+func test_build_passes_the_validated_bundle_through_instead_of_renormalizing_it() -> void:
+	# build() composes its document around the bundle candidate `_validate_bundle()` produced -- a
+	# candidate RunSnapshotSchema.validate() has ALREADY normalized -- and then walks the whole
+	# document again with _normalize_integral_floats. Over that bundle the walk is the identity (the
+	# normalizer is idempotent), so it is a second full-snapshot rebuild per save for nothing. The
+	# fix normalizes the envelope members and the journal and passes the bundle candidate through,
+	# composing current_snapshot exactly as _validate_document() now does.
+	#
+	# Unlike validate(), member order CANNOT be the probe here: build() authors current_snapshot as
+	# checkpoint_kind-then-snapshot itself and the normalizer preserves insertion order, so that
+	# order is already green today (it is asserted below as a guard, not as the RED row). Nor is
+	# identity of the bundle candidate reachable: build() is its only producer, so no test can hold
+	# the object to compare against. Like A1 and A2 this is an allocation-only change with no value
+	# observable, so the source text is the observable.
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	var source := FileAccess.get_file_as_string(SCHEMA_PATH)
+	assert_false(source.is_empty(), "the schema source must be readable")
+	assert_false(source.contains("RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document)"),
+		"build() must not re-walk a document whose current bundle is an already-normalized candidate")
+
+	var schema: Script = load(SCHEMA_PATH)
+	var current := _bundle()
+	current.snapshot.schema_version = 6.0
+	var journal := [{"count": 4.0, "nested": [&"hint", 2.25]}]
+	var saved_time := {"unix_seconds": 0.0, "utc_offset_minutes": 0.0, "hhmm": "00:00"}
+	var built: Dictionary = schema.build(&"autosave", null, &"automatic", current, journal, saved_time)
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false):
+		return
+	var document: Dictionary = built["value"]
+
+	# Every member that is NOT the current bundle must still be normalized by build itself.
+	assert_eq(typeof((document["recovery_journal"][0] as Dictionary)["count"]), TYPE_INT,
+		"the journal still normalizes")
+	assert_eq((document["recovery_journal"][0] as Dictionary)["nested"], ["hint", 2.25],
+		"the journal keeps engine-text conversion and non-integral floats")
+	assert_eq(typeof((document["saved_time"] as Dictionary)["unix_seconds"]), TYPE_INT,
+		"optional metadata still normalizes BEFORE validate_saved_time runs over it")
+	assert_eq(typeof((document["saved_time"] as Dictionary)["utc_offset_minutes"]), TYPE_INT,
+		"both saved_time integers still normalize")
+	assert_eq(typeof(document["schema_version"]), TYPE_INT, "the envelope version stays an integer")
+	assert_false((document["recovery_journal"] as Array).is_typed(),
+		"the persisted journal stays an untyped Array")
+	# ...and the bundle that is passed through must already be normalized by its own owner.
+	assert_eq(typeof(document["current_snapshot"]["snapshot"]["schema_version"]), TYPE_INT,
+		"the embedded snapshot is normalized by RunSnapshotSchema.validate, not by build")
+	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 6,
+		"normalization preserves the value")
+	var bundle_keys: Array = (document["current_snapshot"] as Dictionary).keys()
+	assert_eq(bundle_keys.size(), 2, "the persisted bundle has exactly two members")
+	assert_eq(str(bundle_keys[0]), "checkpoint_kind", "build authors the bundle member order")
+	assert_eq(str(bundle_keys[1]), "snapshot", "build authors the bundle member order")
+	assert_eq(str(document["current_snapshot"]["checkpoint_kind"]), "day_start",
+		"the persisted bundle carries the proven checkpoint_kind as a String")
+	assert_eq(typeof(document["current_snapshot"]["checkpoint_kind"]), TYPE_STRING,
+		"and never as engine text")
+
+	# External validation must still agree with the built document, byte for byte.
+	var validated: Dictionary = schema.validate(document)
+	assert_true(validated.get("ok", false), str(validated))
+	if not validated.get("ok", false):
+		return
+	assert_eq(validated["value"]["candidate"], document,
+		"external validation agrees with the built document")
+
+	# The pass-through must not turn the persisted bundle into an alias of the caller's.
+	assert_false(is_same(document["current_snapshot"]["snapshot"], current["snapshot"]),
+		"the persisted snapshot is the validated candidate, not the caller's")
+	assert_false(is_same(document["recovery_journal"], journal), "the persisted journal is detached")
+	current.snapshot.gameplay.narrative_variables["late"] = true
+	assert_eq((document["current_snapshot"]["snapshot"]["gameplay"]["narrative_variables"] as Dictionary).size(),
+		0, "mutating the input bundle cannot reach the document")
+	(journal[0]["nested"] as Array).append("late")
+	assert_eq((document["recovery_journal"][0]["nested"] as Array).size(), 2,
+		"mutating the input journal cannot reach the document")
+	saved_time["hhmm"] = "01:00"
+	assert_eq(str((document["saved_time"] as Dictionary)["hhmm"]), "00:00",
+		"mutating the input metadata cannot reach the document")
+	assert_eq(typeof(current.snapshot.schema_version), TYPE_FLOAT,
+		"the caller's bundle is never mutated")
+	assert_eq(typeof(journal[0]["count"]), TYPE_FLOAT, "the caller's journal is never mutated")

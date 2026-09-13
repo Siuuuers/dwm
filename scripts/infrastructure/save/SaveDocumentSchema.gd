@@ -47,23 +47,34 @@ static func build(
 	var journal_error := _validate_journal(journal)
 	if journal_error != "":
 		return _fail(&"invalid_recovery_journal", journal_error)
+	# The builder already proved its discriminators, current bundle and journal above. Its fixed
+	# envelope cannot gain unknown members; only optional metadata remains to check. So normalize
+	# each member AS the document is composed, in the same member order, and pass the current
+	# bundle's candidate through UNTOUCHED: it came from `_validate_bundle()` ->
+	# `RunSnapshotSchema.validate()`, which already normalized it, and `_normalize_integral_floats()`
+	# is idempotent -- so the whole-document walk that used to run here rebuilt the entire saved
+	# board a second time to reproduce it exactly. That candidate is a tree `RunSnapshotSchema`
+	# freshly allocated and nothing else retains, so the document owns it outright and stays
+	# detached from the caller's bundle, exactly as `_validate_document()` composes it.
+	# `schema_version`, `kind` and `save_reason` are int/String literals and `checkpoint_kind` is
+	# `str()`-ed, so only `slot_id`, the journal and the optional metadata can carry an integral
+	# float. `saved_time` is still normalized BEFORE `validate_saved_time()` reads it below, and
+	# the journal is still deep-copied and rebuilt untyped.
 	var document := {
 		"schema_version": DOCUMENT_VERSION,
 		"kind": String(kind),
-		"slot_id": slot_id,
+		"slot_id": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(slot_id),
 		"save_reason": String(save_reason),
 		"current_snapshot": {
 			"checkpoint_kind": str(current_bundle["checkpoint_kind"]),
 			"snapshot": bundle_error["value"]["candidate"],
 		},
-		"recovery_journal": journal.duplicate(true),
+		"recovery_journal": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
+			journal.duplicate(true)),
 	}
 	if not saved_time.is_empty():
-		document["saved_time"] = saved_time.duplicate(true)
-	# The builder already proved its discriminators, current bundle and journal above.
-	# Its fixed envelope cannot gain unknown members; only optional metadata remains to check.
-	# Preserve validate()'s numeric normalization without rescanning every saved board twice.
-	document = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document)
+		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
+			saved_time.duplicate(true))
 	if document.has("saved_time") and not validate_saved_time(document["saved_time"]):
 		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
 	return {"ok": true, "code": &"ok", "value": document}
