@@ -33,6 +33,11 @@ Median emission fell from **68.074 ms to 28.498 ms** (about 58%).
 This fixture contains no floats or non-printable/non-ASCII keys or values.
 Excluded documents retain the original emitter and incur an eligibility scan;
 the fixed-file improvement is not a universal serialization speed guarantee.
+The final source audit found a concrete excluded path: Chinese ordinary replies
+store localized text in contact receipts, which also enters Minesweeper terminal
+action candidates and admission payloads. Profile documents contain floats and
+also fall back. Measure those real paths next: their extra partial preflight may
+add overhead, and the ASCII fixture does not establish their performance.
 
 The matching headless click runs use `DWM_CHECKPOINT_PROFILE=1`, the temporary
 profiling patch, and the same command arguments. Each is a fresh process with
