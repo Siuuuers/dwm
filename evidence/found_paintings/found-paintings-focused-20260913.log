@@ -1,0 +1,120 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/8355928b-52db-452e-9886-ff319e54179a/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_art_placements.gd
+* test_missing_unknown_and_non_image_assets_return_no_texture
+* test_real_imported_texture_obeys_fixed_ui_dimensions
+* test_solo_and_pair_art_are_fixed_and_return_detached_lists
+* test_all_registered_entries_have_explicit_scene_rows_and_known_asset_ids
+* test_exact_ending_entries_keep_distinct_cg_bindings
+* test_preview_overrides_do_not_write_catalog_and_reload_discards_them
+* test_legacy_intro_art_uses_runtime_ids_instead_of_editor_resource_aliases
+7/7 passed.
+
+
+res://tests/unit/test_scene_art_bindings.gd
+* test_art_is_inert_and_clipped_above_each_caption_aperture
+* test_challenge_art_never_consumes_worksheet_space_and_empty_mapping_clears_old_images
+* test_dating_mapping_uses_one_fixed_scene_for_all_phases_and_no_variants
+* test_actual_dating_host_mounts_art_in_the_visible_overlay_behind_unchanged_board
+* test_ordinary_hospital_scene_shows_readable_notice_and_acknowledges_once
+* test_hospital_requires_this_days_exact_saved_witness_sources
+* test_bridge_projects_only_retained_entry_and_style_mounts_art_below_captions
+7/7 passed.
+
+
+res://tests/unit/test_scene_art_hold.gd
+* test_portrait_only_return_scene_waits_then_executes_original_dtl_once
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_pause_reuses_exact_art_view_and_continue_does_not_execute_while_suspended
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_failed_load_keeps_same_art_then_successful_idle_load_retires_it_without_completion
+* test_return_retirement_cancels_card_and_never_starts_its_dtl
+* test_only_proven_empty_blocks_hold_and_no_art_preserves_native_auto_completion
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_witnessed_hospital_start_runs_its_dtl_instead_of_holding_on_its_art
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+6/6 passed.
+
+
+res://tests/integration/test_ui_art_placements.gd
+* test_title_desktop_launcher_and_contact_attach_valid_optional_art
+* test_missing_and_wrong_sized_art_keep_existing_fallbacks
+* test_shell_layers_share_the_remaining_art_host_and_preserve_order
+* test_shop_art_uses_valid_exact_sizes_and_wrong_size_keeps_procedural_tile
+* test_schedule_optional_pair_resolves_or_falls_back_without_weakening_action_admission
+5/5 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_art_placements.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               4
+Tests                25
+Passing Tests        25
+Asserts             891
+Orphans              24
+Time              4.33s
+
+
+---- All tests passed! ----
