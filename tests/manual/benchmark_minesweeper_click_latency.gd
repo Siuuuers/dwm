@@ -10,8 +10,14 @@ extends "res://tests/integration/verify_playable_startup.gd"
 ##
 ## `--dating-ending=win` (default) plays the Dating board to its solving cell and then the
 ## terminal choice; `--dating-ending=loss` reveals a mine after the routine sample (dwm-634.2).
+## `--reply-locale=en|zh-CN|zh-HK` first persists the registered Day-1 Lavinia A reply through the
+## production command port, so App terminal/save measurements include that real localized receipt.
 
 const ROUTINE_LOG_LIMIT := 12
+const ORDINARY_REPLY := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
+const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const REPLY_LOCALES: Array[String] = ["en", "zh-CN", "zh-HK"]
+const INITIAL_REPLY_ID := "reply.ordinary.lavinia.day1.a"
 var _samples: Dictionary = {}
 
 
@@ -20,6 +26,17 @@ func _dating_ending() -> String:
 		if argument.begins_with("--dating-ending="):
 			return argument.trim_prefix("--dating-ending=")
 	return "win"
+
+
+func _reply_locale_option() -> Dictionary:
+	var selected := ""
+	var present := false
+	for argument: String in OS.get_cmdline_user_args():
+		if not argument.begins_with("--reply-locale="): continue
+		if present: return {"ok": false, "value": argument.trim_prefix("--reply-locale=")}
+		selected = argument.trim_prefix("--reply-locale=")
+		present = true
+	return {"ok": not present or selected in REPLY_LOCALES, "value": selected}
 
 
 func _run() -> void:
@@ -41,11 +58,55 @@ func _run() -> void:
 		if desktop != null and not manager._new_run_busy and game.capture_live_session().value.active: break
 		await process_frame
 	if not _check(desktop != null, "benchmark desktop ready"): return
+	var reply_option := _reply_locale_option()
+	if not _check(reply_option.ok, "--reply-locale must occur at most once and be en, zh-CN or zh-HK"): return
+	if not str(reply_option.value).is_empty() \
+			and not _persist_initial_ordinary_reply(bootstrap, game, manager, str(reply_option.value)):
+		return
 	if not await _minesweeper_app_benchmark(bootstrap, desktop): return
 	if not await _dating_benchmark(game, desktop): return
 	_print_summary()
 	print("CLICK_LATENCY_PASS: issuer_root_bytes=%d" % _issuer_root_bytes())
 	quit(0)
+
+
+func _persist_initial_ordinary_reply(bootstrap: Node, game: Node, manager: Node, locale: String) -> bool:
+	var command_port: Object = bootstrap.get("_contact_command_port")
+	if not _check(command_port != null and command_port.has_method("prepare_ordinary_reply") \
+			and command_port.has_method("acknowledge_ordinary_reply"), "production ordinary reply port available"): return false
+	var authored: Dictionary = ORDINARY_REPLY.reply_definition(INITIAL_REPLY_ID, locale)
+	if not _check(authored.get("ok", false), "authored ordinary reply resolves for " + locale): return false
+	var prepared: Dictionary = command_port.prepare_ordinary_reply("lavinia", INITIAL_REPLY_ID, locale)
+	if not _check(prepared.get("ok", false), "ordinary reply prepares: " + JSON.stringify(prepared)): return false
+	var command: Dictionary = prepared.get("value", {}).get("command", {})
+	if not _check(command.get("rendered_line", {}).get("text") == authored.value.text,
+			"prepared reply carries the authored localized text"): return false
+	var committed: Dictionary = command_port.acknowledge_ordinary_reply(command, command.rendered_line)
+	if not _check(committed.get("ok", false), "ordinary reply persists: " + JSON.stringify(committed)): return false
+	var receipt: Dictionary = game.contacts.get("transaction_receipts", {}).get(command.command_id, {})
+	if not _check(receipt.get("kind") == "ordinary_reply" and receipt.get("locale") == locale \
+			and receipt.get("reply_id") == INITIAL_REPLY_ID and receipt.get("rendered_line") == command.rendered_line \
+			and receipt.get("plain_text_snapshot") == authored.value.text,
+			"live Contacts retains the exact localized ordinary receipt"): return false
+	var stable: Dictionary = manager.get_latest_stable_checkpoint()
+	var saved_receipt: Variant = stable.get("value", {}).get("bundle", {}).get("snapshot", {}) \
+		.get("contacts", {}).get("transaction_receipts", {}).get(command.command_id)
+	if not _check(stable.get("ok", false) and CANONICAL_JSON._deep_same(receipt, saved_receipt),
+			"latest durable checkpoint contains the exact ordinary receipt"): return false
+	print("CLICK_LATENCY_REPLY: " + JSON.stringify({
+		"locale": locale, "entry_id": receipt.entry_id, "reply_id": receipt.reply_id,
+		"transaction_id": receipt.transaction_id, "witnessed_line_id": receipt.witnessed_line_id,
+		"text_utf8_bytes": str(receipt.plain_text_snapshot).to_utf8_buffer().size(),
+		"contains_non_ascii": _contains_non_ascii(str(receipt.plain_text_snapshot)),
+		"checkpoint_id": stable.value.bundle.snapshot.checkpoint_id,
+	}))
+	return true
+
+
+func _contains_non_ascii(value: String) -> bool:
+	for index: int in value.length():
+		if value.unicode_at(index) > 127: return true
+	return false
 
 
 # ---------------------------------------------------------------------------------------------

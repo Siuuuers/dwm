@@ -108,8 +108,8 @@ func test_native_preflight_exclusions_retain_original_values_and_refusals() -> v
     var valid_fallbacks: Array = [
         1.0, -0.0, 0.1,
         {"nested": [1.0, &"plain"]},
-        "line\n", String.chr(0x0b), String.chr(0x7f), String.chr(0x4e2d),
-        {StringName("line\t"): "value"}, {String.chr(0x4e2d): "value"},
+        "line\n", String.chr(0x0b),
+        {StringName("line\t"): "value"},
     ]
     for value: Variant in valid_fallbacks:
         assert_false(WRITER._can_use_native_encoder(value), str(value))
@@ -130,3 +130,82 @@ func test_native_preflight_exclusions_retain_original_values_and_refusals() -> v
         assert_false(emitted.get("ok", true), str(emitted))
         assert_eq(WRITER.stringify(value), emitted,
             "Preflight refusal must leave the original structural error and its precedence intact.")
+
+func test_native_unicode_scalar_boundaries_retain_exact_unescaped_bytes() -> void:
+    var characters := ""
+    for codepoint: int in [
+        0x20, 0x7f, 0x80, 0x85, 0x9f, 0xa0, 0x7ff, 0x800,
+        0x2028, 0x2029, 0x4e2d, 0xd7ff, 0xe000, 0xfdd0, 0xfeff,
+        0xfffe, 0xffff, 0x10000, 0x1f63d, 0x1fffe, 0x10fffe, 0x10ffff,
+    ]:
+        var character := String.chr(codepoint)
+        assert_true(WRITER._can_use_native_encoder(character), "Scalar U+%04X" % codepoint)
+        assert_eq(WRITER.stringify(character), {"ok": true, "value": '"' + character + '"'},
+            "Valid noncharacters, C1 controls and Unicode line separators remain literal JSON characters.")
+        characters += character
+    var value := {"scalar_text": StringName(characters)}
+    var expected := '{"scalar_text":"' + characters + '"}'
+    assert_true(WRITER._can_use_native_encoder(value))
+    var result := WRITER.stringify(value)
+    assert_eq(result, {"ok": true, "value": expected})
+    assert_eq(str(result.get("value", "")).to_utf8_buffer(), expected.to_utf8_buffer())
+    assert_eq(result, WRITER._emit(value))
+    var parsed := STRICT.parse_object(expected)
+    assert_true(parsed.get("ok", false))
+    if parsed.get("ok", false):
+        assert_eq(parsed.value.scalar_text, characters)
+
+func test_native_unicode_keys_keep_utf8_order_without_normalizing_combining_sequences() -> void:
+    # Explicit scalar order crosses the surrogate gap and the BMP/supplementary boundary.
+    # UTF-16 ordering would put U+10000 before U+FFFF; the canonical UTF-8 order does not.
+    var keys: Array[String] = [
+        "", " ", "Z", "e", "e" + String.chr(0x301), String.chr(0x7f),
+        String.chr(0x80), String.chr(0x9f), String.chr(0xe9), String.chr(0x7ff),
+        String.chr(0x800), String.chr(0x2028), String.chr(0x2029), String.chr(0x4e2d),
+        String.chr(0xd7ff), String.chr(0xe000), String.chr(0xfdd0), String.chr(0xfeff),
+        String.chr(0xfffe), String.chr(0xffff), String.chr(0x10000),
+        String.chr(0x1f63d), String.chr(0x10ffff),
+    ]
+    var value := {}
+    for index: int in range(keys.size() - 1, -1, -1):
+        value[StringName(keys[index]) if index % 2 else keys[index]] = index
+    var members: PackedStringArray = []
+    for index: int in keys.size():
+        members.append('"' + keys[index] + '":' + str(index))
+    var expected := "{" + ",".join(members) + "}"
+    assert_true(WRITER._can_use_native_encoder(value))
+    var result := WRITER.stringify(value)
+    assert_eq(result, {"ok": true, "value": expected})
+    assert_eq(result, WRITER._emit(value))
+    var parsed := STRICT.parse_object(str(result.get("value", "")))
+    assert_true(parsed.get("ok", false))
+    if parsed.get("ok", false):
+        assert_eq(parsed.value.keys(), keys,
+            "Combining and precomposed names remain separate keys in exact canonical order.")
+
+func test_native_unicode_documents_escape_quotes_and_backslashes_without_stripping_bom() -> void:
+    var text := String.chr(0xfeff) + String.chr(0x4e2d) + '"\\/' + String.chr(0x1f63d)
+    var escaped := String.chr(0xfeff) + String.chr(0x4e2d) + '\\"\\\\/' + String.chr(0x1f63d)
+    var names: Array[StringName] = [StringName(text)]
+    var value := {StringName(text): {&"nested": names}}
+    var expected := '{"' + escaped + '":{"nested":["' + escaped + '"]}}'
+    assert_true(WRITER._can_use_native_encoder(value))
+    assert_eq(WRITER.stringify(value), {"ok": true, "value": expected})
+    assert_eq(WRITER.stringify(value), WRITER._emit(value))
+    assert_eq(String(names[0]), text)
+
+func test_unicode_preflight_still_excludes_all_constructible_c0_controls_in_keys_and_values() -> void:
+    # String.chr(0), surrogates and out-of-range codepoints are replaced by Godot;
+    # they cannot honestly serve as raw malformed-string fixtures here.
+    var unicode := String.chr(0x4e2d)
+    for codepoint: int in range(1, 0x20):
+        var control := String.chr(codepoint)
+        for value: Variant in [
+            {"nested": [StringName(unicode), unicode + control]},
+            {StringName(unicode + control): unicode},
+        ]:
+            assert_false(WRITER._can_use_native_encoder(value), "C0 U+%04X" % codepoint)
+            var original := WRITER._emit(value)
+            assert_true(original.get("ok", false), str(original))
+            assert_eq(WRITER.stringify(value), original,
+                "Even a trailing newline must fall through to the original control escaping.")

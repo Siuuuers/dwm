@@ -1,0 +1,6 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+CHECKPOINT_JSON_BENCHMARK: {"bytes":423637,"input_sha256":"a49f3912e71a94033ba9b61195e65bcce3be5b1571cf400f28b67c179fb1ad99","output_sha256":"a49f3912e71a94033ba9b61195e65bcce3be5b1571cf400f28b67c179fb1ad99","parse_us_median":146632,"samples":{"parse_us":[146632,147821,148971,145395,146137],"schema_us":[81547,28097,29946,29129,28841],"stringify_us":[26256,26567,28267,26436,26788],"value_validation_us":[38788,39901,40811,38445,38362]},"schema_us_median":29129,"stringify_us_median":26567,"value_validation_us_median":38788}

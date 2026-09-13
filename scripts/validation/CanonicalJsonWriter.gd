@@ -6,10 +6,13 @@ static var _ordinary_ascii := RegEx.create_from_string("\\A[\\x20-\\x21\\x23-\\x
 
 # Native escaping is byte-identical on printable ASCII, including quotes and backslashes.
 static var _printable_ascii := RegEx.create_from_string("\\A[\\x20-\\x7E]*\\z")
+# Native JSON preserves valid Unicode scalars and sorts their keys in UTF-8 order.
+# C0 controls retain the checked emitter: native escaping does not handle them uniformly.
+static var _native_string_range := RegEx.create_from_string("\\A[\\x20-\\x{D7FF}\\x{E000}-\\x{10FFFF}]*\\z")
 
 static func stringify(value: Variant) -> Dictionary:
 	# Godot's native encoder is byte-identical for this complete, bounded domain:
-	# exact integers, printable ASCII, and containers with unique string-like keys.
+	# exact integers, valid scalar strings without C0, and unique string-like keys.
 	# Floats, other strings/types, or deeper values retain the checked emitter below.
 	if _can_use_native_encoder(value):
 		return _ok(JSON.stringify(value, "", true))
@@ -32,7 +35,7 @@ static func _can_use_native_encoder(value: Variant, depth := 0) -> bool:
 		TYPE_NIL, TYPE_BOOL, TYPE_INT:
 			return true
 		TYPE_STRING, TYPE_STRING_NAME:
-			return _printable_ascii.search(str(value)) != null
+			return _native_string_range.search(str(value)) != null
 		TYPE_ARRAY:
 			for item in value:
 				if not _can_use_native_encoder(item, depth + 1):
@@ -44,7 +47,7 @@ static func _can_use_native_encoder(value: Variant, depth := 0) -> bool:
 				if typeof(key) != TYPE_STRING and typeof(key) != TYPE_STRING_NAME:
 					return false
 				var normalized_key := str(key)
-				if normalized_keys.has(normalized_key) or _printable_ascii.search(normalized_key) == null:
+				if normalized_keys.has(normalized_key) or _native_string_range.search(normalized_key) == null:
 					return false
 				normalized_keys[normalized_key] = true
 				if not _can_use_native_encoder(value[key], depth + 1):

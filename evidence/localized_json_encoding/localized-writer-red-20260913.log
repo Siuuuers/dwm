@@ -1,0 +1,178 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/23030eca-4c88-411f-8685-321a5155c06b/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_canonical_writer_compatibility.gd
+* test_preserves_canonical_bytes_and_refusals_for_boundary_and_random_values
+* test_printable_ascii_keys_keep_byte_order_after_string_name_normalization
+* test_control_and_unicode_keys_keep_utf8_order
+* test_sorted_key_order_preserves_first_structural_refusal
+* test_native_integer_document_preserves_values_beyond_double_precision
+* test_native_document_escapes_every_printable_ascii_character_in_keys_and_values
+* test_native_document_preserves_nested_string_names_typed_arrays_and_shared_children
+* test_native_depth_limit_changes_only_encoder_selection_not_accepted_bytes
+* test_native_preflight_exclusions_retain_original_values_and_refusals
+* test_native_unicode_scalar_boundaries_retain_exact_unescaped_bytes
+    [Failed]:  Scalar U+007F
+      at line 142
+    [Failed]:  Scalar U+0080
+      at line 142
+    [Failed]:  Scalar U+0085
+      at line 142
+    [Failed]:  Scalar U+009F
+      at line 142
+    [Failed]:  Scalar U+00A0
+      at line 142
+    [Failed]:  Scalar U+07FF
+      at line 142
+    [Failed]:  Scalar U+0800
+      at line 142
+    [Failed]:  Scalar U+2028
+      at line 142
+    [Failed]:  Scalar U+2029
+      at line 142
+    [Failed]:  Scalar U+4E2D
+      at line 142
+    [Failed]:  Scalar U+D7FF
+      at line 142
+    [Failed]:  Scalar U+E000
+      at line 142
+    [Failed]:  Scalar U+FDD0
+      at line 142
+    [Failed]:  Scalar U+FEFF
+      at line 142
+    [Failed]:  Scalar U+FFFE
+      at line 142
+    [Failed]:  Scalar U+FFFF
+      at line 142
+    [Failed]:  Scalar U+10000
+      at line 142
+    [Failed]:  Scalar U+1F63D
+      at line 142
+    [Failed]:  Scalar U+1FFFE
+      at line 142
+    [Failed]:  Scalar U+10FFFE
+      at line 142
+    [Failed]:  Scalar U+10FFFF
+      at line 142
+    [Failed]
+      at line 148
+* test_native_unicode_keys_keep_utf8_order_without_normalizing_combining_sequences
+    [Failed]
+      at line 176
+* test_native_unicode_documents_escape_quotes_and_backslashes_without_stripping_bom
+    [Failed]
+      at line 192
+* test_unicode_preflight_still_excludes_all_constructible_c0_controls_in_keys_and_values
+10/13 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_canonical_writer_compatibility.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_canonical_writer_compatibility.gd
+- test_native_unicode_scalar_boundaries_retain_exact_unescaped_bytes
+    [Failed]:  Scalar U+007F
+          at line 142
+    [Failed]:  Scalar U+0080
+          at line 142
+    [Failed]:  Scalar U+0085
+          at line 142
+    [Failed]:  Scalar U+009F
+          at line 142
+    [Failed]:  Scalar U+00A0
+          at line 142
+    [Failed]:  Scalar U+07FF
+          at line 142
+    [Failed]:  Scalar U+0800
+          at line 142
+    [Failed]:  Scalar U+2028
+          at line 142
+    [Failed]:  Scalar U+2029
+          at line 142
+    [Failed]:  Scalar U+4E2D
+          at line 142
+    [Failed]:  Scalar U+D7FF
+          at line 142
+    [Failed]:  Scalar U+E000
+          at line 142
+    [Failed]:  Scalar U+FDD0
+          at line 142
+    [Failed]:  Scalar U+FEFF
+          at line 142
+    [Failed]:  Scalar U+FFFE
+          at line 142
+    [Failed]:  Scalar U+FFFF
+          at line 142
+    [Failed]:  Scalar U+10000
+          at line 142
+    [Failed]:  Scalar U+1F63D
+          at line 142
+    [Failed]:  Scalar U+1FFFE
+          at line 142
+    [Failed]:  Scalar U+10FFFE
+          at line 142
+    [Failed]:  Scalar U+10FFFF
+          at line 142
+    [Failed]:
+          at line 148
+- test_native_unicode_keys_keep_utf8_order_without_normalizing_combining_sequences
+    [Failed]:
+          at line 176
+- test_native_unicode_documents_escape_quotes_and_backslashes_without_stripping_bom
+    [Failed]:
+          at line 192
+
+Totals
+------
+Scripts               1
+Tests                13
+Passing Tests        10
+Failing Tests         3
+Asserts           852/876
+Orphans              24
+Time              0.497s
+
+
+---- 3 failing tests ----
