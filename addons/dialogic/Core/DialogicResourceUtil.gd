@@ -6,6 +6,7 @@ static var event_cache: Array[DialogicEvent] = []
 static var channel_cache := {}
 
 static var special_resources := {}
+static var _runtime_resource_extensions: Array[String] = []
 
 
 static func update() -> void:
@@ -24,7 +25,9 @@ static func get_directory(extension:String) -> Dictionary:
 	if Engine.has_meta(extension+'_directory'):
 		return Engine.get_meta(extension+'_directory', {})
 
-	var directory: Dictionary = ProjectSettings.get_setting("dialogic/directories/"+extension+'_directory', {})
+	# Runtime registrations must never insert live scripted Resources into the
+	# ProjectSettings dictionary. Keep its shipped path registry detached.
+	var directory: Dictionary = ProjectSettings.get_setting("dialogic/directories/"+extension+'_directory', {}).duplicate()
 	Engine.set_meta(extension+'_directory', directory)
 	return directory
 
@@ -141,9 +144,27 @@ static func is_identifier_unused(extension:String, identifier:String) -> bool:
 ## While usually the directory maps identifiers to paths, this method (only supposed to be used at runtime)
 ## allows mapping resources that are not saved to an identifier.
 static func register_runtime_resource(resource:Resource, identifier:String, extension:String) -> void:
+	extension = extension.trim_prefix('.')
 	var directory := get_directory(extension)
 	directory[identifier] = resource
 	set_directory(extension, directory)
+	if extension not in _runtime_resource_extensions:
+		_runtime_resource_extensions.append(extension)
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree != null and not tree.root.tree_exiting.is_connected(_release_runtime_resources):
+		# Engine metadata outlives the scripting runtime at process shutdown. Release
+		# its scripted Resources while the root and scripting runtime are still alive.
+		# This is process-root shutdown, not an individual timeline/scene departure.
+		tree.root.tree_exiting.connect(_release_runtime_resources, CONNECT_ONE_SHOT)
+
+
+static func _release_runtime_resources() -> void:
+	for extension: String in _runtime_resource_extensions:
+		var directory := get_directory(extension)
+		for identifier: Variant in directory.keys():
+			if directory[identifier] is Resource:
+				directory.erase(identifier)
+	_runtime_resource_extensions.clear()
 
 
 static func get_runtime_unique_identifier(resource:Resource, extension:String) -> String:
