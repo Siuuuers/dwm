@@ -444,7 +444,9 @@ static func _valid_record(record: Dictionary) -> bool:
 			or board.mine_count < record.spec.base_mine_count or board.mine_count > record.spec.requested_mine_count: return false
 	var dispositions: Array = RULES.dispositions(record.spec, board.mine_count) if host == "canonical_solo" else []
 	if record.mine_dispositions != dispositions: return false
-	if not board.terminal:
+	if not board.terminal or record.phase == "challenge":
+		# dwm-634.2: a terminal board still in `challenge` is painted but unsettled; it carries no
+		# outcome until its `settle` command runs on a later frame.
 		return record.phase == "challenge" and record.outcome == null and record.relationship_outcome == null \
 			and record.perfect_reasons.is_empty() and record.applied_result.is_empty()
 	var reasons: Array = RULES.perfect_reasons(board, int(record.schema_version))

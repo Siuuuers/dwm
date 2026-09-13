@@ -57,7 +57,14 @@ func _begin() -> bool:
 func _act(action: String, index: int = -1) -> Dictionary:
 	var pulled: Dictionary = physical.pull_physical(command.physical_token)
 	if not pulled.ok: return pulled
-	return physical.dispatch_physical(command.physical_token, action, index, int(pulled.value.board.revision))
+	var result: Dictionary = physical.dispatch_physical(command.physical_token, action, index, int(pulled.value.board.revision))
+	# dwm-634.2: a terminal reveal only paints; the scene settles it on its next frame.
+	if result.get("ok", false) and action != "settle":
+		var after: Dictionary = physical.pull_physical(command.physical_token)
+		var view: Dictionary = after.get("value", {}) if after.get("ok", false) else {}
+		if view.get("phase") == "challenge" and view.get("board") is Dictionary and bool(view.board.terminal):
+			return physical.dispatch_physical(command.physical_token, "settle", -1, int(view.board.revision))
+	return result
 
 func test_shell_flags_survive_fresh_owner_and_materialize_with_exact_history() -> void:
 	if not _begin(): return

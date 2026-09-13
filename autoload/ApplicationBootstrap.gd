@@ -649,9 +649,10 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 			return issuer_configured
 	# dwm-634.1: routine board receipts live in memory until the board itself is saved. Every run
 	# save goes through this storage root, so it persists the ledger first and fails closed.
+	# dwm-634.2: the Dating owner's uncommitted routine progress flushes to Profile the same way.
 	if _saves_storage != null and _saves_storage.has_method("configure_before_write"):
 		var gated: Dictionary = _saves_storage.call(&"configure_before_write",
-			Callable(_desktop_identity_nonce_issuer, "flush"))
+			Callable(self, "_flush_before_run_save"))
 		if not gated.get("ok", false):
 			return gated
 	var injected: Dictionary = game_state.call(
@@ -1983,6 +1984,17 @@ func _capture_completed_consequence_checkpoint_inputs(completed: Dictionary) -> 
 ## Save physical progress before its owner publishes the next playable state.
 func _commit_dating_checkpoint(_physical_record: Dictionary) -> Dictionary:
 	return _commit_presentation_checkpoint("dating")
+
+
+## The one pre-write hook of the run-save storage root: the identity ledger first (dwm-634.1),
+## then the Dating owner's uncommitted routine progress (dwm-634.2). Either refusal fails the save.
+func _flush_before_run_save() -> Dictionary:
+	if _desktop_identity_nonce_issuer != null:
+		var flushed: Dictionary = _desktop_identity_nonce_issuer.flush()
+		if not flushed.get("ok", false): return flushed
+	if _retained_dating_physical_owner != null and _retained_dating_physical_owner.has_method("flush_pending_attempt"):
+		return _retained_dating_physical_owner.flush_pending_attempt()
+	return {"ok": true}
 
 
 func _commit_ending_checkpoint() -> Dictionary:

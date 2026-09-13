@@ -74,6 +74,8 @@ var _terminal_choice_key := ""
 var _terminal_contacts: Dictionary = {}
 var _choice_released := false
 var _preparation_failed := false
+## dwm-634.2: a refused `settle` waits for Retry instead of being re-sent every frame.
+var _settlement_failed := false
 var _pre_challenge_drawn := false
 var _pre_challenge_ack_attempted := false
 var _pre_challenge_reached := false
@@ -235,11 +237,11 @@ func _refresh_challenge() -> void:
 	_rules_button.disabled = phase != "challenge"
 	_special_mine_button.visible = bool(_physical_view.special_mine_visible)
 	_special_mine_button.disabled = not bool(_physical_view.special_mine_enabled)
-	_continue_button.visible = phase not in ["challenge", "preparing"] or _preparation_failed
-	_continue_button.text = "Retry" if phase in ["settlement_retry", "checkpoint_retry", "preparing"] else "Continue"
+	_continue_button.visible = phase not in ["challenge", "preparing"] or _preparation_failed or _settlement_failed
+	_continue_button.text = "Retry" if phase in ["settlement_retry", "checkpoint_retry", "preparing"] or _settlement_failed else "Continue"
 	match phase:
 		"pre_challenge": _status_label.text = str(copy.value.body)
-		"challenge": _status_label.text = "Reveal, flag, or drag to explore the board."
+		"challenge": _status_label.text = "Retry to finish processing the result." if _settlement_failed else "Reveal, flag, or drag to explore the board."
 		"cleared_awaiting_terminal_choice": _status_label.text = "Board cleared."
 		"preparing": _status_label.text = "Try again." if _preparation_failed else ""
 		"checkpoint_retry": _status_label.text = "The attempt is saved. Retry to finish saving this point."
@@ -391,6 +393,13 @@ func _hide_capture_if_unfocused(line: Control) -> void:
 
 func _process(delta: float) -> void:
 	_poll_terminal_release()
+	# dwm-634.2: a terminal click paints first; its settlement runs here on the next processed
+	# frame and waits for neither window focus nor a held contact, because it is a durable save.
+	# A save taken before it runs commits the painted board as unsettled (flush_pending_attempt).
+	if _physical_view.get("phase") == "challenge" and _physical_view.get("board") is Dictionary \
+			and bool(_physical_view.board.get("terminal", false)):
+		if not _settlement_failed: _dispatch_action("settle", -1)
+		return
 	if _physical_view.get("phase") == "preparing":
 		if not _preparation_failed and not get_tree().paused and get_window().has_focus():
 			_dispatch_action("prepare", -1)
@@ -493,6 +502,10 @@ func _on_continue() -> void:
 		_preparation_failed = false
 		_dispatch_action("prepare", -1)
 		return
+	if phase == "challenge" and _settlement_failed:
+		_settlement_failed = false
+		_dispatch_action("settle", -1)
+		return
 	if phase == "pre_challenge" and not _pre_challenge_reached and not _acknowledge_pre_challenge_draw(): return
 	if phase == "post_challenge" and not _post_challenge_reached and not _acknowledge_post_challenge_draw(): return
 	_dispatch_action("retry" if phase in ["settlement_retry", "checkpoint_retry"] else (
@@ -509,10 +522,14 @@ func _dispatch_action(action: String, index: int, revision: int = -1) -> void:
 	var pulled: Dictionary = _presentation_port.pull_physical(_presentation_command)
 	if pulled.get("ok", false):
 		_physical_view = pulled.value.duplicate(true)
+		if _physical_view.get("phase") != "challenge": _settlement_failed = false
 		_refresh_challenge()
 	if not result.get("ok", false):
 		if action == "prepare":
 			_preparation_failed = true
+			_refresh_challenge()
+		elif action == "settle":
+			_settlement_failed = true
 			_refresh_challenge()
 		else: _status_label.text = "Action unavailable. " + str(result.get("code", ""))
 

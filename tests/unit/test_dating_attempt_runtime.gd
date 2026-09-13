@@ -98,7 +98,15 @@ func _begin(label: String = "initial", kind: String = "solo", day_number: int = 
 func _dispatch(action: String, index: int = -1) -> Dictionary:
 	var record := _record()
 	var revision: int = int(record.board.revision) if record.get("board") is Dictionary else (record.envelope.shell.actions.size() if record.schema_version == 3 else 0)
-	return physical_owner.dispatch_physical(command.physical_token, action, index, revision)
+	var result: Dictionary = physical_owner.dispatch_physical(command.physical_token, action, index, revision)
+	# dwm-634.2: a terminal reveal only paints; the scene settles it on its next frame, so this
+	# helper settles too and reports that settlement as the command's outcome.
+	if result.get("ok", false) and action != "settle":
+		var pulled: Dictionary = physical_owner.pull_physical(command.physical_token)
+		var view: Dictionary = pulled.get("value", {}) if pulled.get("ok", false) else {}
+		if view.get("phase") == "challenge" and view.get("board") is Dictionary and bool(view.board.terminal):
+			return physical_owner.dispatch_physical(command.physical_token, "settle", -1, int(view.board.revision))
+	return result
 
 func _record() -> Dictionary:
 	return state.capture_dating_challenge_state().value
@@ -127,6 +135,94 @@ func _finish_solo() -> void:
 	_clear_nonperfect_fixture()
 	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_eq(_record().phase, "post_challenge")
+
+## Rows 0-1 hold 33 mines and three more wall off the bottom-left corner (306), so the flood
+## from 323 leaves exactly one safe cell covered and the board stays in play.
+func _arm_walled_board() -> void:
+	var mines: Array = []
+	for index in 33: mines.append(index)
+	mines.append_array([288, 289, 307])
+	generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
+		"mine_indices": mines, "mine_count": 36})
+
+func _enter_walled_board() -> int:
+	_arm_walled_board()
+	assert_true(_begin().ok)
+	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("reveal", 323).ok)
+	assert_eq(_record().phase, "challenge")
+	assert_false(bool(_record().board.terminal), "the walled corner keeps the board in play")
+	var boundary: Dictionary = _attempt()
+	assert_false(boundary.is_empty(), "materializing the board commits the attempt")
+	return int(boundary.get("revision", -1))
+
+func test_routine_board_actions_commit_no_profile_attempt_until_flush() -> void:
+	var boundary_revision := _enter_walled_board()
+	var boundary_actions: int = _attempt().record.board.actions.size()
+	var boundary_checkpoints := checkpoint_calls
+	assert_true(_dispatch("flag", 306).ok)
+	assert_true(_dispatch("unflag", 306).ok)
+	assert_eq(_record().board.actions.size(), boundary_actions + 2, "the live record follows every action")
+	assert_eq(int(_attempt().revision), boundary_revision, "routine actions commit no Profile attempt (dwm-634.2)")
+	assert_eq(_attempt().record.board.actions.size(), boundary_actions)
+	assert_true(physical_owner.has_method("flush_pending_attempt"), "the owner flushes pending progress before a save")
+	if not physical_owner.has_method("flush_pending_attempt"): return
+	var flushed: Dictionary = physical_owner.flush_pending_attempt()
+	assert_true(flushed.get("ok", false), str(flushed))
+	assert_gt(int(_attempt().revision), boundary_revision, "a flush commits the pending routine progress")
+	assert_eq(_attempt().record.board.actions.size(), boundary_actions + 2)
+	assert_eq(checkpoint_calls, boundary_checkpoints, "a flush writes no run checkpoint of its own")
+	var flushed_revision := int(_attempt().revision)
+	assert_true(physical_owner.flush_pending_attempt().get("ok", false))
+	assert_eq(int(_attempt().revision), flushed_revision, "a second flush has nothing to commit")
+	assert_false(gate.is_active(), "the flush releases the lease it took")
+
+func test_refused_admission_keeps_uncommitted_progress_flushable() -> void:
+	var boundary_revision := _enter_walled_board()
+	assert_true(_dispatch("flag", 306).ok)
+	var live := command.duplicate(true)
+	# A different day is a different slot, so the live board refuses the new admission.
+	assert_eq(_begin("other-day", "solo", 2).code, &"dating_challenge_already_active")
+	command = live
+	assert_true(physical_owner.flush_pending_attempt().get("ok", false))
+	assert_gt(int(_attempt().revision), boundary_revision, "a refused admission keeps pending progress flushable")
+	assert_eq(_attempt().record.board.flagged_indices, [306])
+
+func test_failed_load_rollback_keeps_uncommitted_progress_flushable() -> void:
+	var boundary_revision := _enter_walled_board()
+	assert_true(_dispatch("flag", 306).ok)
+	var live_state := _backup()
+	var retained: Dictionary = physical_owner.capture_reconciliation_state().value
+	# The run participant applied a Load; a later participant failed, so everything rolls back.
+	assert_true(physical_owner.reconcile_restore_silent({"route_id": "dating"}).ok)
+	_restore(live_state)
+	assert_true(physical_owner.rollback_reconciliation_silent(retained).ok)
+	assert_eq(_record().board.flagged_indices, [306])
+	assert_true(physical_owner.flush_pending_attempt().get("ok", false))
+	assert_gt(int(_attempt().revision), boundary_revision, "rolled-back progress is still uncommitted and flushes")
+	assert_eq(_attempt().record.board.flagged_indices, [306])
+
+func test_flush_pending_attempt_uses_the_active_causal_lease_or_takes_its_own() -> void:
+	var boundary_revision := _enter_walled_board()
+	assert_true(_dispatch("flag", 306).ok)
+	if not physical_owner.has_method("flush_pending_attempt"):
+		assert_true(false, "the owner flushes pending progress before a save")
+		return
+	var foreign: Dictionary = gate.acquire(&"restore")
+	assert_true(foreign.ok)
+	var refused: Dictionary = physical_owner.flush_pending_attempt()
+	assert_false(refused.get("ok", false), "pending progress cannot commit under a foreign lease")
+	assert_eq(int(_attempt().revision), boundary_revision)
+	assert_true(gate.release(&"restore", foreign.value.token).ok)
+	var lease: Dictionary = gate.acquire(&"causal_transaction")
+	assert_true(lease.ok)
+	assert_true(physical_owner.flush_pending_attempt().get("ok", false), "an active causal lease is reused")
+	assert_true(gate.is_lease_active(&"causal_transaction", lease.value.token), "the caller keeps its lease")
+	assert_true(gate.release(&"causal_transaction", lease.value.token).ok)
+	assert_gt(int(_attempt().revision), boundary_revision)
+	foreign = gate.acquire(&"restore")
+	assert_true(physical_owner.flush_pending_attempt().get("ok", false), "nothing pending is fine under any owner")
+	assert_true(gate.release(&"restore", foreign.value.token).ok)
 
 func test_continue_freezes_existing_spec_and_first_reveal_freezes_exact_layout() -> void:
 	assert_true(_begin().ok)
@@ -270,6 +366,8 @@ func test_restored_mid_board_new_command_preserves_exact_materialized_instance()
 	assert_eq(_record().completion_transaction_id, command.completion_transaction_id)
 	assert_eq(generation.call_log.size(), 1)
 	assert_true(_dispatch("flag", 0).ok)
+	# dwm-634.2: routine progress reaches Profile at the next save, not per click.
+	assert_true(physical_owner.flush_pending_attempt().ok)
 	assert_eq(_attempt().record.board, _record().board)
 
 func _begin_pair() -> void:
@@ -450,9 +548,12 @@ func test_post_ending_copied_action_profile_and_checkpoint_failures_preserve_ret
 	var checkpoints_before_routine := checkpoint_calls
 	assert_true(_dispatch("flag", 1).ok)
 	assert_eq(checkpoint_calls, checkpoints_before_routine, "a routine flag writes no run checkpoint")
-	before = state.to_save_dict()
 	reject_checkpoint = true
-	assert_eq(_dispatch("reveal", 323).code, &"fixture_checkpoint_failure")
+	# dwm-634.2: the terminal reveal paints first and is accepted; the failing run checkpoint
+	# belongs to its settlement, which rolls back to the painted board.
+	assert_true(physical_owner.dispatch_physical(command.physical_token, "reveal", 323, int(_record().board.revision)).ok)
+	before = state.to_save_dict()
+	assert_eq(_dispatch("settle").code, &"fixture_checkpoint_failure")
 	assert_eq(state.to_save_dict(), before)
 	var durable: Dictionary = profile.get_dating_attempt(str(identity.run_id), slot,
 		str(parent.attempt_id), "copied-failure-branch").value

@@ -98,6 +98,29 @@ func test_first_cell_layout_and_action_prefix_survive_only_monotonic_progress() 
 	assert_false(LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-a", flagged, 1).ok)
 	assert_false(LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-a", flagged, 2, 37).ok)
 
+func test_painted_terminal_board_awaiting_settlement_is_valid_monotonic_progress() -> void:
+	# dwm-634.2: a terminal reveal only paints; a save between the paint and its settlement
+	# commits the board with no outcome yet, and settlement then advances it in place.
+	var record := _record()
+	var ledger: Dictionary = LEDGER.prepare_update({}, "run-a", SLOT, "branch-a", record, 0).value.ledger
+	# The bottom corner floods every safe cell, so the first reveal already clears the board.
+	var settled := _materialize(record, 323)
+	assert_true(settled.board.terminal)
+	var unsettled := settled.duplicate(true)
+	unsettled.phase = "challenge"
+	unsettled.outcome = null
+	unsettled.perfect_reasons = []
+	var painted: Dictionary = LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-a", unsettled, 1, 323)
+	assert_true(painted.ok, str(painted))
+	if not painted.ok: return
+	assert_eq(LEDGER.read(painted.value.ledger, "run-a", SLOT).value.record.phase, "challenge")
+	var progressed: Dictionary = LEDGER.prepare_update(painted.value.ledger, "run-a", SLOT, "branch-a", settled, 2)
+	assert_true(progressed.ok, str(progressed))
+	var half := unsettled.duplicate(true)
+	half.outcome = settled.outcome
+	assert_false(LEDGER.prepare_update(ledger, "run-a", SLOT, "branch-a", half, 1, 323).ok,
+		"an unsettled board carries no outcome")
+
 func test_clear_and_terminal_choices_are_write_once_without_full_snapshot_history() -> void:
 	var record := _record()
 	var ledger: Dictionary = LEDGER.prepare_update({}, "run-a", SLOT, "branch-a", record, 0).value.ledger

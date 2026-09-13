@@ -32,6 +32,8 @@ var _checkpoint_writer: Callable
 var _admitted_command: Dictionary = {}
 var _attempt_gate: Object
 var _first_cell_index := -1
+## dwm-634.2: routine board progress since the last Profile attempt commit; owner-local only.
+var _routine_pending := false
 var _pending_checkpoint: Dictionary = {}
 var _history_selection: Dictionary = {}
 var _history_reference: Dictionary = {}
@@ -85,6 +87,9 @@ func configure_checkpoint_writer(writer: Callable) -> Dictionary:
 func begin_physical(command: Dictionary) -> Dictionary:
 	var result: Dictionary = _with_checkpoint(_begin_physical.bind(command), false, false)
 	if result.get("ok", false):
+		# An admitted record is rebound from Profile or freshly stored, so nothing is pending;
+		# a refused admission leaves the live board and its pending progress untouched.
+		_routine_pending = false
 		_admitted_command = command.duplicate(true)
 		var source: Variant = _game_state.route_context.get("dating_observer_source")
 		if source is Dictionary:
@@ -215,7 +220,7 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 			var prepared: Dictionary = _advance_preparation()
 			if not prepared.get("ok", false): return prepared
 		"challenge":
-			var changed := _board_action(action,cell_index)
+			var changed: Dictionary = _settle_board() if action == "settle" else _board_action(action,cell_index)
 			if not changed.get("ok",false): return changed
 		"cleared_awaiting_terminal_choice":
 			if _record.schema_version == 3:
@@ -254,6 +259,7 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 	# writes no checkpoint of its own (dwm-634.1). Entering, materializing and finishing the
 	# board remain boundaries.
 	var routine_start: bool = _record.get("board") != null and str(_record.get("phase", "")) == "challenge"
+	var prior_pending := _routine_pending
 	if _checkpoint_writer.is_valid():
 		var captured: Dictionary = _game_state.capture_restore_state()
 		if not captured.get("ok", false): return captured
@@ -271,8 +277,15 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 			_record = prior
 			_restore_history_state(prior_history)
 			return result
-		if changed and routine_start and str(_record.get("phase", "")) == "challenge" and not bool(_record.get("board", {}).get("terminal", false)):
+		if changed and routine_start and str(_record.get("phase", "")) == "challenge":
+			# dwm-634.2: routine progress (including an unsettled terminal board) waits in memory;
+			# flush_pending_attempt() commits it before any run save, and settlement is a boundary.
+			# Post-ending branch history keeps its law: a canonical action durably creates or extends
+			# the selected branch, so it still commits per action.
 			if commit_history and _attempt_gate != null:
+				if not _post_ending_history():
+					_routine_pending = true
+					return result
 				var routine_committed: Dictionary = _commit_attempt()
 				if not routine_committed.get("ok", false):
 					_game_state.rollback_restore_silent(backup)
@@ -289,6 +302,7 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 					_game_state.rollback_restore_silent(backup)
 					_record = prior
 					_restore_history_state(prior_history)
+					_routine_pending = prior_pending
 					return committed
 				var reconciled: Dictionary = _apply_record_effect()
 				if not reconciled.get("ok", false):
@@ -314,13 +328,14 @@ func _with_checkpoint(operation: Callable, publish_completion: bool, commit_hist
 func capture_reconciliation_state() -> Dictionary:
 	return _ok({"owner_id": get_instance_id(), "record": _record.duplicate(true),
 		"admitted_command": _admitted_command.duplicate(true), "pending_checkpoint": _pending_checkpoint.duplicate(true),
-		"first_cell_index": _first_cell_index, "history": _history_state()})
+		"first_cell_index": _first_cell_index, "history": _history_state(), "routine_pending": _routine_pending})
 
 func rollback_reconciliation_silent(backup: Dictionary) -> Dictionary:
 	var keys: Array = backup.keys()
 	keys.sort()
-	if keys != ["admitted_command", "first_cell_index", "history", "owner_id", "pending_checkpoint", "record"] \
+	if keys != ["admitted_command", "first_cell_index", "history", "owner_id", "pending_checkpoint", "record", "routine_pending"] \
 			or typeof(backup.owner_id) != TYPE_INT or backup.owner_id != get_instance_id() \
+			or typeof(backup.routine_pending) != TYPE_BOOL \
 			or typeof(backup.first_cell_index) != TYPE_INT or not backup.record is Dictionary \
 			or not backup.admitted_command is Dictionary or not backup.pending_checkpoint is Dictionary \
 			or not backup.history is Dictionary:
@@ -340,6 +355,7 @@ func rollback_reconciliation_silent(backup: Dictionary) -> Dictionary:
 	_admitted_command = backup.admitted_command.duplicate(true)
 	_pending_checkpoint = backup.pending_checkpoint.duplicate(true)
 	_first_cell_index = int(backup.first_cell_index)
+	_routine_pending = bool(backup.routine_pending)
 	_restore_history_state(history)
 	return _ok({})
 
@@ -359,6 +375,7 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	var route_context: Dictionary = snapshot.gameplay.get("route_context", {})
 	var stored: Dictionary = route_context.get("active_dating_challenge", {})
 	_pending_checkpoint = {}
+	_routine_pending = false
 	_clear_history_state()
 	if stored.is_empty() or stored.get("phase") in ["pre_challenge", "preparing"] \
 			or int(stored.get("context", {}).get("day", 0)) != int(snapshot.lifecycle.day) \
@@ -501,8 +518,31 @@ func _commit_attempt() -> Dictionary:
 		retained_record, expected_revision, _first_cell_index, effect, selection)
 	if not prepared.get("ok", false): return prepared
 	var committed: Dictionary = _profile.commit_dating_attempt(prepared.value)
-	if committed.get("ok", false): _select_committed_attempt(committed.value.attempt)
+	if committed.get("ok", false):
+		_select_committed_attempt(committed.value.attempt)
+		_routine_pending = false
 	return committed
+
+## Commits routine board progress that is still only in memory, so a run save never leaves
+## Profile behind the board it saves (dwm-634.2). Runs inside the caller's causal lease when one
+## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
+func flush_pending_attempt() -> Dictionary:
+	if not _routine_pending or _attempt_gate == null or not _pending_checkpoint.is_empty(): return _ok({"committed": false})
+	var lease := {}
+	if not _attempt_gate.is_internal_owner_active(&"causal_transaction"):
+		lease = _attempt_gate.acquire(&"causal_transaction")
+		if not lease.get("ok", false): return lease
+	var prior_history := _history_state()
+	var committed: Dictionary = _commit_attempt()
+	var published: Dictionary = _publish_history_reference() if committed.get("ok", false) else committed
+	if not lease.is_empty():
+		var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
+		if not released.get("ok", false): return released
+	if not committed.get("ok", false):
+		_restore_history_state(prior_history)
+		return committed
+	if not published.get("ok", false): return published
+	return _ok({"committed": true})
 
 func _publish_history_reference() -> Dictionary:
 	if not _history_committed or _history_reference.is_empty(): return _ok({})
@@ -616,7 +656,12 @@ func _board_action(action: String, index: int) -> Dictionary:
 	_record.board = reduced.value.board.duplicate(true)
 	_record.board.outcome = str(_record.board.outcome)
 	for entry: Dictionary in _record.board.actions: entry.kind = str(entry.kind)
-	if not bool(_record.board.terminal): return _ok({})
+	# dwm-634.2: a terminal board only paints here; `settle` runs its settlement on a later frame.
+	return _ok({})
+
+## The settlement a terminal reveal deferred: outcome, terminal choice or effect (dwm-634.2).
+func _settle_board() -> Dictionary:
+	if not _record.board is Dictionary or not bool(_record.board.terminal): return _fail(&"dating_challenge_command_refused", _view())
 	_record.perfect_reasons = RULES.perfect_reasons(_record.board, int(_record.schema_version))
 	_record.outcome = "exploded" if str(_record.board.outcome) == "exploded" else (
 		"cleared" if _record.perfect_reasons.is_empty() else "perfect")
@@ -1002,7 +1047,7 @@ func _view() -> Dictionary:
 		"settlement_retry": actions=["retry"]
 		"completed": actions=["resume_completion"]
 		"preparing": actions=["prepare"]
-		"challenge": actions=["reveal","flag","unflag","chord"]
+		"challenge": actions=["settle"] if _record.board is Dictionary and bool(_record.board.terminal) else ["reveal","flag","unflag","chord"]
 		"cleared_awaiting_terminal_choice": actions=["continue","activate"] if _record.schema_version == 3 else ["continue","special_mine"]
 	return {"phase":_record.phase,"host":_record.host,"board":_project_board(),
 		"outcome":_record.outcome,"actions":actions,"no_flag":_no_flag_status(),
@@ -1130,7 +1175,9 @@ func _valid_record(value: Dictionary, command: Dictionary) -> bool:
 			or board.mine_count < value.spec.base_mine_count or board.mine_count > value.spec.requested_mine_count: return false
 	var dispositions: Array = RULES.dispositions(value.spec, board.mine_count) if expected_host == "canonical_solo" else []
 	if value.mine_dispositions != dispositions: return false
-	if not board.terminal:
+	if not board.terminal or value.phase == "challenge":
+		# dwm-634.2: a terminal board still in `challenge` is painted but unsettled; it carries no
+		# outcome until its `settle` command runs on a later frame.
 		return value.phase == "challenge" and value.outcome == null and value.relationship_outcome == null \
 			and value.perfect_reasons.is_empty() and value.applied_result.is_empty()
 	var reasons: Array = RULES.perfect_reasons(board, int(value.schema_version))

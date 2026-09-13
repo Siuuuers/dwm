@@ -52,6 +52,16 @@ class Profile extends RefCounted:
 		witnesses[token] = form
 		return {"ok": true, "value": {}}
 
+## dwm-634.2: refuses `settle` at the scene's one seam, as a held gate or stale adoption would.
+class RefusingSettlePort extends PORT:
+	var refuse_settle := false
+	var settle_calls := 0
+	func dispatch_physical(presentation_command: Dictionary, action: String, cell_index: int, expected_revision: int) -> Dictionary:
+		if action == "settle":
+			settle_calls += 1
+			if refuse_settle: return {"ok": false, "code": &"TRANSACTION_ACTIVE", "message": "", "details": {}}
+		return super(presentation_command, action, cell_index, expected_revision)
+
 class ReachedProfile extends Profile:
 	const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 	var reached: Dictionary = {}
@@ -283,6 +293,10 @@ func test_mounted_scene_mouse_input_reaches_real_board_and_completion_port() -> 
 	grid._gui_input(down)
 	up.position = down.position
 	grid._gui_input(up)
+	# dwm-634.2: the terminal click paints first; the scene settles it on its next frame.
+	assert_eq(state.saved.phase, "challenge", "the terminal click paints before settlement")
+	assert_true(bool(state.saved.board.terminal))
+	scene._process(0.0)
 	assert_eq(state.saved.phase, "post_challenge")
 	assert_eq(state.applications, 1)
 	assert_true(next.visible)
@@ -292,6 +306,61 @@ func test_mounted_scene_mouse_input_reaches_real_board_and_completion_port() -> 
 	assert_eq((profile as ReachedProfile).reached.size(), 2)
 	next.pressed.emit()
 	assert_eq(completion_results.size(), 1)
+
+func test_mounted_scene_retries_a_refused_settlement_from_continue_not_every_frame() -> void:
+	profile = ReachedProfile.new()
+	physical_owner = OWNER.new()
+	assert_true(physical_owner.configure(issuer, state, profile, generation).ok)
+	var refusing := RefusingSettlePort.new()
+	port = refusing
+	assert_true(port.configure(issuer, physical_owner).ok)
+	_begin("solo")
+	var scene: Control = preload("res://scenes/dating/DatingScene.tscn").instantiate()
+	assert_true(scene.configure_presentation(port, command).ok)
+	add_child_autofree(scene)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_not_null(scene.worksheet)
+	if scene.worksheet == null: return
+	var grid: Control = scene.worksheet.grid
+	var next: Button = scene.find_child("ContinueChallenge", true, false)
+	var title: Label = scene.find_child("ChallengeTitle", true, false)
+	title.draw.emit()
+	scene._process(0.0)
+	next.pressed.emit()
+	await get_tree().process_frame
+	var cell: Control = grid.cell_nodes[36]
+	var down := InputEventMouseButton.new()
+	down.device = 0
+	down.button_index = MOUSE_BUTTON_LEFT
+	down.position = cell.position + cell.size / 2.0
+	down.pressed = true
+	grid._gui_input(down)
+	var up: InputEventMouseButton = down.duplicate()
+	up.pressed = false
+	grid._gui_input(up)
+	var mine: Control = grid.cell_nodes[0]
+	down.position = mine.position + mine.size / 2.0
+	grid._gui_input(down)
+	up.position = down.position
+	grid._gui_input(up)
+	assert_eq(state.saved.phase, "challenge")
+	assert_true(bool(state.saved.board.terminal))
+	# dwm-634.2: the pump tries settlement once; a refusal waits for Retry instead of hot-looping.
+	refusing.refuse_settle = true
+	scene._process(0.0)
+	assert_eq(state.saved.phase, "challenge", "a refused settlement leaves the painted board")
+	assert_eq(refusing.settle_calls, 1)
+	scene._process(0.0)
+	scene._process(0.0)
+	assert_eq(refusing.settle_calls, 1, "a refused settlement is not retried every frame")
+	assert_true(next.visible, "Retry is offered after a refused settlement")
+	assert_eq(next.text, "Retry")
+	refusing.refuse_settle = false
+	next.pressed.emit()
+	assert_eq(refusing.settle_calls, 2)
+	assert_eq(state.saved.phase, "post_challenge")
+	assert_eq(state.applications, 1)
 
 func test_cached_admission_readopts_exact_restored_prior_date_without_new_board_identity() -> void:
 	_begin("solo")
@@ -346,6 +415,18 @@ func _begin(kind: String) -> void:
 	if begun.ok: command = begun.value.presentation_command
 
 func _dispatch(action: String, index: int = -1) -> Dictionary:
+	var result: Dictionary = _dispatch_unsettled(action, index)
+	# dwm-634.2: a terminal reveal only paints; the scene settles it on its next frame, so this
+	# helper settles too and reports that settlement as the command's outcome.
+	if result.get("ok", false) and action != "settle":
+		var pulled: Dictionary = port.pull_physical(command)
+		var view: Dictionary = pulled.get("value", {}) if pulled.get("ok", false) else {}
+		if view.get("phase") == "challenge" and view.get("board") is Dictionary and bool(view.board.terminal):
+			return _dispatch_unsettled("settle")
+	return result
+
+## One command exactly as the scene sends it, with no settlement pump afterwards.
+func _dispatch_unsettled(action: String, index: int = -1) -> Dictionary:
 	var view: Dictionary = port.pull_physical(command)
 	if not view.ok: return view
 	return port.dispatch_physical(command, action, index, int(view.value.board.revision))
@@ -391,3 +472,57 @@ func test_routine_board_actions_defer_receipts_and_write_no_checkpoint() -> void
 	assert_true(_dispatch("reveal", 306).ok)
 	assert_eq(state.saved.phase, "cleared_awaiting_terminal_choice")
 	assert_eq(stored.size(), boundary_checkpoints + 2, "the terminal reveal is a checkpoint boundary")
+
+## dwm-634.2: a terminal reveal only paints; its settlement is its own command on a later frame.
+func _enter_walled_board_with_writer() -> Array:
+	var mines: Array = []
+	for index in 33: mines.append(index)
+	mines.append_array([288, 289, 307])
+	generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,
+		"mine_indices": mines, "mine_count": 36})
+	var stored: Array = []
+	var writer: Callable = func(record: Dictionary) -> Dictionary:
+		stored.append(record.duplicate(true))
+		return {"ok": true, "value": {}}
+	assert_true(physical_owner.configure_checkpoint_writer(writer).ok)
+	_begin("solo")
+	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("reveal", 323).ok)
+	assert_eq(state.saved.phase, "challenge")
+	return stored
+
+func test_losing_reveal_paints_before_its_settlement_runs_as_the_boundary() -> void:
+	var stored: Array = _enter_walled_board_with_writer()
+	var boundary_checkpoints := stored.size()
+	assert_true(_dispatch_unsettled("reveal", 0).ok, "revealing a mine is accepted")
+	assert_eq(state.saved.phase, "challenge", "the losing reveal paints before settlement")
+	assert_true(bool(state.saved.board.terminal))
+	assert_eq(stored.size(), boundary_checkpoints, "an unsettled terminal board writes no checkpoint")
+	assert_eq(state.applications, 0, "no effect applies before settlement")
+	var view: Dictionary = port.pull_physical(command).value
+	assert_eq(view.actions, ["settle"], "only settlement remains on an unsettled terminal board")
+	assert_true(bool(view.board.terminal))
+	assert_false(_dispatch_unsettled("reveal", 1).ok, "no cell action is admitted on a terminal board")
+	assert_true(_dispatch_unsettled("settle").ok)
+	assert_eq(state.saved.phase, "post_challenge")
+	assert_eq(state.saved.outcome, "exploded")
+	assert_eq(stored.size(), boundary_checkpoints + 1, "settlement is the checkpoint boundary")
+	assert_eq(state.applications, 1)
+	assert_false(_dispatch_unsettled("settle").ok, "settlement runs exactly once")
+
+func test_solving_reveal_paints_before_the_terminal_choice_is_offered() -> void:
+	var stored: Array = _enter_walled_board_with_writer()
+	var boundary_checkpoints := stored.size()
+	# A flag on the last safe cell keeps the clear from being Perfect, as the precedent above does.
+	assert_true(_dispatch("flag", 306).ok)
+	assert_true(_dispatch("unflag", 306).ok)
+	assert_true(_dispatch_unsettled("reveal", 306).ok, "revealing the last safe cell is accepted")
+	assert_eq(state.saved.phase, "challenge", "the solving reveal paints before settlement")
+	assert_true(bool(state.saved.board.terminal))
+	assert_eq(stored.size(), boundary_checkpoints, "an unsettled solved board writes no checkpoint")
+	assert_eq(port.pull_physical(command).value.actions, ["settle"])
+	assert_true(_dispatch_unsettled("settle").ok)
+	assert_eq(state.saved.phase, "cleared_awaiting_terminal_choice")
+	assert_eq(state.saved.outcome, "cleared")
+	assert_eq(stored.size(), boundary_checkpoints + 1, "settlement is the checkpoint boundary")
+	assert_eq(state.applications, 0, "clearing cannot apply a relationship outcome")

@@ -41,7 +41,14 @@ func _begin(f: Dictionary) -> bool:
 func _action(f: Dictionary, action: String, index: int = -1) -> Dictionary:
 	var current: Dictionary = f.owner.pull_physical(f.command)
 	if not current.ok: return current
-	return f.owner.dispatch_physical(f.command, action, index, int(current.value.board.revision))
+	var result: Dictionary = f.owner.dispatch_physical(f.command, action, index, int(current.value.board.revision))
+	# dwm-634.2: a terminal reveal only paints; the scene settles it on its next frame.
+	if result.get("ok", false) and action != "settle":
+		var after: Dictionary = f.owner.pull_physical(f.command)
+		var view: Dictionary = after.get("value", {}) if after.get("ok", false) else {}
+		if view.get("phase") == "challenge" and view.get("board") is Dictionary and bool(view.board.terminal):
+			return f.owner.dispatch_physical(f.command, "settle", -1, int(view.board.revision))
+	return result
 
 func _board(f: Dictionary) -> Dictionary:
 	return f.owner._sandbox.capture_dating_challenge_state().value
