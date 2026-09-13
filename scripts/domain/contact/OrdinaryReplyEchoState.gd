@@ -6,7 +6,9 @@ extends RefCounted
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const ROOT := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
-const DAYS := {1: "lavinia", 2: "sylvia", 3: "priscilla", 4: "lavinia", 5: "priscilla", 6: "sylvia"}
+const CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
+# Compatibility alias for callers that enumerate the ordinary-message calendar.
+const DAYS := CALENDAR.ORDINARY_BY_DAY
 const MESSAGE_KINDS := ["ordinary_incoming", "ordinary_reply", "ordinary_response"]
 const RECEIPT_KINDS := ["ordinary_reply", "ordinary_echo_presented"]
 const REPLY_KEYS := ["command_issuer_receipt", "content_version", "day", "echo_id", "entry_id", "friend_id", "kind", "locale", "message_ids", "message_sequences", "plain_text_snapshot", "presentation_atom_id", "rendered_line", "reply_id", "transaction_id", "witnessed_line_id"]
@@ -72,7 +74,8 @@ static func reply_definition(reply_id: String, locale: String = "en") -> Diction
 	return _ok(result)
 
 static func available(state: Dictionary, day: int, friend_id: String, locale: String = "en") -> Dictionary:
-	if DAYS.get(day) != friend_id: return _ok({})
+	var expected_friend := CALENDAR.ordinary_friend(day)
+	if expected_friend.is_empty() or expected_friend != friend_id: return _ok({})
 	var loaded := _load_registry()
 	if not loaded.ok: return loaded
 	var choices: Array = []
@@ -300,7 +303,7 @@ static func _load_registry() -> Dictionary:
 		if not entry.ok or entry.value.role != "ordinary_message": return _fail("ordinary_registry_invalid")
 		var day: int = int(entry.value.day)
 		var friend_id: String = str(reply.owning_entry_id).get_slice(".", 2)
-		if DAYS.get(day) != friend_id: return _fail("ordinary_registry_invalid")
+		if CALENDAR.ordinary_friend(day) != friend_id: return _fail("ordinary_registry_invalid")
 		var choice: String = str(reply.reply_id).get_slice(".", 4)
 		var ordinal: int = ["a", "b", "c"].find(choice)
 		if ordinal < 0: return _fail("ordinary_registry_invalid")

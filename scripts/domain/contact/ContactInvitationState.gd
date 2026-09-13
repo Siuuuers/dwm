@@ -14,13 +14,14 @@ extends RefCounted
 ## the SAME constants rather than keeping a second copy of the law (Task 7 Step 7.3).
 const ORDINARY_REPLIES := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const HOSPITAL_RULES := preload("res://scripts/domain/hospital/HospitalRules.gd")
+const CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
 
 ## THE canonical friend roster (dwm-pm4): DataCatalog and GameState alias this declaration, so
 ## adding or renaming a friend is a one-line change with a drift pin watching all three surfaces.
 const FRIEND_IDS: Array[String] = ["priscilla", "lavinia", "sylvia"]
 ## The one counted Priscilla-Lavinia pair and its group-eligible windows.
 const GROUP_PAIR: Array[String] = ["priscilla", "lavinia"]
-const GROUP_WINDOW_DAYS: Array[int] = [2, 6]
+const GROUP_WINDOW_DAYS: Array[int] = CALENDAR.GROUP_DAYS
 const GROUP_ACTIVATION_ROUND := 3
 const GROUP_PAIR_KEY := "priscilla_lavinia"
 const GROUP_OPEN_STATES: Array[String] = ["AVAILABLE_UNOPENED", "REPLY_REQUIRED", "ACCEPTED"]
@@ -2293,7 +2294,8 @@ static func _validate_care_witness(state: Dictionary, witness_id: String) -> Dic
 	if source.get("kind") != "solo_read_acceptance" or source.get("participants") != ["sylvia"] \
 			or source.get("action_id") != witness.action_id or source.get("receipt_id") != witness.source_receipt_id \
 			or action.get("friend_id") != "sylvia" or action.get("state") != "RESOLVED_MISSED" \
-			or action.get("day") != source.get("day") or int(source.get("day", 0)) not in [1, 3, 4, 5] \
+			or action.get("day") != source.get("day") \
+			or not CALENDAR.is_solo_day("sylvia", int(source.get("day", 0))) \
 			or witness.care_followup_day != int(source.day) + 1 \
 			or witness.care_followup_entry_id != "care.sylvia.day%d" % witness.care_followup_day:
 		return _fail(&"invalid_care_witness_source", witness_id)

@@ -1,0 +1,161 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/cae8b85a-1b1f-4e39-bfc0-84717f3e90b9/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_contact_invitation_state.gd
+* test_defaults_are_empty_and_valid
+* test_solo_offer_returns_linked_candidate_batch_and_parent_receipt
+* test_opening_solo_offer_marks_read_and_accepts_without_a_reply
+* test_replying_solo_offer_is_rejected_as_not_required
+* test_reply_rejects_when_no_available_offer
+* test_prepare_does_not_mutate_input_state
+* test_duplicate_offer_transaction_is_idempotent
+* test_resolve_unanswered_solo_queues_nevermind
+* test_resolve_accepted_but_uncommitted_is_a_missed_question
+* test_resolve_attended_solo_no_message
+* test_resolve_accepted_but_absent_queues_missed_question
+* test_resolve_day7_marks_run_end_no_message
+* test_resolve_is_idempotent
+* test_either_group_participant_can_reply_first
+* test_group_activation_rejected_when_a_solo_missing
+* test_group_second_open_and_second_reply
+* test_one_continued_game_keeps_later_solos_and_both_group_windows
+* test_group_window_replacement_keeps_accepted_history_and_refuses_live_or_same_day
+* test_group_untouched_resolves_unanswered_with_busy
+* test_group_opened_unanswered_resolves_nevermind
+* test_group_one_reply_attended_judges_unreplied
+* test_group_accepted_not_attended_misses_and_defers_twofriends
+* test_group_ordinary_miss_reasons_keep_their_two_questions
+* test_group_hospital_supersession_defers_without_generic_missed_question
+* test_group_day7_forces_run_end
+* test_pl_window_group_attended_counts_once
+* test_pl_window_accepted_missed_counts_once
+* test_pl_window_both_unread_is_private_visible_counts
+* test_pl_window_never_activated_is_private_offscreen_counts
+* test_pl_window_solo_dated_one_is_prevented_no_count
+* test_solo_day_has_no_pl_window
+* test_validate_state_rejects_recursive_task3_union_tampers
+* test_validate_state_accepts_every_genuine_task3_transition_variant
+* test_validate_state_enforces_offer_visibility_and_watermark_by_solo_lineage
+* test_validate_state_requires_one_exact_canonical_resolution_envelope
+* test_validate_state_rejects_valid_typed_resolve_history_tampers
+* test_validate_state_rejects_day7_prestates_that_disagree_with_retained_history
+* test_validate_state_preserves_every_legal_resolution_history_variant
+* test_a_valid_sylvia_witness_record_is_accepted_by_the_opened_index
+* test_the_witness_index_rejects_malformed_records
+* test_the_witness_index_only_accepts_the_schedule_done_resolution_kind
+* test_the_friend_roster_has_one_owner_and_two_aliases
+42/42 passed.
+
+
+res://tests/integration/test_minesweeper_round_transaction.gd
+* test_the_third_day2_round_commits_group_activation_with_its_receipt
+* test_the_second_round_commits_no_activation_and_reports_null
+* test_the_fourth_round_does_not_reactivate
+* test_a_non_window_day_never_activates
+* test_an_already_read_solo_blocks_activation_with_a_null_receipt
+* test_the_third_day6_round_commits_group_activation
+* test_a_dating_round_commits_no_contact_change
+* test_rollback_restores_contacts_beside_gameplay
+* test_the_post_result_checkpoint_carries_the_candidate_contacts
+* test_an_aborted_round_refunds_through_the_rollback_door
+10/10 passed.
+
+
+res://tests/unit/test_ordinary_correspondence_runtime.gd
+* test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once
+* test_reply_rejects_wrong_issuer_stale_session_changed_contacts_and_unrendered_line
+* test_echo_accepts_only_oldest_registered_atom_and_failed_full_checkpoint_keeps_it_pending
+* test_restored_earlier_snapshot_owns_its_pending_echoes_and_rejects_old_session_without_profile_change
+* test_followup_ack_uses_registered_source_rolls_back_and_only_advances_read_watermark
+* test_reusing_ordinary_transaction_id_cannot_falsely_acknowledge_followup
+* test_cached_schedule_commit_cannot_skip_pending_echo_and_succeeds_after_drain
+* test_group_followup_entry_uses_saved_supersession_and_registered_day6_source
+* test_direct_echo_command_cannot_skip_due_followup_even_with_legitimate_current_proof
+* test_missing_saved_followup_source_cannot_authorize_matching_empty_entry_id
+* test_final_reread_failure_restores_existing_autosave_and_cancelled_reply_cannot_resurrect
+* test_final_reread_failure_removes_first_autosave_and_cancelled_reply_cannot_resurrect
+12/12 passed.
+
+
+res://tests/unit/test_ordinary_reply_command_port.gd
+* test_exact_draw_ack_save_failure_retry_and_duplicate_callback
+* test_leaving_cancels_only_exact_unsaved_preview_and_old_cleanup_cannot_cancel_replacement
+* test_load_or_day_change_discards_old_pending_command_and_detached_preview_cannot_mutate_custody
+* test_projection_is_read_only_until_ack_then_shows_exact_three_rows_and_no_choices
+4/4 passed.
+
+
+res://tests/integration/test_day_end_contacts_commit.gd
+* test_unanswered_invitation_rollover_is_saved_before_live_publication
+1/1 passed.
+
+
+res://tests/unit/test_schedule_presentation_port.gd
+* test_project_returns_allowlisted_display_dtos_without_issuing_identity
+* test_append_issues_once_then_repeatable_entry_projection_keeps_private_facts_out
+* test_move_remove_return_fresh_projection_and_stale_or_unknown_append_do_not_issue
+* test_wrong_owner_day_and_sparse_view_refuse_public_projection
+* test_full_docket_publishes_unavailable_without_issuing_then_removal_reopens_sources
+* test_prepare_add_technical_failure_is_propagated_instead_of_marked_unavailable
+* test_existing_date_with_forged_missing_receipt_aborts_projection
+* test_day_seven_same_choice_returns_unchanged_without_unused_identity
+8/8 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_contact_invitation_state.gd
+    - Outside Tests
+        * [<Node#130224752405>(subsystem_animation.gd)]
+        * [<Node#130241529637>(subsystem_audio.gd)]
+        * [<Node#130258306863>]
+        * [<Node#130275084084>]
+        * [<Node#130291861303>(subsystem_backgrounds.gd)]
+        * [<Node#130828732220>(subsystem_choices.gd)]
+        * [<Timer#130845509437>]
+        * [<Node#130862286655>(subsystem_expression.gd)]
+        * [<Node#130895841092>(subsystem_glossary.gd)]
+        * [<Node#130912618309>(subsystem_history.gd)]
+        * [<Node#130929395526>(subsystem_input.gd)]
+        * [<Timer#130946172743>]
+        * [<Node#130962949960>(subsystem_jump.gd)]
+        * [<Node#130979727177>(subsystem_containers.gd)]
+        * [<Node#130996504394>(subsystem_portraits.gd)]
+        * [<Node#131533375307>(subsystem_save.gd)]
+        * [<Timer#131550152524>]
+        * [<Node#131566929741>(subsystem_settings.gd)]
+        * [<Node#131583706961>(subsystem_styles.gd)]
+        * [<Node#131600484178>(subsystem_text.gd)]
+        * [<Node#131684370263>(subsystem_text_input.gd)]
+        * [<Node#131701147480>(subsystem_variables.gd)]
+        * [<Node#131717924697>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#131734701914>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               6
+Tests                77
+Passing Tests        77
+Asserts            1360
+Orphans              24
+Time              1.943s
+
+
+---- All tests passed! ----
