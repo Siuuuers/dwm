@@ -28,6 +28,7 @@ const SCHEMA_PATH := "res://schemas/evidence/phase2r-closeout-gate.schema.json"
 
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const EVIDENCE_GIT := preload("res://tools/evidence/DesktopAmendmentEvidenceGit.gd")
 
 const EVIDENCE_ROOT_RELATIVE := "evidence/phase_2r/closeout"
 const EVIDENCE_LOG_ROOT_RELATIVE := "evidence/phase_2r/closeout/logs"
@@ -61,6 +62,9 @@ const INVENTORY_MODES: Array[String] = [MODE_PRESEAL, MODE_SEALED, MODE_ATTACHED
 const SUBJECT_COMMIT := "1111111111111111111111111111111111111111"
 const TREE_ID := "2222222222222222222222222222222222222222"
 const EMPTY_SHA256 := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+const HISTORICAL_SUBJECT := "a5381ba1b5ab014dcc8249563decf7b01040e40f"
+const HISTORICAL_EVIDENCE_COMMIT := "ce3deea1a4ca46eec87e2388c41721533934055d"
+const HISTORICAL_INDEX_SHA256 := "156a32468c65b2a852276f4630b42408839cedd635e08efba81f1e0f13c40db4"
 
 const COMMAND_IDS: Array[String] = ["docs-validate", "gut-complete", "schedule-gate"]
 const REQUIREMENT_IDS: Array[String] = ["req.config.version", "req.test.isolation", "req.test.layers"]
@@ -391,6 +395,93 @@ func test_a_digest_naming_an_absent_document_is_rejected() -> void:
 	}
 	_write_gate(fixture, gate)
 	_reject_run(fixture, MODE_PRESEAL, &"gate_digest_unreadable")
+
+
+# dwm-15h: the August seal attests its original subject, not today's generated index.
+# These real artifacts supplement the CLI fixtures without changing its live-digest law.
+func test_real_historical_seal_matches_subject_blobs_and_original_evidence_bytes() -> void:
+	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
+	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required for the Git adapter's scratch file")
+	if wrapper.strip_edges().is_empty():
+		return
+	var repository: String = ProjectSettings.globalize_path("res://").trim_suffix("/")
+	var parents: Dictionary = EVIDENCE_GIT.git_run(repository,
+		PackedStringArray(["show", "-s", "--format=%P", HISTORICAL_EVIDENCE_COMMIT]))
+	assert_true(parents.get("ok", false), "the original evidence commit must remain readable")
+	assert_eq(str(parents.get("output", "")).strip_edges(), HISTORICAL_SUBJECT,
+		"the evidence commit must retain its one attested subject parent")
+	var documents: Dictionary = {}
+	for relative: String in [VALIDATION_GATE_PATH, EVIDENCE_ROOT_RELATIVE + "/validation_receipt.json",
+			EVIDENCE_LOG_ROOT_RELATIVE + "/validation-command.jsonl", VALIDATION_LOG_PATH]:
+		var original: Dictionary = EVIDENCE_GIT.blob_bytes_at_commit(repository, HISTORICAL_EVIDENCE_COMMIT, relative)
+		assert_true(original.get("ok", false), "the sealed artifact must exist at its evidence commit: " + relative)
+		if not original.get("ok", false):
+			return
+		var bytes: PackedByteArray = FileAccess.get_file_as_bytes("res://" + relative)
+		assert_eq(bytes, original.value.bytes, "historical evidence must remain byte-for-byte unchanged: " + relative)
+		if relative == VALIDATION_LOG_PATH:
+			continue
+		var parsed: Dictionary = STRICT_JSON.parse_object(bytes.get_string_from_utf8())
+		assert_true(parsed.get("ok", false), "the real sealed document must be strict JSON: " + relative)
+		if not parsed.get("ok", false):
+			return
+		documents[relative] = parsed.value
+	var gate: Dictionary = documents[VALIDATION_GATE_PATH]
+	var receipt: Dictionary = documents[EVIDENCE_ROOT_RELATIVE + "/validation_receipt.json"]
+	var command: Dictionary = documents[EVIDENCE_LOG_ROOT_RELATIVE + "/validation-command.jsonl"]
+	for document: Dictionary in [gate, receipt, command]:
+		assert_eq(document.subject_commit, HISTORICAL_SUBJECT)
+	var digest_paths: Dictionary = {
+		"authority": "docs/design/2026-08-11-phase-2r-foundation-repair-current-authority.md",
+		"plan": "docs/superpowers/plans/2026-08-11-desktop-minesweeper-shop-schedule-04-verification-closeout.md",
+		"requirement_index": "prompt_docs/INDEX.md",
+		"design_authority_registry": "prompt_docs/metadata/design_authority_registry.v1.json",
+	}
+	assert_eq(gate.digests.size(), digest_paths.size())
+	for key: String in digest_paths:
+		var relative: String = digest_paths[key]
+		var recorded: Dictionary = gate.digests[key]
+		assert_eq(recorded.path, relative)
+		var original: Dictionary = EVIDENCE_GIT.blob_bytes_at_commit(repository, HISTORICAL_SUBJECT, relative)
+		assert_true(original.get("ok", false), "the bound authority must exist at the subject: " + relative)
+		if not original.get("ok", false):
+			return
+		assert_eq(_sha256_bytes(original.value.bytes), recorded.sha256,
+			"the original subject bytes must match the sealed " + key + " digest")
+	assert_eq(gate.digests.requirement_index.sha256, HISTORICAL_INDEX_SHA256)
+	var gate_hash: String = _sha256_bytes(FileAccess.get_file_as_bytes("res://" + VALIDATION_GATE_PATH))
+	var log_hash: String = _sha256_bytes(FileAccess.get_file_as_bytes("res://" + VALIDATION_LOG_PATH))
+	assert_eq(receipt.gate_sha256, gate_hash)
+	assert_eq(command.gate_sha256, gate_hash)
+	assert_eq(receipt.validation_command_record_sha256,
+		_sha256_bytes(FileAccess.get_file_as_bytes("res://" + EVIDENCE_LOG_ROOT_RELATIVE + "/validation-command.jsonl")))
+	assert_eq(receipt.validation_log_sha256, log_hash)
+	assert_eq(command.log_sha256, log_hash)
+	assert_eq(command.gate_path, VALIDATION_GATE_PATH)
+	assert_eq(command.log_path, VALIDATION_LOG_PATH)
+	assert_eq(command.command_id, VALIDATION_COMMAND_ID)
+	assert_eq(command.exit_code, 0)
+	assert_eq(receipt.validator_exit_code, 0)
+
+
+func test_real_historical_closeout_still_refuses_the_live_requirement_index() -> void:
+	assert_ne(_sha256_bytes(FileAccess.get_file_as_bytes("res://prompt_docs/INDEX.md")), HISTORICAL_INDEX_SHA256,
+		"the approved post-seal index remains live; it must not be rolled back to make the historical gate pass")
+	var result: Dictionary = _run(PackedStringArray([
+		"--mode=sealed-pre-attach",
+		"--metadata=res://prompt_docs/metadata/phase_2r_beads.v1.json",
+		"--beads=res://evidence/phase_2r/closeout/preclose_beads_snapshot.json",
+		"--requirements=res://prompt_docs/INDEX.md",
+		"--evidence-root=res://evidence/phase_2r/closeout",
+		"--gate=res://evidence/phase_2r/closeout/gate.json",
+		"--receipt=res://evidence/phase_2r/closeout/validation_receipt.json",
+	]))
+	assert_false(result.get("ok", true), "a historical seal must not claim the current checkout passed")
+	assert_eq(str(result.get("code", "")), "gate_digest_mismatch")
+	assert_eq(result.get("details", {}), {"digest": "requirement_index", "path": "prompt_docs/INDEX.md"})
+	var script: Script = _validator()
+	if script != null:
+		assert_eq(script.exit_code_for(result), 1)
 
 
 # =================================================================================================
