@@ -1099,3 +1099,89 @@ func test_adopt_discards_the_token_on_a_different_hash_or_a_null_pending_and_rep
 	assert_true(state.commit(cleared["value"]["candidate"]).get("ok", false))
 	assert_eq(str(state.get("_proven_pending_payload_sha256")), "",
 		"adopting a null pending clears the retained token")
+
+
+# -------------------------------------------------------------------------------------------------
+# Copy-on-adopt, pinned. A proposal to let `commit()` TAKE the tree `validate()` already detached
+# (click-latency Step 3, ~5-10 ms) was dropped by owner ruling: the caller keeps a reference to the
+# very tree it handed to `commit()`, so an adopt by transfer would have required `commit()` to consume
+# or re-point the caller's own candidate, and that semantics change is not worth the milliseconds.
+# These rows pin the law that decided it: whatever a caller still holds after `commit()` -- a
+# candidate this class prepared, or one the caller built itself -- can never reach the live state.
+# -------------------------------------------------------------------------------------------------
+
+func _pending_notification_entry() -> Dictionary:
+	return {"key": "notify-1", "payload_hash": _sha256({"a": 1}), "provenance": {"x": 1},
+		"consumer": "day_advance", "status": "pending"}
+
+
+func test_restore_commit_does_not_alias_a_caller_retained_candidate() -> void:
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	var proven := str((captured["pending"] as Dictionary)["recovery_payload_sha256"])
+	# Seed every subtree _adopt_state() copies today, so each one is a real probe below.
+	captured["outbox"] = {"notification": _pending_notification_entry()}
+	(captured["shop_ledger"] as Dictionary)["base_completion_receipts"] = [_completion(1, "causal-day-1")]
+
+	var prepared: Dictionary = state.prepare_restore(captured, proven)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var candidate: Dictionary = prepared["value"]["candidate"]
+	assert_true(state.commit(candidate).get("ok", false))
+	var before: Dictionary = state.capture()["value"]["state"]
+	assert_eq(int(before["run_revision"]), 1, "baseline: the adopted state is the one that was prepared")
+	assert_eq(str((before["outbox"] as Dictionary)["notification"]["status"]), "pending")
+
+	# The live tree is not reachable from the candidate the caller still holds.
+	var retained_state: Dictionary = candidate["state_after"]
+	assert_false(is_same(state.get("_pending"), retained_state["pending"]),
+		"commit() leaves the caller's candidate holding no reference to the live pending record")
+
+	# The caller keeps using the candidate it handed to commit().
+	(retained_state["pending"] as Dictionary)["recovery_payload"]["participant_snapshot_ids"] = {"leak": 1}
+	(retained_state["pending"] as Dictionary)["stage"] = &"publication_pending"
+	(retained_state["outbox"] as Dictionary)["notification"]["status"] = "published"
+	(retained_state["shop_ledger"] as Dictionary)["supportz_branch_purchase_count"] = 9
+	((retained_state["shop_ledger"] as Dictionary)["base_completion_receipts"] as Array) \
+		.append(_completion(2, "causal-day-1"))
+	retained_state["run_revision"] = 404
+
+	var after: Dictionary = state.capture()["value"]["state"]
+	assert_eq(after, before, "mutating the retained candidate after commit cannot move the live state")
+	assert_eq((after["pending"] as Dictionary)["recovery_payload"]["participant_snapshot_ids"], {},
+		"the live pending still owns the payload it adopted")
+	assert_eq(str((after["pending"] as Dictionary)["stage"]), "sequence_committed")
+	assert_eq(str((after["outbox"] as Dictionary)["notification"]["status"]), "pending")
+	assert_eq(int((after["shop_ledger"] as Dictionary)["supportz_branch_purchase_count"]), 0)
+	assert_eq(((after["shop_ledger"] as Dictionary)["base_completion_receipts"] as Array).size(), 1)
+	assert_eq(int(after["run_revision"]), 1)
+	# The proof threaded in Step 1 still belongs to the live pending after an adopt by transfer.
+	assert_eq(_ordinary_advance_token(state), proven)
+
+
+func test_a_hand_built_restore_candidate_is_adopted_by_copy() -> void:
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	captured["outbox"] = {"notification": _pending_notification_entry()}
+	(captured["shop_ledger"] as Dictionary)["base_completion_receipts"] = [_completion(1, "causal-day-1")]
+
+	# The shape every caller outside this class builds: a restore candidate this class never prepared,
+	# whose state_after is a tree the caller owns and keeps.
+	var hand_built := {"kind": &"restore", "state_after": captured}
+	assert_true(state.commit(hand_built).get("ok", false))
+	var before: Dictionary = state.capture()["value"]["state"]
+	assert_eq(str((before["outbox"] as Dictionary)["notification"]["status"]), "pending")
+	assert_false(is_same(state.get("_pending"), captured["pending"]),
+		"the candidate is copied, so the live pending is this class's own record")
+
+	(captured["pending"] as Dictionary)["recovery_payload"]["participant_snapshot_ids"] = {"leak": 1}
+	(captured["outbox"] as Dictionary)["notification"]["status"] = "published"
+	(captured["shop_ledger"] as Dictionary)["supportz_branch_purchase_count"] = 9
+	((captured["shop_ledger"] as Dictionary)["base_completion_receipts"] as Array) \
+		.append(_completion(2, "causal-day-1"))
+
+	var after: Dictionary = state.capture()["value"]["state"]
+	assert_eq(after, before, "a candidate this class did not detach is still adopted by copy")
+	assert_eq((after["pending"] as Dictionary)["recovery_payload"]["participant_snapshot_ids"], {})
+	assert_eq(str((after["outbox"] as Dictionary)["notification"]["status"]), "pending")
+	assert_eq(int((after["shop_ledger"] as Dictionary)["supportz_branch_purchase_count"]), 0)
+	assert_eq(((after["shop_ledger"] as Dictionary)["base_completion_receipts"] as Array).size(), 1)
