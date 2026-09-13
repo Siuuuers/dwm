@@ -435,16 +435,23 @@ func commit(candidate: Dictionary) -> Dictionary:
 
 func _compact_prior_command_results() -> void:
 	# Only the latest accepted command needs its exact retry response. Retain older receipt
-	# fingerprints and revisions so repeats acknowledge completion and changed requests conflict,
+	# fingerprints and acknowledgement results so repeats complete and changed requests conflict,
 	# without copying every historical board into each capture/save. First-Reveal receipts keep
 	# their paid-start/publication proof. Legacy full results compact only on a new accepted input.
 	for entry: Variant in _command_receipts.values():
 		if not entry is Dictionary or str(entry.get("command_kind", "")) not in ["board_command", "visibility"]: continue
 		if not entry.get("result") is Dictionary or not entry.get("post_revision") is int: continue
 		var prior: Dictionary = entry.result
-		if str(prior.get("code", "")) == "board_command_already_applied": continue
-		entry["result"] = {"ok": true, "code": &"board_command_already_applied",
-			"value": {"already_applied": true, "revision": int(entry["post_revision"])}, "receipt": {}}
+		if str(prior.get("code", "")) != "board_command_already_applied":
+			entry["result"] = {"ok": true, "code": &"board_command_already_applied",
+				"value": {"already_applied": true, "revision": int(entry["post_revision"])}, "receipt": {}}
+		# Only the known full receipt loses metadata. Preserve opaque extensions and malformed
+		# legacy entries on their existing result-compaction path; minimal receipts skip above.
+		if entry.size() != 6 or not entry.has_all(["request_fingerprint", "identity_fingerprint", "pre_revision"]): continue
+		if typeof(entry.request_fingerprint) != TYPE_STRING or typeof(entry.identity_fingerprint) != TYPE_STRING \
+				or typeof(entry.pre_revision) != TYPE_INT: continue
+		for field: String in ["command_kind", "identity_fingerprint", "pre_revision", "post_revision"]:
+			entry.erase(field)
 
 
 # ---------------------------------------------------------------------------------------------

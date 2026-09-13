@@ -1,0 +1,117 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/e95d0667-bb82-49d4-9fba-1ebbf57460ed/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_desktop_board_state.gd
+* test_state_script_loads
+* test_state_instantiates
+* test_fresh_state_is_none_phase_with_zero_revision
+* test_capture_shape_is_exactly_nine_keys
+* test_reset_returns_to_fresh_state
+* test_capture_is_detached_from_internal_state
+* test_prepare_debug_candidate_from_none_transitions_to_preparing
+* test_prepare_debug_candidate_rejects_when_not_none_phase
+* test_prepare_debug_candidate_rejects_stale_revision
+* test_prepare_debug_candidate_rejects_invalid_identity
+* test_prepare_debug_slice_progress_stays_in_preparing
+* test_prepare_debug_slice_certified_transitions_to_prepared_unstarted
+* test_debug_is_cost_free_through_prepared_unstarted
+* test_prepare_debug_slice_rejects_wrong_phase
+* test_prepare_debug_slice_rejects_identity_mismatch
+* test_default_and_lucky_remain_none_until_reveal
+* test_prepare_first_reveal_from_none_populates_board_and_receipt
+* test_prepare_first_reveal_from_prepared_unstarted_adopts_certified_layout
+* test_prepare_first_reveal_rejects_forced_cell_mismatch_from_prepared_unstarted
+* test_prepare_first_reveal_rejects_wrong_phase
+* test_prepare_board_command_reveal_commits_new_revision
+* test_prepare_board_command_rejects_when_suspended
+* test_prepare_visibility_suspend_then_resume
+* test_prepare_visibility_rejects_from_none
+* test_prepare_settlement_requires_terminal_board
+* test_prepare_settlement_on_terminal_board_transitions_to_settling
+* test_commit_duplicate_transaction_id_same_payload_replays_result
+* test_routine_receipts_keep_latest_retry_but_compact_older_boards_after_acceptance
+    [Failed]:  DICTIONARY({ "request_fingerprint": "99436e77d494527eedadf525ecfb59becf86ebfc26101fbc48438... {  } } }) != DICTIONARY({ "request_fingerprint": "99436e77d494527eedadf525ecfb59becf86ebfc26101fbc48438... {  } } }).
+    { "request_fingerprint": "99436e77d49452...: {  } } } != { "request_fingerprint": "99436e77d49452...: {  } } }  4 of 6 keys do not match.  older visibility receipts retain the exact retry contract without redundant metadata
+      at line 374
+* test_legacy_compacted_board_receipt_sheds_metadata_only_after_new_acceptance
+    [Failed]:  DICTIONARY({ "request_fingerprint": "f45faefefddc2f3f03af990251728b2c476130aaaf50ef91e6eb8... {  } } }) != DICTIONARY({ "request_fingerprint": "f45faefefddc2f3f03af990251728b2c476130aaaf50ef91e6eb8... {  } } }).
+    { "request_fingerprint": "f45faefefddc2f...: {  } } } != { "request_fingerprint": "f45faefefddc2f...: {  } } }  4 of 6 keys do not match.  the next accepted command compacts legacy metadata without changing its acknowledgement
+      at line 425
+* test_receipt_metadata_compaction_preserves_unknown_extended_and_minimal_records
+* test_commit_duplicate_transaction_id_changed_payload_conflicts
+* test_stale_revision_rejected_across_every_prepare_method
+* test_prepare_candidate_mutation_before_commit_does_not_leak_into_a_prior_capture
+* test_captured_result_mutation_does_not_leak_into_internal_state
+* test_prepare_restore_round_trips_a_captured_snapshot
+* test_prepare_restore_rejects_bad_member_set
+* test_prepare_restore_rejects_phase_invariant_violation
+35/37 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_board_state.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_desktop_board_state.gd
+- test_routine_receipts_keep_latest_retry_but_compact_older_boards_after_acceptance
+    [Failed]:  DICTIONARY({ "request_fingerprint": "99436e77d494527eedadf525ecfb59becf86ebfc26101fbc48438... {  } } }) != DICTIONARY({ "request_fingerprint": "99436e77d494527eedadf525ecfb59becf86ebfc26101fbc48438... {  } } }).
+    { "request_fingerprint": "99436e77d49452...: {  } } } != { "request_fingerprint": "99436e77d49452...: {  } } }  4 of 6 keys do not match.  older visibility receipts retain the exact retry contract without redundant metadata
+          at line 374
+- test_legacy_compacted_board_receipt_sheds_metadata_only_after_new_acceptance
+    [Failed]:  DICTIONARY({ "request_fingerprint": "f45faefefddc2f3f03af990251728b2c476130aaaf50ef91e6eb8... {  } } }) != DICTIONARY({ "request_fingerprint": "f45faefefddc2f3f03af990251728b2c476130aaaf50ef91e6eb8... {  } } }).
+    { "request_fingerprint": "f45faefefddc2f...: {  } } } != { "request_fingerprint": "f45faefefddc2f...: {  } } }  4 of 6 keys do not match.  the next accepted command compacts legacy metadata without changing its acknowledgement
+          at line 425
+
+Totals
+------
+Scripts               1
+Tests                37
+Passing Tests        35
+Failing Tests         2
+Asserts           155/157
+Orphans              24
+Time              0.46s
+
+
+---- 2 failing tests ----

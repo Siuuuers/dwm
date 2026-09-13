@@ -196,6 +196,90 @@ func test_prepare_remaps_board_identity_receipts_and_consequence_pending() -> vo
 	assert_eq((receipt_shape["remap_receipt_provenance"] as Dictionary)["child_kind"], "continuation_operation")
 	assert_eq((receipt_shape["remap_receipt_provenance"] as Dictionary)["source_ids"], ["old-tx-1"])
 
+
+func test_prepare_rekeys_compact_and_full_command_receipts_without_inventing_metadata() -> void:
+	if not _exists(): return
+	var compact_id := "old-tx-compact"
+	var first_id := "old-tx-first"
+	var latest_id := "old-tx-latest"
+	var unknown_id := "old-tx-unknown"
+	var source_commit := _child_provenance(_transaction_receipt(compact_id), "board_start", 0, [])
+	var snapshot := _snapshot(compact_id, source_commit)
+	var board: Dictionary = snapshot["desktop"]["board"]
+	var old_identity_fp := str(board["command_receipts"][compact_id]["identity_fingerprint"])
+	var compact_receipt := {
+		"request_fingerprint": "compact-fingerprint",
+		"result": {"ok": true, "code": &"board_command_already_applied",
+			"value": {"already_applied": true, "revision": 1}, "receipt": {}},
+	}
+	var first_receipt := {
+		"request_fingerprint": "first-fingerprint", "identity_fingerprint": old_identity_fp,
+		"pre_revision": 0, "post_revision": 1, "command_kind": "first_reveal",
+		"result": {"ok": true, "code": &"first_reveal_committed",
+			"value": {"receipt": {"checkpoint_id": "checkpoint.fixture-first"}}, "receipt": {}},
+	}
+	var latest_receipt := {
+		"request_fingerprint": "latest-fingerprint", "identity_fingerprint": old_identity_fp,
+		"pre_revision": 2, "post_revision": 3, "command_kind": "visibility",
+		"result": {"ok": true, "code": &"ok", "value": {"visible": true}, "receipt": {}},
+	}
+	var unknown_receipt := {
+		"request_fingerprint": "unknown-fingerprint", "command_kind": "future_command",
+		"result": {"ok": true, "value": {"opaque": ["retained"]}},
+		"future_metadata": {"must_survive": true},
+	}
+	board["command_receipts"] = {}
+	board["command_receipts"][compact_id] = compact_receipt.duplicate(true)
+	board["command_receipts"][first_id] = first_receipt.duplicate(true)
+	board["command_receipts"][latest_id] = latest_receipt.duplicate(true)
+	board["command_receipts"][unknown_id] = unknown_receipt.duplicate(true)
+	var frozen_snapshot: Dictionary = snapshot.duplicate(true)
+	var bundle := _bundle(compact_id, "new-tx-compact")
+	var target_ids := {}
+	target_ids[first_id] = "new-tx-first"
+	target_ids[latest_id] = "new-tx-latest"
+	target_ids[unknown_id] = "new-tx-unknown"
+	for old_id: String in target_ids:
+		var new_id := str(target_ids[old_id])
+		bundle["transaction_remap"][old_id] = {
+			"source_transaction_id": old_id, "new_transaction_id": new_id,
+			"new_transaction_issuer_receipt": _transaction_receipt(new_id),
+		}
+
+	var prepared: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-compact", bundle)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	if not prepared.get("ok", false): return
+	var candidate: Dictionary = prepared["value"]["snapshot"]
+	var remapped_board: Dictionary = candidate["desktop"]["board"]
+	var receipts: Dictionary = remapped_board["command_receipts"]
+	for old_id: String in [compact_id, first_id, latest_id, unknown_id]:
+		assert_false(receipts.has(old_id), "the source command key is retired: " + old_id)
+	for new_id: String in ["new-tx-compact", "new-tx-first", "new-tx-latest", "new-tx-unknown"]:
+		assert_true(receipts.has(new_id), "the declared replacement command key exists: " + new_id)
+	assert_eq(receipts["new-tx-compact"], compact_receipt,
+		"a compact receipt remains exactly its two-key content")
+	assert_eq(receipts["new-tx-unknown"], unknown_receipt,
+		"an opaque command with no identity metadata is rekeyed without reinterpretation")
+	var new_identity_fp: Dictionary = _identity().call("fingerprint", remapped_board["identity"])
+	var expected_first: Dictionary = first_receipt.duplicate(true)
+	expected_first["identity_fingerprint"] = str(new_identity_fp["value"]["fingerprint"])
+	var expected_latest: Dictionary = latest_receipt.duplicate(true)
+	expected_latest["identity_fingerprint"] = str(new_identity_fp["value"]["fingerprint"])
+	assert_eq(receipts["new-tx-first"], expected_first,
+		"full first-Reveal evidence keeps its result while its present identity is updated")
+	assert_eq(receipts["new-tx-latest"], expected_latest,
+		"the latest full routine result keeps its result while its present identity is updated")
+	assert_eq(snapshot, frozen_snapshot, "preparation does not mutate the source receipt ledger")
+
+	var validated: Dictionary = _remapper().call("validate_remap", snapshot, candidate)
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	assert_eq(snapshot, frozen_snapshot, "independent reproduction leaves the source detached")
+	var remapped_compact_value: Dictionary = receipts["new-tx-compact"]["result"]["value"]
+	remapped_compact_value["revision"] = 999
+	assert_eq(snapshot["desktop"]["board"]["command_receipts"][compact_id], compact_receipt,
+		"mutating the prepared compact receipt cannot leak into the source")
+
+
 func test_prepare_rejects_a_transaction_remap_missing_a_rewindable_id() -> void:
 	if not _exists(): return
 	var source_commit := _child_provenance(_transaction_receipt("old-tx-2"), "board_start", 0, [])
