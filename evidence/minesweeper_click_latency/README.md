@@ -23,3 +23,18 @@ step name and the commit it measured.
   written RED for the next step, not marker regressions).
 
 The markers cost one boolean per phase while the variables are unset.
+### Step: splice remembered bundle texts into the autosave document (commit after 989216180)
+
+- settlement3-splice-gut-989216180.log: tests/unit/test_checkpoint_journal.gd and
+  tests/unit/test_save_manager_checkpoint_port.gd, 46 passing / 0 failing, including the three RED
+  journal rows and four byte-equality rows (three commits, sentinel-poisoned snapshots, a journal
+  seeded from disk, and a mixed native/checked emitter document with the splice active).
+- settlement3-splice-profile-run1-989216180.log and -run2-: two profiled runs of the same tree.
+  Per App save the current-bundle stringify is 8-14 ms where the whole-document stringify was
+  21-28 ms, and the splice itself is under 0.1 ms; schema validation (34-49 ms) and write_atomic
+  (39-80 ms) are unchanged. Three saves in the run-start sequence before the dating challenge fall
+  back to the whole-document writer (splice_us 29-37 ms) because the reset path installs the
+  initial bundle without passing through the port, so its text is never remembered until it leaves
+  retention; no click sits on that path. End-to-end settled times (win 975 / 874 ms, loss 912 / 946
+  ms against 822 / 776 ms in the marker run) are within this machine's run-to-run variance: the
+  untouched request_fingerprint phase moved from 11.2 to 14-15 ms between the same runs.

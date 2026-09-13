@@ -37,6 +37,11 @@ const DISK_WRITES := [
 	{"kind": &"autosave", "reason": &"automatic"},
 ]
 const AUTOSAVE_RELATIVE_PATH := "autosave.json"
+# Envelope placeholders for the spliced autosave bundles. The leading/trailing C0 control keeps a
+# sentinel off the canonical writer's native-encoder path, and no saved string can collide with a
+# token's position because the envelope carries nothing but these sentinels and fixed keys.
+const SPLICE_SENTINEL_CURRENT := "\u0001dwm-splice-current\u0001"
+const SPLICE_SENTINEL_JOURNAL := "\u0001dwm-splice-journal-%d\u0001"
 
 var _gate: Object = null
 var _save_manager: Object = null
@@ -246,15 +251,33 @@ func commit(candidate: Dictionary) -> Dictionary:
 		profile = {"scope": "save_checkpoint", "checkpoint_id": str(candidate.get("checkpoint_id", "")),
 			"autosave": candidate.get("autosave_document") != null,
 			"history_bundles": history.size() if history is Array else -1, "_started_us": tick}
+	var proven_current_text := ""
 	if candidate.get("autosave_document") != null:
-		var canonical: Dictionary = CANONICAL_JSON.stringify(candidate["autosave_document"])
+		var autosave_document: Dictionary = candidate["autosave_document"]
+		var document_text := ""
+		# Only the NEW current bundle is canonicalised here; the earlier bundles are byte-identical
+		# copies of what their own commits already wrote and proved.
+		if typeof(autosave_document.get("current_snapshot")) == TYPE_DICTIONARY:
+			var current_emitted: Dictionary = CANONICAL_JSON.stringify(autosave_document["current_snapshot"])
+			if current_emitted.get("ok", false):
+				proven_current_text = str(current_emitted["value"])
+				document_text = _splice_autosave_text(autosave_document, proven_current_text)
 		tick = _profile_phase(profile, "stringify_us", tick)
-		if not canonical.get("ok", false):
-			return _profile_result(profile, _fail(&"canonical_serialization_failed", ""))
+		if document_text.is_empty():
+			# Some earlier bundle has no remembered text (a journal seeded from disk, restored or
+			# reset): the whole-document writer remains the authority for these bytes, and this
+			# bundle's own text is only reusable later if it appears verbatim in them.
+			var canonical: Dictionary = CANONICAL_JSON.stringify(autosave_document)
+			if not canonical.get("ok", false):
+				return _profile_result(profile, _fail(&"canonical_serialization_failed", ""))
+			document_text = str(canonical["value"])
+			if proven_current_text != "" and document_text.find(proven_current_text) < 0:
+				proven_current_text = ""
+		tick = _profile_phase(profile, "splice_us", tick)
 		if not profile.is_empty():
-			profile["document_bytes"] = str(canonical["value"]).to_utf8_buffer().size() + 1
+			profile["document_bytes"] = document_text.to_utf8_buffer().size() + 1
 			tick = Time.get_ticks_usec()
-		var outgoing_text := str(canonical["value"]) + "\n"
+		var outgoing_text := document_text + "\n"
 		# Canonical emission proves the text round-trips exactly. Validate this detached
 		# value now (the caller may have edited it since prepare), preserving JSON's
 		# StringName conversion. Only successful proof can seed this exact-text cache.
@@ -286,9 +309,69 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_profile_phase(profile, "journal_us", tick)
 	if not committed.get("ok", false):
 		return _profile_result(profile, committed)
+	# The reread above proved these exact bytes on disk, so the journal may reuse this bundle's
+	# region for as long as it keeps the bundle as its own retained private duplicate.
+	if proven_current_text != "":
+		_journal().remember_committed_bundle_text(
+			str(committed["value"]["checkpoint_id"]), proven_current_text)
 	_remember_proven_documents(validated_texts)
 	return _profile_result(profile, {"ok": true, "code": &"ok",
 		"value": {"checkpoint_id": str(committed["value"]["checkpoint_id"])}})
+
+
+## Composes the outgoing autosave text from the new current bundle's canonical text plus the
+## journal-remembered canonical text of every earlier bundle, splicing them into one tiny
+## canonicalised envelope. The envelope substitutes a C0-prefixed sentinel string for each spliced
+## bundle; because its only string values are those sentinels and the document's own fixed
+## discriminators, every sentinel token appears in the envelope text exactly once at a known offset.
+## Splicing therefore works by offset, never by text replacement, so a bundle whose own text carries
+## a sentinel token cannot displace anything. Returns "" when the bytes cannot be composed this way
+## -- a missing remembered text, or an envelope that does not carry each token exactly once -- and
+## the caller then stringifies the whole document instead.
+func _splice_autosave_text(document: Dictionary, current_text: String) -> String:
+	var earlier: Variant = document.get("recovery_journal")
+	if typeof(earlier) != TYPE_ARRAY:
+		return ""
+	var replacements: Array = [[SPLICE_SENTINEL_CURRENT, current_text]]
+	var sentinels: Array = []
+	for index: int in range((earlier as Array).size()):
+		var bundle: Variant = (earlier as Array)[index]
+		if typeof(bundle) != TYPE_DICTIONARY \
+				or typeof((bundle as Dictionary).get("snapshot")) != TYPE_DICTIONARY:
+			return ""
+		var checkpoint_id := str(((bundle as Dictionary)["snapshot"] as Dictionary).get("checkpoint_id", ""))
+		var remembered: String = _journal().get_retained_bundle_text(checkpoint_id)
+		if remembered.is_empty():
+			return ""
+		var sentinel: String = SPLICE_SENTINEL_JOURNAL % index
+		sentinels.append(sentinel)
+		replacements.append([sentinel, remembered])
+	var envelope := document.duplicate()
+	envelope["current_snapshot"] = SPLICE_SENTINEL_CURRENT
+	envelope["recovery_journal"] = sentinels
+	var emitted: Dictionary = CANONICAL_JSON.stringify(envelope)
+	if not emitted.get("ok", false):
+		return ""
+	var envelope_text := str(emitted["value"])
+	var spans: Array = []
+	for replacement: Array in replacements:
+		var token_emitted: Dictionary = CANONICAL_JSON.stringify(replacement[0])
+		if not token_emitted.get("ok", false):
+			return ""
+		var token := str(token_emitted["value"])
+		var at := envelope_text.find(token)
+		if at < 0 or envelope_text.find(token, at + 1) >= 0:
+			return ""
+		spans.append([at, at + token.length(), str(replacement[1])])
+	spans.sort_custom(func(left: Array, right: Array) -> bool: return int(left[0]) < int(right[0]))
+	var parts := PackedStringArray()
+	var cursor := 0
+	for span: Array in spans:
+		parts.append(envelope_text.substr(cursor, int(span[0]) - cursor))
+		parts.append(str(span[2]))
+		cursor = int(span[1])
+	parts.append(envelope_text.substr(cursor))
+	return "".join(parts)
 
 
 static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:

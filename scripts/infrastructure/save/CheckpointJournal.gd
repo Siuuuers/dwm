@@ -22,6 +22,10 @@ var _run_id := ""
 var _next_sequence := 1
 var _current: Dictionary = {}
 var _earlier: Array[Dictionary] = []
+# Canonical texts the checkpoint port proved for a bundle at that bundle's OWN commit, keyed by
+# checkpoint_id. The journal owns bundle lifetime, so a text lives exactly as long as its bundle
+# stays a retained private duplicate; nothing else may seed or outlive it.
+var _bundle_texts: Dictionary = {}
 
 func reset(run_id: String) -> Dictionary:
 	if run_id.is_empty():
@@ -30,6 +34,7 @@ func reset(run_id: String) -> Dictionary:
 	_next_sequence = 1
 	_current = {}
 	_earlier = []
+	_bundle_texts = {}
 	return {"ok": true, "code": &"ok"}
 
 func peek_next_sequence(run_id: String) -> Dictionary:
@@ -107,8 +112,39 @@ func commit_prepared(candidate: Dictionary) -> Dictionary:
 	_next_sequence = int(candidate["next_sequence"])
 	_current = (candidate["current"] as Dictionary).duplicate(true)
 	_earlier.assign((candidate["earlier"] as Array).duplicate(true))
+	# A record extends the same history, so only bundles that just left retention are forgotten.
+	# A reset or a seed installs bytes this journal never proved, even under a retained id.
+	if candidate_kind == "record":
+		_forget_unretained_bundle_texts()
+	else:
+		_bundle_texts = {}
 	return {"ok": true, "code": &"ok",
 		"value": {"checkpoint_id": str(_current["snapshot"]["checkpoint_id"])}}
+
+## The port proved this exact canonical text for the CURRENT bundle at that bundle's own commit.
+func remember_committed_bundle_text(checkpoint_id: String, text: String) -> bool:
+	if text.is_empty() or _current.is_empty():
+		return false
+	if str((_current["snapshot"] as Dictionary)["checkpoint_id"]) != checkpoint_id:
+		return false
+	_bundle_texts[checkpoint_id] = text
+	return true
+
+## The remembered canonical text of a still-retained bundle; "" once that bundle left retention.
+func get_retained_bundle_text(checkpoint_id: String) -> String:
+	return str(_bundle_texts.get(checkpoint_id, ""))
+
+func _forget_unretained_bundle_texts() -> void:
+	if _bundle_texts.is_empty():
+		return
+	var retained := {}
+	if not _current.is_empty():
+		retained[str((_current["snapshot"] as Dictionary)["checkpoint_id"])] = true
+	for bundle: Dictionary in _earlier:
+		retained[str((bundle["snapshot"] as Dictionary)["checkpoint_id"])] = true
+	for checkpoint_id: String in _bundle_texts.keys():
+		if not retained.has(checkpoint_id):
+			_bundle_texts.erase(checkpoint_id)
 
 func get_current_bundle() -> Dictionary:
 	if _current.is_empty():
@@ -190,6 +226,8 @@ func restore_state(backup: Dictionary) -> Dictionary:
 	_next_sequence = int(backup["next_sequence"])
 	_current = (backup["current"] as Dictionary).duplicate(true)
 	_earlier.assign((backup["earlier"] as Array).duplicate(true))
+	# A backup is caller-supplied: this journal cannot prove any restored bundle's bytes.
+	_bundle_texts = {}
 	return {"ok": true, "code": &"ok"}
 
 func _validate_candidate(candidate: Dictionary) -> String:

@@ -785,3 +785,189 @@ func test_restart_drops_unfinished_action_but_preserves_completed_post_result_au
 	assert_eq(document.current_snapshot.snapshot.gameplay.money, 777)
 	assert_eq(document.current_snapshot.snapshot.gameplay.minesweeper_app_rounds_finished_today, 1)
 	assert_null(document.current_snapshot.snapshot.desktop.consequence.pending)
+
+
+## --- Autosave splice law (perf/terminal-settlement-3) -------------------------------------------
+## The port may stringify only the NEW current bundle plus a tiny envelope and splice in the
+## journal-remembered canonical text of the earlier bundles, but the bytes on disk must equal what
+## one whole-document CanonicalJsonWriter.stringify(document) + "\n" produces. These tests pin that
+## law on real SaveManager + JsonFileStorage + CheckpointJournal wiring.
+
+const DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+## The exact sentinel strings the port substitutes for the spliced bundles. Their canonical
+## emission is "\u0001dwm-splice-current\u0001" / "\u0001dwm-splice-journal-<i>\u0001" with the
+## control character escaped, so a snapshot string equal to a sentinel emits the same token.
+const SPLICE_SENTINELS := ["\u0001dwm-splice-current\u0001", "\u0001dwm-splice-journal-0\u0001",
+	"\u0001dwm-splice-journal-1\u0001"]
+
+
+## Reports the first differing offset instead of dumping two ~450 KB documents into the log.
+func _assert_same_bytes(actual: PackedByteArray, expected: PackedByteArray, label: String) -> void:
+	if actual == expected:
+		assert_true(true, label)
+		return
+	var first_difference := mini(actual.size(), expected.size())
+	for index: int in range(mini(actual.size(), expected.size())):
+		if actual[index] != expected[index]:
+			first_difference = index
+			break
+	var window_start := maxi(0, first_difference - 40)
+	assert_true(false, "%s: actual %d bytes vs expected %d bytes, first difference at byte %d; actual[%d..]=%s expected[%d..]=%s" % [
+		label, actual.size(), expected.size(), first_difference, window_start,
+		actual.slice(window_start, mini(actual.size(), first_difference + 40)).get_string_from_utf8().json_escape(),
+		window_start,
+		expected.slice(window_start, mini(expected.size(), first_difference + 40)).get_string_from_utf8().json_escape()])
+
+
+## Drives ONE post_result autosave commit of `snapshot` through the real port (money varied so
+## consecutive bundles differ) and returns the prepared candidate; its autosave_document is the very
+## Dictionary the port serialised.
+func _commit_autosave(wired: Dictionary, snapshot: Dictionary, money: int, dialogic: Dictionary = {}) -> Dictionary:
+	var edited := snapshot.duplicate(true)
+	edited["gameplay"]["money"] = money
+	var inputs := _checkpoint_inputs(edited)
+	inputs["dialogic_checkpoint"] = dialogic
+	var lease: Dictionary = wired["gate"].acquire(&"causal_transaction")
+	assert_true(lease.get("ok", false), JSON.stringify(lease))
+	var prepared: Dictionary = wired["port"].prepare(inputs, &"post_result",
+		{"kind": &"autosave", "reason": &"automatic"})
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var candidate: Dictionary = prepared["value"]["candidate"] if prepared.get("ok", false) else {}
+	if not candidate.is_empty():
+		var committed: Dictionary = wired["port"].commit(candidate)
+		assert_true(committed.get("ok", false), JSON.stringify(committed))
+	assert_true(wired["gate"].release(&"causal_transaction", lease["value"]["token"]).get("ok", false))
+	return candidate
+
+
+func _written_autosave(wired: Dictionary) -> PackedByteArray:
+	return FileAccess.get_file_as_bytes(str(wired["root"]).path_join("autosave.json"))
+
+
+func _assert_autosave_matches_full_writer(wired: Dictionary, candidate: Dictionary, label: String) -> void:
+	var expected := _canonical_text(candidate["autosave_document"]) + "\n"
+	_assert_same_bytes(_written_autosave(wired), expected.to_utf8_buffer(), label)
+
+
+func test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits() -> void:
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
+	var first := _commit_autosave(wired, snapshot, 101)
+	_assert_autosave_matches_full_writer(wired, first, "first autosave")
+	var second := _commit_autosave(wired, snapshot, 202)
+	_assert_autosave_matches_full_writer(wired, second, "second autosave")
+	var third := _commit_autosave(wired, snapshot, 303)
+	var document: Dictionary = third["autosave_document"]
+	assert_eq((document["recovery_journal"] as Array).size(), 2, "the third autosave carries two earlier bundles")
+	# The law: bytes on disk == the whole-document writer over the same inputs the port used.
+	var journal_candidate: Dictionary = third["journal_candidate"]
+	var rebuilt: Dictionary = DOCUMENT_SCHEMA.build(&"autosave", null, &"automatic",
+		journal_candidate["current"], journal_candidate["earlier"])
+	assert_true(rebuilt.get("ok", false), JSON.stringify(rebuilt))
+	var expected := _canonical_text(rebuilt["value"]) + "\n"
+	var written := _written_autosave(wired)
+	_assert_same_bytes(written, expected.to_utf8_buffer(), "third autosave vs SaveDocumentSchema.build + full writer")
+	_assert_autosave_matches_full_writer(wired, third, "third autosave vs candidate document")
+	# Reuse premise on real data: the journal's private duplicates of commits 1 and 2 stringify to
+	# exactly the current_snapshot text regions those commits wrote, and the third document is the
+	# envelope composed around them.
+	var first_current := _canonical_text((first["autosave_document"] as Dictionary)["current_snapshot"])
+	var second_current := _canonical_text((second["autosave_document"] as Dictionary)["current_snapshot"])
+	var third_current := _canonical_text(document["current_snapshot"])
+	assert_ne(first_current, second_current, "consecutive bundles differ, so reuse is observable")
+	assert_true(_canonical_text((document["recovery_journal"] as Array)[0]) == first_current,
+		"recovery_journal[0] text equals the first commit's current_snapshot text")
+	assert_true(_canonical_text((document["recovery_journal"] as Array)[1]) == second_current,
+		"recovery_journal[1] text equals the second commit's current_snapshot text")
+	var composed := "{\"current_snapshot\":" + third_current + ",\"kind\":\"autosave\",\"recovery_journal\":[" \
+		+ first_current + "," + second_current + "],\"save_reason\":\"automatic\",\"schema_version\":6,\"slot_id\":null}\n"
+	_assert_same_bytes(written, composed.to_utf8_buffer(), "third autosave equals the envelope composed around the reused regions")
+	var text := written.get_string_from_utf8()
+	assert_eq(text.count(first_current), 1, "the first bundle's text appears exactly once in the third document")
+
+
+## A snapshot whose strings equal the splice sentinels (so every sentinel token appears verbatim
+## inside the reused bundle texts) must still produce bytes equal to the full writer.
+func test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels() -> void:
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
+	var poisoned := {"sentinels": SPLICE_SENTINELS.duplicate(), "nested": {"current": SPLICE_SENTINELS[0]}}
+	var first := _commit_autosave(wired, snapshot, 11, poisoned)
+	var first_text := _canonical_text((first["autosave_document"] as Dictionary)["current_snapshot"])
+	for sentinel: String in SPLICE_SENTINELS:
+		var token := _canonical_text(sentinel)
+		assert_eq(token, "\"\\u0001" + sentinel.substr(1, sentinel.length() - 2) + "\\u0001\"",
+			"the writer escapes the sentinel's control characters")
+		assert_gt(first_text.count(token), 0, "the poisoned bundle carries the emitted token " + token)
+	_assert_autosave_matches_full_writer(wired, first, "poisoned first autosave")
+	var second := _commit_autosave(wired, snapshot, 22, poisoned)
+	_assert_autosave_matches_full_writer(wired, second, "poisoned second autosave (journal-0 text contains every token)")
+	var third := _commit_autosave(wired, snapshot, 33, poisoned)
+	assert_eq(((third["autosave_document"] as Dictionary)["recovery_journal"] as Array).size(), 2)
+	_assert_autosave_matches_full_writer(wired, third, "poisoned third autosave (both journal texts contain every token)")
+
+
+## A journal seeded from disk holds bundles whose canonical text nobody remembered; the port must
+## still write bytes equal to the full writer. One earlier bundle carries a non-integral float so the
+## whole document is ineligible for the writer's native encoder while the new current bundle is not.
+func test_seeded_journal_without_remembered_texts_writes_full_writer_bytes() -> void:
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	var bundles: Array = []
+	for sequence: int in [1, 2, 3]:
+		var copy := snapshot.duplicate(true)
+		copy["checkpoint_sequence"] = sequence
+		copy["checkpoint_id"] = "%s:%d" % [str(snapshot["run_id"]), sequence]
+		copy["gameplay"]["money"] = sequence * 100
+		if sequence == 2:
+			copy["narrative_checkpoint"] = {"probe": 0.1}
+		bundles.append({"checkpoint_kind": "post_result", "snapshot": copy})
+	var seed_document: Dictionary = DOCUMENT_SCHEMA.build(&"autosave", null, &"automatic",
+		bundles[2], [bundles[0], bundles[1]])
+	assert_true(seed_document.get("ok", false), JSON.stringify(seed_document))
+	var journal: RefCounted = wired["manager"]._journal
+	var seeded: Dictionary = journal.prepare_seed(seed_document["value"], bundles[2])
+	assert_true(seeded.get("ok", false), JSON.stringify(seeded))
+	assert_true(journal.commit_prepared(seeded["value"]["candidate"]).get("ok", false))
+	assert_eq((journal.get_bundles_for_disk() as Array).size(), 2, "the seed retained both earlier bundles")
+	var candidate := _commit_autosave(wired, snapshot, 444)
+	var document: Dictionary = candidate["autosave_document"]
+	assert_eq((document["recovery_journal"] as Array).size(), 2)
+	assert_eq(str((document["recovery_journal"] as Array)[0]["snapshot"]["checkpoint_id"]), str(snapshot["run_id"]) + ":2")
+	assert_eq(str((document["recovery_journal"] as Array)[1]["snapshot"]["checkpoint_id"]), str(snapshot["run_id"]) + ":3")
+	assert_true(CANONICAL_JSON._can_use_native_encoder(document["current_snapshot"]),
+		"the new current bundle is native-eligible")
+	assert_false(CANONICAL_JSON._can_use_native_encoder(document),
+		"the whole document is not native-eligible (float in an earlier bundle)")
+	_assert_autosave_matches_full_writer(wired, candidate, "autosave after a seeded journal")
+
+
+## The mixed encoding case on the SPLICE side: commit 1 carries a non-integral float (through
+## dialogic_checkpoint, which RunSnapshotSchema records as narrative_checkpoint), so from commit 2
+## on the whole document is ineligible for the writer's native encoder while each new current bundle
+## is eligible. Both earlier bundles still hold a remembered text, so the bytes were composed by the
+## splice -- not by the fallback the seeded test pins -- and must still equal the full writer.
+func test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible() -> void:
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
+	var first := _commit_autosave(wired, snapshot, 111, {"probe": 0.1})
+	_assert_autosave_matches_full_writer(wired, first, "first autosave carries the non-integral float")
+	var second := _commit_autosave(wired, snapshot, 222)
+	_assert_autosave_matches_full_writer(wired, second, "second autosave splices the float-carrying bundle")
+	var third := _commit_autosave(wired, snapshot, 333)
+	var document: Dictionary = third["autosave_document"]
+	var earlier: Array = document["recovery_journal"]
+	assert_eq(earlier.size(), 2, "the third autosave carries two earlier bundles")
+	var journal: RefCounted = wired["manager"]._journal
+	for bundle: Dictionary in earlier:
+		var checkpoint_id := str((bundle["snapshot"] as Dictionary)["checkpoint_id"])
+		assert_ne(journal.get_retained_bundle_text(checkpoint_id), "",
+			"the splice path, not the fallback, composed these bytes: " + checkpoint_id + " is remembered")
+	assert_true(CANONICAL_JSON._can_use_native_encoder(document["current_snapshot"]),
+		"the new current bundle is native-eligible")
+	assert_false(CANONICAL_JSON._can_use_native_encoder(document),
+		"the whole document is not native-eligible (float in an earlier bundle)")
+	_assert_autosave_matches_full_writer(wired, third, "third autosave vs the whole-document writer")

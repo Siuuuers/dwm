@@ -257,3 +257,77 @@ func test_semantic_recovery_history_is_bounded_without_changing_current_snapshot
 	assert_eq(earlier[0].snapshot.checkpoint_sequence, 10)
 	assert_eq(earlier[1].snapshot.checkpoint_sequence, 11)
 	assert_eq(current.snapshot, preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(_snapshot("bounded-run", 12)).value.candidate, "current gameplay and complete causal history stay intact")
+
+
+## --- Remembered canonical bundle texts (perf/terminal-settlement-3) ------------------------------
+## The journal, as sole owner of bundle lifetime, may remember the canonical text of its CURRENT
+## bundle once the port proved it at that bundle's own commit, and hand it back only while the
+## bundle is still retained as the journal's own private duplicate.
+
+func test_remember_committed_bundle_text_accepts_only_the_current_checkpoint() -> void:
+	var journal := _fresh("run-a")
+	assert_false(journal.remember_committed_bundle_text("run-a:1", "{}"), "an empty journal remembers nothing")
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), "")
+	_commit_record(journal, "run-a", 1, &"day_start")
+	assert_false(journal.remember_committed_bundle_text("run-a:2", "{}"), "a non-current id is refused")
+	assert_false(journal.remember_committed_bundle_text("run-a:1", ""), "empty text is refused")
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), "", "refused texts are never stored")
+	assert_true(journal.remember_committed_bundle_text("run-a:1", "text-1"))
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), "text-1")
+	assert_eq(journal.get_retained_bundle_text("run-a:2"), "")
+
+
+func test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention() -> void:
+	var journal := _fresh("run-a")
+	for sequence: int in range(1, 5):
+		_commit_record(journal, "run-a", sequence, &"post_result")
+		assert_true(journal.remember_committed_bundle_text("run-a:%d" % sequence, "text-%d" % sequence))
+	var earlier: Array = journal.get_bundles_for_disk()
+	assert_eq(earlier.size(), 2)
+	assert_eq(int(earlier[0].snapshot.checkpoint_sequence), 2, "sequence 1 fell out of semantic retention")
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), "", "a bundle no longer retained has no text")
+	assert_eq(journal.get_retained_bundle_text("run-a:2"), "text-2")
+	assert_eq(journal.get_retained_bundle_text("run-a:3"), "text-3")
+	assert_eq(journal.get_retained_bundle_text("run-a:4"), "text-4", "the current bundle's text is served")
+	# A refused commit prunes nothing.
+	var stale: Dictionary = journal.prepare_record(_snapshot("run-a", 5), &"post_result")["value"]["candidate"]
+	stale["run_id"] = "run-z"
+	assert_false(journal.commit_prepared(stale).get("ok", true))
+	assert_eq(journal.get_retained_bundle_text("run-a:2"), "text-2", "a refused commit keeps every retained text")
+
+
+func test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset() -> void:
+	var journal := _fresh("run-a")
+	for sequence: int in [1, 2, 3]:
+		_commit_record(journal, "run-a", sequence, &"post_result")
+		assert_true(journal.remember_committed_bundle_text("run-a:%d" % sequence, "text-%d" % sequence))
+	# A reset candidate installs a NEW run-a:1 with different bytes: nothing remembered survives.
+	var reset: Dictionary = journal.prepare_reset_with_initial(_snapshot("run-a", 1, 1), &"day_start")
+	assert_true(reset.get("ok", false), JSON.stringify(reset))
+	assert_true(journal.commit_prepared(reset["value"]["candidate"]).get("ok", false))
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), "", "a reset candidate clears the remembered texts even for a retained id")
+	assert_eq(journal.get_retained_bundle_text("run-a:3"), "")
+	# A seed replaces history from disk: the seeded bundles' texts were never proven here.
+	_commit_record(journal, "run-a", 2, &"line")
+	assert_true(journal.remember_committed_bundle_text("run-a:2", "text-2b"))
+	var bundle_1 := {"checkpoint_kind": "day_start", "snapshot": _snapshot("run-a", 1, 1)}
+	var bundle_2 := {"checkpoint_kind": "line", "snapshot": _snapshot("run-a", 2)}
+	var document: Dictionary = load(DOCUMENT_SCHEMA_PATH).build(&"autosave", null, &"automatic", bundle_2, [bundle_1])
+	assert_true(document.get("ok", false), JSON.stringify(document))
+	var seeded: Dictionary = journal.prepare_seed(document["value"], bundle_2)
+	assert_true(seeded.get("ok", false), JSON.stringify(seeded))
+	assert_true(journal.commit_prepared(seeded["value"]["candidate"]).get("ok", false))
+	assert_eq((journal.get_bundles_for_disk() as Array).size(), 1, "the seed retained bundle 1")
+	assert_eq(journal.get_retained_bundle_text("run-a:2"), "", "a seed commit clears the remembered texts")
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), "")
+	# A restored backup is caller-supplied: the journal cannot prove its bytes, so it forgets.
+	_commit_record(journal, "run-a", 3, &"post_result")
+	assert_true(journal.remember_committed_bundle_text("run-a:3", "text-3b"))
+	var backup: Dictionary = journal.capture_state()["value"]["backup"]
+	assert_true(journal.restore_state(backup).get("ok", false))
+	assert_eq(journal.get_retained_bundle_text("run-a:3"), "", "restore_state clears the remembered texts")
+	# reset() empties the journal outright.
+	_commit_record(journal, "run-a", 4, &"post_result")
+	assert_true(journal.remember_committed_bundle_text("run-a:4", "text-4"))
+	assert_true(journal.reset("run-a").get("ok", false))
+	assert_eq(journal.get_retained_bundle_text("run-a:4"), "", "reset() clears the remembered texts")
