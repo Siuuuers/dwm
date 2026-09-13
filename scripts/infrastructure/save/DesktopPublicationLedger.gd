@@ -108,6 +108,13 @@ var _has_cached_document := false
 # reuse them only while the text is byte-identical; cold or changed bytes always take the full parser.
 var _validated_text_documents: Dictionary = {}
 var _validated_text_order: Array[String] = []
+## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
+## profile marker below costs exactly one boolean check while the variable is unset.
+var _profile_enabled: bool = false
+
+
+func _init() -> void:
+	_profile_enabled = OS.get_environment("DWM_CONSEQUENCE_PROFILE") == "1"
 
 
 func configure(storage: Object) -> Dictionary:
@@ -149,15 +156,26 @@ func record_before_emit(request: Dictionary) -> Dictionary:
 	var gate := _require_bound("record_before_emit")
 	if not gate.is_empty():
 		return gate
-	var checked := _check_request(request)
+	var profile := {}
+	var tick := 0
+	if _profile_enabled:
+		tick = Time.get_ticks_usec()
+		profile = {"scope": "desktop_publication_ledger",
+			"kind": str(request.get("kind", "")), "_started_us": tick}
+	var checked := _check_request(request, profile)
+	tick = _profile_phase(profile, "request_check_us", tick)
 	if not checked.get("ok", false):
-		return checked
+		return _profile_result(profile, checked)
 	var entry: Dictionary = checked["value"]["entry"]
 
 	var refreshed := _refresh_from_disk()
+	tick = _profile_phase(profile, "disk_refresh_us", tick)
 	if not refreshed.get("ok", false):
-		return refreshed
+		return _profile_result(profile, refreshed)
 	var existing_records: Dictionary = _cached_document.get("records", {})
+	if not profile.is_empty():
+		profile["records_before"] = existing_records.size()
+		tick = Time.get_ticks_usec()
 	if existing_records.has(entry["key"]):
 		var stored: Dictionary = existing_records[entry["key"]]
 		# FIX: same canonical-representation comparison as _confirm_written_entry() below, for the
@@ -166,13 +184,17 @@ func record_before_emit(request: Dictionary) -> Dictionary:
 		# a StringName a production caller embedded (e.g. a checkpoint header's own `kind`). Raw `!=`
 		# would misreport that replay as a conflict instead of the no-op success it actually is.
 		if _digest_source(stored) == _digest_source(entry):
-			return _accepted({"record": stored.duplicate(true), "first_delivery": false})
-		return _rejected(&"publication_record_conflict", str(entry["key"]))
+			_profile_phase(profile, "replay_compare_us", tick)
+			return _profile_result(profile,
+				_accepted({"record": stored.duplicate(true), "first_delivery": false}))
+		_profile_phase(profile, "replay_compare_us", tick)
+		return _profile_result(profile,
+			_rejected(&"publication_record_conflict", str(entry["key"])))
 
-	return _commit_new_entry(entry)
+	return _profile_result(profile, _commit_new_entry(entry, profile))
 
 
-func _check_request(request: Dictionary) -> Dictionary:
+func _check_request(request: Dictionary, profile: Dictionary = {}) -> Dictionary:
 	if typeof(request) != TYPE_DICTIONARY:
 		return _rejected(&"publication_request_invalid", "request must be a dictionary")
 	var member_error := _mismatched_members(request, REQUEST_KEYS)
@@ -186,7 +208,9 @@ func _check_request(request: Dictionary) -> Dictionary:
 	var binding_error := _publication_binding_error(kind, publication, semantic_receipt)
 	if not binding_error.is_empty():
 		return _rejected(&"publication_request_invalid", binding_error)
+	var digest_started := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var digest := _digest(publication)
+	_profile_phase(profile, "request_digest_us", digest_started)
 	if digest.is_empty():
 		return _rejected(&"publication_request_invalid", "publication is not canonically representable")
 	if str(request.get("publication_sha256", "")) != digest:
@@ -201,30 +225,43 @@ func _check_request(request: Dictionary) -> Dictionary:
 	}}}
 
 
-func _commit_new_entry(entry: Dictionary) -> Dictionary:
+func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionary:
+	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	# Normalize the one new record through its canonical bytes. This preserves the historical
 	# StringName-to-String behavior without reparsing the whole append-only document.
 	var entry_text := _digest_source(entry)
 	var normalized_entry_result: Dictionary = _JSON.parse_object(entry_text)
+	tick = _profile_phase(profile, "entry_normalize_us", tick)
+	if not profile.is_empty():
+		profile["entry_bytes"] = entry_text.to_utf8_buffer().size()
+		tick = Time.get_ticks_usec()
 	if not normalized_entry_result.get("ok", false):
 		return _rejected(&"publication_ledger_serialization_failed", "the new record is not canonicalizable")
 	var normalized_entry: Dictionary = normalized_entry_result["value"]
 	var candidate_document := _cached_document.duplicate(true)
 	(candidate_document["records"] as Dictionary)[normalized_entry["key"]] = normalized_entry
+	tick = _profile_phase(profile, "candidate_build_us", tick)
 	# The cached document was fully validated by refresh; check only the newly appended record.
 	var entry_error := _record_shape_error(normalized_entry, str(normalized_entry["key"]))
+	tick = _profile_phase(profile, "shape_check_us", tick)
 	if not entry_error.is_empty():
 		return _rejected(&"publication_ledger_schema_invalid", entry_error)
 	var body := _digest_source(candidate_document)
+	tick = _profile_phase(profile, "full_emit_us", tick)
+	if not profile.is_empty():
+		profile["document_bytes"] = body.to_utf8_buffer().size() + 1
+		tick = Time.get_ticks_usec()
 	if body.is_empty():
 		return _rejected(&"publication_ledger_serialization_failed", "candidate document is not canonicalizable")
 	var payload := body + "\n"
 	_remember_validated_text(payload, candidate_document)
+	tick = _profile_phase(profile, "cache_seed_us", tick)
 	var write_result: Dictionary = _storage.call(
 		&"write_atomic", FIXED_PATH, payload, Callable(self, "_parse_known_storage_text"), true)
+	tick = _profile_phase(profile, "write_atomic_us", tick)
 	if not write_result.get("ok", false):
 		return _from_storage_failure(write_result)
-	var confirmed := _confirm_written_entry(payload, entry)
+	var confirmed := _confirm_written_entry(payload, entry, profile)
 	if not confirmed.get("ok", false):
 		return confirmed
 	_cached_document = candidate_document
@@ -232,8 +269,11 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
 	return _accepted({"record": entry.duplicate(true), "first_delivery": true})
 
 
-func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dictionary:
+func _confirm_written_entry(expected_payload: String, entry: Dictionary,
+		profile: Dictionary = {}) -> Dictionary:
+	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var reread: Dictionary = _storage.call(&"read_text", FIXED_PATH)
+	tick = _profile_phase(profile, "reread_us", tick)
 	if not reread.get("ok", false):
 		return _from_storage_failure(reread)
 	# Exact reread equality proves the validated candidate bytes survived unchanged.
@@ -244,8 +284,32 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dict
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
 	var reparsed_entry: Variant = (known["value"] as Dictionary)["records"].get(entry["key"])
 	if _digest_source(reparsed_entry) != _digest_source(entry):
+		_profile_phase(profile, "confirmation_us", tick)
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
+	_profile_phase(profile, "confirmation_us", tick)
 	return {"ok": true}
+
+
+static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
+	if profile.is_empty():
+		return 0
+	var now := Time.get_ticks_usec()
+	profile[phase] = now - started_us
+	return now
+
+
+static func _profile_result(profile: Dictionary, result: Dictionary) -> Dictionary:
+	if not profile.is_empty():
+		profile["elapsed_us"] = Time.get_ticks_usec() - int(profile["_started_us"])
+		profile.erase("_started_us")
+		profile["ok"] = bool(result.get("ok", false))
+		var value: Variant = result.get("value")
+		if value is Dictionary:
+			profile["first_delivery"] = (value as Dictionary).get("first_delivery", null)
+		if not profile["ok"]:
+			profile["code"] = str(result.get("code", ""))
+		print("DWM_CONSEQUENCE_PROFILE " + JSON.stringify(profile))
+	return result
 
 
 func _refresh_from_disk() -> Dictionary:

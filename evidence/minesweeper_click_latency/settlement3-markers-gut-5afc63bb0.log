@@ -1,0 +1,270 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/287c77fa-b966-4974-a450-204ecdc3feab/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_checkpoint_journal.gd
+* test_checkpoint_journal_exists
+* test_reset_peek_and_run_mismatch
+* test_failed_preparation_never_consumes_sequence
+* test_commit_advances_and_duplicate_commit_rejects
+* test_every_accepted_checkpoint_kind_including_line
+* test_retention_after_forty_lines_and_semantic_anchor
+* test_reset_with_initial_replaces_run_and_restore_reinstates
+* test_prepare_seed_selects_and_excludes
+* test_seed_replaces_same_counter_contents_and_history_and_can_repeat
+* test_semantic_recovery_history_is_bounded_without_changing_current_snapshot
+* test_remember_committed_bundle_text_accepts_only_the_current_checkpoint
+SCRIPT ERROR: Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+   at: test_remember_committed_bundle_text_accepts_only_the_current_checkpoint (res://tests/unit/test_checkpoint_journal.gd:269)
+   GDScript backtrace (most recent call first):
+       [0] test_remember_committed_bundle_text_accepts_only_the_current_checkpoint (res://tests/unit/test_checkpoint_journal.gd:269)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+      at line -1
+* test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention
+SCRIPT ERROR: Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+   at: test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention (res://tests/unit/test_checkpoint_journal.gd:284)
+   GDScript backtrace (most recent call first):
+       [0] test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention (res://tests/unit/test_checkpoint_journal.gd:284)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+      at line -1
+* test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset
+SCRIPT ERROR: Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+   at: test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset (res://tests/unit/test_checkpoint_journal.gd:303)
+   GDScript backtrace (most recent call first):
+       [0] test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset (res://tests/unit/test_checkpoint_journal.gd:303)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+      at line -1
+10/13 passed.
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit
+* test_supplied_checkpoint_receipt_rejects_equal_float_ordinal
+* test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization
+* test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation
+* test_evicted_checkpoints_accept_each_legitimate_recovery_stage
+* test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion
+* test_evicted_reprepared_admission_preserves_its_older_admission_receipt
+* test_evicted_preadmission_checkpoints_preserve_receipt_free_state
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+* test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits
+* test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels
+* test_seeded_journal_without_remembered_texts_writes_full_writer_bytes
+32/32 passed.
+
+
+res://tests/unit/test_desktop_consequence_coordinator.gd
+* test_coordinator_script_loads
+* test_coordinator_instantiates
+* test_configure_action_source_ports_rejects_the_same_object_for_both_roles
+* test_configure_condition_departure_ports_requires_action_source_ports_first
+* test_accept_prepared_action_rejects_before_condition_departure_ports_configured
+* test_accept_prepared_action_no_departure_commits_and_publishes
+* test_accept_prepared_action_duplicate_replay_returns_identical_result
+* test_accept_prepared_action_changed_bytes_at_same_identity_conflicts
+* test_accept_prepared_action_departure_discards_the_preparing_board_and_commits_the_view
+* test_accept_prepared_action_minesweeper_round_departure_uses_the_action_candidate_projection_not_the_live_board
+* test_accept_prepared_action_departure_retains_the_gate_through_board_fate_publish_and_releases_after
+* test_accept_prepared_action_abandons_a_pre_admission_pending_when_departure_ports_are_unconfigured
+* test_resume_pending_abandons_a_restored_pre_admission_pending_and_bootstrap_does_not_fail
+* test_resume_pending_is_idempotent_when_nothing_is_pending
+* test_resume_pending_completes_forward_recovery_after_a_reconstructed_coordinator
+* test_accept_prepared_action_shop_purchase_no_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_shop_purchase_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_minesweeper_round_no_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_minesweeper_round_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_departure_with_destination_intent_lands_it_in_the_final_value
+* test_accept_prepared_action_no_departure_with_notification_intent_lands_it_in_the_final_value
+* test_accept_prepared_action_no_departure_with_neither_intent_leaves_both_null
+* test_accept_prepared_action_departure_intent_lands_in_the_persisted_pending_record_exactly_once_across_a_forward_recovery_replay
+* test_validate_ordinal_stage_pairing_accepts_the_documented_pairing
+* test_validate_ordinal_stage_pairing_rejects_a_mismatched_pairing
+* test_adopt_durable_checkpoint_if_live_is_behind_adopts_from_the_durable_checkpoint
+* test_resume_pending_adopts_and_completes_a_pending_transaction_from_the_durable_checkpoint
+* test_adopt_durable_checkpoint_if_live_is_behind_is_a_no_op_when_nothing_is_pending
+* test_a_completed_transaction_retains_the_days_condition_receipt
+* test_a_second_action_on_the_same_day_replaces_the_retained_receipt
+* test_full_completion_save_precedes_terminal_cleanup_and_retry_keeps_one_checkpoint
+* test_full_completion_save_failure_keeps_pending_and_does_not_write_terminal_sidecar
+* test_restart_resumes_frozen_ordinal_one_without_repeating_policy_or_source_effects
+* test_restart_abandons_source_only_ordinal_zero_with_production_departure_ports_configured
+34/34 passed.
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+* test_document_and_record_union_is_exact_after_one_publication
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+* test_board_fate_key_derives_from_ordinary_receipt_id
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+* test_load_fails_closed_on_malformed_on_disk_json
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+* test_disjoint_from_plan01_schedule_foundation_ledger
+15/15 passed.
+
+
+res://tests/unit/test_minesweeper_round_coordinator.gd
+* test_base_configure_accepts_the_same_durable_port_without_legacy_seal
+* test_configure_consequence_port_rejects_before_it_is_configured
+* test_configure_consequence_checkpoint_rejects_an_invalid_state_port
+* test_complete_round_requires_a_terminal_board
+* test_complete_round_delegates_to_accept_prepared_action_with_a_valid_receipt
+* test_complete_round_never_changes_live_board_truth_even_when_delegation_fails
+* test_complete_round_duplicate_replay_returns_identical_result
+* test_complete_round_retries_after_a_transient_accept_prepared_action_failure
+* test_complete_round_releases_the_gate_when_accept_prepared_action_abandons_a_pre_admission_pending
+* test_commit_recovery_action_adopts_the_board_projection_and_rejects_without_the_gate
+* test_publish_recovery_action_retains_the_gate_until_release_recovery_lease
+* test_coordinator_script_loads
+* test_coordinator_instantiates
+* test_configure_is_idempotent_on_identical_replay
+* test_configure_rejects_a_replacement_port
+* test_configure_rejects_a_port_missing_required_methods
+* test_get_entry_context_is_eligible_from_fresh_none_phase
+* test_get_entry_context_is_not_eligible_when_motivation_exhausted
+* test_get_entry_context_is_not_eligible_once_phase_leaves_none
+* test_debug_preparation_reaches_prepared_unstarted
+* test_first_reveal_from_none_produces_the_exact_frozen_receipt_shape
+* test_first_reveal_charges_exactly_once_and_advances_ordinal
+* test_first_reveal_receipt_provenance_validates_against_the_issuer
+* test_first_reveal_receipt_provenance_rejects_a_tampered_member
+* test_default_and_lucky_remain_none_until_reveal
+* test_first_reveal_adopts_a_certified_debug_candidate
+* test_first_reveal_rejects_a_difficulty_id_that_does_not_match_the_certified_candidate
+* test_duplicate_first_reveal_replays_the_original_receipt_without_recharging
+* test_changed_payload_on_the_same_transaction_id_conflicts
+* test_stale_revision_is_rejected
+* test_identity_mismatch_is_rejected
+* test_a_forged_transaction_receipt_is_rejected
+* test_a_receipt_whose_token_does_not_match_the_transaction_id_is_rejected
+* test_materialize_failure_charges_nothing
+* test_checkpoint_prepare_failure_charges_nothing
+* test_checkpoint_commit_failure_charges_nothing_and_needs_no_rollback
+* test_state_commit_failure_rolls_back_the_already_committed_checkpoint
+* test_seal_failure_rolls_back_board_state_and_state_port_and_checkpoint
+* test_seal_failure_leaves_the_ledger_without_a_recorded_transaction
+* test_publish_failure_after_seal_returns_committed_unpublished_and_keeps_the_commit
+* test_retry_after_committed_unpublished_publishes_the_existing_receipt_and_never_recharges
+* test_double_rollback_failure_latches_fatal_and_refuses_subsequent_calls
+* test_checkpoint_port_reports_never_production
+* test_routine_reveal_commits_a_new_board_revision_without_touching_the_other_ports
+* test_suspend_then_resume_round_trips_through_the_coordinator
+* test_set_flag_flags_a_hidden_cell
+* test_older_board_and_visibility_retries_acknowledge_without_reapplying
+* test_duplicate_terminal_causing_reveal_replays_without_reaching_the_reducer
+* test_terminal_mine_retains_the_exact_pre_input_completed_board
+* test_terminal_chord_retains_flags_and_reveals_from_before_the_chord
+* test_failed_or_stale_commands_do_not_replace_a_terminal_replay_point
+* test_complete_round_safe_marker_substitutes_the_matching_pre_terminal_board
+* test_complete_round_without_a_matching_pre_input_board_never_captures_an_unsettled_autosave
+* test_get_state_returns_the_board_state_capture
+54/54 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_checkpoint_journal.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_checkpoint_journal.gd
+- test_remember_committed_bundle_text_accepts_only_the_current_checkpoint
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+          at line -1
+- test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+          at line -1
+- test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'remember_committed_bundle_text' in base 'RefCounted (CheckpointJournal)'.
+          at line -1
+
+Totals
+------
+Scripts               5
+Tests               148
+Passing Tests       145
+Failing Tests         3
+Asserts           2269/2272
+Orphans              24
+Time              2.609s
+
+
+---- 3 failing tests ----

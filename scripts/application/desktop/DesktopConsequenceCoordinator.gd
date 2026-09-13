@@ -136,6 +136,14 @@ var _accepted: Dictionary = {}
 ## condition record is later Plan-03 work, recorded on dwm-oyo.3.
 var _committed_condition_receipts: Dictionary = {}
 
+## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
+## profile marker below costs exactly one boolean check while the variable is unset.
+var _profile_enabled: bool = false
+
+
+func _init() -> void:
+	_profile_enabled = OS.get_environment("DWM_CONSEQUENCE_PROFILE") == "1"
+
 
 # -------------------------------------------------------------------------------------------------
 # Configuration
@@ -299,6 +307,7 @@ func committed_condition_receipt(causal_day_instance: String) -> Dictionary:
 # -------------------------------------------------------------------------------------------------
 
 func accept_prepared_action(request: Dictionary) -> Dictionary:
+	var profile_tick := _settlement_profile_start()
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
@@ -315,6 +324,7 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 		return _fail(&"action_source_kind_invalid", source_kind, {})
 	var transaction_id := str(action_receipt["transaction_id"])
 	var request_fingerprint := _canonical_sha256(request)
+	profile_tick = _settlement_profile_phase("accept", "request_fingerprint", profile_tick)
 
 	if _accepted.has(transaction_id):
 		var recorded: Dictionary = _accepted[transaction_id]
@@ -358,6 +368,7 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 		and str((recovery_payload_so_far as Dictionary).get("payload_phase", "")) == "admission_ready"
 
 	var result: Dictionary
+	profile_tick = _settlement_profile_phase("accept", "admission_checks", profile_tick)
 	if str(pending_dict["stage"]) == "action_prepared" and not already_admission_ready:
 		result = _prepare_and_admit(action_receipt, source_kind, transaction_id, request, live_state, pending_dict)
 	elif str(pending_dict["stage"]) == "action_prepared" and already_admission_ready:
@@ -370,6 +381,7 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
 
 	if bool(result.get("ok", false)):
 		_accepted[transaction_id] = {"request_fingerprint": request_fingerprint, "result": result.duplicate(true)}
+	_settlement_profile_phase("accept", "prepare_and_forward_inclusive", profile_tick)
 	return result
 
 
@@ -432,6 +444,7 @@ func _abandon_pre_admission(transaction_id: String, source_kind: String) -> Dict
 ## checkpoint -> live-adopt -> admission CAS -> forward.
 func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transaction_id: String,
 		request: Dictionary, live_state: Dictionary, pending_dict: Dictionary) -> Dictionary:
+	var profile_tick := _settlement_profile_start()
 	var prepared_checkpoint_receipt: Dictionary = request["prepared_checkpoint_receipt"]
 	if typeof(prepared_checkpoint_receipt) != TYPE_DICTIONARY or prepared_checkpoint_receipt.is_empty():
 		return _fail(&"invalid_prepared_checkpoint_receipt", "prepared_checkpoint_receipt must be a nonempty object", {})
@@ -452,6 +465,7 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 		return reserved
 	var causal_sequence_receipt: Dictionary = reserved["value"]["causal_sequence_receipt"]
 	var sequence_candidate: Dictionary = reserved["value"]["sequence_candidate"]
+	profile_tick = _settlement_profile_phase("prepare", "reservation", profile_tick)
 
 	var condition_evaluated: Dictionary = _condition_policy_port.call(&"evaluate", {
 		"action_receipt": action_receipt, "causal_sequence_receipt": causal_sequence_receipt,
@@ -476,6 +490,7 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 	var schedule_view_after: Variant = null
 	var schedule_view_before_sha256: Variant = null
 	var schedule_view_after_sha256: Variant = null
+	profile_tick = _settlement_profile_phase("prepare", "condition_policy", profile_tick)
 	if is_departure:
 		var projected := _build_projected_board_candidate(source_kind, action_receipt, action_candidate)
 		if not projected.get("ok", false):
@@ -507,6 +522,7 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 		schedule_view_before_sha256 = _canonical_sha256(schedule_view_before)
 		schedule_view_after_sha256 = _canonical_sha256(schedule_view_after)
 
+	profile_tick = _settlement_profile_phase("prepare", "departure_preparation", profile_tick)
 	var recovery_built := _build_admission_ready_payload(source_kind, action_receipt, action_candidate,
 		condition_receipt, board_candidate, board_fate_receipt, schedule_view_before, schedule_view_after,
 		schedule_view_before_sha256, schedule_view_after_sha256, is_departure, reservation_request, sequence_candidate,
@@ -526,13 +542,16 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 	var pairing1 := _validate_ordinal_stage_pairing(header1)
 	if not pairing1.get("ok", false):
 		return pairing1
+	profile_tick = _settlement_profile_phase("prepare", "recovery_payload", profile_tick)
 	var checkpoint1: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", header1, state_after_ordinal1)
+	profile_tick = _settlement_profile_phase("prepare", "checkpoint1_prepare", profile_tick)
 	if not checkpoint1.get("ok", false):
 		return checkpoint1
 	var committed1: Dictionary = _checkpoint_port.call(&"commit_consequence_checkpoint",
 		(checkpoint1["value"] as Dictionary)["candidate"], (checkpoint1["value"] as Dictionary)["checkpoint_receipt"])
 	if not committed1.get("ok", false):
 		return committed1
+	profile_tick = _settlement_profile_phase("prepare", "checkpoint1_commit", profile_tick)
 
 	var live_adopt_prepared: Dictionary = _state_port.call(&"prepare_restore", state_after_ordinal1)
 	if not live_adopt_prepared.get("ok", false):
@@ -540,6 +559,7 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 	var live_adopted: Dictionary = _state_port.call(&"commit", (live_adopt_prepared["value"] as Dictionary)["candidate"])
 	if not live_adopted.get("ok", false):
 		return live_adopted
+	_settlement_profile_phase("prepare", "live_restore1", profile_tick)
 
 	return _admit_and_forward(action_receipt, source_kind, transaction_id, reservation_request,
 		sequence_candidate, causal_sequence_receipt, recovery_payload, pending_after)
@@ -569,7 +589,9 @@ func _resume_and_admit(action_receipt: Dictionary, source_kind: String, transact
 func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transaction_id: String,
 		reservation_request: Dictionary, sequence_candidate: Dictionary, causal_sequence_receipt: Dictionary,
 		recovery_payload: Dictionary, pending_after: Dictionary) -> Dictionary:
+	var profile_tick := _settlement_profile_start()
 	var prepared_state: Dictionary = _state_port.call(&"prepare_sequence_reservation", reservation_request, causal_sequence_receipt)
+	profile_tick = _settlement_profile_phase("admit", "sequence_state_prepare", profile_tick)
 	if not prepared_state.get("ok", false):
 		return prepared_state
 	var state_after_ordinal2: Dictionary = ((prepared_state["value"] as Dictionary)["candidate"] as Dictionary)["state_after"]
@@ -581,6 +603,7 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
 	if not pairing2.get("ok", false):
 		return pairing2
 	var checkpoint2: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", header2, state_after_ordinal2)
+	profile_tick = _settlement_profile_phase("admit", "checkpoint2_prepare", profile_tick)
 	if not checkpoint2.get("ok", false):
 		return checkpoint2
 	var admission_checkpoint_candidate := {
@@ -589,11 +612,13 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
 	}
 	var admission_prepared: Dictionary = _causal_sequence_port.call(&"prepare_admission",
 		sequence_candidate, admission_checkpoint_candidate, str(pending_after["recovery_payload_sha256"]))
+	profile_tick = _settlement_profile_phase("admit", "admission_prepare", profile_tick)
 	if not admission_prepared.get("ok", false):
 		return admission_prepared
 	var admitted: Dictionary = _causal_sequence_port.call(&"commit", (admission_prepared["value"] as Dictionary)["candidate"])
 	if not admitted.get("ok", false):
 		return admitted
+	_settlement_profile_phase("admit", "admission_commit", profile_tick)
 
 	return _resume_forward(action_receipt, source_kind, transaction_id, {}, {})
 
@@ -605,6 +630,7 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
 ## live capture when empty, so a genuinely reconstructed coordinator resumes identically.
 func _resume_forward(action_receipt: Dictionary, source_kind: String, transaction_id: String,
 		live_state: Dictionary, pending_dict: Dictionary) -> Dictionary:
+	var profile_tick := _settlement_profile_start()
 	if pending_dict.is_empty():
 		var captured: Dictionary = _state_port.call(&"capture")
 		if not captured.get("ok", false):
@@ -637,9 +663,11 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		if not recovered_fate.get("ok", false): return recovered_fate
 
 	# 1. Commit the action source (its sole live commit).
+	profile_tick = _settlement_profile_phase("forward", "capture_and_recovery_prepare", profile_tick)
 	var source_committed: Dictionary = source_port.call(&"commit_recovery_action", action_candidate, action_receipt)
 	if not source_committed.get("ok", false):
 		return source_committed
+	profile_tick = _settlement_profile_phase("forward", "source_commit_inclusive", profile_tick)
 
 	# 2. Board fate (departure only).
 	var schedule_view_commit_receipt: Variant = null
@@ -662,6 +690,7 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 			return view_committed
 		schedule_view_commit_receipt = (view_committed["receipt"] as Dictionary).duplicate(true)
 
+	profile_tick = _settlement_profile_phase("forward", "departure_commits", profile_tick)
 	# 4. Advance to publication_pending if not already there. CRITICAL 2 (Review-fix pass): this is
 	# the ONE edge that persists destination_intent/notification_intent onto the durable pending
 	# record -- DesktopConsequenceState.prepare_recovery_advance() only overwrites pending.destination_
@@ -674,6 +703,7 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 			return advanced
 		pending_dict = advanced["pending_dict"]
 
+	profile_tick = _settlement_profile_phase("forward", "publication_pending_inclusive", profile_tick)
 	# 5. Run every publication callback in order.
 	var publication_plan: Array = recovery_payload["publication_plan"]
 	var progress: Dictionary = pending_dict["publication_progress"]
@@ -681,6 +711,7 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		var index: int = int(progress["next_callback_index"])
 		var recipe: Dictionary = publication_plan[index]
 		var callback_result := _run_publication_callback(recipe, recovery_payload, action_receipt, source_port, pending_dict)
+		profile_tick = _settlement_profile_phase("forward", "publish_" + str(recipe["participant"]), profile_tick)
 		if not callback_result.get("ok", false):
 			return callback_result
 		var advanced_progress := _advance_publication_progress(transaction_id, str(recipe["participant"]),
@@ -688,11 +719,13 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		if not advanced_progress.get("ok", false):
 			return advanced_progress
 		progress = advanced_progress["progress"]
+		profile_tick = _settlement_profile_phase("forward", "progress_" + str(recipe["participant"]), profile_tick)
 
 	# 6. Terminal cleanup, once the cursor is complete.
 	var cleaned := _terminal_cleanup(transaction_id)
 	if not cleaned.get("ok", false):
 		return cleaned
+	profile_tick = _settlement_profile_phase("forward", "cleanup_inclusive", profile_tick)
 
 	# The live source owns the original lease; a reconstructed coordinator owns its recovery
 	# lease. Both are released only after the completed snapshot and terminal sidecar are durable.
@@ -724,6 +757,7 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		"destination_intent": destination_intent, "notification_intent": notification_intent,
 	}
 	var receipt_built := _build_action_consequence_receipt(action_receipt, transaction_id, causal_sequence, is_departure)
+	_settlement_profile_phase("forward", "release_and_receipt", profile_tick)
 	if not receipt_built.get("ok", false):
 		return receipt_built
 	return {"ok": true, "code": &"action_consequence_accepted", "value": value, "receipt": receipt_built["receipt"]}
@@ -880,6 +914,7 @@ func _accept_completion_notification(completed: Dictionary) -> Dictionary:
 
 
 func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary) -> Dictionary:
+	var profile_tick := _settlement_profile_start()
 	# Older domain-only compositions can omit the capture. Production Bootstrap always binds it.
 	if not _completion_checkpoint_capture.is_valid():
 		return {"ok": true}
@@ -887,6 +922,7 @@ func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary)
 		return _fail(&"causal_transaction_lease_required", "completion checkpoint requires the causal lease", {})
 	if not _completion_checkpoints.has(transaction_id):
 		var captured: Dictionary = _completion_checkpoint_capture.call(stage_candidate.duplicate(true))
+		profile_tick = _settlement_profile_phase("completion_save", "capture", profile_tick)
 		if not captured.get("ok", false):
 			return captured
 		var inputs: Variant = (captured.get("value", {}) as Dictionary).get("checkpoint_inputs")
@@ -897,6 +933,7 @@ func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary)
 			return _fail(&"completion_checkpoint_candidate_mismatch", "capture must retain the exact completed consequence", {})
 		var prepared: Dictionary = _checkpoint_port.call(&"prepare", inputs, &"post_result",
 			{"kind": &"autosave", "reason": &"automatic"})
+		profile_tick = _settlement_profile_phase("completion_save", "prepare", profile_tick)
 		if not prepared.get("ok", false):
 			return prepared
 		_completion_checkpoints[transaction_id] = {
@@ -908,6 +945,7 @@ func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary)
 		if not committed.get("ok", false):
 			return committed
 		retained["committed"] = true
+	_settlement_profile_phase("completion_save", "commit_inclusive", profile_tick)
 	return {"ok": true}
 
 
@@ -931,20 +969,39 @@ func _release_recovery_gate() -> Dictionary:
 
 
 func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
+	var profile_tick := _settlement_profile_start()
+	var profile_scope := "ordinal_" + str(checkpoint_header.get("operation_ordinal"))
 	var checkpoint: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", checkpoint_header, stage_candidate)
+	profile_tick = _settlement_profile_phase(profile_scope, "prepare", profile_tick)
 	if not checkpoint.get("ok", false):
 		return checkpoint
 	var committed: Dictionary = _checkpoint_port.call(&"commit_consequence_checkpoint",
 		(checkpoint["value"] as Dictionary)["candidate"], (checkpoint["value"] as Dictionary)["checkpoint_receipt"])
 	if not committed.get("ok", false):
 		return committed
+	profile_tick = _settlement_profile_phase(profile_scope, "commit", profile_tick)
 	var live_prepared: Dictionary = _state_port.call(&"prepare_restore", stage_candidate)
+	profile_tick = _settlement_profile_phase(profile_scope, "live_restore", profile_tick)
 	if not live_prepared.get("ok", false):
 		return live_prepared
 	var live_committed: Dictionary = _state_port.call(&"commit", (live_prepared["value"] as Dictionary)["candidate"])
 	if not live_committed.get("ok", false):
 		return live_committed
+	_settlement_profile_phase(profile_scope, "live_commit", profile_tick)
 	return {"ok": true, "state_after": stage_candidate}
+
+
+func _settlement_profile_start() -> int:
+	if not _profile_enabled: return 0
+	return Time.get_ticks_usec()
+
+
+func _settlement_profile_phase(scope: String, phase: String, tick: int) -> int:
+	if not _profile_enabled: return 0
+	print("DWM_CONSEQUENCE_PROFILE " + JSON.stringify({
+		"scope": scope, "phase": phase, "elapsed_us": Time.get_ticks_usec() - tick,
+	}))
+	return Time.get_ticks_usec()
 
 
 # -------------------------------------------------------------------------------------------------

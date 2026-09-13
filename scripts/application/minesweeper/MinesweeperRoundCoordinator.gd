@@ -124,6 +124,9 @@ var _terminal_pre_input_board: Dictionary = {}
 var _round_pending_admission_requests: Dictionary = {}
 var _round_request_fingerprints: Dictionary = {}
 var _round_recovery_committed: Dictionary = {}
+## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
+## profile marker below costs exactly one boolean check while the variable is unset.
+var _profile_enabled: bool = false
 
 
 func configure_source_checkpoint_capture(capture_inputs: Callable) -> Dictionary:
@@ -145,6 +148,7 @@ func configure_reward_port(port: Object) -> Dictionary:
 
 func _init() -> void:
 	_board_state = _BOARD_STATE.new()
+	_profile_enabled = OS.get_environment("DWM_CONSEQUENCE_PROFILE") == "1"
 
 
 func configure(state_port: Object, checkpoint_port: Object,
@@ -273,6 +277,8 @@ func configure_consequence_checkpoint(consequence_state_port: Object, checkpoint
 ## `condition_after` mirror the Shop participant's own health/pressure/carried_sequela pattern via
 ## `GameStateDesktopBoardPort`'s matching Task-8 extension.
 func complete_round(request: Dictionary) -> Dictionary:
+	var profile := _consequence_profile_start("minesweeper_round_complete")
+	var profile_tick := int(profile.get("_started_us", 0))
 	var retry_id := str(request.get("transaction_id", ""))
 	var own_retry := _consequence_gate_token != "" and _consequence_gate != null \
 		and _consequence_gate.is_internal_owner_active(_GATE_OWNER) \
@@ -335,6 +341,10 @@ func complete_round(request: Dictionary) -> Dictionary:
 		return _fail(&"complete_round_requires_terminal_board", "", {})
 	var outcome := str(live_board["outcome"])
 	var paid_start_receipt: Dictionary = live_board_wrapper["paid_start_receipt"]
+	if not profile.is_empty():
+		profile["outcome"] = outcome
+		profile["round_ordinal"] = int(identity["app_round_ordinal"])
+	profile_tick = _consequence_profile_phase(profile, "admission_and_board_capture_us", profile_tick)
 
 	var acquired_fresh := false
 	if not _consequence_gate.is_internal_owner_active(_GATE_OWNER):
@@ -352,6 +362,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 			_consequence_gate_token = ""
 		return consequence_captured
 	var live_consequence: Dictionary = (consequence_captured["value"] as Dictionary)["state"]
+	profile_tick = _consequence_profile_phase(profile, "consequence_capture_us", profile_tick)
 
 	var board_projection := _project_completion_board(identity, captured, outcome, transaction_id)
 	if not _board_state.is_settled_inspection(board_projection):
@@ -372,11 +383,15 @@ func complete_round(request: Dictionary) -> Dictionary:
 			if acquired_fresh: release_recovery_lease()
 			return reward
 		action_candidate["reward"] = reward.value.duplicate(true)
+	profile_tick = _consequence_profile_phase(profile, "action_candidate_prepare_us", profile_tick)
 	# Compose under the causal lease, then substitute the matching pre-command board. The
 	# unfinished terminal input may replay after a crash without restoring a half-settled round.
 	var pre_terminal_board := _matching_pre_terminal_board(captured)
+	if not profile.is_empty():
+		profile["source_checkpoint"] = _source_checkpoint_capture.is_valid() and not pre_terminal_board.is_empty()
 	if _source_checkpoint_capture.is_valid() and not pre_terminal_board.is_empty():
 		var source_inputs: Dictionary = _source_checkpoint_capture.call(live_consequence.duplicate(true))
+		profile_tick = _consequence_profile_phase(profile, "source_capture_us", profile_tick)
 		if not source_inputs.get("ok", false):
 			if acquired_fresh: release_recovery_lease()
 			return source_inputs
@@ -391,10 +406,12 @@ func complete_round(request: Dictionary) -> Dictionary:
 		((completed_inputs["snapshot_input"] as Dictionary)["desktop"] as Dictionary)["board"] = pre_terminal_board
 		var source_prepared: Dictionary = _round_checkpoint_port.prepare(completed_inputs,
 			&"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+		profile_tick = _consequence_profile_phase(profile, "source_prepare_us", profile_tick)
 		if not source_prepared.get("ok", false):
 			if acquired_fresh: release_recovery_lease()
 			return source_prepared
 		var source_committed: Dictionary = _round_checkpoint_port.commit(source_prepared.value.candidate)
+		profile_tick = _consequence_profile_phase(profile, "source_commit_us", profile_tick)
 		if not source_committed.get("ok", false):
 			if acquired_fresh: release_recovery_lease()
 			return source_committed
@@ -405,6 +422,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 
 	var built_receipt := _build_round_action_receipt(transaction_id, request["transaction_issuer_receipt"],
 		identity, paid_start_receipt, action_candidate_sha256, action_candidate.get("reward", {}))
+	profile_tick = _consequence_profile_phase(profile, "receipt_assembly_us", profile_tick)
 	if not built_receipt.get("ok", false):
 		if acquired_fresh:
 			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
@@ -421,6 +439,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 	action_receipt_for_handoff["source_kind"] = action_receipt["action_kind"]
 	var handoff_prepared: Dictionary = _round_consequence_state_port.call(&"prepare_action_handoff",
 		action_receipt_for_handoff, int(live_consequence["run_revision"]), recovery_payload)
+	profile_tick = _consequence_profile_phase(profile, "handoff_prepare_us", profile_tick)
 	if not handoff_prepared.get("ok", false):
 		if acquired_fresh:
 			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
@@ -436,6 +455,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 	}
 	var checkpoint_prepared: Dictionary = _round_checkpoint_port.call(&"prepare_consequence_checkpoint",
 		checkpoint_header, handoff_candidate["state_after"])
+	profile_tick = _consequence_profile_phase(profile, "consequence_checkpoint_prepare_us", profile_tick)
 	if not checkpoint_prepared.get("ok", false):
 		if acquired_fresh:
 			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
@@ -444,6 +464,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 	var checkpoint_value: Dictionary = checkpoint_prepared["value"]
 	var checkpoint_committed: Dictionary = _round_checkpoint_port.call(&"commit_consequence_checkpoint",
 		checkpoint_value["candidate"], checkpoint_value["checkpoint_receipt"])
+	profile_tick = _consequence_profile_phase(profile, "consequence_checkpoint_commit_us", profile_tick)
 	if not checkpoint_committed.get("ok", false):
 		if acquired_fresh:
 			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
@@ -453,6 +474,7 @@ func complete_round(request: Dictionary) -> Dictionary:
 	# The disk checkpoint is now durable. From here forward this coordinator never rewinds on
 	# failure (mirrors MinesweeperShopPurchaseParticipant's own identical discipline).
 	var consequence_committed: Dictionary = _round_consequence_state_port.call(&"commit", handoff_candidate)
+	profile_tick = _consequence_profile_phase(profile, "pending_state_commit_us", profile_tick)
 	if not consequence_committed.get("ok", false):
 		return consequence_committed
 
@@ -470,7 +492,10 @@ func complete_round(request: Dictionary) -> Dictionary:
 	# receipt -- prepare_action_handoff() above can never run a second time for this transaction_id.
 	_round_pending_admission_requests[transaction_id] = accept_request.duplicate(true)
 	_round_request_fingerprints[transaction_id] = fingerprint
-	return _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
+	profile_tick = _consequence_profile_phase(profile, "accept_request_retain_us", profile_tick)
+	var accepted: Dictionary = _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
+	_consequence_profile_phase(profile, "accept_finalize_us", profile_tick)
+	return _consequence_profile_result(profile, accepted)
 
 
 ## dwm-p2r.35.7 remediation (findings 1 and 2): a durable pending record for THIS transaction already
@@ -504,14 +529,18 @@ func _recognize_live_round_pending(transaction_id: String, fingerprint: String) 
 ## never acquires the lease itself -- releases it here, completing the frozen law's "releases
 ## causal_transaction" (plan02-frozen-contracts.md line 2271).
 func _call_accept_and_finalize(transaction_id: String, fingerprint: String, accept_request: Dictionary) -> Dictionary:
+	var profile := _consequence_profile_start("minesweeper_round_accept_finalize")
+	var profile_tick := int(profile.get("_started_us", 0))
 	var accepted: Dictionary = _consequence_coordinator.call(&"accept_prepared_action", accept_request)
+	profile_tick = _consequence_profile_phase(profile, "accept_prepared_action_us", profile_tick)
 	if bool(accepted.get("ok", false)):
 		_round_completions[transaction_id] = {"fingerprint": fingerprint, "result": accepted.duplicate(true)}
 	elif str(accepted.get("code", "")) == "condition_departure_ports_unconfigured":
 		if _consequence_gate_token != "":
 			_consequence_gate.release(_GATE_OWNER, _consequence_gate_token)
 			_consequence_gate_token = ""
-	return accepted
+	_consequence_profile_phase(profile, "cache_or_release_us", profile_tick)
+	return _consequence_profile_result(profile, accepted)
 
 
 ## Task 8 (dwm-p2r.32) frozen action-source recovery surface consumed by
@@ -537,6 +566,8 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 ## and, for a qualifying ordinal (1 or 2), records the base-completion receipt Task 7 reserved this
 ## seam for.
 func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictionary) -> Dictionary:
+	var profile := _consequence_profile_start("minesweeper_round_recovery_commit")
+	var profile_tick := int(profile.get("_started_us", 0))
 	var validated := _ACTION_RECEIPT.validate(action_receipt)
 	if not validated.get("ok", false):
 		return validated
@@ -555,21 +586,28 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 
 	if not _consequence_gate.is_internal_owner_active(_GATE_OWNER):
 		return _fail(&"causal_transaction_lease_required", "commit_recovery_action requires the active causal_transaction lease", {})
+	profile_tick = _consequence_profile_phase(profile, "validation_us", profile_tick)
 
+	if not profile.is_empty(): profile["reward"] = action_candidate.has("reward")
 	if action_candidate.has("reward"):
 		if _reward_port == null: return _fail(&"reward_port_not_configured", "", {})
 		var applied: Dictionary = _reward_port.commit_desktop_completion(action_candidate.reward.prepared_candidate)
 		if not applied.get("ok", false): return applied
+	profile_tick = _consequence_profile_phase(profile, "reward_commit_us", profile_tick)
 
 	var board_projection: Dictionary = action_candidate["board_projection"]
 	var prepared_restore: Dictionary = _board_state.prepare_restore(board_projection)
+	profile_tick = _consequence_profile_phase(profile, "board_prepare_us", profile_tick)
 	if not prepared_restore.get("ok", false):
 		return prepared_restore
 	var board_committed: Dictionary = _board_state.commit((prepared_restore["value"] as Dictionary)["candidate"])
+	profile_tick = _consequence_profile_phase(profile, "board_commit_us", profile_tick)
 	if not board_committed.get("ok", false):
 		return board_committed
 
 	var identity: Dictionary = action_candidate["identity"]
+	if not profile.is_empty():
+		profile["base_completion"] = int(identity["app_round_ordinal"]) in _BASE_COMPLETION_ORDINALS
 	if int(identity["app_round_ordinal"]) in _BASE_COMPLETION_ORDINALS:
 		var recorded_completion: Dictionary = _round_consequence_state_port.call(&"prepare_record_base_completion", {
 			"kind": "complete", "app_round_ordinal": int(identity["app_round_ordinal"]),
@@ -577,8 +615,10 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 		})
 		if not recorded_completion.get("ok", false):
 			return recorded_completion
+		profile_tick = _consequence_profile_phase(profile, "base_completion_prepare_us", profile_tick)
 		var ledger_committed: Dictionary = _round_consequence_state_port.call(&"commit",
 			(recorded_completion["value"] as Dictionary)["candidate"])
+		profile_tick = _consequence_profile_phase(profile, "base_completion_commit_us", profile_tick)
 		if not ledger_committed.get("ok", false):
 			return ledger_committed
 
@@ -586,7 +626,8 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	_round_recovery_committed[transaction_id] = {
 		"action_candidate": action_candidate.duplicate(true), "action_receipt": receipt.duplicate(true), "result": result.duplicate(true),
 	}
-	return result
+	_consequence_profile_phase(profile, "receipt_and_cache_us", profile_tick)
+	return _consequence_profile_result(profile, result)
 
 
 ## The source's sole audience boundary: records the at-most-once external observation through the
@@ -1545,6 +1586,28 @@ func _canonical_sha256(value: Variant) -> String:
 	if not emitted.get("ok", false):
 		return ""
 	return str(emitted["value"]).sha256_text()
+
+
+func _consequence_profile_start(scope: String) -> Dictionary:
+	if not _profile_enabled: return {}
+	return {"scope": scope, "_started_us": Time.get_ticks_usec()}
+
+
+static func _consequence_profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
+	if profile.is_empty(): return 0
+	var now := Time.get_ticks_usec()
+	profile[phase] = now - started_us
+	return now
+
+
+static func _consequence_profile_result(profile: Dictionary, result: Dictionary) -> Dictionary:
+	if not profile.is_empty():
+		profile["elapsed_us"] = Time.get_ticks_usec() - int(profile["_started_us"])
+		profile.erase("_started_us")
+		profile["ok"] = bool(result.get("ok", false))
+		if not profile["ok"]: profile["code"] = str(result.get("code", ""))
+		print("DWM_CONSEQUENCE_PROFILE " + JSON.stringify(profile))
+	return result
 
 
 func _exact_keys(value: Dictionary, expected: Array, code: StringName) -> Dictionary:
