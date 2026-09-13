@@ -1185,3 +1185,28 @@ func test_a_hand_built_restore_candidate_is_adopted_by_copy() -> void:
 	assert_eq(str((after["outbox"] as Dictionary)["notification"]["status"]), "pending")
 	assert_eq(int((after["shop_ledger"] as Dictionary)["supportz_branch_purchase_count"]), 0)
 	assert_eq(((after["shop_ledger"] as Dictionary)["base_completion_receipts"] as Array).size(), 1)
+
+
+## Reviewer finding: `rollback()` adopts a caller-supplied backup that NO seam validated -- unlike
+## `prepare_restore()`, which derives the payload hash in full whenever the caller brings no proof.
+## The retention rule would otherwise carry a proof across it on declared-hash equality alone, so a
+## backup whose pending declares a hash its bytes do not have would inherit a proof that suppresses
+## the very derivation that would have caught it. A rollback proves nothing; it must retain nothing.
+func test_rollback_clears_the_retained_payload_proof() -> void:
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	var proven := str((captured["pending"] as Dictionary)["recovery_payload_sha256"])
+	var adopted: Dictionary = state.prepare_restore(captured, proven)
+	assert_true(adopted.get("ok", false), JSON.stringify(adopted))
+	assert_true(state.commit(adopted["value"]["candidate"]).get("ok", false))
+	assert_eq(_ordinary_advance_token(state), proven, "baseline: the restore seam retained the proof")
+
+	# A backup captured while this same pending is live: rolling back to it restores a state that
+	# declares the same payload hash, which is exactly the case the retention rule would keep.
+	var backup: Dictionary = state.capture()
+	var rolled: Dictionary = state.rollback(backup["value"])
+	assert_true(rolled.get("ok", false), JSON.stringify(rolled))
+	assert_eq(str((state.capture()["value"]["state"]["pending"] as Dictionary)["recovery_payload_sha256"]),
+		proven, "the rolled-back pending still declares the same payload hash")
+	assert_eq(_ordinary_advance_token(state), "",
+		"an unvalidated backup inherits no proof, however familiar its declared hash looks")

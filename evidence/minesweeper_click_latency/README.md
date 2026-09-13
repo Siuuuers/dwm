@@ -116,3 +116,24 @@ The markers cost one boolean per phase while the variables are unset.
   (one 57 ms fallback save) against 30-48 ms before; App win settled 688-703 ms, loss 729-746 ms;
   accept_prepared_action 405-426 ms. Session trend for the App win settlement: 822 (baseline) ->
   ~700 ms.
+
+### Review fixes: remember gate, rollback proof clear, marker hoist; and build-side composition (commits after 42ce7bcb9)
+
+- settlement3-remember-gate-red-42ce7bcb9.log: validation-reuse and consequence-state suites RED. An
+  in-place edit of the document's current bundle between prepare and commit was written and accepted
+  (as the law allows) but its text was remembered under the journal's unedited bundle id, so the next
+  spliced save carried the edit for an entry the journal holds unedited (journal entry 987654 vs
+  501, lease not equal to a strict re-parse). Rollback carried the proven payload proof across an
+  unvalidated backup.
+- settlement3-build-walk-red-42ce7bcb9.log: test_save_document_schema RED on the source-string pin
+  for build's whole-document re-walk of an already normalized bundle candidate.
+- settlement3-gate-build-green-42ce7bcb9.log: 28 unit suites GREEN, 497 passing / 0 failing.
+- settlement3-gate-profile-win-42ce7bcb9.log: App win settled 685 ms, loss 731 ms, dating win 453 ms,
+  accept_prepared_action 393-429 ms. settlement3-gate-profile-loss-42ce7bcb9.log and
+  settlement3-gate-unprofiled-win-42ce7bcb9.log hit a slow period on the machine (the same
+  source_prepare phase reads 22 ms then 89 ms within one run; the unprofiled run is slower than
+  the profiled ones), so they are archived as noise, not as measurements of these commits.
+
+Session trend (fresh account, headless, same machine): App win settlement 845/822 ms at the baseline
+to 685-703 ms, App loss 827/776 to 729-746 ms, dating win 467-481 to 453 ms, accept_prepared_action
+546 to about 400-430 ms, routine reveal unchanged at 17-23 ms.

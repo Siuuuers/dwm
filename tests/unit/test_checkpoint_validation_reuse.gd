@@ -602,3 +602,71 @@ func test_a_journal_bundle_mutated_between_prepare_and_commit_cannot_diverge_the
 		"a lease for these bytes cannot report a value the bytes never had")
 	assert_true(WRITER._deep_same(proven.get("value"), reparsed),
 		"the storage lease for a text must deep-equal a strict re-parse of that same text")
+
+
+# -------------------------------------------------------------------------------------------------
+# Reviewer finding on the splice: commit() remembers the canonical text of the document's CURRENT
+# bundle under the id the journal just committed, but the document's bundle and the journal's are two
+# objects (`build()` composes the document's from `RunSnapshotSchema.validate()`'s fresh candidate),
+# and a caller may edit the document's copy in place between prepare and commit. Those edited bytes
+# are written and accepted -- that is the law -- but the journal then holds an UNEDITED bundle under
+# the id whose remembered text is edited. The next autosave splices that text while the lease is
+# composed from the retained bundle, so lease and bytes diverge again. A text may only be remembered
+# for a bundle it actually describes.
+# -------------------------------------------------------------------------------------------------
+
+func test_an_edited_current_bundle_is_written_but_never_remembered_for_a_later_splice() -> void:
+	var wired := _wired()
+	var candidate := _prepare(wired, 501)
+	var first_id := str(candidate["checkpoint_id"])
+	var document: Dictionary = candidate["autosave_document"]
+	var journal_current: Dictionary = candidate["journal_candidate"]["current"]
+	var edited_money := 987654
+
+	# The caller edits the outgoing current bundle in place after prepare. It stays schema-valid, so
+	# these bytes are written and accepted.
+	((document["current_snapshot"] as Dictionary)["snapshot"] as Dictionary)["gameplay"]["money"] = edited_money
+	assert_eq(int((journal_current["snapshot"] as Dictionary)["gameplay"]["money"]), 501,
+		"the journal candidate still holds the UNEDITED bundle: the document's is its own object")
+
+	var committed: Dictionary = wired.port.commit(candidate)
+	assert_true(committed.get("ok", false), str(committed))
+	var first_text := _written_text(wired)
+	assert_eq(int((_strict_candidate(first_text)["current_snapshot"] as Dictionary)["snapshot"]
+		["gameplay"]["money"]), edited_money, "the edited bundle is what was written, as today")
+	assert_eq(wired.manager._journal.get_retained_bundle_text(first_id), "",
+		"a text that does not describe the bundle the journal retained is not remembered")
+
+	# With nothing remembered for that bundle, the next autosave is emitted by the whole-document
+	# writer over the bundles the journal actually holds -- and its lease describes those bytes.
+	var second := _prepare(wired, 502)
+	var second_journal: Dictionary = second["journal_candidate"]
+	var retained_current: Dictionary = (second_journal["current"] as Dictionary).duplicate(true)
+	var retained_earlier: Array = (second_journal["earlier"] as Array).duplicate(true)
+	assert_gt(retained_earlier.size(), 0, "the edited bundle is retained history by now")
+	assert_true(wired.port.commit(second).get("ok", false))
+
+	var second_text := _written_text(wired)
+	var expected_document: Dictionary = DOCUMENT.build(
+		&"autosave", null, &"automatic", retained_current, retained_earlier)
+	assert_true(expected_document.get("ok", false), str(expected_document))
+	var expected_emitted: Dictionary = WRITER.stringify(expected_document["value"])
+	assert_true(expected_emitted.get("ok", false), str(expected_emitted))
+	assert_eq(second_text, str(expected_emitted["value"]) + "\n",
+		"the bytes are the full writer over the JOURNAL-retained bundles")
+	var reparsed := _strict_candidate(second_text)
+	assert_eq(int((((reparsed["recovery_journal"] as Array)[0] as Dictionary)["snapshot"] as Dictionary)
+		["gameplay"]["money"]), 501,
+		"the retained bundle, not the edit, is what the journal entry says")
+	var proven: Dictionary = wired.port._cached_document_text_validator(second_text, {})
+	assert_true(proven.get("ok", false), str(proven))
+	assert_true(WRITER._deep_same(proven.get("value"), reparsed),
+		"the lease for these bytes deep-equals a strict re-parse of them")
+
+	# Guard, green today and after: an UNEDITED commit is still remembered, or the gate would have
+	# silently disabled the splice for every save rather than only for edited bundles.
+	var third := _prepare(wired, 503)
+	var third_id := str(third["checkpoint_id"])
+	assert_true(wired.port.commit(third).get("ok", false))
+	assert_false(wired.manager._journal.get_retained_bundle_text(third_id).is_empty(),
+		"an unedited current bundle is still remembered for the next splice")

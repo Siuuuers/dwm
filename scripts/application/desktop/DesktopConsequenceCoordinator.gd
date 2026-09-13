@@ -718,7 +718,8 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		var index: int = int(progress["next_callback_index"])
 		var recipe: Dictionary = publication_plan[index]
 		var callback_result := _run_publication_callback(recipe, recovery_payload, action_receipt, source_port, pending_dict)
-		profile_tick = _settlement_profile_phase("forward", "publish_" + str(recipe["participant"]), profile_tick)
+		if _profile_enabled:
+			profile_tick = _settlement_profile_phase("forward", "publish_" + str(recipe["participant"]), profile_tick)
 		if not callback_result.get("ok", false):
 			return callback_result
 		var advanced_progress := _advance_publication_progress(transaction_id, str(recipe["participant"]),
@@ -726,7 +727,8 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
 		if not advanced_progress.get("ok", false):
 			return advanced_progress
 		progress = advanced_progress["progress"]
-		profile_tick = _settlement_profile_phase("forward", "progress_" + str(recipe["participant"]), profile_tick)
+		if _profile_enabled:
+			profile_tick = _settlement_profile_phase("forward", "progress_" + str(recipe["participant"]), profile_tick)
 
 	# 6. Terminal cleanup, once the cursor is complete.
 	var cleaned := _terminal_cleanup(transaction_id)
@@ -980,7 +982,11 @@ func _release_recovery_gate() -> Dictionary:
 func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dictionary,
 		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var profile_tick := _settlement_profile_start()
-	var profile_scope := "ordinal_" + str(checkpoint_header.get("operation_ordinal"))
+	# Built only while profiling: every phase helper returns 0 when disabled, so nothing reads the
+	# scope string then and composing it on every adopt is pure overhead.
+	var profile_scope := ""
+	if _profile_enabled:
+		profile_scope = "ordinal_" + str(checkpoint_header.get("operation_ordinal"))
 	var checkpoint: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", checkpoint_header,
 		stage_candidate, proven_recovery_payload_sha256)
 	profile_tick = _settlement_profile_phase(profile_scope, "prepare", profile_tick)

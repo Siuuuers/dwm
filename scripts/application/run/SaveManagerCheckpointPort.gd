@@ -329,9 +329,25 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_profile_phase(profile, "journal_us", tick)
 	if not committed.get("ok", false):
 		return _profile_result(profile, committed)
-	# The reread above proved these exact bytes on disk, so the journal may reuse this bundle's
-	# region for as long as it keeps the bundle as its own retained private duplicate.
-	if proven_current_text != "":
+	# The reread above proved these exact bytes on disk, so the journal may reuse this bundle's region
+	# for as long as it keeps the bundle as its own retained private duplicate -- but only while that
+	# text still DESCRIBES the bundle the journal just retained. `SaveDocumentSchema.build()` composes
+	# the document's current bundle as its own object (`RunSnapshotSchema.validate()`'s fresh
+	# candidate), so a caller may edit the outgoing bundle in place between prepare and commit: those
+	# edited bytes are written and accepted, which is the law, while `commit_prepared()` retains the
+	# UNEDITED candidate under the same id. Remembering the edited text would hand the next splice
+	# bytes for a bundle the journal does not hold, and that save composes its lease from the retained
+	# bundle, so lease and bytes would diverge. Identity cannot answer this -- the edit is in place --
+	# so compare deeply, JOURNAL side first: `_deep_same()` folds StringName into String on its LEFT
+	# operand only, and a retained candidate keeps the engine text (a desktop pending stage, an
+	# active_app_id) that `build()` converted for the document; it also refuses TYPE_INT against
+	# TYPE_FLOAT, so a widened number counts as a difference. Godot's own `==` cannot be used here: it
+	# does not recurse into nested containers (hence `Dictionary.recursive_equal()`), and these two
+	# bundles never share their nested `snapshot`. When they differ nothing is remembered and the next
+	# save falls back to the whole-document writer, which is always correct.
+	if proven_current_text != "" and CANONICAL_JSON._deep_same(
+			(candidate["journal_candidate"] as Dictionary)["current"],
+			(candidate["autosave_document"] as Dictionary)["current_snapshot"]):
 		_journal().remember_committed_bundle_text(
 			str(committed["value"]["checkpoint_id"]), proven_current_text)
 	_remember_proven_documents(validated_texts)

@@ -900,10 +900,16 @@ static func _ledger_key(candidate: Dictionary) -> String:
 	return transaction_id + "@" + String(candidate["kind"])
 
 
+## A rollback proves nothing about the payload it restores. Unlike `prepare_restore()`, which derives
+## the hash in full whenever its caller brings none, this adopts a caller-supplied backup that no
+## seam validated, so the retention rule must not carry a proof across it on declared-hash equality:
+## a backup whose pending declares a hash its bytes do not have would otherwise inherit the very
+## proof that suppresses the derivation which would have caught it.
 func rollback(backup: Dictionary) -> Dictionary:
 	if typeof(backup.get("state")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_backup", "backup.state is required", {})
 	_adopt_state(backup["state"])
+	_proven_pending_payload_sha256 = ""
 	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
