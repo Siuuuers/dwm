@@ -112,8 +112,10 @@ func test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_comm
 			"all physical reads, hashes, writes, flushes and rename boundaries remain")
 		assert_lt(_validation_count(cached.port), _validation_count(uncached.port))
 		for count: int in cached.port.validations.values(): assert_eq(count, 1)
-		assert_eq(cached.port.validations.size(), money - 100,
-			"each prepare/commit validates each distinct current, previous and older backup once")
+		# dwm-634.2: the previous and older documents were proven by their own reread-verified
+		# commits, so only the new current document is validated.
+		assert_eq(cached.port.validations.size(), 1,
+			"each prepare/commit validates only the new current document")
 
 func test_cache_is_exact_text_success_only_and_detaches_nested_results() -> void:
 	var wired := _wired()
@@ -199,8 +201,10 @@ func test_prepared_validation_is_not_reused_after_a_process_frame() -> void:
 	await get_tree().process_frame
 	var committed: Dictionary = wired.port.commit(candidate)
 	assert_true(committed.get("ok", false), str(committed))
-	assert_eq(wired.port.validations.get(old_text, 0), 1,
-		"a yielded prepare cannot carry semantic validation into a later frame")
+	# dwm-634.2: validation is a pure function of the exact text; a document proven by its own
+	# reread-verified commit stays proven across frames.
+	assert_eq(wired.port.validations.get(old_text, 0), 0,
+		"a committed document is not validated again in a later frame")
 
 func test_new_prepare_and_released_custody_discard_prepared_validation() -> void:
 	for interruption: String in ["failed_prepare", "released_lease", "reconfigure", "rollback"]:
@@ -226,8 +230,42 @@ func test_new_prepare_and_released_custody_discard_prepared_validation() -> void
 		wired.port.validations.clear()
 		var committed: Dictionary = wired.port.commit(candidate)
 		assert_true(committed.get("ok", false), str(committed))
-		assert_eq(wired.port.validations.get(old_text, 0), 1, interruption)
+		# dwm-634.2: a failed prepare or a released lease changes no proven document; reconfigure
+		# and rollback forget every proven document.
+		var revalidated: int = 1 if interruption in ["reconfigure", "rollback"] else 0
+		assert_eq(wired.port.validations.get(old_text, 0), revalidated, interruption)
 		assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
+
+func test_committed_documents_are_remembered_bounded_and_forgotten_on_capability_change() -> void:
+	var wired := _wired()
+	var texts: Array[String] = []
+	for money: int in [900, 901, 902, 903]:
+		assert_true(wired.port.commit(_prepare(wired, money)).get("ok", false))
+		texts.append(str(wired.storage.read_text("autosave.json").value))
+	# Four commits: current 903, previous 902, older backup 901 are proven; 900 has left the memo.
+	var cache := {}
+	wired.port.validations.clear()
+	for text: String in texts.slice(1):
+		assert_true(wired.port._cached_document_text_validator(text, cache).get("ok", false))
+	assert_eq(_validation_count(wired.port), 0, "the last three committed documents are proven")
+	assert_true(wired.port._cached_document_text_validator(texts[0], cache).get("ok", false))
+	assert_eq(wired.port.validations.get(texts[0], 0), 1, "the memo is bounded to the last three documents")
+	wired.port.validations.clear()
+	wired.gate.capability_changed.emit({})
+	assert_true(wired.port._cached_document_text_validator(texts[3], {}).get("ok", false))
+	assert_eq(wired.port.validations.get(texts[3], 0), 1, "a capability change forgets every proven document")
+
+func test_a_failed_commit_proves_nothing() -> void:
+	var wired := _wired(true, true)
+	assert_true(wired.port.commit(_prepare(wired, 950)).get("ok", false))
+	var candidate := _prepare(wired, 951)
+	var outgoing: String = WRITER.stringify(candidate.autosave_document).value + "\n"
+	wired.storage.alter_reread = true
+	assert_eq(wired.port.commit(candidate).get("code"), &"reread_mismatch")
+	wired.storage.alter_reread = false
+	wired.port.validations.clear()
+	assert_true(wired.port._cached_document_text_validator(outgoing, {}).get("ok", false))
+	assert_eq(wired.port.validations.get(outgoing, 0), 1, "a document whose commit failed is validated again")
 
 func test_mutated_outgoing_document_fails_and_retry_revalidates_preimage() -> void:
 	var baseline_code: StringName = &""
@@ -258,5 +296,7 @@ func test_mutated_outgoing_document_fails_and_retry_revalidates_preimage() -> vo
 		var committed: Dictionary = wired.port.commit(candidate)
 		assert_true(committed.get("ok", false), str(committed.get("code", "")))
 		if reuse:
-			assert_eq(wired.port.validations.get(old_text, 0), 1,
-				"a failed commit consumes the prepared proof before retry")
+			# dwm-634.2: the prepared proof is consumed, but the previous document stays proven by
+			# its own earlier commit; a failed commit changes nothing about that file.
+			assert_eq(wired.port.validations.get(old_text, 0), 0,
+				"a proven previous document survives a failed commit")

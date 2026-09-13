@@ -49,6 +49,13 @@ var _profile_text_validator_us := 0
 var _prepared_text_validations: Dictionary = {}
 var _prepared_validation_checkpoint := ""
 var _prepared_validation_frame := -1
+# dwm-634.2: texts validated during a commit whose reread matched and whose journal committed,
+# keyed by exact text. Validation is a pure function of the text, so a proven text stays proven
+# until a capability change, a reconfiguration or a rollback forgets it. Bounded to the last three
+# texts, normally the current, previous and older backup documents.
+const PROVEN_DOCUMENT_LIMIT := 3
+var _proven_document_validations: Dictionary = {}
+var _proven_document_order: Array[String] = []
 # Recovery checkpoints protect retries only while the current player action is executing. Source
 # and completed post-result Autosaves retain the last fully saved player action; after a crash, the
 # interrupted action may replay once.
@@ -79,6 +86,7 @@ func _init(save_manager: Object = null) -> void:
 
 func configure_fatal_latch(gate: Object) -> Dictionary:
 	_clear_prepared_text_validation()
+	_forget_proven_documents()
 	if gate == null or not gate.has_signal("capability_changed") or not _has_all_methods(gate):
 		return {"ok": false, "code": &"invalid_mutation_gate", "message": "gate contract incomplete"}
 	if _gate != null:
@@ -269,6 +277,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_profile_phase(profile, "journal_us", tick)
 	if not committed.get("ok", false):
 		return _profile_result(profile, committed)
+	_remember_proven_documents(validated_texts)
 	return _profile_result(profile, {"ok": true, "code": &"ok",
 		"value": {"checkpoint_id": str(committed["value"]["checkpoint_id"])}})
 
@@ -293,6 +302,7 @@ func _profile_result(profile: Dictionary, result: Dictionary) -> Dictionary:
 
 func rollback(backup: Dictionary) -> Dictionary:
 	_clear_prepared_text_validation()
+	_forget_proven_documents()
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
@@ -591,6 +601,20 @@ func _clear_prepared_text_validation() -> void:
 
 func _on_validation_capability_changed(_capability: Dictionary) -> void:
 	_clear_prepared_text_validation()
+	_forget_proven_documents()
+
+func _forget_proven_documents() -> void:
+	_proven_document_validations = {}
+	_proven_document_order = []
+
+## Only texts validated during a commit whose reread matched and whose journal committed.
+func _remember_proven_documents(validated_texts: Dictionary) -> void:
+	for text: String in validated_texts.keys():
+		if _proven_document_validations.has(text): continue
+		_proven_document_validations[text] = (validated_texts[text] as Dictionary).duplicate(true)
+		_proven_document_order.append(text)
+		while _proven_document_order.size() > PROVEN_DOCUMENT_LIMIT:
+			_proven_document_validations.erase(_proven_document_order.pop_front())
 
 func _take_prepared_text_validation(candidate: Dictionary) -> Dictionary:
 	var cache := {}
@@ -604,6 +628,8 @@ func _take_prepared_text_validation(candidate: Dictionary) -> Dictionary:
 func _cached_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
 	if cache.has(text):
 		return (cache[text] as Dictionary).duplicate(true)
+	if _proven_document_validations.has(text):
+		return (_proven_document_validations[text] as Dictionary).duplicate(true)
 	var result := _document_text_validator(text)
 	if result.get("ok", false):
 		cache[text] = result.duplicate(true)
