@@ -2253,7 +2253,7 @@ func _present_pending_day7_prelude(game_state: Object, router: Object) -> bool:
 	if percent == null: percent = int(float(profile.get_preference("preferences.accessibility.font_scale", 1.0)) * 100)
 	var presentation_theme: Theme = preload("res://scripts/ui/gallery/GalleryTheme.gd").build(locale, int(percent), &"after_hours")
 	var configured: Dictionary = owner.configure(game_state, _contacts_presentation_port,
-		_desktop_identity_nonce_issuer, locale, presentation_theme)
+		_desktop_identity_nonce_issuer, locale, presentation_theme, profile)
 	if not configured.get("ok", false):
 		owner.free()
 		push_error("Day 7 presentation could not configure: " + str(configured.get("code", "")))

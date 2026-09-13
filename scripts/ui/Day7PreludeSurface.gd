@@ -3,6 +3,9 @@ extends CanvasLayer
 signal card_acknowledged(receipt: Dictionary, result: Dictionary)
 signal advance_requested(receipt: Dictionary)
 const SCENE_ART := preload("res://scripts/ui/art/SceneArtView.gd")
+const AUTO_DELAYS := {"short": 1.0, "normal": 2.0, "long": 4.0}
+const AUTO_COPY := {"en": ["Auto Off", "Auto On"],
+	"zh-CN": ["自动：关闭", "自动：开启"], "zh-HK": ["自動：關閉", "自動：開啟"]}
 const COPY := {
 	"en": ["Next", "Retry", "This moment could not be saved. Please try again.", "Unable to continue. Please try again."],
 	"zh-CN": ["\u4e0b\u4e00\u9879", "\u91cd\u8bd5", "\u6682\u65f6\u65e0\u6cd5\u4fdd\u5b58\u8fd9\u4e00\u523b\uff0c\u8bf7\u91cd\u8bd5\u3002", "\u6682\u65f6\u65e0\u6cd5\u7ee7\u7eed\uff0c\u8bf7\u91cd\u8bd5\u3002"],
@@ -45,14 +48,24 @@ var _covered := false
 var _pause_anchor: Dictionary = {}
 var _capture_id := 0
 var _acknowledgment_pending := false
+var _reading_profile: Object
+var _auto_state: Label
+var _auto_enabled := false
+var _auto_allowed := false
+var _auto_delay := 2.0
+var _auto_remaining := 2.0
+var _auto_fresh_tick := true
 
-func configure(card: Dictionary, acknowledge: Callable, locale: String = "en", presentation_theme: Theme = null) -> Dictionary:
+func configure(card: Dictionary, acknowledge: Callable, locale: String = "en", presentation_theme: Theme = null,
+		allow_auto_advance: bool = false) -> Dictionary:
 	if is_node_ready() or _configured: return _fail("prelude_already_configured")
 	if not acknowledge.is_valid(): return _fail("prelude_acknowledgment_unavailable")
 	var checked := _validate_card(card)
 	if not checked.ok: return checked
 	_configured = true
 	_card = card.duplicate(true)
+	_auto_allowed = allow_auto_advance
+	_reset_auto_delay()
 	_acknowledge = acknowledge
 	_locale = locale.replace("_", "-")
 	_presentation_theme = presentation_theme
@@ -93,7 +106,7 @@ func _show_advance_retry() -> void:
 	_next.disabled = false
 	_focus_next.call_deferred()
 
-func present_card(card: Dictionary) -> Dictionary:
+func present_card(card: Dictionary, allow_auto_advance: bool = false) -> Dictionary:
 	if not _configured: return _fail("prelude_acknowledgment_unavailable")
 	var checked := _validate_card(card)
 	if not checked.ok: return checked
@@ -103,6 +116,8 @@ func present_card(card: Dictionary) -> Dictionary:
 	_retire_input()
 	_pause_anchor.clear()
 	_card = card.duplicate(true)
+	_auto_allowed = allow_auto_advance
+	_reset_auto_delay()
 	_advance_retry = Callable()
 	_drawn = false
 	_accepted = false
@@ -112,6 +127,58 @@ func present_card(card: Dictionary) -> Dictionary:
 
 func get_presentation_history() -> Array[Dictionary]:
 	return _history.duplicate(true)
+
+## Auto is the installed profile preference, not a run-save field or an inferred receipt.
+func bind_reading_preferences(profile: Object) -> bool:
+	if is_inside_tree() or not is_instance_valid(profile) or not profile.has_method("get_preference"):
+		return false
+	if not profile.has_signal("preference_changed") or not profile.has_signal("profile_restored"):
+		return false
+	if _reading_profile != null: return _reading_profile == profile
+	_reading_profile = profile
+	profile.connect("preference_changed", _on_reading_preference_changed)
+	profile.connect("profile_restored", _on_reading_profile_restored)
+	_refresh_reading_preferences()
+	return true
+
+func _on_reading_preference_changed(path: StringName, _value: Variant) -> void:
+	if path in [&"preferences.reading.auto_enabled", &"preferences.reading.auto_delay"]:
+		_refresh_reading_preferences()
+
+func _on_reading_profile_restored(_profile: Dictionary) -> void:
+	_refresh_reading_preferences()
+
+func _refresh_reading_preferences() -> void:
+	if not is_instance_valid(_reading_profile): return
+	_auto_enabled = bool(_reading_profile.get_preference(&"preferences.reading.auto_enabled", false))
+	_auto_delay = AUTO_DELAYS.get(str(_reading_profile.get_preference(&"preferences.reading.auto_delay", "normal")), 2.0)
+	_reset_auto_delay()
+	if is_instance_valid(_auto_state):
+		_auto_state.text = AUTO_COPY[_locale][int(_auto_enabled)]
+
+func _reset_auto_delay() -> void:
+	_auto_remaining = _auto_delay
+	# The next frame's delta may include time before the new card/preference existed.
+	_auto_fresh_tick = true
+
+func _advance_auto(delta: float) -> void:
+	if not _presentation_receipts or not is_instance_valid(_reading_profile) or not _auto_enabled \
+			or not _auto_allowed or not _drawn or not _accepted or _busy or _retrying \
+			or _acknowledgment_pending or _navigation_requested or _advance_retry.is_valid(): return
+	if not _input_admitted() or not _input_owner.get_physical_contacts().is_empty(): return
+	if not is_instance_valid(_current_body) or not _current_body.is_visible_in_tree() or not _beginning_is_visible(): return
+	if _auto_fresh_tick:
+		_auto_fresh_tick = false
+		return
+	_auto_remaining = maxf(0.0, _auto_remaining - delta)
+	if _auto_remaining <= 0.0: _request_advance()
+
+func _request_advance() -> void:
+	if _navigation_requested: return
+	_navigation_requested = true
+	_next.disabled = true
+	_retire_input()
+	advance_requested.emit(_card.receipt.duplicate(true))
 
 func _ready() -> void:
 	layer = 30
@@ -163,15 +230,27 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.hide()
 	layout.add_child(_status)
+	var navigation: BoxContainer = layout
+	if _presentation_receipts and is_instance_valid(_reading_profile):
+		# Share the existing footer height so artwork cannot crowd out the card body.
+		navigation = HBoxContainer.new()
+		navigation.add_theme_constant_override("separation", 16)
+		layout.add_child(navigation)
+		_auto_state = Label.new()
+		_auto_state.name = "AutoReadingState"
+		_auto_state.text = AUTO_COPY[_locale][int(_auto_enabled)]
+		_auto_state.add_theme_color_override("font_color", Color("252b34"))
+		navigation.add_child(_auto_state)
 	_next = Button.new()
 	_next.name = "NextPreludeCard"
 	_next.custom_minimum_size.y = 56
+	_next.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_next.add_theme_color_override("font_color", Color("252b34"))
 	_next.add_theme_color_override("font_hover_color", Color("252b34"))
 	_next.add_theme_color_override("font_pressed_color", Color("252b34"))
 	_next.add_theme_color_override("font_focus_color", Color("252b34"))
 	_next.pressed.connect(_on_next)
-	layout.add_child(_next)
+	navigation.add_child(_next)
 	_next.focus_exited.connect(_retire_input)
 	_pointer = Control.new()
 	_pointer.name = "NextPointerSurface"
@@ -220,6 +299,7 @@ func _on_body_drawn(receipt: Dictionary) -> void:
 		or not _current_body.is_visible_in_tree() or is_queued_for_deletion(): return
 	if _presentation_receipts and not _beginning_is_visible(): return
 	_drawn = true
+	_reset_auto_delay()
 	_history.append(_card.duplicate(true))
 	if _presentation_receipts:
 		# The renderer's acceptance is the witness. Save outside its draw callback;
@@ -239,6 +319,7 @@ func _acknowledge_drawn_card(receipt: Dictionary) -> void:
 func _on_next() -> void:
 	if _retrying or not is_inside_tree() or is_queued_for_deletion() or _covered: return
 	if _custody_bound and (not _input_activation or not _input_admitted()): return
+	_reset_auto_delay()
 	_retire_input()
 	if _advance_retry.is_valid():
 		_retrying = true
@@ -249,9 +330,7 @@ func _on_next() -> void:
 	if _busy or not _drawn or not is_instance_valid(_current_body) or not _current_body.is_visible_in_tree(): return
 	if _accepted:
 		if _presentation_receipts and not _navigation_requested:
-			_navigation_requested = true
-			_next.disabled = true
-			advance_requested.emit(_card.receipt.duplicate(true))
+			_request_advance()
 		return
 	_submit_acknowledgment()
 
@@ -377,13 +456,14 @@ func _notification(what: int) -> void:
 	elif what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_DISABLED, NOTIFICATION_ENABLED]:
 		_retire_input()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not is_instance_valid(_input_owner): return
 	_prune_contacts()
 	if is_instance_valid(_focus_pending) and _input_admitted() and _input_owner.get_physical_contacts().is_empty():
 		var target := _focus_pending
 		_focus_pending = null
 		if target.is_visible_in_tree(): target.grab_focus()
+	_advance_auto(delta)
 
 func _prune_contacts() -> void:
 	var current: Dictionary = _input_owner.get_physical_contacts()

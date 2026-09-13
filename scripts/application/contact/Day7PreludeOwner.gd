@@ -9,6 +9,7 @@ var _contacts: Object
 var _issuer: Object
 var _locale := "en"
 var _theme: Theme
+var _profile: Object
 var _session: Dictionary = {}
 var _command: Dictionary = {}
 var _receipt: Dictionary = {}
@@ -16,7 +17,8 @@ var _surface: CanvasLayer
 var _finishing := false
 var last_result: Dictionary = {}
 
-func configure(game: Object, contacts: Object, issuer: Object, locale: String = "en", presentation_theme: Theme = null) -> Dictionary:
+func configure(game: Object, contacts: Object, issuer: Object, locale: String = "en", presentation_theme: Theme = null,
+		profile: Object = null) -> Dictionary:
 	if _game != null or game == null or contacts == null or issuer == null:
 		return {"ok": false, "code": &"invalid_day7_prelude_configuration"}
 	_game = game
@@ -24,6 +26,7 @@ func configure(game: Object, contacts: Object, issuer: Object, locale: String = 
 	_issuer = issuer
 	_locale = locale.replace("_", "-")
 	_theme = presentation_theme
+	_profile = profile
 	_session = game.capture_live_session().value.duplicate(true)
 	return {"ok": true}
 
@@ -39,6 +42,9 @@ func begin() -> Dictionary:
 				surface.free()
 				return configured
 			surface.use_presentation_receipts()
+			if _profile != null and not surface.bind_reading_preferences(_profile):
+				surface.free()
+				return {"ok": false, "code": &"day7_reading_unavailable"}
 			if not surface.bind_input_custody(get_node_or_null("/root/InputManager")):
 				surface.free()
 				return {"ok": false, "code": &"day7_input_unavailable"}
@@ -98,16 +104,21 @@ func _advance() -> Dictionary:
 		body = ("Earlier, you said:\n" if _locale == "en" else "\u4f60\u66fe\u8bf4\uff1a\n") + str(echo.plain_text_snapshot)
 		if _locale == "zh-HK": body = "\u4f60\u66fe\u8aaa\uff1a\n" + str(echo.plain_text_snapshot)
 	var card := {"receipt": receipt.duplicate(true), "title": title, "body": body}
+	# Auto may drain staged cards, but the final route handoff requires fresh player input.
+	var allow_auto_advance := followups.size() + echoes.size() > 1
 	if is_instance_valid(_surface):
-		var presented: Dictionary = _surface.present_card(card)
+		var presented: Dictionary = _surface.present_card(card, allow_auto_advance)
 		if not presented.get("ok", false): return presented
 	else:
 		var surface := SURFACE.new()
-		var configured: Dictionary = surface.configure(card, _acknowledge, _locale, _theme)
+		var configured: Dictionary = surface.configure(card, _acknowledge, _locale, _theme, allow_auto_advance)
 		if not configured.get("ok", false):
 			surface.free()
 			return configured
 		surface.use_presentation_receipts()
+		if _profile != null and not surface.bind_reading_preferences(_profile):
+			surface.free()
+			return {"ok": false, "code": &"day7_reading_unavailable"}
 		if not surface.bind_input_custody(get_node_or_null("/root/InputManager")):
 			surface.free()
 			return {"ok": false, "code": &"day7_input_unavailable"}
