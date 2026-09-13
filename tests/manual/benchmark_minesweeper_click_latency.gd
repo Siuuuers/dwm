@@ -7,9 +7,19 @@ extends "res://tests/integration/verify_playable_startup.gd"
 ## frames later so deferred work still counts. Prints one `CLICK_LATENCY:` JSON line per command
 ## and a `CLICK_LATENCY_SUMMARY:` line per label. Timings are observations on this machine, not
 ## frame-time guarantees; the harness asserts nothing about speed.
+##
+## `--dating-ending=win` (default) plays the Dating board to its solving cell and then the
+## terminal choice; `--dating-ending=loss` reveals a mine after the routine sample (dwm-634.2).
 
 const ROUTINE_LOG_LIMIT := 12
 var _samples: Dictionary = {}
+
+
+func _dating_ending() -> String:
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--dating-ending="):
+			return argument.trim_prefix("--dating-ending=")
+	return "win"
 
 
 func _run() -> void:
@@ -72,7 +82,10 @@ func _minesweeper_app_benchmark(bootstrap: Node, desktop: Node) -> bool:
 
 func _play_app_board(bootstrap: Node, app: Node, panel: Control, ending: String) -> bool:
 	var worksheet: Control = panel.worksheet
-	var first := await _timed("app", "first_reveal", func() -> void:
+	# The second round starts from New Board on a settled account; its first reveal is labelled
+	# apart so the two boundaries never share one median (dwm-634.2).
+	var first_label := "first_reveal" if ending == "win" else "new_board_first_reveal"
+	var first := await _timed("app", first_label, func() -> void:
 		worksheet.cell_action_requested.emit(&"reveal", 0, int(panel.public_view.board.revision)))
 	if not _check(app.last_result.get("ok", false) and first.ok, "app first reveal accepted"): return false
 	for frame: int in 600:
@@ -173,23 +186,46 @@ func _dating_benchmark(game: Node, desktop: Node) -> bool:
 	var record: Dictionary = game.capture_dating_challenge_state().value
 	if not _check(first.ok and record.board != null, "dating first reveal generated a board"): return false
 	print("CLICK_LATENCY_BOARD: " + JSON.stringify({"surface": "dating", "width": record.board.width, "height": record.board.height}))
+	var ending := _dating_ending()
+	if not _check(ending in ["win", "loss"], "--dating-ending must be win or loss: " + ending): return false
 	var routine := 0
-	while routine < ROUTINE_LOG_LIMIT:
+	while true:
 		record = game.capture_dating_challenge_state().value
 		if record.board == null or bool(record.board.terminal): break
 		var safe := _next_safe_cell(record.board)
-		if safe < 0 or _safe_remaining(record.board) <= 1: break
-		var step := await _timed("dating", "routine_reveal", func() -> void:
+		if safe < 0: break
+		var remaining := _safe_remaining(record.board)
+		if ending == "win" and remaining == 1:
+			var won := await _timed("dating", "winning_reveal", func() -> void:
+				worksheet.cell_action_requested.emit(&"reveal", safe, int(dating.get("_physical_view").board.revision)))
+			if not _check(won.ok, "dating winning reveal accepted"): return false
+			break
+		if ending == "loss" and (routine >= ROUTINE_LOG_LIMIT or remaining <= 1):
+			var mine := int(record.board.mine_indices[0])
+			var lost := await _timed("dating", "losing_reveal", func() -> void:
+				worksheet.cell_action_requested.emit(&"reveal", mine, int(dating.get("_physical_view").board.revision)))
+			if not _check(lost.ok, "dating losing reveal accepted"): return false
+			break
+		var label := "routine_reveal" if routine < ROUTINE_LOG_LIMIT else "routine_reveal_more"
+		var step := await _timed("dating", label, func() -> void:
 			worksheet.cell_action_requested.emit(&"reveal", safe, int(dating.get("_physical_view").board.revision)))
 		if not _check(step.ok and dating.get("_physical_view").phase == "challenge", "dating routine reveal %d accepted" % routine): return false
 		routine += 1
-	record = game.capture_dating_challenge_state().value
-	var mine := int(record.board.mine_indices[0])
-	var lost := await _timed("dating", "losing_reveal", func() -> void:
-		worksheet.cell_action_requested.emit(&"reveal", mine, int(dating.get("_physical_view").board.revision)))
-	if not _check(lost.ok, "dating losing reveal accepted"): return false
+		if routine > 600: return _check(false, "dating routine reveal loop did not terminate")
+	if ending == "win":
+		# A solved board waits for the player's terminal choice unless it was Perfect, which
+		# settles by itself. Either way the choice click is its own boundary.
+		var chosen_us := await _until(func() -> bool:
+			return str(dating.get("_physical_view").phase) in ["cleared_awaiting_terminal_choice", "post_challenge"], 600)
+		print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "dating", "ending": "win", "settled_after_us": chosen_us,
+			"phase": str(dating.get("_physical_view").phase)}))
+		if str(dating.get("_physical_view").phase) == "cleared_awaiting_terminal_choice":
+			await _until(func() -> bool: return bool(dating.get("_choice_released")), 60)
+			if not _check(bool(dating.get("_choice_released")), "terminal choice released"): return false
+			await _timed("dating", "terminal_choice", func() -> void:
+				dating.get("_continue_button").pressed.emit())
 	var reached_us := await _until(func() -> bool: return bool(dating.get("_post_challenge_reached")), 600)
-	print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "dating", "ending": "loss", "settled_after_us": reached_us,
+	print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "dating", "ending": ending, "settled_after_us": reached_us,
 		"phase": str(dating.get("_physical_view").phase)}))
 	return _check(str(dating.get("_physical_view").phase) == "post_challenge", "dating outcome visible")
 
