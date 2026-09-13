@@ -69,6 +69,35 @@ static func build(
 	return {"ok": true, "code": &"ok", "value": document}
 
 static func validate(document: Dictionary) -> Dictionary:
+	return _validate_document(document, [], false)
+
+## `validate()` for an outgoing document whose `recovery_journal` bytes are NOT being emitted from
+## the document itself. The checkpoint port splices each journal entry's bytes from the text its own
+## commit proved for that bundle, so the candidate this returns -- the storage lease for those exact
+## bytes -- must be composed from the bundles those texts belong to, never from the in-memory journal
+## the caller still holds and may have edited since prepare. Every other check runs where it ran in
+## `validate()`, in the same order, over the same document.
+##
+## The caller's obligation, which only it can discharge: `proven_journal[k]` is the bundle whose
+## already-proved canonical text becomes `recovery_journal[k]` in the bytes being written.
+##
+## Equivalence obligations for the composed entries (why no further normalization is needed):
+## - `RunSnapshotSchema._normalize_integral_floats()` is the IDENTITY over them. Every retained
+##   bundle's `snapshot` is a `RunSnapshotSchema.validate()` candidate, i.e. that normalizer's own
+##   output, and it is idempotent; `checkpoint_kind` is a String; `_normalize_engine_text()` below
+##   converts StringNames only and can introduce no float.
+## - `_normalize_engine_text()` IS applied, because a validate candidate is not StringName-free: the
+##   normalizer that produced it converts integral floats only, so engine text (a desktop pending
+##   stage, an active_app_id) survives into it, and `build()` is what converted it when those bytes
+##   were written. It is identity-preserving, so a bundle with no StringName costs no allocation.
+## - The composed Array is deliberately UNTYPED, exactly as `_normalize_integral_floats()` rebuilds
+##   every Array: a proven journal handed in as `Array[Dictionary]` must not leak its typedness into
+##   a candidate that is supposed to match a strict re-parse of JSON.
+static func validate_outgoing(document: Dictionary, proven_journal: Array) -> Dictionary:
+	return _validate_document(document, proven_journal, true)
+
+static func _validate_document(document: Dictionary, proven_journal: Array,
+		use_proven_journal: bool) -> Dictionary:
 	# Normalize each envelope member, and NEVER the current bundle: its `snapshot` is rebuilt by
 	# `_validate_bundle()` -> `RunSnapshotSchema.validate()`, which normalizes it itself, and that
 	# candidate overwrites whatever a whole-document walk would have produced here. The caller's
@@ -122,6 +151,15 @@ static func validate(document: Dictionary) -> Dictionary:
 	}
 	if typeof(candidate["recovery_journal"]) != TYPE_ARRAY:
 		return _fail(&"invalid_document_shape", "recovery_journal must be an array")
+	if use_proven_journal:
+		# The document's own entries are not validated here because they are not what is being
+		# written: the caller's proven bundles are, one per entry, in this order. See
+		# `validate_outgoing()` for the obligation that carries and the equivalence it rests on.
+		var composed: Array = []
+		for bundle: Variant in proven_journal:
+			composed.append(_normalize_engine_text(bundle))
+		candidate["recovery_journal"] = composed
+		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 	var journal_error := _validate_journal(candidate["recovery_journal"])
 	if journal_error != "":
 		return _fail(&"invalid_recovery_journal", journal_error)

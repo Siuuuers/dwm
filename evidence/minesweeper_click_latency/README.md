@@ -103,3 +103,16 @@ The markers cost one boolean per phase while the variables are unset.
   times (App win 722 ms, loss 726-761 ms) are within run-to-run noise. The removed copies are
   real (one 450 KB and one 150 KB duplicate per validation, five validations per save) but the
   write_atomic phase (34-76 ms) dominates each save, so no latency claim is attached to this step.
+
+### Step A7: validate the outgoing document against the journal's own retained bundles (commit after 06b6920d8)
+
+- settlement3-a7-red-c13087180.log: test_checkpoint_validation_reuse RED, 15 passing / 1 failing:
+  after a caller mutates recovery_journal[0].snapshot.gameplay.money between prepare and commit,
+  the bytes on disk still come from the remembered texts (401) while the storage lease seeded from
+  the in-memory document reports 999999. This gap was opened by the splice commit 99305fd36 and is
+  closed here.
+- settlement3-a7-green-06b6920d8.log: the same 26 unit suites, 473 passing / 0 failing.
+- settlement3-a7-profile-win-06b6920d8.log and -loss-: outgoing_schema per big save 26-38 ms
+  (one 57 ms fallback save) against 30-48 ms before; App win settled 688-703 ms, loss 729-746 ms;
+  accept_prepared_action 405-426 ms. Session trend for the App win settlement: 822 (baseline) ->
+  ~700 ms.

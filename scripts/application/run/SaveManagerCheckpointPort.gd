@@ -258,6 +258,9 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if candidate.get("autosave_document") != null:
 		var autosave_document: Variant = candidate["autosave_document"]
 		var document_text := ""
+		# The journal-owned bundles whose committed texts the splice writes, in written order.
+		var proven_journal: Array = []
+		var spliced := false
 		# Only the NEW current bundle is canonicalised here; the earlier bundles are byte-identical
 		# copies of what their own commits already wrote and proved. A non-object outgoing value
 		# takes the whole-document path below exactly as before.
@@ -267,9 +270,13 @@ func commit(candidate: Dictionary) -> Dictionary:
 				(autosave_document as Dictionary)["current_snapshot"])
 			if current_emitted.get("ok", false):
 				proven_current_text = str(current_emitted["value"])
-				document_text = _splice_autosave_text(autosave_document as Dictionary, proven_current_text)
+				document_text = _splice_autosave_text(autosave_document as Dictionary, proven_current_text,
+					proven_journal)
+				spliced = not document_text.is_empty()
 		tick = _profile_phase(profile, "stringify_us", tick)
 		if document_text.is_empty():
+			# A partial splice proves nothing about the bytes the whole-document writer emits below.
+			proven_journal.clear()
 			# Some earlier bundle has no remembered text (a journal seeded from disk, restored or
 			# reset): the whole-document writer remains the authority for these bytes, and this
 			# bundle's own text is only reusable later if it appears verbatim in them.
@@ -289,7 +296,14 @@ func commit(candidate: Dictionary) -> Dictionary:
 		# StringName conversion. Only successful proof can seed this exact-text cache.
 		var normalized: Variant = _normalize_json_string_types(candidate["autosave_document"])
 		if normalized is Dictionary:
-			var checked := SAVE_DOCUMENT_SCHEMA.validate(normalized)
+			# On the splice path the journal entries in these bytes came from the journal's remembered
+			# texts, not from this document, so the lease for them is composed from the bundles those
+			# texts belong to. Every other path validates the outgoing document verbatim, as before.
+			var checked := {}
+			if spliced:
+				checked = SAVE_DOCUMENT_SCHEMA.validate_outgoing(normalized, proven_journal)
+			else:
+				checked = SAVE_DOCUMENT_SCHEMA.validate(normalized)
 			if checked.get("ok", false):
 				validated_texts[outgoing_text] = {"ok": true, "code": &"ok", "value": checked["value"]["candidate"]}
 		# Failed proof and all unknown physical bytes retain the original strict parser
@@ -334,7 +348,10 @@ func commit(candidate: Dictionary) -> Dictionary:
 ## a sentinel token cannot displace anything. Returns "" when the bytes cannot be composed this way
 ## -- a missing remembered text, or an envelope that does not carry each token exactly once -- and
 ## the caller then stringifies the whole document instead.
-func _splice_autosave_text(document: Dictionary, current_text: String) -> String:
+## `proven_journal` is filled, in written order, with the journal's own bundle for each entry whose
+## remembered text this splice writes -- the only in-memory objects that describe these bytes.
+func _splice_autosave_text(document: Dictionary, current_text: String,
+		proven_journal: Array = []) -> String:
 	var earlier: Variant = document.get("recovery_journal")
 	if typeof(earlier) != TYPE_ARRAY:
 		return ""
@@ -349,6 +366,10 @@ func _splice_autosave_text(document: Dictionary, current_text: String) -> String
 		var remembered: String = _journal().get_retained_bundle_text(checkpoint_id)
 		if remembered.is_empty():
 			return ""
+		var retained: Dictionary = _journal().get_retained_bundle(checkpoint_id)
+		if retained.is_empty():
+			return ""
+		proven_journal.append(retained)
 		var sentinel: String = SPLICE_SENTINEL_JOURNAL % index
 		sentinels.append(sentinel)
 		replacements.append([sentinel, remembered])

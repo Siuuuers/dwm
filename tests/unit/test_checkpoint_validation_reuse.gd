@@ -502,3 +502,103 @@ func test_storage_backup_proof_keeps_every_validation_and_disk_operation_without
 	assert_false(refused.get("ok", true), "a proof of an unparseable document refuses")
 	assert_eq(refused, cached.port._document_text_validator(broken),
 		"the refusal is the validator's own, unchanged")
+
+
+# -------------------------------------------------------------------------------------------------
+# A7: the storage lease for an outgoing text must describe the bytes that text actually is. On the
+# splice path the bytes of recovery_journal[k] come from the journal's remembered text for that
+# bundle -- _splice_autosave_text() reads nothing from the in-memory bundle but its checkpoint_id --
+# while the seed handed to write_atomic() is built by validating the in-memory document. The two
+# agree only as long as nobody touches the retained journal between prepare and commit.
+# -------------------------------------------------------------------------------------------------
+
+func _written_text(wired: Dictionary) -> String:
+	return (wired.files.snapshot_persisted()[FINAL] as PackedByteArray).get_string_from_utf8()
+
+
+func _strict_candidate(text: String) -> Dictionary:
+	var parsed: Dictionary = STRICT.parse_object(text)
+	assert_true(parsed.get("ok", false), str(parsed))
+	var validated: Dictionary = DOCUMENT.validate(parsed.get("value", {}))
+	assert_true(validated.get("ok", false), str(validated))
+	return validated["value"]["candidate"]
+
+
+func test_three_bundle_seed_equals_a_strict_reparse_of_the_written_document() -> void:
+	var wired := _wired()
+	for money: int in [301, 302, 303]:
+		var candidate := _prepare(wired, money)
+		assert_true(wired.port.commit(candidate).get("ok", false))
+
+	var written_text := _written_text(wired)
+	var reparsed := _strict_candidate(written_text)
+	var retained: Array = wired.manager._journal.capture_state()["value"]["backup"]["earlier"]
+	assert_eq((reparsed["recovery_journal"] as Array).size(), retained.size(),
+		"the written document carries exactly the journal's retained earlier bundles")
+	assert_gt(retained.size(), 1, "the fixture must reach a three-bundle document")
+	for bundle: Dictionary in retained:
+		var remembered: String = wired.manager._journal.get_retained_bundle_text(
+			str((bundle["snapshot"] as Dictionary)["checkpoint_id"]))
+		assert_false(remembered.is_empty(), "every earlier bundle kept the text its own commit proved")
+		assert_true(written_text.find(remembered) >= 0,
+			"the written bytes really are the spliced remembered texts, not a fresh emission")
+
+	var proven: Dictionary = wired.port._cached_document_text_validator(written_text, {})
+	assert_true(proven.get("ok", false), str(proven))
+	assert_true(WRITER._deep_same(proven.get("value"), reparsed),
+		"the lease for these bytes is what a strict re-parse of them produces")
+	assert_false((proven["value"]["recovery_journal"] as Array).is_typed(),
+		"the leased journal is a plain untyped Array, as validate() composes it")
+	assert_false((reparsed["recovery_journal"] as Array).is_typed())
+
+
+func test_a_journal_bundle_mutated_between_prepare_and_commit_cannot_diverge_the_lease_from_the_bytes() -> void:
+	var wired := _wired()
+	for money: int in [401, 402]:
+		var warmup := _prepare(wired, money)
+		assert_true(wired.port.commit(warmup).get("ok", false))
+
+	var candidate := _prepare(wired, 403)
+	var journal_candidate: Dictionary = candidate["journal_candidate"]
+	var retained_current: Dictionary = (journal_candidate["current"] as Dictionary).duplicate(true)
+	var retained_earlier: Array = (journal_candidate["earlier"] as Array).duplicate(true)
+	assert_gt(retained_earlier.size(), 0, "the fixture must produce at least one earlier bundle")
+
+	var document: Dictionary = candidate["autosave_document"]
+	var entries: Array = document["recovery_journal"]
+	assert_eq(entries.size(), retained_earlier.size())
+	var committed_money := int(((retained_earlier[0] as Dictionary)["snapshot"] as Dictionary)
+		["gameplay"]["money"])
+	# The caller keeps the candidate and edits a bundle the journal already committed.
+	((entries[0] as Dictionary)["snapshot"] as Dictionary)["gameplay"]["money"] = 999999
+	assert_true(int(((entries[0] as Dictionary)["snapshot"] as Dictionary)["gameplay"]["money"])
+		!= committed_money, "the mutation really did change the in-memory journal bundle")
+
+	wired.port.validations.clear()
+	var committed: Dictionary = wired.port.commit(candidate)
+	assert_true(committed.get("ok", false), str(committed))
+	assert_eq(_validation_count(wired.port), 0,
+		"the outgoing text was leased from the seed rather than parsed, so the seed IS the lease")
+
+	# The bytes are the journal's own: the full writer over the bundles the journal retained.
+	var written_text := _written_text(wired)
+	var expected_document: Dictionary = DOCUMENT.build(
+		&"autosave", null, &"automatic", retained_current, retained_earlier)
+	assert_true(expected_document.get("ok", false), str(expected_document))
+	var expected_emitted: Dictionary = WRITER.stringify(expected_document["value"])
+	assert_true(expected_emitted.get("ok", false), str(expected_emitted))
+	assert_eq(written_text, str(expected_emitted["value"]) + "\n",
+		"the written bytes are the full writer over the JOURNAL-retained bundles")
+
+	var reparsed := _strict_candidate(written_text)
+	assert_eq(int((((reparsed["recovery_journal"] as Array)[0] as Dictionary)["snapshot"] as Dictionary)
+		["gameplay"]["money"]), committed_money,
+		"the bytes carry the bundle's committed money, never the mutated in-memory copy")
+
+	var proven: Dictionary = wired.port._cached_document_text_validator(written_text, {})
+	assert_true(proven.get("ok", false), str(proven))
+	assert_eq(int((((proven["value"]["recovery_journal"] as Array)[0] as Dictionary)["snapshot"]
+		as Dictionary)["gameplay"]["money"]), committed_money,
+		"a lease for these bytes cannot report a value the bytes never had")
+	assert_true(WRITER._deep_same(proven.get("value"), reparsed),
+		"the storage lease for a text must deep-equal a strict re-parse of that same text")

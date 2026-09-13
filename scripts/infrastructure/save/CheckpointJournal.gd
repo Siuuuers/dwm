@@ -144,6 +144,22 @@ func remember_committed_bundle_text(checkpoint_id: String, text: String) -> bool
 func get_retained_bundle_text(checkpoint_id: String) -> String:
 	return str(_bundle_texts.get(checkpoint_id, ""))
 
+## This journal's OWN retained bundle for `checkpoint_id`, or {} when it retains none. Returned by
+## reference, like `get_retained_bundle_text()` beside it: the one caller is the checkpoint port,
+## composing the storage lease for bytes it is splicing from this bundle's remembered text, and a
+## lease must describe the journal's own bundle rather than any caller-held copy of it. Safe to hand
+## out unduplicated because this journal never mutates a retained bundle in place -- `commit_prepared`
+## replaces `_current` and `_earlier` wholesale with fresh deep copies -- and the port only ever
+## reads it back through readers that duplicate.
+func get_retained_bundle(checkpoint_id: String) -> Dictionary:
+	if not _current.is_empty() \
+			and str((_current["snapshot"] as Dictionary)["checkpoint_id"]) == checkpoint_id:
+		return _current
+	for bundle: Dictionary in _earlier:
+		if str((bundle["snapshot"] as Dictionary)["checkpoint_id"]) == checkpoint_id:
+			return bundle
+	return {}
+
 func _forget_unretained_bundle_texts() -> void:
 	if _bundle_texts.is_empty():
 		return
