@@ -4,6 +4,7 @@ extends RefCounted
 
 const PERFORMANCE := preload("res://scripts/domain/minesweeper/BoardPerformance.gd")
 const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
+const REGISTER := preload("res://scripts/application/minesweeper/MinesweeperRegisterQuery.gd")
 const OWNER_METHODS := ["get_state", "get_entry_context", "reveal", "set_flag", "chord", "complete_round"]
 
 var _owner: Object = null
@@ -16,6 +17,8 @@ var _projection: Dictionary = {}
 var _configuration: Dictionary = {}
 var _pending_configuration: Dictionary = {}
 var _terminal_foresight: Variant = null
+var _accepted_routine_context: Dictionary = {}
+var _accepted_routine_snapshot: Dictionary = {}
 var _pending_settlement_request: Dictionary = {}
 ## dwm-634.1: the owner view of a terminal command whose settlement was deferred so the board
 ## could paint first. Consumed by settle_pending() or by the next entry into this port.
@@ -39,6 +42,8 @@ func configure(owner: Object, issuer: Object) -> Dictionary:
 
 
 func pull(difficulty: String) -> Dictionary:
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
 	if _owner == null or difficulty.strip_edges().is_empty():
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
@@ -68,6 +73,8 @@ func pull(difficulty: String) -> Dictionary:
 
 
 func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictionary:
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
 	if _owner == null or _projection.is_empty():
 		return _failure(&"minesweeper_presentation_unavailable")
 	var deferred := _settle_if_pending()
@@ -97,6 +104,8 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 	if current_projection != _projection:
 		_adopt(current.value)
 		return _failure(&"stale_minesweeper_presentation", _projection)
+	var routine_command: bool = current.value.phase == "ACTIVE_VISIBLE" \
+		and not bool(current_projection.get("terminal", false))
 	var durable_first_reveal := action == "reveal" and _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]
 	var issued: Dictionary = _mint_transaction(durable_first_reveal)
 	if not issued.get("ok", false):
@@ -128,11 +137,14 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 		if after_refusal.ok: _adopt(after_refusal.value)
 		else: _clear()
 		return _failure(&"minesweeper_command_refused", _projection)
-	var after_commit := _read_owner(_difficulty)
+	var after_commit := _read_owner(_difficulty, routine_command)
 	if not after_commit.ok:
 		_clear()
 		return _failure(&"minesweeper_presentation_unavailable")
 	_adopt(after_commit.value)
+	if routine_command and not bool(_projection.get("terminal", false)):
+		_accepted_routine_context = after_commit.value.routine_context.duplicate(true)
+		_accepted_routine_snapshot = after_commit.value.routine_snapshot
 	if _defers_settlement(after_commit.value):
 		# dwm-634.1: the terminal board is already committed and under custody. Publish it now so
 		# the click paints, and run settlement from settle_pending() or the next entry into this port.
@@ -151,6 +163,8 @@ func has_pending_settlement() -> bool:
 ## Runs the settlement a terminal command deferred. A refusal keeps the exact completion request
 ## (never the deferral), so pull() retries it exactly as it always has.
 func settle_pending() -> Dictionary:
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
 	if _owner == null: return _failure(&"minesweeper_presentation_unavailable")
 	if _pending_settlement_view.is_empty(): return _success(_projection.duplicate(true))
 	var view := _pending_settlement_view
@@ -176,6 +190,8 @@ func _defers_settlement(owner_view: Dictionary) -> bool:
 
 ## Explicit foreground work step. Pure pull never starts or advances a generator.
 func advance_preparation(expected_revision: int) -> Dictionary:
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
 	if _owner == null or _projection.is_empty(): return _failure(&"minesweeper_presentation_unavailable")
 	var deferred := _settle_if_pending()
 	if not deferred.get("ok", false): return deferred
@@ -250,6 +266,27 @@ func get_configuration(projection: Dictionary) -> Dictionary:
 	})
 
 
+## Consume presentation facts derived beside a routine command's exact post-commit projection.
+## One final raw owner comparison closes callbacks that may have run after that read; the snapshot
+## and its identity remain private, and the returned facts contain no command capability.
+func get_accepted_routine_context(projection: Dictionary) -> Dictionary:
+	if _accepted_routine_context.is_empty() or _accepted_routine_snapshot.is_empty() \
+			or projection != _projection \
+			or bool(projection.get("terminal", false)):
+		_accepted_routine_context = {}
+		_accepted_routine_snapshot = {}
+		return {"ok": false}
+	var retained_context: Dictionary = _accepted_routine_context.duplicate(true)
+	var retained_snapshot: Dictionary = _accepted_routine_snapshot
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
+	var current: Variant = _owner.call(&"get_state")
+	if not current is Dictionary or not current.get("ok", false) \
+			or not current.get("value") is Dictionary or current.value != retained_snapshot:
+		return {"ok": false}
+	return {"ok": true, "value": retained_context}
+
+
 func select_difficulty(difficulty: String, expected_revision: int) -> Dictionary:
 	return _configure_board(&"select_difficulty", difficulty, expected_revision)
 
@@ -259,6 +296,8 @@ func replace_board(expected_revision: int) -> Dictionary:
 
 
 func _configure_board(method: StringName, difficulty: String, expected_revision: int) -> Dictionary:
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
 	if _owner == null or _projection.is_empty() or _configuration.is_empty() \
 			or not _owner.has_method(method):
 		return _failure(&"minesweeper_action_not_available", _projection)
@@ -402,6 +441,8 @@ func _preparation_frontier_available() -> bool:
 
 
 func set_foreground(foreground: bool, expected_revision: int) -> Dictionary:
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
 	if not is_instance_valid(_owner) or not is_instance_valid(_issuer) or _projection.is_empty():
 		return _failure(&"minesweeper_presentation_unavailable")
 	var current := _read_owner(_difficulty)
@@ -467,7 +508,7 @@ func _mint_transaction(durable: bool) -> Dictionary:
 	return _issuer.call(&"issue_deferred", &"transaction_id")
 
 
-func _read_owner(difficulty: String) -> Dictionary:
+func _read_owner(difficulty: String, include_routine_context: bool = false) -> Dictionary:
 	var state_result: Dictionary = _owner.call(&"get_state")
 	if not state_result.get("ok", false) or not state_result.get("value") is Dictionary:
 		return {"ok": false}
@@ -499,15 +540,40 @@ func _read_owner(difficulty: String) -> Dictionary:
 	var terminal_foresight: Variant = null
 	if projected.value.terminal:
 		terminal_foresight = PERFORMANCE.display_percent(snapshot.board.board)
+	var routine_context: Dictionary = {}
+	if include_routine_context and snapshot.phase == "ACTIVE_VISIBLE" and not projected.value.terminal:
+		var derived := _derive_routine_context(snapshot, difficulty, configuration.value)
+		if not derived.get("ok", false): return {"ok": false}
+		routine_context = derived.value
 	return {"ok": true, "value": {
 		"difficulty": difficulty, "phase": str(snapshot.phase),
 		"identity": identity.duplicate(true) if identity is Dictionary else null,
 		"revision": int(snapshot.revision), "projection": projected.value.duplicate(true),
 		"terminal_foresight": terminal_foresight, "configuration": configuration.value,
+		"routine_context": routine_context,
+		"routine_snapshot": snapshot.duplicate(true) if not routine_context.is_empty() else {},
 	}}
 
 
+func _derive_routine_context(snapshot: Dictionary, difficulty: String,
+		configuration: Dictionary) -> Dictionary:
+	var metrics := REGISTER.retained_metrics(snapshot)
+	if not metrics.get("ok", false) or not metrics.value.foresight is int:
+		return {"ok": false}
+	return _success({
+		"difficulty": difficulty,
+		"foresight": metrics.value.foresight,
+		"no_flag": metrics.value.no_flag,
+		"configuration": {
+			"difficulty_enabled": configuration.get("difficulty_enabled", []).duplicate(),
+			"new_board_enabled": bool(configuration.get("new_board_enabled", false)),
+		},
+	})
+
+
 func _adopt(value: Dictionary) -> void:
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
 	_difficulty = value.difficulty
 	_phase = value.phase
 	_identity = value.identity.duplicate(true) if value.identity is Dictionary else null
@@ -525,6 +591,8 @@ func _clear() -> void:
 	_projection = {}
 	_configuration = {}
 	_terminal_foresight = null
+	_accepted_routine_context = {}
+	_accepted_routine_snapshot = {}
 
 
 func _success(value: Dictionary) -> Dictionary:

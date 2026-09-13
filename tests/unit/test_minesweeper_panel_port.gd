@@ -57,6 +57,46 @@ class ChangingOwner extends RefCounted:
 	func complete_round(request: Dictionary) -> Dictionary:
 		return owner.complete_round(request)
 
+class CountingOwner extends RefCounted:
+	var owner: Object
+	var state_reads := 0
+	var configuration_reads := 0
+	var restore_on_configuration_read := 0
+	var restored := false
+	var restored_state: Dictionary = {}
+	func get_state() -> Dictionary:
+		state_reads += 1
+		if restored and not restored_state.is_empty(): return restored_state.duplicate(true)
+		return owner.get_state()
+	func get_entry_context(difficulty: String) -> Dictionary:
+		return owner.get_entry_context(difficulty)
+	func get_configuration_context() -> Dictionary:
+		configuration_reads += 1
+		var result: Dictionary = owner.get_configuration_context()
+		if restore_on_configuration_read > 0 \
+				and configuration_reads == restore_on_configuration_read:
+			restored = true
+		return result
+	func reveal(request: Dictionary) -> Dictionary:
+		return owner.reveal(request)
+	func set_flag(request: Dictionary) -> Dictionary:
+		var before: Dictionary = owner.get_state()
+		var result: Dictionary = owner.set_flag(request)
+		if restore_on_configuration_read > 0 and result.get("ok", false) \
+				and before.get("value") is Dictionary:
+			var after: Dictionary = owner.get_state()
+			if after.get("ok", false) and after.get("value") is Dictionary:
+				restored_state = before.duplicate(true)
+				restored_state.value.revision = after.value.revision
+		return result
+	func chord(request: Dictionary) -> Dictionary:
+		return owner.chord(request)
+	func complete_round(request: Dictionary) -> Dictionary:
+		return owner.complete_round(request)
+	func reset_counts() -> void:
+		state_reads = 0
+		configuration_reads = 0
+
 class TerminalClearingOwner extends RefCounted:
 	const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 	var completion_calls: Array = []
@@ -222,6 +262,70 @@ func test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel() -> void:
 	assert_eq(unflagged.value.board.mine_estimate, unflagged.value.register.mine_estimate)
 	assert_eq(unflagged.value.board.custody, unflagged.value.register.custody)
 	assert_eq(unflagged.value.actions, ACTIONS + ["new_board"])
+
+
+func test_routine_command_reuses_its_exact_postcommit_read_and_matches_explicit_pull() -> void:
+	var counted := CountingOwner.new()
+	counted.owner = coordinator
+	var isolated := PORT.new()
+	assert_true(isolated.configure(counted, issuer, state, catalog).ok)
+	var initial: Dictionary = isolated.pull()
+	assert_true(initial.ok, str(initial))
+	counted.reset_counts()
+	var active: Dictionary = isolated.dispatch("reveal", 0, initial.value.board.revision)
+	assert_true(active.ok, str(active))
+	assert_eq(counted.state_reads, 6,
+		"First Reveal retains the full post-command pull and its before/after owner transaction.")
+	assert_eq(counted.configuration_reads, 3)
+
+	counted.reset_counts()
+	var flagged: Dictionary = isolated.dispatch("flag", 2, active.value.board.revision)
+	assert_true(flagged.ok, str(flagged))
+	assert_eq(counted.state_reads, 4,
+		"Routine publication adds one final equality read after projection and dependent getters.")
+	assert_eq(counted.configuration_reads, 2,
+		"The routine result needs only the pre-command and post-command configuration reads.")
+	assert_eq(flagged.value.register.no_flag, "lost")
+	assert_lt(flagged.value.register.foresight, active.value.register.foresight,
+		"The accepted Flag is included in the retained click metric.")
+	assert_eq(flagged.value.register.mine_estimate, 9)
+	assert_eq(flagged.value.actions, ACTIONS + ["new_board"])
+	var expected: Dictionary = flagged.value.duplicate(true)
+
+	# Every layer returns detached values even though the fast publication reuses an internal read.
+	flagged.value.board.cells[2].mark = "forged"
+	flagged.value.register.no_flag = "intact"
+	flagged.value.assignments[0] = not bool(flagged.value.assignments[0])
+	counted.reset_counts()
+	var refreshed: Dictionary = isolated.pull()
+	assert_true(refreshed.ok, str(refreshed))
+	assert_eq(refreshed.value, expected,
+		"A cold strict pull produces the same composite as the accepted routine handoff.")
+	assert_eq(counted.state_reads, 3)
+	assert_eq(counted.configuration_reads, 1)
+
+
+func test_same_revision_restore_after_postcommit_configuration_forces_strict_refresh() -> void:
+	var counted := CountingOwner.new()
+	counted.owner = coordinator
+	var isolated := PORT.new()
+	assert_true(isolated.configure(counted, issuer, state, catalog).ok)
+	var initial: Dictionary = isolated.pull()
+	var active: Dictionary = isolated.dispatch("reveal", 0, initial.value.board.revision)
+	assert_true(active.ok, str(active))
+	counted.reset_counts()
+	# Pre-command configuration is read first. The second read returns facts for the post-command
+	# snapshot, then simulates a same-revision restored owner before Panel dependencies finish.
+	counted.restore_on_configuration_read = 2
+	var flagged: Dictionary = isolated.dispatch("flag", 2, active.value.board.revision)
+	assert_true(flagged.ok, str(flagged))
+	assert_true(counted.restored)
+	assert_eq(counted.state_reads, 7,
+		"The final equality read rejects the handoff and the established three-read pull adopts restore.")
+	assert_eq(counted.configuration_reads, 3)
+	assert_eq(flagged.value.board.cells[2].mark, "none",
+		"The fallback adopts the valid restored board instead of publishing the stale flagged view.")
+	assert_eq(flagged.value.register.no_flag, "intact")
 
 
 func test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears() -> void:

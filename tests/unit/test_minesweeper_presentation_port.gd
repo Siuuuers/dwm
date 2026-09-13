@@ -141,6 +141,46 @@ func test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer() -
 	assert_eq(after_flag.value.cells[2].actions, ["unflag"])
 
 
+func test_accepted_routine_context_is_exactly_projection_bound_detached_and_ephemeral() -> void:
+	var first: Dictionary = port.pull("beginner")
+	var after_reveal: Dictionary = port.dispatch("reveal", 0, first.value.revision)
+	assert_true(after_reveal.ok, JSON.stringify(after_reveal))
+	assert_false(port.get_accepted_routine_context(after_reveal.value).ok,
+		"First Reveal deliberately keeps the established full refresh path.")
+	var after_flag: Dictionary = port.dispatch("flag", 2, after_reveal.value.revision)
+	assert_true(after_flag.ok, JSON.stringify(after_flag))
+	var context: Dictionary = port.get_accepted_routine_context(after_flag.value)
+	assert_true(context.ok, JSON.stringify(context))
+	assert_eq(context.value.keys(), ["difficulty", "foresight", "no_flag", "configuration"])
+	assert_eq(context.value.difficulty, "beginner")
+	assert_eq(context.value.foresight, 150)
+	assert_eq(context.value.no_flag, "lost")
+	assert_eq(context.value.configuration.keys(), ["difficulty_enabled", "new_board_enabled"])
+	assert_false(JSON.stringify(context).contains("identity"))
+	assert_false(JSON.stringify(context).contains("mine_indices"))
+
+	context.value.no_flag = "intact"
+	context.value.configuration.difficulty_enabled.clear()
+	assert_false(port.get_accepted_routine_context(after_flag.value).ok,
+		"The post-command owner comparison consumes its retained private snapshot.")
+	var after_unflag: Dictionary = port.dispatch("unflag", 2, after_flag.value.revision)
+	assert_true(after_unflag.ok, JSON.stringify(after_unflag))
+	var detached: Dictionary = port.get_accepted_routine_context(after_unflag.value)
+	assert_true(detached.ok)
+	assert_eq(detached.value.no_flag, "lost")
+	assert_eq(detached.value.configuration.difficulty_enabled,
+		["beginner", "intermediate", "expert"])
+	var after_reflag: Dictionary = port.dispatch("flag", 2, after_unflag.value.revision)
+	assert_true(after_reflag.ok, JSON.stringify(after_reflag))
+	var stale: Dictionary = after_reflag.value.duplicate(true)
+	stale.revision += 1
+	assert_false(port.get_accepted_routine_context(stale).ok,
+		"A caller cannot attach retained facts to another public projection.")
+	assert_true(port.pull("beginner").ok)
+	assert_false(port.get_accepted_routine_context(after_reflag.value).ok,
+		"A later owner adoption retires the one-command presentation handoff.")
+
+
 func test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator() -> void:
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(512,512)

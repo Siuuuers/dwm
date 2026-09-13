@@ -115,6 +115,7 @@ static func _emit_array(value: Array) -> Dictionary:
 
 static func _emit_dictionary(value: Dictionary) -> Dictionary:
 	var normalized := {}
+	var printable_ascii_keys := true
 	for original_key in value.keys():
 		if typeof(original_key) != TYPE_STRING and typeof(original_key) != TYPE_STRING_NAME:
 			return {"ok": false, "code": &"invalid_key_type", "message": "Object keys must be String or StringName"}
@@ -122,8 +123,15 @@ static func _emit_dictionary(value: Dictionary) -> Dictionary:
 		if normalized.has(key):
 			return {"ok": false, "code": &"key_collision", "message": "Object keys collide after normalization: %s" % key}
 		normalized[key] = value[original_key]
+		printable_ascii_keys = printable_ascii_keys and _printable_ascii.search(key) != null
 	var keys: Array = normalized.keys()
-	keys.sort_custom(_utf8_less)
+	# On printable ASCII, native String order is exactly UTF-8 byte order. Keep the
+	# original comparator for all other keys, including malformed internal strings,
+	# so their emission/refusal order is unchanged.
+	if printable_ascii_keys:
+		keys.sort()
+	else:
+		keys.sort_custom(_utf8_less)
 	var parts: Array[String] = []
 	var round_trip_failed := false
 	for key: String in keys:

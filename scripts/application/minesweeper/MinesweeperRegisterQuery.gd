@@ -16,6 +16,18 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 	if difficulty == null: return _unavailable()
 	var projected: Dictionary = BOARD_QUERY.desktop(snapshot, difficulty)
 	if not projected.get("ok", false): return _unavailable()
+	var metrics := retained_metrics(snapshot)
+	if not metrics.get("ok", false): return _unavailable()
+	return {"ok": true, "value": {
+		"difficulty": difficulty, "rounds": rounds, "mine_estimate": projected.value.mine_estimate,
+		"foresight": metrics.value.foresight, "no_flag": metrics.value.no_flag,
+		"custody": projected.value.custody, "difficulty_enabled": [],
+	}}
+
+
+## Derives the history-backed register facts without constructing another board projection.
+## Presentation may retain this narrow result beside the exact owner projection it already read.
+static func retained_metrics(snapshot: Dictionary) -> Dictionary:
 	var no_flag := "intact"
 	var foresight: Variant = null
 	var history: Dictionary = {}
@@ -40,9 +52,7 @@ static func desktop(snapshot: Dictionary, game_state: Object) -> Dictionary:
 	# Unmaterialized shells have no Foresight. Display uses the same versioned performance
 	# rule as completion, with no arbitrary upper cap.
 	return {"ok": true, "value": {
-		"difficulty": difficulty, "rounds": rounds, "mine_estimate": projected.value.mine_estimate,
-		"foresight": foresight, "no_flag": no_flag, "custody": projected.value.custody,
-		"difficulty_enabled": [],
+		"foresight": foresight, "no_flag": no_flag,
 	}}
 
 

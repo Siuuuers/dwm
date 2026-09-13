@@ -136,6 +136,16 @@ func dispatch(action: String, index: int, revision: int) -> Dictionary:
 		return {"ok": false, "code": &"minesweeper_panel_command_refused",
 			"value": terminal.duplicate(true)}
 	if not result.get("ok", false): return _refused()
+	if not _presented_view.get("register") is Dictionary \
+			or not (_presented_view.register as Dictionary).get("foresight") is int:
+		return pull()
+	var routine_inputs := _routine_inputs()
+	if routine_inputs.is_empty(): return pull()
+	var routine_context: Dictionary = _board_port.get_accepted_routine_context(result.value)
+	if routine_context.get("ok", false):
+		var routine_view := _routine_view(result.value, routine_context.value, routine_inputs, revision)
+		if not routine_view.is_empty(): return _present_success(routine_view)
+	# First Reveal and any context mismatch retain the strict full refresh transaction.
 	return pull()
 
 
@@ -232,6 +242,49 @@ func _terminal_view(board: Dictionary, prior_register: Dictionary, assignments: 
 		"assignments": assignments.duplicate(),
 		"actions": SETTLED_ACTIONS.duplicate() if settled else [],
 		"settled": settled,
+	}
+
+
+func _routine_inputs() -> Dictionary:
+	var assignments: Dictionary = ASSIGNMENTS.from_sources(_game_state, _catalog)
+	if not assignments.get("ok", false): return {}
+	var rounds: Variant = _game_state.get("minesweeper_rounds_left")
+	if not rounds is int: return {}
+	return {"assignments": assignments.value.duplicate(), "rounds": rounds}
+
+
+func _routine_view(board: Dictionary, context: Dictionary, inputs: Dictionary,
+		expected_revision: int) -> Dictionary:
+	if _presented_view.is_empty() or bool(board.get("terminal", false)) \
+			or bool(board.get("custody", true)) or context.size() != 4 or inputs.size() != 2:
+		return {}
+	if not _presented_view.get("board") is Dictionary \
+			or int(_presented_view.board.get("revision", -1)) != expected_revision \
+			or int(board.get("revision", -1)) != expected_revision + 1:
+		return {}
+	for key: String in ["difficulty", "foresight", "no_flag", "configuration"]:
+		if not context.has(key): return {}
+	if not context.difficulty is String or context.difficulty != _presented_difficulty \
+			or not context.foresight is int or context.no_flag not in ["intact", "lost"] \
+			or not context.configuration is Dictionary:
+		return {}
+	var configuration: Dictionary = context.configuration
+	if configuration.size() != 2 or not configuration.get("difficulty_enabled") is Array \
+			or not configuration.get("new_board_enabled") is bool:
+		return {}
+	if not inputs.get("assignments") is Array or not inputs.get("rounds") is int: return {}
+	var register := {
+		"difficulty": context.difficulty, "rounds": inputs.rounds,
+		"mine_estimate": board.get("mine_estimate"), "foresight": context.foresight,
+		"no_flag": context.no_flag, "custody": false,
+		"difficulty_enabled": configuration.difficulty_enabled.duplicate(),
+	}
+	var actions: Array[String] = []
+	actions.assign(PLAY_ACTIONS)
+	if configuration.new_board_enabled: actions.append("new_board")
+	return {
+		"board": board.duplicate(true), "register": register,
+		"assignments": inputs.assignments.duplicate(), "actions": actions, "settled": false,
 	}
 
 
