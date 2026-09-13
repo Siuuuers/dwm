@@ -19,6 +19,17 @@ class FailOneHospitalCheckpoint extends RefCounted:
 			return {"ok": false, "code": &"injected_hospital_completion_write_failure"}
 		return target.commit(candidate)
 
+
+class FailOneContactCheckpoint extends RefCounted:
+	var target: Callable
+	var failures := 0
+	func _init(writer: Callable) -> void: target = writer
+	func write() -> Dictionary:
+		if failures == 0:
+			failures += 1
+			return {"ok": false, "code": &"injected_ordinary_echo_write_failure"}
+		return target.call()
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -99,6 +110,7 @@ func _run() -> void:
 		await _board_controls_journey(game, desktop, app)
 		return
 	var before: int = game.minesweeper_rounds_left
+	var finished_before: int = game.minesweeper_app_rounds_finished_today
 	panel.worksheet.cell_action_requested.emit(&"reveal", 0, int(panel.public_view.board.revision))
 	if not _check(app.last_result.get("ok", false), "first Reveal: " + JSON.stringify(app.last_result)): return
 	if not _check(game.minesweeper_rounds_left == before - 1, "first Reveal charges one round"): return
@@ -111,8 +123,9 @@ func _run() -> void:
 	var day_one_owner: Dictionary = bootstrap.get("_desktop_board_state").capture()
 	_first_day_board_identity = day_one_owner.identity.duplicate(true)
 	var physical: Dictionary = day_one_owner.board.board
-	panel.worksheet.cell_action_requested.emit(&"reveal", int(physical.mine_indices[0]), int(panel.public_view.board.revision))
-	if not _check(app.last_result.get("ok", false) and bool(panel.public_view.settled), "round result: " + JSON.stringify(app.last_result)): return
+	if not panel.public_view.board.terminal:
+		panel.worksheet.cell_action_requested.emit(&"reveal", int(physical.mine_indices[0]), int(panel.public_view.board.revision))
+	if not await _wait_app_round_settled(game, app, finished_before): return
 	if "--probe-message-popup" in OS.get_cmdline_user_args():
 		await _message_popup_journey(game, desktop)
 		return
@@ -928,94 +941,140 @@ func _ordinary_day6_invitation(game: Node, desktop: Node) -> bool:
 	var app: Node = desktop.get("_cached_app_windows")[&"minesweeper"]
 	var panel: Control = app.panel
 	if not _check(panel.has_valid_presentation() and not panel.public_view.settled, "Day 6 fresh board is playable"): return false
+	var finished_before: int = game.minesweeper_app_rounds_finished_today
 	panel.worksheet.cell_action_requested.emit(&"reveal", 0, int(panel.public_view.board.revision))
 	if not _check(app.last_result.get("ok", false), "Day 6 actual first Reveal starts a round"): return false
-	if not panel.public_view.settled:
+	if not panel.public_view.board.terminal:
 		# Only this test fixture inspects hidden mines to select input; production Reveal settles it.
 		var board: Dictionary = root.get_node("ApplicationBootstrap").get("_desktop_board_state").capture().board.board
 		panel.worksheet.cell_action_requested.emit(&"reveal", int(board.mine_indices[0]), int(panel.public_view.board.revision))
-	if not _check(app.last_result.get("ok", false) and panel.public_view.settled and game.minesweeper_app_rounds_finished_today >= 1,
-		"Day 6 real completed round unlocks its invitation"): return false
+	if not await _wait_app_round_settled(game, app, finished_before): return false
 	if not _check(game.contacts.solo_actions.get("solo:priscilla:day6", {}).get("state") == "AVAILABLE",
 		"Priscilla Day 6 invitation remains genuinely unread"): return false
 	if not _check(desktop.return_home().get("ok", false), "Home without reading Day 6 invitation"): return false
 	return true
 
+func _wait_app_round_settled(game: Node, app: Node, finished_before: int) -> bool:
+	# The real app owns deferred settlement; this fixture only observes its result.
+	var deadline := Time.get_ticks_msec() + 30000
+	while Time.get_ticks_msec() < deadline:
+		if not _check(is_instance_valid(app) and is_instance_valid(app.panel), "round keeps its real app surface"): return false
+		if not _check(app.last_result.get("ok", false), "round settlement: " + JSON.stringify(app.last_result)): return false
+		if app.panel.has_valid_presentation() and app.panel.public_view.board.terminal and app.panel.public_view.settled:
+			return _check(game.minesweeper_app_rounds_finished_today == finished_before + 1,
+				"settled round publishes exactly one finished-round increment")
+		await process_frame
+	return _check(false, "real app did not finish deferred round settlement before the deadline")
+
 func _ordinary_day7_prelude_journey(game: Node) -> bool:
 	var bootstrap: Node = root.get_node("ApplicationBootstrap")
-	var owner: Node = await _ordinary_wait_prelude_draw(bootstrap)
+	var owner: Node = await _ordinary_wait_prelude_draw(bootstrap, &"acknowledged")
 	if owner == null: return false
-	if not _check(game.day == 7 and not game.get_pending_day7_followups().is_empty(), "real unread Day 6 invitation produces mandatory Day 7 followup"): return false
-	if not _check(not _ordinary_reply_receipt.is_empty() and game.get_pending_ordinary_echoes().size() == 1,
+	var followup_receipt: Dictionary = owner.get("_receipt").duplicate(true)
+	var followup_surface: CanvasLayer = owner.get("_surface")
+	var exact_followup := false
+	for message: Dictionary in game.contacts.messages.get(str(followup_receipt.get("friend_id", "")), []):
+		if message.get("message_id") == followup_receipt.get("message_id") \
+				and message.get("sequence") == followup_receipt.get("sequence"):
+			exact_followup = int(message.get("target_day", 0)) == 7 \
+				and str(message.get("type", "")) in ["nevermind", "missed_question", "busy", "judge"]
+			break
+	if not _check(game.day == 7 and followup_receipt.get("kind") == "day7_followup"
+		and followup_receipt.get("friend_id") == "priscilla" and exact_followup,
+		"real unread Day 6 invitation renders the mandatory Day 7 followup first"): return false
+	if not _check(game.get_pending_day7_followups().is_empty()
+		and bool(followup_surface.call("is_card_acknowledged", followup_receipt)),
+		"a fully drawn followup is durably witnessed but remains on its staging card"): return false
+	var pending_echoes: Array[Dictionary] = game.get_pending_ordinary_echoes()
+	if not _check(not _ordinary_reply_receipt.is_empty() and pending_echoes.size() == 1,
 		"Day 1 selected reply survives every daily Autosave"): return false
 	if not _ordinary_assert_day7_guards(bootstrap, game): return false
 	var initial_contacts: Dictionary = game.contacts.duplicate(true)
 	var satisfied_before := _ordinary_satisfied_count(game.contacts)
-	var observed_kinds: Array[String] = []
-	var loaded_mid_prelude := false
-	var displayed_echo := false
-	for step: int in 12:
-		var followups: Array[Dictionary] = game.get_pending_day7_followups()
-		var echoes: Array[Dictionary] = game.get_pending_ordinary_echoes()
-		if followups.is_empty() and echoes.is_empty(): break
-		owner = await _ordinary_wait_prelude_draw(bootstrap)
-		if owner == null: return false
-		var receipt: Dictionary = owner.get("_receipt").duplicate(true)
-		var surface: CanvasLayer = owner.get("_surface")
-		if not followups.is_empty():
-			if not _check(not displayed_echo and receipt.get("kind") == "day7_followup"
-				and receipt.message_id == followups[0].message.message_id and receipt.sequence == followups[0].message.sequence,
-				"oldest due Day 6 followup is rendered before every echo"): return false
-			observed_kinds.append("followup")
-			await _capture_screen("12-day7-followup")
-		else:
-			if not _check(receipt.entry_id == "echo.fallback.day7" and receipt.echo_id == echoes[0].echo_id
-				and receipt.presentation_atom_id == echoes[0].presentation_atom_id,
-				"first unsatisfied echo owns the exact rendered fallback atom"): return false
-			if not loaded_mid_prelude:
-				var old_command: Dictionary = owner.get("_command").duplicate(true)
-				var old_receipt := receipt.duplicate(true)
-				var old_owner_id: int = owner.get_instance_id()
-				var session: Dictionary = game.capture_live_session().value.duplicate(true)
-				var saved_contacts: Dictionary = game.contacts.duplicate(true)
-				var saves: Node = root.get_node("SaveManager")
-				var prepared: Dictionary = saves.prepare_restore_autosave()
-				if not _check(prepared.get("ok", false), "mid-prelude full Autosave prepares: " + JSON.stringify(prepared)): return false
-				var restored: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
-				if not _check(restored.get("ok", false), "mid-prelude full Autosave loads: " + JSON.stringify(restored)): return false
-				for frame: int in 180:
-					await process_frame
-					var replacement: Variant = bootstrap.get("_day7_prelude_owner")
-					if is_instance_valid(replacement) and replacement.get_instance_id() != old_owner_id: break
-				owner = await _ordinary_wait_prelude_draw(bootstrap)
-				if owner == null: return false
-				if not _check(owner.get_instance_id() != old_owner_id and game.capture_live_session().value.active
-					and game.capture_live_session().value != session, "mid-prelude Load mounts a fresh owner and live session"): return false
-				if not _check(game.contacts == saved_contacts and game.get_pending_ordinary_echoes() == echoes
-					and game.get_pending_day7_followups().is_empty(), "Load keeps completed followup and resumes first unsatisfied echo"): return false
-				receipt = owner.get("_receipt").duplicate(true)
-				surface = owner.get("_surface")
-				if not _check(receipt.echo_id == old_receipt.echo_id and receipt.presentation_atom_id == old_receipt.presentation_atom_id
-					and receipt.view_token != old_receipt.view_token, "same pending atom receives a fresh exact presentation token"): return false
-				var stale: Dictionary = game.commit_ordinary_echo(old_command, old_receipt)
-				if not _check(not stale.get("ok", false) and game.contacts == saved_contacts, "old view cannot acknowledge after Load"): return false
-				if not _ordinary_assert_day7_guards(bootstrap, game): return false
-				loaded_mid_prelude = true
-			observed_kinds.append("echo")
-			displayed_echo = true
-			await _capture_screen("13-day7-restored-echo")
-		var token: String = receipt.view_token
-		var next: Button = surface.get("_next")
-		if not _check(bool(surface.get("_drawn")) and next.is_visible_in_tree() and not next.disabled,
-			"actual drawn card enables its real Next button"): return false
-		next.pressed.emit()
-		if not _check(owner.last_result.get("ok", false), "actual card acknowledgment saved: " + JSON.stringify(owner.last_result)): return false
-		for frame: int in 180:
-			await process_frame
-			var current: Variant = bootstrap.get("_day7_prelude_owner")
-			if not is_instance_valid(current) or str(current.get("_receipt").get("view_token", "")) != token: break
-	if not _check(loaded_mid_prelude and observed_kinds.size() >= 2 and observed_kinds[0] == "followup"
-		and observed_kinds[-1] == "echo", "journey renders followup before echo and proves mid-prelude Load"): return false
+	if not await _capture_screen("12-day7-followup"): return false
+	var original_writer: Callable = game.get("_contact_checkpoint_writer")
+	if not _check(original_writer.is_valid(), "real contact checkpoint writer is installed before failure injection"): return false
+	var failed_writer := FailOneContactCheckpoint.new(original_writer)
+	game.set("_contact_checkpoint_writer", failed_writer.write)
+	var followup_next: Button = followup_surface.get("_next")
+	if not _check(followup_next.is_visible_in_tree() and not followup_next.disabled,
+		"durably witnessed followup remains visible with a fresh Next command"): return false
+	followup_next.pressed.emit()
+	owner = await _ordinary_wait_prelude_draw(bootstrap, &"retry")
+	if owner == null: return false
+	var old_command: Dictionary = owner.get("_command").duplicate(true)
+	var old_receipt: Dictionary = owner.get("_receipt").duplicate(true)
+	var old_surface: CanvasLayer = owner.get("_surface")
+	var old_owner_id: int = owner.get_instance_id()
+	var session: Dictionary = game.capture_live_session().value.duplicate(true)
+	var saved_contacts: Dictionary = game.contacts.duplicate(true)
+	game.set("_contact_checkpoint_writer", original_writer)
+	if not _check(failed_writer.failures == 1 and not owner.last_result.get("ok", false)
+		and owner.last_result.get("code") == &"injected_ordinary_echo_write_failure",
+		"the first visible echo acknowledgment reports its injected durable save failure"): return false
+	if not _check(old_receipt.entry_id == "echo.fallback.day7"
+		and old_receipt.echo_id == pending_echoes[0].echo_id
+		and old_receipt.presentation_atom_id == pending_echoes[0].presentation_atom_id,
+		"first unsatisfied echo owns the exact rendered fallback atom"): return false
+	if not _check(not bool(old_surface.call("is_card_acknowledged", old_receipt))
+		and game.get_pending_ordinary_echoes() == pending_echoes and game.contacts == initial_contacts,
+		"failed receipt keeps the rendered echo and its durable obligation pending"): return false
+	var failed_history: Array[Dictionary] = old_surface.get_presentation_history()
+	if not _check(failed_history.size() == 2 and failed_history[0].receipt == followup_receipt
+		and failed_history[1].receipt == old_receipt,
+		"one physical surface draws the exact followup then the exact echo without duplication"): return false
+	var retry: Button = old_surface.get("_next")
+	if not _check(retry.text == "Retry" and retry.is_visible_in_tree() and not retry.disabled,
+		"failed echo exposes Retry on the same receipt without navigating"): return false
+	await _frames()
+	if not _check(is_instance_valid(bootstrap.get("_day7_prelude_owner"))
+		and bootstrap.get("_day7_prelude_owner").get_instance_id() == old_owner_id
+		and owner.get("_receipt") == old_receipt and failed_writer.failures == 1,
+		"failed Retry state holds the same owner, receipt and card without an implicit retry or advance"): return false
+	if not _ordinary_assert_day7_guards(bootstrap, game): return false
+	var saves: Node = root.get_node("SaveManager")
+	var prepared: Dictionary = saves.prepare_restore_autosave()
+	if not _check(prepared.get("ok", false), "mid-prelude full Autosave prepares: " + JSON.stringify(prepared)): return false
+	var restored: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
+	if not _check(restored.get("ok", false), "mid-prelude full Autosave loads: " + JSON.stringify(restored)): return false
+	if not _check(game.contacts == saved_contacts and game.get_pending_ordinary_echoes() == pending_echoes
+		and game.get_pending_day7_followups().is_empty(),
+		"Load keeps the completed followup and restores the first unsatisfied echo before redraw"): return false
+	for frame: int in 180:
+		await process_frame
+		var replacement: Variant = bootstrap.get("_day7_prelude_owner")
+		if is_instance_valid(replacement) and replacement.get_instance_id() != old_owner_id: break
+	owner = await _ordinary_wait_prelude_draw(bootstrap, &"acknowledged")
+	if owner == null: return false
+	if not _check(owner.get_instance_id() != old_owner_id and game.capture_live_session().value.active
+		and game.capture_live_session().value != session, "mid-prelude Load mounts a fresh owner and live session"): return false
+	var receipt: Dictionary = owner.get("_receipt").duplicate(true)
+	var surface: CanvasLayer = owner.get("_surface")
+	if not _check(receipt.echo_id == old_receipt.echo_id and receipt.presentation_atom_id == old_receipt.presentation_atom_id
+		and receipt.view_token != old_receipt.view_token, "same pending atom receives a fresh exact presentation token"): return false
+	if not _check(game.get_pending_ordinary_echoes().is_empty()
+		and bool(surface.call("is_card_acknowledged", receipt))
+		and game.require_day7_presentations_complete().get("ok", false),
+		"fresh full draw durably acknowledges the echo while its accepted card remains visible"): return false
+	var restored_history: Array[Dictionary] = surface.get_presentation_history()
+	if not _check(restored_history.size() == 1 and restored_history[0].receipt == receipt,
+		"fresh surface redraws the resumed echo exactly once"): return false
+	var accepted_contacts: Dictionary = game.contacts.duplicate(true)
+	var stale: Dictionary = game.commit_ordinary_echo(old_command, old_receipt)
+	if not _check(not stale.get("ok", false) and game.contacts == accepted_contacts,
+		"old view cannot acknowledge after Load or mutate the accepted receipt"): return false
+	await _frames()
+	if not _check(is_instance_valid(bootstrap.get("_day7_prelude_owner"))
+		and bootstrap.get("_day7_prelude_owner").get_instance_id() == owner.get_instance_id()
+		and bool(surface.call("is_card_acknowledged", receipt)),
+		"accepted echo stays visible until a separate fresh Next command"): return false
+	if not await _capture_screen("13-day7-restored-echo"): return false
+	var next: Button = surface.get("_next")
+	if not _check(next.is_visible_in_tree() and not next.disabled, "accepted echo exposes its real Next button"): return false
+	next.pressed.emit()
+	for frame: int in 180:
+		await process_frame
+		if not is_instance_valid(bootstrap.get("_day7_prelude_owner")): break
 	if not _check(game.get_pending_day7_followups().is_empty() and game.get_pending_ordinary_echoes().is_empty()
 		and game.require_day7_presentations_complete().get("ok", false), "all mandatory presentations drain and gameplay guard clears"): return false
 	if not _check(game.contacts.transaction_receipts[_ordinary_reply_receipt.transaction_id] == _ordinary_reply_receipt
@@ -1024,18 +1083,35 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 		"prelude adds no message duplicates and never advances the day"): return false
 	await _frames()
 	if not _check(not is_instance_valid(bootstrap.get("_day7_prelude_owner")), "finished prelude retires its surface"): return false
-	print("PLAYABLE_ORDINARY_ECHO_PASS: real A reply -> unread Day 6 followup -> guarded Day 7 -> actual cards -> Autosave Load -> exact one-time echo -> playable Day 7")
+	print("PLAYABLE_ORDINARY_ECHO_PASS: real A reply -> witnessed Day 6 followup -> guarded failed echo save -> Autosave Load -> witnessed echo -> fresh Next -> playable Day 7")
 	return true
 
-func _ordinary_wait_prelude_draw(bootstrap: Node) -> Node:
+func _ordinary_wait_prelude_draw(bootstrap: Node, expected_state: StringName) -> Node:
 	for frame: int in 180:
 		await process_frame
 		var owner: Variant = bootstrap.get("_day7_prelude_owner")
 		if not is_instance_valid(owner): continue
 		var surface: Variant = owner.get("_surface")
-		if is_instance_valid(surface) and bool(surface.get("_drawn")) and not bool(surface.get("_accepted")):
-			return owner
-	_check(false, "actual Day 7 staging card drew before its acknowledgment: " + str(bootstrap.get("_day7_prelude_owner")))
+		if not is_instance_valid(surface) or not bool(surface.get("_drawn")): continue
+		var receipt: Dictionary = owner.get("_receipt")
+		var next: Button = surface.get("_next")
+		if not next.is_visible_in_tree() or next.disabled: continue
+		var acknowledged: bool = bool(surface.call("is_card_acknowledged", receipt))
+		if expected_state == &"acknowledged" and acknowledged: return owner
+		var status: Label = surface.get("_status")
+		if expected_state == &"retry" and not acknowledged and not status.text.is_empty(): return owner
+	var owner: Variant = bootstrap.get("_day7_prelude_owner")
+	var details := {}
+	if is_instance_valid(owner):
+		details["result"] = owner.last_result
+		var surface: Variant = owner.get("_surface")
+		if is_instance_valid(surface):
+			details.merge({"drawn": surface._drawn, "accepted": surface._accepted, "busy": surface._busy,
+				"aperture": surface._scroll.get_global_rect(),
+				"viewport": surface._root.get_viewport_rect(), "scroll": surface._scroll.scroll_vertical})
+			if is_instance_valid(surface._current_body): details["body"] = surface._current_body.get_global_rect()
+	await _capture_screen("day7-presentation-failure")
+	_check(false, "actual Day 7 staging card did not reach %s after its full draw: %s" % [expected_state, JSON.stringify(details)])
 	return null
 
 func _ordinary_assert_day7_guards(bootstrap: Node, game: Node) -> bool:

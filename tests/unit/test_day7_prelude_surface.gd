@@ -1,6 +1,7 @@
 extends GutTest
 const SURFACE := preload("res://scripts/ui/Day7PreludeSurface.gd")
 const ART := preload("res://scripts/data/ArtManifest.gd")
+const GALLERY_THEME := preload("res://scripts/ui/gallery/GalleryTheme.gd")
 
 class Acknowledgment extends RefCounted:
 	signal released
@@ -11,6 +12,25 @@ class Acknowledgment extends RefCounted:
 		calls.append(receipt.duplicate(true))
 		if hold: await released
 		return {"ok": succeed, "value": {"retained": receipt.duplicate(true)}, "code": &"ok" if succeed else &"write_failed"}
+
+
+class ApertureAcknowledgment extends RefCounted:
+	var surface: Node
+	var calls: Array[Dictionary] = []
+	var geometry: Array[Dictionary] = []
+	func accept(receipt: Dictionary) -> Dictionary:
+		calls.append(receipt.duplicate(true))
+		var aperture: Rect2 = surface._scroll.get_global_rect().intersection(surface._root.get_viewport_rect())
+		var body_rect: Rect2 = surface._current_body.get_global_rect()
+		var child_count: int = surface._history_list.get_child_count()
+		var title_rect: Rect2 = surface._history_list.get_child(child_count - 2).get_global_rect()
+		geometry.append({"aperture": aperture, "body": body_rect, "title": title_rect,
+			"leading_edge_visible": body_rect.position.y > 0.0
+				and body_rect.position.y >= aperture.position.y - 1.0
+				and body_rect.position.y < aperture.end.y,
+			"body_fully_visible": body_rect.position.y >= aperture.position.y - 1.0
+				and body_rect.end.y <= aperture.end.y + 1.0})
+		return {"ok": true}
 
 func _card(token: String = "card-one", suffix: String = "a") -> Dictionary:
 	return {"title": "Lavinia / Day 1", "body": "A remembered detail: [reply %s]" % suffix,
@@ -217,3 +237,129 @@ func test_optional_scene_art_uses_exact_card_entry_and_keeps_acknowledgment_and_
 	assert_eq(surface._current_body.text, missing.body)
 	assert_eq(surface.get_presentation_history(), [date_card, echo_card])
 	ART.reload_placements()
+
+
+func _presentation_receipt_surface(acknowledgment: Acknowledgment) -> Node:
+	var surface := SURFACE.new()
+	assert_true(surface.configure(_card(), acknowledgment.accept).ok)
+	assert_true(surface.has_method("use_presentation_receipts"), "Day 7 selects semantic presentation receipts")
+	if not surface.has_method("use_presentation_receipts"):
+		surface.free()
+		return null
+	assert_true(surface.call("use_presentation_receipts").ok)
+	add_child_autofree(surface)
+	return surface
+
+
+func test_presentation_receipt_is_durable_on_draw_but_navigation_waits_for_next() -> void:
+	var acknowledgment := Acknowledgment.new()
+	var surface := _presentation_receipt_surface(acknowledgment)
+	if surface == null: return
+	watch_signals(surface)
+	surface._next.pressed.emit()
+	assert_eq(acknowledgment.calls, [], "neither creation nor Next fabricates a visual witness")
+	surface._current_body.draw.emit()
+	assert_eq(acknowledgment.calls, [], "a render callback never performs synchronous save work")
+	await get_tree().process_frame
+	assert_eq(acknowledgment.calls, [_card().receipt])
+	assert_true(surface.is_card_acknowledged(_card().receipt))
+	assert_signal_emit_count(surface, "card_acknowledged", 1)
+	assert_signal_emit_count(surface, "advance_requested", 0)
+	assert_eq(surface._current_body.text, _card().body, "the witnessed card remains available to read")
+	surface._current_body.draw.emit()
+	await get_tree().process_frame
+	assert_eq(acknowledgment.calls.size(), 1, "redraw and passive frames never repeat the receipt")
+	assert_signal_emit_count(surface, "advance_requested", 0)
+	surface._next.pressed.emit()
+	surface._next.pressed.emit()
+	assert_signal_emit_count(surface, "advance_requested", 1)
+	assert_eq(acknowledgment.calls.size(), 1, "navigation never saves the same receipt again")
+
+
+func test_failed_presentation_save_retries_same_receipt_without_navigating() -> void:
+	var acknowledgment := Acknowledgment.new()
+	acknowledgment.succeed = false
+	var surface := _presentation_receipt_surface(acknowledgment)
+	if surface == null: return
+	watch_signals(surface)
+	surface._current_body.draw.emit()
+	await get_tree().process_frame
+	assert_eq(acknowledgment.calls, [_card().receipt])
+	assert_false(surface.is_card_acknowledged(_card().receipt))
+	assert_eq(surface._next.text, "Retry")
+	assert_false(surface.present_card(_card("replacement", "b")).ok)
+	acknowledgment.succeed = true
+	surface._next.pressed.emit()
+	await get_tree().process_frame
+	assert_eq(acknowledgment.calls, [_card().receipt, _card().receipt])
+	assert_true(surface.is_card_acknowledged(_card().receipt))
+	assert_eq(surface._next.text, "Next")
+	assert_signal_emit_count(surface, "advance_requested", 0)
+	assert_eq(surface.get_presentation_history(), [_card()])
+	surface._next.pressed.emit()
+	assert_signal_emit_count(surface, "advance_requested", 1)
+
+
+func test_queued_presentation_cannot_acknowledge_a_retired_surface() -> void:
+	var acknowledgment := Acknowledgment.new()
+	var surface := _presentation_receipt_surface(acknowledgment)
+	if surface == null: return
+	surface._current_body.draw.emit()
+	surface.queue_free()
+	await get_tree().process_frame
+	assert_eq(acknowledgment.calls, [], "retiring before deferred admission leaves the atom pending")
+
+
+func test_production_text_sizes_show_short_body_and_gate_long_card_until_its_leading_edge() -> void:
+	if DisplayServer.get_name() == "headless":
+		pending("requires native CanvasItem draws and viewport geometry")
+		return
+	var lines: Array[String] = []
+	for index: int in 80:
+		lines.append("Remembered line %02d stays available in the complete Day 7 card." % index)
+	for percent: int in [100, 125, 150]:
+		var context := "%d%% production GalleryTheme" % percent
+		var acknowledgment := ApertureAcknowledgment.new()
+		var first := _card("first-%d" % percent)
+		var surface := SURFACE.new()
+		acknowledgment.surface = surface
+		assert_true(surface.configure(first, acknowledgment.accept, "en",
+			GALLERY_THEME.build("en", percent, &"after_hours")).ok, context)
+		assert_true(surface.use_presentation_receipts().ok, context)
+		add_child(surface)
+		for frame: int in 12:
+			await RenderingServer.frame_post_draw
+			if acknowledgment.calls.size() == 1: break
+		assert_eq(acknowledgment.calls, [first.receipt], context + ": initial real draw acknowledges")
+		assert_eq(acknowledgment.geometry.size(), 1, context + ": initial draw records geometry")
+		if acknowledgment.geometry.size() != 1:
+			surface.free()
+			continue
+		assert_true(acknowledgment.geometry[0].leading_edge_visible,
+			context + ": the initial short body's leading edge enters the aperture")
+		assert_true(acknowledgment.geometry[0].body_fully_visible,
+			context + ": the complete short line is available at acknowledgment")
+		assert_eq(surface._current_body.text, first.body, context + ": exact short copy remains visible")
+		var long_card := _card("long-%d" % percent, "b")
+		long_card.body = "\n".join(lines)
+		assert_true(surface.present_card(long_card).ok, context)
+		for frame: int in 20:
+			await RenderingServer.frame_post_draw
+			if acknowledgment.calls.size() == 2: break
+		assert_eq(acknowledgment.calls, [first.receipt, long_card.receipt], context)
+		assert_eq(acknowledgment.geometry.size(), 2, context)
+		if acknowledgment.geometry.size() < 2:
+			surface.free()
+			continue
+		var witnessed: Dictionary = acknowledgment.geometry[1]
+		assert_true(witnessed.leading_edge_visible,
+			context + ": a clipped CanvasItem draw cannot acknowledge the long body")
+		assert_gt(witnessed.body.size.y, witnessed.aperture.size.y, context + ": long fixture genuinely overflows")
+		assert_almost_eq(float(witnessed.title.position.y), float(witnessed.aperture.position.y), 1.0,
+			context + ": the new card begins at the scroll and viewport aperture")
+		assert_eq(surface._current_body.text, long_card.body, context + ": exact long copy remains available")
+		assert_false(surface._current_body.clip_text, context)
+		assert_eq(surface.get_presentation_history(), [first, long_card], context + ": history retains full cards")
+		for frame: int in 4: await RenderingServer.frame_post_draw
+		assert_eq(acknowledgment.calls.size(), 2, context + ": layout and redraw acknowledge each card once")
+		surface.free()

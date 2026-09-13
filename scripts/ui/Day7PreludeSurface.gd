@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## A witnessed staging card. Ordering, provenance and persistence belong to its caller.
 signal card_acknowledged(receipt: Dictionary, result: Dictionary)
+signal advance_requested(receipt: Dictionary)
 const SCENE_ART := preload("res://scripts/ui/art/SceneArtView.gd")
 const COPY := {
 	"en": ["Next", "Retry", "This moment could not be saved. Please try again.", "Unable to continue. Please try again."],
@@ -16,12 +17,15 @@ var _presentation_theme: Theme
 var _drawn := false
 var _accepted := false
 var _busy := false
+var _presentation_receipts := false
+var _navigation_requested := false
 var _history: Array[Dictionary] = []
 var _root: Control
 var _scene_art: SCENE_ART
 var _reading_margin: MarginContainer
 var _history_list: VBoxContainer
 var _scroll: ScrollContainer
+var _current_title: Label
 var _current_body: Label
 var _next: Button
 var _status: Label
@@ -48,6 +52,16 @@ func configure_waiting(retry: Callable, acknowledge: Callable, locale: String = 
 	_presentation_theme = presentation_theme
 	return {"ok": true}
 
+## Day 7 witnesses on presentation, then keeps the card until navigation. Gallery
+## replay keeps its separate completion-on-Next contract through the default mode.
+func use_presentation_receipts() -> Dictionary:
+	if not _configured or is_inside_tree(): return _fail("prelude_already_configured")
+	_presentation_receipts = true
+	return {"ok": true}
+
+func is_card_acknowledged(receipt: Dictionary) -> bool:
+	return _accepted and not is_queued_for_deletion() and _card.get("receipt", {}) == receipt
+
 func show_advance_retry(retry: Callable) -> Dictionary:
 	if not _configured or not retry.is_valid(): return _fail("prelude_retry_unavailable")
 	if _busy or (not _card.is_empty() and not _accepted): return _fail("prelude_card_still_pending")
@@ -57,6 +71,7 @@ func show_advance_retry(retry: Callable) -> Dictionary:
 
 func _show_advance_retry() -> void:
 	_status.text = _copy(3)
+	_status.show()
 	_next.text = _copy(1)
 	_next.disabled = false
 	_focus_next.call_deferred()
@@ -72,6 +87,7 @@ func present_card(card: Dictionary) -> Dictionary:
 	_advance_retry = Callable()
 	_drawn = false
 	_accepted = false
+	_navigation_requested = false
 	if is_node_ready(): _append_card()
 	return {"ok": true}
 
@@ -112,6 +128,8 @@ func _ready() -> void:
 	_scroll.name = "PresentationHistory"
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.get_v_scroll_bar().value_changed.connect(_on_scroll_changed)
+	_scroll.resized.connect(_redraw_current_body)
 	layout.add_child(_scroll)
 	_history_list = VBoxContainer.new()
 	_history_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -121,6 +139,7 @@ func _ready() -> void:
 	_status.name = "PreludeStatus"
 	_status.add_theme_color_override("font_color", Color("252b34"))
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status.hide()
 	layout.add_child(_status)
 	_next = Button.new()
 	_next.name = "NextPreludeCard"
@@ -139,9 +158,11 @@ func _ready() -> void:
 func _append_card() -> void:
 	_refresh_scene_art()
 	_status.text = ""
+	_status.hide()
 	_next.text = _copy(0)
 	_next.disabled = true
 	var title := Label.new()
+	_current_title = title
 	title.text = _card.title
 	title.add_theme_color_override("font_color", Color("252b34"))
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -152,6 +173,7 @@ func _append_card() -> void:
 	_current_body.add_theme_color_override("font_color", Color("252b34"))
 	_current_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_current_body.draw.connect(_on_body_drawn.bind(_card.receipt.duplicate(true)))
+	_current_body.item_rect_changed.connect(_redraw_current_body)
 	_history_list.add_child(_current_body)
 	_reveal_current_card.call_deferred(str(_card.receipt.view_token))
 
@@ -167,10 +189,21 @@ func _refresh_scene_art() -> void:
 func _on_body_drawn(receipt: Dictionary) -> void:
 	if receipt != _card.receipt or _drawn or not is_instance_valid(_current_body) \
 		or not _current_body.is_visible_in_tree() or is_queued_for_deletion(): return
+	if _presentation_receipts and not _beginning_is_visible(): return
 	_drawn = true
 	_history.append(_card.duplicate(true))
-	_next.disabled = false
-	_focus_next.call_deferred()
+	if _presentation_receipts:
+		# The renderer's acceptance is the witness. Save outside its draw callback;
+		# a retired or replaced source cannot admit this queued receipt afterward.
+		_acknowledge_drawn_card.call_deferred(receipt.duplicate(true))
+	else:
+		_next.disabled = false
+		_focus_next.call_deferred()
+
+func _acknowledge_drawn_card(receipt: Dictionary) -> void:
+	if not is_inside_tree() or is_queued_for_deletion() or receipt != _card.get("receipt", {}) \
+			or not _drawn or _busy or _accepted: return
+	_submit_acknowledgment()
 
 func _on_next() -> void:
 	if _retrying or not is_inside_tree() or is_queued_for_deletion(): return
@@ -180,7 +213,16 @@ func _on_next() -> void:
 		# The preparation callback may synchronously call present_card; _busy stays false.
 		_invoke_advance_retry(weakref(self), _advance_retry)
 		return
-	if _busy or _accepted or not _drawn or not is_instance_valid(_current_body) or not _current_body.is_visible_in_tree(): return
+	if _busy or not _drawn or not is_instance_valid(_current_body) or not _current_body.is_visible_in_tree(): return
+	if _accepted:
+		if _presentation_receipts and not _navigation_requested:
+			_navigation_requested = true
+			_next.disabled = true
+			advance_requested.emit(_card.receipt.duplicate(true))
+		return
+	_submit_acknowledgment()
+
+func _submit_acknowledgment() -> void:
 	_busy = true
 	_next.disabled = true
 	_invoke_acknowledgment(weakref(self), _acknowledge, _card.receipt.duplicate(true))
@@ -195,11 +237,18 @@ func _complete_acknowledgment(receipt: Dictionary, result: Variant) -> void:
 	_busy = false
 	if not result is Dictionary or not result.get("ok", false):
 		_status.text = _copy(2)
+		_status.show()
 		_next.text = _copy(1)
 		_next.disabled = false
 		_focus_next()
 		return
 	_accepted = true
+	if _presentation_receipts:
+		_status.text = ""
+		_status.hide()
+		_next.text = _copy(0)
+		_next.disabled = false
+		_focus_next.call_deferred()
 	card_acknowledged.emit(receipt.duplicate(true), result.duplicate(true))
 
 static func _invoke_advance_retry(target: WeakRef, retry: Callable) -> void:
@@ -221,7 +270,29 @@ func _focus_next() -> void:
 func _reveal_current_card(token: String) -> void:
 	if not is_inside_tree() or is_queued_for_deletion() or _card.get("receipt", {}).get("view_token") != token \
 		or not is_instance_valid(_scroll) or not is_instance_valid(_current_body): return
-	_scroll.ensure_control_visible(_current_body)
+	if not _presentation_receipts:
+		_scroll.ensure_control_visible(_current_body)
+		return
+	# A tall control's ensure_control_visible() aligns its bottom. Wait for layout
+	# and start at the title instead, leaving the whole body available to scroll.
+	await get_tree().process_frame
+	if not is_inside_tree() or is_queued_for_deletion() or _card.get("receipt", {}).get("view_token") != token: return
+	_scroll.scroll_vertical = int(_current_title.position.y)
+	_redraw_current_body()
+
+func _beginning_is_visible() -> bool:
+	var body := _current_body.get_global_rect()
+	var aperture := _scroll.get_global_rect().intersection(_root.get_viewport_rect())
+	return body.has_area() and aperture.has_area() \
+		and body.position.y >= aperture.position.y and body.position.y < aperture.end.y \
+		and body.end.x > aperture.position.x and body.position.x < aperture.end.x
+
+func _on_scroll_changed(_value: float) -> void:
+	_redraw_current_body()
+
+func _redraw_current_body() -> void:
+	if _presentation_receipts and not _drawn and is_instance_valid(_current_body):
+		_current_body.queue_redraw()
 
 func _copy(index: int) -> String:
 	return COPY.get(_locale, COPY.en)[index]

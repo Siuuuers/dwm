@@ -38,8 +38,9 @@ func begin() -> Dictionary:
 			if not configured.get("ok", false):
 				surface.free()
 				return configured
+			surface.use_presentation_receipts()
 			_surface = surface
-			_surface.card_acknowledged.connect(_on_acknowledged)
+			_surface.advance_requested.connect(_on_advance_requested)
 			add_child(_surface)
 	return last_result
 
@@ -103,8 +104,9 @@ func _advance() -> Dictionary:
 		if not configured.get("ok", false):
 			surface.free()
 			return configured
+		surface.use_presentation_receipts()
 		_surface = surface
-		_surface.card_acknowledged.connect(_on_acknowledged)
+		_surface.advance_requested.connect(_on_advance_requested)
 		add_child(_surface)
 	_command = command.duplicate(true)
 	_receipt = receipt.duplicate(true)
@@ -117,10 +119,12 @@ func _acknowledge(receipt: Dictionary) -> Dictionary:
 		else _game.commit_ordinary_echo(_command, receipt)
 	return last_result
 
-func _on_acknowledged(receipt: Dictionary, _result: Dictionary) -> void:
-	_advance_after_ack.call_deferred(str(receipt.view_token))
+func _on_advance_requested(receipt: Dictionary) -> void:
+	if not is_instance_valid(_surface) or receipt != _receipt \
+			or not _surface.is_card_acknowledged(receipt): return
+	_advance_after_request.call_deferred(str(receipt.view_token))
 
-func _advance_after_ack(token: String) -> void:
+func _advance_after_request(token: String) -> void:
 	if _finishing or token != str(_receipt.get("view_token", "")): return
 	begin()
 

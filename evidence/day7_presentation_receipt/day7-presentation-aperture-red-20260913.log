@@ -1,0 +1,51 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/e677b47d-8354-44ef-9b25-ff0051092595/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_day7_prelude_surface.gd
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_day7_prelude_surface.gd
+    - Outside Tests
+        * [<Node#130778400535>(subsystem_animation.gd)]
+        * [<Node#130795177767>(subsystem_audio.gd)]
+        * [<Node#130811954993>]
+        * [<Node#130828732214>]
+        * [<Node#130845509433>(subsystem_backgrounds.gd)]
+        * [<Node#131382380350>(subsystem_choices.gd)]
+        * [<Timer#131399157567>]
+        * [<Node#131415934785>(subsystem_expression.gd)]
+        * [<Node#131449489222>(subsystem_glossary.gd)]
+        * [<Node#131466266439>(subsystem_history.gd)]
+        * [<Node#131483043656>(subsystem_input.gd)]
+        * [<Timer#131499820873>]
+        * [<Node#131516598090>(subsystem_jump.gd)]
+        * [<Node#131533375307>(subsystem_containers.gd)]
+        * [<Node#131550152524>(subsystem_portraits.gd)]
+        * [<Node#132087023437>(subsystem_save.gd)]
+        * [<Timer#132103800654>]
+        * [<Node#132120577871>(subsystem_settings.gd)]
+        * [<Node#132137355091>(subsystem_styles.gd)]
+        * [<Node#132154132308>(subsystem_text.gd)]
+        * [<Node#132238018393>(subsystem_text_input.gd)]
+        * [<Node#132254795610>(subsystem_variables.gd)]
+        * [<Node#132271572827>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132288350044>]
+
+
+[ERROR]:  Nothing was run.
+On the one hand nothing failed, on the other hand nothing did anything.
+Ran Tests matching "native_long"

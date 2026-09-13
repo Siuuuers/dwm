@@ -1,0 +1,16 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/8ad3e3cb-fc52-4752-a023-7c7ea7460cf4/appdata/Godot/app_userdata/DWM/evidence/playable/01-title.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/8ad3e3cb-fc52-4752-a023-7c7ea7460cf4/appdata/Godot/app_userdata/DWM/evidence/playable/02-desktop.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/8ad3e3cb-fc52-4752-a023-7c7ea7460cf4/appdata/Godot/app_userdata/DWM/evidence/playable/03-minesweeper.png
+PLAYABLE_STARTUP_PASS: actual startup -> New Account -> visible desktop -> Minesweeper -> first Reveal
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/8ad3e3cb-fc52-4752-a023-7c7ea7460cf4/appdata/Godot/app_userdata/DWM/evidence/playable/11-ordinary-lavinia-reply.png
+PLAYABLE_ORDINARY_REPLY_PASS: actual Contacts -> Lavinia A -> real Label draw -> three durable rows and one neutral echo
+PLAYABLE_DAY_PASS: completed round -> Home -> Schedule -> acknowledged warning -> Day 2
+PLAYABLE_SEVEN_DAY_PASS: public Schedule Done reaches Day 7 through every daily transition
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/8ad3e3cb-fc52-4752-a023-7c7ea7460cf4/appdata/Godot/app_userdata/DWM/evidence/playable/day7-presentation-failure.png
+PLAYABLE_STARTUP_FAIL: actual Day 7 staging card did not reach acknowledged after its full draw: {"accepted":false,"aperture":"[P: (120.0, 472.0), S: (1040.0, 53.0)]","body":"[P: (120.0, 531.0), S: (1032.0, 35.0)]","busy":false,"drawn":false,"result":{"ok":true},"scroll":0,"viewport":"[P: (0.0, 0.0), S: (1280.0, 720.0)]"}

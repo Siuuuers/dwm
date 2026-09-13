@@ -1,0 +1,48 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/fe4c32f3-9043-4545-bd09-2f7011418184/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[ERROR]:  Could not find script:  res://tests/unit/test_public_surface_inventory.gd
+[ERROR]:  Could not find script:  res://tests/unit/test_doc_validator.gd
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+end_run
+    - Outside Tests
+        * [<Node#130224752405>(subsystem_animation.gd)]
+        * [<Node#130241529637>(subsystem_audio.gd)]
+        * [<Node#130258306863>]
+        * [<Node#130275084084>]
+        * [<Node#130291861303>(subsystem_backgrounds.gd)]
+        * [<Node#130828732220>(subsystem_choices.gd)]
+        * [<Timer#130845509437>]
+        * [<Node#130862286655>(subsystem_expression.gd)]
+        * [<Node#130895841092>(subsystem_glossary.gd)]
+        * [<Node#130912618309>(subsystem_history.gd)]
+        * [<Node#130929395526>(subsystem_input.gd)]
+        * [<Timer#130946172743>]
+        * [<Node#130962949960>(subsystem_jump.gd)]
+        * [<Node#130979727177>(subsystem_containers.gd)]
+        * [<Node#130996504394>(subsystem_portraits.gd)]
+        * [<Node#131533375307>(subsystem_save.gd)]
+        * [<Timer#131550152524>]
+        * [<Node#131566929741>(subsystem_settings.gd)]
+        * [<Node#131583706961>(subsystem_styles.gd)]
+        * [<Node#131600484178>(subsystem_text.gd)]
+        * [<Node#131684370263>(subsystem_text_input.gd)]
+        * [<Node#131701147480>(subsystem_variables.gd)]
+        * [<Node#131717924697>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#131734701914>]
+
+
+[ERROR]:  Nothing was run.
+On the one hand nothing failed, on the other hand nothing did anything.
