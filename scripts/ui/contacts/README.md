@@ -5,7 +5,7 @@ under one shared Home/title/clock strip. Its inherited local title bar is hidden
 See `scripts/ui/desktop/README.md` and `evidence/desktop_shell/` for current shell
 verification; the earlier `contacts_integration` receipt remains historical.
 
-This implementation follows the accepted visual direction from the typography studies: paper incoming slips, narrower plum outgoing slips, pixel frames and identity marks, a 12 native-equivalent pixel text baseline, and 100/125/150 percent text presets. It is reusable source, not a separate preview app. It has no autoload, story, persistence, or network dependency.
+This implementation follows the accepted visual direction from the typography studies: paper incoming slips, narrower plum outgoing slips, pixel frames and identity marks, a 12 native-equivalent pixel text baseline, and 100/125/150 percent text presets. It is reusable source, not a separate preview app. It has no story, persistence, or network dependency; touch gestures use the input-custody contract described below.
 
 Original component task: `dwm-dro`. The isolated worktree starts at `1790785bcfd37d2a27a0ecef81b9dc80fe501f71`. The game `ContactListApp` now embeds this component, and the desktop mounts it through the existing app registry. Bootstrap injects a presentation adapter using its retained command and desktop owners. UI-00/UI-00R plans are reference material under the owner's September 5 direction.
 
@@ -14,6 +14,16 @@ Original component task: `dwm-dro`. The isolated worktree starts at `1790785bcfd
 Create a `Control` using `ContactsPanel.gd`, add it to the scene tree, then call `configure(english_font, simplified_font, traditional_font, text_percent, midnight)`. Supply fonts explicitly; unconfigured projections are rejected. The component is 800 × 656 logical pixels, corresponding to the 400 × 328 native plate at the game's 2× presentation. Place it within a suitable host; parent DPI/window scaling remains external.
 
 Connect `open_requested(friend_id)` to the transaction owner. Clicking or activating a row emits that signal and never changes Selected, Unread, or transcript contents by itself. `back_requested` lets the host close/return when Back is pressed on a row.
+
+Touch rows bind the existing `/root/InputManager` contact/custody owner; an
+isolated host can supply the same contract with `row.bind_input_custody(owner)`.
+A short tap opens once. Holding for 500 ms shows the existing quiet inspection
+mark and public accessibility description through row focus; release does not
+open or mark the thread read. Dragging more than 8 logical pixels, another touch,
+focus loss, hiding, Pause or custody loss cancels the gesture. A later fresh tap
+works after release. Touch is unavailable without this input owner; native mouse,
+keyboard, controller and assistive Button activation retain their existing path.
+Engine-routed verification is in `evidence/contacts_touch/README.md`.
 
 After an accepted owner transaction, call:
 
