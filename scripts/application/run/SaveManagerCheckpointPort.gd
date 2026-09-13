@@ -206,7 +206,10 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 		int(peeked["value"]["checkpoint_sequence"]))
 	if not built.get("ok", false):
 		return built
-	var prepared_record: Dictionary = _journal().prepare_record(built["value"]["snapshot"], checkpoint_kind)
+	# `RunSnapshotSchema.build()` returns the candidate its own `validate()` produced, so the journal is
+	# handed that exact object as the proof it was already validated (identity, not a flag).
+	var prepared_record: Dictionary = _journal().prepare_record(built["value"]["snapshot"], checkpoint_kind,
+		built["value"]["snapshot"])
 	if not prepared_record.get("ok", false):
 		return prepared_record
 	var journal_candidate: Dictionary = prepared_record["value"]["candidate"]
@@ -742,7 +745,7 @@ func _capture_storage_backup(relative_path: String, validated_texts: Dictionary)
 					return reconciled
 			return read
 		var text := str(read["value"])
-		var validation := _cached_document_text_validator(text, validated_texts)
+		var validation := _cached_document_text_proof(text, validated_texts)
 		if not validation.get("ok", false):
 			return validation
 		descriptor["validated_text"] = text
@@ -789,6 +792,21 @@ func _cached_document_text_validator(text: String, cache: Dictionary) -> Diction
 	if result.get("ok", false):
 		cache[text] = result.duplicate(true)
 	return result
+
+## The same question as `_cached_document_text_validator()` -- is this exact text a valid document? --
+## for the one caller that reads nothing but `ok`. A proven text answers without copying the 450 KB
+## candidate; refusals are returned verbatim, because `_capture_storage_backup()` returns them to its
+## own caller. A cold miss still seeds `cache[text]` with the WHOLE validation: that seed is what lets
+## `write_atomic()`'s reconcile answer from the cache instead of parsing the existing document again.
+func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
+	if cache.has(text) or _proven_document_validations.has(text):
+		return {"ok": true, "code": &"ok"}
+	var result := _document_text_validator(text)
+	if not result.get("ok", false):
+		return result
+	# Nothing else holds `result`: this method never hands the value out, so the cache may own it.
+	cache[text] = result
+	return {"ok": true, "code": &"ok"}
 
 func _document_text_validator(text: String) -> Dictionary:
 	if OS.get_environment("DWM_CHECKPOINT_PROFILE") != "1":

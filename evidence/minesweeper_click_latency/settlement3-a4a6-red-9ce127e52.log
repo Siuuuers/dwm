@@ -1,0 +1,153 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/00913d4c-35b2-4879-94cb-1d61031757e1/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_checkpoint_journal.gd
+* test_checkpoint_journal_exists
+* test_reset_peek_and_run_mismatch
+* test_failed_preparation_never_consumes_sequence
+* test_commit_advances_and_duplicate_commit_rejects
+* test_every_accepted_checkpoint_kind_including_line
+* test_retention_after_forty_lines_and_semantic_anchor
+* test_reset_with_initial_replaces_run_and_restore_reinstates
+* test_prepare_seed_selects_and_excludes
+* test_seed_replaces_same_counter_contents_and_history_and_can_repeat
+* test_semantic_recovery_history_is_bounded_without_changing_current_snapshot
+* test_remember_committed_bundle_text_accepts_only_the_current_checkpoint
+* test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention
+* test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset
+* test_prepare_record_takes_the_fast_path_only_for_the_identical_proven_candidate
+    [Failed]:  [2] expected to equal [3]:  prepare_record() must accept the optional already-validated candidate
+      at line 361
+SCRIPT ERROR: Invalid call to function 'prepare_record' in base 'RefCounted (CheckpointJournal)'. Expected 2 argument(s).
+   at: test_prepare_record_takes_the_fast_path_only_for_the_identical_proven_candidate (res://tests/unit/test_checkpoint_journal.gd:372)
+   GDScript backtrace (most recent call first):
+       [0] test_prepare_record_takes_the_fast_path_only_for_the_identical_proven_candidate (res://tests/unit/test_checkpoint_journal.gd:372)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'prepare_record' in base 'RefCounted (CheckpointJournal)'. Expected 2 argument(s).
+      at line -1
+* test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_supplied
+    [Failed]:  [2] expected to equal [3]:  prepare_record() must accept the optional already-validated candidate
+      at line 397
+SCRIPT ERROR: Invalid call to function 'prepare_record' in base 'RefCounted (CheckpointJournal)'. Expected 2 argument(s).
+   at: test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_supplied (res://tests/unit/test_checkpoint_journal.gd:402)
+   GDScript backtrace (most recent call first):
+       [0] test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_supplied (res://tests/unit/test_checkpoint_journal.gd:402)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'prepare_record' in base 'RefCounted (CheckpointJournal)'. Expected 2 argument(s).
+      at line -1
+13/15 passed.
+
+
+res://tests/unit/test_checkpoint_validation_reuse.gd
+* test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits
+* test_detached_candidate_normalization_matches_uncached_bytes_and_physical_trace
+* test_non_object_outgoing_values_match_uncached_failure_without_physical_mutation
+* test_schema_invalid_and_canonical_invalid_candidates_preserve_reference_precedence
+* test_cache_is_exact_text_success_only_and_detaches_nested_results
+* test_corrupt_next_final_and_backup_keep_existing_recovery_results_and_disk_trace
+* test_schema_valid_changed_reread_is_rejected_before_journal_commit
+* test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once
+* test_prepared_validation_is_not_reused_after_a_process_frame
+* test_new_prepare_and_released_custody_discard_prepared_validation
+* test_committed_documents_are_remembered_bounded_and_forgotten_on_capability_change
+* test_a_failed_commit_proves_nothing
+* test_mutated_outgoing_document_fails_and_retry_revalidates_preimage
+* test_storage_backup_proof_keeps_every_validation_and_disk_operation_without_copying_the_proof
+    [Failed]:  the backup proof path exists: _capture_storage_backup needs only ok, never a 450 KB value
+      at line 474
+SCRIPT ERROR: Invalid call. Nonexistent function '_cached_document_text_proof' in base 'RefCounted (CountingPort)'.
+   at: test_storage_backup_proof_keeps_every_validation_and_disk_operation_without_copying_the_proof (res://tests/unit/test_checkpoint_validation_reuse.gd:481)
+   GDScript backtrace (most recent call first):
+       [0] test_storage_backup_proof_keeps_every_validation_and_disk_operation_without_copying_the_proof (res://tests/unit/test_checkpoint_validation_reuse.gd:481)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_cached_document_text_proof' in base 'RefCounted (CountingPort)'.
+      at line -1
+13/14 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_checkpoint_journal.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_checkpoint_journal.gd
+- test_prepare_record_takes_the_fast_path_only_for_the_identical_proven_candidate
+    [Failed]:  [2] expected to equal [3]:  prepare_record() must accept the optional already-validated candidate
+          at line 361
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'prepare_record' in base 'RefCounted (CheckpointJournal)'. Expected 2 argument(s).
+          at line -1
+- test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_supplied
+    [Failed]:  [2] expected to equal [3]:  prepare_record() must accept the optional already-validated candidate
+          at line 397
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'prepare_record' in base 'RefCounted (CheckpointJournal)'. Expected 2 argument(s).
+          at line -1
+
+res://tests/unit/test_checkpoint_validation_reuse.gd
+- test_storage_backup_proof_keeps_every_validation_and_disk_operation_without_copying_the_proof
+    [Failed]:  the backup proof path exists: _capture_storage_backup needs only ok, never a 450 KB value
+          at line 474
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_cached_document_text_proof' in base 'RefCounted (CountingPort)'.
+          at line -1
+
+Totals
+------
+Scripts               2
+Tests                29
+Passing Tests        26
+Failing Tests         3
+Asserts           726/732
+Orphans              24
+Time              2.115s
+
+
+---- 3 failing tests ----

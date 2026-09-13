@@ -331,3 +331,99 @@ func test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset(
 	assert_true(journal.remember_committed_bundle_text("run-a:4", "text-4"))
 	assert_true(journal.reset("run-a").get("ok", false))
 	assert_eq(journal.get_retained_bundle_text("run-a:4"), "", "reset() clears the remembered texts")
+
+
+# -------------------------------------------------------------------------------------------------
+# A4: prepare_record() pass-along. The checkpoint port hands prepare_record() the very snapshot object
+# RunSnapshotSchema.build() just validated, and prepare_record() validates it a second time (~5-10 ms
+# on a 150 KB snapshot). An optional third argument lets a caller say "this exact object is already a
+# validate() candidate"; the proof is IDENTITY, never deep equality, and every other refusal and its
+# order stay exactly where they are.
+# -------------------------------------------------------------------------------------------------
+
+const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+
+## Declared argument count of a journal method, defaults included. Asserted before the three-argument
+## calls below so a tree without the optional parameter reports these rows as failed assertions: a
+## wrong-arity call aborts the test function outright, which GUT records as risky rather than failed.
+func _argument_count(instance: RefCounted, method_name: String) -> int:
+	for method: Dictionary in instance.get_method_list():
+		if str(method.get("name", "")) == method_name:
+			return (method.get("args", []) as Array).size()
+	return -1
+
+
+func test_prepare_record_takes_the_fast_path_only_for_the_identical_proven_candidate() -> void:
+	assert_true(_journal_exists(), "CheckpointJournal must exist")
+	if not _journal_exists():
+		return
+	var journal := _fresh("run-a")
+	assert_eq(_argument_count(journal, "prepare_record"), 3,
+		"prepare_record() must accept the optional already-validated candidate")
+
+	# A snapshot RunSnapshotSchema.validate() refuses, whose run_id and checkpoint_sequence are still
+	# readable -- so the ONLY thing that can let it through is a skipped validation.
+	var refused_snapshot := _snapshot("run-a", 1)
+	refused_snapshot["bogus"] = 1
+	var unproven: Dictionary = journal.prepare_record(refused_snapshot, &"line")
+	assert_false(unproven.get("ok", true), "the unproven path still validates")
+	assert_eq(unproven["code"], &"invalid_snapshot_shape")
+
+	var empty_proof: Dictionary = journal.prepare_record(refused_snapshot, &"line", {})
+	assert_false(empty_proof.get("ok", true), "the empty default proves nothing")
+	assert_eq(empty_proof["code"], &"invalid_snapshot_shape")
+
+	var deep_equal: Dictionary = journal.prepare_record(refused_snapshot, &"line",
+		refused_snapshot.duplicate(true))
+	assert_false(deep_equal.get("ok", true),
+		"a merely deep-equal proof is not the proof: a different object still validates")
+	assert_eq(deep_equal["code"], &"invalid_snapshot_shape")
+
+	var foreign: Dictionary = journal.prepare_record(refused_snapshot, &"line", {"not": "the snapshot"})
+	assert_false(foreign.get("ok", true), "an unrelated proof still validates")
+	assert_eq(foreign["code"], &"invalid_snapshot_shape")
+
+	var proven: Dictionary = journal.prepare_record(refused_snapshot, &"line", refused_snapshot)
+	assert_true(proven.get("ok", false), JSON.stringify(proven))
+	assert_true(is_same(proven["value"]["candidate"]["current"]["snapshot"], refused_snapshot),
+		"the proven path carries the caller's own already-validated object, not a fresh candidate")
+
+
+func test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_supplied() -> void:
+	assert_true(_journal_exists(), "CheckpointJournal must exist")
+	if not _journal_exists():
+		return
+	var journal := _fresh("run-a")
+	assert_eq(_argument_count(journal, "prepare_record"), 3,
+		"prepare_record() must accept the optional already-validated candidate")
+	var before: Dictionary = journal.capture_state()["value"]["backup"]
+
+	var stale := _snapshot("run-a", 5)
+	var wrong_sequence: Dictionary = journal.prepare_record(stale, &"line", stale)
+	assert_false(wrong_sequence.get("ok", true), "a proof does not excuse the sequence cursor")
+	assert_eq(wrong_sequence["code"], &"sequence_mismatch")
+
+	var other_run := _snapshot("run-b", 1)
+	var wrong_run: Dictionary = journal.prepare_record(other_run, &"line", other_run)
+	assert_false(wrong_run.get("ok", true), "a proof does not excuse the owning run")
+	assert_eq(wrong_run["code"], &"run_mismatch")
+
+	var valid := _snapshot("run-a", 1)
+	var unknown_kind: Dictionary = journal.prepare_record(valid, &"unknown", valid)
+	assert_false(unknown_kind.get("ok", true), "a proof does not excuse the checkpoint kind")
+	assert_eq(unknown_kind["code"], &"unknown_checkpoint_kind",
+		"the kind check still refuses before anything else is read")
+	assert_eq(journal.capture_state()["value"]["backup"], before,
+		"failed preparation with a proof still leaves the journal byte-equal")
+
+	# For the shape the port actually passes -- a RunSnapshotSchema.validate() candidate -- the proven
+	# path must produce the candidate the full validation would have produced.
+	var candidate_snapshot: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(valid)["value"]["candidate"]
+	var proven: Dictionary = journal.prepare_record(candidate_snapshot, &"line", candidate_snapshot)
+	assert_true(proven.get("ok", false), JSON.stringify(proven))
+	var revalidated: Dictionary = journal.prepare_record(candidate_snapshot, &"line")
+	assert_true(revalidated.get("ok", false), JSON.stringify(revalidated))
+	assert_eq(proven["value"]["candidate"], revalidated["value"]["candidate"],
+		"a proven candidate is byte-equal to the one a second validation produces")
+	assert_eq(int(journal.peek_next_sequence("run-a")["value"]["checkpoint_sequence"]), 1,
+		"preparation never consumes the cursor, proven or not")

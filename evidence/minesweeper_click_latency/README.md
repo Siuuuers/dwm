@@ -70,3 +70,21 @@ The markers cost one boolean per phase while the variables are unset.
   loss 742-758 ms; dating settled 433-517 ms; first reveals unchanged within noise. The
   identity-preserving normalizer (Step 2) is not separable in these numbers from run noise; its
   expected 4 ms per checkpoint sits inside the 20 ms prepare figures above.
+
+### Steps A4 and A6: journal prepare_record proof pass-along and ok-only storage backup proof (commit after 9ce127e52)
+
+- settlement3-a4a6-red-9ce127e52.log: journal and validation-reuse suites RED on the two new
+  prepare_record rows (arity 2 vs 3) and the missing _cached_document_text_proof.
+- settlement3-a4a6-green-9ce127e52.log: journal, validation reuse, checkpoint port, preparation
+  retry and consequence coordinator suites GREEN, 100 passing / 0 failing.
+- settlement3-a4a6-integration-9ce127e52.log: test_desktop_board_persistence and
+  test_desktop_quick_commands, 14 passing / 2 failing; both failures are Quick-command UI rows
+  (F9 confirmation, F5 status, focus custody) that die on a stale fake ContactsPort calling
+  get_projection with arguments in ComputerDesktop._refresh_contact_notice, code this branch never
+  touches (git diff 072ec79f4..HEAD over scripts/ui and those suites is empty): pre-existing.
+- settlement3-a4a6-backup-script-9ce127e52.log: tests/backup_operations/test_backup_operations.gd
+  (a SceneTree script, not a GUT suite) BACKUP_OPERATIONS_PASS; its NUL parse lines are the
+  pre-existing ones.
+- settlement3-a4a6-profile-win-9ce127e52.log and -loss-: source_prepare 43-49 -> 24-44 ms,
+  completion_save prepare 52-57 -> 44-49 ms, accept_prepared_action 410-433 ms; App win settled
+  666-716 ms, loss 677-763 ms; dating 403-464 ms.

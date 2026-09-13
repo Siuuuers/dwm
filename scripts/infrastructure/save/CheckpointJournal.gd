@@ -42,14 +42,24 @@ func peek_next_sequence(run_id: String) -> Dictionary:
 		return _fail(&"run_mismatch", run_id)
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_sequence": _next_sequence}}
 
-func prepare_record(snapshot: Dictionary, checkpoint_kind: StringName) -> Dictionary:
+## `proven_candidate` lets a caller that just produced `snapshot` FROM `RunSnapshotSchema` hand the
+## very same object back as its own proof, so this method does not validate a 150 KB snapshot a
+## second time. The proof is IDENTITY, never deep equality: only the object the caller watched come
+## out of a validation can stand in for one, and anything else -- a copy, a lookalike, the empty
+## default -- falls through to the full validation below. No refusal and no refusal order moves.
+func prepare_record(snapshot: Dictionary, checkpoint_kind: StringName,
+		proven_candidate: Dictionary = {}) -> Dictionary:
 	var kind := String(checkpoint_kind)
 	if kind != "line" and kind not in SEMANTIC_KINDS:
 		return _fail(&"unknown_checkpoint_kind", kind)
-	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(snapshot)
-	if not validated.get("ok", false):
-		return validated
-	var candidate_snapshot: Dictionary = validated["value"]["candidate"]
+	var candidate_snapshot: Dictionary
+	if not proven_candidate.is_empty() and is_same(proven_candidate, snapshot):
+		candidate_snapshot = snapshot
+	else:
+		var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate(snapshot)
+		if not validated.get("ok", false):
+			return validated
+		candidate_snapshot = validated["value"]["candidate"]
 	if str(candidate_snapshot["run_id"]) != _run_id:
 		return _fail(&"run_mismatch", str(candidate_snapshot["run_id"]))
 	if int(candidate_snapshot["checkpoint_sequence"]) != _next_sequence:

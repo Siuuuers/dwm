@@ -20,6 +20,9 @@ class CountingPort extends "res://scripts/application/run/SaveManagerCheckpointP
 	func _cached_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
 		if not reuse: return _document_text_validator(text)
 		return super._cached_document_text_validator(text, cache)
+	func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
+		if not reuse: return _document_text_validator(text)
+		return super._cached_document_text_proof(text, cache)
 
 class Manager extends RefCounted:
 	var _journal := JOURNAL.new()
@@ -419,3 +422,83 @@ func test_mutated_outgoing_document_fails_and_retry_revalidates_preimage() -> vo
 			# its own earlier commit; a failed commit changes nothing about that file.
 			assert_eq(wired.port.validations.get(old_text, 0), 0,
 				"a proven previous document survives a failed commit")
+
+
+# -------------------------------------------------------------------------------------------------
+# A6: _capture_storage_backup() reads nothing but `ok` from the validation of the document already on
+# disk, yet _cached_document_text_validator() hands it a 450 KB deep copy of the whole proven
+# candidate to do it. A proof variant answers the question without the copy. Everything else must be
+# untouched: the same physical operations, the same bytes, the same refusals returned verbatim, and
+# the cold-miss seed still written into the prepare-side cache -- that seed is what keeps
+# write_atomic()'s reconcile from parsing the existing document a second time.
+# -------------------------------------------------------------------------------------------------
+
+func _commit_round(cached: Dictionary, uncached: Dictionary, money: int) -> void:
+	cached.port.validations.clear()
+	uncached.port.validations.clear()
+	var candidate := _prepare(cached, money)
+	var reference := _prepare(uncached, money)
+	var committed: Dictionary = cached.port.commit(candidate)
+	var original: Dictionary = uncached.port.commit(reference)
+	assert_true(committed.get("ok", false), str(committed))
+	assert_eq(committed, original, "the proof path returns the reference result")
+	assert_eq(cached.files.snapshot_persisted(), uncached.files.snapshot_persisted(),
+		"the proof path writes the reference bytes")
+	assert_eq(cached.files.operation_trace(), uncached.files.operation_trace(),
+		"all physical reads, hashes, writes, flushes and rename boundaries remain")
+
+
+func test_storage_backup_proof_keeps_every_validation_and_disk_operation_without_copying_the_proof() -> void:
+	var cached := _wired()
+	var uncached := _wired(false)
+
+	for money: int in [201, 202, 203]:
+		_commit_round(cached, uncached, money)
+		assert_eq(_validation_count(cached.port), 0,
+			"a warm backup proof parses nothing: the existing document was proven at its own commit")
+		assert_gt(_validation_count(uncached.port), 0,
+			"reuse=false still forces the original strict text validator")
+
+	# Cold miss: nothing is proven any more, so the document already on disk must be parsed once.
+	cached.port._forget_proven_documents()
+	uncached.port._forget_proven_documents()
+	_commit_round(cached, uncached, 204)
+	var cold_count := _validation_count(cached.port)
+	assert_gt(cold_count, 0, "a cold backup proof really does parse the existing document")
+	assert_true(cold_count <= _validation_count(uncached.port),
+		"a cold proof never parses more than the reuse=false reference")
+
+	# ...and the next commit is warm again, because that cold parse was remembered.
+	_commit_round(cached, uncached, 205)
+	assert_eq(_validation_count(cached.port), 0,
+		"the cold parse was remembered, so the following backup proof is free again")
+
+	var text := (cached.files.snapshot_persisted()[FINAL] as PackedByteArray).get_string_from_utf8()
+	assert_true(cached.port.has_method("_cached_document_text_proof"),
+		"the backup proof path exists: _capture_storage_backup needs only ok, never a 450 KB value")
+
+	# A cold proof still seeds the prepare-side cache with the FULL validation, because that seed is
+	# what write_atomic()'s reconcile reuses instead of parsing the existing document again.
+	cached.port._forget_proven_documents()
+	var seed_cache := {}
+	var cold: Dictionary = cached.port._cached_document_text_proof(text, seed_cache)
+	assert_true(cold.get("ok", false), str(cold))
+	assert_true(seed_cache.has(text), "a cold proof seeds the cache it was given")
+	assert_true((seed_cache[text] as Dictionary).has("value"),
+		"the seed is the whole validation, so a later validator call can answer from it")
+	assert_true(WRITER._deep_same((seed_cache[text] as Dictionary).get("value"),
+		cached.port._cached_document_text_validator(text, {}).get("value")),
+		"the seeded value is the one the validator itself would have produced")
+
+	# A hit answers the only question _capture_storage_backup asks, and carries no copy of the proof.
+	var hit: Dictionary = cached.port._cached_document_text_proof(text, seed_cache)
+	assert_true(hit.get("ok", false), str(hit))
+	assert_false(hit.has("value"), "a proof hit answers ok without copying the proven candidate")
+	assert_eq(hit.get("code"), &"ok")
+
+	# Refusals are returned verbatim: _capture_storage_backup returns the refusal it is handed.
+	var broken := "{broken"
+	var refused: Dictionary = cached.port._cached_document_text_proof(broken, {})
+	assert_false(refused.get("ok", true), "a proof of an unparseable document refuses")
+	assert_eq(refused, cached.port._document_text_validator(broken),
+		"the refusal is the validator's own, unchanged")
