@@ -38,3 +38,20 @@ The markers cost one boolean per phase while the variables are unset.
   retention; no click sits on that path. End-to-end settled times (win 975 / 874 ms, loss 912 / 946
   ms against 822 / 776 ms in the marker run) are within this machine's run-to-run variance: the
   untouched request_fingerprint phase moved from 11.2 to 14-15 ms between the same runs.
+
+### Step 1: pass the one proven recovery payload hash along accept (commit after 99305fd36)
+
+- settlement3-step1-red-99305fd36.log: tests/unit/test_desktop_consequence_state.gd RED, 39 passing /
+  3 failing on the three new rows (validate and prepare_restore refuse a second argument).
+- settlement3-step1-green-99305fd36.log: nine suites GREEN, 249 passing / 0 failing
+  (consequence state, coordinator, checkpoint port, causal sequence port, round coordinator,
+  shop purchase participant, checkpoint preparation retry, checkpoint validation reuse, journal).
+  This run also proves the splice guard correction folded into the same commit: a non-object
+  outgoing value again falls through to strict text validation with outgoing_validation_failed
+  (test_checkpoint_validation_reuse had one failing row against 99305fd36).
+- settlement3-step1-profile-win-99305fd36.log and -loss-: profiled runs. Inside
+  accept_prepared_action: checkpoint1_prepare 30.6 -> 18.7-20.9 ms, live_restore1 14.2 -> 1.9-2.2,
+  checkpoint2_prepare 29.2 -> 18.8-20.3, admission_commit 19.2 -> 6.4-7.1; App win settled
+  771-790 ms, loss 746-825 ms. The three forward ordinals (8, 9, 10: prepare 30-36 ms,
+  live_restore 13-16 ms) did not move because token-less adopts between them (outbox
+  publications, the detached notification restore) reset the retained proof; that is the next step.

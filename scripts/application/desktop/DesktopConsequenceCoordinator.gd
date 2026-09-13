@@ -529,9 +529,13 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 		destination_intent, notification_intent)
 	var recovery_payload: Dictionary = recovery_built["recovery_payload"]
 
+	# The ONE derivation over these immutable payload bytes: `_build_admission_ready_payload()` above
+	# is the only producer of new payload bytes per transaction, and no later path mutates
+	# `recovery_payload` in place, so this proof is threaded to the seams below rather than repeated.
+	var recovery_payload_sha256 := _canonical_sha256(recovery_payload)
 	var pending_after: Dictionary = pending_dict.duplicate(true)
 	pending_after["recovery_payload"] = recovery_payload.duplicate(true)
-	pending_after["recovery_payload_sha256"] = _canonical_sha256(recovery_payload)
+	pending_after["recovery_payload_sha256"] = recovery_payload_sha256
 	var state_after_ordinal1: Dictionary = live_state.duplicate(true)
 	state_after_ordinal1["pending"] = pending_after
 
@@ -543,7 +547,8 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 	if not pairing1.get("ok", false):
 		return pairing1
 	profile_tick = _settlement_profile_phase("prepare", "recovery_payload", profile_tick)
-	var checkpoint1: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", header1, state_after_ordinal1)
+	var checkpoint1: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", header1,
+		state_after_ordinal1, recovery_payload_sha256)
 	profile_tick = _settlement_profile_phase("prepare", "checkpoint1_prepare", profile_tick)
 	if not checkpoint1.get("ok", false):
 		return checkpoint1
@@ -553,7 +558,8 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
 		return committed1
 	profile_tick = _settlement_profile_phase("prepare", "checkpoint1_commit", profile_tick)
 
-	var live_adopt_prepared: Dictionary = _state_port.call(&"prepare_restore", state_after_ordinal1)
+	var live_adopt_prepared: Dictionary = _state_port.call(&"prepare_restore", state_after_ordinal1,
+		recovery_payload_sha256)
 	if not live_adopt_prepared.get("ok", false):
 		return live_adopt_prepared
 	var live_adopted: Dictionary = _state_port.call(&"commit", (live_adopt_prepared["value"] as Dictionary)["candidate"])
@@ -602,7 +608,8 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
 	var pairing2 := _validate_ordinal_stage_pairing(header2)
 	if not pairing2.get("ok", false):
 		return pairing2
-	var checkpoint2: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", header2, state_after_ordinal2)
+	var checkpoint2: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", header2,
+		state_after_ordinal2, str(pending_after["recovery_payload_sha256"]))
 	profile_tick = _settlement_profile_phase("admit", "checkpoint2_prepare", profile_tick)
 	if not checkpoint2.get("ok", false):
 		return checkpoint2
@@ -781,7 +788,8 @@ func _advance_to_publication_pending(transaction_id: String, pending_dict: Dicti
 	if not advanced.get("ok", false):
 		return advanced
 	var advance_value: Dictionary = advanced["value"]
-	var checkpointed := _checkpoint_and_adopt(advance_value["checkpoint_header"], advance_value["stage_candidate"])
+	var checkpointed := _checkpoint_and_adopt(advance_value["checkpoint_header"],
+		advance_value["stage_candidate"], str(advance_value.get("proven_recovery_payload_sha256", "")))
 	if not checkpointed.get("ok", false):
 		return checkpointed
 	return {"ok": true, "pending_dict": (checkpointed["state_after"]["pending"] as Dictionary)}
@@ -867,7 +875,8 @@ func _advance_publication_progress(transaction_id: String, callback_id: String, 
 	if not advanced.get("ok", false):
 		return advanced
 	var advance_value: Dictionary = advanced["value"]
-	var checkpointed := _checkpoint_and_adopt(advance_value["checkpoint_header"], advance_value["stage_candidate"])
+	var checkpointed := _checkpoint_and_adopt(advance_value["checkpoint_header"],
+		advance_value["stage_candidate"], str(advance_value.get("proven_recovery_payload_sha256", "")))
 	if not checkpointed.get("ok", false):
 		return checkpointed
 	var pending_after: Dictionary = checkpointed["state_after"]["pending"]
@@ -968,10 +977,12 @@ func _release_recovery_gate() -> Dictionary:
 	return released
 
 
-func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
+func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dictionary,
+		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var profile_tick := _settlement_profile_start()
 	var profile_scope := "ordinal_" + str(checkpoint_header.get("operation_ordinal"))
-	var checkpoint: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", checkpoint_header, stage_candidate)
+	var checkpoint: Dictionary = _checkpoint_port.call(&"prepare_consequence_checkpoint", checkpoint_header,
+		stage_candidate, proven_recovery_payload_sha256)
 	profile_tick = _settlement_profile_phase(profile_scope, "prepare", profile_tick)
 	if not checkpoint.get("ok", false):
 		return checkpoint
@@ -980,7 +991,8 @@ func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dicti
 	if not committed.get("ok", false):
 		return committed
 	profile_tick = _settlement_profile_phase(profile_scope, "commit", profile_tick)
-	var live_prepared: Dictionary = _state_port.call(&"prepare_restore", stage_candidate)
+	var live_prepared: Dictionary = _state_port.call(&"prepare_restore", stage_candidate,
+		proven_recovery_payload_sha256)
 	profile_tick = _settlement_profile_phase(profile_scope, "live_restore", profile_tick)
 	if not live_prepared.get("ok", false):
 		return live_prepared

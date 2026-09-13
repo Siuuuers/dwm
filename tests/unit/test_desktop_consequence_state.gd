@@ -853,3 +853,148 @@ func test_terminal_cleanup_retains_a_self_contained_destination_record() -> void
 	assert_eq(record["causal_sequence"], 1)
 	assert_eq(record["consumer"], "condition_hospital")
 	assert_eq(record["status"], "pending")
+
+
+# -------------------------------------------------------------------------------------------------
+# Compute-once pass-along (click-latency Step 1): the ONE already-proven recovery_payload_sha256 is
+# threaded through validate() / prepare_restore() / prepare_recovery_advance() instead of being
+# re-derived over the same immutable bytes at every seam. A token can only SKIP a derivation that
+# would restate a proof already made over those exact bytes; a stale, empty or foreign token must
+# fall through to the full derivation, which is what the refusal rows below pin.
+# -------------------------------------------------------------------------------------------------
+
+## Declared argument count of a DesktopConsequenceState method, defaults included. Asserted before
+## the two-argument calls below so that a tree WITHOUT the optional parameter reports these rows as
+## failed assertions: a wrong-arity call aborts the whole test function, which GUT records as risky
+## rather than failed.
+func _argument_count(method_name: String) -> int:
+	for method: Dictionary in _fresh_state().get_method_list():
+		if str(method.get("name", "")) == method_name:
+			return (method.get("args", []) as Array).size()
+	return -1
+
+
+## Reaches the static validator through an instance reference on purpose: the optional second
+## argument is the very thing these rows exist to pin, and a statically typed two-argument call on
+## the preloaded class is an arity error at parse time -- which would take the whole suite down
+## instead of reddening one row.
+func _validate_with_proof(state: Dictionary, proven: String) -> Dictionary:
+	var dispatcher := _fresh_state()
+	return dispatcher.validate(state, proven)
+
+
+func test_validate_refuses_mismatched_payload_bytes_with_and_without_a_proven_hash() -> void:
+	assert_eq(_argument_count("validate"), 2,
+		"validate() must accept the optional already-proven recovery_payload_sha256")
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	var pending: Dictionary = captured["pending"]
+	var recorded_hash := str(pending["recovery_payload_sha256"])
+	assert_true(_STATE_SCRIPT.validate(captured).get("ok", false),
+		"baseline: the admitted pending's bytes and its recorded hash agree")
+
+	# The bytes move after the hash was recorded: the pending record now disagrees with itself.
+	var payload: Dictionary = pending["recovery_payload"]
+	payload["run_revision_before"] = 99
+
+	var refused: Dictionary = _STATE_SCRIPT.validate(captured)
+	assert_false(refused.get("ok", true), "mutated payload bytes must refuse with no token at all")
+	assert_eq(refused["code"], &"pending_recovery_payload_hash_mismatch")
+
+	var refused_empty: Dictionary = _validate_with_proof(captured, "")
+	assert_false(refused_empty.get("ok", true), "an empty token falls through to the full derivation")
+	assert_eq(refused_empty["code"], &"pending_recovery_payload_hash_mismatch")
+
+	var other_transaction_hash := _sha256(_action_recovery_payload("shop_purchase"))
+	var refused_foreign: Dictionary = _validate_with_proof(captured, other_transaction_hash)
+	assert_false(refused_foreign.get("ok", true),
+		"a token proven over a DIFFERENT transaction's payload falls through to the full derivation")
+	assert_eq(refused_foreign["code"], &"pending_recovery_payload_hash_mismatch")
+
+	# The matching token IS the skip: it restates the proof its caller already made over the bytes it
+	# is passing along, so the derivation is not repeated. This row is what makes the pass-along
+	# measurable; the three rows above are what keep it honest.
+	var accepted: Dictionary = _validate_with_proof(captured, recorded_hash)
+	assert_true(accepted.get("ok", false), JSON.stringify(accepted))
+
+
+func test_prepare_restore_returns_the_proven_hash_on_its_candidate_and_commit_retains_it() -> void:
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	var proven := str((captured["pending"] as Dictionary)["recovery_payload_sha256"])
+
+	var untokened: Dictionary = state.prepare_restore(captured)
+	assert_true(untokened.get("ok", false), JSON.stringify(untokened))
+	var untokened_candidate: Dictionary = untokened["value"]["candidate"]
+	assert_true(untokened_candidate.has("proven_recovery_payload_sha256"),
+		"every restore candidate carries the proven-hash slot")
+	assert_eq(str(untokened_candidate.get("proven_recovery_payload_sha256", "<missing>")), "",
+		"a restore prepared without a proof carries an empty token, never a derived one")
+
+	assert_eq(_argument_count("prepare_restore"), 2,
+		"prepare_restore() must accept the optional already-proven recovery_payload_sha256")
+	var prepared: Dictionary = state.prepare_restore(captured, proven)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	assert_eq(str((prepared["value"]["candidate"] as Dictionary).get("proven_recovery_payload_sha256", "<missing>")),
+		proven, "the candidate carries the caller's proof verbatim")
+
+	var committed: Dictionary = state.commit(prepared["value"]["candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	var advanced: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
+	assert_true(advanced.get("ok", false), JSON.stringify(advanced))
+	assert_eq(str((advanced["value"] as Dictionary).get("proven_recovery_payload_sha256", "<missing>")),
+		proven, "commit retains the adopted token for the pending it adopted")
+
+	# A pending adopted as null has no payload left to prove, so the retained token is cleared even
+	# when the restore candidate that carried it into commit() was not empty. While pending is null
+	# there is no public projection of the retained token (prepare_recovery_advance needs a pending),
+	# so this row reads the retained field itself.
+	var empty_state: Dictionary = _STATE_SCRIPT.make_empty(_provenance())["value"]["state"]
+	var cleared: Dictionary = state.prepare_restore(empty_state, proven)
+	assert_true(cleared.get("ok", false), JSON.stringify(cleared))
+	assert_true(state.commit(cleared["value"]["candidate"]).get("ok", false))
+	assert_eq(str(state.get("_proven_pending_payload_sha256")), "",
+		"adopting a null pending clears the retained token")
+
+
+func test_prepare_recovery_advance_carries_the_proven_hash_on_every_edge() -> void:
+	var untokened_state := _admitted()
+	var untokened_advance: Dictionary = untokened_state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["notify"],
+			"next_callback_index": 1, "callback_receipts": {"notify": {}}})
+	assert_true(untokened_advance.get("ok", false), JSON.stringify(untokened_advance))
+	assert_true((untokened_advance["value"] as Dictionary).has("proven_recovery_payload_sha256"),
+		"every ordinary-edge return carries the proven-hash slot, empty when nothing was proven")
+
+	var state := _admitted()
+	var captured: Dictionary = state.capture()["value"]["state"]
+	var proven := str((captured["pending"] as Dictionary)["recovery_payload_sha256"])
+	var adopted: Dictionary = state.prepare_restore(captured, proven)
+	assert_true(adopted.get("ok", false), JSON.stringify(adopted))
+	assert_true(state.commit(adopted["value"]["candidate"]).get("ok", false))
+
+	var ordinary: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["notify"],
+			"next_callback_index": 1, "callback_receipts": {"notify": {}}})
+	assert_true(ordinary.get("ok", false), JSON.stringify(ordinary))
+	assert_eq(str((ordinary["value"] as Dictionary).get("proven_recovery_payload_sha256", "<missing>")),
+		proven, "the ordinary edge hands the proof on to its checkpoint-and-adopt caller")
+
+	# Adopt that edge the way the coordinator does -- through the validated restore seam, carrying the
+	# same proof -- so the terminal edge is reached with the token still retained.
+	var adopted_pending: Dictionary = state.prepare_restore(ordinary["value"]["stage_candidate"], proven)
+	assert_true(adopted_pending.get("ok", false), JSON.stringify(adopted_pending))
+	assert_true(state.commit(adopted_pending["value"]["candidate"]).get("ok", false))
+
+	var cleanup: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"publication_pending", null, {}, null, null, null)
+	assert_true(cleanup.get("ok", false), JSON.stringify(cleanup))
+	assert_eq((cleanup["value"] as Dictionary)["stage_candidate"]["pending"], null,
+		"the cleanup edge is the pending-null edge")
+	assert_eq(str((cleanup["value"] as Dictionary).get("proven_recovery_payload_sha256", "<missing>")),
+		proven, "the cleanup edge carries the same proof for the payload it just finished publishing")

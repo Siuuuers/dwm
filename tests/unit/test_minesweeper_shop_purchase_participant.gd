@@ -40,12 +40,14 @@ class _FakeConsequenceCheckpointPort extends RefCounted:
 	var prepare_calls := 0
 	var commit_calls := 0
 
-	func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
+	func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary,
+			proven_recovery_payload_sha256: String = "") -> Dictionary:
 		prepare_calls += 1
 		if fail_prepare_once:
 			fail_prepare_once = false
 			return {"ok": false, "code": &"fake_checkpoint_prepare_failed", "message": "", "details": {}}
-		var preimage: Dictionary = _CONSEQUENCE_STATE.checkpoint_content_preimage(checkpoint_header, stage_candidate)
+		var preimage: Dictionary = _CONSEQUENCE_STATE.checkpoint_content_preimage(checkpoint_header,
+			stage_candidate, proven_recovery_payload_sha256)
 		if not preimage.get("ok", false):
 			return preimage
 		var preimage_value: Dictionary = (preimage["value"] as Dictionary)["preimage"]

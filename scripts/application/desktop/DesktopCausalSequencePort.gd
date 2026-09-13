@@ -235,7 +235,11 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var state_after: Dictionary = (reserved["value"] as Dictionary)["candidate"]["state_after"]
 	(state_after["pending"] as Dictionary)["admission_checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
 	(state_after["pending"] as Dictionary)["checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
-	var prepared_restore: Dictionary = _state.call(&"prepare_restore", state_after)
+	# The admission candidate already carries the payload hash this transaction proved when the
+	# ordinal-1 payload bytes were minted (`prepare_admission()` binds it); the same bytes reach here
+	# by duplication only, so pass that proof along rather than deriving it a fourth time.
+	var prepared_restore: Dictionary = _state.call(&"prepare_restore", state_after,
+		str(candidate.get("recovery_payload_sha256", "")))
 	if not prepared_restore.get("ok", false):
 		return _committed_pending_recovery_result(transaction_id, receipt, checkpoint_receipt, prepared_restore)
 	var committed: Dictionary = _state.call(&"commit", (prepared_restore["value"] as Dictionary)["candidate"])

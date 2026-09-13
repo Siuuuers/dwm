@@ -1,0 +1,200 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/4107a2f6-afb0-4340-a073-561f870c5b7f/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_desktop_consequence_state.gd
+* test_make_empty_produces_valid_zeroed_state
+* test_make_empty_rejects_id_only_or_mismatched_provenance
+* test_validate_rejects_extra_and_missing_top_level_keys
+* test_capture_and_restore_round_trip
+* test_prepare_action_handoff_creates_pending_at_action_prepared
+* test_prepare_action_handoff_rejects_second_concurrent_pending
+* test_prepare_action_handoff_rejects_stale_run_revision
+* test_prepare_schedule_recovery_transport_creates_pending_at_prepared_checkpointed
+* test_prepare_sequence_reservation_advances_to_sequence_committed
+* test_prepare_sequence_reservation_rejects_out_of_order_sequence
+* test_prepare_recovery_advance_ordinary_edge_to_publication_pending
+* test_prepare_recovery_advance_rejects_a_publication_plan_hash_mismatch
+* test_prepare_recovery_advance_rejects_stage_mismatch
+* test_prepare_recovery_advance_terminal_cleanup_requires_complete_cursor
+* test_checkpoint_content_preimage_omits_admission_receipt_only_at_admission
+* test_checkpoint_content_preimage_detaches_nested_admission_and_later_candidates
+* test_prepare_outbox_publication_toggles_exactly_one_bit
+* test_prepare_outbox_publication_rejects_wrong_payload_hash
+* test_commit_is_a_transaction_ledger_via_restore_replay
+* test_commit_is_a_transaction_ledger_for_action_handoff_replay
+* test_commit_rejects_changed_bytes_at_an_occupied_ledger_key
+* test_prepare_recovery_advance_ordinary_edge_operation_ordinal_matches_frozen_table
+* test_prepare_recovery_advance_callback_progress_operation_ordinal_is_sequential
+* test_prepare_recovery_advance_terminal_cleanup_operation_ordinal_is_twelve
+* test_rollback_restores_the_captured_backup
+* test_validate_recovery_payload_rejects_hash_mismatch
+* test_validate_recovery_payload_rejects_wrong_source_kind_shape
+* test_validate_recovery_payload_accepts_both_phases_and_rejects_violations
+* test_make_empty_seeds_a_zeroed_shop_ledger
+* test_validate_rejects_extra_and_missing_shop_ledger_keys
+* test_validate_rejects_a_malformed_base_completion_receipt
+* test_prepare_record_base_completion_appends_and_is_content_idempotent
+* test_prepare_record_base_completion_rejects_a_malformed_receipt
+* test_prepare_record_supportz_purchase_increments_count_and_sets_the_last_purchase_day
+* test_prepare_record_supportz_purchase_is_idempotent_via_the_transaction_ledger
+* test_supportz_eligibility_state_projects_the_capability_rules_exact_four_key_shape
+* test_supportz_eligibility_state_filters_completions_by_causal_day
+* test_supportz_eligibility_state_reflects_daily_purchase_done_after_a_recorded_purchase
+* test_terminal_cleanup_retains_a_self_contained_destination_record
+* test_validate_refuses_mismatched_payload_bytes_with_and_without_a_proven_hash
+    [Failed]:  [1] expected to equal [2]:  validate() must accept the optional already-proven recovery_payload_sha256
+      at line 887
+SCRIPT ERROR: Invalid call to function 'validate' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+   at: _validate_with_proof (res://tests/unit/test_desktop_consequence_state.gd:883)
+   GDScript backtrace (most recent call first):
+       [0] _validate_with_proof (res://tests/unit/test_desktop_consequence_state.gd:883)
+       [1] test_validate_refuses_mismatched_payload_bytes_with_and_without_a_proven_hash (res://tests/unit/test_desktop_consequence_state.gd:904)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  an empty token falls through to the full derivation
+      at line 905
+SCRIPT ERROR: Invalid access to property or key 'code' on a base object of type 'Dictionary'.
+   at: test_validate_refuses_mismatched_payload_bytes_with_and_without_a_proven_hash (res://tests/unit/test_desktop_consequence_state.gd:906)
+   GDScript backtrace (most recent call first):
+       [0] test_validate_refuses_mismatched_payload_bytes_with_and_without_a_proven_hash (res://tests/unit/test_desktop_consequence_state.gd:906)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'validate' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+    [2] <engine-2>Invalid access to property or key 'code' on a base object of type 'Dictionary'.
+      at line -1
+* test_prepare_restore_returns_the_proven_hash_on_its_candidate_and_commit_retains_it
+    [Failed]:  every restore candidate carries the proven-hash slot
+      at line 929
+    [Failed]:  ["<missing>"] expected to equal [""]:  a restore prepared without a proof carries an empty token, never a derived one
+      at line 931
+    [Failed]:  [1] expected to equal [2]:  prepare_restore() must accept the optional already-proven recovery_payload_sha256
+      at line 934
+SCRIPT ERROR: Invalid call to function 'prepare_restore' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+   at: test_prepare_restore_returns_the_proven_hash_on_its_candidate_and_commit_retains_it (res://tests/unit/test_desktop_consequence_state.gd:936)
+   GDScript backtrace (most recent call first):
+       [0] test_prepare_restore_returns_the_proven_hash_on_its_candidate_and_commit_retains_it (res://tests/unit/test_desktop_consequence_state.gd:936)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'prepare_restore' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+      at line -1
+* test_prepare_recovery_advance_carries_the_proven_hash_on_every_edge
+    [Failed]:  every ordinary-edge return carries the proven-hash slot, empty when nothing was proven
+      at line 970
+SCRIPT ERROR: Invalid call to function 'prepare_restore' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+   at: test_prepare_recovery_advance_carries_the_proven_hash_on_every_edge (res://tests/unit/test_desktop_consequence_state.gd:976)
+   GDScript backtrace (most recent call first):
+       [0] test_prepare_recovery_advance_carries_the_proven_hash_on_every_edge (res://tests/unit/test_desktop_consequence_state.gd:976)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'prepare_restore' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+      at line -1
+39/42 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_consequence_state.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_desktop_consequence_state.gd
+- test_validate_refuses_mismatched_payload_bytes_with_and_without_a_proven_hash
+    [Failed]:  [1] expected to equal [2]:  validate() must accept the optional already-proven recovery_payload_sha256
+          at line 887
+    [Failed]:  an empty token falls through to the full derivation
+          at line 905
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'validate' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+    [2] <engine-2>Invalid access to property or key 'code' on a base object of type 'Dictionary'.
+          at line -1
+- test_prepare_restore_returns_the_proven_hash_on_its_candidate_and_commit_retains_it
+    [Failed]:  every restore candidate carries the proven-hash slot
+          at line 929
+    [Failed]:  ["<missing>"] expected to equal [""]:  a restore prepared without a proof carries an empty token, never a derived one
+          at line 931
+    [Failed]:  [1] expected to equal [2]:  prepare_restore() must accept the optional already-proven recovery_payload_sha256
+          at line 934
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'prepare_restore' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+          at line -1
+- test_prepare_recovery_advance_carries_the_proven_hash_on_every_edge
+    [Failed]:  every ordinary-edge return carries the proven-hash slot, empty when nothing was proven
+          at line 970
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'prepare_restore' in base 'RefCounted (DesktopConsequenceState)'. Expected 1 argument(s).
+          at line -1
+
+Totals
+------
+Scripts               1
+Tests                42
+Passing Tests        39
+Failing Tests         3
+Asserts           154/163
+Orphans              24
+Time              0.441s
+
+
+---- 3 failing tests ----

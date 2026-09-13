@@ -71,8 +71,9 @@ class SafeMarkerRecorder:
 	func commit(_candidate: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {}}
 
-	func prepare_consequence_checkpoint(header: Dictionary, candidate: Dictionary) -> Dictionary:
-		return consequence.prepare_consequence_checkpoint(header, candidate)
+	func prepare_consequence_checkpoint(header: Dictionary, candidate: Dictionary,
+			proven_recovery_payload_sha256: String = "") -> Dictionary:
+		return consequence.prepare_consequence_checkpoint(header, candidate, proven_recovery_payload_sha256)
 
 	func commit_consequence_checkpoint(candidate: Dictionary, receipt: Dictionary) -> Dictionary:
 		return consequence.commit_consequence_checkpoint(candidate, receipt)

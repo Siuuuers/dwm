@@ -33,11 +33,13 @@ var fail_next_prepare := false
 var abandoned: Dictionary = {}
 
 
-func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
+func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary,
+		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	if fail_next_prepare:
 		fail_next_prepare = false
 		return {"ok": false, "code": &"forced_failure", "message": "test-forced prepare failure", "details": {}}
-	var preimage: Dictionary = _STATE_SCRIPT.checkpoint_content_preimage(checkpoint_header, stage_candidate)
+	var preimage: Dictionary = _STATE_SCRIPT.checkpoint_content_preimage(checkpoint_header, stage_candidate,
+		proven_recovery_payload_sha256)
 	if not preimage.get("ok", false):
 		return preimage
 	var preimage_value: Dictionary = (preimage["value"] as Dictionary)["preimage"]

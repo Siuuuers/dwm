@@ -12,8 +12,10 @@ class FakeAdmissionCheckpointPort:
 	var committed: Array = []
 	var fail_next_commit := false
 
-	func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
-		var preimage: Dictionary = _STATE_SCRIPT.checkpoint_content_preimage(checkpoint_header, stage_candidate)
+	func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary,
+			proven_recovery_payload_sha256: String = "") -> Dictionary:
+		var preimage: Dictionary = _STATE_SCRIPT.checkpoint_content_preimage(checkpoint_header, stage_candidate,
+			proven_recovery_payload_sha256)
 		if not preimage.get("ok", false):
 			return preimage
 		var preimage_value: Dictionary = preimage["value"]["preimage"]
@@ -315,11 +317,11 @@ class FailInjectingConsequenceState:
 			return {"ok": false, "code": &"forced_failure", "message": "test-forced live failure"}
 		return _inner.prepare_sequence_reservation(request, causal_sequence_receipt)
 
-	func prepare_restore(state: Dictionary) -> Dictionary:
+	func prepare_restore(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
 		if fail_next_call_name == "prepare_restore":
 			fail_next_call_name = ""
 			return {"ok": false, "code": &"forced_failure", "message": "test-forced live failure"}
-		return _inner.prepare_restore(state)
+		return _inner.prepare_restore(state, proven_recovery_payload_sha256)
 
 	func commit(candidate: Dictionary) -> Dictionary:
 		return _inner.commit(candidate)

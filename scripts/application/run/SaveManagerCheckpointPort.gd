@@ -253,15 +253,18 @@ func commit(candidate: Dictionary) -> Dictionary:
 			"history_bundles": history.size() if history is Array else -1, "_started_us": tick}
 	var proven_current_text := ""
 	if candidate.get("autosave_document") != null:
-		var autosave_document: Dictionary = candidate["autosave_document"]
+		var autosave_document: Variant = candidate["autosave_document"]
 		var document_text := ""
 		# Only the NEW current bundle is canonicalised here; the earlier bundles are byte-identical
-		# copies of what their own commits already wrote and proved.
-		if typeof(autosave_document.get("current_snapshot")) == TYPE_DICTIONARY:
-			var current_emitted: Dictionary = CANONICAL_JSON.stringify(autosave_document["current_snapshot"])
+		# copies of what their own commits already wrote and proved. A non-object outgoing value
+		# takes the whole-document path below exactly as before.
+		if typeof(autosave_document) == TYPE_DICTIONARY \
+				and typeof((autosave_document as Dictionary).get("current_snapshot")) == TYPE_DICTIONARY:
+			var current_emitted: Dictionary = CANONICAL_JSON.stringify(
+				(autosave_document as Dictionary)["current_snapshot"])
 			if current_emitted.get("ok", false):
 				proven_current_text = str(current_emitted["value"])
-				document_text = _splice_autosave_text(autosave_document, proven_current_text)
+				document_text = _splice_autosave_text(autosave_document as Dictionary, proven_current_text)
 		tick = _profile_phase(profile, "stringify_us", tick)
 		if document_text.is_empty():
 			# Some earlier bundle has no remembered text (a journal seeded from disk, restored or
@@ -424,11 +427,13 @@ func rollback(backup: Dictionary) -> Dictionary:
 	return _fatal_rollback("rollback", str((journal_backup as Dictionary).get("run_id", "")), attempts)
 
 ## Builds the canonical stage record and receipt without mutating transient or durable state.
-func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
+func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary,
+		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
-	var prepared := _build_consequence_checkpoint(checkpoint_header, stage_candidate)
+	var prepared := _build_consequence_checkpoint(checkpoint_header, stage_candidate,
+		proven_recovery_payload_sha256)
 	if not prepared.get("ok", false):
 		return prepared
 	var value: Dictionary = prepared["value"]
@@ -437,8 +442,13 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 
 
 ## One pure construction path for new checkpoints and cold-record self-consistency checks.
-static func _build_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
-	var preimage: Dictionary = DESKTOP_CONSEQUENCE_STATE.checkpoint_content_preimage(checkpoint_header, stage_candidate)
+## `proven_recovery_payload_sha256` is only ever supplied by a live caller that derived it over these
+## exact payload bytes in this frame; the cold/evicted re-derivation callers below deliberately pass
+## nothing, so a record read back from disk is still proven in full.
+static func _build_consequence_checkpoint(checkpoint_header: Dictionary, stage_candidate: Dictionary,
+		proven_recovery_payload_sha256: String = "") -> Dictionary:
+	var preimage: Dictionary = DESKTOP_CONSEQUENCE_STATE.checkpoint_content_preimage(checkpoint_header,
+		stage_candidate, proven_recovery_payload_sha256)
 	if not preimage.get("ok", false):
 		return preimage
 	var preimage_value: Dictionary = (preimage["value"] as Dictionary)["preimage"]

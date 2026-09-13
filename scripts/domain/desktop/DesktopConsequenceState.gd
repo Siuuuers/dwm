@@ -107,6 +107,11 @@ var _pending: Variant = null
 var _outbox: Dictionary = {}
 var _command_receipts: Dictionary = {}
 var _shop_ledger: Dictionary = _empty_shop_ledger()
+## The already-proven `pending.recovery_payload_sha256` the last adopted candidate carried, so a
+## caller that derived it over these exact immutable bytes does not make every later seam derive it
+## again. It is a proof already made, never an authorisation: a wrong, stale or empty token only
+## costs the full derivation. Cleared whenever pending is adopted as null -- nothing left to prove.
+var _proven_pending_payload_sha256: String = ""
 
 
 func _init() -> void:
@@ -122,6 +127,7 @@ func _reset_defaults() -> void:
 	_outbox = {}
 	_command_receipts = {}
 	_shop_ledger = _empty_shop_ledger()
+	_proven_pending_payload_sha256 = ""
 
 
 static func _empty_shop_ledger() -> Dictionary:
@@ -156,18 +162,23 @@ static func make_empty(issuer_provenance: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"state": state}, "receipt": {}}
 
 
-static func validate(state: Dictionary) -> Dictionary:
-	return _validate_impl(state, false)
+## `proven_recovery_payload_sha256`, when it equals the candidate pending record's own
+## `recovery_payload_sha256`, is a caller restating a proof it already derived over these exact
+## bytes, so that derivation is not repeated. Every other value -- empty, stale, or proven over
+## another transaction's payload -- falls through to the full derivation unchanged.
+static func validate(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
+	return _validate_impl(state, false, proven_recovery_payload_sha256)
 
 
 ## Identical to `validate()` except it accepts the one in-flight admission shape described on
 ## `_validate_pending()`. Private: the only legal caller is `checkpoint_content_preimage()`, which
 ## needs to build the preimage for the very candidate that will produce the admission receipt.
-static func _validate_for_preimage(state: Dictionary) -> Dictionary:
-	return _validate_impl(state, true)
+static func _validate_for_preimage(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
+	return _validate_impl(state, true, proven_recovery_payload_sha256)
 
 
-static func _validate_impl(state: Dictionary, allow_pending_admission: bool) -> Dictionary:
+static func _validate_impl(state: Dictionary, allow_pending_admission: bool,
+		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var shape := _exact_keys(state, _STATE_KEYS, &"consequence_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -186,7 +197,8 @@ static func _validate_impl(state: Dictionary, allow_pending_admission: bool) -> 
 	if state["pending"] != null:
 		if typeof(state["pending"]) != TYPE_DICTIONARY:
 			return _fail(&"consequence_field_invalid", "pending must be null or an object", {"field": "pending"})
-		var pending_check := _validate_pending(state["pending"] as Dictionary, allow_pending_admission)
+		var pending_check := _validate_pending(state["pending"] as Dictionary, allow_pending_admission,
+			proven_recovery_payload_sha256)
 		if not pending_check.get("ok", false):
 			return pending_check
 	var outbox_check := _validate_outbox(state["outbox"])
@@ -262,7 +274,8 @@ static func validate_recovery_payload(source_kind: StringName, payload: Dictiona
 ## `sequence_committed` and `admission_checkpoint_receipt` is still null on the candidate) -- every
 ## later preimage retains it. Source IDs inside the header are lexically sorted after set
 ## projection so caller-authored ordering cannot smuggle a different preimage past re-derivation.
-static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_candidate: Dictionary) -> Dictionary:
+static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_candidate: Dictionary,
+		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var header_keys: Array = checkpoint_header.keys()
 	header_keys.sort()
 	var expected_header_keys: Array = [
@@ -277,7 +290,7 @@ static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_can
 	var normalized_header := checkpoint_header.duplicate(true)
 	normalized_header["source_ids"] = sorted_sources
 
-	var candidate_validation := _validate_for_preimage(stage_candidate)
+	var candidate_validation := _validate_for_preimage(stage_candidate, proven_recovery_payload_sha256)
 	if not candidate_validation.get("ok", false):
 		return candidate_validation
 	var candidate: Dictionary = (candidate_validation["value"] as Dictionary)["state"]
@@ -318,12 +331,16 @@ func capture() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"state": _live_state()}, "receipt": {}}
 
 
-func prepare_restore(state: Dictionary) -> Dictionary:
-	var validated := validate(state)
+## The candidate carries the caller's already-proven `pending.recovery_payload_sha256` forward to
+## `commit()`, which retains it for the pending it adopts. The candidate envelope is private to this
+## class -- it is never hashed into a checkpoint record -- so this adds no bytes to any record.
+func prepare_restore(state: Dictionary, proven_recovery_payload_sha256: String = "") -> Dictionary:
+	var validated := validate(state, proven_recovery_payload_sha256)
 	if not validated.get("ok", false):
 		return validated
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"restore", "state_after": (validated["value"] as Dictionary)["state"],
+		"proven_recovery_payload_sha256": proven_recovery_payload_sha256,
 	}}, "receipt": {}}
 
 
@@ -537,6 +554,7 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 				# its only real source. A single-element array is trivially sorted/unique/nonblank.
 				"source_ids": [transaction_id],
 			},
+			"proven_recovery_payload_sha256": _proven_pending_payload_sha256,
 			"stage_candidate": state_after,
 		}, "receipt": {}}
 	else:
@@ -555,6 +573,7 @@ func prepare_recovery_advance(transaction_id: String, expected_stage: StringName
 			"run_id": "",
 			"source_ids": [transaction_id],
 		},
+		"proven_recovery_payload_sha256": _proven_pending_payload_sha256,
 		"stage_candidate": state_after2,
 	}, "receipt": {}}
 
@@ -845,7 +864,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if kind == &"restore":
 		if typeof(candidate.get("state_after")) != TYPE_DICTIONARY:
 			return _fail(&"invalid_candidate", "restore candidate.state_after is required", {})
-		_adopt_state(candidate["state_after"])
+		_adopt_state(candidate["state_after"], str(candidate.get("proven_recovery_payload_sha256", "")))
 		return _live_view()
 	if typeof(candidate.get("state_after")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_candidate", "candidate.state_after is required", {})
@@ -864,7 +883,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		return _fail(&"stale_run_revision",
 			"the candidate was prepared against a different run_revision than the current one",
 			{"expected": _run_revision, "candidate_pre_run_revision": candidate["pre_run_revision"]})
-	_adopt_state(candidate["state_after"])
+	_adopt_state(candidate["state_after"], str(candidate.get("proven_recovery_payload_sha256", "")))
 	var result := _live_view()
 	if not ledger_key.is_empty():
 		_command_receipts[ledger_key] = {
@@ -888,7 +907,7 @@ func rollback(backup: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"restored": true}, "receipt": {}}
 
 
-func _adopt_state(state: Dictionary) -> void:
+func _adopt_state(state: Dictionary, proven_recovery_payload_sha256: String = "") -> void:
 	_run_revision = int(state["run_revision"])
 	_causal_sequence = int(state["causal_sequence"])
 	_causal_day_instance = str(state["causal_day_instance"])
@@ -896,6 +915,11 @@ func _adopt_state(state: Dictionary) -> void:
 	_pending = _dup_or_null(state["pending"])
 	_outbox = (state["outbox"] as Dictionary).duplicate(true)
 	_shop_ledger = (state["shop_ledger"] as Dictionary).duplicate(true)
+	# A pending adopted as null has no recovery payload left for any later seam to prove.
+	if _pending == null:
+		_proven_pending_payload_sha256 = ""
+	else:
+		_proven_pending_payload_sha256 = proven_recovery_payload_sha256
 
 
 # -------------------------------------------------------------------------------------------------
@@ -994,7 +1018,8 @@ static func _validate_issuer_provenance(provenance: Dictionary) -> Dictionary:
 ## about to mint a receipt for (a live DesktopConsequenceState may never carry this shape --
 ## `validate()` always calls with `allow_pending_admission=false`; only `checkpoint_content_
 ## preimage()`'s own admission-preimage branch calls with `true`).
-static func _validate_pending(pending: Dictionary, allow_pending_admission: bool) -> Dictionary:
+static func _validate_pending(pending: Dictionary, allow_pending_admission: bool,
+		proven_recovery_payload_sha256: String = "") -> Dictionary:
 	var shape := _exact_keys(pending, _PENDING_KEYS, &"pending_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -1016,8 +1041,12 @@ static func _validate_pending(pending: Dictionary, allow_pending_admission: bool
 		return _fail(&"pending_field_invalid", "recovery_payload must be an object", {})
 	if not _is_lowercase_sha256(pending["recovery_payload_sha256"]):
 		return _fail(&"pending_field_invalid", "recovery_payload_sha256 must be lowercase sha256 hex", {})
-	if _canonical_sha256(pending["recovery_payload"]) != str(pending["recovery_payload_sha256"]):
-		return _fail(&"pending_recovery_payload_hash_mismatch", "", {})
+	# The derivation below is the proof; an already-proven token only skips REPEATING it, and only
+	# for bytes whose own record already agrees with that token. Anything else derives as before.
+	if proven_recovery_payload_sha256.is_empty() \
+			or proven_recovery_payload_sha256 != str(pending["recovery_payload_sha256"]):
+		if _canonical_sha256(pending["recovery_payload"]) != str(pending["recovery_payload_sha256"]):
+			return _fail(&"pending_recovery_payload_hash_mismatch", "", {})
 	if typeof(pending["participant_receipts"]) != TYPE_DICTIONARY:
 		return _fail(&"pending_field_invalid", "participant_receipts must be an object", {})
 	var stage_string := String(pending["stage"])
