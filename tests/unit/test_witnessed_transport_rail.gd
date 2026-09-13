@@ -93,6 +93,44 @@ func test_projection_keeps_placeholders_visible_disabled_and_modes_truthful() ->
 	assert_true(rail.project(false, false, false))
 	assert_true((rail.get_node("Skip") as Button).disabled)
 	assert_eq((rail.get_node("Skip") as Button).focus_mode, Control.FOCUS_NONE)
+	assert_true((rail.get_node("Auto") as Button).disabled,
+		"the compatible three-argument projection does not claim an Auto owner")
+	assert_true(rail.project(false, false, false, true))
+	assert_true((rail.get_node("Skip") as Button).disabled)
+	assert_false((rail.get_node("Auto") as Button).disabled,
+		"Auto admission is independent from Skip availability")
+	assert_eq((rail.get_node("Auto") as Button).focus_mode, Control.FOCUS_ALL)
+
+
+func test_auto_signal_has_its_own_binding_and_final_admission() -> void:
+	var rail := _new_rail()
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
+	var skip_admission := Admission.new()
+	var auto_admission := Admission.new()
+	var input_owner := InputOwner.new()
+	add_child_autofree(input_owner)
+	add_child_autofree(rail)
+	assert_true(rail.bind_admission(skip_admission.is_admitted, input_owner))
+	assert_true(rail.bind_auto_admission(auto_admission.is_admitted, input_owner))
+	assert_true(rail.project(true, false, false, true))
+	watch_signals(rail)
+	(rail.get_node("Auto") as Button).pressed.emit()
+	assert_signal_not_emitted(rail, "auto_requested",
+		"programmatic Button.pressed is not Auto command admission")
+	(rail.get_node("Auto") as Node).emit_signal(&"activated")
+	assert_signal_emit_count(rail, "auto_requested", 1)
+	skip_admission.allowed = false
+	(rail.get_node("Skip") as Node).emit_signal(&"activated")
+	assert_signal_not_emitted(rail, "skip_requested",
+		"Auto admission cannot authorize Skip")
+	auto_admission.allowed = false
+	(rail.get_node("Auto") as Node).emit_signal(&"activated")
+	assert_signal_emit_count(rail, "auto_requested", 1,
+		"the rail rechecks the Auto owner at the activation boundary")
+	skip_admission.allowed = true
+	(rail.get_node("Skip") as Node).emit_signal(&"activated")
+	assert_signal_emit_count(rail, "skip_requested", 1,
+		"Auto refusal does not disable the independent Skip owner")
 
 
 func test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates() -> void:
@@ -162,28 +200,37 @@ func test_projection_and_visibility_retire_stale_native_actions_without_steady_s
 	assert_true(rail.configure_presentation(presentation, "en"))
 	var admission := Admission.new()
 	var input_owner := InputOwner.new()
+	var auto_admission := Admission.new()
 	add_child_autofree(input_owner)
 	add_child_autofree(rail)
 	assert_true(rail.bind_admission(admission.is_admitted, input_owner))
-	assert_true(rail.project(true, false, false))
+	assert_true(rail.bind_auto_admission(auto_admission.is_admitted, input_owner))
+	assert_true(rail.project(true, false, false, true))
 	await get_tree().process_frame
 	var skip := rail.get_node("Skip") as Button
+	var auto := rail.get_node("Auto") as Button
 	var first_generation: int = int(skip.get("_generation"))
+	var first_auto_generation: int = int(auto.get("_generation"))
 	var first_plate: StyleBox = skip.get_theme_stylebox(&"normal")
-	assert_true(rail.project(true, false, false))
+	assert_true(rail.project(true, false, false, true))
 	assert_eq(int(skip.get("_generation")), first_generation,
 		"an identical per-frame projection does not retire the input generation")
+	assert_eq(int(auto.get("_generation")), first_auto_generation,
+		"an identical per-frame projection does not retire Auto")
 	assert_same(skip.get_theme_stylebox(&"normal"), first_plate,
 		"an identical per-frame projection does not allocate replacement material")
 
 	skip.grab_focus()
 	assert_true(skip.has_focus())
-	assert_true(rail.project(false, false, false))
+	assert_true(rail.project(false, false, false, true))
 	assert_false(skip.has_focus(), "a disabled Skip command leaves Focus traversal")
 	assert_eq(int(skip.get("_generation")), first_generation + 1,
 		"the changed projection retires exactly one input generation")
+	assert_eq(int(auto.get("_generation")), first_auto_generation + 1,
+		"a changed rail projection retires the independent Auto generation")
 	var disabled_generation: int = int(skip.get("_generation"))
-	assert_true(rail.project(true, false, false))
+	var projected_auto_generation: int = int(auto.get("_generation"))
+	assert_true(rail.project(true, false, false, true))
 	await get_tree().process_frame
 	watch_signals(rail)
 	skip.call("_on_accessibility_click", null, first_generation)
@@ -192,20 +239,35 @@ func test_projection_and_visibility_retire_stale_native_actions_without_steady_s
 	skip.call("_on_accessibility_click", null, disabled_generation + 1)
 	assert_signal_emit_count(rail, "skip_requested", 1,
 		"the current post-projection generation remains operable")
+	auto.call("_on_accessibility_click", null, projected_auto_generation)
+	assert_signal_not_emitted(rail, "auto_requested",
+		"Auto's native callback cannot cross a Skip-only projection change")
+	auto.call("_on_accessibility_click", null, int(auto.get("_generation")))
+	assert_signal_emit_count(rail, "auto_requested", 1,
+		"the current Auto generation remains operable")
 
 	await get_tree().process_frame
 	var before_hide: int = int(skip.get("_generation"))
+	var auto_before_hide: int = int(auto.get("_generation"))
 	rail.hide()
 	rail.show()
 	await get_tree().process_frame
 	assert_gt(int(skip.get("_generation")), before_hide,
 		"each actual visibility boundary retires the transport generation")
+	assert_gt(int(auto.get("_generation")), auto_before_hide,
+		"visibility retires Auto with the rest of the rail")
 	skip.call("_on_accessibility_click", null, before_hide)
 	assert_signal_emit_count(rail, "skip_requested", 1,
 		"a native callback queued before hide cannot activate after show")
 	skip.call("_on_accessibility_click", null, int(skip.get("_generation")))
 	assert_signal_emit_count(rail, "skip_requested", 2,
 		"the current post-visibility generation remains operable")
+	auto.call("_on_accessibility_click", null, auto_before_hide)
+	assert_signal_emit_count(rail, "auto_requested", 1,
+		"a native Auto callback queued before hide cannot activate after show")
+	auto.call("_on_accessibility_click", null, int(auto.get("_generation")))
+	assert_signal_emit_count(rail, "auto_requested", 2,
+		"the current post-visibility Auto generation remains operable")
 
 
 func test_missing_catalog_owner_disables_commands_and_invalid_rebind_preserves_labels() -> void:
@@ -237,6 +299,7 @@ func test_live_catalog_switch_retires_old_input_and_keeps_controls_and_modes() -
 	var skip := rail.get_node("Skip") as Button
 	var auto := rail.get_node("Auto") as Button
 	var generation: int = skip._generation
+	var auto_generation: int = auto._generation
 	assert_true(_localization.set_locale("zh_CN").get("ok", false))
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("zh-CN", 100, "AfterHours"), "zh-CN"))
 	assert_same(rail.get_node("Skip"), skip)
@@ -244,6 +307,7 @@ func test_live_catalog_switch_retires_old_input_and_keeps_controls_and_modes() -
 	assert_eq(skip.text, "\u8df3\u8fc7 \u00b7 \u5f00")
 	assert_eq(auto.text, "\u81ea\u52a8 \u00b7 \u5173")
 	assert_gt(skip._generation, generation, "a prior-language activation is retired")
+	assert_gt(auto._generation, auto_generation, "Auto retires with its prior-language label")
 
 
 func test_binding_a_different_catalog_locale_waits_for_the_matching_theme_tuple() -> void:

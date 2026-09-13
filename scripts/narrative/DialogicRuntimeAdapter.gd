@@ -254,6 +254,11 @@ func current_line_id() -> String:
 	return parts[1] if parts.size() == 3 and parts[0] == "Text" and parts[2] == "text" else ""
 
 
+func is_current_line_complete() -> bool:
+	var event := _current_skip_text()
+	return event != null and event.state == DialogicTextEvent.States.DONE
+
+
 func _current_skip_text() -> DialogicTextEvent:
 	if not _bound or _activity_phase != "live" or _dialogic.current_timeline == null \
 		or _dialogic.paused or _dialogic.current_state not in [

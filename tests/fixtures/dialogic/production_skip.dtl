@@ -7,6 +7,12 @@ First owned line for skip. #id:line.contact.ordinary.lavinia.day1.reply.a
 Second owned line for skip. #id:line.contact.ordinary.lavinia.day1.reply.b
 return
 
+label auto_sequence
+First owned line for Auto. #id:line.contact.ordinary.lavinia.day1.reply.a
+Second owned line for Auto. #id:line.contact.ordinary.lavinia.day1.reply.b
+Final owned line waits at the return boundary. #id:line.contact.ordinary.lavinia.day1.reply.c
+return
+
 label choice_boundary
 Before a native choice. #id:line.contact.ordinary.lavinia.day1.reply.c
 - Stay here

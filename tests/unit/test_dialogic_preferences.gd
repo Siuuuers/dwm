@@ -22,7 +22,13 @@ class FakeText:
 class FakeAutoAdvance:
 	extends Node
 	var delay_modifier := 1.0
-	var enabled_until_user_input := false
+	var player_flag_writes: Array[bool] = []
+	var enabled_until_next_event := true
+	var enabled_forced := true
+	var enabled_until_user_input := false:
+		set(value):
+			enabled_until_user_input = value
+			player_flag_writes.append(value)
 
 
 class FakeInputs:
@@ -138,12 +144,35 @@ func test_adapter_maps_profile_values_to_live_caches_without_persistence() -> vo
 	assert_eq(fake["settings"].settings[&"autoadvance_delay_modifier"], 0.5)
 	assert_eq(fake["text"].calls, [[-1.0, false, 1.0, 0.5]])
 	assert_eq(fake["auto"].delay_modifier, 0.5)
-	assert_true(fake["auto"].enabled_until_user_input)
-	var backup: Dictionary = adapter.call(&"capture_state")["value"]
+	assert_false(fake["auto"].enabled_until_user_input,
+		"logical profile Auto never enables Dialogic's player-owned Auto mode")
+	assert_false(true in fake["auto"].player_flag_writes,
+		"applying logical Auto must not transiently toggle the native player flag on")
+	assert_true(fake["auto"].enabled_until_next_event,
+		"the adapter preserves Dialogic's one-event Auto owner")
+	assert_true(fake["auto"].enabled_forced,
+		"the adapter preserves Dialogic's forced Auto owner")
+	# The native player flag is no longer the logical preference cache.
 	fake["auto"].enabled_until_user_input = false
-	backup["plan"]["auto_advance_enabled"] = false
+	var backup: Dictionary = adapter.call(&"capture_state")["value"]
+	assert_true(backup["plan"]["auto_advance_enabled"],
+		"capture retains the logical profile Auto value while native player Auto is neutral")
+	var disabled_plan: Dictionary = prepared["value"].duplicate(true)
+	disabled_plan["auto_advance_enabled"] = false
+	assert_true(adapter.call(&"apply_silent", disabled_plan).get("ok", false))
+	assert_false(adapter.call(&"capture_state")["value"]["plan"]["auto_advance_enabled"])
 	assert_true(adapter.call(&"rollback_silent", backup).get("ok", false))
 	assert_false(fake["auto"].enabled_until_user_input)
+	assert_true(adapter.call(&"capture_state")["value"]["plan"]["auto_advance_enabled"],
+		"rollback restores logical Auto without restoring native player Auto")
+	assert_false(true in fake["auto"].player_flag_writes,
+		"apply and rollback only ever neutralize the native player flag")
+	assert_true(adapter.call(&"apply_silent", prepared["value"]).get("ok", false),
+		"the cached plan can be reapplied after the native runtime clears")
+	assert_false(fake["auto"].enabled_until_user_input)
+	assert_true(adapter.call(&"capture_state")["value"]["plan"]["auto_advance_enabled"])
+	assert_true(fake["auto"].enabled_until_next_event)
+	assert_true(fake["auto"].enabled_forced)
 
 
 func test_committed_dialogue_apply_failure_latches_shared_gate() -> void:
@@ -193,4 +222,4 @@ func test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once(
 	var dialogic := get_node("/root/Dialogic")
 	assert_almost_eq(float(dialogic.Settings.settings[&"text_speed"]), 0.5, 0.001)
 	assert_almost_eq(float(dialogic.Inputs.auto_advance.delay_modifier), 0.5, 0.001)
-	assert_true(dialogic.Inputs.auto_advance.enabled_until_user_input)
+	assert_false(dialogic.Inputs.auto_advance.enabled_until_user_input)

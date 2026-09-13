@@ -48,8 +48,12 @@ func _run() -> void:
 			quit(1)
 			return
 		var labels: Array[String] = []
-		for button: Button in _caption.transport_rail.get_children(): labels.append(button.text)
-		captures.append({"locale": locale, "text_percent": 150, "file": path, "labels": labels})
+		var enabled: Dictionary = {}
+		for button: Button in _caption.transport_rail.get_children():
+			labels.append(button.text)
+			enabled[button.name] = not button.disabled
+		captures.append({"locale": locale, "text_percent": 150, "file": path,
+			"labels": labels, "enabled": enabled})
 	await _restore()
 	print("WITNESSED_TRANSPORT_CAPTURE " + JSON.stringify({"captures": captures,
 		"scope": "Synthetic captions through the actual mounted style; six controls; no story or full transport completion claim"}))
@@ -61,7 +65,16 @@ func _native_invoke() -> void:
 		quit(1)
 		return
 	var input_owner: Node = root.get_node_or_null("InputManager")
-	if input_owner == null:
+	var profile: Node = root.get_node_or_null("ProfileManager")
+	if input_owner == null or profile == null:
+		quit(1)
+		return
+	var control := "Skip"
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--control="):
+			control = argument.trim_prefix("--control=").capitalize()
+	if control not in ["Skip", "Auto"]:
+		push_error("Native accessibility control must be Skip or Auto.")
 		quit(1)
 		return
 	var pid := OS.get_process_id()
@@ -76,32 +89,63 @@ func _native_invoke() -> void:
 	if not rail.bind_localization(root.get_node("LocalizationManager")):
 		quit(1)
 		return
-	rail.configure_presentation(THEME.build("en", 100, "AfterHours"), "en")
-	rail.bind_admission(func() -> bool: return true, input_owner)
-	rail.project(true, false, false)
-	rail.skip_requested.connect(func(): _activations += 1)
-	var skip: Button = rail.get_node("Skip")
-	skip.accessibility_name = "Skip"
-	skip.pressed.connect(func(): _pressed_signals += 1)
-	skip.pressed.emit()
+	if not rail.configure_presentation(THEME.build("en", 100, "AfterHours"), "en"):
+		quit(1)
+		return
+	var auto_before: bool = bool(profile.get_preference(&"preferences.reading.auto_enabled", false))
+	var probe := {"profile_result": {}}
+	if control == "Auto":
+		if not rail.bind_auto_admission(func() -> bool: return true, input_owner):
+			quit(1)
+			return
+		rail.auto_requested.connect(func() -> void:
+			_activations += 1
+			probe.profile_result = profile.set_preference(
+				&"preferences.reading.auto_enabled", not auto_before)
+			rail.project(false, false,
+				bool(profile.get_preference(&"preferences.reading.auto_enabled", false)), true))
+		if not rail.project(false, false, auto_before, true):
+			quit(1)
+			return
+	else:
+		if not rail.bind_admission(func() -> bool: return true, input_owner):
+			quit(1)
+			return
+		rail.skip_requested.connect(func(): _activations += 1)
+		if not rail.project(true, false, auto_before):
+			quit(1)
+			return
+	var button: Button = rail.get_node(control)
+	button.accessibility_name = control
+	button.pressed.connect(func(): _pressed_signals += 1)
+	button.pressed.emit()
 	for frame: int in 3: await process_frame
 	if _activations != 0 or _pressed_signals != 1:
 		print("RESULT " + JSON.stringify({"ok": false, "code": "programmatic_pressed_admitted"}))
 		quit(1)
 		return
 	_pressed_signals = 0
-	skip.grab_focus()
-	skip.queue_accessibility_update()
+	button.grab_focus()
+	button.queue_accessibility_update()
 	for frame: int in 3: await process_frame
 	await RenderingServer.frame_post_draw
 	print("READY " + JSON.stringify({"pid": pid, "window_title": title,
-		"expected_caption": "Skip: " + skip.text, "activations": _activations,
-		"physical_contacts": input_owner.get_physical_contacts().size(), "programmatic_pressed_rejected": true}))
+		"control": control, "expected_caption": control + ": " + button.text,
+		"activations": _activations, "physical_contacts": input_owner.get_physical_contacts().size(),
+		"profile_auto_enabled": auto_before, "programmatic_pressed_rejected": true,
+		"scope": "native UIA provider and isolated Profile preference; no narrative integration claim"}))
 	var deadline := Time.get_ticks_msec() + 30000
 	while _activations == 0 and _pressed_signals == 0 and Time.get_ticks_msec() < deadline:
 		await process_frame
 	for frame: int in 6: await process_frame
-	var ok: bool = _activations == 1 and _pressed_signals == 0 and input_owner.get_physical_contacts().is_empty()
+	var auto_after: bool = bool(profile.get_preference(&"preferences.reading.auto_enabled", false))
+	var profile_ok: bool = control != "Auto" or (probe.profile_result.get("ok", false)
+		and not auto_before and auto_after)
+	var ok: bool = _activations == 1 and _pressed_signals == 0 \
+		and input_owner.get_physical_contacts().is_empty() and profile_ok
 	print("RESULT " + JSON.stringify({"ok": ok, "activations": _activations,
-		"pressed_signals": _pressed_signals, "physical_contacts": input_owner.get_physical_contacts().size()}))
+		"control": control, "pressed_signals": _pressed_signals,
+		"physical_contacts": input_owner.get_physical_contacts().size(),
+		"profile_auto_enabled_before": auto_before, "profile_auto_enabled_after": auto_after,
+		"profile_write_ok": probe.profile_result.get("ok", false) if control == "Auto" else null}))
 	quit(0 if ok else 1)

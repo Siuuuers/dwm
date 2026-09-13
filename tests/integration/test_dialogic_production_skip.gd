@@ -263,7 +263,10 @@ func _enable_zero_delay_native_auto() -> void:
 	native_auto.per_word_delay = 0.0
 	native_auto.per_character_delay = 0.0
 	native_auto.await_playing_voice = false
-	assert_true(native_auto.enabled_until_user_input)
+	# The player preference is now host-owned. Explicit native forced Auto still
+	# exercises the addon's independent callback guard in these regression fixtures.
+	native_auto.enabled_forced = true
+	assert_true(native_auto.enabled_forced)
 
 
 func test_native_fixture_setup_without_skip() -> void:
@@ -849,8 +852,11 @@ func test_mounted_rail_uses_real_skip_and_keeps_unimplemented_owners_disabled() 
 	var skip: Button = rail.get_node("Skip")
 	assert_false(skip.disabled)
 	assert_eq(layer.caption_text.get_node(layer.caption_text.focus_next), skip)
-	assert_eq(skip.get_node(skip.focus_next), layer.caption_text)
-	for command: String in ["History", "Auto", "Save", "Load", "Next"]:
+	var auto: Button = rail.get_node("Auto")
+	assert_false(auto.disabled)
+	assert_eq(skip.get_node(skip.focus_next), auto)
+	assert_eq(auto.get_node(auto.focus_next), layer.caption_text)
+	for command: String in ["History", "Save", "Load", "Next"]:
 		var button: Button = rail.get_node(command)
 		assert_true(button.disabled, command + " has no completed owner yet")
 		assert_eq(button.focus_mode, Control.FOCUS_NONE)
@@ -982,3 +988,163 @@ func test_chinese_initial_mount_keeps_the_installed_run_day_and_palette() -> voi
 	assert_eq(projection.palette, "Midnight")
 	assert_eq(projection.day, 7)
 	assert_eq((layer.transport_rail.get_node("Skip") as Button).text, "\u8df3\u8fc7 \u00b7 \u5173")
+
+
+func _mounted_auto_owner() -> Node:
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return null
+	var owner := layer.get_node_or_null("AutoController")
+	assert_not_null(owner, "the mounted Witnessed scene owns its guarded Auto timer")
+	return owner
+
+
+func _start_mounted_auto(label: String = ENTRY) -> Node:
+	if not _install_fixture_owners_at_root(): return null
+	assert_true(_profile.set_preference(&"preferences.reading.auto_delay", "short").ok)
+	assert_true(_profile.set_preference(&"preferences.reading.auto_enabled", true).ok)
+	if not await _start(label): return null
+	var owner := _mounted_auto_owner()
+	if owner == null: return null
+	assert_false(_runtime.Inputs.auto_advance.enabled_until_user_input,
+		"the native player timer stays neutral while the host owns Auto")
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 3: await get_tree().process_frame
+	owner.set_process(false)
+	assert_true(owner.get("_armed"), "complete reveal arms the registered acknowledged source")
+	return owner
+
+
+func test_mounted_auto_button_commits_on_without_borrowing_normal_accept_or_native_auto() -> void:
+	if not _install_fixture_owners_at_root(): return
+	assert_false(_profile.get_preference(&"preferences.reading.auto_enabled", true))
+	assert_true(_profile.set_preference(&"preferences.reading.auto_delay", "short").ok)
+	if not await _start("auto_sequence"): return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var owner := _mounted_auto_owner()
+	if owner == null: return
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 3: await get_tree().process_frame
+	var auto: Button = layer.transport_rail.get_node("Auto")
+	assert_false(auto.disabled)
+	assert_eq(auto.text, "Auto · Off")
+	var index_before: int = _runtime.current_event_idx
+	var line_before := _current_text_key()
+	auto.grab_focus()
+	await _press_focused_enter()
+	owner.set_process(false)
+	assert_true(_profile.get_preference(&"preferences.reading.auto_enabled", false),
+		"the real Auto rail command commits the Profile-owned mode")
+	assert_true(owner.is_auto_enabled())
+	assert_eq(auto.text, "Auto · On", "the mounted rail projects the committed mode")
+	assert_eq(_runtime.current_event_idx, index_before,
+		"activating Auto is not a normal caption Accept")
+	assert_eq(_current_text_key(), line_before)
+	assert_true(owner.get("_armed"), "the host owner starts the exact line's reading delay")
+	assert_false(_runtime.Inputs.auto_advance.enabled_until_user_input,
+		"rail activation leaves Dialogic's player-owned Auto flag neutral")
+	assert_false(_runtime.Inputs.auto_advance.is_enabled(),
+		"the rail does not borrow Dialogic's forced or one-event Auto owners")
+
+
+func test_mounted_auto_uses_the_host_deadline_to_advance_one_ordinary_line() -> void:
+	var owner := await _start_mounted_auto()
+	if owner == null: return
+	var first_index: int = _runtime.current_event_idx
+	owner.call("_process", 0.0)
+	var remaining: float = owner.get("_remaining")
+	assert_gt(remaining, 0.0)
+	assert_lte(remaining, 1.0)
+	owner.call("_process", maxf(0.0, remaining - 0.01))
+	assert_eq(_runtime.current_event_idx, first_index)
+	owner.call("_process", 0.02)
+	assert_eq(_runtime.current_event_idx, first_index + 1)
+	for frame: int in 4: await get_tree().process_frame
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B)
+	assert_true(_profile.is_line_visited(LINE_B), "the next line publishes normally")
+	owner.call("_process", 10.0)
+	assert_eq(_runtime.current_event_idx, first_index + 1, "old deadline cannot cross the new revealing line")
+
+
+func test_mounted_auto_toggle_preserves_skip_until_its_profile_write_commits() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start(): return
+	var owner := _mounted_auto_owner()
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	layer.call("_on_skip_requested")
+	assert_true(layer.skip_controller.is_skip_active())
+	_fail_next_retryable_profile_write()
+	assert_false(owner.call("toggle_auto").get("ok", true))
+	assert_true(layer.skip_controller.is_skip_active(), "failed Auto On leaves Skip truthful")
+	assert_false(_profile.get_preference(&"preferences.reading.auto_enabled", true))
+	assert_true(owner.call("toggle_auto").get("ok", false))
+	assert_false(layer.skip_controller.is_skip_active(), "committed Auto On stops Skip")
+	assert_true(_profile.get_preference(&"preferences.reading.auto_enabled", false))
+	assert_false(layer.transport_rail.get_node("Auto").disabled)
+
+
+func test_mounted_auto_retains_remaining_delay_while_pause_covers_the_caption() -> void:
+	var owner := await _start_mounted_auto()
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	var first_index: int = _runtime.current_event_idx
+	owner.call("_process", 0.0)
+	owner.call("_process", 0.2)
+	var remaining: float = owner.get("_remaining")
+	var captured: Dictionary = layer.capture_pause_view({"source": "auto-fixture"})
+	assert_true(captured.ok)
+	assert_true(layer.cover_pause_view(captured.value))
+	owner.call("_process", 90.0)
+	assert_eq(_runtime.current_event_idx, first_index)
+	assert_eq(owner.get("_remaining"), remaining)
+	assert_true(layer.restore_pause_view(captured.value))
+	owner.call("_process", 90.0)
+	assert_eq(owner.get("_remaining"), remaining, "the resume delta contains covered time")
+	owner.call("_process", remaining + 0.01)
+	assert_eq(_runtime.current_event_idx, first_index + 1)
+
+
+func test_pause_between_auto_ticks_preserves_remaining_delay_on_resume() -> void:
+	var owner := await _start_mounted_auto()
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	var first_index: int = _runtime.current_event_idx
+	owner.call("_process", 0.0)
+	owner.call("_process", 0.2)
+	var remaining: float = owner.get("_remaining")
+	var captured: Dictionary = layer.capture_pause_view({"source": "auto-between-ticks"})
+	assert_true(captured.ok)
+	assert_true(layer.cover_pause_view(captured.value))
+	# No timer tick occurs while covered: lifecycle signals must suspend it synchronously.
+	assert_true(layer.restore_pause_view(captured.value))
+	owner.call("_process", 90.0)
+	assert_eq(_runtime.current_event_idx, first_index)
+	assert_eq(owner.get("_remaining"), remaining)
+	owner.call("_process", remaining + 0.01)
+	assert_eq(_runtime.current_event_idx, first_index + 1)
+
+
+func test_normal_accept_retires_auto_before_input_then_gives_next_line_a_full_delay() -> void:
+	var owner := await _start_mounted_auto("auto_sequence")
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	owner.call("_process", 0.0)
+	owner.call("_process", 0.7)
+	var old_remaining: float = owner.get("_remaining")
+	var armed_at_accept: Array[bool] = []
+	layer.accept_input.normal_accept_requested.connect(func(): armed_at_accept.append(owner.get("_armed")))
+	_runtime.Inputs.input_block_timer.stop()
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_eq(armed_at_accept, [false], "the old timer retires before native input executes")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B)
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 3: await get_tree().process_frame
+	owner.set_process(false)
+	assert_true(owner.get("_armed"))
+	assert_gt(owner.get("_remaining"), old_remaining + 0.4, "next line receives a fresh full delay")
+	owner.call("_process", old_remaining)
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B)

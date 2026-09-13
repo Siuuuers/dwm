@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$LogPath,
-    [string]$OutputPath
+    [string]$OutputPath,
+    [ValidateSet('Skip', 'Auto')][string]$Control = 'Skip'
 )
 
 Set-StrictMode -Version Latest
@@ -32,9 +33,12 @@ if ($null -eq $ready) { throw "READY_TIMEOUT: $logFull" }
 
 $targetPid = [int]$ready.pid
 $expectedTitle = "DWM Witnessed Transport Accessibility $targetPid"
+$expectedCaption = $Control + ': ' + $Control + ' ' + [char]0x00b7 + ' Off'
 if ($targetPid -le 0 -or [string]$ready.window_title -cne $expectedTitle -or
-    [string]$ready.expected_caption -cne ('Skip: Skip ' + [char]0x00b7 + ' Off') -or -not [bool]$ready.programmatic_pressed_rejected -or
-    [int]$ready.activations -ne 0 -or [int]$ready.physical_contacts -ne 0) {
+    [string]$ready.control -cne $Control -or [string]$ready.expected_caption -cne $expectedCaption -or
+    -not [bool]$ready.programmatic_pressed_rejected -or
+    [int]$ready.activations -ne 0 -or [int]$ready.physical_contacts -ne 0 -or
+    ($Control -ceq 'Auto' -and [bool]$ready.profile_auto_enabled)) {
     throw 'READY_CONTRACT_INVALID'
 }
 
@@ -45,7 +49,9 @@ if ($null -eq $process -or [string]::IsNullOrWhiteSpace([string]$process.Command
 $commandLine = [string]$process.CommandLine
 $scriptArgument = 'res://tests/manual/witnessed_transport_capture.gd'
 if ($commandLine.IndexOf($repositoryRoot, [StringComparison]::OrdinalIgnoreCase) -lt 0 -or
-    $commandLine.IndexOf($scriptArgument, [StringComparison]::Ordinal) -lt 0) {
+    $commandLine.IndexOf($scriptArgument, [StringComparison]::Ordinal) -lt 0 -or
+    $commandLine.IndexOf('--native-invoke', [StringComparison]::Ordinal) -lt 0 -or
+    ($Control -ceq 'Auto' -and $commandLine.IndexOf('--control=Auto', [StringComparison]::Ordinal) -lt 0)) {
     throw "READY_PROCESS_COMMAND_MISMATCH: $targetPid"
 }
 
@@ -88,12 +94,12 @@ if ($null -eq $button) {
     $discovery = ConvertTo-Json -InputObject ([ordered]@{ discovery_only = $true; pid = $targetPid; elements = $observed }) -Depth 5 -Compress
     [IO.File]::WriteAllText($outputFull, $discovery, (New-Object Text.UTF8Encoding($false)))
     [Console]::Out.WriteLine($discovery)
-    throw "UIA_BUTTON_NOT_FOUND: Skip pid=$targetPid"
+    throw "UIA_BUTTON_NOT_FOUND: $Control pid=$targetPid"
 }
 
 $invokeObject = $null
 if (-not $button.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$invokeObject)) {
-    throw "UIA_INVOKE_PATTERN_MISSING: Skip pid=$targetPid"
+    throw "UIA_INVOKE_PATTERN_MISSING: $Control pid=$targetPid"
 }
 $button.SetFocus()
 ([Windows.Automation.InvokePattern]$invokeObject).Invoke()
@@ -102,7 +108,7 @@ $record = [ordered]@{
     schema_version = 1
     invoked_at_utc = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
     source_log_path = $logFull
-    target = [ordered]@{ pid = $targetPid; repository_root = $repositoryRoot; script = $scriptArgument }
+    target = [ordered]@{ pid = $targetPid; repository_root = $repositoryRoot; script = $scriptArgument; control = $Control }
     process = [ordered]@{ process_id = [int]$process.ProcessId; name = [string]$process.Name; command_line = $commandLine }
     window = [ordered]@{ name = [string]$window.Current.Name; process_id = [int]$window.Current.ProcessId; automation_id = [string]$window.Current.AutomationId; native_window_handle = [int64]$nativeProcess.MainWindowHandle; native_title = [string]$nativeProcess.MainWindowTitle }
     element = [ordered]@{ name = [string]$button.Current.Name; reported_process_id = [int]$button.Current.ProcessId; automation_id = [string]$button.Current.AutomationId; control_type = [string]$button.Current.ControlType.ProgrammaticName; enabled = [bool]$button.Current.IsEnabled }

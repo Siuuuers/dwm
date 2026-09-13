@@ -1,0 +1,2733 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/dea67ebb-3d52-4a0c-bd8d-a20e8493e4d5/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_dialogic_preferences.gd
+* test_installed_version_preference_adapter_exists
+* test_dialogic_bridge_exposes_profile_preference_seams
+* test_adapter_maps_profile_values_to_live_caches_without_persistence
+* test_committed_dialogue_apply_failure_latches_shared_gate
+* test_failed_bridge_binding_is_retryable_and_connects_only_after_apply
+* test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once
+6/6 passed.
+
+
+res://tests/unit/test_witnessed_auto_controller.gd
+* test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth
+* test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal
+* test_suspension_preserves_remaining_time_and_skips_the_resume_delta
+* test_source_identity_and_bridge_barriers_fail_closed_without_retry
+* test_preference_changes_and_restore_replace_the_timer_with_one_full_delay
+* test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation
+6/6 passed.
+
+
+res://tests/unit/test_witnessed_transport_rail.gd
+* test_six_controls_cover_the_exact_scaled_native_hit_rectangles
+* test_projection_keeps_placeholders_visible_disabled_and_modes_truthful
+* test_auto_signal_has_its_own_binding_and_final_admission
+* test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates
+* test_materials_use_caption_roles_and_skip_signal_stays_admission_bound
+* test_projection_and_visibility_retire_stale_native_actions_without_steady_state_churn
+* test_missing_catalog_owner_disables_commands_and_invalid_rebind_preserves_labels
+* test_live_catalog_switch_retires_old_input_and_keeps_controls_and_modes
+* test_binding_a_different_catalog_locale_waits_for_the_matching_theme_tuple
+9/9 passed.
+
+
+res://tests/integration/test_dialogic_skip.gd
+* test_bridge_exposes_the_skip_command
+* test_all_text_fast_forwards_through_unread_text
+* test_read_only_stops_at_the_first_unread_line
+* test_read_only_advances_through_previously_visited_text
+* test_visited_is_read_before_it_is_marked
+* test_every_boundary_stops_the_skip_without_being_consumed
+* test_profile_write_failure_halts_advancement
+* test_skip_requires_a_configured_context
+* test_reentrant_reveal_callback_cannot_run_a_second_skip_step
+* test_frontier_moved_during_reveal_cannot_mark_or_advance_another_line
+* test_replaced_runtime_during_visited_publication_cannot_advance
+* test_changed_entry_token_during_reveal_cannot_mark_or_advance
+* test_failed_presentation_acknowledgement_stays_pending_for_exact_retry
+* test_reentrant_presentation_acknowledgement_is_refused
+* test_stale_presentation_frontier_is_refused_before_profile_publication
+* test_replaced_runtime_during_presentation_publication_cannot_acknowledge_new_frontier
+* test_mutation_gate_blocks_ack_but_not_opaque_capture_or_later_exact_retry
+* test_fatal_acknowledgement_latch_survives_frontier_replacement_until_profile_rebind
+* test_auto_step_requires_acknowledged_complete_exact_source
+* test_auto_step_stops_before_every_nontext_boundary_with_preference_on
+* test_auto_step_refuses_off_stale_proof_pause_and_mutation_custody
+21/21 passed.
+
+
+res://tests/integration/test_dialogic_production_skip.gd
+* test_native_fixture_setup_without_skip
+    24 Orphans
+        * [<Timer#1914045466739>]
+        * [<Node#1914263570572>(subsystem_settings.gd)]
+        * [<Node#1913961581101>]
+        * [<Node#1913995135534>(subsystem_backgrounds.gd)]
+        * [<Node#1914028689967>(subsystem_choices.gd)]
+        * [<Node#1914230016572>(subsystem_save.gd)]
+        * [<Node#1914129353306>(subsystem_input.gd)]
+        * [<Node#1914297125467>(subsystem_text.gd)]
+        * [<Node#1914162907744>(subsystem_jump.gd)]
+        * [<Node#1914280348264>(subsystem_styles.gd)]
+        * [<Node#1914095798891>(subsystem_glossary.gd)]
+        * [<Timer#1914246793849>]
+        * [<Node#1914179684986>(subsystem_containers.gd)]
+        * [<Node#1914062244475>(subsystem_expression.gd)]
+        * [<Node#1913944803969>(subsystem_audio.gd)]
+        * [<Node#1914196462238>(subsystem_portraits.gd)]
+        * [<Node#1914112576173>(subsystem_history.gd)]
+        * [<Timer#1914146130620>]
+        * [<Node#1913978358462>]
+        * [<Node#1913928026815>(subsystem_animation.gd)]
+        * [<Node#1914381011662>(subsystem_text_input.gd)]
+        * [<Node#1914397788879>(subsystem_variables.gd)]
+        * [<Node#1914414566096>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#1914431343313>]
+* test_mounted_text_started_durably_acknowledges_registered_line_without_skip
+    24 Orphans
+        * [<Node#2055779388136>(subsystem_animation.gd)]
+        * [<Node#2055796165353>(subsystem_audio.gd)]
+        * [<Node#2055829719786>]
+        * [<Node#2055812942571>]
+        * [<Node#2055913605868>(subsystem_expression.gd)]
+        * [<Timer#2055896828653>]
+        * [<Node#2055880051438>(subsystem_choices.gd)]
+        * [<Node#2055846497007>(subsystem_backgrounds.gd)]
+        * [<Node#2055947160305>(subsystem_glossary.gd)]
+        * [<Node#2055963937522>(subsystem_history.gd)]
+        * [<Node#2055980714739>(subsystem_input.gd)]
+        * [<Timer#2055997491956>]
+        * [<Node#2056081378050>(subsystem_save.gd)]
+        * [<Timer#2056098155267>]
+        * [<Node#2056131709702>(subsystem_styles.gd)]
+        * [<Node#2056148486919>(subsystem_text.gd)]
+        * [<Node#2056232373007>(subsystem_text_input.gd)]
+        * [<Node#2056249150224>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#2056282704659>]
+        * [<Node#2056031046423>(subsystem_containers.gd)]
+        * [<Node#2056047823642>(subsystem_portraits.gd)]
+        * [<Node#2056114932518>(subsystem_settings.gd)]
+        * [<Node#2056265927472>(subsystem_voice.gd)]
+        * [<Node#2056014269236>(subsystem_jump.gd)]
+* test_mounted_read_only_first_activation_preserves_pre_presentation_unread_state
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _process (res://scripts/ui/witnessed/WitnessedSkipController.gd:99)
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _process (res://scripts/ui/witnessed/WitnessedSkipController.gd:99)
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _process (res://scripts/ui/witnessed/WitnessedSkipController.gd:99)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [3] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 317
+    24 Orphans
+        * [<Node#2224121973497>(subsystem_audio.gd)]
+        * [<Node#2224105196286>(subsystem_animation.gd)]
+        * [<Node#2224155527935>]
+        * [<Node#2224138750721>]
+        * [<Node#2224172305157>(subsystem_backgrounds.gd)]
+        * [<Node#2224205859592>(subsystem_choices.gd)]
+        * [<Node#2224272968462>(subsystem_glossary.gd)]
+        * [<Timer#2224222636853>]
+        * [<Node#2224289745718>(subsystem_history.gd)]
+        * [<Node#2224306522935>(subsystem_input.gd)]
+        * [<Node#2224239414072>(subsystem_expression.gd)]
+        * [<Timer#2224323300153>]
+        * [<Node#2224340077370>(subsystem_jump.gd)]
+        * [<Node#2224356854587>(subsystem_containers.gd)]
+        * [<Node#2224457517887>(subsystem_styles.gd)]
+        * [<Node#2224407186243>(subsystem_save.gd)]
+        * [<Timer#2224423963460>]
+        * [<Node#2224474295118>(subsystem_text.gd)]
+        * [<Node#2224574958418>(subsystem_variables.gd)]
+        * [<Node#2224373631832>(subsystem_portraits.gd)]
+        * [<Node#2224440740833>(subsystem_settings.gd)]
+        * [<Node#2224558181415>(subsystem_text_input.gd)]
+        * [<Node#2224591735850>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#2224608513067>]
+* test_duplicate_mounted_presentation_acknowledgement_is_write_free
+    24 Orphans
+        * [<Node#2395417348930>(subsystem_history.gd)]
+        * [<Node#2395434126169>(subsystem_input.gd)]
+        * [<Timer#2395450903386>]
+        * [<Node#2395400571739>(subsystem_glossary.gd)]
+        * [<Node#2395467680604>(subsystem_jump.gd)]
+        * [<Node#2395568344006>(subsystem_settings.gd)]
+        * [<Timer#2395551566796>]
+        * [<Node#2395601898445>(subsystem_text.gd)]
+        * [<Node#2395283131353>]
+        * [<Node#2395232799707>(subsystem_animation.gd)]
+        * [<Node#2395249576925>(subsystem_audio.gd)]
+        * [<Node#2395266354142>]
+        * [<Node#2395299908575>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#2395736116196>]
+        * [<Node#2395685784576>(subsystem_text_input.gd)]
+        * [<Node#2395484457987>(subsystem_containers.gd)]
+        * [<Node#2395367017505>(subsystem_expression.gd)]
+        * [<Timer#2395350240293>]
+        * [<Node#2395333463080>(subsystem_choices.gd)]
+        * [<Node#2395585121324>(subsystem_styles.gd)]
+        * [<Node#2395534789687>(subsystem_save.gd)]
+        * [<Node#2395501235261>(subsystem_portraits.gd)]
+        * [<Node#2395719339073>(subsystem_voice.gd)]
+        * [<Node#2395702561858>(subsystem_variables.gd)]
+* test_explicit_presentation_acknowledgement_refuses_a_stale_frontier
+    24 Orphans
+        * [<Node#2547502812001>(subsystem_animation.gd)]
+        * [<Node#2547804801964>(subsystem_save.gd)]
+        * [<Timer#2547821579182>]
+        * [<Node#2547855133621>(subsystem_styles.gd)]
+        * [<Node#2547871910838>(subsystem_text.gd)]
+        * [<Node#2547536366535>]
+        * [<Node#2547637029832>(subsystem_expression.gd)]
+        * [<Node#2547519589321>(subsystem_audio.gd)]
+        * [<Node#2547553143754>]
+        * [<Timer#2547620252623>]
+        * [<Node#2547737693138>(subsystem_jump.gd)]
+        * [<Node#2547972574164>(subsystem_variables.gd)]
+        * [<Node#2547955796949>(subsystem_text_input.gd)]
+        * [<Node#2547704138726>(subsystem_input.gd)]
+        * [<Timer#2547720915943>]
+        * [<Node#2547771247610>(subsystem_portraits.gd)]
+        * [<AudioStreamPlayer#2548006128635>]
+        * [<Node#2547754470396>(subsystem_containers.gd)]
+        * [<Node#2547670584324>(subsystem_glossary.gd)]
+        * [<Node#2547687361541>(subsystem_history.gd)]
+        * [<Node#2547569921030>(subsystem_backgrounds.gd)]
+        * [<Node#2547838356497>(subsystem_settings.gd)]
+        * [<Node#2547603475524>(subsystem_choices.gd)]
+        * [<Node#2547989351529>(subsystem_voice.gd)]
+* test_failed_mounted_acknowledgement_blocks_normal_accept_until_fresh_retry_commits
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_failed_mounted_acknowledgement_blocks_normal_accept_until_fresh_retry_commits (res://tests/integration/test_dialogic_production_skip.gd:372)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 390
+    24 Orphans
+        * [<Node#2699772824312>(subsystem_backgrounds.gd)]
+        * [<Node#2700007705493>(subsystem_save.gd)]
+        * [<Timer#2700024482714>]
+        * [<Node#2700058037149>(subsystem_styles.gd)]
+        * [<Node#2700074814366>(subsystem_text.gd)]
+        * [<Node#2699722492845>(subsystem_audio.gd)]
+        * [<Node#2699705715633>(subsystem_animation.gd)]
+        * [<Node#2699756047283>]
+        * [<Node#2699739270068>]
+        * [<Node#2699839933367>(subsystem_expression.gd)]
+        * [<Node#2699940596667>(subsystem_jump.gd)]
+        * [<Node#2700041260123>(subsystem_settings.gd)]
+        * [<Node#2699806379106>(subsystem_choices.gd)]
+        * [<Timer#2699923819620>]
+        * [<Node#2699907042405>(subsystem_input.gd)]
+        * [<Node#2699890265190>(subsystem_history.gd)]
+        * [<Node#2700158700651>(subsystem_text_input.gd)]
+        * [<Node#2699957374061>(subsystem_containers.gd)]
+        * [<Node#2700175477871>(subsystem_variables.gd)]
+        * [<Node#2699974151294>(subsystem_portraits.gd)]
+        * [<Node#2699873488000>(subsystem_glossary.gd)]
+        * [<Timer#2699823156357>]
+        * [<AudioStreamPlayer#2700209032374>]
+        * [<Node#2700192255211>(subsystem_voice.gd)]
+* test_failed_mounted_acknowledgement_blocks_zero_delay_native_auto_advance
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_failed_mounted_acknowledgement_blocks_zero_delay_native_auto_advance (res://tests/integration/test_dialogic_production_skip.gd:400)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 410
+    24 Orphans
+        * [<Node#2893147015758>(subsystem_choices.gd)]
+        * [<Timer#2893163793094>]
+        * [<Node#2893348342654>(subsystem_save.gd)]
+        * [<Timer#2893365119876>]
+        * [<Node#2893398674315>(subsystem_styles.gd)]
+        * [<Node#2893415451534>(subsystem_text.gd)]
+        * [<Node#2893096684435>]
+        * [<Node#2893046352788>(subsystem_animation.gd)]
+        * [<Node#2893063130009>(subsystem_audio.gd)]
+        * [<Node#2893079907228>]
+        * [<Node#2893381897119>(subsystem_settings.gd)]
+        * [<Node#2893214125046>(subsystem_glossary.gd)]
+        * [<Node#2893499337720>(subsystem_text_input.gd)]
+        * [<Node#2893113461870>(subsystem_backgrounds.gd)]
+        * [<Node#2893180570751>(subsystem_expression.gd)]
+        * [<Node#2893314788503>(subsystem_portraits.gd)]
+        * [<Timer#2893264456859>]
+        * [<Node#2893247679644>(subsystem_input.gd)]
+        * [<Node#2893230902429>(subsystem_history.gd)]
+        * [<Node#2893516115105>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#2893549669538>]
+        * [<Node#2893298011302>(subsystem_containers.gd)]
+        * [<Node#2893281234134>(subsystem_jump.gd)]
+        * [<Node#2893532892375>(subsystem_voice.gd)]
+* test_failed_acknowledgement_blocks_automatic_choice_open_until_fresh_accept_retry
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_failed_acknowledgement_blocks_automatic_choice_open_until_fresh_accept_retry (res://tests/integration/test_dialogic_production_skip.gd:420)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 438
+    24 Orphans
+        * [<Node#3062898887533>(subsystem_settings.gd)]
+        * [<Node#3062932441967>(subsystem_text.gd)]
+        * [<Node#3062563343223>(subsystem_animation.gd)]
+        * [<Node#3062596897657>]
+        * [<Node#3062580120442>(subsystem_audio.gd)]
+        * [<Node#3062613674883>]
+        * [<Node#3062630452101>(subsystem_backgrounds.gd)]
+        * [<Node#3062915664783>(subsystem_styles.gd)]
+        * [<Node#3062798224291>(subsystem_jump.gd)]
+        * [<Timer#3062882110450>]
+        * [<Node#3063016328180>(subsystem_text_input.gd)]
+        * [<Node#3062664006647>(subsystem_choices.gd)]
+        * [<Node#3063033105512>(subsystem_variables.gd)]
+        * [<Node#3062697561252>(subsystem_expression.gd)]
+        * [<Node#3062865333454>(subsystem_save.gd)]
+        * [<Node#3062764670160>(subsystem_input.gd)]
+        * [<Timer#3062781447377>]
+        * [<Timer#3062680784082>]
+        * [<Node#3062747892948>(subsystem_history.gd)]
+        * [<Node#3062731115733>(subsystem_glossary.gd)]
+        * [<Node#3063049882846>(subsystem_voice.gd)]
+        * [<Node#3062831779040>(subsystem_portraits.gd)]
+        * [<Node#3062815001882>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#3063066660124>]
+* test_failed_acknowledgement_blocks_native_auto_skip_timer_and_choice
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] _on_auto_skip_enable (res://addons/dialogic/Modules/Text/event_text.gd:297)
+       [4] _set_enabled (res://addons/dialogic/Modules/Text/auto_skip.gd:55)
+       [5] test_failed_acknowledgement_blocks_native_auto_skip_timer_and_choice (res://tests/integration/test_dialogic_production_skip.gd:450)
+       [6] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 458
+    24 Orphans
+        * [<Node#3227684703081>(subsystem_animation.gd)]
+        * [<Node#3227701480299>(subsystem_audio.gd)]
+        * [<Node#3227718257516>]
+        * [<Node#3227936361339>(subsystem_containers.gd)]
+        * [<Node#3228053801966>(subsystem_text.gd)]
+        * [<AudioStreamPlayer#3228188019721>]
+        * [<Node#3227751812125>(subsystem_backgrounds.gd)]
+        * [<Node#3227735034910>]
+        * [<Node#3228020247624>(subsystem_settings.gd)]
+        * [<Timer#3228003470416>]
+        * [<Node#3228171242655>(subsystem_voice.gd)]
+        * [<Node#3227818921162>(subsystem_expression.gd)]
+        * [<Timer#3227802143962>]
+        * [<Node#3227852475612>(subsystem_glossary.gd)]
+        * [<Node#3228037025037>(subsystem_styles.gd)]
+        * [<Timer#3227902807314>]
+        * [<Node#3227919584534>(subsystem_jump.gd)]
+        * [<Node#3227785366807>(subsystem_choices.gd)]
+        * [<Node#3227869252888>(subsystem_history.gd)]
+        * [<Node#3227886030105>(subsystem_input.gd)]
+        * [<Node#3227953138976>(subsystem_portraits.gd)]
+        * [<Node#3228154465572>(subsystem_variables.gd)]
+        * [<Node#3227986693414>(subsystem_save.gd)]
+        * [<Node#3228137688406>(subsystem_text_input.gd)]
+* test_failed_acknowledgement_blocks_native_auto_skip_armed_after_text_is_done
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_failed_acknowledgement_blocks_native_auto_skip_armed_after_text_is_done (res://tests/integration/test_dialogic_production_skip.gd:467)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 484
+    24 Orphans
+        * [<Timer#3379686279294>]
+        * [<Node#3379367512977>(subsystem_animation.gd)]
+        * [<Node#3379434621933>(subsystem_backgrounds.gd)]
+        * [<Node#3379619171355>(subsystem_containers.gd)]
+        * [<Node#3379384290379>(subsystem_audio.gd)]
+        * [<Node#3379417844813>]
+        * [<Node#3379736611926>(subsystem_text.gd)]
+        * [<Node#3379703057496>(subsystem_settings.gd)]
+        * [<Node#3379401067634>]
+        * [<Node#3379501731102>(subsystem_expression.gd)]
+        * [<Node#3379468176673>(subsystem_choices.gd)]
+        * [<AudioStreamPlayer#3379870829861>]
+        * [<Node#3379719834951>(subsystem_styles.gd)]
+        * [<Timer#3379585617227>]
+        * [<Node#3379669503309>(subsystem_save.gd)]
+        * [<Node#3379602394447>(subsystem_jump.gd)]
+        * [<Node#3379568840016>(subsystem_input.gd)]
+        * [<Node#3379552062801>(subsystem_history.gd)]
+        * [<Timer#3379484953938>]
+        * [<Node#3379535285587>(subsystem_glossary.gd)]
+        * [<Node#3379854052692>(subsystem_voice.gd)]
+        * [<Node#3379837275479>(subsystem_variables.gd)]
+        * [<Node#3379635948890>(subsystem_portraits.gd)]
+        * [<Node#3379820498409>(subsystem_text_input.gd)]
+* test_canonical_line_without_an_id_retains_native_manual_accept
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_canonical_line_without_an_id_retains_native_manual_accept (res://tests/integration/test_dialogic_production_skip.gd:496)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 500
+    24 Orphans
+        * [<Node#3531285203062>]
+        * [<Node#3531234871418>(subsystem_animation.gd)]
+        * [<Node#3531251649083>(subsystem_audio.gd)]
+        * [<Node#3531503307637>(subsystem_portraits.gd)]
+        * [<Node#3531419421724>(subsystem_history.gd)]
+        * [<Node#3531536862255>(subsystem_save.gd)]
+        * [<Node#3531268426839>]
+        * [<Node#3531486530679>(subsystem_containers.gd)]
+        * [<Node#3531301981320>(subsystem_backgrounds.gd)]
+        * [<Node#3531603971215>(subsystem_text.gd)]
+        * [<Node#3531570416827>(subsystem_settings.gd)]
+        * [<Timer#3531553639653>]
+        * [<Node#3531369090382>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#3531738189145>]
+        * [<Node#3531402644827>(subsystem_glossary.gd)]
+        * [<Node#3531587194236>(subsystem_styles.gd)]
+        * [<Node#3531469753737>(subsystem_jump.gd)]
+        * [<Node#3531335536010>(subsystem_choices.gd)]
+        * [<Timer#3531452976523>]
+        * [<Node#3531436199308>(subsystem_input.gd)]
+        * [<Node#3531721411987>(subsystem_voice.gd)]
+        * [<Node#3531704634772>(subsystem_variables.gd)]
+        * [<Timer#3531352313254>]
+        * [<Node#3531687857703>(subsystem_text_input.gd)]
+* test_canonical_unregistered_line_retains_native_zero_delay_auto
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_canonical_unregistered_line_retains_native_zero_delay_auto (res://tests/integration/test_dialogic_production_skip.gd:511)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 515
+    24 Orphans
+        * [<Node#3684058532889>(subsystem_audio.gd)]
+        * [<Node#3684092087367>]
+        * [<Node#3684226305142>(subsystem_history.gd)]
+        * [<Node#3684175973546>(subsystem_expression.gd)]
+        * [<Node#3684041755834>(subsystem_animation.gd)]
+        * [<Node#3684075310268>]
+        * [<Node#3684108864737>(subsystem_backgrounds.gd)]
+        * [<Node#3684394077438>(subsystem_styles.gd)]
+        * [<Node#3684377300266>(subsystem_settings.gd)]
+        * [<Timer#3684360523074>]
+        * [<Timer#3684159196557>]
+        * [<Node#3684209528216>(subsystem_glossary.gd)]
+        * [<Node#3684276637131>(subsystem_jump.gd)]
+        * [<Timer#3684259859917>]
+        * [<Node#3684142419406>(subsystem_choices.gd)]
+        * [<Node#3684243082703>(subsystem_input.gd)]
+        * [<Node#3684511518389>(subsystem_variables.gd)]
+        * [<Node#3684410855096>(subsystem_text.gd)]
+        * [<AudioStreamPlayer#3684545072825>]
+        * [<Node#3684528295610>(subsystem_voice.gd)]
+        * [<Node#3684494741191>(subsystem_text_input.gd)]
+        * [<Node#3684310191841>(subsystem_portraits.gd)]
+        * [<Node#3684343746275>(subsystem_save.gd)]
+        * [<Node#3684293414762>(subsystem_containers.gd)]
+* test_registered_wrong_owner_blocks_native_auto_and_manual_accept
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_registered_wrong_owner_blocks_native_auto_and_manual_accept (res://tests/integration/test_dialogic_production_skip.gd:525)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 537
+    24 Orphans
+        * [<Node#3841462373638>(subsystem_styles.gd)]
+        * [<Timer#3841227492801>]
+        * [<Node#3841160383939>]
+        * [<Node#3841143606728>]
+        * [<Node#3841110052326>(subsystem_animation.gd)]
+        * [<Node#3841126829544>(subsystem_audio.gd)]
+        * [<Node#3841596591613>(subsystem_voice.gd)]
+        * [<Node#3841378487814>(subsystem_portraits.gd)]
+        * [<Node#3841445596700>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#3841613368862>]
+        * [<Node#3841361710643>(subsystem_containers.gd)]
+        * [<Timer#3841428819538>]
+        * [<Node#3841479151187>(subsystem_text.gd)]
+        * [<Node#3841563037275>(subsystem_text_input.gd)]
+        * [<Node#3841579814492>(subsystem_variables.gd)]
+        * [<Node#3841244270181>(subsystem_expression.gd)]
+        * [<Node#3841412042410>(subsystem_save.gd)]
+        * [<Node#3841177161394>(subsystem_backgrounds.gd)]
+        * [<Timer#3841328156365>]
+        * [<Node#3841294601944>(subsystem_history.gd)]
+        * [<Node#3841344933594>(subsystem_jump.gd)]
+        * [<Node#3841311379163>(subsystem_input.gd)]
+        * [<Node#3841210715868>(subsystem_choices.gd)]
+        * [<Node#3841277824733>(subsystem_glossary.gd)]
+* test_mounted_rehearsal_text_started_never_mutates_the_root_profile
+    24 Orphans
+        * [<Node#3992390208566>(subsystem_animation.gd)]
+        * [<Node#3992423763375>]
+        * [<Timer#3992507649465>]
+        * [<Timer#3992608312763>]
+        * [<Node#3992557981118>(subsystem_glossary.gd)]
+        * [<Node#3992591535551>(subsystem_input.gd)]
+        * [<Node#3992490872256>(subsystem_choices.gd)]
+        * [<Node#3992406986196>(subsystem_audio.gd)]
+        * [<Node#3992524426721>(subsystem_expression.gd)]
+        * [<Node#3992574758383>(subsystem_history.gd)]
+        * [<Node#3992625090066>(subsystem_jump.gd)]
+        * [<Node#3992457317909>(subsystem_backgrounds.gd)]
+        * [<Node#3992440540728>]
+        * [<Node#3992725753406>(subsystem_settings.gd)]
+        * [<Timer#3992708976191>]
+        * [<Node#3992759307869>(subsystem_text.gd)]
+        * [<Node#3992876748399>(subsystem_voice.gd)]
+        * [<Node#3992658644595>(subsystem_portraits.gd)]
+        * [<Node#3992641867389>(subsystem_containers.gd)]
+        * [<Node#3992859971225>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#3992893525658>]
+        * [<Node#3992692199067>(subsystem_save.gd)]
+        * [<Node#3992742530904>(subsystem_styles.gd)]
+        * [<Node#3992843194265>(subsystem_text_input.gd)]
+* test_native_fixture_binding_without_playback
+    24 Orphans
+        * [<Timer#4137781562389>]
+        * [<Node#4137798340020>(subsystem_jump.gd)]
+        * [<Node#4138049998263>(subsystem_voice.gd)]
+        * [<Node#4137899003325>(subsystem_settings.gd)]
+        * [<Node#4137815117328>(subsystem_containers.gd)]
+        * [<Node#4137831894550>(subsystem_portraits.gd)]
+        * [<Node#4137915780644>(subsystem_styles.gd)]
+        * [<Node#4137580236346>(subsystem_audio.gd)]
+        * [<Node#4137613790779>]
+        * [<Node#4137597013565>]
+        * [<Timer#4137680899649>]
+        * [<AudioStreamPlayer#4138066775622>]
+        * [<Node#4138033221191>(subsystem_variables.gd)]
+        * [<Node#4138016443976>(subsystem_text_input.gd)]
+        * [<Node#4137563459167>(subsystem_animation.gd)]
+        * [<Node#4137697676897>(subsystem_expression.gd)]
+        * [<Node#4137731231353>(subsystem_glossary.gd)]
+        * [<Node#4137748008574>(subsystem_history.gd)]
+        * [<Timer#4137882226305>]
+        * [<Node#4137865449096>(subsystem_save.gd)]
+        * [<Node#4137664122520>(subsystem_choices.gd)]
+        * [<Node#4137764785827>(subsystem_input.gd)]
+        * [<Node#4137630568102>(subsystem_backgrounds.gd)]
+        * [<Node#4137932558052>(subsystem_text.gd)]
+* test_read_only_reveals_persists_and_only_then_advances
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] test_read_only_reveals_persists_and_only_then_advances (res://tests/integration/test_dialogic_production_skip.gd:574)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] test_read_only_reveals_persists_and_only_then_advances (res://tests/integration/test_dialogic_production_skip.gd:590)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] test_read_only_reveals_persists_and_only_then_advances (res://tests/integration/test_dialogic_production_skip.gd:597)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [3] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 601
+    24 Orphans
+        * [<Node#4261026991097>(subsystem_portraits.gd)]
+        * [<Node#4260775332915>(subsystem_audio.gd)]
+        * [<Node#4261127654567>(subsystem_text.gd)]
+        * [<Node#4260959882555>(subsystem_input.gd)]
+        * [<Timer#4260875996537>]
+        * [<Node#4260859219379>(subsystem_choices.gd)]
+        * [<Node#4260926328283>(subsystem_glossary.gd)]
+        * [<Node#4260943105593>(subsystem_history.gd)]
+        * [<Node#4260792110665>]
+        * [<Node#4260758556268>(subsystem_animation.gd)]
+        * [<Node#4261110877839>(subsystem_styles.gd)]
+        * [<Node#4261060546193>(subsystem_save.gd)]
+        * [<Timer#4261077323410>]
+        * [<Node#4260993437332>(subsystem_jump.gd)]
+        * [<Node#4261010214549>(subsystem_containers.gd)]
+        * [<Timer#4260976660118>]
+        * [<Node#4261094100631>(subsystem_settings.gd)]
+        * [<Node#4260825665253>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#4261261872914>]
+        * [<Node#4261245095700>(subsystem_voice.gd)]
+        * [<Node#4261228318485>(subsystem_variables.gd)]
+        * [<Node#4261211541270>(subsystem_text_input.gd)]
+        * [<Node#4260808888109>]
+        * [<Node#4260892774210>(subsystem_expression.gd)]
+* test_live_all_text_preference_advances_and_read_only_takes_effect_immediately
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] test_live_all_text_preference_advances_and_read_only_takes_effect_immediately (res://tests/integration/test_dialogic_production_skip.gd:608)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] test_live_all_text_preference_advances_and_read_only_takes_effect_immediately (res://tests/integration/test_dialogic_production_skip.gd:616)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 621
+    24 Orphans
+        * [<Node#4443898645813>(subsystem_save.gd)]
+        * [<Node#4444049640758>(subsystem_text_input.gd)]
+        * [<Timer#4443915423034>]
+        * [<Node#4443630210791>]
+        * [<Node#4443663765224>(subsystem_backgrounds.gd)]
+        * [<Node#4443697319657>(subsystem_choices.gd)]
+        * [<Timer#4443814760170>]
+        * [<Node#4443831537387>(subsystem_jump.gd)]
+        * [<Node#4443848314604>(subsystem_containers.gd)]
+        * [<Node#4443596656383>(subsystem_animation.gd)]
+        * [<Node#4443613433600>(subsystem_audio.gd)]
+        * [<Node#4443646988033>]
+        * [<Node#4443764428546>(subsystem_glossary.gd)]
+        * [<Node#4443730874116>(subsystem_expression.gd)]
+        * [<Timer#4443714096901>]
+        * [<Node#4443781205766>(subsystem_history.gd)]
+        * [<Node#4443797982983>(subsystem_input.gd)]
+        * [<Node#4443948977933>(subsystem_styles.gd)]
+        * [<Node#4443865091877>(subsystem_portraits.gd)]
+        * [<Node#4444066418472>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#4444099972919>]
+        * [<Node#4444083195705>(subsystem_voice.gd)]
+        * [<Node#4443932200765>(subsystem_settings.gd)]
+        * [<Node#4443965755211>(subsystem_text.gd)]
+* test_choice_stops_during_reveal_then_normal_next_opens_it
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] test_choice_stops_during_reveal_then_normal_next_opens_it (res://tests/integration/test_dialogic_production_skip.gd:647)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 657
+    24 Orphans
+        * [<Node#4641567804155>(subsystem_save.gd)]
+        * [<Node#4641752353664>(subsystem_voice.gd)]
+        * [<Node#4641299369223>]
+        * [<Node#4641332923687>(subsystem_backgrounds.gd)]
+        * [<Node#4641400032611>(subsystem_expression.gd)]
+        * [<Node#4641282592213>(subsystem_audio.gd)]
+        * [<Node#4641500696079>(subsystem_jump.gd)]
+        * [<Node#4641316146769>]
+        * [<Timer#4641584582250>]
+        * [<Node#4641265815279>(subsystem_animation.gd)]
+        * [<Node#4641601359602>(subsystem_settings.gd)]
+        * [<Timer#4641383255831>]
+        * [<Node#4641534250777>(subsystem_portraits.gd)]
+        * [<Node#4641517473565>(subsystem_containers.gd)]
+        * [<Node#4641618136863>(subsystem_styles.gd)]
+        * [<Timer#4641483919137>]
+        * [<Node#4641450364706>(subsystem_history.gd)]
+        * [<Node#4641467141923>(subsystem_input.gd)]
+        * [<Node#4641433587508>(subsystem_glossary.gd)]
+        * [<Node#4641366478651>(subsystem_choices.gd)]
+        * [<Node#4641634914244>(subsystem_text.gd)]
+        * [<Node#4641718800331>(subsystem_text_input.gd)]
+        * [<Node#4641735577548>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#4641769131981>]
+* test_default_adapter_reveal_retains_native_next_behavior
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] test_default_adapter_reveal_retains_native_next_behavior (res://tests/integration/test_dialogic_production_skip.gd:664)
+       [5] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 667
+    24 Orphans
+        * [<Node#4807477693352>]
+        * [<Node#4807695797363>(subsystem_containers.gd)]
+        * [<Node#4807494470794>]
+        * [<Node#4807645465785>(subsystem_input.gd)]
+        * [<Timer#4807662243005>]
+        * [<Node#4807746129254>(subsystem_save.gd)]
+        * [<Node#4807712574823>(subsystem_portraits.gd)]
+        * [<Node#4807779683702>(subsystem_settings.gd)]
+        * [<Node#4807511248279>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#4807947456002>]
+        * [<Node#4807460916748>(subsystem_audio.gd)]
+        * [<Node#4807628688970>(subsystem_history.gd)]
+        * [<Timer#4807561580107>]
+        * [<Node#4807611911756>(subsystem_glossary.gd)]
+        * [<Node#4807897124492>(subsystem_text_input.gd)]
+        * [<Node#4807796461197>(subsystem_styles.gd)]
+        * [<Node#4807679020790>(subsystem_jump.gd)]
+        * [<Node#4807544803102>(subsystem_choices.gd)]
+        * [<Node#4807444139808>(subsystem_animation.gd)]
+        * [<Timer#4807762907038>]
+        * [<Node#4807578357705>(subsystem_expression.gd)]
+        * [<Node#4807930679268>(subsystem_voice.gd)]
+        * [<Node#4807913902053>(subsystem_variables.gd)]
+        * [<Node#4807813238764>(subsystem_text.gd)]
+* test_effect_signal_stops_before_execution
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _assert_stopped_boundary (res://tests/integration/test_dialogic_production_skip.gd:630)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 671
+    24 Orphans
+        * [<Node#4945285745804>(subsystem_voice.gd)]
+        * [<Node#4945151528168>(subsystem_styles.gd)]
+        * [<Node#4944899870021>(subsystem_choices.gd)]
+        * [<Node#4945050865190>(subsystem_containers.gd)]
+        * [<Node#4944966979118>(subsystem_glossary.gd)]
+        * [<Node#4945134751458>(subsystem_settings.gd)]
+        * [<Node#4945168305918>(subsystem_text.gd)]
+        * [<Timer#4944916647690>]
+        * [<Timer#4945017310988>]
+        * [<Node#4945034088216>(subsystem_jump.gd)]
+        * [<Node#4945101197120>(subsystem_save.gd)]
+        * [<Node#4945067642693>(subsystem_portraits.gd)]
+        * [<Node#4944983756622>(subsystem_history.gd)]
+        * [<Node#4945000533864>(subsystem_input.gd)]
+        * [<Node#4944832761756>]
+        * [<Node#4944849538975>]
+        * [<Node#4944815984545>(subsystem_audio.gd)]
+        * [<Node#4944799207333>(subsystem_animation.gd)]
+        * [<Timer#4945117974449>]
+        * [<Node#4945268969424>(subsystem_variables.gd)]
+        * [<Node#4944933425121>(subsystem_expression.gd)]
+        * [<Node#4944866316270>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#4945302523914>]
+        * [<Node#4945252192267>(subsystem_text_input.gd)]
+* test_variable_signal_stops_before_execution
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _assert_stopped_boundary (res://tests/integration/test_dialogic_production_skip.gd:630)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 675
+    24 Orphans
+        * [<Node#5110960753858>(subsystem_glossary.gd)]
+        * [<Node#5110927199764>(subsystem_expression.gd)]
+        * [<Timer#5111111749204>]
+        * [<Node#5110860091019>(subsystem_backgrounds.gd)]
+        * [<Node#5110792982213>(subsystem_animation.gd)]
+        * [<Node#5111162081118>(subsystem_text.gd)]
+        * [<Node#5111044640684>(subsystem_containers.gd)]
+        * [<Node#5110826536882>]
+        * [<Node#5110843314099>]
+        * [<Node#5110809759668>(subsystem_audio.gd)]
+        * [<Node#5110893645755>(subsystem_choices.gd)]
+        * [<Node#5111094972414>(subsystem_save.gd)]
+        * [<Node#5111061417983>(subsystem_portraits.gd)]
+        * [<Node#5111027863555>(subsystem_jump.gd)]
+        * [<Timer#5111011086340>]
+        * [<Node#5110994309126>(subsystem_input.gd)]
+        * [<Timer#5110910423047>]
+        * [<Node#5110977531912>(subsystem_history.gd)]
+        * [<Node#5111262744597>(subsystem_variables.gd)]
+        * [<Node#5111279521814>(subsystem_voice.gd)]
+        * [<Node#5111128526883>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#5111296299084>]
+        * [<Node#5111145304146>(subsystem_styles.gd)]
+        * [<Node#5111245967443>(subsystem_text_input.gd)]
+* test_return_stops_before_departure
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _assert_stopped_boundary (res://tests/integration/test_dialogic_production_skip.gd:630)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 679
+    24 Orphans
+        * [<Node#5277155855409>(subsystem_containers.gd)]
+        * [<Node#5276954529074>]
+        * [<Node#5276904197717>(subsystem_animation.gd)]
+        * [<Node#5277239742123>(subsystem_settings.gd)]
+        * [<Node#5277273296594>(subsystem_text.gd)]
+        * [<Node#5276971306822>(subsystem_backgrounds.gd)]
+        * [<Node#5276937752393>]
+        * [<Node#5277105524572>(subsystem_input.gd)]
+        * [<Timer#5277222965125>]
+        * [<Node#5276920975254>(subsystem_audio.gd)]
+        * [<Node#5277088747435>(subsystem_history.gd)]
+        * [<Node#5277071970304>(subsystem_glossary.gd)]
+        * [<Node#5277038415892>(subsystem_expression.gd)]
+        * [<Timer#5277021638680>]
+        * [<Node#5277206188101>(subsystem_save.gd)]
+        * [<Node#5277172633670>(subsystem_portraits.gd)]
+        * [<Node#5277139079242>(subsystem_jump.gd)]
+        * [<Timer#5277122302027>]
+        * [<Node#5277004861517>(subsystem_choices.gd)]
+        * [<Node#5277373960282>(subsystem_variables.gd)]
+        * [<Node#5277390737504>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#5277407514772>]
+        * [<Node#5277357183125>(subsystem_text_input.gd)]
+        * [<Node#5277256519831>(subsystem_styles.gd)]
+* test_unknown_wait_stops_as_validation_error
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _assert_stopped_boundary (res://tests/integration/test_dialogic_production_skip.gd:630)
+       [7] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 683
+    24 Orphans
+        * [<Node#5443183184948>(subsystem_history.gd)]
+        * [<Timer#5443317403104>]
+        * [<Node#5443334180724>(subsystem_settings.gd)]
+        * [<Node#5442998636415>(subsystem_animation.gd)]
+        * [<Node#5443032190851>]
+        * [<Node#5443065745284>(subsystem_backgrounds.gd)]
+        * [<Node#5443250294671>(subsystem_containers.gd)]
+        * [<Node#5443048968084>]
+        * [<Node#5443015413666>(subsystem_audio.gd)]
+        * [<Node#5443199963050>(subsystem_input.gd)]
+        * [<Node#5443166408775>(subsystem_glossary.gd)]
+        * [<Node#5443132854357>(subsystem_expression.gd)]
+        * [<Timer#5443116077148>]
+        * [<Node#5443300626569>(subsystem_save.gd)]
+        * [<Node#5443267072138>(subsystem_portraits.gd)]
+        * [<Node#5443233517710>(subsystem_jump.gd)]
+        * [<Timer#5443216740496>]
+        * [<Node#5443099299985>(subsystem_choices.gd)]
+        * [<Node#5443485175969>(subsystem_voice.gd)]
+        * [<Node#5443468398754>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#5443501953230>]
+        * [<Node#5443350958292>(subsystem_styles.gd)]
+        * [<Node#5443451621589>(subsystem_text_input.gd)]
+        * [<Node#5443367735542>(subsystem_text.gd)]
+* test_no_id_refuses_without_history_write
+    24 Orphans
+        * [<Node#5609294401274>(subsystem_input.gd)]
+        * [<Node#5609093074799>(subsystem_animation.gd)]
+        * [<Node#5609143406448>]
+        * [<Node#5609126629233>]
+        * [<Node#5609160183666>(subsystem_backgrounds.gd)]
+        * [<Node#5609462173563>(subsystem_text.gd)]
+        * [<Node#5609344733058>(subsystem_containers.gd)]
+        * [<Node#5609428619142>(subsystem_settings.gd)]
+        * [<Node#5609277624208>(subsystem_history.gd)]
+        * [<Node#5609109852080>(subsystem_audio.gd)]
+        * [<Timer#5609411841983>]
+        * [<Node#5609260847243>(subsystem_glossary.gd)]
+        * [<Node#5609227292824>(subsystem_expression.gd)]
+        * [<Timer#5609210515613>]
+        * [<Node#5609395065031>(subsystem_save.gd)]
+        * [<Node#5609361510600>(subsystem_portraits.gd)]
+        * [<Node#5609327956172>(subsystem_jump.gd)]
+        * [<Timer#5609311178957>]
+        * [<Node#5609193738447>(subsystem_choices.gd)]
+        * [<Node#5609579614428>(subsystem_voice.gd)]
+        * [<Node#5609562837213>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#5609596391700>]
+        * [<Node#5609546060053>(subsystem_text_input.gd)]
+        * [<Node#5609445396759>(subsystem_styles.gd)]
+* test_unregistered_id_refuses_without_history_write
+    24 Orphans
+        * [<Node#5746834017600>(subsystem_styles.gd)]
+        * [<Node#5746716577177>(subsystem_jump.gd)]
+        * [<Node#5746498473496>(subsystem_audio.gd)]
+        * [<Node#5746666245764>(subsystem_history.gd)]
+        * [<Node#5746481696429>(subsystem_animation.gd)]
+        * [<Node#5746532028153>]
+        * [<Timer#5746800463734>]
+        * [<Node#5746649468793>(subsystem_glossary.gd)]
+        * [<Node#5746515251132>]
+        * [<Node#5746783686641>(subsystem_save.gd)]
+        * [<Timer#5746599137498>]
+        * [<Node#5746582360286>(subsystem_choices.gd)]
+        * [<Node#5746615914727>(subsystem_expression.gd)]
+        * [<Node#5746750132488>(subsystem_portraits.gd)]
+        * [<Node#5746733355273>(subsystem_containers.gd)]
+        * [<Timer#5746699800846>]
+        * [<Node#5746683023631>(subsystem_input.gd)]
+        * [<Node#5746548805904>(subsystem_backgrounds.gd)]
+        * [<Node#5746850795803>(subsystem_text.gd)]
+        * [<Node#5746951459101>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#5746985013534>]
+        * [<Node#5746934681887>(subsystem_text_input.gd)]
+        * [<Node#5746968236369>(subsystem_voice.gd)]
+        * [<Node#5746817241428>(subsystem_settings.gd)]
+* test_registered_cross_owner_id_refuses_without_history_write
+    24 Orphans
+        * [<Node#5884088422019>(subsystem_jump.gd)]
+        * [<Node#5884155531197>(subsystem_save.gd)]
+        * [<Node#5884189085680>(subsystem_settings.gd)]
+        * [<Node#5883903873013>]
+        * [<Node#5883870318582>(subsystem_audio.gd)]
+        * [<Node#5883853541405>(subsystem_animation.gd)]
+        * [<Node#5884021313608>(subsystem_glossary.gd)]
+        * [<Node#5883920650501>(subsystem_backgrounds.gd)]
+        * [<Node#5883987759382>(subsystem_expression.gd)]
+        * [<Timer#5883970982176>]
+        * [<Node#5883887096113>]
+        * [<Node#5884121977156>(subsystem_portraits.gd)]
+        * [<Node#5884105199941>(subsystem_containers.gd)]
+        * [<Timer#5884071645513>]
+        * [<Node#5884054868299>(subsystem_input.gd)]
+        * [<Node#5884038091084>(subsystem_history.gd)]
+        * [<Node#5883954205005>(subsystem_choices.gd)]
+        * [<Node#5884222640467>(subsystem_text.gd)]
+        * [<Node#5884205863256>(subsystem_styles.gd)]
+        * [<Node#5884306526554>(subsystem_text_input.gd)]
+        * [<Node#5884323303771>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#5884356858216>]
+        * [<Timer#5884172308846>]
+        * [<Node#5884340081037>(subsystem_voice.gd)]
+* test_skip_availability_reads_without_revealing_or_writing
+    24 Orphans
+        * [<Node#6021678370146>(subsystem_text_input.gd)]
+        * [<Node#6021258940073>]
+        * [<Node#6021560930338>(subsystem_settings.gd)]
+        * [<Node#6021242163255>(subsystem_audio.gd)]
+        * [<Node#6021275717688>]
+        * [<Node#6021225386082>(subsystem_animation.gd)]
+        * [<Node#6021527375997>(subsystem_save.gd)]
+        * [<Node#6021695148196>(subsystem_variables.gd)]
+        * [<Node#6021460267210>(subsystem_jump.gd)]
+        * [<Node#6021292495174>(subsystem_backgrounds.gd)]
+        * [<Node#6021359604057>(subsystem_expression.gd)]
+        * [<Timer#6021342826847>]
+        * [<AudioStreamPlayer#6021728702848>]
+        * [<Node#6021493821825>(subsystem_portraits.gd)]
+        * [<Node#6021477044610>(subsystem_containers.gd)]
+        * [<Timer#6021443490182>]
+        * [<Node#6021426712967>(subsystem_input.gd)]
+        * [<Node#6021409935753>(subsystem_history.gd)]
+        * [<Node#6021326049674>(subsystem_choices.gd)]
+        * [<Node#6021393158539>(subsystem_glossary.gd)]
+        * [<Node#6021577707927>(subsystem_styles.gd)]
+        * [<Node#6021594485148>(subsystem_text.gd)]
+        * [<Timer#6021544153510>]
+        * [<Node#6021711925702>(subsystem_voice.gd)]
+* test_rehearsal_has_no_skip_history_mutation
+    24 Orphans
+        * [<Node#6162455990258>]
+        * [<Node#6162707648601>(subsystem_save.gd)]
+        * [<Node#6162741203047>(subsystem_settings.gd)]
+        * [<Node#6162422435963>(subsystem_audio.gd)]
+        * [<Node#6162405658751>(subsystem_animation.gd)]
+        * [<Node#6162757980462>(subsystem_styles.gd)]
+        * [<Node#6162472767875>(subsystem_backgrounds.gd)]
+        * [<Node#6162439213462>]
+        * [<Timer#6162523099544>]
+        * [<Node#6162539876763>(subsystem_expression.gd)]
+        * [<Node#6162674094523>(subsystem_portraits.gd)]
+        * [<Timer#6162724426174>]
+        * [<Node#6162657317311>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#6162908975554>]
+        * [<Timer#6162623762883>]
+        * [<Node#6162606985668>(subsystem_input.gd)]
+        * [<Node#6162590208453>(subsystem_history.gd)]
+        * [<Node#6162506322375>(subsystem_choices.gd)]
+        * [<Node#6162573431240>(subsystem_glossary.gd)]
+        * [<Node#6162774757839>(subsystem_text.gd)]
+        * [<Node#6162858643926>(subsystem_text_input.gd)]
+        * [<Node#6162875421143>(subsystem_variables.gd)]
+        * [<Node#6162892198407>(subsystem_voice.gd)]
+        * [<Node#6162640540194>(subsystem_jump.gd)]
+* test_late_transport_configuration_acknowledges_visible_canonical_line_once
+    24 Orphans
+        * [<Node#6303703371640>(subsystem_text.gd)]
+        * [<Node#6303351050298>(subsystem_audio.gd)]
+        * [<Node#6303367827519>]
+        * [<Node#6303669817514>(subsystem_settings.gd)]
+        * [<Node#6303384604857>]
+        * [<Node#6303334273211>(subsystem_animation.gd)]
+        * [<Node#6303636263163>(subsystem_save.gd)]
+        * [<Node#6303401382336>(subsystem_backgrounds.gd)]
+        * [<Node#6303468491221>(subsystem_expression.gd)]
+        * [<Timer#6303451714009>]
+        * [<Node#6303585931770>(subsystem_containers.gd)]
+        * [<Node#6303602708987>(subsystem_portraits.gd)]
+        * [<Node#6303535600124>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#6303837590014>]
+        * [<Timer#6303653040639>]
+        * [<Timer#6303552377344>]
+        * [<Node#6303518822913>(subsystem_history.gd)]
+        * [<Node#6303434936834>(subsystem_choices.gd)]
+        * [<Node#6303502045699>(subsystem_glossary.gd)]
+        * [<Node#6303804035597>(subsystem_variables.gd)]
+        * [<Node#6303686595088>(subsystem_styles.gd)]
+        * [<Node#6303787258386>(subsystem_text_input.gd)]
+        * [<Node#6303820812864>(subsystem_voice.gd)]
+        * [<Node#6303569154651>(subsystem_jump.gd)]
+* test_ancestor_hidden_text_started_waits_for_visible_fresh_accept
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_ancestor_hidden_text_started_waits_for_visible_fresh_accept (res://tests/integration/test_dialogic_production_skip.gd:769)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_ancestor_hidden_text_started_waits_for_visible_fresh_accept (res://tests/integration/test_dialogic_production_skip.gd:788)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 792
+    24 Orphans
+        * [<Node#6455537176089>(subsystem_styles.gd)]
+        * [<Node#6455201632380>(subsystem_audio.gd)]
+        * [<Node#6455218409601>]
+        * [<Node#6455520399592>(subsystem_settings.gd)]
+        * [<Node#6455235186938>]
+        * [<Node#6455184855293>(subsystem_animation.gd)]
+        * [<Node#6455486845240>(subsystem_save.gd)]
+        * [<Node#6455419736492>(subsystem_jump.gd)]
+        * [<Node#6455251964409>(subsystem_backgrounds.gd)]
+        * [<Node#6455319073295>(subsystem_expression.gd)]
+        * [<Timer#6455302296084>]
+        * [<Node#6455436513843>(subsystem_containers.gd)]
+        * [<Node#6455453291060>(subsystem_portraits.gd)]
+        * [<Node#6455386182197>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#6455688172087>]
+        * [<Timer#6455503622712>]
+        * [<Timer#6455402959417>]
+        * [<Node#6455369404986>(subsystem_history.gd)]
+        * [<Node#6455285518907>(subsystem_choices.gd)]
+        * [<Node#6455352627772>(subsystem_glossary.gd)]
+        * [<Node#6455553954377>(subsystem_text.gd)]
+        * [<Node#6455637840459>(subsystem_text_input.gd)]
+        * [<Node#6455654617680>(subsystem_variables.gd)]
+        * [<Node#6455671394938>(subsystem_voice.gd)]
+* test_source_cleared_during_normal_accept_rejects_old_caption_proof
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_source_cleared_during_normal_accept_rejects_old_caption_proof (res://tests/integration/test_dialogic_production_skip.gd:803)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 814
+    24 Orphans
+        * [<Node#6630741643217>(subsystem_styles.gd)]
+        * [<Node#6630640979928>(subsystem_containers.gd)]
+        * [<Node#6630439653564>]
+        * [<Node#6630456430783>(subsystem_backgrounds.gd)]
+        * [<Node#6630422876471>]
+        * [<Node#6630406099258>(subsystem_audio.gd)]
+        * [<Node#6630389322080>(subsystem_animation.gd)]
+        * [<Timer#6630708089268>]
+        * [<Node#6630657757664>(subsystem_portraits.gd)]
+        * [<Node#6630489985586>(subsystem_choices.gd)]
+        * [<Node#6630523540065>(subsystem_expression.gd)]
+        * [<Node#6630624203374>(subsystem_jump.gd)]
+        * [<Timer#6630607426163>]
+        * [<Node#6630590648948>(subsystem_input.gd)]
+        * [<Timer#6630506762869>]
+        * [<Node#6630573871735>(subsystem_history.gd)]
+        * [<Node#6630557094520>(subsystem_glossary.gd)]
+        * [<Node#6630859084420>(subsystem_variables.gd)]
+        * [<Node#6630875861641>(subsystem_voice.gd)]
+        * [<Node#6630758421180>(subsystem_text.gd)]
+        * [<Node#6630724866862>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#6630892639078>]
+        * [<Node#6630842307433>(subsystem_text_input.gd)]
+        * [<Node#6630691312516>(subsystem_save.gd)]
+* test_source_replacement_announced_during_accept_cancels_old_caption_before_generation_change
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_source_replacement_announced_during_accept_cancels_old_caption_before_generation_change (res://tests/integration/test_dialogic_production_skip.gd:825)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 835
+    24 Orphans
+        * [<Node#6782827106366>(subsystem_audio.gd)]
+        * [<Node#6782860660928>]
+        * [<Timer#6783028433155>]
+        * [<Timer#6782927769894>]
+        * [<Node#6782944547114>(subsystem_expression.gd)]
+        * [<Node#6782910993042>(subsystem_choices.gd)]
+        * [<Node#6782994879156>(subsystem_history.gd)]
+        * [<Node#6783011656373>(subsystem_input.gd)]
+        * [<Node#6782810329784>(subsystem_animation.gd)]
+        * [<Node#6782843884218>]
+        * [<Node#6783263314680>(subsystem_text_input.gd)]
+        * [<Node#6783162651460>(subsystem_styles.gd)]
+        * [<Node#6783112319816>(subsystem_save.gd)]
+        * [<Node#6783078765387>(subsystem_portraits.gd)]
+        * [<Node#6783296869198>(subsystem_voice.gd)]
+        * [<Node#6783280091983>(subsystem_variables.gd)]
+        * [<Node#6783179428694>(subsystem_text.gd)]
+        * [<Node#6783145874264>(subsystem_settings.gd)]
+        * [<Timer#6783129097049>]
+        * [<Node#6782978102106>(subsystem_glossary.gd)]
+        * [<Node#6782877438811>(subsystem_backgrounds.gd)]
+        * [<Node#6783045211002>(subsystem_jump.gd)]
+        * [<Node#6783061988323>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#6783313646566>]
+* test_mounted_rail_uses_real_skip_and_keeps_unimplemented_owners_disabled
+    [Failed]:  [Auto:<Button#6947730363058>(WitnessedTransportButton.gd)] expected to equal [Caption:<RichTextLabel#6944140038435>(node_dialog_text.gd)]:
+      at line 855
+    [Failed]:  Auto has no completed owner yet
+      at line 858
+    [Failed]:  [2] expected to equal [0]:
+      at line 859
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _process (res://scripts/ui/witnessed/WitnessedSkipController.gd:99)
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _process (res://scripts/ui/witnessed/WitnessedSkipController.gd:99)
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] reveal_current_line (res://scripts/narrative/DialogicRuntimeAdapter.gd:241)
+       [4] _perform_skip_step (res://autoload/DialogicBridge.gd:1116)
+       [5] request_skip_step (res://autoload/DialogicBridge.gd:1093)
+       [6] _process (res://scripts/ui/witnessed/WitnessedSkipController.gd:99)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [3] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 885
+    24 Orphans
+        * [<Node#6935331999708>(subsystem_choices.gd)]
+        * [<Node#6935466217728>(subsystem_jump.gd)]
+        * [<Timer#6935550103932>]
+        * [<Node#6935566881450>(subsystem_settings.gd)]
+        * [<Node#6935264891565>]
+        * [<Node#6935600435907>(subsystem_text.gd)]
+        * [<Node#6935432663797>(subsystem_input.gd)]
+        * [<Timer#6935449441018>]
+        * [<Node#6935583658760>(subsystem_styles.gd)]
+        * [<Node#6935533327124>(subsystem_save.gd)]
+        * [<Node#6935499772697>(subsystem_portraits.gd)]
+        * [<Node#6935701099291>(subsystem_variables.gd)]
+        * [<Node#6935717876539>(subsystem_voice.gd)]
+        * [<Node#6935399109450>(subsystem_glossary.gd)]
+        * [<Timer#6935348777804>]
+        * [<Node#6935365555027>(subsystem_expression.gd)]
+        * [<Node#6935281668974>]
+        * [<Node#6935298446192>(subsystem_backgrounds.gd)]
+        * [<Node#6935231337331>(subsystem_animation.gd)]
+        * [<Node#6935248114552>(subsystem_audio.gd)]
+        * [<Node#6935684322183>(subsystem_text_input.gd)]
+        * [<AudioStreamPlayer#6935734653833>]
+        * [<Node#6935482995597>(subsystem_containers.gd)]
+        * [<Node#6935415886820>(subsystem_history.gd)]
+* test_native_normal_accept_stops_skip_before_the_dialogic_command
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_native_normal_accept_stops_skip_before_the_dialogic_command (res://tests/integration/test_dialogic_production_skip.gd:897)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 918
+    24 Orphans
+        * [<Node#7121693315029>(subsystem_expression.gd)]
+        * [<Node#7121575874916>(subsystem_audio.gd)]
+        * [<Timer#7121877864819>]
+        * [<Node#7121592652151>]
+        * [<Node#7122012082729>(subsystem_text_input.gd)]
+        * [<Node#7121894642312>(subsystem_settings.gd)]
+        * [<Node#7121810756265>(subsystem_containers.gd)]
+        * [<Node#7121928196779>(subsystem_text.gd)]
+        * [<Node#7121626206910>(subsystem_backgrounds.gd)]
+        * [<Node#7121609429696>]
+        * [<Node#7121559098049>(subsystem_animation.gd)]
+        * [<Node#7122028860121>(subsystem_variables.gd)]
+        * [<Node#7122045637340>(subsystem_voice.gd)]
+        * [<Node#7121827533569>(subsystem_portraits.gd)]
+        * [<AudioStreamPlayer#7122062414613>]
+        * [<Timer#7121676538648>]
+        * [<Node#7121726870298>(subsystem_glossary.gd)]
+        * [<Node#7121861088048>(subsystem_save.gd)]
+        * [<Node#7121743647630>(subsystem_history.gd)]
+        * [<Node#7121760424847>(subsystem_input.gd)]
+        * [<Node#7121659761552>(subsystem_choices.gd)]
+        * [<Timer#7121777202065>]
+        * [<Node#7121793979282>(subsystem_jump.gd)]
+        * [<Node#7121911419806>(subsystem_styles.gd)]
+* test_mounted_rail_uses_committed_catalog_locale_without_advancing_dialogue
+    24 Orphans
+        * [<Node#7291260637475>(subsystem_voice.gd)]
+        * [<Node#7291227083065>(subsystem_text_input.gd)]
+        * [<Node#7291143197092>(subsystem_text.gd)]
+        * [<Timer#7290891538916>]
+        * [<Node#7291126420007>(subsystem_styles.gd)]
+        * [<Node#7291008979560>(subsystem_jump.gd)]
+        * [<Node#7291076088427>(subsystem_save.gd)]
+        * [<Timer#7291092865644>]
+        * [<Node#7290790875759>(subsystem_audio.gd)]
+        * [<Node#7290824430207>]
+        * [<Node#7290941870760>(subsystem_glossary.gd)]
+        * [<Node#7290908316332>(subsystem_expression.gd)]
+        * [<Node#7290807653039>]
+        * [<Node#7290774098617>(subsystem_animation.gd)]
+        * [<Node#7290874761946>(subsystem_choices.gd)]
+        * [<Node#7291042534113>(subsystem_portraits.gd)]
+        * [<Node#7291025756898>(subsystem_containers.gd)]
+        * [<Timer#7290992202467>]
+        * [<Node#7290975425252>(subsystem_input.gd)]
+        * [<Node#7290841207525>(subsystem_backgrounds.gd)]
+        * [<Node#7290958648039>(subsystem_history.gd)]
+        * [<AudioStreamPlayer#7291277415147>]
+        * [<Node#7291243860717>(subsystem_variables.gd)]
+        * [<Node#7291109643267>(subsystem_settings.gd)]
+* test_chinese_initial_mount_keeps_the_installed_run_day_and_palette
+    24 Orphans
+        * [<Node#7460324642875>(subsystem_containers.gd)]
+        * [<Node#7460123316417>]
+        * [<Timer#7460190425340>]
+        * [<Timer#7460291088737>]
+        * [<Node#7460257534391>(subsystem_history.gd)]
+        * [<Node#7460274311645>(subsystem_input.gd)]
+        * [<Node#7460408529430>(subsystem_settings.gd)]
+        * [<Node#7460207202848>(subsystem_expression.gd)]
+        * [<Node#7460341420622>(subsystem_portraits.gd)]
+        * [<Node#7460525970005>(subsystem_text_input.gd)]
+        * [<Node#7460307866207>(subsystem_jump.gd)]
+        * [<Node#7460442083938>(subsystem_text.gd)]
+        * [<Node#7460425306723>(subsystem_styles.gd)]
+        * [<Node#7460173648490>(subsystem_choices.gd)]
+        * [<Node#7460240757357>(subsystem_glossary.gd)]
+        * [<AudioStreamPlayer#7460576301723>]
+        * [<Timer#7460391752348>]
+        * [<Node#7460106539684>]
+        * [<Node#7460140094173>(subsystem_backgrounds.gd)]
+        * [<Node#7460542747404>(subsystem_variables.gd)]
+        * [<Node#7460374975440>(subsystem_save.gd)]
+        * [<Node#7460072985569>(subsystem_animation.gd)]
+        * [<Node#7460089762786>(subsystem_audio.gd)]
+        * [<Node#7460559524845>(subsystem_voice.gd)]
+* test_mounted_auto_uses_the_host_deadline_to_advance_one_ordinary_line
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] _start_mounted_auto (res://tests/integration/test_dialogic_production_skip.gd:1008)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  complete reveal arms the registered acknowledged source
+      at line -1
+    [Failed]:  [0.0] expected to be > than [0.0]:
+      at line 1021
+    [Failed]:  [4] expected to equal [5]:
+      at line 1026
+    [Failed]:  ["Text/line.contact.ordinary.lavinia.day1.reply.a/text"] expected to equal ["Text/line.contact.ordinary.lavinia.day1.reply.b/text"]:
+      at line 1027
+    [Failed]:  the next line publishes normally
+      at line 1028
+    [Failed]:  [4] expected to equal [5]:  old deadline cannot cross the new revealing line
+      at line 1030
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 1030
+    24 Orphans
+        * [<Node#7612980531457>(subsystem_save.gd)]
+        * [<Node#7612846313850>(subsystem_glossary.gd)]
+        * [<Node#7613148303797>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#7613181858233>]
+        * [<Node#7612946977212>(subsystem_portraits.gd)]
+        * [<Node#7612930199997>(subsystem_containers.gd)]
+        * [<Node#7612712096350>]
+        * [<Node#7612812759693>(subsystem_expression.gd)]
+        * [<Timer#7612795982601>]
+        * [<Node#7612745651065>(subsystem_backgrounds.gd)]
+        * [<Node#7612678542285>(subsystem_animation.gd)]
+        * [<Node#7612695319502>(subsystem_audio.gd)]
+        * [<Node#7612728873935>]
+        * [<Node#7613014086612>(subsystem_settings.gd)]
+        * [<Node#7612879868903>(subsystem_input.gd)]
+        * [<Timer#7612896646120>]
+        * [<Node#7612863091689>(subsystem_history.gd)]
+        * [<Node#7612779205610>(subsystem_choices.gd)]
+        * [<Node#7612913423389>(subsystem_jump.gd)]
+        * [<Node#7613165081631>(subsystem_voice.gd)]
+        * [<Timer#7612997309635>]
+        * [<Node#7613030864068>(subsystem_styles.gd)]
+        * [<Node#7613047641285>(subsystem_text.gd)]
+        * [<Node#7613131527371>(subsystem_text_input.gd)]
+* test_mounted_auto_toggle_preserves_skip_until_its_profile_write_commits
+    24 Orphans
+        * [<Node#7796338725278>(subsystem_choices.gd)]
+        * [<Node#7796472943509>(subsystem_jump.gd)]
+        * [<Timer#7796556829608>]
+        * [<Node#7796238062519>(subsystem_animation.gd)]
+        * [<Node#7796254839740>(subsystem_audio.gd)]
+        * [<Node#7796590384062>(subsystem_styles.gd)]
+        * [<Node#7796288394178>]
+        * [<Node#7796271616965>]
+        * [<Node#7796506498063>(subsystem_portraits.gd)]
+        * [<Timer#7796355503127>]
+        * [<Node#7796573606936>(subsystem_settings.gd)]
+        * [<Timer#7796456166426>]
+        * [<Node#7796439389211>(subsystem_input.gd)]
+        * [<Node#7796422611996>(subsystem_history.gd)]
+        * [<Node#7796405834782>(subsystem_glossary.gd)]
+        * [<Node#7796540052533>(subsystem_save.gd)]
+        * [<Node#7796305171533>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#7796741379171>]
+        * [<Node#7796489720935>(subsystem_containers.gd)]
+        * [<Node#7796691047530>(subsystem_text_input.gd)]
+        * [<Node#7796372280521>(subsystem_expression.gd)]
+        * [<Node#7796607161598>(subsystem_text.gd)]
+        * [<Node#7796707824901>(subsystem_variables.gd)]
+        * [<Node#7796724602118>(subsystem_voice.gd)]
+* test_mounted_auto_retains_remaining_delay_while_pause_covers_the_caption
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] _start_mounted_auto (res://tests/integration/test_dialogic_production_skip.gd:1008)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  complete reveal arms the registered acknowledged source
+      at line -1
+    [Failed]:  [4] expected to equal [5]:
+      at line 1069
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 1069
+    24 Orphans
+        * [<Node#7982599376855>(subsystem_save.gd)]
+        * [<Node#7982632931625>(subsystem_settings.gd)]
+        * [<Node#7982565823212>(subsystem_portraits.gd)]
+        * [<AudioStreamPlayer#7982800704287>]
+        * [<Node#7982666486562>(subsystem_text.gd)]
+        * [<Node#7982649709347>(subsystem_styles.gd)]
+        * [<Node#7982297387940>(subsystem_animation.gd)]
+        * [<Node#7982314165157>(subsystem_audio.gd)]
+        * [<Node#7982347719590>]
+        * [<Node#7982330942375>]
+        * [<Node#7982783927212>(subsystem_voice.gd)]
+        * [<Timer#7982616155061>]
+        * [<Timer#7982515491937>]
+        * [<Node#7982498714722>(subsystem_input.gd)]
+        * [<Node#7982364496996>(subsystem_backgrounds.gd)]
+        * [<Node#7982481937509>(subsystem_history.gd)]
+        * [<Node#7982465160294>(subsystem_glossary.gd)]
+        * [<Node#7982767150193>(subsystem_variables.gd)]
+        * [<Node#7982750372978>(subsystem_text_input.gd)]
+        * [<Node#7982549046390>(subsystem_containers.gd)]
+        * [<Node#7982431605900>(subsystem_expression.gd)]
+        * [<Node#7982532269218>(subsystem_jump.gd)]
+        * [<Timer#7982414828800>]
+        * [<Node#7982398051587>(subsystem_choices.gd)]
+* test_normal_accept_retires_auto_before_input_then_gives_next_line_a_full_delay
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] _start_mounted_auto (res://tests/integration/test_dialogic_production_skip.gd:1008)
+       [4] _start (res://tests/integration/test_dialogic_production_skip.gd:207)
+    [Failed]:  complete reveal arms the registered acknowledged source
+      at line -1
+ERROR: Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+   at: emit_signalp (core/object/object.cpp:1435)
+   GDScript backtrace (most recent call first):
+       [0] _on_dialog_text_finished (res://addons/dialogic/Modules/Text/subsystem_text.gd:232)
+       [1] finish_text (res://addons/dialogic/Modules/Text/node_dialog_text.gd:160)
+       [2] skip_text_reveal (res://addons/dialogic/Modules/Text/subsystem_text.gd:390)
+       [3] test_normal_accept_retires_auto_before_input_then_gives_next_line_a_full_delay (res://tests/integration/test_dialogic_production_skip.gd:1086)
+       [4] _press_focused_enter (res://tests/integration/test_dialogic_production_skip.gd:235)
+    [Failed]
+      at line 1089
+    [Failed]:  [0.0] expected to be > than [0.4]:  next line receives a fresh full delay
+      at line 1090
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+      at line 1092
+    24 Orphans
+        * [<Node#8165773021374>]
+        * [<Node#8165924016714>(subsystem_input.gd)]
+        * [<Node#8165991125638>(subsystem_portraits.gd)]
+        * [<Timer#8166041457353>]
+        * [<Node#8166091789011>(subsystem_text.gd)]
+        * [<Node#8165756244768>]
+        * [<Node#8165789799204>(subsystem_backgrounds.gd)]
+        * [<Node#8165823353654>(subsystem_choices.gd)]
+        * [<Node#8165739467582>(subsystem_audio.gd)]
+        * [<Node#8166209229728>(subsystem_voice.gd)]
+        * [<Node#8166058234785>(subsystem_settings.gd)]
+        * [<Node#8165722690504>(subsystem_animation.gd)]
+        * [<Timer#8165840131032>]
+        * [<Node#8165856908403>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#8166226007157>]
+        * [<Node#8166024680602>(subsystem_save.gd)]
+        * [<Node#8165957571748>(subsystem_jump.gd)]
+        * [<Node#8165907240101>(subsystem_history.gd)]
+        * [<Node#8165890462886>(subsystem_glossary.gd)]
+        * [<Node#8166192452783>(subsystem_variables.gd)]
+        * [<Node#8166075012285>(subsystem_styles.gd)]
+        * [<Timer#8165940794560>]
+        * [<Node#8166175675620>(subsystem_text_input.gd)]
+        * [<Node#8165974349048>(subsystem_containers.gd)]
+960 orphans
+15/40 passed.
+
+
+
+
+==============================================
+= 984 Orphans
+==============================================
+res://tests/unit/test_dialogic_preferences.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+test_dialogic_production_skip.gd
+    - test_native_fixture_setup_without_skip
+        * [<Timer#1914045466739>]
+        * [<Node#1914263570572>(subsystem_settings.gd)]
+        * [<Node#1913961581101>]
+        * [<Node#1913995135534>(subsystem_backgrounds.gd)]
+        * [<Node#1914028689967>(subsystem_choices.gd)]
+        * [<Node#1914230016572>(subsystem_save.gd)]
+        * [<Node#1914129353306>(subsystem_input.gd)]
+        * [<Node#1914297125467>(subsystem_text.gd)]
+        * [<Node#1914162907744>(subsystem_jump.gd)]
+        * [<Node#1914280348264>(subsystem_styles.gd)]
+        * [<Node#1914095798891>(subsystem_glossary.gd)]
+        * [<Timer#1914246793849>]
+        * [<Node#1914179684986>(subsystem_containers.gd)]
+        * [<Node#1914062244475>(subsystem_expression.gd)]
+        * [<Node#1913944803969>(subsystem_audio.gd)]
+        * [<Node#1914196462238>(subsystem_portraits.gd)]
+        * [<Node#1914112576173>(subsystem_history.gd)]
+        * [<Timer#1914146130620>]
+        * [<Node#1913978358462>]
+        * [<Node#1913928026815>(subsystem_animation.gd)]
+        * [<Node#1914381011662>(subsystem_text_input.gd)]
+        * [<Node#1914397788879>(subsystem_variables.gd)]
+        * [<Node#1914414566096>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#1914431343313>]
+    - test_mounted_text_started_durably_acknowledges_registered_line_without_skip
+        * [<Node#2055779388136>(subsystem_animation.gd)]
+        * [<Node#2055796165353>(subsystem_audio.gd)]
+        * [<Node#2055829719786>]
+        * [<Node#2055812942571>]
+        * [<Node#2055913605868>(subsystem_expression.gd)]
+        * [<Timer#2055896828653>]
+        * [<Node#2055880051438>(subsystem_choices.gd)]
+        * [<Node#2055846497007>(subsystem_backgrounds.gd)]
+        * [<Node#2055947160305>(subsystem_glossary.gd)]
+        * [<Node#2055963937522>(subsystem_history.gd)]
+        * [<Node#2055980714739>(subsystem_input.gd)]
+        * [<Timer#2055997491956>]
+        * [<Node#2056081378050>(subsystem_save.gd)]
+        * [<Timer#2056098155267>]
+        * [<Node#2056131709702>(subsystem_styles.gd)]
+        * [<Node#2056148486919>(subsystem_text.gd)]
+        * [<Node#2056232373007>(subsystem_text_input.gd)]
+        * [<Node#2056249150224>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#2056282704659>]
+        * [<Node#2056031046423>(subsystem_containers.gd)]
+        * [<Node#2056047823642>(subsystem_portraits.gd)]
+        * [<Node#2056114932518>(subsystem_settings.gd)]
+        * [<Node#2056265927472>(subsystem_voice.gd)]
+        * [<Node#2056014269236>(subsystem_jump.gd)]
+    - test_mounted_read_only_first_activation_preserves_pre_presentation_unread_state
+        * [<Node#2224121973497>(subsystem_audio.gd)]
+        * [<Node#2224105196286>(subsystem_animation.gd)]
+        * [<Node#2224155527935>]
+        * [<Node#2224138750721>]
+        * [<Node#2224172305157>(subsystem_backgrounds.gd)]
+        * [<Node#2224205859592>(subsystem_choices.gd)]
+        * [<Node#2224272968462>(subsystem_glossary.gd)]
+        * [<Timer#2224222636853>]
+        * [<Node#2224289745718>(subsystem_history.gd)]
+        * [<Node#2224306522935>(subsystem_input.gd)]
+        * [<Node#2224239414072>(subsystem_expression.gd)]
+        * [<Timer#2224323300153>]
+        * [<Node#2224340077370>(subsystem_jump.gd)]
+        * [<Node#2224356854587>(subsystem_containers.gd)]
+        * [<Node#2224457517887>(subsystem_styles.gd)]
+        * [<Node#2224407186243>(subsystem_save.gd)]
+        * [<Timer#2224423963460>]
+        * [<Node#2224474295118>(subsystem_text.gd)]
+        * [<Node#2224574958418>(subsystem_variables.gd)]
+        * [<Node#2224373631832>(subsystem_portraits.gd)]
+        * [<Node#2224440740833>(subsystem_settings.gd)]
+        * [<Node#2224558181415>(subsystem_text_input.gd)]
+        * [<Node#2224591735850>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#2224608513067>]
+    - test_duplicate_mounted_presentation_acknowledgement_is_write_free
+        * [<Node#2395417348930>(subsystem_history.gd)]
+        * [<Node#2395434126169>(subsystem_input.gd)]
+        * [<Timer#2395450903386>]
+        * [<Node#2395400571739>(subsystem_glossary.gd)]
+        * [<Node#2395467680604>(subsystem_jump.gd)]
+        * [<Node#2395568344006>(subsystem_settings.gd)]
+        * [<Timer#2395551566796>]
+        * [<Node#2395601898445>(subsystem_text.gd)]
+        * [<Node#2395283131353>]
+        * [<Node#2395232799707>(subsystem_animation.gd)]
+        * [<Node#2395249576925>(subsystem_audio.gd)]
+        * [<Node#2395266354142>]
+        * [<Node#2395299908575>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#2395736116196>]
+        * [<Node#2395685784576>(subsystem_text_input.gd)]
+        * [<Node#2395484457987>(subsystem_containers.gd)]
+        * [<Node#2395367017505>(subsystem_expression.gd)]
+        * [<Timer#2395350240293>]
+        * [<Node#2395333463080>(subsystem_choices.gd)]
+        * [<Node#2395585121324>(subsystem_styles.gd)]
+        * [<Node#2395534789687>(subsystem_save.gd)]
+        * [<Node#2395501235261>(subsystem_portraits.gd)]
+        * [<Node#2395719339073>(subsystem_voice.gd)]
+        * [<Node#2395702561858>(subsystem_variables.gd)]
+    - test_explicit_presentation_acknowledgement_refuses_a_stale_frontier
+        * [<Node#2547502812001>(subsystem_animation.gd)]
+        * [<Node#2547804801964>(subsystem_save.gd)]
+        * [<Timer#2547821579182>]
+        * [<Node#2547855133621>(subsystem_styles.gd)]
+        * [<Node#2547871910838>(subsystem_text.gd)]
+        * [<Node#2547536366535>]
+        * [<Node#2547637029832>(subsystem_expression.gd)]
+        * [<Node#2547519589321>(subsystem_audio.gd)]
+        * [<Node#2547553143754>]
+        * [<Timer#2547620252623>]
+        * [<Node#2547737693138>(subsystem_jump.gd)]
+        * [<Node#2547972574164>(subsystem_variables.gd)]
+        * [<Node#2547955796949>(subsystem_text_input.gd)]
+        * [<Node#2547704138726>(subsystem_input.gd)]
+        * [<Timer#2547720915943>]
+        * [<Node#2547771247610>(subsystem_portraits.gd)]
+        * [<AudioStreamPlayer#2548006128635>]
+        * [<Node#2547754470396>(subsystem_containers.gd)]
+        * [<Node#2547670584324>(subsystem_glossary.gd)]
+        * [<Node#2547687361541>(subsystem_history.gd)]
+        * [<Node#2547569921030>(subsystem_backgrounds.gd)]
+        * [<Node#2547838356497>(subsystem_settings.gd)]
+        * [<Node#2547603475524>(subsystem_choices.gd)]
+        * [<Node#2547989351529>(subsystem_voice.gd)]
+    - test_failed_mounted_acknowledgement_blocks_normal_accept_until_fresh_retry_commits
+        * [<Node#2699772824312>(subsystem_backgrounds.gd)]
+        * [<Node#2700007705493>(subsystem_save.gd)]
+        * [<Timer#2700024482714>]
+        * [<Node#2700058037149>(subsystem_styles.gd)]
+        * [<Node#2700074814366>(subsystem_text.gd)]
+        * [<Node#2699722492845>(subsystem_audio.gd)]
+        * [<Node#2699705715633>(subsystem_animation.gd)]
+        * [<Node#2699756047283>]
+        * [<Node#2699739270068>]
+        * [<Node#2699839933367>(subsystem_expression.gd)]
+        * [<Node#2699940596667>(subsystem_jump.gd)]
+        * [<Node#2700041260123>(subsystem_settings.gd)]
+        * [<Node#2699806379106>(subsystem_choices.gd)]
+        * [<Timer#2699923819620>]
+        * [<Node#2699907042405>(subsystem_input.gd)]
+        * [<Node#2699890265190>(subsystem_history.gd)]
+        * [<Node#2700158700651>(subsystem_text_input.gd)]
+        * [<Node#2699957374061>(subsystem_containers.gd)]
+        * [<Node#2700175477871>(subsystem_variables.gd)]
+        * [<Node#2699974151294>(subsystem_portraits.gd)]
+        * [<Node#2699873488000>(subsystem_glossary.gd)]
+        * [<Timer#2699823156357>]
+        * [<AudioStreamPlayer#2700209032374>]
+        * [<Node#2700192255211>(subsystem_voice.gd)]
+    - test_failed_mounted_acknowledgement_blocks_zero_delay_native_auto_advance
+        * [<Node#2893147015758>(subsystem_choices.gd)]
+        * [<Timer#2893163793094>]
+        * [<Node#2893348342654>(subsystem_save.gd)]
+        * [<Timer#2893365119876>]
+        * [<Node#2893398674315>(subsystem_styles.gd)]
+        * [<Node#2893415451534>(subsystem_text.gd)]
+        * [<Node#2893096684435>]
+        * [<Node#2893046352788>(subsystem_animation.gd)]
+        * [<Node#2893063130009>(subsystem_audio.gd)]
+        * [<Node#2893079907228>]
+        * [<Node#2893381897119>(subsystem_settings.gd)]
+        * [<Node#2893214125046>(subsystem_glossary.gd)]
+        * [<Node#2893499337720>(subsystem_text_input.gd)]
+        * [<Node#2893113461870>(subsystem_backgrounds.gd)]
+        * [<Node#2893180570751>(subsystem_expression.gd)]
+        * [<Node#2893314788503>(subsystem_portraits.gd)]
+        * [<Timer#2893264456859>]
+        * [<Node#2893247679644>(subsystem_input.gd)]
+        * [<Node#2893230902429>(subsystem_history.gd)]
+        * [<Node#2893516115105>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#2893549669538>]
+        * [<Node#2893298011302>(subsystem_containers.gd)]
+        * [<Node#2893281234134>(subsystem_jump.gd)]
+        * [<Node#2893532892375>(subsystem_voice.gd)]
+    - test_failed_acknowledgement_blocks_automatic_choice_open_until_fresh_accept_retry
+        * [<Node#3062898887533>(subsystem_settings.gd)]
+        * [<Node#3062932441967>(subsystem_text.gd)]
+        * [<Node#3062563343223>(subsystem_animation.gd)]
+        * [<Node#3062596897657>]
+        * [<Node#3062580120442>(subsystem_audio.gd)]
+        * [<Node#3062613674883>]
+        * [<Node#3062630452101>(subsystem_backgrounds.gd)]
+        * [<Node#3062915664783>(subsystem_styles.gd)]
+        * [<Node#3062798224291>(subsystem_jump.gd)]
+        * [<Timer#3062882110450>]
+        * [<Node#3063016328180>(subsystem_text_input.gd)]
+        * [<Node#3062664006647>(subsystem_choices.gd)]
+        * [<Node#3063033105512>(subsystem_variables.gd)]
+        * [<Node#3062697561252>(subsystem_expression.gd)]
+        * [<Node#3062865333454>(subsystem_save.gd)]
+        * [<Node#3062764670160>(subsystem_input.gd)]
+        * [<Timer#3062781447377>]
+        * [<Timer#3062680784082>]
+        * [<Node#3062747892948>(subsystem_history.gd)]
+        * [<Node#3062731115733>(subsystem_glossary.gd)]
+        * [<Node#3063049882846>(subsystem_voice.gd)]
+        * [<Node#3062831779040>(subsystem_portraits.gd)]
+        * [<Node#3062815001882>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#3063066660124>]
+    - test_failed_acknowledgement_blocks_native_auto_skip_timer_and_choice
+        * [<Node#3227684703081>(subsystem_animation.gd)]
+        * [<Node#3227701480299>(subsystem_audio.gd)]
+        * [<Node#3227718257516>]
+        * [<Node#3227936361339>(subsystem_containers.gd)]
+        * [<Node#3228053801966>(subsystem_text.gd)]
+        * [<AudioStreamPlayer#3228188019721>]
+        * [<Node#3227751812125>(subsystem_backgrounds.gd)]
+        * [<Node#3227735034910>]
+        * [<Node#3228020247624>(subsystem_settings.gd)]
+        * [<Timer#3228003470416>]
+        * [<Node#3228171242655>(subsystem_voice.gd)]
+        * [<Node#3227818921162>(subsystem_expression.gd)]
+        * [<Timer#3227802143962>]
+        * [<Node#3227852475612>(subsystem_glossary.gd)]
+        * [<Node#3228037025037>(subsystem_styles.gd)]
+        * [<Timer#3227902807314>]
+        * [<Node#3227919584534>(subsystem_jump.gd)]
+        * [<Node#3227785366807>(subsystem_choices.gd)]
+        * [<Node#3227869252888>(subsystem_history.gd)]
+        * [<Node#3227886030105>(subsystem_input.gd)]
+        * [<Node#3227953138976>(subsystem_portraits.gd)]
+        * [<Node#3228154465572>(subsystem_variables.gd)]
+        * [<Node#3227986693414>(subsystem_save.gd)]
+        * [<Node#3228137688406>(subsystem_text_input.gd)]
+    - test_failed_acknowledgement_blocks_native_auto_skip_armed_after_text_is_done
+        * [<Timer#3379686279294>]
+        * [<Node#3379367512977>(subsystem_animation.gd)]
+        * [<Node#3379434621933>(subsystem_backgrounds.gd)]
+        * [<Node#3379619171355>(subsystem_containers.gd)]
+        * [<Node#3379384290379>(subsystem_audio.gd)]
+        * [<Node#3379417844813>]
+        * [<Node#3379736611926>(subsystem_text.gd)]
+        * [<Node#3379703057496>(subsystem_settings.gd)]
+        * [<Node#3379401067634>]
+        * [<Node#3379501731102>(subsystem_expression.gd)]
+        * [<Node#3379468176673>(subsystem_choices.gd)]
+        * [<AudioStreamPlayer#3379870829861>]
+        * [<Node#3379719834951>(subsystem_styles.gd)]
+        * [<Timer#3379585617227>]
+        * [<Node#3379669503309>(subsystem_save.gd)]
+        * [<Node#3379602394447>(subsystem_jump.gd)]
+        * [<Node#3379568840016>(subsystem_input.gd)]
+        * [<Node#3379552062801>(subsystem_history.gd)]
+        * [<Timer#3379484953938>]
+        * [<Node#3379535285587>(subsystem_glossary.gd)]
+        * [<Node#3379854052692>(subsystem_voice.gd)]
+        * [<Node#3379837275479>(subsystem_variables.gd)]
+        * [<Node#3379635948890>(subsystem_portraits.gd)]
+        * [<Node#3379820498409>(subsystem_text_input.gd)]
+    - test_canonical_line_without_an_id_retains_native_manual_accept
+        * [<Node#3531285203062>]
+        * [<Node#3531234871418>(subsystem_animation.gd)]
+        * [<Node#3531251649083>(subsystem_audio.gd)]
+        * [<Node#3531503307637>(subsystem_portraits.gd)]
+        * [<Node#3531419421724>(subsystem_history.gd)]
+        * [<Node#3531536862255>(subsystem_save.gd)]
+        * [<Node#3531268426839>]
+        * [<Node#3531486530679>(subsystem_containers.gd)]
+        * [<Node#3531301981320>(subsystem_backgrounds.gd)]
+        * [<Node#3531603971215>(subsystem_text.gd)]
+        * [<Node#3531570416827>(subsystem_settings.gd)]
+        * [<Timer#3531553639653>]
+        * [<Node#3531369090382>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#3531738189145>]
+        * [<Node#3531402644827>(subsystem_glossary.gd)]
+        * [<Node#3531587194236>(subsystem_styles.gd)]
+        * [<Node#3531469753737>(subsystem_jump.gd)]
+        * [<Node#3531335536010>(subsystem_choices.gd)]
+        * [<Timer#3531452976523>]
+        * [<Node#3531436199308>(subsystem_input.gd)]
+        * [<Node#3531721411987>(subsystem_voice.gd)]
+        * [<Node#3531704634772>(subsystem_variables.gd)]
+        * [<Timer#3531352313254>]
+        * [<Node#3531687857703>(subsystem_text_input.gd)]
+    - test_canonical_unregistered_line_retains_native_zero_delay_auto
+        * [<Node#3684058532889>(subsystem_audio.gd)]
+        * [<Node#3684092087367>]
+        * [<Node#3684226305142>(subsystem_history.gd)]
+        * [<Node#3684175973546>(subsystem_expression.gd)]
+        * [<Node#3684041755834>(subsystem_animation.gd)]
+        * [<Node#3684075310268>]
+        * [<Node#3684108864737>(subsystem_backgrounds.gd)]
+        * [<Node#3684394077438>(subsystem_styles.gd)]
+        * [<Node#3684377300266>(subsystem_settings.gd)]
+        * [<Timer#3684360523074>]
+        * [<Timer#3684159196557>]
+        * [<Node#3684209528216>(subsystem_glossary.gd)]
+        * [<Node#3684276637131>(subsystem_jump.gd)]
+        * [<Timer#3684259859917>]
+        * [<Node#3684142419406>(subsystem_choices.gd)]
+        * [<Node#3684243082703>(subsystem_input.gd)]
+        * [<Node#3684511518389>(subsystem_variables.gd)]
+        * [<Node#3684410855096>(subsystem_text.gd)]
+        * [<AudioStreamPlayer#3684545072825>]
+        * [<Node#3684528295610>(subsystem_voice.gd)]
+        * [<Node#3684494741191>(subsystem_text_input.gd)]
+        * [<Node#3684310191841>(subsystem_portraits.gd)]
+        * [<Node#3684343746275>(subsystem_save.gd)]
+        * [<Node#3684293414762>(subsystem_containers.gd)]
+    - test_registered_wrong_owner_blocks_native_auto_and_manual_accept
+        * [<Node#3841462373638>(subsystem_styles.gd)]
+        * [<Timer#3841227492801>]
+        * [<Node#3841160383939>]
+        * [<Node#3841143606728>]
+        * [<Node#3841110052326>(subsystem_animation.gd)]
+        * [<Node#3841126829544>(subsystem_audio.gd)]
+        * [<Node#3841596591613>(subsystem_voice.gd)]
+        * [<Node#3841378487814>(subsystem_portraits.gd)]
+        * [<Node#3841445596700>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#3841613368862>]
+        * [<Node#3841361710643>(subsystem_containers.gd)]
+        * [<Timer#3841428819538>]
+        * [<Node#3841479151187>(subsystem_text.gd)]
+        * [<Node#3841563037275>(subsystem_text_input.gd)]
+        * [<Node#3841579814492>(subsystem_variables.gd)]
+        * [<Node#3841244270181>(subsystem_expression.gd)]
+        * [<Node#3841412042410>(subsystem_save.gd)]
+        * [<Node#3841177161394>(subsystem_backgrounds.gd)]
+        * [<Timer#3841328156365>]
+        * [<Node#3841294601944>(subsystem_history.gd)]
+        * [<Node#3841344933594>(subsystem_jump.gd)]
+        * [<Node#3841311379163>(subsystem_input.gd)]
+        * [<Node#3841210715868>(subsystem_choices.gd)]
+        * [<Node#3841277824733>(subsystem_glossary.gd)]
+    - test_mounted_rehearsal_text_started_never_mutates_the_root_profile
+        * [<Node#3992390208566>(subsystem_animation.gd)]
+        * [<Node#3992423763375>]
+        * [<Timer#3992507649465>]
+        * [<Timer#3992608312763>]
+        * [<Node#3992557981118>(subsystem_glossary.gd)]
+        * [<Node#3992591535551>(subsystem_input.gd)]
+        * [<Node#3992490872256>(subsystem_choices.gd)]
+        * [<Node#3992406986196>(subsystem_audio.gd)]
+        * [<Node#3992524426721>(subsystem_expression.gd)]
+        * [<Node#3992574758383>(subsystem_history.gd)]
+        * [<Node#3992625090066>(subsystem_jump.gd)]
+        * [<Node#3992457317909>(subsystem_backgrounds.gd)]
+        * [<Node#3992440540728>]
+        * [<Node#3992725753406>(subsystem_settings.gd)]
+        * [<Timer#3992708976191>]
+        * [<Node#3992759307869>(subsystem_text.gd)]
+        * [<Node#3992876748399>(subsystem_voice.gd)]
+        * [<Node#3992658644595>(subsystem_portraits.gd)]
+        * [<Node#3992641867389>(subsystem_containers.gd)]
+        * [<Node#3992859971225>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#3992893525658>]
+        * [<Node#3992692199067>(subsystem_save.gd)]
+        * [<Node#3992742530904>(subsystem_styles.gd)]
+        * [<Node#3992843194265>(subsystem_text_input.gd)]
+    - test_native_fixture_binding_without_playback
+        * [<Timer#4137781562389>]
+        * [<Node#4137798340020>(subsystem_jump.gd)]
+        * [<Node#4138049998263>(subsystem_voice.gd)]
+        * [<Node#4137899003325>(subsystem_settings.gd)]
+        * [<Node#4137815117328>(subsystem_containers.gd)]
+        * [<Node#4137831894550>(subsystem_portraits.gd)]
+        * [<Node#4137915780644>(subsystem_styles.gd)]
+        * [<Node#4137580236346>(subsystem_audio.gd)]
+        * [<Node#4137613790779>]
+        * [<Node#4137597013565>]
+        * [<Timer#4137680899649>]
+        * [<AudioStreamPlayer#4138066775622>]
+        * [<Node#4138033221191>(subsystem_variables.gd)]
+        * [<Node#4138016443976>(subsystem_text_input.gd)]
+        * [<Node#4137563459167>(subsystem_animation.gd)]
+        * [<Node#4137697676897>(subsystem_expression.gd)]
+        * [<Node#4137731231353>(subsystem_glossary.gd)]
+        * [<Node#4137748008574>(subsystem_history.gd)]
+        * [<Timer#4137882226305>]
+        * [<Node#4137865449096>(subsystem_save.gd)]
+        * [<Node#4137664122520>(subsystem_choices.gd)]
+        * [<Node#4137764785827>(subsystem_input.gd)]
+        * [<Node#4137630568102>(subsystem_backgrounds.gd)]
+        * [<Node#4137932558052>(subsystem_text.gd)]
+    - test_read_only_reveals_persists_and_only_then_advances
+        * [<Node#4261026991097>(subsystem_portraits.gd)]
+        * [<Node#4260775332915>(subsystem_audio.gd)]
+        * [<Node#4261127654567>(subsystem_text.gd)]
+        * [<Node#4260959882555>(subsystem_input.gd)]
+        * [<Timer#4260875996537>]
+        * [<Node#4260859219379>(subsystem_choices.gd)]
+        * [<Node#4260926328283>(subsystem_glossary.gd)]
+        * [<Node#4260943105593>(subsystem_history.gd)]
+        * [<Node#4260792110665>]
+        * [<Node#4260758556268>(subsystem_animation.gd)]
+        * [<Node#4261110877839>(subsystem_styles.gd)]
+        * [<Node#4261060546193>(subsystem_save.gd)]
+        * [<Timer#4261077323410>]
+        * [<Node#4260993437332>(subsystem_jump.gd)]
+        * [<Node#4261010214549>(subsystem_containers.gd)]
+        * [<Timer#4260976660118>]
+        * [<Node#4261094100631>(subsystem_settings.gd)]
+        * [<Node#4260825665253>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#4261261872914>]
+        * [<Node#4261245095700>(subsystem_voice.gd)]
+        * [<Node#4261228318485>(subsystem_variables.gd)]
+        * [<Node#4261211541270>(subsystem_text_input.gd)]
+        * [<Node#4260808888109>]
+        * [<Node#4260892774210>(subsystem_expression.gd)]
+    - test_live_all_text_preference_advances_and_read_only_takes_effect_immediately
+        * [<Node#4443898645813>(subsystem_save.gd)]
+        * [<Node#4444049640758>(subsystem_text_input.gd)]
+        * [<Timer#4443915423034>]
+        * [<Node#4443630210791>]
+        * [<Node#4443663765224>(subsystem_backgrounds.gd)]
+        * [<Node#4443697319657>(subsystem_choices.gd)]
+        * [<Timer#4443814760170>]
+        * [<Node#4443831537387>(subsystem_jump.gd)]
+        * [<Node#4443848314604>(subsystem_containers.gd)]
+        * [<Node#4443596656383>(subsystem_animation.gd)]
+        * [<Node#4443613433600>(subsystem_audio.gd)]
+        * [<Node#4443646988033>]
+        * [<Node#4443764428546>(subsystem_glossary.gd)]
+        * [<Node#4443730874116>(subsystem_expression.gd)]
+        * [<Timer#4443714096901>]
+        * [<Node#4443781205766>(subsystem_history.gd)]
+        * [<Node#4443797982983>(subsystem_input.gd)]
+        * [<Node#4443948977933>(subsystem_styles.gd)]
+        * [<Node#4443865091877>(subsystem_portraits.gd)]
+        * [<Node#4444066418472>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#4444099972919>]
+        * [<Node#4444083195705>(subsystem_voice.gd)]
+        * [<Node#4443932200765>(subsystem_settings.gd)]
+        * [<Node#4443965755211>(subsystem_text.gd)]
+    - test_choice_stops_during_reveal_then_normal_next_opens_it
+        * [<Node#4641567804155>(subsystem_save.gd)]
+        * [<Node#4641752353664>(subsystem_voice.gd)]
+        * [<Node#4641299369223>]
+        * [<Node#4641332923687>(subsystem_backgrounds.gd)]
+        * [<Node#4641400032611>(subsystem_expression.gd)]
+        * [<Node#4641282592213>(subsystem_audio.gd)]
+        * [<Node#4641500696079>(subsystem_jump.gd)]
+        * [<Node#4641316146769>]
+        * [<Timer#4641584582250>]
+        * [<Node#4641265815279>(subsystem_animation.gd)]
+        * [<Node#4641601359602>(subsystem_settings.gd)]
+        * [<Timer#4641383255831>]
+        * [<Node#4641534250777>(subsystem_portraits.gd)]
+        * [<Node#4641517473565>(subsystem_containers.gd)]
+        * [<Node#4641618136863>(subsystem_styles.gd)]
+        * [<Timer#4641483919137>]
+        * [<Node#4641450364706>(subsystem_history.gd)]
+        * [<Node#4641467141923>(subsystem_input.gd)]
+        * [<Node#4641433587508>(subsystem_glossary.gd)]
+        * [<Node#4641366478651>(subsystem_choices.gd)]
+        * [<Node#4641634914244>(subsystem_text.gd)]
+        * [<Node#4641718800331>(subsystem_text_input.gd)]
+        * [<Node#4641735577548>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#4641769131981>]
+    - test_default_adapter_reveal_retains_native_next_behavior
+        * [<Node#4807477693352>]
+        * [<Node#4807695797363>(subsystem_containers.gd)]
+        * [<Node#4807494470794>]
+        * [<Node#4807645465785>(subsystem_input.gd)]
+        * [<Timer#4807662243005>]
+        * [<Node#4807746129254>(subsystem_save.gd)]
+        * [<Node#4807712574823>(subsystem_portraits.gd)]
+        * [<Node#4807779683702>(subsystem_settings.gd)]
+        * [<Node#4807511248279>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#4807947456002>]
+        * [<Node#4807460916748>(subsystem_audio.gd)]
+        * [<Node#4807628688970>(subsystem_history.gd)]
+        * [<Timer#4807561580107>]
+        * [<Node#4807611911756>(subsystem_glossary.gd)]
+        * [<Node#4807897124492>(subsystem_text_input.gd)]
+        * [<Node#4807796461197>(subsystem_styles.gd)]
+        * [<Node#4807679020790>(subsystem_jump.gd)]
+        * [<Node#4807544803102>(subsystem_choices.gd)]
+        * [<Node#4807444139808>(subsystem_animation.gd)]
+        * [<Timer#4807762907038>]
+        * [<Node#4807578357705>(subsystem_expression.gd)]
+        * [<Node#4807930679268>(subsystem_voice.gd)]
+        * [<Node#4807913902053>(subsystem_variables.gd)]
+        * [<Node#4807813238764>(subsystem_text.gd)]
+    - test_effect_signal_stops_before_execution
+        * [<Node#4945285745804>(subsystem_voice.gd)]
+        * [<Node#4945151528168>(subsystem_styles.gd)]
+        * [<Node#4944899870021>(subsystem_choices.gd)]
+        * [<Node#4945050865190>(subsystem_containers.gd)]
+        * [<Node#4944966979118>(subsystem_glossary.gd)]
+        * [<Node#4945134751458>(subsystem_settings.gd)]
+        * [<Node#4945168305918>(subsystem_text.gd)]
+        * [<Timer#4944916647690>]
+        * [<Timer#4945017310988>]
+        * [<Node#4945034088216>(subsystem_jump.gd)]
+        * [<Node#4945101197120>(subsystem_save.gd)]
+        * [<Node#4945067642693>(subsystem_portraits.gd)]
+        * [<Node#4944983756622>(subsystem_history.gd)]
+        * [<Node#4945000533864>(subsystem_input.gd)]
+        * [<Node#4944832761756>]
+        * [<Node#4944849538975>]
+        * [<Node#4944815984545>(subsystem_audio.gd)]
+        * [<Node#4944799207333>(subsystem_animation.gd)]
+        * [<Timer#4945117974449>]
+        * [<Node#4945268969424>(subsystem_variables.gd)]
+        * [<Node#4944933425121>(subsystem_expression.gd)]
+        * [<Node#4944866316270>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#4945302523914>]
+        * [<Node#4945252192267>(subsystem_text_input.gd)]
+    - test_variable_signal_stops_before_execution
+        * [<Node#5110960753858>(subsystem_glossary.gd)]
+        * [<Node#5110927199764>(subsystem_expression.gd)]
+        * [<Timer#5111111749204>]
+        * [<Node#5110860091019>(subsystem_backgrounds.gd)]
+        * [<Node#5110792982213>(subsystem_animation.gd)]
+        * [<Node#5111162081118>(subsystem_text.gd)]
+        * [<Node#5111044640684>(subsystem_containers.gd)]
+        * [<Node#5110826536882>]
+        * [<Node#5110843314099>]
+        * [<Node#5110809759668>(subsystem_audio.gd)]
+        * [<Node#5110893645755>(subsystem_choices.gd)]
+        * [<Node#5111094972414>(subsystem_save.gd)]
+        * [<Node#5111061417983>(subsystem_portraits.gd)]
+        * [<Node#5111027863555>(subsystem_jump.gd)]
+        * [<Timer#5111011086340>]
+        * [<Node#5110994309126>(subsystem_input.gd)]
+        * [<Timer#5110910423047>]
+        * [<Node#5110977531912>(subsystem_history.gd)]
+        * [<Node#5111262744597>(subsystem_variables.gd)]
+        * [<Node#5111279521814>(subsystem_voice.gd)]
+        * [<Node#5111128526883>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#5111296299084>]
+        * [<Node#5111145304146>(subsystem_styles.gd)]
+        * [<Node#5111245967443>(subsystem_text_input.gd)]
+    - test_return_stops_before_departure
+        * [<Node#5277155855409>(subsystem_containers.gd)]
+        * [<Node#5276954529074>]
+        * [<Node#5276904197717>(subsystem_animation.gd)]
+        * [<Node#5277239742123>(subsystem_settings.gd)]
+        * [<Node#5277273296594>(subsystem_text.gd)]
+        * [<Node#5276971306822>(subsystem_backgrounds.gd)]
+        * [<Node#5276937752393>]
+        * [<Node#5277105524572>(subsystem_input.gd)]
+        * [<Timer#5277222965125>]
+        * [<Node#5276920975254>(subsystem_audio.gd)]
+        * [<Node#5277088747435>(subsystem_history.gd)]
+        * [<Node#5277071970304>(subsystem_glossary.gd)]
+        * [<Node#5277038415892>(subsystem_expression.gd)]
+        * [<Timer#5277021638680>]
+        * [<Node#5277206188101>(subsystem_save.gd)]
+        * [<Node#5277172633670>(subsystem_portraits.gd)]
+        * [<Node#5277139079242>(subsystem_jump.gd)]
+        * [<Timer#5277122302027>]
+        * [<Node#5277004861517>(subsystem_choices.gd)]
+        * [<Node#5277373960282>(subsystem_variables.gd)]
+        * [<Node#5277390737504>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#5277407514772>]
+        * [<Node#5277357183125>(subsystem_text_input.gd)]
+        * [<Node#5277256519831>(subsystem_styles.gd)]
+    - test_unknown_wait_stops_as_validation_error
+        * [<Node#5443183184948>(subsystem_history.gd)]
+        * [<Timer#5443317403104>]
+        * [<Node#5443334180724>(subsystem_settings.gd)]
+        * [<Node#5442998636415>(subsystem_animation.gd)]
+        * [<Node#5443032190851>]
+        * [<Node#5443065745284>(subsystem_backgrounds.gd)]
+        * [<Node#5443250294671>(subsystem_containers.gd)]
+        * [<Node#5443048968084>]
+        * [<Node#5443015413666>(subsystem_audio.gd)]
+        * [<Node#5443199963050>(subsystem_input.gd)]
+        * [<Node#5443166408775>(subsystem_glossary.gd)]
+        * [<Node#5443132854357>(subsystem_expression.gd)]
+        * [<Timer#5443116077148>]
+        * [<Node#5443300626569>(subsystem_save.gd)]
+        * [<Node#5443267072138>(subsystem_portraits.gd)]
+        * [<Node#5443233517710>(subsystem_jump.gd)]
+        * [<Timer#5443216740496>]
+        * [<Node#5443099299985>(subsystem_choices.gd)]
+        * [<Node#5443485175969>(subsystem_voice.gd)]
+        * [<Node#5443468398754>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#5443501953230>]
+        * [<Node#5443350958292>(subsystem_styles.gd)]
+        * [<Node#5443451621589>(subsystem_text_input.gd)]
+        * [<Node#5443367735542>(subsystem_text.gd)]
+    - test_no_id_refuses_without_history_write
+        * [<Node#5609294401274>(subsystem_input.gd)]
+        * [<Node#5609093074799>(subsystem_animation.gd)]
+        * [<Node#5609143406448>]
+        * [<Node#5609126629233>]
+        * [<Node#5609160183666>(subsystem_backgrounds.gd)]
+        * [<Node#5609462173563>(subsystem_text.gd)]
+        * [<Node#5609344733058>(subsystem_containers.gd)]
+        * [<Node#5609428619142>(subsystem_settings.gd)]
+        * [<Node#5609277624208>(subsystem_history.gd)]
+        * [<Node#5609109852080>(subsystem_audio.gd)]
+        * [<Timer#5609411841983>]
+        * [<Node#5609260847243>(subsystem_glossary.gd)]
+        * [<Node#5609227292824>(subsystem_expression.gd)]
+        * [<Timer#5609210515613>]
+        * [<Node#5609395065031>(subsystem_save.gd)]
+        * [<Node#5609361510600>(subsystem_portraits.gd)]
+        * [<Node#5609327956172>(subsystem_jump.gd)]
+        * [<Timer#5609311178957>]
+        * [<Node#5609193738447>(subsystem_choices.gd)]
+        * [<Node#5609579614428>(subsystem_voice.gd)]
+        * [<Node#5609562837213>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#5609596391700>]
+        * [<Node#5609546060053>(subsystem_text_input.gd)]
+        * [<Node#5609445396759>(subsystem_styles.gd)]
+    - test_unregistered_id_refuses_without_history_write
+        * [<Node#5746834017600>(subsystem_styles.gd)]
+        * [<Node#5746716577177>(subsystem_jump.gd)]
+        * [<Node#5746498473496>(subsystem_audio.gd)]
+        * [<Node#5746666245764>(subsystem_history.gd)]
+        * [<Node#5746481696429>(subsystem_animation.gd)]
+        * [<Node#5746532028153>]
+        * [<Timer#5746800463734>]
+        * [<Node#5746649468793>(subsystem_glossary.gd)]
+        * [<Node#5746515251132>]
+        * [<Node#5746783686641>(subsystem_save.gd)]
+        * [<Timer#5746599137498>]
+        * [<Node#5746582360286>(subsystem_choices.gd)]
+        * [<Node#5746615914727>(subsystem_expression.gd)]
+        * [<Node#5746750132488>(subsystem_portraits.gd)]
+        * [<Node#5746733355273>(subsystem_containers.gd)]
+        * [<Timer#5746699800846>]
+        * [<Node#5746683023631>(subsystem_input.gd)]
+        * [<Node#5746548805904>(subsystem_backgrounds.gd)]
+        * [<Node#5746850795803>(subsystem_text.gd)]
+        * [<Node#5746951459101>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#5746985013534>]
+        * [<Node#5746934681887>(subsystem_text_input.gd)]
+        * [<Node#5746968236369>(subsystem_voice.gd)]
+        * [<Node#5746817241428>(subsystem_settings.gd)]
+    - test_registered_cross_owner_id_refuses_without_history_write
+        * [<Node#5884088422019>(subsystem_jump.gd)]
+        * [<Node#5884155531197>(subsystem_save.gd)]
+        * [<Node#5884189085680>(subsystem_settings.gd)]
+        * [<Node#5883903873013>]
+        * [<Node#5883870318582>(subsystem_audio.gd)]
+        * [<Node#5883853541405>(subsystem_animation.gd)]
+        * [<Node#5884021313608>(subsystem_glossary.gd)]
+        * [<Node#5883920650501>(subsystem_backgrounds.gd)]
+        * [<Node#5883987759382>(subsystem_expression.gd)]
+        * [<Timer#5883970982176>]
+        * [<Node#5883887096113>]
+        * [<Node#5884121977156>(subsystem_portraits.gd)]
+        * [<Node#5884105199941>(subsystem_containers.gd)]
+        * [<Timer#5884071645513>]
+        * [<Node#5884054868299>(subsystem_input.gd)]
+        * [<Node#5884038091084>(subsystem_history.gd)]
+        * [<Node#5883954205005>(subsystem_choices.gd)]
+        * [<Node#5884222640467>(subsystem_text.gd)]
+        * [<Node#5884205863256>(subsystem_styles.gd)]
+        * [<Node#5884306526554>(subsystem_text_input.gd)]
+        * [<Node#5884323303771>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#5884356858216>]
+        * [<Timer#5884172308846>]
+        * [<Node#5884340081037>(subsystem_voice.gd)]
+    - test_skip_availability_reads_without_revealing_or_writing
+        * [<Node#6021678370146>(subsystem_text_input.gd)]
+        * [<Node#6021258940073>]
+        * [<Node#6021560930338>(subsystem_settings.gd)]
+        * [<Node#6021242163255>(subsystem_audio.gd)]
+        * [<Node#6021275717688>]
+        * [<Node#6021225386082>(subsystem_animation.gd)]
+        * [<Node#6021527375997>(subsystem_save.gd)]
+        * [<Node#6021695148196>(subsystem_variables.gd)]
+        * [<Node#6021460267210>(subsystem_jump.gd)]
+        * [<Node#6021292495174>(subsystem_backgrounds.gd)]
+        * [<Node#6021359604057>(subsystem_expression.gd)]
+        * [<Timer#6021342826847>]
+        * [<AudioStreamPlayer#6021728702848>]
+        * [<Node#6021493821825>(subsystem_portraits.gd)]
+        * [<Node#6021477044610>(subsystem_containers.gd)]
+        * [<Timer#6021443490182>]
+        * [<Node#6021426712967>(subsystem_input.gd)]
+        * [<Node#6021409935753>(subsystem_history.gd)]
+        * [<Node#6021326049674>(subsystem_choices.gd)]
+        * [<Node#6021393158539>(subsystem_glossary.gd)]
+        * [<Node#6021577707927>(subsystem_styles.gd)]
+        * [<Node#6021594485148>(subsystem_text.gd)]
+        * [<Timer#6021544153510>]
+        * [<Node#6021711925702>(subsystem_voice.gd)]
+    - test_rehearsal_has_no_skip_history_mutation
+        * [<Node#6162455990258>]
+        * [<Node#6162707648601>(subsystem_save.gd)]
+        * [<Node#6162741203047>(subsystem_settings.gd)]
+        * [<Node#6162422435963>(subsystem_audio.gd)]
+        * [<Node#6162405658751>(subsystem_animation.gd)]
+        * [<Node#6162757980462>(subsystem_styles.gd)]
+        * [<Node#6162472767875>(subsystem_backgrounds.gd)]
+        * [<Node#6162439213462>]
+        * [<Timer#6162523099544>]
+        * [<Node#6162539876763>(subsystem_expression.gd)]
+        * [<Node#6162674094523>(subsystem_portraits.gd)]
+        * [<Timer#6162724426174>]
+        * [<Node#6162657317311>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#6162908975554>]
+        * [<Timer#6162623762883>]
+        * [<Node#6162606985668>(subsystem_input.gd)]
+        * [<Node#6162590208453>(subsystem_history.gd)]
+        * [<Node#6162506322375>(subsystem_choices.gd)]
+        * [<Node#6162573431240>(subsystem_glossary.gd)]
+        * [<Node#6162774757839>(subsystem_text.gd)]
+        * [<Node#6162858643926>(subsystem_text_input.gd)]
+        * [<Node#6162875421143>(subsystem_variables.gd)]
+        * [<Node#6162892198407>(subsystem_voice.gd)]
+        * [<Node#6162640540194>(subsystem_jump.gd)]
+    - test_late_transport_configuration_acknowledges_visible_canonical_line_once
+        * [<Node#6303703371640>(subsystem_text.gd)]
+        * [<Node#6303351050298>(subsystem_audio.gd)]
+        * [<Node#6303367827519>]
+        * [<Node#6303669817514>(subsystem_settings.gd)]
+        * [<Node#6303384604857>]
+        * [<Node#6303334273211>(subsystem_animation.gd)]
+        * [<Node#6303636263163>(subsystem_save.gd)]
+        * [<Node#6303401382336>(subsystem_backgrounds.gd)]
+        * [<Node#6303468491221>(subsystem_expression.gd)]
+        * [<Timer#6303451714009>]
+        * [<Node#6303585931770>(subsystem_containers.gd)]
+        * [<Node#6303602708987>(subsystem_portraits.gd)]
+        * [<Node#6303535600124>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#6303837590014>]
+        * [<Timer#6303653040639>]
+        * [<Timer#6303552377344>]
+        * [<Node#6303518822913>(subsystem_history.gd)]
+        * [<Node#6303434936834>(subsystem_choices.gd)]
+        * [<Node#6303502045699>(subsystem_glossary.gd)]
+        * [<Node#6303804035597>(subsystem_variables.gd)]
+        * [<Node#6303686595088>(subsystem_styles.gd)]
+        * [<Node#6303787258386>(subsystem_text_input.gd)]
+        * [<Node#6303820812864>(subsystem_voice.gd)]
+        * [<Node#6303569154651>(subsystem_jump.gd)]
+    - test_ancestor_hidden_text_started_waits_for_visible_fresh_accept
+        * [<Node#6455537176089>(subsystem_styles.gd)]
+        * [<Node#6455201632380>(subsystem_audio.gd)]
+        * [<Node#6455218409601>]
+        * [<Node#6455520399592>(subsystem_settings.gd)]
+        * [<Node#6455235186938>]
+        * [<Node#6455184855293>(subsystem_animation.gd)]
+        * [<Node#6455486845240>(subsystem_save.gd)]
+        * [<Node#6455419736492>(subsystem_jump.gd)]
+        * [<Node#6455251964409>(subsystem_backgrounds.gd)]
+        * [<Node#6455319073295>(subsystem_expression.gd)]
+        * [<Timer#6455302296084>]
+        * [<Node#6455436513843>(subsystem_containers.gd)]
+        * [<Node#6455453291060>(subsystem_portraits.gd)]
+        * [<Node#6455386182197>(subsystem_input.gd)]
+        * [<AudioStreamPlayer#6455688172087>]
+        * [<Timer#6455503622712>]
+        * [<Timer#6455402959417>]
+        * [<Node#6455369404986>(subsystem_history.gd)]
+        * [<Node#6455285518907>(subsystem_choices.gd)]
+        * [<Node#6455352627772>(subsystem_glossary.gd)]
+        * [<Node#6455553954377>(subsystem_text.gd)]
+        * [<Node#6455637840459>(subsystem_text_input.gd)]
+        * [<Node#6455654617680>(subsystem_variables.gd)]
+        * [<Node#6455671394938>(subsystem_voice.gd)]
+    - test_source_cleared_during_normal_accept_rejects_old_caption_proof
+        * [<Node#6630741643217>(subsystem_styles.gd)]
+        * [<Node#6630640979928>(subsystem_containers.gd)]
+        * [<Node#6630439653564>]
+        * [<Node#6630456430783>(subsystem_backgrounds.gd)]
+        * [<Node#6630422876471>]
+        * [<Node#6630406099258>(subsystem_audio.gd)]
+        * [<Node#6630389322080>(subsystem_animation.gd)]
+        * [<Timer#6630708089268>]
+        * [<Node#6630657757664>(subsystem_portraits.gd)]
+        * [<Node#6630489985586>(subsystem_choices.gd)]
+        * [<Node#6630523540065>(subsystem_expression.gd)]
+        * [<Node#6630624203374>(subsystem_jump.gd)]
+        * [<Timer#6630607426163>]
+        * [<Node#6630590648948>(subsystem_input.gd)]
+        * [<Timer#6630506762869>]
+        * [<Node#6630573871735>(subsystem_history.gd)]
+        * [<Node#6630557094520>(subsystem_glossary.gd)]
+        * [<Node#6630859084420>(subsystem_variables.gd)]
+        * [<Node#6630875861641>(subsystem_voice.gd)]
+        * [<Node#6630758421180>(subsystem_text.gd)]
+        * [<Node#6630724866862>(subsystem_settings.gd)]
+        * [<AudioStreamPlayer#6630892639078>]
+        * [<Node#6630842307433>(subsystem_text_input.gd)]
+        * [<Node#6630691312516>(subsystem_save.gd)]
+    - test_source_replacement_announced_during_accept_cancels_old_caption_before_generation_change
+        * [<Node#6782827106366>(subsystem_audio.gd)]
+        * [<Node#6782860660928>]
+        * [<Timer#6783028433155>]
+        * [<Timer#6782927769894>]
+        * [<Node#6782944547114>(subsystem_expression.gd)]
+        * [<Node#6782910993042>(subsystem_choices.gd)]
+        * [<Node#6782994879156>(subsystem_history.gd)]
+        * [<Node#6783011656373>(subsystem_input.gd)]
+        * [<Node#6782810329784>(subsystem_animation.gd)]
+        * [<Node#6782843884218>]
+        * [<Node#6783263314680>(subsystem_text_input.gd)]
+        * [<Node#6783162651460>(subsystem_styles.gd)]
+        * [<Node#6783112319816>(subsystem_save.gd)]
+        * [<Node#6783078765387>(subsystem_portraits.gd)]
+        * [<Node#6783296869198>(subsystem_voice.gd)]
+        * [<Node#6783280091983>(subsystem_variables.gd)]
+        * [<Node#6783179428694>(subsystem_text.gd)]
+        * [<Node#6783145874264>(subsystem_settings.gd)]
+        * [<Timer#6783129097049>]
+        * [<Node#6782978102106>(subsystem_glossary.gd)]
+        * [<Node#6782877438811>(subsystem_backgrounds.gd)]
+        * [<Node#6783045211002>(subsystem_jump.gd)]
+        * [<Node#6783061988323>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#6783313646566>]
+    - test_mounted_rail_uses_real_skip_and_keeps_unimplemented_owners_disabled
+        * [<Node#6935331999708>(subsystem_choices.gd)]
+        * [<Node#6935466217728>(subsystem_jump.gd)]
+        * [<Timer#6935550103932>]
+        * [<Node#6935566881450>(subsystem_settings.gd)]
+        * [<Node#6935264891565>]
+        * [<Node#6935600435907>(subsystem_text.gd)]
+        * [<Node#6935432663797>(subsystem_input.gd)]
+        * [<Timer#6935449441018>]
+        * [<Node#6935583658760>(subsystem_styles.gd)]
+        * [<Node#6935533327124>(subsystem_save.gd)]
+        * [<Node#6935499772697>(subsystem_portraits.gd)]
+        * [<Node#6935701099291>(subsystem_variables.gd)]
+        * [<Node#6935717876539>(subsystem_voice.gd)]
+        * [<Node#6935399109450>(subsystem_glossary.gd)]
+        * [<Timer#6935348777804>]
+        * [<Node#6935365555027>(subsystem_expression.gd)]
+        * [<Node#6935281668974>]
+        * [<Node#6935298446192>(subsystem_backgrounds.gd)]
+        * [<Node#6935231337331>(subsystem_animation.gd)]
+        * [<Node#6935248114552>(subsystem_audio.gd)]
+        * [<Node#6935684322183>(subsystem_text_input.gd)]
+        * [<AudioStreamPlayer#6935734653833>]
+        * [<Node#6935482995597>(subsystem_containers.gd)]
+        * [<Node#6935415886820>(subsystem_history.gd)]
+    - test_native_normal_accept_stops_skip_before_the_dialogic_command
+        * [<Node#7121693315029>(subsystem_expression.gd)]
+        * [<Node#7121575874916>(subsystem_audio.gd)]
+        * [<Timer#7121877864819>]
+        * [<Node#7121592652151>]
+        * [<Node#7122012082729>(subsystem_text_input.gd)]
+        * [<Node#7121894642312>(subsystem_settings.gd)]
+        * [<Node#7121810756265>(subsystem_containers.gd)]
+        * [<Node#7121928196779>(subsystem_text.gd)]
+        * [<Node#7121626206910>(subsystem_backgrounds.gd)]
+        * [<Node#7121609429696>]
+        * [<Node#7121559098049>(subsystem_animation.gd)]
+        * [<Node#7122028860121>(subsystem_variables.gd)]
+        * [<Node#7122045637340>(subsystem_voice.gd)]
+        * [<Node#7121827533569>(subsystem_portraits.gd)]
+        * [<AudioStreamPlayer#7122062414613>]
+        * [<Timer#7121676538648>]
+        * [<Node#7121726870298>(subsystem_glossary.gd)]
+        * [<Node#7121861088048>(subsystem_save.gd)]
+        * [<Node#7121743647630>(subsystem_history.gd)]
+        * [<Node#7121760424847>(subsystem_input.gd)]
+        * [<Node#7121659761552>(subsystem_choices.gd)]
+        * [<Timer#7121777202065>]
+        * [<Node#7121793979282>(subsystem_jump.gd)]
+        * [<Node#7121911419806>(subsystem_styles.gd)]
+    - test_mounted_rail_uses_committed_catalog_locale_without_advancing_dialogue
+        * [<Node#7291260637475>(subsystem_voice.gd)]
+        * [<Node#7291227083065>(subsystem_text_input.gd)]
+        * [<Node#7291143197092>(subsystem_text.gd)]
+        * [<Timer#7290891538916>]
+        * [<Node#7291126420007>(subsystem_styles.gd)]
+        * [<Node#7291008979560>(subsystem_jump.gd)]
+        * [<Node#7291076088427>(subsystem_save.gd)]
+        * [<Timer#7291092865644>]
+        * [<Node#7290790875759>(subsystem_audio.gd)]
+        * [<Node#7290824430207>]
+        * [<Node#7290941870760>(subsystem_glossary.gd)]
+        * [<Node#7290908316332>(subsystem_expression.gd)]
+        * [<Node#7290807653039>]
+        * [<Node#7290774098617>(subsystem_animation.gd)]
+        * [<Node#7290874761946>(subsystem_choices.gd)]
+        * [<Node#7291042534113>(subsystem_portraits.gd)]
+        * [<Node#7291025756898>(subsystem_containers.gd)]
+        * [<Timer#7290992202467>]
+        * [<Node#7290975425252>(subsystem_input.gd)]
+        * [<Node#7290841207525>(subsystem_backgrounds.gd)]
+        * [<Node#7290958648039>(subsystem_history.gd)]
+        * [<AudioStreamPlayer#7291277415147>]
+        * [<Node#7291243860717>(subsystem_variables.gd)]
+        * [<Node#7291109643267>(subsystem_settings.gd)]
+    - test_chinese_initial_mount_keeps_the_installed_run_day_and_palette
+        * [<Node#7460324642875>(subsystem_containers.gd)]
+        * [<Node#7460123316417>]
+        * [<Timer#7460190425340>]
+        * [<Timer#7460291088737>]
+        * [<Node#7460257534391>(subsystem_history.gd)]
+        * [<Node#7460274311645>(subsystem_input.gd)]
+        * [<Node#7460408529430>(subsystem_settings.gd)]
+        * [<Node#7460207202848>(subsystem_expression.gd)]
+        * [<Node#7460341420622>(subsystem_portraits.gd)]
+        * [<Node#7460525970005>(subsystem_text_input.gd)]
+        * [<Node#7460307866207>(subsystem_jump.gd)]
+        * [<Node#7460442083938>(subsystem_text.gd)]
+        * [<Node#7460425306723>(subsystem_styles.gd)]
+        * [<Node#7460173648490>(subsystem_choices.gd)]
+        * [<Node#7460240757357>(subsystem_glossary.gd)]
+        * [<AudioStreamPlayer#7460576301723>]
+        * [<Timer#7460391752348>]
+        * [<Node#7460106539684>]
+        * [<Node#7460140094173>(subsystem_backgrounds.gd)]
+        * [<Node#7460542747404>(subsystem_variables.gd)]
+        * [<Node#7460374975440>(subsystem_save.gd)]
+        * [<Node#7460072985569>(subsystem_animation.gd)]
+        * [<Node#7460089762786>(subsystem_audio.gd)]
+        * [<Node#7460559524845>(subsystem_voice.gd)]
+    - test_mounted_auto_uses_the_host_deadline_to_advance_one_ordinary_line
+        * [<Node#7612980531457>(subsystem_save.gd)]
+        * [<Node#7612846313850>(subsystem_glossary.gd)]
+        * [<Node#7613148303797>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#7613181858233>]
+        * [<Node#7612946977212>(subsystem_portraits.gd)]
+        * [<Node#7612930199997>(subsystem_containers.gd)]
+        * [<Node#7612712096350>]
+        * [<Node#7612812759693>(subsystem_expression.gd)]
+        * [<Timer#7612795982601>]
+        * [<Node#7612745651065>(subsystem_backgrounds.gd)]
+        * [<Node#7612678542285>(subsystem_animation.gd)]
+        * [<Node#7612695319502>(subsystem_audio.gd)]
+        * [<Node#7612728873935>]
+        * [<Node#7613014086612>(subsystem_settings.gd)]
+        * [<Node#7612879868903>(subsystem_input.gd)]
+        * [<Timer#7612896646120>]
+        * [<Node#7612863091689>(subsystem_history.gd)]
+        * [<Node#7612779205610>(subsystem_choices.gd)]
+        * [<Node#7612913423389>(subsystem_jump.gd)]
+        * [<Node#7613165081631>(subsystem_voice.gd)]
+        * [<Timer#7612997309635>]
+        * [<Node#7613030864068>(subsystem_styles.gd)]
+        * [<Node#7613047641285>(subsystem_text.gd)]
+        * [<Node#7613131527371>(subsystem_text_input.gd)]
+    - test_mounted_auto_toggle_preserves_skip_until_its_profile_write_commits
+        * [<Node#7796338725278>(subsystem_choices.gd)]
+        * [<Node#7796472943509>(subsystem_jump.gd)]
+        * [<Timer#7796556829608>]
+        * [<Node#7796238062519>(subsystem_animation.gd)]
+        * [<Node#7796254839740>(subsystem_audio.gd)]
+        * [<Node#7796590384062>(subsystem_styles.gd)]
+        * [<Node#7796288394178>]
+        * [<Node#7796271616965>]
+        * [<Node#7796506498063>(subsystem_portraits.gd)]
+        * [<Timer#7796355503127>]
+        * [<Node#7796573606936>(subsystem_settings.gd)]
+        * [<Timer#7796456166426>]
+        * [<Node#7796439389211>(subsystem_input.gd)]
+        * [<Node#7796422611996>(subsystem_history.gd)]
+        * [<Node#7796405834782>(subsystem_glossary.gd)]
+        * [<Node#7796540052533>(subsystem_save.gd)]
+        * [<Node#7796305171533>(subsystem_backgrounds.gd)]
+        * [<AudioStreamPlayer#7796741379171>]
+        * [<Node#7796489720935>(subsystem_containers.gd)]
+        * [<Node#7796691047530>(subsystem_text_input.gd)]
+        * [<Node#7796372280521>(subsystem_expression.gd)]
+        * [<Node#7796607161598>(subsystem_text.gd)]
+        * [<Node#7796707824901>(subsystem_variables.gd)]
+        * [<Node#7796724602118>(subsystem_voice.gd)]
+    - test_mounted_auto_retains_remaining_delay_while_pause_covers_the_caption
+        * [<Node#7982599376855>(subsystem_save.gd)]
+        * [<Node#7982632931625>(subsystem_settings.gd)]
+        * [<Node#7982565823212>(subsystem_portraits.gd)]
+        * [<AudioStreamPlayer#7982800704287>]
+        * [<Node#7982666486562>(subsystem_text.gd)]
+        * [<Node#7982649709347>(subsystem_styles.gd)]
+        * [<Node#7982297387940>(subsystem_animation.gd)]
+        * [<Node#7982314165157>(subsystem_audio.gd)]
+        * [<Node#7982347719590>]
+        * [<Node#7982330942375>]
+        * [<Node#7982783927212>(subsystem_voice.gd)]
+        * [<Timer#7982616155061>]
+        * [<Timer#7982515491937>]
+        * [<Node#7982498714722>(subsystem_input.gd)]
+        * [<Node#7982364496996>(subsystem_backgrounds.gd)]
+        * [<Node#7982481937509>(subsystem_history.gd)]
+        * [<Node#7982465160294>(subsystem_glossary.gd)]
+        * [<Node#7982767150193>(subsystem_variables.gd)]
+        * [<Node#7982750372978>(subsystem_text_input.gd)]
+        * [<Node#7982549046390>(subsystem_containers.gd)]
+        * [<Node#7982431605900>(subsystem_expression.gd)]
+        * [<Node#7982532269218>(subsystem_jump.gd)]
+        * [<Timer#7982414828800>]
+        * [<Node#7982398051587>(subsystem_choices.gd)]
+    - test_normal_accept_retires_auto_before_input_then_gives_next_line_a_full_delay
+        * [<Node#8165773021374>]
+        * [<Node#8165924016714>(subsystem_input.gd)]
+        * [<Node#8165991125638>(subsystem_portraits.gd)]
+        * [<Timer#8166041457353>]
+        * [<Node#8166091789011>(subsystem_text.gd)]
+        * [<Node#8165756244768>]
+        * [<Node#8165789799204>(subsystem_backgrounds.gd)]
+        * [<Node#8165823353654>(subsystem_choices.gd)]
+        * [<Node#8165739467582>(subsystem_audio.gd)]
+        * [<Node#8166209229728>(subsystem_voice.gd)]
+        * [<Node#8166058234785>(subsystem_settings.gd)]
+        * [<Node#8165722690504>(subsystem_animation.gd)]
+        * [<Timer#8165840131032>]
+        * [<Node#8165856908403>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#8166226007157>]
+        * [<Node#8166024680602>(subsystem_save.gd)]
+        * [<Node#8165957571748>(subsystem_jump.gd)]
+        * [<Node#8165907240101>(subsystem_history.gd)]
+        * [<Node#8165890462886>(subsystem_glossary.gd)]
+        * [<Node#8166192452783>(subsystem_variables.gd)]
+        * [<Node#8166075012285>(subsystem_styles.gd)]
+        * [<Timer#8165940794560>]
+        * [<Node#8166175675620>(subsystem_text_input.gd)]
+        * [<Node#8165974349048>(subsystem_containers.gd)]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_dialogic_production_skip.gd
+- test_mounted_read_only_first_activation_preserves_pre_presentation_unread_state
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [3] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 317
+- test_failed_mounted_acknowledgement_blocks_normal_accept_until_fresh_retry_commits
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 390
+- test_failed_mounted_acknowledgement_blocks_zero_delay_native_auto_advance
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 410
+- test_failed_acknowledgement_blocks_automatic_choice_open_until_fresh_accept_retry
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 438
+- test_failed_acknowledgement_blocks_native_auto_skip_timer_and_choice
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 458
+- test_failed_acknowledgement_blocks_native_auto_skip_armed_after_text_is_done
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 484
+- test_canonical_line_without_an_id_retains_native_manual_accept
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 500
+- test_canonical_unregistered_line_retains_native_zero_delay_auto
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 515
+- test_registered_wrong_owner_blocks_native_auto_and_manual_accept
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 537
+- test_read_only_reveals_persists_and_only_then_advances
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [3] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 601
+- test_live_all_text_preference_advances_and_read_only_takes_effect_immediately
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 621
+- test_choice_stops_during_reveal_then_normal_next_opens_it
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 657
+- test_default_adapter_reveal_retains_native_next_behavior
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 667
+- test_effect_signal_stops_before_execution
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 671
+- test_variable_signal_stops_before_execution
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 675
+- test_return_stops_before_departure
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 679
+- test_unknown_wait_stops_as_validation_error
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 683
+- test_ancestor_hidden_text_started_waits_for_visible_fresh_accept
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 792
+- test_source_cleared_during_normal_accept_rejects_old_caption_proof
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 814
+- test_source_replacement_announced_during_accept_cancels_old_caption_before_generation_change
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 835
+- test_mounted_rail_uses_real_skip_and_keeps_unimplemented_owners_disabled
+    [Failed]:  [Auto:<Button#6947730363058>(WitnessedTransportButton.gd)] expected to equal [Caption:<RichTextLabel#6944140038435>(node_dialog_text.gd)]:
+          at line 855
+    [Failed]:  Auto has no completed owner yet
+          at line 858
+    [Failed]:  [2] expected to equal [0]:
+          at line 859
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [3] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 885
+- test_native_normal_accept_stops_skip_before_the_dialogic_command
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 918
+- test_mounted_auto_uses_the_host_deadline_to_advance_one_ordinary_line
+    [Failed]:  complete reveal arms the registered acknowledged source
+          at line -1
+    [Failed]:  [0.0] expected to be > than [0.0]:
+          at line 1021
+    [Failed]:  [4] expected to equal [5]:
+          at line 1026
+    [Failed]:  ["Text/line.contact.ordinary.lavinia.day1.reply.a/text"] expected to equal ["Text/line.contact.ordinary.lavinia.day1.reply.b/text"]:
+          at line 1027
+    [Failed]:  the next line publishes normally
+          at line 1028
+    [Failed]:  [4] expected to equal [5]:  old deadline cannot cross the new revealing line
+          at line 1030
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 1030
+- test_mounted_auto_retains_remaining_delay_while_pause_covers_the_caption
+    [Failed]:  complete reveal arms the registered acknowledged source
+          at line -1
+    [Failed]:  [4] expected to equal [5]:
+          at line 1069
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 1069
+- test_normal_accept_retires_auto_before_input_then_gives_next_line_a_full_delay
+    [Failed]:  complete reveal arms the registered acknowledged source
+          at line -1
+    [Failed]:
+          at line 1089
+    [Failed]:  [0.0] expected to be > than [0.4]:  next line receives a fresh full delay
+          at line 1090
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+    [2] <engine-0>Error calling from signal 'text_finished' to callable: 'Node(WitnessedCaptionLayer.gd)::_on_auto_state_changed': Method expected 0 argument(s), but called with 1.
+          at line 1092
+
+Totals
+------
+Scripts               5
+Tests                82
+Passing Tests        57
+Failing Tests        25
+Asserts           1772/1811
+Orphans             984
+Time              9.856s
+
+
+---- 25 failing tests ----

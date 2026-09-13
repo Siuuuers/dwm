@@ -15,6 +15,9 @@ var _bridge: Node
 
 class _FakeProfile extends Node:
 	signal visited_history_changed(line_id: String, visited: bool)
+	var auto_enabled := false
+	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
+		return auto_enabled if path == &"preferences.reading.auto_enabled" else fallback
 	var visited: Array[String] = []
 	var fail_write := false
 	var failure_result: Dictionary = {}
@@ -43,6 +46,7 @@ class _FakeAdapter extends RefCounted:
 	var script_events: Array = []
 	var cursor := 0
 	var generation := 1
+	var line_complete := true
 	var calls: Array[String] = []
 	var reveal_callback := Callable()
 	var preserved_boundaries: Array[bool] = []
@@ -67,6 +71,8 @@ class _FakeAdapter extends RefCounted:
 		if cursor >= script_events.size():
 			return ""
 		return str(script_events[cursor][0])
+	func is_current_line_complete() -> bool:
+		return line_complete and not current_line_id().is_empty()
 	func classify_next_event() -> StringName:
 		if cursor >= script_events.size():
 			return &"none"
@@ -397,3 +403,71 @@ func test_fatal_acknowledgement_latch_survives_frontier_replacement_until_profil
 	assert_eq(replacement_profile.mark_calls, [LINE_A],
 		"a distinct Profile owner begins with a clean acknowledgement latch")
 	assert_true(replacement_profile.is_line_visited(LINE_A))
+
+
+func _has_auto_surface() -> bool:
+	var available := _bridge.has_method("can_auto_advance_current_line") \
+		and _bridge.has_method("request_auto_step")
+	assert_true(available, "the Bridge owns guarded automatic advancement")
+	return available
+
+
+func test_auto_step_requires_acknowledged_complete_exact_source() -> void:
+	var f := _wired([[LINE_A, "text"], [LINE_B, "text"]], POLICY.READ_ONLY)
+	if not _has_auto_surface(): return
+	f.profile.auto_enabled = true
+	var proof: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	assert_false(_bridge.call("can_auto_advance_current_line"))
+	assert_false(_bridge.call("request_auto_step", proof).get("ok", true))
+	assert_eq(f.profile.mark_calls, [], "Auto never retries presentation persistence")
+	assert_true(_bridge.acknowledge_current_line_presentation(proof).ok)
+	f.adapter.line_complete = false
+	assert_false(_bridge.call("can_auto_advance_current_line"))
+	assert_false(_bridge.call("request_auto_step", proof).get("ok", true))
+	f.adapter.line_complete = true
+	assert_true(_bridge.call("can_auto_advance_current_line"))
+	assert_true(_bridge.call("request_auto_step", proof).get("ok", false))
+	assert_eq(f.adapter.calls, ["advance:0"], "Auto advances without reveal or another receipt")
+	assert_eq(f.profile.mark_calls, [LINE_A])
+	assert_false(_bridge.call("request_auto_step", proof).get("ok", true), "one proof cannot advance twice")
+	assert_eq(f.adapter.cursor, 1)
+
+
+func test_auto_step_stops_before_every_nontext_boundary_with_preference_on() -> void:
+	var f := _wired([[LINE_A, "text"]], POLICY.READ_ONLY)
+	if not _has_auto_surface(): return
+	f.profile.auto_enabled = true
+	var proof: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	assert_true(_bridge.acknowledge_current_line_presentation(proof).ok)
+	for boundary: String in ["choice", "effect_transaction", "variable_transaction", "safe_marker", "scene_transition", "minesweeper_entry", "validation_error", "none"]:
+		f.adapter.script_events[0][1] = boundary
+		assert_false(_bridge.call("can_auto_advance_current_line"), boundary)
+		assert_false(_bridge.call("request_auto_step", proof).get("ok", true), boundary)
+		assert_eq(f.adapter.cursor, 0, boundary)
+	assert_true(f.profile.auto_enabled)
+	assert_eq(f.adapter.calls, [])
+	assert_eq(f.profile.mark_calls, [LINE_A])
+
+
+func test_auto_step_refuses_off_stale_proof_pause_and_mutation_custody() -> void:
+	var f := _wired([[LINE_A, "text"], [LINE_B, "text"]], POLICY.READ_ONLY)
+	if not _has_auto_surface(): return
+	var proof: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	assert_true(_bridge.acknowledge_current_line_presentation(proof).ok)
+	assert_false(_bridge.call("request_auto_step", proof).get("ok", true), "committed Auto Off is authoritative")
+	f.profile.auto_enabled = true
+	var stale := proof.duplicate(true)
+	stale.value.token = "another-token"
+	assert_false(_bridge.call("request_auto_step", stale).get("ok", true))
+	assert_false(_bridge.call("request_auto_step", {}).get("ok", true))
+	_bridge._pause_changing = true
+	assert_false(_bridge.call("request_auto_step", proof).get("ok", true))
+	_bridge._pause_changing = false
+	var gate := _FakeMutationGate.new()
+	add_child_autofree(gate)
+	assert_true(_bridge.configure_mutation_gate(gate).ok)
+	assert_false(_bridge.call("request_auto_step", proof).get("ok", true))
+	assert_eq(f.adapter.calls, [])
+	gate.held = false
+	assert_true(_bridge.call("request_auto_step", proof).get("ok", false))
+	assert_eq(f.adapter.calls, ["advance:0"])

@@ -121,3 +121,18 @@ there is no merge or push.
 
 The following [Window Mode successor](settings-window-output.md) connects native
 window preferences and their combined reset/restore behavior on Windows.
+
+## Witnessed Auto successor — 2026-09-14
+
+Witnessed Auto now reads the same Profile preference as Settings and owns one
+presentation-bound delay of 1, 2, or 4 eligible foreground seconds. The rail can
+toggle that preference atomically; committed Auto On stops Skip. The native
+Dialogic player timer remains neutral so it cannot race the host timer.
+
+Only fully revealed, acknowledged, registered ordinary lines can advance.
+Pause and focus/custody loss preserve the remaining delay; a manual Accept or
+source replacement retires the old timer. Choices, effects, markers, and route
+boundaries remain manual. Shared system TTS, session History, Backup Save/Load,
+and exact-variant Next are still unfinished. See the scoped tests, native
+accessibility proof, and limitations in
+[the Auto evidence](../../../evidence/witnessed_auto/README.md).

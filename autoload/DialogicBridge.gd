@@ -899,6 +899,7 @@ static var _line_witness_stages: Array = []
 var _line_presentation: Dictionary = {}
 var _line_ack_in_progress := false
 var _line_ack_fatal_failure: Dictionary = {}
+var _auto_step_in_progress := false
 
 
 ## Binds the ProfileManager that owns global visited history, plus the active skip mode.
@@ -969,6 +970,44 @@ func is_current_line_presentation_acknowledged() -> bool:
 ## Opaque proof of the rendered source, even while a transaction temporarily owns writes.
 func capture_current_line_presentation_frontier() -> Dictionary:
 	return _line_presentation_context({}, false)
+
+
+## The host timer may advance only an acknowledged, fully revealed ordinary line.
+func can_auto_advance_current_line() -> bool:
+	return not _auto_step_in_progress and not _skip_step_in_progress \
+		and not _line_ack_in_progress and _auto_line_context().get("ok", false)
+
+
+func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
+	if expected_frontier.is_empty(): return _command_failure(&"presentation_frontier_changed")
+	if _auto_step_in_progress or _skip_step_in_progress or _line_ack_in_progress:
+		return _command_failure(&"reading_command_in_progress")
+	_auto_step_in_progress = true
+	var admitted := _auto_line_context(expected_frontier)
+	if not admitted.get("ok", false):
+		_auto_step_in_progress = false
+		return admitted
+	var result: Dictionary = _runtime_adapter.advance_one_event()
+	_auto_step_in_progress = false
+	return result
+
+
+func _auto_line_context(expected_frontier: Dictionary = {}) -> Dictionary:
+	var current := _line_presentation_context(expected_frontier)
+	if not current.get("ok", false): return current
+	if not _skip_profile.has_method("get_preference") \
+			or not _skip_profile.get_preference(&"preferences.reading.auto_enabled", false):
+		return _command_failure(&"auto_off")
+	if _line_presentation.get("identity") != current.value \
+			or not _line_presentation.get("acknowledged", false) \
+			or not _skip_profile.is_line_visited(str(current.value.line_id)):
+		return _command_failure(&"auto_line_unacknowledged")
+	if not _runtime_adapter.has_method("is_current_line_complete") \
+			or not _runtime_adapter.is_current_line_complete():
+		return _command_failure(&"auto_line_revealing")
+	if _runtime_adapter.classify_next_event() != &"text":
+		return _command_failure(&"auto_boundary")
+	return _line_presentation_context(current)
 
 
 ## Called after the renderer accepts a registered line, or on a fresh explicit retry.
@@ -1044,6 +1083,8 @@ func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutati
 ## One held-skip step, in the exact frozen order: read the PRE-reveal visited state, reveal, mark
 ## visited, classify the next event WITHOUT consuming it, evaluate, advance only when allowed.
 func request_skip_step() -> Dictionary:
+	if _auto_step_in_progress:
+		return _command_failure(&"reading_command_in_progress")
 	if _line_ack_in_progress:
 		return _command_failure(&"presentation_acknowledgement_in_progress")
 	if _skip_step_in_progress:

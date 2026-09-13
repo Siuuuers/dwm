@@ -38,9 +38,13 @@ var _pause_covered := false
 var _transport_bridge: Object
 var _transport_configured := false
 var _transport_input_bound := false
-var _rail_focus_enabled := false
+var _rail_focus_key := ""
 var _presented_line: Dictionary = {}
 var _line_waiting_for_text := false
+var _auto_configured := false
+var _auto_input_bound := false
+var _auto_resume_pending := true
+var _reading_input_owner: Node
 
 @onready var canvas: Control = $Canvas
 @onready var scroll: ScrollContainer = $Canvas/Scroll
@@ -51,6 +55,7 @@ var _line_waiting_for_text := false
 @onready var overlay: Control = $Canvas/Overlay
 @onready var accept_input: Node = $AcceptInput
 @onready var skip_controller: Node = $SkipController
+@onready var auto_controller: Node = $AutoController
 @onready var transport_rail: Control = $Canvas/TransportRail
 
 func _ready() -> void:
@@ -81,12 +86,16 @@ func _ready() -> void:
 	configure_run_presentation(run_owner)
 	var runtime := get_node_or_null("/root/Dialogic")
 	accept_input.bind(caption_text, scroll, runtime)
-	accept_input.normal_accept_requested.connect(_retire_transport)
+	accept_input.normal_accept_requested.connect(_on_normal_accept_requested)
 	transport_rail.skip_requested.connect(_on_skip_requested)
+	transport_rail.auto_requested.connect(_on_auto_requested)
 	skip_controller.state_changed.connect(_sync_transport)
+	auto_controller.state_changed.connect(_on_auto_state_changed)
 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
 	var input_owner := get_node_or_null("/root/InputManager")
+	_reading_input_owner = input_owner
 	_transport_input_bound = transport_rail.bind_admission(_transport_admitted, input_owner)
+	_auto_input_bound = transport_rail.bind_auto_admission(_auto_button_admitted, input_owner)
 	if input_owner != null and input_owner.has_signal("source_input_custody_changed"):
 		input_owner.connect("source_input_custody_changed", _retire_transport)
 	if runtime != null and runtime.has_method("get_subsystem"):
@@ -94,9 +103,10 @@ func _ready() -> void:
 		if text_owner != null:
 			text_owner.connect("about_to_show_text", _on_about_to_show_text)
 			text_owner.connect("text_started", _on_text_started)
+			text_owner.connect("text_finished", _on_text_finished)
 		if runtime.has_signal("timeline_started"):
 			runtime.connect("timeline_started", _on_timeline_started)
-		runtime.connect("timeline_ended", _retire_transport)
+		runtime.connect("timeline_ended", _on_playback_ended)
 		runtime.connect("dialogic_paused", _retire_transport)
 	_sync_transport()
 
@@ -107,6 +117,7 @@ func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	if not skip_controller.configure(profile, bridge, _transport_admitted): return false
 	_transport_bridge = bridge
 	_transport_configured = true
+	_auto_configured = auto_controller.configure(profile, bridge, _auto_timer_admitted)
 	accept_input.bind_presentation_admission(_acknowledge_visible_line, _automatic_line_admitted)
 	_capture_presented_line()
 	_acknowledge_visible_line()
@@ -125,6 +136,7 @@ func _acknowledge_visible_line() -> bool:
 	# A rendered canonical proof stays mandatory if a callback replaces its owner.
 	if _pause_covered or not _has_caption() or not caption_text.is_visible_in_tree(): return false
 	var result: Dictionary = _transport_bridge.call("acknowledge_current_line_presentation", _presented_line)
+	if result.get("ok", false): _auto_resume_pending = true
 	return result.get("ok", false)
 
 
@@ -154,31 +166,71 @@ func _transport_admitted() -> bool:
 		and is_instance_valid(_transport_bridge) \
 		and bool(_transport_bridge.call("can_skip_current_line"))
 
+func _auto_button_admitted() -> bool:
+	return _auto_configured and _auto_input_bound and not _pause_covered \
+		and not _line_waiting_for_text and _presented_line.get("ok", false) \
+		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
+		and is_instance_valid(_transport_bridge) \
+		and _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier")
+
+func _auto_timer_admitted() -> bool:
+	return _auto_button_admitted() and is_instance_valid(_reading_input_owner) \
+		and _reading_input_owner.get_physical_contacts().is_empty()
+
+func _try_arm_auto() -> void:
+	if _auto_configured and not caption_text.revealing and _auto_timer_admitted():
+		auto_controller.arm_after_reveal(_presented_line)
+
+func _on_auto_state_changed() -> void:
+	_auto_resume_pending = true
+	_sync_transport()
+
+func _on_text_finished(_info: Dictionary) -> void:
+	_on_auto_state_changed()
+
+func _on_auto_requested() -> void:
+	auto_controller.toggle_auto()
+	_sync_transport()
+
+func _on_normal_accept_requested() -> void:
+	auto_controller.retire_current()
+	_retire_transport()
+	# Text's own coroutine settles after this signal and before the deferred arm.
+	_try_arm_auto.call_deferred()
+
+func _on_playback_ended() -> void:
+	auto_controller.retire_current()
+	_retire_transport()
+
 func _sync_transport() -> void:
 	if not is_instance_valid(transport_rail): return
 	var rehearsal := is_instance_valid(_transport_bridge) \
 		and _transport_bridge.has_method("is_rehearsal_playback") \
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
 	transport_rail.visible = not rehearsal
-	transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(), skip_controller.is_auto_enabled())
-	var skip: Control = transport_rail.get_node_or_null("Skip")
-	var enabled := skip != null and skip.focus_mode != Control.FOCUS_NONE
-	if enabled == _rail_focus_enabled: return
-	_rail_focus_enabled = enabled
-	if enabled:
-		caption_text.focus_next = caption_text.get_path_to(skip)
-		caption_text.focus_previous = caption_text.get_path_to(skip)
-		skip.focus_next = skip.get_path_to(caption_text)
-		skip.focus_previous = skip.get_path_to(caption_text)
-	else:
-		caption_text.focus_next = NodePath()
-		caption_text.focus_previous = NodePath()
+	transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
+		skip_controller.is_auto_enabled(), _auto_button_admitted())
+	var ring: Array[Control] = [caption_text]
+	var names: PackedStringArray = []
+	for name: String in ["Skip", "Auto"]:
+		var command: Control = transport_rail.get_node(name)
+		if command.focus_mode != Control.FOCUS_NONE:
+			ring.append(command)
+			names.append(name)
+	var focus_key := ",".join(names)
+	if focus_key == _rail_focus_key: return
+	_rail_focus_key = focus_key
+	for index: int in ring.size():
+		ring[index].focus_next = ring[index].get_path_to(ring[(index + 1) % ring.size()]) if ring.size() > 1 else NodePath()
+		ring[index].focus_previous = ring[index].get_path_to(ring[posmod(index - 1, ring.size())]) if ring.size() > 1 else NodePath()
 
 func _on_skip_requested() -> void:
 	skip_controller.toggle_skip()
 	_sync_transport()
 
 func _retire_transport() -> void:
+	_auto_resume_pending = true
+	if is_instance_valid(auto_controller): auto_controller.suspend_current()
 	if is_instance_valid(skip_controller): skip_controller.stop_skip()
 	if is_instance_valid(transport_rail): transport_rail.retire_input()
 
@@ -301,6 +353,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	return true
 
 func reset_caption_stack() -> void:
+	if is_instance_valid(auto_controller): auto_controller.retire_current()
 	_line_waiting_for_text = true
 	_presented_line.clear()
 	_retained.clear()
@@ -358,6 +411,7 @@ func get_caption_projection() -> Dictionary:
 	}
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
+	auto_controller.retire_current()
 	# Old caption text can remain in the node until the next text_started signal.
 	# It must not borrow legacy admission while the replacement has no proof yet.
 	_line_waiting_for_text = true
@@ -442,6 +496,11 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 
 func _process(_delta: float) -> void:
 	_sync_transport()
+	if not _auto_timer_admitted():
+		_auto_resume_pending = true
+	elif _auto_resume_pending:
+		_auto_resume_pending = false
+		_try_arm_auto.call_deferred()
 	if _caption_theme == null:
 		return
 	_sync_native_processing()

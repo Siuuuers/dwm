@@ -55,7 +55,7 @@ func capture_state() -> Dictionary:
 	return _ok({"plan": {
 		"text_delay_multiplier": float(settings_cache.get(&"text_speed", _plan.get("text_delay_multiplier", 1.0))),
 		"auto_delay_multiplier": float(settings_cache.get(&"autoadvance_delay_modifier", _plan.get("auto_delay_multiplier", 1.0))),
-		"auto_advance_enabled": bool(auto_advance.get("enabled_until_user_input")),
+		"auto_advance_enabled": bool(_plan.get("auto_advance_enabled", false)),
 		"skip_mode": _plan.get("skip_mode", &"read_only"),
 	}})
 
@@ -87,7 +87,9 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 	settings.set("settings", settings_cache)
 	text.call(&"update_text_speed", -1.0, false, 1.0, float(plan["text_delay_multiplier"]))
 	auto_advance.set("delay_modifier", float(plan["auto_delay_multiplier"]))
-	auto_advance.set("enabled_until_user_input", bool(plan["auto_advance_enabled"]))
+	# Witnessed presentation owns logical profile Auto. Keep Dialogic's independent
+	# player toggle neutral without disturbing its forced or one-event owners.
+	auto_advance.set("enabled_until_user_input", false)
 	_plan = plan.duplicate(true)
 	_plan["skip_mode"] = skip_mode
 	return _ok({})

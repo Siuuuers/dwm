@@ -3,6 +3,7 @@ extends Control
 ## Transport owners decide admission and perform every command.
 
 signal skip_requested
+signal auto_requested
 
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const SETTINGS_PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
@@ -20,9 +21,13 @@ var _localization: Object
 var _copy: Dictionary = {}
 var _buttons: Dictionary = {}
 var _skip_button: TRANSPORT_BUTTON
+var _auto_button: TRANSPORT_BUTTON
 var _admission: Callable
+var _auto_admission: Callable
 var _input_owner: Node
+var _auto_input_owner: Node
 var _can_skip := false
+var _can_auto := false
 var _skip_active := false
 var _auto_enabled := false
 var _projection_initialized := false
@@ -112,12 +117,24 @@ func bind_admission(admission: Callable, input_owner: Node) -> bool:
 	return true
 
 
-func project(can_skip: bool, skip_active: bool, auto_enabled: bool) -> bool:
+func bind_auto_admission(admission: Callable, input_owner: Node) -> bool:
+	if not admission.is_valid() or not is_instance_valid(input_owner):
+		return false
+	_ensure_controls()
+	if not _auto_button.bind_admission(admission, input_owner):
+		return false
+	_auto_admission = admission
+	_auto_input_owner = input_owner
+	return true
+
+
+func project(can_skip: bool, skip_active: bool, auto_enabled: bool, can_auto: bool = false) -> bool:
 	if skip_active and auto_enabled:
 		return false
 	_ensure_controls()
 	if _projection_initialized and can_skip == _can_skip \
-			and skip_active == _skip_active and auto_enabled == _auto_enabled:
+			and skip_active == _skip_active and auto_enabled == _auto_enabled \
+			and can_auto == _can_auto:
 		return true
 	# Every semantic state change is an input-generation boundary. If disabling
 	# the focused command releases Focus, its focus_exited signal performs this
@@ -126,7 +143,12 @@ func project(can_skip: bool, skip_active: bool, auto_enabled: bool) -> bool:
 		_skip_button.release_focus()
 	else:
 		_skip_button.retire_input()
+	if not can_auto and _auto_button.has_focus():
+		_auto_button.release_focus()
+	else:
+		_auto_button.retire_input()
 	_can_skip = can_skip
+	_can_auto = can_auto
 	_skip_active = skip_active
 	_auto_enabled = auto_enabled
 	_projection_initialized = true
@@ -137,6 +159,8 @@ func project(can_skip: bool, skip_active: bool, auto_enabled: bool) -> bool:
 func retire_input() -> void:
 	if is_instance_valid(_skip_button):
 		_skip_button.retire_input()
+	if is_instance_valid(_auto_button):
+		_auto_button.retire_input()
 
 
 func _draw() -> void:
@@ -172,7 +196,9 @@ func _ensure_controls() -> void:
 		add_child(button)
 		_buttons[id] = button
 	_skip_button = _buttons[&"skip"] as TRANSPORT_BUTTON
+	_auto_button = _buttons[&"auto"] as TRANSPORT_BUTTON
 	_skip_button.activated.connect(_on_skip_activated)
+	_auto_button.activated.connect(_on_auto_activated)
 
 
 func _apply_projection() -> void:
@@ -183,7 +209,8 @@ func _apply_projection() -> void:
 		button.language = _locale
 		var enabled_mode := (id == &"skip" and _skip_active) or (id == &"auto" and _auto_enabled)
 		button.text = _label(id, enabled_mode)
-		button.disabled = id != &"skip" or not _can_skip or _copy.is_empty() or not is_instance_valid(_localization)
+		var command_available := (id == &"skip" and _can_skip) or (id == &"auto" and _can_auto)
+		button.disabled = not command_available or _copy.is_empty() or not is_instance_valid(_localization)
 		button.focus_mode = Control.FOCUS_NONE if button.disabled else Control.FOCUS_ALL
 		button.theme_type_variation = &"WitnessedTransportMode" if enabled_mode else &"WitnessedTransportButton"
 		if not _roles.is_empty():
@@ -269,3 +296,9 @@ func _on_skip_activated() -> void:
 	if not _can_skip or not _admission.is_valid() or not bool(_admission.call()):
 		return
 	skip_requested.emit()
+
+
+func _on_auto_activated() -> void:
+	if not _can_auto or not _auto_admission.is_valid() or not bool(_auto_admission.call()):
+		return
+	auto_requested.emit()
