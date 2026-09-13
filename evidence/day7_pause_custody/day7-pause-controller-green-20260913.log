@@ -1,0 +1,89 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/10ebfb0d-b4ff-4af8-8b94-4ee074acef6f/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_production_pause_controller.gd
+* test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody
+* test_day7_overlay_is_covered_and_continue_restores_its_card_and_focus
+* test_day7_preparation_retry_survives_pause_without_preparing_or_acknowledging
+* test_retired_day7_overlay_cannot_restore_focus_into_the_same_desktop
+* test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action
+    8 Orphans
+        * [SaveAction:<Button#1145212766641>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1041965779438>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1106943937081>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1132311089338>(BackupKey.gd)] + 1
+* test_physical_dating_source_resumes_exact_command_and_changed_command_refuses
+* test_return_route_failure_retains_paused_retry_and_never_saves_or_resumes_discarded_source
+* test_foreign_runtime_and_title_cannot_be_admitted_as_idle_playback
+* test_pause_backup_inspects_nine_records_and_does_not_claim_unsupported_operations
+    2 Orphans
+        * [SaveAction:<Button#1734495701723>(BackupKey.gd)] + 1
+* test_global_back_does_not_steal_a_text_field_event
+* test_pause_delete_keeps_exact_suspension_and_never_saves_the_source
+* test_idle_pause_load_failure_reacquires_exact_source_then_retry_follows_new_session
+* test_failed_load_with_changed_session_cannot_resume_either_source
+* test_paused_dating_manual_and_quick_save_restore_exact_board_and_command
+* test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk
+* test_desktop_pause_capture_preserves_the_covered_app_and_suspension
+* test_desktop_pause_capture_refuses_route_session_and_narrative_drift
+* test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt
+18/18 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_production_pause_controller.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                18
+Passing Tests        18
+Asserts             362
+Orphans              24
+Time              9.121s
+
+
+---- All tests passed! ----

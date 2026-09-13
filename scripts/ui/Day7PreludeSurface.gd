@@ -29,6 +29,22 @@ var _current_title: Label
 var _current_body: Label
 var _next: Button
 var _status: Label
+var _input_owner: Node
+var _custody_bound := false
+var _pointer: Control
+var _contacts: Dictionary = {}
+var _blocked_contacts: Dictionary = {}
+var _candidate: Dictionary = {}
+var _fresh_contact := ""
+var _input_generation := 0
+var _retired_frame := -1
+var _foreground := true
+var _input_activation := false
+var _focus_pending: Control
+var _covered := false
+var _pause_anchor: Dictionary = {}
+var _capture_id := 0
+var _acknowledgment_pending := false
 
 func configure(card: Dictionary, acknowledge: Callable, locale: String = "en", presentation_theme: Theme = null) -> Dictionary:
 	if is_node_ready() or _configured: return _fail("prelude_already_configured")
@@ -65,6 +81,7 @@ func is_card_acknowledged(receipt: Dictionary) -> bool:
 func show_advance_retry(retry: Callable) -> Dictionary:
 	if not _configured or not retry.is_valid(): return _fail("prelude_retry_unavailable")
 	if _busy or (not _card.is_empty() and not _accepted): return _fail("prelude_card_still_pending")
+	_retire_input()
 	_advance_retry = retry
 	if is_node_ready(): _show_advance_retry()
 	return {"ok": true}
@@ -83,6 +100,8 @@ func present_card(card: Dictionary) -> Dictionary:
 	if card == _card: return {"ok": true, "value": {"already_presented": true}}
 	if _busy or (not _card.is_empty() and not _accepted): return _fail("prelude_card_still_pending")
 	if not _card.is_empty() and card.receipt.view_token == _card.receipt.view_token: return _fail("prelude_card_identity_mismatch")
+	_retire_input()
+	_pause_anchor.clear()
 	_card = card.duplicate(true)
 	_advance_retry = Callable()
 	_drawn = false
@@ -96,8 +115,11 @@ func get_presentation_history() -> Array[Dictionary]:
 
 func _ready() -> void:
 	layer = 30
+	if _presentation_receipts: add_to_group("day7_prelude_surface")
+	visibility_changed.connect(_retire_input)
 	_root = Control.new()
 	_root.name = "Day7Prelude"
+	_root.process_mode = Node.PROCESS_MODE_PAUSABLE
 	_root.theme = _presentation_theme
 	add_child(_root)
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -150,6 +172,13 @@ func _ready() -> void:
 	_next.add_theme_color_override("font_focus_color", Color("252b34"))
 	_next.pressed.connect(_on_next)
 	layout.add_child(_next)
+	_next.focus_exited.connect(_retire_input)
+	_pointer = Control.new()
+	_pointer.name = "NextPointerSurface"
+	_pointer.mouse_filter = Control.MOUSE_FILTER_STOP if _custody_bound else Control.MOUSE_FILTER_IGNORE
+	_next.add_child(_pointer)
+	_pointer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_pointer.gui_input.connect(_pointer_input)
 	for property: String in ["focus_next", "focus_previous", "focus_neighbor_top", "focus_neighbor_bottom", "focus_neighbor_left", "focus_neighbor_right"]:
 		_next.set(property, _next.get_path())
 	if _card.is_empty(): _show_advance_retry()
@@ -195,18 +224,22 @@ func _on_body_drawn(receipt: Dictionary) -> void:
 	if _presentation_receipts:
 		# The renderer's acceptance is the witness. Save outside its draw callback;
 		# a retired or replaced source cannot admit this queued receipt afterward.
+		_acknowledgment_pending = true
 		_acknowledge_drawn_card.call_deferred(receipt.duplicate(true))
 	else:
 		_next.disabled = false
 		_focus_next.call_deferred()
 
 func _acknowledge_drawn_card(receipt: Dictionary) -> void:
+	_acknowledgment_pending = false
 	if not is_inside_tree() or is_queued_for_deletion() or receipt != _card.get("receipt", {}) \
 			or not _drawn or _busy or _accepted: return
 	_submit_acknowledgment()
 
 func _on_next() -> void:
-	if _retrying or not is_inside_tree() or is_queued_for_deletion(): return
+	if _retrying or not is_inside_tree() or is_queued_for_deletion() or _covered: return
+	if _custody_bound and (not _input_activation or not _input_admitted()): return
+	_retire_input()
 	if _advance_retry.is_valid():
 		_retrying = true
 		_next.disabled = true
@@ -235,6 +268,7 @@ static func _invoke_acknowledgment(target: WeakRef, acknowledge: Callable, recei
 func _complete_acknowledgment(receipt: Dictionary, result: Variant) -> void:
 	if not is_inside_tree() or is_queued_for_deletion() or _card.receipt != receipt: return
 	_busy = false
+	_retire_input()
 	if not result is Dictionary or not result.get("ok", false):
 		_status.text = _copy(2)
 		_status.show()
@@ -259,12 +293,17 @@ static func _invoke_advance_retry(target: WeakRef, retry: Callable) -> void:
 func _complete_advance_retry(retry: Callable, result: Variant) -> void:
 	if not is_inside_tree() or is_queued_for_deletion(): return
 	_retrying = false
+	_retire_input()
 	if _advance_retry != retry: return # A new real card was already installed.
 	if not result is Dictionary or not result.get("ok", false): _show_advance_retry()
 
 func _focus_next() -> void:
 	if not is_inside_tree() or is_queued_for_deletion() or not is_instance_valid(_next) \
 		or not _next.is_visible_in_tree() or _next.disabled: return
+	if _covered: return
+	if _custody_bound and (not _input_admitted() or not _input_owner.get_physical_contacts().is_empty()):
+		_focus_pending = _next
+		return
 	_next.grab_focus()
 
 func _reveal_current_card(token: String) -> void:
@@ -288,11 +327,187 @@ func _beginning_is_visible() -> bool:
 		and body.end.x > aperture.position.x and body.position.x < aperture.end.x
 
 func _on_scroll_changed(_value: float) -> void:
+	_candidate.clear()
 	_redraw_current_body()
 
 func _redraw_current_body() -> void:
 	if _presentation_receipts and not _drawn and is_instance_valid(_current_body):
 		_current_body.queue_redraw()
+
+## Explicitly bound by the production owner; standalone Gallery keeps native Button semantics.
+func bind_input_custody(owner: Node) -> bool:
+	if not is_instance_valid(owner): return false
+	for method: String in ["get_physical_contacts", "observe_physical_contact", "get_physical_contact_id", "is_source_input_admitted"]:
+		if not owner.has_method(method): return false
+	for event: String in ["source_input_custody_changed", "input_bindings_changed"]:
+		if not owner.has_signal(event): return false
+	if _custody_bound: return is_instance_valid(_input_owner) and _input_owner == owner
+	_custody_bound = true
+	_input_owner = owner
+	owner.connect("source_input_custody_changed", _retire_input)
+	owner.connect("input_bindings_changed", _retire_input)
+	process_mode = Node.PROCESS_MODE_ALWAYS # Releases remain observable through universal Pause.
+	if is_instance_valid(_pointer): _pointer.mouse_filter = Control.MOUSE_FILTER_STOP
+	_retire_input()
+	return true
+
+func _retire_input() -> void:
+	_candidate.clear()
+	_fresh_contact = ""
+	_input_generation += 1
+	_retired_frame = Engine.get_process_frames()
+	if is_instance_valid(_input_owner):
+		_contacts = _input_owner.get_physical_contacts()
+		_blocked_contacts = _contacts.duplicate()
+
+func _input_admitted() -> bool:
+	return is_inside_tree() and not is_queued_for_deletion() and visible and not _covered \
+		and _foreground and not get_tree().paused and is_instance_valid(_next) \
+		and _next.is_visible_in_tree() and not _next.disabled \
+		and Engine.get_process_frames() != _retired_frame and _blocked_contacts.is_empty() \
+		and is_instance_valid(_input_owner) and _input_owner.is_source_input_admitted()
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT]:
+		_foreground = false
+		_retire_input()
+	elif what in [NOTIFICATION_WM_WINDOW_FOCUS_IN, NOTIFICATION_APPLICATION_FOCUS_IN]:
+		_foreground = true
+		_retire_input()
+	elif what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_DISABLED, NOTIFICATION_ENABLED]:
+		_retire_input()
+
+func _process(_delta: float) -> void:
+	if not is_instance_valid(_input_owner): return
+	_prune_contacts()
+	if is_instance_valid(_focus_pending) and _input_admitted() and _input_owner.get_physical_contacts().is_empty():
+		var target := _focus_pending
+		_focus_pending = null
+		if target.is_visible_in_tree(): target.grab_focus()
+
+func _prune_contacts() -> void:
+	var current: Dictionary = _input_owner.get_physical_contacts()
+	for id: String in _blocked_contacts.keys():
+		if current.get(id) != _blocked_contacts[id]: _blocked_contacts.erase(id)
+
+func _input(event: InputEvent) -> void:
+	if not is_instance_valid(_input_owner) or event.device == InputEvent.DEVICE_ID_EMULATION: return
+	_input_owner.observe_physical_contact(event)
+	_prune_contacts()
+	var id: String = _input_owner.get_physical_contact_id(event)
+	var current: Dictionary = _input_owner.get_physical_contacts()
+	_fresh_contact = ""
+	if not id.is_empty() and event.is_pressed() and current.get(id) != _contacts.get(id):
+		_fresh_contact = id
+	_contacts = current
+	if current.size() > 1:
+		_retire_input()
+		return
+	if event is InputEventScreenDrag or event is InputEventMouseMotion:
+		if not _candidate.is_empty() and _candidate.has("origin"):
+			var point: Vector2 = _pointer.get_global_transform_with_canvas().affine_inverse() * event.position
+			if point.distance_to(_candidate.origin) > 8.0 or not Rect2(Vector2.ZERO, _pointer.size).has_point(point):
+				_candidate.clear()
+		return
+	if event is InputEventScreenTouch and event.canceled:
+		_candidate.clear()
+		return
+	if not (event is InputEventKey or event is InputEventJoypadButton or event is InputEventAction): return
+	if not is_instance_valid(_next) or not _next.has_focus() or not visible or _covered or get_tree().paused: return
+	var direction := _page_direction(event)
+	if direction != 0:
+		get_viewport().set_input_as_handled()
+		if event.is_pressed() and not event.is_echo() and _fresh_contact == id and _input_admitted():
+			_candidate.clear()
+			var bar := _scroll.get_v_scroll_bar()
+			bar.value += bar.page * direction
+		return
+	if not event.is_action("ui_accept"): return
+	if not visible or _covered or get_tree().paused: return
+	get_viewport().set_input_as_handled()
+	if event.is_pressed():
+		if (not event is InputEventKey or not event.echo) and _fresh_contact == id and _input_admitted():
+			_candidate = {"id": id, "generation": _input_generation}
+	elif _candidate.get("id") == id:
+		_activate_candidate()
+
+func _page_direction(event: InputEvent) -> int:
+	if event is InputEventJoypadButton:
+		if event.button_index == JOY_BUTTON_LEFT_SHOULDER: return -1
+		if event.button_index == JOY_BUTTON_RIGHT_SHOULDER: return 1
+	if event is InputEventKey or event is InputEventAction:
+		if event.is_action(&"ui_page_up", true): return -1
+		if event.is_action(&"ui_page_down", true): return 1
+	return 0
+
+func _pointer_input(event: InputEvent) -> void:
+	if not is_instance_valid(_input_owner): return
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
+		_pointer.accept_event()
+		return
+	if not (event is InputEventScreenTouch or event is InputEventMouseButton): return
+	if event is InputEventMouseButton and event.button_index != MOUSE_BUTTON_LEFT: return
+	_pointer.accept_event()
+	var id: String = _input_owner.get_physical_contact_id(event)
+	if event.is_pressed():
+		if _fresh_contact != id or not _input_admitted(): return
+		if event is InputEventMouseButton and event.double_click: return
+		_next.grab_focus()
+		# Focus callbacks can hide/reopen or leave and return before this press arms.
+		if _fresh_contact != id or not _input_admitted() or not _next.has_focus(): return
+		_candidate = {"id": id, "generation": _input_generation, "origin": event.position}
+	elif _candidate.get("id") == id:
+		if (event is InputEventScreenTouch and event.canceled) or not Rect2(Vector2.ZERO, _pointer.size).has_point(event.position):
+			_candidate.clear()
+			return
+		_activate_candidate()
+
+func _activate_candidate() -> void:
+	var admitted: bool = _candidate.get("generation", -1) == _input_generation and _input_admitted() and _next.has_focus()
+	_candidate.clear()
+	if not admitted: return
+	_input_activation = true
+	_on_next()
+	_input_activation = false
+
+func get_pause_projection() -> Dictionary:
+	if not _presentation_receipts or not is_inside_tree() or is_queued_for_deletion(): return {}
+	if _covered: return _pause_anchor.get("projection", {}).duplicate(true)
+	if not visible or _busy or _retrying or _acknowledgment_pending or _navigation_requested: return {}
+	if not _drawn and not _advance_retry.is_valid(): return {}
+	return {"view_id": get_instance_id(), "receipt": _card.get("receipt", {}).duplicate(true), "acknowledged": _accepted}
+
+func capture_pause_view(source: Dictionary) -> Dictionary:
+	var projection := get_pause_projection()
+	if _covered or projection.is_empty(): return {"ok": false, "code": &"pause_view_unavailable"}
+	_capture_id += 1
+	var focus := get_viewport().gui_get_focus_owner()
+	_pause_anchor = {"view_id": get_instance_id(), "capture_id": _capture_id,
+		"projection": projection, "source": source.duplicate(true), "scroll": _scroll.scroll_vertical,
+		"focus": _root.get_path_to(focus) if is_instance_valid(focus) and _root.is_ancestor_of(focus) else NodePath()}
+	return {"ok": true, "value": _pause_anchor.duplicate(true)}
+
+func cover_pause_view(anchor: Dictionary) -> bool:
+	if anchor.is_empty() or anchor != _pause_anchor or get_pause_projection() != anchor.projection: return false
+	if _covered: return true
+	_focus_pending = null
+	_covered = true
+	_retire_input()
+	hide()
+	return true
+
+func restore_pause_view(anchor: Dictionary) -> bool:
+	if not _covered or anchor.is_empty() or anchor != _pause_anchor or get_pause_projection() != anchor.projection: return false
+	_focus_pending = null
+	_covered = false
+	show()
+	_scroll.scroll_vertical = int(anchor.scroll)
+	_retire_input()
+	var focus: Control = _root.get_node_or_null(anchor.focus) if not anchor.focus.is_empty() else null
+	if is_instance_valid(focus):
+		if _custody_bound: _focus_pending = focus
+		else: focus.grab_focus.call_deferred()
+	return true
 
 func _copy(index: int) -> String:
 	return COPY.get(_locale, COPY.en)[index]

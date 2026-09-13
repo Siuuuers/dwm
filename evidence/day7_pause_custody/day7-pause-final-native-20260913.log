@@ -1,0 +1,123 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/e8b60efd-5e8b-40f0-a828-7ec533d4ca09/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_day7_prelude_input.gd
+* test_native_keyboard_gamepad_mouse_touch_and_mapped_action_activate_once
+* test_held_contact_cannot_navigate_replacement_and_fresh_contact_can
+* test_canceled_dragged_outside_and_multitouch_release_do_not_activate
+* test_emulated_mouse_does_not_duplicate_touch_or_revive_canceled_touch
+* test_pause_preserves_exact_card_scroll_focus_and_quarantines_held_confirm
+* test_focus_visibility_binding_changes_and_foreground_loss_retire_pending_input
+* test_focus_callback_hide_and_reopen_cannot_revive_the_press_being_delivered
+* test_save_retry_uses_exact_receipt_then_next_requires_another_fresh_input
+* test_preparation_retry_has_pause_projection_without_fabricated_receipt
+* test_page_keys_and_shoulders_expose_long_body_without_consuming_next
+* test_lost_bound_input_owner_stays_fail_closed_for_native_buttons
+* test_pause_with_no_captured_focus_discards_pending_initial_auto_focus
+12/12 passed.
+
+
+res://tests/unit/test_day7_prelude_surface.gd
+* test_only_drawn_current_card_can_acknowledge_and_failed_save_retries_exact_receipt
+* test_prior_draw_and_reused_token_cannot_admit_a_new_card_and_history_stays_detached
+* test_retired_surface_does_not_publish_after_an_inflight_acknowledgment
+* test_initial_preparation_retry_has_no_fabricated_card_or_history_and_can_install_first_real_card
+* test_next_card_preparation_retry_never_reacknowledges_the_previous_card
+* test_free_during_acknowledgment_releases_callback_without_resuming_a_destroyed_instance
+* test_optional_scene_art_uses_exact_card_entry_and_keeps_acknowledgment_and_missing_art_layout
+* test_presentation_receipt_is_durable_on_draw_but_navigation_waits_for_next
+* test_failed_presentation_save_retries_same_receipt_without_navigating
+* test_queued_presentation_cannot_acknowledge_a_retired_surface
+* test_production_text_sizes_show_short_body_and_gate_long_card_until_its_leading_edge
+11/11 passed.
+
+
+res://tests/unit/test_production_pause_controller.gd
+* test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody
+* test_day7_overlay_is_covered_and_continue_restores_its_card_and_focus
+* test_day7_preparation_retry_survives_pause_without_preparing_or_acknowledging
+* test_retired_day7_overlay_cannot_restore_focus_into_the_same_desktop
+* test_day7_lost_view_anchor_keeps_desktop_hidden_during_recovery
+* test_failed_day7_load_keeps_view_input_and_tree_suspended_through_restore_handoff
+* test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action
+    8 Orphans
+        * [SaveAction:<Button#1534779722270>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1498457051071>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1522784014309>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1436297465932>(BackupKey.gd)] + 1
+* test_physical_dating_source_resumes_exact_command_and_changed_command_refuses
+* test_return_route_failure_retains_paused_retry_and_never_saves_or_resumes_discarded_source
+* test_foreign_runtime_and_title_cannot_be_admitted_as_idle_playback
+* test_pause_backup_inspects_nine_records_and_does_not_claim_unsupported_operations
+    2 Orphans
+        * [SaveAction:<Button#2114768079407>(BackupKey.gd)] + 1
+* test_global_back_does_not_steal_a_text_field_event
+* test_pause_delete_keeps_exact_suspension_and_never_saves_the_source
+* test_idle_pause_load_failure_reacquires_exact_source_then_retry_follows_new_session
+* test_failed_load_with_changed_session_cannot_resume_either_source
+* test_paused_dating_manual_and_quick_save_restore_exact_board_and_command
+* test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk
+* test_desktop_pause_capture_preserves_the_covered_app_and_suspension
+* test_desktop_pause_capture_refuses_route_session_and_narrative_drift
+* test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt
+20/20 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_day7_prelude_input.gd
+    - Outside Tests
+        * [<Node#131785033495>(subsystem_animation.gd)]
+        * [<Node#131801810723>(subsystem_audio.gd)]
+        * [<Node#131818587953>]
+        * [<Node#131835365177>]
+        * [<Node#131852142401>(subsystem_backgrounds.gd)]
+        * [<Node#132389013314>(subsystem_choices.gd)]
+        * [<Timer#132405790531>]
+        * [<Node#132422567748>(subsystem_expression.gd)]
+        * [<Node#132456122185>(subsystem_glossary.gd)]
+        * [<Node#132472899402>(subsystem_history.gd)]
+        * [<Node#132489676619>(subsystem_input.gd)]
+        * [<Timer#132506453836>]
+        * [<Node#132523231053>(subsystem_jump.gd)]
+        * [<Node#132540008270>(subsystem_containers.gd)]
+        * [<Node#132556785487>(subsystem_portraits.gd)]
+        * [<Node#133093656400>(subsystem_save.gd)]
+        * [<Timer#133110433617>]
+        * [<Node#133127210834>(subsystem_settings.gd)]
+        * [<Node#133143988054>(subsystem_styles.gd)]
+        * [<Node#133160765271>(subsystem_text.gd)]
+        * [<Node#133244651356>(subsystem_text_input.gd)]
+        * [<Node#133261428573>(subsystem_variables.gd)]
+        * [<Node#133278205790>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133294983007>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                43
+Passing Tests        43
+Asserts             738
+Orphans              24
+Time              17.797s
+
+
+---- All tests passed! ----

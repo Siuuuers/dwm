@@ -8,6 +8,7 @@ const BACKUP := preload("res://scenes/apps/BackupApp.tscn")
 const BACKUP_PORT := preload("res://scripts/application/lifecycle/PauseBackupPresentationPort.gd")
 const SETTINGS := preload("res://scenes/apps/SettingsApp.tscn")
 const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
+const PRELUDE := preload("res://scripts/ui/Day7PreludeSurface.gd")
 
 ## Idle desktop/challenge sources have no narrative to suspend. A real reading source
 ## delegates to the bridge's exact retained runtime; foreign activity is never accepted as idle.
@@ -16,6 +17,7 @@ class NarrativeSuspension extends RefCounted:
 	var held: Dictionary = {}
 	var live := false
 	var restored_handle: Dictionary = {}
+	var restoring_idle := false
 	func begin_suspend(handle: Dictionary) -> Dictionary:
 		if not held.is_empty(): return {"ok": false, "code": &"narrative_suspended"}
 		live = bridge.has_active_playback()
@@ -38,14 +40,29 @@ class NarrativeSuspension extends RefCounted:
 		if result.get("ok", false): held.clear()
 		return result
 	func begin_restore(handle: Dictionary) -> Dictionary:
-		if not live or handle != held: return {"ok": false, "code": &"invalid_suspension_handle"}
+		if handle.is_empty() or handle != held: return {"ok": false, "code": &"invalid_suspension_handle"}
+		if not live:
+			if not get_state().get("ok", false): return {"ok": false, "code": &"pause_source_changed"}
+			restoring_idle = true
+			return {"ok": true}
 		return bridge.begin_pause_restore(handle)
 	func cancel_restore(handle: Dictionary) -> Dictionary:
-		if not live or handle != held: return {"ok": false, "code": &"invalid_suspension_handle"}
+		if handle.is_empty() or handle != held: return {"ok": false, "code": &"invalid_suspension_handle"}
+		if not live:
+			if not restoring_idle: return {"ok": false, "code": &"invalid_suspension_handle"}
+			restoring_idle = false
+			return {"ok": true}
 		return bridge.cancel_pause_restore(handle)
 	func complete_restore(handle: Dictionary) -> Dictionary:
+		if handle.is_empty(): return {"ok": false, "code": &"invalid_suspension_handle"}
 		if held.is_empty() and handle == restored_handle: return {"ok": true}
 		if handle != held: return {"ok": false, "code": &"invalid_suspension_handle"}
+		if not live:
+			if not restoring_idle: return {"ok": false, "code": &"invalid_suspension_handle"}
+			restored_handle = handle.duplicate(true)
+			held.clear()
+			restoring_idle = false
+			return {"ok": true}
 		var completed: Dictionary = await bridge.complete_pause_restore(handle)
 		if completed.get("ok", false):
 			restored_handle = handle.duplicate(true)
@@ -66,6 +83,8 @@ var _layer: CanvasLayer
 var _scene: Control
 var _caption: Node
 var _caption_anchor: Dictionary = {}
+var _prelude: Node
+var _prelude_anchor: Dictionary = {}
 var _view_anchor: Dictionary = {}
 var _captured_source: Dictionary = {}
 var _handle: Dictionary = {}
@@ -202,7 +221,12 @@ func capture_pause_source() -> Dictionary:
 	var source := capture_scene_projection(scene)
 	if source.is_empty(): return _failure(&"pause_source_unavailable")
 	source["session"] = session.value.duplicate(true)
+	var prelude := _capture_day7_projection()
+	if not prelude.get("ok", false): return prelude
+	if not prelude.value.is_empty() and route != "main": return _failure(&"pause_source_changed")
+	source["day7_prelude"] = prelude.value
 	if _services.bridge.has_active_playback():
+		if not source.day7_prelude.is_empty(): return _failure(&"pause_frontier_unavailable")
 		var frontier: Dictionary = _services.bridge.capture_pause_frontier(source.timeline_id if route == "hospital" else "")
 		if not frontier.get("ok", false): return frontier
 		source["frontier"] = frontier.value.duplicate(true)
@@ -211,6 +235,19 @@ func capture_pause_source() -> Dictionary:
 	else:
 		source["frontier"] = {}
 	return {"ok": true, "value": source}
+
+func _capture_day7_projection() -> Dictionary:
+	var projection := {}
+	for candidate: Node in get_tree().get_nodes_in_group("day7_prelude_surface"):
+		if candidate.get_script() != PRELUDE or candidate.is_queued_for_deletion() \
+				or candidate.get_viewport() != get_viewport(): continue
+		var current: Dictionary = candidate.get_pause_projection()
+		if current.is_empty():
+			if candidate.visible: return _failure(&"pause_frontier_unavailable")
+			continue
+		if not projection.is_empty(): return _failure(&"pause_source_changed")
+		projection = current
+	return {"ok": true, "value": projection}
 
 ## Independent scene projection is reread at every acquisition/resume boundary.
 func capture_scene_projection(scene: Object) -> Dictionary:
@@ -232,6 +269,16 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 		"focus_id": focused.get_instance_id() if focused != null and (_scene == focused or _scene.is_ancestor_of(focused)) else 0}
 	_caption = null
 	_caption_anchor.clear()
+	_prelude = null
+	_prelude_anchor.clear()
+	var prelude_projection: Dictionary = source.get("day7_prelude", {})
+	if not prelude_projection.is_empty():
+		_prelude = instance_from_id(int(prelude_projection.view_id))
+		if not is_instance_valid(_prelude) or _prelude.get_script() != PRELUDE \
+				or _prelude.get_pause_projection() != prelude_projection: return _failure(&"pause_source_changed")
+		var captured: Dictionary = _prelude.capture_pause_view(source)
+		if not captured.get("ok", false): return captured
+		_prelude_anchor = captured.value.duplicate(true)
 	if not source.frontier.is_empty():
 		var bridge: Object = _services.get("bridge")
 		_caption = bridge.get_art_hold_view() if bridge != null and bridge.has_method("get_art_hold_view") else null
@@ -245,11 +292,15 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 func cover_pause_view(anchor: Dictionary) -> bool:
 	if not _valid_anchor(anchor): return false
 	if is_instance_valid(_caption) and not _caption.cover_pause_view(_caption_anchor): return false
+	if not _prelude_anchor.is_empty() and (not is_instance_valid(_prelude) \
+			or not _prelude.cover_pause_view(_prelude_anchor)): return false
 	_scene.hide()
 	return true
 
 func restore_pause_view(anchor: Dictionary) -> bool:
 	if not _valid_anchor(anchor): return false
+	if not _prelude_anchor.is_empty() and (not is_instance_valid(_prelude) \
+			or not _prelude.restore_pause_view(_prelude_anchor)): return false
 	_scene.visible = bool(anchor.visible)
 	if is_instance_valid(_caption) and not _caption.restore_pause_view(_caption_anchor): return false
 	var focused: Object = instance_from_id(int(anchor.focus_id)) if int(anchor.focus_id) != 0 else null
@@ -359,7 +410,9 @@ func release_for_backup_load() -> Dictionary:
 	if not can_load_backup(): return _failure(&"pause_load_unavailable")
 	_busy = true
 	surface.set_interactive(false)
-	_witnessed_load = not _captured_source.get("frontier", {}).is_empty()
+	# The Day 7 overlay has no Dialogic frontier, but is still a held reading view.
+	_witnessed_load = not _captured_source.get("frontier", {}).is_empty() \
+		or not _captured_source.get("day7_prelude", {}).is_empty()
 	var released: Dictionary = coordinator.begin_restore_handoff(_handle) if _witnessed_load \
 		else await coordinator.request_resume(_handle)
 	if not released.get("ok", false):

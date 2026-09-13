@@ -649,6 +649,21 @@ func _pause_key() -> void:
 	Input.parse_input_event(event)
 	await _frames()
 
+
+func _ordinary_accept_focused(control: Control, detail: String) -> bool:
+	if not _check(is_instance_valid(control) and control.is_visible_in_tree() and not control.disabled
+		and control.has_focus(), detail + " starts from the real focused enabled control"): return false
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = KEY_ENTER
+		event.physical_keycode = KEY_ENTER
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		Input.flush_buffered_events()
+		await process_frame
+	await _frames()
+	return true
+
 func _pause_journey(game: Node) -> void:
 	var router: Node = root.get_node("SceneRouter")
 	var controller: Node = router.get("_production_pause")
@@ -991,6 +1006,7 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 	if not _ordinary_assert_day7_guards(bootstrap, game): return false
 	var initial_contacts: Dictionary = game.contacts.duplicate(true)
 	var satisfied_before := _ordinary_satisfied_count(game.contacts)
+	if not await _ordinary_pause_continue_prelude(game, bootstrap, owner, followup_surface, followup_receipt): return false
 	if not await _capture_screen("12-day7-followup"): return false
 	var original_writer: Callable = game.get("_contact_checkpoint_writer")
 	if not _check(original_writer.is_valid(), "real contact checkpoint writer is installed before failure injection"): return false
@@ -999,7 +1015,7 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 	var followup_next: Button = followup_surface.get("_next")
 	if not _check(followup_next.is_visible_in_tree() and not followup_next.disabled,
 		"durably witnessed followup remains visible with a fresh Next command"): return false
-	followup_next.pressed.emit()
+	if not await _ordinary_accept_focused(followup_next, "Day 7 followup Next"): return false
 	owner = await _ordinary_wait_prelude_draw(bootstrap, &"retry")
 	if owner == null: return false
 	var old_command: Dictionary = owner.get("_command").duplicate(true)
@@ -1032,14 +1048,8 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 		and owner.get("_receipt") == old_receipt and failed_writer.failures == 1,
 		"failed Retry state holds the same owner, receipt and card without an implicit retry or advance"): return false
 	if not _ordinary_assert_day7_guards(bootstrap, game): return false
-	var saves: Node = root.get_node("SaveManager")
-	var prepared: Dictionary = saves.prepare_restore_autosave()
-	if not _check(prepared.get("ok", false), "mid-prelude full Autosave prepares: " + JSON.stringify(prepared)): return false
-	var restored: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
-	if not _check(restored.get("ok", false), "mid-prelude full Autosave loads: " + JSON.stringify(restored)): return false
-	if not _check(game.contacts == saved_contacts and game.get_pending_ordinary_echoes() == pending_echoes
-		and game.get_pending_day7_followups().is_empty(),
-		"Load keeps the completed followup and restores the first unsatisfied echo before redraw"): return false
+	if not await _ordinary_pause_load_autosave(game, owner, old_surface, old_receipt,
+			saved_contacts, pending_echoes): return false
 	for frame: int in 180:
 		await process_frame
 		var replacement: Variant = bootstrap.get("_day7_prelude_owner")
@@ -1071,7 +1081,7 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 	if not await _capture_screen("13-day7-restored-echo"): return false
 	var next: Button = surface.get("_next")
 	if not _check(next.is_visible_in_tree() and not next.disabled, "accepted echo exposes its real Next button"): return false
-	next.pressed.emit()
+	if not await _ordinary_accept_focused(next, "restored Day 7 echo Next"): return false
 	for frame: int in 180:
 		await process_frame
 		if not is_instance_valid(bootstrap.get("_day7_prelude_owner")): break
@@ -1085,6 +1095,120 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 	if not _check(not is_instance_valid(bootstrap.get("_day7_prelude_owner")), "finished prelude retires its surface"): return false
 	print("PLAYABLE_ORDINARY_ECHO_PASS: real A reply -> witnessed Day 6 followup -> guarded failed echo save -> Autosave Load -> witnessed echo -> fresh Next -> playable Day 7")
 	return true
+
+
+func _ordinary_pause_continue_prelude(game: Node, bootstrap: Node, owner: Node,
+		surface: CanvasLayer, receipt: Dictionary) -> bool:
+	var router: Node = root.get_node("SceneRouter")
+	var controller: Node = router.get("_production_pause")
+	if not _check(is_instance_valid(controller), "production Pause controller owns the Day 7 overlay"): return false
+	var before := {"session": game.capture_live_session().value.duplicate(true),
+		"owner_id": owner.get_instance_id(), "view_id": surface.get_instance_id(),
+		"command": owner.get("_command").duplicate(true), "receipt": receipt.duplicate(true),
+		"history": surface.get_presentation_history(), "scroll": surface.get("_scroll").scroll_vertical,
+		"contacts": game.contacts.duplicate(true), "followups": game.get_pending_day7_followups(),
+		"echoes": game.get_pending_ordinary_echoes()}
+	var events := {"acknowledged": 0, "advanced": 0}
+	surface.card_acknowledged.connect(func(_seen: Dictionary, _result: Dictionary) -> void:
+		events.acknowledged += 1)
+	surface.advance_requested.connect(func(_seen: Dictionary) -> void:
+		events.advanced += 1)
+	if not _check(surface.get("_next").has_focus(), "accepted followup owns focus before Pause"): return false
+	await _pause_key()
+	if not _check(paused and controller.surface.is_visible_in_tree() and not surface.visible
+		and controller.surface.rows[&"continue"].has_focus(),
+		"Day 7 Back covers its surface and opens universal Pause with Continue focused"): return false
+	if not await _capture_screen("14-day7-paused-followup"): return false
+	if not _check(owner.get_instance_id() == before.owner_id and surface.get_instance_id() == before.view_id
+		and owner.get("_command") == before.command and owner.get("_receipt") == before.receipt
+		and surface.get_presentation_history() == before.history
+		and surface.get("_scroll").scroll_vertical == before.scroll,
+		"Pause freezes the exact Day 7 owner, card, history and scroll"): return false
+	if not _check(game.capture_live_session().value == before.session and game.contacts == before.contacts
+		and game.get_pending_day7_followups() == before.followups
+		and game.get_pending_ordinary_echoes() == before.echoes and events == {"acknowledged": 0, "advanced": 0},
+		"opening Pause publishes no receipt, navigation, session or correspondence change"): return false
+	if not await _ordinary_accept_focused(controller.surface.rows[&"continue"], "Pause Continue"): return false
+	if not _check(not paused and not controller.surface.visible
+		and is_instance_valid(bootstrap.get("_day7_prelude_owner"))
+		and bootstrap.get("_day7_prelude_owner").get_instance_id() == before.owner_id,
+		"Continue restores the same Day 7 owner instead of reconstructing it"): return false
+	if not _check(game.capture_live_session().value == before.session and owner.get("_command") == before.command
+		and owner.get("_receipt") == before.receipt and surface.get_presentation_history() == before.history
+		and surface.get("_scroll").scroll_vertical == before.scroll and game.contacts == before.contacts
+		and game.get_pending_day7_followups() == before.followups
+		and game.get_pending_ordinary_echoes() == before.echoes and events == {"acknowledged": 0, "advanced": 0},
+		"Continue changes no Day 7 receipt, history, pending work or durable state"): return false
+	return _check(surface.get("_next").has_focus() and surface.is_card_acknowledged(receipt),
+		"Continue restores exact accepted-card focus after release quarantine")
+
+
+func _ordinary_pause_load_autosave(game: Node, owner: Node,
+		surface: CanvasLayer, receipt: Dictionary, contacts: Dictionary,
+		pending_echoes: Array[Dictionary]) -> bool:
+	var router: Node = root.get_node("SceneRouter")
+	var controller: Node = router.get("_production_pause")
+	var session: Dictionary = game.capture_live_session().value.duplicate(true)
+	var owner_id: int = owner.get_instance_id()
+	var history: Array[Dictionary] = surface.get_presentation_history()
+	var scroll: int = surface.get("_scroll").scroll_vertical
+	if not _check(surface.get("_next").has_focus(), "failed echo Retry owns focus before Pause Load"): return false
+	await _pause_key()
+	if not _check(paused and controller.surface.visible and not surface.visible
+		and controller.surface.rows[&"continue"].has_focus(),
+		"failed echo is covered while universal Pause opens without retrying"): return false
+	controller.surface.rows[&"backup"].pressed.emit()
+	await _frames()
+	var backup: Control = controller.surface.get("_hosts")[&"backup"]
+	if not _check(backup.is_visible_in_tree(), "actual Pause Backup opens over the failed echo"): return false
+	backup.mode_buttons["load"].pressed.emit()
+	backup.drawer_buttons["autosave"].pressed.emit()
+	await _frames()
+	if not _check(not backup.action_buttons["load"].disabled,
+		"the real Day 7 Autosave is available through hosted Backup: " + JSON.stringify(backup.last_result)): return false
+	if not _check(game.capture_live_session().value == session and owner.get_instance_id() == owner_id
+		and owner.get("_receipt") == receipt and surface.get_presentation_history() == history
+		and surface.get("_scroll").scroll_vertical == scroll and game.contacts == contacts
+		and game.get_pending_ordinary_echoes() == pending_echoes,
+		"Pause and Backup inspection retain the failed exact echo without navigation"): return false
+	backup.action_buttons["load"].pressed.emit()
+	if not _check(is_instance_valid(backup.confirmation), "Pause Autosave Load requires its real confirmation"): return false
+	if not _check(not surface.visible,
+		"the failed Day 7 echo surface remains covered during Autosave confirmation"): return false
+	if not await _capture_screen("15-day7-pause-autosave-confirmation"): return false
+	var saves: Node = root.get_node("SaveManager")
+	var restore_observation: Dictionary = {}
+	var observe_restore: Callable = func() -> void:
+		if not restore_observation.is_empty(): return
+		var live: Dictionary = game.capture_live_session()
+		restore_observation["session_ok"] = live.get("ok", false)
+		restore_observation["session"] = live.get("value", {}).duplicate(true)
+		restore_observation["contacts"] = game.contacts.duplicate(true)
+		restore_observation["followups"] = game.get_pending_day7_followups().duplicate(true)
+		restore_observation["echoes"] = game.get_pending_ordinary_echoes().duplicate(true)
+	if not _check(saves.connect(&"live_session_ready", observe_restore, CONNECT_ONE_SHOT) == OK,
+		"observe the real live-session restore boundary before confirming Autosave Load"): return false
+	backup.confirmation.confirm_button.pressed.emit()
+	for frame: int in 180:
+		await process_frame
+		if not paused and game.capture_live_session().value.active \
+				and game.capture_live_session().value != session: break
+	if saves.is_connected(&"live_session_ready", observe_restore):
+		saves.disconnect(&"live_session_ready", observe_restore)
+	if not _check(not restore_observation.is_empty()
+		and bool(restore_observation.get("session_ok", false))
+		and bool(restore_observation.get("session", {}).get("active", false))
+		and restore_observation.get("session", {}) != session
+		and restore_observation.get("contacts", {}) == contacts
+		and restore_observation.get("followups", []) == []
+		and restore_observation.get("echoes", []) == pending_echoes,
+		"live_session_ready exposes the fresh session with exact saved Contacts, pending echo and no followups before redraw: "
+			+ JSON.stringify(restore_observation)): return false
+	return _check(not paused and not controller.surface.visible
+		and game.capture_live_session().value.active and game.capture_live_session().value != session
+		and backup.last_result.get("ok", false),
+		"confirmed Pause Autosave Load closes Pause and publishes a fresh live session: "
+			+ JSON.stringify({"backup": backup.last_result, "pause": controller.last_result}))
 
 func _ordinary_wait_prelude_draw(bootstrap: Node, expected_state: StringName) -> Node:
 	for frame: int in 180:

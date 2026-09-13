@@ -39,6 +39,9 @@ func begin() -> Dictionary:
 				surface.free()
 				return configured
 			surface.use_presentation_receipts()
+			if not surface.bind_input_custody(get_node_or_null("/root/InputManager")):
+				surface.free()
+				return {"ok": false, "code": &"day7_input_unavailable"}
 			_surface = surface
 			_surface.advance_requested.connect(_on_advance_requested)
 			add_child(_surface)
@@ -105,6 +108,9 @@ func _advance() -> Dictionary:
 			surface.free()
 			return configured
 		surface.use_presentation_receipts()
+		if not surface.bind_input_custody(get_node_or_null("/root/InputManager")):
+			surface.free()
+			return {"ok": false, "code": &"day7_input_unavailable"}
 		_surface = surface
 		_surface.advance_requested.connect(_on_advance_requested)
 		add_child(_surface)

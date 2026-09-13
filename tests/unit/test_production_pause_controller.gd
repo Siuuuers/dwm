@@ -11,6 +11,7 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SETTINGS_THEME := preload("res://scripts/ui/SettingsTheme.gd")
+const PRELUDE := preload("res://scripts/ui/Day7PreludeSurface.gd")
 
 class RunOwner extends RefCounted:
 	var dating_state: Object
@@ -42,6 +43,15 @@ class Router extends RefCounted:
 	var title: Control
 	var fail_publication_once := false
 	var publications := 0
+	var restore_hold: Dictionary = {}
+	func begin_restore_publication_hold(handle: Dictionary) -> Dictionary:
+		if not restore_hold.is_empty() or tree.current_scene != source: return {"ok": false}
+		restore_hold = handle.duplicate(true)
+		return {"ok": true}
+	func cancel_restore_publication_hold(handle: Dictionary) -> Dictionary:
+		if handle != restore_hold or tree.current_scene != source: return {"ok": false}
+		restore_hold.clear()
+		return {"ok": true}
 	func get_current_route_id() -> String: return route
 	func prepare_return_to_title() -> Dictionary:
 		return {"ok": tree.current_scene == source, "value": {"token": "prepared-pause-title"}}
@@ -189,6 +199,129 @@ func test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody() 
 	assert_true(focus.has_focus())
 	assert_eq(input_owner.get_state().value.state, &"Active")
 	assert_eq(saves.writes, 0)
+
+func test_day7_overlay_is_covered_and_continue_restores_its_card_and_focus() -> void:
+	var prelude := PRELUDE.new()
+	var card := {"title": "Priscilla", "body": "No worries. Maybe another day.",
+		"receipt": {"entry_id": "day7.followup", "view_token": "day7-pause-card"}}
+	assert_true(prelude.configure(card, func(_receipt: Dictionary) -> Dictionary: return {"ok": true}).ok)
+	assert_true(prelude.use_presentation_receipts().ok)
+	add_child_autofree(prelude)
+	prelude._current_body.draw.emit()
+	await get_tree().process_frame
+	prelude._next.grab_focus()
+	assert_true(prelude.is_card_acknowledged(card.receipt))
+	var history := prelude.get_presentation_history()
+	watch_signals(prelude)
+	if not await _open_pause(): return
+	assert_false(prelude.visible, "the Day 7 layer outside current_scene is covered too")
+	assert_true(controller.surface.rows[&"continue"].has_focus())
+	assert_true((await controller.request_continue()).ok)
+	await get_tree().process_frame
+	assert_true(prelude.visible)
+	assert_true(prelude._next.has_focus(), "Continue restores the actual Day 7 focus, not the hidden desktop")
+	assert_eq(prelude.get_presentation_history(), history)
+	assert_true(prelude.is_card_acknowledged(card.receipt))
+	assert_signal_emit_count(prelude, "advance_requested", 0)
+	assert_signal_emit_count(prelude, "card_acknowledged", 0)
+	assert_eq(saves.writes, 0)
+
+func test_day7_preparation_retry_survives_pause_without_preparing_or_acknowledging() -> void:
+	var calls := []
+	var prelude := PRELUDE.new()
+	assert_true(prelude.configure_waiting(
+		func() -> Dictionary:
+			calls.append("prepare")
+			return {"ok": false},
+		func(_receipt: Dictionary) -> Dictionary:
+			calls.append("acknowledge")
+			return {"ok": false}).ok)
+	assert_true(prelude.use_presentation_receipts().ok)
+	add_child_autofree(prelude)
+	prelude._next.grab_focus()
+	if not await _open_pause(): return
+	assert_false(prelude.visible)
+	assert_true((await controller.request_continue()).ok)
+	await get_tree().process_frame
+	assert_true(prelude._next.has_focus())
+	assert_eq(prelude._next.text, "Retry")
+	assert_true(prelude._card.is_empty())
+	assert_eq(prelude.get_presentation_history(), [])
+	assert_eq(calls, [])
+
+func test_retired_day7_overlay_cannot_restore_focus_into_the_same_desktop() -> void:
+	var prelude := PRELUDE.new()
+	assert_true(prelude.configure_waiting(func() -> Dictionary: return {"ok": false},
+		func(_receipt: Dictionary) -> Dictionary: return {"ok": false}).ok)
+	assert_true(prelude.use_presentation_receipts().ok)
+	add_child_autofree(prelude)
+	if not await _open_pause(): return
+	prelude.queue_free()
+	await get_tree().process_frame
+	var resumed: Dictionary = await controller.request_continue()
+	assert_false(resumed.ok)
+	assert_eq(resumed.code, &"pause_source_changed")
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_false(focus.has_focus())
+
+func test_day7_lost_view_anchor_keeps_desktop_hidden_during_recovery() -> void:
+	var prelude := PRELUDE.new()
+	assert_true(prelude.configure_waiting(func() -> Dictionary: return {"ok": false},
+		func(_receipt: Dictionary) -> Dictionary: return {"ok": false}).ok)
+	assert_true(prelude.use_presentation_receipts().ok)
+	add_child_autofree(prelude)
+	if not await _open_pause(): return
+	var captured: Dictionary = controller.capture_pause_source()
+	# The semantic source is unchanged, but its retained physical anchor is lost.
+	# Failure discovered by the view must not publish the desktop behind it.
+	prelude._pause_anchor.capture_id += 1
+	assert_eq(controller.capture_pause_source(), captured)
+	var resumed: Dictionary = await controller.request_continue()
+	assert_false(resumed.ok)
+	assert_eq(resumed.code, &"pause_view_unavailable")
+	assert_eq(controller.coordinator.get_state().value.state, &"Recovery")
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_false(prelude.visible)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	assert_eq(saves.writes, 0)
+
+func test_failed_day7_load_keeps_view_input_and_tree_suspended_through_restore_handoff() -> void:
+	var calls := []
+	var prelude := PRELUDE.new()
+	assert_true(prelude.configure_waiting(func() -> Dictionary:
+		calls.append("prepare")
+		return {"ok": false}, func(_receipt: Dictionary) -> Dictionary:
+		calls.append("acknowledge")
+		return {"ok": false}).ok)
+	assert_true(prelude.use_presentation_receipts().ok)
+	add_child_autofree(prelude)
+	prelude._next.grab_focus()
+	if not await _open_pause(): return
+	var captured: Dictionary = controller.capture_pause_source()
+	var handle: Dictionary = controller._handle.duplicate(true)
+	assert_true((await controller.release_for_backup_load()).ok)
+	assert_eq(controller.coordinator.get_state().value.state, &"Restoring")
+	assert_eq(router.restore_hold, handle)
+	assert_true(get_tree().paused)
+	assert_false(prelude.visible)
+	assert_false(source.visible)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	assert_false(input_owner.is_source_input_admitted())
+	var failed := {"ok": false, "code": &"fixture_restore_failed"}
+	assert_eq(await controller.finish_backup_load(failed), failed)
+	assert_eq(controller.coordinator.get_state().value.state, &"Suspended")
+	assert_true(router.restore_hold.is_empty())
+	assert_true(get_tree().paused)
+	assert_false(prelude.visible)
+	assert_eq(controller.capture_pause_source(), captured)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	assert_eq(calls, [])
+	assert_eq(saves.writes, 0)
+	assert_true((await controller.request_continue()).ok)
+	await get_tree().process_frame
+	assert_true(prelude._next.has_focus())
 
 
 func test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action() -> void:
