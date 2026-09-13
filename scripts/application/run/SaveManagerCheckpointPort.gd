@@ -254,10 +254,19 @@ func commit(candidate: Dictionary) -> Dictionary:
 		if not profile.is_empty():
 			profile["document_bytes"] = str(canonical["value"]).to_utf8_buffer().size() + 1
 			tick = Time.get_ticks_usec()
-		# The registries stay fixed through this synchronous prepare/commit. The cache
-		# may contain its exact preimage read; new bytes still receive strict validation.
-		var validator := _cached_document_text_validator.bind(validated_texts)
 		var outgoing_text := str(canonical["value"]) + "\n"
+		# Canonical emission proves the text round-trips exactly. Validate this detached
+		# value now (the caller may have edited it since prepare), preserving JSON's
+		# StringName conversion. Only successful proof can seed this exact-text cache.
+		var normalized: Variant = _normalize_json_string_types(candidate["autosave_document"])
+		if normalized is Dictionary:
+			var checked := SAVE_DOCUMENT_SCHEMA.validate(normalized)
+			if checked.get("ok", false):
+				validated_texts[outgoing_text] = {"ok": true, "code": &"ok", "value": checked["value"]["candidate"]}
+		# Failed proof and all unknown physical bytes retain the original strict parser
+		# and storage refusal path. Physical writes, hashes and final reread are unchanged.
+		tick = _profile_phase(profile, "outgoing_schema_us", tick)
+		var validator := _cached_document_text_validator.bind(validated_texts)
 		var written: Dictionary = _storage().write_atomic(
 			AUTOSAVE_RELATIVE_PATH, outgoing_text, validator)
 		tick = _profile_phase(profile, "write_atomic_us", tick)

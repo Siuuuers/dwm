@@ -26,6 +26,7 @@ class _Parser:
 	var _line := 1
 	var _column := 1
 	var _ordinary_ascii := RegEx.create_from_string("\\G[\\x20-\\x21\\x23-\\x5B\\x5D-\\x7E]+")
+	var _ascii_string_token := RegEx.create_from_string("\\G\"(?:[\\x20-\\x21\\x23-\\x5B\\x5D-\\x7E]++|\\\\[\"\\\\/bfnrt])*+\"")
 
 	func _init(text: String) -> void:
 		_text = text
@@ -117,6 +118,16 @@ class _Parser:
 		return _error(&"internal_error", "Array parser terminated unexpectedly")
 
 	func _parse_string() -> Dictionary:
+		# A complete ASCII token proves every escape before native decoding. Disjoint
+		# possessive alternatives keep long/unterminated receipt strings from backtracking.
+		var matched := _ascii_string_token.search(_text, _index)
+		if matched != null and matched.get_start() == _index:
+			var token := matched.get_string()
+			var value: Variant = JSON.parse_string(token) if "\\" in token else token.substr(1, token.length() - 2)
+			if value is String:
+				_index += token.length()
+				_column += token.length() # Proven ASCII contains no physical newline.
+				return {"ok": true, "value": value}
 		_advance()
 		var output := ""
 		while not _is_eof():

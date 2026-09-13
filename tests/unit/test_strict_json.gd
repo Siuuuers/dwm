@@ -167,3 +167,108 @@ func test_canonical_string_fast_return_exclusions_keep_exact_original_escaping()
 		var document: Dictionary = _writer.call(&"stringify", {"x": item["input"]})
 		assert_true(document.get("ok", false), str(document))
 		assert_eq(document.get("value"), '{"x":' + item["expected"] + '}', str(item))
+
+
+func test_complete_ascii_tokens_decode_every_simple_escape_in_a_long_nested_receipt() -> void:
+	var long_receipt_id := "receipt." + "abCD09_-/".repeat(512)
+	var encoded_detail := 'quote:\\" slash:\\/ backslash:\\\\ controls:\\b\\f\\n\\r\\t'
+	var text := '{"ledger":{"records":[{"receipt_id":"' + long_receipt_id \
+		+ '","detail":"' + encoded_detail \
+		+ '"}]},"next_sequence":9223372036854775807,"retry_sequence":-9223372036854775808}'
+	var parsed: Dictionary = _strict.call(&"parse_object", text)
+	assert_true(parsed.get("ok", false), str(parsed))
+	if not parsed.get("ok", false):
+		return
+	var value: Dictionary = parsed["value"]
+	var record: Dictionary = value["ledger"]["records"][0]
+	var expected_detail := "quote:\" slash:/ backslash:\\ controls:" \
+		+ String.chr(8) + String.chr(12) + "\n\r\t"
+	assert_eq(record["receipt_id"], long_receipt_id)
+	assert_eq(record["detail"], expected_detail)
+	assert_eq(typeof(value["next_sequence"]), TYPE_INT)
+	assert_eq(value["next_sequence"], 9223372036854775807)
+	assert_eq(typeof(value["retry_sequence"]), TYPE_INT)
+	assert_eq(value["retry_sequence"], -9223372036854775807 - 1)
+
+
+func test_closed_ascii_token_preserves_offset_for_following_malformed_member() -> void:
+	var result: Dictionary = _strict.call(&"parse_object",
+		"{\n  \"escaped\":\"a\\\"b\\\\c\\/d\\t\", @}")
+	assert_false(result.get("ok", true), str(result))
+	assert_eq(result.get("code"), &"object_key_required")
+	assert_eq(result.get("line"), 2)
+	assert_eq(result.get("column"), 29)
+
+
+func test_escaped_key_spelling_still_collides_after_complete_token_decode() -> void:
+	var result: Dictionary = _strict.call(&"parse_object", '{"a/b":1,"a\\/b":2}')
+	assert_false(result.get("ok", true), str(result))
+	assert_eq(result.get("code"), &"duplicate_key")
+	assert_eq(result.get("line"), 1)
+	assert_eq(result.get("column"), 16)
+
+
+func test_mixed_raw_unicode_and_unicode_escape_fallback_preserve_values_and_next_error() -> void:
+	var unicode := String.chr(0x4E2D) + String.chr(0x1F63D)
+	var valid: Dictionary = _strict.call(&"parse_object",
+		'{"fast":"ready\\t","unicode":"' + unicode + '\\u4E2D\\uD83D\\uDE3D","tail":7}')
+	assert_true(valid.get("ok", false), str(valid))
+	if valid.get("ok", false):
+		assert_eq(valid["value"], {"fast": "ready\t", "unicode": unicode + unicode, "tail": 7})
+		assert_eq(typeof(valid["value"]["tail"]), TYPE_INT)
+	var malformed: Dictionary = _strict.call(&"parse_object", '{"unicode":"' + unicode + '",@}')
+	assert_false(malformed.get("ok", true), str(malformed))
+	assert_eq(malformed.get("code"), &"object_key_required")
+	assert_eq(malformed.get("line"), 1)
+	assert_eq(malformed.get("column"), 17)
+
+
+func test_complete_raw_unicode_token_preserves_json_boundaries_and_simple_escapes() -> void:
+	var boundaries := _raw_unicode_boundaries()
+	var encoded := 'prefix\\"\\\\\\/\\b\\f\\n\\r\\t' + boundaries + 'suffix'
+	var text := '{"token":"' + encoded + '"}'
+	var parsed: Dictionary = _strict.call(&"parse_object", text)
+	assert_true(parsed.get("ok", false), str(parsed))
+	if not parsed.get("ok", false):
+		return
+	var controls := String.chr(8) + String.chr(12) + "\n\r\t"
+	assert_eq(parsed["value"]["token"], 'prefix"\\/' + controls + boundaries + "suffix")
+
+
+func test_closed_raw_unicode_token_counts_codepoints_before_a_malformed_member() -> void:
+	var boundaries := _raw_unicode_boundaries()
+	var result: Dictionary = _strict.call(&"parse_object", '{"x":"' + boundaries + '\\t",@}')
+	assert_false(result.get("ok", true), str(result))
+	assert_eq(result.get("code"), &"object_key_required")
+	assert_eq(result.get("line"), 1)
+	assert_eq(result.get("column"), 23,
+		"twelve Unicode codepoints and one two-byte escape advance columns by codepoints, not UTF-8 bytes")
+
+
+func test_long_heavily_escaped_token_with_raw_unicode_near_the_end_decodes_exactly() -> void:
+	var encoded_piece := 'alpha\\"beta\\\\gamma\\/delta\\b\\f\\n\\r\\t'
+	var decoded_piece := 'alpha"beta\\gamma/delta' + String.chr(8) + String.chr(12) + "\n\r\t"
+	var unicode_tail := _raw_unicode_boundaries()
+	var encoded := encoded_piece.repeat(512) + unicode_tail + '\\tfinished'
+	var parsed: Dictionary = _strict.call(&"parse_object", '{"receipt":"' + encoded + '"}')
+	assert_true(parsed.get("ok", false), str(parsed))
+	if parsed.get("ok", false):
+		assert_eq(parsed["value"]["receipt"], decoded_piece.repeat(512) + unicode_tail + "\tfinished")
+
+
+func test_long_unterminated_escaped_unicode_token_retains_exact_fallback_diagnostic() -> void:
+	var encoded_piece := 'alpha\\"beta\\\\gamma\\/delta\\b\\f\\n\\r\\t'
+	var text := '{"receipt":"' + encoded_piece.repeat(512) + _raw_unicode_boundaries()
+	var result: Dictionary = _strict.call(&"parse_object", text)
+	assert_false(result.get("ok", true), str(result))
+	assert_eq(result.get("code"), &"unexpected_eof")
+	assert_eq(result.get("line"), 1)
+	assert_eq(result.get("column"), text.length() + 1)
+
+
+func _raw_unicode_boundaries() -> String:
+	var value := ""
+	for codepoint: int in [0x7F, 0x80, 0x85, 0x9F, 0xFEFF, 0x2028, 0x2029,
+			0xFDD0, 0xFFFE, 0xFFFF, 0x10FFFF, 0x1F63D]:
+		value += String.chr(codepoint)
+	return value

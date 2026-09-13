@@ -105,32 +105,35 @@ func _play_app_board(bootstrap: Node, app: Node, panel: Control, ending: String)
 	await _timed("app", "unflag", func() -> void:
 		worksheet.cell_action_requested.emit(&"unflag", flag_target, int(panel.public_view.board.revision)))
 	var routine := 0
+	var terminal_action := {}
 	while true:
 		physical = _app_physical(bootstrap)
 		if physical.is_empty() or bool(physical.get("terminal", false)): break
 		var safe := _next_safe_cell(physical)
 		if safe < 0: break
-		var remaining := _safe_remaining(physical)
-		if ending == "win" and remaining == 1:
-			var terminal := await _timed("app", "winning_reveal", func() -> void:
-				worksheet.cell_action_requested.emit(&"reveal", safe, int(panel.public_view.board.revision)))
-			if not _check(terminal.ok and app.last_result.get("ok", false), "winning reveal accepted"): return false
-			break
-		if ending == "loss" and routine >= 3:
-			var mine := int(physical.mine_indices[0])
-			var lost := await _timed("app", "losing_reveal", func() -> void:
-				worksheet.cell_action_requested.emit(&"reveal", mine, int(panel.public_view.board.revision)))
-			if not _check(lost.ok and app.last_result.get("ok", false), "losing reveal accepted"): return false
-			break
 		var label := "routine_reveal" if routine < ROUTINE_LOG_LIMIT else "routine_reveal_more"
+		if ending == "loss" and routine >= 3:
+			var lost := await _timed("app", label, func() -> void:
+				worksheet.cell_action_requested.emit(&"reveal", int(physical.mine_indices[0]), int(panel.public_view.board.revision)),
+				func() -> bool: return bool(panel.public_view.board.get("terminal", false)), "losing_reveal")
+			if not _check(lost.label == "losing_reveal" and app.last_result.get("ok", false), "losing reveal accepted"): return false
+			terminal_action = lost
+			break
 		var step := await _timed("app", label, func() -> void:
-			worksheet.cell_action_requested.emit(&"reveal", safe, int(panel.public_view.board.revision)))
+			worksheet.cell_action_requested.emit(&"reveal", safe, int(panel.public_view.board.revision)),
+			func() -> bool: return bool(panel.public_view.board.get("terminal", false)), "winning_reveal")
 		if not _check(step.ok and app.last_result.get("ok", false), "routine reveal %d accepted" % routine): return false
+		if step.label == "winning_reveal":
+			terminal_action = step
+			break
 		routine += 1
 		if routine > 600: return _check(false, "routine reveal loop did not terminate")
+	var expected_terminal_label := "winning_reveal" if ending == "win" else "losing_reveal"
+	if not _check(terminal_action.get("label", "") == expected_terminal_label,
+			"app requested %s and observed %s" % [expected_terminal_label, terminal_action.get("label", "none")]): return false
 	var settled_us := await _until(func() -> bool: return bool(panel.public_view.settled), 600)
 	print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "app", "ending": ending, "settled_after_us": settled_us,
-		"settled": panel.public_view.settled}))
+		"end_to_end_us": Time.get_ticks_usec() - int(terminal_action.started_us), "settled": panel.public_view.settled}))
 	return _check(panel.public_view.settled, "app %s settles" % ending)
 
 
@@ -189,44 +192,50 @@ func _dating_benchmark(game: Node, desktop: Node) -> bool:
 	var ending := _dating_ending()
 	if not _check(ending in ["win", "loss"], "--dating-ending must be win or loss: " + ending): return false
 	var routine := 0
+	var terminal_action := {}
 	while true:
 		record = game.capture_dating_challenge_state().value
 		if record.board == null or bool(record.board.terminal): break
 		var safe := _next_safe_cell(record.board)
 		if safe < 0: break
 		var remaining := _safe_remaining(record.board)
-		if ending == "win" and remaining == 1:
-			var won := await _timed("dating", "winning_reveal", func() -> void:
-				worksheet.cell_action_requested.emit(&"reveal", safe, int(dating.get("_physical_view").board.revision)))
-			if not _check(won.ok, "dating winning reveal accepted"): return false
-			break
-		if ending == "loss" and (routine >= ROUTINE_LOG_LIMIT or remaining <= 1):
-			var mine := int(record.board.mine_indices[0])
-			var lost := await _timed("dating", "losing_reveal", func() -> void:
-				worksheet.cell_action_requested.emit(&"reveal", mine, int(dating.get("_physical_view").board.revision)))
-			if not _check(lost.ok, "dating losing reveal accepted"): return false
-			break
 		var label := "routine_reveal" if routine < ROUTINE_LOG_LIMIT else "routine_reveal_more"
+		if ending == "loss" and (routine >= ROUTINE_LOG_LIMIT or remaining <= 1):
+			var lost := await _timed("dating", label, func() -> void:
+				worksheet.cell_action_requested.emit(&"reveal", int(record.board.mine_indices[0]), int(dating.get("_physical_view").board.revision)),
+				func() -> bool: return bool(dating.get("_physical_view").board.get("terminal", false)), "losing_reveal")
+			if not _check(lost.label == "losing_reveal", "dating losing reveal accepted"): return false
+			terminal_action = lost
+			break
 		var step := await _timed("dating", label, func() -> void:
-			worksheet.cell_action_requested.emit(&"reveal", safe, int(dating.get("_physical_view").board.revision)))
-		if not _check(step.ok and dating.get("_physical_view").phase == "challenge", "dating routine reveal %d accepted" % routine): return false
+			worksheet.cell_action_requested.emit(&"reveal", safe, int(dating.get("_physical_view").board.revision)),
+			func() -> bool: return bool(dating.get("_physical_view").board.get("terminal", false)), "winning_reveal")
+		if not _check(step.ok and (step.label == "winning_reveal" or dating.get("_physical_view").phase == "challenge"),
+				"dating reveal %d accepted" % routine): return false
+		if step.label == "winning_reveal":
+			terminal_action = step
+			break
 		routine += 1
 		if routine > 600: return _check(false, "dating routine reveal loop did not terminate")
+	var expected_terminal_label := "winning_reveal" if ending == "win" else "losing_reveal"
+	if not _check(terminal_action.get("label", "") == expected_terminal_label,
+			"dating requested %s and observed %s" % [expected_terminal_label, terminal_action.get("label", "none")]): return false
+	var post_action: Dictionary = terminal_action
 	if ending == "win":
 		# A solved board waits for the player's terminal choice unless it was Perfect, which
 		# settles by itself. Either way the choice click is its own boundary.
 		var chosen_us := await _until(func() -> bool:
 			return str(dating.get("_physical_view").phase) in ["cleared_awaiting_terminal_choice", "post_challenge"], 600)
 		print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "dating", "ending": "win", "settled_after_us": chosen_us,
-			"phase": str(dating.get("_physical_view").phase)}))
+			"end_to_end_us": Time.get_ticks_usec() - int(terminal_action.started_us), "phase": str(dating.get("_physical_view").phase)}))
 		if str(dating.get("_physical_view").phase) == "cleared_awaiting_terminal_choice":
 			await _until(func() -> bool: return bool(dating.get("_choice_released")), 60)
 			if not _check(bool(dating.get("_choice_released")), "terminal choice released"): return false
-			await _timed("dating", "terminal_choice", func() -> void:
+			post_action = await _timed("dating", "terminal_choice", func() -> void:
 				dating.get("_continue_button").pressed.emit())
 	var reached_us := await _until(func() -> bool: return bool(dating.get("_post_challenge_reached")), 600)
 	print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "dating", "ending": ending, "settled_after_us": reached_us,
-		"phase": str(dating.get("_physical_view").phase)}))
+		"end_to_end_us": Time.get_ticks_usec() - int(post_action.started_us), "phase": str(dating.get("_physical_view").phase)}))
 	return _check(str(dating.get("_physical_view").phase) == "post_challenge", "dating outcome visible")
 
 
@@ -253,10 +262,12 @@ func _safe_remaining(board: Dictionary) -> int:
 
 
 ## Times `action` synchronously, then measures the wall time until two more frames have run.
-func _timed(surface: String, label: String, action: Callable) -> Dictionary:
+func _timed(surface: String, label: String, action: Callable,
+		terminal_predicate: Callable = Callable(), terminal_label: String = "") -> Dictionary:
 	var started := Time.get_ticks_usec()
 	action.call()
 	var sync_us := Time.get_ticks_usec() - started
+	if terminal_predicate.is_valid() and terminal_predicate.call(): label = terminal_label
 	await process_frame
 	await process_frame
 	var two_frames_us := Time.get_ticks_usec() - started
@@ -264,7 +275,7 @@ func _timed(surface: String, label: String, action: Callable) -> Dictionary:
 	if not _samples.has(key): _samples[key] = []
 	(_samples[key] as Array).append({"sync_us": sync_us, "two_frames_us": two_frames_us})
 	print("CLICK_LATENCY: " + JSON.stringify({"surface": surface, "label": label, "sync_us": sync_us, "two_frames_us": two_frames_us}))
-	return {"ok": true, "sync_us": sync_us}
+	return {"ok": true, "sync_us": sync_us, "started_us": started, "label": label}
 
 
 ## Waits until `predicate` holds or `frames` frames pass; returns the wall time waited in microseconds.

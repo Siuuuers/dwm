@@ -6,6 +6,7 @@ const JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const SNAPSHOT := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const ROOT := "checkpoint-reuse"
 const FINAL := ROOT + "/autosave.json"
@@ -95,6 +96,20 @@ func _validation_count(port: CountingPort) -> int:
 	for count: int in port.validations.values(): total += count
 	return total
 
+func _apply_json_normalization_variants(candidate: Dictionary) -> void:
+	var document: Dictionary = candidate["autosave_document"]
+	document.erase("save_reason")
+	document[&"save_reason"] = &"automatic"
+	document["kind"] = &"autosave"
+	document["schema_version"] = float(document["schema_version"])
+	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
+	snapshot["route_id"] = &"main"
+	var effect_ids: Array[StringName] = []
+	snapshot["applied_effect_transaction_ids"] = effect_ids
+	var journal: Array[Dictionary] = [{&"probe": [9223372036854775807,
+		-9223372036854775807 - 1, 1.0, 0.1, -0.0, &"nested"]}]
+	document["recovery_journal"] = journal
+
 func test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits() -> void:
 	var cached := _wired()
 	var uncached := _wired(false)
@@ -110,12 +125,115 @@ func test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_comm
 		assert_eq(cached.files.snapshot_persisted(), uncached.files.snapshot_persisted())
 		assert_eq(cached.files.operation_trace(), uncached.files.operation_trace(),
 			"all physical reads, hashes, writes, flushes and rename boundaries remain")
-		assert_lt(_validation_count(cached.port), _validation_count(uncached.port))
-		for count: int in cached.port.validations.values(): assert_eq(count, 1)
-		# dwm-634.2: the previous and older documents were proven by their own reread-verified
-		# commits, so only the new current document is validated.
-		assert_eq(cached.port.validations.size(), 1,
-			"each prepare/commit validates only the new current document")
+		assert_eq(_validation_count(cached.port), 0,
+			"the detached schema-valid current candidate needs no strict text parse")
+		assert_gt(_validation_count(uncached.port), 0,
+			"reuse=false still forces the original strict text validator")
+
+func test_detached_candidate_normalization_matches_uncached_bytes_and_physical_trace() -> void:
+	var cached := _wired()
+	var uncached := _wired(false)
+	var candidate := _prepare(cached, 111)
+	var reference := _prepare(uncached, 111)
+	_apply_json_normalization_variants(candidate)
+	_apply_json_normalization_variants(reference)
+	cached.port.validations.clear()
+	uncached.port.validations.clear()
+	var committed: Dictionary = cached.port.commit(candidate)
+	var original: Dictionary = uncached.port.commit(reference)
+	assert_true(committed.get("ok", false), str(committed))
+	assert_eq(committed, original)
+	assert_eq(cached.files.snapshot_persisted(), uncached.files.snapshot_persisted(),
+		"normalization cannot alter canonical persisted bytes")
+	assert_eq(cached.files.operation_trace(), uncached.files.operation_trace(),
+		"normalization cannot alter physical storage operations")
+	assert_eq(_validation_count(cached.port), 0,
+		"StringName, typed arrays and integral floats use the detached schema result")
+	assert_gt(_validation_count(uncached.port), 0,
+		"the reference path still parses its exact outgoing text")
+	var parsed: Dictionary = STRICT.parse_object(
+		(cached.files.snapshot_persisted()[FINAL] as PackedByteArray).get_string_from_utf8())
+	assert_true(parsed.get("ok", false), str(parsed))
+	var validated: Dictionary = DOCUMENT.validate(parsed.get("value", {}))
+	assert_true(validated.get("ok", false), str(validated))
+	var normalized: Dictionary = validated.get("value", {}).get("candidate", {})
+	var proven: Dictionary = cached.port._cached_document_text_validator(
+		(cached.files.snapshot_persisted()[FINAL] as PackedByteArray).get_string_from_utf8(), {})
+	assert_true(proven.get("ok", false), str(proven))
+	assert_true(WRITER._deep_same(proven.get("value"), normalized),
+		"cached validation preserves exact nested types and values of the strict reference")
+	assert_eq(typeof(normalized.get("schema_version")), TYPE_INT)
+	assert_eq(typeof(normalized.get("kind")), TYPE_STRING)
+	assert_eq(typeof(normalized.get("save_reason")), TYPE_STRING)
+	assert_eq(typeof(normalized["current_snapshot"]["snapshot"].get("route_id")), TYPE_STRING)
+	assert_false((normalized["recovery_journal"] as Array).is_typed())
+	assert_false((normalized["current_snapshot"]["snapshot"]["applied_effect_transaction_ids"] as Array).is_typed())
+
+func test_non_object_outgoing_values_match_uncached_failure_without_physical_mutation() -> void:
+	for wrong: Variant in [[], "document", 7]:
+		var cached := _wired()
+		var uncached := _wired(false)
+		var candidate := _prepare(cached, 121)
+		var reference := _prepare(uncached, 121)
+		candidate["autosave_document"] = wrong
+		reference["autosave_document"] = wrong
+		var cached_before_files: Dictionary = cached.files.snapshot_persisted()
+		var reference_before_files: Dictionary = uncached.files.snapshot_persisted()
+		var cached_before_trace: Array = cached.files.operation_trace()
+		var reference_before_trace: Array = uncached.files.operation_trace()
+		var cached_before_journal: Dictionary = cached.manager._journal.capture_state()
+		var reference_before_journal: Dictionary = uncached.manager._journal.capture_state()
+		var rejected: Dictionary = cached.port.commit(candidate)
+		var original: Dictionary = uncached.port.commit(reference)
+		assert_eq(rejected, original, "wrong top-level value: %s" % str(wrong))
+		assert_eq(rejected.get("code"), &"outgoing_validation_failed")
+		assert_eq(cached.files.snapshot_persisted(), cached_before_files)
+		assert_eq(uncached.files.snapshot_persisted(), reference_before_files)
+		assert_eq(cached.files.operation_trace(), cached_before_trace)
+		assert_eq(uncached.files.operation_trace(), reference_before_trace)
+		assert_eq(cached.manager._journal.capture_state(), cached_before_journal)
+		assert_eq(uncached.manager._journal.capture_state(), reference_before_journal)
+		assert_gt(_validation_count(cached.port), 0,
+			"a non-object candidate must fall through to strict text validation")
+		assert_gt(_validation_count(uncached.port), 0)
+
+func test_schema_invalid_and_canonical_invalid_candidates_preserve_reference_precedence() -> void:
+	for invalid_kind: String in ["schema", "canonical"]:
+		var cached := _wired()
+		var uncached := _wired(false)
+		var candidate := _prepare(cached, 131)
+		var reference := _prepare(uncached, 131)
+		for value: Dictionary in [candidate, reference]:
+			if invalid_kind == "schema":
+				value["autosave_document"]["current_snapshot"]["snapshot"]["gameplay"]["narrative_variables"] = "invalid"
+			else:
+				# The value is also schema-invalid, but canonical emission owns this earlier failure.
+				value["autosave_document"]["kind"] = Vector2.ONE
+		var cached_before_files: Dictionary = cached.files.snapshot_persisted()
+		var reference_before_files: Dictionary = uncached.files.snapshot_persisted()
+		var cached_before_trace: Array = cached.files.operation_trace()
+		var reference_before_trace: Array = uncached.files.operation_trace()
+		var cached_before_journal: Dictionary = cached.manager._journal.capture_state()
+		var reference_before_journal: Dictionary = uncached.manager._journal.capture_state()
+		var rejected: Dictionary = cached.port.commit(candidate)
+		var original: Dictionary = uncached.port.commit(reference)
+		assert_eq(rejected, original, invalid_kind)
+		assert_eq(rejected.get("code"),
+			&"outgoing_validation_failed" if invalid_kind == "schema" else &"canonical_serialization_failed")
+		assert_eq(cached.files.snapshot_persisted(), cached_before_files)
+		assert_eq(uncached.files.snapshot_persisted(), reference_before_files)
+		assert_eq(cached.files.operation_trace(), cached_before_trace)
+		assert_eq(uncached.files.operation_trace(), reference_before_trace)
+		assert_eq(cached.manager._journal.capture_state(), cached_before_journal)
+		assert_eq(uncached.manager._journal.capture_state(), reference_before_journal)
+		if invalid_kind == "schema":
+			assert_gt(_validation_count(cached.port), 0,
+				"schema failures cannot enter the success-only exact-text cache")
+			assert_gt(_validation_count(uncached.port), 0)
+		else:
+			assert_eq(_validation_count(cached.port), 0,
+				"canonical failure must happen before any text validation")
+			assert_eq(_validation_count(uncached.port), 0)
 
 func test_cache_is_exact_text_success_only_and_detaches_nested_results() -> void:
 	var wired := _wired()
@@ -189,7 +307,8 @@ func test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once() ->
 	wired.port.validations.clear()
 	var result: Dictionary = wired.port.commit(candidate)
 	assert_true(result.get("ok", false), str(result))
-	assert_eq(_validation_count(wired.port), 1, "retry must validate exact text again")
+	assert_eq(_validation_count(wired.port), 0,
+		"retry must rebuild a detached schema proof without reparsing its exact text")
 	assert_eq(wired.manager._journal.peek_next_sequence(wired.snapshot.run_id).value.checkpoint_sequence, 2)
 
 func test_prepared_validation_is_not_reused_after_a_process_frame() -> void:
