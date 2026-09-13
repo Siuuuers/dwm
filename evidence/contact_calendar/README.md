@@ -54,9 +54,9 @@ worktree and its owner's changes were excluded.
 
 | Subject | Disposition and remaining proof |
 | --- | --- |
-| Fixed calendar owner | Built in this increment. Per-thread follow-up/ordinary stacking still needs an explicit continued journey before declaring every fixed-calendar clause accepted. |
+| Fixed calendar owner | Built in this increment. The subsequent `evidence/ordinary_midnight/README.md` adds both reachable per-contact stacking cases and full native midnight/Load evidence; fixed-calendar requirement evidence paths are now registered. |
 | Both P–L group windows | Built by the September 12 repair; existing continued Day-2/Day-6, refusal, receipt, tamper and JSON roundtrip fixtures pass again here. This is not a new full SaveManager disk-restore proof for that journey. |
-| Ordinary-message echoes | Existing implementation covers literal/ID binding, durable receipts, replay and rollback. Add a continued ignored-message midnight/restore journey. Approved design §7.1 permits an invisible tombstone only when required for idempotency; the present virtual unanswered message allocates no durable sequence. A new persistence schema is not justified merely by the older plan's tombstone prescription. |
+| Ordinary-message echoes | Existing implementation covers literal/ID binding, durable receipts, replay and rollback. The subsequent native midnight/restore journey in `evidence/ordinary_midnight/README.md` passes. The present virtual unanswered message allocates no durable sequence. The August 12 accepted Contacts amendment §13.1 expressly says an invisible tombstone remains, and §14.2 lists it in persistence. This stronger wording means visible expiry evidence alone cannot close the literal tombstone obligation; keep its implementation or formal design disposition open. |
 | Day 7 echo drain | Existing prelude drains pending echoes with durable, replayable receipts. Production Skip/Auto/instant/TTS/assistive completion parity is not established for that surface; keep this acceptance work open. |
 
 The stacking rule in design §7.3 applies when **one contact** has several items.
@@ -65,5 +65,10 @@ new exhaustive test pins this. Contacts UI must retain canonical sequence order
 (`docs/design/current-ui/contacts.md`, history and stacking rules), not invent a
 semantic re-sort. No cross-contact sequence reservation is introduced.
 
-No sealed plan or digest is rewritten. Requirement evidence arrays and the
-parent Bead remain open until the outstanding acceptance is resolved.
+No sealed plan or digest is rewritten. Echo/drain requirement evidence and the
+parent Bead remain open until their outstanding acceptance is resolved.
+
+Post-commit authority clarification: the initial rationale considered the
+conditional tombstone wording in seven-day design §7.1. Independent review
+located the stronger accepted Contacts amendment above. No requirement was
+withdrawn and no absence-of-tombstone acceptance is claimed.

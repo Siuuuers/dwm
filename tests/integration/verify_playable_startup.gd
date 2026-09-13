@@ -25,16 +25,17 @@ func _initialize() -> void:
 func _frames() -> void:
 	for index: int in 12: await process_frame
 
-func _capture_screen(label: String) -> void:
-	if "--render-evidence" not in OS.get_cmdline_user_args(): return
+func _capture_screen(label: String) -> bool:
+	if "--render-evidence" not in OS.get_cmdline_user_args(): return true
 	await RenderingServer.frame_post_draw
 	var folder := ProjectSettings.globalize_path("user://evidence/playable")
-	if not _check(DirAccess.make_dir_recursive_absolute(folder) == OK, "create rendered evidence folder"): return
+	if not _check(DirAccess.make_dir_recursive_absolute(folder) == OK, "create rendered evidence folder"): return false
 	var pixels: Image = root.get_texture().get_image()
-	if not _check(pixels != null and not pixels.is_empty(), "rendered viewport is available"): return
+	if not _check(pixels != null and not pixels.is_empty(), "rendered viewport is available"): return false
 	var path := folder.path_join(label + ".png")
-	if not _check(pixels.save_png(path) == OK, "save rendered player screen"): return
+	if not _check(pixels.save_png(path) == OK, "save rendered player screen"): return false
 	print("PLAYABLE_RENDER_CAPTURE: " + path)
+	return true
 
 func _check(value: bool, detail: String) -> bool:
 	if not value:
@@ -43,6 +44,8 @@ func _check(value: bool, detail: String) -> bool:
 	return value
 
 func _run() -> void:
+	if "--probe-ignored-ordinary" in OS.get_cmdline_user_args():
+		if not _check(not OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty(), "ignored ordinary probe requires isolated test root"): return
 	if "--probe-ordinary-echo" in OS.get_cmdline_user_args():
 		if not _check("--probe-seven-days" in OS.get_cmdline_user_args(), "--probe-ordinary-echo requires --probe-seven-days"): return
 		if not _check(DisplayServer.get_name() != "headless", "ordinary reply witness probe requires real GPU rendering"): return
@@ -75,6 +78,9 @@ func _run() -> void:
 	var desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
 	if not _check(desktop != null and desktop.is_visible_in_tree(), "new desktop is visible"): return
 	await _capture_screen("02-desktop")
+	if "--probe-ignored-ordinary" in OS.get_cmdline_user_args():
+		await preload("res://tests/integration/PlayableOrdinaryExpiryProbe.gd").new().run(self, game, desktop)
+		return
 	if "--probe-desktop-debug" in OS.get_cmdline_user_args():
 		# Explicit inventory fixture; all generation and persistence use production paths.
 		game.inventory = {"debug_key": 1, "lucky_charm": 1}

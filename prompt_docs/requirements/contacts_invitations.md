@@ -7,7 +7,7 @@ depends_on: ["spec.seven_day_dialogic_flow"]
 beads: ["dwm-p2r.6","dwm-p2r.13","dwm-p2r.14","dwm-oyo.3","dwm-oyo.4"]
 requirements:
   - {"id":"req.contact.history_watermark","depends_on":[],"implementation_evidence":[],"verification_evidence":[]}
-  - {"id":"req.contact.fixed_calendar","depends_on":["req.contact.history_watermark"],"implementation_evidence":[],"verification_evidence":[]}
+  - {"id":"req.contact.fixed_calendar","depends_on":["req.contact.history_watermark"],"implementation_evidence":["scripts/domain/contact/SevenDayCalendar.gd","autoload/GameState.gd","scripts/domain/contact/OrdinaryReplyEchoState.gd","scripts/domain/contact/ContactInvitationState.gd"],"verification_evidence":["tests/unit/test_seven_day_calendar.gd","tests/unit/test_contact_calendar_stacking.gd","tests/unit/test_ordinary_reply_echo_state.gd","tests/unit/test_contact_invitation_state.gd","tests/integration/test_minesweeper_round_transaction.gd","evidence/contact_calendar/README.md","evidence/ordinary_midnight/README.md"]}
   - {"id":"req.contact.echo","depends_on":["req.contact.fixed_calendar"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.invitation.solo","depends_on":["req.contact.history_watermark"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.invitation.group_activation","depends_on":["req.contact.history_watermark"],"implementation_evidence":[],"verification_evidence":[]}
