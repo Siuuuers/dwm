@@ -2,6 +2,28 @@ extends CanvasLayer
 ## A witnessed staging card. Ordering, provenance and persistence belong to its caller.
 signal card_acknowledged(receipt: Dictionary, result: Dictionary)
 signal advance_requested(receipt: Dictionary)
+
+## Native accessibility actions have no physical InputEvent. Keep their identity
+## separate from Button.pressed so a queued action cannot cross a card boundary.
+class AccessibleNextButton extends Button:
+	signal accessibility_requested(generation: int)
+	var _generation := -1
+
+	func set_generation(value: int) -> void:
+		if value == _generation: return
+		_generation = value
+		queue_accessibility_update()
+
+	func _notification(what: int) -> void:
+		if what != NOTIFICATION_ACCESSIBILITY_UPDATE or _generation < 0: return
+		var element := get_accessibility_element()
+		if element.is_valid():
+			DisplayServer.accessibility_update_add_action(element, DisplayServer.ACTION_CLICK,
+				_on_accessibility_click.bind(_generation))
+
+	func _on_accessibility_click(_data: Variant, generation: int) -> void:
+		accessibility_requested.emit(generation)
+
 const SCENE_ART := preload("res://scripts/ui/art/SceneArtView.gd")
 const AUTO_DELAYS := {"short": 1.0, "normal": 2.0, "long": 4.0}
 const AUTO_COPY := {"en": ["Auto Off", "Auto On"],
@@ -30,7 +52,7 @@ var _history_list: VBoxContainer
 var _scroll: ScrollContainer
 var _current_title: Label
 var _current_body: Label
-var _next: Button
+var _next: AccessibleNextButton
 var _status: Label
 var _input_owner: Node
 var _custody_bound := false
@@ -241,7 +263,9 @@ func _ready() -> void:
 		_auto_state.text = AUTO_COPY[_locale][int(_auto_enabled)]
 		_auto_state.add_theme_color_override("font_color", Color("252b34"))
 		navigation.add_child(_auto_state)
-	_next = Button.new()
+	_next = AccessibleNextButton.new()
+	_next.accessibility_requested.connect(_on_accessibility_next)
+	if _custody_bound: _next.set_generation(_input_generation)
 	_next.name = "NextPreludeCard"
 	_next.custom_minimum_size.y = 56
 	_next.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -315,6 +339,13 @@ func _acknowledge_drawn_card(receipt: Dictionary) -> void:
 	if not is_inside_tree() or is_queued_for_deletion() or receipt != _card.get("receipt", {}) \
 			or not _drawn or _busy or _accepted: return
 	_submit_acknowledgment()
+
+func _on_accessibility_next(generation: int) -> void:
+	if not _custody_bound or generation != _input_generation or not _input_admitted(): return
+	if not _input_owner.get_physical_contacts().is_empty(): return
+	_input_activation = true
+	_on_next()
+	_input_activation = false
 
 func _on_next() -> void:
 	if _retrying or not is_inside_tree() or is_queued_for_deletion() or _covered: return
@@ -434,6 +465,7 @@ func _retire_input() -> void:
 	_candidate.clear()
 	_fresh_contact = ""
 	_input_generation += 1
+	if _custody_bound and is_instance_valid(_next): _next.set_generation(_input_generation)
 	_retired_frame = Engine.get_process_frames()
 	if is_instance_valid(_input_owner):
 		_contacts = _input_owner.get_physical_contacts()

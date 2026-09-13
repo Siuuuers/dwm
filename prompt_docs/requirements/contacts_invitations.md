@@ -4,11 +4,11 @@ kind: requirement_packet
 schema_version: 1
 specification_status: approved
 depends_on: ["spec.seven_day_dialogic_flow"]
-beads: ["dwm-p2r.6","dwm-p2r.13","dwm-p2r.14","dwm-oyo.3","dwm-oyo.4"]
+beads: ["dwm-p2r.6","dwm-p2r.13","dwm-p2r.14","dwm-oyo.3","dwm-oyo.4","dwm-bap"]
 requirements:
   - {"id":"req.contact.history_watermark","depends_on":[],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.contact.fixed_calendar","depends_on":["req.contact.history_watermark"],"implementation_evidence":["scripts/domain/contact/SevenDayCalendar.gd","autoload/GameState.gd","scripts/domain/contact/OrdinaryReplyEchoState.gd","scripts/domain/contact/ContactInvitationState.gd"],"verification_evidence":["tests/unit/test_seven_day_calendar.gd","tests/unit/test_contact_calendar_stacking.gd","tests/unit/test_ordinary_reply_echo_state.gd","tests/unit/test_contact_invitation_state.gd","tests/integration/test_minesweeper_round_transaction.gd","evidence/contact_calendar/README.md","evidence/ordinary_midnight/README.md"]}
-  - {"id":"req.contact.echo","depends_on":["req.contact.fixed_calendar"],"implementation_evidence":[],"verification_evidence":[]}
+  - {"id":"req.contact.echo","depends_on":["req.contact.fixed_calendar"],"implementation_evidence":["scripts/domain/contact/OrdinaryReplyEchoState.gd","scripts/domain/contact/ContactInvitationState.gd","scripts/application/contact/Day7PreludeOwner.gd","scripts/ui/Day7PreludeSurface.gd","autoload/GameState.gd","autoload/ApplicationBootstrap.gd"],"verification_evidence":["tests/unit/test_ordinary_reply_echo_state.gd","tests/unit/test_ordinary_reply_command_port.gd","tests/unit/test_ordinary_correspondence_runtime.gd","tests/unit/test_day7_prelude_surface.gd","tests/unit/test_day7_accessibility_action.gd","tests/integration/verify_ordinary_reply_save.gd","tests/integration/verify_playable_startup.gd","tests/integration/verify_day7_accessibility.gd","evidence/ordinary_expiry_receipt/README.md","evidence/ordinary_reply_recovery/README.md","evidence/day7_presentation_receipt/README.md","evidence/day7_pause_custody/README.md","evidence/day7_auto_reading/README.md","evidence/day7_accessibility/README.md"]}
   - {"id":"req.invitation.solo","depends_on":["req.contact.history_watermark"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.invitation.group_activation","depends_on":["req.contact.history_watermark"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.invitation.group_resolution","depends_on":["req.invitation.group_activation"],"implementation_evidence":[],"verification_evidence":[]}

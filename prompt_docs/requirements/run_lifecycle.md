@@ -4,7 +4,7 @@ kind: requirement_packet
 schema_version: 1
 specification_status: approved
 depends_on: ["spec.seven_day_dialogic_flow"]
-beads: ["dwm-p2r.4","dwm-p2r.7","dwm-p2r.13","dwm-p2r.14","dwm-oyo.3","dwm-oyo.6","dwm-oyo.7"]
+beads: ["dwm-p2r.4","dwm-p2r.7","dwm-p2r.13","dwm-p2r.14","dwm-oyo.3","dwm-oyo.6","dwm-oyo.7","dwm-bap"]
 requirements:
   - {"id":"req.run.day_range","depends_on":[],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.run.lifecycle_states","depends_on":["req.run.day_range"],"implementation_evidence":[],"verification_evidence":[]}
@@ -12,7 +12,7 @@ requirements:
   - {"id":"req.run.day7_terminal_intent","depends_on":["req.run.day_resolution_plan","req.schedule.day7_provenance","req.flow.hospital_order"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.run.day7_terminal","depends_on":["req.run.day7_terminal_intent","req.ending.playback"],"implementation_evidence":[],"verification_evidence":[]}
   - {"id":"req.run.no_day8","depends_on":["req.run.day7_terminal_intent"],"implementation_evidence":[],"verification_evidence":[]}
-  - {"id":"req.run.day7_echo_drain","depends_on":["req.run.lifecycle_states"],"implementation_evidence":[],"verification_evidence":[]}
+  - {"id":"req.run.day7_echo_drain","depends_on":["req.run.lifecycle_states"],"implementation_evidence":["scripts/domain/contact/Day7FollowupState.gd","scripts/domain/contact/OrdinaryReplyEchoState.gd","scripts/application/contact/Day7PreludeOwner.gd","scripts/ui/Day7PreludeSurface.gd","autoload/GameState.gd","autoload/ApplicationBootstrap.gd"],"verification_evidence":["tests/unit/test_ordinary_correspondence_runtime.gd","tests/unit/test_day7_presentation_guards.gd","tests/unit/test_day7_prelude_surface.gd","tests/unit/test_day7_prelude_input.gd","tests/unit/test_day7_auto_reading.gd","tests/unit/test_day7_accessibility_action.gd","tests/integration/verify_playable_startup.gd","tests/integration/verify_day7_accessibility.gd","evidence/day7_presentation_receipt/README.md","evidence/day7_pause_custody/README.md","evidence/day7_auto_reading/README.md","evidence/day7_accessibility/README.md"]}
 ---
 
 # req_packet.run_lifecycle
