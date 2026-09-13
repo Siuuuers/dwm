@@ -1,0 +1,844 @@
+[
+  {
+    "id": "dwm-0hi",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "runtime implementation",
+          "runtime authorization",
+          "reconstruction of historical plan bytes"
+        ],
+        "requirement_ids": [
+          "req.docs.amendment_reconciliation"
+        ],
+        "scope": [
+          "accepted amendment authority reconciliation",
+          "hash-bound implementation plan suite",
+          "executor-ready Beads graph"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:authority_tooling_gate",
+          "bd dep cycles",
+          "bd lint"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Reconcile accepted desktop Minesweeper amendment into authority pipeline"
+  },
+  {
+    "id": "dwm-bap",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [
+          "evidence/contact_calendar/README.md",
+          "evidence/ordinary_expiry_receipt/README.md",
+          "evidence/day7_accessibility/README.md"
+        ],
+        "exclusions": [
+          "authored dialogue prose",
+          "shared System TTS capability",
+          "Dialogic transport rail",
+          "dwm-634 and all descendants"
+        ],
+        "requirement_ids": [
+          "req.contact.fixed_calendar",
+          "req.contact.echo",
+          "req.run.day7_echo_drain"
+        ],
+        "scope": [
+          "fixed seven-day calendar",
+          "ordinary reply and echo receipts",
+          "continued Day 2 and Day 6 group windows",
+          "Day 7 followup and echo drain"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:day7-accessibility-boundaries",
+          "Invoke-IsolatedGodot.ps1:day7-accessibility-full-journey",
+          "Invoke-IsolatedGodot.ps1:day7-accessibility-repo-gate"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Finish calendar and echo acceptance evidence after group-window repair"
+  },
+  {
+    "id": "dwm-eob",
+    "issue_type": "decision",
+    "status": "deferred",
+    "title": "Choose narrative localization adapter after representative files exist"
+  },
+  {
+    "id": "dwm-oyo.3",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "action-registry and committed-Schedule foundation ownership",
+          "desktop board generator and Shop capability domain law",
+          "Sylvia-witness relationship application and deferred-pair semantic/presentation ownership",
+          "final ending identity plan forms or playback",
+          "narrative prose art audio or animation"
+        ],
+        "requirement_ids": [
+          "req.invitation.solo",
+          "req.invitation.group_resolution",
+          "req.invitation.run_end",
+          "req.runtime.schedule_ownership",
+          "req.run.day_range",
+          "req.run.lifecycle_states",
+          "req.run.day_resolution_plan",
+          "req.run.day7_terminal_intent",
+          "req.run.no_day8",
+          "req.flow.hospital_order",
+          "req.save.snapshot",
+          "req.save.journal",
+          "req.save.schedule_state",
+          "req.save.schedule_migration",
+          "req.save.restore_atomic",
+          "req.save.desktop_board_continuity",
+          "req.schedule.state_models",
+          "req.schedule.action_registry",
+          "req.schedule.validation",
+          "req.schedule.done_commit",
+          "req.schedule.day7_provenance",
+          "req.schedule.warning_queue",
+          "req.schedule.done_board_fate",
+          "req.desktop.host",
+          "req.desktop.cross_app_actions",
+          "req.minesweeper.board_lifecycle",
+          "req.minesweeper.safety_capabilities",
+          "req.minesweeper.causal_departure",
+          "req.minesweeper.phase_boundary",
+          "req.shop.capabilities",
+          "req.test.layers",
+          "req.test.schedule_gate"
+        ],
+        "scope": [
+          "saved ScheduleView and finite warning queue",
+          "production desktop Minesweeper Shop and Contacts composition",
+          "final Schedule Done causal transaction and publication",
+          "disjoint pre-Done condition-Hospital delivery six-stage recovery and retirement history",
+          "unapplied Sylvia-witness and deferred-pair downstream handoffs",
+          "typed Day-7 terminal intents and durable TERMINAL_PENDING handoff"
+        ],
+        "verification_commands": [
+          "tools/evidence/run_oyo3_schedule_flow_gate.ps1"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Phase 03 — Integrate desktop, Minesweeper, Shop, Schedule, and seven-day flow"
+  },
+  {
+    "id": "dwm-oyo.4",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "ScheduleView Done and condition-Hospital production",
+          "base desktop board and Shop engines",
+          "profile-backed cross-save pair-deck persistence",
+          "final ending plan forms or playback",
+          "narrative prose art audio or animation"
+        ],
+        "requirement_ids": [
+          "req.contact.history_watermark",
+          "req.invitation.solo",
+          "req.invitation.group_resolution",
+          "req.invitation.run_end",
+          "req.save.snapshot",
+          "req.save.journal",
+          "req.save.restore_atomic"
+        ],
+        "scope": [
+          "relationship state and fixed promotion law",
+          "two-variant Sylvia Hospital witness consumption and caring history",
+          "Priscilla-Lavinia deferred-pair semantic resolution and visible presentation",
+          "dating and pair board coordination",
+          "durable applied-receipt and pair recovery"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:relationship_board_pair_gate"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Phase 03 — Relationship board promotion and pair law"
+  },
+  {
+    "id": "dwm-oyo.6",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "Phase-2R Schedule foundation",
+          "ScheduleView and warning composition",
+          "desktop board and Shop engines"
+        ],
+        "requirement_ids": [
+          "req.run.day7_terminal",
+          "req.ending.primary",
+          "req.ending.epilogue",
+          "req.ending.playback",
+          "req.ending.ids"
+        ],
+        "scope": [
+          "final Day-7 ending plan",
+          "Gallery unlocks",
+          "ending playback and return to menu",
+          "TERMINAL_PENDING handoff validation and transition"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:day7_endings_gallery_gate"
+        ]
+      }
+    },
+    "status": "in_progress",
+    "title": "Phase 05 — Day 7 endings Gallery and production wiring"
+  },
+  {
+    "id": "dwm-oyo.7",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "redefining accepted contracts",
+          "waiving diagnostics",
+          "reopening closed foundation ownership"
+        ],
+        "requirement_ids": [
+          "req.run.day7_terminal",
+          "req.ending.primary",
+          "req.ending.epilogue",
+          "req.ending.playback",
+          "req.ending.ids",
+          "req.test.layers",
+          "req.test.isolation",
+          "req.test.dialogic_fixture",
+          "req.config.version"
+        ],
+        "scope": [
+          "full-run integration",
+          "release evidence",
+          "final ending-flow verification"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:seven_day_release_gate"
+        ]
+      }
+    },
+    "status": "open",
+    "title": "Phase 06 — Integration and release evidence"
+  },
+  {
+    "id": "dwm-p2r.1",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [
+          {
+            "command_record_id": "baseline-import",
+            "path": "evidence/phase_2r/baseline.json",
+            "requirement_id": "req.docs.authority",
+            "sha256": "0a9e3354750471a70639028f3d1154a0885586b80f285835d8d059a1d10f8bb6"
+          },
+          {
+            "command_record_id": "baseline-import",
+            "path": "evidence/phase_2r/legacy/legacy_heading_inventory.v1.json",
+            "requirement_id": "req.docs.legacy_disposition",
+            "sha256": "b5a06a12d0f97ad2b0cce2c73e3e992416efa499675eac0ed295fa1703684548"
+          },
+          {
+            "command_record_id": "task4-disposition-after-delete",
+            "path": "evidence/phase_2r/documentation/legacy_disposition.json",
+            "requirement_id": "req.docs.legacy_disposition",
+            "sha256": "aca2109ba1599481cf22f4b66071e4f2d94e484f1df68adc00cb56ab642febd7"
+          },
+          {
+            "command_record_id": "task4-docs-after-delete",
+            "path": "prompt_docs/INDEX.md",
+            "requirement_id": "req.docs.generated_index",
+            "sha256": "d30741719d690629d1d32ce3185053775bc19e058b01732cc2bbe7600dbfd408"
+          }
+        ],
+        "exclusions": [
+          "runtime behavior except configuration validation",
+          "global CodeGraph installation"
+        ],
+        "requirement_ids": [
+          "req.docs.authority",
+          "req.docs.context_order",
+          "req.docs.status_separation",
+          "req.docs.packet_schema",
+          "req.docs.generated_index",
+          "req.docs.legacy_disposition",
+          "req.beads.execution",
+          "req.config.version"
+        ],
+        "scope": [
+          "baseline evidence",
+          "requirement packets",
+          "generated index",
+          "legacy disposition",
+          "Beads metadata"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:docs_tooling_gate",
+          "bd list --status all --json --readonly"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Establish documentation schema and context bootstrap"
+  },
+  {
+    "id": "dwm-p2r.10",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "ScheduleView warnings or final Done composition",
+          "OYO implementation or closure",
+          "waiving project-owned diagnostics",
+          "unverified archive deletion"
+        ],
+        "requirement_ids": [
+          "req.test.layers",
+          "req.test.isolation",
+          "req.test.dialogic_fixture",
+          "req.test.phase2r_gate",
+          "req.test.schedule_foundation_gate",
+          "req.test.desktop_amendment_gate",
+          "req.config.version"
+        ],
+        "scope": [
+          "Phase-2R on-tree scenes and integration scenarios",
+          "all validators",
+          "sixteen-child evidence resolution",
+          "dwm-p2r.10 and epic closeout"
+        ],
+        "verification_commands": [
+          "tools/evidence/run_phase2r_gate.ps1",
+          "bd dep cycles",
+          "bd lint",
+          "bd orphans"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Seal Phase-2R verification and closeout"
+  },
+  {
+    "id": "dwm-p2r.12",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "GameState wiring",
+          "Schedule view and warnings",
+          "wholesale strict-branch merge"
+        ],
+        "requirement_ids": [
+          "req.schedule.state_models",
+          "req.schedule.validation"
+        ],
+        "scope": [
+          "selective strict ScheduleRules reimplementation",
+          "strict-branch evidence quarantine"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:schedule_rules_gate",
+          "git range-diff 49947e5..5e9ab64"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Reconcile and port strict ScheduleRules onto accepted authority"
+  },
+  {
+    "id": "dwm-p2r.13",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "Schedule view and warnings",
+          "desktop board fate",
+          "terminal intent or ending selection",
+          "Hospital and dating presentation"
+        ],
+        "requirement_ids": [
+          "req.invitation.solo",
+          "req.invitation.group_resolution",
+          "req.invitation.run_end",
+          "req.runtime.schedule_ownership",
+          "req.run.day_resolution_plan",
+          "req.save.schedule_state",
+          "req.save.schedule_migration",
+          "req.save.restore_atomic",
+          "req.schedule.state_models",
+          "req.schedule.action_registry",
+          "req.schedule.validation",
+          "req.schedule.done_commit",
+          "req.schedule.day7_provenance",
+          "req.test.schedule_foundation_gate"
+        ],
+        "scope": [
+          "committed Schedule schema and provenance",
+          "atomic facade and day-resolution freeze",
+          "Schedule persistence and migration"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:committed_resolution_green",
+          "Invoke-IsolatedGodot.ps1:schedule_commit_gate",
+          "Invoke-IsolatedGodot.ps1:schedule_restore_gate"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Implement registry-backed committed Schedule and provenance seam"
+  },
+  {
+    "id": "dwm-p2r.14",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "Schedule view and warnings",
+          "desktop board engine",
+          "narrative prose"
+        ],
+        "requirement_ids": [
+          "req.invitation.run_end",
+          "req.run.day_resolution_plan",
+          "req.run.no_day8",
+          "req.runtime.schedule_ownership",
+          "req.flow.hospital_order",
+          "req.schedule.done_commit",
+          "req.schedule.day7_provenance"
+        ],
+        "scope": [
+          "Hospital and dating presentation adapters",
+          "registered route completion receipts",
+          "Hospital-before-date ordering"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:hospital_dating_adapter_gate"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Complete Hospital and dating adapters on committed Schedule"
+  },
+  {
+    "id": "dwm-p2r.15",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "ScheduleView warnings or final Done composition",
+          "final ending selection or playback",
+          "new product behavior",
+          "waived diagnostics",
+          "unverified migration"
+        ],
+        "requirement_ids": [
+          "req.save.schedule_state",
+          "req.save.schedule_migration",
+          "req.schedule.validation",
+          "req.schedule.done_commit",
+          "req.schedule.day7_provenance",
+          "req.test.schedule_foundation_gate"
+        ],
+        "scope": [
+          "Schedule Hospital dating and provenance foundation evidence"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:schedule_foundation_gate",
+          "bd dep cycles",
+          "bd lint",
+          "bd orphans"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Seal the Phase-2R Schedule foundation evidence"
+  },
+  {
+    "id": "dwm-p2r.16",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "board engine",
+          "Schedule commit or v3 persistence",
+          "desktop v4 persistence",
+          "Schedule view and warnings",
+          "player-facing composition"
+        ],
+        "requirement_ids": [
+          "req.runtime.sole_owners",
+          "req.save.desktop_board_continuity",
+          "req.schedule.action_registry",
+          "req.desktop.registry",
+          "req.minesweeper.board_lifecycle"
+        ],
+        "scope": [
+          "external production identity issuer and root store",
+          "closed deterministic child-provenance registry",
+          "durable continuation-operation journal",
+          "DataCatalog Schedule and Shop projection cleanup",
+          "source-bound issuer boundary evidence"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:desktop_identity_boundary",
+          "Invoke-IsolatedGodot.ps1:catalog_registry_parity",
+          "git merge-base --is-ancestor issuer-boundary HEAD"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Phase 2R: Bind production identity issuer and DataCatalog handoff"
+  },
+  {
+    "id": "dwm-p2r.2",
+    "issue_type": "chore",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [
+          {
+            "command_record_id": "task5-codegraph-prerequisites",
+            "path": "evidence/phase_2r/tooling/codegraph_prerequisites.json",
+            "requirement_id": "req.codegraph.removal",
+            "sha256": "a15225713b00cc9072710596055ba2b69e2a09b9610e7e22d979ea75484d99cb"
+          },
+          {
+            "command_record_id": "task5-codegraph-stays-absent",
+            "path": "evidence/phase_2r/tooling/codegraph_removal.json",
+            "requirement_id": "req.codegraph.removal",
+            "sha256": "61ea31a943fdadb1f2e86436ab959d24854e01c2f6c8652322b1d4baed2a0f7b"
+          }
+        ],
+        "exclusions": [
+          "global CodeGraph executable/package"
+        ],
+        "requirement_ids": [
+          "req.codegraph.removal",
+          "req.beads.execution",
+          "req.docs.generated_index"
+        ],
+        "scope": [
+          "repository .codegraph data",
+          "CodeGraph-first repository instructions"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:repository_tooling",
+          "rg active-consumer audit"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Remove ineffective repository CodeGraph integration"
+  },
+  {
+    "id": "dwm-p2r.3",
+    "issue_type": "feature",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "translated narrative adapter",
+          "TranslationServer",
+          "run-save profile fields"
+        ],
+        "requirement_ids": [
+          "req.profile.partition",
+          "req.preferences.profile",
+          "req.preferences.reset",
+          "req.locale.custom_json",
+          "req.locale.manifest",
+          "req.locale.extraction",
+          "req.locale.lookup",
+          "req.locale.switch_atomic",
+          "req.locale.binding",
+          "req.locale.presentation",
+          "req.audio.sole_owner",
+          "req.audio.semantic_context"
+        ],
+        "scope": [
+          "ProfileManager",
+          "custom JSON UI localization",
+          "UI bindings/presentation",
+          "AudioManager"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:profile_locale_audio_gate"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Establish profile localization and audio ownership"
+  },
+  {
+    "id": "dwm-p2r.4",
+    "issue_type": "feature",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "disk save schema",
+          "Dialogic manifests",
+          "final Day7 terminal intent and ending playback"
+        ],
+        "requirement_ids": [
+          "req.runtime.sole_owners",
+          "req.runtime.game_state_facade",
+          "req.runtime.commands_signals",
+          "req.run.day_range",
+          "req.run.lifecycle_states",
+          "req.run.day_resolution_plan",
+          "req.run.no_day8"
+        ],
+        "scope": [
+          "GameState surface inventory",
+          "RunLifecycle",
+          "DayResolutionCoordinator"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:lifecycle_gate",
+          "rg Day8 current-state audit"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Decompose GameState and repair run lifecycle"
+  },
+  {
+    "id": "dwm-p2r.5",
+    "issue_type": "feature",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "player-facing Backup composition",
+          "arbitrary object saves"
+        ],
+        "requirement_ids": [
+          "req.save.snapshot",
+          "req.save.journal",
+          "req.save.restore_atomic",
+          "req.save.migration",
+          "req.save.test_isolation",
+          "req.profile.partition"
+        ],
+        "scope": [
+          "RunSnapshotSchema",
+          "CheckpointJournal",
+          "SaveManager",
+          "storage",
+          "migrations",
+          "restore adapters"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:lifecycle_save_gate",
+          "Invoke-IsolatedGodot.ps1:restore_transaction"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Implement snapshots migrations and isolated storage"
+  },
+  {
+    "id": "dwm-p2r.6",
+    "issue_type": "feature",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "message prose",
+          "dating presentation"
+        ],
+        "requirement_ids": [
+          "req.contact.history_watermark",
+          "req.invitation.solo",
+          "req.invitation.group_activation",
+          "req.invitation.group_resolution",
+          "req.invitation.run_end"
+        ],
+        "scope": [
+          "contact history",
+          "solo/group invitation state",
+          "facade transactions"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:invitation_branches"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Implement contact and invitation state machines"
+  },
+  {
+    "id": "dwm-p2r.7",
+    "issue_type": "feature",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "Schedule view and warnings",
+          "desktop board fate",
+          "final ending selection or ordered playback",
+          "narrative prose"
+        ],
+        "requirement_ids": [
+          "req.runtime.schedule_ownership",
+          "req.run.day_resolution_plan",
+          "req.flow.hospital_order",
+          "req.schedule.state_models",
+          "req.schedule.action_registry",
+          "req.schedule.validation",
+          "req.schedule.done_commit",
+          "req.schedule.day7_provenance",
+          "req.test.schedule_foundation_gate"
+        ],
+        "scope": [
+          "registry-backed committed Schedule",
+          "Hospital/dating receipts",
+          "Day7 Schedule provenance handoff",
+          "retained interim ending playback compatibility"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:invitations_flow_gate",
+          "Invoke-IsolatedGodot.ps1:day7_schedule_provenance",
+          "Invoke-IsolatedGodot.ps1:schedule_foundation_gate"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Complete registry-backed Schedule, Hospital, dating, and Day-7 provenance"
+  },
+  {
+    "id": "dwm-p2r.8",
+    "issue_type": "feature",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "Chinese narrative adapter",
+          "invented narrative prose"
+        ],
+        "requirement_ids": [
+          "req.dialogic.authority",
+          "req.dialogic.manifest",
+          "req.dialogic.effects",
+          "req.dialogic.visited",
+          "req.dialogic.skip",
+          "req.dialogic.content_status",
+          "req.test.dialogic_fixture",
+          "req.locale.narrative_deferred"
+        ],
+        "scope": [
+          "Dialogic adapter/bridge",
+          "exact manifests",
+          "effect/variable transactions",
+          "visited history",
+          "skip fixture"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:dialogic_gate",
+          "Invoke-IsolatedGodot.ps1:dialogic_fixture_smoke"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Repair Dialogic effects history and skip"
+  },
+  {
+    "id": "dwm-p2r.9",
+    "issue_type": "feature",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "Schedule view and warnings",
+          "final Schedule Done composition",
+          "real condition destination policy",
+          "player-facing desktop composition"
+        ],
+        "requirement_ids": [
+          "req.save.desktop_board_continuity",
+          "req.desktop.registry",
+          "req.desktop.host",
+          "req.desktop.cross_app_actions",
+          "req.desktop.logout",
+          "req.minesweeper.board_lifecycle",
+          "req.minesweeper.round_contract",
+          "req.minesweeper.safety_capabilities",
+          "req.minesweeper.rng_isolation",
+          "req.shop.capabilities",
+          "req.minesweeper.causal_departure",
+          "req.minesweeper.phase_boundary",
+          "req.test.desktop_amendment_gate"
+        ],
+        "scope": [
+          "desktop registry and host",
+          "exact board lifecycle and v4 desktop persistence",
+          "production identity and isolated RNG streams",
+          "Shop capabilities",
+          "shared causal sequence and consequence recovery",
+          "discard and forfeit participant"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:desktop_contract",
+          "Invoke-IsolatedGodot.ps1:minesweeper_contract",
+          "Invoke-IsolatedGodot.ps1:desktop_amendment_gate"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Implement reusable desktop, Minesweeper, Shop, and causal contracts"
+  },
+  {
+    "id": "dwm-wks",
+    "issue_type": "task",
+    "metadata": {
+      "phase2r": {
+        "evidence_links": [],
+        "exclusions": [
+          "DataCatalog projection cleanup owned by dwm-p2r.16",
+          "Schedule UI",
+          "canonical Schedule commit",
+          "caller-owned route effects or cost"
+        ],
+        "requirement_ids": [
+          "req.schedule.action_registry",
+          "req.schedule.validation",
+          "req.test.schedule_foundation_gate"
+        ],
+        "scope": [
+          "versioned Schedule action registry",
+          "manifest action tuple and source-receipt parity",
+          "GameState Schedule effect-table retirement"
+        ],
+        "verification_commands": [
+          "Invoke-IsolatedGodot.ps1:schedule_registry_gate"
+        ]
+      }
+    },
+    "status": "closed",
+    "title": "Registry parity: bind each action ID to its exact day, type, friends, route and effects"
+  }
+]

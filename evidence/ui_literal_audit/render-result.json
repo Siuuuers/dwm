@@ -1,0 +1,74 @@
+{
+  "captures": [
+    {
+      "body": "Unable to continue. Please retry.",
+      "button": "Retry",
+      "canvas_layer": 2,
+      "file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/a9d7119a-68b0-40cd-b329-77bce3ada879/dwm_test_root/ending-recovery/en-recovery-150.png",
+      "locale": "en",
+      "panel_rect": [
+        320.0,
+        252.0,
+        640.0,
+        216.0
+      ],
+      "state": "recovery"
+    },
+    {
+      "body_hidden": true,
+      "button_hidden": true,
+      "file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/a9d7119a-68b0-40cd-b329-77bce3ada879/dwm_test_root/ending-recovery/en-normal-150.png",
+      "locale": "en",
+      "panel_hidden": true,
+      "state": "normal_hidden",
+      "title_hidden": true
+    },
+    {
+      "body": "暂时无法继续。请重试。",
+      "button": "重试",
+      "canvas_layer": 2,
+      "file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/a9d7119a-68b0-40cd-b329-77bce3ada879/dwm_test_root/ending-recovery/zh-CN-recovery-150.png",
+      "locale": "zh_CN",
+      "panel_rect": [
+        320.0,
+        252.0,
+        640.0,
+        216.0
+      ],
+      "state": "recovery"
+    },
+    {
+      "body_hidden": true,
+      "button_hidden": true,
+      "file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/a9d7119a-68b0-40cd-b329-77bce3ada879/dwm_test_root/ending-recovery/zh-CN-normal-150.png",
+      "locale": "zh_CN",
+      "panel_hidden": true,
+      "state": "normal_hidden",
+      "title_hidden": true
+    },
+    {
+      "body": "暫時無法繼續。請重試。",
+      "button": "重試",
+      "canvas_layer": 2,
+      "file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/a9d7119a-68b0-40cd-b329-77bce3ada879/dwm_test_root/ending-recovery/zh-HK-recovery-150.png",
+      "locale": "zh_HK",
+      "panel_rect": [
+        320.0,
+        252.0,
+        640.0,
+        216.0
+      ],
+      "state": "recovery"
+    },
+    {
+      "body_hidden": true,
+      "button_hidden": true,
+      "file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/a9d7119a-68b0-40cd-b329-77bce3ada879/dwm_test_root/ending-recovery/zh-HK-normal-150.png",
+      "locale": "zh_HK",
+      "panel_hidden": true,
+      "state": "normal_hidden",
+      "title_hidden": true
+    }
+  ],
+  "scope": "actual EndingScene no-ports recovery projection over a synthetic material underlay; no narrative, retry-operation, recovery-owner, durability, or route claim"
+}

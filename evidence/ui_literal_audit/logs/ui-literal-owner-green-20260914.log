@@ -1,0 +1,80 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/2106efd3-752d-4168-a2e6-5fd3d50cb6eb/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/tooling/test_ui_literal_audit.gd
+* test_current_dormant_scene_copy_has_literal_specific_demonstrated_owners
+* test_scene_owner_is_location_and_literal_specific
+* test_spoofed_binding_and_unknown_catalog_key_are_refused
+* test_unknown_shared_placeholder_is_not_blanket_runtime_data
+* test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments
+* test_script_scanner_collects_every_failure_instead_of_stopping_at_the_first
+* test_script_scanner_accepts_registered_lookup_and_dynamic_presenter_value
+* test_direct_properties_and_accessibility_descriptions_are_sinks
+* test_comments_cannot_spoof_localization_or_create_sinks
+* test_localized_call_does_not_own_an_untranslated_sibling_fallback
+* test_lowercase_one_word_and_inline_locale_spoof_are_refused
+* test_localized_binding_refuses_root_escape_and_requires_exact_format_parameters
+* test_source_inventory_is_sorted_complete_and_reports_unreadable_sources
+* test_scene_accessibility_description_is_audited
+* test_direct_inherited_property_is_audited_in_every_script_root
+* test_path_specific_helper_does_not_own_sibling_fallback
+* test_quoted_dead_code_cannot_authenticate_an_owner_marker
+17/17 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/tooling/test_ui_literal_audit.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                17
+Passing Tests        17
+Asserts             144
+Orphans              24
+Time              0.487s
+
+
+---- All tests passed! ----

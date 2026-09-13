@@ -3,15 +3,37 @@ class_name EndingScene
 
 ## Presents the exact saved ending command; only physical completion advances its cursor.
 
+const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
+const RECOVERY_THEME := preload("res://scripts/ui/SettingsTheme.gd")
+const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
+
 # get_node_or_null keeps the scene instantiable bare (e.g. EndingScene.new() in tests) without
 # erroring on the unique-name lookups when the .tscn children are absent.
-@onready var _ending_title_label: Label = get_node_or_null("%EndingTitleLabel")
 @onready var _ending_body_label: Label = get_node_or_null("%EndingBodyLabel")
-@onready var _return_to_menu_button: Button = get_node_or_null("%ReturnToMenuButton")
+@onready var _return_to_menu_button: TRANSPORT_BUTTON = get_node_or_null("%ReturnToMenuButton")
+@onready var _recovery_panel: PanelContainer = get_node_or_null("%RecoveryPanel")
+
+const RECOVERY_RETRY := "witnessed.recovery.retry"
+const RECOVERY_MESSAGE := "witnessed.recovery.step_failed"
+var _localization: Node
+var _recovery_input_bound := false
+var _recovery_copy_ready := false
+var _profile: Node
+var _recovery_palette: StringName = &"after_hours"
 
 func _ready() -> void:
-	if is_instance_valid(_return_to_menu_button) and not _return_to_menu_button.pressed.is_connected(_on_return_pressed):
-		_return_to_menu_button.pressed.connect(_on_return_pressed)
+	_localization = get_node_or_null("/root/LocalizationManager")
+	_profile = get_node_or_null("/root/ProfileManager")
+	var run_presentation := RUN_PRESENTATION.read(get_node_or_null("/root/GameState"))
+	if run_presentation.get("palette") == "Midnight": _recovery_palette = &"midnight"
+	if is_instance_valid(_profile):
+		_profile.preference_changed.connect(_on_preference_changed)
+	if is_instance_valid(_localization):
+		_localization.locale_changed.connect(_on_locale_changed)
+	if is_instance_valid(_return_to_menu_button):
+		_recovery_input_bound = _return_to_menu_button.bind_admission(
+			_retry_admitted, get_node_or_null("/root/InputManager"))
+		_return_to_menu_button.activated.connect(_on_return_pressed)
 	_set_playback_status(false)
 	# Routing must finish installing current_scene before a no-dialogue ending can return.
 	_show_ending.call_deferred()
@@ -19,7 +41,6 @@ func _ready() -> void:
 
 func _show_ending() -> void:
 	if not _pending_ending_command.is_empty() or _finished: return
-	if is_instance_valid(_ending_title_label): _ending_title_label.text = "Ending"
 	if _ending_state_port == null or _ending_playback_port == null:
 		_set_playback_status(true)
 		return
@@ -55,11 +76,73 @@ func _return_to_title() -> void:
 
 func _set_playback_status(retry: bool) -> void:
 	_retry_available = retry
+	_refresh_recovery()
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_refresh_recovery()
+
+
+func _on_preference_changed(path: StringName, _value: Variant) -> void:
+	if str(path).begins_with("preferences.accessibility."): _refresh_recovery()
+
+
+func _retry_admitted() -> bool:
+	return _retry_available and not _finished and _recovery_copy_ready and _recovery_input_bound
+
+
+func _refresh_recovery() -> void:
+	# A locale or frontier change retires in-flight input before publishing both labels.
+	# Normal playback contributes no heading, error, or Return action to the witnessed stream.
+	_recovery_copy_ready = false
+	var restore_focus := is_instance_valid(_return_to_menu_button) and _return_to_menu_button.has_focus()
+	var first_exposure := is_instance_valid(_recovery_panel) and not _recovery_panel.visible
+	if is_instance_valid(_recovery_panel): _recovery_panel.hide()
 	if is_instance_valid(_return_to_menu_button):
-		_return_to_menu_button.disabled = not retry and not _finished
-		_return_to_menu_button.text = "Retry" if retry else "Return to title"
+		_return_to_menu_button.retire_input()
+		_return_to_menu_button.hide()
+		_return_to_menu_button.disabled = true
+		_return_to_menu_button.focus_mode = Control.FOCUS_NONE
 	if is_instance_valid(_ending_body_label):
-		_ending_body_label.text = "The ending could not continue. Retry to resume this step." if retry else ""
+		_ending_body_label.hide()
+	if not _retry_available or _finished or not _recovery_input_bound \
+			or not is_instance_valid(_ending_body_label) or not is_instance_valid(_localization): return
+	if _localization.get_readiness() != &"ready" \
+			or not _localization.has_key(RECOVERY_RETRY) or not _localization.has_key(RECOVERY_MESSAGE): return
+	var retry_text: String = _localization.t(RECOVERY_RETRY)
+	var message_text: String = _localization.t(RECOVERY_MESSAGE)
+	if retry_text.is_empty() or message_text.is_empty(): return
+	_return_to_menu_button.text = retry_text
+	_return_to_menu_button.accessibility_description = message_text
+	_ending_body_label.text = message_text
+	_style_recovery()
+	_recovery_copy_ready = true
+	_ending_body_label.show()
+	_return_to_menu_button.focus_mode = Control.FOCUS_ALL
+	_return_to_menu_button.disabled = false
+	_return_to_menu_button.show()
+	if is_instance_valid(_recovery_panel): _recovery_panel.show()
+	if restore_focus or first_exposure: _return_to_menu_button.grab_focus()
+
+
+func _style_recovery() -> void:
+	if not is_instance_valid(_recovery_panel) or not is_instance_valid(_profile): return
+	var percent: int = _profile.get_preference("preferences.accessibility.text_size", 100)
+	var high_contrast: bool = _profile.get_preference("preferences.accessibility.high_contrast", false)
+	var colour: String = _profile.get_preference("preferences.accessibility.colour_differentiation", "standard")
+	# Technical recovery stays clean; it is not a fictional week-tinted surface.
+	var material := RECOVERY_THEME.build(_localization.get_locale(), percent, _recovery_palette, high_contrast, colour)
+	if material == null: return
+	var face := material.get_color("face", "Settings")
+	var ink := material.get_color("ink", "Settings")
+	var rule := material.get_color("structure", "Settings")
+	_recovery_panel.theme = material
+	_recovery_panel.add_theme_stylebox_override("panel", RECOVERY_THEME.box(face, rule, 2))
+	_ending_body_label.add_theme_color_override("font_color", ink)
+	_return_to_menu_button.custom_minimum_size.y = maxf(48.0 * percent / 100.0,
+		64.0 if _profile.get_preference("preferences.accessibility.large_targets", false) else 48.0)
+	var focus := RECOVERY_THEME.box(Color.TRANSPARENT, material.get_color("paper_focus", "Settings"), 4)
+	_return_to_menu_button.add_theme_stylebox_override("focus", focus)
 
 
 # ---- Resumable ending playback (dwm-p2r.7 Task 6, req.ending.playback) ----

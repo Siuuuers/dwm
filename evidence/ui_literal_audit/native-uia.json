@@ -1,0 +1,32 @@
+{
+  "element": {
+    "automation_id": "",
+    "control_type": "ControlType.Button",
+    "enabled_before_invoke": true,
+    "help_text": "",
+    "name": "Retry ",
+    "reported_process_id": 11988
+  },
+  "invoked_at_utc": "2026-09-13T23:15:57.5775216Z",
+  "native_method": "Windows.UIAutomation.InvokePattern.Invoke",
+  "process": {
+    "command_line": "\"C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64.exe\" --headless --path C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls --log-file C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\ending-recovery-native-20260914.log --display-driver windows --rendering-method gl_compatibility --rendering-driver opengl3 --position -20000,-20000 --accessibility always -s res://tools/ending_recovery/verify_ending_recovery.gd -- --native-invoke",
+    "name": "Godot_v4.6.3-stable_mono_win64.exe",
+    "process_id": 11988
+  },
+  "schema_version": 1,
+  "source_log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\ending-recovery-native-20260914.log",
+  "target": {
+    "control": "Retry",
+    "pid": 11988,
+    "repository_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls",
+    "script": "res://tools/ending_recovery/verify_ending_recovery.gd"
+  },
+  "window": {
+    "automation_id": "",
+    "name": "DWM (DEBUG) ",
+    "native_title": "DWM Ending Recovery Accessibility 11988",
+    "native_window_handle": 14223984,
+    "process_id": 11988
+  }
+}
