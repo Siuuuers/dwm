@@ -3,6 +3,10 @@ extends GutTest
 const RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
 const NAMES := ["History", "Skip", "Auto", "Save", "Load", "Next"]
+const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
+const PROFILE := preload("res://autoload/ProfileManager.gd")
+const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const FILES := preload("res://tests/support/FakeFileOps.gd")
 const LEFTS := [0, 212, 426, 640, 852, 1066]
 const WIDTHS := [212, 214, 214, 212, 214, 214]
 const COPY := {
@@ -10,6 +14,23 @@ const COPY := {
 	"zh-CN": ["\u5386\u53f2", "\u8df3\u8fc7", "\u81ea\u52a8", "\u4fdd\u5b58", "\u8bfb\u53d6", "\u4e0b\u4e00\u6b65", "\u5f00", "\u5173"],
 	"zh-HK": ["\u6b77\u53f2", "\u8df3\u904e", "\u81ea\u52d5", "\u5132\u5b58", "\u8f09\u5165", "\u4e0b\u4e00\u6b65", "\u958b", "\u95dc"],
 }
+
+
+var _localization: Node
+
+
+func before_each() -> void:
+	var profile: Node = autofree(PROFILE.new())
+	assert_true(profile.initialize(STORAGE.new("witnessed-rail-localization", FILES.new())).get("ok", false))
+	_localization = autofree(LOCALIZATION.new())
+	assert_true(_localization.initialize(profile).get("ok", false))
+
+
+func _new_rail(locale: String = "en") -> RAIL:
+	assert_true(_localization.set_locale(locale.replace("-", "_")).get("ok", false))
+	var rail := RAIL.new()
+	assert_true(rail.bind_localization(_localization))
+	return rail
 
 
 class Admission extends RefCounted:
@@ -32,7 +53,7 @@ class InputOwner extends Node:
 
 
 func test_six_controls_cover_the_exact_scaled_native_hit_rectangles() -> void:
-	var rail := RAIL.new()
+	var rail := _new_rail()
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
 	add_child_autofree(rail)
 	assert_eq(rail.position, Vector2(0, 656))
@@ -50,7 +71,7 @@ func test_six_controls_cover_the_exact_scaled_native_hit_rectangles() -> void:
 
 
 func test_projection_keeps_placeholders_visible_disabled_and_modes_truthful() -> void:
-	var rail := RAIL.new()
+	var rail := _new_rail()
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
 	add_child_autofree(rail)
 	assert_true(rail.project(true, false, true))
@@ -81,7 +102,7 @@ func test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates() 
 			var presentation: Theme = CAPTION_THEME.build(locale, percent,
 				"AfterHours", false, "standard", true)
 			assert_not_null(presentation, context)
-			var rail := RAIL.new()
+			var rail := _new_rail(locale)
 			assert_true(rail.configure_presentation(presentation, locale), context)
 			add_child(rail)
 			assert_true(rail.project(true, false, true), context)
@@ -105,7 +126,7 @@ func test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates() 
 
 func test_materials_use_caption_roles_and_skip_signal_stays_admission_bound() -> void:
 	var presentation: Theme = CAPTION_THEME.build("en", 100, "Midnight")
-	var rail := RAIL.new()
+	var rail := _new_rail()
 	assert_true(rail.configure_presentation(presentation, "en"))
 	var admission := Admission.new()
 	var input_owner := InputOwner.new()
@@ -137,7 +158,7 @@ func test_materials_use_caption_roles_and_skip_signal_stays_admission_bound() ->
 
 func test_projection_and_visibility_retire_stale_native_actions_without_steady_state_churn() -> void:
 	var presentation: Theme = CAPTION_THEME.build("en", 100, "AfterHours")
-	var rail := RAIL.new()
+	var rail := _new_rail()
 	assert_true(rail.configure_presentation(presentation, "en"))
 	var admission := Admission.new()
 	var input_owner := InputOwner.new()
@@ -185,3 +206,58 @@ func test_projection_and_visibility_retire_stale_native_actions_without_steady_s
 	skip.call("_on_accessibility_click", null, int(skip.get("_generation")))
 	assert_signal_emit_count(rail, "skip_requested", 2,
 		"the current post-visibility generation remains operable")
+
+
+func test_missing_catalog_owner_disables_commands_and_invalid_rebind_preserves_labels() -> void:
+	var rail := RAIL.new()
+	add_child_autofree(rail)
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
+	assert_true(rail.project(true, false, false))
+	var skip := rail.get_node("Skip") as Button
+	assert_true(skip.disabled, "a control without a registered label cannot activate")
+	assert_eq(skip.text, "")
+	assert_false(rail.bind_localization(null))
+	assert_true(rail.bind_localization(_localization))
+	assert_false(skip.disabled)
+	assert_eq(skip.text, "Skip \u00b7 Off")
+	assert_false(rail.bind_localization(RefCounted.new()))
+	assert_eq(skip.text, "Skip \u00b7 Off", "a refused replacement retains the valid owner")
+	var theme_before: Theme = rail.theme
+	assert_false(rail.configure_presentation(CAPTION_THEME.build("zh-CN", 100, "AfterHours"), "zh-CN"),
+		"a font locale cannot get ahead of the committed catalog locale")
+	assert_same(rail.theme, theme_before)
+	assert_eq(skip.text, "Skip \u00b7 Off")
+
+
+func test_live_catalog_switch_retires_old_input_and_keeps_controls_and_modes() -> void:
+	var rail := _new_rail()
+	add_child_autofree(rail)
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
+	assert_true(rail.project(true, true, false))
+	var skip := rail.get_node("Skip") as Button
+	var auto := rail.get_node("Auto") as Button
+	var generation: int = skip._generation
+	assert_true(_localization.set_locale("zh_CN").get("ok", false))
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("zh-CN", 100, "AfterHours"), "zh-CN"))
+	assert_same(rail.get_node("Skip"), skip)
+	assert_same(rail.get_node("Auto"), auto)
+	assert_eq(skip.text, "\u8df3\u8fc7 \u00b7 \u5f00")
+	assert_eq(auto.text, "\u81ea\u52a8 \u00b7 \u5173")
+	assert_gt(skip._generation, generation, "a prior-language activation is retired")
+
+
+func test_binding_a_different_catalog_locale_waits_for_the_matching_theme_tuple() -> void:
+	var rail := _new_rail()
+	add_child_autofree(rail)
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
+	assert_true(rail.project(true, false, false))
+	var theme_before: Theme = rail.theme
+	assert_true(_localization.set_locale("zh_HK").get("ok", false))
+	assert_true(rail.bind_localization(_localization))
+	var skip := rail.get_node("Skip") as Button
+	assert_true(skip.disabled)
+	assert_eq(skip.text, "", "new copy does not appear under the old language/font")
+	assert_same(rail.theme, theme_before)
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("zh-HK", 100, "AfterHours"), "zh-HK"))
+	assert_eq(skip.text, "\u8df3\u904e \u00b7 \u95dc")
+	assert_false(skip.disabled)

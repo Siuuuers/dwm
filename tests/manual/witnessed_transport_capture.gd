@@ -1,6 +1,7 @@
 extends "res://tests/ui/render_witnessed_caption.gd"
 ## Real caption/style captures plus a separately scoped native accessibility rail probe.
 
+const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
 var _activations := 0
 var _pressed_signals := 0
@@ -15,6 +16,12 @@ func _run() -> void:
 			or not DirAccess.dir_exists_absolute(isolated) or DisplayServer.get_name() == "headless":
 		quit(1)
 		return
+	var profile: Node = root.get_node("ProfileManager")
+	var localization: Node = root.get_node("LocalizationManager")
+	if not profile.initialize(STORAGE.new(isolated.path_join("transport-profile"))).get("ok", false) \
+			or not localization.initialize(profile).get("ok", false):
+		quit(1)
+		return
 	for frame: int in 3: await process_frame
 	if "--native-invoke" in OS.get_cmdline_user_args():
 		await _native_invoke()
@@ -25,6 +32,10 @@ func _run() -> void:
 		return
 	var captures: Array[Dictionary] = []
 	for locale: String in ["en", "zh-CN", "zh-HK"]:
+		if not localization.set_locale(locale.replace("-", "_")).get("ok", false):
+			await _restore()
+			quit(1)
+			return
 		if not await _show_fixture(locale, 150, "AfterHours", false):
 			await _restore()
 			quit(1)
@@ -62,6 +73,9 @@ func _native_invoke() -> void:
 	rail.position = Vector2(0, 656)
 	rail.size = Vector2(1280, 64)
 	root.add_child(rail)
+	if not rail.bind_localization(root.get_node("LocalizationManager")):
+		quit(1)
+		return
 	rail.configure_presentation(THEME.build("en", 100, "AfterHours"), "en")
 	rail.bind_admission(func() -> bool: return true, input_owner)
 	rail.project(true, false, false)

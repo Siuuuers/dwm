@@ -5,6 +5,7 @@ extends "res://addons/gut/test.gd"
 ## test seam; the adapter, runtime, history writer, and policy are production objects.
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
+const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const MANAGER := preload("res://autoload/ProfileManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
@@ -30,6 +31,9 @@ var _adapter: RefCounted
 var _bridge: Node
 var _profile: Node
 var _files: RefCounted
+var _localization: Node
+var _original_localization: Node
+var _original_localization_index := 0
 var _original_runtime: Node
 var _original_runtime_index := 0
 var _original_layout: Node
@@ -62,6 +66,13 @@ func before_each() -> void:
 	var initialized: Dictionary = _profile.initialize(storage)
 	assert_true(initialized.get("ok", false), str(initialized))
 	if not initialized.get("ok", false): return
+	_localization = LOCALIZATION.new()
+	assert_true(_localization.initialize(_profile).get("ok", false))
+	_original_localization = get_node("/root/LocalizationManager")
+	_original_localization_index = _original_localization.get_index()
+	get_tree().root.remove_child(_original_localization)
+	_localization.name = "LocalizationManager"
+	get_tree().root.add_child(_localization)
 	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
 	_persistent = Engine.get_meta("dialogic_persistent_style_info", {})
 	_style_directory = DialogicStylesUtil.style_directory.duplicate(true)
@@ -106,6 +117,10 @@ func after_each() -> void:
 		await get_tree().process_frame
 		_runtime.free()
 	_adapter = null
+	if is_instance_valid(_localization): _localization.free()
+	if is_instance_valid(_original_localization):
+		get_tree().root.add_child(_original_localization)
+		get_tree().root.move_child(_original_localization, _original_localization_index)
 	if _original_runtime == null: return
 	get_tree().remove_meta("dialogic_layout_node")
 	get_tree().root.add_child(_original_runtime)
@@ -401,3 +416,70 @@ func test_native_normal_accept_stops_skip_before_the_dialogic_command() -> void:
 	assert_false(layer.skip_controller.is_skip_active())
 	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B, "normal Accept advances exactly once")
 	assert_false(_profile.is_line_visited(LINE_B), "no queued Skip step consumes the new line")
+
+
+func test_mounted_rail_uses_committed_catalog_locale_without_advancing_dialogue() -> void:
+	if not await _start(): return
+	var layer: Node
+	for candidate: Node in _runtime.Styles.get_layout_node().get_layers():
+		if candidate.get_script().resource_path == "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd":
+			layer = candidate
+	assert_not_null(layer)
+	if layer == null: return
+	assert_true(layer.configure_reading_transport(_profile, _bridge))
+	var rail: Node = layer.transport_rail
+	var skip: Button = rail.get_node("Skip")
+	assert_eq(skip.text, "Skip \u00b7 Off")
+	var before: Dictionary = layer.get_caption_projection()
+	var theme_before: Theme = layer.canvas.theme
+	assert_false(layer.configure_presentation("zh-CN", 100, "Midnight"),
+		"the whole caption/rail tuple refuses an uncommitted locale")
+	assert_eq(layer.get_caption_projection(), before)
+	assert_same(layer.canvas.theme, theme_before)
+	assert_eq(skip.text, "Skip \u00b7 Off")
+	var index: int = _runtime.current_event_idx
+	var line := _current_text_key()
+	var generation: int = skip._generation
+	assert_true(_localization.set_locale("zh_HK").get("ok", false))
+	assert_same(layer.transport_rail, rail)
+	assert_same(rail.get_node("Skip"), skip)
+	assert_eq(skip.text, "\u8df3\u904e \u00b7 \u95dc")
+	assert_eq((rail.get_node("History") as Button).text, "\u6b77\u53f2")
+	assert_gt(skip._generation, generation)
+	assert_eq(_runtime.current_event_idx, index)
+	assert_eq(_current_text_key(), line)
+	assert_false(_profile.is_line_visited(LINE_A), "changing UI copy is not witnessing the current line")
+
+
+class InstalledChineseRun extends Node:
+	var day := 7
+	func get_run_configuration() -> Dictionary:
+		return {"ok": true, "value": {"dark_mode": true}}
+
+
+func test_chinese_initial_mount_keeps_the_installed_run_day_and_palette() -> void:
+	if not _ready_fixture: return
+	assert_true(_localization.set_locale("zh_CN").get("ok", false))
+	var original := get_node("/root/GameState")
+	var original_index := original.get_index()
+	get_tree().root.remove_child(original)
+	var run := InstalledChineseRun.new()
+	run.name = "GameState"
+	get_tree().root.add_child(run)
+	var started := await _start()
+	get_tree().root.remove_child(run)
+	get_tree().root.add_child(original)
+	get_tree().root.move_child(original, original_index)
+	run.free()
+	if not started: return
+	var layer: Node
+	for candidate: Node in _runtime.Styles.get_layout_node().get_layers():
+		if candidate.get_script().resource_path == "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd":
+			layer = candidate
+	assert_not_null(layer)
+	if layer == null: return
+	var projection: Dictionary = layer.get_caption_projection()
+	assert_eq(projection.locale, "zh-CN")
+	assert_eq(projection.palette, "Midnight")
+	assert_eq(projection.day, 7)
+	assert_eq((layer.transport_rail.get_node("Skip") as Button).text, "\u8df3\u8fc7 \u00b7 \u5173")

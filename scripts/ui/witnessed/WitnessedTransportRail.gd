@@ -11,25 +11,13 @@ const RAIL_POSITION := Vector2(0, 656)
 const RAIL_SIZE := Vector2(1280, 64)
 const PLATE_INSET := 4.0
 const CONTROL_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next"]
-const COPY := {
-	"en": {
-		&"history": "History", &"skip": "Skip", &"auto": "Auto",
-		&"save": "Save", &"load": "Load", &"next": "Next",
-		&"on": "On", &"off": "Off",
-	},
-	"zh-CN": {
-		&"history": "\u5386\u53f2", &"skip": "\u8df3\u8fc7", &"auto": "\u81ea\u52a8",
-		&"save": "\u4fdd\u5b58", &"load": "\u8bfb\u53d6", &"next": "\u4e0b\u4e00\u6b65",
-		&"on": "\u5f00", &"off": "\u5173",
-	},
-	"zh-HK": {
-		&"history": "\u6b77\u53f2", &"skip": "\u8df3\u904e", &"auto": "\u81ea\u52d5",
-		&"save": "\u5132\u5b58", &"load": "\u8f09\u5165", &"next": "\u4e0b\u4e00\u6b65",
-		&"on": "\u958b", &"off": "\u95dc",
-	},
-}
+const LOCALES := ["en", "zh-CN", "zh-HK"]
+const COPY_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next", &"on", &"off"]
+
 
 var _locale := "en"
+var _localization: Object
+var _copy: Dictionary = {}
 var _buttons: Dictionary = {}
 var _skip_button: TRANSPORT_BUTTON
 var _admission: Callable
@@ -56,7 +44,7 @@ func _ready() -> void:
 
 func configure_presentation(presentation_theme: Theme, locale: String) -> bool:
 	var normalized := locale.replace("_", "-")
-	if presentation_theme == null or normalized not in COPY:
+	if presentation_theme == null or normalized not in LOCALES:
 		return false
 	var roles := _read_roles(presentation_theme)
 	if roles.is_empty():
@@ -64,6 +52,15 @@ func configure_presentation(presentation_theme: Theme, locale: String) -> bool:
 	var filed := _resolve_filed(roles)
 	if filed.a <= 0.0:
 		return false
+	var next_copy := _copy
+	if is_instance_valid(_localization):
+		if String(_localization.call("get_locale")).replace("_", "-") != normalized:
+			return false
+		next_copy = _read_copy(_localization)
+		if next_copy.is_empty(): return false
+	if normalized != _locale or next_copy != _copy:
+		retire_input()
+	_copy = next_copy
 	_locale = normalized
 	_roles = roles
 	_filed = filed
@@ -72,6 +69,36 @@ func configure_presentation(presentation_theme: Theme, locale: String) -> bool:
 	_apply_projection()
 	queue_redraw()
 	return true
+
+
+func bind_localization(localization: Object) -> bool:
+	if not is_instance_valid(localization): return false
+	for method: StringName in [&"has_key", &"t", &"get_locale"]:
+		if not localization.has_method(method): return false
+	var locale := String(localization.call("get_locale")).replace("_", "-")
+	if locale not in LOCALES: return false
+	var next_copy := _read_copy(localization)
+	if next_copy.is_empty(): return false
+	# A newly bound language becomes visible only with its matching theme tuple.
+	if locale != _locale: next_copy = {}
+	if _localization != localization or _copy != next_copy:
+		retire_input()
+	_localization = localization
+	_copy = next_copy
+	_ensure_controls()
+	_apply_projection()
+	return true
+
+
+func _read_copy(localization: Object) -> Dictionary:
+	var result := {}
+	for id: StringName in COPY_IDS:
+		var key := "witnessed.transport." + String(id)
+		if localization.call("has_key", key) != true: return {}
+		var copy: Variant = localization.call("t", key)
+		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty(): return {}
+		result[id] = copy
+	return result
 
 
 func bind_admission(admission: Callable, input_owner: Node) -> bool:
@@ -156,8 +183,8 @@ func _apply_projection() -> void:
 		button.language = _locale
 		var enabled_mode := (id == &"skip" and _skip_active) or (id == &"auto" and _auto_enabled)
 		button.text = _label(id, enabled_mode)
-		button.disabled = id != &"skip" or not _can_skip
-		button.focus_mode = Control.FOCUS_ALL if id == &"skip" and _can_skip else Control.FOCUS_NONE
+		button.disabled = id != &"skip" or not _can_skip or _copy.is_empty() or not is_instance_valid(_localization)
+		button.focus_mode = Control.FOCUS_NONE if button.disabled else Control.FOCUS_ALL
 		button.theme_type_variation = &"WitnessedTransportMode" if enabled_mode else &"WitnessedTransportButton"
 		if not _roles.is_empty():
 			_apply_button_material(button, enabled_mode)
@@ -165,10 +192,10 @@ func _apply_projection() -> void:
 
 
 func _label(id: StringName, enabled_mode: bool) -> String:
-	var copy: Dictionary = COPY[_locale]
+	if _copy.is_empty(): return ""
 	if id in [&"skip", &"auto"]:
-		return "%s \u00b7 %s" % [copy[id], copy[&"on"] if enabled_mode else copy[&"off"]]
-	return copy[id]
+		return "%s \u00b7 %s" % [_copy[id], _copy[&"on"] if enabled_mode else _copy[&"off"]]
+	return _copy[id]
 
 
 func _apply_button_material(button: Button, mode_on: bool) -> void:

@@ -69,13 +69,14 @@ func _ready() -> void:
 	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
+	transport_rail.bind_localization(_localization)
 	if _profile != null and _profile.has_signal("preference_changed"):
 		_profile.connect("preference_changed", _on_preference_changed)
 	if _localization != null and _localization.has_signal("locale_changed"):
 		_localization.connect("locale_changed", _on_locale_changed)
 	var run_owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
-	configure_run_presentation(run_owner)
 	_apply_preferences()
+	configure_run_presentation(run_owner)
 	var runtime := get_node_or_null("/root/Dialogic")
 	accept_input.bind(caption_text, scroll, runtime)
 	accept_input.normal_accept_requested.connect(_retire_transport)
@@ -227,6 +228,9 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day)
 	if next_theme == null:
 		return false
+	# Caption and rail publish one locale tuple. Refusal leaves both unchanged.
+	if is_instance_valid(transport_rail) and not transport_rail.configure_presentation(next_theme, locale):
+		return false
 	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets
 	_locale = locale.replace("_", "-")
 	_text_percent = text_percent
@@ -246,7 +250,6 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 				bar.hide()
 				bar.show()
 		canvas.theme = next_theme
-		transport_rail.configure_presentation(next_theme, _locale)
 		# Colour-only updates preserve native reveal, scroll and pending contacts.
 		if metrics_changed or first_mount:
 			_retire_transport()

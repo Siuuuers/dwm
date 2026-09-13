@@ -273,3 +273,19 @@ func test_both_chinese_catalogs_translate_all_real_title_buttons_without_english
 		assert_true(_manager.set_locale(locale).get("ok", false))
 		for index: int in keys.size():
 			assert_eq(_manager.t(keys[index]), expected[locale][index], locale + " " + keys[index])
+
+func test_witnessed_transport_copy_is_catalog_owned_in_all_three_locales() -> void:
+	assert_true(_initialize().get("ok", false))
+	var keys := ["history", "skip", "auto", "save", "load", "next", "on", "off"]
+	var expected := {
+		"en": ["History", "Skip", "Auto", "Save", "Load", "Next", "On", "Off"],
+		"zh_CN": ["历史", "跳过", "自动", "保存", "读取", "下一步", "开", "关"],
+		"zh_HK": ["歷史", "跳過", "自動", "儲存", "載入", "下一步", "開", "關"],
+	}
+	for locale: String in expected:
+		if _manager.get_locale() != locale:
+			assert_true(_manager.set_locale(locale).get("ok", false))
+		for index: int in keys.size():
+			var key: String = "witnessed.transport." + keys[index]
+			assert_true(_manager.has_key(key), locale + " " + key)
+			assert_eq(_manager.t(key), expected[locale][index], locale + " " + key)
