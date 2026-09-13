@@ -20,6 +20,9 @@ var _fresh_page_source := ""
 var _await_page_neutral := false
 var _paged_frame := -1
 var _input_custody: Node
+var _before_accept: Callable
+var _automatic_admission: Callable
+var _submitting := false
 
 func _enter_tree() -> void:
 	add_to_group("dialogic_input_policy")
@@ -51,6 +54,19 @@ func bind_input_custody(owner: Node) -> bool:
 	owner.connect("source_input_custody_changed", _on_input_custody_changed)
 	_on_input_custody_changed()
 	return true
+
+
+func bind_presentation_admission(before_accept: Callable, automatic_admission: Callable) -> bool:
+	if not before_accept.is_valid() or not automatic_admission.is_valid(): return false
+	_before_accept = before_accept
+	_automatic_admission = automatic_admission
+	return true
+
+
+## Queried by the native text event immediately before automatic advancement.
+func is_automatic_advance_admitted(runtime: Node) -> bool:
+	if runtime != _runtime: return true
+	return _admissible() and (not _automatic_admission.is_valid() or bool(_automatic_admission.call()))
 
 func _on_input_custody_changed() -> void:
 	_cancel_candidate()
@@ -224,21 +240,30 @@ func handle_caption_gui_input(event: InputEvent) -> void:
 		_submit(true)
 
 func _submit(pointer: bool) -> void:
-	if _candidate.is_empty():
+	if _candidate.is_empty() or _submitting:
 		return
 	var generation: int = _candidate.generation
 	_candidate.clear()
 	if not _admissible() or generation != _caption.get_reveal_generation() \
 			or _accepted_frame == Engine.get_process_frames():
 		return
+	_submitting = true
+	normal_accept_requested.emit()
+	if not _admissible() or generation != _caption.get_reveal_generation() \
+			or (_before_accept.is_valid() and not bool(_before_accept.call())):
+		_submitting = false
+		return
+	if not _admissible() or generation != _caption.get_reveal_generation():
+		_submitting = false
+		return
 	_accepted_frame = Engine.get_process_frames()
 	var inputs: Object = _runtime.call("get_subsystem", "Inputs")
 	if inputs != null:
 		inputs.set("input_was_mouse_input", pointer)
-		normal_accept_requested.emit()
 		inputs.call("handle_input")
 		if is_instance_valid(inputs):
 			inputs.set("input_was_mouse_input", false)
+	_submitting = false
 
 func _inside_current(viewport_point: Vector2) -> bool:
 	if not _admissible() or not is_instance_valid(_viewport_control):

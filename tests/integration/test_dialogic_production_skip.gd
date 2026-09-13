@@ -26,6 +26,20 @@ class FixtureCatalog:
 			"label": fixture_label,
 			"used_fallback": false}}
 
+
+class RetryableProfileWriteOps extends "res://tests/support/FakeFileOps.gd":
+	var reject_next_profile_marker := false
+	var rejected_paths: Array[String] = []
+	func fail_next_profile_marker_write() -> void:
+		reject_next_profile_marker = true
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if reject_next_profile_marker \
+				and path.replace("\\", "/").ends_with("/profile.json.txn.json"):
+			reject_next_profile_marker = false
+			rejected_paths.append(path)
+			return {"ok": false, "code": &"fixture_profile_marker_write_failure"}
+		return super.write_bytes(path, bytes)
+
 var _runtime: DialogicGameHandler
 var _adapter: RefCounted
 var _bridge: Node
@@ -36,6 +50,11 @@ var _original_localization: Node
 var _original_localization_index := 0
 var _original_runtime: Node
 var _original_runtime_index := 0
+var _original_profile: Node
+var _original_profile_index := 0
+var _original_bridge: Node
+var _original_bridge_index := 0
+var _fixture_owners_at_root := false
 var _original_layout: Node
 var _original_layout_parent: Node
 var _original_layout_index := 0
@@ -45,10 +64,12 @@ var _had_persistent := false
 var _style_directory: Dictionary = {}
 var _ready_fixture := false
 var _native_signals: Array = []
+var _profile_write_failures: Array[Dictionary] = []
 
 
 func before_each() -> void:
 	_ready_fixture = false
+	_profile_write_failures.clear()
 	var wrapper := OS.get_environment("DWM_TEST_ROOT").strip_edges()
 	assert_false(wrapper.is_empty(), "DWM_TEST_ROOT is required before fixture I/O")
 	if wrapper.is_empty(): return
@@ -56,8 +77,10 @@ func before_each() -> void:
 	var loaded := IDS.load_ids_default()
 	assert_true(loaded.get("ok", false), str(loaded))
 	if not loaded.get("ok", false): return
-	_files = FILES.new()
+	_files = RetryableProfileWriteOps.new()
 	_profile = autofree(MANAGER.new())
+	_profile.profile_write_failed.connect(func(result: Dictionary) -> void:
+		_profile_write_failures.append(result.duplicate(true)))
 	var registered: Dictionary = _profile.configure_line_registry(loaded.value)
 	assert_true(registered.get("ok", false), str(registered))
 	if not registered.get("ok", false): return
@@ -107,6 +130,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	_restore_fixture_owners()
 	if is_instance_valid(_bridge): _bridge.free()
 	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
 		text_node.set_process(false)
@@ -137,6 +161,39 @@ func after_each() -> void:
 	_original_layout_parent = null
 
 
+func _install_fixture_owners_at_root() -> bool:
+	if _fixture_owners_at_root: return true
+	var root := get_tree().root
+	_original_profile = root.get_node_or_null("ProfileManager")
+	_original_bridge = root.get_node_or_null("DialogicBridge")
+	assert_not_null(_original_profile, "the production ProfileManager autoload is installed")
+	assert_not_null(_original_bridge, "the production DialogicBridge autoload is installed")
+	if _original_profile == null or _original_bridge == null: return false
+	_original_profile_index = _original_profile.get_index()
+	_original_bridge_index = _original_bridge.get_index()
+	root.remove_child(_original_profile)
+	root.remove_child(_original_bridge)
+	_profile.name = "ProfileManager"
+	root.add_child(_profile)
+	_bridge.get_parent().remove_child(_bridge)
+	_bridge.name = "DialogicBridge"
+	root.add_child(_bridge)
+	_fixture_owners_at_root = true
+	return true
+
+
+func _restore_fixture_owners() -> void:
+	if not _fixture_owners_at_root: return
+	var root := get_tree().root
+	if is_instance_valid(_bridge) and _bridge.get_parent() == root: root.remove_child(_bridge)
+	if is_instance_valid(_profile) and _profile.get_parent() == root: root.remove_child(_profile)
+	if is_instance_valid(_original_profile): root.add_child(_original_profile)
+	if is_instance_valid(_original_bridge): root.add_child(_original_bridge)
+	if is_instance_valid(_original_profile): root.move_child(_original_profile, _original_profile_index)
+	if is_instance_valid(_original_bridge): root.move_child(_original_bridge, _original_bridge_index)
+	_fixture_owners_at_root = false
+
+
 func _start(label: String = ENTRY) -> bool:
 	if not _ready_fixture: return false
 	FixtureCatalog.fixture_label = label
@@ -157,10 +214,350 @@ func _current_text_key() -> String:
 	return event.get_property_translation_key("text") if event is DialogicTextEvent else ""
 
 
+func _mounted_caption_layer() -> Node:
+	var layout: Node = _runtime.Styles.get_layout_node()
+	if layout == null: return null
+	for candidate: Node in layout.get_layers():
+		if candidate.get_script() != null \
+				and candidate.get_script().resource_path == "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd":
+			return candidate
+	return null
+
+
+func _press_focused_enter(frames: int = 4) -> void:
+	for pressed: bool in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_ENTER
+		key.physical_keycode = KEY_ENTER
+		key.pressed = pressed
+		Input.parse_input_event(key)
+	Input.flush_buffered_events()
+	for frame: int in frames: await get_tree().process_frame
+
+
+func _fail_next_retryable_profile_write() -> void:
+	_files.call("fail_next_profile_marker_write")
+
+
+func _assert_retryable_profile_failure(expected_count: int) -> void:
+	assert_eq(_profile_write_failures.size(), expected_count,
+		"the Profile owner reports each rejected presentation write")
+	var rejected_paths: Array = _files.get("rejected_paths")
+	assert_eq(rejected_paths.size(), expected_count,
+		"the fixture fault occurred only at the requested Profile marker write")
+	if not rejected_paths.is_empty():
+		assert_true(str(rejected_paths.back()).replace("\\", "/").ends_with(
+			"/profile.json.txn.json"))
+	if _profile_write_failures.is_empty(): return
+	var failure: Dictionary = _profile_write_failures.back()
+	assert_eq(failure.get("code"), &"write_not_committed",
+		"the fixture rejects the first marker write before durable intent")
+	assert_false(failure.get("fatal", true), "the rejected write remains explicitly retryable")
+
+
+func _enable_zero_delay_native_auto() -> void:
+	assert_true(_profile.set_preference(
+		&"preferences.reading.auto_enabled", true).get("ok", false))
+	var native_auto: DialogicAutoAdvance = _runtime.Inputs.auto_advance
+	native_auto.fixed_delay = 0.0
+	native_auto.per_word_delay = 0.0
+	native_auto.per_character_delay = 0.0
+	native_auto.await_playing_voice = false
+	assert_true(native_auto.enabled_until_user_input)
+
+
 func test_native_fixture_setup_without_skip() -> void:
 	if not await _start(): return
 	assert_eq(_current_text_key(), "Text/%s/text" % LINE_A)
 	assert_false(_profile.is_line_visited(LINE_A), "setup has not requested a skip")
+
+
+func test_mounted_text_started_durably_acknowledges_registered_line_without_skip() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start(): return
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_A)
+	assert_eq(_runtime.current_state, DialogicGameHandler.States.REVEALING_TEXT,
+		"the mounted authored line is accepted and revealing")
+	assert_true(_profile.is_line_visited(LINE_A),
+		"mounted text_started acknowledges the registered line without a Skip command")
+	var restarted: Node = autofree(MANAGER.new())
+	assert_true(restarted.configure_line_registry(IDS.load_ids_default().value).get("ok", false))
+	assert_true(restarted.initialize(STORAGE.new(
+		OS.get_environment("DWM_TEST_ROOT").path_join("dialogic-production-skip"), _files)).get("ok", false))
+	assert_true(restarted.is_line_visited(LINE_A),
+		"a fresh profile owner reads the mounted presentation acknowledgement")
+
+
+func test_mounted_read_only_first_activation_preserves_pre_presentation_unread_state() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start(): return
+	assert_true(_profile.is_line_visited(LINE_A),
+		"normal mounted presentation is durable before the first Skip activation")
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer, "native production style mounts the caption rail")
+	if layer == null: return
+	var first_index: int = _runtime.current_event_idx
+	var skip: Button = layer.transport_rail.get_node("Skip")
+	skip.grab_focus()
+	await _press_focused_enter()
+	assert_false(layer.skip_controller.is_skip_active(),
+		"Read Only stops after revealing a line that was unread before this presentation")
+	assert_eq(_runtime.current_event_idx, first_index,
+		"the first activation cannot cross the newly presented line")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_A)
+	skip.grab_focus()
+	await _press_focused_enter(6)
+	assert_false(layer.skip_controller.is_skip_active(),
+		"the second explicit activation settles at the next newly presented line")
+	assert_gt(_runtime.current_event_idx, first_index,
+		"the second activation may cross the line acknowledged by the first activation")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B)
+
+
+func test_duplicate_mounted_presentation_acknowledgement_is_write_free() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start(): return
+	assert_true(_profile.is_line_visited(LINE_A))
+	assert_true(_bridge.has_method("acknowledge_current_line_presentation"),
+		"DialogicBridge owns explicit presentation acknowledgement and retry")
+	if not _bridge.has_method("acknowledge_current_line_presentation"): return
+	var frontier: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	assert_true(frontier.get("ok", false), str(frontier))
+	var operations: int = _files.operation_count()
+	_runtime.Text.text_started.emit({"text": "duplicate", "character": null,
+		"portrait": "", "append": false})
+	await get_tree().process_frame
+	assert_eq(_files.operation_count(), operations,
+		"a repeated native text_started signal cannot write an identical receipt again")
+	for attempt: int in 2:
+		var duplicate: Dictionary = _bridge.call("acknowledge_current_line_presentation", frontier)
+		assert_true(duplicate.get("ok", false), "duplicate %d: %s" % [attempt, str(duplicate)])
+		assert_eq(_files.operation_count(), operations,
+			"an explicit duplicate acknowledgement remains write-free")
+
+
+func test_explicit_presentation_acknowledgement_refuses_a_stale_frontier() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start(): return
+	assert_true(_bridge.has_method("acknowledge_current_line_presentation"),
+		"DialogicBridge owns exact-frontier acknowledgement")
+	if not _bridge.has_method("acknowledge_current_line_presentation"): return
+	var stale: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	assert_true(stale.get("ok", false), str(stale))
+	stale["value"]["frontier"]["value"]["event_index"] = \
+		int(stale["value"]["frontier"]["value"]["event_index"]) + 1
+	var operations: int = _files.operation_count()
+	var refused: Dictionary = _bridge.call("acknowledge_current_line_presentation", stale)
+	assert_false(refused.get("ok", true), "a stale presentation frontier must fail closed")
+	assert_eq(_files.operation_count(), operations, "frontier refusal performs no profile write")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_A)
+
+
+func test_failed_mounted_acknowledgement_blocks_normal_accept_until_fresh_retry_commits() -> void:
+	if not _install_fixture_owners_at_root(): return
+	_fail_next_retryable_profile_write()
+	if not await _start(): return
+	assert_false(_profile.is_line_visited(LINE_A), "the injected presentation commit failed")
+	_assert_retryable_profile_failure(1)
+	assert_true(_bridge.has_method("requires_line_presentation_acknowledgement"),
+		"DialogicBridge exposes the pending acknowledgement gate")
+	if not _bridge.has_method("requires_line_presentation_acknowledgement"): return
+	assert_true(bool(_bridge.call("requires_line_presentation_acknowledgement")))
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	_runtime.Text.skip_text_reveal()
+	_runtime.Inputs.input_block_timer.stop()
+	var first_index: int = _runtime.current_event_idx
+	_fail_next_retryable_profile_write()
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_eq(_runtime.current_event_idx, first_index,
+		"Normal Accept cannot cross the line while its durable acknowledgement still fails")
+	assert_false(_profile.is_line_visited(LINE_A))
+	_assert_retryable_profile_failure(2)
+	assert_true(bool(_bridge.call("requires_line_presentation_acknowledgement")))
+	_runtime.Inputs.input_block_timer.stop()
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_true(_profile.is_line_visited(LINE_A),
+		"a fresh accepted input retries and durably acknowledges the same frontier")
+	assert_gt(_runtime.current_event_idx, first_index,
+		"the successful fresh retry may then perform its native Normal Accept")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B)
+
+
+func test_failed_mounted_acknowledgement_blocks_zero_delay_native_auto_advance() -> void:
+	if not _install_fixture_owners_at_root(): return
+	_enable_zero_delay_native_auto()
+	_fail_next_retryable_profile_write()
+	if not await _start(): return
+	_assert_retryable_profile_failure(1)
+	var first_index: int = _runtime.current_event_idx
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 6: await get_tree().process_frame
+	assert_eq(_runtime.current_event_idx, first_index,
+		"zero-delay native Auto cannot cross a line whose presentation acknowledgement failed")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_A)
+	assert_false(_profile.is_line_visited(LINE_A))
+	assert_true(bool(_profile.get_preference(&"preferences.reading.auto_enabled", false)),
+		"the committed Auto preference stays on while acknowledgement is pending")
+	assert_true(_bridge.has_method("requires_line_presentation_acknowledgement"))
+	if _bridge.has_method("requires_line_presentation_acknowledgement"):
+		assert_true(bool(_bridge.call("requires_line_presentation_acknowledgement")))
+
+
+func test_failed_acknowledgement_blocks_automatic_choice_open_until_fresh_accept_retry() -> void:
+	if not _install_fixture_owners_at_root(): return
+	_fail_next_retryable_profile_write()
+	if not await _start("choice_boundary"): return
+	_assert_retryable_profile_failure(1)
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_C)
+	var first_index: int = _runtime.current_event_idx
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 6: await get_tree().process_frame
+	assert_eq(_runtime.current_event_idx, first_index,
+		"native text completion cannot open the choice before durable acknowledgement")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_C)
+	assert_false(_profile.is_line_visited(LINE_C))
+	assert_true(_bridge.has_method("requires_line_presentation_acknowledgement"))
+	if _bridge.has_method("requires_line_presentation_acknowledgement"):
+		assert_true(bool(_bridge.call("requires_line_presentation_acknowledgement")))
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	_runtime.Inputs.input_block_timer.stop()
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_true(_profile.is_line_visited(LINE_C),
+		"fresh explicit Accept retries the exact presented line")
+	assert_gt(_runtime.current_event_idx, first_index)
+	assert_true(_runtime.current_timeline_events[_runtime.current_event_idx] is DialogicChoiceEvent,
+		"the accepted retry may then open the authored choice")
+
+
+func test_failed_acknowledgement_blocks_native_auto_skip_timer_and_choice() -> void:
+	if not _install_fixture_owners_at_root(): return
+	_fail_next_retryable_profile_write()
+	if not await _start("choice_boundary"): return
+	_assert_retryable_profile_failure(1)
+	var first_index: int = _runtime.current_event_idx
+	_runtime.Inputs.auto_skip.time_per_event = 0.001
+	_runtime.Inputs.auto_skip.disable_on_unread_text = false
+	_runtime.Inputs.auto_skip.enabled = true
+	for frame: int in 12: await get_tree().process_frame
+	assert_true(_runtime.Inputs.auto_skip.enabled)
+	assert_eq(_runtime.current_event_idx, first_index,
+		"native Auto-Skip timer cannot advance a line whose presentation acknowledgement failed")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_C)
+	assert_false(_runtime.current_timeline_events[_runtime.current_event_idx] is DialogicChoiceEvent,
+		"neither Auto-Skip completion path may open the pending choice")
+	assert_false(_profile.is_line_visited(LINE_C))
+
+
+func test_failed_acknowledgement_blocks_native_auto_skip_armed_after_text_is_done() -> void:
+	if not _install_fixture_owners_at_root(): return
+	_fail_next_retryable_profile_write()
+	if not await _start("choice_boundary"): return
+	_assert_retryable_profile_failure(1)
+	var first_index: int = _runtime.current_event_idx
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 2: await get_tree().process_frame
+	assert_eq(_runtime.current_event_idx, first_index)
+	var text_event := _runtime.current_timeline_events[first_index] as DialogicTextEvent
+	assert_not_null(text_event)
+	if text_event == null: return
+	assert_eq(text_event.state, DialogicTextEvent.States.DONE,
+		"the second path arms Auto-Skip after the local text event reaches DONE")
+	_runtime.Inputs.auto_skip.time_per_event = 0.001
+	_runtime.Inputs.auto_skip.disable_on_unread_text = false
+	_runtime.Inputs.auto_skip.enabled = true
+	for frame: int in 12: await get_tree().process_frame
+	assert_true(_runtime.Inputs.auto_skip.enabled)
+	assert_eq(_runtime.current_event_idx, first_index,
+		"arming native Auto-Skip after reveal cannot bypass the pending acknowledgement")
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_C)
+	assert_false(_runtime.current_timeline_events[_runtime.current_event_idx] is DialogicChoiceEvent)
+	assert_false(_profile.is_line_visited(LINE_C))
+
+
+func test_canonical_line_without_an_id_retains_native_manual_accept() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start("no_id"): return
+	assert_false(_bridge.requires_line_presentation_acknowledgement(),
+		"prose without a semantic ID stays outside the durable acknowledgement owner")
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var first_index: int = _runtime.current_event_idx
+	_runtime.Text.skip_text_reveal()
+	_runtime.Inputs.input_block_timer.stop()
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_true(_runtime.current_timeline == null or _runtime.current_event_idx > first_index,
+		"legacy no-ID prose retains native manual progression")
+
+
+func test_canonical_unregistered_line_retains_native_zero_delay_auto() -> void:
+	if not _install_fixture_owners_at_root(): return
+	_enable_zero_delay_native_auto()
+	if not await _start("unregistered"): return
+	assert_false(_bridge.requires_line_presentation_acknowledgement(),
+		"unregistered prose stays outside the durable acknowledgement owner")
+	var first_index: int = _runtime.current_event_idx
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 6: await get_tree().process_frame
+	assert_true(_runtime.current_timeline == null or _runtime.current_event_idx > first_index,
+		"legacy unregistered prose retains native Auto progression")
+	assert_false(_profile.is_line_visited("fixture.skip.unregistered"))
+
+
+func test_registered_wrong_owner_blocks_native_auto_and_manual_accept() -> void:
+	if not _install_fixture_owners_at_root(): return
+	_enable_zero_delay_native_auto()
+	if not await _start("cross_owner"): return
+	assert_true(_bridge.requires_line_presentation_acknowledgement(),
+		"a registered line cannot bypass acknowledgement merely because its owner is wrong")
+	var first_index: int = _runtime.current_event_idx
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 6: await get_tree().process_frame
+	assert_eq(_runtime.current_event_idx, first_index,
+		"automatic progression is blocked for a registered line from another entry")
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	_runtime.Inputs.input_block_timer.stop()
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_eq(_runtime.current_event_idx, first_index,
+		"manual Accept cannot cross the wrong-owner registered line")
+	assert_false(_profile.is_line_visited("line.contact.ordinary.priscilla.day3.reply.a"))
+
+
+func test_mounted_rehearsal_text_started_never_mutates_the_root_profile() -> void:
+	if not _install_fixture_owners_at_root(): return
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var operations: int = _files.operation_count()
+	FixtureCatalog.fixture_label = ENTRY
+	var started: Dictionary = _bridge.start_entry(ENTRY, {
+		"expected_stage": "current_entry", "playback_id": "skip-mounted-rehearsal-fixture",
+		"role": "primary", "transaction_id": "skip-mounted-rehearsal-transaction"}, &"rehearsal")
+	assert_true(started.get("ok", false), str(started))
+	if not started.get("ok", false): return
+	for frame: int in 4: await get_tree().process_frame
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_A)
+	assert_true(_bridge.is_rehearsal_playback())
+	assert_eq(_profile.get_profile_snapshot(), before,
+		"mounted replay presentation has zero direct canonical profile mutation")
+	assert_eq(_files.operation_count(), operations)
+	assert_true(_bridge.has_method("acknowledge_current_line_presentation"))
+	if not _bridge.has_method("acknowledge_current_line_presentation"): return
+	var rehearsal_frontier: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	assert_false(rehearsal_frontier.get("ok", true))
+	var refused: Dictionary = _bridge.call("acknowledge_current_line_presentation", rehearsal_frontier)
+	assert_false(refused.get("ok", true), "direct replay acknowledgement is denied")
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(_files.operation_count(), operations)
 
 
 func test_native_fixture_binding_without_playback() -> void:
@@ -336,6 +733,106 @@ func test_rehearsal_has_no_skip_history_mutation() -> void:
 	assert_eq(_profile.get_profile_snapshot(), before)
 
 
+func test_late_transport_configuration_acknowledges_visible_canonical_line_once() -> void:
+	if not await _start(): return
+	assert_false(_profile.is_line_visited(LINE_A),
+		"the non-root fixture bridge has not yet owned the visible caption")
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var publications: Array[String] = []
+	_profile.visited_history_changed.connect(func(line_id: String, visited: bool) -> void:
+		if visited: publications.append(line_id))
+	var operations_before: int = _files.operation_count()
+	assert_true(layer.configure_reading_transport(_profile, _bridge))
+	assert_true(_profile.is_line_visited(LINE_A),
+		"late binding acknowledges the canonical caption that is already visible")
+	assert_eq(publications, [LINE_A])
+	var operations_after_first: int = _files.operation_count()
+	assert_gt(operations_after_first, operations_before)
+	assert_true(layer.configure_reading_transport(_profile, _bridge))
+	assert_eq(publications, [LINE_A], "rebinding cannot publish a second visited event")
+	assert_eq(_files.operation_count(), operations_after_first,
+		"the duplicate late acknowledgement performs no FileOps write")
+
+
+func test_ancestor_hidden_text_started_waits_for_visible_fresh_accept() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start(): return
+	assert_true(_profile.is_line_visited(LINE_A))
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 2: await get_tree().process_frame
+	var first_event := _runtime.current_timeline_events[_runtime.current_event_idx] as DialogicTextEvent
+	assert_not_null(first_event)
+	if first_event == null: return
+	assert_eq(first_event.state, DialogicTextEvent.States.DONE,
+		"the setup advances only after the real first Text event has settled")
+	layer.canvas.hide()
+	first_event.advance.emit()
+	for frame: int in 4: await get_tree().process_frame
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B,
+		"the native fixture reached the next line while its caption ancestor was hidden")
+	assert_false(layer.caption_text.is_visible_in_tree())
+	assert_false(_profile.is_line_visited(LINE_B),
+		"a hidden text_started signal is not a witnessed presentation")
+	layer.caption_text.hide()
+	layer.canvas.show()
+	layer.caption_text.show()
+	for frame: int in 2: await get_tree().process_frame
+	_runtime.Text.skip_text_reveal()
+	_runtime.Inputs.input_block_timer.stop()
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_true(_profile.is_line_visited(LINE_B),
+		"fresh input on the actually visible caption acknowledges the exact current source")
+
+
+func test_source_cleared_during_normal_accept_rejects_old_caption_proof() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start(): return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	assert_true(_bridge.is_current_line_presentation_acknowledged())
+	_runtime.Text.skip_text_reveal()
+	_runtime.Inputs.input_block_timer.stop()
+	var first_index: int = _runtime.current_event_idx
+	layer.accept_input.normal_accept_requested.connect(func() -> void:
+		_bridge._active_entry.clear())
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_false(_bridge.requires_line_presentation_acknowledgement(),
+		"the listener removed the live semantic source during the accepted input")
+	assert_eq(_runtime.current_event_idx, first_index,
+		"the stale canonical caption proof cannot authorize manual progression")
+	assert_false(layer.accept_input.is_automatic_advance_admitted(_runtime),
+		"the same stale proof cannot authorize a later automatic callback")
+
+
+func test_source_replacement_announced_during_accept_cancels_old_caption_before_generation_change() -> void:
+	if not _install_fixture_owners_at_root(): return
+	if not await _start(): return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	assert_true(_bridge.is_current_line_presentation_acknowledged())
+	_runtime.Text.skip_text_reveal()
+	_runtime.Inputs.input_block_timer.stop()
+	var first_index: int = _runtime.current_event_idx
+	layer.accept_input.normal_accept_requested.connect(func() -> void:
+		_bridge._active_entry.clear()
+		layer._on_about_to_show_text({}))
+	layer.caption_text.grab_focus()
+	await _press_focused_enter()
+	assert_eq(_runtime.current_event_idx, first_index,
+		"a synchronously announced replacement cancels the in-flight old-caption Accept")
+	assert_false(layer.accept_input.is_automatic_advance_admitted(_runtime),
+		"cleared replacement state cannot authorize an automatic callback on the old caption")
+
+
 func test_mounted_rail_uses_real_skip_and_keeps_unimplemented_owners_disabled() -> void:
 	if not await _start(): return
 	var layout: Node = _runtime.Styles.get_layout_node()
@@ -414,8 +911,8 @@ func test_native_normal_accept_stops_skip_before_the_dialogic_command() -> void:
 	assert_eq(observed, [{"skip_active": false, "index": before_index}],
 		"the mounted policy retires Skip before calling the real Inputs owner")
 	assert_false(layer.skip_controller.is_skip_active())
+	assert_eq(_runtime.current_event_idx, before_index + 1, "normal Accept advances exactly one event")
 	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B, "normal Accept advances exactly once")
-	assert_false(_profile.is_line_visited(LINE_B), "no queued Skip step consumes the new line")
 
 
 func test_mounted_rail_uses_committed_catalog_locale_without_advancing_dialogue() -> void:
@@ -439,6 +936,7 @@ func test_mounted_rail_uses_committed_catalog_locale_without_advancing_dialogue(
 	assert_eq(skip.text, "Skip \u00b7 Off")
 	var index: int = _runtime.current_event_idx
 	var line := _current_text_key()
+	var visited_before: Array = _profile.get_profile_snapshot().visited_line_ids.duplicate()
 	var generation: int = skip._generation
 	assert_true(_localization.set_locale("zh_HK").get("ok", false))
 	assert_same(layer.transport_rail, rail)
@@ -448,7 +946,8 @@ func test_mounted_rail_uses_committed_catalog_locale_without_advancing_dialogue(
 	assert_gt(skip._generation, generation)
 	assert_eq(_runtime.current_event_idx, index)
 	assert_eq(_current_text_key(), line)
-	assert_false(_profile.is_line_visited(LINE_A), "changing UI copy is not witnessing the current line")
+	assert_eq(_profile.get_profile_snapshot().visited_line_ids, visited_before,
+		"changing UI copy does not alter the visited-line set")
 
 
 class InstalledChineseRun extends Node:

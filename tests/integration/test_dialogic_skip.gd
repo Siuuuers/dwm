@@ -17,11 +17,13 @@ class _FakeProfile extends Node:
 	signal visited_history_changed(line_id: String, visited: bool)
 	var visited: Array[String] = []
 	var fail_write := false
+	var failure_result: Dictionary = {}
 	var mark_calls: Array[String] = []
 	func is_line_visited(line_id: String) -> bool:
 		return line_id in visited
 	func mark_line_visited(line_id: String) -> Dictionary:
 		mark_calls.append(line_id)
+		if not failure_result.is_empty(): return failure_result.duplicate(true)
 		if fail_write:
 			return {"ok": false, "code": &"profile_write_failed", "message": ""}
 		if line_id in visited:
@@ -77,9 +79,38 @@ class _FakeAdapter extends RefCounted:
 		return {"ok": false}
 
 
+class _FakeMutationGate extends Node:
+	signal capability_changed
+	var held := true
+	func acquire(_owner: StringName) -> Dictionary: return {"ok": true}
+	func release(_owner: StringName) -> Dictionary: return {"ok": true}
+	func guard_external(_operation: StringName) -> Dictionary:
+		return {"ok": false, "code": &"fixture_gate_held"} if held else {"ok": true, "code": &"ok"}
+	func is_active() -> bool: return held
+	func get_active_owner() -> StringName: return &"fixture" if held else &""
+	func is_internal_owner_active(_owner: StringName) -> bool: return false
+	func latch_fatal(_result: Dictionary) -> void: pass
+	func is_fatal_latched() -> bool: return false
+
+
 func before_each() -> void:
 	_bridge = BRIDGE.new()
 	add_child_autofree(_bridge)
+
+
+func _active_entry_fixture(token: String = "skip-fixture-token") -> Dictionary:
+	return {"entry_id": ENTRY_ID, "token": token, "stage": "current_entry",
+		"execution_mode": &"canonical"}
+
+
+func _has_presentation_acknowledgement_surface() -> bool:
+	var available := _bridge.has_method("acknowledge_current_line_presentation") \
+		and _bridge.has_method("requires_line_presentation_acknowledgement") \
+		and _bridge.has_method("is_current_line_presentation_acknowledged") \
+		and _bridge.has_method("capture_current_line_presentation_frontier")
+	assert_true(available,
+		"DialogicBridge exposes presentation acknowledgement and its pending gate")
+	return available
 
 
 func _wired(events: Array, mode: StringName, visited_seed: Array[String] = []) -> Dictionary:
@@ -89,7 +120,7 @@ func _wired(events: Array, mode: StringName, visited_seed: Array[String] = []) -
 	profile.visited.assign(visited_seed)
 	add_child_autofree(profile)
 	assert_true(_bridge.initialize(null, adapter).get("ok", false))
-	_bridge._active_entry = {"entry_id": ENTRY_ID, "token": "skip-fixture-token"}
+	_bridge._active_entry = _active_entry_fixture()
 	assert_true(_bridge.configure_skip_context(profile, mode).get("ok", false), "skip context configured")
 	return {"adapter": adapter, "profile": profile}
 
@@ -145,7 +176,7 @@ func test_every_boundary_stops_the_skip_without_being_consumed() -> void:
 		profile.visited.assign([LINE_A] as Array[String])
 		add_child_autofree(profile)
 		assert_true(fresh.initialize(null, adapter).get("ok", false))
-		fresh._active_entry = {"entry_id": ENTRY_ID}
+		fresh._active_entry = _active_entry_fixture("boundary-fixture-token")
 		fresh.configure_skip_context(profile, POLICY.ALL_TEXT)
 		var decision: Dictionary = fresh.request_skip_step()
 		assert_true(decision["value"]["stop_before_boundary"], "must stop before " + boundary)
@@ -230,3 +261,139 @@ func test_changed_entry_token_during_reveal_cannot_mark_or_advance() -> void:
 	assert_eq(profile.mark_calls, [])
 	assert_eq(adapter.calls, ["reveal:0"], "an unchanged runtime index cannot authorize a different entry")
 	assert_eq(adapter.cursor, 0)
+
+
+func test_failed_presentation_acknowledgement_stays_pending_for_exact_retry() -> void:
+	var wired := _wired([[LINE_A, "text"], [LINE_B, "text"]], POLICY.READ_ONLY)
+	if not _has_presentation_acknowledgement_surface(): return
+	var adapter: RefCounted = wired["adapter"]
+	var profile: Node = wired["profile"]
+	var frontier: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	profile.fail_write = true
+	var failed: Dictionary = _bridge.call("acknowledge_current_line_presentation", frontier)
+	assert_false(failed.get("ok", true), "a failed durable mark cannot acknowledge presentation")
+	assert_true(bool(_bridge.call("requires_line_presentation_acknowledgement")),
+		"the exact live frontier remains pending")
+	assert_eq(profile.mark_calls, [LINE_A])
+	assert_false(profile.is_line_visited(LINE_A))
+	assert_eq(adapter.cursor, 0)
+	profile.fail_write = false
+	var retried: Dictionary = _bridge.call("acknowledge_current_line_presentation", frontier)
+	assert_true(retried.get("ok", false), str(retried))
+	assert_true(bool(_bridge.call("requires_line_presentation_acknowledgement")),
+		"the registered canonical line always requires source validation")
+	assert_true(bool(_bridge.call("is_current_line_presentation_acknowledged")))
+	assert_eq(profile.mark_calls, [LINE_A, LINE_A])
+	assert_true(profile.is_line_visited(LINE_A))
+	assert_eq(adapter.cursor, 0, "acknowledgement never performs navigation")
+
+
+func test_reentrant_presentation_acknowledgement_is_refused() -> void:
+	var wired := _wired([[LINE_A, "text"]], POLICY.READ_ONLY)
+	if not _has_presentation_acknowledgement_surface(): return
+	var adapter: RefCounted = wired["adapter"]
+	var profile: Node = wired["profile"]
+	var frontier: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	var nested: Array[Dictionary] = []
+	profile.visited_history_changed.connect(func(_line_id: String, _visited: bool) -> void:
+		nested.append(_bridge.call("acknowledge_current_line_presentation", frontier)))
+	var result: Dictionary = _bridge.call("acknowledge_current_line_presentation", frontier)
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(nested.size(), 1)
+	assert_false(nested[0].get("ok", true), "publication cannot nest a second acknowledgement")
+	assert_eq(profile.mark_calls, [LINE_A], "the nested request performs no second profile call")
+	assert_true(profile.is_line_visited(LINE_A))
+	assert_eq(adapter.cursor, 0)
+
+
+func test_stale_presentation_frontier_is_refused_before_profile_publication() -> void:
+	var wired := _wired([[LINE_A, "text"], [LINE_B, "text"]], POLICY.READ_ONLY)
+	if not _has_presentation_acknowledgement_surface(): return
+	var adapter: RefCounted = wired["adapter"]
+	var profile: Node = wired["profile"]
+	var empty: Dictionary = _bridge.call("acknowledge_current_line_presentation", {})
+	assert_false(empty.get("ok", true), "an empty proof never falls back to the current source")
+	if empty.get("ok", false): return
+	assert_eq(empty.get("code"), &"presentation_frontier_changed")
+	assert_eq(profile.mark_calls, [], "empty-proof refusal happens before profile publication")
+	var stale: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	adapter.cursor = 1
+	var result: Dictionary = _bridge.call("acknowledge_current_line_presentation", stale)
+	assert_false(result.get("ok", true))
+	assert_eq(profile.mark_calls, [], "a stale line cannot publish visited history")
+	assert_false(profile.is_line_visited(LINE_A))
+	assert_false(profile.is_line_visited(LINE_B))
+	assert_eq(adapter.cursor, 1)
+
+
+func test_replaced_runtime_during_presentation_publication_cannot_acknowledge_new_frontier() -> void:
+	var wired := _wired([[LINE_A, "text"], [LINE_B, "text"]], POLICY.READ_ONLY)
+	if not _has_presentation_acknowledgement_surface(): return
+	var adapter: RefCounted = wired["adapter"]
+	var profile: Node = wired["profile"]
+	var frontier: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	profile.visited_history_changed.connect(func(_line_id: String, _visited: bool) -> void:
+		adapter.generation += 1)
+	var result: Dictionary = _bridge.call("acknowledge_current_line_presentation", frontier)
+	assert_false(result.get("ok", true), "replacement during publication invalidates the receipt")
+	assert_eq(profile.mark_calls, [LINE_A], "the old presentation committed before replacement")
+	assert_true(profile.is_line_visited(LINE_A))
+	assert_false(profile.is_line_visited(LINE_B), "the replacement frontier is never inferred or marked")
+	assert_eq(adapter.cursor, 0)
+
+
+func test_mutation_gate_blocks_ack_but_not_opaque_capture_or_later_exact_retry() -> void:
+	var wired := _wired([[LINE_A, "text"]], POLICY.READ_ONLY)
+	if not _has_presentation_acknowledgement_surface(): return
+	var profile: Node = wired["profile"]
+	var gate := _FakeMutationGate.new()
+	add_child_autofree(gate)
+	assert_true(_bridge.configure_mutation_gate(gate).get("ok", false))
+	var proof: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	assert_true(proof.get("ok", false), str(proof))
+	assert_eq(_bridge.call("capture_current_line_presentation_frontier"), proof,
+		"custody does not change or suppress the renderer's opaque source proof")
+	var blocked: Dictionary = _bridge.call("acknowledge_current_line_presentation", proof)
+	assert_false(blocked.get("ok", true))
+	assert_eq(blocked.get("code"), &"fixture_gate_held")
+	assert_eq(profile.mark_calls, [], "custody refusal happens before the Profile write")
+	assert_false(bool(_bridge.call("is_current_line_presentation_acknowledged")))
+	gate.held = false
+	var retried: Dictionary = _bridge.call("acknowledge_current_line_presentation", proof)
+	assert_true(retried.get("ok", false), str(retried))
+	assert_eq(profile.mark_calls, [LINE_A])
+	assert_true(bool(_bridge.call("is_current_line_presentation_acknowledged")))
+
+
+func test_fatal_acknowledgement_latch_survives_frontier_replacement_until_profile_rebind() -> void:
+	var wired := _wired([[LINE_A, "text"]], POLICY.READ_ONLY)
+	if not _has_presentation_acknowledgement_surface(): return
+	var adapter: RefCounted = wired["adapter"]
+	var profile: Node = wired["profile"]
+	var first_proof: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	profile.failure_result = {"ok": false, "code": &"indeterminate_commit",
+		"message": "fixture fatal", "fatal": true}
+	var failed: Dictionary = _bridge.call("acknowledge_current_line_presentation", first_proof)
+	assert_eq(failed, profile.failure_result)
+	assert_eq(profile.mark_calls, [LINE_A])
+	profile.failure_result.clear()
+	adapter.generation += 1
+	_bridge._active_entry = _active_entry_fixture("replacement-token")
+	var replacement_proof: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	assert_true(replacement_proof.get("ok", false), str(replacement_proof))
+	var still_blocked: Dictionary = _bridge.call(
+		"acknowledge_current_line_presentation", replacement_proof)
+	assert_eq(still_blocked, failed,
+		"runtime and token replacement cannot erase a fatal Profile commitment result")
+	assert_eq(profile.mark_calls, [LINE_A], "the latched fatal blocks another write attempt")
+	var replacement_profile := _FakeProfile.new()
+	add_child_autofree(replacement_profile)
+	assert_true(_bridge.configure_skip_context(
+		replacement_profile, POLICY.READ_ONLY).get("ok", false))
+	var rebound_proof: Dictionary = _bridge.call("capture_current_line_presentation_frontier")
+	assert_true(rebound_proof.get("ok", false), str(rebound_proof))
+	var rebound: Dictionary = _bridge.call("acknowledge_current_line_presentation", rebound_proof)
+	assert_true(rebound.get("ok", false), str(rebound))
+	assert_eq(replacement_profile.mark_calls, [LINE_A],
+		"a distinct Profile owner begins with a clean acknowledgement latch")
+	assert_true(replacement_profile.is_line_visited(LINE_A))

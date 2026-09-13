@@ -39,6 +39,8 @@ var _transport_bridge: Object
 var _transport_configured := false
 var _transport_input_bound := false
 var _rail_focus_enabled := false
+var _presented_line: Dictionary = {}
+var _line_waiting_for_text := false
 
 @onready var canvas: Control = $Canvas
 @onready var scroll: ScrollContainer = $Canvas/Scroll
@@ -105,11 +107,49 @@ func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	if not skip_controller.configure(profile, bridge, _transport_admitted): return false
 	_transport_bridge = bridge
 	_transport_configured = true
+	accept_input.bind_presentation_admission(_acknowledge_visible_line, _automatic_line_admitted)
+	_capture_presented_line()
+	_acknowledge_visible_line()
 	_sync_transport()
 	return _transport_configured
 
+
+func _acknowledge_visible_line() -> bool:
+	if _line_waiting_for_text: return false
+	var has_proof: bool = _presented_line.get("ok", false)
+	if not is_instance_valid(_transport_bridge) \
+			or not _transport_bridge.has_method("requires_line_presentation_acknowledgement"):
+		return not has_proof
+	if not has_proof:
+		return not _transport_bridge.call("requires_line_presentation_acknowledgement")
+	# A rendered canonical proof stays mandatory if a callback replaces its owner.
+	if _pause_covered or not _has_caption() or not caption_text.is_visible_in_tree(): return false
+	var result: Dictionary = _transport_bridge.call("acknowledge_current_line_presentation", _presented_line)
+	return result.get("ok", false)
+
+
+func _capture_presented_line() -> void:
+	_presented_line.clear()
+	_line_waiting_for_text = not _has_caption()
+	if _has_caption() and is_instance_valid(_transport_bridge) \
+			and _transport_bridge.has_method("capture_current_line_presentation_frontier"):
+		_presented_line = _transport_bridge.call("capture_current_line_presentation_frontier")
+
+
+func _automatic_line_admitted() -> bool:
+	if _line_waiting_for_text: return false
+	var has_proof: bool = _presented_line.get("ok", false)
+	if not is_instance_valid(_transport_bridge) \
+			or not _transport_bridge.has_method("requires_line_presentation_acknowledgement"):
+		return not has_proof
+	if not has_proof:
+		return not _transport_bridge.call("requires_line_presentation_acknowledgement")
+	return _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier") \
+		and bool(_transport_bridge.call("is_current_line_presentation_acknowledged"))
+
 func _transport_admitted() -> bool:
-	return _transport_configured and _transport_input_bound and not _pause_covered and is_instance_valid(transport_rail) \
+	return _transport_configured and _transport_input_bound and not _pause_covered \
+		and not _line_waiting_for_text and is_instance_valid(transport_rail) \
 		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
 		and is_instance_valid(_transport_bridge) \
 		and bool(_transport_bridge.call("can_skip_current_line"))
@@ -261,6 +301,8 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	return true
 
 func reset_caption_stack() -> void:
+	_line_waiting_for_text = true
+	_presented_line.clear()
 	_retained.clear()
 	_current_copy = ""
 	_publication_pending = false
@@ -316,6 +358,10 @@ func get_caption_projection() -> Dictionary:
 	}
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
+	# Old caption text can remain in the node until the next text_started signal.
+	# It must not borrow legacy admission while the replacement has no proof yet.
+	_line_waiting_for_text = true
+	_presented_line.clear()
 	# A press or queued assistive action belongs to its presented beat. The Skip
 	# session itself may continue across ordinary text through the bridge policy.
 	if is_instance_valid(transport_rail): transport_rail.retire_input()
@@ -333,6 +379,8 @@ func _on_text_started(info: Dictionary) -> void:
 	# Only already-parsed display text crosses this seam; never character/portrait data.
 	_current_copy = caption_text.get_parsed_text()
 	_layout_stack(true)
+	_capture_presented_line()
+	_acknowledge_visible_line()
 
 func _on_caption_visibility_changed() -> void:
 	if is_instance_valid(transport_rail): transport_rail.retire_input()

@@ -180,7 +180,8 @@ func _execute() -> void:
 		# Handling potential Choice Events.
 		if section_idx == len(split_text)-1 and dialogic.has_subsystem('Choices') \
 			and dialogic.Choices.is_question(dialogic.current_event_idx) \
-			and not dialogic.get_meta(&"dwm_boundary_safe_skip_reveal", false):
+			and not dialogic.get_meta(&"dwm_boundary_safe_skip_reveal", false) \
+			and _presentation_advance_admitted():
 			dialogic.Text.show_next_indicators(true)
 
 			finish()
@@ -201,7 +202,7 @@ func _execute() -> void:
 			await dialogic.Inputs.start_autoskip_timer()
 
 			# Check if Auto-Skip is still enabled.
-			if not dialogic.Inputs.auto_skip.enabled:
+			if not dialogic.Inputs.auto_skip.enabled or not _presentation_advance_admitted():
 				await advance
 
 		else:
@@ -266,8 +267,18 @@ func _on_dialogic_input_action() -> void:
 
 
 func _on_dialogic_input_autoadvance() -> void:
-	if state == States.IDLE or state == States.DONE:
+	if (state == States.IDLE or state == States.DONE) and _presentation_advance_admitted():
 		advance.emit()
+
+
+## DWM's mounted input owner may retain a line whose durable presentation failed.
+## Recheck at the actual automatic boundary; this query never retries a disk write.
+func _presentation_advance_admitted() -> bool:
+	for policy: Node in dialogic.get_tree().get_nodes_in_group("dialogic_input_policy"):
+		if policy.has_method("is_automatic_advance_admitted") \
+				and not policy.call("is_automatic_advance_admitted", dialogic):
+			return false
+	return true
 
 
 func _on_auto_skip_enable(enabled: bool) -> void:
@@ -279,7 +290,7 @@ func _on_auto_skip_enable(enabled: bool) -> void:
 			await dialogic.Inputs.start_autoskip_timer()
 
 			# If Auto-Skip is still enabled, advance the text.
-			if dialogic.Inputs.auto_skip.enabled:
+			if dialogic.Inputs.auto_skip.enabled and _presentation_advance_admitted():
 				advance.emit()
 
 		States.REVEALING:
