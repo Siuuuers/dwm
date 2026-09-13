@@ -60,8 +60,8 @@ var _proven_document_order: Array[String] = []
 # and completed post-result Autosaves retain the last fully saved player action; after a crash, the
 # interrupted action may replay once.
 var _transient_consequence_document := {"records": {}, "abandoned": {}}
-# Exact transient records issued by prepare_consequence_checkpoint(). The cache is an optimization
-# only: changed or evicted candidates still take the complete canonical round-trip validator.
+# Detached transient records issued by prepare_consequence_checkpoint(). Changed known records
+# must normalize back to the same value; evicted records use the existing round-trip/shape check.
 var _issued_transient_records: Dictionary = {}
 var _issued_transient_order: Array[String] = []
 
@@ -370,7 +370,7 @@ func prepare_consequence_checkpoint(checkpoint_header: Dictionary, stage_candida
 	var receipt_attached_candidate: Dictionary = (normalized_preimage as Dictionary)["stage_candidate"]
 	var pending: Variant = receipt_attached_candidate.get("pending")
 	if typeof(pending) == TYPE_DICTIONARY:
-		var pending_dict: Dictionary = (pending as Dictionary).duplicate(true)
+		var pending_dict: Dictionary = pending
 		if str(pending_dict.get("stage", "")) not in ["action_prepared", "prepared_checkpointed"]:
 			pending_dict["checkpoint_receipt"] = checkpoint_receipt.duplicate(true)
 			if pending_dict.get("admission_checkpoint_receipt") == null:
@@ -409,6 +409,11 @@ func commit_consequence_checkpoint(checkpoint_candidate: Dictionary, checkpoint_
 		validated = _validate_transient_consequence_record(record)
 		if not validated.get("ok", false):
 			return validated
+		# Normalization permits StringName aliases, but cannot authorize changed bytes
+		# against a record we still own. The cold validator checks shape, not receipt hashes.
+		if (_issued_transient_records.has(receipt_id)
+				and not CANONICAL_JSON._deep_same(_issued_transient_records[receipt_id], validated["value"])):
+			return _fail(&"invalid_candidate", "checkpoint record differs from the issued candidate")
 	var normalized: Dictionary = validated["value"]
 	var key: String = normalized["key"]
 	var records: Dictionary = _transient_consequence_document["records"]

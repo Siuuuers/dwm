@@ -294,20 +294,19 @@ static func checkpoint_content_preimage(checkpoint_header: Dictionary, stage_can
 		# not a behavior change to any tested case.
 		return {"ok": true, "code": &"ok", "value": {"preimage": {
 			"header": normalized_header,
-			"stage_candidate": candidate.duplicate(true),
+			"stage_candidate": candidate,
 		}}, "receipt": {}}
+	# _validate_for_preimage() already returned a deep-detached candidate. Project the checkpoint
+	# receipt fields on that private tree instead of copying its large recovery payload twice more.
 	var pending: Dictionary = candidate["pending"]
-	var projected: Dictionary = pending.duplicate(true)
-	projected["checkpoint_receipt"] = null
+	pending["checkpoint_receipt"] = null
 	var is_admission_preimage := str(pending["stage"]) == String(STAGE_SEQUENCE_COMMITTED) \
 		and pending["admission_checkpoint_receipt"] == null
 	if is_admission_preimage:
-		projected.erase("admission_checkpoint_receipt")
-	var candidate_for_preimage := candidate.duplicate(true)
-	candidate_for_preimage["pending"] = projected
+		pending.erase("admission_checkpoint_receipt")
 	return {"ok": true, "code": &"ok", "value": {"preimage": {
 		"header": normalized_header,
-		"stage_candidate": candidate_for_preimage,
+		"stage_candidate": candidate,
 	}}, "receipt": {}}
 
 

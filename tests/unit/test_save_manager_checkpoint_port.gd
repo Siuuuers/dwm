@@ -152,6 +152,8 @@ func test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_c
 	var receipt: Dictionary = prepared["value"]["checkpoint_receipt"]
 	assert_eq(stored_pending["checkpoint_receipt"], receipt)
 	assert_eq(stored_pending["admission_checkpoint_receipt"], receipt)
+	assert_null(input_pending["checkpoint_receipt"], "attaching the receipt must not mutate caller state")
+	assert_null(input_pending["admission_checkpoint_receipt"], "the caller still owns its receipt-free input")
 
 
 func test_commit_consequence_checkpoint_retains_and_rereads_in_same_process() -> void:
@@ -199,6 +201,82 @@ func test_commit_consequence_checkpoint_rejects_a_receipt_mismatch() -> void:
 	assert_eq(rejected["code"], &"checkpoint_receipt_mismatch")
 	var disk_path := str(wired["root"]).path_join("desktop-consequence-checkpoint.json")
 	assert_false(FileAccess.file_exists(disk_path), "a rejected commit never writes to disk")
+
+
+func test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var changed: Dictionary = prepared.value.candidate.duplicate(true)
+	# Native Dictionary equality rejects this type change; the cold fallback must also
+	# refuse it after normalization instead of retaining it under the original receipt.
+	changed.document.stage_candidate.pending.recovery_payload.participant_snapshot_ids.marker = 1.0
+	var rejected: Dictionary = port.commit_consequence_checkpoint(changed, prepared.value.checkpoint_receipt)
+	assert_false(rejected.get("ok", true), "equal numeric values do not authorize different canonical bytes")
+	assert_eq(rejected.get("code"), &"invalid_candidate")
+	assert_false(port.read_pending_consequence_checkpoint().value.found,
+		"a changed issued record never enters an empty transient slot")
+	assert_true(port.commit_consequence_checkpoint(prepared.value.candidate,
+		prepared.value.checkpoint_receipt).get("ok", false), "the untouched prepared record remains usable")
+	var retained: Dictionary = port.read_pending_consequence_checkpoint().value.stage_candidate
+	assert_eq(typeof(retained.pending.recovery_payload.participant_snapshot_ids.marker), TYPE_INT)
+	assert_true(CONSEQUENCE_STATE.validate(retained).get("ok", false),
+		"the retained original still matches its payload hash")
+
+
+func test_supplied_checkpoint_receipt_rejects_equal_float_ordinal() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var changed_receipt: Dictionary = prepared.value.checkpoint_receipt.duplicate(true)
+	changed_receipt.header.operation_ordinal = 2.0
+	var rejected: Dictionary = port.commit_consequence_checkpoint(prepared.value.candidate, changed_receipt)
+	assert_false(rejected.get("ok", true))
+	assert_eq(rejected.get("code"), &"checkpoint_receipt_mismatch")
+	assert_false(port.read_pending_consequence_checkpoint().value.found,
+		"a numeric receipt alias cannot commit the otherwise valid record")
+
+
+func test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var aliased: Dictionary = prepared.value.candidate.duplicate(true)
+	aliased.document.header.kind = &"consequence_admission"
+	aliased.document.stage_candidate.pending.stage = &"sequence_committed"
+	aliased.document.checkpoint_receipt.header.kind = &"consequence_admission"
+	var aliased_receipt: Dictionary = prepared.value.checkpoint_receipt.duplicate(true)
+	aliased_receipt.header.kind = &"consequence_admission"
+	var committed: Dictionary = port.commit_consequence_checkpoint(aliased, aliased_receipt)
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	var retained: Dictionary = port.read_pending_consequence_checkpoint().value.stage_candidate
+	assert_eq(_canonical_text(retained), _canonical_text(prepared.value.candidate.document.stage_candidate))
+	assert_eq(typeof(retained.pending.stage), TYPE_STRING)
+	assert_eq(typeof(retained.pending.recovery_payload.participant_snapshot_ids.marker), TYPE_INT)
+	assert_eq(typeof(aliased.document.stage_candidate.pending.stage), TYPE_STRING_NAME,
+		"cold normalization does not mutate the caller's typed values")
+
+
+func test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation() -> void:
+	var wired := _isolated_wired()
+	var port: RefCounted = wired["port"]
+	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	for index: int in 8:
+		var transaction_id := "evict-txn-" + str(index)
+		assert_true(port.prepare_consequence_checkpoint(_header(transaction_id),
+			_admitted_state_candidate(transaction_id)).get("ok", false))
+	assert_false((port.get("_issued_transient_records") as Dictionary).has(prepared.value.checkpoint_receipt.receipt_id),
+		"the fixture reaches the legitimate cold path")
+	var committed: Dictionary = port.commit_consequence_checkpoint(prepared.value.candidate,
+		prepared.value.checkpoint_receipt)
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	var retained: Dictionary = port.read_pending_consequence_checkpoint().value.stage_candidate
+	assert_eq(_canonical_text(retained), _canonical_text(prepared.value.candidate.document.stage_candidate))
+	assert_true(CONSEQUENCE_STATE.validate(retained).get("ok", false))
 
 
 ## dwm-p2r.35.3 remediation (finding A-C3): real occupied-slot conflict law. An identical-bytes rewrite

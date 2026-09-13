@@ -357,6 +357,72 @@ func test_checkpoint_content_preimage_omits_admission_receipt_only_at_admission(
 		"the current checkpoint_receipt is always nulled in the preimage")
 
 
+func test_checkpoint_content_preimage_detaches_nested_admission_and_later_candidates() -> void:
+	var state := _bootstrapped()
+	var payload := _action_recovery_payload("minesweeper_round")
+	payload["participant_snapshot_ids"] = {
+		"detachment_probe": {"values": ["alpha", "beta"]},
+	}
+	var prepared: Dictionary = state.prepare_action_handoff(
+		_action_receipt("minesweeper_round"), 0, payload)
+	state.commit(prepared["value"]["candidate"])
+	var receipt := _causal_sequence_receipt(state, "minesweeper_round", "txn-1")
+	var reserved: Dictionary = state.prepare_sequence_reservation(
+		{"transaction_id": "txn-1", "source_kind": "minesweeper_round"}, receipt)
+	var candidate_state: Dictionary = reserved["value"]["candidate"]["state_after"]
+	var header := {
+		"kind": &"consequence_admission", "operation_ordinal": 2, "run_id": "run-1",
+		"source_ids": ["txn-1"], "stage": "sequence_committed", "transaction_id": "txn-1",
+	}
+
+	var admission_input: Dictionary = candidate_state.duplicate(true)
+	var admission: Dictionary = _STATE_SCRIPT.checkpoint_content_preimage(header, admission_input)
+	assert_true(admission["ok"], JSON.stringify(admission))
+	var admission_state: Dictionary = admission["value"]["preimage"]["stage_candidate"]
+	assert_false((admission_state["pending"] as Dictionary).has("admission_checkpoint_receipt"),
+		"the detached admission projection still omits the not-yet-minted receipt")
+	var admission_input_values: Array = admission_input["pending"]["recovery_payload"] \
+		["participant_snapshot_ids"]["detachment_probe"]["values"]
+	var admission_result_values: Array = admission_state["pending"]["recovery_payload"] \
+		["participant_snapshot_ids"]["detachment_probe"]["values"]
+	admission_input_values[0] = "input-mutated"
+	assert_eq(admission_result_values[0], "alpha",
+		"mutating the nested input after projection cannot change the preimage")
+	admission_result_values[1] = "result-mutated"
+	assert_eq(admission_input_values[1], "beta",
+		"mutating the nested preimage cannot change its input candidate")
+
+	var admission_receipt := {"checkpoint_id": "chk-detachment", "sequence": 1}
+	candidate_state["pending"]["admission_checkpoint_receipt"] = admission_receipt
+	candidate_state["pending"]["checkpoint_receipt"] = admission_receipt.duplicate(true)
+	var restore: Dictionary = state.prepare_restore(candidate_state)
+	assert_true(restore["ok"], JSON.stringify(restore))
+	state.commit(restore["value"]["candidate"])
+	var advanced: Dictionary = state.prepare_recovery_advance(
+		"txn-1", &"sequence_committed", &"publication_pending", {}, null, null,
+		{"publication_plan_sha256": "a".repeat(64), "callback_ids": ["causal_sequence", "action_source"],
+			"next_callback_index": 0, "callback_receipts": {}})
+	assert_true(advanced["ok"], JSON.stringify(advanced))
+	var later_input: Dictionary = advanced["value"]["stage_candidate"]
+	var later: Dictionary = _STATE_SCRIPT.checkpoint_content_preimage(header, later_input)
+	assert_true(later["ok"], JSON.stringify(later))
+	var later_state: Dictionary = later["value"]["preimage"]["stage_candidate"]
+	assert_eq(later_state["pending"]["admission_checkpoint_receipt"], admission_receipt,
+		"a later detached projection preserves the immutable admission receipt")
+	assert_eq(later_state["pending"]["checkpoint_receipt"], null,
+		"a later detached projection still clears only the rotating checkpoint receipt")
+	var later_input_values: Array = later_input["pending"]["recovery_payload"] \
+		["participant_snapshot_ids"]["detachment_probe"]["values"]
+	var later_result_values: Array = later_state["pending"]["recovery_payload"] \
+		["participant_snapshot_ids"]["detachment_probe"]["values"]
+	later_input_values[0] = "later-input-mutated"
+	assert_eq(later_result_values[0], "alpha",
+		"later-stage input mutation cannot change the detached preimage")
+	later_result_values[1] = "later-result-mutated"
+	assert_eq(later_input_values[1], "beta",
+		"later-stage result mutation cannot change the input candidate")
+
+
 func test_prepare_outbox_publication_toggles_exactly_one_bit() -> void:
 	var state := _bootstrapped()
 	var seeded: Dictionary = state.capture()["value"]["state"]
