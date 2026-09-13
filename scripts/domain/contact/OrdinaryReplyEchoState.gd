@@ -2,6 +2,7 @@ class_name OrdinaryReplyEchoState
 extends RefCounted
 
 ## Six virtual unanswered messages; only a witnessed chosen reply becomes history.
+## Unanswered expiry is retained invisibly in the existing day-end receipt.
 ## Pending echoes are derived from the two existing Contacts receipt kinds, never a second index.
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
@@ -73,6 +74,21 @@ static func reply_definition(reply_id: String, locale: String = "en") -> Diction
 	result["response_text"] = str(COPY[locale].responses[ordinal])
 	return _ok(result)
 
+## The fixed six-entry namespace needs no narrative file loading at midnight.
+static func entry_id_for_day(day: int) -> String:
+	var friend_id := CALENDAR.ordinary_friend(day)
+	return "" if friend_id.is_empty() else "contact.ordinary.%s.day%d" % [friend_id, day]
+
+static func expiry_entry_id(state: Dictionary, day: int) -> String:
+	var entry_id := entry_id_for_day(day)
+	if entry_id.is_empty(): return ""
+	for receipt: Variant in state.get("transaction_receipts", {}).values():
+		if not receipt is Dictionary: continue
+		if (receipt.get("kind") == "ordinary_reply" and receipt.get("entry_id") == entry_id) \
+			or (receipt.get("kind") == "resolve_day_end" and receipt.get("ordinary_expired_entry_id") == entry_id):
+			return ""
+	return entry_id
+
 static func available(state: Dictionary, day: int, friend_id: String, locale: String = "en") -> Dictionary:
 	var expected_friend := CALENDAR.ordinary_friend(day)
 	if expected_friend.is_empty() or expected_friend != friend_id: return _ok({})
@@ -83,9 +99,7 @@ static func available(state: Dictionary, day: int, friend_id: String, locale: St
 		if _definitions[id].day != day: continue
 		var definition := reply_definition(id, locale)
 		if not definition.ok: return definition
-		for receipt: Variant in state.get("transaction_receipts", {}).values():
-			if receipt is Dictionary and receipt.get("kind") == "ordinary_reply" and receipt.get("entry_id") == definition.value.entry_id:
-				return _ok({})
+		if expiry_entry_id(state, day).is_empty(): return _ok({})
 		choices.append(definition.value)
 	choices.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.reply_id < b.reply_id)
 	if choices.size() != 3: return _fail("ordinary_registry_incomplete")
@@ -216,10 +230,20 @@ static func validate_state(state: Dictionary) -> Dictionary:
 	var ledger: Variant = state.get("transaction_receipts", {})
 	if not ledger is Dictionary: return _fail("invalid_ordinary_receipt_index")
 	var chosen := {}
+	var expired := {}
 	var echoes := {}
 	var claimed := {}
 	for key: Variant in ledger:
 		var receipt: Variant = ledger[key]
+		if receipt is Dictionary and receipt.has("ordinary_expired_entry_id"):
+			if receipt.get("kind") != "resolve_day_end" or not key is String or receipt.get("transaction_id") != key \
+					or typeof(receipt.get("day")) != TYPE_INT or not receipt.ordinary_expired_entry_id is String:
+				return _fail("invalid_ordinary_expiry_receipt")
+			var entry_id := entry_id_for_day(receipt.day)
+			if entry_id.is_empty() or receipt.ordinary_expired_entry_id != entry_id:
+				return _fail("invalid_ordinary_expiry_receipt")
+			if expired.has(receipt.ordinary_expired_entry_id): return _fail("ordinary_expiry_duplicate")
+			expired[receipt.ordinary_expired_entry_id] = true
 		if not receipt is Dictionary or receipt.get("kind") not in RECEIPT_KINDS: continue
 		if not key is String or receipt.get("transaction_id") != key: return _fail("invalid_ordinary_receipt_identity")
 		var valid := validate_receipt(receipt)
@@ -248,6 +272,8 @@ static func validate_state(state: Dictionary) -> Dictionary:
 				return _fail("ordinary_echo_source_absent")
 			if echoes.has(receipt.echo_id): return _fail("ordinary_echo_duplicate")
 			echoes[receipt.echo_id] = true
+	for entry_id: String in expired:
+		if chosen.has(entry_id): return _fail("ordinary_reply_after_expiry")
 	var ordered_replies: Array = []
 	for receipt: Variant in ledger.values():
 		if receipt is Dictionary and receipt.get("kind") == "ordinary_reply": ordered_replies.append(receipt)
@@ -303,7 +329,7 @@ static func _load_registry() -> Dictionary:
 		if not entry.ok or entry.value.role != "ordinary_message": return _fail("ordinary_registry_invalid")
 		var day: int = int(entry.value.day)
 		var friend_id: String = str(reply.owning_entry_id).get_slice(".", 2)
-		if CALENDAR.ordinary_friend(day) != friend_id: return _fail("ordinary_registry_invalid")
+		if str(reply.owning_entry_id) != entry_id_for_day(day): return _fail("ordinary_registry_invalid")
 		var choice: String = str(reply.reply_id).get_slice(".", 4)
 		var ordinal: int = ["a", "b", "c"].find(choice)
 		if ordinal < 0: return _fail("ordinary_registry_invalid")

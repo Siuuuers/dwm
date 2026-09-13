@@ -457,6 +457,7 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 		return _fail(&"invalid_transaction", "transaction_id is required")
 	if detached["transaction_receipts"].has(transaction_id):
 		return _replay(detached, transaction_id)
+	var ordinary_expiry := ORDINARY_REPLIES.expiry_entry_id(detached, day)
 	var attended: Array = attendance.get("solo_attended_action_ids", [])
 	# Resolve this day's solo actions in deterministic action_id order so queued
 	# records (and their sequences) allocate identically on every replay.
@@ -584,6 +585,10 @@ static func prepare_resolve_day_end(state: Dictionary, day: int, attendance: Dic
 		"pl_window": pl_window,
 		"counter_deltas": counter_deltas,
 	}
+	# Unanswered ordinary entries are virtual: their invisible tombstone belongs to
+	# this existing closure, without allocating history, a sequence or a watermark.
+	if not ordinary_expiry.is_empty():
+		receipt["ordinary_expired_entry_id"] = ordinary_expiry
 	detached["transaction_receipts"][transaction_id] = receipt
 	return _ok(detached, message_batch, receipt)
 
@@ -1281,7 +1286,7 @@ static func _validate_reply_group_operation(receipt: Dictionary) -> Dictionary:
 	return _validate_command_receipt(receipt["command_issuer_receipt"], receipt["transaction_id"])
 
 static func _validate_resolve_operation(receipt: Dictionary) -> Dictionary:
-	if not _has_exact_keys(receipt, _RESOLVE_RECEIPT_KEYS) \
+	if not _has_exact_keys(receipt, _RESOLVE_RECEIPT_KEYS + (["ordinary_expired_entry_id"] if receipt.has("ordinary_expired_entry_id") else [])) \
 			or typeof(receipt["day"]) != TYPE_INT or int(receipt["day"]) < 1 or int(receipt["day"]) > 7 \
 			or not _is_string_array(receipt["child_transaction_ids"]) \
 			or not _is_string_array(receipt["message_ids"]) \
@@ -1292,6 +1297,11 @@ static func _validate_resolve_operation(receipt: Dictionary) -> Dictionary:
 			or typeof(receipt["state_transitions"]) != TYPE_ARRAY \
 			or typeof(receipt["counter_deltas"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_state", "day-end operation primitives are invalid")
+	if receipt.has("ordinary_expired_entry_id"):
+		var entry_id := ORDINARY_REPLIES.entry_id_for_day(receipt.day)
+		if entry_id.is_empty() or not receipt.ordinary_expired_entry_id is String \
+				or receipt.ordinary_expired_entry_id != entry_id:
+			return _fail(&"invalid_state", "ordinary expiry must identify this day's registered entry")
 	for transition: Variant in receipt["state_transitions"]:
 		if typeof(transition) != TYPE_DICTIONARY \
 				or not _has_exact_keys(transition, ["action_id", "from_state", "to_state"]) \
