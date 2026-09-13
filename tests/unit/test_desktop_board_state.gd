@@ -371,6 +371,11 @@ func test_routine_receipts_keep_latest_retry_but_compact_older_boards_after_acce
 	assert_eq(captured.command_receipts.start, first_receipt, "paid first-Reveal evidence stays exact")
 	assert_eq(captured.command_receipts.latest.result, resumed, "latest action retains exact retry")
 	assert_false(captured.command_receipts.older.result.value.has("board"), "old board copy is retired")
+	assert_eq(captured.command_receipts.older, {
+		"request_fingerprint": older_candidate.request_fingerprint,
+		"result": {"ok": true, "code": &"board_command_already_applied",
+			"value": {"already_applied": true, "revision": 2}, "receipt": {}},
+	}, "older visibility receipts retain the exact retry contract without redundant metadata")
 	assert_eq(fresh.commit(latest_candidate), resumed)
 	var old_retry := fresh.commit(older_candidate)
 	assert_true(old_retry.ok)
@@ -380,6 +385,113 @@ func test_routine_receipts_keep_latest_retry_but_compact_older_boards_after_acce
 	older_candidate.request_fingerprint = "changed-old-input"
 	assert_eq(fresh.commit(older_candidate).code, &"transaction_conflict")
 	assert_eq(fresh.capture(), captured)
+
+
+func test_legacy_compacted_board_receipt_sheds_metadata_only_after_new_acceptance() -> void:
+	assert_true(_begin_debug(_state, "debug", IDENTITY_A, _spec_a()).ok)
+	assert_true(_certify_debug(_state, "certify", IDENTITY_A, 1).ok)
+	assert_true(_first_reveal_from_none(_state, "start", IDENTITY_A, _spec_a(), 0).ok)
+	var proof_snapshot := _state.capture()
+	var board_before: Dictionary = proof_snapshot.board.board
+	var flagged: Dictionary = REDUCER.set_flag(board_before, 1, true, "older")
+	assert_true(flagged.get("ok", false), JSON.stringify(flagged))
+	var prepared := _state.prepare_board_command(_with_fp({
+		"transaction_id": "older", "identity": IDENTITY_A, "expected_revision": 3,
+		"kind": &"set_flag", "cell_index": 1, "flagged": true,
+	}), flagged.value.board)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var older_candidate: Dictionary = prepared.value.candidate
+	assert_true(_state.commit(older_candidate).ok)
+	var legacy_entry: Dictionary = _state.capture().command_receipts.older
+	assert_true(_suspend(_state, "pause", IDENTITY_A, 4).ok)
+	var legacy := _state.capture()
+	var acknowledged := {"ok": true, "code": &"board_command_already_applied",
+		"value": {"already_applied": true, "revision": 4}, "receipt": {}}
+	# Recreate the previously shipped compact result WITH its four redundant metadata
+	# fields, independently of whether the current producer has already removed them.
+	legacy_entry.result = acknowledged.duplicate(true)
+	legacy.command_receipts.older = legacy_entry
+	var frozen_legacy := legacy.duplicate(true)
+	var fresh := STATE.new()
+	assert_true(fresh.commit(fresh.prepare_restore(legacy).value.candidate).ok)
+	assert_eq(fresh.capture(), frozen_legacy, "loading legacy receipts alone never rewrites their shape")
+	legacy.command_receipts.older.result.value.revision = -1
+	legacy.command_receipts.older.request_fingerprint = "caller-mutated"
+	assert_eq(fresh.capture(), frozen_legacy, "the restored receipt is detached from caller-owned input")
+	var latest := _resume(fresh, "latest", IDENTITY_A, 5)
+	assert_true(latest.get("ok", false), JSON.stringify(latest))
+	var latest_candidate := _last_candidate.duplicate(true)
+	var retained := fresh.capture()
+	assert_eq(retained.command_receipts.older, {
+		"request_fingerprint": older_candidate.request_fingerprint, "result": acknowledged,
+	}, "the next accepted command compacts legacy metadata without changing its acknowledgement")
+	for preserved: String in ["debug", "certify", "start"]:
+		assert_eq(retained.command_receipts[preserved], proof_snapshot.command_receipts[preserved],
+			preserved + " nonroutine or first-Reveal proof remains exact")
+	assert_eq(retained.board.board, frozen_legacy.board.board, "receipt compaction does not alter board history or flags")
+	assert_eq(retained.command_receipts.size(), frozen_legacy.command_receipts.size() + 1,
+		"all historical transaction keys survive; only the newly accepted command is added")
+	assert_eq(fresh.commit(older_candidate), acknowledged)
+	assert_eq(fresh.commit(latest_candidate), latest, "the latest full response still retries exactly")
+	var changed := older_candidate.duplicate(true)
+	changed.request_fingerprint = "changed-request"
+	assert_eq(fresh.commit(changed).code, &"transaction_conflict")
+	assert_eq(fresh.capture(), retained, "neither old retry nor conflict changes live state")
+	retained.command_receipts.older.result.value.revision = -2
+	assert_eq(fresh.commit(older_candidate), acknowledged, "captured compact results are also detached")
+	assert_eq(frozen_legacy.command_receipts.older, {
+		"request_fingerprint": older_candidate.request_fingerprint, "result": acknowledged,
+		"command_kind": "board_command", "identity_fingerprint": legacy_entry.identity_fingerprint,
+		"pre_revision": 3, "post_revision": 4,
+	}, "compaction leaves earlier detached snapshots unchanged")
+
+
+func test_receipt_metadata_compaction_preserves_unknown_extended_and_minimal_records() -> void:
+	assert_true(_first_reveal_from_none(_state, "start", IDENTITY_A, _spec_a(), 0).ok)
+	assert_true(_suspend(_state, "older", IDENTITY_A, 1).ok)
+	var legacy := _state.capture()
+	var full: Dictionary = legacy.command_receipts.older
+	var unknown: Dictionary = full.duplicate(true)
+	unknown.command_kind = "extension_visibility"
+	var extended: Dictionary = full.duplicate(true)
+	extended["opaque"] = {"labels": ["keep-extension"]}
+	var malformed: Dictionary = full.duplicate(true)
+	malformed.erase("request_fingerprint")
+	var minimal := {"request_fingerprint": "minimal-fingerprint", "result": {
+		"ok": true, "code": &"board_command_already_applied",
+		"value": {"already_applied": true, "revision": 2}, "receipt": {},
+	}}
+	unknown.result = minimal.result.duplicate(true)
+	legacy.command_receipts["unknown"] = unknown
+	legacy.command_receipts["extended"] = extended
+	legacy.command_receipts["malformed"] = malformed
+	legacy.command_receipts["minimal"] = minimal
+	var wrong_types := {"request_fingerprint": {"opaque": "request"},
+		"identity_fingerprint": {"opaque": "identity"}, "pre_revision": null}
+	for field: String in wrong_types:
+		var mistyped: Dictionary = full.duplicate(true)
+		mistyped[field] = wrong_types[field]
+		legacy.command_receipts["wrong_type_" + field] = mistyped
+	var fresh := STATE.new()
+	assert_true(fresh.commit(fresh.prepare_restore(legacy).value.candidate).ok)
+	assert_true(_resume(fresh, "latest", IDENTITY_A, 2).ok)
+	var retained: Dictionary = fresh.capture().command_receipts
+	assert_eq(retained.unknown, unknown, "an unknown command kind does not authorize compaction")
+	assert_eq(retained.extended.get("opaque"), extended.opaque, "eligible-looking extensions retain their opaque payload")
+	# Existing full-result compaction may still replace these rows' result. Metadata
+	# reduction must not reinterpret an extended or malformed row as the exact known shape.
+	for field: String in ["command_kind", "identity_fingerprint", "pre_revision", "post_revision"]:
+		assert_eq(retained.extended.get(field), full[field], "extended receipt retains " + field)
+		assert_eq(retained.malformed.get(field), full[field], "malformed receipt retains " + field)
+	assert_false(retained.malformed.has("request_fingerprint"), "malformed records are not silently repaired")
+	assert_eq(retained.minimal, minimal, "an already minimal receipt remains exact")
+	for field: String in wrong_types:
+		var key := "wrong_type_" + field
+		var expected: Dictionary = legacy.command_receipts[key].duplicate(true)
+		# Permit the pre-existing full-result compaction while preserving every other
+		# field of a six-key record whose metadata is not the producer's known type.
+		expected.result = retained[key].result
+		assert_eq(retained[key], expected, "mistyped " + field + " cannot authorize metadata removal")
 
 
 func test_commit_duplicate_transaction_id_changed_payload_conflicts() -> void:

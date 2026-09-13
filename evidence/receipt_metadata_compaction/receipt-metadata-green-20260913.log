@@ -1,0 +1,248 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/35d184f9-d7d5-4c6b-8b6d-e34262aa6c40/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_desktop_board_state.gd
+* test_state_script_loads
+* test_state_instantiates
+* test_fresh_state_is_none_phase_with_zero_revision
+* test_capture_shape_is_exactly_nine_keys
+* test_reset_returns_to_fresh_state
+* test_capture_is_detached_from_internal_state
+* test_prepare_debug_candidate_from_none_transitions_to_preparing
+* test_prepare_debug_candidate_rejects_when_not_none_phase
+* test_prepare_debug_candidate_rejects_stale_revision
+* test_prepare_debug_candidate_rejects_invalid_identity
+* test_prepare_debug_slice_progress_stays_in_preparing
+* test_prepare_debug_slice_certified_transitions_to_prepared_unstarted
+* test_debug_is_cost_free_through_prepared_unstarted
+* test_prepare_debug_slice_rejects_wrong_phase
+* test_prepare_debug_slice_rejects_identity_mismatch
+* test_default_and_lucky_remain_none_until_reveal
+* test_prepare_first_reveal_from_none_populates_board_and_receipt
+* test_prepare_first_reveal_from_prepared_unstarted_adopts_certified_layout
+* test_prepare_first_reveal_rejects_forced_cell_mismatch_from_prepared_unstarted
+* test_prepare_first_reveal_rejects_wrong_phase
+* test_prepare_board_command_reveal_commits_new_revision
+* test_prepare_board_command_rejects_when_suspended
+* test_prepare_visibility_suspend_then_resume
+* test_prepare_visibility_rejects_from_none
+* test_prepare_settlement_requires_terminal_board
+* test_prepare_settlement_on_terminal_board_transitions_to_settling
+* test_commit_duplicate_transaction_id_same_payload_replays_result
+* test_routine_receipts_keep_latest_retry_but_compact_older_boards_after_acceptance
+* test_legacy_compacted_board_receipt_sheds_metadata_only_after_new_acceptance
+* test_receipt_metadata_compaction_preserves_unknown_extended_and_minimal_records
+* test_commit_duplicate_transaction_id_changed_payload_conflicts
+* test_stale_revision_rejected_across_every_prepare_method
+* test_prepare_candidate_mutation_before_commit_does_not_leak_into_a_prior_capture
+* test_captured_result_mutation_does_not_leak_into_internal_state
+* test_prepare_restore_round_trips_a_captured_snapshot
+* test_prepare_restore_rejects_bad_member_set
+* test_prepare_restore_rejects_phase_invariant_violation
+37/37 passed.
+
+
+res://tests/unit/test_desktop_continuation_remapper.gd
+* test_remapper_exists
+* test_remap_table_only_marks_current_v4_members_handled
+* test_collect_rewindable_transaction_ids_covers_board_and_pending
+* test_prepare_remaps_board_identity_receipts_and_consequence_pending
+* test_prepare_rekeys_compact_and_full_command_receipts_without_inventing_metadata
+* test_prepare_rejects_a_transaction_remap_missing_a_rewindable_id
+* test_prepare_rejects_an_extra_transaction_remap_entry
+* test_prepare_rejects_two_sources_mapped_to_the_same_target
+* test_prepare_is_a_pure_function_of_its_inputs
+* test_prepare_remaps_source_ids_that_are_real_transaction_ids
+* test_prepare_leaves_genuinely_opaque_source_ids_unchanged
+* test_prepare_rejects_an_unsorted_historical_source_ids_record
+* test_prepare_rejects_a_duplicate_historical_source_ids_record
+* test_prepare_rejects_a_source_id_that_is_not_canonically_representable
+Unicode parsing error: Unpaired lead surrogate (d800 [eol])
+* test_validate_remap_accepts_its_own_prepare_output_and_rejects_a_tampered_candidate
+* test_prepare_rederives_a_source_commit_child_through_the_real_issuer_byte_for_byte
+* test_prepare_rejects_a_historical_source_commit_with_an_unregistered_child_kind
+* test_the_remappers_duplicated_child_kinds_equal_the_real_issuers_child_kinds_exactly
+* test_collect_includes_the_pending_warning_activation_root
+* test_collect_includes_a_pending_condition_departure_root_exactly_once
+* test_collect_includes_every_failed_attempt_and_consumed_terminal_root
+* test_collect_includes_a_nonnull_active_condition_hospital_root
+* test_collect_excludes_completed_condition_hospital_history_roots
+* test_collect_rejects_an_attempt_key_that_disagrees_with_its_receipt_transaction_id
+* test_collect_includes_a_nonnull_terminal_intent_handoff_root
+* test_collect_leaves_a_v4_snapshot_census_byte_identical
+* test_remap_table_declares_every_v5_region
+* test_remap_table_marks_the_v5_regions_handled
+* test_prepare_rekeys_consumed_warning_receipts_to_the_recomputed_digest
+* test_prepare_rekeys_attempt_receipts_to_the_new_transaction_id
+* test_prepare_recomputes_the_warning_fingerprint_from_the_remapped_stored_preimage
+* test_prepare_never_substitutes_the_live_view_or_context_for_the_stored_preimage
+* test_prepare_rejects_a_string_edited_warning_preimage
+* test_prepare_rejects_a_string_edited_activation_provenance
+* test_prepare_rederives_the_activation_child_under_the_mapped_parent_receipt
+* test_prepare_rederives_a_navigation_terminal_receipt_with_the_new_activation_projection
+* test_prepare_rejects_a_warning_context_that_disagrees_with_the_mapped_board_identity
+* test_prepare_rekeys_the_pending_condition_departure_receipt_to_the_rederived_condition_id
+* test_prepare_leaves_every_unrelated_completed_ledger_entry_byte_identical
+* test_prepare_recomputes_both_view_hashes_from_the_remapped_recovery_payload
+* test_prepare_rejects_a_ledger_hash_that_disagrees_with_the_remapped_payload
+* test_the_view_ledger_is_excluded_from_the_optimistic_fingerprint_preimage
+* test_the_remappers_warning_digest_equals_the_real_schedule_warning_policy_digest
+* test_the_remappers_projection_helper_equals_the_real_controllers_p
+* test_prepare_preserves_the_condition_hospital_cursor_and_prepared_receipt_partition
+* test_prepare_carries_a_committed_allocator_root_with_stage_four_still_pending_as_recovery
+* test_prepare_rejects_an_active_stage_four_paired_with_source_current_live_state
+* test_prepare_rejects_a_nonstage_four_active_stage_paired_with_split_identities
+* test_prepare_preserves_the_historical_source_identity_after_completed_stage_four
+* test_prepare_recomputes_every_stage_key_from_the_rederived_resolution_receipt
+* test_prepare_rederives_stage_five_references_hashes_and_children_from_the_mapped_target
+* test_prepare_keeps_accepted_sources_in_their_frozen_order_after_rederivation
+* test_prepare_follows_the_post_advance_rule_at_cursor_six_before_and_after_the_retirement_checkpoint
+* test_prepare_rejects_an_abandoned_future_stage_receipt
+* test_prepare_leaves_condition_hospital_history_byte_identical
+* test_prepare_requires_the_live_outbox_to_match_the_remapped_destination_record
+* test_prepare_rejects_a_publication_bit_flip_without_a_remapped_acceptance
+* test_prepare_remaps_a_nonnull_terminal_intent_handoff_root_intent_and_outbox_together
+* test_validate_remap_accepts_its_own_v5_prepare_output
+* test_validate_remap_rejects_a_v5_candidate_with_a_hand_edited_fingerprint
+* test_validate_remap_rejects_a_v5_candidate_with_a_stale_consumed_key
+* test_prepare_v5_source_ids_change_the_continuation_operation_remap_receipt
+* test_prepare_is_a_pure_function_of_a_v5_snapshot
+* test_prepare_rejects_a_dangling_v5_transaction_reference
+* test_prepare_rejects_a_string_edited_terminal_receipt_provenance
+* test_validate_remap_accepts_a_v5_candidate_with_attempt_and_consumed_roots
+* test_prepare_refuses_an_active_plan_beside_a_lifecycle_missing_its_identity_receipt
+* test_prepare_rejects_an_unsplit_plan_whose_issuer_receipt_disagrees_with_the_lifecycle
+* test_prepare_rejects_an_unsplit_plan_whose_branch_or_run_disagrees_with_the_lifecycle
+69/69 passed.
+
+
+res://tests/unit/test_minesweeper_register_query.gd
+* test_none_reads_selected_tier_and_raw_signed_rounds_without_mutating_real_owner
+* test_active_derives_foresight_while_prepared_has_no_layout_and_difficulty_stays_frozen
+* test_committed_flag_then_unflag_keeps_no_flag_lost_and_estimate_signed
+* test_hidden_layout_changes_cannot_change_register_or_modify_sources
+* test_malformed_flag_evidence_and_inconsistent_current_flags_fail_closed
+* test_bad_sources_or_frozen_difficulty_never_expose_private_diagnostics
+* test_checkpoint_only_marker_resolves_frozen_journal_difficulty_without_mutation
+* test_missing_ambiguous_or_mismatched_first_reveal_journal_fails_closed
+* test_register_keeps_unmaterialized_shell_flag_history_and_has_no_foresight
+* test_register_does_not_cap_displayed_foresight
+* test_preparing_and_certified_shells_preserve_no_flag_history_without_foresight
+* test_difficulty_of_resolves_exactly_what_desktop_reports_without_projecting
+12/12 passed.
+
+
+res://tests/unit/test_minesweeper_round_coordinator.gd
+* test_base_configure_accepts_the_same_durable_port_without_legacy_seal
+* test_configure_consequence_port_rejects_before_it_is_configured
+* test_configure_consequence_checkpoint_rejects_an_invalid_state_port
+* test_complete_round_requires_a_terminal_board
+* test_complete_round_delegates_to_accept_prepared_action_with_a_valid_receipt
+* test_complete_round_never_changes_live_board_truth_even_when_delegation_fails
+* test_complete_round_duplicate_replay_returns_identical_result
+* test_complete_round_retries_after_a_transient_accept_prepared_action_failure
+* test_complete_round_releases_the_gate_when_accept_prepared_action_abandons_a_pre_admission_pending
+* test_commit_recovery_action_adopts_the_board_projection_and_rejects_without_the_gate
+* test_publish_recovery_action_retains_the_gate_until_release_recovery_lease
+* test_coordinator_script_loads
+* test_coordinator_instantiates
+* test_configure_is_idempotent_on_identical_replay
+* test_configure_rejects_a_replacement_port
+* test_configure_rejects_a_port_missing_required_methods
+* test_get_entry_context_is_eligible_from_fresh_none_phase
+* test_get_entry_context_is_not_eligible_when_motivation_exhausted
+* test_get_entry_context_is_not_eligible_once_phase_leaves_none
+* test_debug_preparation_reaches_prepared_unstarted
+* test_first_reveal_from_none_produces_the_exact_frozen_receipt_shape
+* test_first_reveal_charges_exactly_once_and_advances_ordinal
+* test_first_reveal_receipt_provenance_validates_against_the_issuer
+* test_first_reveal_receipt_provenance_rejects_a_tampered_member
+* test_default_and_lucky_remain_none_until_reveal
+* test_first_reveal_adopts_a_certified_debug_candidate
+* test_first_reveal_rejects_a_difficulty_id_that_does_not_match_the_certified_candidate
+* test_duplicate_first_reveal_replays_the_original_receipt_without_recharging
+* test_changed_payload_on_the_same_transaction_id_conflicts
+* test_stale_revision_is_rejected
+* test_identity_mismatch_is_rejected
+* test_a_forged_transaction_receipt_is_rejected
+* test_a_receipt_whose_token_does_not_match_the_transaction_id_is_rejected
+* test_materialize_failure_charges_nothing
+* test_checkpoint_prepare_failure_charges_nothing
+* test_checkpoint_commit_failure_charges_nothing_and_needs_no_rollback
+* test_state_commit_failure_rolls_back_the_already_committed_checkpoint
+* test_seal_failure_rolls_back_board_state_and_state_port_and_checkpoint
+* test_seal_failure_leaves_the_ledger_without_a_recorded_transaction
+* test_publish_failure_after_seal_returns_committed_unpublished_and_keeps_the_commit
+* test_retry_after_committed_unpublished_publishes_the_existing_receipt_and_never_recharges
+* test_double_rollback_failure_latches_fatal_and_refuses_subsequent_calls
+* test_checkpoint_port_reports_never_production
+* test_routine_reveal_commits_a_new_board_revision_without_touching_the_other_ports
+* test_suspend_then_resume_round_trips_through_the_coordinator
+* test_set_flag_flags_a_hidden_cell
+* test_older_board_and_visibility_retries_acknowledge_without_reapplying
+* test_duplicate_terminal_causing_reveal_replays_without_reaching_the_reducer
+* test_terminal_mine_retains_the_exact_pre_input_completed_board
+* test_terminal_chord_retains_flags_and_reveals_from_before_the_chord
+* test_failed_or_stale_commands_do_not_replace_a_terminal_replay_point
+* test_complete_round_safe_marker_substitutes_the_matching_pre_terminal_board
+* test_complete_round_without_a_matching_pre_input_board_never_captures_an_unsettled_autosave
+* test_get_state_returns_the_board_state_capture
+54/54 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_board_state.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               4
+Tests               172
+Passing Tests       172
+Asserts            1466
+Orphans              24
+Time              0.725s
+
+
+---- All tests passed! ----

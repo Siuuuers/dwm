@@ -1003,6 +1003,9 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 	var pending_echoes: Array[Dictionary] = game.get_pending_ordinary_echoes()
 	if not _check(not _ordinary_reply_receipt.is_empty() and pending_echoes.size() == 1,
 		"Day 1 selected reply survives every daily Autosave"): return false
+	var profile: Node = root.get_node("ProfileManager")
+	var original_auto_enabled: bool = bool(profile.get_preference(&"preferences.reading.auto_enabled", false))
+	var original_auto_delay: String = str(profile.get_preference(&"preferences.reading.auto_delay", "normal"))
 	if not _ordinary_assert_day7_guards(bootstrap, game): return false
 	var initial_contacts: Dictionary = game.contacts.duplicate(true)
 	var satisfied_before := _ordinary_satisfied_count(game.contacts)
@@ -1015,9 +1018,23 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 	var followup_next: Button = followup_surface.get("_next")
 	if not _check(followup_next.is_visible_in_tree() and not followup_next.disabled,
 		"durably witnessed followup remains visible with a fresh Next command"): return false
-	if not await _ordinary_accept_focused(followup_next, "Day 7 followup Next"): return false
+	var auto_started_msec := Time.get_ticks_msec()
+	var enabled_auto: Dictionary = profile.set_preferences({
+		&"preferences.reading.auto_enabled": true,
+		&"preferences.reading.auto_delay": "short",
+	})
+	if not _check(enabled_auto.get("ok", false),
+		"committed Reading preferences enable Day 7 Auto at the short cadence: " + JSON.stringify(enabled_auto)): return false
+	await _frames()
+	var auto_state: Label = followup_surface.find_child("AutoReadingState", true, false) as Label
+	if not _check(is_instance_valid(auto_state) and auto_state.text == "Auto On",
+		"the production Day 7 surface projects the committed Auto On preference"): return false
+	if not _check(owner.get("_receipt") == followup_receipt and failed_writer.failures == 0,
+		"Auto does not advance the intermediate card before one eligible foreground second"): return false
 	owner = await _ordinary_wait_prelude_draw(bootstrap, &"retry")
 	if owner == null: return false
+	if not _check(Time.get_ticks_msec() - auto_started_msec >= 900,
+		"Auto advances the intermediate card only after the actual short foreground delay"): return false
 	var old_command: Dictionary = owner.get("_command").duplicate(true)
 	var old_receipt: Dictionary = owner.get("_receipt").duplicate(true)
 	var old_surface: CanvasLayer = owner.get("_surface")
@@ -1073,15 +1090,27 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 	var stale: Dictionary = game.commit_ordinary_echo(old_command, old_receipt)
 	if not _check(not stale.get("ok", false) and game.contacts == accepted_contacts,
 		"old view cannot acknowledge after Load or mutate the accepted receipt"): return false
-	await _frames()
+	var final_auto_hold_until := Time.get_ticks_msec() + 1250
+	while Time.get_ticks_msec() < final_auto_hold_until:
+		await process_frame
+	var restored_auto_state: Label = surface.find_child("AutoReadingState", true, false) as Label
 	if not _check(is_instance_valid(bootstrap.get("_day7_prelude_owner"))
 		and bootstrap.get("_day7_prelude_owner").get_instance_id() == owner.get_instance_id()
-		and bool(surface.call("is_card_acknowledged", receipt)),
-		"accepted echo stays visible until a separate fresh Next command"): return false
+		and bool(surface.call("is_card_acknowledged", receipt))
+		and is_instance_valid(restored_auto_state) and restored_auto_state.text == "Auto On",
+		"Auto remains visibly On but cannot leave the final acknowledged card or complete the route"): return false
 	if not await _capture_screen("13-day7-restored-echo"): return false
 	var next: Button = surface.get("_next")
 	if not _check(next.is_visible_in_tree() and not next.disabled, "accepted echo exposes its real Next button"): return false
 	if not await _ordinary_accept_focused(next, "restored Day 7 echo Next"): return false
+	var restored_preferences: Dictionary = profile.set_preferences({
+		&"preferences.reading.auto_enabled": original_auto_enabled,
+		&"preferences.reading.auto_delay": original_auto_delay,
+	})
+	if not _check(restored_preferences.get("ok", false)
+		and profile.get_preference(&"preferences.reading.auto_enabled") == original_auto_enabled
+		and profile.get_preference(&"preferences.reading.auto_delay") == original_auto_delay,
+		"the native Auto journey restores the original committed Reading preferences"): return false
 	for frame: int in 180:
 		await process_frame
 		if not is_instance_valid(bootstrap.get("_day7_prelude_owner")): break
@@ -1093,7 +1122,7 @@ func _ordinary_day7_prelude_journey(game: Node) -> bool:
 		"prelude adds no message duplicates and never advances the day"): return false
 	await _frames()
 	if not _check(not is_instance_valid(bootstrap.get("_day7_prelude_owner")), "finished prelude retires its surface"): return false
-	print("PLAYABLE_ORDINARY_ECHO_PASS: real A reply -> witnessed Day 6 followup -> guarded failed echo save -> Autosave Load -> witnessed echo -> fresh Next -> playable Day 7")
+	print("PLAYABLE_ORDINARY_ECHO_PASS: real A reply -> witnessed Day 6 followup -> short foreground Auto -> guarded failed echo save -> Autosave Load -> final Auto hold -> fresh Next -> playable Day 7")
 	return true
 
 
@@ -1211,7 +1240,9 @@ func _ordinary_pause_load_autosave(game: Node, owner: Node,
 			+ JSON.stringify({"backup": backup.last_result, "pause": controller.last_result}))
 
 func _ordinary_wait_prelude_draw(bootstrap: Node, expected_state: StringName) -> Node:
-	for frame: int in 180:
+	# Auto includes real elapsed reading time, independent of display refresh rate.
+	var deadline_msec := Time.get_ticks_msec() + 5000
+	while Time.get_ticks_msec() < deadline_msec:
 		await process_frame
 		var owner: Variant = bootstrap.get("_day7_prelude_owner")
 		if not is_instance_valid(owner): continue
