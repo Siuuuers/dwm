@@ -1,0 +1,7 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+PLAYABLE_STARTUP_FAIL: startup {"completed_stages":[],"failed_stage":null,"fatal_result":{},"gate_injection":{"factory_invocation_count":0,"gate_instance_id":0,"target_instance_ids":[],"targets":[]},"mode":"test_manual","planned_blockers":[],"ready":false,"started":true}
