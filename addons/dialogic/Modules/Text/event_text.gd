@@ -178,7 +178,9 @@ func _execute() -> void:
 			reveal_next_segment = true
 
 		# Handling potential Choice Events.
-		if section_idx == len(split_text)-1 and dialogic.has_subsystem('Choices') and dialogic.Choices.is_question(dialogic.current_event_idx):
+		if section_idx == len(split_text)-1 and dialogic.has_subsystem('Choices') \
+			and dialogic.Choices.is_question(dialogic.current_event_idx) \
+			and not dialogic.get_meta(&"dwm_boundary_safe_skip_reveal", false):
 			dialogic.Text.show_next_indicators(true)
 
 			finish()

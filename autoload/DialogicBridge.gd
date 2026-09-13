@@ -129,8 +129,15 @@ func bind_profile_preferences(profile: Node, preference_adapter: RefCounted = nu
 	var prepared: Dictionary = _preference_adapter.call(&"prepare", profile.call(&"get_profile_snapshot"))
 	if not prepared.get("ok", false):
 		return prepared
+	var previous_skip_profile: Object = _skip_profile
+	var previous_skip_mode := _skip_mode
+	var skip_context := configure_skip_context(profile, prepared["value"]["skip_mode"])
+	if not skip_context.get("ok", false):
+		return skip_context
 	var applied: Dictionary = _preference_adapter.call(&"apply_silent", prepared["value"])
 	if not applied.get("ok", false):
+		_skip_profile = previous_skip_profile
+		_skip_mode = previous_skip_mode
 		return applied
 	_profile = profile
 	_cached_preference_plan = (prepared["value"] as Dictionary).duplicate(true)
@@ -159,6 +166,7 @@ func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
 	if not applied.get("ok", false):
 		return applied
 	_cached_preference_plan = (prepared["value"] as Dictionary).duplicate(true)
+	set_skip_mode(_cached_preference_plan["skip_mode"])
 	return {"ok": true, "code": &"ok", "value": _cached_preference_plan.duplicate(true), "receipt": {}}
 
 
@@ -885,12 +893,28 @@ const _SKIP_POLICY := preload("res://scripts/narrative/SkipPolicy.gd")
 
 var _skip_profile: Object = null
 var _skip_mode: StringName = _SKIP_POLICY.READ_ONLY
+var _skip_step_in_progress := false
+static var _skip_line_owners: Dictionary = {}
 
 
 ## Binds the ProfileManager that owns global visited history, plus the active skip mode.
 func configure_skip_context(profile: Object, mode: StringName) -> Dictionary:
 	if profile == null or not profile.has_method("is_line_visited") or not profile.has_method("mark_line_visited"):
 		return _command_failure(&"invalid_visited_history_provider")
+	if _skip_line_owners.is_empty():
+		var entries := _ensure_entry_document()
+		if not entries.get("ok", false): return entries
+		var ids := _ENTRY_MANIFEST.load_ids_default()
+		if not ids.get("ok", false): return ids
+		var checked := _ENTRY_MANIFEST.validate_ids_document(ids.value)
+		if not checked.get("ok", false): return checked
+		var owners := {}
+		for line: Dictionary in ids.value.reply_lines:
+			owners[line.line_id] = line.owning_entry_id
+		for entry: Dictionary in entries.value.entries:
+			for atom: Dictionary in entry.get("observer_atoms", []):
+				owners[atom.line_id] = entry.entry_id
+		_skip_line_owners = owners
 	_skip_profile = profile
 	_skip_mode = mode
 	return {"ok": true, "code": &"ok",
@@ -905,6 +929,15 @@ func set_skip_mode(mode: StringName) -> Dictionary:
 ## One held-skip step, in the exact frozen order: read the PRE-reveal visited state, reveal, mark
 ## visited, classify the next event WITHOUT consuming it, evaluate, advance only when allowed.
 func request_skip_step() -> Dictionary:
+	if _skip_step_in_progress:
+		return _command_failure(&"skip_step_in_progress")
+	_skip_step_in_progress = true
+	var result := _perform_skip_step()
+	_skip_step_in_progress = false
+	return result
+
+
+func _perform_skip_step() -> Dictionary:
 	if not _reached_replay.is_empty(): return _command_failure(&"rehearsal_commit_denied")
 	if not _pause_handle.is_empty():
 		return _command_failure(&"narrative_suspended")
@@ -913,15 +946,26 @@ func request_skip_step() -> Dictionary:
 	var line_id: String = str(_runtime_adapter.current_line_id())
 	if line_id.is_empty():
 		return _command_failure(&"no_current_line")
+	if not _skip_line_owners.has(line_id):
+		return _command_failure(&"unregistered_line_id")
+	if _active_entry.is_empty() or _skip_line_owners[line_id] != _active_entry.get("entry_id"):
+		return _command_failure(&"line_not_owned_by_current_entry")
 	# Read BEFORE marking: otherwise read_only would treat every line as already seen.
 	var was_visited_before_reveal: bool = _skip_profile.is_line_visited(line_id)
-	var revealed: Dictionary = _runtime_adapter.reveal_current_line()
+	var entry_token: String = str(_active_entry.get("token", ""))
+	var frontier: Dictionary = _runtime_adapter.capture_pause_frontier()
+	if not frontier.get("ok", false): return frontier
+	var revealed: Dictionary = _runtime_adapter.reveal_current_line(true)
 	if not revealed.get("ok", false):
 		return revealed
+	if not _skip_frontier_matches(frontier, entry_token):
+		return _command_failure(&"skip_frontier_changed")
 	var marked: Dictionary = _skip_profile.mark_line_visited(line_id)
 	if not marked.get("ok", false):
 		# A profile-write failure halts advancement and records no line checkpoint.
 		return marked
+	if not _skip_frontier_matches(frontier, entry_token):
+		return _command_failure(&"skip_frontier_changed")
 	var next_boundary: StringName = _runtime_adapter.classify_next_event()
 	var decision: Dictionary = _SKIP_POLICY.evaluate(_skip_mode, was_visited_before_reveal, next_boundary)
 	if bool(decision["advance"]):
@@ -933,6 +977,12 @@ func request_skip_step() -> Dictionary:
 		"was_visited_before_reveal": was_visited_before_reveal,
 		"next_boundary": next_boundary,
 	}}
+
+
+func _skip_frontier_matches(frontier: Dictionary, entry_token: String) -> bool:
+	return _pause_handle.is_empty() and not _active_entry.is_empty() \
+		and str(_active_entry.get("token", "")) == entry_token \
+		and _runtime_adapter.capture_pause_frontier() == frontier
 
 
 func provide_transaction_narrative_checkpoint(transaction_id: String, source_id: String, checkpoint_kind: StringName) -> Dictionary:

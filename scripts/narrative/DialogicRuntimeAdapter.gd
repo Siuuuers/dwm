@@ -228,7 +228,7 @@ func set_paused(value: bool) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"paused": value}}
 
 
-func reveal_current_line() -> Dictionary:
+func reveal_current_line(preserve_next_boundary: bool = false) -> Dictionary:
 	if not _bound:
 		return _fail(&"runtime_not_bound", "bind_runtime must be called first")
 	var text: Object = _dialogic.get_subsystem("Text")
@@ -236,20 +236,83 @@ func reveal_current_line() -> Dictionary:
 		return _fail(&"missing_subsystem", "Text")
 	# Literal reveal count/tween state is intentionally not restored; finish the reveal instantly.
 	if text.has_method("skip_text_reveal"):
+		if preserve_next_boundary:
+			_dialogic.set_meta(&"dwm_boundary_safe_skip_reveal", true)
 		text.skip_text_reveal()
+		if preserve_next_boundary:
+			_dialogic.remove_meta(&"dwm_boundary_safe_skip_reveal")
 	return {"ok": true, "code": &"ok", "value": {}}
 
 
+## The authored #id is a semantic identity, never a path/index/prose-derived fallback.
+## The bridge checks its registered owner before revealing or writing visited history.
+func current_line_id() -> String:
+	var event := _current_skip_text()
+	if event == null:
+		return ""
+	var parts := event.get_property_translation_key("text").split("/")
+	return parts[1] if parts.size() == 3 and parts[0] == "Text" and parts[2] == "text" else ""
+
+
+func _current_skip_text() -> DialogicTextEvent:
+	if not _bound or _activity_phase != "live" or _dialogic.current_timeline == null \
+		or _dialogic.paused or _dialogic.current_state not in [
+			DialogicGameHandler.States.IDLE, DialogicGameHandler.States.REVEALING_TEXT]:
+		return null
+	var index := int(_dialogic.current_event_idx)
+	if index < 0 or index >= _dialogic.current_timeline_events.size():
+		return null
+	var event: Resource = _dialogic.current_timeline_events[index]
+	if not event is DialogicTextEvent or not _is_single_skip_line(event):
+		return null
+	return event
+
+
+## A single text event may contain several separately revealed segments. Until those
+## have individual authored identities, skip must not mark unseen segments as read.
+func _is_single_skip_line(event: DialogicTextEvent) -> bool:
+	var prose := event.get_property_translated("text")
+	return not prose.strip_edges().is_empty() and not "[n]" in prose \
+		and not "[n+]" in prose and not ("\n" in prose \
+			and ProjectSettings.get_setting("dialogic/text/split_at_new_lines", false))
+
+
 func classify_next_event() -> StringName:
-	if not _bound or _dialogic.current_timeline == null:
-		return &"none"
-	return &"unknown"
+	if _current_skip_text() == null:
+		return &"validation_error"
+	var index := int(_dialogic.current_event_idx) + 1
+	if index >= _dialogic.current_timeline_events.size():
+		return &"scene_transition"
+	# Decode a detached copy: peeking never changes or executes the standing event.
+	var next: Resource = _dialogic.current_timeline_events[index]
+	if not next.event_node_ready:
+		var source: String = next.event_node_as_text
+		next = next.get_script().new()
+		next._load_from_string(source)
+	if next is DialogicTextEvent:
+		return &"text" if _is_single_skip_line(next) else &"validation_error"
+	if next is DialogicChoiceEvent:
+		return &"choice"
+	if next is DialogicVariableEvent:
+		return &"variable_transaction"
+	if next is DialogicEndTimelineEvent or next is DialogicReturnEvent or next is DialogicJumpEvent:
+		return &"scene_transition"
+	if next is DialogicSignalEvent and next.argument_type == DialogicSignalEvent.ArgumentTypes.DICTIONARY:
+		var payload: Variant = JSON.parse_string(str(next.argument))
+		if payload is Dictionary and payload.get("kind") in [
+			"effect_transaction", "variable_transaction", "safe_marker", "scene_transition", "minesweeper_entry"]:
+			return StringName(payload.kind)
+	return &"validation_error"
 
 
 func advance_one_event() -> Dictionary:
 	if not _bound:
 		return _fail(&"runtime_not_bound", "bind_runtime must be called first")
-	_dialogic.handle_next_event()
+	var current := _current_skip_text()
+	if current == null or current.state != DialogicTextEvent.States.DONE:
+		return _fail(&"no_current_line", "the revealed text frontier is no longer active")
+	# Complete the real text coroutine, including its signal cleanup.
+	current.advance.emit()
 	return {"ok": true, "code": &"ok", "value": {"current_event_idx": int(_dialogic.current_event_idx)}}
 
 

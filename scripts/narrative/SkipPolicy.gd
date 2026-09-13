@@ -29,7 +29,9 @@ static func evaluate(
 	var normalized := mode
 	if normalized not in [READ_ONLY, ALL_TEXT]:
 		normalized = READ_ONLY
-	var stop_before := next_boundary in STOP_BOUNDARIES
+	# Only known text may be consumed. Unknown/new event types and timeline end
+	# cannot silently become skippable when the addon or authored content changes.
+	var stop_before := next_boundary != &"text"
 	var may_advance := not stop_before
 	if normalized == READ_ONLY and not was_visited_before_reveal:
 		may_advance = false
