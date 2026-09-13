@@ -1,0 +1,114 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/682a0889-8acd-48b3-a930-7aa75319e969/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_contacts_ordinary_reply_ui.gd
+* test_selected_outgoing_draw_commits_once_and_save_failure_keeps_exact_choice_for_retry
+ORDINARY_REPLY_FAILURE: {"code":"write_failed","phase":"commit"}
+    24 Orphans
+        * [@Control@76:<Control#233639512218>]
+        * [@Label@56:<Label#232817428958>]
+        * [@ScrollContainer@59:<ScrollContainer#232850983404>] + 16
+* test_changing_thread_or_hiding_cancels_only_the_unsaved_choice_and_stale_draw_does_not_send
+    52 Orphans
+        * [@Control@142:<Control#239578646661>]
+        * [@Label@160:<Label#241457694866>]
+        * [@Label@137:<Label#239310211494>]
+        * [@ScrollContainer@163:<ScrollContainer#241491249583>] + 12
+        * [@Control@170:<Control#241910680011>]
+        * [@ScrollContainer@140:<ScrollContainer#239343765972>] + 1
+        * [@Label@143:<Label#240484616727>]
+        * [@ScrollContainer@146:<ScrollContainer#240518171161>] + 15
+        * [@Control@153:<Control#240937601590>]
+* test_locale_refresh_keeps_the_frozen_line_and_does_not_treat_choice_buttons_as_history
+* test_outgoing_text_is_not_covered_by_a_container_stretched_decoration
+* test_prepare_failure_remains_diagnosable_after_successful_thread_refresh
+ORDINARY_REPLY_FAILURE: {"code":"ordinary_registry_unavailable","phase":"prepare"}
+    23 Orphans
+        * [@Label@319:<Label#256422971914>]
+        * [@Control@329:<Control#256875956919>]
+        * [@ScrollContainer@322:<ScrollContainer#256456526521>] + 15
+23 orphans
+5/5 passed.
+
+
+res://tests/unit/test_ordinary_reply_command_port.gd
+* test_exact_draw_ack_save_failure_retry_and_duplicate_callback
+* test_leaving_cancels_only_exact_unsaved_preview_and_old_cleanup_cannot_cancel_replacement
+* test_load_or_day_change_discards_old_pending_command_and_detached_preview_cannot_mutate_custody
+* test_projection_is_read_only_until_ack_then_shows_exact_three_rows_and_no_choices
+4/4 passed.
+
+
+res://tests/unit/test_ordinary_reply_echo_state.gd
+* test_all_six_days_offer_three_registered_neutral_choices_without_query_side_effects
+* test_day_end_retains_one_invisible_ordinary_expiry_without_message_or_sequence_changes
+* test_one_witness_owns_three_history_rows_and_exact_retry_does_not_duplicate
+* test_all_day_end_expiries_preserve_replied_exchanges_and_day7_silence
+* test_expiry_reclose_and_json_restore_retain_one_record_and_accept_legacy_closure
+* test_expiry_rejects_wrong_binding_extra_text_duplicate_and_replied_source
+* test_registered_line_full_literal_and_actual_issued_root_are_required
+* test_echoes_drain_oldest_first_only_from_exact_registered_actual_presentation_and_retry
+* test_saved_tampering_or_orphan_history_is_refused_without_legacy_schema_expansion
+* test_snapshots_escape_markup_normalize_newlines_and_limit_utf8_bytes
+* test_normal_save_json_numeric_normalization_preserves_exact_receipts_history_and_pending
+11/11 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_contacts_ordinary_reply_ui.gd
+    - Outside Tests
+        * [<Node#131801810712>(subsystem_animation.gd)]
+        * [<Node#131818587940>(subsystem_audio.gd)]
+        * [<Node#131835365170>]
+        * [<Node#131852142394>]
+        * [<Node#131868919618>(subsystem_backgrounds.gd)]
+        * [<Node#132405790531>(subsystem_choices.gd)]
+        * [<Timer#132422567748>]
+        * [<Node#132439344965>(subsystem_expression.gd)]
+        * [<Node#132472899402>(subsystem_glossary.gd)]
+        * [<Node#132489676619>(subsystem_history.gd)]
+        * [<Node#132506453836>(subsystem_input.gd)]
+        * [<Timer#132523231053>]
+        * [<Node#132540008270>(subsystem_jump.gd)]
+        * [<Node#132556785487>(subsystem_containers.gd)]
+        * [<Node#132573562704>(subsystem_portraits.gd)]
+        * [<Node#133110433617>(subsystem_save.gd)]
+        * [<Timer#133127210834>]
+        * [<Node#133143988051>(subsystem_settings.gd)]
+        * [<Node#133160765271>(subsystem_styles.gd)]
+        * [<Node#133177542488>(subsystem_text.gd)]
+        * [<Node#133261428573>(subsystem_text_input.gd)]
+        * [<Node#133278205790>(subsystem_variables.gd)]
+        * [<Node#133294983007>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133311760224>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                20
+Passing Tests        20
+Asserts             374
+Orphans              24
+Time              1.18s
+
+
+---- All tests passed! ----
+

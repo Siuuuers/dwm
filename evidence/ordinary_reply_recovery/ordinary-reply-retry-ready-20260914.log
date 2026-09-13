@@ -1,0 +1,11 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c21f7cf6-295c-4b1f-8227-cdd6676d92f5/appdata/Godot/app_userdata/DWM/evidence/playable/reply-01-lavinia-before-click.png
+ORDINARY_REPLY_FAILURE: {"code":"write_not_committed","phase":"commit"}
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c21f7cf6-295c-4b1f-8227-cdd6676d92f5/appdata/Godot/app_userdata/DWM/evidence/playable/reply-03-save-failure-retained.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c21f7cf6-295c-4b1f-8227-cdd6676d92f5/appdata/Godot/app_userdata/DWM/evidence/playable/reply-04-retry-saved.png
+ORDINARY_REPLY_RETRY_PROOF_PASS: real marker write failure -> exact rollback -> native Retry once -> durable reply; seed=C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c21f7cf6-295c-4b1f-8227-cdd6676d92f5/appdata/Godot/app_userdata/DWM
