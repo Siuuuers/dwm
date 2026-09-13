@@ -3,8 +3,10 @@ extends "res://tests/unit/test_shop_catalog_projection.gd"
 const SHOP := preload("res://scenes/apps/ShopApp.tscn")
 const COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
 const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 
-func _fixture(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours") -> Dictionary:
+func _fixture(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
+		day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> Dictionary:
 	var root := Control.new()
 	root.size = Vector2(1280, 720)
 	add_child_autofree(root)
@@ -18,10 +20,45 @@ func _fixture(locale: String = "en", percent: int = 100, large: bool = false, pa
 	var rows := _valid_rows()
 	for row: Dictionary in rows: row.name = COPY.item_name(locale, row.id)
 	shop.configure_host(home)
-	var result: Dictionary = shop.configure_shop(rows, locale, percent, large, palette)
+	var result: Dictionary = shop.configure_shop(rows, locale, percent, large, palette, day, high_contrast, colour_preset)
 	assert_true(result.ok)
 	root.add_child(shop)
 	return {"root": root, "shop": shop, "rows": rows, "home": home}
+
+func test_week_tint_and_accessibility_reach_plate_cards_without_filtering_specimen_art() -> void:
+	for palette: StringName in [&"after_hours", &"midnight"]:
+		for high_contrast: bool in [false, true]:
+			for preset: String in ["standard", "protan", "deutan", "tritan"]:
+				var warm: Dictionary = SHOP_THEME.resolve(palette, 1, high_contrast, preset)
+				assert_false(warm.is_empty(), "%s %s %s" % [palette, high_contrast, preset])
+				for day: int in range(1, 8):
+					var roles: Dictionary = SHOP_THEME.resolve(palette, day, high_contrast, preset)
+					assert_eq(roles.size(), warm.size())
+					for protected: String in ["primary_ink", "primary_dark_copy", "paper_focus_inner", "dark_focus_inner", "selected_plane"]:
+						assert_eq(roles[protected], warm[protected], "%s %s Day %s %s" % [palette, preset, day, protected])
+					if high_contrast:
+						assert_eq(roles, warm, "High Contrast has zero tint on Day %s" % day)
+					if day == 7 and not high_contrast:
+						assert_ne(roles.habitat, warm.habitat)
+	var f := _fixture("en", 100, false, &"midnight", 7, false, "protan")
+	await _settle()
+	var expected: Dictionary = SHOP_THEME.resolve(&"midnight", 7, false, "protan")
+	for role: String in expected:
+		assert_eq(f.shop.theme.get_color(role, "Shop"), expected[role], role)
+	assert_eq(f.shop.cards.size(), 17)
+	assert_eq(f.shop.page_count, 2)
+	assert_true(f.shop._records[8].blank)
+	assert_false(f.shop.cards.has("supportz"))
+	for card: Button in f.shop.cards.values():
+		assert_eq(card.get("_roles"), expected)
+	assert_same(f.shop.cards.coffee.get("_art"), f.rows[0].card_art,
+		"The specimen texture remains the source texture.")
+	assert_same(f.shop._art.texture, f.rows[0].inspector_art)
+	assert_eq(f.shop._art.modulate, Color.WHITE)
+	assert_eq(f.shop._art.self_modulate, Color.WHITE)
+	assert_eq(f.shop.cards.coffee.modulate, Color.WHITE)
+	assert_eq(f.shop.cards.coffee.self_modulate, Color.WHITE)
+	assert_eq(WEEK_TINT.tint_for_day(1), 0.0)
 
 func test_both_standard_palettes_publish_exact_roles_to_plate_and_all_cards() -> void:
 	for palette: StringName in [&"after_hours", &"midnight"]:
@@ -74,6 +111,28 @@ func test_invalid_palette_preserves_the_mounted_snapshot_and_presentation() -> v
 	assert_eq(shop.get("_palette"), &"midnight")
 	assert_eq(shop.selected_id, "wine")
 	assert_true(shop.cards.wine.visible)
+
+func test_invalid_day_or_accessibility_preset_preserves_mounted_shop() -> void:
+	var f := _fixture("en", 100, false, &"midnight", 5, false, "deutan")
+	await _settle()
+	f.shop.cards.wine.pressed.emit()
+	f.shop.cards.wine.grab_focus()
+	var old_card: Button = f.shop.cards.wine
+	var old_theme: Theme = f.shop.theme
+	var old_records: Array = f.shop._records.duplicate(true)
+	for invalid: Dictionary in [
+		{"day": 0, "preset": "deutan"},
+		{"day": 8, "preset": "deutan"},
+		{"day": 5, "preset": "unlisted"},
+	]:
+		var result: Dictionary = f.shop.configure_shop(f.rows, "en", 100, false, &"midnight",
+			invalid.day, false, invalid.preset)
+		assert_false(result.ok)
+		assert_same(f.shop.theme, old_theme)
+		assert_same(f.shop.cards.wine, old_card)
+		assert_eq(f.shop._records, old_records)
+		assert_eq(f.shop.selected_id, "wine")
+		assert_true(old_card.has_focus())
 
 func _settle() -> void:
 	for frame in 5: await get_tree().process_frame

@@ -1,0 +1,215 @@
+extends SceneTree
+## Three isolated native 800x720 captures. Day and warning activation are fixture-injected;
+## this probe does not perform a player save/load gesture.
+
+const SHARED := preload("res://tests/manual/verify_schedule_desktop_native.gd")
+const LOCALE := preload("res://tests/manual/verify_quick_status_native.gd")
+const WARNING := preload("res://scripts/application/schedule/ScheduleWarningPresentationPort.gd")
+const PALETTE := preload("res://scripts/ui/schedule/ScheduleTheme.gd")
+const TEMP := preload("res://tests/support/TemporaryStorage.gd")
+
+class AccessibilityPreferences extends SHARED.Preferences:
+	var high_contrast := false
+	var colour_preset := "standard"
+	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
+		if path == &"preferences.accessibility.high_contrast": return high_contrast
+		if path == &"preferences.accessibility.colour_differentiation": return colour_preset
+		return super.get_preference(path, fallback)
+	func present_accessibility(high: bool, preset: String) -> void:
+		high_contrast = high
+		colour_preset = preset
+		preference_changed.emit(&"preferences.accessibility.colour_differentiation",preset)
+		preference_changed.emit(&"preferences.accessibility.high_contrast",high)
+
+class InertWarningCommands extends RefCounted:
+	var calls := 0
+	func resolve_warning(_activation_id: String, _intent: StringName) -> Dictionary:
+		calls += 1
+		return {"ok":false,"code":&"probe_command_unavailable"}
+
+var _failures: Array[String] = []
+var _checks := 0
+var _samples: Array[Dictionary] = []
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+func _check(ok: bool, label: String) -> bool:
+	_checks += 1
+	if not ok: _failures.append(label)
+	return ok
+
+func _run() -> void:
+	var root_result: Dictionary = TEMP.create("schedule_week_tint_native")
+	if not _check(root_result.get("ok",false),"isolated DWM_TEST_ROOT available"):
+		printerr("SCHEDULE_WEEK_TINT_NATIVE_FAILED ",root_result)
+		quit(1)
+		return
+	var folder: String = root_result.value
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(800,720)
+	viewport.handle_input_locally = true
+	viewport.gui_disable_input = false
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
+	var profile := AccessibilityPreferences.new()
+	var locale := LOCALE.CatalogLocale.new()
+	viewport.add_child(profile)
+	viewport.add_child(locale)
+	_check(locale.present("en"),"catalog locale")
+	var host := SHARED.HOST.new()
+	host.reset(1)
+	var loaded: Dictionary = SHARED.REGISTRY.load_current()
+	if not _check(loaded.get("ok",false),"shipped action registry"):
+		await _finish(viewport,folder)
+		return
+	var draft := SHARED.VIEW.new()
+	_check(draft.configure(loaded.value.registry,SHARED.RULES,loaded.value.registry_fingerprint).ok,"real draft owner")
+	_check(draft.open_day(1,"week-tint-native-day-1").ok,"Day 1 draft")
+	var issuer := SHARED.ISSUER.new()
+	_check(issuer.configure(SHARED.ROOT_STORE.new("73".repeat(32),23)).ok,"isolated identity issuer")
+	_check(draft.configure_warning_identity(issuer).ok,"warning identity")
+	var names := {"training":{"en":"Training","zh-CN":"训练","zh-HK":"訓練"},
+		"working":{"en":"Working","zh-CN":"工作","zh-HK":"工作"},
+		"rest":{"en":"Rest","zh-CN":"休息","zh-HK":"休息"}}
+	var source := SHARED.DraftSource.new()
+	source.day = 1
+	var port := SHARED.PORT.new()
+	_check(port.configure(source,draft,loaded.value.registry,loaded.value.registry_fingerprint,issuer,names).ok,"real Schedule projection")
+	var copy := {}
+	for kind: String in ["unread_invitation","accepted_date","base_minesweeper"]:
+		copy[kind] = {}
+		for language: String in ["en","zh-CN","zh-HK"]:
+			copy[kind][language] = {"title":"Fixture notice","body":"Fixture body. ".repeat(35),
+				"close":"Close","go":"Go","failed_go":"Fixture route could not open."}
+	var warning := WARNING.new()
+	_check(warning.configure(draft,copy).ok,"real warning projection")
+	var commands := InertWarningCommands.new()
+	var desktop: Control = SHARED.DESKTOP.instantiate()
+	desktop.set_script(SHARED.DesktopFixture)
+	viewport.add_child(desktop)
+	_check(desktop.configure_schedule(port,locale,profile,host,1,Callable(),warning,commands).ok,"Day 1 desktop owners")
+	_populate(port)
+	var opened: Dictionary = desktop.open_app(&"schedule")
+	if not _check(opened.get("ok",false),"Day 1 Schedule opens"):
+		await _finish(viewport,folder)
+		return
+	var app: Control = opened.value.app
+	var before: Dictionary = draft.snapshot().duplicate(true)
+	await _capture(viewport,folder,"day1-standard.png",app,draft,before,1,false,"standard")
+	_check(desktop.return_home().ok,"Day 1 Home")
+	host.reset(7)
+	source.day = 7
+	_check(draft.open_day(7,"week-tint-native-day-7").ok,"Day 7 draft")
+	_check(desktop.dispatch_desktop_eviction({"kind":&"evict_cached_apps","day":7}).ok,"real day eviction")
+	opened = desktop.open_app(&"schedule")
+	if not _check(opened.get("ok",false),"Day 7 Schedule reopens"):
+		await _finish(viewport,folder)
+		return
+	app = opened.value.app
+	before = draft.snapshot().duplicate(true)
+	await _capture(viewport,folder,"day7-standard.png",app,draft,before,7,false,"standard")
+	_check(desktop.return_home().ok,"Day 7 Home")
+	host.reset(3)
+	source.day = 3
+	_check(draft.open_day(3,"week-tint-native-day-3").ok,"Day 3 draft")
+	_populate(port)
+	_check(desktop.dispatch_desktop_eviction({"kind":&"evict_cached_apps","day":3}).ok,"Day 3 fixture injection")
+	opened = desktop.open_app(&"schedule")
+	if not _check(opened.get("ok",false),"Day 3 Schedule opens"):
+		await _finish(viewport,folder)
+		return
+	app = opened.value.app
+	var issued: Dictionary = issuer.issue(&"transaction_id")
+	_check(issued.get("ok",false),"warning activation identity")
+	var activated: Dictionary = draft.request_warning_activation(issued.value.token,issued.value.issuer_receipt,{
+		"run_id":"run-fixture","branch_id":"branch-fixture","desktop_timeline_generation":0,
+		"causal_day_instance":"week-tint-native-day-3","eligible_unread_date_message_ids":["fixture-message"],
+		"accepted_unscheduled_date_ids":[],"board_identity":null,"board_phase":"NONE",
+		"base_round_ordinal":1,"base_opportunity_remaining":false,
+		"unfinished_base_board":false,"motivation":1,
+	})
+	if not _check(activated.get("ok",false) and activated.value.warning != null,
+			"real Day 3 pending warning: "+str(activated)):
+		await _finish(viewport,folder)
+		return
+	_check(app.refresh_view().ok,"mounted warning projection")
+	for frame in 3: await process_frame
+	_check(is_instance_valid(app.warning_sheet),"warning owns foreground")
+	if not is_instance_valid(app.warning_sheet):
+		await _finish(viewport,folder)
+		return
+	app.warning_sheet.go_button.grab_focus()
+	var activation: String = app.warning_sheet.activation_id
+	before = draft.snapshot().duplicate(true)
+	profile.present_accessibility(true,"deutan")
+	await _capture(viewport,folder,"day3-high-deutan-warning.png",app,draft,before,3,true,"deutan",true)
+	_check(app.warning_sheet.activation_id == activation,"warning activation retained")
+	_check(commands.calls == 0,"paint does not issue warning commands")
+	await _finish(viewport,folder)
+
+func _populate(port: Object) -> void:
+	for id: String in ["training","working","rest"]:
+		var projected: Dictionary = port.project("en")
+		if not _check(projected.get("ok",false),"source projection before "+id): return
+		_check(port.append(id,projected.value.fingerprint,"en").ok,"real fixture append "+id)
+
+func _capture(viewport: SubViewport, folder: String, filename: String, app: Control,
+		draft: Object, before: Dictionary, day: int, high: bool, preset: String,
+		modal: bool = false) -> void:
+	var selected := ""
+	if not modal:
+		for frame in 3: await process_frame
+		if app._projection.entries.is_empty():
+			app.panel.focus_target("home")
+		else:
+			selected = str(app._projection.entries[1].id)
+			app.panel.focus_target("entry:"+selected)
+	for frame in 4: await RenderingServer.frame_post_draw
+	var expected: Theme = PALETTE.build(&"after_hours",day,high,preset)
+	_check(app._day == day,"installed Schedule day "+filename)
+	_check(app.panel.theme.get_color(&"habitat",&"Schedule") == expected.get_color(&"habitat",&"Schedule"),"theme habitat "+filename)
+	_check((app.panel.get_child(0) as ColorRect).color == expected.get_color(&"habitat",&"Schedule"),"painted panel habitat "+filename)
+	var image: Image = viewport.get_texture().get_image()
+	_check(image != null and image.get_size() == Vector2i(800,720),"full-resolution native image "+filename)
+	var native_habitat := ""
+	var expected_habitat := expected.get_color(&"habitat",&"Schedule").to_html(true)
+	if image != null and not image.is_empty():
+		var habitat_pixel: Color = image.get_pixel(8,72)
+		native_habitat = habitat_pixel.to_html(true)
+		_check(_within_native_byte(habitat_pixel,expected.get_color(&"habitat",&"Schedule")),
+			"native habitat pixel %s actual=%s expected=%s" % [filename,native_habitat,expected_habitat])
+		if modal:
+			_check(app.warning_sheet.theme.get_color(&"paper",&"Schedule") == expected.get_color(&"paper",&"Schedule"),"warning theme paper "+filename)
+			_check((app.warning_sheet._sheet.get_child(0) as ColorRect).color == expected.get_color(&"paper",&"Schedule"),"painted warning paper "+filename)
+			_check(image.get_pixel(125,150).to_html(false) == expected.get_color(&"paper",&"Schedule").to_html(false),"native warning paper pixel "+filename)
+			_check(app.warning_sheet.go_button.has_focus(),"warning Go focus "+filename)
+		else:
+			if selected.is_empty():
+				_check(app.panel._home.has_focus(),"empty Day 7 Home focus "+filename)
+			else:
+				_check(app.panel.entry_buttons[selected].has_focus(),"docket entry focus "+filename)
+		_check(image.save_png(folder.path_join(filename)) == OK,"capture saved "+filename)
+	_check(draft.snapshot() == before,"paint preserves draft and receipt facts "+filename)
+	_samples.append({"file":filename,"day":day,"high_contrast":high,"colour_preset":preset,
+		"modal":modal,"size":[800,720],"draft_unchanged":draft.snapshot()==before,
+		"native_habitat_rgba":native_habitat,"expected_habitat_rgba":expected_habitat})
+
+func _within_native_byte(actual: Color, expected: Color) -> bool:
+	var limit := 1.0 / 255.0 + 0.00001
+	return absf(actual.r-expected.r) <= limit and absf(actual.g-expected.g) <= limit \
+		and absf(actual.b-expected.b) <= limit and absf(actual.a-expected.a) <= limit
+
+func _finish(viewport: SubViewport, folder: String) -> void:
+	var report := {"ok":_failures.is_empty(),"checks":_checks,"captures":_samples.size(),
+		"samples":_samples,"failures":_failures,
+		"fixture":"Real Schedule draft/presentation/host owners; fixture-injected Day 1/7 and pending warning. No player save/load gesture."}
+	var output := FileAccess.open(folder.path_join("measurements.json"),FileAccess.WRITE)
+	if output != null:
+		output.store_string(JSON.stringify(report,"\t"))
+		output.close()
+	for failure in _failures: printerr(failure)
+	print("SCHEDULE_WEEK_TINT_NATIVE_VERIFIED captures=",_samples.size()," checks=",_checks," folder=",folder) if _failures.is_empty() else printerr("SCHEDULE_WEEK_TINT_NATIVE_FAILED folder=",folder)
+	viewport.queue_free()
+	await process_frame
+	quit(0 if _failures.is_empty() else 1)

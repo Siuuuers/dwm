@@ -5,12 +5,8 @@ extends RefCounted
 ## interface copy, not canonical story dialogue; it covers only the fixed message identities the
 ## current Contacts state machine can emit.
 
-const _SOLO_DAYS := {
-	"priscilla": [1, 2, 4, 6, 7],
-	"lavinia": [2, 3, 5, 6, 7],
-	"sylvia": [1, 3, 4, 5, 7],
-}
-const _GROUP_DAYS := [2, 6]
+const _CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
+const _CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const _GROUP_FRIENDS := ["priscilla", "lavinia"]
 const _COPY := {
 	"hospital_explanation": {"en": "I was in hospital yesterday. That's why I couldn't make it.", "zh-CN": "\u6211\u6628\u5929\u4f4f\u9662\u4e86\uff0c\u6240\u4ee5\u6ca1\u80fd\u8d74\u7ea6\u3002", "zh-HK": "\u6211\u6628\u5929\u4f4f\u9662\u4e86\uff0c\u6240\u4ee5\u6c92\u80fd\u8d74\u7d04\u3002"},
@@ -52,15 +48,18 @@ const _COPY := {
 
 static func build() -> Dictionary:
 	var catalog: Dictionary = {}
-	for friend: String in _SOLO_DAYS:
-		for day_value: Variant in _SOLO_DAYS[friend]:
+	for friend: String in _CONTACT_STATE.FRIEND_IDS:
+		var invitation_days: Array[int] = _CALENDAR.solo_days_for(friend)
+		if friend in _CALENDAR.contact_round_order(7):
+			invitation_days.append(7)
+		for day_value: Variant in invitation_days:
 			var day := int(day_value)
 			_put(catalog, "solo:%s:day%d" % [friend, day], "solo_offer")
 			if day < 7:
 				_put(catalog, "nevermind:%s:day%d" % [friend, day + 1], "nevermind")
 				_put(catalog, "missed_question:%s:day%d" % [friend, day + 1],
 					"missed_question")
-	for day_value: Variant in _GROUP_DAYS:
+	for day_value: Variant in _CALENDAR.group_days():
 		var day := int(day_value)
 		for friend: String in _GROUP_FRIENDS:
 			_put(catalog, "group_offer:priscilla_lavinia:day%d:%s" % [day, friend],
@@ -68,13 +67,13 @@ static func build() -> Dictionary:
 			_put(catalog, "busy:%s:day%d" % [friend, day + 1], "busy")
 			_put(catalog, "nevermind:%s:day%d" % [friend, day + 1], "nevermind")
 			_put(catalog, "judge:%s:day%d" % [friend, day + 1], "judge")
-	for care_day: int in [2, 4, 5, 6]:
+	for source_day: int in _CALENDAR.solo_days_for("sylvia"):
+		var care_day := source_day + 1
 		_put(catalog, "care.sylvia.day%d" % care_day, "hospital_care")
 	# Provisional reactions share the existing missed-question identity and durable
 	# Hospital miss receipt; they do not create duplicate queued messages or choices.
 	for friend: String in _GROUP_FRIENDS:
-		for source_day: int in _SOLO_DAYS[friend]:
-			if source_day == 7: continue
+		for source_day: int in _CALENDAR.solo_days_for(friend):
 			var id := "missed_question:%s:day%d" % [friend, source_day + 1]
 			catalog[id]["hospital_followup"] = {
 				"explanation": {"outgoing": true, "texts": _COPY.hospital_explanation.duplicate(true)},

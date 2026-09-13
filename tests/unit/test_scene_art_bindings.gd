@@ -92,7 +92,8 @@ func test_actual_dating_host_mounts_art_in_the_visible_overlay_behind_unchanged_
 	assert_eq(art.get_parent(), scene.challenge_overlay_host)
 	assert_true(scene.challenge_overlay_host.visible)
 	var original_board: Vector2 = scene.worksheet.custom_minimum_size
-	assert_eq(original_board, Vector2(960, 492))
+	# The board-view amendment adds a 48px zoom row below the original 492px field.
+	assert_eq(original_board, Vector2(960, 540))
 	assert_true(art.visible, "the imported fixture portrait is actually loaded")
 	assert_eq(scene._challenge_content.offset_top, art.size.y)
 	assert_gte(scene._status_label.get_parent().get_global_rect().position.y, art.get_global_rect().end.y)
@@ -109,6 +110,7 @@ func test_actual_dating_host_mounts_art_in_the_visible_overlay_behind_unchanged_
 	scene._refresh_challenge()
 	assert_false(art.visible)
 	assert_eq(scene._challenge_content.offset_top, 0.0, "no-art flow retains its original layout")
+	assert_eq(scene.worksheet.custom_minimum_size, original_board, "art removal cannot resize the worksheet")
 
 func test_ordinary_hospital_scene_shows_readable_notice_and_acknowledges_once() -> void:
 	var port := PhysicalPort.new()

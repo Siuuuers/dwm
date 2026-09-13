@@ -1,6 +1,7 @@
 extends "res://addons/gut/test.gd"
 
 const SHEET := preload("res://scripts/ui/schedule/ScheduleWarningSheet.gd")
+const SCHEDULE_THEME := preload("res://scripts/ui/schedule/ScheduleTheme.gd")
 const WELL := preload("res://scripts/ui/schedule/ScheduleScrollWell.gd")
 const COPY := {"title":"Placeholder warning","body":"Placeholder body text.","close":"Close","go":"Go"}
 
@@ -97,6 +98,40 @@ func test_duplicate_configuration_retains_theme_instance() -> void:
 	var first_theme: Theme = sheet.theme
 	assert_true(sheet.configure("en",100,false,&"after_hours"))
 	assert_same(sheet.theme,first_theme)
+
+func test_week_tint_and_accessibility_reconfigure_visible_warning_without_losing_focus() -> void:
+	var sheet: Control = _sheet()
+	assert_true(sheet.configure("en",100,false,&"midnight",6,false,"deutan"))
+	assert_true(sheet.present("activation-1",COPY))
+	await get_tree().process_frame
+	assert_eq(sheet.theme.get_color(&"paper",&"Schedule"),
+		SCHEDULE_THEME.build(&"midnight",6,false,"deutan").get_color(&"paper",&"Schedule"))
+	sheet.go_button.grab_focus()
+	var old_theme: Theme = sheet.theme
+	assert_true(sheet.configure("en",100,false,&"midnight",6,true,"deutan"))
+	assert_ne(sheet.theme,old_theme)
+	assert_true(sheet.present("activation-1",COPY))
+	await get_tree().process_frame
+	assert_true(sheet.go_button.has_focus())
+	assert_eq(sheet.theme.get_color(&"paper",&"Schedule"),
+		SCHEDULE_THEME.build(&"midnight",6,true,"deutan").get_color(&"paper",&"Schedule"))
+	assert_true(sheet.configure("en",100,false,&"midnight",6,true,"deutan"))
+	var retained: Theme = sheet.theme
+	assert_true(sheet.configure("en",100,false,&"midnight",6,true,"deutan"))
+	assert_same(sheet.theme,retained)
+
+func test_two_same_frame_rethemes_keep_go_focus_for_the_same_activation() -> void:
+	var sheet: Control = _sheet()
+	assert_true(sheet.present("activation-1",COPY))
+	await get_tree().process_frame
+	sheet.go_button.grab_focus()
+	assert_true(sheet.configure("en",100,false,&"after_hours",3,false,"deutan"))
+	assert_true(sheet.present("activation-1",COPY))
+	assert_true(sheet.configure("en",100,false,&"after_hours",3,true,"deutan"))
+	assert_true(sheet.present("activation-1",COPY))
+	await get_tree().process_frame
+	assert_true(sheet.go_button.has_focus())
+	assert_eq(sheet.activation_id,"activation-1")
 
 func test_same_activation_reflow_preserves_semantic_focus() -> void:
 	var sheet: Control = _sheet()

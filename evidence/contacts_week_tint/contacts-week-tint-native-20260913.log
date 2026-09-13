@@ -1,0 +1,20 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ORDINARY_REPLY_FAILURE: {"code":"memory_fixture_pending","phase":"commit"}
+after-hours-day1-standard authored focus border
+after-hours-day1-standard paper: 151b25 expected c3baa3 (RGB tolerance 0)
+after-hours-day7-standard authored focus border
+after-hours-day7-standard paper: 151b25 expected b5ac97 (RGB tolerance 1)
+after-hours-day7-high-contrast authored focus border
+after-hours-day7-high-contrast paper: 0b1018 expected e9e2d0 (RGB tolerance 0)
+after-hours-day7-deutan authored focus border
+after-hours-day7-deutan paper: 151b25 expected b6ac94 (RGB tolerance 1)
+midnight-day7-standard authored focus border
+midnight-day7-standard paper: 14201d expected b5ac97 (RGB tolerance 1)
+midnight-day7-pending-high-contrast authored focus border
+midnight-day7-pending-high-contrast paper: 0c1811 expected e9e2d0 (RGB tolerance 0)
+CONTACTS_WEEK_TINT_NATIVE_FAILED

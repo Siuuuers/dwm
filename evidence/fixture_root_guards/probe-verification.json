@@ -1,0 +1,266 @@
+{
+  "manifest": {
+    "ok": true,
+    "file_count": 8437,
+    "directory_count": 522,
+    "changed_files": [],
+    "directory_diff": []
+  },
+  "runs": {
+    "root-probe-valid": {
+      "scripts": 1,
+      "passing": 2,
+      "failing": 0,
+      "execute_attempt_markers": 2,
+      "markers": [
+        {
+          "mode": "valid",
+          "phase": "run",
+          "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\fixture-root-disposable-20260913\\.godot\\phase2r_tests\\adc98fbb-9fcd-4c0a-bd52-2d7c2dd88179\\dwm_test_root"
+        },
+        {
+          "mode": "valid",
+          "phase": "end_run",
+          "scripts": 0
+        },
+        {
+          "mode": "valid",
+          "ok": true,
+          "phase": "restored"
+        }
+      ]
+    },
+    "root-probe-empty-final": {
+      "scripts": 6,
+      "passing": 9,
+      "failing": 36,
+      "execute_attempt_markers": 0,
+      "markers": [
+        {
+          "mode": "empty",
+          "phase": "run",
+          "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\fixture-root-disposable-20260913\\.godot\\phase2r_tests\\34cb899a-2aa9-4003-a849-72c91b104fee\\dwm_test_root",
+          "snapshot": {
+            "directories": [
+              "."
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          }
+        },
+        {
+          "after": {
+            "directories": [
+              "."
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          },
+          "before": {
+            "directories": [
+              "."
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          },
+          "mode": "empty",
+          "ok": true,
+          "phase": "end_run"
+        },
+        {
+          "mode": "empty",
+          "ok": true,
+          "phase": "restored"
+        }
+      ]
+    },
+    "root-probe-whitespace": {
+      "scripts": 6,
+      "passing": 9,
+      "failing": 36,
+      "execute_attempt_markers": 0,
+      "markers": [
+        {
+          "mode": "whitespace",
+          "phase": "run",
+          "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\fixture-root-disposable-20260913\\.godot\\phase2r_tests\\094ac539-ac8a-4cdf-87c0-eb606afd2ab5\\dwm_test_root",
+          "snapshot": {
+            "directories": [
+              "."
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          }
+        },
+        {
+          "after": {
+            "directories": [
+              "."
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          },
+          "before": {
+            "directories": [
+              "."
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          },
+          "mode": "whitespace",
+          "ok": true,
+          "phase": "end_run"
+        },
+        {
+          "mode": "whitespace",
+          "ok": true,
+          "phase": "restored"
+        }
+      ]
+    },
+    "root-probe-stale": {
+      "scripts": 2,
+      "passing": 2,
+      "failing": 23,
+      "execute_attempt_markers": 0,
+      "markers": [
+        {
+          "mode": "stale",
+          "phase": "run",
+          "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\fixture-root-disposable-20260913\\.godot\\phase2r_tests\\421617a4-02ec-414c-b77a-c992394e6209\\dwm_test_root"
+        },
+        {
+          "mode": "stale",
+          "phase": "start_script",
+          "root_restored": true,
+          "script": 1
+        },
+        {
+          "mode": "stale",
+          "phase": "first_end_test",
+          "root_cleared": true,
+          "script": 1,
+          "snapshot": {
+            "directories": [
+              ".",
+              "25096",
+              "25096/1",
+              "25096/1/desktop-publication-desktop-ledger"
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          }
+        },
+        {
+          "after": {
+            "directories": [
+              ".",
+              "25096",
+              "25096/1",
+              "25096/1/desktop-publication-desktop-ledger"
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          },
+          "before": {
+            "directories": [
+              ".",
+              "25096",
+              "25096/1",
+              "25096/1/desktop-publication-desktop-ledger"
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          },
+          "mode": "stale",
+          "ok": true,
+          "phase": "end_script",
+          "script": 1
+        },
+        {
+          "mode": "stale",
+          "phase": "start_script",
+          "root_restored": true,
+          "script": 2
+        },
+        {
+          "mode": "stale",
+          "phase": "first_end_test",
+          "root_cleared": true,
+          "script": 2,
+          "snapshot": {
+            "directories": [
+              ".",
+              "25096",
+              "25096/1",
+              "25096/1/desktop-publication-desktop-ledger",
+              "25096/2",
+              "25096/2/schedule-publication-ledger"
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          }
+        },
+        {
+          "after": {
+            "directories": [
+              ".",
+              "25096",
+              "25096/1",
+              "25096/1/desktop-publication-desktop-ledger",
+              "25096/2",
+              "25096/2/schedule-publication-ledger"
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          },
+          "before": {
+            "directories": [
+              ".",
+              "25096",
+              "25096/1",
+              "25096/1/desktop-publication-desktop-ledger",
+              "25096/2",
+              "25096/2/schedule-publication-ledger"
+            ],
+            "errors": [],
+            "exists": true,
+            "files": {}
+          },
+          "mode": "stale",
+          "ok": true,
+          "phase": "end_script",
+          "script": 2
+        },
+        {
+          "mode": "stale",
+          "phase": "end_run",
+          "scripts": 2
+        },
+        {
+          "mode": "stale",
+          "ok": true,
+          "phase": "restored"
+        }
+      ]
+    },
+    "root-guard-normal-final": {
+      "scripts": 6,
+      "passing": 43,
+      "failing": 2,
+      "execute_attempt_markers": 2,
+      "markers": []
+    }
+  }
+}

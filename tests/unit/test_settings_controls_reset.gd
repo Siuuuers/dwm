@@ -28,6 +28,10 @@ func _fixture() -> Dictionary:
 	var profile := PROFILE.new()
 	add_child_autofree(profile)
 	assert_true(profile.initialize(storage).get("ok", false))
+	assert_true(profile.configure_line_registry({"reply_lines": [
+		{"line_id": "line.contact.ordinary.lavinia.day1.reply.a"},
+		{"line_id": "line.contact.ordinary.lavinia.day1.reply.b"},
+	]}).get("ok", false))
 	var input := INPUT.new()
 	add_child_autofree(input)
 	assert_true(input.initialize(profile).get("ok", false))

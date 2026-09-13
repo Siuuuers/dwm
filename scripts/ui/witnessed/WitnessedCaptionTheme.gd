@@ -9,9 +9,11 @@ const FONTS := {
 	"zh-HK": preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf"),
 }
 
-static func build(locale: String, text_percent: int, palette: String, high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false) -> Theme:
+static func build(locale: String, text_percent: int, palette: String,
+		high_contrast: bool = false, colour_preset: String = "standard",
+		large_targets: bool = false, day: int = 1) -> Theme:
 	locale = locale.replace("_", "-")
-	var roles := PALETTES.resolve(palette, high_contrast, colour_preset)
+	var roles := PALETTES.resolve_tinted(palette, high_contrast, colour_preset, day)
 	if locale not in FONTS or text_percent not in [100, 125, 150] \
 			or roles.is_empty():
 		return null

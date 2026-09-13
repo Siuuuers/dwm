@@ -3,6 +3,14 @@ extends SceneTree
 const LOCATORS := ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
 const Fixtures := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 
+class IsolatedDesktop extends ComputerDesktop:
+	# This scene fixture supplies every owner; it does not start a player account.
+	func _configure_from_bootstrap() -> void: pass
+
+class CapturedRun extends RefCounted:
+	func get_run_configuration() -> Dictionary:
+		return {"ok": true, "value": {"dark_mode": false}}
+
 class FakeBackupPort extends RefCounted:
 	signal projection_changed()
 	var records: Array = []
@@ -259,6 +267,8 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	port.records[0].fallback = true
 	port.records[0].load_day = 2
 	port.records[0].load_saved_time = "06:12"
+	# Publish the fixture's changed records explicitly; appearance is projection-free.
+	app.refresh_view()
 	profile.change_scale(1.5)
 	app.mode_buttons["load"].pressed.emit()
 	app.drawer_buttons["autosave"].pressed.emit()
@@ -280,6 +290,7 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	port.records[0].fallback = false
 	port.records[0].load_day = null
 	port.records[0].load_saved_time = null
+	app.refresh_view()
 	for language in ["en", "zh-CN", "zh-HK"]:
 		locale.change(language)
 		for index in range(3):
@@ -479,6 +490,11 @@ func check_title_login() -> void:
 	locale.queue_free()
 	await settle()
 
+func _bind_isolated_desktop(child: Node) -> void:
+	if child is ComputerDesktop:
+		child.set_script(IsolatedDesktop)
+		check(child.configure_run_configuration(CapturedRun.new()).get("ok", false), "Desktop admits the isolated captured run before ready")
+
 func _run() -> void:
 	root.size = Vector2i(1280, 720)
 	var app: Control = load("res://scenes/apps/BackupApp.tscn").instantiate()
@@ -496,6 +512,7 @@ func _run() -> void:
 	await settle()
 	if failures.is_empty():
 		var main: Control = load("res://scenes/main/MainGameScene.tscn").instantiate()
+		main.get_node("RootHBox/ComputerPanel").child_entered_tree.connect(_bind_isolated_desktop)
 		root.add_child(main)
 		await settle()
 		var desktop = main.find_child("ComputerDesktop", true, false)
@@ -535,6 +552,7 @@ func _run() -> void:
 		locale.queue_free()
 		await settle()
 		var restored: Control = load("res://scenes/main/MainGameScene.tscn").instantiate()
+		restored.get_node("RootHBox/ComputerPanel").child_entered_tree.connect(_bind_isolated_desktop)
 		root.add_child(restored)
 		await settle()
 		var restored_desktop = restored.find_child("ComputerDesktop", true, false)

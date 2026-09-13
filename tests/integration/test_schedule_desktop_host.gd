@@ -17,6 +17,7 @@ const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceI
 const ROOT_STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const WARNING_PORT := preload("res://scripts/application/schedule/ScheduleWarningPresentationPort.gd")
 const WARNING_COMMAND_PORT := preload("res://scripts/application/schedule/ScheduleWarningCommandPort.gd")
+const SCHEDULE_THEME := preload("res://scripts/ui/schedule/ScheduleTheme.gd")
 
 
 class IsolatedDesktop extends "res://scripts/ui/ComputerDesktop.gd":
@@ -41,6 +42,11 @@ class ContactsPort extends RefCounted:
 class ScheduleOwner extends RefCounted:
 	var contacts: Dictionary = CONTACTS.make_defaults()
 	var day := 3
+
+
+class CapturedDarkRun extends RefCounted:
+	func get_run_configuration() -> Dictionary:
+		return {"ok":true,"value":{"dark_mode":true}}
 
 
 class WarningCommands extends RefCounted:
@@ -124,6 +130,66 @@ func _open_schedule(desktop: Control) -> Control:
 		assert_eq(_host.get_state().active_app_id,&"schedule")
 		assert_false(desktop.icon_grid.visible)
 	return app
+
+
+func test_installed_day_reaches_the_mounted_schedule_theme() -> void:
+	var desktop: Control = _desktop_on_tree()
+	assert_true(_configure_schedule(desktop).ok)
+	var app: Control = _open_schedule(desktop)
+	if app == null: return
+	assert_eq(app._day,3)
+	var expected: Theme = SCHEDULE_THEME.build(&"after_hours",3)
+	for role: StringName in SCHEDULE_THEME.ROLES:
+		assert_eq(app.panel.theme.get_color(role,&"Schedule"),expected.get_color(role,&"Schedule"),role)
+	assert_ne(app.panel.theme.get_color(&"paper",&"Schedule"),Color("c3baa3"),
+		"Day 3 is visibly different from the exact Day 1 paper")
+
+
+func test_day_eviction_reopens_schedule_with_the_new_installed_day() -> void:
+	var desktop: Control = _desktop_on_tree()
+	assert_true(_configure_schedule(desktop).ok)
+	var first: Control = _open_schedule(desktop)
+	if first == null: return
+	assert_true(desktop.return_home().ok)
+	_host.reset(7)
+	_owner.day = 7
+	assert_true(_view.open_day(7,"mounted-schedule-day-7").ok)
+	assert_true(desktop.dispatch_desktop_eviction({"kind":&"evict_cached_apps","day":7}).ok)
+	assert_false(desktop._cached_app_windows.has(&"schedule"))
+	var reopened: Dictionary = desktop.open_app(&"schedule")
+	assert_true(reopened.get("ok",false),str(reopened))
+	if not reopened.get("ok",false): return
+	var app: Control = reopened.value.app
+	assert_ne(app,first)
+	assert_eq(app._day,7)
+	assert_eq(app.panel.theme.get_color(&"face",&"Schedule"),
+		SCHEDULE_THEME.build(&"after_hours",7).get_color(&"face",&"Schedule"))
+	assert_ne(app.panel.theme.get_color(&"face",&"Schedule"),
+		SCHEDULE_THEME.build(&"after_hours",3).get_color(&"face",&"Schedule"))
+
+
+func test_pre_ready_restored_schedule_uses_installed_day_and_captured_dark_palette() -> void:
+	_host.reset(6)
+	_owner.day = 6
+	assert_true(_view.open_day(6,"restored-schedule-day-6").ok)
+	assert_true(_host.open_app(&"schedule",6).ok)
+	var desktop: Control = DESKTOP.instantiate()
+	desktop.set_script(IsolatedDesktop)
+	assert_true(desktop.configure_run_configuration(CapturedDarkRun.new()).ok)
+	assert_true(desktop.configure_contacts(_contacts_port,_localization,_profile,_host,6).ok)
+	assert_true(desktop.configure_schedule(_port,_localization,_profile,_host,6).ok)
+	_viewport.add_child(desktop)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var app: Control = desktop._cached_app_windows.get(&"schedule") as Control
+	assert_not_null(app)
+	if app == null: return
+	assert_true(app.is_visible_in_tree())
+	assert_eq(app._day,6)
+	assert_eq(app._palette,&"midnight")
+	var expected: Theme = SCHEDULE_THEME.build(&"midnight",6)
+	for role: StringName in SCHEDULE_THEME.ROLES:
+		assert_eq(app.panel.theme.get_color(role,&"Schedule"),expected.get_color(role,&"Schedule"),role)
 
 
 func _warning_fixture() -> Dictionary:

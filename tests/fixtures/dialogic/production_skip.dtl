@@ -1,0 +1,45 @@
+# Dedicated native skip fixture. The #id suffixes are authored semantic IDs from dialogic_ids.json.
+# The prose is intentionally synthetic; it is never shipped as a narrative master.
+return
+
+label contact.ordinary.lavinia.day1
+First owned line for skip. #id:line.contact.ordinary.lavinia.day1.reply.a
+Second owned line for skip. #id:line.contact.ordinary.lavinia.day1.reply.b
+return
+
+label choice_boundary
+Before a native choice. #id:line.contact.ordinary.lavinia.day1.reply.c
+- Stay here
+	Choice branch remains untouched. #id:line.contact.ordinary.lavinia.day1.reply.a
+return
+
+label effect_boundary
+Before an effect signal. #id:line.contact.ordinary.lavinia.day1.reply.c
+[signal arg_type="dict" arg="{\"kind\":\"effect_transaction\",\"transaction_id\":\"skip-fixture-effect\"}"]
+return
+
+label variable_boundary
+Before a variable signal. #id:line.contact.ordinary.lavinia.day1.reply.c
+[signal arg_type="dict" arg="{\"kind\":\"variable_transaction\",\"transaction_id\":\"skip-fixture-variable\"}"]
+return
+
+label return_boundary
+Before a native return. #id:line.contact.ordinary.lavinia.day1.reply.c
+return
+
+label unknown_boundary
+Before an unclassified wait. #id:line.contact.ordinary.lavinia.day1.reply.c
+[wait time="1"]
+return
+
+label no_id
+This line deliberately has no semantic ID.
+return
+
+label unregistered
+This line declares an unregistered ID. #id:fixture.skip.unregistered
+return
+
+label cross_owner
+This line belongs to another entry. #id:line.contact.ordinary.priscilla.day3.reply.a
+return

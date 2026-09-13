@@ -1,0 +1,38 @@
+{
+	"checks": 37,
+	"failures": [],
+	"renderer": "Windows OpenGL3 800x656",
+	"samples": [
+		{
+			"checked": true,
+			"description": "Keeps launchers, panels and pointers where they were.",
+			"file": "en-100.png",
+			"focused": true,
+			"locale": "en",
+			"name": "Steady interface",
+			"scroll": 556,
+			"text_percent": 100
+		},
+		{
+			"checked": true,
+			"description": "让启动器、面板和指针保持原位。",
+			"file": "zh_CN-150.png",
+			"focused": true,
+			"locale": "zh_CN",
+			"name": "稳定界面",
+			"scroll": 865,
+			"text_percent": 150
+		},
+		{
+			"checked": true,
+			"description": "讓啟動器、面板和指標保持原位。",
+			"file": "zh_HK-150.png",
+			"focused": true,
+			"locale": "zh_HK",
+			"name": "穩定介面",
+			"scroll": 865,
+			"text_percent": 150
+		}
+	],
+	"scope": "Real SettingsContent, memory ProfileManager, injected native Enter; no physical-device or assistive-technology acceptance"
+}

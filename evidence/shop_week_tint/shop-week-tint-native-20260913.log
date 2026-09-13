@@ -1,0 +1,14 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+after-hours-day1-standard habitat: d8cfb7 expected 0b0d13
+after-hours-day7-standard habitat: d8cfb7 expected 030406
+after-hours-day7-high-contrast habitat: f6efdc expected 080b10
+after-hours-day7-deutan habitat: d8cfb7 expected 030406
+after-hours-day7-deutan blank-slot laminate: 919b95 expected 909b95
+midnight-day7-standard habitat: d8cfb7 expected 060b0a
+midnight-day7-supportz-confirmation habitat: 060a0a expected 060b0a
+SHOP_WEEK_TINT_NATIVE_FAILED

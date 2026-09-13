@@ -3,7 +3,9 @@ extends "res://addons/gut/test.gd"
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FAKE_OPS := preload("res://tests/support/FakeFileOps.gd")
+const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const REGISTRY_PATH := "res://scripts/settings/SettingsPreferenceRegistry.gd"
+const RESET_LINE_ID := "line.contact.ordinary.lavinia.day1.reply.a"
 
 var _surface: SubViewport
 
@@ -17,6 +19,13 @@ func before_all() -> void:
 	var profile := get_node("/root/ProfileManager")
 	if not bool(profile.get("_initialized")):
 		assert_true(profile.initialize(STORAGE.new("settings-scene-tests", FAKE_OPS.new())).get("ok", false))
+	var entries: Dictionary = MANIFEST.load_default()
+	var ids: Dictionary = MANIFEST.load_ids_default()
+	assert_true(entries.get("ok", false) and ids.get("ok", false))
+	if not entries.get("ok", false) or not ids.get("ok", false): return
+	assert_true(MANIFEST.validate_document(entries.value).get("ok", false))
+	assert_true(MANIFEST.validate_ids_document(ids.value).get("ok", false))
+	assert_true(profile.configure_line_registry(ids.value).get("ok", false))
 	var localization := get_node("/root/LocalizationManager")
 	if localization.get_readiness() == &"uninitialized":
 		assert_true(localization.initialize(profile).get("ok", false))
@@ -106,15 +115,15 @@ func test_each_reset_is_inert_until_its_own_confirmation() -> void:
 	_configure_reset_test_sink(instance)
 	_surface.add_child(instance)
 	var profile := get_node("/root/ProfileManager")
-	assert_true(profile.mark_line_visited("settings-reset-line").get("ok", false))
+	assert_true(profile.mark_line_visited(RESET_LINE_ID).get("ok", false))
 	assert_true(profile.unlock_ending("ending.alone", "settings-reset-gallery").get("ok", false))
 	var window_mode: Dictionary = profile.set_preference(&"preferences.display.window_mode", "borderless")
 	assert_true(window_mode.get("ok", false), str(window_mode))
 	if not window_mode.get("ok", false):
 		instance.free()
 		return
-	_assert_reset_requires_confirmation(instance, "VisitedHistory", func() -> bool: return profile.is_line_visited("settings-reset-line"))
-	assert_false(profile.is_line_visited("settings-reset-line"))
+	_assert_reset_requires_confirmation(instance, "VisitedHistory", func() -> bool: return profile.is_line_visited(RESET_LINE_ID))
+	assert_false(profile.is_line_visited(RESET_LINE_ID))
 	_assert_reset_requires_confirmation(instance, "Gallery", func() -> bool: return profile.has_gallery_unlock("ending.alone"))
 	assert_false(profile.has_gallery_unlock("ending.alone"))
 	_assert_reset_requires_confirmation(instance, "Preferences", func() -> bool: return profile.get_preference(&"preferences.display.window_mode") == "borderless")
@@ -144,7 +153,7 @@ func _accepted_settings_paths() -> Array:
 		"audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted",
 		"audio.mute_when_inactive", "audio.output_mode", "display.window_mode",
 		"accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast",
-		"accessibility.reduced_motion", "accessibility.screen_shake", "accessibility.colour_differentiation",
+		"accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation",
 		"accessibility.sound_detail_text", "exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled",
 	]
 	return suffixes.map(func(suffix: String) -> String: return "preferences." + suffix)

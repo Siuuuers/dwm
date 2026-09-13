@@ -467,6 +467,10 @@ func is_line_visited(line_id: String) -> bool:
 func mark_line_visited(line_id: String) -> Dictionary:
 	if line_id.is_empty():
 		return _failure(&"invalid_line_id", "Line ID must be nonempty")
+	if not _initialized:
+		return _failure(&"not_initialized", "ProfileManager is not initialized")
+	if _line_registry_fingerprint.is_empty():
+		return _failure(&"line_registry_not_configured", "Visited-line registry is not configured")
 	if not _line_registry_admits(line_id):
 		return _failure(&"unregistered_line_id", "Line ID is absent from the configured registry")
 	if is_line_visited(line_id):
@@ -1325,7 +1329,7 @@ func _command_failure(code: StringName) -> Dictionary:
 
 
 # The fingerprint, rather than an empty index, distinguishes an explicitly configured empty
-# registry from the legacy unconfigured state.
+# registry from the unconfigured state.
 var _line_registry_index: Dictionary = {}
 var _line_registry_fingerprint := ""
 
@@ -1342,6 +1346,18 @@ func configure_line_registry(registry: Dictionary) -> Dictionary:
 		if typeof(line_id) != TYPE_STRING or (line_id as String).is_empty():
 			return _command_failure(&"invalid_line_record_id")
 		index[line_id] = true
+	var atoms: Variant = registry.get("atoms", [])
+	if not (atoms is Array):
+		return _command_failure(&"invalid_line_registry")
+	for atom: Variant in (atoms as Array):
+		if not (atom is Dictionary):
+			return _command_failure(&"invalid_line_registry")
+		if (atom as Dictionary).get("kind") != "observer_presentation":
+			continue
+		var observer_line: Variant = (atom as Dictionary).get("associated_line_id")
+		if typeof(observer_line) != TYPE_STRING or (observer_line as String).is_empty():
+			return _command_failure(&"invalid_observer_line_id")
+		index[observer_line] = true
 	var emitted: Dictionary = WRITER.stringify(index)
 	if not emitted.get("ok", false):
 		return _command_failure(&"unfingerprintable_line_registry")
@@ -1357,5 +1373,5 @@ func configure_line_registry(registry: Dictionary) -> Dictionary:
 
 func _line_registry_admits(line_id: String) -> bool:
 	if _line_registry_fingerprint.is_empty():
-		return true
+		return false
 	return _line_registry_index.has(line_id)

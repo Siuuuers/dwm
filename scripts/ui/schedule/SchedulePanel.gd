@@ -84,10 +84,11 @@ func _input(event: InputEvent) -> void:
 	if not is_dragging(): owner.scroll_vertical += direction * int(owner.size.y)
 
 func configure(locale: String = "en", percent: int = 100, large_targets: bool = false,
-		palette: StringName = &"after_hours") -> bool:
+		palette: StringName = &"after_hours", day: int = 1,
+		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
 	locale = locale.replace("_","-")
 	if locale not in FONTS or percent not in [100,125,150]: return false
-	var next_theme: Theme = PALETTE.build(palette)
+	var next_theme: Theme = PALETTE.build(palette, day, high_contrast, colour_preset)
 	if next_theme == null: return false
 	_locale = locale
 	_font_size = 20 * percent / 100

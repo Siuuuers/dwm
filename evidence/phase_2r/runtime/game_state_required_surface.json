@@ -682,22 +682,6 @@
       "contract_test": "test_game_state_facade_reads_committed_state"
     },
     {
-      "symbol": "opening_seen",
-      "kind": "property",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
-    },
-    {
-      "symbol": "tutorial_seen",
-      "kind": "property",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
-    },
-    {
       "symbol": "story_flags",
       "kind": "property",
       "availability": "current",
@@ -1330,22 +1314,6 @@
       "contract_test": "test_dating_stage_receipts"
     },
     {
-      "symbol": "mark_opening_seen",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "replace",
-      "replacement": "func commit_variable_transaction(transaction_id: String, variable_id: String, value: Variant, source_id: String) -> Dictionary",
-      "contract_test": "test_variable_transaction_commands"
-    },
-    {
-      "symbol": "mark_tutorial_seen",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "replace",
-      "replacement": "func commit_variable_transaction(transaction_id: String, variable_id: String, value: Variant, source_id: String) -> Dictionary",
-      "contract_test": "test_variable_transaction_commands"
-    },
-    {
       "symbol": "set_story_flag",
       "kind": "function",
       "availability": "current",
@@ -1748,6 +1716,278 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_ending_playback_resumes_after_a_state_round_trip"
+    },
+    {
+      "symbol": "preview_open_contact",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_open_contact_command_is_idempotent"
+    },
+    {
+      "symbol": "preview_ordinary_reply",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+    },
+    {
+      "symbol": "commit_ordinary_reply",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+    },
+    {
+      "symbol": "get_pending_ordinary_echoes",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_echo_accepts_only_oldest_registered_atom_and_failed_full_checkpoint_keeps_it_pending"
+    },
+    {
+      "symbol": "commit_ordinary_echo",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_echo_accepts_only_oldest_registered_atom_and_failed_full_checkpoint_keeps_it_pending"
+    },
+    {
+      "symbol": "get_pending_day7_followups",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_followup_ack_uses_registered_source_rolls_back_and_only_advances_read_watermark"
+    },
+    {
+      "symbol": "require_day7_presentations_complete",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_direct_echo_command_cannot_skip_due_followup_even_with_legitimate_current_proof"
+    },
+    {
+      "symbol": "commit_day7_followup",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_followup_ack_uses_registered_source_rolls_back_and_only_advances_read_watermark"
+    },
+    {
+      "symbol": "configure_contact_checkpoint_writer",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+    },
+    {
+      "symbol": "prepare_provisional_day7_ending_plan",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_uses_explicit_profile_heads_and_never_manufactures_observer_behavior"
+    },
+    {
+      "symbol": "capture_ending_presentation_signature",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_signature_uses_frozen_role_facts_and_refuses_changed_command"
+    },
+    {
+      "symbol": "capture_provisional_day7_ending_plan",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_day7_accessor_freezes_special_core_pair_and_refuses_unproven_observer"
+    },
+    {
+      "symbol": "get_counted_pair_window_count",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_pair_ending_counts_distinct_contacts_windows_including_offscreen_meetings"
+    },
+    {
+      "symbol": "capture_new_day_gameplay",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_daily_reset_without_carried_condition_clears_today_effects"
+    },
+    {
+      "symbol": "prepare_dating_challenge_effect",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_frozen_held_promotion_does_not_recompute_against_a_different_loaded_branch"
+    },
+    {
+      "symbol": "apply_dating_challenge_effect_receipt",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_frozen_earned_promotion_survives_lower_momentum_and_save_reload_without_second_effect"
+    },
+    {
+      "symbol": "capture_dating_challenge_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_paused_dating_manual_and_quick_save_restore_exact_board_and_command"
+    },
+    {
+      "symbol": "store_dating_challenge_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_silent_restore_uses_final_route_and_current_day_before_overlaying_profile"
+    },
+    {
+      "symbol": "configure_ending_checkpoint_writer",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design"
+    },
+    {
+      "symbol": "configure_ending_source_reader",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design"
+    },
+    {
+      "symbol": "configure_ending_condition_source",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_failed_admission_rolls_back_outbox_contacts_and_run_then_saves_one_ordered_plan"
+    },
+    {
+      "symbol": "resume_terminal_ending",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_failed_admission_rolls_back_outbox_contacts_and_run_then_saves_one_ordered_plan"
+    },
+    {
+      "symbol": "get_frozen_ordered_ending_plan",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_resolve_day7_sylvia_special_highest_precedence"
+    },
+    {
+      "symbol": "capture_live_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_installation_alone_never_publishes_a_session_and_activation_requires_custody"
+    },
+    {
+      "symbol": "capture_desktop_identity_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_desktop_ports_read_the_activated_run_identity_and_refresh_after_load"
+    },
+    {
+      "symbol": "validate_live_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_installation_alone_never_publishes_a_session_and_activation_requires_custody"
+    },
+    {
+      "symbol": "capture_live_run_snapshot_input",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_installation_alone_never_publishes_a_session_and_activation_requires_custody"
+    },
+    {
+      "symbol": "validate_live_session_activation",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_exact_activation_replay_is_idempotent_but_old_tickets_cannot_replace_later_sessions"
+    },
+    {
+      "symbol": "activate_live_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_exact_activation_replay_is_idempotent_but_old_tickets_cannot_replace_later_sessions"
+    },
+    {
+      "symbol": "retire_live_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_retirement_is_quiet_preserves_dormant_facts_and_refuses_old_capture_and_backup"
+    },
+    {
+      "symbol": "get_run_configuration",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_installed_availability_and_dark_are_restored_with_full_rollback"
+    },
+    {
+      "symbol": "get_new_run_replacement_baseline",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_valid_install_publishes_only_presence_and_full_backup_hash"
+    },
+    {
+      "symbol": "configure_desktop_snapshot_provider",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_cold_day_two_installs_exact_owners_and_journal_without_activating_or_routing"
+    },
+    {
+      "symbol": "configure_dating_restore_reconciler",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_silent_restore_uses_final_route_and_current_day_before_overlaying_profile"
     }
   ]
 }

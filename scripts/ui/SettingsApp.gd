@@ -13,6 +13,9 @@ var _host_interactive := true
 func configure_pause() -> void:
 	$SettingsContent.host_context = "pause"
 
+func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
+	return $SettingsContent.configure_run_presentation(palette, day)
+
 func set_interaction_enabled(enabled: bool) -> void:
 	if enabled == _host_interactive and settings_content.is_interaction_enabled() == enabled: return
 	_host_interactive = enabled

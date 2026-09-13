@@ -1,0 +1,368 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/00f2d84a-c228-4149-8ced-d584e2786dd6/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_dialogic_identity_registries.gd
+* test_mark_line_visited_fails_closed_until_a_registry_is_configured
+* test_configured_but_uninitialized_writer_refuses_before_accessing_history
+* test_configure_line_registry_binds_a_reply_lines_block
+* test_configure_line_registry_returns_the_command_failure_shape
+* test_configure_line_registry_refuses_a_missing_reply_lines_block
+* test_configure_line_registry_refuses_a_reply_lines_block_that_is_not_an_array
+* test_configure_line_registry_refuses_a_record_that_is_not_an_object
+* test_configure_line_registry_refuses_a_record_whose_line_id_is_absent_or_not_a_string
+* test_configure_line_registry_refuses_a_record_whose_line_id_is_empty
+* test_the_same_registry_configures_twice_and_reports_already_configured
+* test_a_different_registry_is_refused_as_already_configured
+* test_a_registry_differing_only_outside_reply_lines_is_the_same_registry
+* test_observer_presentation_associated_lines_are_registered_without_other_atoms
+* test_invalid_observer_line_refuses_configuration_without_rebinding
+* test_a_registry_whose_records_are_reordered_is_the_same_registry
+* test_mark_line_visited_refuses_an_unregistered_line_once_a_registry_is_configured
+* test_mark_line_visited_accepts_a_registered_line_once_a_registry_is_configured
+* test_a_refused_line_mutates_nothing_and_emits_no_write_failure
+* test_the_registry_check_precedes_the_already_visited_short_circuit
+* test_an_empty_line_id_keeps_its_own_code_under_a_configured_registry
+* test_an_empty_configured_registry_refuses_every_line
+* test_is_line_visited_stays_a_permissive_read_under_a_configured_registry
+* test_reset_visited_history_needs_no_registry_and_clears_a_planted_legacy_id
+* test_the_shipped_ids_document_configures_all_twenty_visited_lines
+24/24 passed.
+
+
+res://tests/unit/test_application_bootstrap_profile_stage.gd
+* test_profile_stage_validates_and_binds_shipped_visited_registry_before_initialize
+* test_profile_stage_stops_before_initialize_when_registry_binding_fails
+* test_application_bootstrap_contract_exists
+* test_final_contact_stage_reuses_profile_storage_and_retains_one_identity_graph
+* test_manual_mode_executes_no_stage_and_is_not_readiness
+* test_final_mode_constructs_production_gate_and_injects_before_profile
+STARTUP_FAILED stage=construct_and_inject_mutation_gate code=invalid_gate_target
+* test_ready_callbacks_are_side_effect_free_or_deferred_only
+* test_task2_owned_managers_expose_common_gate_contract
+* test_dialogic_bridge_exposes_common_gate_contract
+* test_real_plan02_target_order_is_exactly_six_managers
+* test_real_six_target_gate_failure_stops_at_each_ordinal_before_initialization
+11/11 passed.
+
+
+res://tests/unit/test_profile_manager.gd
+* test_defaults_are_schema_valid_and_exact
+* test_schema_rejects_unknown_nested_fields_bad_types_and_aliases
+* test_invalid_skip_is_the_only_narrow_document_repair
+* test_legacy_patch_is_exact_detached_and_discards_runtime_audio
+* test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched
+* test_manager_initializes_once_and_uses_detached_snapshots
+* test_flat_fully_qualified_preference_batch_is_atomic
+* test_locale_candidate_commits_deferred_and_publishes_exactly_once
+* test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail
+* test_gallery_and_entire_reset_retain_internal_ledgers
+* test_preference_reset_publishes_leaf_changes_before_one_summary
+* test_mutation_gate_configuration_is_identity_stable_and_side_effect_free
+* test_profile_schema_registers_observation_not_true
+* test_profile_document_remaps_retired_true_gallery_unlocks
+* test_visited_history_is_global_and_idempotent
+* test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it
+* test_visited_reset_leaves_other_profile_state_intact
+17/17 passed.
+
+
+res://tests/integration/test_profile_reset_consumers.gd
+* test_profile_reset_consumer_contracts_are_present
+* test_preference_reset_updates_every_plan02_consumer_in_same_frame
+* test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event
+    [Failed]:  new_game did not handle a first event
+      at line 193
+    [Failed]:  ARRAY([&"clear"]) != ARRAY([&"clear", &"profile_preferences_reapplied", &"first_event"]).
+    [&"clear"] != [&"clear", &"profile_preferences_reappli...st_event"]  2 of 3 indexes do not match.  new_game
+      at line 194
+    [Failed]:  [0] expected to equal [1]:  new_game
+      at line 195
+SCRIPT ERROR: Invalid access to property or key 'text' on a base object of type 'Dictionary'.
+   at: test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event (res://tests/integration/test_profile_reset_consumers.gd:196)
+   GDScript backtrace (most recent call first):
+       [0] test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event (res://tests/integration/test_profile_reset_consumers.gd:196)
+       [1] _end_wait (res://addons/gut/awaiter.gd:126)
+       [2] _on_tree_process_frame (res://addons/gut/awaiter.gd:68)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'text' on a base object of type 'Dictionary'.
+      at line 196
+2/3 passed.
+
+
+res://tests/scene/test_settings_localization_scene.gd
+* test_settings_controller_and_scenes_exist_with_shared_contract
+* test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets
+* test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_legacy_aliases
+* test_each_reset_is_inert_until_its_own_confirmation
+* test_task9_hosts_instance_the_same_shared_content_scene
+* test_task9_pointer_drag_previews_then_commits_once_with_exact_handle
+* test_task9_discrete_volume_steps_and_failure_restore_committed_visible_value
+* test_task9_mute_and_output_mode_use_atomic_audio_sink
+* test_task9_audio_tests_never_autoplay_and_muted_or_zero_prevent_admission
+* test_task9_test_replacement_and_back_precedence_preserve_host
+* test_task9_tts_test_works_while_read_aloud_off_and_uses_frozen_specimen
+* test_task9_unavailable_tts_preserves_desired_preference_and_disables_controls
+* test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes
+* test_task9_stale_drag_completion_cancels_only_its_old_handle
+* test_task9_missing_audio_sink_has_no_direct_profile_write_fallback
+* test_task9_exact_localized_tts_specimens_and_rates_use_no_receipt_api
+* test_task9_committed_primary_locale_refreshes_shared_rail_labels
+* test_task9_title_settings_reopens_after_closing_its_cached_host
+* test_review_back_cancels_pending_drag_before_returning_focus
+* test_review_late_tts_admission_cannot_rebind_new_test
+* test_review_old_departure_cannot_stop_test_started_after_reopen
+* test_review_busy_commit_restores_rejected_control_value
+* test_review_drag_cancel_cannot_release_unrelated_pending_commit
+* test_review_reset_labels_exist_in_each_locale_without_fallback
+* test_review_confirmation_body_and_buttons_follow_accessibility_size
+* test_audio_affecting_reset_uses_physical_sink_and_never_falls_back_after_refusal
+* test_audio_affecting_reset_without_sink_does_not_write_profile
+27/27 passed.
+
+
+res://tests/scene/test_settings_binding_capture.gd
+* test_native_capture_persists_one_slot_and_releases_before_destination
+* test_native_back_and_departure_cancel_without_mutation
+* test_native_enter_activation_is_not_captured_and_echo_cannot_choose
+* test_back_retires_captured_candidate_even_before_its_release
+* test_back_retires_swap_consent_even_before_accept_release
+* test_focus_loss_cancels_lost_release_and_allows_fresh_same_key
+* test_departure_consumes_both_held_candidate_and_back_until_release
+* test_second_capture_request_cannot_replace_an_open_capture
+* test_conflict_cancel_then_swap_publishes_complete_map_once
+* test_stale_and_failed_swap_preserve_committed_bindings
+* test_illegal_displacement_keeps_swap_separately_disabled
+* test_controller_capture_persists_semantic_position_for_any_device
+* test_controller_disconnect_retires_contact_and_reused_device_index_can_capture
+* test_pending_import_keeps_cells_disabled_until_confirmed_restore
+* test_unmapped_controller_contact_is_not_saved_as_semantic_position
+* test_binding_cells_and_conflict_fit_nine_presentations
+16/16 passed.
+
+
+res://tests/scene/test_settings_import_review.gd
+* test_custom_draft_is_local_until_whole_map_confirmation_and_publishes_once
+* test_local_swap_and_capture_cancel_preserve_draft_without_publishing
+* test_pending_nondefault_source_gets_explicit_default_draft_and_requires_apply
+* test_external_departures_discard_custom_review_without_any_write
+* test_stale_or_failed_apply_never_activates_the_review
+* test_original_records_and_complete_apply_table_fit_nine_presentations
+* test_old_capture_cleanup_cannot_clear_a_newer_opening_guard
+* test_original_records_scroll_by_native_keyboard_and_controller_without_losing_cancel_focus
+* test_open_original_records_relocalize_without_changing_their_source
+* test_keyboard_and_controller_draft_edits_activate_together_after_final_apply
+10/10 passed.
+
+
+res://tests/unit/test_settings_controls_reset.gd
+* test_valid_reset_preserves_every_other_profile_field_and_persists_on_reload
+* test_every_binding_listener_sees_complete_committed_multi_action_map
+* test_stale_reset_changes_neither_disk_profile_nor_live_input
+* test_persistence_refusal_preserves_prior_live_input_and_revision
+* test_detached_candidate_has_only_registered_defaults_and_does_not_commit
+* test_rebind_keeps_other_device_and_reloads_both_slots
+* test_controller_rebind_matches_any_connected_device_without_changing_event
+* test_pending_multi_event_import_cannot_be_activated_by_one_row_rebind
+* test_rebind_persistence_failure_keeps_both_slots_and_emits_no_publication
+* test_invalid_rebinding_never_reaches_storage_or_changes_navigation
+10/10 passed.
+
+
+res://tests/unit/test_application_bootstrap.gd
+* test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
+* test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+* test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+* test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+* test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+* test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+* test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+* test_identical_startup_replay_reuses_the_exact_same_round_graph
+* test_game_state_refuses_a_second_distinct_round_coordinator
+* test_round_facade_fails_closed_before_the_coordinator_is_installed
+* test_game_state_reports_only_its_gate_identity_never_the_gate
+* test_bootstrap_stage_and_this_suite_are_source_bound_by_uid
+12/12 passed.
+
+
+res://tests/integration/test_application_bootstrap.gd
+* test_project_autoload_order_is_the_exact_final_literal_sequence
+* test_master_stage_order_is_frozen
+* test_exactly_nine_targets_retain_one_shared_gate_identity
+* test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+* test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+* test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+* test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+* test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+* test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+* test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+SCRIPT ERROR: Cannot call method 'has_signal' on a null value.
+   at: RecoveryBootstrap._run_stage (res://autoload/ApplicationBootstrap.gd:470)
+   GDScript backtrace (most recent call first):
+       [0] _run_stage (res://autoload/ApplicationBootstrap.gd:470)
+       [1] _run_stage (res://tests/integration/test_application_bootstrap.gd:370)
+       [2] start (res://autoload/ApplicationBootstrap.gd:302)
+       [3] test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers (res://tests/integration/test_application_bootstrap.gd:391)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+STARTUP_FAILED stage=initialize_saves code=unknown
+    [Failed]:  [false] expected to equal [true]:  
+      at line 392
+    [Failed]:  [<null>] expected to be same as  [<RefCounted#-9223353075144585822>(JsonFileStorage.gd)]:  
+      at line 393
+    [Failed]:  [<null>] expected to be same as  [<Node#18961643081161>(test_application_bootstrap.gd/RecoveryProfile)]:  
+      at line 394
+    [Failed]:  Expected object <Node#18961676636326>(test_application_bootstrap.gd/RecoveryBootstrap) to have emitted signal [application_ready]:   (Signals emitted: ["startup_recovery_changed"])
+      at line 398
+    [Failed]:  ARRAY(["initialize_saves"]) != ARRAY(["initialize_saves", "bind_profile", "bind_recovery", "settle_pair", "initialize_pro...onsumer"]).
+    ["initialize_saves"] != ["initialize_saves", "bind_profile", "bi...consumer"]  5 of 6 indexes do not match.  
+      at line 402
+    [Failed]:  [false] expected to equal [true]:  
+      at line 403
+SCRIPT ERROR: Cannot call method 'has_signal' on a null value.
+   at: RecoveryBootstrap._run_stage (res://autoload/ApplicationBootstrap.gd:470)
+   GDScript backtrace (most recent call first):
+       [0] _run_stage (res://autoload/ApplicationBootstrap.gd:470)
+       [1] _run_stage (res://tests/integration/test_application_bootstrap.gd:370)
+       [2] start (res://autoload/ApplicationBootstrap.gd:302)
+       [3] test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers (res://tests/integration/test_application_bootstrap.gd:391)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+STARTUP_FAILED stage=initialize_saves code=unknown
+    [Failed]:  [<null>] expected to be same as  [<RefCounted#-9223353074507051721>(JsonFileStorage.gd)]:  
+      at line 393
+    [Failed]:  [<null>] expected to be same as  [<Node#18962280614968>(test_application_bootstrap.gd/RecoveryProfile)]:  
+      at line 394
+    [Failed]:  [<null>] expected to equal [STRING_NAME(NEW_RUN_RECOVERY_PENDING)]:  
+      at line 400
+    [Failed]:  ARRAY(["initialize_saves"]) != ARRAY(["initialize_saves", "bind_profile", "bind_recovery", "settle_pair"]).
+    ["initialize_saves"] != ["initialize_saves", "bind_profile", "bi...tle_pair"]  3 of 4 indexes do not match.  
+      at line 402
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Cannot call method 'has_signal' on a null value.
+    [2] <engine-2>Cannot call method 'has_signal' on a null value.
+      at line -1
+9/10 passed.
+
+
+res://tests/integration/test_dialogic_skip.gd
+* test_bridge_exposes_the_skip_command
+* test_all_text_fast_forwards_through_unread_text
+* test_read_only_stops_at_the_first_unread_line
+* test_read_only_advances_through_previously_visited_text
+* test_visited_is_read_before_it_is_marked
+* test_every_boundary_stops_the_skip_without_being_consumed
+* test_profile_write_failure_halts_advancement
+* test_skip_requires_a_configured_context
+8/8 passed.
+
+
+res://tests/unit/test_dating_rehearsal_owner.gd
+* test_exact_reached_pre_challenge_and_first_ending_are_both_required
+* test_real_perfect_settles_automatically_in_private_state_and_no_progression_capability_escapes
+* test_both_pair_modes_finish_real_board_without_any_pair_witness_or_relationship_effect
+* test_solved_and_exploded_remain_real_distinct_outcomes_and_reject_debug_settlement
+* test_only_current_rendered_line_witness_can_persist_and_variables_remain_detached
+5/5 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_dialogic_identity_registries.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_profile_reset_consumers.gd
+- test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event
+    [Failed]:  new_game did not handle a first event
+          at line 193
+    [Failed]:  ARRAY([&"clear"]) != ARRAY([&"clear", &"profile_preferences_reapplied", &"first_event"]).
+    [&"clear"] != [&"clear", &"profile_preferences_reappli...st_event"]  2 of 3 indexes do not match.  new_game
+          at line 194
+    [Failed]:  [0] expected to equal [1]:  new_game
+          at line 195
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'text' on a base object of type 'Dictionary'.
+          at line 196
+
+res://tests/integration/test_application_bootstrap.gd
+- test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+    [Failed]:  [false] expected to equal [true]:  
+          at line 392
+    [Failed]:  [<null>] expected to be same as  [<RefCounted#-9223353075144585822>(JsonFileStorage.gd)]:  
+          at line 393
+    [Failed]:  [<null>] expected to be same as  [<Node#18961643081161>(test_application_bootstrap.gd/RecoveryProfile)]:  
+          at line 394
+    [Failed]:  Expected object <Node#18961676636326>(test_application_bootstrap.gd/RecoveryBootstrap) to have emitted signal [application_ready]:   (Signals emitted: ["startup_recovery_changed"])
+          at line 398
+    [Failed]:  ARRAY(["initialize_saves"]) != ARRAY(["initialize_saves", "bind_profile", "bind_recovery", "settle_pair", "initialize_pro...onsumer"]).
+    ["initialize_saves"] != ["initialize_saves", "bind_profile", "bi...consumer"]  5 of 6 indexes do not match.  
+          at line 402
+    [Failed]:  [false] expected to equal [true]:  
+          at line 403
+    [Failed]:  [<null>] expected to be same as  [<RefCounted#-9223353074507051721>(JsonFileStorage.gd)]:  
+          at line 393
+    [Failed]:  [<null>] expected to be same as  [<Node#18962280614968>(test_application_bootstrap.gd/RecoveryProfile)]:  
+          at line 394
+    [Failed]:  [<null>] expected to equal [STRING_NAME(NEW_RUN_RECOVERY_PENDING)]:  
+          at line 400
+    [Failed]:  ARRAY(["initialize_saves"]) != ARRAY(["initialize_saves", "bind_profile", "bind_recovery", "settle_pair"]).
+    ["initialize_saves"] != ["initialize_saves", "bind_profile", "bi...tle_pair"]  3 of 4 indexes do not match.  
+          at line 402
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Cannot call method 'has_signal' on a null value.
+    [2] <engine-2>Cannot call method 'has_signal' on a null value.
+          at line -1
+
+Totals
+------
+Scripts              12
+Tests               153
+Passing Tests       151
+Failing Tests         2
+Asserts           4304/4319
+Orphans              24
+Time              43.174s
+
+
+---- 2 failing tests ----
+

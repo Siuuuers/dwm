@@ -33,8 +33,6 @@ const TASK4_SCHEDULE_COMMIT_SIGNATURES := {
 
 const TASK4_CONTRACT_TEST := "test_schedule_commit_seams_are_narrow_reversible_and_silent"
 
-var _counter := 0
-
 const FIXTURE_SCRIPT := """extends Node
 
 signal sample_changed(value: int)
@@ -78,8 +76,9 @@ func exercise(target: Node) -> void:
 """
 
 func _scratch_root() -> String:
-	_counter += 1
-	return OS.get_environment("DWM_TEST_ROOT").path_join("surface-fixture-%d" % _counter)
+	var created: Dictionary = TemporaryStorage.create("surface-fixture")
+	assert_true(created.get("ok", false), str(created))
+	return str(created.get("value", "")) if created.get("ok", false) else ""
 
 func _write_file(path: String, text: String) -> void:
 	assert_eq(DirAccess.make_dir_recursive_absolute(path.get_base_dir()), OK)
@@ -108,6 +107,8 @@ func _build_fixture(required: Dictionary) -> Dictionary:
 	if not probe.get("ok", false):
 		return {}
 	var root := _scratch_root()
+	if root.is_empty():
+		return {"ok": false, "errors": ["TEST_ROOT_UNAVAILABLE: DWM_TEST_ROOT is required"]}
 	var script_path := root.path_join("autoload/Sample.gd")
 	_write_file(script_path, FIXTURE_SCRIPT)
 	_write_file(root.path_join("scripts/Caller.gd"), FIXTURE_CALLER)
@@ -138,6 +139,8 @@ func test_build_produces_complete_sorted_records() -> void:
 		return
 	var inventory := _build_fixture(_good_required())
 	assert_true(inventory.get("ok", false), JSON.stringify(inventory.get("errors", [])))
+	if not inventory.get("ok", false):
+		return
 	var records: Array = inventory.get("records", [])
 	assert_eq(records.size(), 7, "seven public symbols expected, private excluded")
 	var previous := ""
@@ -170,6 +173,8 @@ func test_validation_failure_matrix() -> void:
 
 	var good := _build_fixture(_good_required())
 	assert_true(good.get("ok", false), JSON.stringify(good.get("errors", [])))
+	if not good.get("ok", false):
+		return
 
 	var duplicated := good.duplicate(true)
 	duplicated["records"].append(duplicated["records"][0].duplicate(true))
@@ -221,6 +226,8 @@ func test_reserved_symbol_rules() -> void:
 		return
 	var absent_ok := _build_fixture(_good_required())
 	assert_true(absent_ok.get("ok", false), "absent planned_future symbol is valid")
+	if not absent_ok.get("ok", false):
+		return
 
 	var reserved_present := _good_required().duplicate(true)
 	for entry: Dictionary in reserved_present["symbols"]:
@@ -239,7 +246,12 @@ func test_write_canonical_json_round_trip() -> void:
 		return
 	var inventory := _build_fixture(_good_required())
 	assert_true(inventory.get("ok", false), JSON.stringify(inventory.get("errors", [])))
-	var output_path := _scratch_root().path_join("game_state_surface.json")
+	if not inventory.get("ok", false):
+		return
+	var output_root := _scratch_root()
+	if output_root.is_empty():
+		return
+	var output_path := output_root.path_join("game_state_surface.json")
 	var written: Dictionary = probe["value"].write_canonical_json(inventory, output_path)
 	assert_true(written.get("ok", false), JSON.stringify(written.get("errors", [])))
 	var text := FileAccess.get_file_as_string(output_path)
@@ -380,3 +392,54 @@ func test_save_manager_required_surface_freezes_realized_facade() -> void:
 	for removed: String in ["get_slot_path", "SAVE_FOLDER", "write_json_file", "build_save_dict"]:
 		assert_false(by_symbol.has(removed), "raw-path symbol must leave the surface: " + removed)
 	assert_true(deprecated_wrappers >= 9, "legacy wrappers and signals carry deprecate dispositions")
+
+
+func test_both_live_inventories_reproduce_every_canonical_byte() -> void:
+	var probe := DynamicScriptProbe.load_script(TOOL_PATH)
+	assert_true(probe.get("ok", false), str(probe))
+	if not probe.get("ok", false): return
+	var roots: Array[String] = ["res://autoload", "res://scripts", "res://scenes", "res://tests"]
+	for target: Array in [
+			["GameState", "game_state", REQUIRED_PATH],
+			["SaveManager", "save_manager", SAVE_MANAGER_REQUIRED_PATH]]:
+		var parsed := StrictJson.parse_object(FileAccess.get_file_as_string(target[2]))
+		assert_true(parsed.get("ok", false), str(parsed))
+		if not parsed.get("ok", false): continue
+		var live: Dictionary = probe.value.build("res://autoload/%s.gd" % target[0], roots, parsed.value)
+		assert_true(live.get("ok", false), JSON.stringify(live.get("errors", [])))
+		if not live.get("ok", false): continue
+		var checked: Dictionary = probe.value.check_canonical_json(live,
+			"res://evidence/phase_2r/runtime/%s_surface.json" % target[1])
+		assert_true(checked.get("ok", false), JSON.stringify(checked.get("errors", [])))
+
+
+func test_read_only_check_detects_call_site_dynamic_reference_and_signature_drift() -> void:
+	var inventory := _build_fixture(_good_required())
+	assert_true(inventory.get("ok", false), str(inventory))
+	if not inventory.get("ok", false): return
+	var probe := DynamicScriptProbe.load_script(TOOL_PATH)
+	assert_true(probe.get("ok", false), str(probe))
+	if not probe.get("ok", false): return
+	var script_path: String = inventory.script
+	var fixture_root := script_path.get_base_dir().get_base_dir()
+	var caller_path := fixture_root.path_join("scripts/Caller.gd")
+	var output_path := fixture_root.path_join("surface.json")
+	var roots: Array[String] = [fixture_root.path_join("autoload"), fixture_root.path_join("scripts"), fixture_root.path_join("tests")]
+	assert_true(_has_code(probe.value.check_canonical_json(inventory, output_path), "SURFACE_OUTPUT_MISSING"))
+	assert_false(FileAccess.file_exists(output_path), "check never creates missing output")
+	assert_true(probe.value.write_canonical_json(inventory, output_path).get("ok", false))
+	var sealed := FileAccess.get_file_as_bytes(output_path)
+	assert_true(probe.value.check_canonical_json(inventory, output_path).get("ok", false))
+	for mutation: Array in [
+			["call-site line", FIXTURE_SCRIPT, "\n" + FIXTURE_CALLER],
+			["dynamic reference", FIXTURE_SCRIPT, FIXTURE_CALLER.replace('call("replaced_mutation", 1)', 'call("retained_query")')],
+			["signature", FIXTURE_SCRIPT.replace("retained_query()", "retained_query(value: int = 0)"), FIXTURE_CALLER]]:
+		_write_file(script_path, mutation[1])
+		_write_file(caller_path, mutation[2])
+		var changed: Dictionary = probe.value.build(script_path, roots, _good_required())
+		assert_true(changed.get("ok", false), str(changed.get("errors", [])))
+		assert_true(_has_code(probe.value.check_canonical_json(changed, output_path), "SURFACE_OUTPUT_STALE"), mutation[0])
+		assert_eq(FileAccess.get_file_as_bytes(output_path), sealed, "failed check does not rewrite evidence")
+	assert_true(_has_code(probe.value.check_canonical_json({"ok": false}, output_path), "SURFACE_INVALID"))
+	_write_file(output_path, sealed.get_string_from_utf8().trim_suffix("\n"))
+	assert_true(_has_code(probe.value.check_canonical_json(inventory, output_path), "SURFACE_OUTPUT_STALE"), "final newline is part of the byte contract")

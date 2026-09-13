@@ -1,0 +1,118 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/24331c29-1ede-418a-ab5d-dea246ce3c9a/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_dialogic_production_skip.gd
+* test_native_fixture_setup_without_skip
+    24 Orphans
+        * [<Node#239276657039>(subsystem_animation.gd)]
+        * [<Node#239293434256>(subsystem_audio.gd)]
+        * [<Node#239310211473>]
+        * [<Node#239326988690>]
+        * [<Node#239343765907>(subsystem_backgrounds.gd)]
+        * [<Node#239377320340>(subsystem_choices.gd)]
+        * [<Timer#239394097557>]
+        * [<Node#239410874774>(subsystem_expression.gd)]
+        * [<Node#239444429208>(subsystem_glossary.gd)]
+        * [<Node#239461206425>(subsystem_history.gd)]
+        * [<Node#239477983642>(subsystem_input.gd)]
+        * [<Timer#239494760859>]
+        * [<Node#239511538076>(subsystem_jump.gd)]
+        * [<Node#239528315293>(subsystem_containers.gd)]
+        * [<Node#239545092510>(subsystem_portraits.gd)]
+        * [<Node#239578646943>(subsystem_save.gd)]
+        * [<Timer#239595424160>]
+        * [<Node#239612201377>(subsystem_settings.gd)]
+        * [<Node#239628978594>(subsystem_styles.gd)]
+        * [<Node#239645755811>(subsystem_text.gd)]
+        * [<Node#239729641896>(subsystem_text_input.gd)]
+        * [<Node#239746419113>(subsystem_variables.gd)]
+        * [<Node#239763196330>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#239779973547>]
+24 orphans
+1/1 passed.
+
+
+
+
+==============================================
+= 48 Orphans
+==============================================
+res://tests/integration/test_dialogic_production_skip.gd
+    - Outside Tests
+        * [<Node#129654327060>(subsystem_animation.gd)]
+        * [<Node#129671104292>(subsystem_audio.gd)]
+        * [<Node#129687881518>]
+        * [<Node#129704658739>]
+        * [<Node#129721435958>(subsystem_backgrounds.gd)]
+        * [<Node#130258306875>(subsystem_choices.gd)]
+        * [<Timer#130275084092>]
+        * [<Node#130291861310>(subsystem_expression.gd)]
+        * [<Node#130325415747>(subsystem_glossary.gd)]
+        * [<Node#130342192964>(subsystem_history.gd)]
+        * [<Node#130358970181>(subsystem_input.gd)]
+        * [<Timer#130375747398>]
+        * [<Node#130392524615>(subsystem_jump.gd)]
+        * [<Node#130409301832>(subsystem_containers.gd)]
+        * [<Node#130426079049>(subsystem_portraits.gd)]
+        * [<Node#130962949962>(subsystem_save.gd)]
+        * [<Timer#130979727179>]
+        * [<Node#130996504396>(subsystem_settings.gd)]
+        * [<Node#131013281616>(subsystem_styles.gd)]
+        * [<Node#131030058833>(subsystem_text.gd)]
+        * [<Node#131113944918>(subsystem_text_input.gd)]
+        * [<Node#131130722135>(subsystem_variables.gd)]
+        * [<Node#131147499352>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#131164276569>]
+test_dialogic_production_skip.gd
+    - test_native_fixture_setup_without_skip
+        * [<Node#239276657039>(subsystem_animation.gd)]
+        * [<Node#239293434256>(subsystem_audio.gd)]
+        * [<Node#239310211473>]
+        * [<Node#239326988690>]
+        * [<Node#239343765907>(subsystem_backgrounds.gd)]
+        * [<Node#239377320340>(subsystem_choices.gd)]
+        * [<Timer#239394097557>]
+        * [<Node#239410874774>(subsystem_expression.gd)]
+        * [<Node#239444429208>(subsystem_glossary.gd)]
+        * [<Node#239461206425>(subsystem_history.gd)]
+        * [<Node#239477983642>(subsystem_input.gd)]
+        * [<Timer#239494760859>]
+        * [<Node#239511538076>(subsystem_jump.gd)]
+        * [<Node#239528315293>(subsystem_containers.gd)]
+        * [<Node#239545092510>(subsystem_portraits.gd)]
+        * [<Node#239578646943>(subsystem_save.gd)]
+        * [<Timer#239595424160>]
+        * [<Node#239612201377>(subsystem_settings.gd)]
+        * [<Node#239628978594>(subsystem_styles.gd)]
+        * [<Node#239645755811>(subsystem_text.gd)]
+        * [<Node#239729641896>(subsystem_text_input.gd)]
+        * [<Node#239746419113>(subsystem_variables.gd)]
+        * [<Node#239763196330>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#239779973547>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests         1
+Asserts              13
+Orphans              48
+Time              0.798s
+
+
+Ran Tests matching "test_native_fixture_setup_without_skip"
+---- All tests passed! ----

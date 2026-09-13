@@ -1,0 +1,51 @@
+{
+	"captures": 3,
+	"checks": 64,
+	"failures": [],
+	"fixture": "Real Schedule draft/presentation/host owners; fixture-injected Day 1/7 and pending warning. No player save/load gesture.",
+	"ok": true,
+	"samples": [
+		{
+			"colour_preset": "standard",
+			"day": 1,
+			"draft_unchanged": true,
+			"expected_habitat_rgba": "0b0d13ff",
+			"file": "day1-standard.png",
+			"high_contrast": false,
+			"modal": false,
+			"native_habitat_rgba": "0b0d13ff",
+			"size": [
+				800,
+				720
+			]
+		},
+		{
+			"colour_preset": "standard",
+			"day": 7,
+			"draft_unchanged": true,
+			"expected_habitat_rgba": "030406ff",
+			"file": "day7-standard.png",
+			"high_contrast": false,
+			"modal": false,
+			"native_habitat_rgba": "030305ff",
+			"size": [
+				800,
+				720
+			]
+		},
+		{
+			"colour_preset": "deutan",
+			"day": 3,
+			"draft_unchanged": true,
+			"expected_habitat_rgba": "080b10ff",
+			"file": "day3-high-deutan-warning.png",
+			"high_contrast": true,
+			"modal": true,
+			"native_habitat_rgba": "080b10ff",
+			"size": [
+				800,
+				720
+			]
+		}
+	]
+}

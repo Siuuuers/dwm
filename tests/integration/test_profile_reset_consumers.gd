@@ -11,11 +11,15 @@ const ACCESSIBILITY := preload("res://autoload/AccessibilityManager.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const FAKE_AUDIO := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 
+signal boundary_progress
+
 class CompletionRecorder extends RefCounted:
 	# Observe the real runtime's completion intent without advancing application state.
+	signal completed
 	var intents: Array[Dictionary] = []
 	func complete_entry(intent: Dictionary) -> Dictionary:
 		intents.append(intent.duplicate(true))
+		completed.emit()
 		return {"ok": true}
 
 
@@ -93,6 +97,7 @@ func test_preference_reset_updates_every_plan02_consumer_in_same_frame() -> void
 	assert_almost_eq(float(dialogic.Settings.settings[&"text_speed"]), 1.0, 0.001)
 	assert_almost_eq(float(dialogic.Inputs.auto_advance.delay_modifier), 1.0, 0.001)
 	assert_false(dialogic.Inputs.auto_advance.enabled_until_user_input)
+	assert_true(profile.configure_line_registry({"reply_lines": [{"line_id": "line.reset-proof"}]}).get("ok", false))
 	assert_true(profile.mark_line_visited("line.reset-proof").get("ok", false))
 	assert_true(profile.unlock_ending("ending.alone", "reset-retained-receipt").get("ok", false))
 	var preferences_before_nonpreference_resets: Dictionary = profile.get_profile_snapshot()["preferences"]
@@ -132,6 +137,11 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 	assert_true(bridge.initialize().get("ok", false), "bridge initialize for semantic starts")
 	var completion := CompletionRecorder.new()
 	assert_true(bridge.configure_playback_completion_port(completion).get("ok", false))
+	completion.completed.connect(func() -> void: boundary_progress.emit())
+	var start_failures: Array[Dictionary] = []
+	bridge.entry_playback_failed.connect(func(_token: String, _entry_id: String, failure: Dictionary) -> void:
+		start_failures.append(failure.duplicate(true))
+		boundary_progress.emit())
 	if not bridge.has_method("start_entry"):
 		assert_true(false, "DialogicBridge must declare start_entry (Task 5, Ruling Y)")
 		return
@@ -141,7 +151,7 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 		if state["waiting"]:
 			state["order"].append(step_id)
 	)
-	dialogic.event_handled.connect(func(event: Resource) -> void:
+	var on_event_handled: Callable = func(event: Resource) -> void:
 		if state["waiting"]:
 			state["order"].append(&"first_event")
 			state["first_values"] = {
@@ -152,7 +162,8 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 				"event_label": str(event.get("name")),
 			}
 			state["waiting"] = false
-	)
+			boundary_progress.emit()
+	dialogic.event_handled.connect(on_event_handled)
 	var cases: Array[Dictionary] = [
 		{"boundary": "new_game", "reveal_speed": "fast", "auto_delay": "short", "text_multiplier": 0.5, "auto_multiplier": 0.5, "enabled": true},
 		{"boundary": "stable_checkpoint_restore", "reveal_speed": "slow", "auto_delay": "long", "text_multiplier": 2.0, "auto_multiplier": 1.5, "enabled": false},
@@ -188,8 +199,53 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 			"%s: the semantic start resolves the exact master path" % boundary["boundary"])
 		assert_eq(str(start_receipt.get("label", "")), "contact.ordinary.lavinia.day1",
 			"%s: the semantic start resolves the exact label" % boundary["boundary"])
-		await wait_process_frames(5)
+		var art_view: Node = bridge.get_art_hold_view()
+		if art_view != null:
+			# The installed return-only entry now has an art card. A successful semantic
+			# admission deliberately waits for its real Continue before native events.
+			assert_true(state["waiting"], "%s executed text before the art Continue" % boundary["boundary"])
+			assert_eq(completion.intents.size(), completions_before,
+				"%s completed text before the art Continue" % boundary["boundary"])
+			var art_deadline := get_tree().create_timer(3.0)
+			while is_instance_valid(art_view) and (not art_view.has_drawn_art() or art_view.next_button.disabled) \
+					and start_failures.is_empty() and art_deadline.time_left > 0.0:
+				await get_tree().process_frame
+			var art_ready: bool = is_instance_valid(art_view) and art_view.has_drawn_art() \
+				and not art_view.next_button.disabled and start_failures.is_empty()
+			assert_true(art_ready,
+				"%s art Continue never became ready" % boundary["boundary"])
+			if not art_ready:
+				dialogic.event_handled.disconnect(on_event_handled)
+				bridge.abort_current_entry(&"art_hold_timeout_cleanup")
+				dialogic.clear(1)
+				return
+			assert_eq(file_ops.operation_count(), operations_before,
+				"%s wrote profile storage during art hold" % boundary["boundary"])
+			art_view.next_button.pressed.emit()
+			assert_null(bridge.get_art_hold_view(), "%s real Continue retires the art hold" % boundary["boundary"])
+		# Dialogic.start admits a layout before its ready callback physically starts the
+		# timeline. Wait for the observed first event AND natural completion, with a
+		# finite deadline and an early exit on a real playback failure.
+		var deadline := get_tree().create_timer(3.0)
+		var wake_on_timeout := func() -> void: boundary_progress.emit()
+		deadline.timeout.connect(wake_on_timeout)
+		while (bool(state["waiting"]) or completion.intents.size() <= completions_before) \
+				and start_failures.is_empty() and deadline.time_left > 0.0:
+			await boundary_progress
+		if deadline.timeout.is_connected(wake_on_timeout): deadline.timeout.disconnect(wake_on_timeout)
+		# The completion signal fires inside Dialogic's clear/end stack. Let that stack
+		# unwind before this test clears the runtime or Gut frees its bridge fixture.
+		await get_tree().process_frame
+		assert_true(start_failures.is_empty(), "%s playback failed: %s" % [boundary["boundary"], str(start_failures)])
 		assert_false(state["waiting"], "%s did not handle a first event" % boundary["boundary"])
+		assert_eq(completion.intents.size(), completions_before + 1,
+			"%s did not naturally complete exactly once" % boundary["boundary"])
+		if not start_failures.is_empty() or bool(state["waiting"]) or completion.intents.size() != completions_before + 1:
+			assert_eq(file_ops.operation_count(), operations_before, "%s wrote profile storage" % boundary["boundary"])
+			dialogic.event_handled.disconnect(on_event_handled)
+			bridge.abort_current_entry(&"boundary_timeout_cleanup")
+			dialogic.clear(1)
+			return
 		assert_eq(state["order"].slice(0, 3), [&"clear", &"profile_preferences_reapplied", &"first_event"], boundary["boundary"])
 		assert_eq(state["order"].count(&"profile_preferences_reapplied"), 1, boundary["boundary"])
 		assert_almost_eq(state["first_values"]["text"], boundary["text_multiplier"], 0.001, boundary["boundary"])
@@ -218,6 +274,7 @@ func test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_o
 		assert_eq(cleanup.get("code"), &"no_active_entry")
 		assert_eq(completion.intents.size(), completions_before + 1)
 		dialogic.clear(1)
+	dialogic.event_handled.disconnect(on_event_handled)
 	for path in ["res://autoload/DialogicBridge.gd", "res://scripts/narrative/DialogicPreferenceAdapter.gd"]:
 		var source := FileAccess.get_file_as_string(path)
 		for forbidden in ["Dialogic.Settings._set", "Dialogic.Save.set_global_info", "ProjectSettings.set_setting", ".set_preference(", ".set_preferences("]:

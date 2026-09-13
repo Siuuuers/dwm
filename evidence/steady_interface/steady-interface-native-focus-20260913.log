@@ -1,0 +1,14 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: STEADY_INTERFACE_CAPTURE_FAILED: en name, focused control and full description fit the reading aperture
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/manual/steady_interface_capture.gd:27)
+       [1] _capture (res://tests/manual/steady_interface_capture.gd:98)
+       [2] _frames (res://tests/manual/steady_interface_capture.gd:119)
+STEADY_INTERFACE_CAPTURE_FAILED captures=0 checks=15 failures=1

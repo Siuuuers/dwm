@@ -1,0 +1,11 @@
+﻿{
+    "symbol":  "inventory",
+    "signature_same":  true,
+    "contract_same":  true,
+    "removed_sites":  [
+                          "tests/unit/tooling/test_phase2r_schedule_gate.gd:45"
+                      ],
+    "added_sites":  [
+                        "tests/unit/tooling/test_phase2r_schedule_gate.gd:46"
+                    ]
+}

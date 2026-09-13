@@ -23,8 +23,8 @@ var _held := false
 var _hover := false
 var _roles := SHOP_THEME.resolve(&"after_hours")
 
-func apply_palette(palette: StringName) -> bool:
-	var candidate: Dictionary = SHOP_THEME.resolve(palette)
+func apply_palette(palette: StringName, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+	var candidate: Dictionary = SHOP_THEME.resolve(palette, day, high_contrast, colour_preset)
 	if candidate.is_empty(): return false
 	_roles = candidate
 	if is_instance_valid(name_label):

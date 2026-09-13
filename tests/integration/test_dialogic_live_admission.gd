@@ -21,11 +21,13 @@ var _style_directory: Dictionary = {}
 var _native_starts := 0
 var _native_ends := 0
 var _finished: Array[Dictionary] = []
+var _original_contacts: Dictionary = {}
 
 func before_each() -> void:
 	_native_starts = 0
 	_native_ends = 0
 	_finished.clear()
+	_original_contacts = GameState.contacts.duplicate(true)
 	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
 	_persistent = Engine.get_meta("dialogic_persistent_style_info",{})
 	_style_directory = DialogicStylesUtil.style_directory.duplicate(true)
@@ -82,6 +84,7 @@ func after_each() -> void:
 	if _had_persistent: Engine.set_meta("dialogic_persistent_style_info",_persistent)
 	else: Engine.remove_meta("dialogic_persistent_style_info")
 	DialogicStylesUtil.style_directory = _style_directory
+	GameState.contacts = _original_contacts.duplicate(true)
 	_original_layout_parent = null
 
 func test_runtime_failure_cancels_pending_hospital_without_a_natural_completion() -> void:
@@ -91,7 +94,7 @@ func test_runtime_failure_cancels_pending_hospital_without_a_natural_completion(
 	var failed: Array = []
 	owner.physical_completion_ready.connect(func(receipt): completed.append(receipt))
 	owner.physical_completion_failed.connect(func(failure): failed.append(failure))
-	assert_true(owner.begin_physical(_hospital_command()).get("ok",false))
+	assert_true(owner.begin_physical(_sylvia_hospital_command()).get("ok",false))
 	assert_eq(_native_starts,0)
 	runtime.signal_event.emit({"unregistered":"failure injection"})
 	for frame in 6: await get_tree().process_frame
@@ -100,7 +103,7 @@ func test_runtime_failure_cancels_pending_hospital_without_a_natural_completion(
 	assert_true(_finished.is_empty())
 	assert_eq(failed.size(),1,"the owning physical command receives one failure")
 	assert_false(bridge.has_active_playback())
-	assert_true(owner.begin_physical(_hospital_command()).get("ok",false),"same command may retry after failure")
+	assert_true(owner.begin_physical(_sylvia_hospital_command()).get("ok",false),"same command may retry after failure")
 	await _wait_for_natural_end()
 	assert_eq(completed.size(),1)
 	assert_eq(failed.size(),1)
@@ -115,6 +118,66 @@ func _hospital_command() -> Dictionary:
 		"timeline_id":"hospital.faint","context":{"kind":"hospital","day":3,"source_entry_ids":[],"miss_receipt_ids":[]},
 		"completion_transaction_id":"completion.hospital.day3","completion_transaction_provenance":{"child_id":"completion.hospital.day3"},
 		"command_sha256":"c".repeat(64)}
+
+func _sylvia_hospital_command() -> Dictionary:
+	# The owner requires the same-day saved witness and frozen source IDs. A normal
+	# faint with the empty context above intentionally takes the notice-only path.
+	var command: Dictionary = _hospital_command()
+	command.context.source_entry_ids = ["accepted.3"]
+	command.context.miss_receipt_ids = ["miss.3"]
+	var contacts: Dictionary = GameState.contacts.duplicate(true)
+	var witnesses: Dictionary = contacts.get("sylvia_hospital_witness_receipts", {}).duplicate(true)
+	witnesses["hospital-live-admission.3"] = {"kind":"sylvia_hospital_witness",
+		"resolution_kind":"condition_hospital","care_followup_day":4,
+		"source_receipt_id":"accepted.3","hospital_miss_receipt_id":"miss.3"}
+	contacts["sylvia_hospital_witness_receipts"] = witnesses
+	GameState.contacts = contacts
+	assert_eq(HospitalScene.art_participants(GameState.contacts, command.context), ["sylvia"])
+	return command
+
+func _continue_art_hold_if_present() -> bool:
+	var art_view: Node = bridge.get_art_hold_view()
+	if art_view == null: return true
+	var deadline := get_tree().create_timer(3.0)
+	while is_instance_valid(art_view) and (not art_view.has_drawn_art() or art_view.next_button.disabled) \
+			and deadline.time_left > 0.0:
+		await get_tree().process_frame
+	var ready: bool = is_instance_valid(art_view) and art_view.has_drawn_art() \
+		and not art_view.next_button.disabled
+	assert_true(ready, "installed art must draw and enable its real Continue")
+	if not ready: return false
+	art_view.next_button.pressed.emit()
+	assert_null(bridge.get_art_hold_view(), "real Continue retires the art hold")
+	return true
+
+func test_normal_faint_uses_notice_acknowledgment_without_native_playback_or_gameplay_effects() -> void:
+	var owner: RefCounted = PHYSICAL_OWNER.new()
+	assert_true(owner.configure(bridge).get("ok",false))
+	var receipts: Array[Dictionary] = []
+	owner.physical_completion_ready.connect(func(receipt: Dictionary): receipts.append(receipt.duplicate(true)))
+	var before := {"day":GameState._run_lifecycle.get_day(),"health":GameState.get_stat("health"),
+		"pressure":GameState.get_stat("pressure"),"contacts":GameState.contacts.duplicate(true)}
+	var command: Dictionary = _hospital_command()
+	var begun: Dictionary = owner.begin_physical(command)
+	assert_true(begun.get("ok",false),str(begun))
+	if not begun.get("ok",false): return
+	assert_eq(_native_starts,0,"normal fainting shows a notice without starting a DTL")
+	assert_false(bridge.has_active_playback())
+	assert_true(receipts.is_empty(),"a notice needs its own Continue acknowledgment")
+	command["physical_token"] = begun.value.physical_token
+	var forged: Dictionary = command.duplicate(true)
+	forged["physical_token"] = str(command.physical_token) + ".foreign"
+	assert_false(owner.complete_notice(forged).get("ok",false))
+	assert_true(owner.complete_notice(command).get("ok",false))
+	assert_eq(receipts.size(),1)
+	if receipts.size() == 1:
+		assert_eq(receipts[0].result,{"notice_acknowledged":true})
+		assert_eq(receipts[0].physical_token,begun.value.physical_token)
+	assert_eq(_native_starts,0)
+	assert_true(_finished.is_empty())
+	assert_eq({"day":GameState._run_lifecycle.get_day(),"health":GameState.get_stat("health"),
+		"pressure":GameState.get_stat("pressure"),"contacts":GameState.contacts.duplicate(true)},before,
+		"the presentation owner neither applies recovery nor advances the day")
 
 func _snapshot() -> Dictionary:
 	return {"timeline":runtime.current_timeline,"event":runtime.current_event_idx,
@@ -157,7 +220,7 @@ func test_real_hospital_deferred_start_reserves_admission_until_one_physical_com
 	assert_true(owner.configure(bridge).get("ok",false))
 	var receipts: Array[Dictionary] = []
 	owner.physical_completion_ready.connect(func(receipt: Dictionary): receipts.append(receipt.duplicate(true)))
-	var command := _hospital_command()
+	var command := _sylvia_hospital_command()
 	var begun: Dictionary = owner.begin_physical(command)
 	assert_true(begun.get("ok",false),str(begun))
 	assert_eq(_native_starts,0,"the real layout is still awaiting deferred mount")
@@ -183,6 +246,7 @@ func test_real_semantic_deferred_start_refuses_other_playback_vocabularies() -> 
 	assert_true(bridge.start_entry(ENTRY,_context()).get("ok",false))
 	assert_true(bridge.has_active_playback())
 	_assert_all_starts_refused()
+	if not await _continue_art_hold_if_present(): return
 	await _wait_for_natural_end()
 	assert_false(bridge.has_active_playback())
 	assert_eq(completion.intents.size(),1)
@@ -389,7 +453,7 @@ func test_deferred_hospital_start_failure_releases_physical_owner_for_same_comma
 	var receipts: Array[Dictionary] = []
 	owner.physical_completion_failed.connect(func(failure: Dictionary): failures.append(failure.duplicate(true)))
 	owner.physical_completion_ready.connect(func(receipt: Dictionary): receipts.append(receipt.duplicate(true)))
-	var command := _hospital_command()
+	var command := _sylvia_hospital_command()
 	var begun: Dictionary = owner.begin_physical(command)
 	assert_true(begun.get("ok",false),str(begun))
 	assert_eq(_native_starts,0)
@@ -507,7 +571,7 @@ func test_direct_native_replacement_never_completes_the_old_physical_hospital() 
 	owner.physical_completion_ready.connect(func(receipt: Dictionary): receipts.append(receipt.duplicate(true)))
 	owner.physical_completion_failed.connect(func(failure: Dictionary): failures.append(failure.duplicate(true)))
 	runtime.paused = true
-	assert_true(owner.begin_physical(_hospital_command()).get("ok",false))
+	assert_true(owner.begin_physical(_sylvia_hospital_command()).get("ok",false))
 	for frame in 20:
 		if _native_starts == 1: break
 		await get_tree().process_frame
@@ -548,7 +612,7 @@ func test_reentrant_same_path_native_start_during_preference_reapply_fails_the_o
 	runtime.paused = true
 	adapter.preference_reapply_requested.connect(func():
 		runtime.start_timeline(str(located.value.path),""),CONNECT_ONE_SHOT)
-	var begun: Dictionary = owner.begin_physical(_hospital_command())
+	var begun: Dictionary = owner.begin_physical(_sylvia_hospital_command())
 	assert_false(begun.get("ok",true),"the admitted start reports its synchronous native replacement")
 	assert_eq(_native_starts,1,"only the reentrant foreign native generation starts")
 	assert_eq(failures.size(),1,"the replaced physical owner receives one failure")
@@ -574,7 +638,7 @@ func test_pending_same_path_native_start_cancels_the_queued_admitted_start() -> 
 	owner.physical_completion_ready.connect(func(receipt: Dictionary): receipts.append(receipt.duplicate(true)))
 	owner.physical_completion_failed.connect(func(failure: Dictionary): failures.append(failure.duplicate(true)))
 	runtime.paused = true
-	var begun: Dictionary = owner.begin_physical(_hospital_command())
+	var begun: Dictionary = owner.begin_physical(_sylvia_hospital_command())
 	assert_true(begun.get("ok",false),str(begun))
 	assert_eq(_native_starts,0)
 	var pending_layout: Node = runtime.Styles.get_layout_node()
@@ -675,6 +739,7 @@ func test_deferred_semantic_start_failure_reports_exact_token_preserves_cache_an
 	var receipt: Dictionary = started.receipt
 	assert_false(str(receipt.playback_token).is_empty())
 	assert_eq(_native_starts,0)
+	if not await _continue_art_hold_if_present(): return
 	var pending_layout: Node = runtime.Styles.get_layout_node()
 	assert_not_null(pending_layout)
 	if pending_layout == null: return
@@ -702,6 +767,7 @@ func test_deferred_semantic_start_failure_reports_exact_token_preserves_cache_an
 	assert_true(retried.get("ok",false),str(retried))
 	if not retried.get("ok",false): return
 	assert_ne(retried.receipt.playback_token,receipt.playback_token,"retry receives a new live token")
+	if not await _continue_art_hold_if_present(): return
 	await _wait_for_natural_end()
 	assert_eq(_native_starts,1)
 	assert_eq(_native_ends,1)

@@ -9,6 +9,7 @@ const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter
 const PHYSICAL_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const COORDINATOR := preload("res://scripts/application/lifecycle/ApplicationLifecycleCoordinator.gd")
 const INPUT_OWNER := preload("res://autoload/InputManager.gd")
+const HOSPITAL_SCENE := preload("res://scripts/ui/HospitalScene.gd")
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
 const TIMELINE_ID := "hospital.faint"
 const HANDLE := {"generation": 1, "handle_id": "synthetic-pause-frontier", "holder": &"pause_fixture", "reason": &"universal_pause"}
@@ -65,12 +66,14 @@ var _original_scene: Node
 var _old_process_mode: int
 var _window_size: Vector2i
 var _window_content_size: Vector2i
+var _original_contacts: Dictionary = {}
 # Coordinator dependencies are Object-typed, so the fixture retains its RefCounted ports.
 var _pause_route: PauseRoute
 var _pause_gate: PauseGate
 var _pause_audio: AudioFixture
 
 func before_each() -> void:
+	_original_contacts = GameState.contacts.duplicate(true)
 	_old_process_mode = process_mode
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_original_scene = get_tree().current_scene
@@ -169,6 +172,24 @@ func after_each() -> void:
 	get_tree().root.size = _window_size
 	get_tree().root.content_scale_size = _window_content_size
 	process_mode = _old_process_mode
+	GameState.contacts = _original_contacts.duplicate(true)
+
+func _sylvia_hospital_context() -> Dictionary:
+	var context := {"kind": "hospital", "day": 3,
+		"source_entry_ids": ["accepted.3"], "miss_receipt_ids": ["miss.3"]}
+	var contacts: Dictionary = GameState.contacts.duplicate(true)
+	var witnesses: Dictionary = contacts.get("sylvia_hospital_witness_receipts", {}).duplicate(true)
+	witnesses["pause-frontier.3"] = {"kind": "sylvia_hospital_witness",
+		"resolution_kind": "condition_hospital", "care_followup_day": 4,
+		"source_receipt_id": "accepted.3", "hospital_miss_receipt_id": "miss.3"}
+	contacts["sylvia_hospital_witness_receipts"] = witnesses
+	GameState.contacts = contacts
+	assert_eq(HOSPITAL_SCENE.art_participants(GameState.contacts, context), ["sylvia"],
+		"the saved condition-Hospital witness independently proves Sylvia attendance")
+	assert_eq(HOSPITAL_SCENE.art_participants(GameState.contacts, context,
+		GameState._canonical_committed_schedule()), ["sylvia"],
+		"receipt-proven Sylvia attendance admits the physical Hospital timeline")
+	return context
 
 func _fixture(copy: String) -> void:
 	_synthetic = DialogicTimeline.new()
@@ -321,9 +342,10 @@ func test_native_nontext_wait_refuses_pause_without_changing_playback() -> void:
 
 func test_retained_physical_owner_publishes_same_source_without_a_completion() -> void:
 	_fixture("Synthetic Hospital-path reading fixture; not shipped Hospital prose. ".repeat(20))
+	var context := _sylvia_hospital_context()
 	var command := {"resolution_id": "synthetic-resolution", "resolution_issuer_receipt": {"receipt_id": "synthetic-root"},
 		"stage_id": "synthetic-stage", "substage_id": "synthetic-substage", "route_id": "hospital", "timeline_id": TIMELINE_ID,
-		"context": {}, "completion_transaction_id": "synthetic-completion", "completion_transaction_provenance": {},
+		"context": context, "completion_transaction_id": "synthetic-completion", "completion_transaction_provenance": {},
 		"command_sha256": "c".repeat(64)}
 	assert_false(_owner.capture_pause_source().ok)
 	assert_true(_owner.begin_physical(command).ok)
@@ -359,9 +381,10 @@ func _start_combined_pause_fixture() -> bool:
 	get_tree().root.add_child(_pause_scene)
 	get_tree().current_scene = _pause_scene
 	_fixture("Synthetic native Pause fixture preserves this overflowing current caption. ".repeat(30))
+	var context := _sylvia_hospital_context()
 	var command := {"resolution_id": "synthetic-resolution", "resolution_issuer_receipt": {"receipt_id": "synthetic-root"},
 		"stage_id": "synthetic-stage", "substage_id": "synthetic-substage", "route_id": "hospital", "timeline_id": TIMELINE_ID,
-		"context": {}, "completion_transaction_id": "synthetic-pause-completion", "completion_transaction_provenance": {},
+		"context": context, "completion_transaction_id": "synthetic-pause-completion", "completion_transaction_provenance": {},
 		"command_sha256": "d".repeat(64)}
 	var started: Dictionary = _owner.begin_physical(command)
 	assert_true(started.ok, str(started))

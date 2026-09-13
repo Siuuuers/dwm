@@ -14,7 +14,7 @@ implementation_requested: true
 implementation_authorized: true
 implementation_authorized_on: "2026-09-12"
 implementation_order: "section_13_with_week_tint_first"
-implementation_status: paused_after_week_tint_increment_1
+implementation_status: in_progress
 beads: dwm-gb6
 created_on: "2026-09-12"
 engine_line: godot_4_6
@@ -744,22 +744,55 @@ preferences supersede older presentation geometry only within that scope.
 Implementation was separately authorized and then paused by the owner.
 `dwm-vky` owns it; completing this design review does not resume it.
 
+**2026-09-13 continuation:** the owner's subsequent implementation goal resumes
+bounded Beads work beyond the review. Board-view controls (`dwm-vky.5`) and
+installed run-palette/accessibility binding (`dwm-vky.6`) are complete. Schedule
+and its warning sheet now use the installed day's week tint (`dwm-vky.7`),
+including live High Contrast/CVD preferences and retained modal focus. See
+`evidence/schedule_week_tint/README.md` for verification and its limits.
+Settings, Backup and Pause also receive the installed day and captured palette
+(`dwm-vky.8`). Backup appearance updates use retained record projections and
+defer changes while a confirmation or operation holds custody; they do not
+inspect saves or resolve a prepared action. Title Settings keeps its Day 1
+pending-mode preview. See `evidence/shared_run_presentation/README.md`.
+Shop and its Supportz confirmation now receive the installed day and captured
+palette (`dwm-vky.9`). Shop maps the existing sixteen accessibility tuples onto
+its materials, preserves Day 1 Standard literals and unfiltered artwork, and
+recolours retained controls without catalog queries. Confirmation custody defers
+appearance changes; completion still revalidates current catalog facts. See
+`evidence/shop_week_tint/README.md` for colour, interaction and native checks.
+Contacts now retains installed run presentation and live correspondence custody
+(`dwm-vky.10`); see `evidence/contacts_week_tint/README.md`. Witnessed captions and
+art-only scenes bind the installed palette/day at scene boundaries and use the
+existing sixteen caption tuples (`dwm-vky.11`). Live colour changes retain native
+text, artwork and pending input; see `evidence/witnessed_week_tint/README.md` for
+the exact Day 1 scope, real Pause checks and baseline test limitations.
+The Steady Interface preference and three-locale Settings row are implemented
+(`dwm-vky.12`), including narrowly scoped admission of older profiles missing
+the new false-valued field. See `evidence/steady_interface/README.md`. Its
+structure-family suppression remains part of the unimplemented Drift Deck
+presentation filter; this increment adds no deck or run-snapshot member.
+Other palette owners and the Drift Deck remain unfinished; the five deferred extra
+proposals in this amendment remain deferred. The dated review closeout below
+records the earlier review-only state.
+
 **Already landed:** week tint increment 1 (helper, desktop shell and StatHud)
 at `96b04bb88`, followed by the separate test/Hospital corrections and the
 measured generator-budget regeneration through `b8fcc49a6`. Do not repeat
 these increments or reopen `dwm-nsr` on the earlier stale-hash evidence.
 
-**Remaining order when implementation resumes:**
+**Implementation order (completed increments marked):**
 
 1. Finish week tint across the remaining palette owners and surfaces. Resolve
-   StatHud's run-palette/accessibility binding and propagate High Contrast/CVD
+   each remaining owner's run-palette/accessibility binding and propagate High Contrast/CVD
    selection; a registry helper alone cannot cover independent theme owners.
    Keep Day 1 exact and paintings unfiltered. Validate all required contrast
    pairs for all sixteen tuples at all seven day values.
-2. Implement the owner-requested board-view controls in Section 4.1 as a
-   bounded presentation/preferences increment, with profile compatibility and
-   input tests. It does not depend on the Drift Deck or a run-schema change.
-3. Add the Steady Interface row and its three-locale labels.
+2. **Complete (`dwm-vky.5`):** the owner-requested board-view controls in
+   Section 4.1, including profile compatibility and input tests. This increment
+   does not depend on the Drift Deck or a run-schema change.
+3. **Complete (`dwm-vky.12`):** the Steady Interface row, three-locale labels
+   and description, persistent preference and older-profile compatibility.
 4. Specify compatibility for existing saves before adding the compact
    `ui.drift.deck` plan/receipt. Current snapshot admission is strict and does
    not automatically migrate an extra member. A schema change requires the

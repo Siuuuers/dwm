@@ -27,8 +27,11 @@ func _init() -> void:
 	var required_path := ""
 	var output_path := ""
 	var roots: Array[String] = []
+	var check_only := false
 	for argument: String in OS.get_cmdline_user_args():
-		if argument.begins_with("--script="):
+		if argument == "--check" and not check_only:
+			check_only = true
+		elif argument.begins_with("--script="):
 			script_path = argument.trim_prefix("--script=")
 		elif argument.begins_with("--search-root="):
 			roots.append(argument.trim_prefix("--search-root="))
@@ -70,7 +73,8 @@ func _init() -> void:
 		printerr(JSON.stringify(inventory.get("errors", [])))
 		quit(1)
 		return
-	var written: Dictionary = INVENTORY.write_canonical_json(inventory, output_path)
+	var written: Dictionary = INVENTORY.check_canonical_json(inventory, output_path) if check_only \
+		else INVENTORY.write_canonical_json(inventory, output_path)
 	if not written.get("ok", false):
 		printerr(JSON.stringify(written.get("errors", [])))
 		quit(1)

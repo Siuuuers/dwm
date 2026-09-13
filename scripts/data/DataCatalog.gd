@@ -2,7 +2,7 @@ class_name DataCatalog
 extends RefCounted
 # DataCatalog (CONTRACTS §2 required interface): pure, read-only data source. No gameplay
 # logic, no GameState mutation. All methods return copies/values (never live references).
-# Values mirror indexed requirement data and MUST stay equal to GameState's embedded tables.
+# Contact calendar values delegate to the single fixed domain authority.
 
 # Registry delegation (dwm-p2r.16 Task 1). Schedule and the three Minesweeper Shop capability items
 # are OWNED by their immutable registries; this catalog stores none of their facts and keeps only
@@ -16,25 +16,8 @@ const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 # The roster is OWNED by the contacts domain (dwm-pm4, maintainer decision 2026-08-21); this
 # catalog keeps only the alias, exactly as it already treats the registry-owned facts above.
 const _CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const _SEVEN_DAY_CALENDAR := preload("res://scripts/domain/contact/SevenDayCalendar.gd")
 const FRIEND_IDS := _CONTACT_STATE.FRIEND_IDS
-
-const _INVITATION_DAYS := {
-	"priscilla": [1, 2, 4, 6],
-	"lavinia": [2, 3, 5, 6],
-	"sylvia": [1, 3, 4, 5],
-}
-
-const _GROUP_INVITATION_DAYS := [2, 6]
-
-const _DAILY_CONTACT_ORDER := {
-	1: ["priscilla", "sylvia"],
-	2: ["priscilla", "lavinia"],
-	3: ["lavinia", "sylvia"],
-	4: ["priscilla", "sylvia"],
-	5: ["lavinia", "sylvia"],
-	6: ["priscilla", "lavinia"],
-	7: ["priscilla", "lavinia", "sylvia"],
-}
 
 # Shop item rows (CONTENT §7). Each: id, currency, price, effects, max, gift flags, secret.
 #
@@ -340,10 +323,7 @@ func _resolve_day(target_day: int) -> int:
 
 func get_daily_contact_message_order(target_day: int = -1) -> Array[String]:
 	var day := _resolve_day(target_day)
-	var out: Array[String] = []
-	if _DAILY_CONTACT_ORDER.has(day):
-		out.assign(_DAILY_CONTACT_ORDER[day])
-	return out
+	return _SEVEN_DAY_CALENDAR.contact_round_order(day)
 
 
 func get_contact_message_order_or_fallback(target_day: int = -1) -> Array[String]:
@@ -359,23 +339,16 @@ func get_contact_message_order_or_fallback(target_day: int = -1) -> Array[String
 func get_invitation_days() -> Dictionary:
 	var out: Dictionary = {}
 	for friend in FRIEND_IDS:
-		var days: Array[int] = []
-		days.assign(_INVITATION_DAYS[friend])
-		out[friend] = days
+		out[friend] = _SEVEN_DAY_CALENDAR.solo_days_for(friend)
 	return out
 
 
 func get_invitation_days_for_friend(friend_id: String) -> Array[int]:
-	var out: Array[int] = []
-	if _INVITATION_DAYS.has(friend_id):
-		out.assign(_INVITATION_DAYS[friend_id])
-	return out
+	return _SEVEN_DAY_CALENDAR.solo_days_for(friend_id)
 
 
 func get_group_invitation_days() -> Array[int]:
-	var out: Array[int] = []
-	out.assign(_GROUP_INVITATION_DAYS)
-	return out
+	return _SEVEN_DAY_CALENDAR.group_days()
 
 
 func get_group_invitation_pairs() -> Array[Array]:

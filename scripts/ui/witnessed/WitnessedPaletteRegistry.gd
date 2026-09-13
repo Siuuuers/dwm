@@ -2,7 +2,9 @@ extends RefCounted
 ## Literal witnessed-role projection of SettingsPaletteRegistry at
 ## 26de279be5f6490ff453db359b1964ec10596962 (blob 5954ae68db2c36794506f242dac5bbad0c2a93b1).
 ## field=face, deep=habitat, current=inward_preview, text/focus_outer=ink,
-## rule=structure, focus_inner=focus. No runtime sibling dependency or transform.
+## rule=structure, focus_inner=focus. Literal lookup remains independent of tint.
+
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 
 const TUPLES := {
 	"AfterHours/standard/standard": {
@@ -74,3 +76,23 @@ const TUPLES := {
 static func resolve(palette: String, high_contrast: bool, colour_preset: String) -> Dictionary:
 	var key := "%s/%s/%s" % [palette, "high" if high_contrast else "standard", colour_preset]
 	return TUPLES[key].duplicate() if TUPLES.has(key) else {}
+
+
+static func resolve_tinted(palette: String, high_contrast: bool,
+		colour_preset: String, day: int = 1) -> Dictionary:
+	if day < 1 or day > 7:
+		return {}
+	var result: Dictionary = resolve(palette, high_contrast, colour_preset)
+	if result.is_empty() or day == 1 or high_contrast:
+		return result
+	var room: Dictionary = WEEK_TINT.apply({
+		"face": result[&"field"],
+		"habitat": result[&"deep"],
+		"inward_preview": result[&"current"],
+		"structure": result[&"rule"],
+	}, WEEK_TINT.tint_for_day(day), high_contrast, colour_preset)
+	result[&"field"] = room.face
+	result[&"deep"] = room.habitat
+	result[&"current"] = room.inward_preview
+	result[&"rule"] = room.structure
+	return result

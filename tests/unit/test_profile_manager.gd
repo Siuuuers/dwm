@@ -35,6 +35,13 @@ func _new_manager() -> Dictionary:
 	assert_true(initialized.get("ok", false), str(initialized))
 	return {"manager": manager, "ops": ops, "storage": storage}
 
+func _configure_lines(manager: Node, ids: Array[String]) -> void:
+	var lines: Array[Dictionary] = []
+	for line_id: String in ids:
+		lines.append({"line_id": line_id})
+	var configured: Dictionary = manager.call(&"configure_line_registry", {"reply_lines": lines})
+	assert_true(configured.get("ok", false), str(configured))
+
 func _v1_profile() -> Dictionary:
 	return {
 		"schema_version": 1,
@@ -245,6 +252,7 @@ func test_profile_document_remaps_retired_true_gallery_unlocks() -> void:
 
 func test_visited_history_is_global_and_idempotent() -> void:
 	var manager: Node = _new_manager()["manager"]
+	_configure_lines(manager, ["line.contact.ordinary.lavinia.day1.reply.a"])
 	assert_false(manager.call(&"is_line_visited", "line.contact.ordinary.lavinia.day1.reply.a"), "unread by default")
 	var first: Dictionary = manager.call(&"mark_line_visited", "line.contact.ordinary.lavinia.day1.reply.a")
 	assert_true(first.get("ok", false), str(first))
@@ -256,6 +264,7 @@ func test_visited_history_is_global_and_idempotent() -> void:
 func test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it() -> void:
 	var fixture := _new_manager()
 	var manager: Node = fixture["manager"]
+	_configure_lines(manager, ["dating.solo.sylvia.day3.line.1"])
 	manager.call(&"mark_line_visited", "dating.solo.sylvia.day3.line.1")
 	# A new run must NOT touch visited ids or skip mode (Plan-05 Task 4).
 	var snapshot: Dictionary = manager.call(&"get_profile_snapshot")
@@ -269,6 +278,7 @@ func test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it() 
 
 func test_visited_reset_leaves_other_profile_state_intact() -> void:
 	var manager: Node = _new_manager()["manager"]
+	_configure_lines(manager, ["line.contact.ordinary.lavinia.day1.reply.b"])
 	manager.call(&"prepare_preferences", {&"preferences.audio.music_volume": 0.42})
 	var volume_before: Variant = manager.call(&"get_preference", &"preferences.audio.music_volume")
 	manager.call(&"mark_line_visited", "line.contact.ordinary.lavinia.day1.reply.b")

@@ -6,6 +6,7 @@ const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const PAUSE := preload("res://scripts/application/lifecycle/ProductionPauseController.gd")
 const HOLD := preload("res://scripts/ui/witnessed/SceneArtHoldSurface.gd")
+const PALETTES := preload("res://scripts/ui/witnessed/WitnessedPaletteRegistry.gd")
 const PATH := "res://dialogic/timelines/en/core/opening_day1.dtl"
 const HANDLE := {"generation": 1, "handle_id": "art-pause", "holder": &"art_fixture", "reason": &"universal_pause"}
 var _bridge: Node
@@ -77,6 +78,12 @@ func test_portrait_only_return_scene_waits_then_executes_original_dtl_once() -> 
 func test_pause_reuses_exact_art_view_and_continue_does_not_execute_while_suspended() -> void:
 	var view := await _begin()
 	if view == null: return
+	var art: Control = view.art
+	var portrait: TextureRect = art._portraits[0]
+	var texture: Texture2D = portrait.texture
+	var button: Button = view.next_button
+	var token: String = view._token
+	assert_true(button.has_focus(), "admitted art Continue owns focus before Pause")
 	var frontier: Dictionary = _bridge.capture_pause_frontier().value
 	var source := {"frontier": frontier}
 	var controller: Node = PAUSE.new()
@@ -88,8 +95,22 @@ func test_pause_reuses_exact_art_view_and_continue_does_not_execute_while_suspen
 	assert_eq(controller._caption, view)
 	var anchor: Dictionary = view.capture_pause_view(source).value
 	assert_true(_bridge.begin_suspend(HANDLE).ok)
+	assert_true(button.disabled, "real Bridge suspension disables Continue before cover")
 	assert_true(view.cover_pause_view(anchor))
+	var covered_focus: Control = get_viewport().gui_get_focus_owner()
 	assert_true(get_node("/root/ProfileManager").is_connected("preference_changed", view._on_preference_changed))
+	view._on_preference_changed(&"preferences.accessibility.high_contrast", true)
+	view._on_preference_changed(&"preferences.accessibility.colour_differentiation", "deutan")
+	var expected: Dictionary = PALETTES.resolve_tinted(view._palette, true, "deutan", view._day)
+	assert_eq(view._background.color, expected[&"field"], "covered surface adopts live accessibility materials")
+	assert_eq(view._footer.color, expected[&"deep"])
+	assert_same(view.art, art)
+	assert_same(art._portraits[0], portrait)
+	assert_same(portrait.texture, texture, "material changes retain the actual imported texture")
+	assert_same(view.next_button, button)
+	assert_eq(view._token, token)
+	assert_true(button.disabled, "covered recolour cannot admit Continue")
+	assert_eq(get_viewport().gui_get_focus_owner(), covered_focus, "covered recolour cannot take Pause focus")
 	view._on_preference_changed(&"preferences.accessibility.text_size", 150)
 	view._on_locale_changed("zh-CN")
 	assert_eq(view.art.size, Vector2(1280, 328), "paused preference changes resize only the same art view")
@@ -102,6 +123,9 @@ func test_pause_reuses_exact_art_view_and_continue_does_not_execute_while_suspen
 	assert_true(_bridge.resume(HANDLE).ok)
 	await get_tree().process_frame
 	await get_tree().process_frame
+	assert_true(get_node("/root/InputManager").is_source_input_admitted())
+	assert_false(button.disabled)
+	assert_true(button.has_focus(), "Bridge resume restores Continue focus on an admitted process frame")
 	view.next_button.pressed.emit()
 	await _await_end()
 

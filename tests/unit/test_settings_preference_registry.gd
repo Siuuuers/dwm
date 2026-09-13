@@ -37,6 +37,7 @@ const EXPECTED_RECORDS := {
 	"preferences.accessibility.large_targets": {"type": "bool", "default_value": false, "section_id": "accessibility", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.accessibility.high_contrast": {"type": "bool", "default_value": false, "section_id": "accessibility", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.accessibility.reduced_motion": {"type": "bool", "default_value": false, "section_id": "accessibility", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
+	"preferences.accessibility.steady_interface": {"type": "bool", "default_value": false, "section_id": "accessibility", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.accessibility.screen_shake": {"type": "enum_string", "default_value": "low", "section_id": "accessibility", "renderer": "enum_option", "player_writable": true, "allowed_values": ["off", "low", "normal"], "step": 0.0},
 	"preferences.accessibility.colour_differentiation": {"type": "enum_string", "default_value": "standard", "section_id": "accessibility", "renderer": "enum_option", "player_writable": true, "allowed_values": ["standard", "protan", "deutan", "tritan"], "step": 0.0},
 	"preferences.accessibility.sound_detail_text": {"type": "enum_string", "default_value": "story_relevant", "section_id": "accessibility", "renderer": "enum_option", "player_writable": true, "allowed_values": ["story_relevant", "off"], "step": 0.0},

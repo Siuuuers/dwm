@@ -57,6 +57,19 @@ func test_all_text_advances_through_unseen_text() -> void:
 	assert_false(decision["stop_before_boundary"])
 
 
+func test_unknown_and_absent_boundaries_stop_in_both_modes() -> void:
+	if _policy == null:
+		return
+	for mode: StringName in [READ_ONLY, ALL_TEXT]:
+		for visited: bool in [false, true]:
+			for boundary: StringName in [&"none", &"unknown", &"", &"future_event"]:
+				var decision: Dictionary = _evaluate(mode, visited, boundary)
+				assert_true(decision["stop_before_boundary"], "unclassified frontier stops: " + String(boundary))
+				assert_false(decision["advance"], "unclassified frontier is never consumed")
+				assert_true(decision["reveal_current"])
+				assert_true(decision["mark_current_visited"])
+
+
 func test_all_text_advances_through_seen_text() -> void:
 	if _policy == null:
 		return

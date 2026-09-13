@@ -5,6 +5,7 @@ const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.t
 const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
 const TRADITIONAL := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
 const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
+const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 const ROLES := {
 	"habitat": Color("0b0d13"), "face": Color("151b25"),
 	"paper": Color("c3baa3"), "paper_ink": Color("151b25"),
@@ -25,10 +26,11 @@ const SAMPLE_COPY := {
 }
 
 
-static func build(locale: String, percent: int, palette_id: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
+static func build(locale: String, percent: int, palette_id: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", day: int = 1) -> Theme:
 	var roles: Dictionary = PALETTES.resolve(palette_id, high_contrast, colour_preset)
-	if roles.is_empty():
+	if roles.is_empty() or day < 1 or day > 7:
 		return null
+	roles = WEEK_TINT.apply(roles, WEEK_TINT.tint_for_day(day), high_contrast, colour_preset)
 	var result := Theme.new()
 	var primary: Font = {"en": ENGLISH, "zh-CN": SIMPLIFIED, "zh-HK": TRADITIONAL}.get(locale.replace("_", "-"), ENGLISH)
 	var font := FontVariation.new()

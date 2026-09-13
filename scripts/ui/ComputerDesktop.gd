@@ -214,6 +214,13 @@ func _build_shell() -> void:
 
 func configure_contacts(port: Object, localization: Object = null, profile: Object = null,
 		host_state: Object = null, day: int = 1) -> Dictionary:
+	if day < 1 or day > 7: return {"ok":false,"code":&"desktop_owner_day_mismatch"}
+	if host_state != null:
+		if not is_instance_valid(host_state) or not host_state.has_method("get_state"):
+			return {"ok":false,"code":&"desktop_owner_unavailable"}
+		var state: Dictionary = host_state.get_state()
+		if state.has("current_day") and state.current_day != day:
+			return {"ok":false,"code":&"desktop_owner_day_mismatch"}
 	if port == null or not port.has_method("get_projection") or not port.has_method("open_friend") or not port.has_method("reply_to_group"):
 		return {"ok": false, "code": &"invalid_contacts_presentation_port"}
 	if _presentation_port != null and _presentation_port != port:
@@ -466,26 +473,31 @@ func open_app(app_id: StringName) -> Dictionary:
 		if scene == null:
 			return _route_failure(&"desktop_scene_unavailable")
 		app = scene.instantiate()
+		if app_id == &"settings":
+			var presentation: Dictionary = app.configure_run_presentation(_run_palette, _day)
+			if not presentation.get("ok", false):
+				app.free()
+				return _route_failure(&"settings_presentation_unavailable")
 		app.hide()
 		app_window_host.add_child(app)
 		var configured: Dictionary
 		if app_id == &"contacts":
-			configured = app.configure_presentation(_presentation_port, _localization, _profile)
+			configured = app.configure_presentation(_presentation_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"minesweeper":
 			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette)
 		elif app_id == &"logout":
 			configured = app.configure_exit(_session_exit, _locale)
 		elif app_id == &"shop":
 			app.configure_desktop_home(home_button)
-			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette)
+			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"schedule":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_presentation(_schedule_port, _locale, int(theme.default_font_size * 100 / 24),
-				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands)
+				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands, _day)
 			if configured.get("ok",false): configured = app.configure_shared_preferences(_localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
-			configured = app.configure_backup(_backup_port, _localization, _profile)
+			configured = app.configure_backup(_backup_port, _localization, _profile, _run_palette, _day)
 		else:
 			configured = app.get_desktop_ready_result()
 		if not configured.get("ok", false):
@@ -732,7 +744,7 @@ func _configure_from_bootstrap() -> void:
 		# The helper leaves restored app focus in its owning view.
 		_focus_initial_launcher.call_deferred()
 
-func _refresh_launcher() -> void:
+func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	if _localization != null and _localization.has_method("get_locale"):
 		var requested := str(_localization.get_locale()).replace("_", "-")
 		if LABELS.has(requested):
@@ -753,7 +765,8 @@ func _refresh_launcher() -> void:
 	for index in ids.size():
 		var button: Button = launcher_buttons[ids[index]]
 		button.theme = theme
-		button.set_caption(LABELS[_locale][index])
+		if ids[index] != &"contacts" or refresh_contacts:
+			button.set_caption(LABELS[_locale][index])
 	var home: String = {"en": "Home", "zh-CN": "主页", "zh-HK": "主頁"}[_locale]
 	home_button.accessibility_name = home
 	home_button.current_on_launcher = _active_id == &""
@@ -766,7 +779,7 @@ func _refresh_launcher() -> void:
 	clock_label.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
 	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間"}[_locale]
 	_refresh_clock_description()
-	_refresh_contact_notice()
+	if refresh_contacts: _refresh_contact_notice()
 	if status_label.visible:
 		_set_failure_copy()
 	queue_redraw()
@@ -829,9 +842,11 @@ func _open_contacts_from_notification() -> void:
 		_dismiss_message_notification()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast",
-			&"preferences.accessibility.colour_differentiation"]:
+	if path == &"preferences.accessibility.text_size":
 		_refresh_launcher()
+	elif path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation"]:
+		# Preserve the displayed unread fact; colours do not invalidate correspondence.
+		_refresh_launcher(false)
 
 func _on_contacts_changed(_result: Dictionary) -> void:
 	_refresh_contact_notice()

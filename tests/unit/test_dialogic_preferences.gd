@@ -34,9 +34,18 @@ class FakeBridgeProfile:
 	extends Node
 	signal preference_changed(path: StringName, value: Variant)
 	var snapshot := {"preferences": {"reading": {"reveal_speed": "normal", "auto_delay": "normal", "auto_enabled": false, "skip_mode": "read_only"}}}
+	var visited: Array[String] = []
 
 	func get_profile_snapshot() -> Dictionary:
 		return snapshot.duplicate(true)
+
+	func is_line_visited(line_id: String) -> bool:
+		return line_id in visited
+
+	func mark_line_visited(line_id: String) -> Dictionary:
+		if line_id not in visited:
+			visited.append(line_id)
+		return {"ok": true, "value": {"visited": true}}
 
 
 class FailingPreferenceAdapter:
@@ -161,6 +170,7 @@ func test_failed_bridge_binding_is_retryable_and_connects_only_after_apply() -> 
 	assert_false(bridge.bind_profile_preferences(profile, adapter).get("ok", true))
 	assert_false(profile.preference_changed.is_connected(Callable(bridge, "_on_profile_preference_changed")))
 	assert_false(bridge.get("_preferences_bound"))
+	assert_null(bridge.get("_skip_profile"), "failed preference binding publishes no Skip provider")
 	adapter.fail_apply = false
 	assert_true(bridge.bind_profile_preferences(profile, adapter).get("ok", false))
 	assert_true(profile.preference_changed.is_connected(Callable(bridge, "_on_profile_preference_changed")))

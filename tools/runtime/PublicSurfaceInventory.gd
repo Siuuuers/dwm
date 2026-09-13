@@ -121,6 +121,18 @@ static func validate(inventory: Dictionary) -> Dictionary:
 				errors.append("SURFACE_REQUIRED_AVAILABILITY_UNKNOWN: " + symbol)
 	return {"ok": errors.is_empty(), "errors": errors}
 
+static func check_canonical_json(inventory: Dictionary, output_path: String) -> Dictionary:
+	if not inventory.get("ok", false):
+		return {"ok": false, "errors": ["SURFACE_INVALID: build a valid inventory before checking output"]}
+	var canonical := CanonicalJsonWriter.stringify(inventory)
+	if not canonical.get("ok", false):
+		return {"ok": false, "errors": ["SURFACE_CANONICAL_FAILED: " + JSON.stringify(canonical.get("errors", []))]}
+	if not FileAccess.file_exists(output_path):
+		return {"ok": false, "errors": ["SURFACE_OUTPUT_MISSING: " + output_path]}
+	if FileAccess.get_file_as_bytes(output_path) != (str(canonical["value"]) + "\n").to_utf8_buffer():
+		return {"ok": false, "errors": ["SURFACE_OUTPUT_STALE: regenerate " + output_path]}
+	return {"ok": true, "errors": []}
+
 static func write_canonical_json(inventory: Dictionary, output_path: String) -> Dictionary:
 	var canonical := CanonicalJsonWriter.stringify(inventory)
 	if not canonical.get("ok", false):
@@ -213,7 +225,7 @@ static func _scan_references(
 			for line_index: int in range(lines.size()):
 				var line := lines[line_index]
 				for symbol: String in symbols:
-					if (patterns[symbol] as RegEx).search(line) == null:
+					if not line.contains(symbol) or (patterns[symbol] as RegEx).search(line) == null:
 						continue
 					var site := "%s:%d" % [display, line_index + 1]
 					if line.contains("\"" + symbol + "\""):

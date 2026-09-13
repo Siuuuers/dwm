@@ -19,7 +19,7 @@ const CATEGORY_FIELDS: Dictionary = {
 	"audio": ["audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted", "audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted", "audio.mute_when_inactive", "audio.output_mode"],
 	"display": ["display.window_mode"],
 	"controls": [],
-	"accessibility": ["accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
+	"accessibility": ["accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
 	"records": ["exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled"],
 }
 const RESET_METHODS: Dictionary = {
@@ -54,6 +54,9 @@ var _presentation_percent: int = 0
 var _presentation_palette: StringName = &""
 var _presentation_high_contrast: bool = false
 var _presentation_colour_preset: String = ""
+var _presentation_day := 0
+var _run_palette: StringName = &"after_hours"
+var _run_day := 1
 var _selected_extension: Control
 var _reset_consent: Dictionary = {}
 var _confirmation_generation: int = 0
@@ -63,6 +66,18 @@ var _reset_busy := false
 func configure_services(services: Dictionary) -> void:
 	if not is_node_ready():
 		_services = services.duplicate()
+
+
+func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
+	if palette not in [&"after_hours", &"midnight"] or day < 1 or day > 7:
+		return {"ok": false, "code": &"invalid_settings_run_presentation"}
+	if palette == _run_palette and day == _run_day:
+		return {"ok": true}
+	_run_palette = palette
+	_run_day = day
+	if _controller != null:
+		_controller.refresh()
+	return {"ok": true}
 
 
 func set_interaction_enabled(enabled: bool) -> void:
@@ -247,6 +262,10 @@ func _add_preference(sheet: VBoxContainer, record: Dictionary) -> void:
 	control.custom_minimum_size.y = 48
 	PRESENTATION.attach_state(control)
 	row.add_child(control)
+	if path == &"preferences.accessibility.steady_interface":
+		var description := _label("settings.accessibility_steady_interface_description")
+		description.name = "SteadyInterfaceDescription"
+		row.add_child(description)
 	var status := _label("")
 	status.name = "LanguageStatus" if path == &"preferences.language.primary_locale_id" else row.name + "Status"
 	row.add_child(status)
@@ -393,6 +412,10 @@ func _clear_focus_perimeter(scroll: ScrollContainer, control: Control) -> void:
 		return
 	var target := control.get_global_rect().grow(8)
 	var viewport := scroll.get_global_rect()
+	if control == controls.get(&"preferences.accessibility.steady_interface"):
+		var reading_row: Rect2 = rows[&"preferences.accessibility.steady_interface"].get_global_rect().grow(8)
+		if reading_row.size.y <= viewport.size.y:
+			target = reading_row
 	if target.position.y < viewport.position.y:
 		scroll.scroll_vertical -= ceili(viewport.position.y - target.position.y)
 	elif target.end.y > viewport.end.y:
@@ -408,6 +431,8 @@ func refresh_labels() -> void:
 	for path: StringName in controls:
 		var control: Control = controls[path]
 		control.accessibility_name = text("settings." + String(path).trim_prefix("preferences.").replace(".", "_"))
+		if path == &"preferences.accessibility.steady_interface":
+			control.accessibility_description = text("settings.accessibility_steady_interface_description")
 		if control is OptionButton:
 			var option := control as OptionButton
 			option.clear()
@@ -449,6 +474,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	_refresh_discovered_dark_mode()
 	var locale := current_locale().replace("_", "-")
 	var palette_id := get_palette_id()
+	var day := 1 if host_context == "title" else _run_day
 	var presentation_profile: Variant = _services.get("profile")
 	var contrast_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.high_contrast", false) if presentation_profile != null else false
 	var colour_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard") if presentation_profile != null else "standard"
@@ -458,8 +484,8 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	var colour_preset: String = colour_value
 	var font_size := roundi(24.0 * float(percent) / 100.0)
 	if locale != _presentation_locale or percent != _presentation_percent or palette_id != _presentation_palette \
-			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset:
-		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset)
+			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset or day != _presentation_day:
+		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset, day)
 		if candidate == null:
 			return
 		_presentation_locale = locale
@@ -467,6 +493,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 		_presentation_palette = palette_id
 		_presentation_high_contrast = high_contrast
 		_presentation_colour_preset = colour_preset
+		_presentation_day = day
 		theme = candidate
 		PRESENTATION.apply_scroll(rail_scroll, false)
 		PRESENTATION.apply_scroll(sheet_scroll, true)
@@ -545,9 +572,8 @@ func current_locale() -> String:
 
 func get_palette_id() -> StringName:
 	# Pending title intent is never a substitute for a captured in-run palette.
-	# This run lineage has no captured Dark owner yet.
 	if host_context != "title":
-		return &"after_hours"
+		return _run_palette
 	var profile: Variant = _services.get("profile")
 	if not is_instance_valid(profile) or not profile.has_method("get_preference"):
 		return &"after_hours"
