@@ -8,6 +8,11 @@ static var _ordinary_ascii := RegEx.create_from_string("\\A[\\x20-\\x21\\x23-\\x
 static var _printable_ascii := RegEx.create_from_string("\\A[\\x20-\\x7E]*\\z")
 
 static func stringify(value: Variant) -> Dictionary:
+	# Godot's native encoder is byte-identical for this complete, bounded domain:
+	# exact integers, printable ASCII, and containers with unique string-like keys.
+	# Floats, other strings/types, or deeper values retain the checked emitter below.
+	if _can_use_native_encoder(value):
+		return _ok(JSON.stringify(value, "", true))
 	var emitted := _emit(value)
 	if not emitted.get("ok", false):
 		return emitted
@@ -17,6 +22,36 @@ static func stringify(value: Variant) -> Dictionary:
 	if emitted.get("round_trip_failed", false):
 		return {"ok": false, "code": &"self_check_failed", "message": "Canonical JSON did not round-trip exactly"}
 	return _ok(emitted["value"])
+
+static func _can_use_native_encoder(value: Variant, depth := 0) -> bool:
+	# Stay below native recursion limits and prevent cycles reaching its placeholder
+	# output. An eligibility miss changes neither the original refusal nor its order.
+	if depth > 64:
+		return false
+	match typeof(value):
+		TYPE_NIL, TYPE_BOOL, TYPE_INT:
+			return true
+		TYPE_STRING, TYPE_STRING_NAME:
+			return _printable_ascii.search(str(value)) != null
+		TYPE_ARRAY:
+			for item in value:
+				if not _can_use_native_encoder(item, depth + 1):
+					return false
+			return true
+		TYPE_DICTIONARY:
+			var normalized_keys := {}
+			for key in value:
+				if typeof(key) != TYPE_STRING and typeof(key) != TYPE_STRING_NAME:
+					return false
+				var normalized_key := str(key)
+				if normalized_keys.has(normalized_key) or _printable_ascii.search(normalized_key) == null:
+					return false
+				normalized_keys[normalized_key] = true
+				if not _can_use_native_encoder(value[key], depth + 1):
+					return false
+			return true
+		_:
+			return false
 
 static func _emit(value: Variant) -> Dictionary:
 	match typeof(value):
