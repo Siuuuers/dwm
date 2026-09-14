@@ -262,7 +262,10 @@ func test_a_valid_intent_returns_the_canonical_command_and_nothing_else() -> voi
 	if not _require_fixture():
 		return
 	var request := _request()
+	var owner_before := _game_state_owner_snapshot()
 	var begun: Dictionary = _port.begin(request)
+	assert_eq(_game_state_owner_snapshot(), owner_before,
+		"the real narrative owner may read Hospital witnesses but mutates no gameplay owner")
 	assert_true(begun.get("ok", false), str(begun))
 	if not begun.get("ok", false): return
 	assert_eq(begun.get("code"), &"ok")
@@ -282,6 +285,14 @@ func test_a_valid_intent_returns_the_canonical_command_and_nothing_else() -> voi
 		str((STATE_SCHEMA.canonical_sha256(request)["value"] as Dictionary)["sha256"]),
 		"command_sha256 is the canonical hash of the exact request bytes")
 	assert_false(str(command["physical_token"]).strip_edges().is_empty())
+
+
+func _game_state_owner_snapshot() -> Dictionary:
+	var snapshot: Dictionary = GameState.capture_run_snapshot_input().duplicate(true)
+	# The captured gameplay already includes route_context. Repeat it at the top level so the exact
+	# owner seam the old Hospital scene mutated remains explicit in a failed snapshot diff.
+	snapshot["route_context"] = (GameState.route_context as Dictionary).duplicate(true)
+	return snapshot
 
 
 func test_the_request_member_set_is_exact() -> void:

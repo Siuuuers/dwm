@@ -33,12 +33,11 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 #                             router refuses an unregistered route generically. The case named
 #                             below is the specific retired one, which is the claim being made.
 #
-# THE COMMENT-STRIPPING SCANS ARE THE POINT, not an implementation detail. HospitalScene.gd's
-# doc comment still NAMES GameState.apply_hospital_recovery_and_advance_day() and SceneRouter to
-# record what Task 8 removed. A raw contains() scan would either fail on that prose or be quietly
-# weakened to accommodate it. _code_lines() drops full-line comments and scans what executes --
-# and test_the_comment_stripper_is_doing_real_work proves the stripper is not vacuously passing by
-# requiring those tokens to be present in the RAW file and absent from the code.
+# THE COMMENT-STRIPPING SCANS ARE THE POINT, not an implementation detail. Production documentation
+# may name retired seams without executing them, so `_code_lines()` drops full-line comments before
+# scanning. `test_the_comment_stripper_is_doing_real_work` uses a local specimen containing both a
+# forbidden prose token and executable code; it proves the former is removed and the latter retained
+# without coupling this contract to the current wording of a production file.
 #
 # SUBSTRATE. Real throughout: GUID-isolated root, real DesktopIssuerRootStore over real
 # JsonFileStorage, the real DesktopIdentityNonceIssuer, the production ScheduleActionRegistry, the
@@ -94,6 +93,8 @@ const HOSPITAL_SCENE_PATH := "res://scripts/ui/HospitalScene.gd"
 const DATING_SCENE_PATH := "res://scripts/ui/DatingScene.gd"
 const COORDINATOR_PATH := "res://scripts/application/run/DayResolutionCoordinator.gd"
 const STATE_PORT_PATH := "res://scripts/application/run/GameStateDayResolutionPort.gd"
+const CONDITION_HOSPITAL_PORT_PATH := "res://scripts/application/run/GameStateConditionHospitalPort.gd"
+const BOOTSTRAP_PATH := "res://autoload/ApplicationBootstrap.gd"
 
 ## The five adapters. None of them may name a gameplay mutation seam in executable code.
 const ADAPTER_PATHS: Array[String] = [
@@ -109,9 +110,10 @@ const NON_OWNER_PATHS: Array[String] = [
 ## Naming any of these is a direct Dialogic start: the physical runtime, or the autoload that wraps
 ## it. Only DialogicPresentationOwnerAdapter may, and only through its injected bridge.
 const DIALOGIC_START_TOKENS: Array[String] = ["start_timeline", "DialogicBridge", "Dialogic."]
-## Gameplay mutation seams. A presentation component that names one of these owns an outcome.
+## Gameplay mutation seams. These are commands or private mutable state, rather than the gameplay
+## owner's name: Hospital presentation now legitimately reads retained Contacts and Schedule facts.
 const MUTATION_TOKENS: Array[String] = [
-	"GameState", "SceneRouter", "_run_lifecycle", "advance_day", "increment_day",
+	"SceneRouter", "_run_lifecycle", "advance_day", "increment_day",
 	"apply_hospital", "commit_effect_transaction", "complete_active_stage", "route_context",
 ]
 
@@ -289,14 +291,13 @@ func test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike() -> void
 
 ## THE MIRROR IMAGE of the scan below, and the last dwm-p2r.18 SCOPE bullet stated as a fact.
 ##
-## `SceneRouter.route_presentation()` existed, was tested, and had ZERO production callers: the walk
-## derived an exact presentation intent, paused carrying its `route_id`, and handed it to nothing, so
-## no Hospital or Dating adapter was ever launched. The scan below proves a legacy seam stays
-## uncalled; this one proves the live seam IS called, and by the walk rather than by a scene.
+## `SceneRouter.route_presentation()` originally existed with ZERO production callers. There are now
+## exactly two resolution dispatchers: the committed-Schedule walk and the retained condition-
+## Hospital adapter. Bootstrap composes the latter with the router's callable but never dispatches.
 ##
 ## It goes red if anyone deletes the wire, and it goes red if the caller migrates into a Control
 ## node -- which is the failure mode Task 8 spent its whole budget removing.
-func test_the_walk_is_the_production_caller_of_route_presentation() -> void:
+func test_only_resolution_owners_dispatch_route_presentation_and_bootstrap_only_injects_it() -> void:
 	if _root.is_empty():
 		return
 	var callers: Array[String] = []
@@ -305,14 +306,27 @@ func test_the_walk_is_the_production_caller_of_route_presentation() -> void:
 			continue
 		if _code_lines(path).contains("route_presentation"):
 			callers.append(path)
-	assert_eq(callers, [COORDINATOR_PATH] as Array[String],
-		"the day-resolution walk is the sole production script naming route_presentation; found: "
+	assert_eq(callers, [COORDINATOR_PATH, CONDITION_HOSPITAL_PORT_PATH, BOOTSTRAP_PATH] as Array[String],
+		"only the two resolution dispatchers and their Bootstrap composition name route_presentation; found: "
 		+ str(callers))
-	# NAMING IT IS NOT CALLING IT. The coordinator also names the seam in the capability set it
-	# requires of a router, so the substring scan above stays green even with the dispatch deleted --
-	# verified by mutation, not assumed. The call form is what proves the walk actually launches.
+	for path: String in callers:
+		assert_false(path.begins_with("res://scripts/ui/"),
+			"a presentation Control must not own route dispatch: " + path)
+	# NAMING IT IS NOT CALLING IT. Pin each executable dispatch independently, then pin Bootstrap to
+	# the one injection expression so composition cannot become a third dispatcher.
 	assert_true(_code_lines(COORDINATOR_PATH).contains(".call(&\"route_presentation\""),
-		"the walk must CALL the seam, not merely declare it in a required capability")
+		"the committed-Schedule walk must call its router capability")
+	assert_true(_code_lines(CONDITION_HOSPITAL_PORT_PATH).contains(
+		"_route.call(str(request.route_id), begun.value.presentation_command)"),
+		"the condition-Hospital adapter must call its injected route capability")
+	var bootstrap_code := _code_lines(BOOTSTRAP_PATH)
+	assert_eq(bootstrap_code.count("route_presentation"), 1,
+		"Bootstrap names the route seam exactly once for condition-Hospital composition")
+	assert_true(bootstrap_code.contains(
+		"Callable(_target(&\"SceneRouter\"), \"route_presentation\")"),
+		"Bootstrap injects the router method as a callable")
+	assert_false(bootstrap_code.contains(".call(&\"route_presentation\""),
+		"Bootstrap composes the route owner but never dispatches presentation")
 	assert_true(_code_lines(ROUTER_PATH).contains("func route_presentation"),
 		"and the seam being pinned still exists on the router, so this scan is not vacuous")
 
@@ -396,9 +410,10 @@ func test_neither_presentation_port_exposes_a_timeline_start() -> void:
 # "No presentation-owned mutation"
 # -------------------------------------------------------------------------------------------------
 
-## The scene suites prove the SCENES mutate nothing by snapshot comparison. This proves the whole
-## adapter set -- both ports and the narrative owner included -- cannot, because none of them names
-## a gameplay owner or a mutation seam in executable code at all.
+## The scene suites prove the SCENES mutate nothing by snapshot comparison. The real Hospital-port
+## suite separately snapshots GameState across the narrative owner's legitimate attendance read.
+## This scan pins the narrower structural boundary: no presentation adapter names an actual gameplay
+## mutation command or private mutable owner state.
 func test_no_presentation_adapter_names_a_gameplay_mutation_seam() -> void:
 	if _root.is_empty():
 		return
@@ -408,21 +423,18 @@ func test_no_presentation_adapter_names_a_gameplay_mutation_seam() -> void:
 			assert_false(code.contains(token), path + " must not name " + token)
 
 
-## The guard on the guard. HospitalScene's doc comment deliberately names the two mutations Task 8
-## removed; if the stripper ever stopped removing comments, the scan above would be testing prose
-## and would still pass. This requires the tokens to be present in the RAW file and absent from the
-## code, so the sweep above cannot go vacuous unnoticed.
+## The guard on the guard uses a local specimen so documentation may evolve without turning prose
+## into a production dependency. It proves full-line comments are removed while executable text is
+## retained.
 func test_the_comment_stripper_is_doing_real_work() -> void:
 	if _root.is_empty():
 		return
-	var raw := FileAccess.get_file_as_string(HOSPITAL_SCENE_PATH)
-	var code := _code_lines(HOSPITAL_SCENE_PATH)
-	assert_true(raw.length() > 0, "the scene source is readable")
-	assert_true(code.length() > 0, "the scene has executable code")
-	for token: String in ["GameState", "SceneRouter", "apply_hospital"]:
-		assert_true(raw.contains(token),
-			token + " is still named in HospitalScene's prose, which is what makes this a real test")
-		assert_false(code.contains(token), token + " appears only in prose, never in code")
+	var specimen := "# GameState.apply_hospital_recovery_and_advance_day()\nfunc retained_code():\n\tpass\n"
+	var code := _strip_comment_lines(specimen)
+	assert_true(specimen.contains("apply_hospital"), "the specimen contains a forbidden prose token")
+	assert_false(code.contains("apply_hospital"), "full-line comments do not enter executable scans")
+	assert_true(code.contains("func retained_code():\n\tpass"),
+		"the stripper retains executable lines, so it cannot make every scan vacuous")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -432,8 +444,12 @@ func test_the_comment_stripper_is_doing_real_work() -> void:
 ## Source with every full-line comment removed, so a scan reads what EXECUTES rather than what the
 ## file says about itself.
 func _code_lines(path: String) -> String:
+	return _strip_comment_lines(FileAccess.get_file_as_string(path))
+
+
+func _strip_comment_lines(source: String) -> String:
 	var kept: PackedStringArray = []
-	for line: String in FileAccess.get_file_as_string(path).split("\n"):
+	for line: String in source.split("\n"):
 		if line.strip_edges().begins_with("#"):
 			continue
 		kept.append(line)

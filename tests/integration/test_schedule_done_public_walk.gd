@@ -10,18 +10,19 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # `_run_lifecycle.complete_active_stage` access. Here the whole day resolves with the test touching
 # exactly THREE doors, each of them a public production surface or the physical event itself:
 #
-#   1. the production Schedule commit port commits the day's draft (the committed-Schedule door);
+#   1. the production Schedule commit port commits and publishes the day's draft (the
+#      committed-Schedule door);
 #   2. `ScheduleDoneDispatcher.dispatch_done()` issues the one Done command (the Done dispatch
-#      surface Plan 03 owns -- dwm-p2r.21's recorded resolution, GameState facade REJECTED). That
-#      door has no production caller yet -- the Schedule-UI Done button is Plan-03 Tasks 1-5, and
-#      production reaches the SAME coordinator through `GameState.request_schedule_done`;
+#      surface Plan 03 owns -- dwm-p2r.21's recorded resolution, GameState facade REJECTED).
+#      Production reaches the SAME coordinator from the Schedule UI; this fixture isolates the
+#      dispatcher so the walk has one explicit public entry door;
 #   3. the physical owner FINISHES the date (`owner.finish()` -- the player completing the scene),
 #      which flows owner -> port -> coordinator -> dispatcher -> `complete_presentation_stage()`
 #      with no test code in between.
 #
 # The WALK touches no `_run_lifecycle`, drives no coordinator directly, steps no state port.
-# (Setup reads `_run_lifecycle.to_dict()["run_id"]` twice, to name the journal and the identity
-# context -- reads only, before the walk begins, never a drive call.) The walk's
+# (Setup installs the run identity; the injected identity provider only reads lifecycle state,
+# never drives it.) The walk's
 # advance is observed from the OUTSIDE: the public `GameState.day` property and the dispatcher's
 # own retained dispatch result.
 #
@@ -29,11 +30,11 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # state port, checkpoint port over real disk, the real Schedule commit/start foundation, the real
 # DesktopConsequenceSourcePort over the real DesktopBoardFatePort and desktop publication ledger
 # (DEVIATION-5's finished seam -- no FakeDesktopConsequenceSource anywhere in this file), and the
-# real DatingPresentationPort. The only doubles are the two the production graph itself still
-# lacks by recorded design: FakeDatingPresentationOwner (the dwm-oyo.4 challenge owner) and
-# FakePresentationRouter (a SceneTree concern proved against the real router in the presentation
-# bootstrap-wiring suite). Setup uses GameState's own day-transition helper to stand on day 3,
-# exactly as every committed-Schedule suite does; the WALK itself is public-door only.
+# real DatingPresentationPort. The two test-scope doubles are FakeDatingPresentationOwner, which
+# supplies the physical finish signal this walk drives, and FakePresentationRouter, which records
+# the routed command without mounting a scene tree. Their production counterparts are covered by
+# the presentation/bootstrap suites. Setup first installs an issuer-allocated run identity, then
+# uses GameState's narrow day-transition helper to stand on day 3; the WALK is public-door only.
 
 const COORDINATOR := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
 const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
@@ -55,16 +56,18 @@ const CONSEQUENCE_SOURCE_PORT := preload("res://scripts/application/desktop/Desk
 const CONSEQUENCE_COORDINATOR := preload("res://scripts/application/desktop/DesktopConsequenceCoordinator.gd")
 const BOARD_FATE_PORT := preload("res://scripts/application/minesweeper/DesktopBoardFatePort.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
 const HOSPITAL_PRESENTATION_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
 const DATING_PRESENTATION_PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
 const DATING_OWNER := preload("res://tests/support/FakeDatingPresentationOwner.gd")
 const PRESENTATION_ROUTER := preload("res://tests/support/FakePresentationRouter.gd")
 const DISPATCHER := preload("res://scripts/application/schedule/ScheduleDoneDispatcher.gd")
+const SCHEDULE_RESTORE_FIXTURE := preload("res://tests/support/ScheduleRestoreFixture.gd")
+const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 
 const DAY := 3
-const CAUSAL_DAY := "causal_day_instance.a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2"
-const VIEW_FINGERPRINT := "schedule_view.77777777777777777777777777777777"
 
 var _root := ""
 var _manager: Node
@@ -77,13 +80,32 @@ var _dating_owner: Object = null
 var _router: Object = null
 var _dispatcher: Object = null
 var _commands: Dictionary = {}
+var _gate: Object = null
+var _schedule_ledger: Object = null
+var _schedule_view: Object = null
+var _board: Object = null
+var _consequence: Object = null
+var _fixture_ready := false
 
 
 func before_each() -> void:
 	_commands = {}
 	_root = ""
+	_issuer = null
+	_registry = null
+	_fingerprint = ""
+	_state_port = null
+	_coordinator = null
+	_dating_owner = null
+	_router = null
+	_dispatcher = null
+	_gate = null
+	_schedule_ledger = null
+	_schedule_view = null
+	_board = null
+	_consequence = null
+	_fixture_ready = false
 	GameState.reset_game()
-	GameState._lifecycle_set_playing_day(DAY)
 	var created: Dictionary = TEMPORARY_STORAGE.create("p2r21-public-walk")
 	assert_true(created.get("ok", false), created.get("message", ""))
 	if not created.get("ok", false):
@@ -91,29 +113,143 @@ func before_each() -> void:
 	_root = str(created["value"])
 	_manager = SAVE_MANAGER.new()
 	add_child_autofree(_manager)
-	_manager.initialize(STORAGE.new(_root))
+	var manager_initialized: Dictionary = _manager.initialize(STORAGE.new(_root))
+	assert_true(manager_initialized.get("ok", false), JSON.stringify(manager_initialized))
+	if not manager_initialized.get("ok", false):
+		return
 
 	var registry_loaded: Dictionary = SCHEDULE_ACTION_REGISTRY.load_current()
 	assert_true(registry_loaded.get("ok", false), str(registry_loaded))
+	if not registry_loaded.get("ok", false):
+		return
 	_registry = (registry_loaded.get("value", {}) as Dictionary).get("registry")
 	_fingerprint = str((registry_loaded.get("value", {}) as Dictionary).get("registry_fingerprint", ""))
 
 	var root_store: Object = ISSUER_ROOT_STORE.new()
-	assert_true(root_store.configure(STORAGE.new(_root.path_join("identity")),
-		CRYPTO_NAMESPACE_SOURCE.new()).get("ok", false))
-	assert_true(root_store.load_or_create().get("ok", false))
+	var root_configured: Dictionary = root_store.configure(STORAGE.new(_root.path_join("identity")),
+		CRYPTO_NAMESPACE_SOURCE.new())
+	assert_true(root_configured.get("ok", false), JSON.stringify(root_configured))
+	if not root_configured.get("ok", false):
+		return
+	var root_loaded: Dictionary = root_store.load_or_create()
+	assert_true(root_loaded.get("ok", false), JSON.stringify(root_loaded))
+	if not root_loaded.get("ok", false):
+		return
 	_issuer = IDENTITY_ISSUER.new()
-	assert_true(_issuer.configure(root_store).get("ok", false))
+	var issuer_configured: Dictionary = _issuer.configure(root_store)
+	assert_true(issuer_configured.get("ok", false), JSON.stringify(issuer_configured))
+	if not issuer_configured.get("ok", false):
+		return
+	if not _initialize_run_identity():
+		return
+	GameState._lifecycle_set_playing_day(DAY)
+
+	_gate = GATE.new()
+	var gate_configured: Dictionary = _manager.configure_mutation_gate(_gate)
+	assert_true(gate_configured.get("ok", false), JSON.stringify(gate_configured))
+	if not gate_configured.get("ok", false):
+		return
+	_schedule_ledger = SCHEDULE_PUBLICATION_LEDGER.new()
+	var schedule_ledger_configured: Dictionary = _schedule_ledger.configure(
+		STORAGE.new(_root.path_join("schedule")))
+	assert_true(schedule_ledger_configured.get("ok", false),
+		JSON.stringify(schedule_ledger_configured))
+	if not schedule_ledger_configured.get("ok", false):
+		return
+	var schedule_ledger_loaded: Dictionary = _schedule_ledger.load()
+	assert_true(schedule_ledger_loaded.get("ok", false), JSON.stringify(schedule_ledger_loaded))
+	if not schedule_ledger_loaded.get("ok", false):
+		return
+	var schedule_restore: Dictionary = SCHEDULE_RESTORE_FIXTURE.create(_issuer)
+	assert_true(schedule_restore.get("ok", false), JSON.stringify(schedule_restore))
+	if not schedule_restore.get("ok", false):
+		return
+	_schedule_view = (schedule_restore["value"] as Dictionary)["view"]
+	_board = BOARD_STATE.new()
+	_consequence = CONSEQUENCE_STATE.new()
+	var lifecycle: Dictionary = GameState._run_lifecycle.to_dict()
+	var opened: Dictionary = _schedule_view.open_day(
+		int(lifecycle["day"]), str(lifecycle["causal_day_instance"]))
+	assert_true(opened.get("ok", false), JSON.stringify(opened))
+	if not opened.get("ok", false):
+		return
+	var restore_configured: Dictionary = _manager.configure_restore_participants({
+		"run": preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(GameState),
+		"desktop_consequence": preload(
+			"res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd"
+		).new(_consequence),
+		"desktop_board": preload(
+			"res://scripts/application/restore/DesktopBoardRestoreParticipant.gd"
+		).new(_board),
+		"schedule_view": (schedule_restore["value"] as Dictionary)["participant"],
+		"profile": preload(
+			"res://scripts/application/restore/ProfileRestoreParticipant.gd"
+		).new(ProfileManager),
+		"localization": preload(
+			"res://scripts/application/restore/LocalizationRestoreParticipant.gd"
+		).new(LocalizationManager),
+		"audio": preload(
+			"res://scripts/application/restore/AudioRestoreParticipant.gd"
+		).new(AudioManager),
+		"route": preload(
+			"res://scripts/application/restore/RouteRestoreParticipant.gd"
+		).new(SceneRouter),
+		"narrative": preload(
+			"res://scripts/application/restore/NarrativeRestoreParticipant.gd"
+		).new(DialogicBridge),
+	})
+	assert_true(restore_configured.get("ok", false), JSON.stringify(restore_configured))
+	if not restore_configured.get("ok", false):
+		return
 
 	_compose_production_graph()
+	_fixture_ready = true
+
+
+## Install one issuer-proven run identity before the fixture's narrow day-3 transition. This is
+## setup only: once a test begins, the walk still enters through the three public doors above.
+func _initialize_run_identity() -> bool:
+	var issued: Dictionary = _issuer.issue(&"transaction_id")
+	assert_true(issued.get("ok", false), JSON.stringify(issued))
+	if not issued.get("ok", false):
+		return false
+	var allocation: Dictionary = _issuer.prepare_continuation_allocation({
+		"existing_run_id": null,
+		"kind": "new_run",
+		"remap_source_transaction_ids": [],
+		"source_desktop_timeline_generation": null,
+		"transaction_id": (issued["value"] as Dictionary)["token"],
+		"transaction_issuer_receipt": (issued["value"] as Dictionary)["issuer_receipt"],
+	})
+	assert_true(allocation.get("ok", false), JSON.stringify(allocation))
+	if not allocation.get("ok", false):
+		return false
+	var committed: Dictionary = _issuer.commit_continuation_allocation(allocation["value"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	if not committed.get("ok", false):
+		return false
+	var identity: Dictionary = committed["value"]
+	var prepared: Dictionary = GameState.prepare_new_run_snapshot_input(
+		str(identity["run_id"]), str(identity["branch_id"]),
+		int(identity["desktop_timeline_generation"]), str(identity["causal_day_instance"]),
+		(identity["causal_day_instance_issuer_receipt"] as Dictionary).duplicate(true), false)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	if not prepared.get("ok", false):
+		return false
+	var installed: Dictionary = GameState._run_lifecycle.commit_restore(
+		((prepared["value"] as Dictionary)["snapshot_input"] as Dictionary)["lifecycle"])
+	assert_true(installed.get("ok", false), JSON.stringify(installed))
+	return installed.get("ok", false)
 
 
 ## Composes the graph exactly the way ApplicationBootstrap does, seam for seam -- foundation, then
 ## presentation ports, then the desktop consequence source and dispatcher LAST, matching the
 ## production stage order this slice wired.
 func _compose_production_graph() -> void:
-	var gate: Object = GATE.new()
 	_state_port = STATE_PORT.new(GameState)
+	assert_true(_state_port.configure_day_advance_owners(
+		_schedule_view, _board, _consequence).get("ok", false),
+		"day advancement shares the retained restore owners")
 	assert_true(_state_port.configure_checkpoint_providers({
 		"dialogic_checkpoint": Callable(DialogicBridge, "get_current_narrative_checkpoint"),
 		"route_id": Callable(SceneRouter, "get_current_route_id"),
@@ -125,17 +261,14 @@ func _compose_production_graph() -> void:
 	assert_true(provenance.configure(_registry, _issuer).get("ok", false))
 	assert_true(_state_port.configure_day7_provenance(provenance).get("ok", false))
 
-	var schedule_ledger: Object = SCHEDULE_PUBLICATION_LEDGER.new()
-	assert_true(schedule_ledger.configure(STORAGE.new(_root.path_join("schedule"))).get("ok", false))
-	assert_true(schedule_ledger.load().get("ok", false))
 	assert_true(_state_port.configure_resolution_identity(
-		_issuer, START_PORT.new(_state_port, _registry, _issuer, schedule_ledger)).get("ok", false))
+		_issuer, START_PORT.new(_state_port, _registry, _issuer, _schedule_ledger)).get("ok", false))
 
 	var checkpoint_port: Object = CHECKPOINT_PORT.new(_manager)
-	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false))
+	assert_true(checkpoint_port.configure_fatal_latch(_gate).get("ok", false))
 	_manager._journal.reset(str(GameState._run_lifecycle.to_dict()["run_id"]))
 	_coordinator = COORDINATOR.new()
-	assert_true(_coordinator.configure(_state_port, checkpoint_port, gate).get("ok", false))
+	assert_true(_coordinator.configure(_state_port, checkpoint_port, _gate).get("ok", false))
 	var day_advance_port: Object = DAY_ADVANCE_IDENTITY_PORT.new()
 	assert_true(day_advance_port.configure(_issuer).get("ok", false))
 	assert_true(_coordinator.configure_day_advance_identity_port(day_advance_port).get("ok", false))
@@ -157,14 +290,11 @@ func _compose_production_graph() -> void:
 	assert_true(desktop_ledger.load().get("ok", false))
 	var board_fate_port: Object = BOARD_FATE_PORT.new()
 	assert_true(board_fate_port.configure_publication_ledger(desktop_ledger).get("ok", false))
-	assert_true(board_fate_port.configure(BOARD_STATE.new(), _issuer).get("ok", false))
+	assert_true(board_fate_port.configure(_board, _issuer).get("ok", false))
 	var source_port: Object = CONSEQUENCE_SOURCE_PORT.new()
-	assert_true(source_port.configure(CONSEQUENCE_COORDINATOR.new(), board_fate_port, _issuer, {
-		"run_id": str(GameState._run_lifecycle.to_dict()["run_id"]),
-		"branch_id": "branch.public.walk",
-		"desktop_timeline_generation": 0,
-		"causal_day_instance": "",
-	}).get("ok", false))
+	assert_true(source_port.configure(CONSEQUENCE_COORDINATOR.new(), board_fate_port, _issuer,
+		Callable(self, "_identity_context")).get("ok", false))
+	assert_true(source_port.configure_current_condition_owner(GameState).get("ok", false))
 	assert_true(_state_port.configure_desktop_consequence_source(source_port).get("ok", false))
 
 	# The Done dispatch surface, configured LAST -- after the coordinator's own completion
@@ -179,6 +309,16 @@ func _active_app_id() -> Variant:
 
 func _content_version() -> int:
 	return 1
+
+
+func _identity_context() -> Dictionary:
+	var lifecycle: Dictionary = GameState._run_lifecycle.to_dict()
+	return {"ok": true, "value": {
+		"run_id": lifecycle["run_id"],
+		"branch_id": lifecycle["branch_id"],
+		"desktop_timeline_generation": lifecycle["desktop_timeline_generation"],
+		"causal_day_instance": lifecycle["causal_day_instance"],
+	}}
 
 
 func _command(label: String) -> Dictionary:
@@ -199,52 +339,84 @@ func _seed_solo_source(friend_id: String, action_id: String) -> String:
 	var offered: Dictionary = CONTACT_STATE.prepare_offer_solo(
 		GameState.contacts, friend_id, DAY, action_id, "offer.%s" % action_id)
 	assert_true(offered.get("ok", false), str(offered))
+	if not offered.get("ok", false):
+		return ""
 	var command: Dictionary = _command("open.%s" % action_id)
 	var found: Dictionary = _registry.find_record(action_id)
 	assert_true(found.get("ok", false), str(found))
+	if not found.get("ok", false):
+		return ""
 	var opened: Dictionary = CONTACT_STATE.prepare_open_contact(
 		offered["value"]["candidate"], friend_id, DAY, command["id"], command["receipt"],
 		_issuer, ((found["value"] as Dictionary)["record"] as Dictionary))
 	assert_true(opened.get("ok", false), str(opened))
+	if not opened.get("ok", false):
+		return ""
 	GameState.contacts = opened["value"]["candidate"]
 	return str(opened["receipt"]["receipt_id"])
 
 
 ## Commits the day's one-date draft through the production Schedule commit port -- door 1.
-func _commit_date_schedule() -> void:
+func _commit_date_schedule() -> bool:
 	var action_id := "solo:lavinia:day%d" % DAY
 	var source_receipt_id := _seed_solo_source("lavinia", action_id)
-	var schedule_ledger: Object = SCHEDULE_PUBLICATION_LEDGER.new()
-	assert_true(schedule_ledger.configure(STORAGE.new(_root.path_join("schedule"))).get("ok", false))
-	assert_true(schedule_ledger.load().get("ok", false))
-	var commit_port: Object = SCHEDULE_COMMIT_PORT.new(GameState, _registry, _issuer, schedule_ledger)
+	if source_receipt_id.is_empty():
+		return false
+	var view_prepared: Dictionary = _schedule_view.prepare_add(
+		action_id, source_receipt_id, 0, "d-lav")
+	assert_true(view_prepared.get("ok", false), JSON.stringify(view_prepared))
+	if not view_prepared.get("ok", false):
+		return false
+	var view_committed: Dictionary = _schedule_view.commit(
+		(view_prepared["value"] as Dictionary)["candidate"])
+	assert_true(view_committed.get("ok", false), JSON.stringify(view_committed))
+	if not view_committed.get("ok", false):
+		return false
+	var view_fingerprint: Dictionary = _schedule_view.fingerprint()
+	assert_true(view_fingerprint.get("ok", false), JSON.stringify(view_fingerprint))
+	if not view_fingerprint.get("ok", false):
+		return false
+	var view_snapshot: Dictionary = _schedule_view.snapshot()
+	assert_true(view_snapshot.get("ok", false), JSON.stringify(view_snapshot))
+	if not view_snapshot.get("ok", false):
+		return false
+	var commit_port: Object = SCHEDULE_COMMIT_PORT.new(
+		GameState, _registry, _issuer, _schedule_ledger)
 	var command: Dictionary = _command("commit.day%d" % DAY)
 	var prepared: Dictionary = commit_port.call(&"prepare_commit", {
 		"transaction_id": command["id"],
 		"transaction_issuer_receipt": command["receipt"],
-		"expected_view_fingerprint": VIEW_FINGERPRINT,
+		"expected_view_fingerprint": str(
+			(view_fingerprint["value"] as Dictionary)["fingerprint"]),
 		"day": DAY,
-		"causal_day_instance": CAUSAL_DAY,
-		"draft_entries": [{
-			"draft_entry_id": "d-lav",
-			"day": DAY,
-			"slot_index": 0,
-			"action_id": action_id,
-			"action_kind": "solo",
-			"participants": ["lavinia"],
-			"source_receipt_id": source_receipt_id,
-		}],
+		"causal_day_instance": str(GameState._run_lifecycle.to_dict()["causal_day_instance"]),
+		"draft_entries": (((view_snapshot["value"] as Dictionary)["view"] as Dictionary)[
+			"entries"] as Array).duplicate(true),
 		"registry_fingerprint": _fingerprint,
 	})
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	assert_true(commit_port.call(&"commit",
-		(prepared["value"] as Dictionary)["game_state_candidate"]).get("ok", false))
+	if not prepared.get("ok", false):
+		return false
+	var committed: Dictionary = commit_port.call(&"commit",
+		(prepared["value"] as Dictionary)["game_state_candidate"])
+	assert_true(committed.get("ok", false), JSON.stringify(committed))
+	if not committed.get("ok", false):
+		return false
+	var published: Dictionary = commit_port.call(&"publish", {
+		"committed_schedule": ((prepared["value"] as Dictionary)[
+			"committed_schedule"] as Dictionary).duplicate(true),
+		"schedule_commit_receipt": ((prepared["value"] as Dictionary)[
+			"schedule_commit_receipt"] as Dictionary).duplicate(true),
+	})
+	assert_true(published.get("ok", false), JSON.stringify(published))
+	return published.get("ok", false)
 
 
 func test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors() -> void:
-	if _root.is_empty():
+	if not _fixture_ready:
 		return
-	_commit_date_schedule()
+	if not _commit_date_schedule():
+		return
 	assert_eq(int(GameState.day), DAY, "the walk starts on the committed day")
 
 	# Door 2: ONE Done command through the dispatch surface. The walk runs to the date and pauses.
@@ -254,6 +426,8 @@ func test_a_committed_schedule_walk_presents_settles_and_advances_through_public
 		"the walk pauses awaiting the date presentation")
 	var routes: Array = _router.get_routes()
 	assert_eq(routes.size(), 1, "exactly one presentation was routed")
+	if routes.size() != 1:
+		return
 	assert_eq(str((routes[0] as Dictionary)["route_id"]), "dating", "the committed date routes to dating")
 	assert_eq(_dating_owner.started_commands.size(), 1,
 		"the physical presentation genuinely started before the scene was routed")
@@ -273,12 +447,20 @@ func test_a_committed_schedule_walk_presents_settles_and_advances_through_public
 
 
 func test_the_walk_is_replay_safe_at_the_public_doors() -> void:
-	if _root.is_empty():
+	if not _fixture_ready:
 		return
-	_commit_date_schedule()
+	if not _commit_date_schedule():
+		return
 	var done_id := str(_command("commit.day%d" % DAY)["id"]) + ":resolution"
-	assert_true(_dispatcher.dispatch_done(done_id).get("ok", false))
-	var completion_id := str(((_router.get_routes()[0] as Dictionary)["command"] as Dictionary)["completion_transaction_id"])
+	var dispatched: Dictionary = _dispatcher.dispatch_done(done_id)
+	assert_true(dispatched.get("ok", false), JSON.stringify(dispatched))
+	if not dispatched.get("ok", false):
+		return
+	var routes: Array = _router.get_routes()
+	assert_eq(routes.size(), 1, "exactly one presentation was routed")
+	if routes.size() != 1:
+		return
+	var completion_id := str(((routes[0] as Dictionary)["command"] as Dictionary)["completion_transaction_id"])
 	_dating_owner.finish(completion_id, {"outcome": "date_completed"})
 	assert_eq(_dispatcher.get_last_dispatch_result().get("code"), &"plan_complete")
 	assert_eq(int(GameState.day), DAY + 1)
@@ -295,12 +477,44 @@ func test_the_walk_is_replay_safe_at_the_public_doors() -> void:
 
 
 func test_the_disk_autosave_of_the_advanced_day_is_written() -> void:
-	if _root.is_empty():
+	if not _fixture_ready:
 		return
-	_commit_date_schedule()
-	assert_true(_dispatcher.dispatch_done(str(_command("commit.day%d" % DAY)["id"]) + ":resolution").get("ok", false))
-	var completion_id := str(((_router.get_routes()[0] as Dictionary)["command"] as Dictionary)["completion_transaction_id"])
+	if not _commit_date_schedule():
+		return
+	var dispatched: Dictionary = _dispatcher.dispatch_done(
+		str(_command("commit.day%d" % DAY)["id"]) + ":resolution")
+	assert_true(dispatched.get("ok", false), JSON.stringify(dispatched))
+	if not dispatched.get("ok", false):
+		return
+	var routes: Array = _router.get_routes()
+	assert_eq(routes.size(), 1, "exactly one presentation was routed")
+	if routes.size() != 1:
+		return
+	var completion_id := str(((routes[0] as Dictionary)["command"] as Dictionary)["completion_transaction_id"])
 	_dating_owner.finish(completion_id, {"outcome": "date_completed"})
-	assert_eq(_dispatcher.get_last_dispatch_result().get("code"), &"plan_complete")
-	assert_true(FileAccess.file_exists(_root.path_join("autosave.json")),
+	var settled: Dictionary = _dispatcher.get_last_dispatch_result()
+	assert_eq(settled.get("code"), &"plan_complete")
+	if settled.get("code") != &"plan_complete":
+		return
+	var autosave_path := _root.path_join("autosave.json")
+	assert_true(FileAccess.file_exists(autosave_path),
 		"the new day's autosave was durably written through the real checkpoint port")
+	if not FileAccess.file_exists(autosave_path):
+		return
+	var text := FileAccess.get_file_as_string(autosave_path)
+	assert_false(text.is_empty(), "the advanced-day autosave contains document bytes")
+	if text.is_empty():
+		return
+	var parsed: Dictionary = STRICT_JSON.parse_object(text)
+	assert_true(parsed.get("ok", false), JSON.stringify(parsed))
+	if not parsed.get("ok", false):
+		return
+	var parsed_document: Dictionary = parsed["value"]
+	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed_document)
+	assert_true(validated.get("ok", false), JSON.stringify(validated))
+	if not validated.get("ok", false):
+		return
+	var document: Dictionary = (validated["value"] as Dictionary)["candidate"]
+	var snapshot: Dictionary = (document["current_snapshot"] as Dictionary)["snapshot"]
+	assert_eq(int((snapshot["lifecycle"] as Dictionary)["day"]), DAY + 1,
+		"the durable autosave is the post-advance day boundary")

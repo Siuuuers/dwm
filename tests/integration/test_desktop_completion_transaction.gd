@@ -191,9 +191,9 @@ func _reveal_and_explode(wired: Dictionary) -> void:
 
 ## Full end-to-end drive against every real production port this task and its predecessors build: a
 ## real terminal EXPLODED board, complete_round()'s own ordinal-0 checkpoint handoff, causal
-## admission through the real DesktopCausalSequencePort, forward commit (the real board transition to
-## NONE via commit_recovery_action()), and publication -- with real SaveManagerCheckpointPort-backed
-## disk durability throughout.
+## admission through the real DesktopCausalSequencePort, forward commit to settled terminal
+## inspection, and publication. The publication ledger writes real disk bytes; consequence and
+## Minesweeper checkpoints use the explicit doubles documented above.
 func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	var wired := _wired()
 	if wired.is_empty():
@@ -206,7 +206,7 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	var complete_txn := _mint_transaction(issuer)
 	var result: Dictionary = round_coordinator.complete_round({
 		"transaction_id": complete_txn["transaction_id"], "transaction_issuer_receipt": complete_txn["transaction_issuer_receipt"],
-		"expected_identity": live["identity"], "expected_revision": live["revision"], "expected_run_revision": 0,
+		"expected_identity": live["identity"], "expected_revision": live["revision"],
 	})
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result.get("code"), &"action_consequence_accepted")
@@ -215,7 +215,16 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	# surfaces the frozen shape verbatim through this REAL (non-fake) integration wiring.
 	assert_eq(str(result["receipt"]["disposition"]), "no_departure")
 
-	assert_eq(round_coordinator.get_state()["value"]["phase"], "NONE", "the board returned to NONE via the real forward commit")
+	assert_eq(round_coordinator.get_state()["value"]["phase"], "ACTIVE_VISIBLE",
+		"the completed board stays visible for inspection")
+	var configuration: Dictionary = round_coordinator.get_configuration_context()
+	assert_true(configuration.get("ok", false), str(configuration))
+	assert_true(bool(configuration.get("value", {}).get("settled_inspection", false)),
+		"the retained board is settled, not an unfinished terminal transaction")
+	var terminal_receipts: Dictionary = round_coordinator.get_state()["value"]["terminal_receipts"]
+	var terminal_receipt_id := "round_complete." + str(complete_txn["transaction_id"])
+	assert_true(terminal_receipts.has(terminal_receipt_id), "the completed result remains bound to this action")
+	assert_eq(str(terminal_receipts.get(terminal_receipt_id, {}).get("outcome", "")), "exploded")
 	var live_consequence: Dictionary = ((wired["consequence_state"] as Object).capture()["value"] as Dictionary)["state"]
 	assert_null(live_consequence["pending"], "terminal cleanup reached a clean slate")
 	assert_eq(int(live_consequence["causal_sequence"]), 1)
@@ -238,7 +247,7 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	# Replaying the identical completion request never re-admits or re-transitions anything.
 	var replay: Dictionary = round_coordinator.complete_round({
 		"transaction_id": complete_txn["transaction_id"], "transaction_issuer_receipt": complete_txn["transaction_issuer_receipt"],
-		"expected_identity": live["identity"], "expected_revision": live["revision"], "expected_run_revision": 0,
+		"expected_identity": live["identity"], "expected_revision": live["revision"],
 	})
 	assert_eq(replay, result, "a duplicate replay returns the identical result")
 
@@ -246,7 +255,7 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 ## FIX (dwm-p2r.35.2 remediation, finding W2): a minesweeper_round completion whose condition policy
 ## requests a departure. DesktopConsequenceCoordinator._build_projected_board_candidate() builds this
 ## departure's board_candidate from action_candidate.board_projection -- the round's OWN
-## already-NONE post-completion projection -- and forward recovery then commits the action source
+## settled terminal projection -- and forward recovery then commits the action source
 ## FIRST (MinesweeperRoundCoordinator.commit_recovery_action() adopts that exact projection into the
 ## shared board) and board fate SECOND, post-admission with no rollback available. Before the fix,
 ## DesktopBoardFatePort.commit() re-validated the ORIGINAL pre-completion expected_board_identity/
@@ -291,15 +300,20 @@ func test_complete_round_departure_commits_board_fate_against_real_ports() -> vo
 
 	var result: Dictionary = round_coordinator.complete_round({
 		"transaction_id": complete_txn["transaction_id"], "transaction_issuer_receipt": complete_txn["transaction_issuer_receipt"],
-		"expected_identity": live["identity"], "expected_revision": live["revision"], "expected_run_revision": 0,
+		"expected_identity": live["identity"], "expected_revision": live["revision"],
 	})
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_eq(result.get("code"), &"action_consequence_accepted")
 	assert_eq(str(result["receipt"]["disposition"]), "departure_committed")
 	assert_eq(str((result["value"] as Dictionary)["board_fate_receipt"]["fate"]), "none",
-		"a minesweeper_round projection is already phase NONE, so its own departure fate is always none")
+		"a settled terminal board needs no further board-fate action")
 
-	assert_eq(round_coordinator.get_state()["value"]["phase"], "NONE")
+	assert_eq(round_coordinator.get_state()["value"]["phase"], "ACTIVE_VISIBLE",
+		"fate=none preserves the visible settled inspection")
+	var configuration: Dictionary = round_coordinator.get_configuration_context()
+	assert_true(configuration.get("ok", false), str(configuration))
+	assert_true(bool(configuration.get("value", {}).get("settled_inspection", false)),
+		"the departure preserves a valid settled inspection")
 	var terminal_receipts: Dictionary = round_coordinator.get_state()["value"]["terminal_receipts"]
 	var terminal_receipt_id := "round_complete." + action_txn
 	assert_true(terminal_receipts.has(terminal_receipt_id),
@@ -323,7 +337,7 @@ func test_complete_round_departure_commits_board_fate_against_real_ports() -> vo
 	# Replaying the identical completion request never re-admits or re-transitions anything.
 	var replay: Dictionary = round_coordinator.complete_round({
 		"transaction_id": complete_txn["transaction_id"], "transaction_issuer_receipt": complete_txn["transaction_issuer_receipt"],
-		"expected_identity": live["identity"], "expected_revision": live["revision"], "expected_run_revision": 0,
+		"expected_identity": live["identity"], "expected_revision": live["revision"],
 	})
 	assert_eq(replay, result, "a duplicate replay returns the identical result")
 
@@ -367,7 +381,7 @@ func test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_rel
 	var complete_txn := _mint_transaction(issuer)
 	var blocked: Dictionary = round_coordinator.complete_round({
 		"transaction_id": complete_txn["transaction_id"], "transaction_issuer_receipt": complete_txn["transaction_issuer_receipt"],
-		"expected_identity": live_board["identity"], "expected_revision": live_board["revision"], "expected_run_revision": 0,
+		"expected_identity": live_board["identity"], "expected_revision": live_board["revision"],
 	})
 	assert_false(blocked.get("ok", false))
 	assert_eq(blocked.get("code"), &"minesweeper_round_requires_no_other_pending_transaction")
