@@ -1103,7 +1103,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_ending_query_contracts"
+      "contract_test": "test_pair_route_query_counts_canonical_distinct_windows_and_retains_legacy_eligibility"
     },
     {
       "symbol": "should_route_sylvia_special_ending",
@@ -1191,7 +1191,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_contact_query_contracts"
+      "contract_test": "test_missed_invitation_query_uses_prior_day_filters_and_returns_a_detached_record"
     },
     {
       "symbol": "execute_schedule_sequence_until_route_needed",

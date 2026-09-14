@@ -1,0 +1,9 @@
+{
+  "autoload/GameState.gd": "5eebce451ba3623f870872e9a0c0484bbefa516e4d2cdf91bc67f2cc8588ce5e",
+  "scripts/domain/contact/ContactInvitationState.gd": "0cccd5616d487f7f44e159e6bc0a18ea33288638ca9e6531c5efc734d629c31f",
+  "tests/unit/test_game_state_retained_contact_queries.gd": "8f70d683a3f6f81dc365898d4406131a7e9a3b9cd94938d9fc4b40d8e491acf2",
+  "evidence/phase_2r/runtime/game_state_required_surface.json": "517124e692ce6bd3bcd2692d475e7778860a044fc554c2bc1f7c2012142b69d1",
+  "evidence/phase_2r/runtime/game_state_surface.json": "3105769bd115ebbf041858634af9def155e9bee00e713bc8c4f91efa0b29dd1b",
+  "evidence/phase_2r/runtime/save_manager_required_surface.json": "de79e0d3ee9cb02ecd8661c32490bc1eed38f658155e49ad998434e7e9f84e96",
+  "evidence/phase_2r/runtime/save_manager_surface.json": "a47de9d49f78aa5e8af832969afedd711fc26fe8ddb71153db3cd184ad48d44e"
+}
