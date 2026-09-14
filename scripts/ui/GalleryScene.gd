@@ -99,6 +99,7 @@ func _sync_practice_button() -> void:
 	if _practice_button == null:
 		_practice_button = Button.new()
 		_practice_button.name = "Practice"
+		_practice_button.theme_type_variation = &"GalleryPaperAction"
 		_practice_button.position = Vector2(776, 488)
 		_practice_button.size = Vector2(160, 64)
 		_practice_button.pressed.connect(_on_practice_pressed)
@@ -148,6 +149,7 @@ func _ensure_version_selector() -> void:
 	if _version_selector != null: return
 	_version_selector = OptionButton.new()
 	_version_selector.name = "ReachedVersion"
+	_version_selector.theme_type_variation = &"GalleryPaperAction"
 	_version_selector.position = Vector2(408, 488)
 	_version_selector.size = Vector2(288, 64)
 	_version_selector.item_selected.connect(_on_version_selected)
@@ -223,8 +225,11 @@ func _ready() -> void:
 	if _host_return == null:
 		_router = get_node_or_null("/root/SceneRouter")
 		_profile = get_node_or_null("/root/ProfileManager")
-	if _host_return == null: _return_button.pressed.connect(_on_return_pressed)
+	if _host_return == null:
+		_return_button.theme_type_variation = &"GalleryDarkAction"
+		_return_button.pressed.connect(_on_return_pressed)
 	_index_viewport.gui_input.connect(_on_index_input)
+	_replay_button.theme_type_variation = &"GalleryDarkAction"
 	_replay_button.pressed.connect(_on_replay_pressed)
 	_ensure_version_selector()
 	if _profile != null and _profile.has_signal(&"preference_changed"):
