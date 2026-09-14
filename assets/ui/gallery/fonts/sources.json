@@ -1,0 +1,166 @@
+{
+  "upstream": {
+    "project": "Fusion Pixel Font",
+    "repository": "https://github.com/TakWolf/fusion-pixel-font",
+    "release": "https://github.com/TakWolf/fusion-pixel-font/releases/tag/2026.08.11",
+    "tag": "2026.08.11",
+    "annotated_tag": "9deebcc957480160546ff98bbc28467df47500ff",
+    "commit": "c8597db5625ccc90bafd98d3fc0f56a7d8379882",
+    "license": "SIL Open Font License 1.1",
+    "license_file": "LICENSE-OFL.txt"
+  },
+  "archives": [
+    {
+      "name": "fusion-pixel-font-8px-proportional-otf.woff2-v2026.08.11.zip",
+      "url": "https://github.com/TakWolf/fusion-pixel-font/releases/download/2026.08.11/fusion-pixel-font-8px-proportional-otf.woff2-v2026.08.11.zip",
+      "sha256": "27509d492aded915ebfb3637fb947d677fbb8049dd6457237807cbda622fc14a"
+    },
+    {
+      "name": "fusion-pixel-font-10px-proportional-otf.woff2-v2026.08.11.zip",
+      "url": "https://github.com/TakWolf/fusion-pixel-font/releases/download/2026.08.11/fusion-pixel-font-10px-proportional-otf.woff2-v2026.08.11.zip",
+      "sha256": "5bb15c49f9f64ce338d2c1efdc5d74045133b66974eb67f2f34815ecf5c2c0b2"
+    },
+    {
+      "name": "fusion-pixel-font-12px-proportional-otf.woff2-v2026.08.11.zip",
+      "url": "https://github.com/TakWolf/fusion-pixel-font/releases/download/2026.08.11/fusion-pixel-font-12px-proportional-otf.woff2-v2026.08.11.zip",
+      "sha256": "8aa9e68b8a4aaaae84a77f7af2cc6601f432da0af98f7d9675ad77f631e63db4"
+    }
+  ],
+  "configuration_sources": [
+    "https://github.com/TakWolf/fusion-pixel-font/blob/2026.08.11/assets/configs/font-8px.yaml",
+    "https://github.com/TakWolf/fusion-pixel-font/blob/2026.08.11/assets/configs/font-10px.yaml",
+    "https://github.com/TakWolf/fusion-pixel-font/blob/2026.08.11/assets/configs/font-12px.yaml"
+  ],
+  "registered_metrics": [
+    {
+      "native_master": 8,
+      "units_per_em": 800,
+      "ascent": 900,
+      "descent": -300,
+      "line_gap": 0,
+      "glyph_canvas_baseline": 7,
+      "natural_line_height": 12,
+      "baseline_from_line_top": 9,
+      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools 4.65.0; all three locale flavors match."
+    },
+    {
+      "native_master": 10,
+      "units_per_em": 1000,
+      "ascent": 1100,
+      "descent": -300,
+      "line_gap": 0,
+      "glyph_canvas_baseline": 9,
+      "natural_line_height": 14,
+      "baseline_from_line_top": 11,
+      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools 4.65.0; all three locale flavors match."
+    },
+    {
+      "native_master": 12,
+      "units_per_em": 1200,
+      "ascent": 1300,
+      "descent": -300,
+      "line_gap": 0,
+      "glyph_canvas_baseline": 11,
+      "natural_line_height": 16,
+      "baseline_from_line_top": 13,
+      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools 4.65.0; all three locale flavors match."
+    }
+  ],
+  "locale_mapping": {
+    "en": "latin",
+    "zh-CN": "zh_hans",
+    "zh-HK": "zh_hant"
+  },
+  "selected_files": [
+    {
+      "file": "fusion-pixel-8px-proportional-latin.otf.woff2",
+      "bytes": 345400,
+      "sha256": "12b9de0769e47f0e49ed34d7bd0ad30a698c356b22751dd47c408bc8edb23b49",
+      "family": "Fusion Pixel 8px Prop latin",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-8px-Prop-latin-Regular"
+    },
+    {
+      "file": "fusion-pixel-8px-proportional-zh_hans.otf.woff2",
+      "bytes": 346408,
+      "sha256": "fb116ab88a719670cc7db94e3eedc1bd4d16f594d6aa94cbbf70efe31348eebb",
+      "family": "Fusion Pixel 8px Prop zh_hans",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-8px-Prop-zh_hans-Regular"
+    },
+    {
+      "file": "fusion-pixel-8px-proportional-zh_hant.otf.woff2",
+      "bytes": 357968,
+      "sha256": "73effe65c21cc54f75d7c4470442127301a071b26fc62b02fab492e32d91267f",
+      "family": "Fusion Pixel 8px Prop zh_hant",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-8px-Prop-zh_hant-Regular"
+    },
+    {
+      "file": "fusion-pixel-10px-proportional-latin.otf.woff2",
+      "bytes": 401236,
+      "sha256": "3150620c48e8278d379aa9292f5540dc1628246d67970e593dededfee2d82684",
+      "family": "Fusion Pixel 10px Prop latin",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-10px-Prop-latin-Regular"
+    },
+    {
+      "file": "fusion-pixel-10px-proportional-zh_hans.otf.woff2",
+      "bytes": 399668,
+      "sha256": "ce4c411b042a0e9e4cf7dd6819d2c14cb581e4bfe933b0ae5286cb5f0ad60364",
+      "family": "Fusion Pixel 10px Prop zh_hans",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-10px-Prop-zh_hans-Regular"
+    },
+    {
+      "file": "fusion-pixel-10px-proportional-zh_hant.otf.woff2",
+      "bytes": 398672,
+      "sha256": "c23e4a08deba7a1ee970d0d550a0bec8f10d15fe905bffbdadf90fe80df3288a",
+      "family": "Fusion Pixel 10px Prop zh_hant",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-10px-Prop-zh_hant-Regular"
+    },
+    {
+      "file": "fusion-pixel-12px-proportional-latin.otf.woff2",
+      "bytes": 660160,
+      "sha256": "14b73fed294e1723db722c444e2152ae2df6a980422a1ba4c0f03a5aeb416cd2",
+      "family": "Fusion Pixel 12px Prop latin",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-12px-Prop-latin-Regular"
+    },
+    {
+      "file": "fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+      "bytes": 660420,
+      "sha256": "e7e57f471045328b6c9583cbd70fa45122c66c78038c3777abfd7a29d476cf44",
+      "family": "Fusion Pixel 12px Prop zh_hans",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-12px-Prop-zh_hans-Regular"
+    },
+    {
+      "file": "fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+      "bytes": 668520,
+      "sha256": "beae5846a49e05963127e362ae4e8fb06b1fd875a895947cfc33cefd70feeeae",
+      "family": "Fusion Pixel 12px Prop zh_hant",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-12px-Prop-zh_hant-Regular"
+    }
+  ],
+  "upstream_license_notices": [
+    "upstream-licenses/ark-pixel-OFL.txt",
+    "upstream-licenses/boutique-bitmap-7x7-OFL.txt",
+    "upstream-licenses/boutique-bitmap-9x9-OFL.txt",
+    "upstream-licenses/cubic-11-OFL.txt",
+    "upstream-licenses/galmuri-LICENSE.txt",
+    "upstream-licenses/misaki-LICENSE.txt",
+    "upstream-licenses/miseki-bitmap-LICENSE.txt"
+  ]
+}

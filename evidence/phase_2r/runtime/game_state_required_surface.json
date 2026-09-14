@@ -335,7 +335,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "var day: int",
-      "contract_test": "test_game_state_day_is_read_only"
+      "contract_test": "test_day_is_read_only_compatibility"
     },
     {
       "symbol": "money",
@@ -711,7 +711,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_stat_query_contracts"
+      "contract_test": "test_get_stat_returns_canonical_internal_values_without_mutation"
     },
     {
       "symbol": "get_stat_min",
@@ -735,7 +735,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_stat_query_contracts"
+      "contract_test": "test_get_stat_display_value_projects_audience_bounds_without_mutation"
     },
     {
       "symbol": "get_stat_display_max",
@@ -743,7 +743,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_stat_query_contracts"
+      "contract_test": "test_get_stat_display_max_returns_each_audience_scale_without_mutation"
     },
     {
       "symbol": "set_stat",
@@ -775,7 +775,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_economy_query_contracts"
+      "contract_test": "test_can_spend_money_respects_the_exact_overdraft_boundary_without_mutation"
     },
     {
       "symbol": "try_spend_money",
@@ -799,7 +799,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_economy_query_contracts"
+      "contract_test": "test_can_spend_coins_requires_a_positive_owned_amount_without_mutation"
     },
     {
       "symbol": "try_spend_coins",
@@ -983,7 +983,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_contact_query_contracts"
+      "contract_test": "test_is_invitation_day_covers_the_complete_explicit_and_active_day_contract"
     },
     {
       "symbol": "is_group_invitation_day",
@@ -991,7 +991,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_contact_query_contracts"
+      "contract_test": "test_is_group_invitation_day_covers_the_complete_explicit_and_active_day_contract"
     },
     {
       "symbol": "open_contact",
@@ -1015,7 +1015,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_contact_query_contracts"
+      "contract_test": "test_daily_message_query_covers_all_days_defaults_invalids_and_group_suppression"
     },
     {
       "symbol": "unlock_contact_message_after_minesweeper_finished",
@@ -1255,7 +1255,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func request_schedule_done(command_id: String) -> Dictionary",
-      "contract_test": "test_day7_schedule_done_never_creates_day8"
+      "contract_test": "test_advance_day_resets_and_ends"
     },
     {
       "symbol": "prepare_dating_queue",

@@ -2,6 +2,8 @@ extends Control
 ## Paint-only material, unavailable leaf, and inert overflow witness.
 
 var unavailable_record := false
+var replay_start_failed := false
+var replay_unavailable := false
 var unavailable_height := 0.0
 var index_extent := 0.0
 var index_offset := 0.0
@@ -12,6 +14,10 @@ func _draw() -> void:
 	draw_rect(Rect2(16, 16, 344, 624), get_theme_color("face", "Gallery"))
 	draw_rect(Rect2(376, 16, 568, 544), get_theme_color("paper", "Gallery"))
 	draw_rect(Rect2(376, 560, 568, 80), get_theme_color("face", "Gallery"))
+	if replay_start_failed:
+		draw_rect(Rect2(392, 576, 2, 48), get_theme_color("error_rule", "Gallery"))
+	elif replay_unavailable:
+		draw_rect(Rect2(392, 576, 2, 48), get_theme_color("information_rule", "Gallery"))
 	if unavailable_record:
 		var ink := get_theme_color("paper_ink", "Gallery")
 		for x: int in range(0, 520, 8):

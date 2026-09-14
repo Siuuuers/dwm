@@ -1,0 +1,15 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: GALLERY_RETRY_NATIVE_FAILED: Error status has no protected ink pixel
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/manual/verify_gallery_retry_native.gd:299)
+       [1] _pixel_proof (res://tests/manual/verify_gallery_retry_native.gd:247)
+       [2] _sample (res://tests/manual/verify_gallery_retry_native.gd:188)
+       [3] _capture (res://tests/manual/verify_gallery_retry_native.gd:286)
+GALLERY_RETRY_NATIVE_FAILED captures=1 tuples=0 evidence=C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/dc35a090-8c58-4840-90e5-bfcdbacee048/appdata/Godot/app_userdata/DWM/evidence/gallery_retry_native

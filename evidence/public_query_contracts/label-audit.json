@@ -1,0 +1,148 @@
+{
+  "after": {
+    "current_contract_rows": 239,
+    "missing_label_occurrences": 159,
+    "missing_labels": [
+      "test_affection_tier_contract",
+      "test_condition_query_contracts",
+      "test_contact_query_contracts",
+      "test_date_entry_builder_contracts",
+      "test_dating_queue_query_contracts",
+      "test_dating_stage_receipts",
+      "test_day7_terminal_allowlist",
+      "test_day_resolution_condition_stage",
+      "test_economy_mutations_via_effect_transactions",
+      "test_ending_query_contracts",
+      "test_fainting_event_command",
+      "test_game_state_constant_contracts",
+      "test_game_state_facade_reads_committed_state",
+      "test_game_state_signals_after_commit",
+      "test_hospital_recovery_resumes_day_resolution",
+      "test_inventory_mutations_via_effect_transactions",
+      "test_invitation_day_resolution",
+      "test_minesweeper_query_contracts",
+      "test_minesweeper_round_commands",
+      "test_new_run_snapshot_defaults",
+      "test_relationship_mutations_via_effect_transactions",
+      "test_run_candidate_commit",
+      "test_run_restore_round_trips_via_participant",
+      "test_run_snapshot_capture",
+      "test_save_summary_contract",
+      "test_schedule_done_command",
+      "test_schedule_query_contracts",
+      "test_shop_query_contracts",
+      "test_stat_mutations_via_effect_transactions",
+      "test_stat_query_contracts",
+      "test_story_flag_contracts",
+      "test_variable_transaction_commands"
+    ],
+    "missing_unique_labels": 32
+  },
+  "before": {
+    "current_contract_rows": 239,
+    "missing_label_occurrences": 169,
+    "missing_labels": [
+      "test_affection_tier_contract",
+      "test_condition_query_contracts",
+      "test_contact_query_contracts",
+      "test_date_entry_builder_contracts",
+      "test_dating_queue_query_contracts",
+      "test_dating_stage_receipts",
+      "test_day7_schedule_done_never_creates_day8",
+      "test_day7_terminal_allowlist",
+      "test_day_resolution_condition_stage",
+      "test_economy_mutations_via_effect_transactions",
+      "test_economy_query_contracts",
+      "test_ending_query_contracts",
+      "test_fainting_event_command",
+      "test_game_state_constant_contracts",
+      "test_game_state_day_is_read_only",
+      "test_game_state_facade_reads_committed_state",
+      "test_game_state_signals_after_commit",
+      "test_hospital_recovery_resumes_day_resolution",
+      "test_inventory_mutations_via_effect_transactions",
+      "test_invitation_day_resolution",
+      "test_minesweeper_query_contracts",
+      "test_minesweeper_round_commands",
+      "test_new_run_snapshot_defaults",
+      "test_relationship_mutations_via_effect_transactions",
+      "test_run_candidate_commit",
+      "test_run_restore_round_trips_via_participant",
+      "test_run_snapshot_capture",
+      "test_save_summary_contract",
+      "test_schedule_done_command",
+      "test_schedule_query_contracts",
+      "test_shop_query_contracts",
+      "test_stat_mutations_via_effect_transactions",
+      "test_stat_query_contracts",
+      "test_story_flag_contracts",
+      "test_variable_transaction_commands"
+    ],
+    "missing_unique_labels": 35
+  },
+  "changed_contract_test_rows": [
+    {
+      "after": "test_day_is_read_only_compatibility",
+      "before": "test_game_state_day_is_read_only",
+      "kind": "property",
+      "symbol": "day"
+    },
+    {
+      "after": "test_get_stat_returns_canonical_internal_values_without_mutation",
+      "before": "test_stat_query_contracts",
+      "kind": "function",
+      "symbol": "get_stat"
+    },
+    {
+      "after": "test_get_stat_display_value_projects_audience_bounds_without_mutation",
+      "before": "test_stat_query_contracts",
+      "kind": "function",
+      "symbol": "get_stat_display_value"
+    },
+    {
+      "after": "test_get_stat_display_max_returns_each_audience_scale_without_mutation",
+      "before": "test_stat_query_contracts",
+      "kind": "function",
+      "symbol": "get_stat_display_max"
+    },
+    {
+      "after": "test_can_spend_money_respects_the_exact_overdraft_boundary_without_mutation",
+      "before": "test_economy_query_contracts",
+      "kind": "function",
+      "symbol": "can_spend_money"
+    },
+    {
+      "after": "test_can_spend_coins_requires_a_positive_owned_amount_without_mutation",
+      "before": "test_economy_query_contracts",
+      "kind": "function",
+      "symbol": "can_spend_coins"
+    },
+    {
+      "after": "test_is_invitation_day_covers_the_complete_explicit_and_active_day_contract",
+      "before": "test_contact_query_contracts",
+      "kind": "function",
+      "symbol": "is_invitation_day"
+    },
+    {
+      "after": "test_is_group_invitation_day_covers_the_complete_explicit_and_active_day_contract",
+      "before": "test_contact_query_contracts",
+      "kind": "function",
+      "symbol": "is_group_invitation_day"
+    },
+    {
+      "after": "test_daily_message_query_covers_all_days_defaults_invalids_and_group_suppression",
+      "before": "test_contact_query_contracts",
+      "kind": "function",
+      "symbol": "get_daily_message_friend_for_finished_round"
+    },
+    {
+      "after": "test_advance_day_resets_and_ends",
+      "before": "test_day7_schedule_done_never_creates_day8",
+      "kind": "function",
+      "symbol": "advance_day_or_end"
+    }
+  ],
+  "delta_missing_label_occurrences": -10,
+  "method": "A label exists when a repository tests/**/*.gd source declares func test_<name>(...). Counts are required-surface row occurrences; repeated labels are counted once per current row.",
+  "schema_version": 1
+}

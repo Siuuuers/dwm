@@ -1,0 +1,164 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c2f8580b-faba-49fc-9dc6-77a198c0c3f0/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_gallery_art_placements.gd
+* test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation
+WARNING: Localization missing for key 'gallery.replay'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:476)
+       [3] _refresh_replay_caption (res://scripts/ui/GalleryScene.gd:524)
+       [4] _refresh_presentation (res://scripts/ui/GalleryScene.gd:518)
+       [5] _ready (res://scripts/ui/GalleryScene.gd:214)
+       [6] add_child_autofree (res://addons/gut/test.gd:2784)
+       [7] _mount (res://tests/integration/test_gallery_art_placements.gd:58)
+       [8] test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation (res://tests/integration/test_gallery_art_placements.gd:87)
+       [9] _run_test (res://addons/gut/gut.gd:622)
+       [10] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [11] test_scripts (res://addons/gut/gut.gd:1047)
+       [12] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [13] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [14] main (res://addons/gut/cli/gut_cli.gd:297)
+       [15] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Gallery media: [@TextureRect@22:<TextureRect#313666832831>, @TextureRect@23:<TextureRect#313700387265>]
+      at line 91
+    [Failed]:  Unexpected Gallery media: [@TextureRect@22:<TextureRect#313666832831>, @TextureRect@23:<TextureRect#313700387265>]
+      at line 109
+    6 Orphans
+        * [@Button@29:<Button#314589579748>(GalleryRecordButton.gd)] + 2
+        * [@Button@32:<Button#314707020267>(GalleryRecordButton.gd)] + 2
+* test_unreached_and_empty_records_keep_inert_title_semantics
+WARNING: Localization missing for key 'gallery.replay.unreached'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:476)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:450)
+       [4] _refresh_replay_selection (res://scripts/ui/GalleryScene.gd:356)
+       [5] _select_record (res://scripts/ui/GalleryScene.gd:309)
+       [6] _refresh_tiles (res://scripts/ui/GalleryScene.gd:277)
+       [7] _ready (res://scripts/ui/GalleryScene.gd:215)
+       [8] add_child_autofree (res://addons/gut/test.gd:2784)
+       [9] _mount (res://tests/integration/test_gallery_art_placements.gd:58)
+       [10] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:117)
+       [11] _run_test (res://addons/gut/gut.gd:622)
+       [12] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Gallery media: [@TextureRect@44:<TextureRect#346600507516>, @TextureRect@45:<TextureRect#346634061957>]
+      at line 120
+WARNING: Localization missing for key 'gallery.empty'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:476)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:450)
+       [4] _refresh_tiles (res://scripts/ui/GalleryScene.gd:255)
+       [5] _ready (res://scripts/ui/GalleryScene.gd:215)
+       [6] add_child_autofree (res://addons/gut/test.gd:2784)
+       [7] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:134)
+       [8] _run_test (res://addons/gut/gut.gd:622)
+       [9] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Gallery media: [@TextureRect@61:<TextureRect#359116310930>, @TextureRect@62:<TextureRect#359149865334>]
+      at line 137
+WARNING: Localization missing for key 'gallery.archive.unavailable'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:476)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:450)
+       [4] _refresh_tiles (res://scripts/ui/GalleryScene.gd:242)
+       [5] _ready (res://scripts/ui/GalleryScene.gd:215)
+       [6] add_child_autofree (res://addons/gut/test.gd:2784)
+       [7] _mount (res://tests/integration/test_gallery_art_placements.gd:58)
+       [8] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:146)
+       [9] _run_test (res://addons/gut/gut.gd:622)
+       [10] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Gallery media: [@TextureRect@72:<TextureRect#371397233235>, @TextureRect@73:<TextureRect#371430787669>]
+      at line 148
+    3 Orphans
+        * [@Button@51:<Button#347137378728>(GalleryRecordButton.gd)] + 2
+* test_record_title_uses_active_locale_font_and_wraps_fully
+    [Failed]:  Unexpected Gallery media: [@TextureRect@83:<TextureRect#552054295109>, @TextureRect@84:<TextureRect#552087849545>]
+      at line 166
+0/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_gallery_art_placements.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_gallery_art_placements.gd
+- test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation
+    [Failed]:  Unexpected Gallery media: [@TextureRect@22:<TextureRect#313666832831>, @TextureRect@23:<TextureRect#313700387265>]
+          at line 91
+    [Failed]:  Unexpected Gallery media: [@TextureRect@22:<TextureRect#313666832831>, @TextureRect@23:<TextureRect#313700387265>]
+          at line 109
+- test_unreached_and_empty_records_keep_inert_title_semantics
+    [Failed]:  Unexpected Gallery media: [@TextureRect@44:<TextureRect#346600507516>, @TextureRect@45:<TextureRect#346634061957>]
+          at line 120
+    [Failed]:  Unexpected Gallery media: [@TextureRect@61:<TextureRect#359116310930>, @TextureRect@62:<TextureRect#359149865334>]
+          at line 137
+    [Failed]:  Unexpected Gallery media: [@TextureRect@72:<TextureRect#371397233235>, @TextureRect@73:<TextureRect#371430787669>]
+          at line 148
+- test_record_title_uses_active_locale_font_and_wraps_fully
+    [Failed]:  Unexpected Gallery media: [@TextureRect@83:<TextureRect#552054295109>, @TextureRect@84:<TextureRect#552087849545>]
+          at line 166
+
+Totals
+------
+Scripts               1
+Tests                 3
+Passing Tests      none
+Failing Tests         3
+Asserts           98/104
+Orphans              24
+Time              1.01s
+
+
+---- 3 failing tests ----

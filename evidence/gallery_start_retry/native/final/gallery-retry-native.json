@@ -1,0 +1,1103 @@
+{
+	"art_fixture": "res://tests/fixtures/art/placement-cg.svg",
+	"bridge_start_count": 19,
+	"captures": 19,
+	"checks": 414,
+	"failures": [],
+	"logical_size": [
+		1280,
+		720
+	],
+	"matrix_complete": true,
+	"native_size": [
+		640,
+		360
+	],
+	"ok": true,
+	"requested_tuples": 18,
+	"retry_success_proved": true,
+	"samples": [
+		{
+			"colour_differentiation": "standard",
+			"error_file": "en-100-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 53.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "en",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					205,
+					296
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "Retry",
+			"retry_success_file": "en-100-AfterHours-retry-success.png",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "Replay did not begin",
+			"text_percent": 100
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "en-100-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 53.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "en",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					205,
+					296
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "Retry",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "Replay did not begin",
+			"text_percent": 100
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "en-125-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 67.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "en",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					206,
+					294
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "Retry",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "Replay did not begin",
+			"text_percent": 125
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "en-125-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 67.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "en",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					206,
+					294
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "Retry",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "Replay did not begin",
+			"text_percent": 125
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "en-150-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 80.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "en",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					235,
+					293
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "Retry",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "Replay did not begin",
+			"text_percent": 150
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "en-150-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 80.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "en",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					235,
+					293
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "Retry",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "Replay did not begin",
+			"text_percent": 150
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-CN-100-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 48.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_CN",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					230,
+					295
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重试",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能开始重播",
+			"text_percent": 100
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-CN-100-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 48.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_CN",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					230,
+					295
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重试",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能开始重播",
+			"text_percent": 100
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-CN-125-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 60.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_CN",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					211,
+					294
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重试",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能开始重播",
+			"text_percent": 125
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-CN-125-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 60.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_CN",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					211,
+					294
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重试",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能开始重播",
+			"text_percent": 125
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-CN-150-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 72.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_CN",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					225,
+					293
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重试",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能开始重播",
+			"text_percent": 150
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-CN-150-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 72.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_CN",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					225,
+					293
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重试",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能开始重播",
+			"text_percent": 150
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-HK-100-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 48.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_HK",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					229,
+					295
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重試",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能開始重播",
+			"text_percent": 100
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-HK-100-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 48.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_HK",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					229,
+					295
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重試",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能開始重播",
+			"text_percent": 100
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-HK-125-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 60.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_HK",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					211,
+					294
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重試",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能開始重播",
+			"text_percent": 125
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-HK-125-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 60.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_HK",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					211,
+					294
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重試",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能開始重播",
+			"text_percent": 125
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-HK-150-AfterHours-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 72.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_HK",
+			"palette": "AfterHours",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "151b25",
+				"ink_point": [
+					225,
+					293
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重試",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能開始重播",
+			"text_percent": 150
+		},
+		{
+			"colour_differentiation": "standard",
+			"error_file": "zh-HK-150-Midnight-error.png",
+			"focus_retained": true,
+			"geometry": {
+				"art": [
+					392,
+					32,
+					520,
+					448
+				],
+				"ok": true,
+				"picker": [
+					408,
+					488,
+					288,
+					64
+				],
+				"replay": [
+					776,
+					568,
+					160,
+					64
+				],
+				"replay_text_width": 72.0,
+				"status": [
+					408,
+					568,
+					360,
+					64
+				],
+				"status_lines": 1
+			},
+			"high_contrast": false,
+			"locale": "zh_HK",
+			"palette": "Midnight",
+			"pixels": {
+				"art_sample_count": 1472,
+				"dock_point": [
+					200,
+					282
+				],
+				"dock_rgb": "14201d",
+				"ink_point": [
+					225,
+					293
+				],
+				"ok": true,
+				"rule_point": [
+					196,
+					300
+				],
+				"rule_rgb": "c9846e"
+			},
+			"retry_copy": "重試",
+			"retry_success_file": "",
+			"signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+			"status_copy": "未能開始重播",
+			"text_percent": 150
+		}
+	],
+	"scope": "Mounted Gallery, real Profile/catalogs/themes, injected viewport keyboard, exact pre-session Retry and native pixels; no hardware input, UIA, full visual-conformance, storage-Retry, or whole-journey claim.",
+	"tuple_count": 18
+}

@@ -1,0 +1,666 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started 项目初始化 (5 steps)
+[   0% ] first_scan_filesystem | 正在扫描文件结构……
+[  16% ] first_scan_filesystem | 正在加载全局类名……
+[  33% ] first_scan_filesystem | 正在校验 GDExtension……
+[  50% ] first_scan_filesystem | 正在创建自动加载脚本……
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:5)
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:6)
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:7)
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:10)
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:11)
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:12)
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:15)
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:16)
+SCRIPT ERROR: Parse Error: Preload file "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2" has no resource loaders (unrecognized file extension).
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTypography.gd:17)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryTheme.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://autoload/ApplicationBootstrap.gd:0)
+ERROR: Failed to load script "res://autoload/ApplicationBootstrap.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+[  66% ] first_scan_filesystem | 正在初始化插件……
+[  83% ] first_scan_filesystem | 正在启动文件扫描……
+[ DONE ] first_scan_filesystem
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+[   0% ] update_scripts_classes | Started 正在注册全局类…… (293 steps)
+[   0% ] update_scripts_classes | DialogicResourceUtil
+[   0% ] update_scripts_classes | DialogicTextEvent
+[   0% ] update_scripts_classes |
+[   1% ] update_scripts_classes |
+[   1% ] update_scripts_classes |
+[   1% ] update_scripts_classes |
+[   2% ] update_scripts_classes |
+[   2% ] update_scripts_classes |
+[   2% ] update_scripts_classes |
+[   3% ] update_scripts_classes |
+[   3% ] update_scripts_classes | SystemTtsPort
+[   3% ] update_scripts_classes |
+[   4% ] update_scripts_classes | ProvisionalCorrespondenceCatalog
+[   4% ] update_scripts_classes | DesktopCausalSequencePort
+[   4% ] update_scripts_classes | DesktopConsequenceCoordinator
+[   5% ] update_scripts_classes | DesktopIdentityNonceIssuer
+[   5% ] update_scripts_classes |
+[   5% ] update_scripts_classes |
+[   6% ] update_scripts_classes | MinesweeperPanelPort
+[   6% ] update_scripts_classes | MinesweeperPresentationPort
+[   6% ] update_scripts_classes | MinesweeperRegisterQuery
+[   7% ] update_scripts_classes |
+[   7% ] update_scripts_classes | RunRestoreParticipant
+[   7% ] update_scripts_classes | DatingPhysicalOwner
+[   8% ] update_scripts_classes | SaveManagerCheckpointPort
+[   8% ] update_scripts_classes | SystemTtsDuckPort
+[   8% ] update_scripts_classes | DataCatalog
+[   9% ] update_scripts_classes | ContactInvitationState
+[   9% ] update_scripts_classes | OrdinaryReplyEchoState
+[   9% ] update_scripts_classes | SevenDayCalendar
+[  10% ] update_scripts_classes | DesktopConsequenceState
+[  10% ] update_scripts_classes | DesktopBoardState
+[  10% ] update_scripts_classes | RunSnapshotSchema
+[  11% ] update_scripts_classes | DesktopIssuerRootStore
+[  11% ] update_scripts_classes | CheckpointJournal
+[  11% ] update_scripts_classes | DesktopPublicationLedger
+[  12% ] update_scripts_classes | NewRunMaterials
+[  12% ] update_scripts_classes | SaveDocumentSchema
+[  12% ] update_scripts_classes | JsonFileStorage
+[  13% ] update_scripts_classes | DialogicEntryManifest
+[  13% ] update_scripts_classes | DialogicPreferenceAdapter
+[  13% ] update_scripts_classes | DialogicRuntimeAdapter
+[  14% ] update_scripts_classes | SkipPolicy
+[  14% ] update_scripts_classes |
+[  14% ] update_scripts_classes | ProfileSchema
+[  15% ] update_scripts_classes | SettingsPreferenceRegistry
+[  15% ] update_scripts_classes |
+[  15% ] update_scripts_classes |
+[  16% ] update_scripts_classes |
+[  16% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  18% ] update_scripts_classes |
+[  18% ] update_scripts_classes |
+[  18% ] update_scripts_classes |
+[  19% ] update_scripts_classes |
+[  19% ] update_scripts_classes |
+[  19% ] update_scripts_classes |
+[  20% ] update_scripts_classes |
+[  20% ] update_scripts_classes |
+[  20% ] update_scripts_classes |
+[  21% ] update_scripts_classes |
+[  21% ] update_scripts_classes |
+[  21% ] update_scripts_classes |
+[  22% ] update_scripts_classes |
+[  22% ] update_scripts_classes |
+[  22% ] update_scripts_classes |
+[  23% ] update_scripts_classes |
+[  23% ] update_scripts_classes |
+[  23% ] update_scripts_classes |
+[  24% ] update_scripts_classes |
+[  24% ] update_scripts_classes |
+[  24% ] update_scripts_classes |
+[  25% ] update_scripts_classes |
+[  25% ] update_scripts_classes | WitnessedSpeechStatus
+[  25% ] update_scripts_classes | WitnessedTransportButton
+[  26% ] update_scripts_classes |
+[  26% ] update_scripts_classes | WitnessedTransportRecovery
+[  26% ] update_scripts_classes | BackupApp
+[  27% ] update_scripts_classes | ComputerDesktop
+[  27% ] update_scripts_classes | ContactListApp
+[  27% ] update_scripts_classes | DatingScene
+[  28% ] update_scripts_classes |
+[  28% ] update_scripts_classes | EndingScene
+[  28% ] update_scripts_classes | GalleryScene
+[  29% ] update_scripts_classes | MinesweeperApp
+[  29% ] update_scripts_classes | ScheduleApp
+[  29% ] update_scripts_classes | SettingsApp
+[  30% ] update_scripts_classes | SettingsContent
+[  30% ] update_scripts_classes | SettingsPanelController
+[  30% ] update_scripts_classes | SettingsTheme
+[  31% ] update_scripts_classes | ShopApp
+[  31% ] update_scripts_classes | ShopItemBox
+[  31% ] update_scripts_classes | StatHud
+[  32% ] update_scripts_classes | CanonicalJsonWriter
+[  32% ] update_scripts_classes | StrictJson
+[  32% ] update_scripts_classes |
+[  33% ] update_scripts_classes |
+[  33% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  36% ] update_scripts_classes |
+[  36% ] update_scripts_classes |
+[  36% ] update_scripts_classes |
+[  37% ] update_scripts_classes |
+[  37% ] update_scripts_classes |
+[  37% ] update_scripts_classes |
+[  38% ] update_scripts_classes |
+[  38% ] update_scripts_classes |
+[  38% ] update_scripts_classes |
+[  39% ] update_scripts_classes |
+[  39% ] update_scripts_classes |
+[  39% ] update_scripts_classes |
+[  40% ] update_scripts_classes |
+[  40% ] update_scripts_classes |
+[  40% ] update_scripts_classes |
+[  41% ] update_scripts_classes |
+[  41% ] update_scripts_classes |
+[  41% ] update_scripts_classes |
+[  42% ] update_scripts_classes |
+[  42% ] update_scripts_classes |
+[  42% ] update_scripts_classes |
+[  43% ] update_scripts_classes |
+[  43% ] update_scripts_classes |
+[  43% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  45% ] update_scripts_classes |
+[  45% ] update_scripts_classes |
+[  45% ] update_scripts_classes |
+[  46% ] update_scripts_classes |
+[  46% ] update_scripts_classes |
+[  46% ] update_scripts_classes |
+[  47% ] update_scripts_classes |
+[  47% ] update_scripts_classes |
+[  47% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  49% ] update_scripts_classes |
+[  49% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  52% ] update_scripts_classes |
+[  52% ] update_scripts_classes |
+[  52% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  54% ] update_scripts_classes |
+[  54% ] update_scripts_classes |
+[  54% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  56% ] update_scripts_classes |
+[  56% ] update_scripts_classes |
+[  56% ] update_scripts_classes |
+[  57% ] update_scripts_classes |
+[  57% ] update_scripts_classes |
+[  57% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  61% ] update_scripts_classes | FakeDesktopConsequenceCheckpointPort
+[  61% ] update_scripts_classes | FakeDesktopIssuerRootStore
+[  61% ] update_scripts_classes | TemporaryStorage
+[  62% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  63% ] update_scripts_classes |
+[  63% ] update_scripts_classes |
+[  63% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  66% ] update_scripts_classes |
+[  66% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  69% ] update_scripts_classes |
+[  69% ] update_scripts_classes |
+[  69% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  73% ] update_scripts_classes |
+[  73% ] update_scripts_classes |
+[  73% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  75% ] update_scripts_classes |
+[  75% ] update_scripts_classes |
+[  75% ] update_scripts_classes |
+[  76% ] update_scripts_classes |
+[  76% ] update_scripts_classes |
+[  76% ] update_scripts_classes |
+[  77% ] update_scripts_classes |
+[  77% ] update_scripts_classes |
+[  77% ] update_scripts_classes |
+[  78% ] update_scripts_classes |
+[  78% ] update_scripts_classes |
+[  78% ] update_scripts_classes |
+[  79% ] update_scripts_classes |
+[  79% ] update_scripts_classes |
+[  79% ] update_scripts_classes |
+[  80% ] update_scripts_classes |
+[  80% ] update_scripts_classes |
+[  80% ] update_scripts_classes |
+[  81% ] update_scripts_classes |
+[  81% ] update_scripts_classes |
+[  81% ] update_scripts_classes |
+[  82% ] update_scripts_classes |
+[  82% ] update_scripts_classes |
+[  82% ] update_scripts_classes |
+[  83% ] update_scripts_classes |
+[  83% ] update_scripts_classes |
+[  84% ] update_scripts_classes |
+[  84% ] update_scripts_classes |
+[  84% ] update_scripts_classes |
+[  85% ] update_scripts_classes |
+[  85% ] update_scripts_classes |
+[  85% ] update_scripts_classes |
+[  86% ] update_scripts_classes |
+[  86% ] update_scripts_classes |
+[  86% ] update_scripts_classes |
+[  87% ] update_scripts_classes |
+[  87% ] update_scripts_classes |
+[  87% ] update_scripts_classes |
+[  88% ] update_scripts_classes |
+[  88% ] update_scripts_classes |
+[  88% ] update_scripts_classes |
+[  89% ] update_scripts_classes |
+[  89% ] update_scripts_classes |
+[  89% ] update_scripts_classes |
+[  90% ] update_scripts_classes |
+[  90% ] update_scripts_classes |
+[  90% ] update_scripts_classes |
+[  91% ] update_scripts_classes |
+[  91% ] update_scripts_classes |
+[  91% ] update_scripts_classes |
+[  92% ] update_scripts_classes |
+[  92% ] update_scripts_classes |
+[  92% ] update_scripts_classes |
+[  93% ] update_scripts_classes |
+[  93% ] update_scripts_classes |
+[  93% ] update_scripts_classes |
+[  94% ] update_scripts_classes |
+[  94% ] update_scripts_classes |
+[  94% ] update_scripts_classes |
+[  95% ] update_scripts_classes |
+[  95% ] update_scripts_classes |
+[  95% ] update_scripts_classes |
+[  96% ] update_scripts_classes |
+[  96% ] update_scripts_classes |
+[  96% ] update_scripts_classes |
+[  97% ] update_scripts_classes |
+[  97% ] update_scripts_classes | DtlStructureValidator
+[  97% ] update_scripts_classes |
+[  98% ] update_scripts_classes |
+[  98% ] update_scripts_classes |
+[  98% ] update_scripts_classes |
+[  99% ] update_scripts_classes | PublicSurfaceInventory
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started 正在扫描动作…… (103 steps)
+[   0% ] _update_scan_actions | asset-paths.csv
+[   0% ] _update_scan_actions | scene-map.csv
+[   1% ] _update_scan_actions | fusion-pixel-8px-proportional-latin.otf.woff2
+[   2% ] _update_scan_actions | fusion-pixel-8px-proportional-zh_hans.otf.woff2
+[   3% ] _update_scan_actions | fusion-pixel-8px-proportional-zh_hant.otf.woff2
+[   4% ] _update_scan_actions | fusion-pixel-10px-proportional-latin.otf.woff2
+[   5% ] _update_scan_actions | fusion-pixel-10px-proportional-zh_hans.otf.woff2
+[   6% ] _update_scan_actions | fusion-pixel-10px-proportional-zh_hant.otf.woff2
+[   7% ] _update_scan_actions | fusion-pixel-12px-proportional-latin.otf.woff2
+[   8% ] _update_scan_actions | fusion-pixel-12px-proportional-zh_hans.otf.woff2
+[   9% ] _update_scan_actions | fusion-pixel-12px-proportional-zh_hant.otf.woff2
+[  10% ] _update_scan_actions | contacts-touch-inspection.png
+[  11% ] _update_scan_actions | after-hours-day1-standard.png
+[  12% ] _update_scan_actions | after-hours-day7-deutan.png
+[  13% ] _update_scan_actions | after-hours-day7-high-contrast.png
+[  14% ] _update_scan_actions | after-hours-day7-standard.png
+[  15% ] _update_scan_actions | midnight-day7-pending-high-contrast.png
+[  16% ] _update_scan_actions | midnight-day7-standard.png
+[  17% ] _update_scan_actions | 13-day7-restored-echo.png
+[  18% ] _update_scan_actions | 13-day7-restored-auto.png
+[  19% ] _update_scan_actions | initial-footer-layout-failure.png
+[  20% ] _update_scan_actions | 13-day7-restored-echo.png
+[  21% ] _update_scan_actions | 14-day7-paused-followup.png
+[  22% ] _update_scan_actions | 15-day7-pause-autosave-confirmation.png
+[  23% ] _update_scan_actions | 12-day7-followup.png
+[  24% ] _update_scan_actions | 13-day7-restored-echo.png
+[  25% ] _update_scan_actions | 2026-09-13-angela-shell-background.png
+[  25% ] _update_scan_actions | 2026-09-13-contacts-row-and-header.png
+[  26% ] _update_scan_actions | 2026-09-13-witnessed-tableau.png
+[  27% ] _update_scan_actions | en-100-AfterHours-error.png
+[  28% ] _update_scan_actions | en-100-AfterHours-error.png
+[  29% ] _update_scan_actions | en-100-AfterHours-retry-success.png
+[  30% ] _update_scan_actions | en-100-Midnight-error.png
+[  31% ] _update_scan_actions | en-125-AfterHours-error.png
+[  32% ] _update_scan_actions | en-125-Midnight-error.png
+[  33% ] _update_scan_actions | en-150-AfterHours-error.png
+[  34% ] _update_scan_actions | en-150-Midnight-error.png
+[  35% ] _update_scan_actions | zh-CN-100-AfterHours-error.png
+[  36% ] _update_scan_actions | zh-CN-100-Midnight-error.png
+[  37% ] _update_scan_actions | zh-CN-125-AfterHours-error.png
+[  38% ] _update_scan_actions | zh-CN-125-Midnight-error.png
+[  39% ] _update_scan_actions | zh-CN-150-AfterHours-error.png
+[  40% ] _update_scan_actions | zh-CN-150-Midnight-error.png
+[  41% ] _update_scan_actions | zh-HK-100-AfterHours-error.png
+[  42% ] _update_scan_actions | zh-HK-100-Midnight-error.png
+[  43% ] _update_scan_actions | zh-HK-125-AfterHours-error.png
+[  44% ] _update_scan_actions | zh-HK-125-Midnight-error.png
+[  45% ] _update_scan_actions | zh-HK-150-AfterHours-error.png
+[  46% ] _update_scan_actions | zh-HK-150-Midnight-error.png
+[  47% ] _update_scan_actions | ordinary-expiry-day1-unanswered.png
+[  48% ] _update_scan_actions | ordinary-expiry-day2-restored.png
+[  49% ] _update_scan_actions | ordinary-expiry-earlier-slot-restored.png
+[  50% ] _update_scan_actions | ordinary-expiry-day1-unanswered.png
+[  50% ] _update_scan_actions | ordinary-expiry-day2-restored.png
+[  51% ] _update_scan_actions | reply-01-lavinia-before-click.png
+[  52% ] _update_scan_actions | reply-03-save-failure-retained.png
+[  53% ] _update_scan_actions | reply-04-retry-saved.png
+[  54% ] _update_scan_actions | reply-05-cold-restored.png
+[  55% ] _update_scan_actions | day1-standard.png
+[  56% ] _update_scan_actions | day3-high-deutan-warning.png
+[  57% ] _update_scan_actions | day7-standard.png
+[  58% ] _update_scan_actions | pause-backup-after-cancel-day7-high.png
+[  59% ] _update_scan_actions | pause-backup-confirmation-queued.png
+[  60% ] _update_scan_actions | pause-backup-day1.png
+[  61% ] _update_scan_actions | pause-settings-day7.png
+[  62% ] _update_scan_actions | settings-day1.png
+[  63% ] _update_scan_actions | settings-day7.png
+[  64% ] _update_scan_actions | after-hours-day1-standard.png
+[  65% ] _update_scan_actions | after-hours-day7-deutan.png
+[  66% ] _update_scan_actions | after-hours-day7-high-contrast.png
+[  67% ] _update_scan_actions | after-hours-day7-standard.png
+[  68% ] _update_scan_actions | midnight-day7-standard.png
+[  69% ] _update_scan_actions | midnight-day7-supportz-confirmation.png
+[  70% ] _update_scan_actions | en-100.png
+[  71% ] _update_scan_actions | zh_CN-150.png
+[  72% ] _update_scan_actions | zh_HK-150.png
+[  73% ] _update_scan_actions | en-normal-150.png
+[  74% ] _update_scan_actions | en-recovery-150.png
+[  75% ] _update_scan_actions | zh-CN-normal-150.png
+[  75% ] _update_scan_actions | zh-CN-recovery-150.png
+[  76% ] _update_scan_actions | zh-HK-normal-150.png
+[  77% ] _update_scan_actions | zh-HK-recovery-150.png
+[  78% ] _update_scan_actions | en-150.png
+[  79% ] _update_scan_actions | zh-CN-150.png
+[  80% ] _update_scan_actions | zh-HK-150.png
+[  81% ] _update_scan_actions | en-150-speech-failure.png
+[  82% ] _update_scan_actions | zh-CN-150-speech-failure.png
+[  83% ] _update_scan_actions | zh-HK-150-speech-failure.png
+[  84% ] _update_scan_actions | en-150-retry-cancel.png
+[  85% ] _update_scan_actions | zh-CN-150-retry-cancel.png
+[  86% ] _update_scan_actions | zh-HK-150-retry-cancel.png
+[  87% ] _update_scan_actions | en-150.png
+[  88% ] _update_scan_actions | zh-CN-150.png
+[  89% ] _update_scan_actions | zh-HK-150.png
+[  90% ] _update_scan_actions | en-150.png
+[  91% ] _update_scan_actions | zh-CN-150.png
+[  92% ] _update_scan_actions | zh-HK-150.png
+[  93% ] _update_scan_actions | after-hours-day1.png
+[  94% ] _update_scan_actions | after-hours-day7.png
+[  95% ] _update_scan_actions | art-only-midnight-day7.png
+[  96% ] _update_scan_actions | high-contrast-day7.png
+[  97% ] _update_scan_actions | midnight-day7.png
+[  98% ] _update_scan_actions | protan-day7-scrolled.png
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started 正在导入或重新导入资产 (101 steps)
+[   0% ] reimport | 正在准备重新导入文件……
+[   0% ] reimport | 正在准备重新导入文件……
+[   1% ] reimport | 正在准备重新导入文件……
+[   2% ] reimport | 正在准备重新导入文件……
+[   3% ] reimport | 正在准备重新导入文件……
+[   4% ] reimport | 正在准备重新导入文件……
+[   5% ] reimport | 正在准备重新导入文件……
+[   6% ] reimport | 正在准备重新导入文件……
+[   7% ] reimport | 正在准备重新导入文件……
+[   8% ] reimport | 正在准备重新导入文件……
+[   9% ] reimport | 正在准备重新导入文件……
+[  10% ] reimport | 正在准备重新导入文件……
+[  11% ] reimport | 正在准备重新导入文件……
+[  12% ] reimport | 正在准备重新导入文件……
+[  13% ] reimport | 正在准备重新导入文件……
+[  14% ] reimport | 正在准备重新导入文件……
+[  15% ] reimport | 正在准备重新导入文件……
+[  16% ] reimport | 正在准备重新导入文件……
+[  17% ] reimport | 正在准备重新导入文件……
+[  18% ] reimport | 正在准备重新导入文件……
+[  19% ] reimport | 正在准备重新导入文件……
+[  20% ] reimport | 正在准备重新导入文件……
+[  21% ] reimport | 正在准备重新导入文件……
+[  22% ] reimport | 正在准备重新导入文件……
+[  23% ] reimport | 正在准备重新导入文件……
+[  24% ] reimport | 正在准备重新导入文件……
+[  25% ] reimport | 正在准备重新导入文件……
+[  26% ] reimport | 正在准备重新导入文件……
+[  27% ] reimport | 正在准备重新导入文件……
+[  28% ] reimport | 正在准备重新导入文件……
+[  29% ] reimport | 正在准备重新导入文件……
+[  30% ] reimport | 正在准备重新导入文件……
+[  31% ] reimport | 正在准备重新导入文件……
+[  32% ] reimport | 正在准备重新导入文件……
+[  33% ] reimport | 正在准备重新导入文件……
+[  34% ] reimport | 正在准备重新导入文件……
+[  35% ] reimport | 正在准备重新导入文件……
+[  36% ] reimport | 正在准备重新导入文件……
+[  37% ] reimport | 正在准备重新导入文件……
+[  38% ] reimport | 正在准备重新导入文件……
+[  39% ] reimport | 正在准备重新导入文件……
+[  40% ] reimport | 正在准备重新导入文件……
+[  41% ] reimport | 正在准备重新导入文件……
+[  42% ] reimport | 正在准备重新导入文件……
+[  43% ] reimport | 正在准备重新导入文件……
+[  44% ] reimport | 正在准备重新导入文件……
+[  45% ] reimport | 正在准备重新导入文件……
+[  46% ] reimport | 正在准备重新导入文件……
+[  47% ] reimport | 正在准备重新导入文件……
+[  48% ] reimport | 正在准备重新导入文件……
+[  49% ] reimport | 正在准备重新导入文件……
+[  50% ] reimport | 正在准备重新导入文件……
+[  50% ] reimport | 正在准备重新导入文件……
+[  51% ] reimport | 正在准备重新导入文件……
+[  52% ] reimport | 正在准备重新导入文件……
+[  53% ] reimport | 正在准备重新导入文件……
+[  54% ] reimport | 正在准备重新导入文件……
+[  55% ] reimport | 正在准备重新导入文件……
+[  56% ] reimport | 正在准备重新导入文件……
+[  57% ] reimport | 正在准备重新导入文件……
+[  58% ] reimport | 正在准备重新导入文件……
+[  59% ] reimport | 正在准备重新导入文件……
+[  60% ] reimport | 正在准备重新导入文件……
+[  61% ] reimport | 正在准备重新导入文件……
+[  62% ] reimport | 正在准备重新导入文件……
+[  63% ] reimport | 正在准备重新导入文件……
+[  64% ] reimport | 正在准备重新导入文件……
+[  65% ] reimport | 正在准备重新导入文件……
+[  66% ] reimport | 正在准备重新导入文件……
+[  67% ] reimport | 正在准备重新导入文件……
+[  68% ] reimport | 正在准备重新导入文件……
+[  69% ] reimport | 正在准备重新导入文件……
+[  70% ] reimport | 正在准备重新导入文件……
+[  71% ] reimport | 正在准备重新导入文件……
+[  72% ] reimport | 正在准备重新导入文件……
+[  73% ] reimport | 正在准备重新导入文件……
+[  74% ] reimport | 正在准备重新导入文件……
+[  75% ] reimport | 正在准备重新导入文件……
+[  76% ] reimport | 正在准备重新导入文件……
+[  77% ] reimport | 正在准备重新导入文件……
+[  78% ] reimport | 正在准备重新导入文件……
+[  79% ] reimport | 正在准备重新导入文件……
+[  80% ] reimport | 正在准备重新导入文件……
+[  81% ] reimport | 正在准备重新导入文件……
+[  82% ] reimport | 正在准备重新导入文件……
+[  83% ] reimport | 正在准备重新导入文件……
+[  84% ] reimport | 正在准备重新导入文件……
+[  85% ] reimport | 正在准备重新导入文件……
+[  86% ] reimport | 正在准备重新导入文件……
+[  87% ] reimport | 正在准备重新导入文件……
+[  88% ] reimport | 正在准备重新导入文件……
+[  89% ] reimport | 正在准备重新导入文件……
+[  90% ] reimport | 正在准备重新导入文件……
+[  91% ] reimport | 正在准备重新导入文件……
+[  92% ] reimport | 正在准备重新导入文件……
+[  93% ] reimport | 正在准备重新导入文件……
+[  94% ] reimport | 正在准备重新导入文件……
+[  95% ] reimport | 正在准备重新导入文件……
+[  96% ] reimport | 正在准备重新导入文件……
+[  97% ] reimport | 正在准备重新导入文件……
+[  98% ] reimport | 正在准备重新导入文件……
+[   0% ] reimport | 正在执行重新导入的前置操作……
+[   0% ] reimport | fusion-pixel-8px-proportional-latin.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2: Pixel font detected, disabling subpixel positioning.
+res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2: Pixel font detected, disabling subpixel positioning.
+res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   0% ] reimport | fusion-pixel-8px-proportional-zh_hans.otf.woff2
+[   1% ] reimport | fusion-pixel-8px-proportional-zh_hant.otf.woff2
+[   2% ] reimport | fusion-pixel-10px-proportional-latin.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2: Pixel font detected, disabling subpixel positioning.
+res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   3% ] reimport | fusion-pixel-10px-proportional-zh_hans.otf.woff2
+[   4% ] reimport | fusion-pixel-10px-proportional-zh_hant.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   5% ] reimport | fusion-pixel-12px-proportional-latin.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2: Pixel font detected, disabling subpixel positioning.
+res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   6% ] reimport | fusion-pixel-12px-proportional-zh_hans.otf.woff2
+res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2: Pixel font detected, disabling subpixel positioning.
+[   7% ] reimport | fusion-pixel-12px-proportional-zh_hant.otf.woff2
+[   8% ] reimport | fusion-pixel-8px-proportional-latin.otf.woff2
+[   9% ] reimport | fusion-pixel-8px-proportional-zh_hans.otf.woff2
+[  10% ] reimport | fusion-pixel-8px-proportional-zh_hant.otf.woff2
+[  11% ] reimport | fusion-pixel-10px-proportional-latin.otf.woff2
+[  12% ] reimport | fusion-pixel-10px-proportional-zh_hans.otf.woff2
+[  13% ] reimport | fusion-pixel-10px-proportional-zh_hant.otf.woff2
+[  14% ] reimport | fusion-pixel-12px-proportional-latin.otf.woff2
+[  15% ] reimport | fusion-pixel-12px-proportional-zh_hans.otf.woff2
+[  16% ] reimport | fusion-pixel-12px-proportional-zh_hant.otf.woff2
+[  17% ] reimport | after-hours-day7-high-contrast.png
+[  18% ] reimport | after-hours-day7-standard.png
+[  19% ] reimport | midnight-day7-standard.png
+[  20% ] reimport | midnight-day7-supportz-confirmation.png
+[  21% ] reimport | en-100.png
+[  22% ] reimport | zh_CN-150.png
+[  23% ] reimport | zh_HK-150.png
+[  24% ] reimport | en-normal-150.png
+[  25% ] reimport | en-recovery-150.png
+[  26% ] reimport | zh-CN-normal-150.png
+[  27% ] reimport | zh-CN-recovery-150.png
+[  28% ] reimport | after-hours-day7-deutan.png
+[  29% ] reimport | after-hours-day1-standard.png
+[  30% ] reimport | settings-day7.png
+[  31% ] reimport | settings-day1.png
+[  32% ] reimport | pause-settings-day7.png
+[  33% ] reimport | pause-backup-day1.png
+[  34% ] reimport | pause-backup-confirmation-queued.png
+[  35% ] reimport | pause-backup-after-cancel-day7-high.png
+[  36% ] reimport | day7-standard.png
+[  37% ] reimport | day3-high-deutan-warning.png
+[  38% ] reimport | day1-standard.png
+[  39% ] reimport | reply-05-cold-restored.png
+[  40% ] reimport | protan-day7-scrolled.png
+[  41% ] reimport | midnight-day7.png
+[  42% ] reimport | high-contrast-day7.png
+[  43% ] reimport | art-only-midnight-day7.png
+[  44% ] reimport | after-hours-day7.png
+[  45% ] reimport | after-hours-day1.png
+[  46% ] reimport | zh-HK-150.png
+[  47% ] reimport | zh-CN-150.png
+[  48% ] reimport | en-150.png
+[  49% ] reimport | zh-HK-150.png
+[  50% ] reimport | zh-CN-150.png
+[  50% ] reimport | en-150.png
+[  51% ] reimport | zh-HK-150-retry-cancel.png
+[  52% ] reimport | zh-CN-150-retry-cancel.png
+[  53% ] reimport | en-150-retry-cancel.png
+[  54% ] reimport | zh-HK-150-speech-failure.png
+[  55% ] reimport | zh-CN-150-speech-failure.png
+[  56% ] reimport | en-150-speech-failure.png
+[  57% ] reimport | zh-HK-150.png
+[  58% ] reimport | zh-CN-150.png
+[  59% ] reimport | en-150.png
+[  60% ] reimport | zh-HK-recovery-150.png
+[  61% ] reimport | zh-HK-normal-150.png
+[  62% ] reimport | en-125-AfterHours-error.png
+[  63% ] reimport | en-100-Midnight-error.png
+[  64% ] reimport | en-100-AfterHours-retry-success.png
+[  65% ] reimport | en-100-AfterHours-error.png
+[  66% ] reimport | en-100-AfterHours-error.png
+[  67% ] reimport | 2026-09-13-witnessed-tableau.png
+[  68% ] reimport | 2026-09-13-contacts-row-and-header.png
+[  69% ] reimport | 2026-09-13-angela-shell-background.png
+[  70% ] reimport | 13-day7-restored-echo.png
+[  71% ] reimport | 12-day7-followup.png
+[  72% ] reimport | 15-day7-pause-autosave-confirmation.png
+[  73% ] reimport | 14-day7-paused-followup.png
+[  74% ] reimport | 13-day7-restored-echo.png
+[  75% ] reimport | initial-footer-layout-failure.png
+[  76% ] reimport | 13-day7-restored-auto.png
+[  77% ] reimport | 13-day7-restored-echo.png
+[  78% ] reimport | midnight-day7-standard.png
+[  79% ] reimport | midnight-day7-pending-high-contrast.png
+[  80% ] reimport | after-hours-day7-standard.png
+[  81% ] reimport | after-hours-day7-high-contrast.png
+[  82% ] reimport | after-hours-day7-deutan.png
+[  83% ] reimport | after-hours-day1-standard.png
+[  84% ] reimport | contacts-touch-inspection.png
+[  85% ] reimport | reply-04-retry-saved.png
+[  86% ] reimport | reply-03-save-failure-retained.png
+[  87% ] reimport | reply-01-lavinia-before-click.png
+[  88% ] reimport | ordinary-expiry-day2-restored.png
+[  89% ] reimport | ordinary-expiry-day1-unanswered.png
+[  90% ] reimport | ordinary-expiry-earlier-slot-restored.png
+[  91% ] reimport | ordinary-expiry-day2-restored.png
+[  92% ] reimport | ordinary-expiry-day1-unanswered.png
+[  93% ] reimport | zh-HK-150-Midnight-error.png
+[  94% ] reimport | zh-HK-150-AfterHours-error.png
+[  95% ] reimport | zh-HK-125-Midnight-error.png
+[  96% ] reimport | zh-HK-125-AfterHours-error.png
+[  97% ] reimport | zh-HK-100-Midnight-error.png
+[  98% ] reimport | zh-HK-100-AfterHours-error.png
+[  99% ] reimport | 正在结束资产导入……
+[ DONE ] reimport
+
+[   0% ] reimport | Started 正在导入或重新导入资产 (101 steps)
+[   0% ] reimport | 正在执行重新导入的后置操作……
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started 正在加载编辑器 (5 steps)
+[   0% ] loading_editor_layout | 正在加载编辑器布局……
+[  16% ] loading_editor_layout | 正在加载停靠面板……
+[ DONE ] loading_editor_layout
