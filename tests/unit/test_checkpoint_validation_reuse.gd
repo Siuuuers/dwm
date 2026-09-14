@@ -10,6 +10,8 @@ const DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const ROOT := "checkpoint-reuse"
 const FINAL := ROOT + "/autosave.json"
+const PORT_SOURCE := "res://scripts/application/run/SaveManagerCheckpointPort.gd"
+const WITNESS := "_witness_document_text_validator"
 
 class CountingPort extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
 	var validations := {}
@@ -23,6 +25,16 @@ class CountingPort extends "res://scripts/application/run/SaveManagerCheckpointP
 	func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
 		if not reuse: return _document_text_validator(text)
 		return super._cached_document_text_proof(text, cache)
+
+# dwm-634.3: the storage witness is the third reader of the exact-text proofs, and commit() seeds the
+# outgoing text into the cache it binds, so suppressing the proven-document memo is not enough to
+# keep a reference port cold. This is the ONLY double that declares the witness, so that `_wired()`'s
+# reuse=true port -- the one the witness rows below interrogate -- still answers has_method() and
+# dispatches from the production port itself. Nothing here calls `super` on the witness: that would
+# not compile against a port which does not declare one yet.
+class UncachedPort extends CountingPort:
+	func _witness_document_text_validator(text: String, _cache: Dictionary) -> Dictionary:
+		return _document_text_validator(text)
 
 class Manager extends RefCounted:
 	var _journal := JOURNAL.new()
@@ -73,7 +85,7 @@ func _wired(reuse: bool = true, changed_reread: bool = false) -> Dictionary:
 	var storage: RefCounted = ChangedRereadStorage.new(ROOT, files) if changed_reread else STORAGE.new(ROOT, files)
 	var manager := Manager.new()
 	manager._storage = storage
-	var port := CountingPort.new(manager)
+	var port: CountingPort = CountingPort.new(manager) if reuse else UncachedPort.new(manager)
 	port.reuse = reuse
 	var gate := GATE.new()
 	assert_true(port.configure_fatal_latch(gate).get("ok", false))
@@ -670,3 +682,160 @@ func test_an_edited_current_bundle_is_written_but_never_remembered_for_a_later_s
 	assert_true(wired.port.commit(third).get("ok", false))
 	assert_false(wired.manager._journal.get_retained_bundle_text(third_id).is_empty(),
 		"an unedited current bundle is still remembered for the next splice")
+
+
+# -------------------------------------------------------------------------------------------------
+# A8 (dwm-634.3): storage reads nothing from the validations this port hands it on the commit,
+# rollback and read-repair paths but `ok` and whether the value is a Dictionary -- the port itself
+# discards every one of those values. Each hit on an already-proven text nonetheless deep-copies the
+# whole ~450 KB candidate several times over (_classify_document per artifact, reconcile's return,
+# the final read-back, write_atomic's own return). A witness answers those calls with an EMPTY
+# value. A text that is not proven still takes the full validation, so every refusal, its order and
+# the bytes on disk are exactly what they were.
+# -------------------------------------------------------------------------------------------------
+
+func _witness_call(port: CountingPort, text: String, cache: Dictionary) -> Dictionary:
+	var result: Variant = port.call(WITNESS, text, cache)
+	assert_eq(typeof(result), TYPE_DICTIONARY, "the witness answers with a Dictionary")
+	if typeof(result) != TYPE_DICTIONARY:
+		return {}
+	return result as Dictionary
+
+
+func _function_source(source: String, name: String) -> String:
+	var start := source.find("\nfunc " + name + "(")
+	assert_gt(start, -1, "the port declares func %s()" % name)
+	if start < 0:
+		return ""
+	var finish := source.find("\nfunc ", start + 1)
+	if finish < 0:
+		finish = source.length()
+	return source.substr(start, finish - start)
+
+
+func _assert_binds(body: String, needle: String, message: String) -> void:
+	assert_true(body.find(needle) >= 0, "%s -- expected the source to carry `%s`" % [message, needle])
+
+
+func test_witness_answers_a_proven_document_with_an_empty_value() -> void:
+	var wired := _wired()
+	assert_true(wired.port.commit(_prepare(wired, 1001)).get("ok", false))
+	assert_true(wired.port.has_method(WITNESS),
+		"dwm-634.3: the port must declare %s() for the storage calls whose value it discards" % WITNESS)
+	if not wired.port.has_method(WITNESS):
+		return
+	var committed_text: String = str(wired.storage.read_text("autosave.json").value)
+	assert_false(committed_text.is_empty(), "the committed document is readable through storage")
+	wired.port.validations.clear()
+	var witnessed := _witness_call(wired.port, committed_text, {})
+	assert_true(witnessed.get("ok", false), str(witnessed))
+	assert_eq(witnessed.get("code"), &"ok")
+	assert_eq(typeof(witnessed.get("value")), TYPE_DICTIONARY,
+		"_classify_document() refuses a validation whose value is not a Dictionary")
+	assert_true((witnessed.get("value") as Dictionary).is_empty(),
+		"a proven document is witnessed without a copy of the candidate")
+	assert_eq(wired.port.validations.get(committed_text, 0), 0,
+		"a proven document is not parsed a second time")
+
+
+func test_witness_validates_an_unknown_document_exactly_like_the_validator() -> void:
+	var wired := _wired()
+	assert_true(wired.port.has_method(WITNESS),
+		"dwm-634.3: the port must declare %s()" % WITNESS)
+	if not wired.port.has_method(WITNESS):
+		return
+	var candidate := _prepare(wired, 1002)
+	var emitted: Dictionary = WRITER.stringify(candidate.autosave_document)
+	assert_true(emitted.get("ok", false), str(emitted))
+	# Never written, never committed, never proven: a cold text takes the whole validation.
+	var unknown := str(emitted["value"]) + "\n"
+	var cache := {}
+	wired.port.validations.clear()
+	var witnessed := _witness_call(wired.port, unknown, cache)
+	assert_true(witnessed.get("ok", false), str(witnessed))
+	assert_eq(wired.port.validations.get(unknown, 0), 1, "an unknown document is parsed in full")
+	assert_eq(typeof(witnessed.get("value")), TYPE_DICTIONARY)
+	assert_false((witnessed.get("value") as Dictionary).is_empty(),
+		"an unknown document is witnessed with the whole candidate, as storage saw before")
+	var reference: Dictionary = wired.port._document_text_validator(unknown)
+	assert_true(reference.get("ok", false), str(reference))
+	var witnessed_canonical: Dictionary = WRITER.stringify(witnessed.get("value"))
+	var reference_canonical: Dictionary = WRITER.stringify(reference.get("value"))
+	assert_true(witnessed_canonical.get("ok", false), str(witnessed_canonical))
+	assert_eq(str(witnessed_canonical.get("value")), str(reference_canonical.get("value")),
+		"the cold value is the validator's own candidate, compared by canonical text")
+	assert_true(cache.has(unknown), "a cold witness seeds the cache it was given")
+	assert_true((cache[unknown] as Dictionary).has("value"),
+		"the seed is the whole validation, so this call's later classifications answer from it")
+	wired.port.validations.clear()
+	var repeated := _witness_call(wired.port, unknown, cache)
+	assert_true(repeated.get("ok", false), str(repeated))
+	assert_true((repeated.get("value") as Dictionary).is_empty(), "a seeded text is witnessed empty")
+	assert_eq(wired.port.validations.get(unknown, 0), 0, "a seeded text is not parsed again")
+	var broken := "{\"schema_version\":1,\"schema_version\":1}"
+	var refused := _witness_call(wired.port, broken, {})
+	assert_false(refused.get("ok", true), "an invalid document is refused")
+	assert_eq(refused.get("code"), wired.port._document_text_validator(broken).get("code"),
+		"the refusal carries the validator's own code")
+	assert_eq(refused, wired.port._document_text_validator(broken),
+		"the whole refusal is returned verbatim; storage quotes its message")
+
+
+func test_commit_and_rollback_hand_storage_the_witness() -> void:
+	var source := FileAccess.get_file_as_string(PORT_SOURCE)
+	assert_false(source.is_empty(), "the port source is readable")
+	var commit_source := _function_source(source, "commit")
+	_assert_binds(commit_source, WITNESS + ".bind(validated_texts)", "commit() binds the witness")
+	_assert_binds(commit_source, "AUTOSAVE_RELATIVE_PATH, outgoing_text, witness)",
+		"commit() hands write_atomic() the witness")
+	_assert_binds(commit_source, "witness.call(reread_text)",
+		"commit() validates its own reread with the witness; it reads nothing but ok")
+	var rollback_source := _function_source(source, "rollback")
+	_assert_binds(rollback_source, WITNESS + ".bind({})", "rollback() binds the witness")
+	_assert_binds(rollback_source, "str(descriptor.get(\"validated_text\", \"\")), witness)",
+		"rollback() hands write_atomic() the witness")
+	_assert_binds(rollback_source, "reconcile(relative_path, witness)",
+		"rollback() hands reconcile() the witness")
+	var repair_source := _function_source(source, "_capture_storage_backup")
+	_assert_binds(repair_source, "relative_path, " + WITNESS + ".bind(validated_texts))",
+		"the read-repair reconcile takes the witness; only its refusal is read")
+
+
+func test_externally_corrupted_autosave_is_refused_and_rolled_back_like_the_reference() -> void:
+	var cached := _wired()
+	var uncached := _wired(false)
+	assert_true(cached.port.commit(_prepare(cached, 1003)).get("ok", false))
+	assert_true(uncached.port.commit(_prepare(uncached, 1003)).get("ok", false))
+	var candidate := _prepare(cached, 1004)
+	var reference := _prepare(uncached, 1004)
+	var cached_backup := {"journal_backup": cached.port.capture().value.backup,
+		"storage_backup": candidate.storage_backup}
+	var uncached_backup := {"journal_backup": uncached.port.capture().value.backup,
+		"storage_backup": reference.storage_backup}
+
+	# Corrupted outside the port: the bytes change with no file operation of its own, so nothing the
+	# port proved describes them any more.
+	cached.files._persisted[FINAL] = "{broken".to_utf8_buffer()
+	uncached.files._persisted[FINAL] = "{broken".to_utf8_buffer()
+	cached.port.validations.clear()
+	uncached.port.validations.clear()
+	var refused: Dictionary = cached.port.commit(candidate)
+	var original: Dictionary = uncached.port.commit(reference)
+	assert_false(refused.get("ok", true), "a corrupt final artifact is refused")
+	assert_eq(refused.get("code"), original.get("code"), "the witness path refuses with the reference code")
+	assert_gt(int(cached.port.validations.get("{broken", 0)), 0,
+		"an unproven text is still strictly parsed: the witness never witnesses what it has not proven")
+	assert_eq(cached.files.snapshot_persisted(), uncached.files.snapshot_persisted(),
+		"the refusal preserves the reference bytes")
+	assert_eq(cached.files.operation_trace(), uncached.files.operation_trace(),
+		"the refusal performs the reference physical operations")
+	assert_eq(cached.manager._journal.capture_state(), uncached.manager._journal.capture_state())
+
+	var rolled: Dictionary = cached.port.rollback(cached_backup)
+	var rolled_reference: Dictionary = uncached.port.rollback(uncached_backup)
+	assert_eq(rolled.get("ok", false), rolled_reference.get("ok", false), "rollback agrees on the outcome")
+	assert_eq(rolled.get("code"), rolled_reference.get("code"), "rollback agrees on the code")
+	assert_eq(cached.files.snapshot_persisted(), uncached.files.snapshot_persisted(),
+		"rollback leaves the reference bytes")
+	assert_eq(cached.files.operation_trace(), uncached.files.operation_trace(),
+		"rollback performs the reference physical operations")

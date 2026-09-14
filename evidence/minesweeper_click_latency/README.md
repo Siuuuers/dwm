@@ -598,3 +598,60 @@ surface (public, non-static, column-0 signatures), neither of which moves.
 - settlement6-step1a-profile-08d88194e-fresh-win.log and -fresh-loss-: fresh account in a loaded
   window (routine medians 47 / 36 ms, App first reveal 133 / 129 ms against 89-96 at the quiet
   baseline); prepare_spec 0.3-2.1 ms, as before on a 100 KB root; no end-to-end claim.
+
+### Step 2b: the checkpoint port hands storage a validity witness for proven autosave text (commit after 263c775e7)
+
+The same shape as Step 2a on the autosave: SaveManagerCheckpointPort.commit handed write_atomic a
+cached validator that answered a proven text with a deep copy of the whole 300-450 KB candidate, which
+storage copied twice more (reconcile of the final and its .bak, then the promoted-final read-back) and
+the port never read (it re-reads through read_text and checks only ok). Under the 2026-09-14 ruling the
+port gains _witness_document_text_validator: proven text (the bound per-call cache or the
+three-document proven memo, the same membership test as _cached_document_text_proof) answers ok with
+an empty value; any other text runs the full validation, seeds the cache exactly as before and returns
+the full result, so every refusal code and order and the cold path are unchanged. The witness is passed
+where the value is discarded: the commit write_atomic and the port's own reread check (ok only), the
+rollback write_atomic and reconcile (bound to a fresh cache, so the restored text is validated once
+and its read-back answers from that seed), and the read-repair reconcile in _capture_storage_backup.
+JsonFileStorage.gd is not edited; bytes, the reread, hashes and the exact read-back stay. At write N
+the final is text N-1 and the .bak text N-2, both inside the proven memo of three, so the .bak is
+never parsed on the steady-state path (it is on the first two writes of a process and after a
+rollback or capability change, as before). _cached_document_text_validator keeps no production caller
+but stays as the memo's value-returning reader: fifteen existing rows pin the memo law through it
+(bound of three, detachment, no caching of refusals) and the witness shares that memo.
+SaveManagerCheckpointPort.gd is desktop-contract-bound, so the desktop handoff contract is
+regenerated in this commit (settlement6-step2b-reseal-desktop-263c775e7.log, one leaf moved of 174:
+the port's own digest; the minesweeper contract came back byte-identical,
+settlement6-step2b-reseal-minesweeper-263c775e7.log).
+
+- settlement6-step2b-red-263c775e7.log: tests/unit/test_checkpoint_validation_reuse.gd with the new rows
+  against the untouched port, 21 tests, 18 passing / 3 failing: the witness answers a proven document
+  with an empty value; the witness validates an unknown document exactly like the validator (full value
+  by canonical text, cache seeding, verbatim refusal); commit, rollback and the read-repair reconcile
+  hand storage the witness (source pin). Green before and after by design: an externally corrupted
+  autosave between commits is refused and rolled back with the same code, bytes, operation trace and
+  journal state as the reuse=false reference port.
+- settlement6-step2b-attrib-baseline-263c775e7.log: the five checkpoint-port integration suites that
+  this session had not run before (test_application_bootstrap, test_day_resolution_disk_durability,
+  test_desktop_action_matrix, test_desktop_simulator_authority, test_save_manager_journal) with the
+  port reverted to 263c775e7, 40 tests, 17 passing / 23 failing: the same failing tests, row for row,
+  as with the witness applied (missing_stage_adapter on the desktop production graph, an autoload-order
+  array in the bootstrap suite, day_advance_source_unavailable), so they are pre-existing at HEAD and
+  not part of this step.
+- settlement6-step2b-profile-263c775e7-live.log and -live2-: the live copy in a loaded window (Log In
+  32.8 / 33.9 s, routine reveal medians 46 / 48 ms), so phase figures only. Per big autosave (195-451
+  KB): write_atomic 45-70 ms at the baseline and 55-84 in the Step 2a and 1a runs to 22-39 ms;
+  reread_validate 1.3-3.9 to 0.2-1.0 ms; the per-save elapsed (94-167 ms) does not follow because the
+  untouched outgoing_schema, stringify and journal phases grew under the load. Ledger writes as in
+  Step 2a (disk_refresh 15-35 ms, write_atomic 35-65 ms).
+- settlement6-step2b-profile-263c775e7-fresh-win.log and -fresh-loss-: fresh account, same loaded
+  window (routine medians 53 / 54 ms); big autosave write_atomic 33-46 ms; no end-to-end claim.
+- settlement6-step2b-green-263c775e7.log: the 35-suite set plus the eighteen suites that reference the
+  checkpoint port, 53 suites, 910 tests, 822 passing / 88 failing, both contract evidence suites green
+  against the regenerated contract, test_checkpoint_validation_reuse 21 / 21. Every failing test is
+  inside the union of the session 5 known set (test_desktop_bootstrap_wiring,
+  test_desktop_completion_transaction, test_phase2r_schedule_desktop_handoff,
+  test_schedule_done_public_walk) and the attribution run above, compared by test name. A first run
+  of this set had three more rows in test_checkpoint_validation_reuse: the reuse=false reference
+  port still reached the production witness through the per-call cache commit() seeds; the reference
+  port is now a sibling inner class that bypasses the witness as it bypasses the cached validator and
+  the proof, and RED was re-proven with that final test file against the reverted port.

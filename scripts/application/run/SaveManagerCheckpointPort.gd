@@ -337,9 +337,11 @@ func commit(candidate: Dictionary) -> Dictionary:
 		# Failed proof and all unknown physical bytes retain the original strict parser
 		# and storage refusal path. Physical writes, hashes and final reread are unchanged.
 		tick = _profile_phase(profile, "outgoing_schema_us", tick)
-		var validator := _cached_document_text_validator.bind(validated_texts)
+		# dwm-634.3: neither storage nor the reread below reads the value of these validations, so
+		# both are answered by the witness, which copies no already-proven candidate.
+		var witness := _witness_document_text_validator.bind(validated_texts)
 		var written: Dictionary = _storage().write_atomic(
-			AUTOSAVE_RELATIVE_PATH, outgoing_text, validator)
+			AUTOSAVE_RELATIVE_PATH, outgoing_text, witness)
 		tick = _profile_phase(profile, "write_atomic_us", tick)
 		if not written.get("ok", false):
 			return _profile_result(profile, written)
@@ -348,7 +350,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		if not re_read.get("ok", false):
 			return _profile_result(profile, re_read)
 		var reread_text := str(re_read["value"])
-		var validated: Dictionary = validator.call(reread_text)
+		var validated: Dictionary = witness.call(reread_text)
 		var valid: bool = reread_text == outgoing_text and validated.get("ok", false)
 		tick = _profile_phase(profile, "reread_validate_us", tick)
 		if not valid:
@@ -482,13 +484,17 @@ func rollback(backup: Dictionary) -> Dictionary:
 		var descriptor := storage_descriptor as Dictionary
 		var relative_path := str(descriptor.get("relative_path", AUTOSAVE_RELATIVE_PATH))
 		var storage_result: Dictionary
+		# dwm-634.3: rollback reads nothing but `ok` from either result, so the witness answers
+		# both. `_forget_proven_documents()` above left nothing proven, so its only hit is the
+		# restored text this call itself validates and seeds.
+		var witness := _witness_document_text_validator.bind({})
 		if bool(descriptor.get("existed", false)):
 			storage_result = _storage().write_atomic(
-				relative_path, str(descriptor.get("validated_text", "")), _document_text_validator)
+				relative_path, str(descriptor.get("validated_text", "")), witness)
 		else:
 			# A failed final reread may have invalidated the lease after a first save
 			# became durable. Validate that artifact before restoring prior absence.
-			storage_result = _storage().reconcile(relative_path, _document_text_validator)
+			storage_result = _storage().reconcile(relative_path, witness)
 			if storage_result.get("ok", false):
 				storage_result = _storage().remove(relative_path)
 		attempts.append({"owner_id": "save_storage", "operation": "rollback", "result": storage_result})
@@ -808,7 +814,9 @@ func _capture_storage_backup(relative_path: String, validated_texts: Dictionary)
 				# A failed read invalidates the storage lease before any checkpoint is committed.
 				# Revalidate durable evidence so an explicit retry can read it again.
 				# This attempt still fails; corrupt or ambiguous artifacts remain refused.
-				var reconciled: Dictionary = _storage().reconcile(relative_path, _document_text_validator)
+				# Only its refusal is read, so the witness answers it (dwm-634.3).
+				var reconciled: Dictionary = _storage().reconcile(
+					relative_path, _witness_document_text_validator.bind(validated_texts))
 				if not reconciled.get("ok", false):
 					return reconciled
 			return read
@@ -875,6 +883,21 @@ func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
 	# Nothing else holds `result`: this method never hands the value out, so the cache may own it.
 	cache[text] = result
 	return {"ok": true, "code": &"ok"}
+
+## dwm-634.3: the same question again -- is this exact text a valid document? -- for the storage
+## calls whose returned value this port discards. Storage only asks whether the value is a
+## Dictionary (`_classify_document()`), so a proven text is witnessed with an empty one instead of
+## the 450 KB candidate, which `_classify_document()`, `reconcile()` and `write_atomic()` would each
+## deep-copy again. A cold miss behaves exactly like `_cached_document_text_validator()`: the FULL
+## validation is returned, so every refusal and its order are unchanged, and a success seeds the
+## cache so the same call's later classifications answer from it.
+func _witness_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
+	if cache.has(text) or _proven_document_validations.has(text):
+		return {"ok": true, "code": &"ok", "value": {}}
+	var result := _document_text_validator(text)
+	if result.get("ok", false):
+		cache[text] = result.duplicate(true)
+	return result
 
 func _document_text_validator(text: String) -> Dictionary:
 	if OS.get_environment("DWM_CHECKPOINT_PROFILE") != "1":
