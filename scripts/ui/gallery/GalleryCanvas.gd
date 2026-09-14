@@ -5,6 +5,7 @@ var unavailable_record := false
 var replay_start_failed := false
 var replay_unavailable := false
 var unavailable_height := 0.0
+var unavailable_top := 32.0
 var index_extent := 0.0
 var index_offset := 0.0
 var paper_extent := 0.0
@@ -24,13 +25,13 @@ func _draw() -> void:
 	if unavailable_record:
 		var ink := get_theme_color("paper_ink", "Gallery")
 		for x: int in range(0, 520, 8):
-			draw_rect(Rect2(392 + x, 32, mini(4, 520 - x), 2), ink)
-			draw_rect(Rect2(392 + x, 32 + unavailable_height - 2, mini(4, 520 - x), 2), ink)
+			draw_rect(Rect2(392 + x, unavailable_top, mini(4, 520 - x), 2), ink)
+			draw_rect(Rect2(392 + x, unavailable_top + unavailable_height - 2, mini(4, 520 - x), 2), ink)
 		for y: int in range(0, int(unavailable_height), 8):
-			draw_rect(Rect2(392, 32 + y, 2, minf(4, unavailable_height - y)), ink)
-			draw_rect(Rect2(910, 32 + y, 2, minf(4, unavailable_height - y)), ink)
+			draw_rect(Rect2(392, unavailable_top + y, 2, minf(4, unavailable_height - y)), ink)
+			draw_rect(Rect2(910, unavailable_top + y, 2, minf(4, unavailable_height - y)), ink)
 		for y: int in range(0, int(unavailable_height) - 4, 8):
-			draw_rect(Rect2(894, 34 + y, 16, 2), ink)
+			draw_rect(Rect2(894, unavailable_top + 2 + y, 16, 2), ink)
 	if index_extent > 592:
 		# Compute on the native master, then display every value at exact 2:1.
 		var extent := index_extent / 2

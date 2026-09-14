@@ -92,7 +92,7 @@ func _run() -> void:
 	_viewport.handle_input_locally = true
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_viewport)
-	_profile = PROFILE.new()
+	_profile = _create_profile()
 	_localization = LOCALIZATION.new()
 	_viewport.add_child(_profile)
 	_viewport.add_child(_localization)
@@ -147,6 +147,9 @@ func _run() -> void:
 
 func _create_gallery() -> Control:
 	return GALLERY.instantiate()
+
+func _create_profile() -> Node:
+	return PROFILE.new()
 
 
 func _alone(entry_id: String, form: String) -> Dictionary:
