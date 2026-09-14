@@ -684,3 +684,32 @@ capture receipts step (1b) nor the pull step (1c) is built this session. The pro
 session two better-defined candidates instead: the before/after owner-read pair of the board port
 (9 ms, 29 percent of the click, a strict snapshot-transaction law) and the panel present (12.6 ms,
 40 percent, UI-side grid rebuild and validation), both requiring their own rulings.
+
+### Post-merge re-verification (merge commit 39a9e0848, master 0e132d9b9)
+
+Master gained seven Gallery commits (362 files) between the branch point and the merge; none of them
+touches a file this branch changed or a file either handoff contract binds (42 bound paths
+intersected with the 362), so the merge is clean and no re-seal is needed.
+
+- settlement6-post-merge-green-39a9e0848.log: the 35-suite set (which already carries
+  test_minesweeper_presentation_port, test_game_state_desktop_board_port and
+  test_desktop_board_fate_port and both contract evidence suites), 660 passing / 0 failing.
+- settlement6-post-merge-bench-39a9e0848-live.log and -fresh-win-: a quiet window (routine reveal
+  medians 24.5 / 29.0 ms, Log In 21.9 s), so end to end is comparable with the same-day baseline.
+  Live copy: App first reveal 69 ms (125 at the baseline), New Board first reveal 182 ms (214), win
+  settled two frames after the click 916 ms (1302), loss 842 ms (1212), accept_prepared_action
+  405-508 ms (648-817), per ledger write disk_refresh 13-14 ms (39-75) and write_atomic 28-49 ms
+  (80-105), per big autosave write_atomic 24-40 ms (45-70). Fresh account: App first reveal 71 ms
+  (91-96), New Board 156 ms (212-255), win 586 ms (873), loss 627 ms, dating first reveal 243 ms
+  (294-338), dating win 376 ms (446), accept 337-345 ms (537).
+
+Session 6 summary: the publication ledger (08d88194e) and the checkpoint port (4fabce43a) hand
+storage a validity witness for text they have already validated, so the reconcile law (read and hash
+the final and its backup) is kept while the whole-document copies nobody read are gone; the deferred
+issuer mint (263c775e7) appends into the live root instead of copying it. The routine click was
+profiled (fc75a0162) and is 31 ms on live and fresh alike; the capture and pull steps were gated
+out. Not done this session: candidate 3 (run-start remember_committed_bundle_text, three off-click
+saves) stays the next handoff. Remaining long-history costs, in order: write_atomic's ~25-30 ms
+file-operation floor per write (marker writes, flushes, renames; ruled to stay), the read, decode
+and sha256 of the 800 KB final and .bak inside the ledger reconcile (13-14 ms per write; the law),
+the two owner reads (9 ms) and the panel present (12.6 ms) of the routine click.
