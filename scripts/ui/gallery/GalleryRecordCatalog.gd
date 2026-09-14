@@ -18,9 +18,25 @@ const TITLES := {
 	"ending.priscilla_lavinia.observer": ["Another Side", "另一面", "另一面"],
 }
 
-## Authored public details are registered here only. Empty shipped collections
-## mean the presenter truthfully projects no sentence and no optional media.
-const RECORD_DETAILS := {}
+## Provisional descriptions use only the public Day 7 actions in
+## story/library/03-seven-day-plot-material-library.md (Day 7 / Day 7 Eligibility).
+## Unwritten outcomes, exceptional/pair details and optional media stay absent.
+const RECORD_DETAILS := {
+	"ending.alone": {"sentence": ["Angela completes the final observation.",
+		"安吉拉完成最后一次观测。", "安吉拉完成最後一次觀測。"]},
+	"ending.priscilla.sweet": {"sentence": ["Angela attends the closing reception.",
+		"安吉拉参加闭幕招待会。", "安吉拉出席閉幕招待會。"]},
+	"ending.priscilla.dark": {"sentence": ["Angela attends the closing reception.",
+		"安吉拉参加闭幕招待会。", "安吉拉出席閉幕招待會。"]},
+	"ending.lavinia.sweet": {"sentence": ["Angela waits by the stage door.",
+		"安吉拉在舞台门外等候。", "安吉拉在舞台門外等候。"]},
+	"ending.lavinia.dark": {"sentence": ["Angela waits by the stage door.",
+		"安吉拉在舞台门外等候。", "安吉拉在舞台門外等候。"]},
+	"ending.sylvia.sweet": {"sentence": ["Angela collects what was found.",
+		"安吉拉接收找到的物品。", "安吉拉接收找到的物品。"]},
+	"ending.sylvia.dark": {"sentence": ["Angela collects what was found.",
+		"安吉拉接收找到的物品。", "安吉拉接收找到的物品。"]},
+}
 const PRESENTATION_DETAILS := []
 
 var valid := true
