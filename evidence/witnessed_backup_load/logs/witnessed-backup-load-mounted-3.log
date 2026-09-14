@@ -1,0 +1,169 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/d019dd0f-5ab7-4fe6-9b90-5eea17bb0c16/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_narrative_pause_frontier.gd
+* test_mounted_witnessed_load_is_cheap_then_opens_backup_and_continue_restores_exact_frontier
+    24 Orphans
+        * [<AudioStreamPlayer#226643413113>]
+        * [<Node#226626635898>(subsystem_voice.gd)]
+        * [<Node#226609858683>(subsystem_variables.gd)]
+        * [<Node#226593081468>(subsystem_text_input.gd)]
+        * [<Node#226374977663>(subsystem_jump.gd)]
+        * [<Node#226509195393>(subsystem_text.gd)]
+        * [<Node#226492418178>(subsystem_styles.gd)]
+        * [<Node#226475640963>(subsystem_settings.gd)]
+        * [<Timer#226458863748>]
+        * [<Node#226442086533>(subsystem_save.gd)]
+        * [<Node#226408532102>(subsystem_portraits.gd)]
+        * [<Node#226391754887>(subsystem_containers.gd)]
+        * [<Node#226140096648>(subsystem_animation.gd)]
+        * [<Timer#226358200457>]
+        * [<Node#226341423242>(subsystem_input.gd)]
+        * [<Node#226324646027>(subsystem_history.gd)]
+        * [<Node#226307868812>(subsystem_glossary.gd)]
+        * [<Node#226274314382>(subsystem_expression.gd)]
+        * [<Timer#226257537167>]
+        * [<Node#226240759952>(subsystem_choices.gd)]
+        * [<Node#226207205521>(subsystem_backgrounds.gd)]
+        * [<Node#226190428306>]
+        * [<Node#226173651091>]
+        * [<Node#226156873876>(subsystem_audio.gd)]
+* test_mounted_witnessed_load_focus_repair_does_not_steal_a_new_caption_focus
+    24 Orphans
+        * [<Node#484760881576>(subsystem_animation.gd)]
+        * [<Node#484777658793>(subsystem_audio.gd)]
+        * [<Node#484794436010>]
+        * [<Node#484811213227>]
+        * [<Node#484827990444>(subsystem_backgrounds.gd)]
+        * [<Node#484861544877>(subsystem_choices.gd)]
+        * [<Node#484945430958>(subsystem_history.gd)]
+        * [<Node#484928653743>(subsystem_glossary.gd)]
+        * [<Node#484895099313>(subsystem_expression.gd)]
+        * [<Node#484962208178>(subsystem_input.gd)]
+        * [<Timer#484978985395>]
+        * [<Node#484995762612>(subsystem_jump.gd)]
+        * [<Node#485012539829>(subsystem_containers.gd)]
+        * [<Node#485029317046>(subsystem_portraits.gd)]
+        * [<Node#485129980355>(subsystem_text.gd)]
+        * [<Node#485113203140>(subsystem_styles.gd)]
+        * [<Node#485213866444>(subsystem_text_input.gd)]
+        * [<Node#485230643662>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#485264198102>]
+        * [<Timer#485079648735>]
+        * [<Node#485096425954>(subsystem_settings.gd)]
+        * [<Node#485247420918>(subsystem_voice.gd)]
+        * [<Node#485062871548>(subsystem_save.gd)]
+        * [<Timer#484878322498>]
+48 orphans
+2/2 passed.
+
+
+
+
+==============================================
+= 72 Orphans
+==============================================
+res://tests/integration/test_narrative_pause_frontier.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+test_narrative_pause_frontier.gd
+    - test_mounted_witnessed_load_is_cheap_then_opens_backup_and_continue_restores_exact_frontier
+        * [<AudioStreamPlayer#226643413113>]
+        * [<Node#226626635898>(subsystem_voice.gd)]
+        * [<Node#226609858683>(subsystem_variables.gd)]
+        * [<Node#226593081468>(subsystem_text_input.gd)]
+        * [<Node#226374977663>(subsystem_jump.gd)]
+        * [<Node#226509195393>(subsystem_text.gd)]
+        * [<Node#226492418178>(subsystem_styles.gd)]
+        * [<Node#226475640963>(subsystem_settings.gd)]
+        * [<Timer#226458863748>]
+        * [<Node#226442086533>(subsystem_save.gd)]
+        * [<Node#226408532102>(subsystem_portraits.gd)]
+        * [<Node#226391754887>(subsystem_containers.gd)]
+        * [<Node#226140096648>(subsystem_animation.gd)]
+        * [<Timer#226358200457>]
+        * [<Node#226341423242>(subsystem_input.gd)]
+        * [<Node#226324646027>(subsystem_history.gd)]
+        * [<Node#226307868812>(subsystem_glossary.gd)]
+        * [<Node#226274314382>(subsystem_expression.gd)]
+        * [<Timer#226257537167>]
+        * [<Node#226240759952>(subsystem_choices.gd)]
+        * [<Node#226207205521>(subsystem_backgrounds.gd)]
+        * [<Node#226190428306>]
+        * [<Node#226173651091>]
+        * [<Node#226156873876>(subsystem_audio.gd)]
+    - test_mounted_witnessed_load_focus_repair_does_not_steal_a_new_caption_focus
+        * [<Node#484760881576>(subsystem_animation.gd)]
+        * [<Node#484777658793>(subsystem_audio.gd)]
+        * [<Node#484794436010>]
+        * [<Node#484811213227>]
+        * [<Node#484827990444>(subsystem_backgrounds.gd)]
+        * [<Node#484861544877>(subsystem_choices.gd)]
+        * [<Node#484945430958>(subsystem_history.gd)]
+        * [<Node#484928653743>(subsystem_glossary.gd)]
+        * [<Node#484895099313>(subsystem_expression.gd)]
+        * [<Node#484962208178>(subsystem_input.gd)]
+        * [<Timer#484978985395>]
+        * [<Node#484995762612>(subsystem_jump.gd)]
+        * [<Node#485012539829>(subsystem_containers.gd)]
+        * [<Node#485029317046>(subsystem_portraits.gd)]
+        * [<Node#485129980355>(subsystem_text.gd)]
+        * [<Node#485113203140>(subsystem_styles.gd)]
+        * [<Node#485213866444>(subsystem_text_input.gd)]
+        * [<Node#485230643662>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#485264198102>]
+        * [<Timer#485079648735>]
+        * [<Node#485096425954>(subsystem_settings.gd)]
+        * [<Node#485247420918>(subsystem_voice.gd)]
+        * [<Node#485062871548>(subsystem_save.gd)]
+        * [<Timer#484878322498>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                 2
+Passing Tests         2
+Asserts             168
+Orphans              72
+Time              1.583s
+
+
+Ran Tests matching "test_mounted_witnessed_load"
+---- All tests passed! ----

@@ -1,0 +1,114 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/b3cd3a37-a9d9-4d23-8af2-eabd240b3629/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_production_pause_controller.gd
+* test_witnessed_load_refuses_foreign_caption_without_session_or_backup_work
+    [Failed]
+      at line 194
+    [Failed]
+      at line 195
+* test_router_witnessed_load_facade_refuses_when_pause_owner_is_absent
+    [Failed]
+      at line 216
+    [Failed]
+      at line 217
+* test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody
+* test_day7_overlay_is_covered_and_continue_restores_its_card_and_focus
+* test_day7_preparation_retry_survives_pause_without_preparing_or_acknowledging
+* test_retired_day7_overlay_cannot_restore_focus_into_the_same_desktop
+* test_day7_lost_view_anchor_keeps_desktop_hidden_during_recovery
+* test_failed_day7_load_keeps_view_input_and_tree_suspended_through_restore_handoff
+* test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action
+    8 Orphans
+        * [SaveAction:<Button#1831803554237>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1818901875808>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1790934257584>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1725956100339>(BackupKey.gd)] + 1
+* test_physical_dating_source_resumes_exact_command_and_changed_command_refuses
+* test_return_route_failure_retains_paused_retry_and_never_saves_or_resumes_discarded_source
+* test_foreign_runtime_and_title_cannot_be_admitted_as_idle_playback
+* test_pause_backup_inspects_nine_records_and_does_not_claim_unsupported_operations
+    2 Orphans
+        * [SaveAction:<Button#2479672527353>(BackupKey.gd)] + 1
+* test_global_back_does_not_steal_a_text_field_event
+* test_pause_delete_keeps_exact_suspension_and_never_saves_the_source
+* test_idle_pause_load_failure_reacquires_exact_source_then_retry_follows_new_session
+* test_failed_load_with_changed_session_cannot_resume_either_source
+* test_paused_dating_manual_and_quick_save_restore_exact_board_and_command
+* test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk
+* test_desktop_pause_capture_preserves_the_covered_app_and_suspension
+* test_desktop_pause_capture_refuses_route_session_and_narrative_drift
+* test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt
+20/22 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_production_pause_controller.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_production_pause_controller.gd
+- test_witnessed_load_refuses_foreign_caption_without_session_or_backup_work
+    [Failed]:
+          at line 194
+    [Failed]:
+          at line 195
+- test_router_witnessed_load_facade_refuses_when_pause_owner_is_absent
+    [Failed]:
+          at line 216
+    [Failed]:
+          at line 217
+
+Totals
+------
+Scripts               1
+Tests                22
+Passing Tests        20
+Failing Tests         2
+Asserts           420/424
+Orphans              24
+Time              9.759s
+
+
+---- 2 failing tests ----

@@ -8,7 +8,13 @@ const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const PHYSICAL_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const COORDINATOR := preload("res://scripts/application/lifecycle/ApplicationLifecycleCoordinator.gd")
+const PRODUCTION_PAUSE := preload("res://scripts/application/lifecycle/ProductionPauseController.gd")
+const MUTATION_GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const INPUT_OWNER := preload("res://autoload/InputManager.gd")
+const PROFILE_OWNER := preload("res://autoload/ProfileManager.gd")
+const LOCALIZATION_OWNER := preload("res://autoload/LocalizationManager.gd")
+const MEMORY_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const FAKE_FILES := preload("res://tests/support/FakeFileOps.gd")
 const HOSPITAL_SCENE := preload("res://scripts/ui/HospitalScene.gd")
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
 const TIMELINE_ID := "hospital.faint"
@@ -37,6 +43,47 @@ class AudioFixture extends RefCounted:
 	func get_state() -> Dictionary:
 		return {"ok": true, "code": &"ok", "value": {"state": &"Active" if held.is_empty() else &"Suspended"}}
 
+class MountedRunOwner extends RefCounted:
+	var day := 3
+	var session_captures := 0
+	var handle := {"active": true, "generation": 1, "run_id": "mounted-reading-load", "owner_id": 73}
+	func capture_live_session() -> Dictionary:
+		session_captures += 1
+		return {"ok": true, "value": handle.duplicate(true)}
+	func validate_live_session(expected: Dictionary) -> Dictionary:
+		return {"ok": expected == handle and handle.active}
+	func get_run_configuration() -> Dictionary:
+		return {"ok": true, "value": {"dark_mode": false}}
+
+class MountedSaves extends RefCounted:
+	var inspections := 0
+	var pending := {}
+	var fail_load := true
+	var on_load := Callable()
+	var loads := 0
+	func get_backup_save_capability() -> Dictionary:
+		return {"enabled": false, "reason": "mounted_load_only"}
+	func inspect_backup(locator: String) -> Dictionary:
+		inspections += 1
+		return {"ok": true, "value": {"locator": locator, "revision": "mounted-slot",
+			"state": "occupied", "day": 2, "saved_time": "12:30", "fallback": false,
+			"load_day": 2, "load_saved_time": "12:30", "reason": "", "loadable": true,
+			"operation_allowed": true}}
+	func prepare_backup_action(action: String, locator: String) -> Dictionary:
+		var record: Dictionary = inspect_backup(locator)
+		if not record.get("ok", false): return record
+		var token := "mounted-%s-%s" % [action, locator]
+		pending[token] = action
+		return {"ok": true, "value": {"token": token, "record": record.value}}
+	func commit_backup_action(token: String) -> Dictionary:
+		if not pending.has(token): return {"ok": false, "code": &"stale_backup_action"}
+		pending.erase(token)
+		loads += 1
+		if on_load.is_valid(): on_load.call()
+		return {"ok": not fail_load, "code": &"mounted_load_failed" if fail_load else &"ok"}
+	func cancel_backup_action(token: String) -> void:
+		pending.erase(token)
+
 var _runtime: DialogicGameHandler
 var _adapter: RefCounted
 var _bridge: Node
@@ -62,6 +109,12 @@ var _pause_scene: PauseScene
 var _input_owner: Node
 var _original_input: Node
 var _original_input_index := 0
+var _profile_owner: Node
+var _localization_owner: Node
+var _original_profile: Node
+var _original_profile_index := 0
+var _original_localization: Node
+var _original_localization_index := 0
 var _original_scene: Node
 var _old_process_mode: int
 var _window_size: Vector2i
@@ -71,6 +124,14 @@ var _original_contacts: Dictionary = {}
 var _pause_route: PauseRoute
 var _pause_gate: PauseGate
 var _pause_audio: AudioFixture
+var _load_controller: Node
+var _load_run: MountedRunOwner
+var _load_saves: MountedSaves
+var _load_route: RestoreRoute
+var _load_gate: RefCounted
+var _global_router: Node
+var _original_global_pause: Node
+var _mounted_restore_stage: Dictionary
 
 func before_each() -> void:
 	_original_contacts = GameState.contacts.duplicate(true)
@@ -83,6 +144,18 @@ func before_each() -> void:
 	_pause_scene = null
 	_input_owner = null
 	_original_input = null
+	_profile_owner = null
+	_localization_owner = null
+	_original_profile = null
+	_original_localization = null
+	_load_controller = null
+	_load_run = null
+	_load_saves = null
+	_load_route = null
+	_load_gate = null
+	_global_router = null
+	_original_global_pause = null
+	_mounted_restore_stage = {}
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_finished = 0
@@ -132,6 +205,14 @@ func before_each() -> void:
 
 func after_each() -> void:
 	get_tree().paused = false
+	if is_instance_valid(_global_router):
+		_global_router._production_pause = _original_global_pause
+	if is_instance_valid(_load_controller): _load_controller.free()
+	if is_instance_valid(_load_route):
+		if is_instance_valid(_load_route.target):
+			get_tree().current_scene = _original_scene
+			_load_route.target.free()
+		_load_route.free()
 	if is_instance_valid(_input_owner): _native_pause_pointer(Vector2.ZERO, false)
 	if is_instance_valid(_coordinator): _coordinator.free()
 	get_tree().current_scene = _original_scene
@@ -148,9 +229,17 @@ func after_each() -> void:
 		await get_tree().process_frame
 		_runtime.free()
 	if is_instance_valid(_input_owner): _input_owner.free()
+	if is_instance_valid(_localization_owner): _localization_owner.free()
+	if is_instance_valid(_profile_owner): _profile_owner.free()
 	if is_instance_valid(_original_input):
 		get_tree().root.add_child(_original_input)
 		get_tree().root.move_child(_original_input, _original_input_index)
+	if is_instance_valid(_original_profile):
+		get_tree().root.add_child(_original_profile)
+		get_tree().root.move_child(_original_profile, _original_profile_index)
+	if is_instance_valid(_original_localization):
+		get_tree().root.add_child(_original_localization)
+		get_tree().root.move_child(_original_localization, _original_localization_index)
 	_adapter = null
 	if _original_timeline != null: _original_timeline.take_over_path(_path)
 	_synthetic = null
@@ -366,9 +455,24 @@ func test_retained_physical_owner_publishes_same_source_without_a_completion() -
 	assert_eq(_reading_state(), before)
 	assert_eq(_receipts, [])
 
-func _start_combined_pause_fixture() -> bool:
+func _start_combined_pause_fixture(isolated_reading_services: bool = false) -> bool:
 	# The replacement is the real InputManager script, mounted at the actual source-policy
 	# lookup. Its original autoload is restored after this isolated input experiment.
+	if isolated_reading_services:
+		_original_profile = get_node("/root/ProfileManager")
+		_original_profile_index = _original_profile.get_index()
+		_original_localization = get_node("/root/LocalizationManager")
+		_original_localization_index = _original_localization.get_index()
+		get_tree().root.remove_child(_original_localization)
+		get_tree().root.remove_child(_original_profile)
+		_profile_owner = PROFILE_OWNER.new()
+		_profile_owner.name = "ProfileManager"
+		get_tree().root.add_child(_profile_owner)
+		assert_true(_profile_owner.initialize(MEMORY_STORAGE.new("mounted-reading-load.memory", FAKE_FILES.new())).ok)
+		_localization_owner = LOCALIZATION_OWNER.new()
+		_localization_owner.name = "LocalizationManager"
+		get_tree().root.add_child(_localization_owner)
+		assert_true(_localization_owner.initialize(_profile_owner).ok)
 	_original_input = get_node("/root/InputManager")
 	_original_input_index = _original_input.get_index()
 	get_tree().root.remove_child(_original_input)
@@ -415,6 +519,219 @@ func _native_pause_pointer(point: Vector2, pressed: bool) -> void:
 	event.pressed = pressed
 	Input.parse_input_event(event)
 	Input.flush_buffered_events()
+
+func _mount_production_reading_load() -> bool:
+	if not await _start_combined_pause_fixture(true): return false
+	if is_instance_valid(_coordinator):
+		_coordinator.free()
+		_coordinator = null
+	_pause_scene.scene_file_path = "res://scenes/hospital/HospitalScene.tscn"
+	_load_gate = MUTATION_GATE.new()
+	assert_true(_bridge.configure_mutation_gate(_load_gate).ok)
+	assert_true(_input_owner.configure_mutation_gate(_load_gate).ok)
+	_load_run = MountedRunOwner.new()
+	_load_saves = MountedSaves.new()
+	_load_route = RestoreRoute.new()
+	add_child(_load_route)
+	_load_route._current_scene_id = "hospital"
+	_load_controller = PRODUCTION_PAUSE.new()
+	add_child(_load_controller)
+	var configured: Dictionary = _load_controller.configure({
+		"game_state": _load_run, "saves": _load_saves, "bridge": _bridge,
+		"input": _input_owner, "audio": _pause_audio, "gate": _load_gate,
+		"profile": _profile_owner,
+		"localization": _localization_owner,
+		"settings_services": {"tts": null, "window": null,
+			"profile_reset_admission": func() -> bool: return false},
+	}, _load_route)
+	assert_true(configured.get("ok", false), str(configured))
+	if not configured.get("ok", false): return false
+	_global_router = get_node("/root/SceneRouter")
+	_original_global_pause = _global_router._production_pause
+	_global_router._production_pause = _load_controller
+	if _caption.has_method("_sync_transport"): _caption.call("_sync_transport")
+	await get_tree().process_frame
+	if _caption.has_method("_sync_transport"): _caption.call("_sync_transport")
+	return true
+
+func _open_mounted_backup_from_rail() -> bool:
+	var load_button: Button = _caption.transport_rail.get_node("Load")
+	if load_button.disabled: return false
+	load_button.grab_focus()
+	load_button.emit_signal("activated")
+	for frame in 30:
+		if _load_controller.surface.entered_action == &"backup": return true
+		await get_tree().process_frame
+	return false
+
+func _commit_mounted_slot_one() -> Dictionary:
+	var prepared: Dictionary = _load_controller._backup_port.prepare_action("load", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return prepared
+	return await _load_controller._backup_port.commit_action(prepared.value.token)
+
+func _stage_mounted_changed_session() -> void:
+	var participant := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd").new(_bridge)
+	var prepared: Dictionary = participant.prepare({"narrative_checkpoint": {}, "content_version": 1})
+	var route_plan: Dictionary = _load_route.prepare_route_restore("main", {})
+	if not prepared.get("ok", false) or not route_plan.get("ok", false):
+		_mounted_restore_stage = {"ok": false, "code": &"mounted_prepare_failed"}
+		return
+	var lease: Dictionary = _load_gate.acquire(&"restore")
+	if not lease.get("ok", false):
+		_mounted_restore_stage = lease
+		return
+	var applied_route: Dictionary = _load_route.apply_route_restore_silent(route_plan.value)
+	var plan: Dictionary = prepared.value.narrative_plan
+	if applied_route.get("ok", false): plan["route_ready_token"] = applied_route.value.route_ready_token
+	var staged: Dictionary = participant.apply_silent(plan) if applied_route.get("ok", false) else applied_route
+	var finalized: Dictionary = participant.finalize() if staged.get("ok", false) else staged
+	var route_finalized: Dictionary = _load_route.finalize_restore() if finalized.get("ok", false) else finalized
+	var released: Dictionary = _load_gate.release(&"restore", lease.value.token)
+	_mounted_restore_stage = {"ok": applied_route.get("ok", false) and staged.get("ok", false) \
+		and finalized.get("ok", false) and route_finalized.get("ok", false) and released.get("ok", false),
+		"applied_route": applied_route, "staged": staged, "finalized": finalized,
+		"route_finalized": route_finalized, "released": released}
+	if _mounted_restore_stage.ok: _load_run.handle.generation += 1
+
+func test_mounted_witnessed_load_is_cheap_then_opens_backup_and_continue_restores_exact_frontier() -> void:
+	if not await _mount_production_reading_load(): return
+	var rail: Control = _caption.transport_rail
+	var load_button: Button = rail.get_node("Load")
+	assert_true(rail.has_signal("load_requested"), "the mounted rail exposes one semantic Load command")
+	assert_true(_global_router.can_open_witnessed_backup_load(_caption),
+		"the production owner admits the exact mounted caption")
+	assert_true(_caption.accept_input.is_source_admitted(),
+		"the live partial caption retains ordinary source input custody")
+	assert_true(_caption.call("_load_admitted"),
+		"the caption composes its bound Load admission with the production owner")
+	assert_false(load_button.disabled, "the exact current witnessed source admits Load")
+	if not rail.has_signal("load_requested") or load_button.disabled: return
+	_load_run.session_captures = 0
+	for query in 100:
+		assert_true(_global_router.can_open_witnessed_backup_load(_caption),
+			"cheap projection remains truthful on query %d" % query)
+	assert_eq(_load_run.session_captures, 0,
+		"rail projection never copies the live session or native frontier")
+	var bar: VScrollBar = _caption.get_scroll_bar()
+	assert_gt(bar.max_value - bar.page, 100.0)
+	bar.value = 100.0
+	load_button.grab_focus()
+	var before := _reading_state()
+	var source: Dictionary = _owner.capture_pause_source()
+	var source_frontier: Dictionary = _bridge.capture_pause_frontier(TIMELINE_ID)
+	load_button.emit_signal("activated")
+	for frame in 30:
+		if is_instance_valid(_load_controller.surface) \
+				and _load_controller.surface.entered_action == &"backup": break
+		await get_tree().process_frame
+	assert_true(get_tree().paused)
+	assert_false(_caption.canvas.is_visible_in_tree())
+	assert_eq(_load_controller.surface.entered_action, &"backup")
+	var backup: Control = _load_controller.surface._hosts.get(&"backup")
+	assert_not_null(backup, "the production Pause owns the real Backup host")
+	if backup == null: return
+	assert_eq(backup.active_mode, "load")
+	assert_true(backup.drawer_buttons["slot:1"].has_focus(), "direct Load starts at Slot 1")
+	assert_eq(_reading_state(), before, "opening Backup does not reveal, replay, acknowledge, or advance")
+	assert_eq(_owner.capture_pause_source(), source)
+	assert_eq(_bridge.capture_pause_frontier(TIMELINE_ID), source_frontier)
+	assert_false(_global_router.can_open_witnessed_backup_load(_caption),
+		"the retained source cannot open a duplicate Pause")
+	assert_true(_load_controller.surface.handle_back(), "Back returns from Backup to Pause")
+	assert_eq(_load_controller.surface.entered_action, &"")
+	var resumed: Dictionary = await _load_controller.request_continue()
+	assert_true(resumed.get("ok", false), str(resumed))
+	assert_false(get_tree().paused)
+	assert_true(_caption.canvas.is_visible_in_tree())
+	assert_eq(bar.value, 100.0)
+	assert_eq(_reading_state(), before, "Continue restores the exact partial native reading frontier")
+	assert_eq(_owner.capture_pause_source(), source)
+	assert_eq(_bridge.capture_pause_frontier(TIMELINE_ID), source_frontier)
+	for frame in 3: await get_tree().process_frame
+	assert_true(load_button.has_focus(), "Load focus returns after the resume-frame quarantine")
+	assert_eq(bar.value, 100.0)
+
+func test_mounted_witnessed_load_focus_repair_does_not_steal_a_new_caption_focus() -> void:
+	if not await _mount_production_reading_load(): return
+	var load_button: Button = _caption.transport_rail.get_node("Load")
+	assert_false(load_button.disabled)
+	if load_button.disabled: return
+	load_button.grab_focus()
+	load_button.emit_signal("activated")
+	for frame in 30:
+		if _load_controller.surface.entered_action == &"backup": break
+		await get_tree().process_frame
+	assert_eq(_load_controller.surface.entered_action, &"backup")
+	if _load_controller.surface.entered_action != &"backup": return
+	assert_true(_load_controller.surface.handle_back())
+	var resumed: Dictionary = await _load_controller.request_continue()
+	assert_true(resumed.get("ok", false), str(resumed))
+	if not resumed.get("ok", false): return
+	_caption.caption_text.grab_focus()
+	for frame in 3: await get_tree().process_frame
+	assert_true(_caption.caption_text.has_focus(),
+		"a fresh post-Continue reader focus supersedes deferred Load-focus repair")
+	assert_false(load_button.has_focus())
+
+func test_mounted_witnessed_failed_load_keeps_suspension_and_exact_source() -> void:
+	if not await _mount_production_reading_load(): return
+	var bar: VScrollBar = _caption.get_scroll_bar()
+	bar.value = 100.0
+	var before := _reading_state()
+	var source: Dictionary = _owner.capture_pause_source()
+	assert_true(await _open_mounted_backup_from_rail())
+	if _load_controller.surface.entered_action != &"backup": return
+	var result: Dictionary = await _commit_mounted_slot_one()
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"mounted_load_failed")
+	assert_eq(_load_saves.loads, 1)
+	assert_true(get_tree().paused)
+	assert_eq(_load_controller.coordinator.get_state().value.state, &"Suspended")
+	assert_false(_caption.canvas.is_visible_in_tree())
+	assert_eq(_reading_state(), before,
+		"failed Load neither reveals, replays, acknowledges, nor advances the old prose")
+	assert_eq(_owner.capture_pause_source(), source)
+	var foreign := Node.new()
+	assert_false(_global_router.can_open_witnessed_backup_load(foreign))
+	foreign.free()
+	assert_false(_global_router.can_open_witnessed_backup_load(_caption),
+		"a suspended source refuses duplicate Load")
+	assert_eq(_load_saves.loads, 1)
+	assert_true(_load_controller.surface.handle_back())
+	var resumed: Dictionary = await _load_controller.request_continue()
+	assert_true(resumed.get("ok", false), str(resumed))
+	assert_eq(_reading_state(), before)
+	assert_eq(bar.value, 100.0)
+
+func test_mounted_witnessed_successful_changed_session_never_restores_old_reveal() -> void:
+	if not await _mount_production_reading_load(): return
+	var before := _reading_state()
+	assert_true(await _open_mounted_backup_from_rail())
+	if _load_controller.surface.entered_action != &"backup": return
+	_load_saves.fail_load = false
+	_load_saves.on_load = Callable(self, "_stage_mounted_changed_session")
+	var result: Dictionary = await _commit_mounted_slot_one()
+	assert_true(_mounted_restore_stage.get("ok", false), str(_mounted_restore_stage))
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(_load_saves.loads, 1)
+	assert_eq(_load_route.publications, 1)
+	assert_eq(get_tree().current_scene, _load_route.target)
+	assert_false(get_tree().paused)
+	assert_false(_bridge.has_active_playback())
+	assert_true(_owner._in_flight.is_empty())
+	assert_eq(_finished, before.finished)
+	# RuntimeAdapter.halt_with_error ends the retired native timeline exactly once;
+	# this cancellation signal is distinct from text completion or a physical receipt.
+	assert_eq(_ended, before.ended + 1)
+	assert_eq(_receipts, before.receipts,
+		"retiring the old source fabricates no Hospital completion or acknowledgement")
+	assert_false((await _load_controller.request_continue()).get("ok", false),
+		"the activated destination cannot resume old Pause custody")
+	var duplicate: Dictionary = await _global_router.open_witnessed_backup_load(_caption)
+	assert_false(duplicate.get("ok", false))
+	assert_eq(_load_route.publications, 1)
+	assert_eq(_load_saves.loads, 1)
 
 func test_combined_native_pause_restores_caption_owner_and_quarantines_closing_contact() -> void:
 	if not await _start_combined_pause_fixture(): return

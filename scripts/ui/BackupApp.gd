@@ -193,6 +193,20 @@ func set_confirmation_host(host: Object) -> void:
 func can_return_home() -> bool:
 	return not _recovering and not _in_operation and not is_instance_valid(confirmation)
 
+## Pause may enter the real in-run cabinet from an external semantic command.
+## An empty mode preserves the established Pause-row entry and its same-day view state.
+func focus_entry(mode: StringName = &"") -> bool:
+	if _title_login or not is_node_ready() or not is_instance_valid(_port) \
+			or _in_operation or _recovering or is_instance_valid(confirmation) \
+			or _pending_token != null:
+		return false
+	if mode != &"" and (mode not in [&"save", &"load"] or not mode_buttons.has(String(mode))):
+		return false
+	if mode != &"":
+		active_mode = String(mode)
+	show_window()
+	return true
+
 func refresh_view() -> Dictionary:
 	if not is_inside_tree():
 		return {"ok": false, "code": &"backup_view_unmounted"}

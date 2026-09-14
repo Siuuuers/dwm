@@ -1,0 +1,16 @@
+{
+  "autoload/SceneRouter.gd": "499a8cccb6be9726a8b6eb13d83a6d36b3085848fbc8e3a0b4e6b6dc70d86d67",
+  "evidence/phase_2r/runtime/game_state_surface.json": "b469c77910c7eea803b497400333027e2d25d03e4d4e70034942d8cdcea26efb",
+  "evidence/phase_2r/runtime/save_manager_surface.json": "cb5bd5c5bd225aa98478db657cb0a43b51e92f434f755666c449cb70dc4424cb",
+  "scripts/application/lifecycle/ProductionPauseController.gd": "78841bf5a80b4ef31f478fa3bb48113b7e494fca7dca09c1b59b1b99a417670c",
+  "scripts/ui/BackupApp.gd": "f805fceabcff6acbf6db822d6e5d5f8f7765f9075a83794667505ac4ef851b95",
+  "scripts/ui/pause/PauseSurface.gd": "a48f387efa2b49f6bf2f73e5e2ff99078e7b629d6a4c3a886cccd4ceb1912648",
+  "scripts/ui/witnessed/WitnessedCaptionLayer.gd": "57029f246dd8ca172d3969145925ef9019a43de3c2b2628cdb55fa7f5dc30920",
+  "scripts/ui/witnessed/WitnessedTransportRail.gd": "5259d9d87868744b6e7167004c97d6585a4f3a6c904c0de2897ae5dc73ef9e04",
+  "tests/integration/test_narrative_pause_frontier.gd": "a9bfb24b87acd91b0ea955b18c680f4414ca4b6d34044f417aa509f68efd154a",
+  "tests/integration/test_pause_backup_host.gd": "a3c969561c0c7afaf11606aa903a9ef4e911103705acf14aa4734947f9df14f3",
+  "tests/manual/witnessed_transport_capture.gd": "52206a27813e31aabb3acf19d536219b758cea69194e960fbfdca0cf7af9ce76",
+  "tests/unit/test_production_pause_controller.gd": "70389afd21f604d93da36fdbc5615ba58c7527174ffc37e2c5ea3e8757ae6232",
+  "tests/unit/test_witnessed_transport_rail.gd": "f7620aad4ec3fbafa66a54cdb36c14640df1ecc8325fa92564836ca82327e2ad",
+  "tools/testing/Invoke-WitnessedTransportAccessibilityAction.ps1": "17cf13d7ea76bb9f50bd51c381e4b050e7fde7b51682ce138727723b84badf62"
+}
