@@ -227,22 +227,23 @@ func _check_request(request: Dictionary, profile: Dictionary = {}) -> Dictionary
 
 func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionary:
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-	# Normalize the one new record through its canonical bytes. This preserves the historical
-	# StringName-to-String behavior without reparsing the whole append-only document.
-	var entry_text := _digest_source(entry)
-	var normalized_entry_result: Dictionary = _JSON.parse_object(entry_text)
+	# Normalize the one new record's engine text (StringName keys and values a production caller
+	# embeds, e.g. a checkpoint header's own `kind`) exactly as the historical canonical emit plus
+	# strict re-parse did, without emitting or parsing the ~100 KB board_fate entry: the walk is
+	# identity-preserving on StringName-free subtrees, and `_confirm_written_entry()` below proves
+	# after the exact reread that the durable record still deep-equals the original entry. The
+	# entry is canonicalizable by construction here: `_check_request()` already emitted and
+	# digested `publication`, and every kind binds `semantic_receipt` to a member of it.
+	var normalized_entry: Dictionary = _normalize_engine_text(entry)
 	tick = _profile_phase(profile, "entry_normalize_us", tick)
-	if not profile.is_empty():
-		profile["entry_bytes"] = entry_text.to_utf8_buffer().size()
-		tick = Time.get_ticks_usec()
-	if not normalized_entry_result.get("ok", false):
-		return _rejected(&"publication_ledger_serialization_failed", "the new record is not canonicalizable")
-	var normalized_entry: Dictionary = normalized_entry_result["value"]
 	var candidate_document := _cached_document.duplicate(true)
 	(candidate_document["records"] as Dictionary)[normalized_entry["key"]] = normalized_entry
 	tick = _profile_phase(profile, "candidate_build_us", tick)
-	# The cached document was fully validated by refresh; check only the newly appended record.
-	var entry_error := _record_shape_error(normalized_entry, str(normalized_entry["key"]))
+	# The cached document was fully validated by refresh; check only the newly appended record. The
+	# publication digest was already emitted and compared in `_check_request()`, so it is passed
+	# along instead of canonicalizing the same ~80 KB publication a second time.
+	var entry_error := _record_shape_error(normalized_entry, str(normalized_entry["key"]),
+		str(normalized_entry["publication_sha256"]))
 	tick = _profile_phase(profile, "shape_check_us", tick)
 	if not entry_error.is_empty():
 		return _rejected(&"publication_ledger_schema_invalid", entry_error)
@@ -283,7 +284,9 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary,
 	if not known.get("ok", false):
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
 	var reparsed_entry: Variant = (known["value"] as Dictionary)["records"].get(entry["key"])
-	if _digest_source(reparsed_entry) != _digest_source(entry):
+	# Type-aware deep equality (StringName folded on the entry side only, 1 and 1.0 distinct) is the
+	# same proof the two canonical emits gave, without emitting the ~100 KB entry twice.
+	if not _CANON._deep_same(entry, reparsed_entry):
 		_profile_phase(profile, "confirmation_us", tick)
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
 	_profile_phase(profile, "confirmation_us", tick)
@@ -412,7 +415,11 @@ func _document_shape_error(document: Variant) -> String:
 	return ""
 
 
-func _record_shape_error(candidate: Variant, expected_key: String) -> String:
+## `known_publication_digest`, when nonempty, is a digest this instance already emitted and
+## compared for this exact publication (`_check_request()`); the disk-validation path passes
+## nothing and still canonicalizes every stored publication.
+func _record_shape_error(candidate: Variant, expected_key: String,
+		known_publication_digest: String = "") -> String:
 	if typeof(candidate) != TYPE_DICTIONARY:
 		return "record at " + expected_key + " must be a dictionary"
 	var record: Dictionary = candidate
@@ -434,7 +441,9 @@ func _record_shape_error(candidate: Variant, expected_key: String) -> String:
 	var receipt_id := str(_receipt_id_for_key(kind, record["semantic_receipt"] as Dictionary))
 	if _ledger_key(kind, receipt_id) != expected_key:
 		return "key must equal kind + ':' + the kind-specific semantic-receipt id"
-	var digest := _digest(record["publication"])
+	var digest := known_publication_digest
+	if digest.is_empty():
+		digest = _digest(record["publication"])
 	if digest.is_empty() or str(record["publication_sha256"]) != digest:
 		return "publication_sha256 must equal the canonical publication digest"
 	return ""
@@ -498,6 +507,39 @@ func _empty_document() -> Dictionary:
 
 static func _ledger_key(kind: String, receipt_id: String) -> String:
 	return kind + ":" + receipt_id
+
+
+## Identity-preserving: a subtree that holds no StringName is returned AS IS, so a StringName-free
+## entry allocates nothing here. Exact mirror of SaveDocumentSchema._normalize_engine_text();
+## it converts StringName keys and values only and can introduce no float, no key, no reorder.
+static func _normalize_engine_text(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_STRING_NAME: return String(value)
+		TYPE_ARRAY:
+			var source_array: Array = value
+			var array: Array = []
+			var array_converted := false
+			for element: Variant in source_array:
+				var normalized_element: Variant = _normalize_engine_text(element)
+				if not is_same(normalized_element, element):
+					array_converted = true
+				array.append(normalized_element)
+			return array if array_converted else source_array
+		TYPE_DICTIONARY:
+			var source_dictionary: Dictionary = value
+			var dictionary := {}
+			var dictionary_converted := false
+			for raw_key: Variant in source_dictionary:
+				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
+				if not is_same(key, raw_key):
+					dictionary_converted = true
+				var member: Variant = source_dictionary[raw_key]
+				var normalized_member: Variant = _normalize_engine_text(member)
+				if not is_same(normalized_member, member):
+					dictionary_converted = true
+				dictionary[key] = normalized_member
+			return dictionary if dictionary_converted else source_dictionary
+	return value
 
 
 func _digest_source(value: Variant) -> String:

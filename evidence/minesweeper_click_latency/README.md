@@ -146,3 +146,51 @@ to 685-703 ms, App loss 827/776 to 729-746 ms, dating win 467-481 to 453 ms, acc
   and test_minesweeper_contract_evidence, 560 passing / 0 failing.
 - settlement3-post-merge-bench-88b92f77f.log: App win settled 728 ms, loss 620 ms, dating win 431 ms
   on the merged tree.
+
+## settlement4 (branch perf/terminal-settlement-4 from master 22b6a4fb2, dwm-634.3)
+
+Session 4 starts from master 22b6a4fb2 (17 commits past a2f394f89, none in the save, checkpoint
+or consequence layer). The machine is shared with another agent's Godot runs this session: routine
+App reveals read 30-40 ms in every run below against 17-23 ms in the settlement3 runs, so end-to-end
+settled times are compared phase by phase, not run to run.
+
+### Step 1: DesktopPublicationLedger normalizes the new record by a walk, not by emit + re-parse (commit after 22b6a4fb2)
+
+The archived settlement3 profile logs already carried the ledger's per-phase split (scope
+desktop_publication_ledger). On the terminal frame the third write (board_fate, entry 80-124 KB)
+cost 100.6 ms (post-merge bench) to 225.7 ms (gate-profile-win), of which write_atomic was 30-39 ms;
+the rest was CPU: entry_normalize (canonical emit plus StrictJson re-parse purely for StringName to
+String) 36.5-100.1 ms, confirmation (two more canonical emits of the entry) 11.8-30.4 ms,
+shape_check (a third canonical emit of the publication for its digest) 6.0-18.2 ms.
+
+Under the 2026-09-13 ruling (remove redundant canonical passes and strict parses only; entry bytes
+identical) the commit replaces the emit + re-parse with an identity-preserving StringName walk (an
+exact mirror of SaveDocumentSchema._normalize_engine_text), passes the publication digest already
+emitted and compared in _check_request into the record shape check, and confirms the durable record
+with CanonicalJsonWriter._deep_same (type-aware, StringName folded on the entry side, 1 and 1.0
+distinct) instead of two canonical emits. The request digest, the whole-document emit, write_atomic,
+the exact byte reread and the disk-validation path (which still canonicalizes every stored
+publication) are unchanged. The unreachable serialization refusal in _commit_new_entry is gone: the
+entry is canonicalizable by construction once _check_request has digested the publication, because
+every kind binds semantic_receipt to a member of it. The profile record drops entry_bytes (no text
+exists to measure).
+
+- settlement4-step1-red-22b6a4fb2.log: tests/unit/test_desktop_publication_ledger.gd, 18 tests,
+  16 passing / 2 failing: the source pins (walk present, re-parse and double emit absent) and the
+  _normalize_engine_text identity/number-type rows fail against the untouched ledger; the
+  engine-typed board_fate byte-equality row (StringName keys and values, a typed array, unsorted
+  nested keys, 1.0 and 2.5, non-ASCII text; golden bytes computed the old way inside the test, then
+  a cold restart and an identical replay) is green before and after.
+- settlement4-step1-green-22b6a4fb2.log and settlement4-step1-attrib-baseline-22b6a4fb2.log: the
+  18 suites that reference the ledger (10 unit including the frozen schedule gate, 8 integration),
+  run once with the patched ledger (411 tests, 339 passing / 72 failing) and once with the ledger
+  reverted to HEAD in the same tree (337 / 74). The failing sets are identical except the two RED
+  rows: every one of the 72 is pre-existing on master 22b6a4fb2 (the frozen nine-role handoff gate
+  against a live ten-role order, missing schedule_view members, expected-4-saw-5 requests).
+- settlement4-step1-profile-win-22b6a4fb2.log and -loss-: profiled fresh-account runs. board_fate
+  ledger write 42.3 / 59.5 ms (entry_normalize 2.5 / 1.9, shape_check 0.6 / 0.5, confirmation
+  2.8 / 4.3, request_digest 6.4 / 5.1, full_emit 7.6 / 7.9, write_atomic 18.5 / 35.2) against
+  100.6-225.7 ms before; the four small publication writes are unchanged at 22-40 ms, all but 1-3 ms
+  of it write_atomic. App win settled 733 ms, loss 665-714 ms, dating 445-451 ms; on this slower
+  machine day those sit inside the noise band and no end-to-end claim is attached beyond the
+  phase figures above.

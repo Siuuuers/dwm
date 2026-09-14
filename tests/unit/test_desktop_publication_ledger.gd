@@ -15,6 +15,9 @@ const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const LEDGER_PATH := "res://scripts/infrastructure/save/DesktopPublicationLedger.gd"
 const OTHER_LEDGER_PATH := "res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd"
 const FIXED_PATH := "desktop-publications.json"
+# The strict parser the ledger's OLD normalization path went through; the golden bytes in the
+# dwm-634.3 session-4 guard below are computed the old way, in-test, and compared to disk.
+const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 
 const RECORD_KEYS: Array[String] = [
 	"key", "kind", "publication", "publication_sha256", "semantic_receipt",
@@ -401,3 +404,152 @@ func test_disjoint_from_plan01_schedule_foundation_ledger() -> void:
 	assert_ne(desktop_path, other_path)
 	assert_true(FileAccess.file_exists(desktop_path))
 	assert_true(FileAccess.file_exists(other_path))
+
+
+# ---- dwm-634.3 session 4: normalize the new record by walk, not by emit+reparse ----
+#
+# `_commit_new_entry` used to turn a production caller's StringName keys/values into Strings by
+# emitting the whole new record canonically and strict-parsing that text back -- for a board_fate
+# record that is a ~100 KB emit plus a ~100 KB parse whose ONLY job is a type fold. Then
+# `_record_shape_error` recomputed the publication digest the request check had just proven, and
+# `_confirm_written_entry` emitted the candidate AND the re-read record a second time each just to
+# compare them. Session 4 replaces the emit+reparse with `_normalize_engine_text()`, an
+# identity-preserving StringName -> String walk mirrored exactly from SaveDocumentSchema.gd
+# (containers are rebuilt ONLY when something inside converted; ints/floats/bools/nulls/Strings
+# pass through untouched), hands the already-known digest into `_record_shape_error`, and confirms
+# the durable record with `CanonicalJsonWriter._deep_same()` instead of two more emits. The bytes
+# on disk must stay byte-identical: the first test pins the source, the second is the behavioural
+# guard (golden bytes computed the OLD way, in-test), the third drives the walk directly.
+
+
+func test_commit_normalizes_the_new_record_by_walk_not_by_reparse() -> void:
+	if not _require_ledger():
+		return
+	var source := FileAccess.get_file_as_string(LEDGER_PATH)
+	assert_false(source.is_empty(), "the ledger source must be readable: " + LEDGER_PATH)
+	# The walk exists and replaced the ~100 KB emit+reparse of the new board_fate record.
+	assert_true(source.contains("static func _normalize_engine_text("),
+		"the ledger must own an identity-preserving _normalize_engine_text() walk")
+	assert_false(source.contains("_JSON.parse_object(entry_text)"),
+		"the new record must no longer be normalized by strict-parsing its own canonical emit")
+	# Confirmation compares structurally; the two per-commit confirmation emits are gone.
+	assert_true(source.contains("_CANON._deep_same(entry, reparsed_entry)"),
+		"_confirm_written_entry must compare the durable record with CanonicalJsonWriter._deep_same")
+	assert_false(source.contains("_digest_source(reparsed_entry) != _digest_source(entry)"),
+		"_confirm_written_entry must not emit the candidate and the re-read record a second time")
+
+
+func test_engine_typed_board_fate_entry_writes_the_exact_emit_reparse_bytes() -> void:
+	if not _require_ledger():
+		return
+	# An "engine typed" publication: the two top-level members stay String-keyed (PUBLICATION_KEYS
+	# must match exactly), but inside board_candidate a production caller may embed StringName keys
+	# and values, a typed Array, insertion-ordered nested keys, ints, floats and non-ASCII text.
+	var receipt_id := "engine-typed-1"
+	var key := "board_fate:" + receipt_id
+	var cells: Array[String] = ["a", "b"]
+	var receipt := {"receipt_id": receipt_id, "fate": &"none"}
+	var publication := {
+		"board_candidate": {
+			&"phase": &"ACTIVE_VISIBLE",
+			"cells": cells,
+			"nested": {"zeta": 3, "alpha": {"ratio": 2.5, "unit": 1.0}},
+			"label": "你好",
+		},
+		"board_fate_receipt": receipt,
+	}
+	# semantic_receipt is the SAME object as publication.board_fate_receipt, as the port hands it in.
+	var request := {
+		"kind": "board_fate", "publication": publication,
+		"publication_sha256": _sha256(publication), "semantic_receipt": receipt,
+	}
+	var ledger := _loaded()
+	var recorded: Dictionary = ledger.record_before_emit(request)
+	assert_true(recorded.get("ok", false), str(recorded))
+	assert_true(recorded["value"]["first_delivery"])
+
+	# GOLDEN: the bytes the OLD path produced -- canonical emit of the new record, strict-parsed
+	# back (StringName -> String, typed Array -> untyped, key order canonical), then the whole
+	# document emitted canonically. The walk must land on exactly these bytes.
+	var entry := {
+		"key": key,
+		"kind": "board_fate",
+		"semantic_receipt": receipt.duplicate(true),
+		"publication": publication.duplicate(true),
+		"publication_sha256": _sha256(publication),
+	}
+	var entry_text := _canonical(entry)
+	var reparsed: Dictionary = STRICT_JSON.parse_object(entry_text)
+	assert_true(reparsed.get("ok", false), str(reparsed))
+	var normalized: Dictionary = reparsed["value"]
+	var golden := _canonical({"records": {key: normalized}, "schema_version": 1}) + "\n"
+	assert_eq(FileAccess.get_file_as_string(_root.path_join(FIXED_PATH)), golden,
+		"the walk-normalized record must write byte-identical bytes to the old emit+reparse path")
+
+	# Cold restart over the same bytes: the durable record reads back as the golden normalized
+	# record, and the identical engine-typed request replays as a no-op success.
+	var restarted := _loaded()
+	var loaded: Dictionary = restarted.load()
+	assert_eq(loaded["value"]["document"]["records"][key], normalized)
+	var replay: Dictionary = restarted.record_before_emit(request)
+	assert_true(replay.get("ok", false), str(replay))
+	assert_false(replay["value"]["first_delivery"], "a cold instance must re-read and answer false")
+
+
+func test_normalize_engine_text_folds_string_names_and_preserves_identity_and_number_types() -> void:
+	if not _require_ledger():
+		return
+	# RED until session 4 lands: the walk does not exist on the ledger yet.
+	var has_walk := false
+	for method: Dictionary in _ledger_script.get_script_method_list():
+		if str(method.get("name", "")) == "_normalize_engine_text":
+			has_walk = true
+	assert_true(has_walk, "DesktopPublicationLedger must own static _normalize_engine_text()")
+	if not has_walk:
+		return
+	var value := {
+		&"phase": &"NONE",
+		"plain": {"n": 3, "f": 1.0, "s": "x"},
+		"list": [&"a", 2],
+		"mixed": {&"k": 1.0},
+	}
+	# Static call through the loaded Script, so the analyzer never binds the name at parse time.
+	var result: Variant = _ledger_script.call(&"_normalize_engine_text", value)
+	assert_eq(typeof(result), TYPE_DICTIONARY)
+	if typeof(result) != TYPE_DICTIONARY:
+		return
+	var folded: Dictionary = result
+	# StringName values fold to String; StringName keys fold to String keys.
+	assert_eq(typeof(folded["phase"]), TYPE_STRING)
+	assert_eq(folded["phase"], "NONE")
+	var result_phase_key_type := -1
+	for result_key: Variant in folded.keys():
+		if str(result_key) == "phase":
+			result_phase_key_type = typeof(result_key)
+	assert_eq(result_phase_key_type, TYPE_STRING, "the folded key must be a String, not a StringName")
+	# A StringName-free subtree comes back by identity, with its number types untouched.
+	assert_true(is_same(folded["plain"], value["plain"]),
+		"a StringName-free subtree must be returned as the same object")
+	assert_eq(typeof(folded["plain"]["n"]), TYPE_INT)
+	assert_eq(typeof(folded["plain"]["f"]), TYPE_FLOAT)
+	# A converted Array is rebuilt with its non-StringName elements intact.
+	assert_eq(typeof(folded["list"][0]), TYPE_STRING)
+	assert_eq(folded["list"][0], "a")
+	assert_eq(folded["list"][1], 2)
+	assert_eq(typeof(folded["list"][1]), TYPE_INT)
+	# A rebuilt dictionary keeps a float a float (a JSON round trip is what used to do this job).
+	assert_false(is_same(folded["mixed"], value["mixed"]), "a converted subtree must be a fresh object")
+	assert_eq(typeof(folded["mixed"]["k"]), TYPE_FLOAT)
+	# The SOURCE is never mutated: its StringName key and value survive the walk.
+	assert_eq(typeof(value[&"phase"]), TYPE_STRING_NAME)
+	assert_true(value.has(&"phase"))
+	var source_phase_key_type := -1
+	for source_key: Variant in value.keys():
+		if str(source_key) == "phase":
+			source_phase_key_type = typeof(source_key)
+	assert_eq(source_phase_key_type, TYPE_STRING_NAME, "the source key must still be a StringName")
+	assert_eq(typeof(value["list"][0]), TYPE_STRING_NAME)
+	# A fully StringName-free dictionary is returned as the same object, not a copy.
+	var clean := {"a": 1, "b": [1, 2.5, "x", null, true], "c": {"d": "e"}}
+	var clean_result: Variant = _ledger_script.call(&"_normalize_engine_text", clean)
+	assert_true(is_same(clean_result, clean), "a StringName-free dictionary must be returned by identity")
