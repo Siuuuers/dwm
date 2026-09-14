@@ -1,0 +1,10 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+NUL_ABLATION path=save.json ok=true code=ok
+NUL_ABLATION path=nested/save.json ok=true code=ok
+NUL_ABLATION path= ok=false code=invalid_relative_path
+NUL_ABLATION path=../save.json ok=false code=invalid_relative_path
+NUL_ABLATION path=nested//save.json ok=false code=invalid_relative_path
+NUL_ABLATION path=C:/save.json ok=false code=invalid_relative_path
+NUL_ABLATION path=save�.json ok=false code=invalid_relative_path
+NUL_ABLATION storage done

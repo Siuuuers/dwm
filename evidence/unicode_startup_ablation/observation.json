@@ -1,0 +1,166 @@
+{
+  "bead": "dwm-6zh",
+  "tested_subject": "6c744187fe7b7f5ca23c887f7585910f25bb41a7",
+  "engine": "Godot 4.6.3.stable.mono.official.7d41c59c4",
+  "conclusion": "The escaped U+0000 string literal in JsonFileStorage._validate_relative_path causes three script-load Unicode diagnostics and is compiled as U+FFFD. Exact project input records alone do not reproduce them. The isolated storage copy reproduces all three; replacing only the literal check with numeric codepoint rejection removes them while preserving all seven probed path outcomes.",
+  "production_fix_applied": false,
+  "implementation_owner": "dwm-634.3",
+  "remaining_acceptance": [
+    "Owner applies the narrow guard repair and extends existing unsafe-path test matrix with String.chr(0xFFFD), retaining no-write failure assertions.",
+    "Run focused storage tests and a normal full-project startup to verify the diagnostic disappears without weakening path validation."
+  ],
+  "limits": [
+    "All runs are isolated headless probes, not full-game validation.",
+    "Candidate was applied only to a throwaway copy; production and dwm-634 issue records were not edited.",
+    "The real U+0000 numeric branch is preventive and was not directly exercised; attempting to construct NUL is itself replaced by this engine. U+FFFD rejection was exercised.",
+    "No relationship to the intermittent native shutdown stall is established.",
+    "An earlier exploratory storage probe deliberately called String.chr(0), adding one diagnostic after the path checks. The final retained storage runs remove this probe-only conversion. An initial candidate checking only zero admitted U+FFFD; the retained candidate also rejects 0xFFFD to preserve effective current behavior."
+  ],
+  "copied_sources": [
+    {
+      "path": "scripts/infrastructure/storage/JsonFileStorage.gd",
+      "sha256_copied_worktree_bytes": "5f74acc889ef7ccf1291cc4f0ada3ac220b5284e2eddc740fd060773a1af6bc3",
+      "git_blob": "45fddd7450958b99155266ebcb514b4deb291d07"
+    },
+    {
+      "path": "scripts/infrastructure/storage/StorageAdapter.gd",
+      "sha256_copied_worktree_bytes": "37f215a5fd32ce8f0fd93e7e1f65c45210df775b3e54a262eb7bf22a78c52c5a",
+      "git_blob": "61c89f66ae905f98342c88021173b295a9e55150"
+    },
+    {
+      "path": "scripts/infrastructure/storage/FileOps.gd",
+      "sha256_copied_worktree_bytes": "89aa45cf28b0c618f46c6c8b2b590227e8314c664624d8fb314069c133dc0895",
+      "git_blob": "8f585f9c4a085eae9ab09814696ab67f691b0062"
+    },
+    {
+      "path": "scripts/validation/StrictJson.gd",
+      "sha256_copied_worktree_bytes": "9c0aa8e2716473cf9fa6a6ae524216e812c760bff134a1b5ae7af8eb3d46a82f",
+      "git_blob": "4eaabe2e5fa9d6fd19220d4ddf785155ee9a7c4b"
+    },
+    {
+      "path": "scripts/validation/CanonicalJsonWriter.gd",
+      "sha256_copied_worktree_bytes": "e916d0db8d66d7ad17b389dca9fd668baf5387e33f5e8d839c3abb66b6e805a5",
+      "git_blob": "e883ace914a1eee7e046b27522939c2f7ac98705"
+    },
+    {
+      "path": "tools/testing/Invoke-IsolatedGodot.ps1",
+      "sha256_copied_worktree_bytes": "109c0b98c2be7e23946f1fa8f08d534882295ad974e04c96f9aa1879174336f7",
+      "git_blob": "052bb07c68300105ec8ac891ac09bd561fb45a26"
+    },
+    {
+      "path": "tools/evidence/print_user_dir.gd",
+      "sha256_copied_worktree_bytes": "ae6476aca5d7036f90b7742d9c711e632eb30d234e63425011b146ca88375fb6",
+      "git_blob": "2cd4e1b8a9372d6fedda6af5150f5fc0d29fb0d7"
+    }
+  ],
+  "reproduction": "For each case, create a separate empty project with the embedded project_godot and probe_gd. Copy the pinned isolation wrapper and print_user_dir script to their original relative paths. For storage cases also copy the five listed production source files from tested_subject, preserving their paths; apply isolated_candidate_diff only for storage_candidate. Run copied wrapper with a unique SuiteId, LogName, GodotArgs [-s,res://probe.gd], KeepRoot and EvidenceLogPath. Keep engines serial and production data isolated.",
+  "isolated_candidate_diff": "--- a/scripts/infrastructure/storage/JsonFileStorage.gd\n+++ b/scripts/infrastructure/storage/JsonFileStorage.gd\n@@ -755,7 +755,10 @@\n \treturn {\"ok\": true}\n \n func _validate_relative_path(relative_path: String) -> Dictionary:\n-\tif relative_path.is_empty() or relative_path.is_absolute_path() or \":\" in relative_path or \"\\\\\" in relative_path or \"\\u0000\" in relative_path:\n+\tfor index in relative_path.length():\n+\t\tif relative_path.unicode_at(index) in [0, 0xFFFD]:\n+\t\t\treturn _failure(&\"invalid_relative_path\", \"Storage path must be a safe relative path\")\n+\tif relative_path.is_empty() or relative_path.is_absolute_path() or \":\" in relative_path or \"\\\\\" in relative_path:\n \t\treturn _failure(&\"invalid_relative_path\", \"Storage path must be a safe relative path\")\n \tvar parts := relative_path.split(\"/\", true)\n \tif parts.is_empty() or \"\" in parts or \".\" in parts or \"..\" in parts or relative_path.simplify_path() != relative_path:\n",
+  "cases": [
+    {
+      "name": "baseline",
+      "project_godot": "config_version=5\n[application]\nconfig/name=\"DWMUnicodeProbe\"\n",
+      "probe_gd": "extends SceneTree\nfunc _init() -> void:\n\tprint(\"NUL_ABLATION baseline done\")\n\tquit(0)\n",
+      "log": "baseline.log",
+      "log_sha256": "4ed92e160383e74351b9cdb8aed8d75798c43ec0d4a19a431ced819e0494821d",
+      "unexpected_nul_count": 0,
+      "terminal_exit_code": 0,
+      "isolation": "Exact copied Invoke-IsolatedGodot.ps1; -KeepRoot; no production user data",
+      "godot_args": [
+        "-s",
+        "res://probe.gd"
+      ]
+    },
+    {
+      "name": "input_records",
+      "project_godot": "config_version=5\n[application]\nconfig/name=\"DWMUnicodeProbe\"\n[input]\n\n\ndialogic_default_action={\n\"deadzone\": 0.5,\n\"events\": [Object(InputEventKey,\"resource_local_to_scene\":false,\"resource_name\":\"\",\"device\":0,\"window_id\":0,\"alt_pressed\":false,\"shift_pressed\":false,\"ctrl_pressed\":false,\"meta_pressed\":false,\"pressed\":false,\"keycode\":4194309,\"physical_keycode\":0,\"key_label\":0,\"unicode\":0,\"location\":0,\"echo\":false,\"script\":null)\n, Object(InputEventMouseButton,\"resource_local_to_scene\":false,\"resource_name\":\"\",\"device\":-1,\"window_id\":0,\"alt_pressed\":false,\"shift_pressed\":false,\"ctrl_pressed\":false,\"meta_pressed\":false,\"button_mask\":0,\"position\":Vector2(0, 0),\"global_position\":Vector2(0, 0),\"factor\":1.0,\"button_index\":1,\"canceled\":false,\"pressed\":true,\"double_click\":false,\"script\":null)\n, Object(InputEventKey,\"resource_local_to_scene\":false,\"resource_name\":\"\",\"device\":0,\"window_id\":0,\"alt_pressed\":false,\"shift_pressed\":false,\"ctrl_pressed\":false,\"meta_pressed\":false,\"pressed\":false,\"keycode\":32,\"physical_keycode\":0,\"key_label\":0,\"unicode\":0,\"location\":0,\"echo\":false,\"script\":null)\n, Object(InputEventKey,\"resource_local_to_scene\":false,\"resource_name\":\"\",\"device\":0,\"window_id\":0,\"alt_pressed\":false,\"shift_pressed\":false,\"ctrl_pressed\":false,\"meta_pressed\":false,\"pressed\":false,\"keycode\":88,\"physical_keycode\":0,\"key_label\":0,\"unicode\":0,\"location\":0,\"echo\":false,\"script\":null)\n, Object(InputEventJoypadButton,\"resource_local_to_scene\":false,\"resource_name\":\"\",\"device\":0,\"button_index\":0,\"pressure\":0.0,\"pressed\":false,\"script\":null)\n]\n}\n",
+      "probe_gd": "extends SceneTree\nfunc _init() -> void:\n\tprint(\"NUL_ABLATION input_records done\")\n\tquit(0)\n",
+      "log": "input_records.log",
+      "log_sha256": "26a2cad862eb46a4b7a5353e639be2cd19825c82a51ce2c2c66a5c78b3141f8f",
+      "unexpected_nul_count": 0,
+      "terminal_exit_code": 0,
+      "isolation": "Exact copied Invoke-IsolatedGodot.ps1; -KeepRoot; no production user data",
+      "godot_args": [
+        "-s",
+        "res://probe.gd"
+      ]
+    },
+    {
+      "name": "literal",
+      "project_godot": "config_version=5\n[application]\nconfig/name=\"DWMUnicodeProbe\"\n",
+      "probe_gd": "extends SceneTree\nconst VALUE = \"\\u0000\"\nfunc _init() -> void:\n\tprint(\"NUL_ABLATION literal length=\", VALUE.length(), \" first=\", VALUE.unicode_at(0))\n\tquit(0)\n",
+      "log": "literal.log",
+      "log_sha256": "aa50bfe411a11469ba620e48d1dd8dd208de274e7f7fdcb277c3f91bb7391ad3",
+      "unexpected_nul_count": 3,
+      "terminal_exit_code": 0,
+      "isolation": "Exact copied Invoke-IsolatedGodot.ps1; -KeepRoot; no production user data",
+      "godot_args": [
+        "-s",
+        "res://probe.gd"
+      ]
+    },
+    {
+      "name": "storage_original",
+      "project_godot": "config_version=5\n[application]\nconfig/name=\"DWMUnicodeProbe\"\n",
+      "probe_gd": "extends SceneTree\nconst STORAGE = preload(\"res://scripts/infrastructure/storage/JsonFileStorage.gd\")\nfunc _init() -> void:\n\tvar store = STORAGE.new(ProjectSettings.globalize_path(\"user://storage\"))\n\tfor path: String in [\"save.json\", \"nested/save.json\", \"\", \"../save.json\", \"nested//save.json\", \"C:/save.json\", \"save\" + String.chr(65533) + \".json\"]:\n\t\tvar result: Dictionary = store._validate_relative_path(path)\n\t\tprint(\"NUL_ABLATION path=\", path, \" ok=\", result.get(\"ok\"), \" code=\", result.get(\"code\", \"ok\"))\n\tprint(\"NUL_ABLATION storage done\")\n\tquit(0)\n",
+      "log": "storage_original.log",
+      "log_sha256": "fc92c22ffd418fb4bc97d7f6a3fae8cb0d4a7096c745ea3f8da98d5b46a06d91",
+      "unexpected_nul_count": 3,
+      "terminal_exit_code": 0,
+      "isolation": "Exact copied Invoke-IsolatedGodot.ps1; -KeepRoot; no production user data",
+      "godot_args": [
+        "-s",
+        "res://probe.gd"
+      ],
+      "wrapper_receipt": {
+        "suite_id": "nul-storage_original-final",
+        "argv": [
+          "--headless",
+          "--path",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_original",
+          "--log-file",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_original\\.godot\\phase2r_logs\\storage_original-final.log",
+          "-s",
+          "res://probe.gd"
+        ],
+        "exit_code": 0,
+        "log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_original\\.godot\\phase2r_logs\\storage_original-final.log",
+        "test_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_original\\.godot\\phase2r_tests\\84981995-ac24-4512-ae5e-7364d1eda748",
+        "user_dir": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_original\\.godot\\phase2r_tests\\84981995-ac24-4512-ae5e-7364d1eda748\\appdata\\Godot\\app_userdata\\DWMUnicodeProbe",
+        "started_at_utc": "2026-09-14T23:05:58.6238684Z",
+        "ended_at_utc": "2026-09-14T23:05:58.9920892Z"
+      }
+    },
+    {
+      "name": "storage_candidate",
+      "project_godot": "config_version=5\n[application]\nconfig/name=\"DWMUnicodeProbe\"\n",
+      "probe_gd": "extends SceneTree\nconst STORAGE = preload(\"res://scripts/infrastructure/storage/JsonFileStorage.gd\")\nfunc _init() -> void:\n\tvar store = STORAGE.new(ProjectSettings.globalize_path(\"user://storage\"))\n\tfor path: String in [\"save.json\", \"nested/save.json\", \"\", \"../save.json\", \"nested//save.json\", \"C:/save.json\", \"save\" + String.chr(65533) + \".json\"]:\n\t\tvar result: Dictionary = store._validate_relative_path(path)\n\t\tprint(\"NUL_ABLATION path=\", path, \" ok=\", result.get(\"ok\"), \" code=\", result.get(\"code\", \"ok\"))\n\tprint(\"NUL_ABLATION storage done\")\n\tquit(0)\n",
+      "log": "storage_candidate.log",
+      "log_sha256": "32b94f36f04f0dfb9527da3a6b04ea830e88e1c54375fc5b4e9cb41ab12c6130",
+      "unexpected_nul_count": 0,
+      "terminal_exit_code": 0,
+      "isolation": "Exact copied Invoke-IsolatedGodot.ps1; -KeepRoot; no production user data",
+      "godot_args": [
+        "-s",
+        "res://probe.gd"
+      ],
+      "wrapper_receipt": {
+        "suite_id": "nul-storage_candidate-final",
+        "argv": [
+          "--headless",
+          "--path",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate",
+          "--log-file",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_logs\\storage_candidate-final.log",
+          "-s",
+          "res://probe.gd"
+        ],
+        "exit_code": 0,
+        "log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_logs\\storage_candidate-final.log",
+        "test_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_tests\\26a99239-8a1c-4aa7-89e4-84ddc8787ae9",
+        "user_dir": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_tests\\26a99239-8a1c-4aa7-89e4-84ddc8787ae9\\appdata\\Godot\\app_userdata\\DWMUnicodeProbe",
+        "started_at_utc": "2026-09-14T23:05:59.5949972Z",
+        "ended_at_utc": "2026-09-14T23:05:59.9580732Z"
+      }
+    }
+  ]
+}
