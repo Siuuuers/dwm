@@ -144,10 +144,10 @@ func _assert_error_dock() -> void:
 	assert_eq(_status().size, Vector2(360, 64))
 	assert_eq(_replay_button().position, Vector2(776, 568))
 	assert_eq(_replay_button().size, Vector2(160, 64))
-	assert_eq(_selector().position, Vector2(408, 488))
+	assert_eq(_selector().position, Vector2(16, _gallery._record_title_label.size.y + 32))
 	assert_eq(_selector().size, Vector2(288, 64))
-	assert_false(_selector().get_rect().intersects(_status().get_rect()))
-	assert_false(_selector().get_rect().intersects(_replay_button().get_rect()))
+	assert_false(_selector().get_global_rect().intersects(_status().get_global_rect()))
+	assert_false(_selector().get_global_rect().intersects(_replay_button().get_global_rect()))
 	assert_eq(_selector().focus_mode, Control.FOCUS_ALL)
 
 func test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation() -> void:
