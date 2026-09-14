@@ -33,6 +33,7 @@ var _had_persistent := false
 var _style_directory: Dictionary = {}
 var _native_starts := 0
 var _native_ends := 0
+var _continued_art_entries: Array[String] = []
 var _finished: Array[Dictionary] = []
 var state: Node
 var profile: Node
@@ -46,6 +47,7 @@ var checkpoint: Checkpoint
 func before_each() -> void:
 	_native_starts = 0
 	_native_ends = 0
+	_continued_art_entries.clear()
 	_finished.clear()
 	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
 	_persistent = Engine.get_meta("dialogic_persistent_style_info",{})
@@ -150,8 +152,21 @@ func _ordered_plan() -> Dictionary:
 func _wait_for_completion() -> void:
 	for attempt in 200:
 		if navigation.returns > 0: return
+		_continue_drawn_art_if_ready()
 		await get_tree().create_timer(0.01).timeout
-	assert_eq(navigation.returns, 1, "all shipped mechanical ending timelines finish naturally")
+	assert_eq(navigation.returns, 1,
+		"ending flow completes after player Continue; native starts/ends=%d/%d, continued art=%s, retry=%s"
+		% [_native_starts, _native_ends, _continued_art_entries, ending_scene._retry_available])
+
+
+## Installed return-only artwork waits for the player before its original DTL starts.
+## Use the real drawn, enabled button; never manufacture a native completion or draw receipt.
+func _continue_drawn_art_if_ready() -> void:
+	var view: Node = bridge.get_art_hold_view()
+	if view == null or not view.has_drawn_art() or view.next_button.disabled: return
+	_continued_art_entries.append(str(view._entry_id))
+	view.next_button.pressed.emit()
+	assert_ne(bridge.get_art_hold_view(), view, "real Continue retires this displayed art card")
 
 
 func test_real_four_step_playback_records_each_discovery_then_saves_completed_run() -> void:
@@ -248,6 +263,11 @@ func test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run
 	state.inter_friend_route_state = {"priscilla_lavinia":{"frozen_form":"love_sweet"}}
 	assert_true(playback.configure_reached_presentations(profile,state.capture_ending_presentation_signature).ok)
 	await _wait_for_completion()
+	assert_eq(_continued_art_entries, ["ending.sylvia.special.full", "ending.sylvia.dark",
+		"ending.priscilla_lavinia.sweet", "ending.priscilla_lavinia.observer.full"] as Array[String],
+		"the player continues each exact canonical artwork before its native ending")
+	assert_eq(_native_starts, 4)
+	assert_eq(_native_ends, 4)
 	var records: Dictionary = profile.get_reached_presentations()
 	assert_true(records.get("ok",false),str(records))
 	if not records.get("ok",false): return
@@ -269,10 +289,13 @@ func test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run
 	if not started.get("ok",false): return
 	for frame in 120:
 		if not replay.is_playing(): break
+		_continue_drawn_art_if_ready()
 		await get_tree().process_frame
 	assert_false(replay.is_playing(),"the shipped no-dialogue label completes naturally")
 	assert_eq(_native_starts,starts_before+1)
 	assert_eq(_native_ends,ends_before+1)
+	assert_eq(_continued_art_entries.size(), 5, "Gallery replay needs its own fresh Continue")
+	assert_eq(_continued_art_entries.back(), "ending.sylvia.special.full")
 	assert_eq(profile.get_profile_snapshot(),profile_before)
 	assert_eq(state.capture_restore_state().value.backup,run_before)
 	assert_eq(runtime.current_state_info.get("variables",{}),variables_before)
