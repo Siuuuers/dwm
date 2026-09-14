@@ -22,10 +22,12 @@ var _run_id := ""
 var _next_sequence := 1
 var _current: Dictionary = {}
 var _earlier: Array[Dictionary] = []
-# Canonical texts the checkpoint port proved for a bundle at that bundle's OWN commit, keyed by
-# checkpoint_id. The journal owns bundle lifetime, so a text lives exactly as long as its bundle
-# stays a retained private duplicate; nothing else may seed or outlive it.
-var _bundle_texts: Dictionary = {}
+# What the checkpoint port proved for a bundle at that bundle's OWN commit, keyed by checkpoint_id:
+# {"text": canonical text, "document_bundle": private deep copy of the document bundle those bytes
+# describe}. ONE map, so the two proofs share one lifetime and cannot diverge -- the journal owns
+# bundle lifetime, so a proof lives exactly as long as its bundle stays a retained private
+# duplicate; nothing else may seed or outlive it.
+var _bundle_proofs: Dictionary = {}
 
 func reset(run_id: String) -> Dictionary:
 	if run_id.is_empty():
@@ -34,7 +36,7 @@ func reset(run_id: String) -> Dictionary:
 	_next_sequence = 1
 	_current = {}
 	_earlier = []
-	_bundle_texts = {}
+	_bundle_proofs = {}
 	return {"ok": true, "code": &"ok"}
 
 func peek_next_sequence(run_id: String) -> Dictionary:
@@ -125,24 +127,41 @@ func commit_prepared(candidate: Dictionary) -> Dictionary:
 	# A record extends the same history, so only bundles that just left retention are forgotten.
 	# A reset or a seed installs bytes this journal never proved, even under a retained id.
 	if candidate_kind == "record":
-		_forget_unretained_bundle_texts()
+		_forget_unretained_bundle_proofs()
 	else:
-		_bundle_texts = {}
+		_bundle_proofs = {}
 	return {"ok": true, "code": &"ok",
 		"value": {"checkpoint_id": str(_current["snapshot"]["checkpoint_id"])}}
 
 ## The port proved this exact canonical text for the CURRENT bundle at that bundle's own commit.
-func remember_committed_bundle_text(checkpoint_id: String, text: String) -> bool:
+## `document_bundle` is the document bundle those proven bytes describe -- the object the port's
+## `SaveDocumentSchema.build()` composed as the document's `current_snapshot` -- kept as a private
+## deep copy under the same id and the same forget rules as the text. A caller with no document to
+## offer passes none and only the text is remembered.
+func remember_committed_bundle_text(checkpoint_id: String, text: String,
+		document_bundle: Dictionary = {}) -> bool:
 	if text.is_empty() or _current.is_empty():
 		return false
 	if str((_current["snapshot"] as Dictionary)["checkpoint_id"]) != checkpoint_id:
 		return false
-	_bundle_texts[checkpoint_id] = text
+	_bundle_proofs[checkpoint_id] = {"text": text, "document_bundle": document_bundle.duplicate(true)}
 	return true
 
 ## The remembered canonical text of a still-retained bundle; "" once that bundle left retention.
 func get_retained_bundle_text(checkpoint_id: String) -> String:
-	return str(_bundle_texts.get(checkpoint_id, ""))
+	var proof: Dictionary = _bundle_proofs.get(checkpoint_id, {})
+	return str(proof.get("text", ""))
+
+## The document bundle this journal remembers for `checkpoint_id`, or {} when it remembers none.
+## Returned by reference, like `get_retained_bundle()` below: the one caller is the checkpoint port,
+## which hands it to `SaveDocumentSchema.build()` as that journal entry's proof, and `build()`
+## duplicates it into the document it composes. Safe to hand out unduplicated because this journal
+## never mutates a remembered proof in place -- `remember_committed_bundle_text()` stores its own
+## deep copy and every forget rule replaces or erases the whole entry.
+func get_retained_bundle_document(checkpoint_id: String) -> Dictionary:
+	var proof: Dictionary = _bundle_proofs.get(checkpoint_id, {})
+	var document_bundle: Dictionary = proof.get("document_bundle", {})
+	return document_bundle
 
 ## This journal's OWN retained bundle for `checkpoint_id`, or {} when it retains none. Returned by
 ## reference, like `get_retained_bundle_text()` beside it: the one caller is the checkpoint port,
@@ -160,17 +179,17 @@ func get_retained_bundle(checkpoint_id: String) -> Dictionary:
 			return bundle
 	return {}
 
-func _forget_unretained_bundle_texts() -> void:
-	if _bundle_texts.is_empty():
+func _forget_unretained_bundle_proofs() -> void:
+	if _bundle_proofs.is_empty():
 		return
 	var retained := {}
 	if not _current.is_empty():
 		retained[str((_current["snapshot"] as Dictionary)["checkpoint_id"])] = true
 	for bundle: Dictionary in _earlier:
 		retained[str((bundle["snapshot"] as Dictionary)["checkpoint_id"])] = true
-	for checkpoint_id: String in _bundle_texts.keys():
+	for checkpoint_id: String in _bundle_proofs.keys():
 		if not retained.has(checkpoint_id):
-			_bundle_texts.erase(checkpoint_id)
+			_bundle_proofs.erase(checkpoint_id)
 
 func get_current_bundle() -> Dictionary:
 	if _current.is_empty():
@@ -253,7 +272,7 @@ func restore_state(backup: Dictionary) -> Dictionary:
 	_current = (backup["current"] as Dictionary).duplicate(true)
 	_earlier.assign((backup["earlier"] as Array).duplicate(true))
 	# A backup is caller-supplied: this journal cannot prove any restored bundle's bytes.
-	_bundle_texts = {}
+	_bundle_proofs = {}
 	return {"ok": true, "code": &"ok"}
 
 func _validate_candidate(candidate: Dictionary) -> String:

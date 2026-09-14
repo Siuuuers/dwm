@@ -974,6 +974,77 @@ func test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_nat
 
 
 # -------------------------------------------------------------------------------------------------
+# settlement4 Step 2: the prepare side. SaveDocumentSchema.build re-validates and re-normalizes the
+# two retained journal bundles on every autosave (25-62 ms of each 35-76 ms prepare) although each
+# was proven at its own commit, so the journal now remembers the document bundle beside the proven
+# text and prepare hands those back as build()'s per-entry proofs. The bytes are unchanged -- the
+# three byte-equality rows above are that proof -- so what is pinned here is the wiring and the one
+# hazard it adds: a remembered document bundle that does not describe the bundle the journal kept.
+# -------------------------------------------------------------------------------------------------
+
+func test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate() -> void:
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
+	var journal: RefCounted = wired["manager"]._journal
+	# Asserted before the reads below: a nonexistent call aborts the test function outright, which
+	# GUT records as risky rather than failed.
+	assert_true(journal.has_method("get_retained_bundle_document"),
+		"the journal must serve back the document bundle a commit remembered")
+	if not journal.has_method("get_retained_bundle_document"):
+		return
+
+	var first := _commit_autosave(wired, snapshot, 101)
+	var first_id := str(first["checkpoint_id"])
+	var written_bundle: Dictionary = (first["autosave_document"] as Dictionary)["current_snapshot"]
+	var remembered: Dictionary = journal.get_retained_bundle_document(first_id)
+	assert_false(remembered.is_empty(), "a committed autosave remembers its document bundle")
+	assert_eq(_canonical_text(remembered), _canonical_text(written_bundle),
+		"the remembered document bundle emits the bytes this commit wrote for that bundle")
+	assert_true(CANONICAL_JSON._deep_same(remembered, written_bundle),
+		"...and deep-equals the document's own current bundle")
+	assert_false(journal.get_retained_bundle_text(first_id).is_empty(),
+		"the proven text is remembered beside it")
+
+	# The gate: the caller edits the outgoing current bundle in place between prepare and commit.
+	# Those bytes are written and accepted -- that is the law -- while the journal retains the
+	# UNEDITED bundle under the same id, so neither proof may be remembered for it.
+	var edited := snapshot.duplicate(true)
+	edited["gameplay"]["money"] = 202
+	var lease: Dictionary = wired["gate"].acquire(&"causal_transaction")
+	assert_true(lease.get("ok", false), JSON.stringify(lease))
+	var prepared: Dictionary = wired["port"].prepare(_checkpoint_inputs(edited), &"post_result",
+		{"kind": &"autosave", "reason": &"automatic"})
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	var candidate: Dictionary = prepared["value"]["candidate"]
+	var second_id := str(candidate["checkpoint_id"])
+	var outgoing_bundle: Dictionary = (candidate["autosave_document"] as Dictionary)["current_snapshot"]
+	((outgoing_bundle["snapshot"] as Dictionary)["gameplay"] as Dictionary)["money"] = 999
+	assert_true(wired["port"].commit(candidate).get("ok", false))
+	assert_true(wired["gate"].release(&"causal_transaction", lease["value"]["token"]).get("ok", false))
+	var written_text := FileAccess.get_file_as_string(str(wired["root"]).path_join("autosave.json"))
+	var reparsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		written_text)["value"]
+	var written_gameplay: Dictionary = ((reparsed["current_snapshot"] as Dictionary)["snapshot"] as Dictionary)["gameplay"]
+	assert_eq(int(written_gameplay["money"]), 999, "the edited bundle is what was written, as today")
+	assert_eq(journal.get_retained_bundle_text(second_id), "",
+		"a text that does not describe the retained bundle is not remembered")
+	assert_true(journal.get_retained_bundle_document(second_id).is_empty(),
+		"neither is the document bundle: the next save would compose this entry from a bundle these bytes do not describe")
+
+
+## The wiring produces byte-identical output, so the source is the observable, in the idiom of the
+## profile-record pin below: prepare must compose the journal entries from the journal's own proofs.
+func test_prepare_composes_the_autosave_journal_from_the_journals_own_proofs() -> void:
+	var source := FileAccess.get_file_as_string(CHECKPOINT_PORT_PATH)
+	assert_false(source.is_empty(), "the port source must be readable")
+	assert_true(source.contains("_journal().get_retained_bundle_document("),
+		"prepare() asks the journal for each retained bundle's proven document bundle")
+	assert_true(source.contains("{}, proven_journal)"),
+		"...and hands them to SaveDocumentSchema.build() as its trailing proven journal")
+
+
+# -------------------------------------------------------------------------------------------------
 # Identity-preserving `_normalize_json_string_types` (click-latency Step 2). The normalizer allocates
 # a fresh Dictionary/Array for every node of every preimage even though the recovery_payload subtree
 # contains no StringName at all. Returning the ORIGINAL container when no descendant was converted

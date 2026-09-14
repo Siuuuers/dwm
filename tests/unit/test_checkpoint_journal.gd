@@ -262,7 +262,8 @@ func test_semantic_recovery_history_is_bounded_without_changing_current_snapshot
 ## --- Remembered canonical bundle texts (perf/terminal-settlement-3) ------------------------------
 ## The journal, as sole owner of bundle lifetime, may remember the canonical text of its CURRENT
 ## bundle once the port proved it at that bundle's own commit, and hand it back only while the
-## bundle is still retained as the journal's own private duplicate.
+## bundle is still retained as the journal's own private duplicate. Beside each text it remembers
+## the document bundle those proven bytes describe, in the same entry and under the same rules.
 
 func test_remember_committed_bundle_text_accepts_only_the_current_checkpoint() -> void:
 	var journal := _fresh("run-a")
@@ -277,39 +278,116 @@ func test_remember_committed_bundle_text_accepts_only_the_current_checkpoint() -
 	assert_eq(journal.get_retained_bundle_text("run-a:2"), "")
 
 
+## A stand-in for the document bundle the checkpoint port remembers beside a proven text: one
+## `{checkpoint_kind, snapshot}` object per sequence, small enough to compare leaf by leaf.
+func _proof_document(sequence: int) -> Dictionary:
+	return {"checkpoint_kind": "post_result", "snapshot": {"probe": {"sequence": sequence}}}
+
+
+## Asserted before the three-argument remember calls below, in the idiom of `_argument_count()`'s
+## own note: a wrong-arity or nonexistent call aborts the test function outright, which GUT records
+## as risky rather than failed, so the surface is asserted first and the row returns if it is absent.
+func _remembers_document_bundles(journal: RefCounted) -> bool:
+	assert_eq(_argument_count(journal, "remember_committed_bundle_text"), 3,
+		"remember_committed_bundle_text() must accept the document bundle beside the text")
+	assert_true(journal.has_method("get_retained_bundle_document"),
+		"the journal must serve back the document bundle it remembered")
+	return _argument_count(journal, "remember_committed_bundle_text") == 3 \
+		and journal.has_method("get_retained_bundle_document")
+
+
+## The retained document bundle shares ONE entry, one lifetime and one set of refusals with the
+## text, so the port can never splice a bundle's remembered bytes while composing that same entry
+## from a document the journal no longer holds.
+func test_remembered_document_bundle_is_a_private_deep_copy_served_by_reference() -> void:
+	var journal := _fresh("run-a")
+	if not _remembers_document_bundles(journal):
+		return
+	var offered := _proof_document(1)
+	assert_false(journal.remember_committed_bundle_text("run-a:1", "text-1", offered),
+		"an empty journal remembers nothing")
+	assert_true(journal.get_retained_bundle_document("run-a:1").is_empty())
+	_commit_record(journal, "run-a", 1, &"day_start")
+	assert_false(journal.remember_committed_bundle_text("run-a:2", "text-2", offered),
+		"a non-current id is refused")
+	assert_true(journal.get_retained_bundle_document("run-a:2").is_empty(),
+		"a refused document is never stored")
+	assert_false(journal.remember_committed_bundle_text("run-a:1", "", offered),
+		"empty text is refused")
+	assert_true(journal.get_retained_bundle_document("run-a:1").is_empty(),
+		"the document rides exactly the text's refusals")
+
+	assert_true(journal.remember_committed_bundle_text("run-a:1", "text-1", offered))
+	var served: Dictionary = journal.get_retained_bundle_document("run-a:1")
+	assert_eq(str(served.get("checkpoint_kind", "")), "post_result",
+		"the remembered document bundle is served back")
+	assert_eq(int(((served["snapshot"] as Dictionary)["probe"] as Dictionary)["sequence"]), 1)
+	assert_false(is_same(served, offered), "...as the journal's own deep copy, never the caller's object")
+	assert_false(is_same(served["snapshot"], offered["snapshot"]), "...at depth")
+	((offered["snapshot"] as Dictionary)["probe"] as Dictionary)["sequence"] = 99
+	assert_eq(int(((served["snapshot"] as Dictionary)["probe"] as Dictionary)["sequence"]), 1,
+		"mutating the offered bundle after remembering cannot reach the retained copy")
+	assert_true(is_same(served, journal.get_retained_bundle_document("run-a:1")),
+		"two reads serve the SAME object: the one caller hands it to build(), which duplicates it")
+
+	# One entry, one lifetime: a caller with no document to offer leaves the entry holding none.
+	assert_true(journal.remember_committed_bundle_text("run-a:1", "text-1b"))
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), "text-1b")
+	assert_true(journal.get_retained_bundle_document("run-a:1").is_empty(),
+		"remembering a text without a document replaces the whole entry")
+
+
 func test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention() -> void:
 	var journal := _fresh("run-a")
+	if not _remembers_document_bundles(journal):
+		return
 	for sequence: int in range(1, 5):
 		_commit_record(journal, "run-a", sequence, &"post_result")
-		assert_true(journal.remember_committed_bundle_text("run-a:%d" % sequence, "text-%d" % sequence))
+		assert_true(journal.remember_committed_bundle_text("run-a:%d" % sequence, "text-%d" % sequence,
+			_proof_document(sequence)))
 	var earlier: Array = journal.get_bundles_for_disk()
 	assert_eq(earlier.size(), 2)
 	assert_eq(int(earlier[0].snapshot.checkpoint_sequence), 2, "sequence 1 fell out of semantic retention")
 	assert_eq(journal.get_retained_bundle_text("run-a:1"), "", "a bundle no longer retained has no text")
+	assert_true(journal.get_retained_bundle_document("run-a:1").is_empty(),
+		"...and no document bundle either: both leave with the bundle")
 	assert_eq(journal.get_retained_bundle_text("run-a:2"), "text-2")
 	assert_eq(journal.get_retained_bundle_text("run-a:3"), "text-3")
 	assert_eq(journal.get_retained_bundle_text("run-a:4"), "text-4", "the current bundle's text is served")
+	for sequence: int in [2, 3, 4]:
+		var retained_document: Dictionary = journal.get_retained_bundle_document("run-a:%d" % sequence)
+		var probe: Dictionary = (retained_document["snapshot"] as Dictionary)["probe"]
+		assert_eq(int(probe["sequence"]), sequence,
+			"every still-retained bundle serves its own document, current included")
 	# A refused commit prunes nothing.
 	var stale: Dictionary = journal.prepare_record(_snapshot("run-a", 5), &"post_result")["value"]["candidate"]
 	stale["run_id"] = "run-z"
 	assert_false(journal.commit_prepared(stale).get("ok", true))
 	assert_eq(journal.get_retained_bundle_text("run-a:2"), "text-2", "a refused commit keeps every retained text")
+	assert_false(journal.get_retained_bundle_document("run-a:2").is_empty(),
+		"a refused commit keeps every retained document bundle")
 
 
 func test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset() -> void:
 	var journal := _fresh("run-a")
+	if not _remembers_document_bundles(journal):
+		return
 	for sequence: int in [1, 2, 3]:
 		_commit_record(journal, "run-a", sequence, &"post_result")
-		assert_true(journal.remember_committed_bundle_text("run-a:%d" % sequence, "text-%d" % sequence))
+		assert_true(journal.remember_committed_bundle_text("run-a:%d" % sequence, "text-%d" % sequence,
+			_proof_document(sequence)))
 	# A reset candidate installs a NEW run-a:1 with different bytes: nothing remembered survives.
 	var reset: Dictionary = journal.prepare_reset_with_initial(_snapshot("run-a", 1, 1), &"day_start")
 	assert_true(reset.get("ok", false), JSON.stringify(reset))
 	assert_true(journal.commit_prepared(reset["value"]["candidate"]).get("ok", false))
 	assert_eq(journal.get_retained_bundle_text("run-a:1"), "", "a reset candidate clears the remembered texts even for a retained id")
 	assert_eq(journal.get_retained_bundle_text("run-a:3"), "")
+	assert_true(journal.get_retained_bundle_document("run-a:1").is_empty(),
+		"a reset candidate clears the remembered document bundles too, retained id included")
+	assert_true(journal.get_retained_bundle_document("run-a:3").is_empty())
 	# A seed replaces history from disk: the seeded bundles' texts were never proven here.
 	_commit_record(journal, "run-a", 2, &"line")
-	assert_true(journal.remember_committed_bundle_text("run-a:2", "text-2b"))
+	assert_true(journal.remember_committed_bundle_text("run-a:2", "text-2b", _proof_document(2)))
 	var bundle_1 := {"checkpoint_kind": "day_start", "snapshot": _snapshot("run-a", 1, 1)}
 	var bundle_2 := {"checkpoint_kind": "line", "snapshot": _snapshot("run-a", 2)}
 	var document: Dictionary = load(DOCUMENT_SCHEMA_PATH).build(&"autosave", null, &"automatic", bundle_2, [bundle_1])
@@ -320,17 +398,23 @@ func test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset(
 	assert_eq((journal.get_bundles_for_disk() as Array).size(), 1, "the seed retained bundle 1")
 	assert_eq(journal.get_retained_bundle_text("run-a:2"), "", "a seed commit clears the remembered texts")
 	assert_eq(journal.get_retained_bundle_text("run-a:1"), "")
+	assert_true(journal.get_retained_bundle_document("run-a:2").is_empty(),
+		"a seed commit clears the remembered document bundles")
 	# A restored backup is caller-supplied: the journal cannot prove its bytes, so it forgets.
 	_commit_record(journal, "run-a", 3, &"post_result")
-	assert_true(journal.remember_committed_bundle_text("run-a:3", "text-3b"))
+	assert_true(journal.remember_committed_bundle_text("run-a:3", "text-3b", _proof_document(3)))
 	var backup: Dictionary = journal.capture_state()["value"]["backup"]
 	assert_true(journal.restore_state(backup).get("ok", false))
 	assert_eq(journal.get_retained_bundle_text("run-a:3"), "", "restore_state clears the remembered texts")
+	assert_true(journal.get_retained_bundle_document("run-a:3").is_empty(),
+		"restore_state clears the remembered document bundles")
 	# reset() empties the journal outright.
 	_commit_record(journal, "run-a", 4, &"post_result")
-	assert_true(journal.remember_committed_bundle_text("run-a:4", "text-4"))
+	assert_true(journal.remember_committed_bundle_text("run-a:4", "text-4", _proof_document(4)))
 	assert_true(journal.reset("run-a").get("ok", false))
 	assert_eq(journal.get_retained_bundle_text("run-a:4"), "", "reset() clears the remembered texts")
+	assert_true(journal.get_retained_bundle_document("run-a:4").is_empty(),
+		"reset() clears the remembered document bundles")
 
 
 # -------------------------------------------------------------------------------------------------

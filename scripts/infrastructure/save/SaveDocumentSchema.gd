@@ -27,26 +27,45 @@ const AUTOSAVE_REASONS: Array[String] = ["automatic", "day_start", "ending", "pr
 const MIN_SLOT := 1
 const MAX_SLOT := 7
 
+## `proven_journal` lets a caller that already owns each journal entry's proof hand those objects
+## back, so this builder does not walk two ~150 KB bundles it already validated at their own commits.
+##
+## The caller's obligation, which only it can discharge: `proven_journal[k]` is the journal's
+## retained document bundle for `journal[k]`, i.e. the very object THIS method composed as the
+## document's `current_snapshot` when that bundle was written, proven byte-exact by that bundle's
+## own commit. It is therefore already `_normalize_engine_text()`-converted (this method converted
+## it before validating it), already a `RunSnapshotSchema.validate()` candidate -- so
+## `_normalize_integral_floats()` is the IDENTITY over it -- and primitive by construction, since
+## its canonical emission succeeded. Those are exactly the three properties the skipped journal
+## walks establish, so the composed document is byte-identical either way.
+##
+## A proof set that does not cover the whole journal proves nothing about any entry: no proofs at
+## all, a size mismatch, or one empty entry all run the existing full path over the whole journal.
+## Every other check and its order are unchanged, and the document stays detached from the proofs.
 static func build(
 		kind: StringName,
 		slot_id: Variant,
 		save_reason: StringName,
 		current_bundle: Dictionary,
 		journal: Array,
-		saved_time: Dictionary = {}
+		saved_time: Dictionary = {},
+		proven_journal: Array = []
 ) -> Dictionary:
 	var discriminator_error := _validate_discriminators(String(kind), slot_id, String(save_reason))
 	if discriminator_error != "":
 		return _fail(&"invalid_discriminator", discriminator_error)
+	var proven := _journal_is_proven(journal, proven_journal)
 	# Only the internal builder converts immutable engine text; external validation stays strict.
 	current_bundle = _normalize_engine_text(current_bundle)
-	journal = _normalize_engine_text(journal)
+	if not proven:
+		journal = _normalize_engine_text(journal)
 	var bundle_error := _validate_bundle(current_bundle)
 	if not bundle_error.get("ok", false):
 		return bundle_error
-	var journal_error := _validate_journal(journal)
-	if journal_error != "":
-		return _fail(&"invalid_recovery_journal", journal_error)
+	if not proven:
+		var journal_error := _validate_journal(journal)
+		if journal_error != "":
+			return _fail(&"invalid_recovery_journal", journal_error)
 	# The builder already proved its discriminators, current bundle and journal above. Its fixed
 	# envelope cannot gain unknown members; only optional metadata remains to check. So normalize
 	# each member AS the document is composed, in the same member order, and pass the current
@@ -71,7 +90,8 @@ static func build(
 			"checkpoint_kind": str(current_bundle["checkpoint_kind"]),
 			"snapshot": bundle_error["value"]["candidate"],
 		},
-		"recovery_journal": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal),
+		"recovery_journal": (_proven_entries(proven_journal) if proven
+			else RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal)),
 	}
 	if not saved_time.is_empty():
 		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
@@ -242,6 +262,25 @@ static func _validate_journal(journal: Array) -> String:
 		if not primitive.get("ok", false):
 			return str(primitive.get("message", "journal entry %d must be primitive" % index))
 	return ""
+
+## Whether `proven_journal` discharges `build()`'s proof obligation for every entry of `journal`:
+## one non-empty Dictionary per entry, in the entries' own order. A partial set is no set.
+static func _journal_is_proven(journal: Array, proven_journal: Array) -> bool:
+	if proven_journal.is_empty() or proven_journal.size() != journal.size():
+		return false
+	for proof: Variant in proven_journal:
+		if typeof(proof) != TYPE_DICTIONARY or (proof as Dictionary).is_empty():
+			return false
+	return true
+
+## The persisted journal composed from the proofs alone. Deep-copied so the document is detached
+## from the objects the journal keeps, and rebuilt UNTYPED exactly as
+## `_normalize_integral_floats()` rebuilds every Array on the full path.
+static func _proven_entries(proven_journal: Array) -> Array:
+	var composed: Array = []
+	for proof: Variant in proven_journal:
+		composed.append((proof as Dictionary).duplicate(true))
+	return composed
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}

@@ -3,6 +3,7 @@ extends "res://addons/gut/test.gd"
 const SCHEMA_PATH := "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
 const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
 const RUN_SNAPSHOT_SCHEMA_PATH := "res://scripts/domain/run/RunSnapshotSchema.gd"
+const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const VALID_DISCRIMINATORS := [
 	{"kind": &"slot", "slot_id": 1, "save_reason": &"manual"},
@@ -605,3 +606,171 @@ func test_build_composes_the_journal_without_a_redundant_deep_copy() -> void:
 		"mutating the input bundle after build cannot reach the persisted journal")
 	journal.append({"late": true})
 	assert_eq(persisted.size(), 2, "mutating the input journal after build cannot reach the document")
+
+
+# -------------------------------------------------------------------------------------------------
+# settlement4 Step 2: build() re-walks every retained journal bundle on every autosave -- the
+# primitive-tree sweep in _validate_journal, the _normalize_engine_text walk and the
+# _normalize_integral_floats walk -- although each bundle was validated, normalized and byte-proven
+# at its OWN commit and the journal still holds the document bundle those proven bytes describe
+# (25-62 ms of each 35-76 ms autosave prepare, settlement4-step2-profile-*). The optional trailing
+# `proven_journal` lets the journal hand those objects back. The observable is byte-equality with
+# the full builder over the same inputs, plus the two directions of the skip: a proven journal is
+# never read, and a proof set that does not cover it falls back to every check it does today.
+# -------------------------------------------------------------------------------------------------
+
+## Asserted before the seven-argument calls below so a tree without the optional parameter reports
+## these rows as failed assertions: a wrong-arity call aborts the test function outright, which GUT
+## records as risky rather than failed. `build()` is static, so its declaration is the surface.
+func _build_takes_a_proven_journal() -> bool:
+	var source := FileAccess.get_file_as_string(SCHEMA_PATH)
+	assert_false(source.is_empty(), "the schema source must be readable")
+	assert_true(source.contains("proven_journal: Array = []"),
+		"build() must declare the optional trailing proven journal")
+	return source.contains("proven_journal: Array = []")
+
+
+func _canonical(value: Variant) -> String:
+	var emitted: Dictionary = CANONICAL_JSON.stringify(value)
+	assert_true(emitted.get("ok", false), str(emitted))
+	return str(emitted.get("value", ""))
+
+
+## A bundle whose snapshot carries everything the skipped walks would otherwise convert or refuse:
+## engine text as a key AND as a value (narrative_checkpoint, the desktop board phase), an integral
+## float that must persist as an integer, a non-integral float that must not, and non-ASCII text.
+func _engine_typed_bundle(sequence: int) -> Dictionary:
+	var snapshot := _fixture_snapshot()
+	snapshot["checkpoint_sequence"] = sequence
+	snapshot["checkpoint_id"] = "%s:%d" % [str(snapshot["run_id"]), sequence]
+	snapshot["narrative_checkpoint"] = {
+		&"engine_key": &"engine_value", "integral": 1.0, "fractional": 2.5,
+		"unicode": "Lavinia — Müller ✓", "sequence": sequence,
+	}
+	(snapshot["desktop"]["board"] as Dictionary)["phase"] = &"NONE"
+	return {"checkpoint_kind": "post_result", "snapshot": snapshot}
+
+
+## The proof production path itself: the journal's retained document bundle for a written bundle is
+## the `current_snapshot` object build() composed when those bytes were written.
+func _proof_for(bundle: Dictionary) -> Dictionary:
+	var built: Dictionary = load(SCHEMA_PATH).build(&"autosave", null, &"automatic", bundle, [])
+	assert_true(built.get("ok", false), str(built.get("code", "")) + " " + str(built.get("message", "")))
+	return (built["value"] as Dictionary)["current_snapshot"]
+
+
+func test_build_composes_proven_journal_entries_byte_equal_to_the_full_builder() -> void:
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	if not _build_takes_a_proven_journal():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var first := _engine_typed_bundle(1)
+	var second := _engine_typed_bundle(2)
+	var proofs: Array = [_proof_for(first), _proof_for(second)]
+	var proof_checkpoint: Dictionary = proofs[0]["snapshot"]["narrative_checkpoint"]
+	assert_eq(typeof(proof_checkpoint["integral"]), TYPE_INT,
+		"a proof is already integral-float normalized")
+	assert_eq(typeof(proof_checkpoint["fractional"]), TYPE_FLOAT,
+		"...and a non-integral float survived as one")
+	assert_eq(typeof(proof_checkpoint["engine_key"]), TYPE_STRING,
+		"a proof is already engine-text converted, key and value")
+	assert_eq(str(proof_checkpoint["engine_key"]), "engine_value")
+
+	var current := _engine_typed_bundle(3)
+	var journal: Array = [first, second]
+	var proven: Dictionary = schema.build(&"autosave", null, &"automatic", current, journal, {}, proofs)
+	assert_true(proven.get("ok", false), str(proven.get("code", "")) + " " + str(proven.get("message", "")))
+	var full: Dictionary = schema.build(&"autosave", null, &"automatic", current, journal)
+	assert_true(full.get("ok", false), str(full.get("code", "")) + " " + str(full.get("message", "")))
+	if not (proven.get("ok", false) and full.get("ok", false)):
+		return
+	var proven_text := _canonical(proven["value"])
+	var full_text := _canonical(full["value"])
+	assert_eq(proven_text.sha256_text(), full_text.sha256_text(),
+		"the proven journal composes the same document bytes as the full builder")
+	assert_true(proven_text == full_text, "byte-for-byte, not merely equal in digest")
+
+	# The document owns its journal outright: the proofs are the journal's objects, not the save's.
+	var document: Dictionary = proven["value"]
+	var persisted: Array = document["recovery_journal"]
+	assert_eq(persisted.size(), 2, "both proofs are persisted")
+	assert_false(persisted.is_typed(), "the persisted journal stays an untyped Array")
+	assert_false(is_same(persisted[0], proofs[0]), "the persisted entry is not the proof object")
+	assert_false(is_same(persisted[0]["snapshot"], proofs[0]["snapshot"]), "...at depth")
+	(persisted[0]["snapshot"]["narrative_checkpoint"] as Dictionary)["from_document"] = true
+	assert_false((proofs[0]["snapshot"]["narrative_checkpoint"] as Dictionary).has("from_document"),
+		"mutating the document cannot reach the journal's proof")
+	(proofs[1]["snapshot"]["narrative_checkpoint"] as Dictionary)["from_proof"] = true
+	assert_false((persisted[1]["snapshot"]["narrative_checkpoint"] as Dictionary).has("from_proof"),
+		"mutating the journal's proof after build cannot reach the document")
+
+
+func test_build_with_proven_journal_never_reads_the_journal_entries() -> void:
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	if not _build_takes_a_proven_journal():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	# A journal entry the full path REFUSES: validate_primitive_tree() rejects an Object value with
+	# invalid_primitive, so only a genuinely skipped walk can let this document through.
+	var poisoned := {"unsupported": Vector2.ZERO}
+	var proof := _proof_for(_engine_typed_bundle(1))
+	var proven: Dictionary = schema.build(&"autosave", null, &"automatic", _engine_typed_bundle(2),
+		[poisoned], {}, [proof])
+	assert_true(proven.get("ok", false), str(proven.get("code", "")) + " " + str(proven.get("message", "")))
+	if not proven.get("ok", false):
+		return
+	var persisted: Array = (proven["value"] as Dictionary)["recovery_journal"]
+	assert_eq(persisted.size(), 1, "the proof, not the poisoned entry, is what was composed")
+	assert_eq(_canonical(persisted[0]), _canonical(proof),
+		"the persisted entry is the proof's content")
+	assert_false((persisted[0] as Dictionary).has("unsupported"), "the journal entry was never read")
+	# ...and the same call without proofs still refuses, so the skip is what let it through.
+	var refused: Dictionary = schema.build(&"autosave", null, &"automatic", _engine_typed_bundle(2),
+		[poisoned])
+	assert_false(refused.get("ok", true), "the unproven path still walks every journal entry")
+	assert_eq(refused["code"], &"invalid_recovery_journal")
+
+
+func test_build_falls_back_to_the_full_path_when_any_proof_is_missing() -> void:
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	if not _build_takes_a_proven_journal():
+		return
+	var schema: Script = load(SCHEMA_PATH)
+	var first := _engine_typed_bundle(1)
+	var second := _engine_typed_bundle(2)
+	var current := _engine_typed_bundle(3)
+	var journal: Array = [first, second]
+	var proofs: Array = [_proof_for(first), _proof_for(second)]
+	var baseline: Dictionary = schema.build(&"autosave", null, &"automatic", current, journal)
+	assert_true(baseline.get("ok", false), str(baseline.get("code", "")) + " " + str(baseline.get("message", "")))
+	if not baseline.get("ok", false):
+		return
+	var expected := _canonical(baseline["value"])
+
+	var short_proofs: Dictionary = schema.build(&"autosave", null, &"automatic", current, journal,
+		{}, [proofs[0]])
+	assert_true(short_proofs.get("ok", false), str(short_proofs.get("code", "")) + " " + str(short_proofs.get("message", "")))
+	assert_eq(_canonical(short_proofs["value"]).sha256_text(), expected.sha256_text(),
+		"a proof set shorter than the journal proves nothing: the full path composed these bytes")
+	var empty_entry: Dictionary = schema.build(&"autosave", null, &"automatic", current, journal,
+		{}, [proofs[0], {}])
+	assert_true(empty_entry.get("ok", false), str(empty_entry.get("code", "")) + " " + str(empty_entry.get("message", "")))
+	assert_eq(_canonical(empty_entry["value"]).sha256_text(), expected.sha256_text(),
+		"one unproven entry unproves the whole journal")
+
+	# The refusal the full path owns must fire in exactly those two cases as well.
+	var poisoned := {"unsupported": Vector2.ZERO}
+	assert_eq(schema.build(&"autosave", null, &"automatic", current, [poisoned, poisoned],
+		{}, [proofs[0]])["code"], &"invalid_recovery_journal",
+		"a short proof set does not excuse a journal entry the builder refuses")
+	assert_eq(schema.build(&"autosave", null, &"automatic", current, [poisoned, poisoned],
+		{}, [proofs[0], {}])["code"], &"invalid_recovery_journal",
+		"nor does one empty proof beside a good one")
+	assert_eq(schema.build(&"autosave", null, &"automatic", current, [poisoned], {}, [])["code"],
+		&"invalid_recovery_journal", "and the empty default changes nothing")

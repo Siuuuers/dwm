@@ -320,3 +320,53 @@ stored and validated values are equal, so nothing else moves. Journal bytes are 
   44-50 ms each); the three big autosaves cost 82-138 ms each (document_build 30-49 ms of every
   prepare). The routine click carries none of that growth. The stress candidate of dwm-634.3 now
   has its baseline; those phases are the next targets.
+
+## settlement5 (branch perf/terminal-settlement-5 from master ae5b78282, dwm-634.3)
+
+Session 5 starts after dwm-6fl landed on master (section above). The machine is shared with another
+agent's Godot runs again, so every end-to-end figure below is compared phase by phase against a
+same-day baseline; the two baselines are the fresh-account runs
+settlement5-baseline-fresh-win-ae5b78282.log / -loss- (App win 563 / 627 ms, loss 599 / 650 ms,
+dating 389 ms, App first reveal 232 / 249 ms, routine reveal 30 ms, issuer root 100 KB) and the two
+live-copy runs of the dwm-6fl section (6fl-live-run1/2-954a6b54c.log, same code for the files this
+session touches).
+
+### Step 1: build composes the autosave journal from the journal's proven document bundles (commit after ae5b78282)
+
+SaveDocumentSchema.build re-walked the two retained earlier bundles on every autosave (primitive-tree
+validation, engine-text walk, integral-float walk over ~300 KB) although each was validated,
+normalized and byte-proven at its own commit; document_build was 25-62 ms of every 35-76 ms prepare
+on a fresh account and up to 83 ms on the live copy. Under the 2026-09-14 ruling CheckpointJournal now
+retains, beside each remembered canonical text and under the same id, forget and clear rules, a
+private deep copy of the document bundle those bytes describe (the document's current_snapshot the
+port composed at that commit); the port hands those to build() as a trailing proven_journal, and
+build composes recovery_journal by duplicate(true) of each proof with no walk. A proof set that does
+not cover the whole journal (a seeded, restored or reset journal, or a bundle whose commit refused the
+memory because the outgoing bundle was edited) takes the full path unchanged, exactly like the splice.
+SaveManagerCheckpointPort.gd is desktop-contract-bound, so the handoff contract is regenerated in this
+commit (one leaf moved, the port's own digest; the minesweeper contract came back byte-identical).
+
+- settlement5-step1-red-ae5b78282.log: test_checkpoint_journal, test_save_document_schema and
+  test_save_manager_checkpoint_port with the new rows against the untouched production files, 72
+  tests, 64 passing / 8 failing: journal (document bundle remembered as a private deep copy served
+  by reference; forgotten with its bundle; cleared on reset candidate, seed, restore and reset),
+  schema (proven composition byte-equal to the full builder over StringName keys and values, 1.0
+  and 2.5, non-ASCII text, detached in both directions; a poisoned journal entry is never read when
+  a proof stands in and is refused invalid_recovery_journal without one; a short or empty proof set
+  falls back to the full path), port (a committed autosave remembers the document bundle under the
+  text's own remember gate and an in-place edit between prepare and commit remembers neither; source
+  pin on the prepare wiring).
+- settlement5-step1-green-ae5b78282.log: the 32-suite set, 589 tests, 586 passing / 3 failing, the
+  three being test_desktop_contract_evidence's digest rows for the edited port before the re-seal.
+- settlement5-step1-reseal-desktop-ae5b78282.log and -minesweeper-: the generators;
+  settlement5-step1-contracts-green-ae5b78282.log: both contract suites, 22 passing / 0.
+- settlement5-step1-profile-fresh-win-ae5b78282.log and -loss-, settlement5-step1-profile-live-run1-
+  and -run2-: profiled runs (DWM_CHECKPOINT_PROFILE=1, DWM_CONSEQUENCE_PROFILE=1). Per big autosave
+  (document over 150 KB) document_build_us: live copy 16-83 ms before to 8-12 ms after (6 saves per
+  run, same document bytes save for save); fresh account 12-38 ms before to 5-12 ms on the saves
+  whose earlier bundles are all remembered, while the three saves that follow the non-autosave
+  day_resolution_stage commit still read 26-36 ms because that bundle has no remembered proof until
+  it leaves retention (the known fallback). Prepare elapsed follows: live 44-101 ms to 17-22 ms.
+  End-to-end: fresh App win 644 / 558 ms, loss 660 / 691 ms, dating 427 / 416 ms; live win 1275 /
+  1181 ms, loss 1302 / 1236 ms, first reveal 1193 / 1142 ms, routine 29-34 ms; all inside the
+  day's noise band and no end-to-end claim is attached beyond the phase figures.

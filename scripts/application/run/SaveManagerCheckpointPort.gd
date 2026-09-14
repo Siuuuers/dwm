@@ -234,8 +234,24 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	if str(disk_write["kind"]) == "autosave":
 		var reason := str(disk_write["reason"])
 		var projected_earlier: Array = journal_candidate["earlier"]
+		# Every projected earlier bundle was validated, normalized and byte-proven at its OWN
+		# commit, and the journal still holds the document bundle those proven bytes describe. Hand
+		# those back as `build()`'s per-entry proofs so it does not re-walk the whole retained
+		# history (~150 KB per bundle) a second time per save. A bundle the journal remembers no
+		# document for -- a journal seeded from disk, restored, reset, or one whose commit was
+		# refused the memory because the outgoing bundle had been edited -- leaves the WHOLE journal
+		# unproven: a partial proof set says nothing about any entry, exactly like the splice.
+		var proven_journal: Array = []
+		for entry: Variant in projected_earlier:
+			var proof: Dictionary = _journal().get_retained_bundle_document(
+				str(((entry as Dictionary)["snapshot"] as Dictionary)["checkpoint_id"]))
+			if proof.is_empty():
+				proven_journal.clear()
+				break
+			proven_journal.append(proof)
 		var document: Dictionary = SAVE_DOCUMENT_SCHEMA.build(
-			&"autosave", null, StringName(reason), journal_candidate["current"], projected_earlier)
+			&"autosave", null, StringName(reason), journal_candidate["current"], projected_earlier,
+			{}, proven_journal)
 		tick = _profile_phase(profile, "document_build_us", tick)
 		if not document.get("ok", false):
 			return _profile_result(profile, document)
@@ -356,12 +372,15 @@ func commit(candidate: Dictionary) -> Dictionary:
 	# TYPE_FLOAT, so a widened number counts as a difference. Godot's own `==` cannot be used here: it
 	# does not recurse into nested containers (hence `Dictionary.recursive_equal()`), and these two
 	# bundles never share their nested `snapshot`. When they differ nothing is remembered and the next
-	# save falls back to the whole-document writer, which is always correct.
+	# save falls back to the whole-document writer, which is always correct. The document bundle
+	# remembered beside the text rides the same gate for the same reason: the next save composes its
+	# journal entry for this id from that object, so bytes an edit produced must seed neither.
 	if proven_current_text != "" and CANONICAL_JSON._deep_same(
 			(candidate["journal_candidate"] as Dictionary)["current"],
 			(candidate["autosave_document"] as Dictionary)["current_snapshot"]):
 		_journal().remember_committed_bundle_text(
-			str(committed["value"]["checkpoint_id"]), proven_current_text)
+			str(committed["value"]["checkpoint_id"]), proven_current_text,
+			(candidate["autosave_document"] as Dictionary)["current_snapshot"])
 	_remember_proven_documents(validated_texts)
 	return _profile_result(profile, {"ok": true, "code": &"ok",
 		"value": {"checkpoint_id": str(committed["value"]["checkpoint_id"])}})
