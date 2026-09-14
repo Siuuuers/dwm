@@ -14,7 +14,8 @@
     "Candidate was applied only to a throwaway copy; production and dwm-634 issue records were not edited.",
     "The real U+0000 numeric branch is preventive and was not directly exercised; attempting to construct NUL is itself replaced by this engine. U+FFFD rejection was exercised.",
     "No relationship to the intermittent native shutdown stall is established.",
-    "An earlier exploratory storage probe deliberately called String.chr(0), adding one diagnostic after the path checks. The final retained storage runs remove this probe-only conversion. An initial candidate checking only zero admitted U+FFFD; the retained candidate also rejects 0xFFFD to preserve effective current behavior."
+    "An earlier exploratory storage probe deliberately called String.chr(0), adding one diagnostic after the path checks. The final retained storage runs remove this probe-only conversion. An initial candidate checking only zero admitted U+FFFD; the retained candidate also rejects 0xFFFD to preserve effective current behavior.",
+    "Review caught an earlier candidate-copy LF-to-CRLF rewrite. The retained candidate receipt is a fresh rerun after an exact binary guard replacement preserving LF; it again emits zero diagnostics and identical seven path outcomes. The candidate hash and line-ending facts bind this final variant."
   ],
   "copied_sources": [
     {
@@ -144,23 +145,32 @@
         "res://probe.gd"
       ],
       "wrapper_receipt": {
-        "suite_id": "nul-storage_candidate-final",
+        "suite_id": "nul-storage-candidate-lf",
         "argv": [
           "--headless",
           "--path",
           "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate",
           "--log-file",
-          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_logs\\storage_candidate-final.log",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_logs\\storage_candidate-lf.log",
           "-s",
           "res://probe.gd"
         ],
         "exit_code": 0,
-        "log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_logs\\storage_candidate-final.log",
-        "test_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_tests\\26a99239-8a1c-4aa7-89e4-84ddc8787ae9",
-        "user_dir": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_tests\\26a99239-8a1c-4aa7-89e4-84ddc8787ae9\\appdata\\Godot\\app_userdata\\DWMUnicodeProbe",
-        "started_at_utc": "2026-09-14T23:05:59.5949972Z",
-        "ended_at_utc": "2026-09-14T23:05:59.9580732Z"
+        "log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_logs\\storage_candidate-lf.log",
+        "test_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_tests\\4f903444-4192-4a93-a691-ce19cebb56fc",
+        "user_dir": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\nul-startup-ablation\\storage_candidate\\.godot\\phase2r_tests\\4f903444-4192-4a93-a691-ce19cebb56fc\\appdata\\Godot\\app_userdata\\DWMUnicodeProbe",
+        "started_at_utc": "2026-09-14T23:10:28.2645535Z",
+        "ended_at_utc": "2026-09-14T23:10:28.6309360Z"
       }
     }
-  ]
+  ],
+  "candidate_byte_verification": {
+    "source_sha256": "5f74acc889ef7ccf1291cc4f0ada3ac220b5284e2eddc740fd060773a1af6bc3",
+    "candidate_sha256": "1f63cad9b70cc5e8a1ffd2e3c2e97d4887fec206b3e81fe90fd4fc68a20205e9",
+    "source_line_endings": "LF",
+    "candidate_line_endings": "LF",
+    "source_bytes": 46686,
+    "candidate_bytes": 46838,
+    "only_guard_bytes_changed": true
+  }
 }
