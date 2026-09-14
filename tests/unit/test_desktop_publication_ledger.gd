@@ -360,6 +360,15 @@ func test_load_fails_closed_on_malformed_on_disk_json() -> void:
 	assert_true(configured.get("ok", false), str(configured))
 	var loaded: Dictionary = restarted.load()
 	assert_false(loaded.get("ok", true), "malformed on-disk bytes must fail closed, not parse as an empty/valid document")
+	# dwm-634.3 session 6: the storage-witness callable never sees these bytes in its memo, so it
+	# delegates to the full reader and the refusal is the SAME typed storage failure as before --
+	# corrupt final bytes leave storage unable to prove one winner.
+	assert_eq(loaded.get("code"), &"indeterminate_transaction", str(loaded))
+	var refused: Dictionary = restarted.record_before_emit(_causal_request("receipt-after-corruption"))
+	assert_false(refused.get("ok", true), "a record over corrupt durable bytes must be refused")
+	assert_eq(refused.get("code"), &"indeterminate_transaction", str(refused))
+	assert_eq(FileAccess.get_file_as_string(path), "{ not actually json ]",
+		"a refused record never rewrites the corrupt bytes")
 
 
 func test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed() -> void:
@@ -839,3 +848,204 @@ func test_the_whole_document_deep_copies_this_change_removed_are_gone_from_the_s
 		"_parse_known_storage_text must still hand storage a document of its own")
 	assert_true(source.contains('return _accepted({"document": _cached_document.duplicate(true)})'),
 		"load() must still return a caller-owned deep copy")
+
+
+# ---- dwm-634.3 session 6: a storage-only validity witness on the value-discarding call sites ----
+#
+# `JsonFileStorage` classifies the final artifact, its `.next` and its `.bak` before every write, and
+# each classification calls the OWNER's validator, deep-copies the validator result, and deep-copies
+# `validation["value"]` again; `reconcile()` and `write_atomic()` then copy the winner's value a third
+# time. For this ledger's `_parse_known_storage_text()` that `value` is the whole ~800 KB document --
+# and the ledger never reads it: `_refresh_from_disk()` re-reads with `read_text` and parses through
+# `_parse_known_document()`, `_commit_new_entry()` confirms from its own memoized document, and
+# `_seed_empty_document()` checks only `ok`. Session 6 follows the issuer root's own precedent
+# (`DesktopIssuerRootStore._parse_known_write_document()`): a `_parse_known_storage_witness()` that
+# answers an already-validated text with an EMPTY value and delegates every unknown or changed text
+# to `_parse_known_storage_text()` unchanged. Storage law is untouched -- no change to
+# `JsonFileStorage.gd`, the same bytes, the same pre-write reread, the same exact read-back, the same
+# refusals in the same order -- so the rows below pin the witness's two answers, the three call sites
+# that may use it, and the document laws that must not move.
+
+
+## RED-safe probe: on a tree without the witness the method does not exist, so a row that needs it
+## fails once with a readable message instead of erroring out on a nonexistent call.
+func _has_witness(ledger: Object) -> bool:
+	if ledger.has_method("_parse_known_storage_witness"):
+		return true
+	assert_true(false, "DesktopPublicationLedger must own _parse_known_storage_witness()")
+	return false
+
+
+## The exact source text of one function body: from its `func name(` declaration to the next
+## top-level declaration. Slicing is how this suite pins a call site whose effect is allocation-only.
+func _ledger_function_body(source: String, function_name: String) -> String:
+	var start := source.find("\nfunc " + function_name + "(")
+	assert_true(start >= 0, "the ledger source must declare " + function_name + "()")
+	if start < 0:
+		return ""
+	var rest := source.substr(start + 1)
+	var next := rest.find("\nfunc ")
+	var next_static := rest.find("\nstatic func ")
+	if next_static >= 0 and (next < 0 or next_static < next):
+		next = next_static
+	return rest if next < 0 else rest.substr(0, next)
+
+
+func test_storage_witness_answers_a_known_text_with_an_empty_value() -> void:
+	if not _require_ledger():
+		return
+	var ledger := _loaded()
+	if not _has_witness(ledger):
+		return
+	assert_true(ledger.record_before_emit(_board_fate_request("witness-known")).get("ok", false),
+		"the ledger must own a durable record before its exact text is a known one")
+	var current_text := FileAccess.get_file_as_string(_root.path_join(FIXED_PATH))
+	assert_false(current_text.is_empty(), "the durable document must be readable")
+
+	var witnessed: Dictionary = ledger._parse_known_storage_witness(current_text)
+	assert_true(witnessed.get("ok", false), str(witnessed))
+	assert_eq(witnessed.get("code"), &"ok")
+	var value: Variant = witnessed.get("value")
+	# Storage refuses any artifact whose validator value is not a Dictionary, so the witness must
+	# still answer with one -- an EMPTY one, because this owner already retains the document.
+	assert_eq(typeof(value), TYPE_DICTIONARY, "storage requires a Dictionary value to accept the artifact")
+	if typeof(value) != TYPE_DICTIONARY:
+		return
+	assert_true((value as Dictionary).is_empty(),
+		"a known text needs only a witness; the whole document must not be copied for a caller that discards it")
+
+	# The full reader is untouched and still hands the WHOLE validated document to anyone who asks.
+	var parsed: Dictionary = ledger._parse_known_storage_text(current_text)
+	assert_true(parsed.get("ok", false), str(parsed))
+	var full: Dictionary = parsed["value"]
+	assert_false(full.is_empty(), "_parse_known_storage_text must still return the full validated document")
+	assert_true((full["records"] as Dictionary).has("board_fate:witness-known"),
+		"the full reader's document must carry the durable record")
+
+
+func test_storage_witness_delegates_unknown_and_corrupt_text_to_the_full_reader() -> void:
+	if not _require_ledger():
+		return
+	var ledger := _loaded()
+	if not _has_witness(ledger):
+		return
+	# A VALID document this instance has never seen: a second root's own durable bytes.
+	var other_root_path := _isolated_root("desktop-ledger-witness")
+	if other_root_path.is_empty():
+		return
+	var other_ledger := _loaded(JsonFileStorage.new(other_root_path))
+	var unknown_key := "action_source:witness-unknown"
+	assert_true(other_ledger.record_before_emit(_action_request("witness-unknown")).get("ok", false),
+		"the second root must own a durable record of its own")
+	var unknown_text := FileAccess.get_file_as_string(other_root_path.path_join(FIXED_PATH))
+	assert_false(unknown_text.is_empty(), "the second root's document must be readable")
+
+	var strict: Dictionary = STRICT_JSON.parse_object(unknown_text)
+	assert_true(strict.get("ok", false), str(strict))
+	var witnessed: Dictionary = ledger._parse_known_storage_witness(unknown_text)
+	assert_true(witnessed.get("ok", false), str(witnessed))
+	var value: Dictionary = witnessed["value"]
+	assert_false(value.is_empty(),
+		"an unknown text must still come back as the full parsed document, exactly as storage expects")
+	assert_eq(_canonical(value), _canonical(strict["value"]),
+		"the cold path must return exactly what the strict parser returns")
+	assert_true((value["records"] as Dictionary).has(unknown_key),
+		"the delegated document must carry the second root's record")
+
+	# Corrupt text refuses with exactly the refusal the untouched reader gives it.
+	var corrupt := "{ not actually json ]"
+	var delegated: Dictionary = ledger._parse_known_storage_witness(corrupt)
+	var direct: Dictionary = ledger._parse_known_storage_text(corrupt)
+	assert_false(delegated.get("ok", true), "corrupt text must refuse through the witness")
+	assert_false(direct.get("ok", true), "corrupt text must refuse through the full reader")
+	assert_eq(str(delegated.get("code", "")), str(direct.get("code", "")),
+		"the witness must not invent a refusal code of its own")
+	assert_eq(str(delegated.get("message", "")), str(direct.get("message", "")),
+		"the witness must not reword the full reader's refusal")
+
+
+func test_only_the_value_discarding_call_sites_pass_the_storage_witness() -> void:
+	if not _require_ledger():
+		return
+	var source := FileAccess.get_file_as_string(LEDGER_PATH)
+	assert_false(source.is_empty(), "the ledger source must be readable: " + LEDGER_PATH)
+	var witness_callable := 'Callable(self, "_parse_known_storage_witness")'
+	var reader_callable := 'Callable(self, "_parse_known_storage_text")'
+	# The three sites that hand storage a callable and never read the value it returns.
+	for function_name: String in ["_refresh_from_disk", "_seed_empty_document", "_commit_new_entry"]:
+		var body := _ledger_function_body(source, function_name)
+		assert_true(body.contains(witness_callable),
+			function_name + " discards the value storage returns and must pass the witness")
+		assert_false(body.contains(reader_callable),
+			function_name + " must not make storage deep-copy a document it never reads")
+	# The full reader survives as the witness's cold path and keeps its own laws.
+	assert_true(source.contains("func _parse_known_storage_text(text: String) -> Dictionary:"),
+		"the full storage reader must survive unchanged")
+	var witness_body := _ledger_function_body(source, "_parse_known_storage_witness")
+	assert_true(witness_body.contains("return _parse_known_storage_text(text)"),
+		"an unknown or changed text must still take the full reader unchanged")
+	assert_true(witness_body.contains("_touch_validated_text(text)"),
+		"the witness must touch the memo exactly as the full reader does")
+	# Storage law is not this change's to move: it still decides an artifact's validity from the
+	# validator's `ok` plus a Dictionary `value`, which is exactly what the witness answers with.
+	var storage_path := "res://scripts/infrastructure/storage/JsonFileStorage.gd"
+	var storage_source := FileAccess.get_file_as_string(storage_path)
+	assert_false(storage_source.is_empty(), "the storage source must be readable: " + storage_path)
+	var validity_law := 'typeof(validation.get("value")) != TYPE_DICTIONARY'
+	assert_true(storage_source.contains(validity_law),
+		"storage must still require a Dictionary value from the validator it was handed")
+
+
+## The witness answers reconcile as well as write_atomic, so the row that matters most is the one
+## where the bytes underneath the ledger CHANGED: the witness must miss its memo there, delegate, and
+## leave the refresh-then-rebuild path exactly as it was. (`canonical_rebuilt` lives only in the
+## DWM_CONSEQUENCE_PROFILE record, which this ledger prints to stdout and no GUT row can read, so the
+## rebuild is pinned by its observable result -- the per-record cache describing the NEW document.)
+func test_external_bytes_after_two_writes_still_compose_the_full_writers_bytes() -> void:
+	if not _require_ledger():
+		return
+	if not _has_ledger_property("_cached_text"):
+		return
+	var ledger := _loaded()
+	var path := _root.path_join(FIXED_PATH)
+	var expected_records := {}
+	for id_value: String in ["witness-first", "witness-second"]:
+		var request := _board_fate_request(id_value)
+		var key := "board_fate:" + id_value
+		assert_true(ledger.record_before_emit(request).get("ok", false), key + " must commit")
+		expected_records[key] = _old_path_record(key, request)
+	assert_eq(FileAccess.get_file_as_string(path), _golden_document(expected_records),
+		"two writes under the witness must land on the full canonical writer's exact bytes")
+
+	# Different, still VALID bytes written straight past the ledger, carrying a DIFFERENT record set.
+	var external_request := _action_request("witness-external")
+	var external_key := "action_source:witness-external"
+	var external_records := {external_key: _old_path_record(external_key, external_request)}
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	assert_true(file != null, "the durable document must be overwritable for this test")
+	if file == null:
+		return
+	file.store_string(_golden_document(external_records))
+	file.close()
+
+	var after_request := _board_fate_request("witness-after-external")
+	var after_key := "board_fate:witness-after-external"
+	assert_true(ledger.record_before_emit(after_request).get("ok", false),
+		"the ledger must adopt the external document and append to it")
+	var after_records := external_records.duplicate()
+	after_records[after_key] = _old_path_record(after_key, after_request)
+	assert_eq(FileAccess.get_file_as_string(path), _golden_document(after_records),
+		"the delegated cold path must leave the append on the full writer's exact bytes")
+	var cached_keys: Array = _canonical_cache_of(ledger).keys()
+	cached_keys.sort()
+	assert_eq(cached_keys, [external_key, after_key],
+		"the rebuilt per-record cache must describe the document that is really on disk")
+
+	# A cold restart reads the same durable document back through the untouched readers.
+	var restarted := _loaded()
+	var reloaded: Dictionary = restarted.load()
+	assert_true(reloaded.get("ok", false), str(reloaded))
+	var durable_keys: Array = ((reloaded["value"]["document"] as Dictionary)["records"] as Dictionary).keys()
+	durable_keys.sort()
+	assert_eq(durable_keys, [external_key, after_key],
+		"a fresh instance must read exactly the two durable records")

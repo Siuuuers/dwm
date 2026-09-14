@@ -284,7 +284,7 @@ func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionar
 	_remember_validated_text(payload, candidate_document, true, true)
 	tick = _profile_phase(profile, "cache_seed_us", tick)
 	var write_result: Dictionary = _storage.call(
-		&"write_atomic", FIXED_PATH, payload, Callable(self, "_parse_known_storage_text"), true)
+		&"write_atomic", FIXED_PATH, payload, Callable(self, "_parse_known_storage_witness"), true)
 	tick = _profile_phase(profile, "write_atomic_us", tick)
 	if not write_result.get("ok", false):
 		return _from_storage_failure(write_result)
@@ -350,7 +350,7 @@ func _refresh_from_disk() -> Dictionary:
 		var seed_error := _seed_empty_document()
 		if not seed_error.is_empty():
 			return seed_error
-	var reconciled: Dictionary = _storage.call(&"reconcile", FIXED_PATH, Callable(self, "_parse_known_storage_text"))
+	var reconciled: Dictionary = _storage.call(&"reconcile", FIXED_PATH, Callable(self, "_parse_known_storage_witness"))
 	if not reconciled.get("ok", false):
 		return _from_storage_failure(reconciled)
 	if not reconciled.get("exists", false):
@@ -374,7 +374,7 @@ func _seed_empty_document() -> Dictionary:
 	var body := _digest_source(_empty_document())
 	if body.is_empty():
 		return _rejected(&"publication_ledger_serialization_failed", "the empty document is not canonicalizable")
-	var seeded: Dictionary = _storage.call(&"write_atomic", FIXED_PATH, body + "\n", Callable(self, "_parse_known_storage_text"), true)
+	var seeded: Dictionary = _storage.call(&"write_atomic", FIXED_PATH, body + "\n", Callable(self, "_parse_known_storage_witness"), true)
 	if not seeded.get("ok", false):
 		return _from_storage_failure(seeded)
 	return {}
@@ -389,6 +389,21 @@ func _parse_known_storage_text(text: String) -> Dictionary:
 	if parsed.get("ok", false):
 		_remember_validated_text(text, parsed["value"], false)
 	return parsed
+
+
+## Storage needs a validity WITNESS for bytes, while this owner retains the document itself. On the
+## three call sites that discard the value storage hands back -- `_refresh_from_disk()`'s reconcile,
+## `_commit_new_entry()`'s and `_seed_empty_document()`'s write_atomic -- an already-validated text
+## therefore answers with an EMPTY value instead of a deep copy of the whole ~800 KB document that
+## nothing ever reads (storage copies a validator result twice more on top of that). Unknown or
+## changed text still takes `_parse_known_storage_text()` unchanged, so the cold path returns the
+## full validated document, seeds the memo the same way, and keeps every refusal code and its order
+## exactly as before. Mirrors `DesktopIssuerRootStore._parse_known_write_document()`.
+func _parse_known_storage_witness(text: String) -> Dictionary:
+	if _validated_text_documents.has(text):
+		_touch_validated_text(text)
+		return {"ok": true, "code": &"ok", "value": {}}
+	return _parse_known_storage_text(text)
 
 
 ## Returns the validated document BY REFERENCE. Every document this class caches is immutable once

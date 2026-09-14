@@ -1,0 +1,141 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/e2e6768c-5a8c-408d-adff-aa060c1b8975/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+* test_document_and_record_union_is_exact_after_one_publication
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+* test_board_fate_key_derives_from_ordinary_receipt_id
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+* test_load_fails_closed_on_malformed_on_disk_json
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+* test_disjoint_from_plan01_schedule_foundation_ledger
+* test_commit_normalizes_the_new_record_by_walk_not_by_reparse
+* test_engine_typed_board_fate_entry_writes_the_exact_emit_reparse_bytes
+* test_normalize_engine_text_folds_string_names_and_preserves_identity_and_number_types
+* test_every_write_lands_on_the_full_canonical_writers_exact_bytes
+* test_the_append_is_composed_from_the_cached_per_record_texts
+* test_external_bytes_between_two_writes_rebuild_the_cache_before_the_next_append
+* test_a_refused_write_leaves_the_cached_document_and_its_canonical_cache_intact
+* test_the_whole_document_deep_copies_this_change_removed_are_gone_from_the_source
+* test_storage_witness_answers_a_known_text_with_an_empty_value
+    [Failed]:  DesktopPublicationLedger must own _parse_known_storage_witness()
+      at line 898
+* test_storage_witness_delegates_unknown_and_corrupt_text_to_the_full_reader
+    [Failed]:  DesktopPublicationLedger must own _parse_known_storage_witness()
+      at line 930
+* test_only_the_value_discarding_call_sites_pass_the_storage_witness
+    [Failed]:  _refresh_from_disk discards the value storage returns and must pass the witness
+      at line 977
+    [Failed]:  _refresh_from_disk must not make storage deep-copy a document it never reads
+      at line 979
+    [Failed]:  _seed_empty_document discards the value storage returns and must pass the witness
+      at line 977
+    [Failed]:  _seed_empty_document must not make storage deep-copy a document it never reads
+      at line 979
+    [Failed]:  _commit_new_entry discards the value storage returns and must pass the witness
+      at line 977
+    [Failed]:  _commit_new_entry must not make storage deep-copy a document it never reads
+      at line 979
+    [Failed]:  the ledger source must declare _parse_known_storage_witness()
+      at line 984
+    [Failed]:  an unknown or changed text must still take the full reader unchanged
+      at line 985
+    [Failed]:  the witness must touch the memo exactly as the full reader does
+      at line 987
+* test_external_bytes_after_two_writes_still_compose_the_full_writers_bytes
+24/27 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_publication_ledger.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_desktop_publication_ledger.gd
+- test_storage_witness_answers_a_known_text_with_an_empty_value
+    [Failed]:  DesktopPublicationLedger must own _parse_known_storage_witness()
+          at line 898
+- test_storage_witness_delegates_unknown_and_corrupt_text_to_the_full_reader
+    [Failed]:  DesktopPublicationLedger must own _parse_known_storage_witness()
+          at line 930
+- test_only_the_value_discarding_call_sites_pass_the_storage_witness
+    [Failed]:  _refresh_from_disk discards the value storage returns and must pass the witness
+          at line 977
+    [Failed]:  _refresh_from_disk must not make storage deep-copy a document it never reads
+          at line 979
+    [Failed]:  _seed_empty_document discards the value storage returns and must pass the witness
+          at line 977
+    [Failed]:  _seed_empty_document must not make storage deep-copy a document it never reads
+          at line 979
+    [Failed]:  _commit_new_entry discards the value storage returns and must pass the witness
+          at line 977
+    [Failed]:  _commit_new_entry must not make storage deep-copy a document it never reads
+          at line 979
+    [Failed]:  the ledger source must declare _parse_known_storage_witness()
+          at line 984
+    [Failed]:  an unknown or changed text must still take the full reader unchanged
+          at line 985
+    [Failed]:  the witness must touch the memo exactly as the full reader does
+          at line 987
+
+Totals
+------
+Scripts               1
+Tests                27
+Passing Tests        24
+Failing Tests         3
+Asserts           363/374
+Orphans              24
+Time              1.755s
+
+
+---- 3 failing tests ----

@@ -496,3 +496,66 @@ compose 7.5-15 ms per write). What remains on the live copy, in order: write_ato
 reconcile on the 800 KB ledger and the 300-450 KB autosaves (ruled to stay), the four deferred
 mints each deep-copying the 808 KB issuer root (prepare_spec 10-27 ms, the port read-amplification
 candidate), and the 30-40 ms routine click of pure GDScript.
+
+## settlement6 (branch perf/terminal-settlement-6 from master a3dcb775f, dwm-634.3)
+
+Session 6 starts from the session 5 fast-forward. The same-day baseline is taken in a quiet window
+(routine reveal medians 31-38 ms, live Log In 26.4 s): settlement6-baseline-a3dcb775f-live.log,
+-fresh-win.log and -fresh-loss.log, all profiled (DWM_CHECKPOINT_PROFILE=1, DWM_CONSEQUENCE_PROFILE=1).
+Live copy (108 publication records, 790 KB ledger, 928474-byte issuer root): App first reveal 125 ms,
+New Board first reveal 214 ms, win settled two frames later at 1302 ms and loss at 1212 ms, accept
+648-817 ms; each of the four publication ledger writes 140-238 ms of which disk_refresh 39-75 ms,
+write_atomic 80-105 ms and compose 6-52 ms (the 52 is the one-time cache rebuild); each of the six
+big autosaves 94-132 ms of which write_atomic 45-70 ms; first_reveal_durable 91 / 172 ms of which
+prepare_spec (the four deferred mints) 11-17 ms. Fresh account: App first reveal 91 / 96 ms, New Board
+255 / 212 ms, dating first reveal 338 / 294 ms, ledger writes 34-68 ms on 5-22 KB documents
+(write_atomic 31-41 ms, so ~30 ms of every write is file-operation floor independent of size), big
+autosaves 105-220 ms.
+
+Rulings for this session (memory note dwm-terminal-settlement-rulings-2026-09-13, sixth extension):
+the storage reconcile stays a law and is made cheap by a storage-only witness validator on
+already-validated text (issuer-root precedent), ledger first, then the autosave port; the deferred
+issuer mint stops copying the whole root; DesktopBoardState.capture and MinesweeperPanelPort.pull are
+touched only if a routine-click profile shows them above noise.
+
+### Step 2a: the publication ledger hands storage a validity witness instead of a document copy (commit after a3dcb775f)
+
+Before every ledger write JsonFileStorage.write_atomic reconciles the family (final, .next, .bak):
+each existing file is read, decoded, hashed and handed to the owner's validator, whose value storage
+deep-copies (_classify_document) and reconcile deep-copies again, and the final read-back classifies
+once more; write_atomic then returns a further copy. The ledger's validator answered a memoized text
+with a deep copy of the whole ~800 KB document, and the ledger reads none of those values: refresh
+re-reads through read_text and parses through _parse_known_document, and commit confirms from its own
+memoized document. Under the 2026-09-14 ruling (no storage law change, DesktopIssuerRootStore
+_parse_known_write_document precedent) the ledger gains _parse_known_storage_witness: on an
+already-validated text it touches the memo and answers ok with an empty value; any other text takes
+_parse_known_storage_text unchanged, so the cold path returns the full document, seeds the memo the
+same way and keeps every refusal code and order. The reconcile in _refresh_from_disk and the
+write_atomic calls in _commit_new_entry and _seed_empty_document pass the witness; every other reader
+is untouched and JsonFileStorage.gd is not edited. The memo keeps three texts, so at write N the final
+(text N-1), the .bak (text N-2) and the outgoing text (memoized in the cache_seed phase before
+write_atomic) all hit the witness. Reads, hashes, bytes, the reread and the exact read-back stay.
+
+- settlement6-step2a-red-a3dcb775f.log: tests/unit/test_desktop_publication_ledger.gd with the new rows
+  against the untouched ledger, 27 tests, 24 passing / 3 failing: the witness answers a known text with
+  an empty value; the witness delegates unknown and corrupt text to the full reader with identical code
+  and message; the three value-discarding call sites pass the witness and none passes the full reader
+  (source pin, with a pin that storage still requires a Dictionary value). Green before and after by
+  design: external valid bytes after two writes still compose the full writer's bytes with the
+  per-record cache rebuilt; malformed on-disk JSON still fails closed as indeterminate_transaction on
+  load and on record_before_emit, bytes not rewritten (existing row extended).
+- settlement6-step2a-green-a3dcb775f.log: the 35-suite set plus the thirteen suites that reference the
+  ledger, 44 suites, 833 tests, 766 passing / 67 failing; the 67 failing rows are the identical set
+  recorded in settlement5-step3-green-8c62e2913.log (frozen nine-role handoff gate, missing
+  schedule_view members, expected-4-saw-5 requests), compared line for line.
+- settlement6-step2a-profile-a3dcb775f-live.log and -live2-: the live copy (Log In 22.6 / 23.2 s,
+  routine reveal medians 37 / 43 ms, so slightly loaded). Per ledger write on the 790 KB document:
+  disk_refresh 39-75 ms at the baseline to 13-21 ms, write_atomic 80-105 to 29-61 ms (the final
+  read-back also stops copying), compose unchanged 6-53 ms, per write elapsed 140-238 to 63-118 ms.
+  accept_prepared_action 648-817 to 513-610 ms; win settled 1302 ms at the baseline to 1023 / 970 ms
+  and loss 1212 to 1123 / 1018 ms two frames after the click (same-day quiet-to-light window). The
+  residual disk_refresh is the read, UTF-8 decode and sha256 of the 790 KB final and its .bak, which
+  is the law.
+- settlement6-step2a-profile-a3dcb775f-fresh-win.log and -fresh-loss-: fresh account, ledger writes
+  on 5-22 KB documents 25-53 ms (34-68 at the baseline), write_atomic 24-43 (31-41); the ~25-30 ms
+  floor per write is marker writes, flushes and renames independent of size.
