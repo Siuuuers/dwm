@@ -6,6 +6,7 @@ var selected := false:
 		selected = value
 		_sync_caption()
 		queue_redraw()
+		if is_inside_tree(): queue_accessibility_update()
 var caption: Label
 var _pointer: Control
 var _pointer_down := false
@@ -51,6 +52,11 @@ func cancel_pointer_press() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT: _cancel_pointer()
+	elif what == NOTIFICATION_ACCESSIBILITY_UPDATE:
+		var element := get_accessibility_element()
+		if element.is_valid():
+			DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_LIST_BOX_OPTION)
+			DisplayServer.accessibility_update_set_list_item_selected(element, selected)
 
 func _pointer_input(event: InputEvent) -> void:
 	if disabled or not is_visible_in_tree():

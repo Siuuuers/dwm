@@ -68,6 +68,8 @@ func configure_title_host(home: Button, localization: Node, profile: Object) -> 
 	_profile = profile
 	%GalleryHost.position = Vector2.ZERO
 	get_node("TitleChrome").hide()
+	# Godot 4.6 can omit later accessibility siblings of a hidden container.
+	move_child(get_node("TitleChrome"), get_child_count() - 1)
 	for child: Node in get_children():
 		if child.name == &"LocalePresentationRoot" or String(child.name).begins_with("L10n"):
 			child.set("_localization", localization)

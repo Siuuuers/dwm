@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/GalleryScene.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/ui/LocalizedBinding.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/ui/gallery/GalleryCanvas.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/ui/gallery/GalleryReplayButton.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/ui/gallery/GalleryRecordIndex.gd" id="6"]
 
 [node name="GalleryScene" type="Control"]
 layout_mode = 3
@@ -66,6 +67,7 @@ mouse_force_pass_scroll_events = false
 
 [node name="EndingTileGrid" type="GridContainer" parent="GalleryHost/IndexViewport"]
 unique_name_in_owner = true
+script = ExtResource("6")
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 304.0

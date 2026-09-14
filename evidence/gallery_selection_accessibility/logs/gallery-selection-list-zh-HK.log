@@ -1,0 +1,9 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+READY {"completion_path":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/b41e109e-5e37-49c8-9bac-626f3687effe/dwm_test_root/gallery-selection-complete.json","expected_titles":["安靜的清晨","回家吧"],"pid":39364,"window_title":"DWM Gallery Selection 39364"}
+RESULT {"code":"ok","ok":true,"pid":39364,"replay_starts":0,"selected_record":"ending.sylvia.sweet","titles":["安靜的清晨","回家吧"]}
