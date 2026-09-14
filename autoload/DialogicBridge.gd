@@ -652,7 +652,8 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 		# Invalidate a canceled event coroutine before restoring a possibly unpaused state.
 		_runtime_adapter.restore_captured_state(ordinary.runtime_before)
 	if not _reached_replay.is_empty() and str(entry.get("token", "")) == str(_reached_replay.token):
-		_finish_reached_replay("failed", str(failure.get("code", "replay_failed")), failure.get("code") != &"runtime_playback_replaced")
+		var phase: StringName = &"start" if failure.get("code") == &"runtime_start_failed" else &""
+		_finish_reached_replay("failed", str(failure.get("code", "replay_failed")), failure.get("code") != &"runtime_playback_replaced", phase)
 		return
 	if not ordinary_id.is_empty():
 		ordinary_playback_failed.emit(ordinary_id, failure.duplicate(true))
@@ -991,15 +992,26 @@ func replay_reached_signature(signature_id: String) -> Dictionary:
 	# frozen presentation without entering the challenge or treating an empty DTL return as it.
 	if entry.role in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]:
 		var card_started: Dictionary = _begin_reached_date_card(signature)
-		if not card_started.get("ok", false): _finish_reached_replay("failed", str(card_started.get("code", "replay_failed")))
+		if not card_started.get("ok", false): return _reached_start_failure(card_started, signature_id)
 		return card_started
 	var context := {"expected_stage":"gallery_replay", "playback_id":"gallery-%d" % _replay_counter,
 		"role":"gallery", "transaction_id":"gallery-%d" % _replay_counter,
 		"presentation_signature":signature.duplicate(true)}
 	var started := _begin_entry_playback(signature.entry_id, context, &"rehearsal", "gallery")
 	if not started.get("ok", false):
-		_finish_reached_replay("failed", str(started.get("code", "replay_failed")))
+		return _reached_start_failure(started, signature_id)
 	return started
+
+func _reached_start_failure(failure: Dictionary, signature_id: String) -> Dictionary:
+	# Only allocated replay preparation reaches here. Ordinary admission refusals
+	# carry no Retry proof, and live playback replacement is a different failure.
+	if str(_reached_replay.get("signature_id", "")) != signature_id:
+		return failure # Reentrant replacement already retired this attempt.
+	var result := failure.duplicate(true)
+	result["failure_phase"] = &"start"
+	result["signature_id"] = signature_id
+	_finish_reached_replay("failed", str(failure.get("code", "replay_failed")), true, &"start")
+	return result
 
 func _begin_reached_date_card(signature: Dictionary) -> Dictionary:
 	var locale := "en"
@@ -1050,7 +1062,7 @@ func cancel_reached_replay(signature_id: String) -> Dictionary:
 	_finish_reached_replay("cancelled")
 	return {"ok": true}
 
-func _finish_reached_replay(outcome: String, code: String = "", restore_variables: bool = true) -> void:
+func _finish_reached_replay(outcome: String, code: String = "", restore_variables: bool = true, failure_phase: StringName = &"") -> void:
 	if _reached_replay.is_empty(): return
 	var replay := _reached_replay.duplicate(true)
 	_reached_replay.clear()
@@ -1059,8 +1071,10 @@ func _finish_reached_replay(outcome: String, code: String = "", restore_variable
 		replay.surface.queue_free()
 	var dialogic := get_node_or_null("/root/Dialogic")
 	if dialogic != null and restore_variables: dialogic.current_state_info["variables"] = replay.variables.duplicate(true)
-	reached_replay_finished.emit({"signature_id":replay.signature_id, "playback_token":replay.token,
-		"outcome":outcome, "code":code})
+	var result := {"signature_id":replay.signature_id, "playback_token":replay.token,
+		"outcome":outcome, "code":code}
+	if outcome == "failed" and failure_phase != &"": result["failure_phase"] = failure_phase
+	reached_replay_finished.emit(result)
 
 
 # ---- Global read history and boundary-safe skip (dwm-p2r.8, Plan-05 Task 4) ----

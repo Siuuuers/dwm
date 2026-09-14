@@ -63,7 +63,7 @@ func test_exact_reached_version_selects_optional_art_without_changing_discovery(
 	var preview: TextureRect = gallery.get("_art_preview")
 	assert_not_null(preview)
 	assert_eq(preview.position, Vector2(392, 32))
-	assert_eq(preview.size, Vector2(520, 512))
+	assert_eq(preview.size, Vector2(520, 448), "plural versions reserve the bottom paper row")
 	assert_eq(preview.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	assert_eq(preview.focus_mode, Control.FOCUS_NONE)
 	assert_lt(preview.get_index(), gallery.get_node("%ReplayStatus").get_index())

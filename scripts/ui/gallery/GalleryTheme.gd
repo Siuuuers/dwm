@@ -16,6 +16,9 @@ static func build(locale: String, percent: int, palette: StringName) -> Theme:
 	result.default_font = font
 	result.default_font_size = int(24 * percent / 100.0)
 	for role: String in roles: result.set_color(role, "Gallery", roles[role])
+	result.set_color("error_rule", "Gallery", roles.danger)
+	result.set_color("error_ink", "Gallery", roles.ink)
+	result.set_color("information_rule", "Gallery", roles.structure)
 	result.set_color("font_color", "Label", roles.paper_ink)
 	for state: String in ["normal", "hover", "pressed", "disabled", "focus"]:
 		result.set_stylebox(state, "Button", StyleBoxEmpty.new())

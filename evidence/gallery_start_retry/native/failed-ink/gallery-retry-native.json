@@ -1,0 +1,24 @@
+{
+	"art_fixture": "res://tests/fixtures/art/placement-cg.svg",
+	"bridge_start_count": 1,
+	"captures": 1,
+	"checks": 34,
+	"failures": [
+		"Error status has no protected ink pixel"
+	],
+	"logical_size": [
+		1280,
+		720
+	],
+	"matrix_complete": false,
+	"native_size": [
+		640,
+		360
+	],
+	"ok": false,
+	"requested_tuples": 18,
+	"retry_success_proved": false,
+	"samples": [],
+	"scope": "Mounted Gallery, real Profile/catalogs/themes, injected viewport keyboard, exact pre-session Retry and native pixels; no hardware input, UIA, full visual-conformance, storage-Retry, or whole-journey claim.",
+	"tuple_count": 0
+}

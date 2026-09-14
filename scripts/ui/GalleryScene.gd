@@ -16,6 +16,9 @@ const RECORD_CATALOG := preload("res://scripts/ui/gallery/GalleryRecordCatalog.g
 const STATUS_FALLBACK := {
 	"gallery.replay.playing": "Playing this record. Return stops replay.",
 	"gallery.replay.failed": "This record could not play. Please try again.",
+	"gallery.replay.start_failed": "Replay did not begin",
+	"gallery.replay.unavailable": "This replay is unavailable.",
+	"gallery.retry": "Retry",
 	"gallery.replay.unreached": "No exact presentation is recorded for replay yet.",
 	"gallery.record.unavailable": "Unavailable record",
 	"gallery.archive.unavailable": "Gallery is unavailable.",
@@ -33,6 +36,8 @@ var _profile: Object
 var _router: Object
 var _localization: Node
 var _status_key := ""
+var _retry_signature_id := ""
+var _announced_start_signature_id := ""
 var _selected_id := ""
 var _index_offset := 0.0
 var _index_extent := 0.0
@@ -112,6 +117,7 @@ func _sync_practice_button() -> void:
 	if _practice_button.visible and not _practice_button.disabled:
 		_replay_button.focus_next = _practice_button.get_path()
 		_return_button.focus_previous = _practice_button.get_path()
+	_layout_record_controls()
 
 func _on_practice_pressed() -> void:
 	if has_active_rehearsal() or _practice_game == null or _replay_bridge == null \
@@ -144,7 +150,7 @@ func _ensure_version_selector() -> void:
 	if _version_selector != null: return
 	_version_selector = OptionButton.new()
 	_version_selector.name = "ReachedVersion"
-	_version_selector.position = Vector2(408, 568)
+	_version_selector.position = Vector2(408, 488)
 	_version_selector.size = Vector2(288, 64)
 	_version_selector.item_selected.connect(_on_version_selected)
 	_canvas.add_child(_version_selector)
@@ -165,6 +171,7 @@ func _ensure_art_preview() -> void:
 
 func _refresh_art_preview() -> void:
 	_ensure_art_preview()
+	_layout_record_controls()
 	_art_preview.texture = null
 	_art_preview.hide()
 	if _selected_version < 0 or _selected_version >= _versions.size(): return
@@ -184,8 +191,18 @@ func _refresh_art_preview() -> void:
 	_art_preview.texture = texture
 	_art_preview.show()
 
+func _layout_record_controls() -> void:
+	if not is_instance_valid(_art_preview): return
+	var controls_visible := (is_instance_valid(_version_selector) and _version_selector.visible) \
+		or (is_instance_valid(_practice_button) and _practice_button.visible)
+	_art_preview.size.y = 448 if controls_visible else 512
+	if is_instance_valid(_version_selector) and theme != null:
+		for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+			_version_selector.add_theme_color_override(state, theme.get_color("paper_ink", "Gallery"))
+
 func open_in_title_host() -> void:
 	show()
+	_retry_signature_id = ""
 	_selected_id = ""
 	_refresh_presentation()
 	_refresh_tiles()
@@ -196,6 +213,8 @@ func close_for_title_host() -> bool:
 		_practice_host.request_return()
 		return false # One Return closes one practice layer.
 	if _replay_owner != null and not _replay_owner.close().get("ok", false): return false
+	_retry_signature_id = ""
+	_set_replay_status("")
 	hide()
 	return true
 
@@ -278,6 +297,7 @@ func _refresh_tiles() -> void:
 	if retained_row != null: _index_offset = previous_offset
 	_relayout_rows()
 	if _ending_tile_grid.get_child_count() > 0:
+		if retained_row != null: _selected_id = previous_id
 		_select_record(retained_row if retained_row != null else _ending_tile_grid.get_child(0))
 		if restore_focus:
 			if retained_row != null: retained_row.grab_focus()
@@ -286,6 +306,10 @@ func _refresh_tiles() -> void:
 		_clear_replay_versions()
 		_update_scroll()
 		_focus_return()
+	if previous_focus == _replay_button and _replay_button.visible and not _replay_button.disabled:
+		_replay_button.grab_focus()
+	elif previous_focus == _version_selector and _version_selector.visible and not _version_selector.disabled:
+		_version_selector.grab_focus()
 
 func _focus_return() -> void:
 	if is_visible_in_tree() and _return_button.focus_mode != Control.FOCUS_NONE:
@@ -298,6 +322,7 @@ func _focus_entry() -> void:
 	else: _return_button.grab_focus()
 
 func _select_record(tile: Button) -> void:
+	if _selected_id != str(tile.get_meta(&"gallery_record_id")): _retry_signature_id = ""
 	_selected_id = tile.get_meta(&"gallery_record_id")
 	for row: Button in _ending_tile_grid.get_children(): row.selected = row == tile
 	_refresh_replay_selection()
@@ -342,9 +367,15 @@ func _refresh_replay_selection() -> void:
 	_version_selector.visible = _versions.size() > 1
 	_refresh_art_preview()
 	_sync_replay_controls()
-	_set_replay_status("" if not _versions.is_empty() else ("gallery.replay.unreached" if _replay_owner != null else "gallery.record.unavailable"))
+	if not _retry_signature_id.is_empty() and _retry_signature_id == _selected_signature_id():
+		_set_replay_status("gallery.replay.start_failed")
+	else:
+		_retry_signature_id = ""
+		var key := "gallery.replay.playing" if _replay_owner != null and _replay_owner.is_playing() else ""
+		_set_replay_status(key if not _versions.is_empty() else ("gallery.replay.unreached" if _replay_owner != null else "gallery.record.unavailable"))
 
 func _clear_replay_versions() -> void:
+	_retry_signature_id = ""
 	_versions.clear()
 	_selected_version = 0
 	_ensure_version_selector()
@@ -370,20 +401,41 @@ func _sync_replay_controls() -> void:
 	_sync_practice_button()
 
 func _on_version_selected(index: int) -> void:
+	if index < 0 or index >= _versions.size() or (_replay_owner != null and _replay_owner.is_playing()): return
+	if str(_versions[index].signature_id) == _selected_signature_id():
+		_refresh_art_preview()
+		return
+	_retry_signature_id = ""
 	_selected_version = index
+	_set_replay_status("")
 	_refresh_art_preview()
 
+func _selected_signature_id() -> String:
+	return str(_versions[_selected_version].signature_id) if _selected_version >= 0 and _selected_version < _versions.size() else ""
+
 func _on_replay_pressed() -> void:
-	if _replay_owner == null or _selected_version < 0 or _selected_version >= _versions.size(): return
-	var started: Dictionary = _replay_owner.begin(str(_versions[_selected_version].signature_id))
+	if _replay_owner == null or _replay_owner.is_playing() or _selected_signature_id().is_empty(): return
+	var signature_id := _selected_signature_id()
+	var started: Dictionary = _replay_owner.begin(signature_id)
 	_sync_replay_controls()
-	if not started.get("ok", false): _set_replay_status("gallery.replay.failed")
-	elif _replay_owner.is_playing(): _set_replay_status("gallery.replay.playing")
+	if not started.get("ok", false):
+		if started.get("failure_phase") == &"start" and str(started.get("signature_id", "")) == signature_id:
+			_retry_signature_id = signature_id
+			_set_replay_status("gallery.replay.start_failed")
+		elif _retry_signature_id.is_empty():
+			_set_replay_status("gallery.replay.unavailable")
+	elif _replay_owner.is_playing():
+		_retry_signature_id = ""
+		_set_replay_status("gallery.replay.playing")
 
 func _on_replay_finished(result: Dictionary) -> void:
 	if not is_node_ready(): return
+	_retry_signature_id = ""
+	var start_failure: bool = result.get("outcome") == "failed" and result.get("failure_phase") == &"start" \
+		and str(result.get("signature_id", "")) == _selected_signature_id()
+	if start_failure: _retry_signature_id = _selected_signature_id()
 	_sync_replay_controls()
-	_set_replay_status("gallery.replay.failed" if result.get("outcome") == "failed" else "")
+	_set_replay_status("gallery.replay.start_failed" if start_failure else ("gallery.replay.failed" if result.get("outcome") == "failed" else ""))
 	if is_visible_in_tree() and not _replay_button.disabled: _replay_button.grab_focus()
 
 func _show_unavailable_record() -> void:
@@ -416,8 +468,28 @@ func _valid_snapshot(snapshot: Variant) -> bool:
 func _set_replay_status(key: String) -> void:
 	_status_key = key
 	if not is_instance_valid(_replay_status): return
+	_replay_status.accessibility_live = DisplayServer.LIVE_OFF
+	if _retry_signature_id.is_empty(): _announced_start_signature_id = ""
+	if key == "gallery.replay.start_failed" and _announced_start_signature_id != _retry_signature_id and is_visible_in_tree():
+		_replay_status.text = ""
+		_replay_status.accessibility_name = ""
+		_replay_status.accessibility_live = DisplayServer.LIVE_POLITE
+		_announced_start_signature_id = _retry_signature_id
 	_replay_status.text = "" if key.is_empty() else _localized(key)
+	_replay_status.accessibility_name = _replay_status.text
+	_refresh_replay_caption()
+	_canvas.replay_start_failed = key == "gallery.replay.start_failed"
+	_canvas.replay_unavailable = key == "gallery.replay.unavailable"
 	_canvas.unavailable_record = key == "gallery.record.unavailable"
+	if _canvas.replay_start_failed or _canvas.replay_unavailable:
+		_replay_status.position = Vector2(408, 568)
+		_replay_status.size = Vector2(360, 64)
+		_replay_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_replay_status.add_theme_color_override("font_color", theme.get_color("error_ink", "Gallery"))
+		_canvas.queue_redraw()
+		return
+	_replay_status.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_replay_status.remove_theme_color_override("font_color")
 	var measure := 464 if _canvas.unavailable_record else 520
 	_replay_status.size = Vector2(measure, 0)
 	var height := ceilf(_replay_status.get_minimum_size().y / 2) * 2
@@ -459,10 +531,14 @@ func _refresh_presentation() -> void:
 		%TitleLabel.add_theme_color_override("font_color", theme.get_color("ink", "Gallery"))
 		_return_button.text = _localized("button.return")
 		%TitleLabel.text = _localized("gallery.title")
-	_replay_button.text = _localized("gallery.replay")
+	_refresh_replay_caption()
 	_sync_practice_button()
 	_canvas.queue_redraw()
 	queue_redraw()
+
+func _refresh_replay_caption() -> void:
+	_replay_button.text = _localized("gallery.retry" if not _retry_signature_id.is_empty() else "gallery.replay")
+	_replay_button.accessibility_name = _replay_button.text
 
 func _draw() -> void:
 	if theme == null: return
