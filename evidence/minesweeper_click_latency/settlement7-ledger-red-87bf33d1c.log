@@ -1,0 +1,158 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/3e262078-20dd-4897-816d-92f5c2b1aa7f/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_json_file_storage.gd
+* test_absent_reconcile_write_read_replace_and_restart
+* test_read_and_remove_require_a_fresh_unchanged_lease
+* test_remove_uses_durable_tombstone_and_cannot_resurrect_backup
+* test_markerless_final_wins_but_unowned_next_alone_is_indeterminate
+* test_prepared_marker_with_outgoing_next_promotes_new_winner
+* test_missing_validated_candidate_and_corrupt_marker_fail_closed
+* test_first_write_failpoints_restart_to_exact_new_or_absence
+* test_path_escapes_and_unbound_validators_reject_before_mutation
+* test_before_write_hook_runs_before_any_mutation_and_a_refusal_writes_nothing
+* test_successful_writes_read_back_only_the_promoted_final
+* test_a_reconciled_write_reads_each_family_artifact_once_and_lands_the_same_bytes
+    [Failed]:  JsonFileStorage must own write_atomic_reconciled() for the deduped owner write path
+      at line 287
+* test_the_plain_write_keeps_its_own_full_reconcile_and_reread_trace
+    [Failed]:  the deduped path must be a separate, opt-in entry point so this trace can never change
+      at line 334
+* test_the_fresh_classification_is_consumed_by_one_write_and_never_outlives_it
+    [Failed]:  JsonFileStorage must own write_atomic_reconciled() for the deduped owner write path
+      at line 341
+* test_reconciled_write_failpoints_restart_to_exact_new_or_exact_previous
+    [Failed]:  JsonFileStorage must own write_atomic_reconciled() for the deduped owner write path
+      at line 362
+10/14 passed.
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+* test_document_and_record_union_is_exact_after_one_publication
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+* test_board_fate_key_derives_from_ordinary_receipt_id
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+* test_load_fails_closed_on_malformed_on_disk_json
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+* test_disjoint_from_plan01_schedule_foundation_ledger
+* test_commit_normalizes_the_new_record_by_walk_not_by_reparse
+* test_engine_typed_board_fate_entry_writes_the_exact_emit_reparse_bytes
+* test_normalize_engine_text_folds_string_names_and_preserves_identity_and_number_types
+* test_every_write_lands_on_the_full_canonical_writers_exact_bytes
+* test_the_append_is_composed_from_the_cached_per_record_texts
+* test_external_bytes_between_two_writes_rebuild_the_cache_before_the_next_append
+* test_a_refused_write_leaves_the_cached_document_and_its_canonical_cache_intact
+* test_the_whole_document_deep_copies_this_change_removed_are_gone_from_the_source
+* test_storage_witness_answers_a_known_text_with_an_empty_value
+* test_storage_witness_delegates_unknown_and_corrupt_text_to_the_full_reader
+* test_only_the_value_discarding_call_sites_pass_the_storage_witness
+* test_external_bytes_after_two_writes_still_compose_the_full_writers_bytes
+* test_one_record_reads_and_hashes_each_family_artifact_once_before_the_write
+    [Failed]:  DICTIONARY({ "memory/desktop-ledger/desktop-publications.json": 5, "memory/desktop-ledger/...bak": 2 }) != DICTIONARY({ "memory/desktop-ledger/desktop-publications.json": 2, "memory/desktop-ledger/...bak": 1 }).
+    { "memory/desktop-ledger/desktop-publica....bak": 2 } != { "memory/desktop-ledger/desktop-publica....bak": 1 }  2 of 2 keys do not match.  one write classifies the final once, reads it back once, and classifies the backup once
+      at line 1134
+    [Failed]:  [8] expected to equal [4]:  and hashes exactly those three reads plus the outgoing bytes
+      at line 1136
+    [Failed]:  ARRAY(["memory/desktop-ledger/desktop-publications.json", "memory/desktop-ledger/desktop-p...ns.json"]) != ARRAY(["memory/desktop-ledger/desktop-publications.json"]).
+    ["memory/desktop-ledger/desktop-publicat...ons.json"] != ["memory/desktop-ledger/desktop-publicat...ons.json"]  1 of 2 indexes do not match.  the only read after writing starts is the promoted final
+      at line 1138
+* test_foreign_bytes_between_two_records_still_refuse_with_the_storage_code
+    [Failed]:  [5] expected to equal [2]:  the classification is per write: the previous write's reading never answers for this one
+      at line 1156
+27/29 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_json_file_storage.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_json_file_storage.gd
+- test_a_reconciled_write_reads_each_family_artifact_once_and_lands_the_same_bytes
+    [Failed]:  JsonFileStorage must own write_atomic_reconciled() for the deduped owner write path
+          at line 287
+- test_the_plain_write_keeps_its_own_full_reconcile_and_reread_trace
+    [Failed]:  the deduped path must be a separate, opt-in entry point so this trace can never change
+          at line 334
+- test_the_fresh_classification_is_consumed_by_one_write_and_never_outlives_it
+    [Failed]:  JsonFileStorage must own write_atomic_reconciled() for the deduped owner write path
+          at line 341
+- test_reconciled_write_failpoints_restart_to_exact_new_or_exact_previous
+    [Failed]:  JsonFileStorage must own write_atomic_reconciled() for the deduped owner write path
+          at line 362
+
+res://tests/unit/test_desktop_publication_ledger.gd
+- test_one_record_reads_and_hashes_each_family_artifact_once_before_the_write
+    [Failed]:  DICTIONARY({ "memory/desktop-ledger/desktop-publications.json": 5, "memory/desktop-ledger/...bak": 2 }) != DICTIONARY({ "memory/desktop-ledger/desktop-publications.json": 2, "memory/desktop-ledger/...bak": 1 }).
+    { "memory/desktop-ledger/desktop-publica....bak": 2 } != { "memory/desktop-ledger/desktop-publica....bak": 1 }  2 of 2 keys do not match.  one write classifies the final once, reads it back once, and classifies the backup once
+          at line 1134
+    [Failed]:  [8] expected to equal [4]:  and hashes exactly those three reads plus the outgoing bytes
+          at line 1136
+    [Failed]:  ARRAY(["memory/desktop-ledger/desktop-publications.json", "memory/desktop-ledger/desktop-p...ns.json"]) != ARRAY(["memory/desktop-ledger/desktop-publications.json"]).
+    ["memory/desktop-ledger/desktop-publicat...ons.json"] != ["memory/desktop-ledger/desktop-publicat...ons.json"]  1 of 2 indexes do not match.  the only read after writing starts is the promoted final
+          at line 1138
+- test_foreign_bytes_between_two_records_still_refuse_with_the_storage_code
+    [Failed]:  [5] expected to equal [2]:  the classification is per write: the previous write's reading never answers for this one
+          at line 1156
+
+Totals
+------
+Scripts               2
+Tests                43
+Passing Tests        37
+Failing Tests         6
+Asserts           541/549
+Orphans              24
+Time              1.606s
+
+
+---- 6 failing tests ----

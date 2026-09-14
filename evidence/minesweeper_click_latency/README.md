@@ -842,3 +842,57 @@ DesktopBoardState.prepare_restore (contract-bound), which are the larger part of
   loss 899 / 1060 ms two frames after the click.
 - settlement7-port-profile-87bf33d1c-fresh-win.log and -fresh-loss-: fresh account, 244-click set
   29.0 / 27.8 ms, dating routine 17.6 / 16.4 ms; no end-to-end claim.
+
+### Step 3: one publication ledger write reads and hashes each family artifact once (commit after fa741a63e)
+
+The reconcile law stays: every write still begins from a fresh classification of the whole family
+(final, .next, .bak, marker) read from disk and hashed, the lease is never trusted on its own, and the
+marker sequence, temp write, flushes, renames, the one read-back of the promoted final and every
+refusal code and its order are the same code path. What changes is that the classification is taken
+ONCE per write. JsonFileStorage keeps, per path, the facts the last public reconcile() proved
+(validator, exists, hash), erased at the top of every mutation exactly as a lease is; the public
+reconcile() is a thin wrapper over the untouched body, and write_atomic itself reconciles through the
+private body so a write never leaves a classification of a family it is mutating. A new opt-in
+write_atomic_reconciled() shares write_atomic's body and reuses that classification only when it was
+taken with the same validator and no before-write hook is configured on the root (a hook is the one
+thing that can run between an owner's reconcile and its write); any miss takes the full reconcile, so
+the reuse can be skipped, never wrong. The six ok-and-exists returns reachable from reconcile and the
+writes carry the classified text, so DesktopPublicationLedger._refresh_from_disk no longer re-reads
+and re-hashes the final through read_text, and _confirm_written_entry proves exact equality against
+the promoted final's read-back text instead of a third read; the ledger's reread_us profile phase is
+gone. The desktop publication ledger is configured on the profile-root storage, and the only
+before-write hook in the tree is on the saves root, so the reuse fires in production. Per ledger write
+the final is read and hashed twice (the classification and the read-back) and the .bak once, where it
+was five and two. SaveManagerCheckpointPort and DesktopIssuerRootStore keep write_atomic and are
+call-for-call unchanged; no signature changed, so every duck-typed storage stand-in still parses.
+
+- settlement7-ledger-red-87bf33d1c.log: tests/unit/test_json_file_storage.gd and
+  test_desktop_publication_ledger.gd with the new rows against the untouched storage and ledger, 43
+  tests, 37 passing / 6 failing: a reconciled write reads each family artifact once and lands the
+  same bytes as a twin plain write; the plain write keeps its own full reconcile and reread trace; the
+  fresh classification is consumed by one write and never outlives it (a second opt-in write with no
+  reconcile between reads the final itself and refuses foreign bytes with indeterminate_transaction);
+  reconciled-write fail points restart to exact new or exact previous; one ledger record reads and
+  hashes each artifact once before the write (final 2, .bak 1, four hashes, one read after the write)
+  and lands the golden bytes; foreign bytes between two records still refuse with the storage code.
+- settlement7-ledger-green1-87bf33d1c.log: the same two suites, 43 / 43.
+- settlement7-ledger-green-761da355a.log: the 35-suite set plus the ten suites that reference the
+  ledger or JsonFileStorage, 45 suites, 853 tests, 786 passing / 67 failing: the 67 are the identical
+  set, compared by suite and test name, recorded in settlement6-step2a-green-a3dcb775f.log (frozen
+  nine-role handoff gate, missing schedule_view members, expected-4-saw-5 requests). Both contract
+  evidence suites green.
+- settlement7-ledger-backup-storage-761da355a.result.json: tests/backup_storage/verify.py over the
+  changed JsonFileStorage (FakeFileOps only): passed, 956 assertions, 270 injected operation positions,
+  386 restart snapshots, original GUT storage suite 14 / 14.
+- settlement7-ledger-profile-fa741a63e-live.log and -live2-: the live copy on top of Steps 1 and 2 (Log
+  In 23.0 / 22.1 s; the second run is loaded: first reveal 110 ms, loss 1124 ms, so phases only). Per
+  publication ledger write, medians: elapsed 85.6 ms at the baseline to 50.5 ms (82.4 loaded),
+  write_atomic 47.0 to 24.6 / 31.1, disk_refresh 13.9 to 10.6 / 15.7 (now the one classification),
+  reread 3.2 to none, compose 6.8 to 7.3 / 16.4, confirmation 1.9 to 1.6 / 2.4.
+  accept_prepared_action 494 ms at the baseline to 447 (586 loaded); win settled two frames after the
+  click 1022 to 915 / 922 ms, loss 885 to 823 / 1124 ms; App first reveal 72 ms, New Board 165 / 161 ms,
+  244-click routine set 27.0 / 26.6 ms (Step 1's figure holds).
+- settlement7-ledger-profile-fa741a63e-fresh-win.log and -fresh-loss-: fresh account, per ledger
+  write 34.7 / 32.5 ms (write_atomic 24.6 / 31.1: the five file creates of the ruled floor), win 565 /
+  565 ms, loss 605 / 659 ms, dating first reveal 241 / 245 ms, dating win 408, loss 412; no end-to-end
+  claim beyond the write phases.

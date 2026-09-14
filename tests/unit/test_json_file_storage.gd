@@ -237,3 +237,144 @@ func _assert_only_final_read_after_first_write(trace: Array, label: String) -> v
 			late_reads.append(entry.get("path"))
 	assert_gt(first_write, 0, "%s must write" % label)
 	assert_eq(late_reads, [FINAL_PATH], "%s reads back exactly the promoted final and nothing else" % label)
+
+
+# ---- owner ruling 2026-09-14: one disk read and one hash per family artifact per write ----
+#
+# `write_atomic()` classifies the whole family from disk (`reconcile()`), and an owner that has to
+# know what is already there has to classify it once itself before it can build its candidate. That
+# is the same family read and hashed twice inside one synchronous write. The opt-in twin
+# `write_atomic_reconciled()` reuses the classification the owner's OWN `reconcile()` on this
+# instance and path just proved, so the family is read and hashed once before the write. Nothing
+# else moves: the marker sequence, the temp write and flush, the rename order, the one read-back of
+# the promoted final and every refusal code in its order are the same code path, and a caller that
+# does not opt in keeps its trace call for call. The classification is consumed by the one write
+# that reuses it and erased by every mutation, so it can never answer for a later write.
+
+const RECONCILED_WRITE := "write_atomic_reconciled"
+
+
+## RED-safe probe: on a tree without the opt-in twin the method does not exist, so a row that needs
+## it fails once with a readable message instead of erroring out on a nonexistent call.
+func _requires_reconciled_write(storage: RefCounted) -> bool:
+	if storage.has_method(RECONCILED_WRITE):
+		return true
+	assert_true(false, "JsonFileStorage must own %s() for the deduped owner write path" % RECONCILED_WRITE)
+	return false
+
+
+func _read_counts(trace: Array, from_index: int = 0) -> Dictionary:
+	var counts := {}
+	for entry: Dictionary in trace.slice(from_index):
+		if entry.get("operation", &"") == &"read_bytes":
+			var path := str(entry.get("path", ""))
+			counts[path] = int(counts.get(path, 0)) + 1
+	return counts
+
+
+func _hash_calls(trace: Array, from_index: int = 0) -> int:
+	var total := 0
+	for entry: Dictionary in trace.slice(from_index):
+		if entry.get("operation", &"") == &"sha256":
+			total += 1
+	return total
+
+
+func test_a_reconciled_write_reads_each_family_artifact_once_and_lands_the_same_bytes() -> void:
+	var seeded := _seed({FINAL_PATH: OLD_TEXT, BACKUP_PATH: OLD_TEXT})
+	var ops: RefCounted = _fake_ops_script.new(seeded)
+	var storage: RefCounted = _storage_script.new(ROOT, ops)
+	if not _requires_reconciled_write(storage):
+		return
+	var reconciled: Dictionary = storage.call(&"reconcile", RELATIVE_PATH, _generation_validator)
+	assert_true(reconciled.get("ok", false), str(reconciled))
+	assert_eq(reconciled.get("text"), OLD_TEXT, "reconcile hands back the exact text it just classified")
+	var written: Dictionary = storage.call(RECONCILED_WRITE, RELATIVE_PATH, NEW_TEXT, _generation_validator, true)
+	assert_true(written.get("ok", false), str(written))
+	assert_eq(written.get("hash"), _hash(NEW_TEXT))
+	assert_eq(written.get("text"), NEW_TEXT, "the one read-back that stays hands its own text back")
+	var trace: Array = ops.call(&"operation_trace")
+	assert_eq(_read_counts(trace), {FINAL_PATH: 2, BACKUP_PATH: 1},
+		"the final is classified once and read back once; the backup is classified once")
+	assert_eq(_hash_calls(trace), 4, "one hash per classified artifact, the outgoing bytes and the read-back")
+	assert_eq(_reads_after_first_write(trace), [FINAL_PATH], "the only read after writing starts is the promoted final")
+	# Byte for byte the untouched writer's own result over the same seed.
+	var twin_ops: RefCounted = _fake_ops_script.new(seeded)
+	var twin: RefCounted = _storage_script.new(ROOT, twin_ops)
+	assert_true(twin.call(&"reconcile", RELATIVE_PATH, _generation_validator).get("ok", false))
+	assert_true(twin.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, _generation_validator).get("ok", false))
+	assert_eq(ops.call(&"snapshot_persisted"), twin_ops.call(&"snapshot_persisted"),
+		"the deduped write leaves exactly the bytes the untouched writer leaves")
+	assert_eq(_restart_and_reconcile(ops.call(&"snapshot_persisted")).get("hash"), _hash(NEW_TEXT))
+
+
+func _reads_after_first_write(trace: Array) -> Array:
+	var writing := false
+	var reads: Array = []
+	for entry: Dictionary in trace:
+		var operation: StringName = entry.get("operation", &"")
+		if operation == &"write_bytes":
+			writing = true
+		elif writing and operation == &"read_bytes":
+			reads.append(str(entry.get("path", "")))
+	return reads
+
+
+func test_the_plain_write_keeps_its_own_full_reconcile_and_reread_trace() -> void:
+	var ops: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: OLD_TEXT, BACKUP_PATH: OLD_TEXT}))
+	var storage: RefCounted = _storage_script.new(ROOT, ops)
+	assert_true(storage.call(&"reconcile", RELATIVE_PATH, _generation_validator).get("ok", false))
+	var start: int = (ops.call(&"operation_trace") as Array).size()
+	var written: Dictionary = storage.call(&"write_atomic", RELATIVE_PATH, NEW_TEXT, _generation_validator)
+	assert_true(written.get("ok", false), str(written))
+	var trace: Array = ops.call(&"operation_trace")
+	assert_eq(_read_counts(trace, start), {FINAL_PATH: 2, BACKUP_PATH: 1},
+		"a caller that does not opt in still reconciles the whole family inside its own write")
+	assert_eq(_hash_calls(trace, start), 4, "and still hashes every artifact that reconcile reads")
+	assert_true(storage.has_method(RECONCILED_WRITE),
+		"the deduped path must be a separate, opt-in entry point so this trace can never change")
+
+
+func test_the_fresh_classification_is_consumed_by_one_write_and_never_outlives_it() -> void:
+	var ops: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: OLD_TEXT}))
+	var storage: RefCounted = _storage_script.new(ROOT, ops)
+	if not _requires_reconciled_write(storage):
+		return
+	assert_true(storage.call(&"reconcile", RELATIVE_PATH, _generation_validator).get("ok", false))
+	assert_true(storage.call(RECONCILED_WRITE, RELATIVE_PATH, NEW_TEXT, _generation_validator, true).get("ok", false))
+	# Foreign bytes land with no reconcile in between: the consumed classification must not answer
+	# for them, so the second opt-in write classifies the family from disk itself and fails closed.
+	assert_true(ops.call(&"write_bytes", FINAL_PATH, "{ not json".to_utf8_buffer()).get("ok", false))
+	assert_true(ops.call(&"flush_path", FINAL_PATH).get("ok", false))
+	var start: int = (ops.call(&"operation_trace") as Array).size()
+	var refused: Dictionary = storage.call(RECONCILED_WRITE, RELATIVE_PATH, OLD_TEXT, _generation_validator, true)
+	assert_false(refused.get("ok", true), str(refused))
+	assert_eq(refused.get("code"), &"indeterminate_transaction",
+		"a write with no fresh classification of its own reconciles from disk and refuses foreign bytes")
+	assert_eq(int(_read_counts(ops.call(&"operation_trace"), start).get(FINAL_PATH, 0)), 1,
+		"and it got there by reading the final itself")
+
+
+func test_reconciled_write_failpoints_restart_to_exact_new_or_exact_previous() -> void:
+	var seeded := _seed({FINAL_PATH: OLD_TEXT})
+	var baseline_ops: RefCounted = _fake_ops_script.new(seeded)
+	var baseline: RefCounted = _storage_script.new(ROOT, baseline_ops)
+	if not _requires_reconciled_write(baseline):
+		return
+	assert_true(baseline.call(&"reconcile", RELATIVE_PATH, _generation_validator).get("ok", false))
+	var reconcile_operations: int = baseline_ops.call(&"operation_count")
+	assert_true(baseline.call(RECONCILED_WRITE, RELATIVE_PATH, NEW_TEXT, _generation_validator, true).get("ok", false))
+	var operation_count: int = baseline_ops.call(&"operation_count")
+	assert_gt(operation_count, reconcile_operations)
+	for ordinal in range(reconcile_operations + 1, operation_count + 1):
+		var failing_ops: RefCounted = _fake_ops_script.new(seeded)
+		var failing: RefCounted = _storage_script.new(ROOT, failing_ops)
+		assert_true(failing.call(&"reconcile", RELATIVE_PATH, _generation_validator).get("ok", false), "ordinal %d setup" % ordinal)
+		failing_ops.call(&"fail_after", ordinal)
+		var operation_result: Dictionary = failing.call(RECONCILED_WRITE, RELATIVE_PATH, NEW_TEXT, _generation_validator, true)
+		assert_true(operation_result.get("ok", false) or operation_result.get("code") in [&"write_not_committed", &"indeterminate_commit"], "ordinal %d: %s" % [ordinal, operation_result])
+		var restarted: Dictionary = _restart_and_reconcile(failing_ops.call(&"snapshot_persisted"))
+		if restarted.get("ok", false):
+			assert_true(restarted.get("hash") in [_hash(OLD_TEXT), _hash(NEW_TEXT)], "ordinal %d: %s" % [ordinal, restarted])
+		else:
+			assert_true(restarted.get("code") in [&"write_not_committed", &"indeterminate_commit", &"indeterminate_transaction"], "ordinal %d: %s" % [ordinal, restarted])

@@ -70,7 +70,7 @@ const REQUEST_KEYS: Array[String] = [
 ## The capability this class borrows from an injected root-scoped storage; it never opens a file,
 ## chooses a root, or constructs storage on its own.
 const _REQUIRED_STORAGE_CAPABILITY: Array[String] = [
-	"describe_root", "exists", "read_text", "reconcile", "write_atomic",
+	"describe_root", "exists", "read_text", "reconcile", "write_atomic", "write_atomic_reconciled",
 ]
 
 const _DOCUMENT_SCHEMA := {
@@ -283,12 +283,17 @@ func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionar
 	var payload := body + "\n"
 	_remember_validated_text(payload, candidate_document, true, true)
 	tick = _profile_phase(profile, "cache_seed_us", tick)
+	# Owner ruling 2026-09-14: `_refresh_from_disk()` above classified this whole family from disk one
+	# synchronous statement ago and this call is single-threaded, so the write reuses that exact
+	# classification instead of reading and hashing the same ~800 KB final and its `.bak` again. Every
+	# other storage law is the same code path, including the read-back of the promoted final, whose
+	# text comes back here so the confirmation below needs no read of its own.
 	var write_result: Dictionary = _storage.call(
-		&"write_atomic", FIXED_PATH, payload, Callable(self, "_parse_known_storage_witness"), true)
+		&"write_atomic_reconciled", FIXED_PATH, payload, Callable(self, "_parse_known_storage_witness"), true)
 	tick = _profile_phase(profile, "write_atomic_us", tick)
 	if not write_result.get("ok", false):
 		return _from_storage_failure(write_result)
-	var confirmed := _confirm_written_entry(payload, entry, profile)
+	var confirmed := _confirm_written_entry(payload, str(write_result.get("text", "")), entry, profile)
 	if not confirmed.get("ok", false):
 		return confirmed
 	_cached_document = candidate_document
@@ -298,15 +303,13 @@ func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionar
 	return _accepted({"record": entry.duplicate(true), "first_delivery": true})
 
 
-func _confirm_written_entry(expected_payload: String, entry: Dictionary,
+## `durable_text` is the text of the promoted final as the write's own read-back read it off disk --
+## the one read-back storage law keeps, and the same bytes the `read_text()` that used to stand here
+## would have read a statement later. Exact equality with the candidate is the same proof it gave.
+func _confirm_written_entry(expected_payload: String, durable_text: String, entry: Dictionary,
 		profile: Dictionary = {}) -> Dictionary:
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-	var reread: Dictionary = _storage.call(&"read_text", FIXED_PATH)
-	tick = _profile_phase(profile, "reread_us", tick)
-	if not reread.get("ok", false):
-		return _from_storage_failure(reread)
-	# Exact reread equality proves the validated candidate bytes survived unchanged.
-	if str(reread.get("value", "")) != expected_payload:
+	if durable_text != expected_payload:
 		return _rejected(&"publication_record_unverified", "the re-read bytes are not the exact candidate")
 	var known: Dictionary = _parse_known_document(expected_payload)
 	if not known.get("ok", false):
@@ -355,10 +358,11 @@ func _refresh_from_disk() -> Dictionary:
 		return _from_storage_failure(reconciled)
 	if not reconciled.get("exists", false):
 		return _rejected(&"publication_ledger_unreadable", "the seeded document is unexpectedly absent")
-	var read_result: Dictionary = _storage.call(&"read_text", FIXED_PATH)
-	if not read_result.get("ok", false):
-		return _from_storage_failure(read_result)
-	var text := str(read_result.get("value", ""))
+	# Owner ruling 2026-09-14: reconcile just read, hashed and validated the exact final bytes, so it
+	# hands their text back with its result. The `read_text()` that used to follow re-read and
+	# re-hashed the same ~800 KB final purely to check it against the lease reconcile had granted one
+	# statement earlier; nothing can run between the two, so that check could only ever pass.
+	var text := str(reconciled.get("text", ""))
 	var parsed: Dictionary = _parse_known_document(text)
 	if not parsed.get("ok", false):
 		return parsed

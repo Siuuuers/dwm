@@ -608,6 +608,12 @@ class FailingStorage:
 			return {"ok": false, "code": &"write_not_committed", "message": relative_path}
 		return _inner.write_atomic(relative_path, text, validator, keep_backup)
 
+	func write_atomic_reconciled(relative_path: String, text: String, validator: Callable,
+			keep_backup: bool = true) -> Dictionary:
+		if fail_write:
+			return {"ok": false, "code": &"write_not_committed", "message": relative_path}
+		return _inner.write_atomic_reconciled(relative_path, text, validator, keep_backup)
+
 
 ## The record the OLD whole-document path produced for a request: the exact entry the ledger builds,
 ## canonically emitted and strict-parsed back (StringName -> String, typed Array -> untyped,
@@ -1049,3 +1055,110 @@ func test_external_bytes_after_two_writes_still_compose_the_full_writers_bytes()
 	durable_keys.sort()
 	assert_eq(durable_keys, [external_key, after_key],
 		"a fresh instance must read exactly the two durable records")
+
+
+# ---- owner ruling 2026-09-14: one disk read and one hash per family artifact per write ----
+#
+# One `record_before_emit()` used to read and hash the live 800 KB final FIVE times and its `.bak`
+# twice: `_refresh_from_disk()`'s `reconcile()` classifies the whole family, its `read_text()` reads
+# and hashes the final again against the lease, `write_atomic()` reconciles the whole family a
+# SECOND time just to learn the previous hash, the promoted final is read back, and
+# `_confirm_written_entry()`'s `read_text()` reads and hashes it once more. Storage law does not
+# move: every write still begins from a fresh disk classification of the whole family, the lease is
+# never trusted on its own, and the read-back of the promoted final stays. What changes is that the
+# ONE classification `_refresh_from_disk()` already paid for now answers the write that immediately
+# follows it -- sound only because `record_before_emit()` is synchronous and single-threaded, so
+# nothing can mutate the family between the two -- and the text each read already produced is handed
+# back with its result instead of being read off disk again.
+
+const MEMORY_ROOT := "memory/desktop-ledger"
+
+
+## The real ledger over the real JsonFileStorage over FakeFileOps, which is the only way this suite
+## can count disk reads and hashes per artifact. Every other row keeps its real temporary root.
+func _traced_stack() -> Dictionary:
+	var ops := FakeFileOps.new()
+	var storage := JsonFileStorage.new(MEMORY_ROOT, ops)
+	return {"ops": ops, "ledger": _loaded(storage), "final": MEMORY_ROOT.path_join(FIXED_PATH)}
+
+
+func _read_counts_by_path(trace: Array) -> Dictionary:
+	var counts := {}
+	for entry: Dictionary in trace:
+		if entry.get("operation", &"") == &"read_bytes":
+			var path := str(entry.get("path", ""))
+			counts[path] = int(counts.get(path, 0)) + 1
+	return counts
+
+
+func _hash_call_count(trace: Array) -> int:
+	var total := 0
+	for entry: Dictionary in trace:
+		if entry.get("operation", &"") == &"sha256":
+			total += 1
+	return total
+
+
+func _reads_after_the_first_write(trace: Array) -> Array:
+	var writing := false
+	var reads: Array = []
+	for entry: Dictionary in trace:
+		var operation: StringName = entry.get("operation", &"")
+		if operation == &"write_bytes":
+			writing = true
+		elif writing and operation == &"read_bytes":
+			reads.append(str(entry.get("path", "")))
+	return reads
+
+
+func test_one_record_reads_and_hashes_each_family_artifact_once_before_the_write() -> void:
+	if not _require_ledger():
+		return
+	var stack := _traced_stack()
+	var ledger: Object = stack["ledger"]
+	var ops: RefCounted = stack["ops"]
+	var final_path: String = stack["final"]
+	var expected_records := {}
+	for id_value: String in ["budget-1", "budget-2"]:
+		var key := "board_fate:" + id_value
+		var seeded_request := _board_fate_request(id_value)
+		assert_true(ledger.record_before_emit(seeded_request).get("ok", false), key)
+		expected_records[key] = _old_path_record(key, seeded_request)
+	var start: int = (ops.operation_trace() as Array).size()
+
+	var request := _board_fate_request("budget-3")
+	var recorded: Dictionary = ledger.record_before_emit(request)
+	assert_true(recorded.get("ok", false), str(recorded))
+	expected_records["board_fate:budget-3"] = _old_path_record("board_fate:budget-3", request)
+	var traced: Array = (ops.operation_trace() as Array).slice(start)
+	assert_eq(_read_counts_by_path(traced), {final_path: 2, final_path + ".bak": 1},
+		"one write classifies the final once, reads it back once, and classifies the backup once")
+	assert_eq(_hash_call_count(traced), 4,
+		"and hashes exactly those three reads plus the outgoing bytes")
+	assert_eq(_reads_after_the_first_write(traced), [final_path],
+		"the only read after writing starts is the promoted final")
+	var persisted: Dictionary = ops.snapshot_persisted()
+	assert_eq((persisted[final_path] as PackedByteArray).get_string_from_utf8(),
+		_golden_document(expected_records),
+		"the deduped write lands exactly the bytes a full canonical emit lands")
+
+
+func test_foreign_bytes_between_two_records_still_refuse_with_the_storage_code() -> void:
+	if not _require_ledger():
+		return
+	var stack := _traced_stack()
+	var ledger: Object = stack["ledger"]
+	var ops: RefCounted = stack["ops"]
+	var final_path: String = stack["final"]
+	assert_true(ledger.record_before_emit(_board_fate_request("fresh-1")).get("ok", false))
+	var start: int = (ops.operation_trace() as Array).size()
+	assert_true(ledger.record_before_emit(_board_fate_request("fresh-2")).get("ok", false))
+	assert_eq(int(_read_counts_by_path((ops.operation_trace() as Array).slice(start)).get(final_path, 0)), 2,
+		"the classification is per write: the previous write's reading never answers for this one")
+
+	assert_true(ops.write_bytes(final_path, "{ not json".to_utf8_buffer()).get("ok", false))
+	assert_true(ops.flush_path(final_path).get("ok", false))
+	var refused: Dictionary = ledger.record_before_emit(_board_fate_request("fresh-3"))
+	assert_false(refused.get("ok", true), str(refused))
+	assert_eq(refused.get("code"), &"indeterminate_transaction",
+		"foreign bytes between two records still refuse with exactly the storage code")

@@ -9,6 +9,14 @@ const HASH_PATTERN := "^[0-9a-f]{64}$"
 var _root_dir: String
 var _file_ops: RefCounted
 var _leases: Dictionary = {}
+## The facts the LAST public `reconcile()` of a path proved from disk, kept only so ONE synchronous
+## write of that same path can reuse them instead of classifying the same family a second time
+## (owner ruling 2026-09-14). Erased at the top of every mutation exactly as a lease is, and consumed
+## by the write that reuses it, so it can never answer for a later call. The reuse is sound only
+## because the owner that opts in -- `DesktopPublicationLedger.record_before_emit()` -- runs its
+## reconcile and its write inside ONE synchronous, single-threaded call, with nothing able to run,
+## and therefore nothing able to mutate the family, in between.
+var _reconciled: Dictionary = {}
 ## Optional pre-write gate (dwm-634.1). The owner of this root may run one Callable before any
 ## durable mutation, so a save can first persist state that the saved bytes will reference. A
 ## refusal fails the write closed before any marker or candidate byte is written.
@@ -79,6 +87,7 @@ func write_atomic_if_revision(relative_path: String, text: String, validator: Ca
 	if not admitted.get("ok", false):
 		return admitted
 	_leases.erase(relative_path)
+	_reconciled.erase(relative_path)
 	var marker := _revision_marker(relative_path, "write_revision", admitted,
 		_file_ops.call(&"sha256", bytes))
 	var step := _write_marker(relative_path, marker)
@@ -123,6 +132,7 @@ func remove_if_revision(relative_path: String, revision: String) -> Dictionary:
 	if not admitted.get("ok", false):
 		return admitted
 	_leases.erase(relative_path)
+	_reconciled.erase(relative_path)
 	if admitted["previous_hash"] == null:
 		return {"ok": true, "exists": false}
 	var marker := _revision_marker(relative_path, "delete_revision", admitted, null)
@@ -279,7 +289,7 @@ func _finish_revision_write(relative_path: String, validator: Callable, marker: 
 	if not cleaned.get("ok", false):
 		return _fatal(&"indeterminate_commit", "Marker cleanup requires reconciliation")
 	_set_lease(relative_path, final)
-	return {"ok": true, "exists": true, "value": final["value"].duplicate(true), "hash": final["hash"]}
+	return {"ok": true, "exists": true, "value": final["value"].duplicate(true), "hash": final["hash"], "text": final["text"]}
 
 func _recover_revision_start(relative_path: String, validator: Callable, expected: Dictionary) -> Dictionary:
 	var marker := _classify_marker(_marker_path(relative_path), relative_path)
@@ -321,8 +331,20 @@ func read_text(relative_path: String) -> Dictionary:
 		return _failure(&"reconcile_required", "Final artifact is no longer valid UTF-8")
 	return {"ok": true, "value": decoded["value"]}
 
+## Public reconcile. Identical to `_reconcile()` below except that a proved classification is also
+## remembered for the ONE `write_atomic_reconciled()` of this path that may immediately follow it.
+## The write inside `write_atomic()` takes `_reconcile()` directly, so a write can never leave a
+## classification of a family it is in the middle of mutating behind it.
 func reconcile(relative_path: String, validator: Callable) -> Dictionary:
+	var result := _reconcile(relative_path, validator)
+	if result.get("ok", false):
+		_reconciled[relative_path] = {"validator": validator,
+			"exists": result.get("exists", false), "hash": result.get("hash")}
+	return result
+
+func _reconcile(relative_path: String, validator: Callable) -> Dictionary:
 	_leases.erase(relative_path)
+	_reconciled.erase(relative_path)
 	var path_result := _validate_request(relative_path, validator)
 	if not path_result.get("ok", false):
 		return path_result
@@ -351,14 +373,34 @@ func reconcile(relative_path: String, validator: Callable) -> Dictionary:
 			if not remove_next.get("ok", false):
 				return remove_next
 		_set_lease(relative_path, final)
-		return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"]}
+		return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"], "text": final["text"]}
 	if final["state"] == &"absent" and next["state"] == &"absent" and backup["state"] == &"absent":
 		_set_absent_lease(relative_path)
 		return {"ok": true, "exists": false}
 	return _fatal(&"indeterminate_transaction", "Unowned or invalid transaction artifacts were preserved")
 
 func write_atomic(relative_path: String, text: String, validator: Callable, keep_backup: bool = true) -> Dictionary:
+	return _write_atomic(relative_path, text, validator, keep_backup, false)
+
+## Opt-in twin of `write_atomic()` for an owner that called `reconcile()` on this same instance and
+## path inside ONE synchronous call and is now writing what that reconcile told it (owner ruling
+## 2026-09-14). The classification reconcile already proved from disk answers this write's "what is
+## already there", so the family is read and hashed once per write rather than twice. Nothing else
+## differs: the same marker sequence, the same temp write and flush, the same rename order, the same
+## one read-back of the promoted final, and the same refusal codes in the same order -- it is
+## literally the same body. A classification that is missing (already consumed, erased by a mutation
+## of this path, or taken with a different validator) simply takes the full reconcile below, so the
+## reuse can only ever be skipped, never wrong.
+func write_atomic_reconciled(relative_path: String, text: String, validator: Callable, keep_backup: bool = true) -> Dictionary:
+	return _write_atomic(relative_path, text, validator, keep_backup, true)
+
+func _write_atomic(relative_path: String, text: String, validator: Callable, keep_backup: bool,
+		reuse_reconciled: bool) -> Dictionary:
 	_leases.erase(relative_path)
+	var reconciled: Dictionary = {}
+	if reuse_reconciled:
+		reconciled = _reconciled.get(relative_path, {})
+	_reconciled.erase(relative_path)
 	var request := _validate_request(relative_path, validator)
 	if not request.get("ok", false):
 		return request
@@ -372,9 +414,15 @@ func write_atomic(relative_path: String, text: String, validator: Callable, keep
 	if not gate.get("ok", false):
 		return gate
 	var outgoing_hash: String = _file_ops.call(&"sha256", outgoing_bytes)
-	var existing := reconcile(relative_path, validator)
-	if not existing.get("ok", false):
-		return existing
+	# A configured pre-write hook is the one thing that CAN run between an owner's reconcile and its
+	# write, so a root that owns one never reuses a classification taken before the hook ran.
+	var existing: Dictionary = {}
+	if not reconciled.is_empty() and not _before_write.is_valid() and reconciled.get("validator") == validator:
+		existing = reconciled
+	else:
+		existing = _reconcile(relative_path, validator)
+		if not existing.get("ok", false):
+			return existing
 	var previous_hash: Variant = existing.get("hash") if existing.get("exists", false) else null
 	var intent := {
 		"operation": "write", "relative_path": relative_path,
@@ -432,9 +480,10 @@ func write_atomic(relative_path: String, text: String, validator: Callable, keep
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
 	_set_lease(relative_path, verified_final)
-	return {"ok": true, "exists": true, "value": (verified_final["value"] as Dictionary).duplicate(true), "hash": outgoing_hash}
+	return {"ok": true, "exists": true, "value": (verified_final["value"] as Dictionary).duplicate(true), "hash": outgoing_hash, "text": verified_final["text"]}
 
 func remove(relative_path: String) -> Dictionary:
+	_reconciled.erase(relative_path)
 	var path_result := _validate_relative_path(relative_path)
 	if not path_result.get("ok", false):
 		return path_result
@@ -513,7 +562,7 @@ func _finish_new_winner(relative_path: String, validator: Callable, marker: Dict
 	if verified["state"] != &"valid" or verified["hash"] != marker["outgoing_hash"]:
 		return _fatal(&"indeterminate_commit", "Final changed during transaction cleanup")
 	_set_lease(relative_path, verified)
-	return {"ok": true, "exists": true, "value": (verified["value"] as Dictionary).duplicate(true), "hash": verified["hash"]}
+	return {"ok": true, "exists": true, "value": (verified["value"] as Dictionary).duplicate(true), "hash": verified["hash"], "text": verified["text"]}
 
 func _recover_known_write(intent: Dictionary, validator: Callable) -> Dictionary:
 	_leases.erase(intent["relative_path"])
@@ -526,7 +575,7 @@ func _recover_known_write(intent: Dictionary, validator: Callable) -> Dictionary
 		if _file_ops.call(&"exists", _next_path(relative_path)):
 			_file_ops.call(&"remove_path", _next_path(relative_path))
 		_set_lease(relative_path, final)
-		return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"]}
+		return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"], "text": final["text"]}
 	var next := _classify_document(_next_path(relative_path), validator)
 	if next["state"] == &"valid" and next["hash"] == intent["outgoing_hash"]:
 		var promote: Dictionary = _file_ops.call(&"rename_path", _next_path(relative_path), _path(relative_path))
@@ -535,7 +584,7 @@ func _recover_known_write(intent: Dictionary, validator: Callable) -> Dictionary
 			if final["state"] == &"valid" and final["hash"] == intent["outgoing_hash"]:
 				_file_ops.call(&"remove_path", _marker_path(relative_path))
 				_set_lease(relative_path, final)
-				return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"]}
+				return {"ok": true, "exists": true, "value": (final["value"] as Dictionary).duplicate(true), "hash": final["hash"], "text": final["text"]}
 	var previous: Variant = intent["previous_hash"]
 	if intent["previous_absent"] and final["state"] == &"absent":
 		_file_ops.call(&"remove_path", _next_path(relative_path))
