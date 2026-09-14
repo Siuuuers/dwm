@@ -1,0 +1,11 @@
+{
+  "README.md": "98fa1c47efdf2a9b7063d2bd23f6081bb84f332a644b399780724cd61dce6c73",
+  "label-audit.json": "4dd7b49d6a7ba940828ae0da06db659929e1985edf5d4b1ea430b83dff21fee7",
+  "logs/public-query-contract-existing-baseline.log": "577548e644f17d9ec24539f5b8ff8690e30efe0167d607d55742d327944223ab",
+  "logs/public-query-contract-final.log": "3f958f07d23df4f502c03eb3fa3bc7fb9133b45e5ee89ee06d0b6d6c8095625a",
+  "logs/public-query-contract-focused.log": "5454c14ee3a1620a713bef154394d22590c88e49e6eab6c1cf1b7e2478d31975",
+  "logs/public-query-contract-game-inventory.log": "a53e19493d2b5430e5b8f01b2daa5967ae9907ad22334551efa67e1ba366f5ce",
+  "logs/public-query-contract-save-inventory.log": "a53e19493d2b5430e5b8f01b2daa5967ae9907ad22334551efa67e1ba366f5ce",
+  "runs.jsonl": "bbd80cbca6a9b30f05e33fb6403f68a330f21d3b6a4f95679fd9abc05f948850",
+  "source-sha256.json": "d2d73153efcfa874ee0c8697f4db54577d1412e1193ace83a5e0a15ac9af3ea2"
+}
