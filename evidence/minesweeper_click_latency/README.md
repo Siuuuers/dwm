@@ -259,3 +259,17 @@ trailing CLICK_LATENCY_MODE line. The runner is untouched.
   path beyond the probe is the same _minesweeper_app_benchmark every fresh run exercises; a
   positive seeded play measurement needs either the dwm-6fl fix (live data) or a seed captured
   while the desktop is mounted with rounds left.
+
+### Post-merge re-verification (merge commit 6eea08ec6, master 835e50ee7)
+
+- settlement4-post-merge-green-6eea08ec6.log: the settlement3 31-suite set plus
+  test_desktop_publication_ledger, 32 suites, 582 passing / 0 failing, both contract evidence
+  suites included, so no further re-seal is needed after the merge.
+- settlement4-post-merge-bench-6eea08ec6.log: App win settled 733 ms, loss 623 ms, dating win
+  396 ms, App first reveal 265 ms, routine reveal median 34 ms on the merged tree (same slow-machine
+  day as every settlement4 run above).
+
+Session 4 summary: the board_fate ledger write lost its emit + re-parse and two redundant canonical
+passes (100-225 ms to 42-70 ms per terminal frame), the prepare side is now profiled and shows
+SaveDocumentSchema.build as the next 25-62 ms target, the benchmark can replay a seeded user
+directory, and the live-data stress run is blocked by dwm-6fl.
