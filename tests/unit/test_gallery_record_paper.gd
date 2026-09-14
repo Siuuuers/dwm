@@ -274,13 +274,48 @@ func test_accept_releases_visualize_hidden_focus_and_accessibility_callbacks_cla
 	assert_gt(item, 0.0)
 	_paper._accessibility_scroll(DisplayServer.SCROLL_UNIT_PAGE, 1)
 	assert_eq(_paper.scroll_offset, minf(item + 512, _max_scroll()))
-	_paper._accessibility_page(-1)
+	var backward := Callable(_paper, &"_accessibility_page").bind(-1)
+	var forward := Callable(_paper, &"_accessibility_page").bind(1)
+	backward.call(DisplayServer.SCROLL_UNIT_PAGE)
 	assert_eq(_paper.scroll_offset, maxf(0, minf(item + 512, _max_scroll()) - 512))
-	_paper._accessibility_page(-1)
+	backward.call(null)
 	assert_eq(_paper.scroll_offset, 0.0, "accessibility backward clamps at the start")
-	_paper._accessibility_page(1)
+	forward.call(DisplayServer.SCROLL_UNIT_ITEM)
 	_paper._accessibility_set_offset(Vector2(0, 1.0e9))
 	assert_eq(_paper.scroll_offset, _max_scroll(), "accessibility forward/set-offset clamp at the end")
+
+func test_registered_page_callbacks_accept_deferred_driver_payloads_and_keep_guards() -> void:
+	_paper.set_copy(_long(), "", "en", true)
+	var backward := Callable(_paper, &"_accessibility_page").bind(-1)
+	var forward := Callable(_paper, &"_accessibility_page").bind(1)
+	var middle := minf(1024.0, _max_scroll())
+	_paper.scroll_to(middle)
+	_other.grab_focus()
+
+	backward.call_deferred(null)
+	await get_tree().process_frame
+	assert_eq(_paper.scroll_offset, maxf(0.0, middle - 512.0),
+		"AccessKit's nullable request payload reaches the bound backward callback")
+	assert_true(_other.has_focus(), "assistive page scrolling does not steal semantic focus")
+	var after_backward: float = _paper.scroll_offset
+	forward.call_deferred(DisplayServer.SCROLL_UNIT_PAGE)
+	await get_tree().process_frame
+	assert_eq(_paper.scroll_offset, minf(after_backward + 512.0, _max_scroll()),
+		"AccessKit's ScrollUnit payload reaches the bound forward callback")
+	assert_true(_other.has_focus())
+
+	_paper.set_interactive(false)
+	var disabled_offset: float = _paper.scroll_offset
+	backward.call_deferred(DisplayServer.SCROLL_UNIT_ITEM)
+	await get_tree().process_frame
+	assert_eq(_paper.scroll_offset, disabled_offset,
+		"a registered callback cannot bypass the noninteractive guard")
+	_paper.set_interactive(true)
+	_paper.set_copy("Short record", "", "en", true)
+	forward.call_deferred(null)
+	await get_tree().process_frame
+	assert_false(_paper.has_overflow())
+	assert_eq(_paper.scroll_offset, 0.0, "a registered callback cannot scroll fitting copy")
 
 func test_touch_drag_over_retained_actions_scrolls_without_activation_or_focus_theft() -> void:
 	_paper.set_copy(_long(), "", "en", true)
