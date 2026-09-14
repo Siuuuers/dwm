@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-09-14T14:15:11.4638495Z",
+  "ok": true,
+  "code": "ok",
+  "failures": [],
+  "source_log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\gallery-empty-native-zhCN.log",
+  "target": {
+    "pid": 13772,
+    "repository_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls",
+    "script": "res://tests/manual/verify_gallery_empty_accessibility.gd",
+    "expected_window_title": "DWM Gallery Empty 13772",
+    "expected_empty": "\u8fd9\u91cc\u5c1a\u672a\u6536\u5f55\u4efb\u4f55\u8bb0\u5f55\u3002",
+    "expected_return": "Return",
+    "command_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\bd773157-4cbb-4ba8-a373-6c7f16eedef8\\dwm_test_root\\gallery-empty-command.json",
+    "completion_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\bd773157-4cbb-4ba8-a373-6c7f16eedef8\\dwm_test_root\\gallery-empty-complete.json"
+  },
+  "process": {
+    "process_id": 13772,
+    "name": "Godot_v4.6.3-stable_mono_win64.exe",
+    "command_line": "\"C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64.exe\" --headless --path C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls --log-file C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\gallery-empty-native-zhCN.log --display-driver windows --rendering-method gl_compatibility --rendering-driver opengl3 --accessibility always --position -32000,-32000 -s res://tests/manual/verify_gallery_empty_accessibility.gd -- --phase2r-bootstrap-mode=test_manual --gallery-test-locale=zh_CN"
+  },
+  "window": {
+    "name": "DWM (DEBUG) ",
+    "process_id": 13772,
+    "automation_id": "",
+    "native_window_handle": 855560,
+    "native_title": "DWM Gallery Empty 13772"
+  },
+  "identifiers": {
+    "live_region_changed_event_id": 20024,
+    "live_setting_property_id": 30135,
+    "polite": 1,
+    "off": 0
+  },
+  "phases": {
+    "baseline": {
+      "projection": {
+        "empty_count": 0,
+        "empty_control_type": "",
+        "empty_live_setting": -1,
+        "list_item_count": 0,
+        "buttons": [
+          {
+            "name": "Return",
+            "focused": false
+          }
+        ]
+      },
+      "raw_events": []
+    },
+    "open": {
+      "projection": {
+        "empty_count": 1,
+        "empty_control_type": "ControlType.Text",
+        "empty_live_setting": 1,
+        "list_item_count": 0,
+        "buttons": [
+          {
+            "name": "Return",
+            "focused": true
+          }
+        ]
+      },
+      "matching_events": [
+        {
+          "Name": "\u8fd9\u91cc\u5c1a\u672a\u6536\u5f55\u4efb\u4f55\u8bb0\u5f55\u3002",
+          "ControlType": "ControlType.Text",
+          "ProcessId": 13772,
+          "LiveSetting": 1,
+          "ObservedAtUtc": "2026-09-14T14:15:09.0682300Z"
+        }
+      ]
+    },
+    "refresh": {
+      "projection": {
+        "empty_count": 1,
+        "empty_control_type": "ControlType.Text",
+        "empty_live_setting": 0,
+        "list_item_count": 0,
+        "buttons": [
+          {
+            "name": "Return",
+            "focused": true
+          }
+        ]
+      },
+      "matching_events": [
+        {
+          "Name": "\u8fd9\u91cc\u5c1a\u672a\u6536\u5f55\u4efb\u4f55\u8bb0\u5f55\u3002",
+          "ControlType": "ControlType.Text",
+          "ProcessId": 13772,
+          "LiveSetting": 1,
+          "ObservedAtUtc": "2026-09-14T14:15:09.0682300Z"
+        }
+      ]
+    },
+    "reopen": {
+      "projection": {
+        "empty_count": 1,
+        "empty_control_type": "ControlType.Text",
+        "empty_live_setting": 1,
+        "list_item_count": 0,
+        "buttons": [
+          {
+            "name": "Return",
+            "focused": true
+          }
+        ]
+      },
+      "matching_events": [
+        {
+          "Name": "\u8fd9\u91cc\u5c1a\u672a\u6536\u5f55\u4efb\u4f55\u8bb0\u5f55\u3002",
+          "ControlType": "ControlType.Text",
+          "ProcessId": 13772,
+          "LiveSetting": 1,
+          "ObservedAtUtc": "2026-09-14T14:15:09.0682300Z"
+        },
+        {
+          "Name": "\u8fd9\u91cc\u5c1a\u672a\u6536\u5f55\u4efb\u4f55\u8bb0\u5f55\u3002",
+          "ControlType": "ControlType.Text",
+          "ProcessId": 13772,
+          "LiveSetting": 1,
+          "ObservedAtUtc": "2026-09-14T14:15:10.9298675Z"
+        }
+      ]
+    }
+  },
+  "raw_events": [
+    {
+      "Name": "\u8fd9\u91cc\u5c1a\u672a\u6536\u5f55\u4efb\u4f55\u8bb0\u5f55\u3002",
+      "ControlType": "ControlType.Text",
+      "ProcessId": 13772,
+      "LiveSetting": 1,
+      "ObservedAtUtc": "2026-09-14T14:15:09.0682300Z"
+    },
+    {
+      "Name": "\u8fd9\u91cc\u5c1a\u672a\u6536\u5f55\u4efb\u4f55\u8bb0\u5f55\u3002",
+      "ControlType": "ControlType.Text",
+      "ProcessId": 13772,
+      "LiveSetting": 1,
+      "ObservedAtUtc": "2026-09-14T14:15:10.9298675Z"
+    }
+  ]
+}

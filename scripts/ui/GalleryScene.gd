@@ -38,6 +38,7 @@ var _localization: Node
 var _status_key := ""
 var _retry_signature_id := ""
 var _announced_start_signature_id := ""
+var _announced_empty := false
 var _selected_id := ""
 var _index_offset := 0.0
 var _index_extent := 0.0
@@ -210,6 +211,7 @@ func _reveal_paper_action(control: Control) -> void:
 
 func open_in_title_host() -> void:
 	show()
+	_announced_empty = false
 	_retry_signature_id = ""
 	_selected_id = ""
 	_refresh_presentation()
@@ -504,6 +506,12 @@ func _set_replay_status(key: String) -> void:
 	_status_key = key
 	if not is_instance_valid(_replay_status): return
 	_replay_status.accessibility_live = DisplayServer.LIVE_OFF
+	if key != "gallery.empty": _announced_empty = false
+	if key == "gallery.empty" and not _announced_empty and is_visible_in_tree():
+		_replay_status.text = ""
+		_replay_status.accessibility_name = ""
+		_replay_status.accessibility_live = DisplayServer.LIVE_POLITE
+		_announced_empty = true
 	if _retry_signature_id.is_empty(): _announced_start_signature_id = ""
 	if key == "gallery.replay.start_failed" and _announced_start_signature_id != _retry_signature_id and is_visible_in_tree():
 		_replay_status.text = ""

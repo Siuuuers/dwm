@@ -1,0 +1,6 @@
+{
+  "scripts/ui/GalleryScene.gd": "c34e903d9c493fb899be2348ea0ea990ff4e8392b6260d42e866fc06e0f9ba4c",
+  "tests/integration/test_gallery_empty_announcement.gd": "ecf0a64d98b58f0f3733c3acda23dddd509f5ced5f89874f37f733a5a6940a27",
+  "tests/manual/verify_gallery_empty_accessibility.gd": "590cf89bf5b9637670b6aa0cbbf7f15f0a4acbbf5366c19e15fabf60f93a7d46",
+  "tools/testing/Invoke-GalleryEmptyAccessibility.ps1": "c7aaa4b9df8130a6deed6a0425f6bb1a0baf443112582521ba45169ae05129f3"
+}

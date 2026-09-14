@@ -1,0 +1,12 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+READY {"command_path":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/23c86a66-f141-43e6-9e3c-73cea2fe5d8b/dwm_test_root/gallery-empty-command.json","completion_path":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/23c86a66-f141-43e6-9e3c-73cea2fe5d8b/dwm_test_root/gallery-empty-complete.json","expected_empty":"這裡尚未收錄任何記錄。","expected_return":"Return","pid":7832,"window_title":"DWM Gallery Empty 7832"}
+PHASE open
+PHASE refresh
+PHASE reopen
+RESULT {"code":"ok","ok":true,"phases":["open","refresh","reopen"],"pid":7832}
