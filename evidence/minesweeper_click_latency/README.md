@@ -918,3 +918,30 @@ big-document splice cost from an earlier session) does not exist on any run-star
 reaches. Under the ruling that run-start remember lands last and only if a win remains, it is not
 committed; the production and test diffs are discarded and the evidence logs above record the
 measurement.
+
+### Post-merge re-verification (merge commit 45bf3b314, master aac41e285)
+
+Master gained six commits (Gallery, contacts and beads) between the branch point and the merge; none
+touches a file this branch changed or a path either handoff contract binds (42 bound paths intersected
+with the 32 changed), so the merge is clean and no re-seal is needed. Bead dwm-01b (desktop split)
+excludes the Minesweeper panel, grid, cell and register under this bead's ownership.
+
+- settlement7-post-merge-green-45bf3b314.log: the 35-suite set, 662 passing / 0 failing, both contract
+  evidence suites green.
+- settlement7-post-merge-bench-45bf3b314-live.log: the live copy (Log In 22.9 s). Routine reveal median
+  21.1 ms (24.1 at the session baseline, 30.4 at the session-6 baseline), 244-click set 26.5 ms (30.4),
+  App first reveal 69 ms (78), New Board first reveal 174 ms (165), win settled two frames after the
+  click 926 ms (1022), loss 1008 ms (885; this run's loss is the one loaded figure, its ledger writes
+  62.5 ms median against 50.5 in the quiet Step 3 run), accept_prepared_action 505 ms (494).
+
+Session 7 summary: the routine click drops from 31 to about 21-27 ms (the panel present without probe
+controls, probe cells and repeated copies; the query without a per-cell neighbour walk), and each
+publication ledger write from 86 to 50-63 ms by reading and hashing the family once per write under
+the unchanged reconcile law, which takes about 100-140 ms off the terminal frame in quiet runs. The
+write_atomic floor was attributed (five file creates per write, four of them marker rewrites, 3-6 ms
+each on this volume) and ruled to stay. Run-start remember was measured and not taken. Remaining
+long-history costs, in order: the ruled floor (about ten writes per terminal click at 25-45 ms each),
+SaveDocumentSchema outgoing validation at 25-33 ms per big autosave (outgoing_schema, untouched this
+session), the ledger's compose and one classification (7-16 and 11-16 ms per write), and the two owner
+reads of the routine click whose remaining cost is the schema's board copy (line-bound) and the
+owner's own copy (contract-bound).
