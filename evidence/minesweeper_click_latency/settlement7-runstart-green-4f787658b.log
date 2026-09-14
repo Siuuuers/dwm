@@ -1,0 +1,253 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/ba23672c-397a-4c1a-820f-f88b1af595a2/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+* test_start_new_run_builds_day1_run_b
+* test_start_new_run_requires_identity_issuer
+* test_start_new_run_allocates_a_fresh_identity_per_call
+* test_start_new_run_requires_participants
+* test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity
+* test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+* test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery
+* test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation
+* test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication
+* test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate
+* test_caller_cannot_override_captured_dark_intent
+* test_new_run_remembers_the_committed_initial_bundle
+* test_first_autosave_after_a_new_run_splices_the_initial_bundle
+* test_a_resumed_new_run_remembers_the_initial_bundle_it_did_not_recommit
+* test_a_journal_bundle_the_written_document_does_not_describe_is_never_remembered
+16/16 passed.
+
+
+res://tests/integration/test_prepared_new_run.gd
+* test_prepare_is_pure_and_replaces_only_one_transient_token
+* test_prepare_counts_nonempty_unreadable_autosave_but_not_zero_bytes
+Unicode parsing error, some characters were replaced with � (U+FFFD): Invalid UTF-8 leading byte (ff)
+* test_cancel_requires_exact_token_and_performs_no_io
+* test_commit_consumes_token_when_profile_autosave_or_live_source_changes
+* test_prepare_reports_real_live_and_autosave_replacement
+* test_success_enters_existing_durable_new_run_with_frozen_dark
+* test_predecision_failure_retains_same_token_for_exact_retry
+* test_postdecision_failure_returns_transaction_and_never_replays_ui_token
+* test_prepare_refuses_retained_recovery_without_journal_io
+* test_fresh_prepare_defers_durable_pending_discovery_to_gated_commit
+10/10 passed.
+
+
+res://tests/integration/test_new_run_pair_durability.gd
+* test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed
+* test_predecision_failure_preserves_both_targets_and_has_no_live_effects
+* test_profile_write_failure_retains_decision_and_startup_settles_without_live_launch
+* test_partial_live_replay_uses_same_snapshot_with_fresh_route_token
+* test_foreign_autosave_bytes_and_pending_marker_refuse_without_reconciliation
+* test_completed_retry_does_not_restore_old_targets_after_subsequent_changes
+* test_decision_and_autosave_write_cuts_retry_exact_same_retained_materials
+* test_busy_unrelated_gate_refuses_before_unloaded_journal_can_reconcile
+8/8 passed.
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit
+* test_supplied_checkpoint_receipt_rejects_equal_float_ordinal
+* test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization
+* test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation
+* test_evicted_checkpoints_accept_each_legitimate_recovery_stage
+* test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion
+* test_evicted_reprepared_admission_preserves_its_older_admission_receipt
+* test_evicted_preadmission_checkpoints_preserve_receipt_free_state
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+* test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits
+* test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels
+* test_seeded_journal_without_remembered_texts_writes_full_writer_bytes
+* test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible
+* test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate
+* test_prepare_composes_the_autosave_journal_from_the_journals_own_proofs
+* test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_candidate
+* test_prepare_emits_a_permanent_env_gated_profile_record
+DWM_CHECKPOINT_PROFILE {"autosave":true,"backup_us":53,"checkpoint_kind":"post_result","document_build_us":662,"elapsed_us":1265,"journal_prepare_us":13,"ok":true,"run_snapshot_build_us":514,"scope":"save_checkpoint_prepare","text_validator_calls_since_prepare":0,"text_validator_us_since_prepare":0,"view_capture_us":18}
+37/37 passed.
+
+
+res://tests/unit/test_checkpoint_journal.gd
+* test_checkpoint_journal_exists
+* test_reset_peek_and_run_mismatch
+* test_failed_preparation_never_consumes_sequence
+* test_commit_advances_and_duplicate_commit_rejects
+* test_every_accepted_checkpoint_kind_including_line
+* test_retention_after_forty_lines_and_semantic_anchor
+* test_reset_with_initial_replaces_run_and_restore_reinstates
+* test_prepare_seed_selects_and_excludes
+* test_seed_replaces_same_counter_contents_and_history_and_can_repeat
+* test_semantic_recovery_history_is_bounded_without_changing_current_snapshot
+* test_remember_committed_bundle_text_accepts_only_the_current_checkpoint
+* test_remembered_document_bundle_is_a_private_deep_copy_served_by_reference
+* test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention
+* test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset
+* test_prepare_record_takes_the_fast_path_only_for_the_identical_proven_candidate
+* test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_supplied
+16/16 passed.
+
+
+res://tests/integration/test_save_manager_journal.gd
+* test_record_checkpoint_advances_journal_and_persists_disk
+    [Failed]:  {"code":"invalid_snapshot_input","message":"missing member: schedule_view","ok":false}
+      at line 94
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_record_checkpoint_advances_journal_and_persists_disk (res://tests/integration/test_save_manager_journal.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] test_record_checkpoint_advances_journal_and_persists_disk (res://tests/integration/test_save_manager_journal.gd:95)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_real_port_preview_is_pure_and_matches_prepare
+    [Failed]
+      at line 114
+    [Failed]:  ["run-1:1"] expected to equal ["run-1:2"]:  next sequence after the seeded day_start
+      at line 121
+    [Failed]:  {"code":"invalid_snapshot_input","message":"missing member: schedule_view","ok":false}
+      at line 126
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_real_port_preview_is_pure_and_matches_prepare (res://tests/integration/test_save_manager_journal.gd:127)
+   GDScript backtrace (most recent call first):
+       [0] test_real_port_preview_is_pure_and_matches_prepare (res://tests/integration/test_save_manager_journal.gd:127)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_real_port_commit_and_autosave_round_trip
+    [Failed]:  {"code":"invalid_snapshot_input","message":"missing member: schedule_view","ok":false}
+      at line 145
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_real_port_commit_and_autosave_round_trip (res://tests/integration/test_save_manager_journal.gd:146)
+   GDScript backtrace (most recent call first):
+       [0] test_real_port_commit_and_autosave_round_trip (res://tests/integration/test_save_manager_journal.gd:146)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_real_port_rollback_failure_latches_shared_gate
+* test_configure_fatal_latch_matrix
+* test_no_local_gate_or_projector_in_save_layer
+3/6 passed.
+
+
+res://tests/integration/test_new_run_startup_publication.gd
+* test_real_completion_journal_failure_keeps_title_then_same_startup_retry_publishes_once
+STARTUP_FAILED stage=publish_application_ready code=NEW_RUN_RECOVERY_PENDING
+* test_completed_new_run_ignores_unreadable_retired_consequence_sidecar
+* test_real_early_pair_failure_retries_before_profile_initialization_with_same_owners
+STARTUP_FAILED stage=initialize_saves code=NEW_RUN_RECOVERY_PENDING
+STARTUP_FAILED stage=initialize_saves code=NEW_RUN_RECOVERY_PENDING
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_new_run_transaction.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_save_manager_journal.gd
+- test_record_checkpoint_advances_journal_and_persists_disk
+    [Failed]:  {"code":"invalid_snapshot_input","message":"missing member: schedule_view","ok":false}
+          at line 94
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_real_port_preview_is_pure_and_matches_prepare
+    [Failed]:
+          at line 114
+    [Failed]:  ["run-1:1"] expected to equal ["run-1:2"]:  next sequence after the seeded day_start
+          at line 121
+    [Failed]:  {"code":"invalid_snapshot_input","message":"missing member: schedule_view","ok":false}
+          at line 126
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_real_port_commit_and_autosave_round_trip
+    [Failed]:  {"code":"invalid_snapshot_input","message":"missing member: schedule_view","ok":false}
+          at line 145
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+
+Totals
+------
+Scripts               7
+Tests                96
+Passing Tests        93
+Failing Tests         3
+Asserts           2495/2503
+Orphans              24
+Time              27.442s
+
+
+---- 3 failing tests ----

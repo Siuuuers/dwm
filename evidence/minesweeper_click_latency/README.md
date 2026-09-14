@@ -896,3 +896,25 @@ call-for-call unchanged; no signature changed, so every duck-typed storage stand
   write 34.7 / 32.5 ms (write_atomic 24.6 / 31.1: the five file creates of the ruled floor), win 565 /
   565 ms, loss 605 / 659 ms, dating first reveal 241 / 245 ms, dating win 408, loss 412; no end-to-end
   claim beyond the write phases.
+
+### Candidate 3 measured and not taken: run-start remember_committed_bundle_text
+
+The candidate was authored and proven (a private SaveManager._remember_new_run_bundle after the
+run-start reset commit and on the already-committed resume branch, with the port's two gates: the
+journal candidate deep-same to the parsed document's current_snapshot, journal side first, and the
+emitted text a verbatim substring of the bytes _prove_new_run_autosave reread; four rows in
+tests/integration/test_new_run_transaction.gd, settlement7-runstart-red-4f787658b.log 16 tests, 12
+passing / 4 failing against the untouched SaveManager, settlement7-runstart-green-4f787658b.log the
+seven New Run, journal and port suites, 96 tests, 93 passing / 3 failing, the three in
+test_save_manager_journal pre-existing at 87bf33d1c with the same script-error frames as
+settlement6-step2b-attrib-baseline-263c775e7.log). It did what it set out to do: on the fresh account
+the first two saves of the run took the splice path (the save_checkpoint profile's splice_us phase
+times the whole-document FALLBACK stringify, so 719 / 1924 us at fa741a63e became 1 / 1 us,
+settlement7-runstart-profile-4f787658b-fresh-win.log against settlement7-ledger-profile-fa741a63e-fresh-win.log).
+But those documents are 9.6 and 22 KB, so the fallback it removes costs 0.7-1.9 ms and the splice
+envelope adds 0.8-0.9 ms back into stringify_us; the third save onward already spliced before the
+change; and the live copy never starts a run, so the 29-37 ms figure this candidate was carrying (a
+big-document splice cost from an earlier session) does not exist on any run-start path a player
+reaches. Under the ruling that run-start remember lands last and only if a win remains, it is not
+committed; the production and test diffs are discarded and the evidence logs above record the
+measurement.
