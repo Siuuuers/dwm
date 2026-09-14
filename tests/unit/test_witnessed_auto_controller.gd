@@ -12,6 +12,7 @@ class FakeProfile extends Node:
 	var values := {String(AUTO_ENABLED): false, String(AUTO_DELAY): "normal"}
 	var fail_write := false
 	var writes: Array[Array] = []
+	var during_set: Callable
 
 	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
 		return values.get(String(path), fallback)
@@ -22,6 +23,8 @@ class FakeProfile extends Node:
 			return {"ok": false, "code": &"write_failed"}
 		values[String(path)] = value
 		preference_changed.emit(path, value)
+		if during_set.is_valid():
+			during_set.call()
 		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 	func publish(path: StringName, value: Variant) -> void:
@@ -98,6 +101,49 @@ func test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth() -> vo
 	failed.controller._process(1.01)
 	assert_eq(failed.bridge.requests, [failed.bridge.frontier],
 		"a failed Auto-Off commit leaves the previously On mode truthful")
+
+
+func test_explicit_auto_target_is_idempotent_and_retries_the_same_failed_target() -> void:
+	var f := _fixture(false, "short")
+	f.profile.fail_write = true
+	var failed: Dictionary = f.controller.set_auto_enabled(true)
+	assert_false(failed.get("ok", true))
+	assert_eq(failed.get("code"), &"write_failed")
+	assert_false(f.controller.is_auto_enabled())
+	assert_eq(f.profile.writes, [[AUTO_ENABLED, true]])
+
+	f.profile.fail_write = false
+	assert_true(f.controller.set_auto_enabled(true).get("ok", false))
+	assert_true(f.controller.is_auto_enabled())
+	assert_eq(f.profile.writes, [[AUTO_ENABLED, true], [AUTO_ENABLED, true]],
+		"retry repeats the requested target instead of toggling stale state")
+	assert_true(f.controller.set_auto_enabled(true).get("ok", false))
+	assert_eq(f.profile.writes.size(), 2, "the already-current target performs no second write")
+
+	f.profile.publish(AUTO_ENABLED, false)
+	assert_false(f.controller.is_auto_enabled())
+	assert_true(f.controller.set_auto_enabled(true).get("ok", false))
+	assert_true(f.controller.is_auto_enabled())
+	assert_eq(f.profile.writes.back(), [AUTO_ENABLED, true],
+		"an explicit target remains exact after the current preference changes")
+
+
+func test_reentrant_auto_source_replacement_retires_the_old_setter() -> void:
+	var f := _fixture(false, "short")
+	var replacement_profile := FakeProfile.new()
+	replacement_profile.values[String(AUTO_ENABLED)] = true
+	replacement_profile.values[String(AUTO_DELAY)] = "short"
+	var replacement_bridge := FakeBridge.new()
+	add_child_autofree(replacement_profile)
+	add_child_autofree(replacement_bridge)
+	f.profile.during_set = func() -> void:
+		assert_true(f.controller.configure(replacement_profile, replacement_bridge,
+			func() -> bool: return true))
+	var result: Dictionary = f.controller.set_auto_enabled(true)
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"auto_set_retired")
+	assert_true(f.controller.is_auto_enabled(), "replacement profile remains the truthful owner")
+	assert_eq(replacement_profile.writes, [], "the old command never writes the replacement profile")
 
 
 func test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal() -> void:

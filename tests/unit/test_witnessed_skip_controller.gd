@@ -93,6 +93,51 @@ func test_auto_off_is_durable_before_the_first_step_and_failure_does_not_start()
 		"the first step follows the committed Auto Off")
 
 
+func test_explicit_skip_target_is_idempotent_and_retries_the_same_failed_start() -> void:
+	var f := _fixture(true)
+	f.profile.fail_write = true
+	var failed: Dictionary = f.controller.set_skip_active(true)
+	assert_false(failed.get("ok", true))
+	assert_eq(failed.get("code"), &"write_failed")
+	assert_true(f.controller.is_auto_enabled())
+	assert_false(f.controller.is_skip_active())
+	assert_eq(f.profile.calls.size(), 1)
+
+	f.profile.fail_write = false
+	assert_true(f.controller.set_skip_active(true).get("ok", false))
+	assert_true(f.controller.is_skip_active())
+	assert_false(f.controller.is_auto_enabled())
+	assert_eq(f.profile.calls.size(), 2, "retry writes Auto Off again without inverting it")
+	assert_true(f.controller.set_skip_active(true).get("ok", false))
+	assert_eq(f.profile.calls.size(), 2, "an already-active target performs no preference write")
+
+	assert_true(f.controller.set_skip_active(false).get("ok", false))
+	assert_false(f.controller.is_skip_active())
+	assert_true(f.controller.set_skip_active(false).get("ok", false),
+		"Skip Off remains a safe idempotent stop")
+
+
+func test_reentrant_skip_source_replacement_retires_the_old_setter() -> void:
+	var f := _fixture(true)
+	var replacement_profile := FakeProfile.new()
+	var replacement_bridge := FakeBridge.new()
+	var replacement_journal: Array[String] = []
+	replacement_profile.journal = replacement_journal
+	replacement_bridge.journal = replacement_journal
+	add_child_autofree(replacement_profile)
+	add_child_autofree(replacement_bridge)
+	f.profile.during_set = func() -> void:
+		assert_true(f.controller.configure(replacement_profile, replacement_bridge,
+			func() -> bool: return true))
+	var result: Dictionary = f.controller.set_skip_active(true)
+	assert_false(result.get("ok", true))
+	assert_eq(result.get("code"), &"skip_start_retired")
+	assert_false(f.controller.is_skip_active(), "the old command cannot start the replacement source")
+	assert_eq(replacement_profile.calls, [], "the old command never writes the replacement profile")
+	f.controller._process(0.0)
+	assert_eq(replacement_bridge.calls, [], "the replacement source receives no stale Skip step")
+
+
 func test_stop_during_auto_commit_retires_the_pending_start() -> void:
 	var f := _fixture(true)
 	f.profile.during_set = Callable(f.controller, "stop_skip")

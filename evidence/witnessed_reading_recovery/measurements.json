@@ -1,0 +1,48 @@
+{
+	"captures": [
+		{
+			"cancel": "Cancel",
+			"cancel_rect": "[P: (652.0, 418.0), S: (240.0, 72.0)]",
+			"canvas_layer": 3,
+			"caption_text": "Synthetic caption fixture. This sentence checks the current caption at its full requested font size.",
+			"file": "en-150-retry-cancel.png",
+			"locale": "en",
+			"message": "The reading setting could not be changed. Retry, or cancel to keep the current setting.",
+			"retry": "Retry",
+			"retry_rect": "[P: (388.0, 418.0), S: (240.0, 72.0)]",
+			"source_accessibility_withdrawn": true,
+			"source_state_preserved": true,
+			"text_percent": 150
+		},
+		{
+			"cancel": "取消",
+			"cancel_rect": "[P: (652.0, 390.0), S: (240.0, 72.0)]",
+			"canvas_layer": 3,
+			"caption_text": "字幕测试样本。这段合成文字用于检查当前字幕的位置、完整字号与阅读空间。",
+			"file": "zh-CN-150-retry-cancel.png",
+			"locale": "zh-CN",
+			"message": "无法更改阅读设置。请重试，或取消并保留当前设置。",
+			"retry": "重试",
+			"retry_rect": "[P: (388.0, 390.0), S: (240.0, 72.0)]",
+			"source_accessibility_withdrawn": true,
+			"source_state_preserved": true,
+			"text_percent": 150
+		},
+		{
+			"cancel": "取消",
+			"cancel_rect": "[P: (652.0, 390.0), S: (240.0, 72.0)]",
+			"canvas_layer": 3,
+			"caption_text": "字幕測試樣本。這段合成文字用於檢查目前字幕的位置、完整字號與閱讀空間。",
+			"file": "zh-HK-150-retry-cancel.png",
+			"locale": "zh-HK",
+			"message": "無法更改閱讀設定。請重試，或取消並保留目前設定。",
+			"retry": "重試",
+			"retry_rect": "[P: (388.0, 390.0), S: (240.0, 72.0)]",
+			"source_accessibility_withdrawn": true,
+			"source_state_preserved": true,
+			"text_percent": 150
+		}
+	],
+	"failures": [],
+	"scope": "Synthetic captions through the installed Dialogic style with its actual mounted reading-recovery overlay; no authored-story, storage-Retry, or assistive-technology acceptance claim"
+}

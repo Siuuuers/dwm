@@ -1148,3 +1148,291 @@ func test_normal_accept_retires_auto_before_input_then_gives_next_line_a_full_de
 	assert_gt(owner.get("_remaining"), old_remaining + 0.4, "next line receives a fresh full delay")
 	owner.call("_process", old_remaining)
 	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B)
+
+
+func _mounted_reading_recovery(layer: Node) -> Node:
+	var recovery := layer.get_node_or_null("RecoveryLayer/Recovery")
+	assert_not_null(recovery, "the mounted caption owns its reading-command recovery surface")
+	if recovery == null: return null
+	assert_true(recovery is Control)
+	return recovery
+
+
+func _recovery_button(recovery: Node, property_name: StringName) -> Button:
+	var button := recovery.get(property_name) as Button
+	assert_not_null(button, "the recovery prefab exposes %s" % property_name)
+	return button
+
+
+func test_failed_auto_off_owns_visible_recovery_until_native_retry_commits_same_beat() -> void:
+	if not _ready_fixture: return
+	var owner := await _start_mounted_auto("auto_sequence")
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var recovery := _mounted_reading_recovery(layer)
+	if recovery == null: return
+	var auto := layer.transport_rail.get_node("Auto") as Button
+	var retry := _recovery_button(recovery, &"retry_button")
+	if auto == null or retry == null: return
+	owner.call("_process", 0.0)
+	var remaining: float = owner.get("_remaining")
+	var index_before: int = _runtime.current_event_idx
+	var line_before := _current_text_key()
+	var revision_before: int = _profile.get_profile_revision()
+	_fail_next_retryable_profile_write()
+	auto.grab_focus()
+	await _press_focused_enter()
+	_assert_retryable_profile_failure(1)
+	assert_true(bool(_profile.get_preference(&"preferences.reading.auto_enabled", false)),
+		"a rejected Auto Off write leaves the committed mode On")
+	assert_true(owner.is_auto_enabled())
+	assert_eq(_profile.get_profile_revision(), revision_before)
+	assert_true(recovery.is_visible_in_tree(), "the retryable command failure is visibly owned")
+	assert_true(retry.visible)
+	assert_false(retry.disabled)
+	assert_true(retry.has_focus(), "recovery takes native keyboard custody")
+	assert_eq(layer.caption_text.focus_mode, Control.FOCUS_NONE)
+	assert_eq(auto.focus_mode, Control.FOCUS_NONE)
+	owner.call("_process", 90.0)
+	assert_eq(owner.get("_remaining"), remaining,
+		"recovery suspends the host deadline instead of spending hidden time")
+	assert_eq(_runtime.current_event_idx, index_before)
+	var pause_capture: Dictionary = layer.capture_pause_view({"source": "reading-recovery"})
+	assert_true(pause_capture.get("ok", false), str(pause_capture))
+	if not pause_capture.get("ok", false): return
+	assert_true(layer.cover_pause_view(pause_capture.value))
+	assert_false(recovery.is_visible_in_tree(), "Pause covers the recovery surface with the caption")
+	assert_true(layer.restore_pause_view(pause_capture.value))
+	assert_true(recovery.is_visible_in_tree(), "resume restores the same pending recovery")
+	await get_tree().process_frame
+	retry.grab_focus()
+	await _press_focused_enter()
+	assert_false(recovery.is_visible_in_tree())
+	assert_false(bool(_profile.get_preference(&"preferences.reading.auto_enabled", true)))
+	assert_false(owner.is_auto_enabled())
+	assert_eq(_profile.get_profile_revision(), revision_before + 1,
+		"native Retry commits the retained target exactly once")
+	assert_eq(_runtime.current_event_idx, index_before)
+	assert_eq(_current_text_key(), line_before, "recovery never borrows Normal Accept")
+	assert_eq(auto.text, "Auto · Off")
+
+
+func test_failed_skip_on_cancel_keeps_committed_modes_and_allows_a_fresh_command() -> void:
+	if not _ready_fixture: return
+	var owner := await _start_mounted_auto("auto_sequence")
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var recovery := _mounted_reading_recovery(layer)
+	if recovery == null: return
+	var skip := layer.transport_rail.get_node("Skip") as Button
+	var cancel := _recovery_button(recovery, &"cancel_button")
+	if skip == null or cancel == null: return
+	var index_before: int = _runtime.current_event_idx
+	var line_before := _current_text_key()
+	var revision_before: int = _profile.get_profile_revision()
+	_fail_next_retryable_profile_write()
+	skip.grab_focus()
+	await _press_focused_enter()
+	_assert_retryable_profile_failure(1)
+	assert_true(recovery.is_visible_in_tree())
+	assert_true(bool(_profile.get_preference(&"preferences.reading.auto_enabled", false)),
+		"failed Skip On retains the committed Auto On mode")
+	assert_true(owner.is_auto_enabled())
+	assert_false(layer.skip_controller.is_skip_active())
+	assert_eq(_profile.get_profile_revision(), revision_before)
+	assert_true(cancel.visible)
+	assert_false(cancel.disabled)
+	cancel.grab_focus()
+	await _press_focused_enter()
+	assert_false(recovery.is_visible_in_tree())
+	assert_eq(_profile.get_profile_revision(), revision_before,
+		"Cancel performs no compensating Profile mutation")
+	assert_true(bool(_profile.get_preference(&"preferences.reading.auto_enabled", false)))
+	assert_false(layer.skip_controller.is_skip_active())
+	assert_eq(_runtime.current_event_idx, index_before)
+	assert_eq(_current_text_key(), line_before)
+	skip.grab_focus()
+	await _press_focused_enter(0)
+	layer.skip_controller.set_process(false)
+	assert_false(bool(_profile.get_preference(&"preferences.reading.auto_enabled", true)),
+		"a fresh native Skip command can commit after cancellation")
+	assert_true(layer.skip_controller.is_skip_active())
+	assert_eq(_profile.get_profile_revision(), revision_before + 1)
+	assert_eq(_runtime.current_event_idx, index_before,
+		"the fresh command changes reading mode without borrowing caption Accept")
+
+
+func test_recovery_retry_refuses_a_command_after_the_presented_source_changes() -> void:
+	if not _ready_fixture: return
+	var owner := await _start_mounted_auto("auto_sequence")
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var recovery := _mounted_reading_recovery(layer)
+	if recovery == null: return
+	var auto := layer.transport_rail.get_node("Auto") as Button
+	if auto == null: return
+	_fail_next_retryable_profile_write()
+	auto.grab_focus()
+	await _press_focused_enter()
+	_assert_retryable_profile_failure(1)
+	assert_true(recovery.is_visible_in_tree())
+	var old_index: int = _runtime.current_event_idx
+	var old_event := _runtime.current_timeline_events[old_index] as DialogicTextEvent
+	assert_not_null(old_event)
+	if old_event == null: return
+	assert_eq(old_event.state, DialogicTextEvent.States.DONE)
+	old_event.advance.emit()
+	for frame: int in 4: await get_tree().process_frame
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B,
+		"the real runtime published a distinct source before Retry")
+	assert_true(layer.caption_text.has_focus(),
+		"the new source receives fresh native keyboard focus after stale recovery retires")
+	assert_false(auto.has_focus(), "the old command focus is never restored onto the new source")
+	var revision_after_source: int = _profile.get_profile_revision()
+	layer.call("_retry_reading_command")
+	for frame: int in 2: await get_tree().process_frame
+	assert_eq(_profile.get_profile_revision(), revision_after_source,
+		"the retained command cannot write after its exact source is replaced")
+	assert_true(bool(_profile.get_preference(&"preferences.reading.auto_enabled", false)))
+	assert_true(owner.is_auto_enabled())
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_B)
+
+
+func test_fatal_reading_command_failure_has_no_retry_or_cancel_action() -> void:
+	if not _ready_fixture: return
+	if not _install_fixture_owners_at_root(): return
+	if not await _start("auto_sequence"): return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var recovery := _mounted_reading_recovery(layer)
+	if recovery == null: return
+	var auto := layer.transport_rail.get_node("Auto") as Button
+	var retry := _recovery_button(recovery, &"retry_button")
+	var cancel := _recovery_button(recovery, &"cancel_button")
+	if auto == null or retry == null or cancel == null: return
+	_runtime.Text.skip_text_reveal()
+	for frame: int in 3: await get_tree().process_frame
+	var index_before: int = _runtime.current_event_idx
+	var revision_before: int = _profile.get_profile_revision()
+	_profile.set("_mutation_blocked", true)
+	auto.grab_focus()
+	await _press_focused_enter()
+	assert_true(recovery.is_visible_in_tree(), "fatal failure remains visibly owned")
+	assert_true(retry.disabled)
+	assert_false(retry.visible)
+	assert_eq(retry.focus_mode, Control.FOCUS_NONE)
+	assert_true(cancel.disabled)
+	assert_false(cancel.visible)
+	assert_eq(cancel.focus_mode, Control.FOCUS_NONE)
+	assert_eq(layer.caption_text.focus_mode, Control.FOCUS_NONE)
+	assert_eq(auto.focus_mode, Control.FOCUS_NONE)
+	assert_eq(_profile.get_profile_revision(), revision_before)
+	assert_false(bool(_profile.get_preference(&"preferences.reading.auto_enabled", true)))
+	layer.call("_retry_reading_command")
+	layer.call("_cancel_reading_recovery")
+	await _press_focused_enter()
+	assert_true(recovery.is_visible_in_tree())
+	assert_eq(_profile.get_profile_revision(), revision_before,
+		"fatal recovery exposes no callable mutation path")
+	assert_eq(_runtime.current_event_idx, index_before)
+	assert_eq(_current_text_key(), "Text/%s/text" % LINE_A)
+	_profile.set("_mutation_blocked", false)
+
+
+func test_same_profile_object_revision_change_retires_the_pending_reading_command() -> void:
+	if not _ready_fixture: return
+	var owner := await _start_mounted_auto("auto_sequence")
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var recovery := _mounted_reading_recovery(layer)
+	if recovery == null: return
+	var auto := layer.transport_rail.get_node("Auto") as Button
+	if auto == null: return
+	var profile_instance: int = _profile.get_instance_id()
+	var index_before: int = _runtime.current_event_idx
+	_fail_next_retryable_profile_write()
+	auto.grab_focus()
+	await _press_focused_enter()
+	_assert_retryable_profile_failure(1)
+	assert_true(recovery.is_visible_in_tree())
+	var revision_before_restore: int = _profile.get_profile_revision()
+	var restored: Dictionary = _profile.apply_restore_silent({
+		"profile": _profile.get_profile_snapshot(),
+	})
+	assert_true(restored.get("ok", false), str(restored))
+	if not restored.get("ok", false): return
+	assert_true(_profile.finalize_restore().get("ok", false))
+	for frame: int in 2: await get_tree().process_frame
+	assert_eq(_profile.get_instance_id(), profile_instance,
+		"restore keeps the same ProfileManager object")
+	assert_eq(_profile.get_profile_revision(), revision_before_restore + 1,
+		"the restored publication is a distinct Profile revision")
+	assert_false(recovery.is_visible_in_tree(),
+		"a pending reading command cannot survive restoration into the same owner object")
+	var restored_revision: int = _profile.get_profile_revision()
+	layer.call("_retry_reading_command")
+	for frame: int in 2: await get_tree().process_frame
+	assert_eq(_profile.get_profile_revision(), restored_revision,
+		"the retired pre-restore command has no callable write path")
+	assert_true(bool(_profile.get_preference(&"preferences.reading.auto_enabled", false)))
+	assert_true(owner.is_auto_enabled())
+	assert_eq(_runtime.current_event_idx, index_before)
+
+
+func test_reentrant_same_profile_restore_during_retry_retires_the_completed_old_command() -> void:
+	if not _ready_fixture: return
+	var owner := await _start_mounted_auto("auto_sequence")
+	if owner == null: return
+	var layer := _mounted_caption_layer()
+	assert_not_null(layer)
+	if layer == null: return
+	var recovery := _mounted_reading_recovery(layer)
+	if recovery == null: return
+	var auto := layer.transport_rail.get_node("Auto") as Button
+	var retry := _recovery_button(recovery, &"retry_button")
+	if auto == null or retry == null: return
+	var index_before: int = _runtime.current_event_idx
+	var pre_command_profile: Dictionary = _profile.get_profile_snapshot()
+	_fail_next_retryable_profile_write()
+	auto.grab_focus()
+	await _press_focused_enter()
+	_assert_retryable_profile_failure(1)
+	assert_true(recovery.is_visible_in_tree())
+	var revision_before_retry: int = _profile.get_profile_revision()
+	var restore_results: Array[Dictionary] = []
+	var restored := [false]
+	_profile.preference_changed.connect(func(path: StringName, _value: Variant) -> void:
+		if path != &"preferences.reading.auto_enabled" or restored[0]: return
+		restored[0] = true
+		var applied: Dictionary = _profile.apply_restore_silent({"profile": pre_command_profile})
+		restore_results.append(applied.duplicate(true))
+		if applied.get("ok", false):
+			restore_results.append(_profile.finalize_restore().duplicate(true)))
+	retry.grab_focus()
+	await _press_focused_enter()
+	assert_eq(restore_results.size(), 2, "the successful Retry synchronously encountered one restore")
+	if restore_results.size() == 2:
+		assert_true(restore_results[0].get("ok", false), str(restore_results[0]))
+		assert_true(restore_results[1].get("ok", false), str(restore_results[1]))
+	assert_eq(_profile.get_profile_revision(), revision_before_retry + 2,
+		"the command commit and same-owner restore are distinct revisions")
+	assert_true(bool(_profile.get_preference(&"preferences.reading.auto_enabled", false)),
+		"the reentrant restore republishes the pre-command committed mode")
+	assert_true(owner.is_auto_enabled())
+	assert_false(recovery.is_visible_in_tree(),
+		"the completed command cannot retain recovery across the restored owner generation")
+	assert_true(layer.caption_text.has_focus())
+	var restored_revision: int = _profile.get_profile_revision()
+	layer.call("_retry_reading_command")
+	for frame: int in 2: await get_tree().process_frame
+	assert_eq(_profile.get_profile_revision(), restored_revision)
+	assert_eq(_runtime.current_event_idx, index_before)

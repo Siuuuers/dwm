@@ -1,0 +1,79 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedTransportRecovery.gd" id="1_recovery"]
+[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedTransportButton.gd" id="2_button"]
+
+[node name="Recovery" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_recovery")
+
+[node name="RecoveryMatte" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RecoveryCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RecoveryPanel" type="PanelContainer" parent="RecoveryCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(720, 256)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="RecoveryCenter/RecoveryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="RecoveryCenter/RecoveryPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="RecoveryBody" type="Label" parent="RecoveryCenter/RecoveryPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="RecoveryCenter/RecoveryPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="RetryButton" type="Button" parent="RecoveryCenter/RecoveryPanel/Margin/Content/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+focus_mode = 0
+disabled = true
+script = ExtResource("2_button")
+
+[node name="CancelButton" type="Button" parent="RecoveryCenter/RecoveryPanel/Margin/Content/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+focus_mode = 0
+disabled = true
+script = ExtResource("2_button")

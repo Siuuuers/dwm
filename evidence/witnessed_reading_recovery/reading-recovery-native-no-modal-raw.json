@@ -1,0 +1,9 @@
+﻿{
+    "name":  "@AudioStreamPlayer@4 ",
+    "type":  "ControlType.Group",
+    "control":  true,
+    "content":  true,
+    "enabled":  true,
+    "offscreen":  false,
+    "pid":  31396
+}

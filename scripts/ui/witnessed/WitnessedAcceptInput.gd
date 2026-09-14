@@ -22,6 +22,7 @@ var _paged_frame := -1
 var _input_custody: Node
 var _before_accept: Callable
 var _automatic_admission: Callable
+var _local_admission: Callable
 var _submitting := false
 
 func _enter_tree() -> void:
@@ -75,8 +76,16 @@ func _on_input_custody_changed() -> void:
 	_await_page_neutral = not _page_contacts.is_empty() or _page_is_held()
 
 func _source_has_custody() -> bool:
-	return _input_custody == null or (is_instance_valid(_input_custody) \
-		and bool(_input_custody.call("is_source_input_admitted")))
+	return (not _local_admission.is_valid() or bool(_local_admission.call())) \
+		and (_input_custody == null or (is_instance_valid(_input_custody) \
+		and bool(_input_custody.call("is_source_input_admitted"))))
+
+func bind_local_admission(admission: Callable) -> void:
+	_local_admission = admission
+	retire_input()
+
+func retire_input() -> void:
+	_on_input_custody_changed()
 
 func _cancel_candidate() -> void:
 	_candidate.clear()

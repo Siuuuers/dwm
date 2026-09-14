@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedCaptionLayer.gd" id="1_layer"]
 [ext_resource type="Script" path="res://addons/dialogic/Modules/Text/node_dialog_text.gd" id="2_text"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedSkipController.gd" id="4_skip"]
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedTransportRail.gd" id="5_rail"]
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAutoController.gd" id="6_auto"]
+[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedSourceCanvas.gd" id="7_canvas"]
+[ext_resource type="PackedScene" path="res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn" id="8_recovery"]
 
 [node name="WitnessedCaptionLayer" type="Node"]
 script = ExtResource("1_layer")
@@ -19,7 +21,13 @@ script = ExtResource("4_skip")
 [node name="AutoController" type="Node" parent="."]
 script = ExtResource("6_auto")
 
+[node name="RecoveryLayer" type="CanvasLayer" parent="."]
+layer = 3
+
+[node name="Recovery" parent="RecoveryLayer" instance=ExtResource("8_recovery")]
+
 [node name="Canvas" type="Control" parent="."]
+script = ExtResource("7_canvas")
 layout_mode = 0
 offset_right = 1280.0
 offset_bottom = 720.0

@@ -20,6 +20,7 @@ var _remaining := 0.0
 var _armed := false
 var _eligible_last_tick := false
 var _generation := 0
+var _configuration_generation := 0
 var _request_in_progress := false
 
 
@@ -40,6 +41,7 @@ func configure(profile: Object, bridge: Object, admission: Callable) -> bool:
 			or not bridge.has_method("can_auto_advance_current_line") \
 			or not bridge.has_method("request_auto_step") or not admission.is_valid():
 		return false
+	_configuration_generation += 1
 	retire_current()
 	_last_frontier.clear()
 	_disconnect_profile()
@@ -64,14 +66,23 @@ func configure(profile: Object, bridge: Object, admission: Callable) -> bool:
 
 
 func toggle_auto() -> Dictionary:
+	return set_auto_enabled(not _auto_enabled)
+
+
+func set_auto_enabled(target: bool) -> Dictionary:
 	if not _is_configured():
 		return _failure(&"not_configured")
+	if target == _auto_enabled:
+		return _success()
 	if not _is_admitted():
 		return _failure(&"not_admitted")
-	var target := not _auto_enabled
-	var committed: Variant = _profile.call("set_preference", AUTO_ENABLED, target)
+	var command_generation := _configuration_generation
+	var command_profile := _profile
+	var committed: Variant = command_profile.call("set_preference", AUTO_ENABLED, target)
 	if not committed is Dictionary or not committed.get("ok", false):
 		return committed if committed is Dictionary else _failure(&"auto_commit_failed")
+	if command_generation != _configuration_generation or not _is_configured():
+		return _failure(&"auto_set_retired")
 	_sync_preferences(true)
 	if _auto_enabled != target:
 		return _failure(&"auto_not_committed")

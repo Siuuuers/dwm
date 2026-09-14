@@ -11,6 +11,7 @@ var _admission: Callable
 var _skip_active := false
 var _auto_enabled := false
 var _generation := 0
+var _configuration_generation := 0
 var _step_in_progress := false
 var _last_step_frame := -1
 
@@ -26,6 +27,7 @@ func configure(profile: Object, bridge: Object, admission: Callable) -> bool:
 		return false
 	if bridge == null or not bridge.has_method("request_skip_step") or not admission.is_valid():
 		return false
+	_configuration_generation += 1
 	stop_skip()
 	_disconnect_profile()
 	_profile = profile
@@ -40,22 +42,33 @@ func configure(profile: Object, bridge: Object, admission: Callable) -> bool:
 
 
 func toggle_skip() -> Dictionary:
-	if _skip_active:
+	return set_skip_active(not _skip_active)
+
+
+func set_skip_active(target: bool) -> Dictionary:
+	if not target:
 		stop_skip()
+		return _success()
+	if _skip_active:
 		return _success()
 	if not _is_configured():
 		return _failure(&"not_configured")
 	if not _is_admitted():
 		return _failure(&"not_admitted")
 	var start_generation := _generation
+	var command_generation := _configuration_generation
+	var command_profile := _profile
 	if _auto_enabled:
-		var committed: Variant = _profile.call("set_preference", AUTO_ENABLED, false)
+		var committed: Variant = command_profile.call("set_preference", AUTO_ENABLED, false)
 		if not committed is Dictionary or not committed.get("ok", false):
 			return committed if committed is Dictionary else _failure(&"auto_disable_failed")
+		if command_generation != _configuration_generation or not _is_configured():
+			return _failure(&"skip_start_retired")
 		_sync_auto_enabled()
 		if _auto_enabled:
 			return _failure(&"auto_disable_not_committed")
-	if start_generation != _generation or not _is_configured():
+	if command_generation != _configuration_generation \
+			or start_generation != _generation or not _is_configured():
 		return _failure(&"skip_start_retired")
 	if not _is_admitted():
 		return _failure(&"not_admitted")
