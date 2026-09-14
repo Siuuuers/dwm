@@ -7,6 +7,7 @@ const PROFILE_SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 const PRESENTATION := preload("res://scripts/ui/gallery/GalleryTheme.gd")
 const RECORD := preload("res://scripts/ui/gallery/GalleryRecordButton.gd")
 const RECORD_PAPER := preload("res://scripts/ui/gallery/GalleryRecordPaper.gd")
+const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const PRACTICE_HOST := preload("res://scripts/ui/gallery/GalleryRehearsalHost.gd")
 const DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
@@ -53,6 +54,7 @@ var _practice_host: CanvasLayer
 var _record_title_label: Label
 var _record_paper: Control
 var _replay_return_hidden := false
+var _record_catalog: RefCounted = RECORD_CATALOG.new()
 
 func configure_title_host(home: Button, localization: Node, profile: Object) -> Dictionary:
 	if is_node_ready() or _host_return != null or not is_instance_valid(home) \
@@ -173,8 +175,15 @@ func _refresh_record_copy() -> void:
 	var visible_record := not _selected_id.is_empty() and _status_key not in [
 		"gallery.empty", "gallery.record.unavailable", "gallery.archive.unavailable"]
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
-	# Unauthored sentence/media contributes no placeholder or reserved geometry.
-	_record_paper.set_copy(_record_title(_selected_id) if visible_record else "", "", locale)
+	var details := {"sentence": "", "media_asset_id": ""}
+	if visible_record and not _selected_signature_id().is_empty():
+		details = _record_catalog.projection(_selected_id, _selected_signature_id(), locale)
+	var media: Texture2D = null
+	if not str(details.media_asset_id).is_empty():
+		media = ART_MANIFEST.get_texture(str(details.media_asset_id), Vector2i(258, 78))
+	# Missing or unregistered exports never borrow scene art or reserve an aperture.
+	_record_paper.set_copy(_record_title(_selected_id) if visible_record else "",
+		str(details.sentence), locale, false, media)
 
 func _on_paper_changed() -> void:
 	_canvas.paper_extent = _record_paper.content_extent

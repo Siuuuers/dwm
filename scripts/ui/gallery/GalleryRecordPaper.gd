@@ -8,6 +8,15 @@ signal focus_target_removed(hide_focus: bool)
 const VIEW_SIZE := Vector2(520, 512)
 const COPY := {"en": "Record details", "zh-CN": "记录详情", "zh-HK": "記錄詳情"}
 
+class RecordMedia extends Node2D:
+	# Paint only: no hit area, focus, image control, or assistive target.
+	var texture: Texture2D
+	var ink := Color.BLACK
+	func _draw() -> void:
+		if texture == null: return
+		draw_rect(Rect2(1, 1, 518, 158), ink, false, 2)
+		draw_texture_rect(texture, Rect2(2, 2, 516, 156), false)
+
 var title_label: Label
 var sentence_label: Label
 var content_extent := 0.0
@@ -21,6 +30,7 @@ var _practice: Control
 var _repeat: Timer
 var _stick_direction := 0
 var _visual_focus := false
+var _media: RecordMedia
 
 func _init() -> void:
 	custom_minimum_size = VIEW_SIZE
@@ -41,6 +51,10 @@ func _init() -> void:
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_body.focus_mode = Control.FOCUS_NONE
 	_pointer.add_child(_body)
+	_media = RecordMedia.new()
+	_media.name = "RecordMedia"
+	_media.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_body.add_child(_media)
 	title_label = _make_label("RecordTitle")
 	sentence_label = _make_label("RecordSentence")
 	_repeat = Timer.new()
@@ -67,9 +81,12 @@ func _make_label(node_name: String) -> Label:
 	_body.add_child(label)
 	return label
 
-func set_copy(title: String, sentence: String, locale: String, reset_scroll: bool = false) -> void:
+func set_copy(title: String, sentence: String, locale: String, reset_scroll: bool = false,
+		media: Texture2D = null) -> void:
 	var normalized := locale.replace("_", "-")
-	var changed := title_label.text != title or sentence_label.text != sentence or _locale != normalized
+	var eligible: Texture2D = media if media != null and media.get_size() == Vector2(258, 78) else null
+	var changed := title_label.text != title or sentence_label.text != sentence or _locale != normalized or _media.texture != eligible
+	_media.texture = eligible
 	_locale = normalized
 	for label: Label in [title_label, sentence_label]: label.language = _locale
 	title_label.text = title
@@ -111,11 +128,14 @@ func refresh_layout(reset_scroll: bool = false) -> void:
 	if not is_instance_valid(title_label): return
 	var old := Vector2(content_extent, scroll_offset)
 	var title_height := _natural_height(title_label) if title_label.visible else 0.0
-	title_label.position = Vector2.ZERO
+	var title_top := 176.0 if _media.texture != null else 0.0
+	_media.ink = get_theme_color("paper_ink", "Gallery") if has_theme_color("paper_ink", "Gallery") else Color.BLACK
+	_media.queue_redraw()
+	title_label.position = Vector2(0, title_top)
 	title_label.size = Vector2(504, title_height)
-	var text_bottom := title_height
+	var text_bottom := title_top + title_height
 	var sentence_height := _natural_height(sentence_label) if sentence_label.visible else 0.0
-	sentence_label.position = Vector2(0, title_height + 16)
+	sentence_label.position = Vector2(0, text_bottom + 16)
 	sentence_label.size = Vector2(504, sentence_height)
 	if sentence_label.visible: text_bottom = sentence_label.position.y + sentence_height
 	var actions_visible := _visible(_selector) or _visible(_practice)
