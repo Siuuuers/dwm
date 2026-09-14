@@ -182,6 +182,13 @@ func _owner_admitted() -> bool:
 	return _bound and is_visible_in_tree() and _admission.is_valid() and _admission.call() == true
 
 
+func _input(event: InputEvent) -> void:
+	if not _active or not is_visible_in_tree() or not event.is_action(&"ui_cancel"):
+		return
+	get_viewport().set_input_as_handled()
+	_retire_buttons()
+
+
 func _on_retry_activated() -> void:
 	if _retry_admitted(): retry_requested.emit()
 

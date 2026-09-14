@@ -16,6 +16,7 @@ const LOCALIZATION_OWNER := preload("res://autoload/LocalizationManager.gd")
 const MEMORY_STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FAKE_FILES := preload("res://tests/support/FakeFileOps.gd")
 const HOSPITAL_SCENE := preload("res://scripts/ui/HospitalScene.gd")
+const CAPTION_SCENE := preload("res://scenes/ui/witnessed/WitnessedCaptionLayer.tscn")
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
 const TIMELINE_ID := "hospital.faint"
 const HANDLE := {"generation": 1, "handle_id": "synthetic-pause-frontier", "holder": &"pause_fixture", "reason": &"universal_pause"}
@@ -553,6 +554,77 @@ func _mount_production_reading_load() -> bool:
 	await get_tree().process_frame
 	if _caption.has_method("_sync_transport"): _caption.call("_sync_transport")
 	return true
+
+func test_witnessed_recovery_refuses_pause_and_backup_before_session_capture() -> void:
+	if not await _mount_production_reading_load(): return
+	assert_true(_load_controller.capture_pause_source().get("ok", false),
+		"the same mounted narrative source admits Pause before recovery")
+	var reading := _reading_state()
+	var revision: int = _profile_owner.get_profile_revision()
+	for fatal: bool in [false, true]:
+		# Inject only the logical recovery owner here. The production Skip integration
+		# separately creates the same custody through a real failed Profile write.
+		_caption.set("_reading_recovery", {"fatal": fatal})
+		var captures: int = _load_run.session_captures
+		assert_false(_global_router.can_open_witnessed_backup_load(_caption),
+			"recovery has priority over direct Backup admission")
+		var paused: Dictionary = _load_controller.capture_pause_source()
+		assert_false(paused.get("ok", true), "determinate and fatal recovery both refuse Pause")
+		assert_eq(_load_run.session_captures, captures,
+			"a recovery refusal performs no session capture or suspension work")
+		assert_false(_caption.capture_pause_view({"source": "recovery-probe"}).get("ok", true))
+		if not paused.get("ok", true):
+			var requested: Dictionary = await _load_controller.request_pause()
+			assert_eq(requested.get("code"), &"pause_recovery_active")
+			assert_false(get_tree().paused)
+		assert_eq(_reading_state(), reading)
+		assert_eq(_profile_owner.get_profile_revision(), revision)
+		_caption.set("_reading_recovery", {})
+	assert_true(_load_controller.capture_pause_source().get("ok", false),
+		"the still-current source admits Pause after recovery custody is released")
+
+func test_later_same_viewport_recovery_blocks_load_while_subviewport_recovery_does_not() -> void:
+	if not await _mount_production_reading_load(): return
+	var reading := _reading_state()
+	var revision: int = _profile_owner.get_profile_revision()
+	var later_caption: Node = CAPTION_SCENE.instantiate()
+	get_tree().root.add_child(later_caption)
+	await get_tree().process_frame
+	later_caption.set_process(false)
+	later_caption.set("_reading_recovery", {"fatal": false})
+	assert_eq(_load_controller.call("_find_caption", get_tree().root), _caption,
+		"the installed normal source precedes the later recovery in the same viewport")
+	assert_true(_global_router.can_open_witnessed_backup_load(_caption),
+		"cheap projection need not scan unrelated caption nodes")
+	var captures: int = _load_run.session_captures
+	var opened: Dictionary = await _global_router.open_witnessed_backup_load(_caption)
+	assert_false(opened.get("ok", true), "the command boundary finds the later recovery")
+	assert_eq(opened.get("code"), &"pause_recovery_active")
+	assert_eq(_load_run.session_captures, captures, "refusal precedes live-session capture")
+	if opened.get("ok", false):
+		if _load_controller.surface.entered_action == &"backup":
+			_load_controller.surface.handle_back()
+		await _load_controller.request_continue()
+	later_caption.set("_reading_recovery", {})
+	later_caption.free()
+
+	var foreign_viewport := SubViewport.new()
+	foreign_viewport.size = Vector2i(1280, 720)
+	_pause_scene.add_child(foreign_viewport)
+	var foreign_caption: Node = CAPTION_SCENE.instantiate()
+	foreign_viewport.add_child(foreign_caption)
+	await get_tree().process_frame
+	foreign_caption.set_process(false)
+	foreign_caption.set("_reading_recovery", {"fatal": false})
+	captures = _load_run.session_captures
+	var captured: Dictionary = _load_controller.capture_pause_source()
+	assert_true(captured.get("ok", false),
+		"recovery in a foreign viewport cannot claim the main viewport's Pause custody")
+	assert_eq(_load_run.session_captures, captures + 1)
+	assert_eq(_reading_state(), reading)
+	assert_eq(_profile_owner.get_profile_revision(), revision)
+	foreign_caption.set("_reading_recovery", {})
+	foreign_viewport.free()
 
 func _open_mounted_backup_from_rail() -> bool:
 	var load_button: Button = _caption.transport_rail.get_node("Load")

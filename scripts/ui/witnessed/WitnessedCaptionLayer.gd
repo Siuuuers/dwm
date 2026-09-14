@@ -531,10 +531,13 @@ func _on_timeline_started() -> void:
 	configure_run_presentation(owner)
 	reset_caption_stack()
 
+func is_reading_recovery_active() -> bool:
+	return not _reading_recovery.is_empty()
+
 ## Transient navigation anchor only. Canonical source admission belongs to the coordinator.
 func capture_pause_view(source: Dictionary) -> Dictionary:
 	if (source.is_empty() or not is_inside_tree() or not is_node_ready() or _pause_covered
-		or not canvas.is_visible_in_tree() or not _has_caption()):
+		or is_reading_recovery_active() or not canvas.is_visible_in_tree() or not _has_caption()):
 		return {"ok":false,"code":&"pause_view_unavailable","value":{}}
 	_pause_capture_id += 1
 	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id,"source":source.duplicate(true)}

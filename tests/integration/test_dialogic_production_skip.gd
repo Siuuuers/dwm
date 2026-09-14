@@ -1200,12 +1200,9 @@ func test_failed_auto_off_owns_visible_recovery_until_native_retry_commits_same_
 		"recovery suspends the host deadline instead of spending hidden time")
 	assert_eq(_runtime.current_event_idx, index_before)
 	var pause_capture: Dictionary = layer.capture_pause_view({"source": "reading-recovery"})
-	assert_true(pause_capture.get("ok", false), str(pause_capture))
-	if not pause_capture.get("ok", false): return
-	assert_true(layer.cover_pause_view(pause_capture.value))
-	assert_false(recovery.is_visible_in_tree(), "Pause covers the recovery surface with the caption")
-	assert_true(layer.restore_pause_view(pause_capture.value))
-	assert_true(recovery.is_visible_in_tree(), "resume restores the same pending recovery")
+	assert_false(pause_capture.get("ok", true),
+		"technical recovery owns input above Pause until its registered action settles")
+	assert_true(recovery.is_visible_in_tree(), "a refused Pause capture leaves recovery intact")
 	await get_tree().process_frame
 	retry.grab_focus()
 	await _press_focused_enter()

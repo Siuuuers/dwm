@@ -143,6 +143,7 @@ func can_open_witnessed_backup_load(caption: Node) -> bool:
 			or not caption.is_inside_tree() or caption.is_queued_for_deletion() \
 			or caption.get_viewport() != get_viewport():
 		return false
+	if caption.is_reading_recovery_active(): return false
 	var canvas: Control = caption.get("canvas")
 	var scene := get_tree().current_scene as Control
 	if not is_instance_valid(canvas) or not canvas.is_visible_in_tree() \
@@ -248,6 +249,8 @@ func capture_pause_source() -> Dictionary:
 	if scene == null or scene.is_queued_for_deletion(): return _failure(&"pause_source_unavailable")
 	var route: String = _router.get_current_route_id()
 	if route not in ["main", "dating", "hospital", "ending"]: return _failure(&"pause_source_unavailable")
+	# Recovery owns its registered actions; refuse before capturing a session or frontier.
+	if _find_caption(get_tree().root, true) != null: return _failure(&"pause_recovery_active")
 	var guarded: Dictionary = _services.gate.guard_external(&"universal_pause")
 	if not guarded.get("ok", false): return guarded
 	var session: Dictionary = _services.game_state.capture_live_session()
@@ -352,12 +355,14 @@ func _valid_anchor(anchor: Dictionary) -> bool:
 	return anchor == _view_anchor and is_instance_valid(_scene) and _scene == get_tree().current_scene \
 		and not _scene.is_queued_for_deletion() and _scene.get_instance_id() == anchor.get("scene_id")
 
-func _find_caption(node: Node) -> Node:
+func _find_caption(node: Node, recovery_only: bool = false) -> Node:
+	if node is Viewport and node != get_viewport(): return null
 	if node.get_script() == CAPTION:
 		var canvas: Control = node.get("canvas")
-		if is_instance_valid(canvas) and canvas.is_visible_in_tree(): return node
+		if is_instance_valid(canvas) and canvas.is_visible_in_tree() \
+				and (not recovery_only or node.is_reading_recovery_active()): return node
 	for child: Node in node.get_children():
-		var found: Node = _find_caption(child)
+		var found: Node = _find_caption(child, recovery_only)
 		if found != null: return found
 	return null
 
